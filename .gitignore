@@ -1,0 +1,24 @@
+## top level of monorepo
+**/node_modules
+**/dist
+**/yarn-error.log
+
+*.css
+!main.css
+*.css.map
+
+.tsbuildinfo
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+
+**/*.env
+**/*.env*.local
+cypress.env.json
+*.secrets
+**/*.secrets
+**/cypress/videos
+
+# mac computers add this to all their folders
+**/.DS_Store
+
