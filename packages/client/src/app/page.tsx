@@ -2,6 +2,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { BasicScene } from "./babylon-examples/example";
+import SocketManager from "./components/WebsocketManager";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -14,7 +15,9 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="box-border h-screen w-screen bg-slate-800 text-zinc-300 relative"></main>
+    <main className="box-border h-screen w-screen bg-slate-800 text-zinc-300 relative">
+      <SocketManager />
+    </main>
   );
 }
 // <canvas ref={canvasRef} className="h-full w-full" id="babylon-canvas" />

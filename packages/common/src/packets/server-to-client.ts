@@ -3,3 +3,7 @@ export type GameListEntry = {
   numberOfUsers: number;
   timeStarted: undefined | number;
 };
+
+export interface ServerToClientEventTypes {
+  ["gameFullUpdate"]: (data: string) => void;
+}

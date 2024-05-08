@@ -1,5 +1,5 @@
 import { useWebsocketStore } from "@/stores/websocket-store";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
@@ -7,21 +7,44 @@ const socketAddress = "http://localhost:8080";
 
 function SocketManager() {
   const mutateWebsocketStore = useWebsocketStore().mutateState;
-  const socket = useWebsocketStore().socket;
+  const socketOption = useWebsocketStore().socketOption;
+  const [connected, setConnected] = useState(false);
 
   // setup socket
   useEffect(() => {
-    mutateWebsocketStore(
-      (state) =>
-        (state.socket = io(socketAddress || "", { transports: ["websocket"] }))
-    );
+    mutateWebsocketStore((state) => {
+      state.socketOption = io(socketAddress || "", {
+        transports: ["websocket"],
+      });
+    });
     console.log("socket address: ", socketAddress);
     return () => {
-      if (socket) socket.disconnect();
+      if (socketOption) socketOption.disconnect();
     };
-  }, [mutateWebsocketStore, socket]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return <div aria-hidden="true"></div>;
+  useEffect(() => {
+    if (socketOption) {
+      socketOption.on("connect", () => {
+        console.log("sending test emit", socketOption.connected);
+        socketOption.on("test3", () => console.log("got test3"));
+        socketOption.emit("test2", {});
+      });
+    }
+  }, [socketOption, connected]);
+
+  function sendTestMessage() {
+    if (socketOption) {
+      console.log(socketOption.connected);
+      socketOption.emit("test");
+    }
+  }
+
+  return (
+    <div aria-hidden="true">
+      <button onClick={sendTestMessage}>send</button>
+    </div>
+  );
 }
 
 export default SocketManager;
