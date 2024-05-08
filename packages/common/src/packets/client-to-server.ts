@@ -1,7 +1,9 @@
-export enum ClientToServerEvents {
-  RequestToJoinRoom = "0",
+export enum ClientToServerEvent {
+  RequestToJoinGame = "0",
+  RequestsGameList = "1",
 }
 
 export interface ClientToServerEventTypes {
-  [ClientToServerEvents.RequestToJoinRoom]: (data: string) => void;
+  [ClientToServerEvent.RequestToJoinGame]: (data: string) => void;
+  [ClientToServerEvent.RequestsGameList]: () => void;
 }

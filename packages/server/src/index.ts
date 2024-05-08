@@ -2,7 +2,6 @@ import createExpressApp from "./createExpressApp";
 import SocketIO from "socket.io";
 import {
   ClientToServerEventTypes,
-  ClientToServerEvents,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 import { GameServer } from "./game-server";

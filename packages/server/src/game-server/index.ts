@@ -1,10 +1,10 @@
 import {
   ClientToServerEventTypes,
-  ClientToServerEvents,
   ServerToClientEventTypes,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
+import initiateLobbyEventListeners from "./lobby-event-handlers";
 
 export class GameServer {
   games: { [gameName: string]: SpeedDungeonGame } = {};
@@ -18,8 +18,8 @@ export class GameServer {
     console.log("constructed game server");
     this.io.on("connection", (socket) => {
       console.log("a socket connected", socket.id);
-      socket.on(ClientToServerEvents.RequestToJoinRoom, () => "ay");
-      console.log(socket.eventNames());
+      this.initiateLobbyEventListeners(socket);
     });
   }
+  initiateLobbyEventListeners = initiateLobbyEventListeners;
 }
