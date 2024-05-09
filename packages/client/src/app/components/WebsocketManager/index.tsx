@@ -26,25 +26,22 @@ function SocketManager() {
   useEffect(() => {
     if (socketOption) {
       socketOption.on("connect", () => {
-        console.log("sending test emit", socketOption.connected);
-        socketOption.on("test3", () => console.log("got test3"));
-        socketOption.emit("test2", {});
+        // console.log("sending test emit", socketOption.connected);
+        // socketOption.on("test3", () => console.log("got test3"));
+        // socketOption.emit("test2", {});
       });
     }
   }, [socketOption, connected]);
 
-  function sendTestMessage() {
-    if (socketOption) {
-      console.log(socketOption.connected);
-      socketOption.emit("test");
-    }
-  }
+  // function sendTestMessage() {
+  //   if (socketOption) {
+  //     console.log(socketOption.connected);
+  //     socketOption.emit("test");
+  //   }
+  // }
 
-  return (
-    <div aria-hidden="true">
-      <button onClick={sendTestMessage}>send</button>
-    </div>
-  );
+  // <button onClick={sendTestMessage}>send</button>
+  return <></>;
 }
 
 export default SocketManager;
