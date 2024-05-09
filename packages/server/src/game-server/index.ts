@@ -8,6 +8,7 @@ import initiateLobbyEventListeners from "./lobby-event-handlers";
 import { SocketConnectionMetadata } from "./socket-connection-metadata";
 import joinSocketToChannel from "./join-socket-to-channel";
 import { connectionHandler } from "./connection-handler";
+import disconnectionHandler from "./disconnection-handler";
 
 export class GameServer {
   games: Map<string, SpeedDungeonGame> = new Map();
@@ -23,6 +24,7 @@ export class GameServer {
     this.connectionHandler();
   }
   connectionHandler = connectionHandler;
+  disconnectionHandler = disconnectionHandler;
   initiateLobbyEventListeners = initiateLobbyEventListeners;
   joinSocketToChannel = joinSocketToChannel;
 }

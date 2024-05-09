@@ -20,7 +20,11 @@ function SocketManager() {
     });
     console.log("socket address: ", socketAddress);
     return () => {
-      if (mainSocketOption) mainSocketOption.disconnect();
+      mutateWebsocketStore((state) => {
+        console.log("disconnecting", mainSocketOption);
+        state.mainSocketOption?.disconnect();
+      });
+      // mainSocketOption?.disconnect();
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

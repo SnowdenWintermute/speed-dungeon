@@ -32,11 +32,12 @@ export default function joinSocketToChannel(
 
   console.log("usernames in room: ", usernamesInRoom);
 
+  socket.emit(
+    ServerToClientEvent.ChannelFullUpdate,
+    newChannelName,
+    usernamesInRoom
+  );
   this.io
     .to(newChannelName)
-    .emit(
-      ServerToClientEvent.ChannelFullUpdate,
-      newChannelName,
-      usernamesInRoom
-    );
+    .emit(ServerToClientEvent.UserJoinedChannel, username);
 }

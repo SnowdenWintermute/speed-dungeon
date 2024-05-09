@@ -14,7 +14,7 @@ export function connectionHandler(this: GameServer) {
       socket.id,
       new SocketConnectionMetadata(socket.id, username, LOBBY_CHANNEL)
     );
-
+    this.disconnectionHandler(socket);
     this.initiateLobbyEventListeners(socket);
     this.joinSocketToChannel(socket.id, LOBBY_CHANNEL);
   });
