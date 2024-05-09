@@ -3,6 +3,7 @@
 
 import GameList from "./GameList";
 import LobbyMenu from "./LobbyMenu";
+import UserList from "./UserList";
 import WelcomeInfo from "./WelcomeInfo";
 
 export default function Lobby() {
@@ -15,6 +16,7 @@ export default function Lobby() {
             <WelcomeInfo />
             <GameList />
           </div>
+          <UserList />
         </div>
       </div>
     </main>

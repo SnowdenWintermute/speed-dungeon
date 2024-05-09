@@ -5,10 +5,14 @@ import {
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import initiateLobbyEventListeners from "./lobby-event-handlers";
+import { SocketConnectionMetadata } from "./socket-connection-metadata";
+import joinSocketToChannel from "./join-socket-to-channel";
+import { connectionHandler } from "./connection-handler";
 
 export class GameServer {
-  games: { [gameName: string]: SpeedDungeonGame } = {};
-  socketIdsByUsername: { [username: string]: string[] } = {};
+  games: Map<string, SpeedDungeonGame> = new Map();
+  socketIdsByUsername: Map<string, string[]> = new Map();
+  connections: Map<string, SocketConnectionMetadata> = new Map();
   constructor(
     public io: SocketIO.Server<
       ClientToServerEventTypes,
@@ -16,10 +20,9 @@ export class GameServer {
     >
   ) {
     console.log("constructed game server");
-    this.io.on("connection", (socket) => {
-      console.log("a socket connected", socket.id);
-      this.initiateLobbyEventListeners(socket);
-    });
+    this.connectionHandler();
   }
+  connectionHandler = connectionHandler;
   initiateLobbyEventListeners = initiateLobbyEventListeners;
+  joinSocketToChannel = joinSocketToChannel;
 }

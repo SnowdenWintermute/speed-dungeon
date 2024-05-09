@@ -1,4 +1,5 @@
 import { useWebsocketStore } from "@/stores/websocket-store";
+import { ServerToClientEvent } from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
@@ -7,31 +8,41 @@ const socketAddress = "http://localhost:8080";
 
 function SocketManager() {
   const mutateWebsocketStore = useWebsocketStore().mutateState;
-  const socketOption = useWebsocketStore().socketOption;
+  const mainSocketOption = useWebsocketStore().mainSocketOption;
   const [connected, setConnected] = useState(false);
 
   // setup socket
   useEffect(() => {
     mutateWebsocketStore((state) => {
-      state.socketOption = io(socketAddress || "", {
+      state.mainSocketOption = io(socketAddress || "", {
         transports: ["websocket"],
       });
     });
     console.log("socket address: ", socketAddress);
     return () => {
-      if (socketOption) socketOption.disconnect();
+      if (mainSocketOption) mainSocketOption.disconnect();
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (socketOption) {
-      socketOption.on("connect", () => {
+    if (mainSocketOption) {
+      mainSocketOption.on("connect", () => {
         // console.log("sending test emit", socketOption.connected);
         // socketOption.on("test3", () => console.log("got test3"));
         // socketOption.emit("test2", {});
       });
+      mainSocketOption.on(
+        ServerToClientEvent.ChannelFullUpdate,
+        (channelName, usernamesInChannel) => {
+          mutateWebsocketStore((state) => {
+            state.mainChannelName = channelName;
+            state.usernamesInMainChannel = usernamesInChannel;
+          });
+          // console.log(data, data2);
+        }
+      );
     }
-  }, [socketOption, connected]);
+  }, [mainSocketOption, connected]);
 
   // function sendTestMessage() {
   //   if (socketOption) {

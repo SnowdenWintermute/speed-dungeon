@@ -1,10 +1,6 @@
 // @refresh reset
 "use client";
-import { useWebsocketStore } from "@/stores/websocket-store";
-import { FormEvent, useState } from "react";
-import { ClientToServerEvent } from "@speed-dungeon/common";
-import ButtonBasic from "../components/atoms/ButtonBasic";
-import { useLobbyStore } from "@/stores/lobby-store";
+import { useState } from "react";
 import Divider from "../components/atoms/Divider";
 
 export default function WelcomeInfo() {
@@ -23,12 +19,12 @@ export default function WelcomeInfo() {
           {togglePatchNotesText}
         </button>
       </div>
-      {showPatchNotes ? <WelcomeMessage /> : ""}
+      {showPatchNotes ? <PatchNotes /> : <WelcomeMessage />}
     </section>
   );
 }
 
-function WelcomeMessage() {
+function PatchNotes() {
   return (
     <>
       <p className="font-bold">{"0.7.0 5/2/2024"}</p>
@@ -346,6 +342,53 @@ function WelcomeMessage() {
         </li>
         <li>{"The top info bar can be re positioned by clicking on it"}</li>
       </ul>
+    </>
+  );
+}
+
+function WelcomeMessage() {
+  return (
+    <>
+      <p className="mb-2">
+        {
+          "Welcome to the alpha of Roguelike Racing, a multiplayer turn based RPG in the spirit of For the King, Diablo and Final Fantasy."
+        }
+      </p>
+      <p className="mb-2">
+        {
+          "The dungeon can be explored solo, cooperatively or competitively. To get started:"
+        }
+      </p>
+      <ul className="list-disc list-inside mb-2">
+        <li>{"Create or join a game"}</li>
+        <li>
+          {
+            "Create a party with one or more players each controlling one or more characters"
+          }
+        </li>
+        <li>
+          {
+            "Explore the dungeon and try to reach the lowest floor before the other parties get there"
+          }
+        </li>
+      </ul>
+      <p>
+        <a
+          className="underline text-yellow-400"
+          href="https://discord.gg/MyVPQf2Zzm"
+        >
+          {"Join us on Discord"}
+        </a>
+      </p>
+      <p>
+        <span>{"Please report issues at "}</span>
+        <a
+          className="underline"
+          href={"https://github.com/SnowdenWintermute/roguelike-racing/issues"}
+        >
+          {"https://github.com/SnowdenWintermute/roguelike-racing/issues"}
+        </a>
+      </p>
     </>
   );
 }

@@ -7,7 +7,7 @@ import ButtonBasic from "../components/atoms/ButtonBasic";
 import { useLobbyStore } from "@/stores/lobby-store";
 
 export default function LobbyMenu() {
-  const socketOption = useWebsocketStore().socketOption;
+  const mainSocketOption = useWebsocketStore().mainSocketOption;
   const [gameName, setGameName] = useState("");
 
   const username = useLobbyStore().username;
@@ -15,8 +15,8 @@ export default function LobbyMenu() {
 
   function createGame(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (socketOption) {
-      socketOption.emit(ClientToServerEvent.CreateGame, gameName);
+    if (mainSocketOption) {
+      mainSocketOption.emit(ClientToServerEvent.CreateGame, gameName);
     }
   }
 
