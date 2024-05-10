@@ -2,8 +2,8 @@ import { FriendOrFoe, TargetingScheme } from "../combat/targeting";
 import { EntityId } from "../primatives";
 
 export class SpeedDungeonPlayer {
-  socketId: undefined | number;
-  partyId: undefined | EntityId;
+  socketId: undefined | string; // @TODO - remove this if not used
+  partyName: undefined | string;
   characterIds: undefined | Set<EntityId>;
   targetPreferences: CombatActionTargetPreferences =
     new CombatActionTargetPreferences();

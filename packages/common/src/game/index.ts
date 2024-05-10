@@ -4,6 +4,7 @@ import { Battle } from "../battle";
 import { EntityId } from "../primatives";
 import { IdGenerator } from "./id_generator";
 import { SpeedDungeonPlayer } from "./player";
+import removePlayerFromParty from "./remove-player-from-party";
 
 export class SpeedDungeonGame {
   name: string;
@@ -11,12 +12,14 @@ export class SpeedDungeonGame {
     string,
     SpeedDungeonPlayer
   >();
-  players_readied: Set<string> = new Set();
-  adventuring_parties: Map<string, AdventuringParty> = new Map();
+  playersReadied: Set<string> = new Set();
+  adventuringParties: Map<string, AdventuringParty> = new Map();
   battles: Map<EntityId, Battle> = new Map();
-  time_started: number | undefined;
-  id_generator: IdGenerator = new IdGenerator();
+  timeStarted: number | undefined;
+  idGenerator: IdGenerator = new IdGenerator();
   constructor(name: string) {
     this.name = name;
   }
+
+  removePlayerFromParty = removePlayerFromParty;
 }

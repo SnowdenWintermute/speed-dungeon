@@ -33,7 +33,7 @@ export default function joinGameHandler(
       ServerToClientEvent.ErrorMessage,
       ERROR_MESSAGES.LOBBY.GAME_DOESNT_EXIST
     );
-  if (game.time_started)
+  if (game.timeStarted)
     return socket?.emit(
       ServerToClientEvent.ErrorMessage,
       ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED

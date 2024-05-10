@@ -17,7 +17,7 @@ export default function initiateLobbyEventListeners(
       .entries()
       .map(
         ([gameName, game]) =>
-          new GameListEntry(gameName, game.players.size, game.time_started)
+          new GameListEntry(gameName, game.players.size, game.timeStarted)
       );
     socket.emit(ServerToClientEvent.GameList, gameList);
   });

@@ -1,5 +1,6 @@
 import { EntityId } from "../primatives";
 import { VecDeque } from "../vecdeque";
+import removeCharacter from "./remove-character";
 
 class PlayerCharacter {}
 class DungeonRoom {
@@ -33,4 +34,6 @@ export class AdventuringParty {
     this.name = name;
     this.websocketChannelName = websocketChannelName;
   }
+
+  removeCharacter = removeCharacter;
 }
