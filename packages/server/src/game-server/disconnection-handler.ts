@@ -38,6 +38,6 @@ export default function disconnectionHandler(
 
     // remove from games
 
-    this.connections.delete(socket.id);
+    this.connections.remove(socket.id);
   });
 }

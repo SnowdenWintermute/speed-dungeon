@@ -10,7 +10,7 @@ export default function UserList() {
         {"Channel: "} {mainChannelName}
       </h2>
       <ul className="list-none">
-        {Array.from(usernamesInMainChannel).map((username) => (
+        {Array.from(usernamesInMainChannel.values()).map((username) => (
           <li
             className="h-10 border border-slate-400 flex items-center mb-2"
             key={username}

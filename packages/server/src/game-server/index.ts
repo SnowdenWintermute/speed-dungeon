@@ -10,11 +10,13 @@ import joinSocketToChannel from "./join-socket-to-channel";
 import { connectionHandler } from "./connection-handler";
 import disconnectionHandler from "./disconnection-handler";
 import removeSocketFromChannel from "./remove-socket-from-channel";
+import { HashMap } from "@speed-dungeon/common";
 
+// @TODO - performance: change maps and sets to objects
 export class GameServer {
-  games: Map<string, SpeedDungeonGame> = new Map();
-  socketIdsByUsername: Map<string, string[]> = new Map();
-  connections: Map<string, SocketConnectionMetadata> = new Map();
+  games: HashMap<string, SpeedDungeonGame> = new HashMap();
+  socketIdsByUsername: HashMap<string, string[]> = new HashMap();
+  connections: HashMap<string, SocketConnectionMetadata> = new HashMap();
   constructor(
     public io: SocketIO.Server<
       ClientToServerEventTypes,

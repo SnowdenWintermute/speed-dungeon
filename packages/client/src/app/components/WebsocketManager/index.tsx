@@ -1,5 +1,6 @@
 import { useWebsocketStore } from "@/stores/websocket-store";
 import { ServerToClientEvent, SocketNamespaces } from "@speed-dungeon/common";
+import { HashSet } from "@speed-dungeon/common/src/primatives";
 import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
@@ -33,6 +34,7 @@ function SocketManager() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    console.log("setting up listeners");
     if (mainSocketOption) {
       mainSocketOption.on("connect", () => {});
       mainSocketOption.on(
@@ -48,13 +50,27 @@ function SocketManager() {
           });
         }
       );
-      mainSocketOption.on(ServerToClientEvent.UserLeftChannel, (username) => {
-        console.log("got message to remove ", username);
+      mainSocketOption.on(ServerToClientEvent.UserJoinedChannel, (username) => {
         mutateWebsocketStore((state) => {
+          console.log("user joined ", username);
+          state.usernamesInMainChannel.add(username);
+        });
+      });
+      mainSocketOption.on(ServerToClientEvent.UserLeftChannel, (username) => {
+        mutateWebsocketStore((state) => {
+          console.log("user left ", username);
           state.usernamesInMainChannel.delete(username);
         });
       });
     }
+
+    return () => {
+      if (mainSocketOption) {
+        Object.values(ServerToClientEvent).forEach((value) => {
+          mainSocketOption.off(value);
+        });
+      }
+    };
   }, [mainSocketOption, connected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <></>;

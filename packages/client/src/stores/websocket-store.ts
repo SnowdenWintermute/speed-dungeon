@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { enableMapSet, produce } from "immer";
+import { produce } from "immer";
 import { Socket } from "socket.io-client";
 import {
   ClientToServerEventTypes,

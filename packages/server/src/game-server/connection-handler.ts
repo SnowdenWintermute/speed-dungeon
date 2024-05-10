@@ -9,7 +9,7 @@ export function connectionHandler(this: GameServer) {
     console.log(
       `a socket connected with id ${socket.id} and username ${username}`
     );
-    this.connections.set(
+    this.connections.insert(
       socket.id,
       new SocketConnectionMetadata(socket.id, username, LOBBY_CHANNEL)
     );
