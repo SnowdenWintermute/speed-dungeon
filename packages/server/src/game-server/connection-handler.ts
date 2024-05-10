@@ -1,8 +1,7 @@
 import { GameServer } from ".";
 import { generateRandomUsername } from "../utils";
+import { LOBBY_CHANNEL, SocketNamespaces } from "@speed-dungeon/common";
 import { SocketConnectionMetadata } from "./socket-connection-metadata";
-
-export const LOBBY_CHANNEL = "lobby";
 
 export function connectionHandler(this: GameServer) {
   this.io.on("connection", (socket) => {
@@ -16,6 +15,6 @@ export function connectionHandler(this: GameServer) {
     );
     this.disconnectionHandler(socket);
     this.initiateLobbyEventListeners(socket);
-    this.joinSocketToChannel(socket.id, LOBBY_CHANNEL);
+    this.joinSocketToChannel(socket.id, SocketNamespaces.Main, LOBBY_CHANNEL);
   });
 }

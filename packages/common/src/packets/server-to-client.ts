@@ -12,7 +12,7 @@ export interface ServerToClientEventTypes {
     userNames: string[]
   ) => void;
   [ServerToClientEvent.UserJoinedChannel]: (username: string) => void;
-  [ServerToClientEvent.UserJoinedChannel]: (username: string) => void;
+  [ServerToClientEvent.UserLeftChannel]: (username: string) => void;
 }
 
 export class GameListEntry {

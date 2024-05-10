@@ -4,6 +4,9 @@ import { useEffect, useRef } from "react";
 import { BasicScene } from "./babylon-examples/example";
 import SocketManager from "./components/WebsocketManager";
 import Lobby from "./lobby";
+import { enableMapSet } from "immer";
+// for immer to be able to use map and set
+enableMapSet();
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);

@@ -1,43 +1,53 @@
 import { ServerToClientEvent } from "@speed-dungeon/common";
 import { GameServer } from ".";
+import { SocketNamespaces } from "@speed-dungeon/common";
 
 export default function joinSocketToChannel(
   this: GameServer,
   socketId: string,
+  namespace: SocketNamespaces,
   newChannelName: string
 ) {
-  const socket = this.io.sockets.sockets.get(socketId);
-  const username = this.connections.get(socketId)?.username;
+  const socket = this.io.of(namespace).sockets.get(socketId);
+  const socketMeta = this.connections.get(socketId);
 
-  if (!socket || !username) return;
+  if (!socket || !socketMeta) return;
+
+  switch (namespace) {
+    case SocketNamespaces.Main:
+      socketMeta.currentMainChannelName = newChannelName;
+      break;
+    case SocketNamespaces.Party:
+      socketMeta.currentPartyChannelName = newChannelName;
+      break;
+  }
 
   this.io
+    .of(namespace)
     .to(newChannelName)
-    .emit(ServerToClientEvent.UserJoinedChannel, username);
+    .emit(ServerToClientEvent.UserJoinedChannel, socketMeta.username);
 
   socket.join(newChannelName);
-  const adapter = this.io.of("/").adapter;
+  const adapter = this.io.of(namespace).adapter;
   const socketIdsInRoom = adapter.rooms.get(newChannelName);
-  console.log("ids in room: ", socketIdsInRoom);
   const usernamesInRoom: string[] = [];
   if (socketIdsInRoom) {
     socketIdsInRoom.forEach((socketId) => {
-      const socketConnectionMetadata = this.connections.get(socketId);
-      if (socketConnectionMetadata) {
-        console.log("found socket meta: ", socketConnectionMetadata);
-        usernamesInRoom.push(socketConnectionMetadata.username);
+      const socketMetaInRoom = this.connections.get(socketId);
+      if (socketMetaInRoom) {
+        usernamesInRoom.push(socketMetaInRoom.username);
       }
     });
   }
-
-  console.log("usernames in room: ", usernamesInRoom);
 
   socket.emit(
     ServerToClientEvent.ChannelFullUpdate,
     newChannelName,
     usernamesInRoom
   );
+
   this.io
+    .of(namespace)
     .to(newChannelName)
-    .emit(ServerToClientEvent.UserJoinedChannel, username);
+    .emit(ServerToClientEvent.UserJoinedChannel, socketMeta.username);
 }

@@ -7,12 +7,13 @@ import {
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import { GameServer } from "..";
-import { LOBBY_CHANNEL } from "../connection-handler";
 
 export default function initiateLobbyEventListeners(
   this: GameServer,
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
+  this.connectionHandler();
+
   socket.on(ClientToServerEvent.RequestsGameList, () => {
     const gameList: GameListEntry[] = Object.entries(this.games).map(
       ([gameName, game]) =>

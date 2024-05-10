@@ -1,5 +1,5 @@
 import { useWebsocketStore } from "@/stores/websocket-store";
-import { ServerToClientEvent } from "@speed-dungeon/common";
+import { ServerToClientEvent, SocketNamespaces } from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
@@ -17,45 +17,46 @@ function SocketManager() {
       state.mainSocketOption = io(socketAddress || "", {
         transports: ["websocket"],
       });
+      state.partySocketOption = io(
+        `${socketAddress}${SocketNamespaces.Party}` || "",
+        {
+          transports: ["websocket"],
+        }
+      );
     });
     console.log("socket address: ", socketAddress);
     return () => {
       mutateWebsocketStore((state) => {
-        console.log("disconnecting", mainSocketOption);
         state.mainSocketOption?.disconnect();
       });
-      // mainSocketOption?.disconnect();
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (mainSocketOption) {
-      mainSocketOption.on("connect", () => {
-        // console.log("sending test emit", socketOption.connected);
-        // socketOption.on("test3", () => console.log("got test3"));
-        // socketOption.emit("test2", {});
-      });
+      mainSocketOption.on("connect", () => {});
       mainSocketOption.on(
         ServerToClientEvent.ChannelFullUpdate,
         (channelName, usernamesInChannel) => {
           mutateWebsocketStore((state) => {
             state.mainChannelName = channelName;
-            state.usernamesInMainChannel = usernamesInChannel;
+            state.usernamesInMainChannel = new Set();
+            usernamesInChannel.forEach((username) => {
+              console.log(username);
+              state.usernamesInMainChannel.add(username);
+            });
           });
-          // console.log(data, data2);
         }
       );
+      mainSocketOption.on(ServerToClientEvent.UserLeftChannel, (username) => {
+        console.log("got message to remove ", username);
+        mutateWebsocketStore((state) => {
+          state.usernamesInMainChannel.delete(username);
+        });
+      });
     }
-  }, [mainSocketOption, connected]);
+  }, [mainSocketOption, connected]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // function sendTestMessage() {
-  //   if (socketOption) {
-  //     console.log(socketOption.connected);
-  //     socketOption.emit("test");
-  //   }
-  // }
-
-  // <button onClick={sendTestMessage}>send</button>
   return <></>;
 }
 

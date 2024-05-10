@@ -1,13 +1,19 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { produce } from "immer";
+import { enableMapSet, produce } from "immer";
 import { Socket } from "socket.io-client";
+import {
+  ClientToServerEventTypes,
+  ServerToClientEventTypes,
+} from "@speed-dungeon/common";
 
 type WebsocketState = {
-  mainSocketOption: undefined | Socket;
+  mainSocketOption:
+    | undefined
+    | Socket<ServerToClientEventTypes, ClientToServerEventTypes>;
   mainChannelName: string;
-  usernamesInMainChannel: string[];
+  usernamesInMainChannel: Set<string>;
   partySocketOption: undefined | Socket;
   mutateState: (fn: (state: WebsocketState) => void) => void;
 };
@@ -17,7 +23,7 @@ export const useWebsocketStore = create<WebsocketState>()(
     devtools(
       (set, _get) => ({
         mainSocketOption: undefined,
-        usernamesInMainChannel: [],
+        usernamesInMainChannel: new Set(),
         mainChannelName: "",
         partySocketOption: undefined,
         mutateState: (fn: (state: WebsocketState) => void) => set(produce(fn)),

@@ -9,6 +9,7 @@ import { SocketConnectionMetadata } from "./socket-connection-metadata";
 import joinSocketToChannel from "./join-socket-to-channel";
 import { connectionHandler } from "./connection-handler";
 import disconnectionHandler from "./disconnection-handler";
+import removeSocketFromChannel from "./remove-socket-from-channel";
 
 export class GameServer {
   games: Map<string, SpeedDungeonGame> = new Map();
@@ -27,4 +28,5 @@ export class GameServer {
   disconnectionHandler = disconnectionHandler;
   initiateLobbyEventListeners = initiateLobbyEventListeners;
   joinSocketToChannel = joinSocketToChannel;
+  removeSocketFromChannel = removeSocketFromChannel;
 }
