@@ -1,6 +1,10 @@
+import { useLobbyStore } from "@/stores/lobby-store";
 import { useWebsocketStore } from "@/stores/websocket-store";
-import { ServerToClientEvent, SocketNamespaces } from "@speed-dungeon/common";
-import { HashSet } from "@speed-dungeon/common/src/primatives";
+import {
+  ClientToServerEvent,
+  ServerToClientEvent,
+  SocketNamespaces,
+} from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
@@ -9,6 +13,7 @@ const socketAddress = "http://localhost:8080";
 
 function SocketManager() {
   const mutateWebsocketStore = useWebsocketStore().mutateState;
+  const mutateLobbyStore = useLobbyStore().mutateState;
   const mainSocketOption = useWebsocketStore().mainSocketOption;
   const [connected, setConnected] = useState(false);
 
@@ -36,6 +41,8 @@ function SocketManager() {
   useEffect(() => {
     console.log("setting up listeners");
     if (mainSocketOption) {
+      mainSocketOption.emit(ClientToServerEvent.RequestsGameList);
+
       mainSocketOption.on("connect", () => {});
       mainSocketOption.on(
         ServerToClientEvent.ChannelFullUpdate,
@@ -60,6 +67,11 @@ function SocketManager() {
         mutateWebsocketStore((state) => {
           console.log("user left ", username);
           state.usernamesInMainChannel.delete(username);
+        });
+      });
+      mainSocketOption.on(ServerToClientEvent.GameList, (gameList) => {
+        mutateLobbyStore((state) => {
+          state.gameList = gameList;
         });
       });
     }

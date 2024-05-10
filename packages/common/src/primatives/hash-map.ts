@@ -22,13 +22,17 @@ export class HashMap<T, U> {
     else return JSON.stringify(key) in this.items;
   }
 
-  get(key: T): U {
+  get(key: T): undefined | U {
     if (typeof key === "string") return this.items[key];
     else return this.items[JSON.stringify(key)];
   }
 
   values(): U[] {
     return Object.values(this.items);
+  }
+
+  entries(): [string, U][] {
+    return Object.entries(this.items);
   }
 
   clear(): void {

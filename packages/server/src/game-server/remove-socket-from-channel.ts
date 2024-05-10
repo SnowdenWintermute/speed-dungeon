@@ -5,16 +5,11 @@ export default function removeSocketFromChannel(
   this: GameServer,
   socketId: string,
   namespace: SocketNamespaces,
-  channelLeaving: string
+  channelLeaving: undefined | string
 ) {
-  // leave them from the channel
-  console.log(
-    "sockets in namseepace ",
-    namespace,
-    ": ",
-    this.io.of(namespace).sockets
-  );
   const socket = this.io.of(namespace).sockets.get(socketId);
+
+  if (!channelLeaving) return;
   if (socket) socket.leave(channelLeaving);
 
   const socketMeta = this.connections.get(socketId);
@@ -32,7 +27,6 @@ export default function removeSocketFromChannel(
       break;
   }
 
-  // emit to the channel that they left
   console.log(
     "emitting to namespace ",
     namespace,

@@ -1,3 +1,4 @@
+export * from "./player";
 import { AdventuringParty } from "../adventuring_party";
 import { Battle } from "../battle";
 import { EntityId } from "../primatives";
