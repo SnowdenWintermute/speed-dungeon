@@ -1,11 +1,9 @@
 export default class CustomError extends Error {
-  message: string;
-  status: number;
-  field: string | undefined;
-  constructor(message: string, status: number, field?: string) {
+  constructor(
+    public message: string,
+    public status: number,
+    public field: null | string = null
+  ) {
     super(message);
-    this.message = message;
-    this.status = status;
-    this.field = field;
   }
 }

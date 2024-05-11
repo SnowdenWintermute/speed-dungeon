@@ -3,7 +3,7 @@
   "semi": true,
   "singleQuote": false,
   "quotes": "backtick",
-  "printWidth": 80,
+  "printWidth": 100,
   "endOfLine": "auto",
 } 
 

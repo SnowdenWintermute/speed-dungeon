@@ -15,7 +15,7 @@ export class SpeedDungeonGame {
   playersReadied: Set<string> = new Set();
   adventuringParties: Map<string, AdventuringParty> = new Map();
   battles: Map<EntityId, Battle> = new Map();
-  timeStarted: number | undefined;
+  timeStarted: null | number = null;
   idGenerator: IdGenerator = new IdGenerator();
   constructor(name: string) {
     this.name = name;

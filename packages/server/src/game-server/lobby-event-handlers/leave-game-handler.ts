@@ -4,6 +4,6 @@ export default function leaveGameHandler(socketId: string) {
   // remove them from the channel
   // join them to the lobby
   // emit to the game that they left
-  // emit to the socket that their game is now undefined
+  // emit to the socket that their game is now null
   //
 }

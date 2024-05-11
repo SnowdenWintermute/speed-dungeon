@@ -12,8 +12,8 @@ export default function removePlayerFromParty(
   const partyLeaving = this.adventuringParties.get(player.partyName);
   if (!partyLeaving) throw new Error("No party exists");
   const characterIds = cloneDeep(player.characterIds);
-  player.characterIds = undefined;
-  player.partyName = undefined;
+  player.characterIds = null;
+  player.partyName = null;
   if (characterIds) {
     characterIds.forEach((characterId) => {
       partyLeaving.removeCharacter(characterId);

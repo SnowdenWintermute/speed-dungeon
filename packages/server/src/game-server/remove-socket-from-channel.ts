@@ -5,7 +5,7 @@ export default function removeSocketFromChannel(
   this: GameServer,
   socketId: string,
   namespace: SocketNamespaces,
-  channelLeaving: undefined | string
+  channelLeaving: null | string
 ) {
   const socket = this.io.of(namespace).sockets.get(socketId);
 
@@ -20,10 +20,10 @@ export default function removeSocketFromChannel(
 
   switch (namespace) {
     case SocketNamespaces.Main:
-      socketMeta.currentMainChannelName = undefined;
+      socketMeta.currentMainChannelName = null;
       break;
     case SocketNamespaces.Party:
-      socketMeta.currentPartyChannelName = undefined;
+      socketMeta.currentPartyChannelName = null;
       break;
   }
 
