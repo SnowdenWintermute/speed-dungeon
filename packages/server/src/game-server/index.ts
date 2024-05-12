@@ -15,18 +15,15 @@ import { HashMap } from "@speed-dungeon/common";
 import createGameHandler from "./lobby-event-handlers/create-game-handler";
 import getConnection from "./get-connection";
 import joinGameHandler from "./lobby-event-handlers/join-game-handler";
+import leavePartyHandler from "./lobby-event-handlers/leave-party-handler";
+import leaveGameHandler from "./lobby-event-handlers/leave-game-handler";
 
 // @TODO - performance: change maps and sets to objects
 export class GameServer {
   games: HashMap<string, SpeedDungeonGame> = new HashMap();
   socketIdsByUsername: HashMap<string, string[]> = new HashMap();
   connections: HashMap<string, SocketConnectionMetadata> = new HashMap();
-  constructor(
-    public io: SocketIO.Server<
-      ClientToServerEventTypes,
-      ServerToClientEventTypes
-    >
-  ) {
+  constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     console.log("constructed game server");
     this.connectionHandler();
   }
@@ -38,4 +35,6 @@ export class GameServer {
   removeSocketFromChannel = removeSocketFromChannel;
   createGameHandler = createGameHandler;
   joinGameHandler = joinGameHandler;
+  leavePartyHandler = leavePartyHandler;
+  leaveGameHandler = leaveGameHandler;
 }

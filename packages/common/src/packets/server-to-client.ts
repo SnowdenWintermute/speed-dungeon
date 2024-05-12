@@ -9,6 +9,8 @@ export enum ServerToClientEvent {
   GameFullUpdate = "5",
   PartyNameUpdate = "6",
   PlayerChangedAdventuringParty = "7",
+  PlayerLeftGame = "8",
+  PlayerJoinedGame = "9",
 }
 
 export interface ServerToClientEventTypes {
@@ -26,6 +28,8 @@ export interface ServerToClientEventTypes {
     playerName: string,
     partyName: null | string
   ) => void;
+  [ServerToClientEvent.PlayerLeftGame]: (userame: string) => void;
+  [ServerToClientEvent.PlayerJoinedGame]: (userame: string) => void;
 }
 
 export class GameListEntry {

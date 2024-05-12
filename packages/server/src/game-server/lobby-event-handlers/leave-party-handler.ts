@@ -8,12 +8,11 @@ export default function leavePartyHandler(this: GameServer, socketId: string) {
   if (!game) throw new Error("No game exists");
 
   const partyNameLeaving = game.removePlayerFromParty(socketMeta.username);
+  if (!partyNameLeaving) throw new Error("Tried to handle a user leaving a party but they didn't know what party they were in");
 
   this.removeSocketFromChannel(socketId, SocketNamespaces.Party, partyNameLeaving);
 
-  // emit to the socket that their party is now undefined
   socket?.emit(ServerToClientEvent.PartyNameUpdate, null);
-  // emit to the game that a player changed adventuring parties (player: username, partyName: undefined)
   this.io
     .of(SocketNamespaces.Main)
     .in(game.name)
