@@ -11,14 +11,12 @@ export enum ServerToClientEvent {
   PlayerChangedAdventuringParty = "7",
   PlayerLeftGame = "8",
   PlayerJoinedGame = "9",
+  PartyCreated = "10",
 }
 
 export interface ServerToClientEventTypes {
   [ServerToClientEvent.GameList]: (gameList: GameListEntry[]) => void;
-  [ServerToClientEvent.ChannelFullUpdate]: (
-    channelName: string,
-    userNames: string[]
-  ) => void;
+  [ServerToClientEvent.ChannelFullUpdate]: (channelName: string, userNames: string[]) => void;
   [ServerToClientEvent.UserJoinedChannel]: (username: string) => void;
   [ServerToClientEvent.UserLeftChannel]: (username: string) => void;
   [ServerToClientEvent.ErrorMessage]: (message: string) => void;
@@ -30,6 +28,7 @@ export interface ServerToClientEventTypes {
   ) => void;
   [ServerToClientEvent.PlayerLeftGame]: (userame: string) => void;
   [ServerToClientEvent.PlayerJoinedGame]: (userame: string) => void;
+  [ServerToClientEvent.PartyCreated]: (partyName: string) => void;
 }
 
 export class GameListEntry {

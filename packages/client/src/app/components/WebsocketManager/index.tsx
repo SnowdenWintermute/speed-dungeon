@@ -1,9 +1,11 @@
+import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import {
   ClientToServerEvent,
   ServerToClientEvent,
   SocketNamespaces,
+  SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
@@ -14,6 +16,7 @@ const socketAddress = "http://localhost:8080";
 function SocketManager() {
   const mutateWebsocketStore = useWebsocketStore().mutateState;
   const mutateLobbyStore = useLobbyStore().mutateState;
+  const mutateGameStore = useGameStore().mutateState;
   const mainSocketOption = useWebsocketStore().mainSocketOption;
   const [connected, setConnected] = useState(false);
 
@@ -23,12 +26,9 @@ function SocketManager() {
       state.mainSocketOption = io(socketAddress || "", {
         transports: ["websocket"],
       });
-      state.partySocketOption = io(
-        `${socketAddress}${SocketNamespaces.Party}` || "",
-        {
-          transports: ["websocket"],
-        }
-      );
+      state.partySocketOption = io(`${socketAddress}${SocketNamespaces.Party}` || "", {
+        transports: ["websocket"],
+      });
     });
     console.log("socket address: ", socketAddress);
     return () => {
@@ -70,9 +70,23 @@ function SocketManager() {
         });
       });
       mainSocketOption.on(ServerToClientEvent.GameList, (gameList) => {
-        mutateLobbyStore((state) => {
-          state.gameList = gameList;
-        });
+        mutateLobbyStore((state) => (state.gameList = gameList));
+      });
+      mainSocketOption.on(ServerToClientEvent.GameFullUpdate, (game) => {
+        mutateGameStore((state) => (state.game = game));
+      });
+      mainSocketOption.on(ServerToClientEvent.PlayerJoinedGame, (username) => {
+        mutateGameStore((state) =>
+          state.game?.players.set(username, new SpeedDungeonPlayer(username))
+        );
+      });
+      mainSocketOption.on(ServerToClientEvent.PlayerLeftGame, (username) => {
+        mutateGameStore((state) => state.game?.removePlayer(username));
+      });
+      mainSocketOption.on(ServerToClientEvent.PartyCreated, (username) => {
+        mutateGameStore((state) =>
+          state.game?.players.set(username, new SpeedDungeonPlayer(username))
+        );
       });
     }
 

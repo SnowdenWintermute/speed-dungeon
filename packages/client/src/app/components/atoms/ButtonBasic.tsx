@@ -1,7 +1,7 @@
 import { FocusEventHandler, MouseEventHandler } from "react";
 
 interface Props {
-  extraStyles: string;
+  extraStyles?: string;
   children: React.ReactNode;
   buttonType?: "button" | "submit" | "reset";
   disabled?: boolean;
@@ -11,12 +11,9 @@ interface Props {
 }
 
 export default function ButtonBasic(props: Props) {
-  const onClick =
-    typeof props.onClick !== "undefined" ? props.onClick : () => {};
-  const onFocus =
-    typeof props.onFocus !== "undefined" ? props.onFocus : () => {};
-  const onBlur =
-    typeof props.onFocus !== "undefined" ? props.onFocus : () => {};
+  const onClick = typeof props.onClick !== "undefined" ? props.onClick : () => {};
+  const onFocus = typeof props.onFocus !== "undefined" ? props.onFocus : () => {};
+  const onBlur = typeof props.onFocus !== "undefined" ? props.onFocus : () => {};
   return (
     <button
       type={props.buttonType || "button"}

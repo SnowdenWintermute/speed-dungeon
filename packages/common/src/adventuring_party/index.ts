@@ -23,14 +23,9 @@ export class AdventuringParty {
   battleId: null | EntityId = null;
   timeOfWipe: null | number = null;
   timeOfEscape: null | number = null;
-  itemsOnGroundNotYetReceivedByAllClients: Map<EntityId, EntityId[]> =
-    new Map();
+  itemsOnGroundNotYetReceivedByAllClients: Map<EntityId, EntityId[]> = new Map();
 
-  constructor(
-    public id: EntityId,
-    public name: string,
-    public websocketChannelName: string
-  ) {}
+  constructor(public name: string) {}
 
   removeCharacter = removeCharacter;
 }

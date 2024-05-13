@@ -4,6 +4,7 @@ import { Battle } from "../battle";
 import { EntityId } from "../primatives";
 import { IdGenerator } from "./id_generator";
 import { SpeedDungeonPlayer } from "./player";
+import putPlayerInParty from "./put-player-in-party";
 import removePlayer from "./remove-player-from-game";
 import removePlayerFromParty from "./remove-player-from-party";
 
@@ -21,4 +22,5 @@ export class SpeedDungeonGame {
 
   removePlayerFromParty = removePlayerFromParty;
   removePlayer = removePlayer;
+  putPlayerInParty = putPlayerInParty;
 }
