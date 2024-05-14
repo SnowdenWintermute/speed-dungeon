@@ -1,7 +1,7 @@
 import { ERROR_MESSAGES, ServerToClientEvent, SocketNamespaces } from "@speed-dungeon/common";
 import { GameServer } from "..";
 import { generateRandomPartyName } from "../../utils";
-import { AdventuringParty } from "@speed-dungeon/common/src/adventuring_party";
+import { AdventuringParty } from "@speed-dungeon/common";
 
 export default function createPartyHandler(this: GameServer, socketId: string, partyName: string) {
   const [_, socketMeta] = this.getConnection(socketId, SocketNamespaces.Main);

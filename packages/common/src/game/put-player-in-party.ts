@@ -5,9 +5,9 @@ export default function putPlayerInParty(
   partyName: string,
   username: string
 ) {
-  const party = this.adventuringParties.get(partyName);
+  const party = this.adventuringParties[partyName];
   if (!party) throw new Error("Tried to put a player in a party but the party didn't exist");
-  const player = this.players.get(username);
+  const player = this.players[username];
   if (!player)
     throw new Error("Tried to put a player in a party but couldn't find the player in this game");
 

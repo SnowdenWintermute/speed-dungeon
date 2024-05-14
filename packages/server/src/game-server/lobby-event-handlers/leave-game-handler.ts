@@ -4,10 +4,12 @@ import { GameServer } from "..";
 export default function leaveGameHandler(this: GameServer, socketId: string) {
   this.leavePartyHandler(socketId);
   let [socket, socketMeta] = this.getConnection(socketId, SocketNamespaces.Main);
-  if (!socketMeta.currentGameName)
-    throw new Error(
+  if (!socketMeta.currentGameName) {
+    console.log(
       "Tried to handle a user leaving a game but they didn't know what game they were in"
     );
+    return;
+  }
   const game = this.games.get(socketMeta.currentGameName);
   if (!game)
     throw new Error(
@@ -25,8 +27,7 @@ export default function leaveGameHandler(this: GameServer, socketId: string) {
     this.io
       .of(SocketNamespaces.Main)
       .in(gameNameLeaving)
-      .emit
-      (ServerToClientEvent.PlayerLeftGame, socketMeta.username);
+      .emit(ServerToClientEvent.PlayerLeftGame, socketMeta.username);
   }
-  socket?.emit(ServerToClientEvent.GameFullUpdate, null)
+  socket?.emit(ServerToClientEvent.GameFullUpdate, null);
 }

@@ -6,6 +6,7 @@ import SocketManager from "./components/WebsocketManager";
 import Lobby from "./lobby";
 import { enableMapSet } from "immer";
 import { useGameStore } from "@/stores/game-store";
+import { GameSetup } from "./lobby/game-setup";
 // for immer to be able to use map and set
 enableMapSet();
 
@@ -20,7 +21,13 @@ export default function Home() {
     }
   }, []);
 
-  const componentToRender = game?.timeStarted ? <div /> : game ? <span /> : <Lobby />;
+  const componentToRender = game?.timeStarted ? (
+    <div>game started</div>
+  ) : game ? (
+    <GameSetup />
+  ) : (
+    <Lobby />
+  );
 
   return (
     <>

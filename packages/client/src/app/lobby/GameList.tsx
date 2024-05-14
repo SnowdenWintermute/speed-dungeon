@@ -1,7 +1,8 @@
 import { useLobbyStore } from "@/stores/lobby-store";
 import React from "react";
 import ButtonBasic from "../components/atoms/ButtonBasic";
-import { GameListEntry } from "@speed-dungeon/common";
+import { ClientToServerEvent, GameListEntry } from "@speed-dungeon/common";
+import { useWebsocketStore } from "@/stores/websocket-store";
 
 export default function GameList() {
   const gameList = useLobbyStore().gameList;
@@ -26,7 +27,11 @@ interface GameListItemProps {
 }
 
 function GameListItem(props: GameListItemProps) {
-  function joinGame() {}
+  const mainSocketOption = useWebsocketStore().mainSocketOption;
+  function joinGame() {
+    mainSocketOption?.emit(ClientToServerEvent.JoinGame, props.game.gameName);
+  }
+
   return (
     <li className="w-full flex border border-slate-400 mb-4 justify-between pointer-events-auto">
       <div className="flex">

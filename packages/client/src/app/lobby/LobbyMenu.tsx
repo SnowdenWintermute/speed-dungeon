@@ -15,9 +15,11 @@ export default function LobbyMenu() {
 
   function createGame(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (mainSocketOption) {
-      mainSocketOption.emit(ClientToServerEvent.CreateGame, gameName);
-    }
+    mainSocketOption?.emit(ClientToServerEvent.CreateGame, gameName);
+  }
+
+  function refreshGameList() {
+    mainSocketOption?.emit(ClientToServerEvent.RequestsGameList);
   }
 
   return (
@@ -32,13 +34,11 @@ export default function LobbyMenu() {
             onChange={(e) => setGameName(e.target.value)}
             value={gameName}
           />
-          <ButtonBasic
-            buttonType="submit"
-            extraStyles="border-l-0 text-yellow-400"
-          >
+          <ButtonBasic buttonType="submit" extraStyles="border-l-0 text-yellow-400">
             Create Game
           </ButtonBasic>
         </form>
+        <ButtonBasic onClick={refreshGameList}>Refresh List</ButtonBasic>
       </div>
       <div className="border border-slate-400 rounded-full h-10 w-10 flex justify-center items-center">
         <span className="text-lg font-bold">{firstLetterOfUsername}</span>

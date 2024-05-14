@@ -5,6 +5,7 @@ import {
   ClientToServerEvent,
   ServerToClientEvent,
   SocketNamespaces,
+  SpeedDungeonGame,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
@@ -70,23 +71,35 @@ function SocketManager() {
         });
       });
       mainSocketOption.on(ServerToClientEvent.GameList, (gameList) => {
-        mutateLobbyStore((state) => (state.gameList = gameList));
+        mutateLobbyStore((state) => {
+          state.gameList = gameList;
+        });
       });
       mainSocketOption.on(ServerToClientEvent.GameFullUpdate, (game) => {
-        mutateGameStore((state) => (state.game = game));
+        mutateGameStore((state) => {
+          if (game === null) state.game = null;
+          else {
+            state.game = new SpeedDungeonGame(game.name);
+            state.game.applyFullUpdate(game);
+          }
+        });
       });
       mainSocketOption.on(ServerToClientEvent.PlayerJoinedGame, (username) => {
-        mutateGameStore((state) =>
-          state.game?.players.set(username, new SpeedDungeonPlayer(username))
-        );
+        mutateGameStore((state) => {
+          state.game?.players.set(username, new SpeedDungeonPlayer(username));
+        });
       });
       mainSocketOption.on(ServerToClientEvent.PlayerLeftGame, (username) => {
-        mutateGameStore((state) => state.game?.removePlayer(username));
+        mutateGameStore((state) => {
+          console.log(typeof state.game);
+          console.log(JSON.stringify(state.game));
+          state.game?.removePlayer(username);
+        });
       });
       mainSocketOption.on(ServerToClientEvent.PartyCreated, (username) => {
-        mutateGameStore((state) =>
-          state.game?.players.set(username, new SpeedDungeonPlayer(username))
-        );
+        mutateGameStore((state) => {
+          state.game?.players.set(username, new SpeedDungeonPlayer(username));
+        });
       });
     }
 

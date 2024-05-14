@@ -1,31 +1,32 @@
 import { EntityId } from "../primatives";
-import { VecDeque } from "../vecdeque";
+import applyFullUpdate from "./apply-full-update";
 import removeCharacter from "./remove-character";
 
-class PlayerCharacter {}
-class DungeonRoom {
+export class PlayerCharacter {}
+export class DungeonRoom {
   constructor() {}
 }
-enum DungeonRoomType {}
+export enum DungeonRoomType {}
 
 export type RoomsExploredTracker = { total: number; onCurrentFloor: number };
 
 export class AdventuringParty {
-  playerUsernames: Set<string> = new Set();
-  playersReadyToExplore: Set<string> = new Set();
-  playersReadyToDescend: Set<string> = new Set();
-  characters: Map<EntityId, PlayerCharacter> = new Map();
+  playerUsernames: string[] = [];
+  playersReadyToExplore: string[] = [];
+  playersReadyToDescend: string[] = [];
+  characters: { [id: EntityId]: PlayerCharacter } = {};
   characterPositions: EntityId[] = [];
   currentFloor: number = 1;
   roomsExplored: RoomsExploredTracker = { total: 1, onCurrentFloor: 1 };
   currentRoom: DungeonRoom = new DungeonRoom();
-  unexploredRooms: VecDeque<DungeonRoomType> = new VecDeque();
+  unexploredRooms: DungeonRoomType[] = [];
   battleId: null | EntityId = null;
   timeOfWipe: null | number = null;
   timeOfEscape: null | number = null;
-  itemsOnGroundNotYetReceivedByAllClients: Map<EntityId, EntityId[]> = new Map();
+  itemsOnGroundNotYetReceivedByAllClients: { [id: EntityId]: EntityId[] } = {};
 
   constructor(public name: string) {}
 
+  applyFullUpdate = applyFullUpdate;
   removeCharacter = removeCharacter;
 }

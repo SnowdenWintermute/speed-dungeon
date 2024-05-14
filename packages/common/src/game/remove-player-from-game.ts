@@ -1,7 +1,8 @@
 import { SpeedDungeonGame } from ".";
+import { removeFromArray } from "../utils/";
 
 export default function removePlayer(this: SpeedDungeonGame, username: string) {
   this.removePlayerFromParty(username);
-  this.players.delete(username);
-  this.playersReadied.delete(username);
+  delete this.players[username];
+  removeFromArray(this.playersReadied, username);
 }
