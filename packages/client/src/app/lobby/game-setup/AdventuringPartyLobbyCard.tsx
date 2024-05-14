@@ -24,7 +24,7 @@ export default function AdventuringPartyLobbyCard(props: Props) {
   const charactersByUsername: [string, PlayerCharacter[]][] = [];
   props.party.playerUsernames.forEach((username) => {
     const characters: PlayerCharacter[] = [];
-    Object.entries(props.party.characters).forEach(([characterId, character]) => {
+    Object.values(props.party.characters).forEach((character) => {
       if (username === character.nameOfControllingUser) {
         characters.push(character);
       }

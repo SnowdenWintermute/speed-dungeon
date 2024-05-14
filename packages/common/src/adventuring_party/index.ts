@@ -1,9 +1,17 @@
-import { EntityId } from "../primatives";
+import { EntityId, EntityProperties } from "../primatives";
 import applyFullUpdate from "./apply-full-update";
 import removeCharacter from "./remove-character";
 
 export class PlayerCharacter {
-  constructor(public nameOfControllingUser: string) {}
+  entityProperties: EntityProperties;
+  constructor(
+    public nameOfControllingUser: string,
+
+    name: string,
+    id: number
+  ) {
+    this.entityProperties = new EntityProperties(id, name);
+  }
 }
 
 export class DungeonRoom {
