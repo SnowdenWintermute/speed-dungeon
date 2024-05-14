@@ -2,7 +2,10 @@ import { EntityId } from "../primatives";
 import applyFullUpdate from "./apply-full-update";
 import removeCharacter from "./remove-character";
 
-export class PlayerCharacter {}
+export class PlayerCharacter {
+  constructor(public nameOfControllingUser: string) {}
+}
+
 export class DungeonRoom {
   constructor() {}
 }
