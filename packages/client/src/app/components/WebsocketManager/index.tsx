@@ -2,6 +2,7 @@ import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import {
+  AdventuringParty,
   ClientToServerEvent,
   ServerToClientEvent,
   SocketNamespaces,
@@ -44,7 +45,11 @@ function SocketManager() {
     if (mainSocketOption) {
       mainSocketOption.emit(ClientToServerEvent.RequestsGameList);
 
-      mainSocketOption.on("connect", () => {});
+      mainSocketOption.on("connect", () => {
+        mutateGameStore((state) => {
+          state.game = null;
+        });
+      });
       mainSocketOption.on(
         ServerToClientEvent.ChannelFullUpdate,
         (channelName, usernamesInChannel) => {
@@ -86,19 +91,19 @@ function SocketManager() {
       });
       mainSocketOption.on(ServerToClientEvent.PlayerJoinedGame, (username) => {
         mutateGameStore((state) => {
-          state.game?.players.set(username, new SpeedDungeonPlayer(username));
+          if (state.game) state.game.players[username] = new SpeedDungeonPlayer(username);
         });
       });
       mainSocketOption.on(ServerToClientEvent.PlayerLeftGame, (username) => {
         mutateGameStore((state) => {
-          console.log(typeof state.game);
-          console.log(JSON.stringify(state.game));
           state.game?.removePlayer(username);
         });
       });
-      mainSocketOption.on(ServerToClientEvent.PartyCreated, (username) => {
+      mainSocketOption.on(ServerToClientEvent.PartyCreated, (partyName) => {
         mutateGameStore((state) => {
-          state.game?.players.set(username, new SpeedDungeonPlayer(username));
+          if (state.game) {
+            state.game.adventuringParties[partyName] = new AdventuringParty(partyName);
+          }
         });
       });
     }

@@ -20,7 +20,7 @@ export default function joinGameHandler(this: GameServer, socketId: string, game
       ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED
     );
 
-  game.players.set(socketMeta.username, new SpeedDungeonPlayer(socketMeta.username));
+  game.players[socketMeta.username] = new SpeedDungeonPlayer(socketMeta.username);
 
   socketMeta.currentGameName = gameName;
 

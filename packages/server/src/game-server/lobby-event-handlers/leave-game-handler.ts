@@ -18,7 +18,7 @@ export default function leaveGameHandler(this: GameServer, socketId: string) {
   game.removePlayer(socketMeta.username);
   const gameNameLeaving = socketMeta.currentGameName;
   socketMeta.currentGameName = null;
-  if (game.players.size === 0) this.games.remove(game.name);
+  if (Object.keys(game.players).length === 0) this.games.remove(game.name);
 
   this.removeSocketFromChannel(socketId, SocketNamespaces.Main, gameNameLeaving);
   this.joinSocketToChannel(socketId, SocketNamespaces.Main, LOBBY_CHANNEL);

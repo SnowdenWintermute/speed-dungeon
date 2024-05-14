@@ -11,6 +11,6 @@ export default function putPlayerInParty(
   if (!player)
     throw new Error("Tried to put a player in a party but couldn't find the player in this game");
 
-  party.playerUsernames.add(username);
+  party.playerUsernames.push(username);
   player.partyName = partyName;
 }

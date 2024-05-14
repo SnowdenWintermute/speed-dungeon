@@ -10,7 +10,7 @@ export default function createPartyHandler(this: GameServer, socketId: string, p
   const game = this.games.get(socketMeta.currentGameName);
   if (!game)
     throw new Error("A client tried to create a party but their supposed game didn't exist");
-  const player = game.players.get(socketMeta.username);
+  const player = game.players[socketMeta.username];
   if (!player)
     throw new Error(
       "A client tried to create a party but their game didn't include them in the player list"
@@ -20,10 +20,9 @@ export default function createPartyHandler(this: GameServer, socketId: string, p
   if (partyName === "") {
     partyName = generateRandomPartyName();
   }
-  if (game.adventuringParties.has(partyName))
-    throw new Error(ERROR_MESSAGES.LOBBY.PARTY_NAME_EXISTS);
+  if (game.adventuringParties[partyName]) throw new Error(ERROR_MESSAGES.LOBBY.PARTY_NAME_EXISTS);
 
-  game.adventuringParties.set(partyName, new AdventuringParty(partyName));
+  game.adventuringParties[partyName] = new AdventuringParty(partyName);
 
   this.io.of(SocketNamespaces.Main).in(game.name).emit(ServerToClientEvent.PartyCreated, partyName);
 }

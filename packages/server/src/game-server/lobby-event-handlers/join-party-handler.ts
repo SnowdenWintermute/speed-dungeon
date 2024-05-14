@@ -7,7 +7,7 @@ export default function joinPartyHandler(this: GameServer, socketId: string, par
     throw new Error("A client tried to join a party but they didn't know their own game name");
   const game = this.games.get(socketMeta.currentGameName);
   if (!game) throw new Error("A client tried to join a party but their supposed game didn't exist");
-  const player = game.players.get(socketMeta.username);
+  const player = game.players[socketMeta.username];
   if (!player)
     throw new Error(
       "A client tried to join a party but their game didn't include them in the player list"

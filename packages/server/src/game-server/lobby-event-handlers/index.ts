@@ -15,7 +15,10 @@ export default function initiateLobbyEventListeners(
   socket.on(ClientToServerEvent.RequestsGameList, () => {
     const gameList: GameListEntry[] = this.games
       .entries()
-      .map(([gameName, game]) => new GameListEntry(gameName, game.players.size, game.timeStarted));
+      .map(
+        ([gameName, game]) =>
+          new GameListEntry(gameName, Object.keys(game.players).length, game.timeStarted)
+      );
     socket.emit(ServerToClientEvent.GameList, gameList);
   });
   socket.on(ClientToServerEvent.CreateGame, (gameName) => {

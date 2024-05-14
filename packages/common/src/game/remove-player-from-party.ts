@@ -1,5 +1,6 @@
 import { SpeedDungeonGame } from ".";
 import cloneDeep from "lodash.clonedeep";
+import { removeFromArray } from "../utils";
 
 export default function removePlayerFromParty(this: SpeedDungeonGame, username: string) {
   const player = this.players[username];
@@ -16,8 +17,9 @@ export default function removePlayerFromParty(this: SpeedDungeonGame, username: 
       partyLeaving.removeCharacter(characterId);
     });
   }
-  partyLeaving.playerUsernames.delete(username);
 
-  if (partyLeaving.playerUsernames.size < 1) delete this.adventuringParties[partyLeaving.name];
+  removeFromArray(partyLeaving.playerUsernames, username);
+
+  if (partyLeaving.playerUsernames.length < 1) delete this.adventuringParties[partyLeaving.name];
   return partyLeaving.name;
 }
