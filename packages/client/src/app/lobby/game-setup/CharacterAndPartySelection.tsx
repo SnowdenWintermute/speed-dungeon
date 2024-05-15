@@ -8,7 +8,10 @@ import AdventuringPartyLobbyCard from "./AdventuringPartyLobbyCard";
 
 export default function CharacterAndPartySelection() {
   const game = useGameStore().game;
+  const parties = useGameStore().game?.adventuringParties;
   const mainSocketOption = useWebsocketStore().mainSocketOption;
+
+  console.log(parties);
 
   if (!game) return <div>No game found</div>;
 

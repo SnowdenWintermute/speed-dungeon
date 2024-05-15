@@ -4,6 +4,7 @@ import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { AdventuringParty, PlayerCharacter } from "@speed-dungeon/common";
 import React from "react";
+import CharacterLobbyCard from "./CharacterLobbyCard";
 
 interface Props {
   party: AdventuringParty;
@@ -79,11 +80,12 @@ function UserCharacters(props: UserCharactersProps) {
       {`username: ${props.username}`}
       {props.characters.length < 1 && "No characters yet..."}
       {props.characters.map((character) => (
-        <div key={character.nameOfControllingUser}>character placheolder</div>
+        <CharacterLobbyCard
+          key={character.nameOfControllingUser}
+          character={character}
+          ownedBySelf={props.username === clientUsername}
+        />
       ))}
     </div>
   );
 }
-
-// <CharacterLobbyCard character={character}
-// ownedBySelf={username === clientUsername} />)

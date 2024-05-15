@@ -1,4 +1,5 @@
 export * from "./player";
+import { immerable } from "immer";
 import { AdventuringParty } from "../adventuring_party";
 import { Battle } from "../battle";
 import { EntityId } from "../primatives";
@@ -10,6 +11,7 @@ import removePlayer from "./remove-player-from-game";
 import removePlayerFromParty from "./remove-player-from-party";
 
 export class SpeedDungeonGame {
+  [immerable] = true;
   name: string;
   players: { [username: string]: SpeedDungeonPlayer } = {};
   playersReadied: string[] = [];

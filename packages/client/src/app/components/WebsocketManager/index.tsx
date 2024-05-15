@@ -102,7 +102,9 @@ function SocketManager() {
       mainSocketOption.on(ServerToClientEvent.PartyCreated, (partyName) => {
         mutateGameStore((state) => {
           if (state.game) {
+            console.log("updating party list to include ", partyName);
             state.game.adventuringParties[partyName] = new AdventuringParty(partyName);
+            console.log(state.game.adventuringParties);
           }
         });
       });
