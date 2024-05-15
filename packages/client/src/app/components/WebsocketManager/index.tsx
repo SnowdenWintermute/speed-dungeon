@@ -63,6 +63,11 @@ function SocketManager() {
           });
         }
       );
+      mainSocketOption.on(ServerToClientEvent.ClientUsername, (username) => {
+        mutateLobbyStore((state) => {
+          state.username = username;
+        });
+      });
       mainSocketOption.on(ServerToClientEvent.UserJoinedChannel, (username) => {
         mutateWebsocketStore((state) => {
           console.log("user joined ", username);
@@ -108,6 +113,26 @@ function SocketManager() {
           }
         });
       });
+      mainSocketOption.on(
+        ServerToClientEvent.PlayerChangedAdventuringParty,
+        (username, partyName) => {
+          console.log("player changed parties: ", username, partyName);
+          mutateGameStore((state) => {
+            state.game?.removePlayerFromParty(username);
+            if (partyName !== null) {
+              state.game?.putPlayerInParty(partyName, username);
+            }
+          });
+
+          mutateLobbyStore((lobbyState) => {
+            if (lobbyState.username === username) {
+              mutateGameStore((gameState) => {
+                gameState.currentPartyName = partyName;
+              });
+            }
+          });
+        }
+      );
     }
 
     return () => {

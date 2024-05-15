@@ -2,21 +2,23 @@ import { SpeedDungeonGame } from "../game";
 
 export enum ServerToClientEvent {
   GameList = "0",
-  ChannelFullUpdate = "1",
-  UserJoinedChannel = "2",
-  UserLeftChannel = "3",
-  ErrorMessage = "4",
-  GameFullUpdate = "5",
-  PartyNameUpdate = "6",
-  PlayerChangedAdventuringParty = "7",
-  PlayerLeftGame = "8",
-  PlayerJoinedGame = "9",
-  PartyCreated = "10",
+  ClientUsername = "1",
+  ChannelFullUpdate = "2",
+  UserJoinedChannel = "3",
+  UserLeftChannel = "4",
+  ErrorMessage = "5",
+  GameFullUpdate = "6",
+  PartyNameUpdate = "7",
+  PlayerChangedAdventuringParty = "8",
+  PlayerLeftGame = "9",
+  PlayerJoinedGame = "10",
+  PartyCreated = "11",
 }
 
 export interface ServerToClientEventTypes {
   [ServerToClientEvent.GameList]: (gameList: GameListEntry[]) => void;
   [ServerToClientEvent.ChannelFullUpdate]: (channelName: string, userNames: string[]) => void;
+  [ServerToClientEvent.ClientUsername]: (username: string) => void;
   [ServerToClientEvent.UserJoinedChannel]: (username: string) => void;
   [ServerToClientEvent.UserLeftChannel]: (username: string) => void;
   [ServerToClientEvent.ErrorMessage]: (message: string) => void;

@@ -1,3 +1,4 @@
+import { immerable } from "immer";
 import { EntityId } from "../primatives";
 import applyFullUpdate from "./apply-full-update";
 import { PlayerCharacter } from "./player-character";
@@ -12,6 +13,7 @@ export enum DungeonRoomType {}
 export type RoomsExploredTracker = { total: number; onCurrentFloor: number };
 
 export class AdventuringParty {
+  [immerable] = true;
   playerUsernames: string[] = [];
   playersReadyToExplore: string[] = [];
   playersReadyToDescend: string[] = [];

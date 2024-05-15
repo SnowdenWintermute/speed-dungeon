@@ -2,24 +2,24 @@ import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import Divider from "@/app/components/atoms/Divider";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
-import { AdventuringParty, PlayerCharacter } from "@speed-dungeon/common";
+import { AdventuringParty, ClientToServerEvent, PlayerCharacter } from "@speed-dungeon/common";
 import React from "react";
 import CharacterLobbyCard from "./CharacterLobbyCard";
+import { useWebsocketStore } from "@/stores/websocket-store";
 
 interface Props {
   party: AdventuringParty;
 }
 
 export default function AdventuringPartyLobbyCard(props: Props) {
+  const mainSocketOption = useWebsocketStore().mainSocketOption;
   const currentPartyName = useGameStore().currentPartyName;
-  const clientUsername = useLobbyStore().username;
-  const game = useGameStore().game;
 
   function leaveParty() {
-    //
+    mainSocketOption?.emit(ClientToServerEvent.LeaveParty);
   }
   function joinParty() {
-    //
+    mainSocketOption?.emit(ClientToServerEvent.JoinParty, props.party.name);
   }
 
   const charactersByUsername: [string, PlayerCharacter[]][] = [];
@@ -39,6 +39,9 @@ export default function AdventuringPartyLobbyCard(props: Props) {
         {"Party: "}
         {props.party.name}
       </h3>
+      <span className="text-xl">
+        {"Current party name: "} {currentPartyName}
+      </span>
       {currentPartyName !== null ? (
         currentPartyName == props.party.name && (
           <>
