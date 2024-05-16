@@ -18,7 +18,7 @@ export const useGameStore = create<GameState>()(
         currentPartyName: null,
         mutateState: (fn: (state: GameState) => void) => set(produce(fn)),
       }),
-      { enabled: true, name: "websocket store" }
+      { enabled: true, name: "game store" }
     )
   )
 );
