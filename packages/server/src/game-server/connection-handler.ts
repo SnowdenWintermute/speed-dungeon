@@ -4,9 +4,9 @@ import { LOBBY_CHANNEL, ServerToClientEvent, SocketNamespaces } from "@speed-dun
 import { SocketConnectionMetadata } from "./socket-connection-metadata";
 
 export function connectionHandler(this: GameServer) {
-  this.io.on("connection", (socket) => {
+  this.io.of(SocketNamespaces.Main).on("connection", (socket) => {
     const username = generateRandomUsername();
-    console.log(`a socket connected with id ${socket.id} and username ${username}`);
+    console.log(`-- ${username} (${socket.id}) connected`);
     this.connections.insert(
       socket.id,
       new SocketConnectionMetadata(socket.id, username, LOBBY_CHANNEL)
@@ -16,4 +16,8 @@ export function connectionHandler(this: GameServer) {
     this.joinSocketToChannel(socket.id, SocketNamespaces.Main, LOBBY_CHANNEL);
     socket.emit(ServerToClientEvent.ClientUsername, username);
   });
+
+  // this.io.of(SocketNamespaces.Party).on("connection", (socket) => {
+  //   console.log("PARTY NAMESPACE: ", socket.id);
+  // });
 }

@@ -13,7 +13,7 @@ export default function joinGameHandler(this: GameServer, socketId: string, game
   const game = this.games.get(gameName);
 
   if (!game)
-    return socket?.emit(ServerToClientEvent.ErrorMessage, ERROR_MESSAGES.LOBBY.GAME_DOESNT_EXIST);
+    return socket?.emit(ServerToClientEvent.ErrorMessage, ERROR_MESSAGES.GAME_DOESNT_EXIST);
   if (game.timeStarted)
     return socket?.emit(
       ServerToClientEvent.ErrorMessage,

@@ -39,4 +39,7 @@ export default function initiateLobbyEventListeners(
   socket.on(ClientToServerEvent.LeaveParty, () => {
     this.leavePartyHandler(socket.id);
   });
+  socket.on(ClientToServerEvent.CreateCharacter, (characterName, combatantClass) => {
+    this.createCharacterHandler(socket.id, characterName, combatantClass);
+  });
 }

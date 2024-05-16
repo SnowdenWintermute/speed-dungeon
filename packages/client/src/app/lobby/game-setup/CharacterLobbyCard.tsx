@@ -1,5 +1,6 @@
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import { PlayerCharacter } from "@speed-dungeon/common";
+import { formatCombatantClassName } from "@speed-dungeon/common/src/combatants";
 import React from "react";
 
 interface Props {
@@ -17,7 +18,7 @@ export default function CharacterLobbyCard(props: Props) {
     <div>
       <div>{character.entityProperties.name}</div>
       <div>
-        <div>{`Class: ${character.combatantProperties.combatantClass}`}</div>
+        <div>{`Class: ${formatCombatantClassName(character.combatantProperties.combatantClass)}`}</div>
         {ownedBySelf && (
           <div>
             <ButtonBasic onClick={deleteCharacter}>

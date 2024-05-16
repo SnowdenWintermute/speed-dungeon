@@ -1,6 +1,6 @@
 export class HashSet<T> {
   private items: {
-    [item: string]: "";
+    [item: string]: null;
   };
 
   constructor() {
@@ -8,8 +8,8 @@ export class HashSet<T> {
   }
 
   insert(item: T): void {
-    if (typeof item === "string") this.items[item] = "";
-    else this.items[JSON.stringify(item)] = "";
+    if (typeof item === "string") this.items[item] = null;
+    else this.items[JSON.stringify(item)] = null;
     console.log("this hashset's items", this.items);
   }
 

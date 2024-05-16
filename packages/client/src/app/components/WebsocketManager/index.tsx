@@ -11,6 +11,7 @@ import {
 } from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
+import characterCreationHandler from "./lobby-event-handlers/character-creation-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -28,7 +29,7 @@ function SocketManager() {
       state.mainSocketOption = io(socketAddress || "", {
         transports: ["websocket"],
       });
-      state.partySocketOption = io(`${socketAddress}${SocketNamespaces.Party}` || "", {
+      state.partySocketOption = io(`${socketAddress}${SocketNamespaces.Party}`, {
         transports: ["websocket"],
       });
     });
@@ -131,6 +132,12 @@ function SocketManager() {
               });
             }
           });
+        }
+      );
+      mainSocketOption.on(
+        ServerToClientEvent.CharacterCreated,
+        (partyName, username, character) => {
+          characterCreationHandler(mutateGameStore, partyName, username, character);
         }
       );
     }

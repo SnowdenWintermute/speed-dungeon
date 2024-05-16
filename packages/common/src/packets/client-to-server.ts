@@ -1,3 +1,5 @@
+import { CombatantClass } from "../combatants";
+
 export enum ClientToServerEvent {
   RequestToJoinGame = "0",
   RequestsGameList = "1",
@@ -8,6 +10,7 @@ export enum ClientToServerEvent {
   JoinParty = "6",
   LeaveParty = "7",
   ToggleReadyToStartGame = "8",
+  CreateCharacter = "9",
 }
 
 export interface ClientToServerEventTypes {
@@ -20,4 +23,8 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.JoinParty]: (partyName: string) => void;
   [ClientToServerEvent.LeaveParty]: () => void;
   [ClientToServerEvent.ToggleReadyToStartGame]: () => void;
+  [ClientToServerEvent.CreateCharacter]: (
+    characterName: string,
+    combatantClass: CombatantClass
+  ) => void;
 }

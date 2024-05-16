@@ -14,9 +14,7 @@ export default function removeSocketFromChannel(
 
   const socketMeta = this.connections.get(socketId);
   if (!socketMeta)
-    return console.error(
-      "tried to remove a socket from a channel but it wasn't registered"
-    );
+    return console.error("tried to remove a socket from a channel but it wasn't registered");
 
   switch (namespace) {
     case SocketNamespaces.Main:
@@ -27,13 +25,6 @@ export default function removeSocketFromChannel(
       break;
   }
 
-  console.log(
-    "emitting to namespace ",
-    namespace,
-    " and room ",
-    channelLeaving,
-    " that user left"
-  );
   this.io
     .of(namespace)
     .in(channelLeaving)

@@ -1,13 +1,25 @@
+import { MAX_PARTY_SIZE } from "../app_consts";
+
 export type CustomErrorDetails = { message: string; field?: string };
 
 export const ERROR_MESSAGES = {
   SERVER_GENERIC: "Internal server error",
+  GAME_DOESNT_EXIST: "No game by that name exists",
+  CLIENT: {
+    NO_CURRENT_GAME: "This client has no current game",
+  },
   LOBBY: {
     GAME_EXISTS: "A game by that name already exists",
-    GAME_DOESNT_EXIST: "No game by that name exists",
     ALREADY_IN_GAME: "You are already in a game",
     GAME_ALREADY_STARTED: "That game has already started",
     ALREADY_IN_PARTY: "You must leave your current party to do that",
     PARTY_NAME_EXISTS: "A party by that name already exists in the current game",
+  },
+  GAME: {
+    MISSING_PARTY_NAME: "Player doesn't have a party name",
+    PARTY_DOES_NOT_EXIST: "No party was found with the provided name",
+    MAX_PARTY_SIZE: "Maximum party size reached",
+    CHARACTER_DOES_NOT_EXIST: "No character was found by the provided id",
+    PLAYER_DOES_NOT_EXIST: "No player by that name was found in the game",
   },
 };

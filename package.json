@@ -2,9 +2,8 @@
   "private": true,
   "workspaces": ["packages/*"],
   "devDependencies": {
-    "typescript": "5.4.5",
-    "@typescript-eslint/eslint-plugin": "5.47.0",
-    "@typescript-eslint/parser": "5.47.0",
+    "@typescript-eslint/eslint-plugin": "7.9.0",
+    "@typescript-eslint/parser": "7.9.0",
     "eslint": "8.30.0",
     "eslint-config-airbnb": "19.0.4",
     "eslint-config-prettier": "8.5.0",
@@ -13,6 +12,7 @@
     "eslint-plugin-prettier": "4.2.1",
     "eslint-plugin-react": "7.31.11",
     "eslint-plugin-react-hooks": "4.6.0",
-    "prettier": "*"
+    "prettier": "*",
+    "typescript": "5.4.5"
   }
 }

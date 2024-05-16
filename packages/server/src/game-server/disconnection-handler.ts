@@ -10,17 +10,16 @@ export default function disconnectionHandler(
   this: GameServer,
   socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
-  console.log("setting disconnectionHandler");
   socket.on("disconnect", () => {
     const socketMetadata = this.connections.get(socket.id);
-    console.log(`user with id ${socket.id} and username ${socketMetadata?.username} disconnected`);
+    console.log(`-- ${socketMetadata?.username} (${socket.id})  disconnected`);
     if (!socketMetadata)
       return console.error("a socket disconnected but couldn't find their metadata");
-    // remove from games
+
     if (socketMetadata.currentGameName) {
       this.leaveGameHandler(socket.id);
     }
-    // remove them from rooms
+
     if (socketMetadata.currentMainChannelName) {
       this.removeSocketFromChannel(
         socket.id,

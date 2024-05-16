@@ -3,9 +3,9 @@ import { EntityId } from "../primatives";
 
 export class SpeedDungeonPlayer {
   partyName: null | string = null;
-  characterIds: null | Set<EntityId> = null;
-  targetPreferences: CombatActionTargetPreferences =
-    new CombatActionTargetPreferences();
+  // approximation of a HashSet that can be sent over websockets without complex serialization
+  characterIds: { [id: number]: null } = {};
+  targetPreferences: CombatActionTargetPreferences = new CombatActionTargetPreferences();
   constructor(public username: string) {}
 }
 

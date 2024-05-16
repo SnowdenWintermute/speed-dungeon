@@ -1,6 +1,6 @@
 import { CombatantClass, CombatantSpecies } from "../combatants";
 import { CombatantProperties } from "../combatants/combatant-properties";
-import { EntityProperties } from "../primatives";
+import { EntityProperties } from "../primatives/entity-properties";
 
 export class PlayerCharacter {
   entityProperties: EntityProperties;
@@ -11,12 +11,12 @@ export class PlayerCharacter {
     name: string,
     id: number
   ) {
-    this.entityProperties = new EntityProperties(id, name);
     this.combatantProperties = new CombatantProperties(
       combatantClass,
       CombatantSpecies.Humanoid,
       {},
       nameOfControllingUser
     );
+    this.entityProperties = new EntityProperties(id, name);
   }
 }

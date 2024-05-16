@@ -6,6 +6,7 @@ import { AdventuringParty, ClientToServerEvent, PlayerCharacter } from "@speed-d
 import React from "react";
 import CharacterLobbyCard from "./CharacterLobbyCard";
 import { useWebsocketStore } from "@/stores/websocket-store";
+import CharacterCreationMenu from "./CharacterCreationMenu";
 
 interface Props {
   party: AdventuringParty;
@@ -33,27 +34,24 @@ export default function AdventuringPartyLobbyCard(props: Props) {
     charactersByUsername.push([username, characters]);
   });
 
+  const inPartyMenu = (
+    <>
+      <div className="mb-2">
+        <ButtonBasic onClick={leaveParty}> Leave Party </ButtonBasic>
+      </div>
+      <Divider extraStyles={"mt-4 mb-4"} />
+      <CharacterCreationMenu />
+    </>
+  );
+
   return (
     <div className="p-3 border border-slate-400 w-full mb-2">
       <h3 className="mb-2">
         {"Party: "}
         {props.party.name}
       </h3>
-      <span className="text-xl">
-        {"Current party name: "} {currentPartyName}
-      </span>
       {currentPartyName !== null ? (
-        currentPartyName == props.party.name && (
-          <>
-            <div className="mb-2">
-              <ButtonBasic onClick={leaveParty}> Leave Party </ButtonBasic>
-            </div>
-            <Divider extraStyles={"mt-4 mb-4"} />
-            {
-              // <CharacterCreationMenu />
-            }
-          </>
-        )
+        currentPartyName == props.party.name && inPartyMenu
       ) : (
         <div className="mb-2">
           <ButtonBasic onClick={joinParty}>{"Join Party"}</ButtonBasic>
@@ -81,10 +79,10 @@ function UserCharacters(props: UserCharactersProps) {
   return (
     <div className={readyStyle}>
       {`username: ${props.username}`}
-      {props.characters.length < 1 && "No characters yet..."}
+      {props.characters.length < 1 && <div>No characters yet...</div>}
       {props.characters.map((character) => (
         <CharacterLobbyCard
-          key={character.nameOfControllingUser}
+          key={character.entityProperties.id}
           character={character}
           ownedBySelf={props.username === clientUsername}
         />
