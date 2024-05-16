@@ -21,5 +21,7 @@ export const ERROR_MESSAGES = {
     MAX_PARTY_SIZE: "Maximum party size reached",
     CHARACTER_DOES_NOT_EXIST: "No character was found by the provided id",
     PLAYER_DOES_NOT_EXIST: "No player by that name was found in the game",
+    CHARACTER_NOT_OWNED:
+      "The provided character is not in the list of that player's owned characters",
   },
 };

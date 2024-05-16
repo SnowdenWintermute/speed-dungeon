@@ -20,6 +20,7 @@ import leaveGameHandler from "./lobby-event-handlers/leave-game-handler";
 import joinPartyHandler from "./lobby-event-handlers/join-party-handler";
 import createPartyHandler from "./lobby-event-handlers/create-party-handler";
 import createCharacterHandler from "./lobby-event-handlers/create-character-handler";
+import deleteCharacterHandler from "./lobby-event-handlers/delete-character-handler";
 
 export class GameServer {
   games: HashMap<string, SpeedDungeonGame> = new HashMap();
@@ -42,4 +43,5 @@ export class GameServer {
   joinPartyHandler = joinPartyHandler;
   leavePartyHandler = leavePartyHandler;
   createCharacterHandler = createCharacterHandler;
+  deleteCharacterHandler = deleteCharacterHandler;
 }

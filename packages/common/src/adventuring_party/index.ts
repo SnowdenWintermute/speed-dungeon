@@ -17,8 +17,8 @@ export class AdventuringParty {
   playerUsernames: string[] = [];
   playersReadyToExplore: string[] = [];
   playersReadyToDescend: string[] = [];
-  characters: { [id: EntityId]: PlayerCharacter } = {};
-  characterPositions: EntityId[] = [];
+  characters: { [id: string]: PlayerCharacter } = {};
+  characterPositions: string[] = [];
   currentFloor: number = 1;
   roomsExplored: RoomsExploredTracker = { total: 1, onCurrentFloor: 1 };
   currentRoom: DungeonRoom = new DungeonRoom();

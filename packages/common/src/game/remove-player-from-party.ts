@@ -14,7 +14,7 @@ export default function removePlayerFromParty(this: SpeedDungeonGame, username: 
   player.partyName = null;
   if (characterIds) {
     Object.keys(characterIds).forEach((characterId) => {
-      partyLeaving.removeCharacter(parseInt(characterId));
+      partyLeaving.removeCharacter(characterId);
     });
   }
 

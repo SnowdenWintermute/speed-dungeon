@@ -9,7 +9,7 @@ export class PlayerCharacter {
     public nameOfControllingUser: string,
     combatantClass: CombatantClass,
     name: string,
-    id: number
+    id: string
   ) {
     this.combatantProperties = new CombatantProperties(
       combatantClass,

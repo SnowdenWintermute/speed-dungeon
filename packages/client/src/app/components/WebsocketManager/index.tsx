@@ -12,6 +12,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import characterCreationHandler from "./lobby-event-handlers/character-creation-handler";
+import characterDeletionHandler from "./lobby-event-handlers/character-deletion-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -42,7 +43,6 @@ function SocketManager() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    console.log("setting up listeners");
     if (mainSocketOption) {
       mainSocketOption.emit(ClientToServerEvent.RequestsGameList);
 
@@ -138,6 +138,12 @@ function SocketManager() {
         ServerToClientEvent.CharacterCreated,
         (partyName, username, character) => {
           characterCreationHandler(mutateGameStore, partyName, username, character);
+        }
+      );
+      mainSocketOption.on(
+        ServerToClientEvent.CharacterDeleted,
+        (partyName, username, characterId) => {
+          characterDeletionHandler(mutateGameStore, partyName, username, characterId);
         }
       );
     }

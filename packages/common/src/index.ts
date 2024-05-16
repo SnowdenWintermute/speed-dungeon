@@ -1,3 +1,4 @@
+export * from "./utils/";
 export * from "./errors/";
 export * from "./game/";
 export * from "./battle/";

@@ -11,6 +11,7 @@ export enum ClientToServerEvent {
   LeaveParty = "7",
   ToggleReadyToStartGame = "8",
   CreateCharacter = "9",
+  DeleteCharacter = "10",
 }
 
 export interface ClientToServerEventTypes {
@@ -27,4 +28,5 @@ export interface ClientToServerEventTypes {
     characterName: string,
     combatantClass: CombatantClass
   ) => void;
+  [ClientToServerEvent.DeleteCharacter]: (characterId: string) => void;
 }

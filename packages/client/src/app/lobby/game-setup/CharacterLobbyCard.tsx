@@ -1,5 +1,6 @@
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
-import { PlayerCharacter } from "@speed-dungeon/common";
+import { useWebsocketStore } from "@/stores/websocket-store";
+import { ClientToServerEvent, PlayerCharacter } from "@speed-dungeon/common";
 import { formatCombatantClassName } from "@speed-dungeon/common/src/combatants";
 import React from "react";
 
@@ -9,9 +10,10 @@ interface Props {
 }
 
 export default function CharacterLobbyCard(props: Props) {
+  const mainSocketOption = useWebsocketStore().mainSocketOption;
   const { character, ownedBySelf } = props;
   function deleteCharacter() {
-    //
+    mainSocketOption?.emit(ClientToServerEvent.DeleteCharacter, character.entityProperties.id);
   }
 
   return (

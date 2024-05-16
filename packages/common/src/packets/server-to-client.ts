@@ -1,5 +1,6 @@
 import { PlayerCharacter } from "../adventuring_party";
 import { SpeedDungeonGame } from "../game";
+import { EntityId } from "../primatives";
 
 export enum ServerToClientEvent {
   GameList = "0",
@@ -15,6 +16,8 @@ export enum ServerToClientEvent {
   PlayerJoinedGame = "10",
   PartyCreated = "11",
   CharacterCreated = "12",
+  CharacterDeleted = "13",
+  PlayerToggledReadyToStartGame = "14",
 }
 
 export interface ServerToClientEventTypes {
@@ -38,6 +41,12 @@ export interface ServerToClientEventTypes {
     username: string,
     character: PlayerCharacter
   ) => void;
+  [ServerToClientEvent.CharacterDeleted]: (
+    partyName: string,
+    username: string,
+    characterId: string
+  ) => void;
+  [ServerToClientEvent.PlayerToggledReadyToStartGame]: (username: string) => void;
 }
 
 export class GameListEntry {
