@@ -1,6 +1,7 @@
 import { ERROR_MESSAGES, ServerToClientEvent, SocketNamespaces } from "@speed-dungeon/common";
 import { GameServer } from "..";
 import { removeFromArray } from "@speed-dungeon/common";
+import errorHandler from "../error-handler";
 
 const ATTEMPT_TEXT = "A client tried to delete a character but";
 
@@ -10,19 +11,19 @@ export default function deleteCharacterHandler(
   characterId: string
 ) {
   console.log("delete character ", characterId);
-  const [_, socketMeta] = this.getConnection(socketId, SocketNamespaces.Main);
+  const [socket, socketMeta] = this.getConnection(socketId, SocketNamespaces.Main);
   if (!socketMeta.currentGameName)
-    throw new Error(`${ATTEMPT_TEXT} they didn't know what game they were in`);
+    return errorHandler(socket, `${ATTEMPT_TEXT} they didn't know what game they were in`);
   const game = this.games.get(socketMeta.currentGameName);
-  if (!game) throw new Error(`${ATTEMPT_TEXT} their game was not found`);
+  if (!game) return errorHandler(socket, `${ATTEMPT_TEXT} their game was not found`);
   const player = game.players[socketMeta.username];
-  if (!player) throw new Error(`${ATTEMPT_TEXT} their player wasn't in the game`);
-  if (!player.partyName) throw new Error(ERROR_MESSAGES.GAME.MISSING_PARTY_NAME);
+  if (!player) return errorHandler(socket, `${ATTEMPT_TEXT} their player wasn't in the game`);
+  if (!player.partyName) return errorHandler(socket, ERROR_MESSAGES.GAME.MISSING_PARTY_NAME);
   const party = game.adventuringParties[player.partyName];
-  if (!party) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+  if (!party) return errorHandler(socket, ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
 
   if (!Object.keys(player.characterIds).includes(characterId.toString()))
-    throw new Error(ERROR_MESSAGES.GAME.CHARACTER_NOT_OWNED);
+    return errorHandler(socket, ERROR_MESSAGES.GAME.CHARACTER_NOT_OWNED);
 
   delete player.characterIds[characterId];
   delete party.characters[characterId];

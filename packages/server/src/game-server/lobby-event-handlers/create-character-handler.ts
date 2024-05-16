@@ -2,6 +2,7 @@ import { CombatantClass } from "@speed-dungeon/common/src/combatants";
 import { GameServer } from "..";
 import { ERROR_MESSAGES, ServerToClientEvent, SocketNamespaces } from "@speed-dungeon/common";
 import { generateRandomCharacterName } from "../../utils";
+import errorHandler from "../error-handler";
 
 const ATTEMPT_TEXT = "A client tried to create a character but";
 
@@ -11,16 +12,16 @@ export default function createCharacterHandler(
   characterName: string,
   combatantClass: CombatantClass
 ) {
-  const [_, socketMeta] = this.getConnection(socketId, SocketNamespaces.Main);
+  const [socket, socketMeta] = this.getConnection(socketId, SocketNamespaces.Main);
 
   if (!socketMeta.currentGameName)
-    throw new Error(`${ATTEMPT_TEXT} they didn't know what game they were in`);
+    return errorHandler(socket, `${ATTEMPT_TEXT} they didn't know what game they were in`);
 
   const game = this.games.get(socketMeta.currentGameName);
-  if (!game) throw new Error(`${ATTEMPT_TEXT} their game was not found`);
+  if (!game) return errorHandler(socket, `${ATTEMPT_TEXT} their game was not found`);
   const player = game.players[socketMeta.username];
-  if (!player) throw new Error(`${ATTEMPT_TEXT} their player wasn't in the game`);
-  if (!player.partyName) throw new Error(ERROR_MESSAGES.GAME.MISSING_PARTY_NAME);
+  if (!player) return errorHandler(socket, `${ATTEMPT_TEXT} their player wasn't in the game`);
+  if (!player.partyName) return errorHandler(socket, ERROR_MESSAGES.GAME.MISSING_PARTY_NAME);
 
   if (characterName === "") characterName = generateRandomCharacterName();
 

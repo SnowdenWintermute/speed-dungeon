@@ -10,11 +10,11 @@ export default function characterDeletionHandler(
   mutateGameStore((gameState) => {
     console.log("deleting character ", characterId, " for username ", username);
     const game = gameState.game;
-    if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    if (!game) return errorHandler(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
     const party = game.adventuringParties[partyName];
-    if (!party) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+    if (!party) return errorHandler(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
     const player = game.players[username];
-    if (!player) throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+    if (!player) return errorHandler(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
     delete player.characterIds[characterId];
     delete party.characters[characterId];

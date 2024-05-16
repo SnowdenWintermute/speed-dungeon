@@ -1,5 +1,6 @@
 import { LOBBY_CHANNEL, ServerToClientEvent, SocketNamespaces } from "@speed-dungeon/common";
 import { GameServer } from "..";
+import errorHandler from "../error-handler";
 
 export default function leaveGameHandler(this: GameServer, socketId: string) {
   this.leavePartyHandler(socketId);
@@ -12,7 +13,8 @@ export default function leaveGameHandler(this: GameServer, socketId: string) {
   }
   const game = this.games.get(socketMeta.currentGameName);
   if (!game)
-    throw new Error(
+    return errorHandler(
+      socket,
       "Tried handle a user leaving a game but the game they thought they were in didn't exist"
     );
   game.removePlayer(socketMeta.username);

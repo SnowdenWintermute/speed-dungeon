@@ -1,12 +1,13 @@
 import { ServerToClientEvent, SocketNamespaces } from "@speed-dungeon/common";
 import { GameServer } from "..";
+import errorHandler from "../error-handler";
 
 export default function leavePartyHandler(this: GameServer, socketId: string) {
   const [socket, socketMeta] = this.getConnection(socketId, SocketNamespaces.Main);
   try {
     if (!socketMeta.currentGameName) return;
     const game = this.games.get(socketMeta.currentGameName);
-    if (!game) throw new Error("No game exists");
+    if (!game) return errorHandler(socket, "No game exists");
 
     const partyNameLeaving = game.removePlayerFromParty(socketMeta.username);
     if (!partyNameLeaving) return;

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import CustomError from "./CustomError";
 import { CustomErrorDetails, ERROR_MESSAGES } from "@speed-dungeon/common";
 
-export default function errorHandler(
+export default function expressErrorHandler(
   error: any,
   _req: Request,
   res: Response,

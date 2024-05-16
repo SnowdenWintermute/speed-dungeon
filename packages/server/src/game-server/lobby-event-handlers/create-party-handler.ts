@@ -2,17 +2,25 @@ import { ERROR_MESSAGES, ServerToClientEvent, SocketNamespaces } from "@speed-du
 import { GameServer } from "..";
 import { generateRandomPartyName } from "../../utils";
 import { AdventuringParty } from "@speed-dungeon/common";
+import errorHandler from "../error-handler";
 
 export default function createPartyHandler(this: GameServer, socketId: string, partyName: string) {
   const [socket, socketMeta] = this.getConnection(socketId, SocketNamespaces.Main);
   if (!socketMeta.currentGameName)
-    throw new Error("A client tried to create a party but they didn't know what game they were in");
+    return errorHandler(
+      socket,
+      "A client tried to create a party but they didn't know what game they were in"
+    );
   const game = this.games.get(socketMeta.currentGameName);
   if (!game)
-    throw new Error("A client tried to create a party but their supposed game didn't exist");
+    return errorHandler(
+      socket,
+      "A client tried to create a party but their supposed game didn't exist"
+    );
   const player = game.players[socketMeta.username];
   if (!player)
-    throw new Error(
+    return errorHandler(
+      socket,
       "A client tried to create a party but their game didn't include them in the player list"
     );
 
