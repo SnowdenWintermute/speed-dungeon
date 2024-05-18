@@ -13,6 +13,8 @@ import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import characterCreationHandler from "./lobby-event-handlers/character-creation-handler";
 import characterDeletionHandler from "./lobby-event-handlers/character-deletion-handler";
+import { useAlertStore } from "@/stores/alert-store";
+import { setAlert } from "../alerts";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -21,6 +23,7 @@ function SocketManager() {
   const mutateWebsocketStore = useWebsocketStore().mutateState;
   const mutateLobbyStore = useLobbyStore().mutateState;
   const mutateGameStore = useGameStore().mutateState;
+  const mutateAlertStore = useAlertStore().mutateState;
   const mainSocketOption = useWebsocketStore().mainSocketOption;
   const [connected, setConnected] = useState(false);
 
@@ -50,6 +53,9 @@ function SocketManager() {
         mutateGameStore((state) => {
           state.game = null;
         });
+      });
+      mainSocketOption.on(ServerToClientEvent.ErrorMessage, (message) => {
+        setAlert(mutateAlertStore, message);
       });
       mainSocketOption.on(
         ServerToClientEvent.ChannelFullUpdate,

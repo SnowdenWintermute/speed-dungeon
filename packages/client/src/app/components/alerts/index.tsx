@@ -20,6 +20,7 @@ export function setAlert(
   message: string
 ) {
   mutateAlertStore((alertState) => {
+    console.log("Got error message from server: ", message);
     let newAlert = new Alert(message, AlertType.Error, alertState.lastAlertId.toString());
 
     alertState.alerts.push(newAlert);
@@ -32,10 +33,10 @@ export function setAlert(
   });
 }
 
-function removeAlert(alertState: AlertState, id: string) {
+export function removeAlert(alertState: AlertState, id: string) {
   const indicesToRemove: number[] = [];
-  alertState.alerts.forEach((_, index) => {
-    if (id === index.toString()) {
+  alertState.alerts.forEach((alert, index) => {
+    if (id === alert.id) {
       indicesToRemove.push(index);
     }
   });

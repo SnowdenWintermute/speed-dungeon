@@ -14,30 +14,35 @@ export default function createCharacterHandler(
 ) {
   const [socket, socketMeta] = this.getConnection(socketId, SocketNamespaces.Main);
 
-  if (!socketMeta.currentGameName)
-    return errorHandler(socket, `${ATTEMPT_TEXT} they didn't know what game they were in`);
+  try {
+    if (!socketMeta.currentGameName)
+      return errorHandler(socket, `${ATTEMPT_TEXT} they didn't know what game they were in`);
 
-  const game = this.games.get(socketMeta.currentGameName);
-  if (!game) return errorHandler(socket, `${ATTEMPT_TEXT} their game was not found`);
-  const player = game.players[socketMeta.username];
-  if (!player) return errorHandler(socket, `${ATTEMPT_TEXT} their player wasn't in the game`);
-  if (!player.partyName) return errorHandler(socket, ERROR_MESSAGES.GAME.MISSING_PARTY_NAME);
+    const game = this.games.get(socketMeta.currentGameName);
+    if (!game) return errorHandler(socket, `${ATTEMPT_TEXT} their game was not found`);
+    const player = game.players[socketMeta.username];
+    if (!player) return errorHandler(socket, `${ATTEMPT_TEXT} their player wasn't in the game`);
+    if (!player.partyName) return errorHandler(socket, ERROR_MESSAGES.GAME.MISSING_PARTY_NAME);
 
-  if (characterName === "") characterName = generateRandomCharacterName();
+    if (characterName === "") characterName = generateRandomCharacterName();
 
-  const newCharacterId = game.addCharacterToParty(
-    player.partyName,
-    combatantClass,
-    characterName,
-    player.username
-  );
+    const newCharacterId = game.addCharacterToParty(
+      player.partyName,
+      combatantClass,
+      characterName,
+      player.username
+    );
 
-  player.characterIds[newCharacterId] = null;
+    player.characterIds[newCharacterId] = null;
 
-  const character = game.getCharacter(player.partyName, newCharacterId);
+    const character = game.getCharacter(player.partyName, newCharacterId);
 
-  this.io
-    .of(SocketNamespaces.Main)
-    .in(game.name)
-    .emit(ServerToClientEvent.CharacterCreated, player.partyName, socketMeta.username, character);
+    this.io
+      .of(SocketNamespaces.Main)
+      .in(game.name)
+      .emit(ServerToClientEvent.CharacterCreated, player.partyName, socketMeta.username, character);
+  } catch (e) {
+    if (e instanceof Error) return errorHandler(socket, e.message);
+    else console.error(e);
+  }
 }

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { produce } from "immer";
+import { Alert } from "@/app/components/alerts";
 
 export type AlertState = {
   alerts: Alert[];
