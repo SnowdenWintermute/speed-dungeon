@@ -1,3 +1,4 @@
+import { CombatAction } from "../combat/combat-actions";
 import { CombatantAbility, CombatantAbilityNames } from "./abilities";
 import { CombatAttributes } from "./combat-attributes";
 import { CombatantClass } from "./combatant-classes";
@@ -17,7 +18,7 @@ export class CombatantProperties {
   // inventory: Inventory;
   // traits: Vec<CombatantTraits>;
   // inherent_elemental_affinities: HashMap<MagicalElements; i16>,
-  // selected_combat_action: Option<CombatAction>;
+  selectedCombatAction: null | CombatAction = null;
   // combat_action_targets: Option<CombatActionTarget>;
   constructor(
     public combatantClass: CombatantClass,
