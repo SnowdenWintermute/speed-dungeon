@@ -9,7 +9,6 @@ export default function playerToggledReadyToStartGameHandler(
   username: string
 ) {
   mutateGameStore((gameState) => {
-    console.log("got toggled ready");
     const { game } = gameState;
     if (!game) return setAlert(mutateAlertStore, ERROR_MESSAGES.GAME_DOESNT_EXIST);
 

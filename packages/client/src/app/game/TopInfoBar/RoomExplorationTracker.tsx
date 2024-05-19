@@ -1,0 +1,44 @@
+import { useGameStore } from "@/stores/game-store";
+import { useLobbyStore } from "@/stores/lobby-store";
+import getParty from "@/utils/getParty";
+import { formatDungeonRoomType } from "@speed-dungeon/common/src/adventuring_party/dungeon-room";
+import { BUTTON_HEIGHT_SMALL, SPACING_REM } from "@speed-dungeon/common/src/app_consts";
+import React from "react";
+
+export default function RoomExplorationTracker() {
+  const game = useGameStore().game;
+  const username = useLobbyStore().username;
+  if (!game || !username) return <div>Client error</div>;
+  const party = getParty(game, username);
+  if (typeof party === "string") return <div>{party}</div>;
+
+  return (
+    <ul className="h-full list-none flex items-center">
+      {party.clientCurrentFloorRoomsList.map((roomTypeOption, i) => {
+        const currentRoomClass =
+          party.roomsExplored.onCurrentFloor === i + 1
+            ? "border border-yellow-400"
+            : "border-slate-400";
+
+        const connectionLine =
+          i !== party.clientCurrentFloorRoomsList.length - 1 ? (
+            <span className={"h-[2px] bg-slate-400"} style={{ width: `${SPACING_REM}rem` }} />
+          ) : (
+            <></>
+          );
+
+        return (
+          <>
+            <li
+              className={`pr-2 pl-2 border text-sm flex items-center justify-center ${currentRoomClass}`}
+              style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}
+            >
+              {roomTypeOption === null ? "?" : formatDungeonRoomType(roomTypeOption)}
+            </li>
+            {connectionLine}
+          </>
+        );
+      })}
+    </ul>
+  );
+}

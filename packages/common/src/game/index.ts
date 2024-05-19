@@ -11,6 +11,7 @@ import removePlayer from "./remove-player-from-game";
 import removePlayerFromParty from "./remove-player-from-party";
 import addCharacterToParty from "./add-character-to-party";
 import getCharacter from "./get-character";
+import getCombatantById from "./get-combatant-by-id";
 
 export class SpeedDungeonGame {
   [immerable] = true;
@@ -31,4 +32,5 @@ export class SpeedDungeonGame {
   applyFullUpdate = applyFullUpdate;
   addCharacterToParty = addCharacterToParty;
   getCharacter = getCharacter;
+  getCombatantById = getCombatantById
 }

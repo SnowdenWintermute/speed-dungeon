@@ -6,7 +6,6 @@ import { SpeedDungeonGame } from "@speed-dungeon/common";
 
 export type GameState = {
   game: null | SpeedDungeonGame;
-  currentPartyName: null | string;
   mutateState: (fn: (state: GameState) => void) => void;
 };
 
@@ -17,7 +16,6 @@ export const useGameStore = create<GameState>()(
     devtools(
       (set, _get) => ({
         game: null,
-        currentPartyName: null,
         mutateState: (fn: (state: GameState) => void) => set(produce(fn)),
       }),
       { enabled: true, name: "game store" }

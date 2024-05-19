@@ -3,12 +3,8 @@ import { EntityId } from "../primatives";
 import applyFullUpdate from "./apply-full-update";
 import { PlayerCharacter } from "./player-character";
 import removeCharacter from "./remove-character";
+import { DungeonRoom, DungeonRoomType } from "./dungeon-room";
 export * from "./player-character";
-
-export class DungeonRoom {
-  constructor() {}
-}
-export enum DungeonRoomType {}
 
 export type RoomsExploredTracker = { total: number; onCurrentFloor: number };
 
@@ -21,8 +17,9 @@ export class AdventuringParty {
   characterPositions: string[] = [];
   currentFloor: number = 1;
   roomsExplored: RoomsExploredTracker = { total: 1, onCurrentFloor: 1 };
-  currentRoom: DungeonRoom = new DungeonRoom();
+  currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty, {});
   unexploredRooms: DungeonRoomType[] = [];
+  clientCurrentFloorRoomsList: (null | DungeonRoomType)[] = [];
   battleId: null | EntityId = null;
   timeOfWipe: null | number = null;
   timeOfEscape: null | number = null;

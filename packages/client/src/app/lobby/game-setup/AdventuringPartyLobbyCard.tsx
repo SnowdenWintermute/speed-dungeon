@@ -7,6 +7,7 @@ import React from "react";
 import CharacterLobbyCard from "./CharacterLobbyCard";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import CharacterCreationMenu from "./CharacterCreationMenu";
+import getCurrentPartyName from "@/utils/getCurrentPartyName";
 
 interface Props {
   party: AdventuringParty;
@@ -14,7 +15,11 @@ interface Props {
 
 export default function AdventuringPartyLobbyCard(props: Props) {
   const mainSocketOption = useWebsocketStore().mainSocketOption;
-  const currentPartyName = useGameStore().currentPartyName;
+  const username = useLobbyStore().username;
+  const game = useGameStore().game;
+  if (!username) return <div>Client has no username</div>;
+  if (!game) return <div>No game found</div>;
+  const currentPartyName = getCurrentPartyName(game, username);
 
   function leaveParty() {
     mainSocketOption?.emit(ClientToServerEvent.LeaveParty);

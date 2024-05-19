@@ -1,10 +1,12 @@
+import { CombatantTurnTracker } from "../combat/turn-order";
 import { EntityId } from "../primatives";
 
 export class Battle {
   constructor(
     public id: EntityId,
     public groupA: BattleGroup,
-    public groupB: BattleGroup
+    public groupB: BattleGroup,
+    public turnTrackers: CombatantTurnTracker[]
   ) {}
 }
 

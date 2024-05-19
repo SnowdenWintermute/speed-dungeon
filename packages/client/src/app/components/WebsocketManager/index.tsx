@@ -131,14 +131,6 @@ function SocketManager() {
               state.game?.putPlayerInParty(partyName, username);
             }
           });
-
-          mutateLobbyStore((lobbyState) => {
-            if (lobbyState.username === username) {
-              mutateGameStore((gameState) => {
-                gameState.currentPartyName = partyName;
-              });
-            }
-          });
         }
       );
       mainSocketOption.on(
@@ -167,6 +159,11 @@ function SocketManager() {
       );
       mainSocketOption.on(ServerToClientEvent.PlayerToggledReadyToStartGame, (username) => {
         playerToggledReadyToStartGameHandler(mutateGameStore, mutateAlertStore, username);
+      });
+      mainSocketOption.on(ServerToClientEvent.GameStarted, (timeStarted) => {
+        mutateGameStore((gameState) => {
+          if (gameState.game) gameState.game.timeStarted = timeStarted;
+        });
       });
     }
 

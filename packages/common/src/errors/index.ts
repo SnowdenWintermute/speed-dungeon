@@ -1,5 +1,3 @@
-import { MAX_PARTY_SIZE } from "../app_consts";
-
 export type CustomErrorDetails = { message: string; field?: string };
 
 export const ERROR_MESSAGES = {
@@ -7,6 +5,7 @@ export const ERROR_MESSAGES = {
   GAME_DOESNT_EXIST: "No game by that name exists",
   CLIENT: {
     NO_CURRENT_GAME: "This client has no current game",
+    NO_USERNAME: "Client doesn't know it's own username",
   },
   LOBBY: {
     GAME_EXISTS: "A game by that name already exists",
