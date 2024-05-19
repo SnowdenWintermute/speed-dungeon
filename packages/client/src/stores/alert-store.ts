@@ -10,6 +10,8 @@ export type AlertState = {
   mutateState: (fn: (state: AlertState) => void) => void;
 };
 
+export type MutateAlertStore = (fn: (state: AlertState) => void) => void;
+
 export const useAlertStore = create<AlertState>()(
   immer(
     devtools(

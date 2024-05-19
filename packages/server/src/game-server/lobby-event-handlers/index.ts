@@ -45,4 +45,7 @@ export default function initiateLobbyEventListeners(
   socket.on(ClientToServerEvent.DeleteCharacter, (characterId) => {
     this.deleteCharacterHandler(socket.id, characterId);
   });
+  socket.on(ClientToServerEvent.ToggleReadyToStartGame, () => {
+    this.toggleReadyToStartGameHandler(socket.id );
+  });
 }

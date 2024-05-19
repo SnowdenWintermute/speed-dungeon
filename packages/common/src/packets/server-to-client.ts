@@ -18,6 +18,7 @@ export enum ServerToClientEvent {
   CharacterCreated = "12",
   CharacterDeleted = "13",
   PlayerToggledReadyToStartGame = "14",
+  GameStarted = "15",
 }
 
 export interface ServerToClientEventTypes {
@@ -47,6 +48,7 @@ export interface ServerToClientEventTypes {
     characterId: string
   ) => void;
   [ServerToClientEvent.PlayerToggledReadyToStartGame]: (username: string) => void;
+  [ServerToClientEvent.GameStarted]: (timeStarted: number) => void;
 }
 
 export class GameListEntry {

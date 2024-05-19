@@ -10,6 +10,8 @@ export type GameState = {
   mutateState: (fn: (state: GameState) => void) => void;
 };
 
+export type MutateGameStore = (fn: (state: GameState) => void) => void;
+
 export const useGameStore = create<GameState>()(
   immer(
     devtools(

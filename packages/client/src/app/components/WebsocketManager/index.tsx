@@ -15,6 +15,7 @@ import characterCreationHandler from "./lobby-event-handlers/character-creation-
 import characterDeletionHandler from "./lobby-event-handlers/character-deletion-handler";
 import { useAlertStore } from "@/stores/alert-store";
 import { setAlert } from "../alerts";
+import playerToggledReadyToStartGameHandler from "./lobby-event-handlers/player-toggled-ready-to-start-game-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -143,15 +144,30 @@ function SocketManager() {
       mainSocketOption.on(
         ServerToClientEvent.CharacterCreated,
         (partyName, username, character) => {
-          characterCreationHandler(mutateGameStore, partyName, username, character);
+          characterCreationHandler(
+            mutateGameStore,
+            mutateAlertStore,
+            partyName,
+            username,
+            character
+          );
         }
       );
       mainSocketOption.on(
         ServerToClientEvent.CharacterDeleted,
         (partyName, username, characterId) => {
-          characterDeletionHandler(mutateGameStore, partyName, username, characterId);
+          characterDeletionHandler(
+            mutateGameStore,
+            mutateAlertStore,
+            partyName,
+            username,
+            characterId
+          );
         }
       );
+      mainSocketOption.on(ServerToClientEvent.PlayerToggledReadyToStartGame, (username) => {
+        playerToggledReadyToStartGameHandler(mutateGameStore, mutateAlertStore, username);
+      });
     }
 
     return () => {
