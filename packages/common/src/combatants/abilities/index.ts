@@ -1,3 +1,5 @@
+import getAttributes from "./get-ability-attributes";
+
 export enum CombatantAbilityNames {
   Attack,
   AttackMeleeMainhand,
@@ -9,5 +11,9 @@ export enum CombatantAbilityNames {
 }
 
 export class CombatantAbility {
-  constructor(name: CombatantAbilityNames, level: number) {}
+  constructor(
+    public name: CombatantAbilityNames = CombatantAbilityNames.Attack,
+    public level = 0
+  ) {}
+  static getAttributes = getAttributes;
 }

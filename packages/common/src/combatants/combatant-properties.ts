@@ -23,7 +23,7 @@ export class CombatantProperties {
   constructor(
     public combatantClass: CombatantClass,
     public combatantSpecies: CombatantSpecies,
-    public abilities: { [key in CombatantAbilityNames]?: CombatantAbility },
+    public abilities: Record<CombatantAbilityNames, CombatantAbility>,
     public controllingPlayer: null | string
   ) {}
 }

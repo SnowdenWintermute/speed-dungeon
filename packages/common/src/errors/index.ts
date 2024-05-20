@@ -23,4 +23,7 @@ export const ERROR_MESSAGES = {
     CHARACTER_NOT_OWNED:
       "The provided character is not in the list of that player's owned characters",
   },
+  ABILITIES: {
+    NOT_OWNED: "That ability is not owned by that combatant",
+  },
 };

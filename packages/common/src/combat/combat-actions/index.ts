@@ -15,4 +15,4 @@ interface ConsumableUsed {
   itemId: string;
 }
 
-export type CombatAction = AbilityUsed | ConsumableUsed;
+export type CombatAction = ConsumableUsed | AbilityUsed;
