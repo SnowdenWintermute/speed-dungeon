@@ -15,7 +15,7 @@ export class CombatantProperties {
   experiencePoints: ExperiencePoints = { current: 0, requiredForNextLevel: 100 };
   // status_effects: Vec<StatusEffects>;
   // equipment: HashMap<EquipmentSlots; Item>,
-  // inventory: Inventory;
+  inventory: Inventory;
   // traits: Vec<CombatantTraits>;
   // inherent_elemental_affinities: HashMap<MagicalElements; i16>,
   selectedCombatAction: null | CombatAction = null;

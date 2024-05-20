@@ -1,4 +1,6 @@
-export type EntityId = string;
 export * from "./hash-set";
 export * from "./hash-map";
 export * from "./entity-properties";
+export * from "./max-and-current";
+export * from "./number-range";
+export type EntityId = string;

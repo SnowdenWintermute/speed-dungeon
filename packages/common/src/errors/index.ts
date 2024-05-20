@@ -26,4 +26,7 @@ export const ERROR_MESSAGES = {
   ABILITIES: {
     NOT_OWNED: "That ability is not owned by that combatant",
   },
+  ITEM: {
+    NOT_OWNED: "An item with the provided ID was not found in this inventory",
+  },
 };
