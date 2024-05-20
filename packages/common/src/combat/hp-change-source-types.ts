@@ -2,9 +2,11 @@ import { MagicalElement } from "./magical-elements";
 
 export class HpChangeSource {
   constructor(
-    public category: HpChangeSourceCategory,
-    public physicalDamageTypeOption: null | PhysicalDamageType,
-    public elementOption: null | MagicalElement
+    public category: HpChangeSourceCategory = {
+      type: HpChangeSourceCategoryType.Direct,
+    },
+    public physicalDamageTypeOption: null | PhysicalDamageType = null,
+    public elementOption: null | MagicalElement = null
   ) {}
 }
 

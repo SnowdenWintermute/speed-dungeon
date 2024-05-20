@@ -1,4 +1,4 @@
-export enum CombatAttributes {
+export enum CombatAttribute {
   // DERIVED
   // offensive
   Damage, // adds a flat bonus to physical damage
@@ -27,53 +27,53 @@ export enum CombatAttributes {
 }
 
 export const CORE_ATTRIBUTES = [
-  CombatAttributes.Dexterity,
-  CombatAttributes.Intelligence,
-  CombatAttributes.Strength,
-  CombatAttributes.Vitality,
+  CombatAttribute.Dexterity,
+  CombatAttribute.Intelligence,
+  CombatAttribute.Strength,
+  CombatAttribute.Vitality,
 ];
 
 export const ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES = [
-  CombatAttributes.Dexterity,
-  CombatAttributes.Intelligence,
-  CombatAttributes.Strength,
-  CombatAttributes.Vitality,
-  CombatAttributes.Resilience,
-  CombatAttributes.Focus,
-  CombatAttributes.Agility,
+  CombatAttribute.Dexterity,
+  CombatAttribute.Intelligence,
+  CombatAttribute.Strength,
+  CombatAttribute.Vitality,
+  CombatAttribute.Resilience,
+  CombatAttribute.Focus,
+  CombatAttribute.Agility,
 ];
 
-function getCombatAttributeDescription(attribute: CombatAttributes) {
+function getCombatAttributeDescription(attribute: CombatAttribute) {
   switch (attribute) {
-    case CombatAttributes.Damage:
+    case CombatAttribute.Damage:
       "A flat bonus applied to physical attacks";
-    case CombatAttributes.ArmorPenetration:
+    case CombatAttribute.ArmorPenetration:
       "Negates a target's armor class";
-    case CombatAttributes.Accuracy:
+    case CombatAttribute.Accuracy:
       "Chance to hit a target with an evadable attack";
-    case CombatAttributes.ArmorClass:
+    case CombatAttribute.ArmorClass:
       "Reduces physical damage";
-    case CombatAttributes.Evasion:
+    case CombatAttribute.Evasion:
       "Chance to avoid being hit";
-    case CombatAttributes.Hp:
+    case CombatAttribute.Hp:
       "If reduced to zero; the combatant can no longer take actions";
-    case CombatAttributes.Speed:
+    case CombatAttribute.Speed:
       "Determines turn order";
-    case CombatAttributes.Mp:
+    case CombatAttribute.Mp:
       "The primary resource for using abilities";
-    case CombatAttributes.Focus:
+    case CombatAttribute.Focus:
       "Negates magic defense and increases crit chance and crit multiplier for spells";
-    case CombatAttributes.Dexterity:
+    case CombatAttribute.Dexterity:
       "Increases accuracy; crit chance with physical attacks, ranged attack damage and ranged attack armor penetration";
-    case CombatAttributes.Intelligence:
+    case CombatAttribute.Intelligence:
       "Increases mana and spell damage";
-    case CombatAttributes.Strength:
+    case CombatAttribute.Strength:
       "Increases attack damage; crit multiplier and armor penetration with physical attacks";
-    case CombatAttributes.Vitality:
+    case CombatAttribute.Vitality:
       "Increases hit points";
-    case CombatAttributes.Resilience:
+    case CombatAttribute.Resilience:
       "Reduces magical damage by a percentage and increases healing received from spells";
-    case CombatAttributes.Agility:
+    case CombatAttribute.Agility:
       "Increases evasion and speed";
   }
 }

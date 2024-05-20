@@ -13,8 +13,7 @@ export function getCombatActionPropertiesIfOwned(
         return new Error(ERROR_MESSAGES.ABILITIES.NOT_OWNED);
       else return CombatantAbility.getAttributes(combatAction.abilityName).combatActionProperties;
     case CombatActionType.ConsumableUsed:
-      console.log(combatAction.itemId);
-      break;
+      return this.inventory.getConsumableProperties(combatAction.itemId);
   }
 }
 

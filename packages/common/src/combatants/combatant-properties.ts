@@ -1,21 +1,22 @@
 import { CombatAction } from "../combat/combat-actions";
 import { CombatantAbility, CombatantAbilityNames } from "./abilities";
-import { CombatAttributes } from "./combat-attributes";
+import { CombatAttribute } from "./combat-attributes";
 import { CombatantClass } from "./combatant-classes";
 import { CombatantSpecies } from "./combatant-species";
+import Inventory from "./inventory";
 
 export class CombatantProperties {
-  inherentAttributes: { [key in CombatAttributes]?: number } = {};
+  inherentAttributes: { [key in CombatAttribute]?: number } = {};
   level: number = 1;
   unspentAttributePoints: number = 0;
   unspentAbilityPoints: number = 0;
   hitPoints: number = 0;
   mana: number = 0;
-  speccedAttributes: { [key in CombatAttributes]?: number } = {};
+  speccedAttributes: { [key in CombatAttribute]?: number } = {};
   experiencePoints: ExperiencePoints = { current: 0, requiredForNextLevel: 100 };
   // status_effects: Vec<StatusEffects>;
   // equipment: HashMap<EquipmentSlots; Item>,
-  inventory: Inventory;
+  inventory: Inventory = new Inventory();
   // traits: Vec<CombatantTraits>;
   // inherent_elemental_affinities: HashMap<MagicalElements; i16>,
   selectedCombatAction: null | CombatAction = null;
@@ -23,7 +24,7 @@ export class CombatantProperties {
   constructor(
     public combatantClass: CombatantClass,
     public combatantSpecies: CombatantSpecies,
-    public abilities: Record<CombatantAbilityNames, CombatantAbility>,
+    public abilities: Partial<Record<CombatantAbilityNames, CombatantAbility>>,
     public controllingPlayer: null | string
   ) {}
 }

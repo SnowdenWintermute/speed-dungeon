@@ -12,7 +12,7 @@ interface EquipmentItemProperties {
 }
 
 interface ConsumableItemProperties {
-  type: ItemPropertiesType.Equipment;
+  type: ItemPropertiesType.Consumable;
   value: ConsumableProperties;
 }
 

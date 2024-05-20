@@ -3,6 +3,7 @@ export * from "./errors/";
 export * from "./game/";
 export * from "./battle/";
 export * from "./combat/";
+export * from "./combatants/";
 export * from "./adventuring_party/";
 export * from "./packets/";
 export * from "./primatives/";

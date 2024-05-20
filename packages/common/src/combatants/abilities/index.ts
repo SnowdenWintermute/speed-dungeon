@@ -1,4 +1,4 @@
-import getAttributes from "./get-ability-attributes";
+import getAbilityAttributes from "./get-ability-attributes";
 
 export enum CombatantAbilityNames {
   Attack,
@@ -15,5 +15,6 @@ export class CombatantAbility {
     public name: CombatantAbilityNames = CombatantAbilityNames.Attack,
     public level = 0
   ) {}
-  static getAttributes = getAttributes;
+
+  static getAttributes = getAbilityAttributes;
 }

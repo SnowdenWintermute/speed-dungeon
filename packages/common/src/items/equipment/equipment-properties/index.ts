@@ -1,4 +1,4 @@
-import { CombatAttributes } from "../../../combatants/combat-attributes";
+import { CombatAttribute } from "../../../combatants/combat-attributes";
 import MaxAndCurrent from "../../../primatives/max-and-current";
 import { Affix } from "../affixes";
 import { EquipmentTrait } from "../equipment-traits";
@@ -12,7 +12,7 @@ export default class EquipmentProperties {
     public baseItem: EquipmentBaseItem,
     public equipmentTypeProperties: EquipmentTypeProperties,
     public durability: MaxAndCurrent,
-    public attributes: Record<CombatAttributes, number>,
+    public attributes: Record<CombatAttribute, number>,
     public affixes: Affix[],
     public traits: EquipmentTrait[]
   ) {}

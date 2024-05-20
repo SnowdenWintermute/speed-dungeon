@@ -28,5 +28,6 @@ export const ERROR_MESSAGES = {
   },
   ITEM: {
     NOT_OWNED: "An item with the provided ID was not found in this inventory",
+    INVALID_TYPE: "Tried to access an item of an invalid type",
   },
 };

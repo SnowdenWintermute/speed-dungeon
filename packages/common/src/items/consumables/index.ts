@@ -1,3 +1,5 @@
+import getConsumableCombatActionProperties from "./get-consumable-combat-action-properties";
+
 export enum ConsumableType {
   HpAutoinjector,
   MpAutoinjector,
@@ -8,4 +10,5 @@ export class ConsumableProperties {
     public consumableType: ConsumableType,
     usesRemaining: number
   ) {}
+  getActionProperties = getConsumableCombatActionProperties;
 }
