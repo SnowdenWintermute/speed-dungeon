@@ -1,9 +1,11 @@
+import Item from "../items";
 import { Monster } from "../monsters";
 
 export class DungeonRoom {
+  items: Item[] = [];
+
   constructor(
     public roomType: DungeonRoomType,
-    // items: Item[],
     public monsters: { [entityId: string]: Monster }
   ) {}
 }

@@ -1,4 +1,6 @@
 import { CombatAction } from "../combat/combat-actions";
+import Item from "../items";
+import { EquipmentSlot } from "../items/equipment/slots";
 import { CombatantAbility, CombatantAbilityNames } from "./abilities";
 import { CombatAttribute } from "./combat-attributes";
 import { CombatantClass } from "./combatant-classes";
@@ -6,16 +8,16 @@ import { CombatantSpecies } from "./combatant-species";
 import Inventory from "./inventory";
 
 export class CombatantProperties {
-  inherentAttributes: { [key in CombatAttribute]?: number } = {};
+  inherentAttributes: Partial<Record<CombatAttribute, number>> = {};
   level: number = 1;
   unspentAttributePoints: number = 0;
   unspentAbilityPoints: number = 0;
   hitPoints: number = 0;
   mana: number = 0;
-  speccedAttributes: { [key in CombatAttribute]?: number } = {};
+  speccedAttributes: Partial<Record<CombatAttribute, number>> = {};
   experiencePoints: ExperiencePoints = { current: 0, requiredForNextLevel: 100 };
   // status_effects: Vec<StatusEffects>;
-  // equipment: HashMap<EquipmentSlots; Item>,
+  equipment: Partial<Record<EquipmentSlot, Item>> = {};
   inventory: Inventory = new Inventory();
   // traits: Vec<CombatantTraits>;
   // inherent_elemental_affinities: HashMap<MagicalElements; i16>,

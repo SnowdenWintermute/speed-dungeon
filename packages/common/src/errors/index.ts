@@ -23,10 +23,14 @@ export const ERROR_MESSAGES = {
     CHARACTER_NOT_OWNED:
       "The provided character is not in the list of that player's owned characters",
   },
+  COMBATANT: {
+    NOT_FOUND: "No combatant was found with the provided id",
+  },
   ABILITIES: {
     NOT_OWNED: "That ability is not owned by that combatant",
   },
   ITEM: {
+    NOT_FOUND: "No item was found with the provided ID",
     NOT_OWNED: "An item with the provided ID was not found in this inventory",
     INVALID_TYPE: "Tried to access an item of an invalid type",
   },

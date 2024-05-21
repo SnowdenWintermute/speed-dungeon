@@ -1,5 +1,7 @@
+import { AdventuringParty } from "../adventuring_party";
 import { CombatAction, CombatActionType } from "../combat/combat-actions";
 import { ERROR_MESSAGES } from "../errors";
+import { ItemPropertiesType } from "../items/item-properties";
 import { CombatantAbility } from "./abilities";
 import { CombatantProperties } from "./combatant-properties";
 
@@ -13,9 +15,39 @@ export function getCombatActionPropertiesIfOwned(
         return new Error(ERROR_MESSAGES.ABILITIES.NOT_OWNED);
       else return CombatantAbility.getAttributes(combatAction.abilityName).combatActionProperties;
     case CombatActionType.ConsumableUsed:
-      return this.inventory.getConsumableProperties(combatAction.itemId);
+      const consumableProperties = this.inventory.getConsumableProperties(combatAction.itemId);
+      if (consumableProperties instanceof Error) return consumableProperties;
+      return consumableProperties.getActionProperties();
   }
 }
 
-// will work even if consumable isn't in inventory
-export function getCombatActionProperties() {}
+// for getting properties of consumables on the ground for example
+export function getCombatActionProperties(
+  this: AdventuringParty,
+  combatAction: CombatAction,
+  actionUserId: string
+) {
+  switch (combatAction.type) {
+    case CombatActionType.AbilityUsed:
+      return CombatantAbility.getAttributes(combatAction.abilityName).combatActionProperties;
+    case CombatActionType.ConsumableUsed:
+      const combatantQuery = this.getCombatant(actionUserId);
+      if (!combatantQuery) return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+      const [_, combatantProperties] = combatantQuery;
+      const consumablePropertiesInInventoryResult =
+        combatantProperties.inventory.getConsumableProperties(combatAction.itemId);
+      // if they don't own it, check everywhere else in the party for the item
+      if (consumablePropertiesInInventoryResult instanceof Error) {
+        const itemResult = this.getItem(combatAction.itemId);
+        if (itemResult instanceof Error) return consumablePropertiesInInventoryResult;
+        switch (itemResult.itemProperties.type) {
+          case ItemPropertiesType.Equipment:
+            return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
+          case ItemPropertiesType.Consumable:
+            return itemResult.itemProperties.value.getActionProperties();
+        }
+      }
+
+      return consumablePropertiesInInventoryResult.getActionProperties();
+  }
+}
