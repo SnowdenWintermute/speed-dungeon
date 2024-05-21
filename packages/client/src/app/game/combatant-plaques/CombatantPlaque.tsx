@@ -2,6 +2,7 @@ import { useGameStore } from '@/stores/game-store'
 import { useLobbyStore } from '@/stores/lobby-store';
 import getCurrentBattleOption from '@/utils/getCurrentBattleOption';
 import getGameAndParty from '@/utils/getGameAndParty';
+import getIdsAndSelectedActionsOfCharactersTargetingCombatant from '@speed-dungeon/common/src/adventuring_party/get-ids-and-selected-actions-of-characters-targeting-combatant';
 import { BUTTON_HEIGHT_SMALL } from '@speed-dungeon/common/src/app_consts'
 import React, { useRef, useState }  from 'react'
 
@@ -21,7 +22,7 @@ const battleOption = getCurrentBattleOption(game, party.name);
 const combatantPlaqueRef = useRef<HTMLDivElement>(null);
 const [ portraitHeight, setPortraitHeight ] =useState(0);
 
-const targetedBy = combatantTargetedBy(game,combatantId )
+const targetedBy = party.getIdsAndSelectedActionsOfCharactersTargetingCombatant(entityId )
 
 const targetingIndicators = targetedBy.length ? 
             <div className="absolute top-[-1.5rem] left-1/2 -translate-x-1/2 z-20 flex" >

@@ -31,9 +31,9 @@ export function getCombatActionProperties(
     case CombatActionType.AbilityUsed:
       return CombatantAbility.getAttributes(combatAction.abilityName).combatActionProperties;
     case CombatActionType.ConsumableUsed:
-      const combatantQuery = this.getCombatant(actionUserId);
-      if (!combatantQuery) return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
-      const [_, combatantProperties] = combatantQuery;
+      const combatantResult = this.getCombatant(actionUserId);
+      if (combatantResult instanceof Error) return combatantResult;
+      const [_, combatantProperties] = combatantResult;
       const consumablePropertiesInInventoryResult =
         combatantProperties.inventory.getConsumableProperties(combatAction.itemId);
       // if they don't own it, check everywhere else in the party for the item

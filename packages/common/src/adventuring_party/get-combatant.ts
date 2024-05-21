@@ -1,11 +1,12 @@
 import { AdventuringParty } from ".";
 import { CombatantProperties } from "../combatants/combatant-properties";
+import { ERROR_MESSAGES } from "../errors";
 import { EntityProperties } from "../primatives";
 
 export default function getCombatant(
   this: AdventuringParty,
   entityId: string
-): undefined | [EntityProperties, CombatantProperties] {
+): Error | [EntityProperties, CombatantProperties] {
   const matchedCharacterOption = this.characters[entityId];
   if (matchedCharacterOption) {
     return [matchedCharacterOption.entityProperties, matchedCharacterOption.combatantProperties];
@@ -14,4 +15,6 @@ export default function getCombatant(
   if (matchedMonsterOption) {
     return [matchedMonsterOption.entityProperties, matchedMonsterOption.combatantProperties];
   }
+
+  return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
 }

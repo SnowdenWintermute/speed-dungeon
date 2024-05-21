@@ -1,16 +1,16 @@
 import { SpeedDungeonGame } from ".";
 import { CombatantProperties } from "../combatants/combatant-properties";
+import { ERROR_MESSAGES } from "../errors";
 import { EntityProperties } from "../primatives";
 
 export default function getCombatantById(
   this: SpeedDungeonGame,
   entityId: string
-): undefined | [EntityProperties, CombatantProperties] {
-  let toReturn: undefined | [EntityProperties, CombatantProperties] = undefined;
-  Object.values(this.adventuringParties).forEach((party) => {
-    toReturn = party.getCombatant(entityId);
-    if (toReturn) return;
-  });
+): Error | [EntityProperties, CombatantProperties] {
+  for (let party of Object.values(this.adventuringParties)) {
+    const combatantResult = party.getCombatant(entityId);
+    if (!(combatantResult instanceof Error)) return combatantResult;
+  }
 
-  return toReturn;
+  return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
 }

@@ -1,14 +1,12 @@
 import { CombatAction } from "../combat/combat-actions";
+import { CombatActionTarget } from "../combat/targeting/combat-action-targets";
 import Item from "../items";
 import { EquipmentSlot } from "../items/equipment/slots";
 import { CombatantAbility, CombatantAbilityNames } from "./abilities";
 import { CombatAttribute } from "./combat-attributes";
 import { CombatantClass } from "./combatant-classes";
 import { CombatantSpecies } from "./combatant-species";
-import {
-  getCombatActionProperties,
-  getCombatActionPropertiesIfOwned,
-} from "./get-combat-action-properties";
+import { getCombatActionPropertiesIfOwned } from "./get-combat-action-properties";
 import Inventory from "./inventory";
 
 export class CombatantProperties {
@@ -26,7 +24,7 @@ export class CombatantProperties {
   // traits: Vec<CombatantTraits>;
   // inherent_elemental_affinities: HashMap<MagicalElements; i16>,
   selectedCombatAction: null | CombatAction = null;
-  // combat_action_targets: Option<CombatActionTarget>;
+  combatActionTarget: null | CombatActionTarget = null;
   constructor(
     public combatantClass: CombatantClass,
     public combatantSpecies: CombatantSpecies,
