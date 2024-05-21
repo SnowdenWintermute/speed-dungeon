@@ -26,6 +26,9 @@ export const ERROR_MESSAGES = {
   COMBATANT: {
     NOT_FOUND: "No combatant was found with the provided id",
   },
+  MONSTERS: {
+    NO_MONSTERS_FOUND: "No monsters were found in the current room",
+  },
   ABILITIES: {
     NOT_OWNED: "That ability is not owned by that combatant",
   },

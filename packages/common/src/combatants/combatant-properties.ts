@@ -5,6 +5,10 @@ import { CombatantAbility, CombatantAbilityNames } from "./abilities";
 import { CombatAttribute } from "./combat-attributes";
 import { CombatantClass } from "./combatant-classes";
 import { CombatantSpecies } from "./combatant-species";
+import {
+  getCombatActionProperties,
+  getCombatActionPropertiesIfOwned,
+} from "./get-combat-action-properties";
 import Inventory from "./inventory";
 
 export class CombatantProperties {
@@ -29,6 +33,8 @@ export class CombatantProperties {
     public abilities: Partial<Record<CombatantAbilityNames, CombatantAbility>>,
     public controllingPlayer: null | string
   ) {}
+
+  getPropertiesIfOwned = getCombatActionPropertiesIfOwned;
 }
 
 export type ExperiencePoints = {
