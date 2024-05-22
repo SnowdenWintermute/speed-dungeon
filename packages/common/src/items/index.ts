@@ -1,8 +1,9 @@
 import { CombatAttribute } from "../combatants/combat-attributes";
 import { EntityProperties } from "../primatives";
 import { ItemProperties } from "./item-properties";
+import itemRequirementsMet from "./requirements-met";
 
-export default class Item {
+export class Item {
   constructor(
     public entityProperties: EntityProperties,
     public itemLevel: number,
@@ -22,4 +23,6 @@ export default class Item {
       return array.splice(indexToRemove, 1)[0];
     }
   }
+
+  requirementsMet = itemRequirementsMet;
 }

@@ -1,4 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import {
@@ -16,6 +15,7 @@ import characterDeletionHandler from "./lobby-event-handlers/character-deletion-
 import { useAlertStore } from "@/stores/alert-store";
 import { setAlert } from "../alerts";
 import playerToggledReadyToStartGameHandler from "./lobby-event-handlers/player-toggled-ready-to-start-game-handler";
+import { useGameStore } from "@/stores/game-store";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";

@@ -1,6 +1,6 @@
 import { AdventuringParty } from ".";
 import { ERROR_MESSAGES } from "../errors";
-import Item from "../items";
+import { Item } from "../items";
 
 export default function getItemInAdventuringParty(this: AdventuringParty, itemId: string) {
   let toReturn: undefined | Item;

@@ -33,7 +33,7 @@ export function getCombatActionProperties(
     case CombatActionType.ConsumableUsed:
       const combatantResult = this.getCombatant(actionUserId);
       if (combatantResult instanceof Error) return combatantResult;
-      const [_, combatantProperties] = combatantResult;
+      const { entityProperties: _, combatantProperties: combatantProperties } = combatantResult;
       const consumablePropertiesInInventoryResult =
         combatantProperties.inventory.getConsumableProperties(combatAction.itemId);
       // if they don't own it, check everywhere else in the party for the item
@@ -44,7 +44,7 @@ export function getCombatActionProperties(
           case ItemPropertiesType.Equipment:
             return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
           case ItemPropertiesType.Consumable:
-            return itemResult.itemProperties.value.getActionProperties();
+            return itemResult.itemProperties.consumableProperties.getActionProperties();
         }
       }
 

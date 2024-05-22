@@ -1,4 +1,4 @@
-import Item from "../items";
+import { Item } from "../items";
 import { Monster } from "../monsters";
 
 export class DungeonRoom {

@@ -8,12 +8,12 @@ export enum ItemPropertiesType {
 
 interface EquipmentItemProperties {
   type: ItemPropertiesType.Equipment;
-  value: EquipmentProperties;
+  equipmentProperties: EquipmentProperties;
 }
 
 interface ConsumableItemProperties {
   type: ItemPropertiesType.Consumable;
-  value: ConsumableProperties;
+  consumableProperties: ConsumableProperties;
 }
 
 export type ItemProperties = EquipmentItemProperties | ConsumableItemProperties;

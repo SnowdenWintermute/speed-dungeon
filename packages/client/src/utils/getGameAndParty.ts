@@ -4,10 +4,10 @@ import getParty from "./getParty";
 export default function getGameAndParty(
   game: null | SpeedDungeonGame,
   username: null | string
-): string | [SpeedDungeonGame, AdventuringParty] {
-  if (!game) return ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME;
-  if (!username) return ERROR_MESSAGES.CLIENT.NO_USERNAME;
+): Error | [SpeedDungeonGame, AdventuringParty] {
+  if (!game) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+  if (!username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
   const party = getParty(game, username);
-  if (typeof party === "string") return party;
+  if (party instanceof Error) return party;
   return [game, party];
 }

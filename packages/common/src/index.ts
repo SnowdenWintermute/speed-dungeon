@@ -7,3 +7,4 @@ export * from "./combatants/";
 export * from "./adventuring_party/";
 export * from "./packets/";
 export * from "./primatives/";
+export * from "./items/";

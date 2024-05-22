@@ -3,17 +3,28 @@ import { CombatantProperties } from "../combatants/combatant-properties";
 import { ERROR_MESSAGES } from "../errors";
 import { EntityProperties } from "../primatives";
 
+export type CombatantDetails = {
+  entityProperties: EntityProperties;
+  combatantProperties: CombatantProperties;
+};
+
 export default function getCombatant(
   this: AdventuringParty,
   entityId: string
-): Error | [EntityProperties, CombatantProperties] {
+): Error | CombatantDetails {
   const matchedCharacterOption = this.characters[entityId];
   if (matchedCharacterOption) {
-    return [matchedCharacterOption.entityProperties, matchedCharacterOption.combatantProperties];
+    return {
+      entityProperties: matchedCharacterOption.entityProperties,
+      combatantProperties: matchedCharacterOption.combatantProperties,
+    };
   }
   const matchedMonsterOption = this.currentRoom.monsters[entityId];
   if (matchedMonsterOption) {
-    return [matchedMonsterOption.entityProperties, matchedMonsterOption.combatantProperties];
+    return {
+      entityProperties: matchedMonsterOption.entityProperties,
+      combatantProperties: matchedMonsterOption.combatantProperties,
+    };
   }
 
   return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);

@@ -1,7 +1,7 @@
 import { immerable } from "immer";
 import { INVENTORY_DEFAULT_CAPACITY } from "../app_consts";
 import { ERROR_MESSAGES } from "../errors";
-import Item from "../items";
+import { Item } from "../items";
 import { ItemPropertiesType } from "../items/item-properties";
 
 export default class Inventory {
@@ -33,7 +33,7 @@ export default class Inventory {
 
     switch (item.itemProperties.type) {
       case ItemPropertiesType.Consumable:
-        return item.itemProperties.value;
+        return item.itemProperties.consumableProperties;
       case ItemPropertiesType.Equipment:
         return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
     }

@@ -40,7 +40,7 @@ function filterTargetIdGroupByProhibitedCombatantStates(
   for (let targetId of potentialIds) {
     const combatantResult = party.getCombatant(targetId);
     if (combatantResult instanceof Error) return combatantResult;
-    const [_, combatantProperties] = combatantResult;
+    const { entityProperties: _, combatantProperties: combatantProperties } = combatantResult;
     let targetIsInProhibitedState = false;
 
     for (const combatantState of prohibitedStates) {

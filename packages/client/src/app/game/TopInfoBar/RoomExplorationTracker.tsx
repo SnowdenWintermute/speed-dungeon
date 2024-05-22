@@ -1,8 +1,8 @@
+import { BUTTON_HEIGHT_SMALL, SPACING_REM } from "@/client_consts";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import getParty from "@/utils/getParty";
 import { formatDungeonRoomType } from "@speed-dungeon/common/src/adventuring_party/dungeon-room";
-import { BUTTON_HEIGHT_SMALL, SPACING_REM } from "@speed-dungeon/common/src/app_consts";
 import React from "react";
 
 export default function RoomExplorationTracker() {
