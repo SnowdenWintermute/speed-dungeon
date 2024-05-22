@@ -1,4 +1,9 @@
+import { setAlert } from "@/app/components/alerts";
+import { useAlertStore } from "@/stores/alert-store";
 import { useGameStore } from "@/stores/game-store";
+import { useLobbyStore } from "@/stores/lobby-store";
+import { useWebsocketStore } from "@/stores/websocket-store";
+import { ClientToServerEvent, ERROR_MESSAGES } from "@speed-dungeon/common";
 import React from "react";
 
 interface Props {
@@ -8,12 +13,31 @@ interface Props {
 
 export default function FocusCharacterButton({ combatantId, isFocused }: Props) {
   const conditionalStyles = isFocused ? "bg-slate-400 text-slate-700" : "";
+  const username = useLobbyStore().username;
 
   function handleClick() {
-    let errorOption;
-    useGameStore().mutateState((gameState) => {
-      const characterSwitchingFocusAwayFromId = gameState.focusedCharacterId;
-      //
+    useGameStore().mutateState((store) => {
+      const mutateAlertStore = useAlertStore().mutateState;
+      const partySocketOption = useWebsocketStore().partySocketOption;
+      const characterSwitchingFocusAwayFromId = store.focusedCharacterId;
+      store.selectedItem = null;
+      store.focusedCharacterId = combatantId;
+      const game = store.game;
+      if (!game) return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+      if (!username) return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_USERNAME);
+      const playerOption = game.players[username];
+      if (!playerOption)
+        return setAlert(mutateAlertStore, ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+      const playerOwnsCharacterSwitchingFocusAwayFrom = Object.keys(
+        playerOption.characterIds
+      ).includes(combatantId);
+      if (playerOwnsCharacterSwitchingFocusAwayFrom) {
+        partySocketOption?.emit(
+          ClientToServerEvent.SelectCombatAction,
+          characterSwitchingFocusAwayFromId,
+          null
+        );
+      }
     });
   }
 

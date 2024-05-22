@@ -8,6 +8,7 @@ import { entityIsDetailed } from "@/stores/game-store/detailable-entities";
 import UnspentAttributesButton from "../UnspentAttributesButton";
 import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
 import { useShallow } from "zustand/react/shallow";
+import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 
 interface Props {
   entityId: string;
@@ -89,7 +90,12 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
               }
             </span>
           </div>
-          <ValueBarsAndFocusButton />
+          <ValueBarsAndFocusButton
+            combatantId={entityId}
+            combatantProperties={combatantProperties}
+            isFocused={isFocused}
+            showExperience={showExperience}
+          />
         </div>
       </div>
       <div className="pt-2" style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}>

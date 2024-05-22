@@ -1,3 +1,4 @@
+import { CombatAction } from "../combat";
 import { CombatantClass } from "../combatants";
 
 export enum ClientToServerEvent {
@@ -12,6 +13,7 @@ export enum ClientToServerEvent {
   ToggleReadyToStartGame = "8",
   CreateCharacter = "9",
   DeleteCharacter = "10",
+  SelectCombatAction = "11",
 }
 
 export interface ClientToServerEventTypes {
@@ -29,4 +31,8 @@ export interface ClientToServerEventTypes {
     combatantClass: CombatantClass
   ) => void;
   [ClientToServerEvent.DeleteCharacter]: (characterId: string) => void;
+  [ClientToServerEvent.SelectCombatAction]: (
+    characterId: string,
+    combatActionOption: null | CombatAction
+  ) => void;
 }
