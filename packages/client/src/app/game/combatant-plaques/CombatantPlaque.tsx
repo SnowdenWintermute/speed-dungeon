@@ -5,9 +5,9 @@ import getGameAndParty from "@/utils/getGameAndParty";
 import React, { useRef, useState } from "react";
 import TargetingIndicators from "./TargetingIndicators";
 import { entityIsDetailed } from "@/stores/game-store/detailable-entities";
-import { shallow } from "zustand/shallow";
 import UnspentAttributesButton from "../UnspentAttributesButton";
 import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
+import { useShallow } from "zustand/react/shallow";
 
 interface Props {
   entityId: string;
@@ -17,12 +17,10 @@ interface Props {
 export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const gameOption = useGameStore().game;
   const { detailedEntity, focusedCharacterId } = useGameStore(
-    (state) => ({
-      gameOption: state.game,
+    useShallow((state) => ({
       detailedEntity: state.detailedEntity,
       focusedCharacterId: state.focusedCharacterId,
-    }),
-    shallow
+    }))
   );
   const usernameOption = useLobbyStore().username;
   const result = getGameAndParty(gameOption, usernameOption);
@@ -91,17 +89,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
               }
             </span>
           </div>
-          <div className="h-5 mb-1">{hp_bar}</div>
-          <div className="h-5">{mp_bar}</div>
-          if props.show_experience{" "}
-          {
-            <div className="h-5 mt-1 flex text-sm">
-              {
-                // <FocusCharacterButton id={props.combatant_id} />
-                // {experience_bar}
-              }
-            </div>
-          }
+          <ValueBarsAndFocusButton />
         </div>
       </div>
       <div className="pt-2" style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}>

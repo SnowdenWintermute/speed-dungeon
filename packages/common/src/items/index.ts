@@ -1,3 +1,5 @@
+export * from "./equipment/";
+
 import { CombatAttribute } from "../combatants/combat-attributes";
 import { EntityProperties } from "../primatives";
 import { ItemProperties } from "./item-properties";
