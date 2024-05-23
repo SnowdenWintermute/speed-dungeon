@@ -16,14 +16,28 @@ export class GameState {
   selectedItem: null | Item = null;
   comparedItem: null | Item = null;
   comparedSlot: null | EquipmentSlot = null;
-  constructor(public mutateState: MutateState<GameState>) {}
+
+  constructor(
+    public mutateState: MutateState<GameState>,
+    public get: () => GameState
+  ) {}
+
+  getCurrentParty(username: string) {
+    const state = this.get();
+    const player = state.game?.players[username];
+    if (!player?.partyName) return undefined;
+    return state.game?.adventuringParties[player.partyName];
+  }
 }
 
 export const useGameStore = create<GameState>()(
   immer(
-    devtools((set, _get) => new GameState((fn: (state: GameState) => void) => set(produce(fn))), {
-      enabled: true,
-      name: "game store",
-    })
+    devtools(
+      (set, get) => new GameState((fn: (state: GameState) => void) => set(produce(fn)), get),
+      {
+        enabled: true,
+        name: "game store",
+      }
+    )
   )
 );

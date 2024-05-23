@@ -5,6 +5,7 @@ export const ERROR_MESSAGES = {
   GAME_DOESNT_EXIST: "No game by that name exists",
   CLIENT: {
     NO_CURRENT_GAME: "This client has no current game",
+    NO_CURRENT_PARTY: "Expected this client to have a party but couldn't find it",
     NO_USERNAME: "Client doesn't know it's own username",
   },
   LOBBY: {
