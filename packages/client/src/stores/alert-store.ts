@@ -3,14 +3,13 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { produce } from "immer";
 import { Alert } from "@/app/components/alerts";
+import { MutateState } from "./mutate-state";
 
 export type AlertState = {
   alerts: Alert[];
   lastAlertId: number;
-  mutateState: (fn: (state: AlertState) => void) => void;
+  mutateState: MutateState<AlertState>;
 };
-
-export type MutateAlertStore = (fn: (state: AlertState) => void) => void;
 
 export const useAlertStore = create<AlertState>()(
   immer(

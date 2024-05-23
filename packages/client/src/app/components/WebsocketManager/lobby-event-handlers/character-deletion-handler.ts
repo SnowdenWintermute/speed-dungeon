@@ -1,11 +1,12 @@
-import { MutateAlertStore } from "@/stores/alert-store";
-import { MutateGameStore } from "@/stores/game-store";
+import { AlertState } from "@/stores/alert-store";
 import { ERROR_MESSAGES, removeFromArray } from "@speed-dungeon/common";
 import { setAlert } from "../../alerts";
+import { MutateState } from "@/stores/mutate-state";
+import { GameState } from "@/stores/game-store";
 
 export default function characterDeletionHandler(
-  mutateGameStore: MutateGameStore,
-  mutateAlertStore: MutateAlertStore,
+  mutateGameStore: MutateState<GameState>,
+  mutateAlertStore: MutateState<AlertState>,
   partyName: string,
   username: string,
   characterId: string

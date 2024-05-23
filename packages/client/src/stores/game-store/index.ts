@@ -5,6 +5,7 @@ import { immerable, produce } from "immer";
 import { Item, SpeedDungeonGame } from "@speed-dungeon/common";
 import { DetailableEntity } from "./detailable-entities";
 import { EquipmentSlot } from "@speed-dungeon/common";
+import { MutateState } from "../mutate-state";
 
 export class GameState {
   [immerable] = true;
@@ -15,10 +16,8 @@ export class GameState {
   selectedItem: null | Item = null;
   comparedItem: null | Item = null;
   comparedSlot: null | EquipmentSlot = null;
-  constructor(public mutateState: (fn: (state: GameState) => void) => void) {}
+  constructor(public mutateState: MutateState<GameState>) {}
 }
-
-export type MutateGameStore = (fn: (state: GameState) => void) => void;
 
 export const useGameStore = create<GameState>()(
   immer(

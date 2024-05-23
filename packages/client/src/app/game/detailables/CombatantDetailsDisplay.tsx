@@ -1,12 +1,8 @@
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import Divider from "@/app/components/atoms/Divider";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { useGameStore } from "@/stores/game-store";
-import {
-  CombatantDetails,
-  DISPLAYER,
-  TRAIT_DESCRIPTIONS,
-  formatCombatantTrait,
-} from "@speed-dungeon/common";
+import { CombatantDetails, TRAIT_DESCRIPTIONS, formatCombatantTrait } from "@speed-dungeon/common";
 import React from "react";
 
 interface Props {
@@ -23,8 +19,6 @@ export default function CombatantDetailsDisplay({ combatantDetails }: Props) {
       store.hoveredEntity = null;
     });
   }
-
-  console.log(DISPLAYER["TRAITS"]);
 
   return (
     <div className="flex justify-between ">
@@ -47,13 +41,9 @@ export default function CombatantDetailsDisplay({ combatantDetails }: Props) {
           {combatantProperties.traits.map((item) => (
             <li key={item.type}>
               <span className="inline-block h-6 w-6">
-                {
-                  // <HoverableTooltipWrapper tooltip_text={TRAIT_DESCRIPTIONS[item.type]} >
-                  // <span className="cursor-help h-full w-full inline-block">
-                  // {"ⓘ "}
-                  // </span>
-                  // </HoverableTooltipWrapper>
-                }
+                <HoverableTooltipWrapper tooltipText={TRAIT_DESCRIPTIONS[item.type]}>
+                  <span className="cursor-help h-full w-full inline-block">{"ⓘ "}</span>
+                </HoverableTooltipWrapper>
               </span>
               {formatCombatantTrait(item)}
             </li>

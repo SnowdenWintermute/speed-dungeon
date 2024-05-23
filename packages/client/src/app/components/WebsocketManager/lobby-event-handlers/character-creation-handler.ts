@@ -1,11 +1,12 @@
-import { MutateGameStore } from "@/stores/game-store";
 import { ERROR_MESSAGES, PlayerCharacter } from "@speed-dungeon/common";
 import { setAlert } from "../../alerts";
-import { MutateAlertStore } from "@/stores/alert-store";
+import { GameState } from "@/stores/game-store";
+import { MutateState } from "@/stores/mutate-state";
+import { AlertState } from "@/stores/alert-store";
 
 export default function characterCreationHandler(
-  mutateGameStore: MutateGameStore,
-  mutateAlertStore: MutateAlertStore,
+  mutateGameStore: MutateState<GameState>,
+  mutateAlertStore: MutateState<AlertState>,
   partyName: string,
   username: string,
   character: PlayerCharacter
