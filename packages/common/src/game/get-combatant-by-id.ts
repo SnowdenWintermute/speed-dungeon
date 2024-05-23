@@ -1,5 +1,5 @@
 import { SpeedDungeonGame } from ".";
-import { CombatantDetails } from "../adventuring_party/get-combatant";
+import { CombatantDetails } from "../combatants";
 import { ERROR_MESSAGES } from "../errors";
 
 export default function getCombatantById(

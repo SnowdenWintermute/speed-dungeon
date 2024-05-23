@@ -4,6 +4,7 @@ import { CombatantProperties } from "./combatant-properties";
 export * from "./combatant-classes";
 export * from "./combatant-species";
 export * from "./combatant-properties";
+export * from "./combatant-traits";
 export * from "./abilities/";
 
 export type CombatantDetails = {

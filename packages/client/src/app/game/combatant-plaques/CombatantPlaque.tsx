@@ -39,7 +39,6 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const combatantPlaqueRef = useRef<HTMLDivElement>(null);
   const nameAndBarsRef = useRef<HTMLDivElement>(null);
   const [portraitHeight, setPortraitHeight] = useState(0);
-
   useEffect(() => {
     if (!nameAndBarsRef.current) return;
     const height = nameAndBarsRef.current.clientHeight;

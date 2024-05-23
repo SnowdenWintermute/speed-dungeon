@@ -6,6 +6,7 @@ import { CombatantAbility, CombatantAbilityNames } from "./abilities";
 import { CombatAttribute } from "./combat-attributes";
 import { CombatantClass } from "./combatant-classes";
 import { CombatantSpecies } from "./combatant-species";
+import { CombatantTrait } from "./combatant-traits";
 import { getCombatActionPropertiesIfOwned } from "./get-combat-action-properties";
 import getCombatantTotalAttributes from "./get-combatant-total-attributes";
 import Inventory from "./inventory";
@@ -22,7 +23,7 @@ export class CombatantProperties {
   // status_effects: Vec<StatusEffects>;
   equipment: Partial<Record<EquipmentSlot, Item>> = {};
   inventory: Inventory = new Inventory();
-  // traits: Vec<CombatantTraits>;
+  traits: CombatantTrait[] = [];
   // inherent_elemental_affinities: HashMap<MagicalElements; i16>,
   selectedCombatAction: null | CombatAction = null;
   combatActionTarget: null | CombatActionTarget = null;
