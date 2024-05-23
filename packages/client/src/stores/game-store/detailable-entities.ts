@@ -1,17 +1,16 @@
-import { Item } from "@speed-dungeon/common";
-import { CombatantDetails } from "@speed-dungeon/common/src/adventuring_party/get-combatant";
+import { CombatantDetails, Item } from "@speed-dungeon/common";
 
 export enum DetailableEntityType {
   Combatant,
   Item,
 }
 
-interface ItemDetailable {
+export interface ItemDetailable {
   type: DetailableEntityType.Item;
   item: Item;
 }
 
-interface CombatantDetailable {
+export interface CombatantDetailable {
   type: DetailableEntityType.Combatant;
   combatant: CombatantDetails;
 }

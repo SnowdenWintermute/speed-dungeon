@@ -1,12 +1,6 @@
 import { AdventuringParty } from ".";
-import { CombatantProperties } from "../combatants/combatant-properties";
+import { CombatantDetails } from "../combatants";
 import { ERROR_MESSAGES } from "../errors";
-import { EntityProperties } from "../primatives";
-
-export type CombatantDetails = {
-  entityProperties: EntityProperties;
-  combatantProperties: CombatantProperties;
-};
 
 export default function getCombatant(
   this: AdventuringParty,

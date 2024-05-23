@@ -2,13 +2,14 @@ import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import getGameAndParty from "@/utils/getGameAndParty";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import TargetingIndicators from "./TargetingIndicators";
-import { entityIsDetailed } from "@/stores/game-store/detailable-entities";
+import { DetailableEntityType, entityIsDetailed } from "@/stores/game-store/detailable-entities";
 import UnspentAttributesButton from "../UnspentAttributesButton";
-import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
 import { useShallow } from "zustand/react/shallow";
 import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
+import ActiveCombatantIcon from "./ActiveCombatantIcon";
+import CombatantInfoButton from "./CombatantInfoButton";
 
 interface Props {
   entityId: string;
@@ -17,10 +18,11 @@ interface Props {
 
 export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const gameOption = useGameStore().game;
-  const { detailedEntity, focusedCharacterId } = useGameStore(
+  const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
       detailedEntity: state.detailedEntity,
       focusedCharacterId: state.focusedCharacterId,
+      hoveredEntity: state.hoveredEntity,
     }))
   );
   const usernameOption = useLobbyStore().username;
@@ -30,7 +32,6 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const combatantDetailsResult = party.getCombatant(entityId);
   if (combatantDetailsResult instanceof Error) return <div>{combatantDetailsResult.message}</div>;
   const { entityProperties, combatantProperties } = combatantDetailsResult;
-
   const battleOption = getCurrentBattleOption(game, party.name);
 
   // for measuring the element so we can get the correct portrait height
@@ -38,16 +39,24 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const combatantPlaqueRef = useRef<HTMLDivElement>(null);
   const nameAndBarsRef = useRef<HTMLDivElement>(null);
   const [portraitHeight, setPortraitHeight] = useState(0);
-  const [infoButtonIsHovered, setInfoButtonIsHovered] = useState(false);
+
+  useEffect(() => {
+    if (!nameAndBarsRef.current) return;
+    const height = nameAndBarsRef.current.clientHeight;
+    setPortraitHeight(height);
+  }, []);
+
+  function isHovered() {
+    if (!hoveredEntity) return false;
+    if (hoveredEntity.type !== DetailableEntityType.Combatant) return false;
+    if (hoveredEntity.combatant.entityProperties.id === entityId) return true;
+    return false;
+  }
 
   const combatantIsDetailed = entityIsDetailed(entityId, detailedEntity);
   const isFocused = focusedCharacterId === entityId;
 
-  const conditionalBorder = getConditionalBorder(
-    infoButtonIsHovered,
-    isFocused,
-    combatantIsDetailed
-  );
+  const conditionalBorder = getConditionalBorder(isHovered(), isFocused, combatantIsDetailed);
 
   function handleUnspentAttributesButtonClick() {
     //
@@ -85,9 +94,11 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
               />
             </span>
             <span>
-              {
-                // <CombatantInfoButton combatant_id={combatant_id} info_button_is_hovered={info_button_is_hovered.clone()} />
-              }
+              <CombatantInfoButton
+                combatantId={entityId}
+                entityProperties={entityProperties}
+                combatantProperties={combatantProperties}
+              />
             </span>
           </div>
           <ValueBarsAndFocusButton
@@ -98,9 +109,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
           />
         </div>
       </div>
-      <div className="pt-2" style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}>
-        {is_active_combatant_icon}
-      </div>
+      <ActiveCombatantIcon battleOption={battleOption} combatantId={entityId} />
     </div>
   );
 }
