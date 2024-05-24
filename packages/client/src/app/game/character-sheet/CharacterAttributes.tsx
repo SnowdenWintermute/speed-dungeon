@@ -11,6 +11,7 @@ import {
 import { CombatAttribute } from "@speed-dungeon/common/src/combatants/combat-attributes";
 import React from "react";
 import { AttributeListItem } from "./AttributeListItem";
+import HpAndMp from "./HpAndMp";
 
 interface Props {
   combatantProperties: CombatantProperties;
@@ -62,6 +63,10 @@ export default function CharacterAttributes({
   ));
 
   const hasUnspentAttributePoints = combatantProperties.unspentAbilityPoints > 0;
+  const shouldShowNumberOfUnspentAttributes =
+    hasUnspentAttributePoints &&
+    combatantProperties.controllingPlayer !== null &&
+    showAttributeAssignmentButtons;
 
   return (
     <div className="h-full w-[24.25rem] whitespace-nowrap">
@@ -83,20 +88,25 @@ export default function CharacterAttributes({
       </div>
       <Divider extraStyles={"mr-2 ml-2 "} />
       <div className="flex mb-1">
+        {/*LEFT COLUMN*/}
         <ul className="list-none w-1/2 mr-1">
           {listItems.filter((_, i) => i < halfNumberOfAttributes)}
-          {
-            // unspent_attribute_points_display
-          }
+          {shouldShowNumberOfUnspentAttributes && (
+            <li className="text-ffxipink flex justify-between">
+              <span>"Unspent: "</span>
+              <span>
+                <span>{combatantProperties.unspentAttributePoints}</span>
+              </span>
+            </li>
+          )}
         </ul>
+        {/*RIGHT COLUMN*/}
         <ul className="list-none w-1/2 ml-1">
           {listItems.filter((_, i) => i >= halfNumberOfAttributes)}
         </ul>
       </div>
       <Divider extraStyles={"mr-2 ml-2 "} />
-      {
-        // hp_and_mp::hp_and_mp(&combatantProperties, &total_attributes)
-      }
+      <HpAndMp combatantProperties={combatantProperties} totalAttributes={totalAttributes} />
       {
         // <CharacterSheetWeaponDamage combatant_id={entityProperties.id} />
       }
