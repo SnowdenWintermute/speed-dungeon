@@ -16,7 +16,7 @@ export default function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
     const selectedAction = character.combatantProperties.selectedCombatAction;
     if (!selectedAction) continue;
     const actionPropertiesResult =
-      character.combatantProperties.getPropertiesIfOwned(selectedAction);
+      character.combatantProperties.getCombatActionPropertiesIfOwned(selectedAction);
     if (actionPropertiesResult instanceof Error) {
       error = actionPropertiesResult;
       continue;

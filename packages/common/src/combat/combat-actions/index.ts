@@ -5,12 +5,12 @@ export enum CombatActionType {
   ConsumableUsed,
 }
 
-interface AbilityUsed {
+export interface AbilityUsed {
   type: CombatActionType.AbilityUsed;
   abilityName: CombatantAbilityNames;
 }
 
-interface ConsumableUsed {
+export interface ConsumableUsed {
   type: CombatActionType.ConsumableUsed;
   itemId: string;
 }

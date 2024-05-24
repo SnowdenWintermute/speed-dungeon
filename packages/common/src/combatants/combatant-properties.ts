@@ -36,7 +36,7 @@ export class CombatantProperties {
     public controllingPlayer: null | string
   ) {}
 
-  getPropertiesIfOwned = getCombatActionPropertiesIfOwned;
+  getCombatActionPropertiesIfOwned = getCombatActionPropertiesIfOwned;
   getTotalAttributes = getCombatantTotalAttributes;
   getEquipmentInSlot = getEquipmentInSlot;
   getEquippedWeapon = getEquippedWeapon;
