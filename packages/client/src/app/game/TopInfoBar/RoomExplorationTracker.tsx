@@ -9,8 +9,9 @@ export default function RoomExplorationTracker() {
   const game = useGameStore().game;
   const username = useLobbyStore().username;
   if (!game || !username) return <div>Client error</div>;
-  const party = getParty(game, username);
-  if (typeof party === "string") return <div>{party}</div>;
+  const partyResult = getParty(game, username);
+  if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
+  const party = partyResult;
 
   return (
     <ul className="h-full list-none flex items-center">

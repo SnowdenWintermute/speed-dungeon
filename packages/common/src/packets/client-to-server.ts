@@ -1,5 +1,5 @@
 import { CombatAction } from "../combat";
-import { CombatantClass } from "../combatants";
+import { CombatAttribute, CombatantClass } from "../combatants";
 
 export enum ClientToServerEvent {
   RequestToJoinGame = "0",
@@ -14,6 +14,7 @@ export enum ClientToServerEvent {
   CreateCharacter = "9",
   DeleteCharacter = "10",
   SelectCombatAction = "11",
+  IncrementAttribute = "12",
 }
 
 export interface ClientToServerEventTypes {
@@ -34,5 +35,9 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.SelectCombatAction]: (
     characterId: string,
     combatActionOption: null | CombatAction
+  ) => void;
+  [ClientToServerEvent.IncrementAttribute]: (
+    characterId: string,
+    attribute: CombatAttribute
   ) => void;
 }

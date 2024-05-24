@@ -4,3 +4,4 @@ export function removeFromArray<T>(array: T[], item: T): undefined | T {
     return array.splice(indexToRemove, 1)[0];
   }
 }
+

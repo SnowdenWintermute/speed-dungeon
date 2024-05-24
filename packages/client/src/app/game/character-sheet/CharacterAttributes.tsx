@@ -8,18 +8,20 @@ import {
   EntityProperties,
   formatCombatantClassName,
 } from "@speed-dungeon/common";
+import { CombatAttribute } from "@speed-dungeon/common/src/combatants/combat-attributes";
 import React from "react";
+import { AttributeListItem } from "./AttributeListItem";
 
 interface Props {
   combatantProperties: CombatantProperties;
   entityProperties: EntityProperties;
-  showAttributeAssignmentButton: boolean;
+  showAttributeAssignmentButtons: boolean;
 }
 
 export default function CharacterAttributes({
   combatantProperties,
   entityProperties,
-  showAttributeAssignmentButton,
+  showAttributeAssignmentButtons,
 }: Props) {
   const username = useLobbyStore().username;
   if (!username) return <div>{ERROR_MESSAGES.CLIENT.NO_USERNAME}</div>;
@@ -39,6 +41,27 @@ export default function CharacterAttributes({
       : "";
 
   const totalAttributes = combatantProperties.getTotalAttributes();
+  const totalAttributesSortedArray: [CombatAttribute, number][] = Object.entries(
+    totalAttributes
+  ).map(([key, value]) => {
+    const attribute = parseInt(key) as CombatAttribute;
+    return [attribute, value];
+  });
+  totalAttributesSortedArray.sort((a, b) => a[0] - b[0]);
+  const numberOfAttributes = totalAttributesSortedArray.length;
+  const halfNumberOfAttributes =
+    numberOfAttributes % 2 === 0 ? numberOfAttributes / 2 : (numberOfAttributes - 1) / 2;
+  const listItems = totalAttributesSortedArray.map(([attribute, value]) => (
+    <AttributeListItem
+      attribute={attribute}
+      value={value}
+      combatantHasUnspentAttributePoints={hasUnspentAttributePoints}
+      playerOwnsCharacter={playerOwnsCharacter}
+      showAttributeAssignmentButtonsIfOwned={showAttributeAssignmentButtons}
+    />
+  ));
+
+  const hasUnspentAttributePoints = combatantProperties.unspentAbilityPoints > 0;
 
   return (
     <div className="h-full w-[24.25rem] whitespace-nowrap">
@@ -61,41 +84,13 @@ export default function CharacterAttributes({
       <Divider extraStyles={"mr-2 ml-2 "} />
       <div className="flex mb-1">
         <ul className="list-none w-1/2 mr-1">
-          {
-            // combatant_attributes_as_vec.iter()
-            //   .enumerate()
-            //   .filter(|( i, _ )| i < &half_num_attributes)
-            //   .map(|(_, (attribute, value))|
-            //        attribute_list_item(
-            //                attribute,
-            //                value,
-            //                &game_state,
-            //                has_unspent_attribute_points,
-            //                &websocket_state,
-            //                playerOwnsCharacter,
-            //                *show_attribute_assignment_buttons,
-            //            )).collect::<Html>()
-          }
+          {listItems.filter((_, i) => i < halfNumberOfAttributes)}
           {
             // unspent_attribute_points_display
           }
         </ul>
         <ul className="list-none w-1/2 ml-1">
-          {
-            // combatant_attributes_as_vec.iter()
-            //   .enumerate()
-            //   .filter(|( i, _)| i >= &half_num_attributes)
-            //   .map(|(_, (attribute, value))|
-            //        attribute_list_item(
-            //                attribute,
-            //                value,
-            //                &game_state,
-            //                has_unspent_attribute_points,
-            //                &websocket_state,
-            //                playerOwnsCharacter,
-            //                *show_attribute_assignment_buttons,
-            //            )).collect::<Html>()
-          }
+          {listItems.filter((_, i) => i >= halfNumberOfAttributes)}
         </ul>
       </div>
       <Divider extraStyles={"mr-2 ml-2 "} />

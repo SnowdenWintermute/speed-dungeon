@@ -43,37 +43,72 @@ export const ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES = [
   CombatAttribute.Agility,
 ];
 
-function getCombatAttributeDescription(attribute: CombatAttribute) {
+export function formatCombatAttribute(attribute: CombatAttribute) {
   switch (attribute) {
     case CombatAttribute.Damage:
-      "A flat bonus applied to physical attacks";
-    case CombatAttribute.ArmorPenetration:
-      "Negates a target's armor class";
-    case CombatAttribute.Accuracy:
-      "Chance to hit a target with an evadable attack";
+      return "Damage";
     case CombatAttribute.ArmorClass:
-      "Reduces physical damage";
-    case CombatAttribute.Evasion:
-      "Chance to avoid being hit";
-    case CombatAttribute.Hp:
-      "If reduced to zero; the combatant can no longer take actions";
-    case CombatAttribute.Speed:
-      "Determines turn order";
-    case CombatAttribute.Mp:
-      "The primary resource for using abilities";
-    case CombatAttribute.Focus:
-      "Negates magic defense and increases crit chance and crit multiplier for spells";
+      return "Armor Class";
     case CombatAttribute.Dexterity:
-      "Increases accuracy; crit chance with physical attacks, ranged attack damage and ranged attack armor penetration";
-    case CombatAttribute.Intelligence:
-      "Increases mana and spell damage";
+      return "Dexterity";
     case CombatAttribute.Strength:
-      "Increases attack damage; crit multiplier and armor penetration with physical attacks";
+      return "Strength";
+    case CombatAttribute.Intelligence:
+      return "Intelligence";
     case CombatAttribute.Vitality:
-      "Increases hit points";
+      return "Vitality";
     case CombatAttribute.Resilience:
-      "Reduces magical damage by a percentage and increases healing received from spells";
+      return "Resilience";
     case CombatAttribute.Agility:
-      "Increases evasion and speed";
+      return "Agility";
+    case CombatAttribute.Accuracy:
+      return "Accuracy";
+    case CombatAttribute.Focus:
+      return "Focus";
+    case CombatAttribute.Evasion:
+      return "Evasion";
+    case CombatAttribute.Speed:
+      return "Speed";
+    case CombatAttribute.Hp:
+      return "HP";
+    case CombatAttribute.Mp:
+      return "MP";
+    case CombatAttribute.ArmorPenetration:
+      return "Armor Pen.";
+  }
+}
+
+export function getCombatAttributeDescription(attribute: CombatAttribute) {
+  switch (attribute) {
+    case CombatAttribute.Damage:
+      return "A flat bonus applied to physical attacks";
+    case CombatAttribute.ArmorPenetration:
+      return "Negates a target's armor class";
+    case CombatAttribute.Accuracy:
+      return "Chance to hit a target with an evadable attack";
+    case CombatAttribute.ArmorClass:
+      return "Reduces physical damage";
+    case CombatAttribute.Evasion:
+      return "Chance to avoid being hit";
+    case CombatAttribute.Hp:
+      return "If reduced to zero; the combatant can no longer take actions";
+    case CombatAttribute.Speed:
+      return "Determines turn order";
+    case CombatAttribute.Mp:
+      return "The primary resource for using abilities";
+    case CombatAttribute.Focus:
+      return "Negates magic defense and increases crit chance and crit multiplier for spells";
+    case CombatAttribute.Dexterity:
+      return "Increases accuracy; crit chance with physical attacks, ranged attack damage and ranged attack armor penetration";
+    case CombatAttribute.Intelligence:
+      return "Increases mana and spell damage";
+    case CombatAttribute.Strength:
+      return "Increases attack damage; crit multiplier and armor penetration with physical attacks";
+    case CombatAttribute.Vitality:
+      return "Increases hit points";
+    case CombatAttribute.Resilience:
+      return "Reduces magical damage by a percentage and increases healing received from spells";
+    case CombatAttribute.Agility:
+      return "Increases evasion and speed";
   }
 }

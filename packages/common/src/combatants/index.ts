@@ -5,6 +5,7 @@ export * from "./combatant-classes";
 export * from "./combatant-species";
 export * from "./combatant-properties";
 export * from "./combatant-traits";
+export * from "./combat-attributes";
 export * from "./abilities/";
 
 export type CombatantDetails = {

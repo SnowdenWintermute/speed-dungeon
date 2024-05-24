@@ -1,10 +1,27 @@
-import { DERIVED_ATTRIBUTE_RATIOS } from "../app_consts";
+import {
+  DERIVED_ATTRIBUTE_RATIOS,
+  DEX_TO_RANGED_ARMOR_PEN_RATIO,
+  STR_TO_MELEE_ARMOR_PEN_RATIO,
+} from "../app_consts";
+import { WeaponSlot } from "../items";
+import { EquipmentType } from "../items/equipment/equipment-types";
 import { ItemPropertiesType } from "../items/item-properties";
 import { CombatAttribute } from "./combat-attributes";
 import { CombatantAttributeRecord, CombatantProperties } from "./combatant-properties";
 
-export default function getCombatantTotalAttributes(this: CombatantProperties) {
-  const totalAttributes: CombatantAttributeRecord = {};
+function initializeCombatAttributeRecord() {
+  const allAttributesAsZero: CombatantAttributeRecord = {};
+  for (const value of Object.values(CombatAttribute)) {
+    if (typeof value === "string") continue;
+    allAttributesAsZero[value] = 0;
+  }
+  return allAttributesAsZero as Record<CombatAttribute, number>;
+}
+
+export default function getCombatantTotalAttributes(
+  this: CombatantProperties
+): Record<CombatAttribute, number> {
+  const totalAttributes = initializeCombatAttributeRecord();
 
   addAttributesToAccumulator(this.inherentAttributes, totalAttributes);
   addAttributesToAccumulator(this.speccedAttributes, totalAttributes);
@@ -47,39 +64,35 @@ export default function getCombatantTotalAttributes(this: CombatantProperties) {
     }
   }
 
-  // armor penetration based on equipped MH weapon type
-  // let mh_equipment_option = combatant_properties.get_equipped_item(&EquipmentSlots::MainHand);
-  // // check for sheilds since they can't be used to attack
-  // let mh_weapon_option = EquipmentProperties::get_weapon_equipment_properties_option_from_equipment_properties_option(mh_equipment_option);
-  // let weapon_type_equipped = match mh_weapon_option {
-  //   Some(equipment_properties) => match equipment_properties.equipment_type {
-  //       EquipmentTypes::TwoHandedRangedWeapon(_, _) => MeleeOrRanged::Ranged,
-  //       _ => MeleeOrRanged::Melee,
-  //   },
-  //   None => MeleeOrRanged::Melee,
-  // };
-
-  // let mut total_attributes = combatant_properties.get_total_attributes();
-  // let armor_pen_attribute_bonus_based_on_weapon_type = match weapon_type_equipped {
-  //   MeleeOrRanged::Melee => {
-  //       CombatantProperties::get_armor_pen_derrived_attribute_based_on_weapon_type(
-  //           &total_attributes,
-  //           &CombatAttributes::Strength,
-  //       )
-  //   }
-  //   MeleeOrRanged::Ranged => {
-  //       CombatantProperties::get_armor_pen_derrived_attribute_based_on_weapon_type(
-  //           &total_attributes,
-  //           &CombatAttributes::Dexterity,
-  //       )
-  //   }
-  // };
-  // let total_armor_pen = total_attributes
-  //   .entry(CombatAttributes::ArmorPenetration)
-  //   .or_insert(0);
-  // *total_armor_pen += armor_pen_attribute_bonus_based_on_weapon_type;
+  const derivedArmorPen = getArmorPenDerivedBonus(this, totalAttributes);
+  if (!totalAttributes[CombatAttribute.ArmorPenetration])
+    totalAttributes[CombatAttribute.ArmorPenetration] = 0;
+  totalAttributes[CombatAttribute.ArmorPenetration] += derivedArmorPen;
 
   return totalAttributes;
+}
+
+function getArmorPenDerivedBonus(
+  combatantProperties: CombatantProperties,
+  totalAttributesLessArmorPenBonus: CombatantAttributeRecord
+): number {
+  const mhWeaponOption = combatantProperties.getEquippedWeapon(WeaponSlot.MainHand);
+  let attributeToDeriveFrom = CombatAttribute.Strength;
+  if (mhWeaponOption) {
+    const [weaponProperties, _] = mhWeaponOption;
+    if (weaponProperties.type === EquipmentType.TwoHandedRangedWeapon) {
+      attributeToDeriveFrom = CombatAttribute.Dexterity;
+    }
+  }
+
+  const attributeQuantity = totalAttributesLessArmorPenBonus[attributeToDeriveFrom] || 0;
+
+  switch (attributeToDeriveFrom) {
+    case CombatAttribute.Strength:
+      return attributeQuantity * STR_TO_MELEE_ARMOR_PEN_RATIO;
+    case CombatAttribute.Dexterity:
+      return attributeQuantity * DEX_TO_RANGED_ARMOR_PEN_RATIO;
+  }
 }
 
 function calculateAndAddDerivedAttribute(
