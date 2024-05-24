@@ -9,6 +9,8 @@ import { CombatantSpecies } from "./combatant-species";
 import { CombatantTrait } from "./combatant-traits";
 import { getCombatActionPropertiesIfOwned } from "./get-combat-action-properties";
 import getCombatantTotalAttributes from "./get-combatant-total-attributes";
+import getEquipmentInSlot from "./get-equipment-in-slot";
+import getEquippedWeapon from "./get-equipped-weapon";
 import Inventory from "./inventory";
 
 export class CombatantProperties {
@@ -36,6 +38,8 @@ export class CombatantProperties {
 
   getPropertiesIfOwned = getCombatActionPropertiesIfOwned;
   getTotalAttributes = getCombatantTotalAttributes;
+  getEquipmentInSlot = getEquipmentInSlot;
+  getEquippedWeapon = getEquippedWeapon;
 }
 
 export type ExperiencePoints = {

@@ -47,6 +47,38 @@ export default function getCombatantTotalAttributes(this: CombatantProperties) {
     }
   }
 
+  // armor penetration based on equipped MH weapon type
+  // let mh_equipment_option = combatant_properties.get_equipped_item(&EquipmentSlots::MainHand);
+  // // check for sheilds since they can't be used to attack
+  // let mh_weapon_option = EquipmentProperties::get_weapon_equipment_properties_option_from_equipment_properties_option(mh_equipment_option);
+  // let weapon_type_equipped = match mh_weapon_option {
+  //   Some(equipment_properties) => match equipment_properties.equipment_type {
+  //       EquipmentTypes::TwoHandedRangedWeapon(_, _) => MeleeOrRanged::Ranged,
+  //       _ => MeleeOrRanged::Melee,
+  //   },
+  //   None => MeleeOrRanged::Melee,
+  // };
+
+  // let mut total_attributes = combatant_properties.get_total_attributes();
+  // let armor_pen_attribute_bonus_based_on_weapon_type = match weapon_type_equipped {
+  //   MeleeOrRanged::Melee => {
+  //       CombatantProperties::get_armor_pen_derrived_attribute_based_on_weapon_type(
+  //           &total_attributes,
+  //           &CombatAttributes::Strength,
+  //       )
+  //   }
+  //   MeleeOrRanged::Ranged => {
+  //       CombatantProperties::get_armor_pen_derrived_attribute_based_on_weapon_type(
+  //           &total_attributes,
+  //           &CombatAttributes::Dexterity,
+  //       )
+  //   }
+  // };
+  // let total_armor_pen = total_attributes
+  //   .entry(CombatAttributes::ArmorPenetration)
+  //   .or_insert(0);
+  // *total_armor_pen += armor_pen_attribute_bonus_based_on_weapon_type;
+
   return totalAttributes;
 }
 
