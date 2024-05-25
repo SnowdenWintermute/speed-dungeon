@@ -1,5 +1,3 @@
-import { EquipmentType } from "./equipment-types";
-
 export enum EquipmentTraitType {
   LifeStealPercentage,
   DurabilityBonus,
@@ -10,7 +8,7 @@ export enum EquipmentTraitType {
 
 export class EquipmentTrait {
   constructor(
-    public type: EquipmentType,
+    public type: EquipmentTraitType,
     public value: number = 0
   ) {}
 }

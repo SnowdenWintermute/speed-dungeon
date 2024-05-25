@@ -2,8 +2,10 @@ import { CombatantAttributeRecord } from "../../../combatants/combatant-properti
 import MaxAndCurrent from "../../../primatives/max-and-current";
 import { Affix } from "../affixes";
 import { EquipmentTrait } from "../equipment-traits";
-import { EquipmentBaseItem, EquipmentType } from "../equipment-types";
+import { EquipmentBaseItem } from "../equipment-types";
 import { ArmorProperties } from "./armor-properties";
+import getBaseArmorClass from "./get-base-armor-class";
+import getModifiedWeaponDamageRange from "./get-modified-weapon-damage-range";
 import { ShieldProperties } from "./shield-properties";
 import { WeaponProperties } from "./weapon-properties";
 
@@ -17,16 +19,8 @@ export default class EquipmentProperties {
     public traits: EquipmentTrait[]
   ) {}
 
-  getBaseArmorClass() {
-    switch (this.equipmentTypeProperties.type) {
-      case EquipmentType.BodyArmor:
-      case EquipmentType.HeadGear:
-      case EquipmentType.Shield:
-        return this.equipmentTypeProperties.armorClass;
-      default:
-        return 0;
-    }
-  }
+  getBaseArmorClass = getBaseArmorClass;
+  getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
 }
 
 export type EquipmentTypeProperties = ArmorProperties | WeaponProperties | ShieldProperties;

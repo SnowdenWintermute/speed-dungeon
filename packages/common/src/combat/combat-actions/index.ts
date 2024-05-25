@@ -1,3 +1,5 @@
+export * from "./calculate-combat-action-hp-change-range";
+
 import { CombatantAbilityNames } from "../../combatants";
 
 export enum CombatActionType {

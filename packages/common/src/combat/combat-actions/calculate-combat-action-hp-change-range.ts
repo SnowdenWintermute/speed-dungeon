@@ -7,7 +7,8 @@ import { CombatActionHpChangeProperties } from "./combat-action-properties";
 export function calculateCombatActionHpChangeRange(
   userCombatantProperties: CombatantProperties,
   hpChangeProperties: CombatActionHpChangeProperties,
-  abilityLevelAndBaseValueScalingFactorOption: null | [number, number]
+  abilityLevel: number,
+  baseHpChangeValuesLevelMultiplier: number = 1
 ): Error | NumberRange {
   let userCombatAttributes = userCombatantProperties.getTotalAttributes();
   let combatantLevel = userCombatantProperties.level;
@@ -15,11 +16,8 @@ export function calculateCombatActionHpChangeRange(
   let { min, max } = hpChangeProperties.baseValues;
 
   // add to base values if level greater than 1
-  if (abilityLevelAndBaseValueScalingFactorOption) {
-    const [level, scalingFactor] = abilityLevelAndBaseValueScalingFactorOption;
-    min = min * level * scalingFactor;
-    min = max * level * scalingFactor;
-  }
+  min = min * abilityLevel * baseHpChangeValuesLevelMultiplier;
+  min = max * abilityLevel * baseHpChangeValuesLevelMultiplier;
 
   // add scaling attribute to range
   if (hpChangeProperties.additiveAttributeAndPercentScalingFactor) {

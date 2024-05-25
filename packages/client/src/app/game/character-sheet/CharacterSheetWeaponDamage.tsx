@@ -1,13 +1,13 @@
 import {
-  AbilityUsed,
   CombatAction,
   CombatActionType,
   CombatAttribute,
   CombatantAbilityNames,
   CombatantProperties,
   WeaponSlot,
+  calculateCombatActionHpChangeRange,
 } from "@speed-dungeon/common";
-import { getCombatActionPropertiesIfOwned } from "@speed-dungeon/common/src/combatants/get-combat-action-properties";
+import getAbilityAttributes from "@speed-dungeon/common/src/combatants/abilities/get-ability-attributes";
 import { EquipmentType } from "@speed-dungeon/common/src/items/equipment/equipment-types";
 import React from "react";
 
@@ -24,15 +24,12 @@ export default function CharacterSheetWeaponDamage({
   if (mhWeaponOption) {
     const [mhWeaponProperties, mhWeaponTraits] = mhWeaponOption;
     switch (mhWeaponProperties.type) {
-      case EquipmentType.OneHandedMeleeWeapon:
-        break;
+      case EquipmentType.TwoHandedRangedWeapon:
+        mhAbilityName = CombatantAbilityNames.AttackRangedMainhand;
       case EquipmentType.TwoHandedMeleeWeapon:
         mhIsTwoHanded = true;
         break;
-      case EquipmentType.TwoHandedRangedWeapon:
-        mhIsTwoHanded = true;
-        mhAbilityName = CombatantAbilityNames.AttackRangedMainhand;
-        break;
+      case EquipmentType.OneHandedMeleeWeapon:
     }
   }
 
@@ -41,8 +38,20 @@ export default function CharacterSheetWeaponDamage({
     abilityName: mhAbilityName,
   };
 
-  const mhAttackActionProperties =
+  const mhAttackActionPropertiesResult =
     combatantProperties.getCombatActionPropertiesIfOwned(mhAttackAction);
+  if (mhAttackActionPropertiesResult instanceof Error)
+    return <div>{mhAttackActionPropertiesResult.message}</div>;
+  const mhAbilityAttributes = getAbilityAttributes(mhAbilityName);
+
+  const mhDamageRangeResult = calculateCombatActionHpChangeRange(
+    combatantProperties,
+    mhAttackActionPropertiesResult.hpChangeProperties!,
+    1,
+    mhAbilityAttributes.baseHpChangeValuesLevelMultiplier
+  );
+
+  if (mhDamageRangeResult instanceof Error) return <div>{mhDamageRangeResult.message}</div>;
 
   return (
     <div className="flex">
