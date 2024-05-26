@@ -18,6 +18,7 @@ export class GameState {
   comparedItem: null | Item = null;
   comparedSlot: null | EquipmentSlot = null;
   consideredItemUnmetRequirements: null | CombatAttribute[] = null;
+  viewingInventory: boolean = false;
 
   constructor(
     public mutateState: MutateState<GameState>,

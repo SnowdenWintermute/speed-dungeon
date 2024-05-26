@@ -4,11 +4,16 @@ import {
   CombatAttribute,
   CombatantAbilityNames,
   CombatantProperties,
+  ERROR_MESSAGES,
+  EquipmentSlot,
   WeaponSlot,
   calculateCombatActionHpChangeRange,
 } from "@speed-dungeon/common";
 import getAbilityAttributes from "@speed-dungeon/common/src/combatants/abilities/get-ability-attributes";
+import { WeaponProperties } from "@speed-dungeon/common/src/items/equipment/equipment-properties/weapon-properties";
+import { EquipmentTrait } from "@speed-dungeon/common/src/items/equipment/equipment-traits";
 import { EquipmentType } from "@speed-dungeon/common/src/items/equipment/equipment-types";
+import NumberRange from "@speed-dungeon/common/src/primatives/number-range";
 import React from "react";
 
 export default function CharacterSheetWeaponDamage({
@@ -18,49 +23,119 @@ export default function CharacterSheetWeaponDamage({
 }) {
   const combatAttributes = combatantProperties.getTotalAttributes();
   const combatantAccuracy = combatAttributes[CombatAttribute.Accuracy] || 0;
+
   const mhWeaponOption = combatantProperties.getEquippedWeapon(WeaponSlot.MainHand);
-  let mhIsTwoHanded = false;
-  let mhAbilityName = CombatantAbilityNames.AttackMeleeMainhand;
-  if (mhWeaponOption) {
-    const [mhWeaponProperties, mhWeaponTraits] = mhWeaponOption;
-    switch (mhWeaponProperties.type) {
+  const mhDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(
+    combatantProperties,
+    mhWeaponOption,
+    combatantAccuracy,
+    false
+  );
+  const isTwoHanded = mhWeaponOption ? mhWeaponOption[0].isTwoHanded() : false;
+  const ohEquipmentOption = combatantProperties.getEquipmentInSlot(EquipmentSlot.OffHand);
+  let ohDamageAndAccuracyResult;
+  if (!isTwoHanded && ohEquipmentOption?.equipmentTypeProperties.type !== EquipmentType.Shield) {
+    const ohWeaponOption = combatantProperties.getEquippedWeapon(WeaponSlot.OffHand);
+    ohDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(
+      combatantProperties,
+      ohWeaponOption,
+      combatantAccuracy,
+      true
+    );
+  }
+
+  if (mhDamageAndAccuracyResult instanceof Error)
+    return <div>{mhDamageAndAccuracyResult.message}</div>;
+  if (ohDamageAndAccuracyResult instanceof Error)
+    return <div>{ohDamageAndAccuracyResult.message}</div>;
+
+  return (
+    <div className="flex">
+      <WeaponDamageEntry
+        damageAndAccuracyOption={mhDamageAndAccuracyResult}
+        label="Main Hand"
+        paddingClass="mr-1"
+      />
+      <WeaponDamageEntry
+        damageAndAccuracyOption={ohDamageAndAccuracyResult}
+        label="Off Hand"
+        paddingClass="mr-1"
+      />
+    </div>
+  );
+}
+
+interface WeaponDamageEntryProps {
+  damageAndAccuracyOption: undefined | [NumberRange, number];
+  label: string;
+  paddingClass: string;
+}
+
+function WeaponDamageEntry(props: WeaponDamageEntryProps) {
+  if (!props.damageAndAccuracyOption) return <div className={`w-1/2 mr-1${props.paddingClass}`} />;
+  const [damage, accuracy] = props.damageAndAccuracyOption;
+
+  return (
+    <div className={`w-1/2 ${props.paddingClass}`}>
+      <div className="w-full flex justify-between">
+        <span>{props.label}</span>
+        <span>{`${damage.min}-${damage.max}`}</span>
+      </div>
+      <div className="w-full flex justify-between">
+        <span>{"Accuracy"}</span>
+        <span>{accuracy}</span>
+      </div>
+    </div>
+  );
+}
+
+function getAttackAbilityDamageAndAccuracy(
+  combatantProperties: CombatantProperties,
+  weaponOption: undefined | [WeaponProperties, EquipmentTrait[]],
+  combatantAccuracy: number,
+  isOffHand: boolean
+): Error | [NumberRange, number] {
+  let abilityName = isOffHand
+    ? CombatantAbilityNames.AttackMeleeOffhand
+    : CombatantAbilityNames.AttackMeleeMainhand;
+
+  if (weaponOption) {
+    const [weaponProperties, _] = weaponOption;
+    switch (weaponProperties.type) {
       case EquipmentType.TwoHandedRangedWeapon:
-        mhAbilityName = CombatantAbilityNames.AttackRangedMainhand;
+        abilityName = CombatantAbilityNames.AttackRangedMainhand;
       case EquipmentType.TwoHandedMeleeWeapon:
-        mhIsTwoHanded = true;
         break;
       case EquipmentType.OneHandedMeleeWeapon:
     }
   }
 
-  const mhAttackAction: CombatAction = {
+  const attackAction: CombatAction = {
     type: CombatActionType.AbilityUsed,
-    abilityName: mhAbilityName,
+    abilityName: abilityName,
   };
 
-  const mhAttackActionPropertiesResult =
-    combatantProperties.getCombatActionPropertiesIfOwned(mhAttackAction);
-  if (mhAttackActionPropertiesResult instanceof Error)
-    return <div>{mhAttackActionPropertiesResult.message}</div>;
-  const mhAbilityAttributes = getAbilityAttributes(mhAbilityName);
+  const attackActionPropertiesResult =
+    combatantProperties.getCombatActionPropertiesIfOwned(attackAction);
+  if (attackActionPropertiesResult instanceof Error) return attackActionPropertiesResult;
+  if (attackActionPropertiesResult.hpChangeProperties === null)
+    return new Error(ERROR_MESSAGES.ABILITIES.INVALID_TYPE);
+  const hpChangeProperties = attackActionPropertiesResult.hpChangeProperties;
+  const abilityAttributes = getAbilityAttributes(abilityName);
 
-  const mhDamageRangeResult = calculateCombatActionHpChangeRange(
+  const damageRangeResult = calculateCombatActionHpChangeRange(
     combatantProperties,
-    mhAttackActionPropertiesResult.hpChangeProperties!,
+    hpChangeProperties,
     1,
-    mhAbilityAttributes.baseHpChangeValuesLevelMultiplier
+    abilityAttributes.baseHpChangeValuesLevelMultiplier
   );
 
-  if (mhDamageRangeResult instanceof Error) return <div>{mhDamageRangeResult.message}</div>;
+  if (damageRangeResult instanceof Error) return damageRangeResult;
 
-  return (
-    <div className="flex">
-      {
-        // weapon_damage_entry(mh_damage_and_acc_option, &"Main Hand", &"mr-1")
-      }
-      {
-        // weapon_damage_entry(oh_damage_and_acc_option, &"Off Hand", &"ml-1")
-      }
-    </div>
-  );
+  damageRangeResult;
+  damageRangeResult.min *= hpChangeProperties.finalDamagePercentMultiplier;
+  damageRangeResult.max *= hpChangeProperties.finalDamagePercentMultiplier;
+  const modifiedAccuracy = combatantAccuracy * hpChangeProperties.accuracyPercentModifier;
+
+  return [damageRangeResult, modifiedAccuracy];
 }

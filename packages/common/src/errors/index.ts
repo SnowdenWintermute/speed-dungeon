@@ -32,6 +32,7 @@ export const ERROR_MESSAGES = {
   },
   ABILITIES: {
     NOT_OWNED: "That ability is not owned by that combatant",
+    INVALID_TYPE: "Invalid ability type",
   },
   ITEM: {
     NOT_FOUND: "No item was found with the provided ID",

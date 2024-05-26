@@ -12,6 +12,7 @@ import { CombatAttribute } from "@speed-dungeon/common/src/combatants/combat-att
 import React from "react";
 import { AttributeListItem } from "./AttributeListItem";
 import HpAndMp from "./HpAndMp";
+import CharacterSheetWeaponDamage from "./CharacterSheetWeaponDamage";
 
 interface Props {
   combatantProperties: CombatantProperties;
@@ -107,9 +108,7 @@ export default function CharacterAttributes({
       </div>
       <Divider extraStyles={"mr-2 ml-2 "} />
       <HpAndMp combatantProperties={combatantProperties} totalAttributes={totalAttributes} />
-      {
-        // <CharacterSheetWeaponDamage combatant_id={entityProperties.id} />
-      }
+      <CharacterSheetWeaponDamage combatantProperties={combatantProperties} />
     </div>
   );
 }

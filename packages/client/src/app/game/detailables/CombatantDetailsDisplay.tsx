@@ -4,6 +4,7 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { useGameStore } from "@/stores/game-store";
 import { CombatantDetails, TRAIT_DESCRIPTIONS, formatCombatantTrait } from "@speed-dungeon/common";
 import React from "react";
+import CharacterAttributes from "../character-sheet/CharacterAttributes";
 
 interface Props {
   combatantDetails: CombatantDetails;
@@ -22,12 +23,11 @@ export default function CombatantDetailsDisplay({ combatantDetails }: Props) {
 
   return (
     <div className="flex justify-between ">
-      {
-        // <CharacterAttributes
-        // combatantProperties={combatantProperties}
-        // entityProperties={entityProperties}
-        // />
-      }
+      <CharacterAttributes
+        combatantProperties={combatantProperties}
+        entityProperties={entityProperties}
+        showAttributeAssignmentButtons={false}
+      />
       <div className="h-full pl-4 w-1/2">
         <div className="w-full flex justify-end">
           <ButtonBasic onClick={closeDisplay}>{"Close"}</ButtonBasic>

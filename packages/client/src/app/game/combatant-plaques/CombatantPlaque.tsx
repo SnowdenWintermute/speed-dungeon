@@ -10,6 +10,7 @@ import { useShallow } from "zustand/react/shallow";
 import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
+import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
 
 interface Props {
   entityId: string;
@@ -18,6 +19,7 @@ interface Props {
 
 export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const gameOption = useGameStore().game;
+  const mutateGameState = useGameStore().mutateState;
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
       detailedEntity: state.detailedEntity,
@@ -58,7 +60,10 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const conditionalBorder = getConditionalBorder(isHovered(), isFocused, combatantIsDetailed);
 
   function handleUnspentAttributesButtonClick() {
-    //
+    mutateGameState((store) => {
+      store.focusedCharacterId = entityId;
+      store.viewingInventory = true;
+    });
   }
 
   return (
@@ -68,13 +73,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
         ref={combatantPlaqueRef}
       >
         <TargetingIndicators party={party} entityId={entityId} />
-        {
-          // <DetailedCombatantInfoCard
-          // combatant_id={combatant_id}
-          // combatant_plaque_ref={combatant_plaque_ref.clone()}
-          // info_button_is_hovered={info_button_is_hovered.clone()}
-          // />
-        }
+        <DetailedCombatantInfoCard combatantId={entityId} combatantPlaqueRef={combatantPlaqueRef} />
         <div
           className="h-full aspect-square mr-2 border border-slate-400 bg-slate-600 rounded-full relative"
           style={{ height: `${portraitHeight}px;` }}
