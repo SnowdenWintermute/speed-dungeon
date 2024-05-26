@@ -2,7 +2,7 @@ import { CombatAction } from "../combat/combat-actions";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets";
 import { Item } from "../items";
 import { EquipmentSlot } from "../items/equipment/slots";
-import { CombatantAbility, CombatantAbilityNames } from "./abilities";
+import { CombatantAbility, CombatantAbilityName } from "./abilities";
 import { CombatAttribute } from "./combat-attributes";
 import { CombatantClass } from "./combatant-classes";
 import { CombatantSpecies } from "./combatant-species";
@@ -12,6 +12,7 @@ import getCombatantTotalAttributes from "./get-combatant-total-attributes";
 import getEquipmentInSlot from "./get-equipment-in-slot";
 import getEquippedWeapon from "./get-equipped-weapon";
 import Inventory from "./inventory";
+import setHpAndMpToMax from "./set-hp-and-mp-to-max";
 
 export class CombatantProperties {
   inherentAttributes: CombatantAttributeRecord = {};
@@ -32,7 +33,7 @@ export class CombatantProperties {
   constructor(
     public combatantClass: CombatantClass,
     public combatantSpecies: CombatantSpecies,
-    public abilities: Partial<Record<CombatantAbilityNames, CombatantAbility>>,
+    public abilities: Partial<Record<CombatantAbilityName, CombatantAbility>>,
     public controllingPlayer: null | string
   ) {}
 
@@ -40,6 +41,7 @@ export class CombatantProperties {
   getTotalAttributes = getCombatantTotalAttributes;
   getEquipmentInSlot = getEquipmentInSlot;
   getEquippedWeapon = getEquippedWeapon;
+  setHpAndMpToMax = setHpAndMpToMax;
 }
 
 export type ExperiencePoints = {

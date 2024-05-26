@@ -23,7 +23,7 @@ export default function addCharacterToParty(
     nameOfControllingUser,
     combatantClass,
     characterName,
-    characterId
+    this.idGenerator
   );
 
   newCharacter.combatantProperties.getTotalAttributes();

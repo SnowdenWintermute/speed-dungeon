@@ -12,13 +12,14 @@ interface Props {
 }
 
 export default function FocusCharacterButton({ combatantId, isFocused }: Props) {
+  const mutateGameState = useGameStore().mutateState;
+  const mutateAlertStore = useAlertStore().mutateState;
+  const partySocketOption = useWebsocketStore().partySocketOption;
   const conditionalStyles = isFocused ? "bg-slate-400 text-slate-700" : "";
   const username = useLobbyStore().username;
 
   function handleClick() {
-    useGameStore().mutateState((store) => {
-      const mutateAlertStore = useAlertStore().mutateState;
-      const partySocketOption = useWebsocketStore().partySocketOption;
+    mutateGameState((store) => {
       const characterSwitchingFocusAwayFromId = store.focusedCharacterId;
       store.selectedItem = null;
       store.focusedCharacterId = combatantId;

@@ -1,4 +1,4 @@
-import { ERROR_MESSAGES, PlayerCharacter } from "@speed-dungeon/common";
+import { CombatantProperties, ERROR_MESSAGES, PlayerCharacter } from "@speed-dungeon/common";
 import { setAlert } from "../../alerts";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
@@ -22,16 +22,15 @@ export default function characterCreationHandler(
     const characterId = character.entityProperties.id;
 
     // recreate the class on the client because need to get the combatant properties methods
-    const characterWithClassMethods = new PlayerCharacter(
-      character.nameOfControllingUser,
+    const combatantPropertiesWithClassMethods = new CombatantProperties(
       character.combatantProperties.combatantClass,
-      character.entityProperties.name,
-      characterId
+      character.combatantProperties.combatantSpecies,
+      character.combatantProperties.abilities,
+      character.combatantProperties.controllingPlayer
     );
-    console.log(character.combatantProperties);
-    Object.assign(characterWithClassMethods.combatantProperties, character.combatantProperties);
+    Object.assign(combatantPropertiesWithClassMethods, character.combatantProperties);
 
-    party.characters[characterId] = characterWithClassMethods;
+    party.characters[characterId] = character;
     party.characterPositions.push(characterId);
     player.characterIds[characterId] = null;
   });

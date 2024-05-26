@@ -1,4 +1,4 @@
-import { CombatantAbilityNames } from ".";
+import { CombatantAbilityName } from ".";
 import CombatActionProperties, {
   AbilityUsableContext,
   CombatActionHpChangeProperties,
@@ -17,17 +17,17 @@ import CombatantAbilityAttributes from "./ability-attributes";
 
 // @TODO - performance - store computed values from this function
 
-export default function getAbilityAttributes(abilityName: CombatantAbilityNames) {
+export default function getAbilityAttributes(abilityName: CombatantAbilityName) {
   const attr = new CombatantAbilityAttributes();
   const cap = new CombatActionProperties();
   const hpcp = new CombatActionHpChangeProperties();
   switch (abilityName) {
-    case CombatantAbilityNames.Attack:
+    case CombatantAbilityName.Attack:
       attr.manaCost = 0;
       attr.isMelee = true;
       cap.description = "Use equipped weapon(s) or fists to strike the enemy.";
       break;
-    case CombatantAbilityNames.AttackMeleeMainhand:
+    case CombatantAbilityName.AttackMeleeMainhand:
       attr.isMelee = true;
       attr.baseHpChangeValuesLevelMultiplier = 1.0;
       hpcp.baseValues = new NumberRange(1, 1);
@@ -42,7 +42,7 @@ export default function getAbilityAttributes(abilityName: CombatantAbilityNames)
         meleeOrRanged: MeleeOrRanged.Melee,
       };
       break;
-    case CombatantAbilityNames.AttackMeleeOffhand:
+    case CombatantAbilityName.AttackMeleeOffhand:
       attr.isMelee = true;
       attr.baseHpChangeValuesLevelMultiplier = 1.0;
       hpcp.baseValues = new NumberRange(1, 1);
@@ -57,7 +57,7 @@ export default function getAbilityAttributes(abilityName: CombatantAbilityNames)
         meleeOrRanged: MeleeOrRanged.Melee,
       };
       break;
-    case CombatantAbilityNames.AttackRangedMainhand:
+    case CombatantAbilityName.AttackRangedMainhand:
       attr.isMelee = false;
       attr.baseHpChangeValuesLevelMultiplier = 1.0;
       hpcp.baseValues = new NumberRange(1, 1);
@@ -72,7 +72,7 @@ export default function getAbilityAttributes(abilityName: CombatantAbilityNames)
         meleeOrRanged: MeleeOrRanged.Ranged,
       };
       break;
-    case CombatantAbilityNames.Fire:
+    case CombatantAbilityName.Fire:
       attr.manaCost = 2;
       attr.abilityLevelManaCostMultiplier = 1;
       attr.combatantLevelManaCostMultiplier = 1;
@@ -89,7 +89,7 @@ export default function getAbilityAttributes(abilityName: CombatantAbilityNames)
       };
       hpcp.sourceProperties.elementOption = MagicalElement.Fire;
       break;
-    case CombatantAbilityNames.Ice:
+    case CombatantAbilityName.Ice:
       attr.manaCost = 2;
       attr.abilityLevelManaCostMultiplier = 1;
       attr.combatantLevelManaCostMultiplier = 1;
@@ -106,7 +106,7 @@ export default function getAbilityAttributes(abilityName: CombatantAbilityNames)
       };
       hpcp.sourceProperties.elementOption = MagicalElement.Ice;
       break;
-    case CombatantAbilityNames.Healing:
+    case CombatantAbilityName.Healing:
       attr.manaCost = 2;
       attr.abilityLevelManaCostMultiplier = 1;
       attr.combatantLevelManaCostMultiplier = 1;

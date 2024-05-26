@@ -1,6 +1,6 @@
 export * from "./calculate-combat-action-hp-change-range";
 
-import { CombatantAbilityNames } from "../../combatants";
+import { CombatantAbilityName } from "../../combatants";
 
 export enum CombatActionType {
   AbilityUsed,
@@ -9,7 +9,7 @@ export enum CombatActionType {
 
 export interface AbilityUsed {
   type: CombatActionType.AbilityUsed;
-  abilityName: CombatantAbilityNames;
+  abilityName: CombatantAbilityName;
 }
 
 export interface ConsumableUsed {
