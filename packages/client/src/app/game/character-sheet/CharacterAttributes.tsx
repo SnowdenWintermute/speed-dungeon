@@ -33,6 +33,12 @@ export default function CharacterAttributes({
   if (!playerOption) return <div>{ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST}</div>;
   const playerOwnsCharacter = Object.keys(playerOption.characterIds).includes(entityProperties.id);
 
+  const hasUnspentAttributePoints = combatantProperties.unspentAbilityPoints > 0;
+  const shouldShowNumberOfUnspentAttributes =
+    hasUnspentAttributePoints &&
+    combatantProperties.controllingPlayer !== null &&
+    showAttributeAssignmentButtons;
+
   let expRequiredForNextLevel =
     typeof combatantProperties.experiencePoints.requiredForNextLevel === "number"
       ? combatantProperties.experiencePoints.requiredForNextLevel.toString()
@@ -55,6 +61,7 @@ export default function CharacterAttributes({
     numberOfAttributes % 2 === 0 ? numberOfAttributes / 2 : (numberOfAttributes - 1) / 2;
   const listItems = totalAttributesSortedArray.map(([attribute, value]) => (
     <AttributeListItem
+      key={attribute}
       attribute={attribute}
       value={value}
       combatantHasUnspentAttributePoints={hasUnspentAttributePoints}
@@ -62,12 +69,6 @@ export default function CharacterAttributes({
       showAttributeAssignmentButtonsIfOwned={showAttributeAssignmentButtons}
     />
   ));
-
-  const hasUnspentAttributePoints = combatantProperties.unspentAbilityPoints > 0;
-  const shouldShowNumberOfUnspentAttributes =
-    hasUnspentAttributePoints &&
-    combatantProperties.controllingPlayer !== null &&
-    showAttributeAssignmentButtons;
 
   return (
     <div className="h-full w-[24.25rem] whitespace-nowrap">

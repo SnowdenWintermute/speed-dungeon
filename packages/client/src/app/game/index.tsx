@@ -3,6 +3,9 @@ import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import PartyWipeModal from "./PartyWipeModal";
 import TopInfoBar from "./TopInfoBar";
+import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
+import { ERROR_MESSAGES } from "@speed-dungeon/common";
+import MonsterPlaques from "./MonsterPlaques";
 
 export default function Game() {
   const game = useGameStore().game;
@@ -47,9 +50,7 @@ export default function Game() {
           }
           <div className="flex justify-end">
             <div className="w-fit">
-              {
-                // monster_plaques
-              }
+              <MonsterPlaques game={game} party={party} />
             </div>
           </div>
           <div className="flex flex-wrap justify-between">
@@ -60,9 +61,11 @@ export default function Game() {
             </div>
             <div className="flex flex-grow justify-end mt-3.5">
               <div className="w-fit flex items-end">
-                {
-                  // ally_character_plaques
-                }
+                <CombatantPlaqueGroup
+                  party={party}
+                  combatantIds={party.characterPositions}
+                  showExperience={true}
+                />
               </div>
             </div>
           </div>

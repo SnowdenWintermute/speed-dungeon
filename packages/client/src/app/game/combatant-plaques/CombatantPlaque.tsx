@@ -76,7 +76,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
         <DetailedCombatantInfoCard combatantId={entityId} combatantPlaqueRef={combatantPlaqueRef} />
         <div
           className="h-full aspect-square mr-2 border border-slate-400 bg-slate-600 rounded-full relative"
-          style={{ height: `${portraitHeight}px;` }}
+          style={{ height: `${portraitHeight}px` }}
         >
           <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-5 border border-slate-400 bg-slate-700 pr-2 pl-2 text-sm flex items-center justify-center">
             {combatantProperties.level}

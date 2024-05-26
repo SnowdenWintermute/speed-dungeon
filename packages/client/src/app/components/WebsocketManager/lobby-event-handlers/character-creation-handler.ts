@@ -20,7 +20,18 @@ export default function characterCreationHandler(
     if (!player) return setAlert(mutateAlertStore, ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
     const characterId = character.entityProperties.id;
-    party.characters[characterId] = character;
+
+    // recreate the class on the client because need to get the combatant properties methods
+    const characterWithClassMethods = new PlayerCharacter(
+      character.nameOfControllingUser,
+      character.combatantProperties.combatantClass,
+      character.entityProperties.name,
+      characterId
+    );
+    console.log(character.combatantProperties);
+    Object.assign(characterWithClassMethods.combatantProperties, character.combatantProperties);
+
+    party.characters[characterId] = characterWithClassMethods;
     party.characterPositions.push(characterId);
     player.characterIds[characterId] = null;
   });

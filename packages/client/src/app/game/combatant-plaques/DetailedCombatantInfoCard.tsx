@@ -52,24 +52,24 @@ export default function DetailedCombatantInfoCard(props: Props) {
       if (plaqueY - detailedInfoHeight < 0) {
         // put below
         style = {
-          bottom: "0px;",
-          transform: "translateY(100%);",
-          paddingTop: `${SPACING_REM_SMALL}rem;`,
+          bottom: "0px",
+          transform: "translateY(100%)",
+          paddingTop: `${SPACING_REM_SMALL}rem`,
         };
       } else {
         // put above
         style = {
-          bottom: "0px;",
-          transform: `translateY(-${detailedInfoHeight}%);`,
-          paddingBottom: `${SPACING_REM_SMALL}rem;`,
+          bottom: "0px",
+          transform: `translateY(-${detailedInfoHeight}%)`,
+          paddingBottom: `${SPACING_REM_SMALL}rem`,
         };
       }
 
       if (plaqueX + detailedInfoWidth > windowWidth) {
-        style["right"] = "-1px;";
-        style["transform"] = "translateX(-100%);";
+        style["right"] = "-1px";
+        style["transform"] = "translateX(-100%)";
       } else {
-        style["left"] = "-1px;";
+        style["left"] = "-1px";
       }
 
       setCardPositionStyle(style);

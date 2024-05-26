@@ -2,7 +2,7 @@
 "use client";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import { FormEvent, useState } from "react";
-import { ClientToServerEvent } from "@speed-dungeon/common";
+import { ClientToServerEvent, CombatantClass } from "@speed-dungeon/common";
 import ButtonBasic from "../components/atoms/ButtonBasic";
 import { useLobbyStore } from "@/stores/lobby-store";
 
@@ -22,6 +22,15 @@ export default function LobbyMenu() {
     mainSocketOption?.emit(ClientToServerEvent.RequestsGameList);
   }
 
+  function quickStartGame() {
+    mainSocketOption?.emit(ClientToServerEvent.CreateGame, "");
+    mainSocketOption?.emit(ClientToServerEvent.CreateParty, "");
+    mainSocketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Warrior);
+    mainSocketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
+    mainSocketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Rogue);
+    mainSocketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
+  }
+
   return (
     <section className="w-full bg-slate-700 border border-slate-400 p-4 mb-4 flex justify-between pointer-events-auto">
       <div className="flex">
@@ -36,6 +45,9 @@ export default function LobbyMenu() {
           />
           <ButtonBasic buttonType="submit" extraStyles="border-l-0 text-yellow-400">
             Create Game
+          </ButtonBasic>
+          <ButtonBasic onClick={quickStartGame} extraStyles="ml-2">
+            Quick Start
           </ButtonBasic>
         </form>
         <ButtonBasic onClick={refreshGameList}>Refresh List</ButtonBasic>

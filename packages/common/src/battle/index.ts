@@ -1,5 +1,6 @@
 import { CombatantTurnTracker } from "../combat/turn-order";
 import { EntityId } from "../primatives";
+import getAllyIdsAndOpponentIdsOption from "./get-ally-ids-and-opponent-ids-option";
 
 export class Battle {
   constructor(
@@ -13,6 +14,8 @@ export class Battle {
     if (this.turnTrackers.length < 1) return false;
     return this.turnTrackers[0].entityId === combatantId;
   }
+
+  getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
 }
 
 export enum BattleGroupType {
