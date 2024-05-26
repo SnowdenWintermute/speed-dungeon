@@ -1,6 +1,6 @@
 import { useGameStore } from "@/stores/game-store";
 import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
-import { CombatantProperties, ERROR_MESSAGES, EntityProperties } from "@speed-dungeon/common";
+import { CombatantProperties, EntityProperties } from "@speed-dungeon/common";
 import React from "react";
 
 interface Props {
@@ -20,10 +20,8 @@ export default function CombatantInfoButton({
     mutateGameState((store) => {
       const detailedEntity = store.detailedEntity;
       let shouldSetEntityDetailed = true;
-      if (detailedEntity) {
-        if (detailedEntity.type === DetailableEntityType.Combatant) {
-          shouldSetEntityDetailed = detailedEntity.combatant.entityProperties.id !== combatantId;
-        }
+      if (detailedEntity && detailedEntity.type === DetailableEntityType.Combatant) {
+        shouldSetEntityDetailed = detailedEntity.combatant.entityProperties.id !== combatantId;
       }
 
       if (shouldSetEntityDetailed)
@@ -39,6 +37,7 @@ export default function CombatantInfoButton({
   }
 
   function handleMouseEnter() {
+    console.log("mouse enter", combatantId);
     mutateGameState((store) => {
       store.hoveredEntity = {
         type: DetailableEntityType.Combatant,
@@ -51,6 +50,7 @@ export default function CombatantInfoButton({
   }
 
   function handleMouseLeave() {
+    console.log("mouse leave", combatantId);
     mutateGameState((store) => {
       store.hoveredEntity = null;
     });

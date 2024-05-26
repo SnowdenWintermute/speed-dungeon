@@ -9,6 +9,7 @@ import MonsterPlaques from "./MonsterPlaques";
 
 export default function Game() {
   const game = useGameStore().game;
+  const hoveredEntity = useGameStore().hoveredEntity;
   const username = useLobbyStore().username;
   if (!username)
     return (
@@ -75,7 +76,7 @@ export default function Game() {
         // Action Menu and Inventory/Equipment/Character sheet container
       }
       <div
-        className={`absolute z-31 top-1/2 -translate-y-1/2 w-full p-4 text-zinc-300 flex flex-row ${conditionalStyles}`}
+        className={`absolute z-31 top-1/2 -translate-y-1/2 w-full p-4 text-zinc-300 flex flex-row ${conditionalStyles} pointer-events-none`}
       >
         <div
           className={`flex flex-col max-w-full ${actionMenuAndCharacterSheetContainerConditionalClasses} `}

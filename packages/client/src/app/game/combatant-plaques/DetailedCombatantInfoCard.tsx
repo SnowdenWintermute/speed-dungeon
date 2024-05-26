@@ -17,72 +17,86 @@ export default function DetailedCombatantInfoCard(props: Props) {
       hoveredEntity: state.hoveredEntity,
     }))
   );
-  const combatantDetailedInfoRef = useRef<HTMLDivElement>(null);
-  const [cardPositionStyle, setCardPositionStyle] = useState({});
+  const detailedInfoContainerRef = useRef<HTMLDivElement>(null);
+  const [cardPositionStyle, setCardPositionStyle] = useState<{ [key: string]: string }>({
+    opacity: "0",
+  });
+  // const [cardPositionStyle, setCardPositionStyle] = useState<{ [key: string]: string }>({});
   let infoButtonHoveredStyles = "";
 
-  let detailedInfoCard;
-  if (hoveredEntity && hoveredEntity.type === DetailableEntityType.Combatant) {
-    detailedInfoCard = (
-      <div className="border border-slate-400 bg-slate-700 p-2.5">
-        <CombatantDetailsDisplay combatantDetails={hoveredEntity.combatant} />
-      </div>
-    );
+  let combatantDetailsOption;
+  if (
+    hoveredEntity &&
+    hoveredEntity.type === DetailableEntityType.Combatant &&
+    hoveredEntity.combatant.entityProperties.id === props.combatantId
+  ) {
+    combatantDetailsOption = hoveredEntity.combatant;
     infoButtonHoveredStyles = "z-50";
-  } else if (detailedEntity && detailedEntity.type === DetailableEntityType.Combatant) {
-    detailedInfoCard = (
-      <div className="border border-slate-400 bg-slate-700 p-2.5">
-        <CombatantDetailsDisplay combatantDetails={detailedEntity.combatant} />
-      </div>
-    );
-  }
+  } else if (
+    detailedEntity &&
+    detailedEntity.type === DetailableEntityType.Combatant &&
+    detailedEntity.combatant.entityProperties.id === props.combatantId
+  )
+    combatantDetailsOption = detailedEntity.combatant;
 
-  const detailedInfoCardExists = detailedInfoCard !== undefined;
+  const detailedInfoCard = combatantDetailsOption ? (
+    <div className="border border-slate-400 bg-slate-700 p-2.5">
+      <CombatantDetailsDisplay combatantDetails={combatantDetailsOption} />
+    </div>
+  ) : (
+    <div />
+  );
+
+  const showingCard = combatantDetailsOption !== undefined;
 
   useEffect(() => {
     let plaqueOption = props.combatantPlaqueRef.current;
-    let detailedInfoOption = combatantDetailedInfoRef.current;
-    if (plaqueOption && detailedInfoOption) {
-      let windowWidth = window.innerWidth;
-      let detailedInfoWidth = detailedInfoOption.clientWidth;
-      let detailedInfoHeight = detailedInfoOption.clientHeight;
-      let plaqueX = plaqueOption.getBoundingClientRect().x;
-      let plaqueY = plaqueOption.getBoundingClientRect().y;
-      let style: { [key: string]: string } = {};
-      if (plaqueY - detailedInfoHeight < 0) {
-        // put below
-        style = {
-          bottom: "0px",
-          transform: "translateY(100%)",
-          paddingTop: `${SPACING_REM_SMALL}rem`,
-        };
-      } else {
-        // put above
-        style = {
-          bottom: "0px",
-          transform: `translateY(-${detailedInfoHeight}%)`,
-          paddingBottom: `${SPACING_REM_SMALL}rem`,
-        };
-      }
+    let detailedInfoContainer = detailedInfoContainerRef.current;
+    if (!(plaqueOption && detailedInfoContainer)) return;
 
-      if (plaqueX + detailedInfoWidth > windowWidth) {
-        style["right"] = "-1px";
-        style["transform"] = "translateX(-100%)";
-      } else {
-        style["left"] = "-1px";
-      }
-
-      setCardPositionStyle(style);
+    let windowWidth = window.innerWidth;
+    let detailedInfoWidth = detailedInfoContainer.clientWidth;
+    let detailedInfoHeight = detailedInfoContainer.clientHeight;
+    console.log(detailedInfoHeight, detailedInfoWidth);
+    let plaqueX = plaqueOption.getBoundingClientRect().x;
+    let plaqueY = plaqueOption.getBoundingClientRect().y;
+    if (!detailedInfoHeight || !detailedInfoWidth) return;
+    console.log("plaqueY: ", plaqueY);
+    console.log("initial top ", plaqueY - detailedInfoHeight);
+    const style: { [key: string]: string } = {};
+    let transformStyle = "";
+    if (plaqueY - detailedInfoHeight < 0) {
+      console.log("put below");
+      // put below
+      style["bottom"] = "0px";
+      style["paddingTop"] = `${SPACING_REM_SMALL}rem`;
+      transformStyle = transformStyle.concat("translateY(100%) ");
+    } else {
+      console.log("put above");
+      // put above
+      style["top"] = `-${detailedInfoHeight}px`;
+      style["paddingBottom"] = `${SPACING_REM_SMALL}rem`;
+      // transformStyle = transformStyle.concat(`translateY(-${detailedInfoHeight}px)`);
     }
-  }, [detailedInfoCardExists]);
+    if (plaqueX + detailedInfoWidth > windowWidth) {
+      style["right"] = "-1px";
+      transformStyle = transformStyle.concat(`translateX(-100%)`);
+    } else {
+      style["left"] = "-1px";
+    }
+    style["transform"] = `transformStyle`;
+    // console.log(transformStyle);
+    //
+    setCardPositionStyle(style);
+  }, [showingCard]);
 
   return (
     <div
       className={`absolute box-border ${infoButtonHoveredStyles}`}
       style={cardPositionStyle}
-      ref={combatantDetailedInfoRef}
+      ref={detailedInfoContainerRef}
     >
-      {detailedInfoCard || <></>}
+      {detailedInfoCard}
     </div>
   );
 }

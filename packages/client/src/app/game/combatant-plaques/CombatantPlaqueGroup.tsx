@@ -16,11 +16,9 @@ export default function CombatantPlaqueGroup(props: Props) {
         if (combatantResult instanceof Error) return <div>{combatantResult.message} </div>;
         else
           return (
-            <CombatantPlaque
-              key={`plaque-${id}`}
-              entityId={id}
-              showExperience={props.showExperience}
-            />
+            <li key={`plaque-${id}`} className="mr-4 last:mr-0 box-border">
+              <CombatantPlaque entityId={id} showExperience={props.showExperience} />
+            </li>
           );
       })}
     </ul>
