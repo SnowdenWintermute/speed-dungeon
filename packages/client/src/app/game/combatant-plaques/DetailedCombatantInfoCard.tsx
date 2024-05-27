@@ -57,36 +57,28 @@ export default function DetailedCombatantInfoCard(props: Props) {
     let windowWidth = window.innerWidth;
     let detailedInfoWidth = detailedInfoContainer.clientWidth;
     let detailedInfoHeight = detailedInfoContainer.clientHeight;
-    console.log(detailedInfoHeight, detailedInfoWidth);
     let plaqueX = plaqueOption.getBoundingClientRect().x;
     let plaqueY = plaqueOption.getBoundingClientRect().y;
     if (!detailedInfoHeight || !detailedInfoWidth) return;
-    console.log("plaqueY: ", plaqueY);
-    console.log("initial top ", plaqueY - detailedInfoHeight);
     const style: { [key: string]: string } = {};
     let transformStyle = "";
     if (plaqueY - detailedInfoHeight < 0) {
-      console.log("put below");
       // put below
       style["bottom"] = "0px";
       style["paddingTop"] = `${SPACING_REM_SMALL}rem`;
       transformStyle = transformStyle.concat("translateY(100%) ");
     } else {
-      console.log("put above");
       // put above
       style["top"] = `-${detailedInfoHeight}px`;
       style["paddingBottom"] = `${SPACING_REM_SMALL}rem`;
-      // transformStyle = transformStyle.concat(`translateY(-${detailedInfoHeight}px)`);
     }
     if (plaqueX + detailedInfoWidth > windowWidth) {
       style["right"] = "-1px";
       transformStyle = transformStyle.concat(`translateX(-100%)`);
-    } else {
-      style["left"] = "-1px";
-    }
+    } else style["left"] = "-1px";
+
     style["transform"] = `transformStyle`;
-    // console.log(transformStyle);
-    //
+
     setCardPositionStyle(style);
   }, [showingCard]);
 

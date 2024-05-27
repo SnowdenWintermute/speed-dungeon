@@ -9,6 +9,7 @@ import { useGameStore } from "@/stores/game-store";
 import { GameSetup } from "./lobby/game-setup";
 import AlertManager from "./components/alerts/AlertManager";
 import Game from "./game";
+import TailwindClassLoader from "./TailwindClassLoader";
 // for immer to be able to use map and set
 enableMapSet();
 
@@ -27,9 +28,7 @@ export default function Home() {
 
   return (
     <>
-      {
-        // <TailwindClassLoader />
-      }
+      <TailwindClassLoader />
       <SocketManager />
       <AlertManager />
       {componentToRender}

@@ -2,6 +2,7 @@ export * from "./equipment/";
 
 import { CombatAttribute } from "../combatants/combat-attributes";
 import { EntityProperties } from "../primatives";
+import createConsumableByType from "./consumables/create-consumable-by-type";
 import { ItemProperties } from "./item-properties";
 import itemRequirementsMet from "./requirements-met";
 
@@ -9,7 +10,7 @@ export class Item {
   constructor(
     public entityProperties: EntityProperties,
     public itemLevel: number,
-    public requirements: Record<CombatAttribute, number>,
+    public requirements: Partial<Record<CombatAttribute, number>>,
     public itemProperties: ItemProperties
   ) {}
 
@@ -25,6 +26,7 @@ export class Item {
       return array.splice(indexToRemove, 1)[0];
     }
   }
+  static createConsumable = createConsumableByType;
 
   requirementsMet = itemRequirementsMet;
 }

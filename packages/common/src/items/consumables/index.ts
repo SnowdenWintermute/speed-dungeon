@@ -12,3 +12,12 @@ export class ConsumableProperties {
   ) {}
   getActionProperties = getConsumableCombatActionProperties;
 }
+
+export function formatConsumableType(consumableType: ConsumableType) {
+  switch (consumableType) {
+    case ConsumableType.HpAutoinjector:
+      return "Green Autoinjector";
+    case ConsumableType.MpAutoinjector:
+      return "Blue Autoinjector";
+  }
+}

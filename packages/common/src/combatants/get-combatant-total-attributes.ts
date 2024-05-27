@@ -22,7 +22,6 @@ export default function getCombatantTotalAttributes(
   this: CombatantProperties
 ): Record<CombatAttribute, number> {
   const totalAttributes = initializeCombatAttributeRecord();
-
   addAttributesToAccumulator(this.inherentAttributes, totalAttributes);
   addAttributesToAccumulator(this.speccedAttributes, totalAttributes);
 

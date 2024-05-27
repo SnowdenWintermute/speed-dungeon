@@ -26,8 +26,6 @@ export default function addCharacterToParty(
     this.idGenerator
   );
 
-  newCharacter.combatantProperties.getTotalAttributes();
-
   party.characters[characterId] = newCharacter;
   party.characterPositions.push(characterId);
   return characterId;

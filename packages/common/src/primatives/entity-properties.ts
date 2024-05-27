@@ -1,8 +1,6 @@
 import { EntityId } from ".";
 
-export class EntityProperties {
-  constructor(
-    public id: EntityId,
-    public name: string
-  ) {}
+export interface EntityProperties {
+  id: EntityId;
+  name: string;
 }

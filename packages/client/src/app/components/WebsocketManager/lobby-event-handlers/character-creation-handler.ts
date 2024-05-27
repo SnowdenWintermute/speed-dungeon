@@ -3,6 +3,8 @@ import { setAlert } from "../../alerts";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { AlertState } from "@/stores/alert-store";
+import copyAndBindMethods from "@/utils/copyAndBindMethods";
+import { copyPropertiesWithoutMethods } from "@/utils/copyExceptMethods";
 
 export default function characterCreationHandler(
   mutateGameStore: MutateState<GameState>,
@@ -28,7 +30,13 @@ export default function characterCreationHandler(
       character.combatantProperties.abilities,
       character.combatantProperties.controllingPlayer
     );
-    Object.assign(combatantPropertiesWithClassMethods, character.combatantProperties);
+
+    copyPropertiesWithoutMethods(
+      character.combatantProperties,
+      combatantPropertiesWithClassMethods
+    );
+
+    character.combatantProperties = combatantPropertiesWithClassMethods;
 
     party.characters[characterId] = character;
     party.characterPositions.push(characterId);
