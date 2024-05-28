@@ -7,6 +7,7 @@ import { CombatAttribute } from "./combat-attributes";
 import { CombatantClass } from "./combatant-classes";
 import { CombatantSpecies } from "./combatant-species";
 import { CombatantTrait } from "./combatant-traits";
+import getAbilityNamesFilteredByUseableContext from "./get-ability-names-filtered-by-usable-context";
 import { getCombatActionPropertiesIfOwned } from "./get-combat-action-properties";
 import getCombatantTotalAttributes from "./get-combatant-total-attributes";
 import getEquipmentInSlot from "./get-equipment-in-slot";
@@ -42,6 +43,7 @@ export class CombatantProperties {
   static getEquipmentInSlot = getEquipmentInSlot;
   static getEquippedWeapon = getEquippedWeapon;
   static setHpAndMpToMax = setHpAndMpToMax;
+  static getAbilityNamesFilteredByUseableContext = getAbilityNamesFilteredByUseableContext;
 }
 
 export type ExperiencePoints = {

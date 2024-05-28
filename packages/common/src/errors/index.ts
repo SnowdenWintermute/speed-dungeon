@@ -25,6 +25,7 @@ export const ERROR_MESSAGES = {
       "The provided character is not in the list of that player's owned characters",
   },
   PARTY: {
+    CHARACTER_NOT_FOUND: "No character was found in the party by the provided id",
     MISSING_CHARACTERS: "Somehow we have a party with no characters",
   },
   COMBATANT: {

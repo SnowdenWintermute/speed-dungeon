@@ -2,11 +2,18 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { immerable, produce } from "immer";
-import { CombatantAttributeRecord, Item, SpeedDungeonGame } from "@speed-dungeon/common";
+import { Item, SpeedDungeonGame } from "@speed-dungeon/common";
 import { DetailableEntity } from "./detailable-entities";
 import { EquipmentSlot } from "@speed-dungeon/common";
 import { MutateState } from "../mutate-state";
 import { CombatAttribute } from "@speed-dungeon/common/src/combatants/combat-attributes";
+
+export enum MenuContext {
+  InventoryItems,
+  Equipment,
+  ItemsOnGround,
+  AttributeAssignment,
+}
 
 export class GameState {
   [immerable] = true;
@@ -18,7 +25,7 @@ export class GameState {
   comparedItem: null | Item = null;
   comparedSlot: null | EquipmentSlot = null;
   consideredItemUnmetRequirements: null | CombatAttribute[] = null;
-  viewingInventory: boolean = false;
+  menuContext: MenuContext | null = null;
 
   constructor(
     public mutateState: MutateState<GameState>,
