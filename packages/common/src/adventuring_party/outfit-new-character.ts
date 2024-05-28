@@ -4,13 +4,15 @@ import {
   CombatantAbility,
   CombatantAbilityName,
   CombatantClass,
+  CombatantProperties,
 } from "../combatants";
 import { BASE_STARTING_ATTRIBUTES } from "../combatants/combatant-classes/level-zero-attributes";
 import { STARTING_COMBATANT_TRAITS } from "../combatants/combatant-classes/starting-traits";
 import { IdGenerator } from "../game/id_generator";
 import { PlayerCharacter } from "./player-character";
-import { Item } from "../items";
+import { EquipmentSlot, Item } from "../items";
 import { ConsumableType } from "../items/consumables";
+import createStartingEquipment from "../items/equipment/equipment-generation/create-starting-equipment";
 
 export default function outfitNewCharacter(idGenerator: IdGenerator, character: PlayerCharacter) {
   const combatantProperties = character.combatantProperties;
@@ -47,5 +49,14 @@ export default function outfitNewCharacter(idGenerator: IdGenerator, character: 
   combatantProperties.inventory.items.push(hpInjector);
   combatantProperties.inventory.items.push(mpInjector);
 
-  combatantProperties.setHpAndMpToMax();
+  const startingEquipment = createStartingEquipment(
+    idGenerator,
+    combatantProperties.combatantClass
+  );
+  for (const [slotKey, item] of Object.entries(startingEquipment)) {
+    const slot = parseInt(slotKey) as EquipmentSlot;
+    combatantProperties.equipment[slot] = item;
+  }
+
+  CombatantProperties.setHpAndMpToMax(combatantProperties);
 }

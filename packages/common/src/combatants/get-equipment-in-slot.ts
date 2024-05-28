@@ -4,10 +4,10 @@ import { ItemPropertiesType } from "../items/item-properties";
 import { CombatantProperties } from "./combatant-properties";
 
 export default function getEquipmentInSlot(
-  this: CombatantProperties,
+  combatantProperties: CombatantProperties,
   slot: EquipmentSlot
 ): EquipmentProperties | undefined {
-  const itemOption = this.equipment[slot];
+  const itemOption = combatantProperties.equipment[slot];
   if (!itemOption) return undefined;
   switch (itemOption.itemProperties.type) {
     case ItemPropertiesType.Equipment:

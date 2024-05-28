@@ -10,7 +10,7 @@ export function calculateCombatActionHpChangeRange(
   abilityLevel: number,
   baseHpChangeValuesLevelMultiplier: number = 1
 ): Error | NumberRange {
-  let userCombatAttributes = userCombatantProperties.getTotalAttributes();
+  let userCombatAttributes = CombatantProperties.getTotalAttributes(userCombatantProperties);
   let combatantLevel = userCombatantProperties.level;
 
   let { min, max } = hpChangeProperties.baseValues;

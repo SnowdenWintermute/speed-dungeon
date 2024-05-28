@@ -4,8 +4,8 @@ import { useLobbyStore } from "@/stores/lobby-store";
 import PartyWipeModal from "./PartyWipeModal";
 import TopInfoBar from "./TopInfoBar";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
-import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import MonsterPlaques from "./MonsterPlaques";
+import { ERROR_MESSAGES } from "@speed-dungeon/common";
 
 export default function Game() {
   const game = useGameStore().game;
@@ -14,12 +14,14 @@ export default function Game() {
   if (!username)
     return (
       <div className="w-screen h-screen flex items-center justify-center">
-        "Client has no username and therefore can't know what party they are in"
+        {ERROR_MESSAGES.CLIENT.NO_USERNAME}
       </div>
     );
   if (!game)
     return (
-      <div className="w-screen h-screen flex items-center justify-center">"No game found?!"</div>
+      <div className="w-screen h-screen flex items-center justify-center">
+        {ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME}
+      </div>
     );
   const player = game.players[username];
   if (!player) return <div>Client player not found</div>;

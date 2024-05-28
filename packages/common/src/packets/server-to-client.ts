@@ -1,6 +1,5 @@
 import { PlayerCharacter } from "../adventuring_party";
 import { SpeedDungeonGame } from "../game";
-import { EntityId } from "../primatives";
 
 export enum ServerToClientEvent {
   GameList = "0",

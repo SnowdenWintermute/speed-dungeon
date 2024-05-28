@@ -12,22 +12,24 @@
     "@redux-devtools/extension": "3.3.0",
     "babylonjs": "7.5.0",
     "babylonjs-loaders": "7.5.0",
+    "immer": "10.1.1",
     "next": "14.2.3",
     "react": "18",
     "react-dom": "18",
     "socket.io-client": "4.7.5",
-    "zustand": "4.5.2",
-    "immer": "10.1.1"
+    "zustand": "4.5.2"
   },
   "devDependencies": {
-    "typescript": "5.4.5",
     "@types/node": "20.12.8",
     "@types/react": "18",
     "@types/react-dom": "18",
+    "eslint": "8",
+    "eslint-config-next": "14.2.3",
     "postcss": "8",
     "tailwindcss": "3.4.1",
-    "eslint": "8",
-    "eslint-config-next": "14.2.3"
+    "typescript": "5.4.5"
   },
-  "trustedDependencies": ["babylonjs"]
+  "trustedDependencies": [
+    "babylonjs"
+  ]
 }

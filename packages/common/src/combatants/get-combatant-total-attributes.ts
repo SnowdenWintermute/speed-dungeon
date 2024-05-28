@@ -3,7 +3,8 @@ import {
   DEX_TO_RANGED_ARMOR_PEN_RATIO,
   STR_TO_MELEE_ARMOR_PEN_RATIO,
 } from "../app_consts";
-import { WeaponSlot } from "../items";
+import { Item, WeaponSlot } from "../items";
+import EquipmentProperties from "../items/equipment/equipment-properties";
 import { EquipmentType } from "../items/equipment/equipment-types";
 import { ItemPropertiesType } from "../items/item-properties";
 import { CombatAttribute } from "./combat-attributes";
@@ -19,16 +20,18 @@ function initializeCombatAttributeRecord() {
 }
 
 export default function getCombatantTotalAttributes(
-  this: CombatantProperties
+  combatantProperties: CombatantProperties
 ): Record<CombatAttribute, number> {
   const totalAttributes = initializeCombatAttributeRecord();
-  addAttributesToAccumulator(this.inherentAttributes, totalAttributes);
-  addAttributesToAccumulator(this.speccedAttributes, totalAttributes);
+  addAttributesToAccumulator(combatantProperties.inherentAttributes, totalAttributes);
+  addAttributesToAccumulator(combatantProperties.speccedAttributes, totalAttributes);
 
-  for (const item of Object.values(this.equipment)) {
+  for (const item of Object.values(combatantProperties.equipment)) {
     if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
     addAttributesToAccumulator(item.itemProperties.equipmentProperties.attributes, totalAttributes);
-    const baseArmorClass = item.itemProperties.equipmentProperties.getBaseArmorClass();
+    const baseArmorClass = EquipmentProperties.getBaseArmorClass(
+      item.itemProperties.equipmentProperties
+    );
     if (totalAttributes[CombatAttribute.ArmorClass])
       totalAttributes[CombatAttribute.ArmorClass] += baseArmorClass;
     else totalAttributes[CombatAttribute.ArmorClass] = baseArmorClass;
@@ -38,8 +41,8 @@ export default function getCombatantTotalAttributes(
 
   // after adding up attributes, determine if any equipped item still doesn't meet attribute
   // requirements, if so, remove it's attributes from the total
-  for (const item of Object.values(this.equipment)) {
-    const equippedItemIsUsable = item.requirementsMet(totalAttributes);
+  for (const item of Object.values(combatantProperties.equipment)) {
+    const equippedItemIsUsable = Item.requirementsMet(item, totalAttributes);
     if (equippedItemIsUsable) continue;
     if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
     // otherwise subtract its stats
@@ -47,7 +50,9 @@ export default function getCombatantTotalAttributes(
       item.itemProperties.equipmentProperties.attributes,
       totalAttributes
     );
-    const baseArmorClass = item.itemProperties.equipmentProperties.getBaseArmorClass();
+    const baseArmorClass = EquipmentProperties.getBaseArmorClass(
+      item.itemProperties.equipmentProperties
+    );
     if (totalAttributes[CombatAttribute.ArmorClass])
       totalAttributes[CombatAttribute.ArmorClass] = Math.max(
         totalAttributes[CombatAttribute.ArmorClass] - baseArmorClass,
@@ -63,7 +68,7 @@ export default function getCombatantTotalAttributes(
     }
   }
 
-  const derivedArmorPen = getArmorPenDerivedBonus(this, totalAttributes);
+  const derivedArmorPen = getArmorPenDerivedBonus(combatantProperties, totalAttributes);
   if (!totalAttributes[CombatAttribute.ArmorPenetration])
     totalAttributes[CombatAttribute.ArmorPenetration] = 0;
   totalAttributes[CombatAttribute.ArmorPenetration] += derivedArmorPen;
@@ -75,7 +80,10 @@ function getArmorPenDerivedBonus(
   combatantProperties: CombatantProperties,
   totalAttributesLessArmorPenBonus: CombatantAttributeRecord
 ): number {
-  const mhWeaponOption = combatantProperties.getEquippedWeapon(WeaponSlot.MainHand);
+  const mhWeaponOption = CombatantProperties.getEquippedWeapon(
+    combatantProperties,
+    WeaponSlot.MainHand
+  );
   let attributeToDeriveFrom = CombatAttribute.Strength;
   if (mhWeaponOption) {
     const [weaponProperties, _] = mhWeaponOption;

@@ -4,7 +4,7 @@ import { immer } from "zustand/middleware/immer";
 import { produce } from "immer";
 import { GameListEntry } from "@speed-dungeon/common";
 
-type LobbyState = {
+export type LobbyState = {
   username: null | string;
   gameList: GameListEntry[];
   usernamesInCurrentChannel: string[];

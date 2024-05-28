@@ -6,9 +6,9 @@ import { EquipmentTraitType } from "../equipment-traits";
 import { EquipmentType } from "../equipment-types";
 
 export default function getModifiedWeaponDamageRange(
-  this: EquipmentProperties
+  equipmentProperties: EquipmentProperties
 ): Error | NumberRange {
-  switch (this.equipmentTypeProperties.type) {
+  switch (equipmentProperties.equipmentTypeProperties.type) {
     case EquipmentType.BodyArmor:
     case EquipmentType.HeadGear:
     case EquipmentType.Shield:
@@ -16,16 +16,18 @@ export default function getModifiedWeaponDamageRange(
     case EquipmentType.OneHandedMeleeWeapon:
     case EquipmentType.TwoHandedMeleeWeapon:
     case EquipmentType.TwoHandedRangedWeapon:
-      const damageAttribute = this.attributes[CombatAttribute.Damage] || 0;
+      const damageAttribute = equipmentProperties.attributes[CombatAttribute.Damage] || 0;
       let percentDamageModifier = 1.0;
-      for (const trait of this.traits) {
+      for (const trait of equipmentProperties.traits) {
         if (trait.type === EquipmentTraitType.DamagePercentage) {
           percentDamageModifier = 1.0 + trait.value / 100.0;
         }
       }
       return new NumberRange(
-        (this.equipmentTypeProperties.damage.min + damageAttribute) * percentDamageModifier,
-        (this.equipmentTypeProperties.damage.max + damageAttribute) * percentDamageModifier
+        (equipmentProperties.equipmentTypeProperties.damage.min + damageAttribute) *
+          percentDamageModifier,
+        (equipmentProperties.equipmentTypeProperties.damage.max + damageAttribute) *
+          percentDamageModifier
       );
   }
 }

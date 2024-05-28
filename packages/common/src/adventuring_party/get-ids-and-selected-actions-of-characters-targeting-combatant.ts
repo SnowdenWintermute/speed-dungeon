@@ -2,6 +2,7 @@ import { AdventuringParty } from ".";
 import { CombatAction, FriendOrFoe } from "../combat";
 import { CombatActionTargetType } from "../combat/targeting/combat-action-targets";
 import { filterPossibleTargetIdsByProhibitedCombatantStates } from "../combat/targeting/filtering";
+import { CombatantProperties } from "../combatants";
 
 export default function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
   this: AdventuringParty,
@@ -15,8 +16,10 @@ export default function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
   for (const [characterId, character] of Object.entries(this.characters)) {
     const selectedAction = character.combatantProperties.selectedCombatAction;
     if (!selectedAction) continue;
-    const actionPropertiesResult =
-      character.combatantProperties.getCombatActionPropertiesIfOwned(selectedAction);
+    const actionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
+      character.combatantProperties,
+      selectedAction
+    );
     if (actionPropertiesResult instanceof Error) {
       error = actionPropertiesResult;
       continue;

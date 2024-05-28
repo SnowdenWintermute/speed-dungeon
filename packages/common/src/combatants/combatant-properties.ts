@@ -37,11 +37,11 @@ export class CombatantProperties {
     public controllingPlayer: null | string
   ) {}
 
-  getCombatActionPropertiesIfOwned = getCombatActionPropertiesIfOwned;
-  getTotalAttributes = getCombatantTotalAttributes;
-  getEquipmentInSlot = getEquipmentInSlot;
-  getEquippedWeapon = getEquippedWeapon;
-  setHpAndMpToMax = setHpAndMpToMax;
+  static getCombatActionPropertiesIfOwned = getCombatActionPropertiesIfOwned;
+  static getTotalAttributes = getCombatantTotalAttributes;
+  static getEquipmentInSlot = getEquipmentInSlot;
+  static getEquippedWeapon = getEquippedWeapon;
+  static setHpAndMpToMax = setHpAndMpToMax;
 }
 
 export type ExperiencePoints = {

@@ -3,7 +3,11 @@ import { useAlertStore } from "@/stores/alert-store";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { useWebsocketStore } from "@/stores/websocket-store";
-import { ClientToServerEvent, ERROR_MESSAGES } from "@speed-dungeon/common";
+import {
+  ClientToServerEvent,
+  ERROR_MESSAGES,
+  InPartyClientToServerEvent,
+} from "@speed-dungeon/common";
 import React from "react";
 
 interface Props {
@@ -34,7 +38,7 @@ export default function FocusCharacterButton({ combatantId, isFocused }: Props) 
       ).includes(combatantId);
       if (playerOwnsCharacterSwitchingFocusAwayFrom) {
         partySocketOption?.emit(
-          ClientToServerEvent.SelectCombatAction,
+          InPartyClientToServerEvent.SelectCombatAction,
           characterSwitchingFocusAwayFromId,
           null
         );

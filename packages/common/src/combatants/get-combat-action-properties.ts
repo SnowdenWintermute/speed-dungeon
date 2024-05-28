@@ -6,16 +6,18 @@ import { CombatantAbility } from "./abilities";
 import { CombatantProperties } from "./combatant-properties";
 
 export function getCombatActionPropertiesIfOwned(
-  this: CombatantProperties,
+  combatantProperties: CombatantProperties,
   combatAction: CombatAction
 ) {
   switch (combatAction.type) {
     case CombatActionType.AbilityUsed:
-      if (!this.abilities[combatAction.abilityName]) {
+      if (!combatantProperties.abilities[combatAction.abilityName]) {
         return new Error(ERROR_MESSAGES.ABILITIES.NOT_OWNED);
       } else return CombatantAbility.getAttributes(combatAction.abilityName).combatActionProperties;
     case CombatActionType.ConsumableUsed:
-      const consumableProperties = this.inventory.getConsumableProperties(combatAction.itemId);
+      const consumableProperties = combatantProperties.inventory.getConsumableProperties(
+        combatAction.itemId
+      );
       if (consumableProperties instanceof Error) return consumableProperties;
       return consumableProperties.getActionProperties();
   }

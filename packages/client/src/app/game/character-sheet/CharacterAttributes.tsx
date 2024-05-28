@@ -48,7 +48,7 @@ export default function CharacterAttributes({
       ? `${combatantProperties.experiencePoints.current} / ${expRequiredForNextLevel} experience`
       : "";
 
-  const totalAttributes = combatantProperties.getTotalAttributes();
+  const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
   const totalAttributesSortedArray: [CombatAttribute, number][] = Object.entries(
     totalAttributes
   ).map(([key, value]) => {
@@ -75,7 +75,7 @@ export default function CharacterAttributes({
       <div className="font-bold flex justify-between items-center">
         <span>
           {entityProperties.name}
-          {formatCombatantClassName(combatantProperties.combatantClass)}
+          {` (${formatCombatantClassName(combatantProperties.combatantClass)})`}
         </span>
         <span className="h-10 w-10 p-1 flex justify-center rotate-45">
           <CombatantClassIcon combatantClass={combatantProperties.combatantClass} />

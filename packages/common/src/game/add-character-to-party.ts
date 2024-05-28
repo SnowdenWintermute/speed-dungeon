@@ -1,5 +1,6 @@
 import { SpeedDungeonGame } from ".";
 import { PlayerCharacter } from "../adventuring_party";
+import outfitNewCharacter from "../adventuring_party/outfit-new-character";
 import { MAX_PARTY_SIZE } from "../app_consts";
 import { CombatantClass } from "../combatants";
 import { ERROR_MESSAGES } from "../errors";
@@ -23,8 +24,10 @@ export default function addCharacterToParty(
     nameOfControllingUser,
     combatantClass,
     characterName,
-    this.idGenerator
+    characterId
   );
+
+  outfitNewCharacter(this.idGenerator, newCharacter);
 
   party.characters[characterId] = newCharacter;
   party.characterPositions.push(characterId);

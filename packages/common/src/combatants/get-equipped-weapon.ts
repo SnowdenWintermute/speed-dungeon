@@ -5,12 +5,15 @@ import { EquipmentType } from "../items/equipment/equipment-types";
 import { CombatantProperties } from "./combatant-properties";
 
 export default function getEquippedWeapon(
-  this: CombatantProperties,
+  combatantProperties: CombatantProperties,
   slot: WeaponSlot
 ): undefined | [WeaponProperties, EquipmentTrait[]] {
   const equipmentSlot =
     slot === WeaponSlot.OffHand ? EquipmentSlot.OffHand : EquipmentSlot.MainHand;
-  const equipmentPropertiesOption = this.getEquipmentInSlot(equipmentSlot);
+  const equipmentPropertiesOption = CombatantProperties.getEquipmentInSlot(
+    combatantProperties,
+    equipmentSlot
+  );
   if (!equipmentPropertiesOption) return undefined;
   switch (equipmentPropertiesOption.equipmentTypeProperties.type) {
     case EquipmentType.OneHandedMeleeWeapon:

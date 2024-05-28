@@ -6,8 +6,6 @@ import {
   CombatantSpecies,
 } from "../combatants";
 import { CombatantProperties } from "../combatants/combatant-properties";
-import { IdGenerator } from "../game/id_generator";
-import outfitNewCharacter from "./outfit-new-character";
 
 export class PlayerCharacter {
   entityProperties: EntityProperties;
@@ -16,7 +14,7 @@ export class PlayerCharacter {
     public nameOfControllingUser: string,
     combatantClass: CombatantClass,
     name: string,
-    idGenerator: IdGenerator
+    id: string
   ) {
     this.combatantProperties = new CombatantProperties(
       combatantClass,
@@ -24,7 +22,7 @@ export class PlayerCharacter {
       {},
       nameOfControllingUser
     );
-    this.entityProperties = { id: idGenerator.getNextEntityId(), name };
+    this.entityProperties = { id, name };
 
     this.combatantProperties.abilities[CombatantAbilityName.Attack] = CombatantAbility.createByName(
       CombatantAbilityName.Attack
@@ -35,7 +33,5 @@ export class PlayerCharacter {
       CombatantAbility.createByName(CombatantAbilityName.AttackMeleeOffhand);
     this.combatantProperties.abilities[CombatantAbilityName.AttackRangedMainhand] =
       CombatantAbility.createByName(CombatantAbilityName.AttackRangedMainhand);
-
-    outfitNewCharacter(idGenerator, this);
   }
 }

@@ -10,17 +10,17 @@ import { ShieldProperties } from "./shield-properties";
 import { WeaponProperties } from "./weapon-properties";
 
 export default class EquipmentProperties {
+  attributes: CombatantAttributeRecord = {};
+  affixes: Affix[] = [];
+  traits: EquipmentTrait[] = [];
   constructor(
     public baseItem: EquipmentBaseItem,
     public equipmentTypeProperties: EquipmentTypeProperties,
-    public durability: MaxAndCurrent,
-    public attributes: CombatantAttributeRecord,
-    public affixes: Affix[],
-    public traits: EquipmentTrait[]
+    public durability: MaxAndCurrent
   ) {}
 
-  getBaseArmorClass = getBaseArmorClass;
-  getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
+  static getBaseArmorClass = getBaseArmorClass;
+  static getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
 }
 
 export type EquipmentTypeProperties = ArmorProperties | WeaponProperties | ShieldProperties;

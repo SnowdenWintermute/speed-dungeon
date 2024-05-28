@@ -5,16 +5,18 @@ import { produce } from "immer";
 import { Socket } from "socket.io-client";
 import {
   ClientToServerEventTypes,
+  InPartyClientToServerEventTypes,
+  InPartyServerToClientEventTypes,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 
 type WebsocketState = {
-  mainSocketOption:
-    | undefined
-    | Socket<ServerToClientEventTypes, ClientToServerEventTypes>;
+  mainSocketOption: undefined | Socket<ServerToClientEventTypes, ClientToServerEventTypes>;
   mainChannelName: string;
   usernamesInMainChannel: Set<string>;
-  partySocketOption: undefined | Socket;
+  partySocketOption:
+    | undefined
+    | Socket<InPartyServerToClientEventTypes, InPartyClientToServerEventTypes>;
   mutateState: (fn: (state: WebsocketState) => void) => void;
 };
 

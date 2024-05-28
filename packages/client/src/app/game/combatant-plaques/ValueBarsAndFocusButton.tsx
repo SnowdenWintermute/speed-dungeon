@@ -17,7 +17,7 @@ export default function ValueBarsAndFocusButton({
   showExperience,
   isFocused,
 }: Props) {
-  const totalAttributes = combatantProperties.getTotalAttributes();
+  const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
   const maxHitPointsOption = totalAttributes[CombatAttribute.Hp];
   const maxManaOption = totalAttributes[CombatAttribute.Mp];
 

@@ -27,6 +27,5 @@ export class Item {
     }
   }
   static createConsumable = createConsumableByType;
-
-  requirementsMet = itemRequirementsMet;
+  static requirementsMet = itemRequirementsMet;
 }

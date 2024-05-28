@@ -3,8 +3,6 @@ import { setAlert } from "../../alerts";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { AlertState } from "@/stores/alert-store";
-import copyAndBindMethods from "@/utils/copyAndBindMethods";
-import { copyPropertiesWithoutMethods } from "@/utils/copyExceptMethods";
 
 export default function characterCreationHandler(
   mutateGameStore: MutateState<GameState>,
@@ -22,21 +20,6 @@ export default function characterCreationHandler(
     if (!player) return setAlert(mutateAlertStore, ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
     const characterId = character.entityProperties.id;
-
-    // recreate the class on the client because need to get the combatant properties methods
-    const combatantPropertiesWithClassMethods = new CombatantProperties(
-      character.combatantProperties.combatantClass,
-      character.combatantProperties.combatantSpecies,
-      character.combatantProperties.abilities,
-      character.combatantProperties.controllingPlayer
-    );
-
-    copyPropertiesWithoutMethods(
-      character.combatantProperties,
-      combatantPropertiesWithClassMethods
-    );
-
-    character.combatantProperties = combatantPropertiesWithClassMethods;
 
     party.characters[characterId] = character;
     party.characterPositions.push(characterId);

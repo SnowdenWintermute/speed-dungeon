@@ -10,7 +10,10 @@ import {
   calculateCombatActionHpChangeRange,
 } from "@speed-dungeon/common";
 import getAbilityAttributes from "@speed-dungeon/common/src/combatants/abilities/get-ability-attributes";
-import { WeaponProperties } from "@speed-dungeon/common/src/items/equipment/equipment-properties/weapon-properties";
+import {
+  WeaponProperties,
+  equipmentIsTwoHandedWeapon,
+} from "@speed-dungeon/common/src/items/equipment/equipment-properties/weapon-properties";
 import { EquipmentTrait } from "@speed-dungeon/common/src/items/equipment/equipment-traits";
 import { EquipmentType } from "@speed-dungeon/common/src/items/equipment/equipment-types";
 import NumberRange from "@speed-dungeon/common/src/primatives/number-range";
@@ -21,21 +24,30 @@ export default function CharacterSheetWeaponDamage({
 }: {
   combatantProperties: CombatantProperties;
 }) {
-  const combatAttributes = combatantProperties.getTotalAttributes();
+  const combatAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
   const combatantAccuracy = combatAttributes[CombatAttribute.Accuracy] || 0;
 
-  const mhWeaponOption = combatantProperties.getEquippedWeapon(WeaponSlot.MainHand);
+  const mhWeaponOption = CombatantProperties.getEquippedWeapon(
+    combatantProperties,
+    WeaponSlot.MainHand
+  );
   const mhDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(
     combatantProperties,
     mhWeaponOption,
     combatantAccuracy,
     false
   );
-  const isTwoHanded = mhWeaponOption ? mhWeaponOption[0].isTwoHanded() : false;
-  const ohEquipmentOption = combatantProperties.getEquipmentInSlot(EquipmentSlot.OffHand);
+  const isTwoHanded = mhWeaponOption ? equipmentIsTwoHandedWeapon(mhWeaponOption[0].type) : false;
+  const ohEquipmentOption = CombatantProperties.getEquipmentInSlot(
+    combatantProperties,
+    EquipmentSlot.OffHand
+  );
   let ohDamageAndAccuracyResult;
   if (!isTwoHanded && ohEquipmentOption?.equipmentTypeProperties.type !== EquipmentType.Shield) {
-    const ohWeaponOption = combatantProperties.getEquippedWeapon(WeaponSlot.OffHand);
+    const ohWeaponOption = CombatantProperties.getEquippedWeapon(
+      combatantProperties,
+      WeaponSlot.OffHand
+    );
     ohDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(
       combatantProperties,
       ohWeaponOption,
@@ -59,7 +71,7 @@ export default function CharacterSheetWeaponDamage({
       <WeaponDamageEntry
         damageAndAccuracyOption={ohDamageAndAccuracyResult}
         label="Off Hand"
-        paddingClass="mr-1"
+        paddingClass="ml-1"
       />
     </div>
   );
@@ -115,8 +127,10 @@ function getAttackAbilityDamageAndAccuracy(
     abilityName: abilityName,
   };
 
-  const attackActionPropertiesResult =
-    combatantProperties.getCombatActionPropertiesIfOwned(attackAction);
+  const attackActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
+    combatantProperties,
+    attackAction
+  );
   if (attackActionPropertiesResult instanceof Error) return attackActionPropertiesResult;
   if (attackActionPropertiesResult.hpChangeProperties === null)
     return new Error(ERROR_MESSAGES.ABILITIES.INVALID_TYPE);

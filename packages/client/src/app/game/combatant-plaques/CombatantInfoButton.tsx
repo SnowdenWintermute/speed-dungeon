@@ -37,7 +37,6 @@ export default function CombatantInfoButton({
   }
 
   function handleMouseEnter() {
-    console.log("mouse enter", combatantId);
     mutateGameState((store) => {
       store.hoveredEntity = {
         type: DetailableEntityType.Combatant,
@@ -50,7 +49,6 @@ export default function CombatantInfoButton({
   }
 
   function handleMouseLeave() {
-    console.log("mouse leave", combatantId);
     mutateGameState((store) => {
       store.hoveredEntity = null;
     });

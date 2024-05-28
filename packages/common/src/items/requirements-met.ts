@@ -3,10 +3,10 @@ import { CombatAttribute } from "../combatants/combat-attributes";
 import { CombatantAttributeRecord } from "../combatants/combatant-properties";
 
 export default function itemRequirementsMet(
-  this: Item,
+  item: Item,
   combatantAttributes: CombatantAttributeRecord
 ) {
-  for (const [key, requiredValue] of Object.entries(this.requirements)) {
+  for (const [key, requiredValue] of Object.entries(item.requirements)) {
     const attribute = parseInt(key) as CombatAttribute;
     const combatantAttributeValue = combatantAttributes[attribute];
     if (!combatantAttributeValue) return false;
