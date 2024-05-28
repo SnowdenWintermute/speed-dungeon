@@ -29,17 +29,13 @@ export class PlayerCharacter {
     this.combatantProperties.abilities[CombatantAbilityName.Attack] = CombatantAbility.createByName(
       CombatantAbilityName.Attack
     );
-    this.combatantProperties.abilities[CombatantAbilityName.Attack] = CombatantAbility.createByName(
-      CombatantAbilityName.AttackMeleeMainhand
-    );
-    this.combatantProperties.abilities[CombatantAbilityName.Attack] = CombatantAbility.createByName(
-      CombatantAbilityName.AttackMeleeOffhand
-    );
-    this.combatantProperties.abilities[CombatantAbilityName.Attack] = CombatantAbility.createByName(
-      CombatantAbilityName.AttackRangedMainhand
-    );
+    this.combatantProperties.abilities[CombatantAbilityName.AttackMeleeMainhand] =
+      CombatantAbility.createByName(CombatantAbilityName.AttackMeleeMainhand);
+    this.combatantProperties.abilities[CombatantAbilityName.AttackMeleeOffhand] =
+      CombatantAbility.createByName(CombatantAbilityName.AttackMeleeOffhand);
+    this.combatantProperties.abilities[CombatantAbilityName.AttackRangedMainhand] =
+      CombatantAbility.createByName(CombatantAbilityName.AttackRangedMainhand);
 
     outfitNewCharacter(idGenerator, this);
-    console.log(this);
   }
 }

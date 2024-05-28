@@ -11,9 +11,9 @@ export function getCombatActionPropertiesIfOwned(
 ) {
   switch (combatAction.type) {
     case CombatActionType.AbilityUsed:
-      if (!Object.keys(this.abilities).includes(combatAction.abilityName.toString()))
+      if (!this.abilities[combatAction.abilityName]) {
         return new Error(ERROR_MESSAGES.ABILITIES.NOT_OWNED);
-      else return CombatantAbility.getAttributes(combatAction.abilityName).combatActionProperties;
+      } else return CombatantAbility.getAttributes(combatAction.abilityName).combatActionProperties;
     case CombatActionType.ConsumableUsed:
       const consumableProperties = this.inventory.getConsumableProperties(combatAction.itemId);
       if (consumableProperties instanceof Error) return consumableProperties;

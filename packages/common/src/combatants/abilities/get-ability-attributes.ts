@@ -1,4 +1,5 @@
 import { CombatantAbilityName } from ".";
+import { OFF_HAND_ACCURACY_MODIFIER, OFF_HAND_DAMAGE_MODIFIER } from "../../app_consts";
 import CombatActionProperties, {
   AbilityUsableContext,
   CombatActionHpChangeProperties,
@@ -52,6 +53,8 @@ export default function getAbilityAttributes(abilityName: CombatantAbilityName) 
       hpcp.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Strength, 100];
       hpcp.critChanceAttribute = CombatAttribute.Dexterity;
       hpcp.critMultiplierAttribute = CombatAttribute.Strength;
+      hpcp.finalDamagePercentMultiplier = OFF_HAND_DAMAGE_MODIFIER;
+      hpcp.accuracyPercentModifier = OFF_HAND_ACCURACY_MODIFIER;
       hpcp.sourceProperties.category = {
         type: HpChangeSourceCategoryType.PhysicalDamage,
         meleeOrRanged: MeleeOrRanged.Melee,

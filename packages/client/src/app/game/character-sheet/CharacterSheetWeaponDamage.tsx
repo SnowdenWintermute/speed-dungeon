@@ -79,11 +79,11 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
     <div className={`w-1/2 ${props.paddingClass}`}>
       <div className="w-full flex justify-between">
         <span>{props.label}</span>
-        <span>{`${damage.min}-${damage.max}`}</span>
+        <span>{`${damage.min.toFixed(0)}-${damage.max.toFixed(0)}`}</span>
       </div>
       <div className="w-full flex justify-between">
         <span>{"Accuracy"}</span>
-        <span>{accuracy}</span>
+        <span>{accuracy.toFixed(0)}</span>
       </div>
     </div>
   );
@@ -133,9 +133,9 @@ function getAttackAbilityDamageAndAccuracy(
   if (damageRangeResult instanceof Error) return damageRangeResult;
 
   damageRangeResult;
-  damageRangeResult.min *= hpChangeProperties.finalDamagePercentMultiplier;
-  damageRangeResult.max *= hpChangeProperties.finalDamagePercentMultiplier;
-  const modifiedAccuracy = combatantAccuracy * hpChangeProperties.accuracyPercentModifier;
+  damageRangeResult.min *= hpChangeProperties.finalDamagePercentMultiplier / 100;
+  damageRangeResult.max *= hpChangeProperties.finalDamagePercentMultiplier / 100;
+  const modifiedAccuracy = combatantAccuracy * (hpChangeProperties.accuracyPercentModifier / 100);
 
   return [damageRangeResult, modifiedAccuracy];
 }
