@@ -1,19 +1,20 @@
 import { GameState, MenuContext } from "@/stores/game-store";
 import {
   AdventuringParty,
+  CombatActionProperties,
   CombatantAbilityName,
   CombatantProperties,
   ERROR_MESSAGES,
 } from "@speed-dungeon/common";
 import { DungeonRoomType } from "@speed-dungeon/common/src/adventuring_party/dungeon-room";
-import { AbilityUsableContext } from "@speed-dungeon/common/src/combat/combat-actions/combat-action-properties";
-import { ConsumableType } from "@speed-dungeon/common/src/items/consumables";
-import { ItemPropertiesType } from "@speed-dungeon/common/src/items/item-properties";
+import { AbilityUsableContext } from "@speed-dungeon/common";
+import { ConsumableType } from "@speed-dungeon/common";
+import { ItemPropertiesType } from "@speed-dungeon/common";
 
 export enum MenuType {
+  OutOfCombat,
   InCombat,
   CombatActionSelected,
-  OutOfCombat,
   LevelUpAbilities,
   AssignAttributePoints,
   InventoryOpen,
@@ -24,10 +25,20 @@ export enum MenuType {
   Staircase,
 }
 
-export default function determineActionMenuItemTypes(
+export interface ActionMenuRelevantInformation {
+  menuTypes: MenuType[];
+  equipmentIds: string[];
+  consumableIdsByType: Partial<Record<ConsumableType, string[]>>;
+  abilities: CombatantAbilityName[];
+  selectedCombatActionPropertiesOption: null | CombatActionProperties;
+  inventoryIsOpen: boolean;
+  selectedItemIdOption: null | string;
+}
+
+export default function collectActionMenuRelevantInformation(
   gameState: GameState,
   party: AdventuringParty
-) {
+): Error | ActionMenuRelevantInformation {
   const menuTypes: MenuType[] = [];
   const equipmentIds: string[] = [];
   const consumableIdsByType: Partial<Record<ConsumableType, string[]>> = {};
@@ -89,4 +100,29 @@ export default function determineActionMenuItemTypes(
   }
 
   abilityNames.sort((a, b) => a - b);
+
+  let selectedCombatActionPropertiesOption: null | CombatActionProperties = null;
+  if (combatantProperties.selectedCombatAction) {
+    const propertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
+      combatantProperties,
+      combatantProperties.selectedCombatAction
+    );
+    if (propertiesResult instanceof Error) return propertiesResult;
+    else selectedCombatActionPropertiesOption = propertiesResult;
+  }
+
+  const inventoryIsOpen =
+    gameState.menuContext === MenuContext.Equipment ||
+    gameState.menuContext === MenuContext.InventoryItems ||
+    gameState.menuContext === MenuContext.AttributeAssignment;
+
+  return {
+    menuTypes,
+    equipmentIds,
+    consumableIdsByType,
+    abilities: abilityNames,
+    selectedCombatActionPropertiesOption,
+    inventoryIsOpen,
+    selectedItemIdOption: gameState.selectedItem?.entityProperties.id ?? null,
+  };
 }

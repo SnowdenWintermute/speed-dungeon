@@ -1,4 +1,4 @@
-import CombatActionProperties from "../../combat/combat-actions/combat-action-properties";
+import { CombatActionProperties } from "../../combat/combat-actions/combat-action-properties";
 
 export default class CombatantAbilityAttributes {
   combatActionProperties: CombatActionProperties = new CombatActionProperties();

@@ -18,6 +18,6 @@ export class CombatantAbility {
 
   static getAttributes = getAbilityAttributes;
   static createByName(abilityName: CombatantAbilityName) {
-    return new CombatantAbility(abilityName, 1)
+    return new CombatantAbility(abilityName, 1);
   }
 }

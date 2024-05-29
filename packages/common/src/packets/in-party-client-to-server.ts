@@ -4,6 +4,7 @@ import { CombatAttribute } from "../combatants";
 export enum InPartyClientToServerEvent {
   SelectCombatAction = "0",
   IncrementAttribute = "1",
+  ToggleReadyToExplore = "2",
 }
 
 export interface InPartyClientToServerEventTypes {
@@ -15,4 +16,5 @@ export interface InPartyClientToServerEventTypes {
     characterId: string,
     attribute: CombatAttribute
   ) => void;
+  [InPartyClientToServerEvent.ToggleReadyToExplore]: () => void;
 }

@@ -10,13 +10,16 @@ import {
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 
+export type PartyClientSocket = Socket<
+  InPartyServerToClientEventTypes,
+  InPartyClientToServerEventTypes
+>;
+
 type WebsocketState = {
   mainSocketOption: undefined | Socket<ServerToClientEventTypes, ClientToServerEventTypes>;
   mainChannelName: string;
   usernamesInMainChannel: Set<string>;
-  partySocketOption:
-    | undefined
-    | Socket<InPartyServerToClientEventTypes, InPartyClientToServerEventTypes>;
+  partySocketOption: undefined | PartyClientSocket;
   mutateState: (fn: (state: WebsocketState) => void) => void;
 };
 

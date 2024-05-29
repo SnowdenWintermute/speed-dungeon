@@ -9,6 +9,8 @@ import {
   InPartyServerToClientEventTypes,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io-client";
+import collectActionMenuRelevantInformation from "./collect-action-menu-relevant-information";
+import createGameActions from "./create-game-actions";
 
 export default function buildActionButtonProperties(
   party: AdventuringParty,
@@ -18,5 +20,14 @@ export default function buildActionButtonProperties(
   uiState: UIState,
   lobbyState: LobbyState
 ) {
-  // const newActions = determineMenuActions()
+  const relevantInformationResult = collectActionMenuRelevantInformation(gameState, party);
+  if (relevantInformationResult instanceof Error) return relevantInformationResult;
+  const gameActions = createGameActions(relevantInformationResult);
+  const numberedButtonProperties = [];
+  const topButtonProperties = [];
+  const nextPrevButtonProperties = [];
+
+  for (const action of gameActions) {
+    // const clickHandler = createActionButtonClickHandler()
+  }
 }

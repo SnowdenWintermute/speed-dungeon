@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { immerable, produce } from "immer";
-import { Item, SpeedDungeonGame } from "@speed-dungeon/common";
+import { CombatAction, Item, SpeedDungeonGame } from "@speed-dungeon/common";
 import { DetailableEntity } from "./detailable-entities";
 import { EquipmentSlot } from "@speed-dungeon/common";
 import { MutateState } from "../mutate-state";
@@ -24,6 +24,9 @@ export class GameState {
   selectedItem: null | Item = null;
   comparedItem: null | Item = null;
   comparedSlot: null | EquipmentSlot = null;
+  hoveredAction: null | CombatAction = null;
+  actionMenuCurrentPageNumber: number = 0;
+  actionMenuParentPageNumbers: number[] = [];
   consideredItemUnmetRequirements: null | CombatAttribute[] = null;
   menuContext: MenuContext | null = null;
 

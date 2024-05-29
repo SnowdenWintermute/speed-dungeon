@@ -1,4 +1,6 @@
 export * from "./equipment/";
+export * from "./consumables/";
+export * from "./item-properties";
 
 import { CombatAttribute } from "../combatants/combat-attributes";
 import { EntityProperties } from "../primatives";

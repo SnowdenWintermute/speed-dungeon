@@ -1,6 +1,7 @@
 import { ConsumableProperties, ConsumableType } from ".";
 import { TargetCategories } from "../../combat";
-import CombatActionProperties, {
+import {
+  CombatActionProperties,
   AbilityUsableContext,
 } from "../../combat/combat-actions/combat-action-properties";
 

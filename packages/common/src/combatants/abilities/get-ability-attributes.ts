@@ -1,6 +1,7 @@
 import { CombatantAbilityName } from ".";
 import { OFF_HAND_ACCURACY_MODIFIER, OFF_HAND_DAMAGE_MODIFIER } from "../../app_consts";
-import CombatActionProperties, {
+import {
+  CombatActionProperties,
   AbilityUsableContext,
   CombatActionHpChangeProperties,
 } from "../../combat/combat-actions/combat-action-properties";

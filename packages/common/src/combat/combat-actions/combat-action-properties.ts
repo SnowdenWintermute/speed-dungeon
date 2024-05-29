@@ -4,7 +4,7 @@ import NumberRange from "../../primatives/number-range";
 import { HpChangeSource } from "../hp-change-source-types";
 import { ProhibitedTargetCombatantStates, TargetCategories, TargetingScheme } from "../targeting";
 
-export default class CombatActionProperties {
+export class CombatActionProperties {
   targetingSchemes: TargetingScheme[] = [TargetingScheme.Single];
   validTargetCategories: TargetCategories = TargetCategories.Opponent;
   usabilityContext: AbilityUsableContext = AbilityUsableContext.InCombat;

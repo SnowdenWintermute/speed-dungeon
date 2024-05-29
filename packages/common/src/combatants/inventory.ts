@@ -11,13 +11,13 @@ export default class Inventory {
   shards: number = 0;
   constructor() {}
 
-  removeItem(itemId: string) {
-    Item.removeFromArray(this.items, itemId);
+  static removeItem(inventory: Inventory, itemId: string) {
+    Item.removeFromArray(inventory.items, itemId);
   }
 
-  getItem(itemId: string) {
+  static getItem(inventory: Inventory, itemId: string) {
     let toReturn: undefined | Item;
-    this.items.forEach((item) => {
+    inventory.items.forEach((item) => {
       if (item.entityProperties.id === itemId) {
         toReturn = item;
         return;
@@ -27,8 +27,8 @@ export default class Inventory {
     else return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
-  getConsumableProperties(itemId: string) {
-    const item = this.getItem(itemId);
+  static getConsumableProperties(inventory: Inventory, itemId: string) {
+    const item = Inventory.getItem(inventory, itemId);
     if (item instanceof Error) return item;
 
     switch (item.itemProperties.type) {
