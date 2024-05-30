@@ -7,30 +7,31 @@ import { MutateState } from "@/stores/mutate-state";
 import { AlertState } from "@/stores/alert-store";
 import { InPartyClientToServerEvent } from "@speed-dungeon/common";
 import getItemOwnedByFocusedCharacter from "@/utils/getItemOwnedByFocusedCharacter";
+import selectItem from "@/utils/selectItem";
+import { setAlert } from "@/app/components/alerts";
 
 export default function createActionButtonClickHandler(
   gameAction: GameAction,
   gameState: GameState,
   uiState: UIState,
   lobbyState: LobbyState,
-  partySocketOption: undefined | PartyClientSocket,
+  partySocket: PartyClientSocket,
   mutateAlertState: MutateState<AlertState>
 ) {
   const mutateGameState = gameState.mutateState;
   switch (gameAction.type) {
     case GameActionType.ToggleReadyToExplore:
-      partySocketOption?.emit(InPartyClientToServerEvent.ToggleReadyToExplore);
-      break;
+      return () => partySocket.emit(InPartyClientToServerEvent.ToggleReadyToExplore);
     case GameActionType.SetInventoryOpen:
-      mutateGameState((gameState) => {
-        if (gameAction.shouldBeOpen) gameState.menuContext = MenuContext.InventoryItems;
-        else gameState.menuContext = null;
-        gameState.hoveredEntity = null;
-        gameState.comparedItem = null;
-        gameState.hoveredAction = null;
-        gameState.actionMenuCurrentPageNumber = 0;
-      });
-      break;
+      return () =>
+        mutateGameState((gameState) => {
+          if (gameAction.shouldBeOpen) gameState.menuContext = MenuContext.InventoryItems;
+          else gameState.menuContext = null;
+          gameState.hoveredEntity = null;
+          gameState.comparedItem = null;
+          gameState.hoveredAction = null;
+          gameState.actionMenuCurrentPageNumber = 0;
+        });
     case GameActionType.ToggleViewingEquipedItems:
       mutateGameState((gameState) => {
         if (gameState.menuContext === MenuContext.Equipment)
@@ -39,26 +40,31 @@ export default function createActionButtonClickHandler(
         gameState.actionMenuCurrentPageNumber = 0;
       });
     case GameActionType.DeselectItem:
-      mutateGameState((gameState) => {
-        let parentPageOption = gameState.actionMenuParentPageNumbers.pop();
+      return () =>
+        mutateGameState((gameState) => {
+          let parentPageOption = gameState.actionMenuParentPageNumbers.pop();
 
-        if (typeof parentPageOption === "number")
-          gameState.actionMenuCurrentPageNumber = parentPageOption;
-        else gameState.actionMenuCurrentPageNumber = 0;
+          if (typeof parentPageOption === "number")
+            gameState.actionMenuCurrentPageNumber = parentPageOption;
+          else gameState.actionMenuCurrentPageNumber = 0;
 
-        gameState.selectedItem = null;
-        gameState.detailedEntity = null;
-      });
-      break;
+          gameState.selectedItem = null;
+          gameState.detailedEntity = null;
+        });
     case GameActionType.SelectItem:
-      const itemResult = getItemOwnedByFocusedCharacter(
-        gameState,
-        lobbyState.username,
-        gameAction.itemId
-      );
+      return () => {
+        const itemResult = getItemOwnedByFocusedCharacter(
+          gameState,
+          lobbyState.username,
+          gameAction.itemId
+        );
+        if (itemResult instanceof Error) return setAlert(mutateAlertState, itemResult.message);
+        selectItem(gameState.mutateState, itemResult);
+      };
+    case GameActionType.UseItem:
+    //
     case GameActionType.ToggleReadyToDescend:
     case GameActionType.TakeItem:
-    case GameActionType.UseItem:
     case GameActionType.DropItem:
     case GameActionType.ShardItem:
     case GameActionType.UseSelectedCombatAction:

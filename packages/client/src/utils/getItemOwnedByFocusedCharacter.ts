@@ -11,8 +11,5 @@ export default function getItemOwnedByFocusedCharacter(
   if (!username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
   const focusedCharacterResult = getFocusedCharacter(gameState, username);
   if (focusedCharacterResult instanceof Error) return focusedCharacterResult;
-  const itemResult = Inventory.getItem(
-    focusedCharacterResult.combatantProperties.inventory,
-    itemId
-  );
+  return Inventory.getItem(focusedCharacterResult.combatantProperties.inventory, itemId);
 }
