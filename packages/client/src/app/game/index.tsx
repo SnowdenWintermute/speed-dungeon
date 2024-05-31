@@ -1,6 +1,5 @@
 import React from "react";
 import { useGameStore } from "@/stores/game-store";
-import { useLobbyStore } from "@/stores/lobby-store";
 import PartyWipeModal from "./PartyWipeModal";
 import TopInfoBar from "./TopInfoBar";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
@@ -10,7 +9,7 @@ import { ERROR_MESSAGES } from "@speed-dungeon/common";
 export default function Game() {
   const game = useGameStore().game;
   const hoveredEntity = useGameStore().hoveredEntity;
-  const username = useLobbyStore().username;
+  const username = useGameStore().username;
   if (!username)
     return (
       <div className="w-screen h-screen flex items-center justify-center">

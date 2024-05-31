@@ -4,13 +4,13 @@ import { useWebsocketStore } from "@/stores/websocket-store";
 import { FormEvent, useState } from "react";
 import { ClientToServerEvent, CombatantClass } from "@speed-dungeon/common";
 import ButtonBasic from "../components/atoms/ButtonBasic";
-import { useLobbyStore } from "@/stores/lobby-store";
+import { useGameStore } from "@/stores/game-store";
 
 export default function LobbyMenu() {
   const mainSocketOption = useWebsocketStore().mainSocketOption;
   const [gameName, setGameName] = useState("");
 
-  const username = useLobbyStore().username;
+  const username = useGameStore().username;
   const firstLetterOfUsername = username ? username.charAt(0) : "?";
 
   function createGame(event: FormEvent<HTMLFormElement>) {

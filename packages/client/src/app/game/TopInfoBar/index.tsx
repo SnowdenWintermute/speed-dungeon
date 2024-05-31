@@ -1,6 +1,5 @@
 import React from "react";
 import { useGameStore } from "@/stores/game-store";
-import { useLobbyStore } from "@/stores/lobby-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import TurnOrderBar from "./TurnOrderBar";
 import RoomExplorationTracker from "./RoomExplorationTracker";
@@ -9,9 +8,9 @@ import getGameAndParty from "@/utils/getGameAndParty";
 
 export default function TopInfoBar() {
   const gameOption = useGameStore().game;
-  const usernameOption = useLobbyStore().username;
-  const result = getGameAndParty(gameOption, usernameOption);
-  if (typeof result === "string") return <div>{result}</div>;
+  const username = useGameStore().username;
+  const result = getGameAndParty(gameOption, username);
+  if (result instanceof Error) return <div>{result.message}</div>;
   const [game, party] = result;
 
   const battleOption = getCurrentBattleOption(game, party.name);

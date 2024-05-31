@@ -9,7 +9,7 @@ export default function getItemOwnedByFocusedCharacter(
   itemId: string
 ): Error | Item {
   if (!username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
-  const focusedCharacterResult = getFocusedCharacter(gameState, username);
+  const focusedCharacterResult = getFocusedCharacter(gameState);
   if (focusedCharacterResult instanceof Error) return focusedCharacterResult;
   return Inventory.getItem(focusedCharacterResult.combatantProperties.inventory, itemId);
 }

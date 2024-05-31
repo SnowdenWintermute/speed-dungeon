@@ -1,5 +1,4 @@
 import { useGameStore } from "@/stores/game-store";
-import { useLobbyStore } from "@/stores/lobby-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import getGameAndParty from "@/utils/getGameAndParty";
 import React, { useEffect, useRef, useState } from "react";
@@ -27,7 +26,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
       hoveredEntity: state.hoveredEntity,
     }))
   );
-  const usernameOption = useLobbyStore().username;
+  const usernameOption = useGameStore().username;
   const result = getGameAndParty(gameOption, usernameOption);
   if (result instanceof Error) return <div>{result.message}</div>;
   const [game, party] = result;

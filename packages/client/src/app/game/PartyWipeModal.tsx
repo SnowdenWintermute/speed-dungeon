@@ -1,15 +1,14 @@
 import { useGameStore } from "@/stores/game-store";
-import { useLobbyStore } from "@/stores/lobby-store";
 import React from "react";
 import ButtonBasic from "../components/atoms/ButtonBasic";
 import getParty from "@/utils/getParty";
 
 export default function PartyWipeModal() {
   const game = useGameStore().game;
-  const username = useLobbyStore().username;
-  const partyOrErrorMessage = getParty(game, username);
-  if (typeof partyOrErrorMessage == "string") return <div>{partyOrErrorMessage}</div>;
-  const party = partyOrErrorMessage;
+  const username = useGameStore().username;
+  const partyResult = getParty(game, username);
+  if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
+  const party = partyResult;
 
   function leaveGame() {
     //

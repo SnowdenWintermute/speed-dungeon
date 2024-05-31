@@ -18,7 +18,7 @@ const SHOWN_CLASSES = "w-10 mr-2 last:mr-0";
 
 function TurnOrderTrackerIcon(props: { entityId: string }) {
   const gameOption = useGameStore().game;
-  const usernameOption = useLobbyStore().username;
+  const usernameOption = useGameStore().username;
   const result = getGameAndParty(gameOption, usernameOption);
   if (result instanceof Error) return <div>{result.message}</div>;
   const [game, party] = result;

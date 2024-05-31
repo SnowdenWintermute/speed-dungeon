@@ -20,7 +20,7 @@ export default function FocusCharacterButton({ combatantId, isFocused }: Props) 
   const mutateAlertStore = useAlertStore().mutateState;
   const partySocketOption = useWebsocketStore().partySocketOption;
   const conditionalStyles = isFocused ? "bg-slate-400 text-slate-700" : "";
-  const username = useLobbyStore().username;
+  const username = useGameStore().username;
 
   function handleClick() {
     mutateGameState((store) => {

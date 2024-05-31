@@ -15,7 +15,7 @@ interface Props {
 
 export default function AdventuringPartyLobbyCard(props: Props) {
   const mainSocketOption = useWebsocketStore().mainSocketOption;
-  const username = useLobbyStore().username;
+  const username = useGameStore().username;
   const game = useGameStore().game;
   if (!username) return <div>Client has no username</div>;
   if (!game) return <div>No game found</div>;
@@ -76,7 +76,7 @@ interface UserCharactersProps {
 }
 
 function UserCharacters(props: UserCharactersProps) {
-  const clientUsername = useLobbyStore().username;
+  const clientUsername = useGameStore().username;
   const game = useGameStore().game;
   let isReady = game?.playersReadied.includes(props.username);
   let readyStyle = isReady ? "bg-green-800" : "";

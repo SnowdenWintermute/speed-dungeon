@@ -1,26 +1,63 @@
+import { AlertState } from "@/stores/alert-store";
 import { GameState } from "@/stores/game-store";
-import { LobbyState } from "@/stores/lobby-store";
+import { MutateState } from "@/stores/mutate-state";
 import { UIState } from "@/stores/ui-store";
 import { PartyClientSocket } from "@/stores/websocket-store";
-import { ItemPropertiesType } from "@speed-dungeon/common";
+import getFocusedCharacter from "@/utils/getFocusedCharacter";
+import {
+  CombatantProperties,
+  InPartyClientToServerEvent,
+  ItemPropertiesType,
+} from "@speed-dungeon/common";
 
 export default function useItemHandler(
   gameState: GameState,
   uiState: UIState,
-  lobbyState: LobbyState,
-  partySockeOption: PartyClientSocket
+  mutateAlertState: MutateState<AlertState>,
+  partySocket: PartyClientSocket
 ) {
   const altSlotTargeted = uiState.modKeyHeld;
-  const characterId = gameState.focusedCharacterId;
   const itemOption = gameState.selectedItem;
   if (itemOption) {
     switch (itemOption.itemProperties.type) {
       case ItemPropertiesType.Equipment:
-      // useEquipmentHandler()
+        useEquipmentHandler(
+          gameState,
+          partySocket,
+          itemOption.entityProperties.id,
+          altSlotTargeted
+        );
       case ItemPropertiesType.Consumable:
       // selectCombatActionHandler();
     }
   }
 }
 
-function useEquipmentHandler(gameState: GameState, partySocket: PartyClientSocket);
+function useEquipmentHandler(
+  gameState: GameState,
+  partySocket: PartyClientSocket,
+  itemId: string,
+  altSlot: boolean
+) {
+  const focusedCharacterResult = getFocusedCharacter(gameState);
+  if (focusedCharacterResult instanceof Error) return focusedCharacterResult;
+  const focusedCharacter = focusedCharacterResult;
+  const slotEquippedOption = CombatantProperties.getSlotItemIsEquippedTo(
+    focusedCharacter.combatantProperties,
+    itemId
+  );
+  if (slotEquippedOption !== null) {
+    partySocket.emit(
+      InPartyClientToServerEvent.UnequipSlot,
+      focusedCharacter.entityProperties.id,
+      slotEquippedOption
+    );
+  } else {
+    partySocket.emit(
+      InPartyClientToServerEvent.EquipInventoryItem,
+      focusedCharacter.entityProperties.id,
+      itemId,
+      altSlot
+    );
+  }
+}

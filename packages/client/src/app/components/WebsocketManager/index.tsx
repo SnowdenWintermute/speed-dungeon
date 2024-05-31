@@ -72,7 +72,7 @@ function SocketManager() {
         }
       );
       mainSocketOption.on(ServerToClientEvent.ClientUsername, (username) => {
-        mutateLobbyStore((state) => {
+        mutateGameStore((state) => {
           state.username = username;
         });
       });

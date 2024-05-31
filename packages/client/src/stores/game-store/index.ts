@@ -18,6 +18,7 @@ export enum MenuContext {
 export class GameState {
   [immerable] = true;
   game: null | SpeedDungeonGame = null;
+  username: null | string = null;
   focusedCharacterId: string = "";
   detailedEntity: null | DetailableEntity = null;
   hoveredEntity: null | DetailableEntity = null;

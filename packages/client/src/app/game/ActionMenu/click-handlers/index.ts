@@ -13,7 +13,6 @@ import { setAlert } from "@/app/components/alerts";
 export default function createActionButtonClickHandler(
   gameAction: GameAction,
   gameState: GameState,
-  uiState: UIState,
   lobbyState: LobbyState,
   partySocket: PartyClientSocket,
   mutateAlertState: MutateState<AlertState>

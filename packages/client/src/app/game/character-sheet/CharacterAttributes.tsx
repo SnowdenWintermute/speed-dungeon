@@ -25,7 +25,7 @@ export default function CharacterAttributes({
   entityProperties,
   showAttributeAssignmentButtons,
 }: Props) {
-  const username = useLobbyStore().username;
+  const username = useGameStore().username;
   if (!username) return <div>{ERROR_MESSAGES.CLIENT.NO_USERNAME}</div>;
   const gameOption = useGameStore().game;
   if (!gameOption) return <div>{ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME}</div>;

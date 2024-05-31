@@ -7,7 +7,7 @@ import React from "react";
 
 export default function RoomExplorationTracker() {
   const game = useGameStore().game;
-  const username = useLobbyStore().username;
+  const username = useGameStore().username;
   if (!game || !username) return <div>Client error</div>;
   const partyResult = getParty(game, username);
   if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
