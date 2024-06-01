@@ -15,7 +15,7 @@ export class Battle {
     return this.turnTrackers[0].entityId === combatantId;
   }
 
-  getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
+  static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
 }
 
 export enum BattleGroupType {

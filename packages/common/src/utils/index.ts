@@ -5,3 +5,8 @@ export function removeFromArray<T>(array: T[], item: T): undefined | T {
   }
 }
 
+export function iterateNumericEnum<T extends { [name: string]: string | number }>(
+  enumType: T
+): T[keyof T][] {
+  return Object.values(enumType).filter((value) => !isNaN(Number(value))) as T[keyof T][];
+}

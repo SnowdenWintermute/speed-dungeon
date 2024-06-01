@@ -9,11 +9,13 @@ import { InPartyClientToServerEvent } from "@speed-dungeon/common";
 import getItemOwnedByFocusedCharacter from "@/utils/getItemOwnedByFocusedCharacter";
 import selectItem from "@/utils/selectItem";
 import { setAlert } from "@/app/components/alerts";
+import useItemHandler from "./use-item-handler";
+import selectCombatActionHandler from "./select-combat-action-handler";
 
 export default function createActionButtonClickHandler(
   gameAction: GameAction,
   gameState: GameState,
-  lobbyState: LobbyState,
+  uiState: UIState,
   partySocket: PartyClientSocket,
   mutateAlertState: MutateState<AlertState>
 ) {
@@ -52,25 +54,29 @@ export default function createActionButtonClickHandler(
         });
     case GameActionType.SelectItem:
       return () => {
-        const itemResult = getItemOwnedByFocusedCharacter(
-          gameState,
-          lobbyState.username,
-          gameAction.itemId
-        );
+        const itemResult = getItemOwnedByFocusedCharacter(gameState, gameAction.itemId);
         if (itemResult instanceof Error) return setAlert(mutateAlertState, itemResult.message);
         selectItem(gameState.mutateState, itemResult);
       };
     case GameActionType.UseItem:
-    //
+      return () => useItemHandler(gameState, uiState, mutateAlertState, partySocket);
+    case GameActionType.DeselectCombatAction:
+      return () => selectCombatActionHandler(gameState, mutateAlertState, partySocket, null);
+    case GameActionType.SelectCombatAction:
+      return () =>
+        selectCombatActionHandler(
+          gameState,
+          mutateAlertState,
+          partySocket,
+          gameAction.combatAction
+        );
+    case GameActionType.CycleTargets:
+    case GameActionType.CycleTargetingScheme:
+    case GameActionType.UseSelectedCombatAction:
     case GameActionType.ToggleReadyToDescend:
     case GameActionType.TakeItem:
     case GameActionType.DropItem:
     case GameActionType.ShardItem:
-    case GameActionType.UseSelectedCombatAction:
-    case GameActionType.SelectCombatAction:
-    case GameActionType.DeselectCombatAction:
-    case GameActionType.CycleTargets:
-    case GameActionType.CycleTargetingScheme:
     case GameActionType.SetAssignAttributePointsMenuOpen:
     case GameActionType.AssignAttributePoint:
   }

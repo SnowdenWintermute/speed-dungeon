@@ -1,6 +1,11 @@
 import { CombatantClass } from "@speed-dungeon/common/src/combatants";
 import { GameServer } from "..";
-import { ERROR_MESSAGES, ServerToClientEvent, SocketNamespaces } from "@speed-dungeon/common";
+import {
+  ERROR_MESSAGES,
+  ServerToClientEvent,
+  SocketNamespaces,
+  SpeedDungeonGame,
+} from "@speed-dungeon/common";
 import { generateRandomCharacterName } from "../../utils";
 import errorHandler from "../error-handler";
 
@@ -35,12 +40,18 @@ export default function createCharacterHandler(
 
     player.characterIds[newCharacterId] = null;
 
-    const character = game.getCharacter(player.partyName, newCharacterId);
+    const characterResult = game.getCharacter(player.partyName, newCharacterId);
+    if (characterResult instanceof Error) throw characterResult;
 
     this.io
       .of(SocketNamespaces.Main)
       .in(game.name)
-      .emit(ServerToClientEvent.CharacterCreated, player.partyName, socketMeta.username, character);
+      .emit(
+        ServerToClientEvent.CharacterCreated,
+        player.partyName,
+        socketMeta.username,
+        characterResult
+      );
   } catch (e) {
     if (e instanceof Error) return errorHandler(socket, e.message);
     else console.error(e);

@@ -32,5 +32,5 @@ export class SpeedDungeonGame {
   applyFullUpdate = applyFullUpdate;
   addCharacterToParty = addCharacterToParty;
   getCharacter = getCharacter;
-  getCombatantById = getCombatantById
+  getCombatantById = getCombatantById;
 }

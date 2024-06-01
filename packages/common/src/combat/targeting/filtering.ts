@@ -1,4 +1,4 @@
-import { ProhibitedTargetCombatantStates } from ".";
+import { ProhibitedTargetCombatantStates, TargetCategories } from ".";
 import { AdventuringParty } from "../../adventuring_party";
 
 export function filterPossibleTargetIdsByProhibitedCombatantStates(
@@ -59,4 +59,22 @@ function filterTargetIdGroupByProhibitedCombatantStates(
   }
 
   return filteredIds;
+}
+
+export function filterPossibleTargetIdsByActionTargetCategories(
+  targetCategories: TargetCategories,
+  actionUserId: string,
+  allyIds: string[],
+  opponentIdsOption: null | string[]
+) {
+  switch (targetCategories) {
+    case TargetCategories.Opponent:
+      return [null, opponentIdsOption];
+    case TargetCategories.User:
+      return [[actionUserId], null];
+    case TargetCategories.Friendly:
+      return [allyIds, null];
+    case TargetCategories.Any:
+      return [allyIds, opponentIdsOption];
+  }
 }

@@ -1,4 +1,4 @@
-import { AdventuringParty, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
+import { AdventuringParty, Battle, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
 import React from "react";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
 
@@ -15,8 +15,10 @@ export default function MonsterPlaques({ party, game }: Props) {
     else {
       const firstCharacterId = party.characterPositions[0];
       if (!firstCharacterId) return <div>{ERROR_MESSAGES.PARTY.MISSING_CHARACTERS}</div>;
-      const allyAndOpponentIdsResult =
-        battleOption.getAllyIdsAndOpponentIdsOption(firstCharacterId);
+      const allyAndOpponentIdsResult = Battle.getAllyIdsAndOpponentIdsOption(
+        battleOption,
+        firstCharacterId
+      );
       if (allyAndOpponentIdsResult instanceof Error)
         return <div>{allyAndOpponentIdsResult.message}</div>;
 

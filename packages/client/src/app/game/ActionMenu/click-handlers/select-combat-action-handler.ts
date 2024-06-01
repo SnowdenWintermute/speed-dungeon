@@ -5,7 +5,8 @@ import { MutateState } from "@/stores/mutate-state";
 import { PartyClientSocket } from "@/stores/websocket-store";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import getGameAndParty from "@/utils/getGameAndParty";
-import { CombatAction } from "@speed-dungeon/common";
+import { CombatAction, ERROR_MESSAGES, InPartyClientToServerEvent } from "@speed-dungeon/common";
+import assignCharacterActionTargets from "@speed-dungeon/common/src/combat/targeting/assign-character-action-targets";
 
 export default function selectCombatActionHandler(
   gameState: GameState,
@@ -14,11 +15,33 @@ export default function selectCombatActionHandler(
   combatActionOption: null | CombatAction
 ) {
   const gameAndPartyResult = getGameAndParty(gameState.game, gameState.username);
-  if (gameAndPartyResult instanceof Error) setAlert(mutateAlertState, gameAndPartyResult.message);
+  if (gameAndPartyResult instanceof Error)
+    return setAlert(mutateAlertState, gameAndPartyResult.message);
   const focusedCharacterResult = getFocusedCharacter(gameState);
   if (focusedCharacterResult instanceof Error)
-    setAlert(mutateAlertState, focusedCharacterResult.message);
+    return setAlert(mutateAlertState, focusedCharacterResult.message);
+  const [game, party] = gameAndPartyResult;
 
-  // assignCharacterActionTargets
-  // emit SelectCombatAction
+  const combatActionPropertiesOption = combatActionOption
+    ? party.getCombatActionProperties(
+        combatActionOption,
+        focusedCharacterResult.entityProperties.id
+      )
+    : null;
+  if (combatActionPropertiesOption instanceof Error) return combatActionPropertiesOption;
+  if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+
+  assignCharacterActionTargets(
+    game,
+    focusedCharacterResult.entityProperties.id,
+    gameState.username,
+    combatActionPropertiesOption
+  );
+
+  gameState.mutateState((state) => (state.menuContext = null));
+  partySocket.emit(
+    InPartyClientToServerEvent.SelectCombatAction,
+    focusedCharacterResult.entityProperties.id,
+    combatActionOption
+  );
 }

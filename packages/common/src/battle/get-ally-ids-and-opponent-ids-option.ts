@@ -7,19 +7,19 @@ export interface AllyIdsAndOpponentIdsOption {
 }
 
 export default function getAllyIdsAndOpponentIdsOption(
-  this: Battle,
+  battle: Battle,
   combatantId: string
 ): Error | AllyIdsAndOpponentIdsOption {
-  const opponentIdsOption = this.groupA.combatantIds.includes(combatantId)
-    ? this.groupB.combatantIds
-    : this.groupB.combatantIds.includes(combatantId)
-      ? this.groupA.combatantIds
+  const opponentIdsOption = battle.groupA.combatantIds.includes(combatantId)
+    ? battle.groupB.combatantIds
+    : battle.groupB.combatantIds.includes(combatantId)
+      ? battle.groupA.combatantIds
       : null;
 
-  const allyIds = this.groupA.combatantIds.includes(combatantId)
-    ? this.groupA.combatantIds
-    : this.groupB.combatantIds.includes(combatantId)
-      ? this.groupB.combatantIds
+  const allyIds = battle.groupA.combatantIds.includes(combatantId)
+    ? battle.groupA.combatantIds
+    : battle.groupB.combatantIds.includes(combatantId)
+      ? battle.groupB.combatantIds
       : undefined;
   if (!allyIds) return new Error(ERROR_MESSAGES.BATTLE.COMBATANT_NOT_IN_BATTLE);
 

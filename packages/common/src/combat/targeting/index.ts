@@ -1,3 +1,5 @@
+export * from "./assign-character-action-targets";
+
 export enum FriendOrFoe {
   Friendly,
   Hostile,

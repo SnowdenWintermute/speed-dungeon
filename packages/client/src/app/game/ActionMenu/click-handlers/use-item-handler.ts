@@ -5,10 +5,12 @@ import { UIState } from "@/stores/ui-store";
 import { PartyClientSocket } from "@/stores/websocket-store";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import {
+  CombatActionType,
   CombatantProperties,
   InPartyClientToServerEvent,
   ItemPropertiesType,
 } from "@speed-dungeon/common";
+import selectCombatActionHandler from "./select-combat-action-handler";
 
 export default function useItemHandler(
   gameState: GameState,
@@ -28,7 +30,10 @@ export default function useItemHandler(
           altSlotTargeted
         );
       case ItemPropertiesType.Consumable:
-      // selectCombatActionHandler();
+        selectCombatActionHandler(gameState, mutateAlertState, partySocket, {
+          type: CombatActionType.ConsumableUsed,
+          itemId: itemOption.entityProperties.id,
+        });
     }
   }
 }

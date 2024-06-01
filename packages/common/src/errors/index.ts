@@ -23,8 +23,10 @@ export const ERROR_MESSAGES = {
     PLAYER_DOES_NOT_EXIST: "No player by that name was found in the game",
     CHARACTER_NOT_OWNED:
       "The provided character is not in the list of that player's owned characters",
+    BATTLE_DOES_NOT_EXIST: "No battle found by that id",
   },
   PARTY: {
+    PLAYER_NOT_FOUND: "The provided username does not belong to any player in this party",
     CHARACTER_NOT_FOUND: "No character was found in the party by the provided id",
     MISSING_CHARACTERS: "Somehow we have a party with no characters",
   },
@@ -37,6 +39,9 @@ export const ERROR_MESSAGES = {
   ABILITIES: {
     NOT_OWNED: "That ability is not owned by that combatant",
     INVALID_TYPE: "Invalid ability type",
+  },
+  COMBAT_ACTIONS: {
+    NO_VALID_TARGETS: "No valid targets were found for the selected action",
   },
   ITEM: {
     NOT_FOUND: "No item was found with the provided ID",
