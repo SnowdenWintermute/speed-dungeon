@@ -38,7 +38,7 @@ export default function createCharacterHandler(
       player.username
     );
 
-    player.characterIds[newCharacterId] = null;
+    player.characterIds.push(newCharacterId);
 
     const characterResult = game.getCharacter(player.partyName, newCharacterId);
     if (characterResult instanceof Error) throw characterResult;

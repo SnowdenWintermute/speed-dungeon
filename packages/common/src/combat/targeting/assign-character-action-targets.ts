@@ -1,14 +1,10 @@
 import { CombatActionProperties } from "..";
-import { Battle } from "../../battle";
 import { ERROR_MESSAGES } from "../../errors";
 import { SpeedDungeonGame } from "../../game";
 import getPlayerParty from "../../game/get-player-party";
 import { CombatActionTarget } from "./combat-action-targets";
-import {
-  filterPossibleTargetIdsByActionTargetCategories,
-  filterPossibleTargetIdsByProhibitedCombatantStates,
-} from "./filtering";
 import getActionTargetsBySavedPreferenceOrDefault from "./get-action-targets-by-saved-preference-or-default";
+import getFilteredPotentialTargetIds from "./get-filtered-potential-target-ids";
 import getUpdatedTargetPreferences from "./get-updated-target-preferences";
 
 export default function assignCharacterActionTargets(
@@ -31,37 +27,14 @@ export default function assignCharacterActionTargets(
 
   const combatActionProperties = combatActionPropertiesOption;
 
-  let allyIdsOption: null | string[] = party.characterPositions;
-  let opponentIdsOption: null | string[] = null;
-
-  if (party.battleId) {
-    const battleOption = game.battles[party.battleId];
-    if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
-    const allyAndOponnentIdsResult = Battle.getAllyIdsAndOpponentIdsOption(
-      battleOption,
-      characterId
-    );
-    if (allyAndOponnentIdsResult instanceof Error) return allyAndOponnentIdsResult;
-    opponentIdsOption = allyAndOponnentIdsResult.opponentIdsOption;
-  }
-
-  const prohibitedTargetCombatantStates = combatActionProperties.prohibitedTargetCombatantStates;
-
-  const filteredTargetsResult = filterPossibleTargetIdsByProhibitedCombatantStates(
+  const filteredTargetIdsResult = getFilteredPotentialTargetIds(
+    game,
     party,
-    prohibitedTargetCombatantStates,
-    allyIdsOption,
-    opponentIdsOption
-  );
-
-  if (filteredTargetsResult instanceof Error) return filteredTargetsResult;
-  [allyIdsOption, opponentIdsOption] = filteredTargetsResult;
-  [allyIdsOption, opponentIdsOption] = filterPossibleTargetIdsByActionTargetCategories(
-    combatActionProperties.validTargetCategories,
     characterId,
-    allyIdsOption,
-    opponentIdsOption
+    combatActionProperties
   );
+  if (filteredTargetIdsResult instanceof Error) return filteredTargetIdsResult;
+  const [allyIdsOption, opponentIdsOption] = filteredTargetIdsResult;
 
   const playerOption = game.players[username];
   if (!playerOption) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);

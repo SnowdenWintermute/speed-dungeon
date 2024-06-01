@@ -22,10 +22,10 @@ export default function deleteCharacterHandler(
   const party = game.adventuringParties[player.partyName];
   if (!party) return errorHandler(socket, ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
 
-  if (!Object.keys(player.characterIds).includes(characterId.toString()))
-    return errorHandler(socket, ERROR_MESSAGES.GAME.CHARACTER_NOT_OWNED);
+  if (!player.characterIds.includes(characterId.toString()))
+    return errorHandler(socket, ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
 
-  delete player.characterIds[characterId];
+  removeFromArray(player.characterIds, characterId);
   delete party.characters[characterId];
   removeFromArray(party.characterPositions, characterId);
 

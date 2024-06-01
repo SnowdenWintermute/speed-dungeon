@@ -12,7 +12,7 @@ export class Battle {
 
   combatantIsFirstInTurnOrder(combatantId: string) {
     if (this.turnTrackers.length < 1) return false;
-    return this.turnTrackers[0].entityId === combatantId;
+    return this.turnTrackers[0]?.entityId === combatantId;
   }
 
   static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;

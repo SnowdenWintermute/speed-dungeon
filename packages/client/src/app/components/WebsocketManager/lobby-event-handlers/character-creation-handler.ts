@@ -23,6 +23,6 @@ export default function characterCreationHandler(
 
     party.characters[characterId] = character;
     party.characterPositions.push(characterId);
-    player.characterIds[characterId] = null;
+    player.characterIds.push(characterId);
   });
 }

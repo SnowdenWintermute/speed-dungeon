@@ -21,8 +21,6 @@ export const ERROR_MESSAGES = {
     MAX_PARTY_SIZE: "Maximum party size reached",
     CHARACTER_DOES_NOT_EXIST: "No character was found by the provided id",
     PLAYER_DOES_NOT_EXIST: "No player by that name was found in the game",
-    CHARACTER_NOT_OWNED:
-      "The provided character is not in the list of that player's owned characters",
     BATTLE_DOES_NOT_EXIST: "No battle found by that id",
   },
   PARTY: {
@@ -30,8 +28,15 @@ export const ERROR_MESSAGES = {
     CHARACTER_NOT_FOUND: "No character was found in the party by the provided id",
     MISSING_CHARACTERS: "Somehow we have a party with no characters",
   },
+  PLAYER: {
+    NO_CHARACTERS: "The provided player doesn't own any characters",
+    CHARACTER_NOT_OWNED:
+      "The provided character is not in the list of that player's owned characters",
+  },
   COMBATANT: {
     NOT_FOUND: "No combatant was found with the provided id",
+    NO_ACTION_SELECTED: "That combatant has no selected combat action",
+    NO_TARGET_SELECTED: "That combatant has no selected target",
   },
   MONSTERS: {
     NO_MONSTERS_FOUND: "No monsters were found in the current room",

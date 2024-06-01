@@ -9,6 +9,7 @@ import getItemInAdventuringParty from "./getItem";
 import getIdsAndSelectedActionsOfCharactersTargetingCombatant from "./get-ids-and-selected-actions-of-characters-targeting-combatant";
 import getMonsterIdsInParty from "./get-monster-ids";
 import { getCombatActionProperties } from "../combatants/get-combat-action-properties";
+import getCharacterIfOwned from "./get-character-if-owned";
 export * from "./player-character";
 
 export type RoomsExploredTracker = { total: number; onCurrentFloor: number };
@@ -40,4 +41,5 @@ export class AdventuringParty {
     getIdsAndSelectedActionsOfCharactersTargetingCombatant;
   getMonsterIds = getMonsterIdsInParty;
   getCombatActionProperties = getCombatActionProperties;
+  static getCharacterIfOwned = getCharacterIfOwned;
 }

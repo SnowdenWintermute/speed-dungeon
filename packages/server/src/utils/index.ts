@@ -22,11 +22,11 @@ export function generateRandomGameName() {
 }
 
 export function generateRandomPartyName() {
-  return RANDOM_PARTY_NAMES[Math.floor(Math.random() * RANDOM_PARTY_NAMES.length)];
+  return RANDOM_PARTY_NAMES[Math.floor(Math.random() * RANDOM_PARTY_NAMES.length)]!;
 }
 
 export function generateRandomCharacterName() {
   return RANDOM_CHARACTER_NAMES_FIRST[
     Math.floor(Math.random() * RANDOM_CHARACTER_NAMES_FIRST.length)
-  ];
+  ]!;
 }

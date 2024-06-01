@@ -12,7 +12,6 @@ export default function characterDeletionHandler(
   characterId: string
 ) {
   mutateGameStore((gameState) => {
-    console.log("deleting character ", characterId, " for username ", username);
     const game = gameState.game;
     if (!game) return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
     const party = game.adventuringParties[partyName];
@@ -20,7 +19,7 @@ export default function characterDeletionHandler(
     const player = game.players[username];
     if (!player) return setAlert(mutateAlertStore, ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
-    delete player.characterIds[characterId];
+    removeFromArray(player.characterIds, characterId);
     delete party.characters[characterId];
     removeFromArray(party.characterPositions, characterId);
   });

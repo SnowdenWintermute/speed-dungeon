@@ -6,7 +6,7 @@ export class SpeedDungeonPlayer {
   [immerable] = true;
   partyName: null | string = null;
   // approximation of a HashSet that can be sent over websockets without complex serialization
-  characterIds: { [id: string]: null } = {};
+  characterIds: string[] = [];
   targetPreferences: CombatActionTargetPreferences = new CombatActionTargetPreferences();
   constructor(public username: string) {}
 }

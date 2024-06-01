@@ -66,7 +66,7 @@ export function filterPossibleTargetIdsByActionTargetCategories(
   actionUserId: string,
   allyIds: string[],
   opponentIdsOption: null | string[]
-) {
+): [null | string[], null | string[]] {
   switch (targetCategories) {
     case TargetCategories.Opponent:
       return [null, opponentIdsOption];

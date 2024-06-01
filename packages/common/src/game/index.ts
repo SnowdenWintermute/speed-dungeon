@@ -12,6 +12,8 @@ import removePlayerFromParty from "./remove-player-from-party";
 import addCharacterToParty from "./add-character-to-party";
 import getCharacter from "./get-character";
 import getCombatantById from "./get-combatant-by-id";
+import cycleCharacterTargets from "../combat/targeting/cycle-character-targets";
+import getAllyIdsAndOpponentIdsOption from "./get-ally-ids-and-opponent-ids-option";
 
 export class SpeedDungeonGame {
   [immerable] = true;
@@ -33,4 +35,6 @@ export class SpeedDungeonGame {
   addCharacterToParty = addCharacterToParty;
   getCharacter = getCharacter;
   getCombatantById = getCombatantById;
+  static cycleCharacterTargets = cycleCharacterTargets;
+  static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
 }
