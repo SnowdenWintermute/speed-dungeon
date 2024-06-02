@@ -1,5 +1,6 @@
 import { CombatantTurnTracker } from "../combat/turn-order";
 import { EntityId } from "../primatives";
+import getAllyAndEnemyBattleGroups from "./get-ally-and-enemy-battle-groups";
 import getAllyIdsAndOpponentIdsOption from "./get-ally-ids-and-opponent-ids-option";
 
 export class Battle {
@@ -16,6 +17,7 @@ export class Battle {
   }
 
   static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
+  static getAllyAndEnemyBattleGroups = getAllyAndEnemyBattleGroups;
 }
 
 export enum BattleGroupType {
