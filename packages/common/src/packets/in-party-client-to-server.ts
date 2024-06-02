@@ -10,6 +10,8 @@ export enum InPartyClientToServerEvent {
   UnequipSlot = "3",
   EquipInventoryItem = "4",
   CycleCombatActionTargets = "5",
+  CycleTargetingSchemes = "6",
+  UseSelectedCombatAction = "7",
 }
 
 export interface InPartyClientToServerEventTypes {
@@ -32,4 +34,6 @@ export interface InPartyClientToServerEventTypes {
     characterId: string,
     direction: NextOrPrevious
   ) => void;
+  [InPartyClientToServerEvent.CycleTargetingSchemes]: (characterId: string) => void;
+  [InPartyClientToServerEvent.UseSelectedCombatAction]: (characterId: string) => null;
 }

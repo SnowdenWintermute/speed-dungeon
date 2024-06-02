@@ -1,4 +1,5 @@
 export * from "./assign-character-action-targets";
+export * from "./cycle-character-targeting-schemes";
 
 export enum FriendOrFoe {
   Friendly,

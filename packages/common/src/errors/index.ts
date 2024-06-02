@@ -47,6 +47,9 @@ export const ERROR_MESSAGES = {
   },
   COMBAT_ACTIONS: {
     NO_VALID_TARGETS: "No valid targets were found for the selected action",
+    ONLY_ONE_TARGETING_SCHEME_AVAILABLE:
+      "There is only one targeting scheme available for that action",
+    NO_TARGETING_SCHEMES: "That ability has no targeting schemes",
   },
   ITEM: {
     NOT_FOUND: "No item was found with the provided ID",
@@ -56,4 +59,6 @@ export const ERROR_MESSAGES = {
   BATTLE: {
     COMBATANT_NOT_IN_BATTLE: "The provided ID did not match any combatant in this battle",
   },
+  CHECKED_EXPECTATION_FAILED:
+    "Code was reached that should have been impossible due to prior value checks",
 };

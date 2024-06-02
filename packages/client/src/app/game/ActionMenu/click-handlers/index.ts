@@ -11,6 +11,8 @@ import { setAlert } from "@/app/components/alerts";
 import useItemHandler from "./use-item-handler";
 import selectCombatActionHandler from "./select-combat-action-handler";
 import cycleCombatActionTargetsHandler from "./cycle-combat-action-targets-handler";
+import cycleTargetingSchemeHandler from "./cycle-targeting-scheme-handler";
+import useSelectedCombatActionHandler from "./use-selected-combat-action-handler";
 
 export default function createActionButtonClickHandler(
   gameAction: GameAction,
@@ -79,7 +81,9 @@ export default function createActionButtonClickHandler(
           gameAction.nextOrPrevious
         );
     case GameActionType.CycleTargetingScheme:
+      return () => cycleTargetingSchemeHandler(mutateGameState, mutateAlertState, partySocket);
     case GameActionType.UseSelectedCombatAction:
+      return () => useSelectedCombatActionHandler(mutateGameState, partySocket);
     case GameActionType.ToggleReadyToDescend:
     case GameActionType.TakeItem:
     case GameActionType.DropItem:
