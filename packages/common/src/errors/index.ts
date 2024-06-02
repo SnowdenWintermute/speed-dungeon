@@ -7,6 +7,7 @@ export const ERROR_MESSAGES = {
     NO_CURRENT_GAME: "This client has no current game",
     NO_CURRENT_PARTY: "Expected this client to have a party but couldn't find it",
     NO_USERNAME: "Client doesn't know it's own username",
+    NO_SOCKET_OBJECT: "Client is missing their websocket object",
   },
   LOBBY: {
     GAME_EXISTS: "A game by that name already exists",

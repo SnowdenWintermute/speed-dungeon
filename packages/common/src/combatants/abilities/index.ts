@@ -21,3 +21,19 @@ export class CombatantAbility {
     return new CombatantAbility(abilityName, 1);
   }
 }
+
+export function formatAbilityName(abilityName: CombatantAbilityName) {
+  switch (abilityName) {
+    case CombatantAbilityName.Attack:
+    case CombatantAbilityName.AttackMeleeMainhand:
+    case CombatantAbilityName.AttackMeleeOffhand:
+    case CombatantAbilityName.AttackRangedMainhand:
+      return "Attack";
+    case CombatantAbilityName.Fire:
+      return "Fire";
+    case CombatantAbilityName.Ice:
+      return "Ice";
+    case CombatantAbilityName.Healing:
+      return "Healing";
+  }
+}

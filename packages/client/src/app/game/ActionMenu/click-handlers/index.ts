@@ -13,13 +13,14 @@ import selectCombatActionHandler from "./select-combat-action-handler";
 import cycleCombatActionTargetsHandler from "./cycle-combat-action-targets-handler";
 import cycleTargetingSchemeHandler from "./cycle-targeting-scheme-handler";
 import useSelectedCombatActionHandler from "./use-selected-combat-action-handler";
+import dropItemHandler from "./drop-item-handler";
 
 export default function createActionButtonClickHandler(
   gameAction: GameAction,
   gameState: GameState,
   uiState: UIState,
-  partySocket: PartyClientSocket,
-  mutateAlertState: MutateState<AlertState>
+  mutateAlertState: MutateState<AlertState>,
+  partySocket: PartyClientSocket
 ) {
   const mutateGameState = gameState.mutateState;
   switch (gameAction.type) {
@@ -84,11 +85,23 @@ export default function createActionButtonClickHandler(
       return () => cycleTargetingSchemeHandler(mutateGameState, mutateAlertState, partySocket);
     case GameActionType.UseSelectedCombatAction:
       return () => useSelectedCombatActionHandler(mutateGameState, partySocket);
-    case GameActionType.ToggleReadyToDescend:
-    case GameActionType.TakeItem:
     case GameActionType.DropItem:
-    case GameActionType.ShardItem:
+      return () =>
+        dropItemHandler(mutateGameState, mutateAlertState, partySocket, gameAction.itemId);
+    case GameActionType.ToggleReadyToDescend:
+      return () => partySocket.emit(InPartyClientToServerEvent.ToggleReadyToDescend);
     case GameActionType.SetAssignAttributePointsMenuOpen:
+      return () =>
+        mutateGameState((gameState) => (gameState.menuContext = MenuContext.AttributeAssignment));
     case GameActionType.AssignAttributePoint:
+      return () =>
+        partySocket.emit(
+          InPartyClientToServerEvent.AssignAttributePoint,
+          gameState.focusedCharacterId,
+          gameAction.attribute
+        );
+    case GameActionType.TakeItem:
+    case GameActionType.ShardItem:
+      return () => {};
   }
 }

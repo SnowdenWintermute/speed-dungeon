@@ -12,6 +12,10 @@ export enum InPartyClientToServerEvent {
   CycleCombatActionTargets = "5",
   CycleTargetingSchemes = "6",
   UseSelectedCombatAction = "7",
+  DropEquippedItem = "8",
+  DropItem = "9",
+  ToggleReadyToDescend = "10",
+  AssignAttributePoint = "11",
 }
 
 export interface InPartyClientToServerEventTypes {
@@ -35,5 +39,12 @@ export interface InPartyClientToServerEventTypes {
     direction: NextOrPrevious
   ) => void;
   [InPartyClientToServerEvent.CycleTargetingSchemes]: (characterId: string) => void;
-  [InPartyClientToServerEvent.UseSelectedCombatAction]: (characterId: string) => null;
+  [InPartyClientToServerEvent.UseSelectedCombatAction]: (characterId: string) => void;
+  [InPartyClientToServerEvent.DropEquippedItem]: (characterId: string, slot: EquipmentSlot) => void;
+  [InPartyClientToServerEvent.DropItem]: (characterId: string, itemId: string) => void;
+  [InPartyClientToServerEvent.ToggleReadyToDescend]: () => void;
+  [InPartyClientToServerEvent.AssignAttributePoint]: (
+    characterId: string,
+    attribute: CombatAttribute
+  ) => void;
 }

@@ -1,19 +1,19 @@
 import { BUTTON_HEIGHT, SPACING_REM } from "@/client_consts";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { useGameStore } from "@/stores/game-store";
+import { ActionButtonsByCategory } from "./build-action-button-properties";
 
 const PAGE_SIZE = 6;
-
-interface ActionButtonPropertiesByCategory {
-  topActionButtons: ActionMenuButtonProperties[];
-  numberedActionButtons: ActionMenuButtonProperties[];
-  nextPrevActionButtons: ActionMenuButtonProperties[];
-}
 
 export default function ActionMenu() {
   const actionMenuRef = useRef<HTMLUListElement>(null);
   const gameState = useGameStore();
+  const [buttonProperties, setButtonProperties] = useState<ActionButtonsByCategory>({
+    top: [],
+    numbered: [],
+    nextPrev: [],
+  });
 
   // const (top_action_buttons, numbered_action_buttons, next_prev_action_buttons) =
   //     create_action_menu_buttons(
