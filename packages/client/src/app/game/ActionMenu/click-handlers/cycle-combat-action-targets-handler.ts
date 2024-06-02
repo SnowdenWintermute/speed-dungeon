@@ -5,7 +5,8 @@ import { MutateState } from "@/stores/mutate-state";
 import { PartyClientSocket } from "@/stores/websocket-store";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import getGameAndParty from "@/utils/getGameAndParty";
-import { NextOrPrevious } from "@speed-dungeon/common";
+import { ERROR_MESSAGES, InPartyClientToServerEvent, NextOrPrevious } from "@speed-dungeon/common";
+import cycleCharacterTargets from "@speed-dungeon/common/src/combat/targeting/cycle-character-targets";
 
 export default function cycleCombatActionTargetsHandler(
   mutateGameState: MutateState<GameState>,
@@ -22,7 +23,23 @@ export default function cycleCombatActionTargetsHandler(
     if (focusedCharacterResult instanceof Error)
       return setAlert(mutateAlertState, focusedCharacterResult.message);
     const focusedCharacter = focusedCharacterResult;
+    if (!gameState.username) return setAlert(mutateAlertState, ERROR_MESSAGES.CLIENT.NO_USERNAME);
+    const playerOption = game.players[gameState.username];
+    if (!playerOption) return setAlert(mutateAlertState, ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
-    //
+    const result = cycleCharacterTargets(
+      game,
+      party,
+      playerOption,
+      focusedCharacter.entityProperties.id,
+      direction
+    );
+    if (result instanceof Error) return setAlert(mutateAlertState, result.message);
+
+    partySocket.emit(
+      InPartyClientToServerEvent.CycleCombatActionTargets,
+      focusedCharacter.entityProperties.id,
+      direction
+    );
   });
 }

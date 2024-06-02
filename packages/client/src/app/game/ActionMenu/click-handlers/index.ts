@@ -1,7 +1,6 @@
 import { GameAction, GameActionType } from "../game-actions";
 import { GameState, MenuContext } from "@/stores/game-store";
 import { UIState } from "@/stores/ui-store";
-import { LobbyState } from "@/stores/lobby-store";
 import { PartyClientSocket } from "@/stores/websocket-store";
 import { MutateState } from "@/stores/mutate-state";
 import { AlertState } from "@/stores/alert-store";
@@ -11,6 +10,7 @@ import selectItem from "@/utils/selectItem";
 import { setAlert } from "@/app/components/alerts";
 import useItemHandler from "./use-item-handler";
 import selectCombatActionHandler from "./select-combat-action-handler";
+import cycleCombatActionTargetsHandler from "./cycle-combat-action-targets-handler";
 
 export default function createActionButtonClickHandler(
   gameAction: GameAction,
@@ -71,6 +71,13 @@ export default function createActionButtonClickHandler(
           gameAction.combatAction
         );
     case GameActionType.CycleTargets:
+      return () =>
+        cycleCombatActionTargetsHandler(
+          mutateGameState,
+          mutateAlertState,
+          partySocket,
+          gameAction.nextOrPrevious
+        );
     case GameActionType.CycleTargetingScheme:
     case GameActionType.UseSelectedCombatAction:
     case GameActionType.ToggleReadyToDescend:

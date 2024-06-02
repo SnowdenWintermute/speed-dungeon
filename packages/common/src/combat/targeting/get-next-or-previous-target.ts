@@ -1,7 +1,7 @@
-import { TargetCategories } from "..";
+import { FriendOrFoe, TargetCategories } from "..";
 import { ERROR_MESSAGES } from "../../errors";
 import { NextOrPrevious } from "../../primatives";
-import { CombatActionProperties, CombatActionType } from "../combat-actions";
+import { CombatActionProperties } from "../combat-actions";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets";
 
 export default function getNextOrPreviousTarget(
@@ -11,7 +11,7 @@ export default function getNextOrPreviousTarget(
   actionUserId: string,
   allyIdsOption: null | string[],
   opponentIdsOption: null | string[]
-) {
+): Error | CombatActionTarget {
   switch (currentTargets.type) {
     case CombatActionTargetType.Single:
       switch (combatActionProperties.validTargetCategories) {
@@ -41,10 +41,53 @@ export default function getNextOrPreviousTarget(
             ),
           };
         case TargetCategories.Any:
-        //
+          const possibleTargetIds: string[] = [];
+          if (opponentIdsOption) possibleTargetIds.push.apply(opponentIdsOption);
+          if (allyIdsOption) possibleTargetIds.push.apply(allyIdsOption);
+          return {
+            type: CombatActionTargetType.Single,
+            targetId: getNextOrPrevIdFromOrderedList(
+              possibleTargetIds,
+              currentTargets.targetId,
+              direction
+            ),
+          };
       }
     case CombatActionTargetType.Group:
+      switch (combatActionProperties.validTargetCategories) {
+        case TargetCategories.Opponent:
+          return {
+            type: CombatActionTargetType.Group,
+            friendOrFoe: FriendOrFoe.Hostile,
+          };
+        case TargetCategories.User:
+          return {
+            type: CombatActionTargetType.Single,
+            targetId: actionUserId,
+          };
+        case TargetCategories.Friendly:
+          return {
+            type: CombatActionTargetType.Group,
+            friendOrFoe: FriendOrFoe.Friendly,
+          };
+        case TargetCategories.Any:
+          switch (currentTargets.friendOrFoe) {
+            case FriendOrFoe.Friendly:
+              return {
+                type: CombatActionTargetType.Group,
+                friendOrFoe: FriendOrFoe.Hostile,
+              };
+            case FriendOrFoe.Hostile:
+              return {
+                type: CombatActionTargetType.Group,
+                friendOrFoe: FriendOrFoe.Friendly,
+              };
+          }
+      }
     case CombatActionTargetType.All:
+      return {
+        type: CombatActionTargetType.All,
+      };
   }
 }
 

@@ -1,6 +1,7 @@
 import { CombatAction } from "../combat";
 import { CombatAttribute } from "../combatants";
 import { EquipmentSlot } from "../items";
+import { NextOrPrevious } from "../primatives";
 
 export enum InPartyClientToServerEvent {
   SelectCombatAction = "0",
@@ -8,6 +9,7 @@ export enum InPartyClientToServerEvent {
   ToggleReadyToExplore = "2",
   UnequipSlot = "3",
   EquipInventoryItem = "4",
+  CycleCombatActionTargets = "5",
 }
 
 export interface InPartyClientToServerEventTypes {
@@ -25,5 +27,9 @@ export interface InPartyClientToServerEventTypes {
     characterId: string,
     itemId: string,
     altSlot: boolean
+  ) => void;
+  [InPartyClientToServerEvent.CycleCombatActionTargets]: (
+    characterId: string,
+    direction: NextOrPrevious
   ) => void;
 }

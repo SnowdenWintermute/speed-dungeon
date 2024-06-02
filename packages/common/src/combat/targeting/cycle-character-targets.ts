@@ -4,6 +4,8 @@ import { ERROR_MESSAGES } from "../../errors";
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "../../game";
 import { NextOrPrevious } from "../../primatives";
 import getFilteredPotentialTargetIds from "./get-filtered-potential-target-ids";
+import getNextOrPreviousTarget from "./get-next-or-previous-target";
+import getUpdatedTargetPreferences from "./get-updated-target-preferences";
 
 export default function cycleCharacterTargets(
   game: SpeedDungeonGame,
@@ -11,9 +13,7 @@ export default function cycleCharacterTargets(
   player: SpeedDungeonPlayer,
   characterId: string,
   direction: NextOrPrevious
-) {
-  const battleIdOption = party.battleId;
-  const battleOption = battleIdOption ? game.battles[battleIdOption] ?? null : null;
+): Error | void {
   const characterResult = AdventuringParty.getCharacterIfOwned(
     party,
     player.characterIds,
@@ -37,7 +37,6 @@ export default function cycleCharacterTargets(
   if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
   const combatActionProperties = combatActionPropertiesResult;
 
-  const { prohibitedTargetCombatantStates } = combatActionProperties;
   const filteredTargetIdsResult = getFilteredPotentialTargetIds(
     game,
     party,
@@ -47,5 +46,23 @@ export default function cycleCharacterTargets(
   if (filteredTargetIdsResult instanceof Error) return filteredTargetIdsResult;
   const [allyIdsOption, opponentIdsOption] = filteredTargetIdsResult;
 
-  // const newTargets =
+  const newTargetsResult = getNextOrPreviousTarget(
+    combatActionProperties,
+    currentTarget,
+    direction,
+    characterId,
+    allyIdsOption,
+    opponentIdsOption
+  );
+  if (newTargetsResult instanceof Error) return newTargetsResult;
+
+  player.targetPreferences = getUpdatedTargetPreferences(
+    player.targetPreferences,
+    combatActionProperties,
+    newTargetsResult,
+    allyIdsOption,
+    opponentIdsOption
+  );
+
+  character.combatantProperties.combatActionTarget = newTargetsResult;
 }
