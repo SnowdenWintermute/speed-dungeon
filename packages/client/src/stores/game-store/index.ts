@@ -35,13 +35,6 @@ export class GameState {
     public mutateState: MutateState<GameState>,
     public get: () => GameState
   ) {}
-
-  getCurrentParty(username: string) {
-    const state = this.get();
-    const player = state.game?.players[username];
-    if (!player?.partyName) return undefined;
-    return state.game?.adventuringParties[player.partyName];
-  }
 }
 
 export const useGameStore = create<GameState>()(

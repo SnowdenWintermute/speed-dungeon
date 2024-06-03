@@ -4,6 +4,7 @@ import { MutateState } from "@/stores/mutate-state";
 import { UIState } from "@/stores/ui-store";
 import {
   AdventuringParty,
+  ERROR_MESSAGES,
   InPartyClientToServerEventTypes,
   InPartyServerToClientEventTypes,
 } from "@speed-dungeon/common";
@@ -18,7 +19,7 @@ import {
 } from "./action-menu-button-properties";
 import getParty from "@/utils/getParty";
 
-export interface ActionButtonsByCategory {
+export interface ActionButtonPropertiesByCategory {
   top: ActionMenuButtonProperties[];
   numbered: ActionMenuButtonProperties[];
   nextPrev: ActionMenuButtonProperties[];
@@ -28,18 +29,23 @@ export default function buildActionButtonProperties(
   gameState: GameState,
   uiState: UIState,
   mutateAlertState: MutateState<AlertState>,
-  partySocket: Socket<InPartyServerToClientEventTypes, InPartyClientToServerEventTypes>
-): Error | ActionButtonsByCategory {
-  const partyResult = getParty(gameState.game, gameState.username);
-  if (partyResult instanceof Error) return partyResult;
-  const relevantInformationResult = collectActionMenuRelevantInformation(gameState, partyResult);
-  if (relevantInformationResult instanceof Error) return relevantInformationResult;
-  const gameActions = createGameActions(relevantInformationResult);
-  const buttonPropertiesByCategory: ActionButtonsByCategory = {
+  partySocketOption:
+    | undefined
+    | Socket<InPartyServerToClientEventTypes, InPartyClientToServerEventTypes>
+): Error | ActionButtonPropertiesByCategory {
+  const buttonPropertiesByCategory: ActionButtonPropertiesByCategory = {
     top: [],
     numbered: [],
     nextPrev: [],
   };
+  if (!partySocketOption) return new Error(ERROR_MESSAGES.CLIENT.NO_SOCKET_OBJECT);
+  const partySocket = partySocketOption;
+  const partyResult = getParty(gameState.game, gameState.username);
+  if (partyResult instanceof Error) return partyResult;
+  const relevantInformationResult = collectActionMenuRelevantInformation(gameState, partyResult);
+  console.log("relevant information for action menu: ", relevantInformationResult);
+  if (relevantInformationResult instanceof Error) return buttonPropertiesByCategory;
+  const gameActions = createGameActions(relevantInformationResult);
 
   for (const action of gameActions) {
     const textResult = determineActionButtonText(gameState, action);

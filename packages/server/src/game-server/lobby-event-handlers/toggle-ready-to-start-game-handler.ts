@@ -20,9 +20,10 @@ export default function toggleReadyToStartGameHandler(this: GameServer, socketId
     if (Object.keys(game.adventuringParties).length < 1)
       throw new Error("A game must have at least one Adventuring Party before it can start");
 
-    Object.values(game.adventuringParties).forEach((party)=> {
-      if (party.characterPositions.length < 1) throw new Error("Each party must have at least one character")
-    })
+    Object.values(game.adventuringParties).forEach((party) => {
+      if (party.characterPositions.length < 1)
+        throw new Error("Each party must have at least one character");
+    });
 
     if (game.playersReadied.includes(username)) removeFromArray(game.playersReadied, username);
     else game.playersReadied.push(username);

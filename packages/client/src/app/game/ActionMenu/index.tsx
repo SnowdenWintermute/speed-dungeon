@@ -2,25 +2,24 @@ import { BUTTON_HEIGHT, SPACING_REM } from "@/client_consts";
 import React, { useRef, useState } from "react";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { useGameStore } from "@/stores/game-store";
-import { ActionButtonsByCategory } from "./build-action-button-properties";
+import { ActionButtonPropertiesByCategory } from "./build-action-button-properties";
+import ActionMenuChangeDetectionHandler from "./ActionMenuChangeDetectionHandler";
+import createActionMenuButtons from "./action-menu-buttons/create-action-menu-buttons";
 
 const PAGE_SIZE = 6;
 
 export default function ActionMenu() {
   const actionMenuRef = useRef<HTMLUListElement>(null);
   const gameState = useGameStore();
-  const [buttonProperties, setButtonProperties] = useState<ActionButtonsByCategory>({
+  const [buttonProperties, setButtonProperties] = useState<ActionButtonPropertiesByCategory>({
     top: [],
     numbered: [],
     nextPrev: [],
   });
 
-  // const (top_action_buttons, numbered_action_buttons, next_prev_action_buttons) =
-  //     create_action_menu_buttons(
-  //         &action_menu_button_properties.top_action_buttons,
-  //         &numbered_button_props_on_current_page.to_vec(),
-  //         &action_menu_button_properties.next_prev_action_buttons,
-  //     );
+  console.log(buttonProperties);
+
+  const buttonsByCategory = createActionMenuButtons(buttonProperties);
 
   function handleWheel() {}
 
@@ -28,9 +27,7 @@ export default function ActionMenu() {
     <section
       className={`max-h-fit max-w-[25rem] flex flex-col justify-between mr-[${SPACING_REM}rem]`}
     >
-      {
-        // <ActionMenuChangeDetectionManager action_menu_button_properties={action_menu_button_properties} />
-      }
+      {<ActionMenuChangeDetectionHandler setButtonProperties={setButtonProperties} />}
       <ul className={`flex list-none min-w-[25rem] max-w-[25rem] mb-[${SPACING_REM}]`}>
         {
           // top_action_buttons
@@ -42,9 +39,9 @@ export default function ActionMenu() {
           ref={actionMenuRef}
           onWheel={handleWheel}
         >
-          {
-            // numbered_action_buttons
-          }
+          {buttonsByCategory.numbered.map((button, i) => (
+            <li key={buttonProperties.numbered[i].text}>{button}</li>
+          ))}
           {
             // hovered_action_display
           }

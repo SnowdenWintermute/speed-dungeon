@@ -28,7 +28,7 @@ export enum BattleGroupType {
 export class BattleGroup {
   constructor(
     public name: string,
-    public partyId: EntityId,
+    public partyName: EntityId,
     public combatantIds: EntityId[],
     public groupType: BattleGroupType
   ) {}

@@ -37,12 +37,13 @@ export default function createActionButtonClickHandler(
           gameState.actionMenuCurrentPageNumber = 0;
         });
     case GameActionType.ToggleViewingEquipedItems:
-      mutateGameState((gameState) => {
-        if (gameState.menuContext === MenuContext.Equipment)
-          gameState.menuContext = MenuContext.InventoryItems;
-        else gameState.menuContext = MenuContext.Equipment;
-        gameState.actionMenuCurrentPageNumber = 0;
-      });
+      return () =>
+        mutateGameState((gameState) => {
+          if (gameState.menuContext === MenuContext.Equipment)
+            gameState.menuContext = MenuContext.InventoryItems;
+          else gameState.menuContext = MenuContext.Equipment;
+          gameState.actionMenuCurrentPageNumber = 0;
+        });
     case GameActionType.DeselectItem:
       return () =>
         mutateGameState((gameState) => {
@@ -101,6 +102,7 @@ export default function createActionButtonClickHandler(
           gameAction.attribute
         );
     case GameActionType.TakeItem:
+      return () => {};
     case GameActionType.ShardItem:
       return () => {};
   }

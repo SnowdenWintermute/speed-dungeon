@@ -12,6 +12,7 @@ export default function initiateLobbyEventListeners(
   this: GameServer,
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
+  socket.onAny((e) => console.log(e));
   socket.on(ClientToServerEvent.RequestsGameList, () => {
     const gameList: GameListEntry[] = this.games
       .entries()
@@ -46,6 +47,6 @@ export default function initiateLobbyEventListeners(
     this.deleteCharacterHandler(socket.id, characterId);
   });
   socket.on(ClientToServerEvent.ToggleReadyToStartGame, () => {
-    this.toggleReadyToStartGameHandler(socket.id );
+    this.toggleReadyToStartGameHandler(socket.id);
   });
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import buildActionButtonProperties, {
-  ActionButtonsByCategory,
+  ActionButtonPropertiesByCategory,
 } from "./build-action-button-properties";
 import { useAlertStore } from "@/stores/alert-store";
 import { useGameStore } from "@/stores/game-store";
@@ -8,14 +8,15 @@ import { useWebsocketStore } from "@/stores/websocket-store";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { useUIStore } from "@/stores/ui-store";
 import { setAlert } from "@/app/components/alerts";
+import getActiveCombatant from "@/utils/getActiveCombatant";
+import getFocusedCharacter from "@/utils/getFocusedCharacter";
 
 interface Props {
-  setButtonProperties: React.Dispatch<React.SetStateAction<ActionButtonsByCategory>>;
+  setButtonProperties: React.Dispatch<React.SetStateAction<ActionButtonPropertiesByCategory>>;
 }
 
 export default function ActionMenuChangeDetectionHandler({ setButtonProperties }: Props) {
-  const partySocket = useWebsocketStore().partySocketOption;
-  if (!partySocket) return <div>{ERROR_MESSAGES.CLIENT.NO_SOCKET_OBJECT}</div>;
+  const partySocketOption = useWebsocketStore().partySocketOption;
   const gameState = useGameStore();
   const uiState = useUIStore();
   const mutateAlertState = useAlertStore().mutateState;
@@ -24,10 +25,18 @@ export default function ActionMenuChangeDetectionHandler({ setButtonProperties }
     gameState.focusedCharacterId
   );
 
-  const { focusedCharacterId } = gameState;
-  // const activeCombatantResult = getActiveCombatant
-  let activeCombatantIdOption = null;
-  switch ()
+  // extract from the gameState anything that we should watch for changes
+  const { focusedCharacterId, menuContext, selectedItem } = gameState;
+  const activeCombatantResult = getActiveCombatant(gameState);
+  const activeCombatantIdOption =
+    activeCombatantResult instanceof Error
+      ? null
+      : activeCombatantResult?.entityProperties.id ?? null;
+  const focusedCharacterResult = getFocusedCharacter(gameState);
+  const actionTargetOption =
+    focusedCharacterResult instanceof Error
+      ? null
+      : focusedCharacterResult.combatantProperties.combatActionTarget;
 
   useEffect(() => {
     if (previouslyFocusedCharacterId != focusedCharacterId)
@@ -42,12 +51,14 @@ export default function ActionMenuChangeDetectionHandler({ setButtonProperties }
       gameState,
       uiState,
       mutateAlertState,
-      partySocket
+      partySocketOption
     );
+
+    console.log("menucontext", gameState.menuContext);
     if (updatedButtonPropertiesResult instanceof Error)
       setAlert(mutateAlertState, updatedButtonPropertiesResult.message);
     else setButtonProperties(updatedButtonPropertiesResult);
-  }, [focusedCharacterId]);
+  }, [focusedCharacterId, activeCombatantIdOption, menuContext, actionTargetOption]);
 
   return <></>;
 }

@@ -31,11 +31,13 @@ export default function createGameActions({
           type: GameActionType.SetAssignAttributePointsMenuOpen,
           shouldBeOpen: true,
         });
+        break;
       case MenuType.UnopenedChest:
       case MenuType.ItemsOnGround:
       case MenuType.InCombat:
         addAbilityGameActionsToList(gameActions, abilities);
         gameActions.push({ type: GameActionType.SetInventoryOpen, shouldBeOpen: !inventoryIsOpen });
+        break;
       case MenuType.CombatActionSelected:
         gameActions.push({ type: GameActionType.DeselectCombatAction });
         gameActions.push({
@@ -53,10 +55,12 @@ export default function createGameActions({
         ) {
           gameActions.push({ type: GameActionType.CycleTargetingScheme });
         }
+        break;
       case MenuType.AssignAttributePoints:
         for (const attribute of ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES) {
           gameActions.push({ type: GameActionType.AssignAttributePoint, attribute });
         }
+        break;
       case MenuType.InventoryOpen:
         gameActions.push({ type: GameActionType.SetInventoryOpen, shouldBeOpen: !inventoryIsOpen });
         gameActions.push({ type: GameActionType.ToggleViewingEquipedItems });
@@ -74,6 +78,7 @@ export default function createGameActions({
             stackSize: 1,
           });
         }
+        break;
       case MenuType.ViewingEquipedItems:
         gameActions.push({ type: GameActionType.SetInventoryOpen, shouldBeOpen: !inventoryIsOpen });
         gameActions.push({ type: GameActionType.ToggleViewingEquipedItems });
@@ -84,6 +89,7 @@ export default function createGameActions({
             stackSize: 1,
           });
         }
+        break;
       case MenuType.ItemSelected:
         gameActions.push({ type: GameActionType.DeselectItem });
         if (selectedItemIdOption) {
@@ -100,9 +106,12 @@ export default function createGameActions({
             itemId: selectedItemIdOption,
           });
         }
+        break;
       case MenuType.LevelUpAbilities:
+        break;
       case MenuType.Staircase:
         gameActions.push({ type: GameActionType.ToggleReadyToDescend });
+        break;
     }
   }
 

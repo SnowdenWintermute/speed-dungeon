@@ -67,6 +67,7 @@ export default function collectActionMenuRelevantInformation(
       equipmentIds.push(item.entityProperties.id);
     }
   } else if (gameState.menuContext === MenuContext.InventoryItems) {
+    menuTypes.push(MenuType.InventoryOpen);
     for (const item of Object.values(combatantProperties.inventory.items)) {
       switch (item.itemProperties.type) {
         case ItemPropertiesType.Equipment:
