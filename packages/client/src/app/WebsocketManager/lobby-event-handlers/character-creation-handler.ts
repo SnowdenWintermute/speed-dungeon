@@ -1,5 +1,5 @@
-import { CombatantProperties, ERROR_MESSAGES, PlayerCharacter } from "@speed-dungeon/common";
-import { setAlert } from "../../alerts";
+import { ERROR_MESSAGES, PlayerCharacter } from "@speed-dungeon/common";
+import { setAlert } from "../../components/alerts";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { AlertState } from "@/stores/alert-store";

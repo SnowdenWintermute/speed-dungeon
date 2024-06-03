@@ -13,7 +13,7 @@ import { io } from "socket.io-client";
 import characterCreationHandler from "./lobby-event-handlers/character-creation-handler";
 import characterDeletionHandler from "./lobby-event-handlers/character-deletion-handler";
 import { useAlertStore } from "@/stores/alert-store";
-import { setAlert } from "../alerts";
+import { setAlert } from "../components/alerts";
 import playerToggledReadyToStartGameHandler from "./lobby-event-handlers/player-toggled-ready-to-start-game-handler";
 import { useGameStore } from "@/stores/game-store";
 
@@ -78,13 +78,11 @@ function SocketManager() {
       });
       mainSocketOption.on(ServerToClientEvent.UserJoinedChannel, (username) => {
         mutateWebsocketStore((state) => {
-          console.log("user joined ", username);
           state.usernamesInMainChannel.add(username);
         });
       });
       mainSocketOption.on(ServerToClientEvent.UserLeftChannel, (username) => {
         mutateWebsocketStore((state) => {
-          console.log("user left ", username);
           state.usernamesInMainChannel.delete(username);
         });
       });
@@ -115,7 +113,6 @@ function SocketManager() {
       mainSocketOption.on(ServerToClientEvent.PartyCreated, (partyName) => {
         mutateGameStore((state) => {
           if (state.game) {
-            console.log("updating party list to include ", partyName);
             state.game.adventuringParties[partyName] = new AdventuringParty(partyName);
             console.log(state.game.adventuringParties);
           }
@@ -124,7 +121,6 @@ function SocketManager() {
       mainSocketOption.on(
         ServerToClientEvent.PlayerChangedAdventuringParty,
         (username, partyName) => {
-          console.log("player changed parties: ", username, partyName);
           mutateGameStore((state) => {
             state.game?.removePlayerFromParty(username);
             if (partyName !== null) {

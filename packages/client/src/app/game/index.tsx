@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useGameStore } from "@/stores/game-store";
 import PartyWipeModal from "./PartyWipeModal";
 import TopInfoBar from "./TopInfoBar";
@@ -6,6 +6,7 @@ import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
 import MonsterPlaques from "./MonsterPlaques";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import ActionMenu from "./ActionMenu";
+import CharacterAutofocusManager from "./CharacterAutofocusManager";
 
 export default function Game() {
   const game = useGameStore().game;
@@ -41,9 +42,7 @@ export default function Game() {
 
   return (
     <main className="h-screen w-screen flex justify-center relative">
-      {
-        // <CharacterAutofocusManager />
-      }
+      <CharacterAutofocusManager />
       <PartyWipeModal />
       <div className="w-full h-full max-h-[calc(0.5625 * 100vw)] text-zinc-300 flex flex-col">
         <TopInfoBar />

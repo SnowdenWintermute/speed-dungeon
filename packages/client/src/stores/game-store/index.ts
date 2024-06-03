@@ -2,11 +2,21 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { immerable, produce } from "immer";
-import { CombatAction, Item, SpeedDungeonGame } from "@speed-dungeon/common";
+import {
+  AdventuringParty,
+  CombatAction,
+  CombatantDetails,
+  ERROR_MESSAGES,
+  Item,
+  SpeedDungeonGame,
+  SpeedDungeonPlayer,
+} from "@speed-dungeon/common";
 import { DetailableEntity } from "./detailable-entities";
 import { EquipmentSlot } from "@speed-dungeon/common";
 import { MutateState } from "../mutate-state";
 import { CombatAttribute } from "@speed-dungeon/common/src/combatants/combat-attributes";
+import getActiveCombatant from "@/utils/getActiveCombatant";
+import getParty from "@/utils/getParty";
 
 export enum MenuContext {
   InventoryItems,
@@ -30,17 +40,42 @@ export class GameState {
   actionMenuParentPageNumbers: number[] = [];
   consideredItemUnmetRequirements: null | CombatAttribute[] = null;
   menuContext: MenuContext | null = null;
+  getCurrentBattleId: () => null | string = () => {
+    const party = this.getParty();
+    if (party instanceof Error) return null;
+    return party.battleId;
+  };
+  getPlayer: () => Error | SpeedDungeonPlayer = () => {
+    const game = this.get().game;
+    const username = this.get().username;
+    if (!game) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    if (!username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+    const playerOption = game.players[username];
+    if (!playerOption) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+    return playerOption;
+  };
+  hasGame: () => boolean = () => {
+    return this.get().game ? true : false;
+  };
 
   constructor(
     public mutateState: MutateState<GameState>,
-    public get: () => GameState
+    public get: () => GameState,
+    public getActiveCombatant: () => Error | null | CombatantDetails,
+    public getParty: () => Error | AdventuringParty
   ) {}
 }
 
 export const useGameStore = create<GameState>()(
   immer(
     devtools(
-      (set, get) => new GameState((fn: (state: GameState) => void) => set(produce(fn)), get),
+      (set, get) =>
+        new GameState(
+          (fn: (state: GameState) => void) => set(produce(fn)),
+          get,
+          () => getActiveCombatant(get()),
+          () => getParty(get().game, get().username)
+        ),
       {
         enabled: true,
         name: "game store",

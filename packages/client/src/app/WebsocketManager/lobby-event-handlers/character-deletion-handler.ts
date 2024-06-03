@@ -1,6 +1,6 @@
 import { AlertState } from "@/stores/alert-store";
 import { ERROR_MESSAGES, removeFromArray } from "@speed-dungeon/common";
-import { setAlert } from "../../alerts";
+import { setAlert } from "../../components/alerts";
 import { MutateState } from "@/stores/mutate-state";
 import { GameState } from "@/stores/game-store";
 

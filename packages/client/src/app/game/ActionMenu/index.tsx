@@ -17,8 +17,6 @@ export default function ActionMenu() {
     nextPrev: [],
   });
 
-  console.log(buttonProperties);
-
   const buttonsByCategory = createActionMenuButtons(buttonProperties);
 
   function handleWheel() {}
@@ -40,7 +38,7 @@ export default function ActionMenu() {
           onWheel={handleWheel}
         >
           {buttonsByCategory.numbered.map((button, i) => (
-            <li key={buttonProperties.numbered[i].text}>{button}</li>
+            <li key={buttonProperties.numbered[i].text + i}>{button}</li>
           ))}
           {
             // hovered_action_display

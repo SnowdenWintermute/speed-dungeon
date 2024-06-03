@@ -2,7 +2,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { BasicScene } from "./babylon-examples/example";
-import SocketManager from "./components/WebsocketManager";
+import SocketManager from "./WebsocketManager";
 import Lobby from "./lobby";
 import { enableMapSet } from "immer";
 import { useGameStore } from "@/stores/game-store";

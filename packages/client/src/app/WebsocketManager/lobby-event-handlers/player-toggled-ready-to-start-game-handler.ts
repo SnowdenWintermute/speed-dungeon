@@ -1,5 +1,5 @@
 import { MutateState } from "@/stores/mutate-state";
-import { setAlert } from "../../alerts";
+import { setAlert } from "../../components/alerts";
 import { ERROR_MESSAGES, removeFromArray } from "@speed-dungeon/common";
 import { GameState } from "@/stores/game-store";
 import { AlertState } from "@/stores/alert-store";

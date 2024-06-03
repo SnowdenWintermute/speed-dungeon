@@ -90,7 +90,7 @@ function determineSelectItemText(
     if (item.entityProperties.id === itemId) itemName = item.entityProperties.name;
   }
 
-  if (numberOfThisItemInInventory) itemName += `(${numberOfThisItemInInventory})`;
+  if (numberOfThisItemInInventory) itemName += ` (${numberOfThisItemInInventory})`;
 
   return itemName;
 }
