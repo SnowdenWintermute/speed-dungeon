@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 export default function CharacterAutofocusManager() {
   const mutateGameState = useGameStore().mutateState;
   const clientHasGame = useGameStore().hasGame();
-  console.log("clientHasGame: ", clientHasGame);
   const focusedCharacterId = useGameStore().focusedCharacterId;
   const activeCombatantResult = useGameStore().getActiveCombatant();
   const playerResult = useGameStore().getPlayer();
@@ -25,7 +24,6 @@ export default function CharacterAutofocusManager() {
   useEffect(() => {
     if (playerResult instanceof Error) return console.error(playerResult);
     const ownedCharacterIds = playerResult.characterIds;
-    console.log("ownedCharacterIds", ownedCharacterIds);
     if (ownedCharacterIds.length) {
       mutateGameState((gameState) => {
         gameState.focusedCharacterId = ownedCharacterIds[0];

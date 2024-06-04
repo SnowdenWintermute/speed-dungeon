@@ -93,7 +93,9 @@ export default function createActionButtonClickHandler(
       return () => partySocket.emit(InPartyClientToServerEvent.ToggleReadyToDescend);
     case GameActionType.SetAssignAttributePointsMenuOpen:
       return () =>
-        mutateGameState((gameState) => (gameState.menuContext = MenuContext.AttributeAssignment));
+        mutateGameState((gameState) => {
+          gameState.menuContext = MenuContext.AttributeAssignment;
+        });
     case GameActionType.AssignAttributePoint:
       return () =>
         partySocket.emit(

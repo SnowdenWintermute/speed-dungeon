@@ -40,7 +40,6 @@ export default function buildActionButtonProperties(
   const partyResult = getParty(gameState.game, gameState.username);
   if (partyResult instanceof Error) return partyResult;
   const relevantInformationResult = collectActionMenuRelevantInformation(gameState, partyResult);
-  console.log("relevant information for action menu: ", relevantInformationResult);
   if (relevantInformationResult instanceof Error) return buttonPropertiesByCategory;
   const gameActions = createGameActions(relevantInformationResult);
 

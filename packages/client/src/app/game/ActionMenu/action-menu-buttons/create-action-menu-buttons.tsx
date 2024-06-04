@@ -1,4 +1,4 @@
-import { ActionButtonCategory } from "../action-menu-button-properties";
+import { ActionButtonCategory, ActionMenuButtonProperties } from "../action-menu-button-properties";
 import { ActionButtonPropertiesByCategory } from "../build-action-button-properties";
 import NumberedButton from "./NumberedButton";
 import TopButton from "./TopButton";
@@ -10,7 +10,8 @@ export interface ButtonsByCategory {
 }
 
 export default function createActionMenuButtons(
-  buttonProperties: ActionButtonPropertiesByCategory
+  buttonProperties: ActionButtonPropertiesByCategory,
+  numberedButtonPropertiesOnCurrentPage: ActionMenuButtonProperties[]
 ): ButtonsByCategory {
   let lastAssignedNumber = 0;
   const buttonsByCategory: ButtonsByCategory = {
@@ -20,15 +21,21 @@ export default function createActionMenuButtons(
   };
 
   for (const properties of Object.values(buttonProperties[ActionButtonCategory.Top])) {
-    lastAssignedNumber += 1;
     buttonsByCategory.top.push(<TopButton properties={properties} />);
   }
 
-  for (const properties of Object.values(buttonProperties[ActionButtonCategory.Numbered])) {
+  for (const properties of Object.values(numberedButtonPropertiesOnCurrentPage)) {
     lastAssignedNumber += 1;
     buttonsByCategory.numbered.push(
       <NumberedButton properties={properties} number={lastAssignedNumber} />
     );
+  }
+
+  for (const properties of Object.values(buttonProperties[ActionButtonCategory.Top])) {
+    buttonsByCategory.nextPrev
+      .push
+      // <Next
+      ();
   }
 
   return buttonsByCategory;

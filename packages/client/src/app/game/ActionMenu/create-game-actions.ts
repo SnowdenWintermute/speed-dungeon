@@ -57,6 +57,7 @@ export default function createGameActions({
         }
         break;
       case MenuType.AssignAttributePoints:
+        gameActions.push({ type: GameActionType.SetInventoryOpen, shouldBeOpen: !inventoryIsOpen });
         for (const attribute of ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES) {
           gameActions.push({ type: GameActionType.AssignAttributePoint, attribute });
         }
