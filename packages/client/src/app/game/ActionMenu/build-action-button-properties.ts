@@ -3,7 +3,6 @@ import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { UIState } from "@/stores/ui-store";
 import {
-  AdventuringParty,
   ERROR_MESSAGES,
   InPartyClientToServerEventTypes,
   InPartyServerToClientEventTypes,
@@ -13,17 +12,14 @@ import collectActionMenuRelevantInformation from "./collect-action-menu-relevant
 import createGameActions from "./create-game-actions";
 import createActionButtonClickHandler from "./click-handlers";
 import determineActionButtonText from "./determine-action-menu-button-text";
-import {
-  ActionButtonCategories,
-  ActionMenuButtonProperties,
-} from "./action-menu-button-properties";
+import { ActionButtonCategory, ActionMenuButtonProperties } from "./action-menu-button-properties";
 import getParty from "@/utils/getParty";
+import getButtonDedicatedKeyAndCategory from "./get-button-dedicated-keys-and-category";
 
-export interface ActionButtonPropertiesByCategory {
-  top: ActionMenuButtonProperties[];
-  numbered: ActionMenuButtonProperties[];
-  nextPrev: ActionMenuButtonProperties[];
-}
+export type ActionButtonPropertiesByCategory = Record<
+  ActionButtonCategory,
+  ActionMenuButtonProperties[]
+>;
 
 export default function buildActionButtonProperties(
   gameState: GameState,
@@ -34,10 +30,11 @@ export default function buildActionButtonProperties(
     | Socket<InPartyServerToClientEventTypes, InPartyClientToServerEventTypes>
 ): Error | ActionButtonPropertiesByCategory {
   const buttonPropertiesByCategory: ActionButtonPropertiesByCategory = {
-    top: [],
-    numbered: [],
-    nextPrev: [],
+    [ActionButtonCategory.Top]: [],
+    [ActionButtonCategory.Numbered]: [],
+    [ActionButtonCategory.NextPrevious]: [],
   };
+
   if (!partySocketOption) return new Error(ERROR_MESSAGES.CLIENT.NO_SOCKET_OBJECT);
   const partySocket = partySocketOption;
   const partyResult = getParty(gameState.game, gameState.username);
@@ -59,7 +56,9 @@ export default function buildActionButtonProperties(
       partySocket
     );
 
-    buttonPropertiesByCategory.numbered.push({
+    const { dedicatedKeysOption, category } = getButtonDedicatedKeyAndCategory(action);
+
+    const buttonProperties = {
       text,
       clickHandler,
       focusHandler: () => {},
@@ -67,9 +66,21 @@ export default function buildActionButtonProperties(
       mouseEnterHandler: () => {},
       mouseLeaveHandler: () => {},
       shouldBeDisabled: false,
-      dedicatedKeysOption: null,
-      category: ActionButtonCategories.Numbered,
-    });
+      dedicatedKeysOption,
+      category,
+    };
+
+    switch (category) {
+      case ActionButtonCategory.Top:
+        buttonPropertiesByCategory[ActionButtonCategory.Top].push(buttonProperties);
+        break;
+      case ActionButtonCategory.Numbered:
+        buttonPropertiesByCategory[ActionButtonCategory.Numbered].push(buttonProperties);
+        break;
+      case ActionButtonCategory.NextPrevious:
+        buttonPropertiesByCategory[ActionButtonCategory.NextPrevious].push(buttonProperties);
+        break;
+    }
   }
 
   return buttonPropertiesByCategory;

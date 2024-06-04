@@ -1,23 +1,34 @@
-import { BUTTON_HEIGHT, SPACING_REM } from "@/client_consts";
-import React, { useRef, useState } from "react";
-import { ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
+import React, { useEffect, useRef, useState } from "react";
+import { ActionButtonCategory, ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { useGameStore } from "@/stores/game-store";
 import { ActionButtonPropertiesByCategory } from "./build-action-button-properties";
 import ActionMenuChangeDetectionHandler from "./ActionMenuChangeDetectionHandler";
 import createActionMenuButtons from "./action-menu-buttons/create-action-menu-buttons";
+import WelcomeInfo from "@/app/lobby/WelcomeInfo";
+import setActionMenuKeyListeners from "./action-menu-buttons/set-action-menu-key-listeners";
 
 const PAGE_SIZE = 6;
 
 export default function ActionMenu() {
   const actionMenuRef = useRef<HTMLUListElement>(null);
+  const keyboardListenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
   const gameState = useGameStore();
   const [buttonProperties, setButtonProperties] = useState<ActionButtonPropertiesByCategory>({
-    top: [],
-    numbered: [],
-    nextPrev: [],
+    [ActionButtonCategory.Top]: [],
+    [ActionButtonCategory.Numbered]: [],
+    [ActionButtonCategory.NextPrevious]: [],
   });
 
   const buttonsByCategory = createActionMenuButtons(buttonProperties);
+
+  useEffect(() => {
+    setActionMenuKeyListeners(buttonProperties, keyboardListenerRef);
+    return () => {
+      if (keyboardListenerRef.current)
+        window.removeEventListener("keyup", keyboardListenerRef.current);
+    };
+  });
 
   function handleWheel() {}
 
@@ -26,10 +37,18 @@ export default function ActionMenu() {
       className={`max-h-fit max-w-[25rem] flex flex-col justify-between mr-[${SPACING_REM}rem]`}
     >
       {<ActionMenuChangeDetectionHandler setButtonProperties={setButtonProperties} />}
-      <ul className={`flex list-none min-w-[25rem] max-w-[25rem] mb-[${SPACING_REM}]`}>
-        {
-          // top_action_buttons
-        }
+      <ul
+        className={`flex list-none min-w-[25rem] max-w-[25rem]`}
+        style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
+      >
+        {buttonsByCategory.top.map((button, i) => (
+          <li
+            key={buttonProperties[ActionButtonCategory.Top][i].text + i}
+            style={{ marginRight: `${SPACING_REM}rem` }}
+          >
+            {button}
+          </li>
+        ))}
       </ul>
       <div className={`mb-2 h-[${BUTTON_HEIGHT * PAGE_SIZE}rem]`}>
         <ul
@@ -38,7 +57,7 @@ export default function ActionMenu() {
           onWheel={handleWheel}
         >
           {buttonsByCategory.numbered.map((button, i) => (
-            <li key={buttonProperties.numbered[i].text + i}>{button}</li>
+            <li key={buttonProperties[ActionButtonCategory.Top][i].text + i}>{button}</li>
           ))}
           {
             // hovered_action_display

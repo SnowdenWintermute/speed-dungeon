@@ -9,10 +9,10 @@ export interface ActionMenuButtonProperties {
   mouseLeaveHandler: MouseEventHandler<HTMLButtonElement>;
   shouldBeDisabled: boolean;
   dedicatedKeysOption: null | GameKey[];
-  category: ActionButtonCategories;
+  category: ActionButtonCategory;
 }
 
-export enum ActionButtonCategories {
+export enum ActionButtonCategory {
   Top,
   Numbered,
   NextPrevious,

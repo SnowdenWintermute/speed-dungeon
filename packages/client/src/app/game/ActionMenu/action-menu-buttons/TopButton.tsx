@@ -21,7 +21,7 @@ export default function TopButton({ properties }: Props) {
     >
       <span className="flex-grow h-full flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis pr-2 pl-2 ">
         {properties.text}
-        {formatGameKey(keyToShow)}
+        {" " + "(" + formatGameKey(keyToShow) + ")"}
       </span>
     </button>
   );
