@@ -1,6 +1,7 @@
 import { AdventuringParty } from "@speed-dungeon/common";
 import React from "react";
 import CombatantPlaque from "./CombatantPlaque";
+import getCombatantInParty from "@speed-dungeon/common/src/adventuring_party/get-combatant-in-party";
 
 interface Props {
   party: AdventuringParty;
@@ -12,7 +13,7 @@ export default function CombatantPlaqueGroup(props: Props) {
   return (
     <ul className="w-full flex list-none">
       {props.combatantIds.map((id) => {
-        const combatantResult = props.party.getCombatant(id);
+        const combatantResult = getCombatantInParty(props.party, id);
         if (combatantResult instanceof Error) return <div>{combatantResult.message} </div>;
         else
           return (

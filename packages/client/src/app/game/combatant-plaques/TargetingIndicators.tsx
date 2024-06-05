@@ -6,13 +6,13 @@ interface Props {
 }
 
 export default function TargetingIndicators({ party, entityId }: Props) {
-  const targetedBy = party.getIdsAndSelectedActionsOfCharactersTargetingCombatant(entityId);
+  const targetedBy = getIdsAndSelectedActionsOfCharactersTargetingCombatant(party, entityId);
   if (targetedBy instanceof Error) return <div>{targetedBy.message}</div>;
 
   return targetedBy.length ? (
     <div className="absolute top-[-1.5rem] left-1/2 -translate-x-1/2 z-20 flex">
-      {targetedBy.map(([_, combatAction]) => (
-        <TargetingIndicator combatAction={combatAction} />
+      {targetedBy.map(([_, combatAction], i) => (
+        <TargetingIndicator key={i} combatAction={combatAction} />
       ))}
     </div>
   ) : (
@@ -22,6 +22,7 @@ export default function TargetingIndicators({ party, entityId }: Props) {
 
 import React from "react";
 import { CombatAction, CombatActionType } from "@speed-dungeon/common";
+import getIdsAndSelectedActionsOfCharactersTargetingCombatant from "@speed-dungeon/common/src/adventuring_party/get-ids-and-selected-actions-of-characters-targeting-combatant";
 
 interface TargetingIndicatorProps {
   combatAction: CombatAction;

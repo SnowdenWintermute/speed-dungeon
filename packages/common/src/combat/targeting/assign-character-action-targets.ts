@@ -1,6 +1,7 @@
 import { CombatActionProperties } from "..";
 import { ERROR_MESSAGES } from "../../errors";
 import { SpeedDungeonGame } from "../../game";
+import getCharacterInGame from "../../game/get-character-in-game";
 import getPlayerParty from "../../game/get-player-party";
 import { CombatActionTarget } from "./combat-action-targets";
 import getActionTargetsBySavedPreferenceOrDefault from "./get-action-targets-by-saved-preference-or-default";
@@ -15,7 +16,7 @@ export default function assignCharacterActionTargets(
 ): Error | null | CombatActionTarget {
   const partyResult = getPlayerParty(game, username);
   if (partyResult instanceof Error) return partyResult;
-  const characterResult = game.getCharacter(partyResult.name, characterId);
+  const characterResult = getCharacterInGame(game, partyResult.name, characterId);
   if (characterResult instanceof Error) return characterResult;
   const party = partyResult;
   const character = characterResult;
@@ -40,6 +41,7 @@ export default function assignCharacterActionTargets(
   if (!playerOption) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
   const player = playerOption;
   const targetPreferences = playerOption.targetPreferences;
+
   const newTargetsResult = getActionTargetsBySavedPreferenceOrDefault(
     player,
     combatActionProperties,
@@ -59,5 +61,6 @@ export default function assignCharacterActionTargets(
 
   player.targetPreferences = newTargetPreferences;
   character.combatantProperties.combatActionTarget = newTargetsResult;
+
   return newTargetsResult;
 }

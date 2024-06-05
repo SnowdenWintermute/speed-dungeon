@@ -1,4 +1,4 @@
-import { useGameStore } from "@/stores/game-store";
+import { MenuContext, useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import getGameAndParty from "@/utils/getGameAndParty";
 import React, { useEffect, useRef, useState } from "react";
@@ -10,6 +10,7 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
+import getCombatantInParty from "@speed-dungeon/common/src/adventuring_party/get-combatant-in-party";
 
 interface Props {
   entityId: string;
@@ -30,7 +31,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const result = getGameAndParty(gameOption, usernameOption);
   if (result instanceof Error) return <div>{result.message}</div>;
   const [game, party] = result;
-  const combatantDetailsResult = party.getCombatant(entityId);
+  const combatantDetailsResult = getCombatantInParty(party, entityId);
   if (combatantDetailsResult instanceof Error) return <div>{combatantDetailsResult.message}</div>;
   const { entityProperties, combatantProperties } = combatantDetailsResult;
   const battleOption = getCurrentBattleOption(game, party.name);
@@ -61,7 +62,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   function handleUnspentAttributesButtonClick() {
     mutateGameState((store) => {
       store.focusedCharacterId = entityId;
-      store.viewingInventory = true;
+      store.menuContext = MenuContext.InventoryItems;
     });
   }
 

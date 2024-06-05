@@ -1,4 +1,9 @@
-import { ERROR_MESSAGES, ServerToClientEvent, SocketNamespaces } from "@speed-dungeon/common";
+import {
+  ERROR_MESSAGES,
+  ServerToClientEvent,
+  SocketNamespaces,
+  SpeedDungeonGame,
+} from "@speed-dungeon/common";
 import { GameServer } from "..";
 import errorHandler from "../error-handler";
 
@@ -23,7 +28,7 @@ export default function joinPartyHandler(this: GameServer, socketId: string, par
     );
   if (player.partyName) return errorHandler(socket, ERROR_MESSAGES.LOBBY.ALREADY_IN_PARTY);
 
-  game.putPlayerInParty(partyName, player.username);
+  SpeedDungeonGame.putPlayerInParty(game, partyName, player.username);
   this.joinSocketToChannel(socketId, SocketNamespaces.Party, partyName);
   socket?.emit(ServerToClientEvent.PartyNameUpdate, partyName);
 

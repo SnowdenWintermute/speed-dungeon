@@ -20,7 +20,7 @@ export function setAlert(
   message: string
 ) {
   mutateAlertStore((alertState) => {
-    console.log("Got error message from server: ", message);
+    console.log("alert set: ", message);
     let newAlert = new Alert(message, AlertType.Error, alertState.lastAlertId.toString());
 
     alertState.alerts.push(newAlert);

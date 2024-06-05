@@ -1,6 +1,6 @@
-import { CombatantClass } from "@speed-dungeon/common/src/combatants";
 import { GameServer } from "..";
 import {
+  CombatantClass,
   ERROR_MESSAGES,
   ServerToClientEvent,
   SocketNamespaces,
@@ -31,7 +31,8 @@ export default function createCharacterHandler(
 
     if (characterName === "") characterName = generateRandomCharacterName();
 
-    const newCharacterId = game.addCharacterToParty(
+    const newCharacterId = SpeedDungeonGame.addCharacterToParty(
+      game,
       player.partyName,
       combatantClass,
       characterName,
@@ -40,7 +41,7 @@ export default function createCharacterHandler(
 
     player.characterIds.push(newCharacterId);
 
-    const characterResult = game.getCharacter(player.partyName, newCharacterId);
+    const characterResult = SpeedDungeonGame.getCharacter(game, player.partyName, newCharacterId);
     if (characterResult instanceof Error) throw characterResult;
 
     this.io

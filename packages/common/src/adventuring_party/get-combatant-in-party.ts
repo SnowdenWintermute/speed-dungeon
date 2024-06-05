@@ -3,18 +3,18 @@ import { AdventuringParty } from ".";
 import { CombatantDetails } from "../combatants";
 import { ERROR_MESSAGES } from "../errors";
 
-export default function getCombatant(
-  this: AdventuringParty,
+export default function getCombatantInParty(
+  party: AdventuringParty,
   entityId: string
 ): Error | CombatantDetails {
-  const matchedCharacterOption = this.characters[entityId];
+  const matchedCharacterOption = party.characters[entityId];
   if (matchedCharacterOption) {
     return {
       entityProperties: matchedCharacterOption.entityProperties,
       combatantProperties: cloneDeep(matchedCharacterOption.combatantProperties),
     };
   }
-  const matchedMonsterOption = this.currentRoom.monsters[entityId];
+  const matchedMonsterOption = party.currentRoom.monsters[entityId];
   if (matchedMonsterOption) {
     return {
       entityProperties: matchedMonsterOption.entityProperties,

@@ -4,16 +4,21 @@ import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
 
 interface Props {
   properties: ActionMenuButtonProperties;
-  dedicatedKey: GameKey;
 }
 
-export default function ChangeTargetButton({ properties, dedicatedKey }: Props) {
+export default function ChangeTargetButton({ properties }: Props) {
+  const dedicatedKey = properties.dedicatedKeysOption
+    ? properties.dedicatedKeysOption[0] ?? null
+    : null;
+
   let text = "";
   switch (dedicatedKey) {
     case GameKey.Next:
       text = "Next target (E)";
+      break;
     case GameKey.Previous:
       text = "Previous target (W)";
+      break;
     default:
   }
   return (

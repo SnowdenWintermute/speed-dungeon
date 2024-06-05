@@ -1,4 +1,6 @@
 import { AdventuringParty } from "../adventuring_party";
+import getCombatantInParty from "../adventuring_party/get-combatant-in-party";
+import getItemInAdventuringParty from "../adventuring_party/get-item-in-party";
 import { CombatAction, CombatActionType } from "../combat/combat-actions";
 import { ERROR_MESSAGES } from "../errors";
 import { ItemPropertiesType } from "../items/item-properties";
@@ -32,7 +34,7 @@ export function getCombatActionPropertiesIfOwned(
 
 // for getting properties of consumables on the ground for example
 export function getCombatActionProperties(
-  this: AdventuringParty,
+  party: AdventuringParty,
   combatAction: CombatAction,
   actionUserId: string
 ) {
@@ -40,7 +42,7 @@ export function getCombatActionProperties(
     case CombatActionType.AbilityUsed:
       return CombatantAbility.getAttributes(combatAction.abilityName).combatActionProperties;
     case CombatActionType.ConsumableUsed:
-      const combatantResult = this.getCombatant(actionUserId);
+      const combatantResult = getCombatantInParty(party, actionUserId);
       if (combatantResult instanceof Error) return combatantResult;
       const { entityProperties: _, combatantProperties: combatantProperties } = combatantResult;
       const consumablePropertiesInInventoryResult = Inventory.getConsumableProperties(
@@ -49,7 +51,7 @@ export function getCombatActionProperties(
       );
       // if they don't own it, check everywhere else in the party for the item
       if (consumablePropertiesInInventoryResult instanceof Error) {
-        const itemResult = this.getItem(combatAction.itemId);
+        const itemResult = getItemInAdventuringParty(party, combatAction.itemId);
         if (itemResult instanceof Error) return consumablePropertiesInInventoryResult;
         switch (itemResult.itemProperties.type) {
           case ItemPropertiesType.Equipment:
@@ -58,6 +60,9 @@ export function getCombatActionProperties(
             return itemResult.itemProperties.consumableProperties.getActionProperties();
         }
       }
+
+      if (consumablePropertiesInInventoryResult instanceof Error)
+        return consumablePropertiesInInventoryResult;
 
       return consumablePropertiesInInventoryResult.getActionProperties();
   }

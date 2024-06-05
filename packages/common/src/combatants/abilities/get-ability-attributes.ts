@@ -11,7 +11,7 @@ import {
   MeleeOrRanged,
 } from "../../combat/hp-change-source-types";
 import { MagicalElement } from "../../combat/magical-elements";
-import { TargetingScheme } from "../../combat/targeting";
+import { TargetCategories, TargetingScheme } from "../../combat/targeting";
 import { WeaponSlot } from "../../items/equipment/slots";
 import NumberRange from "../../primatives/number-range";
 import { CombatAttribute } from "../combat-attributes";
@@ -117,6 +117,7 @@ export default function getAbilityAttributes(abilityName: CombatantAbilityName) 
       attr.baseHpChangeValuesLevelMultiplier = 1.0;
       cap.description = "Deals ice element damage";
       cap.targetingSchemes = [TargetingScheme.Single, TargetingScheme.Area];
+      cap.validTargetCategories = TargetCategories.Any;
       cap.usabilityContext = AbilityUsableContext.All;
       hpcp.baseValues = new NumberRange(6, 12);
       hpcp.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Intelligence, 100];

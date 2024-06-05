@@ -10,7 +10,6 @@ export class HashSet<T> {
   insert(item: T): void {
     if (typeof item === "string") this.items[item] = null;
     else this.items[JSON.stringify(item)] = null;
-    console.log("this hashset's items", this.items);
   }
 
   remove(item: T): void {

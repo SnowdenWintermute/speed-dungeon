@@ -1,15 +1,13 @@
 import { immerable } from "immer";
 import { EntityId } from "../primatives";
-import applyFullUpdate from "./apply-full-update";
 import { PlayerCharacter } from "./player-character";
-import removeCharacter from "./remove-character";
 import { DungeonRoom, DungeonRoomType } from "./dungeon-room";
-import getCombatant from "./get-combatant";
-import getItemInAdventuringParty from "./getItem";
+import getCombatant from "./get-combatant-in-party";
+import getItemInAdventuringParty from "./get-item-in-party";
 import getIdsAndSelectedActionsOfCharactersTargetingCombatant from "./get-ids-and-selected-actions-of-characters-targeting-combatant";
-import getMonsterIdsInParty from "./get-monster-ids";
-import { getCombatActionProperties } from "../combatants/get-combat-action-properties";
+import getMonsterIdsInParty from "./get-monster-ids-in-party";
 import getCharacterIfOwned from "./get-character-if-owned";
+import removeCharacterFromParty from "./remove-character-from-party";
 export * from "./player-character";
 
 export type RoomsExploredTracker = { total: number; onCurrentFloor: number };
@@ -33,13 +31,11 @@ export class AdventuringParty {
 
   constructor(public name: string) {}
 
-  applyFullUpdate = applyFullUpdate;
-  removeCharacter = removeCharacter;
-  getCombatant = getCombatant;
-  getItem = getItemInAdventuringParty;
-  getIdsAndSelectedActionsOfCharactersTargetingCombatant =
+  static removeCharacter = removeCharacterFromParty;
+  static getCombatant = getCombatant;
+  static getItem = getItemInAdventuringParty;
+  static getIdsAndSelectedActionsOfCharactersTargetingCombatant =
     getIdsAndSelectedActionsOfCharactersTargetingCombatant;
-  getMonsterIds = getMonsterIdsInParty;
-  getCombatActionProperties = getCombatActionProperties;
+  static getMonsterIds = getMonsterIdsInParty;
   static getCharacterIfOwned = getCharacterIfOwned;
 }

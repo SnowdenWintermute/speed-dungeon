@@ -1,4 +1,4 @@
-import { ServerToClientEvent, SocketNamespaces } from "@speed-dungeon/common";
+import { ServerToClientEvent, SocketNamespaces, SpeedDungeonGame } from "@speed-dungeon/common";
 import { GameServer } from "..";
 import errorHandler from "../error-handler";
 
@@ -9,7 +9,7 @@ export default function leavePartyHandler(this: GameServer, socketId: string) {
     const game = this.games.get(socketMeta.currentGameName);
     if (!game) return errorHandler(socket, "No game exists");
 
-    const partyNameLeaving = game.removePlayerFromParty(socketMeta.username);
+    const partyNameLeaving = SpeedDungeonGame.removePlayerFromParty(game, socketMeta.username);
     if (!partyNameLeaving) return;
 
     this.removeSocketFromChannel(socketId, SocketNamespaces.Party, partyNameLeaving);

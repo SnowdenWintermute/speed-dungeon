@@ -9,6 +9,7 @@ import setActionMenuKeyListeners from "./action-menu-buttons/set-action-menu-key
 import cloneDeep from "lodash.clonedeep";
 import PageTurningButtons from "./action-menu-buttons/PageTurningButtons";
 import calculateNumberOfPages from "./action-menu-buttons/calculate-number-of-pages";
+import ChangeTargetButtons from "./action-menu-buttons/ChangeTargetButtons";
 
 const PAGE_SIZE = 6;
 
@@ -109,11 +110,8 @@ export default function ActionMenu() {
       </div>
 
       {Object.values(buttonsByCategory.nextPrev).length > 0 ? (
-        <></>
+        <ChangeTargetButtons>{buttonsByCategory.nextPrev}</ChangeTargetButtons>
       ) : (
-        // <ChangeTargetButtons
-        //     next_prev_buttons={next_prev_action_buttons.clone()}
-        // />
         <PageTurningButtons
           numberOfPages={numberOfPages}
           hidden={

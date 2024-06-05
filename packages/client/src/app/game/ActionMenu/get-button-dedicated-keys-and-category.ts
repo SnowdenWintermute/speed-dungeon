@@ -45,8 +45,10 @@ export default function getButtonDedicatedKeyAndCategory(
       switch (gameAction.nextOrPrevious) {
         case NextOrPrevious.Next:
           dedicatedKeysOption = [GameKey.Next];
+          break;
         case NextOrPrevious.Previous:
           dedicatedKeysOption = [GameKey.Previous];
+          break;
       }
       break;
     default:

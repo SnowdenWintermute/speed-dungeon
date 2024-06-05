@@ -29,9 +29,10 @@ export default function getFilteredPotentialTargetIds(
     allyIdsOption,
     opponentIdsOption
   );
-
   if (filteredTargetsResult instanceof Error) return filteredTargetsResult;
+
   [allyIdsOption, opponentIdsOption] = filteredTargetsResult;
+
   [allyIdsOption, opponentIdsOption] = filterPossibleTargetIdsByActionTargetCategories(
     combatActionProperties.validTargetCategories,
     characterId,

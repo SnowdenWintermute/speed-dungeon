@@ -7,19 +7,19 @@ import { ERROR_MESSAGES } from "../errors";
 import { EntityId } from "../primatives";
 
 export default function addCharacterToParty(
-  this: SpeedDungeonGame,
+  game: SpeedDungeonGame,
   partyName: string,
   combatantClass: CombatantClass,
   characterName: string,
   nameOfControllingUser: string
 ): EntityId {
-  const party = this.adventuringParties[partyName];
+  const party = game.adventuringParties[partyName];
   if (!party) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
 
   if (Object.keys(party.characters).length >= MAX_PARTY_SIZE)
     throw new Error(ERROR_MESSAGES.GAME.MAX_PARTY_SIZE);
 
-  const characterId = this.idGenerator.getNextEntityId();
+  const characterId = game.idGenerator.getNextEntityId();
   const newCharacter = new PlayerCharacter(
     nameOfControllingUser,
     combatantClass,
@@ -27,7 +27,7 @@ export default function addCharacterToParty(
     characterId
   );
 
-  outfitNewCharacter(this.idGenerator, newCharacter);
+  outfitNewCharacter(game.idGenerator, newCharacter);
 
   party.characters[characterId] = newCharacter;
   party.characterPositions.push(characterId);

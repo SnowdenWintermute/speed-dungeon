@@ -1,19 +1,19 @@
 export * from "./player";
+export * from "./remove-player-from-party";
 import { immerable } from "immer";
 import { AdventuringParty } from "../adventuring_party";
 import { Battle } from "../battle";
 import { EntityId } from "../primatives";
-import applyFullUpdate from "./apply-full-update";
 import { IdGenerator } from "./id_generator";
 import { SpeedDungeonPlayer } from "./player";
 import putPlayerInParty from "./put-player-in-party";
-import removePlayer from "./remove-player-from-game";
 import removePlayerFromParty from "./remove-player-from-party";
 import addCharacterToParty from "./add-character-to-party";
-import getCharacter from "./get-character";
-import getCombatantById from "./get-combatant-by-id";
 import cycleCharacterTargets from "../combat/targeting/cycle-character-targets";
 import getAllyIdsAndOpponentIdsOption from "./get-ally-ids-and-opponent-ids-option";
+import removePlayerFromGame from "./remove-player-from-game";
+import getCharacterInGame from "./get-character-in-game";
+import getCombatantInGameById from "./get-combatant-in-game-by-id";
 
 export class SpeedDungeonGame {
   [immerable] = true;
@@ -28,13 +28,12 @@ export class SpeedDungeonGame {
     this.name = name;
   }
 
-  removePlayerFromParty = removePlayerFromParty;
-  removePlayer = removePlayer;
-  putPlayerInParty = putPlayerInParty;
-  applyFullUpdate = applyFullUpdate;
-  addCharacterToParty = addCharacterToParty;
-  getCharacter = getCharacter;
-  getCombatantById = getCombatantById;
+  static removePlayerFromParty = removePlayerFromParty;
+  static removePlayer = removePlayerFromGame;
+  static putPlayerInParty = putPlayerInParty;
+  static addCharacterToParty = addCharacterToParty;
+  static getCharacter = getCharacterInGame;
+  static getCombatantById = getCombatantInGameById;
   static cycleCharacterTargets = cycleCharacterTargets;
   static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
 }

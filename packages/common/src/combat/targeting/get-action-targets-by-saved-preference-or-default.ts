@@ -43,11 +43,14 @@ export default function getActionTargetsBySavedPreferenceOrDefault(
         }
         // IF NO VALID PREFERRED SINGLE, GET ANY VALID SINGLE
         for (const category of iterateNumericEnum(FriendOrFoe)) {
-          if (newTargets) return newTargets;
+          if (newTargets) {
+            return newTargets;
+          }
 
           const idsOption = category === FriendOrFoe.Friendly ? allyIdsOption : opponentIdsOption;
-          if (idsOption)
+          if (idsOption) {
             newTargets = getPreferredOrDefaultSingleTargetOption(idsOption[0] || null, idsOption);
+          }
         }
         break;
       case TargetingScheme.Area:

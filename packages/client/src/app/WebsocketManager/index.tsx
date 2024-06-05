@@ -65,7 +65,6 @@ function SocketManager() {
             state.mainChannelName = channelName;
             state.usernamesInMainChannel = new Set();
             usernamesInChannel.forEach((username) => {
-              console.log(username);
               state.usernamesInMainChannel.add(username);
             });
           });
@@ -95,8 +94,7 @@ function SocketManager() {
         mutateGameStore((state) => {
           if (game === null) state.game = null;
           else {
-            state.game = new SpeedDungeonGame(game.name);
-            state.game.applyFullUpdate(game);
+            state.game = game;
           }
         });
       });
@@ -107,14 +105,13 @@ function SocketManager() {
       });
       mainSocketOption.on(ServerToClientEvent.PlayerLeftGame, (username) => {
         mutateGameStore((state) => {
-          state.game?.removePlayer(username);
+          if (state.game) SpeedDungeonGame.removePlayer(state.game, username);
         });
       });
       mainSocketOption.on(ServerToClientEvent.PartyCreated, (partyName) => {
         mutateGameStore((state) => {
           if (state.game) {
             state.game.adventuringParties[partyName] = new AdventuringParty(partyName);
-            console.log(state.game.adventuringParties);
           }
         });
       });
@@ -122,10 +119,10 @@ function SocketManager() {
         ServerToClientEvent.PlayerChangedAdventuringParty,
         (username, partyName) => {
           mutateGameStore((state) => {
-            state.game?.removePlayerFromParty(username);
-            if (partyName !== null) {
-              state.game?.putPlayerInParty(partyName, username);
-            }
+            if (!state.game) return;
+            SpeedDungeonGame.removePlayerFromParty(state.game, username);
+            if (partyName === null) return;
+            SpeedDungeonGame.putPlayerInParty(state.game, partyName, username);
           });
         }
       );

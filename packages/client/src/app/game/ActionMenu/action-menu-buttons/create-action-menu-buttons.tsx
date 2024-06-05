@@ -1,5 +1,6 @@
 import { ActionButtonCategory, ActionMenuButtonProperties } from "../action-menu-button-properties";
 import { ActionButtonPropertiesByCategory } from "../build-action-button-properties";
+import ChangeTargetButton from "./ChangeTargetButton";
 import NumberedButton from "./NumberedButton";
 import TopButton from "./TopButton";
 
@@ -31,11 +32,13 @@ export default function createActionMenuButtons(
     );
   }
 
-  for (const properties of Object.values(buttonProperties[ActionButtonCategory.Top])) {
-    buttonsByCategory.nextPrev
-      .push
-      // <Next
-      ();
+  for (const properties of Object.values(buttonProperties[ActionButtonCategory.NextPrevious])) {
+    buttonsByCategory.nextPrev.push(
+      <ChangeTargetButton
+        properties={properties}
+        key={properties.dedicatedKeysOption?.toString()}
+      />
+    );
   }
 
   return buttonsByCategory;

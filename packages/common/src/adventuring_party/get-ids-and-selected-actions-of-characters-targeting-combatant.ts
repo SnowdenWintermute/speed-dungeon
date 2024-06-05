@@ -3,17 +3,18 @@ import { CombatAction, FriendOrFoe } from "../combat";
 import { CombatActionTargetType } from "../combat/targeting/combat-action-targets";
 import { filterPossibleTargetIdsByProhibitedCombatantStates } from "../combat/targeting/filtering";
 import { CombatantProperties } from "../combatants";
+import getMonsterIdsInParty from "./get-monster-ids-in-party";
 
 export default function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
-  this: AdventuringParty,
+  party: AdventuringParty,
   combatantId: string
 ) {
   let error;
   const idsAndActionsOfCharactersTargetingThisCombatant: [string, CombatAction][] = [];
-  const characterPositions = this.characterPositions;
-  const monsterPositions = this.getMonsterIds();
+  const characterPositions = party.characterPositions;
+  const monsterPositions = getMonsterIdsInParty(party);
 
-  for (const [characterId, character] of Object.entries(this.characters)) {
+  for (const [characterId, character] of Object.entries(party.characters)) {
     const selectedAction = character.combatantProperties.selectedCombatAction;
     if (!selectedAction) continue;
     const actionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
@@ -26,7 +27,7 @@ export default function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
     }
 
     const filteredTargetsResult = filterPossibleTargetIdsByProhibitedCombatantStates(
-      this,
+      party,
       actionPropertiesResult.prohibitedTargetCombatantStates,
       characterPositions,
       monsterPositions
@@ -47,13 +48,16 @@ export default function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
         switch (currentTarget.friendOrFoe) {
           case FriendOrFoe.Friendly:
             combatantIsTargetedByThisCharacter = filteredAllyIds.includes(combatantId);
+            break;
           case FriendOrFoe.Hostile:
             if (!filteredOpponentIdsOption) continue;
             combatantIsTargetedByThisCharacter = filteredOpponentIdsOption.includes(combatantId);
+            break;
         }
         break;
       case CombatActionTargetType.All:
         combatantIsTargetedByThisCharacter = true;
+        break;
     }
 
     if (combatantIsTargetedByThisCharacter)
