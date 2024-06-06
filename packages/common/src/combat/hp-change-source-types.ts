@@ -16,6 +16,17 @@ export enum PhysicalDamageType {
   Piercing,
 }
 
+export function formatPhysicalDamageType(physicalDamageType: PhysicalDamageType) {
+  switch (physicalDamageType) {
+    case PhysicalDamageType.Blunt:
+      return "Blunt";
+    case PhysicalDamageType.Slashing:
+      return "Slashing";
+    case PhysicalDamageType.Piercing:
+      return "Piercing";
+  }
+}
+
 export enum HpChangeSourceCategoryType {
   PhysicalDamage,
   MagicalDamage,
@@ -51,4 +62,27 @@ export enum MeleeOrRanged {
 export enum Evadable {
   False,
   True,
+}
+
+export function formatHpChangeSourceCategory(sourceCategory: HpChangeSourceCategory): string {
+  switch (sourceCategory.type) {
+    case HpChangeSourceCategoryType.PhysicalDamage:
+      switch (sourceCategory.meleeOrRanged) {
+        case MeleeOrRanged.Melee:
+          return "Melee";
+        case MeleeOrRanged.Ranged:
+          return "Ranged";
+      }
+    case HpChangeSourceCategoryType.MagicalDamage:
+      switch (sourceCategory.evadable) {
+        case Evadable.False:
+          return "Magical";
+        case Evadable.True:
+          return "Magical (Evadable)";
+      }
+    case HpChangeSourceCategoryType.Healing:
+      return "Healing";
+    case HpChangeSourceCategoryType.Direct:
+      return "Direct";
+  }
 }

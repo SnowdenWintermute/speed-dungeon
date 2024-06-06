@@ -2,7 +2,7 @@ import { ConsumableProperties, ConsumableType } from ".";
 import { TargetCategories } from "../../combat";
 import {
   CombatActionProperties,
-  AbilityUsableContext,
+  ActionUsableContext,
 } from "../../combat/combat-actions/combat-action-properties";
 
 export default function getConsumableCombatActionProperties(this: ConsumableProperties) {
@@ -10,12 +10,12 @@ export default function getConsumableCombatActionProperties(this: ConsumableProp
   switch (this.consumableType) {
     case ConsumableType.HpAutoinjector:
       cap.validTargetCategories = TargetCategories.Friendly;
-      cap.usabilityContext = AbilityUsableContext.All;
+      cap.usabilityContext = ActionUsableContext.All;
       cap.requiresCombatTurn = false;
       cap.description = "Heal a friendly target";
     case ConsumableType.MpAutoinjector:
       cap.validTargetCategories = TargetCategories.Friendly;
-      cap.usabilityContext = AbilityUsableContext.All;
+      cap.usabilityContext = ActionUsableContext.All;
       cap.requiresCombatTurn = false;
       cap.description = "Restore MP to a friendly target";
   }

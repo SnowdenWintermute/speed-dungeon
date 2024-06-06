@@ -15,6 +15,10 @@ import determineActionButtonText from "./determine-action-menu-button-text";
 import { ActionButtonCategory, ActionMenuButtonProperties } from "./action-menu-button-properties";
 import getParty from "@/utils/getParty";
 import getButtonDedicatedKeyAndCategory from "./get-button-dedicated-keys-and-category";
+import {
+  createActionButtonMouseEnterHandler,
+  createActionButtonMouseLeaveHandler,
+} from "./hover-handlers";
 
 export type ActionButtonPropertiesByCategory = Record<
   ActionButtonCategory,
@@ -55,15 +59,18 @@ export default function buildActionButtonProperties(
       partySocket
     );
 
+    const mouseEnterHandler = createActionButtonMouseEnterHandler(gameState, action);
+    const mouseLeaveHandler = createActionButtonMouseLeaveHandler(gameState, action);
+
     const { dedicatedKeysOption, category } = getButtonDedicatedKeyAndCategory(action);
 
     const buttonProperties = {
       text,
       clickHandler,
-      focusHandler: () => {},
-      blurHandler: () => {},
-      mouseEnterHandler: () => {},
-      mouseLeaveHandler: () => {},
+      focusHandler: mouseEnterHandler,
+      blurHandler: mouseLeaveHandler,
+      mouseEnterHandler,
+      mouseLeaveHandler,
       shouldBeDisabled: false,
       dedicatedKeysOption,
       category,

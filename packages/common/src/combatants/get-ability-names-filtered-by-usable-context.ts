@@ -1,10 +1,10 @@
 import { CombatantAbilityName, CombatantProperties } from ".";
-import { AbilityUsableContext } from "../combat/combat-actions/combat-action-properties";
+import { ActionUsableContext } from "../combat/combat-actions/combat-action-properties";
 import getAbilityAttributes from "./abilities/get-ability-attributes";
 
 export default function getAbilityNamesFilteredByUseableContext(
   combatantProperties: CombatantProperties,
-  excludedContext: null | AbilityUsableContext
+  excludedContext: null | ActionUsableContext
 ): CombatantAbilityName[] {
   const toReturn: CombatantAbilityName[] = [];
 

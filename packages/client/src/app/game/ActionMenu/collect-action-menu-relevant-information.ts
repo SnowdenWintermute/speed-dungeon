@@ -7,7 +7,7 @@ import {
   ERROR_MESSAGES,
 } from "@speed-dungeon/common";
 import { DungeonRoomType } from "@speed-dungeon/common/src/adventuring_party/dungeon-room";
-import { AbilityUsableContext } from "@speed-dungeon/common";
+import { ActionUsableContext } from "@speed-dungeon/common";
 import { ConsumableType } from "@speed-dungeon/common";
 import { ItemPropertiesType } from "@speed-dungeon/common";
 
@@ -86,7 +86,7 @@ export default function collectActionMenuRelevantInformation(
     menuTypes.push(MenuType.OutOfCombat);
     abilityNames = CombatantProperties.getAbilityNamesFilteredByUseableContext(
       combatantProperties,
-      AbilityUsableContext.InCombat
+      ActionUsableContext.InCombat
     );
 
     if (party.currentRoom.items.length > 0) menuTypes.push(MenuType.ItemsOnGround);
@@ -96,7 +96,7 @@ export default function collectActionMenuRelevantInformation(
     menuTypes.push(MenuType.InCombat);
     abilityNames = CombatantProperties.getAbilityNamesFilteredByUseableContext(
       combatantProperties,
-      AbilityUsableContext.OutOfCombat
+      ActionUsableContext.OutOfCombat
     );
   }
 

@@ -2,7 +2,7 @@ import { CombatantAbilityName } from ".";
 import { OFF_HAND_ACCURACY_MODIFIER, OFF_HAND_DAMAGE_MODIFIER } from "../../app_consts";
 import {
   CombatActionProperties,
-  AbilityUsableContext,
+  ActionUsableContext,
   CombatActionHpChangeProperties,
 } from "../../combat/combat-actions/combat-action-properties";
 import {
@@ -118,7 +118,7 @@ export default function getAbilityAttributes(abilityName: CombatantAbilityName) 
       cap.description = "Deals ice element damage";
       cap.targetingSchemes = [TargetingScheme.Single, TargetingScheme.Area];
       cap.validTargetCategories = TargetCategories.Any;
-      cap.usabilityContext = AbilityUsableContext.All;
+      cap.usabilityContext = ActionUsableContext.All;
       hpcp.baseValues = new NumberRange(6, 12);
       hpcp.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Intelligence, 100];
       hpcp.critChanceAttribute = CombatAttribute.Focus;

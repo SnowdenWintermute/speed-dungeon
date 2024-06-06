@@ -8,6 +8,7 @@ import {
   CombatantDetails,
   ERROR_MESSAGES,
   Item,
+  PlayerCharacter,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
@@ -17,6 +18,7 @@ import { MutateState } from "../mutate-state";
 import { CombatAttribute } from "@speed-dungeon/common/src/combatants/combat-attributes";
 import getActiveCombatant from "@/utils/getActiveCombatant";
 import getParty from "@/utils/getParty";
+import getFocusedCharacter from "@/utils/getFocusedCharacter";
 
 export enum MenuContext {
   InventoryItems,
@@ -56,6 +58,9 @@ export class GameState {
   };
   hasGame: () => boolean = () => {
     return this.get().game ? true : false;
+  };
+  getFocusedCharacter: () => Error | PlayerCharacter = () => {
+    return getFocusedCharacter(this.get());
   };
 
   constructor(

@@ -10,6 +10,7 @@ import cloneDeep from "lodash.clonedeep";
 import PageTurningButtons from "./action-menu-buttons/PageTurningButtons";
 import calculateNumberOfPages from "./action-menu-buttons/calculate-number-of-pages";
 import ChangeTargetButtons from "./action-menu-buttons/ChangeTargetButtons";
+import ActionDetails from "../detailables/ActionDetails";
 
 const PAGE_SIZE = 6;
 
@@ -18,6 +19,7 @@ export default function ActionMenu() {
   const keyupListenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
   const keyPressListenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
   const gameState = useGameStore();
+
   const [buttonProperties, setButtonProperties] = useState<ActionButtonPropertiesByCategory>({
     [ActionButtonCategory.Top]: [],
     [ActionButtonCategory.Numbered]: [],
@@ -73,6 +75,17 @@ export default function ActionMenu() {
 
   function handleWheel() {}
 
+  let hoveredActionDisplay = <></>;
+  if (gameState.hoveredAction) {
+    hoveredActionDisplay = (
+      <div className="absolute top-0 left-full pl-2">
+        <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2">
+          <ActionDetails combatAction={gameState.hoveredAction} hideTitle={false} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <section
       className={`max-h-fit max-w-[25rem] flex flex-col justify-between mr-[${SPACING_REM}rem]`}
@@ -100,9 +113,7 @@ export default function ActionMenu() {
           {buttonsByCategory.numbered.map((button, i) => (
             <li key={numberedButtonPropertiesOnCurrentPage[i].text + i}>{button}</li>
           ))}
-          {
-            // hovered_action_display
-          }
+          {hoveredActionDisplay}
           {
             // selected_action_display
           }

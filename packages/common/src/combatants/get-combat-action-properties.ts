@@ -40,7 +40,7 @@ export function getCombatActionProperties(
 ) {
   switch (combatAction.type) {
     case CombatActionType.AbilityUsed:
-      return CombatantAbility.getAttributes(combatAction.abilityName).combatActionProperties;
+      return getAbilityAttributes(combatAction.abilityName).combatActionProperties;
     case CombatActionType.ConsumableUsed:
       const combatantResult = getCombatantInParty(party, actionUserId);
       if (combatantResult instanceof Error) return combatantResult;

@@ -7,7 +7,7 @@ import { ProhibitedTargetCombatantStates, TargetCategories, TargetingScheme } fr
 export class CombatActionProperties {
   targetingSchemes: TargetingScheme[] = [TargetingScheme.Single];
   validTargetCategories: TargetCategories = TargetCategories.Opponent;
-  usabilityContext: AbilityUsableContext = AbilityUsableContext.InCombat;
+  usabilityContext: ActionUsableContext = ActionUsableContext.InCombat;
   prohibitedTargetCombatantStates: null | ProhibitedTargetCombatantStates[] = [
     ProhibitedTargetCombatantStates.Dead,
   ];
@@ -17,10 +17,21 @@ export class CombatActionProperties {
   constructor() {}
 }
 
-export enum AbilityUsableContext {
+export enum ActionUsableContext {
   All,
   InCombat,
   OutOfCombat,
+}
+
+export function formatActionUsabilityContext(actionUsabilityContext: ActionUsableContext): string {
+  switch (actionUsabilityContext) {
+    case ActionUsableContext.All:
+      return "Any time";
+    case ActionUsableContext.InCombat:
+      return "In combat";
+    case ActionUsableContext.OutOfCombat:
+      return "Out of combat";
+  }
 }
 
 export class CombatActionHpChangeProperties {

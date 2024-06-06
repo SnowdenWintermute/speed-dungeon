@@ -1,5 +1,6 @@
 export * from "./calculate-combat-action-hp-change-range";
 export * from "./combat-action-properties";
+export * from "./get-ability-mana-cost";
 
 import { CombatantAbilityName } from "../../combatants";
 
