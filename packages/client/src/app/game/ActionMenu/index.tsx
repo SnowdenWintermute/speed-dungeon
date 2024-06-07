@@ -86,6 +86,23 @@ export default function ActionMenu() {
     );
   }
 
+  let selectedActionDisplay = <></>;
+  const focusedCharacterResult = useGameStore().getFocusedCharacter();
+  if (!(focusedCharacterResult instanceof Error)) {
+    const selectedCombatActionOption =
+      focusedCharacterResult.combatantProperties.selectedCombatAction;
+    if (selectedCombatActionOption) {
+      selectedActionDisplay = (
+        <div
+          className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2"
+          style={{ height: `${BUTTON_HEIGHT * PAGE_SIZE}rem` }}
+        >
+          <ActionDetails combatAction={selectedCombatActionOption} hideTitle={false} />
+        </div>
+      );
+    }
+  }
+
   return (
     <section
       className={`max-h-fit max-w-[25rem] flex flex-col justify-between mr-[${SPACING_REM}rem]`}
@@ -104,7 +121,7 @@ export default function ActionMenu() {
           </li>
         ))}
       </ul>
-      <div className={`mb-2 h-[${BUTTON_HEIGHT * PAGE_SIZE}rem]`}>
+      <div className={`mb-2`} style={{ height: `${BUTTON_HEIGHT * PAGE_SIZE}rem` }}>
         <ul
           className="list-none relative pointer-events-auto"
           ref={actionMenuRef}
@@ -114,9 +131,7 @@ export default function ActionMenu() {
             <li key={numberedButtonPropertiesOnCurrentPage[i].text + i}>{button}</li>
           ))}
           {hoveredActionDisplay}
-          {
-            // selected_action_display
-          }
+          {selectedActionDisplay}
         </ul>
       </div>
 

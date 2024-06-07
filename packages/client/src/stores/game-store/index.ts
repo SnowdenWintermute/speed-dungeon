@@ -62,6 +62,13 @@ export class GameState {
   getFocusedCharacter: () => Error | PlayerCharacter = () => {
     return getFocusedCharacter(this.get());
   };
+  getCharacter: (characterId: string) => Error | PlayerCharacter = (characterId: string) => {
+    const partyResult = this.getParty();
+    if (partyResult instanceof Error) return partyResult;
+    const gameOption = this.get().game;
+    if (!gameOption) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    return SpeedDungeonGame.getCharacter(gameOption, partyResult.name, characterId);
+  };
 
   constructor(
     public mutateState: MutateState<GameState>,

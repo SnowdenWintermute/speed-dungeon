@@ -44,14 +44,15 @@ export default function ActionDetails({ combatAction, hideTitle }: Props) {
     const ownedAbilityOption =
       focusedCharacter.combatantProperties.abilities[combatAction.abilityName] ?? null;
     if (!ownedAbilityOption) return <div>{ERROR_MESSAGES.ABILITIES.NOT_OWNED}</div>;
+    abilityOption = ownedAbilityOption;
   }
 
-  const targetingSchemesText = combatActionProperties.targetingSchemes.map((targetingScheme, i) => {
-    let toReturn = formatTargetingScheme(targetingScheme);
-    if (i < combatActionProperties.targetingSchemes.length) {
-      toReturn += ", ";
+  let targetingSchemesText = "";
+  combatActionProperties.targetingSchemes.forEach((targetingScheme, i) => {
+    targetingSchemesText += formatTargetingScheme(targetingScheme);
+    if (i < combatActionProperties.targetingSchemes.length - 1) {
+      targetingSchemesText += ", ";
     }
-    return toReturn;
   });
 
   return (

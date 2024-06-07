@@ -38,6 +38,8 @@ export default function selectCombatActionHandler(
     focusedCharacter.combatantProperties.selectedCombatAction = combatActionOption;
 
     gameState.menuContext = null;
+    gameState.hoveredAction = null;
+    gameState.hoveredEntity = null;
 
     partySocket.emit(
       InPartyClientToServerEvent.SelectCombatAction,

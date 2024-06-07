@@ -8,6 +8,7 @@ import {
   ERROR_MESSAGES,
   ItemPropertiesType,
   NextOrPrevious,
+  SpeedDungeonGame,
   formatAbilityName,
   formatCombatAttribute,
 } from "@speed-dungeon/common";
@@ -100,7 +101,7 @@ function determineUseItemText(gameState: GameState, itemId: string) {
   const gameAndPartyResult = getGameAndParty(gameState.game, gameState.username);
   if (gameAndPartyResult instanceof Error) return gameAndPartyResult;
   const [game, party] = gameAndPartyResult;
-  const characterResult = game.getCharacter(party.name, gameState.focusedCharacterId);
+  const characterResult = getCharacterInGame(game, party.name, gameState.focusedCharacterId);
   if (characterResult instanceof Error) return characterResult;
   const combatantProperties = characterResult.combatantProperties;
 
