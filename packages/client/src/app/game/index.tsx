@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useGameStore } from "@/stores/game-store";
+import { MenuContext, useGameStore } from "@/stores/game-store";
 import PartyWipeModal from "./PartyWipeModal";
 import TopInfoBar from "./TopInfoBar";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
@@ -7,9 +7,11 @@ import MonsterPlaques from "./MonsterPlaques";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import ActionMenu from "./ActionMenu";
 import CharacterAutofocusManager from "./CharacterAutofocusManager";
+import CharacterSheet from "./character-sheet";
 
 export default function Game() {
   const game = useGameStore().game;
+  const menuContext = useGameStore().menuContext;
   const hoveredEntity = useGameStore().hoveredEntity;
   const username = useGameStore().username;
   if (!username)
@@ -31,10 +33,9 @@ export default function Game() {
   const party = game.adventuringParties[partyName];
   if (!party) return <div>Client thinks it is in a party that doesn't exist</div>;
 
-  const showCharacterSheet = false;
-  const viewingCharacterSheet = false;
+  const viewingCharacterSheet = menuContext !== null && menuContext !== MenuContext.ItemsOnGround;
 
-  const conditionalStyles = showCharacterSheet ? "items-center justify-end" : "";
+  const conditionalStyles = viewingCharacterSheet ? "items-center justify-end" : "";
 
   const actionMenuAndCharacterSheetContainerConditionalClasses = viewingCharacterSheet
     ? ""
@@ -110,7 +111,7 @@ export default function Game() {
             </div>
             {
               // !focused_character_is_animating &&
-              // <CharacterSheet />
+              <CharacterSheet />
             }
           </div>
           {

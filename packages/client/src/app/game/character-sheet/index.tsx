@@ -1,19 +1,21 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import { MenuContext, useGameStore } from "@/stores/game-store";
 import { CombatantProperties, ERROR_MESSAGES } from "@speed-dungeon/common";
-import React, { useEffect } from "react";
+import React from "react";
 import CharacterSheetCharacterSelectionButton from "./CharacterSheetCharacterSelectionButton";
+import CharacterAttributes from "./CharacterAttributes";
+import PaperDoll from "./PaperDoll";
 
 export default function CharacterSheet() {
+  const partyResult = useGameStore().getParty();
+  if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
   const focusedCharacterResult = useGameStore().getFocusedCharacter();
   const menuContext = useGameStore().menuContext;
   const focusedCharacterOption =
     focusedCharacterResult instanceof Error ? null : focusedCharacterResult;
   if (!focusedCharacterOption) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND}</div>;
-  const combatantProperties = focusedCharacterOption.combatantProperties;
+  const { combatantProperties, entityProperties } = focusedCharacterOption;
 
-  const partyResult = useGameStore().getParty();
-  if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
   const partyCharacterIds = partyResult.characterPositions;
 
   const { equipment } = combatantProperties;
@@ -40,20 +42,14 @@ export default function CharacterSheet() {
       </ul>
       <div
         className="border border-slate-400 bg-slate-700 overflow-y-auto flex pointer-events-auto"
-        style={{ padding: `${SPACING_REM}rem; ` }}
+        style={{ padding: `${SPACING_REM}rem` }}
       >
-        {
-          // <PaperDoll equipment={equipment} attributes={combatant_attributes} />
-        }
-        {
-          // if let Some(character) = character_option {
-          // <CharacterAttributes
-          // entity_properties={character.entity_properties.clone()}
-          // combatant_properties={character.combatant_properties.clone()}
-          // show_attribute_assignment_buttons={true}
-          // />
-          // }
-        }
+        <PaperDoll equipment={equipment} characterAttributes={totalAttributes} />
+        <CharacterAttributes
+          combatantProperties={combatantProperties}
+          entityProperties={entityProperties}
+          showAttributeAssignmentButtons={true}
+        />
       </div>
     </section>
   );

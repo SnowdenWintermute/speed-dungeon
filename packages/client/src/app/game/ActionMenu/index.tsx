@@ -105,9 +105,10 @@ export default function ActionMenu() {
 
   return (
     <section
-      className={`max-h-fit max-w-[25rem] flex flex-col justify-between mr-[${SPACING_REM}rem]`}
+      className={`max-h-fit max-w-[25rem] flex flex-col justify-between`}
+      style={{ marginRight: `${SPACING_REM}rem` }}
     >
-      {<ActionMenuChangeDetectionHandler setButtonProperties={setButtonProperties} />}
+      <ActionMenuChangeDetectionHandler setButtonProperties={setButtonProperties} />
       <ul
         className={`flex list-none min-w-[25rem] max-w-[25rem]`}
         style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
