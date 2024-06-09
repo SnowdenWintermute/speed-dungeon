@@ -2,6 +2,8 @@ import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import { CombatActionType, Item, ItemPropertiesType } from "@speed-dungeon/common";
 import React from "react";
 import ActionDetails from "./ActionDetails";
+import EquipmentDetails from "./EquipmentDetails";
+import ModKeyTooltip from "./ModKeyTooltip";
 
 interface Props {
   title: string;
@@ -9,6 +11,7 @@ interface Props {
   item: Item;
   extraStyles: string;
   marginSide: string;
+  isComparedItem: boolean;
 }
 
 export default function ItemDetails({
@@ -17,6 +20,7 @@ export default function ItemDetails({
   item,
   extraStyles,
   marginSide,
+  isComparedItem,
 }: Props) {
   let itemDetailsDisplay = <></>;
 
@@ -28,7 +32,11 @@ export default function ItemDetails({
       />
     );
   } else {
-    // item.itemProperties.equipmentProperties
+    <EquipmentDetails
+      item={item}
+      equipmentProperties={item.itemProperties.equipmentProperties}
+      isComparedItem={isComparedItem}
+    />;
   }
 
   return (
@@ -43,15 +51,11 @@ export default function ItemDetails({
     >
       <span className="flex justify-between pr-2">
         {title}
-        {
-          // mod_key_tooltip
-        }
+        {shouldShowModKeyTooltip && <ModKeyTooltip />}
       </span>
       <div className="mr-2 mb-1 mt-1 h-[1px] bg-slate-400" />
       {item.entityProperties.name}
-      {
-        // item_details_display
-      }
+      {itemDetailsDisplay}
       <div className="opacity-50 fill-slate-400 h-40 absolute bottom-5 right-3">
         <img src="public/img/equipment-icons/1h-sword-a.svg" className="h-40 filter" />
       </div>

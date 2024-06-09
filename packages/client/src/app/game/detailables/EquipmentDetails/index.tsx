@@ -7,22 +7,15 @@ import Durability from "./Durability";
 import CombatAttributesAndTraits from "./CombatAttributesAndTraits";
 import ItemRequirements from "../ItemRequirements";
 import { useGameStore } from "@/stores/game-store";
+import UnmetItemRequirementsCalculator from "../UnmetItemRequirementsCalculator";
 
 interface Props {
   item: Item;
   equipmentProperties: EquipmentProperties;
-  requirements: CombatantAttributeRecord;
-  entityId: string;
   isComparedItem: boolean;
 }
 
-export default function EquipmentDetails({
-  item,
-  equipmentProperties,
-  requirements,
-  entityId,
-  isComparedItem,
-}: Props) {
+export default function EquipmentDetails({ item, equipmentProperties, isComparedItem }: Props) {
   const unmetRequirements = useGameStore().consideredItemUnmetRequirements;
   const armorCategoryTextOption = getArmorCategoryText(equipmentProperties);
   return (
@@ -37,6 +30,12 @@ export default function EquipmentDetails({
         attributeRequirements={item.requirements}
         unmetRequirements={unmetRequirements}
       />
+      {!isComparedItem && (
+        <UnmetItemRequirementsCalculator
+          attributeRequirements={item.requirements}
+          itemId={item.entityProperties.id}
+        />
+      )}
     </div>
   );
 }
