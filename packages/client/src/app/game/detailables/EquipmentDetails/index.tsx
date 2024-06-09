@@ -1,12 +1,15 @@
-import { CombatantAttributeRecord, formatEquipmentType } from "@speed-dungeon/common";
+import { CombatantAttributeRecord, Item, formatEquipmentType } from "@speed-dungeon/common";
 import { EquipmentProperties } from "@speed-dungeon/common/src/items/equipment/equipment-properties";
 import React from "react";
 import { ArmorClassText, getArmorCategoryText } from "./armor";
 import WeaponDamage from "./WeaponDamage";
 import Durability from "./Durability";
 import CombatAttributesAndTraits from "./CombatAttributesAndTraits";
+import ItemRequirements from "../ItemRequirements";
+import { useGameStore } from "@/stores/game-store";
 
 interface Props {
+  item: Item;
   equipmentProperties: EquipmentProperties;
   requirements: CombatantAttributeRecord;
   entityId: string;
@@ -14,11 +17,13 @@ interface Props {
 }
 
 export default function EquipmentDetails({
+  item,
   equipmentProperties,
   requirements,
   entityId,
   isComparedItem,
 }: Props) {
+  const unmetRequirements = useGameStore().consideredItemUnmetRequirements;
   const armorCategoryTextOption = getArmorCategoryText(equipmentProperties);
   return (
     <div>
@@ -28,6 +33,10 @@ export default function EquipmentDetails({
       <WeaponDamage equipmentProperties={equipmentProperties} />
       <Durability equipmentProperties={equipmentProperties} />
       <CombatAttributesAndTraits equipmentProperties={equipmentProperties} />
+      <ItemRequirements
+        attributeRequirements={item.requirements}
+        unmetRequirements={unmetRequirements}
+      />
     </div>
   );
 }
