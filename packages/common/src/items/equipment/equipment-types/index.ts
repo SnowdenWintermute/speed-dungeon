@@ -25,3 +25,24 @@ export type EquipmentBaseItem =
   | TwoHandedRangedWeapon
   | Shield
   | Jewelry;
+
+export function formatEquipmentType(equipmentType: EquipmentType) {
+  switch (equipmentType) {
+    case EquipmentType.BodyArmor:
+      return "Body Armor";
+    case EquipmentType.HeadGear:
+      return "Head Gear";
+    case EquipmentType.Ring:
+      return "Ring";
+    case EquipmentType.Amulet:
+      return "Amulet";
+    case EquipmentType.OneHandedMeleeWeapon:
+      return "One Handed Melee Weapon";
+    case EquipmentType.TwoHandedMeleeWeapon:
+      return "Two Handed Melee Weapon";
+    case EquipmentType.TwoHandedRangedWeapon:
+      return "Two Handed Ranged Weapon";
+    case EquipmentType.Shield:
+      return "Shield";
+  }
+}

@@ -75,7 +75,7 @@ export default function Game() {
         </div>
       </div>
       {
-        // Action Menu and Inventory/Equipment/Character sheet container
+        // ACTION MENU AND INVENTORY/EQUIPMENT/CHARACTER SHEET CONTAINER
       }
       <div
         className={`absolute z-31 top-1/2 -translate-y-1/2 w-full p-4 text-zinc-300 flex flex-row ${conditionalStyles} pointer-events-none`}

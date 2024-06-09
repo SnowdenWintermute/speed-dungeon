@@ -1,6 +1,6 @@
 import { CombatAttribute } from "../../combatants/combat-attributes";
 import { WeaponSlot } from "../../items/equipment/slots";
-import NumberRange from "../../primatives/number-range";
+import { NumberRange } from "../../primatives/number-range";
 import { HpChangeSource } from "../hp-change-source-types";
 import { ProhibitedTargetCombatantStates, TargetCategories, TargetingScheme } from "../targeting";
 

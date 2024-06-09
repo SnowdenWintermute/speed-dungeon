@@ -1,4 +1,4 @@
-import EquipmentProperties from ".";
+import { EquipmentProperties } from ".";
 import { EquipmentType } from "../equipment-types";
 
 export default function getBaseArmorClass(equipmentProperties: EquipmentProperties) {

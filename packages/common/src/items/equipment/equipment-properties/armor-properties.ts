@@ -15,3 +15,16 @@ export enum ArmorCategories {
   Mail,
   Plate,
 }
+
+export function formatArmorCategory(armorCategory: ArmorCategories) {
+  switch (armorCategory) {
+    case ArmorCategories.Cloth:
+      return "Cloth";
+    case ArmorCategories.Leather:
+      return "Leather";
+    case ArmorCategories.Mail:
+      return "Mail";
+    case ArmorCategories.Plate:
+      return "Plate";
+  }
+}

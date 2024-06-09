@@ -1,5 +1,5 @@
 import { HpChangeSource } from "../../../combat/hp-change-source-types";
-import NumberRange from "../../../primatives/number-range";
+import { NumberRange } from "../../../primatives/number-range";
 import { EquipmentType } from "../equipment-types";
 
 export interface WeaponProperties {

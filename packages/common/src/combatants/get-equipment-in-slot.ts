@@ -1,5 +1,5 @@
 import { EquipmentSlot } from "../items";
-import EquipmentProperties from "../items/equipment/equipment-properties";
+import { EquipmentProperties } from "../items/equipment/equipment-properties";
 import { ItemPropertiesType } from "../items/item-properties";
 import { CombatantProperties } from "./combatant-properties";
 

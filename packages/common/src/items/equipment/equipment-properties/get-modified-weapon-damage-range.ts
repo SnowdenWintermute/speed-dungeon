@@ -1,7 +1,7 @@
-import EquipmentProperties from ".";
+import { EquipmentProperties } from ".";
 import { CombatAttribute } from "../../../combatants";
 import { ERROR_MESSAGES } from "../../../errors";
-import NumberRange from "../../../primatives/number-range";
+import { NumberRange } from "../../../primatives/number-range";
 import { EquipmentTraitType } from "../equipment-traits";
 import { EquipmentType } from "../equipment-types";
 
@@ -12,6 +12,8 @@ export default function getModifiedWeaponDamageRange(
     case EquipmentType.BodyArmor:
     case EquipmentType.HeadGear:
     case EquipmentType.Shield:
+    case EquipmentType.Amulet:
+    case EquipmentType.Ring:
       return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
     case EquipmentType.OneHandedMeleeWeapon:
     case EquipmentType.TwoHandedMeleeWeapon:

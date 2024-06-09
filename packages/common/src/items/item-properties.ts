@@ -1,5 +1,5 @@
 import { ConsumableProperties } from "./consumables";
-import EquipmentProperties from "./equipment/equipment-properties";
+import { EquipmentProperties } from "./equipment/equipment-properties";
 
 export enum ItemPropertiesType {
   Equipment,

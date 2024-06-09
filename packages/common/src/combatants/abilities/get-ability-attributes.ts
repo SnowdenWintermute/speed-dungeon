@@ -13,7 +13,7 @@ import {
 import { MagicalElement } from "../../combat/magical-elements";
 import { TargetCategories, TargetingScheme } from "../../combat/targeting";
 import { WeaponSlot } from "../../items/equipment/slots";
-import NumberRange from "../../primatives/number-range";
+import { NumberRange } from "../../primatives/number-range";
 import { CombatAttribute } from "../combat-attributes";
 import CombatantAbilityAttributes from "./ability-attributes";
 

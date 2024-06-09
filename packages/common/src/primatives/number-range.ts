@@ -1,4 +1,4 @@
-export default class NumberRange {
+export class NumberRange {
   constructor(
     public min: number,
     public max: number

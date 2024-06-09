@@ -1,7 +1,7 @@
 import { CombatantProperties } from "../../combatants";
 import { EquipmentSlot, WeaponSlot } from "../../items";
-import EquipmentProperties from "../../items/equipment/equipment-properties";
-import NumberRange from "../../primatives/number-range";
+import { EquipmentProperties } from "../../items/equipment/equipment-properties";
+import { NumberRange } from "../../primatives/number-range";
 
 export default function addWeaponDamageToCombatActionHpChange(
   weaponSlots: WeaponSlot[],

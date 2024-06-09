@@ -8,9 +8,9 @@ import {
 import { CombatantClass } from "../../../combatants";
 import { IdGenerator } from "../../../game/id_generator";
 import MaxAndCurrent from "../../../primatives/max-and-current";
-import NumberRange from "../../../primatives/number-range";
+import { NumberRange } from "../../../primatives/number-range";
 import { ItemPropertiesType } from "../../item-properties";
-import EquipmentProperties from "../equipment-properties";
+import { EquipmentProperties } from "../equipment-properties";
 import { EquipmentType } from "../equipment-types";
 import { OneHandedMeleeWeapon } from "../equipment-types/one-handed-melee-weapon";
 import { TwoHandedMeleeWeapon } from "../equipment-types/two-handed-melee-weapon";
@@ -41,6 +41,7 @@ export default function createStartingEquipment(
         },
         new MaxAndCurrent(1, 1)
       );
+      break;
     case CombatantClass.Mage:
       mainHandProperties = new EquipmentProperties(
         TwoHandedMeleeWeapon.BoStaff,
@@ -59,6 +60,7 @@ export default function createStartingEquipment(
         },
         new MaxAndCurrent(1, 1)
       );
+      break;
     case CombatantClass.Rogue:
       mainHandProperties = offhandProperties = new EquipmentProperties(
         OneHandedMeleeWeapon.Dagger,
@@ -77,6 +79,7 @@ export default function createStartingEquipment(
         },
         new MaxAndCurrent(2, 7)
       );
+      break;
   }
 
   const weaponName =

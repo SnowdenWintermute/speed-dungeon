@@ -6,10 +6,13 @@ import { EquipmentBaseItem } from "../equipment-types";
 import { ArmorProperties } from "./armor-properties";
 import getBaseArmorClass from "./get-base-armor-class";
 import getModifiedWeaponDamageRange from "./get-modified-weapon-damage-range";
+import { JewelryProperties } from "./jewelry-properties";
 import { ShieldProperties } from "./shield-properties";
 import { WeaponProperties } from "./weapon-properties";
+export * from "./armor-properties";
+export * from "./jewelry-properties";
 
-export default class EquipmentProperties {
+export class EquipmentProperties {
   attributes: CombatantAttributeRecord = {};
   affixes: Affix[] = [];
   traits: EquipmentTrait[] = [];
@@ -23,4 +26,8 @@ export default class EquipmentProperties {
   static getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
 }
 
-export type EquipmentTypeProperties = ArmorProperties | WeaponProperties | ShieldProperties;
+export type EquipmentTypeProperties =
+  | ArmorProperties
+  | WeaponProperties
+  | ShieldProperties
+  | JewelryProperties;

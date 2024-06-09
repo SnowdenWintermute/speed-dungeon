@@ -4,7 +4,7 @@ import {
   STR_TO_MELEE_ARMOR_PEN_RATIO,
 } from "../app_consts";
 import { Item, WeaponSlot } from "../items";
-import EquipmentProperties from "../items/equipment/equipment-properties";
+import { EquipmentProperties } from "../items/equipment/equipment-properties";
 import { EquipmentType } from "../items/equipment/equipment-types";
 import { ItemPropertiesType } from "../items/item-properties";
 import { CombatAttribute } from "./combat-attributes";

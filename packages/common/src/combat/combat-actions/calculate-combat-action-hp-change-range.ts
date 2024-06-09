@@ -1,6 +1,6 @@
 import { COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER } from "../../app_consts";
 import { CombatantProperties } from "../../combatants";
-import NumberRange from "../../primatives/number-range";
+import { NumberRange } from "../../primatives/number-range";
 import addWeaponDamageToCombatActionHpChange from "./add-weapon-damage-to-hp-change-range";
 import { CombatActionHpChangeProperties } from "./combat-action-properties";
 
