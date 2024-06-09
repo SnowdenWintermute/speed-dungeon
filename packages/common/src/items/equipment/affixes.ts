@@ -31,12 +31,14 @@ interface Prefix {
   affixType: AffixType.Prefix;
   prefixType: PrefixType;
   value: number;
+  tier: number;
 }
 
 interface Suffix {
   affixType: AffixType.Suffix;
   suffixType: SuffixType;
   value: number;
+  tier: number;
 }
 
 export type Affix = Prefix | Suffix;

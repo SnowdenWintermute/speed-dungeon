@@ -4,6 +4,7 @@ import React from "react";
 import { ArmorClassText, getArmorCategoryText } from "./armor";
 import WeaponDamage from "./WeaponDamage";
 import Durability from "./Durability";
+import CombatAttributesAndTraits from "./CombatAttributesAndTraits";
 
 interface Props {
   equipmentProperties: EquipmentProperties;
@@ -26,6 +27,7 @@ export default function EquipmentDetails({
       <ArmorClassText equipmentProperties={equipmentProperties} />
       <WeaponDamage equipmentProperties={equipmentProperties} />
       <Durability equipmentProperties={equipmentProperties} />
+      <CombatAttributesAndTraits equipmentProperties={equipmentProperties} />
     </div>
   );
 }
