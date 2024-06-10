@@ -68,7 +68,9 @@ export default function ActionMenu() {
       buttonProperties[ActionButtonCategory.Numbered].length !== 0 &&
       currentPageNumber === lastPageNumberFiltered
     ) {
-      gameState.mutateState((gameState) => (gameState.actionMenuCurrentPageNumber -= 1));
+      gameState.mutateState((gameState) => {
+        gameState.actionMenuCurrentPageNumber -= 1;
+      });
     }
     setLastPageNumberFiltered(currentPageNumber);
   }, [buttonProperties, currentPageNumber]);

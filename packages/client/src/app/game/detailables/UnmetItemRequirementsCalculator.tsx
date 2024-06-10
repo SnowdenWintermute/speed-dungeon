@@ -32,6 +32,11 @@ export default function UnmetItemRequirementsCalculator({ attributeRequirements,
         gameState.consideredItemUnmetRequirements = unmetAttributeRequirements;
       else gameState.consideredItemUnmetRequirements = null;
     });
+
+    return () =>
+      mutateGameState((gameState) => {
+        gameState.consideredItemUnmetRequirements = null;
+      });
   }, [itemId, totalAttributes]);
 
   return <></>;

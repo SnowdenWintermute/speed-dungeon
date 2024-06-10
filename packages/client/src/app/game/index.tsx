@@ -8,6 +8,8 @@ import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import ActionMenu from "./ActionMenu";
 import CharacterAutofocusManager from "./CharacterAutofocusManager";
 import CharacterSheet from "./character-sheet";
+import ItemDetailsWithComparison from "./ItemDetailsWithComparison";
+import CharacterSheetItemDetailsViewer from "./character-sheet/CharacterSheetItemDetailsViewer";
 
 export default function Game() {
   const game = useGameStore().game;
@@ -93,11 +95,7 @@ export default function Game() {
                 {!viewingCharacterSheet && (
                   <div className="flex overflow-hidden">
                     <div className="max-h-[13.375rem] h-fit flex flex-grow justify-end">
-                      <div className="mr-2 w-[50rem]">
-                        {
-                          // <ItemDetailsAndComparison />
-                        }
-                      </div>
+                      <div className="mr-2 w-[50rem]">{<ItemDetailsWithComparison />}</div>
                       {
                         // if !game_state.combatants_animating.len() > 0 && !focused_character_is_animating {
                         // <div className="max-w-[25rem] w-[25rem]" >
@@ -116,7 +114,7 @@ export default function Game() {
           </div>
           {
             // if !focused_character_is_animating{
-            // <ItemDetailsViewer />
+            <CharacterSheetItemDetailsViewer />
           }
         </div>
       </div>

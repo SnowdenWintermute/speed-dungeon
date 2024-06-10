@@ -2,7 +2,7 @@ import { AdventuringParty } from ".";
 import { ERROR_MESSAGES } from "../errors";
 import { Item } from "../items";
 
-export default function getItemInAdventuringParty(party: AdventuringParty, itemId: string) {
+export function getItemInAdventuringParty(party: AdventuringParty, itemId: string) {
   let toReturn: undefined | Item;
 
   Object.values(party.characters).forEach((character) => {

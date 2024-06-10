@@ -3,12 +3,13 @@ import { EntityId } from "../primatives";
 import { PlayerCharacter } from "./player-character";
 import { DungeonRoom, DungeonRoomType } from "./dungeon-room";
 import getCombatant from "./get-combatant-in-party";
-import getItemInAdventuringParty from "./get-item-in-party";
+import { getItemInAdventuringParty } from "./get-item-in-party";
 import getIdsAndSelectedActionsOfCharactersTargetingCombatant from "./get-ids-and-selected-actions-of-characters-targeting-combatant";
 import getMonsterIdsInParty from "./get-monster-ids-in-party";
 import getCharacterIfOwned from "./get-character-if-owned";
 import removeCharacterFromParty from "./remove-character-from-party";
 export * from "./player-character";
+export * from "./get-item-in-party";
 
 export type RoomsExploredTracker = { total: number; onCurrentFloor: number };
 

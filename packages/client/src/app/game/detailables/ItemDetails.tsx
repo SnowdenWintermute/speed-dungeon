@@ -32,11 +32,13 @@ export default function ItemDetails({
       />
     );
   } else {
-    <EquipmentDetails
-      item={item}
-      equipmentProperties={item.itemProperties.equipmentProperties}
-      isComparedItem={isComparedItem}
-    />;
+    itemDetailsDisplay = (
+      <EquipmentDetails
+        item={item}
+        equipmentProperties={item.itemProperties.equipmentProperties}
+        isComparedItem={isComparedItem}
+      />
+    );
   }
 
   return (
@@ -57,7 +59,7 @@ export default function ItemDetails({
       {item.entityProperties.name}
       {itemDetailsDisplay}
       <div className="opacity-50 fill-slate-400 h-40 absolute bottom-5 right-3">
-        <img src="public/img/equipment-icons/1h-sword-a.svg" className="h-40 filter" />
+        <img src="img/equipment-icons/1h-sword-a.svg" className="h-40 filter" />
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 export * from "./player";
 export * from "./remove-player-from-party";
+export * from "./get-player-party";
 import { immerable } from "immer";
 import { AdventuringParty } from "../adventuring_party";
 import { Battle } from "../battle";

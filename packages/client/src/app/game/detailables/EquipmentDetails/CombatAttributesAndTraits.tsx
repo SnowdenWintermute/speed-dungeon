@@ -112,8 +112,8 @@ export default function CombatAttributesAndTraits({ equipmentProperties }: Props
 
   return (
     <div>
-      {equipmentModDisplaysInPrefixSuffixOrder.map((text) => (
-        <div key={text}>{text}</div>
+      {equipmentModDisplaysInPrefixSuffixOrder.map((text, i) => (
+        <div key={text + i}>{text}</div>
       ))}
     </div>
   );

@@ -21,6 +21,7 @@ export default function PaperDollSlot({
   tailwindClasses,
 }: Props) {
   const [highlightStyle, setHighlightStyle] = useState("border-slate-400");
+  const [bgStyle, setBgStyle] = useState("");
   const mutateGameState = useGameStore().mutateState;
   const detailedEntityOption = useGameStore().detailedEntity;
   const hoveredEntityOption = useGameStore().hoveredEntity;
@@ -40,6 +41,7 @@ export default function PaperDollSlot({
         else bgStyles = "bg-slate-800";
       }
     }
+    setBgStyle(bgStyles);
 
     determineAndSetHighlightStyle(
       detailedEntityOption,
@@ -67,7 +69,7 @@ export default function PaperDollSlot({
 
   return (
     <button
-      className={`overflow-ellipsis overflow-hidden border ${tailwindClasses} ${highlightStyle}`}
+      className={`overflow-ellipsis overflow-hidden border ${tailwindClasses} ${highlightStyle} ${bgStyle}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onFocus={handleFocus}

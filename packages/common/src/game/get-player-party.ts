@@ -2,10 +2,7 @@ import { SpeedDungeonGame } from ".";
 import { AdventuringParty } from "../adventuring_party";
 import { ERROR_MESSAGES } from "../errors";
 
-export default function getPlayerParty(
-  game: SpeedDungeonGame,
-  username: string
-): Error | AdventuringParty {
+export function getPlayerParty(game: SpeedDungeonGame, username: string): Error | AdventuringParty {
   const playerOption = game.players[username];
   if (!playerOption) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
   const partyNameOption = playerOption.partyName;

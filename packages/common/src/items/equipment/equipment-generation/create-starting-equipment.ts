@@ -77,7 +77,7 @@ export default function createStartingEquipment(
             ),
           ],
         },
-        new MaxAndCurrent(2, 7)
+        new MaxAndCurrent(1, 1)
       );
       break;
   }

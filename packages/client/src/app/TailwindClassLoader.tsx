@@ -16,6 +16,7 @@ export default function TailwindClassLoader() {
       <div className="border-green-600" />
       <div className="border-green-700" />
       <div className="text-slate-700" />
+      <div className="bg-slate-800" />
       <div className="border-lime-500" />
       <div className="bg-emerald-900" />
       <div className="bg-amber-900 opacity-50" />

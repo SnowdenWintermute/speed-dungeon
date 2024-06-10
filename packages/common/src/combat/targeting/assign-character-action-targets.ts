@@ -2,7 +2,7 @@ import { CombatActionProperties } from "..";
 import { ERROR_MESSAGES } from "../../errors";
 import { SpeedDungeonGame } from "../../game";
 import getCharacterInGame from "../../game/get-character-in-game";
-import getPlayerParty from "../../game/get-player-party";
+import { getPlayerParty } from "../../game/get-player-party";
 import { CombatActionTarget } from "./combat-action-targets";
 import getActionTargetsBySavedPreferenceOrDefault from "./get-action-targets-by-saved-preference-or-default";
 import getFilteredPotentialTargetIds from "./get-filtered-potential-target-ids";

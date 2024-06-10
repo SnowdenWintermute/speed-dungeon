@@ -10,6 +10,7 @@ interface Props {
 export default function WeaponDamage({ equipmentProperties }: Props) {
   let damageOption: null | NumberRange = null;
   let damagetypes: null | HpChangeSource[] = null;
+
   switch (equipmentProperties.equipmentTypeProperties.type) {
     case EquipmentType.OneHandedMeleeWeapon:
     case EquipmentType.TwoHandedMeleeWeapon:

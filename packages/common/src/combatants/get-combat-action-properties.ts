@@ -1,10 +1,9 @@
 import { AdventuringParty } from "../adventuring_party";
 import getCombatantInParty from "../adventuring_party/get-combatant-in-party";
-import getItemInAdventuringParty from "../adventuring_party/get-item-in-party";
+import { getItemInAdventuringParty } from "../adventuring_party/get-item-in-party";
 import { CombatAction, CombatActionType } from "../combat/combat-actions";
 import { ERROR_MESSAGES } from "../errors";
 import { ItemPropertiesType } from "../items/item-properties";
-import { CombatantAbility } from "./abilities";
 import getAbilityAttributes from "./abilities/get-ability-attributes";
 import { CombatantProperties } from "./combatant-properties";
 import Inventory from "./inventory";
