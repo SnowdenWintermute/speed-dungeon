@@ -10,6 +10,7 @@ import { GameSetup } from "./lobby/game-setup";
 import AlertManager from "./components/alerts/AlertManager";
 import Game from "./game";
 import TailwindClassLoader from "./TailwindClassLoader";
+import GlobalKeyboardEventManager from "./GlobalKeyboardEventManager";
 // for immer to be able to use map and set
 enableMapSet();
 
@@ -31,6 +32,7 @@ export default function Home() {
       <TailwindClassLoader />
       <SocketManager />
       <AlertManager />
+      <GlobalKeyboardEventManager />
       {componentToRender}
     </>
   );

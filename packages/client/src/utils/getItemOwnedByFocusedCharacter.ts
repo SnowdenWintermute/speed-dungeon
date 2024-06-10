@@ -13,7 +13,7 @@ export default function getItemOwnedByFocusedCharacter(
     focusedCharacterResult.combatantProperties.inventory,
     itemId
   );
-  if (itemInInventoryResult instanceof Item) return itemInInventoryResult;
+  if (!(itemInInventoryResult instanceof Error)) return itemInInventoryResult;
 
   for (const item of Object.values(focusedCharacterResult.combatantProperties.equipment)) {
     if (item.entityProperties.id === itemId) return item;

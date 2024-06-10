@@ -10,7 +10,7 @@ export class ConsumableProperties {
     public consumableType: ConsumableType,
     usesRemaining: number
   ) {}
-  getActionProperties = getConsumableCombatActionProperties;
+  static getActionProperties = getConsumableCombatActionProperties;
 }
 
 export function formatConsumableType(consumableType: ConsumableType) {

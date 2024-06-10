@@ -3,6 +3,7 @@ import getCombatantInParty from "../adventuring_party/get-combatant-in-party";
 import { getItemInAdventuringParty } from "../adventuring_party/get-item-in-party";
 import { CombatAction, CombatActionType } from "../combat/combat-actions";
 import { ERROR_MESSAGES } from "../errors";
+import { ConsumableProperties } from "../items";
 import { ItemPropertiesType } from "../items/item-properties";
 import getAbilityAttributes from "./abilities/get-ability-attributes";
 import { CombatantProperties } from "./combatant-properties";
@@ -27,7 +28,7 @@ export function getCombatActionPropertiesIfOwned(
         combatAction.itemId
       );
       if (consumableProperties instanceof Error) return consumableProperties;
-      return consumableProperties.getActionProperties();
+      return ConsumableProperties.getActionProperties(consumableProperties);
   }
 }
 
@@ -56,13 +57,15 @@ export function getCombatActionProperties(
           case ItemPropertiesType.Equipment:
             return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
           case ItemPropertiesType.Consumable:
-            return itemResult.itemProperties.consumableProperties.getActionProperties();
+            return ConsumableProperties.getActionProperties(
+              itemResult.itemProperties.consumableProperties
+            );
         }
       }
 
       if (consumablePropertiesInInventoryResult instanceof Error)
         return consumablePropertiesInInventoryResult;
 
-      return consumablePropertiesInInventoryResult.getActionProperties();
+      return ConsumableProperties.getActionProperties(consumablePropertiesInInventoryResult);
   }
 }

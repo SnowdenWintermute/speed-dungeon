@@ -32,26 +32,24 @@ export default function FocusedAndComparedItemDetails({ focusedItem, flipDisplay
       key="considered"
       title={"Item Considering"}
       shouldShowModKeyTooltip={false}
-      item={focusedItem}
+      itemOption={focusedItem}
       extraStyles={""}
       marginSide={flipDisplayOrder ? "Left" : "Right"}
       isComparedItem={false}
     />
   );
 
-  let comparedItemDisplay = <></>;
-  if (comparedItemOption)
-    comparedItemDisplay = (
-      <ItemDetails
-        key="compared"
-        title={"Compared Item"}
-        shouldShowModKeyTooltip={shouldDisplayModTooltip(comparedSlotOption, focusedItem)}
-        item={comparedItemOption}
-        extraStyles={""}
-        marginSide={flipDisplayOrder ? "Right" : "Left"}
-        isComparedItem={true}
-      />
-    );
+  const comparedItemDisplay = (
+    <ItemDetails
+      key="compared"
+      title={"Compared Item"}
+      shouldShowModKeyTooltip={shouldDisplayModTooltip(comparedSlotOption, focusedItem)}
+      itemOption={comparedItemOption}
+      extraStyles={""}
+      marginSide={flipDisplayOrder ? "Right" : "Left"}
+      isComparedItem={true}
+    />
+  );
 
   const displays = [focusedItemDisplay, comparedItemDisplay];
   if (flipDisplayOrder) displays.reverse();

@@ -5,7 +5,6 @@ import {
   CombatantAbility,
   ERROR_MESSAGES,
   ItemPropertiesType,
-  PlayerCharacter,
   formatAbilityName,
   formatActionUsabilityContext,
   formatConsumableType,

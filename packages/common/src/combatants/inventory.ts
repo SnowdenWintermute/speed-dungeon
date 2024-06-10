@@ -16,15 +16,13 @@ export default class Inventory {
   }
 
   static getItem(inventory: Inventory, itemId: string) {
-    let toReturn: undefined | Item;
-    inventory.items.forEach((item) => {
+    for (const item of Object.values(inventory.items)) {
       if (item.entityProperties.id === itemId) {
-        toReturn = item;
-        return;
+        return item;
       }
-    });
-    if (toReturn) return toReturn;
-    else return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+    }
+
+    return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
   static getConsumableProperties(inventory: Inventory, itemId: string) {

@@ -95,7 +95,9 @@ export default function Game() {
                 {!viewingCharacterSheet && (
                   <div className="flex overflow-hidden">
                     <div className="max-h-[13.375rem] h-fit flex flex-grow justify-end">
-                      <div className="mr-2 w-[50rem]">{<ItemDetailsWithComparison />}</div>
+                      <div className="mr-2 w-[50rem]">
+                        {<ItemDetailsWithComparison flipDisplayOrder={true} />}
+                      </div>
                       {
                         // if !game_state.combatants_animating.len() > 0 && !focused_character_is_animating {
                         // <div className="max-w-[25rem] w-[25rem]" >
