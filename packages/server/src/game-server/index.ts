@@ -1,7 +1,6 @@
 import {
   ClientToServerEventTypes,
   ServerToClientEventTypes,
-  SocketNamespaces,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
@@ -22,6 +21,7 @@ import createPartyHandler from "./lobby-event-handlers/create-party-handler";
 import createCharacterHandler from "./lobby-event-handlers/create-character-handler";
 import deleteCharacterHandler from "./lobby-event-handlers/delete-character-handler";
 import toggleReadyToStartGameHandler from "./lobby-event-handlers/toggle-ready-to-start-game-handler";
+import getSocketCurrentGame from "./utils/get-socket-current-game";
 
 export class GameServer {
   games: HashMap<string, SpeedDungeonGame> = new HashMap();
@@ -46,4 +46,6 @@ export class GameServer {
   createCharacterHandler = createCharacterHandler;
   deleteCharacterHandler = deleteCharacterHandler;
   toggleReadyToStartGameHandler = toggleReadyToStartGameHandler;
+  // UTILS
+  getSocketCurrentGame = getSocketCurrentGame 
 }

@@ -8,8 +8,10 @@ import getIdsAndSelectedActionsOfCharactersTargetingCombatant from "./get-ids-an
 import getMonsterIdsInParty from "./get-monster-ids-in-party";
 import getCharacterIfOwned from "./get-character-if-owned";
 import removeCharacterFromParty from "./remove-character-from-party";
+import generateUnexploredRoomsQueue from "./generate-unexplored-rooms-queue";
 export * from "./player-character";
 export * from "./get-item-in-party";
+export * from "./dungeon-room";
 
 export type RoomsExploredTracker = { total: number; onCurrentFloor: number };
 
@@ -39,4 +41,5 @@ export class AdventuringParty {
     getIdsAndSelectedActionsOfCharactersTargetingCombatant;
   static getMonsterIds = getMonsterIdsInParty;
   static getCharacterIfOwned = getCharacterIfOwned;
+  generateUnexploredRoomsQueue = generateUnexploredRoomsQueue;
 }

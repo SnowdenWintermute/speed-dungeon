@@ -11,6 +11,7 @@ import AlertManager from "./components/alerts/AlertManager";
 import Game from "./game";
 import TailwindClassLoader from "./TailwindClassLoader";
 import GlobalKeyboardEventManager from "./GlobalKeyboardEventManager";
+import TooltipManager from "./TooltipManager";
 // for immer to be able to use map and set
 enableMapSet();
 
@@ -33,6 +34,7 @@ export default function Home() {
       <SocketManager />
       <AlertManager />
       <GlobalKeyboardEventManager />
+      <TooltipManager />
       {componentToRender}
     </>
   );

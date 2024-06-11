@@ -28,11 +28,16 @@ export const ERROR_MESSAGES = {
     PLAYER_NOT_FOUND: "The provided username does not belong to any player in this party",
     CHARACTER_NOT_FOUND: "No character was found in the party by the provided id",
     MISSING_CHARACTERS: "Somehow we have a party with no characters",
+    CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT:
+      "Can't explore while there are still monsters in the room",
   },
   PLAYER: {
     NO_CHARACTERS: "The provided player doesn't own any characters",
     CHARACTER_NOT_OWNED:
       "The provided character is not in the list of that player's owned characters",
+  },
+  USER: {
+    NO_CURRENT_GAME: "This user has no current game",
   },
   COMBATANT: {
     NOT_FOUND: "No combatant was found with the provided id",

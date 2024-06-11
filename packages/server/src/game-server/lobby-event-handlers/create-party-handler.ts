@@ -1,11 +1,20 @@
-import { ERROR_MESSAGES, ServerToClientEvent, SocketNamespaces } from "@speed-dungeon/common";
+import {
+  ClientToServerEventTypes,
+  ERROR_MESSAGES,
+  ServerToClientEvent,
+  ServerToClientEventTypes,
+  SocketNamespaces,
+} from "@speed-dungeon/common";
 import { GameServer } from "..";
 import { generateRandomPartyName } from "../../utils";
 import { AdventuringParty } from "@speed-dungeon/common";
 import errorHandler from "../error-handler";
 
 export default function createPartyHandler(this: GameServer, socketId: string, partyName: string) {
-  const [socket, socketMeta] = this.getConnection(socketId, SocketNamespaces.Main);
+  const [socket, socketMeta] = this.getConnection<
+    ClientToServerEventTypes,
+    ServerToClientEventTypes
+  >(socketId, SocketNamespaces.Main);
   if (!socketMeta.currentGameName)
     return errorHandler(
       socket,

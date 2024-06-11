@@ -39,6 +39,7 @@ export default function toggleReadyToStartGameHandler(this: GameServer, socketId
 
     if (allPlayersReadied) {
       // @TODO - toggle ready to explore for all
+      //
       game.timeStarted = Date.now();
       this.io
         .of(SocketNamespaces.Main)

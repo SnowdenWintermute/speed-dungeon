@@ -1,26 +1,19 @@
-import {
-  ClientToServerEventTypes,
-  ServerToClientEvent,
-  ServerToClientEventTypes,
-  SocketNamespaces,
-} from "@speed-dungeon/common";
+import { ServerToClientEvent, SocketNamespaces } from "@speed-dungeon/common";
 import { GameServer } from ".";
 import { Socket } from "socket.io";
 import { SocketConnectionMetadata } from "./socket-connection-metadata";
+import { EventsMap } from "socket.io/dist/typed-events";
 
-export default function getConnection(
+export default function getConnection<T extends EventsMap, U extends EventsMap>(
   this: GameServer,
   socketId: string,
   namespace: SocketNamespaces
-): [
-  undefined | Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
-  SocketConnectionMetadata,
-] {
+): [undefined | Socket<T, U>, SocketConnectionMetadata] {
   let socketMeta = this.connections.get(socketId);
   let socket = this.io.of(namespace).sockets.get(socketId);
   if (!socketMeta) {
     socket?.emit(ServerToClientEvent.ErrorMessage, "Socket not registered");
-    throw new Error("a client tried to create a game but their socket wasn't registered");
+    throw new Error("Socket not registered");
   } else {
     return [socket, socketMeta];
   }

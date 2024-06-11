@@ -1,6 +1,6 @@
 import { MutateState } from "@/stores/mutate-state";
 import { UIState, useUIStore } from "@/stores/ui-store";
-import React, { ReactNode, useRef } from "react";
+import React, { ReactNode, useEffect, useRef } from "react";
 
 interface Props {
   tooltipText: string;
@@ -19,7 +19,7 @@ export default function HoverableTooltipWrapper(props: Props) {
     if (!elementOption) return;
     const { x, y, width } = elementOption.getBoundingClientRect();
     mutateUIState((store) => {
-      store.tooltipPosition = [x + width / 2.0, y];
+      store.tooltipPosition = { x: x + width / 2.0, y: y - 4 };
       store.tooltipText = text;
     });
   }
@@ -30,6 +30,10 @@ export default function HoverableTooltipWrapper(props: Props) {
       store.tooltipText = null;
     });
   }
+
+  useEffect(() => {
+    return () => hideTooltip(mutateUIState);
+  }, []);
 
   function handleMouseEnter(_e: React.MouseEvent) {
     showTooltip(mutateUIState, elementRef.current, props.tooltipText);
@@ -49,7 +53,7 @@ export default function HoverableTooltipWrapper(props: Props) {
 
   return (
     <div
-      className="h-full w-full cursor-help"
+      className="h-fit w-fit pointer-events-auto cursor-help"
       ref={elementRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

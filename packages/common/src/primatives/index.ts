@@ -8,3 +8,7 @@ export enum NextOrPrevious {
   Next,
   Previous,
 }
+export interface Point {
+  x: number;
+  y: number;
+}
