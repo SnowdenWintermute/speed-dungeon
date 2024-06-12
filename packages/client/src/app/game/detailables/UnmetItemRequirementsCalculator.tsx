@@ -20,7 +20,7 @@ export default function UnmetItemRequirementsCalculator({ attributeRequirements,
     const unmetAttributeRequirements: CombatAttribute[] = [];
     if (Object.keys(attributeRequirements).length !== 0) {
       for (const [attributeKey, value] of Object.entries(attributeRequirements)) {
-        const attribute = attributeKey as unknown as CombatAttribute;
+        const attribute = parseInt(attributeKey) as CombatAttribute;
         const characterAttribute = totalAttributes[attribute] || 0;
         if (characterAttribute >= value) continue;
         else unmetAttributeRequirements.push(attribute);

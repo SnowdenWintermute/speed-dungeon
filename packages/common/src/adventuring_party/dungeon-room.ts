@@ -1,5 +1,6 @@
 import { Item } from "../items";
 import { Monster } from "../monsters";
+import generateDungeonRoom from "./generate-dungeon-room";
 
 export class DungeonRoom {
   items: Item[] = [];
@@ -8,6 +9,8 @@ export class DungeonRoom {
     public roomType: DungeonRoomType,
     public monsters: { [entityId: string]: Monster }
   ) {}
+
+  static generate = generateDungeonRoom;
 }
 export enum DungeonRoomType {
   MonsterLair,

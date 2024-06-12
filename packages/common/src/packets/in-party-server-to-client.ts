@@ -1,8 +1,9 @@
-import { DungeonRoomType } from "../adventuring_party/dungeon-room";
+import { DungeonRoom, DungeonRoomType } from "../adventuring_party/dungeon-room";
 
 export enum InPartyServerToClientEvent {
   PlayerToggledReadyToExplore = "0",
   DungeonRoomTypesOnCurrentFloor = "1",
+  DungeonRoomUpdate = "2",
 }
 
 export interface InPartyServerToClientEventTypes {
@@ -10,4 +11,5 @@ export interface InPartyServerToClientEventTypes {
   [InPartyServerToClientEvent.DungeonRoomTypesOnCurrentFloor]: (
     roomTypes: (DungeonRoomType | null)[]
   ) => void;
+  [InPartyServerToClientEvent.DungeonRoomUpdate]: (dungeonRoom: DungeonRoom) => void;
 }

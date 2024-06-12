@@ -1,6 +1,4 @@
 export class CombatantTurnTracker {
-  constructor(
-    public entityId: string,
-    public movement: number
-  ) {}
+  movement: number = 0;
+  constructor(public entityId: string) {}
 }

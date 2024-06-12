@@ -16,7 +16,7 @@ export default function ItemRequirements({ attributeRequirements, unmetRequireme
 
   let i = 0;
   for (const [attributeKey, requirementValue] of Object.entries(attributeRequirements)) {
-    const attribute = attributeKey as unknown as CombatAttribute;
+    const attribute = parseInt(attributeKey) as CombatAttribute;
     if (i === 0) displays.push(<div>Requirements: </div>);
 
     const requirementIsUnmet = unmetRequirements !== null && unmetRequirements.includes(attribute);

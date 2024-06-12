@@ -128,7 +128,7 @@ function getLowestCoreAttributeValue(equipmentProperties: EquipmentProperties): 
   let coreAttributeValues: CombatantAttributeRecord = {};
 
   for (const [attributeKey, value] of Object.entries(equipmentProperties.attributes)) {
-    const attribute = attributeKey as unknown as CombatAttribute;
+    const attribute = parseInt(attributeKey) as CombatAttribute;
     if (CORE_ATTRIBUTES.includes(attribute)) {
       coreAttributeValues[attribute] = value;
     }

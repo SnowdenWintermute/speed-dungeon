@@ -3,9 +3,12 @@ import { CombatAttribute, CombatantProperties } from "../combatants";
 import { addAttributesToAccumulator } from "../combatants/get-combatant-total-attributes";
 import { IdGenerator } from "../game/id_generator";
 import { randomNormal } from "../utils";
+import getMonsterAbilities from "./get-monster-abilities";
 import getMonsterCombatantSpecies from "./get-monster-combatant-species";
+import getMonsterEquipment from "./get-monster-equipment";
 import getMonsterPerLevelAttributes from "./get-monster-per-level-attributes";
 import getMonsterStartingAttributes from "./get-monster-starting-attributes";
+import getMonsterTraits from "./get-monster-traits";
 import getSpawnableMonsterTypesByFloor from "./get-spawnable-monster-types-by-floor";
 import { formatMonsterType, getMonsterCombatantClass } from "./monster-types";
 
@@ -31,7 +34,7 @@ export default function generateMonster(idGenerator: IdGenerator, level: number)
   addAttributesToAccumulator(startingAttributes, monster.combatantProperties.inherentAttributes);
   const attributesPerLevel = getMonsterPerLevelAttributes(monsterType);
   for (const [attributeKey, value] of Object.entries(attributesPerLevel)) {
-    const attribute = attributeKey as unknown as CombatAttribute;
+    const attribute = parseInt(attributeKey) as CombatAttribute;
     const levelAdjustedValue = value * (monster.combatantProperties.level - 1);
     if (!monster.combatantProperties.inherentAttributes[attribute])
       monster.combatantProperties.inherentAttributes[attribute] = levelAdjustedValue;
@@ -43,9 +46,13 @@ export default function generateMonster(idGenerator: IdGenerator, level: number)
   const modifiedHp = baseHp * (randomNumberNormalDistribution + 0.5);
   monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] = modifiedHp;
   // traits
+  monster.combatantProperties.traits = getMonsterTraits(monsterType);
   // set hp and mp to max
+  CombatantProperties.setHpAndMpToMax(monster.combatantProperties);
   // equip weapons
+  monster.combatantProperties.equipment = getMonsterEquipment(monsterType, idGenerator);
   // assign abilities
+  monster.combatantProperties.abilities = getMonsterAbilities(monsterType);
 
   return monster;
 }

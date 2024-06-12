@@ -19,7 +19,7 @@ export class EquipmentProperties {
   constructor(
     public baseItem: EquipmentBaseItem,
     public equipmentTypeProperties: EquipmentTypeProperties,
-    public durability: MaxAndCurrent
+    public durability: null | MaxAndCurrent
   ) {}
 
   static getBaseArmorClass = getBaseArmorClass;

@@ -1,10 +1,14 @@
 import {
+  AdventuringParty,
+  BattleGroup,
+  BattleGroupType,
   ERROR_MESSAGES,
   InPartyClientToServerEventTypes,
   InPartyServerToClientEvent,
   InPartyServerToClientEventTypes,
   SocketNamespaces,
   getPlayerParty,
+  initateBattle,
   removeFromArray,
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
@@ -22,6 +26,7 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
 
   const gameResult = this.getSocketCurrentGame(socketMeta);
   if (gameResult instanceof Error) return errorHandler(socket, gameResult.message);
+  const game = gameResult;
   const partyResult = getPlayerParty(gameResult, socketMeta.username);
   if (partyResult instanceof Error) return errorHandler(socket, partyResult.message);
   const party = partyResult;
@@ -70,6 +75,29 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
   }
   const roomTypeToGenerate: DungeonRoomType = roomTypeToGenerateOption;
 
-  const newRoom = DungeonRoom.generate();
-  // bookmark
+  const newRoom = DungeonRoom.generate(game.idGenerator, party.currentFloor, roomTypeToGenerate);
+  party.currentRoom = newRoom;
+  party.roomsExplored.onCurrentFloor += 1;
+  party.roomsExplored.total += 1;
+
+  socket.emit(InPartyServerToClientEvent.DungeonRoomUpdate, newRoom);
+
+  if (Object.keys(newRoom.monsters).length > 0) {
+    const battleGroupA = new BattleGroup(
+      party.name,
+      party.name,
+      party.characterPositions,
+      BattleGroupType.PlayerControlled
+    );
+    const battleGroupB = new BattleGroup(
+      `${party.name}-monsters`,
+      party.name,
+      AdventuringParty.getMonsterIds(party),
+      BattleGroupType.ComputerControlled
+    );
+
+    const battleIdResult = initateBattle(game, battleGroupA, battleGroupB);
+    if (battleIdResult instanceof Error) return battleIdResult;
+    // tick until next active turn
+  }
 }
