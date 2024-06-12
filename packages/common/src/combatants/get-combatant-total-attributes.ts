@@ -116,7 +116,7 @@ function calculateAndAddDerivedAttribute(
   totalAttributes[derivedAttribute] = newTotalDerrived;
 }
 
-function addAttributesToAccumulator(
+export function addAttributesToAccumulator(
   toAdd: CombatantAttributeRecord,
   acc: CombatantAttributeRecord
 ) {
