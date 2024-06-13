@@ -3,6 +3,7 @@ import { CombatActionTarget } from "../combat/targeting/combat-action-targets";
 import { Item } from "../items";
 import { EquipmentSlot } from "../items/equipment/slots";
 import { CombatantAbility, CombatantAbilityName } from "./abilities";
+import { getAbilityCostIfOwned } from "./abilities/ability-mana-cost-getters";
 import { CombatAttribute } from "./combat-attributes";
 import { CombatantClass } from "./combatant-classes";
 import { CombatantSpecies } from "./combatant-species";
@@ -46,6 +47,7 @@ export class CombatantProperties {
   static setHpAndMpToMax = setHpAndMpToMax;
   static getAbilityNamesFilteredByUseableContext = getAbilityNamesFilteredByUseableContext;
   static getSlotItemIsEquippedTo = getSlotItemIsEquippedTo;
+  static getAbilityCostIfOwned = getAbilityCostIfOwned;
 }
 
 export type ExperiencePoints = {

@@ -7,6 +7,7 @@ import {
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io";
+import takeAiControlledTurnsIfAppropriate from "./take-ai-controlled-turns-if-appropriate";
 
 export default function takeAiTurnsAtBattleStart(
   game: SpeedDungeonGame,
