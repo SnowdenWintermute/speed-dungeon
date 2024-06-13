@@ -14,6 +14,8 @@ import {
 import { GameServer } from "..";
 import errorHandler from "../error-handler";
 import { DungeonRoom, DungeonRoomType } from "@speed-dungeon/common";
+import tickCombatUntilNextCombatantIsActive from "@speed-dungeon/common/src/combat/turn-order/tick-combat-until-next-combatant-is-active";
+import takeAiTurnsAtBattleStart from "./combat-action-results-processing/take-ai-turns-at-battle-start";
 
 export default function toggleReadyToExploreHandler(this: GameServer, socketId: string) {
   const [socket, socketMeta] = this.getConnection<
@@ -98,6 +100,15 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
 
     const battleIdResult = initateBattle(game, battleGroupA, battleGroupB);
     if (battleIdResult instanceof Error) return battleIdResult;
-    // tick until next active turn
+    party.battleId = battleIdResult;
+    tickCombatUntilNextCombatantIsActive(game, battleIdResult);
+
+    const battleOption = game.battles[party.battleId];
+    if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
+    const battle = battleOption;
+    socket.emit(InPartyServerToClientEvent.BattleFullUpdate, battle);
+
+    // take ai turns at battle start
+    takeAiTurnsAtBattleStart(game, socket);
   }
 }
