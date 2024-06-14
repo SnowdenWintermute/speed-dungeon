@@ -57,6 +57,9 @@ export const ERROR_MESSAGES = {
     ONLY_ONE_TARGETING_SCHEME_AVAILABLE:
       "There is only one targeting scheme available for that action",
     NO_TARGETING_SCHEMES: "That ability has no targeting schemes",
+    INVALID_TARGETS_SELECTED: "The selected action can not be used on the provided targets",
+    MISSING_HP_CHANGE_PROPERTIES:
+      "The provided combat action doesn't specify any Hp change properties",
   },
   ITEM: {
     NOT_FOUND: "No item was found with the provided ID",

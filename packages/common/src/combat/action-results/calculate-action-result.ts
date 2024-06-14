@@ -1,10 +1,13 @@
 import cloneDeep from "lodash.clonedeep";
-import { ActionResultCalculationArguments, ActionResultCalculator } from ".";
-import { SpeedDungeonGame } from "../../../game";
-import { ActionResult } from "../action-result";
-import { getCombatActionPropertiesIfOwned } from "../../../combatants";
+import { SpeedDungeonGame } from "../../game";
+import {
+  ActionResultCalculationArguments,
+  ActionResultCalculator,
+} from "./hp-change-result-calculation";
+import { ActionResult } from "./action-result";
+import { CombatantProperties } from "../../combatants";
 
-export default function calculateActionHitPointAndManaChanges(
+export default function calculateActionResult(
   game: SpeedDungeonGame,
   args: ActionResultCalculationArguments
 ) {
@@ -14,12 +17,15 @@ export default function calculateActionHitPointAndManaChanges(
   if (combatantResult instanceof Error) return combatantResult;
   const { combatantProperties } = combatantResult;
 
-  const actionPropertiesResult = getCombatActionPropertiesIfOwned(
+  const actionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
     combatantProperties,
     combatAction
   );
   if (actionPropertiesResult instanceof Error) return actionPropertiesResult;
   actionResult.endsTurn = actionPropertiesResult.requiresCombatTurn;
+
+  const targetIdsResult = ActionResultCalculator.getCombatActionTargetIds(game, args);
+  if (targetIdsResult instanceof Error) return targetIdsResult;
 
   const manaCostOptionResult = ActionResultCalculator.calculateActionManaCost(game, args);
   if (manaCostOptionResult instanceof Error) return manaCostOptionResult;

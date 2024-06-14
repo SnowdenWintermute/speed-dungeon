@@ -1,8 +1,8 @@
-import { ActionResultCalculationArguments } from ".";
-import { getAbilityCostIfOwned } from "../../../combatants/abilities/ability-mana-cost-getters";
-import { ERROR_MESSAGES } from "../../../errors";
-import { SpeedDungeonGame } from "../../../game";
-import { CombatActionType } from "../../combat-actions";
+import { getAbilityCostIfOwned } from "../../combatants/abilities/ability-mana-cost-getters";
+import { ERROR_MESSAGES } from "../../errors";
+import { SpeedDungeonGame } from "../../game";
+import { CombatActionType } from "../combat-actions";
+import { ActionResultCalculationArguments } from "./action-result-calculator";
 
 export default function calculateActionManaCost(
   game: SpeedDungeonGame,
