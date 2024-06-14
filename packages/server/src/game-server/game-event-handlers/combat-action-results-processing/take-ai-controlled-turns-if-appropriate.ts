@@ -1,6 +1,5 @@
 import { Battle, CombatTurnResult, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
-import getAllyAndEnemyBattleGroups from "@speed-dungeon/common/src/battle/get-ally-and-enemy-battle-groups";
-import AISelectActionAndTarget from "@speed-dungeon/common/src/combat/ai-behavior/ai-select_action_and_target";
+import { AISelectActionAndTarget } from "@speed-dungeon/common";
 
 export default function takeAiControlledTurnsIfAppropriate(game: SpeedDungeonGame, battle: Battle) {
   const turnResults: CombatTurnResult[] = [];

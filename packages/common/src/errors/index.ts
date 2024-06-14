@@ -50,6 +50,7 @@ export const ERROR_MESSAGES = {
   ABILITIES: {
     NOT_OWNED: "That ability is not owned by that combatant",
     INVALID_TYPE: "Invalid ability type",
+    INSUFFICIENT_MANA: "Not enough mana",
   },
   COMBAT_ACTIONS: {
     NO_VALID_TARGETS: "No valid targets were found for the selected action",

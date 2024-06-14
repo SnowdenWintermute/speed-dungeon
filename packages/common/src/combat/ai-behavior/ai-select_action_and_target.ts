@@ -10,7 +10,7 @@ export interface AbilityAndTarget {
   target: CombatActionTarget;
 }
 
-export default function AISelectActionAndTarget(
+export function AISelectActionAndTarget(
   game: SpeedDungeonGame,
   userId: string,
   _allyBattleGroup: BattleGroup,
