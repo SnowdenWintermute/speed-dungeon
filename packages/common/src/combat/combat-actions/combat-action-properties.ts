@@ -39,8 +39,8 @@ export class CombatActionHpChangeProperties {
   finalDamagePercentMultiplier: number = 100;
   accuracyPercentModifier: number = 100;
   addWeaponDamageFrom: null | WeaponSlot[] = null;
-  addWeaponElementFrom: null | WeaponSlot[] = null;
-  addWeaponDamageTypeFrom: null | WeaponSlot[] = null;
+  addWeaponElementFrom: null | WeaponSlot = null;
+  addWeaponDamageTypeFrom: null | WeaponSlot = null;
   additiveAttributeAndPercentScalingFactor: null | [CombatAttribute, number] = null;
   critChanceAttribute: null | CombatAttribute = null;
   critMultiplierAttribute: null | CombatAttribute = null;

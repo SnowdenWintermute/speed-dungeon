@@ -1,4 +1,6 @@
 import { CombatAction } from "../combat/combat-actions";
+import { PhysicalDamageType } from "../combat/hp-change-source-types";
+import { MagicalElement } from "../combat/magical-elements";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets";
 import { Item } from "../items";
 import { EquipmentSlot } from "../items/equipment/slots";
@@ -12,6 +14,8 @@ import { CombatantTrait } from "./combatant-traits";
 import getAbilityNamesFilteredByUseableContext from "./get-ability-names-filtered-by-usable-context";
 import { getCombatActionPropertiesIfOwned } from "./get-combat-action-properties";
 import getCombatantTotalAttributes from "./get-combatant-total-attributes";
+import getCombatantTotalElementalAffinities from "./get-combatant-total-elemental-affinities";
+import getCombatantTotalPhysicalDamageTypeAffinities from "./get-combatant-total-physical-damage-type-affinities";
 import getEquipmentInSlot from "./get-equipment-in-slot";
 import getEquippedWeapon from "./get-equipped-weapon";
 import getSlotItemIsEquippedTo from "./get-slot-item-is-equipped-to";
@@ -20,6 +24,8 @@ import setHpAndMpToMax from "./set-hp-and-mp-to-max";
 
 export class CombatantProperties {
   inherentAttributes: CombatantAttributeRecord = {};
+  inherentElementalAffinities: Partial<Record<MagicalElement, number>> = {};
+  inherentPhysicalDamageTypeAffinities: Partial<Record<PhysicalDamageType, number>> = {};
   level: number = 1;
   unspentAttributePoints: number = 0;
   unspentAbilityPoints: number = 0;
@@ -43,6 +49,9 @@ export class CombatantProperties {
 
   static getCombatActionPropertiesIfOwned = getCombatActionPropertiesIfOwned;
   static getTotalAttributes = getCombatantTotalAttributes;
+  static getCombatantTotalElementalAffinities = getCombatantTotalElementalAffinities;
+  static getCombatantTotalPhysicalDamageTypeAffinities =
+    getCombatantTotalPhysicalDamageTypeAffinities;
   static getEquipmentInSlot = getEquipmentInSlot;
   static getEquippedWeapon = getEquippedWeapon;
   static setHpAndMpToMax = setHpAndMpToMax;

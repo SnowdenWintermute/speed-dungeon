@@ -3,6 +3,7 @@ import { CombatantProperties } from "../../../combatants";
 import { SpeedDungeonGame } from "../../../game";
 import { CombatActionHpChangeProperties } from "../../combat-actions";
 import { COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER } from "../../../app_consts";
+import { EquipmentProperties, EquipmentSlot, WeaponSlot } from "../../../items";
 
 export default function calculateActionBaseHitPointChangeRange(
   game: SpeedDungeonGame,
@@ -31,8 +32,23 @@ export default function calculateActionBaseHitPointChangeRange(
     range.max += combatantLevelAdjustedValue;
   }
 
+  // ADD WEAPON DAMAGE
   if (hpChangeProperties.addWeaponDamageFrom !== null) {
-    // get weapon damage additive range
+    for (const weaponSlot of hpChangeProperties.addWeaponDamageFrom) {
+      let equipmentSlot =
+        weaponSlot === WeaponSlot.OffHand ? EquipmentSlot.OffHand : EquipmentSlot.MainHand;
+      const weaponEquipmentProperties = CombatantProperties.getEquipmentInSlot(
+        userCombatantProperties,
+        equipmentSlot
+      );
+      if (weaponEquipmentProperties) {
+        const weaponDamageResult =
+          EquipmentProperties.getModifiedWeaponDamageRange(weaponEquipmentProperties);
+        if (weaponDamageResult instanceof Error) return weaponDamageResult;
+        range.min += weaponDamageResult.min;
+        range.max += weaponDamageResult.max;
+      }
+    }
   }
 
   return range;

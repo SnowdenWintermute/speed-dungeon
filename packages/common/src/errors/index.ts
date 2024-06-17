@@ -60,6 +60,7 @@ export const ERROR_MESSAGES = {
     INVALID_TARGETS_SELECTED: "The selected action can not be used on the provided targets",
     MISSING_HP_CHANGE_PROPERTIES:
       "The provided combat action doesn't specify any Hp change properties",
+    NO_TARGET_PROVIDED: "Combat actions must have at least one target",
   },
   ITEM: {
     NOT_FOUND: "No item was found with the provided ID",

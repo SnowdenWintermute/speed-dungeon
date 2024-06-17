@@ -1,11 +1,11 @@
 import cloneDeep from "lodash.clonedeep";
 import { SpeedDungeonGame } from "../../game";
+import { ActionResult } from "./action-result";
+import { CombatantProperties } from "../../combatants";
 import {
   ActionResultCalculationArguments,
   ActionResultCalculator,
-} from "./hp-change-result-calculation";
-import { ActionResult } from "./action-result";
-import { CombatantProperties } from "../../combatants";
+} from "./action-result-calculator";
 
 export default function calculateActionResult(
   game: SpeedDungeonGame,
