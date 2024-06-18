@@ -6,6 +6,7 @@ import {
   ActionResultCalculationArguments,
   ActionResultCalculator,
 } from "./action-result-calculator";
+import calculateActionHitPointChangesCritsAndEvasions from "./hp-change-result-calculation";
 
 export default function calculateActionResult(
   game: SpeedDungeonGame,
@@ -22,10 +23,12 @@ export default function calculateActionResult(
     combatAction
   );
   if (actionPropertiesResult instanceof Error) return actionPropertiesResult;
-  actionResult.endsTurn = actionPropertiesResult.requiresCombatTurn;
+  const combatActionProperties = actionPropertiesResult;
+  actionResult.endsTurn = combatActionProperties.requiresCombatTurn;
 
   const targetIdsResult = ActionResultCalculator.getCombatActionTargetIds(game, args);
   if (targetIdsResult instanceof Error) return targetIdsResult;
+  const targetIds = targetIdsResult;
 
   const manaCostOptionResult = ActionResultCalculator.calculateActionManaCost(game, args);
   if (manaCostOptionResult instanceof Error) return manaCostOptionResult;
@@ -34,5 +37,18 @@ export default function calculateActionResult(
     actionResult.manaCostsPaidByEntityId[userId] = manaCostOptionResult;
   }
 
-  // mutate action result with hp changes
+  const hitPointChangesCritsAndEvasionsResult = calculateActionHitPointChangesCritsAndEvasions(
+    game,
+    args,
+    targetIds,
+    combatActionProperties
+  );
+  if (hitPointChangesCritsAndEvasionsResult instanceof Error)
+    return hitPointChangesCritsAndEvasionsResult;
+  const { hitPointChanges, crits, evasions } = hitPointChangesCritsAndEvasionsResult;
+  actionResult.hitPointChangesByEntityId = hitPointChanges;
+  actionResult.critsByEntityId = crits;
+  actionResult.missesByEntityId = evasions;
+
+  return actionResult;
 }

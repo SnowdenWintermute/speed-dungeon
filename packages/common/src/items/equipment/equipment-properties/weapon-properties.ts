@@ -12,5 +12,7 @@ export interface WeaponProperties {
 }
 
 export function equipmentIsTwoHandedWeapon(equipmentType: EquipmentType) {
-  equipmentType === (EquipmentType.TwoHandedMeleeWeapon || EquipmentType.TwoHandedRangedWeapon);
+  return (
+    equipmentType === (EquipmentType.TwoHandedMeleeWeapon || EquipmentType.TwoHandedRangedWeapon)
+  );
 }

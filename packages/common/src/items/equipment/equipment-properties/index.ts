@@ -24,6 +24,7 @@ export class EquipmentProperties {
 
   static getBaseArmorClass = getBaseArmorClass;
   static getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
+  static isTwoHanded = 
 }
 
 export type EquipmentTypeProperties =

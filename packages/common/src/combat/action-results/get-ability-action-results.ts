@@ -2,14 +2,18 @@ import { Battle } from "../../battle";
 import { CombatantAbility, CombatantAbilityName, CombatantProperties } from "../../combatants";
 import { ERROR_MESSAGES } from "../../errors";
 import { SpeedDungeonGame } from "../../game";
+import { CombatActionType } from "../combat-actions";
 import { CombatActionTarget } from "../targeting/combat-action-targets";
+import { ActionResultCalculationArguments } from "./action-result-calculator";
+import calculateActionResult from "./calculate-action-result";
 
 export default function getAbilityActionResults(
   game: SpeedDungeonGame,
   userId: string,
   abilityName: CombatantAbilityName,
   abilityTarget: CombatActionTarget,
-  battleOption: null | Battle
+  battleOption: null | Battle,
+  allyIds: string[]
 ) {
   const userCombatantResult = SpeedDungeonGame.getCombatantById(game, userId);
   if (userCombatantResult instanceof Error) return userCombatantResult;
@@ -17,6 +21,14 @@ export default function getAbilityActionResults(
   const abilityResult = CombatantProperties.getAbilityIfOwned(userCombatantProperties, abilityName);
   if (abilityResult instanceof Error) return abilityResult;
   const abilityAttributes = CombatantAbility.getAttributes(abilityName);
+
+  const args: ActionResultCalculationArguments = {
+    combatAction: { type: CombatActionType.AbilityUsed, abilityName },
+    userId,
+    targets: abilityTarget,
+    battleOption,
+    allyIds,
+  };
 
   switch (abilityName) {
     case CombatantAbilityName.AttackMeleeMainhand:
@@ -28,6 +40,6 @@ export default function getAbilityActionResults(
     case CombatantAbilityName.Fire:
     case CombatantAbilityName.Ice:
     case CombatantAbilityName.Healing:
-    // return calculateActionHpAndMpChanges
+      return calculateActionResult(game, args);
   }
 }

@@ -1,6 +1,7 @@
 export type CustomErrorDetails = { message: string; field?: string };
 
 export const ERROR_MESSAGES = {
+  TODO: "Not yet implemented",
   SERVER_GENERIC: "Internal server error",
   GAME_DOESNT_EXIST: "No game by that name exists",
   CLIENT: {
