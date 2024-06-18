@@ -15,21 +15,26 @@ import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-targ
 import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app_consts";
 import { HpChangeSourceCategoryType } from "../../hp-change-source-types";
 import getIdsOfEvadingEntities from "./get-ids-of-evading-entities";
+import calculatePhysicalDamageHpChangesAndCrits from "./calculate-physical-damage-hp-changes-and-crits";
 
-export default function calculateActionHitPointChangesAndEvasions(
+export default function calculateActionHitPointChangesCritsAndEvasions(
   game: SpeedDungeonGame,
   args: ActionResultCalculationArguments,
   targetIds: string[],
   actionProperties: CombatActionProperties
-): Error | { hitPointChanges: { [entityId: string]: number }; evasions: string[] } {
+):
+  | Error
+  | { hitPointChanges: { [entityId: string]: number }; evasions: string[]; crits: string[] } {
   const firstTargetIdOption = targetIds[0];
   if (firstTargetIdOption === undefined)
     return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
   const firstTargetId = firstTargetIdOption;
-  const hitPointChanges: { [entityId: string]: number } = {};
+  let hitPointChanges: { [entityId: string]: number } = {};
   let evasions: string[] = [];
+  let crits: string[] = [];
+
   const hpChangeProperties = cloneDeep(actionProperties.hpChangeProperties);
-  if (hpChangeProperties === null) return { hitPointChanges, evasions };
+  if (hpChangeProperties === null) return { hitPointChanges, evasions, crits };
 
   const { userId, combatAction } = args;
   const combatantResult = SpeedDungeonGame.getCombatantById(game, userId);
@@ -102,11 +107,22 @@ export default function calculateActionHitPointChangesAndEvasions(
 
   switch (hpChangeProperties.sourceProperties.category.type) {
     case HpChangeSourceCategoryType.PhysicalDamage:
-    // calculatePhysicalDamageHpChanges
+      const result = calculatePhysicalDamageHpChangesAndCrits(
+        game,
+        hpChangeProperties.sourceProperties.category.meleeOrRanged,
+        userCombatantProperties,
+        idsOfNonEvadingTargets,
+        incomingHpChangePerTarget,
+        hpChangeProperties
+      );
+      if (result instanceof Error) return result;
+      crits = result.entityIdsCrit;
+      hitPointChanges = result.valueChangesByEntityId;
+      break;
     case HpChangeSourceCategoryType.MagicalDamage:
     case HpChangeSourceCategoryType.Healing:
     case HpChangeSourceCategoryType.Direct:
   }
 
-  return { hitPointChanges, evasions };
+  return { hitPointChanges, crits, evasions };
 }
