@@ -28,6 +28,17 @@ export default function takeAiControlledTurnsIfAppropriate(game: SpeedDungeonGam
     );
     if (abilityAndTargetResult instanceof Error) return abilityAndTargetResult;
     const { abilityName, target } = abilityAndTargetResult;
-    //
+
+    const actionResultsResult = SpeedDungeonGame.getAbilityActionResults(
+      game,
+      entityProperties.id,
+      abilityName,
+      target,
+      battle,
+      allyIds
+    );
+    if (actionResultsResult instanceof Error) return actionResultsResult;
+    const actionResults = actionResultsResult;
+    //apply results
   }
 }

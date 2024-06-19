@@ -46,9 +46,9 @@ export default function calculateActionResult(
   if (hitPointChangesCritsAndEvasionsResult instanceof Error)
     return hitPointChangesCritsAndEvasionsResult;
   const { hitPointChanges, crits, evasions } = hitPointChangesCritsAndEvasionsResult;
-  actionResult.hitPointChangesByEntityId = hitPointChanges;
-  actionResult.critsByEntityId = crits;
-  actionResult.missesByEntityId = evasions;
+  if (Object.keys(hitPointChanges).length) actionResult.hitPointChangesByEntityId = hitPointChanges;
+  if (Object.keys(crits).length) actionResult.critsByEntityId = crits;
+  if (Object.keys(evasions).length) actionResult.missesByEntityId = evasions;
 
   return actionResult;
 }

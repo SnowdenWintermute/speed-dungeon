@@ -16,6 +16,7 @@ import removePlayerFromGame from "./remove-player-from-game";
 import getCharacterInGame from "./get-character-in-game";
 import getCombatantInGameById from "./get-combatant-in-game-by-id";
 import getPartyOfCombatant from "./get-party-of-combatant";
+import getAbilityActionResults from "../combat/action-results/get-ability-action-results";
 
 export class SpeedDungeonGame {
   [immerable] = true;
@@ -39,4 +40,5 @@ export class SpeedDungeonGame {
   static cycleCharacterTargets = cycleCharacterTargets;
   static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
   static getPartyOfCombatant = getPartyOfCombatant;
+  static getAbilityActionResults = getAbilityActionResults;
 }

@@ -1,10 +1,14 @@
 import { CombatantProperties } from "../../../combatants";
 import { SpeedDungeonGame } from "../../../game";
 import { EquipmentProperties, EquipmentSlot, EquipmentType } from "../../../items";
+import { CombatAction, CombatActionType } from "../../combat-actions";
 import { ActionResult } from "../action-result";
 import { ActionResultCalculationArguments } from "../action-result-calculator";
+import calculateActionResult from "../calculate-action-result";
+import allTargetsWereKilled from "./all-targets-were-killed";
+import getAttackAbilityName from "./get-attack-ability-name";
 
-export default function attackResultCalculator(
+export default function calculateAttackActionResult(
   game: SpeedDungeonGame,
   args: ActionResultCalculationArguments
 ) {
@@ -12,7 +16,6 @@ export default function attackResultCalculator(
   const combatantResult = SpeedDungeonGame.getCombatantById(game, userId);
   if (combatantResult instanceof Error) return combatantResult;
   const { combatantProperties: userCombatantProperties } = combatantResult;
-  const combatantLevel = userCombatantProperties.level;
 
   const actionResults: ActionResult[] = [];
 
@@ -20,14 +23,8 @@ export default function attackResultCalculator(
     CombatantProperties.getEquipmentInSlot(userCombatantProperties, EquipmentSlot.MainHand) || null;
   let ohEquipmentOption =
     CombatantProperties.getEquipmentInSlot(userCombatantProperties, EquipmentSlot.MainHand) || null;
-  // shields can't be used to attack
-  let mhWeaponOption = mhEquipmentOption;
-  if (mhEquipmentOption && mhEquipmentOption.equipmentTypeProperties.type === EquipmentType.Shield)
-    mhWeaponOption = null;
-  let ohWeaponOption = mhEquipmentOption;
-  if (ohEquipmentOption && ohEquipmentOption.equipmentTypeProperties.type === EquipmentType.Shield)
-    ohWeaponOption = null;
 
+  // shields can't be used to attack, if not holding a shield they can attack with offhand unarmed strike
   let mhAttackEndsTurn = false;
   if (ohEquipmentOption && ohEquipmentOption.equipmentTypeProperties.type === EquipmentType.Shield)
     mhAttackEndsTurn = true;
@@ -37,5 +34,55 @@ export default function attackResultCalculator(
   )
     mhAttackEndsTurn = true;
 
-  //
+  const mhAttackAbilityNameResult = getAttackAbilityName(
+    mhEquipmentOption?.equipmentTypeProperties.type ?? null,
+    false
+  );
+  if (mhAttackAbilityNameResult instanceof Error) return mhAttackAbilityNameResult;
+  const mhAttackAction: CombatAction = {
+    type: CombatActionType.AbilityUsed,
+    abilityName: mhAttackAbilityNameResult,
+  };
+
+  const mhActionResultArgs: ActionResultCalculationArguments = {
+    ...args,
+    combatAction: mhAttackAction,
+  };
+
+  const mhAttackResultResult = calculateActionResult(game, mhActionResultArgs);
+  if (mhAttackResultResult instanceof Error) return mhAttackResultResult;
+  const mhAttackResult = mhAttackResultResult;
+
+  // if targets died, don't calculate the offhand swing
+  const allTargetsDefeatedResult = allTargetsWereKilled(game, mhAttackResult);
+  if (allTargetsDefeatedResult instanceof Error) return allTargetsDefeatedResult;
+  const allTargetsDefeated = allTargetsDefeatedResult;
+  if (allTargetsDefeated) mhAttackEndsTurn = true;
+
+  mhAttackResult.endsTurn = mhAttackEndsTurn;
+  actionResults.push(mhAttackResult);
+
+  if (mhAttackEndsTurn) return actionResults;
+
+  // OFFHAND
+  const ohAttackAbilityNameResult = getAttackAbilityName(
+    ohEquipmentOption?.equipmentTypeProperties.type ?? null,
+    false
+  );
+  if (ohAttackAbilityNameResult instanceof Error) return ohAttackAbilityNameResult;
+  const ohAttackAction: CombatAction = {
+    type: CombatActionType.AbilityUsed,
+    abilityName: ohAttackAbilityNameResult,
+  };
+
+  const ohActionResultArgs: ActionResultCalculationArguments = {
+    ...args,
+    combatAction: ohAttackAction,
+  };
+
+  const ohAttackResultResult = calculateActionResult(game, ohActionResultArgs);
+  if (ohAttackResultResult instanceof Error) return ohAttackResultResult;
+  actionResults.push(ohAttackResultResult);
+
+  return actionResults;
 }

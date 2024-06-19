@@ -68,6 +68,9 @@ export const ERROR_MESSAGES = {
     NOT_OWNED: "An item with the provided ID was not found in this inventory",
     INVALID_TYPE: "Tried to access an item of an invalid type",
   },
+  EQUIPMENT: {
+    INVALID_TYPE: "Invalid equipment type was provided",
+  },
   BATTLE: {
     COMBATANT_NOT_IN_BATTLE: "The provided ID did not match any combatant in this battle",
     TURN_TRACKERS_EMPTY: "Battle has no combatant turn trackers",
