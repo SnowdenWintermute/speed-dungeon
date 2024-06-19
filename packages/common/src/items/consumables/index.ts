@@ -8,7 +8,7 @@ export enum ConsumableType {
 export class ConsumableProperties {
   constructor(
     public consumableType: ConsumableType,
-    usesRemaining: number
+    public usesRemaining: number
   ) {}
   static getActionProperties = getConsumableCombatActionProperties;
 }

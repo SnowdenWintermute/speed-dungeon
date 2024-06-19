@@ -1,8 +1,9 @@
 import { immerable } from "immer";
 import { INVENTORY_DEFAULT_CAPACITY } from "../app_consts";
 import { ERROR_MESSAGES } from "../errors";
-import { Item } from "../items";
+import { ConsumableProperties, Item } from "../items";
 import { ItemPropertiesType } from "../items/item-properties";
+import { CombatantProperties } from "./combatant-properties";
 
 export default class Inventory {
   [immerable] = true;
@@ -25,7 +26,10 @@ export default class Inventory {
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
-  static getConsumableProperties(inventory: Inventory, itemId: string) {
+  static getConsumableProperties(
+    inventory: Inventory,
+    itemId: string
+  ): Error | ConsumableProperties {
     const item = Inventory.getItem(inventory, itemId);
     if (item instanceof Error) return item;
 

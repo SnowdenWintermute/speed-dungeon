@@ -7,6 +7,8 @@ import { EquipmentSlot } from "../items/equipment/slots";
 import { CombatantAbility, CombatantAbilityName } from "./abilities";
 import { getAbilityCostIfOwned } from "./abilities/ability-mana-cost-getters";
 import getAbilityIfOwned from "./abilities/get-ability-if-owned";
+import changeCombatantMana from "./change-combatant-mana";
+import changeCombatantHitPoints from "./change-hit-points";
 import { CombatAttribute } from "./combat-attributes";
 import { CombatantClass } from "./combatant-classes";
 import { CombatantSpecies } from "./combatant-species";
@@ -59,6 +61,8 @@ export class CombatantProperties {
   static getSlotItemIsEquippedTo = getSlotItemIsEquippedTo;
   static getAbilityCostIfOwned = getAbilityCostIfOwned;
   static getAbilityIfOwned = getAbilityIfOwned;
+  static changeHitPoints = changeCombatantHitPoints;
+  static changeMana = changeCombatantMana;
 }
 
 export type ExperiencePoints = {
