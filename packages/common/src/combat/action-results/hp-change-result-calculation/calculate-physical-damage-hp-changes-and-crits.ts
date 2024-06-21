@@ -24,13 +24,13 @@ export default function calculatePhysicalDamageHpChangesAndCrits(
 
   for (const targetId of idsOfNonEvadingTargets) {
     let hpChange = incomingDamagePerTarget;
-    // determine crits
     const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, targetId);
     if (targetCombatantResult instanceof Error) return targetCombatantResult;
     const { combatantProperties: targetCombatantProperties } = targetCombatantResult;
     const targetCombatAttributes =
       CombatantProperties.getTotalAttributes(targetCombatantProperties);
 
+    // determine crits
     const userDexterity = userCombatAttributes[CombatAttribute.Dexterity] || 0;
     const targetAgility = targetCombatAttributes[CombatAttribute.Agility] || 0;
     const critChance = userDexterity - targetAgility + BASE_CRIT_CHANCE;

@@ -5,6 +5,7 @@ import {
   CombatantAbilityName,
   CombatantProperties,
   ERROR_MESSAGES,
+  EquipmentProperties,
   EquipmentSlot,
   WeaponSlot,
   calculateCombatActionHpChangeRange,
@@ -37,7 +38,7 @@ export default function CharacterSheetWeaponDamage({
     combatantAccuracy,
     false
   );
-  const isTwoHanded = mhWeaponOption ? equipmentIsTwoHandedWeapon(mhWeaponOption[0].type) : false;
+  const isTwoHanded = mhWeaponOption ? EquipmentProperties.isTwoHanded(mhWeaponOption[0].type) : false;
   const ohEquipmentOption = CombatantProperties.getEquipmentInSlot(
     combatantProperties,
     EquipmentSlot.OffHand

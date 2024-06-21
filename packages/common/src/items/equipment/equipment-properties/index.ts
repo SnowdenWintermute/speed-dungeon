@@ -8,7 +8,7 @@ import getBaseArmorClass from "./get-base-armor-class";
 import getModifiedWeaponDamageRange from "./get-modified-weapon-damage-range";
 import { JewelryProperties } from "./jewelry-properties";
 import { ShieldProperties } from "./shield-properties";
-import { WeaponProperties } from "./weapon-properties";
+import { WeaponProperties, equipmentIsTwoHandedWeapon } from "./weapon-properties";
 export * from "./armor-properties";
 export * from "./jewelry-properties";
 
@@ -24,7 +24,7 @@ export class EquipmentProperties {
 
   static getBaseArmorClass = getBaseArmorClass;
   static getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
-  static isTwoHanded = 
+  static isTwoHanded = equipmentIsTwoHandedWeapon
 }
 
 export type EquipmentTypeProperties =

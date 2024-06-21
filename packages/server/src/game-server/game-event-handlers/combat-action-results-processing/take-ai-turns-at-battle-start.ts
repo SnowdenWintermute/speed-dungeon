@@ -1,6 +1,6 @@
 import {
+  Battle,
   CombatTurnResult,
-  InPartyClientToServerEvent,
   InPartyClientToServerEventTypes,
   InPartyServerToClientEvent,
   InPartyServerToClientEventTypes,
@@ -11,9 +11,17 @@ import takeAiControlledTurnsIfAppropriate from "./take-ai-controlled-turns-if-ap
 
 export default function takeAiTurnsAtBattleStart(
   game: SpeedDungeonGame,
-  battleId: string,
+  battle: Battle,
   partySocket: Socket<InPartyClientToServerEventTypes, InPartyServerToClientEventTypes>
-) {
+): Error | void {
   const turnResults: CombatTurnResult[] = [];
-  const aiControlledTurnResults = takeAiControlledTurnsIfAppropriate();
+
+  const aiControlledTurnResultsResult = takeAiControlledTurnsIfAppropriate(game, battle);
+  if (aiControlledTurnResultsResult instanceof Error) return aiControlledTurnResultsResult;
+  const aiControlledTurnResults = aiControlledTurnResultsResult;
+  turnResults.push(...aiControlledTurnResults);
+
+  if (turnResults.length > 0) {
+    partySocket.emit(InPartyServerToClientEvent.TurnResults, aiControlledTurnResults);
+  }
 }

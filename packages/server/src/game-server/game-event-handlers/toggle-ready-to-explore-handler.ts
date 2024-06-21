@@ -7,6 +7,7 @@ import {
   InPartyServerToClientEvent,
   InPartyServerToClientEventTypes,
   SocketNamespaces,
+  SpeedDungeonGame,
   getPlayerParty,
   initateBattle,
   removeFromArray,
@@ -108,7 +109,14 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
     const battle = battleOption;
     socket.emit(InPartyServerToClientEvent.BattleFullUpdate, battle);
 
-    // take ai turns at battle start
-    takeAiTurnsAtBattleStart(game, socket);
+    const maybeError = takeAiTurnsAtBattleStart(game, battle, socket);
+    if (maybeError instanceof Error) return maybeError;
+
+    const playerPartyWipedResult = SpeedDungeonGame.allCombatantsInGroupAreDead(
+      game,
+      party.characterPositions
+    );
+    if (playerPartyWipedResult instanceof Error) return playerPartyWipedResult;
+    // if(playerPartyWipedResult) handlePartyWipe
   }
 }

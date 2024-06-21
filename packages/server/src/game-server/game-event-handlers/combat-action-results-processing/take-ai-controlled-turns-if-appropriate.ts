@@ -1,7 +1,17 @@
-import { Battle, CombatTurnResult, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
+import {
+  ActionResult,
+  Battle,
+  CombatTurnResult,
+  CombatantAbility,
+  ERROR_MESSAGES,
+  SpeedDungeonGame,
+} from "@speed-dungeon/common";
 import { AISelectActionAndTarget } from "@speed-dungeon/common";
 
-export default function takeAiControlledTurnsIfAppropriate(game: SpeedDungeonGame, battle: Battle) {
+export default function takeAiControlledTurnsIfAppropriate(
+  game: SpeedDungeonGame,
+  battle: Battle
+): Error | CombatTurnResult[] {
   const turnResults: CombatTurnResult[] = [];
   const { turnTrackers } = battle;
   const activeCombatantTrackerOption = turnTrackers[0];
@@ -12,14 +22,13 @@ export default function takeAiControlledTurnsIfAppropriate(game: SpeedDungeonGam
   if (activeCombatantResult instanceof Error) return activeCombatantResult;
   let { entityProperties, combatantProperties } = activeCombatantResult;
   let activeCombatantIsAiControlled = combatantProperties.controllingPlayer === null;
-  const activeCombatantTurnActionResults = [];
+  let activeCombatantTurnActionResults: ActionResult[] = [];
 
   while (activeCombatantIsAiControlled) {
     const battleGroupResult = Battle.getAllyAndEnemyBattleGroups(battle, activeCombatantId);
     if (battleGroupResult instanceof Error) return battleGroupResult;
     const { allyGroup, enemyGroup } = battleGroupResult;
     const allyIds = allyGroup.combatantIds;
-    const enemyIds = enemyGroup.combatantIds;
     const abilityAndTargetResult = AISelectActionAndTarget(
       game,
       activeCombatantId,
@@ -39,6 +48,36 @@ export default function takeAiControlledTurnsIfAppropriate(game: SpeedDungeonGam
     );
     if (actionResultsResult instanceof Error) return actionResultsResult;
     const actionResults = actionResultsResult;
-    //apply results
+
+    SpeedDungeonGame.applyActionResults(game, actionResults, battle.id);
+
+    activeCombatantTurnActionResults.push(...actionResults);
+
+    const abilityAttributes = CombatantAbility.getAttributes(abilityName);
+
+    if (!abilityAttributes.combatActionProperties.requiresCombatTurn) continue;
+
+    turnResults.push({
+      combatantId: activeCombatantId,
+      actionResults: activeCombatantTurnActionResults,
+    });
+
+    const playerPartyDefeatedResult = SpeedDungeonGame.allCombatantsInGroupAreDead(
+      game,
+      enemyGroup.combatantIds
+    );
+    if (playerPartyDefeatedResult instanceof Error) return playerPartyDefeatedResult;
+    if (playerPartyDefeatedResult) break;
+
+    activeCombatantTurnActionResults = [];
+    const newActiveTurnTrackerResult = SpeedDungeonGame.endActiveCombatantTurn(game, battle);
+    if (newActiveTurnTrackerResult instanceof Error) return newActiveTurnTrackerResult;
+    activeCombatantId = newActiveTurnTrackerResult.entityId;
+    const activeCombatantResult = SpeedDungeonGame.getCombatantById(game, activeCombatantId);
+    if (activeCombatantResult instanceof Error) return activeCombatantResult;
+    ({ entityProperties, combatantProperties } = activeCombatantResult);
+    activeCombatantIsAiControlled = combatantProperties.controllingPlayer !== null;
   }
+
+  return turnResults;
 }
