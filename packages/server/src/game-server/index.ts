@@ -25,7 +25,17 @@ import getSocketCurrentGame from "./utils/get-socket-current-game";
 
 export class GameServer {
   games: HashMap<string, SpeedDungeonGame> = new HashMap();
-  socketIdsByUsername: HashMap<string, string[]> = new HashMap();
+
+  userSessions: HashMap<string, Session[]> = new HashMap();
+  // user - has multiple sessions
+
+  // browser tab (user session)
+  // - current game
+  // - get their party by checking their game
+  // - main socket (lobby / game)
+  // - party socket
+
+  // socketId, socketMetadata
   connections: HashMap<string, SocketConnectionMetadata> = new HashMap();
   constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     console.log("constructed game server");
@@ -47,5 +57,5 @@ export class GameServer {
   deleteCharacterHandler = deleteCharacterHandler;
   toggleReadyToStartGameHandler = toggleReadyToStartGameHandler;
   // UTILS
-  getSocketCurrentGame = getSocketCurrentGame 
+  getSocketCurrentGame = getSocketCurrentGame;
 }

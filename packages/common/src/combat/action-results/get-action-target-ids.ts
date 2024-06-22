@@ -3,7 +3,7 @@ import { CombatantProperties } from "../../combatants";
 import { SpeedDungeonGame } from "../../game";
 import { filterPossibleTargetIdsByProhibitedCombatantStates } from "../targeting/filtering";
 import getActionTargetsIfSchemeIsValid from "../targeting/get-targets-if-scheme-is-valid";
-import { ActionResultCalculationArguments } from "./hp-change-result-calculation";
+import { ActionResultCalculationArguments } from "./action-result-calculator";
 
 export default function getCombatActionTargetIds(
   game: SpeedDungeonGame,

@@ -1,19 +1,26 @@
 import {
+  AdventuringParty,
   Battle,
+  ERROR_MESSAGES,
   InPartyClientToServerEventTypes,
   InPartyServerToClientEventTypes,
   SocketNamespaces,
+  SpeedDungeonGame,
+  getPlayerParty,
 } from "@speed-dungeon/common";
 import { GameServer } from "../..";
 
 export default function handlePartyWipe(
   this: GameServer,
-  socketId: string,
-  battleOption: null | Battle
+  game: SpeedDungeonGame,
+  party: AdventuringParty
 ) {
-  const [socket, socketMeta] = this.getConnection<
-    InPartyClientToServerEventTypes,
-    InPartyServerToClientEventTypes
-  >(socketId, SocketNamespaces.Party);
-  if (!socket) return console.error("No socket found");
+  const { currentFloor } = party;
+  if (party.battleId !== null) delete game.battles[party.battleId];
+
+  const socketIdsOfPlayersInOtherParties = [];
+  for (const [username, player] of Object.entries(game.players)) {
+    if (party.playerUsernames.includes(username)) continue;
+    // socketIdsOfPlayersInOtherParties.push(player)
+  }
 }

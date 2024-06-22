@@ -11,13 +11,19 @@ export function connectionHandler(this: GameServer) {
       socket.id,
       new SocketConnectionMetadata(socket.id, username, LOBBY_CHANNEL)
     );
+
+    if (this.socketIdsByUsername.has(username)) {
+      const currentSockets = this.socketIdsByUsername.get(username)!;
+      currentSockets.push(socket.id);
+    } else this.socketIdsByUsername.insert(username, [socket.id]);
+
     this.disconnectionHandler(socket);
     this.initiateLobbyEventListeners(socket);
     this.joinSocketToChannel(socket.id, SocketNamespaces.Main, LOBBY_CHANNEL);
     socket.emit(ServerToClientEvent.ClientUsername, username);
   });
 
-  // this.io.of(SocketNamespaces.Party).on("connection", (socket) => {
-  //   console.log("PARTY NAMESPACE: ", socket.id);
-  // });
+  this.io.of(SocketNamespaces.Party).on("connection", (socket) => {
+    console.log(`-- ${username} `, socket.id);
+  });
 }

@@ -38,7 +38,7 @@ function SocketManager() {
         transports: ["websocket"],
       });
     });
-    console.log("socket address: ", socketAddress);
+    // console.log("socket address: ", socketAddress);
     return () => {
       mutateWebsocketStore((state) => {
         state.mainSocketOption?.disconnect();

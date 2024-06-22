@@ -34,8 +34,8 @@ export default function getAbilityAttributes(abilityName: CombatantAbilityName) 
       attr.baseHpChangeValuesLevelMultiplier = 1.0;
       hpcp.baseValues = new NumberRange(1, 1);
       hpcp.addWeaponDamageFrom = [WeaponSlot.MainHand];
-      hpcp.addWeaponElementFrom = [WeaponSlot.MainHand];
-      hpcp.addWeaponDamageTypeFrom = [WeaponSlot.MainHand];
+      hpcp.addWeaponElementFrom = WeaponSlot.MainHand;
+      hpcp.addWeaponDamageTypeFrom = WeaponSlot.MainHand;
       hpcp.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Strength, 100];
       hpcp.critChanceAttribute = CombatAttribute.Dexterity;
       hpcp.critMultiplierAttribute = CombatAttribute.Strength;
@@ -49,8 +49,8 @@ export default function getAbilityAttributes(abilityName: CombatantAbilityName) 
       attr.baseHpChangeValuesLevelMultiplier = 1.0;
       hpcp.baseValues = new NumberRange(1, 1);
       hpcp.addWeaponDamageFrom = [WeaponSlot.OffHand];
-      hpcp.addWeaponElementFrom = [WeaponSlot.OffHand];
-      hpcp.addWeaponDamageTypeFrom = [WeaponSlot.OffHand];
+      hpcp.addWeaponElementFrom = WeaponSlot.OffHand;
+      hpcp.addWeaponDamageTypeFrom = WeaponSlot.OffHand;
       hpcp.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Strength, 100];
       hpcp.critChanceAttribute = CombatAttribute.Dexterity;
       hpcp.critMultiplierAttribute = CombatAttribute.Strength;
@@ -66,8 +66,8 @@ export default function getAbilityAttributes(abilityName: CombatantAbilityName) 
       attr.baseHpChangeValuesLevelMultiplier = 1.0;
       hpcp.baseValues = new NumberRange(1, 1);
       hpcp.addWeaponDamageFrom = [WeaponSlot.MainHand];
-      hpcp.addWeaponElementFrom = [WeaponSlot.MainHand];
-      hpcp.addWeaponDamageTypeFrom = [WeaponSlot.MainHand];
+      hpcp.addWeaponElementFrom = WeaponSlot.MainHand;
+      hpcp.addWeaponDamageTypeFrom = WeaponSlot.MainHand;
       hpcp.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Dexterity, 100];
       hpcp.critChanceAttribute = CombatAttribute.Dexterity;
       hpcp.critMultiplierAttribute = CombatAttribute.Dexterity;
