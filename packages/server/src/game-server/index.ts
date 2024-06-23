@@ -23,20 +23,13 @@ import deleteCharacterHandler from "./lobby-event-handlers/delete-character-hand
 import toggleReadyToStartGameHandler from "./lobby-event-handlers/toggle-ready-to-start-game-handler";
 import getSocketCurrentGame from "./utils/get-socket-current-game";
 
+export type Username = string;
+export type SocketId = string;
+
 export class GameServer {
   games: HashMap<string, SpeedDungeonGame> = new HashMap();
-
-  userSessions: HashMap<string, Session[]> = new HashMap();
-  // user - has multiple sessions
-
-  // browser tab (user session)
-  // - current game
-  // - get their party by checking their game
-  // - main socket (lobby / game)
-  // - party socket
-
-  // socketId, socketMetadata
-  connections: HashMap<string, SocketConnectionMetadata> = new HashMap();
+  socketIdsByUsername: HashMap<Username, SocketId[]> = new HashMap();
+  connections: HashMap<SocketId, SocketConnectionMetadata> = new HashMap();
   constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     console.log("constructed game server");
     this.connectionHandler();

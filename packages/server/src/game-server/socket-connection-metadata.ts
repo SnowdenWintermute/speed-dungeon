@@ -1,5 +1,4 @@
 export class SocketConnectionMetadata {
-  partySocketId: null | string = null;
   constructor(
     public socketId: string,
     public username: string,

@@ -22,8 +22,4 @@ export function connectionHandler(this: GameServer) {
     this.joinSocketToChannel(socket.id, SocketNamespaces.Main, LOBBY_CHANNEL);
     socket.emit(ServerToClientEvent.ClientUsername, username);
   });
-
-  this.io.of(SocketNamespaces.Party).on("connection", (socket) => {
-    console.log(`-- ${username} `, socket.id);
-  });
 }
