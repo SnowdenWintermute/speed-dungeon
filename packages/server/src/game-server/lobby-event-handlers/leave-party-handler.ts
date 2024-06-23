@@ -13,6 +13,7 @@ export default function leavePartyHandler(this: GameServer, socketId: string) {
     if (!partyNameLeaving) return;
 
     this.removeSocketFromChannel(socketId, getPartyChannelName(partyNameLeaving));
+    socketMeta.currentPartyName = null;
 
     socket?.emit(ServerToClientEvent.PartyNameUpdate, null);
     this.io

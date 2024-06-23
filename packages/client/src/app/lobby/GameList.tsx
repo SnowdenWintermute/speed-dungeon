@@ -27,9 +27,9 @@ interface GameListItemProps {
 }
 
 function GameListItem(props: GameListItemProps) {
-  const mainSocketOption = useWebsocketStore().mainSocketOption;
+  const socketOption = useWebsocketStore().socketOption;
   function joinGame() {
-    mainSocketOption?.emit(ClientToServerEvent.JoinGame, props.game.gameName);
+    socketOption?.emit(ClientToServerEvent.JoinGame, props.game.gameName);
   }
 
   return (

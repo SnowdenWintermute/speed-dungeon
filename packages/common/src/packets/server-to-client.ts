@@ -1,7 +1,8 @@
 import { DungeonRoom, DungeonRoomType, PlayerCharacter } from "../adventuring_party";
-import { Battle } from "../battle";
+import { Battle, BattleConclusion } from "../battle";
 import { CombatTurnResult } from "../combat";
 import { SpeedDungeonGame } from "../game";
+import { Item } from "../items";
 
 export enum ServerToClientEvent {
   GameList = "0",
@@ -25,6 +26,8 @@ export enum ServerToClientEvent {
   DungeonRoomUpdate = "18",
   BattleFullUpdate = "19",
   TurnResults = "20",
+  PartyWipe = "21",
+  BattleReport = "22",
 }
 
 export interface ServerToClientEventTypes {
@@ -62,6 +65,12 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.DungeonRoomUpdate]: (dungeonRoom: DungeonRoom) => void;
   [ServerToClientEvent.BattleFullUpdate]: (battle: Battle) => void;
   [ServerToClientEvent.TurnResults]: (turnResults: CombatTurnResult[]) => void;
+  [ServerToClientEvent.PartyWipe]: (partyName: string, dlvl: number, timeOfWipe: number) => void;
+  [ServerToClientEvent.BattleReport]: (
+    conclusion: BattleConclusion,
+    loot: Item[],
+    expChanges: { combatantId: string; experienceChange: number }[]
+  ) => void;
 }
 
 export class GameListEntry {

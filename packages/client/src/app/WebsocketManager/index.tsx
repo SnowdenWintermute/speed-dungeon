@@ -4,7 +4,6 @@ import {
   AdventuringParty,
   ClientToServerEvent,
   ServerToClientEvent,
-  SocketNamespaces,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
@@ -25,40 +24,37 @@ function SocketManager() {
   const mutateLobbyStore = useLobbyStore().mutateState;
   const mutateGameStore = useGameStore().mutateState;
   const mutateAlertStore = useAlertStore().mutateState;
-  const mainSocketOption = useWebsocketStore().mainSocketOption;
+  const socketOption = useWebsocketStore().socketOption;
   const [connected, setConnected] = useState(false);
 
   // setup socket
   useEffect(() => {
     mutateWebsocketStore((state) => {
-      state.mainSocketOption = io(socketAddress || "", {
-        transports: ["websocket"],
-      });
-      state.partySocketOption = io(`${socketAddress}${SocketNamespaces.Party}`, {
+      state.socketOption = io(socketAddress || "", {
         transports: ["websocket"],
       });
     });
     // console.log("socket address: ", socketAddress);
     return () => {
       mutateWebsocketStore((state) => {
-        state.mainSocketOption?.disconnect();
+        state.socketOption?.disconnect();
       });
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (mainSocketOption) {
-      mainSocketOption.emit(ClientToServerEvent.RequestsGameList);
+    if (socketOption) {
+      socketOption.emit(ClientToServerEvent.RequestsGameList);
 
-      mainSocketOption.on("connect", () => {
+      socketOption.on("connect", () => {
         mutateGameStore((state) => {
           state.game = null;
         });
       });
-      mainSocketOption.on(ServerToClientEvent.ErrorMessage, (message) => {
+      socketOption.on(ServerToClientEvent.ErrorMessage, (message) => {
         setAlert(mutateAlertStore, message);
       });
-      mainSocketOption.on(
+      socketOption.on(
         ServerToClientEvent.ChannelFullUpdate,
         (channelName, usernamesInChannel) => {
           mutateWebsocketStore((state) => {
@@ -70,27 +66,27 @@ function SocketManager() {
           });
         }
       );
-      mainSocketOption.on(ServerToClientEvent.ClientUsername, (username) => {
+      socketOption.on(ServerToClientEvent.ClientUsername, (username) => {
         mutateGameStore((state) => {
           state.username = username;
         });
       });
-      mainSocketOption.on(ServerToClientEvent.UserJoinedChannel, (username) => {
+      socketOption.on(ServerToClientEvent.UserJoinedChannel, (username) => {
         mutateWebsocketStore((state) => {
           state.usernamesInMainChannel.add(username);
         });
       });
-      mainSocketOption.on(ServerToClientEvent.UserLeftChannel, (username) => {
+      socketOption.on(ServerToClientEvent.UserLeftChannel, (username) => {
         mutateWebsocketStore((state) => {
           state.usernamesInMainChannel.delete(username);
         });
       });
-      mainSocketOption.on(ServerToClientEvent.GameList, (gameList) => {
+      socketOption.on(ServerToClientEvent.GameList, (gameList) => {
         mutateLobbyStore((state) => {
           state.gameList = gameList;
         });
       });
-      mainSocketOption.on(ServerToClientEvent.GameFullUpdate, (game) => {
+      socketOption.on(ServerToClientEvent.GameFullUpdate, (game) => {
         mutateGameStore((state) => {
           if (game === null) state.game = null;
           else {
@@ -98,24 +94,24 @@ function SocketManager() {
           }
         });
       });
-      mainSocketOption.on(ServerToClientEvent.PlayerJoinedGame, (username) => {
+      socketOption.on(ServerToClientEvent.PlayerJoinedGame, (username) => {
         mutateGameStore((state) => {
           if (state.game) state.game.players[username] = new SpeedDungeonPlayer(username);
         });
       });
-      mainSocketOption.on(ServerToClientEvent.PlayerLeftGame, (username) => {
+      socketOption.on(ServerToClientEvent.PlayerLeftGame, (username) => {
         mutateGameStore((state) => {
           if (state.game) SpeedDungeonGame.removePlayer(state.game, username);
         });
       });
-      mainSocketOption.on(ServerToClientEvent.PartyCreated, (partyName) => {
+      socketOption.on(ServerToClientEvent.PartyCreated, (partyName) => {
         mutateGameStore((state) => {
           if (state.game) {
             state.game.adventuringParties[partyName] = new AdventuringParty(partyName);
           }
         });
       });
-      mainSocketOption.on(
+      socketOption.on(
         ServerToClientEvent.PlayerChangedAdventuringParty,
         (username, partyName) => {
           mutateGameStore((state) => {
@@ -126,7 +122,7 @@ function SocketManager() {
           });
         }
       );
-      mainSocketOption.on(
+      socketOption.on(
         ServerToClientEvent.CharacterCreated,
         (partyName, username, character) => {
           characterCreationHandler(
@@ -138,7 +134,7 @@ function SocketManager() {
           );
         }
       );
-      mainSocketOption.on(
+      socketOption.on(
         ServerToClientEvent.CharacterDeleted,
         (partyName, username, characterId) => {
           characterDeletionHandler(
@@ -150,10 +146,10 @@ function SocketManager() {
           );
         }
       );
-      mainSocketOption.on(ServerToClientEvent.PlayerToggledReadyToStartGame, (username) => {
+      socketOption.on(ServerToClientEvent.PlayerToggledReadyToStartGame, (username) => {
         playerToggledReadyToStartGameHandler(mutateGameStore, mutateAlertStore, username);
       });
-      mainSocketOption.on(ServerToClientEvent.GameStarted, (timeStarted) => {
+      socketOption.on(ServerToClientEvent.GameStarted, (timeStarted) => {
         mutateGameStore((gameState) => {
           if (gameState.game) gameState.game.timeStarted = timeStarted;
         });
@@ -161,13 +157,13 @@ function SocketManager() {
     }
 
     return () => {
-      if (mainSocketOption) {
+      if (socketOption) {
         Object.values(ServerToClientEvent).forEach((value) => {
-          mainSocketOption.off(value);
+          socketOption.off(value);
         });
       }
     };
-  }, [mainSocketOption, connected]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [socketOption, connected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <></>;
 }

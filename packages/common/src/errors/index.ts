@@ -3,6 +3,11 @@ export type CustomErrorDetails = { message: string; field?: string };
 export const ERROR_MESSAGES = {
   TODO: "Not yet implemented",
   SERVER_GENERIC: "Internal server error",
+  SERVER: {
+    USERNAME_HAS_NO_SOCKET_IDS: "No socket ids were found by that username",
+    BROWSER_SESSION_NOT_FOUND: "No browser session was found associated with that socked id",
+    SOCKET_NOT_FOUND: "No socket by that id was found",
+  },
   GAME_DOESNT_EXIST: "No game by that name exists",
   CLIENT: {
     NO_CURRENT_GAME: "This client has no current game",

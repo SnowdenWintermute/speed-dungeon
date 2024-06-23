@@ -7,7 +7,7 @@ import ButtonBasic from "../components/atoms/ButtonBasic";
 import { useGameStore } from "@/stores/game-store";
 
 export default function LobbyMenu() {
-  const mainSocketOption = useWebsocketStore().mainSocketOption;
+  const socketOption = useWebsocketStore().socketOption;
   const [gameName, setGameName] = useState("");
 
   const username = useGameStore().username;
@@ -15,20 +15,20 @@ export default function LobbyMenu() {
 
   function createGame(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    mainSocketOption?.emit(ClientToServerEvent.CreateGame, gameName);
+    socketOption?.emit(ClientToServerEvent.CreateGame, gameName);
   }
 
   function refreshGameList() {
-    mainSocketOption?.emit(ClientToServerEvent.RequestsGameList);
+    socketOption?.emit(ClientToServerEvent.RequestsGameList);
   }
 
   function quickStartGame() {
-    mainSocketOption?.emit(ClientToServerEvent.CreateGame, "");
-    mainSocketOption?.emit(ClientToServerEvent.CreateParty, "");
-    mainSocketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Warrior);
-    mainSocketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
-    mainSocketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Rogue);
-    mainSocketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
+    socketOption?.emit(ClientToServerEvent.CreateGame, "");
+    socketOption?.emit(ClientToServerEvent.CreateParty, "");
+    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Warrior);
+    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
+    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Rogue);
+    socketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
   }
 
   return (

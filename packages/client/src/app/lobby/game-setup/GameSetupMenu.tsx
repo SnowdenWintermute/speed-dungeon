@@ -4,13 +4,13 @@ import { ClientToServerEvent } from "@speed-dungeon/common";
 import React from "react";
 
 export default function GameSetupMenu() {
-  const mainSocketOption = useWebsocketStore().mainSocketOption;
+  const socketOption = useWebsocketStore().socketOption;
 
   function leaveGame() {
-    mainSocketOption?.emit(ClientToServerEvent.LeaveGame);
+    socketOption?.emit(ClientToServerEvent.LeaveGame);
   }
   function toggleReady() {
-    mainSocketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
+    socketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
   }
 
   return (

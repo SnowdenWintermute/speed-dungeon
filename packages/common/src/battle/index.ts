@@ -34,3 +34,8 @@ export class BattleGroup {
     public groupType: BattleGroupType
   ) {}
 }
+
+export enum BattleConclusion {
+  Defeat,
+  Victory,
+}

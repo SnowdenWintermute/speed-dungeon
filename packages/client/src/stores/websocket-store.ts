@@ -8,7 +8,7 @@ import { ClientToServerEventTypes, ServerToClientEventTypes } from "@speed-dunge
 export type PartyClientSocket = Socket<ServerToClientEventTypes, ClientToServerEventTypes>;
 
 type WebsocketState = {
-  mainSocketOption: undefined | Socket<ServerToClientEventTypes, ClientToServerEventTypes>;
+  socketOption: undefined | Socket<ServerToClientEventTypes, ClientToServerEventTypes>;
   mainChannelName: string;
   usernamesInMainChannel: Set<string>;
   partySocketOption: undefined | PartyClientSocket;
@@ -19,7 +19,7 @@ export const useWebsocketStore = create<WebsocketState>()(
   immer(
     devtools(
       (set, _get) => ({
-        mainSocketOption: undefined,
+        socketOption: undefined,
         usernamesInMainChannel: new Set(),
         mainChannelName: "",
         partySocketOption: undefined,

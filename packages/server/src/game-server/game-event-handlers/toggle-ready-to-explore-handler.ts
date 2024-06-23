@@ -113,11 +113,14 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
     const maybeError = takeAiTurnsAtBattleStart(game, party, battle, socket);
     if (maybeError instanceof Error) return maybeError;
 
-    const playerPartyWipedResult = SpeedDungeonGame.allCombatantsInGroupAreDead(
+    const allCharactersDiedResult = SpeedDungeonGame.allCombatantsInGroupAreDead(
       game,
       party.characterPositions
     );
-    if (playerPartyWipedResult instanceof Error) return playerPartyWipedResult;
-    // if(playerPartyWipedResult) handlePartyWipe
+    if (allCharactersDiedResult instanceof Error) return allCharactersDiedResult;
+    if (allCharactersDiedResult) {
+      const partyWipeResult = this.handlePartyWipe(game, party);
+      if (partyWipeResult instanceof Error) return partyWipeResult;
+    }
   }
 }

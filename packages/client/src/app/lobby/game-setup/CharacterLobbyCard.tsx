@@ -10,10 +10,10 @@ interface Props {
 }
 
 export default function CharacterLobbyCard(props: Props) {
-  const mainSocketOption = useWebsocketStore().mainSocketOption;
+  const socketOption = useWebsocketStore().socketOption;
   const { character, ownedBySelf } = props;
   function deleteCharacter() {
-    mainSocketOption?.emit(ClientToServerEvent.DeleteCharacter, character.entityProperties.id);
+    socketOption?.emit(ClientToServerEvent.DeleteCharacter, character.entityProperties.id);
   }
 
   return (

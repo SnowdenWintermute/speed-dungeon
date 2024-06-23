@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function AdventuringPartyLobbyCard(props: Props) {
-  const mainSocketOption = useWebsocketStore().mainSocketOption;
+  const socketOption = useWebsocketStore().socketOption;
   const username = useGameStore().username;
   const game = useGameStore().game;
   if (!username) return <div>Client has no username</div>;
@@ -22,10 +22,10 @@ export default function AdventuringPartyLobbyCard(props: Props) {
   const currentPartyName = getCurrentPartyName(game, username);
 
   function leaveParty() {
-    mainSocketOption?.emit(ClientToServerEvent.LeaveParty);
+    socketOption?.emit(ClientToServerEvent.LeaveParty);
   }
   function joinParty() {
-    mainSocketOption?.emit(ClientToServerEvent.JoinParty, props.party.name);
+    socketOption?.emit(ClientToServerEvent.JoinParty, props.party.name);
   }
 
   const charactersByUsername: [string, PlayerCharacter[]][] = [];

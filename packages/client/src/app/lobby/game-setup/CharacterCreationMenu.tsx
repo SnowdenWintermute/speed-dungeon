@@ -10,11 +10,11 @@ import {
 import React, { useState } from "react";
 
 export default function CharacterCreationMenu() {
-  const mainSocketOption = useWebsocketStore().mainSocketOption;
+  const socketOption = useWebsocketStore().socketOption;
   const [combatantClassSelection, setCombatantClassSelection] = useState(CombatantClass.Warrior);
 
   function createCharacter(characterName: string) {
-    mainSocketOption?.emit(
+    socketOption?.emit(
       ClientToServerEvent.CreateCharacter,
       characterName,
       combatantClassSelection

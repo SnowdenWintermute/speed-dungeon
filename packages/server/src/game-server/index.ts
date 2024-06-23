@@ -5,7 +5,7 @@ import {
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import initiateLobbyEventListeners from "./lobby-event-handlers";
-import { SocketConnectionMetadata } from "./socket-connection-metadata";
+import { BrowserTabSession } from "./socket-connection-metadata";
 import joinSocketToChannel from "./join-socket-to-channel";
 import { connectionHandler } from "./connection-handler";
 import disconnectionHandler from "./disconnection-handler";
@@ -22,6 +22,7 @@ import createCharacterHandler from "./lobby-event-handlers/create-character-hand
 import deleteCharacterHandler from "./lobby-event-handlers/delete-character-handler";
 import toggleReadyToStartGameHandler from "./lobby-event-handlers/toggle-ready-to-start-game-handler";
 import getSocketCurrentGame from "./utils/get-socket-current-game";
+import handlePartyWipe from "./game-event-handlers/combat-action-results-processing/handle-party-wipe";
 
 export type Username = string;
 export type SocketId = string;
@@ -29,7 +30,7 @@ export type SocketId = string;
 export class GameServer {
   games: HashMap<string, SpeedDungeonGame> = new HashMap();
   socketIdsByUsername: HashMap<Username, SocketId[]> = new HashMap();
-  connections: HashMap<SocketId, SocketConnectionMetadata> = new HashMap();
+  connections: HashMap<SocketId, BrowserTabSession> = new HashMap();
   constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     console.log("constructed game server");
     this.connectionHandler();
@@ -49,6 +50,7 @@ export class GameServer {
   createCharacterHandler = createCharacterHandler;
   deleteCharacterHandler = deleteCharacterHandler;
   toggleReadyToStartGameHandler = toggleReadyToStartGameHandler;
+  handlePartyWipe = handlePartyWipe;
   // UTILS
   getSocketCurrentGame = getSocketCurrentGame;
 }

@@ -1,7 +1,7 @@
 import { GameServer } from ".";
 import { generateRandomUsername } from "../utils";
 import { LOBBY_CHANNEL, ServerToClientEvent } from "@speed-dungeon/common";
-import { SocketConnectionMetadata } from "./socket-connection-metadata";
+import { BrowserTabSession } from "./socket-connection-metadata";
 
 export function connectionHandler(this: GameServer) {
   this.io.of("/").on("connection", (socket) => {
@@ -9,7 +9,7 @@ export function connectionHandler(this: GameServer) {
     console.log(`-- ${username} (${socket.id}) connected`);
     this.connections.insert(
       socket.id,
-      new SocketConnectionMetadata(socket.id, username, LOBBY_CHANNEL)
+      new BrowserTabSession(socket.id, username, LOBBY_CHANNEL)
     );
 
     if (this.socketIdsByUsername.has(username)) {
