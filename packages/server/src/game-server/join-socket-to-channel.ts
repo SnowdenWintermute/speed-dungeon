@@ -1,31 +1,18 @@
 import { ServerToClientEvent } from "@speed-dungeon/common";
 import { GameServer } from ".";
-import { SocketNamespaces } from "@speed-dungeon/common";
 
 export default function joinSocketToChannel(
   this: GameServer,
   socketId: string,
-  namespace: SocketNamespaces,
   newChannelName: string
 ) {
+  const namespace = "/";
   const socket = this.io.of(namespace).sockets.get(socketId);
   const socketMeta = this.connections.get(socketId);
 
   if (!socket || !socketMeta) return;
 
-  switch (namespace) {
-    case SocketNamespaces.Main:
-      socketMeta.currentMainChannelName = newChannelName;
-      break;
-    case SocketNamespaces.Party:
-      socketMeta.currentPartyChannelName = newChannelName;
-      break;
-  }
-
-  this.io
-    .of(namespace)
-    .to(newChannelName)
-    .emit(ServerToClientEvent.UserJoinedChannel, socketMeta.username);
+  this.io.to(newChannelName).emit(ServerToClientEvent.UserJoinedChannel, socketMeta.username);
 
   socket.join(newChannelName);
   const adapter = this.io.of(namespace).adapter;
@@ -40,11 +27,7 @@ export default function joinSocketToChannel(
     });
   }
 
-  socket.emit(
-    ServerToClientEvent.ChannelFullUpdate,
-    newChannelName,
-    usernamesInRoom
-  );
+  socket.emit(ServerToClientEvent.ChannelFullUpdate, newChannelName, usernamesInRoom);
 
   this.io
     .of(namespace)

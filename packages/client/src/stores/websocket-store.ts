@@ -3,17 +3,9 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { produce } from "immer";
 import { Socket } from "socket.io-client";
-import {
-  ClientToServerEventTypes,
-  InPartyClientToServerEventTypes,
-  InPartyServerToClientEventTypes,
-  ServerToClientEventTypes,
-} from "@speed-dungeon/common";
+import { ClientToServerEventTypes, ServerToClientEventTypes } from "@speed-dungeon/common";
 
-export type PartyClientSocket = Socket<
-  InPartyServerToClientEventTypes,
-  InPartyClientToServerEventTypes
->;
+export type PartyClientSocket = Socket<ServerToClientEventTypes, ClientToServerEventTypes>;
 
 type WebsocketState = {
   mainSocketOption: undefined | Socket<ServerToClientEventTypes, ClientToServerEventTypes>;

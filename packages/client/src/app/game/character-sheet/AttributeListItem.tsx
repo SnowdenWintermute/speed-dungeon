@@ -4,9 +4,8 @@ import { useGameStore } from "@/stores/game-store";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import {
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
-  ClientToServerEvent,
   CombatAttribute,
-  InPartyClientToServerEvent,
+  ClientToServerEvent,
   formatCombatAttribute,
   getCombatAttributeDescription,
 } from "@speed-dungeon/common";
@@ -55,11 +54,7 @@ function IncreaseAttributeButton({ attribute }: { attribute: CombatAttribute }) 
   const focusedCharacterId = useGameStore().focusedCharacterId;
 
   function handleClick() {
-    partySocketOption?.emit(
-      InPartyClientToServerEvent.IncrementAttribute,
-      focusedCharacterId,
-      attribute
-    );
+    partySocketOption?.emit(ClientToServerEvent.IncrementAttribute, focusedCharacterId, attribute);
   }
 
   return (

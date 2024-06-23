@@ -1,14 +1,9 @@
-import {
-  ERROR_MESSAGES,
-  ServerToClientEvent,
-  SocketNamespaces,
-  removeFromArray,
-} from "@speed-dungeon/common";
+import { ERROR_MESSAGES, ServerToClientEvent, removeFromArray } from "@speed-dungeon/common";
 import { GameServer } from "..";
 import errorHandler from "../error-handler";
 
 export default function toggleReadyToStartGameHandler(this: GameServer, socketId: string) {
-  const [socket, socketMeta] = this.getConnection(socketId, SocketNamespaces.Main);
+  const [socket, socketMeta] = this.getConnection(socketId);
   const { username } = socketMeta;
   try {
     const gameName = socketMeta.currentGameName;
@@ -41,16 +36,10 @@ export default function toggleReadyToStartGameHandler(this: GameServer, socketId
       // @TODO - toggle ready to explore for all
       //
       game.timeStarted = Date.now();
-      this.io
-        .of(SocketNamespaces.Main)
-        .in(game.name)
-        .emit(ServerToClientEvent.GameStarted, game.timeStarted);
+      this.io.of("/").in(game.name).emit(ServerToClientEvent.GameStarted, game.timeStarted);
     }
 
-    this.io
-      .of(SocketNamespaces.Main)
-      .in(game.name)
-      .emit(ServerToClientEvent.PlayerToggledReadyToStartGame, username);
+    this.io.of("/").in(game.name).emit(ServerToClientEvent.PlayerToggledReadyToStartGame, username);
   } catch (e) {
     if (e instanceof Error) errorHandler(socket, e.message);
     else console.error(e);

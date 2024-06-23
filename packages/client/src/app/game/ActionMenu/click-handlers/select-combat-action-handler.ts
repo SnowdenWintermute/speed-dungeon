@@ -4,7 +4,7 @@ import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { PartyClientSocket } from "@/stores/websocket-store";
 import getClientPlayerAssociatedData from "@/utils/getClientPlayerAssociatedData";
-import { CombatAction, ERROR_MESSAGES, InPartyClientToServerEvent } from "@speed-dungeon/common";
+import { CombatAction, ERROR_MESSAGES, ClientToServerEvent } from "@speed-dungeon/common";
 import assignCharacterActionTargets from "@speed-dungeon/common/src/combat/targeting/assign-character-action-targets";
 import { getCombatActionProperties } from "@speed-dungeon/common/src/combatants/get-combat-action-properties";
 
@@ -42,7 +42,7 @@ export default function selectCombatActionHandler(
     gameState.hoveredEntity = null;
 
     partySocket.emit(
-      InPartyClientToServerEvent.SelectCombatAction,
+      ClientToServerEvent.SelectCombatAction,
       focusedCharacter.entityProperties.id,
       combatActionOption
     );

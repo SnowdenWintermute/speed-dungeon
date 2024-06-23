@@ -1,4 +1,4 @@
-import { ERROR_MESSAGES, ServerToClientEvent, SocketNamespaces } from "@speed-dungeon/common";
+import { ERROR_MESSAGES, ServerToClientEvent } from "@speed-dungeon/common";
 import { GameServer } from "..";
 import { removeFromArray } from "@speed-dungeon/common";
 import errorHandler from "../error-handler";
@@ -11,7 +11,7 @@ export default function deleteCharacterHandler(
   characterId: string
 ) {
   console.log("delete character ", characterId);
-  const [socket, socketMeta] = this.getConnection(socketId, SocketNamespaces.Main);
+  const [socket, socketMeta] = this.getConnection(socketId);
   if (!socketMeta.currentGameName)
     return errorHandler(socket, `${ATTEMPT_TEXT} they didn't know what game they were in`);
   const game = this.games.get(socketMeta.currentGameName);
@@ -33,13 +33,13 @@ export default function deleteCharacterHandler(
   removeFromArray(game.playersReadied, socketMeta.username);
   if (wasReadied) {
     this.io
-      .of(SocketNamespaces.Main)
+      .of("/")
       .in(game.name)
       .emit(ServerToClientEvent.PlayerToggledReadyToStartGame, socketMeta.username);
   }
 
   this.io
-    .of(SocketNamespaces.Main)
+    .of("/")
     .in(game.name)
     .emit(ServerToClientEvent.CharacterDeleted, player.partyName, socketMeta.username, characterId);
 }

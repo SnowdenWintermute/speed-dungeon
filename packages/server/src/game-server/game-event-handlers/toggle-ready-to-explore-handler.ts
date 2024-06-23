@@ -3,14 +3,14 @@ import {
   BattleGroup,
   BattleGroupType,
   ERROR_MESSAGES,
-  InPartyClientToServerEventTypes,
-  InPartyServerToClientEvent,
-  InPartyServerToClientEventTypes,
-  SocketNamespaces,
+  ClientToServerEventTypes,
+  ServerToClientEvent,
+  ServerToClientEventTypes,
   SpeedDungeonGame,
   getPlayerParty,
   initateBattle,
   removeFromArray,
+  getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
 import errorHandler from "../error-handler";
@@ -20,9 +20,9 @@ import takeAiTurnsAtBattleStart from "./combat-action-results-processing/take-ai
 
 export default function toggleReadyToExploreHandler(this: GameServer, socketId: string) {
   const [socket, socketMeta] = this.getConnection<
-    InPartyClientToServerEventTypes,
-    InPartyServerToClientEventTypes
-  >(socketId, SocketNamespaces.Party);
+    ClientToServerEventTypes,
+    ServerToClientEventTypes
+  >(socketId);
   if (!socket) return console.error("No socket found");
 
   const { username } = socketMeta;
@@ -44,7 +44,9 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
     removeFromArray(party.playersReadyToExplore, username);
   else party.playersReadyToExplore.push(username);
 
-  socket.emit(InPartyServerToClientEvent.PlayerToggledReadyToExplore, username);
+  socket
+    .in(getPartyChannelName(party.name))
+    .emit(ServerToClientEvent.PlayerToggledReadyToExplore, username);
 
   // if all players names are in the ready to explore list, generate the next room and remove
   // them all from the ready list
@@ -66,10 +68,9 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
       if (roomType === DungeonRoomType.MonsterLair) return roomType;
       else return null;
     });
-    socket.emit(
-      InPartyServerToClientEvent.DungeonRoomTypesOnCurrentFloor,
-      newRoomTypesListForClientOption
-    );
+    socket
+      .in(getPartyChannelName(party.name))
+      .emit(ServerToClientEvent.DungeonRoomTypesOnCurrentFloor, newRoomTypesListForClientOption);
   }
   const roomTypeToGenerateOption = party.unexploredRooms.pop();
   if (!roomTypeToGenerateOption) {
@@ -83,7 +84,7 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
   party.roomsExplored.onCurrentFloor += 1;
   party.roomsExplored.total += 1;
 
-  socket.emit(InPartyServerToClientEvent.DungeonRoomUpdate, newRoom);
+  socket.in(getPartyChannelName(party.name)).emit(ServerToClientEvent.DungeonRoomUpdate, newRoom);
 
   if (Object.keys(newRoom.monsters).length > 0) {
     const battleGroupA = new BattleGroup(
@@ -107,9 +108,9 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
     const battleOption = game.battles[party.battleId];
     if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     const battle = battleOption;
-    socket.emit(InPartyServerToClientEvent.BattleFullUpdate, battle);
+    socket.in(getPartyChannelName(party.name)).emit(ServerToClientEvent.BattleFullUpdate, battle);
 
-    const maybeError = takeAiTurnsAtBattleStart(game, battle, socket);
+    const maybeError = takeAiTurnsAtBattleStart(game, party, battle, socket);
     if (maybeError instanceof Error) return maybeError;
 
     const playerPartyWipedResult = SpeedDungeonGame.allCombatantsInGroupAreDead(

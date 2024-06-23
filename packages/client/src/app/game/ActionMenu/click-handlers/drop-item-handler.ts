@@ -4,7 +4,7 @@ import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { PartyClientSocket } from "@/stores/websocket-store";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
-import { CombatantProperties, InPartyClientToServerEvent } from "@speed-dungeon/common";
+import { CombatantProperties, ClientToServerEvent } from "@speed-dungeon/common";
 
 export default function dropItemHandler(
   mutateGameState: MutateState<GameState>,
@@ -25,13 +25,9 @@ export default function dropItemHandler(
     const characterId = focusedCharacter.entityProperties.id;
 
     if (slotItemIsEquipped !== null) {
-      partySocket.emit(
-        InPartyClientToServerEvent.DropEquippedItem,
-        characterId,
-        slotItemIsEquipped
-      );
+      partySocket.emit(ClientToServerEvent.DropEquippedItem, characterId, slotItemIsEquipped);
     } else {
-      partySocket.emit(InPartyClientToServerEvent.DropItem, characterId, itemId);
+      partySocket.emit(ClientToServerEvent.DropItem, characterId, itemId);
     }
 
     gameState.selectedItem = null;

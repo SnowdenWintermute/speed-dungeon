@@ -1,4 +1,7 @@
-import { CombatantClass } from "../combatants";
+import { CombatAction } from "../combat";
+import { CombatAttribute, CombatantClass } from "../combatants";
+import { EquipmentSlot } from "../items";
+import { NextOrPrevious } from "../primatives";
 
 export enum ClientToServerEvent {
   RequestToJoinGame = "0",
@@ -12,6 +15,18 @@ export enum ClientToServerEvent {
   ToggleReadyToStartGame = "8",
   CreateCharacter = "9",
   DeleteCharacter = "10",
+  SelectCombatAction = "11",
+  IncrementAttribute = "12",
+  ToggleReadyToExplore = "13",
+  UnequipSlot = "14",
+  EquipInventoryItem = "15",
+  CycleCombatActionTargets = "16",
+  CycleTargetingSchemes = "17",
+  UseSelectedCombatAction = "18",
+  DropEquippedItem = "19",
+  DropItem = "20",
+  ToggleReadyToDescend = "21",
+  AssignAttributePoint = "22",
 }
 
 export interface ClientToServerEventTypes {
@@ -29,4 +44,32 @@ export interface ClientToServerEventTypes {
     combatantClass: CombatantClass
   ) => void;
   [ClientToServerEvent.DeleteCharacter]: (characterId: string) => void;
+  [ClientToServerEvent.SelectCombatAction]: (
+    characterId: string,
+    combatActionOption: null | CombatAction
+  ) => void;
+  [ClientToServerEvent.IncrementAttribute]: (
+    characterId: string,
+    attribute: CombatAttribute
+  ) => void;
+  [ClientToServerEvent.ToggleReadyToExplore]: () => void;
+  [ClientToServerEvent.UnequipSlot]: (characterId: string, slot: EquipmentSlot) => void;
+  [ClientToServerEvent.EquipInventoryItem]: (
+    characterId: string,
+    itemId: string,
+    altSlot: boolean
+  ) => void;
+  [ClientToServerEvent.CycleCombatActionTargets]: (
+    characterId: string,
+    direction: NextOrPrevious
+  ) => void;
+  [ClientToServerEvent.CycleTargetingSchemes]: (characterId: string) => void;
+  [ClientToServerEvent.UseSelectedCombatAction]: (characterId: string) => void;
+  [ClientToServerEvent.DropEquippedItem]: (characterId: string, slot: EquipmentSlot) => void;
+  [ClientToServerEvent.DropItem]: (characterId: string, itemId: string) => void;
+  [ClientToServerEvent.ToggleReadyToDescend]: () => void;
+  [ClientToServerEvent.AssignAttributePoint]: (
+    characterId: string,
+    attribute: CombatAttribute
+  ) => void;
 }

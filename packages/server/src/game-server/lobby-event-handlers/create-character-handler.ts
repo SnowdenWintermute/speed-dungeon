@@ -3,7 +3,6 @@ import {
   CombatantClass,
   ERROR_MESSAGES,
   ServerToClientEvent,
-  SocketNamespaces,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { generateRandomCharacterName } from "../../utils";
@@ -17,7 +16,7 @@ export default function createCharacterHandler(
   characterName: string,
   combatantClass: CombatantClass
 ) {
-  const [socket, socketMeta] = this.getConnection(socketId, SocketNamespaces.Main);
+  const [socket, socketMeta] = this.getConnection(socketId);
 
   try {
     if (!socketMeta.currentGameName)
@@ -45,7 +44,7 @@ export default function createCharacterHandler(
     if (characterResult instanceof Error) throw characterResult;
 
     this.io
-      .of(SocketNamespaces.Main)
+      .of("/")
       .in(game.name)
       .emit(
         ServerToClientEvent.CharacterCreated,

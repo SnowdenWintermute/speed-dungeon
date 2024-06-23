@@ -7,7 +7,7 @@ import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import {
   CombatActionType,
   CombatantProperties,
-  InPartyClientToServerEvent,
+  ClientToServerEvent,
   ItemPropertiesType,
 } from "@speed-dungeon/common";
 import selectCombatActionHandler from "./select-combat-action-handler";
@@ -53,13 +53,13 @@ function useEquipmentHandler(
   );
   if (slotEquippedOption !== null) {
     partySocket.emit(
-      InPartyClientToServerEvent.UnequipSlot,
+      ClientToServerEvent.UnequipSlot,
       focusedCharacter.entityProperties.id,
       slotEquippedOption
     );
   } else {
     partySocket.emit(
-      InPartyClientToServerEvent.EquipInventoryItem,
+      ClientToServerEvent.EquipInventoryItem,
       focusedCharacter.entityProperties.id,
       itemId,
       altSlot

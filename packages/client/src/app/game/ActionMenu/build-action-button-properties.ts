@@ -4,8 +4,8 @@ import { MutateState } from "@/stores/mutate-state";
 import { UIState } from "@/stores/ui-store";
 import {
   ERROR_MESSAGES,
-  InPartyClientToServerEventTypes,
-  InPartyServerToClientEventTypes,
+  ClientToServerEventTypes,
+  ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io-client";
 import collectActionMenuRelevantInformation from "./collect-action-menu-relevant-information";
@@ -29,9 +29,7 @@ export default function buildActionButtonProperties(
   gameState: GameState,
   uiState: UIState,
   mutateAlertState: MutateState<AlertState>,
-  partySocketOption:
-    | undefined
-    | Socket<InPartyServerToClientEventTypes, InPartyClientToServerEventTypes>
+  partySocketOption: undefined | Socket<ServerToClientEventTypes, ClientToServerEventTypes>
 ): Error | ActionButtonPropertiesByCategory {
   const buttonPropertiesByCategory: ActionButtonPropertiesByCategory = {
     [ActionButtonCategory.Top]: [],

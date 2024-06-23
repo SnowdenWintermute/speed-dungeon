@@ -1,18 +1,21 @@
 import {
+  AdventuringParty,
   Battle,
+  ClientToServerEventTypes,
   CombatTurnResult,
-  InPartyClientToServerEventTypes,
-  InPartyServerToClientEvent,
-  InPartyServerToClientEventTypes,
+  ServerToClientEvent,
+  ServerToClientEventTypes,
   SpeedDungeonGame,
+  getPartyChannelName,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io";
 import takeAiControlledTurnsIfAppropriate from "./take-ai-controlled-turns-if-appropriate";
 
 export default function takeAiTurnsAtBattleStart(
   game: SpeedDungeonGame,
+  party: AdventuringParty,
   battle: Battle,
-  partySocket: Socket<InPartyClientToServerEventTypes, InPartyServerToClientEventTypes>
+  socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ): Error | void {
   const turnResults: CombatTurnResult[] = [];
 
@@ -22,6 +25,8 @@ export default function takeAiTurnsAtBattleStart(
   turnResults.push(...aiControlledTurnResults);
 
   if (turnResults.length > 0) {
-    partySocket.emit(InPartyServerToClientEvent.TurnResults, aiControlledTurnResults);
+    socket
+      .in(getPartyChannelName(party.name))
+      .emit(ServerToClientEvent.TurnResults, aiControlledTurnResults);
   }
 }

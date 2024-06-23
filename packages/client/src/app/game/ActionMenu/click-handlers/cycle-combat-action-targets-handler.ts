@@ -4,7 +4,7 @@ import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { PartyClientSocket } from "@/stores/websocket-store";
 import getClientPlayerAssociatedData from "@/utils/getClientPlayerAssociatedData";
-import { InPartyClientToServerEvent, NextOrPrevious } from "@speed-dungeon/common";
+import { ClientToServerEvent, NextOrPrevious } from "@speed-dungeon/common";
 import cycleCharacterTargets from "@speed-dungeon/common/src/combat/targeting/cycle-character-targets";
 
 export default function cycleCombatActionTargetsHandler(
@@ -29,7 +29,7 @@ export default function cycleCombatActionTargetsHandler(
     if (result instanceof Error) return setAlert(mutateAlertState, result.message);
 
     partySocket.emit(
-      InPartyClientToServerEvent.CycleCombatActionTargets,
+      ClientToServerEvent.CycleCombatActionTargets,
       focusedCharacter.entityProperties.id,
       direction
     );

@@ -4,7 +4,7 @@ import { UIState } from "@/stores/ui-store";
 import { PartyClientSocket } from "@/stores/websocket-store";
 import { MutateState } from "@/stores/mutate-state";
 import { AlertState } from "@/stores/alert-store";
-import { InPartyClientToServerEvent } from "@speed-dungeon/common";
+import { ClientToServerEvent } from "@speed-dungeon/common";
 import getItemOwnedByFocusedCharacter from "@/utils/getItemOwnedByFocusedCharacter";
 import selectItem from "@/utils/selectItem";
 import { setAlert } from "@/app/components/alerts";
@@ -25,7 +25,7 @@ export default function createActionButtonClickHandler(
   const mutateGameState = gameState.mutateState;
   switch (gameAction.type) {
     case GameActionType.ToggleReadyToExplore:
-      return () => partySocket.emit(InPartyClientToServerEvent.ToggleReadyToExplore);
+      return () => partySocket.emit(ClientToServerEvent.ToggleReadyToExplore);
     case GameActionType.SetInventoryOpen:
       return () =>
         mutateGameState((gameState) => {
@@ -90,7 +90,7 @@ export default function createActionButtonClickHandler(
       return () =>
         dropItemHandler(mutateGameState, mutateAlertState, partySocket, gameAction.itemId);
     case GameActionType.ToggleReadyToDescend:
-      return () => partySocket.emit(InPartyClientToServerEvent.ToggleReadyToDescend);
+      return () => partySocket.emit(ClientToServerEvent.ToggleReadyToDescend);
     case GameActionType.SetAssignAttributePointsMenuOpen:
       return () =>
         mutateGameState((gameState) => {
@@ -99,7 +99,7 @@ export default function createActionButtonClickHandler(
     case GameActionType.AssignAttributePoint:
       return () =>
         partySocket.emit(
-          InPartyClientToServerEvent.AssignAttributePoint,
+          ClientToServerEvent.AssignAttributePoint,
           gameState.focusedCharacterId,
           gameAction.attribute
         );

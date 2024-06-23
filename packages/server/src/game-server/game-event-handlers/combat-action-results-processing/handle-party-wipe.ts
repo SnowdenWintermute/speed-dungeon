@@ -2,9 +2,8 @@ import {
   AdventuringParty,
   Battle,
   ERROR_MESSAGES,
-  InPartyClientToServerEventTypes,
-  InPartyServerToClientEventTypes,
-  SocketNamespaces,
+  ClientToServerEventTypes,
+  ServerToClientEventTypes,
   SpeedDungeonGame,
   getPlayerParty,
 } from "@speed-dungeon/common";

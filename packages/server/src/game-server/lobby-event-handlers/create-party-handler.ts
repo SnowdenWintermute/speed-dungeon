@@ -3,7 +3,6 @@ import {
   ERROR_MESSAGES,
   ServerToClientEvent,
   ServerToClientEventTypes,
-  SocketNamespaces,
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
 import { generateRandomPartyName } from "../../utils";
@@ -14,7 +13,7 @@ export default function createPartyHandler(this: GameServer, socketId: string, p
   const [socket, socketMeta] = this.getConnection<
     ClientToServerEventTypes,
     ServerToClientEventTypes
-  >(socketId, SocketNamespaces.Main);
+  >(socketId);
   if (!socketMeta.currentGameName)
     return errorHandler(
       socket,
@@ -43,6 +42,6 @@ export default function createPartyHandler(this: GameServer, socketId: string, p
     return socket?.emit(ServerToClientEvent.ErrorMessage, ERROR_MESSAGES.LOBBY.PARTY_NAME_EXISTS);
   }
   game.adventuringParties[partyName] = new AdventuringParty(partyName);
-  this.io.of(SocketNamespaces.Main).in(game.name).emit(ServerToClientEvent.PartyCreated, partyName);
+  this.io.of("/").in(game.name).emit(ServerToClientEvent.PartyCreated, partyName);
   this.joinPartyHandler(socketId, partyName);
 }

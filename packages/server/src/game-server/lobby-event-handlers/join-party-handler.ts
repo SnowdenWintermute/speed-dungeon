@@ -1,14 +1,14 @@
 import {
   ERROR_MESSAGES,
   ServerToClientEvent,
-  SocketNamespaces,
   SpeedDungeonGame,
+  getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
 import errorHandler from "../error-handler";
 
 export default function joinPartyHandler(this: GameServer, socketId: string, partyName: string) {
-  const [socket, socketMeta] = this.getConnection(socketId, SocketNamespaces.Main);
+  const [socket, socketMeta] = this.getConnection(socketId);
   if (!socketMeta.currentGameName)
     return errorHandler(
       socket,
@@ -29,11 +29,12 @@ export default function joinPartyHandler(this: GameServer, socketId: string, par
   if (player.partyName) return errorHandler(socket, ERROR_MESSAGES.LOBBY.ALREADY_IN_PARTY);
 
   SpeedDungeonGame.putPlayerInParty(game, partyName, player.username);
-  this.joinSocketToChannel(socketId, SocketNamespaces.Party, partyName);
+  this.joinSocketToChannel(socketId, getPartyChannelName(partyName));
+  socketMeta.currentPartyName = partyName;
   socket?.emit(ServerToClientEvent.PartyNameUpdate, partyName);
 
   this.io
-    .of(SocketNamespaces.Main)
+    .of("/")
     .to(game.name)
     .emit(ServerToClientEvent.PlayerChangedAdventuringParty, socketMeta.username, partyName);
 }

@@ -4,7 +4,7 @@ import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { PartyClientSocket } from "@/stores/websocket-store";
 import getClientPlayerAssociatedData from "@/utils/getClientPlayerAssociatedData";
-import { InPartyClientToServerEvent } from "@speed-dungeon/common";
+import { ClientToServerEvent } from "@speed-dungeon/common";
 import cycleCharacterTargetingSchemes from "@speed-dungeon/common/src/combat/targeting/cycle-character-targeting-schemes";
 
 export default function cycleTargetingSchemeHandler(
@@ -21,7 +21,7 @@ export default function cycleTargetingSchemeHandler(
     cycleCharacterTargetingSchemes(game, party, player, focusedCharacter.entityProperties.id);
 
     partySocket.emit(
-      InPartyClientToServerEvent.CycleTargetingSchemes,
+      ClientToServerEvent.CycleTargetingSchemes,
       focusedCharacter.entityProperties.id
     );
   });

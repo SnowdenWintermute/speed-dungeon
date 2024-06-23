@@ -1,9 +1,9 @@
-import { ServerToClientEvent, SocketNamespaces, SpeedDungeonGame } from "@speed-dungeon/common";
+import { ServerToClientEvent, SpeedDungeonGame, getPartyChannelName } from "@speed-dungeon/common";
 import { GameServer } from "..";
 import errorHandler from "../error-handler";
 
 export default function leavePartyHandler(this: GameServer, socketId: string) {
-  const [socket, socketMeta] = this.getConnection(socketId, SocketNamespaces.Main);
+  const [socket, socketMeta] = this.getConnection(socketId);
   try {
     if (!socketMeta.currentGameName) return;
     const game = this.games.get(socketMeta.currentGameName);
@@ -12,11 +12,11 @@ export default function leavePartyHandler(this: GameServer, socketId: string) {
     const partyNameLeaving = SpeedDungeonGame.removePlayerFromParty(game, socketMeta.username);
     if (!partyNameLeaving) return;
 
-    this.removeSocketFromChannel(socketId, SocketNamespaces.Party, partyNameLeaving);
+    this.removeSocketFromChannel(socketId, getPartyChannelName(partyNameLeaving));
 
     socket?.emit(ServerToClientEvent.PartyNameUpdate, null);
     this.io
-      .of(SocketNamespaces.Main)
+      .of("/")
       .in(game.name)
       .emit(ServerToClientEvent.PlayerChangedAdventuringParty, socketMeta.username, null);
   } catch (error: any) {
