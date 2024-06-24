@@ -10,7 +10,7 @@ import cycleCharacterTargets from "@speed-dungeon/common/src/combat/targeting/cy
 export default function cycleCombatActionTargetsHandler(
   mutateGameState: MutateState<GameState>,
   mutateAlertState: MutateState<AlertState>,
-  partySocket: PartyClientSocket,
+  socket: PartyClientSocket,
   direction: NextOrPrevious
 ) {
   mutateGameState((gameState) => {
@@ -28,7 +28,7 @@ export default function cycleCombatActionTargetsHandler(
     );
     if (result instanceof Error) return setAlert(mutateAlertState, result.message);
 
-    partySocket.emit(
+    socket.emit(
       ClientToServerEvent.CycleCombatActionTargets,
       focusedCharacter.entityProperties.id,
       direction

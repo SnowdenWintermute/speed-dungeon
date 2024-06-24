@@ -26,6 +26,8 @@ import handlePartyWipe from "./game-event-handlers/combat-action-results-process
 import { getSocketIdsOfPlayersInOtherParties } from "./get-socket-ids-of-players-in-other-parties";
 import getSocketIdOfPlayer from "./get-player-socket-id";
 import toggleReadyToExploreHandler from "./game-event-handlers/toggle-ready-to-explore-handler";
+import emitErrorEventIfError from "./emit-error-event-if-error";
+import initiateGameEventListeners from "./game-event-handlers";
 
 export type Username = string;
 export type SocketId = string;
@@ -42,6 +44,7 @@ export class GameServer {
   connectionHandler = connectionHandler;
   disconnectionHandler = disconnectionHandler;
   initiateLobbyEventListeners = initiateLobbyEventListeners;
+  initiateGameEventListeners = initiateGameEventListeners;
   joinSocketToChannel = joinSocketToChannel;
   removeSocketFromChannel = removeSocketFromChannel;
   createGameHandler = createGameHandler;
@@ -59,4 +62,5 @@ export class GameServer {
   getSocketCurrentGame = getSocketCurrentGame;
   getSocketIdsOfPlayersInOtherParties = getSocketIdsOfPlayersInOtherParties;
   getSocketIdOfPlayer = getSocketIdOfPlayer;
+  emitErrorEventIfError = emitErrorEventIfError;
 }

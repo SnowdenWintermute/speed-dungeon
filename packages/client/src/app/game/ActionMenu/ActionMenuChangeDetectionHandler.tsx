@@ -15,7 +15,7 @@ interface Props {
 }
 
 export default function ActionMenuChangeDetectionHandler({ setButtonProperties }: Props) {
-  const partySocketOption = useWebsocketStore().partySocketOption;
+  const socketOption = useWebsocketStore().socketOption;
   const gameState = useGameStore();
   const getActiveCombatant = useGameStore().getActiveCombatant;
   const uiState = useUIStore();
@@ -63,7 +63,7 @@ export default function ActionMenuChangeDetectionHandler({ setButtonProperties }
       gameState,
       uiState,
       mutateAlertState,
-      partySocketOption
+      socketOption
     );
 
     if (updatedButtonPropertiesResult instanceof Error)

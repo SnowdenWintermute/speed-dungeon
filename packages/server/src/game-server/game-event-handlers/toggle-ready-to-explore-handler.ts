@@ -62,6 +62,7 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
 
   party.playersReadyToExplore = [];
   if (party.unexploredRooms.length < 1) {
+    console.log("generating room types");
     party.generateUnexploredRoomsQueue();
     // we only want the client to know about the monster lairs, they will discover other room types as they enter them
     const newRoomTypesListForClientOption = party.unexploredRooms.map((roomType) => {
@@ -73,7 +74,7 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
       .emit(ServerToClientEvent.DungeonRoomTypesOnCurrentFloor, newRoomTypesListForClientOption);
   }
   const roomTypeToGenerateOption = party.unexploredRooms.pop();
-  if (!roomTypeToGenerateOption) {
+  if (roomTypeToGenerateOption === undefined) {
     console.error("no dungeon room to generate");
     return errorHandler(socket, ERROR_MESSAGES.SERVER_GENERIC);
   }

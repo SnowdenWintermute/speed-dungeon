@@ -29,7 +29,7 @@ export default function buildActionButtonProperties(
   gameState: GameState,
   uiState: UIState,
   mutateAlertState: MutateState<AlertState>,
-  partySocketOption: undefined | Socket<ServerToClientEventTypes, ClientToServerEventTypes>
+  socketOption: undefined | Socket<ServerToClientEventTypes, ClientToServerEventTypes>
 ): Error | ActionButtonPropertiesByCategory {
   const buttonPropertiesByCategory: ActionButtonPropertiesByCategory = {
     [ActionButtonCategory.Top]: [],
@@ -37,8 +37,8 @@ export default function buildActionButtonProperties(
     [ActionButtonCategory.NextPrevious]: [],
   };
 
-  if (!partySocketOption) return new Error(ERROR_MESSAGES.CLIENT.NO_SOCKET_OBJECT);
-  const partySocket = partySocketOption;
+  if (!socketOption) return new Error(ERROR_MESSAGES.CLIENT.NO_SOCKET_OBJECT);
+  const socket = socketOption;
   const partyResult = getParty(gameState.game, gameState.username);
   if (partyResult instanceof Error) return partyResult;
   const relevantInformationResult = collectActionMenuRelevantInformation(gameState, partyResult);
@@ -54,7 +54,7 @@ export default function buildActionButtonProperties(
       gameState,
       uiState,
       mutateAlertState,
-      partySocket
+      socket
     );
 
     const mouseEnterHandler = createActionButtonMouseEnterHandler(gameState, action);

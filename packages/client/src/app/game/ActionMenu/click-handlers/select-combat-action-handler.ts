@@ -11,7 +11,7 @@ import { getCombatActionProperties } from "@speed-dungeon/common/src/combatants/
 export default function selectCombatActionHandler(
   gameState: GameState,
   mutateAlertState: MutateState<AlertState>,
-  partySocket: PartyClientSocket,
+  socket: PartyClientSocket,
   combatActionOption: null | CombatAction
 ) {
   gameState.mutateState((gameState) => {
@@ -41,7 +41,7 @@ export default function selectCombatActionHandler(
     gameState.hoveredAction = null;
     gameState.hoveredEntity = null;
 
-    partySocket.emit(
+    socket.emit(
       ClientToServerEvent.SelectCombatAction,
       focusedCharacter.entityProperties.id,
       combatActionOption

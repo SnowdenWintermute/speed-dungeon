@@ -11,7 +11,6 @@ type WebsocketState = {
   socketOption: undefined | Socket<ServerToClientEventTypes, ClientToServerEventTypes>;
   mainChannelName: string;
   usernamesInMainChannel: Set<string>;
-  partySocketOption: undefined | PartyClientSocket;
   mutateState: (fn: (state: WebsocketState) => void) => void;
 };
 
@@ -22,7 +21,6 @@ export const useWebsocketStore = create<WebsocketState>()(
         socketOption: undefined,
         usernamesInMainChannel: new Set(),
         mainChannelName: "",
-        partySocketOption: undefined,
         mutateState: (fn: (state: WebsocketState) => void) => set(produce(fn)),
       }),
       { enabled: true, name: "websocket store" }

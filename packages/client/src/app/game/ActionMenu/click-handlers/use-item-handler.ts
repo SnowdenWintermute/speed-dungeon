@@ -16,7 +16,7 @@ export default function useItemHandler(
   gameState: GameState,
   uiState: UIState,
   mutateAlertState: MutateState<AlertState>,
-  partySocket: PartyClientSocket
+  socket: PartyClientSocket
 ) {
   const altSlotTargeted = uiState.modKeyHeld;
   const itemOption = gameState.selectedItem;
@@ -25,12 +25,12 @@ export default function useItemHandler(
       case ItemPropertiesType.Equipment:
         useEquipmentHandler(
           gameState,
-          partySocket,
+          socket,
           itemOption.entityProperties.id,
           altSlotTargeted
         );
       case ItemPropertiesType.Consumable:
-        selectCombatActionHandler(gameState, mutateAlertState, partySocket, {
+        selectCombatActionHandler(gameState, mutateAlertState, socket, {
           type: CombatActionType.ConsumableUsed,
           itemId: itemOption.entityProperties.id,
         });
@@ -40,7 +40,7 @@ export default function useItemHandler(
 
 function useEquipmentHandler(
   gameState: GameState,
-  partySocket: PartyClientSocket,
+  socket: PartyClientSocket,
   itemId: string,
   altSlot: boolean
 ) {
@@ -52,13 +52,13 @@ function useEquipmentHandler(
     itemId
   );
   if (slotEquippedOption !== null) {
-    partySocket.emit(
+    socket.emit(
       ClientToServerEvent.UnequipSlot,
       focusedCharacter.entityProperties.id,
       slotEquippedOption
     );
   } else {
-    partySocket.emit(
+    socket.emit(
       ClientToServerEvent.EquipInventoryItem,
       focusedCharacter.entityProperties.id,
       itemId,

@@ -7,10 +7,7 @@ export function connectionHandler(this: GameServer) {
   this.io.of("/").on("connection", (socket) => {
     const username = generateRandomUsername();
     console.log(`-- ${username} (${socket.id}) connected`);
-    this.connections.insert(
-      socket.id,
-      new BrowserTabSession(socket.id, username, LOBBY_CHANNEL)
-    );
+    this.connections.insert(socket.id, new BrowserTabSession(socket.id, username, LOBBY_CHANNEL));
 
     if (this.socketIdsByUsername.has(username)) {
       const currentSockets = this.socketIdsByUsername.get(username)!;
@@ -19,6 +16,7 @@ export function connectionHandler(this: GameServer) {
 
     this.disconnectionHandler(socket);
     this.initiateLobbyEventListeners(socket);
+    this.initiateGameEventListeners(socket);
     this.joinSocketToChannel(socket.id, LOBBY_CHANNEL);
     socket.emit(ServerToClientEvent.ClientUsername, username);
   });

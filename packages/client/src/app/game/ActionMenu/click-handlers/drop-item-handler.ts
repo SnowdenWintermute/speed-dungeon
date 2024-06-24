@@ -9,7 +9,7 @@ import { CombatantProperties, ClientToServerEvent } from "@speed-dungeon/common"
 export default function dropItemHandler(
   mutateGameState: MutateState<GameState>,
   mutateAlertState: MutateState<AlertState>,
-  partySocket: PartyClientSocket,
+  socket: PartyClientSocket,
   itemId: string
 ) {
   mutateGameState((gameState) => {
@@ -25,9 +25,9 @@ export default function dropItemHandler(
     const characterId = focusedCharacter.entityProperties.id;
 
     if (slotItemIsEquipped !== null) {
-      partySocket.emit(ClientToServerEvent.DropEquippedItem, characterId, slotItemIsEquipped);
+      socket.emit(ClientToServerEvent.DropEquippedItem, characterId, slotItemIsEquipped);
     } else {
-      partySocket.emit(ClientToServerEvent.DropItem, characterId, itemId);
+      socket.emit(ClientToServerEvent.DropItem, characterId, itemId);
     }
 
     gameState.selectedItem = null;

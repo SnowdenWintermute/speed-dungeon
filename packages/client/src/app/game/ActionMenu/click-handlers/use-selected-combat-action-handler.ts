@@ -5,7 +5,7 @@ import { ClientToServerEvent } from "@speed-dungeon/common";
 
 export default function useSelectedCombatActionHandler(
   mutateGameState: MutateState<GameState>,
-  partySocket: PartyClientSocket
+  socket: PartyClientSocket
 ) {
   mutateGameState((gameState) => {
     gameState.selectedItem = null;
@@ -14,6 +14,6 @@ export default function useSelectedCombatActionHandler(
     if (typeof previousActionMenuPageNumberOption === "number") {
       gameState.actionMenuCurrentPageNumber = previousActionMenuPageNumberOption;
     }
-    partySocket.emit(ClientToServerEvent.UseSelectedCombatAction, gameState.focusedCharacterId);
+    socket.emit(ClientToServerEvent.UseSelectedCombatAction, gameState.focusedCharacterId);
   });
 }

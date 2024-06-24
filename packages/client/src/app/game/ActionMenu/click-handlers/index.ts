@@ -20,12 +20,12 @@ export default function createActionButtonClickHandler(
   gameState: GameState,
   uiState: UIState,
   mutateAlertState: MutateState<AlertState>,
-  partySocket: PartyClientSocket
+  socket: PartyClientSocket
 ) {
   const mutateGameState = gameState.mutateState;
   switch (gameAction.type) {
     case GameActionType.ToggleReadyToExplore:
-      return () => partySocket.emit(ClientToServerEvent.ToggleReadyToExplore);
+      return () => socket.emit(ClientToServerEvent.ToggleReadyToExplore);
     case GameActionType.SetInventoryOpen:
       return () =>
         mutateGameState((gameState) => {
@@ -63,15 +63,15 @@ export default function createActionButtonClickHandler(
         selectItem(gameState.mutateState, itemResult);
       };
     case GameActionType.UseItem:
-      return () => useItemHandler(gameState, uiState, mutateAlertState, partySocket);
+      return () => useItemHandler(gameState, uiState, mutateAlertState, socket);
     case GameActionType.DeselectCombatAction:
-      return () => selectCombatActionHandler(gameState, mutateAlertState, partySocket, null);
+      return () => selectCombatActionHandler(gameState, mutateAlertState, socket, null);
     case GameActionType.SelectCombatAction:
       return () =>
         selectCombatActionHandler(
           gameState,
           mutateAlertState,
-          partySocket,
+          socket,
           gameAction.combatAction
         );
     case GameActionType.CycleTargets:
@@ -79,18 +79,18 @@ export default function createActionButtonClickHandler(
         cycleCombatActionTargetsHandler(
           mutateGameState,
           mutateAlertState,
-          partySocket,
+          socket,
           gameAction.nextOrPrevious
         );
     case GameActionType.CycleTargetingScheme:
-      return () => cycleTargetingSchemeHandler(mutateGameState, mutateAlertState, partySocket);
+      return () => cycleTargetingSchemeHandler(mutateGameState, mutateAlertState, socket);
     case GameActionType.UseSelectedCombatAction:
-      return () => useSelectedCombatActionHandler(mutateGameState, partySocket);
+      return () => useSelectedCombatActionHandler(mutateGameState, socket);
     case GameActionType.DropItem:
       return () =>
-        dropItemHandler(mutateGameState, mutateAlertState, partySocket, gameAction.itemId);
+        dropItemHandler(mutateGameState, mutateAlertState, socket, gameAction.itemId);
     case GameActionType.ToggleReadyToDescend:
-      return () => partySocket.emit(ClientToServerEvent.ToggleReadyToDescend);
+      return () => socket.emit(ClientToServerEvent.ToggleReadyToDescend);
     case GameActionType.SetAssignAttributePointsMenuOpen:
       return () =>
         mutateGameState((gameState) => {
@@ -98,7 +98,7 @@ export default function createActionButtonClickHandler(
         });
     case GameActionType.AssignAttributePoint:
       return () =>
-        partySocket.emit(
+        socket.emit(
           ClientToServerEvent.AssignAttributePoint,
           gameState.focusedCharacterId,
           gameAction.attribute

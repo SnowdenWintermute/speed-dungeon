@@ -50,11 +50,11 @@ export function AttributeListItem(props: Props) {
 }
 
 function IncreaseAttributeButton({ attribute }: { attribute: CombatAttribute }) {
-  const partySocketOption = useWebsocketStore().partySocketOption;
+  const socketOption = useWebsocketStore().socketOption;
   const focusedCharacterId = useGameStore().focusedCharacterId;
 
   function handleClick() {
-    partySocketOption?.emit(ClientToServerEvent.IncrementAttribute, focusedCharacterId, attribute);
+    socketOption?.emit(ClientToServerEvent.IncrementAttribute, focusedCharacterId, attribute);
   }
 
   return (

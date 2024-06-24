@@ -10,7 +10,7 @@ import cycleCharacterTargetingSchemes from "@speed-dungeon/common/src/combat/tar
 export default function cycleTargetingSchemeHandler(
   mutateGameState: MutateState<GameState>,
   mutateAlertState: MutateState<AlertState>,
-  partySocket: PartyClientSocket
+  socket: PartyClientSocket
 ) {
   mutateGameState((gameState) => {
     const clientPlayerAssociatedDataResult = getClientPlayerAssociatedData(gameState);
@@ -20,7 +20,7 @@ export default function cycleTargetingSchemeHandler(
 
     cycleCharacterTargetingSchemes(game, party, player, focusedCharacter.entityProperties.id);
 
-    partySocket.emit(
+    socket.emit(
       ClientToServerEvent.CycleTargetingSchemes,
       focusedCharacter.entityProperties.id
     );

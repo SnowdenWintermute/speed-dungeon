@@ -43,118 +43,116 @@ function SocketManager() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (socketOption) {
-      socketOption.emit(ClientToServerEvent.RequestsGameList);
+    if (!socketOption) return;
+    const socket = socketOption;
 
-      socketOption.on("connect", () => {
-        mutateGameStore((state) => {
-          state.game = null;
-        });
+    socket.emit(ClientToServerEvent.RequestsGameList);
+
+    socket.on("connect", () => {
+      mutateGameStore((state) => {
+        state.game = null;
       });
-      socketOption.on(ServerToClientEvent.ErrorMessage, (message) => {
-        setAlert(mutateAlertStore, message);
-      });
-      socketOption.on(
-        ServerToClientEvent.ChannelFullUpdate,
-        (channelName, usernamesInChannel) => {
-          mutateWebsocketStore((state) => {
-            state.mainChannelName = channelName;
-            state.usernamesInMainChannel = new Set();
-            usernamesInChannel.forEach((username) => {
-              state.usernamesInMainChannel.add(username);
-            });
-          });
-        }
-      );
-      socketOption.on(ServerToClientEvent.ClientUsername, (username) => {
-        mutateGameStore((state) => {
-          state.username = username;
-        });
-      });
-      socketOption.on(ServerToClientEvent.UserJoinedChannel, (username) => {
-        mutateWebsocketStore((state) => {
+    });
+    socket.on(ServerToClientEvent.ErrorMessage, (message) => {
+      setAlert(mutateAlertStore, message);
+    });
+    socket.on(ServerToClientEvent.ChannelFullUpdate, (channelName, usernamesInChannel) => {
+      mutateWebsocketStore((state) => {
+        state.mainChannelName = channelName;
+        state.usernamesInMainChannel = new Set();
+        usernamesInChannel.forEach((username) => {
           state.usernamesInMainChannel.add(username);
         });
       });
-      socketOption.on(ServerToClientEvent.UserLeftChannel, (username) => {
-        mutateWebsocketStore((state) => {
-          state.usernamesInMainChannel.delete(username);
-        });
+    });
+    socket.on(ServerToClientEvent.ClientUsername, (username) => {
+      mutateGameStore((state) => {
+        state.username = username;
       });
-      socketOption.on(ServerToClientEvent.GameList, (gameList) => {
-        mutateLobbyStore((state) => {
-          state.gameList = gameList;
-        });
+    });
+    socket.on(ServerToClientEvent.UserJoinedChannel, (username) => {
+      mutateWebsocketStore((state) => {
+        state.usernamesInMainChannel.add(username);
       });
-      socketOption.on(ServerToClientEvent.GameFullUpdate, (game) => {
-        mutateGameStore((state) => {
-          if (game === null) state.game = null;
-          else {
-            state.game = game;
-          }
-        });
+    });
+    socket.on(ServerToClientEvent.UserLeftChannel, (username) => {
+      mutateWebsocketStore((state) => {
+        state.usernamesInMainChannel.delete(username);
       });
-      socketOption.on(ServerToClientEvent.PlayerJoinedGame, (username) => {
-        mutateGameStore((state) => {
-          if (state.game) state.game.players[username] = new SpeedDungeonPlayer(username);
-        });
+    });
+    socket.on(ServerToClientEvent.GameList, (gameList) => {
+      mutateLobbyStore((state) => {
+        state.gameList = gameList;
       });
-      socketOption.on(ServerToClientEvent.PlayerLeftGame, (username) => {
-        mutateGameStore((state) => {
-          if (state.game) SpeedDungeonGame.removePlayer(state.game, username);
-        });
-      });
-      socketOption.on(ServerToClientEvent.PartyCreated, (partyName) => {
-        mutateGameStore((state) => {
-          if (state.game) {
-            state.game.adventuringParties[partyName] = new AdventuringParty(partyName);
-          }
-        });
-      });
-      socketOption.on(
-        ServerToClientEvent.PlayerChangedAdventuringParty,
-        (username, partyName) => {
-          mutateGameStore((state) => {
-            if (!state.game) return;
-            SpeedDungeonGame.removePlayerFromParty(state.game, username);
-            if (partyName === null) return;
-            SpeedDungeonGame.putPlayerInParty(state.game, partyName, username);
-          });
+    });
+    socket.on(ServerToClientEvent.GameFullUpdate, (game) => {
+      mutateGameStore((state) => {
+        if (game === null) state.game = null;
+        else {
+          state.game = game;
         }
-      );
-      socketOption.on(
-        ServerToClientEvent.CharacterCreated,
-        (partyName, username, character) => {
-          characterCreationHandler(
-            mutateGameStore,
-            mutateAlertStore,
-            partyName,
-            username,
-            character
-          );
-        }
-      );
-      socketOption.on(
-        ServerToClientEvent.CharacterDeleted,
-        (partyName, username, characterId) => {
-          characterDeletionHandler(
-            mutateGameStore,
-            mutateAlertStore,
-            partyName,
-            username,
-            characterId
-          );
-        }
-      );
-      socketOption.on(ServerToClientEvent.PlayerToggledReadyToStartGame, (username) => {
-        playerToggledReadyToStartGameHandler(mutateGameStore, mutateAlertStore, username);
       });
-      socketOption.on(ServerToClientEvent.GameStarted, (timeStarted) => {
-        mutateGameStore((gameState) => {
-          if (gameState.game) gameState.game.timeStarted = timeStarted;
-        });
+    });
+    socket.on(ServerToClientEvent.PlayerJoinedGame, (username) => {
+      mutateGameStore((state) => {
+        if (state.game) state.game.players[username] = new SpeedDungeonPlayer(username);
       });
-    }
+    });
+    socket.on(ServerToClientEvent.PlayerLeftGame, (username) => {
+      mutateGameStore((state) => {
+        if (state.game) SpeedDungeonGame.removePlayer(state.game, username);
+      });
+    });
+    socket.on(ServerToClientEvent.PartyCreated, (partyName) => {
+      mutateGameStore((state) => {
+        if (state.game) {
+          state.game.adventuringParties[partyName] = new AdventuringParty(partyName);
+        }
+      });
+    });
+    socket.on(ServerToClientEvent.PlayerChangedAdventuringParty, (username, partyName) => {
+      mutateGameStore((state) => {
+        if (!state.game) return;
+        SpeedDungeonGame.removePlayerFromParty(state.game, username);
+        if (partyName === null) return;
+        SpeedDungeonGame.putPlayerInParty(state.game, partyName, username);
+      });
+    });
+    socket.on(ServerToClientEvent.CharacterCreated, (partyName, username, character) => {
+      characterCreationHandler(mutateGameStore, mutateAlertStore, partyName, username, character);
+    });
+    socket.on(ServerToClientEvent.CharacterDeleted, (partyName, username, characterId) => {
+      characterDeletionHandler(mutateGameStore, mutateAlertStore, partyName, username, characterId);
+    });
+    socket.on(ServerToClientEvent.PlayerToggledReadyToStartGame, (username) => {
+      playerToggledReadyToStartGameHandler(mutateGameStore, mutateAlertStore, username);
+    });
+    socket.on(ServerToClientEvent.GameStarted, (timeStarted) => {
+      mutateGameStore((gameState) => {
+        if (gameState.game) gameState.game.timeStarted = timeStarted;
+      });
+    });
+    socket.on(ServerToClientEvent.PlayerToggledReadyToExplore, () => {
+      //todo
+    });
+    socket.on(ServerToClientEvent.DungeonRoomTypesOnCurrentFloor, () => {
+      //todo
+    });
+    socket.on(ServerToClientEvent.DungeonRoomUpdate, () => {
+      //todo
+    });
+    socket.on(ServerToClientEvent.BattleFullUpdate, () => {
+      //todo
+    });
+    socket.on(ServerToClientEvent.TurnResults, () => {
+      //todo
+    });
+    socket.on(ServerToClientEvent.PartyWipe, () => {
+      //todo
+    });
+    socket.on(ServerToClientEvent.BattleReport, () => {
+      //todo
+    });
 
     return () => {
       if (socketOption) {
