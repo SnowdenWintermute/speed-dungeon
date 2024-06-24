@@ -26,9 +26,9 @@ export default function joinGameHandler(this: GameServer, socketId: string, game
 
   socketMeta.currentGameName = gameName;
 
-  this.removeSocketFromChannel(socketId, socketMeta.mainChannelName);
+  this.removeSocketFromChannel(socketId, socketMeta.channelName);
   this.joinSocketToChannel(socketId, gameName);
-  socketMeta.mainChannelName = game.name;
+  socketMeta.channelName = game.name;
 
   socket.emit(ServerToClientEvent.GameFullUpdate, game);
 

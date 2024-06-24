@@ -5,7 +5,7 @@ export class BrowserTabSession {
   constructor(
     public socketId: SocketId,
     public username: Username,
-    public mainChannelName: string = LOBBY_CHANNEL,
+    public channelName: string = LOBBY_CHANNEL,
     public currentGameName: null | string = null,
     public currentPartyName: null | string = null
   ) {}

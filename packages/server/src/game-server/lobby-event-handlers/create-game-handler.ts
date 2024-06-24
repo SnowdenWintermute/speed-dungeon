@@ -1,4 +1,9 @@
-import { ERROR_MESSAGES, ServerToClientEvent, SpeedDungeonGame } from "@speed-dungeon/common";
+import {
+  ERROR_MESSAGES,
+  GAME_CHANNEL_PREFIX,
+  ServerToClientEvent,
+  SpeedDungeonGame,
+} from "@speed-dungeon/common";
 import { GameServer } from "..";
 import { generateRandomGameName } from "../../utils";
 
@@ -10,6 +15,11 @@ export default function createGameHandler(this: GameServer, socketId: string, ga
 
   if (this.games.get(gameName))
     return socket?.emit(ServerToClientEvent.ErrorMessage, ERROR_MESSAGES.LOBBY.GAME_EXISTS);
+  if (gameName.slice(0, GAME_CHANNEL_PREFIX.length - 1) === GAME_CHANNEL_PREFIX)
+    return socket?.emit(
+      ServerToClientEvent.ErrorMessage,
+      `Game name must not start with "${GAME_CHANNEL_PREFIX}"`
+    );
   if (gameName === "") gameName = generateRandomGameName();
   console.log(`created game "${gameName}"`);
   this.games.insert(gameName, new SpeedDungeonGame(gameName));

@@ -12,7 +12,10 @@ export default function leavePartyHandler(this: GameServer, socketId: string) {
     const partyNameLeaving = SpeedDungeonGame.removePlayerFromParty(game, socketMeta.username);
     if (!partyNameLeaving) return;
 
-    this.removeSocketFromChannel(socketId, getPartyChannelName(partyNameLeaving));
+    const partyChannelName = getPartyChannelName(game.name, partyNameLeaving);
+    this.removeSocketFromChannel(socketId, partyChannelName);
+    this.joinSocketToChannel(socketId, game.name);
+    socketMeta.channelName = game.name;
     socketMeta.currentPartyName = null;
 
     socket?.emit(ServerToClientEvent.PartyNameUpdate, null);

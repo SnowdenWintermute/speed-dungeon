@@ -33,8 +33,12 @@ export default function toggleReadyToStartGameHandler(this: GameServer, socketId
     });
 
     if (allPlayersReadied) {
-      // @TODO - toggle ready to explore for all
-      //
+      for (const player of Object.values(game.players)) {
+        const socketIdResult = this.getSocketIdOfPlayer(game, player.username);
+        if (socketIdResult instanceof Error) return socketIdResult;
+        const maybeError = this.toggleReadyToExploreHandler(socketIdResult);
+        if (maybeError instanceof Error) return maybeError;
+      }
       game.timeStarted = Date.now();
       this.io.of("/").in(game.name).emit(ServerToClientEvent.GameStarted, game.timeStarted);
     }

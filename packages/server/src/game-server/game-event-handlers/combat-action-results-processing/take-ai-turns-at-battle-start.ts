@@ -26,7 +26,7 @@ export default function takeAiTurnsAtBattleStart(
 
   if (turnResults.length > 0) {
     socket
-      .in(getPartyChannelName(party.name))
+      .in(getPartyChannelName(game.name, party.name))
       .emit(ServerToClientEvent.TurnResults, aiControlledTurnResults);
   }
 }

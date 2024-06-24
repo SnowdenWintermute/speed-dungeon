@@ -10,10 +10,7 @@ import {
   SPEED_RANGE,
 } from "./consts";
 
-export default function tickCombatUntilNextCombatantIsActive(
-  game: SpeedDungeonGame,
-  battleId: string
-) {
+export function tickCombatUntilNextCombatantIsActive(game: SpeedDungeonGame, battleId: string) {
   const battleOption = game.battles[battleId];
   if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
   const battle = battleOption;

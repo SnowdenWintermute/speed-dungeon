@@ -23,6 +23,9 @@ import deleteCharacterHandler from "./lobby-event-handlers/delete-character-hand
 import toggleReadyToStartGameHandler from "./lobby-event-handlers/toggle-ready-to-start-game-handler";
 import getSocketCurrentGame from "./utils/get-socket-current-game";
 import handlePartyWipe from "./game-event-handlers/combat-action-results-processing/handle-party-wipe";
+import { getSocketIdsOfPlayersInOtherParties } from "./get-socket-ids-of-players-in-other-parties";
+import getSocketIdOfPlayer from "./get-player-socket-id";
+import toggleReadyToExploreHandler from "./game-event-handlers/toggle-ready-to-explore-handler";
 
 export type Username = string;
 export type SocketId = string;
@@ -51,6 +54,9 @@ export class GameServer {
   deleteCharacterHandler = deleteCharacterHandler;
   toggleReadyToStartGameHandler = toggleReadyToStartGameHandler;
   handlePartyWipe = handlePartyWipe;
+  toggleReadyToExploreHandler = toggleReadyToExploreHandler;
   // UTILS
   getSocketCurrentGame = getSocketCurrentGame;
+  getSocketIdsOfPlayersInOtherParties = getSocketIdsOfPlayersInOtherParties;
+  getSocketIdOfPlayer = getSocketIdOfPlayer;
 }

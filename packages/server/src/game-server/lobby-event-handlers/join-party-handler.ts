@@ -29,7 +29,9 @@ export default function joinPartyHandler(this: GameServer, socketId: string, par
   if (player.partyName) return errorHandler(socket, ERROR_MESSAGES.LOBBY.ALREADY_IN_PARTY);
 
   SpeedDungeonGame.putPlayerInParty(game, partyName, player.username);
-  this.joinSocketToChannel(socketId, getPartyChannelName(partyName));
+  const partyChannelName = getPartyChannelName(game.name, partyName);
+  this.joinSocketToChannel(socketId, partyChannelName);
+  socketMeta.channelName = partyChannelName;
   socketMeta.currentPartyName = partyName;
   socket?.emit(ServerToClientEvent.PartyNameUpdate, partyName);
 

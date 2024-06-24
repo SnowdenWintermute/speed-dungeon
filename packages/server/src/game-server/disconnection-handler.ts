@@ -1,7 +1,6 @@
 import {
   ClientToServerEventTypes,
   ServerToClientEventTypes,
-  getPartyChannelName,
   removeFromArray,
 } from "@speed-dungeon/common";
 import { GameServer } from ".";
@@ -26,9 +25,7 @@ export default function disconnectionHandler(
       this.leaveGameHandler(socket.id);
     }
 
-    this.removeSocketFromChannel(socket.id, socketMetadata.mainChannelName);
-    if (socketMetadata.currentPartyName !== null)
-      this.removeSocketFromChannel(socket.id, getPartyChannelName(socketMetadata.currentPartyName));
+    this.removeSocketFromChannel(socket.id, socketMetadata.channelName);
 
     this.connections.remove(socket.id);
   });

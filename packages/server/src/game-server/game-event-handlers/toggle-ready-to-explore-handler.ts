@@ -15,7 +15,7 @@ import {
 import { GameServer } from "..";
 import errorHandler from "../error-handler";
 import { DungeonRoom, DungeonRoomType } from "@speed-dungeon/common";
-import tickCombatUntilNextCombatantIsActive from "@speed-dungeon/common/src/combat/turn-order/tick-combat-until-next-combatant-is-active";
+import { tickCombatUntilNextCombatantIsActive } from "@speed-dungeon/common";
 import takeAiTurnsAtBattleStart from "./combat-action-results-processing/take-ai-turns-at-battle-start";
 
 export default function toggleReadyToExploreHandler(this: GameServer, socketId: string) {
@@ -45,7 +45,7 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
   else party.playersReadyToExplore.push(username);
 
   socket
-    .in(getPartyChannelName(party.name))
+    .in(getPartyChannelName(game.name, party.name))
     .emit(ServerToClientEvent.PlayerToggledReadyToExplore, username);
 
   // if all players names are in the ready to explore list, generate the next room and remove
@@ -69,7 +69,7 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
       else return null;
     });
     socket
-      .in(getPartyChannelName(party.name))
+      .in(getPartyChannelName(game.name, party.name))
       .emit(ServerToClientEvent.DungeonRoomTypesOnCurrentFloor, newRoomTypesListForClientOption);
   }
   const roomTypeToGenerateOption = party.unexploredRooms.pop();
@@ -84,7 +84,9 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
   party.roomsExplored.onCurrentFloor += 1;
   party.roomsExplored.total += 1;
 
-  socket.in(getPartyChannelName(party.name)).emit(ServerToClientEvent.DungeonRoomUpdate, newRoom);
+  socket
+    .in(getPartyChannelName(game.name, party.name))
+    .emit(ServerToClientEvent.DungeonRoomUpdate, newRoom);
 
   if (Object.keys(newRoom.monsters).length > 0) {
     const battleGroupA = new BattleGroup(
@@ -108,7 +110,9 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
     const battleOption = game.battles[party.battleId];
     if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     const battle = battleOption;
-    socket.in(getPartyChannelName(party.name)).emit(ServerToClientEvent.BattleFullUpdate, battle);
+    socket
+      .in(getPartyChannelName(game.name, party.name))
+      .emit(ServerToClientEvent.BattleFullUpdate, battle);
 
     const maybeError = takeAiTurnsAtBattleStart(game, party, battle, socket);
     if (maybeError instanceof Error) return maybeError;

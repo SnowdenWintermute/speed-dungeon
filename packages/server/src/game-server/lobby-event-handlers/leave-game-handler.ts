@@ -24,7 +24,7 @@ export default function leaveGameHandler(this: GameServer, socketId: string) {
 
   this.removeSocketFromChannel(socketId, gameNameLeaving);
   this.joinSocketToChannel(socketId, LOBBY_CHANNEL);
-  socketMeta.mainChannelName = LOBBY_CHANNEL;
+  socketMeta.channelName = LOBBY_CHANNEL;
 
   if (this.games.get(gameNameLeaving)) {
     this.io
