@@ -1,8 +1,7 @@
 import { BUTTON_HEIGHT_SMALL, SPACING_REM } from "@/client_consts";
 import { useGameStore } from "@/stores/game-store";
-import { useLobbyStore } from "@/stores/lobby-store";
 import getParty from "@/utils/getParty";
-import { formatDungeonRoomType } from "@speed-dungeon/common/src/adventuring_party/dungeon-room";
+import { formatDungeonRoomType } from "@speed-dungeon/common";
 import React from "react";
 
 export default function RoomExplorationTracker() {
@@ -29,15 +28,15 @@ export default function RoomExplorationTracker() {
           );
 
         return (
-          <>
-            <li
+          <li key={i} className="flex items-center">
+            <div
               className={`pr-2 pl-2 border text-sm flex items-center justify-center ${currentRoomClass}`}
               style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}
             >
               {roomTypeOption === null ? "?" : formatDungeonRoomType(roomTypeOption)}
-            </li>
+            </div>
             {connectionLine}
-          </>
+          </li>
         );
       })}
     </ul>

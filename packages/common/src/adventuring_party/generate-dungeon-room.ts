@@ -12,7 +12,7 @@ export default function generateDungeonRoom(
 ): DungeonRoom {
   const monsters: { [entityId: string]: Monster } = {};
   if (roomType === DungeonRoomType.MonsterLair) {
-    for (let i = 1; i < NUM_MONSTERS_PER_ROOM; i += 1) {
+    for (let i = 0; i < NUM_MONSTERS_PER_ROOM; i += 1) {
       const newMonster = generateMonster(idGenerator, floor);
       monsters[newMonster.entityProperties.id] = newMonster;
     }

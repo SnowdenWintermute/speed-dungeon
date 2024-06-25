@@ -9,7 +9,6 @@ import {
   SpeedDungeonGame,
   getPlayerParty,
   initateBattle,
-  removeFromArray,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
@@ -17,6 +16,7 @@ import errorHandler from "../error-handler";
 import { DungeonRoom, DungeonRoomType } from "@speed-dungeon/common";
 import { tickCombatUntilNextCombatantIsActive } from "@speed-dungeon/common";
 import takeAiTurnsAtBattleStart from "./combat-action-results-processing/take-ai-turns-at-battle-start";
+import { DescendOrExplore } from "@speed-dungeon/common";
 
 export default function toggleReadyToExploreHandler(this: GameServer, socketId: string) {
   const [socket, socketMeta] = this.getConnection<
@@ -36,17 +36,15 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
   if (Object.values(party.currentRoom.monsters).length > 0)
     return errorHandler(socket, ERROR_MESSAGES.PARTY.CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT);
 
-  // can't be trying to explore and descend at the same time
-  if (party.playersReadyToDescend.includes(username))
-    removeFromArray(party.playersReadyToDescend, username);
-
-  if (party.playersReadyToExplore.includes(username))
-    removeFromArray(party.playersReadyToExplore, username);
-  else party.playersReadyToExplore.push(username);
+  AdventuringParty.updatePlayerReadiness(party, username, DescendOrExplore.Explore);
 
   socket
     .in(getPartyChannelName(game.name, party.name))
-    .emit(ServerToClientEvent.PlayerToggledReadyToExplore, username);
+    .emit(
+      ServerToClientEvent.PlayerToggledReadyToDescendOrExplore,
+      username,
+      DescendOrExplore.Explore
+    );
 
   // if all players names are in the ready to explore list, generate the next room and remove
   // them all from the ready list
@@ -59,20 +57,24 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
   }
 
   if (!allPlayersReadyToExplore) return;
-
   party.playersReadyToExplore = [];
+
   if (party.unexploredRooms.length < 1) {
     console.log("generating room types");
     party.generateUnexploredRoomsQueue();
     // we only want the client to know about the monster lairs, they will discover other room types as they enter them
-    const newRoomTypesListForClientOption = party.unexploredRooms.map((roomType) => {
-      if (roomType === DungeonRoomType.MonsterLair) return roomType;
-      else return null;
-    });
-    socket
+    const newRoomTypesListForClientOption: (DungeonRoomType | null)[] = party.unexploredRooms.map(
+      (roomType) => {
+        if (roomType === DungeonRoomType.MonsterLair) return roomType;
+        else return null;
+      }
+    );
+
+    this.io
       .in(getPartyChannelName(game.name, party.name))
       .emit(ServerToClientEvent.DungeonRoomTypesOnCurrentFloor, newRoomTypesListForClientOption);
   }
+
   const roomTypeToGenerateOption = party.unexploredRooms.pop();
   if (roomTypeToGenerateOption === undefined) {
     console.error("no dungeon room to generate");
@@ -85,9 +87,8 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
   party.roomsExplored.onCurrentFloor += 1;
   party.roomsExplored.total += 1;
 
-  socket
-    .in(getPartyChannelName(game.name, party.name))
-    .emit(ServerToClientEvent.DungeonRoomUpdate, newRoom);
+  const partyChannelName = getPartyChannelName(game.name, party.name);
+  this.io.to(partyChannelName).emit(ServerToClientEvent.DungeonRoomUpdate, newRoom);
 
   if (Object.keys(newRoom.monsters).length > 0) {
     const battleGroupA = new BattleGroup(

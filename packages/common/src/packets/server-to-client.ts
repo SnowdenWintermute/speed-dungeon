@@ -1,4 +1,5 @@
 import { DungeonRoom, DungeonRoomType, PlayerCharacter } from "../adventuring_party";
+import { DescendOrExplore } from "../adventuring_party/update-player-readiness";
 import { Battle, BattleConclusion } from "../battle";
 import { CombatTurnResult } from "../combat";
 import { SpeedDungeonGame } from "../game";
@@ -21,7 +22,7 @@ export enum ServerToClientEvent {
   CharacterDeleted = "13",
   PlayerToggledReadyToStartGame = "14",
   GameStarted = "15",
-  PlayerToggledReadyToExplore = "16",
+  PlayerToggledReadyToDescendOrExplore = "16",
   DungeonRoomTypesOnCurrentFloor = "17",
   DungeonRoomUpdate = "18",
   BattleFullUpdate = "19",
@@ -58,7 +59,10 @@ export interface ServerToClientEventTypes {
   ) => void;
   [ServerToClientEvent.PlayerToggledReadyToStartGame]: (username: string) => void;
   [ServerToClientEvent.GameStarted]: (timeStarted: number) => void;
-  [ServerToClientEvent.PlayerToggledReadyToExplore]: (characterId: string) => void;
+  [ServerToClientEvent.PlayerToggledReadyToDescendOrExplore]: (
+    characterId: string,
+    descendOrExplore: DescendOrExplore
+  ) => void;
   [ServerToClientEvent.DungeonRoomTypesOnCurrentFloor]: (
     roomTypes: (DungeonRoomType | null)[]
   ) => void;

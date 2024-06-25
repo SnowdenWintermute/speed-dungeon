@@ -15,6 +15,7 @@ export default function joinSocketToChannel(
   this.io.to(newChannelName).emit(ServerToClientEvent.UserJoinedChannel, socketMeta.username);
 
   socket.join(newChannelName);
+
   const adapter = this.io.of(namespace).adapter;
   const socketIdsInRoom = adapter.rooms.get(newChannelName);
   const usernamesInRoom: string[] = [];

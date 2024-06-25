@@ -15,6 +15,10 @@ import { useAlertStore } from "@/stores/alert-store";
 import { setAlert } from "../components/alerts";
 import playerToggledReadyToStartGameHandler from "./lobby-event-handlers/player-toggled-ready-to-start-game-handler";
 import { useGameStore } from "@/stores/game-store";
+import playerToggledReadyHandler from "./game-event-handlers/player-toggled-ready-handler";
+import playerToggledReadyToDescendOrExploreHandler from "./game-event-handlers/player-toggled-ready-to-descend-or-explore-handler";
+import newDungeonRoomTypesOnCurrentFloorHandler from "./game-event-handlers/new-dungeon-room-types-on-current-floor-handler";
+import newDungeonRoomHandler from "./game-event-handlers/new-dungeon-room-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -132,14 +136,22 @@ function SocketManager() {
         if (gameState.game) gameState.game.timeStarted = timeStarted;
       });
     });
-    socket.on(ServerToClientEvent.PlayerToggledReadyToExplore, () => {
-      //todo
+    socket.on(
+      ServerToClientEvent.PlayerToggledReadyToDescendOrExplore,
+      (username, descendOrExplore) => {
+        playerToggledReadyToDescendOrExploreHandler(
+          mutateGameStore,
+          mutateAlertStore,
+          username,
+          descendOrExplore
+        );
+      }
+    );
+    socket.on(ServerToClientEvent.DungeonRoomTypesOnCurrentFloor, (newRoomTypes) => {
+      newDungeonRoomTypesOnCurrentFloorHandler(mutateGameStore, mutateAlertStore, newRoomTypes);
     });
-    socket.on(ServerToClientEvent.DungeonRoomTypesOnCurrentFloor, () => {
-      //todo
-    });
-    socket.on(ServerToClientEvent.DungeonRoomUpdate, () => {
-      //todo
+    socket.on(ServerToClientEvent.DungeonRoomUpdate, (newRoom) => {
+      newDungeonRoomHandler(mutateGameStore, mutateAlertStore, newRoom);
     });
     socket.on(ServerToClientEvent.BattleFullUpdate, () => {
       //todo

@@ -9,9 +9,11 @@ import getMonsterIdsInParty from "./get-monster-ids-in-party";
 import getCharacterIfOwned from "./get-character-if-owned";
 import removeCharacterFromParty from "./remove-character-from-party";
 import generateUnexploredRoomsQueue from "./generate-unexplored-rooms-queue";
+import updatePlayerReadiness from "./update-player-readiness";
 export * from "./player-character";
 export * from "./get-item-in-party";
 export * from "./dungeon-room";
+export * from "./update-player-readiness";
 
 export type RoomsExploredTracker = { total: number; onCurrentFloor: number };
 
@@ -23,7 +25,7 @@ export class AdventuringParty {
   characters: { [id: string]: PlayerCharacter } = {};
   characterPositions: string[] = [];
   currentFloor: number = 1;
-  roomsExplored: RoomsExploredTracker = { total: 1, onCurrentFloor: 1 };
+  roomsExplored: RoomsExploredTracker = { total: 0, onCurrentFloor: 1 };
   currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty, {});
   unexploredRooms: DungeonRoomType[] = [];
   clientCurrentFloorRoomsList: (null | DungeonRoomType)[] = [];
@@ -42,4 +44,5 @@ export class AdventuringParty {
   static getMonsterIds = getMonsterIdsInParty;
   static getCharacterIfOwned = getCharacterIfOwned;
   generateUnexploredRoomsQueue = generateUnexploredRoomsQueue;
+  static updatePlayerReadiness = updatePlayerReadiness;
 }
