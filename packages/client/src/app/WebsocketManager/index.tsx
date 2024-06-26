@@ -19,6 +19,8 @@ import playerToggledReadyHandler from "./game-event-handlers/player-toggled-read
 import playerToggledReadyToDescendOrExploreHandler from "./game-event-handlers/player-toggled-ready-to-descend-or-explore-handler";
 import newDungeonRoomTypesOnCurrentFloorHandler from "./game-event-handlers/new-dungeon-room-types-on-current-floor-handler";
 import newDungeonRoomHandler from "./game-event-handlers/new-dungeon-room-handler";
+import battleFullUpdateHandler from "./game-event-handlers/battle-full-update-handler";
+import battleReportHandler from "./game-event-handlers/battle-report-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -153,17 +155,17 @@ function SocketManager() {
     socket.on(ServerToClientEvent.DungeonRoomUpdate, (newRoom) => {
       newDungeonRoomHandler(mutateGameStore, mutateAlertStore, newRoom);
     });
-    socket.on(ServerToClientEvent.BattleFullUpdate, () => {
-      //todo
+    socket.on(ServerToClientEvent.BattleFullUpdate, (battleOption) => {
+      battleFullUpdateHandler(mutateGameStore, mutateAlertStore, battleOption);
     });
     socket.on(ServerToClientEvent.TurnResults, () => {
       //todo
     });
-    socket.on(ServerToClientEvent.PartyWipe, () => {
+    socket.on(ServerToClientEvent.GameMessage, (message) => {
       //todo
     });
-    socket.on(ServerToClientEvent.BattleReport, () => {
-      //todo
+    socket.on(ServerToClientEvent.BattleReport, (report) => {
+      battleReportHandler(socket, mutateGameStore, report);
     });
 
     return () => {

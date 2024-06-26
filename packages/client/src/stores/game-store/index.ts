@@ -4,6 +4,7 @@ import { immer } from "zustand/middleware/immer";
 import { immerable, produce } from "immer";
 import {
   AdventuringParty,
+  BattleReport,
   CombatAction,
   CombatantDetails,
   ERROR_MESSAGES,
@@ -42,6 +43,7 @@ export class GameState {
   actionMenuParentPageNumbers: number[] = [];
   consideredItemUnmetRequirements: null | CombatAttribute[] = null;
   menuContext: MenuContext | null = null;
+  battleReportPendingProcessing: null | BattleReport = null;
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
     if (party instanceof Error) return null;

@@ -27,6 +27,7 @@ export enum ClientToServerEvent {
   DropItem = "20",
   ToggleReadyToDescend = "21",
   AssignAttributePoint = "22",
+  AcknowledgeReceiptOfItemOnGroundUpdate = "23",
 }
 
 export interface ClientToServerEventTypes {
@@ -72,4 +73,5 @@ export interface ClientToServerEventTypes {
     characterId: string,
     attribute: CombatAttribute
   ) => void;
+  [ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate]: (itemId: string) => void;
 }

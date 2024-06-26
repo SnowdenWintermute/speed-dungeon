@@ -4,6 +4,7 @@ import { Battle, BattleConclusion } from "../battle";
 import { CombatTurnResult } from "../combat";
 import { SpeedDungeonGame } from "../game";
 import { Item } from "../items";
+import { GameMessage } from "./game-message";
 
 export enum ServerToClientEvent {
   GameList = "0",
@@ -27,7 +28,7 @@ export enum ServerToClientEvent {
   DungeonRoomUpdate = "18",
   BattleFullUpdate = "19",
   TurnResults = "20",
-  PartyWipe = "21",
+  GameMessage = "21",
   BattleReport = "22",
 }
 
@@ -67,14 +68,10 @@ export interface ServerToClientEventTypes {
     roomTypes: (DungeonRoomType | null)[]
   ) => void;
   [ServerToClientEvent.DungeonRoomUpdate]: (dungeonRoom: DungeonRoom) => void;
-  [ServerToClientEvent.BattleFullUpdate]: (battle: Battle) => void;
+  [ServerToClientEvent.BattleFullUpdate]: (battleOption: null | Battle) => void;
   [ServerToClientEvent.TurnResults]: (turnResults: CombatTurnResult[]) => void;
-  [ServerToClientEvent.PartyWipe]: (partyName: string, dlvl: number, timeOfWipe: number) => void;
-  [ServerToClientEvent.BattleReport]: (
-    conclusion: BattleConclusion,
-    loot: Item[],
-    expChanges: { combatantId: string; experienceChange: number }[]
-  ) => void;
+  [ServerToClientEvent.GameMessage]: (message: GameMessage) => void;
+  [ServerToClientEvent.BattleReport]: (report: BattleReport) => void;
 }
 
 export class GameListEntry {
@@ -82,5 +79,13 @@ export class GameListEntry {
     public gameName: string,
     public numberOfUsers: number,
     public timeStarted: null | number
+  ) {}
+}
+
+export class BattleReport {
+  constructor(
+    public conclusion: BattleConclusion,
+    public loot: Item[] = [],
+    public expChanges: { combatantId: string; experienceChange: number }[] = []
   ) {}
 }
