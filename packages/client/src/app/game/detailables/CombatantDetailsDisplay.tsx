@@ -38,8 +38,8 @@ export default function CombatantDetailsDisplay({ combatantDetails }: Props) {
         </div>
         <Divider />
         <ul>
-          {combatantProperties.traits.map((item) => (
-            <li key={item.type}>
+          {combatantProperties.traits.map((item, i) => (
+            <li key={i}>
               <span className="inline-block h-6 w-6">
                 <HoverableTooltipWrapper tooltipText={TRAIT_DESCRIPTIONS[item.type]}>
                   <span className="cursor-help h-full w-full inline-block">{"ⓘ "}</span>

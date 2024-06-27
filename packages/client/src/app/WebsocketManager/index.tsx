@@ -21,6 +21,7 @@ import newDungeonRoomTypesOnCurrentFloorHandler from "./game-event-handlers/new-
 import newDungeonRoomHandler from "./game-event-handlers/new-dungeon-room-handler";
 import battleFullUpdateHandler from "./game-event-handlers/battle-full-update-handler";
 import battleReportHandler from "./game-event-handlers/battle-report-handler";
+import gameMessageHandler from "./game-event-handlers/game-message-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -156,13 +157,14 @@ function SocketManager() {
       newDungeonRoomHandler(mutateGameStore, mutateAlertStore, newRoom);
     });
     socket.on(ServerToClientEvent.BattleFullUpdate, (battleOption) => {
+      console.log("battle full update");
       battleFullUpdateHandler(mutateGameStore, mutateAlertStore, battleOption);
     });
     socket.on(ServerToClientEvent.TurnResults, () => {
       //todo
     });
     socket.on(ServerToClientEvent.GameMessage, (message) => {
-      //todo
+      gameMessageHandler(mutateGameStore, message);
     });
     socket.on(ServerToClientEvent.BattleReport, (report) => {
       battleReportHandler(socket, mutateGameStore, report);

@@ -23,6 +23,6 @@ export default function newDungeonRoomHandler(
     const indexOfRoomTypeToReveal = party.roomsExplored.onCurrentFloor - 1;
     party.clientCurrentFloorRoomsList[indexOfRoomTypeToReveal] = room.roomType;
 
-    //
+    // @todo - spawn monster 3d models
   });
 }

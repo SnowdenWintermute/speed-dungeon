@@ -34,7 +34,7 @@ export default function ValueBarsAndFocusButton({
   const mpBar = maxManaOption ? (
     <ValueBar maxValue={maxManaOption} currentValue={combatantProperties.mana} color="blue-700" />
   ) : (
-    "Infinite mana"
+    <span />
   );
 
   const experiencRequiredToLevel = combatantProperties.experiencePoints.requiredForNextLevel;

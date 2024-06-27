@@ -20,6 +20,7 @@ import { CombatAttribute } from "@speed-dungeon/common/src/combatants/combat-att
 import getActiveCombatant from "@/utils/getActiveCombatant";
 import getParty from "@/utils/getParty";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
+import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
 
 export enum MenuContext {
   InventoryItems,
@@ -44,6 +45,7 @@ export class GameState {
   consideredItemUnmetRequirements: null | CombatAttribute[] = null;
   menuContext: MenuContext | null = null;
   battleReportPendingProcessing: null | BattleReport = null;
+  combatLogMessages: CombatLogMessage[] = [];
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
     if (party instanceof Error) return null;

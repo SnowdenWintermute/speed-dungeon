@@ -12,6 +12,7 @@ export default function getMonsterPerLevelAttributes(
       attributes[CombatAttribute.Dexterity] = 1.0;
       attributes[CombatAttribute.Vitality] = 2.0;
       attributes[CombatAttribute.Hp] = 7.0;
+      attributes[CombatAttribute.Mp] = 0.0;
       attributes[CombatAttribute.Agility] = 0.5;
       attributes[CombatAttribute.ArmorClass] = 10.0;
 
@@ -29,6 +30,7 @@ export default function getMonsterPerLevelAttributes(
       attributes[CombatAttribute.Strength] = 2.0;
       attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 4.5;
+      attributes[CombatAttribute.Mp] = 0.0;
       attributes[CombatAttribute.Agility] = 1.5;
       attributes[CombatAttribute.ArmorClass] = 7.5;
 

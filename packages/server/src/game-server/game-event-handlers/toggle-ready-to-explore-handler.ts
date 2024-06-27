@@ -112,7 +112,7 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
     const battleOption = game.battles[party.battleId];
     if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     const battle = battleOption;
-    socket
+    this.io
       .in(getPartyChannelName(game.name, party.name))
       .emit(ServerToClientEvent.BattleFullUpdate, battle);
 

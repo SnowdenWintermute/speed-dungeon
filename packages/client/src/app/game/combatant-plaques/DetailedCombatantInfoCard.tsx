@@ -20,6 +20,7 @@ export default function DetailedCombatantInfoCard(props: Props) {
   const detailedInfoContainerRef = useRef<HTMLDivElement>(null);
   const [cardPositionStyle, setCardPositionStyle] = useState<{ [key: string]: string }>({
     opacity: "0",
+    left: "-1000px",
   });
   // const [cardPositionStyle, setCardPositionStyle] = useState<{ [key: string]: string }>({});
   let infoButtonHoveredStyles = "";
@@ -59,19 +60,15 @@ export default function DetailedCombatantInfoCard(props: Props) {
     let detailedInfoHeight = detailedInfoContainer.clientHeight;
     let plaqueX = plaqueOption.getBoundingClientRect().x;
     let plaqueY = plaqueOption.getBoundingClientRect().y;
+
     if (!detailedInfoHeight || !detailedInfoWidth) return;
     const style: { [key: string]: string } = {};
     let transformStyle = "";
-    if (plaqueY - detailedInfoHeight < 0) {
-      // put below
-      style["bottom"] = "0px";
-      style["paddingTop"] = `${SPACING_REM_SMALL}rem`;
-      transformStyle = transformStyle.concat("translateY(100%) ");
-    } else {
-      // put above
-      style["top"] = `-${detailedInfoHeight}px`;
-      style["paddingBottom"] = `${SPACING_REM_SMALL}rem`;
-    }
+
+    if (plaqueY - detailedInfoHeight < 0)
+      style["bottom"] = `calc(${-detailedInfoHeight}px - ${SPACING_REM_SMALL}rem)`;
+    else style["top"] = `calc(${-detailedInfoHeight}px - ${SPACING_REM_SMALL}rem)`;
+
     if (plaqueX + detailedInfoWidth > windowWidth) {
       style["right"] = "-1px";
       transformStyle = transformStyle.concat(`translateX(-100%)`);

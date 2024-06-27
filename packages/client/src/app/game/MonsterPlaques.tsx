@@ -9,30 +9,24 @@ interface Props {
 
 export default function MonsterPlaques({ party, game }: Props) {
   let monsterPlaques = <div />;
-  if (party.battleId) {
-    const battleOption = game.battles[party.battleId];
-    if (!battleOption) return <div>Battle not found</div>;
-    else {
-      const firstCharacterId = party.characterPositions[0];
-      if (!firstCharacterId) return <div>{ERROR_MESSAGES.PARTY.MISSING_CHARACTERS}</div>;
-      const allyAndOpponentIdsResult = Battle.getAllyIdsAndOpponentIdsOption(
-        battleOption,
-        firstCharacterId
-      );
-      if (allyAndOpponentIdsResult instanceof Error)
-        return <div>{allyAndOpponentIdsResult.message}</div>;
+  if (party.battleId === null) return monsterPlaques;
+  const battleOption = game.battles[party.battleId];
+  if (!battleOption) return <div>Battle not found</div>;
 
-      const monsterIdsOption = allyAndOpponentIdsResult.opponentIdsOption;
-      if (monsterIdsOption) {
-        monsterPlaques = (
-          <CombatantPlaqueGroup
-            party={party}
-            combatantIds={monsterIdsOption}
-            showExperience={false}
-          />
-        );
-      }
-    }
+  const firstCharacterId = party.characterPositions[0];
+  if (!firstCharacterId) return <div>{ERROR_MESSAGES.PARTY.MISSING_CHARACTERS}</div>;
+  const allyAndOpponentIdsResult = Battle.getAllyIdsAndOpponentIdsOption(
+    battleOption,
+    firstCharacterId
+  );
+  if (allyAndOpponentIdsResult instanceof Error)
+    return <div>{allyAndOpponentIdsResult.message}</div>;
+
+  const monsterIdsOption = allyAndOpponentIdsResult.opponentIdsOption;
+  if (monsterIdsOption) {
+    monsterPlaques = (
+      <CombatantPlaqueGroup party={party} combatantIds={monsterIdsOption} showExperience={false} />
+    );
   }
 
   return monsterPlaques;

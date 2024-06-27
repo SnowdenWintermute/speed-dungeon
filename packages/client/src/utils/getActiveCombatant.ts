@@ -1,7 +1,7 @@
 import { GameState } from "@/stores/game-store";
 import getCurrentBattleOption from "./getCurrentBattleOption";
 import getGameAndParty from "./getGameAndParty";
-import { CombatantDetails, ERROR_MESSAGES } from "@speed-dungeon/common";
+import { CombatantDetails, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
 
 export default function getActiveCombatant(gameState: GameState): Error | null | CombatantDetails {
   const gameAndPartyResult = getGameAndParty(gameState.game, gameState.username);
@@ -15,7 +15,10 @@ export default function getActiveCombatant(gameState: GameState): Error | null |
   if (!activeCombatantTurnTrackerOption)
     return new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
 
-  const combatantResult = game.getCombatantById(activeCombatantTurnTrackerOption.entityId);
+  const combatantResult = SpeedDungeonGame.getCombatantById(
+    game,
+    activeCombatantTurnTrackerOption.entityId
+  );
   if (combatantResult instanceof Error) return combatantResult;
   const { combatantProperties, entityProperties } = combatantResult;
   return { combatantProperties, entityProperties };

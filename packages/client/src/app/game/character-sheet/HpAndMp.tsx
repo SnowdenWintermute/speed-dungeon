@@ -20,12 +20,18 @@ export default function HpAndMp({
       <div className="w-1/2 flex justify-between mr-1">
         <span>{"HP"}</span>
         <span>
-          {maxHpOption ? `${combatantProperties.hitPoints}/${maxHpOption}` : "Immortal Object"}
+          {maxHpOption === undefined
+            ? `${combatantProperties.hitPoints}/${maxHpOption}`
+            : "Immortal Object"}
         </span>
       </div>
       <div className="w-1/2 flex justify-between ml-1">
         <span>{"Mana"}</span>
-        <span>{maxMpOption ? `${combatantProperties.mana}/${maxMpOption}` : "Infinite Mana"}</span>
+        {maxMpOption !== undefined ? (
+          <span>{`${combatantProperties.mana}/${maxMpOption}`}</span>
+        ) : (
+          <span />
+        )}
       </div>
     </div>
   );

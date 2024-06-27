@@ -44,7 +44,7 @@ export default function generateMonster(idGenerator: IdGenerator, level: number)
   const baseHp = monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] || 1;
   const randomNumberNormalDistribution = randomNormal();
   const modifiedHp = baseHp * (randomNumberNormalDistribution + 0.5);
-  monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] = modifiedHp;
+  monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] = Math.floor(modifiedHp);
   // traits
   monster.combatantProperties.traits = getMonsterTraits(monsterType);
   // set hp and mp to max

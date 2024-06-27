@@ -6,10 +6,14 @@ export enum GameMessageType {
 
 interface PartyDescentGameMessage {
   type: GameMessageType.PartyDescent;
+  partyName: string;
+  newFloor: number;
 }
 
 interface PartyEscapeGameMessage {
   type: GameMessageType.PartyEscape;
+  partyName: string;
+  timeOfEscape: number;
 }
 
 interface PartyWipeGameMessage {

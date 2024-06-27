@@ -9,7 +9,7 @@ interface Props {
 
 export default function ActiveCombatantIcon({ combatantId, battleOption }: Props) {
   const content =
-    !battleOption || !battleOption.combatantIsFirstInTurnOrder(combatantId) ? (
+    !battleOption || !Battle.combatantIsFirstInTurnOrder(battleOption, combatantId) ? (
       <></>
     ) : (
       <div className="h-full border border-slate-400 bg-slate-700 pr-2 pl-2 text-sm pointer-events-auto w-fit">

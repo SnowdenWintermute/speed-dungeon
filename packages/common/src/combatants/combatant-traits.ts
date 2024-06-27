@@ -1,5 +1,5 @@
-import { PhysicalDamageType } from "../combat/hp-change-source-types";
-import { MagicalElement } from "../combat/magical-elements";
+import { PhysicalDamageType, formatPhysicalDamageType } from "../combat/hp-change-source-types";
+import { MagicalElement, formatMagicalElement } from "../combat/magical-elements";
 
 export enum CombatantTraitType {
   HpBioavailability,
@@ -58,10 +58,10 @@ export function formatCombatantTrait(trait: CombatantTrait): string {
     case CombatantTraitType.MpBioavailability:
       return `Mp Bioavailability ${trait.percent}%`;
     case CombatantTraitType.ElementalAffinity:
-      return `${trait.element} affinity ${trait.percent}%`;
+      return `${formatMagicalElement(trait.element)} affinity ${trait.percent}%`;
     case CombatantTraitType.Undead:
       return "Undead";
     case CombatantTraitType.PhysicalDamageTypeResistance:
-      return `${trait.damageType} affinity ${trait.percent}%`;
+      return `${formatPhysicalDamageType(trait.damageType)} affinity ${trait.percent}%`;
   }
 }
