@@ -1,5 +1,5 @@
 import { CombatantProperties } from "../../../combatants";
-import Inventory from "../../../combatants/inventory";
+import { Inventory } from "../../../combatants/inventory";
 import { ERROR_MESSAGES } from "../../../errors";
 import { SpeedDungeonGame } from "../../../game";
 import { CombatActionType } from "../../combat-actions";
@@ -26,7 +26,8 @@ export default function applyActionResult(
     if (consumableResult instanceof Error) return consumableResult;
     consumableResult.usesRemaining -= 1;
     if (consumableResult.usesRemaining < 1) {
-      Inventory.removeItem(userCombatantProperties.inventory, itemId);
+      const itemResult = Inventory.removeItem(userCombatantProperties.inventory, itemId);
+      if (itemResult instanceof Error) return itemResult;
     }
   }
 

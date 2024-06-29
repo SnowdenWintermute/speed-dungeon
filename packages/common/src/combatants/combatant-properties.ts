@@ -21,7 +21,7 @@ import getCombatantTotalPhysicalDamageTypeAffinities from "./get-combatant-total
 import getEquipmentInSlot from "./get-equipment-in-slot";
 import getEquippedWeapon from "./get-equipped-weapon";
 import getSlotItemIsEquippedTo from "./get-slot-item-is-equipped-to";
-import Inventory from "./inventory";
+import { Inventory } from "./inventory";
 import setHpAndMpToMax from "./set-hp-and-mp-to-max";
 
 export class CombatantProperties {

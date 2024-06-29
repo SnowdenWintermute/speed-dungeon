@@ -30,6 +30,7 @@ export enum ServerToClientEvent {
   TurnResults = "20",
   GameMessage = "21",
   BattleReport = "22",
+  CharacterDroppedItem = "23",
 }
 
 export interface ServerToClientEventTypes {
@@ -72,6 +73,7 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.TurnResults]: (turnResults: CombatTurnResult[]) => void;
   [ServerToClientEvent.GameMessage]: (message: GameMessage) => void;
   [ServerToClientEvent.BattleReport]: (report: BattleReport) => void;
+  [ServerToClientEvent.CharacterDroppedItem]: (characterId: string, itemId: string) => void;
 }
 
 export class GameListEntry {

@@ -7,7 +7,7 @@ import { ConsumableProperties } from "../items";
 import { ItemPropertiesType } from "../items/item-properties";
 import getAbilityAttributes from "./abilities/get-ability-attributes";
 import { CombatantProperties } from "./combatant-properties";
-import Inventory from "./inventory";
+import { Inventory } from "./inventory";
 
 export function getCombatActionPropertiesIfOwned(
   combatantProperties: CombatantProperties,

@@ -23,7 +23,7 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
     ClientToServerEventTypes,
     ServerToClientEventTypes
   >(socketId);
-  if (!socket) return console.error("No socket found");
+  if (!socket) return new Error(ERROR_MESSAGES.SERVER.SOCKET_NOT_FOUND);
 
   const { username } = socketMeta;
 

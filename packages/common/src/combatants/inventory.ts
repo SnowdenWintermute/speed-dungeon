@@ -3,17 +3,18 @@ import { INVENTORY_DEFAULT_CAPACITY } from "../app_consts";
 import { ERROR_MESSAGES } from "../errors";
 import { ConsumableProperties, Item } from "../items";
 import { ItemPropertiesType } from "../items/item-properties";
-import { CombatantProperties } from "./combatant-properties";
 
-export default class Inventory {
+export class Inventory {
   [immerable] = true;
   items: Item[] = [];
   capacity: number = INVENTORY_DEFAULT_CAPACITY;
   shards: number = 0;
   constructor() {}
 
-  static removeItem(inventory: Inventory, itemId: string) {
-    Item.removeFromArray(inventory.items, itemId);
+  static removeItem(inventory: Inventory, itemId: string): Error | Item {
+    const itemOption = Item.removeFromArray(inventory.items, itemId);
+    if (itemOption === undefined) return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
+    else return itemOption;
   }
 
   static getItem(inventory: Inventory, itemId: string) {

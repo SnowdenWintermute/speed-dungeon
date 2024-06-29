@@ -14,5 +14,6 @@ export default function emitErrorEventIfError(
   const maybeError = fn();
   if (maybeError instanceof Error) {
     socket.emit(ServerToClientEvent.ErrorMessage, maybeError.message);
+    console.error("ERROR: ", maybeError.message);
   }
 }

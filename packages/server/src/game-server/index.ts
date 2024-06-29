@@ -28,6 +28,8 @@ import getSocketIdOfPlayer from "./get-player-socket-id";
 import toggleReadyToExploreHandler from "./game-event-handlers/toggle-ready-to-explore-handler";
 import emitErrorEventIfError from "./emit-error-event-if-error";
 import initiateGameEventListeners from "./game-event-handlers";
+import characterActionHandler from "./game-event-handlers/character-action-handler";
+import dropItemHandler from "./game-event-handlers/drop-item-handler";
 
 export type Username = string;
 export type SocketId = string;
@@ -58,9 +60,11 @@ export class GameServer {
   toggleReadyToStartGameHandler = toggleReadyToStartGameHandler;
   handlePartyWipe = handlePartyWipe;
   toggleReadyToExploreHandler = toggleReadyToExploreHandler;
+  dropItemHandler = dropItemHandler;
   // UTILS
   getSocketCurrentGame = getSocketCurrentGame;
   getSocketIdsOfPlayersInOtherParties = getSocketIdsOfPlayersInOtherParties;
   getSocketIdOfPlayer = getSocketIdOfPlayer;
   emitErrorEventIfError = emitErrorEventIfError;
+  characterActionHandler = characterActionHandler;
 }

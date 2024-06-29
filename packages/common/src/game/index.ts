@@ -21,6 +21,7 @@ import applyActionResults from "../combat/action-results/apply-action-results";
 import { tickCombatUntilNextCombatantIsActive } from "../combat/turn-order/tick-combat-until-next-combatant-is-active";
 import endActiveCombatantTurn from "../combat/turn-order/end-active-combatant-turn";
 import allCombatantsInGroupAreDead from "../combat/all-combatants-in-group-are-dead";
+import { getPlayerParty } from "./get-player-party";
 
 export class SpeedDungeonGame {
   [immerable] = true;
@@ -44,6 +45,7 @@ export class SpeedDungeonGame {
   static cycleCharacterTargets = cycleCharacterTargets;
   static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
   static getPartyOfCombatant = getPartyOfCombatant;
+  static getPlayerParty = getPlayerParty;
   static getAbilityActionResults = getAbilityActionResults;
   static applyActionResults = applyActionResults;
   static tickCombatUntilNextCombatantIsActive = tickCombatUntilNextCombatantIsActive;
