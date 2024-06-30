@@ -1,7 +1,7 @@
 import { GameState } from "@/stores/game-store";
 import getFocusedCharacter from "./getFocusedCharacter";
 import { ERROR_MESSAGES, Item } from "@speed-dungeon/common";
-import Inventory from "@speed-dungeon/common/src/combatants/inventory";
+import { Inventory } from "@speed-dungeon/common";
 
 export default function getItemOwnedByFocusedCharacter(
   gameState: GameState,

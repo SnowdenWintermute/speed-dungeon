@@ -116,7 +116,7 @@ export default function Game() {
           </div>
           {
             // if !focused_character_is_animating{
-            <CharacterSheetItemDetailsViewer />
+            <CharacterSheetItemDetailsViewer party={party} />
           }
         </div>
       </div>

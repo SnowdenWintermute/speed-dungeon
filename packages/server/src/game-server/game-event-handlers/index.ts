@@ -2,10 +2,10 @@ import {
   ClientToServerEventTypes,
   ServerToClientEventTypes,
   ClientToServerEvent,
+  CharacterAssociatedData,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import { GameServer } from "..";
-import { CharacterAssociatedData } from "./character-action-handler";
 
 export default function initiateGameEventListeners(
   this: GameServer,

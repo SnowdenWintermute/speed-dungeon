@@ -10,6 +10,7 @@ import getCharacterIfOwned from "./get-character-if-owned";
 import removeCharacterFromParty from "./remove-character-from-party";
 import generateUnexploredRoomsQueue from "./generate-unexplored-rooms-queue";
 import updatePlayerReadiness from "./update-player-readiness";
+import playerOwnsCharacter from "./player-owns-character";
 export * from "./player-character";
 export * from "./get-item-in-party";
 export * from "./dungeon-room";
@@ -45,4 +46,5 @@ export class AdventuringParty {
   static getCharacterIfOwned = getCharacterIfOwned;
   generateUnexploredRoomsQueue = generateUnexploredRoomsQueue;
   static updatePlayerReadiness = updatePlayerReadiness;
+  static playerOwnsCharacter = playerOwnsCharacter;
 }

@@ -2,17 +2,11 @@ import {
   AdventuringParty,
   ClientToServerEventTypes,
   ERROR_MESSAGES,
-  PlayerCharacter,
   ServerToClientEventTypes,
   SpeedDungeonGame,
+  CharacterAssociatedData,
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
-
-export interface CharacterAssociatedData {
-  game: SpeedDungeonGame;
-  party: AdventuringParty;
-  character: PlayerCharacter;
-}
 
 export default function characterActionHandler(
   this: GameServer,

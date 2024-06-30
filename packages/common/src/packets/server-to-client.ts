@@ -73,7 +73,12 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.TurnResults]: (turnResults: CombatTurnResult[]) => void;
   [ServerToClientEvent.GameMessage]: (message: GameMessage) => void;
   [ServerToClientEvent.BattleReport]: (report: BattleReport) => void;
-  [ServerToClientEvent.CharacterDroppedItem]: (characterId: string, itemId: string) => void;
+  [ServerToClientEvent.CharacterDroppedItem]: (characterAndItem: CharacterAndItem) => void;
+}
+
+export interface CharacterAndItem {
+  characterId: string;
+  itemId: string;
 }
 
 export class GameListEntry {

@@ -2,8 +2,14 @@ import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import { MenuContext, useGameStore } from "@/stores/game-store";
 import React from "react";
 import ItemDetailsWithComparison from "../ItemDetailsWithComparison";
+import ItemsOnGround from "../ItemsOnGround";
+import { AdventuringParty } from "@speed-dungeon/common";
 
-export default function CharacterSheetItemDetailsViewer() {
+interface Props {
+  party: AdventuringParty;
+}
+
+export default function CharacterSheetItemDetailsViewer({ party }: Props) {
   const menuContext = useGameStore().menuContext;
 
   const viewingCharacterSheet = menuContext !== null && menuContext !== MenuContext.ItemsOnGround;
@@ -15,10 +21,7 @@ export default function CharacterSheetItemDetailsViewer() {
         style={{ marginRight: `${SPACING_REM}rem` }}
       >
         <div className="max-h-[13.375rem]">
-          {
-            viewingCharacterSheet && <div />
-            // <ItemsOnGround max_height={13.375} />
-          }
+          {viewingCharacterSheet && <ItemsOnGround maxHeightRem={13.375} party={party} />}
         </div>
       </div>
       {viewingCharacterSheet && <ItemDetailsWithComparison flipDisplayOrder={false} />}
