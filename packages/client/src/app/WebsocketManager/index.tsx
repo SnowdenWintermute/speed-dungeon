@@ -3,6 +3,7 @@ import { useWebsocketStore } from "@/stores/websocket-store";
 import {
   AdventuringParty,
   CharacterAndItem,
+  CharacterAndSlot,
   ClientToServerEvent,
   ServerToClientEvent,
   SpeedDungeonGame,
@@ -24,6 +25,7 @@ import battleFullUpdateHandler from "./game-event-handlers/battle-full-update-ha
 import battleReportHandler from "./game-event-handlers/battle-report-handler";
 import gameMessageHandler from "./game-event-handlers/game-message-handler";
 import characterDroppedItemHandler from "./game-event-handlers/character-dropped-item-handler";
+import characterDroppedEquippedItemHandler from "./game-event-handlers/character-dropped-equipped-item-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -174,6 +176,17 @@ function SocketManager() {
     socket.on(ServerToClientEvent.CharacterDroppedItem, (characterAndItem: CharacterAndItem) => {
       characterDroppedItemHandler(socket, mutateGameStore, mutateAlertStore, characterAndItem);
     });
+    socket.on(
+      ServerToClientEvent.CharacterDroppedEquippedItem,
+      (characterAndSlot: CharacterAndSlot) => {
+        characterDroppedEquippedItemHandler(
+          socket,
+          mutateGameStore,
+          mutateAlertStore,
+          characterAndSlot
+        );
+      }
+    );
 
     return () => {
       if (socketOption) {

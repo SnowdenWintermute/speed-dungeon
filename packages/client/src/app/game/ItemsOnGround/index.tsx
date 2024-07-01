@@ -33,6 +33,7 @@ export default function ItemsOnGround({ party, maxHeightRem }: Props) {
       <ul className="list-none flex-grow overflow-y-auto">
         {itemsToDisplay.map((item) => (
           <ItemOnGround
+            key={item.entityProperties.id}
             id={item.entityProperties.id}
             name={item.entityProperties.name}
             disabled={!playerOwnsCharacter}

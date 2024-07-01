@@ -33,7 +33,9 @@ export default function createGameActions({
         });
         break;
       case MenuType.UnopenedChest:
+        break;
       case MenuType.ItemsOnGround:
+        break;
       case MenuType.InCombat:
         addAbilityGameActionsToList(gameActions, abilities);
         gameActions.push({ type: GameActionType.SetInventoryOpen, shouldBeOpen: !inventoryIsOpen });

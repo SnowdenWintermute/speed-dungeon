@@ -3,7 +3,7 @@ import { DescendOrExplore } from "../adventuring_party/update-player-readiness";
 import { Battle, BattleConclusion } from "../battle";
 import { CombatTurnResult } from "../combat";
 import { SpeedDungeonGame } from "../game";
-import { Item } from "../items";
+import { EquipmentSlot, Item } from "../items";
 import { GameMessage } from "./game-message";
 
 export enum ServerToClientEvent {
@@ -31,6 +31,7 @@ export enum ServerToClientEvent {
   GameMessage = "21",
   BattleReport = "22",
   CharacterDroppedItem = "23",
+  CharacterDroppedEquippedItem = "24",
 }
 
 export interface ServerToClientEventTypes {
@@ -74,11 +75,17 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.GameMessage]: (message: GameMessage) => void;
   [ServerToClientEvent.BattleReport]: (report: BattleReport) => void;
   [ServerToClientEvent.CharacterDroppedItem]: (characterAndItem: CharacterAndItem) => void;
+  [ServerToClientEvent.CharacterDroppedEquippedItem]: (characterAndItem: CharacterAndSlot) => void;
 }
 
 export interface CharacterAndItem {
   characterId: string;
   itemId: string;
+}
+
+export interface CharacterAndSlot {
+  characterId: string;
+  slot: EquipmentSlot;
 }
 
 export class GameListEntry {

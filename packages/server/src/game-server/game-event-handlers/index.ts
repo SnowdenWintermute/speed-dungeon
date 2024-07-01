@@ -3,6 +3,7 @@ import {
   ServerToClientEventTypes,
   ClientToServerEvent,
   CharacterAssociatedData,
+  EquipmentSlot,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import { GameServer } from "..";
@@ -22,6 +23,16 @@ export default function initiateGameEventListeners(
         characterId,
         (characterAssociatedData: CharacterAssociatedData) =>
           this.dropItemHandler(characterAssociatedData, itemId)
+      )
+    );
+  });
+  socket.on(ClientToServerEvent.DropEquippedItem, (characterId: string, slot: EquipmentSlot) => {
+    this.emitErrorEventIfError(socket, () =>
+      this.characterActionHandler(
+        socket.id,
+        characterId,
+        (characterAssociatedData: CharacterAssociatedData) =>
+          this.dropEquippedItemHandler(characterAssociatedData, slot)
       )
     );
   });
