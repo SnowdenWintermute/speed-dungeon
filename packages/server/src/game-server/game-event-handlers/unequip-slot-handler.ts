@@ -7,24 +7,17 @@ import {
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
 
-export default function dropEquippedItemHandler(
+export default function unequipSlotHandler(
   this: GameServer,
   characterAssociatedData: CharacterAssociatedData,
   slot: EquipmentSlot
 ) {
   const { game, party, character } = characterAssociatedData;
 
-  const itemDroppedIdResult = CombatantProperties.dropEquippedItem(
-    party,
-    character.combatantProperties,
-    slot
-  );
-  if (itemDroppedIdResult instanceof Error) return itemDroppedIdResult;
-
-  party.itemsOnGroundNotYetReceivedByAllClients[itemDroppedIdResult] = [];
+  CombatantProperties.unequipSlots(character.combatantProperties, [slot]);
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
-  this.io.to(partyChannelName).emit(ServerToClientEvent.CharacterDroppedEquippedItem, {
+  this.io.to(partyChannelName).emit(ServerToClientEvent.CharacterUnequippedItem, {
     characterId: character.entityProperties.id,
     slot,
   });

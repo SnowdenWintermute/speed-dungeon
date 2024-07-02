@@ -3,7 +3,7 @@ import {
   CharacterAssociatedData,
   ClientToServerEvent,
   ClientToServerEventTypes,
-  ERROR_MESSAGES,
+  CombatantProperties,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io-client";
@@ -25,16 +25,14 @@ export default function characterDroppedEquippedItemHandler(
     mutateAlertState,
     characterId,
     ({ party, character }: CharacterAssociatedData) => {
-      const itemOption = character.combatantProperties.equipment[slot];
-      if (itemOption === undefined) return new Error(ERROR_MESSAGES.EQUIPMENT.NO_ITEM_EQUIPPED);
-      delete character.combatantProperties.equipment[slot];
-      const item = itemOption;
-      socket.emit(
-        ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate,
-        item.entityProperties.id
+      const itemDroppedIdResult = CombatantProperties.dropEquippedItem(
+        party,
+        character.combatantProperties,
+        slot
       );
+      if (itemDroppedIdResult instanceof Error) return itemDroppedIdResult;
 
-      party.currentRoom.items.push(item);
+      socket.emit(ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate, itemDroppedIdResult);
     }
   );
 }

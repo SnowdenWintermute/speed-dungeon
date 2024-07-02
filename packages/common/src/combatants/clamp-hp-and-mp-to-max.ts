@@ -1,0 +1,11 @@
+import { CombatAttribute } from "./combat-attributes";
+import { CombatantProperties } from "./combatant-properties";
+
+export default function clampHpAndMpToMax(combatantProperties: CombatantProperties) {
+  const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
+  const maxHp = totalAttributes[CombatAttribute.Hp];
+  const maxMp = totalAttributes[CombatAttribute.Mp];
+
+  if (combatantProperties.hitPoints > maxHp) combatantProperties.hitPoints = maxHp;
+  if (combatantProperties.hitPoints > maxMp) combatantProperties.mana = maxMp;
+}

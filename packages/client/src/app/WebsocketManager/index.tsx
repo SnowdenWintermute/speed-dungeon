@@ -17,7 +17,6 @@ import { useAlertStore } from "@/stores/alert-store";
 import { setAlert } from "../components/alerts";
 import playerToggledReadyToStartGameHandler from "./lobby-event-handlers/player-toggled-ready-to-start-game-handler";
 import { useGameStore } from "@/stores/game-store";
-import playerToggledReadyHandler from "./game-event-handlers/player-toggled-ready-handler";
 import playerToggledReadyToDescendOrExploreHandler from "./game-event-handlers/player-toggled-ready-to-descend-or-explore-handler";
 import newDungeonRoomTypesOnCurrentFloorHandler from "./game-event-handlers/new-dungeon-room-types-on-current-floor-handler";
 import newDungeonRoomHandler from "./game-event-handlers/new-dungeon-room-handler";
@@ -26,6 +25,7 @@ import battleReportHandler from "./game-event-handlers/battle-report-handler";
 import gameMessageHandler from "./game-event-handlers/game-message-handler";
 import characterDroppedItemHandler from "./game-event-handlers/character-dropped-item-handler";
 import characterDroppedEquippedItemHandler from "./game-event-handlers/character-dropped-equipped-item-handler";
+import characterUnequippedSlotHandler from "./game-event-handlers/character-unequipped-slot-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -187,6 +187,9 @@ function SocketManager() {
         );
       }
     );
+    socket.on(ServerToClientEvent.CharacterUnequippedItem, (characterAndSlot: CharacterAndSlot) => {
+      characterUnequippedSlotHandler(mutateGameStore, mutateAlertStore, characterAndSlot);
+    });
 
     return () => {
       if (socketOption) {

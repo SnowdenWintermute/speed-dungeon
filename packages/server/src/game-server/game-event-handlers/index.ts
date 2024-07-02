@@ -36,4 +36,14 @@ export default function initiateGameEventListeners(
       )
     );
   });
+  socket.on(ClientToServerEvent.UnequipSlot, (characterId: string, slot: EquipmentSlot) => {
+    this.emitErrorEventIfError(socket, () =>
+      this.characterActionHandler(
+        socket.id,
+        characterId,
+        (characterAssociatedData: CharacterAssociatedData) =>
+          this.unequipSlotHandler(characterAssociatedData, slot)
+      )
+    );
+  });
 }
