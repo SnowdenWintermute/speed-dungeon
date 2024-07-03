@@ -2,6 +2,7 @@ import { CombatAction } from "../combat";
 import { CombatAttribute, CombatantClass } from "../combatants";
 import { EquipmentSlot } from "../items";
 import { NextOrPrevious } from "../primatives";
+import { EquipItemPacket } from "./server-to-client";
 
 export enum ClientToServerEvent {
   RequestToJoinGame = "0",
@@ -55,11 +56,7 @@ export interface ClientToServerEventTypes {
   ) => void;
   [ClientToServerEvent.ToggleReadyToExplore]: () => void;
   [ClientToServerEvent.UnequipSlot]: (characterId: string, slot: EquipmentSlot) => void;
-  [ClientToServerEvent.EquipInventoryItem]: (
-    characterId: string,
-    itemId: string,
-    altSlot: boolean
-  ) => void;
+  [ClientToServerEvent.EquipInventoryItem]: (equipItemPacket: EquipItemPacket) => void;
   [ClientToServerEvent.CycleCombatActionTargets]: (
     characterId: string,
     direction: NextOrPrevious

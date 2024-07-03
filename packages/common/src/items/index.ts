@@ -5,6 +5,7 @@ export * from "./item-properties";
 import { CombatAttribute } from "../combatants/combat-attributes";
 import { EntityProperties } from "../primatives";
 import createConsumableByType from "./consumables/create-consumable-by-type";
+import getEquipmentProperties from "./get-equipment-properties";
 import { ItemProperties } from "./item-properties";
 import itemRequirementsMet from "./requirements-met";
 
@@ -30,4 +31,5 @@ export class Item {
   }
   static createConsumable = createConsumableByType;
   static requirementsMet = itemRequirementsMet;
+  static getEquipmentProperties = getEquipmentProperties;
 }

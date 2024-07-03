@@ -5,6 +5,7 @@ import {
   CharacterAndItem,
   CharacterAndSlot,
   ClientToServerEvent,
+  EquipItemPacket,
   ServerToClientEvent,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
@@ -26,6 +27,7 @@ import gameMessageHandler from "./game-event-handlers/game-message-handler";
 import characterDroppedItemHandler from "./game-event-handlers/character-dropped-item-handler";
 import characterDroppedEquippedItemHandler from "./game-event-handlers/character-dropped-equipped-item-handler";
 import characterUnequippedSlotHandler from "./game-event-handlers/character-unequipped-slot-handler";
+import characterEquippedItemHandler from "./game-event-handlers/character-equipped-item-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -189,6 +191,9 @@ function SocketManager() {
     );
     socket.on(ServerToClientEvent.CharacterUnequippedItem, (characterAndSlot: CharacterAndSlot) => {
       characterUnequippedSlotHandler(mutateGameStore, mutateAlertStore, characterAndSlot);
+    });
+    socket.on(ServerToClientEvent.CharacterEquippedItem, (packet: EquipItemPacket) => {
+      characterEquippedItemHandler(mutateGameStore, mutateAlertStore, packet);
     });
 
     return () => {

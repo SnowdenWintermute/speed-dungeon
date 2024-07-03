@@ -30,6 +30,8 @@ export default function characterActionHandler(
   if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
   const player = playerOption;
 
+  console.log("Player: ", player, "CharacterId: ", characterId);
+
   const characterResult = AdventuringParty.getCharacterIfOwned(
     party,
     player.characterIds,

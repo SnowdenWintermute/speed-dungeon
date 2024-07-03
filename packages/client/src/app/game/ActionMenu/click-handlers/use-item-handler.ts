@@ -23,12 +23,7 @@ export default function useItemHandler(
   if (itemOption) {
     switch (itemOption.itemProperties.type) {
       case ItemPropertiesType.Equipment:
-        useEquipmentHandler(
-          gameState,
-          socket,
-          itemOption.entityProperties.id,
-          altSlotTargeted
-        );
+        useEquipmentHandler(gameState, socket, itemOption.entityProperties.id, altSlotTargeted);
       case ItemPropertiesType.Consumable:
         selectCombatActionHandler(gameState, mutateAlertState, socket, {
           type: CombatActionType.ConsumableUsed,
@@ -58,11 +53,10 @@ function useEquipmentHandler(
       slotEquippedOption
     );
   } else {
-    socket.emit(
-      ClientToServerEvent.EquipInventoryItem,
-      focusedCharacter.entityProperties.id,
+    socket.emit(ClientToServerEvent.EquipInventoryItem, {
+      characterId: focusedCharacter.entityProperties.id,
       itemId,
-      altSlot
-    );
+      equipToAlternateSlot: altSlot,
+    });
   }
 }

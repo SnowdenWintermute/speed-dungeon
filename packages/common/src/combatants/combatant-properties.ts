@@ -7,6 +7,7 @@ import { EquipmentSlot } from "../items/equipment/slots";
 import { CombatantAbility, CombatantAbilityName } from "./abilities";
 import { getAbilityCostIfOwned } from "./abilities/ability-mana-cost-getters";
 import getAbilityIfOwned from "./abilities/get-ability-if-owned";
+import combatantCanUseItem from "./can-use-item";
 import changeCombatantMana from "./change-combatant-mana";
 import changeCombatantHitPoints from "./change-hit-points";
 import clampHpAndMpToMax from "./clamp-hp-and-mp-to-max";
@@ -16,6 +17,7 @@ import { CombatantSpecies } from "./combatant-species";
 import { CombatantTrait } from "./combatant-traits";
 import dropEquippedItem from "./drop-equipped-item";
 import dropItem from "./drop-item";
+import equipItem from "./equip-item";
 import getAbilityNamesFilteredByUseableContext from "./get-ability-names-filtered-by-usable-context";
 import { getCombatActionPropertiesIfOwned } from "./get-combat-action-properties";
 import getCombatantTotalAttributes from "./get-combatant-total-attributes";
@@ -71,6 +73,8 @@ export class CombatantProperties {
   static unequipSlots = unequipSlots;
   static dropItem = dropItem;
   static dropEquippedItem = dropEquippedItem;
+  static canUseItem = combatantCanUseItem;
+  static equipItem = equipItem;
 }
 
 export type ExperiencePoints = {

@@ -3,6 +3,7 @@ import MaxAndCurrent from "../../../primatives/max-and-current";
 import { Affix } from "../affixes";
 import { EquipmentTrait } from "../equipment-traits";
 import { EquipmentBaseItem } from "../equipment-types";
+import { getEquipableSlots } from "../slots";
 import { ArmorProperties } from "./armor-properties";
 import getBaseArmorClass from "./get-base-armor-class";
 import getModifiedWeaponDamageRange from "./get-modified-weapon-damage-range";
@@ -24,7 +25,8 @@ export class EquipmentProperties {
 
   static getBaseArmorClass = getBaseArmorClass;
   static getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
-  static isTwoHanded = equipmentIsTwoHandedWeapon
+  static isTwoHanded = equipmentIsTwoHandedWeapon;
+  static getEquipableSlots = getEquipableSlots;
 }
 
 export type EquipmentTypeProperties =

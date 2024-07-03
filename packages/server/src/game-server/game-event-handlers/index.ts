@@ -46,4 +46,17 @@ export default function initiateGameEventListeners(
       )
     );
   });
+  socket.on(
+    ClientToServerEvent.EquipInventoryItem,
+    ({ characterId, itemId, equipToAlternateSlot }) => {
+      this.emitErrorEventIfError(socket, () =>
+        this.characterActionHandler(
+          socket.id,
+          characterId,
+          (characterAssociatedData: CharacterAssociatedData) =>
+            this.equipItemHandler(characterAssociatedData, itemId, equipToAlternateSlot)
+        )
+      );
+    }
+  );
 }

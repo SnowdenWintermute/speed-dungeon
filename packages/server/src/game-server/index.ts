@@ -32,6 +32,7 @@ import characterActionHandler from "./game-event-handlers/character-action-handl
 import dropItemHandler from "./game-event-handlers/drop-item-handler";
 import dropEquippedItemHandler from "./game-event-handlers/drop-equipped-item-handler";
 import unequipSlotHandler from "./game-event-handlers/unequip-slot-handler";
+import equipItemHandler from "./game-event-handlers/equip-item-handler";
 
 export type Username = string;
 export type SocketId = string;
@@ -65,6 +66,7 @@ export class GameServer {
   dropItemHandler = dropItemHandler;
   dropEquippedItemHandler = dropEquippedItemHandler;
   unequipSlotHandler = unequipSlotHandler;
+  equipItemHandler = equipItemHandler;
   // UTILS
   getSocketCurrentGame = getSocketCurrentGame;
   getSocketIdsOfPlayersInOtherParties = getSocketIdsOfPlayersInOtherParties;

@@ -9,7 +9,7 @@ export default function clientCharacterActionHandler(
   mutateGameState: MutateState<GameState>,
   mutateAlertState: MutateState<AlertState>,
   characterId: string,
-  fn: (characterAssociatedData: CharacterAssociatedData) => Error | void
+  fn: (characterAssociatedData: CharacterAssociatedData, gameState: GameState) => Error | void
 ) {
   mutateGameState((gameState) => {
     if (!gameState.game) return setAlert(mutateAlertState, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
@@ -21,7 +21,7 @@ export default function clientCharacterActionHandler(
     if (characterResult instanceof Error)
       return setAlert(mutateAlertState, characterResult.message);
     const character = characterResult;
-    const result = fn({ game, character, party });
+    const result = fn({ game, character, party }, gameState);
     if (result instanceof Error) return setAlert(mutateAlertState, result.message);
   });
 }
