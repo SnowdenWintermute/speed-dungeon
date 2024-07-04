@@ -7,12 +7,16 @@ import {
   CharacterAssociatedData,
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
+import { BrowserTabSession } from "../socket-connection-metadata";
 
 export default function characterActionHandler(
   this: GameServer,
   socketId: string,
   characterId: string,
-  fn: (characterAssociatedData: CharacterAssociatedData) => Error | void
+  fn: (
+    socketMeta: BrowserTabSession,
+    characterAssociatedData: CharacterAssociatedData
+  ) => Error | void
 ): Error | void {
   const [socket, socketMeta] = this.getConnection<
     ClientToServerEventTypes,
@@ -30,8 +34,6 @@ export default function characterActionHandler(
   if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
   const player = playerOption;
 
-  console.log("Player: ", player, "CharacterId: ", characterId);
-
   const characterResult = AdventuringParty.getCharacterIfOwned(
     party,
     player.characterIds,
@@ -40,5 +42,5 @@ export default function characterActionHandler(
   if (characterResult instanceof Error) return characterResult;
   const character = characterResult;
 
-  return fn({ character, party, game });
+  return fn(socketMeta, { character, party, game });
 }

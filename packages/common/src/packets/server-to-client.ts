@@ -34,6 +34,7 @@ export enum ServerToClientEvent {
   CharacterDroppedEquippedItem = "24",
   CharacterUnequippedItem = "25",
   CharacterEquippedItem = "26",
+  CharacterPickedUpItem = "27",
 }
 
 export interface ServerToClientEventTypes {
@@ -80,6 +81,7 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.CharacterDroppedEquippedItem]: (characterAndItem: CharacterAndSlot) => void;
   [ServerToClientEvent.CharacterUnequippedItem]: (characterAndItem: CharacterAndSlot) => void;
   [ServerToClientEvent.CharacterEquippedItem]: (characterAndItem: EquipItemPacket) => void;
+  [ServerToClientEvent.CharacterPickedUpItem]: (characterAndItem: CharacterAndItem) => void;
 }
 
 export interface EquipItemPacket {

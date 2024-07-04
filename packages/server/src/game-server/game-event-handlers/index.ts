@@ -7,6 +7,7 @@ import {
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import { GameServer } from "..";
+import { BrowserTabSession } from "../socket-connection-metadata";
 
 export default function initiateGameEventListeners(
   this: GameServer,
@@ -21,7 +22,7 @@ export default function initiateGameEventListeners(
       this.characterActionHandler(
         socket.id,
         characterId,
-        (characterAssociatedData: CharacterAssociatedData) =>
+        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
           this.dropItemHandler(characterAssociatedData, itemId)
       )
     );
@@ -31,7 +32,7 @@ export default function initiateGameEventListeners(
       this.characterActionHandler(
         socket.id,
         characterId,
-        (characterAssociatedData: CharacterAssociatedData) =>
+        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
           this.dropEquippedItemHandler(characterAssociatedData, slot)
       )
     );
@@ -41,7 +42,7 @@ export default function initiateGameEventListeners(
       this.characterActionHandler(
         socket.id,
         characterId,
-        (characterAssociatedData: CharacterAssociatedData) =>
+        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
           this.unequipSlotHandler(characterAssociatedData, slot)
       )
     );
@@ -53,10 +54,25 @@ export default function initiateGameEventListeners(
         this.characterActionHandler(
           socket.id,
           characterId,
-          (characterAssociatedData: CharacterAssociatedData) =>
+          (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
             this.equipItemHandler(characterAssociatedData, itemId, equipToAlternateSlot)
         )
       );
     }
   );
+  socket.on(ClientToServerEvent.PickUpItem, ({ characterId, itemId }) => {
+    this.emitErrorEventIfError(socket, () =>
+      this.characterActionHandler(
+        socket.id,
+        characterId,
+        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
+          this.pickUpItemHandler(characterAssociatedData, itemId)
+      )
+    );
+  });
+  socket.on(ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate, (itemId: string) => {
+    this.emitErrorEventIfError(socket, () =>
+      this.acknowledgeReceiptOfItemOnGroundHandler(socket.id, itemId)
+    );
+  });
 }

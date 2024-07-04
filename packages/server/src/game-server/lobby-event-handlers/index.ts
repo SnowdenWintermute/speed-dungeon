@@ -12,7 +12,6 @@ export default function initiateLobbyEventListeners(
   this: GameServer,
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
-  socket.onAny((e) => console.log(e));
   socket.on(ClientToServerEvent.RequestsGameList, () => {
     const gameList: GameListEntry[] = this.games
       .entries()

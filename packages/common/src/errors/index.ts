@@ -72,6 +72,9 @@ export const ERROR_MESSAGES = {
     NOT_FOUND: "No item was found with the provided ID",
     NOT_OWNED: "An item with the provided ID was not found in this inventory",
     INVALID_TYPE: "Tried to access an item of an invalid type",
+    NOT_YET_AVAILABLE: "The requested item is not yet available",
+    ACKNOWLEDGEMENT_SENT_BEFORE_ITEM_EXISTED:
+      "How can you acknowledge receipt of an item if it isn't registered yet?",
   },
   EQUIPMENT: {
     INVALID_TYPE: "Invalid equipment type was provided",

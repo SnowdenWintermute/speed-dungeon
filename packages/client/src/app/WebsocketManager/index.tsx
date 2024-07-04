@@ -28,6 +28,7 @@ import characterDroppedItemHandler from "./game-event-handlers/character-dropped
 import characterDroppedEquippedItemHandler from "./game-event-handlers/character-dropped-equipped-item-handler";
 import characterUnequippedSlotHandler from "./game-event-handlers/character-unequipped-slot-handler";
 import characterEquippedItemHandler from "./game-event-handlers/character-equipped-item-handler";
+import characterPickedUpItemHandler from "./game-event-handlers/character-picked-up-item-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -194,6 +195,9 @@ function SocketManager() {
     });
     socket.on(ServerToClientEvent.CharacterEquippedItem, (packet: EquipItemPacket) => {
       characterEquippedItemHandler(mutateGameStore, mutateAlertStore, packet);
+    });
+    socket.on(ServerToClientEvent.CharacterPickedUpItem, (packet: CharacterAndItem) => {
+      characterPickedUpItemHandler(mutateGameStore, mutateAlertStore, packet);
     });
 
     return () => {

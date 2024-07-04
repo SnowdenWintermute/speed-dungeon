@@ -12,7 +12,6 @@ import {
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
-import errorHandler from "../error-handler";
 import { DungeonRoom, DungeonRoomType } from "@speed-dungeon/common";
 import { tickCombatUntilNextCombatantIsActive } from "@speed-dungeon/common";
 import takeAiTurnsAtBattleStart from "./combat-action-results-processing/take-ai-turns-at-battle-start";
@@ -28,13 +27,13 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
   const { username } = socketMeta;
 
   const gameResult = this.getSocketCurrentGame(socketMeta);
-  if (gameResult instanceof Error) return errorHandler(socket, gameResult.message);
+  if (gameResult instanceof Error) return new Error(gameResult.message);
   const game = gameResult;
   const partyResult = getPlayerParty(gameResult, socketMeta.username);
-  if (partyResult instanceof Error) return errorHandler(socket, partyResult.message);
+  if (partyResult instanceof Error) return new Error(partyResult.message);
   const party = partyResult;
   if (Object.values(party.currentRoom.monsters).length > 0)
-    return errorHandler(socket, ERROR_MESSAGES.PARTY.CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT);
+    return new Error(ERROR_MESSAGES.PARTY.CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT);
 
   AdventuringParty.updatePlayerReadiness(party, username, DescendOrExplore.Explore);
 
@@ -78,7 +77,7 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
   const roomTypeToGenerateOption = party.unexploredRooms.pop();
   if (roomTypeToGenerateOption === undefined) {
     console.error("no dungeon room to generate");
-    return errorHandler(socket, ERROR_MESSAGES.SERVER_GENERIC);
+    return new Error(ERROR_MESSAGES.SERVER_GENERIC);
   }
   const roomTypeToGenerate: DungeonRoomType = roomTypeToGenerateOption;
 

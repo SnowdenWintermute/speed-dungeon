@@ -14,7 +14,6 @@ export default function equipItemHandler(
 ) {
   const { game, party, character } = characterAssociatedData;
 
-  console.log("attempting");
   const equipItemResult = CombatantProperties.equipItem(
     character.combatantProperties,
     itemId,

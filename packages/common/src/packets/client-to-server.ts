@@ -2,7 +2,7 @@ import { CombatAction } from "../combat";
 import { CombatAttribute, CombatantClass } from "../combatants";
 import { EquipmentSlot } from "../items";
 import { NextOrPrevious } from "../primatives";
-import { EquipItemPacket } from "./server-to-client";
+import { CharacterAndItem, EquipItemPacket } from "./server-to-client";
 
 export enum ClientToServerEvent {
   RequestToJoinGame = "0",
@@ -29,6 +29,7 @@ export enum ClientToServerEvent {
   ToggleReadyToDescend = "21",
   AssignAttributePoint = "22",
   AcknowledgeReceiptOfItemOnGroundUpdate = "23",
+  PickUpItem = "24",
 }
 
 export interface ClientToServerEventTypes {
@@ -71,4 +72,5 @@ export interface ClientToServerEventTypes {
     attribute: CombatAttribute
   ) => void;
   [ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate]: (itemId: string) => void;
+  [ClientToServerEvent.PickUpItem]: (characterAndItem: CharacterAndItem) => void;
 }
