@@ -34,7 +34,7 @@ export default function ItemsOnGround({ party, maxHeightRem }: Props) {
         {itemsToDisplay.map((item) => (
           <ItemOnGround
             key={item.entityProperties.id}
-            id={item.entityProperties.id}
+            itemId={item.entityProperties.id}
             name={item.entityProperties.name}
             disabled={!playerOwnsCharacter}
           />

@@ -68,12 +68,7 @@ export default function createActionButtonClickHandler(
       return () => selectCombatActionHandler(gameState, mutateAlertState, socket, null);
     case GameActionType.SelectCombatAction:
       return () =>
-        selectCombatActionHandler(
-          gameState,
-          mutateAlertState,
-          socket,
-          gameAction.combatAction
-        );
+        selectCombatActionHandler(gameState, mutateAlertState, socket, gameAction.combatAction);
     case GameActionType.CycleTargets:
       return () =>
         cycleCombatActionTargetsHandler(
@@ -87,8 +82,7 @@ export default function createActionButtonClickHandler(
     case GameActionType.UseSelectedCombatAction:
       return () => useSelectedCombatActionHandler(mutateGameState, socket);
     case GameActionType.DropItem:
-      return () =>
-        dropItemHandler(mutateGameState, mutateAlertState, socket, gameAction.itemId);
+      return () => dropItemHandler(mutateGameState, mutateAlertState, socket, gameAction.itemId);
     case GameActionType.ToggleReadyToDescend:
       return () => socket.emit(ClientToServerEvent.ToggleReadyToDescend);
     case GameActionType.SetAssignAttributePointsMenuOpen:

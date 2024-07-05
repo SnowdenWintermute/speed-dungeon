@@ -22,7 +22,6 @@ export default function pickUpItemHandler(
   if (itemOption === undefined) return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
 
   character.combatantProperties.inventory.items.push(itemOption);
-  console.log("character picked up item");
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
   this.io.to(partyChannelName).emit(ServerToClientEvent.CharacterPickedUpItem, {

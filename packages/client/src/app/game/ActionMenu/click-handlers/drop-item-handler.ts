@@ -32,6 +32,7 @@ export default function dropItemHandler(
 
     gameState.selectedItem = null;
     gameState.detailedEntity = null;
+    gameState.hoveredEntity = null;
     const previousActionMenuPageNumberOption = gameState.actionMenuParentPageNumbers.pop();
     if (typeof previousActionMenuPageNumberOption === "number")
       gameState.actionMenuCurrentPageNumber = previousActionMenuPageNumberOption;
