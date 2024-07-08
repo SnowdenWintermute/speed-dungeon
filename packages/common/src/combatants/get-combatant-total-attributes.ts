@@ -86,7 +86,7 @@ function getArmorPenDerivedBonus(
   );
   let attributeToDeriveFrom = CombatAttribute.Strength;
   if (mhWeaponOption) {
-    const [weaponProperties, _] = mhWeaponOption;
+    const weaponProperties = mhWeaponOption;
     if (weaponProperties.type === EquipmentType.TwoHandedRangedWeapon) {
       attributeToDeriveFrom = CombatAttribute.Dexterity;
     }

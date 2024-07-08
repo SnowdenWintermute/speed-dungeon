@@ -47,7 +47,7 @@ export default function equipItem(
   const slotsToUnequipResult = (() => {
     switch (slot) {
       case EquipmentSlot.MainHand:
-        if (EquipmentProperties.isTwoHanded(equipmentProperties.equipmentTypeProperties.type))
+        if (EquipmentProperties.isTwoHanded(equipmentProperties.equipmentBaseItemProperties.type))
           return [EquipmentSlot.MainHand, EquipmentSlot.OffHand];
         else return [slot];
       case EquipmentSlot.OffHand:
@@ -56,7 +56,7 @@ export default function equipItem(
           const equipmentInMainHandResult = Item.getEquipmentProperties(itemInMainHandOption);
           if (equipmentInMainHandResult instanceof Error) return equipmentInMainHandResult;
           if (
-            EquipmentProperties.isTwoHanded(equipmentInMainHandResult.equipmentTypeProperties.type)
+            EquipmentProperties.isTwoHanded(equipmentInMainHandResult.equipmentBaseItemProperties.type)
           )
             return [EquipmentSlot.MainHand, EquipmentSlot.OffHand];
         }

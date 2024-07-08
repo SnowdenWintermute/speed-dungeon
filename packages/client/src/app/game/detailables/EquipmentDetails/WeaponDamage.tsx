@@ -11,12 +11,12 @@ export default function WeaponDamage({ equipmentProperties }: Props) {
   let damageOption: null | NumberRange = null;
   let damagetypes: null | HpChangeSource[] = null;
 
-  switch (equipmentProperties.equipmentTypeProperties.type) {
+  switch (equipmentProperties.equipmentBaseItemProperties.type) {
     case EquipmentType.OneHandedMeleeWeapon:
     case EquipmentType.TwoHandedMeleeWeapon:
     case EquipmentType.TwoHandedRangedWeapon:
-      damageOption = equipmentProperties.equipmentTypeProperties.damage;
-      damagetypes = equipmentProperties.equipmentTypeProperties.damageClassification;
+      damageOption = equipmentProperties.equipmentBaseItemProperties.damage;
+      damagetypes = equipmentProperties.equipmentBaseItemProperties.damageClassification;
     default:
   }
   if (damageOption === null || damagetypes === null) return <></>;

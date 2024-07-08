@@ -11,7 +11,7 @@ export default function getMostDamagingWeaponElementOnTarget(
 ): Error | null | MagicalElement {
   const weaponOption = CombatantProperties.getEquippedWeapon(userCombatantProperties, weaponSlot);
   if (!weaponOption) return null;
-  const [weaponProperties, equipmentTraits] = weaponOption;
+  const weaponProperties = weaponOption;
 
   const elementsToSelectFrom: MagicalElement[] = [];
   for (const hpChangeSource of weaponProperties.damageClassification) {

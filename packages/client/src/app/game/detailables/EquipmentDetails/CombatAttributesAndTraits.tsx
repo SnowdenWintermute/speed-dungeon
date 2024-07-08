@@ -6,7 +6,6 @@ import {
   formatCombatAttribute,
 } from "@speed-dungeon/common";
 import { Affix, AffixType, PrefixType, SuffixType } from "@speed-dungeon/common";
-import { EquipmentTraitType } from "@speed-dungeon/common/src/items/equipment/equipment-traits";
 import React from "react";
 
 interface Props {
@@ -18,98 +17,85 @@ export default function CombatAttributesAndTraits({ equipmentProperties }: Props
   const lowestCoreAttributeValueOption = getLowestCoreAttributeValue(equipmentProperties);
   const lowestCoreAttributeValue = lowestCoreAttributeValueOption || 0;
 
-  for (const affix of equipmentProperties.affixes) {
+  for (const prefix of equipmentProperties.prefixes) {
     let text = "";
-    switch (affix.affixType) {
-      case AffixType.Prefix:
-        switch (affix.prefixType) {
-          case PrefixType.Mp:
-            text = formatBonus(equipmentProperties, CombatAttribute.Mp);
-            break;
-          case PrefixType.ArmorClass:
-            text = `${affix.tier * 10}% increased armor class`;
-            break;
-          case PrefixType.PercentDamage:
-          case PrefixType.LifeSteal:
-            text = formatEquipmentTrait(equipmentProperties, affix);
-            break;
-          case PrefixType.Accuracy:
-            text = formatBonus(equipmentProperties, CombatAttribute.Accuracy);
-            break;
-          case PrefixType.Resilience:
-            text = formatBonus(equipmentProperties, CombatAttribute.Resilience);
-            break;
-          case PrefixType.Evasion:
-            text = formatBonus(equipmentProperties, CombatAttribute.Evasion);
-            break;
-          case PrefixType.ArmorPenetration:
-            text = formatBonus(equipmentProperties, CombatAttribute.ArmorPenetration);
-            break;
-          case PrefixType.Agility:
-            text = formatBonus(equipmentProperties, CombatAttribute.Agility);
-            break;
-          case PrefixType.Focus:
-            text = formatBonus(equipmentProperties, CombatAttribute.Focus);
-            break;
-        }
+    switch (prefix.prefixType) {
+      case PrefixType.Mp:
+        text = formatBonus(equipmentProperties, CombatAttribute.Mp);
         break;
-      case AffixType.Suffix:
+      case PrefixType.ArmorClass:
+        text = `${prefix.tier * 10}% increased armor class`;
+        break;
+      case PrefixType.PercentDamage:
+      case PrefixType.LifeSteal:
+        text = formatEquipmentTrait(equipmentProperties, prefix);
+        break;
+      case PrefixType.Accuracy:
+        text = formatBonus(equipmentProperties, CombatAttribute.Accuracy);
+        break;
+      case PrefixType.Resilience:
+        text = formatBonus(equipmentProperties, CombatAttribute.Resilience);
+        break;
+      case PrefixType.Evasion:
+        text = formatBonus(equipmentProperties, CombatAttribute.Evasion);
+        break;
+      case PrefixType.ArmorPenetration:
+        text = formatBonus(equipmentProperties, CombatAttribute.ArmorPenetration);
+        break;
+      case PrefixType.Agility:
+        text = formatBonus(equipmentProperties, CombatAttribute.Agility);
+        break;
+      case PrefixType.Focus:
+        text = formatBonus(equipmentProperties, CombatAttribute.Focus);
         break;
     }
     if (text !== "") equipmentModDisplaysInPrefixSuffixOrder.push(text);
   }
-  for (const affix of equipmentProperties.affixes) {
+  for (const suffix of equipmentProperties.suffixes) {
     let text = "";
-    switch (affix.affixType) {
-      case AffixType.Prefix:
+    switch (suffix.suffixType) {
+      case SuffixType.Strength:
+        text = formatCoreAttributeBonus(
+          equipmentProperties,
+          CombatAttribute.Strength,
+          lowestCoreAttributeValue
+        );
         break;
-      case AffixType.Suffix:
-        switch (affix.suffixType) {
-          case SuffixType.Strength:
-            text = formatCoreAttributeBonus(
-              equipmentProperties,
-              CombatAttribute.Strength,
-              lowestCoreAttributeValue
-            );
-            break;
-          case SuffixType.Intelligence:
-            text = formatCoreAttributeBonus(
-              equipmentProperties,
-              CombatAttribute.Intelligence,
-              lowestCoreAttributeValue
-            );
-            break;
-          case SuffixType.Dexterity:
-            text = formatCoreAttributeBonus(
-              equipmentProperties,
-              CombatAttribute.Dexterity,
-              lowestCoreAttributeValue
-            );
-            break;
-          case SuffixType.Vitality:
-            text = formatCoreAttributeBonus(
-              equipmentProperties,
-              CombatAttribute.Vitality,
-              lowestCoreAttributeValue
-            );
-            break;
-          case SuffixType.AllBase:
-            text = `+${lowestCoreAttributeValue} to all core attributes`;
-            break;
-          case SuffixType.Hp:
-            text = formatBonus(equipmentProperties, CombatAttribute.Hp);
-            break;
-          case SuffixType.Damage:
-            text = formatBonus(equipmentProperties, CombatAttribute.Damage);
-            break;
-          case SuffixType.Durability:
-            text = formatEquipmentTrait(equipmentProperties, affix);
-        }
+      case SuffixType.Intelligence:
+        text = formatCoreAttributeBonus(
+          equipmentProperties,
+          CombatAttribute.Intelligence,
+          lowestCoreAttributeValue
+        );
         break;
+      case SuffixType.Dexterity:
+        text = formatCoreAttributeBonus(
+          equipmentProperties,
+          CombatAttribute.Dexterity,
+          lowestCoreAttributeValue
+        );
+        break;
+      case SuffixType.Vitality:
+        text = formatCoreAttributeBonus(
+          equipmentProperties,
+          CombatAttribute.Vitality,
+          lowestCoreAttributeValue
+        );
+        break;
+      case SuffixType.AllBase:
+        text = `+${lowestCoreAttributeValue} to all core attributes`;
+        break;
+      case SuffixType.Hp:
+        text = formatBonus(equipmentProperties, CombatAttribute.Hp);
+        break;
+      case SuffixType.Damage:
+        text = formatBonus(equipmentProperties, CombatAttribute.Damage);
+        break;
+      case SuffixType.Durability:
+        text = formatEquipmentTrait(equipmentProperties, suffix);
     }
     if (text !== "") equipmentModDisplaysInPrefixSuffixOrder.push(text);
   }
-
   return (
     <div>
       {equipmentModDisplaysInPrefixSuffixOrder.map((text, i) => (

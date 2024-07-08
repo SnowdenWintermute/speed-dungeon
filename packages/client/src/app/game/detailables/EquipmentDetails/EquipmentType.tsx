@@ -10,7 +10,7 @@ export default function EquipmentType({ equipmentProperties }: Props) {
   return (
     <div>
       <div className="">
-        {formatEquipmentType(equipmentProperties.equipmentTypeProperties.type)}
+        {formatEquipmentType(equipmentProperties.equipmentBaseItemProperties.type)}
       </div>
       <ArmorClassText equipmentProperties={equipmentProperties} />
     </div>

@@ -8,8 +8,8 @@ interface Props {
 export default function Durability({ equipmentProperties }: Props) {
   const { durability } = equipmentProperties;
   const isJewelry =
-    equipmentProperties.equipmentTypeProperties.type === EquipmentType.Ring ||
-    equipmentProperties.equipmentTypeProperties.type === EquipmentType.Amulet;
+    equipmentProperties.equipmentBaseItemProperties.type === EquipmentType.Ring ||
+    equipmentProperties.equipmentBaseItemProperties.type === EquipmentType.Amulet;
 
   if (isJewelry) return <></>;
   if (equipmentProperties.durability === null) return <div>Indestructable</div>;

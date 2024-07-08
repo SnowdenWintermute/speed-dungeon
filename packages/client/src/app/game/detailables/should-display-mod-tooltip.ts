@@ -7,7 +7,7 @@ export default function shouldDisplayModTooltip(
   if (comparedSlot !== EquipmentSlot.RingR && comparedSlot !== EquipmentSlot.MainHand) return false;
   if (equippedItem.itemProperties.type === ItemPropertiesType.Consumable) return false;
   const equipmentType =
-    equippedItem.itemProperties.equipmentProperties.equipmentTypeProperties.type;
+    equippedItem.itemProperties.equipmentProperties.equipmentBaseItemProperties.type;
   if (equipmentType === EquipmentType.Ring || equipmentType === EquipmentType.OneHandedMeleeWeapon)
     return true;
   return false;

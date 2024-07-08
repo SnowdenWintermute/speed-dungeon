@@ -27,14 +27,14 @@ export enum SuffixType {
   Durability,
 }
 
-interface Prefix {
+export interface Prefix {
   affixType: AffixType.Prefix;
   prefixType: PrefixType;
   value: number;
   tier: number;
 }
 
-interface Suffix {
+export interface Suffix {
   affixType: AffixType.Suffix;
   suffixType: SuffixType;
   value: number;

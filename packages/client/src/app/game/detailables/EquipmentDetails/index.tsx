@@ -20,7 +20,7 @@ export default function EquipmentDetails({ item, equipmentProperties, isCompared
   const armorCategoryTextOption = getArmorCategoryText(equipmentProperties);
   return (
     <div>
-      {formatEquipmentType(equipmentProperties.equipmentTypeProperties.type)}
+      {formatEquipmentType(equipmentProperties.equipmentBaseItemProperties.type)}
       {armorCategoryTextOption && <div>{armorCategoryTextOption}</div>}
       <ArmorClassText equipmentProperties={equipmentProperties} />
       <WeaponDamage equipmentProperties={equipmentProperties} />

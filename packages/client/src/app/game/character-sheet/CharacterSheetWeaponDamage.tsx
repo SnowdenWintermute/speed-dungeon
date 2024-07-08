@@ -11,13 +11,9 @@ import {
   calculateCombatActionHpChangeRange,
 } from "@speed-dungeon/common";
 import getAbilityAttributes from "@speed-dungeon/common/src/combatants/abilities/get-ability-attributes";
-import {
-  WeaponProperties,
-  equipmentIsTwoHandedWeapon,
-} from "@speed-dungeon/common/src/items/equipment/equipment-properties/weapon-properties";
-import { EquipmentTrait } from "@speed-dungeon/common/src/items/equipment/equipment-traits";
+import { WeaponProperties } from "@speed-dungeon/common/src/items/equipment/equipment-properties/weapon-properties";
 import { EquipmentType } from "@speed-dungeon/common/src/items/equipment/equipment-types";
-import NumberRange from "@speed-dungeon/common/src/primatives/number-range";
+import { NumberRange } from "@speed-dungeon/common";
 import React from "react";
 
 export default function CharacterSheetWeaponDamage({
@@ -38,13 +34,16 @@ export default function CharacterSheetWeaponDamage({
     combatantAccuracy,
     false
   );
-  const isTwoHanded = mhWeaponOption ? EquipmentProperties.isTwoHanded(mhWeaponOption[0].type) : false;
+  const isTwoHanded = mhWeaponOption ? EquipmentProperties.isTwoHanded(mhWeaponOption.type) : false;
   const ohEquipmentOption = CombatantProperties.getEquipmentInSlot(
     combatantProperties,
     EquipmentSlot.OffHand
   );
   let ohDamageAndAccuracyResult;
-  if (!isTwoHanded && ohEquipmentOption?.equipmentTypeProperties.type !== EquipmentType.Shield) {
+  if (
+    !isTwoHanded &&
+    ohEquipmentOption?.equipmentBaseItemProperties.type !== EquipmentType.Shield
+  ) {
     const ohWeaponOption = CombatantProperties.getEquippedWeapon(
       combatantProperties,
       WeaponSlot.OffHand
@@ -104,7 +103,7 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
 
 function getAttackAbilityDamageAndAccuracy(
   combatantProperties: CombatantProperties,
-  weaponOption: undefined | [WeaponProperties, EquipmentTrait[]],
+  weaponOption: undefined | WeaponProperties,
   combatantAccuracy: number,
   isOffHand: boolean
 ): Error | [NumberRange, number] {
@@ -113,7 +112,7 @@ function getAttackAbilityDamageAndAccuracy(
     : CombatantAbilityName.AttackMeleeMainhand;
 
   if (weaponOption) {
-    const [weaponProperties, _] = weaponOption;
+    const weaponProperties = weaponOption;
     switch (weaponProperties.type) {
       case EquipmentType.TwoHandedRangedWeapon:
         abilityName = CombatantAbilityName.AttackRangedMainhand;

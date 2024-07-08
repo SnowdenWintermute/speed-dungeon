@@ -22,7 +22,7 @@ export interface EquipableSlots {
 }
 
 export function getEquipableSlots(equipmentProperties: EquipmentProperties): EquipableSlots {
-  switch (equipmentProperties.equipmentTypeProperties.type) {
+  switch (equipmentProperties.equipmentBaseItemProperties.type) {
     case EquipmentType.BodyArmor:
       return { main: EquipmentSlot.Body, alternate: null };
     case EquipmentType.HeadGear:

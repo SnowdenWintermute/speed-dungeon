@@ -11,7 +11,7 @@ export default function getMostDamagingWeaponPhysicalDamageTypeOnTarget(
 ): Error | null | PhysicalDamageType {
   const weaponOption = CombatantProperties.getEquippedWeapon(userCombatantProperties, weaponSlot);
   if (!weaponOption) return null;
-  const [weaponProperties, _] = weaponOption;
+  const weaponProperties = weaponOption;
   const damageTypesToSelectFrom: PhysicalDamageType[] = [];
   for (const hpChangeSource of weaponProperties.damageClassification) {
     if (hpChangeSource.physicalDamageTypeOption)
