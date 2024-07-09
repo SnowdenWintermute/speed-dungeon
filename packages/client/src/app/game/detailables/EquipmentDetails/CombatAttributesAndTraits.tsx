@@ -17,7 +17,7 @@ export default function CombatAttributesAndTraits({ equipmentProperties }: Props
   const lowestCoreAttributeValueOption = getLowestCoreAttributeValue(equipmentProperties);
   const lowestCoreAttributeValue = lowestCoreAttributeValueOption || 0;
 
-  for (const prefix of equipmentProperties.prefixes) {
+  for (const prefix of equipmentProperties.affixes.prefixes) {
     let text = "";
     switch (prefix.prefixType) {
       case PrefixType.Mp:
@@ -51,7 +51,7 @@ export default function CombatAttributesAndTraits({ equipmentProperties }: Props
     }
     if (text !== "") equipmentModDisplaysInPrefixSuffixOrder.push(text);
   }
-  for (const suffix of equipmentProperties.suffixes) {
+  for (const suffix of equipmentProperties.affixes.suffixes) {
     let text = "";
     switch (suffix.suffixType) {
       case SuffixType.Strength:
@@ -96,6 +96,7 @@ export default function CombatAttributesAndTraits({ equipmentProperties }: Props
     }
     if (text !== "") equipmentModDisplaysInPrefixSuffixOrder.push(text);
   }
+
   return (
     <div>
       {equipmentModDisplaysInPrefixSuffixOrder.map((text, i) => (

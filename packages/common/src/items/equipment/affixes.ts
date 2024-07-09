@@ -41,4 +41,9 @@ export interface Suffix {
   tier: number;
 }
 
+export type Affixes = {
+  prefixes: Prefix[];
+  suffixes: Suffix[];
+};
+
 export type Affix = Prefix | Suffix;

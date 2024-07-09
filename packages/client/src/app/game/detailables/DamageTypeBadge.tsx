@@ -1,7 +1,6 @@
 import getMagicalElementTailwindColor from "@/utils/getMagicalElementTailwindColor";
 import {
   HpChangeSource,
-  HpChangeSourceCategory,
   HpChangeSourceCategoryType,
   formatHpChangeSourceCategory,
   formatPhysicalDamageType,
@@ -15,13 +14,13 @@ interface Props {
 
 export default function DamageTypeBadge({ hpChangeSource }: Props) {
   let physicalDamageTypeTextOption: null | string = null;
-  if (hpChangeSource.physicalDamageTypeOption) {
+  if (hpChangeSource.physicalDamageTypeOption !== null) {
     physicalDamageTypeTextOption = formatPhysicalDamageType(
       hpChangeSource.physicalDamageTypeOption
     );
   }
   let elementTextOption: null | string = null;
-  if (hpChangeSource.elementOption) {
+  if (hpChangeSource.elementOption !== null) {
     elementTextOption = formatMagicalElement(hpChangeSource.elementOption);
   }
   const elementStyle = hpChangeSource.elementOption

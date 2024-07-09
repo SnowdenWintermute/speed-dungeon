@@ -1,6 +1,6 @@
 import { CombatantAttributeRecord } from "../../../combatants/combatant-properties";
 import MaxAndCurrent from "../../../primatives/max-and-current";
-import { Prefix, Suffix } from "../affixes";
+import { Affixes } from "../affixes";
 import { EquipmentBaseItem } from "../equipment-types";
 import { getEquipableSlots } from "../slots";
 import { ArmorProperties } from "./armor-properties";
@@ -11,11 +11,11 @@ import { ShieldProperties } from "./shield-properties";
 import { WeaponProperties, equipmentIsTwoHandedWeapon } from "./weapon-properties";
 export * from "./armor-properties";
 export * from "./jewelry-properties";
+export * from "./shield-properties";
 
 export class EquipmentProperties {
   attributes: CombatantAttributeRecord = {};
-  prefixes: Prefix[] = [];
-  suffixes: Suffix[] = [];
+  affixes: Affixes = { prefixes: [], suffixes: [] };
   constructor(
     public baseItem: EquipmentBaseItem,
     public equipmentBaseItemProperties: EquipmentBaseItemProperties,

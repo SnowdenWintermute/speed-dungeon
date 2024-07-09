@@ -20,7 +20,7 @@ export default function getModifiedWeaponDamageRange(
     case EquipmentType.TwoHandedRangedWeapon:
       const damageAttribute = equipmentProperties.attributes[CombatAttribute.Damage] || 0;
       let percentDamageModifier = 1.0;
-      for (const prefix of equipmentProperties.prefixes) {
+      for (const prefix of equipmentProperties.affixes.prefixes) {
         if (prefix.prefixType === PrefixType.PercentDamage) {
           percentDamageModifier = 1.0 + prefix.value / 100.0;
         }

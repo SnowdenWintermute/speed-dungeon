@@ -1,27 +1,46 @@
-import { ConsumableProperties, ConsumableType, Item, ItemPropertiesType } from "../..";
+import { ConsumableProperties, EquipmentProperties, Item, ItemPropertiesType } from "../..";
 import { IdGenerator } from "../../../game/id_generator";
 import { ItemGenerationBuilder } from "./item-generation-builder";
 
 export class ItemGenerationDirector {
-  constructor() {}
-  createItem(builder: ItemGenerationBuilder, itemLevel: number, idGenerator: IdGenerator): Item {
-    const itemType = builder.buildItemType();
-    const baseItem = builder.buildBaseItem(itemType, itemLevel);
-    const equipmentBaseItemProperties = builder.buildEquipmentBaseItemProperties(baseItem);
-    const affixes = builder.buildAffixes(itemLevel);
+  constructor(public builder: ItemGenerationBuilder) {}
+  createItem(itemLevel: number, idGenerator: IdGenerator): Error | Item {
+    const { builder } = this;
+    const { type: itemType, baseItem } = builder.buildBaseItem();
+    const affixes = builder.buildAffixes(baseItem);
     const requirements = builder.buildRequirements(baseItem, affixes);
+    const name = builder.buildItemName(baseItem, affixes);
+
     const entityProperties = {
       id: idGenerator.getNextEntityId(),
-      name: builder.buildItemName(affixes, baseItem),
+      name,
     };
-    if (itemType === ItemPropertiesType.Consumable) {
-      return new Item(entityProperties, itemLevel, requirements, {
-        type: itemType,
-        consumableProperties: new ConsumableProperties(baseItem, 1),
-      });
+
+    switch (itemType) {
+      case ItemPropertiesType.Equipment:
+        const equipmentBaseItemProperties = builder.buildEquipmentBaseItemProperties(
+          baseItem.baseEquipmentItem
+        );
+        if (equipmentBaseItemProperties instanceof Error) return equipmentBaseItemProperties;
+        const durability = builder.buildDurability(baseItem);
+
+        return new Item(entityProperties, itemLevel, requirements, {
+          type: itemType,
+          equipmentProperties: new EquipmentProperties(
+            baseItem.baseEquipmentItem,
+            equipmentBaseItemProperties,
+            durability
+          ),
+        });
+      case ItemPropertiesType.Consumable:
+        return new Item(entityProperties, itemLevel, requirements, {
+          type: itemType,
+          consumableProperties: new ConsumableProperties(baseItem, 1),
+        });
     }
   }
 }
+
 // what is dropped
 //   - consumable
 //   - equipment
