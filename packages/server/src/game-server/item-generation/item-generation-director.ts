@@ -1,5 +1,10 @@
-import { ConsumableProperties, EquipmentProperties, Item, ItemPropertiesType } from "../..";
-import { IdGenerator } from "../../../game/id_generator";
+import {
+  ConsumableProperties,
+  EquipmentProperties,
+  IdGenerator,
+  Item,
+  ItemPropertiesType,
+} from "@speed-dungeon/common";
 import { ItemGenerationBuilder } from "./item-generation-builder";
 
 export class ItemGenerationDirector {

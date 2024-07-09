@@ -1,19 +1,20 @@
-import { EquipmentSlot, Item } from "../..";
 import {
+  CombatantClass,
+  EquipmentProperties,
+  EquipmentSlot,
+  EquipmentType,
   HpChangeSource,
   HpChangeSourceCategoryType,
+  IdGenerator,
+  Item,
+  ItemPropertiesType,
   MeleeOrRanged,
+  NumberRange,
   PhysicalDamageType,
-} from "../../../combat/hp-change-source-types";
-import { CombatantClass } from "../../../combatants";
-import { IdGenerator } from "../../../game/id_generator";
-import MaxAndCurrent from "../../../primatives/max-and-current";
-import { NumberRange } from "../../../primatives/number-range";
-import { ItemPropertiesType } from "../../item-properties";
-import { EquipmentProperties } from "../equipment-properties";
-import { EquipmentType } from "../equipment-types";
-import { OneHandedMeleeWeapon } from "../equipment-types/one-handed-melee-weapon";
-import { TwoHandedMeleeWeapon } from "../equipment-types/two-handed-melee-weapon";
+  TwoHandedMeleeWeapon,
+  MaxAndCurrent,
+} from "@speed-dungeon/common";
+import { OneHandedMeleeWeapon } from "@speed-dungeon/common";
 
 export default function createStartingEquipment(
   idGenerator: IdGenerator,

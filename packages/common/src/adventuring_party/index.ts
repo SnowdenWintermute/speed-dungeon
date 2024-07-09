@@ -2,7 +2,7 @@ import { immerable } from "immer";
 import { EntityId } from "../primatives";
 import { PlayerCharacter } from "./player-character";
 import { DungeonRoom, DungeonRoomType } from "./dungeon-room";
-import getCombatant from "./get-combatant-in-party";
+import { getCombatantInParty } from "./get-combatant-in-party";
 import { getItemInAdventuringParty } from "./get-item-in-party";
 import getIdsAndSelectedActionsOfCharactersTargetingCombatant from "./get-ids-and-selected-actions-of-characters-targeting-combatant";
 import getMonsterIdsInParty from "./get-monster-ids-in-party";
@@ -38,7 +38,7 @@ export class AdventuringParty {
   constructor(public name: string) {}
 
   static removeCharacter = removeCharacterFromParty;
-  static getCombatant = getCombatant;
+  static getCombatant = getCombatantInParty;
   static getItem = getItemInAdventuringParty;
   static getIdsAndSelectedActionsOfCharactersTargetingCombatant =
     getIdsAndSelectedActionsOfCharactersTargetingCombatant;

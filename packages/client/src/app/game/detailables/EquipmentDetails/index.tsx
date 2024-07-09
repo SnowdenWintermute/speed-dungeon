@@ -1,5 +1,5 @@
-import { CombatantAttributeRecord, Item, formatEquipmentType } from "@speed-dungeon/common";
-import { EquipmentProperties } from "@speed-dungeon/common/src/items/equipment/equipment-properties";
+import { Item, formatEquipmentType } from "@speed-dungeon/common";
+import { EquipmentProperties } from "@speed-dungeon/common";
 import React from "react";
 import { ArmorClassText, getArmorCategoryText } from "./armor";
 import WeaponDamage from "./WeaponDamage";

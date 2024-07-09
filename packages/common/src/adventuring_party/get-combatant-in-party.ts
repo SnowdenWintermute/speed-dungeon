@@ -3,7 +3,7 @@ import { AdventuringParty } from ".";
 import { CombatantDetails } from "../combatants";
 import { ERROR_MESSAGES } from "../errors";
 
-export default function getCombatantInParty(
+export function getCombatantInParty(
   party: AdventuringParty,
   entityId: string
 ): Error | CombatantDetails {

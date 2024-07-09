@@ -1,18 +1,16 @@
 import { GameState, MenuContext } from "@/stores/game-store";
 import { GameAction, GameActionType } from "./game-actions";
 import getParty from "@/utils/getParty";
-import { DungeonRoomType } from "@speed-dungeon/common/src/adventuring_party/dungeon-room";
+import { DungeonRoomType, SpeedDungeonGame } from "@speed-dungeon/common";
 import getGameAndParty from "@/utils/getGameAndParty";
 import {
   CombatActionType,
   ERROR_MESSAGES,
   ItemPropertiesType,
   NextOrPrevious,
-  SpeedDungeonGame,
   formatAbilityName,
   formatCombatAttribute,
 } from "@speed-dungeon/common";
-import getCharacterInGame from "@speed-dungeon/common/src/game/get-character-in-game";
 
 export default function determineActionButtonText(gameState: GameState, action: GameAction) {
   switch (action.type) {
@@ -79,7 +77,11 @@ function determineSelectItemText(
   const gameAndPartyResult = getGameAndParty(gameState.game, gameState.username);
   if (gameAndPartyResult instanceof Error) return gameAndPartyResult;
   const [game, party] = gameAndPartyResult;
-  const characterResult = getCharacterInGame(game, party.name, gameState.focusedCharacterId);
+  const characterResult = SpeedDungeonGame.getCharacter(
+    game,
+    party.name,
+    gameState.focusedCharacterId
+  );
   if (characterResult instanceof Error) return characterResult;
   const combatantProperties = characterResult.combatantProperties;
 
@@ -101,7 +103,11 @@ function determineUseItemText(gameState: GameState, itemId: string) {
   const gameAndPartyResult = getGameAndParty(gameState.game, gameState.username);
   if (gameAndPartyResult instanceof Error) return gameAndPartyResult;
   const [game, party] = gameAndPartyResult;
-  const characterResult = getCharacterInGame(game, party.name, gameState.focusedCharacterId);
+  const characterResult = SpeedDungeonGame.getCharacter(
+    game,
+    party.name,
+    gameState.focusedCharacterId
+  );
   if (characterResult instanceof Error) return characterResult;
   const combatantProperties = characterResult.combatantProperties;
 

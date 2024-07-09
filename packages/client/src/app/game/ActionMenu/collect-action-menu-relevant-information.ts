@@ -6,7 +6,7 @@ import {
   CombatantProperties,
   ERROR_MESSAGES,
 } from "@speed-dungeon/common";
-import { DungeonRoomType } from "@speed-dungeon/common/src/adventuring_party/dungeon-room";
+import { DungeonRoomType } from "@speed-dungeon/common";
 import { ActionUsableContext } from "@speed-dungeon/common";
 import { ConsumableType } from "@speed-dungeon/common";
 import { ItemPropertiesType } from "@speed-dungeon/common";

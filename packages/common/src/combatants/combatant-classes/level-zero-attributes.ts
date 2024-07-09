@@ -1,5 +1,5 @@
+import { CombatantClass } from ".";
 import { CombatAttribute } from "../combat-attributes";
-import { CombatantClass } from "../combatant-classes";
 
 export const BASE_STARTING_ATTRIBUTES = {
   [CombatantClass.Warrior]: {

@@ -1,3 +1,6 @@
+export * from "./starting-traits";
+export * from "./level-zero-attributes";
+
 export enum CombatantClass {
   Warrior,
   Mage,

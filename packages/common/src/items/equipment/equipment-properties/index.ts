@@ -1,5 +1,5 @@
 import { CombatantAttributeRecord } from "../../../combatants/combatant-properties";
-import MaxAndCurrent from "../../../primatives/max-and-current";
+import { MaxAndCurrent } from "../../../primatives/max-and-current";
 import { Affixes } from "../affixes";
 import { EquipmentBaseItem } from "../equipment-types";
 import { getEquipableSlots } from "../slots";
@@ -12,6 +12,7 @@ import { WeaponProperties, equipmentIsTwoHandedWeapon } from "./weapon-propertie
 export * from "./armor-properties";
 export * from "./jewelry-properties";
 export * from "./shield-properties";
+export * from "./weapon-properties";
 
 export class EquipmentProperties {
   attributes: CombatantAttributeRecord = {};

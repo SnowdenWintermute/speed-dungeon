@@ -1,5 +1,4 @@
-import { CombatantClass } from "../combatant-classes";
-import { CombatantTrait, CombatantTraitType } from "../combatant-traits";
+import { CombatantClass, CombatantTrait, CombatantTraitType } from "..";
 
 export const STARTING_COMBATANT_TRAITS: Record<CombatantClass, CombatantTrait[]> = {
   [CombatantClass.Warrior]: [

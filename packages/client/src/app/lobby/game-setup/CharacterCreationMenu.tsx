@@ -6,7 +6,7 @@ import {
   COMBATANT_CLASS_DESCRIPTIONS,
   CombatantClass,
   formatCombatantClassName,
-} from "@speed-dungeon/common/src/combatants";
+} from "@speed-dungeon/common";
 import React, { useState } from "react";
 
 export default function CharacterCreationMenu() {
@@ -14,11 +14,7 @@ export default function CharacterCreationMenu() {
   const [combatantClassSelection, setCombatantClassSelection] = useState(CombatantClass.Warrior);
 
   function createCharacter(characterName: string) {
-    socketOption?.emit(
-      ClientToServerEvent.CreateCharacter,
-      characterName,
-      combatantClassSelection
-    );
+    socketOption?.emit(ClientToServerEvent.CreateCharacter, characterName, combatantClassSelection);
   }
 
   const combatantClasses = Object.values(CombatantClass);

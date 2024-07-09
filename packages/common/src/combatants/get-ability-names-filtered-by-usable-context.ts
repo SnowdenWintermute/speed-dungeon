@@ -1,6 +1,6 @@
 import { CombatantAbilityName, CombatantProperties } from ".";
 import { ActionUsableContext } from "../combat/combat-actions/combat-action-properties";
-import getAbilityAttributes from "./abilities/get-ability-attributes";
+import { getAbilityAttributes } from "./abilities/get-ability-attributes";
 
 export default function getAbilityNamesFilteredByUseableContext(
   combatantProperties: CombatantProperties,

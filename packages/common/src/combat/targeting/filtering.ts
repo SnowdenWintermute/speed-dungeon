@@ -1,6 +1,5 @@
 import { ProhibitedTargetCombatantStates, TargetCategories } from ".";
 import { AdventuringParty } from "../../adventuring_party";
-import getCombatantInParty from "../../adventuring_party/get-combatant-in-party";
 
 export function filterPossibleTargetIdsByProhibitedCombatantStates(
   party: AdventuringParty,
@@ -39,7 +38,7 @@ function filterTargetIdGroupByProhibitedCombatantStates(
   const filteredIds = [];
 
   for (let targetId of potentialIds) {
-    const combatantResult = getCombatantInParty(party, targetId);
+    const combatantResult = AdventuringParty.getCombatant(party, targetId);
     if (combatantResult instanceof Error) return combatantResult;
     const { entityProperties: _, combatantProperties: combatantProperties } = combatantResult;
     let targetIsInProhibitedState = false;

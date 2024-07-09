@@ -16,7 +16,7 @@ import {
 import { DetailableEntity } from "./detailable-entities";
 import { EquipmentSlot } from "@speed-dungeon/common";
 import { MutateState } from "../mutate-state";
-import { CombatAttribute } from "@speed-dungeon/common/src/combatants/combat-attributes";
+import { CombatAttribute } from "@speed-dungeon/common";
 import getActiveCombatant from "@/utils/getActiveCombatant";
 import getParty from "@/utils/getParty";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";

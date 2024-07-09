@@ -6,7 +6,10 @@ interface Props {
 }
 
 export default function TargetingIndicators({ party, entityId }: Props) {
-  const targetedBy = getIdsAndSelectedActionsOfCharactersTargetingCombatant(party, entityId);
+  const targetedBy = AdventuringParty.getIdsAndSelectedActionsOfCharactersTargetingCombatant(
+    party,
+    entityId
+  );
   if (targetedBy instanceof Error) return <div>{targetedBy.message}</div>;
 
   return targetedBy.length ? (
@@ -22,7 +25,6 @@ export default function TargetingIndicators({ party, entityId }: Props) {
 
 import React from "react";
 import { CombatAction, CombatActionType } from "@speed-dungeon/common";
-import getIdsAndSelectedActionsOfCharactersTargetingCombatant from "@speed-dungeon/common/src/adventuring_party/get-ids-and-selected-actions-of-characters-targeting-combatant";
 
 interface TargetingIndicatorProps {
   combatAction: CombatAction;

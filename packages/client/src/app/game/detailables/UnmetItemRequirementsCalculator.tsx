@@ -1,6 +1,9 @@
 import { useGameStore } from "@/stores/game-store";
-import { CombatAttribute, CombatantAttributeRecord } from "@speed-dungeon/common";
-import getCombatantTotalAttributes from "@speed-dungeon/common/src/combatants/get-combatant-total-attributes";
+import {
+  CombatAttribute,
+  CombatantAttributeRecord,
+  CombatantProperties,
+} from "@speed-dungeon/common";
 import React, { useEffect } from "react";
 
 interface Props {
@@ -14,7 +17,9 @@ export default function UnmetItemRequirementsCalculator({ attributeRequirements,
   if (focusedCharacterResult instanceof Error) return <div>{focusedCharacterResult.message}</div>;
   const focusedCharacter = focusedCharacterResult;
 
-  const totalAttributes = getCombatantTotalAttributes(focusedCharacter.combatantProperties);
+  const totalAttributes = CombatantProperties.getTotalAttributes(
+    focusedCharacter.combatantProperties
+  );
 
   useEffect(() => {
     const unmetAttributeRequirements: CombatAttribute[] = [];

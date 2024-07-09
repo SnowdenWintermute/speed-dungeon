@@ -1,7 +1,7 @@
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import { ClientToServerEvent, PlayerCharacter } from "@speed-dungeon/common";
-import { formatCombatantClassName } from "@speed-dungeon/common/src/combatants";
+import { formatCombatantClassName } from "@speed-dungeon/common";
 import React from "react";
 
 interface Props {

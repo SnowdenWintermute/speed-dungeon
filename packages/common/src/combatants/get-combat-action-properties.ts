@@ -1,11 +1,10 @@
 import { AdventuringParty } from "../adventuring_party";
-import getCombatantInParty from "../adventuring_party/get-combatant-in-party";
 import { getItemInAdventuringParty } from "../adventuring_party/get-item-in-party";
 import { CombatAction, CombatActionType } from "../combat/combat-actions";
 import { ERROR_MESSAGES } from "../errors";
 import { ConsumableProperties } from "../items";
 import { ItemPropertiesType } from "../items/item-properties";
-import getAbilityAttributes from "./abilities/get-ability-attributes";
+import { getAbilityAttributes } from "./abilities/get-ability-attributes";
 import { CombatantProperties } from "./combatant-properties";
 import { Inventory } from "./inventory";
 
@@ -42,7 +41,7 @@ export function getCombatActionProperties(
     case CombatActionType.AbilityUsed:
       return getAbilityAttributes(combatAction.abilityName).combatActionProperties;
     case CombatActionType.ConsumableUsed:
-      const combatantResult = getCombatantInParty(party, actionUserId);
+      const combatantResult = AdventuringParty.getCombatant(party, actionUserId);
       if (combatantResult instanceof Error) return combatantResult;
       const { entityProperties: _, combatantProperties: combatantProperties } = combatantResult;
       const consumablePropertiesInInventoryResult = Inventory.getConsumableProperties(

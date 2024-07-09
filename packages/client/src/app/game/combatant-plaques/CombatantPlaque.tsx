@@ -10,7 +10,7 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import getCombatantInParty from "@speed-dungeon/common/src/adventuring_party/get-combatant-in-party";
+import { AdventuringParty } from "@speed-dungeon/common";
 
 interface Props {
   entityId: string;
@@ -31,7 +31,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const result = getGameAndParty(gameOption, usernameOption);
   if (result instanceof Error) return <div>{result.message}</div>;
   const [game, party] = result;
-  const combatantDetailsResult = getCombatantInParty(party, entityId);
+  const combatantDetailsResult = AdventuringParty.getCombatant(party, entityId);
   if (combatantDetailsResult instanceof Error) return <div>{combatantDetailsResult.message}</div>;
   const { entityProperties, combatantProperties } = combatantDetailsResult;
   const battleOption = getCurrentBattleOption(game, party.name);

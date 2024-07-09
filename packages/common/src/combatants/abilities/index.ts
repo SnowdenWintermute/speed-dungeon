@@ -1,4 +1,6 @@
-import getAbilityAttributes from "./get-ability-attributes";
+import { getAbilityAttributes } from "./get-ability-attributes";
+export * from "./ability-attributes";
+export * from "./get-ability-attributes";
 
 export enum CombatantAbilityName {
   Attack,

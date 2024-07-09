@@ -19,7 +19,7 @@ import CombatantAbilityAttributes from "./ability-attributes";
 
 // @TODO - performance - store computed values from this function
 
-export default function getAbilityAttributes(abilityName: CombatantAbilityName) {
+export function getAbilityAttributes(abilityName: CombatantAbilityName) {
   const attr = new CombatantAbilityAttributes();
   const cap = new CombatActionProperties();
   const hpcp = new CombatActionHpChangeProperties();

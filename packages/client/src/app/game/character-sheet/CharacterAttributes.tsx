@@ -1,14 +1,13 @@
 import CombatantClassIcon from "@/app/components/atoms/CombatantClassIcon";
 import Divider from "@/app/components/atoms/Divider";
 import { useGameStore } from "@/stores/game-store";
-import { useLobbyStore } from "@/stores/lobby-store";
 import {
   CombatantProperties,
   ERROR_MESSAGES,
   EntityProperties,
   formatCombatantClassName,
 } from "@speed-dungeon/common";
-import { CombatAttribute } from "@speed-dungeon/common/src/combatants/combat-attributes";
+import { CombatAttribute } from "@speed-dungeon/common";
 import React from "react";
 import { AttributeListItem } from "./AttributeListItem";
 import HpAndMp from "./HpAndMp";

@@ -10,9 +10,9 @@ import {
   WeaponSlot,
   calculateCombatActionHpChangeRange,
 } from "@speed-dungeon/common";
-import getAbilityAttributes from "@speed-dungeon/common/src/combatants/abilities/get-ability-attributes";
-import { WeaponProperties } from "@speed-dungeon/common/src/items/equipment/equipment-properties/weapon-properties";
-import { EquipmentType } from "@speed-dungeon/common/src/items/equipment/equipment-types";
+import { getAbilityAttributes } from "@speed-dungeon/common";
+import { WeaponProperties } from "@speed-dungeon/common";
+import { EquipmentType } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
 import React from "react";
 

@@ -1,14 +1,14 @@
 import { SpeedDungeonGame } from ".";
-import getCombatantInParty from "../adventuring_party/get-combatant-in-party";
+import { AdventuringParty } from "../adventuring_party";
 import { CombatantDetails } from "../combatants";
 import { ERROR_MESSAGES } from "../errors";
 
-export default function getCombatantInGameById(
+export function getCombatantInGameById(
   game: SpeedDungeonGame,
   entityId: string
 ): Error | CombatantDetails {
   for (let party of Object.values(game.adventuringParties)) {
-    const combatantResult = getCombatantInParty(party, entityId);
+    const combatantResult = AdventuringParty.getCombatant(party, entityId);
     if (!(combatantResult instanceof Error)) return combatantResult;
   }
 

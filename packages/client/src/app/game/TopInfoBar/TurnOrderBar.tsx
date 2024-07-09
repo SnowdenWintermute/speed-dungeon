@@ -1,8 +1,7 @@
 import { useGameStore } from "@/stores/game-store";
-import { useLobbyStore } from "@/stores/lobby-store";
 import getGameAndParty from "@/utils/getGameAndParty";
 import { Battle } from "@speed-dungeon/common";
-import getCombatantInGameById from "@speed-dungeon/common/src/game/get-combatant-in-game-by-id";
+import { getCombatantInGameById } from "@speed-dungeon/common";
 import React, { useState } from "react";
 
 interface Props {
