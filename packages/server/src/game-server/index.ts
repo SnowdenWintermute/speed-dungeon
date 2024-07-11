@@ -35,6 +35,7 @@ import unequipSlotHandler from "./game-event-handlers/unequip-slot-handler";
 import equipItemHandler from "./game-event-handlers/equip-item-handler";
 import acknowledgeReceiptOfItemOnGroundHandler from "./game-event-handlers/acknowledge_receipt_of_item_on_ground_handler";
 import pickUpItemHandler from "./game-event-handlers/pick-up-item-handler";
+import { loadItemGenerationTemplates } from "./item-generation/item-template-loader";
 
 export type Username = string;
 export type SocketId = string;
@@ -46,6 +47,7 @@ export class GameServer {
   constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     console.log("constructed game server");
     this.connectionHandler();
+    this.loadItemGenerationTemplates();
   }
   getConnection = getConnection;
   connectionHandler = connectionHandler;
@@ -77,4 +79,6 @@ export class GameServer {
   getSocketIdOfPlayer = getSocketIdOfPlayer;
   emitErrorEventIfError = emitErrorEventIfError;
   characterActionHandler = characterActionHandler;
+  // ITEMS
+  loadItemGenerationTemplates = loadItemGenerationTemplates;
 }

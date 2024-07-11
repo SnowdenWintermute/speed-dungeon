@@ -14,7 +14,7 @@ import {
   MaxAndCurrent,
 } from "@speed-dungeon/common";
 
-type TaggedBaseItem =
+export type TaggedBaseItem =
   | { type: ItemPropertiesType.Consumable; baseItem: ConsumableType }
   | {
       type: ItemPropertiesType.Equipment;
@@ -41,51 +41,8 @@ export abstract class ItemGenerationBuilder {
   abstract buildItemName: (baseItem: BaseItem, affixes: null | Affixes) => string;
 }
 
-abstract class ItemNamer {
+export abstract class ItemNamer {
   buildItemName(baseItem: BaseItem, affixes: null | Affixes) {
     return "";
-  }
-}
-
-class ShieldBuilder extends ItemNamer implements ItemGenerationBuilder {
-  constructor(public itemLevel: number) {
-    super();
-  }
-  buildBaseItem: () => TaggedBaseItem = function () {
-    // select random shield base from those available for this.itemLevel
-    return {
-      type: ItemPropertiesType.Equipment,
-      baseItem: { equipmentType: EquipmentType.Shield, baseEquipmentItem: Shield.Aspis },
-    };
-  };
-  buildEquipmentBaseItemProperties(baseEquipmentItem: EquipmentBaseItem) {
-    if (!(baseEquipmentItem in Shield)) return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
-
-    // look up armor class range for the base item and roll it
-
-    const properties: ShieldProperties = {
-      type: EquipmentType.Shield,
-      baseItem: baseEquipmentItem as Shield,
-      size: ShieldSize.Medium,
-      armorClass: 122,
-    };
-    return properties;
-  }
-  buildDurability(baseItem: BaseItem) {
-    // look up durability for the base item and roll the current durability
-    return { max: 100, current: 50 };
-  }
-  buildAffixes(baseItem: BaseItem) {
-    // roll rarity
-    // roll number of prefixes/suffixes
-    // look up valid prefixes and suffixes and their tier levels for shields
-    // modify list with any special adjustments for the particular base item
-    const affixes: Affixes = { prefixes: [], suffixes: [] };
-    return affixes;
-  }
-  buildRequirements(baseItem: BaseItem, affixes: Affixes | null) {
-    // look up requirements based on the base item
-    // adjust requirements if any affix has an affect on them
-    return {};
   }
 }
