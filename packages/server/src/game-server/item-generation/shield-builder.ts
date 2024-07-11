@@ -42,8 +42,9 @@ class ShieldBuilder extends ItemNamer implements ItemGenerationBuilder {
   buildAffixes(baseItem: BaseItem) {
     // roll rarity
     // roll number of prefixes/suffixes
-    // look up valid prefixes and suffixes and their tier levels for shields
-    // modify list with any special adjustments for the particular base item
+    // look up valid affixes and their tier levels for shields
+    // modify list of valid affixes with any special adjustments for the particular base item (certain base items may allow
+    // different affixes/tiers than the general base item type)
     const affixes: Affixes = { prefixes: [], suffixes: [] };
     return affixes;
   }
