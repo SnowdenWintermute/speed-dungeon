@@ -1,4 +1,4 @@
-import { IdGenerator } from "../game/id_generator";
+import { IdGenerator } from "../game/id-generator";
 import { EquipmentSlot, Item, PreDeterminedItemType, generatePreDeterminedItem } from "../items";
 import { MonsterType } from "./monster-types";
 

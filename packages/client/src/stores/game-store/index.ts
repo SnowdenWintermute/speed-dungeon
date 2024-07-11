@@ -6,6 +6,7 @@ import {
   AdventuringParty,
   BattleReport,
   CombatAction,
+  CombatAttribute,
   CombatantDetails,
   ERROR_MESSAGES,
   Item,
@@ -16,7 +17,6 @@ import {
 import { DetailableEntity } from "./detailable-entities";
 import { EquipmentSlot } from "@speed-dungeon/common";
 import { MutateState } from "../mutate-state";
-import { CombatAttribute } from "@speed-dungeon/common/src/combatants/combat-attributes";
 import getActiveCombatant from "@/utils/getActiveCombatant";
 import getParty from "@/utils/getParty";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";

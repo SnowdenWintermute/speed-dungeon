@@ -5,7 +5,7 @@ import {
   MeleeOrRanged,
   PhysicalDamageType,
 } from "../../../combat";
-import { IdGenerator } from "../../../game/id_generator";
+import { IdGenerator } from "../../../game/id-generator";
 import { EntityProperties } from "../../../primatives";
 import { OneHandedMeleeWeapon } from "../equipment-types/one-handed-melee-weapon";
 import { TwoHandedRangedWeapon } from "../equipment-types/two-handed-ranged-weapon";

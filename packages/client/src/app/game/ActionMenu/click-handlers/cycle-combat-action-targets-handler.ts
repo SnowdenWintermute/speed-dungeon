@@ -4,8 +4,7 @@ import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { PartyClientSocket } from "@/stores/websocket-store";
 import getClientPlayerAssociatedData from "@/utils/getClientPlayerAssociatedData";
-import { ClientToServerEvent, NextOrPrevious } from "@speed-dungeon/common";
-import cycleCharacterTargets from "@speed-dungeon/common/src/combat/targeting/cycle-character-targets";
+import { ClientToServerEvent, NextOrPrevious, SpeedDungeonGame } from "@speed-dungeon/common";
 
 export default function cycleCombatActionTargetsHandler(
   mutateGameState: MutateState<GameState>,
@@ -19,7 +18,7 @@ export default function cycleCombatActionTargetsHandler(
       return setAlert(mutateAlertState, clientPlayerAssociatedDataResult.message);
     const { game, party, player, focusedCharacter } = clientPlayerAssociatedDataResult;
 
-    const result = cycleCharacterTargets(
+    const result = SpeedDungeonGame.cycleCharacterTargets(
       game,
       party,
       player,

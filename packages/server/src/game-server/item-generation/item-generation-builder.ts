@@ -1,13 +1,18 @@
-import { CombatAttribute } from "../../../combatants";
-import { ERROR_MESSAGES } from "../../../errors";
-import MaxAndCurrent from "../../../primatives/max-and-current";
-import { ConsumableType } from "../../consumables";
-import { BaseItem, ItemPropertiesType } from "../../item-properties";
-import { Affixes, Prefix, Suffix } from "../affixes";
-import { EquipmentBaseItemProperties } from "../equipment-properties";
-import { ShieldProperties, ShieldSize } from "../equipment-properties/shield-properties";
-import { EquipmentBaseItem, EquipmentType } from "../equipment-types";
-import { Shield } from "../equipment-types/shield";
+import {
+  Affixes,
+  BaseItem,
+  CombatAttribute,
+  ConsumableType,
+  ERROR_MESSAGES,
+  EquipmentBaseItem,
+  EquipmentBaseItemProperties,
+  EquipmentType,
+  ItemPropertiesType,
+  ShieldProperties,
+  ShieldSize,
+  Shield,
+  MaxAndCurrent,
+} from "@speed-dungeon/common";
 
 type TaggedBaseItem =
   | { type: ItemPropertiesType.Consumable; baseItem: ConsumableType }

@@ -1,8 +1,6 @@
 import { useGameStore } from "@/stores/game-store";
-import { useLobbyStore } from "@/stores/lobby-store";
 import getGameAndParty from "@/utils/getGameAndParty";
-import { Battle } from "@speed-dungeon/common";
-import getCombatantInGameById from "@speed-dungeon/common/src/game/get-combatant-in-game-by-id";
+import { Battle, SpeedDungeonGame } from "@speed-dungeon/common";
 import React, { useState } from "react";
 
 interface Props {
@@ -27,7 +25,7 @@ function TurnOrderTrackerIcon(props: { entityId: string }) {
   let [transitionStyle, _setTransitionStyle] = useState({ transition: "width 1s" });
 
   const combatantIsAlly = party.characterPositions.includes(props.entityId);
-  const combatantResult = getCombatantInGameById(game, props.entityId);
+  const combatantResult = SpeedDungeonGame.getCombatantById(game, props.entityId);
   if (combatantResult instanceof Error) return <div>{combatantResult.message}</div>;
   const { entityProperties, combatantProperties: _ } = combatantResult;
 

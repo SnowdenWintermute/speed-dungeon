@@ -1,4 +1,4 @@
-import { IdGenerator } from "../game/id_generator";
+import { IdGenerator } from "../game/id-generator";
 import { Monster } from "../monsters";
 import generateMonster from "../monsters/generate-monster";
 import { DungeonRoom, DungeonRoomType } from "./dungeon-room";

@@ -6,11 +6,10 @@ import {
   CombatantProperties,
   calculateCombatActionHpChangeRange,
 } from "@speed-dungeon/common";
-import getAbilityManaCost from "@speed-dungeon/common/src/combat/combat-actions/get-ability-mana-cost";
-import getAbilityAttributes from "@speed-dungeon/common/src/combatants/abilities/get-ability-attributes";
+import { getAbilityManaCost } from "@speed-dungeon/common";
 import React from "react";
 import CharacterSheetWeaponDamage from "../character-sheet/CharacterSheetWeaponDamage";
-import NumberRange from "@speed-dungeon/common/src/primatives/number-range";
+import { NumberRange } from "@speed-dungeon/common";
 import DamageTypeBadge from "./DamageTypeBadge";
 
 interface Props {
@@ -24,7 +23,7 @@ export default function AbilityDetails({
   combatActionProperties,
   userCombatantProperties,
 }: Props) {
-  const abilityAttributes = getAbilityAttributes(ability.name);
+  const abilityAttributes = CombatantAbility.getAttributes(ability.name);
   const mpCost = getAbilityManaCost(userCombatantProperties, ability);
   const mpCostStyle = mpCost > userCombatantProperties.mana ? UNMET_REQUIREMENT_TEXT_COLOR : "";
 

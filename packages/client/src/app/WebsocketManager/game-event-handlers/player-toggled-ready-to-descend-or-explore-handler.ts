@@ -4,7 +4,7 @@ import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { AdventuringParty } from "@speed-dungeon/common";
-import { DescendOrExplore } from "@speed-dungeon/common/src/adventuring_party/update-player-readiness";
+import { DescendOrExplore } from "@speed-dungeon/common";
 
 export default function playerToggledReadyToDescendOrExploreHandler(
   mutateGameState: MutateState<GameState>,

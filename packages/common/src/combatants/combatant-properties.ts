@@ -12,7 +12,7 @@ import changeCombatantMana from "./change-combatant-mana";
 import changeCombatantHitPoints from "./change-hit-points";
 import clampHpAndMpToMax from "./clamp-hp-and-mp-to-max";
 import { CombatAttribute } from "./combat-attributes";
-import { CombatantClass } from "./combatant-classes";
+import { CombatantClass } from "./combatant-class";
 import { CombatantSpecies } from "./combatant-species";
 import { CombatantTrait } from "./combatant-traits";
 import dropEquippedItem from "./drop-equipped-item";

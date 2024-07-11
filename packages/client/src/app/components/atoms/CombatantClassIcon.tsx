@@ -1,4 +1,4 @@
-import { CombatantClass } from "@speed-dungeon/common/src/combatants";
+import { CombatantClass } from "@speed-dungeon/common";
 import React from "react";
 
 interface Props {

@@ -4,9 +4,13 @@ import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { PartyClientSocket } from "@/stores/websocket-store";
 import getClientPlayerAssociatedData from "@/utils/getClientPlayerAssociatedData";
-import { CombatAction, ERROR_MESSAGES, ClientToServerEvent } from "@speed-dungeon/common";
-import assignCharacterActionTargets from "@speed-dungeon/common/src/combat/targeting/assign-character-action-targets";
-import { getCombatActionProperties } from "@speed-dungeon/common/src/combatants/get-combat-action-properties";
+import {
+  CombatAction,
+  ERROR_MESSAGES,
+  ClientToServerEvent,
+  SpeedDungeonGame,
+} from "@speed-dungeon/common";
+import { getCombatActionProperties } from "@speed-dungeon/common";
 
 export default function selectCombatActionHandler(
   gameState: GameState,
@@ -28,7 +32,7 @@ export default function selectCombatActionHandler(
 
     if (!gameState.username) return setAlert(mutateAlertState, ERROR_MESSAGES.CLIENT.NO_USERNAME);
     if (!gameState.game) return setAlert(mutateAlertState, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-    assignCharacterActionTargets(
+    SpeedDungeonGame.assignCharacterActionTargets(
       gameState.game,
       focusedCharacter.entityProperties.id,
       gameState.username,

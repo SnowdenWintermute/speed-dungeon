@@ -1,6 +1,6 @@
 import ValueBar from "@/app/components/atoms/ValueBar";
 import { CombatantProperties } from "@speed-dungeon/common";
-import { CombatAttribute } from "@speed-dungeon/common/src/combatants/combat-attributes";
+import { CombatAttribute } from "@speed-dungeon/common";
 import React from "react";
 import FocusCharacterButton from "./FocusCharacterButton";
 

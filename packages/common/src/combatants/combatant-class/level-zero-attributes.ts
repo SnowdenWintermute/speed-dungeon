@@ -1,7 +1,10 @@
 import { CombatAttribute } from "../combat-attributes";
-import { CombatantClass } from "../combatant-classes";
+import { CombatantClass } from "./classes";
 
-export const BASE_STARTING_ATTRIBUTES = {
+export const BASE_STARTING_ATTRIBUTES: Record<
+  CombatantClass,
+  Partial<Record<CombatAttribute, number>>
+> = {
   [CombatantClass.Warrior]: {
     [CombatAttribute.Strength]: 3,
     [CombatAttribute.Dexterity]: 1,

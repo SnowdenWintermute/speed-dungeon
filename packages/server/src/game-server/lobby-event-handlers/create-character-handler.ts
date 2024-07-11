@@ -2,11 +2,15 @@ import { GameServer } from "..";
 import {
   CombatantClass,
   ERROR_MESSAGES,
+  EntityId,
+  PlayerCharacter,
   ServerToClientEvent,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { generateRandomCharacterName } from "../../utils";
 import errorHandler from "../error-handler";
+import { MAX_PARTY_SIZE } from "@speed-dungeon/common";
+import outfitNewCharacter from "../item-generation/outfit-new-character";
 
 const ATTEMPT_TEXT = "A client tried to create a character but";
 
@@ -30,7 +34,7 @@ export default function createCharacterHandler(
 
     if (characterName === "") characterName = generateRandomCharacterName();
 
-    const newCharacterId = SpeedDungeonGame.addCharacterToParty(
+    const newCharacterId = addCharacterToParty(
       game,
       player.partyName,
       combatantClass,
@@ -56,4 +60,32 @@ export default function createCharacterHandler(
     if (e instanceof Error) return errorHandler(socket, e.message);
     else console.error(e);
   }
+}
+
+function addCharacterToParty(
+  game: SpeedDungeonGame,
+  partyName: string,
+  combatantClass: CombatantClass,
+  characterName: string,
+  nameOfControllingUser: string
+): EntityId {
+  const party = game.adventuringParties[partyName];
+  if (!party) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+
+  if (Object.keys(party.characters).length >= MAX_PARTY_SIZE)
+    throw new Error(ERROR_MESSAGES.GAME.MAX_PARTY_SIZE);
+
+  const characterId = game.idGenerator.getNextEntityId();
+  const newCharacter = new PlayerCharacter(
+    nameOfControllingUser,
+    combatantClass,
+    characterName,
+    characterId
+  );
+
+  outfitNewCharacter(game.idGenerator, newCharacter);
+
+  party.characters[characterId] = newCharacter;
+  party.characterPositions.push(characterId);
+  return characterId;
 }

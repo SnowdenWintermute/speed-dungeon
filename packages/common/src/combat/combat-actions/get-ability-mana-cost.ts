@@ -1,7 +1,7 @@
 import { CombatantAbility, CombatantProperties } from "../../combatants";
 import getAbilityAttributes from "../../combatants/abilities/get-ability-attributes";
 
-export default function getAbilityManaCost(
+export function getAbilityManaCost(
   combatantProperties: CombatantProperties,
   ability: CombatantAbility
 ): number {

@@ -1,18 +1,19 @@
-import cloneDeep from "lodash.clonedeep";
 import {
+  BASE_STARTING_ATTRIBUTES,
+  STARTING_COMBATANT_TRAITS,
   CombatAttribute,
   CombatantAbility,
   CombatantAbilityName,
   CombatantClass,
   CombatantProperties,
-} from "../combatants";
-import { BASE_STARTING_ATTRIBUTES } from "../combatants/combatant-classes/level-zero-attributes";
-import { STARTING_COMBATANT_TRAITS } from "../combatants/combatant-classes/starting-traits";
-import { IdGenerator } from "../game/id_generator";
-import { PlayerCharacter } from "./player-character";
-import { EquipmentSlot, Item } from "../items";
-import { ConsumableType } from "../items/consumables";
-import createStartingEquipment from "../items/equipment/equipment-generation/create-starting-equipment";
+  ConsumableType,
+  EquipmentSlot,
+  IdGenerator,
+  Item,
+  PlayerCharacter,
+} from "@speed-dungeon/common";
+import cloneDeep from "lodash.clonedeep";
+import createStartingEquipment from "./create-starting-equipment";
 
 export default function outfitNewCharacter(idGenerator: IdGenerator, character: PlayerCharacter) {
   const combatantProperties = character.combatantProperties;

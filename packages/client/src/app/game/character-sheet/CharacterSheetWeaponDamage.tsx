@@ -2,6 +2,7 @@ import {
   CombatAction,
   CombatActionType,
   CombatAttribute,
+  CombatantAbility,
   CombatantAbilityName,
   CombatantProperties,
   ERROR_MESSAGES,
@@ -10,9 +11,8 @@ import {
   WeaponSlot,
   calculateCombatActionHpChangeRange,
 } from "@speed-dungeon/common";
-import getAbilityAttributes from "@speed-dungeon/common/src/combatants/abilities/get-ability-attributes";
-import { WeaponProperties } from "@speed-dungeon/common/src/items/equipment/equipment-properties/weapon-properties";
-import { EquipmentType } from "@speed-dungeon/common/src/items/equipment/equipment-types";
+import { WeaponProperties } from "@speed-dungeon/common";
+import { EquipmentType } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
 import React from "react";
 
@@ -135,7 +135,7 @@ function getAttackAbilityDamageAndAccuracy(
   if (attackActionPropertiesResult.hpChangeProperties === null)
     return new Error(ERROR_MESSAGES.ABILITIES.INVALID_TYPE);
   const hpChangeProperties = attackActionPropertiesResult.hpChangeProperties;
-  const abilityAttributes = getAbilityAttributes(abilityName);
+  const abilityAttributes = CombatantAbility.getAttributes(abilityName);
 
   const damageRangeResult = calculateCombatActionHpChangeRange(
     combatantProperties,

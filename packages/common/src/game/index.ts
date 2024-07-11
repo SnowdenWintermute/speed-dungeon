@@ -1,15 +1,15 @@
 export * from "./player";
+export * from "./id-generator";
 export * from "./remove-player-from-party";
 export * from "./get-player-party";
 import { immerable } from "immer";
 import { AdventuringParty } from "../adventuring_party";
 import { Battle } from "../battle";
 import { EntityId } from "../primatives";
-import { IdGenerator } from "./id_generator";
+import { IdGenerator } from "./id-generator";
 import { SpeedDungeonPlayer } from "./player";
 import putPlayerInParty from "./put-player-in-party";
 import removePlayerFromParty from "./remove-player-from-party";
-import addCharacterToParty from "./add-character-to-party";
 import cycleCharacterTargets from "../combat/targeting/cycle-character-targets";
 import getAllyIdsAndOpponentIdsOption from "./get-ally-ids-and-opponent-ids-option";
 import removePlayerFromGame from "./remove-player-from-game";
@@ -22,6 +22,8 @@ import { tickCombatUntilNextCombatantIsActive } from "../combat/turn-order/tick-
 import endActiveCombatantTurn from "../combat/turn-order/end-active-combatant-turn";
 import allCombatantsInGroupAreDead from "../combat/all-combatants-in-group-are-dead";
 import { getPlayerParty } from "./get-player-party";
+import cycleCharacterTargetingSchemes from "../combat/targeting/cycle-character-targeting-schemes";
+import assignCharacterActionTargets from "../combat/targeting/assign-character-action-targets";
 
 export class SpeedDungeonGame {
   [immerable] = true;
@@ -39,10 +41,11 @@ export class SpeedDungeonGame {
   static removePlayerFromParty = removePlayerFromParty;
   static removePlayer = removePlayerFromGame;
   static putPlayerInParty = putPlayerInParty;
-  static addCharacterToParty = addCharacterToParty;
   static getCharacter = getCharacterInGame;
   static getCombatantById = getCombatantInGameById;
+  static assignCharacterActionTargets = assignCharacterActionTargets;
   static cycleCharacterTargets = cycleCharacterTargets;
+  static cycleCharacterTargetingSchemes = cycleCharacterTargetingSchemes;
   static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
   static getPartyOfCombatant = getPartyOfCombatant;
   static getPlayerParty = getPlayerParty;

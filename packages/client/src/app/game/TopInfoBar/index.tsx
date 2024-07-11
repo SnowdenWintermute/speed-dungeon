@@ -3,7 +3,7 @@ import { useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import TurnOrderBar from "./TurnOrderBar";
 import RoomExplorationTracker from "./RoomExplorationTracker";
-import { formatDungeonRoomType } from "@speed-dungeon/common/src/adventuring_party/dungeon-room";
+import { formatDungeonRoomType } from "@speed-dungeon/common";
 import getGameAndParty from "@/utils/getGameAndParty";
 
 export default function TopInfoBar() {

@@ -1,7 +1,7 @@
 import { Monster } from ".";
 import { CombatAttribute, CombatantProperties } from "../combatants";
 import { addAttributesToAccumulator } from "../combatants/get-combatant-total-attributes";
-import { IdGenerator } from "../game/id_generator";
+import { IdGenerator } from "../game/id-generator";
 import { randomNormal } from "../utils";
 import getMonsterAbilities from "./get-monster-abilities";
 import getMonsterCombatantSpecies from "./get-monster-combatant-species";
