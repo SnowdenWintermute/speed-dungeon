@@ -1,6 +1,7 @@
 import {
   CombatAttribute,
   DEEPEST_FLOOR,
+  EquipmentBaseItem,
   HpChangeSource,
   NumberRange,
   PrefixType,
@@ -18,14 +19,16 @@ export abstract class EquipmentGenerationTemplate {
     prefix: {},
     suffix: {},
   };
+  constructor(public equipmentBaseItem: EquipmentBaseItem) {}
 }
 
 export abstract class WeaponGenerationTemplate extends EquipmentGenerationTemplate {
   numDamageClassifications: number = 1;
   constructor(
     public damage: NumberRange,
-    public possibleDamageClassifications: HpChangeSource[]
+    public possibleDamageClassifications: HpChangeSource[],
+    public equipmentBaseItem: EquipmentBaseItem
   ) {
-    super();
+    super(equipmentBaseItem);
   }
 }

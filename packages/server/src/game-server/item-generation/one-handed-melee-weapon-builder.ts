@@ -3,31 +3,38 @@ import {
   BaseItem,
   ERROR_MESSAGES,
   EquipmentBaseItem,
+  EquipmentBaseItemType,
   EquipmentType,
   HpChangeSource,
-  HpChangeSourceCategoryType,
   ItemPropertiesType,
-  MagicalElement,
-  MeleeOrRanged,
+  MaxAndCurrent,
   OneHandedMeleeWeapon,
-  PhysicalDamageType,
-  Shield,
   WeaponProperties,
   chooseRandomFromArray,
+  randBetween,
+  shuffleArray,
 } from "@speed-dungeon/common";
 import { ItemGenerationBuilder, ItemNamer, TaggedBaseItem } from "./item-generation-builder";
 import { ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "./equipment-templates/one-handed-melee-weapon-templates";
+import cloneDeep from "lodash.clonedeep";
+import { WeaponGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes";
 
-class OneHandedMeleeWeaponBuilder extends ItemNamer implements ItemGenerationBuilder {
-  constructor(public itemLevel: number) {
+class WeaponBuilder<T extends EquipmentBaseItemType, U extends WeaponGenerationTemplate>
+  extends ItemNamer
+  implements ItemGenerationBuilder
+{
+  constructor(
+    public templates: Record<T, U>,
+    public itemLevel: number
+  ) {
     super();
   }
   buildBaseItem(): Error | TaggedBaseItem {
     // select random item base from those available for this.itemLevel
-    const availableTypesOnThisLevel: OneHandedMeleeWeapon[] = [];
-    for (const template of Object.values(ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES)) {
+    const availableTypesOnThisLevel: U[] = [];
+    for (const template of Object.values(this.templates)) {
       if (this.itemLevel <= template.levelRange.min && this.itemLevel >= template.levelRange.max) {
-        availableTypesOnThisLevel.push(template.oneHandedWeaponType);
+        availableTypesOnThisLevel.push(template.equipmentBaseItem.baseItemType);
       }
     }
 
@@ -42,34 +49,48 @@ class OneHandedMeleeWeaponBuilder extends ItemNamer implements ItemGenerationBui
       },
     };
   }
+
   buildEquipmentBaseItemProperties(baseEquipmentItem: EquipmentBaseItem) {
     if (!(baseEquipmentItem in OneHandedMeleeWeapon))
       return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
 
+    const typedBaseEquipmentItem = baseEquipmentItem as OneHandedMeleeWeapon;
+
     // look up damage range for the base item and roll it
+    const template = ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES[typedBaseEquipmentItem];
     // roll damageClassifications from possible list
+    let damageClassifications: HpChangeSource[] = [];
+    let shuffledPossibleClassifications = shuffleArray(
+      cloneDeep(template.possibleDamageClassifications)
+    );
+    for (let i = 0; i < template.numDamageClassifications; i += 1) {
+      const someClassification = shuffledPossibleClassifications.pop();
+      if (someClassification === undefined)
+        return new Error("tried to select more damage classifications than possible");
+      if (shuffledPossibleClassifications.length > 0)
+        damageClassifications.push(someClassification);
+    }
 
     const properties: WeaponProperties = {
       type: EquipmentType.OneHandedMeleeWeapon,
-      damage: { min: 1, max: 1 },
-      damageClassification: [
-        new HpChangeSource(
-          {
-            type: HpChangeSourceCategoryType.PhysicalDamage,
-            meleeOrRanged: MeleeOrRanged.Melee,
-          },
-          PhysicalDamageType.Blunt,
-          MagicalElement.Fire
-        ),
-      ],
+      damage: template.damage,
+      damageClassification: damageClassifications,
     };
     return properties;
   }
-  buildDurability(baseItem: BaseItem) {
-    // look up durability for the base item and roll the current durability
-    return { max: 100, current: 50 };
+  buildDurability(baseEquipmentItem: EquipmentBaseItem) {
+    if (!(baseEquipmentItem in OneHandedMeleeWeapon))
+      return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
+    const typedBaseEquipmentItem = baseEquipmentItem as OneHandedMeleeWeapon;
+    const template = ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES[typedBaseEquipmentItem];
+
+    if (template.durability === null) return null;
+    const startingDurability = randBetween(template.durability.min, template.durability.max);
+    let durability = new MaxAndCurrent(startingDurability, template.durability.max);
+
+    return durability;
   }
-  buildAffixes(baseItem: BaseItem) {
+  buildAffixes(baseEquipmentItem: EquipmentBaseItem) {
     // roll rarity
     // roll number of prefixes/suffixes
     // look up valid affixes and their tier levels for shields

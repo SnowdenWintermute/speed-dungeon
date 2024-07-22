@@ -3,14 +3,10 @@ import {
   BaseItem,
   CombatAttribute,
   ConsumableType,
-  ERROR_MESSAGES,
   EquipmentBaseItem,
   EquipmentBaseItemProperties,
   EquipmentType,
   ItemPropertiesType,
-  ShieldProperties,
-  ShieldSize,
-  Shield,
   MaxAndCurrent,
 } from "@speed-dungeon/common";
 
@@ -22,7 +18,7 @@ export type TaggedBaseItem =
       // item enum values from each other: ex: equipmentType: Shield, baseEquipmentItem: Shields.Aspis
       // otherwise whatever number Shields.Aspis evaluates to is indistinguishable from the same number from
       // another equipment enum
-      baseItem: { equipmentType: EquipmentType; baseEquipmentItem: EquipmentBaseItem };
+      baseItem: EquipmentBaseItem;
     };
 
 export abstract class ItemGenerationBuilder {
@@ -31,14 +27,14 @@ export abstract class ItemGenerationBuilder {
   abstract buildEquipmentBaseItemProperties: (
     equipmentBaseItem: EquipmentBaseItem
   ) => Error | EquipmentBaseItemProperties;
-  abstract buildDurability: (baseItem: BaseItem) => null | MaxAndCurrent;
-  abstract buildAffixes: (baseEquipmentItem: BaseItem) => null | Affixes;
+  abstract buildDurability: (equipmentBaseItem: EquipmentBaseItem) => Error | null | MaxAndCurrent;
+  abstract buildAffixes: (equipmentBaseItem: EquipmentBaseItem) => Affixes;
   abstract buildRequirements: (
-    baseItem: BaseItem,
+    baseItem: TaggedBaseItem,
     affixes: null | Affixes
   ) => Partial<Record<CombatAttribute, number>>;
 
-  abstract buildItemName: (baseItem: BaseItem, affixes: null | Affixes) => string;
+  abstract buildItemName: (baseItem: TaggedBaseItem, affixes: null | Affixes) => string;
 }
 
 export abstract class ItemNamer {

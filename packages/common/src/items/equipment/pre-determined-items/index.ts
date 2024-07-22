@@ -33,7 +33,10 @@ export function generatePreDeterminedItem(
         {
           type: ItemPropertiesType.Equipment,
           equipmentProperties: new EquipmentProperties(
-            TwoHandedRangedWeapon.ShortBow,
+            {
+              equipmentType: EquipmentType.TwoHandedRangedWeapon,
+              baseItemType: TwoHandedRangedWeapon.ShortBow,
+            },
             {
               type: EquipmentType.TwoHandedRangedWeapon,
               damage: { min: 1, max: 4 },
@@ -60,7 +63,10 @@ export function generatePreDeterminedItem(
         {
           type: ItemPropertiesType.Equipment,
           equipmentProperties: new EquipmentProperties(
-            OneHandedMeleeWeapon.Dagger,
+            {
+              equipmentType: EquipmentType.OneHandedMeleeWeapon,
+              baseItemType: OneHandedMeleeWeapon.Dagger,
+            },
             {
               type: EquipmentType.OneHandedMeleeWeapon,
               damage: { min: 1, max: 4 },
@@ -87,7 +93,10 @@ export function generatePreDeterminedItem(
         {
           type: ItemPropertiesType.Equipment,
           equipmentProperties: new EquipmentProperties(
-            OneHandedMeleeWeapon.Stick,
+            {
+              equipmentType: EquipmentType.OneHandedMeleeWeapon,
+              baseItemType: OneHandedMeleeWeapon.Stick,
+            },
             {
               type: EquipmentType.OneHandedMeleeWeapon,
               damage: { min: 1, max: 1 },
@@ -114,7 +123,10 @@ export function generatePreDeterminedItem(
         {
           type: ItemPropertiesType.Equipment,
           equipmentProperties: new EquipmentProperties(
-            OneHandedMeleeWeapon.Dagger,
+            {
+              equipmentType: EquipmentType.OneHandedMeleeWeapon,
+              baseItemType: OneHandedMeleeWeapon.Dagger,
+            },
             {
               type: EquipmentType.OneHandedMeleeWeapon,
               damage: { min: 1, max: 4 },
