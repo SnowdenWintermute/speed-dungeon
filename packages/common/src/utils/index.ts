@@ -26,6 +26,14 @@ export function randBetween(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+export function chooseRandomFromArray<T>(arr: T[]): Error | T {
+  if (arr.length < 1) return new Error("Array is empty");
+  const randomIndex = randBetween(0, arr.length - 1);
+  const randomMember = arr[randomIndex];
+  if (randomMember === undefined) return new Error("Somehow randomly chose undefined from array");
+  return randomMember;
+}
+
 export function shuffleArray<T>(array: T[]) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));

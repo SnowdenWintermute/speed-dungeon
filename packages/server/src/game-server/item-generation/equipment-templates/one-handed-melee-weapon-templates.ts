@@ -1,0 +1,288 @@
+import {
+  CombatAttribute,
+  Evadable,
+  HpChangeSource,
+  HpChangeSourceCategoryType,
+  MagicalElement,
+  MeleeOrRanged,
+  NumberRange,
+  OneHandedMeleeWeapon,
+  PhysicalDamageType,
+  PrefixType,
+  SuffixType,
+  iterateNumericEnum,
+} from "@speed-dungeon/common";
+import { WeaponGenerationTemplate } from "./equipment-generation-template-abstract-classes";
+
+export class OneHandedMeleeWeaponGenerationTemplate extends WeaponGenerationTemplate {
+  constructor(
+    public oneHandedWeaponType: OneHandedMeleeWeapon,
+    public damage: NumberRange,
+    public possibleDamageClassifications: HpChangeSource[]
+  ) {
+    super(damage, possibleDamageClassifications);
+    for (const prefix of iterateNumericEnum(PrefixType)) {
+      switch (prefix) {
+        case PrefixType.Mp:
+        case PrefixType.ArmorClass:
+        case PrefixType.Resilience:
+        case PrefixType.Evasion:
+          break;
+        case PrefixType.Accuracy:
+        case PrefixType.PercentDamage:
+        case PrefixType.LifeSteal:
+        case PrefixType.ArmorPenetration:
+        case PrefixType.Agility:
+        case PrefixType.Focus:
+          this.possibleAffixes.prefix[prefix] = 5;
+      }
+    }
+    for (const suffix of iterateNumericEnum(SuffixType)) {
+      switch (suffix) {
+        case SuffixType.Hp:
+        case SuffixType.Vitality:
+          break;
+        case SuffixType.AllBase:
+          this.possibleAffixes.suffix[suffix] = 3;
+          break;
+        case SuffixType.Strength:
+        case SuffixType.Intelligence:
+        case SuffixType.Dexterity:
+        case SuffixType.Damage:
+        case SuffixType.Durability:
+          this.possibleAffixes.suffix[suffix] = 5;
+      }
+    }
+  }
+}
+
+export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
+  OneHandedMeleeWeapon,
+  OneHandedMeleeWeaponGenerationTemplate
+> = (() => {
+  const toReturn: Partial<Record<OneHandedMeleeWeapon, OneHandedMeleeWeaponGenerationTemplate>> =
+    {};
+
+  for (const weapon of iterateNumericEnum(OneHandedMeleeWeapon)) {
+    let template = new OneHandedMeleeWeaponGenerationTemplate(weapon, new NumberRange(1, 3), [
+      new HpChangeSource(
+        { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
+        PhysicalDamageType.Blunt
+      ),
+    ]);
+    switch (weapon) {
+      case OneHandedMeleeWeapon.Stick:
+        template.levelRange = new NumberRange(1, 3);
+        break;
+      case OneHandedMeleeWeapon.Mace:
+        template.levelRange = new NumberRange(2, 6);
+        template.damage = new NumberRange(1, 8);
+        template.requirements[CombatAttribute.Strength] = 10;
+        break;
+      case OneHandedMeleeWeapon.Morningstar:
+        template.levelRange = new NumberRange(4, 8);
+        template.damage = new NumberRange(2, 12);
+        template.requirements[CombatAttribute.Strength] = 14;
+        break;
+      case OneHandedMeleeWeapon.WarHammer:
+        template.levelRange = new NumberRange(8, 10);
+        template.damage = new NumberRange(4, 16);
+        template.requirements[CombatAttribute.Strength] = 24;
+        break;
+      case OneHandedMeleeWeapon.ShortSword:
+        template.levelRange = new NumberRange(2, 4);
+        template.damage = new NumberRange(2, 6);
+        template.possibleDamageClassifications = [
+          new HpChangeSource(
+            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
+            PhysicalDamageType.Slashing
+          ),
+        ];
+        template.requirements[CombatAttribute.Strength] = 5;
+        break;
+      case OneHandedMeleeWeapon.Blade:
+        template.levelRange = new NumberRange(3, 5);
+        template.damage = new NumberRange(4, 8);
+        template.possibleDamageClassifications = [
+          new HpChangeSource(
+            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
+            PhysicalDamageType.Slashing
+          ),
+        ];
+        template.requirements[CombatAttribute.Strength] = 7;
+        template.requirements[CombatAttribute.Dexterity] = 7;
+        break;
+      case OneHandedMeleeWeapon.BroadSword:
+        template.levelRange = new NumberRange(5, 8);
+        template.damage = new NumberRange(4, 12);
+        template.possibleDamageClassifications = [
+          new HpChangeSource(
+            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
+            PhysicalDamageType.Slashing
+          ),
+        ];
+        template.requirements[CombatAttribute.Strength] = 17;
+        template.requirements[CombatAttribute.Dexterity] = 7;
+        break;
+      case OneHandedMeleeWeapon.BastardSword:
+        template.levelRange = new NumberRange(8, 10);
+        template.damage = new NumberRange(6, 15);
+        template.numDamageClassifications = 2;
+        template.possibleDamageClassifications = [
+          new HpChangeSource(
+            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
+            PhysicalDamageType.Slashing
+          ),
+          new HpChangeSource(
+            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
+            PhysicalDamageType.Piercing
+          ),
+        ];
+        template.requirements[CombatAttribute.Strength] = 27;
+        template.requirements[CombatAttribute.Dexterity] = 15;
+        break;
+      case OneHandedMeleeWeapon.Dagger:
+        template.levelRange = new NumberRange(1, 3);
+        template.damage = new NumberRange(1, 4);
+        template.possibleDamageClassifications = [
+          new HpChangeSource(
+            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
+            PhysicalDamageType.Piercing
+          ),
+        ];
+        break;
+      case OneHandedMeleeWeapon.Rapier:
+        template.levelRange = new NumberRange(3, 7);
+        template.damage = new NumberRange(1, 11);
+        template.possibleDamageClassifications = [
+          new HpChangeSource(
+            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
+            PhysicalDamageType.Piercing
+          ),
+        ];
+        template.requirements[CombatAttribute.Dexterity] = 7;
+        break;
+      case OneHandedMeleeWeapon.ShortSpear:
+        template.levelRange = new NumberRange(6, 9);
+        template.damage = new NumberRange(4, 13);
+        template.possibleDamageClassifications = [
+          new HpChangeSource(
+            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
+            PhysicalDamageType.Piercing
+          ),
+        ];
+        template.requirements[CombatAttribute.Dexterity] = 14;
+        template.requirements[CombatAttribute.Strength] = 7;
+        break;
+      case OneHandedMeleeWeapon.RuneSword:
+        template.levelRange = new NumberRange(5, 10);
+        template.damage = new NumberRange(2, 12);
+        template.numDamageClassifications = 2;
+        template.possibleDamageClassifications = [
+          new HpChangeSource(
+            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
+            PhysicalDamageType.Slashing,
+            MagicalElement.Fire
+          ),
+          new HpChangeSource(
+            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
+            PhysicalDamageType.Slashing,
+            MagicalElement.Ice
+          ),
+          new HpChangeSource(
+            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
+            PhysicalDamageType.Slashing,
+            MagicalElement.Lightning
+          ),
+          new HpChangeSource(
+            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
+            PhysicalDamageType.Slashing,
+            MagicalElement.Water
+          ),
+          new HpChangeSource(
+            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
+            PhysicalDamageType.Slashing,
+            MagicalElement.Wind
+          ),
+          new HpChangeSource(
+            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
+            PhysicalDamageType.Slashing,
+            MagicalElement.Earth
+          ),
+        ];
+        template.requirements[CombatAttribute.Strength] = 18;
+        template.requirements[CombatAttribute.Dexterity] = 7;
+        template.requirements[CombatAttribute.Intelligence] = 3;
+        break;
+      case OneHandedMeleeWeapon.EtherBlade:
+        template.levelRange = new NumberRange(5, 8);
+        template.damage = new NumberRange(6, 10);
+        template.possibleDamageClassifications = [
+          new HpChangeSource(
+            { type: HpChangeSourceCategoryType.MagicalDamage, evadable: Evadable.True },
+            PhysicalDamageType.Slashing
+          ),
+        ];
+        template.requirements[CombatAttribute.Intelligence] = 5;
+        template.requirements[CombatAttribute.Strength] = 13;
+        break;
+      case OneHandedMeleeWeapon.IceBlade:
+        template.levelRange = new NumberRange(2, 4);
+        template.damage = new NumberRange(2, 6);
+        template.possibleDamageClassifications = [
+          new HpChangeSource(
+            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
+            PhysicalDamageType.Slashing,
+            MagicalElement.Ice
+          ),
+        ];
+        template.requirements[CombatAttribute.Strength] = 8;
+        template.requirements[CombatAttribute.Intelligence] = 2;
+        break;
+      case OneHandedMeleeWeapon.MapleWand:
+        template.levelRange = new NumberRange(2, 4);
+        template.damage = new NumberRange(1, 8);
+        template.possibleDamageClassifications = [
+          new HpChangeSource({
+            type: HpChangeSourceCategoryType.MagicalDamage,
+            evadable: Evadable.True,
+          }),
+        ];
+        template.requirements[CombatAttribute.Intelligence] = 2;
+      case OneHandedMeleeWeapon.WillowWand:
+        template.levelRange = new NumberRange(3, 6);
+        template.damage = new NumberRange(2, 10);
+        template.possibleDamageClassifications = [
+          new HpChangeSource({
+            type: HpChangeSourceCategoryType.MagicalDamage,
+            evadable: Evadable.True,
+          }),
+        ];
+        template.requirements[CombatAttribute.Intelligence] = 10;
+      case OneHandedMeleeWeapon.YewWand:
+        template.levelRange = new NumberRange(5, 7);
+        template.damage = new NumberRange(3, 13);
+        template.possibleDamageClassifications = [
+          new HpChangeSource({
+            type: HpChangeSourceCategoryType.MagicalDamage,
+            evadable: Evadable.True,
+          }),
+        ];
+        template.requirements[CombatAttribute.Intelligence] = 15;
+      case OneHandedMeleeWeapon.RoseWand:
+        template.levelRange = new NumberRange(8, 10);
+        template.damage = new NumberRange(6, 16);
+        template.possibleDamageClassifications = [
+          new HpChangeSource({
+            type: HpChangeSourceCategoryType.MagicalDamage,
+            evadable: Evadable.True,
+          }),
+        ];
+        template.requirements[CombatAttribute.Intelligence] = 20;
+    }
+
+    toReturn[weapon] = template;
+  }
+
+  return toReturn as Record<OneHandedMeleeWeapon, OneHandedMeleeWeaponGenerationTemplate>;
+})();

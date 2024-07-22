@@ -11,7 +11,9 @@ export class ItemGenerationDirector {
   constructor(public builder: ItemGenerationBuilder) {}
   createItem(itemLevel: number, idGenerator: IdGenerator): Error | Item {
     const { builder } = this;
-    const { type: itemType, baseItem } = builder.buildBaseItem();
+    const baseItemResult = builder.buildBaseItem();
+    if (baseItemResult instanceof Error) return baseItemResult;
+    const { type: itemType, baseItem } = baseItemResult;
     const affixes = builder.buildAffixes(baseItem);
     const requirements = builder.buildRequirements(baseItem, affixes);
     const name = builder.buildItemName(baseItem, affixes);

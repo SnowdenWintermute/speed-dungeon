@@ -18,7 +18,7 @@ export class EquipmentProperties {
   attributes: CombatantAttributeRecord = {};
   affixes: Affixes = { prefixes: [], suffixes: [] };
   constructor(
-    public baseItem: EquipmentBaseItem,
+    public baseItem: EquipmentBaseItem, // put this inside EquipmentBaseItemProperties so matching it yields correct baseItemProperties
     public equipmentBaseItemProperties: EquipmentBaseItemProperties,
     public durability: null | MaxAndCurrent
   ) {}

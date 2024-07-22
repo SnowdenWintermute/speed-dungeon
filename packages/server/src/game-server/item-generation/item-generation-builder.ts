@@ -27,7 +27,7 @@ export type TaggedBaseItem =
 
 export abstract class ItemGenerationBuilder {
   constructor(public itemLevel: number) {}
-  abstract buildBaseItem: () => TaggedBaseItem;
+  abstract buildBaseItem: () => Error | TaggedBaseItem;
   abstract buildEquipmentBaseItemProperties: (
     equipmentBaseItem: EquipmentBaseItem
   ) => Error | EquipmentBaseItemProperties;
