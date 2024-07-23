@@ -1,5 +1,7 @@
 import {
   CombatAttribute,
+  EquipmentBaseItem,
+  EquipmentType,
   Evadable,
   HpChangeSource,
   HpChangeSourceCategoryType,
@@ -18,8 +20,11 @@ export class OneHandedMeleeWeaponGenerationTemplate extends WeaponGenerationTemp
   constructor(
     public damage: NumberRange,
     public possibleDamageClassifications: HpChangeSource[],
-    public equipmentBaseItem: OneHandedMeleeWeapon
+    public equipmentBaseItem: EquipmentBaseItem
   ) {
+    if (equipmentBaseItem.equipmentType !== EquipmentType.OneHandedMeleeWeapon)
+      throw new Error("invalid base item provided");
+
     super(damage, possibleDamageClassifications, equipmentBaseItem);
     for (const prefix of iterateNumericEnum(PrefixType)) {
       switch (prefix) {
@@ -64,7 +69,10 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
     {};
 
   for (const weapon of iterateNumericEnum(OneHandedMeleeWeapon)) {
-    let template = new OneHandedMeleeWeaponGenerationTemplate(weapon, new NumberRange(1, 3), []);
+    let template = new OneHandedMeleeWeaponGenerationTemplate(new NumberRange(1, 3), [], {
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: weapon,
+    });
     let mainDamageClassification: null | HpChangeSource = new HpChangeSource(
       { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
       PhysicalDamageType.Blunt

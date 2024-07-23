@@ -1,6 +1,7 @@
 import {
   ClientToServerEventTypes,
   EquipmentType,
+  IdGenerator,
   ServerToClientEventTypes,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
@@ -36,6 +37,9 @@ import unequipSlotHandler from "./game-event-handlers/unequip-slot-handler";
 import equipItemHandler from "./game-event-handlers/equip-item-handler";
 import acknowledgeReceiptOfItemOnGroundHandler from "./game-event-handlers/acknowledge_receipt_of_item_on_ground_handler";
 import pickUpItemHandler from "./game-event-handlers/pick-up-item-handler";
+import { ItemGenerationDirector } from "./item-generation/item-generation-director";
+import { WeaponBuilder } from "./item-generation/weapon-builder";
+import { ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "./item-generation/equipment-templates/one-handed-melee-weapon-templates";
 
 export type Username = string;
 export type SocketId = string;
@@ -47,6 +51,18 @@ export class GameServer {
   constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     console.log("constructed game server");
     this.connectionHandler();
+    const builder = new WeaponBuilder(
+      // @ts-ignore
+      ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES,
+      EquipmentType.OneHandedMeleeWeapon,
+      5
+    );
+    const director = new ItemGenerationDirector(builder);
+    const idGenerator = new IdGenerator();
+    for (let i = 0; i < 5; i += 1) {
+      const itemResult = director.createItem(1, idGenerator);
+      console.log(JSON.stringify(itemResult, null, 2));
+    }
   }
   getConnection = getConnection;
   connectionHandler = connectionHandler;

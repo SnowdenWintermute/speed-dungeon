@@ -49,11 +49,11 @@ export interface ShieldBaseItemType {
 }
 export interface RingBaseItemType {
   equipmentType: EquipmentType.Ring;
-  baseItemType: Jewelry;
+  baseItemType: Jewelry.Ring;
 }
 export interface AmuletBaseItemType {
   equipmentType: EquipmentType.Amulet;
-  baseItemType: Jewelry;
+  baseItemType: Jewelry.Amulet;
 }
 
 export type EquipmentBaseItemType =

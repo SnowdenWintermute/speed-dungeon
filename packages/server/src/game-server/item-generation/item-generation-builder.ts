@@ -38,7 +38,7 @@ export abstract class ItemGenerationBuilder {
 }
 
 export abstract class ItemNamer {
-  buildItemName(baseItem: BaseItem, affixes: null | Affixes) {
+  buildItemName(baseItem: TaggedBaseItem, affixes: null | Affixes) {
     return "";
   }
 }
