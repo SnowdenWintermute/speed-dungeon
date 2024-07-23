@@ -5,17 +5,23 @@ import {
   ItemPropertiesType,
 } from "@speed-dungeon/common";
 import { IdGenerator } from "@speed-dungeon/common";
-import { ItemGenerationBuilder } from "./item-generation-builder";
+import { ItemGenerationBuilder, TaggedBaseItem } from "./item-generation-builder";
 
 export class ItemGenerationDirector {
   constructor(public builder: ItemGenerationBuilder) {}
-  createItem(itemLevel: number, idGenerator: IdGenerator): Error | Item {
+  createItem(
+    itemLevel: number,
+    idGenerator: IdGenerator,
+    forcedBaseItemOption?: undefined | TaggedBaseItem
+  ): Error | Item {
     const { builder } = this;
-    const baseItemResult = builder.buildBaseItem();
+    const baseItemResult = builder.buildBaseItem(forcedBaseItemOption);
     if (baseItemResult instanceof Error) return baseItemResult;
     const { type: itemType, baseItem } = baseItemResult;
-    const affixes =
+    const affixesResult =
       itemType === ItemPropertiesType.Equipment ? builder.buildAffixes(baseItem) : null;
+    if (affixesResult instanceof Error) return affixesResult;
+    const affixes = affixesResult;
     const requirements = builder.buildRequirements(baseItemResult, affixes);
     const name = builder.buildItemName(baseItemResult, affixes);
 
@@ -31,14 +37,20 @@ export class ItemGenerationDirector {
         const durabilityResult = builder.buildDurability(baseItem);
         if (durabilityResult instanceof Error) return durabilityResult;
 
-        return new Item(entityProperties, itemLevel, requirements, {
+        const equipmentProperties = new EquipmentProperties(
+          baseItem,
+          equipmentBaseItemProperties,
+          durabilityResult
+        );
+
+        if (affixes !== null) equipmentProperties.affixes = affixes;
+
+        const item = new Item(entityProperties, itemLevel, requirements, {
           type: itemType,
-          equipmentProperties: new EquipmentProperties(
-            baseItem,
-            equipmentBaseItemProperties,
-            durabilityResult
-          ),
+          equipmentProperties,
         });
+
+        return item;
       case ItemPropertiesType.Consumable:
         return new Item(entityProperties, itemLevel, requirements, {
           type: itemType,

@@ -11,6 +11,7 @@ export * from "./two-handed-melee-weapon";
 export * from "./one-handed-melee-weapon";
 export * from "./head-gear";
 export * from "./jewelry";
+export * from "./body-armor";
 
 export enum EquipmentType {
   BodyArmor,

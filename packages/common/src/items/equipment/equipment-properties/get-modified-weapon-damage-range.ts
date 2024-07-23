@@ -3,6 +3,7 @@ import { CombatAttribute } from "../../../combatants";
 import { ERROR_MESSAGES } from "../../../errors";
 import { NumberRange } from "../../../primatives/number-range";
 import { PrefixType } from "../affixes";
+import { EquipmentTraitType } from "../equipment-traits";
 import { EquipmentType } from "../equipment-types";
 
 export default function getModifiedWeaponDamageRange(
@@ -20,10 +21,18 @@ export default function getModifiedWeaponDamageRange(
     case EquipmentType.TwoHandedRangedWeapon:
       const damageAttribute = equipmentProperties.attributes[CombatAttribute.Damage] || 0;
       let percentDamageModifier = 1.0;
-      for (const prefix of equipmentProperties.affixes.prefixes) {
-        if (prefix.prefixType === PrefixType.PercentDamage) {
-          percentDamageModifier = 1.0 + prefix.value / 100.0;
-        }
+      if (
+        equipmentProperties.affixes.prefixes[PrefixType.PercentDamage] !== undefined &&
+        equipmentProperties.affixes.prefixes[PrefixType.PercentDamage].equipmentTraits[
+          EquipmentTraitType.DamagePercentage
+        ] !== undefined
+      ) {
+        percentDamageModifier =
+          1.0 +
+          equipmentProperties.affixes.prefixes[PrefixType.PercentDamage].equipmentTraits[
+            EquipmentTraitType.DamagePercentage
+          ].percentage /
+            100.0;
       }
       return new NumberRange(
         (equipmentProperties.equipmentBaseItemProperties.damage.min + damageAttribute) *

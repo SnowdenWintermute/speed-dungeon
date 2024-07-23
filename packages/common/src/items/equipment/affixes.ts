@@ -1,3 +1,6 @@
+import { CombatAttribute } from "../../combatants";
+import { EquipmentTrait, EquipmentTraitType } from "./equipment-traits";
+
 export enum AffixType {
   Prefix,
   Suffix,
@@ -27,23 +30,17 @@ export enum SuffixType {
   Durability,
 }
 
-export interface Prefix {
-  affixType: AffixType.Prefix;
-  prefixType: PrefixType;
-  value: number;
-  tier: number;
-}
+export type TaggedAffixType =
+  | { affixType: AffixType.Prefix; prefixType: PrefixType }
+  | { affixType: AffixType.Suffix; suffixType: SuffixType };
 
-export interface Suffix {
-  affixType: AffixType.Suffix;
-  suffixType: SuffixType;
-  value: number;
+export interface Affix {
+  combatAttributes: Partial<Record<CombatAttribute, number>>;
+  equipmentTraits: Partial<Record<EquipmentTraitType, EquipmentTrait>>;
   tier: number;
 }
 
 export type Affixes = {
-  prefixes: Prefix[];
-  suffixes: Suffix[];
+  prefixes: Partial<Record<PrefixType, Affix>>;
+  suffixes: Partial<Record<SuffixType, Affix>>;
 };
-
-export type Affix = Prefix | Suffix;

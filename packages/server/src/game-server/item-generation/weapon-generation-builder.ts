@@ -9,11 +9,11 @@ import {
 } from "@speed-dungeon/common";
 import { ItemGenerationBuilder } from "./item-generation-builder";
 import { WeaponGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes";
-import { EquipmentBuilder } from "./equipment-builder";
+import { EquipmentGenerationBuilder } from "./equipment-generation-builder";
 import cloneDeep from "lodash.clonedeep";
 
-export class WeaponBuilder<T extends WeaponGenerationTemplate>
-  extends EquipmentBuilder<T>
+export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
+  extends EquipmentGenerationBuilder<T>
   implements ItemGenerationBuilder
 {
   constructor(

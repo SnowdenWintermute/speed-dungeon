@@ -11,3 +11,18 @@ export enum TwoHandedRangedWeapon {
   // MAGICAL PIERCING
   EtherBow,
 }
+
+export function formatTwoHandedRangedWeapon(weapon: TwoHandedRangedWeapon): string {
+  switch (weapon) {
+    case TwoHandedRangedWeapon.ShortBow:
+      return "Short Bow";
+    case TwoHandedRangedWeapon.RecurveBow:
+      return "Recurve Bow";
+    case TwoHandedRangedWeapon.CompositeBow:
+      return "Composite Bow";
+    case TwoHandedRangedWeapon.MilitaryBow:
+      return "Military Bow";
+    case TwoHandedRangedWeapon.EtherBow:
+      return "Ether Bow";
+  }
+}

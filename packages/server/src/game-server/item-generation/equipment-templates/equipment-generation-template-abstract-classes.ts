@@ -10,7 +10,7 @@ import {
 
 export abstract class EquipmentGenerationTemplate {
   levelRange: NumberRange = new NumberRange(1, DEEPEST_FLOOR);
-  durability: null | NumberRange = null;
+  maxDurability: null | number = null;
   requirements: Partial<Record<CombatAttribute, number>> = {};
   possibleAffixes: {
     prefix: Partial<Record<PrefixType, number>>;
