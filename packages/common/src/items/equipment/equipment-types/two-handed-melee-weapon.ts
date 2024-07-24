@@ -8,11 +8,9 @@ export enum TwoHandedMeleeWeapon {
   Glaive,
   ElementalStaff,
   Trident,
-  Halberd,
   GreatAxe,
   GravityHammer,
   // FOR MAGES
-  AshStaff,
   ElmStaff,
   MahoganyStaff,
   EbonyStaff,
@@ -38,14 +36,10 @@ export function formatTwoHandedMeleeWeapon(weapon: TwoHandedMeleeWeapon): string
       return "Elemental Staff";
     case TwoHandedMeleeWeapon.Trident:
       return "Trident";
-    case TwoHandedMeleeWeapon.Halberd:
-      return "Halberd";
     case TwoHandedMeleeWeapon.GreatAxe:
       return "Great Axe";
     case TwoHandedMeleeWeapon.GravityHammer:
       return "Gravity Hammer";
-    case TwoHandedMeleeWeapon.AshStaff:
-      return "Ash Staff";
     case TwoHandedMeleeWeapon.ElmStaff:
       return "Elm Staff";
     case TwoHandedMeleeWeapon.MahoganyStaff:

@@ -5,6 +5,7 @@ import {
   EquipmentType,
   HpChangeSource,
   WeaponProperties,
+  formatEquipmentType,
   shuffleArray,
 } from "@speed-dungeon/common";
 import { ItemGenerationBuilder } from "./item-generation-builder";
@@ -21,10 +22,9 @@ export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
     public equipmentType:
       | EquipmentType.OneHandedMeleeWeapon
       | EquipmentType.TwoHandedMeleeWeapon
-      | EquipmentType.TwoHandedRangedWeapon,
-    public itemLevel: number
+      | EquipmentType.TwoHandedRangedWeapon
   ) {
-    super(templates, equipmentType, itemLevel);
+    super(templates, equipmentType);
   }
 
   buildEquipmentBaseItemProperties(baseEquipmentItem: EquipmentBaseItem) {
@@ -33,6 +33,11 @@ export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
 
     // look up damage range for the base item and roll it
     const template = this.templates[baseEquipmentItem.baseItemType];
+
+    if (template === undefined)
+      return new Error(
+        `missing template for equipment type ${formatEquipmentType(baseEquipmentItem.equipmentType)}, specific item ${baseEquipmentItem.baseItemType}`
+      );
     // roll damageClassifications from possible list
     let damageClassifications: HpChangeSource[] = [];
     let shuffledPossibleClassifications = shuffleArray(
@@ -40,14 +45,18 @@ export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
     );
     for (let i = 0; i < template.numDamageClassifications; i += 1) {
       const someClassification = shuffledPossibleClassifications.pop();
-      if (someClassification === undefined)
-        return new Error("tried to select more damage classifications than possible");
+      if (someClassification === undefined) {
+        return new Error(
+          `tried to select more damage classifications than possible ${template.numDamageClassifications} for equipment type ${formatEquipmentType(baseEquipmentItem.equipmentType)} specific item ${baseEquipmentItem.baseItemType}`
+        );
+      }
       if (shuffledPossibleClassifications.length > 0)
         damageClassifications.push(someClassification);
     }
 
     const properties: WeaponProperties = {
       type: this.equipmentType,
+      baseItem: baseEquipmentItem.baseItemType,
       damage: template.damage,
       damageClassification: damageClassifications,
     };

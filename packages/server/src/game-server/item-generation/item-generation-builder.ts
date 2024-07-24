@@ -20,19 +20,23 @@ export type TaggedBaseItem =
     };
 
 export abstract class ItemGenerationBuilder {
-  constructor(public itemLevel: number) {}
+  constructor() {}
   abstract buildBaseItem: (
+    itemLevel: number,
     forcedBaseItemOption?: TaggedBaseItem | undefined
   ) => Error | TaggedBaseItem;
   abstract buildEquipmentBaseItemProperties: (
     equipmentBaseItem: EquipmentBaseItem
   ) => Error | EquipmentBaseItemProperties;
   abstract buildDurability: (equipmentBaseItem: EquipmentBaseItem) => Error | null | MaxAndCurrent;
-  abstract buildAffixes: (equipmentBaseItem: EquipmentBaseItem) => Error | Affixes;
+  abstract buildAffixes: (
+    itemLevel: number,
+    equipmentBaseItem: EquipmentBaseItem
+  ) => Error | Affixes;
   abstract buildRequirements: (
     baseItem: TaggedBaseItem,
     affixes: null | Affixes
-  ) => Partial<Record<CombatAttribute, number>>;
+  ) => Error | Partial<Record<CombatAttribute, number>>;
 
   abstract buildItemName: (baseItem: TaggedBaseItem, affixes: null | Affixes) => string;
 }

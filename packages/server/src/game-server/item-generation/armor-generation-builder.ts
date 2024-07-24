@@ -1,24 +1,25 @@
 import {
+  ArmorProperties,
   ERROR_MESSAGES,
   EquipmentBaseItem,
   EquipmentBaseItemType,
   EquipmentType,
-  ShieldProperties,
+  formatEquipmentType,
   randBetween,
 } from "@speed-dungeon/common";
 import { ItemGenerationBuilder } from "./item-generation-builder";
+import { ArmorGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes";
 import { EquipmentGenerationBuilder } from "./equipment-generation-builder";
-import { ShieldGenerationTemplate } from "./equipment-templates/shield-templates";
 
-export class ShieldGenerationBuilder<T extends ShieldGenerationTemplate>
+export class ArmorGenerationBuilder<T extends ArmorGenerationTemplate>
   extends EquipmentGenerationBuilder<T>
   implements ItemGenerationBuilder
 {
   constructor(
     public templates: Record<EquipmentBaseItemType, T>,
-    public itemLevel: number
+    public equipmentType: EquipmentType.BodyArmor | EquipmentType.HeadGear
   ) {
-    super(templates, EquipmentType.Shield, itemLevel);
+    super(templates, equipmentType);
   }
 
   buildEquipmentBaseItemProperties(baseEquipmentItem: EquipmentBaseItem) {
@@ -26,16 +27,19 @@ export class ShieldGenerationBuilder<T extends ShieldGenerationTemplate>
       return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
 
     const template = this.templates[baseEquipmentItem.baseItemType];
-    if (template.equipmentBaseItem.equipmentType !== EquipmentType.Shield)
-      return new Error("invalid template");
+
+    if (template === undefined)
+      return new Error(
+        `missing template for equipment type ${formatEquipmentType(baseEquipmentItem.equipmentType)}, specific item ${baseEquipmentItem.baseItemType}`
+      );
 
     const armorClass = randBetween(template.acRange.min, template.acRange.max);
 
-    const properties: ShieldProperties = {
-      type: EquipmentType.Shield,
+    const properties: ArmorProperties = {
+      type: this.equipmentType,
+      baseItem: baseEquipmentItem.baseItemType,
       armorClass,
-      size: template.size,
-      baseItem: template.equipmentBaseItem.baseItemType,
+      armorCategory: template.armorCategory,
     };
     return properties;
   }

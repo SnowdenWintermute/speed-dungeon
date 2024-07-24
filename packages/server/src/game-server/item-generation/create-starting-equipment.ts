@@ -27,11 +27,8 @@ export default function createStartingEquipment(
     case CombatantClass.Warrior:
       mainHandProperties = new EquipmentProperties(
         {
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.Stick,
-        },
-        {
           type: EquipmentType.OneHandedMeleeWeapon,
+          baseItem: OneHandedMeleeWeapon.Stick,
           damage: new NumberRange(1, 2),
           damageClassification: [
             new HpChangeSource(
@@ -49,11 +46,8 @@ export default function createStartingEquipment(
     case CombatantClass.Mage:
       mainHandProperties = new EquipmentProperties(
         {
-          equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-          baseItemType: TwoHandedMeleeWeapon.BoStaff,
-        },
-        {
           type: EquipmentType.TwoHandedMeleeWeapon,
+          baseItem: TwoHandedMeleeWeapon.BoStaff,
           damage: new NumberRange(2, 7),
           damageClassification: [
             new HpChangeSource(
@@ -71,11 +65,8 @@ export default function createStartingEquipment(
     case CombatantClass.Rogue:
       mainHandProperties = offhandProperties = new EquipmentProperties(
         {
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.Dagger,
-        },
-        {
           type: EquipmentType.OneHandedMeleeWeapon,
+          baseItem: OneHandedMeleeWeapon.Dagger,
           damage: new NumberRange(1, 2),
           damageClassification: [
             new HpChangeSource(

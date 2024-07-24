@@ -81,7 +81,6 @@ export const TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case TwoHandedRangedWeapon.ShortBow:
         template.levelRange = new NumberRange(1, 4);
         template.damage = new NumberRange(2, 7);
-        // mainDamageClassification.physicalDamageTypeOption = PhysicalDamageType.Slashing;
         template.requirements[CombatAttribute.Dexterity] = 2;
         break;
       case TwoHandedRangedWeapon.RecurveBow:

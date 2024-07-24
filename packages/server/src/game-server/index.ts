@@ -1,12 +1,12 @@
 import {
   ClientToServerEventTypes,
-  ConsumableType,
   EquipmentType,
   IdGenerator,
   ItemPropertiesType,
   ServerToClientEventTypes,
-  Shield,
   SpeedDungeonGame,
+  TwoHandedMeleeWeapon,
+  randBetween,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import initiateLobbyEventListeners from "./lobby-event-handlers";
@@ -41,10 +41,7 @@ import equipItemHandler from "./game-event-handlers/equip-item-handler";
 import acknowledgeReceiptOfItemOnGroundHandler from "./game-event-handlers/acknowledge_receipt_of_item_on_ground_handler";
 import pickUpItemHandler from "./game-event-handlers/pick-up-item-handler";
 import { ItemGenerationDirector } from "./item-generation/item-generation-director";
-import { WeaponGenerationBuilder } from "./item-generation/weapon-generation-builder";
-import { ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "./item-generation/equipment-templates/one-handed-melee-weapon-templates";
-import { ShieldGenerationBuilder } from "./item-generation/shield-builder";
-import { SHIELD_EQUIPMENT_GENERATION_TEMPLATES } from "./item-generation/equipment-templates/shield-templates";
+import { createItemGenerationDirectors } from "./item-generation/create-item-generation-directors";
 
 export type Username = string;
 export type SocketId = string;
@@ -53,32 +50,30 @@ export class GameServer {
   games: HashMap<string, SpeedDungeonGame> = new HashMap();
   socketIdsByUsername: HashMap<Username, SocketId[]> = new HashMap();
   connections: HashMap<SocketId, BrowserTabSession> = new HashMap();
+  itemGenerationDirectors: Partial<Record<EquipmentType, ItemGenerationDirector>>;
   constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     console.log("constructed game server");
     this.connectionHandler();
-    const weaponBuilder = new WeaponGenerationBuilder(
-      // @ts-ignore
-      ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES,
-      EquipmentType.OneHandedMeleeWeapon,
-      5
-    );
-    const weaponDirector = new ItemGenerationDirector(weaponBuilder);
-    const shieldBuilder = new ShieldGenerationBuilder(
-      // @ts-ignore
-      SHIELD_EQUIPMENT_GENERATION_TEMPLATES,
-      5
-    );
-    const shieldDirector = new ItemGenerationDirector(shieldBuilder);
+    this.itemGenerationDirectors = this.createItemGenerationDirectors();
     const idGenerator = new IdGenerator();
-    for (let i = 0; i < 10; i += 1) {
-      const itemResult = shieldDirector.createItem(1, idGenerator, {
-        type: ItemPropertiesType.Equipment,
-        baseItem: {
-          equipmentType: EquipmentType.Shield,
-          baseItemType: Shield.LanternShield,
-        },
-      });
-      console.log(JSON.stringify(itemResult, null, 2));
+    for (let i = 0; i < 100; i += 1) {
+      const randomIndex = randBetween(0, Object.keys(this.itemGenerationDirectors).length - 1);
+      const randomItemGenerationDirector = Object.values(this.itemGenerationDirectors)[randomIndex];
+      if (randomItemGenerationDirector === undefined) continue;
+      const randomItemResult = randomItemGenerationDirector.createItem(5, idGenerator);
+      if (randomItemResult instanceof Error) console.log(randomItemResult);
+      else console.log("item result: ", randomItemResult.entityProperties.name);
+      // const director = this.itemGenerationDirectors[EquipmentType.TwoHandedMeleeWeapon];
+      // if (director !== undefined) {
+      //   const itemResult = director.createItem(5, idGenerator, {
+      //     type: ItemPropertiesType.Equipment,
+      //     baseItem: {
+      //       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+      //       baseItemType: TwoHandedMeleeWeapon.MahoganyStaff,
+      //     },
+      //   });
+      //   console.log(itemResult);
+      // }
     }
   }
   getConnection = getConnection;
@@ -111,4 +106,6 @@ export class GameServer {
   getSocketIdOfPlayer = getSocketIdOfPlayer;
   emitErrorEventIfError = emitErrorEventIfError;
   characterActionHandler = characterActionHandler;
+  // ITEMS
+  createItemGenerationDirectors = createItemGenerationDirectors;
 }

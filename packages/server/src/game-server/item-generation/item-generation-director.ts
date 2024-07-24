@@ -15,14 +15,16 @@ export class ItemGenerationDirector {
     forcedBaseItemOption?: undefined | TaggedBaseItem
   ): Error | Item {
     const { builder } = this;
-    const baseItemResult = builder.buildBaseItem(forcedBaseItemOption);
+    const baseItemResult = builder.buildBaseItem(itemLevel, forcedBaseItemOption);
     if (baseItemResult instanceof Error) return baseItemResult;
     const { type: itemType, baseItem } = baseItemResult;
     const affixesResult =
-      itemType === ItemPropertiesType.Equipment ? builder.buildAffixes(baseItem) : null;
+      itemType === ItemPropertiesType.Equipment ? builder.buildAffixes(itemLevel, baseItem) : null;
     if (affixesResult instanceof Error) return affixesResult;
     const affixes = affixesResult;
-    const requirements = builder.buildRequirements(baseItemResult, affixes);
+    const requirementsResult = builder.buildRequirements(baseItemResult, affixes);
+    if (requirementsResult instanceof Error) return requirementsResult;
+    const requirements = requirementsResult;
     const name = builder.buildItemName(baseItemResult, affixes);
 
     const entityProperties = {
@@ -38,7 +40,6 @@ export class ItemGenerationDirector {
         if (durabilityResult instanceof Error) return durabilityResult;
 
         const equipmentProperties = new EquipmentProperties(
-          baseItem,
           equipmentBaseItemProperties,
           durabilityResult
         );

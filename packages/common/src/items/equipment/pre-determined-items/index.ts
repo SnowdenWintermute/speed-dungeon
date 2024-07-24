@@ -34,11 +34,8 @@ export function generatePreDeterminedItem(
           type: ItemPropertiesType.Equipment,
           equipmentProperties: new EquipmentProperties(
             {
-              equipmentType: EquipmentType.TwoHandedRangedWeapon,
-              baseItemType: TwoHandedRangedWeapon.ShortBow,
-            },
-            {
               type: EquipmentType.TwoHandedRangedWeapon,
+              baseItem: TwoHandedRangedWeapon.ShortBow,
               damage: { min: 1, max: 4 },
               damageClassification: [
                 new HpChangeSource(
@@ -64,11 +61,8 @@ export function generatePreDeterminedItem(
           type: ItemPropertiesType.Equipment,
           equipmentProperties: new EquipmentProperties(
             {
-              equipmentType: EquipmentType.OneHandedMeleeWeapon,
-              baseItemType: OneHandedMeleeWeapon.Dagger,
-            },
-            {
               type: EquipmentType.OneHandedMeleeWeapon,
+              baseItem: OneHandedMeleeWeapon.ShortSword,
               damage: { min: 1, max: 4 },
               damageClassification: [
                 new HpChangeSource(
@@ -94,11 +88,8 @@ export function generatePreDeterminedItem(
           type: ItemPropertiesType.Equipment,
           equipmentProperties: new EquipmentProperties(
             {
-              equipmentType: EquipmentType.OneHandedMeleeWeapon,
-              baseItemType: OneHandedMeleeWeapon.Stick,
-            },
-            {
               type: EquipmentType.OneHandedMeleeWeapon,
+              baseItem: OneHandedMeleeWeapon.Stick,
               damage: { min: 1, max: 1 },
               damageClassification: [
                 new HpChangeSource(
@@ -124,11 +115,8 @@ export function generatePreDeterminedItem(
           type: ItemPropertiesType.Equipment,
           equipmentProperties: new EquipmentProperties(
             {
-              equipmentType: EquipmentType.OneHandedMeleeWeapon,
-              baseItemType: OneHandedMeleeWeapon.Dagger,
-            },
-            {
               type: EquipmentType.OneHandedMeleeWeapon,
+              baseItem: OneHandedMeleeWeapon.Dagger,
               damage: { min: 1, max: 4 },
               damageClassification: [
                 new HpChangeSource(

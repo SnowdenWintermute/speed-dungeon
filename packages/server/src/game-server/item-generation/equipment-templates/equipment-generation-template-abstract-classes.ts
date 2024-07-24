@@ -1,4 +1,5 @@
 import {
+  ArmorCategory,
   CombatAttribute,
   DEEPEST_FLOOR,
   EquipmentBaseItem,
@@ -27,6 +28,17 @@ export abstract class WeaponGenerationTemplate extends EquipmentGenerationTempla
   constructor(
     public damage: NumberRange,
     public possibleDamageClassifications: HpChangeSource[],
+    public equipmentBaseItem: EquipmentBaseItem
+  ) {
+    super(equipmentBaseItem);
+  }
+}
+
+export abstract class ArmorGenerationTemplate extends EquipmentGenerationTemplate {
+  numDamageClassifications: number = 1;
+  constructor(
+    public acRange: NumberRange,
+    public armorCategory: ArmorCategory,
     public equipmentBaseItem: EquipmentBaseItem
   ) {
     super(equipmentBaseItem);
