@@ -7,6 +7,7 @@ import {
   NumberRange,
   PrefixType,
   SuffixType,
+  iterateNumericEnum,
 } from "@speed-dungeon/common";
 
 export abstract class EquipmentGenerationTemplate {

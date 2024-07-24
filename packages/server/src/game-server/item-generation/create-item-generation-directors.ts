@@ -23,6 +23,10 @@ import {
   BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES,
   BodyArmorGenerationTemplate,
 } from "./equipment-templates/body-armor-generation-templates";
+import {
+  HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES,
+  HeadGearGenerationTemplate,
+} from "./equipment-templates/head-gear-generation-templates";
 import { ArmorGenerationBuilder } from "./armor-generation-builder";
 
 export function createItemGenerationDirectors(
@@ -59,12 +63,20 @@ export function createItemGenerationDirectors(
     >,
     EquipmentType.BodyArmor
   );
+  const headGearBuilder = new ArmorGenerationBuilder(
+    HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES as Record<
+      EquipmentBaseItemType,
+      BodyArmorGenerationTemplate
+    >,
+    EquipmentType.HeadGear
+  );
 
   const oneHandedMeleeWeaponDirector = new ItemGenerationDirector(oneHandedMeleeWeaponBuilder);
   const twoHandedMeleeWeaponDirector = new ItemGenerationDirector(twoHandedMeleeWeaponBuilder);
   const twoHandedRangedWeaponDirector = new ItemGenerationDirector(twoHandedRangedWeaponBuilder);
   const shieldDirector = new ItemGenerationDirector(shieldBuilder);
   const bodyArmorDirector = new ItemGenerationDirector(bodyArmorBuilder);
+  const headGearDirector = new ItemGenerationDirector(headGearBuilder);
 
   const equipmentGenerationDirectors: Partial<Record<EquipmentType, ItemGenerationDirector>> = {
     [EquipmentType.OneHandedMeleeWeapon]: oneHandedMeleeWeaponDirector,
@@ -72,6 +84,7 @@ export function createItemGenerationDirectors(
     [EquipmentType.TwoHandedRangedWeapon]: twoHandedRangedWeaponDirector,
     [EquipmentType.Shield]: shieldDirector,
     [EquipmentType.BodyArmor]: bodyArmorDirector,
+    [EquipmentType.HeadGear]: headGearDirector,
   };
 
   return equipmentGenerationDirectors;

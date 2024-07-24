@@ -1,5 +1,6 @@
 import {
   ClientToServerEventTypes,
+  DEEPEST_FLOOR,
   EquipmentType,
   IdGenerator,
   ItemPropertiesType,
@@ -60,7 +61,10 @@ export class GameServer {
       const randomIndex = randBetween(0, Object.keys(this.itemGenerationDirectors).length - 1);
       const randomItemGenerationDirector = Object.values(this.itemGenerationDirectors)[randomIndex];
       if (randomItemGenerationDirector === undefined) continue;
-      const randomItemResult = randomItemGenerationDirector.createItem(5, idGenerator);
+      const randomItemResult = randomItemGenerationDirector.createItem(
+        randBetween(1, DEEPEST_FLOOR),
+        idGenerator
+      );
       if (randomItemResult instanceof Error) console.log(randomItemResult);
       else console.log("item result: ", randomItemResult.entityProperties.name);
       // const director = this.itemGenerationDirectors[EquipmentType.TwoHandedMeleeWeapon];
