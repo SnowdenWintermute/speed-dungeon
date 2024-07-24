@@ -28,6 +28,13 @@ import {
   HeadGearGenerationTemplate,
 } from "./equipment-templates/head-gear-generation-templates";
 import { ArmorGenerationBuilder } from "./armor-generation-builder";
+import { EquipmentGenerationBuilder } from "./equipment-generation-builder";
+import {
+  AMULET_GENERATION_TEMPLATES,
+  JewelryGenerationTemplate,
+  RING_GENERATION_TEMPLATES,
+} from "./equipment-templates/jewelry-generation-templates";
+import { JewelryGenerationBuilder } from "./jewelry-generation-builder";
 
 export function createItemGenerationDirectors(
   this: GameServer
@@ -66,9 +73,17 @@ export function createItemGenerationDirectors(
   const headGearBuilder = new ArmorGenerationBuilder(
     HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES as Record<
       EquipmentBaseItemType,
-      BodyArmorGenerationTemplate
+      HeadGearGenerationTemplate
     >,
     EquipmentType.HeadGear
+  );
+  const ringBuilder = new JewelryGenerationBuilder(
+    RING_GENERATION_TEMPLATES as Record<EquipmentBaseItemType, JewelryGenerationTemplate>,
+    EquipmentType.Ring
+  );
+  const amuletBuilder = new JewelryGenerationBuilder(
+    AMULET_GENERATION_TEMPLATES as Record<EquipmentBaseItemType, JewelryGenerationTemplate>,
+    EquipmentType.Amulet
   );
 
   const oneHandedMeleeWeaponDirector = new ItemGenerationDirector(oneHandedMeleeWeaponBuilder);
@@ -77,6 +92,8 @@ export function createItemGenerationDirectors(
   const shieldDirector = new ItemGenerationDirector(shieldBuilder);
   const bodyArmorDirector = new ItemGenerationDirector(bodyArmorBuilder);
   const headGearDirector = new ItemGenerationDirector(headGearBuilder);
+  const ringDirector = new ItemGenerationDirector(ringBuilder);
+  const amuletDirector = new ItemGenerationDirector(amuletBuilder);
 
   const equipmentGenerationDirectors: Partial<Record<EquipmentType, ItemGenerationDirector>> = {
     [EquipmentType.OneHandedMeleeWeapon]: oneHandedMeleeWeaponDirector,
@@ -85,6 +102,8 @@ export function createItemGenerationDirectors(
     [EquipmentType.Shield]: shieldDirector,
     [EquipmentType.BodyArmor]: bodyArmorDirector,
     [EquipmentType.HeadGear]: headGearDirector,
+    [EquipmentType.Ring]: ringDirector,
+    [EquipmentType.Amulet]: amuletDirector,
   };
 
   return equipmentGenerationDirectors;

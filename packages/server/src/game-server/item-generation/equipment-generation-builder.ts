@@ -40,6 +40,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     if (forcedBaseItemOption !== undefined) return forcedBaseItemOption;
     // select random item base from those available for itemLevel
     const availableTypesOnThisLevel: EquipmentBaseItemType[] = [];
+
     for (const template of Object.values(this.templates)) {
       if (itemLevel >= template.levelRange.min && itemLevel <= template.levelRange.max) {
         availableTypesOnThisLevel.push(template.equipmentBaseItem.baseItemType);
@@ -87,13 +88,23 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     const affixes: Affixes = { prefixes: {}, suffixes: {} };
 
     const template = getEquipmentGenerationTemplate(baseEquipmentItem);
-    if (template === undefined) return affixes;
+    if (template === undefined) return new Error("missing template");
 
-    const hasPrefix = Math.random() < 0.208;
-    const hasSuffix = Math.random() < 0.625;
+    const isMagical =
+      Math.random() < 0.75 ||
+      baseEquipmentItem.equipmentType === EquipmentType.Amulet ||
+      baseEquipmentItem.equipmentType === EquipmentType.Ring;
+    if (!isMagical) return affixes;
+
+    let hasPrefix = false;
+    let hasSuffix = false;
+
+    while (isMagical && !hasSuffix && !hasPrefix) {
+      hasPrefix = Math.random() < 0.208;
+      hasSuffix = Math.random() < 0.625;
+    }
+
     const numAffixesToRoll = { prefixes: hasPrefix ? 1 : 0, suffixes: hasSuffix ? 1 : 0 };
-
-    if (!hasSuffix && !hasPrefix) return affixes;
 
     const affixTypes: { prefix: PrefixType[]; suffix: SuffixType[] } = {
       prefix: [],

@@ -43,6 +43,7 @@ import acknowledgeReceiptOfItemOnGroundHandler from "./game-event-handlers/ackno
 import pickUpItemHandler from "./game-event-handlers/pick-up-item-handler";
 import { ItemGenerationDirector } from "./item-generation/item-generation-director";
 import { createItemGenerationDirectors } from "./item-generation/create-item-generation-directors";
+import { generateRandomItem } from "./item-generation/generate-random-item";
 
 export type Username = string;
 export type SocketId = string;
@@ -58,15 +59,9 @@ export class GameServer {
     this.itemGenerationDirectors = this.createItemGenerationDirectors();
     const idGenerator = new IdGenerator();
     for (let i = 0; i < 100; i += 1) {
-      const randomIndex = randBetween(0, Object.keys(this.itemGenerationDirectors).length - 1);
-      const randomItemGenerationDirector = Object.values(this.itemGenerationDirectors)[randomIndex];
-      if (randomItemGenerationDirector === undefined) continue;
-      const randomItemResult = randomItemGenerationDirector.createItem(
-        randBetween(1, DEEPEST_FLOOR),
-        idGenerator
-      );
-      if (randomItemResult instanceof Error) console.log(randomItemResult);
-      else console.log("item result: ", randomItemResult.entityProperties.name);
+      const iLvl = randBetween(1, DEEPEST_FLOOR);
+      const randomItem = this.generateRandomItem(iLvl, idGenerator);
+      if (!(randomItem instanceof Error)) console.log(randomItem.entityProperties.name);
       // const director = this.itemGenerationDirectors[EquipmentType.TwoHandedMeleeWeapon];
       // if (director !== undefined) {
       //   const itemResult = director.createItem(5, idGenerator, {
@@ -112,4 +107,5 @@ export class GameServer {
   characterActionHandler = characterActionHandler;
   // ITEMS
   createItemGenerationDirectors = createItemGenerationDirectors;
+  generateRandomItem = generateRandomItem;
 }
