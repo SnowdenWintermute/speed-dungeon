@@ -19,6 +19,7 @@ export default function DamageTypeBadge({ hpChangeSource }: Props) {
       hpChangeSource.physicalDamageTypeOption
     );
   }
+
   let elementTextOption: null | string = null;
   if (hpChangeSource.elementOption !== null) {
     elementTextOption = formatMagicalElement(hpChangeSource.elementOption);
@@ -30,7 +31,7 @@ export default function DamageTypeBadge({ hpChangeSource }: Props) {
   const damageCategoryBorderColor = getDamageCategoryBorderColor(hpChangeSource.category.type);
 
   return (
-    <div className={`border-2 max-w-fit mb-1 ${damageCategoryBorderColor}`}>
+    <div className={`border-2 max-w-fit mb-1 last:mb-0 ${damageCategoryBorderColor}`}>
       <span className={`inline-block pl-1 pr-1 h-full`}>
         {formatHpChangeSourceCategory(hpChangeSource.category)}
       </span>

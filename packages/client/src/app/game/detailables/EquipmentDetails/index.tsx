@@ -7,7 +7,6 @@ import Durability from "./Durability";
 import CombatAttributesAndTraits from "./CombatAttributesAndTraits";
 import ItemRequirements from "../ItemRequirements";
 import { useGameStore } from "@/stores/game-store";
-import UnmetItemRequirementsCalculator from "../UnmetItemRequirementsCalculator";
 
 interface Props {
   item: Item;
@@ -21,7 +20,7 @@ export default function EquipmentDetails({ item, equipmentProperties, isCompared
   return (
     <div>
       {formatEquipmentType(equipmentProperties.equipmentBaseItemProperties.type)}
-      {armorCategoryTextOption && <div>{armorCategoryTextOption}</div>}
+      {armorCategoryTextOption && armorCategoryTextOption}
       <ArmorClassText equipmentProperties={equipmentProperties} />
       <WeaponDamage equipmentProperties={equipmentProperties} />
       <Durability equipmentProperties={equipmentProperties} />

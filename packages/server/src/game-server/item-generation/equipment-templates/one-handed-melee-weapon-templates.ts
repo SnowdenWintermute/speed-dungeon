@@ -222,6 +222,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
           evadable: Evadable.True,
         };
         template.requirements[CombatAttribute.Intelligence] = 2;
+        break;
       case OneHandedMeleeWeapon.WillowWand:
         template.levelRange = new NumberRange(3, 6);
         template.damage = new NumberRange(2, 10);
@@ -231,6 +232,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
           evadable: Evadable.True,
         };
         template.requirements[CombatAttribute.Intelligence] = 10;
+        break;
       case OneHandedMeleeWeapon.YewWand:
         template.levelRange = new NumberRange(5, 7);
         template.damage = new NumberRange(3, 13);
@@ -240,6 +242,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
           evadable: Evadable.True,
         };
         template.requirements[CombatAttribute.Intelligence] = 15;
+        break;
       case OneHandedMeleeWeapon.RoseWand:
         template.levelRange = new NumberRange(8, 10);
         template.damage = new NumberRange(6, 16);
@@ -249,10 +252,12 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
           evadable: Evadable.True,
         };
         template.requirements[CombatAttribute.Intelligence] = 20;
+        break;
     }
 
     if (mainDamageClassification !== null)
       template.possibleDamageClassifications = [mainDamageClassification];
+
     toReturn[weapon] = template;
   }
 

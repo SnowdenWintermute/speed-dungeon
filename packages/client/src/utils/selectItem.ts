@@ -22,6 +22,6 @@ export default function selectItem(
       }
     }
 
-    gameState.hoveredEntity = null;
+    // gameState.hoveredEntity = null;
   });
 }

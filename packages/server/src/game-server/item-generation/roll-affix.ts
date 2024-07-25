@@ -46,7 +46,7 @@ export function rollAffix(
           break;
         case PrefixType.PercentDamage:
           affix.equipmentTraits[EquipmentTraitType.DamagePercentage] = {
-            equipmentTraitType: EquipmentTraitType.ArmorClassPercentage,
+            equipmentTraitType: EquipmentTraitType.DamagePercentage,
             percentage: tier * 10,
           };
           break;

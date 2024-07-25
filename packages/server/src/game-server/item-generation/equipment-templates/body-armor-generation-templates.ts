@@ -53,12 +53,14 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case BodyArmor.SplintMail:
       case BodyArmor.OhmushellMail:
         armorCategory = ArmorCategory.Mail;
+        break;
       case BodyArmor.BreastPlate:
       case BodyArmor.FieldPlate:
       case BodyArmor.GothicPlate:
       case BodyArmor.FullPlate:
       case BodyArmor.ShardPlate:
         armorCategory = ArmorCategory.Plate;
+        break;
     }
 
     let template = new BodyArmorGenerationTemplate(new NumberRange(1, 3), armorCategory, {
