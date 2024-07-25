@@ -11,6 +11,7 @@ import {
   ItemPropertiesType,
 } from "@speed-dungeon/common";
 import selectCombatActionHandler from "./select-combat-action-handler";
+import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
 
 export default function useItemHandler(
   gameState: GameState,
@@ -19,7 +20,11 @@ export default function useItemHandler(
   socket: PartyClientSocket
 ) {
   const altSlotTargeted = uiState.modKeyHeld;
-  const itemOption = gameState.selectedItem;
+
+  const itemOption =
+    gameState.detailedEntity?.type === DetailableEntityType.Item
+      ? gameState.detailedEntity.item
+      : null;
   if (itemOption) {
     switch (itemOption.itemProperties.type) {
       case ItemPropertiesType.Equipment:

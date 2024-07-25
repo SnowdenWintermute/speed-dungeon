@@ -1,8 +1,15 @@
-import { GameKey } from "../action-menu-button-properties";
+import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
+import {
+  ActionButtonCategory,
+  ActionMenuButtonProperties,
+  GameKey,
+} from "../action-menu-button-properties";
 import { ActionButtonPropertiesByCategory } from "../build-action-button-properties";
+import { ACTION_MENU_PAGE_SIZE } from "..";
 
 export default function setActionMenuKeyListeners(
   buttonPropertiesByCategory: ActionButtonPropertiesByCategory,
+  numberedButtonPropertiesOnCurrentPage: ActionMenuButtonProperties[],
   keyupListenerRef: React.MutableRefObject<((...args: any[]) => void) | null>,
   keypressListenerRef: React.MutableRefObject<((...args: any[]) => void) | null>
 ) {
@@ -22,10 +29,9 @@ export function handleActionButtonKeyPressEvent(
   buttonPropertiesByCategory: ActionButtonPropertiesByCategory
 ) {
   let lastNumberAssigned = 0;
-  for (const category of Object.values(buttonPropertiesByCategory)) {
-    for (const buttonProperties of category) {
+  for (const [_category, properties] of iterateNumericEnumKeyedRecord(buttonPropertiesByCategory)) {
+    for (const buttonProperties of properties) {
       const assignedkeys = [];
-
       if (buttonProperties.dedicatedKeysOption === null) {
         lastNumberAssigned += 1;
         if (buttonProperties.shouldBeDisabled) continue;

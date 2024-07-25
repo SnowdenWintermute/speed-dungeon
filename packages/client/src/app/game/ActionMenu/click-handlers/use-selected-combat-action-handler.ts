@@ -8,7 +8,6 @@ export default function useSelectedCombatActionHandler(
   socket: PartyClientSocket
 ) {
   mutateGameState((gameState) => {
-    gameState.selectedItem = null;
     gameState.detailedEntity = null;
     const previousActionMenuPageNumberOption = gameState.actionMenuParentPageNumbers.pop();
     if (typeof previousActionMenuPageNumberOption === "number") {

@@ -97,7 +97,7 @@ function determineSelectItemText(
 
   if (numberOfThisItemInInventory !== null) itemName += ` (${numberOfThisItemInInventory})`;
 
-  itemName += ` [ itemId : ${itemId} ]`;
+  // itemName += ` [ itemId : ${itemId} ]`;
 
   return itemName;
 }

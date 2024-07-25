@@ -30,7 +30,6 @@ export default function dropItemHandler(
       socket.emit(ClientToServerEvent.DropItem, characterId, itemId);
     }
 
-    gameState.selectedItem = null;
     gameState.detailedEntity = null;
     gameState.hoveredEntity = null;
     const previousActionMenuPageNumberOption = gameState.actionMenuParentPageNumbers.pop();

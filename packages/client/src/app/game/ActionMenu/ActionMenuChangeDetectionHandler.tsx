@@ -9,6 +9,7 @@ import { useUIStore } from "@/stores/ui-store";
 import { setAlert } from "@/app/components/alerts";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import getGameAndParty from "@/utils/getGameAndParty";
+import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
 
 interface Props {
   setButtonProperties: React.Dispatch<React.SetStateAction<ActionButtonPropertiesByCategory>>;
@@ -26,7 +27,9 @@ export default function ActionMenuChangeDetectionHandler({ setButtonProperties }
   );
 
   // extract from the gameState anything that we should watch for changes
-  const { focusedCharacterId, menuContext, selectedItem } = gameState;
+  const { focusedCharacterId, menuContext, detailedEntity } = gameState;
+  const selectedItem =
+    detailedEntity?.type === DetailableEntityType.Item ? detailedEntity.item : null;
   const activeCombatantResult = getActiveCombatant();
   const activeCombatantIdOption =
     activeCombatantResult instanceof Error

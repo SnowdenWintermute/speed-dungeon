@@ -8,21 +8,20 @@ export default function selectItem(
   itemOption: null | Item
 ) {
   mutateGameState((gameState) => {
-    gameState.selectedItem = itemOption;
-    gameState.hoveredEntity = null;
     if (itemOption) {
       if (
         gameState.detailedEntity?.type === DetailableEntityType.Item &&
         gameState.detailedEntity.item.entityProperties.id === itemOption.entityProperties.id
       ) {
         gameState.detailedEntity = null;
-        gameState.selectedItem = null;
         gameState.actionMenuParentPageNumbers.pop();
       } else {
-        gameState.detailedEntity = { type: DetailableEntityType.Item, item: itemOption };
         gameState.actionMenuParentPageNumbers.push(gameState.actionMenuCurrentPageNumber);
         gameState.actionMenuCurrentPageNumber = 0;
+        gameState.detailedEntity = { type: DetailableEntityType.Item, item: itemOption };
       }
     }
+
+    gameState.hoveredEntity = null;
   });
 }

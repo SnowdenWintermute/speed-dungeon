@@ -48,7 +48,6 @@ export default function characterEquippedItemHandler(
       if (itemToSelectOption === null) return;
       const itemToSelect = itemToSelectOption;
 
-      gameState.selectedItem = itemToSelect;
       gameState.hoveredEntity = null;
       gameState.detailedEntity = { item: itemToSelect, type: DetailableEntityType.Item };
     }

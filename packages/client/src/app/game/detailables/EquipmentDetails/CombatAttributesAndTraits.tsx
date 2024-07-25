@@ -31,7 +31,11 @@ export default function CombatAttributesAndTraits({ equipmentProperties }: Props
   )) {
     for (const [key, affix] of Object.entries(affixes)) {
       const affixType = parseInt(key) as SuffixType | PrefixType;
-      const formattedAttributeBonusResult = formatAffixCombatAttributeBonuses(affix, affixType);
+      const formattedAttributeBonusResult = formatAffixCombatAttributeBonuses(
+        affix,
+        affixCategory,
+        affixType
+      );
       if (formattedAttributeBonusResult instanceof Error)
         return <div>{formattedAttributeBonusResult.message}</div>;
       affixBonusText[affixCategory].attributes.push(...formattedAttributeBonusResult);
@@ -55,11 +59,12 @@ export default function CombatAttributesAndTraits({ equipmentProperties }: Props
 
 function formatAffixCombatAttributeBonuses(
   affix: Affix,
+  affixCategory: AffixType,
   prefixOrSuffixType: PrefixType | SuffixType
 ): Error | string[] {
   const toReturn = [];
 
-  if (prefixOrSuffixType === SuffixType.AllBase) {
+  if (affixCategory === AffixType.Suffix && prefixOrSuffixType === SuffixType.AllBase) {
     let lastCoreAttributeValue = null;
     for (const attribute of CORE_ATTRIBUTES) {
       const coreAttributeValueOnThisAffix = affix.combatAttributes[attribute];
@@ -86,10 +91,13 @@ function formatAffixEquipmentTraits(affix: Affix): string[] {
     switch (equipmentTrait.equipmentTraitType) {
       case EquipmentTraitType.ArmorClassPercentage:
         toReturn.push(`+ ${equipmentTrait.percentage}% armor class`);
+        break;
       case EquipmentTraitType.LifeSteal:
         toReturn.push(`Heal ${equipmentTrait.percentage}% of damage dealt on hit`);
+        break;
       case EquipmentTraitType.DamagePercentage:
         toReturn.push(`+ ${equipmentTrait.percentage}% weapon damage`);
+        break;
     }
   }
   return toReturn;

@@ -26,7 +26,7 @@ export default function ItemOnGround(props: Props) {
   const gameState = useGameStore();
   const mutateAlertState = useAlertStore().mutateState;
   function mouseEnterHandler() {
-    createActionButtonMouseEnterHandler(gameState, {
+    createActionButtonMouseEnterHandler(gameState, mutateAlertState, {
       type: GameActionType.SelectItem,
       itemId,
       stackSize: 1,
@@ -49,7 +49,6 @@ export default function ItemOnGround(props: Props) {
     gameState.mutateState((gameState) => {
       gameState.hoveredEntity = null;
       gameState.detailedEntity = null;
-      gameState.selectedItem = null;
     });
     socketOption?.emit(ClientToServerEvent.PickUpItem, {
       characterId: gameState.focusedCharacterId,
