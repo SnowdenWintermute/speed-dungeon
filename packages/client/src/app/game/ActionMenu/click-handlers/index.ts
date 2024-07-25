@@ -58,6 +58,7 @@ export default function createActionButtonClickHandler(
         });
     case GameActionType.SelectItem:
       return () => {
+        console.log("selecting item with id", gameAction.itemId);
         const itemResult = getItemOwnedByFocusedCharacter(gameState, gameAction.itemId);
         if (itemResult instanceof Error) return setAlert(mutateAlertState, itemResult.message);
         selectItem(gameState.mutateState, itemResult);

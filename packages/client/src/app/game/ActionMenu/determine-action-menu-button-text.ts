@@ -73,7 +73,7 @@ export default function determineActionButtonText(gameState: GameState, action: 
 function determineSelectItemText(
   gameState: GameState,
   itemId: string,
-  numberOfThisItemInInventory: number
+  numberOfThisItemInInventory: null | number
 ) {
   const gameAndPartyResult = getGameAndParty(gameState.game, gameState.username);
   if (gameAndPartyResult instanceof Error) return gameAndPartyResult;
@@ -95,7 +95,9 @@ function determineSelectItemText(
     if (item.entityProperties.id === itemId) itemName = item.entityProperties.name;
   }
 
-  if (numberOfThisItemInInventory) itemName += ` (${numberOfThisItemInInventory})`;
+  if (numberOfThisItemInInventory !== null) itemName += ` (${numberOfThisItemInInventory})`;
+
+  itemName += ` [ itemId : ${itemId} ]`;
 
   return itemName;
 }
@@ -104,7 +106,11 @@ function determineUseItemText(gameState: GameState, itemId: string) {
   const gameAndPartyResult = getGameAndParty(gameState.game, gameState.username);
   if (gameAndPartyResult instanceof Error) return gameAndPartyResult;
   const [game, party] = gameAndPartyResult;
-  const characterResult = getCharacterInGame(game, party.name, gameState.focusedCharacterId);
+  const characterResult = SpeedDungeonGame.getCharacter(
+    game,
+    party.name,
+    gameState.focusedCharacterId
+  );
   if (characterResult instanceof Error) return characterResult;
   const combatantProperties = characterResult.combatantProperties;
 

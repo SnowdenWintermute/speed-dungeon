@@ -30,12 +30,6 @@ export default function EquipmentDetails({ item, equipmentProperties, isCompared
         attributeRequirements={item.requirements}
         unmetRequirements={unmetRequirements}
       />
-      {!isComparedItem && (
-        <UnmetItemRequirementsCalculator
-          attributeRequirements={item.requirements}
-          itemId={item.entityProperties.id}
-        />
-      )}
     </div>
   );
 }

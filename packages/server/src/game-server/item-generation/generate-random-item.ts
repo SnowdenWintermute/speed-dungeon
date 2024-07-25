@@ -27,8 +27,9 @@ export function generateRandomItem(
     attempts += 1;
   }
   if (randomItemResult instanceof Error) {
-    console.log("Couldn't find a valid item to generate, giving an autoinjector");
-    console.log(randomItemResult);
+    console.log(
+      `Couldn't find a valid item to generate, giving an autoinjector (${randomItemResult.message})`
+    );
     return new Item(
       {
         id: idGenerator.getNextEntityId(),

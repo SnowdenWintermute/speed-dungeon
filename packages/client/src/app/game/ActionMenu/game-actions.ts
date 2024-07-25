@@ -39,7 +39,7 @@ interface ToggleViewingEquipedItems {
 interface SelectItem {
   type: GameActionType.SelectItem;
   itemId: string;
-  stackSize: number;
+  stackSize: null | number;
 }
 interface TakeItem {
   type: GameActionType.TakeItem;

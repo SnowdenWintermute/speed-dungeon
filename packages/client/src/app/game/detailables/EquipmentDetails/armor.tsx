@@ -29,7 +29,7 @@ export function ArmorClassText({
   let hasTraitModifiedAc = false;
   let armorClassTextOption = null;
   if (typeof armorClassOption === "number") {
-    const modifiedAc = getTraitModifiedArmorClass(armorClassOption, equipmentProperties.traits);
+    const modifiedAc = getTraitModifiedArmorClass(armorClassOption, equipmentProperties.affixes);
     return `Armor Class: ${modifiedAc}`;
   }
 

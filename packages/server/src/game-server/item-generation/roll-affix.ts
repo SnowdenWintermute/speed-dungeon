@@ -88,8 +88,8 @@ export function rollAffix(
           affix.combatAttributes[CombatAttribute.Vitality] = rollAttributeValue(1, 2);
           break;
         case SuffixType.AllBase:
-          const min = Math.floor(Math.max(1, tier / 2));
-          const max = tier;
+          const min = 1;
+          const max = 1;
           affix.combatAttributes[CombatAttribute.Vitality] = rollAttributeValue(min, max);
           affix.combatAttributes[CombatAttribute.Dexterity] = rollAttributeValue(min, max);
           affix.combatAttributes[CombatAttribute.Strength] = rollAttributeValue(min, max);

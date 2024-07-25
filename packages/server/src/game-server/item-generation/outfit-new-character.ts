@@ -11,11 +11,18 @@ import {
   IdGenerator,
   Item,
   PlayerCharacter,
+  randBetween,
+  DEEPEST_FLOOR,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment";
+import { GameServer } from "..";
 
-export default function outfitNewCharacter(idGenerator: IdGenerator, character: PlayerCharacter) {
+export default function outfitNewCharacter(
+  gameServer: GameServer,
+  idGenerator: IdGenerator,
+  character: PlayerCharacter
+) {
   const combatantProperties = character.combatantProperties;
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
   if (baseStartingAttributesOption) {
@@ -57,6 +64,12 @@ export default function outfitNewCharacter(idGenerator: IdGenerator, character: 
   for (const [slotKey, item] of Object.entries(startingEquipment)) {
     const slot = parseInt(slotKey) as EquipmentSlot;
     combatantProperties.equipment[slot] = item;
+  }
+
+  for (let i = 0; i < 10; i += 1) {
+    const iLvl = randBetween(1, DEEPEST_FLOOR);
+    const randomItem = gameServer.generateRandomItem(10, idGenerator);
+    if (!(randomItem instanceof Error)) combatantProperties.inventory.items.push(randomItem);
   }
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);

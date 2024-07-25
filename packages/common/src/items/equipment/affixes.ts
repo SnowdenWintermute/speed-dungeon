@@ -41,6 +41,6 @@ export interface Affix {
 }
 
 export type Affixes = {
-  prefixes: Partial<Record<PrefixType, Affix>>;
-  suffixes: Partial<Record<SuffixType, Affix>>;
+  [AffixType.Prefix]: Partial<Record<PrefixType, Affix>>;
+  [AffixType.Suffix]: Partial<Record<SuffixType, Affix>>;
 };

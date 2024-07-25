@@ -78,7 +78,7 @@ export default function createGameActions({
           gameActions.push({
             type: GameActionType.SelectItem,
             itemId,
-            stackSize: 1,
+            stackSize: null,
           });
         }
         break;

@@ -1,4 +1,4 @@
-import { Affixes } from "../affixes";
+import { AffixType, Affixes } from "../affixes";
 
 export enum EquipmentTraitType {
   ArmorClassPercentage,
@@ -21,10 +21,10 @@ export interface LifeStealTrait {
   percentage: number;
 }
 
-export type EquipmentTrait = ArmorClassPercentageTrait | LifeStealTrait;
+export type EquipmentTrait = ArmorClassPercentageTrait | LifeStealTrait | DamagePercentageTrait;
 
 export function getArmorClassPercentageIncreaseTraitAcModifier(affixes: Affixes) {
-  for (const prefix of Object.values(affixes.prefixes)) {
+  for (const prefix of Object.values(affixes[AffixType.Prefix])) {
     if (prefix.equipmentTraits[EquipmentTraitType.ArmorClassPercentage] !== undefined) {
       return (
         1.0 + prefix.equipmentTraits[EquipmentTraitType.ArmorClassPercentage].percentage / 100.0

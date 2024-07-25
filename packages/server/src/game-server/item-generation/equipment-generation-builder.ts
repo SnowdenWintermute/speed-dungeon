@@ -85,7 +85,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
   }
 
   buildAffixes(itemLevel: number, baseEquipmentItem: EquipmentBaseItem): Error | Affixes {
-    const affixes: Affixes = { prefixes: {}, suffixes: {} };
+    const affixes: Affixes = { [AffixType.Prefix]: {}, [AffixType.Suffix]: {} };
 
     const template = getEquipmentGenerationTemplate(baseEquipmentItem);
     if (template === undefined) return new Error("missing template");
@@ -141,7 +141,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
       if (equipmentIsTwoHandedWeapon(this.equipmentType)) multiplier = 2;
 
       const affix = rollAffix({ affixType: AffixType.Prefix, prefixType }, rolledTier, multiplier);
-      affixes.prefixes[prefixType] = affix;
+      affixes[AffixType.Prefix][prefixType] = affix;
     }
 
     for (const suffixType of Object.values(affixTypes.suffix)) {
@@ -153,7 +153,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
       if (equipmentIsTwoHandedWeapon(this.equipmentType)) multiplier = 2;
 
       const affix = rollAffix({ affixType: AffixType.Suffix, suffixType }, rolledTier, multiplier);
-      affixes.suffixes[suffixType] = affix;
+      affixes[AffixType.Suffix][suffixType] = affix;
     }
 
     return affixes;

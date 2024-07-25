@@ -58,22 +58,22 @@ export class GameServer {
     this.connectionHandler();
     this.itemGenerationDirectors = this.createItemGenerationDirectors();
     const idGenerator = new IdGenerator();
-    for (let i = 0; i < 100; i += 1) {
-      const iLvl = randBetween(1, DEEPEST_FLOOR);
-      const randomItem = this.generateRandomItem(iLvl, idGenerator);
-      if (!(randomItem instanceof Error)) console.log(randomItem.entityProperties.name);
-      // const director = this.itemGenerationDirectors[EquipmentType.TwoHandedMeleeWeapon];
-      // if (director !== undefined) {
-      //   const itemResult = director.createItem(5, idGenerator, {
-      //     type: ItemPropertiesType.Equipment,
-      //     baseItem: {
-      //       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-      //       baseItemType: TwoHandedMeleeWeapon.MahoganyStaff,
-      //     },
-      //   });
-      //   console.log(itemResult);
-      // }
-    }
+    // for (let i = 0; i < 100; i += 1) {
+    //   const iLvl = randBetween(1, DEEPEST_FLOOR);
+    //   const randomItem = this.generateRandomItem(iLvl, idGenerator);
+    //   if (!(randomItem instanceof Error)) console.log(randomItem.entityProperties.name);
+    // const director = this.itemGenerationDirectors[EquipmentType.TwoHandedMeleeWeapon];
+    // if (director !== undefined) {
+    //   const itemResult = director.createItem(5, idGenerator, {
+    //     type: ItemPropertiesType.Equipment,
+    //     baseItem: {
+    //       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+    //       baseItemType: TwoHandedMeleeWeapon.MahoganyStaff,
+    //     },
+    //   });
+    //   console.log(itemResult);
+    // }
+    // }
   }
   getConnection = getConnection;
   connectionHandler = connectionHandler;

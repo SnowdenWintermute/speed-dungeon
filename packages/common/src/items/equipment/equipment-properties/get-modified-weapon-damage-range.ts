@@ -2,7 +2,7 @@ import { EquipmentProperties } from ".";
 import { CombatAttribute } from "../../../combatants";
 import { ERROR_MESSAGES } from "../../../errors";
 import { NumberRange } from "../../../primatives/number-range";
-import { PrefixType } from "../affixes";
+import { AffixType, PrefixType } from "../affixes";
 import { EquipmentTraitType } from "../equipment-traits";
 import { EquipmentType } from "../equipment-types";
 
@@ -22,14 +22,14 @@ export default function getModifiedWeaponDamageRange(
       const damageAttribute = equipmentProperties.attributes[CombatAttribute.Damage] || 0;
       let percentDamageModifier = 1.0;
       if (
-        equipmentProperties.affixes.prefixes[PrefixType.PercentDamage] !== undefined &&
-        equipmentProperties.affixes.prefixes[PrefixType.PercentDamage].equipmentTraits[
+        equipmentProperties.affixes[AffixType.Prefix][PrefixType.PercentDamage] !== undefined &&
+        equipmentProperties.affixes[AffixType.Prefix][PrefixType.PercentDamage].equipmentTraits[
           EquipmentTraitType.DamagePercentage
         ] !== undefined
       ) {
         percentDamageModifier =
           1.0 +
-          equipmentProperties.affixes.prefixes[PrefixType.PercentDamage].equipmentTraits[
+          equipmentProperties.affixes[AffixType.Prefix][PrefixType.PercentDamage].equipmentTraits[
             EquipmentTraitType.DamagePercentage
           ].percentage /
             100.0;

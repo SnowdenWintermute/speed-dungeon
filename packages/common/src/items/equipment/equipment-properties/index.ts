@@ -1,6 +1,6 @@
 import { CombatantAttributeRecord } from "../../../combatants/combatant-properties";
 import { MaxAndCurrent } from "../../../primatives/max-and-current";
-import { Affixes } from "../affixes";
+import { AffixType, Affixes } from "../affixes";
 import { getEquipableSlots } from "../slots";
 import { ArmorProperties } from "./armor-properties";
 import getBaseArmorClass from "./get-base-armor-class";
@@ -15,7 +15,7 @@ export * from "./weapon-properties";
 
 export class EquipmentProperties {
   attributes: CombatantAttributeRecord = {};
-  affixes: Affixes = { prefixes: {}, suffixes: {} };
+  affixes: Affixes = { [AffixType.Prefix]: {}, [AffixType.Suffix]: {} };
   constructor(
     public equipmentBaseItemProperties: EquipmentBaseItemProperties,
     public durability: null | MaxAndCurrent

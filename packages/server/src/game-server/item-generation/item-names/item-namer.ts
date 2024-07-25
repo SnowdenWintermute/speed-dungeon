@@ -1,4 +1,5 @@
 import {
+  AffixType,
   Affixes,
   EquipmentType,
   ItemPropertiesType,
@@ -54,12 +55,12 @@ export abstract class ItemNamer {
     }
 
     if (affixes !== null) {
-      for (const [key, affix] of Object.entries(affixes.prefixes)) {
+      for (const [key, affix] of Object.entries(affixes[AffixType.Prefix])) {
         const prefixType = parseInt(key) as PrefixType;
         const name = getPrefixName(prefixType, affix.tier);
         prefixNames.push(name);
       }
-      for (const [key, affix] of Object.entries(affixes.suffixes)) {
+      for (const [key, affix] of Object.entries(affixes[AffixType.Suffix])) {
         const suffixType = parseInt(key) as SuffixType;
         const name = getSuffixName(suffixType, affix.tier);
         suffixNames.push(name);

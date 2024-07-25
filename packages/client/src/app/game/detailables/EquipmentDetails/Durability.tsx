@@ -12,6 +12,6 @@ export default function Durability({ equipmentProperties }: Props) {
     equipmentProperties.equipmentBaseItemProperties.type === EquipmentType.Amulet;
 
   if (isJewelry) return <></>;
-  if (equipmentProperties.durability === null) return <div>Indestructable</div>;
+  else if (durability === null) return <div>Indestructable</div>;
   else return <div>{`Durability: ${durability.current}/${durability.max}`}</div>;
 }
