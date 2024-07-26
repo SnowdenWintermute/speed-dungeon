@@ -21,7 +21,7 @@ export function setAlert(
 ) {
   mutateAlertStore((alertState) => {
     console.log("alert set: ", message);
-    // console.trace();
+    console.trace();
     let newAlert = new Alert(message, AlertType.Error, alertState.lastAlertId.toString());
 
     alertState.alerts.push(newAlert);

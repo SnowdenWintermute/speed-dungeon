@@ -39,14 +39,8 @@ export default function ActionMenu() {
     Object.values(buttonProperties[ActionButtonCategory.Numbered]).length
   );
 
-  // KEYBOARD LISTENERS
-  useEffect(() => {
-    // @TODO - add dependency for onCurrentPage properties
-  }, [buttonProperties, currentPageNumber]);
-
   // DETERMINE CURRENT PAGE NUMBERED BUTTONS
   useEffect(() => {
-    console.log("filtering and setting key listeners");
     const minIndex = currentPageNumber * ACTION_MENU_PAGE_SIZE;
     const maxIndex = currentPageNumber * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE - 1;
     const filteredActions = Object.values(buttonProperties[ActionButtonCategory.Numbered]).filter(
@@ -65,6 +59,14 @@ export default function ActionMenu() {
       });
     }
     setLastPageNumberFiltered(currentPageNumber);
+  }, [currentPageNumber, buttonProperties]);
+
+  useEffect(() => {
+    // without this for some reason page 1 gets shown and hovered when selecting any item
+    // on a higher page
+    gameState.mutateState((gameState) => {
+      gameState.hoveredEntity = null;
+    });
 
     // KEY LISTENERS
     const buttonPropertiesWithFilteredNumberedButtons = cloneDeep(buttonProperties);
@@ -81,7 +83,7 @@ export default function ActionMenu() {
       if (keyPressListenerRef.current)
         window.removeEventListener("keypress", keyPressListenerRef.current);
     };
-  }, [buttonProperties, currentPageNumber]);
+  }, [numberedButtonPropertiesOnCurrentPage]);
 
   function handleWheel() {}
 

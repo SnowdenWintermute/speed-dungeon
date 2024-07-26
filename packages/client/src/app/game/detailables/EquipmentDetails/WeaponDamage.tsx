@@ -25,7 +25,7 @@ export default function WeaponDamage({ equipmentProperties }: Props) {
     <div>
       <div className="mb-1">{`Damage: ${damageOption.min}-${damageOption.max}`}</div>
       {damagetypes.length > 0 && (
-        <ul className="list-none m-0 p-0 border">
+        <ul className="list-none m-0 p-0">
           {damagetypes.map((item, i) => (
             <DamageTypeBadge key={i} hpChangeSource={item} />
           ))}

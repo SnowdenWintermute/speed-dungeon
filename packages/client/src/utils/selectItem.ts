@@ -16,12 +16,12 @@ export default function selectItem(
         gameState.detailedEntity = null;
         gameState.actionMenuParentPageNumbers.pop();
       } else {
+        gameState.detailedEntity = { type: DetailableEntityType.Item, item: itemOption };
         gameState.actionMenuParentPageNumbers.push(gameState.actionMenuCurrentPageNumber);
         gameState.actionMenuCurrentPageNumber = 0;
-        gameState.detailedEntity = { type: DetailableEntityType.Item, item: itemOption };
       }
     }
 
-    // gameState.hoveredEntity = null;
+    gameState.hoveredEntity = null;
   });
 }

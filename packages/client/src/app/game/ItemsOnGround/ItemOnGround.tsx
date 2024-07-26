@@ -12,7 +12,6 @@ import { setAlert } from "@/app/components/alerts";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import { ClientToServerEvent } from "@speed-dungeon/common";
 import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
-import toggleDetailItem from "@/utils/toggle-detail-item";
 
 interface Props {
   itemId: string;
@@ -42,7 +41,7 @@ export default function ItemOnGround(props: Props) {
   function clickHandler() {
     const itemResult = getItemOnGround(gameState, itemId);
     if (itemResult instanceof Error) return setAlert(mutateAlertState, itemResult.message);
-    toggleDetailItem(gameState.mutateState, itemResult);
+    selectItem(gameState.mutateState, itemResult);
   }
 
   function takeItem() {

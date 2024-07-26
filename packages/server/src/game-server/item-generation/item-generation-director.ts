@@ -52,22 +52,6 @@ export class ItemGenerationDirector {
           equipmentProperties,
         });
 
-        if (
-          item.itemProperties.type === ItemPropertiesType.Equipment &&
-          (item.itemProperties.equipmentProperties.equipmentBaseItemProperties.type ===
-            EquipmentType.OneHandedMeleeWeapon ||
-            item.itemProperties.equipmentProperties.equipmentBaseItemProperties.type ===
-              EquipmentType.TwoHandedMeleeWeapon ||
-            item.itemProperties.equipmentProperties.equipmentBaseItemProperties.type ===
-              EquipmentType.TwoHandedRangedWeapon)
-        ) {
-          console.log("generated weapon: ", item.entityProperties.name);
-          console.log(
-            "",
-            item.itemProperties.equipmentProperties.equipmentBaseItemProperties.damageClassification
-          );
-        }
-
         return item;
       case ItemPropertiesType.Consumable:
         return new Item(entityProperties, itemLevel, requirements, {

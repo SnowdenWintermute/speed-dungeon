@@ -43,6 +43,7 @@ export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
     let shuffledPossibleClassifications = shuffleArray(
       cloneDeep(template.possibleDamageClassifications)
     );
+
     for (let i = 0; i < template.numDamageClassifications; i += 1) {
       const someClassification = shuffledPossibleClassifications.pop();
       if (someClassification === undefined) {
@@ -50,8 +51,7 @@ export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
           `tried to select more damage classifications than possible ${template.numDamageClassifications} for equipment type ${formatEquipmentType(baseEquipmentItem.equipmentType)} specific item ${baseEquipmentItem.baseItemType}`
         );
       }
-      if (shuffledPossibleClassifications.length > 0)
-        damageClassifications.push(someClassification);
+      damageClassifications.push(someClassification);
     }
 
     const properties: WeaponProperties = {

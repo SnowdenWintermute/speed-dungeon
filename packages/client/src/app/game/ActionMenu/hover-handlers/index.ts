@@ -37,7 +37,6 @@ export function createActionButtonMouseEnterHandler(
           }
 
           if (itemResult instanceof Error) return setAlert(mutateAlertState, itemResult.message);
-          console.log("hovering item: ", itemResult.entityProperties.name);
 
           // calculate unmet requirements
           const focusedCharacterResult = gameState.getFocusedCharacter();

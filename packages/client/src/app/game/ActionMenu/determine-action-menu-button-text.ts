@@ -33,7 +33,7 @@ export default function determineActionButtonText(gameState: GameState, action: 
     case GameActionType.SelectItem:
       return determineSelectItemText(gameState, action.itemId, action.stackSize);
     case GameActionType.TakeItem:
-      return "Pick up items";
+      return "Not yet implemented";
     case GameActionType.UseItem:
       return determineUseItemText(gameState, action.itemId);
     case GameActionType.DropItem:

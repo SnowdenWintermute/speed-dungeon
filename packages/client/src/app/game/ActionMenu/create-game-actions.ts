@@ -110,6 +110,12 @@ export default function createGameActions({
           });
         }
         break;
+      case MenuType.ItemOnGroundSelected:
+        gameActions.push({ type: GameActionType.DeselectItem });
+        gameActions.push({
+          type: GameActionType.TakeItem,
+        });
+        break;
       case MenuType.LevelUpAbilities:
         break;
       case MenuType.Staircase:

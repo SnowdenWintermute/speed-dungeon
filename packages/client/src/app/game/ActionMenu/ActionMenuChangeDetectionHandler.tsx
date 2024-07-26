@@ -69,9 +69,9 @@ export default function ActionMenuChangeDetectionHandler({ setButtonProperties }
       socketOption
     );
 
-    if (updatedButtonPropertiesResult instanceof Error)
+    if (updatedButtonPropertiesResult instanceof Error) {
       setAlert(mutateAlertState, updatedButtonPropertiesResult.message);
-    else setButtonProperties(updatedButtonPropertiesResult);
+    } else setButtonProperties(updatedButtonPropertiesResult);
   }, [
     focusedCharacterId,
     activeCombatantIdOption,

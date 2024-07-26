@@ -15,6 +15,7 @@ import cycleTargetingSchemeHandler from "./cycle-targeting-scheme-handler";
 import useSelectedCombatActionHandler from "./use-selected-combat-action-handler";
 import dropItemHandler from "./drop-item-handler";
 import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
+import getItemOnGround from "@/utils/getItemOnGround";
 
 export default function createActionButtonClickHandler(
   gameAction: GameAction,
@@ -59,7 +60,8 @@ export default function createActionButtonClickHandler(
         });
     case GameActionType.SelectItem:
       return () => {
-        const itemResult = getItemOwnedByFocusedCharacter(gameState, gameAction.itemId);
+        let itemResult = getItemOwnedByFocusedCharacter(gameState, gameAction.itemId);
+        if (itemResult instanceof Error) itemResult = getItemOnGround(gameState, gameAction.itemId);
         if (itemResult instanceof Error) return setAlert(mutateAlertState, itemResult.message);
         selectItem(gameState.mutateState, itemResult);
         console.log("selected item: ", gameAction.itemId, itemResult.entityProperties.name);

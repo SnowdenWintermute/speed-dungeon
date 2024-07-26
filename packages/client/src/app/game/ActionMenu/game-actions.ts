@@ -7,6 +7,7 @@ export enum GameActionType {
   ToggleViewingEquipedItems,
   SelectItem, // item_id, number of this item if consumable
   OpenTreasureChest,
+  PickUpItems,
   TakeItem,
   // Item Selected
   UseItem,
