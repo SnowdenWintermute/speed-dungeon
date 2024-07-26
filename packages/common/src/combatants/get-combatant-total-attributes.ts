@@ -29,6 +29,11 @@ export default function getCombatantTotalAttributes(
   for (const item of Object.values(combatantProperties.equipment)) {
     if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
     addAttributesToAccumulator(item.itemProperties.equipmentProperties.attributes, totalAttributes);
+    for (const category of Object.values(item.itemProperties.equipmentProperties.affixes)) {
+      for (const affix of Object.values(category)) {
+        addAttributesToAccumulator(affix.combatAttributes, totalAttributes);
+      }
+    }
     const baseArmorClass = EquipmentProperties.getBaseArmorClass(
       item.itemProperties.equipmentProperties
     );

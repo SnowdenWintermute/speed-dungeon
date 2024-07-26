@@ -14,6 +14,8 @@ import cycleCombatActionTargetsHandler from "./cycle-combat-action-targets-handl
 import cycleTargetingSchemeHandler from "./cycle-targeting-scheme-handler";
 import useSelectedCombatActionHandler from "./use-selected-combat-action-handler";
 import dropItemHandler from "./drop-item-handler";
+import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
+import getItemOnGround from "@/utils/getItemOnGround";
 
 export default function createActionButtonClickHandler(
   gameAction: GameAction,
@@ -53,12 +55,13 @@ export default function createActionButtonClickHandler(
             gameState.actionMenuCurrentPageNumber = parentPageOption;
           else gameState.actionMenuCurrentPageNumber = 0;
 
-          gameState.selectedItem = null;
           gameState.detailedEntity = null;
+          gameState.hoveredEntity = null;
         });
     case GameActionType.SelectItem:
       return () => {
-        const itemResult = getItemOwnedByFocusedCharacter(gameState, gameAction.itemId);
+        let itemResult = getItemOwnedByFocusedCharacter(gameState, gameAction.itemId);
+        if (itemResult instanceof Error) itemResult = getItemOnGround(gameState, gameAction.itemId);
         if (itemResult instanceof Error) return setAlert(mutateAlertState, itemResult.message);
         selectItem(gameState.mutateState, itemResult);
       };

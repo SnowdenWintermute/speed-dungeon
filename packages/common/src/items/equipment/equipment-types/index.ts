@@ -11,6 +11,7 @@ export * from "./two-handed-melee-weapon";
 export * from "./one-handed-melee-weapon";
 export * from "./head-gear";
 export * from "./jewelry";
+export * from "./body-armor";
 
 export enum EquipmentType {
   BodyArmor,
@@ -23,14 +24,57 @@ export enum EquipmentType {
   Shield,
 }
 
-export type EquipmentBaseItem =
-  | BodyArmor
-  | HeadGear
-  | OneHandedMeleeWeapon
+export interface BodyArmorBaseItemType {
+  equipmentType: EquipmentType.BodyArmor;
+  baseItemType: BodyArmor;
+}
+export interface HeadGearBaseItemType {
+  equipmentType: EquipmentType.HeadGear;
+  baseItemType: HeadGear;
+}
+export interface OneHandedMeleeWeaponBaseItemType {
+  equipmentType: EquipmentType.OneHandedMeleeWeapon;
+  baseItemType: OneHandedMeleeWeapon;
+}
+export interface TwoHandedMeleeWeaponBaseItemType {
+  equipmentType: EquipmentType.TwoHandedMeleeWeapon;
+  baseItemType: TwoHandedMeleeWeapon;
+}
+export interface TwoHandedRangedWeaponBaseItemType {
+  equipmentType: EquipmentType.TwoHandedRangedWeapon;
+  baseItemType: TwoHandedRangedWeapon;
+}
+export interface ShieldBaseItemType {
+  equipmentType: EquipmentType.Shield;
+  baseItemType: Shield;
+}
+export interface RingBaseItemType {
+  equipmentType: EquipmentType.Ring;
+  baseItemType: Jewelry.Ring;
+}
+export interface AmuletBaseItemType {
+  equipmentType: EquipmentType.Amulet;
+  baseItemType: Jewelry.Amulet;
+}
+
+export type EquipmentBaseItemType =
+  | Shield
+  | Jewelry
   | TwoHandedMeleeWeapon
   | TwoHandedRangedWeapon
-  | Shield
-  | Jewelry;
+  | OneHandedMeleeWeapon
+  | BodyArmor
+  | HeadGear;
+
+export type EquipmentBaseItem =
+  | BodyArmorBaseItemType
+  | HeadGearBaseItemType
+  | OneHandedMeleeWeaponBaseItemType
+  | TwoHandedMeleeWeaponBaseItemType
+  | TwoHandedRangedWeaponBaseItemType
+  | ShieldBaseItemType
+  | AmuletBaseItemType
+  | RingBaseItemType;
 
 export function formatEquipmentType(equipmentType: EquipmentType) {
   switch (equipmentType) {

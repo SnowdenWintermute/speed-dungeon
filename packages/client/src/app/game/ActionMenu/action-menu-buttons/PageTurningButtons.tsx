@@ -65,7 +65,7 @@ export default function PageTurningButtons({ numberOfPages, hidden }: Props) {
       >
         {"Previous page (W)"}
       </button>
-      <div>{`${currentPageNumber}/${numberOfPages}`}</div>
+      <div>{`${currentPageNumber + 1}/${numberOfPages}`}</div>
       <button
         onClick={handleClickNextPage}
         className="pr-2 pl-2"

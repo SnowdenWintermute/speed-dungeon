@@ -35,6 +35,7 @@ export default function createCharacterHandler(
     if (characterName === "") characterName = generateRandomCharacterName();
 
     const newCharacterId = addCharacterToParty(
+      this,
       game,
       player.partyName,
       combatantClass,
@@ -63,6 +64,7 @@ export default function createCharacterHandler(
 }
 
 function addCharacterToParty(
+  gameServer: GameServer,
   game: SpeedDungeonGame,
   partyName: string,
   combatantClass: CombatantClass,
@@ -83,7 +85,7 @@ function addCharacterToParty(
     characterId
   );
 
-  outfitNewCharacter(game.idGenerator, newCharacter);
+  outfitNewCharacter(gameServer, game.idGenerator, newCharacter);
 
   party.characters[characterId] = newCharacter;
   party.characterPositions.push(characterId);

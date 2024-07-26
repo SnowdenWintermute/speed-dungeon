@@ -6,9 +6,9 @@ export function getArmorCategoryText(equipmentProperties: EquipmentProperties) {
   switch (equipmentProperties.equipmentBaseItemProperties.type) {
     case EquipmentType.BodyArmor:
     case EquipmentType.HeadGear:
-      return formatArmorCategory(equipmentProperties.equipmentBaseItemProperties.armorCategory);
+      return ` (${formatArmorCategory(equipmentProperties.equipmentBaseItemProperties.armorCategory)})`;
     default:
-      return null;
+      "";
   }
 }
 
@@ -29,8 +29,8 @@ export function ArmorClassText({
   let hasTraitModifiedAc = false;
   let armorClassTextOption = null;
   if (typeof armorClassOption === "number") {
-    const modifiedAc = getTraitModifiedArmorClass(armorClassOption, equipmentProperties.traits);
-    return `Armor Class: ${modifiedAc}`;
+    const modifiedAc = getTraitModifiedArmorClass(armorClassOption, equipmentProperties.affixes);
+    return <div>{`Armor Class: ${modifiedAc}`}</div>;
   }
 
   let modifiedAcStyle = hasTraitModifiedAc ? "text-blue-600" : "";

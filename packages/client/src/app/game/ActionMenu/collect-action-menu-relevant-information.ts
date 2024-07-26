@@ -1,10 +1,14 @@
 import { GameState, MenuContext } from "@/stores/game-store";
+import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
+import getItemOnGround from "@/utils/getItemOnGround";
+import getItemOwnedByFocusedCharacter from "@/utils/getItemOwnedByFocusedCharacter";
 import {
   AdventuringParty,
   CombatActionProperties,
   CombatantAbilityName,
   CombatantProperties,
   ERROR_MESSAGES,
+  Item,
 } from "@speed-dungeon/common";
 import { DungeonRoomType } from "@speed-dungeon/common";
 import { ActionUsableContext } from "@speed-dungeon/common";
@@ -20,6 +24,7 @@ export enum MenuType {
   InventoryOpen,
   ViewingEquipedItems,
   ItemSelected,
+  ItemOnGroundSelected,
   ItemsOnGround,
   UnopenedChest,
   Staircase,
@@ -47,6 +52,11 @@ export default function collectActionMenuRelevantInformation(
   if (!focusedCharacterOption) return new Error(ERROR_MESSAGES.PARTY.CHARACTER_NOT_FOUND);
   const { combatantProperties } = focusedCharacterOption;
 
+  const selectedItemOption =
+    gameState.detailedEntity?.type === DetailableEntityType.Item
+      ? gameState.detailedEntity.item
+      : null;
+
   let focusedCharacterSelectedCombatActionPropertiesOption;
   const selectedActionOption = combatantProperties.selectedCombatAction;
   if (selectedActionOption !== null)
@@ -60,8 +70,15 @@ export default function collectActionMenuRelevantInformation(
     menuTypes.push(MenuType.CombatActionSelected);
   else if (gameState.menuContext === MenuContext.ItemsOnGround)
     menuTypes.push(MenuType.ItemsOnGround);
-  else if (gameState.selectedItem) menuTypes.push(MenuType.ItemSelected);
-  else if (gameState.menuContext === MenuContext.Equipment) {
+  else if (gameState.detailedEntity?.type === DetailableEntityType.Item) {
+    const itemId = gameState.detailedEntity.item.entityProperties.id;
+    const ownedItemResult = getItemOwnedByFocusedCharacter(gameState, itemId);
+    if (!(ownedItemResult instanceof Error)) menuTypes.push(MenuType.ItemSelected);
+    else {
+      const itemOnGroundResult = getItemOnGround(gameState, itemId);
+      if (!(itemOnGroundResult instanceof Error)) menuTypes.push(MenuType.ItemOnGroundSelected);
+    }
+  } else if (gameState.menuContext === MenuContext.Equipment) {
     menuTypes.push(MenuType.ViewingEquipedItems);
     for (const item of Object.values(combatantProperties.equipment)) {
       equipmentIds.push(item.entityProperties.id);
@@ -124,6 +141,6 @@ export default function collectActionMenuRelevantInformation(
     abilities: abilityNames,
     selectedCombatActionPropertiesOption,
     inventoryIsOpen,
-    selectedItemIdOption: gameState.selectedItem?.entityProperties.id ?? null,
+    selectedItemIdOption: selectedItemOption?.entityProperties.id ?? null,
   };
 }

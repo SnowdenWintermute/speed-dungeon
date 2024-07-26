@@ -1,8 +1,13 @@
 import {
   ClientToServerEventTypes,
+  DEEPEST_FLOOR,
   EquipmentType,
+  IdGenerator,
+  ItemPropertiesType,
   ServerToClientEventTypes,
   SpeedDungeonGame,
+  TwoHandedMeleeWeapon,
+  randBetween,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import initiateLobbyEventListeners from "./lobby-event-handlers";
@@ -36,6 +41,9 @@ import unequipSlotHandler from "./game-event-handlers/unequip-slot-handler";
 import equipItemHandler from "./game-event-handlers/equip-item-handler";
 import acknowledgeReceiptOfItemOnGroundHandler from "./game-event-handlers/acknowledge_receipt_of_item_on_ground_handler";
 import pickUpItemHandler from "./game-event-handlers/pick-up-item-handler";
+import { ItemGenerationDirector } from "./item-generation/item-generation-director";
+import { createItemGenerationDirectors } from "./item-generation/create-item-generation-directors";
+import { generateRandomItem } from "./item-generation/generate-random-item";
 
 export type Username = string;
 export type SocketId = string;
@@ -44,9 +52,28 @@ export class GameServer {
   games: HashMap<string, SpeedDungeonGame> = new HashMap();
   socketIdsByUsername: HashMap<Username, SocketId[]> = new HashMap();
   connections: HashMap<SocketId, BrowserTabSession> = new HashMap();
+  itemGenerationDirectors: Partial<Record<EquipmentType, ItemGenerationDirector>>;
   constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     console.log("constructed game server");
     this.connectionHandler();
+    this.itemGenerationDirectors = this.createItemGenerationDirectors();
+    const idGenerator = new IdGenerator();
+    // for (let i = 0; i < 100; i += 1) {
+    //   const iLvl = randBetween(1, DEEPEST_FLOOR);
+    //   const randomItem = this.generateRandomItem(iLvl, idGenerator);
+    //   if (!(randomItem instanceof Error)) console.log(randomItem.entityProperties.name);
+    // const director = this.itemGenerationDirectors[EquipmentType.TwoHandedMeleeWeapon];
+    // if (director !== undefined) {
+    //   const itemResult = director.createItem(5, idGenerator, {
+    //     type: ItemPropertiesType.Equipment,
+    //     baseItem: {
+    //       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+    //       baseItemType: TwoHandedMeleeWeapon.MahoganyStaff,
+    //     },
+    //   });
+    //   console.log(itemResult);
+    // }
+    // }
   }
   getConnection = getConnection;
   connectionHandler = connectionHandler;
@@ -78,4 +105,7 @@ export class GameServer {
   getSocketIdOfPlayer = getSocketIdOfPlayer;
   emitErrorEventIfError = emitErrorEventIfError;
   characterActionHandler = characterActionHandler;
+  // ITEMS
+  createItemGenerationDirectors = createItemGenerationDirectors;
+  generateRandomItem = generateRandomItem;
 }

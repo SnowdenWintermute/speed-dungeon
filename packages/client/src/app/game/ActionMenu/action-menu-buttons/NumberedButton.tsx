@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { ActionMenuButtonProperties } from "../action-menu-button-properties";
 import { BUTTON_HEIGHT } from "@/client_consts";
 
@@ -8,6 +8,22 @@ interface Props {
 }
 
 export default function NumberedButton({ number, properties }: Props) {
+  const keyupHandlerRef = useRef<(e: KeyboardEvent) => void | null>();
+
+  useEffect(() => {
+    keyupHandlerRef.current = (e: KeyboardEvent) => {
+      if (e.code === `Digit${number}`) {
+        // @ts-ignore
+        properties.clickHandler(new MouseEvent("mouseup"));
+      }
+    };
+    window.addEventListener("keypress", keyupHandlerRef.current);
+
+    return () => {
+      if (keyupHandlerRef.current) window.removeEventListener("keypress", keyupHandlerRef.current);
+    };
+  }, []);
+
   return (
     <button
       className="w-full border-b border-r border-l first:border-t border-slate-400 bg-slate-700 flex hover:bg-slate-950 disabled:opacity-50"

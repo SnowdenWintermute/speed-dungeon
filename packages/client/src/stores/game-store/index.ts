@@ -14,7 +14,7 @@ import {
   SpeedDungeonGame,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
-import { DetailableEntity } from "./detailable-entities";
+import { DetailableEntity, DetailableEntityType } from "./detailable-entities";
 import { EquipmentSlot } from "@speed-dungeon/common";
 import { MutateState } from "../mutate-state";
 import getActiveCombatant from "@/utils/getActiveCombatant";
@@ -36,7 +36,6 @@ export class GameState {
   focusedCharacterId: string = "";
   detailedEntity: null | DetailableEntity = null;
   hoveredEntity: null | DetailableEntity = null;
-  selectedItem: null | Item = null;
   comparedItem: null | Item = null;
   comparedSlot: null | EquipmentSlot = null;
   hoveredAction: null | CombatAction = null;

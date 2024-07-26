@@ -13,7 +13,6 @@ export default function setFocusedCharacter(
 ) {
   mutateGameState((gameState) => {
     const characterSwitchingFocusAwayFromId = gameState.focusedCharacterId;
-    gameState.selectedItem = null;
     gameState.detailedEntity = null;
     gameState.hoveredEntity = null;
     gameState.focusedCharacterId = id;

@@ -78,7 +78,7 @@ export default function createGameActions({
           gameActions.push({
             type: GameActionType.SelectItem,
             itemId,
-            stackSize: 1,
+            stackSize: null,
           });
         }
         break;
@@ -109,6 +109,12 @@ export default function createGameActions({
             itemId: selectedItemIdOption,
           });
         }
+        break;
+      case MenuType.ItemOnGroundSelected:
+        gameActions.push({ type: GameActionType.DeselectItem });
+        gameActions.push({
+          type: GameActionType.TakeItem,
+        });
         break;
       case MenuType.LevelUpAbilities:
         break;

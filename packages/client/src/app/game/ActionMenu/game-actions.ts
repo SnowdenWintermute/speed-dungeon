@@ -7,6 +7,7 @@ export enum GameActionType {
   ToggleViewingEquipedItems,
   SelectItem, // item_id, number of this item if consumable
   OpenTreasureChest,
+  PickUpItems,
   TakeItem,
   // Item Selected
   UseItem,
@@ -39,7 +40,7 @@ interface ToggleViewingEquipedItems {
 interface SelectItem {
   type: GameActionType.SelectItem;
   itemId: string;
-  stackSize: number;
+  stackSize: null | number;
 }
 interface TakeItem {
   type: GameActionType.TakeItem;

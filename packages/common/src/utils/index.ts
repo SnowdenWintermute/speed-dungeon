@@ -11,6 +11,12 @@ export function iterateNumericEnum<T extends { [name: string]: string | number }
   return Object.values(enumType).filter((value) => !isNaN(Number(value))) as T[keyof T][];
 }
 
+export function iterateNumericEnumKeyedRecord<T extends string | number, U>(
+  record: Partial<Record<T, U>>
+): [T, U][] {
+  return Object.entries(record).map(([key, value]) => [parseInt(key) as T, value as U]);
+}
+
 export function randomNormal() {
   let u = 0,
     v = 0;

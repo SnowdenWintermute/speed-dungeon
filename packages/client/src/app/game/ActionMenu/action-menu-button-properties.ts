@@ -32,6 +32,23 @@ export enum GameKey {
   T,
 }
 
+export const GAME_KEYS_TO_KEYPRESS_CODES: Partial<Record<GameKey, string[]>> = {
+  [GameKey.Confirm]: ["Enter", "KeyR"],
+  [GameKey.S]: ["KeyS"],
+  [GameKey.I]: ["KeyI"],
+  [GameKey.D]: ["KeyD"],
+  [GameKey.O]: ["KeyO"],
+  [GameKey.F]: ["KeyF"],
+  [GameKey.P]: ["KeyP"],
+  [GameKey.T]: ["KeyT"],
+};
+
+export const GAME_KEYS_TO_KEYUP_CODES: Partial<Record<GameKey, string[]>> = {
+  [GameKey.Cancel]: ["Escape"],
+  [GameKey.Next]: ["ArrowRight"],
+  [GameKey.Previous]: ["ArrowLeft"],
+};
+
 export function formatGameKey(keyOption: null | GameKey) {
   if (keyOption === null) return "";
   switch (keyOption) {

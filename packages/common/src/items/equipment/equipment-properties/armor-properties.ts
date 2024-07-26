@@ -5,26 +5,26 @@ import { HeadGear } from "../equipment-types/head-gear";
 export interface ArmorProperties {
   type: EquipmentType.BodyArmor | EquipmentType.HeadGear;
   baseItem: BodyArmor | HeadGear;
-  armorCategory: ArmorCategories;
+  armorCategory: ArmorCategory;
   armorClass: number;
 }
 
-export enum ArmorCategories {
+export enum ArmorCategory {
   Cloth,
   Leather,
   Mail,
   Plate,
 }
 
-export function formatArmorCategory(armorCategory: ArmorCategories) {
+export function formatArmorCategory(armorCategory: ArmorCategory) {
   switch (armorCategory) {
-    case ArmorCategories.Cloth:
+    case ArmorCategory.Cloth:
       return "Cloth";
-    case ArmorCategories.Leather:
+    case ArmorCategory.Leather:
       return "Leather";
-    case ArmorCategories.Mail:
+    case ArmorCategory.Mail:
       return "Mail";
-    case ArmorCategories.Plate:
+    case ArmorCategory.Plate:
       return "Plate";
   }
 }

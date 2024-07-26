@@ -57,7 +57,11 @@ export default function buildActionButtonProperties(
       socket
     );
 
-    const mouseEnterHandler = createActionButtonMouseEnterHandler(gameState, action);
+    const mouseEnterHandler = createActionButtonMouseEnterHandler(
+      gameState,
+      mutateAlertState,
+      action
+    );
     const mouseLeaveHandler = createActionButtonMouseLeaveHandler(gameState, action);
 
     const { dedicatedKeysOption, category } = getButtonDedicatedKeyAndCategory(action);

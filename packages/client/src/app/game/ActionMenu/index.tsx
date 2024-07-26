@@ -5,19 +5,15 @@ import { useGameStore } from "@/stores/game-store";
 import { ActionButtonPropertiesByCategory } from "./build-action-button-properties";
 import ActionMenuChangeDetectionHandler from "./ActionMenuChangeDetectionHandler";
 import createActionMenuButtons from "./action-menu-buttons/create-action-menu-buttons";
-import setActionMenuKeyListeners from "./action-menu-buttons/set-action-menu-key-listeners";
-import cloneDeep from "lodash.clonedeep";
 import PageTurningButtons from "./action-menu-buttons/PageTurningButtons";
 import calculateNumberOfPages from "./action-menu-buttons/calculate-number-of-pages";
 import ChangeTargetButtons from "./action-menu-buttons/ChangeTargetButtons";
 import ActionDetails from "../detailables/ActionDetails";
 
-const PAGE_SIZE = 6;
+export const ACTION_MENU_PAGE_SIZE = 6;
 
 export default function ActionMenu() {
   const actionMenuRef = useRef<HTMLUListElement>(null);
-  const keyupListenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
-  const keyPressListenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
   const gameState = useGameStore();
 
   const [buttonProperties, setButtonProperties] = useState<ActionButtonPropertiesByCategory>({
@@ -33,30 +29,18 @@ export default function ActionMenu() {
     buttonProperties,
     numberedButtonPropertiesOnCurrentPage
   );
+
   const currentPageNumber = gameState.actionMenuCurrentPageNumber;
   const numberOfPages = calculateNumberOfPages(
-    PAGE_SIZE,
+    ACTION_MENU_PAGE_SIZE,
     Object.values(buttonProperties[ActionButtonCategory.Numbered]).length
   );
 
-  // KEYBOARD LISTENERS
-  useEffect(() => {
-    const buttonPropertiesWithFilteredNumberedButtons = cloneDeep(buttonProperties);
-    buttonPropertiesWithFilteredNumberedButtons[ActionButtonCategory.Numbered] =
-      numberedButtonPropertiesOnCurrentPage;
-    setActionMenuKeyListeners(buttonProperties, keyupListenerRef, keyPressListenerRef);
-    return () => {
-      if (keyupListenerRef.current) window.removeEventListener("keyup", keyupListenerRef.current);
-      if (keyPressListenerRef.current)
-        window.removeEventListener("keypress", keyPressListenerRef.current);
-    };
-    // @TODO - add dependency for onCurrentPage properties
-  }, [buttonProperties, currentPageNumber]);
-
   // DETERMINE CURRENT PAGE NUMBERED BUTTONS
   useEffect(() => {
-    const minIndex = currentPageNumber * PAGE_SIZE;
-    const maxIndex = currentPageNumber * PAGE_SIZE + PAGE_SIZE - 1;
+    console.log("setting numbered buttons");
+    const minIndex = currentPageNumber * ACTION_MENU_PAGE_SIZE;
+    const maxIndex = currentPageNumber * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE - 1;
     const filteredActions = Object.values(buttonProperties[ActionButtonCategory.Numbered]).filter(
       (_buttonProperties, i) => i >= minIndex && i <= maxIndex
     );
@@ -73,7 +57,7 @@ export default function ActionMenu() {
       });
     }
     setLastPageNumberFiltered(currentPageNumber);
-  }, [buttonProperties, currentPageNumber]);
+  }, [currentPageNumber, buttonProperties]);
 
   function handleWheel() {}
 
@@ -97,7 +81,7 @@ export default function ActionMenu() {
       selectedActionDisplay = (
         <div
           className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2"
-          style={{ height: `${BUTTON_HEIGHT * PAGE_SIZE}rem` }}
+          style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
         >
           <ActionDetails combatAction={selectedCombatActionOption} hideTitle={false} />
         </div>
@@ -124,7 +108,7 @@ export default function ActionMenu() {
           </li>
         ))}
       </ul>
-      <div className={`mb-2`} style={{ height: `${BUTTON_HEIGHT * PAGE_SIZE}rem` }}>
+      <div className={`mb-2`} style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}>
         <ul
           className="list-none relative pointer-events-auto"
           ref={actionMenuRef}
@@ -144,7 +128,8 @@ export default function ActionMenu() {
         <PageTurningButtons
           numberOfPages={numberOfPages}
           hidden={
-            Object.values(buttonProperties[ActionButtonCategory.Numbered]).length <= PAGE_SIZE
+            Object.values(buttonProperties[ActionButtonCategory.Numbered]).length <=
+            ACTION_MENU_PAGE_SIZE
           }
         />
       )}

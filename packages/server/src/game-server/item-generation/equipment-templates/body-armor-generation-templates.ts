@@ -1,0 +1,220 @@
+import {
+  ArmorCategory,
+  CombatAttribute,
+  EquipmentBaseItem,
+  EquipmentType,
+  NumberRange,
+  BodyArmor,
+  iterateNumericEnum,
+  PrefixType,
+  SuffixType,
+} from "@speed-dungeon/common";
+import { ArmorGenerationTemplate } from "./equipment-generation-template-abstract-classes";
+import { modifyPossibleAffixesByArmorCategory } from "./armor-category-affixes";
+
+export class BodyArmorGenerationTemplate extends ArmorGenerationTemplate {
+  constructor(
+    public acRange: NumberRange,
+    public armorCategory: ArmorCategory,
+    public equipmentBaseItem: EquipmentBaseItem
+  ) {
+    if (equipmentBaseItem.equipmentType !== EquipmentType.BodyArmor)
+      throw new Error("invalid base item provided");
+
+    super(acRange, armorCategory, equipmentBaseItem);
+  }
+}
+
+export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
+  BodyArmor,
+  BodyArmorGenerationTemplate
+> = (() => {
+  const toReturn: Partial<Record<BodyArmor, BodyArmorGenerationTemplate>> = {};
+
+  for (const baseItem of iterateNumericEnum(BodyArmor)) {
+    let armorCategory = ArmorCategory.Cloth;
+    switch (baseItem) {
+      case BodyArmor.Rags:
+      case BodyArmor.Cape:
+      case BodyArmor.Cloak:
+      case BodyArmor.Robe:
+      case BodyArmor.Kevlar:
+        armorCategory = ArmorCategory.Cloth;
+        break;
+      case BodyArmor.LeatherArmor:
+      case BodyArmor.HardLeatherArmor:
+      case BodyArmor.StuddedLeatherArmor:
+      case BodyArmor.DemonsaurArmor:
+        armorCategory = ArmorCategory.Leather;
+        break;
+      case BodyArmor.RingMail:
+      case BodyArmor.ChainMail:
+      case BodyArmor.ScaleMail:
+      case BodyArmor.SplintMail:
+      case BodyArmor.OhmushellMail:
+        armorCategory = ArmorCategory.Mail;
+        break;
+      case BodyArmor.BreastPlate:
+      case BodyArmor.FieldPlate:
+      case BodyArmor.GothicPlate:
+      case BodyArmor.FullPlate:
+      case BodyArmor.ShardPlate:
+        armorCategory = ArmorCategory.Plate;
+        break;
+    }
+
+    let template = new BodyArmorGenerationTemplate(new NumberRange(1, 3), armorCategory, {
+      equipmentType: EquipmentType.BodyArmor,
+      baseItemType: baseItem,
+    });
+
+    // GENERIC ARMOR POSSIBLE AFFIXES
+    for (const prefix of iterateNumericEnum(PrefixType)) {
+      switch (prefix) {
+        case PrefixType.PercentDamage:
+        case PrefixType.Accuracy:
+        case PrefixType.LifeSteal:
+        case PrefixType.ArmorPenetration:
+          break;
+        case PrefixType.Mp:
+        case PrefixType.Evasion:
+        case PrefixType.Agility:
+        case PrefixType.Focus:
+          template.possibleAffixes.prefix[prefix] = 3;
+          break;
+        case PrefixType.ArmorClass:
+        case PrefixType.Resilience:
+          template.possibleAffixes.prefix[prefix] = 5;
+      }
+    }
+    for (const suffix of iterateNumericEnum(SuffixType)) {
+      switch (suffix) {
+        case SuffixType.Damage:
+          break;
+        case SuffixType.AllBase:
+        case SuffixType.Intelligence:
+        case SuffixType.Dexterity:
+          template.possibleAffixes.suffix[suffix] = 3;
+          break;
+        case SuffixType.Hp:
+        case SuffixType.Strength:
+        case SuffixType.Vitality:
+        case SuffixType.Durability:
+          template.possibleAffixes.suffix[suffix] = 5;
+      }
+    }
+
+    modifyPossibleAffixesByArmorCategory(
+      template.possibleAffixes,
+      EquipmentType.BodyArmor,
+      template.armorCategory
+    );
+
+    switch (baseItem) {
+      case BodyArmor.Rags:
+        template.levelRange = new NumberRange(1, 3);
+        template.acRange = new NumberRange(2, 6);
+        break;
+      case BodyArmor.Cape:
+        template.levelRange = new NumberRange(1, 4);
+        template.acRange = new NumberRange(5, 10);
+        break;
+      case BodyArmor.Cloak:
+        template.levelRange = new NumberRange(3, 7);
+        template.acRange = new NumberRange(10, 14);
+        template.requirements[CombatAttribute.Intelligence] = 5;
+        break;
+      case BodyArmor.Robe:
+        template.levelRange = new NumberRange(6, 9);
+        template.acRange = new NumberRange(18, 22);
+        template.requirements[CombatAttribute.Intelligence] = 9;
+        break;
+      case BodyArmor.Kevlar:
+        template.levelRange = new NumberRange(8, 10);
+        template.acRange = new NumberRange(30, 40);
+        template.requirements[CombatAttribute.Intelligence] = 19;
+        break;
+      case BodyArmor.LeatherArmor:
+        template.levelRange = new NumberRange(1, 5);
+        template.acRange = new NumberRange(15, 22);
+        template.requirements[CombatAttribute.Dexterity] = 3;
+        break;
+      case BodyArmor.HardLeatherArmor:
+        template.levelRange = new NumberRange(3, 7);
+        template.acRange = new NumberRange(25, 35);
+        template.requirements[CombatAttribute.Dexterity] = 7;
+        break;
+      case BodyArmor.StuddedLeatherArmor:
+        template.levelRange = new NumberRange(5, 8);
+        template.acRange = new NumberRange(30, 45);
+        template.requirements[CombatAttribute.Dexterity] = 11;
+        break;
+      case BodyArmor.DemonsaurArmor:
+        template.levelRange = new NumberRange(8, 10);
+        template.acRange = new NumberRange(55, 65);
+        template.requirements[CombatAttribute.Dexterity] = 19;
+        break;
+      case BodyArmor.RingMail:
+        template.levelRange = new NumberRange(3, 5);
+        template.acRange = new NumberRange(20, 24);
+        template.requirements[CombatAttribute.Dexterity] = 3;
+        template.requirements[CombatAttribute.Strength] = 3;
+        break;
+      case BodyArmor.ChainMail:
+        template.levelRange = new NumberRange(4, 6);
+        template.acRange = new NumberRange(28, 36);
+        template.requirements[CombatAttribute.Dexterity] = 5;
+        template.requirements[CombatAttribute.Strength] = 5;
+        template.requirements[CombatAttribute.Intelligence] = 3;
+        break;
+      case BodyArmor.ScaleMail:
+        template.levelRange = new NumberRange(5, 7);
+        template.acRange = new NumberRange(34, 45);
+        template.requirements[CombatAttribute.Dexterity] = 9;
+        template.requirements[CombatAttribute.Intelligence] = 7;
+        break;
+      case BodyArmor.SplintMail:
+        template.levelRange = new NumberRange(5, 9);
+        template.acRange = new NumberRange(48, 60);
+        template.requirements[CombatAttribute.Dexterity] = 13;
+        template.requirements[CombatAttribute.Strength] = 13;
+        break;
+      case BodyArmor.OhmushellMail:
+        template.levelRange = new NumberRange(8, 10);
+        template.acRange = new NumberRange(65, 80);
+        template.requirements[CombatAttribute.Dexterity] = 15;
+        template.requirements[CombatAttribute.Strength] = 15;
+        template.requirements[CombatAttribute.Intelligence] = 7;
+        break;
+      case BodyArmor.BreastPlate:
+        template.levelRange = new NumberRange(2, 4);
+        template.acRange = new NumberRange(30, 38);
+        template.requirements[CombatAttribute.Strength] = 9;
+        break;
+      case BodyArmor.FieldPlate:
+        template.levelRange = new NumberRange(4, 6);
+        template.acRange = new NumberRange(40, 45);
+        template.requirements[CombatAttribute.Strength] = 15;
+        break;
+      case BodyArmor.GothicPlate:
+        template.levelRange = new NumberRange(5, 8);
+        template.acRange = new NumberRange(50, 60);
+        template.requirements[CombatAttribute.Strength] = 19;
+        break;
+      case BodyArmor.FullPlate:
+        template.levelRange = new NumberRange(8, 9);
+        template.acRange = new NumberRange(60, 75);
+        template.requirements[CombatAttribute.Strength] = 25;
+        break;
+      case BodyArmor.ShardPlate:
+        template.levelRange = new NumberRange(10, 10);
+        template.acRange = new NumberRange(80, 100);
+        template.requirements[CombatAttribute.Strength] = 35;
+        break;
+    }
+
+    toReturn[baseItem] = template;
+  }
+
+  return toReturn as Record<BodyArmor, BodyArmorGenerationTemplate>;
+})();

@@ -9,6 +9,7 @@ import { useUIStore } from "@/stores/ui-store";
 import { setAlert } from "@/app/components/alerts";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import getGameAndParty from "@/utils/getGameAndParty";
+import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
 
 interface Props {
   setButtonProperties: React.Dispatch<React.SetStateAction<ActionButtonPropertiesByCategory>>;
@@ -25,8 +26,16 @@ export default function ActionMenuChangeDetectionHandler({ setButtonProperties }
     gameState.focusedCharacterId
   );
 
+  // get relevant information
+  // know the page number
+  // know the number of gameActions in the numbered category
+  // build properties for dedicated key buttons AND numbered buttons ON CURRENT PAGE
+  // return properties and gameActions
+
   // extract from the gameState anything that we should watch for changes
-  const { focusedCharacterId, menuContext, selectedItem } = gameState;
+  const { focusedCharacterId, menuContext, detailedEntity } = gameState;
+  const selectedItem =
+    detailedEntity?.type === DetailableEntityType.Item ? detailedEntity.item : null;
   const activeCombatantResult = getActiveCombatant();
   const activeCombatantIdOption =
     activeCombatantResult instanceof Error
@@ -66,9 +75,9 @@ export default function ActionMenuChangeDetectionHandler({ setButtonProperties }
       socketOption
     );
 
-    if (updatedButtonPropertiesResult instanceof Error)
+    if (updatedButtonPropertiesResult instanceof Error) {
       setAlert(mutateAlertState, updatedButtonPropertiesResult.message);
-    else setButtonProperties(updatedButtonPropertiesResult);
+    } else setButtonProperties(updatedButtonPropertiesResult);
   }, [
     focusedCharacterId,
     activeCombatantIdOption,
