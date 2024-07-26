@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import buildActionButtonProperties, {
-  ActionButtonPropertiesByCategory,
-} from "./build-action-button-properties";
+import buildActionButtonProperties from "./build-action-button-properties";
 import { useAlertStore } from "@/stores/alert-store";
 import { useGameStore } from "@/stores/game-store";
 import { useWebsocketStore } from "@/stores/websocket-store";
@@ -10,29 +8,39 @@ import { setAlert } from "@/app/components/alerts";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import getGameAndParty from "@/utils/getGameAndParty";
 import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
+import getParty from "@/utils/getParty";
+import collectActionMenuRelevantInformation from "./collect-action-menu-relevant-information";
+import createGameActions from "./create-game-actions";
+import getButtonDedicatedKeyAndCategory from "./get-button-dedicated-keys-and-category";
+import { GameAction } from "./game-actions";
+import { ActionButtonCategory, ActionMenuButtonProperties } from "./action-menu-button-properties";
+import { ACTION_MENU_PAGE_SIZE } from ".";
+import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
+import calculateNumberOfPages from "./action-menu-buttons/calculate-number-of-pages";
 
 interface Props {
-  setButtonProperties: React.Dispatch<React.SetStateAction<ActionButtonPropertiesByCategory>>;
+  setButtonProperties: React.Dispatch<
+    React.SetStateAction<Record<ActionButtonCategory, ActionMenuButtonProperties[]>>
+  >;
+  setNumberOfPages: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export default function ActionMenuChangeDetectionHandler({ setButtonProperties }: Props) {
+export default function ActionMenuChangeDetectionHandler({
+  setButtonProperties,
+  setNumberOfPages,
+}: Props) {
   const socketOption = useWebsocketStore().socketOption;
   const gameState = useGameStore();
   const getActiveCombatant = useGameStore().getActiveCombatant;
   const uiState = useUIStore();
   const mutateAlertState = useAlertStore().mutateState;
 
+  const pageNumber = gameState.actionMenuCurrentPageNumber;
   const [previouslyFocusedCharacterId, setPreviouslyFocusedCharacterId] = useState(
     gameState.focusedCharacterId
   );
 
-  // get relevant information
-  // know the page number
-  // know the number of gameActions in the numbered category
-  // build properties for dedicated key buttons AND numbered buttons ON CURRENT PAGE
-  // return properties and gameActions
-
-  // extract from the gameState anything that we should watch for changes
+  // EXTRACT FROM THE GAMESTATE ANYTHING THAT WE SHOULD WATCH FOR CHANGES
   const { focusedCharacterId, menuContext, detailedEntity } = gameState;
   const selectedItem =
     detailedEntity?.type === DetailableEntityType.Item ? detailedEntity.item : null;
@@ -60,6 +68,10 @@ export default function ActionMenuChangeDetectionHandler({ setButtonProperties }
   const numItemsOnGround = party?.currentRoom.items.length;
 
   useEffect(() => {
+    console.log("action menu change detected");
+
+    if (focusedCharacterOption === null) return;
+
     if (previouslyFocusedCharacterId != focusedCharacterId)
       gameState.mutateState((store) => {
         store.actionMenuCurrentPageNumber = 0;
@@ -68,17 +80,68 @@ export default function ActionMenuChangeDetectionHandler({ setButtonProperties }
 
     setPreviouslyFocusedCharacterId(focusedCharacterId);
 
-    const updatedButtonPropertiesResult = buildActionButtonProperties(
-      gameState,
-      uiState,
-      mutateAlertState,
-      socketOption
+    // know the page number
+    // get relevant information
+    const partyResult = getParty(gameState.game, gameState.username);
+    if (partyResult instanceof Error) return setAlert(mutateAlertState, partyResult.message);
+    const relevantInformationResult = collectActionMenuRelevantInformation(gameState, partyResult);
+    if (relevantInformationResult instanceof Error)
+      return setAlert(mutateAlertState, relevantInformationResult.message);
+    const gameActions = createGameActions(relevantInformationResult);
+
+    const gameActionsByButtonCategory: Record<ActionButtonCategory, GameAction[]> = {
+      [ActionButtonCategory.Top]: [],
+      [ActionButtonCategory.Numbered]: [],
+      [ActionButtonCategory.NextPrevious]: [],
+    };
+
+    for (const gameAction of gameActions) {
+      const { category } = getButtonDedicatedKeyAndCategory(gameAction);
+      gameActionsByButtonCategory[category].push(gameAction);
+    }
+
+    const numberOfNumberedGameActions =
+      gameActionsByButtonCategory[ActionButtonCategory.Numbered].length;
+
+    setNumberOfPages(calculateNumberOfPages(ACTION_MENU_PAGE_SIZE, numberOfNumberedGameActions));
+
+    gameActionsByButtonCategory[ActionButtonCategory.Numbered] = gameActionsByButtonCategory[
+      ActionButtonCategory.Numbered
+    ].slice(
+      pageNumber * ACTION_MENU_PAGE_SIZE,
+      pageNumber * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE
     );
 
-    if (updatedButtonPropertiesResult instanceof Error) {
-      setAlert(mutateAlertState, updatedButtonPropertiesResult.message);
-    } else setButtonProperties(updatedButtonPropertiesResult);
+    const buttonPropertiesByCategory: Record<ActionButtonCategory, ActionMenuButtonProperties[]> = {
+      [ActionButtonCategory.Top]: [],
+      [ActionButtonCategory.Numbered]: [],
+      [ActionButtonCategory.NextPrevious]: [],
+    };
+
+    // build properties for dedicated key buttons AND numbered buttons ON CURRENT PAGE
+    for (const [category, gameActions] of iterateNumericEnumKeyedRecord(
+      gameActionsByButtonCategory
+    )) {
+      for (const gameAction of gameActions) {
+        const buttonPropertiesResult = buildActionButtonProperties(
+          gameState,
+          uiState,
+          mutateAlertState,
+          socketOption,
+          gameAction
+        );
+        if (buttonPropertiesResult instanceof Error)
+          return setAlert(
+            mutateAlertState,
+            `Error creating button properties for game action type ${gameAction}`
+          );
+        else buttonPropertiesByCategory[category].push(buttonPropertiesResult);
+      }
+    }
+
+    setButtonProperties(buttonPropertiesByCategory);
   }, [
+    pageNumber,
     focusedCharacterId,
     activeCombatantIdOption,
     menuContext,
