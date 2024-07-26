@@ -26,6 +26,12 @@ export default function ActionMenuChangeDetectionHandler({ setButtonProperties }
     gameState.focusedCharacterId
   );
 
+  // get relevant information
+  // know the page number
+  // know the number of gameActions in the numbered category
+  // build properties for dedicated key buttons AND numbered buttons ON CURRENT PAGE
+  // return properties and gameActions
+
   // extract from the gameState anything that we should watch for changes
   const { focusedCharacterId, menuContext, detailedEntity } = gameState;
   const selectedItem =

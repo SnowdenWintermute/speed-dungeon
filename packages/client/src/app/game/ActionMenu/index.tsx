@@ -5,7 +5,6 @@ import { useGameStore } from "@/stores/game-store";
 import { ActionButtonPropertiesByCategory } from "./build-action-button-properties";
 import ActionMenuChangeDetectionHandler from "./ActionMenuChangeDetectionHandler";
 import createActionMenuButtons from "./action-menu-buttons/create-action-menu-buttons";
-import cloneDeep from "lodash.clonedeep";
 import PageTurningButtons from "./action-menu-buttons/PageTurningButtons";
 import calculateNumberOfPages from "./action-menu-buttons/calculate-number-of-pages";
 import ChangeTargetButtons from "./action-menu-buttons/ChangeTargetButtons";
@@ -15,8 +14,6 @@ export const ACTION_MENU_PAGE_SIZE = 6;
 
 export default function ActionMenu() {
   const actionMenuRef = useRef<HTMLUListElement>(null);
-  const keyupListenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
-  const keyPressListenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
   const gameState = useGameStore();
 
   const [buttonProperties, setButtonProperties] = useState<ActionButtonPropertiesByCategory>({
@@ -32,6 +29,7 @@ export default function ActionMenu() {
     buttonProperties,
     numberedButtonPropertiesOnCurrentPage
   );
+
   const currentPageNumber = gameState.actionMenuCurrentPageNumber;
   const numberOfPages = calculateNumberOfPages(
     ACTION_MENU_PAGE_SIZE,
@@ -40,6 +38,7 @@ export default function ActionMenu() {
 
   // DETERMINE CURRENT PAGE NUMBERED BUTTONS
   useEffect(() => {
+    console.log("setting numbered buttons");
     const minIndex = currentPageNumber * ACTION_MENU_PAGE_SIZE;
     const maxIndex = currentPageNumber * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE - 1;
     const filteredActions = Object.values(buttonProperties[ActionButtonCategory.Numbered]).filter(
