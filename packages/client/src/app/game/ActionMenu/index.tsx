@@ -5,7 +5,6 @@ import { useGameStore } from "@/stores/game-store";
 import { ActionButtonPropertiesByCategory } from "./build-action-button-properties";
 import ActionMenuChangeDetectionHandler from "./ActionMenuChangeDetectionHandler";
 import createActionMenuButtons from "./action-menu-buttons/create-action-menu-buttons";
-import setActionMenuKeyListeners from "./action-menu-buttons/set-action-menu-key-listeners";
 import cloneDeep from "lodash.clonedeep";
 import PageTurningButtons from "./action-menu-buttons/PageTurningButtons";
 import calculateNumberOfPages from "./action-menu-buttons/calculate-number-of-pages";
@@ -60,30 +59,6 @@ export default function ActionMenu() {
     }
     setLastPageNumberFiltered(currentPageNumber);
   }, [currentPageNumber, buttonProperties]);
-
-  useEffect(() => {
-    // without this for some reason page 1 gets shown and hovered when selecting any item
-    // on a higher page
-    gameState.mutateState((gameState) => {
-      gameState.hoveredEntity = null;
-    });
-
-    // KEY LISTENERS
-    const buttonPropertiesWithFilteredNumberedButtons = cloneDeep(buttonProperties);
-    buttonPropertiesWithFilteredNumberedButtons[ActionButtonCategory.Numbered] =
-      numberedButtonPropertiesOnCurrentPage;
-    setActionMenuKeyListeners(
-      buttonProperties,
-      numberedButtonPropertiesOnCurrentPage,
-      keyupListenerRef,
-      keyPressListenerRef
-    );
-    return () => {
-      if (keyupListenerRef.current) window.removeEventListener("keyup", keyupListenerRef.current);
-      if (keyPressListenerRef.current)
-        window.removeEventListener("keypress", keyPressListenerRef.current);
-    };
-  }, [numberedButtonPropertiesOnCurrentPage]);
 
   function handleWheel() {}
 

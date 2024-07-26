@@ -1,9 +1,0 @@
-get a bunch of button properties by category
-- top
-- numbered
-- bottom
-
-filter numbered actions by page number
-
-set key listeners
-
