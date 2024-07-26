@@ -64,13 +64,6 @@ export default function createActionButtonClickHandler(
         if (itemResult instanceof Error) itemResult = getItemOnGround(gameState, gameAction.itemId);
         if (itemResult instanceof Error) return setAlert(mutateAlertState, itemResult.message);
         selectItem(gameState.mutateState, itemResult);
-        console.log("selected item: ", gameAction.itemId, itemResult.entityProperties.name);
-        console.log(
-          "hovered item: ",
-          gameState.hoveredEntity?.type === DetailableEntityType.Item
-            ? gameState.hoveredEntity.item.entityProperties.name
-            : null
-        );
       };
     case GameActionType.UseItem:
       return () => useItemHandler(gameState, uiState, mutateAlertState, socket);
