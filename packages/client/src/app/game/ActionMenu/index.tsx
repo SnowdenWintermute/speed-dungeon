@@ -1,12 +1,10 @@
 import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { ActionButtonCategory, ActionMenuButtonProperties } from "./action-menu-button-properties";
 import { useGameStore } from "@/stores/game-store";
-import { ActionButtonPropertiesByCategory } from "./build-action-button-properties";
 import ActionMenuChangeDetectionHandler from "./ActionMenuChangeDetectionHandler";
 import createActionMenuButtons from "./action-menu-buttons/create-action-menu-buttons";
 import PageTurningButtons from "./action-menu-buttons/PageTurningButtons";
-import calculateNumberOfPages from "./action-menu-buttons/calculate-number-of-pages";
 import ChangeTargetButtons from "./action-menu-buttons/ChangeTargetButtons";
 import ActionDetails from "../detailables/ActionDetails";
 
@@ -16,48 +14,16 @@ export default function ActionMenu() {
   const actionMenuRef = useRef<HTMLUListElement>(null);
   const gameState = useGameStore();
 
-  const [buttonProperties, setButtonProperties] = useState<ActionButtonPropertiesByCategory>({
+  const [buttonProperties, setButtonProperties] = useState<
+    Record<ActionButtonCategory, ActionMenuButtonProperties[]>
+  >({
     [ActionButtonCategory.Top]: [],
     [ActionButtonCategory.Numbered]: [],
     [ActionButtonCategory.NextPrevious]: [],
   });
-  const [numberedButtonPropertiesOnCurrentPage, setNumberedButtonPropertiesOnCurrentPage] =
-    useState<ActionMenuButtonProperties[]>([]);
-  const [lastPageNumberFiltered, setLastPageNumberFiltered] = useState(0);
+  const [numberOfPages, setNumberOfPages] = useState(1);
 
-  const buttonsByCategory = createActionMenuButtons(
-    buttonProperties,
-    numberedButtonPropertiesOnCurrentPage
-  );
-
-  const currentPageNumber = gameState.actionMenuCurrentPageNumber;
-  const numberOfPages = calculateNumberOfPages(
-    ACTION_MENU_PAGE_SIZE,
-    Object.values(buttonProperties[ActionButtonCategory.Numbered]).length
-  );
-
-  // DETERMINE CURRENT PAGE NUMBERED BUTTONS
-  useEffect(() => {
-    console.log("setting numbered buttons");
-    const minIndex = currentPageNumber * ACTION_MENU_PAGE_SIZE;
-    const maxIndex = currentPageNumber * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE - 1;
-    const filteredActions = Object.values(buttonProperties[ActionButtonCategory.Numbered]).filter(
-      (_buttonProperties, i) => i >= minIndex && i <= maxIndex
-    );
-    setNumberedButtonPropertiesOnCurrentPage(filteredActions);
-    // this is for going back one page if for some reason the current page has no actions on it now
-    if (
-      currentPageNumber !== 0 &&
-      filteredActions.length === 0 &&
-      buttonProperties[ActionButtonCategory.Numbered].length !== 0 &&
-      currentPageNumber === lastPageNumberFiltered
-    ) {
-      gameState.mutateState((gameState) => {
-        gameState.actionMenuCurrentPageNumber -= 1;
-      });
-    }
-    setLastPageNumberFiltered(currentPageNumber);
-  }, [currentPageNumber, buttonProperties]);
+  const buttonsByCategory = createActionMenuButtons(buttonProperties);
 
   function handleWheel() {}
 
@@ -94,7 +60,10 @@ export default function ActionMenu() {
       className={`max-h-fit max-w-[25rem] flex flex-col justify-between`}
       style={{ marginRight: `${SPACING_REM}rem` }}
     >
-      <ActionMenuChangeDetectionHandler setButtonProperties={setButtonProperties} />
+      <ActionMenuChangeDetectionHandler
+        setButtonProperties={setButtonProperties}
+        setNumberOfPages={setNumberOfPages}
+      />
       <ul
         className={`flex list-none min-w-[25rem] max-w-[25rem]`}
         style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
@@ -115,7 +84,7 @@ export default function ActionMenu() {
           onWheel={handleWheel}
         >
           {buttonsByCategory.numbered.map((button, i) => (
-            <li key={numberedButtonPropertiesOnCurrentPage[i].text + i}>{button}</li>
+            <li key={buttonProperties[ActionButtonCategory.Numbered][i].text + i}>{button}</li>
           ))}
           {hoveredActionDisplay}
           {selectedActionDisplay}
@@ -125,13 +94,7 @@ export default function ActionMenu() {
       {Object.values(buttonsByCategory.nextPrev).length > 0 ? (
         <ChangeTargetButtons>{buttonsByCategory.nextPrev}</ChangeTargetButtons>
       ) : (
-        <PageTurningButtons
-          numberOfPages={numberOfPages}
-          hidden={
-            Object.values(buttonProperties[ActionButtonCategory.Numbered]).length <=
-            ACTION_MENU_PAGE_SIZE
-          }
-        />
+        <PageTurningButtons numberOfPages={numberOfPages} hidden={numberOfPages < 2} />
       )}
     </section>
   );

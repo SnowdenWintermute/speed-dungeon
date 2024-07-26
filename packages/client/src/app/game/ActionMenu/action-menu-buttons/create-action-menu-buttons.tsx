@@ -11,8 +11,7 @@ export interface ButtonsByCategory {
 }
 
 export default function createActionMenuButtons(
-  buttonProperties: ActionButtonPropertiesByCategory,
-  numberedButtonPropertiesOnCurrentPage: ActionMenuButtonProperties[]
+  buttonProperties: Record<ActionButtonCategory, ActionMenuButtonProperties[]>
 ): ButtonsByCategory {
   let lastAssignedNumber = 0;
   const buttonsByCategory: ButtonsByCategory = {
@@ -25,7 +24,7 @@ export default function createActionMenuButtons(
     buttonsByCategory.top.push(<TopButton properties={properties} />);
   }
 
-  for (const properties of Object.values(numberedButtonPropertiesOnCurrentPage)) {
+  for (const properties of Object.values(buttonProperties[ActionButtonCategory.Numbered])) {
     lastAssignedNumber += 1;
     buttonsByCategory.numbered.push(
       <NumberedButton properties={properties} number={lastAssignedNumber} />
