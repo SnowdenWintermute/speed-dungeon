@@ -75,7 +75,7 @@ function formatAffixCombatAttributeBonuses(
         new Error("invalid use of the AllBase suffix");
     }
 
-    toReturn.push(`+ ${lastCoreAttributeValue} to core attributes`);
+    toReturn.push(`+${lastCoreAttributeValue} to core attributes`);
   } else {
     for (const [attribute, value] of iterateNumericEnumKeyedRecord(affix.combatAttributes)) {
       toReturn.push(`+${value} ${formatCombatAttribute(attribute)}`);
