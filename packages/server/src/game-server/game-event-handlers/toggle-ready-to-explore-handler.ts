@@ -37,7 +37,7 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
 
   AdventuringParty.updatePlayerReadiness(party, username, DescendOrExplore.Explore);
 
-  socket
+  this.io
     .in(getPartyChannelName(game.name, party.name))
     .emit(
       ServerToClientEvent.PlayerToggledReadyToDescendOrExplore,

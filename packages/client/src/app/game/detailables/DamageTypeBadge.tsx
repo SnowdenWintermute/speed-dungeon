@@ -24,9 +24,10 @@ export default function DamageTypeBadge({ hpChangeSource }: Props) {
   if (hpChangeSource.elementOption !== null) {
     elementTextOption = formatMagicalElement(hpChangeSource.elementOption);
   }
-  const elementStyle = hpChangeSource.elementOption
-    ? getMagicalElementTailwindColor(hpChangeSource.elementOption)
-    : "";
+  const elementStyle =
+    hpChangeSource.elementOption !== null
+      ? getMagicalElementTailwindColor(hpChangeSource.elementOption)
+      : "";
 
   const damageCategoryBorderColor = getDamageCategoryBorderColor(hpChangeSource.category.type);
 

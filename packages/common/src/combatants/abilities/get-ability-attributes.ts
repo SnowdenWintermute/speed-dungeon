@@ -22,12 +22,13 @@ import CombatantAbilityAttributes from "./ability-attributes";
 export default function getAbilityAttributes(abilityName: CombatantAbilityName) {
   const attr = new CombatantAbilityAttributes();
   const cap = new CombatActionProperties();
-  const hpcp = new CombatActionHpChangeProperties();
+  let hpcp: null | CombatActionHpChangeProperties = new CombatActionHpChangeProperties();
   switch (abilityName) {
     case CombatantAbilityName.Attack:
       attr.manaCost = 0;
       attr.isMelee = true;
       cap.description = "Use equipped weapon(s) or fists to strike the enemy.";
+      hpcp = null;
       break;
     case CombatantAbilityName.AttackMeleeMainhand:
       attr.isMelee = true;

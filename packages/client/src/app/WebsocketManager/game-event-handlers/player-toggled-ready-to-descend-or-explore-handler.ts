@@ -12,6 +12,7 @@ export default function playerToggledReadyToDescendOrExploreHandler(
   username: string,
   descedOrExplore: DescendOrExplore
 ) {
+  console.log("player " + username + " toggled ready ");
   mutateGameState((gameState) => {
     const party = getCurrentParty(gameState, username);
     if (party === undefined)

@@ -55,26 +55,28 @@ export default function ActionDetails({ combatAction, hideTitle }: Props) {
   });
 
   return (
-    <div>
+    <div className="flex flex-col h-full">
       {!hideTitle && (
         <>
           <span>{getCombatActionName(party, combatAction)}</span>
           <div className="mb-1 mt-1 h-[1px] bg-slate-400" />
         </>
       )}
-      {abilityOption && (
-        <AbilityDetails
-          ability={abilityOption}
-          userCombatantProperties={focusedCharacter.combatantProperties}
-          combatActionProperties={combatActionProperties}
-        />
-      )}
-      <div>{combatActionProperties.description}</div>
-      <div>
-        {`Valid targets: ${formatTargetCategories(combatActionProperties.validTargetCategories)}`}
+      <div className="flex-grow overflow-auto">
+        {abilityOption && (
+          <AbilityDetails
+            ability={abilityOption}
+            userCombatantProperties={focusedCharacter.combatantProperties}
+            combatActionProperties={combatActionProperties}
+          />
+        )}
+        <div>{combatActionProperties.description}</div>
+        <div>
+          {`Valid targets: ${formatTargetCategories(combatActionProperties.validTargetCategories)}`}
+        </div>
+        <div>{`Targeting schemes: ${targetingSchemesText}`}</div>
+        <div>{`Usable ${formatActionUsabilityContext(combatActionProperties.usabilityContext)}`}</div>
       </div>
-      <div>{`Targeting schemes: ${targetingSchemesText}`}</div>
-      <div>{`Usable ${formatActionUsabilityContext(combatActionProperties.usabilityContext)}`}</div>
     </div>
   );
 }
