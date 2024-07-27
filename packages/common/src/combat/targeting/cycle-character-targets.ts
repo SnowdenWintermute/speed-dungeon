@@ -28,6 +28,7 @@ export default function cycleCharacterTargets(
     combatActionProperties
   );
   if (filteredTargetIdsResult instanceof Error) return filteredTargetIdsResult;
+
   const [allyIdsOption, opponentIdsOption] = filteredTargetIdsResult;
 
   const newTargetsResult = getNextOrPreviousTarget(

@@ -12,18 +12,21 @@ export default function getNextOrPreviousTarget(
   allyIdsOption: null | string[],
   opponentIdsOption: null | string[]
 ): Error | CombatActionTarget {
+  let newTargetResult: Error | string = new Error("No target was calculated");
   switch (currentTargets.type) {
     case CombatActionTargetType.Single:
       switch (combatActionProperties.validTargetCategories) {
         case TargetCategories.Opponent:
           if (!opponentIdsOption) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
+          newTargetResult = getNextOrPrevIdFromOrderedList(
+            opponentIdsOption,
+            currentTargets.targetId,
+            direction
+          );
+          if (newTargetResult instanceof Error) return newTargetResult;
           return {
             type: CombatActionTargetType.Single,
-            targetId: getNextOrPrevIdFromOrderedList(
-              opponentIdsOption,
-              currentTargets.targetId,
-              direction
-            ),
+            targetId: newTargetResult,
           };
         case TargetCategories.User:
           return {
@@ -32,25 +35,29 @@ export default function getNextOrPreviousTarget(
           };
         case TargetCategories.Friendly:
           if (!allyIdsOption) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
+          newTargetResult = getNextOrPrevIdFromOrderedList(
+            allyIdsOption,
+            currentTargets.targetId,
+            direction
+          );
+          if (newTargetResult instanceof Error) return newTargetResult;
           return {
             type: CombatActionTargetType.Single,
-            targetId: getNextOrPrevIdFromOrderedList(
-              allyIdsOption,
-              currentTargets.targetId,
-              direction
-            ),
+            targetId: newTargetResult,
           };
         case TargetCategories.Any:
           const possibleTargetIds: string[] = [];
-          if (opponentIdsOption) possibleTargetIds.push.apply(opponentIdsOption);
-          if (allyIdsOption) possibleTargetIds.push.apply(allyIdsOption);
+          if (opponentIdsOption) possibleTargetIds.push(...opponentIdsOption);
+          if (allyIdsOption) possibleTargetIds.push(...allyIdsOption);
+          newTargetResult = getNextOrPrevIdFromOrderedList(
+            possibleTargetIds,
+            currentTargets.targetId,
+            direction
+          );
+          if (newTargetResult instanceof Error) return newTargetResult;
           return {
             type: CombatActionTargetType.Single,
-            targetId: getNextOrPrevIdFromOrderedList(
-              possibleTargetIds,
-              currentTargets.targetId,
-              direction
-            ),
+            targetId: newTargetResult,
           };
       }
     case CombatActionTargetType.Group:
@@ -95,16 +102,25 @@ function getNextOrPrevIdFromOrderedList(
   possibleTargetIds: string[],
   currentTargetId: string,
   direction: NextOrPrevious
-) {
-  const currentPositionIndex = possibleTargetIds.indexOf(currentTargetId);
+): Error | string {
+  let currentPositionIndex = possibleTargetIds.indexOf(currentTargetId);
+  if (currentPositionIndex === -1)
+    return new Error("Tried to get next target but wasn't targeting anything in the provided list");
+  if (possibleTargetIds.length < 1) return new Error("Tried to get next target in an empty list");
+
   let newIndex;
   switch (direction) {
     case NextOrPrevious.Next:
-      if (currentPositionIndex < possibleTargetIds.length) newIndex = currentPositionIndex + 1;
+      if (currentPositionIndex < possibleTargetIds.length - 1) newIndex = currentPositionIndex + 1;
       else newIndex = 0;
+      break;
     case NextOrPrevious.Previous:
       if (currentPositionIndex > 0) newIndex = currentPositionIndex - 1;
-      else newIndex = possibleTargetIds.length;
+      else newIndex = possibleTargetIds.length - 1;
   }
-  return possibleTargetIds[newIndex]!;
+
+  const newTarget = possibleTargetIds[newIndex];
+
+  if (newTarget === undefined) return new Error("Target not found in list");
+  else return newTarget;
 }

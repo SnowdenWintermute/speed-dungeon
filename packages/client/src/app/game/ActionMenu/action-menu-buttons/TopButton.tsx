@@ -61,7 +61,7 @@ export default function TopButton({ properties }: Props) {
   );
 }
 
-function createKeyHandler(
+export function createKeyHandler(
   properties: ActionMenuButtonProperties,
   mutateAlertState: MutateState<AlertState>,
   codes: Partial<Record<GameKey, string[]>>,

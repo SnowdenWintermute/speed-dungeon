@@ -11,7 +11,7 @@ export default function getAllyIdsAndOpponentIdsOption(
   let allyIds: string[] = party.characterPositions;
   let opponentIdsOption: null | string[] = null;
 
-  if (party.battleId) {
+  if (party.battleId !== null) {
     const battleOption = game.battles[party.battleId];
     if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     const allyAndOponnentIdsResult = Battle.getAllyIdsAndOpponentIdsOption(
@@ -20,5 +20,6 @@ export default function getAllyIdsAndOpponentIdsOption(
     );
     return allyAndOponnentIdsResult;
   }
+
   return { allyIds, opponentIdsOption };
 }

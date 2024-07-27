@@ -34,6 +34,8 @@ export enum GameKey {
 
 export const GAME_KEYS_TO_KEYPRESS_CODES: Partial<Record<GameKey, string[]>> = {
   [GameKey.Confirm]: ["Enter", "KeyR"],
+  [GameKey.Next]: ["KeyE"],
+  [GameKey.Previous]: ["KeyW"],
   [GameKey.S]: ["KeyS"],
   [GameKey.I]: ["KeyI"],
   [GameKey.D]: ["KeyD"],

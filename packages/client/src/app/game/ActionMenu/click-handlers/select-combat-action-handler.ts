@@ -32,6 +32,7 @@ export default function selectCombatActionHandler(
 
     if (!gameState.username) return setAlert(mutateAlertState, ERROR_MESSAGES.CLIENT.NO_USERNAME);
     if (!gameState.game) return setAlert(mutateAlertState, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+
     SpeedDungeonGame.assignCharacterActionTargets(
       gameState.game,
       focusedCharacter.entityProperties.id,

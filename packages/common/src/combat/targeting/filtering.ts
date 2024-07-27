@@ -9,7 +9,6 @@ export function filterPossibleTargetIdsByProhibitedCombatantStates(
   opponentIdsOption: null | string[]
 ): Error | [string[], null | string[]] {
   if (prohibitedStates === null) return [allyIds, opponentIdsOption];
-
   const filteredAllyIdsResult = filterTargetIdGroupByProhibitedCombatantStates(
     party,
     allyIds,
@@ -18,6 +17,7 @@ export function filterPossibleTargetIdsByProhibitedCombatantStates(
   if (filteredAllyIdsResult instanceof Error) return filteredAllyIdsResult;
 
   let filteredOpponentIdsOption = null;
+
   if (opponentIdsOption) {
     const filteredOpponentIdsResult = filterTargetIdGroupByProhibitedCombatantStates(
       party,

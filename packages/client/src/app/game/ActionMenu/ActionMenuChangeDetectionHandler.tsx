@@ -68,8 +68,6 @@ export default function ActionMenuChangeDetectionHandler({
   const numItemsOnGround = party?.currentRoom.items.length;
 
   useEffect(() => {
-    console.log("action menu change detected");
-
     if (focusedCharacterOption === null) return;
 
     if (previouslyFocusedCharacterId != focusedCharacterId)

@@ -11,7 +11,11 @@ import {
   MeleeOrRanged,
 } from "../../combat/hp-change-source-types";
 import { MagicalElement } from "../../combat/magical-elements";
-import { TargetCategories, TargetingScheme } from "../../combat/targeting";
+import {
+  ProhibitedTargetCombatantStates,
+  TargetCategories,
+  TargetingScheme,
+} from "../../combat/targeting";
 import { WeaponSlot } from "../../items/equipment/slots";
 import { NumberRange } from "../../primatives/number-range";
 import { CombatAttribute } from "../combat-attributes";
@@ -120,6 +124,7 @@ export default function getAbilityAttributes(abilityName: CombatantAbilityName) 
       cap.targetingSchemes = [TargetingScheme.Single, TargetingScheme.Area];
       cap.validTargetCategories = TargetCategories.Any;
       cap.usabilityContext = ActionUsableContext.All;
+      cap.prohibitedTargetCombatantStates = [ProhibitedTargetCombatantStates.Dead];
       hpcp.baseValues = new NumberRange(6, 12);
       hpcp.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Intelligence, 100];
       hpcp.critChanceAttribute = CombatAttribute.Focus;
