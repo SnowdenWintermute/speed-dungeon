@@ -35,7 +35,9 @@ export default function cycleCharacterTargetingSchemes(
     if (lastUsedTargetingSchemeIndex < 0)
       return new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED);
     const newSchemeIndex =
-      lastUsedTargetingScheme === targetingSchemes.length ? 0 : lastUsedTargetingScheme + 1;
+      lastUsedTargetingSchemeIndex === targetingSchemes.length - 1
+        ? 0
+        : lastUsedTargetingSchemeIndex + 1;
     newTargetingScheme = targetingSchemes[newSchemeIndex]!;
   }
 

@@ -5,9 +5,7 @@ import Divider from "../components/atoms/Divider";
 
 export default function WelcomeInfo() {
   const [showPatchNotes, setShowPatchNotes] = useState(false);
-  const togglePatchNotesText = showPatchNotes
-    ? "ⓘ  view patch notes"
-    : "ⓘ  view patch notes";
+  const togglePatchNotesText = showPatchNotes ? "ⓘ  view patch notes" : "ⓘ  view patch notes";
   return (
     <section className="h-[19rem] max-h-[19rem] p-4 mb-4 mr-4 bg-slate-700 border border-slate-400 overflow-y-auto pointer-events-auto">
       <div className="flex justify-between mb-2">
@@ -37,11 +35,7 @@ function PatchNotes() {
       <p className="underline">{"Added features:"}</p>
       <ul className="list-disc list-inside mb-1">
         <li>{"The game world is now displayed in 3D grapics"}</li>
-        <li>
-          {
-            "The user interface has been reworked to fit with the new 3D game world"
-          }
-        </li>
+        <li>{"The user interface has been reworked to fit with the new 3D game world"}</li>
       </ul>
       <Divider />
       <p className="font-bold">{"0.6.0 2/25/2024"}</p>
@@ -59,13 +53,9 @@ function PatchNotes() {
           }
         </li>
         <li>
-          {
-            "Armor Penetration, Evasion and Accuracy affixes increased to 2-5 points per tier"
-          }
+          {"Armor Penetration, Evasion and Accuracy affixes increased to 2-5 points per tier"}
         </li>
-        <li>
-          {"Many equipments have had their attribute requirements adjusted"}
-        </li>
+        <li>{"Many equipments have had their attribute requirements adjusted"}</li>
         <li>
           {
             "Added four wand type weapons, four staff type weapons and an Ice elemental damage sword"
@@ -81,11 +71,7 @@ function PatchNotes() {
             "Attack damage tooltip now shows the correct values based on the user's combat attributes and weapon"
           }
         </li>
-        <li>
-          {
-            "'Execute' button is now disabled if an action costs more mana than the user has"
-          }
-        </li>
+        <li>{"'Execute' button is now disabled if an action costs more mana than the user has"}</li>
         <li>
           {
             "Resized the lobby to the correct dimensions when viewed on the Windows operating system"
@@ -120,13 +106,9 @@ function PatchNotes() {
             "Weapon physical damage types such as 'Slashing' and 'Piercing' now correctly damage targets with resistances/weaknesses for those damage types"
           }
         </li>
+        <li>{"Combat attributes now show tooltips when hovering their info icons"}</li>
         <li>
-          {"Combat attributes now show tooltips when hovering their info icons"}
-        </li>
-        <li>
-          {
-            "Combatant traits are now displayed in the combatant detail view in the context display"
-          }
+          {"Combatant traits are now displayed in the combatant detail view in the context display"}
         </li>
         <li>{"Added a new ability: Ice"}</li>
         <li>{"Added favicon with temporary logo"}</li>
@@ -143,52 +125,32 @@ function PatchNotes() {
       <ul className="list-disc list-inside mb-1">
         <li>{"+HP, +Acc and +MP affixes have had their values increased"}</li>
         <li>
-          {
-            "Two handed weapons now roll 1.75x more attributes for their affixes than other items"
-          }
+          {"Two handed weapons now roll 1.75x more attributes for their affixes than other items"}
         </li>
         <li>{"Monster attribute scaling with dungeon level tweaked"}</li>
-        <li>
-          {
-            "Dead characters now return to life with 1 HP after a battle victory"
-          }
-        </li>
+        <li>{"Dead characters now return to life with 1 HP after a battle victory"}</li>
       </ul>
       <p className="underline">{"Fixed bugs:"}</p>
       <ul className="list-disc list-inside mb-1">
         <li>{"Autoinjectors are no longer AOE targetable"}</li>
         <li>{"Vitality now adds HP as intended"}</li>
         <li>
-          {
-            "Changing the focused character while they have an action selected will now deselect it"
-          }
+          {"Changing the focused character while they have an action selected will now deselect it"}
         </li>
         <li>{"Jewelry no longer can roll the Armor Class Percentage affix"}</li>
-        <li>
-          {
-            "Dead characters can no longer take actions in battles they didn't die in"
-          }
-        </li>
+        <li>{"Dead characters can no longer take actions in battles they didn't die in"}</li>
         <li>{"Inventory can now be exited from any page"}</li>
-        <li>
-          {"Dead characters can no longer use abilities outside of combat"}
-        </li>
+        <li>{"Dead characters can no longer use abilities outside of combat"}</li>
       </ul>
       <p className="underline">{"Added features:"}</p>
       <ul className="list-disc list-inside mb-1">
-        <li>
-          {
-            "New ability, 'Fire', a magical spell that deals fire elemental type damage"
-          }
-        </li>
+        <li>{"New ability, 'Fire', a magical spell that deals fire elemental type damage"}</li>
         <li>
           {
             "New ability, 'Healing', a magical spell that restores HP to targets, or if they are 'undead', damages them for 1.5x the rolled value"
           }
         </li>
-        <li>
-          {"Intelligence now adds MP and increases spell damage and healing"}
-        </li>
+        <li>{"Intelligence now adds MP and increases spell damage and healing"}</li>
         <li>
           {
             "Focus now adds increases spell critical strike chance and damage, and penetrates Resilience"
@@ -206,9 +168,7 @@ function PatchNotes() {
         </li>
         <li>{"New consumable type, the 'MP Autoinjector'"}</li>
         <li>
-          {
-            "Consumables now show as stacks instead of distinct items in character inventories"
-          }
+          {"Consumables now show as stacks instead of distinct items in character inventories"}
         </li>
         <li>
           {
@@ -230,22 +190,10 @@ function PatchNotes() {
       <p className="font-bold">{"0.4.0 2/4/2024"}</p>
       <p className="underline">{"Fixed bugs:"}</p>
       <ul className="list-disc list-inside mb-1">
-        <li>
-          {
-            "The info bar now has a proper home and does not block other UI elements"
-          }
-        </li>
+        <li>{"The info bar now has a proper home and does not block other UI elements"}</li>
         <li>{"Dead combatants no longer attack"}</li>
-        <li>
-          {
-            "Maximum UI dimensions set to 1280px x 1080px relative to root element"
-          }
-        </li>
-        <li>
-          {
-            "UI elements should no longer resize their neighbors in strange ways"
-          }
-        </li>
+        <li>{"Maximum UI dimensions set to 1280px x 1080px relative to root element"}</li>
+        <li>{"UI elements should no longer resize their neighbors in strange ways"}</li>
         <li>
           {
             "Changing focused character with inventory open sets page to 0 to avoid viewing empty pages"
@@ -256,11 +204,7 @@ function PatchNotes() {
             "Focus should properly switch to the active character when the active status was previously held by a monster"
           }
         </li>
-        <li>
-          {
-            "Equipment properties are now displayed in order of prefix first, suffix second"
-          }
-        </li>
+        <li>{"Equipment properties are now displayed in order of prefix first, suffix second"}</li>
       </ul>
       <p className="underline">{"Added features:"}</p>
       <ul className="list-disc list-inside mb-2">
@@ -268,13 +212,9 @@ function PatchNotes() {
         <li>{"A system for using actions out of combat"}</li>
         <li>{"New consumable, 'HP Autoinjector'"}</li>
         <li>
-          {
-            "Combatants may now evade attacks based on their evasion vs. the attacker's accuracy"
-          }
+          {"Combatants may now evade attacks based on their evasion vs. the attacker's accuracy"}
         </li>
-        <li>
-          {"Items on the ground may now be hovered to view their details"}
-        </li>
+        <li>{"Items on the ground may now be hovered to view their details"}</li>
         <li>{"Turn order system rebuilt"}</li>
         <li>{"Page numbers now show in the action menu"}</li>
         <li>
@@ -326,9 +266,7 @@ function PatchNotes() {
       <p className="underline">{"Fixed bugs:"}</p>
       <ul className="list-disc list-inside mb-1">
         <li>{"Players couldn't attack while wearing a shield"}</li>
-        <li>
-          {"Unequipping an item would not change focus to the unequipped item"}
-        </li>
+        <li>{"Unequipping an item would not change focus to the unequipped item"}</li>
       </ul>
       <p className="underline">{"Added features:"}</p>
       <ul className="list-disc list-inside mb-2">
@@ -337,9 +275,7 @@ function PatchNotes() {
             "Stairs down now appear in the dungeon and players can vote to keep exploring the current floor or descend to the next one"
           }
         </li>
-        <li>
-          {"An explored rooms tracker now appears as part of the top info bar"}
-        </li>
+        <li>{"An explored rooms tracker now appears as part of the top info bar"}</li>
         <li>{"The top info bar can be re positioned by clicking on it"}</li>
       </ul>
     </>
@@ -355,17 +291,11 @@ function WelcomeMessage() {
         }
       </p>
       <p className="mb-2">
-        {
-          "The dungeon can be explored solo, cooperatively or competitively. To get started:"
-        }
+        {"The dungeon can be explored solo, cooperatively or competitively. To get started:"}
       </p>
       <ul className="list-disc list-inside mb-2">
         <li>{"Create or join a game"}</li>
-        <li>
-          {
-            "Create a party with one or more players each controlling one or more characters"
-          }
-        </li>
+        <li>{"Create a party with one or more players each controlling one or more characters"}</li>
         <li>
           {
             "Explore the dungeon and try to reach the lowest floor before the other parties get there"
@@ -373,10 +303,7 @@ function WelcomeMessage() {
         </li>
       </ul>
       <p>
-        <a
-          className="underline text-yellow-400"
-          href="https://discord.gg/MyVPQf2Zzm"
-        >
+        <a className="underline text-yellow-400" href="https://discord.gg/MyVPQf2Zzm">
           {"Join us on Discord"}
         </a>
       </p>
