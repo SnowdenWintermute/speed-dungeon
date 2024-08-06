@@ -13,7 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="box-border h-screen w-screen bg-slate-800 text-zinc-300 relative">
+      <body className="box-border h-screen w-screen bg-slate-800 text-zinc-300 relative pointer-events-none">
         {children}
       </body>
     </html>

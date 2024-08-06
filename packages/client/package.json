@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@redux-devtools/extension": "3.3.0",
-    "babylonjs": "7.5.0",
-    "babylonjs-loaders": "7.5.0",
+    "babylonjs": "7.19.0",
+    "babylonjs-loaders": "7.19.0",
     "immer": "10.1.1",
     "lodash.clonedeep": "^4.5.0",
     "next": "14.2.3",
@@ -31,7 +31,5 @@
     "tailwindcss": "3.4.1",
     "typescript": "5.4.5"
   },
-  "trustedDependencies": [
-    "babylonjs"
-  ]
+  "trustedDependencies": ["babylonjs"]
 }
