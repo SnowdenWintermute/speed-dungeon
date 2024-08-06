@@ -15,6 +15,8 @@ import {
   StandardMaterial,
   Color3,
   Node,
+  Mesh,
+  AbstractMesh,
 } from "babylonjs";
 import "babylonjs-loaders";
 
@@ -125,12 +127,16 @@ export class BasicScene {
 
     const idle = skeleton.animationGroups[4];
     idle.start(true);
-    // const legsRootBone = (() => {
-    //   for (const node of legs.meshes[0].getDescendants(false)) {
-    //     if (node.name === "Root") return node;
-    //   }
-    //   return undefined;
-    // })();
+
+    const skeletonRootBone = getRootBone(skeleton.meshes[0]);
+    const skeletonBonesByName = getChildrenByName(skeletonRootBone!);
+    const legsRootBone = getRootBone(legs.meshes[0]);
+    const legsBonesByName = getChildrenByName(legsRootBone!);
+
+    for (const node of Object.values(legsBonesByName)) {
+      console.log(`setting ${node.name} parent to ${skeletonBonesByName[node.name].name}`);
+      node.parent = skeletonBonesByName[node.name];
+    }
 
     // if (legsRootBone !== undefined) {
     //   for (const node of legsRootBone.getDescendants(false)) {
@@ -148,25 +154,37 @@ export class BasicScene {
     // adventurer.animationGroups[0].stop();
     // adventurer.animationGroups[4].start();
   }
+}
 
-  createCutscene(): void {
-    // const camKeys: { frame: number; value: Vector3 }[] = [];
-    // const fps = 60;
-    // const camAnim = new Animation(
-    //   "camAnim",
-    //   "position",
-    //   fps,
-    //   Animation.ANIMATIONTYPE_VECTOR3,
-    //   Animation.ANIMATIONLOOPMODE_CONSTANT,
-    //   true
-    // );
-    // camKeys.push({ frame: 0, value: new Vector3(8, 0, -8) });
-    // camKeys.push({ frame: 5 * fps, value: new Vector3(-8, 0, -8) });
-    // camKeys.push({ frame: 8 * fps, value: new Vector3(-8, 0, -8) });
-    // camKeys.push({ frame: 12 * fps, value: new Vector3(0, 3, -14) });
-    // camAnim.setKeys(camKeys);
-    // this.camera.animations.push(camAnim);
-    // let animation = this.scene.beginAnimation(this.camera, 0, 12 * fps);
-    // animation.onAnimationEnd = () => console.log("animation finished");
+function getRootBone(mesh: Mesh | AbstractMesh) {
+  for (const node of mesh.getDescendants(false)) {
+    if (node.name === "Root") return node;
+  }
+  return undefined;
+}
+
+function getChildrenByName(rootNode: Node) {
+  const childrenByName: { [name: string]: Node } = {};
+  for (const node of rootNode.getDescendants(false)) {
+    childrenByName[node.name] = node;
+  }
+  return childrenByName;
+}
+
+function paintCubesOnNodes(rootNode: Node, cubeSize: number, color: Color4, scene: BABYLON.Scene) {
+  for (const node of rootNode.getDescendants(false)) {
+    const boneMarkerCube = BABYLON.MeshBuilder.CreateBox(
+      `node-cube-${node.name}`,
+      {
+        height: cubeSize,
+        width: cubeSize,
+        depth: cubeSize,
+        faceColors: new Array(6).fill(color),
+      },
+      scene
+    );
+
+    // boneMarkerCube.setParent(node);
+    boneMarkerCube.setPositionWithLocalVector(new BABYLON.Vector3(0.0, 0.0, 0.0));
   }
 }
