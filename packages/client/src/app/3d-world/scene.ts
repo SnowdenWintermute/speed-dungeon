@@ -1,7 +1,6 @@
 import {
   Scene,
   Engine,
-  // FreeCamera,
   Vector3,
   HemisphericLight,
   MeshBuilder,
@@ -9,16 +8,33 @@ import {
   Color4,
   SceneLoader,
   AnimationGroup,
-  Animation,
   PointLight,
-  Material,
   StandardMaterial,
   Color3,
   Node,
   Mesh,
   AbstractMesh,
+  ISceneLoaderAsyncResult,
 } from "babylonjs";
 import "babylonjs-loaders";
+
+const ASSET_PATHS = {
+  skeletons: {
+    humanoid: "adventurer-skeleton.glb",
+  },
+  heads: {
+    witch: "witch-head.glb",
+    midieval: "midieval-head.glb",
+  },
+  torsos: {
+    witch: "witch-torso.glb",
+    midieval: "midieval-torso.glb",
+  },
+  legs: {
+    witch: "witch-legs.glb",
+    midieval: "midieval-legs.glb",
+  },
+};
 
 export class BasicScene {
   scene: Scene;
@@ -29,7 +45,7 @@ export class BasicScene {
   constructor(private canvas: HTMLCanvasElement) {
     this.engine = new Engine(canvas, true);
     [this.scene, this.camera] = this.createScene();
-    // this.createCutscene();
+
     this.engine.runRenderLoop(() => {
       this.scene.render();
     });
@@ -55,105 +71,85 @@ export class BasicScene {
     const material = new StandardMaterial("ground-material", this.scene);
     material.diffuseColor = new Color3(0.203, 0.295, 0.208);
     ground.material = material;
-    // ball.position = this.mouse;
-    //
+
     this.loadCharacterModel();
 
     return [scene, camera];
   }
 
   async loadCharacterModel(): Promise<void> {
-    const adventurerFilePath = "./3d-assets/adventurer.glb";
-    const skeletonFilePath = "./3d-assets/humanoid-skeleton.glb";
-    const headFilePath = "./3d-assets/scifi-head.glb";
-    const torsoFilePath = "./3d-assets/scifi-torso.glb";
-    const legsFilePath = "./3d-assets/witch-legs.glb";
+    const baseFilePath = "./3d-assets/";
+
     const skeleton = await SceneLoader.ImportMeshAsync(
       "",
-      "./",
-      skeletonFilePath,
-      this.scene,
-      (_progress_event) => {
-        console.log("loading");
-      }
+      baseFilePath,
+      ASSET_PATHS.skeletons.humanoid,
+      this.scene
+    );
+    const legs = await SceneLoader.ImportMeshAsync(
+      "",
+      baseFilePath,
+      ASSET_PATHS.legs.witch,
+      this.scene
+    );
+    const torso = await SceneLoader.ImportMeshAsync(
+      "",
+      baseFilePath,
+      ASSET_PATHS.torsos.midieval,
+      this.scene
     );
 
-    const adventurer = await SceneLoader.ImportMeshAsync("", "./", adventurerFilePath, this.scene);
-    adventurer.animationGroups[0].stop();
-    adventurer.animationGroups[4].start();
+    skeleton.animationGroups[0].stop();
+    skeleton.animationGroups[4].start(true);
 
     const cubeSize = 0.01;
-    const rootBone = (() => {
-      for (const node of skeleton.meshes[0].getDescendants(false)) {
-        if (node.name === "Root") return node;
-      }
-      return undefined;
-    })();
+    const red = new Color4(255, 0, 0, 1.0);
 
-    const skeletonNodesByName: { [name: string]: Node } = {};
+    skeleton.meshes[0].rotate(Vector3.Up(), Math.PI / 2);
+    skeleton.meshes[0].position = new Vector3(0.0, 0, 0);
+    skeleton.meshes[1].visibility = 0;
 
-    if (rootBone !== undefined) {
-      for (const node of rootBone.getDescendants(false)) {
-        console.log(node.name);
-        skeletonNodesByName[node.name] = node;
+    const skeletonRootBone = getRootBone(skeleton.meshes[0]);
 
-        const boneMarkerCube = MeshBuilder.CreateBox(
-          `node-cube-${node.name}`,
-          {
-            height: cubeSize,
-            width: cubeSize,
-            depth: cubeSize,
-            faceColors: new Array(6).fill(new Color4(255, 0, 0, 1.0)),
-          },
-          this.scene
-        );
-        boneMarkerCube.setParent(node);
-        boneMarkerCube.setPositionWithLocalVector(new Vector3(0.0, 0.0, 0.0));
-      }
-    }
+    // if (skeletonRootBone !== undefined)
+    //   paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.scene);
 
-    this.characterAnimations = skeleton.animationGroups;
+    attachPart(skeleton, legs);
+    attachPart(skeleton, torso);
+    disposeAsyncLoadedScene(legs);
+    const otherLegs = await SceneLoader.ImportMeshAsync(
+      "",
+      baseFilePath,
+      ASSET_PATHS.legs.midieval,
+      this.scene
+    );
+    attachPart(skeleton, otherLegs);
 
-    // adventurer.meshes[0].rotate(Vector3.Up(), Math.PI);
-    skeleton.meshes[0].rotate(Vector3.Up(), Math.PI + Math.PI / 2);
-
-    skeleton.animationGroups[0].stop();
-
-    const legs = await SceneLoader.ImportMeshAsync("", "./", legsFilePath, this.scene);
-    console.log("SKELYTON: ", legs.skeletons, adventurer.skeletons);
-
-    legs.meshes[0].skeleton?.dispose();
-    legs.meshes[0].skeleton = adventurer.skeletons[0];
+    // disposeAsyncLoadedScene(torso);
 
     const idle = skeleton.animationGroups[4];
     idle.start(true);
-
-    const skeletonRootBone = getRootBone(skeleton.meshes[0]);
-    const skeletonBonesByName = getChildrenByName(skeletonRootBone!);
-    const legsRootBone = getRootBone(legs.meshes[0]);
-    const legsBonesByName = getChildrenByName(legsRootBone!);
-
-    for (const node of Object.values(legsBonesByName)) {
-      console.log(`setting ${node.name} parent to ${skeletonBonesByName[node.name].name}`);
-      node.parent = skeletonBonesByName[node.name];
-    }
-
-    // if (legsRootBone !== undefined) {
-    //   for (const node of legsRootBone.getDescendants(false)) {
-    //     const skeletonNodeOption = skeletonNodesByName[node.name];
-    //     if (skeletonNodeOption !== undefined) {
-    //       console.log(
-    //         "setting " + node.name + " parent to " + " skeleton node " + skeletonNodeOption.name
-    //       );
-    //       node.parent = skeletonNodeOption;
-    //       node.isSynchronized;
-    //     }
-    //   }
-    // }
-
-    // adventurer.animationGroups[0].stop();
-    // adventurer.animationGroups[4].start();
   }
+}
+
+function attachPart(skeleton: ISceneLoaderAsyncResult, part: ISceneLoaderAsyncResult) {
+  const parent = getTransformNodeByName(skeleton, "CharacterArmature");
+
+  part.meshes.forEach((mesh, i) => {
+    if (mesh.skeleton) {
+      mesh.skeleton = skeleton.skeletons[0];
+      mesh.parent = parent!;
+    }
+  });
+
+  part.skeletons[0].dispose();
+}
+
+function getTransformNodeByName(sceneResult: ISceneLoaderAsyncResult, name: string) {
+  for (const transformNode of sceneResult.transformNodes) {
+    if (transformNode.name === name) return transformNode;
+  }
+  return undefined;
 }
 
 function getRootBone(mesh: Mesh | AbstractMesh) {
@@ -163,6 +159,27 @@ function getRootBone(mesh: Mesh | AbstractMesh) {
   return undefined;
 }
 
+function disposeAsyncLoadedScene(sceneResult: ISceneLoaderAsyncResult) {
+  sceneResult.meshes.forEach((item) => item.dispose());
+  sceneResult.skeletons.forEach((item) => item.dispose());
+  sceneResult.transformNodes.forEach((item) => item.dispose());
+  sceneResult.lights.forEach((item) => item.dispose());
+  sceneResult.geometries.forEach((item) => item.dispose());
+  sceneResult.spriteManagers.forEach((item) => item.dispose());
+  sceneResult.animationGroups.forEach((item) => item.dispose());
+  sceneResult.particleSystems.forEach((item) => item.dispose());
+}
+// function disposeAsyncLoadedScene(sceneResult: ISceneLoaderAsyncResult) {
+//   while (sceneResult.meshes.length) sceneResult.meshes[0].dispose();
+//   while (sceneResult.skeletons.length) sceneResult.skeletons[0].dispose();
+//   while (sceneResult.transformNodes.length) sceneResult.transformNodes[0].dispose();
+//   while (sceneResult.lights.length) sceneResult.lights[0].dispose();
+//   while (sceneResult.geometries.length) sceneResult.geometries[0].dispose();
+//   while (sceneResult.spriteManagers.length) sceneResult.spriteManagers[0].dispose();
+//   while (sceneResult.animationGroups.length) sceneResult.animationGroups[0].dispose();
+//   while (sceneResult.particleSystems.length) sceneResult.particleSystems[0].dispose();
+// }
+
 function getChildrenByName(rootNode: Node) {
   const childrenByName: { [name: string]: Node } = {};
   for (const node of rootNode.getDescendants(false)) {
@@ -171,9 +188,9 @@ function getChildrenByName(rootNode: Node) {
   return childrenByName;
 }
 
-function paintCubesOnNodes(rootNode: Node, cubeSize: number, color: Color4, scene: BABYLON.Scene) {
+function paintCubesOnNodes(rootNode: Node, cubeSize: number, color: Color4, scene: Scene) {
   for (const node of rootNode.getDescendants(false)) {
-    const boneMarkerCube = BABYLON.MeshBuilder.CreateBox(
+    const boneMarkerCube = MeshBuilder.CreateBox(
       `node-cube-${node.name}`,
       {
         height: cubeSize,
@@ -181,10 +198,11 @@ function paintCubesOnNodes(rootNode: Node, cubeSize: number, color: Color4, scen
         depth: cubeSize,
         faceColors: new Array(6).fill(color),
       },
+      // @ts-ignore
       scene
     );
 
-    // boneMarkerCube.setParent(node);
-    boneMarkerCube.setPositionWithLocalVector(new BABYLON.Vector3(0.0, 0.0, 0.0));
+    boneMarkerCube.setParent(node);
+    boneMarkerCube.setPositionWithLocalVector(new Vector3(0.0, 0.0, 0.0));
   }
 }
