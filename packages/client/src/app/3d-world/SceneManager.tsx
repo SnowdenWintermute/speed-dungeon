@@ -1,14 +1,14 @@
 import React, { useEffect, useRef } from "react";
-import { BasicScene } from "./scene";
+import { GameWorld } from "./scene";
 
 export default function SceneManager() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const sceneRef = useRef<BasicScene>();
+  const sceneRef = useRef<GameWorld>();
   const resizeHandlerRef = useRef<(e: UIEvent) => void | null>();
 
   useEffect(() => {
     if (canvasRef.current) {
-      sceneRef.current = new BasicScene(canvasRef.current);
+      sceneRef.current = new GameWorld(canvasRef.current);
     }
     resizeHandlerRef.current = function () {
       sceneRef.current?.engine?.resize();

@@ -11,50 +11,34 @@ import {
   PointLight,
   StandardMaterial,
   Color3,
-  Node,
-  Mesh,
-  AbstractMesh,
   ISceneLoaderAsyncResult,
 } from "babylonjs";
 import "babylonjs-loaders";
+import { getTransformNodeByName } from "./utils";
+import { ASSET_PATHS, BASE_FILE_PATH } from "./asset-paths";
 
-const ASSET_PATHS = {
-  skeletons: {
-    humanoid: "adventurer-skeleton.glb",
-  },
-  heads: {
-    witch: "witch-head.glb",
-    midieval: "midieval-head.glb",
-  },
-  torsos: {
-    witch: "witch-torso.glb",
-    midieval: "midieval-torso.glb",
-  },
-  legs: {
-    witch: "witch-legs.glb",
-    midieval: "midieval-legs.glb",
-  },
-};
-const BASE_FILE_PATH = "./3d-assets/";
-
-export class BasicScene {
+export class GameWorld {
   scene: Scene;
   engine: Engine;
   characterAnimations: AnimationGroup[] = [];
-  camera: ArcRotateCamera;
+  camera: ArcRotateCamera | null = null;
   mouse: Vector3 = new Vector3(0, 1, 0);
   constructor(private canvas: HTMLCanvasElement) {
     this.engine = new Engine(canvas, true);
-    [this.scene, this.camera] = this.createScene();
+    this.scene = new Scene(this.engine);
+    this.init();
+  }
+
+  async init() {
+    this.camera = await this.initScene();
 
     this.engine.runRenderLoop(() => {
       this.scene.render();
     });
   }
 
-  createScene(): [Scene, ArcRotateCamera] {
-    const scene = new Scene(this.engine);
-    scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
+  async initScene(): Promise<ArcRotateCamera> {
+    this.scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
     const camera = new ArcRotateCamera("camera", 0, 1.5, 2, new Vector3(0, 1, 0), this.scene);
     camera.wheelDeltaPercentage = 0.02;
     camera.radius = 4;
@@ -73,110 +57,106 @@ export class BasicScene {
     material.diffuseColor = new Color3(0.203, 0.295, 0.208);
     ground.material = material;
 
-    this.loadCharacterModel();
+    const characterA = await this.loadCharacterModel(
+      ASSET_PATHS.LEGS.WITCH,
+      ASSET_PATHS.TORSOS.MIDIEVAL,
+      ASSET_PATHS.HEADS.WITCH
+    );
 
-    return [scene, camera];
+    const characterB = await this.loadCharacterModel(
+      ASSET_PATHS.LEGS.WITCH,
+      ASSET_PATHS.TORSOS.MIDIEVAL,
+      ASSET_PATHS.HEADS.MIDIEVAL,
+      new Vector3(0, 0, 1),
+      Math.PI / 2
+    );
+
+    characterB.skeleton.animationGroups[4].stop();
+    characterB.skeleton.animationGroups[16].start(true);
+
+    setInterval(() => {
+      this.randomizeParts(characterA);
+      this.randomizeParts(characterB);
+    }, 1000);
+
+    return camera;
   }
 
   async importMesh(path: string) {
     return SceneLoader.ImportMeshAsync("", BASE_FILE_PATH, path, this.scene);
   }
 
-  async loadCharacterModel(): Promise<void> {
-    const skeleton = await this.importMesh(ASSET_PATHS.skeletons.humanoid);
-    const legs = await this.importMesh(ASSET_PATHS.legs.witch);
-    const torso = await this.importMesh(ASSET_PATHS.torsos.midieval);
+  async loadCharacterModel(
+    legsPath: string,
+    torsoPath: string,
+    headPath: string,
+    startPosition: Vector3 = new Vector3(0, 0, 0),
+    startRotation: number = 0
+  ): Promise<ModularCharacter> {
+    const skeleton = await this.importMesh(ASSET_PATHS.SKELETONS.HUMANOID);
+    const modularCharacter = new ModularCharacter(this, skeleton);
+
+    skeleton.meshes[0].rotate(Vector3.Up(), Math.PI / 2 + startRotation);
+    skeleton.meshes[0].position = startPosition;
+    skeleton.meshes[1].dispose();
+
+    await modularCharacter.attachPart(legsPath);
+    await modularCharacter.attachPart(torsoPath);
+    await modularCharacter.attachPart(headPath);
 
     skeleton.animationGroups[0].stop();
     skeleton.animationGroups[4].start(true);
 
-    const cubeSize = 0.01;
-    const red = new Color4(255, 0, 0, 1.0);
+    // const cubeSize = 0.01;
+    // const red = new Color4(255, 0, 0, 1.0);
+    // const skeletonRootBone = getRootBone(skeleton.meshes[0]);
+    // if (skeletonRootBone !== undefined)
+    //   paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.scene);
 
-    skeleton.meshes[0].rotate(Vector3.Up(), Math.PI / 2);
-    skeleton.meshes[0].position = new Vector3(0.0, 0, 0);
-    skeleton.meshes[1].dispose();
-
-    const skeletonRootBone = getRootBone(skeleton.meshes[0]);
-
-    if (skeletonRootBone !== undefined)
-      paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.scene);
-
-    attachPart(skeleton, legs);
-    attachPart(skeleton, torso);
-    disposeAsyncLoadedScene(legs);
-
-    const otherLegs = await this.importMesh(ASSET_PATHS.legs.midieval);
-    attachPart(skeleton, otherLegs);
+    // disposeAsyncLoadedScene(legs);
 
     // disposeAsyncLoadedScene(torso);
+    return modularCharacter;
+  }
 
-    const idle = skeleton.animationGroups[4];
-    idle.start(true);
+  async randomizeParts(modularCharacter: ModularCharacter) {
+    // disposeAsyncLoadedScene(modularCharacter.head);
+    // disposeAsyncLoadedScene(modularCharacter.torso);
+    // disposeAsyncLoadedScene(modularCharacter.legs);
+    // const newHeadPath = Math.random() > 0.5 ? ASSET_PATHS.HEADS.MIDIEVAL : ASSET_PATHS.HEADS.WITCH;
+    // const newTorsoPath =
+    //   Math.random() > 0.5 ? ASSET_PATHS.TORSOS.MIDIEVAL : ASSET_PATHS.TORSOS.WITCH;
+    // const newLegsPath = Math.random() > 0.5 ? ASSET_PATHS.LEGS.MIDIEVAL : ASSET_PATHS.LEGS.WITCH;
+    // const head = await this.importMesh(newHeadPath);
+    // const torso = await this.importMesh(newTorsoPath);
+    // const legs = await this.importMesh(newLegsPath);
+    // attachPart(modularCharacter, head);
+    // attachPart(modularCharacter, torso);
+    // attachPart(modularCharacter, legs);
   }
 }
 
-function attachPart(skeleton: ISceneLoaderAsyncResult, part: ISceneLoaderAsyncResult) {
-  const parent = getTransformNodeByName(skeleton, "CharacterArmature");
+class ModularCharacter {
+  skeleton: ISceneLoaderAsyncResult;
+  head: ISceneLoaderAsyncResult | null = null;
+  torso: ISceneLoaderAsyncResult | null = null;
+  legs: ISceneLoaderAsyncResult | null = null;
+  world: GameWorld;
+  constructor(world: GameWorld, skeleton: ISceneLoaderAsyncResult) {
+    this.skeleton = skeleton;
+    this.world = world;
+  }
 
-  part.meshes.forEach((mesh, i) => {
-    if (mesh.skeleton) {
-      mesh.skeleton = skeleton.skeletons[0];
+  async attachPart(partPath: string) {
+    const part = await this.world.importMesh(partPath);
+    const parent = getTransformNodeByName(this.skeleton, "CharacterArmature");
+
+    for (const mesh of part.meshes) {
+      if (!mesh.skeleton) continue;
+      mesh.skeleton = this.skeleton.skeletons[0];
       mesh.parent = parent!;
     }
-  });
 
-  part.skeletons[0].dispose();
-}
-
-function getTransformNodeByName(sceneResult: ISceneLoaderAsyncResult, name: string) {
-  for (const transformNode of sceneResult.transformNodes) {
-    if (transformNode.name === name) return transformNode;
-  }
-  return undefined;
-}
-
-function getRootBone(mesh: Mesh | AbstractMesh) {
-  for (const node of mesh.getDescendants(false)) {
-    if (node.name === "Root") return node;
-  }
-  return undefined;
-}
-
-function disposeAsyncLoadedScene(sceneResult: ISceneLoaderAsyncResult) {
-  while (sceneResult.meshes.length) sceneResult.meshes.pop()!.dispose();
-  while (sceneResult.skeletons.length) sceneResult.skeletons.pop()!.dispose();
-  while (sceneResult.transformNodes.length) sceneResult.transformNodes.pop()!.dispose();
-  while (sceneResult.lights.length) sceneResult.lights.pop()!.dispose();
-  while (sceneResult.geometries.length) sceneResult.geometries.pop()!.dispose();
-  while (sceneResult.spriteManagers.length) sceneResult.spriteManagers.pop()!.dispose();
-  while (sceneResult.animationGroups.length) sceneResult.animationGroups.pop()!.dispose();
-  while (sceneResult.particleSystems.length) sceneResult.particleSystems.pop()!.dispose();
-}
-
-function getChildrenByName(rootNode: Node) {
-  const childrenByName: { [name: string]: Node } = {};
-  for (const node of rootNode.getDescendants(false)) {
-    childrenByName[node.name] = node;
-  }
-  return childrenByName;
-}
-
-function paintCubesOnNodes(rootNode: Node, cubeSize: number, color: Color4, scene: Scene) {
-  for (const node of rootNode.getDescendants(false)) {
-    const boneMarkerCube = MeshBuilder.CreateBox(
-      `node-cube-${node.name}`,
-      {
-        height: cubeSize,
-        width: cubeSize,
-        depth: cubeSize,
-        faceColors: new Array(6).fill(color),
-      },
-      // @ts-ignore
-      scene
-    );
-
-    boneMarkerCube.setParent(node);
-    boneMarkerCube.setPositionWithLocalVector(new Vector3(0.0, 0.0, 0.0));
+    part.skeletons[0].dispose();
   }
 }
