@@ -16,9 +16,9 @@ export function getTransformNodeByName(sceneResult: ISceneLoaderAsyncResult, nam
   return undefined;
 }
 
-export function getRootBone(mesh: Mesh | AbstractMesh) {
+export function getChildMeshByName(mesh: Mesh | AbstractMesh, name: string) {
   for (const node of mesh.getDescendants(false)) {
-    if (node.name === "Root") return node;
+    if (node.name === name) return node;
   }
   return undefined;
 }

@@ -14,7 +14,13 @@ import {
   ISceneLoaderAsyncResult,
 } from "babylonjs";
 import "babylonjs-loaders";
-import { disposeAsyncLoadedScene, getTransformNodeByName } from "./utils";
+import {
+  disposeAsyncLoadedScene,
+  getChildMeshByName,
+  getTransformNodeByName,
+  paintCubesOnNodes,
+} from "./utils";
+import { ModularCharacterPart } from "./character-parts";
 import { ASSET_PATHS, BASE_FILE_PATH } from "./asset-paths";
 
 export class GameWorld {
@@ -59,14 +65,14 @@ export class GameWorld {
 
     const characterA = await this.loadCharacterModel(
       ASSET_PATHS.LEGS.WITCH,
-      ASSET_PATHS.TORSOS.MIDIEVAL,
+      ASSET_PATHS.TORSOS.WITCH,
       ASSET_PATHS.HEADS.WITCH
     );
 
     const characterB = await this.loadCharacterModel(
       ASSET_PATHS.LEGS.WITCH,
-      ASSET_PATHS.TORSOS.MIDIEVAL,
-      ASSET_PATHS.HEADS.MIDIEVAL,
+      ASSET_PATHS.TORSOS.WITCH,
+      ASSET_PATHS.HEADS.WITCH,
       new Vector3(0, 0, 1),
       Math.PI / 2
     );
@@ -74,10 +80,10 @@ export class GameWorld {
     characterB.skeleton.animationGroups[4].stop();
     characterB.skeleton.animationGroups[16].start(true);
 
-    setInterval(() => {
-      this.randomizeParts(characterA);
-      this.randomizeParts(characterB);
-    }, 1000);
+    // setInterval(() => {
+    //   this.randomizeParts(characterA);
+    //   this.randomizeParts(characterB);
+    // }, 1000);
 
     return camera;
   }
@@ -102,6 +108,8 @@ export class GameWorld {
     await modularCharacter.attachPart(ModularCharacterPart.Head, headPath);
     await modularCharacter.attachPart(ModularCharacterPart.Torso, torsoPath);
     await modularCharacter.attachPart(ModularCharacterPart.Legs, legsPath);
+
+    await modularCharacter.equipWeapon("");
 
     return modularCharacter;
   }
@@ -137,6 +145,8 @@ class ModularCharacter {
 
     skeleton.animationGroups[0].stop();
     skeleton.animationGroups[4].start(true);
+
+    this.setShowBones(true);
   }
 
   async attachPart(partCategory: ModularCharacterPart, partPath: string) {
@@ -157,16 +167,25 @@ class ModularCharacter {
     this.parts[partCategory] = part;
   }
 
+  async equipWeapon(_partPath: string) {
+    const weapon = await this.world.importMesh("sword.glb");
+    weapon.meshes[0].translate(Vector3.Up(), 0.13);
+    weapon.meshes[0].translate(Vector3.Forward(), -0.03);
+    weapon.meshes[0].rotate(Vector3.Backward(), Math.PI / 2);
+    const equipmentBone = getChildMeshByName(this.skeleton.meshes[0], "Wrist.R");
+    if (equipmentBone) weapon.meshes[0].parent = equipmentBone;
+  }
+
   removePart(partCategory: ModularCharacterPart) {
     disposeAsyncLoadedScene(this.parts[partCategory]);
     this.parts[partCategory] = null;
   }
 
   setShowBones(bool: boolean) {
-    // const cubeSize = 0.01;
-    // const red = new Color4(255, 0, 0, 1.0);
-    // const skeletonRootBone = getRootBone(this.skeleton.meshes[0]);
-    // if (skeletonRootBone !== undefined)
-    //   paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.world.scene);
+    const cubeSize = 0.01;
+    const red = new Color4(255, 0, 0, 1.0);
+    const skeletonRootBone = getChildMeshByName(this.skeleton.meshes[0], "Root");
+    if (skeletonRootBone !== undefined)
+      paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.world.scene);
   }
 }
