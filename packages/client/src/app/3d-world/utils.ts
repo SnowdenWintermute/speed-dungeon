@@ -23,7 +23,8 @@ export function getRootBone(mesh: Mesh | AbstractMesh) {
   return undefined;
 }
 
-export function disposeAsyncLoadedScene(sceneResult: ISceneLoaderAsyncResult) {
+export function disposeAsyncLoadedScene(sceneResult: ISceneLoaderAsyncResult | null) {
+  if (sceneResult === null) return;
   while (sceneResult.meshes.length) sceneResult.meshes.pop()!.dispose();
   while (sceneResult.skeletons.length) sceneResult.skeletons.pop()!.dispose();
   while (sceneResult.transformNodes.length) sceneResult.transformNodes.pop()!.dispose();
