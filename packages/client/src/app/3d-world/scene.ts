@@ -35,6 +35,7 @@ const ASSET_PATHS = {
     midieval: "midieval-legs.glb",
   },
 };
+const BASE_FILE_PATH = "./3d-assets/";
 
 export class BasicScene {
   scene: Scene;
@@ -77,27 +78,14 @@ export class BasicScene {
     return [scene, camera];
   }
 
-  async loadCharacterModel(): Promise<void> {
-    const baseFilePath = "./3d-assets/";
+  async importMesh(path: string) {
+    return SceneLoader.ImportMeshAsync("", BASE_FILE_PATH, path, this.scene);
+  }
 
-    const skeleton = await SceneLoader.ImportMeshAsync(
-      "",
-      baseFilePath,
-      ASSET_PATHS.skeletons.humanoid,
-      this.scene
-    );
-    const legs = await SceneLoader.ImportMeshAsync(
-      "",
-      baseFilePath,
-      ASSET_PATHS.legs.witch,
-      this.scene
-    );
-    const torso = await SceneLoader.ImportMeshAsync(
-      "",
-      baseFilePath,
-      ASSET_PATHS.torsos.midieval,
-      this.scene
-    );
+  async loadCharacterModel(): Promise<void> {
+    const skeleton = await this.importMesh(ASSET_PATHS.skeletons.humanoid);
+    const legs = await this.importMesh(ASSET_PATHS.legs.witch);
+    const torso = await this.importMesh(ASSET_PATHS.torsos.midieval);
 
     skeleton.animationGroups[0].stop();
     skeleton.animationGroups[4].start(true);
@@ -107,22 +95,18 @@ export class BasicScene {
 
     skeleton.meshes[0].rotate(Vector3.Up(), Math.PI / 2);
     skeleton.meshes[0].position = new Vector3(0.0, 0, 0);
-    skeleton.meshes[1].visibility = 0;
+    skeleton.meshes[1].dispose();
 
     const skeletonRootBone = getRootBone(skeleton.meshes[0]);
 
-    // if (skeletonRootBone !== undefined)
-    //   paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.scene);
+    if (skeletonRootBone !== undefined)
+      paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.scene);
 
     attachPart(skeleton, legs);
     attachPart(skeleton, torso);
     disposeAsyncLoadedScene(legs);
-    const otherLegs = await SceneLoader.ImportMeshAsync(
-      "",
-      baseFilePath,
-      ASSET_PATHS.legs.midieval,
-      this.scene
-    );
+
+    const otherLegs = await this.importMesh(ASSET_PATHS.legs.midieval);
     attachPart(skeleton, otherLegs);
 
     // disposeAsyncLoadedScene(torso);
@@ -160,25 +144,15 @@ function getRootBone(mesh: Mesh | AbstractMesh) {
 }
 
 function disposeAsyncLoadedScene(sceneResult: ISceneLoaderAsyncResult) {
-  sceneResult.meshes.forEach((item) => item.dispose());
-  sceneResult.skeletons.forEach((item) => item.dispose());
-  sceneResult.transformNodes.forEach((item) => item.dispose());
-  sceneResult.lights.forEach((item) => item.dispose());
-  sceneResult.geometries.forEach((item) => item.dispose());
-  sceneResult.spriteManagers.forEach((item) => item.dispose());
-  sceneResult.animationGroups.forEach((item) => item.dispose());
-  sceneResult.particleSystems.forEach((item) => item.dispose());
+  while (sceneResult.meshes.length) sceneResult.meshes.pop()!.dispose();
+  while (sceneResult.skeletons.length) sceneResult.skeletons.pop()!.dispose();
+  while (sceneResult.transformNodes.length) sceneResult.transformNodes.pop()!.dispose();
+  while (sceneResult.lights.length) sceneResult.lights.pop()!.dispose();
+  while (sceneResult.geometries.length) sceneResult.geometries.pop()!.dispose();
+  while (sceneResult.spriteManagers.length) sceneResult.spriteManagers.pop()!.dispose();
+  while (sceneResult.animationGroups.length) sceneResult.animationGroups.pop()!.dispose();
+  while (sceneResult.particleSystems.length) sceneResult.particleSystems.pop()!.dispose();
 }
-// function disposeAsyncLoadedScene(sceneResult: ISceneLoaderAsyncResult) {
-//   while (sceneResult.meshes.length) sceneResult.meshes[0].dispose();
-//   while (sceneResult.skeletons.length) sceneResult.skeletons[0].dispose();
-//   while (sceneResult.transformNodes.length) sceneResult.transformNodes[0].dispose();
-//   while (sceneResult.lights.length) sceneResult.lights[0].dispose();
-//   while (sceneResult.geometries.length) sceneResult.geometries[0].dispose();
-//   while (sceneResult.spriteManagers.length) sceneResult.spriteManagers[0].dispose();
-//   while (sceneResult.animationGroups.length) sceneResult.animationGroups[0].dispose();
-//   while (sceneResult.particleSystems.length) sceneResult.particleSystems[0].dispose();
-// }
 
 function getChildrenByName(rootNode: Node) {
   const childrenByName: { [name: string]: Node } = {};
