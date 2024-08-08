@@ -17,12 +17,6 @@ import "babylonjs-loaders";
 import { disposeAsyncLoadedScene, getTransformNodeByName } from "./utils";
 import { ASSET_PATHS, BASE_FILE_PATH } from "./asset-paths";
 
-enum ModularCharacterPart {
-  Head,
-  Torso,
-  Legs,
-}
-
 export class GameWorld {
   scene: Scene;
   engine: Engine;

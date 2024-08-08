@@ -1,6 +1,6 @@
 export const ASSET_PATHS = {
   SKELETONS: {
-    HUMANOID: "adventurer-skeleton.glb",
+    HUMANOID: "humanoid-skeleton.glb",
   },
   HEADS: {
     WITCH: "witch-head.glb",
