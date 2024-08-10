@@ -8,37 +8,41 @@ import {
 } from "../modular-character/modular-character-parts";
 import { initScene } from "./init-scene";
 import { CombatantSpecies } from "@speed-dungeon/common";
-import { NextBabylonMessagingState } from "@/stores/next-babylon-messaging-store";
+import handleMessageFromNext from "./handle-message-from-next";
+import { NextToBabylonMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 
 export class GameWorld {
   scene: Scene;
   engine: Engine;
   characterAnimations: AnimationGroup[] = [];
   camera: ArcRotateCamera | null = null;
+  messages: NextToBabylonMessage[] = [];
   mouse: Vector3 = new Vector3(0, 1, 0);
-  constructor(
-    private canvas: HTMLCanvasElement,
-    nextBabylonMessagingState: NextBabylonMessagingState
-  ) {
+  constructor(canvas: HTMLCanvasElement) {
     this.engine = new Engine(canvas, true);
     this.scene = new Scene(this.engine);
     this.camera = this.initScene();
 
     this.engine.runRenderLoop(() => {
+      while (this.messages.length > 0) {
+        const message = this.messages.pop();
+        if (message !== undefined) this.handleMessageFromNext(message);
+      }
       this.scene.render();
     });
   }
 
   initScene = initScene;
+  handleMessageFromNext = handleMessageFromNext;
 
   async importMesh(path: string) {
     return SceneLoader.ImportMeshAsync("", BASE_FILE_PATH, path, this.scene);
   }
 
-  async loadCharacterModel(
-    legsPath: string,
-    torsoPath: string,
+  async spawnCharacterModel(
     headPath: string,
+    torsoPath: string,
+    legsPath: string,
     startPosition: Vector3 = new Vector3(0, 0, 0),
     startRotation: number = 0
   ): Promise<ModularCharacter> {

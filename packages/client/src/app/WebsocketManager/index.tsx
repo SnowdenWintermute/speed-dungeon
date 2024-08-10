@@ -30,6 +30,7 @@ import characterUnequippedSlotHandler from "./game-event-handlers/character-uneq
 import characterEquippedItemHandler from "./game-event-handlers/character-equipped-item-handler";
 import characterPickedUpItemHandler from "./game-event-handlers/character-picked-up-item-handler";
 import gameStartedHandler from "./game-event-handlers/game-started-handler";
+import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -39,6 +40,7 @@ function SocketManager() {
   const mutateLobbyStore = useLobbyStore().mutateState;
   const mutateGameStore = useGameStore().mutateState;
   const mutateAlertStore = useAlertStore().mutateState;
+  const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const socketOption = useWebsocketStore().socketOption;
   const [connected, setConnected] = useState(false);
 
@@ -143,7 +145,7 @@ function SocketManager() {
       playerToggledReadyToStartGameHandler(mutateGameStore, mutateAlertStore, username);
     });
     socket.on(ServerToClientEvent.GameStarted, (timeStarted) => {
-      gameStartedHandler(mutateGameStore, timeStarted);
+      gameStartedHandler(mutateGameStore, mutateNextBabylonMessagingStore, timeStarted);
     });
     socket.on(
       ServerToClientEvent.PlayerToggledReadyToDescendOrExplore,

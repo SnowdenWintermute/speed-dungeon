@@ -3,14 +3,15 @@ import { GameWorld } from "./game-world/";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 
 export default function SceneManager() {
-  const messagesFromNext = useNextBabylonMessagingStore().messages;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<GameWorld>();
   const resizeHandlerRef = useRef<(e: UIEvent) => void | null>();
+  const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
+  const nextToBabylonMessages = useNextBabylonMessagingStore().nextToBabylonMessages;
 
   useEffect(() => {
     if (canvasRef.current) {
-      sceneRef.current = new GameWorld(canvasRef.current, messagesFromNext);
+      sceneRef.current = new GameWorld(canvasRef.current);
     }
     resizeHandlerRef.current = function () {
       sceneRef.current?.engine?.resize();
@@ -23,6 +24,16 @@ export default function SceneManager() {
       if (resizeHandlerRef.current) window.removeEventListener("resize", resizeHandlerRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (nextToBabylonMessages.length < 1) return;
+
+    mutateNextBabylonMessagingStore((state) => {
+      if (sceneRef.current === undefined) return;
+      sceneRef.current.messages.push(...nextToBabylonMessages);
+      state.nextToBabylonMessages = [];
+    });
+  }, [nextToBabylonMessages]);
 
   // useEffect(() => {
   //   window.addEventListener("mousemove", (e) => {
