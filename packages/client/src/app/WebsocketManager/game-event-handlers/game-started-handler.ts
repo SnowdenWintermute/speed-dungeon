@@ -6,7 +6,6 @@ import getParty from "@/utils/getParty";
 import {
   COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
   COMBATANT_POSITION_SPACING_SIDE,
-  CombatantClass,
   CombatantSpecies,
 } from "@speed-dungeon/common";
 import { Vector3 } from "babylonjs";

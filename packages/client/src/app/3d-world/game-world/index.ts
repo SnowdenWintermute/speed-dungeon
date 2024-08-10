@@ -1,11 +1,11 @@
 import { Scene, Engine, Vector3, ArcRotateCamera, SceneLoader, AnimationGroup } from "babylonjs";
 import "babylonjs-loaders";
-import { ModularCharacter } from "../modular-character";
+import { ModularCharacter } from "../combatant-models/modular-character";
 import {
   BASE_FILE_PATH,
-  ModularCharacterPart,
+  ModularCharacterPartCategory,
   SKELETONS,
-} from "../modular-character/modular-character-parts";
+} from "../combatant-models/modular-character-parts";
 import { initScene } from "./init-scene";
 import { CombatantSpecies } from "@speed-dungeon/common";
 import handleMessageFromNext from "./handle-message-from-next";
@@ -57,15 +57,15 @@ export class GameWorld {
     startPosition: Vector3 = new Vector3(0, 0, 0),
     startRotation: number = 0
   ): Promise<ModularCharacter> {
-    const skeleton = await this.importMesh(SKELETONS[CombatantSpecies.Humanoid]!);
+    const skeleton = await this.importMesh(SKELETONS[CombatantSpecies.Humanoid]!); // species
     skeleton.meshes[0].rotate(Vector3.Up(), Math.PI / 2 + startRotation);
     skeleton.meshes[0].position = startPosition;
 
     const modularCharacter = new ModularCharacter(this, skeleton);
 
-    await modularCharacter.attachPart(ModularCharacterPart.Head, headPath);
-    await modularCharacter.attachPart(ModularCharacterPart.Torso, torsoPath);
-    await modularCharacter.attachPart(ModularCharacterPart.Legs, legsPath);
+    await modularCharacter.attachPart(ModularCharacterPartCategory.Head, headPath); // parts
+    await modularCharacter.attachPart(ModularCharacterPartCategory.Torso, torsoPath);
+    await modularCharacter.attachPart(ModularCharacterPartCategory.Legs, legsPath);
 
     await modularCharacter.equipWeapon("");
 

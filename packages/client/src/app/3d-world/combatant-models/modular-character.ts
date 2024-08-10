@@ -1,19 +1,19 @@
-import { Color4, ISceneLoaderAsyncResult, Scene, Vector3 } from "babylonjs";
+import { Color4, ISceneLoaderAsyncResult, Vector3 } from "babylonjs";
 import {
   disposeAsyncLoadedScene,
   getChildMeshByName,
   getTransformNodeByName,
   paintCubesOnNodes,
 } from "../utils";
-import { ModularCharacterPart } from "./modular-character-parts";
+import { ModularCharacterPartCategory } from "./modular-character-parts";
 import { GameWorld } from "../game-world";
 
 export class ModularCharacter {
   skeleton: ISceneLoaderAsyncResult;
-  parts: Record<ModularCharacterPart, null | ISceneLoaderAsyncResult> = {
-    [ModularCharacterPart.Head]: null,
-    [ModularCharacterPart.Torso]: null,
-    [ModularCharacterPart.Legs]: null,
+  parts: Record<ModularCharacterPartCategory, null | ISceneLoaderAsyncResult> = {
+    [ModularCharacterPartCategory.Head]: null,
+    [ModularCharacterPartCategory.Torso]: null,
+    [ModularCharacterPartCategory.Legs]: null,
   };
   world: GameWorld;
   constructor(world: GameWorld, skeleton: ISceneLoaderAsyncResult) {
@@ -29,7 +29,7 @@ export class ModularCharacter {
     // this.setShowBones(true);
   }
 
-  async attachPart(partCategory: ModularCharacterPart, partPath: string) {
+  async attachPart(partCategory: ModularCharacterPartCategory, partPath: string) {
     const part = await this.world.importMesh(partPath);
     const parent = getTransformNodeByName(this.skeleton, "CharacterArmature");
 
@@ -56,7 +56,7 @@ export class ModularCharacter {
     if (equipmentBone) weapon.meshes[0].parent = equipmentBone;
   }
 
-  removePart(partCategory: ModularCharacterPart) {
+  removePart(partCategory: ModularCharacterPartCategory) {
     disposeAsyncLoadedScene(this.parts[partCategory]);
     this.parts[partCategory] = null;
   }
