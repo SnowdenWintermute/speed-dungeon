@@ -6,6 +6,7 @@ import { useGameStore } from "@/stores/game-store";
 export default function SceneManager() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<GameWorld>();
+  const debugRef = useRef<HTMLDivElement>(null);
   const resizeHandlerRef = useRef<(e: UIEvent) => void | null>();
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const nextToBabylonMessages = useNextBabylonMessagingStore().nextToBabylonMessages;
@@ -13,7 +14,7 @@ export default function SceneManager() {
 
   useEffect(() => {
     if (canvasRef.current) {
-      sceneRef.current = new GameWorld(canvasRef.current, mutateGameState);
+      sceneRef.current = new GameWorld(canvasRef.current, mutateGameState, debugRef);
     }
     resizeHandlerRef.current = function () {
       sceneRef.current?.engine?.resize();
@@ -47,10 +48,13 @@ export default function SceneManager() {
   // }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="h-full w-full absolute z-[-1] pointer-events-auto"
-      id="babylon-canvas"
-    />
+    <>
+      <div className="absolute z-50 top-10" ref={debugRef}></div>
+      <canvas
+        ref={canvasRef}
+        className="h-full w-full absolute z-[-1] pointer-events-auto"
+        id="babylon-canvas"
+      />
+    </>
   );
 }

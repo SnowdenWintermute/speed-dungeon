@@ -7,10 +7,11 @@ import {
   PointLight,
   StandardMaterial,
   Color3,
+  ShadowGenerator,
 } from "babylonjs";
 import { GameWorld } from ".";
 
-export function initScene(this: GameWorld) {
+export function initScene(this: GameWorld): [ArcRotateCamera, ShadowGenerator] {
   this.scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
   // CAMERA
   const camera = new ArcRotateCamera(
@@ -31,7 +32,7 @@ export function initScene(this: GameWorld) {
   // LIGHTS
   const hemiLight = new HemisphericLight("hemi-light", new Vector3(0, 1, 0), this.scene);
   hemiLight.intensity = 0.85;
-  const lightPosition = new Vector3(4.0, 8.0, 4.0);
+  const lightPosition = new Vector3(4.0, 4.0, 8.0);
   const pointLight = new PointLight("point-light", lightPosition, this.scene);
   const ball = MeshBuilder.CreateSphere("ball", { diameter: 0.25 }, this.scene);
   ball.position = lightPosition;
@@ -43,5 +44,9 @@ export function initScene(this: GameWorld) {
   material.diffuseColor = new Color3(0.203, 0.295, 0.208);
   ground.material = material;
 
-  return camera;
+  // SHADOWS
+  const shadowGenerator = new ShadowGenerator(1024, pointLight);
+  ground.receiveShadows = true;
+
+  return [camera, shadowGenerator];
 }

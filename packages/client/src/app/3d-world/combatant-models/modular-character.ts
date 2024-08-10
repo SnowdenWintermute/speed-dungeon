@@ -23,12 +23,10 @@ export class ModularCharacter {
     this.skeleton = skeleton;
     while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
 
-    console.log("skeleton: ", skeleton.animationGroups);
-
     skeleton.animationGroups[0].stop();
     this.getAnimationGroupByName("Idle")?.start(true);
 
-    this.setShowBones();
+    // this.setShowBones();
   }
 
   async attachPart(partCategory: ModularCharacterPartCategory, partPath: string) {
