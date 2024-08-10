@@ -1,4 +1,4 @@
-import { CombatantClass } from "@speed-dungeon/common";
+import { CombatantClass, CombatantSpecies } from "@speed-dungeon/common";
 
 export enum ModularCharacterPart {
   Head,
@@ -6,13 +6,9 @@ export enum ModularCharacterPart {
   Legs,
 }
 
-export enum CombatantSpecies {
-  Humanoid,
-}
-
 export const BASE_FILE_PATH = "./3d-assets/";
 
-export const SKELETONS: Record<CombatantSpecies, string> = {
+export const SKELETONS: Partial<Record<CombatantSpecies, string>> = {
   [CombatantSpecies.Humanoid]: "humanoid-skeleton.glb",
 };
 

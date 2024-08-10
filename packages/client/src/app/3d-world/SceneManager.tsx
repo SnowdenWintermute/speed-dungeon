@@ -1,14 +1,16 @@
 import React, { useEffect, useRef } from "react";
-import { GameWorld } from "./scene";
+import { GameWorld } from "./game-world/";
+import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 
 export default function SceneManager() {
+  const messagesFromNext = useNextBabylonMessagingStore().messages;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<GameWorld>();
   const resizeHandlerRef = useRef<(e: UIEvent) => void | null>();
 
   useEffect(() => {
     if (canvasRef.current) {
-      sceneRef.current = new GameWorld(canvasRef.current);
+      sceneRef.current = new GameWorld(canvasRef.current, messagesFromNext);
     }
     resizeHandlerRef.current = function () {
       sceneRef.current?.engine?.resize();

@@ -29,6 +29,7 @@ import characterDroppedEquippedItemHandler from "./game-event-handlers/character
 import characterUnequippedSlotHandler from "./game-event-handlers/character-unequipped-slot-handler";
 import characterEquippedItemHandler from "./game-event-handlers/character-equipped-item-handler";
 import characterPickedUpItemHandler from "./game-event-handlers/character-picked-up-item-handler";
+import gameStartedHandler from "./game-event-handlers/game-started-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -142,9 +143,7 @@ function SocketManager() {
       playerToggledReadyToStartGameHandler(mutateGameStore, mutateAlertStore, username);
     });
     socket.on(ServerToClientEvent.GameStarted, (timeStarted) => {
-      mutateGameStore((gameState) => {
-        if (gameState.game) gameState.game.timeStarted = timeStarted;
-      });
+      gameStartedHandler(mutateGameStore, timeStarted);
     });
     socket.on(
       ServerToClientEvent.PlayerToggledReadyToDescendOrExplore,

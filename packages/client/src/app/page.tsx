@@ -26,10 +26,8 @@ export default function Home() {
       <AlertManager />
       <GlobalKeyboardEventManager />
       <TooltipManager />
-      {<SceneManager />}
-      {
-        // componentToRender
-      }
+      <SceneManager />
+      {componentToRender}
     </>
   );
 }
