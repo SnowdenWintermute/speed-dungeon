@@ -3,6 +3,7 @@ import "babylonjs-loaders";
 import { ModularCharacter } from "../combatant-models/modular-character";
 import {
   BASE_FILE_PATH,
+  ModularCharacterPart,
   ModularCharacterPartCategory,
   SKELETONS,
 } from "../combatant-models/modular-character-parts";
@@ -12,6 +13,7 @@ import handleMessageFromNext from "./handle-message-from-next";
 import { NextToBabylonMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import { MutateState } from "@/stores/mutate-state";
 import { GameState } from "@/stores/game-store";
+import { MonsterType } from "@speed-dungeon/common/src/monsters/monster-types";
 
 export class GameWorld {
   scene: Scene;
@@ -51,23 +53,22 @@ export class GameWorld {
   }
 
   async spawnCharacterModel(
-    headPath: string,
-    torsoPath: string,
-    legsPath: string,
+    combatantSpecies: CombatantSpecies,
+    parts: ModularCharacterPart[],
     startPosition: Vector3 = new Vector3(0, 0, 0),
     startRotation: number = 0
   ): Promise<ModularCharacter> {
-    const skeleton = await this.importMesh(SKELETONS[CombatantSpecies.Humanoid]!); // species
+    const skeleton = await this.importMesh(SKELETONS[combatantSpecies]!); // species
     skeleton.meshes[0].rotate(Vector3.Up(), Math.PI / 2 + startRotation);
     skeleton.meshes[0].position = startPosition;
 
     const modularCharacter = new ModularCharacter(this, skeleton);
 
-    await modularCharacter.attachPart(ModularCharacterPartCategory.Head, headPath); // parts
-    await modularCharacter.attachPart(ModularCharacterPartCategory.Torso, torsoPath);
-    await modularCharacter.attachPart(ModularCharacterPartCategory.Legs, legsPath);
+    for (const part of parts) {
+      await modularCharacter.attachPart(part.category, part.assetPath); // parts
+    }
 
-    await modularCharacter.equipWeapon("");
+    if (combatantSpecies === CombatantSpecies.Humanoid) await modularCharacter.equipWeapon("");
 
     return modularCharacter;
   }

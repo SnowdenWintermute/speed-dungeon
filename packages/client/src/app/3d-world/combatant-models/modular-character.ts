@@ -14,6 +14,7 @@ export class ModularCharacter {
     [ModularCharacterPartCategory.Head]: null,
     [ModularCharacterPartCategory.Torso]: null,
     [ModularCharacterPartCategory.Legs]: null,
+    [ModularCharacterPartCategory.Full]: null,
   };
   world: GameWorld;
   constructor(world: GameWorld, skeleton: ISceneLoaderAsyncResult) {
@@ -22,11 +23,12 @@ export class ModularCharacter {
     this.skeleton = skeleton;
     while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
 
-    skeleton.animationGroups[0].stop();
-    this.getAnimationGroupByName("Idle_Sword")?.start(true);
-    // const scene = new Scene()
+    console.log("skeleton: ", skeleton.animationGroups);
 
-    // this.setShowBones(true);
+    skeleton.animationGroups[0].stop();
+    this.getAnimationGroupByName("Idle")?.start(true);
+
+    this.setShowBones();
   }
 
   async attachPart(partCategory: ModularCharacterPartCategory, partPath: string) {
@@ -61,8 +63,8 @@ export class ModularCharacter {
     this.parts[partCategory] = null;
   }
 
-  setShowBones(bool: boolean) {
-    const cubeSize = 0.01;
+  setShowBones() {
+    const cubeSize = 0.02;
     const red = new Color4(255, 0, 0, 1.0);
     const skeletonRootBone = getChildMeshByName(this.skeleton.meshes[0], "Root");
     if (skeletonRootBone !== undefined)

@@ -34,6 +34,7 @@ export default function gameStartedHandler(
           combatant: {
             entityId: character.entityProperties.id,
             species: CombatantSpecies.Humanoid,
+            monsterType: null,
             class: character.combatantProperties.combatantClass,
             startPosition: new Vector3(
               -COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2,

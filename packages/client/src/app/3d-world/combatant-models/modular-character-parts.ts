@@ -8,6 +8,11 @@ export enum ModularCharacterPartCategory {
   Full,
 }
 
+export type ModularCharacterPart = {
+  category: ModularCharacterPartCategory;
+  assetPath: string;
+};
+
 export const BASE_FILE_PATH = "./3d-assets/";
 
 export const CHARACTER_PARTS: Record<

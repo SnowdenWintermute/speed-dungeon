@@ -33,19 +33,20 @@ export default function newDungeonRoomHandler(
     const indexOfRoomTypeToReveal = party.roomsExplored.onCurrentFloor - 1;
     party.clientCurrentFloorRoomsList[indexOfRoomTypeToReveal] = room.roomType;
 
-    let rowPositionOffset = COMBATANT_POSITION_SPACING_SIDE;
-
-    // @todo - spawn monster 3d models
+    // SPAWN MONSTER 3D MODELS
     mutateNextBabylonMessagingStore((state) => {
-      for (const characterId of party.characterPositions) {
-        const character = party.characters[characterId];
+      let rowPositionOffset = COMBATANT_POSITION_SPACING_SIDE;
 
+      for (const monster of Object.values(party.currentRoom.monsters).sort(
+        (a, b) => parseInt(a.entityProperties.id) - parseInt(b.entityProperties.id)
+      )) {
         state.nextToBabylonMessages.push({
           type: NextToBabylonMessageTypes.SpawnCombatantModel,
           combatant: {
-            entityId: character.entityProperties.id,
-            species: CombatantSpecies.Humanoid,
-            class: character.combatantProperties.combatantClass,
+            entityId: monster.entityProperties.id,
+            species: monster.combatantProperties.combatantSpecies,
+            monsterType: monster.monsterType,
+            class: monster.combatantProperties.combatantClass,
             startPosition: new Vector3(
               COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2,
               0,
@@ -55,7 +56,7 @@ export default function newDungeonRoomHandler(
           },
         });
 
-        rowPositionOffset -= COMBATANT_POSITION_SPACING_SIDE;
+        rowPositionOffset = rowPositionOffset - COMBATANT_POSITION_SPACING_SIDE;
       }
     });
   });
