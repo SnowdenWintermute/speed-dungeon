@@ -13,9 +13,19 @@ import { GameWorld } from ".";
 export function initScene(this: GameWorld) {
   this.scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
   // CAMERA
-  const camera = new ArcRotateCamera("camera", 0, 1.5, 2, new Vector3(0, 1, 0), this.scene);
+  const camera = new ArcRotateCamera(
+    "camera",
+    // alpha
+    2.7,
+    // beta
+    1.2,
+    // radius
+    8,
+    // target
+    new Vector3(0.76, 0.15, 0.62),
+    this.scene
+  );
   camera.wheelDeltaPercentage = 0.02;
-  camera.radius = 4;
   camera.attachControl();
 
   // LIGHTS

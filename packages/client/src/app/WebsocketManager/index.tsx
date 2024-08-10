@@ -162,7 +162,12 @@ function SocketManager() {
       newDungeonRoomTypesOnCurrentFloorHandler(mutateGameStore, mutateAlertStore, newRoomTypes);
     });
     socket.on(ServerToClientEvent.DungeonRoomUpdate, (newRoom) => {
-      newDungeonRoomHandler(mutateGameStore, mutateAlertStore, newRoom);
+      newDungeonRoomHandler(
+        mutateGameStore,
+        mutateAlertStore,
+        mutateNextBabylonMessagingStore,
+        newRoom
+      );
     });
     socket.on(ServerToClientEvent.BattleFullUpdate, (battleOption) => {
       console.log("battle full update");

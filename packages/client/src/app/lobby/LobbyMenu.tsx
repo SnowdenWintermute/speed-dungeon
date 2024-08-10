@@ -2,16 +2,12 @@
 "use client";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import { FormEvent, useState } from "react";
-import { ClientToServerEvent, CombatantClass, CombatantSpecies } from "@speed-dungeon/common";
+import { ClientToServerEvent, CombatantClass } from "@speed-dungeon/common";
 import ButtonBasic from "../components/atoms/ButtonBasic";
 import { useGameStore } from "@/stores/game-store";
-import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
-import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
-import { Vector3 } from "babylonjs";
 
 export default function LobbyMenu() {
   const socketOption = useWebsocketStore().socketOption;
-  const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const [gameName, setGameName] = useState("");
 
   const username = useGameStore().username;
@@ -23,18 +19,6 @@ export default function LobbyMenu() {
   }
 
   function refreshGameList() {
-    mutateNextBabylonMessagingStore((state) => {
-      state.nextToBabylonMessages.push({
-        type: NextToBabylonMessageTypes.SpawnCombatantModel,
-        combatant: {
-          entityId: "0",
-          species: CombatantSpecies.Humanoid,
-          class: CombatantClass.Mage,
-          startPosition: Vector3.Zero(),
-          startRotation: 0,
-        },
-      });
-    });
     socketOption?.emit(ClientToServerEvent.RequestsGameList);
   }
 

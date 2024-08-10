@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { GameWorld } from "./game-world/";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
+import { useGameStore } from "@/stores/game-store";
 
 export default function SceneManager() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -8,10 +9,11 @@ export default function SceneManager() {
   const resizeHandlerRef = useRef<(e: UIEvent) => void | null>();
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const nextToBabylonMessages = useNextBabylonMessagingStore().nextToBabylonMessages;
+  const mutateGameState = useGameStore().mutateState;
 
   useEffect(() => {
     if (canvasRef.current) {
-      sceneRef.current = new GameWorld(canvasRef.current);
+      sceneRef.current = new GameWorld(canvasRef.current, mutateGameState);
     }
     resizeHandlerRef.current = function () {
       sceneRef.current?.engine?.resize();

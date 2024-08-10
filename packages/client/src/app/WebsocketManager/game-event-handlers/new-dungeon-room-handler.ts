@@ -2,12 +2,22 @@ import { setAlert } from "@/app/components/alerts";
 import { AlertState } from "@/stores/alert-store";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
+import { NextBabylonMessagingState } from "@/stores/next-babylon-messaging-store";
+import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { DungeonRoom, ERROR_MESSAGES } from "@speed-dungeon/common";
+import {
+  COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
+  COMBATANT_POSITION_SPACING_SIDE,
+  CombatantSpecies,
+  DungeonRoom,
+  ERROR_MESSAGES,
+} from "@speed-dungeon/common";
+import { Vector3 } from "babylonjs";
 
 export default function newDungeonRoomHandler(
   mutateGameState: MutateState<GameState>,
   mutateAlertState: MutateState<AlertState>,
+  mutateNextBabylonMessagingStore: MutateState<NextBabylonMessagingState>,
   room: DungeonRoom
 ) {
   mutateGameState((gameState) => {
@@ -23,6 +33,30 @@ export default function newDungeonRoomHandler(
     const indexOfRoomTypeToReveal = party.roomsExplored.onCurrentFloor - 1;
     party.clientCurrentFloorRoomsList[indexOfRoomTypeToReveal] = room.roomType;
 
+    let rowPositionOffset = COMBATANT_POSITION_SPACING_SIDE;
+
     // @todo - spawn monster 3d models
+    mutateNextBabylonMessagingStore((state) => {
+      for (const characterId of party.characterPositions) {
+        const character = party.characters[characterId];
+
+        state.nextToBabylonMessages.push({
+          type: NextToBabylonMessageTypes.SpawnCombatantModel,
+          combatant: {
+            entityId: character.entityProperties.id,
+            species: CombatantSpecies.Humanoid,
+            class: character.combatantProperties.combatantClass,
+            startPosition: new Vector3(
+              COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2,
+              0,
+              rowPositionOffset
+            ),
+            startRotation: Math.PI,
+          },
+        });
+
+        rowPositionOffset -= COMBATANT_POSITION_SPACING_SIDE;
+      }
+    });
   });
 }

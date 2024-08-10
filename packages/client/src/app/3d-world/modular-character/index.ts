@@ -1,4 +1,4 @@
-import { Color4, ISceneLoaderAsyncResult, Vector3 } from "babylonjs";
+import { Color4, ISceneLoaderAsyncResult, Scene, Vector3 } from "babylonjs";
 import {
   disposeAsyncLoadedScene,
   getChildMeshByName,
@@ -23,9 +23,10 @@ export class ModularCharacter {
     while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
 
     skeleton.animationGroups[0].stop();
-    skeleton.animationGroups[4].start(true);
+    this.getAnimationGroupByName("Idle_Sword")?.start(true);
+    // const scene = new Scene()
 
-    this.setShowBones(true);
+    // this.setShowBones(true);
   }
 
   async attachPart(partCategory: ModularCharacterPart, partPath: string) {
@@ -48,18 +49,11 @@ export class ModularCharacter {
 
   async equipWeapon(_partPath: string) {
     const weapon = await this.world.importMesh("sword.glb");
-    weapon.meshes[0].translate(Vector3.Up(), 0.13);
-    weapon.meshes[0].translate(Vector3.Forward(), -0.03);
+    weapon.meshes[0].translate(Vector3.Up(), 0.1);
+    weapon.meshes[0].translate(Vector3.Forward(), -0.05);
     weapon.meshes[0].rotate(Vector3.Backward(), Math.PI / 2);
     const equipmentBone = getChildMeshByName(this.skeleton.meshes[0], "Wrist.R");
     if (equipmentBone) weapon.meshes[0].parent = equipmentBone;
-
-    const weapon2 = await this.world.importMesh("sword.glb");
-    weapon2.meshes[0].translate(Vector3.Up(), 0.13);
-    weapon2.meshes[0].translate(Vector3.Forward(), -0.03);
-    weapon2.meshes[0].rotate(Vector3.Backward(), Math.PI / 2);
-    const equipmentBone2 = getChildMeshByName(this.skeleton.meshes[0], "Wrist.L");
-    if (equipmentBone2) weapon2.meshes[0].parent = equipmentBone2;
   }
 
   removePart(partCategory: ModularCharacterPart) {
@@ -73,5 +67,13 @@ export class ModularCharacter {
     const skeletonRootBone = getChildMeshByName(this.skeleton.meshes[0], "Root");
     if (skeletonRootBone !== undefined)
       paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.world.scene);
+  }
+
+  getAnimationGroupByName(name: string) {
+    for (let index = 0; index < this.skeleton.animationGroups.length; index++) {
+      if (this.skeleton.animationGroups[index].name === name) {
+        return this.skeleton.animationGroups[index];
+      }
+    }
   }
 }

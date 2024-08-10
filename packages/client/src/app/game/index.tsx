@@ -17,6 +17,9 @@ export default function Game() {
   const game = useGameStore().game;
   const menuContext = useGameStore().menuContext;
   const hoveredEntity = useGameStore().hoveredEntity;
+
+  const cameraData = useGameStore().cameraData;
+
   const username = useGameStore().username;
   if (!username)
     return (
@@ -62,6 +65,10 @@ export default function Game() {
             <div className="h-[14rem] min-w-[23rem] max-w-[26rem] w-full border border-slate-400 bg-slate-700 p-2 pointer-events-auto">
               combat log placeholder
               {
+                // <div>Alpha: {cameraData.alpha}</div>
+                // <div>Beta: {cameraData.beta}</div>
+                // <div>Radius: {cameraData.radius}</div>
+                // <div>Target: {JSON.stringify(cameraData.focus)}</div>
                 // <CombatLog />
               }
             </div>

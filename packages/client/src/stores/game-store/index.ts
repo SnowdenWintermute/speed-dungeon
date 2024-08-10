@@ -14,7 +14,7 @@ import {
   SpeedDungeonGame,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
-import { DetailableEntity, DetailableEntityType } from "./detailable-entities";
+import { DetailableEntity } from "./detailable-entities";
 import { EquipmentSlot } from "@speed-dungeon/common";
 import { MutateState } from "../mutate-state";
 import getActiveCombatant from "@/utils/getActiveCombatant";
@@ -31,6 +31,12 @@ export enum MenuContext {
 
 export class GameState {
   [immerable] = true;
+  // cameraData: { alpha: number; beta: number; radius: number; focus: Vector3 } = {
+  //   alpha: 0,
+  //   beta: 0,
+  //   radius: 0,
+  //   focus: Vector3.Zero(),
+  // };
   game: null | SpeedDungeonGame = null;
   username: null | string = null;
   focusedCharacterId: string = "";

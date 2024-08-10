@@ -10,6 +10,8 @@ import { initScene } from "./init-scene";
 import { CombatantSpecies } from "@speed-dungeon/common";
 import handleMessageFromNext from "./handle-message-from-next";
 import { NextToBabylonMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
+import { MutateState } from "@/stores/mutate-state";
+import { GameState } from "@/stores/game-store";
 
 export class GameWorld {
   scene: Scene;
@@ -18,12 +20,19 @@ export class GameWorld {
   camera: ArcRotateCamera | null = null;
   messages: NextToBabylonMessage[] = [];
   mouse: Vector3 = new Vector3(0, 1, 0);
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, mutateGameState: MutateState<GameState>) {
     this.engine = new Engine(canvas, true);
     this.scene = new Scene(this.engine);
     this.camera = this.initScene();
 
     this.engine.runRenderLoop(() => {
+      // mutateGameState((state) => {
+      //   if (!this.camera) return;
+      //   state.cameraData.beta = this.camera.beta;
+      //   state.cameraData.alpha = this.camera.alpha;
+      //   state.cameraData.radius = this.camera.radius;
+      //   state.cameraData.focus = this.camera.target;
+      // });
       while (this.messages.length > 0) {
         const message = this.messages.pop();
         if (message !== undefined) this.handleMessageFromNext(message);
@@ -36,6 +45,8 @@ export class GameWorld {
   handleMessageFromNext = handleMessageFromNext;
 
   async importMesh(path: string) {
+    // const anim = this.scene.getAnimationGroupByName("Idle");
+    // console.log("ANIM: ", anim);
     return SceneLoader.ImportMeshAsync("", BASE_FILE_PATH, path, this.scene);
   }
 
