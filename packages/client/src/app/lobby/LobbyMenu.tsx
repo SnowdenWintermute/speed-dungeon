@@ -43,10 +43,10 @@ export default function LobbyMenu() {
             onChange={(e) => setGameName(e.target.value)}
             value={gameName}
           />
-          <ButtonBasic buttonType="submit" extraStyles="border-l-0 text-yellow-400">
+          <ButtonBasic buttonType="submit" extraStyles="border-l-0">
             Create Game
           </ButtonBasic>
-          <ButtonBasic onClick={quickStartGame} extraStyles="ml-2">
+          <ButtonBasic onClick={quickStartGame} extraStyles=" text-yellow-400 ml-2">
             Quick Start
           </ButtonBasic>
         </form>

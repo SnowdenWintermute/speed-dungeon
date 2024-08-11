@@ -1,12 +1,14 @@
 import {
   ActionResult,
   Battle,
+  CombatActionType,
   CombatTurnResult,
   CombatantAbility,
   ERROR_MESSAGES,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { AISelectActionAndTarget } from "@speed-dungeon/common";
+import checkForDefeatedCombatantGroups from "./check-for-defeated-combatant-groups";
 
 export default function takeAiControlledTurnsIfAppropriate(
   game: SpeedDungeonGame,
@@ -38,10 +40,10 @@ export default function takeAiControlledTurnsIfAppropriate(
     if (abilityAndTargetResult instanceof Error) return abilityAndTargetResult;
     const { abilityName, target } = abilityAndTargetResult;
 
-    const actionResultsResult = SpeedDungeonGame.getAbilityActionResults(
+    const actionResultsResult = SpeedDungeonGame.getActionResults(
       game,
       entityProperties.id,
-      abilityName,
+      { type: CombatActionType.AbilityUsed, abilityName },
       target,
       battle,
       allyIds
@@ -62,12 +64,13 @@ export default function takeAiControlledTurnsIfAppropriate(
       actionResults: activeCombatantTurnActionResults,
     });
 
-    const playerPartyDefeatedResult = SpeedDungeonGame.allCombatantsInGroupAreDead(
+    const partyWipesResult = checkForDefeatedCombatantGroups(
       game,
+      allyGroup.combatantIds,
       enemyGroup.combatantIds
     );
-    if (playerPartyDefeatedResult instanceof Error) return playerPartyDefeatedResult;
-    if (playerPartyDefeatedResult) break;
+    if (partyWipesResult instanceof Error) return partyWipesResult;
+    if (partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated) break;
 
     activeCombatantTurnActionResults = [];
     const newActiveTurnTrackerResult = SpeedDungeonGame.endActiveCombatantTurn(game, battle);

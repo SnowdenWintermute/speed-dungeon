@@ -51,21 +51,15 @@ export function formatMonsterType(monsterType: MonsterType) {
 export function getMonsterCombatantClass(monsterType: MonsterType): CombatantClass {
   switch (monsterType) {
     case MonsterType.MetallicGolem:
-      return CombatantClass.Warrior;
     case MonsterType.Zombie:
-      return CombatantClass.Warrior;
-    case MonsterType.SkeletonArcher:
-      return CombatantClass.Rogue;
-    case MonsterType.Scavenger:
-      return CombatantClass.Rogue;
     case MonsterType.Vulture:
       return CombatantClass.Warrior;
+    case MonsterType.SkeletonArcher:
+    case MonsterType.Scavenger:
+      return CombatantClass.Rogue;
     case MonsterType.FireMage:
-      return CombatantClass.Mage;
     case MonsterType.Cultist:
-      return CombatantClass.Mage;
     case MonsterType.FireElemental:
-      return CombatantClass.Mage;
     case MonsterType.IceElemental:
       return CombatantClass.Mage;
   }

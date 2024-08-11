@@ -173,7 +173,8 @@ function SocketManager() {
       console.log("battle full update");
       battleFullUpdateHandler(mutateGameStore, mutateAlertStore, battleOption);
     });
-    socket.on(ServerToClientEvent.TurnResults, () => {
+    socket.on(ServerToClientEvent.TurnResults, (turnResults) => {
+      console.log("GOT TURN RESULTS: ", turnResults);
       //todo
     });
     socket.on(ServerToClientEvent.GameMessage, (message) => {

@@ -17,13 +17,13 @@ export function initScene(this: GameWorld): [ArcRotateCamera, ShadowGenerator] {
   const camera = new ArcRotateCamera(
     "camera",
     // alpha
-    2.7,
+    3.09,
     // beta
-    1.2,
+    1.14,
     // radius
     8,
     // target
-    new Vector3(0.76, 0.15, 0.62),
+    new Vector3(0.92, 0.54, 0.62),
     this.scene
   );
   camera.wheelDeltaPercentage = 0.02;

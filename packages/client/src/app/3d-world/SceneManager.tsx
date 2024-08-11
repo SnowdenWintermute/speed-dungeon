@@ -49,7 +49,7 @@ export default function SceneManager() {
 
   return (
     <>
-      <div className="absolute z-50 top-10" ref={debugRef}></div>
+      <div className="absolute z-50 bottom-10 left-10" ref={debugRef}></div>
       <canvas
         ref={canvasRef}
         className="h-full w-full absolute z-[-1] pointer-events-auto"

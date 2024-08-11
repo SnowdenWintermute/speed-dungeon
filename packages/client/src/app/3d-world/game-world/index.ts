@@ -46,8 +46,8 @@ export class GameWorld {
         const fps = `<div>${this.engine.getFps().toFixed()}</div>`;
 
         if (!this.camera) return;
-        const cameraBeta = `<div>camera beta: ${this.camera.beta.toFixed(2)}</div>`;
         const cameraAlpha = `<div>camera alpha: ${this.camera.alpha.toFixed(2)}</div>`;
+        const cameraBeta = `<div>camera beta: ${this.camera.beta.toFixed(2)}</div>`;
         const cameraRadius = `<div>camera radius: ${this.camera.radius.toFixed(2)}</div>`;
         const cameraTarget = `<div>camera target:
           x ${this.camera.target.x.toFixed(2)}, 
@@ -55,8 +55,8 @@ export class GameWorld {
           z ${this.camera.target.z.toFixed(2)}</div>`;
         this.debug.debugRef.current.innerHTML = [
           fps,
-          cameraBeta,
           cameraAlpha,
+          cameraBeta,
           cameraRadius,
           cameraTarget,
         ].join("");

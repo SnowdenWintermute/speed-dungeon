@@ -4,6 +4,7 @@ import {
   ClientToServerEvent,
   CharacterAssociatedData,
   EquipmentSlot,
+  CombatAction,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import { GameServer } from "..";
@@ -73,6 +74,29 @@ export default function initiateGameEventListeners(
   socket.on(ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate, (itemId: string) => {
     this.emitErrorEventIfError(socket, () =>
       this.acknowledgeReceiptOfItemOnGroundHandler(socket.id, itemId)
+    );
+  });
+  socket.on(
+    ClientToServerEvent.SelectCombatAction,
+    (characterId: string, combatAction: null | CombatAction) => {
+      this.emitErrorEventIfError(socket, () =>
+        this.characterActionHandler(
+          socket.id,
+          characterId,
+          (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
+            this.selectCombatActionHandler(combatAction)
+        )
+      );
+    }
+  );
+  socket.on(ClientToServerEvent.UseSelectedCombatAction, (characterId: string) => {
+    this.emitErrorEventIfError(socket, () =>
+      this.characterActionHandler(
+        socket.id,
+        characterId,
+        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
+          this.useSelectedCombatActionHandler(characterAssociatedData)
+      )
     );
   });
 }

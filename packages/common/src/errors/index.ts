@@ -49,6 +49,8 @@ export const ERROR_MESSAGES = {
     NOT_FOUND: "No combatant was found with the provided id",
     NO_ACTION_SELECTED: "That combatant has no selected combat action",
     NO_TARGET_SELECTED: "That combatant has no selected target",
+    IS_DEAD: "Dead combatants may not take any actions",
+    NOT_ACTIVE: "It is not that combatant's turn",
   },
   MONSTERS: {
     NO_MONSTERS_FOUND: "No monsters were found in the current room",
@@ -67,6 +69,7 @@ export const ERROR_MESSAGES = {
     MISSING_HP_CHANGE_PROPERTIES:
       "The provided combat action doesn't specify any Hp change properties",
     NO_TARGET_PROVIDED: "Combat actions must have at least one target",
+    INVALID_USABILITY_CONTEXT: "That action is not allowed in this context",
   },
   ITEM: {
     NOT_FOUND: "No item was found with the provided ID",
