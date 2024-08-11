@@ -1,5 +1,4 @@
 import { ActionButtonCategory, ActionMenuButtonProperties } from "../action-menu-button-properties";
-import { ActionButtonPropertiesByCategory } from "../build-action-button-properties";
 import ChangeTargetButton from "./ChangeTargetButton";
 import NumberedButton from "./NumberedButton";
 import TopButton from "./TopButton";

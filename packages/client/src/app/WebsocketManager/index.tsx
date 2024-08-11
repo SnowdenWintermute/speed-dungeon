@@ -177,6 +177,10 @@ function SocketManager() {
       console.log("GOT TURN RESULTS: ", turnResults);
       //todo
     });
+    socket.on(ServerToClientEvent.RawActionResults, (actionResults) => {
+      console.log("GOT TURN RESULTS: ", actionResults);
+      //todo
+    });
     socket.on(ServerToClientEvent.GameMessage, (message) => {
       gameMessageHandler(mutateGameStore, message);
     });

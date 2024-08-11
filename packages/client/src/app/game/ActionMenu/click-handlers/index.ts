@@ -14,7 +14,6 @@ import cycleCombatActionTargetsHandler from "./cycle-combat-action-targets-handl
 import cycleTargetingSchemeHandler from "./cycle-targeting-scheme-handler";
 import useSelectedCombatActionHandler from "./use-selected-combat-action-handler";
 import dropItemHandler from "./drop-item-handler";
-import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
 import getItemOnGround from "@/utils/getItemOnGround";
 
 export default function createActionButtonClickHandler(
@@ -50,6 +49,7 @@ export default function createActionButtonClickHandler(
       return () =>
         mutateGameState((gameState) => {
           let parentPageOption = gameState.actionMenuParentPageNumbers.pop();
+          console.log("deselect item clicked");
 
           if (typeof parentPageOption === "number")
             gameState.actionMenuCurrentPageNumber = parentPageOption;

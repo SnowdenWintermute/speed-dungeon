@@ -68,14 +68,17 @@ export default function ActionMenu() {
         className={`flex list-none min-w-[25rem] max-w-[25rem]`}
         style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
       >
-        {buttonsByCategory.top.map((button, i) => (
-          <li
-            key={buttonProperties[ActionButtonCategory.Top][i].text + i}
-            style={{ marginRight: `${SPACING_REM}rem` }}
-          >
-            {button}
-          </li>
-        ))}
+        {buttonsByCategory.top.map((button, i) => {
+          const thisButtonProperties = buttonProperties[ActionButtonCategory.Top][i];
+          return (
+            <li
+              key={JSON.stringify(thisButtonProperties.action) + thisButtonProperties.text + i}
+              style={{ marginRight: `${SPACING_REM}rem` }}
+            >
+              {button}
+            </li>
+          );
+        })}
       </ul>
       <div className={`mb-2`} style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}>
         <ul

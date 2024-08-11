@@ -23,6 +23,7 @@ export default function LobbyMenu() {
   }
 
   function quickStartGame() {
+    console.log("quick starting with socket", socketOption);
     socketOption?.emit(ClientToServerEvent.CreateGame, "");
     socketOption?.emit(ClientToServerEvent.CreateParty, "");
     socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Warrior);
@@ -46,7 +47,7 @@ export default function LobbyMenu() {
           <ButtonBasic buttonType="submit" extraStyles="border-l-0">
             Create Game
           </ButtonBasic>
-          <ButtonBasic onClick={quickStartGame} extraStyles=" text-yellow-400 ml-2">
+          <ButtonBasic onClick={quickStartGame} hotkey={"KeyS"} extraStyles=" text-yellow-400 ml-2">
             Quick Start
           </ButtonBasic>
         </form>

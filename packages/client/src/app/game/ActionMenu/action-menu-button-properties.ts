@@ -1,4 +1,5 @@
 import { FocusEventHandler, MouseEventHandler } from "react";
+import { GameAction } from "./game-actions";
 
 export interface ActionMenuButtonProperties {
   text: string;
@@ -10,6 +11,7 @@ export interface ActionMenuButtonProperties {
   shouldBeDisabled: boolean;
   dedicatedKeysOption: null | GameKey[];
   category: ActionButtonCategory;
+  action: GameAction;
 }
 
 export enum ActionButtonCategory {
