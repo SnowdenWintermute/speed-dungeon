@@ -3,42 +3,32 @@ import {
   NextToBabylonMessageTypes,
 } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import { GameWorld } from ".";
-import {
-  CHARACTER_PARTS,
-  MONSTER_FULL_SKINS,
-  ModularCharacterPartCategory,
-} from "../combatant-models/modular-character-parts";
+import handleSpawnCombatantModelMessage from "./spawn-combatant-model";
+import { ERROR_MESSAGES } from "@speed-dungeon/common";
 
 export default function handleMessageFromNext(this: GameWorld, message: NextToBabylonMessage) {
   switch (message.type) {
     case NextToBabylonMessageTypes.SpawnCombatantModel:
-      const parts = [];
-      if (message.combatant.monsterType !== null) {
-        parts.push({
-          category: ModularCharacterPartCategory.Full,
-          assetPath: MONSTER_FULL_SKINS[message.combatant.monsterType] || "",
-        });
-      } else {
-        // is humanoid
-        let headPath =
-          CHARACTER_PARTS[message.combatant.class][ModularCharacterPartCategory.Head] || "";
-        let torsoPath =
-          CHARACTER_PARTS[message.combatant.class][ModularCharacterPartCategory.Torso] || "";
-        let legsPath =
-          CHARACTER_PARTS[message.combatant.class][ModularCharacterPartCategory.Legs] || "";
-        parts.push({ category: ModularCharacterPartCategory.Head, assetPath: headPath });
-        parts.push({ category: ModularCharacterPartCategory.Torso, assetPath: torsoPath });
-        parts.push({ category: ModularCharacterPartCategory.Legs, assetPath: legsPath });
-      }
-
-      this.spawnCharacterModel(
-        message.combatant.species,
-        parts,
-        message.combatant.startPosition,
-        message.combatant.startRotation
-      );
+      handleSpawnCombatantModelMessage(this, message.combatantModelBlueprint);
       break;
     case NextToBabylonMessageTypes.RemoveCombatantModel:
+      break;
+    case NextToBabylonMessageTypes.NewTurnResults:
+      // hold them and check each frame if we are ready to process a new turn
+      // because we may get multiple turn results at once but only want to play
+      // them one at a time
+      this.turnResultsQueue.push(...message.turnResults);
+      break;
+    case NextToBabylonMessageTypes.NewActionResults:
+      // give the action results directly to the corresponding models' queues
+      // because these are "instant" actions like using a consumable out of combat
+      // and we don't mind playing multiple character's actions at the same time
+      for (const actionResult of message.actionResults) {
+        const combatantModelOption = this.combatantModels[actionResult.userId];
+        if (combatantModelOption === undefined)
+          return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+        combatantModelOption.actionResultsProcessing.push(...message.actionResults);
+      }
       break;
   }
 }

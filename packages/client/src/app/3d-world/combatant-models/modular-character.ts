@@ -7,6 +7,8 @@ import {
 } from "../utils";
 import { ModularCharacterPartCategory } from "./modular-character-parts";
 import { GameWorld } from "../game-world";
+import { ActionResult } from "@speed-dungeon/common";
+import { CombatantModelAction, CombatantModelActionProgressTracker } from "./model-actions";
 
 export class ModularCharacter {
   skeleton: ISceneLoaderAsyncResult;
@@ -17,11 +19,26 @@ export class ModularCharacter {
     [ModularCharacterPartCategory.Full]: null,
   };
   world: GameWorld;
-  constructor(world: GameWorld, skeleton: ISceneLoaderAsyncResult) {
+  actionResultsProcessing: ActionResult[] = [];
+  modelActionQueue: CombatantModelAction[] = [];
+  activeModelActions: Partial<Record<CombatantModelAction, CombatantModelActionProgressTracker>> =
+    {};
+  hitboxRadius: number = 0.5;
+  homeLocation: Vector3;
+  constructor(
+    world: GameWorld,
+    skeleton: ISceneLoaderAsyncResult,
+    startPosition: Vector3 = Vector3.Zero(),
+    startRotation: number = 0
+  ) {
     this.world = world;
 
     this.skeleton = skeleton;
+    skeleton.meshes[0].rotate(Vector3.Up(), Math.PI / 2 + startRotation);
+    skeleton.meshes[0].position = startPosition;
     while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
+
+    this.homeLocation = skeleton.transformNodes[0].position;
 
     skeleton.animationGroups[0].stop();
     this.getAnimationGroupByName("Idle")?.start(true);

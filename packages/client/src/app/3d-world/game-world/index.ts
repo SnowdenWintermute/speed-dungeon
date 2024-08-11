@@ -15,11 +15,12 @@ import {
   SKELETONS,
 } from "../combatant-models/modular-character-parts";
 import { initScene } from "./init-scene";
-import { CombatantSpecies } from "@speed-dungeon/common";
+import { CombatTurnResult, CombatantSpecies } from "@speed-dungeon/common";
 import handleMessageFromNext from "./handle-message-from-next";
 import { NextToBabylonMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import { MutateState } from "@/stores/mutate-state";
 import { GameState } from "@/stores/game-store";
+import showDebugText from "./show-debug-text";
 
 export class GameWorld {
   scene: Scene;
@@ -31,6 +32,8 @@ export class GameWorld {
   mouse: Vector3 = new Vector3(0, 1, 0);
   debug: { debugRef: React.RefObject<HTMLDivElement> | null } = { debugRef: null };
   useShadows: boolean = false;
+  combatantModels: { [entityId: string]: ModularCharacter } = {};
+  turnResultsQueue: CombatTurnResult[] = [];
   constructor(
     canvas: HTMLCanvasElement,
     mutateGameState: MutateState<GameState>,
@@ -42,35 +45,27 @@ export class GameWorld {
     [this.camera, this.shadowGenerator] = this.initScene();
 
     this.engine.runRenderLoop(() => {
-      if (this.debug.debugRef?.current) {
-        const fps = `<div>${this.engine.getFps().toFixed()}</div>`;
-
-        if (!this.camera) return;
-        const cameraAlpha = `<div>camera alpha: ${this.camera.alpha.toFixed(2)}</div>`;
-        const cameraBeta = `<div>camera beta: ${this.camera.beta.toFixed(2)}</div>`;
-        const cameraRadius = `<div>camera radius: ${this.camera.radius.toFixed(2)}</div>`;
-        const cameraTarget = `<div>camera target:
-          x ${this.camera.target.x.toFixed(2)}, 
-          y ${this.camera.target.y.toFixed(2)}, 
-          z ${this.camera.target.z.toFixed(2)}</div>`;
-        this.debug.debugRef.current.innerHTML = [
-          fps,
-          cameraAlpha,
-          cameraBeta,
-          cameraRadius,
-          cameraTarget,
-        ].join("");
-      }
+      this.showDebugText();
       while (this.messages.length > 0) {
         const message = this.messages.pop();
-        if (message !== undefined) this.handleMessageFromNext(message);
+        if (message !== undefined) {
+          const maybeError = this.handleMessageFromNext(message);
+          if (maybeError instanceof Error) {
+            console.error(maybeError.message);
+            this.engine.stopRenderLoop();
+          }
+        }
       }
+      // EACH COMBATANT MODEL:
+      // start new model actions or return to idle
+      // process active model actions
       this.scene.render();
     });
   }
 
   initScene = initScene;
   handleMessageFromNext = handleMessageFromNext;
+  showDebugText = showDebugText;
 
   async importMesh(path: string) {
     const sceneResult = await SceneLoader.ImportMeshAsync("", BASE_FILE_PATH, path, this.scene);
@@ -80,22 +75,23 @@ export class GameWorld {
   }
 
   async spawnCharacterModel(
+    this: GameWorld,
+    entityId: string,
     combatantSpecies: CombatantSpecies,
     parts: ModularCharacterPart[],
-    startPosition: Vector3 = new Vector3(0, 0, 0),
-    startRotation: number = 0
+    startPosition?: Vector3,
+    startRotation?: number
   ): Promise<ModularCharacter> {
     const skeleton = await this.importMesh(SKELETONS[combatantSpecies]!);
-    skeleton.meshes[0].rotate(Vector3.Up(), Math.PI / 2 + startRotation);
-    skeleton.meshes[0].position = startPosition;
-
-    const modularCharacter = new ModularCharacter(this, skeleton);
+    const modularCharacter = new ModularCharacter(this, skeleton, startPosition, startRotation);
 
     for (const part of parts) {
       await modularCharacter.attachPart(part.category, part.assetPath);
     }
 
     if (combatantSpecies === CombatantSpecies.Humanoid) await modularCharacter.equipWeapon("");
+
+    this.combatantModels[entityId] = modularCharacter;
 
     return modularCharacter;
   }

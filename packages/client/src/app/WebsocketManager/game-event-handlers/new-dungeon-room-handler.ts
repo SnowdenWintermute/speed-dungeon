@@ -8,7 +8,6 @@ import getCurrentParty from "@/utils/getCurrentParty";
 import {
   COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
   COMBATANT_POSITION_SPACING_SIDE,
-  CombatantSpecies,
   DungeonRoom,
   ERROR_MESSAGES,
 } from "@speed-dungeon/common";
@@ -42,7 +41,7 @@ export default function newDungeonRoomHandler(
       )) {
         state.nextToBabylonMessages.push({
           type: NextToBabylonMessageTypes.SpawnCombatantModel,
-          combatant: {
+          combatantModelBlueprint: {
             entityId: monster.entityProperties.id,
             species: monster.combatantProperties.combatantSpecies,
             monsterType: monster.monsterType,

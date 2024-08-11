@@ -88,6 +88,9 @@ export const ERROR_MESSAGES = {
     COMBATANT_NOT_IN_BATTLE: "The provided ID did not match any combatant in this battle",
     TURN_TRACKERS_EMPTY: "Battle has no combatant turn trackers",
   },
+  GAME_WORLD: {
+    NO_COMBATANT_MODEL: "No combatant model exists with the provided entity id",
+  },
   CHECKED_EXPECTATION_FAILED:
     "Code was reached that should have been impossible due to prior value checks",
 };

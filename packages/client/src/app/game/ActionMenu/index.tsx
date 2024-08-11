@@ -70,6 +70,8 @@ export default function ActionMenu() {
       >
         {buttonsByCategory.top.map((button, i) => {
           const thisButtonProperties = buttonProperties[ActionButtonCategory.Top][i];
+          // the key for this li is like that because just switching based on text won't update
+          // when two different actions with "cancel" text are switched
           return (
             <li
               key={JSON.stringify(thisButtonProperties.action) + thisButtonProperties.text + i}

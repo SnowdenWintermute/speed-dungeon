@@ -31,6 +31,7 @@ import characterEquippedItemHandler from "./game-event-handlers/character-equipp
 import characterPickedUpItemHandler from "./game-event-handlers/character-picked-up-item-handler";
 import gameStartedHandler from "./game-event-handlers/game-started-handler";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
+import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -170,16 +171,23 @@ function SocketManager() {
       );
     });
     socket.on(ServerToClientEvent.BattleFullUpdate, (battleOption) => {
-      console.log("battle full update");
       battleFullUpdateHandler(mutateGameStore, mutateAlertStore, battleOption);
     });
     socket.on(ServerToClientEvent.TurnResults, (turnResults) => {
-      console.log("GOT TURN RESULTS: ", turnResults);
-      //todo
+      mutateNextBabylonMessagingStore((state) => {
+        state.nextToBabylonMessages.push({
+          type: NextToBabylonMessageTypes.NewTurnResults,
+          turnResults,
+        });
+      });
     });
     socket.on(ServerToClientEvent.RawActionResults, (actionResults) => {
-      console.log("GOT TURN RESULTS: ", actionResults);
-      //todo
+      mutateNextBabylonMessagingStore((state) => {
+        state.nextToBabylonMessages.push({
+          type: NextToBabylonMessageTypes.NewActionResults,
+          actionResults,
+        });
+      });
     });
     socket.on(ServerToClientEvent.GameMessage, (message) => {
       gameMessageHandler(mutateGameStore, message);

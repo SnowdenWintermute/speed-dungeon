@@ -31,7 +31,7 @@ export default function gameStartedHandler(
 
         state.nextToBabylonMessages.push({
           type: NextToBabylonMessageTypes.SpawnCombatantModel,
-          combatant: {
+          combatantModelBlueprint: {
             entityId: character.entityProperties.id,
             species: CombatantSpecies.Humanoid,
             monsterType: null,

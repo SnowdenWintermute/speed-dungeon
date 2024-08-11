@@ -24,7 +24,6 @@ export default function battleFullUpdateHandler(
       const party = partyOption;
       party.battleId = battle.id;
       game.battles[battle.id] = battle;
-      console.log(party.battleId, "<- party battle id");
     } else game.battles = {};
   });
 }
