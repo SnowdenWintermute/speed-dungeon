@@ -83,8 +83,8 @@ export default function initiateGameEventListeners(
         this.characterActionHandler(
           socket.id,
           characterId,
-          (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-            this.selectCombatActionHandler(combatAction)
+          (socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
+            this.selectCombatActionHandler(socketMeta, characterAssociatedData, combatAction)
         )
       );
     }

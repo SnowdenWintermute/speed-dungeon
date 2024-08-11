@@ -21,7 +21,7 @@ export default function assignCharacterActionTargets(
   const party = partyResult;
   const character = characterResult;
 
-  if (!combatActionPropertiesOption) {
+  if (combatActionPropertiesOption === null) {
     character.combatantProperties.combatActionTarget = null;
     return null;
   }
@@ -38,7 +38,7 @@ export default function assignCharacterActionTargets(
   const [allyIdsOption, opponentIdsOption] = filteredTargetIdsResult;
 
   const playerOption = game.players[username];
-  if (!playerOption) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+  if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
   const player = playerOption;
   const targetPreferences = playerOption.targetPreferences;
 

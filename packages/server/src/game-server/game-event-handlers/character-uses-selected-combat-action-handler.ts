@@ -21,7 +21,6 @@ export default function useSelectedCombatActionHandler(
   const actionResultsForClient: ActionResult[] = [];
 
   const { selectedCombatAction } = character.combatantProperties;
-  console.log("selectedCombatAction: ", selectedCombatAction);
   if (selectedCombatAction === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
 
   let partyWipesResult: Error | { alliesDefeated: boolean; opponentsDefeated: boolean } = new Error(
@@ -58,10 +57,11 @@ export default function useSelectedCombatActionHandler(
   if (partyWipesResult instanceof Error) return partyWipesResult;
 
   // check if action ended turn
-  const actionsEndedTurn = actionResults.reduce(
-    (accumulator, actionResult) => (actionResult.endsTurn ? true : accumulator),
-    false
-  );
+  let actionsEndedTurn = false;
+  actionResults.forEach((actionResult) => {
+    if (actionResult.endsTurn) actionsEndedTurn = true;
+  });
+
   if (actionsEndedTurn) {
     const turns: CombatTurnResult[] = [];
     turns.push({ combatantId: character.entityProperties.id, actionResults });
@@ -73,6 +73,7 @@ export default function useSelectedCombatActionHandler(
       // only end turn if still alive; dead combatants already have their turn trackers
       // removed
       if (character.combatantProperties.hitPoints > 0) {
+        console.log("ending turn");
         const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, battleOption);
         if (maybeError instanceof Error) return maybeError;
       }

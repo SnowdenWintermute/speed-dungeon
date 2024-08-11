@@ -16,7 +16,7 @@ export default function endActiveCombatantTurn(
   const activeCombatantTurnTracker = activeCombatantTurnTrackerOption;
   activeCombatantTurnTracker.movement -= REQUIRED_MOVEMENT_TO_MOVE;
 
-  battle.turnTrackers.sort((a, b) => a.movement - b.movement);
+  battle.turnTrackers = battle.turnTrackers.sort((a, b) => b.movement - a.movement);
 
   const newActiveCombatantTrackerOption = battle.turnTrackers[0];
   if (!newActiveCombatantTrackerOption) return new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);

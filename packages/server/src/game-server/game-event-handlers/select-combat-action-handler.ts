@@ -5,7 +5,6 @@ import {
   CombatantProperties,
   ServerToClientEvent,
   SpeedDungeonGame,
-  getCombatActionPropertiesIfOwned,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { BrowserTabSession } from "../socket-connection-metadata";
@@ -25,6 +24,7 @@ export default function selectCombatActionHandler(
       combatActionOption
     );
     if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
+    combatActionPropertiesOption = combatActionPropertiesResult;
   }
 
   const newTargetsResult = SpeedDungeonGame.assignCharacterActionTargets(
@@ -33,6 +33,7 @@ export default function selectCombatActionHandler(
     browserTabSession.username,
     combatActionPropertiesOption
   );
+
   if (newTargetsResult instanceof Error) return newTargetsResult;
 
   character.combatantProperties.selectedCombatAction = combatActionOption;

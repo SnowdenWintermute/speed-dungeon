@@ -15,7 +15,7 @@ export function tickCombatUntilNextCombatantIsActive(game: SpeedDungeonGame, bat
   if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
   const battle = battleOption;
 
-  battle.turnTrackers.sort((a, b) => a.movement - b.movement);
+  battle.turnTrackers = battle.turnTrackers.sort((a, b) => b.movement - a.movement);
   let activeCombatantTurnTracker = battle.turnTrackers[0];
   if (!activeCombatantTurnTracker) return new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
 
@@ -34,7 +34,7 @@ export function tickCombatUntilNextCombatantIsActive(game: SpeedDungeonGame, bat
       tracker.movement += movementToAdd;
     }
 
-    battle.turnTrackers.sort((a, b) => a.movement - b.movement);
+    battle.turnTrackers = battle.turnTrackers.sort((a, b) => b.movement - a.movement);
     activeCombatantTurnTracker = battle.turnTrackers[0];
     if (!activeCombatantTurnTracker) return new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
   }
