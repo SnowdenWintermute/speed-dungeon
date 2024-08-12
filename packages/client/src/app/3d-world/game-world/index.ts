@@ -22,12 +22,10 @@ import { MutateState } from "@/stores/mutate-state";
 import { GameState } from "@/stores/game-store";
 import showDebugText from "./show-debug-text";
 import processMessagesFromNext from "./process-messages-from-next";
-import startNewModelActionsFromActionResults from "./start-new-model-actions-from-action-results";
 
 export class GameWorld {
   scene: Scene;
   engine: Engine;
-  characterAnimations: AnimationGroup[] = [];
   camera: ArcRotateCamera | null = null;
   shadowGenerator: null | ShadowGenerator = null;
   messages: NextToBabylonMessage[] = [];
@@ -51,9 +49,11 @@ export class GameWorld {
       this.processMessagesFromNext();
       for (const combatantModel of Object.values(this.combatantModels)) {
         // start model actions from action results
-        combatantModel.startNewModelActionsFromActionResults();
-        // process active model actions
+        combatantModel.enqueueNewModelActionsFromActionResults(this);
         // start new model actions or return to idle
+        combatantModel.startNewModelActions();
+        // process active model actions
+        combatantModel.processActiveModelActions(this, mutateGameState);
         // process floating text
       }
       //
@@ -67,7 +67,6 @@ export class GameWorld {
   handleMessageFromNext = handleMessageFromNext;
   showDebugText = showDebugText;
   processMessagesFromNext = processMessagesFromNext;
-  startNewModelActionsFromActionResults = startNewModelActionsFromActionResults;
 
   async importMesh(path: string) {
     const sceneResult = await SceneLoader.ImportMeshAsync("", BASE_FILE_PATH, path, this.scene);

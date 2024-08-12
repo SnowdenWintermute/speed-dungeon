@@ -1,5 +1,5 @@
 import { ActionResult } from "@speed-dungeon/common";
-import { Vector3 } from "babylonjs";
+import { Quaternion, Vector3 } from "babylonjs";
 
 export enum CombatantModelActionType {
   ApproachDestination,
@@ -22,7 +22,9 @@ export class CombatantModelActionProgressTracker {
 type ApproachDestinationModelAction = {
   type: CombatantModelActionType.ApproachDestination;
   previousLocation: Vector3;
-  destination: Vector3;
+  previousRotation: Quaternion;
+  destinationLocation: Vector3;
+  destinationRotation: Quaternion;
 };
 
 type ReturnHomeModelAction = {

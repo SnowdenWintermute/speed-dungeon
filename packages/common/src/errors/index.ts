@@ -91,6 +91,7 @@ export const ERROR_MESSAGES = {
   GAME_WORLD: {
     NO_COMBATANT_MODEL: "No combatant model exists with the provided entity id",
     INCOMPLETE_SKELETON_FILE: "The loaded skeleton asset is missing something",
+    MISSING_ROTATION_QUATERNION: "Expected rotation data was missing",
   },
   CHECKED_EXPECTATION_FAILED:
     "Code was reached that should have been impossible due to prior value checks",

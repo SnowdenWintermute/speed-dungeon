@@ -1,4 +1,4 @@
-import { Color4, ISceneLoaderAsyncResult, Vector3 } from "babylonjs";
+import { AbstractMesh, Color4, ISceneLoaderAsyncResult, Quaternion, Vector3 } from "babylonjs";
 import {
   disposeAsyncLoadedScene,
   getChildMeshByName,
@@ -14,9 +14,12 @@ import {
   CombatantModelActionType,
 } from "./model-actions";
 import enqueueNewModelActionsFromActionResults from "../game-world/enqueue-new-model-actions-from-action-results";
+import processActiveModelActions from "../game-world/process-active-model-actions";
+import startNewModelActions from "./start-new-model-actions";
 
 export class ModularCharacter {
   skeleton: ISceneLoaderAsyncResult;
+  rootMesh: AbstractMesh;
   parts: Record<ModularCharacterPartCategory, null | ISceneLoaderAsyncResult> = {
     [ModularCharacterPartCategory.Head]: null,
     [ModularCharacterPartCategory.Torso]: null,
@@ -32,7 +35,7 @@ export class ModularCharacter {
   hitboxRadius: number = 0.5;
   homeLocation: {
     position: Vector3;
-    rotation: number;
+    rotation: Quaternion;
   };
   constructor(
     world: GameWorld,
@@ -44,14 +47,15 @@ export class ModularCharacter {
 
     this.skeleton = skeleton;
     const rootMesh = skeleton.meshes[0];
-    const rootTransformNode = skeleton.transformNodes[0];
-    if (rootMesh === undefined || rootTransformNode === undefined)
-      throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
-    rootMesh.rotate(Vector3.Up(), Math.PI / 2 + startRotation);
-    rootMesh.position = startPosition;
+    if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
+    this.rootMesh = rootMesh;
+    this.rootMesh.rotate(Vector3.Up(), Math.PI / 2 + startRotation);
+    this.rootMesh.position = startPosition;
     while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
 
-    this.homeLocation = { position: rootTransformNode.position, rotation: rootMesh.rotation.y };
+    const rotation = rootMesh.rotationQuaternion;
+    if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
+    this.homeLocation = { position: this.rootMesh.position, rotation };
 
     skeleton.animationGroups[0]?.stop();
     this.getAnimationGroupByName("Idle")?.start(true);
@@ -60,6 +64,8 @@ export class ModularCharacter {
   }
 
   enqueueNewModelActionsFromActionResults = enqueueNewModelActionsFromActionResults;
+  startNewModelActions = startNewModelActions;
+  processActiveModelActions = processActiveModelActions;
 
   async attachPart(partCategory: ModularCharacterPartCategory, partPath: string) {
     const part = await this.world.importMesh(partPath);
