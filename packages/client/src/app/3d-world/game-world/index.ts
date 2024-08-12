@@ -21,6 +21,8 @@ import { NextToBabylonMessage } from "@/stores/next-babylon-messaging-store/next
 import { MutateState } from "@/stores/mutate-state";
 import { GameState } from "@/stores/game-store";
 import showDebugText from "./show-debug-text";
+import processMessagesFromNext from "./process-messages-from-next";
+import startNewModelActionsFromActionResults from "./start-new-model-actions-from-action-results";
 
 export class GameWorld {
   scene: Scene;
@@ -46,19 +48,17 @@ export class GameWorld {
 
     this.engine.runRenderLoop(() => {
       this.showDebugText();
-      while (this.messages.length > 0) {
-        const message = this.messages.pop();
-        if (message !== undefined) {
-          const maybeError = this.handleMessageFromNext(message);
-          if (maybeError instanceof Error) {
-            console.error(maybeError.message);
-            this.engine.stopRenderLoop();
-          }
-        }
+      this.processMessagesFromNext();
+      for (const combatantModel of Object.values(this.combatantModels)) {
+        // start model actions from action results
+        combatantModel.startNewModelActionsFromActionResults();
+        // process active model actions
+        // start new model actions or return to idle
+        // process floating text
       }
-      // EACH COMBATANT MODEL:
-      // start new model actions or return to idle
-      // process active model actions
+      //
+      // if no active model actions and turn results remain
+      // send the actionResults to combatant models
       this.scene.render();
     });
   }
@@ -66,6 +66,8 @@ export class GameWorld {
   initScene = initScene;
   handleMessageFromNext = handleMessageFromNext;
   showDebugText = showDebugText;
+  processMessagesFromNext = processMessagesFromNext;
+  startNewModelActionsFromActionResults = startNewModelActionsFromActionResults;
 
   async importMesh(path: string) {
     const sceneResult = await SceneLoader.ImportMeshAsync("", BASE_FILE_PATH, path, this.scene);

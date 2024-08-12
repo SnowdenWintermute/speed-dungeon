@@ -7,8 +7,13 @@ import {
 } from "../utils";
 import { ModularCharacterPartCategory } from "./modular-character-parts";
 import { GameWorld } from "../game-world";
-import { ActionResult } from "@speed-dungeon/common";
-import { CombatantModelAction, CombatantModelActionProgressTracker } from "./model-actions";
+import { ActionResult, ERROR_MESSAGES } from "@speed-dungeon/common";
+import {
+  CombatantModelAction,
+  CombatantModelActionProgressTracker,
+  CombatantModelActionType,
+} from "./model-actions";
+import enqueueNewModelActionsFromActionResults from "../game-world/enqueue-new-model-actions-from-action-results";
 
 export class ModularCharacter {
   skeleton: ISceneLoaderAsyncResult;
@@ -19,12 +24,16 @@ export class ModularCharacter {
     [ModularCharacterPartCategory.Full]: null,
   };
   world: GameWorld;
-  actionResultsProcessing: ActionResult[] = [];
+  actionResultsQueue: ActionResult[] = [];
   modelActionQueue: CombatantModelAction[] = [];
-  activeModelActions: Partial<Record<CombatantModelAction, CombatantModelActionProgressTracker>> =
-    {};
+  activeModelActions: Partial<
+    Record<CombatantModelActionType, CombatantModelActionProgressTracker>
+  > = {};
   hitboxRadius: number = 0.5;
-  homeLocation: Vector3;
+  homeLocation: {
+    position: Vector3;
+    rotation: number;
+  };
   constructor(
     world: GameWorld,
     skeleton: ISceneLoaderAsyncResult,
@@ -34,21 +43,29 @@ export class ModularCharacter {
     this.world = world;
 
     this.skeleton = skeleton;
-    skeleton.meshes[0].rotate(Vector3.Up(), Math.PI / 2 + startRotation);
-    skeleton.meshes[0].position = startPosition;
+    const rootMesh = skeleton.meshes[0];
+    const rootTransformNode = skeleton.transformNodes[0];
+    if (rootMesh === undefined || rootTransformNode === undefined)
+      throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
+    rootMesh.rotate(Vector3.Up(), Math.PI / 2 + startRotation);
+    rootMesh.position = startPosition;
     while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
 
-    this.homeLocation = skeleton.transformNodes[0].position;
+    this.homeLocation = { position: rootTransformNode.position, rotation: rootMesh.rotation.y };
 
-    skeleton.animationGroups[0].stop();
+    skeleton.animationGroups[0]?.stop();
     this.getAnimationGroupByName("Idle")?.start(true);
 
     // this.setShowBones();
   }
 
+  enqueueNewModelActionsFromActionResults = enqueueNewModelActionsFromActionResults;
+
   async attachPart(partCategory: ModularCharacterPartCategory, partPath: string) {
     const part = await this.world.importMesh(partPath);
     const parent = getTransformNodeByName(this.skeleton, "CharacterArmature");
+    if (!this.skeleton.skeletons[0])
+      return new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
 
     for (const mesh of part.meshes) {
       if (!mesh.skeleton) continue;
@@ -66,11 +83,13 @@ export class ModularCharacter {
 
   async equipWeapon(_partPath: string) {
     const weapon = await this.world.importMesh("sword.glb");
-    weapon.meshes[0].translate(Vector3.Up(), 0.1);
-    weapon.meshes[0].translate(Vector3.Forward(), -0.05);
-    weapon.meshes[0].rotate(Vector3.Backward(), Math.PI / 2);
-    const equipmentBone = getChildMeshByName(this.skeleton.meshes[0], "Wrist.R");
-    if (equipmentBone) weapon.meshes[0].parent = equipmentBone;
+    weapon.meshes[0]?.translate(Vector3.Up(), 0.1);
+    weapon.meshes[0]?.translate(Vector3.Forward(), -0.05);
+    weapon.meshes[0]?.rotate(Vector3.Backward(), Math.PI / 2);
+    const equipmentBone = this.skeleton.meshes[0]
+      ? getChildMeshByName(this.skeleton.meshes[0], "Wrist.R")
+      : undefined;
+    if (equipmentBone && weapon.meshes[0]) weapon.meshes[0].parent = equipmentBone;
   }
 
   removePart(partCategory: ModularCharacterPartCategory) {
@@ -81,6 +100,7 @@ export class ModularCharacter {
   setShowBones() {
     const cubeSize = 0.02;
     const red = new Color4(255, 0, 0, 1.0);
+    if (!this.skeleton.meshes[0]) return;
     const skeletonRootBone = getChildMeshByName(this.skeleton.meshes[0], "Root");
     if (skeletonRootBone !== undefined)
       paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.world.scene);
@@ -88,7 +108,8 @@ export class ModularCharacter {
 
   getAnimationGroupByName(name: string) {
     for (let index = 0; index < this.skeleton.animationGroups.length; index++) {
-      if (this.skeleton.animationGroups[index].name === name) {
+      if (!this.skeleton.animationGroups[index]) continue;
+      if (this.skeleton.animationGroups[index]!.name === name) {
         return this.skeleton.animationGroups[index];
       }
     }

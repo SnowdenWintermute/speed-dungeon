@@ -90,6 +90,7 @@ export const ERROR_MESSAGES = {
   },
   GAME_WORLD: {
     NO_COMBATANT_MODEL: "No combatant model exists with the provided entity id",
+    INCOMPLETE_SKELETON_FILE: "The loaded skeleton asset is missing something",
   },
   CHECKED_EXPECTATION_FAILED:
     "Code was reached that should have been impossible due to prior value checks",

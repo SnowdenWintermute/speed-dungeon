@@ -27,7 +27,7 @@ export default function handleMessageFromNext(this: GameWorld, message: NextToBa
         const combatantModelOption = this.combatantModels[actionResult.userId];
         if (combatantModelOption === undefined)
           return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-        combatantModelOption.actionResultsProcessing.push(...message.actionResults);
+        combatantModelOption.actionResultsQueue.push(...message.actionResults);
       }
       break;
   }
