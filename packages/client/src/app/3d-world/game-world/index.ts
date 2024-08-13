@@ -1,12 +1,4 @@
-import {
-  Scene,
-  Engine,
-  Vector3,
-  ArcRotateCamera,
-  SceneLoader,
-  AnimationGroup,
-  ShadowGenerator,
-} from "babylonjs";
+import { Scene, Engine, Vector3, ArcRotateCamera, SceneLoader, ShadowGenerator } from "babylonjs";
 import "babylonjs-loaders";
 import { ModularCharacter } from "../combatant-models/modular-character";
 import {
@@ -55,6 +47,9 @@ export class GameWorld {
         // process active model actions
         combatantModel.processActiveModelActions(this, mutateGameState);
         // process floating text
+        //
+        // //test
+        combatantModel.animationManager.stepAnimationTransitionWeights();
       }
       //
       // if no active model actions and turn results remain

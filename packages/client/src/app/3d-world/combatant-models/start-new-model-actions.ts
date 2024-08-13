@@ -29,11 +29,22 @@ export default function startNewModelActions(
         isRepeatingAnimation = false;
     }
 
-    const animationName = getModelActionAnimationName(
+    const animationNameResult = getModelActionAnimationName(
       newModelAction,
       this.entityId,
       mutateGameState
     );
+
+    if (animationNameResult instanceof Error) return animationNameResult;
+    const animationGroup = this.getAnimationGroupByName(animationNameResult || "");
+
+    if (animationGroup !== undefined) {
+      // start the animation with transition duration
+      // based on ????
+      // animationGroup.setWeightForAllAnimatables()
+    } else {
+      // show "missing animation: animation name" text
+    }
     //
   } else if (!this.modelActionQueue[CombatantModelActionType.Idle]) {
     // start idling if not already doing so

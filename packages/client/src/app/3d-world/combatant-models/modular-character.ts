@@ -14,8 +14,9 @@ import {
   CombatantModelActionType,
 } from "./model-actions";
 import enqueueNewModelActionsFromActionResults from "../game-world/enqueue-new-model-actions-from-action-results";
-import processActiveModelActions from "../game-world/process-active-model-actions";
 import startNewModelActions from "./start-new-model-actions";
+import processActiveModelActions from "./process-active-model-actions";
+import { AnimationManager } from "./animation-manager";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -35,6 +36,7 @@ export class ModularCharacter {
     position: Vector3;
     rotation: Quaternion;
   };
+  animationManager: AnimationManager;
   constructor(
     public entityId: string,
     public world: GameWorld,
@@ -42,6 +44,7 @@ export class ModularCharacter {
     startPosition: Vector3 = Vector3.Zero(),
     startRotation: number = 0
   ) {
+    this.animationManager = new AnimationManager(this.skeleton);
     const rootMesh = skeleton.meshes[0];
     if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
     this.rootMesh = rootMesh;
@@ -52,9 +55,6 @@ export class ModularCharacter {
     const rotation = rootMesh.rotationQuaternion;
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
     this.homeLocation = { position: this.rootMesh.position, rotation };
-
-    skeleton.animationGroups[0]?.stop();
-    this.getAnimationGroupByName("Idle")?.start(true);
 
     // this.setShowBones();
   }
@@ -106,14 +106,5 @@ export class ModularCharacter {
     const skeletonRootBone = getChildMeshByName(this.skeleton.meshes[0], "Root");
     if (skeletonRootBone !== undefined)
       paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.world.scene);
-  }
-
-  getAnimationGroupByName(name: string) {
-    for (let index = 0; index < this.skeleton.animationGroups.length; index++) {
-      if (!this.skeleton.animationGroups[index]) continue;
-      if (this.skeleton.animationGroups[index]!.name === name) {
-        return this.skeleton.animationGroups[index];
-      }
-    }
   }
 }
