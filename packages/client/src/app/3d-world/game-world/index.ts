@@ -51,7 +51,7 @@ export class GameWorld {
         // start model actions from action results
         combatantModel.enqueueNewModelActionsFromActionResults(this);
         // start new model actions or return to idle
-        combatantModel.startNewModelActions();
+        combatantModel.startNewModelActions(mutateGameState);
         // process active model actions
         combatantModel.processActiveModelActions(this, mutateGameState);
         // process floating text
@@ -84,7 +84,13 @@ export class GameWorld {
     startRotation?: number
   ): Promise<ModularCharacter> {
     const skeleton = await this.importMesh(SKELETONS[combatantSpecies]!);
-    const modularCharacter = new ModularCharacter(this, skeleton, startPosition, startRotation);
+    const modularCharacter = new ModularCharacter(
+      entityId,
+      this,
+      skeleton,
+      startPosition,
+      startRotation
+    );
 
     for (const part of parts) {
       await modularCharacter.attachPart(part.category, part.assetPath);

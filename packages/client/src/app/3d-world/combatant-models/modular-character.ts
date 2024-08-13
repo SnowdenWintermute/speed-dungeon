@@ -18,7 +18,6 @@ import processActiveModelActions from "../game-world/process-active-model-action
 import startNewModelActions from "./start-new-model-actions";
 
 export class ModularCharacter {
-  skeleton: ISceneLoaderAsyncResult;
   rootMesh: AbstractMesh;
   parts: Record<ModularCharacterPartCategory, null | ISceneLoaderAsyncResult> = {
     [ModularCharacterPartCategory.Head]: null,
@@ -26,7 +25,6 @@ export class ModularCharacter {
     [ModularCharacterPartCategory.Legs]: null,
     [ModularCharacterPartCategory.Full]: null,
   };
-  world: GameWorld;
   actionResultsQueue: ActionResult[] = [];
   modelActionQueue: CombatantModelAction[] = [];
   activeModelActions: Partial<
@@ -38,14 +36,12 @@ export class ModularCharacter {
     rotation: Quaternion;
   };
   constructor(
-    world: GameWorld,
-    skeleton: ISceneLoaderAsyncResult,
+    public entityId: string,
+    public world: GameWorld,
+    public skeleton: ISceneLoaderAsyncResult,
     startPosition: Vector3 = Vector3.Zero(),
     startRotation: number = 0
   ) {
-    this.world = world;
-
-    this.skeleton = skeleton;
     const rootMesh = skeleton.meshes[0];
     if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
     this.rootMesh = rootMesh;
