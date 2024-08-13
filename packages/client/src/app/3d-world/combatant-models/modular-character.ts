@@ -1,4 +1,12 @@
-import { AbstractMesh, Color4, ISceneLoaderAsyncResult, Quaternion, Vector3 } from "babylonjs";
+import {
+  AbstractMesh,
+  BoundingInfo,
+  Color4,
+  ISceneLoaderAsyncResult,
+  Mesh,
+  Quaternion,
+  Vector3,
+} from "babylonjs";
 import {
   disposeAsyncLoadedScene,
   getChildMeshByName,
@@ -48,6 +56,7 @@ export class ModularCharacter {
     const rootMesh = skeleton.meshes[0];
     if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
     this.rootMesh = rootMesh;
+    this.rootMesh.showBoundingBox = true;
     this.rootMesh.rotate(Vector3.Up(), Math.PI / 2 + startRotation);
     this.rootMesh.position = startPosition;
     while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
@@ -70,6 +79,16 @@ export class ModularCharacter {
       return new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
 
     for (const mesh of part.meshes) {
+      // Update root mesh bounding box
+      const partMeshBoundingInfo = mesh.getBoundingInfo();
+      const rootMeshBoundingInfo = this.rootMesh.getBoundingInfo();
+      let newMinimum = Vector3.Minimize(rootMeshBoundingInfo.minimum, partMeshBoundingInfo.minimum);
+      let newMaximum = Vector3.Maximize(rootMeshBoundingInfo.maximum, partMeshBoundingInfo.maximum);
+      this.rootMesh.setBoundingInfo(
+        new BoundingInfo(newMinimum, newMaximum, this.rootMesh.getWorldMatrix())
+      );
+
+      // attach part
       if (!mesh.skeleton) continue;
       mesh.skeleton = this.skeleton.skeletons[0];
       mesh.parent = parent!;
@@ -106,5 +125,43 @@ export class ModularCharacter {
     const skeletonRootBone = getChildMeshByName(this.skeleton.meshes[0], "Root");
     if (skeletonRootBone !== undefined)
       paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.world.scene);
+  }
+
+  // adapted from https://forum.babylonjs.com/t/get-mesh-bounding-box-position-and-size-in-2d-screen-coordinates/1058/3
+  getClientRectFromMesh(mesh: Mesh | AbstractMesh): DOMRect {
+    // get bounding box of the mesh
+    const meshVectors = mesh.getBoundingInfo().boundingBox.vectors;
+
+    // get the matrix and viewport needed to project the vectors onto the screen
+    const worldMatrix = mesh.getWorldMatrix();
+    const transformMatrix = this.world.scene.getTransformMatrix();
+    const viewport = this.world.scene.activeCamera!.viewport;
+
+    // loop though all the vectors and project them against the current camera viewport to get a set of coordinates
+    const coordinates = meshVectors.map((v) => {
+      const proj = Vector3.Project(v, worldMatrix, transformMatrix, viewport);
+      proj.x = proj.x * this.world.canvas.clientWidth;
+      proj.y = proj.y * this.world.canvas.clientHeight;
+      return proj;
+    });
+
+    if (!coordinates[0]) throw new Error("no coordinates on that mesh");
+    const extent = {
+      minX: coordinates[0].x,
+      maxX: coordinates[0].x,
+      minY: coordinates[0].y,
+      maxY: coordinates[0].y,
+    };
+
+    coordinates.forEach((current, i) => {
+      if (i === 0) return;
+      if (current.x < extent.minX) extent.minX = current.x;
+      if (current.x > extent.maxX) extent.maxX = current.x;
+      if (current.y < extent.minY) extent.minY = current.y;
+      if (current.y > extent.maxY) extent.maxY = current.y;
+    });
+    const { minX, maxX, minY, maxY } = extent;
+
+    return new DOMRect(minX, minY, maxX - minX, maxY - minY);
   }
 }

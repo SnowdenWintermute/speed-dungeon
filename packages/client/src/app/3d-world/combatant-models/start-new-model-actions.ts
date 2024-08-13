@@ -36,12 +36,12 @@ export default function startNewModelActions(
     );
 
     if (animationNameResult instanceof Error) return animationNameResult;
-    const animationGroup = this.getAnimationGroupByName(animationNameResult || "");
+    const animationGroup = this.animationManager.getAnimationGroupByName(animationNameResult || "");
 
     if (animationGroup !== undefined) {
-      // start the animation with transition duration
-      // based on ????
-      // animationGroup.setWeightForAllAnimatables()
+      this.animationManager.startAnimationWithTransition(animationGroup, 1000, {
+        shouldLoop: true,
+      });
     } else {
       // show "missing animation: animation name" text
     }

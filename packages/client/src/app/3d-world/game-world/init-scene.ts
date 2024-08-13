@@ -8,10 +8,11 @@ import {
   StandardMaterial,
   Color3,
   ShadowGenerator,
+  Mesh,
 } from "babylonjs";
 import { GameWorld } from ".";
 
-export function initScene(this: GameWorld): [ArcRotateCamera, ShadowGenerator] {
+export function initScene(this: GameWorld): [ArcRotateCamera, ShadowGenerator, Mesh] {
   this.scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
   // CAMERA
   const camera = new ArcRotateCamera(
@@ -48,5 +49,5 @@ export function initScene(this: GameWorld): [ArcRotateCamera, ShadowGenerator] {
   const shadowGenerator = new ShadowGenerator(1024, pointLight);
   ground.receiveShadows = true;
 
-  return [camera, shadowGenerator];
+  return [camera, shadowGenerator, ball];
 }

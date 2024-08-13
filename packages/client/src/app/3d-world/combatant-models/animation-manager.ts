@@ -1,4 +1,3 @@
-import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { AnimationGroup, ISceneLoaderAsyncResult } from "babylonjs";
 
 export class AnimationManager {
@@ -39,11 +38,22 @@ export class AnimationManager {
     durationMs: number,
     options: { shouldLoop: boolean }
   ): Error | void {
-    if (this.playing === null) return new Error("No animation to transition from");
+    let transitionFrom: null | ManagedAnimation = null;
+    let timeStarted: number = Date.now();
+
+    if (this.playing !== null) transitionFrom = this.playing;
+    else if (this.transition?.transitioningTo) {
+      transitionFrom = this.transition.transitioningTo;
+      // if there is already an ongoing transition we want to preserve its time started
+      // so as not to restart its weights at 0
+      timeStarted = this.transition.timeStarted;
+    }
+    if (transitionFrom === null) return new Error("No animation to transition from");
+
     this.transition = {
       durationMs,
-      timeStarted: Date.now(),
-      transitioningFrom: this.playing,
+      timeStarted,
+      transitioningFrom: transitionFrom,
       transitioningTo: { animationGroup: transitionTo, weight: 0.0 },
     };
     this.playing = null;
@@ -59,11 +69,6 @@ export class AnimationManager {
     // actually it is a number between 0 and 1 so not exactly a "percent"
     // but it works for setting the weights because they take such a value
     let percentOfTransitionCompleted = timeSinceTransitionStarted / this.transition.durationMs;
-    console.log(
-      "percentOfTransitionCompleted: ",
-      percentOfTransitionCompleted,
-      1 - percentOfTransitionCompleted
-    );
     if (percentOfTransitionCompleted > 1) percentOfTransitionCompleted = 1;
     this.transition.transitioningTo.animationGroup.setWeightForAllAnimatables(
       percentOfTransitionCompleted
@@ -73,7 +78,6 @@ export class AnimationManager {
     );
 
     if (percentOfTransitionCompleted === 1) {
-      console.log("stopping transition");
       percentOfTransitionCompleted = 1;
       this.playing = this.transition.transitioningTo;
       this.transition.transitioningFrom.animationGroup.stop();
