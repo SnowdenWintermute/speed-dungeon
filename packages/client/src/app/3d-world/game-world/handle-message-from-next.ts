@@ -5,6 +5,7 @@ import {
 import { GameWorld } from ".";
 import handleSpawnCombatantModelMessage from "./spawn-combatant-model";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
+import { disposeAsyncLoadedScene } from "../utils";
 
 export default function handleMessageFromNext(this: GameWorld, message: NextToBabylonMessage) {
   switch (message.type) {
@@ -12,6 +13,14 @@ export default function handleMessageFromNext(this: GameWorld, message: NextToBa
       handleSpawnCombatantModelMessage(this, message.combatantModelBlueprint);
       break;
     case NextToBabylonMessageTypes.RemoveCombatantModel:
+      const toRemove = this.combatantModels[message.entityId];
+      if (!toRemove) return new Error("tried to remove a combatant model that doesn't exist");
+      toRemove.rootMesh.dispose();
+      disposeAsyncLoadedScene(toRemove.skeleton);
+      for (const part of Object.values(toRemove.parts)) {
+        disposeAsyncLoadedScene(part);
+      }
+      delete this.combatantModels[message.entityId];
       break;
     case NextToBabylonMessageTypes.NewTurnResults:
       // hold them and check each frame if we are ready to process a new turn
@@ -30,13 +39,13 @@ export default function handleMessageFromNext(this: GameWorld, message: NextToBa
         combatantModelOption.actionResultsQueue.push(...message.actionResults);
       }
       break;
-    case NextToBabylonMessageTypes.SetCombatantDomRef:
-      console.log("setting combatant dom ref");
-      const combatantModel = this.combatantModels[message.combatantId];
-      if (!combatantModel) console.log("NO MODEL FOUND");
-      this.combatantModels[message.combatantId]?.setModelDomPositionRef(
-        message.babylonModelDomPositionRef
-      );
-      break;
+    // case NextToBabylonMessageTypes.SetCombatantDomRef:
+    //   console.log("setting combatant dom ref");
+    //   const combatantModel = this.combatantModels[message.combatantId];
+    //   if (!combatantModel) console.log("NO MODEL FOUND");
+    //   this.combatantModels[message.combatantId]?.setModelDomPositionRef(
+    //     message.babylonModelDomPositionRef
+    //   );
+    //   break;
   }
 }

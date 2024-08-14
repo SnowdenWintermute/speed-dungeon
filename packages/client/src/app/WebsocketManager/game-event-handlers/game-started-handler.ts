@@ -25,28 +25,29 @@ export default function gameStartedHandler(
 
     let rowPositionOffset = COMBATANT_POSITION_SPACING_SIDE;
 
-    mutateNextBabylonMessagingStore((state) => {
-      for (const characterId of party.characterPositions) {
-        const character = party.characters[characterId];
+    // mutateNextBabylonMessagingStore((state) => {
+    //   for (const characterId of party.characterPositions) {
+    //     const character = party.characters[characterId];
+    //     if (!character) return console.error("no character to spawn model for");
 
-        state.nextToBabylonMessages.push({
-          type: NextToBabylonMessageTypes.SpawnCombatantModel,
-          combatantModelBlueprint: {
-            entityId: character.entityProperties.id,
-            species: CombatantSpecies.Humanoid,
-            monsterType: null,
-            class: character.combatantProperties.combatantClass,
-            startPosition: new Vector3(
-              -COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2,
-              0,
-              rowPositionOffset
-            ),
-            startRotation: 0,
-          },
-        });
+    //     state.nextToBabylonMessages.push({
+    //       type: NextToBabylonMessageTypes.SpawnCombatantModel,
+    //       combatantModelBlueprint: {
+    //         entityId: character.entityProperties.id,
+    //         species: CombatantSpecies.Humanoid,
+    //         monsterType: null,
+    //         class: character.combatantProperties.combatantClass,
+    //         startPosition: new Vector3(
+    //           -COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2,
+    //           0,
+    //           rowPositionOffset
+    //         ),
+    //         startRotation: 0,
+    //       },
+    //     });
 
-        rowPositionOffset -= COMBATANT_POSITION_SPACING_SIDE;
-      }
-    });
+    //     rowPositionOffset -= COMBATANT_POSITION_SPACING_SIDE;
+    //   }
+    // });
   });
 }

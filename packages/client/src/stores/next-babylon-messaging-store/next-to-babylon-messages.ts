@@ -22,6 +22,7 @@ export interface CombatantModelBlueprint {
   class: CombatantClass;
   startPosition: Vector3;
   startRotation: number;
+  modelDomPositionRef: React.RefObject<HTMLDivElement>;
 }
 
 type SpawnCombatantModelMessage = {

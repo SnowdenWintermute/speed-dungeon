@@ -45,11 +45,12 @@ export class ModularCharacter {
     rotation: Quaternion;
   };
   animationManager: AnimationManager;
-  modelDomPositionRef: React.RefObject<HTMLDivElement> | null = null;
+
   constructor(
     public entityId: string,
     public world: GameWorld,
     public skeleton: ISceneLoaderAsyncResult,
+    public modelDomPositionRef: React.RefObject<HTMLDivElement>,
     startPosition: Vector3 = Vector3.Zero(),
     startRotation: number = 0
   ) {
@@ -73,9 +74,6 @@ export class ModularCharacter {
   startNewModelActions = startNewModelActions;
   processActiveModelActions = processActiveModelActions;
 
-  setModelDomPositionRef(ref: React.RefObject<HTMLDivElement>) {
-    this.modelDomPositionRef = ref;
-  }
   updateDomRefPosition() {
     const boundingBox = this.getClientRectFromMesh(this.rootMesh);
     if (this.modelDomPositionRef?.current) {

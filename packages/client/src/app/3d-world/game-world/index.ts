@@ -22,6 +22,7 @@ import { MutateState } from "@/stores/mutate-state";
 import { GameState } from "@/stores/game-store";
 import showDebugText from "./show-debug-text";
 import processMessagesFromNext from "./process-messages-from-next";
+import { NextBabylonMessagingState } from "@/stores/next-babylon-messaging-store";
 
 export class GameWorld {
   scene: Scene;
@@ -38,6 +39,7 @@ export class GameWorld {
   constructor(
     public canvas: HTMLCanvasElement,
     public mutateGameState: MutateState<GameState>,
+    public mutateNextBabylonMessagingState: MutateState<NextBabylonMessagingState>,
     debugRef: React.RefObject<HTMLDivElement>
   ) {
     this.engine = new Engine(canvas, true);
@@ -53,12 +55,12 @@ export class GameWorld {
       //   const boundingBox = firstModel.getClientRectFromMesh(
       //     Object.values(this.combatantModels)[0]!.rootMesh
       //   );
-        // if (this.debug.debugRef?.current) {
-        //   this.debug.debugRef.current.setAttribute(
-        //     "style",
-        //     `height: ${boundingBox.height}px; width: ${boundingBox.width}px; position: absolute; z-index: 50; top: ${boundingBox.top}px; left: ${boundingBox.left}px; border: 1px solid red;`
-        //   );
-        // }
+      // if (this.debug.debugRef?.current) {
+      //   this.debug.debugRef.current.setAttribute(
+      //     "style",
+      //     `height: ${boundingBox.height}px; width: ${boundingBox.width}px; position: absolute; z-index: 50; top: ${boundingBox.top}px; left: ${boundingBox.left}px; border: 1px solid red;`
+      //   );
+      // }
       // }
       for (const combatantModel of Object.values(this.combatantModels)) {
         combatantModel.updateDomRefPosition();
@@ -96,6 +98,7 @@ export class GameWorld {
     entityId: string,
     combatantSpecies: CombatantSpecies,
     parts: ModularCharacterPart[],
+    modelPositionDomRef: React.RefObject<HTMLDivElement>,
     startPosition?: Vector3,
     startRotation?: number
   ): Promise<ModularCharacter> {
@@ -104,6 +107,7 @@ export class GameWorld {
       entityId,
       this,
       skeleton,
+      modelPositionDomRef,
       startPosition,
       startRotation
     );

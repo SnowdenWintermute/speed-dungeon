@@ -30,6 +30,7 @@ export default function handleSpawnCombatantModelMessage(
     combatant.entityId,
     combatant.species,
     parts,
+    combatant.modelDomPositionRef,
     combatant.startPosition,
     combatant.startRotation
   );

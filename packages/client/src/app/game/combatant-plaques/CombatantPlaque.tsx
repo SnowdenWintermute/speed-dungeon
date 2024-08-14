@@ -10,9 +10,14 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import { AdventuringParty } from "@speed-dungeon/common";
+import {
+  AdventuringParty,
+  COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
+  COMBATANT_POSITION_SPACING_SIDE,
+} from "@speed-dungeon/common";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
+import { Vector3 } from "babylonjs";
 
 interface Props {
   entityId: string;
@@ -22,7 +27,7 @@ interface Props {
 export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const gameOption = useGameStore().game;
   const mutateGameState = useGameStore().mutateState;
-  const mutateNextToBabylonMessagingState = useNextBabylonMessagingStore().mutateState;
+  const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const babylonModelDomPositionRef = useRef<HTMLDivElement>(null);
 
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
@@ -41,16 +46,6 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const { entityProperties, combatantProperties } = combatantDetailsResult;
   const battleOption = getCurrentBattleOption(game, party.name);
 
-  useEffect(() => {
-    mutateNextToBabylonMessagingState((state) => {
-      state.nextToBabylonMessages.push({
-        type: NextToBabylonMessageTypes.SetCombatantDomRef,
-        combatantId: entityId,
-        babylonModelDomPositionRef,
-      });
-    });
-  }, []);
-
   // for measuring the element so we can get the correct portrait height
   // and getting the position so we can position the details window without going off the screen
   const combatantPlaqueRef = useRef<HTMLDivElement>(null);
@@ -60,6 +55,37 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
     if (!nameAndBarsRef.current) return;
     const height = nameAndBarsRef.current.clientHeight;
     setPortraitHeight(height);
+  }, []);
+
+  useEffect(() => {
+    let rowPositionOffset = 0;
+    const rowLength = COMBATANT_POSITION_SPACING_SIDE * party.characterPositions.length - 1;
+    const rowStart = -rowLength / 2;
+
+    party.characterPositions.forEach((id, i) => {
+      if (id === entityId) {
+        rowPositionOffset = rowStart + i * COMBATANT_POSITION_SPACING_SIDE;
+      }
+    });
+
+    mutateNextBabylonMessagingStore((state) => {
+      state.nextToBabylonMessages.push({
+        type: NextToBabylonMessageTypes.SpawnCombatantModel,
+        combatantModelBlueprint: {
+          entityId: entityProperties.id,
+          species: combatantProperties.combatantSpecies,
+          monsterType: null,
+          class: combatantProperties.combatantClass,
+          startPosition: new Vector3(
+            -COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2,
+            0,
+            rowPositionOffset
+          ),
+          startRotation: 0,
+          modelDomPositionRef: babylonModelDomPositionRef,
+        },
+      });
+    });
   }, []);
 
   function isHovered() {

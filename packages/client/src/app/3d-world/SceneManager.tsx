@@ -14,7 +14,12 @@ export default function SceneManager() {
 
   useEffect(() => {
     if (canvasRef.current) {
-      sceneRef.current = new GameWorld(canvasRef.current, mutateGameState, debugRef);
+      sceneRef.current = new GameWorld(
+        canvasRef.current,
+        mutateGameState,
+        mutateNextBabylonMessagingStore,
+        debugRef
+      );
     }
     resizeHandlerRef.current = function () {
       sceneRef.current?.engine?.resize();
@@ -28,6 +33,7 @@ export default function SceneManager() {
     };
   }, []);
 
+  // SEND MESSAGES TO BABYLON
   useEffect(() => {
     if (nextToBabylonMessages.length < 1) return;
 
@@ -37,15 +43,6 @@ export default function SceneManager() {
       state.nextToBabylonMessages = [];
     });
   }, [nextToBabylonMessages]);
-
-  // useEffect(() => {
-  //   window.addEventListener("mousemove", (e) => {
-  //     if (sceneRef.current) {
-  //       sceneRef.current.mouse.x = (e.x - window.innerWidth / 2) / 100;
-  //       sceneRef.current.mouse.z = (e.y - window.innerHeight / 2) / 100;
-  //     }
-  //   });
-  // }, []);
 
   return (
     <>
