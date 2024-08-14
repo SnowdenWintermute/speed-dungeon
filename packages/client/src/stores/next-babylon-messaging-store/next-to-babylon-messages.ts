@@ -12,6 +12,7 @@ export enum NextToBabylonMessageTypes {
   RemoveCombatantModel,
   NewTurnResults,
   NewActionResults,
+  SetCombatantDomRef,
 }
 
 export interface CombatantModelBlueprint {
@@ -43,8 +44,15 @@ type NewActionResultsMessage = {
   actionResults: ActionResult[];
 };
 
+type SetCombatantDomRefMessage = {
+  type: NextToBabylonMessageTypes.SetCombatantDomRef;
+  combatantId: string;
+  babylonModelDomPositionRef: React.RefObject<HTMLDivElement>;
+};
+
 export type NextToBabylonMessage =
   | SpawnCombatantModelMessage
   | RemoveCombatantModelMessage
   | NewTurnResultsMessage
-  | NewActionResultsMessage;
+  | NewActionResultsMessage
+  | SetCombatantDomRefMessage;

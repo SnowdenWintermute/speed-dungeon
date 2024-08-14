@@ -11,6 +11,8 @@ import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
 import { AdventuringParty } from "@speed-dungeon/common";
+import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
+import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 
 interface Props {
   entityId: string;
@@ -20,6 +22,9 @@ interface Props {
 export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const gameOption = useGameStore().game;
   const mutateGameState = useGameStore().mutateState;
+  const mutateNextToBabylonMessagingState = useNextBabylonMessagingStore().mutateState;
+  const babylonModelDomPositionRef = useRef<HTMLDivElement>(null);
+
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
       detailedEntity: state.detailedEntity,
@@ -35,6 +40,16 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   if (combatantDetailsResult instanceof Error) return <div>{combatantDetailsResult.message}</div>;
   const { entityProperties, combatantProperties } = combatantDetailsResult;
   const battleOption = getCurrentBattleOption(game, party.name);
+
+  useEffect(() => {
+    mutateNextToBabylonMessagingState((state) => {
+      state.nextToBabylonMessages.push({
+        type: NextToBabylonMessageTypes.SetCombatantDomRef,
+        combatantId: entityId,
+        babylonModelDomPositionRef,
+      });
+    });
+  }, []);
 
   // for measuring the element so we can get the correct portrait height
   // and getting the position so we can position the details window without going off the screen
@@ -68,6 +83,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
 
   return (
     <div>
+      <div ref={babylonModelDomPositionRef}></div>
       <div
         className={`w-96 h-fit border bg-slate-700 pointer-events-auto flex p-2.5 relative box-border ${conditionalBorder} `}
         ref={combatantPlaqueRef}

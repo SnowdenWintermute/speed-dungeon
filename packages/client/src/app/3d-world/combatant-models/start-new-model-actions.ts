@@ -43,6 +43,7 @@ export default function startNewModelActions(
         shouldLoop: true,
       });
     } else {
+      // next - set up a "missing animation" and other character debug dom node for each ModularCharacter
       // show "missing animation: animation name" text
     }
     //

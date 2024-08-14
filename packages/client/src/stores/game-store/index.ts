@@ -51,6 +51,7 @@ export class GameState {
   menuContext: MenuContext | null = null;
   battleReportPendingProcessing: null | BattleReport = null;
   combatLogMessages: CombatLogMessage[] = [];
+  babylonControlledCombatantDOMData: { [combatantId: string]: string } = {};
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
     if (party instanceof Error) return null;

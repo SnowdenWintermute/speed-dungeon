@@ -12,7 +12,6 @@ import { ModularCharacter } from "../combatant-models/modular-character";
 import {
   BASE_FILE_PATH,
   ModularCharacterPart,
-  ModularCharacterPartCategory,
   SKELETONS,
 } from "../combatant-models/modular-character-parts";
 import { initScene } from "./init-scene";
@@ -38,7 +37,7 @@ export class GameWorld {
   turnResultsQueue: CombatTurnResult[] = [];
   constructor(
     public canvas: HTMLCanvasElement,
-    mutateGameState: MutateState<GameState>,
+    public mutateGameState: MutateState<GameState>,
     debugRef: React.RefObject<HTMLDivElement>
   ) {
     this.engine = new Engine(canvas, true);
@@ -49,19 +48,20 @@ export class GameWorld {
     this.engine.runRenderLoop(() => {
       this.showDebugText();
       this.processMessagesFromNext();
-      const firstModel = Object.values(this.combatantModels)[0];
-      if (firstModel) {
-        const boundingBox = firstModel.getClientRectFromMesh(
-          Object.values(this.combatantModels)[0]!.rootMesh
-        );
-        if (this.debug.debugRef?.current) {
-          this.debug.debugRef.current.setAttribute(
-            "style",
-            `height: ${boundingBox.height}px; width: ${boundingBox.width}px; position: absolute; z-index: 50; top: ${boundingBox.top}px; left: ${boundingBox.left}px; border: 1px solid red;`
-          );
-        }
-      }
+      // const firstModel = Object.values(this.combatantModels)[0];
+      // if (firstModel) {
+      //   const boundingBox = firstModel.getClientRectFromMesh(
+      //     Object.values(this.combatantModels)[0]!.rootMesh
+      //   );
+        // if (this.debug.debugRef?.current) {
+        //   this.debug.debugRef.current.setAttribute(
+        //     "style",
+        //     `height: ${boundingBox.height}px; width: ${boundingBox.width}px; position: absolute; z-index: 50; top: ${boundingBox.top}px; left: ${boundingBox.left}px; border: 1px solid red;`
+        //   );
+        // }
+      // }
       for (const combatantModel of Object.values(this.combatantModels)) {
+        combatantModel.updateDomRefPosition();
         // start model actions from action results
         combatantModel.enqueueNewModelActionsFromActionResults(this);
         // start new model actions or return to idle

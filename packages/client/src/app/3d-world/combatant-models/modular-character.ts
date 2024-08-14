@@ -45,6 +45,7 @@ export class ModularCharacter {
     rotation: Quaternion;
   };
   animationManager: AnimationManager;
+  modelDomPositionRef: React.RefObject<HTMLDivElement> | null = null;
   constructor(
     public entityId: string,
     public world: GameWorld,
@@ -71,6 +72,20 @@ export class ModularCharacter {
   enqueueNewModelActionsFromActionResults = enqueueNewModelActionsFromActionResults;
   startNewModelActions = startNewModelActions;
   processActiveModelActions = processActiveModelActions;
+
+  setModelDomPositionRef(ref: React.RefObject<HTMLDivElement>) {
+    this.modelDomPositionRef = ref;
+  }
+  updateDomRefPosition() {
+    const boundingBox = this.getClientRectFromMesh(this.rootMesh);
+    if (this.modelDomPositionRef?.current) {
+      console.log("setting new dom position: ");
+      this.modelDomPositionRef.current.setAttribute(
+        "style",
+        `height: ${boundingBox.height}px; width: ${boundingBox.width}px; position: absolute; z-index: 50; top: ${boundingBox.top}px; left: ${boundingBox.left}px; border: 1px solid red;`
+      );
+    }
+  }
 
   async attachPart(partCategory: ModularCharacterPartCategory, partPath: string) {
     const part = await this.world.importMesh(partPath);
