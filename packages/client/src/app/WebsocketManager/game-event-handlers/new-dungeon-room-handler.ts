@@ -33,30 +33,30 @@ export default function newDungeonRoomHandler(
     party.clientCurrentFloorRoomsList[indexOfRoomTypeToReveal] = room.roomType;
 
     // SPAWN MONSTER 3D MODELS
-    mutateNextBabylonMessagingStore((state) => {
-      let rowPositionOffset = COMBATANT_POSITION_SPACING_SIDE;
+    // mutateNextBabylonMessagingStore((state) => {
+    //   let rowPositionOffset = COMBATANT_POSITION_SPACING_SIDE;
 
-      for (const monster of Object.values(party.currentRoom.monsters).sort(
-        (a, b) => parseInt(a.entityProperties.id) - parseInt(b.entityProperties.id)
-      )) {
-        state.nextToBabylonMessages.push({
-          type: NextToBabylonMessageTypes.SpawnCombatantModel,
-          combatantModelBlueprint: {
-            entityId: monster.entityProperties.id,
-            species: monster.combatantProperties.combatantSpecies,
-            monsterType: monster.monsterType,
-            class: monster.combatantProperties.combatantClass,
-            startPosition: new Vector3(
-              COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2,
-              0,
-              rowPositionOffset
-            ),
-            startRotation: Math.PI,
-          },
-        });
+    // for (const monster of Object.values(party.currentRoom.monsters).sort(
+    //   (a, b) => parseInt(a.entityProperties.id) - parseInt(b.entityProperties.id)
+    // )) {
+    //   state.nextToBabylonMessages.push({
+    //     type: NextToBabylonMessageTypes.SpawnCombatantModel,
+    //     combatantModelBlueprint: {
+    //       entityId: monster.entityProperties.id,
+    //       species: monster.combatantProperties.combatantSpecies,
+    //       monsterType: monster.monsterType,
+    //       class: monster.combatantProperties.combatantClass,
+    //       startPosition: new Vector3(
+    //         COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2,
+    //         0,
+    //         rowPositionOffset
+    //       ),
+    //       startRotation: Math.PI,
+    //     },
+    //   });
 
-        rowPositionOffset = rowPositionOffset - COMBATANT_POSITION_SPACING_SIDE;
-      }
-    });
+    //   rowPositionOffset = rowPositionOffset - COMBATANT_POSITION_SPACING_SIDE;
+    // }
+    // });
   });
 }

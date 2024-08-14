@@ -1,8 +1,8 @@
 import { GameWorld } from ".";
 
 export default function processMessagesFromNext(this: GameWorld) {
-  while (this.messages.length > 0) {
-    const message = this.messages.pop();
+  if (this.messages.length > 0) {
+    const message = this.messages.shift();
     if (message !== undefined) {
       const maybeError = this.handleMessageFromNext(message);
       if (maybeError instanceof Error) {

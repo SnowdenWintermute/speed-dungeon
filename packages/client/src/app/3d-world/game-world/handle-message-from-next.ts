@@ -10,9 +10,11 @@ import { disposeAsyncLoadedScene } from "../utils";
 export default function handleMessageFromNext(this: GameWorld, message: NextToBabylonMessage) {
   switch (message.type) {
     case NextToBabylonMessageTypes.SpawnCombatantModel:
+      console.log("spawning model for :", message.combatantModelBlueprint.entityId);
       handleSpawnCombatantModelMessage(this, message.combatantModelBlueprint);
       break;
     case NextToBabylonMessageTypes.RemoveCombatantModel:
+      console.log("removing model :", message.entityId);
       const toRemove = this.combatantModels[message.entityId];
       if (!toRemove) return new Error("tried to remove a combatant model that doesn't exist");
       toRemove.rootMesh.dispose();
