@@ -139,11 +139,11 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
 
   return (
     <div>
-      <div ref={babylonModelDomPositionRef}></div>
       <div
         className={`w-96 h-fit border bg-slate-700 pointer-events-auto flex p-2.5 relative box-border ${conditionalBorder} `}
         ref={combatantPlaqueRef}
       >
+        <div ref={babylonModelDomPositionRef}></div>
         <TargetingIndicators party={party} entityId={entityId} />
         <DetailedCombatantInfoCard combatantId={entityId} combatantPlaqueRef={combatantPlaqueRef} />
         <div

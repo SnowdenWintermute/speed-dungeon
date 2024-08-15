@@ -5,24 +5,20 @@ import {
 import { GameWorld } from ".";
 import handleSpawnCombatantModelMessage from "./spawn-combatant-model";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
-import { disposeAsyncLoadedScene } from "../utils";
+import { ModelManagerMessageType } from "./model-manager";
 
 export default function handleMessageFromNext(this: GameWorld, message: NextToBabylonMessage) {
   switch (message.type) {
     case NextToBabylonMessageTypes.SpawnCombatantModel:
-      console.log("spawning model for :", message.combatantModelBlueprint.entityId);
-      handleSpawnCombatantModelMessage(this, message.combatantModelBlueprint);
+      this.modelManager.enqueueMessage(message.combatantModelBlueprint.entityId, {
+        type: ModelManagerMessageType.SpawnModel,
+        blueprint: message.combatantModelBlueprint,
+      });
       break;
     case NextToBabylonMessageTypes.RemoveCombatantModel:
-      console.log("removing model :", message.entityId);
-      const toRemove = this.combatantModels[message.entityId];
-      if (!toRemove) return new Error("tried to remove a combatant model that doesn't exist");
-      toRemove.rootMesh.dispose();
-      disposeAsyncLoadedScene(toRemove.skeleton);
-      for (const part of Object.values(toRemove.parts)) {
-        disposeAsyncLoadedScene(part);
-      }
-      delete this.combatantModels[message.entityId];
+      this.modelManager.enqueueMessage(message.entityId, {
+        type: ModelManagerMessageType.DespawnModel,
+      });
       break;
     case NextToBabylonMessageTypes.NewTurnResults:
       // hold them and check each frame if we are ready to process a new turn
@@ -35,7 +31,7 @@ export default function handleMessageFromNext(this: GameWorld, message: NextToBa
       // because these are "instant" actions like using a consumable out of combat
       // and we don't mind playing multiple character's actions at the same time
       for (const actionResult of message.actionResults) {
-        const combatantModelOption = this.combatantModels[actionResult.userId];
+        const combatantModelOption = this.modelManager.combatantModels[actionResult.userId];
         if (combatantModelOption === undefined)
           return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
         combatantModelOption.actionResultsQueue.push(...message.actionResults);

@@ -8,14 +8,9 @@ import {
   Mesh,
 } from "babylonjs";
 import "babylonjs-loaders";
-import { ModularCharacter } from "../combatant-models/modular-character";
-import {
-  BASE_FILE_PATH,
-  ModularCharacterPart,
-  SKELETONS,
-} from "../combatant-models/modular-character-parts";
+import { BASE_FILE_PATH } from "../combatant-models/modular-character-parts";
 import { initScene } from "./init-scene";
-import { CombatTurnResult, CombatantSpecies } from "@speed-dungeon/common";
+import { CombatTurnResult } from "@speed-dungeon/common";
 import handleMessageFromNext from "./handle-message-from-next";
 import { NextToBabylonMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import { MutateState } from "@/stores/mutate-state";
@@ -23,6 +18,7 @@ import { GameState } from "@/stores/game-store";
 import showDebugText from "./show-debug-text";
 import processMessagesFromNext from "./process-messages-from-next";
 import { NextBabylonMessagingState } from "@/stores/next-babylon-messaging-store";
+import { ModelManager } from "./model-manager";
 
 export class GameWorld {
   scene: Scene;
@@ -34,7 +30,7 @@ export class GameWorld {
   mouse: Vector3 = new Vector3(0, 1, 0);
   debug: { debugRef: React.RefObject<HTMLDivElement> | null } = { debugRef: null };
   useShadows: boolean = false;
-  combatantModels: { [entityId: string]: ModularCharacter } = {};
+  modelManager: ModelManager = new ModelManager(this);
   turnResultsQueue: CombatTurnResult[] = [];
   constructor(
     public canvas: HTMLCanvasElement,
@@ -50,6 +46,7 @@ export class GameWorld {
     this.engine.runRenderLoop(() => {
       this.showDebugText();
       this.processMessagesFromNext();
+      this.modelManager.startProcessingNewMessages();
       // const firstModel = Object.values(this.combatantModels)[0];
       // if (firstModel) {
       //   const boundingBox = firstModel.getClientRectFromMesh(
@@ -62,7 +59,7 @@ export class GameWorld {
       //   );
       // }
       // }
-      for (const combatantModel of Object.values(this.combatantModels)) {
+      for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
         combatantModel.updateDomRefPosition();
         // start model actions from action results
         combatantModel.enqueueNewModelActionsFromActionResults(this);
@@ -74,6 +71,7 @@ export class GameWorld {
         // process any animation transitions
         combatantModel.animationManager.stepAnimationTransitionWeights();
       }
+      // console.log(Object.keys(this.combatantModels));
       //
       // if no active model actions and turn results remain
       // send the actionResults to combatant models
@@ -91,35 +89,5 @@ export class GameWorld {
     if (this.useShadows)
       for (const mesh of sceneResult.meshes) this.shadowGenerator?.addShadowCaster(mesh, true);
     return sceneResult;
-  }
-
-  async spawnCharacterModel(
-    this: GameWorld,
-    entityId: string,
-    combatantSpecies: CombatantSpecies,
-    parts: ModularCharacterPart[],
-    modelPositionDomRef: React.RefObject<HTMLDivElement>,
-    startPosition?: Vector3,
-    startRotation?: number
-  ): Promise<ModularCharacter> {
-    const skeleton = await this.importMesh(SKELETONS[combatantSpecies]!);
-    const modularCharacter = new ModularCharacter(
-      entityId,
-      this,
-      skeleton,
-      modelPositionDomRef,
-      startPosition,
-      startRotation
-    );
-
-    for (const part of parts) {
-      await modularCharacter.attachPart(part.category, part.assetPath);
-    }
-
-    if (combatantSpecies === CombatantSpecies.Humanoid) await modularCharacter.equipWeapon("");
-
-    this.combatantModels[entityId] = modularCharacter;
-
-    return modularCharacter;
   }
 }
