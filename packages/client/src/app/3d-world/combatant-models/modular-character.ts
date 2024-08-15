@@ -76,7 +76,7 @@ export class ModularCharacter {
 
   updateDomRefPosition() {
     const boundingBox = this.getClientRectFromMesh(this.rootMesh);
-    if (this.modelDomPositionRef?.current) {
+    if (this.modelDomPositionRef.current) {
       this.modelDomPositionRef.current.setAttribute(
         "style",
         `height: ${boundingBox.height}px; width: ${boundingBox.width}px; position: absolute; z-index: 50; top: ${boundingBox.top}px; left: ${boundingBox.left}px; border: 1px solid red;`
