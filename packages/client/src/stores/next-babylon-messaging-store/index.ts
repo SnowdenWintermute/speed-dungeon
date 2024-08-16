@@ -20,7 +20,7 @@ export const useNextBabylonMessagingStore = create<NextBabylonMessagingState>()(
         babylonToNextMessages: [],
         mutateState: (fn: (state: NextBabylonMessagingState) => void) => set(produce(fn)),
       }),
-      { enabled: true, name: "next babylon messaging store" }
+      { enabled: false, name: "next babylon messaging store" }
     )
   )
 );

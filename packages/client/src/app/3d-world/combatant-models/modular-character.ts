@@ -85,25 +85,28 @@ export class ModularCharacter {
   }
 
   updateBoundingBox() {
+    let minimum: null | Vector3 = null;
+    let maximum: null | Vector3 = null;
+
     for (const part of Object.values(this.parts)) {
       if (part === null) continue;
       for (const mesh of part.meshes) {
-        mesh.refreshBoundingInfo({ applyMorph: true, applySkeleton: true });
+        // Update root mesh bounding box
+        mesh.refreshBoundingInfo({ applySkeleton: true, applyMorph: true });
+        if (minimum === null) minimum = mesh.getBoundingInfo().minimum;
+        if (maximum === null) maximum = mesh.getBoundingInfo().maximum;
+
+        mesh.showBoundingBox = true;
         const partMeshBoundingInfo = mesh.getBoundingInfo();
-        const rootMeshBoundingInfo = this.rootMesh.getBoundingInfo();
-        let newMinimum = Vector3.Minimize(
-          rootMeshBoundingInfo.minimum,
-          partMeshBoundingInfo.minimum
-        );
-        let newMaximum = Vector3.Maximize(
-          rootMeshBoundingInfo.maximum,
-          partMeshBoundingInfo.maximum
-        );
-        this.rootMesh.setBoundingInfo(
-          new BoundingInfo(newMinimum, newMaximum, this.rootMesh.getWorldMatrix())
-        );
+
+        minimum = Vector3.Minimize(minimum, partMeshBoundingInfo.minimum);
+        maximum = Vector3.Maximize(maximum, partMeshBoundingInfo.maximum);
       }
     }
+    if (minimum === null || maximum === null) return;
+    this.rootMesh.setBoundingInfo(
+      new BoundingInfo(minimum, maximum, this.rootMesh.getWorldMatrix())
+    );
   }
 
   async attachPart(partCategory: ModularCharacterPartCategory, partPath: string) {
@@ -113,15 +116,6 @@ export class ModularCharacter {
       return new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
 
     for (const mesh of part.meshes) {
-      // Update root mesh bounding box
-      const partMeshBoundingInfo = mesh.getBoundingInfo();
-      const rootMeshBoundingInfo = this.rootMesh.getBoundingInfo();
-      let newMinimum = Vector3.Minimize(rootMeshBoundingInfo.minimum, partMeshBoundingInfo.minimum);
-      let newMaximum = Vector3.Maximize(rootMeshBoundingInfo.maximum, partMeshBoundingInfo.maximum);
-      this.rootMesh.setBoundingInfo(
-        new BoundingInfo(newMinimum, newMaximum, this.rootMesh.getWorldMatrix())
-      );
-
       // attach part
       if (!mesh.skeleton) continue;
       mesh.skeleton = this.skeleton.skeletons[0];
@@ -134,6 +128,8 @@ export class ModularCharacter {
 
     // we need to save a reference to the part so we can dispose of it when switching to a different part
     this.parts[partCategory] = part;
+
+    this.updateBoundingBox();
   }
 
   async equipWeapon(_partPath: string) {

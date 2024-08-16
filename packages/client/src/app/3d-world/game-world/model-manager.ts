@@ -95,7 +95,8 @@ export class ModelManager {
 
     this.combatantModels[blueprint.entityId] = modularCharacter;
 
-    console.log("spawned model for ", blueprint.entityId);
+    modularCharacter.updateBoundingBox();
+
     return modularCharacter;
   }
 
@@ -109,7 +110,6 @@ export class ModelManager {
     }
 
     delete this.combatantModels[entityId];
-    console.log("removed ", entityId);
   }
 }
 
