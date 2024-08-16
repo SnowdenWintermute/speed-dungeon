@@ -3,13 +3,13 @@ import {
   NextToBabylonMessageTypes,
 } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import { GameWorld } from ".";
-import handleSpawnCombatantModelMessage from "./spawn-combatant-model";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { ModelManagerMessageType } from "./model-manager";
 
 export default function handleMessageFromNext(this: GameWorld, message: NextToBabylonMessage) {
   switch (message.type) {
     case NextToBabylonMessageTypes.SpawnCombatantModel:
+      console.log("got spawn model message: ", message.combatantModelBlueprint.entityId);
       this.modelManager.enqueueMessage(message.combatantModelBlueprint.entityId, {
         type: ModelManagerMessageType.SpawnModel,
         blueprint: message.combatantModelBlueprint,

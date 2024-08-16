@@ -25,6 +25,7 @@ export function initScene(this: GameWorld): [ArcRotateCamera, ShadowGenerator, M
     8,
     // target
     new Vector3(0.92, 0.54, 0.62),
+    // Vector3.Zero(),
     this.scene
   );
   camera.wheelDeltaPercentage = 0.02;

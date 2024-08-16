@@ -70,6 +70,7 @@ export class GameWorld {
         // process floating text
         // process any animation transitions
         combatantModel.animationManager.stepAnimationTransitionWeights();
+        // combatantModel.updateBoundingBox();
       }
       // console.log(Object.keys(this.combatantModels));
       //

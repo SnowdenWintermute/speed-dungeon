@@ -84,6 +84,28 @@ export class ModularCharacter {
     }
   }
 
+  updateBoundingBox() {
+    for (const part of Object.values(this.parts)) {
+      if (part === null) continue;
+      for (const mesh of part.meshes) {
+        mesh.refreshBoundingInfo({ applyMorph: true, applySkeleton: true });
+        const partMeshBoundingInfo = mesh.getBoundingInfo();
+        const rootMeshBoundingInfo = this.rootMesh.getBoundingInfo();
+        let newMinimum = Vector3.Minimize(
+          rootMeshBoundingInfo.minimum,
+          partMeshBoundingInfo.minimum
+        );
+        let newMaximum = Vector3.Maximize(
+          rootMeshBoundingInfo.maximum,
+          partMeshBoundingInfo.maximum
+        );
+        this.rootMesh.setBoundingInfo(
+          new BoundingInfo(newMinimum, newMaximum, this.rootMesh.getWorldMatrix())
+        );
+      }
+    }
+  }
+
   async attachPart(partCategory: ModularCharacterPartCategory, partPath: string) {
     const part = await this.world.importMesh(partPath);
     const parent = getTransformNodeByName(this.skeleton, "CharacterArmature");
