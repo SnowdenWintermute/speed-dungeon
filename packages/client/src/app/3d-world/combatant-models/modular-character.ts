@@ -3,6 +3,7 @@ import {
   BoundingInfo,
   Color4,
   ISceneLoaderAsyncResult,
+  Matrix,
   Mesh,
   Quaternion,
   Vector3,
@@ -25,6 +26,8 @@ import enqueueNewModelActionsFromActionResults from "../game-world/enqueue-new-m
 import startNewModelActions from "./start-new-model-actions";
 import processActiveModelActions from "./process-active-model-actions";
 import { AnimationManager } from "./animation-manager";
+import { MonsterType } from "@speed-dungeon/common/src/monsters/monster-types";
+import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -49,19 +52,25 @@ export class ModularCharacter {
   constructor(
     public entityId: string,
     public world: GameWorld,
+    public monsterType: null | MonsterType,
     public skeleton: ISceneLoaderAsyncResult,
     public modelDomPositionRef: React.RefObject<HTMLDivElement>,
     startPosition: Vector3 = Vector3.Zero(),
     startRotation: number = 0
   ) {
     this.animationManager = new AnimationManager(this.skeleton);
+    while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
     const rootMesh = skeleton.meshes[0];
     if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
+
+    if (monsterType !== null) {
+      rootMesh.scaling = Vector3.One().scale(MONSTER_SCALING_SIZES[monsterType]);
+      startRotation += Math.PI;
+    }
+
     this.rootMesh = rootMesh;
-    this.rootMesh.showBoundingBox = true;
     this.rootMesh.rotate(Vector3.Up(), Math.PI / 2 + startRotation);
     this.rootMesh.position = startPosition;
-    while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
 
     const rotation = rootMesh.rotationQuaternion;
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
@@ -85,25 +94,28 @@ export class ModularCharacter {
   }
 
   updateBoundingBox() {
+    // this.rootMesh.setBoundingInfo(new BoundingInfo(Vector3.Zero(), Vector3.Zero(), Matrix.Zero()));
+    // const {min, max} = this.rootMesh.getHierarchyBoundingVectors(true, (mesh) => mesh.name !== "__Root__")
+    // this.rootMesh.setBoundingInfo(new BoundingInfo(min, max))
     let minimum: null | Vector3 = null;
     let maximum: null | Vector3 = null;
 
     for (const part of Object.values(this.parts)) {
       if (part === null) continue;
       for (const mesh of part.meshes) {
+        // if (mesh.name === "__root__") continue;
         // Update root mesh bounding box
         mesh.refreshBoundingInfo({ applySkeleton: true, applyMorph: true });
         if (minimum === null) minimum = mesh.getBoundingInfo().minimum;
         if (maximum === null) maximum = mesh.getBoundingInfo().maximum;
 
-        mesh.showBoundingBox = true;
         const partMeshBoundingInfo = mesh.getBoundingInfo();
 
         minimum = Vector3.Minimize(minimum, partMeshBoundingInfo.minimum);
         maximum = Vector3.Maximize(maximum, partMeshBoundingInfo.maximum);
       }
     }
-    if (minimum === null || maximum === null) return;
+    if (minimum === null || maximum === null) return console.log("no mesh bounding info found");
     this.rootMesh.setBoundingInfo(
       new BoundingInfo(minimum, maximum, this.rootMesh.getWorldMatrix())
     );

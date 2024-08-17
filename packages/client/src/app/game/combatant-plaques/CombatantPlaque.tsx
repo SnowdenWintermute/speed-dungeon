@@ -10,15 +10,9 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import {
-  AdventuringParty,
-  COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
-  COMBATANT_POSITION_SPACING_SIDE,
-} from "@speed-dungeon/common";
+import { AdventuringParty } from "@speed-dungeon/common";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
-import { Vector3 } from "babylonjs";
-import { MonsterType } from "@speed-dungeon/common/src/monsters/monster-types";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 
 interface Props {
@@ -31,6 +25,8 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const mutateGameState = useGameStore().mutateState;
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const babylonModelDomPositionRef = useRef<HTMLDivElement>(null);
+
+  const [floatingTextState, setFloatingTextState] = useState([]);
 
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
@@ -97,7 +93,13 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
 
   return (
     <div>
-      <div ref={babylonModelDomPositionRef}></div>
+      <div ref={babylonModelDomPositionRef}>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          {
+            // <div className="animate-float-up-and-fade-out">text</div>
+          }
+        </div>
+      </div>
       <div
         className={`w-96 h-fit border bg-slate-700 pointer-events-auto flex p-2.5 relative box-border ${conditionalBorder} `}
         ref={combatantPlaqueRef}

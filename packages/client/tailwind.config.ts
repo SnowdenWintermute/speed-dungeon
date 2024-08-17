@@ -33,10 +33,24 @@ const config: Config = {
             transform: "translate(-50%, 0rem)",
           },
         },
+        "float-up-and-fade-out-keyframes": {
+          "0%": {
+            transform: "translate(0, 0rem)",
+          },
+          "80%": {
+            transform: "translate(0, -8rem)",
+            opacity: "1.0",
+          },
+          "100%": {
+            transform: "translate(0, -10rem)",
+            opacity: "0.0",
+          },
+        },
       },
       animation: {
         "slide-appear-from-left": "slide-left-appear-keyframes .3s linear",
         "up-and-down": "up-and-down-keyframes 1.5s ease-in-out infinite alternate-reverse",
+        "float-up-and-fade-out": "float-up-and-fade-out-keyframes 1.5s linear infinite",
       },
     },
   },

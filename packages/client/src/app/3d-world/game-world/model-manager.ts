@@ -9,6 +9,8 @@ import {
   ModularCharacterPartCategory,
   SKELETONS,
 } from "../combatant-models/modular-character-parts";
+import { Vector3 } from "babylonjs";
+import { MONSTER_SCALING_SIZES } from "../combatant-models/monster-scaling-sizes";
 
 // the whole point of all this is to make sure we never handle spawn and despawn messages out of order due
 // to the asynchronous nature of spawning models
@@ -81,6 +83,7 @@ export class ModelManager {
     const modularCharacter = new ModularCharacter(
       blueprint.entityId,
       this.world,
+      blueprint.monsterType,
       skeleton,
       blueprint.modelDomPositionRef,
       blueprint.startPosition,
