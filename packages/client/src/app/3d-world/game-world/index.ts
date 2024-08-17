@@ -47,18 +47,9 @@ export class GameWorld {
       this.showDebugText();
       this.processMessagesFromNext();
       this.modelManager.startProcessingNewMessages();
-      // const firstModel = Object.values(this.combatantModels)[0];
-      // if (firstModel) {
-      //   const boundingBox = firstModel.getClientRectFromMesh(
-      //     Object.values(this.combatantModels)[0]!.rootMesh
-      //   );
-      // if (this.debug.debugRef?.current) {
-      //   this.debug.debugRef.current.setAttribute(
-      //     "style",
-      //     `height: ${boundingBox.height}px; width: ${boundingBox.width}px; position: absolute; z-index: 50; top: ${boundingBox.top}px; left: ${boundingBox.left}px; border: 1px solid red;`
-      //   );
-      // }
-      // }
+
+      // processTurnResultsQueue
+
       for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
         combatantModel.updateDomRefPosition();
         // start model actions from action results

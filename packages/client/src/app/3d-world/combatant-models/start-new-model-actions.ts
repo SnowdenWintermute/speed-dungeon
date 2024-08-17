@@ -3,6 +3,7 @@ import getModelActionAnimationName from "./get-model-action-animation-name";
 import { CombatantModelActionProgressTracker, CombatantModelActionType } from "./model-actions";
 import { ModularCharacter } from "./modular-character";
 import { GameState } from "@/stores/game-store";
+import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
 
 export default function startNewModelActions(
   this: ModularCharacter,
@@ -43,8 +44,12 @@ export default function startNewModelActions(
         shouldLoop: true,
       });
     } else {
-      // next - set up a "missing animation" and other character debug dom node for each ModularCharacter
-      // show "missing animation: animation name" text
+      setDebugMessage(
+        mutateGameState,
+        this.entityId,
+        `Missing animation: ${animationNameResult}`,
+        5000
+      );
     }
     //
   } else if (!this.modelActionQueue[CombatantModelActionType.Idle]) {

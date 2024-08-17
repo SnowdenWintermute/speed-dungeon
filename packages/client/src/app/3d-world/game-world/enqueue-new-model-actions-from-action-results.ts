@@ -9,6 +9,7 @@ export default function enqueueNewModelActionsFromActionResults(
 ) {
   let i = 0;
   while (this.actionResultsQueue.length > 0) {
+    console.log("enqueuing model action");
     const actionResult = this.actionResultsQueue.shift()!;
     if (i === 0) {
       const approachDestinationModelActionResult = createApproachDestinationModelAction(

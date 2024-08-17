@@ -29,6 +29,7 @@ export default function handleMessageFromNext(this: GameWorld, message: NextToBa
       // give the action results directly to the corresponding models' queues
       // because these are "instant" actions like using a consumable out of combat
       // and we don't mind playing multiple character's actions at the same time
+      console.log("new action results enqueued: ", message.actionResults);
       for (const actionResult of message.actionResults) {
         const combatantModelOption = this.modelManager.combatantModels[actionResult.userId];
         if (combatantModelOption === undefined)

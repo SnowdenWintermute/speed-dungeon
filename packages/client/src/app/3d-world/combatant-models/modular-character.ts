@@ -3,7 +3,6 @@ import {
   BoundingInfo,
   Color4,
   ISceneLoaderAsyncResult,
-  Matrix,
   Mesh,
   Quaternion,
   Vector3,
@@ -88,7 +87,10 @@ export class ModularCharacter {
     if (this.modelDomPositionRef.current) {
       this.modelDomPositionRef.current.setAttribute(
         "style",
-        `height: ${boundingBox.height}px; width: ${boundingBox.width}px; position: absolute; z-index: 50; top: ${boundingBox.top}px; left: ${boundingBox.left}px; border: 1px solid red;`
+        `height: ${boundingBox.height}px;
+         width: ${boundingBox.width}px;
+         top: ${boundingBox.top}px;
+         left: ${boundingBox.left}px;`
       );
     }
   }

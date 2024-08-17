@@ -14,6 +14,7 @@ import { AdventuringParty } from "@speed-dungeon/common";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
+import "./floating-text-animation.css";
 
 interface Props {
   entityId: string;
@@ -24,6 +25,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const gameOption = useGameStore().game;
   const mutateGameState = useGameStore().mutateState;
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
+  const babylonDebugMessages = useGameStore().babylonControlledCombatantDOMData[entityId];
   const babylonModelDomPositionRef = useRef<HTMLDivElement>(null);
 
   const [floatingTextState, setFloatingTextState] = useState([]);
@@ -93,11 +95,28 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
 
   return (
     <div>
-      <div ref={babylonModelDomPositionRef}>
+      <div ref={babylonModelDomPositionRef} className="absolute">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           {
-            // <div className="animate-float-up-and-fade-out">text</div>
+            // floating text here
           }
+        </div>
+        <div className="absolute flex flex-col align-middle top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px]">
+          {babylonDebugMessages?.debugMessages.map((message) => (
+            <div
+              className="text-xl relative"
+              key={message.id}
+              // style={{
+              //   animation: "float-up-and-fade-out",
+              //   animationDuration: `${message.displayTime + 50}ms`,
+              //   animationTimingFunction: "linear",
+              //   animationIterationCount: 1,
+              // }}
+            >
+              <div>{message.text}</div>
+              <div className="absolute z-[-1] text-black top-[3px] left-[3px]">{message.text}</div>
+            </div>
+          ))}
         </div>
       </div>
       <div
@@ -117,7 +136,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
         <div className="flex-grow" ref={nameAndBarsRef}>
           <div className="mb-1.5 flex justify-between text-lg">
             <span>
-              {entityProperties.name}
+              {entityProperties.name} {entityId}
               <UnspentAttributesButton
                 combatantProperties={combatantProperties}
                 handleClick={handleUnspentAttributesButtonClick}

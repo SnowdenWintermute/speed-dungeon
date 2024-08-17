@@ -21,6 +21,8 @@ import getActiveCombatant from "@/utils/getActiveCombatant";
 import getParty from "@/utils/getParty";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
+import { FloatingText } from "./floating-text";
+import { BabylonControlledCombatantData } from "./babylon-controlled-combatant-data";
 
 export enum MenuContext {
   InventoryItems,
@@ -51,7 +53,9 @@ export class GameState {
   menuContext: MenuContext | null = null;
   battleReportPendingProcessing: null | BattleReport = null;
   combatLogMessages: CombatLogMessage[] = [];
-  babylonControlledCombatantDOMData: { [combatantId: string]: string } = {};
+  lastDebugMessageId: number = 0;
+  babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
+  combatantFloatingText: { [combatantId: string]: FloatingText[] } = {};
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
     if (party instanceof Error) return null;

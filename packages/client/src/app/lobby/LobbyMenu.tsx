@@ -2,7 +2,12 @@
 "use client";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import { FormEvent, useState } from "react";
-import { ClientToServerEvent, CombatantClass } from "@speed-dungeon/common";
+import {
+  ClientToServerEvent,
+  CombatActionType,
+  CombatantAbilityName,
+  CombatantClass,
+} from "@speed-dungeon/common";
 import ButtonBasic from "../components/atoms/ButtonBasic";
 import { useGameStore } from "@/stores/game-store";
 
@@ -30,6 +35,11 @@ export default function LobbyMenu() {
     socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
     socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Rogue);
     socketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
+    // socketOption?.emit(ClientToServerEvent.ToggleReadyToExplore);
+    // socketOption?.emit(ClientToServerEvent.SelectCombatAction, "1", {
+    //   type: CombatActionType.AbilityUsed,
+    //   abilityName: CombatantAbilityName.Attack,
+    // });
   }
 
   return (

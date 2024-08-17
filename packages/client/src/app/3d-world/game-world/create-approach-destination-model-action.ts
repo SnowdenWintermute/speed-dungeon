@@ -24,7 +24,8 @@ export default function createApproachDestinationModelAction(
     }
 
     let targetModelOption: null | undefined | ModularCharacter = null;
-    if (targetIdOption !== null) targetModelOption = gameWorld.combatantModels[targetIdOption];
+    if (targetIdOption !== null)
+      targetModelOption = gameWorld.modelManager.combatantModels[targetIdOption];
     if (targetModelOption === undefined)
       return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     if (targetModelOption !== null) {
