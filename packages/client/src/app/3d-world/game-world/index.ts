@@ -19,6 +19,8 @@ import showDebugText from "./show-debug-text";
 import processMessagesFromNext from "./process-messages-from-next";
 import { NextBabylonMessagingState } from "@/stores/next-babylon-messaging-store";
 import { ModelManager } from "./model-manager";
+import enqueueNewActionResultsFromTurnResults from "./enqueue-new-action-results-from-turn-results";
+import handleGameWorldError from "./handle-error";
 
 export class GameWorld {
   scene: Scene;
@@ -48,7 +50,8 @@ export class GameWorld {
       this.processMessagesFromNext();
       this.modelManager.startProcessingNewMessages();
 
-      // processTurnResultsQueue
+      const turnResultsErrorOption = this.enqueueNewActionResultsFromTurnResults();
+      if (turnResultsErrorOption instanceof Error) console.error(turnResultsErrorOption);
 
       for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
         combatantModel.updateDomRefPosition();
@@ -71,10 +74,12 @@ export class GameWorld {
     });
   }
 
+  handleError = handleGameWorldError;
   initScene = initScene;
   handleMessageFromNext = handleMessageFromNext;
   showDebugText = showDebugText;
   processMessagesFromNext = processMessagesFromNext;
+  enqueueNewActionResultsFromTurnResults = enqueueNewActionResultsFromTurnResults;
 
   async importMesh(path: string) {
     const sceneResult = await SceneLoader.ImportMeshAsync("", BASE_FILE_PATH, path, this.scene);

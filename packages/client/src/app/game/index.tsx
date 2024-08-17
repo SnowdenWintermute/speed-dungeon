@@ -4,7 +4,7 @@ import PartyWipeModal from "./PartyWipeModal";
 import TopInfoBar from "./TopInfoBar";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
 import MonsterPlaques from "./MonsterPlaques";
-import { ERROR_MESSAGES } from "@speed-dungeon/common";
+import { CombatActionTargetType, ERROR_MESSAGES, FriendOrFoe } from "@speed-dungeon/common";
 import ActionMenu from "./ActionMenu";
 import CharacterAutofocusManager from "./CharacterAutofocusManager";
 import CharacterSheet from "./character-sheet";
@@ -12,13 +12,12 @@ import ItemDetailsWithComparison from "./ItemDetailsWithComparison";
 import CharacterSheetItemDetailsViewer from "./character-sheet/CharacterSheetItemDetailsViewer";
 import ItemsOnGround from "./ItemsOnGround";
 import ReadyUpDisplay from "./ReadyUpDisplay";
+import { MonsterType } from "@speed-dungeon/common/src/monsters/monster-types";
 
 export default function Game() {
   const game = useGameStore().game;
   const menuContext = useGameStore().menuContext;
   const hoveredEntity = useGameStore().hoveredEntity;
-
-  const cameraData = useGameStore().cameraData;
 
   const username = useGameStore().username;
   if (!username)

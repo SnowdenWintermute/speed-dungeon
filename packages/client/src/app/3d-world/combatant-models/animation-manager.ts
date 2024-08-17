@@ -13,8 +13,10 @@ export class AnimationManager {
     this.skeleton.animationGroups[0]?.stop();
     const idleAnimation = this.getAnimationGroupByName("Idle");
     if (idleAnimation) this.setAnimationPlaying(idleAnimation, { shouldLoop: true });
-    const idleAnimationLc = this.getAnimationGroupByName("idle");
-    if (idleAnimationLc) this.setAnimationPlaying(idleAnimationLc, { shouldLoop: true });
+    else {
+      const idleAnimationLc = this.getAnimationGroupByName("idle");
+      if (idleAnimationLc) this.setAnimationPlaying(idleAnimationLc, { shouldLoop: true });
+    }
     // // TESTING
     // const runAnimation = this.getAnimationGroupByName("Run");
     // if (runAnimation) this.startAnimationWithTransition(runAnimation, 10000, { shouldLoop: true });
@@ -60,12 +62,18 @@ export class AnimationManager {
     };
     this.playing = null;
 
+    console.log("starting with trasition loop: ", options.shouldLoop);
     transitionTo.start(options.shouldLoop);
     transitionTo.setWeightForAllAnimatables(0.0);
   }
 
   stepAnimationTransitionWeights(): Error | void {
     if (this.transition === null) return;
+    if (
+      this.transition.transitioningTo.animationGroup.name ===
+      this.transition.transitioningFrom.animationGroup.name
+    )
+      return;
 
     const timeSinceTransitionStarted = Date.now() - this.transition.timeStarted;
     // actually it is a number between 0 and 1 so not exactly a "percent"

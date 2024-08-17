@@ -11,6 +11,7 @@ import TailwindClassLoader from "./TailwindClassLoader";
 import GlobalKeyboardEventManager from "./GlobalKeyboardEventManager";
 import TooltipManager from "./TooltipManager";
 import SceneManager from "./3d-world/SceneManager";
+import { CombatActionTargetType, FriendOrFoe, TargetCategories } from "@speed-dungeon/common";
 // for immer to be able to use map and set
 enableMapSet();
 
@@ -18,6 +19,10 @@ export default function Home() {
   const game = useGameStore().game;
 
   const componentToRender = game?.timeStarted ? <Game /> : game ? <GameSetup /> : <Lobby />;
+
+  console.log(TargetCategories.Any);
+  console.log(FriendOrFoe.Hostile);
+  // console.log(CombatActionTargetType.Group);
 
   return (
     <>

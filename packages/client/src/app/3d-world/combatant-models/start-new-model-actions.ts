@@ -14,6 +14,7 @@ export default function startNewModelActions(
     this.activeModelActions[CombatantModelActionType.Idle];
 
   if (readyToStartNewActions && this.modelActionQueue.length > 0) {
+    delete this.activeModelActions[CombatantModelActionType.Idle];
     // put new action progress tracken in active actions object
     const newModelAction = this.modelActionQueue.shift()!;
     this.activeModelActions[newModelAction.type] = new CombatantModelActionProgressTracker(
@@ -51,8 +52,20 @@ export default function startNewModelActions(
         5000
       );
     }
-    //
-  } else if (!this.modelActionQueue[CombatantModelActionType.Idle]) {
-    // start idling if not already doing so
+  } else if (
+    this.modelActionQueue.length === 0 &&
+    this.modelActionQueue[CombatantModelActionType.Idle] === undefined
+  ) {
+    // // start idling if not already doing so
+    // if (this.activeModelActions[CombatantModelActionType.Idle] === undefined) {
+    //   this.activeModelActions[CombatantModelActionType.Idle] =
+    //     new CombatantModelActionProgressTracker({ type: CombatantModelActionType.Idle });
+    //   const animationGroup = this.animationManager.getAnimationGroupByName("idle");
+    //   if (animationGroup !== undefined)
+    //     this.animationManager.startAnimationWithTransition(animationGroup, 1000, {
+    //       shouldLoop: true,
+    //     });
+    //   else setDebugMessage(mutateGameState, this.entityId, `Missing animation: idle`, 5000);
+    // }
   }
 }

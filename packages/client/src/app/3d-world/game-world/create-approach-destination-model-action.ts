@@ -1,6 +1,5 @@
-import { ActionResult, ERROR_MESSAGES } from "@speed-dungeon/common";
+import { ActionResult, CombatActionTargetType, ERROR_MESSAGES } from "@speed-dungeon/common";
 import { combatActionRequiresMeleeRange } from "@speed-dungeon/common";
-import { CombatActionTargetType } from "@speed-dungeon/common";
 import { ModularCharacter } from "../combatant-models/modular-character";
 import { GameWorld } from ".";
 import { CombatantModelAction, CombatantModelActionType } from "../combatant-models/model-actions";
@@ -60,6 +59,7 @@ export default function createApproachDestinationModelAction(
     type: CombatantModelActionType.ApproachDestination,
     previousLocation: actionUserModel.rootMesh.position,
     previousRotation: actionUserModel.rootMesh.rotationQuaternion,
+    distance: Vector3.Distance(actionUserModel.rootMesh.position, destinationLocation),
     destinationLocation,
     destinationRotation: destinationQuaternion,
   };

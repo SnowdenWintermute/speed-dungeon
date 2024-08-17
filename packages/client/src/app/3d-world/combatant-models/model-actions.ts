@@ -23,6 +23,7 @@ type ApproachDestinationModelAction = {
   type: CombatantModelActionType.ApproachDestination;
   previousLocation: Vector3;
   previousRotation: Quaternion;
+  distance: number;
   destinationLocation: Vector3;
   destinationRotation: Quaternion;
 };

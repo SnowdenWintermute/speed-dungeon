@@ -93,6 +93,7 @@ export const ERROR_MESSAGES = {
     INCOMPLETE_SKELETON_FILE: "The loaded skeleton asset is missing something",
     MISSING_ROTATION_QUATERNION: "Expected rotation data was missing",
     MISSING_ANIMATION: "No animation found",
+    INCORRECT_MODEL_ACTION: "The wrong type of model action was passed to this function",
   },
   CHECKED_EXPECTATION_FAILED:
     "Code was reached that should have been impossible due to prior value checks",
