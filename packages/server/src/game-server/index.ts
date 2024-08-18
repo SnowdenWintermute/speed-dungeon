@@ -44,6 +44,7 @@ import useSelectedCombatActionHandler from "./game-event-handlers/character-uses
 import handleBattleVictory from "./game-event-handlers/combat-action-results-processing/handle-battle-victory";
 import selectCombatActionHandler from "./game-event-handlers/select-combat-action-handler";
 import cycleTargetsHandler from "./game-event-handlers/cycle-targets-handler";
+import cycleTargetingSchemesHandler from "./game-event-handlers/cycle-targeting-schemes-handler";
 
 export type Username = string;
 export type SocketId = string;
@@ -103,6 +104,7 @@ export class GameServer {
   useSelectedCombatActionHandler = useSelectedCombatActionHandler;
   selectCombatActionHandler = selectCombatActionHandler;
   cycleTargetsHandler = cycleTargetsHandler;
+  cycleTargetingSchemesHandler = cycleTargetingSchemesHandler;
   // UTILS
   getSocketCurrentGame = getSocketCurrentGame;
   getSocketIdsOfPlayersInOtherParties = getSocketIdsOfPlayersInOtherParties;

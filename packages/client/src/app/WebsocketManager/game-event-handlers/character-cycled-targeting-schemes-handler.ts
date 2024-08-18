@@ -1,19 +1,13 @@
 import { AlertState } from "@/stores/alert-store";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
-import {
-  CharacterAssociatedData,
-  ERROR_MESSAGES,
-  NextOrPrevious,
-  SpeedDungeonGame,
-} from "@speed-dungeon/common";
 import clientCharacterActionHandler from "../client-character-action-handler";
+import { CharacterAssociatedData, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
 
-export default function characterCycledTargetsHandler(
+export default function characterCycledTargetingSchemesHandler(
   mutateGameState: MutateState<GameState>,
   mutateAlertState: MutateState<AlertState>,
   characterId: string,
-  direction: NextOrPrevious,
   playerUsername: string
 ) {
   clientCharacterActionHandler(
@@ -21,16 +15,14 @@ export default function characterCycledTargetsHandler(
     mutateAlertState,
     characterId,
     ({ game, party }: CharacterAssociatedData, gameState: GameState) => {
-      console.log("got character cycled targets");
       if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
       const playerOption = game.players[playerUsername];
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
-      return SpeedDungeonGame.cycleCharacterTargets(
+      return SpeedDungeonGame.cycleCharacterTargetingSchemes(
         game,
         party,
         playerOption,
-        characterId,
-        direction
+        characterId
       );
     }
   );

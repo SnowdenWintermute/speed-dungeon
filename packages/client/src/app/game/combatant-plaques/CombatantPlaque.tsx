@@ -28,8 +28,6 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const babylonDebugMessages = useGameStore().babylonControlledCombatantDOMData[entityId];
   const babylonModelDomPositionRef = useRef<HTMLDivElement>(null);
 
-  const [floatingTextState, setFloatingTextState] = useState([]);
-
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
       detailedEntity: state.detailedEntity,

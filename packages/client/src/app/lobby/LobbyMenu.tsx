@@ -42,6 +42,22 @@ export default function LobbyMenu() {
     // });
   }
 
+  function quickHost() {
+    console.log("quick starting with socket", socketOption);
+    socketOption?.emit(ClientToServerEvent.CreateGame, "test game");
+    socketOption?.emit(ClientToServerEvent.CreateParty, "test party");
+    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Warrior);
+  }
+
+  function quickJoin() {
+    console.log("quick starting with socket", socketOption);
+    socketOption?.emit(ClientToServerEvent.RequestsGameList);
+    socketOption?.emit(ClientToServerEvent.JoinGame, "test game");
+    socketOption?.emit(ClientToServerEvent.JoinParty, "test party");
+    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
+    socketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
+  }
+
   return (
     <section className="w-full bg-slate-700 border border-slate-400 p-4 mb-4 flex justify-between pointer-events-auto">
       <div className="flex">
@@ -60,6 +76,8 @@ export default function LobbyMenu() {
           <ButtonBasic onClick={quickStartGame} hotkey={"KeyS"} extraStyles=" text-yellow-400 ml-2">
             Quick Start
           </ButtonBasic>
+          <ButtonBasic onClick={quickHost}>Quick Host</ButtonBasic>
+          <ButtonBasic onClick={quickJoin}>Quick Join</ButtonBasic>
         </form>
         <ButtonBasic onClick={refreshGameList}>Refresh List</ButtonBasic>
       </div>

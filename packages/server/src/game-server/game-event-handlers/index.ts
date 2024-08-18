@@ -103,6 +103,16 @@ export default function initiateGameEventListeners(
       );
     }
   );
+  socket.on(ClientToServerEvent.CycleTargetingSchemes, (characterId: string) => {
+    this.emitErrorEventIfError(socket, () =>
+      this.characterActionHandler(
+        socket.id,
+        characterId,
+        (socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
+          this.cycleTargetingSchemesHandler(socket, socketMeta, characterAssociatedData)
+      )
+    );
+  });
   socket.on(ClientToServerEvent.UseSelectedCombatAction, (characterId: string) => {
     this.emitErrorEventIfError(socket, () =>
       this.characterActionHandler(

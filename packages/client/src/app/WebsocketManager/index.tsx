@@ -35,6 +35,8 @@ import gameStartedHandler from "./game-event-handlers/game-started-handler";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import characterCycledTargetsHandler from "./game-event-handlers/character-cycled-targets-handler";
+import characterSelectedCombatActionHandler from "./game-event-handlers/character-selected-combat-action-handler";
+import characterCycledTargetingSchemesHandler from "./game-event-handlers/character-cycled-targeting-schemes-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -234,8 +236,25 @@ function SocketManager() {
     );
     socket.on(
       ServerToClientEvent.CharacterCycledTargets,
-      (characterId: string, direction: NextOrPrevious) => {
-        characterCycledTargetsHandler(mutateGameStore, mutateAlertStore, characterId, direction);
+      (characterId: string, direction: NextOrPrevious, playerUsername: string) => {
+        characterCycledTargetsHandler(
+          mutateGameStore,
+          mutateAlertStore,
+          characterId,
+          direction,
+          playerUsername
+        );
+      }
+    );
+    socket.on(
+      ServerToClientEvent.CharacterCycledTargetingSchemes,
+      (characterId: string, playerUsername: string) => {
+        characterCycledTargetingSchemesHandler(
+          mutateGameStore,
+          mutateAlertStore,
+          characterId,
+          playerUsername
+        );
       }
     );
 

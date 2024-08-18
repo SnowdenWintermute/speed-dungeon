@@ -39,6 +39,7 @@ export enum ServerToClientEvent {
   RawActionResults = "28",
   CharacterSelectedCombatAction = "29",
   CharacterCycledTargets = "30",
+  CharacterCycledTargetingSchemes = "31",
 }
 
 export interface ServerToClientEventTypes {
@@ -93,7 +94,12 @@ export interface ServerToClientEventTypes {
   ) => void;
   [ServerToClientEvent.CharacterCycledTargets]: (
     characterId: string,
-    direction: NextOrPrevious
+    direction: NextOrPrevious,
+    playerUsername: string
+  ) => void;
+  [ServerToClientEvent.CharacterCycledTargetingSchemes]: (
+    characterId: string,
+    playerUsername: string
   ) => void;
 }
 

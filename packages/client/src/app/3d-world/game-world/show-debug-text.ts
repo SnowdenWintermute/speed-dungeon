@@ -14,10 +14,10 @@ export default function showDebugText(this: GameWorld) {
           z ${this.camera.target.z.toFixed(2)}</div>`;
     this.debug.debugRef.current.innerHTML = [
       fps,
-      cameraAlpha,
-      cameraBeta,
-      cameraRadius,
-      cameraTarget,
+      // cameraAlpha,
+      // cameraBeta,
+      // cameraRadius,
+      // cameraTarget,
     ].join("");
   }
 }
