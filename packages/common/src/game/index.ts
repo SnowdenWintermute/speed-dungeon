@@ -8,6 +8,7 @@ import { Battle } from "../battle";
 import { EntityId } from "../primatives";
 import { IdGenerator } from "./id-generator";
 import { SpeedDungeonPlayer } from "./player";
+import assignCharacterActionTargets from "../combat/targeting/assign-character-action-targets";
 import putPlayerInParty from "./put-player-in-party";
 import removePlayerFromParty from "./remove-player-from-party";
 import cycleCharacterTargets from "../combat/targeting/cycle-character-targets";
@@ -22,7 +23,6 @@ import endActiveCombatantTurn from "../combat/turn-order/end-active-combatant-tu
 import allCombatantsInGroupAreDead from "../combat/all-combatants-in-group-are-dead";
 import { getPlayerParty } from "./get-player-party";
 import cycleCharacterTargetingSchemes from "../combat/targeting/cycle-character-targeting-schemes";
-import assignCharacterActionTargets from "../combat/targeting/assign-character-action-targets";
 import getActionResults from "../combat/action-results/get-action-results";
 
 export class SpeedDungeonGame {

@@ -1,6 +1,5 @@
 import { AdventuringParty } from ".";
-import { CombatAction, FriendOrFoe } from "../combat";
-import { CombatActionTargetType } from "../combat/targeting/combat-action-targets";
+import { CombatAction, CombatActionTargetType, FriendOrFoe } from "../combat";
 import { filterPossibleTargetIdsByProhibitedCombatantStates } from "../combat/targeting/filtering";
 import { CombatantProperties } from "../combatants";
 import getMonsterIdsInParty from "./get-monster-ids-in-party";

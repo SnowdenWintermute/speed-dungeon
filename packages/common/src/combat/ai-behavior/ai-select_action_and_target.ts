@@ -1,9 +1,9 @@
-import { FriendOrFoe } from "..";
+import { CombatActionTargetType, FriendOrFoe } from "..";
 import { BattleGroup } from "../../battle";
 import { CombatantAbilityName, CombatantDetails, CombatantProperties } from "../../combatants";
 import { ERROR_MESSAGES } from "../../errors";
 import { SpeedDungeonGame } from "../../game";
-import { CombatActionTarget, CombatActionTargetType } from "../targeting/combat-action-targets";
+import { CombatActionTarget } from "../targeting/combat-action-targets";
 
 export interface AbilityAndTarget {
   abilityName: CombatantAbilityName;
