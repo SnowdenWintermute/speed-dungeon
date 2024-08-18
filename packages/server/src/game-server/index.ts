@@ -43,6 +43,7 @@ import { generateRandomItem } from "./item-generation/generate-random-item";
 import useSelectedCombatActionHandler from "./game-event-handlers/character-uses-selected-combat-action-handler";
 import handleBattleVictory from "./game-event-handlers/combat-action-results-processing/handle-battle-victory";
 import selectCombatActionHandler from "./game-event-handlers/select-combat-action-handler";
+import cycleTargetsHandler from "./game-event-handlers/cycle-targets-handler";
 
 export type Username = string;
 export type SocketId = string;
@@ -101,6 +102,7 @@ export class GameServer {
   pickUpItemHandler = pickUpItemHandler;
   useSelectedCombatActionHandler = useSelectedCombatActionHandler;
   selectCombatActionHandler = selectCombatActionHandler;
+  cycleTargetsHandler = cycleTargetsHandler;
   // UTILS
   getSocketCurrentGame = getSocketCurrentGame;
   getSocketIdsOfPlayersInOtherParties = getSocketIdsOfPlayersInOtherParties;

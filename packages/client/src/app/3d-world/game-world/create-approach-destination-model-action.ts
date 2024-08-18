@@ -34,7 +34,7 @@ export default function createApproachDestinationModelAction(
       const direction = targetModel.rootMesh.position
         .subtract(actionUserModel.rootMesh.position)
         .normalize();
-      destinationLocation = targetModel.rootMesh.position.add(
+      destinationLocation = targetModel.rootMesh.position.subtract(
         direction.scale(targetModel.hitboxRadius)
       );
 

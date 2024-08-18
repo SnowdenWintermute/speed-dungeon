@@ -5,7 +5,9 @@ import {
   CharacterAndItem,
   CharacterAndSlot,
   ClientToServerEvent,
+  CombatAction,
   EquipItemPacket,
+  NextOrPrevious,
   ServerToClientEvent,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
@@ -32,6 +34,7 @@ import characterPickedUpItemHandler from "./game-event-handlers/character-picked
 import gameStartedHandler from "./game-event-handlers/game-started-handler";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
+import characterCycledTargetsHandler from "./game-event-handlers/character-cycled-targets-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -218,6 +221,23 @@ function SocketManager() {
     socket.on(ServerToClientEvent.CharacterPickedUpItem, (packet: CharacterAndItem) => {
       characterPickedUpItemHandler(mutateGameStore, mutateAlertStore, packet);
     });
+    socket.on(
+      ServerToClientEvent.CharacterSelectedCombatAction,
+      (characterId: string, combatActionOption: null | CombatAction) => {
+        characterSelectedCombatActionHandler(
+          mutateGameStore,
+          mutateAlertStore,
+          characterId,
+          combatActionOption
+        );
+      }
+    );
+    socket.on(
+      ServerToClientEvent.CharacterCycledTargets,
+      (characterId: string, direction: NextOrPrevious) => {
+        characterCycledTargetsHandler(mutateGameStore, mutateAlertStore, characterId, direction);
+      }
+    );
 
     return () => {
       if (socketOption) {

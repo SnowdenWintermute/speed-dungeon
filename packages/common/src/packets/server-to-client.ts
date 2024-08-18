@@ -4,6 +4,7 @@ import { Battle, BattleConclusion } from "../battle";
 import { ActionResult, CombatAction, CombatTurnResult } from "../combat";
 import { SpeedDungeonGame } from "../game";
 import { EquipmentSlot, Item } from "../items";
+import { NextOrPrevious } from "../primatives";
 import { GameMessage } from "./game-message";
 
 export enum ServerToClientEvent {
@@ -37,6 +38,7 @@ export enum ServerToClientEvent {
   CharacterPickedUpItem = "27",
   RawActionResults = "28",
   CharacterSelectedCombatAction = "29",
+  CharacterCycledTargets = "30",
 }
 
 export interface ServerToClientEventTypes {
@@ -88,6 +90,10 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.CharacterSelectedCombatAction]: (
     characterId: string,
     combatActionOption: null | CombatAction
+  ) => void;
+  [ServerToClientEvent.CharacterCycledTargets]: (
+    characterId: string,
+    direction: NextOrPrevious
   ) => void;
 }
 

@@ -5,6 +5,7 @@ import {
   CharacterAssociatedData,
   EquipmentSlot,
   CombatAction,
+  NextOrPrevious,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import { GameServer } from "..";
@@ -85,6 +86,19 @@ export default function initiateGameEventListeners(
           characterId,
           (socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
             this.selectCombatActionHandler(socketMeta, characterAssociatedData, combatAction)
+        )
+      );
+    }
+  );
+  socket.on(
+    ClientToServerEvent.CycleCombatActionTargets,
+    (characterId: string, direction: NextOrPrevious) => {
+      this.emitErrorEventIfError(socket, () =>
+        this.characterActionHandler(
+          socket.id,
+          characterId,
+          (socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
+            this.cycleTargetsHandler(socket, socketMeta, characterAssociatedData, direction)
         )
       );
     }
