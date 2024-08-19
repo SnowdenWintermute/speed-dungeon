@@ -54,7 +54,7 @@ export class ModularCharacter {
     public world: GameWorld,
     public monsterType: null | MonsterType,
     public skeleton: ISceneLoaderAsyncResult,
-    public modelDomPositionRef: React.RefObject<HTMLDivElement>,
+    // public modelDomPositionRef: React.MutableRefObject<HTMLDivElement | null> | null,
     startPosition: Vector3 = Vector3.Zero(),
     startRotation: number = 0
   ) {
@@ -85,15 +85,15 @@ export class ModularCharacter {
 
   updateDomRefPosition() {
     const boundingBox = this.getClientRectFromMesh(this.rootMesh);
-    if (this.modelDomPositionRef.current) {
-      this.modelDomPositionRef.current.setAttribute(
-        "style",
-        `height: ${boundingBox.height}px;
-         width: ${boundingBox.width}px;
-         top: ${boundingBox.top}px;
-         left: ${boundingBox.left}px;`
-      );
-    }
+    // if (this.modelDomPositionRef?.current) {
+    //   this.modelDomPositionRef.current.setAttribute(
+    //     "style",
+    //     `height: ${boundingBox.height}px;
+    //      width: ${boundingBox.width}px;
+    //      top: ${boundingBox.top}px;
+    //      left: ${boundingBox.left}px;`
+    //   );
+    // }
   }
 
   updateBoundingBox() {

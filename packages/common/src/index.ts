@@ -4,6 +4,7 @@ export * from "./utils/";
 export * from "./errors/";
 export * from "./game/";
 export * from "./combat/";
+export * from "./monsters/";
 export * from "./battle/";
 export * from "./combatants/";
 export * from "./adventuring_party/";

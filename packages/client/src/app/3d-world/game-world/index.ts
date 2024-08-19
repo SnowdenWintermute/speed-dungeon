@@ -49,10 +49,8 @@ export class GameWorld {
       this.showDebugText();
       this.processMessagesFromNext();
       this.modelManager.startProcessingNewMessages();
-
       const turnResultsErrorOption = this.enqueueNewActionResultsFromTurnResults();
       if (turnResultsErrorOption instanceof Error) console.error(turnResultsErrorOption);
-
       for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
         combatantModel.updateDomRefPosition();
         // start model actions from action results

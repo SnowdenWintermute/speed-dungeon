@@ -26,7 +26,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const mutateGameState = useGameStore().mutateState;
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const babylonDebugMessages = useGameStore().babylonControlledCombatantDOMData[entityId];
-  const babylonModelDomPositionRef = useRef<HTMLDivElement>(null);
+  const babylonModelDomPositionRef = useRef<HTMLDivElement | null>(null);
 
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
@@ -59,8 +59,8 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
     requestSpawnCombatantModel(
       combatantDetailsResult,
       party,
-      mutateNextBabylonMessagingStore,
-      babylonModelDomPositionRef
+      mutateNextBabylonMessagingStore
+      // babylonModelDomPositionRef
     );
     return () => {
       mutateNextBabylonMessagingStore((state) => {

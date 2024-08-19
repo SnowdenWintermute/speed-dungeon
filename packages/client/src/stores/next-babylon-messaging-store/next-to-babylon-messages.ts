@@ -4,7 +4,7 @@ import {
   CombatantClass,
   CombatantSpecies,
 } from "@speed-dungeon/common";
-import { MonsterType } from "@speed-dungeon/common/src/monsters/monster-types";
+import { MonsterType } from "@speed-dungeon/common";
 import { Vector3 } from "babylonjs";
 
 export enum NextToBabylonMessageTypes {
@@ -12,7 +12,6 @@ export enum NextToBabylonMessageTypes {
   RemoveCombatantModel,
   NewTurnResults,
   NewActionResults,
-  // SetCombatantDomRef,
 }
 
 export interface CombatantModelBlueprint {
@@ -22,7 +21,7 @@ export interface CombatantModelBlueprint {
   class: CombatantClass;
   startPosition: Vector3;
   startRotation: number;
-  modelDomPositionRef: React.RefObject<HTMLDivElement>;
+  // modelDomPositionRef: React.RefObject<HTMLDivElement | null>;
 }
 
 type SpawnCombatantModelMessage = {
@@ -45,16 +44,8 @@ type NewActionResultsMessage = {
   actionResults: ActionResult[];
 };
 
-// type SetCombatantDomRefMessage = {
-//   type: NextToBabylonMessageTypes.SetCombatantDomRef;
-//   combatantId: string;
-//   babylonModelDomPositionRef: React.RefObject<HTMLDivElement>;
-// };
-
 export type NextToBabylonMessage =
   | SpawnCombatantModelMessage
   | RemoveCombatantModelMessage
   | NewTurnResultsMessage
-  | NewActionResultsMessage
-  // | SetCombatantDomRefMessage
-  ;
+  | NewActionResultsMessage;
