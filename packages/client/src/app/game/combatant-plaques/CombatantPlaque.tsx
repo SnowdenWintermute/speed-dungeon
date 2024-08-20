@@ -21,12 +21,14 @@ interface Props {
   showExperience: boolean;
 }
 
+const modelDomPositionElements: { [entityId: string]: null | HTMLDivElement } = {};
+
 export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const gameOption = useGameStore().game;
   const mutateGameState = useGameStore().mutateState;
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
-  const babylonDebugMessages = useGameStore().babylonControlledCombatantDOMData[entityId];
-  const babylonModelDomPositionRef = useRef<HTMLDivElement | null>(null);
+  const babylonDebugMessages =
+    useGameStore().babylonControlledCombatantDOMData[entityId]?.debugMessages;
 
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
@@ -42,7 +44,9 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const combatantDetailsResult = AdventuringParty.getCombatant(party, entityId);
   if (combatantDetailsResult instanceof Error) return <div>{combatantDetailsResult.message}</div>;
   const { entityProperties, combatantProperties } = combatantDetailsResult;
-  const battleOption = getCurrentBattleOption(game, party.name);
+  const battleOptionResult = getCurrentBattleOption(game, party.name);
+  if (battleOptionResult instanceof Error) return <div>{battleOptionResult.message}</div>;
+  const battleOption = battleOptionResult;
 
   // for measuring the element so we can get the correct portrait height
   // and getting the position so we can position the details window without going off the screen
@@ -55,18 +59,32 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
     setPortraitHeight(height);
   }, []);
 
+  // const babylonModelDomPositionRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
+    const element = document.getElementById(`${entityId}-position-div`);
+    modelDomPositionElements[entityId] = element as HTMLDivElement | null;
+    // babylonModelDomPositionRef.current = element as HTMLDivElement;
+
     requestSpawnCombatantModel(
       combatantDetailsResult,
       party,
-      mutateNextBabylonMessagingStore
-      // babylonModelDomPositionRef
+      mutateNextBabylonMessagingStore,
+      element as HTMLDivElement | null
     );
     return () => {
+      // we'll remove them in the handling of their LeftGame
+      // websocket message so as to avoid crashing the client
+      // due to babylon still holding their babylonModelDomPositionRef
+      // when this unmounts
+      console.log("unmounting plaque");
+      modelDomPositionElements[entityId] = null;
+      delete modelDomPositionElements[entityId];
+      // if (babylonModelDomPositionRef.current) babylonModelDomPositionRef.current = null;
       mutateNextBabylonMessagingStore((state) => {
         state.nextToBabylonMessages.push({
           type: NextToBabylonMessageTypes.RemoveCombatantModel,
           entityId,
+          callbackOption: null,
         });
       });
     };
@@ -93,30 +111,34 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
 
   return (
     <div>
-      <div ref={babylonModelDomPositionRef} className="absolute">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-          {
-            // floating text here
-          }
+      {
+        <div id={`${entityId}-position-div`} className="absolute border-2 border-red-700">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            {
+              // floating text here
+            }
+          </div>
+          <div className="absolute flex flex-col align-middle top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px]">
+            {babylonDebugMessages?.map((message) => (
+              <div
+                className="text-xl relative"
+                key={message.id}
+                // style={{
+                //   animation: "float-up-and-fade-out",
+                //   animationDuration: `${message.displayTime + 50}ms`,
+                //   animationTimingFunction: "linear",
+                //   animationIterationCount: 1,
+                // }}
+              >
+                <div>{message.text}</div>
+                <div className="absolute z-[-1] text-black top-[3px] left-[3px]">
+                  {message.text}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="absolute flex flex-col align-middle top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px]">
-          {babylonDebugMessages?.debugMessages.map((message) => (
-            <div
-              className="text-xl relative"
-              key={message.id}
-              // style={{
-              //   animation: "float-up-and-fade-out",
-              //   animationDuration: `${message.displayTime + 50}ms`,
-              //   animationTimingFunction: "linear",
-              //   animationIterationCount: 1,
-              // }}
-            >
-              <div>{message.text}</div>
-              <div className="absolute z-[-1] text-black top-[3px] left-[3px]">{message.text}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+      }
       <div
         className={`w-96 h-fit border bg-slate-700 pointer-events-auto flex p-2.5 relative box-border ${conditionalBorder} `}
         ref={combatantPlaqueRef}

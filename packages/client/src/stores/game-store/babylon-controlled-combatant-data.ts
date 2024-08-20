@@ -1,7 +1,8 @@
 import { GameState } from ".";
 
 export class BabylonControlledCombatantData {
-  constructor(public debugMessages: CombatantModelDebugMessage[]) {}
+  debugMessages: CombatantModelDebugMessage[] = [];
+  constructor() {}
 }
 
 export class CombatantModelDebugMessage {
@@ -25,7 +26,8 @@ export function setDebugMessage(
       displayTime
     );
     if (!gameState.babylonControlledCombatantDOMData[combatantId]) {
-      gameState.babylonControlledCombatantDOMData[combatantId] = { debugMessages: [] };
+      gameState.babylonControlledCombatantDOMData[combatantId] =
+        new BabylonControlledCombatantData();
     }
 
     gameState.babylonControlledCombatantDOMData[combatantId]?.debugMessages.push(newMessage);

@@ -28,6 +28,9 @@ import { AnimationManager } from "./animation-manager";
 import { MonsterType } from "@speed-dungeon/common/src/monsters/monster-types";
 import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
 import processActiveModelActions from "./process-active-model-actions";
+import { MutateState } from "@/stores/mutate-state";
+import { GameState } from "@/stores/game-store";
+import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -55,6 +58,7 @@ export class ModularCharacter {
     public monsterType: null | MonsterType,
     public skeleton: ISceneLoaderAsyncResult,
     // public modelDomPositionRef: React.MutableRefObject<HTMLDivElement | null> | null,
+    public modelDomPositionRef: HTMLDivElement | null,
     startPosition: Vector3 = Vector3.Zero(),
     startRotation: number = 0
   ) {
@@ -94,6 +98,15 @@ export class ModularCharacter {
     //      left: ${boundingBox.left}px;`
     //   );
     // }
+    if (this.modelDomPositionRef) {
+      this.modelDomPositionRef.setAttribute(
+        "style",
+        `height: ${boundingBox.height}px;
+         width: ${boundingBox.width}px;
+         top: ${boundingBox.top}px;
+         left: ${boundingBox.left}px;`
+      );
+    }
   }
 
   updateBoundingBox() {

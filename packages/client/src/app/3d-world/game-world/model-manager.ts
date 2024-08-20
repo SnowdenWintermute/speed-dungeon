@@ -33,6 +33,11 @@ class ModelMessageQueue {
           break;
         case ModelManagerMessageType.DespawnModel:
           this.modelManager.despawnCharacterModel(this.entityId);
+          console.log(this.modelManager.combatantModels);
+          if (currentMessageProcessing.callbackOption) {
+            console.log("running callback for entity id ", this.entityId);
+            currentMessageProcessing.callbackOption();
+          }
           break;
       }
       currentMessageProcessing = this.messages.shift();
@@ -84,7 +89,7 @@ export class ModelManager {
       this.world,
       blueprint.monsterType,
       skeleton,
-      // blueprint.modelDomPositionRef,
+      blueprint.modelDomPositionRef,
       blueprint.startPosition,
       blueprint.startRotation
     );
@@ -127,6 +132,7 @@ type SpawnCombatantModelManagerMessage = {
 
 type DespawnModelManagerMessage = {
   type: ModelManagerMessageType.DespawnModel;
+  callbackOption: null | (() => void);
 };
 
 type ModelManagerMessage = SpawnCombatantModelManagerMessage | DespawnModelManagerMessage;

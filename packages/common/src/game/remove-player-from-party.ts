@@ -11,7 +11,6 @@ export default function removePlayerFromParty(game: SpeedDungeonGame, username: 
   const partyLeaving = game.adventuringParties[player.partyName];
   if (!partyLeaving) throw new Error("No party exists");
   const characterIds = cloneDeep(player.characterIds);
-  console.log("characterIds while leaving party: ", characterIds);
   player.characterIds = [];
   player.partyName = null;
   if (characterIds) {

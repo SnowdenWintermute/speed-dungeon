@@ -1,3 +1,4 @@
+import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { NextBabylonMessagingState } from "@/stores/next-babylon-messaging-store";
 import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
@@ -13,8 +14,9 @@ import { Vector3 } from "babylonjs";
 export default function requestSpawnCombatantModel(
   combatantDetails: CombatantDetails,
   party: AdventuringParty,
-  mutateNextBabylonMessagingStore: MutateState<NextBabylonMessagingState>
+  mutateNextBabylonMessagingStore: MutateState<NextBabylonMessagingState>,
   // modelDomPositionRef: React.MutableRefObject<HTMLDivElement | null>
+  modelDomPositionRef: HTMLDivElement | null
 ) {
   const entityId = combatantDetails.entityProperties.id;
   const { combatantProperties } = combatantDetails;
@@ -64,7 +66,7 @@ export default function requestSpawnCombatantModel(
         // startPosition: new Vector3(0, 0, rowPositionOffset),
         startPosition: new Vector3(positionSpacing, 0, rowPositionOffset),
         startRotation,
-        // modelDomPositionRef,
+        modelDomPositionRef,
       },
     });
   });

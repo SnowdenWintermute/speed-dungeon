@@ -17,6 +17,7 @@ export default function handleMessageFromNext(this: GameWorld, message: NextToBa
     case NextToBabylonMessageTypes.RemoveCombatantModel:
       this.modelManager.enqueueMessage(message.entityId, {
         type: ModelManagerMessageType.DespawnModel,
+        callbackOption: message.callbackOption,
       });
       break;
     case NextToBabylonMessageTypes.NewTurnResults:

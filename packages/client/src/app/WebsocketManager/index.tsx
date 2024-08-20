@@ -37,6 +37,7 @@ import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store
 import characterCycledTargetsHandler from "./game-event-handlers/character-cycled-targets-handler";
 import characterSelectedCombatActionHandler from "./game-event-handlers/character-selected-combat-action-handler";
 import characterCycledTargetingSchemesHandler from "./game-event-handlers/character-cycled-targeting-schemes-handler";
+import playerLeftGameHandler from "./player-left-game-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -122,9 +123,7 @@ function SocketManager() {
       });
     });
     socket.on(ServerToClientEvent.PlayerLeftGame, (username) => {
-      mutateGameStore((state) => {
-        if (state.game) SpeedDungeonGame.removePlayer(state.game, username);
-      });
+      playerLeftGameHandler(mutateGameStore, username);
     });
     socket.on(ServerToClientEvent.PartyCreated, (partyName) => {
       mutateGameStore((state) => {
@@ -136,9 +135,15 @@ function SocketManager() {
     socket.on(ServerToClientEvent.PlayerChangedAdventuringParty, (username, partyName) => {
       mutateGameStore((state) => {
         if (!state.game) return;
-        SpeedDungeonGame.removePlayerFromParty(state.game, username);
-        if (partyName === null) return;
-        SpeedDungeonGame.putPlayerInParty(state.game, partyName, username);
+
+        // ignore if game already started. this is a relic of the fact we remove them
+        // from their party when leaving a lobby game, but it is an unhandled crash
+        // to remove them from a party when still in a game
+        if (!state.game.timeStarted) {
+          SpeedDungeonGame.removePlayerFromParty(state.game, username);
+          if (partyName === null) return;
+          SpeedDungeonGame.putPlayerInParty(state.game, partyName, username);
+        }
       });
     });
     socket.on(ServerToClientEvent.CharacterCreated, (partyName, username, character) => {
