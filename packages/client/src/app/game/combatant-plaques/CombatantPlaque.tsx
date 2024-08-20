@@ -15,6 +15,7 @@ import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-st
 import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
+import { babelIncludeRegexes } from "next/dist/build/webpack-config";
 
 interface Props {
   entityId: string;
@@ -31,9 +32,6 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const gameOption = useGameStore().game;
   const mutateGameState = useGameStore().mutateState;
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
-  const babylonDebugMessages =
-    useGameStore().babylonControlledCombatantDOMData[entityId]?.debugMessages;
-
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
       detailedEntity: state.detailedEntity,
@@ -41,6 +39,8 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
       hoveredEntity: state.hoveredEntity,
     }))
   );
+  const babylonDebugMessages =
+    useGameStore().babylonControlledCombatantDOMData[entityId]?.debugMessages;
   const usernameOption = useGameStore().username;
   const result = getGameAndParty(gameOption, usernameOption);
   if (result instanceof Error) return <div>{result.message}</div>;
@@ -104,6 +104,8 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
       store.menuContext = MenuContext.InventoryItems;
     });
   }
+
+  console.log("debugMessages: ", babylonDebugMessages);
 
   return (
     <div>

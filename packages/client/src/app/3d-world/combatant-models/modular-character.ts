@@ -45,7 +45,7 @@ export class ModularCharacter {
   activeModelActions: Partial<
     Record<CombatantModelActionType, CombatantModelActionProgressTracker>
   > = {};
-  hitboxRadius: number = 0.5;
+  hitboxRadius: number = 0.8;
   homeLocation: {
     position: Vector3;
     rotation: Quaternion;

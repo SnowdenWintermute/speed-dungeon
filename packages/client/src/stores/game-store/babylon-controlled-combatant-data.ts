@@ -1,6 +1,8 @@
+import { immerable } from "immer";
 import { GameState } from ".";
 
 export class BabylonControlledCombatantData {
+  [immerable] = true;
   debugMessages: CombatantModelDebugMessage[] = [];
   constructor() {}
 }
@@ -19,12 +21,10 @@ export function setDebugMessage(
   message: string,
   displayTime: number
 ) {
+  let id: string;
   mutateGameState((gameState) => {
-    let newMessage = new CombatantModelDebugMessage(
-      message,
-      gameState.lastDebugMessageId.toString(),
-      displayTime
-    );
+    id = gameState.lastDebugMessageId.toString();
+    let newMessage = new CombatantModelDebugMessage(message, id, displayTime);
     if (!gameState.babylonControlledCombatantDOMData[combatantId]) {
       gameState.babylonControlledCombatantDOMData[combatantId] =
         new BabylonControlledCombatantData();
@@ -32,12 +32,12 @@ export function setDebugMessage(
 
     gameState.babylonControlledCombatantDOMData[combatantId]?.debugMessages.push(newMessage);
     gameState.lastDebugMessageId += 1;
-    setTimeout(() => {
-      mutateGameState((gameState) => {
-        removeDebugMessage(gameState, combatantId, newMessage.id);
-      });
-    }, displayTime);
   });
+  setTimeout(() => {
+    mutateGameState((gameState) => {
+      removeDebugMessage(gameState, combatantId, id);
+    });
+  }, displayTime);
 }
 
 export function removeDebugMessage(gameState: GameState, combatantId: string, messageId: string) {
@@ -52,4 +52,5 @@ export function removeDebugMessage(gameState: GameState, combatantId: string, me
   indicesToRemove.forEach((index) => {
     gameState.babylonControlledCombatantDOMData[combatantId]?.debugMessages.splice(index, 1);
   });
+  console.log("removed message: ", messageId);
 }

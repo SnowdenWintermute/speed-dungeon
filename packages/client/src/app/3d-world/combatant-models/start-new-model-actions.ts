@@ -15,7 +15,7 @@ export default function startNewModelActions(
 
   if (readyToStartNewActions && this.modelActionQueue.length > 0) {
     delete this.activeModelActions[CombatantModelActionType.Idle];
-    // put new action progress tracken in active actions object
+    // put new action progress tracker in active actions object
     const newModelAction = this.modelActionQueue.shift()!;
     this.activeModelActions[newModelAction.type] = new CombatantModelActionProgressTracker(
       newModelAction
