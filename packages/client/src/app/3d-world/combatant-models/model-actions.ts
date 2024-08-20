@@ -26,6 +26,7 @@ type ApproachDestinationModelAction = {
   distance: number;
   destinationLocation: Vector3;
   destinationRotation: Quaternion;
+  rotationDistance: number;
 };
 
 type ReturnHomeModelAction = {

@@ -64,7 +64,6 @@ export class GameWorld {
         combatantModel.animationManager.stepAnimationTransitionWeights();
         // combatantModel.updateBoundingBox();
       }
-      // console.log(Object.keys(this.combatantModels));
       //
       // if no active model actions and turn results remain
       // send the actionResults to combatant models

@@ -21,6 +21,10 @@ interface Props {
   showExperience: boolean;
 }
 
+// tried using refs but the .current property wasn't mutable at runtime
+// even though the refs were properly declared as mutable
+// so we couldn't remove them at unmount and caused client crash when
+// other players left the game
 const modelDomPositionElements: { [entityId: string]: null | HTMLDivElement } = {};
 
 export default function CombatantPlaque({ entityId, showExperience }: Props) {
@@ -59,11 +63,9 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
     setPortraitHeight(height);
   }, []);
 
-  // const babylonModelDomPositionRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const element = document.getElementById(`${entityId}-position-div`);
     modelDomPositionElements[entityId] = element as HTMLDivElement | null;
-    // babylonModelDomPositionRef.current = element as HTMLDivElement;
 
     requestSpawnCombatantModel(
       combatantDetailsResult,
@@ -72,19 +74,13 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
       element as HTMLDivElement | null
     );
     return () => {
-      // we'll remove them in the handling of their LeftGame
-      // websocket message so as to avoid crashing the client
-      // due to babylon still holding their babylonModelDomPositionRef
-      // when this unmounts
-      console.log("unmounting plaque");
       modelDomPositionElements[entityId] = null;
       delete modelDomPositionElements[entityId];
-      // if (babylonModelDomPositionRef.current) babylonModelDomPositionRef.current = null;
+
       mutateNextBabylonMessagingStore((state) => {
         state.nextToBabylonMessages.push({
           type: NextToBabylonMessageTypes.RemoveCombatantModel,
           entityId,
-          callbackOption: null,
         });
       });
     };

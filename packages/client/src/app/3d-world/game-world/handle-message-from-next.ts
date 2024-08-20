@@ -17,7 +17,6 @@ export default function handleMessageFromNext(this: GameWorld, message: NextToBa
     case NextToBabylonMessageTypes.RemoveCombatantModel:
       this.modelManager.enqueueMessage(message.entityId, {
         type: ModelManagerMessageType.DespawnModel,
-        callbackOption: message.callbackOption,
       });
       break;
     case NextToBabylonMessageTypes.NewTurnResults:
@@ -38,13 +37,5 @@ export default function handleMessageFromNext(this: GameWorld, message: NextToBa
         combatantModelOption.actionResultsQueue.push(...message.actionResults);
       }
       break;
-    // case NextToBabylonMessageTypes.SetCombatantDomRef:
-    //   console.log("setting combatant dom ref");
-    //   const combatantModel = this.combatantModels[message.combatantId];
-    //   if (!combatantModel) console.log("NO MODEL FOUND");
-    //   this.combatantModels[message.combatantId]?.setModelDomPositionRef(
-    //     message.babylonModelDomPositionRef
-    //   );
-    //   break;
   }
 }

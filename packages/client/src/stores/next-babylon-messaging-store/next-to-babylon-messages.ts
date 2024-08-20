@@ -21,8 +21,7 @@ export interface CombatantModelBlueprint {
   class: CombatantClass;
   startPosition: Vector3;
   startRotation: number;
-  // modelDomPositionRef: React.RefObject<HTMLDivElement | null>;
-  modelDomPositionRef: HTMLDivElement | null;
+  modelDomPositionElement: HTMLDivElement | null;
 }
 
 type SpawnCombatantModelMessage = {
@@ -33,7 +32,6 @@ type SpawnCombatantModelMessage = {
 type RemoveCombatantModelMessage = {
   type: NextToBabylonMessageTypes.RemoveCombatantModel;
   entityId: string;
-  callbackOption: null | (() => void);
 };
 
 type NewTurnResultsMessage = {

@@ -4,7 +4,9 @@ import {
   Color4,
   ISceneLoaderAsyncResult,
   Mesh,
+  MeshBuilder,
   Quaternion,
+  TransformNode,
   Vector3,
 } from "babylonjs";
 import {
@@ -23,17 +25,15 @@ import {
 } from "./model-actions";
 import enqueueNewModelActionsFromActionResults from "../game-world/enqueue-new-model-actions-from-action-results";
 import startNewModelActions from "./start-new-model-actions";
-// import processActiveModelActions from "./process-active-model-actions";
 import { AnimationManager } from "./animation-manager";
 import { MonsterType } from "@speed-dungeon/common/src/monsters/monster-types";
 import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
 import processActiveModelActions from "./process-active-model-actions";
-import { MutateState } from "@/stores/mutate-state";
-import { GameState } from "@/stores/game-store";
-import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
+import cloneDeep from "lodash.clonedeep";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
+  rootTransformNode: TransformNode;
   parts: Record<ModularCharacterPartCategory, null | ISceneLoaderAsyncResult> = {
     [ModularCharacterPartCategory.Head]: null,
     [ModularCharacterPartCategory.Torso]: null,
@@ -51,14 +51,14 @@ export class ModularCharacter {
     rotation: Quaternion;
   };
   animationManager: AnimationManager;
+  modifiedRotation: number;
 
   constructor(
     public entityId: string,
     public world: GameWorld,
     public monsterType: null | MonsterType,
     public skeleton: ISceneLoaderAsyncResult,
-    // public modelDomPositionRef: React.MutableRefObject<HTMLDivElement | null> | null,
-    public modelDomPositionRef: HTMLDivElement | null,
+    public modelDomPositionElement: HTMLDivElement | null,
     startPosition: Vector3 = Vector3.Zero(),
     startRotation: number = 0
   ) {
@@ -72,13 +72,23 @@ export class ModularCharacter {
       startRotation += Math.PI;
     }
 
-    this.rootMesh = rootMesh;
-    this.rootMesh.rotate(Vector3.Up(), Math.PI / 2 + startRotation);
-    this.rootMesh.position = startPosition;
+    const rootTransformNode = new TransformNode(`${entityId}-root-transform-node`);
 
-    const rotation = rootMesh.rotationQuaternion;
+    this.rootMesh = rootMesh;
+    this.modifiedRotation = Math.PI / 2;
+    this.rootMesh.rotate(Vector3.Up(), this.modifiedRotation); // fix blender export flipped rotation
+
+    rootTransformNode.rotate(Vector3.Up(), this.modifiedRotation + startRotation);
+    rootTransformNode.addChild(this.rootMesh);
+    rootTransformNode.position = startPosition;
+    this.rootTransformNode = rootTransformNode;
+
+    const rotation = rootTransformNode.rotationQuaternion;
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
-    this.homeLocation = { position: this.rootMesh.position, rotation };
+    this.homeLocation = {
+      position: cloneDeep(startPosition),
+      rotation: cloneDeep(rotation),
+    };
 
     // this.setShowBones();
   }
@@ -89,17 +99,8 @@ export class ModularCharacter {
 
   updateDomRefPosition() {
     const boundingBox = this.getClientRectFromMesh(this.rootMesh);
-    // if (this.modelDomPositionRef?.current) {
-    //   this.modelDomPositionRef.current.setAttribute(
-    //     "style",
-    //     `height: ${boundingBox.height}px;
-    //      width: ${boundingBox.width}px;
-    //      top: ${boundingBox.top}px;
-    //      left: ${boundingBox.left}px;`
-    //   );
-    // }
-    if (this.modelDomPositionRef) {
-      this.modelDomPositionRef.setAttribute(
+    if (this.modelDomPositionElement) {
+      this.modelDomPositionElement.setAttribute(
         "style",
         `height: ${boundingBox.height}px;
          width: ${boundingBox.width}px;
@@ -110,9 +111,6 @@ export class ModularCharacter {
   }
 
   updateBoundingBox() {
-    // this.rootMesh.setBoundingInfo(new BoundingInfo(Vector3.Zero(), Vector3.Zero(), Matrix.Zero()));
-    // const {min, max} = this.rootMesh.getHierarchyBoundingVectors(true, (mesh) => mesh.name !== "__Root__")
-    // this.rootMesh.setBoundingInfo(new BoundingInfo(min, max))
     let minimum: null | Vector3 = null;
     let maximum: null | Vector3 = null;
 

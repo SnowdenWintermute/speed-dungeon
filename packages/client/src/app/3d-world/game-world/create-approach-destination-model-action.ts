@@ -4,6 +4,7 @@ import { ModularCharacter } from "../combatant-models/modular-character";
 import { GameWorld } from ".";
 import { CombatantModelAction, CombatantModelActionType } from "../combatant-models/model-actions";
 import { Matrix, Quaternion, Vector3 } from "babylonjs";
+import cloneDeep from "lodash.clonedeep";
 
 export default function createApproachDestinationModelAction(
   gameWorld: GameWorld,
@@ -31,36 +32,40 @@ export default function createApproachDestinationModelAction(
       const targetModel = targetModelOption;
 
       // assign destination based on target location and their hitbox radius
-      const direction = targetModel.rootMesh.position
-        .subtract(actionUserModel.rootMesh.position)
+      const direction = targetModel.rootTransformNode.position
+        .subtract(actionUserModel.rootTransformNode.position)
         .normalize();
-      destinationLocation = targetModel.rootMesh.position.subtract(
+      destinationLocation = targetModel.rootTransformNode.position.subtract(
         direction.scale(targetModel.hitboxRadius)
       );
 
       // set rotation: https://forum.babylonjs.com/t/how-to-make-smooth-mesh-lookat/31243/3
       const lookingAtMatrix = Matrix.LookAtLH(
-        actionUserModel.rootMesh.position,
-        targetModel.rootMesh.position,
+        actionUserModel.rootTransformNode.position,
+        targetModel.rootTransformNode.position,
         Vector3.Up()
       ).invert();
       destinationQuaternion = Quaternion.FromRotationMatrix(lookingAtMatrix);
     }
   } else {
     // assign destination to move a little forward (default ranged attack/spell casting position)
-    const direction = actionUserModel.rootMesh.forward;
-    destinationLocation = actionUserModel.rootMesh.position.add(direction.scale(1.5));
+    const direction = actionUserModel.rootTransformNode.forward;
+    destinationLocation = actionUserModel.rootTransformNode.position.add(direction.scale(1.5));
   }
 
-  if (!actionUserModel.rootMesh.rotationQuaternion)
+  if (!actionUserModel.rootTransformNode.rotationQuaternion)
     return new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
 
   return {
     type: CombatantModelActionType.ApproachDestination,
-    previousLocation: actionUserModel.rootMesh.position,
-    previousRotation: actionUserModel.rootMesh.rotationQuaternion,
-    distance: Vector3.Distance(actionUserModel.rootMesh.position, destinationLocation),
+    previousLocation: cloneDeep(actionUserModel.rootTransformNode.position),
+    previousRotation: cloneDeep(actionUserModel.rootTransformNode.rotationQuaternion),
+    distance: Vector3.Distance(actionUserModel.rootTransformNode.position, destinationLocation),
     destinationLocation,
     destinationRotation: destinationQuaternion,
+    rotationDistance: Quaternion.Distance(
+      actionUserModel.rootTransformNode.rotationQuaternion,
+      destinationQuaternion
+    ),
   };
 }

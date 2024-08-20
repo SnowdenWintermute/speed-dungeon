@@ -33,11 +33,6 @@ class ModelMessageQueue {
           break;
         case ModelManagerMessageType.DespawnModel:
           this.modelManager.despawnCharacterModel(this.entityId);
-          console.log(this.modelManager.combatantModels);
-          if (currentMessageProcessing.callbackOption) {
-            console.log("running callback for entity id ", this.entityId);
-            currentMessageProcessing.callbackOption();
-          }
           break;
       }
       currentMessageProcessing = this.messages.shift();
@@ -89,7 +84,7 @@ export class ModelManager {
       this.world,
       blueprint.monsterType,
       skeleton,
-      blueprint.modelDomPositionRef,
+      blueprint.modelDomPositionElement,
       blueprint.startPosition,
       blueprint.startRotation
     );
@@ -110,7 +105,7 @@ export class ModelManager {
   despawnCharacterModel(entityId: string): Error | void {
     const toRemove = this.combatantModels[entityId];
     if (!toRemove) return new Error("tried to remove a combatant model that doesn't exist");
-    toRemove.rootMesh.dispose();
+    toRemove.rootTransformNode.dispose();
     disposeAsyncLoadedScene(toRemove.skeleton);
     for (const part of Object.values(toRemove.parts)) {
       disposeAsyncLoadedScene(part);
@@ -132,7 +127,6 @@ type SpawnCombatantModelManagerMessage = {
 
 type DespawnModelManagerMessage = {
   type: ModelManagerMessageType.DespawnModel;
-  callbackOption: null | (() => void);
 };
 
 type ModelManagerMessage = SpawnCombatantModelManagerMessage | DespawnModelManagerMessage;
