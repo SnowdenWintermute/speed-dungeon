@@ -1,10 +1,12 @@
 import { immerable } from "immer";
 import { GameState } from ".";
+import { CombatantModelActionType } from "@/app/3d-world/combatant-models/model-actions";
 
 export class BabylonControlledCombatantData {
   [immerable] = true;
   debugMessages: CombatantModelDebugMessage[] = [];
   floatingText: CombatantModelDebugMessage[] = [];
+  activeModelActions: CombatantModelActionType[] = [];
   constructor() {}
 }
 
@@ -53,5 +55,4 @@ export function removeDebugMessage(gameState: GameState, combatantId: string, me
   indicesToRemove.forEach((index) => {
     gameState.babylonControlledCombatantDOMData[combatantId]?.debugMessages.splice(index, 1);
   });
-  console.log("removed message: ", messageId);
 }

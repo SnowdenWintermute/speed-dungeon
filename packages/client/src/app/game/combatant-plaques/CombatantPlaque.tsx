@@ -16,6 +16,8 @@ import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
 import { babelIncludeRegexes } from "next/dist/build/webpack-config";
+import { formatCombatModelActionType } from "@/app/3d-world/combatant-models/model-actions";
+import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
 
 interface Props {
   entityId: string;
@@ -41,6 +43,10 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   );
   const babylonDebugMessages =
     useGameStore().babylonControlledCombatantDOMData[entityId]?.debugMessages;
+
+  const activeModelActions =
+    useGameStore().babylonControlledCombatantDOMData[entityId]?.activeModelActions;
+
   const usernameOption = useGameStore().username;
   const result = getGameAndParty(gameOption, usernameOption);
   if (result instanceof Error) return <div>{result.message}</div>;
@@ -73,9 +79,16 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
       mutateNextBabylonMessagingStore,
       element as HTMLDivElement | null
     );
+    mutateGameState((state) => {
+      state.babylonControlledCombatantDOMData[entityId] = new BabylonControlledCombatantData();
+    });
     return () => {
       modelDomPositionElements[entityId] = null;
       delete modelDomPositionElements[entityId];
+
+      mutateGameState((state) => {
+        delete state.babylonControlledCombatantDOMData[entityId];
+      });
 
       mutateNextBabylonMessagingStore((state) => {
         state.nextToBabylonMessages.push({
@@ -105,12 +118,19 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
     });
   }
 
-  console.log("debugMessages: ", babylonDebugMessages);
-
   return (
     <div>
       {
-        <div id={`${entityId}-position-div`} className="absolute border-2 border-red-700">
+        <div id={`${entityId}-position-div`} className="absolute">
+          {
+            // <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            //   {entityId}
+            // </div>
+            <div className="text-2xl w-[400px]">
+              {activeModelActions &&
+                activeModelActions.map((item) => formatCombatModelActionType(item))}
+            </div>
+          }
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             {
               // floating text here

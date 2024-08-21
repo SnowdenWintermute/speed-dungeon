@@ -28,7 +28,6 @@ class ModelMessageQueue {
     while (currentMessageProcessing) {
       switch (currentMessageProcessing.type) {
         case ModelManagerMessageType.SpawnModel:
-          console.log("spawning character model");
           await this.modelManager.spawnCharacterModel(currentMessageProcessing.blueprint);
           break;
         case ModelManagerMessageType.DespawnModel:

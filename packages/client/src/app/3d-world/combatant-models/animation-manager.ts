@@ -62,7 +62,6 @@ export class AnimationManager {
     };
     this.playing = null;
 
-    console.log("starting with trasition loop: ", options.shouldLoop);
     transitionTo.start(options.shouldLoop);
     transitionTo.setWeightForAllAnimatables(0.0);
   }

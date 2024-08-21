@@ -24,7 +24,7 @@ import {
   CombatantModelActionType,
 } from "./model-actions";
 import enqueueNewModelActionsFromActionResults from "../game-world/enqueue-new-model-actions-from-action-results";
-import startNewModelActions from "./start-new-model-actions";
+import startNewModelActions, { startNextModelAction } from "./start-new-model-actions";
 import { AnimationManager } from "./animation-manager";
 import { MonsterType } from "@speed-dungeon/common/src/monsters/monster-types";
 import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
@@ -99,8 +99,25 @@ export class ModularCharacter {
 
   enqueueNewModelActionsFromActionResults = enqueueNewModelActionsFromActionResults;
   startNewModelActions = startNewModelActions;
+  startNextModelAction = startNextModelAction;
   processActiveModelActions = processActiveModelActions;
 
+  removeActiveModelAction(modelActionType: CombatantModelActionType) {
+    delete this.activeModelActions[modelActionType];
+
+    this.world.mutateGameState((state) => {
+      const indexOption =
+        state.babylonControlledCombatantDOMData[this.entityId]?.activeModelActions.indexOf(
+          modelActionType
+        );
+      if (indexOption !== undefined) {
+        state.babylonControlledCombatantDOMData[this.entityId]?.activeModelActions.splice(
+          indexOption,
+          1
+        );
+      }
+    });
+  }
   updateDomRefPosition() {
     const boundingBox = this.getClientRectFromMesh(this.rootMesh);
     if (this.modelDomPositionElement) {

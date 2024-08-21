@@ -40,6 +40,7 @@ export default function enqueueNewModelActionsFromActionResults(
       approachDestinationModelActionResult.destinationRotation,
       this.homeLocation.rotation
     ),
+    transitionToNextActionStarted: false,
   };
 
   while (this.actionResultsQueue.length > 0) {

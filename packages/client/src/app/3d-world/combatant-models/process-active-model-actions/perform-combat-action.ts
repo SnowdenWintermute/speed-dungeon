@@ -9,9 +9,6 @@ export default function performCombatActionModelActionProcessor(
   if (modelActionTracker.modelAction.type !== CombatantModelActionType.PerformCombatAction)
     return new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED);
 
-  if (modelActionTracker.animationOption) {
-    if (!modelActionTracker.animationEnded) {
-      delete combatantModel.activeModelActions[CombatantModelActionType.PerformCombatAction];
-    }
-  }
+  if (modelActionTracker.animationOption && modelActionTracker.animationEnded)
+    combatantModel.removeActiveModelAction(CombatantModelActionType.PerformCombatAction);
 }

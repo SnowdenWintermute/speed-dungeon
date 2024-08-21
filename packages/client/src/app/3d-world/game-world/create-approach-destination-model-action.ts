@@ -67,5 +67,6 @@ export default function createApproachDestinationModelAction(
       actionUserModel.rootTransformNode.rotationQuaternion,
       destinationQuaternion
     ),
+    transitionToNextActionStarted: false,
   };
 }

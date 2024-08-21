@@ -38,7 +38,13 @@ export default function approachDestinationModelActionProcessor(
     percentRotated
   );
 
+  if (percentTravelled > 0.8 && !modelAction.transitionToNextActionStarted) {
+    // start next
+    combatantModel.startNextModelAction(combatantModel.world.mutateGameState);
+    modelAction.transitionToNextActionStarted = true;
+  }
+
   if (percentTravelled > 1) {
-    delete combatantModel.activeModelActions[CombatantModelActionType.ApproachDestination];
+    combatantModel.removeActiveModelAction(CombatantModelActionType.ApproachDestination);
   }
 }

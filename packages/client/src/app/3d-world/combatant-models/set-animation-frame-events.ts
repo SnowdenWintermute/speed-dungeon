@@ -23,7 +23,7 @@ export default function setAnimationFrameEvents(
         // @todo - show offhand as different animation
         case CombatantAbilityName.AttackMeleeOffhand:
           animationEventOption = new AnimationEvent(
-            10,
+            30,
             () => {
               // induce hit recovery and evade animations
               //
@@ -58,6 +58,7 @@ export default function setAnimationFrameEvents(
                   const targetModel = gameWorld.modelManager.combatantModels[targetId];
                   if (targetModel === undefined)
                     return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+
                   targetModel.modelActionQueue.push({
                     type: CombatantModelActionType.Evade,
                   });

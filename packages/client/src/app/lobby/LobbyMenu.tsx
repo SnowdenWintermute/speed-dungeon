@@ -28,7 +28,6 @@ export default function LobbyMenu() {
   }
 
   function quickStartGame() {
-    console.log("quick starting with socket", socketOption);
     socketOption?.emit(ClientToServerEvent.CreateGame, "");
     socketOption?.emit(ClientToServerEvent.CreateParty, "");
     socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Warrior);
@@ -43,14 +42,12 @@ export default function LobbyMenu() {
   }
 
   function quickHost() {
-    console.log("quick starting with socket", socketOption);
     socketOption?.emit(ClientToServerEvent.CreateGame, "test game");
     socketOption?.emit(ClientToServerEvent.CreateParty, "test party");
     socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Warrior);
   }
 
   function quickJoin() {
-    console.log("quick starting with socket", socketOption);
     socketOption?.emit(ClientToServerEvent.RequestsGameList);
     socketOption?.emit(ClientToServerEvent.JoinGame, "test game");
     socketOption?.emit(ClientToServerEvent.JoinParty, "test party");

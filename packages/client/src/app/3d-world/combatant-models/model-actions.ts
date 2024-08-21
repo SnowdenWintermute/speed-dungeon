@@ -13,6 +13,29 @@ export enum CombatantModelActionType {
   Idle,
 }
 
+export function formatCombatModelActionType(type: CombatantModelActionType) {
+  switch (type) {
+    case CombatantModelActionType.ApproachDestination:
+      return "Approach Destination";
+    case CombatantModelActionType.ReturnHome:
+      return "Return Home";
+    case CombatantModelActionType.TurnToTowardTarget:
+      return "Turn Toward Target";
+    case CombatantModelActionType.PerformCombatAction:
+      return "Perform Combat Action";
+    case CombatantModelActionType.HitRecovery:
+      return "Hit Recovery";
+    case CombatantModelActionType.Evade:
+      return "Evade";
+    case CombatantModelActionType.Death:
+      return "Death";
+    case CombatantModelActionType.EndTurn:
+      return "End Turn";
+    case CombatantModelActionType.Idle:
+      return "Idle";
+  }
+}
+
 export class CombatantModelActionProgressTracker {
   timeStarted: number = Date.now();
   transitionStarted: null | number = null;
@@ -31,6 +54,7 @@ type ApproachDestinationModelAction = {
   destinationLocation: Vector3;
   destinationRotation: Quaternion;
   rotationDistance: number;
+  transitionToNextActionStarted: boolean;
 };
 
 type TurnTowardTargetModelAction = {

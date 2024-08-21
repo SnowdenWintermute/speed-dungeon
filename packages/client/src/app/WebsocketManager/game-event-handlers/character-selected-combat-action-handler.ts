@@ -22,7 +22,6 @@ export default function characterSelectedCombatActionHandler(
     mutateAlertState,
     characterId,
     ({ character, game, party }: CharacterAssociatedData, gameState: GameState) => {
-      console.log("got character selected action event");
       character.combatantProperties.selectedCombatAction = combatActionOption;
       if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
 
