@@ -1,42 +1,36 @@
 import { ActionResult } from "@speed-dungeon/common";
-import { Quaternion, Vector3 } from "babylonjs";
+import { Animation, Quaternion, Vector3 } from "babylonjs";
 
 export enum CombatantModelActionType {
   ApproachDestination,
   ReturnHome,
-  Recenter,
   TurnToTowardTarget,
   PerformCombatAction,
   HitRecovery,
   Evade,
   Death,
+  EndTurn,
   Idle,
 }
 
 export class CombatantModelActionProgressTracker {
   timeStarted: number = Date.now();
   transitionStarted: null | number = null;
-  constructor(public modelAction: CombatantModelAction) {}
+  animationEnded: boolean = false;
+  constructor(
+    public modelAction: CombatantModelAction,
+    public animationOption: null | Animation
+  ) {}
 }
 
 type ApproachDestinationModelAction = {
-  type: CombatantModelActionType.ApproachDestination;
+  type: CombatantModelActionType.ApproachDestination | CombatantModelActionType.ReturnHome;
   previousLocation: Vector3;
   previousRotation: Quaternion;
   distance: number;
   destinationLocation: Vector3;
   destinationRotation: Quaternion;
   rotationDistance: number;
-};
-
-type ReturnHomeModelAction = {
-  type: CombatantModelActionType.ReturnHome;
-  previousLocation: Vector3;
-};
-
-type RecenterModelAction = {
-  type: CombatantModelActionType.ReturnHome;
-  previousRotation: number;
 };
 
 type TurnTowardTargetModelAction = {
@@ -67,13 +61,16 @@ type IdleModelAction = {
   type: CombatantModelActionType.Idle;
 };
 
+type EndTurnModelAction = {
+  type: CombatantModelActionType.EndTurn;
+};
+
 export type CombatantModelAction =
   | ApproachDestinationModelAction
-  | ReturnHomeModelAction
-  | RecenterModelAction
   | TurnTowardTargetModelAction
   | PerformCombatActionModelAction
   | HitRecoveryModelAction
   | EvadeModelAction
   | DeathModelAction
+  | EndTurnModelAction
   | IdleModelAction;

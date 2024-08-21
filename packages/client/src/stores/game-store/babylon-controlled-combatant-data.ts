@@ -4,6 +4,7 @@ import { GameState } from ".";
 export class BabylonControlledCombatantData {
   [immerable] = true;
   debugMessages: CombatantModelDebugMessage[] = [];
+  floatingText: CombatantModelDebugMessage[] = [];
   constructor() {}
 }
 

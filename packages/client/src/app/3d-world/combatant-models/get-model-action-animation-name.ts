@@ -9,6 +9,12 @@ import {
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 
+export enum AnimationType {
+  MoveForward,
+  MoveBack,
+  Idle,
+}
+
 export default function getModelActionAnimationName(
   modelAction: CombatantModelAction,
   combatantId: string,
@@ -48,9 +54,10 @@ export default function getModelActionAnimationName(
           switch (modelAction.actionResult.action.abilityName) {
             case CombatantAbilityName.Attack:
             case CombatantAbilityName.AttackMeleeMainhand:
+            return "melee-attack";
             // @todo - show offhand as different animation
             case CombatantAbilityName.AttackMeleeOffhand:
-              return "melee-attack";
+            return "melee-attack-offhand";
             case CombatantAbilityName.AttackRangedMainhand:
               return "ranged-attack";
             case CombatantAbilityName.Fire:
@@ -73,4 +80,6 @@ export default function getModelActionAnimationName(
       // @todo - based hp percent, choose correct limping idle pose
       return "idle";
   }
+
+  return null;
 }

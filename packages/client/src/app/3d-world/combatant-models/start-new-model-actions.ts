@@ -4,6 +4,7 @@ import { CombatantModelActionProgressTracker, CombatantModelActionType } from ".
 import { ModularCharacter } from "./modular-character";
 import { GameState } from "@/stores/game-store";
 import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
+import setAnimationFrameEvents from "./set-animation-frame-events";
 
 export default function startNewModelActions(
   this: ModularCharacter,
@@ -15,18 +16,14 @@ export default function startNewModelActions(
 
   if (readyToStartNewActions && this.modelActionQueue.length > 0) {
     delete this.activeModelActions[CombatantModelActionType.Idle];
-    // put new action progress tracker in active actions object
     const newModelAction = this.modelActionQueue.shift()!;
-    this.activeModelActions[newModelAction.type] = new CombatantModelActionProgressTracker(
-      newModelAction
-    );
     // start animation if any
     let isRepeatingAnimation = false;
     switch (newModelAction.type) {
       case CombatantModelActionType.ApproachDestination:
-      case CombatantModelActionType.ReturnHome:
       case CombatantModelActionType.Idle:
         isRepeatingAnimation = true;
+        break;
       default:
         isRepeatingAnimation = false;
     }
@@ -40,9 +37,29 @@ export default function startNewModelActions(
     if (animationNameResult instanceof Error) return animationNameResult;
     const animationGroup = this.animationManager.getAnimationGroupByName(animationNameResult || "");
 
+    const animationOption = animationGroup?.targetedAnimations[0]?.animation;
+
+    // set frame event for attacks/etc
+    if (animationOption && newModelAction.type === CombatantModelActionType.PerformCombatAction) {
+      const animationEventOptionResult = setAnimationFrameEvents(this.world, newModelAction);
+      if (animationEventOptionResult instanceof Error) return animationEventOptionResult;
+      if (animationEventOptionResult) animationOption.addEvent(animationEventOptionResult);
+    }
+
+    // put new action progress tracker in active actions object
+    const animationTracker = new CombatantModelActionProgressTracker(
+      newModelAction,
+      animationGroup?.targetedAnimations[0]?.animation ?? null
+    );
+
+    this.activeModelActions[newModelAction.type] = animationTracker;
+
     if (animationGroup !== undefined) {
-      this.animationManager.startAnimationWithTransition(animationGroup, 1000, {
-        shouldLoop: true,
+      this.animationManager.startAnimationWithTransition(animationGroup, 500, {
+        shouldLoop: isRepeatingAnimation,
+      });
+      animationGroup.onAnimationEndObservable.add(() => {
+        animationTracker.animationEnded = true;
       });
     } else {
       setDebugMessage(
