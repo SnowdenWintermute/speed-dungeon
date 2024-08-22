@@ -74,12 +74,16 @@ export default function takeAiControlledTurnsIfAppropriate(
 
     activeCombatantTurnActionResults = [];
     const newActiveTurnTrackerResult = SpeedDungeonGame.endActiveCombatantTurn(game, battle);
+
     if (newActiveTurnTrackerResult instanceof Error) return newActiveTurnTrackerResult;
     activeCombatantId = newActiveTurnTrackerResult.entityId;
+    console.log("new active combatant id: ", activeCombatantId);
+    console.log("new active combatant is ai controlled: ", combatantProperties.controllingPlayer);
     const activeCombatantResult = SpeedDungeonGame.getCombatantById(game, activeCombatantId);
     if (activeCombatantResult instanceof Error) return activeCombatantResult;
-    ({ entityProperties, combatantProperties } = activeCombatantResult);
-    activeCombatantIsAiControlled = combatantProperties.controllingPlayer !== null;
+    entityProperties = activeCombatantResult.entityProperties;
+    combatantProperties = activeCombatantResult.combatantProperties;
+    activeCombatantIsAiControlled = combatantProperties.controllingPlayer === null;
   }
 
   return turnResults;

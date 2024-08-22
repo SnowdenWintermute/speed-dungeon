@@ -26,6 +26,5 @@ export default function useSelectedCombatActionHandler(
     if (combatantResult instanceof Error) return console.error(combatantResult);
     combatantResult.combatantProperties.combatActionTarget = null;
     combatantResult.combatantProperties.selectedCombatAction = null;
-    console.log("set ", combatantResult.entityProperties.id, " target and selected action to null");
   });
 }
