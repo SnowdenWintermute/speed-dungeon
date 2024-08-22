@@ -79,7 +79,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
 
     if (template.maxDurability === null) return null;
     const startingDurability = randBetween(1, template.maxDurability);
-    let durability = new MaxAndCurrent(startingDurability, template.maxDurability);
+    let durability = new MaxAndCurrent(template.maxDurability, startingDurability);
 
     return durability;
   }

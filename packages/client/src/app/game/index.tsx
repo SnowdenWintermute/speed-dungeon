@@ -12,6 +12,7 @@ import ItemDetailsWithComparison from "./ItemDetailsWithComparison";
 import CharacterSheetItemDetailsViewer from "./character-sheet/CharacterSheetItemDetailsViewer";
 import ItemsOnGround from "./ItemsOnGround";
 import ReadyUpDisplay from "./ReadyUpDisplay";
+import TestComponent from "./TestComponent";
 
 export default function Game() {
   const game = useGameStore().game;
@@ -56,6 +57,7 @@ export default function Game() {
           <div className="flex justify-end">
             <div className="w-fit">
               <MonsterPlaques game={game} party={party} />
+              <TestComponent />
             </div>
           </div>
           <div className="flex flex-wrap justify-between">

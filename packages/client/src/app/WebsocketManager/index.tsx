@@ -6,6 +6,7 @@ import {
   CharacterAndSlot,
   ClientToServerEvent,
   CombatAction,
+  ERROR_MESSAGES,
   EquipItemPacket,
   NextOrPrevious,
   ServerToClientEvent,
@@ -184,6 +185,17 @@ function SocketManager() {
       battleFullUpdateHandler(mutateGameStore, mutateAlertStore, battleOption);
     });
     socket.on(ServerToClientEvent.TurnResults, (turnResults) => {
+      // mutateGameStore((state) => {
+      //   const gameOption = state.game;
+      //   if (gameOption === null) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+      //   const game = gameOption;
+      //   for (const turnResult of turnResults) {
+      //     const combatantResult = SpeedDungeonGame.getCombatantById(game, turnResult.combatantId);
+      //     if (combatantResult instanceof Error)
+      //       return console.error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+      //     combatantResult.combatantProperties.selectedCombatAction = null;
+      //   }
+      // });
       mutateNextBabylonMessagingStore((state) => {
         state.nextToBabylonMessages.push({
           type: NextToBabylonMessageTypes.NewTurnResults,

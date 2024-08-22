@@ -73,14 +73,7 @@ export function startNextModelAction(
 
   this.activeModelActions[newModelAction.type] = animationTracker;
 
-  console.log(
-    "new animation name: ",
-    animationNameResult,
-    "playing: ",
-    this.animationManager.playing?.name
-  );
   if (animationGroup !== undefined && animationNameResult !== null) {
-    console.log("starting animation: ", animationNameResult, " repeating: ", isRepeatingAnimation);
     this.animationManager.startAnimationWithTransition(animationNameResult, animationGroup, 500, {
       shouldLoop: isRepeatingAnimation,
     });

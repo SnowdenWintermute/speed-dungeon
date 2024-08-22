@@ -14,6 +14,9 @@ export default function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
   const monsterPositions = getMonsterIdsInParty(party);
 
   for (const [characterId, character] of Object.entries(party.characters)) {
+    const currentTarget = character.combatantProperties.combatActionTarget;
+    if (currentTarget === null) continue;
+
     const selectedAction = character.combatantProperties.selectedCombatAction;
     if (!selectedAction) continue;
     const actionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
@@ -35,10 +38,8 @@ export default function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
     if (filteredTargetsResult instanceof Error) return filteredTargetsResult;
     const [filteredAllyIds, filteredOpponentIdsOption] = filteredTargetsResult;
 
-    const currentTarget = character.combatantProperties.combatActionTarget;
-    if (!currentTarget) continue;
-
     let combatantIsTargetedByThisCharacter = false;
+
     switch (currentTarget.type) {
       case CombatActionTargetType.Single:
         combatantIsTargetedByThisCharacter = currentTarget.targetId === combatantId;
