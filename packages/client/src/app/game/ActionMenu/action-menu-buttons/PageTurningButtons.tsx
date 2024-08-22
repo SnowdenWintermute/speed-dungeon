@@ -51,12 +51,12 @@ export default function PageTurningButtons({ numberOfPages, hidden }: Props) {
     };
   }, [numberOfPages, currentPageNumber]);
 
-  const hiddenStyle = hidden ? "opacity-0 pointer-events-none" : "";
+  const hiddenStyle = hidden ? "opacity-0 pointer-events-none" : "pointer-events-auto";
 
   return (
     <ul
       className={`flex list-none border border-slate-400 bg-slate-700 w-full justify-between items-center
-                  pointer-events-auto ${hiddenStyle}`}
+                   ${hiddenStyle}`}
     >
       <button
         onClick={handleClickPreviousPage}

@@ -1,10 +1,6 @@
 import { MutateState } from "@/stores/mutate-state";
 import getModelActionAnimationName from "./get-model-action-animation-name";
-import {
-  CombatantModelActionProgressTracker,
-  CombatantModelActionType,
-  formatCombatModelActionType,
-} from "./model-actions";
+import { CombatantModelActionProgressTracker, CombatantModelActionType } from "./model-actions";
 import { ModularCharacter } from "./modular-character";
 import { GameState } from "@/stores/game-store";
 import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
@@ -20,21 +16,6 @@ export default function startNewModelActions(
 
   if (readyToStartNewActions && this.modelActionQueue.length > 0) {
     this.startNextModelAction(mutateGameState);
-  } else if (
-    this.modelActionQueue.length === 0 &&
-    this.modelActionQueue[CombatantModelActionType.Idle] === undefined
-  ) {
-    // // start idling if not already doing so
-    // if (this.activeModelActions[CombatantModelActionType.Idle] === undefined) {
-    //   this.activeModelActions[CombatantModelActionType.Idle] =
-    //     new CombatantModelActionProgressTracker({ type: CombatantModelActionType.Idle });
-    //   const animationGroup = this.animationManager.getAnimationGroupByName("idle");
-    //   if (animationGroup !== undefined)
-    //     this.animationManager.startAnimationWithTransition(animationGroup, 1000, {
-    //       shouldLoop: true,
-    //     });
-    //   else setDebugMessage(mutateGameState, this.entityId, `Missing animation: idle`, 5000);
-    // }
   }
 }
 
@@ -42,7 +23,8 @@ export function startNextModelAction(
   this: ModularCharacter,
   mutateGameState: MutateState<GameState>
 ) {
-  this.removeActiveModelAction(CombatantModelActionType.Idle);
+  if (this.activeModelActions[CombatantModelActionType.Idle])
+    this.removeActiveModelAction(CombatantModelActionType.Idle);
 
   const newModelAction = this.modelActionQueue.shift();
   if (newModelAction === undefined) return new Error("no model action to start");
@@ -56,7 +38,9 @@ export function startNextModelAction(
   let isRepeatingAnimation = false;
   switch (newModelAction.type) {
     case CombatantModelActionType.ApproachDestination:
+    case CombatantModelActionType.ReturnHome:
     case CombatantModelActionType.Idle:
+    case CombatantModelActionType.EndTurn:
       isRepeatingAnimation = true;
       break;
     default:
@@ -89,8 +73,15 @@ export function startNextModelAction(
 
   this.activeModelActions[newModelAction.type] = animationTracker;
 
-  if (animationGroup !== undefined) {
-    this.animationManager.startAnimationWithTransition(animationGroup, 500, {
+  console.log(
+    "new animation name: ",
+    animationNameResult,
+    "playing: ",
+    this.animationManager.playing?.name
+  );
+  if (animationGroup !== undefined && animationNameResult !== null) {
+    console.log("starting animation: ", animationNameResult, " repeating: ", isRepeatingAnimation);
+    this.animationManager.startAnimationWithTransition(animationNameResult, animationGroup, 500, {
       shouldLoop: isRepeatingAnimation,
     });
     animationGroup.onAnimationEndObservable.add(() => {
@@ -105,6 +96,17 @@ export function startNextModelAction(
     );
     setTimeout(() => {
       delete this.activeModelActions[newModelAction.type];
+      mutateGameState((state) => {
+        const indexOption = state.babylonControlledCombatantDOMData[
+          this.entityId
+        ]?.activeModelActions.indexOf(newModelAction.type);
+        if (indexOption !== undefined) {
+          state.babylonControlledCombatantDOMData[this.entityId]?.activeModelActions.splice(
+            indexOption,
+            1
+          );
+        }
+      });
     }, 5000);
   }
 }

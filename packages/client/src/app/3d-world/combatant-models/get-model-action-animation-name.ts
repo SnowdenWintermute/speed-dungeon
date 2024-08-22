@@ -54,10 +54,9 @@ export default function getModelActionAnimationName(
           switch (modelAction.actionResult.action.abilityName) {
             case CombatantAbilityName.Attack:
             case CombatantAbilityName.AttackMeleeMainhand:
-            return "melee-attack";
-            // @todo - show offhand as different animation
+              return "melee-attack";
             case CombatantAbilityName.AttackMeleeOffhand:
-            return "melee-attack-offhand";
+              return "melee-attack-offhand";
             case CombatantAbilityName.AttackRangedMainhand:
               return "ranged-attack";
             case CombatantAbilityName.Fire:
@@ -76,6 +75,7 @@ export default function getModelActionAnimationName(
     case CombatantModelActionType.Death:
       return "death";
     case CombatantModelActionType.Idle:
+    case CombatantModelActionType.EndTurn:
       // @todo - based on equipment, choose correct idle pose
       // @todo - based hp percent, choose correct limping idle pose
       return "idle";

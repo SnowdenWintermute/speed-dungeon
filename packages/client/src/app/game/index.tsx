@@ -59,7 +59,7 @@ export default function Game() {
             </div>
           </div>
           <div className="flex flex-wrap justify-between">
-            <div className="h-[14rem] min-w-[23rem] max-w-[26rem] w-full border border-slate-400 bg-slate-700 p-2 pointer-events-auto">
+            <div className="opacity-0 h-[14rem] min-w-[23rem] max-w-[26rem] w-full border border-slate-400 bg-slate-700 p-2 pointer-events-auto">
               combat log placeholder
               {
                 // <div>Alpha: {cameraData.alpha}</div>

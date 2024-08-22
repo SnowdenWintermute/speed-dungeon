@@ -12,11 +12,17 @@ export default function approachDestinationModelActionProcessor(
   modelActionTracker: CombatantModelActionProgressTracker
 ) {
   const { modelAction } = modelActionTracker;
-  if (modelAction.type !== CombatantModelActionType.ApproachDestination)
-    return new Error(ERROR_MESSAGES.GAME_WORLD.INCORRECT_MODEL_ACTION);
+  if (
+    modelAction.type !== CombatantModelActionType.ApproachDestination &&
+    modelAction.type !== CombatantModelActionType.ReturnHome
+  )
+    return console.error(new Error(ERROR_MESSAGES.GAME_WORLD.INCORRECT_MODEL_ACTION));
+
+  const speedMultiplier = modelAction.type === CombatantModelActionType.ReturnHome ? 0.75 : 1;
 
   const timeSinceStarted = Date.now() - modelActionTracker.timeStarted;
-  const totalTimeToReachDestination = COMBATANT_TIME_TO_MOVE_ONE_METER * modelAction.distance;
+  const totalTimeToReachDestination =
+    COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * modelAction.distance;
   const percentTravelled = timeSinceStarted / totalTimeToReachDestination;
 
   const newPosition = Vector3.Lerp(
@@ -38,13 +44,17 @@ export default function approachDestinationModelActionProcessor(
     percentRotated
   );
 
-  if (percentTravelled > 0.8 && !modelAction.transitionToNextActionStarted) {
+  if (
+    modelAction.type === CombatantModelActionType.ApproachDestination &&
+    percentTravelled > 0.8 &&
+    !modelAction.transitionToNextActionStarted
+  ) {
     // start next
     combatantModel.startNextModelAction(combatantModel.world.mutateGameState);
     modelAction.transitionToNextActionStarted = true;
   }
 
   if (percentTravelled > 1) {
-    combatantModel.removeActiveModelAction(CombatantModelActionType.ApproachDestination);
+    combatantModel.removeActiveModelAction(modelAction.type);
   }
 }

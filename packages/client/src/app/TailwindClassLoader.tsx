@@ -3,6 +3,7 @@ import React from "react";
 export default function TailwindClassLoader() {
   return (
     <div id="tailwind-conditional-class-loader">
+      <div className="pointer-events-none" />
       <div className="bg-beigepaper" />
       <div className="bg-firered" />
       <div className="bg-iceblue" />

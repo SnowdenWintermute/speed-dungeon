@@ -1,4 +1,4 @@
-import { CombatantProperties } from "../../../combatants";
+import { CombatantProperties, formatAbilityName } from "../../../combatants";
 import { SpeedDungeonGame } from "../../../game";
 import { EquipmentProperties, EquipmentSlot, EquipmentType } from "../../../items";
 import { CombatAction, CombatActionType } from "../../combat-actions";
@@ -38,6 +38,7 @@ export default function calculateAttackActionResult(
     mhEquipmentOption?.equipmentBaseItemProperties.type ?? null,
     false
   );
+
   if (mhAttackAbilityNameResult instanceof Error) return mhAttackAbilityNameResult;
   const mhAttackAction: CombatAction = {
     type: CombatActionType.AbilityUsed,
@@ -67,7 +68,7 @@ export default function calculateAttackActionResult(
   // OFFHAND
   const ohAttackAbilityNameResult = getAttackAbilityName(
     ohEquipmentOption?.equipmentBaseItemProperties.type ?? null,
-    false
+    true
   );
   if (ohAttackAbilityNameResult instanceof Error) return ohAttackAbilityNameResult;
   const ohAttackAction: CombatAction = {

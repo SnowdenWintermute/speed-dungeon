@@ -1,4 +1,4 @@
-import { MenuContext, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import React, { useEffect, useState } from "react";
 
 /// Change the focused character under certain conditions like when their turn ends in combat while they are focused

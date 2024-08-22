@@ -12,10 +12,10 @@ export class AnimationManager {
     // stop default animation
     this.skeleton.animationGroups[0]?.stop();
     const idleAnimation = this.getAnimationGroupByName("Idle");
-    if (idleAnimation) this.setAnimationPlaying(idleAnimation, { shouldLoop: true });
+    if (idleAnimation) this.setAnimationPlaying("Idle", idleAnimation, { shouldLoop: true });
     else {
       const idleAnimationLc = this.getAnimationGroupByName("idle");
-      if (idleAnimationLc) this.setAnimationPlaying(idleAnimationLc, { shouldLoop: true });
+      if (idleAnimationLc) this.setAnimationPlaying("idle", idleAnimationLc, { shouldLoop: true });
     }
     // // TESTING
     // const runAnimation = this.getAnimationGroupByName("Run");
@@ -23,6 +23,7 @@ export class AnimationManager {
   }
 
   setAnimationPlaying(
+    name: string,
     animationGroup: AnimationGroup,
     options: { shouldLoop: boolean }
   ): Error | void {
@@ -34,16 +35,20 @@ export class AnimationManager {
     }
     animationGroup.play(options.shouldLoop);
 
-    this.playing = { animationGroup, weight: 1.0 };
+    this.playing = { name, animationGroup, weight: 1.0 };
   }
 
   startAnimationWithTransition(
+    name: string,
     transitionTo: AnimationGroup,
     durationMs: number,
     options: { shouldLoop: boolean }
   ): Error | void {
     let transitionFrom: null | ManagedAnimation = null;
     let timeStarted: number = Date.now();
+
+    if (this.playing?.name === name) return;
+    if (this.transition?.transitioningTo?.name === name) return;
 
     if (this.playing !== null) transitionFrom = this.playing;
     else if (this.transition?.transitioningTo) {
@@ -58,7 +63,7 @@ export class AnimationManager {
       durationMs,
       timeStarted,
       transitioningFrom: transitionFrom,
-      transitioningTo: { animationGroup: transitionTo, weight: 0.0 },
+      transitioningTo: { name, animationGroup: transitionTo, weight: 0.0 },
     };
     this.playing = null;
 
@@ -105,6 +110,7 @@ export class AnimationManager {
 }
 
 export type ManagedAnimation = {
+  name: string;
   animationGroup: AnimationGroup;
   weight: number;
 };

@@ -5,6 +5,8 @@ import { GameState } from "@/stores/game-store";
 import { CombatantModelActionType } from "../model-actions";
 import approachDestinationModelActionProcessor from "./approach-destination";
 import performCombatActionModelActionProcessor from "./perform-combat-action";
+import endTurnModelActionProcessor from "./end-turn";
+import idleModelActionProcessor from "./idle";
 
 export default function processActiveModelActions(
   this: ModularCharacter,
@@ -28,7 +30,11 @@ export default function processActiveModelActions(
         break;
       case CombatantModelActionType.Death:
         break;
+      case CombatantModelActionType.EndTurn:
+        endTurnModelActionProcessor(this, gameWorld);
+        break;
       case CombatantModelActionType.Idle:
+        idleModelActionProcessor(this);
         break;
     }
   }

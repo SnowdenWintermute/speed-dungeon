@@ -22,6 +22,7 @@ import {
   CombatantModelAction,
   CombatantModelActionProgressTracker,
   CombatantModelActionType,
+  formatCombatModelActionType,
 } from "./model-actions";
 import enqueueNewModelActionsFromActionResults from "../game-world/enqueue-new-model-actions-from-action-results";
 import startNewModelActions, { startNextModelAction } from "./start-new-model-actions";
@@ -90,8 +91,8 @@ export class ModularCharacter {
     const rotation = rootTransformNode.rotationQuaternion;
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
     this.homeLocation = {
-      position: cloneDeep(startPosition),
-      rotation: cloneDeep(rotation),
+      position: cloneDeep(this.rootTransformNode.position),
+      rotation: cloneDeep(this.rootTransformNode.rotationQuaternion!),
     };
 
     // this.setShowBones();

@@ -34,7 +34,7 @@ export default function calculateActionResult(
   if (manaCostOptionResult instanceof Error) return manaCostOptionResult;
   if (manaCostOptionResult !== null) {
     if (actionResult.manaCostsPaidByEntityId === null) actionResult.manaCostsPaidByEntityId = {};
-    actionResult.manaCostsPaidByEntityId[userId] = manaCostOptionResult;
+    actionResult.manaCostsPaidByEntityId[userId] = Math.floor(manaCostOptionResult);
   }
 
   const hitPointChangesCritsAndEvasionsResult = calculateActionHitPointChangesCritsAndEvasions(
