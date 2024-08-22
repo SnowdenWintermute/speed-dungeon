@@ -68,6 +68,9 @@ export class ModularCharacter {
     startRotation: number = 0
   ) {
     this.animationManager = new AnimationManager(this.skeleton);
+    this.activeModelActions[CombatantModelActionType.Idle] =
+      new CombatantModelActionProgressTracker({ type: CombatantModelActionType.Idle }, null);
+
     while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
     const rootMesh = skeleton.meshes[0];
     if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);

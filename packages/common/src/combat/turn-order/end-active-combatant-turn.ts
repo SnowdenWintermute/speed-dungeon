@@ -1,4 +1,4 @@
-import { CombatantTurnTracker, recoverMovement } from ".";
+import { CombatantTurnTracker } from ".";
 import { Battle } from "../../battle";
 import { ERROR_MESSAGES } from "../../errors";
 import { SpeedDungeonGame } from "../../game";
@@ -20,11 +20,6 @@ export default function endActiveCombatantTurn(
     if (Math.floor(a.movement) !== Math.floor(b.movement)) return b.movement - a.movement;
     return parseInt(a.entityId) - parseInt(b.entityId);
   });
-
-  console.log(
-    "sorted trackers: ",
-    battle.turnTrackers.map((tracker) => [tracker.entityId, tracker.movement])
-  );
 
   const newActiveCombatantTrackerOption = battle.turnTrackers[0];
   if (!newActiveCombatantTrackerOption) return new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
