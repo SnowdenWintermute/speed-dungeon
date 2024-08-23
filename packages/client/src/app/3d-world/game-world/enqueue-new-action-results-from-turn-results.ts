@@ -16,7 +16,6 @@ export default function enqueueNewActionResultsFromTurnResults(this: GameWorld) 
       break;
     }
   }
-
   if (!readyToProcessNextTurn) return;
 
   const newTurnResult = this.turnResultsQueue.shift();

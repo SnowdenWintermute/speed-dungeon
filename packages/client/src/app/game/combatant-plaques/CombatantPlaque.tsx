@@ -15,7 +15,6 @@ import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-st
 import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
-import { babelIncludeRegexes } from "next/dist/build/webpack-config";
 import { formatCombatModelActionType } from "@/app/3d-world/combatant-models/model-actions";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
 
@@ -53,6 +52,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const [game, party] = result;
   const combatantDetailsResult = AdventuringParty.getCombatant(party, entityId);
   if (combatantDetailsResult instanceof Error) return <div>{combatantDetailsResult.message}</div>;
+
   const { entityProperties, combatantProperties } = combatantDetailsResult;
   const battleOptionResult = getCurrentBattleOption(game, party.name);
   if (battleOptionResult instanceof Error) return <div>{battleOptionResult.message}</div>;

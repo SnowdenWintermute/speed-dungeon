@@ -7,6 +7,7 @@ import approachDestinationModelActionProcessor from "./approach-destination";
 import performCombatActionModelActionProcessor from "./perform-combat-action";
 import endTurnModelActionProcessor from "./end-turn";
 import idleModelActionProcessor from "./idle";
+import { MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME } from "@speed-dungeon/common";
 
 export default function processActiveModelActions(
   this: ModularCharacter,
@@ -22,12 +23,15 @@ export default function processActiveModelActions(
       case CombatantModelActionType.TurnToTowardTarget:
         break;
       case CombatantModelActionType.PerformCombatAction:
-        performCombatActionModelActionProcessor(this, activeModelAction);
-        break;
       case CombatantModelActionType.HitRecovery:
-        // process this next
-        break;
       case CombatantModelActionType.Evade:
+        if (activeModelAction.animationOption && activeModelAction.animationEnded)
+          this.removeActiveModelAction(activeModelAction.modelAction.type);
+        else {
+          const timeElapsed = Date.now() - activeModelAction.timeStarted;
+          if (timeElapsed >= MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME)
+            this.removeActiveModelAction(activeModelAction.modelAction.type);
+        }
         break;
       case CombatantModelActionType.Death:
         break;
@@ -35,7 +39,6 @@ export default function processActiveModelActions(
         endTurnModelActionProcessor(this, gameWorld);
         break;
       case CombatantModelActionType.Idle:
-        idleModelActionProcessor(this);
         break;
     }
   }

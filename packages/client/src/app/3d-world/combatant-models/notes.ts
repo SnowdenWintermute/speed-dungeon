@@ -28,3 +28,7 @@
 // start playing evade animation with transition from hit recovery
 // finish animation
 // idle
+//
+// combatant is halfway through some action
+// induce hit recovery
+// if currently in hit recovery / evade, restart the animation (or play alterate one)

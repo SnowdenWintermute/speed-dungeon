@@ -1,9 +1,13 @@
 import { AnimationEvent } from "babylonjs";
-import { CombatActionType, CombatantAbilityName, ERROR_MESSAGES } from "@speed-dungeon/common";
+import {
+  CombatActionType,
+  CombatantAbilityName,
+  ERROR_MESSAGES,
+  SpeedDungeonGame,
+} from "@speed-dungeon/common";
 import { CombatantModelAction, CombatantModelActionType } from "./model-actions";
 import { GameWorld } from "../game-world";
 import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
-import getCombatantInGameById from "@speed-dungeon/common/src/game/get-combatant-in-game-by-id";
 
 export default function setAnimationFrameEvents(
   gameWorld: GameWorld,
@@ -23,7 +27,7 @@ export default function setAnimationFrameEvents(
         // @todo - show offhand as different animation
         case CombatantAbilityName.AttackMeleeOffhand:
           animationEventOption = new AnimationEvent(
-            30,
+            20,
             () => {
               // induce hit recovery and evade animations
               //
@@ -45,10 +49,11 @@ export default function setAnimationFrameEvents(
                   gameWorld.mutateGameState((gameState) => {
                     const gameOption = gameState.game;
                     if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-                    const combatantResult = getCombatantInGameById(gameOption, targetId);
+                    const combatantResult = SpeedDungeonGame.getCombatantById(gameOption, targetId);
                     if (combatantResult instanceof Error) return console.error(combatantResult);
 
-                    combatantResult.combatantProperties.hitPoints += hpChange;
+                    combatantResult.combatantProperties.hitPoints =
+                      combatantResult.combatantProperties.hitPoints + hpChange;
                   });
                 }
 

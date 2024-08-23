@@ -47,9 +47,14 @@ export class AnimationManager {
     let transitionFrom: null | ManagedAnimation = null;
     let timeStarted: number = Date.now();
 
-    if (this.playing?.name === name) return;
-    if (this.transition?.transitioningTo?.name === name) return;
-
+    if (this.playing?.name === name)
+      return console.error(
+        "tried to start animation with transition but was already playing that animation"
+      );
+    if (this.transition?.transitioningTo?.name === name)
+      return console.error(
+        "tried to start animation with transition but was already transitioning to that animation"
+      );
     if (this.playing !== null) transitionFrom = this.playing;
     else if (this.transition?.transitioningTo) {
       transitionFrom = this.transition.transitioningTo;

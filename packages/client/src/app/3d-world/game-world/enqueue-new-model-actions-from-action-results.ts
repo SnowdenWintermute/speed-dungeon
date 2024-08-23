@@ -2,7 +2,7 @@ import { ModularCharacter } from "../combatant-models/modular-character";
 import { GameWorld } from ".";
 import createApproachDestinationModelAction from "./create-approach-destination-model-action";
 import { CombatantModelAction, CombatantModelActionType } from "../combatant-models/model-actions";
-import { ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
+import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { Quaternion, Vector3 } from "babylonjs";
 import cloneDeep from "lodash.clonedeep";
 
@@ -12,17 +12,6 @@ export default function enqueueNewModelActionsFromActionResults(
 ) {
   if (this.actionResultsQueue.length === 0) return;
   let shouldEndTurn = false;
-
-  // gameWorld.mutateGameState((gameState) => {
-  //   const gameOption = gameState.game;
-  //   if (gameOption === null) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-  //   const combatantResult = SpeedDungeonGame.getCombatantById(gameOption, this.entityId);
-  //   if (combatantResult instanceof Error) return console.error(combatantResult);
-
-  //   console.log("setting ", combatantResult.entityProperties.id, " action target to null");
-  //   combatantResult.combatantProperties.combatActionTarget = null;
-  //   combatantResult.combatantProperties.selectedCombatAction = null;
-  // });
 
   let returnHomeModelAction: CombatantModelAction;
   const approachDestinationModelActionResult = createApproachDestinationModelAction(
@@ -68,6 +57,4 @@ export default function enqueueNewModelActionsFromActionResults(
   this.modelActionQueue.push(returnHomeModelAction);
 
   if (shouldEndTurn) this.modelActionQueue.push({ type: CombatantModelActionType.EndTurn });
-
-  this.modelActionQueue.push({ type: CombatantModelActionType.Idle });
 }

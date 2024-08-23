@@ -16,6 +16,19 @@ export default function startNewModelActions(
 
   if (readyToStartNewActions && this.modelActionQueue.length > 0) {
     this.startNextModelAction(mutateGameState);
+  } else if (
+    Object.values(this.activeModelActions).length === 0 &&
+    this.activeModelActions[CombatantModelActionType.Idle] === undefined
+  ) {
+    // idle if there's nothing left to do
+    const animationGroup = this.animationManager.getAnimationGroupByName("idle");
+    const animationOption = animationGroup?.targetedAnimations[0]?.animation ?? null;
+
+    this.activeModelActions[CombatantModelActionType.Idle] =
+      new CombatantModelActionProgressTracker(
+        { type: CombatantModelActionType.Idle },
+        animationOption
+      );
   }
 }
 
@@ -54,7 +67,10 @@ export function startNextModelAction(
   );
 
   if (animationNameResult instanceof Error) return animationNameResult;
-  const animationGroup = this.animationManager.getAnimationGroupByName(animationNameResult || "");
+  let animationGroup = this.animationManager.getAnimationGroupByName(animationNameResult || "");
+  // in case they don't have a specific offhand attack anim
+  if (!animationGroup && animationNameResult === "melee-attack-offhand")
+    animationGroup = this.animationManager.getAnimationGroupByName("melee-attack");
 
   const animationOption = animationGroup?.targetedAnimations[0]?.animation;
 
