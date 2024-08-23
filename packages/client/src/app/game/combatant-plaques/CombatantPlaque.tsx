@@ -17,6 +17,7 @@ import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
 import { formatCombatModelActionType } from "@/app/3d-world/combatant-models/model-actions";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
+import { getTailwindClassFromFloatingTextColor } from "@/stores/game-store/floating-text";
 
 interface Props {
   entityId: string;
@@ -42,6 +43,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   );
   const babylonDebugMessages =
     useGameStore().babylonControlledCombatantDOMData[entityId]?.debugMessages;
+  const floatingText = useGameStore().babylonControlledCombatantDOMData[entityId]?.floatingText;
 
   const activeModelActions =
     useGameStore().babylonControlledCombatantDOMData[entityId]?.activeModelActions;
@@ -123,33 +125,38 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
       {
         <div id={`${entityId}-position-div`} className="absolute">
           {
-            // <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-            //   {entityId}
-            // </div>
-            <div className="text-2xl w-[400px]">
+            <div className="text-2xl absolute w-fit bottom-0 bg-gray-700 opacity-50 ">
               {activeModelActions &&
                 activeModelActions.map((item) => formatCombatModelActionType(item))}
             </div>
           }
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-            {
-              // floating text here
-            }
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full flex flex-col items-center text-center">
+            {floatingText?.map((message) => {
+              const colorClass = getTailwindClassFromFloatingTextColor(message.color);
+              return (
+                <div
+                  className="text-2xl relative"
+                  style={{
+                    animation: "float-up-and-fade-out", // defined in css file same directory
+                    animationDuration: `${message.displayTime + 50}ms`,
+                    animationTimingFunction: "linear",
+                    animationIterationCount: 1,
+                  }}
+                  key={message.id}
+                >
+                  <div className={colorClass}>{message.text}</div>
+                  <div className="absolute z-[-1] text-black top-[3px] left-[3px]">
+                    {message.text}
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <div className="absolute flex flex-col align-middle top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px]">
+          <div className="absolute flex flex-col items-center text-center top-1/2 left-1/2 -translate-x-1/2 w-[400px]">
             {babylonDebugMessages?.map((message) => (
-              <div
-                className="text-xl relative"
-                key={message.id}
-                // style={{
-                //   animation: "float-up-and-fade-out",
-                //   animationDuration: `${message.displayTime + 50}ms`,
-                //   animationTimingFunction: "linear",
-                //   animationIterationCount: 1,
-                // }}
-              >
-                <div>{message.text}</div>
-                <div className="absolute z-[-1] text-black top-[3px] left-[3px]">
+              <div className="text-xl relative w-fit" key={message.id}>
+                <div className="w-fit">{message.text}</div>
+                <div className="absolute w-fit z-[-1] text-black top-[3px] left-[3px]">
                   {message.text}
                 </div>
               </div>

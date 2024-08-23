@@ -20,8 +20,6 @@ export default function enqueueNewActionResultsFromTurnResults(this: GameWorld) 
 
   const newTurnResult = this.turnResultsQueue.shift();
 
-  console.log("remaining turn results: ", this.turnResultsQueue);
-
   if (newTurnResult === undefined) return new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED);
 
   const combatantModelOption = this.modelManager.combatantModels[newTurnResult.combatantId];

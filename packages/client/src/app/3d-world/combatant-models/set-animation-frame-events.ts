@@ -7,7 +7,7 @@ import {
 } from "@speed-dungeon/common";
 import { CombatantModelAction, CombatantModelActionType } from "./model-actions";
 import { GameWorld } from "../game-world";
-import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
+import { FloatingTextColor, startFloatingText } from "@/stores/game-store/floating-text";
 
 export default function setAnimationFrameEvents(
   gameWorld: GameWorld,
@@ -24,7 +24,7 @@ export default function setAnimationFrameEvents(
       switch (actionResult.action.abilityName) {
         case CombatantAbilityName.Attack:
         case CombatantAbilityName.AttackMeleeMainhand:
-        // @todo - show offhand as different animation
+        // @todo - select correct frames for various attack animations
         case CombatantAbilityName.AttackMeleeOffhand:
           animationEventOption = new AnimationEvent(
             20,
@@ -35,7 +35,7 @@ export default function setAnimationFrameEvents(
                 for (const [targetId, hpChange] of Object.entries(
                   actionResult.hitPointChangesByEntityId
                 )) {
-                  const isCrit = actionResult.critsByEntityId?.includes(targetId);
+                  const isCrit = actionResult.critsByEntityId?.includes(targetId) ?? false;
                   const targetModel = gameWorld.modelManager.combatantModels[targetId];
                   if (targetModel === undefined)
                     return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
@@ -44,7 +44,17 @@ export default function setAnimationFrameEvents(
                     damage: hpChange,
                   });
 
-                  setDebugMessage(gameWorld.mutateGameState, targetId, hpChange.toString(), 3000);
+                  const color =
+                    hpChange >= 0 ? FloatingTextColor.Healing : FloatingTextColor.Damage;
+
+                  startFloatingText(
+                    gameWorld.mutateGameState,
+                    targetId,
+                    Math.abs(hpChange).toString(),
+                    color,
+                    isCrit,
+                    2000
+                  );
 
                   gameWorld.mutateGameState((gameState) => {
                     const gameOption = gameState.game;
@@ -68,7 +78,14 @@ export default function setAnimationFrameEvents(
                     type: CombatantModelActionType.Evade,
                   });
 
-                  setDebugMessage(gameWorld.mutateGameState, targetId, "Evaded", 3000);
+                  startFloatingText(
+                    gameWorld.mutateGameState,
+                    targetId,
+                    "Evaded",
+                    FloatingTextColor.Healing,
+                    false,
+                    2000
+                  );
                 }
             },
             true

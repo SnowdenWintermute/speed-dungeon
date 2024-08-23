@@ -42,19 +42,38 @@ export class AnimationManager {
     name: string,
     transitionTo: AnimationGroup,
     durationMs: number,
-    options: { shouldLoop: boolean }
+    options: { shouldLoop: boolean; shouldRestartIfAlreadyPlaying: boolean } = {
+      shouldLoop: true,
+      shouldRestartIfAlreadyPlaying: false,
+    }
   ): Error | void {
     let transitionFrom: null | ManagedAnimation = null;
     let timeStarted: number = Date.now();
 
-    if (this.playing?.name === name)
-      return console.error(
-        "tried to start animation with transition but was already playing that animation"
-      );
-    if (this.transition?.transitioningTo?.name === name)
-      return console.error(
-        "tried to start animation with transition but was already transitioning to that animation"
-      );
+    const alreadyPlayingAnimationWithSameName =
+      this.playing?.name === name || this.transition?.transitioningTo?.name === name;
+
+    if (alreadyPlayingAnimationWithSameName && !options.shouldRestartIfAlreadyPlaying)
+      return console.error("already playing animation named ", name);
+    else if (
+      alreadyPlayingAnimationWithSameName &&
+      this.transition?.transitioningTo.name === name &&
+      options.shouldRestartIfAlreadyPlaying
+    ) {
+      this.transition.transitioningFrom.animationGroup.setWeightForAllAnimatables(0);
+      this.playing = this.transition.transitioningTo;
+      this.transition = null;
+      this.playing.animationGroup.setWeightForAllAnimatables(1);
+      this.playing.animationGroup.restart();
+      return;
+    } else if (
+      (alreadyPlayingAnimationWithSameName && this.playing?.name === name,
+      options.shouldRestartIfAlreadyPlaying)
+    ) {
+      this.playing?.animationGroup.restart();
+      return;
+    }
+
     if (this.playing !== null) transitionFrom = this.playing;
     else if (this.transition?.transitioningTo) {
       transitionFrom = this.transition.transitioningTo;
@@ -62,7 +81,7 @@ export class AnimationManager {
       // so as not to restart its weights at 0
       timeStarted = this.transition.timeStarted;
     }
-    if (transitionFrom === null) return new Error("No animation to transition from");
+    if (transitionFrom === null) return console.error("No animation to transition from");
 
     this.transition = {
       durationMs,

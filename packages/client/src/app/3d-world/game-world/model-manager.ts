@@ -85,7 +85,8 @@ export class ModelManager {
       skeleton,
       blueprint.modelDomPositionElement,
       blueprint.startPosition,
-      blueprint.startRotation
+      blueprint.startRotation,
+      blueprint.modelCorrectionRotation
     );
 
     for (const part of parts) {

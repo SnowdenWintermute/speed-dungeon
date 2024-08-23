@@ -51,6 +51,7 @@ export class GameWorld {
       this.modelManager.startProcessingNewMessages();
       const turnResultsErrorOption = this.enqueueNewActionResultsFromTurnResults();
       if (turnResultsErrorOption instanceof Error) console.error(turnResultsErrorOption);
+
       for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
         combatantModel.updateDomRefPosition();
         // start model actions from action results
@@ -63,6 +64,7 @@ export class GameWorld {
         // process any animation transitions
         combatantModel.animationManager.stepAnimationTransitionWeights();
         // combatantModel.updateBoundingBox();
+        //
       }
       //
       // if no active model actions and turn results remain

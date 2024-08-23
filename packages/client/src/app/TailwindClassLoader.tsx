@@ -4,6 +4,10 @@ export default function TailwindClassLoader() {
   return (
     <div id="tailwind-conditional-class-loader">
       <div className="pointer-events-none" />
+      <div className="text-beigepaper" />
+      <div className="text-green-600" />
+      <div className="text-blue-700" />
+
       <div className="bg-beigepaper" />
       <div className="bg-firered" />
       <div className="bg-iceblue" />

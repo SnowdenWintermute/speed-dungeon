@@ -9,7 +9,7 @@ export const BASE_STARTING_ATTRIBUTES: Record<
     [CombatAttribute.Strength]: 3,
     [CombatAttribute.Dexterity]: 1,
     [CombatAttribute.Vitality]: 1,
-    [CombatAttribute.Hp]: 20,
+    [CombatAttribute.Hp]: 200,
     [CombatAttribute.Mp]: 2,
     [CombatAttribute.Accuracy]: 75,
     [CombatAttribute.Speed]: 1,

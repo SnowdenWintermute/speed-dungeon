@@ -23,7 +23,7 @@ export default function approachDestinationModelActionProcessor(
   const timeSinceStarted = Date.now() - modelActionTracker.timeStarted;
   const totalTimeToReachDestination =
     COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * modelAction.distance;
-  const percentTravelled = timeSinceStarted / totalTimeToReachDestination;
+  const percentTravelled = Math.min(1, timeSinceStarted / totalTimeToReachDestination);
 
   const newPosition = Vector3.Lerp(
     modelAction.previousLocation,
@@ -54,7 +54,7 @@ export default function approachDestinationModelActionProcessor(
     modelAction.transitionToNextActionStarted = true;
   }
 
-  if (percentTravelled > 1) {
+  if (percentTravelled >= 1 && percentRotated >= 1) {
     combatantModel.removeActiveModelAction(modelAction.type);
   }
 }

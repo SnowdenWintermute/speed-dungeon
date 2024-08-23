@@ -1,11 +1,15 @@
 import {
   AbstractMesh,
   BoundingInfo,
+  Color3,
   Color4,
+  CreateGreasedLine,
   ISceneLoaderAsyncResult,
+  Material,
   Mesh,
   MeshBuilder,
   Quaternion,
+  StandardMaterial,
   TransformNode,
   Vector3,
 } from "babylonjs";
@@ -56,7 +60,11 @@ export class ModularCharacter {
     rotation: Quaternion;
   } = { position: Vector3.Zero(), rotation: Quaternion.Zero() };
   animationManager: AnimationManager;
-  modifiedRotation: number;
+  debugMeshes: {
+    directionLine: Mesh;
+    homeLocationMesh: Mesh;
+    homeLocationDirectionLine: Mesh;
+  } | null = null;
 
   constructor(
     public entityId: string,
@@ -65,7 +73,8 @@ export class ModularCharacter {
     public skeleton: ISceneLoaderAsyncResult,
     public modelDomPositionElement: HTMLDivElement | null,
     startPosition: Vector3 = Vector3.Zero(),
-    startRotation: number = 0
+    startRotation: number = 0,
+    modelCorrectionRotation: number = 0
   ) {
     this.animationManager = new AnimationManager(this.skeleton);
     this.activeModelActions[CombatantModelActionType.Idle] =
@@ -77,26 +86,26 @@ export class ModularCharacter {
 
     if (monsterType !== null) {
       rootMesh.scaling = Vector3.One().scale(MONSTER_SCALING_SIZES[monsterType]);
-      startRotation += Math.PI;
     }
 
-    const rootTransformNode = new TransformNode(`${entityId}-root-transform-node`);
-
+    this.rootTransformNode = new TransformNode(`${entityId}-root-transform-node`);
     this.rootMesh = rootMesh;
-    this.modifiedRotation = Math.PI / 2;
-    this.rootMesh.rotate(Vector3.Up(), this.modifiedRotation); // fix blender export flipped rotation
+    this.rootMesh.rotate(Vector3.Up(), modelCorrectionRotation); // fix inconsistent blender export rotation
 
-    rootTransformNode.rotate(Vector3.Up(), this.modifiedRotation + startRotation);
-    rootTransformNode.addChild(this.rootMesh);
-    rootTransformNode.position = startPosition;
-    this.rootTransformNode = rootTransformNode;
+    this.rootMesh.setParent(this.rootTransformNode);
 
-    const rotation = rootTransformNode.rotationQuaternion;
+    // rootTransformNode.rotate(Vector3.Up(), this.modifiedRotation + startRotation);
+    this.rootTransformNode.rotate(Vector3.Up(), startRotation);
+    this.rootTransformNode.position = startPosition;
+
+    const rotation = this.rootTransformNode.rotationQuaternion;
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
     this.homeLocation = {
       position: cloneDeep(this.rootTransformNode.position),
       rotation: cloneDeep(this.rootTransformNode.rotationQuaternion!),
     };
+
+    // this.setUpDebugMeshes();
 
     // this.setShowBones();
   }
@@ -105,6 +114,66 @@ export class ModularCharacter {
   startNewModelActions = startNewModelActions;
   startNextModelAction = startNextModelAction;
   processActiveModelActions = processActiveModelActions;
+
+  setUpDebugMeshes() {
+    const red = new Color3(255, 0, 0);
+    const blue = new Color3(0, 0, 255);
+    const green = new Color3(0, 255, 0);
+
+    // const rootMeshDirection = this.rootMesh.forward;
+    // const rootMeshForwardLocation = this.rootMesh.position.add(rootMeshDirection.scale(1.5));
+    // const rootMeshDirectionLine = CreateGreasedLine(
+    //   `${this.entityId}-root-mesh-direction-line`,
+    //   {
+    //     points: [this.rootMesh.position, rootMeshForwardLocation],
+    //     updatable: true,
+    //     widths: [0.1],
+    //   },
+    //   { color: green }
+    // );
+    const rootMeshLocationBox = MeshBuilder.CreateBox(`${this.entityId}-root-mesh-location-box`, {
+      size: 0.25,
+    });
+    // rootMeshLocationBox.position = cloneDeep(this.rootMesh.position);
+    rootMeshLocationBox.setParent(this.rootMesh);
+
+    const direction = this.rootTransformNode.forward;
+    const forwardLocation = this.rootTransformNode.position.add(direction.scale(1.5));
+    const directionLine = CreateGreasedLine(
+      `${this.entityId}-direction-line`,
+      {
+        points: [this.rootTransformNode.position, forwardLocation],
+        updatable: true,
+        widths: [0.1],
+      },
+      { color: red }
+    );
+
+    directionLine.setParent(this.rootTransformNode);
+
+    const homeLocationMesh = MeshBuilder.CreateBox(`${this.entityId}-home-location-box`, {
+      size: 0.25,
+    });
+    homeLocationMesh.position = cloneDeep(this.homeLocation.position);
+
+    const homeDirection = cloneDeep(this.rootTransformNode.forward);
+    const homeForwardLocation = this.rootTransformNode.position.add(homeDirection.scale(1.5));
+    const homeLocationDirectionLine = CreateGreasedLine(
+      `${this.entityId}-direction-line`,
+      {
+        points: [cloneDeep(this.homeLocation.position), homeForwardLocation],
+        updatable: true,
+        widths: [0.1],
+      },
+      { color: blue }
+    );
+
+    this.debugMeshes = {
+      directionLine,
+      homeLocationMesh,
+      homeLocationDirectionLine,
+    };
+  }
 
   removeActiveModelAction(modelActionType: CombatantModelActionType) {
     delete this.activeModelActions[modelActionType];
@@ -122,6 +191,7 @@ export class ModularCharacter {
       }
     });
   }
+
   updateDomRefPosition() {
     const boundingBox = this.getClientRectFromMesh(this.rootMesh);
     if (this.modelDomPositionElement) {

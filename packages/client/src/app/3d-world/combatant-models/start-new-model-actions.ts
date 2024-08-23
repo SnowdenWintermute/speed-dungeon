@@ -69,7 +69,7 @@ export function startNextModelAction(
   if (animationNameResult instanceof Error) return animationNameResult;
   let animationGroup = this.animationManager.getAnimationGroupByName(animationNameResult || "");
   // in case they don't have a specific offhand attack anim
-  if (!animationGroup && animationNameResult === "melee-attack-offhand")
+  if (animationGroup === undefined && animationNameResult === "melee-attack-offhand")
     animationGroup = this.animationManager.getAnimationGroupByName("melee-attack");
 
   const animationOption = animationGroup?.targetedAnimations[0]?.animation;
@@ -92,6 +92,9 @@ export function startNextModelAction(
   if (animationGroup !== undefined && animationNameResult !== null) {
     this.animationManager.startAnimationWithTransition(animationNameResult, animationGroup, 500, {
       shouldLoop: isRepeatingAnimation,
+      shouldRestartIfAlreadyPlaying:
+        newModelAction.type === CombatantModelActionType.HitRecovery ||
+        newModelAction.type === CombatantModelActionType.Evade,
     });
     animationGroup.onAnimationEndObservable.add(() => {
       animationTracker.animationEnded = true;

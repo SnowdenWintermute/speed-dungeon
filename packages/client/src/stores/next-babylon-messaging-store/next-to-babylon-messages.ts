@@ -21,6 +21,7 @@ export interface CombatantModelBlueprint {
   class: CombatantClass;
   startPosition: Vector3;
   startRotation: number;
+  modelCorrectionRotation: number;
   modelDomPositionElement: HTMLDivElement | null;
 }
 
