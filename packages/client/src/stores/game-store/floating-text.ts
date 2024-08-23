@@ -39,7 +39,6 @@ export function startFloatingText(
   let id: string;
   mutateGameState((gameState) => {
     id = gameState.lastDebugMessageId.toString();
-    console.log("started floating text id: ", id);
     let newMessage = new FloatingText(id, message, color, isCrit, displayTime);
 
     if (!gameState.babylonControlledCombatantDOMData[combatantId]) {
@@ -50,6 +49,7 @@ export function startFloatingText(
     gameState.babylonControlledCombatantDOMData[combatantId]?.floatingText.push(newMessage);
     gameState.lastDebugMessageId += 1;
   });
+
   setTimeout(() => {
     mutateGameState((gameState) => {
       removeFloatingText(gameState, combatantId, id);

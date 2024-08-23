@@ -19,7 +19,7 @@ export default function getModelActionAnimationName(
   modelAction: CombatantModelAction,
   combatantId: string,
   mutateGameState: MutateState<GameState>
-): Error | null | string {
+): Error | string {
   // this is so we can set values from inside the mutateGameState since you can't
   // set a primative from inside there, only the property of something passed by
   // reference
@@ -80,6 +80,4 @@ export default function getModelActionAnimationName(
       // @todo - based hp percent, choose correct limping idle pose
       return "idle";
   }
-
-  return null;
 }

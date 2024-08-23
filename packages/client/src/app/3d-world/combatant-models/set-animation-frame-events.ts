@@ -30,7 +30,7 @@ export default function setAnimationFrameEvents(
             20,
             () => {
               // induce hit recovery and evade animations
-              //
+
               if (actionResult.hitPointChangesByEntityId)
                 for (const [targetId, hpChange] of Object.entries(
                   actionResult.hitPointChangesByEntityId

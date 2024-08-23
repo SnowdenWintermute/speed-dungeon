@@ -67,10 +67,15 @@ export function startNextModelAction(
   );
 
   if (animationNameResult instanceof Error) return animationNameResult;
-  let animationGroup = this.animationManager.getAnimationGroupByName(animationNameResult || "");
-  // in case they don't have a specific offhand attack anim
-  if (animationGroup === undefined && animationNameResult === "melee-attack-offhand")
+  let animationGroup = this.animationManager.getAnimationGroupByName(animationNameResult);
+
+  // alternatives to some missing animations
+  if (animationGroup === undefined && animationNameResult === "melee-attack-offhand") {
     animationGroup = this.animationManager.getAnimationGroupByName("melee-attack");
+  }
+  if (animationGroup === undefined && animationNameResult === "move-back") {
+    animationGroup = this.animationManager.getAnimationGroupByName("move-forward");
+  }
 
   const animationOption = animationGroup?.targetedAnimations[0]?.animation;
 
@@ -98,6 +103,11 @@ export function startNextModelAction(
     });
     animationGroup.onAnimationEndObservable.add(() => {
       animationTracker.animationEnded = true;
+
+      // otherwise animation events will trigger on subsequent plays of the animation
+      animationGroup.targetedAnimations[0]?.animation.getEvents().forEach((event) => {
+        animationGroup.targetedAnimations[0]?.animation.removeEvents(event.frame);
+      });
     });
   } else {
     setDebugMessage(

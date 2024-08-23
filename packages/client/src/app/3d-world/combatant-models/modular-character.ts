@@ -253,15 +253,26 @@ export class ModularCharacter {
     this.updateBoundingBox();
   }
 
-  async equipWeapon(_partPath: string) {
+  async equipWeapon(_partPath: string, oh: boolean) {
     const weapon = await this.world.importMesh("sword.glb");
-    weapon.meshes[0]?.translate(Vector3.Up(), 0.1);
-    weapon.meshes[0]?.translate(Vector3.Forward(), -0.05);
-    weapon.meshes[0]?.rotate(Vector3.Backward(), Math.PI / 2);
-    const equipmentBone = this.skeleton.meshes[0]
-      ? getChildMeshByName(this.skeleton.meshes[0], "Wrist.R")
-      : undefined;
-    if (equipmentBone && weapon.meshes[0]) weapon.meshes[0].parent = equipmentBone;
+
+    if (oh) {
+      weapon.meshes[0]?.translate(Vector3.Up(), 0.1);
+      weapon.meshes[0]?.translate(Vector3.Forward(), -0.05);
+      weapon.meshes[0]?.rotate(Vector3.Backward(), -Math.PI / 2);
+      const equipmentBone = this.skeleton.meshes[0]
+        ? getChildMeshByName(this.skeleton.meshes[0], "Wrist.L")
+        : undefined;
+      if (equipmentBone && weapon.meshes[0]) weapon.meshes[0].parent = equipmentBone;
+    } else {
+      weapon.meshes[0]?.translate(Vector3.Up(), 0.1);
+      weapon.meshes[0]?.translate(Vector3.Forward(), -0.05);
+      weapon.meshes[0]?.rotate(Vector3.Backward(), Math.PI / 2);
+      const equipmentBone = this.skeleton.meshes[0]
+        ? getChildMeshByName(this.skeleton.meshes[0], "Wrist.R")
+        : undefined;
+      if (equipmentBone && weapon.meshes[0]) weapon.meshes[0].parent = equipmentBone;
+    }
   }
 
   removePart(partCategory: ModularCharacterPartCategory) {

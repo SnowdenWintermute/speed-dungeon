@@ -60,17 +60,21 @@ export class AnimationManager {
       this.transition?.transitioningTo.name === name &&
       options.shouldRestartIfAlreadyPlaying
     ) {
+      console.log("trying to restart animation currently transitioning to: ", name);
       this.transition.transitioningFrom.animationGroup.setWeightForAllAnimatables(0);
       this.playing = this.transition.transitioningTo;
       this.transition = null;
       this.playing.animationGroup.setWeightForAllAnimatables(1);
-      this.playing.animationGroup.restart();
+      this.playing.animationGroup.reset();
       return;
     } else if (
       (alreadyPlayingAnimationWithSameName && this.playing?.name === name,
       options.shouldRestartIfAlreadyPlaying)
     ) {
-      this.playing?.animationGroup.restart();
+      console.log("trying to restart animation currently playing: ", name);
+      this.playing?.animationGroup.goToFrame(0);
+      this.playing?.animationGroup.play();
+      this.playing?.animationGroup.setWeightForAllAnimatables(1);
       return;
     }
 

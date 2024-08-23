@@ -93,7 +93,10 @@ export class ModelManager {
       await modularCharacter.attachPart(part.category, part.assetPath);
     }
 
-    if (blueprint.species === CombatantSpecies.Humanoid) await modularCharacter.equipWeapon("");
+    if (blueprint.species === CombatantSpecies.Humanoid)
+      await modularCharacter.equipWeapon("", false);
+    if (blueprint.species === CombatantSpecies.Humanoid)
+      await modularCharacter.equipWeapon("", true);
 
     this.combatantModels[blueprint.entityId] = modularCharacter;
 

@@ -152,13 +152,10 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
               );
             })}
           </div>
-          <div className="absolute flex flex-col items-center text-center top-1/2 left-1/2 -translate-x-1/2 w-[400px]">
+          <div className="absolute flex flex-col justify-center items-center text-center top-1/2 left-1/2 -translate-x-1/2 w-[400px]">
             {babylonDebugMessages?.map((message) => (
-              <div className="text-xl relative w-fit" key={message.id}>
-                <div className="w-fit">{message.text}</div>
-                <div className="absolute w-fit z-[-1] text-black top-[3px] left-[3px]">
-                  {message.text}
-                </div>
+              <div className="text-xl relative w-[400px] text-center" key={message.id}>
+                <div className="">{message.text}</div>
               </div>
             ))}
           </div>
