@@ -50,7 +50,9 @@ export default function approachDestinationModelActionProcessor(
     !modelAction.transitionToNextActionStarted
   ) {
     // start next
-    combatantModel.startNextModelAction(combatantModel.world.mutateGameState);
+    const nextActionOption = combatantModel.modelActionQueue.shift();
+    if (nextActionOption)
+      combatantModel.startModelAction(combatantModel.world.mutateGameState, nextActionOption);
     modelAction.transitionToNextActionStarted = true;
   }
 

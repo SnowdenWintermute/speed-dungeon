@@ -1,6 +1,10 @@
 import { MutateState } from "@/stores/mutate-state";
 import getModelActionAnimationName from "./get-model-action-animation-name";
-import { CombatantModelActionProgressTracker, CombatantModelActionType } from "./model-actions";
+import {
+  CombatantModelAction,
+  CombatantModelActionProgressTracker,
+  CombatantModelActionType,
+} from "./model-actions";
 import { ModularCharacter } from "./modular-character";
 import { GameState } from "@/stores/game-store";
 import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
@@ -15,7 +19,13 @@ export default function startNewModelActions(
     this.activeModelActions[CombatantModelActionType.Idle];
 
   if (readyToStartNewActions && this.modelActionQueue.length > 0) {
-    this.startNextModelAction(mutateGameState);
+    if (this.activeModelActions[CombatantModelActionType.Idle])
+      this.removeActiveModelAction(CombatantModelActionType.Idle);
+
+    const newModelAction = this.modelActionQueue.shift();
+    if (newModelAction === undefined) return new Error("no model action to start");
+
+    this.startModelAction(mutateGameState, newModelAction);
   } else if (
     Object.values(this.activeModelActions).length === 0 &&
     this.activeModelActions[CombatantModelActionType.Idle] === undefined
@@ -32,24 +42,19 @@ export default function startNewModelActions(
   }
 }
 
-export function startNextModelAction(
+export function startModelAction(
   this: ModularCharacter,
-  mutateGameState: MutateState<GameState>
+  mutateGameState: MutateState<GameState>,
+  modelAction: CombatantModelAction
 ) {
-  if (this.activeModelActions[CombatantModelActionType.Idle])
-    this.removeActiveModelAction(CombatantModelActionType.Idle);
-
-  const newModelAction = this.modelActionQueue.shift();
-  if (newModelAction === undefined) return new Error("no model action to start");
-
   mutateGameState((state) => {
     const gameStateActiveActions = state.babylonControlledCombatantDOMData[this.entityId];
-    gameStateActiveActions?.activeModelActions.push(newModelAction.type);
+    gameStateActiveActions?.activeModelActions.push(modelAction.type);
   });
 
   // start animation if any
   let isRepeatingAnimation = false;
-  switch (newModelAction.type) {
+  switch (modelAction.type) {
     case CombatantModelActionType.ApproachDestination:
     case CombatantModelActionType.ReturnHome:
     case CombatantModelActionType.Idle:
@@ -61,7 +66,7 @@ export function startNextModelAction(
   }
 
   const animationNameResult = getModelActionAnimationName(
-    newModelAction,
+    modelAction,
     this.entityId,
     mutateGameState
   );
@@ -80,55 +85,48 @@ export function startNextModelAction(
   const animationOption = animationGroup?.targetedAnimations[0]?.animation;
 
   // set frame event for attacks/etc
-  if (animationOption && newModelAction.type === CombatantModelActionType.PerformCombatAction) {
-    const animationEventOptionResult = setAnimationFrameEvents(this.world, newModelAction);
+  if (animationOption && modelAction.type === CombatantModelActionType.PerformCombatAction) {
+    const animationEventOptionResult = setAnimationFrameEvents(this.world, modelAction);
     if (animationEventOptionResult instanceof Error) return animationEventOptionResult;
     if (animationEventOptionResult) animationOption.addEvent(animationEventOptionResult);
   }
 
   // put new action progress tracker in active actions object
   const animationTracker = new CombatantModelActionProgressTracker(
-    newModelAction,
+    modelAction,
     animationGroup?.targetedAnimations[0]?.animation ?? null
   );
 
-  this.activeModelActions[newModelAction.type] = animationTracker;
+  this.activeModelActions[modelAction.type] = animationTracker;
 
   if (animationGroup !== undefined && animationNameResult !== null) {
     this.animationManager.startAnimationWithTransition(animationNameResult, animationGroup, 500, {
       shouldLoop: isRepeatingAnimation,
       shouldRestartIfAlreadyPlaying:
-        newModelAction.type === CombatantModelActionType.HitRecovery ||
-        newModelAction.type === CombatantModelActionType.Evade,
+        modelAction.type === CombatantModelActionType.HitRecovery ||
+        modelAction.type === CombatantModelActionType.Evade,
     });
-    animationGroup.onAnimationEndObservable.add(() => {
-      animationTracker.animationEnded = true;
 
-      // otherwise animation events will trigger on subsequent plays of the animation
-      animationGroup.targetedAnimations[0]?.animation.getEvents().forEach((event) => {
-        animationGroup.targetedAnimations[0]?.animation.removeEvents(event.frame);
-      });
-    });
+    animationGroup.onAnimationEndObservable.add(
+      () => {
+        animationTracker.animationEnded = true;
+
+        // otherwise animation events will trigger on subsequent plays of the animation
+        animationGroup.targetedAnimations[0]?.animation.getEvents().forEach((event) => {
+          animationGroup.targetedAnimations[0]?.animation.removeEvents(event.frame);
+        });
+      },
+      undefined,
+      true,
+      undefined,
+      true
+    );
   } else {
     setDebugMessage(
       mutateGameState,
       this.entityId,
       `Missing animation: ${animationNameResult}`,
-      5000
+      2000
     );
-    setTimeout(() => {
-      delete this.activeModelActions[newModelAction.type];
-      mutateGameState((state) => {
-        const indexOption = state.babylonControlledCombatantDOMData[
-          this.entityId
-        ]?.activeModelActions.indexOf(newModelAction.type);
-        if (indexOption !== undefined) {
-          state.babylonControlledCombatantDOMData[this.entityId]?.activeModelActions.splice(
-            indexOption,
-            1
-          );
-        }
-      });
-    }, 5000);
   }
 }

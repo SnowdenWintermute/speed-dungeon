@@ -1,5 +1,6 @@
 import { AnimationEvent } from "babylonjs";
 import {
+  ActionResult,
   CombatActionType,
   CombatantAbilityName,
   ERROR_MESSAGES,
@@ -29,42 +30,11 @@ export default function setAnimationFrameEvents(
           animationEventOption = new AnimationEvent(
             20,
             () => {
-              // induce hit recovery and evade animations
-
               if (actionResult.hitPointChangesByEntityId)
                 for (const [targetId, hpChange] of Object.entries(
                   actionResult.hitPointChangesByEntityId
                 )) {
-                  const isCrit = actionResult.critsByEntityId?.includes(targetId) ?? false;
-                  const targetModel = gameWorld.modelManager.combatantModels[targetId];
-                  if (targetModel === undefined)
-                    return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-                  targetModel.modelActionQueue.push({
-                    type: CombatantModelActionType.HitRecovery,
-                    damage: hpChange,
-                  });
-
-                  const color =
-                    hpChange >= 0 ? FloatingTextColor.Healing : FloatingTextColor.Damage;
-
-                  startFloatingText(
-                    gameWorld.mutateGameState,
-                    targetId,
-                    Math.abs(hpChange).toString(),
-                    color,
-                    isCrit,
-                    2000
-                  );
-
-                  gameWorld.mutateGameState((gameState) => {
-                    const gameOption = gameState.game;
-                    if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-                    const combatantResult = SpeedDungeonGame.getCombatantById(gameOption, targetId);
-                    if (combatantResult instanceof Error) return console.error(combatantResult);
-
-                    combatantResult.combatantProperties.hitPoints =
-                      combatantResult.combatantProperties.hitPoints + hpChange;
-                  });
+                  induceHitRecovery(gameWorld, actionResult, targetId, hpChange);
                 }
 
               if (actionResult.missesByEntityId)
@@ -105,4 +75,41 @@ export default function setAnimationFrameEvents(
   }
 
   return animationEventOption;
+}
+
+function induceHitRecovery(
+  gameWorld: GameWorld,
+  actionResult: ActionResult,
+  targetId: string,
+  hpChange: number
+) {
+  const isCrit = actionResult.critsByEntityId?.includes(targetId) ?? false;
+  const targetModel = gameWorld.modelManager.combatantModels[targetId];
+  if (targetModel === undefined) return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+
+  targetModel.modelActionQueue.push({
+    type: CombatantModelActionType.HitRecovery,
+    damage: hpChange,
+  });
+
+  const color = hpChange >= 0 ? FloatingTextColor.Healing : FloatingTextColor.Damage;
+
+  startFloatingText(
+    gameWorld.mutateGameState,
+    targetId,
+    Math.abs(hpChange).toString(),
+    color,
+    isCrit,
+    2000
+  );
+
+  gameWorld.mutateGameState((gameState) => {
+    const gameOption = gameState.game;
+    if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    const combatantResult = SpeedDungeonGame.getCombatantById(gameOption, targetId);
+    if (combatantResult instanceof Error) return console.error(combatantResult);
+
+    combatantResult.combatantProperties.hitPoints =
+      combatantResult.combatantProperties.hitPoints + hpChange;
+  });
 }

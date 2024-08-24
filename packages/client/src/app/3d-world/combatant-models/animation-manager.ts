@@ -11,15 +11,9 @@ export class AnimationManager {
   constructor(public skeleton: ISceneLoaderAsyncResult) {
     // stop default animation
     this.skeleton.animationGroups[0]?.stop();
-    const idleAnimation = this.getAnimationGroupByName("Idle");
-    if (idleAnimation) this.setAnimationPlaying("Idle", idleAnimation, { shouldLoop: true });
-    else {
-      const idleAnimationLc = this.getAnimationGroupByName("idle");
-      if (idleAnimationLc) this.setAnimationPlaying("idle", idleAnimationLc, { shouldLoop: true });
-    }
-    // // TESTING
-    // const runAnimation = this.getAnimationGroupByName("Run");
-    // if (runAnimation) this.startAnimationWithTransition(runAnimation, 10000, { shouldLoop: true });
+
+    // const idleAnimation = this.getAnimationGroupByName("idle");
+    // if (idleAnimation) this.setAnimationPlaying("idle", idleAnimation, { shouldLoop: true });
   }
 
   setAnimationPlaying(
@@ -85,7 +79,9 @@ export class AnimationManager {
       // so as not to restart its weights at 0
       timeStarted = this.transition.timeStarted;
     }
-    if (transitionFrom === null) return console.error("No animation to transition from");
+
+    if (transitionFrom === null)
+      return this.setAnimationPlaying(name, transitionTo, { shouldLoop: options.shouldLoop });
 
     this.transition = {
       durationMs,

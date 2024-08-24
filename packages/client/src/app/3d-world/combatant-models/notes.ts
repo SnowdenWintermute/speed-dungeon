@@ -32,3 +32,16 @@
 // combatant is halfway through some action
 // induce hit recovery
 // if currently in hit recovery / evade, restart the animation (or play alterate one)
+//
+//
+// possible actions to interrupt
+// idling
+// - immediately set hit recovery to active and play animation
+// approach destination
+// - keep moving and save what animation they were doing
+// - immediately set hit recovery to active and play animation
+// -
+// hit recovery
+// - delete current hit recovery and set animation frame to 0
+// - replace active hit recovery and reset animation
+// evade

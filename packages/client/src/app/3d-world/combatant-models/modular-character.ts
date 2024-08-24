@@ -26,10 +26,9 @@ import {
   CombatantModelAction,
   CombatantModelActionProgressTracker,
   CombatantModelActionType,
-  formatCombatModelActionType,
 } from "./model-actions";
 import enqueueNewModelActionsFromActionResults from "../game-world/enqueue-new-model-actions-from-action-results";
-import startNewModelActions, { startNextModelAction } from "./start-new-model-actions";
+import startNewModelActions, { startModelAction } from "./start-new-model-actions";
 import { AnimationManager } from "./animation-manager";
 import { MonsterType } from "@speed-dungeon/common/src/monsters/monster-types";
 import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
@@ -77,8 +76,8 @@ export class ModularCharacter {
     modelCorrectionRotation: number = 0
   ) {
     this.animationManager = new AnimationManager(this.skeleton);
-    this.activeModelActions[CombatantModelActionType.Idle] =
-      new CombatantModelActionProgressTracker({ type: CombatantModelActionType.Idle }, null);
+
+    this.modelActionQueue.push({ type: CombatantModelActionType.Idle });
 
     while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
     const rootMesh = skeleton.meshes[0];
@@ -94,7 +93,6 @@ export class ModularCharacter {
 
     this.rootMesh.setParent(this.rootTransformNode);
 
-    // rootTransformNode.rotate(Vector3.Up(), this.modifiedRotation + startRotation);
     this.rootTransformNode.rotate(Vector3.Up(), startRotation);
     this.rootTransformNode.position = startPosition;
 
@@ -112,7 +110,7 @@ export class ModularCharacter {
 
   enqueueNewModelActionsFromActionResults = enqueueNewModelActionsFromActionResults;
   startNewModelActions = startNewModelActions;
-  startNextModelAction = startNextModelAction;
+  startModelAction = startModelAction;
   processActiveModelActions = processActiveModelActions;
 
   setUpDebugMeshes() {
