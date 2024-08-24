@@ -4,6 +4,7 @@ import {
   CombatantModelAction,
   CombatantModelActionProgressTracker,
   CombatantModelActionType,
+  formatCombatModelActionType,
 } from "./model-actions";
 import { ModularCharacter } from "./modular-character";
 import { GameState } from "@/stores/game-store";
@@ -31,14 +32,9 @@ export default function startNewModelActions(
     this.activeModelActions[CombatantModelActionType.Idle] === undefined
   ) {
     // idle if there's nothing left to do
-    const animationGroup = this.animationManager.getAnimationGroupByName("idle");
-    const animationOption = animationGroup?.targetedAnimations[0]?.animation ?? null;
-
-    this.activeModelActions[CombatantModelActionType.Idle] =
-      new CombatantModelActionProgressTracker(
-        { type: CombatantModelActionType.Idle },
-        animationOption
-      );
+    this.startModelAction(mutateGameState, {
+      type: CombatantModelActionType.Idle,
+    });
   }
 }
 
@@ -51,6 +47,9 @@ export function startModelAction(
     const gameStateActiveActions = state.babylonControlledCombatantDOMData[this.entityId];
     gameStateActiveActions?.activeModelActions.push(modelAction.type);
   });
+
+  if (this.entityId === "55")
+    console.log("starting model action: ", formatCombatModelActionType(modelAction.type));
 
   // start animation if any
   let isRepeatingAnimation = false;
@@ -77,6 +76,7 @@ export function startModelAction(
   // alternatives to some missing animations
   if (animationGroup === undefined && animationNameResult === "melee-attack-offhand") {
     animationGroup = this.animationManager.getAnimationGroupByName("melee-attack");
+    if (this.entityId === "55") console.log("changed offhand to melee-attack: ", animationGroup);
   }
   if (animationGroup === undefined && animationNameResult === "move-back") {
     animationGroup = this.animationManager.getAnimationGroupByName("move-forward");

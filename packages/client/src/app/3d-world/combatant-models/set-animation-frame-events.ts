@@ -83,11 +83,15 @@ function induceHitRecovery(
   targetId: string,
   hpChange: number
 ) {
-  const isCrit = actionResult.critsByEntityId?.includes(targetId) ?? false;
   const targetModel = gameWorld.modelManager.combatantModels[targetId];
   if (targetModel === undefined) return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+  const isCrit = actionResult.critsByEntityId?.includes(targetId) ?? false;
 
-  targetModel.modelActionQueue.push({
+  // clear model actions - @todo - handle incomplete actions
+  for (const action of Object.values(targetModel.activeModelActions))
+    targetModel.removeActiveModelAction(action.modelAction.type);
+
+  targetModel.startModelAction(gameWorld.mutateGameState, {
     type: CombatantModelActionType.HitRecovery,
     damage: hpChange,
   });

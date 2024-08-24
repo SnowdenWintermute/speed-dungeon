@@ -9,11 +9,17 @@ import {
   Color3,
   ShadowGenerator,
   Mesh,
+  Scene,
 } from "babylonjs";
 import { GameWorld } from ".";
 
 export function initScene(this: GameWorld): [ArcRotateCamera, ShadowGenerator, Mesh] {
   this.scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
+
+  // this.scene.fogMode = 3;
+  // this.scene.fogStart = 5;
+  // this.scene.fogEnd = 10;
+  // this.scene.fogColor = new Color3(255, 255, 255);
   // CAMERA
   const camera = new ArcRotateCamera(
     "camera",

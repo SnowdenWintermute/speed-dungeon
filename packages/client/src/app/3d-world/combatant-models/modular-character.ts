@@ -5,11 +5,9 @@ import {
   Color4,
   CreateGreasedLine,
   ISceneLoaderAsyncResult,
-  Material,
   Mesh,
   MeshBuilder,
   Quaternion,
-  StandardMaterial,
   TransformNode,
   Vector3,
 } from "babylonjs";
@@ -26,6 +24,7 @@ import {
   CombatantModelAction,
   CombatantModelActionProgressTracker,
   CombatantModelActionType,
+  formatCombatModelActionType,
 } from "./model-actions";
 import enqueueNewModelActionsFromActionResults from "../game-world/enqueue-new-model-actions-from-action-results";
 import startNewModelActions, { startModelAction } from "./start-new-model-actions";
@@ -175,7 +174,7 @@ export class ModularCharacter {
 
   removeActiveModelAction(modelActionType: CombatantModelActionType) {
     delete this.activeModelActions[modelActionType];
-
+    // console.log("removed model action ", formatCombatModelActionType(modelActionType));
     this.world.mutateGameState((state) => {
       const indexOption =
         state.babylonControlledCombatantDOMData[this.entityId]?.activeModelActions.indexOf(

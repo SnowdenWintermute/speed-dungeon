@@ -45,10 +45,13 @@ export class AnimationManager {
     let timeStarted: number = Date.now();
 
     const alreadyPlayingAnimationWithSameName =
-      this.playing?.name === name || this.transition?.transitioningTo?.name === name;
+      (this.playing && this.playing.name === name) ||
+      this.transition?.transitioningTo?.name === name;
+
+    // console.log("trying to start animation: ", name);
 
     if (alreadyPlayingAnimationWithSameName && !options.shouldRestartIfAlreadyPlaying)
-      return console.error("already playing animation named ", name);
+      return console.log("already playing animation ", name);
     else if (
       alreadyPlayingAnimationWithSameName &&
       this.transition?.transitioningTo.name === name &&
@@ -61,13 +64,9 @@ export class AnimationManager {
       this.playing.animationGroup.setWeightForAllAnimatables(1);
       this.playing.animationGroup.reset();
       return;
-    } else if (
-      (alreadyPlayingAnimationWithSameName && this.playing?.name === name,
-      options.shouldRestartIfAlreadyPlaying)
-    ) {
+    } else if (alreadyPlayingAnimationWithSameName && options.shouldRestartIfAlreadyPlaying) {
       console.log("trying to restart animation currently playing: ", name);
-      this.playing?.animationGroup.goToFrame(0);
-      this.playing?.animationGroup.play();
+      this.playing?.animationGroup.reset();
       this.playing?.animationGroup.setWeightForAllAnimatables(1);
       return;
     }
