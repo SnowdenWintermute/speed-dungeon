@@ -1,9 +1,8 @@
+import { NUM_MONSTERS_PER_ROOM } from "../app_consts";
 import { IdGenerator } from "../game/id-generator";
 import { Monster } from "../monsters";
 import generateMonster from "../monsters/generate-monster";
 import { DungeonRoom, DungeonRoomType } from "./dungeon-room";
-
-const NUM_MONSTERS_PER_ROOM = 3;
 
 export default function generateDungeonRoom(
   idGenerator: IdGenerator,

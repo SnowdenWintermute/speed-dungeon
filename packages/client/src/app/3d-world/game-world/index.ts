@@ -34,6 +34,7 @@ export class GameWorld {
   useShadows: boolean = false;
   modelManager: ModelManager = new ModelManager(this);
   turnResultsQueue: CombatTurnResult[] = [];
+  currentRoomLoaded: boolean = false;
   constructor(
     public canvas: HTMLCanvasElement,
     public mutateGameState: MutateState<GameState>,
@@ -49,8 +50,11 @@ export class GameWorld {
       this.showDebugText();
       this.processMessagesFromNext();
       this.modelManager.startProcessingNewMessages();
-      const turnResultsErrorOption = this.enqueueNewActionResultsFromTurnResults();
-      if (turnResultsErrorOption instanceof Error) console.error(turnResultsErrorOption);
+
+      if (this.currentRoomLoaded) {
+        const turnResultsErrorOption = this.enqueueNewActionResultsFromTurnResults();
+        if (turnResultsErrorOption instanceof Error) console.error(turnResultsErrorOption);
+      }
 
       for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
         combatantModel.updateDomRefPosition();

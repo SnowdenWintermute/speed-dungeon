@@ -95,11 +95,12 @@ export function startModelAction(
   this.activeModelActions[modelAction.type] = modelActionTracker;
 
   if (animationGroup !== undefined && animationNameResult !== null) {
-    this.animationManager.startAnimationWithTransition(animationNameResult, animationGroup, 500, {
+    this.animationManager.startAnimationWithTransition(animationGroup, 500, {
       shouldLoop: isRepeatingAnimation,
       shouldRestartIfAlreadyPlaying:
         modelAction.type === CombatantModelActionType.HitRecovery ||
-        modelAction.type === CombatantModelActionType.Evade,
+        modelAction.type === CombatantModelActionType.Evade ||
+        modelAction.type === CombatantModelActionType.PerformCombatAction,
     });
 
     // this.animationManager.

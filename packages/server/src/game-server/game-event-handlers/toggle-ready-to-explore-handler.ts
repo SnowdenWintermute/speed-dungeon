@@ -6,7 +6,6 @@ import {
   ClientToServerEventTypes,
   ServerToClientEvent,
   ServerToClientEventTypes,
-  SpeedDungeonGame,
   getPlayerParty,
   initateBattle,
   getPartyChannelName,
@@ -116,7 +115,7 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
       .in(getPartyChannelName(game.name, party.name))
       .emit(ServerToClientEvent.BattleFullUpdate, battle);
 
-    const maybeError = takeAiTurnsAtBattleStart(game, party, battle, socket);
+    const maybeError = takeAiTurnsAtBattleStart(this, game, party, battle);
     if (maybeError instanceof Error) return maybeError;
 
     const partyWipesResult = checkForDefeatedCombatantGroups(

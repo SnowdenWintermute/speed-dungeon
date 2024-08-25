@@ -6,7 +6,6 @@ import {
   CharacterAndSlot,
   ClientToServerEvent,
   CombatAction,
-  ERROR_MESSAGES,
   EquipItemPacket,
   NextOrPrevious,
   ServerToClientEvent,

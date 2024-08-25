@@ -4,9 +4,7 @@ import { ModularCharacter } from "../modular-character";
 import { GameState } from "@/stores/game-store";
 import { CombatantModelActionType } from "../model-actions";
 import approachDestinationModelActionProcessor from "./approach-destination";
-import performCombatActionModelActionProcessor from "./perform-combat-action";
 import endTurnModelActionProcessor from "./end-turn";
-import idleModelActionProcessor from "./idle";
 import { MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME } from "@speed-dungeon/common";
 
 export default function processActiveModelActions(

@@ -1,5 +1,5 @@
 import { AnimationGroup, ISceneLoaderAsyncResult } from "babylonjs";
-import {  CombatantModelActionType } from "./model-actions";
+import { CombatantModelActionType } from "./model-actions";
 
 export class AnimationManager {
   playing: null | ManagedAnimation = null;
@@ -26,7 +26,6 @@ export class AnimationManager {
   }
 
   setAnimationPlaying(
-    name: string,
     animationGroup: AnimationGroup,
     options: { shouldLoop: boolean }
   ): Error | void {
@@ -38,11 +37,10 @@ export class AnimationManager {
     }
     animationGroup.play(options.shouldLoop);
 
-    this.playing = { name, animationGroup, weight: 1.0 };
+    this.playing = { animationGroup, weight: 1.0 };
   }
 
   startAnimationWithTransition(
-    name: string,
     transitionTo: AnimationGroup,
     durationMs: number,
     options: { shouldLoop: boolean; shouldRestartIfAlreadyPlaying: boolean } = {
@@ -54,19 +52,19 @@ export class AnimationManager {
     let timeStarted: number = Date.now();
 
     const alreadyPlayingAnimationWithSameName =
-      (this.playing && this.playing.name === name) ||
-      this.transition?.transitioningTo?.name === name;
+      (this.playing && this.playing.animationGroup.name === transitionTo.name) ||
+      this.transition?.transitioningTo?.animationGroup.name === transitionTo.name;
 
-    // console.log("trying to start animation: ", name);
+    // console.log("transition to: ", transitionTo);
 
     if (alreadyPlayingAnimationWithSameName && !options.shouldRestartIfAlreadyPlaying)
-      return console.log("already playing animation ", name);
+      return console.log("already playing animation ", transitionTo.name);
     else if (
       alreadyPlayingAnimationWithSameName &&
-      this.transition?.transitioningTo.name === name &&
+      this.transition?.transitioningTo.animationGroup.name === transitionTo.name &&
       options.shouldRestartIfAlreadyPlaying
     ) {
-      console.log("trying to restart animation currently transitioning to: ", name);
+      // console.log("trying to restart animation currently transitioning to: ", name);
       this.transition.transitioningFrom.animationGroup.setWeightForAllAnimatables(0);
       this.playing = this.transition.transitioningTo;
       this.transition = null;
@@ -74,14 +72,16 @@ export class AnimationManager {
       this.playing.animationGroup.reset();
       return;
     } else if (alreadyPlayingAnimationWithSameName && options.shouldRestartIfAlreadyPlaying) {
-      console.log("trying to restart animation currently playing: ", name);
+      // console.log("trying to restart animation currently playing: ", name);
       this.playing?.animationGroup.reset();
       this.playing?.animationGroup.setWeightForAllAnimatables(1);
       return;
     }
 
-    if (this.playing !== null) transitionFrom = this.playing;
-    else if (this.transition?.transitioningTo) {
+    if (this.playing !== null) {
+      transitionFrom = this.playing;
+    } else if (this.transition?.transitioningTo) {
+      // console.log("transitioning from partially transitioned animation");
       transitionFrom = this.transition.transitioningTo;
       // if there is already an ongoing transition we want to preserve its time started
       // so as not to restart its weights at 0
@@ -89,16 +89,22 @@ export class AnimationManager {
     }
 
     if (transitionFrom === null)
-      return this.setAnimationPlaying(name, transitionTo, { shouldLoop: options.shouldLoop });
+      return this.setAnimationPlaying(transitionTo, {
+        shouldLoop: options.shouldLoop,
+      });
 
     this.transition = {
       durationMs,
       timeStarted,
       transitioningFrom: transitionFrom,
-      transitioningTo: { name, animationGroup: transitionTo, weight: 0.0 },
+      transitioningTo: { animationGroup: transitionTo, weight: 0.0 },
     };
     this.playing = null;
 
+    if (transitionTo.name === "melee-attack")
+      console.log("melee attack transition: ", this.transition);
+
+    transitionTo.reset();
     transitionTo.start(options.shouldLoop);
     transitionTo.setWeightForAllAnimatables(0.0);
   }
@@ -159,18 +165,11 @@ export class AnimationManager {
   }
 
   static setAnimationEndCallback(animationGroup: AnimationGroup, callback: () => void) {
-    animationGroup.onAnimationEndObservable.add(
-      callback,
-      undefined,
-      true,
-      undefined,
-      true
-    );
+    animationGroup.onAnimationEndObservable.add(callback, undefined, true, undefined, true);
   }
 }
 
 export type ManagedAnimation = {
-  name: string;
   animationGroup: AnimationGroup;
   weight: number;
 };

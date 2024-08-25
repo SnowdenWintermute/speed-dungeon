@@ -24,7 +24,6 @@ import {
   CombatantModelAction,
   CombatantModelActionProgressTracker,
   CombatantModelActionType,
-  formatCombatModelActionType,
 } from "./model-actions";
 import enqueueNewModelActionsFromActionResults from "../game-world/enqueue-new-model-actions-from-action-results";
 import startNewModelActions, { startModelAction } from "./start-new-model-actions";
