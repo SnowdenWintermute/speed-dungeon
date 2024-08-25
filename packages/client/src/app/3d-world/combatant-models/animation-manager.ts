@@ -64,7 +64,7 @@ export class AnimationManager {
       this.transition?.transitioningTo.animationGroup.name === transitionTo.name &&
       options.shouldRestartIfAlreadyPlaying
     ) {
-      // console.log("trying to restart animation currently transitioning to: ", name);
+      console.log("trying to restart animation currently transitioning to: ", name);
       this.transition.transitioningFrom.animationGroup.setWeightForAllAnimatables(0);
       this.playing = this.transition.transitioningTo;
       this.transition = null;
@@ -72,7 +72,10 @@ export class AnimationManager {
       this.playing.animationGroup.reset();
       return;
     } else if (alreadyPlayingAnimationWithSameName && options.shouldRestartIfAlreadyPlaying) {
-      // console.log("trying to restart animation currently playing: ", name);
+      console.log(
+        "trying to restart animation currently playing: ",
+        this.playing?.animationGroup.name
+      );
       this.playing?.animationGroup.reset();
       this.playing?.animationGroup.setWeightForAllAnimatables(1);
       return;
@@ -88,10 +91,12 @@ export class AnimationManager {
       timeStarted = this.transition.timeStarted;
     }
 
-    if (transitionFrom === null)
+    if (transitionFrom === null) {
+      if (transitionTo.name === "melee-attack") console.log("transition from was null");
       return this.setAnimationPlaying(transitionTo, {
         shouldLoop: options.shouldLoop,
       });
+    }
 
     this.transition = {
       durationMs,
@@ -102,7 +107,14 @@ export class AnimationManager {
     this.playing = null;
 
     if (transitionTo.name === "melee-attack")
-      console.log("melee attack transition: ", this.transition);
+      console.log(
+        "playing: ",
+        this.playing,
+        "melee attack transition from ",
+        this.transition.transitioningFrom.animationGroup.name,
+        " to ",
+        this.transition.transitioningTo.animationGroup.name
+      );
 
     transitionTo.reset();
     transitionTo.start(options.shouldLoop);

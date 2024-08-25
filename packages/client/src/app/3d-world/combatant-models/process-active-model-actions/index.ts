@@ -25,7 +25,7 @@ export default function processActiveModelActions(
       case CombatantModelActionType.Evade:
         if (activeModelAction.animationOption && activeModelAction.animationEnded)
           this.removeActiveModelAction(activeModelAction.modelAction.type);
-        else {
+        else if (!activeModelAction.animationOption) {
           const timeElapsed = Date.now() - activeModelAction.timeStarted;
           if (timeElapsed >= MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME)
             this.removeActiveModelAction(activeModelAction.modelAction.type);
