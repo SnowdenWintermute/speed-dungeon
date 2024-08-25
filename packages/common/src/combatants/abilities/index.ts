@@ -25,10 +25,13 @@ export class CombatantAbility {
 export function formatAbilityName(abilityName: CombatantAbilityName) {
   switch (abilityName) {
     case CombatantAbilityName.Attack:
-    case CombatantAbilityName.AttackMeleeMainhand:
-    case CombatantAbilityName.AttackMeleeOffhand:
-    case CombatantAbilityName.AttackRangedMainhand:
       return "Attack";
+    case CombatantAbilityName.AttackMeleeMainhand:
+      return "Attack Melee Main Hand";
+    case CombatantAbilityName.AttackMeleeOffhand:
+      return "Attack Melee Off Hand";
+    case CombatantAbilityName.AttackRangedMainhand:
+      return "Ranged Attack";
     case CombatantAbilityName.Fire:
       return "Fire";
     case CombatantAbilityName.Ice:

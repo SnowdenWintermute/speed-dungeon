@@ -1,8 +1,9 @@
-import { FocusEventHandler, MouseEventHandler } from "react";
+import { FocusEventHandler, MouseEventHandler, useEffect, useRef } from "react";
 
 interface Props {
   extraStyles?: string;
   children: React.ReactNode;
+  hotkey?: string;
   buttonType?: "button" | "submit" | "reset";
   disabled?: boolean;
   onClick?: MouseEventHandler<HTMLButtonElement>;
@@ -14,6 +15,24 @@ export default function ButtonBasic(props: Props) {
   const onClick = typeof props.onClick !== "undefined" ? props.onClick : () => {};
   const onFocus = typeof props.onFocus !== "undefined" ? props.onFocus : () => {};
   const onBlur = typeof props.onFocus !== "undefined" ? props.onFocus : () => {};
+  const keypressListenerRef = useRef<(e: KeyboardEvent) => void | null>();
+
+  useEffect(() => {
+    if (props.hotkey !== undefined) {
+      keypressListenerRef.current = (e: KeyboardEvent) => {
+        if (e.code === props.hotkey) {
+          // @ts-ignore
+          onClick(new MouseEvent("mouseup"));
+        }
+      };
+      window.addEventListener("keypress", keypressListenerRef.current);
+    }
+    return () => {
+      if (keypressListenerRef.current)
+        window.removeEventListener("keypress", keypressListenerRef.current);
+    };
+  }, [onClick]);
+
   return (
     <button
       type={props.buttonType || "button"}

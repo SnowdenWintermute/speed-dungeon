@@ -1,7 +1,7 @@
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { PartyClientSocket } from "@/stores/websocket-store";
-import { ClientToServerEvent } from "@speed-dungeon/common";
+import { ClientToServerEvent, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
 
 export default function useSelectedCombatActionHandler(
   mutateGameState: MutateState<GameState>,
@@ -14,5 +14,17 @@ export default function useSelectedCombatActionHandler(
       gameState.actionMenuCurrentPageNumber = previousActionMenuPageNumberOption;
     }
     socket.emit(ClientToServerEvent.UseSelectedCombatAction, gameState.focusedCharacterId);
+
+    if (!gameState.game) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    const partyResult = gameState.getParty();
+    if (partyResult instanceof Error) return console.error(partyResult);
+    const combatantResult = SpeedDungeonGame.getCharacter(
+      gameState.game,
+      partyResult.name,
+      gameState.focusedCharacterId
+    );
+    if (combatantResult instanceof Error) return console.error(combatantResult);
+    combatantResult.combatantProperties.combatActionTarget = null;
+    combatantResult.combatantProperties.selectedCombatAction = null;
   });
 }

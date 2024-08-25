@@ -1,4 +1,3 @@
-import cloneDeep from "lodash.clonedeep";
 import { AdventuringParty } from ".";
 import { CombatantDetails } from "../combatants";
 import { ERROR_MESSAGES } from "../errors";
@@ -11,7 +10,7 @@ export default function getCombatantInParty(
   if (matchedCharacterOption) {
     return {
       entityProperties: matchedCharacterOption.entityProperties,
-      combatantProperties: cloneDeep(matchedCharacterOption.combatantProperties),
+      combatantProperties: matchedCharacterOption.combatantProperties,
     };
   }
   const matchedMonsterOption = party.currentRoom.monsters[entityId];

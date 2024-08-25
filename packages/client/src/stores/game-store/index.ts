@@ -14,13 +14,15 @@ import {
   SpeedDungeonGame,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
-import { DetailableEntity, DetailableEntityType } from "./detailable-entities";
+import { DetailableEntity } from "./detailable-entities";
 import { EquipmentSlot } from "@speed-dungeon/common";
 import { MutateState } from "../mutate-state";
 import getActiveCombatant from "@/utils/getActiveCombatant";
 import getParty from "@/utils/getParty";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
+import { FloatingText } from "./floating-text";
+import { BabylonControlledCombatantData } from "./babylon-controlled-combatant-data";
 
 export enum MenuContext {
   InventoryItems,
@@ -31,6 +33,12 @@ export enum MenuContext {
 
 export class GameState {
   [immerable] = true;
+  // cameraData: { alpha: number; beta: number; radius: number; focus: Vector3 } = {
+  //   alpha: 0,
+  //   beta: 0,
+  //   radius: 0,
+  //   focus: Vector3.Zero(),
+  // };
   game: null | SpeedDungeonGame = null;
   username: null | string = null;
   focusedCharacterId: string = "";
@@ -45,6 +53,9 @@ export class GameState {
   menuContext: MenuContext | null = null;
   battleReportPendingProcessing: null | BattleReport = null;
   combatLogMessages: CombatLogMessage[] = [];
+  lastDebugMessageId: number = 0;
+  babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
+  combatantFloatingText: { [combatantId: string]: FloatingText[] } = {};
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
     if (party instanceof Error) return null;

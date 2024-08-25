@@ -29,8 +29,10 @@ import getSlotItemIsEquippedTo from "./get-slot-item-is-equipped-to";
 import { Inventory } from "./inventory";
 import setHpAndMpToMax from "./set-hp-and-mp-to-max";
 import unequipSlots from "./unequip-slots";
+import { immerable } from "immer";
 
 export class CombatantProperties {
+  [immerable] = true;
   inherentAttributes: CombatantAttributeRecord = {};
   inherentElementalAffinities: Partial<Record<MagicalElement, number>> = {};
   inherentPhysicalDamageTypeAffinities: Partial<Record<PhysicalDamageType, number>> = {};

@@ -3,6 +3,7 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
+    "noUncheckedIndexedAccess": true,
     "paths": {
       "@speed-dungeon/*": ["../packages/*"]
     }

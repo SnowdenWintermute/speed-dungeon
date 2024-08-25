@@ -26,7 +26,7 @@ export default function generateMonster(idGenerator: IdGenerator, level: number)
   };
   const combatantProperties = new CombatantProperties(combatantClass, combatantSpecies, {}, null);
   // will modify this monster after creation with basic values
-  const monster = new Monster(entityProperties, combatantProperties);
+  const monster = new Monster(entityProperties, combatantProperties, monsterType);
   monster.combatantProperties.level = level;
   // assign their "discretionary" attributes
   // assign attributes that would have come from wearing gear

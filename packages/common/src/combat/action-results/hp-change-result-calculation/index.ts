@@ -163,5 +163,9 @@ export default function calculateActionHitPointChangesCritsAndEvasions(
       return new Error(ERROR_MESSAGES.TODO);
   }
 
+  Object.entries(hitPointChanges).forEach(([entityId, hpChange]) => {
+    hitPointChanges[entityId] = Math.floor(hpChange);
+  });
+
   return { hitPointChanges, crits, evasions };
 }

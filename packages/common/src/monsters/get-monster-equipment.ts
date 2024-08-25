@@ -16,13 +16,17 @@ export default function getMonsterEquipment(
       break;
     case MonsterType.Scavenger:
       equipment[EquipmentSlot.MainHand] = generatePreDeterminedItem(
-        PreDeterminedItemType.AnimalClaw,
+        PreDeterminedItemType.SkeletonArcherShortBow,
         idGenerator
       );
-      equipment[EquipmentSlot.OffHand] = generatePreDeterminedItem(
-        PreDeterminedItemType.AnimalClaw,
-        idGenerator
-      );
+      // equipment[EquipmentSlot.MainHand] = generatePreDeterminedItem(
+      //   PreDeterminedItemType.AnimalClaw,
+      //   idGenerator
+      // );
+      // equipment[EquipmentSlot.OffHand] = generatePreDeterminedItem(
+      //   PreDeterminedItemType.AnimalClaw,
+      //   idGenerator
+      // );
       break;
     case MonsterType.Zombie:
       equipment[EquipmentSlot.MainHand] = generatePreDeterminedItem(

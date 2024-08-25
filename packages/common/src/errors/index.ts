@@ -49,6 +49,8 @@ export const ERROR_MESSAGES = {
     NOT_FOUND: "No combatant was found with the provided id",
     NO_ACTION_SELECTED: "That combatant has no selected combat action",
     NO_TARGET_SELECTED: "That combatant has no selected target",
+    IS_DEAD: "Dead combatants may not take any actions",
+    NOT_ACTIVE: "It is not that combatant's turn",
   },
   MONSTERS: {
     NO_MONSTERS_FOUND: "No monsters were found in the current room",
@@ -67,6 +69,7 @@ export const ERROR_MESSAGES = {
     MISSING_HP_CHANGE_PROPERTIES:
       "The provided combat action doesn't specify any Hp change properties",
     NO_TARGET_PROVIDED: "Combat actions must have at least one target",
+    INVALID_USABILITY_CONTEXT: "That action is not allowed in this context",
   },
   ITEM: {
     NOT_FOUND: "No item was found with the provided ID",
@@ -84,6 +87,13 @@ export const ERROR_MESSAGES = {
   BATTLE: {
     COMBATANT_NOT_IN_BATTLE: "The provided ID did not match any combatant in this battle",
     TURN_TRACKERS_EMPTY: "Battle has no combatant turn trackers",
+  },
+  GAME_WORLD: {
+    NO_COMBATANT_MODEL: "No combatant model exists with the provided entity id",
+    INCOMPLETE_SKELETON_FILE: "The loaded skeleton asset is missing something",
+    MISSING_ROTATION_QUATERNION: "Expected rotation data was missing",
+    MISSING_ANIMATION: "No animation found",
+    INCORRECT_MODEL_ACTION: "The wrong type of model action was passed to this function",
   },
   CHECKED_EXPECTATION_FAILED:
     "Code was reached that should have been impossible due to prior value checks",

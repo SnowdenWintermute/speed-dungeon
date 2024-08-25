@@ -4,6 +4,8 @@ import {
   ClientToServerEvent,
   CharacterAssociatedData,
   EquipmentSlot,
+  CombatAction,
+  NextOrPrevious,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import { GameServer } from "..";
@@ -73,6 +75,52 @@ export default function initiateGameEventListeners(
   socket.on(ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate, (itemId: string) => {
     this.emitErrorEventIfError(socket, () =>
       this.acknowledgeReceiptOfItemOnGroundHandler(socket.id, itemId)
+    );
+  });
+  socket.on(
+    ClientToServerEvent.SelectCombatAction,
+    (characterId: string, combatAction: null | CombatAction) => {
+      this.emitErrorEventIfError(socket, () =>
+        this.characterActionHandler(
+          socket.id,
+          characterId,
+          (socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
+            this.selectCombatActionHandler(socketMeta, characterAssociatedData, combatAction)
+        )
+      );
+    }
+  );
+  socket.on(
+    ClientToServerEvent.CycleCombatActionTargets,
+    (characterId: string, direction: NextOrPrevious) => {
+      this.emitErrorEventIfError(socket, () =>
+        this.characterActionHandler(
+          socket.id,
+          characterId,
+          (socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
+            this.cycleTargetsHandler(socket, socketMeta, characterAssociatedData, direction)
+        )
+      );
+    }
+  );
+  socket.on(ClientToServerEvent.CycleTargetingSchemes, (characterId: string) => {
+    this.emitErrorEventIfError(socket, () =>
+      this.characterActionHandler(
+        socket.id,
+        characterId,
+        (socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
+          this.cycleTargetingSchemesHandler(socket, socketMeta, characterAssociatedData)
+      )
+    );
+  });
+  socket.on(ClientToServerEvent.UseSelectedCombatAction, (characterId: string) => {
+    this.emitErrorEventIfError(socket, () =>
+      this.characterActionHandler(
+        socket.id,
+        characterId,
+        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
+          this.useSelectedCombatActionHandler(characterAssociatedData)
+      )
     );
   });
 }

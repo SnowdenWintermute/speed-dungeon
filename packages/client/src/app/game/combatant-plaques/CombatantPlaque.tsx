@@ -11,15 +11,29 @@ import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
 import { AdventuringParty } from "@speed-dungeon/common";
+import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
+import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
+import requestSpawnCombatantModel from "./request-spawn-combatant-model";
+import "./floating-text-animation.css";
+import { formatCombatModelActionType } from "@/app/3d-world/combatant-models/model-actions";
+import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
+import { getTailwindClassFromFloatingTextColor } from "@/stores/game-store/floating-text";
 
 interface Props {
   entityId: string;
   showExperience: boolean;
 }
 
+// tried using refs but the .current property wasn't mutable at runtime
+// even though the refs were properly declared as mutable
+// so we couldn't remove them at unmount and caused client crash when
+// other players left the game
+const modelDomPositionElements: { [entityId: string]: null | HTMLDivElement } = {};
+
 export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const gameOption = useGameStore().game;
   const mutateGameState = useGameStore().mutateState;
+  const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
       detailedEntity: state.detailedEntity,
@@ -27,14 +41,24 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
       hoveredEntity: state.hoveredEntity,
     }))
   );
+  const babylonDebugMessages =
+    useGameStore().babylonControlledCombatantDOMData[entityId]?.debugMessages;
+  const floatingText = useGameStore().babylonControlledCombatantDOMData[entityId]?.floatingText;
+
+  const activeModelActions =
+    useGameStore().babylonControlledCombatantDOMData[entityId]?.activeModelActions;
+
   const usernameOption = useGameStore().username;
   const result = getGameAndParty(gameOption, usernameOption);
   if (result instanceof Error) return <div>{result.message}</div>;
   const [game, party] = result;
   const combatantDetailsResult = AdventuringParty.getCombatant(party, entityId);
   if (combatantDetailsResult instanceof Error) return <div>{combatantDetailsResult.message}</div>;
+
   const { entityProperties, combatantProperties } = combatantDetailsResult;
-  const battleOption = getCurrentBattleOption(game, party.name);
+  const battleOptionResult = getCurrentBattleOption(game, party.name);
+  if (battleOptionResult instanceof Error) return <div>{battleOptionResult.message}</div>;
+  const battleOption = battleOptionResult;
 
   // for measuring the element so we can get the correct portrait height
   // and getting the position so we can position the details window without going off the screen
@@ -45,6 +69,36 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
     if (!nameAndBarsRef.current) return;
     const height = nameAndBarsRef.current.clientHeight;
     setPortraitHeight(height);
+  }, []);
+
+  useEffect(() => {
+    const element = document.getElementById(`${entityId}-position-div`);
+    modelDomPositionElements[entityId] = element as HTMLDivElement | null;
+
+    requestSpawnCombatantModel(
+      combatantDetailsResult,
+      party,
+      mutateNextBabylonMessagingStore,
+      element as HTMLDivElement | null
+    );
+    mutateGameState((state) => {
+      state.babylonControlledCombatantDOMData[entityId] = new BabylonControlledCombatantData();
+    });
+    return () => {
+      modelDomPositionElements[entityId] = null;
+      delete modelDomPositionElements[entityId];
+
+      mutateGameState((state) => {
+        delete state.babylonControlledCombatantDOMData[entityId];
+      });
+
+      mutateNextBabylonMessagingStore((state) => {
+        state.nextToBabylonMessages.push({
+          type: NextToBabylonMessageTypes.RemoveCombatantModel,
+          entityId,
+        });
+      });
+    };
   }, []);
 
   function isHovered() {
@@ -68,6 +122,45 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
 
   return (
     <div>
+      {
+        <div id={`${entityId}-position-div`} className="absolute">
+          {
+            <div className="text-2xl absolute w-fit bottom-0 bg-gray-700 opacity-50 ">
+              {activeModelActions &&
+                activeModelActions.map((item) => formatCombatModelActionType(item))}
+            </div>
+          }
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full flex flex-col items-center text-center">
+            {floatingText?.map((message) => {
+              const colorClass = getTailwindClassFromFloatingTextColor(message.color);
+              return (
+                <div
+                  className="text-2xl relative"
+                  style={{
+                    animation: "float-up-and-fade-out", // defined in css file same directory
+                    animationDuration: `${message.displayTime + 50}ms`,
+                    animationTimingFunction: "linear",
+                    animationIterationCount: 1,
+                  }}
+                  key={message.id}
+                >
+                  <div className={colorClass}>{message.text}</div>
+                  <div className="absolute z-[-1] text-black top-[3px] left-[3px]">
+                    {message.text}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="absolute flex flex-col justify-center items-center text-center top-1/2 left-1/2 -translate-x-1/2 w-[400px]">
+            {babylonDebugMessages?.map((message) => (
+              <div className="text-xl relative w-[400px] text-center" key={message.id}>
+                <div className="">{message.text}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      }
       <div
         className={`w-96 h-fit border bg-slate-700 pointer-events-auto flex p-2.5 relative box-border ${conditionalBorder} `}
         ref={combatantPlaqueRef}
@@ -85,7 +178,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
         <div className="flex-grow" ref={nameAndBarsRef}>
           <div className="mb-1.5 flex justify-between text-lg">
             <span>
-              {entityProperties.name}
+              {entityProperties.name} {entityId}
               <UnspentAttributesButton
                 combatantProperties={combatantProperties}
                 handleClick={handleUnspentAttributesButtonClick}

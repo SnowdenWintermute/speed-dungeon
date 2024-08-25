@@ -2,7 +2,12 @@
 "use client";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import { FormEvent, useState } from "react";
-import { ClientToServerEvent, CombatantClass } from "@speed-dungeon/common";
+import {
+  ClientToServerEvent,
+  CombatActionType,
+  CombatantAbilityName,
+  CombatantClass,
+} from "@speed-dungeon/common";
 import ButtonBasic from "../components/atoms/ButtonBasic";
 import { useGameStore } from "@/stores/game-store";
 
@@ -26,8 +31,27 @@ export default function LobbyMenu() {
     socketOption?.emit(ClientToServerEvent.CreateGame, "");
     socketOption?.emit(ClientToServerEvent.CreateParty, "");
     socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Warrior);
+    // socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
+    // socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Rogue);
+    socketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
+    socketOption?.emit(ClientToServerEvent.ToggleReadyToExplore);
+    socketOption?.emit(ClientToServerEvent.SelectCombatAction, "1", {
+      type: CombatActionType.AbilityUsed,
+      abilityName: CombatantAbilityName.Attack,
+    });
+  }
+
+  function quickHost() {
+    socketOption?.emit(ClientToServerEvent.CreateGame, "test game");
+    socketOption?.emit(ClientToServerEvent.CreateParty, "test party");
+    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Warrior);
+  }
+
+  function quickJoin() {
+    socketOption?.emit(ClientToServerEvent.RequestsGameList);
+    socketOption?.emit(ClientToServerEvent.JoinGame, "test game");
+    socketOption?.emit(ClientToServerEvent.JoinParty, "test party");
     socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
-    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Rogue);
     socketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
   }
 
@@ -43,12 +67,14 @@ export default function LobbyMenu() {
             onChange={(e) => setGameName(e.target.value)}
             value={gameName}
           />
-          <ButtonBasic buttonType="submit" extraStyles="border-l-0 text-yellow-400">
+          <ButtonBasic buttonType="submit" extraStyles="border-l-0">
             Create Game
           </ButtonBasic>
-          <ButtonBasic onClick={quickStartGame} extraStyles="ml-2">
+          <ButtonBasic onClick={quickStartGame} hotkey={"KeyS"} extraStyles=" text-yellow-400 ml-2">
             Quick Start
           </ButtonBasic>
+          <ButtonBasic onClick={quickHost}>Quick Host</ButtonBasic>
+          <ButtonBasic onClick={quickJoin}>Quick Join</ButtonBasic>
         </form>
         <ButtonBasic onClick={refreshGameList}>Refresh List</ButtonBasic>
       </div>

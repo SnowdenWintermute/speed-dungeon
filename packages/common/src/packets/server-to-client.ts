@@ -1,9 +1,10 @@
 import { DungeonRoom, DungeonRoomType, PlayerCharacter } from "../adventuring_party";
 import { DescendOrExplore } from "../adventuring_party/update-player-readiness";
 import { Battle, BattleConclusion } from "../battle";
-import { CombatTurnResult } from "../combat";
+import { ActionResult, CombatAction, CombatTurnResult } from "../combat";
 import { SpeedDungeonGame } from "../game";
 import { EquipmentSlot, Item } from "../items";
+import { NextOrPrevious } from "../primatives";
 import { GameMessage } from "./game-message";
 
 export enum ServerToClientEvent {
@@ -35,6 +36,10 @@ export enum ServerToClientEvent {
   CharacterUnequippedItem = "25",
   CharacterEquippedItem = "26",
   CharacterPickedUpItem = "27",
+  RawActionResults = "28",
+  CharacterSelectedCombatAction = "29",
+  CharacterCycledTargets = "30",
+  CharacterCycledTargetingSchemes = "31",
 }
 
 export interface ServerToClientEventTypes {
@@ -82,6 +87,20 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.CharacterUnequippedItem]: (characterAndItem: CharacterAndSlot) => void;
   [ServerToClientEvent.CharacterEquippedItem]: (characterAndItem: EquipItemPacket) => void;
   [ServerToClientEvent.CharacterPickedUpItem]: (characterAndItem: CharacterAndItem) => void;
+  [ServerToClientEvent.RawActionResults]: (actionResults: ActionResult[]) => void;
+  [ServerToClientEvent.CharacterSelectedCombatAction]: (
+    characterId: string,
+    combatActionOption: null | CombatAction
+  ) => void;
+  [ServerToClientEvent.CharacterCycledTargets]: (
+    characterId: string,
+    direction: NextOrPrevious,
+    playerUsername: string
+  ) => void;
+  [ServerToClientEvent.CharacterCycledTargetingSchemes]: (
+    characterId: string,
+    playerUsername: string
+  ) => void;
 }
 
 export interface EquipItemPacket {

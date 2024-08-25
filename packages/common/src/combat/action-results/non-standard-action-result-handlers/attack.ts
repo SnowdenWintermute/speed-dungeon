@@ -26,11 +26,12 @@ export default function calculateAttackActionResult(
 
   // shields can't be used to attack, if not holding a shield they can attack with offhand unarmed strike
   let mhAttackEndsTurn = false;
-  if (ohEquipmentOption && ohEquipmentOption.equipmentBaseItemProperties.type === EquipmentType.Shield)
-    mhAttackEndsTurn = true;
+
   if (
-    mhEquipmentOption !== null &&
-    EquipmentProperties.isTwoHanded(mhEquipmentOption.equipmentBaseItemProperties.type)
+    (mhEquipmentOption !== null &&
+      EquipmentProperties.isTwoHanded(mhEquipmentOption.equipmentBaseItemProperties.type)) ||
+    (ohEquipmentOption &&
+      ohEquipmentOption.equipmentBaseItemProperties.type === EquipmentType.Shield)
   )
     mhAttackEndsTurn = true;
 
@@ -38,6 +39,7 @@ export default function calculateAttackActionResult(
     mhEquipmentOption?.equipmentBaseItemProperties.type ?? null,
     false
   );
+
   if (mhAttackAbilityNameResult instanceof Error) return mhAttackAbilityNameResult;
   const mhAttackAction: CombatAction = {
     type: CombatActionType.AbilityUsed,
@@ -51,6 +53,7 @@ export default function calculateAttackActionResult(
 
   const mhAttackResultResult = calculateActionResult(game, mhActionResultArgs);
   if (mhAttackResultResult instanceof Error) return mhAttackResultResult;
+
   const mhAttackResult = mhAttackResultResult;
 
   // if targets died, don't calculate the offhand swing
@@ -67,7 +70,7 @@ export default function calculateAttackActionResult(
   // OFFHAND
   const ohAttackAbilityNameResult = getAttackAbilityName(
     ohEquipmentOption?.equipmentBaseItemProperties.type ?? null,
-    false
+    true
   );
   if (ohAttackAbilityNameResult instanceof Error) return ohAttackAbilityNameResult;
   const ohAttackAction: CombatAction = {

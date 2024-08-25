@@ -6,8 +6,10 @@ import {
   CombatantSpecies,
 } from "../combatants";
 import { CombatantProperties } from "../combatants/combatant-properties";
+import { immerable } from "immer";
 
 export class PlayerCharacter {
+  [immerable] = true;
   entityProperties: EntityProperties;
   combatantProperties: CombatantProperties;
   constructor(

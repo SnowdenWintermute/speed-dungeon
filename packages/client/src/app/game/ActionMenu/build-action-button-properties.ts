@@ -57,5 +57,6 @@ export default function buildActionButtonProperties(
     shouldBeDisabled: false,
     dedicatedKeysOption,
     category,
+    action,
   };
 }

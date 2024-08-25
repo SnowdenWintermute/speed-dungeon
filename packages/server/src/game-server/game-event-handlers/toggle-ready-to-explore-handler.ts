@@ -6,7 +6,6 @@ import {
   ClientToServerEventTypes,
   ServerToClientEvent,
   ServerToClientEventTypes,
-  SpeedDungeonGame,
   getPlayerParty,
   initateBattle,
   getPartyChannelName,
@@ -16,6 +15,7 @@ import { DungeonRoom, DungeonRoomType } from "@speed-dungeon/common";
 import { tickCombatUntilNextCombatantIsActive } from "@speed-dungeon/common";
 import takeAiTurnsAtBattleStart from "./combat-action-results-processing/take-ai-turns-at-battle-start";
 import { DescendOrExplore } from "@speed-dungeon/common";
+import checkForDefeatedCombatantGroups from "./combat-action-results-processing/check-for-defeated-combatant-groups";
 
 export default function toggleReadyToExploreHandler(this: GameServer, socketId: string) {
   const [socket, socketMeta] = this.getConnection<
@@ -115,17 +115,23 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
       .in(getPartyChannelName(game.name, party.name))
       .emit(ServerToClientEvent.BattleFullUpdate, battle);
 
-    const maybeError = takeAiTurnsAtBattleStart(game, party, battle, socket);
+    const maybeError = takeAiTurnsAtBattleStart(this, game, party, battle);
     if (maybeError instanceof Error) return maybeError;
 
-    const allCharactersDiedResult = SpeedDungeonGame.allCombatantsInGroupAreDead(
+    const partyWipesResult = checkForDefeatedCombatantGroups(
       game,
-      party.characterPositions
+      party.characterPositions,
+      AdventuringParty.getMonsterIds(party)
     );
-    if (allCharactersDiedResult instanceof Error) return allCharactersDiedResult;
-    if (allCharactersDiedResult) {
+
+    if (partyWipesResult instanceof Error) return partyWipesResult;
+
+    if (partyWipesResult.alliesDefeated) {
       const partyWipeResult = this.handlePartyWipe(game, party);
       if (partyWipeResult instanceof Error) return partyWipeResult;
+    } else if (partyWipesResult.opponentsDefeated) {
+      const battleVictoryResult = this.handleBattleVictory(party);
+      if (battleVictoryResult instanceof Error) return battleVictoryResult;
     }
   }
 }

@@ -5,7 +5,9 @@ import {
   CharacterAndItem,
   CharacterAndSlot,
   ClientToServerEvent,
+  CombatAction,
   EquipItemPacket,
+  NextOrPrevious,
   ServerToClientEvent,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
@@ -29,6 +31,13 @@ import characterDroppedEquippedItemHandler from "./game-event-handlers/character
 import characterUnequippedSlotHandler from "./game-event-handlers/character-unequipped-slot-handler";
 import characterEquippedItemHandler from "./game-event-handlers/character-equipped-item-handler";
 import characterPickedUpItemHandler from "./game-event-handlers/character-picked-up-item-handler";
+import gameStartedHandler from "./game-event-handlers/game-started-handler";
+import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
+import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
+import characterCycledTargetsHandler from "./game-event-handlers/character-cycled-targets-handler";
+import characterSelectedCombatActionHandler from "./game-event-handlers/character-selected-combat-action-handler";
+import characterCycledTargetingSchemesHandler from "./game-event-handlers/character-cycled-targeting-schemes-handler";
+import playerLeftGameHandler from "./player-left-game-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -38,6 +47,7 @@ function SocketManager() {
   const mutateLobbyStore = useLobbyStore().mutateState;
   const mutateGameStore = useGameStore().mutateState;
   const mutateAlertStore = useAlertStore().mutateState;
+  const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const socketOption = useWebsocketStore().socketOption;
   const [connected, setConnected] = useState(false);
 
@@ -113,9 +123,7 @@ function SocketManager() {
       });
     });
     socket.on(ServerToClientEvent.PlayerLeftGame, (username) => {
-      mutateGameStore((state) => {
-        if (state.game) SpeedDungeonGame.removePlayer(state.game, username);
-      });
+      playerLeftGameHandler(mutateGameStore, username);
     });
     socket.on(ServerToClientEvent.PartyCreated, (partyName) => {
       mutateGameStore((state) => {
@@ -127,9 +135,15 @@ function SocketManager() {
     socket.on(ServerToClientEvent.PlayerChangedAdventuringParty, (username, partyName) => {
       mutateGameStore((state) => {
         if (!state.game) return;
-        SpeedDungeonGame.removePlayerFromParty(state.game, username);
-        if (partyName === null) return;
-        SpeedDungeonGame.putPlayerInParty(state.game, partyName, username);
+
+        // ignore if game already started. this is a relic of the fact we remove them
+        // from their party when leaving a lobby game, but it is an unhandled crash
+        // to remove them from a party when still in a game
+        if (!state.game.timeStarted) {
+          SpeedDungeonGame.removePlayerFromParty(state.game, username);
+          if (partyName === null) return;
+          SpeedDungeonGame.putPlayerInParty(state.game, partyName, username);
+        }
       });
     });
     socket.on(ServerToClientEvent.CharacterCreated, (partyName, username, character) => {
@@ -142,9 +156,7 @@ function SocketManager() {
       playerToggledReadyToStartGameHandler(mutateGameStore, mutateAlertStore, username);
     });
     socket.on(ServerToClientEvent.GameStarted, (timeStarted) => {
-      mutateGameStore((gameState) => {
-        if (gameState.game) gameState.game.timeStarted = timeStarted;
-      });
+      gameStartedHandler(mutateGameStore, mutateNextBabylonMessagingStore, timeStarted);
     });
     socket.on(
       ServerToClientEvent.PlayerToggledReadyToDescendOrExplore,
@@ -161,14 +173,32 @@ function SocketManager() {
       newDungeonRoomTypesOnCurrentFloorHandler(mutateGameStore, mutateAlertStore, newRoomTypes);
     });
     socket.on(ServerToClientEvent.DungeonRoomUpdate, (newRoom) => {
-      newDungeonRoomHandler(mutateGameStore, mutateAlertStore, newRoom);
+      newDungeonRoomHandler(
+        mutateGameStore,
+        mutateAlertStore,
+        mutateNextBabylonMessagingStore,
+        newRoom
+      );
     });
     socket.on(ServerToClientEvent.BattleFullUpdate, (battleOption) => {
-      console.log("battle full update");
       battleFullUpdateHandler(mutateGameStore, mutateAlertStore, battleOption);
     });
-    socket.on(ServerToClientEvent.TurnResults, () => {
-      //todo
+    socket.on(ServerToClientEvent.TurnResults, (turnResults) => {
+      mutateNextBabylonMessagingStore((state) => {
+        console.log("got turn results: ", turnResults);
+        state.nextToBabylonMessages.push({
+          type: NextToBabylonMessageTypes.NewTurnResults,
+          turnResults,
+        });
+      });
+    });
+    socket.on(ServerToClientEvent.RawActionResults, (actionResults) => {
+      mutateNextBabylonMessagingStore((state) => {
+        state.nextToBabylonMessages.push({
+          type: NextToBabylonMessageTypes.NewActionResults,
+          actionResults,
+        });
+      });
     });
     socket.on(ServerToClientEvent.GameMessage, (message) => {
       gameMessageHandler(mutateGameStore, message);
@@ -199,6 +229,40 @@ function SocketManager() {
     socket.on(ServerToClientEvent.CharacterPickedUpItem, (packet: CharacterAndItem) => {
       characterPickedUpItemHandler(mutateGameStore, mutateAlertStore, packet);
     });
+    socket.on(
+      ServerToClientEvent.CharacterSelectedCombatAction,
+      (characterId: string, combatActionOption: null | CombatAction) => {
+        characterSelectedCombatActionHandler(
+          mutateGameStore,
+          mutateAlertStore,
+          characterId,
+          combatActionOption
+        );
+      }
+    );
+    socket.on(
+      ServerToClientEvent.CharacterCycledTargets,
+      (characterId: string, direction: NextOrPrevious, playerUsername: string) => {
+        characterCycledTargetsHandler(
+          mutateGameStore,
+          mutateAlertStore,
+          characterId,
+          direction,
+          playerUsername
+        );
+      }
+    );
+    socket.on(
+      ServerToClientEvent.CharacterCycledTargetingSchemes,
+      (characterId: string, playerUsername: string) => {
+        characterCycledTargetingSchemesHandler(
+          mutateGameStore,
+          mutateAlertStore,
+          characterId,
+          playerUsername
+        );
+      }
+    );
 
     return () => {
       if (socketOption) {
