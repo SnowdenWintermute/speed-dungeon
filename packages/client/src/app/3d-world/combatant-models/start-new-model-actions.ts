@@ -48,7 +48,7 @@ export function startModelAction(
     gameStateActiveActions?.activeModelActions.push(modelAction.type);
   });
 
-  if (this.entityId === "55")
+  if (this.entityId === "55" && modelAction.type === CombatantModelActionType.PerformCombatAction)
     console.log("starting model action: ", formatCombatModelActionType(modelAction.type));
 
   // start animation if any

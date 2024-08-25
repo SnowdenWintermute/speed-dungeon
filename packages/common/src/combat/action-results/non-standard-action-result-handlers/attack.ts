@@ -1,4 +1,4 @@
-import { CombatantProperties, formatAbilityName } from "../../../combatants";
+import { CombatantProperties } from "../../../combatants";
 import { SpeedDungeonGame } from "../../../game";
 import { EquipmentProperties, EquipmentSlot, EquipmentType } from "../../../items";
 import { CombatAction, CombatActionType } from "../../combat-actions";
@@ -26,6 +26,7 @@ export default function calculateAttackActionResult(
 
   // shields can't be used to attack, if not holding a shield they can attack with offhand unarmed strike
   let mhAttackEndsTurn = false;
+
   if (
     (mhEquipmentOption !== null &&
       EquipmentProperties.isTwoHanded(mhEquipmentOption.equipmentBaseItemProperties.type)) ||
@@ -52,6 +53,7 @@ export default function calculateAttackActionResult(
 
   const mhAttackResultResult = calculateActionResult(game, mhActionResultArgs);
   if (mhAttackResultResult instanceof Error) return mhAttackResultResult;
+
   const mhAttackResult = mhAttackResultResult;
 
   // if targets died, don't calculate the offhand swing

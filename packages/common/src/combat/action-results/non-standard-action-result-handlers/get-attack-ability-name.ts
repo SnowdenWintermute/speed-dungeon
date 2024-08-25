@@ -7,9 +7,10 @@ export default function getAttackAbilityName(
   isOffHand: boolean
 ): Error | CombatantAbilityName {
   if (isOffHand) {
-    if (equipmentType !== null && equipmentType !== EquipmentType.OneHandedMeleeWeapon)
+    if (equipmentType !== null && equipmentType !== EquipmentType.OneHandedMeleeWeapon) {
+      console.error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
       return new Error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
-    else return CombatantAbilityName.AttackMeleeOffhand;
+    } else return CombatantAbilityName.AttackMeleeOffhand;
   }
   if (equipmentType === null) return CombatantAbilityName.AttackMeleeMainhand;
 
@@ -24,6 +25,7 @@ export default function getAttackAbilityName(
     case EquipmentType.Ring:
     case EquipmentType.Amulet:
     case EquipmentType.Shield:
+      console.error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
       return new Error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
   }
 }
