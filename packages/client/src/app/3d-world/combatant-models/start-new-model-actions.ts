@@ -78,10 +78,7 @@ export function startModelAction(
 
     if (animationOption && animationEventOptionResult) {
       animationOption.addEvent(animationEventOptionResult);
-
-      console.log("added animation frame event for ", animationOption.name);
     } else if (!animationOption) {
-      console.log("missing animation: ", animationGroup?.name);
       // no animation but still need to induce the hit recovery
       setTimeout(() => {
         animationEventOptionResult?.action(animationEventOptionResult?.frame);
@@ -98,7 +95,12 @@ export function startModelAction(
   this.activeModelActions[modelAction.type] = modelActionTracker;
 
   if (animationGroup !== undefined && animationNameResult !== null) {
-    if (animationGroup.name === "melee-attack") console.log("starting melee attack");
+    if (this.entityId === "1") {
+      if (animationGroup.name === "melee-attack")
+        console.log("STARTING MELEE ATTACK ", this.entityId);
+      if (animationGroup.name === "melee-attack-offhand")
+        console.log("STARTING OFFHAND MELEE ATTACK ", this.entityId);
+    }
     this.animationManager.startAnimationWithTransition(animationGroup, 500, {
       shouldLoop: isRepeatingAnimation,
       shouldRestartIfAlreadyPlaying:
@@ -112,14 +114,11 @@ export function startModelAction(
         () => {
           modelActionTracker.animationEnded = true;
 
-          this.animationManager.playing = null;
-
           if (modelActionTracker.modelAction.type === CombatantModelActionType.PerformCombatAction)
-            console.log("removed animation end event for ", animationGroup.name);
-          // otherwise animation events will trigger on subsequent plays of the animation
-          animationGroup.targetedAnimations[0]?.animation.getEvents().forEach((event) => {
-            animationGroup.targetedAnimations[0]?.animation.removeEvents(event.frame);
-          });
+            // otherwise animation events will trigger on subsequent plays of the animation
+            animationGroup.targetedAnimations[0]?.animation.getEvents().forEach((event) => {
+              animationGroup.targetedAnimations[0]?.animation.removeEvents(event.frame);
+            });
         },
         undefined,
         true,

@@ -73,7 +73,7 @@ export class ModularCharacter {
     startRotation: number = 0,
     modelCorrectionRotation: number = 0
   ) {
-    this.animationManager = new AnimationManager(this.skeleton);
+    this.animationManager = new AnimationManager(this);
 
     while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
     const rootMesh = skeleton.meshes[0];

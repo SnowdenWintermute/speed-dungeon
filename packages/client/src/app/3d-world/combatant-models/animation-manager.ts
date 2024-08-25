@@ -1,5 +1,6 @@
 import { AnimationGroup, ISceneLoaderAsyncResult } from "babylonjs";
 import { CombatantModelActionType } from "./model-actions";
+import { ModularCharacter } from "./modular-character";
 
 export class AnimationManager {
   playing: null | ManagedAnimation = null;
@@ -9,9 +10,9 @@ export class AnimationManager {
     timeStarted: number;
     durationMs: number;
   } | null = null;
-  constructor(public skeleton: ISceneLoaderAsyncResult) {
+  constructor(public characterModel: ModularCharacter) {
     // stop default animation
-    this.skeleton.animationGroups[0]?.stop();
+    this.characterModel.skeleton.animationGroups[0]?.stop();
 
     // const idleAnimation = this.getAnimationGroupByName("idle");
     // if (idleAnimation) this.setAnimationPlaying("idle", idleAnimation, { shouldLoop: true });
@@ -48,6 +49,10 @@ export class AnimationManager {
       shouldRestartIfAlreadyPlaying: false,
     }
   ): Error | void {
+    if (this.characterModel.entityId === "1" && transitionTo.name === "idle")
+      console.log("STARTED IDLE ANIMATION");
+    if (this.characterModel.entityId === "1" && transitionTo.name === "melee-attack-offhand")
+      console.log("STARTED OFFHAND ANIMATION");
     let transitionFrom: null | ManagedAnimation = null;
     let timeStarted: number = Date.now();
 
@@ -64,7 +69,7 @@ export class AnimationManager {
       this.transition?.transitioningTo.animationGroup.name === transitionTo.name &&
       options.shouldRestartIfAlreadyPlaying
     ) {
-      console.log("trying to restart animation currently transitioning to: ", name);
+      console.log("trying to restart animation currently transitioning to: ", transitionTo.name);
       this.transition.transitioningFrom.animationGroup.setWeightForAllAnimatables(0);
       this.playing = this.transition.transitioningTo;
       this.transition = null;
@@ -77,12 +82,14 @@ export class AnimationManager {
         this.playing?.animationGroup.name
       );
       this.playing?.animationGroup.reset();
+      this.playing?.animationGroup.play();
       this.playing?.animationGroup.setWeightForAllAnimatables(1);
       return;
     }
 
     if (this.playing !== null) {
       transitionFrom = this.playing;
+      if (transitionTo.name === "melee-attack") console.log("set playing to transitionFrom ");
     } else if (this.transition?.transitioningTo) {
       // console.log("transitioning from partially transitioned animation");
       transitionFrom = this.transition.transitioningTo;
@@ -150,10 +157,11 @@ export class AnimationManager {
   }
 
   getAnimationGroupByName(name: string) {
-    for (let index = 0; index < this.skeleton.animationGroups.length; index++) {
-      if (!this.skeleton.animationGroups[index]) continue;
-      if (this.skeleton.animationGroups[index]!.name === name) {
-        return this.skeleton.animationGroups[index];
+    const { skeleton } = this.characterModel;
+    for (let index = 0; index < skeleton.animationGroups.length; index++) {
+      if (!skeleton.animationGroups[index]) continue;
+      if (skeleton.animationGroups[index]!.name === name) {
+        return skeleton.animationGroups[index];
       }
     }
   }
