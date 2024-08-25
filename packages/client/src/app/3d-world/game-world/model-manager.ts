@@ -102,6 +102,8 @@ export class ModelManager {
 
     modularCharacter.updateBoundingBox();
 
+    this.checkIfAllModelsInCurrentRoomAreLoaded();
+
     return modularCharacter;
   }
 
@@ -118,7 +120,31 @@ export class ModelManager {
       toRemove.removeActiveModelAction(action.modelAction.type);
     }
 
+    this.checkIfAllModelsInCurrentRoomAreLoaded();
     delete this.combatantModels[entityId];
+  }
+
+  checkIfAllModelsInCurrentRoomAreLoaded() {
+    this.world.mutateGameState((gameState) => {
+      const partyResult = gameState.getParty();
+      if (partyResult instanceof Error) return console.error(partyResult);
+      const party = partyResult;
+      let allModelsLoaded = true;
+      for (const characterId of party.characterPositions) {
+        if (!this.combatantModels[characterId]) {
+          allModelsLoaded = false;
+          break;
+        }
+      }
+      for (const monster of Object.values(party.currentRoom.monsters)) {
+        if (!this.combatantModels[monster.entityProperties.id]) {
+          allModelsLoaded = false;
+          break;
+        }
+      }
+
+      this.world.currentRoomLoaded = allModelsLoaded;
+    });
   }
 }
 

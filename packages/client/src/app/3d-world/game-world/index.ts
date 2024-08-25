@@ -59,7 +59,7 @@ export class GameWorld {
       for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
         combatantModel.updateDomRefPosition();
         // start model actions from action results
-        combatantModel.enqueueNewModelActionsFromActionResults(this);
+        if (this.currentRoomLoaded) combatantModel.enqueueNewModelActionsFromActionResults(this);
         // start new model actions or return to idle
         combatantModel.startNewModelActions(mutateGameState);
         // process active model actions
