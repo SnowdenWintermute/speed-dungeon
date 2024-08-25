@@ -27,6 +27,7 @@ export default function setAnimationFrameEvents(
         case CombatantAbilityName.AttackMeleeMainhand:
         // @todo - select correct frames for various attack animations
         case CombatantAbilityName.AttackMeleeOffhand:
+        case CombatantAbilityName.AttackRangedMainhand:
           animationEventOption = new AnimationEvent(
             20,
             () => {
@@ -61,9 +62,6 @@ export default function setAnimationFrameEvents(
             true
           );
           break;
-        case CombatantAbilityName.AttackRangedMainhand:
-          break;
-        // return "ranged-attack";
         case CombatantAbilityName.Fire:
         case CombatantAbilityName.Ice:
         case CombatantAbilityName.Healing:

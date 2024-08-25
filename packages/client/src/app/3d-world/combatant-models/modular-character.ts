@@ -76,8 +76,6 @@ export class ModularCharacter {
   ) {
     this.animationManager = new AnimationManager(this.skeleton);
 
-    this.modelActionQueue.push({ type: CombatantModelActionType.Idle });
-
     while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
     const rootMesh = skeleton.meshes[0];
     if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
@@ -174,7 +172,6 @@ export class ModularCharacter {
 
   removeActiveModelAction(modelActionType: CombatantModelActionType) {
     delete this.activeModelActions[modelActionType];
-    // console.log("removed model action ", formatCombatModelActionType(modelActionType));
     this.world.mutateGameState((state) => {
       const indexOption =
         state.babylonControlledCombatantDOMData[this.entityId]?.activeModelActions.indexOf(

@@ -34,11 +34,11 @@ export default function LobbyMenu() {
     // socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
     // socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Rogue);
     socketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
-    // socketOption?.emit(ClientToServerEvent.ToggleReadyToExplore);
-    // socketOption?.emit(ClientToServerEvent.SelectCombatAction, "1", {
-    //   type: CombatActionType.AbilityUsed,
-    //   abilityName: CombatantAbilityName.Attack,
-    // });
+    socketOption?.emit(ClientToServerEvent.ToggleReadyToExplore);
+    socketOption?.emit(ClientToServerEvent.SelectCombatAction, "1", {
+      type: CombatActionType.AbilityUsed,
+      abilityName: CombatantAbilityName.Attack,
+    });
   }
 
   function quickHost() {

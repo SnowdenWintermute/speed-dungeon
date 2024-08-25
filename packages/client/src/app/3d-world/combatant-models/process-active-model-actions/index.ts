@@ -20,8 +20,8 @@ export default function processActiveModelActions(
       case CombatantModelActionType.ReturnHome:
         approachDestinationModelActionProcessor(this, activeModelAction);
         break;
+      case CombatantModelActionType.Death:
       case CombatantModelActionType.TurnToTowardTarget:
-        break;
       case CombatantModelActionType.PerformCombatAction:
       case CombatantModelActionType.HitRecovery:
       case CombatantModelActionType.Evade:
@@ -32,8 +32,6 @@ export default function processActiveModelActions(
           if (timeElapsed >= MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME)
             this.removeActiveModelAction(activeModelAction.modelAction.type);
         }
-        break;
-      case CombatantModelActionType.Death:
         break;
       case CombatantModelActionType.EndTurn:
         endTurnModelActionProcessor(this, gameWorld);

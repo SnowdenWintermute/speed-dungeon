@@ -114,6 +114,10 @@ export class ModelManager {
       disposeAsyncLoadedScene(part);
     }
 
+    for (const action of Object.values(toRemove.activeModelActions)) {
+      toRemove.removeActiveModelAction(action.modelAction.type);
+    }
+
     delete this.combatantModels[entityId];
   }
 }

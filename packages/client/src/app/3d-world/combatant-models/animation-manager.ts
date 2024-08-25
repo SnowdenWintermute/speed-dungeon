@@ -1,4 +1,5 @@
 import { AnimationGroup, ISceneLoaderAsyncResult } from "babylonjs";
+import {  CombatantModelActionType } from "./model-actions";
 
 export class AnimationManager {
   playing: null | ManagedAnimation = null;
@@ -14,6 +15,14 @@ export class AnimationManager {
 
     // const idleAnimation = this.getAnimationGroupByName("idle");
     // if (idleAnimation) this.setAnimationPlaying("idle", idleAnimation, { shouldLoop: true });
+  }
+
+  stop() {
+    this.playing?.animationGroup.stop();
+    this.transition?.transitioningTo?.animationGroup.stop();
+    this.transition?.transitioningFrom?.animationGroup.stop();
+    this.transition = null;
+    this.playing = null;
   }
 
   setAnimationPlaying(
@@ -129,6 +138,34 @@ export class AnimationManager {
         return this.skeleton.animationGroups[index];
       }
     }
+  }
+
+  isRepeatingAnimation(actionType: CombatantModelActionType) {
+    switch (actionType) {
+      case CombatantModelActionType.ApproachDestination:
+      case CombatantModelActionType.ReturnHome:
+      case CombatantModelActionType.Idle:
+      case CombatantModelActionType.EndTurn:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  getFallbackAnimationName(animationName: string) {
+    if (animationName === "melee-attack-offhand")
+      return this.getAnimationGroupByName("melee-attack");
+    if (animationName === "move-back") return this.getAnimationGroupByName("move-forward");
+  }
+
+  static setAnimationEndCallback(animationGroup: AnimationGroup, callback: () => void) {
+    animationGroup.onAnimationEndObservable.add(
+      callback,
+      undefined,
+      true,
+      undefined,
+      true
+    );
   }
 }
 

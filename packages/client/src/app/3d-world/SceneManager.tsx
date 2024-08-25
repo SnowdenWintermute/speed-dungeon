@@ -5,7 +5,7 @@ import { useGameStore } from "@/stores/game-store";
 
 export default function SceneManager() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const sceneRef = useRef<GameWorld>();
+  const sceneRef = useRef<GameWorld | null>(null);
   const debugRef = useRef<HTMLDivElement>(null);
   const resizeHandlerRef = useRef<(e: UIEvent) => void | null>();
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
@@ -28,6 +28,8 @@ export default function SceneManager() {
 
     return () => {
       sceneRef.current?.scene.dispose();
+      sceneRef.current?.engine.dispose();
+      sceneRef.current = null;
 
       if (resizeHandlerRef.current) window.removeEventListener("resize", resizeHandlerRef.current);
     };
