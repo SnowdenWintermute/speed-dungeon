@@ -57,6 +57,8 @@
 //
 // client sends combat action input
 // - attack
+// - client locks own interface
+// - on recieve next reply with own entity id, will unlock at end of command sequence playback
 //
 // server creates a chain of commands
 // - lock entity
@@ -114,3 +116,9 @@
 //   [] translate/rotate entity to their home position
 //   [] end their turn if action required turn end
 //   [] unlock entity
+//
+//
+// WHEN OUT OF COMBAT
+// - players may input actions simultaneously
+// - actions will be processed sequentially in the order recieved
+// - client will play actions back sequentially

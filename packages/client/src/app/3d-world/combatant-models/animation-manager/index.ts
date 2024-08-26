@@ -1,6 +1,6 @@
-import { AnimationGroup, ISceneLoaderAsyncResult } from "babylonjs";
-import { CombatantModelActionType } from "./model-actions";
-import { ModularCharacter } from "./modular-character";
+import { AnimationGroup } from "babylonjs";
+import { CombatantModelActionType } from "../model-actions";
+import { ModularCharacter } from "../modular-character";
 
 export class AnimationManager {
   playing: null | ManagedAnimation = null;
@@ -60,7 +60,19 @@ export class AnimationManager {
       (this.playing && this.playing.animationGroup.name === transitionTo.name) ||
       this.transition?.transitioningTo?.animationGroup.name === transitionTo.name;
 
-    // console.log("transition to: ", transitionTo);
+    // POTENTIAL SCENARIOS
+    // no previous animation exists
+    // previous animation still playing
+    // previous animation was play-once and completed
+    // previous animation is same as new animation and is not completed
+    // previous animation is same as new animation and is play-once and completed
+    //
+    //
+    // start new animation playing
+    // start increasing weight of new animation
+    // if current animation exists
+    //   start decreasing weight of previous animation
+    //   if is done, stop previous animation and set weight 0
 
     if (alreadyPlayingAnimationWithSameName && !options.shouldRestartIfAlreadyPlaying)
       return console.log("already playing animation ", transitionTo.name);
@@ -69,7 +81,7 @@ export class AnimationManager {
       this.transition?.transitioningTo.animationGroup.name === transitionTo.name &&
       options.shouldRestartIfAlreadyPlaying
     ) {
-      console.log("trying to restart animation currently transitioning to: ", transitionTo.name);
+      // console.log("trying to restart animation currently transitioning to: ", transitionTo.name);
       this.transition.transitioningFrom.animationGroup.setWeightForAllAnimatables(0);
       this.playing = this.transition.transitioningTo;
       this.transition = null;
@@ -77,10 +89,10 @@ export class AnimationManager {
       this.playing.animationGroup.reset();
       return;
     } else if (alreadyPlayingAnimationWithSameName && options.shouldRestartIfAlreadyPlaying) {
-      console.log(
-        "trying to restart animation currently playing: ",
-        this.playing?.animationGroup.name
-      );
+      // console.log(
+      //   "trying to restart animation currently playing: ",
+      //   this.playing?.animationGroup.name
+      // );
       this.playing?.animationGroup.reset();
       this.playing?.animationGroup.play();
       this.playing?.animationGroup.setWeightForAllAnimatables(1);
@@ -112,16 +124,6 @@ export class AnimationManager {
       transitioningTo: { animationGroup: transitionTo, weight: 0.0 },
     };
     this.playing = null;
-
-    if (transitionTo.name === "melee-attack")
-      console.log(
-        "playing: ",
-        this.playing,
-        "melee attack transition from ",
-        this.transition.transitioningFrom.animationGroup.name,
-        " to ",
-        this.transition.transitioningTo.animationGroup.name
-      );
 
     transitionTo.reset();
     transitionTo.start(options.shouldLoop);

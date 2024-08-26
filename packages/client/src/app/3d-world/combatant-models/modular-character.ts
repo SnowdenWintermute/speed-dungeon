@@ -27,11 +27,11 @@ import {
 } from "./model-actions";
 import enqueueNewModelActionsFromActionResults from "../game-world/enqueue-new-model-actions-from-action-results";
 import startNewModelActions, { startModelAction } from "./start-new-model-actions";
-import { AnimationManager } from "./animation-manager";
 import { MonsterType } from "@speed-dungeon/common/src/monsters/monster-types";
 import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
 import processActiveModelActions from "./process-active-model-actions";
 import cloneDeep from "lodash.clonedeep";
+import { AnimationManager } from "./animation-manager";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
