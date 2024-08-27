@@ -58,21 +58,13 @@ export class GameWorld {
 
       for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
         combatantModel.updateDomRefPosition();
-        // start model actions from action results
         if (this.currentRoomLoaded) combatantModel.enqueueNewModelActionsFromActionResults(this);
-        // start new model actions or return to idle
         combatantModel.startNewModelActions(mutateGameState);
-        // process active model actions
-        combatantModel.processActiveModelActions(this, mutateGameState);
-        // process floating text
-        // process any animation transitions
+        combatantModel.processActiveModelActions(this);
+        combatantModel.animationManager.handleCompletedAnimations();
         combatantModel.animationManager.stepAnimationTransitionWeights();
-        // combatantModel.updateBoundingBox();
-        //
       }
-      //
-      // if no active model actions and turn results remain
-      // send the actionResults to combatant models
+
       this.scene.render();
     });
   }

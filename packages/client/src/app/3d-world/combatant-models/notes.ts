@@ -12,35 +12,12 @@
 //
 // if still alive, return to processing their other model actions
 //
-// combatant is idling
-// combatant is hit
-// start playing hit recovery with transition from idle
-// combatant is hit with 2nd attack
-// restart hit recovery animation
-// finish animation
-// idle
-//
-//
-// combatant is idling
-// combatant is hit
-// start playing hit recovery with transition from idle
-// combatant missed by 2nd attack
-// start playing evade animation with transition from hit recovery
-// finish animation
-// idle
-//
-// combatant is halfway through some action
-// induce hit recovery
-// if currently in hit recovery / evade, restart the animation (or play alterate one)
-//
-//
 // possible actions to interrupt
 // idling
 // - immediately set hit recovery to active and play animation
 // approach destination
 // - keep moving and save what animation they were doing
 // - immediately set hit recovery to active and play animation
-// -
 // hit recovery
 // - delete current hit recovery and set animation frame to 0
 // - replace active hit recovery and reset animation
@@ -104,7 +81,7 @@
 //      * target entities start transition to hit recovery animations
 //      * play floating text on target entities
 //      * show combat log entries
-//      * on hit recovery complete, transition to idle
+//      * on hit recovery complete, transition to whatever animation they should be doing for their current action
 //   [] on animation complete, start next action
 // - perform combat action (oh attack)
 //   [] transition from melee-attack to melee-attack-offhand animation
@@ -122,3 +99,47 @@
 // - players may input actions simultaneously
 // - actions will be processed sequentially in the order recieved
 // - client will play actions back sequentially
+// - show a "readying up idle" pose animation while waiting for
+//   other characters ahead in queue to perform their actions
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+// POTENTIAL SCENARIOS
+// no current animation exists
+//  - clone new animation
+//  - start new animation
+//  - start increasing weights
+
+// current (different) animation still playing
+//  - set current as previous
+//  - clone new animation and set as current
+//  - start new animation
+//  - start increasing weights of new animation
+//  - start decreasing weights of previous animation
+//  - stop previous animation when weights = 0
+//  - when weights = 0 dispose previous animation and set to null
+// current animation was play-once and completed
+//  - stop current animation
+//  - set current animation weights to 0
+//  - dispose current animation
+//  - clone new animation and set as current
+//  - start new animation
+//  - start increasing weights
+// previous animation is same as new animation and is not completed
+// previous animation is same as new animation and is play-once and completed
+//  - if we always clone new animations it should be
+//  the same process as if starting a different animation
+//
+//
+// start new animation playing
+// start increasing weight of new animation
+// if current animation exists
+//   start decreasing weight of previous animation
+//   if is done, stop previous animation and set weight 0

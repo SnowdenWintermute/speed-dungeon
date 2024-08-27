@@ -1,160 +1,144 @@
-import { AnimationGroup } from "babylonjs";
+import { AnimationGroup, AnimationEvent } from "babylonjs";
 import { CombatantModelActionType } from "../model-actions";
 import { ModularCharacter } from "../modular-character";
+import { MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME } from "@speed-dungeon/common";
+import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
+
+export type ManagedAnimationOptions = {
+  shouldLoop: boolean;
+  animationEventOption: null | AnimationEvent;
+  onComplete: () => void;
+};
+
+export class ManagedAnimation {
+  timeStarted: number = Date.now();
+  weight: number = 0;
+  frameEventFired: boolean = false;
+  constructor(
+    public animationGroupOption: null | AnimationGroup,
+    public transitionDuration: number = 0,
+    public options: ManagedAnimationOptions
+  ) {
+    const { animationEventOption } = options;
+    const animation = this.animationGroupOption?.targetedAnimations[0]?.animation;
+    if (animation && animationEventOption) {
+      animationEventOption.onlyOnce = true;
+      animation.addEvent(animationEventOption);
+    }
+  }
+
+  setWeight(newWeight: number) {
+    this.weight = newWeight;
+    this.animationGroupOption?.setWeightForAllAnimatables(newWeight);
+  }
+
+  isCompleted() {
+    if (this.options.shouldLoop) return false;
+    const timeSinceStarted = Date.now() - this.timeStarted;
+    if (this.animationGroupOption) {
+      return timeSinceStarted >= Math.floor(this.animationGroupOption.getLength() * 1000);
+    } else {
+      return timeSinceStarted >= MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME;
+    }
+  }
+}
 
 export class AnimationManager {
   playing: null | ManagedAnimation = null;
-  transition: {
-    transitioningFrom: ManagedAnimation;
-    transitioningTo: ManagedAnimation;
-    timeStarted: number;
-    durationMs: number;
-  } | null = null;
+  previous: null | ManagedAnimation = null;
   constructor(public characterModel: ModularCharacter) {
     // stop default animation
     this.characterModel.skeleton.animationGroups[0]?.stop();
-
-    // const idleAnimation = this.getAnimationGroupByName("idle");
-    // if (idleAnimation) this.setAnimationPlaying("idle", idleAnimation, { shouldLoop: true });
   }
 
-  stop() {
-    this.playing?.animationGroup.stop();
-    this.transition?.transitioningTo?.animationGroup.stop();
-    this.transition?.transitioningFrom?.animationGroup.stop();
-    this.transition = null;
-    this.playing = null;
-  }
-
-  setAnimationPlaying(
-    animationGroup: AnimationGroup,
-    options: { shouldLoop: boolean }
-  ): Error | void {
-    // stop current transitioning animations if any
-    if (this.transition) {
-      this.transition.transitioningTo.animationGroup.stop();
-      this.transition.transitioningFrom.animationGroup.stop();
-      this.transition = null;
-    }
-    animationGroup.play(options.shouldLoop);
-
-    this.playing = { animationGroup, weight: 1.0 };
+  cloneAnimationOption(animationGroupOption: undefined | AnimationGroup): null | AnimationGroup {
+    return animationGroupOption?.clone(animationGroupOption.name, undefined, true) ?? null;
   }
 
   startAnimationWithTransition(
-    transitionTo: AnimationGroup,
-    durationMs: number,
-    options: { shouldLoop: boolean; shouldRestartIfAlreadyPlaying: boolean } = {
+    newAnimationName: string,
+    transitionDuration: number,
+    options: ManagedAnimationOptions = {
       shouldLoop: true,
-      shouldRestartIfAlreadyPlaying: false,
+      animationEventOption: null,
+      onComplete: () => {},
     }
   ): Error | void {
-    if (this.characterModel.entityId === "1" && transitionTo.name === "idle")
-      console.log("STARTED IDLE ANIMATION");
-    if (this.characterModel.entityId === "1" && transitionTo.name === "melee-attack-offhand")
-      console.log("STARTED OFFHAND ANIMATION");
-    let transitionFrom: null | ManagedAnimation = null;
-    let timeStarted: number = Date.now();
+    let newAnimationGroupOption = this.getAnimationGroupByName(newAnimationName);
+    // alternatives to some missing animations
+    if (newAnimationGroupOption === undefined) {
+      const fallbackName = this.getFallbackAnimationName(newAnimationName);
+      newAnimationGroupOption = this.getAnimationGroupByName(fallbackName || "");
+    }
 
-    const alreadyPlayingAnimationWithSameName =
-      (this.playing && this.playing.animationGroup.name === transitionTo.name) ||
-      this.transition?.transitioningTo?.animationGroup.name === transitionTo.name;
+    const clonedAnimationOption = this.cloneAnimationOption(newAnimationGroupOption);
 
-    // POTENTIAL SCENARIOS
-    // no previous animation exists
-    // previous animation still playing
-    // previous animation was play-once and completed
-    // previous animation is same as new animation and is not completed
-    // previous animation is same as new animation and is play-once and completed
-    //
-    //
-    // start new animation playing
-    // start increasing weight of new animation
-    // if current animation exists
-    //   start decreasing weight of previous animation
-    //   if is done, stop previous animation and set weight 0
+    if (this.characterModel.entityId === "55")
+      console.log(
+        "started animation: ",
+        newAnimationName,
+        " currently playing: ",
+        this.playing?.animationGroupOption?.name
+      );
 
-    if (alreadyPlayingAnimationWithSameName && !options.shouldRestartIfAlreadyPlaying)
-      return console.log("already playing animation ", transitionTo.name);
-    else if (
-      alreadyPlayingAnimationWithSameName &&
-      this.transition?.transitioningTo.animationGroup.name === transitionTo.name &&
-      options.shouldRestartIfAlreadyPlaying
-    ) {
-      // console.log("trying to restart animation currently transitioning to: ", transitionTo.name);
-      this.transition.transitioningFrom.animationGroup.setWeightForAllAnimatables(0);
-      this.playing = this.transition.transitioningTo;
-      this.transition = null;
-      this.playing.animationGroup.setWeightForAllAnimatables(1);
-      this.playing.animationGroup.reset();
-      return;
-    } else if (alreadyPlayingAnimationWithSameName && options.shouldRestartIfAlreadyPlaying) {
-      // console.log(
-      //   "trying to restart animation currently playing: ",
-      //   this.playing?.animationGroup.name
-      // );
-      this.playing?.animationGroup.reset();
-      this.playing?.animationGroup.play();
-      this.playing?.animationGroup.setWeightForAllAnimatables(1);
-      return;
+    if (clonedAnimationOption === undefined) {
+      // send message to client with timout duration to remove itself
+      setDebugMessage(
+        this.characterModel.world.mutateGameState,
+        this.characterModel.entityId,
+        `Missing animation: ${newAnimationName}`,
+        MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME
+      );
     }
 
     if (this.playing !== null) {
-      transitionFrom = this.playing;
-      if (transitionTo.name === "melee-attack") console.log("set playing to transitionFrom ");
-    } else if (this.transition?.transitioningTo) {
-      // console.log("transitioning from partially transitioned animation");
-      transitionFrom = this.transition.transitioningTo;
-      // if there is already an ongoing transition we want to preserve its time started
-      // so as not to restart its weights at 0
-      timeStarted = this.transition.timeStarted;
+      if (this.previous !== null) this.cleanUpFinishedAnimation(this.previous);
+      this.previous = this.playing;
+      this.playing = null;
     }
 
-    if (transitionFrom === null) {
-      if (transitionTo.name === "melee-attack") console.log("transition from was null");
-      return this.setAnimationPlaying(transitionTo, {
-        shouldLoop: options.shouldLoop,
-      });
-    }
+    this.playing = new ManagedAnimation(clonedAnimationOption, transitionDuration, options);
 
-    this.transition = {
-      durationMs,
-      timeStarted,
-      transitioningFrom: transitionFrom,
-      transitioningTo: { animationGroup: transitionTo, weight: 0.0 },
-    };
-    this.playing = null;
-
-    transitionTo.reset();
-    transitionTo.start(options.shouldLoop);
-    transitionTo.setWeightForAllAnimatables(0.0);
+    clonedAnimationOption?.start(options.shouldLoop);
   }
 
   stepAnimationTransitionWeights(): Error | void {
-    if (this.transition === null) return;
-    if (
-      this.transition.transitioningTo.animationGroup.name ===
-      this.transition.transitioningFrom.animationGroup.name
-    )
-      return;
+    if (!this.playing || this.playing.weight >= 1) return;
 
-    const timeSinceTransitionStarted = Date.now() - this.transition.timeStarted;
-    // actually it is a number between 0 and 1 so not exactly a "percent"
-    // but it works for setting the weights because they take such a value
-    let percentOfTransitionCompleted = timeSinceTransitionStarted / this.transition.durationMs;
-    if (percentOfTransitionCompleted > 1) percentOfTransitionCompleted = 1;
-    this.transition.transitioningTo.animationGroup.setWeightForAllAnimatables(
-      percentOfTransitionCompleted
-    );
-    this.transition.transitioningFrom.animationGroup.setWeightForAllAnimatables(
-      1 - percentOfTransitionCompleted
-    );
+    const timeSinceStarted = Date.now() - this.playing.timeStarted;
+    let percentTransitionCompleted = timeSinceStarted / this.playing.transitionDuration;
+    percentTransitionCompleted = Math.min(1, percentTransitionCompleted);
 
-    if (percentOfTransitionCompleted === 1) {
-      percentOfTransitionCompleted = 1;
-      this.playing = this.transition.transitioningTo;
-      this.transition.transitioningFrom.animationGroup.stop();
-      this.transition = null;
+    this.playing.setWeight(percentTransitionCompleted);
+    if (this.previous) this.previous.setWeight(1 - this.playing.weight);
+  }
+
+  cleanUpFinishedAnimation(managedAnimation: ManagedAnimation) {
+    if (this.characterModel.entityId === "55")
+      console.log("finished animation: ", managedAnimation.animationGroupOption?.name);
+    const { animationEventOption, onComplete } = managedAnimation.options;
+
+    managedAnimation.animationGroupOption?.stop();
+
+    // if (!managedAnimation.frameEventFired && animationEventOption) {
+    //   animationEventOption.action(animationEventOption.frame);
+    // }
+
+    onComplete();
+
+    // else causes memory leaks
+    managedAnimation.animationGroupOption?.dispose();
+  }
+
+  handleCompletedAnimations() {
+    if (this.previous?.weight === 0) {
+      this.cleanUpFinishedAnimation(this.previous);
+      this.previous = null;
+    }
+
+    if (this.playing && this.playing.isCompleted()) {
+      this.cleanUpFinishedAnimation(this.playing);
+      this.playing = null;
     }
   }
 
@@ -181,17 +165,11 @@ export class AnimationManager {
   }
 
   getFallbackAnimationName(animationName: string) {
-    if (animationName === "melee-attack-offhand")
-      return this.getAnimationGroupByName("melee-attack");
-    if (animationName === "move-back") return this.getAnimationGroupByName("move-forward");
+    if (animationName === "melee-attack-offhand") return "melee-attack";
+    if (animationName === "move-back") return "move-forward";
   }
 
   static setAnimationEndCallback(animationGroup: AnimationGroup, callback: () => void) {
     animationGroup.onAnimationEndObservable.add(callback, undefined, true, undefined, true);
   }
 }
-
-export type ManagedAnimation = {
-  animationGroup: AnimationGroup;
-  weight: number;
-};

@@ -10,7 +10,7 @@ import { CombatantModelAction, CombatantModelActionType } from "./model-actions"
 import { GameWorld } from "../game-world";
 import { FloatingTextColor, startFloatingText } from "@/stores/game-store/floating-text";
 
-export default function setAnimationFrameEvents(
+export default function getAnimationFrameEvents(
   gameWorld: GameWorld,
   modelAction: CombatantModelAction
 ) {

@@ -1,5 +1,5 @@
 import { ActionResult } from "@speed-dungeon/common";
-import { Animation, Quaternion, Vector3 } from "babylonjs";
+import { Quaternion, Vector3 } from "babylonjs";
 
 export enum CombatantModelActionType {
   ApproachDestination,
@@ -38,12 +38,8 @@ export function formatCombatModelActionType(type: CombatantModelActionType) {
 
 export class CombatantModelActionProgressTracker {
   timeStarted: number = Date.now();
-  transitionStarted: null | number = null;
   animationEnded: boolean = false;
-  constructor(
-    public modelAction: CombatantModelAction,
-    public animationOption: null | Animation
-  ) {}
+  constructor(public modelAction: CombatantModelAction) {}
 }
 
 type ApproachDestinationModelAction = {

@@ -1,4 +1,5 @@
 import { MutateState } from "@/stores/mutate-state";
+import { AnimationEvent } from "babylonjs";
 import getModelActionAnimationName from "./get-model-action-animation-name";
 import {
   CombatantModelAction,
@@ -7,16 +8,13 @@ import {
 } from "./model-actions";
 import { ModularCharacter } from "./modular-character";
 import { GameState } from "@/stores/game-store";
-import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
-import setAnimationFrameEvents from "./set-animation-frame-events";
-import { MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME } from "@speed-dungeon/common";
+import getAnimationFrameEvents from "./set-animation-frame-events";
 
 export default function startNewModelActions(
   this: ModularCharacter,
   mutateGameState: MutateState<GameState>
 ) {
   const readyToStartNewActions =
-    Object.values(this.activeModelActions).length === 0 ||
     this.activeModelActions[CombatantModelActionType.Idle] !== undefined;
 
   if (readyToStartNewActions && this.modelActionQueue.length > 0) {
@@ -32,6 +30,7 @@ export default function startNewModelActions(
     this.activeModelActions[CombatantModelActionType.Idle] === undefined
   ) {
     // idle if there's nothing left to do
+    if (this.entityId === "55") console.log("idling for lack of somethin better to do");
     this.startModelAction(mutateGameState, {
       type: CombatantModelActionType.Idle,
     });
@@ -43,13 +42,12 @@ export function startModelAction(
   mutateGameState: MutateState<GameState>,
   modelAction: CombatantModelAction
 ) {
+  if (this.entityId === "55" && modelAction.type === CombatantModelActionType.Idle)
+    console.log("STARTED IDLE MODEL ACTION");
   mutateGameState((state) => {
     const gameStateActiveActions = state.babylonControlledCombatantDOMData[this.entityId];
     gameStateActiveActions?.activeModelActions.push(modelAction.type);
   });
-
-  // if (this.entityId === "55" && modelAction.type === CombatantModelActionType.PerformCombatAction)
-  //   console.log("starting model action: ", formatCombatModelActionType(modelAction.type));
 
   // start animation if any
   const isRepeatingAnimation = this.animationManager.isRepeatingAnimation(modelAction.type);
@@ -61,77 +59,26 @@ export function startModelAction(
   );
 
   if (animationNameResult instanceof Error) return console.error(animationNameResult);
-  let animationGroup = this.animationManager.getAnimationGroupByName(animationNameResult);
-
-  // alternatives to some missing animations
-  if (animationGroup === undefined)
-    animationGroup = this.animationManager.getFallbackAnimationName(animationNameResult);
-
-  const animationOption = animationGroup?.targetedAnimations[0]?.animation;
-
-  if (animationOption === undefined) this.animationManager.stop();
+  const newAnimationName = animationNameResult;
 
   // set frame event for attacks/etc
+  let animationEventOption: null | AnimationEvent = null;
   if (modelAction.type === CombatantModelActionType.PerformCombatAction) {
-    const animationEventOptionResult = setAnimationFrameEvents(this.world, modelAction);
+    const animationEventOptionResult = getAnimationFrameEvents(this.world, modelAction);
     if (animationEventOptionResult instanceof Error) return animationEventOptionResult;
-
-    if (animationOption && animationEventOptionResult) {
-      animationOption.addEvent(animationEventOptionResult);
-    } else if (!animationOption) {
-      // no animation but still need to induce the hit recovery
-      setTimeout(() => {
-        animationEventOptionResult?.action(animationEventOptionResult?.frame);
-      }, MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME);
-    }
+    animationEventOption = animationEventOptionResult;
   }
 
   // put new action progress tracker in active actions object
-  const modelActionTracker = new CombatantModelActionProgressTracker(
-    modelAction,
-    animationGroup?.targetedAnimations[0]?.animation ?? null
-  );
+  const modelActionTracker = new CombatantModelActionProgressTracker(modelAction);
+
+  this.animationManager.startAnimationWithTransition(newAnimationName, 500, {
+    shouldLoop: isRepeatingAnimation,
+    animationEventOption,
+    onComplete: () => {
+      modelActionTracker.animationEnded = true;
+    },
+  });
 
   this.activeModelActions[modelAction.type] = modelActionTracker;
-
-  if (animationGroup !== undefined && animationNameResult !== null) {
-    if (this.entityId === "1") {
-      if (animationGroup.name === "melee-attack")
-        console.log("STARTING MELEE ATTACK ", this.entityId);
-      if (animationGroup.name === "melee-attack-offhand")
-        console.log("STARTING OFFHAND MELEE ATTACK ", this.entityId);
-    }
-    this.animationManager.startAnimationWithTransition(animationGroup, 500, {
-      shouldLoop: isRepeatingAnimation,
-      shouldRestartIfAlreadyPlaying:
-        modelAction.type === CombatantModelActionType.HitRecovery ||
-        modelAction.type === CombatantModelActionType.Evade ||
-        modelAction.type === CombatantModelActionType.PerformCombatAction,
-    });
-
-    if (!isRepeatingAnimation) {
-      animationGroup.onAnimationEndObservable.add(
-        () => {
-          modelActionTracker.animationEnded = true;
-
-          if (modelActionTracker.modelAction.type === CombatantModelActionType.PerformCombatAction)
-            // otherwise animation events will trigger on subsequent plays of the animation
-            animationGroup.targetedAnimations[0]?.animation.getEvents().forEach((event) => {
-              animationGroup.targetedAnimations[0]?.animation.removeEvents(event.frame);
-            });
-        },
-        undefined,
-        true,
-        undefined,
-        true
-      );
-    }
-  } else {
-    setDebugMessage(
-      mutateGameState,
-      this.entityId,
-      `Missing animation: ${animationNameResult}`,
-      MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME
-    );
-  }
 }
