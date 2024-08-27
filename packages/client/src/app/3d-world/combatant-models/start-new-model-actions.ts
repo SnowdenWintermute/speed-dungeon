@@ -15,6 +15,7 @@ export default function startNewModelActions(
   mutateGameState: MutateState<GameState>
 ) {
   const readyToStartNewActions =
+    Object.values(this.activeModelActions).length === 0 ||
     this.activeModelActions[CombatantModelActionType.Idle] !== undefined;
 
   if (readyToStartNewActions && this.modelActionQueue.length > 0) {

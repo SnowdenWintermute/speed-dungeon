@@ -75,9 +75,10 @@ export default function getModelActionAnimationName(
     case CombatantModelActionType.Death:
       return "death";
     case CombatantModelActionType.Idle:
-    case CombatantModelActionType.EndTurn:
       // @todo - based on equipment, choose correct idle pose
       // @todo - based hp percent, choose correct limping idle pose
       return "idle";
+    case CombatantModelActionType.EndTurn:
+      return "";
   }
 }
