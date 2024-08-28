@@ -7,10 +7,10 @@ import {
   SpeedDungeonGame,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { GameServer } from "..";
-import validateCombatActionUse from "./combat-action-results-processing/validate-combat-action-use";
-import checkForDefeatedCombatantGroups from "./combat-action-results-processing/check-for-defeated-combatant-groups";
-import takeAiControlledTurnsIfAppropriate from "./combat-action-results-processing/take-ai-controlled-turns-if-appropriate";
+import { GameServer } from "../..";
+import validateCombatActionUse from "../combat-action-results-processing/validate-combat-action-use";
+import checkForDefeatedCombatantGroups from "../combat-action-results-processing/check-for-defeated-combatant-groups";
+import takeAiControlledTurnsIfAppropriate from "../combat-action-results-processing/take-ai-controlled-turns-if-appropriate";
 
 export default function useSelectedCombatActionHandler(
   this: GameServer,

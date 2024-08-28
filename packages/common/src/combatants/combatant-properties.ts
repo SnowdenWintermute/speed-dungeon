@@ -1,3 +1,4 @@
+import { Vector3 } from "babylonjs";
 import { CombatAction } from "../combat/combat-actions";
 import { PhysicalDamageType } from "../combat/hp-change-source-types";
 import { MagicalElement } from "../combat/magical-elements";
@@ -54,7 +55,8 @@ export class CombatantProperties {
     public combatantClass: CombatantClass,
     public combatantSpecies: CombatantSpecies,
     public abilities: Partial<Record<CombatantAbilityName, CombatantAbility>>,
-    public controllingPlayer: null | string
+    public controllingPlayer: null | string,
+    public homeLocation: Vector3
   ) {}
 
   static getCombatActionPropertiesIfOwned = getCombatActionPropertiesIfOwned;

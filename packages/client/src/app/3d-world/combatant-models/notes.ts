@@ -31,6 +31,8 @@
 // - enable resync
 // - prevent cheating by client sending inputs earlier than allowed
 // - avoid complex client translation of action results into commands
+// - make speed matter for time it takes to move/cast spells - other combatants will regenerate
+//   movement based on how long it takes active combatant to do their action
 //
 // client sends combat action input
 // - attack
@@ -40,7 +42,8 @@
 // server creates a chain of commands
 // - lock entity
 // - move toward destination
-// - perform combat action (mh melee attack) (entity id, damage, isCrit, element, isWeakness)
+// - perform combat action (mh melee attack) roll damage (entity id, damage, isCrit, element, isWeakness)
+// - check if entity would still be alive at this point, if not then skip offhand attack
 // - perform combat action (mh offhand attack) (entity id, damage, isCrit, element, isWeakness)
 // - return home
 // - end turn
@@ -51,7 +54,7 @@
 // - lock entity
 //   [] no commands may be issued to this entity while locked
 // - move toward destination:
-//   [] start a timer based on the entity's distance to target and their movement speed
+//   [] start a timer based on the entity's distance to target outer swing radius and their movement speed
 //   [] we'll need to know hitbox radii of all combatant models
 // - perform combat action (mh attack)
 //   [] start a timer based on attack animation length
