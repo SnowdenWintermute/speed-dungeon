@@ -18,7 +18,7 @@ export default function takeAiTurnsAtBattleStart(
   const turnResults: CombatTurnResult[] = [];
 
   const aiControlledTurnResultsResult = takeAiControlledTurnsIfAppropriate(game, battle);
-  console.log("ai controlled turn results at battle start: ", aiControlledTurnResultsResult);
+
   if (aiControlledTurnResultsResult instanceof Error) return aiControlledTurnResultsResult;
   const aiControlledTurnResults = aiControlledTurnResultsResult;
   turnResults.push(...aiControlledTurnResults);

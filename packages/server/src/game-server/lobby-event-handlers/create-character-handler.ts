@@ -1,16 +1,23 @@
 import { GameServer } from "..";
 import {
+  AdventuringParty,
+  COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
+  COMBATANT_POSITION_SPACING_SIDE,
   CombatantClass,
+  CombatantProperties,
   ERROR_MESSAGES,
   EntityId,
+  MonsterType,
   PlayerCharacter,
   ServerToClientEvent,
   SpeedDungeonGame,
+  updateCombatantHomePosition,
 } from "@speed-dungeon/common";
 import { generateRandomCharacterName } from "../../utils";
 import errorHandler from "../error-handler";
 import { MAX_PARTY_SIZE } from "@speed-dungeon/common";
 import outfitNewCharacter from "../item-generation/outfit-new-character";
+import { Vector3 } from "babylonjs";
 
 const ATTEMPT_TEXT = "A client tried to create a character but";
 
@@ -78,16 +85,28 @@ function addCharacterToParty(
     throw new Error(ERROR_MESSAGES.GAME.MAX_PARTY_SIZE);
 
   const characterId = game.idGenerator.getNextEntityId();
+
+  // const homePosition
+
   const newCharacter = new PlayerCharacter(
     nameOfControllingUser,
     combatantClass,
     characterName,
-    characterId
+    characterId,
+    Vector3.Zero()
   );
 
   outfitNewCharacter(gameServer, game.idGenerator, newCharacter);
 
   party.characters[characterId] = newCharacter;
   party.characterPositions.push(characterId);
+
+  for (const character of Object.values(party.characters))
+    updateCombatantHomePosition(
+      character.entityProperties.id,
+      character.combatantProperties,
+      party
+    );
+
   return characterId;
 }

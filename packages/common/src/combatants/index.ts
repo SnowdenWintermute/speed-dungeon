@@ -9,6 +9,7 @@ export * from "./combat-attributes";
 export * from "./abilities/";
 export * from "./get-combat-action-properties";
 export * from "./inventory";
+export * from "./update-home-position";
 
 export type CombatantDetails = {
   entityProperties: EntityProperties;

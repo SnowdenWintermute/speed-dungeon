@@ -1,5 +1,6 @@
+import { Vector3 } from "babylonjs";
 import { Monster } from ".";
-import { CombatAttribute, CombatantProperties } from "../combatants";
+import { CombatAttribute, CombatantProperties, updateCombatantHomePosition } from "../combatants";
 import { addAttributesToAccumulator } from "../combatants/get-combatant-total-attributes";
 import { IdGenerator } from "../game/id-generator";
 import { randomNormal } from "../utils";
@@ -24,7 +25,13 @@ export default function generateMonster(idGenerator: IdGenerator, level: number)
     id: idGenerator.getNextEntityId(),
     name: formatMonsterType(monsterType),
   };
-  const combatantProperties = new CombatantProperties(combatantClass, combatantSpecies, {}, null);
+  const combatantProperties = new CombatantProperties(
+    combatantClass,
+    combatantSpecies,
+    {},
+    null,
+    Vector3.Zero()
+  );
   // will modify this monster after creation with basic values
   const monster = new Monster(entityProperties, combatantProperties, monsterType);
   monster.combatantProperties.level = level;

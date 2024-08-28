@@ -16,17 +16,17 @@ export default function takeAiControlledTurnsIfAppropriate(
 ): Error | CombatTurnResult[] {
   const turnResults: CombatTurnResult[] = [];
   const { turnTrackers } = battle;
-  console.log(battle.turnTrackers);
+
   const activeCombatantTrackerOption = turnTrackers[0];
   if (!activeCombatantTrackerOption) return new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
 
   let activeCombatantId = activeCombatantTrackerOption.entityId;
-  console.log("active combatant id: ", activeCombatantId);
+
   let activeCombatantResult = SpeedDungeonGame.getCombatantById(game, activeCombatantId);
   if (activeCombatantResult instanceof Error) return activeCombatantResult;
   let { entityProperties, combatantProperties } = activeCombatantResult;
   let activeCombatantIsAiControlled = combatantProperties.controllingPlayer === null;
-  console.log("is ai controlled: ", activeCombatantIsAiControlled);
+
   let activeCombatantTurnActionResults: ActionResult[] = [];
 
   while (activeCombatantIsAiControlled) {
@@ -80,8 +80,7 @@ export default function takeAiControlledTurnsIfAppropriate(
 
     if (newActiveTurnTrackerResult instanceof Error) return newActiveTurnTrackerResult;
     activeCombatantId = newActiveTurnTrackerResult.entityId;
-    console.log("new active combatant id: ", activeCombatantId);
-    console.log("new active combatant is ai controlled: ", combatantProperties.controllingPlayer);
+
     const activeCombatantResult = SpeedDungeonGame.getCombatantById(game, activeCombatantId);
     if (activeCombatantResult instanceof Error) return activeCombatantResult;
     entityProperties = activeCombatantResult.entityProperties;
