@@ -73,15 +73,10 @@ export class AnimationManager {
 
     const clonedAnimationOption = this.cloneAnimationOption(newAnimationGroupOption);
 
-    if (this.characterModel.entityId === "55")
-      console.log(
-        "started animation: ",
-        newAnimationName,
-        " currently playing: ",
-        this.playing?.animationGroupOption?.name
-      );
+    if (newAnimationName === "evade") console.log(clonedAnimationOption?.name);
 
-    if (clonedAnimationOption === undefined) {
+    if (clonedAnimationOption === null) {
+      console.log("setting debug message");
       // send message to client with timout duration to remove itself
       setDebugMessage(
         this.characterModel.world.mutateGameState,
@@ -114,8 +109,6 @@ export class AnimationManager {
   }
 
   cleanUpFinishedAnimation(managedAnimation: ManagedAnimation) {
-    if (this.characterModel.entityId === "55")
-      console.log("finished animation: ", managedAnimation.animationGroupOption?.name);
     const { animationEventOption, onComplete } = managedAnimation.options;
 
     managedAnimation.animationGroupOption?.stop();

@@ -15,7 +15,7 @@ export default function CharacterAutofocusManager() {
   const battleIdOption = useGameStore().getCurrentBattleId();
 
   const [previousRenderBattleId, setPreviousRenderBattleId] = useState<null | string>(null);
-  const [previousActiveCombatantIdOption, setpreviousActiveCombatantIdOption] = useState<
+  const [previousActiveCombatantIdOption, setPreviousActiveCombatantIdOption] = useState<
     null | string
   >(null);
 
@@ -24,9 +24,11 @@ export default function CharacterAutofocusManager() {
   useEffect(() => {
     if (playerResult instanceof Error) return console.error(playerResult);
     const ownedCharacterIds = playerResult.characterIds;
+    const firstOwnedCharacter = ownedCharacterIds[0];
+    if (!firstOwnedCharacter) return console.error("Client doesn't own any characters");
     if (ownedCharacterIds.length) {
       mutateGameState((gameState) => {
-        gameState.focusedCharacterId = ownedCharacterIds[0];
+        gameState.focusedCharacterId = firstOwnedCharacter;
       });
     }
   }, [clientHasGame]);
@@ -44,7 +46,7 @@ export default function CharacterAutofocusManager() {
       const clientIsViewingMenus = gameState.menuContext !== null;
       if (clientIsViewingMenus) return;
 
-      if (previousActiveCombatantIdOption && activeCombatantIdOption) {
+      if (previousActiveCombatantIdOption !== null && activeCombatantIdOption !== null) {
         const newActiveCombatantId = activeCombatantIdOption;
         const newlyActiveCombatantIsAPlayerCharacter =
           party.characterPositions.includes(newActiveCombatantId);
@@ -53,9 +55,10 @@ export default function CharacterAutofocusManager() {
         );
         const clientWasFocusingPreviouslyActiveCombatant =
           focusedCharacterId === previousActiveCombatantIdOption;
+
         if (
           (newlyActiveCombatantIsAPlayerCharacter && clientWasFocusingPreviouslyActiveCombatant) ||
-          !previouslyActiveCombatantIsAPlayerCharacter
+          (!previouslyActiveCombatantIsAPlayerCharacter && newlyActiveCombatantIsAPlayerCharacter)
         ) {
           gameState.focusedCharacterId = newActiveCombatantId;
         }
@@ -65,7 +68,9 @@ export default function CharacterAutofocusManager() {
       const battleJustEnded = party.battleId === null && previousRenderBattleId !== null;
       const battleJustStarted = party.battleId !== null && previousRenderBattleId === null;
       if (battleJustEnded) {
-        if (player.characterIds.length) gameState.focusedCharacterId = player.characterIds[0];
+        const firstOwnedCharacter = player.characterIds[0];
+        if (!firstOwnedCharacter) return console.error("Player doesn't own any characters");
+        if (player.characterIds.length) gameState.focusedCharacterId = firstOwnedCharacter;
       }
       // if battle just started, focus active character if any (not enemy going first)
       else if (
@@ -77,7 +82,7 @@ export default function CharacterAutofocusManager() {
       }
     });
     setPreviousRenderBattleId(previousBattleId);
-    setpreviousActiveCombatantIdOption(activeCombatantIdOption);
+    setPreviousActiveCombatantIdOption(activeCombatantIdOption);
   }, [focusedCharacterId, activeCombatantIdOption, battleIdOption]);
 
   return <></>;

@@ -31,7 +31,6 @@ export default function startNewModelActions(
     this.activeModelActions[CombatantModelActionType.Idle] === undefined
   ) {
     // idle if there's nothing left to do
-    if (this.entityId === "55") console.log("idling for lack of somethin better to do");
     this.startModelAction(mutateGameState, {
       type: CombatantModelActionType.Idle,
     });
@@ -43,8 +42,6 @@ export function startModelAction(
   mutateGameState: MutateState<GameState>,
   modelAction: CombatantModelAction
 ) {
-  if (this.entityId === "55" && modelAction.type === CombatantModelActionType.Idle)
-    console.log("STARTED IDLE MODEL ACTION");
   mutateGameState((state) => {
     const gameStateActiveActions = state.babylonControlledCombatantDOMData[this.entityId];
     gameStateActiveActions?.activeModelActions.push(modelAction.type);
@@ -73,13 +70,14 @@ export function startModelAction(
   // put new action progress tracker in active actions object
   const modelActionTracker = new CombatantModelActionProgressTracker(modelAction);
 
-  this.animationManager.startAnimationWithTransition(newAnimationName, 500, {
-    shouldLoop: isRepeatingAnimation,
-    animationEventOption,
-    onComplete: () => {
-      modelActionTracker.animationEnded = true;
-    },
-  });
+  if (newAnimationName)
+    this.animationManager.startAnimationWithTransition(newAnimationName, 500, {
+      shouldLoop: isRepeatingAnimation,
+      animationEventOption,
+      onComplete: () => {
+        modelActionTracker.animationEnded = true;
+      },
+    });
 
   this.activeModelActions[modelAction.type] = modelActionTracker;
 }
