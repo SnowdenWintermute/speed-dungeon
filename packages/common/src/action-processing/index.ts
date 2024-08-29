@@ -1,4 +1,5 @@
 export * from "./action-command";
+export * from "./action-command-receiver";
 import { CombatAction } from "../combat";
 import { EquipmentSlot } from "../items";
 

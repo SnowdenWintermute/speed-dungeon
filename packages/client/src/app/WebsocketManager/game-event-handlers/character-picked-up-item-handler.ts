@@ -7,14 +7,14 @@ import {
   ERROR_MESSAGES,
   Item,
 } from "@speed-dungeon/common";
-import clientCharacterActionHandler from "../client-character-action-handler";
+import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 
 export default function characterPickedUpItemHandler(
   mutateGameState: MutateState<GameState>,
   mutateAlertState: MutateState<AlertState>,
   characterAndItem: CharacterAndItem
 ) {
-  clientCharacterActionHandler(
+  characterAssociatedDataProvider(
     mutateGameState,
     mutateAlertState,
     characterAndItem.characterId,

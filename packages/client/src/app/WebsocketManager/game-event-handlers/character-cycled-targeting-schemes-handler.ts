@@ -1,8 +1,8 @@
 import { AlertState } from "@/stores/alert-store";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
-import clientCharacterActionHandler from "../client-character-action-handler";
 import { CharacterAssociatedData, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
+import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 
 export default function characterCycledTargetingSchemesHandler(
   mutateGameState: MutateState<GameState>,
@@ -10,7 +10,7 @@ export default function characterCycledTargetingSchemesHandler(
   characterId: string,
   playerUsername: string
 ) {
-  clientCharacterActionHandler(
+  characterAssociatedDataProvider(
     mutateGameState,
     mutateAlertState,
     characterId,

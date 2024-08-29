@@ -1,11 +1,13 @@
 import { useLobbyStore } from "@/stores/lobby-store";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import {
+  ActionCommand,
   AdventuringParty,
   CharacterAndItem,
   CharacterAndSlot,
   ClientToServerEvent,
   CombatAction,
+  ERROR_MESSAGES,
   EquipItemPacket,
   NextOrPrevious,
   ServerToClientEvent,
@@ -33,11 +35,11 @@ import characterEquippedItemHandler from "./game-event-handlers/character-equipp
 import characterPickedUpItemHandler from "./game-event-handlers/character-picked-up-item-handler";
 import gameStartedHandler from "./game-event-handlers/game-started-handler";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
-import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import characterCycledTargetsHandler from "./game-event-handlers/character-cycled-targets-handler";
 import characterSelectedCombatActionHandler from "./game-event-handlers/character-selected-combat-action-handler";
 import characterCycledTargetingSchemesHandler from "./game-event-handlers/character-cycled-targeting-schemes-handler";
 import playerLeftGameHandler from "./player-left-game-handler";
+import { ClientActionCommandReceiver } from "../action-command-receiver";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -50,6 +52,12 @@ function SocketManager() {
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const socketOption = useWebsocketStore().socketOption;
   const [connected, setConnected] = useState(false);
+
+  const actionCommandReceiver = new ClientActionCommandReceiver(
+    mutateGameStore,
+    mutateAlertStore,
+    mutateNextBabylonMessagingStore
+  );
 
   // setup socket
   useEffect(() => {
@@ -183,23 +191,41 @@ function SocketManager() {
     socket.on(ServerToClientEvent.BattleFullUpdate, (battleOption) => {
       battleFullUpdateHandler(mutateGameStore, mutateAlertStore, battleOption);
     });
-    socket.on(ServerToClientEvent.TurnResults, (turnResults) => {
-      mutateNextBabylonMessagingStore((state) => {
-        console.log("got turn results: ", turnResults);
-        state.nextToBabylonMessages.push({
-          type: NextToBabylonMessageTypes.NewTurnResults,
-          turnResults,
-        });
+    socket.on(ServerToClientEvent.ActionCommandPayloads, (entityId, payloads) => {
+      mutateGameStore((gameState) => {
+        const gameOption = gameState.game;
+        if (gameOption === null)
+          return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+        const game = gameOption;
+        const partyResult = gameState.getParty();
+        if (partyResult instanceof Error)
+          return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+        const party = partyResult;
+
+        const actionCommands = payloads.map(
+          (payload) => new ActionCommand(game.name, entityId, payload, actionCommandReceiver)
+        );
+
+        party.actionCommandManager.enqueueNewCommands(actionCommands);
       });
     });
-    socket.on(ServerToClientEvent.RawActionResults, (actionResults) => {
-      mutateNextBabylonMessagingStore((state) => {
-        state.nextToBabylonMessages.push({
-          type: NextToBabylonMessageTypes.NewActionResults,
-          actionResults,
-        });
-      });
-    });
+    // socket.on(ServerToClientEvent.TurnResults, (turnResults) => {
+    //   mutateNextBabylonMessagingStore((state) => {
+    //     console.log("got turn results: ", turnResults);
+    //     state.nextToBabylonMessages.push({
+    //       type: NextToBabylonMessageTypes.NewTurnResults,
+    //       turnResults,
+    //     });
+    //   });
+    // });
+    // socket.on(ServerToClientEvent.RawActionResults, (actionResults) => {
+    //   mutateNextBabylonMessagingStore((state) => {
+    //     state.nextToBabylonMessages.push({
+    //       type: NextToBabylonMessageTypes.NewActionResults,
+    //       actionResults,
+    //     });
+    //   });
+    // });
     socket.on(ServerToClientEvent.GameMessage, (message) => {
       gameMessageHandler(mutateGameStore, message);
     });

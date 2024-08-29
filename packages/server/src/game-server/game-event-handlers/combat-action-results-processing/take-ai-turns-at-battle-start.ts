@@ -23,9 +23,9 @@ export default function takeAiTurnsAtBattleStart(
   const aiControlledTurnResults = aiControlledTurnResultsResult;
   turnResults.push(...aiControlledTurnResults);
 
-  if (turnResults.length > 0) {
-    gameServer.io
-      .in(getPartyChannelName(game.name, party.name))
-      .emit(ServerToClientEvent.TurnResults, aiControlledTurnResults);
-  }
+  // if (turnResults.length > 0) {
+  //   gameServer.io
+  //     .in(getPartyChannelName(game.name, party.name))
+  //     .emit(ServerToClientEvent.TurnResults, aiControlledTurnResults);
+  // }
 }

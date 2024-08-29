@@ -51,6 +51,13 @@ import handleBattleVictory from "./game-event-handlers/combat-action-results-pro
 import selectCombatActionHandler from "./game-event-handlers/select-combat-action-handler";
 import cycleTargetsHandler from "./game-event-handlers/cycle-targets-handler";
 import cycleTargetingSchemesHandler from "./game-event-handlers/cycle-targeting-schemes-handler";
+import { payAbilityCostsActionCommandHandler } from "./game-event-handlers/action-command-handlers/pay-ability-costs";
+import moveIntoCombatActionPositionActionCommandHandler from "./game-event-handlers/action-command-handlers/move-into-combat-action-position";
+import performCombatActionActionCommandHandler from "./game-event-handlers/action-command-handlers/perform-combat-action";
+import returnHomeActionCommandHandler from "./game-event-handlers/action-command-handlers/return-home";
+import changeEquipmentActionCommandHandler from "./game-event-handlers/action-command-handlers/change-equipment";
+import battleResultActionCommandHandler from "./game-event-handlers/action-command-handlers/battle-results";
+import getGamePartyAndCombatant from "./utils/get-game-party-and-combatant";
 
 export type Username = string;
 export type SocketId = string;
@@ -82,25 +89,6 @@ export class GameServer implements ActionCommandReceiver {
     // }
     // }
   }
-  payAbilityCostsActionCommandHandler: (
-    combatantId: string,
-    payload: PayAbilityCostsActionCommandPayload
-  ) => void = () => {};
-  moveIntoCombatActionPositionActionCommandHandler: (
-    combatantId: string,
-    payload: MoveIntoCombatActionPositionActionCommandPayload
-  ) => void = () => {};
-  performCombatActionActionCommandHandler: (
-    combatantId: string,
-    payload: PerformCombatActionActionCommandPayload
-  ) => void = () => {};
-  returnHomeActionCommandHandler: (combatantId: string) => void = () => {};
-  changeEquipmentActionCommandHandler: (
-    combatantId: string,
-    payload: ChangeEquipmentActionCommandPayload
-  ) => void = () => {};
-  battleResultActionCommandHandler: (payload: BattleResultActionCommandPayload) => void = () => {};
-
   getConnection = getConnection;
   connectionHandler = connectionHandler;
   disconnectionHandler = disconnectionHandler;
@@ -130,12 +118,21 @@ export class GameServer implements ActionCommandReceiver {
   selectCombatActionHandler = selectCombatActionHandler;
   cycleTargetsHandler = cycleTargetsHandler;
   cycleTargetingSchemesHandler = cycleTargetingSchemesHandler;
+  // ACTION COMMAND HANDLERS
+  payAbilityCostsActionCommandHandler = payAbilityCostsActionCommandHandler;
+  moveIntoCombatActionPositionActionCommandHandler =
+    moveIntoCombatActionPositionActionCommandHandler;
+  performCombatActionActionCommandHandler = performCombatActionActionCommandHandler;
+  returnHomeActionCommandHandler = returnHomeActionCommandHandler;
+  changeEquipmentActionCommandHandler = changeEquipmentActionCommandHandler;
+  battleResultActionCommandHandler = battleResultActionCommandHandler;
   // UTILS
   getSocketCurrentGame = getSocketCurrentGame;
   getSocketIdsOfPlayersInOtherParties = getSocketIdsOfPlayersInOtherParties;
   getSocketIdOfPlayer = getSocketIdOfPlayer;
   emitErrorEventIfError = emitErrorEventIfError;
   characterActionHandler = characterActionHandler;
+  getGamePartyAndCombatant = getGamePartyAndCombatant;
   // ITEMS
   createItemGenerationDirectors = createItemGenerationDirectors;
   generateRandomItem = generateRandomItem;

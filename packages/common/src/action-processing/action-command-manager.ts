@@ -8,13 +8,14 @@ export class ActionCommandManager {
   enqueueNewCommands(commands: ActionCommand[]) {
     const queueWasPreviouslyEmpty = this.queue.length === 0;
     this.queue.push(...commands);
-    if (this.currentlyProcessing === null && queueWasPreviouslyEmpty) this.processCommand();
+    if (this.currentlyProcessing === null && queueWasPreviouslyEmpty) this.processNextCommand();
   }
 
-  processCommand() {
+  processNextCommand() {
     const nextCommand = this.queue.shift();
     if (nextCommand === undefined) return;
     this.currentlyProcessing = nextCommand;
-    nextCommand.execute();
+    const maybeError = nextCommand.execute();
+    if (maybeError instanceof Error) return console.error(maybeError);
   }
 }

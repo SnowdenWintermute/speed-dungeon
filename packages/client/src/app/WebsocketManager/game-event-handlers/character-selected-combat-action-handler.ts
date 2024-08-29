@@ -8,16 +8,15 @@ import {
   SpeedDungeonGame,
   getCombatActionProperties,
 } from "@speed-dungeon/common";
-import clientCharacterActionHandler from "../client-character-action-handler";
+import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 
 export default function characterSelectedCombatActionHandler(
   mutateGameState: MutateState<GameState>,
   mutateAlertState: MutateState<AlertState>,
   characterId: string,
-
   combatActionOption: null | CombatAction
 ) {
-  clientCharacterActionHandler(
+  characterAssociatedDataProvider(
     mutateGameState,
     mutateAlertState,
     characterId,
