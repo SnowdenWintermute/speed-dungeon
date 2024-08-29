@@ -1,4 +1,5 @@
 import {
+  ActionCommand,
   CharacterAssociatedData,
   CombatTurnResult,
   ERROR_MESSAGES,
@@ -56,71 +57,78 @@ export default function useSelectedCombatActionHandler(
       actionCommandPayloads
     );
 
-  // START PROCESSING ACTION COMMANDS
+  // CREATE ACTION COMMANDS FROM PAYLOADS
+  const actionCommands = actionCommandPayloads.map(
+    (payload) => new ActionCommand(character.entityProperties.id, payload, this)
+  );
+
+  party.actionCommandManager.enqueueNewCommands(actionCommands);
+
+  // START PROCESSING ACTION COMMANDS IN THEIR PARTY'S QUEUE IF NOT ALREADY DOING SO
   // - once done:
   //   * check if party wiped and send wipe result to client
   //   * check if enemies defeated and send victory result to client
   //   * if next turn is ai controlled, create action commands
   //     for their turn and send to client
 
-  // APPLY ACTION RESULTS
-  SpeedDungeonGame.applyActionResults(game, actionResults, party.battleId);
+  // // APPLY ACTION RESULTS
+  // SpeedDungeonGame.applyActionResults(game, actionResults, party.battleId);
 
-  // check if party or monsters wiped
-  const monsterIds = Object.values(party.currentRoom.monsters).map(
-    (monster) => monster.entityProperties.id
-  );
-  partyWipesResult = checkForDefeatedCombatantGroups(game, party.characterPositions, monsterIds);
-  if (partyWipesResult instanceof Error) return partyWipesResult;
+  // // check if party or monsters wiped
+  // const monsterIds = Object.values(party.currentRoom.monsters).map(
+  //   (monster) => monster.entityProperties.id
+  // );
+  // partyWipesResult = checkForDefeatedCombatantGroups(game, party.characterPositions, monsterIds);
+  // if (partyWipesResult instanceof Error) return partyWipesResult;
 
-  // check if action ended turn
-  let actionsEndedTurn = false;
-  actionResults.forEach((actionResult) => {
-    if (actionResult.endsTurn) actionsEndedTurn = true;
-  });
+  // // check if action ended turn
+  // let actionsEndedTurn = false;
+  // actionResults.forEach((actionResult) => {
+  //   if (actionResult.endsTurn) actionsEndedTurn = true;
+  // });
 
-  if (actionsEndedTurn) {
-    const turns: CombatTurnResult[] = [];
-    turns.push({ combatantId: character.entityProperties.id, actionResults });
-    if (
-      !partyWipesResult.alliesDefeated &&
-      !partyWipesResult.opponentsDefeated &&
-      battleOption !== null
-    ) {
-      // only end turn if still alive; dead combatants already have their turn trackers
-      // removed
-      if (character.combatantProperties.hitPoints > 0) {
-        console.log("ending turn");
-        const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, battleOption);
-        if (maybeError instanceof Error) return maybeError;
-      }
-      const aiControlledTurnResults = takeAiControlledTurnsIfAppropriate(game, battleOption);
-      if (aiControlledTurnResults instanceof Error) return aiControlledTurnResults;
-      turns.push(...aiControlledTurnResults);
-      // ai turns may have wiped a party
-      partyWipesResult = checkForDefeatedCombatantGroups(
-        game,
-        party.characterPositions,
-        monsterIds
-      );
-      if (partyWipesResult instanceof Error) return partyWipesResult;
-    }
-    // this.io
-    //   .in(getPartyChannelName(game.name, party.name))
-    //   .emit(ServerToClientEvent.TurnResults, turns);
-  } else {
-    // emit raw action results
-    // this.io
-    //   .in(getPartyChannelName(game.name, party.name))
-    //   .emit(ServerToClientEvent.RawActionResults, actionResults);
-  }
-  // emit battle end report if wiped or defeated monsters
-  if (partyWipesResult instanceof Error) return partyWipesResult;
-  if (partyWipesResult.alliesDefeated) {
-    const partyWipeResult = this.handlePartyWipe(game, party);
-    if (partyWipeResult instanceof Error) return partyWipeResult;
-  } else if (partyWipesResult.opponentsDefeated) {
-    const battleVictoryResult = this.handleBattleVictory(party);
-    if (battleVictoryResult instanceof Error) return battleVictoryResult;
-  }
+  // if (actionsEndedTurn) {
+  //   const turns: CombatTurnResult[] = [];
+  //   turns.push({ combatantId: character.entityProperties.id, actionResults });
+  //   if (
+  //     !partyWipesResult.alliesDefeated &&
+  //     !partyWipesResult.opponentsDefeated &&
+  //     battleOption !== null
+  //   ) {
+  //     // only end turn if still alive; dead combatants already have their turn trackers
+  //     // removed
+  //     if (character.combatantProperties.hitPoints > 0) {
+  //       console.log("ending turn");
+  //       const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, battleOption);
+  //       if (maybeError instanceof Error) return maybeError;
+  //     }
+  //     const aiControlledTurnResults = takeAiControlledTurnsIfAppropriate(game, battleOption);
+  //     if (aiControlledTurnResults instanceof Error) return aiControlledTurnResults;
+  //     turns.push(...aiControlledTurnResults);
+  //     // ai turns may have wiped a party
+  //     partyWipesResult = checkForDefeatedCombatantGroups(
+  //       game,
+  //       party.characterPositions,
+  //       monsterIds
+  //     );
+  //     if (partyWipesResult instanceof Error) return partyWipesResult;
+  //   }
+  //   // this.io
+  //   //   .in(getPartyChannelName(game.name, party.name))
+  //   //   .emit(ServerToClientEvent.TurnResults, turns);
+  // } else {
+  //   // emit raw action results
+  //   // this.io
+  //   //   .in(getPartyChannelName(game.name, party.name))
+  //   //   .emit(ServerToClientEvent.RawActionResults, actionResults);
+  // }
+  // // emit battle end report if wiped or defeated monsters
+  // if (partyWipesResult instanceof Error) return partyWipesResult;
+  // if (partyWipesResult.alliesDefeated) {
+  //   const partyWipeResult = this.handlePartyWipe(game, party);
+  //   if (partyWipeResult instanceof Error) return partyWipeResult;
+  // } else if (partyWipesResult.opponentsDefeated) {
+  //   const battleVictoryResult = this.handleBattleVictory(party);
+  //   if (battleVictoryResult instanceof Error) return battleVictoryResult;
+  // }
 }

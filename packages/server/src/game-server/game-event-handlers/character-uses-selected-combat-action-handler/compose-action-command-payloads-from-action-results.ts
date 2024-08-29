@@ -15,7 +15,11 @@ export default function composeActionCommandPayloadsFromActionResults(
   const moveIntoPosition = createMoveIntoCombatActionPositionActionCommand(actionResults[0]);
   payloads.push(moveIntoPosition);
 
+  let shouldEndTurn = false;
+
   for (const actionResult of actionResults) {
+    if (actionResult.endsTurn) shouldEndTurn = true;
+
     payloads.push({
       type: ActionCommandType.PayAbilityCosts,
       mp: actionResult.manaCost,
@@ -41,7 +45,7 @@ export default function composeActionCommandPayloadsFromActionResults(
     });
   }
 
-  payloads.push({ type: ActionCommandType.ReturnHome });
+  payloads.push({ type: ActionCommandType.ReturnHome, shouldEndTurn });
 
   return payloads;
 }

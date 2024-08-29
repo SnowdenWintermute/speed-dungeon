@@ -18,31 +18,36 @@ export class ActionCommand {
   execute() {
     switch (this.payload.type) {
       case ActionCommandType.PayAbilityCosts:
-        return this.receiver.payAbilityCosts(this.entityId, this.payload);
-      // remove hp / mp / items from speedDungeonGame
+        return this.receiver.payAbilityCostsActionCommandHandler(this.entityId, this.payload);
       case ActionCommandType.MoveIntoCombatActionPosition:
-        return this.receiver.moveIntoCombatActionPosition(this.entityId, this.payload);
+        return this.receiver.moveIntoCombatActionPositionActionCommandHandler(
+          this.entityId,
+          this.payload
+        );
       case ActionCommandType.PerformCombatAction:
-        return this.receiver.performCombatAction(this.entityId, this.payload);
+        return this.receiver.performCombatActionActionCommandHandler(this.entityId, this.payload);
       case ActionCommandType.ReturnHome:
-        return this.receiver.returnHome(this.entityId);
+        return this.receiver.returnHomeActionCommandHandler(this.entityId);
       case ActionCommandType.ChangeEquipment:
-        return this.receiver.changeEquipment(this.entityId, this.payload);
+        return this.receiver.changeEquipmentActionCommandHandler(this.entityId, this.payload);
       case ActionCommandType.BattleResult:
-        return this.receiver.battleResult(this.payload);
+        return this.receiver.battleResultActionCommandHandler(this.payload);
     }
   }
 }
 
 export interface ActionCommandReceiver {
-  payAbilityCosts: (combatantId: string, payload: PayAbilityCostsActionCommandPayload) => void;
+  payAbilityCostsActionCommandHandler: (
+    combatantId: string,
+    payload: PayAbilityCostsActionCommandPayload
+  ) => void;
   // SERVER
   // - apply ability costs to game
   // - process the next command
   // CLIENT
   // - apply ability costs to game
   // - process the next command
-  moveIntoCombatActionPosition: (
+  moveIntoCombatActionPositionActionCommandHandler: (
     combatantId: string,
     payload: MoveIntoCombatActionPositionActionCommandPayload
   ) => void;
@@ -57,7 +62,7 @@ export interface ActionCommandReceiver {
   // - calculate their destination based on payload target and ability type (melee/ranged)
   // - start animating them toward their destination
   // - on reach destination, process the next command
-  performCombatAction: (
+  performCombatActionActionCommandHandler: (
     combatantId: string,
     payload: PerformCombatActionActionCommandPayload
   ) => void;
@@ -71,13 +76,13 @@ export interface ActionCommandReceiver {
   // - if melee, animate client to the "inner swing radius" unless they're already there
   // - start their attack animation with frame event
   // - frame event applies hpChange, mpChange, and status effect changes
-  // - frame event starts hit recovery or evade animation on targets
+  // - frame event starts hit recovery/evade/death animation on targets
   // - animation manager for target has separate slot for hit recovery animation as a "prioritized animation" but continues
   //   progressing "main animation" in the background so it can be switched back to after hit recovery completion
   // - handle any death by removing the affected combatant's turn tracker
   // - handle any ressurection by adding the affected combatant's turn tracker
   // - on animation complete, start next action
-  returnHome: (combatantId: string) => void;
+  returnHomeActionCommandHandler: (combatantId: string) => void;
   // SERVER
   // - end the combatant's turn if in combat and action required turn
   // - check for party wipes and victories and apply/emit them
@@ -85,15 +90,19 @@ export interface ActionCommandReceiver {
   // - if in combat, take ai controlled turn if appropriate
   // CLIENT
   // - end the combatant's turn if in combat and action required turn
+  // - set the combatant model's animation manager to translate it back to home position
   // - process next action command if any (ai actions in queue, party wipes, party defeats, equipment swaps initiated during last action)
-  changeEquipment: (combatantId: string, payload: ChangeEquipmentActionCommandPayload) => void;
+  changeEquipmentActionCommandHandler: (
+    combatantId: string,
+    payload: ChangeEquipmentActionCommandPayload
+  ) => void;
   // SERVER
   // - change the appropriate equipment
   // - emit that equipment has changed
   // CLIENT
   // - change the appropriate equipment
   // - remove the loading indicator for that slot
-  battleResult: (payload: BattleResultActionCommandPayload) => void;
+  battleResultActionCommandHandler: (payload: BattleResultActionCommandPayload) => void;
   // SERVER
   // - apply exp changes
   // - place items on the ground

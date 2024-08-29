@@ -1,7 +1,13 @@
 import {
+  ActionCommandReceiver,
+  BattleResultActionCommandPayload,
+  ChangeEquipmentActionCommandPayload,
   ClientToServerEventTypes,
   EquipmentType,
   IdGenerator,
+  MoveIntoCombatActionPositionActionCommandPayload,
+  PayAbilityCostsActionCommandPayload,
+  PerformCombatActionActionCommandPayload,
   ServerToClientEventTypes,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
@@ -49,7 +55,7 @@ import cycleTargetingSchemesHandler from "./game-event-handlers/cycle-targeting-
 export type Username = string;
 export type SocketId = string;
 
-export class GameServer {
+export class GameServer implements ActionCommandReceiver {
   games: HashMap<string, SpeedDungeonGame> = new HashMap();
   socketIdsByUsername: HashMap<Username, SocketId[]> = new HashMap();
   connections: HashMap<SocketId, BrowserTabSession> = new HashMap();
@@ -76,6 +82,25 @@ export class GameServer {
     // }
     // }
   }
+  payAbilityCostsActionCommandHandler: (
+    combatantId: string,
+    payload: PayAbilityCostsActionCommandPayload
+  ) => void = () => {};
+  moveIntoCombatActionPositionActionCommandHandler: (
+    combatantId: string,
+    payload: MoveIntoCombatActionPositionActionCommandPayload
+  ) => void = () => {};
+  performCombatActionActionCommandHandler: (
+    combatantId: string,
+    payload: PerformCombatActionActionCommandPayload
+  ) => void = () => {};
+  returnHomeActionCommandHandler: (combatantId: string) => void = () => {};
+  changeEquipmentActionCommandHandler: (
+    combatantId: string,
+    payload: ChangeEquipmentActionCommandPayload
+  ) => void = () => {};
+  battleResultActionCommandHandler: (payload: BattleResultActionCommandPayload) => void = () => {};
+
   getConnection = getConnection;
   connectionHandler = connectionHandler;
   disconnectionHandler = disconnectionHandler;
