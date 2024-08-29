@@ -45,5 +45,4 @@ export function updateCombatantHomePosition(
   if (monsterType !== null) positionSpacing *= -1;
 
   combatantProperties.homeLocation = new Vector3(positionSpacing, 0, rowPositionOffset);
-  console.log("set home position to : ", combatantProperties.homeLocation);
 }

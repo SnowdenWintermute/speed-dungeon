@@ -1,20 +1,22 @@
 import {
-  ActionCommand,
+  ActionCommandPayload,
   ActionCommandType,
   ActionResult,
   CombatActionTargetType,
   combatActionRequiresMeleeRange,
 } from "@speed-dungeon/common";
 
-export default function composeActionCommandsFromActionResults(actionResults: ActionResult[]) {
-  if (!actionResults[0]) return;
+export default function composeActionCommandPayloadsFromActionResults(
+  actionResults: ActionResult[]
+) {
+  if (!actionResults[0]) return [];
 
-  const actionCommands: ActionCommand[] = [];
+  const payloads: ActionCommandPayload[] = [];
   const moveIntoPosition = createMoveIntoCombatActionPositionActionCommand(actionResults[0]);
-  actionCommands.push(moveIntoPosition);
+  payloads.push(moveIntoPosition);
 
   for (const actionResult of actionResults) {
-    actionCommands.push({
+    payloads.push({
       type: ActionCommandType.PayAbilityCosts,
       mp: actionResult.manaCost,
       hp: 0,
@@ -30,7 +32,7 @@ export default function composeActionCommandsFromActionResults(actionResults: Ac
         };
       }
 
-    actionCommands.push({
+    payloads.push({
       type: ActionCommandType.PerformCombatAction,
       combatAction: actionResult.action,
       hpChangesByEntityId,
@@ -39,12 +41,14 @@ export default function composeActionCommandsFromActionResults(actionResults: Ac
     });
   }
 
-  actionCommands.push({ type: ActionCommandType.ReturnHome });
+  payloads.push({ type: ActionCommandType.ReturnHome });
+
+  return payloads;
 }
 
 function createMoveIntoCombatActionPositionActionCommand(
   actionResult: ActionResult
-): ActionCommand {
+): ActionCommandPayload {
   const isMelee = combatActionRequiresMeleeRange(actionResult.action);
 
   let primaryTargetId: string;

@@ -1,7 +1,8 @@
 import { DungeonRoom, DungeonRoomType, PlayerCharacter } from "../adventuring_party";
 import { DescendOrExplore } from "../adventuring_party/update-player-readiness";
 import { Battle, BattleConclusion } from "../battle";
-import { ActionResult, CombatAction, CombatTurnResult } from "../combat";
+import { CombatAction } from "../combat";
+import { ActionCommandPayload } from "../action-processing";
 import { SpeedDungeonGame } from "../game";
 import { EquipmentSlot, Item } from "../items";
 import { NextOrPrevious } from "../primatives";
@@ -28,7 +29,7 @@ export enum ServerToClientEvent {
   DungeonRoomTypesOnCurrentFloor = "17",
   DungeonRoomUpdate = "18",
   BattleFullUpdate = "19",
-  TurnResults = "20",
+  ActionCommandPayloads = "20",
   GameMessage = "21",
   BattleReport = "22",
   CharacterDroppedItem = "23",
@@ -36,7 +37,7 @@ export enum ServerToClientEvent {
   CharacterUnequippedItem = "25",
   CharacterEquippedItem = "26",
   CharacterPickedUpItem = "27",
-  RawActionResults = "28",
+  // RawActionResults = "28",
   CharacterSelectedCombatAction = "29",
   CharacterCycledTargets = "30",
   CharacterCycledTargetingSchemes = "31",
@@ -79,7 +80,10 @@ export interface ServerToClientEventTypes {
   ) => void;
   [ServerToClientEvent.DungeonRoomUpdate]: (dungeonRoom: DungeonRoom) => void;
   [ServerToClientEvent.BattleFullUpdate]: (battleOption: null | Battle) => void;
-  [ServerToClientEvent.TurnResults]: (turnResults: CombatTurnResult[]) => void;
+  [ServerToClientEvent.ActionCommandPayloads]: (
+    entityId: string,
+    payloads: ActionCommandPayload[]
+  ) => void;
   [ServerToClientEvent.GameMessage]: (message: GameMessage) => void;
   [ServerToClientEvent.BattleReport]: (report: BattleReport) => void;
   [ServerToClientEvent.CharacterDroppedItem]: (characterAndItem: CharacterAndItem) => void;
@@ -87,7 +91,7 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.CharacterUnequippedItem]: (characterAndItem: CharacterAndSlot) => void;
   [ServerToClientEvent.CharacterEquippedItem]: (characterAndItem: EquipItemPacket) => void;
   [ServerToClientEvent.CharacterPickedUpItem]: (characterAndItem: CharacterAndItem) => void;
-  [ServerToClientEvent.RawActionResults]: (actionResults: ActionResult[]) => void;
+  // [ServerToClientEvent.RawActionResults]: (actionResults: ActionResult[]) => void;
   [ServerToClientEvent.CharacterSelectedCombatAction]: (
     characterId: string,
     combatActionOption: null | CombatAction

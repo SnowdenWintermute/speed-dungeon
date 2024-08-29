@@ -88,12 +88,6 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
   for (const monster of Object.values(party.currentRoom.monsters))
     updateCombatantHomePosition(monster.entityProperties.id, monster.combatantProperties, party);
 
-  console.log(
-    "MONSTERS: ",
-    Object.values(party.currentRoom.monsters).map(
-      (monster) => monster.combatantProperties.homeLocation
-    )
-  );
   party.roomsExplored.onCurrentFloor += 1;
   party.roomsExplored.total += 1;
 

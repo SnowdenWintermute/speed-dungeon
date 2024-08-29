@@ -1,5 +1,4 @@
 import {
-  ActionResult,
   CharacterAssociatedData,
   CombatTurnResult,
   ERROR_MESSAGES,
@@ -11,14 +10,13 @@ import { GameServer } from "../..";
 import validateCombatActionUse from "../combat-action-results-processing/validate-combat-action-use";
 import checkForDefeatedCombatantGroups from "../combat-action-results-processing/check-for-defeated-combatant-groups";
 import takeAiControlledTurnsIfAppropriate from "../combat-action-results-processing/take-ai-controlled-turns-if-appropriate";
+import composeActionCommandPayloadsFromActionResults from "./compose-action-command-payloads-from-action-results";
 
 export default function useSelectedCombatActionHandler(
   this: GameServer,
   characterAssociatedData: CharacterAssociatedData
 ) {
   const { game, party, character } = characterAssociatedData;
-
-  const actionResultsForClient: ActionResult[] = [];
 
   const { selectedCombatAction } = character.combatantProperties;
   if (selectedCombatAction === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
@@ -45,7 +43,26 @@ export default function useSelectedCombatActionHandler(
   );
   if (actionResultsResult instanceof Error) return actionResultsResult;
   const actionResults = actionResultsResult;
-  actionResultsForClient.push(...actionResults);
+
+  // COMPOSE ACTION COMMANDS
+  const actionCommandPayloads = composeActionCommandPayloadsFromActionResults(actionResults);
+
+  // SEND ACTION COMMAND PAYLOADS TO CLIENT
+  this.io
+    .in(getPartyChannelName(game.name, party.name))
+    .emit(
+      ServerToClientEvent.ActionCommandPayloads,
+      character.entityProperties.id,
+      actionCommandPayloads
+    );
+
+  // START PROCESSING ACTION COMMANDS
+  // - once done:
+  //   * check if party wiped and send wipe result to client
+  //   * check if enemies defeated and send victory result to client
+  //   * if next turn is ai controlled, create action commands
+  //     for their turn and send to client
+
   // APPLY ACTION RESULTS
   SpeedDungeonGame.applyActionResults(game, actionResults, party.battleId);
 
@@ -88,14 +105,14 @@ export default function useSelectedCombatActionHandler(
       );
       if (partyWipesResult instanceof Error) return partyWipesResult;
     }
-    this.io
-      .in(getPartyChannelName(game.name, party.name))
-      .emit(ServerToClientEvent.TurnResults, turns);
+    // this.io
+    //   .in(getPartyChannelName(game.name, party.name))
+    //   .emit(ServerToClientEvent.TurnResults, turns);
   } else {
     // emit raw action results
-    this.io
-      .in(getPartyChannelName(game.name, party.name))
-      .emit(ServerToClientEvent.RawActionResults, actionResults);
+    // this.io
+    //   .in(getPartyChannelName(game.name, party.name))
+    //   .emit(ServerToClientEvent.RawActionResults, actionResults);
   }
   // emit battle end report if wiped or defeated monsters
   if (partyWipesResult instanceof Error) return partyWipesResult;

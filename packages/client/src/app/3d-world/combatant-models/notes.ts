@@ -37,13 +37,18 @@
 // client sends combat action input
 // - attack
 // - client locks own interface
+// - if in combat, other characters will already have their actions locked since not their turn
+// - out of combat, other characters may input actions but will only "ready up" animation as they wait
+//   for the first action to finish (and lock their ui)
+// - clients may unequip or equip instantly if no action is in progress, otherwise show a loading indicator
+//   over their equipped slot ui and only equip it once actions are done playing
 // - on recieve next reply with own entity id, will unlock at end of command sequence playback
 //
 // server creates a chain of commands
 // - lock entity
 // - move toward destination
 // - perform combat action (mh melee attack) roll damage (entity id, damage, isCrit, element, isWeakness)
-// - check if entity would still be alive at this point, if not then skip offhand attack
+// - check if entity would still be alive at this point, if not then skip offhand attack - NO! action result already checks this!
 // - perform combat action (mh offhand attack) (entity id, damage, isCrit, element, isWeakness)
 // - return home
 // - end turn
