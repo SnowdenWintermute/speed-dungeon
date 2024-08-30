@@ -1,13 +1,8 @@
 import { GameServer } from "..";
 import {
-  AdventuringParty,
-  COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
-  COMBATANT_POSITION_SPACING_SIDE,
   CombatantClass,
-  CombatantProperties,
   ERROR_MESSAGES,
   EntityId,
-  MonsterType,
   PlayerCharacter,
   ServerToClientEvent,
   SpeedDungeonGame,

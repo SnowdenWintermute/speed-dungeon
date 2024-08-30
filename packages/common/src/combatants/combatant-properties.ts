@@ -31,6 +31,7 @@ import { Inventory } from "./inventory";
 import setHpAndMpToMax from "./set-hp-and-mp-to-max";
 import unequipSlots from "./unequip-slots";
 import { immerable } from "immer";
+import { DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app_consts";
 
 export class CombatantProperties {
   [immerable] = true;
@@ -51,6 +52,14 @@ export class CombatantProperties {
   // inherent_elemental_affinities: HashMap<MagicalElements; i16>,
   selectedCombatAction: null | CombatAction = null;
   combatActionTarget: null | CombatActionTarget = null;
+  inputLock: {
+    timeLocked: null | number;
+    lockDuration: null | number;
+  } = {
+    timeLocked: null,
+    lockDuration: null,
+  };
+  hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   constructor(
     public combatantClass: CombatantClass,
     public combatantSpecies: CombatantSpecies,
@@ -79,6 +88,42 @@ export class CombatantProperties {
   static dropEquippedItem = dropEquippedItem;
   static canUseItem = combatantCanUseItem;
   static equipItem = equipItem;
+  static lockInput(combatantProperties: CombatantProperties) {
+    combatantProperties.inputLock.timeLocked = Date.now();
+    combatantProperties.inputLock.lockDuration = null;
+  }
+  static increaseLockoutDuration(combatantProperties: CombatantProperties, ms: number) {
+    if (combatantProperties.inputLock.lockDuration === null)
+      combatantProperties.inputLock.lockDuration = ms;
+    else combatantProperties.inputLock.lockDuration += ms;
+  }
+  static isLocked(combatantProperties: CombatantProperties) {
+    const { timeLocked, lockDuration } = combatantProperties.inputLock;
+    if (timeLocked !== null && lockDuration === null) return true;
+    if (timeLocked !== null && Date.now() < timeLocked + (lockDuration ?? 0)) return true;
+    return false;
+  }
+  static getPositionForActionUse(
+    user: CombatantProperties,
+    target: CombatantProperties,
+    isMelee: boolean
+  ) {
+    let destinationLocation = user.homeLocation;
+    if (!isMelee) {
+      // assign destination to move a little forward (default ranged attack/spell casting position)
+      const { x, y, z } = user.homeLocation;
+      const direction = user.homeLocation.subtract(new Vector3(x, y, 0));
+      destinationLocation = user.homeLocation.add(direction.scale(1.5));
+    } else {
+      // assign destination based on target location and their hitbox radii
+      const direction = target.homeLocation.subtract(user.homeLocation).normalize();
+
+      destinationLocation = target.homeLocation.subtract(
+        direction.scale(target.hitboxRadius + user.hitboxRadius)
+      );
+    }
+    return destinationLocation;
+  }
 }
 
 export type ExperiencePoints = {
