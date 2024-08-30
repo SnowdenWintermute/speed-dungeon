@@ -12,6 +12,7 @@ export enum NextToBabylonMessageTypes {
   RemoveCombatantModel,
   NewTurnResults,
   NewActionResults,
+  StartMovingCombatantIntoCombatActionPosition,
 }
 
 export interface CombatantModelBlueprint {
@@ -45,8 +46,16 @@ type NewActionResultsMessage = {
   actionResults: ActionResult[];
 };
 
+type StartMovingCombatantIntoCombatActionPositionMessage = {
+  type: NextToBabylonMessageTypes.StartMovingCombatantIntoCombatActionPosition;
+  destinationLocation: Vector3;
+  totalTimeToReachDestination: number;
+  onComplete: () => void;
+};
+
 export type NextToBabylonMessage =
   | SpawnCombatantModelMessage
   | RemoveCombatantModelMessage
   | NewTurnResultsMessage
-  | NewActionResultsMessage;
+  | NewActionResultsMessage
+  | StartMovingCombatantIntoCombatActionPositionMessage;

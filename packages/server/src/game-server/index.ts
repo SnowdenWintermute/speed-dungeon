@@ -1,13 +1,8 @@
 import {
   ActionCommandReceiver,
-  BattleResultActionCommandPayload,
-  ChangeEquipmentActionCommandPayload,
   ClientToServerEventTypes,
   EquipmentType,
   IdGenerator,
-  MoveIntoCombatActionPositionActionCommandPayload,
-  PayAbilityCostsActionCommandPayload,
-  PerformCombatActionActionCommandPayload,
   ServerToClientEventTypes,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
@@ -46,7 +41,6 @@ import pickUpItemHandler from "./game-event-handlers/pick-up-item-handler";
 import { ItemGenerationDirector } from "./item-generation/item-generation-director";
 import { createItemGenerationDirectors } from "./item-generation/create-item-generation-directors";
 import { generateRandomItem } from "./item-generation/generate-random-item";
-import useSelectedCombatActionHandler from "./game-event-handlers/character-uses-selected-combat-action-handler";
 import handleBattleVictory from "./game-event-handlers/combat-action-results-processing/handle-battle-victory";
 import selectCombatActionHandler from "./game-event-handlers/select-combat-action-handler";
 import cycleTargetsHandler from "./game-event-handlers/cycle-targets-handler";
@@ -58,6 +52,7 @@ import returnHomeActionCommandHandler from "./game-event-handlers/action-command
 import changeEquipmentActionCommandHandler from "./game-event-handlers/action-command-handlers/change-equipment";
 import battleResultActionCommandHandler from "./game-event-handlers/action-command-handlers/battle-results";
 import getGamePartyAndCombatant from "./utils/get-game-party-and-combatant";
+import useSelectedCombatActionHandler from "./game-event-handlers/character-uses-selected-combat-action-handler";
 
 export type Username = string;
 export type SocketId = string;

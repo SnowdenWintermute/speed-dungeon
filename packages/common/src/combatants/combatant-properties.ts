@@ -1,4 +1,4 @@
-import { Vector3 } from "babylonjs";
+import { Vector3, Wav2Decode } from "babylonjs";
 import { CombatAction } from "../combat/combat-actions";
 import { PhysicalDamageType } from "../combat/hp-change-source-types";
 import { MagicalElement } from "../combat/magical-elements";
@@ -31,7 +31,7 @@ import { Inventory } from "./inventory";
 import setHpAndMpToMax from "./set-hp-and-mp-to-max";
 import unequipSlots from "./unequip-slots";
 import { immerable } from "immer";
-import { DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app_consts";
+import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app_consts";
 
 export class CombatantProperties {
   [immerable] = true;
@@ -116,13 +116,24 @@ export class CombatantProperties {
       destinationLocation = user.homeLocation.add(direction.scale(1.5));
     } else {
       // assign destination based on target location and their hitbox radii
-      const direction = target.homeLocation.subtract(user.homeLocation).normalize();
+      // we're recreating this vec3 because when
+      // combatants are copied to the client they don't keep their Vector3 methods
+      const direction = new Vector3(...Object.values(target.homeLocation))
+        .subtract(user.homeLocation)
+        .normalize();
 
-      destinationLocation = target.homeLocation.subtract(
+      destinationLocation = new Vector3(...Object.values(target.homeLocation)).subtract(
         direction.scale(target.hitboxRadius + user.hitboxRadius)
       );
     }
-    return destinationLocation;
+
+    const distance = Vector3.Distance(destinationLocation, user.homeLocation);
+
+    const speedMultiplier = 1;
+    const totalTimeToReachDestination =
+      COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;
+
+    return { destinationLocation, distance, totalTimeToReachDestination };
   }
 }
 

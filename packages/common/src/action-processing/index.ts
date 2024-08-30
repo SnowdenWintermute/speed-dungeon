@@ -65,3 +65,20 @@ export type ActionCommandPayload =
   | PerformCombatActionActionCommandPayload
   | ChangeEquipmentActionCommandPayload
   | BattleResultActionCommandPayload;
+
+export function formatActionCommandType(type: ActionCommandType) {
+  switch (type) {
+    case ActionCommandType.PayAbilityCosts:
+      return "Pay ability costs";
+    case ActionCommandType.MoveIntoCombatActionPosition:
+      return "Move into combat action position";
+    case ActionCommandType.PerformCombatAction:
+      return "Perform combat action";
+    case ActionCommandType.ReturnHome:
+      return "Return home";
+    case ActionCommandType.ChangeEquipment:
+      return "Change equipment";
+    case ActionCommandType.BattleResult:
+      return "Battle result";
+  }
+}

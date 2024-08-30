@@ -37,5 +37,16 @@ export default function handleMessageFromNext(this: GameWorld, message: NextToBa
         combatantModelOption.actionResultsQueue.push(...message.actionResults);
       }
       break;
+    case NextToBabylonMessageTypes.StartMovingCombatantIntoCombatActionPosition:
+      console.log("handling move into position message: ", message);
+
+      // const lookingAtMatrix = Matrix.LookAtLH(
+      //   actionUserModel.rootTransformNode.position,
+      //   targetModel.rootTransformNode.position,
+      //   Vector3.Up()
+      // ).invert();
+      // destinationQuaternion = Quaternion.FromRotationMatrix(lookingAtMatrix);
+      message.onComplete();
+      break;
   }
 }

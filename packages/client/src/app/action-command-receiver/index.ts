@@ -6,10 +6,10 @@ import {
   ActionCommandReceiver,
   BattleResultActionCommandPayload,
   ChangeEquipmentActionCommandPayload,
-  MoveIntoCombatActionPositionActionCommandPayload,
-  PayAbilityCostsActionCommandPayload,
   PerformCombatActionActionCommandPayload,
 } from "@speed-dungeon/common";
+import payAbilityCostsActionCommandHandler from "./pay-ability-costs";
+import moveIntoCombatActionPositionActionCommandHandler from "./move-into-combat-action-position";
 
 export class ClientActionCommandReceiver implements ActionCommandReceiver {
   constructor(
@@ -17,16 +17,10 @@ export class ClientActionCommandReceiver implements ActionCommandReceiver {
     public mutateAlertState: MutateState<AlertState>,
     public mutateNextBabylonMessagingState: MutateState<NextBabylonMessagingState>
   ) {}
-  payAbilityCostsActionCommandHandler: (
-    gameName: string,
-    combatantId: string,
-    payload: PayAbilityCostsActionCommandPayload
-  ) => void = () => {};
-  moveIntoCombatActionPositionActionCommandHandler: (
-    gameName: string,
-    combatantId: string,
-    payload: MoveIntoCombatActionPositionActionCommandPayload
-  ) => void = () => {};
+  payAbilityCostsActionCommandHandler = payAbilityCostsActionCommandHandler;
+
+  moveIntoCombatActionPositionActionCommandHandler =
+    moveIntoCombatActionPositionActionCommandHandler;
   performCombatActionActionCommandHandler: (
     gameName: string,
     combatantId: string,

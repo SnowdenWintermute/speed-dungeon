@@ -7,9 +7,6 @@ import {
 import { ClientActionCommandReceiver } from ".";
 import { combatantAssociatedDataProvider } from "../WebsocketManager/combatant-associated-details-providers";
 
-// CLIENT
-// - apply ability costs to game
-// - process the next command
 export default function payAbilityCostsActionCommandHandler(
   this: ClientActionCommandReceiver,
   _gameName: string,
@@ -23,6 +20,10 @@ export default function payAbilityCostsActionCommandHandler(
     (combatantAssociatedData: CombatantAssociatedData) => handler(combatantAssociatedData, payload)
   );
 }
+
+// CLIENT
+// - apply ability costs to game
+// - process the next command
 
 function handler(
   combatantAssociatedData: CombatantAssociatedData,

@@ -114,13 +114,13 @@ export default function initiateGameEventListeners(
     );
   });
   socket.on(ClientToServerEvent.UseSelectedCombatAction, (characterId: string) => {
-    this.emitErrorEventIfError(socket, () =>
+    this.emitErrorEventIfError(socket, () => {
       this.characterActionHandler(
         socket.id,
         characterId,
         (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
           this.useSelectedCombatActionHandler(characterAssociatedData)
-      )
-    );
+      );
+    });
   });
 }

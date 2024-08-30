@@ -4,6 +4,7 @@ import {
   ERROR_MESSAGES,
   ServerToClientEvent,
   SpeedDungeonGame,
+  formatActionCommandType,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "../..";
@@ -15,6 +16,7 @@ export default function useSelectedCombatActionHandler(
   characterAssociatedData: CharacterAssociatedData
 ) {
   const { game, party, character } = characterAssociatedData;
+  console.log("character ", character.entityProperties.name, " used selected action");
 
   const { selectedCombatAction } = character.combatantProperties;
   if (selectedCombatAction === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
@@ -40,6 +42,10 @@ export default function useSelectedCombatActionHandler(
 
   // COMPOSE ACTION COMMANDS
   const actionCommandPayloads = composeActionCommandPayloadsFromActionResults(actionResults);
+  console.log(
+    "created payloads: ",
+    actionCommandPayloads.map((payload) => formatActionCommandType(payload.type))
+  );
 
   // SEND ACTION COMMAND PAYLOADS TO CLIENT
   this.io
@@ -53,6 +59,11 @@ export default function useSelectedCombatActionHandler(
   // CREATE ACTION COMMANDS FROM PAYLOADS
   const actionCommands = actionCommandPayloads.map(
     (payload) => new ActionCommand(game.name, character.entityProperties.id, payload, this)
+  );
+
+  console.log(
+    "commands: ",
+    actionCommands.map((command) => formatActionCommandType(command.payload.type))
   );
 
   // ENQUEUE AND START PROCESSING ACTION COMMANDS IN THEIR PARTY'S QUEUE IF NOT ALREADY DOING SO
