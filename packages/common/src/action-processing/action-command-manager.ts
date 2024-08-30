@@ -18,10 +18,10 @@ export class ActionCommandManager {
 
   processNextCommand() {
     const nextCommand = this.queue.shift();
-    // console.log(
-    //   "processing next command: ",
-    //   nextCommand ? formatActionCommandType(nextCommand.payload.type) : ""
-    // );
+    console.log(
+      "processing next command: ",
+      nextCommand ? formatActionCommandType(nextCommand.payload.type) : ""
+    );
     if (nextCommand === undefined) return;
     this.currentlyProcessing = nextCommand;
     const maybeError = nextCommand.execute();

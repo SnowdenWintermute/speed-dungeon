@@ -14,6 +14,7 @@ import { MutateState } from "@/stores/mutate-state";
 import { NextBabylonMessagingState } from "@/stores/next-babylon-messaging-store";
 import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import { GameState } from "@/stores/game-store";
+import cloneDeep from "lodash.clonedeep";
 
 export default function moveIntoCombatActionPositionActionCommandHandler(
   this: ClientActionCommandReceiver,
@@ -61,11 +62,14 @@ function handler(
       isMelee
     );
 
+  const targetPosition = cloneDeep(primaryTarget.combatantProperties.homeLocation);
+
   mutateNextBabylonMessagingState((state) => {
     state.nextToBabylonMessages.push({
       type: NextToBabylonMessageTypes.StartMovingCombatantIntoCombatActionPosition,
       destinationLocation,
       totalTimeToReachDestination,
+      targetPosition,
       onComplete: () => {
         mutateGameState((gameState) => {
           const partyResult = gameState.getParty();

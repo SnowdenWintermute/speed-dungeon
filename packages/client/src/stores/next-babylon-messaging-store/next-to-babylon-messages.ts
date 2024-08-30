@@ -49,6 +49,7 @@ type NewActionResultsMessage = {
 type StartMovingCombatantIntoCombatActionPositionMessage = {
   type: NextToBabylonMessageTypes.StartMovingCombatantIntoCombatActionPosition;
   destinationLocation: Vector3;
+  targetPosition: Vector3;
   totalTimeToReachDestination: number;
   onComplete: () => void;
 };

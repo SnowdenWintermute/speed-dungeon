@@ -5,6 +5,10 @@ import {
 import { GameWorld } from ".";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { ModelManagerMessageType } from "./model-manager";
+import { Matrix, Quaternion, Vector3 } from "babylonjs";
+import { CombatantModelActionType } from "../combatant-models/model-actions";
+import cloneDeep from "lodash.clonedeep";
+import startApproachDestinationModelAction from "./start-approach-destination-model-action";
 
 export default function handleMessageFromNext(this: GameWorld, message: NextToBabylonMessage) {
   switch (message.type) {
@@ -38,15 +42,7 @@ export default function handleMessageFromNext(this: GameWorld, message: NextToBa
       }
       break;
     case NextToBabylonMessageTypes.StartMovingCombatantIntoCombatActionPosition:
-      console.log("handling move into position message: ", message);
-
-      // const lookingAtMatrix = Matrix.LookAtLH(
-      //   actionUserModel.rootTransformNode.position,
-      //   targetModel.rootTransformNode.position,
-      //   Vector3.Up()
-      // ).invert();
-      // destinationQuaternion = Quaternion.FromRotationMatrix(lookingAtMatrix);
-      message.onComplete();
+      startApproachDestinationModelAction(this, message);
       break;
   }
 }
