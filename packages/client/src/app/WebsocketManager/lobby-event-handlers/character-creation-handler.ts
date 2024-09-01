@@ -1,4 +1,8 @@
-import { ERROR_MESSAGES, PlayerCharacter } from "@speed-dungeon/common";
+import {
+  ERROR_MESSAGES,
+  PlayerCharacter,
+  updateCombatantHomePosition,
+} from "@speed-dungeon/common";
 import { setAlert } from "../../components/alerts";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
@@ -24,5 +28,12 @@ export default function characterCreationHandler(
     party.characters[characterId] = character;
     party.characterPositions.push(characterId);
     player.characterIds.push(characterId);
+
+    for (const character of Object.values(party.characters))
+      updateCombatantHomePosition(
+        character.entityProperties.id,
+        character.combatantProperties,
+        party
+      );
   });
 }

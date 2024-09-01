@@ -10,7 +10,7 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import { AdventuringParty } from "@speed-dungeon/common";
+import { AdventuringParty, formatVector3 } from "@speed-dungeon/common";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
@@ -178,7 +178,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
         <div className="flex-grow" ref={nameAndBarsRef}>
           <div className="mb-1.5 flex justify-between text-lg">
             <span>
-              {entityProperties.name} {entityId}
+              {entityProperties.name} {entityId} {formatVector3(combatantProperties.homeLocation)}
               <UnspentAttributesButton
                 combatantProperties={combatantProperties}
                 handleClick={handleUnspentAttributesButtonClick}

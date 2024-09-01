@@ -6,6 +6,8 @@ import {
   COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
   COMBATANT_POSITION_SPACING_SIDE,
   CombatantDetails,
+  cloneVector3,
+  formatVector3,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common/src/monsters/monster-types";
 import { Vector3 } from "babylonjs";
@@ -55,6 +57,8 @@ export default function requestSpawnCombatantModel(
   let positionSpacing = -COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2;
   if (monsterType !== null) positionSpacing *= -1;
 
+  console.log("SPAWNING COMBATANT AT: ", formatVector3(combatantProperties.homeLocation));
+
   mutateNextBabylonMessagingStore((state) => {
     state.nextToBabylonMessages.push({
       type: NextToBabylonMessageTypes.SpawnCombatantModel,
@@ -63,7 +67,7 @@ export default function requestSpawnCombatantModel(
         species: combatantProperties.combatantSpecies,
         monsterType,
         class: combatantProperties.combatantClass,
-        startPosition: new Vector3(positionSpacing, 0, rowPositionOffset),
+        startPosition: cloneVector3(combatantProperties.homeLocation),
         startRotation,
         modelCorrectionRotation,
         modelDomPositionElement,

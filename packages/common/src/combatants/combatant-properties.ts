@@ -32,6 +32,7 @@ import setHpAndMpToMax from "./set-hp-and-mp-to-max";
 import unequipSlots from "./unequip-slots";
 import { immerable } from "immer";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app_consts";
+import { cloneVector3 } from "../utils";
 
 export class CombatantProperties {
   [immerable] = true;
@@ -116,18 +117,14 @@ export class CombatantProperties {
     if (!isMelee) {
       // assign destination to move a little forward (default ranged attack/spell casting position)
       const direction = CombatantProperties.getForward(user);
-      destinationLocation = new Vector3(...Object.values(user.homeLocation)).add(
-        direction.scale(1.5)
-      );
+      destinationLocation = cloneVector3(user.homeLocation).add(direction.scale(1.5));
     } else {
       // assign destination based on target location and their hitbox radii
       // we're recreating this vec3 because when
       // combatants are copied to the client they don't keep their Vector3 methods
-      const direction = new Vector3(...Object.values(target.homeLocation))
-        .subtract(user.homeLocation)
-        .normalize();
+      const direction = cloneVector3(target.homeLocation).subtract(user.homeLocation).normalize();
 
-      destinationLocation = new Vector3(...Object.values(target.homeLocation)).subtract(
+      destinationLocation = cloneVector3(target.homeLocation).subtract(
         direction.scale(target.hitboxRadius + user.hitboxRadius)
       );
     }
@@ -143,9 +140,7 @@ export class CombatantProperties {
 
   static getForward(combatantProperties: CombatantProperties) {
     const { x, y } = combatantProperties.homeLocation;
-    return new Vector3(...Object.values(combatantProperties.homeLocation)).subtract(
-      new Vector3(x, y, 0)
-    );
+    return cloneVector3(combatantProperties.homeLocation).subtract(new Vector3(x, y, 0));
   }
 }
 

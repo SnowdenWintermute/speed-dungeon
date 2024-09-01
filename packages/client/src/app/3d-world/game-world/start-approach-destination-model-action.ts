@@ -8,6 +8,8 @@ import {
   COMBATANT_TIME_TO_ROTATE_360,
   CombatantProperties,
   ERROR_MESSAGES,
+  cloneVector3,
+  formatVector3,
 } from "@speed-dungeon/common";
 import getCurrentParty from "@/utils/getCurrentParty";
 
@@ -47,6 +49,13 @@ export default function startApproachDestinationModelAction(
     const userHomeLocation = actionUser.combatantProperties.homeLocation;
     const targetHomeLocation = primaryTarget.combatantProperties.homeLocation;
 
+    console.log(
+      "userHomeLocation",
+      formatVector3(userHomeLocation),
+      "targetHomeLocation",
+      formatVector3(targetHomeLocation)
+    );
+
     const userCombatantModelOption = gameWorld.modelManager.combatantModels[actionUserId];
     if (userCombatantModelOption === undefined)
       return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
@@ -56,7 +65,7 @@ export default function startApproachDestinationModelAction(
     // - time to rotate
     const lookingAtMatrix = Matrix.LookAtLH(
       destinationLocation,
-      new Vector3(...Object.values(targetHomeLocation)),
+      cloneVector3(targetHomeLocation),
       Vector3.Up()
     ).invert();
     const destinationQuaternion = Quaternion.FromRotationMatrix(lookingAtMatrix);

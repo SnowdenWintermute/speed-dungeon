@@ -10,6 +10,8 @@ import {
   initateBattle,
   getPartyChannelName,
   updateCombatantHomePosition,
+  formatVector3,
+  getMonsterCombatantClass,
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
 import { DungeonRoom, DungeonRoomType } from "@speed-dungeon/common";
@@ -88,11 +90,18 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
   for (const monster of Object.values(party.currentRoom.monsters))
     updateCombatantHomePosition(monster.entityProperties.id, monster.combatantProperties, party);
 
+  console.log(
+    "PARTY NEW ROOM MONSTERS: ",
+    Object.values(party.currentRoom.monsters).map((monster) =>
+      formatVector3(monster.combatantProperties.homeLocation)
+    )
+  );
+
   party.roomsExplored.onCurrentFloor += 1;
   party.roomsExplored.total += 1;
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
-  this.io.to(partyChannelName).emit(ServerToClientEvent.DungeonRoomUpdate, newRoom);
+  this.io.to(partyChannelName).emit(ServerToClientEvent.DungeonRoomUpdate, party.currentRoom);
 
   if (Object.keys(newRoom.monsters).length > 0) {
     const battleGroupA = new BattleGroup(
