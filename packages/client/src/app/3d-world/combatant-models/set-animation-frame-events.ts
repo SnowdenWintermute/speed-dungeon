@@ -1,28 +1,27 @@
 import { AnimationEvent } from "babylonjs";
 import {
   ActionResult,
+  CombatAction,
   CombatActionType,
   CombatantAbilityName,
   ERROR_MESSAGES,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import { CombatantModelAction, CombatantModelActionType } from "./model-actions";
+import { CombatantModelActionType } from "./model-actions";
 import { GameWorld } from "../game-world";
 import { FloatingTextColor, startFloatingText } from "@/stores/game-store/floating-text";
 
 export default function getAnimationFrameEvents(
   gameWorld: GameWorld,
-  modelAction: CombatantModelAction
+  combatAction: CombatAction,
+  hpChanges: null | { [entityId: string]: { hpChange: number; isCrit: boolean } },
+  mpChanges: null | { [entityId: string]: number },
+  misses: string[]
 ) {
-  if (modelAction.type !== CombatantModelActionType.PerformCombatAction)
-    return new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED);
-
-  const { actionResult } = modelAction;
-
   let animationEventOption: null | AnimationEvent = null;
-  switch (actionResult.action.type) {
+  switch (combatAction.type) {
     case CombatActionType.AbilityUsed:
-      switch (actionResult.action.abilityName) {
+      switch (combatAction.abilityName) {
         case CombatantAbilityName.Attack:
         case CombatantAbilityName.AttackMeleeMainhand:
         // @todo - select correct frames for various attack animations
