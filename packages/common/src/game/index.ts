@@ -24,6 +24,7 @@ import allCombatantsInGroupAreDead from "../combat/all-combatants-in-group-are-d
 import { getPlayerParty } from "./get-player-party";
 import cycleCharacterTargetingSchemes from "../combat/targeting/cycle-character-targeting-schemes";
 import getActionResults from "../combat/action-results/get-action-results";
+import { ERROR_MESSAGES } from "../errors";
 
 export class SpeedDungeonGame {
   [immerable] = true;
@@ -54,4 +55,22 @@ export class SpeedDungeonGame {
   static tickCombatUntilNextCombatantIsActive = tickCombatUntilNextCombatantIsActive;
   static endActiveCombatantTurn = endActiveCombatantTurn;
   static allCombatantsInGroupAreDead = allCombatantsInGroupAreDead;
+  static handlePlayerDeath(
+    game: SpeedDungeonGame,
+    battleIdOption: null | string,
+    combatantId: string
+  ) {
+    if (battleIdOption === null) return;
+    // - handle any death by removing the affected combatant's turn tracker
+    const battleOption = game.battles[battleIdOption];
+    if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
+    const battle = battleOption;
+    let indexToRemoveOption = null;
+    battle.turnTrackers.forEach((turnTracker, i) => {
+      if (turnTracker.entityId === combatantId) {
+        indexToRemoveOption = i;
+      }
+    });
+    if (indexToRemoveOption !== null) battle.turnTrackers.splice(indexToRemoveOption, 1);
+  }
 }

@@ -1,5 +1,4 @@
 import {
-  AdventuringParty,
   CombatantAssociatedData,
   CombatantProperties,
   MoveIntoCombatActionPositionActionCommandPayload,
