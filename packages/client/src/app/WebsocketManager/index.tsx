@@ -181,12 +181,7 @@ function SocketManager() {
       newDungeonRoomTypesOnCurrentFloorHandler(mutateGameStore, mutateAlertStore, newRoomTypes);
     });
     socket.on(ServerToClientEvent.DungeonRoomUpdate, (newRoom) => {
-      newDungeonRoomHandler(
-        mutateGameStore,
-        mutateAlertStore,
-        mutateNextBabylonMessagingStore,
-        newRoom
-      );
+      newDungeonRoomHandler(mutateGameStore, mutateAlertStore, newRoom);
     });
     socket.on(ServerToClientEvent.BattleFullUpdate, (battleOption) => {
       battleFullUpdateHandler(mutateGameStore, mutateAlertStore, battleOption);

@@ -1,5 +1,6 @@
 import {
   AbstractMesh,
+  BaseTexture,
   BoundingInfo,
   Color3,
   Color4,
@@ -8,6 +9,7 @@ import {
   Mesh,
   MeshBuilder,
   Quaternion,
+  StandardMaterial,
   TransformNode,
   Vector3,
 } from "babylonjs";
@@ -19,7 +21,11 @@ import {
 } from "../utils";
 import { ModularCharacterPartCategory } from "./modular-character-parts";
 import { GameWorld } from "../game-world";
-import { ActionResult, ERROR_MESSAGES } from "@speed-dungeon/common";
+import {
+  ActionResult,
+  DEFAULT_HITBOX_RADIUS_FALLBACK,
+  ERROR_MESSAGES,
+} from "@speed-dungeon/common";
 import {
   CombatantModelAction,
   CombatantModelActionProgressTracker,
@@ -47,7 +53,7 @@ export class ModularCharacter {
   activeModelActions: Partial<
     Record<CombatantModelActionType, CombatantModelActionProgressTracker>
   > = {};
-  hitboxRadius: number = 0.8;
+  hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   homeLocation: {
     position: Vector3;
     rotation: Quaternion;
@@ -99,7 +105,7 @@ export class ModularCharacter {
       rotation: cloneDeep(this.rootTransformNode.rotationQuaternion!),
     };
 
-    // this.setUpDebugMeshes();
+    this.setUpDebugMeshes();
 
     // this.setShowBones();
   }
@@ -110,9 +116,23 @@ export class ModularCharacter {
   processActiveModelActions = processActiveModelActions;
 
   setUpDebugMeshes() {
-    const red = new Color3(255, 0, 0);
-    const blue = new Color3(0, 0, 255);
-    const green = new Color3(0, 255, 0);
+    const red = new Color3(1, 0, 0);
+    const blue = new Color3(0, 0, 1);
+    const green = new Color3(0.1, 0.5, 0.3);
+
+    const circle = MeshBuilder.CreateDisc(`${this.entityId}-hitbox-radius`, {
+      radius: this.hitboxRadius,
+      tessellation: 64,
+      sideOrientation: Mesh.DOUBLESIDE,
+    });
+    const material = new StandardMaterial("discMaterial");
+    material.diffuseColor = green; // Red color (RGB: 1, 0, 0)
+    circle.material = material;
+    circle.visibility = 0.5;
+    circle.setPositionWithLocalVector(this.homeLocation.position);
+    circle.translate(Vector3.Up(), 0.1);
+    circle.rotate(Vector3.Left(), Math.PI / 2);
+    circle.setParent(this.rootMesh);
 
     // const rootMeshDirection = this.rootMesh.forward;
     // const rootMeshForwardLocation = this.rootMesh.position.add(rootMeshDirection.scale(1.5));
@@ -128,6 +148,8 @@ export class ModularCharacter {
     const rootMeshLocationBox = MeshBuilder.CreateBox(`${this.entityId}-root-mesh-location-box`, {
       size: 0.25,
     });
+
+    rootMeshLocationBox.setPositionWithLocalVector(this.homeLocation.position);
     // rootMeshLocationBox.position = cloneDeep(this.rootMesh.position);
     rootMeshLocationBox.setParent(this.rootMesh);
 

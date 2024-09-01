@@ -49,13 +49,6 @@ export default function startApproachDestinationModelAction(
     const userHomeLocation = actionUser.combatantProperties.homeLocation;
     const targetHomeLocation = primaryTarget.combatantProperties.homeLocation;
 
-    console.log(
-      "userHomeLocation",
-      formatVector3(userHomeLocation),
-      "targetHomeLocation",
-      formatVector3(targetHomeLocation)
-    );
-
     const userCombatantModelOption = gameWorld.modelManager.combatantModels[actionUserId];
     if (userCombatantModelOption === undefined)
       return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
