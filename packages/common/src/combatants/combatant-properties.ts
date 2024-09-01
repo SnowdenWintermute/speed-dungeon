@@ -103,6 +103,10 @@ export class CombatantProperties {
     if (timeLocked !== null && Date.now() < timeLocked + (lockDuration ?? 0)) return true;
     return false;
   }
+  static unlockInput(combatantProperties: CombatantProperties) {
+    combatantProperties.inputLock.timeLocked = null;
+    combatantProperties.inputLock.lockDuration = null;
+  }
   static getPositionForActionUse(
     user: CombatantProperties,
     target: CombatantProperties,
@@ -111,9 +115,10 @@ export class CombatantProperties {
     let destinationLocation = user.homeLocation;
     if (!isMelee) {
       // assign destination to move a little forward (default ranged attack/spell casting position)
-      const { x, y, z } = user.homeLocation;
-      const direction = user.homeLocation.subtract(new Vector3(x, y, 0));
-      destinationLocation = user.homeLocation.add(direction.scale(1.5));
+      const direction = CombatantProperties.getForward(user);
+      destinationLocation = new Vector3(...Object.values(user.homeLocation)).add(
+        direction.scale(1.5)
+      );
     } else {
       // assign destination based on target location and their hitbox radii
       // we're recreating this vec3 because when
@@ -134,6 +139,13 @@ export class CombatantProperties {
       COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;
 
     return { destinationLocation, distance, totalTimeToReachDestination };
+  }
+
+  static getForward(combatantProperties: CombatantProperties) {
+    const { x, y } = combatantProperties.homeLocation;
+    return new Vector3(...Object.values(combatantProperties.homeLocation)).subtract(
+      new Vector3(x, y, 0)
+    );
   }
 }
 

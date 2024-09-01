@@ -1,8 +1,10 @@
+import { AnimationType } from "@/app/3d-world/combatant-models/get-model-action-animation-name";
 import {
   ActionResult,
   CombatTurnResult,
   CombatantClass,
   CombatantSpecies,
+  MoveIntoCombatActionPositionActionCommandPayload,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import { Vector3 } from "babylonjs";
@@ -26,31 +28,30 @@ export interface CombatantModelBlueprint {
   modelDomPositionElement: HTMLDivElement | null;
 }
 
-type SpawnCombatantModelMessage = {
+export type SpawnCombatantModelMessage = {
   type: NextToBabylonMessageTypes.SpawnCombatantModel;
   combatantModelBlueprint: CombatantModelBlueprint;
 };
 
-type RemoveCombatantModelMessage = {
+export type RemoveCombatantModelMessage = {
   type: NextToBabylonMessageTypes.RemoveCombatantModel;
   entityId: string;
 };
 
-type NewTurnResultsMessage = {
+export type NewTurnResultsMessage = {
   type: NextToBabylonMessageTypes.NewTurnResults;
   turnResults: CombatTurnResult[];
 };
 
-type NewActionResultsMessage = {
+export type NewActionResultsMessage = {
   type: NextToBabylonMessageTypes.NewActionResults;
   actionResults: ActionResult[];
 };
 
-type StartMovingCombatantIntoCombatActionPositionMessage = {
+export type StartMovingCombatantIntoCombatActionPositionMessage = {
   type: NextToBabylonMessageTypes.StartMovingCombatantIntoCombatActionPosition;
-  destinationLocation: Vector3;
-  targetPosition: Vector3;
-  totalTimeToReachDestination: number;
+  actionCommandPayload: MoveIntoCombatActionPositionActionCommandPayload;
+  actionUserId: string;
   onComplete: () => void;
 };
 

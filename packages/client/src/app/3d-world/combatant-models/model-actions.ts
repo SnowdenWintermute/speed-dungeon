@@ -45,12 +45,13 @@ export class CombatantModelActionProgressTracker {
 type ApproachDestinationModelAction = {
   type: CombatantModelActionType.ApproachDestination | CombatantModelActionType.ReturnHome;
   previousLocation: Vector3;
-  previousRotation: Quaternion;
-  distance: number;
   destinationLocation: Vector3;
+  timeToTranslate: number;
+  previousRotation: Quaternion;
   destinationRotation: Quaternion;
-  rotationDistance: number;
-  transitionToNextActionStarted: boolean;
+  timeToRotate: number;
+  animationName: string;
+  onComplete: () => void;
 };
 
 type TurnTowardTargetModelAction = {

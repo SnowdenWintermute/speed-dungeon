@@ -9,6 +9,7 @@ import { Matrix, Quaternion, Vector3 } from "babylonjs";
 import { CombatantModelActionType } from "../combatant-models/model-actions";
 import cloneDeep from "lodash.clonedeep";
 import startApproachDestinationModelAction from "./start-approach-destination-model-action";
+import { ANIMATION_NAMES } from "../combatant-models/get-model-action-animation-name";
 
 export default function handleMessageFromNext(this: GameWorld, message: NextToBabylonMessage) {
   switch (message.type) {
@@ -42,7 +43,7 @@ export default function handleMessageFromNext(this: GameWorld, message: NextToBa
       }
       break;
     case NextToBabylonMessageTypes.StartMovingCombatantIntoCombatActionPosition:
-      startApproachDestinationModelAction(this, message);
+      startApproachDestinationModelAction(this, message, ANIMATION_NAMES.MOVE_FORWARD);
       break;
   }
 }

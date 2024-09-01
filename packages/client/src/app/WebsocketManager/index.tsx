@@ -39,7 +39,7 @@ import characterCycledTargetsHandler from "./game-event-handlers/character-cycle
 import characterSelectedCombatActionHandler from "./game-event-handlers/character-selected-combat-action-handler";
 import characterCycledTargetingSchemesHandler from "./game-event-handlers/character-cycled-targeting-schemes-handler";
 import playerLeftGameHandler from "./player-left-game-handler";
-import { ClientActionCommandReceiver } from "../action-command-receiver";
+import { ClientActionCommandReceiver } from "../client-action-command-receiver";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
