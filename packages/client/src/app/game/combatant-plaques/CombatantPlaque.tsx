@@ -15,9 +15,9 @@ import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-st
 import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
-import { formatCombatModelActionType } from "@/app/3d-world/combatant-models/model-actions";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
 import { getTailwindClassFromFloatingTextColor } from "@/stores/game-store/floating-text";
+import { formatCombatModelActionType } from "@/app/3d-world/combatant-models/model-action-manager/model-actions";
 
 interface Props {
   entityId: string;
@@ -45,8 +45,8 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
     useGameStore().babylonControlledCombatantDOMData[entityId]?.debugMessages;
   const floatingText = useGameStore().babylonControlledCombatantDOMData[entityId]?.floatingText;
 
-  const activeModelActions =
-    useGameStore().babylonControlledCombatantDOMData[entityId]?.activeModelActions;
+  const activeModelAction =
+    useGameStore().babylonControlledCombatantDOMData[entityId]?.activeModelAction;
 
   const usernameOption = useGameStore().username;
   const result = getGameAndParty(gameOption, usernameOption);
@@ -126,8 +126,11 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
         <div id={`${entityId}-position-div`} className="absolute">
           {
             <div className="text-2xl absolute w-fit bottom-0 bg-gray-700 opacity-50 ">
-              {activeModelActions &&
-                activeModelActions.map((item) => formatCombatModelActionType(item))}
+              {
+                // activeModelAction !== null &&
+                // activeModelAction !== undefined &&
+                // formatCombatModelActionType(activeModelAction)
+              }
             </div>
           }
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full flex flex-col items-center text-center">
@@ -178,7 +181,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
         <div className="flex-grow" ref={nameAndBarsRef}>
           <div className="mb-1.5 flex justify-between text-lg">
             <span>
-              {entityProperties.name} {entityId} {formatVector3(combatantProperties.homeLocation)}
+              {entityProperties.name} {entityId}
               <UnspentAttributesButton
                 combatantProperties={combatantProperties}
                 handleClick={handleUnspentAttributesButtonClick}

@@ -11,7 +11,6 @@ import "babylonjs-loaders";
 import { BASE_FILE_PATH } from "../combatant-models/modular-character-parts";
 import { initScene } from "./init-scene";
 import { CombatTurnResult } from "@speed-dungeon/common";
-import handleMessageFromNext from "./handle-message-from-next";
 import { NextToBabylonMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import { MutateState } from "@/stores/mutate-state";
 import { GameState } from "@/stores/game-store";
@@ -19,7 +18,6 @@ import showDebugText from "./show-debug-text";
 import processMessagesFromNext from "./process-messages-from-next";
 import { NextBabylonMessagingState } from "@/stores/next-babylon-messaging-store";
 import { ModelManager } from "./model-manager";
-import enqueueNewActionResultsFromTurnResults from "./enqueue-new-action-results-from-turn-results";
 import handleGameWorldError from "./handle-error";
 
 export class GameWorld {
@@ -49,61 +47,31 @@ export class GameWorld {
     this.engine.runRenderLoop(() => {
       this.showDebugText();
       this.processMessagesFromNext();
+      // spawn/despawn models
       this.modelManager.startProcessingNewMessages();
 
-      if (this.currentRoomLoaded) {
-        const turnResultsErrorOption = this.enqueueNewActionResultsFromTurnResults();
-        if (turnResultsErrorOption instanceof Error) console.error(turnResultsErrorOption);
-      }
+      // if (this.currentRoomLoaded) {
+      //   const turnResultsErrorOption = this.enqueueNewActionResultsFromTurnResults();
+      //   if (turnResultsErrorOption instanceof Error) console.error(turnResultsErrorOption);
+      // }
 
       for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
         combatantModel.updateDomRefPosition();
-        if (this.currentRoomLoaded) combatantModel.enqueueNewModelActionsFromActionResults(this);
-        combatantModel.startNewModelActions(mutateGameState);
-        combatantModel.processActiveModelActions(this);
+        // if (this.currentRoomLoaded) combatantModel.enqueueNewModelActionsFromActionResults(this);
+        combatantModel.modelActionManager.startNewModelActions(mutateGameState);
+        combatantModel.modelActionManager.processActiveModelAction();
         combatantModel.animationManager.handleCompletedAnimations();
         combatantModel.animationManager.stepAnimationTransitionWeights();
       }
 
       this.scene.render();
     });
-
-    window.setTimeout(() => {
-      this.engine.stopRenderLoop();
-      let lastTime = new Date().getTime();
-      const fpsLabel = document.getElementsByClassName("fps")[0];
-      window.setInterval(() => {
-        this.showDebugText();
-        this.processMessagesFromNext();
-        this.modelManager.startProcessingNewMessages();
-
-        if (this.currentRoomLoaded) {
-          const turnResultsErrorOption = this.enqueueNewActionResultsFromTurnResults();
-          if (turnResultsErrorOption instanceof Error) console.error(turnResultsErrorOption);
-        }
-
-        for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
-          combatantModel.updateDomRefPosition();
-          if (this.currentRoomLoaded) combatantModel.enqueueNewModelActionsFromActionResults(this);
-          combatantModel.startNewModelActions(mutateGameState);
-          combatantModel.processActiveModelActions(this);
-          combatantModel.animationManager.handleCompletedAnimations();
-          combatantModel.animationManager.stepAnimationTransitionWeights();
-        }
-        this.scene.render();
-        let curTime = new Date().getTime();
-        // fpsLabel.innerHTML = (1000 / (curTime - lastTime)).toFixed() + " fps";
-        lastTime = curTime;
-      }, 1000 / 2);
-    }, 100);
   }
 
   handleError = handleGameWorldError;
   initScene = initScene;
-  handleMessageFromNext = handleMessageFromNext;
   showDebugText = showDebugText;
   processMessagesFromNext = processMessagesFromNext;
-  enqueueNewActionResultsFromTurnResults = enqueueNewActionResultsFromTurnResults;
 
   async importMesh(path: string) {
     const sceneResult = await SceneLoader.ImportMeshAsync("", BASE_FILE_PATH, path, this.scene);
@@ -112,3 +80,35 @@ export class GameWorld {
     return sceneResult;
   }
 }
+
+// startLimitedFramerateRenderLoop(fps) {
+
+//   window.setTimeout(() => {
+//     this.engine.stopRenderLoop();
+//     let lastTime = new Date().getTime();
+//     const fpsLabel = document.getElementsByClassName("fps")[0];
+//     window.setInterval(() => {
+//       this.showDebugText();
+//       this.processMessagesFromNext();
+//       this.modelManager.startProcessingNewMessages();
+
+//       if (this.currentRoomLoaded) {
+//         const turnResultsErrorOption = this.enqueueNewActionResultsFromTurnResults();
+//         if (turnResultsErrorOption instanceof Error) console.error(turnResultsErrorOption);
+//       }
+
+//       for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
+//         combatantModel.updateDomRefPosition();
+//         if (this.currentRoomLoaded) combatantModel.enqueueNewModelActionsFromActionResults(this);
+//         combatantModel.startNewModelActions(mutateGameState);
+//         combatantModel.processActiveModelActions(this);
+//         combatantModel.animationManager.handleCompletedAnimations();
+//         combatantModel.animationManager.stepAnimationTransitionWeights();
+//       }
+//       this.scene.render();
+//       let curTime = new Date().getTime();
+//       // fpsLabel.innerHTML = (1000 / (curTime - lastTime)).toFixed() + " fps";
+//       lastTime = curTime;
+//     }, 1000 / 2);
+//   }, 5000);
+// }

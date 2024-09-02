@@ -1,6 +1,5 @@
 import { Matrix, Quaternion, Vector3 } from "babylonjs";
 import { GameWorld } from ".";
-import { CombatantModelAction, CombatantModelActionType } from "../combatant-models/model-actions";
 import cloneDeep from "lodash.clonedeep";
 import { StartMovingCombatantIntoCombatActionPositionMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import {
@@ -11,7 +10,11 @@ import {
   cloneVector3,
 } from "@speed-dungeon/common";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { ANIMATION_NAMES } from "../combatant-models/get-model-action-animation-name";
+import { ANIMATION_NAMES } from "../combatant-models/animation-manager/animation-names";
+import {
+  CombatantModelAction,
+  CombatantModelActionType,
+} from "../combatant-models/model-action-manager/model-actions";
 
 export default function startMovingIntoCombatActionUsePosition(
   gameWorld: GameWorld,
@@ -92,6 +95,6 @@ export default function startMovingIntoCombatActionUsePosition(
       onComplete,
     };
 
-    userCombatantModel.modelActionQueue.push(modelAction);
+    userCombatantModel.modelActionManager.modelActionQueue.push(modelAction);
   });
 }

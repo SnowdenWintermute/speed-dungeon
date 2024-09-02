@@ -1,8 +1,8 @@
 import { AnimationGroup, AnimationEvent } from "babylonjs";
-import { CombatantModelActionType } from "../model-actions";
 import { ModularCharacter } from "../modular-character";
 import { MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME } from "@speed-dungeon/common";
 import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
+import { CombatantModelActionType } from "../model-action-manager/model-actions";
 
 export type ManagedAnimationOptions = {
   shouldLoop: boolean;
@@ -151,8 +151,6 @@ export class AnimationManager {
     switch (actionType) {
       case CombatantModelActionType.ApproachDestination:
       case CombatantModelActionType.ReturnHome:
-      case CombatantModelActionType.Idle:
-      case CombatantModelActionType.EndTurn:
         return true;
       default:
         return false;

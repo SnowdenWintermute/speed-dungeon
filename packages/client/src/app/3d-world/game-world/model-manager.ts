@@ -2,7 +2,7 @@ import { CombatantModelBlueprint } from "@/stores/next-babylon-messaging-store/n
 import { GameWorld } from ".";
 import { ModularCharacter } from "../combatant-models/modular-character";
 import { disposeAsyncLoadedScene } from "../utils";
-import { CombatantSpecies, formatVector3 } from "@speed-dungeon/common";
+import { CombatantSpecies } from "@speed-dungeon/common";
 import {
   CHARACTER_PARTS,
   MONSTER_FULL_SKINS,
@@ -78,7 +78,7 @@ export class ModelManager {
       parts.push({ category: ModularCharacterPartCategory.Legs, assetPath: legsPath });
     }
     const skeleton = await this.world.importMesh(SKELETONS[blueprint.species]!);
-    console.log("blueprint spawn position: ", formatVector3(blueprint.startPosition));
+
     const modularCharacter = new ModularCharacter(
       blueprint.entityId,
       this.world,
@@ -117,9 +117,7 @@ export class ModelManager {
       disposeAsyncLoadedScene(part);
     }
 
-    for (const action of Object.values(toRemove.activeModelActions)) {
-      toRemove.removeActiveModelAction(action.modelAction.type);
-    }
+    toRemove.modelActionManager.removeActiveModelAction();
 
     this.checkIfAllModelsInCurrentRoomAreLoaded();
     delete this.combatantModels[entityId];
@@ -163,4 +161,5 @@ type DespawnModelManagerMessage = {
   type: ModelManagerMessageType.DespawnModel;
 };
 
+type ModelManagerMessage = SpawnCombatantModelManagerMessage | DespawnModelManagerMessage;
 type ModelManagerMessage = SpawnCombatantModelManagerMessage | DespawnModelManagerMessage;

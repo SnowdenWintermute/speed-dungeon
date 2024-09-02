@@ -12,8 +12,6 @@ import { Vector3 } from "babylonjs";
 export enum NextToBabylonMessageTypes {
   SpawnCombatantModel,
   RemoveCombatantModel,
-  NewTurnResults,
-  NewActionResults,
   StartMovingCombatantIntoCombatActionPosition,
   StartPerformingCombatAction,
 }
@@ -39,16 +37,6 @@ export type RemoveCombatantModelMessage = {
   entityId: string;
 };
 
-export type NewTurnResultsMessage = {
-  type: NextToBabylonMessageTypes.NewTurnResults;
-  turnResults: CombatTurnResult[];
-};
-
-export type NewActionResultsMessage = {
-  type: NextToBabylonMessageTypes.NewActionResults;
-  actionResults: ActionResult[];
-};
-
 export type StartMovingCombatantIntoCombatActionPositionMessage = {
   type: NextToBabylonMessageTypes.StartMovingCombatantIntoCombatActionPosition;
   actionCommandPayload: MoveIntoCombatActionPositionActionCommandPayload;
@@ -66,7 +54,5 @@ export type StartPerformingCombatActionMessage = {
 export type NextToBabylonMessage =
   | SpawnCombatantModelMessage
   | RemoveCombatantModelMessage
-  | NewTurnResultsMessage
-  | NewActionResultsMessage
   | StartMovingCombatantIntoCombatActionPositionMessage
   | StartPerformingCombatActionMessage;

@@ -1,6 +1,5 @@
 import {
   AbstractMesh,
-  BaseTexture,
   BoundingInfo,
   Color3,
   Color4,
@@ -21,23 +20,12 @@ import {
 } from "../utils";
 import { ModularCharacterPartCategory } from "./modular-character-parts";
 import { GameWorld } from "../game-world";
-import {
-  ActionResult,
-  DEFAULT_HITBOX_RADIUS_FALLBACK,
-  ERROR_MESSAGES,
-} from "@speed-dungeon/common";
-import {
-  CombatantModelAction,
-  CombatantModelActionProgressTracker,
-  CombatantModelActionType,
-} from "./model-actions";
-import enqueueNewModelActionsFromActionResults from "../game-world/enqueue-new-model-actions-from-action-results";
-import startNewModelActions, { startModelAction } from "./start-new-model-actions";
+import { DEFAULT_HITBOX_RADIUS_FALLBACK, ERROR_MESSAGES } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common/src/monsters/monster-types";
 import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
-import processActiveModelActions from "./process-active-model-actions";
 import cloneDeep from "lodash.clonedeep";
 import { AnimationManager } from "./animation-manager";
+import { ModelActionManager } from "./model-action-manager";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -48,17 +36,13 @@ export class ModularCharacter {
     [ModularCharacterPartCategory.Legs]: null,
     [ModularCharacterPartCategory.Full]: null,
   };
-  actionResultsQueue: ActionResult[] = [];
-  modelActionQueue: CombatantModelAction[] = [];
-  activeModelActions: Partial<
-    Record<CombatantModelActionType, CombatantModelActionProgressTracker>
-  > = {};
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   homeLocation: {
     position: Vector3;
     rotation: Quaternion;
   };
   isInMeleeRangeOfTarget: boolean = false;
+  modelActionManager: ModelActionManager = new ModelActionManager(this);
   animationManager: AnimationManager;
   debugMeshes: {
     directionLine: Mesh;
@@ -106,11 +90,6 @@ export class ModularCharacter {
 
     // this.setShowBones();
   }
-
-  enqueueNewModelActionsFromActionResults = enqueueNewModelActionsFromActionResults;
-  startNewModelActions = startNewModelActions;
-  startModelAction = startModelAction;
-  processActiveModelActions = processActiveModelActions;
 
   setUpDebugMeshes() {
     const red = new Color3(1, 0, 0);
@@ -186,22 +165,6 @@ export class ModularCharacter {
       homeLocationMesh,
       homeLocationDirectionLine,
     };
-  }
-
-  removeActiveModelAction(modelActionType: CombatantModelActionType) {
-    delete this.activeModelActions[modelActionType];
-    this.world.mutateGameState((state) => {
-      const indexOption =
-        state.babylonControlledCombatantDOMData[this.entityId]?.activeModelActions.indexOf(
-          modelActionType
-        );
-      if (indexOption !== undefined) {
-        state.babylonControlledCombatantDOMData[this.entityId]?.activeModelActions.splice(
-          indexOption,
-          1
-        );
-      }
-    });
   }
 
   updateDomRefPosition() {

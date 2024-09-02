@@ -7,11 +7,11 @@ import {
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import { GameWorld } from "../game-world";
+import { GameWorld } from "../../game-world";
 import { FloatingTextColor, startFloatingText } from "@/stores/game-store/floating-text";
-import { ANIMATION_NAMES } from "./get-model-action-animation-name";
+import { ANIMATION_NAMES } from "./animation-names";
 
-export default function getAnimationFrameEvents(
+export default function getFrameEventFromAnimation(
   gameWorld: GameWorld,
   actionPayload: PerformCombatActionActionCommandPayload
 ) {

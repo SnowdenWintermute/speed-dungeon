@@ -1,5 +1,5 @@
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
-import { CombatantModelActionProgressTracker, CombatantModelActionType } from "../model-actions";
+import { CombatantModelActionProgressTracker, CombatantModelActionType } from "./model-actions";
 import { ModularCharacter } from "../modular-character";
 import { Quaternion, Vector3 } from "babylonjs";
 
@@ -21,7 +21,6 @@ export default function approachDestinationModelActionProcessor(
     previousRotation,
     destinationRotation,
     timeToRotate,
-    animationName,
     onComplete,
   } = modelAction;
 
@@ -41,7 +40,7 @@ export default function approachDestinationModelActionProcessor(
   );
 
   if (percentTranslated >= 1) {
-    combatantModel.removeActiveModelAction(modelAction.type);
     onComplete();
+    combatantModel.modelActionManager.removeActiveModelAction();
   }
 }

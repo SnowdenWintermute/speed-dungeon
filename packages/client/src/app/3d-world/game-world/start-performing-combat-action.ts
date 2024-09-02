@@ -7,9 +7,12 @@ import { GameWorld } from ".";
 import { StartPerformingCombatActionMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import cloneDeep from "lodash.clonedeep";
 import { Vector3 } from "babylonjs";
-import getCombatActionAnimationName from "../combatant-models/get-combat-action-animation-name";
-import getAnimationFrameEvents from "../combatant-models/set-animation-frame-events";
-import { CombatantModelAction, CombatantModelActionType } from "../combatant-models/model-actions";
+import getCombatActionAnimationName from "../combatant-models/animation-manager/animation-names";
+import {
+  CombatantModelAction,
+  CombatantModelActionType,
+} from "../combatant-models/model-action-manager/model-actions";
+import getFrameEventFromAnimation from "../combatant-models/animation-manager/get-frame-event-from-animation";
 
 export default function startPerformingCombatAction(
   gameWorld: GameWorld,
@@ -36,7 +39,7 @@ export default function startPerformingCombatAction(
 
   // START THEIR ANIMATION AND CALL ONCOMPLETE WHEN DONE
   const animationName = getCombatActionAnimationName(combatAction);
-  const animationEventOption = getAnimationFrameEvents(gameWorld, message.actionCommandPayload);
+  const animationEventOption = getFrameEventFromAnimation(gameWorld, message.actionCommandPayload);
   userCombatantModel.animationManager.startAnimationWithTransition(animationName, 500, {
     shouldLoop: false,
     animationEventOption,
@@ -52,7 +55,7 @@ export default function startPerformingCombatAction(
   const direction = userCombatantModel.rootTransformNode.forward;
   const previousLocation = cloneDeep(userCombatantModel.rootTransformNode.position);
   const destinationLocation = userCombatantModel.rootTransformNode.position.add(
-    direction.scale(0.5)
+    direction.scale(1.5)
   );
   const distance = Vector3.Distance(previousLocation, destinationLocation);
   const speedMultiplier = 1;
@@ -74,5 +77,5 @@ export default function startPerformingCombatAction(
 
   userCombatantModel.isInMeleeRangeOfTarget = true;
 
-  userCombatantModel.modelActionQueue.push(modelAction);
+  userCombatantModel.modelActionManager.modelActionQueue.push(modelAction);
 }
