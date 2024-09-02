@@ -58,10 +58,7 @@ export class ModularCharacter {
     position: Vector3;
     rotation: Quaternion;
   };
-  previousLocation: {
-    position: Vector3;
-    rotation: Quaternion;
-  } = { position: Vector3.Zero(), rotation: Quaternion.Zero() };
+  isInMeleeRangeOfTarget: boolean = false;
   animationManager: AnimationManager;
   debugMeshes: {
     directionLine: Mesh;

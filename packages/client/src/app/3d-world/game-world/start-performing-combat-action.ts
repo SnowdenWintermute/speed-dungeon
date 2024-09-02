@@ -7,10 +7,11 @@ import { GameWorld } from ".";
 import { StartPerformingCombatActionMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import cloneDeep from "lodash.clonedeep";
 import { Vector3 } from "babylonjs";
-import getModelActionAnimationName from "../combatant-models/get-model-action-animation-name";
 import getCombatActionAnimationName from "../combatant-models/get-combat-action-animation-name";
+import getAnimationFrameEvents from "../combatant-models/set-animation-frame-events";
+import { CombatantModelAction, CombatantModelActionType } from "../combatant-models/model-actions";
 
-export default function startPerformCombatActionModelAction(
+export default function startPerformingCombatAction(
   gameWorld: GameWorld,
   message: StartPerformingCombatActionMessage
 ) {
@@ -25,37 +26,53 @@ export default function startPerformCombatActionModelAction(
   // - handle any death by removing the affected combatant's turn tracker
   // - handle any ressurection by adding the affected combatant's turn tracker
   // - on animation complete, start next action
-  const { combatAction, hpChangesByEntityId, mpChangesByEntityId, missesByEntityId } =
-    message.actionCommandPayload;
-  const { actionUserId } = message;
-  const isMelee = combatActionRequiresMeleeRange(combatAction);
+  const { combatAction } = message.actionCommandPayload;
+  const { actionUserId, onComplete } = message;
 
   const userCombatantModelOption = gameWorld.modelManager.combatantModels[actionUserId];
   if (userCombatantModelOption === undefined)
     return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
   const userCombatantModel = userCombatantModelOption;
 
+  // START THEIR ANIMATION AND CALL ONCOMPLETE WHEN DONE
+  const animationName = getCombatActionAnimationName(combatAction);
+  const animationEventOption = getAnimationFrameEvents(gameWorld, message.actionCommandPayload);
+  userCombatantModel.animationManager.startAnimationWithTransition(animationName, 500, {
+    shouldLoop: false,
+    animationEventOption,
+    onComplete,
+  });
+
+  const isMelee = combatActionRequiresMeleeRange(combatAction);
+
+  if (!isMelee || (isMelee && userCombatantModel.isInMeleeRangeOfTarget)) return;
+  // QUEUE/START THE MODEL ACTION (FOR MOVEMENT) IF MELEE
+  // AND DIDN'T ALREADY MOVE FORWARD
+
   const direction = userCombatantModel.rootTransformNode.forward;
   const previousLocation = cloneDeep(userCombatantModel.rootTransformNode.position);
   const destinationLocation = userCombatantModel.rootTransformNode.position.add(
-    direction.scale(1.5)
+    direction.scale(0.5)
   );
   const distance = Vector3.Distance(previousLocation, destinationLocation);
   const speedMultiplier = 1;
   const timeToTranslate = COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;
+  const userModelCurrentRotation = userCombatantModel.rootTransformNode.rotationQuaternion;
+  if (!userModelCurrentRotation)
+    return console.error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
 
-  const animationNameResult = getCombatActionAnimationName(combatAction);
-  // const modelAction: CombatantModelAction = {
-  //   type: CombatantModelActionType.ApproachDestination,
-  //   previousLocation: cloneDeep(userHomeLocation),
-  //   destinationLocation: cloneDeep(destinationLocation),
-  //   timeToTranslate: totalTimeToReachDestination,
-  //   previousRotation: cloneDeep(userModelCurrentRotation),
-  //   destinationRotation: cloneDeep(destinationQuaternion),
-  //   timeToRotate,
-  //   animationName,
-  //   onComplete,
-  // };
+  const modelAction: CombatantModelAction = {
+    type: CombatantModelActionType.ApproachDestination,
+    previousLocation,
+    destinationLocation,
+    timeToTranslate,
+    previousRotation: userModelCurrentRotation,
+    destinationRotation: userModelCurrentRotation,
+    timeToRotate: 0,
+    onComplete: () => {},
+  };
 
-  // userCombatantModel.modelActionQueue.push(modelAction);
+  userCombatantModel.isInMeleeRangeOfTarget = true;
+
+  userCombatantModel.modelActionQueue.push(modelAction);
 }

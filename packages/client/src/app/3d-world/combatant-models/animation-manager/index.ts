@@ -133,6 +133,8 @@ export class AnimationManager {
       this.cleanUpFinishedAnimation(this.playing);
       this.playing = null;
     }
+
+    // @TODO - if playing and previous are both null, try to play idle
   }
 
   getAnimationGroupByName(name: string) {

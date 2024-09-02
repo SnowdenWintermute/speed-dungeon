@@ -11,11 +11,11 @@ import {
   cloneVector3,
 } from "@speed-dungeon/common";
 import getCurrentParty from "@/utils/getCurrentParty";
+import { ANIMATION_NAMES } from "../combatant-models/get-model-action-animation-name";
 
 export default function startMovingIntoCombatActionUsePosition(
   gameWorld: GameWorld,
-  message: StartMovingCombatantIntoCombatActionPositionMessage,
-  animationName: string
+  message: StartMovingCombatantIntoCombatActionPositionMessage
 ) {
   console.log("handling move into position message: ", message);
   const { actionUserId, actionCommandPayload, onComplete } = message;
@@ -52,6 +52,10 @@ export default function startMovingIntoCombatActionUsePosition(
     if (userCombatantModelOption === undefined)
       return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     const userCombatantModel = userCombatantModelOption;
+
+    // @todo - move this into returnhome
+    userCombatantModel.isInMeleeRangeOfTarget = false;
+
     // - user home rotation
     // - target rotation
     // - time to rotate
@@ -70,12 +74,12 @@ export default function startMovingIntoCombatActionUsePosition(
     // create a model action that when processed will translate/rotate model
     // toward destination and on completion call message.onComplete()
     // - onComplete
-    //
-    // start their running forward animation
 
-    const animationResult =
-      userCombatantModel.animationManager.getAnimationGroupByName(animationName);
-    // userCombatantModel.animationManager.startAnimationWithTransition()
+    // start their running forward animation
+    userCombatantModel.animationManager.startAnimationWithTransition(
+      ANIMATION_NAMES.MOVE_FORWARD,
+      500
+    );
 
     const modelAction: CombatantModelAction = {
       type: CombatantModelActionType.ApproachDestination,

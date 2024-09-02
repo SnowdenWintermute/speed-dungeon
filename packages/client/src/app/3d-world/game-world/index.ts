@@ -67,6 +67,35 @@ export class GameWorld {
 
       this.scene.render();
     });
+
+    window.setTimeout(() => {
+      this.engine.stopRenderLoop();
+      let lastTime = new Date().getTime();
+      const fpsLabel = document.getElementsByClassName("fps")[0];
+      window.setInterval(() => {
+        this.showDebugText();
+        this.processMessagesFromNext();
+        this.modelManager.startProcessingNewMessages();
+
+        if (this.currentRoomLoaded) {
+          const turnResultsErrorOption = this.enqueueNewActionResultsFromTurnResults();
+          if (turnResultsErrorOption instanceof Error) console.error(turnResultsErrorOption);
+        }
+
+        for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
+          combatantModel.updateDomRefPosition();
+          if (this.currentRoomLoaded) combatantModel.enqueueNewModelActionsFromActionResults(this);
+          combatantModel.startNewModelActions(mutateGameState);
+          combatantModel.processActiveModelActions(this);
+          combatantModel.animationManager.handleCompletedAnimations();
+          combatantModel.animationManager.stepAnimationTransitionWeights();
+        }
+        this.scene.render();
+        let curTime = new Date().getTime();
+        // fpsLabel.innerHTML = (1000 / (curTime - lastTime)).toFixed() + " fps";
+        lastTime = curTime;
+      }, 1000 / 2);
+    }, 100);
   }
 
   handleError = handleGameWorldError;

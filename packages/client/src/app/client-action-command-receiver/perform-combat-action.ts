@@ -1,7 +1,4 @@
-import {
-  PerformCombatActionActionCommandPayload,
-  combatActionRequiresMeleeRange,
-} from "@speed-dungeon/common";
+import { PerformCombatActionActionCommandPayload } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
 import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 

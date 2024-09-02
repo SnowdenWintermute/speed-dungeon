@@ -50,7 +50,6 @@ type ApproachDestinationModelAction = {
   previousRotation: Quaternion;
   destinationRotation: Quaternion;
   timeToRotate: number;
-  animationName: string;
   onComplete: () => void;
 };
 

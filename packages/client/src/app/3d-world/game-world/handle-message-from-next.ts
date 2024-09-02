@@ -5,12 +5,9 @@ import {
 import { GameWorld } from ".";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { ModelManagerMessageType } from "./model-manager";
-import { Matrix, Quaternion, Vector3 } from "babylonjs";
-import { CombatantModelActionType } from "../combatant-models/model-actions";
-import cloneDeep from "lodash.clonedeep";
-import startApproachDestinationModelAction from "./start-approach-destination-model-action";
 import { ANIMATION_NAMES } from "../combatant-models/get-model-action-animation-name";
-import startPerformCombatActionModelAction from "./start-perform-combat-action-model-action";
+import startMovingIntoCombatActionUsePosition from "./start-moving-into-combat-action-use-position";
+import startPerformingCombatAction from "./start-performing-combat-action";
 
 export default function handleMessageFromNext(this: GameWorld, message: NextToBabylonMessage) {
   switch (message.type) {
@@ -44,10 +41,10 @@ export default function handleMessageFromNext(this: GameWorld, message: NextToBa
       }
       break;
     case NextToBabylonMessageTypes.StartMovingCombatantIntoCombatActionPosition:
-      startApproachDestinationModelAction(this, message, ANIMATION_NAMES.MOVE_FORWARD);
+      startMovingIntoCombatActionUsePosition(this, message);
       break;
     case NextToBabylonMessageTypes.StartPerformingCombatAction:
-      startPerformCombatActionModelAction(this, message);
+      startPerformingCombatAction(this, message);
       break;
   }
 }
