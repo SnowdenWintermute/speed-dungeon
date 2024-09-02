@@ -73,10 +73,7 @@ export class AnimationManager {
 
     const clonedAnimationOption = this.cloneAnimationOption(newAnimationGroupOption);
 
-    if (newAnimationName === "evade") console.log(clonedAnimationOption?.name);
-
     if (clonedAnimationOption === null) {
-      console.log("setting debug message");
       // send message to client with timout duration to remove itself
       setDebugMessage(
         this.characterModel.world.mutateGameState,

@@ -45,27 +45,26 @@ export class GameWorld {
     [this.camera, this.shadowGenerator, this.sun] = this.initScene();
 
     this.engine.runRenderLoop(() => {
-      this.showDebugText();
-      this.processMessagesFromNext();
-      // spawn/despawn models
-      this.modelManager.startProcessingNewMessages();
-
-      // if (this.currentRoomLoaded) {
-      //   const turnResultsErrorOption = this.enqueueNewActionResultsFromTurnResults();
-      //   if (turnResultsErrorOption instanceof Error) console.error(turnResultsErrorOption);
-      // }
-
-      for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
-        combatantModel.updateDomRefPosition();
-        // if (this.currentRoomLoaded) combatantModel.enqueueNewModelActionsFromActionResults(this);
-        combatantModel.modelActionManager.startNewModelActions(mutateGameState);
-        combatantModel.modelActionManager.processActiveModelAction();
-        combatantModel.animationManager.handleCompletedAnimations();
-        combatantModel.animationManager.stepAnimationTransitionWeights();
-      }
-
+      this.updateGameWorld();
       this.scene.render();
     });
+
+    // this.startLimitedFramerateRenderLoop(10, 1000);
+  }
+
+  updateGameWorld() {
+    this.showDebugText();
+    this.processMessagesFromNext();
+    // spawn/despawn models
+    this.modelManager.startProcessingNewMessages();
+
+    for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
+      combatantModel.updateDomRefPosition();
+      combatantModel.modelActionManager.startNewModelActions(this.mutateGameState);
+      combatantModel.modelActionManager.processActiveModelAction();
+      combatantModel.animationManager.handleCompletedAnimations();
+      combatantModel.animationManager.stepAnimationTransitionWeights();
+    }
   }
 
   handleError = handleGameWorldError;
@@ -79,36 +78,19 @@ export class GameWorld {
       for (const mesh of sceneResult.meshes) this.shadowGenerator?.addShadowCaster(mesh, true);
     return sceneResult;
   }
+
+  startLimitedFramerateRenderLoop(fps: number, timeout: number) {
+    window.setTimeout(() => {
+      this.engine.stopRenderLoop();
+      let lastTime = new Date().getTime();
+      // const fpsLabel = document.getElementsByClassName("fps")[0];
+      window.setInterval(() => {
+        this.updateGameWorld();
+        this.scene.render();
+        let curTime = new Date().getTime();
+        // fpsLabel.innerHTML = (1000 / (curTime - lastTime)).toFixed() + " fps";
+        lastTime = curTime;
+      }, 1000 / fps);
+    }, timeout);
+  }
 }
-
-// startLimitedFramerateRenderLoop(fps) {
-
-//   window.setTimeout(() => {
-//     this.engine.stopRenderLoop();
-//     let lastTime = new Date().getTime();
-//     const fpsLabel = document.getElementsByClassName("fps")[0];
-//     window.setInterval(() => {
-//       this.showDebugText();
-//       this.processMessagesFromNext();
-//       this.modelManager.startProcessingNewMessages();
-
-//       if (this.currentRoomLoaded) {
-//         const turnResultsErrorOption = this.enqueueNewActionResultsFromTurnResults();
-//         if (turnResultsErrorOption instanceof Error) console.error(turnResultsErrorOption);
-//       }
-
-//       for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
-//         combatantModel.updateDomRefPosition();
-//         if (this.currentRoomLoaded) combatantModel.enqueueNewModelActionsFromActionResults(this);
-//         combatantModel.startNewModelActions(mutateGameState);
-//         combatantModel.processActiveModelActions(this);
-//         combatantModel.animationManager.handleCompletedAnimations();
-//         combatantModel.animationManager.stepAnimationTransitionWeights();
-//       }
-//       this.scene.render();
-//       let curTime = new Date().getTime();
-//       // fpsLabel.innerHTML = (1000 / (curTime - lastTime)).toFixed() + " fps";
-//       lastTime = curTime;
-//     }, 1000 / 2);
-//   }, 5000);
-// }
