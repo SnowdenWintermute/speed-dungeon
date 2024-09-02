@@ -204,23 +204,6 @@ function SocketManager() {
         party.actionCommandManager.enqueueNewCommands(actionCommands);
       });
     });
-    // socket.on(ServerToClientEvent.TurnResults, (turnResults) => {
-    //   mutateNextBabylonMessagingStore((state) => {
-    //     console.log("got turn results: ", turnResults);
-    //     state.nextToBabylonMessages.push({
-    //       type: NextToBabylonMessageTypes.NewTurnResults,
-    //       turnResults,
-    //     });
-    //   });
-    // });
-    // socket.on(ServerToClientEvent.RawActionResults, (actionResults) => {
-    //   mutateNextBabylonMessagingStore((state) => {
-    //     state.nextToBabylonMessages.push({
-    //       type: NextToBabylonMessageTypes.NewActionResults,
-    //       actionResults,
-    //     });
-    //   });
-    // });
     socket.on(ServerToClientEvent.GameMessage, (message) => {
       gameMessageHandler(mutateGameStore, message);
     });

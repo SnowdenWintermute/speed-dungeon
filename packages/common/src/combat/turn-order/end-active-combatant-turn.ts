@@ -1,13 +1,16 @@
 import { CombatantTurnTracker } from ".";
-import { Battle } from "../../battle";
 import { ERROR_MESSAGES } from "../../errors";
 import { SpeedDungeonGame } from "../../game";
 import { REQUIRED_MOVEMENT_TO_MOVE } from "./consts";
 
 export default function endActiveCombatantTurn(
   game: SpeedDungeonGame,
-  battle: Battle
+  battleId: string
 ): Error | CombatantTurnTracker {
+  const battleOption = game.battles[battleId];
+  if (battleOption === undefined) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
+  const battle = battleOption;
+
   const tickResult = SpeedDungeonGame.tickCombatUntilNextCombatantIsActive(game, battle.id);
   if (tickResult instanceof Error) return tickResult;
   const activeCombatantTurnTrackerOption = battle.turnTrackers[0];

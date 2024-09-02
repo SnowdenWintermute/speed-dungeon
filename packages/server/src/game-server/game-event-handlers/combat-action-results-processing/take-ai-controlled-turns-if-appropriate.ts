@@ -76,7 +76,7 @@ export default function takeAiControlledTurnsIfAppropriate(
     if (partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated) break;
 
     activeCombatantTurnActionResults = [];
-    const newActiveTurnTrackerResult = SpeedDungeonGame.endActiveCombatantTurn(game, battle);
+    const newActiveTurnTrackerResult = SpeedDungeonGame.endActiveCombatantTurn(game, battle.id);
 
     if (newActiveTurnTrackerResult instanceof Error) return newActiveTurnTrackerResult;
     activeCombatantId = newActiveTurnTrackerResult.entityId;

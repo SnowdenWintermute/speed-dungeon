@@ -1,10 +1,9 @@
 import {
-  ActionResult,
-  CombatTurnResult,
   CombatantClass,
   CombatantSpecies,
   MoveIntoCombatActionPositionActionCommandPayload,
   PerformCombatActionActionCommandPayload,
+  ReturnHomeActionCommandPayload,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import { Vector3 } from "babylonjs";
@@ -14,6 +13,7 @@ export enum NextToBabylonMessageTypes {
   RemoveCombatantModel,
   StartMovingCombatantIntoCombatActionPosition,
   StartPerformingCombatAction,
+  StartReturningHome,
 }
 
 export interface CombatantModelBlueprint {
@@ -51,8 +51,16 @@ export type StartPerformingCombatActionMessage = {
   onComplete: () => void;
 };
 
+export type StartReturningHomeMessage = {
+  type: NextToBabylonMessageTypes.StartReturningHome;
+  actionCommandPayload: ReturnHomeActionCommandPayload;
+  actionUserId: string;
+  onComplete: () => void;
+};
+
 export type NextToBabylonMessage =
   | SpawnCombatantModelMessage
   | RemoveCombatantModelMessage
   | StartMovingCombatantIntoCombatActionPositionMessage
-  | StartPerformingCombatActionMessage;
+  | StartPerformingCombatActionMessage
+  | StartReturningHomeMessage;

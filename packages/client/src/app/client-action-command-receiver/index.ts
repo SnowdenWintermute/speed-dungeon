@@ -10,6 +10,7 @@ import {
 import payAbilityCostsActionCommandHandler from "./pay-ability-costs";
 import moveIntoCombatActionPositionActionCommandHandler from "./move-into-combat-action-position";
 import performCombatActionActionCommandHandler from "./perform-combat-action";
+import returnHomeActionCommandHandler from "./return-home";
 
 export class ClientActionCommandReceiver implements ActionCommandReceiver {
   constructor(
@@ -22,8 +23,8 @@ export class ClientActionCommandReceiver implements ActionCommandReceiver {
   moveIntoCombatActionPositionActionCommandHandler =
     moveIntoCombatActionPositionActionCommandHandler;
   performCombatActionActionCommandHandler = performCombatActionActionCommandHandler;
+  returnHomeActionCommandHandler = returnHomeActionCommandHandler;
 
-  returnHomeActionCommandHandler: (gameName: string, combatantId: string) => void = () => {};
   changeEquipmentActionCommandHandler: (
     gameName: string,
     combatantId: string,

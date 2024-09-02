@@ -6,6 +6,7 @@ import { GameWorld } from ".";
 import { ModelManagerMessageType } from "./model-manager";
 import startMovingIntoCombatActionUsePosition from "./start-moving-into-combat-action-use-position";
 import startPerformingCombatAction from "./start-performing-combat-action";
+import startReturningHome from "./start-returning-home";
 
 export default function processMessagesFromNext(this: GameWorld) {
   if (this.messages.length > 0) {
@@ -37,5 +38,7 @@ function handleMessageFromNext(gameWorld: GameWorld, message: NextToBabylonMessa
       return startMovingIntoCombatActionUsePosition(gameWorld, message);
     case NextToBabylonMessageTypes.StartPerformingCombatAction:
       return startPerformingCombatAction(gameWorld, message);
+    case NextToBabylonMessageTypes.StartReturningHome:
+      return startReturningHome(gameWorld, message);
   }
 }

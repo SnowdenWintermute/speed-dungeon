@@ -4,6 +4,7 @@ import {
   MoveIntoCombatActionPositionActionCommandPayload,
   PayAbilityCostsActionCommandPayload,
   PerformCombatActionActionCommandPayload,
+  ReturnHomeActionCommandPayload,
 } from ".";
 
 export interface ActionCommandReceiver {
@@ -55,7 +56,11 @@ export interface ActionCommandReceiver {
   // - handle any death by removing the affected combatant's turn tracker
   // - handle any ressurection by adding the affected combatant's turn tracker
   // - on animation complete, start next action
-  returnHomeActionCommandHandler: (gameName: string, combatantId: string) => void;
+  returnHomeActionCommandHandler: (
+    gameName: string,
+    combatantId: string,
+    payload: ReturnHomeActionCommandPayload
+  ) => void;
   // SERVER
   // - end the combatant's turn if in combat and action required turn
   // - check for party wipes and victories and apply/emit them
