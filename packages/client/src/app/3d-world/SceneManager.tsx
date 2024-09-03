@@ -40,7 +40,7 @@ export default function SceneManager() {
     if (nextToBabylonMessages.length < 1) return;
 
     mutateNextBabylonMessagingStore((state) => {
-      if (sceneRef.current === undefined) return;
+      if (sceneRef.current === null) return;
       sceneRef.current.messages.push(...nextToBabylonMessages);
       state.nextToBabylonMessages = [];
     });

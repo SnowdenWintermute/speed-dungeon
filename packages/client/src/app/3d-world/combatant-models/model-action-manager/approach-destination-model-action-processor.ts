@@ -8,10 +8,7 @@ export default function approachDestinationModelActionProcessor(
   modelActionTracker: CombatantModelActionProgressTracker
 ) {
   const { modelAction } = modelActionTracker;
-  if (
-    modelAction.type !== CombatantModelActionType.ApproachDestination &&
-    modelAction.type !== CombatantModelActionType.ReturnHome
-  )
+  if (modelAction.type !== CombatantModelActionType.ApproachDestination)
     return console.error(new Error(ERROR_MESSAGES.GAME_WORLD.INCORRECT_MODEL_ACTION));
 
   const {
@@ -25,21 +22,22 @@ export default function approachDestinationModelActionProcessor(
   } = modelAction;
 
   const timeSinceStarted = Date.now() - modelActionTracker.timeStarted;
-  const percentTranslated = Math.min(1, timeSinceStarted / timeToTranslate);
+  const percentTranslated = Math.max(0, Math.min(1, timeSinceStarted / timeToTranslate));
 
   const newPosition = Vector3.Lerp(previousLocation, destinationLocation, percentTranslated);
 
-  // console.log(formatVector3(newPosition));
-
   combatantModel.rootTransformNode.position = newPosition;
 
-  const percentRotated = Math.min(1, timeSinceStarted / timeToRotate);
+  let percentRotated = 1;
+  if (timeToRotate > 0) percentRotated = Math.min(1, timeSinceStarted / timeToRotate);
 
   combatantModel.rootTransformNode.rotationQuaternion = Quaternion.Slerp(
     previousRotation,
     destinationRotation,
     percentRotated
   );
+
+  console.log("rotation: ", combatantModel.rootTransformNode.rotationQuaternion);
 
   if (percentTranslated >= 1) {
     onComplete();

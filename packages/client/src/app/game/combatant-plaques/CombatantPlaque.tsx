@@ -10,19 +10,13 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import {
-  AdventuringParty,
-  CombatantProperties,
-  InputLock,
-  formatVector3,
-} from "@speed-dungeon/common";
+import { AdventuringParty, InputLock } from "@speed-dungeon/common";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
 import { getTailwindClassFromFloatingTextColor } from "@/stores/game-store/floating-text";
-import { formatCombatModelActionType } from "@/app/3d-world/combatant-models/model-action-manager/model-actions";
 
 interface Props {
   entityId: string;
@@ -125,12 +119,14 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
     });
   }
 
-  const lockedUiState = InputLock.isLocked(combatantProperties.inputLock) ? "opacity-50" : "";
+  const lockedUiState = InputLock.isLocked(combatantProperties.inputLock)
+    ? "opacity-50 pointer-events-none "
+    : "pointer-events-auto ";
 
   return (
     <div className={`${lockedUiState}`}>
       {
-        <div id={`${entityId}-position-div`} className="absolute">
+        <div id={`${entityId}-position-div`} className="absolute border border-red-600">
           {
             <div className="text-2xl absolute w-fit bottom-0 bg-gray-700 opacity-50 ">
               {
@@ -172,7 +168,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
         </div>
       }
       <div
-        className={`w-96 h-fit border bg-slate-700 pointer-events-auto flex p-2.5 relative box-border ${conditionalBorder} `}
+        className={`w-96 h-fit border bg-slate-700 flex p-2.5 relative box-border ${conditionalBorder} `}
         ref={combatantPlaqueRef}
       >
         <TargetingIndicators party={party} entityId={entityId} />

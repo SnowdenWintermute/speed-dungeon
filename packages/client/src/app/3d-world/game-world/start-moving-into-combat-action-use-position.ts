@@ -21,7 +21,7 @@ export default function startMovingIntoCombatActionUsePosition(
   gameWorld: GameWorld,
   message: StartMovingCombatantIntoCombatActionPositionMessage
 ) {
-  console.log("handling move into position message: ", message);
+  // console.log("handling move into position message: ", message);
   const { actionUserId, actionCommandPayload } = message;
   const { primaryTargetId, isMelee } = actionCommandPayload;
 
@@ -58,9 +58,6 @@ export default function startMovingIntoCombatActionUsePosition(
     if (userCombatantModelOption === undefined)
       return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     const userCombatantModel = userCombatantModelOption;
-
-    // @todo - move this into returnhome
-    userCombatantModel.isInMeleeRangeOfTarget = false;
 
     // - user home rotation
     // - target rotation
