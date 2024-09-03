@@ -47,7 +47,11 @@ export default function getFrameEventFromAnimation(
                   targetModel.animationManager.startAnimationWithTransition(
                     ANIMATION_NAMES.EVADE,
                     500,
-                    { shouldLoop: false, animationEventOption: null, onComplete: () => {} }
+                    {
+                      shouldLoop: false,
+                      animationEventOption: null,
+                      onComplete: () => {},
+                    }
                   );
 
                   startFloatingText(

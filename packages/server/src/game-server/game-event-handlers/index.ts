@@ -118,8 +118,10 @@ export default function initiateGameEventListeners(
       this.characterActionHandler(
         socket.id,
         characterId,
-        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-          this.useSelectedCombatActionHandler(characterAssociatedData)
+        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) => {
+          const result = this.useSelectedCombatActionHandler(characterAssociatedData);
+          console.log("result: ", result);
+        }
       );
     });
   });

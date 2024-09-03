@@ -3,6 +3,7 @@ import { ModularCharacter } from "../modular-character";
 import { MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME } from "@speed-dungeon/common";
 import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
 import { CombatantModelActionType } from "../model-action-manager/model-actions";
+import { ANIMATION_NAMES } from "./animation-names";
 
 export type ManagedAnimationOptions = {
   shouldLoop: boolean;
@@ -132,6 +133,8 @@ export class AnimationManager {
     }
 
     // @TODO - if playing and previous are both null, try to play idle
+    if (this.playing === null && this.previous === null)
+      this.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 500);
   }
 
   getAnimationGroupByName(name: string) {
@@ -147,7 +150,6 @@ export class AnimationManager {
   isRepeatingAnimation(actionType: CombatantModelActionType) {
     switch (actionType) {
       case CombatantModelActionType.ApproachDestination:
-      case CombatantModelActionType.ReturnHome:
         return true;
       default:
         return false;

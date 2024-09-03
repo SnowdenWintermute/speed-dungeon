@@ -2,7 +2,6 @@ import { Quaternion, Vector3 } from "babylonjs";
 
 export enum CombatantModelActionType {
   ApproachDestination,
-  ReturnHome,
   TurnToTowardTarget,
 }
 
@@ -10,8 +9,6 @@ export function formatCombatModelActionType(type: CombatantModelActionType) {
   switch (type) {
     case CombatantModelActionType.ApproachDestination:
       return "Approach Destination";
-    case CombatantModelActionType.ReturnHome:
-      return "Return Home";
     case CombatantModelActionType.TurnToTowardTarget:
       return "Turn Toward Target";
   }
@@ -23,7 +20,7 @@ export class CombatantModelActionProgressTracker {
 }
 
 export type ApproachDestinationModelAction = {
-  type: CombatantModelActionType.ApproachDestination | CombatantModelActionType.ReturnHome;
+  type: CombatantModelActionType.ApproachDestination;
   previousLocation: Vector3;
   destinationLocation: Vector3;
   timeToTranslate: number;

@@ -67,8 +67,9 @@ export default function startReturningHome(
         const partyResult = gameState.getParty();
         if (partyResult instanceof Error) return console.error(partyResult);
         const party = partyResult;
+        if (!gameState.game) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
 
-        const combatantResult = AdventuringParty.getCombatant(party, actionUserId);
+        const combatantResult = SpeedDungeonGame.getCombatantById(gameState.game, actionUserId);
         if (combatantResult instanceof Error) return console.error(combatantResult);
         InputLock.unlockInput(combatantResult.combatantProperties.inputLock);
 

@@ -1,9 +1,4 @@
-import {
-  CombatantProperties,
-  InputLock,
-  ReturnHomeActionCommandPayload,
-  SpeedDungeonGame,
-} from "@speed-dungeon/common";
+import { InputLock, ReturnHomeActionCommandPayload, SpeedDungeonGame } from "@speed-dungeon/common";
 import { GameServer } from "../..";
 import checkForWipes from "../combat-action-results-processing/check-for-wpies";
 
@@ -14,11 +9,13 @@ export default function returnHomeActionCommandHandler(
   payload: ReturnHomeActionCommandPayload
 ) {
   const { shouldEndTurn } = payload;
+  console.log("processing return home ");
   const actionAssociatedDataResult = this.getGamePartyAndCombatant(gameName, combatantId);
   if (actionAssociatedDataResult instanceof Error) return actionAssociatedDataResult;
   const { game, party, combatant } = actionAssociatedDataResult;
   // SERVER
   // - end the combatant's turn if in battle and action required turn
+  console.log("should end turn: ", shouldEndTurn);
   if (party.battleId !== null && shouldEndTurn) {
     const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, party.battleId);
     if (maybeError instanceof Error) return maybeError;
@@ -41,4 +38,7 @@ export default function returnHomeActionCommandHandler(
   // - if in combat, take ai controlled turn if appropriate
 
   // @TODO - take AI turns
+  //
+
+  party.actionCommandManager.processNextCommand();
 }

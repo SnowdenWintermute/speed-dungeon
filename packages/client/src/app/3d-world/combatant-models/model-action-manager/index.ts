@@ -36,7 +36,6 @@ export class ModelActionManager {
 
     switch (this.activeModelAction.modelAction.type) {
       case CombatantModelActionType.ApproachDestination:
-      case CombatantModelActionType.ReturnHome:
         approachDestinationModelActionProcessor(this.combatantModel, this.activeModelAction);
         break;
       case CombatantModelActionType.TurnToTowardTarget:

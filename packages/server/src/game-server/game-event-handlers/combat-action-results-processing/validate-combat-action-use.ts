@@ -35,7 +35,11 @@ export default function validateCombatActionUse(
     battleOption !== null &&
     !Battle.combatantIsFirstInTurnOrder(battleOption, character.entityProperties.id)
   ) {
-    return new Error(ERROR_MESSAGES.COMBATANT.NOT_ACTIVE);
+    return new Error(
+      ERROR_MESSAGES.COMBATANT.NOT_ACTIVE +
+        " first turn tracker " +
+        JSON.stringify(battleOption.turnTrackers[0])
+    );
   }
   // VALIDATE USABILITY CONTEXT
   const { usabilityContext } = combatActionProperties;

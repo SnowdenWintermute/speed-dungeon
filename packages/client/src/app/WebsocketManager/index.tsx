@@ -186,24 +186,6 @@ function SocketManager() {
     socket.on(ServerToClientEvent.BattleFullUpdate, (battleOption) => {
       battleFullUpdateHandler(mutateGameStore, mutateAlertStore, battleOption);
     });
-    socket.on(ServerToClientEvent.ActionCommandPayloads, (entityId, payloads) => {
-      mutateGameStore((gameState) => {
-        const gameOption = gameState.game;
-        if (gameOption === null)
-          return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-        const game = gameOption;
-        const partyResult = gameState.getParty();
-        if (partyResult instanceof Error)
-          return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
-        const party = partyResult;
-
-        const actionCommands = payloads.map(
-          (payload) => new ActionCommand(game.name, entityId, payload, actionCommandReceiver)
-        );
-
-        party.actionCommandManager.enqueueNewCommands(actionCommands);
-      });
-    });
     socket.on(ServerToClientEvent.GameMessage, (message) => {
       gameMessageHandler(mutateGameStore, message);
     });
@@ -267,6 +249,25 @@ function SocketManager() {
         );
       }
     );
+
+    socket.on(ServerToClientEvent.ActionCommandPayloads, (entityId, payloads) => {
+      mutateGameStore((gameState) => {
+        const gameOption = gameState.game;
+        if (gameOption === null)
+          return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+        const game = gameOption;
+        const partyResult = gameState.getParty();
+        if (partyResult instanceof Error)
+          return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+        const party = partyResult;
+
+        const actionCommands = payloads.map(
+          (payload) => new ActionCommand(game.name, entityId, payload, actionCommandReceiver)
+        );
+
+        party.actionCommandManager.enqueueNewCommands(actionCommands);
+      });
+    });
 
     return () => {
       if (socketOption) {
