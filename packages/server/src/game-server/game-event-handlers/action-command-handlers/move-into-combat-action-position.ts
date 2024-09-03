@@ -2,6 +2,7 @@ import {
   AdventuringParty,
   COMBATANT_TIME_TO_MOVE_ONE_METER,
   CombatantProperties,
+  InputLock,
   MoveIntoCombatActionPositionActionCommandPayload,
 } from "@speed-dungeon/common";
 import { GameServer } from "../..";
@@ -22,7 +23,7 @@ export default function moveIntoCombatActionPositionActionCommandHandler(
   const actionAssociatedDataResult = this.getGamePartyAndCombatant(gameName, combatantId);
   if (actionAssociatedDataResult instanceof Error) return actionAssociatedDataResult;
   const { party, combatant } = actionAssociatedDataResult;
-  CombatantProperties.lockInput(combatant.combatantProperties);
+  InputLock.lockInput(combatant.combatantProperties.inputLock);
   const { primaryTargetId, isMelee } = payload;
   const primaryTargetResult = AdventuringParty.getCombatant(party, primaryTargetId);
   if (primaryTargetResult instanceof Error) return primaryTargetResult;
@@ -34,8 +35,8 @@ export default function moveIntoCombatActionPositionActionCommandHandler(
     isMelee
   );
 
-  CombatantProperties.increaseLockoutDuration(
-    combatant.combatantProperties,
+  InputLock.increaseLockoutDuration(
+    combatant.combatantProperties.inputLock,
     totalTimeToReachDestination
   );
 

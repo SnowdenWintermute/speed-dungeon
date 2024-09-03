@@ -30,7 +30,7 @@ export default function startPerformingCombatAction(
   // - handle any ressurection by adding the affected combatant's turn tracker
   // - on animation complete, start next action
   const { combatAction } = message.actionCommandPayload;
-  const { actionUserId, onComplete } = message;
+  const { actionUserId } = message;
 
   const userCombatantModelOption = gameWorld.modelManager.combatantModels[actionUserId];
   if (userCombatantModelOption === undefined)
@@ -43,7 +43,13 @@ export default function startPerformingCombatAction(
   userCombatantModel.animationManager.startAnimationWithTransition(animationName, 500, {
     shouldLoop: false,
     animationEventOption,
-    onComplete,
+    onComplete: () => {
+      gameWorld.mutateGameState((gameState) => {
+        const partyResult = gameState.getParty();
+        if (partyResult instanceof Error) return console.error(partyResult);
+        partyResult.actionCommandManager.processNextCommand();
+      });
+    },
   });
 
   const isMelee = combatActionRequiresMeleeRange(combatAction);

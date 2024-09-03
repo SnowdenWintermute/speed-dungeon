@@ -1,4 +1,4 @@
-import { Vector3, Wav2Decode } from "babylonjs";
+import { Vector3 } from "babylonjs";
 import { CombatAction } from "../combat/combat-actions";
 import { PhysicalDamageType } from "../combat/hp-change-source-types";
 import { MagicalElement } from "../combat/magical-elements";
@@ -33,6 +33,7 @@ import unequipSlots from "./unequip-slots";
 import { immerable } from "immer";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app_consts";
 import { cloneVector3 } from "../utils";
+import { InputLock } from "./input-lock";
 
 export class CombatantProperties {
   [immerable] = true;
@@ -53,13 +54,7 @@ export class CombatantProperties {
   // inherent_elemental_affinities: HashMap<MagicalElements; i16>,
   selectedCombatAction: null | CombatAction = null;
   combatActionTarget: null | CombatActionTarget = null;
-  inputLock: {
-    timeLocked: null | number;
-    lockDuration: null | number;
-  } = {
-    timeLocked: null,
-    lockDuration: null,
-  };
+  inputLock: InputLock = new InputLock();
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   constructor(
     public combatantClass: CombatantClass,
@@ -89,25 +84,6 @@ export class CombatantProperties {
   static dropEquippedItem = dropEquippedItem;
   static canUseItem = combatantCanUseItem;
   static equipItem = equipItem;
-  static lockInput(combatantProperties: CombatantProperties) {
-    combatantProperties.inputLock.timeLocked = Date.now();
-    combatantProperties.inputLock.lockDuration = null;
-  }
-  static increaseLockoutDuration(combatantProperties: CombatantProperties, ms: number) {
-    if (combatantProperties.inputLock.lockDuration === null)
-      combatantProperties.inputLock.lockDuration = ms;
-    else combatantProperties.inputLock.lockDuration += ms;
-  }
-  static isLocked(combatantProperties: CombatantProperties) {
-    const { timeLocked, lockDuration } = combatantProperties.inputLock;
-    if (timeLocked !== null && lockDuration === null) return true;
-    if (timeLocked !== null && Date.now() < timeLocked + (lockDuration ?? 0)) return true;
-    return false;
-  }
-  static unlockInput(combatantProperties: CombatantProperties) {
-    combatantProperties.inputLock.timeLocked = null;
-    combatantProperties.inputLock.lockDuration = null;
-  }
   static getPositionForActionUse(
     user: CombatantProperties,
     target: CombatantProperties,

@@ -41,21 +41,18 @@ export type StartMovingCombatantIntoCombatActionPositionMessage = {
   type: NextToBabylonMessageTypes.StartMovingCombatantIntoCombatActionPosition;
   actionCommandPayload: MoveIntoCombatActionPositionActionCommandPayload;
   actionUserId: string;
-  onComplete: () => void;
 };
 
 export type StartPerformingCombatActionMessage = {
   type: NextToBabylonMessageTypes.StartPerformingCombatAction;
   actionCommandPayload: PerformCombatActionActionCommandPayload;
   actionUserId: string;
-  onComplete: () => void;
 };
 
 export type StartReturningHomeMessage = {
   type: NextToBabylonMessageTypes.StartReturningHome;
   actionCommandPayload: ReturnHomeActionCommandPayload;
   actionUserId: string;
-  onComplete: () => void;
 };
 
 export type NextToBabylonMessage =

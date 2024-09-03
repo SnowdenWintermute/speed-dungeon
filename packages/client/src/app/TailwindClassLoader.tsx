@@ -3,6 +3,7 @@ import React from "react";
 export default function TailwindClassLoader() {
   return (
     <div id="tailwind-conditional-class-loader">
+      <div className="opacity-50" />
       <div className="pointer-events-none" />
       <div className="text-beigepaper" />
       <div className="text-green-600" />

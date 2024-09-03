@@ -1,6 +1,11 @@
-import { Battle, ReturnHomeActionCommandPayload, SpeedDungeonGame } from "@speed-dungeon/common";
+import {
+  CombatantProperties,
+  InputLock,
+  ReturnHomeActionCommandPayload,
+  SpeedDungeonGame,
+} from "@speed-dungeon/common";
 import { GameServer } from "../..";
-import checkForDefeatedCombatantGroups from "../combat-action-results-processing/check-for-defeated-combatant-groups";
+import checkForWipes from "../combat-action-results-processing/check-for-wpies";
 
 export default function returnHomeActionCommandHandler(
   this: GameServer,
@@ -21,21 +26,19 @@ export default function returnHomeActionCommandHandler(
 
   // - check for party wipes and victories and apply/emit them
 
-  const battleGroupResult = Battle.getAllyAndEnemyBattleGroups(battle, combatantId);
-  if (battleGroupResult instanceof Error) return battleGroupResult;
-  const { allyGroup, enemyGroup } = battleGroupResult;
-
-  const partyWipesResult = checkForDefeatedCombatantGroups(
-    game,
-    allyGroup.combatantIds,
-    enemyGroup.combatantIds
-  );
+  const partyWipesResult = checkForWipes(game, combatantId, party.battleId);
   if (partyWipesResult instanceof Error) return partyWipesResult;
-  if (partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated) break;
+  if (partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated) {
+    // @TODO - handle party wipes
+  }
 
   // - unlock the character's inputs (if in combat they will still be "locked" in the sense it isn't their turn)
   // - we'll let the next player input now, even if it takes a long time to animate this player running home
   //   the clien't shouldn't play the next action until they get back. They can show a "ready up" pose while waiting but
   //   at least they get to put in their inputs
+  InputLock.unlockInput(combatant.combatantProperties.inputLock);
+  console.log("unlocked input");
   // - if in combat, take ai controlled turn if appropriate
+
+  // @TODO - take AI turns
 }

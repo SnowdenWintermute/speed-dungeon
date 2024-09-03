@@ -7,6 +7,7 @@ import {
   COMBATANT_TIME_TO_ROTATE_360,
   CombatantProperties,
   ERROR_MESSAGES,
+  InputLock,
   cloneVector3,
 } from "@speed-dungeon/common";
 import getCurrentParty from "@/utils/getCurrentParty";
@@ -21,7 +22,7 @@ export default function startMovingIntoCombatActionUsePosition(
   message: StartMovingCombatantIntoCombatActionPositionMessage
 ) {
   console.log("handling move into position message: ", message);
-  const { actionUserId, actionCommandPayload, onComplete } = message;
+  const { actionUserId, actionCommandPayload } = message;
   const { primaryTargetId, isMelee } = actionCommandPayload;
 
   gameWorld.mutateGameState((gameState) => {
@@ -35,6 +36,8 @@ export default function startMovingIntoCombatActionUsePosition(
     const actionUserResult = AdventuringParty.getCombatant(party, actionUserId);
     if (actionUserResult instanceof Error) return console.error(actionUserResult);
     const actionUser = actionUserResult;
+
+    InputLock.lockInput(actionUser.combatantProperties.inputLock);
 
     // - destination location
     // - time to travel
@@ -92,7 +95,13 @@ export default function startMovingIntoCombatActionUsePosition(
       previousRotation: cloneDeep(userModelCurrentRotation),
       destinationRotation: cloneDeep(destinationQuaternion),
       timeToRotate,
-      onComplete,
+      onComplete: () => {
+        gameWorld.mutateGameState((gameState) => {
+          const partyResult = gameState.getParty();
+          if (partyResult instanceof Error) return console.error(partyResult);
+          partyResult.actionCommandManager.processNextCommand();
+        });
+      },
     };
 
     userCombatantModel.modelActionManager.modelActionQueue.push(modelAction);

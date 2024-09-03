@@ -30,7 +30,11 @@ export class ActionCommand {
           this.payload
         );
       case ActionCommandType.ReturnHome:
-        return this.receiver.returnHomeActionCommandHandler(this.gameName, this.entityId);
+        return this.receiver.returnHomeActionCommandHandler(
+          this.gameName,
+          this.entityId,
+          this.payload
+        );
       case ActionCommandType.ChangeEquipment:
         return this.receiver.changeEquipmentActionCommandHandler(
           this.gameName,

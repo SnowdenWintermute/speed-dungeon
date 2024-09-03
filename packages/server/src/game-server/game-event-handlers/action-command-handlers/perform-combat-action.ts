@@ -2,6 +2,7 @@ import {
   AdventuringParty,
   CombatantProperties,
   DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
+  InputLock,
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
@@ -21,8 +22,8 @@ export default function performCombatActionActionCommandHandler(
   // SERVER
   // - add the "action performance time" to the lockout time
   // @todo - change how long an action takes based on its type and the user's equipment
-  CombatantProperties.increaseLockoutDuration(
-    combatant.combatantProperties,
+  InputLock.increaseLockoutDuration(
+    combatant.combatantProperties.inputLock,
     DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME
   );
 
@@ -49,6 +50,7 @@ export default function performCombatActionActionCommandHandler(
         // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
       }
     }
+
   // - get the next action
 
   party.actionCommandManager.processNextCommand();
