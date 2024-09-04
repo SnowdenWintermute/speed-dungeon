@@ -2,6 +2,7 @@ export * from "./calculate-combat-action-hp-change-range";
 export * from "./combat-action-properties";
 export * from "./get-ability-mana-cost";
 export * from "./combat-action-requires-melee-range";
+export * from "./get-combat-action-execution-time";
 
 import { CombatantAbilityName } from "../../combatants";
 

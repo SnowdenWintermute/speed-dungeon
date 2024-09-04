@@ -21,7 +21,6 @@ export default function startMovingIntoCombatActionUsePosition(
   gameWorld: GameWorld,
   message: StartMovingCombatantIntoCombatActionPositionMessage
 ) {
-  // console.log("handling move into position message: ", message);
   const { actionUserId, actionCommandPayload } = message;
   const { primaryTargetId, isMelee } = actionCommandPayload;
 
@@ -39,18 +38,13 @@ export default function startMovingIntoCombatActionUsePosition(
 
     InputLock.lockInput(actionUser.combatantProperties.inputLock);
 
-    // - destination location
-    // - time to travel
     const { destinationLocation, totalTimeToReachDestination } =
       CombatantProperties.getPositionForActionUse(
         actionUser.combatantProperties,
         primaryTarget.combatantProperties,
         isMelee
       );
-    // NEED:
-    //
-    // - user model id (to get model current rotation)
-    // - target home position (to get target rotation from destination which is on their outer swing radius to their model center)
+
     const userHomeLocation = actionUser.combatantProperties.homeLocation;
     const targetHomeLocation = primaryTarget.combatantProperties.homeLocation;
 
@@ -59,9 +53,6 @@ export default function startMovingIntoCombatActionUsePosition(
       return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     const userCombatantModel = userCombatantModelOption;
 
-    // - user home rotation
-    // - target rotation
-    // - time to rotate
     const lookingAtMatrix = Matrix.LookAtLH(
       destinationLocation,
       cloneVector3(targetHomeLocation),
@@ -91,6 +82,7 @@ export default function startMovingIntoCombatActionUsePosition(
       timeToTranslate: totalTimeToReachDestination,
       previousRotation: cloneDeep(userModelCurrentRotation),
       destinationRotation: cloneDeep(destinationQuaternion),
+      percentTranslationToTriggerCompletionEvent: 1,
       timeToRotate,
       onComplete: () => {
         gameWorld.mutateGameState((gameState) => {

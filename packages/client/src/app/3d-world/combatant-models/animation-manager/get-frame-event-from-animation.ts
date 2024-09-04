@@ -50,6 +50,7 @@ export default function getFrameEventFromAnimation(
                     {
                       shouldLoop: false,
                       animationEventOption: null,
+                      animationDurationOverrideOption: null,
                       onComplete: () => {},
                     }
                   );

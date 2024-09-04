@@ -1,6 +1,7 @@
 import {
   COMBATANT_TIME_TO_MOVE_ONE_METER,
   ERROR_MESSAGES,
+  SpeedDungeonGame,
   combatActionRequiresMeleeRange,
 } from "@speed-dungeon/common";
 import { GameWorld } from ".";
@@ -10,10 +11,10 @@ import { Vector3 } from "babylonjs";
 import getCombatActionAnimationName from "../combatant-models/animation-manager/animation-names";
 import {
   CombatantModelAction,
-  CombatantModelActionProgressTracker,
   CombatantModelActionType,
 } from "../combatant-models/model-action-manager/model-actions";
 import getFrameEventFromAnimation from "../combatant-models/animation-manager/get-frame-event-from-animation";
+import { getCombatActionExecutionTime } from "@speed-dungeon/common";
 
 export default function startPerformingCombatAction(
   gameWorld: GameWorld,
@@ -25,7 +26,7 @@ export default function startPerformingCombatAction(
   // - play the animation so it takes up the entire "action performance time"
   // - frame event applies hpChange, mpChange, and status effect changes
   // - frame event starts hit recovery/evade/death animation on targets
-  // - animation manager for target has separate slot for hit recovery animation as a "prioritized animation" but continues
+  // - NOT USED: animation manager for target has separate slot for hit recovery animation as a "prioritized animation" but continues
   //   progressing "main animation" in the background so it can be switched back to after hit recovery completion
   // - handle any death by removing the affected combatant's turn tracker
   // - handle any ressurection by adding the affected combatant's turn tracker
@@ -41,9 +42,29 @@ export default function startPerformingCombatAction(
   // START THEIR ANIMATION AND CALL ONCOMPLETE WHEN DONE
   const animationName = getCombatActionAnimationName(combatAction);
   const animationEventOption = getFrameEventFromAnimation(gameWorld, message.actionCommandPayload);
+
+  // get the execution time
+  let combatActionExecutionTimeResult: Error | number = new Error(
+    "couldn't get action execution time"
+  );
+  gameWorld.mutateGameState((gameState) => {
+    if (!gameState.game)
+      return (combatActionExecutionTimeResult = new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
+    const combatantResult = SpeedDungeonGame.getCombatantById(gameState.game, actionUserId);
+    if (combatantResult instanceof Error)
+      return (combatActionExecutionTimeResult = combatantResult);
+    combatActionExecutionTimeResult = getCombatActionExecutionTime(
+      combatantResult.combatantProperties,
+      combatAction
+    );
+  });
+  if (combatActionExecutionTimeResult instanceof Error)
+    return console.error(combatActionExecutionTimeResult);
+
   userCombatantModel.animationManager.startAnimationWithTransition(animationName, 500, {
     shouldLoop: false,
     animationEventOption,
+    animationDurationOverrideOption: combatActionExecutionTimeResult,
     onComplete: () => {
       gameWorld.mutateGameState((gameState) => {
         const partyResult = gameState.getParty();
@@ -71,6 +92,8 @@ export default function startPerformingCombatAction(
   if (!userModelCurrentRotation)
     return console.error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
 
+  userCombatantModel.isInMeleeRangeOfTarget = true;
+
   const modelAction: CombatantModelAction = {
     type: CombatantModelActionType.ApproachDestination,
     previousLocation,
@@ -79,10 +102,9 @@ export default function startPerformingCombatAction(
     previousRotation: userModelCurrentRotation,
     destinationRotation: userModelCurrentRotation,
     timeToRotate: 0,
+    percentTranslationToTriggerCompletionEvent: 1,
     onComplete: () => {},
   };
-
-  userCombatantModel.isInMeleeRangeOfTarget = true;
 
   userCombatantModel.modelActionManager.startNewModelAction(modelAction);
 }

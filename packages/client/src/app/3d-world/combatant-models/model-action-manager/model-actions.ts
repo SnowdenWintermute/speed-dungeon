@@ -16,6 +16,7 @@ export function formatCombatModelActionType(type: CombatantModelActionType) {
 
 export class CombatantModelActionProgressTracker {
   timeStarted: number = Date.now();
+  completionEventTriggered: boolean = false;
   constructor(public modelAction: CombatantModelAction) {}
 }
 
@@ -27,6 +28,7 @@ export type ApproachDestinationModelAction = {
   previousRotation: Quaternion;
   destinationRotation: Quaternion;
   timeToRotate: number;
+  percentTranslationToTriggerCompletionEvent: number;
   onComplete: () => void;
 };
 

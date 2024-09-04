@@ -3,10 +3,8 @@ import { GameWorld } from ".";
 import cloneDeep from "lodash.clonedeep";
 import { StartReturningHomeMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import {
-  AdventuringParty,
   COMBATANT_TIME_TO_MOVE_ONE_METER,
   COMBATANT_TIME_TO_ROTATE_360,
-  CombatantProperties,
   ERROR_MESSAGES,
   InputLock,
   SpeedDungeonGame,
@@ -60,6 +58,7 @@ export default function startReturningHome(
     previousRotation,
     destinationRotation,
     timeToRotate,
+    percentTranslationToTriggerCompletionEvent: 1,
     onComplete: () => {
       userCombatantModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 500);
 

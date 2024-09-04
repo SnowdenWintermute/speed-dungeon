@@ -1,12 +1,12 @@
 import {
   AdventuringParty,
   CombatantProperties,
-  DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
   InputLock,
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { GameServer } from "../..";
+import { getCombatActionExecutionTime } from "@speed-dungeon/common";
 
 export default function performCombatActionActionCommandHandler(
   this: GameServer,
@@ -21,10 +21,14 @@ export default function performCombatActionActionCommandHandler(
 
   // SERVER
   // - add the "action performance time" to the lockout time
-  // @todo - change how long an action takes based on its type and the user's equipment
+  const actionExecutionTimeResult = getCombatActionExecutionTime(
+    combatant.combatantProperties,
+    combatAction
+  );
+  if (actionExecutionTimeResult instanceof Error) return actionExecutionTimeResult;
   InputLock.increaseLockoutDuration(
     combatant.combatantProperties.inputLock,
-    DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME
+    actionExecutionTimeResult
   );
 
   // - apply the hpChange, mpChange, and status effect changes from the payload

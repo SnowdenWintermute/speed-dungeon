@@ -8,6 +8,7 @@ import { ANIMATION_NAMES } from "./animation-names";
 export type ManagedAnimationOptions = {
   shouldLoop: boolean;
   animationEventOption: null | AnimationEvent;
+  animationDurationOverrideOption: null | number;
   onComplete: () => void;
 };
 
@@ -62,6 +63,7 @@ export class AnimationManager {
     options: ManagedAnimationOptions = {
       shouldLoop: true,
       animationEventOption: null,
+      animationDurationOverrideOption: null,
       onComplete: () => {},
     }
   ): Error | void {
@@ -92,7 +94,12 @@ export class AnimationManager {
 
     this.playing = new ManagedAnimation(clonedAnimationOption, transitionDuration, options);
 
-    clonedAnimationOption?.start(options.shouldLoop);
+    if (clonedAnimationOption) {
+      const animationStockDuration = clonedAnimationOption.getLength() * 1000;
+      const speedModifier = animationStockDuration / (options.animationDurationOverrideOption ?? 1);
+
+      clonedAnimationOption.start(options.shouldLoop, speedModifier);
+    }
   }
 
   stepAnimationTransitionWeights(): Error | void {
