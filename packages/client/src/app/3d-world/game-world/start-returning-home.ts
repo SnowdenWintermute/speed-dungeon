@@ -84,5 +84,5 @@ export default function startReturningHome(
     },
   };
 
-  userCombatantModel.modelActionManager.modelActionQueue.push(modelAction);
+  userCombatantModel.modelActionManager.startNewModelAction(modelAction);
 }

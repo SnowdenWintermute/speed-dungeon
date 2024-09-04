@@ -10,6 +10,7 @@ import { Vector3 } from "babylonjs";
 import getCombatActionAnimationName from "../combatant-models/animation-manager/animation-names";
 import {
   CombatantModelAction,
+  CombatantModelActionProgressTracker,
   CombatantModelActionType,
 } from "../combatant-models/model-action-manager/model-actions";
 import getFrameEventFromAnimation from "../combatant-models/animation-manager/get-frame-event-from-animation";
@@ -83,5 +84,5 @@ export default function startPerformingCombatAction(
 
   userCombatantModel.isInMeleeRangeOfTarget = true;
 
-  userCombatantModel.modelActionManager.modelActionQueue.push(modelAction);
+  userCombatantModel.modelActionManager.startNewModelAction(modelAction);
 }

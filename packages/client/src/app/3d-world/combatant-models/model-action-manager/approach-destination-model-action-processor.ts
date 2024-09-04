@@ -23,6 +23,7 @@ export default function approachDestinationModelActionProcessor(
 
   const timeSinceStarted = Date.now() - modelActionTracker.timeStarted;
   const percentTranslated = Math.max(0, Math.min(1, timeSinceStarted / timeToTranslate));
+  if (combatantModel.entityId === "1") console.log("timeSinceStarted", timeSinceStarted);
 
   const newPosition = Vector3.Lerp(previousLocation, destinationLocation, percentTranslated);
 
@@ -36,8 +37,6 @@ export default function approachDestinationModelActionProcessor(
     destinationRotation,
     percentRotated
   );
-
-  console.log("rotation: ", combatantModel.rootTransformNode.rotationQuaternion);
 
   if (percentTranslated >= 1) {
     onComplete();

@@ -124,9 +124,9 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
     : "pointer-events-auto ";
 
   return (
-    <div className={`${lockedUiState}`}>
+    <div>
       {
-        <div id={`${entityId}-position-div`} className="absolute border border-red-600">
+        <div id={`${entityId}-position-div`} className="absolute">
           {
             <div className="text-2xl absolute w-fit bottom-0 bg-gray-700 opacity-50 ">
               {
@@ -168,7 +168,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
         </div>
       }
       <div
-        className={`w-96 h-fit border bg-slate-700 flex p-2.5 relative box-border ${conditionalBorder} `}
+        className={`w-96 h-fit border bg-slate-700 flex p-2.5 relative box-border ${conditionalBorder} ${lockedUiState}`}
         ref={combatantPlaqueRef}
       >
         <TargetingIndicators party={party} entityId={entityId} />

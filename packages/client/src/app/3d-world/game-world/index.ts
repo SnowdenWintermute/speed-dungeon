@@ -49,21 +49,21 @@ export class GameWorld {
       this.scene.render();
     });
 
-    this.startLimitedFramerateRenderLoop(10, 3000);
+    // this.startLimitedFramerateRenderLoop(3, 3000);
   }
 
   updateGameWorld() {
     this.showDebugText();
     this.processMessagesFromNext();
+
     // spawn/despawn models
     this.modelManager.startProcessingNewMessages();
 
     for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
-      combatantModel.updateDomRefPosition();
-      combatantModel.modelActionManager.startNewModelActions(this.mutateGameState);
       combatantModel.modelActionManager.processActiveModelAction();
       combatantModel.animationManager.handleCompletedAnimations();
       combatantModel.animationManager.stepAnimationTransitionWeights();
+      combatantModel.updateDomRefPosition();
     }
   }
 

@@ -1,42 +1,25 @@
-import { MutateState } from "@/stores/mutate-state";
-import { GameState } from "@/stores/game-store";
 import {
   CombatantModelAction,
   CombatantModelActionProgressTracker,
   CombatantModelActionType,
 } from "./model-actions";
 import { ModularCharacter } from "../modular-character";
-import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import approachDestinationModelActionProcessor from "./approach-destination-model-action-processor";
 
 export class ModelActionManager {
-  modelActionQueue: CombatantModelAction[] = [];
-  activeModelAction: null | CombatantModelActionProgressTracker = null;
+  activeModelActionTracker: null | CombatantModelActionProgressTracker = null;
   constructor(public combatantModel: ModularCharacter) {}
 
-  startNewModelActions(mutateGameState: MutateState<GameState>) {
-    const readyToStartNewActions = this.activeModelAction === null;
-    if (!readyToStartNewActions || this.modelActionQueue.length === 0) return;
-
-    const newModelAction = this.modelActionQueue.shift();
-    if (newModelAction === undefined)
-      return console.error(new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED));
-
-    mutateGameState((state) => {
-      const gameStateActiveAction =
-        state.babylonControlledCombatantDOMData[this.combatantModel.entityId];
-      if (gameStateActiveAction) gameStateActiveAction.activeModelAction = newModelAction.type;
-    });
-
-    this.activeModelAction = new CombatantModelActionProgressTracker(newModelAction);
+  startNewModelAction(newModelAction: CombatantModelAction) {
+    this.activeModelActionTracker = new CombatantModelActionProgressTracker(newModelAction);
   }
 
   processActiveModelAction() {
-    if (!this.activeModelAction) return;
+    if (!this.activeModelActionTracker) return;
 
-    switch (this.activeModelAction.modelAction.type) {
+    switch (this.activeModelActionTracker.modelAction.type) {
       case CombatantModelActionType.ApproachDestination:
-        approachDestinationModelActionProcessor(this.combatantModel, this.activeModelAction);
+        approachDestinationModelActionProcessor(this.combatantModel, this.activeModelActionTracker);
         break;
       case CombatantModelActionType.TurnToTowardTarget:
         break;
@@ -44,13 +27,6 @@ export class ModelActionManager {
   }
 
   removeActiveModelAction() {
-    this.activeModelAction = null;
-
-    this.combatantModel.world.mutateGameState((state) => {
-      if (!this.activeModelAction) return;
-      const gameStateActiveAction =
-        state.babylonControlledCombatantDOMData[this.combatantModel.entityId];
-      if (gameStateActiveAction) gameStateActiveAction.activeModelAction = null;
-    });
+    this.activeModelActionTracker = null;
   }
 }

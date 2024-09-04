@@ -101,6 +101,6 @@ export default function startMovingIntoCombatActionUsePosition(
       },
     };
 
-    userCombatantModel.modelActionManager.modelActionQueue.push(modelAction);
+    userCombatantModel.modelActionManager.startNewModelAction(modelAction);
   });
 }
