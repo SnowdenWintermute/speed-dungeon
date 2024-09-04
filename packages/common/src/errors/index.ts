@@ -36,6 +36,7 @@ export const ERROR_MESSAGES = {
     MISSING_CHARACTERS: "Somehow we have a party with no characters",
     CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT:
       "Can't explore while there are still monsters in the room",
+    NOT_IN_BATTLE: "Party not in a battle",
   },
   PLAYER: {
     NO_CHARACTERS: "The provided player doesn't own any characters",

@@ -1,6 +1,17 @@
-import { InputLock, ReturnHomeActionCommandPayload, SpeedDungeonGame } from "@speed-dungeon/common";
+import {
+  AISelectActionAndTarget,
+  AdventuringParty,
+  Battle,
+  CombatAction,
+  CombatActionType,
+  CombatantTurnTracker,
+  ERROR_MESSAGES,
+  InputLock,
+  ReturnHomeActionCommandPayload,
+  SpeedDungeonGame,
+} from "@speed-dungeon/common";
 import { GameServer } from "../..";
-import checkForWipes from "../combat-action-results-processing/check-for-wpies";
+import checkForWipes from "../combat-action-results-processing/check-for-wipes";
 
 export default function returnHomeActionCommandHandler(
   this: GameServer,
@@ -16,9 +27,11 @@ export default function returnHomeActionCommandHandler(
   // SERVER
   // - end the combatant's turn if in battle and action required turn
   console.log("should end turn: ", shouldEndTurn);
+  let newActiveCombatantTrackerOption: null | CombatantTurnTracker = null;
   if (party.battleId !== null && shouldEndTurn) {
     const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, party.battleId);
     if (maybeError instanceof Error) return maybeError;
+    newActiveCombatantTrackerOption = maybeError;
   }
 
   // - check for party wipes and victories and apply/emit them
@@ -35,10 +48,60 @@ export default function returnHomeActionCommandHandler(
   //   at least they get to put in their inputs
   InputLock.unlockInput(combatant.combatantProperties.inputLock);
   console.log("unlocked input");
-  // - if in combat, take ai controlled turn if appropriate
 
-  // @TODO - take AI turns
-  //
+  // - if in combat, take ai controlled turn if appropriate
+  if (newActiveCombatantTrackerOption !== null) {
+    let activeCombatantResult = SpeedDungeonGame.getCombatantById(
+      game,
+      newActiveCombatantTrackerOption.entityId
+    );
+    if (activeCombatantResult instanceof Error) return activeCombatantResult;
+    let { entityProperties, combatantProperties } = activeCombatantResult;
+    const activeCombatantIsAiControlled = combatantProperties.controllingPlayer === null;
+
+    if (activeCombatantIsAiControlled) {
+      if (party.battleId === null) return new Error(ERROR_MESSAGES.PARTY.NOT_IN_BATTLE);
+      const battleOption = game.battles[party.battleId];
+      if (battleOption === undefined) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
+
+      // @TODO - queue action commands for AI if they are the next active combatant
+      // - check if active combatant is AI controlled
+      // - select their action
+      // - get action result
+      // - composeActionCommandPayloadsFromActionResults
+
+      const battleGroupsResult = Battle.getAllyAndEnemyBattleGroups(
+        battleOption,
+        entityProperties.id
+      );
+      if (battleGroupsResult instanceof Error) return battleGroupsResult;
+      const { allyGroup, enemyGroup } = battleGroupsResult;
+
+      const aiSelectedActionAndTargetResult = AISelectActionAndTarget(
+        game,
+        entityProperties.id,
+        allyGroup,
+        enemyGroup
+      );
+      if (aiSelectedActionAndTargetResult instanceof Error) return aiSelectedActionAndTargetResult;
+      const { abilityName, target } = aiSelectedActionAndTargetResult;
+
+      const selectedCombatAction: CombatAction = {
+        type: CombatActionType.AbilityUsed,
+        abilityName,
+      };
+
+      this.processSelectedCombatAction(
+        game,
+        party,
+        entityProperties.id,
+        selectedCombatAction,
+        target,
+        battleOption,
+        party.characterPositions
+      );
+    }
+  }
 
   party.actionCommandManager.processNextCommand();
 }

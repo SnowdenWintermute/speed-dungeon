@@ -53,6 +53,7 @@ import changeEquipmentActionCommandHandler from "./game-event-handlers/action-co
 import battleResultActionCommandHandler from "./game-event-handlers/action-command-handlers/battle-results";
 import getGamePartyAndCombatant from "./utils/get-game-party-and-combatant";
 import useSelectedCombatActionHandler from "./game-event-handlers/character-uses-selected-combat-action-handler";
+import processSelectedCombatAction from "./game-event-handlers/character-uses-selected-combat-action-handler/process-selected-combat-action";
 
 export type Username = string;
 export type SocketId = string;
@@ -114,6 +115,7 @@ export class GameServer implements ActionCommandReceiver {
   cycleTargetsHandler = cycleTargetsHandler;
   cycleTargetingSchemesHandler = cycleTargetingSchemesHandler;
   // ACTION COMMAND HANDLERS
+  processSelectedCombatAction = processSelectedCombatAction;
   payAbilityCostsActionCommandHandler = payAbilityCostsActionCommandHandler;
   moveIntoCombatActionPositionActionCommandHandler =
     moveIntoCombatActionPositionActionCommandHandler;

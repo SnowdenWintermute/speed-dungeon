@@ -1,15 +1,6 @@
-import {
-  ActionCommand,
-  CharacterAssociatedData,
-  ERROR_MESSAGES,
-  ServerToClientEvent,
-  SpeedDungeonGame,
-  formatActionCommandType,
-  getPartyChannelName,
-} from "@speed-dungeon/common";
+import { CharacterAssociatedData, ERROR_MESSAGES } from "@speed-dungeon/common";
 import { GameServer } from "../..";
 import validateCombatActionUse from "../combat-action-results-processing/validate-combat-action-use";
-import composeActionCommandPayloadsFromActionResults from "./compose-action-command-payloads-from-action-results";
 
 export default function useSelectedCombatActionHandler(
   this: GameServer,
@@ -28,46 +19,15 @@ export default function useSelectedCombatActionHandler(
   if (targetsAndBattleResult instanceof Error) return targetsAndBattleResult;
   const { targets, battleOption } = targetsAndBattleResult;
 
-  // GET ABILITY OR CONSUMABLE USE RESULTS
-  const actionResultsResult = SpeedDungeonGame.getActionResults(
+  this.processSelectedCombatAction(
     game,
+    party,
     character.entityProperties.id,
     selectedCombatAction,
     targets,
     battleOption,
     party.characterPositions
   );
-  if (actionResultsResult instanceof Error) return actionResultsResult;
-  const actionResults = actionResultsResult;
-
-  // COMPOSE ACTION COMMANDS
-  const actionCommandPayloads = composeActionCommandPayloadsFromActionResults(actionResults);
-  console.log(
-    "created payloads: ",
-    actionCommandPayloads.map((payload) => formatActionCommandType(payload.type))
-  );
-
-  // SEND ACTION COMMAND PAYLOADS TO CLIENT
-  this.io
-    .in(getPartyChannelName(game.name, party.name))
-    .emit(
-      ServerToClientEvent.ActionCommandPayloads,
-      character.entityProperties.id,
-      actionCommandPayloads
-    );
-
-  // CREATE ACTION COMMANDS FROM PAYLOADS
-  const actionCommands = actionCommandPayloads.map(
-    (payload) => new ActionCommand(game.name, character.entityProperties.id, payload, this)
-  );
-
-  console.log(
-    "commands: ",
-    actionCommands.map((command) => formatActionCommandType(command.payload.type))
-  );
-
-  // ENQUEUE AND START PROCESSING ACTION COMMANDS IN THEIR PARTY'S QUEUE IF NOT ALREADY DOING SO
-  party.actionCommandManager.enqueueNewCommands(actionCommands);
 }
 
 //////////////////////////// OLD CODE
