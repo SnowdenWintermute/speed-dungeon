@@ -56,7 +56,7 @@ export class GameState {
   lastDebugMessageId: number = 0;
   babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
   combatantFloatingText: { [combatantId: string]: FloatingText[] } = {};
-  combatantsAnimating: string[] = [];
+  combatantModelsAwaitingSpawn: string[] = [];
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
     if (party instanceof Error) return null;

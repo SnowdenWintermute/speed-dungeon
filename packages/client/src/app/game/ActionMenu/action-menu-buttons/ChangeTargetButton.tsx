@@ -28,7 +28,7 @@ export default function ChangeTargetButton({ properties }: Props) {
       if (keypressHandlerRef.current)
         window.removeEventListener("keypress", keypressHandlerRef.current);
     };
-  }, []);
+  }, [properties.clickHandler]);
 
   useEffect(() => {
     keyupHandlerRef.current = (e: KeyboardEvent) =>

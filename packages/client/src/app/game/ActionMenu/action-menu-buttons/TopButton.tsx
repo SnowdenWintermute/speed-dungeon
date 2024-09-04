@@ -29,7 +29,7 @@ export default function TopButton({ properties }: Props) {
       if (keypressHandlerRef.current)
         window.removeEventListener("keypress", keypressHandlerRef.current);
     };
-  }, []);
+  }, [properties.clickHandler]);
 
   useEffect(() => {
     keyupHandlerRef.current = (e: KeyboardEvent) =>

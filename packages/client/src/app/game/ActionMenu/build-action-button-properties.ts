@@ -30,6 +30,7 @@ export default function buildActionButtonProperties(
   const textResult = determineActionButtonText(gameState, action);
   if (textResult instanceof Error) return textResult;
   const text = textResult;
+
   const clickHandler = createActionButtonClickHandler(
     action,
     gameState,

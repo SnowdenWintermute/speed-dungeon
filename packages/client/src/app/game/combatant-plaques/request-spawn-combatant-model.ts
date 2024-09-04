@@ -1,3 +1,4 @@
+import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { NextBabylonMessagingState } from "@/stores/next-babylon-messaging-store";
 import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
@@ -6,11 +7,16 @@ import { AdventuringParty, CombatantDetails, cloneVector3 } from "@speed-dungeon
 export default function requestSpawnCombatantModel(
   combatantDetails: CombatantDetails,
   party: AdventuringParty,
+  mutateGameStore: MutateState<GameState>,
   mutateNextBabylonMessagingStore: MutateState<NextBabylonMessagingState>,
   modelDomPositionElement: HTMLDivElement | null
 ) {
   const entityId = combatantDetails.entityProperties.id;
   const { combatantProperties } = combatantDetails;
+
+  mutateGameStore((state) => {
+    state.combatantModelsAwaitingSpawn.push(entityId);
+  });
 
   let startRotation = Math.PI / 2;
   let modelCorrectionRotation = 0;

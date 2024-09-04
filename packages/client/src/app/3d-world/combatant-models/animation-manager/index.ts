@@ -95,10 +95,13 @@ export class AnimationManager {
     this.playing = new ManagedAnimation(clonedAnimationOption, transitionDuration, options);
 
     if (clonedAnimationOption) {
-      const animationStockDuration = clonedAnimationOption.getLength() * 1000;
-      const speedModifier = animationStockDuration / (options.animationDurationOverrideOption ?? 1);
+      if (options.animationDurationOverrideOption) {
+        const animationStockDuration = clonedAnimationOption.getLength() * 1000;
+        const speedModifier =
+          animationStockDuration / (options.animationDurationOverrideOption ?? 1);
 
-      clonedAnimationOption.start(options.shouldLoop, speedModifier);
+        clonedAnimationOption.start(options.shouldLoop, speedModifier);
+      } else clonedAnimationOption.start(options.shouldLoop);
     }
   }
 

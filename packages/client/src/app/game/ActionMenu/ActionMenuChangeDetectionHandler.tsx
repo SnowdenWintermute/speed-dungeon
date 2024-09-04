@@ -34,6 +34,7 @@ export default function ActionMenuChangeDetectionHandler({
   const getActiveCombatant = useGameStore().getActiveCombatant;
   const uiState = useUIStore();
   const mutateAlertState = useAlertStore().mutateState;
+  const combatantModelsAwaitingSpawn = useGameStore().combatantModelsAwaitingSpawn;
 
   const pageNumber = gameState.actionMenuCurrentPageNumber;
   const [previouslyFocusedCharacterId, setPreviouslyFocusedCharacterId] = useState(
@@ -154,6 +155,7 @@ export default function ActionMenuChangeDetectionHandler({
     battleIdOption,
     uiState.modKeyHeld,
     JSON.stringify(focusedCharacterEquipmentIds),
+    combatantModelsAwaitingSpawn,
   ]);
 
   return <></>;
