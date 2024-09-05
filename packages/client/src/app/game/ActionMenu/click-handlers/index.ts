@@ -25,7 +25,7 @@ export default function createActionButtonClickHandler(
 ) {
   const mutateGameState = gameState.mutateState;
 
-  if (gameState.combatantModelsAwaitingSpawn.length)
+  if (gameState.combatantModelsAwaitingSpawn.length || gameState.actionCommandWaitingArea.length)
     return () => {
       console.log("awaiting spawn: ", gameState.combatantModelsAwaitingSpawn);
     };

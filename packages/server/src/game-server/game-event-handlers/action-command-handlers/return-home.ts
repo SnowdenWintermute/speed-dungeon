@@ -1,6 +1,5 @@
 import {
   AISelectActionAndTarget,
-  AdventuringParty,
   Battle,
   CombatAction,
   CombatActionType,
@@ -51,56 +50,7 @@ export default function returnHomeActionCommandHandler(
 
   // - if in combat, take ai controlled turn if appropriate
   if (newActiveCombatantTrackerOption !== null) {
-    let activeCombatantResult = SpeedDungeonGame.getCombatantById(
-      game,
-      newActiveCombatantTrackerOption.entityId
-    );
-    if (activeCombatantResult instanceof Error) return activeCombatantResult;
-    let { entityProperties, combatantProperties } = activeCombatantResult;
-    const activeCombatantIsAiControlled = combatantProperties.controllingPlayer === null;
-
-    if (activeCombatantIsAiControlled) {
-      if (party.battleId === null) return new Error(ERROR_MESSAGES.PARTY.NOT_IN_BATTLE);
-      const battleOption = game.battles[party.battleId];
-      if (battleOption === undefined) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
-
-      // @TODO - queue action commands for AI if they are the next active combatant
-      // - check if active combatant is AI controlled
-      // - select their action
-      // - get action result
-      // - composeActionCommandPayloadsFromActionResults
-
-      const battleGroupsResult = Battle.getAllyAndEnemyBattleGroups(
-        battleOption,
-        entityProperties.id
-      );
-      if (battleGroupsResult instanceof Error) return battleGroupsResult;
-      const { allyGroup, enemyGroup } = battleGroupsResult;
-
-      const aiSelectedActionAndTargetResult = AISelectActionAndTarget(
-        game,
-        entityProperties.id,
-        allyGroup,
-        enemyGroup
-      );
-      if (aiSelectedActionAndTargetResult instanceof Error) return aiSelectedActionAndTargetResult;
-      const { abilityName, target } = aiSelectedActionAndTargetResult;
-
-      const selectedCombatAction: CombatAction = {
-        type: CombatActionType.AbilityUsed,
-        abilityName,
-      };
-
-      this.processSelectedCombatAction(
-        game,
-        party,
-        entityProperties.id,
-        selectedCombatAction,
-        target,
-        battleOption,
-        party.characterPositions
-      );
-    }
+    this.takeAiControlledTurnIfActive(game, party, newActiveCombatantTrackerOption.entityId);
   }
 
   party.actionCommandManager.processNextCommand();

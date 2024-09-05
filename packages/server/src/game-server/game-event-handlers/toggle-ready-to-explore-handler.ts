@@ -11,14 +11,12 @@ import {
   getPartyChannelName,
   updateCombatantHomePosition,
   formatVector3,
-  getMonsterCombatantClass,
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
 import { DungeonRoom, DungeonRoomType } from "@speed-dungeon/common";
 import { tickCombatUntilNextCombatantIsActive } from "@speed-dungeon/common";
-import takeAiTurnsAtBattleStart from "./combat-action-results-processing/take-ai-turns-at-battle-start";
 import { DescendOrExplore } from "@speed-dungeon/common";
-import checkForDefeatedCombatantGroups from "./combat-action-results-processing/check-for-defeated-combatant-groups";
+import checkForWipes from "./combat-action-results-processing/check-for-wipes";
 
 export default function toggleReadyToExploreHandler(this: GameServer, socketId: string) {
   const [socket, socketMeta] = this.getConnection<
@@ -90,13 +88,6 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
   for (const monster of Object.values(party.currentRoom.monsters))
     updateCombatantHomePosition(monster.entityProperties.id, monster.combatantProperties, party);
 
-  console.log(
-    "PARTY NEW ROOM MONSTERS: ",
-    Object.values(party.currentRoom.monsters).map((monster) =>
-      formatVector3(monster.combatantProperties.homeLocation)
-    )
-  );
-
   party.roomsExplored.onCurrentFloor += 1;
   party.roomsExplored.total += 1;
 
@@ -129,23 +120,19 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
       .in(getPartyChannelName(game.name, party.name))
       .emit(ServerToClientEvent.BattleFullUpdate, battle);
 
-    const maybeError = takeAiTurnsAtBattleStart(this, game, party, battle);
+    if (battle.turnTrackers[0] === undefined)
+      return new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
+    const maybeError = this.takeAiControlledTurnIfActive(
+      game,
+      party,
+      battle.turnTrackers[0].entityId
+    );
     if (maybeError instanceof Error) return maybeError;
 
-    const partyWipesResult = checkForDefeatedCombatantGroups(
-      game,
-      party.characterPositions,
-      AdventuringParty.getMonsterIds(party)
-    );
-
+    const partyWipesResult = checkForWipes(game, party.characterPositions[0]!, party.battleId);
     if (partyWipesResult instanceof Error) return partyWipesResult;
-
-    if (partyWipesResult.alliesDefeated) {
-      const partyWipeResult = this.handlePartyWipe(game, party);
-      if (partyWipeResult instanceof Error) return partyWipeResult;
-    } else if (partyWipesResult.opponentsDefeated) {
-      const battleVictoryResult = this.handleBattleVictory(party);
-      if (battleVictoryResult instanceof Error) return battleVictoryResult;
+    if (partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated) {
+      // @TODO - handle party wipes
     }
   }
 }

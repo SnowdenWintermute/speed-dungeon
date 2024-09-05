@@ -31,8 +31,8 @@ export default function LobbyMenu() {
     socketOption?.emit(ClientToServerEvent.CreateGame, "");
     socketOption?.emit(ClientToServerEvent.CreateParty, "");
     socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Warrior);
-    // socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
-    // socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Rogue);
+    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
+    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Rogue);
     socketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
     socketOption?.emit(ClientToServerEvent.ToggleReadyToExplore);
     socketOption?.emit(ClientToServerEvent.SelectCombatAction, "1", {

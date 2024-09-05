@@ -3,6 +3,7 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { immerable, produce } from "immer";
 import {
+  ActionCommand,
   AdventuringParty,
   BattleReport,
   CombatAction,
@@ -57,6 +58,7 @@ export class GameState {
   babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
   combatantFloatingText: { [combatantId: string]: FloatingText[] } = {};
   combatantModelsAwaitingSpawn: string[] = [];
+  actionCommandWaitingArea: ActionCommand[] = [];
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
     if (party instanceof Error) return null;

@@ -265,7 +265,9 @@ function SocketManager() {
           (payload) => new ActionCommand(game.name, entityId, payload, actionCommandReceiver)
         );
 
-        party.actionCommandManager.enqueueNewCommands(actionCommands);
+        if (gameState.combatantModelsAwaitingSpawn.length === 0)
+          party.actionCommandManager.enqueueNewCommands(actionCommands);
+        else gameState.actionCommandWaitingArea.push(...actionCommands);
       });
     });
 
