@@ -41,7 +41,6 @@ import pickUpItemHandler from "./game-event-handlers/pick-up-item-handler";
 import { ItemGenerationDirector } from "./item-generation/item-generation-director";
 import { createItemGenerationDirectors } from "./item-generation/create-item-generation-directors";
 import { generateRandomItem } from "./item-generation/generate-random-item";
-import handleBattleVictory from "./game-event-handlers/combat-action-results-processing/handle-battle-victory";
 import selectCombatActionHandler from "./game-event-handlers/select-combat-action-handler";
 import cycleTargetsHandler from "./game-event-handlers/cycle-targets-handler";
 import cycleTargetingSchemesHandler from "./game-event-handlers/cycle-targeting-schemes-handler";
@@ -103,7 +102,6 @@ export class GameServer implements ActionCommandReceiver {
   deleteCharacterHandler = deleteCharacterHandler;
   toggleReadyToStartGameHandler = toggleReadyToStartGameHandler;
   handlePartyWipe = handlePartyWipe;
-  handleBattleVictory = handleBattleVictory;
   toggleReadyToExploreHandler = toggleReadyToExploreHandler;
   dropItemHandler = dropItemHandler;
   dropEquippedItemHandler = dropEquippedItemHandler;

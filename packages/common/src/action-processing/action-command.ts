@@ -42,7 +42,11 @@ export class ActionCommand {
           this.payload
         );
       case ActionCommandType.BattleResult:
-        return this.receiver.battleResultActionCommandHandler(this.gameName, this.payload);
+        return this.receiver.battleResultActionCommandHandler(
+          this.gameName,
+          this.entityId,
+          this.payload
+        );
     }
   }
 }

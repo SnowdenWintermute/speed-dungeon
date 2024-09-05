@@ -1,13 +1,16 @@
 import {
-  AISelectActionAndTarget,
-  Battle,
-  CombatAction,
-  CombatActionType,
+  ActionCommand,
+  ActionCommandType,
+  BattleConclusion,
+  BattleResultActionCommandPayload,
   CombatantTurnTracker,
   ERROR_MESSAGES,
   InputLock,
+  Item,
   ReturnHomeActionCommandPayload,
+  ServerToClientEvent,
   SpeedDungeonGame,
+  getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "../..";
 import checkForWipes from "../combat-action-results-processing/check-for-wipes";
@@ -19,13 +22,11 @@ export default function returnHomeActionCommandHandler(
   payload: ReturnHomeActionCommandPayload
 ) {
   const { shouldEndTurn } = payload;
-  console.log("processing return home ");
   const actionAssociatedDataResult = this.getGamePartyAndCombatant(gameName, combatantId);
   if (actionAssociatedDataResult instanceof Error) return actionAssociatedDataResult;
   const { game, party, combatant } = actionAssociatedDataResult;
   // SERVER
   // - end the combatant's turn if in battle and action required turn
-  console.log("should end turn: ", shouldEndTurn);
   let newActiveCombatantTrackerOption: null | CombatantTurnTracker = null;
   if (party.battleId !== null && shouldEndTurn) {
     // @todo - if this combatant is dead that means they killed themselves on their own turn
@@ -37,10 +38,44 @@ export default function returnHomeActionCommandHandler(
 
   // - check for party wipes and victories and apply/emit them
 
-  const partyWipesResult = checkForWipes(game, combatantId, party.battleId);
+  // check for wipes from the perspective of the players (allies are the party characters, enemies are the monsters)
+  if (!party.characterPositions[0]) return new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
+  const partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
   if (partyWipesResult instanceof Error) return partyWipesResult;
-  if (partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated) {
+  const battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
+  if (battleConcluded) {
     // @TODO - handle party wipes
+    console.log("WIPE DETECTED");
+    let conclusion: BattleConclusion;
+    const loot: Item[] = [];
+    const experiencePointChanges: { [combatantId: string]: number } = {};
+    if (partyWipesResult.alliesDefeated) {
+      console.log("PLAYER PARTY");
+      conclusion = BattleConclusion.Defeat;
+    } else {
+      conclusion = BattleConclusion.Victory;
+      console.log("MONSTERS");
+    }
+    const payload: BattleResultActionCommandPayload = {
+      type: ActionCommandType.BattleResult,
+      conclusion,
+      loot,
+      experiencePointChanges,
+      timestamp: Date.now(),
+    };
+
+    const battleConclusionActionCommand = new ActionCommand(
+      game.name,
+      party.characterPositions[0],
+      payload,
+      this
+    );
+
+    this.io
+      .in(getPartyChannelName(game.name, party.name))
+      .emit(ServerToClientEvent.ActionCommandPayloads, party.characterPositions[0], [payload]);
+
+    party.actionCommandManager.enqueueNewCommands([battleConclusionActionCommand]);
   }
 
   // - unlock the character's inputs (if in combat they will still be "locked" in the sense it isn't their turn)
@@ -48,14 +83,9 @@ export default function returnHomeActionCommandHandler(
   //   the clien't shouldn't play the next action until they get back. They can show a "ready up" pose while waiting but
   //   at least they get to put in their inputs
   InputLock.unlockInput(combatant.combatantProperties.inputLock);
-  console.log("unlocked input");
 
   // - if in combat, take ai controlled turn if appropriate
-  if (newActiveCombatantTrackerOption !== null) {
-    console.log(
-      "taking ai controlled turn for entityId ",
-      newActiveCombatantTrackerOption.entityId
-    );
+  if (!battleConcluded && newActiveCombatantTrackerOption !== null) {
     const maybeError = this.takeAiControlledTurnIfActive(
       game,
       party,
@@ -63,8 +93,6 @@ export default function returnHomeActionCommandHandler(
     );
     if (maybeError instanceof Error) return console.error(maybeError);
   }
-
-  console.log("processing next");
 
   party.actionCommandManager.processNextCommand();
 }

@@ -83,6 +83,7 @@ export interface ActionCommandReceiver {
   // - remove the loading indicator for that slot
   battleResultActionCommandHandler: (
     gameName: string,
+    combatantId: string,
     payload: BattleResultActionCommandPayload
   ) => void;
   // SERVER

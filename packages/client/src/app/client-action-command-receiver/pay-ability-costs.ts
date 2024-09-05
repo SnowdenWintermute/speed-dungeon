@@ -34,7 +34,8 @@ function handler(
     Inventory.removeItem(combatant.combatantProperties.inventory, itemId);
   }
   if (payload.hp) CombatantProperties.changeHitPoints(combatant.combatantProperties, payload.hp);
-  if (payload.mp) CombatantProperties.changeMana(combatant.combatantProperties, payload.mp);
+  console.log("paying mp cost");
+  if (payload.mp) CombatantProperties.changeMana(combatant.combatantProperties, -10);
 
   party.actionCommandManager.processNextCommand();
 }

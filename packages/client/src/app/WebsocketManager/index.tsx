@@ -14,7 +14,7 @@ import {
   SpeedDungeonGame,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import characterCreationHandler from "./lobby-event-handlers/character-creation-handler";
 import characterDeletionHandler from "./lobby-event-handlers/character-deletion-handler";
@@ -53,10 +53,12 @@ function SocketManager() {
   const socketOption = useWebsocketStore().socketOption;
   const [connected, setConnected] = useState(false);
 
-  const actionCommandReceiver = new ClientActionCommandReceiver(
-    mutateGameStore,
-    mutateAlertStore,
-    mutateNextBabylonMessagingStore
+  const actionCommandReceiverRef = useRef(
+    new ClientActionCommandReceiver(
+      mutateGameStore,
+      mutateAlertStore,
+      mutateNextBabylonMessagingStore
+    )
   );
 
   // setup socket
@@ -262,7 +264,8 @@ function SocketManager() {
         const party = partyResult;
 
         const actionCommands = payloads.map(
-          (payload) => new ActionCommand(game.name, entityId, payload, actionCommandReceiver)
+          (payload) =>
+            new ActionCommand(game.name, entityId, payload, actionCommandReceiverRef.current)
         );
 
         if (gameState.combatantModelsAwaitingSpawn.length === 0)

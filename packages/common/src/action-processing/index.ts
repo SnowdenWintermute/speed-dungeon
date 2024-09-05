@@ -1,7 +1,8 @@
 export * from "./action-command";
 export * from "./action-command-receiver";
+import { BattleConclusion } from "../battle";
 import { CombatAction } from "../combat";
-import { EquipmentSlot } from "../items";
+import { EquipmentSlot, Item } from "../items";
 
 export enum ActionCommandType {
   PayAbilityCosts,
@@ -52,10 +53,10 @@ export type ChangeEquipmentActionCommandPayload = {
 
 export type BattleResultActionCommandPayload = {
   type: ActionCommandType.BattleResult;
-  // conclusion: Victory | Defeat
-  // loot: Item[]
-  // experiencePointChanges: {[combatantId: string]: number}
-  // timestamp: number
+  conclusion: BattleConclusion;
+  loot: Item[];
+  experiencePointChanges: { [combatantId: string]: number };
+  timestamp: number;
 };
 
 export type ActionCommandPayload =
