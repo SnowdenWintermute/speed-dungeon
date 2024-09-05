@@ -1,7 +1,7 @@
 import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 
 // the point of this is if we get action commands before combatant models spawn
 // such as when monsters are faster than players at the start of a battle
@@ -11,7 +11,6 @@ import React, { useEffect, useRef } from "react";
 export default function ActionCommandWaitingAreaManager() {
   const mutateGameStore = useGameStore().mutateState;
   const combatantModelsAwaitingSpawn = useGameStore().combatantModelsAwaitingSpawn;
-  const previousModelsAwaitingSpawnLength = useRef(0);
 
   useEffect(() => {
     if (combatantModelsAwaitingSpawn.length) return;

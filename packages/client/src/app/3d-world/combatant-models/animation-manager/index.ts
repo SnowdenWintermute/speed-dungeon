@@ -48,6 +48,7 @@ export class ManagedAnimation {
 export class AnimationManager {
   playing: null | ManagedAnimation = null;
   previous: null | ManagedAnimation = null;
+  locked: boolean = false;
   constructor(public characterModel: ModularCharacter) {
     // stop default animation
     this.characterModel.skeleton.animationGroups[0]?.stop();
@@ -143,7 +144,7 @@ export class AnimationManager {
     }
 
     // @TODO - if playing and previous are both null, try to play idle
-    if (this.playing === null && this.previous === null)
+    if (this.playing === null && this.previous === null && !this.locked)
       this.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 500);
   }
 

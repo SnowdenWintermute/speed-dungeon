@@ -28,6 +28,8 @@ export default function returnHomeActionCommandHandler(
   console.log("should end turn: ", shouldEndTurn);
   let newActiveCombatantTrackerOption: null | CombatantTurnTracker = null;
   if (party.battleId !== null && shouldEndTurn) {
+    // @todo - if this combatant is dead that means they killed themselves on their own turn
+    // which means their turn tracker was already removed, so we'll need to custom handle that
     const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, party.battleId);
     if (maybeError instanceof Error) return maybeError;
     newActiveCombatantTrackerOption = maybeError;
@@ -50,8 +52,19 @@ export default function returnHomeActionCommandHandler(
 
   // - if in combat, take ai controlled turn if appropriate
   if (newActiveCombatantTrackerOption !== null) {
-    this.takeAiControlledTurnIfActive(game, party, newActiveCombatantTrackerOption.entityId);
+    console.log(
+      "taking ai controlled turn for entityId ",
+      newActiveCombatantTrackerOption.entityId
+    );
+    const maybeError = this.takeAiControlledTurnIfActive(
+      game,
+      party,
+      newActiveCombatantTrackerOption.entityId
+    );
+    if (maybeError instanceof Error) return console.error(maybeError);
   }
+
+  console.log("processing next");
 
   party.actionCommandManager.processNextCommand();
 }

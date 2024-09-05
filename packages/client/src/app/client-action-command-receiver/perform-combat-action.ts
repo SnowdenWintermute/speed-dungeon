@@ -13,13 +13,6 @@ export default function performCombatActionActionCommandHandler(
       type: NextToBabylonMessageTypes.StartPerformingCombatAction,
       actionCommandPayload: payload,
       actionUserId: combatantId,
-      onComplete: () => {
-        this.mutateGameState((gameState) => {
-          const partyResult = gameState.getParty();
-          if (partyResult instanceof Error) return console.error(partyResult);
-          partyResult.actionCommandManager.processNextCommand();
-        });
-      },
     });
   });
 }

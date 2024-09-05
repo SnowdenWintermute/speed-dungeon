@@ -10,6 +10,7 @@ import {
 import { GameWorld } from "../../game-world";
 import { FloatingTextColor, startFloatingText } from "@/stores/game-store/floating-text";
 import { ANIMATION_NAMES } from "./animation-names";
+import getCurrentParty from "@/utils/getCurrentParty";
 
 export default function getFrameEventFromAnimation(
   gameWorld: GameWorld,
@@ -109,10 +110,36 @@ function induceHitRecovery(
 
     const gameOption = gameState.game;
     if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-    const combatantResult = SpeedDungeonGame.getCombatantById(gameOption, targetId);
+    const game = gameOption;
+    if (!gameState.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+    const partyOptionResult = getCurrentParty(gameState, gameState.username);
+    if (partyOptionResult instanceof Error) return console.error(partyOptionResult);
+    if (partyOptionResult === undefined)
+      return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+    const party = partyOptionResult;
+    const combatantResult = SpeedDungeonGame.getCombatantById(game, targetId);
     if (combatantResult instanceof Error) return console.error(combatantResult);
+    const { combatantProperties } = combatantResult;
 
-    CombatantProperties.changeHitPoints(combatantResult.combatantProperties, hpChange);
+    const combatantWasAliveBeforeHpChange = combatantProperties.hitPoints > 0;
+    CombatantProperties.changeHitPoints(combatantProperties, hpChange);
+
+    if (combatantProperties.hitPoints <= 0) {
+      const maybeError = SpeedDungeonGame.handlePlayerDeath(game, party.battleId, targetId);
+      if (maybeError instanceof Error) return console.error(maybeError);
+      targetModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.DEATH, 500, {
+        shouldLoop: false,
+        animationDurationOverrideOption: null,
+        animationEventOption: null,
+        onComplete: () => {
+          targetModel.animationManager.locked = true;
+        },
+      });
+    }
+
+    if (!combatantWasAliveBeforeHpChange && combatantProperties.hitPoints > 0) {
+      // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
+    }
   });
 
   // START THEIR HIT RECOVERY, DEATH OR RESSURECTION ANIMATION
