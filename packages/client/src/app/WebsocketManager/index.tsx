@@ -14,7 +14,7 @@ import {
   SpeedDungeonGame,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
-import React, { useEffect, useRef, useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import characterCreationHandler from "./lobby-event-handlers/character-creation-handler";
 import characterDeletionHandler from "./lobby-event-handlers/character-deletion-handler";
@@ -40,6 +40,7 @@ import characterSelectedCombatActionHandler from "./game-event-handlers/characte
 import characterCycledTargetingSchemesHandler from "./game-event-handlers/character-cycled-targeting-schemes-handler";
 import playerLeftGameHandler from "./player-left-game-handler";
 import { ClientActionCommandReceiver } from "../client-action-command-receiver";
+import getCurrentParty from "@/utils/getCurrentParty";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -51,15 +52,25 @@ function SocketManager() {
   const mutateAlertStore = useAlertStore().mutateState;
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const socketOption = useWebsocketStore().socketOption;
-  const [connected, setConnected] = useState(false);
 
-  const actionCommandReceiverRef = useRef(
-    new ClientActionCommandReceiver(
-      mutateGameStore,
-      mutateAlertStore,
-      mutateNextBabylonMessagingStore
-    )
-  );
+  const actionCommandReceiverRef = useRef<null | ClientActionCommandReceiver>();
+
+  // useEffect(() => {
+  //   actionCommandReceiverRef.current = new ClientActionCommandReceiver(
+  //     mutateGameStore,
+  //     mutateAlertStore,
+  //     mutateNextBabylonMessagingStore
+  //   );
+  //   return () => {
+  //     actionCommandReceiverRef.current = null;
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    actionCommandReceiverRef.current?.mutateGameState((state) => {
+      state.testText += JSON.stringify("a" + Math.random().toFixed(2));
+    });
+  }, []);
 
   // setup socket
   useEffect(() => {
@@ -80,6 +91,12 @@ function SocketManager() {
     if (!socketOption) return;
     const socket = socketOption;
 
+    actionCommandReceiverRef.current = new ClientActionCommandReceiver(
+      mutateGameStore,
+      mutateAlertStore,
+      mutateNextBabylonMessagingStore
+    );
+
     socket.emit(ClientToServerEvent.RequestsGameList);
 
     socket.on("connect", () => {
@@ -87,6 +104,30 @@ function SocketManager() {
         state.game = null;
       });
     });
+
+    socket.on(ServerToClientEvent.ActionCommandPayloads, (entityId, payloads) => {
+      mutateGameStore((gameState) => {
+        const game = gameState.game;
+        if (game === null) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+        if (!gameState.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+        const partyOption = getCurrentParty(gameState, gameState.username);
+        if (partyOption === undefined)
+          return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+        const party = partyOption;
+        if (actionCommandReceiverRef.current === undefined)
+          return setAlert(mutateAlertStore, "No action command receiver exists");
+
+        const actionCommands = payloads.map(
+          (payload) =>
+            new ActionCommand(game.name, entityId, payload, actionCommandReceiverRef.current!)
+        );
+
+        if (gameState.combatantModelsAwaitingSpawn.length === 0)
+          party.actionCommandManager.enqueueNewCommands(actionCommands);
+        else gameState.actionCommandWaitingArea.push(...actionCommands);
+      });
+    });
+
     socket.on(ServerToClientEvent.ErrorMessage, (message) => {
       setAlert(mutateAlertStore, message);
     });
@@ -252,38 +293,18 @@ function SocketManager() {
       }
     );
 
-    socket.on(ServerToClientEvent.ActionCommandPayloads, (entityId, payloads) => {
-      mutateGameStore((gameState) => {
-        const gameOption = gameState.game;
-        if (gameOption === null)
-          return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-        const game = gameOption;
-        const partyResult = gameState.getParty();
-        if (partyResult instanceof Error)
-          return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
-        const party = partyResult;
-
-        const actionCommands = payloads.map(
-          (payload) =>
-            new ActionCommand(game.name, entityId, payload, actionCommandReceiverRef.current)
-        );
-
-        if (gameState.combatantModelsAwaitingSpawn.length === 0)
-          party.actionCommandManager.enqueueNewCommands(actionCommands);
-        else gameState.actionCommandWaitingArea.push(...actionCommands);
-      });
-    });
-
     return () => {
+      actionCommandReceiverRef.current = null;
+
       if (socketOption) {
         Object.values(ServerToClientEvent).forEach((value) => {
           socketOption.off(value);
         });
       }
     };
-  }, [socketOption, connected]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [socketOption]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return <></>;
+  return <div id="websocket-manager"></div>;
 }
 
 export default SocketManager;

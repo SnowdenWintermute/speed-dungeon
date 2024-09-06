@@ -16,6 +16,7 @@ import ActionCommandWaitingAreaManager from "./ActionCommandWaitingAreaManager";
 
 export default function Game() {
   const game = useGameStore().game;
+  const testText = useGameStore().testText;
   const menuContext = useGameStore().menuContext;
 
   const username = useGameStore().username;
@@ -48,6 +49,7 @@ export default function Game() {
 
   return (
     <main className="h-screen w-screen flex justify-center relative">
+      {testText}
       <CharacterAutofocusManager />
       <ActionCommandWaitingAreaManager />
       <PartyWipeModal party={party} />

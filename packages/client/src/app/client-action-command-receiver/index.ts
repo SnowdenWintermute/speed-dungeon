@@ -8,13 +8,19 @@ import moveIntoCombatActionPositionActionCommandHandler from "./move-into-combat
 import performCombatActionActionCommandHandler from "./perform-combat-action";
 import returnHomeActionCommandHandler from "./return-home";
 import battleResultActionCommandHandler from "./process-battle-result";
+import { setAlert } from "../components/alerts";
 
 export class ClientActionCommandReceiver implements ActionCommandReceiver {
   constructor(
     public mutateGameState: MutateState<GameState>,
     public mutateAlertState: MutateState<AlertState>,
     public mutateNextBabylonMessagingState: MutateState<NextBabylonMessagingState>
-  ) {}
+  ) {
+    setTimeout(() => {
+      setAlert(this.mutateAlertState, "test alert");
+    }, 3000);
+  }
+
   payAbilityCostsActionCommandHandler = payAbilityCostsActionCommandHandler;
 
   moveIntoCombatActionPositionActionCommandHandler =

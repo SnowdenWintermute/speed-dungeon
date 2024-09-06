@@ -59,6 +59,7 @@ export class GameState {
   combatantFloatingText: { [combatantId: string]: FloatingText[] } = {};
   combatantModelsAwaitingSpawn: string[] = [];
   actionCommandWaitingArea: ActionCommand[] = [];
+  testText: string = "test";
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
     if (party instanceof Error) return null;

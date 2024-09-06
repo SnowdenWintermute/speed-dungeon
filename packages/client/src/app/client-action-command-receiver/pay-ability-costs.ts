@@ -13,6 +13,13 @@ export default function payAbilityCostsActionCommandHandler(
   entityId: string,
   payload: PayAbilityCostsActionCommandPayload
 ) {
+  this.mutateGameState((state) => {
+    console.log(state.testText);
+    console.log("trying to modify");
+    state.testText = "trying to modify";
+    console.log("test text says: ", state.testText);
+  });
+
   combatantAssociatedDataProvider(
     this.mutateGameState,
     this.mutateAlertState,
@@ -36,6 +43,7 @@ function handler(
   if (payload.hp) CombatantProperties.changeHitPoints(combatant.combatantProperties, payload.hp);
   console.log("paying mp cost");
   if (payload.mp) CombatantProperties.changeMana(combatant.combatantProperties, -10);
+  combatant.combatantProperties.mana = 0;
 
   party.actionCommandManager.processNextCommand();
 }
