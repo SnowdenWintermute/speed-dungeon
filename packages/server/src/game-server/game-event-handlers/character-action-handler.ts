@@ -42,8 +42,11 @@ export default function characterActionHandler(
   if (characterResult instanceof Error) return characterResult;
   const character = characterResult;
 
-  if (character.combatantProperties.hitPoints <= 0)
-    return new Error(ERROR_MESSAGES.COMBATANT.IS_DEAD);
+  if (character.combatantProperties.hitPoints <= 0) {
+    return new Error(
+      `${ERROR_MESSAGES.COMBATANT.IS_DEAD} ID: ${characterResult.entityProperties.id}`
+    );
+  }
 
   return fn(socketMeta, { character, party, game });
 }

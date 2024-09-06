@@ -6,25 +6,21 @@ import {
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
 import { combatantAssociatedDataProvider } from "../WebsocketManager/combatant-associated-details-providers";
+import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
 
 export default function payAbilityCostsActionCommandHandler(
   this: ClientActionCommandReceiver,
+  actionCommandManager: ActionCommandManager,
   _gameName: string,
   entityId: string,
   payload: PayAbilityCostsActionCommandPayload
 ) {
-  this.mutateGameState((state) => {
-    console.log(state.testText);
-    console.log("trying to modify");
-    state.testText = "trying to modify";
-    console.log("test text says: ", state.testText);
-  });
-
   combatantAssociatedDataProvider(
     this.mutateGameState,
     this.mutateAlertState,
     entityId,
-    (combatantAssociatedData: CombatantAssociatedData) => handler(combatantAssociatedData, payload)
+    (combatantAssociatedData: CombatantAssociatedData) =>
+      handler(combatantAssociatedData, actionCommandManager, payload)
   );
 }
 
@@ -34,6 +30,8 @@ export default function payAbilityCostsActionCommandHandler(
 
 function handler(
   combatantAssociatedData: CombatantAssociatedData,
+  actionCommandManager: ActionCommandManager,
+
   payload: PayAbilityCostsActionCommandPayload
 ) {
   const { party, combatant } = combatantAssociatedData;
@@ -44,6 +42,6 @@ function handler(
   console.log("paying mp cost");
   if (payload.mp) CombatantProperties.changeMana(combatant.combatantProperties, -10);
   combatant.combatantProperties.mana = 0;
-
-  party.actionCommandManager.processNextCommand();
+  actionCommandManager.processNextCommand();
+  // party.actionCommandManager.processNextCommand();
 }

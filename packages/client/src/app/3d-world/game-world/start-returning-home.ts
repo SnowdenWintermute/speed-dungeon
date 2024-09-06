@@ -77,9 +77,11 @@ export default function startReturningHome(
           if (gameOption === null) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
           SpeedDungeonGame.endActiveCombatantTurn(gameOption, party.battleId);
         }
-
-        party.actionCommandManager.processNextCommand();
       });
+
+      if (!gameWorld.actionCommandManager.current)
+        console.error(ERROR_MESSAGES.CLIENT.NO_COMMAND_MANAGER);
+      gameWorld.actionCommandManager.current!.processNextCommand();
     },
   };
 

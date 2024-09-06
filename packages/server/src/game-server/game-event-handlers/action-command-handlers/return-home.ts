@@ -14,9 +14,11 @@ import {
 } from "@speed-dungeon/common";
 import { GameServer } from "../..";
 import checkForWipes from "../combat-action-results-processing/check-for-wipes";
+import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
 
 export default function returnHomeActionCommandHandler(
   this: GameServer,
+  actionCommandManager: ActionCommandManager,
   gameName: string,
   combatantId: string,
   payload: ReturnHomeActionCommandPayload
@@ -66,6 +68,7 @@ export default function returnHomeActionCommandHandler(
 
     const battleConclusionActionCommand = new ActionCommand(
       game.name,
+      party.actionCommandManager,
       party.characterPositions[0],
       payload,
       this

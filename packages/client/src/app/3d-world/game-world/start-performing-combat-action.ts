@@ -66,11 +66,9 @@ export default function startPerformingCombatAction(
     animationEventOption,
     animationDurationOverrideOption: combatActionExecutionTimeResult,
     onComplete: () => {
-      gameWorld.mutateGameState((gameState) => {
-        const partyResult = gameState.getParty();
-        if (partyResult instanceof Error) return console.error(partyResult);
-        partyResult.actionCommandManager.processNextCommand();
-      });
+      if (!gameWorld.actionCommandManager.current)
+        console.error(ERROR_MESSAGES.CLIENT.NO_COMMAND_MANAGER);
+      gameWorld.actionCommandManager.current!.processNextCommand();
     },
   });
 

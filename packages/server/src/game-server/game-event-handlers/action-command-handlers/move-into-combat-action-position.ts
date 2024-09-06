@@ -7,6 +7,7 @@ import {
 } from "@speed-dungeon/common";
 import { GameServer } from "../..";
 import { Vector3 } from "babylonjs";
+import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
 
 // SERVER
 // - lock this combatant from recieving inputs
@@ -16,6 +17,7 @@ import { Vector3 } from "babylonjs";
 // - process the next command
 export default function moveIntoCombatActionPositionActionCommandHandler(
   this: GameServer,
+  actionCommandManager: ActionCommandManager,
   gameName: string,
   combatantId: string,
   payload: MoveIntoCombatActionPositionActionCommandPayload

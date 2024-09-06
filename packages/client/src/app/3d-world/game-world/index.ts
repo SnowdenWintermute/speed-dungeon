@@ -19,6 +19,8 @@ import processMessagesFromNext from "./process-messages-from-next";
 import { NextBabylonMessagingState } from "@/stores/next-babylon-messaging-store";
 import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
+import { MutableRefObject } from "react";
+import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
 
 export class GameWorld {
   scene: Scene;
@@ -37,6 +39,7 @@ export class GameWorld {
     public canvas: HTMLCanvasElement,
     public mutateGameState: MutateState<GameState>,
     public mutateNextBabylonMessagingState: MutateState<NextBabylonMessagingState>,
+    public actionCommandManager: MutableRefObject<ActionCommandManager | null | undefined>,
     debugRef: React.RefObject<HTMLDivElement>
   ) {
     this.engine = new Engine(canvas, true);

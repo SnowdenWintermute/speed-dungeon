@@ -14,6 +14,7 @@ export const ERROR_MESSAGES = {
     NO_CURRENT_PARTY: "Expected this client to have a party but couldn't find it",
     NO_USERNAME: "Client doesn't know it's own username",
     NO_SOCKET_OBJECT: "Client is missing their websocket object",
+    NO_COMMAND_MANAGER: "Client is missing their action command manager",
   },
   LOBBY: {
     GAME_EXISTS: "A game by that name already exists",

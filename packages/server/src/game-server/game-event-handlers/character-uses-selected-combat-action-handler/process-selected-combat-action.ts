@@ -48,7 +48,8 @@ export default function processSelectedCombatAction(
 
   // CREATE ACTION COMMANDS FROM PAYLOADS
   const actionCommands = actionCommandPayloads.map(
-    (payload) => new ActionCommand(game.name, actionUserId, payload, this)
+    (payload) =>
+      new ActionCommand(game.name, party.actionCommandManager, actionUserId, payload, this)
   );
 
   console.log(

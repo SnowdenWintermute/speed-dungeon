@@ -5,9 +5,11 @@ import {
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
 import getCurrentParty from "@/utils/getCurrentParty";
+import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
 
 export default function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
+  actionCommandManager: ActionCommandManager,
   _gameName: string,
   _combatantId: string,
   payload: BattleResultActionCommandPayload

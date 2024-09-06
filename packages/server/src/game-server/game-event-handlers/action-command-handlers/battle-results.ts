@@ -7,9 +7,11 @@ import {
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { GameServer } from "../..";
+import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
 
 export default function battleResultActionCommandHandler(
   this: GameServer,
+  actionCommandManager: ActionCommandManager,
   gameName: string,
   combatantId: string,
   payload: BattleResultActionCommandPayload

@@ -7,9 +7,11 @@ import {
 } from "@speed-dungeon/common";
 import { GameServer } from "../..";
 import { getCombatActionExecutionTime } from "@speed-dungeon/common";
+import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
 
 export default function performCombatActionActionCommandHandler(
   this: GameServer,
+  actionCommandManager: ActionCommandManager,
   gameName: string,
   combatantId: string,
   payload: PerformCombatActionActionCommandPayload

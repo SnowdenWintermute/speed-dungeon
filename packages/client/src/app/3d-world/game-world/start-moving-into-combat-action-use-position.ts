@@ -85,11 +85,14 @@ export default function startMovingIntoCombatActionUsePosition(
       percentTranslationToTriggerCompletionEvent: 1,
       timeToRotate,
       onComplete: () => {
-        gameWorld.mutateGameState((gameState) => {
-          const partyResult = gameState.getParty();
-          if (partyResult instanceof Error) return console.error(partyResult);
-          partyResult.actionCommandManager.processNextCommand();
-        });
+        if (!gameWorld.actionCommandManager.current)
+          console.error(ERROR_MESSAGES.CLIENT.NO_COMMAND_MANAGER);
+        gameWorld.actionCommandManager.current!.processNextCommand();
+        // gameWorld.mutateGameState((gameState) => {
+        //   const partyResult = gameState.getParty();
+        //   if (partyResult instanceof Error) return console.error(partyResult);
+        //   partyResult.actionCommandManager.processNextCommand();
+        // });
       },
     };
 

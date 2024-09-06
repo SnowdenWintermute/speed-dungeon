@@ -4,12 +4,14 @@ import {
   PayAbilityCostsActionCommandPayload,
 } from "@speed-dungeon/common";
 import { GameServer } from "../..";
+import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
 
 // SERVER
 // - apply ability costs to game
 // - process the next command
 export function payAbilityCostsActionCommandHandler(
   this: GameServer,
+  actionCommandManager: ActionCommandManager,
   gameName: string,
   entityId: string,
   payload: PayAbilityCostsActionCommandPayload

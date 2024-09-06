@@ -6,9 +6,11 @@ import {
   PerformCombatActionActionCommandPayload,
   ReturnHomeActionCommandPayload,
 } from ".";
+import { ActionCommandManager } from "./action-command-manager";
 
 export interface ActionCommandReceiver {
   payAbilityCostsActionCommandHandler: (
+    actionCommandManager: ActionCommandManager,
     gameName: string,
     combatantId: string,
     payload: PayAbilityCostsActionCommandPayload
@@ -20,6 +22,7 @@ export interface ActionCommandReceiver {
   // - apply ability costs to game
   // - process the next command
   moveIntoCombatActionPositionActionCommandHandler: (
+    actionCommandManager: ActionCommandManager,
     gameName: string,
     combatantId: string,
     payload: MoveIntoCombatActionPositionActionCommandPayload
@@ -36,6 +39,7 @@ export interface ActionCommandReceiver {
   // - start animating them toward their destination
   // - on reach destination, process the next command
   performCombatActionActionCommandHandler: (
+    actionCommandManager: ActionCommandManager,
     gameName: string,
     combatantId: string,
     payload: PerformCombatActionActionCommandPayload
@@ -57,6 +61,7 @@ export interface ActionCommandReceiver {
   // - handle any ressurection by adding the affected combatant's turn tracker
   // - on animation complete, start next action
   returnHomeActionCommandHandler: (
+    actionCommandManager: ActionCommandManager,
     gameName: string,
     combatantId: string,
     payload: ReturnHomeActionCommandPayload
@@ -71,6 +76,7 @@ export interface ActionCommandReceiver {
   // - set the combatant model's animation manager to translate it back to home position
   // - process next action command if any (ai actions in queue, party wipes, party defeats, equipment swaps initiated during last action)
   changeEquipmentActionCommandHandler: (
+    actionCommandManager: ActionCommandManager,
     gameName: string,
     combatantId: string,
     payload: ChangeEquipmentActionCommandPayload
@@ -82,6 +88,7 @@ export interface ActionCommandReceiver {
   // - change the appropriate equipment
   // - remove the loading indicator for that slot
   battleResultActionCommandHandler: (
+    actionCommandManager: ActionCommandManager,
     gameName: string,
     combatantId: string,
     payload: BattleResultActionCommandPayload

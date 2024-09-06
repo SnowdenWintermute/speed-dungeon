@@ -41,6 +41,7 @@ export class GameState {
   //   focus: Vector3.Zero(),
   // };
   game: null | SpeedDungeonGame = null;
+  gameName: string | null = null;
   username: null | string = null;
   focusedCharacterId: string = "";
   detailedEntity: null | DetailableEntity = null;
