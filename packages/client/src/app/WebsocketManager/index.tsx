@@ -92,12 +92,6 @@ function SocketManager({
 
     socket.on(ServerToClientEvent.ActionCommandPayloads, (entityId, payloads) => {
       console.log("got action command payloads");
-      // if (actionCommandReceiverRef.current)
-      //   actionCommandReceiverRef.current.mutateGameState((state) => {
-      //     console.log("ayy");
-      //     state.testText = "ayy";
-      //   });
-      // else console.log("not ayy");
       mutateGameStore((gameState) => {
         if (gameName === undefined || gameName === null)
           return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);

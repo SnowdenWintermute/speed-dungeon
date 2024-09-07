@@ -68,7 +68,7 @@ export default function returnHomeActionCommandHandler(
 
     const battleConclusionActionCommand = new ActionCommand(
       game.name,
-      party.actionCommandManager,
+      actionCommandManager,
       party.characterPositions[0],
       payload,
       this
@@ -78,7 +78,7 @@ export default function returnHomeActionCommandHandler(
       .in(getPartyChannelName(game.name, party.name))
       .emit(ServerToClientEvent.ActionCommandPayloads, party.characterPositions[0], [payload]);
 
-    party.actionCommandManager.enqueueNewCommands([battleConclusionActionCommand]);
+    actionCommandManager.enqueueNewCommands([battleConclusionActionCommand]);
   }
 
   // - unlock the character's inputs (if in combat they will still be "locked" in the sense it isn't their turn)
@@ -97,5 +97,5 @@ export default function returnHomeActionCommandHandler(
     if (maybeError instanceof Error) return console.error(maybeError);
   }
 
-  party.actionCommandManager.processNextCommand();
+  actionCommandManager.processNextCommand();
 }

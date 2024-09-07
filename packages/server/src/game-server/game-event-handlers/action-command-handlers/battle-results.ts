@@ -48,4 +48,6 @@ export default function battleResultActionCommandHandler(
     case BattleConclusion.Victory:
       break;
   }
+
+  actionCommandManager.processNextCommand();
 }

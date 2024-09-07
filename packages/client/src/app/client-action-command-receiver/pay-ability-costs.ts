@@ -31,17 +31,13 @@ export default function payAbilityCostsActionCommandHandler(
 function handler(
   combatantAssociatedData: CombatantAssociatedData,
   actionCommandManager: ActionCommandManager,
-
   payload: PayAbilityCostsActionCommandPayload
 ) {
-  const { party, combatant } = combatantAssociatedData;
+  const { combatant } = combatantAssociatedData;
   for (const itemId of payload.itemIds) {
     Inventory.removeItem(combatant.combatantProperties.inventory, itemId);
   }
   if (payload.hp) CombatantProperties.changeHitPoints(combatant.combatantProperties, payload.hp);
-  console.log("paying mp cost");
-  if (payload.mp) CombatantProperties.changeMana(combatant.combatantProperties, -10);
-  combatant.combatantProperties.mana = 0;
+  if (payload.mp) CombatantProperties.changeMana(combatant.combatantProperties, payload.mp);
   actionCommandManager.processNextCommand();
-  // party.actionCommandManager.processNextCommand();
 }

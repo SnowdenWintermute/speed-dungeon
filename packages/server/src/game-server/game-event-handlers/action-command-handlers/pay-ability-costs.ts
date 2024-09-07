@@ -18,7 +18,7 @@ export function payAbilityCostsActionCommandHandler(
 ) {
   const actionAssociatedDataResult = this.getGamePartyAndCombatant(gameName, entityId);
   if (actionAssociatedDataResult instanceof Error) return actionAssociatedDataResult;
-  const { party, combatant } = actionAssociatedDataResult;
+  const { combatant } = actionAssociatedDataResult;
 
   for (const itemId of payload.itemIds) {
     Inventory.removeItem(combatant.combatantProperties.inventory, itemId);
@@ -26,5 +26,5 @@ export function payAbilityCostsActionCommandHandler(
   if (payload.hp) CombatantProperties.changeHitPoints(combatant.combatantProperties, payload.hp);
   if (payload.mp) CombatantProperties.changeMana(combatant.combatantProperties, payload.mp);
 
-  party.actionCommandManager.processNextCommand();
+  actionCommandManager.processNextCommand();
 }

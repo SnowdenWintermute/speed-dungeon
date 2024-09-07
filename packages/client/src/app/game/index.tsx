@@ -12,7 +12,6 @@ import ItemDetailsWithComparison from "./ItemDetailsWithComparison";
 import CharacterSheetItemDetailsViewer from "./character-sheet/CharacterSheetItemDetailsViewer";
 import ItemsOnGround from "./ItemsOnGround";
 import ReadyUpDisplay from "./ReadyUpDisplay";
-import ActionCommandWaitingAreaManager from "./ActionCommandWaitingAreaManager";
 
 export default function Game() {
   const game = useGameStore().game;
@@ -49,9 +48,7 @@ export default function Game() {
 
   return (
     <main className="h-screen w-screen flex justify-center relative">
-      {testText}
       <CharacterAutofocusManager />
-      <ActionCommandWaitingAreaManager />
       <PartyWipeModal party={party} />
       <div className="w-full h-full max-h-[calc(0.5625 * 100vw)] text-zinc-300 flex flex-col">
         <TopInfoBar />

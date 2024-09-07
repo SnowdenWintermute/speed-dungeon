@@ -28,4 +28,5 @@ export default function battleResultActionCommandHandler(
     case BattleConclusion.Victory:
     //
   }
+  actionCommandManager.processNextCommand();
 }

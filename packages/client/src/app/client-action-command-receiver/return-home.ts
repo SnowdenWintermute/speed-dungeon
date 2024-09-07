@@ -5,7 +5,7 @@ import { ActionCommandManager } from "@speed-dungeon/common/src/action-processin
 
 export default function returnHomeActionCommandHandler(
   this: ClientActionCommandReceiver,
-  actionCommandManager: ActionCommandManager,
+  _actionCommandManager: ActionCommandManager,
   _gameName: string,
   combatantId: string,
   payload: ReturnHomeActionCommandPayload

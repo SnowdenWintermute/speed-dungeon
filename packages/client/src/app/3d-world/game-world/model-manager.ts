@@ -123,7 +123,6 @@ export class ModelManager {
 
     toRemove.modelActionManager.removeActiveModelAction();
 
-    this.checkIfAllModelsInCurrentRoomAreLoaded();
     delete this.combatantModels[entityId];
   }
 

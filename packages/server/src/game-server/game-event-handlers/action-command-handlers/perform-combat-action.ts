@@ -59,5 +59,5 @@ export default function performCombatActionActionCommandHandler(
 
   // - get the next action
 
-  party.actionCommandManager.processNextCommand();
+  actionCommandManager.processNextCommand();
 }

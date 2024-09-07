@@ -1,12 +1,10 @@
 import {
   AdventuringParty,
-  COMBATANT_TIME_TO_MOVE_ONE_METER,
   CombatantProperties,
   InputLock,
   MoveIntoCombatActionPositionActionCommandPayload,
 } from "@speed-dungeon/common";
 import { GameServer } from "../..";
-import { Vector3 } from "babylonjs";
 import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
 
 // SERVER
@@ -42,5 +40,5 @@ export default function moveIntoCombatActionPositionActionCommandHandler(
     totalTimeToReachDestination
   );
 
-  party.actionCommandManager.processNextCommand();
+  actionCommandManager.processNextCommand();
 }

@@ -27,12 +27,12 @@ export default function Home() {
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const combatantModelsAwaitingSpawn = useGameStore().combatantModelsAwaitingSpawn;
 
+  // ACTION COMMAND HANDLING - PROBABLY CAN MOVE THIS ELSEWHERE
   const actionCommandReceiverRef = useRef<null | ClientActionCommandReceiver>();
   const actionCommandManagerRef = useRef<null | ActionCommandManager>();
   const actionCommandWaitingAreaRef = useRef<ActionCommand[]>([]);
 
   useEffect(() => {
-    console.log("ASSIGNING NEW RECEIVER AND MANAGER");
     actionCommandReceiverRef.current = new ClientActionCommandReceiver(
       mutateGameStore,
       mutateAlertStore,
@@ -48,8 +48,10 @@ export default function Home() {
 
   useEffect(() => {
     if (combatantModelsAwaitingSpawn.length || !actionCommandManagerRef.current) return;
-    actionCommandManagerRef.current.enqueueNewCommands(actionCommandWaitingAreaRef.current);
-    actionCommandWaitingAreaRef.current = [];
+    if (actionCommandWaitingAreaRef.current.length) {
+      actionCommandManagerRef.current.enqueueNewCommands(actionCommandWaitingAreaRef.current);
+      actionCommandWaitingAreaRef.current = [];
+    }
   }, [combatantModelsAwaitingSpawn]);
 
   const componentToRender = game?.timeStarted ? <Game /> : game ? <GameSetup /> : <Lobby />;
