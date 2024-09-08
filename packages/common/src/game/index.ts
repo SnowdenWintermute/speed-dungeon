@@ -25,6 +25,7 @@ import { getPlayerParty } from "./get-player-party";
 import cycleCharacterTargetingSchemes from "../combat/targeting/cycle-character-targeting-schemes";
 import getActionResults from "../combat/action-results/get-action-results";
 import { ERROR_MESSAGES } from "../errors";
+import handleBattleVictory from "./handle-battle-victory";
 
 export class SpeedDungeonGame {
   [immerable] = true;
@@ -55,6 +56,7 @@ export class SpeedDungeonGame {
   static tickCombatUntilNextCombatantIsActive = tickCombatUntilNextCombatantIsActive;
   static endActiveCombatantTurn = endActiveCombatantTurn;
   static allCombatantsInGroupAreDead = allCombatantsInGroupAreDead;
+  static handleBattleVictory = handleBattleVictory;
   static handlePlayerDeath(
     game: SpeedDungeonGame,
     battleIdOption: null | string,

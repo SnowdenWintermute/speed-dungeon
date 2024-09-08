@@ -19,7 +19,7 @@ export default function battleResultActionCommandHandler(
   const actionAssociatedDataResult = this.getGamePartyAndCombatant(gameName, combatantId);
   if (actionAssociatedDataResult instanceof Error) return actionAssociatedDataResult;
   const { game, party } = actionAssociatedDataResult;
-  const { conclusion, experiencePointChanges, loot } = payload;
+  const { conclusion } = payload;
 
   switch (conclusion) {
     case BattleConclusion.Defeat:
@@ -46,12 +46,7 @@ export default function battleResultActionCommandHandler(
         SpeedDungeonGame.removePlayerFromParty(game, username);
       break;
     case BattleConclusion.Victory:
-      // TO PROCESS
-      // remove battle
-      // put loot on the ground
-      // apply xp changes
-      // until revives are added, res dead characters to 1 hp
-
+      SpeedDungeonGame.handleBattleVictory(game, party, payload);
       break;
   }
 

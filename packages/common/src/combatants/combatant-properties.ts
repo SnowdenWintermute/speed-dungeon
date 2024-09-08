@@ -34,6 +34,7 @@ import { immerable } from "immer";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app_consts";
 import { cloneVector3 } from "../utils";
 import { InputLock } from "./input-lock";
+import awardLevelups from "./award-levelups";
 
 export class CombatantProperties {
   [immerable] = true;
@@ -84,6 +85,7 @@ export class CombatantProperties {
   static dropEquippedItem = dropEquippedItem;
   static canUseItem = combatantCanUseItem;
   static equipItem = equipItem;
+  static awardLevelups = awardLevelups;
   static getPositionForActionUse(
     user: CombatantProperties,
     target: CombatantProperties,

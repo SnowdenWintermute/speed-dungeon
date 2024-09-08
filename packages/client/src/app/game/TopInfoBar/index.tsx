@@ -3,7 +3,7 @@ import { useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import TurnOrderBar from "./TurnOrderBar";
 import RoomExplorationTracker from "./RoomExplorationTracker";
-import { formatDungeonRoomType } from "@speed-dungeon/common";
+import { Battle, formatDungeonRoomType } from "@speed-dungeon/common";
 import getGameAndParty from "@/utils/getGameAndParty";
 
 export default function TopInfoBar() {
@@ -13,7 +13,7 @@ export default function TopInfoBar() {
   if (result instanceof Error) return <div>{result.message}</div>;
   const [game, party] = result;
 
-  const battleOption = getCurrentBattleOption(game, party.name);
+  const battleOptionResult = getCurrentBattleOption(game, party.name);
 
   return (
     <div className="h-10 w-full border-b border-slate-400 bg-slate-700 flex justify-center pointer-events-auto relative">
@@ -25,7 +25,11 @@ export default function TopInfoBar() {
         {": "}
         {formatDungeonRoomType(party.currentRoom.roomType)}
       </div>
-      {battleOption ? <TurnOrderBar battle={battleOption} /> : <RoomExplorationTracker />}
+      {battleOptionResult instanceof Battle ? (
+        <TurnOrderBar battle={battleOptionResult} />
+      ) : (
+        <RoomExplorationTracker />
+      )}
     </div>
   );
 }

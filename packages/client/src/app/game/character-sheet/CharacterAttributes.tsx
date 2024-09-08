@@ -94,7 +94,7 @@ export default function CharacterAttributes({
           {listItems.filter((_, i) => i < halfNumberOfAttributes)}
           {shouldShowNumberOfUnspentAttributes && (
             <li className="text-ffxipink flex justify-between">
-              <span>"Unspent: "</span>
+              <span>Unspent: </span>
               <span>
                 <span>{combatantProperties.unspentAttributePoints}</span>
               </span>

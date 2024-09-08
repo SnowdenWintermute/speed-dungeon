@@ -9,7 +9,7 @@ export const BASE_STARTING_ATTRIBUTES: Record<
     [CombatAttribute.Strength]: 3,
     [CombatAttribute.Dexterity]: 1,
     [CombatAttribute.Vitality]: 1,
-    [CombatAttribute.Hp]: 10,
+    [CombatAttribute.Hp]: 20,
     [CombatAttribute.Mp]: 2,
     [CombatAttribute.Accuracy]: 75,
     [CombatAttribute.Speed]: 1,
@@ -17,7 +17,7 @@ export const BASE_STARTING_ATTRIBUTES: Record<
   [CombatantClass.Mage]: {
     [CombatAttribute.Intelligence]: 3,
     [CombatAttribute.Focus]: 2,
-    [CombatAttribute.Hp]: 5,
+    [CombatAttribute.Hp]: 15,
     [CombatAttribute.Mp]: 4,
     [CombatAttribute.Accuracy]: 65,
     [CombatAttribute.Speed]: 1,

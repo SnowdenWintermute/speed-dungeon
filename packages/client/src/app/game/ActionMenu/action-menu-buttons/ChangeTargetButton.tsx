@@ -38,7 +38,7 @@ export default function ChangeTargetButton({ properties }: Props) {
     return () => {
       if (keyupHandlerRef.current) window.removeEventListener("keyup", keyupHandlerRef.current);
     };
-  }, []);
+  }, [properties.clickHandler]);
 
   const dedicatedKey = properties.dedicatedKeysOption
     ? properties.dedicatedKeysOption[0] ?? null

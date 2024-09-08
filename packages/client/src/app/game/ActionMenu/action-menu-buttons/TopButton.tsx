@@ -39,7 +39,7 @@ export default function TopButton({ properties }: Props) {
     return () => {
       if (keyupHandlerRef.current) window.removeEventListener("keyup", keyupHandlerRef.current);
     };
-  }, []);
+  }, [properties.clickHandler]);
 
   const keyToShow = properties.dedicatedKeysOption ? properties.dedicatedKeysOption[0] : null;
   return (

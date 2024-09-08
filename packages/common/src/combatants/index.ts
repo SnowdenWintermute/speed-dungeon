@@ -11,6 +11,7 @@ export * from "./get-combat-action-properties";
 export * from "./inventory";
 export * from "./update-home-position";
 export * from "./input-lock";
+export * from "./apply-experience-point-changes";
 
 export type CombatantDetails = {
   entityProperties: EntityProperties;

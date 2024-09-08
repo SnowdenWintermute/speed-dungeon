@@ -57,10 +57,7 @@ export default function returnHomeActionCommandHandler(
     } else {
       conclusion = BattleConclusion.Victory;
       console.log("BATTLE VICTORY");
-      // FOR PAYLOAD
-      // generate loot
       loot.push(...this.generateLoot(game, party));
-      // generate xp changes
       experiencePointChanges = this.generateExperiencePoints(party);
     }
 

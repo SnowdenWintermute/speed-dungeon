@@ -120,7 +120,7 @@ export default function initiateGameEventListeners(
         characterId,
         (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) => {
           const result = this.useSelectedCombatActionHandler(characterAssociatedData);
-          console.log("result: ", result);
+          if (result instanceof Error) console.error(result);
         }
       );
     });

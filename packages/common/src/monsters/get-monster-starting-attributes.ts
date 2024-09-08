@@ -19,7 +19,7 @@ export default function getMonsterStartingAttributes(
       attributes[CombatAttribute.Strength] = 3.0;
       attributes[CombatAttribute.Dexterity] = 1.0;
       attributes[CombatAttribute.Vitality] = 2.0;
-      attributes[CombatAttribute.Hp] = 50.0;
+      attributes[CombatAttribute.Hp] = 1.0;
       attributes[CombatAttribute.Agility] = 0.5;
       attributes[CombatAttribute.Accuracy] = 60.0;
       attributes[CombatAttribute.Speed] = 1.0;
@@ -36,8 +36,8 @@ export default function getMonsterStartingAttributes(
       attributes[CombatAttribute.Dexterity] = 2.0;
       attributes[CombatAttribute.Strength] = 2.0;
       attributes[CombatAttribute.Vitality] = 1.5;
-      attributes[CombatAttribute.Hp] = 40.0;
-      attributes[CombatAttribute.Agility] = 10.0;
+      attributes[CombatAttribute.Hp] = 1.0;
+      attributes[CombatAttribute.Agility] = 1.0;
       attributes[CombatAttribute.Accuracy] = 80.0;
       break;
     case MonsterType.Vulture:

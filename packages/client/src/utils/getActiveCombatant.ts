@@ -7,8 +7,10 @@ export default function getActiveCombatant(gameState: GameState): Error | null |
   const gameAndPartyResult = getGameAndParty(gameState.game, gameState.username);
   if (gameAndPartyResult instanceof Error) return gameAndPartyResult;
   const [game, party] = gameAndPartyResult;
-  const battleOption = getCurrentBattleOption(game, party.name);
-  if (!battleOption) return null;
+  const battleOptionResult = getCurrentBattleOption(game, party.name);
+  if (battleOptionResult instanceof Error) return battleOptionResult;
+  const battleOption = battleOptionResult;
+  if (battleOption === null) return null;
   const battle = battleOption;
 
   const activeCombatantTurnTrackerOption = battle.turnTrackers[0];
