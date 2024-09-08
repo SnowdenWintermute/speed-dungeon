@@ -7,7 +7,6 @@ export default function useSelectedCombatActionHandler(
   characterAssociatedData: CharacterAssociatedData
 ) {
   const { game, party, character } = characterAssociatedData;
-  console.log("character ", character.entityProperties.name, " used selected action");
 
   const { selectedCombatAction } = character.combatantProperties;
   if (selectedCombatAction === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);

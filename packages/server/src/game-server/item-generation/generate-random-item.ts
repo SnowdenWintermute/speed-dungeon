@@ -21,6 +21,8 @@ export function generateRandomItem(
 
   let attempts = 0;
 
+  // it is possible for no valid item to be available in certain item level ranges
+  // so try 4 times to randomly get a valid one, else resort to an autoinjector
   let randomItemResult = randomItemGenerationDirector.createItem(itemLevel, idGenerator);
   while (attempts < 4 && randomItemResult instanceof Error) {
     randomItemResult = randomItemGenerationDirector.createItem(itemLevel, idGenerator);

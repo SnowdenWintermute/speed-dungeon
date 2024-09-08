@@ -46,6 +46,12 @@ export default function battleResultActionCommandHandler(
         SpeedDungeonGame.removePlayerFromParty(game, username);
       break;
     case BattleConclusion.Victory:
+      // TO PROCESS
+      // remove battle
+      // put loot on the ground
+      // apply xp changes
+      // until revives are added, res dead characters to 1 hp
+
       break;
   }
 

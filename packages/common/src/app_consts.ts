@@ -5,6 +5,8 @@ export const DEEPEST_FLOOR = 10;
 export const LEVEL_TO_REACH_FOR_ESCAPE = 6;
 export const MAX_PARTY_SIZE = 3;
 export const NUM_MONSTERS_PER_ROOM = 3;
+export const BASE_XP_PER_MONSTER = 30.0;
+export const BASE_XP_LEVEL_DIFF_MULTIPLIER = 0.25;
 
 // EQUIPMENT
 export const TWO_HANDED_WEAPON_ATTRIBUTE_MULTIPLIER = 1.75;

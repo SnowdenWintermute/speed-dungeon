@@ -54,6 +54,8 @@ import getGamePartyAndCombatant from "./utils/get-game-party-and-combatant";
 import useSelectedCombatActionHandler from "./game-event-handlers/character-uses-selected-combat-action-handler";
 import processSelectedCombatAction from "./game-event-handlers/character-uses-selected-combat-action-handler/process-selected-combat-action";
 import takeAiControlledTurnIfActive from "./game-event-handlers/combat-action-results-processing/take-ai-combatant-turn-if-active";
+import generateLoot from "./game-event-handlers/action-command-handlers/generate-loot";
+import generateExperiencePoints from "./game-event-handlers/action-command-handlers/generate-experience-points";
 
 export type Username = string;
 export type SocketId = string;
@@ -133,4 +135,7 @@ export class GameServer implements ActionCommandReceiver {
   // ITEMS
   createItemGenerationDirectors = createItemGenerationDirectors;
   generateRandomItem = generateRandomItem;
+  generateLoot = generateLoot;
+  // EXP
+  generateExperiencePoints = generateExperiencePoints;
 }

@@ -11,6 +11,7 @@ import {
   ServerToClientEvent,
   SpeedDungeonGame,
   getPartyChannelName,
+  randBetween,
 } from "@speed-dungeon/common";
 import { GameServer } from "../..";
 import checkForWipes from "../combat-action-results-processing/check-for-wipes";
@@ -46,18 +47,23 @@ export default function returnHomeActionCommandHandler(
   if (partyWipesResult instanceof Error) return partyWipesResult;
   const battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
   if (battleConcluded) {
-    // @TODO - handle party wipes
-    console.log("WIPE DETECTED");
     let conclusion: BattleConclusion;
     const loot: Item[] = [];
-    const experiencePointChanges: { [combatantId: string]: number } = {};
+    let experiencePointChanges: { [combatantId: string]: number } = {};
+
     if (partyWipesResult.alliesDefeated) {
-      console.log("PLAYER PARTY");
+      console.log("PLAYER PARTY DEFEATED");
       conclusion = BattleConclusion.Defeat;
     } else {
       conclusion = BattleConclusion.Victory;
-      console.log("MONSTERS");
+      console.log("BATTLE VICTORY");
+      // FOR PAYLOAD
+      // generate loot
+      loot.push(...this.generateLoot(game, party));
+      // generate xp changes
+      experiencePointChanges = this.generateExperiencePoints(party);
     }
+
     const payload: BattleResultActionCommandPayload = {
       type: ActionCommandType.BattleResult,
       conclusion,

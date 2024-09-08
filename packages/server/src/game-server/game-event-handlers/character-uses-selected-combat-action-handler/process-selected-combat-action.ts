@@ -6,7 +6,6 @@ import {
   CombatActionTarget,
   ServerToClientEvent,
   SpeedDungeonGame,
-  formatActionCommandType,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import composeActionCommandPayloadsFromActionResults from "./compose-action-command-payloads-from-action-results";
@@ -36,10 +35,6 @@ export default function processSelectedCombatAction(
 
   // COMPOSE ACTION COMMANDS
   const actionCommandPayloads = composeActionCommandPayloadsFromActionResults(actionResults);
-  console.log(
-    "created payloads: ",
-    actionCommandPayloads.map((payload) => formatActionCommandType(payload.type))
-  );
 
   // SEND ACTION COMMAND PAYLOADS TO CLIENT
   this.io
@@ -50,11 +45,6 @@ export default function processSelectedCombatAction(
   const actionCommands = actionCommandPayloads.map(
     (payload) =>
       new ActionCommand(game.name, party.actionCommandManager, actionUserId, payload, this)
-  );
-
-  console.log(
-    "commands: ",
-    actionCommands.map((command) => formatActionCommandType(command.payload.type))
   );
 
   // ENQUEUE AND START PROCESSING ACTION COMMANDS IN THEIR PARTY'S QUEUE IF NOT ALREADY DOING SO

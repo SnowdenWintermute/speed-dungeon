@@ -30,6 +30,7 @@ export function randomNormal() {
   return num;
 }
 
+/** random number between two given numbers, inclusive */
 export function randBetween(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
