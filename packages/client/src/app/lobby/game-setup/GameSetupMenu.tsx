@@ -15,7 +15,9 @@ export default function GameSetupMenu() {
 
   return (
     <section className="w-full bg-slate-700 border border-slate-400 p-4 mb-4 flex justify-between pointer-events-auto">
-      <ButtonBasic onClick={leaveGame}>{"Leave Game"}</ButtonBasic>
+      <ButtonBasic onClick={leaveGame} hotkey="Escape">
+        {"Leave Game"}
+      </ButtonBasic>
       <ButtonBasic onClick={toggleReady}>{"Ready"}</ButtonBasic>
     </section>
   );

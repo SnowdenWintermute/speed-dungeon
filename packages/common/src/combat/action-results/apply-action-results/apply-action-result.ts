@@ -66,12 +66,10 @@ export default function applyActionResult(
   }
 
   // mana prices
-  if (actionResult.manaCostsPaidByEntityId !== null) {
-    for (const [entityId, manaChange] of Object.entries(actionResult.manaCostsPaidByEntityId)) {
-      const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
-      if (combatantResult instanceof Error) return combatantResult;
-      const { combatantProperties } = combatantResult;
-      CombatantProperties.changeHitPoints(combatantProperties, manaChange);
-    }
+  if (actionResult.manaCost !== null) {
+    const combatantResult = SpeedDungeonGame.getCombatantById(game, actionResult.userId);
+    if (combatantResult instanceof Error) return combatantResult;
+    const { combatantProperties } = combatantResult;
+    CombatantProperties.changeMana(combatantProperties, actionResult.manaCost);
   }
 }

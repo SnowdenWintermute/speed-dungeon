@@ -785,6 +785,11 @@ babylonjs@7.19.0, babylonjs@^7.19.0:
   resolved "https://registry.yarnpkg.com/babylonjs/-/babylonjs-7.19.0.tgz#c94c85df0a56e2c6fc8ac42e283dcbcbc6f77ed6"
   integrity sha512-m2drwDCs8LihDDyFQ+6geoCsJjBFRnEK16AL3BnLLUAYGkz7YOUzqg7/oAsRG+dm6Q9WiVbJ9FPKZ68+MIKGgg==
 
+babylonjs@^7.22.5:
+  version "7.22.5"
+  resolved "https://registry.yarnpkg.com/babylonjs/-/babylonjs-7.22.5.tgz#1b72b587f3da61de7dcaf6fd7ffec9d781bd7339"
+  integrity sha512-5RgDBowdPql2UDADTD/PepgvnXISwoDmsG+TDhg5WCmarCJu1zLYJKsvLfdchsyYjnq9qWUqhaA7apEBwd87EA==
+
 balanced-match@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"

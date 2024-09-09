@@ -3,6 +3,7 @@ import { BattleGroup } from "../../battle";
 import { CombatantAbilityName, CombatantDetails, CombatantProperties } from "../../combatants";
 import { ERROR_MESSAGES } from "../../errors";
 import { SpeedDungeonGame } from "../../game";
+import { chooseRandomFromArray } from "../../utils";
 import { CombatActionTarget } from "../targeting/combat-action-targets";
 
 export interface AbilityAndTarget {
@@ -70,29 +71,19 @@ export function AISelectActionAndTarget(
   };
 }
 
-function getRandomTargetInBattleGroup(battleGroup: BattleGroup) {
-  const { combatantIds } = battleGroup;
-  if (combatantIds.length < 1) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
-  const randomIndex = Math.floor(Math.random() * combatantIds.length);
-  return combatantIds[randomIndex]!;
-}
-
 function getRandomAliveEnemy(
   game: SpeedDungeonGame,
   enemyBattleGroup: BattleGroup
 ): Error | CombatantDetails {
-  let randomEnemyIdResult = getRandomTargetInBattleGroup(enemyBattleGroup);
-  if (randomEnemyIdResult instanceof Error) return randomEnemyIdResult;
-  let combatantResult = SpeedDungeonGame.getCombatantById(game, randomEnemyIdResult);
-  if (combatantResult instanceof Error) return combatantResult;
-  let combatant = combatantResult;
-  while (combatantResult.combatantProperties.hitPoints === 0) {
-    randomEnemyIdResult = getRandomTargetInBattleGroup(enemyBattleGroup);
-    if (randomEnemyIdResult instanceof Error) return randomEnemyIdResult;
-    combatantResult = SpeedDungeonGame.getCombatantById(game, randomEnemyIdResult);
+  const idsOfAliveTargets = [];
+  for (const enemyId of enemyBattleGroup.combatantIds) {
+    let combatantResult = SpeedDungeonGame.getCombatantById(game, enemyId);
     if (combatantResult instanceof Error) return combatantResult;
-    combatant = combatantResult;
+    if (combatantResult.combatantProperties.hitPoints > 0) idsOfAliveTargets.push(enemyId);
   }
+  if (idsOfAliveTargets.length === 0) return new Error("No alive targets");
+  const randomTargetIdResult = chooseRandomFromArray(idsOfAliveTargets);
+  if (randomTargetIdResult instanceof Error) return randomTargetIdResult;
 
-  return combatant;
+  return SpeedDungeonGame.getCombatantById(game, randomTargetIdResult);
 }

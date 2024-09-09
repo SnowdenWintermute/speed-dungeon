@@ -1,12 +1,14 @@
 import { AnimationGroup, AnimationEvent } from "babylonjs";
-import { CombatantModelActionType } from "../model-actions";
 import { ModularCharacter } from "../modular-character";
 import { MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME } from "@speed-dungeon/common";
 import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
+import { CombatantModelActionType } from "../model-action-manager/model-actions";
+import { ANIMATION_NAMES } from "./animation-names";
 
 export type ManagedAnimationOptions = {
   shouldLoop: boolean;
   animationEventOption: null | AnimationEvent;
+  animationDurationOverrideOption: null | number;
   onComplete: () => void;
 };
 
@@ -46,6 +48,7 @@ export class ManagedAnimation {
 export class AnimationManager {
   playing: null | ManagedAnimation = null;
   previous: null | ManagedAnimation = null;
+  locked: boolean = false;
   constructor(public characterModel: ModularCharacter) {
     // stop default animation
     this.characterModel.skeleton.animationGroups[0]?.stop();
@@ -61,6 +64,7 @@ export class AnimationManager {
     options: ManagedAnimationOptions = {
       shouldLoop: true,
       animationEventOption: null,
+      animationDurationOverrideOption: null,
       onComplete: () => {},
     }
   ): Error | void {
@@ -73,10 +77,7 @@ export class AnimationManager {
 
     const clonedAnimationOption = this.cloneAnimationOption(newAnimationGroupOption);
 
-    if (newAnimationName === "evade") console.log(clonedAnimationOption?.name);
-
     if (clonedAnimationOption === null) {
-      console.log("setting debug message");
       // send message to client with timout duration to remove itself
       setDebugMessage(
         this.characterModel.world.mutateGameState,
@@ -94,7 +95,15 @@ export class AnimationManager {
 
     this.playing = new ManagedAnimation(clonedAnimationOption, transitionDuration, options);
 
-    clonedAnimationOption?.start(options.shouldLoop);
+    if (clonedAnimationOption) {
+      if (options.animationDurationOverrideOption) {
+        const animationStockDuration = clonedAnimationOption.getLength() * 1000;
+        const speedModifier =
+          animationStockDuration / (options.animationDurationOverrideOption ?? 1);
+
+        clonedAnimationOption.start(options.shouldLoop, speedModifier);
+      } else clonedAnimationOption.start(options.shouldLoop);
+    }
   }
 
   stepAnimationTransitionWeights(): Error | void {
@@ -133,6 +142,10 @@ export class AnimationManager {
       this.cleanUpFinishedAnimation(this.playing);
       this.playing = null;
     }
+
+    // @TODO - if playing and previous are both null, try to play idle
+    if (this.playing === null && this.previous === null && !this.locked)
+      this.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 500);
   }
 
   getAnimationGroupByName(name: string) {
@@ -148,9 +161,6 @@ export class AnimationManager {
   isRepeatingAnimation(actionType: CombatantModelActionType) {
     switch (actionType) {
       case CombatantModelActionType.ApproachDestination:
-      case CombatantModelActionType.ReturnHome:
-      case CombatantModelActionType.Idle:
-      case CombatantModelActionType.EndTurn:
         return true;
       default:
         return false;

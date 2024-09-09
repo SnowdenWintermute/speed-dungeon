@@ -24,6 +24,12 @@ export default function createActionButtonClickHandler(
   socket: PartyClientSocket
 ) {
   const mutateGameState = gameState.mutateState;
+
+  if (gameState.combatantModelsAwaitingSpawn.length || gameState.actionCommandWaitingArea.length)
+    return () => {
+      console.log("awaiting spawn: ", gameState.combatantModelsAwaitingSpawn);
+    };
+
   switch (gameAction.type) {
     case GameActionType.ToggleReadyToExplore:
       return () => socket.emit(ClientToServerEvent.ToggleReadyToExplore);

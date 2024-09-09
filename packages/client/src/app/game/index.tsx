@@ -15,6 +15,7 @@ import ReadyUpDisplay from "./ReadyUpDisplay";
 
 export default function Game() {
   const game = useGameStore().game;
+  const testText = useGameStore().testText;
   const menuContext = useGameStore().menuContext;
 
   const username = useGameStore().username;
@@ -48,7 +49,7 @@ export default function Game() {
   return (
     <main className="h-screen w-screen flex justify-center relative">
       <CharacterAutofocusManager />
-      <PartyWipeModal />
+      <PartyWipeModal party={party} />
       <div className="w-full h-full max-h-[calc(0.5625 * 100vw)] text-zinc-300 flex flex-col">
         <TopInfoBar />
         <div className="p-4 flex-grow flex flex-col justify-between">

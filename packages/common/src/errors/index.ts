@@ -14,6 +14,7 @@ export const ERROR_MESSAGES = {
     NO_CURRENT_PARTY: "Expected this client to have a party but couldn't find it",
     NO_USERNAME: "Client doesn't know it's own username",
     NO_SOCKET_OBJECT: "Client is missing their websocket object",
+    NO_COMMAND_MANAGER: "Client is missing their action command manager",
   },
   LOBBY: {
     GAME_EXISTS: "A game by that name already exists",
@@ -36,6 +37,8 @@ export const ERROR_MESSAGES = {
     MISSING_CHARACTERS: "Somehow we have a party with no characters",
     CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT:
       "Can't explore while there are still monsters in the room",
+    NOT_IN_BATTLE: "Party not in a battle",
+    NOT_AT_STAIRCASE: "Can't descend if no staircase",
   },
   PLAYER: {
     NO_CHARACTERS: "The provided player doesn't own any characters",

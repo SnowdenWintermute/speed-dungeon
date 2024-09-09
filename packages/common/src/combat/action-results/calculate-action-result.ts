@@ -29,13 +29,11 @@ export default function calculateActionResult(
   const targetIdsResult = ActionResultCalculator.getCombatActionTargetIds(game, args);
   if (targetIdsResult instanceof Error) return targetIdsResult;
   const targetIds = targetIdsResult;
+  actionResult.targetIds = targetIds;
 
   const manaCostOptionResult = ActionResultCalculator.calculateActionManaCost(game, args);
   if (manaCostOptionResult instanceof Error) return manaCostOptionResult;
-  if (manaCostOptionResult !== null) {
-    if (actionResult.manaCostsPaidByEntityId === null) actionResult.manaCostsPaidByEntityId = {};
-    actionResult.manaCostsPaidByEntityId[userId] = Math.floor(manaCostOptionResult);
-  }
+  if (manaCostOptionResult !== null) actionResult.manaCost = Math.floor(manaCostOptionResult);
 
   const hitPointChangesCritsAndEvasionsResult = calculateActionHitPointChangesCritsAndEvasions(
     game,

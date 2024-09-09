@@ -1,5 +1,9 @@
 import { AlertState } from "@/stores/alert-store";
-import { ERROR_MESSAGES, removeFromArray } from "@speed-dungeon/common";
+import {
+  ERROR_MESSAGES,
+  removeFromArray,
+  updateCombatantHomePosition,
+} from "@speed-dungeon/common";
 import { setAlert } from "../../components/alerts";
 import { MutateState } from "@/stores/mutate-state";
 import { GameState } from "@/stores/game-store";
@@ -22,5 +26,12 @@ export default function characterDeletionHandler(
     removeFromArray(player.characterIds, characterId);
     delete party.characters[characterId];
     removeFromArray(party.characterPositions, characterId);
+
+    for (const character of Object.values(party.characters))
+      updateCombatantHomePosition(
+        character.entityProperties.id,
+        character.combatantProperties,
+        party
+      );
   });
 }

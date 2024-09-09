@@ -53,8 +53,8 @@ export const GAME_KEYS_TO_KEYUP_CODES: Partial<Record<GameKey, string[]>> = {
   [GameKey.Previous]: ["ArrowLeft"],
 };
 
-export function formatGameKey(keyOption: null | GameKey) {
-  if (keyOption === null) return "";
+export function formatGameKey(keyOption: null | undefined | GameKey) {
+  if (keyOption === null || keyOption === undefined) return "";
   switch (keyOption) {
     case GameKey.Cancel:
       return "Esc";

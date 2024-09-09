@@ -3,6 +3,7 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { immerable, produce } from "immer";
 import {
+  ActionCommand,
   AdventuringParty,
   BattleReport,
   CombatAction,
@@ -40,6 +41,7 @@ export class GameState {
   //   focus: Vector3.Zero(),
   // };
   game: null | SpeedDungeonGame = null;
+  gameName: string | null = null;
   username: null | string = null;
   focusedCharacterId: string = "";
   detailedEntity: null | DetailableEntity = null;
@@ -56,7 +58,9 @@ export class GameState {
   lastDebugMessageId: number = 0;
   babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
   combatantFloatingText: { [combatantId: string]: FloatingText[] } = {};
-  combatantsAnimating: string[] = [];
+  combatantModelsAwaitingSpawn: string[] = [];
+  actionCommandWaitingArea: ActionCommand[] = [];
+  testText: string = "test";
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
     if (party instanceof Error) return null;

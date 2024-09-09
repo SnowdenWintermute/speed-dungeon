@@ -69,7 +69,7 @@ export default function ActionMenu() {
         style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
       >
         {buttonsByCategory.top.map((button, i) => {
-          const thisButtonProperties = buttonProperties[ActionButtonCategory.Top][i];
+          const thisButtonProperties = buttonProperties[ActionButtonCategory.Top][i]!;
           // the key for this li is like that because just switching based on text won't update
           // when two different actions with "cancel" text are switched
           return (
@@ -89,7 +89,7 @@ export default function ActionMenu() {
           onWheel={handleWheel}
         >
           {buttonsByCategory.numbered.map((button, i) => (
-            <li key={buttonProperties[ActionButtonCategory.Numbered][i].text + i}>{button}</li>
+            <li key={buttonProperties[ActionButtonCategory.Numbered][i]!.text + i}>{button}</li>
           ))}
           {hoveredActionDisplay}
           {selectedActionDisplay}

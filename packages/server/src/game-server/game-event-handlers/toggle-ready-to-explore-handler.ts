@@ -3,35 +3,24 @@ import {
   BattleGroup,
   BattleGroupType,
   ERROR_MESSAGES,
-  ClientToServerEventTypes,
   ServerToClientEvent,
-  ServerToClientEventTypes,
-  getPlayerParty,
   initateBattle,
   getPartyChannelName,
+  updateCombatantHomePosition,
+  PlayerAssociatedData,
+  SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
 import { DungeonRoom, DungeonRoomType } from "@speed-dungeon/common";
 import { tickCombatUntilNextCombatantIsActive } from "@speed-dungeon/common";
-import takeAiTurnsAtBattleStart from "./combat-action-results-processing/take-ai-turns-at-battle-start";
 import { DescendOrExplore } from "@speed-dungeon/common";
-import checkForDefeatedCombatantGroups from "./combat-action-results-processing/check-for-defeated-combatant-groups";
 
-export default function toggleReadyToExploreHandler(this: GameServer, socketId: string) {
-  const [socket, socketMeta] = this.getConnection<
-    ClientToServerEventTypes,
-    ServerToClientEventTypes
-  >(socketId);
-  if (!socket) return new Error(ERROR_MESSAGES.SERVER.SOCKET_NOT_FOUND);
+export default function toggleReadyToExploreHandler(
+  this: GameServer,
+  playerAssociatedData: PlayerAssociatedData
+): Error | void {
+  const { game, party, username } = playerAssociatedData;
 
-  const { username } = socketMeta;
-
-  const gameResult = this.getSocketCurrentGame(socketMeta);
-  if (gameResult instanceof Error) return new Error(gameResult.message);
-  const game = gameResult;
-  const partyResult = getPlayerParty(gameResult, socketMeta.username);
-  if (partyResult instanceof Error) return new Error(partyResult.message);
-  const party = partyResult;
   if (Object.values(party.currentRoom.monsters).length > 0)
     return new Error(ERROR_MESSAGES.PARTY.CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT);
 
@@ -56,6 +45,11 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
   }
 
   if (!allPlayersReadyToExplore) return;
+
+  return this.exploreNextRoom(game, party);
+}
+
+export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party: AdventuringParty) {
   party.playersReadyToExplore = [];
 
   if (party.unexploredRooms.length < 1) {
@@ -83,11 +77,15 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
 
   const newRoom = DungeonRoom.generate(game.idGenerator, party.currentFloor, roomTypeToGenerate);
   party.currentRoom = newRoom;
+
+  for (const monster of Object.values(party.currentRoom.monsters))
+    updateCombatantHomePosition(monster.entityProperties.id, monster.combatantProperties, party);
+
   party.roomsExplored.onCurrentFloor += 1;
   party.roomsExplored.total += 1;
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
-  this.io.to(partyChannelName).emit(ServerToClientEvent.DungeonRoomUpdate, newRoom);
+  this.io.to(partyChannelName).emit(ServerToClientEvent.DungeonRoomUpdate, party.currentRoom);
 
   if (Object.keys(newRoom.monsters).length > 0) {
     const battleGroupA = new BattleGroup(
@@ -115,23 +113,13 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
       .in(getPartyChannelName(game.name, party.name))
       .emit(ServerToClientEvent.BattleFullUpdate, battle);
 
-    const maybeError = takeAiTurnsAtBattleStart(this, game, party, battle);
-    if (maybeError instanceof Error) return maybeError;
-
-    const partyWipesResult = checkForDefeatedCombatantGroups(
+    if (battle.turnTrackers[0] === undefined)
+      return new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
+    const maybeError = this.takeAiControlledTurnIfActive(
       game,
-      party.characterPositions,
-      AdventuringParty.getMonsterIds(party)
+      party,
+      battle.turnTrackers[0].entityId
     );
-
-    if (partyWipesResult instanceof Error) return partyWipesResult;
-
-    if (partyWipesResult.alliesDefeated) {
-      const partyWipeResult = this.handlePartyWipe(game, party);
-      if (partyWipeResult instanceof Error) return partyWipeResult;
-    } else if (partyWipesResult.opponentsDefeated) {
-      const battleVictoryResult = this.handleBattleVictory(party);
-      if (battleVictoryResult instanceof Error) return battleVictoryResult;
-    }
+    if (maybeError instanceof Error) return maybeError;
   }
 }

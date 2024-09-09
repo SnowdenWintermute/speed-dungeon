@@ -3,11 +3,11 @@ import {
   BoundingInfo,
   Color3,
   Color4,
-  CreateGreasedLine,
   ISceneLoaderAsyncResult,
   Mesh,
   MeshBuilder,
   Quaternion,
+  StandardMaterial,
   TransformNode,
   Vector3,
 } from "babylonjs";
@@ -19,19 +19,14 @@ import {
 } from "../utils";
 import { ModularCharacterPartCategory } from "./modular-character-parts";
 import { GameWorld } from "../game-world";
-import { ActionResult, ERROR_MESSAGES } from "@speed-dungeon/common";
-import {
-  CombatantModelAction,
-  CombatantModelActionProgressTracker,
-  CombatantModelActionType,
-} from "./model-actions";
-import enqueueNewModelActionsFromActionResults from "../game-world/enqueue-new-model-actions-from-action-results";
-import startNewModelActions, { startModelAction } from "./start-new-model-actions";
+import { DEFAULT_HITBOX_RADIUS_FALLBACK, ERROR_MESSAGES } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common/src/monsters/monster-types";
 import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
-import processActiveModelActions from "./process-active-model-actions";
 import cloneDeep from "lodash.clonedeep";
 import { AnimationManager } from "./animation-manager";
+import { ModelActionManager } from "./model-action-manager";
+import setUpDebugMeshes from "./set-up-debug-meshes";
+import { ANIMATION_NAMES } from "./animation-manager/animation-names";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -42,25 +37,18 @@ export class ModularCharacter {
     [ModularCharacterPartCategory.Legs]: null,
     [ModularCharacterPartCategory.Full]: null,
   };
-  actionResultsQueue: ActionResult[] = [];
-  modelActionQueue: CombatantModelAction[] = [];
-  activeModelActions: Partial<
-    Record<CombatantModelActionType, CombatantModelActionProgressTracker>
-  > = {};
-  hitboxRadius: number = 0.8;
+  hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   homeLocation: {
     position: Vector3;
     rotation: Quaternion;
   };
-  previousLocation: {
-    position: Vector3;
-    rotation: Quaternion;
-  } = { position: Vector3.Zero(), rotation: Quaternion.Zero() };
+  isInMeleeRangeOfTarget: boolean = false;
+  modelActionManager: ModelActionManager = new ModelActionManager(this);
   animationManager: AnimationManager;
   debugMeshes: {
-    directionLine: Mesh;
+    // directionLine: Mesh;
     homeLocationMesh: Mesh;
-    homeLocationDirectionLine: Mesh;
+    // homeLocationDirectionLine: Mesh;
   } | null = null;
 
   constructor(
@@ -74,6 +62,7 @@ export class ModularCharacter {
     modelCorrectionRotation: number = 0
   ) {
     this.animationManager = new AnimationManager(this);
+    this.animationManager.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 0);
 
     while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
     const rootMesh = skeleton.meshes[0];
@@ -99,91 +88,12 @@ export class ModularCharacter {
       rotation: cloneDeep(this.rootTransformNode.rotationQuaternion!),
     };
 
-    // this.setUpDebugMeshes();
+    this.setUpDebugMeshes();
 
     // this.setShowBones();
   }
 
-  enqueueNewModelActionsFromActionResults = enqueueNewModelActionsFromActionResults;
-  startNewModelActions = startNewModelActions;
-  startModelAction = startModelAction;
-  processActiveModelActions = processActiveModelActions;
-
-  setUpDebugMeshes() {
-    const red = new Color3(255, 0, 0);
-    const blue = new Color3(0, 0, 255);
-    const green = new Color3(0, 255, 0);
-
-    // const rootMeshDirection = this.rootMesh.forward;
-    // const rootMeshForwardLocation = this.rootMesh.position.add(rootMeshDirection.scale(1.5));
-    // const rootMeshDirectionLine = CreateGreasedLine(
-    //   `${this.entityId}-root-mesh-direction-line`,
-    //   {
-    //     points: [this.rootMesh.position, rootMeshForwardLocation],
-    //     updatable: true,
-    //     widths: [0.1],
-    //   },
-    //   { color: green }
-    // );
-    const rootMeshLocationBox = MeshBuilder.CreateBox(`${this.entityId}-root-mesh-location-box`, {
-      size: 0.25,
-    });
-    // rootMeshLocationBox.position = cloneDeep(this.rootMesh.position);
-    rootMeshLocationBox.setParent(this.rootMesh);
-
-    const direction = this.rootTransformNode.forward;
-    const forwardLocation = this.rootTransformNode.position.add(direction.scale(1.5));
-    const directionLine = CreateGreasedLine(
-      `${this.entityId}-direction-line`,
-      {
-        points: [this.rootTransformNode.position, forwardLocation],
-        updatable: true,
-        widths: [0.1],
-      },
-      { color: red }
-    );
-
-    directionLine.setParent(this.rootTransformNode);
-
-    const homeLocationMesh = MeshBuilder.CreateBox(`${this.entityId}-home-location-box`, {
-      size: 0.25,
-    });
-    homeLocationMesh.position = cloneDeep(this.homeLocation.position);
-
-    const homeDirection = cloneDeep(this.rootTransformNode.forward);
-    const homeForwardLocation = this.rootTransformNode.position.add(homeDirection.scale(1.5));
-    const homeLocationDirectionLine = CreateGreasedLine(
-      `${this.entityId}-direction-line`,
-      {
-        points: [cloneDeep(this.homeLocation.position), homeForwardLocation],
-        updatable: true,
-        widths: [0.1],
-      },
-      { color: blue }
-    );
-
-    this.debugMeshes = {
-      directionLine,
-      homeLocationMesh,
-      homeLocationDirectionLine,
-    };
-  }
-
-  removeActiveModelAction(modelActionType: CombatantModelActionType) {
-    delete this.activeModelActions[modelActionType];
-    this.world.mutateGameState((state) => {
-      const indexOption =
-        state.babylonControlledCombatantDOMData[this.entityId]?.activeModelActions.indexOf(
-          modelActionType
-        );
-      if (indexOption !== undefined) {
-        state.babylonControlledCombatantDOMData[this.entityId]?.activeModelActions.splice(
-          indexOption,
-          1
-        );
-      }
-    });
-  }
+  setUpDebugMeshes = setUpDebugMeshes;
 
   updateDomRefPosition() {
     const boundingBox = this.getClientRectFromMesh(this.rootMesh);

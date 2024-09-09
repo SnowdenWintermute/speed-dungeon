@@ -7,10 +7,10 @@ import {
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io-client";
-import clientCharacterActionHandler from "../client-character-action-handler";
 import { MutateState } from "@/stores/mutate-state";
 import { GameState } from "@/stores/game-store";
 import { AlertState } from "@/stores/alert-store";
+import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 
 export default function characterDroppedEquippedItemHandler(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>,
@@ -20,7 +20,7 @@ export default function characterDroppedEquippedItemHandler(
 ) {
   const { characterId, slot } = characterAndSlot;
 
-  clientCharacterActionHandler(
+  characterAssociatedDataProvider(
     mutateGameState,
     mutateAlertState,
     characterId,

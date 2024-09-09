@@ -1,8 +1,9 @@
 import {
-  ActionResult,
-  CombatTurnResult,
   CombatantClass,
   CombatantSpecies,
+  MoveIntoCombatActionPositionActionCommandPayload,
+  PerformCombatActionActionCommandPayload,
+  ReturnHomeActionCommandPayload,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import { Vector3 } from "babylonjs";
@@ -10,8 +11,9 @@ import { Vector3 } from "babylonjs";
 export enum NextToBabylonMessageTypes {
   SpawnCombatantModel,
   RemoveCombatantModel,
-  NewTurnResults,
-  NewActionResults,
+  StartMovingCombatantIntoCombatActionPosition,
+  StartPerformingCombatAction,
+  StartReturningHome,
 }
 
 export interface CombatantModelBlueprint {
@@ -25,28 +27,37 @@ export interface CombatantModelBlueprint {
   modelDomPositionElement: HTMLDivElement | null;
 }
 
-type SpawnCombatantModelMessage = {
+export type SpawnCombatantModelMessage = {
   type: NextToBabylonMessageTypes.SpawnCombatantModel;
   combatantModelBlueprint: CombatantModelBlueprint;
 };
 
-type RemoveCombatantModelMessage = {
+export type RemoveCombatantModelMessage = {
   type: NextToBabylonMessageTypes.RemoveCombatantModel;
   entityId: string;
 };
 
-type NewTurnResultsMessage = {
-  type: NextToBabylonMessageTypes.NewTurnResults;
-  turnResults: CombatTurnResult[];
+export type StartMovingCombatantIntoCombatActionPositionMessage = {
+  type: NextToBabylonMessageTypes.StartMovingCombatantIntoCombatActionPosition;
+  actionCommandPayload: MoveIntoCombatActionPositionActionCommandPayload;
+  actionUserId: string;
 };
 
-type NewActionResultsMessage = {
-  type: NextToBabylonMessageTypes.NewActionResults;
-  actionResults: ActionResult[];
+export type StartPerformingCombatActionMessage = {
+  type: NextToBabylonMessageTypes.StartPerformingCombatAction;
+  actionCommandPayload: PerformCombatActionActionCommandPayload;
+  actionUserId: string;
+};
+
+export type StartReturningHomeMessage = {
+  type: NextToBabylonMessageTypes.StartReturningHome;
+  actionCommandPayload: ReturnHomeActionCommandPayload;
+  actionUserId: string;
 };
 
 export type NextToBabylonMessage =
   | SpawnCombatantModelMessage
   | RemoveCombatantModelMessage
-  | NewTurnResultsMessage
-  | NewActionResultsMessage;
+  | StartMovingCombatantIntoCombatActionPositionMessage
+  | StartPerformingCombatActionMessage
+  | StartReturningHomeMessage;

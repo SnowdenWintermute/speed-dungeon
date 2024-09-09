@@ -22,7 +22,7 @@ export default function NumberedButton({ number, properties }: Props) {
     return () => {
       if (keyupHandlerRef.current) window.removeEventListener("keypress", keyupHandlerRef.current);
     };
-  }, []);
+  }, [properties.clickHandler]);
 
   return (
     <button

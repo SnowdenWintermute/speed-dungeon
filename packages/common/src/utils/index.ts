@@ -1,3 +1,5 @@
+import { Vector3 } from "babylonjs";
+
 export function removeFromArray<T>(array: T[], item: T): undefined | T {
   const indexToRemove = array.indexOf(item);
   if (indexToRemove !== -1) {
@@ -28,6 +30,7 @@ export function randomNormal() {
   return num;
 }
 
+/** random number between two given numbers, inclusive */
 export function randBetween(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -48,4 +51,12 @@ export function shuffleArray<T>(array: T[]) {
     array[i] = toSwap;
   }
   return array;
+}
+
+export function formatVector3(vec3: Vector3) {
+  return `x: ${vec3.x}, y: ${vec3.y}, z: ${vec3.z}`;
+}
+
+export function cloneVector3(vec3: Vector3) {
+  return new Vector3(vec3.x, vec3.y, vec3.z);
 }

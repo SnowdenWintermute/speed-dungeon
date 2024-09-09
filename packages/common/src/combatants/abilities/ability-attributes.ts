@@ -1,3 +1,4 @@
+import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../app_consts";
 import { CombatActionProperties } from "../../combat/combat-actions/combat-action-properties";
 
 export default class CombatantAbilityAttributes {
@@ -8,5 +9,6 @@ export default class CombatantAbilityAttributes {
   combatantLevelManaCostMultiplier: number = 0;
   baseHpChangeValuesLevelMultiplier: number = 1.0;
   shardCost: number = 0;
+  executionTime: number = DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME;
   constructor() {}
 }

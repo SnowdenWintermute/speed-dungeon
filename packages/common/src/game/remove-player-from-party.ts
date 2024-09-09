@@ -21,6 +21,9 @@ export default function removePlayerFromParty(game: SpeedDungeonGame, username: 
 
   removeFromArray(partyLeaving.playerUsernames, username);
 
-  if (partyLeaving.playerUsernames.length < 1) delete game.adventuringParties[partyLeaving.name];
+  if (partyLeaving.playerUsernames.length < 1) {
+    console.log("removing party ", partyLeaving.name, " since no players remain");
+    delete game.adventuringParties[partyLeaving.name];
+  }
   return partyLeaving.name;
 }

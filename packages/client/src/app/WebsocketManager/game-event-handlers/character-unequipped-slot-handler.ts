@@ -3,10 +3,10 @@ import {
   CharacterAssociatedData,
   CombatantProperties,
 } from "@speed-dungeon/common";
-import clientCharacterActionHandler from "../client-character-action-handler";
 import { MutateState } from "@/stores/mutate-state";
 import { GameState } from "@/stores/game-store";
 import { AlertState } from "@/stores/alert-store";
+import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 
 export default function characterUnequippedSlotHandler(
   mutateGameState: MutateState<GameState>,
@@ -15,7 +15,7 @@ export default function characterUnequippedSlotHandler(
 ) {
   const { characterId, slot } = characterAndSlot;
 
-  clientCharacterActionHandler(
+  characterAssociatedDataProvider(
     mutateGameState,
     mutateAlertState,
     characterId,

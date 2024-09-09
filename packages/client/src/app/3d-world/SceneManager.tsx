@@ -1,9 +1,14 @@
-import React, { useEffect, useRef } from "react";
+import React, { MutableRefObject, useEffect, useRef } from "react";
 import { GameWorld } from "./game-world/";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 import { useGameStore } from "@/stores/game-store";
+import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
 
-export default function SceneManager() {
+export default function SceneManager({
+  actionCommandManager,
+}: {
+  actionCommandManager: MutableRefObject<ActionCommandManager | null | undefined>;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<GameWorld | null>(null);
   const debugRef = useRef<HTMLDivElement>(null);
@@ -18,6 +23,7 @@ export default function SceneManager() {
         canvasRef.current,
         mutateGameState,
         mutateNextBabylonMessagingStore,
+        actionCommandManager,
         debugRef
       );
     }
@@ -40,7 +46,7 @@ export default function SceneManager() {
     if (nextToBabylonMessages.length < 1) return;
 
     mutateNextBabylonMessagingStore((state) => {
-      if (sceneRef.current === undefined) return;
+      if (sceneRef.current === null) return;
       sceneRef.current.messages.push(...nextToBabylonMessages);
       state.nextToBabylonMessages = [];
     });

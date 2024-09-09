@@ -1,4 +1,8 @@
-import { ERROR_MESSAGES, ServerToClientEvent } from "@speed-dungeon/common";
+import {
+  ERROR_MESSAGES,
+  ServerToClientEvent,
+  updateCombatantHomePosition,
+} from "@speed-dungeon/common";
 import { GameServer } from "..";
 import { removeFromArray } from "@speed-dungeon/common";
 import errorHandler from "../error-handler";
@@ -28,6 +32,13 @@ export default function deleteCharacterHandler(
   removeFromArray(player.characterIds, characterId);
   delete party.characters[characterId];
   removeFromArray(party.characterPositions, characterId);
+
+  for (const character of Object.values(party.characters))
+    updateCombatantHomePosition(
+      character.entityProperties.id,
+      character.combatantProperties,
+      party
+    );
 
   const wasReadied = game.playersReadied.includes(socketMeta.username);
   removeFromArray(game.playersReadied, socketMeta.username);

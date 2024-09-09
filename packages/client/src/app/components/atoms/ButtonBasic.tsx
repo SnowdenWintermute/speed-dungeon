@@ -25,11 +25,11 @@ export default function ButtonBasic(props: Props) {
           onClick(new MouseEvent("mouseup"));
         }
       };
-      window.addEventListener("keypress", keypressListenerRef.current);
+      window.addEventListener("keyup", keypressListenerRef.current);
     }
     return () => {
       if (keypressListenerRef.current)
-        window.removeEventListener("keypress", keypressListenerRef.current);
+        window.removeEventListener("keyup", keypressListenerRef.current);
     };
   }, [onClick]);
 

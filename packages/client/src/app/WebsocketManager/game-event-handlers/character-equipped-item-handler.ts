@@ -8,15 +8,15 @@ import {
   ERROR_MESSAGES,
   EquipItemPacket,
 } from "@speed-dungeon/common";
-import clientCharacterActionHandler from "../client-character-action-handler";
 import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
+import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 
 export default function characterEquippedItemHandler(
   mutateGameState: MutateState<GameState>,
   mutateAlertState: MutateState<AlertState>,
   { characterId, itemId, equipToAlternateSlot }: EquipItemPacket
 ) {
-  clientCharacterActionHandler(
+  characterAssociatedDataProvider(
     mutateGameState,
     mutateAlertState,
     characterId,

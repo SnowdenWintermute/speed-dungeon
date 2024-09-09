@@ -7,6 +7,7 @@ import {
 } from "../combatants";
 import { CombatantProperties } from "../combatants/combatant-properties";
 import { immerable } from "immer";
+import { Vector3 } from "babylonjs";
 
 export class PlayerCharacter {
   [immerable] = true;
@@ -16,13 +17,15 @@ export class PlayerCharacter {
     public nameOfControllingUser: string,
     combatantClass: CombatantClass,
     name: string,
-    id: string
+    id: string,
+    homePosition: Vector3
   ) {
     this.combatantProperties = new CombatantProperties(
       combatantClass,
       CombatantSpecies.Humanoid,
       {},
-      nameOfControllingUser
+      nameOfControllingUser,
+      homePosition
     );
     this.entityProperties = { id, name };
 

@@ -7,7 +7,7 @@ import {
   NextOrPrevious,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import clientCharacterActionHandler from "../client-character-action-handler";
+import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 
 export default function characterCycledTargetsHandler(
   mutateGameState: MutateState<GameState>,
@@ -16,7 +16,7 @@ export default function characterCycledTargetsHandler(
   direction: NextOrPrevious,
   playerUsername: string
 ) {
-  clientCharacterActionHandler(
+  characterAssociatedDataProvider(
     mutateGameState,
     mutateAlertState,
     characterId,

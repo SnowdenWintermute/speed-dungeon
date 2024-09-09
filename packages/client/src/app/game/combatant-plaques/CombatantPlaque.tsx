@@ -10,12 +10,11 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import { AdventuringParty } from "@speed-dungeon/common";
+import { AdventuringParty, InputLock } from "@speed-dungeon/common";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
-import { formatCombatModelActionType } from "@/app/3d-world/combatant-models/model-actions";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
 import { getTailwindClassFromFloatingTextColor } from "@/stores/game-store/floating-text";
 
@@ -44,9 +43,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const babylonDebugMessages =
     useGameStore().babylonControlledCombatantDOMData[entityId]?.debugMessages;
   const floatingText = useGameStore().babylonControlledCombatantDOMData[entityId]?.floatingText;
-
-  const activeModelActions =
-    useGameStore().babylonControlledCombatantDOMData[entityId]?.activeModelActions;
+  const modelsAwaitingSpawn = useGameStore().combatantModelsAwaitingSpawn;
 
   const usernameOption = useGameStore().username;
   const result = getGameAndParty(gameOption, usernameOption);
@@ -78,6 +75,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
     requestSpawnCombatantModel(
       combatantDetailsResult,
       party,
+      mutateGameState,
       mutateNextBabylonMessagingStore,
       element as HTMLDivElement | null
     );
@@ -120,14 +118,22 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
     });
   }
 
+  const lockedUiState =
+    InputLock.isLocked(combatantProperties.inputLock) || modelsAwaitingSpawn.includes(entityId)
+      ? "opacity-50 pointer-events-none "
+      : "pointer-events-auto ";
+
   return (
     <div>
       {
         <div id={`${entityId}-position-div`} className="absolute">
           {
             <div className="text-2xl absolute w-fit bottom-0 bg-gray-700 opacity-50 ">
-              {activeModelActions &&
-                activeModelActions.map((item) => formatCombatModelActionType(item))}
+              {
+                // activeModelAction !== null &&
+                // activeModelAction !== undefined &&
+                // formatCombatModelActionType(activeModelAction)
+              }
             </div>
           }
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full flex flex-col items-center text-center">
@@ -162,7 +168,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
         </div>
       }
       <div
-        className={`w-96 h-fit border bg-slate-700 pointer-events-auto flex p-2.5 relative box-border ${conditionalBorder} `}
+        className={`w-96 h-fit border bg-slate-700 flex p-2.5 relative box-border ${conditionalBorder} ${lockedUiState}`}
         ref={combatantPlaqueRef}
       >
         <TargetingIndicators party={party} entityId={entityId} />

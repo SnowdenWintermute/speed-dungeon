@@ -1,18 +1,20 @@
 import { useLobbyStore } from "@/stores/lobby-store";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import {
+  ActionCommand,
   AdventuringParty,
   CharacterAndItem,
   CharacterAndSlot,
   ClientToServerEvent,
   CombatAction,
+  ERROR_MESSAGES,
   EquipItemPacket,
   NextOrPrevious,
   ServerToClientEvent,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
-import React, { useEffect, useState } from "react";
+import React, { MutableRefObject, useEffect } from "react";
 import { io } from "socket.io-client";
 import characterCreationHandler from "./lobby-event-handlers/character-creation-handler";
 import characterDeletionHandler from "./lobby-event-handlers/character-deletion-handler";
@@ -33,23 +35,33 @@ import characterEquippedItemHandler from "./game-event-handlers/character-equipp
 import characterPickedUpItemHandler from "./game-event-handlers/character-picked-up-item-handler";
 import gameStartedHandler from "./game-event-handlers/game-started-handler";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
-import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import characterCycledTargetsHandler from "./game-event-handlers/character-cycled-targets-handler";
 import characterSelectedCombatActionHandler from "./game-event-handlers/character-selected-combat-action-handler";
 import characterCycledTargetingSchemesHandler from "./game-event-handlers/character-cycled-targeting-schemes-handler";
 import playerLeftGameHandler from "./player-left-game-handler";
+import { ClientActionCommandReceiver } from "../client-action-command-receiver";
+import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
+import getCurrentParty from "@/utils/getCurrentParty";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
 
-function SocketManager() {
+function SocketManager({
+  actionCommandReceiver,
+  actionCommandManager,
+  actionCommandWaitingArea,
+}: {
+  actionCommandReceiver: MutableRefObject<ClientActionCommandReceiver | null | undefined>;
+  actionCommandManager: MutableRefObject<ActionCommandManager | null | undefined>;
+  actionCommandWaitingArea: MutableRefObject<ActionCommand[] | null | undefined>;
+}) {
   const mutateWebsocketStore = useWebsocketStore().mutateState;
   const mutateLobbyStore = useLobbyStore().mutateState;
   const mutateGameStore = useGameStore().mutateState;
+  const gameName = useGameStore().gameName;
   const mutateAlertStore = useAlertStore().mutateState;
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const socketOption = useWebsocketStore().socketOption;
-  const [connected, setConnected] = useState(false);
 
   // setup socket
   useEffect(() => {
@@ -77,6 +89,32 @@ function SocketManager() {
         state.game = null;
       });
     });
+
+    socket.on(ServerToClientEvent.ActionCommandPayloads, (entityId, payloads) => {
+      console.log("got action command payloads");
+      mutateGameStore((gameState) => {
+        if (gameName === undefined || gameName === null)
+          return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+        if (!actionCommandManager.current) return console.error("NO COMMAND MANAGER");
+        if (!actionCommandReceiver.current) return console.error("NO RECEIVER");
+        if (!actionCommandWaitingArea.current) return console.error("NO WAITING AREA");
+
+        const actionCommands = payloads.map(
+          (payload) =>
+            new ActionCommand(
+              gameName,
+              actionCommandManager.current!,
+              entityId,
+              payload,
+              actionCommandReceiver.current!
+            )
+        );
+        if (gameState.combatantModelsAwaitingSpawn.length === 0)
+          actionCommandManager.current.enqueueNewCommands(actionCommands);
+        else actionCommandWaitingArea.current.push(...actionCommands);
+      });
+    });
+
     socket.on(ServerToClientEvent.ErrorMessage, (message) => {
       setAlert(mutateAlertStore, message);
     });
@@ -110,10 +148,14 @@ function SocketManager() {
       });
     });
     socket.on(ServerToClientEvent.GameFullUpdate, (game) => {
+      console.log("got full game update");
       mutateGameStore((state) => {
-        if (game === null) state.game = null;
-        else {
+        if (game === null) {
+          state.game = null;
+          state.gameName = null;
+        } else {
           state.game = game;
+          state.gameName = game.name;
         }
       });
     });
@@ -173,32 +215,10 @@ function SocketManager() {
       newDungeonRoomTypesOnCurrentFloorHandler(mutateGameStore, mutateAlertStore, newRoomTypes);
     });
     socket.on(ServerToClientEvent.DungeonRoomUpdate, (newRoom) => {
-      newDungeonRoomHandler(
-        mutateGameStore,
-        mutateAlertStore,
-        mutateNextBabylonMessagingStore,
-        newRoom
-      );
+      newDungeonRoomHandler(mutateGameStore, mutateAlertStore, newRoom);
     });
     socket.on(ServerToClientEvent.BattleFullUpdate, (battleOption) => {
       battleFullUpdateHandler(mutateGameStore, mutateAlertStore, battleOption);
-    });
-    socket.on(ServerToClientEvent.TurnResults, (turnResults) => {
-      mutateNextBabylonMessagingStore((state) => {
-        console.log("got turn results: ", turnResults);
-        state.nextToBabylonMessages.push({
-          type: NextToBabylonMessageTypes.NewTurnResults,
-          turnResults,
-        });
-      });
-    });
-    socket.on(ServerToClientEvent.RawActionResults, (actionResults) => {
-      mutateNextBabylonMessagingStore((state) => {
-        state.nextToBabylonMessages.push({
-          type: NextToBabylonMessageTypes.NewActionResults,
-          actionResults,
-        });
-      });
     });
     socket.on(ServerToClientEvent.GameMessage, (message) => {
       gameMessageHandler(mutateGameStore, message);
@@ -263,6 +283,14 @@ function SocketManager() {
         );
       }
     );
+    socket.on(ServerToClientEvent.DungeonFloorNumber, (newFloorNumber: number) => {
+      mutateGameStore((state) => {
+        if (!state.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+        const partyOption = getCurrentParty(state, state.username);
+        if (!partyOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+        partyOption.currentFloor = newFloorNumber;
+      });
+    });
 
     return () => {
       if (socketOption) {
@@ -271,9 +299,9 @@ function SocketManager() {
         });
       }
     };
-  }, [socketOption, connected]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [socketOption, gameName]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return <></>;
+  return <div id="websocket-manager"></div>;
 }
 
 export default SocketManager;

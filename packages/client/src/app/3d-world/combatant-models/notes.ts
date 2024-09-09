@@ -31,16 +31,24 @@
 // - enable resync
 // - prevent cheating by client sending inputs earlier than allowed
 // - avoid complex client translation of action results into commands
+// - make speed matter for time it takes to move/cast spells - other combatants will regenerate
+//   movement based on how long it takes active combatant to do their action
 //
 // client sends combat action input
 // - attack
 // - client locks own interface
+// - if in combat, other characters will already have their actions locked since not their turn
+// - out of combat, other characters may input actions but will only "ready up" animation as they wait
+//   for the first action to finish (and lock their ui)
+// - clients may unequip or equip instantly if no action is in progress, otherwise show a loading indicator
+//   over their equipped slot ui and only equip it once actions are done playing
 // - on recieve next reply with own entity id, will unlock at end of command sequence playback
 //
 // server creates a chain of commands
 // - lock entity
 // - move toward destination
-// - perform combat action (mh melee attack) (entity id, damage, isCrit, element, isWeakness)
+// - perform combat action (mh melee attack) roll damage (entity id, damage, isCrit, element, isWeakness)
+// - check if entity would still be alive at this point, if not then skip offhand attack - NO! action result already checks this!
 // - perform combat action (mh offhand attack) (entity id, damage, isCrit, element, isWeakness)
 // - return home
 // - end turn
@@ -51,7 +59,7 @@
 // - lock entity
 //   [] no commands may be issued to this entity while locked
 // - move toward destination:
-//   [] start a timer based on the entity's distance to target and their movement speed
+//   [] start a timer based on the entity's distance to target outer swing radius and their movement speed
 //   [] we'll need to know hitbox radii of all combatant models
 // - perform combat action (mh attack)
 //   [] start a timer based on attack animation length
