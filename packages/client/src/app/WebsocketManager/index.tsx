@@ -2,7 +2,6 @@ import { useLobbyStore } from "@/stores/lobby-store";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import {
   ActionCommand,
-  ActionCommandReceiver,
   AdventuringParty,
   CharacterAndItem,
   CharacterAndSlot,
@@ -15,7 +14,7 @@ import {
   SpeedDungeonGame,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
-import React, { MutableRefObject, useEffect, useRef } from "react";
+import React, { MutableRefObject, useEffect } from "react";
 import { io } from "socket.io-client";
 import characterCreationHandler from "./lobby-event-handlers/character-creation-handler";
 import characterDeletionHandler from "./lobby-event-handlers/character-deletion-handler";
@@ -42,6 +41,7 @@ import characterCycledTargetingSchemesHandler from "./game-event-handlers/charac
 import playerLeftGameHandler from "./player-left-game-handler";
 import { ClientActionCommandReceiver } from "../client-action-command-receiver";
 import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
+import getCurrentParty from "@/utils/getCurrentParty";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -283,6 +283,14 @@ function SocketManager({
         );
       }
     );
+    socket.on(ServerToClientEvent.DungeonFloorNumber, (newFloorNumber: number) => {
+      mutateGameStore((state) => {
+        if (!state.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+        const partyOption = getCurrentParty(state, state.username);
+        if (!partyOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+        partyOption.currentFloor = newFloorNumber;
+      });
+    });
 
     return () => {
       if (socketOption) {

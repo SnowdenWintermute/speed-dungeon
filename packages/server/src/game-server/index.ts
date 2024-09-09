@@ -28,7 +28,9 @@ import getSocketCurrentGame from "./utils/get-socket-current-game";
 import handlePartyWipe from "./game-event-handlers/combat-action-results-processing/handle-party-wipe";
 import { getSocketIdsOfPlayersInOtherParties } from "./get-socket-ids-of-players-in-other-parties";
 import getSocketIdOfPlayer from "./get-player-socket-id";
-import toggleReadyToExploreHandler from "./game-event-handlers/toggle-ready-to-explore-handler";
+import toggleReadyToExploreHandler, {
+  exploreNextRoom,
+} from "./game-event-handlers/toggle-ready-to-explore-handler";
 import emitErrorEventIfError from "./emit-error-event-if-error";
 import initiateGameEventListeners from "./game-event-handlers";
 import characterActionHandler from "./game-event-handlers/character-action-handler";
@@ -118,6 +120,7 @@ export class GameServer implements ActionCommandReceiver {
   selectCombatActionHandler = selectCombatActionHandler;
   cycleTargetsHandler = cycleTargetsHandler;
   cycleTargetingSchemesHandler = cycleTargetingSchemesHandler;
+  exploreNextRoom = exploreNextRoom;
   // ACTION COMMAND HANDLERS
   processSelectedCombatAction = processSelectedCombatAction;
   payAbilityCostsActionCommandHandler = payAbilityCostsActionCommandHandler;

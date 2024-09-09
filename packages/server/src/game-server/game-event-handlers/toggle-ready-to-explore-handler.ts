@@ -8,6 +8,7 @@ import {
   getPartyChannelName,
   updateCombatantHomePosition,
   PlayerAssociatedData,
+  SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
 import { DungeonRoom, DungeonRoomType } from "@speed-dungeon/common";
@@ -44,6 +45,11 @@ export default function toggleReadyToExploreHandler(
   }
 
   if (!allPlayersReadyToExplore) return;
+
+  return this.exploreNextRoom(game, party);
+}
+
+export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party: AdventuringParty) {
   party.playersReadyToExplore = [];
 
   if (party.unexploredRooms.length < 1) {

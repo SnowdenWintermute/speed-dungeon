@@ -69,4 +69,5 @@ export default function toggleReadyToDescendHandler(
   }
 
   // generate next floor etc
+  return this.exploreNextRoom(game, party);
 }
