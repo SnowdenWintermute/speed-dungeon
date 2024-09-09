@@ -56,6 +56,8 @@ import processSelectedCombatAction from "./game-event-handlers/character-uses-se
 import takeAiControlledTurnIfActive from "./game-event-handlers/combat-action-results-processing/take-ai-combatant-turn-if-active";
 import generateLoot from "./game-event-handlers/action-command-handlers/generate-loot";
 import generateExperiencePoints from "./game-event-handlers/action-command-handlers/generate-experience-points";
+import playerAssociatedDataProvider from "./game-event-handlers/player-data-provider";
+import toggleReadyToDescendHandler from "./game-event-handlers/toggle-ready-to-descend-handler";
 
 export type Username = string;
 export type SocketId = string;
@@ -105,6 +107,7 @@ export class GameServer implements ActionCommandReceiver {
   toggleReadyToStartGameHandler = toggleReadyToStartGameHandler;
   handlePartyWipe = handlePartyWipe;
   toggleReadyToExploreHandler = toggleReadyToExploreHandler;
+  toggleReadyToDescendHandler = toggleReadyToDescendHandler;
   dropItemHandler = dropItemHandler;
   dropEquippedItemHandler = dropEquippedItemHandler;
   unequipSlotHandler = unequipSlotHandler;
@@ -131,6 +134,7 @@ export class GameServer implements ActionCommandReceiver {
   getSocketIdOfPlayer = getSocketIdOfPlayer;
   emitErrorEventIfError = emitErrorEventIfError;
   characterActionHandler = characterActionHandler;
+  playerAssociatedDataProvider = playerAssociatedDataProvider;
   getGamePartyAndCombatant = getGamePartyAndCombatant;
   // ITEMS
   createItemGenerationDirectors = createItemGenerationDirectors;

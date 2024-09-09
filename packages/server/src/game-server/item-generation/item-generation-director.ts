@@ -1,7 +1,6 @@
 import {
   ConsumableProperties,
   EquipmentProperties,
-  EquipmentType,
   Item,
   ItemPropertiesType,
 } from "@speed-dungeon/common";

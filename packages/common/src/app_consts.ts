@@ -2,6 +2,8 @@ import { CombatAttribute } from "./combatants/combat-attributes";
 
 export const INVENTORY_DEFAULT_CAPACITY = 3;
 export const DEEPEST_FLOOR = 10;
+export const MONSTER_LAIRS_PER_FLOOR = 1;
+export const EMPTY_ROOMS_PER_FLOOR = 0;
 export const LEVEL_TO_REACH_FOR_ESCAPE = 6;
 export const MAX_PARTY_SIZE = 3;
 export const NUM_MONSTERS_PER_ROOM = 3;

@@ -3,36 +3,23 @@ import {
   BattleGroup,
   BattleGroupType,
   ERROR_MESSAGES,
-  ClientToServerEventTypes,
   ServerToClientEvent,
-  ServerToClientEventTypes,
-  getPlayerParty,
   initateBattle,
   getPartyChannelName,
   updateCombatantHomePosition,
-  formatVector3,
+  PlayerAssociatedData,
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
 import { DungeonRoom, DungeonRoomType } from "@speed-dungeon/common";
 import { tickCombatUntilNextCombatantIsActive } from "@speed-dungeon/common";
 import { DescendOrExplore } from "@speed-dungeon/common";
-import checkForWipes from "./combat-action-results-processing/check-for-wipes";
 
-export default function toggleReadyToExploreHandler(this: GameServer, socketId: string) {
-  const [socket, socketMeta] = this.getConnection<
-    ClientToServerEventTypes,
-    ServerToClientEventTypes
-  >(socketId);
-  if (!socket) return new Error(ERROR_MESSAGES.SERVER.SOCKET_NOT_FOUND);
+export default function toggleReadyToExploreHandler(
+  this: GameServer,
+  playerAssociatedData: PlayerAssociatedData
+): Error | void {
+  const { game, party, username } = playerAssociatedData;
 
-  const { username } = socketMeta;
-
-  const gameResult = this.getSocketCurrentGame(socketMeta);
-  if (gameResult instanceof Error) return new Error(gameResult.message);
-  const game = gameResult;
-  const partyResult = getPlayerParty(gameResult, socketMeta.username);
-  if (partyResult instanceof Error) return new Error(partyResult.message);
-  const party = partyResult;
   if (Object.values(party.currentRoom.monsters).length > 0)
     return new Error(ERROR_MESSAGES.PARTY.CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT);
 
@@ -128,11 +115,5 @@ export default function toggleReadyToExploreHandler(this: GameServer, socketId: 
       battle.turnTrackers[0].entityId
     );
     if (maybeError instanceof Error) return maybeError;
-
-    const partyWipesResult = checkForWipes(game, party.characterPositions[0]!, party.battleId);
-    if (partyWipesResult instanceof Error) return partyWipesResult;
-    if (partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated) {
-      // @TODO - handle party wipes
-    }
   }
 }

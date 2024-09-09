@@ -6,6 +6,7 @@ import {
   EquipmentSlot,
   CombatAction,
   NextOrPrevious,
+  PlayerAssociatedData,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import { GameServer } from "..";
@@ -16,7 +17,18 @@ export default function initiateGameEventListeners(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
   socket.on(ClientToServerEvent.ToggleReadyToExplore, () => {
-    this.emitErrorEventIfError(socket, () => this.toggleReadyToExploreHandler(socket.id));
+    this.emitErrorEventIfError(socket, () =>
+      this.playerAssociatedDataProvider(socket.id, (playerAssociatedData: PlayerAssociatedData) =>
+        this.toggleReadyToExploreHandler(playerAssociatedData)
+      )
+    );
+  });
+  socket.on(ClientToServerEvent.ToggleReadyToDescend, () => {
+    this.emitErrorEventIfError(socket, () =>
+      this.playerAssociatedDataProvider(socket.id, (playerAssociatedData: PlayerAssociatedData) =>
+        this.toggleReadyToDescendHandler(playerAssociatedData)
+      )
+    );
   });
 
   socket.on(ClientToServerEvent.DropItem, (characterId: string, itemId: string) => {

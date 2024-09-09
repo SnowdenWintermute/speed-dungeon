@@ -1,22 +1,16 @@
 import {
-  AdventuringParty,
   ClientToServerEventTypes,
   ERROR_MESSAGES,
   ServerToClientEventTypes,
   SpeedDungeonGame,
-  CharacterAssociatedData,
+  PlayerAssociatedData,
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
-import { BrowserTabSession } from "../socket-connection-metadata";
 
-export default function characterActionHandler(
+export default function playerAssociatedDataProvider(
   this: GameServer,
   socketId: string,
-  characterId: string,
-  fn: (
-    socketMeta: BrowserTabSession,
-    characterAssociatedData: CharacterAssociatedData
-  ) => Error | void
+  fn: (playerAssociatedData: PlayerAssociatedData) => Error | void
 ): Error | void {
   const [socket, socketMeta] = this.getConnection<
     ClientToServerEventTypes,
@@ -32,21 +26,7 @@ export default function characterActionHandler(
   const party = partyResult;
   const playerOption = game.players[socketMeta.username];
   if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
-  const player = playerOption;
+  // const player = playerOption;
 
-  const characterResult = AdventuringParty.getCharacterIfOwned(
-    party,
-    player.characterIds,
-    characterId
-  );
-  if (characterResult instanceof Error) return characterResult;
-  const character = characterResult;
-
-  if (character.combatantProperties.hitPoints <= 0) {
-    return new Error(
-      `${ERROR_MESSAGES.COMBATANT.IS_DEAD} ID: ${characterResult.entityProperties.id}`
-    );
-  }
-
-  return fn(socketMeta, { username: socketMeta.username, character, party, game });
+  return fn({ username: socketMeta.username, party, game });
 }

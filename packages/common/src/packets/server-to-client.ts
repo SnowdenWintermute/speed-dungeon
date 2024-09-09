@@ -41,6 +41,7 @@ export enum ServerToClientEvent {
   CharacterSelectedCombatAction = "29",
   CharacterCycledTargets = "30",
   CharacterCycledTargetingSchemes = "31",
+  DungeonFloorNumber = "32",
 }
 
 export interface ServerToClientEventTypes {
@@ -105,6 +106,7 @@ export interface ServerToClientEventTypes {
     characterId: string,
     playerUsername: string
   ) => void;
+  [ServerToClientEvent.DungeonFloorNumber]: (number: number) => void;
 }
 
 export interface EquipItemPacket {

@@ -1,9 +1,7 @@
 import { AdventuringParty } from ".";
+import { EMPTY_ROOMS_PER_FLOOR, MONSTER_LAIRS_PER_FLOOR } from "../app_consts";
 import { shuffleArray } from "../utils";
 import { DungeonRoomType } from "./dungeon-room";
-
-const MONSTER_LAIRS_PER_FLOOR = 3;
-const EMPTY_ROOMS_PER_FLOOR = 0;
 
 export default function generateUnexploredRoomsQueue(this: AdventuringParty) {
   this.unexploredRooms = [];

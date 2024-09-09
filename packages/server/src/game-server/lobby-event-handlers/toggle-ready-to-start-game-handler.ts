@@ -1,4 +1,9 @@
-import { ERROR_MESSAGES, ServerToClientEvent, removeFromArray } from "@speed-dungeon/common";
+import {
+  ERROR_MESSAGES,
+  PlayerAssociatedData,
+  ServerToClientEvent,
+  removeFromArray,
+} from "@speed-dungeon/common";
 import { GameServer } from "..";
 import errorHandler from "../error-handler";
 
@@ -36,7 +41,11 @@ export default function toggleReadyToStartGameHandler(this: GameServer, socketId
       for (const player of Object.values(game.players)) {
         const socketIdResult = this.getSocketIdOfPlayer(game, player.username);
         if (socketIdResult instanceof Error) return socketIdResult;
-        const maybeError = this.toggleReadyToExploreHandler(socketIdResult);
+        const maybeError = this.playerAssociatedDataProvider(
+          socketIdResult,
+          (playerAssociatedData: PlayerAssociatedData) =>
+            this.toggleReadyToExploreHandler(playerAssociatedData)
+        );
         if (maybeError instanceof Error) return maybeError;
       }
       game.timeStarted = Date.now();
