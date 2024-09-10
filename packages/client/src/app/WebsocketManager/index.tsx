@@ -7,6 +7,7 @@ import {
   CharacterAndSlot,
   ClientToServerEvent,
   CombatAction,
+  CombatAttribute,
   ERROR_MESSAGES,
   EquipItemPacket,
   NextOrPrevious,
@@ -42,6 +43,7 @@ import playerLeftGameHandler from "./player-left-game-handler";
 import { ClientActionCommandReceiver } from "../client-action-command-receiver";
 import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
 import getCurrentParty from "@/utils/getCurrentParty";
+import characterIncrementedAttributePointHandler from "./game-event-handlers/character-incremented-attribute-point-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -291,6 +293,17 @@ function SocketManager({
         partyOption.currentFloor = newFloorNumber;
       });
     });
+    socket.on(
+      ServerToClientEvent.CharacterSpentAttributePoint,
+      (characterId: string, attribute: CombatAttribute) => {
+        characterIncrementedAttributePointHandler(
+          mutateGameStore,
+          mutateAlertStore,
+          characterId,
+          attribute
+        );
+      }
+    );
 
     return () => {
       if (socketOption) {

@@ -8,7 +8,10 @@ export default function endActiveCombatantTurn(
   battleId: string
 ): Error | CombatantTurnTracker {
   const battleOption = game.battles[battleId];
-  if (battleOption === undefined) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
+  if (battleOption === undefined)
+    return new Error(
+      `${ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST} (id: ${JSON.stringify(battleId)})`
+    );
   const battle = battleOption;
 
   const tickResult = SpeedDungeonGame.tickCombatUntilNextCombatantIsActive(game, battle.id);

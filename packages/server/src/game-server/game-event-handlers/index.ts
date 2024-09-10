@@ -7,6 +7,7 @@ import {
   CombatAction,
   NextOrPrevious,
   PlayerAssociatedData,
+  CombatAttribute,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import { GameServer } from "..";
@@ -137,4 +138,22 @@ export default function initiateGameEventListeners(
       );
     });
   });
+  socket.on(
+    ClientToServerEvent.IncrementAttribute,
+    (characterId: string, attribute: CombatAttribute) => {
+      this.emitErrorEventIfError(socket, () => {
+        this.characterActionHandler(
+          socket.id,
+          characterId,
+          (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) => {
+            const result = this.characterSpentAttributePointHandler(
+              characterAssociatedData,
+              attribute
+            );
+            if (result instanceof Error) console.error(result);
+          }
+        );
+      });
+    }
+  );
 }

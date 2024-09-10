@@ -35,6 +35,7 @@ import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from
 import { cloneVector3 } from "../utils";
 import { InputLock } from "./input-lock";
 import awardLevelups from "./award-levelups";
+import { incrementAttributePoint } from "./increment-attribute-point";
 
 export class CombatantProperties {
   [immerable] = true;
@@ -42,7 +43,7 @@ export class CombatantProperties {
   inherentElementalAffinities: Partial<Record<MagicalElement, number>> = {};
   inherentPhysicalDamageTypeAffinities: Partial<Record<PhysicalDamageType, number>> = {};
   level: number = 1;
-  unspentAttributePoints: number = 0;
+  unspentAttributePoints: number = 5;
   unspentAbilityPoints: number = 0;
   hitPoints: number = 0;
   mana: number = 0;
@@ -86,6 +87,7 @@ export class CombatantProperties {
   static canUseItem = combatantCanUseItem;
   static equipItem = equipItem;
   static awardLevelups = awardLevelups;
+  static incrementAttributePoint = incrementAttributePoint;
   static getPositionForActionUse(
     user: CombatantProperties,
     target: CombatantProperties,

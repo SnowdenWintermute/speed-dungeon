@@ -60,6 +60,7 @@ import generateLoot from "./game-event-handlers/action-command-handlers/generate
 import generateExperiencePoints from "./game-event-handlers/action-command-handlers/generate-experience-points";
 import playerAssociatedDataProvider from "./game-event-handlers/player-data-provider";
 import toggleReadyToDescendHandler from "./game-event-handlers/toggle-ready-to-descend-handler";
+import characterSpentAttributePointHandler from "./game-event-handlers/character-spent-attribute-point-handler";
 
 export type Username = string;
 export type SocketId = string;
@@ -121,6 +122,7 @@ export class GameServer implements ActionCommandReceiver {
   cycleTargetsHandler = cycleTargetsHandler;
   cycleTargetingSchemesHandler = cycleTargetingSchemesHandler;
   exploreNextRoom = exploreNextRoom;
+  characterSpentAttributePointHandler = characterSpentAttributePointHandler;
   // ACTION COMMAND HANDLERS
   processSelectedCombatAction = processSelectedCombatAction;
   payAbilityCostsActionCommandHandler = payAbilityCostsActionCommandHandler;

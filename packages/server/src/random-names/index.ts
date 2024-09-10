@@ -15,6 +15,15 @@ export const PLAYER_FIRST_NAMES = [
   "maggie",
   "daryl",
   "carol",
+  "cameron",
+  "molly",
+  "john",
+  "sherlock",
+  "selena",
+  "serena",
+  "danai",
+  "lyra",
+  "takumi",
 ];
 export const PLAYER_LAST_NAMES = [
   "kenobi",
@@ -31,6 +40,15 @@ export const PLAYER_LAST_NAMES = [
   "grimes",
   "dixon",
   "peletier",
+  "diaz",
+  "hooper",
+  "watson",
+  "holmes",
+  "gomez",
+  "williams",
+  "gurira",
+  "belacqua",
+  "fujiwara",
 ];
 
 export const RANDOM_GAME_NAMES_FIRST = [

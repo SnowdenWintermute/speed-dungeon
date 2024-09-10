@@ -30,9 +30,10 @@ export default function CharacterAttributes({
   if (!gameOption) return <div>{ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME}</div>;
   const playerOption = gameOption.players[username];
   if (!playerOption) return <div>{ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST}</div>;
-  const playerOwnsCharacter = Object.keys(playerOption.characterIds).includes(entityProperties.id);
 
-  const hasUnspentAttributePoints = combatantProperties.unspentAbilityPoints > 0;
+  const playerOwnsCharacter = playerOption.characterIds.includes(entityProperties.id);
+
+  const hasUnspentAttributePoints = combatantProperties.unspentAttributePoints > 0;
   const shouldShowNumberOfUnspentAttributes =
     hasUnspentAttributePoints &&
     combatantProperties.controllingPlayer !== null &&

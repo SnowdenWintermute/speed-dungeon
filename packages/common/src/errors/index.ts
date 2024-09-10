@@ -54,6 +54,8 @@ export const ERROR_MESSAGES = {
     NO_TARGET_SELECTED: "That combatant has no selected target",
     IS_DEAD: "Dead combatants may not take any actions",
     NOT_ACTIVE: "It is not that combatant's turn",
+    NO_UNSPENT_ATTRIBUTE_POINTS: "That combatant has no unspent attribute points",
+    ATTRIBUTE_IS_NOT_ASSIGNABLE: "Points may not be spent on that attribute",
   },
   MONSTERS: {
     NO_MONSTERS_FOUND: "No monsters were found in the current room",

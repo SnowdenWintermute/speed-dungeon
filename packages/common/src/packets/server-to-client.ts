@@ -7,6 +7,7 @@ import { SpeedDungeonGame } from "../game";
 import { EquipmentSlot, Item } from "../items";
 import { NextOrPrevious } from "../primatives";
 import { GameMessage } from "./game-message";
+import { CombatAttribute } from "../combatants";
 
 export enum ServerToClientEvent {
   GameList = "0",
@@ -42,6 +43,7 @@ export enum ServerToClientEvent {
   CharacterCycledTargets = "30",
   CharacterCycledTargetingSchemes = "31",
   DungeonFloorNumber = "32",
+  CharacterSpentAttributePoint = "33",
 }
 
 export interface ServerToClientEventTypes {
@@ -107,6 +109,10 @@ export interface ServerToClientEventTypes {
     playerUsername: string
   ) => void;
   [ServerToClientEvent.DungeonFloorNumber]: (number: number) => void;
+  [ServerToClientEvent.CharacterSpentAttributePoint]: (
+    characterId: string,
+    attribute: CombatAttribute
+  ) => void;
 }
 
 export interface EquipItemPacket {
