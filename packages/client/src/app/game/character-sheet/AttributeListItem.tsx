@@ -23,17 +23,6 @@ export function AttributeListItem(props: Props) {
   const isUnmetRequirement = consideredItemUnmetRequirements?.includes(props.attribute);
   const highlightClass = isUnmetRequirement ? UNMET_REQUIREMENT_TEXT_COLOR : "";
 
-  // console.log("Has unspent: ", props.combatantHasUnspentAttributePoints);
-  // console.log(
-  //   "attribute speccable: ",
-  //   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.includes(props.attribute)
-  // );
-  // console.log("owns character: ", props.playerOwnsCharacter);
-  // console.log(
-  //   "showAttributeAssignmentBttonsifOwned: ",
-  //   props.showAttributeAssignmentButtonsIfOwned
-  // );
-
   const shouldShowIncreaseAttributeButton =
     props.combatantHasUnspentAttributePoints &&
     ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.includes(props.attribute) &&
@@ -51,7 +40,7 @@ export function AttributeListItem(props: Props) {
         {formatCombatAttribute(props.attribute)}
       </span>
       <span>
-        <span>{props.value}</span>
+        <span>{Math.floor(props.value)}</span>
         {shouldShowIncreaseAttributeButton && (
           <IncreaseAttributeButton attribute={props.attribute} />
         )}

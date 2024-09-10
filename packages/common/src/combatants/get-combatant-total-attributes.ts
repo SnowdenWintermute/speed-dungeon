@@ -7,6 +7,7 @@ import { Item, WeaponSlot } from "../items";
 import { EquipmentProperties } from "../items/equipment/equipment-properties";
 import { EquipmentType } from "../items/equipment/equipment-types";
 import { ItemPropertiesType } from "../items/item-properties";
+import { iterateNumericEnumKeyedRecord } from "../utils";
 import { CombatAttribute } from "./combat-attributes";
 import { CombatantAttributeRecord, CombatantProperties } from "./combatant-properties";
 
@@ -77,6 +78,11 @@ export default function getCombatantTotalAttributes(
   if (!totalAttributes[CombatAttribute.ArmorPenetration])
     totalAttributes[CombatAttribute.ArmorPenetration] = 0;
   totalAttributes[CombatAttribute.ArmorPenetration] += derivedArmorPen;
+
+  // floor everything
+  for (const [attribute, value] of iterateNumericEnumKeyedRecord(totalAttributes)) {
+    totalAttributes[attribute] = Math.floor(value);
+  }
 
   return totalAttributes;
 }
