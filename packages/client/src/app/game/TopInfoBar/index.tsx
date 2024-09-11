@@ -3,7 +3,7 @@ import { useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import TurnOrderBar from "./TurnOrderBar";
 import RoomExplorationTracker from "./RoomExplorationTracker";
-import { Battle, formatDungeonRoomType } from "@speed-dungeon/common";
+import { formatDungeonRoomType } from "@speed-dungeon/common";
 import getGameAndParty from "@/utils/getGameAndParty";
 
 export default function TopInfoBar() {
@@ -25,7 +25,7 @@ export default function TopInfoBar() {
         {": "}
         {formatDungeonRoomType(party.currentRoom.roomType)}
       </div>
-      {battleOptionResult instanceof Battle ? (
+      {!(battleOptionResult instanceof Error) && battleOptionResult !== null ? (
         <TurnOrderBar battle={battleOptionResult} />
       ) : (
         <RoomExplorationTracker />

@@ -36,7 +36,7 @@ export default function startMovingIntoCombatActionUsePosition(
     if (actionUserResult instanceof Error) return console.error(actionUserResult);
     const actionUser = actionUserResult;
 
-    InputLock.lockInput(actionUser.combatantProperties.inputLock);
+    InputLock.lockInput(party.inputLock);
 
     const { destinationLocation, totalTimeToReachDestination } =
       CombatantProperties.getPositionForActionUse(

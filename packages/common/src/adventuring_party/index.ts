@@ -12,10 +12,12 @@ import generateUnexploredRoomsQueue from "./generate-unexplored-rooms-queue";
 import updatePlayerReadiness from "./update-player-readiness";
 import playerOwnsCharacter from "./player-owns-character";
 import { ActionCommandManager } from "../action-processing/action-command-manager";
+import { InputLock } from "./input-lock";
 export * from "./player-character";
 export * from "./get-item-in-party";
 export * from "./dungeon-room";
 export * from "./update-player-readiness";
+export * from "./input-lock";
 
 export type RoomsExploredTracker = { total: number; onCurrentFloor: number };
 
@@ -36,6 +38,7 @@ export class AdventuringParty {
   timeOfEscape: null | number = null;
   itemsOnGroundNotYetReceivedByAllClients: { [id: EntityId]: EntityId[] } = {};
   actionCommandManager: ActionCommandManager = new ActionCommandManager();
+  inputLock: InputLock = new InputLock();
 
   constructor(public name: string) {}
 

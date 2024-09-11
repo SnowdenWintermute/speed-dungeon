@@ -134,6 +134,7 @@ export default function initiateGameEventListeners(
         (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) => {
           const result = this.useSelectedCombatActionHandler(characterAssociatedData);
           if (result instanceof Error) console.error(result);
+          return result
         }
       );
     });

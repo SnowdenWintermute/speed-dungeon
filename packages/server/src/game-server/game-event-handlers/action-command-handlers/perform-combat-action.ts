@@ -29,7 +29,7 @@ export default function performCombatActionActionCommandHandler(
   );
   if (actionExecutionTimeResult instanceof Error) return actionExecutionTimeResult;
   InputLock.increaseLockoutDuration(
-    combatant.combatantProperties.inputLock,
+    party.inputLock,
     actionExecutionTimeResult
   );
 

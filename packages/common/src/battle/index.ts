@@ -14,6 +14,7 @@ export class Battle {
 
   static combatantIsFirstInTurnOrder(battle: Battle, combatantId: string) {
     if (battle.turnTrackers.length < 1) return false;
+
     return battle.turnTrackers[0]?.entityId === combatantId;
   }
 

@@ -36,6 +36,10 @@ export default function returnHomeActionCommandHandler(
     const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, party.battleId);
     if (maybeError instanceof Error) return maybeError;
     newActiveCombatantTrackerOption = maybeError;
+    console.log(
+      "ended active combatant turn, new active combatant: ",
+      newActiveCombatantTrackerOption.entityId
+    );
   }
 
   // - check for party wipes and victories and apply/emit them
@@ -87,7 +91,7 @@ export default function returnHomeActionCommandHandler(
   // - we'll let the next player input now, even if it takes a long time to animate this player running home
   //   the clien't shouldn't play the next action until they get back. They can show a "ready up" pose while waiting but
   //   at least they get to put in their inputs
-  InputLock.unlockInput(combatant.combatantProperties.inputLock);
+  InputLock.unlockInput(party.inputLock);
 
   // - if in combat, take ai controlled turn if appropriate
   if (!battleConcluded && newActiveCombatantTrackerOption !== null) {

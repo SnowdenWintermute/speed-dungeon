@@ -3,7 +3,7 @@ import { AlertState } from "@/stores/alert-store";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { Battle, ERROR_MESSAGES } from "@speed-dungeon/common";
+import { Battle, ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
 
 export default function battleFullUpdateHandler(
   mutateGameState: MutateState<GameState>,
@@ -24,6 +24,14 @@ export default function battleFullUpdateHandler(
       const party = partyOption;
       party.battleId = battle.id;
       game.battles[battle.id] = battle;
+
+      if (
+        battle.turnTrackers[0] &&
+        !party.characterPositions.includes(battle.turnTrackers[0].entityId)
+      ) {
+        // it is ai controlled so lock input
+        InputLock.lockInput(party.inputLock);
+      }
     } else game.battles = {};
   });
 }

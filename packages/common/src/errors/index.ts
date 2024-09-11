@@ -39,6 +39,7 @@ export const ERROR_MESSAGES = {
       "Can't explore while there are still monsters in the room",
     NOT_IN_BATTLE: "Party not in a battle",
     NOT_AT_STAIRCASE: "Can't descend if no staircase",
+    INPUT_IS_LOCKED: "Can't accept new inputs until current events are resolved"
   },
   PLAYER: {
     NO_CHARACTERS: "The provided player doesn't own any characters",

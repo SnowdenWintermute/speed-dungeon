@@ -3,6 +3,7 @@ import { GameWorld } from ".";
 import cloneDeep from "lodash.clonedeep";
 import { StartReturningHomeMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import {
+  ActionCommandType,
   COMBATANT_TIME_TO_MOVE_ONE_METER,
   COMBATANT_TIME_TO_ROTATE_360,
   ERROR_MESSAGES,
@@ -14,6 +15,7 @@ import {
   CombatantModelAction,
   CombatantModelActionType,
 } from "../combatant-models/model-action-manager/model-actions";
+import getCurrentParty from "@/utils/getCurrentParty";
 
 export default function startReturningHome(
   gameWorld: GameWorld,
@@ -50,6 +52,32 @@ export default function startReturningHome(
 
   userCombatantModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.MOVE_BACK, 500);
 
+  // unlock input / end turn as they are running back
+  // so players can start their next input already
+  gameWorld.mutateGameState((gameState) => {
+    if (!gameState.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+    const partyResult = getCurrentParty(gameState, gameState.username);
+    if (partyResult instanceof Error) return console.error(partyResult);
+    const partyOption = partyResult;
+    if (partyOption === undefined) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+    const party = partyOption;
+    if (!gameState.game) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+
+    // check the queue length so we don't unlock for a split second in between the ai's turns
+    if (
+      gameWorld.actionCommandManager.current?.queue.length === 0 ||
+      gameWorld.actionCommandManager.current?.queue[0]?.payload.type ===
+        ActionCommandType.BattleResult
+    )
+      InputLock.unlockInput(party.inputLock);
+
+    if (shouldEndTurn && party.battleId !== null) {
+      const gameOption = gameState.game;
+      if (gameOption === null) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+      SpeedDungeonGame.endActiveCombatantTurn(gameOption, party.battleId);
+    }
+  });
+
   const modelAction: CombatantModelAction = {
     type: CombatantModelActionType.ApproachDestination,
     previousLocation,
@@ -61,23 +89,6 @@ export default function startReturningHome(
     percentTranslationToTriggerCompletionEvent: 1,
     onComplete: () => {
       userCombatantModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 500);
-
-      gameWorld.mutateGameState((gameState) => {
-        const partyResult = gameState.getParty();
-        if (partyResult instanceof Error) return console.error(partyResult);
-        const party = partyResult;
-        if (!gameState.game) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-
-        const combatantResult = SpeedDungeonGame.getCombatantById(gameState.game, actionUserId);
-        if (combatantResult instanceof Error) return console.error(combatantResult);
-        InputLock.unlockInput(combatantResult.combatantProperties.inputLock);
-
-        if (shouldEndTurn && party.battleId !== null) {
-          const gameOption = gameState.game;
-          if (gameOption === null) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-          SpeedDungeonGame.endActiveCombatantTurn(gameOption, party.battleId);
-        }
-      });
 
       if (!gameWorld.actionCommandManager.current)
         console.error(ERROR_MESSAGES.CLIENT.NO_COMMAND_MANAGER);

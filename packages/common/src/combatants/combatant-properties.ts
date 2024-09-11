@@ -33,7 +33,6 @@ import unequipSlots from "./unequip-slots";
 import { immerable } from "immer";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app_consts";
 import { cloneVector3 } from "../utils";
-import { InputLock } from "./input-lock";
 import awardLevelups from "./award-levelups";
 import { incrementAttributePoint } from "./increment-attribute-point";
 
@@ -56,7 +55,6 @@ export class CombatantProperties {
   // inherent_elemental_affinities: HashMap<MagicalElements; i16>,
   selectedCombatAction: null | CombatAction = null;
   combatActionTarget: null | CombatActionTarget = null;
-  inputLock: InputLock = new InputLock();
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   constructor(
     public combatantClass: CombatantClass,

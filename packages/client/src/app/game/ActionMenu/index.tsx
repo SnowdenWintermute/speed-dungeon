@@ -10,7 +10,7 @@ import ActionDetails from "../detailables/ActionDetails";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 
-export default function ActionMenu() {
+export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   const actionMenuRef = useRef<HTMLUListElement>(null);
   const gameState = useGameStore();
 
@@ -54,6 +54,8 @@ export default function ActionMenu() {
       );
     }
   }
+
+  if (inputLocked) return <div />;
 
   return (
     <section

@@ -23,7 +23,7 @@ export default function moveIntoCombatActionPositionActionCommandHandler(
   const actionAssociatedDataResult = this.getGamePartyAndCombatant(gameName, combatantId);
   if (actionAssociatedDataResult instanceof Error) return actionAssociatedDataResult;
   const { party, combatant } = actionAssociatedDataResult;
-  InputLock.lockInput(combatant.combatantProperties.inputLock);
+  InputLock.lockInput(party.inputLock);
   const { primaryTargetId, isMelee } = payload;
   const primaryTargetResult = AdventuringParty.getCombatant(party, primaryTargetId);
   if (primaryTargetResult instanceof Error) return primaryTargetResult;
@@ -36,7 +36,7 @@ export default function moveIntoCombatActionPositionActionCommandHandler(
   );
 
   InputLock.increaseLockoutDuration(
-    combatant.combatantProperties.inputLock,
+    party.inputLock,
     totalTimeToReachDestination
   );
 

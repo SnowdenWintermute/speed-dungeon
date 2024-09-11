@@ -4,7 +4,7 @@ import PartyWipeModal from "./PartyWipeModal";
 import TopInfoBar from "./TopInfoBar";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
 import MonsterPlaques from "./MonsterPlaques";
-import { ERROR_MESSAGES } from "@speed-dungeon/common";
+import { ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
 import ActionMenu from "./ActionMenu";
 import CharacterAutofocusManager from "./CharacterAutofocusManager";
 import CharacterSheet from "./character-sheet";
@@ -15,7 +15,6 @@ import ReadyUpDisplay from "./ReadyUpDisplay";
 
 export default function Game() {
   const game = useGameStore().game;
-  const testText = useGameStore().testText;
   const menuContext = useGameStore().menuContext;
 
   const username = useGameStore().username;
@@ -96,7 +95,7 @@ export default function Game() {
               <div className="flex justify-between overflow-hidden">
                 {
                   // !focused_character_is_animating &&
-                  <ActionMenu />
+                  <ActionMenu inputLocked={InputLock.isLocked(party.inputLock)}/>
                 }
                 {!viewingCharacterSheet && (
                   <div className="flex overflow-hidden">
