@@ -39,7 +39,7 @@ export const ERROR_MESSAGES = {
       "Can't explore while there are still monsters in the room",
     NOT_IN_BATTLE: "Party not in a battle",
     NOT_AT_STAIRCASE: "Can't descend if no staircase",
-    INPUT_IS_LOCKED: "Can't accept new inputs until current events are resolved"
+    INPUT_IS_LOCKED: "Can't accept new inputs until current events are resolved",
   },
   PLAYER: {
     NO_CHARACTERS: "The provided player doesn't own any characters",
@@ -76,6 +76,9 @@ export const ERROR_MESSAGES = {
       "The provided combat action doesn't specify any Hp change properties",
     NO_TARGET_PROVIDED: "Combat actions must have at least one target",
     INVALID_USABILITY_CONTEXT: "That action is not allowed in this context",
+    CANT_USE_ON_DEAD_TARGET: "That action may only be used on living targets",
+    ALREADY_FULL_HP: "The target already has full hit points",
+    ALREADY_FULL_MP: "The target already has full mana",
   },
   ITEM: {
     NOT_FOUND: "No item was found with the provided ID",

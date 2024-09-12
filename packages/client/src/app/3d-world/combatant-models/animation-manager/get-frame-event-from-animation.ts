@@ -28,56 +28,50 @@ export default function getFrameEventFromAnimation(
         // @todo - select correct frames for various attack animations
         case CombatantAbilityName.AttackMeleeOffhand:
         case CombatantAbilityName.AttackRangedMainhand:
-          animationEventOption = new AnimationEvent(
-            20,
-            () => {
-              if (hpChangesByEntityId)
-                for (const [targetId, hpChange] of Object.entries(hpChangesByEntityId)) {
-                  induceHitRecovery(gameWorld, targetId, hpChange.hpChange, hpChange.isCrit);
-                }
-
-              if (missesByEntityId)
-                for (const targetId of missesByEntityId) {
-                  // push evade action
-                  const targetModel = gameWorld.modelManager.combatantModels[targetId];
-                  if (targetModel === undefined)
-                    return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-
-                  // START THEIR EVADE ANIMATION
-
-                  targetModel.animationManager.startAnimationWithTransition(
-                    ANIMATION_NAMES.EVADE,
-                    500,
-                    {
-                      shouldLoop: false,
-                      animationEventOption: null,
-                      animationDurationOverrideOption: null,
-                      onComplete: () => {},
-                    }
-                  );
-
-                  startFloatingText(
-                    gameWorld.mutateGameState,
-                    targetId,
-                    "Evaded",
-                    FloatingTextColor.Healing,
-                    false,
-                    2000
-                  );
-                }
-            },
-            true
-          );
-          break;
         case CombatantAbilityName.Fire:
         case CombatantAbilityName.Ice:
         case CombatantAbilityName.Healing:
           break;
-        // return "cast-spell";
       }
     case CombatActionType.ConsumableUsed:
-    // return "use-item";
   }
+
+  animationEventOption = new AnimationEvent(
+    20,
+    () => {
+      if (hpChangesByEntityId)
+        for (const [targetId, hpChange] of Object.entries(hpChangesByEntityId)) {
+          induceHitRecovery(gameWorld, targetId, hpChange.hpChange, hpChange.isCrit);
+        }
+
+      if (missesByEntityId)
+        for (const targetId of missesByEntityId) {
+          // push evade action
+          const targetModel = gameWorld.modelManager.combatantModels[targetId];
+          if (targetModel === undefined)
+            return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+
+          // START THEIR EVADE ANIMATION
+
+          targetModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.EVADE, 500, {
+            shouldLoop: false,
+            animationEventOption: null,
+            animationDurationOverrideOption: null,
+            onComplete: () => {},
+          });
+
+          startFloatingText(
+            gameWorld.mutateGameState,
+            targetId,
+            "Evaded",
+            FloatingTextColor.Healing,
+            false,
+            2000
+          );
+        }
+    },
+    true
+  );
 
   return animationEventOption;
 }
@@ -141,6 +135,4 @@ function induceHitRecovery(
       // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
     }
   });
-
-  // START THEIR HIT RECOVERY, DEATH OR RESSURECTION ANIMATION
 }

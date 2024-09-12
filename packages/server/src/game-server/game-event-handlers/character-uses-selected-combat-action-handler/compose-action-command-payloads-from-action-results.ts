@@ -11,6 +11,9 @@ export default function composeActionCommandPayloadsFromActionResults(
 ) {
   if (!actionResults[0]) return [];
 
+  console.log("ACTION RESULT: ");
+  console.log(actionResults[0]);
+
   const payloads: ActionCommandPayload[] = [];
   const moveIntoPosition = createMoveIntoCombatActionPositionActionCommand(actionResults[0]);
   payloads.push(moveIntoPosition);

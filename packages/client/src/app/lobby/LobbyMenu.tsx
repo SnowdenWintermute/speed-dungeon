@@ -30,15 +30,15 @@ export default function LobbyMenu() {
   function quickStartGame() {
     socketOption?.emit(ClientToServerEvent.CreateGame, "");
     socketOption?.emit(ClientToServerEvent.CreateParty, "");
-    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Warrior);
     socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
-    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Rogue);
+    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
+    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
     socketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
-    socketOption?.emit(ClientToServerEvent.ToggleReadyToExplore);
-    socketOption?.emit(ClientToServerEvent.SelectCombatAction, "1", {
-      type: CombatActionType.AbilityUsed,
-      abilityName: CombatantAbilityName.Attack,
-    });
+    // socketOption?.emit(ClientToServerEvent.ToggleReadyToExplore);
+    // socketOption?.emit(ClientToServerEvent.SelectCombatAction, "1", {
+    //   type: CombatActionType.AbilityUsed,
+    //   abilityName: CombatantAbilityName.Attack,
+    // });
   }
 
   function quickHost() {

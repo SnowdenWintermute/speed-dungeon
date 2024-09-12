@@ -1,7 +1,7 @@
 import { AdventuringParty } from "../adventuring_party";
 import getCombatantInParty from "../adventuring_party/get-combatant-in-party";
 import { getItemInAdventuringParty } from "../adventuring_party/get-item-in-party";
-import { CombatAction, CombatActionType } from "../combat/combat-actions";
+import { CombatAction, CombatActionProperties, CombatActionType } from "../combat/combat-actions";
 import { ERROR_MESSAGES } from "../errors";
 import { ConsumableProperties } from "../items";
 import { ItemPropertiesType } from "../items/item-properties";
@@ -12,7 +12,7 @@ import { Inventory } from "./inventory";
 export function getCombatActionPropertiesIfOwned(
   combatantProperties: CombatantProperties,
   combatAction: CombatAction
-) {
+): Error | CombatActionProperties {
   switch (combatAction.type) {
     case CombatActionType.AbilityUsed:
       if (!combatantProperties.abilities[combatAction.abilityName]) {

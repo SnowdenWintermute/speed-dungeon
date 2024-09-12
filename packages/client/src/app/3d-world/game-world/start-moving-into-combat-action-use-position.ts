@@ -53,22 +53,24 @@ export default function startMovingIntoCombatActionUsePosition(
       return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     const userCombatantModel = userCombatantModelOption;
 
-    const lookingAtMatrix = Matrix.LookAtLH(
-      destinationLocation,
-      cloneVector3(targetHomeLocation),
-      Vector3.Up()
-    ).invert();
-    const destinationQuaternion = Quaternion.FromRotationMatrix(lookingAtMatrix);
-
     const userModelCurrentRotation = userCombatantModel.rootTransformNode.rotationQuaternion;
     if (userModelCurrentRotation === null)
       return console.error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
-    const rotationDistance = Quaternion.Distance(userModelCurrentRotation, destinationQuaternion);
-    const timeToRotate = (COMBATANT_TIME_TO_ROTATE_360 / (2 * Math.PI)) * rotationDistance;
-    // create a model action that when processed will translate/rotate model
-    // toward destination and on completion call message.onComplete()
-    // - onComplete
+    let destinationQuaternion = userCombatantModel.homeLocation.rotation;
+    let timeToRotate = 0;
 
+    if (isMelee) {
+      const lookingAtMatrix = Matrix.LookAtLH(
+        destinationLocation,
+        cloneVector3(targetHomeLocation),
+        Vector3.Up()
+      ).invert();
+
+      destinationQuaternion = Quaternion.FromRotationMatrix(lookingAtMatrix);
+
+      const rotationDistance = Quaternion.Distance(userModelCurrentRotation, destinationQuaternion);
+      timeToRotate = (COMBATANT_TIME_TO_ROTATE_360 / (2 * Math.PI)) * rotationDistance;
+    }
     // start their running forward animation
     userCombatantModel.animationManager.startAnimationWithTransition(
       ANIMATION_NAMES.MOVE_FORWARD,
@@ -88,11 +90,6 @@ export default function startMovingIntoCombatActionUsePosition(
         if (!gameWorld.actionCommandManager.current)
           console.error(ERROR_MESSAGES.CLIENT.NO_COMMAND_MANAGER);
         gameWorld.actionCommandManager.current!.processNextCommand();
-        // gameWorld.mutateGameState((gameState) => {
-        //   const partyResult = gameState.getParty();
-        //   if (partyResult instanceof Error) return console.error(partyResult);
-        //   partyResult.actionCommandManager.processNextCommand();
-        // });
       },
     };
 

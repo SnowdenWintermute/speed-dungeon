@@ -36,10 +36,6 @@ export default function returnHomeActionCommandHandler(
     const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, party.battleId);
     if (maybeError instanceof Error) return maybeError;
     newActiveCombatantTrackerOption = maybeError;
-    console.log(
-      "ended active combatant turn, new active combatant: ",
-      newActiveCombatantTrackerOption.entityId
-    );
   }
 
   // - check for party wipes and victories and apply/emit them

@@ -7,13 +7,16 @@ import {
   ActionResultCalculator,
 } from "./action-result-calculator";
 import calculateActionHitPointChangesCritsAndEvasions from "./hp-change-result-calculation";
+import { CombatActionType } from "..";
+import applyConsumableUseToActionResult from "./apply-consumable-use-to-action-result";
 
 export default function calculateActionResult(
   game: SpeedDungeonGame,
   args: ActionResultCalculationArguments
-) {
+): Error | ActionResult {
   const { userId, combatAction, targets } = args;
   const actionResult = new ActionResult(userId, cloneDeep(combatAction), cloneDeep(targets));
+
   const combatantResult = SpeedDungeonGame.getCombatantById(game, userId);
   if (combatantResult instanceof Error) return combatantResult;
   const { combatantProperties } = combatantResult;
@@ -34,6 +37,20 @@ export default function calculateActionResult(
   const manaCostOptionResult = ActionResultCalculator.calculateActionManaCost(game, args);
   if (manaCostOptionResult instanceof Error) return manaCostOptionResult;
   if (manaCostOptionResult !== null) actionResult.manaCost = Math.floor(manaCostOptionResult);
+
+  // CONSUMABLE ONLY
+  if (combatAction.type === CombatActionType.ConsumableUsed) {
+    const maybeError = applyConsumableUseToActionResult(
+      game,
+      actionResult,
+      combatAction,
+      targetIds,
+      combatantResult
+    );
+    if (maybeError instanceof Error) console.error(maybeError);
+    if (maybeError instanceof Error) return maybeError;
+  }
+  // END CONSUMABLE
 
   const hitPointChangesCritsAndEvasionsResult = calculateActionHitPointChangesCritsAndEvasions(
     game,

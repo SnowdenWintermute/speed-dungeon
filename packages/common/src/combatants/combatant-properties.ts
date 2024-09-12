@@ -32,7 +32,7 @@ import setHpAndMpToMax from "./set-hp-and-mp-to-max";
 import unequipSlots from "./unequip-slots";
 import { immerable } from "immer";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app_consts";
-import { cloneVector3 } from "../utils";
+import { cloneVector3, formatVector3 } from "../utils";
 import awardLevelups from "./award-levelups";
 import { incrementAttributePoint } from "./increment-attribute-point";
 
@@ -95,8 +95,10 @@ export class CombatantProperties {
     if (!isMelee) {
       // assign destination to move a little forward (default ranged attack/spell casting position)
       const direction = CombatantProperties.getForward(user);
-      destinationLocation = cloneVector3(user.homeLocation).add(direction.scale(1.5));
+      destinationLocation = cloneVector3(user.homeLocation).add(direction.scale(0.5));
+      console.log("not melee");
     } else {
+      console.log("is melee");
       // assign destination based on target location and their hitbox radii
       // we're recreating this vec3 because when
       // combatants are copied to the client they don't keep their Vector3 methods
@@ -117,8 +119,10 @@ export class CombatantProperties {
   }
 
   static getForward(combatantProperties: CombatantProperties) {
-    const { x, y } = combatantProperties.homeLocation;
-    return cloneVector3(combatantProperties.homeLocation).subtract(new Vector3(x, y, 0));
+    const { x, y, z } = combatantProperties.homeLocation;
+    console.log(formatVector3(combatantProperties.homeLocation));
+    // return cloneVector3(combatantProperties.homeLocation).subtract(new Vector3(0, 0, z));
+    return cloneVector3(new Vector3(0, 0, z)).subtract(combatantProperties.homeLocation);
   }
 }
 
