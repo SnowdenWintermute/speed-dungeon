@@ -1,5 +1,4 @@
 import { getAbilityCostIfOwned } from "../../combatants/abilities/ability-mana-cost-getters";
-import { ERROR_MESSAGES } from "../../errors";
 import { SpeedDungeonGame } from "../../game";
 import { CombatActionType } from "../combat-actions";
 import { ActionResultCalculationArguments } from "./action-result-calculator";
@@ -17,7 +16,5 @@ export default function calculateActionManaCost(
   const { abilityName } = combatAction;
   const levelAdjustedMpCostResult = getAbilityCostIfOwned(combatantProperties, abilityName);
   if (levelAdjustedMpCostResult instanceof Error) return levelAdjustedMpCostResult;
-  if (combatantProperties.mana < levelAdjustedMpCostResult)
-    return new Error(ERROR_MESSAGES.ABILITIES.INSUFFICIENT_MANA);
   return levelAdjustedMpCostResult;
 }

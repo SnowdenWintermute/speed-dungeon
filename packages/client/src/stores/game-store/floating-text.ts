@@ -24,7 +24,7 @@ export function getTailwindClassFromFloatingTextColor(color: FloatingTextColor) 
     case FloatingTextColor.Healing:
       return "text-green-600";
     case FloatingTextColor.ManaGained:
-      return "text-blue-700";
+      return "text-blue-600";
   }
 }
 

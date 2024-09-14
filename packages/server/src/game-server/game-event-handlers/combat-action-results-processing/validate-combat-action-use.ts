@@ -3,10 +3,12 @@ import {
   Battle,
   CharacterAssociatedData,
   CombatAction,
+  CombatActionType,
   ERROR_MESSAGES,
   getCombatActionPropertiesIfOwned,
 } from "@speed-dungeon/common";
 import { CombatActionTarget } from "@speed-dungeon/common/src/combat/targeting/combat-action-targets";
+import getAbilityAttributes from "@speed-dungeon/common/src/combatants/abilities/get-ability-attributes";
 
 export default function validateCombatActionUse(
   characterAssociatedData: CharacterAssociatedData,
@@ -21,6 +23,7 @@ export default function validateCombatActionUse(
   );
   if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
   const combatActionProperties = combatActionPropertiesResult;
+
   // ENSURE TARGETING
   const targets = character.combatantProperties.combatActionTarget;
   if (targets === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_TARGET_SELECTED);

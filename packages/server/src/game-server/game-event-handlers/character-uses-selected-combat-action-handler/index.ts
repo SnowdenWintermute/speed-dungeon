@@ -21,7 +21,7 @@ export default function useSelectedCombatActionHandler(
   if (targetsAndBattleResult instanceof Error) return targetsAndBattleResult;
   const { targets, battleOption } = targetsAndBattleResult;
 
-  this.processSelectedCombatAction(
+  return this.processSelectedCombatAction(
     game,
     party,
     character.entityProperties.id,

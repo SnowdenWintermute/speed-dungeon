@@ -7,8 +7,5 @@ export default function changeCombatantMana(
 ) {
   const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
   const maxMana = totalAttributes[CombatAttribute.Mp] || 0;
-  combatantProperties.mana = Math.max(
-    0,
-    Math.min(maxMana, combatantProperties.hitPoints + manaChange)
-  );
+  combatantProperties.mana = Math.max(0, Math.min(maxMana, combatantProperties.mana + manaChange));
 }

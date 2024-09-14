@@ -8,7 +8,6 @@ import {
   CombatantAbilityName,
   CombatantProperties,
   ERROR_MESSAGES,
-  Item,
 } from "@speed-dungeon/common";
 import { DungeonRoomType } from "@speed-dungeon/common";
 import { ActionUsableContext } from "@speed-dungeon/common";

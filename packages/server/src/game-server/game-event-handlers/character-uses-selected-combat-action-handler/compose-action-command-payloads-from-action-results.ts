@@ -43,7 +43,7 @@ export default function composeActionCommandPayloadsFromActionResults(
       type: ActionCommandType.PerformCombatAction,
       combatAction: actionResult.action,
       hpChangesByEntityId,
-      mpChangesByEntityId: null,
+      mpChangesByEntityId: actionResult.manaChangesByEntityId,
       missesByEntityId: actionResult.missesByEntityId || [],
     });
   }

@@ -9,6 +9,7 @@ import {
 import calculateActionHitPointChangesCritsAndEvasions from "./hp-change-result-calculation";
 import { CombatActionType } from "..";
 import applyConsumableUseToActionResult from "./apply-consumable-use-to-action-result";
+import { ERROR_MESSAGES } from "../../errors";
 
 export default function calculateActionResult(
   game: SpeedDungeonGame,
@@ -37,6 +38,9 @@ export default function calculateActionResult(
   const manaCostOptionResult = ActionResultCalculator.calculateActionManaCost(game, args);
   if (manaCostOptionResult instanceof Error) return manaCostOptionResult;
   if (manaCostOptionResult !== null) actionResult.manaCost = Math.floor(manaCostOptionResult);
+  if (combatantProperties.mana < actionResult.manaCost)
+    return new Error(ERROR_MESSAGES.ABILITIES.INSUFFICIENT_MANA);
+  console.log("MANA COST: ", actionResult.manaCost);
 
   // CONSUMABLE ONLY
   if (combatAction.type === CombatActionType.ConsumableUsed) {

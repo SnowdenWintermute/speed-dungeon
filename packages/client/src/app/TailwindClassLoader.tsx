@@ -8,6 +8,7 @@ export default function TailwindClassLoader() {
       <div className="text-beigepaper" />
       <div className="text-green-600" />
       <div className="text-blue-700" />
+      <div className="text-blue-600" />
 
       <div className="bg-beigepaper" />
       <div className="bg-firered" />

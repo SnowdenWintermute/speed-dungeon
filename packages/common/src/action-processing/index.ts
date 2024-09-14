@@ -38,7 +38,7 @@ export type PerformCombatActionActionCommandPayload = {
     [entityId: string]: { hpChange: number; isCrit: boolean };
   };
   mpChangesByEntityId: null | {
-    [entityId: string]: { mpChange: number };
+    [entityId: string]: number;
   };
   // status effects added
   // status effects removed

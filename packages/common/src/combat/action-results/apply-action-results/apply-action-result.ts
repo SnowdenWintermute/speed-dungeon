@@ -70,6 +70,6 @@ export default function applyActionResult(
     const combatantResult = SpeedDungeonGame.getCombatantById(game, actionResult.userId);
     if (combatantResult instanceof Error) return combatantResult;
     const { combatantProperties } = combatantResult;
-    CombatantProperties.changeMana(combatantProperties, actionResult.manaCost);
+    CombatantProperties.changeMana(combatantProperties, -actionResult.manaCost);
   }
 }

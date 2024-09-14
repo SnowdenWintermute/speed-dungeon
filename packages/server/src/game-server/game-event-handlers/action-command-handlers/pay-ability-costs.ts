@@ -23,8 +23,8 @@ export function payAbilityCostsActionCommandHandler(
   for (const itemId of payload.itemIds) {
     Inventory.removeItem(combatant.combatantProperties.inventory, itemId);
   }
-  if (payload.hp) CombatantProperties.changeHitPoints(combatant.combatantProperties, payload.hp);
-  if (payload.mp) CombatantProperties.changeMana(combatant.combatantProperties, payload.mp);
+  if (payload.hp) CombatantProperties.changeHitPoints(combatant.combatantProperties, -payload.hp);
+  if (payload.mp) CombatantProperties.changeMana(combatant.combatantProperties, -payload.mp);
 
   actionCommandManager.processNextCommand();
 }

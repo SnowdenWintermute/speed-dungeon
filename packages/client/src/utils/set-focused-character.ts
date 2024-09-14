@@ -21,9 +21,13 @@ export default function setFocusedCharacter(
     if (!gameState.username) return setAlert(mutateAlertState, ERROR_MESSAGES.CLIENT.NO_USERNAME);
     const playerOption = game.players[gameState.username];
     if (!playerOption) return setAlert(mutateAlertState, ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
-    const playerOwnsCharacterSwitchingFocusAwayFrom = Object.keys(
-      playerOption.characterIds
-    ).includes(id);
+    const playerOwnsCharacterSwitchingFocusAwayFrom = playerOption.characterIds.includes(id);
+
+    console.log(
+      "playerOwnsCharacterSwitchingFocusAwayFrom: ",
+      playerOwnsCharacterSwitchingFocusAwayFrom
+    );
+
     if (playerOwnsCharacterSwitchingFocusAwayFrom) {
       socketOption?.emit(
         ClientToServerEvent.SelectCombatAction,

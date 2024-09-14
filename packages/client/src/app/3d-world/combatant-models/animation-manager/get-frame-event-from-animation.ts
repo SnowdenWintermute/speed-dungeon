@@ -44,6 +44,33 @@ export default function getFrameEventFromAnimation(
           induceHitRecovery(gameWorld, targetId, hpChange.hpChange, hpChange.isCrit);
         }
 
+      if (mpChangesByEntityId) {
+        for (const [targetId, mpChange] of Object.entries(mpChangesByEntityId)) {
+          startFloatingText(
+            gameWorld.mutateGameState,
+            targetId,
+            mpChange.toString(),
+            FloatingTextColor.ManaGained,
+            false,
+            2000
+          );
+          gameWorld.mutateGameState((state) => {
+            const gameOption = state.game;
+            if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+            const game = gameOption;
+            if (!state.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+            const partyOptionResult = getCurrentParty(state, state.username);
+            if (partyOptionResult instanceof Error) return console.error(partyOptionResult);
+            if (partyOptionResult === undefined)
+              return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+
+            const targetResult = SpeedDungeonGame.getCombatantById(game, targetId);
+            if (targetResult instanceof Error) return console.error(targetResult);
+            CombatantProperties.changeMana(targetResult.combatantProperties, mpChange);
+          });
+        }
+      }
+
       if (missesByEntityId)
         for (const targetId of missesByEntityId) {
           // push evade action

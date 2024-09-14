@@ -1,4 +1,4 @@
-import { AdventuringParty } from "@speed-dungeon/common";
+import { AdventuringParty, CombatantAbilityName } from "@speed-dungeon/common";
 
 interface Props {
   party: AdventuringParty;
@@ -31,7 +31,15 @@ interface TargetingIndicatorProps {
 }
 
 function TargetingIndicator({ combatAction }: TargetingIndicatorProps) {
-  const color = combatAction.type === CombatActionType.AbilityUsed ? "yellow-700" : "green-600";
+  let color = "yellow-700";
+  if (
+    combatAction.type === CombatActionType.AbilityUsed &&
+    combatAction.abilityName === CombatantAbilityName.Healing
+  ) {
+    color = "green-600";
+    console.log("combat action name: ", combatAction.abilityName);
+  }
+  if (combatAction.type === CombatActionType.ConsumableUsed) color = "green-600";
   return (
     <div
       className={`w-0 h-0 border-t-[1.5rem] border-t-${color}

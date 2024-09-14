@@ -36,7 +36,7 @@ export default function performCombatActionActionCommandHandler(
     for (const [targetId, mpChange] of Object.entries(mpChangesByEntityId)) {
       const targetResult = AdventuringParty.getCombatant(party, targetId);
       if (targetResult instanceof Error) return targetResult;
-      CombatantProperties.changeMana(targetResult.combatantProperties, mpChange.mpChange);
+      CombatantProperties.changeMana(targetResult.combatantProperties, mpChange);
     }
   if (hpChangesByEntityId)
     for (const [targetId, hpChange] of Object.entries(hpChangesByEntityId)) {

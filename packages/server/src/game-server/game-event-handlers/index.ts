@@ -128,13 +128,13 @@ export default function initiateGameEventListeners(
   });
   socket.on(ClientToServerEvent.UseSelectedCombatAction, (characterId: string) => {
     this.emitErrorEventIfError(socket, () => {
-      this.characterActionHandler(
+      return this.characterActionHandler(
         socket.id,
         characterId,
         (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) => {
           const result = this.useSelectedCombatActionHandler(characterAssociatedData);
           if (result instanceof Error) console.error(result);
-          return result
+          return result;
         }
       );
     });
@@ -143,7 +143,7 @@ export default function initiateGameEventListeners(
     ClientToServerEvent.IncrementAttribute,
     (characterId: string, attribute: CombatAttribute) => {
       this.emitErrorEventIfError(socket, () => {
-        this.characterActionHandler(
+        return this.characterActionHandler(
           socket.id,
           characterId,
           (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) => {
