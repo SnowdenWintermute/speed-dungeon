@@ -68,7 +68,7 @@ export default function outfitNewCharacter(
 
   for (let i = 0; i < 50; i += 1) {
     const iLvl = randBetween(1, DEEPEST_FLOOR);
-    const randomItem = gameServer.generateRandomItem(10, idGenerator);
+    const randomItem = gameServer.generateRandomItem(1, idGenerator);
     if (!(randomItem instanceof Error)) combatantProperties.inventory.items.push(randomItem);
   }
 

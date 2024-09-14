@@ -10,7 +10,7 @@ export default function TargetingIndicators({ party, entityId }: Props) {
     party,
     entityId
   );
-  if (targetedBy instanceof Error) return <div>{targetedBy.message}</div>;
+  if (targetedBy instanceof Error) return <div>targeting error: {targetedBy.message}</div>;
 
   return targetedBy.length ? (
     <div className="absolute top-[-1.5rem] left-1/2 -translate-x-1/2 z-20 flex">

@@ -83,3 +83,8 @@ export function formatActionCommandType(type: ActionCommandType) {
       return "Battle result";
   }
 }
+
+// - change equipment shouldn't lock input
+// - can't change equipment in battle unless input not locked and have the special trait
+//   (can change while other players are deciding their move)
+// -

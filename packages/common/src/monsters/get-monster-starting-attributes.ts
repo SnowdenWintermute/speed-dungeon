@@ -22,7 +22,7 @@ export default function getMonsterStartingAttributes(
       attributes[CombatAttribute.Hp] = 1.0;
       attributes[CombatAttribute.Agility] = 0.5;
       attributes[CombatAttribute.Accuracy] = 60.0;
-      attributes[CombatAttribute.Speed] = 1.0;
+      attributes[CombatAttribute.Speed] = 10.0;
       break;
     case MonsterType.SkeletonArcher:
       attributes[CombatAttribute.Damage] = 0.0;

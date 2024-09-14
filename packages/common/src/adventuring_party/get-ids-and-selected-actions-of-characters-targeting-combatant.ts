@@ -16,7 +16,7 @@ export default function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
   for (const [characterId, character] of Object.entries(party.characters)) {
     const currentTarget = character.combatantProperties.combatActionTarget;
     if (currentTarget === null) continue;
-
+    console.log("target not null for ", characterId)
     const selectedAction = character.combatantProperties.selectedCombatAction;
     if (!selectedAction) continue;
     const actionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
