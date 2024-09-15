@@ -41,7 +41,11 @@ export default function startPerformingCombatAction(
 
   // START THEIR ANIMATION AND CALL ONCOMPLETE WHEN DONE
   const animationName = getCombatActionAnimationName(combatAction);
-  const animationEventOption = getFrameEventFromAnimation(gameWorld, message.actionCommandPayload);
+  const animationEventOption = getFrameEventFromAnimation(
+    gameWorld,
+    message.actionCommandPayload,
+    actionUserId
+  );
 
   // get the execution time
   let combatActionExecutionTimeResult: Error | number = new Error(

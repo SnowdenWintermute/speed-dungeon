@@ -7,6 +7,7 @@ import {
 import { ClientActionCommandReceiver } from ".";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
+import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
 
 export default function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
@@ -25,9 +26,33 @@ export default function battleResultActionCommandHandler(
     switch (payload.conclusion) {
       case BattleConclusion.Defeat:
         partyOption.timeOfWipe = timestamp;
+        state.combatLogMessages.push(
+          new CombatLogMessage("Your party was defeated", CombatLogMessageStyle.PartyWipe)
+        );
         break;
       case BattleConclusion.Victory:
-        SpeedDungeonGame.handleBattleVictory(gameOption, partyOption, payload);
+        const levelups = SpeedDungeonGame.handleBattleVictory(gameOption, partyOption, payload);
+
+        for (const [characterId, expChange] of Object.entries(payload.experiencePointChanges)) {
+          const characterResult = SpeedDungeonGame.getCombatantById(gameOption, characterId);
+          if (characterResult instanceof Error) return console.error(characterResult);
+          state.combatLogMessages.push(
+            new CombatLogMessage(
+              `${characterResult.entityProperties.name} gained ${expChange} experience points`,
+              CombatLogMessageStyle.PartyProgress
+            )
+          );
+        }
+        for (const [characterId, levelup] of Object.entries(levelups)) {
+          const characterResult = SpeedDungeonGame.getCombatantById(gameOption, characterId);
+          if (characterResult instanceof Error) return console.error(characterResult);
+          state.combatLogMessages.push(
+            new CombatLogMessage(
+              `${characterResult.entityProperties.name} reached level ${levelup}!`,
+              CombatLogMessageStyle.PartyProgress
+            )
+          );
+        }
         break;
     }
   });

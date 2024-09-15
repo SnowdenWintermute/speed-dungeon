@@ -12,6 +12,7 @@ import ItemDetailsWithComparison from "./ItemDetailsWithComparison";
 import CharacterSheetItemDetailsViewer from "./character-sheet/CharacterSheetItemDetailsViewer";
 import ItemsOnGround from "./ItemsOnGround";
 import ReadyUpDisplay from "./ReadyUpDisplay";
+import CombatLog from "./combat-log";
 
 export default function Game() {
   const game = useGameStore().game;
@@ -59,14 +60,13 @@ export default function Game() {
             </div>
           </div>
           <div className="flex flex-wrap justify-between">
-            <div className="opacity-0 h-[14rem] min-w-[23rem] max-w-[26rem] w-full border border-slate-400 bg-slate-700 p-2 pointer-events-auto">
-              combat log placeholder
+            <div className="h-[14rem] min-w-[23rem] max-w-[26rem] w-full border border-slate-400 bg-slate-700 p-2 pointer-events-auto">
               {
                 // <div>Alpha: {cameraData.alpha}</div>
                 // <div>Beta: {cameraData.beta}</div>
                 // <div>Radius: {cameraData.radius}</div>
                 // <div>Target: {JSON.stringify(cameraData.focus)}</div>
-                // <CombatLog />
+                <CombatLog />
               }
             </div>
             <div className="flex flex-grow justify-end mt-3.5">
@@ -95,7 +95,7 @@ export default function Game() {
               <div className="flex justify-between overflow-hidden">
                 {
                   // !focused_character_is_animating &&
-                  <ActionMenu inputLocked={InputLock.isLocked(party.inputLock)}/>
+                  <ActionMenu inputLocked={InputLock.isLocked(party.inputLock)} />
                 }
                 {!viewingCharacterSheet && (
                   <div className="flex overflow-hidden">

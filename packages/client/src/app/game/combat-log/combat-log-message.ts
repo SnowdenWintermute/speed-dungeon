@@ -12,4 +12,5 @@ export enum CombatLogMessageStyle {
   PartyWipe,
   PartyEscape,
   BattleVictory,
+  Healing,
 }

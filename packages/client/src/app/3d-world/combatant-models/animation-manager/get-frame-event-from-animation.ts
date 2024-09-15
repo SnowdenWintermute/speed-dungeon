@@ -11,10 +11,12 @@ import { GameWorld } from "../../game-world";
 import { FloatingTextColor, startFloatingText } from "@/stores/game-store/floating-text";
 import { ANIMATION_NAMES } from "./animation-names";
 import getCurrentParty from "@/utils/getCurrentParty";
+import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 
 export default function getFrameEventFromAnimation(
   gameWorld: GameWorld,
-  actionPayload: PerformCombatActionActionCommandPayload
+  actionPayload: PerformCombatActionActionCommandPayload,
+  actionUserId: string
 ) {
   const { combatAction, hpChangesByEntityId, mpChangesByEntityId, missesByEntityId } =
     actionPayload;
@@ -41,7 +43,7 @@ export default function getFrameEventFromAnimation(
     () => {
       if (hpChangesByEntityId)
         for (const [targetId, hpChange] of Object.entries(hpChangesByEntityId)) {
-          induceHitRecovery(gameWorld, targetId, hpChange.hpChange, hpChange.isCrit);
+          induceHitRecovery(gameWorld, actionUserId, targetId, hpChange.hpChange, hpChange.isCrit);
         }
 
       if (mpChangesByEntityId) {
@@ -67,6 +69,13 @@ export default function getFrameEventFromAnimation(
             const targetResult = SpeedDungeonGame.getCombatantById(game, targetId);
             if (targetResult instanceof Error) return console.error(targetResult);
             CombatantProperties.changeMana(targetResult.combatantProperties, mpChange);
+
+            state.combatLogMessages.push(
+              new CombatLogMessage(
+                `${targetResult.entityProperties.name} recovered ${mpChange} mana`,
+                CombatLogMessageStyle.Basic
+              )
+            );
           });
         }
       }
@@ -87,6 +96,27 @@ export default function getFrameEventFromAnimation(
             onComplete: () => {},
           });
 
+          gameWorld.mutateGameState((state) => {
+            const gameOption = state.game;
+            if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+            const game = gameOption;
+            if (!state.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+            const partyOptionResult = getCurrentParty(state, state.username);
+            if (partyOptionResult instanceof Error) return console.error(partyOptionResult);
+            if (partyOptionResult === undefined)
+              return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+
+            const targetResult = SpeedDungeonGame.getCombatantById(game, targetId);
+            if (targetResult instanceof Error) return console.error(targetResult);
+
+            state.combatLogMessages.push(
+              new CombatLogMessage(
+                `${targetResult.entityProperties.name} evaded`,
+                CombatLogMessageStyle.Basic
+              )
+            );
+          });
+
           startFloatingText(
             gameWorld.mutateGameState,
             targetId,
@@ -105,6 +135,7 @@ export default function getFrameEventFromAnimation(
 
 function induceHitRecovery(
   gameWorld: GameWorld,
+  actionUserId: string,
   targetId: string,
   hpChange: number,
   isCrit: boolean
@@ -145,9 +176,31 @@ function induceHitRecovery(
     const combatantWasAliveBeforeHpChange = combatantProperties.hitPoints > 0;
     CombatantProperties.changeHitPoints(combatantProperties, hpChange);
 
+    const actionUserResult = SpeedDungeonGame.getCombatantById(game, actionUserId);
+    if (actionUserResult instanceof Error) return console.error(actionUserResult);
+
+    const damagedOrHealed = hpChange > 0 ? "healed" : "hit";
+    const hpOrDamage = hpChange > 0 ? "hit points" : "damage";
+    const style = hpChange > 0 ? CombatLogMessageStyle.Healing : CombatLogMessageStyle.Basic;
+
+    gameState.combatLogMessages.push(
+      new CombatLogMessage(
+        `${actionUserResult.entityProperties.name} ${damagedOrHealed} ${combatantResult.entityProperties.name} for ${hpChange} ${hpOrDamage}`,
+        style
+      )
+    );
+
     if (combatantProperties.hitPoints <= 0) {
       const maybeError = SpeedDungeonGame.handlePlayerDeath(game, party.battleId, targetId);
       if (maybeError instanceof Error) return console.error(maybeError);
+
+      gameState.combatLogMessages.push(
+        new CombatLogMessage(
+          `${combatantResult.entityProperties.name}'s hp was reduced to zero`,
+          CombatLogMessageStyle.Basic
+        )
+      );
+
       targetModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.DEATH, 500, {
         shouldLoop: false,
         animationDurationOverrideOption: null,
