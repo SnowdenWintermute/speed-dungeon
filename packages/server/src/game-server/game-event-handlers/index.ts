@@ -8,6 +8,8 @@ import {
   NextOrPrevious,
   PlayerAssociatedData,
   CombatAttribute,
+  getPartyChannelName,
+  ServerToClientEvent,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import { GameServer } from "..";
@@ -133,7 +135,13 @@ export default function initiateGameEventListeners(
         characterId,
         (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) => {
           const result = this.useSelectedCombatActionHandler(characterAssociatedData);
-          if (result instanceof Error) console.error(result);
+          if (result instanceof Error) {
+            console.error(result);
+            const { game, party } = characterAssociatedData;
+            this.io
+              .in(getPartyChannelName(game.name, party.name))
+              .emit(ServerToClientEvent.CharacterSelectedCombatAction, characterId, null);
+          }
           return result;
         }
       );

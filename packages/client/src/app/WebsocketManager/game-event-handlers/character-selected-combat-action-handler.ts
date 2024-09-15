@@ -32,7 +32,7 @@ export default function characterSelectedCombatActionHandler(
       SpeedDungeonGame.assignCharacterActionTargets(
         game,
         characterId,
-        gameState.username,
+        character.nameOfControllingUser,
         combatActionPropertiesOption
       );
     }
