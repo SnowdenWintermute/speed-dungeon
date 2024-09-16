@@ -28,12 +28,15 @@ export default function handlePartyWipe(
   for (const socketId of socketIdsOfPlayersInOtherParties) {
     const socketOption = this.io.sockets.sockets.get(socketId);
     if (socketOption === undefined) return new Error(ERROR_MESSAGES.SERVER.SOCKET_NOT_FOUND);
-    socketOption.emit(ServerToClientEvent.GameMessage, {
-      type: GameMessageType.PartyWipe,
-      partyName: party.name,
-      dlvl: party.currentFloor,
-      timeOfWipe: new Date().getTime(),
-    });
+    this.io
+      .in(game.name)
+      .except(getPartyChannelName(game.name, party.name))
+      .emit(ServerToClientEvent.GameMessage, {
+        type: GameMessageType.PartyWipe,
+        partyName: party.name,
+        dlvl: party.currentFloor,
+        timeOfWipe: new Date().getTime(),
+      });
   }
 
   this.io

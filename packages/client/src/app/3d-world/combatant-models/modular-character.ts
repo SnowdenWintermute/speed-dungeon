@@ -1,13 +1,10 @@
 import {
   AbstractMesh,
   BoundingInfo,
-  Color3,
   Color4,
   ISceneLoaderAsyncResult,
   Mesh,
-  MeshBuilder,
   Quaternion,
-  StandardMaterial,
   TransformNode,
   Vector3,
 } from "babylonjs";
@@ -141,8 +138,7 @@ export class ModularCharacter {
 
     for (const mesh of part.meshes) {
       // attach part
-      if (!mesh.skeleton) continue;
-      mesh.skeleton = this.skeleton.skeletons[0];
+      if (mesh.skeleton) mesh.skeleton = this.skeleton.skeletons[0];
       mesh.parent = parent!;
     }
 

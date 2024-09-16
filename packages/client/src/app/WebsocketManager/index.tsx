@@ -28,7 +28,6 @@ import newDungeonRoomTypesOnCurrentFloorHandler from "./game-event-handlers/new-
 import newDungeonRoomHandler from "./game-event-handlers/new-dungeon-room-handler";
 import battleFullUpdateHandler from "./game-event-handlers/battle-full-update-handler";
 import battleReportHandler from "./game-event-handlers/battle-report-handler";
-import gameMessageHandler from "./game-event-handlers/game-message-handler";
 import characterDroppedItemHandler from "./game-event-handlers/character-dropped-item-handler";
 import characterDroppedEquippedItemHandler from "./game-event-handlers/character-dropped-equipped-item-handler";
 import characterUnequippedSlotHandler from "./game-event-handlers/character-unequipped-slot-handler";
@@ -44,6 +43,7 @@ import { ClientActionCommandReceiver } from "../client-action-command-receiver";
 import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
 import getCurrentParty from "@/utils/getCurrentParty";
 import characterIncrementedAttributePointHandler from "./game-event-handlers/character-incremented-attribute-point-handler";
+import gameProgressMessageHandler from "./game-event-handlers/game-progress-message-handler";
 
 // const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
 const socketAddress = "http://localhost:8080";
@@ -222,9 +222,6 @@ function SocketManager({
     socket.on(ServerToClientEvent.BattleFullUpdate, (battleOption) => {
       battleFullUpdateHandler(mutateGameStore, mutateAlertStore, battleOption);
     });
-    socket.on(ServerToClientEvent.GameMessage, (message) => {
-      gameMessageHandler(mutateGameStore, message);
-    });
     socket.on(ServerToClientEvent.BattleReport, (report) => {
       battleReportHandler(socket, mutateGameStore, report);
     });
@@ -303,6 +300,9 @@ function SocketManager({
           attribute
         );
       }
+    );
+    socket.on(ServerToClientEvent.GameMessage, (message) =>
+      gameProgressMessageHandler(mutateGameStore, message)
     );
 
     return () => {

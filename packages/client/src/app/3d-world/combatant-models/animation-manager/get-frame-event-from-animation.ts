@@ -185,7 +185,7 @@ function induceHitRecovery(
 
     gameState.combatLogMessages.push(
       new CombatLogMessage(
-        `${actionUserResult.entityProperties.name} ${damagedOrHealed} ${combatantResult.entityProperties.name} for ${hpChange} ${hpOrDamage}`,
+        `${actionUserResult.entityProperties.name} ${damagedOrHealed} ${combatantResult.entityProperties.name} for ${Math.abs(hpChange)} ${hpOrDamage}`,
         style
       )
     );

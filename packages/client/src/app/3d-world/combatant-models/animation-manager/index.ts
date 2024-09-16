@@ -170,6 +170,7 @@ export class AnimationManager {
   getFallbackAnimationName(animationName: string) {
     if (animationName === "melee-attack-offhand") return "melee-attack";
     if (animationName === "move-back") return "move-forward";
+    if (animationName === "idle") return "move-forward";
   }
 
   static setAnimationEndCallback(animationGroup: AnimationGroup, callback: () => void) {

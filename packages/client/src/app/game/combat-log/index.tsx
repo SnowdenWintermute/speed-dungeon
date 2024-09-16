@@ -32,6 +32,9 @@ function CombatLogMessageElement({ message }: { message: CombatLogMessage }) {
     case CombatLogMessageStyle.PartyProgress:
       color = "text-yellow-400";
       break;
+    case CombatLogMessageStyle.GameProgress:
+      color = "text-teal-300";
+      break;
     case CombatLogMessageStyle.PartyWipe:
       color = "text-red-400";
       break;
