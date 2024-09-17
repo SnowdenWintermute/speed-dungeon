@@ -4,8 +4,11 @@ import {
   CombatantAbilityName,
   CombatantProperties,
   ERROR_MESSAGES,
+  Inventory,
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
+  formatAbilityName,
+  formatConsumableType,
 } from "@speed-dungeon/common";
 import { GameWorld } from "../../game-world";
 import { FloatingTextColor, startFloatingText } from "@/stores/game-store/floating-text";
@@ -41,9 +44,54 @@ export default function getFrameEventFromAnimation(
   animationEventOption = new AnimationEvent(
     20,
     () => {
+      let wasSpell = false;
+      gameWorld.mutateGameState((state) => {
+        const gameOption = state.game;
+        if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+        const game = gameOption;
+        const actionUserResult = SpeedDungeonGame.getCombatantById(game, actionUserId);
+        if (actionUserResult instanceof Error) return console.error(actionUserResult);
+        if (combatAction.type === CombatActionType.AbilityUsed) {
+          switch (combatAction.abilityName) {
+            case CombatantAbilityName.Attack:
+            case CombatantAbilityName.AttackMeleeMainhand:
+            case CombatantAbilityName.AttackMeleeOffhand:
+            case CombatantAbilityName.AttackRangedMainhand:
+              break;
+            case CombatantAbilityName.Fire:
+            case CombatantAbilityName.Ice:
+            case CombatantAbilityName.Healing:
+              wasSpell = true;
+              state.combatLogMessages.push(
+                new CombatLogMessage(
+                  `${actionUserResult.entityProperties.name} casts ${formatAbilityName(combatAction.abilityName)}`,
+                  CombatLogMessageStyle.Basic
+                )
+              );
+          }
+        } else if (combatAction.type === CombatActionType.ConsumableUsed) {
+          const itemResult = Inventory.getConsumableProperties(
+            actionUserResult.combatantProperties.inventory,
+            combatAction.itemId
+          );
+          if (itemResult instanceof Error) return console.error(itemResult);
+          new CombatLogMessage(
+            `${actionUserResult.entityProperties.name} uses ${formatConsumableType(itemResult.consumableType)}`,
+            CombatLogMessageStyle.Basic
+          );
+        }
+      });
+
       if (hpChangesByEntityId)
         for (const [targetId, hpChange] of Object.entries(hpChangesByEntityId)) {
-          induceHitRecovery(gameWorld, actionUserId, targetId, hpChange.hpChange, hpChange.isCrit);
+          induceHitRecovery(
+            gameWorld,
+            actionUserId,
+            targetId,
+            hpChange.hpChange,
+            hpChange.isCrit,
+            wasSpell
+          );
         }
 
       if (mpChangesByEntityId) {
@@ -138,7 +186,8 @@ function induceHitRecovery(
   actionUserId: string,
   targetId: string,
   hpChange: number,
-  isCrit: boolean
+  isCrit: boolean,
+  wasSpell: boolean
 ) {
   const targetModel = gameWorld.modelManager.combatantModels[targetId];
   if (targetModel === undefined) return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
@@ -179,16 +228,33 @@ function induceHitRecovery(
     const actionUserResult = SpeedDungeonGame.getCombatantById(game, actionUserId);
     if (actionUserResult instanceof Error) return console.error(actionUserResult);
 
-    const damagedOrHealed = hpChange > 0 ? "healed" : "hit";
-    const hpOrDamage = hpChange > 0 ? "hit points" : "damage";
-    const style = hpChange > 0 ? CombatLogMessageStyle.Healing : CombatLogMessageStyle.Basic;
+    if (wasSpell) {
+      const damagedOrHealed = hpChange > 0 ? "recovers" : "takes";
+      const hpOrDamage = hpChange > 0 ? "hit points" : "damage";
+      const style = hpChange > 0 ? CombatLogMessageStyle.Healing : CombatLogMessageStyle.Basic;
 
-    gameState.combatLogMessages.push(
-      new CombatLogMessage(
-        `${actionUserResult.entityProperties.name} ${damagedOrHealed} ${combatantResult.entityProperties.name} for ${Math.abs(hpChange)} ${hpOrDamage}`,
-        style
-      )
-    );
+      gameState.combatLogMessages.push(
+        new CombatLogMessage(
+          `${combatantResult.entityProperties.name} ${damagedOrHealed} ${Math.abs(hpChange)} ${hpOrDamage}`,
+          style
+        )
+      );
+    } else {
+      const damagedOrHealed = hpChange > 0 ? "healed" : "hit";
+      const hpOrDamage = hpChange > 0 ? "hit points" : "damage";
+      const style = hpChange > 0 ? CombatLogMessageStyle.Healing : CombatLogMessageStyle.Basic;
+
+      const isTargetingSelf =
+        actionUserResult.entityProperties.id === combatantResult.entityProperties.id;
+      const targetNameText = isTargetingSelf ? "themselves" : combatantResult.entityProperties.name;
+
+      gameState.combatLogMessages.push(
+        new CombatLogMessage(
+          `${actionUserResult.entityProperties.name} ${damagedOrHealed} ${targetNameText} for ${Math.abs(hpChange)} ${hpOrDamage}`,
+          style
+        )
+      );
+    }
 
     if (combatantProperties.hitPoints <= 0) {
       const maybeError = SpeedDungeonGame.handlePlayerDeath(game, party.battleId, targetId);

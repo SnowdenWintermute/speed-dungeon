@@ -50,6 +50,6 @@ export default function takeAiControlledTurnIfActive(
     selectedCombatAction,
     target,
     battleOption,
-    party.characterPositions
+    Object.values(party.currentRoom.monsters).map((monster) => monster.entityProperties.id)
   );
 }

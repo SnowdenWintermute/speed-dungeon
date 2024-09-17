@@ -2,7 +2,12 @@ import { CombatantModelBlueprint } from "@/stores/next-babylon-messaging-store/n
 import { GameWorld } from ".";
 import { ModularCharacter } from "../combatant-models/modular-character";
 import { disposeAsyncLoadedScene } from "../utils";
-import { CombatantSpecies, removeFromArray } from "@speed-dungeon/common";
+import {
+  CombatantClass,
+  CombatantSpecies,
+  MonsterType,
+  removeFromArray,
+} from "@speed-dungeon/common";
 import {
   CHARACTER_PARTS,
   MONSTER_FULL_SKINS,
@@ -64,10 +69,28 @@ export class ModelManager {
   async spawnCharacterModel(blueprint: CombatantModelBlueprint): Promise<ModularCharacter> {
     const parts = [];
     if (blueprint.monsterType !== null) {
-      parts.push({
-        category: ModularCharacterPartCategory.Full,
-        assetPath: MONSTER_FULL_SKINS[blueprint.monsterType] || "",
-      });
+      if (
+        blueprint.monsterType === MonsterType.FireMage ||
+        blueprint.monsterType === MonsterType.Cultist
+      ) {
+        parts.push({
+          category: ModularCharacterPartCategory.Head,
+          assetPath: CHARACTER_PARTS[CombatantClass.Mage][ModularCharacterPartCategory.Head] || "",
+        });
+        parts.push({
+          category: ModularCharacterPartCategory.Torso,
+          assetPath: CHARACTER_PARTS[CombatantClass.Mage][ModularCharacterPartCategory.Torso] || "",
+        });
+        parts.push({
+          category: ModularCharacterPartCategory.Legs,
+          assetPath: CHARACTER_PARTS[CombatantClass.Mage][ModularCharacterPartCategory.Legs] || "",
+        });
+      } else {
+        parts.push({
+          category: ModularCharacterPartCategory.Full,
+          assetPath: MONSTER_FULL_SKINS[blueprint.monsterType] || "",
+        });
+      }
     } else {
       // is humanoid
       let headPath = CHARACTER_PARTS[blueprint.class][ModularCharacterPartCategory.Head] || "";

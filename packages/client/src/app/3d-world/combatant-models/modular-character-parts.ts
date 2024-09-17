@@ -44,11 +44,11 @@ export const SKELETONS: Partial<Record<CombatantSpecies, string>> = {
   [CombatantSpecies.Skeleton]: "monsters/skeleton-main-skeleton.glb",
   [CombatantSpecies.Velociraptor]: "monsters/velociraptor-main-skeleton.glb",
   [CombatantSpecies.Elemental]: "monsters/cube-main-skeleton.glb",
-  [CombatantSpecies.Golem]: "monsters/skeleton-main-skeleton.glb",
+  [CombatantSpecies.Golem]: "monsters/wolf-main-skeleton.glb",
 };
 
 export const MONSTER_FULL_SKINS: Partial<Record<MonsterType, string>> = {
-  [MonsterType.MetallicGolem]: "monsters/skeleton-full.glb",
+  [MonsterType.MetallicGolem]: "monsters/wolf-full.glb",
   [MonsterType.Zombie]: "monsters/skeleton-full.glb",
   [MonsterType.SkeletonArcher]: "monsters/skeleton-full.glb",
   [MonsterType.Scavenger]: "monsters/dragon-full.glb",

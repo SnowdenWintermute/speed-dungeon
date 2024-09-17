@@ -6,7 +6,7 @@ import { MonsterType } from "@speed-dungeon/common/dist/monsters/monster-types";
 // in babylon with this chart
 
 export const MONSTER_SCALING_SIZES: Record<MonsterType, number> = {
-  [MonsterType.MetallicGolem]: 1,
+  [MonsterType.MetallicGolem]: 0.5,
   [MonsterType.Zombie]: 0.25,
   [MonsterType.SkeletonArcher]: 0.2,
   [MonsterType.Scavenger]: 0.25,
