@@ -55,6 +55,6 @@ export const MONSTER_FULL_SKINS: Partial<Record<MonsterType, string>> = {
   [MonsterType.Vulture]: "monsters/dragon-full.glb",
   // [MonsterType.FireMage]: "monsters/",
   // [MonsterType.Cultist]: "monsters/",
-  [MonsterType.FireElemental]: "monsters/cube-full-red.glb",
+  [MonsterType.FireElemental]: "monsters/cube-full.glb",
   [MonsterType.IceElemental]: "monsters/cube-full.glb",
 };

@@ -5,6 +5,7 @@ import {
   ISceneLoaderAsyncResult,
   Mesh,
   Quaternion,
+  StandardMaterial,
   TransformNode,
   Vector3,
 } from "babylonjs";
