@@ -1,6 +1,7 @@
 import {
   AbstractMesh,
   BoundingInfo,
+  Color3,
   Color4,
   ISceneLoaderAsyncResult,
   Mesh,
@@ -151,6 +152,7 @@ export class ModularCharacter {
     this.parts[partCategory] = part;
 
     this.updateBoundingBox();
+    return part;
   }
 
   async equipWeapon(_partPath: string, oh: boolean) {

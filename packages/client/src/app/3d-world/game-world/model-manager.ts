@@ -14,6 +14,7 @@ import {
   ModularCharacterPartCategory,
   SKELETONS,
 } from "../combatant-models/modular-character-parts";
+import { Color3, StandardMaterial } from "babylonjs";
 
 // the whole point of all this is to make sure we never handle spawn and despawn messages out of order due
 // to the asynchronous nature of spawning models
@@ -66,7 +67,7 @@ export class ModelManager {
     this.modelMessageQueues[entityId]!.messages.push(message);
   }
 
-  async spawnCharacterModel(blueprint: CombatantModelBlueprint): Promise<ModularCharacter> {
+  async spawnCharacterModel(blueprint: CombatantModelBlueprint): Promise<Error | ModularCharacter> {
     const parts = [];
     if (blueprint.monsterType !== null) {
       if (
@@ -114,7 +115,37 @@ export class ModelManager {
     );
 
     for (const part of parts) {
-      await modularCharacter.attachPart(part.category, part.assetPath);
+      const partResult = await modularCharacter.attachPart(part.category, part.assetPath);
+      if (partResult instanceof Error) return partResult;
+
+      if (blueprint.monsterType === MonsterType.FireElemental)
+        for (const mesh of partResult.meshes) {
+          if (mesh.material?.name === "cube-material") {
+            const redMaterial = new StandardMaterial("red");
+            redMaterial.diffuseColor = new Color3(0.7, 0.2, 0.2);
+            mesh.material = redMaterial;
+          }
+        }
+
+      if (blueprint.monsterType === MonsterType.FireMage) {
+        for (const mesh of partResult.meshes) {
+          if (mesh.material?.name === "Purple") {
+            const redMaterial = new StandardMaterial("red");
+            redMaterial.diffuseColor = new Color3(0.7, 0.2, 0.2);
+            mesh.material = redMaterial;
+          }
+        }
+      }
+
+      if (blueprint.monsterType === MonsterType.Cultist) {
+        for (const mesh of partResult.meshes) {
+          if (mesh.material?.name === "Purple") {
+            const whiteMaterial = new StandardMaterial("white");
+            whiteMaterial.diffuseColor = new Color3(0.85, 0.75, 0.75);
+            mesh.material = whiteMaterial;
+          }
+        }
+      }
     }
 
     if (blueprint.species === CombatantSpecies.Humanoid)
