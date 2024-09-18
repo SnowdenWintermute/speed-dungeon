@@ -87,7 +87,7 @@ export class ModularCharacter {
       rotation: cloneDeep(this.rootTransformNode.rotationQuaternion!),
     };
 
-    this.setUpDebugMeshes();
+    // this.setUpDebugMeshes();
 
     // this.setShowBones();
   }

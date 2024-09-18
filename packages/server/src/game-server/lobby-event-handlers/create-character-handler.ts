@@ -92,7 +92,7 @@ function addCharacterToParty(
   );
 
   outfitNewCharacter(gameServer, game.idGenerator, newCharacter);
-  newCharacter.combatantProperties.hitPoints = 1;
+  // newCharacter.combatantProperties.hitPoints = 1;
 
   party.characters[characterId] = newCharacter;
   party.characterPositions.push(characterId);

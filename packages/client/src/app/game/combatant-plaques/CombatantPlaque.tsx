@@ -197,7 +197,8 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
         <div className="flex-grow" ref={nameAndBarsRef}>
           <div className="mb-1.5 flex justify-between text-lg">
             <span>
-              {entityProperties.name} {entityId}
+              {entityProperties.name}
+              {entityId}
               <UnspentAttributesButton
                 combatantProperties={combatantProperties}
                 handleClick={handleUnspentAttributesButtonClick}

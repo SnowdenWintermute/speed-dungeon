@@ -267,12 +267,13 @@ function induceHitRecovery(
         )
       );
 
-      targetModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.DEATH, 500, {
+      targetModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.DEATH, 0, {
         shouldLoop: false,
         animationDurationOverrideOption: null,
         animationEventOption: null,
         onComplete: () => {
           targetModel.animationManager.locked = true;
+          if (targetModel.entityId === "13") console.log("locked animation player");
         },
       });
     }

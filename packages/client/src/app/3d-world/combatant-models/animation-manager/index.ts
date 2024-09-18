@@ -144,8 +144,10 @@ export class AnimationManager {
     }
 
     // @TODO - if playing and previous are both null, try to play idle
-    if (this.playing === null && this.previous === null && !this.locked)
+    if (this.playing === null && this.previous === null && !this.locked) {
       this.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 500);
+      if (this.characterModel.entityId === "13") console.log("started idle animation");
+    }
   }
 
   getAnimationGroupByName(name: string) {

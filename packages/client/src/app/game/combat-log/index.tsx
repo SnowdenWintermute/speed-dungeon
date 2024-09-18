@@ -12,8 +12,11 @@ export default function CombatLog() {
       <Divider />
       <div className="list-none overflow-y-auto flex flex-col-reverse flex-1">
         <ul>
-          {combatLogMessages.map((message) => (
-            <CombatLogMessageElement message={message} />
+          {combatLogMessages.map((message, i) => (
+            <CombatLogMessageElement
+              key={message.timestamp + message.message + i}
+              message={message}
+            />
           ))}
         </ul>
       </div>

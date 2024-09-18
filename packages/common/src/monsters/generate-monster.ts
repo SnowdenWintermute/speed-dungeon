@@ -1,6 +1,6 @@
 import { Vector3 } from "babylonjs";
 import { Monster } from ".";
-import { CombatAttribute, CombatantProperties, updateCombatantHomePosition } from "../combatants";
+import { CombatAttribute, CombatantProperties } from "../combatants";
 import { addAttributesToAccumulator } from "../combatants/get-combatant-total-attributes";
 import { IdGenerator } from "../game/id-generator";
 import { randomNormal } from "../utils";

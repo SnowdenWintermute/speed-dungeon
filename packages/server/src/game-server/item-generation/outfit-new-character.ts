@@ -66,11 +66,11 @@ export default function outfitNewCharacter(
     combatantProperties.equipment[slot] = item;
   }
 
-  for (let i = 0; i < 50; i += 1) {
-    const iLvl = randBetween(1, DEEPEST_FLOOR);
-    const randomItem = gameServer.generateRandomItem(1, idGenerator);
-    if (!(randomItem instanceof Error)) combatantProperties.inventory.items.push(randomItem);
-  }
+  // for (let i = 0; i < 50; i += 1) {
+  //   const iLvl = randBetween(1, DEEPEST_FLOOR);
+  //   const randomItem = gameServer.generateRandomItem(1, idGenerator);
+  //   if (!(randomItem instanceof Error)) combatantProperties.inventory.items.push(randomItem);
+  // }
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
 }

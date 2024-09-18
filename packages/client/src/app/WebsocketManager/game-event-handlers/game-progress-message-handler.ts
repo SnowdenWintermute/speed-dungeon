@@ -12,19 +12,19 @@ export default function gameProgressMessageHandler(
     switch (message.type) {
       case GameMessageType.PartyDescent:
         combatLogMessage = new CombatLogMessage(
-          `Party ${message.partyName} descended to floor ${message.newFloor}`,
+          `Party "${message.partyName}" descended to floor ${message.newFloor}`,
           CombatLogMessageStyle.GameProgress
         );
         break;
       case GameMessageType.PartyEscape:
         combatLogMessage = new CombatLogMessage(
-          `Party ${message.partyName} escaped the dungeon at ${new Date(message.timeOfEscape).toLocaleString()}`,
+          `Party "${message.partyName}" escaped the dungeon at ${new Date(message.timeOfEscape).toLocaleString()}`,
           CombatLogMessageStyle.GameProgress
         );
         break;
       case GameMessageType.PartyWipe:
         combatLogMessage = new CombatLogMessage(
-          `Party ${message.partyName} was defeated at ${new Date(message.timeOfWipe).toLocaleTimeString()}`,
+          `Party "${message.partyName}" was defeated at ${new Date(message.timeOfWipe).toLocaleTimeString()}`,
           CombatLogMessageStyle.GameProgress
         );
         break;

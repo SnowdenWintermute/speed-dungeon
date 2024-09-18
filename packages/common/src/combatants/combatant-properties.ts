@@ -42,7 +42,7 @@ export class CombatantProperties {
   inherentElementalAffinities: Partial<Record<MagicalElement, number>> = {};
   inherentPhysicalDamageTypeAffinities: Partial<Record<PhysicalDamageType, number>> = {};
   level: number = 1;
-  unspentAttributePoints: number = 5;
+  unspentAttributePoints: number = 0;
   unspentAbilityPoints: number = 0;
   hitPoints: number = 0;
   mana: number = 0;
@@ -96,9 +96,7 @@ export class CombatantProperties {
       // assign destination to move a little forward (default ranged attack/spell casting position)
       const direction = CombatantProperties.getForward(user);
       destinationLocation = cloneVector3(user.homeLocation).add(direction.scale(0.5));
-      console.log("not melee");
     } else {
-      console.log("is melee");
       // assign destination based on target location and their hitbox radii
       // we're recreating this vec3 because when
       // combatants are copied to the client they don't keep their Vector3 methods

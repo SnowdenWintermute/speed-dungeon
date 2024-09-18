@@ -30,7 +30,7 @@ export default function generateExperiencePoints(party: AdventuringParty) {
       totalExpToAward += expToAwardForThisMonster;
     }
 
-    experiencePointChanges[character.entityProperties.id] = totalExpToAward;
+    experiencePointChanges[character.entityProperties.id] = Math.floor(totalExpToAward);
   }
 
   return experiencePointChanges;
