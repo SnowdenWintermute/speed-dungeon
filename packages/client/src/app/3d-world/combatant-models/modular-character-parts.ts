@@ -13,7 +13,7 @@ export type ModularCharacterPart = {
   assetPath: string;
 };
 
-export const BASE_FILE_PATH = "./3d-assets/";
+export const BASE_FILE_PATH = process.env.NEXT_PUBLIC_ASSET_BASE_PATH_3D;
 
 export const CHARACTER_PARTS: Record<
   CombatantClass,

@@ -9,19 +9,19 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@babylonjs/core": "^7.26.0",
+    "@babylonjs/loaders": "7.26.0",
     "@redux-devtools/extension": "3.3.0",
-    "babylonjs": "7.19.0",
-    "babylonjs-loaders": "7.19.0",
     "immer": "10.1.1",
-    "lodash.clonedeep": "^4.5.0",
-    "next": "^14.2.5",
+    "lodash.clonedeep": "4.5.0",
+    "next": "14.2.5",
     "react": "18",
     "react-dom": "18",
     "socket.io-client": "4.7.5",
     "zustand": "4.5.2"
   },
   "devDependencies": {
-    "@types/lodash.clonedeep": "^4.5.9",
+    "@types/lodash.clonedeep": "4.5.9",
     "@types/node": "20.12.8",
     "@types/react": "18",
     "@types/react-dom": "18",

@@ -14,6 +14,16 @@
   dependencies:
     regenerator-runtime "^0.14.0"
 
+"@babylonjs/core@^7.26.0":
+  version "7.26.0"
+  resolved "https://registry.yarnpkg.com/@babylonjs/core/-/core-7.26.0.tgz#efc8e4eec524310f80a3b37bdfbe486fc854bfdf"
+  integrity sha512-4Z3QDraILM/yrfvBmqpJ07tsF7mGrM7M/Qt23QNXuCLyceXtfvOEzu7Kvg2oR3p18OQqLjrKnGTR2idRWRRgwA==
+
+"@babylonjs/loaders@7.26.0":
+  version "7.26.0"
+  resolved "https://registry.yarnpkg.com/@babylonjs/loaders/-/loaders-7.26.0.tgz#21dd27ce9fe7200dc6571f85bcf88e9ed28becb3"
+  integrity sha512-aHchCG7xYw10R+GRDbF7ilIKJ5pUIEOYLX1+TaGni+LskubHfWieN0rdh0Mn/S2OTg172EoTG/Mqpz1gLRH6Ig==
+
 "@eslint-community/eslint-utils@^4.2.0", "@eslint-community/eslint-utils@^4.4.0":
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/@eslint-community/eslint-utils/-/eslint-utils-4.4.0.tgz#a23514e8fb9af1269d5f7788aa556798d61c6b59"
@@ -344,7 +354,7 @@
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==
 
-"@types/lodash.clonedeep@4.5.9", "@types/lodash.clonedeep@^4.5.9":
+"@types/lodash.clonedeep@4.5.9":
   version "4.5.9"
   resolved "https://registry.yarnpkg.com/@types/lodash.clonedeep/-/lodash.clonedeep-4.5.9.tgz#ea48276c7cc18d080e00bb56cf965bcceb3f0fc1"
   integrity sha512-19429mWC+FyaAhOLzsS8kZUsI+/GmBAQ0HFiCPsKGU+7pBXOQWhyrY6xNNDwUSX8SMZMJvuFVMF9O5dQOlQK9Q==
@@ -767,29 +777,6 @@ axobject-query@^3.2.1:
   dependencies:
     dequal "^2.0.3"
 
-babylonjs-gltf2interface@^7.19.0:
-  version "7.19.0"
-  resolved "https://registry.yarnpkg.com/babylonjs-gltf2interface/-/babylonjs-gltf2interface-7.19.0.tgz#156aa279b218abc3c644a64ef60ad1dc0a6a73c0"
-  integrity sha512-W/jNBBWVzCSIjq+ImGkcyc1U20oO50+74I4UGAB2CixFSXifSQAZk5K4wr04AsqNTOhEhNeFMlG/LBxbZBZjzw==
-
-babylonjs-loaders@7.19.0:
-  version "7.19.0"
-  resolved "https://registry.yarnpkg.com/babylonjs-loaders/-/babylonjs-loaders-7.19.0.tgz#c27801ad964cef01c9c6b07742acd98b2b6fa2d3"
-  integrity sha512-9lrnDUZn1k8rdleEUmrjTFHOgoBGXfrDS4aPkgkQgM4Ehk6DdjyvWGz6E7m51W+cmAHUgUziH6RFbfvzHp2X6w==
-  dependencies:
-    babylonjs "^7.19.0"
-    babylonjs-gltf2interface "^7.19.0"
-
-babylonjs@7.19.0, babylonjs@^7.19.0:
-  version "7.19.0"
-  resolved "https://registry.yarnpkg.com/babylonjs/-/babylonjs-7.19.0.tgz#c94c85df0a56e2c6fc8ac42e283dcbcbc6f77ed6"
-  integrity sha512-m2drwDCs8LihDDyFQ+6geoCsJjBFRnEK16AL3BnLLUAYGkz7YOUzqg7/oAsRG+dm6Q9WiVbJ9FPKZ68+MIKGgg==
-
-babylonjs@^7.22.5:
-  version "7.22.5"
-  resolved "https://registry.yarnpkg.com/babylonjs/-/babylonjs-7.22.5.tgz#1b72b587f3da61de7dcaf6fd7ffec9d781bd7339"
-  integrity sha512-5RgDBowdPql2UDADTD/PepgvnXISwoDmsG+TDhg5WCmarCJu1zLYJKsvLfdchsyYjnq9qWUqhaA7apEBwd87EA==
-
 balanced-match@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"
@@ -987,7 +974,7 @@ csstype@^3.0.2:
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.1.3.tgz#d80ff294d114fb0e6ac500fbf85b60137d7eff81"
   integrity sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==
 
-csv-parse@^5.5.6:
+csv-parse@5.5.6:
   version "5.5.6"
   resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-5.5.6.tgz#0d726d58a60416361358eec291a9f93abe0b6b1a"
   integrity sha512-uNpm30m/AGSkLxxy7d9yRXpJQFrZzVWLFBkS+6ngPcZkw/5k3L/jjFuj7tVnEpRn+QgmiXr21nDlhCiUK4ij2A==
@@ -2364,7 +2351,7 @@ locate-path@^6.0.0:
   dependencies:
     p-locate "^5.0.0"
 
-lodash.clonedeep@4.5.0, lodash.clonedeep@^4.5.0:
+lodash.clonedeep@4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
   integrity sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==
@@ -2506,7 +2493,7 @@ negotiator@0.6.3:
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.3.tgz#58e323a72fedc0d6f9cd4d31fe49f51479590ccd"
   integrity sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==
 
-next@^14.2.5:
+next@14.2.5:
   version "14.2.5"
   resolved "https://registry.yarnpkg.com/next/-/next-14.2.5.tgz#afe4022bb0b752962e2205836587a289270efbea"
   integrity sha512-0f8aRfBVL+mpzfBjYfQuLWh2WyAwtJXCRfkPF4UJ5qd2YwrHczsrSzXU4tRMV0OAxR8ZJZWPFn6uhSC56UTsLA==

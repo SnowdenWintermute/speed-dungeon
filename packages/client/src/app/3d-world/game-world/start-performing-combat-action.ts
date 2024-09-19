@@ -51,6 +51,7 @@ export default function startPerformingCombatAction(
   let combatActionExecutionTimeResult: Error | number = new Error(
     "couldn't get action execution time"
   );
+
   gameWorld.mutateGameState((gameState) => {
     if (!gameState.game)
       return (combatActionExecutionTimeResult = new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
