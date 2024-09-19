@@ -7,7 +7,7 @@ import { ANIMATION_NAMES } from "./animation-names";
 
 export type ManagedAnimationOptions = {
   shouldLoop: boolean;
-  animationEventOption: null | AnimationEvent;
+  animationEventOption: null | { fn: () => void; frame: number };
   animationDurationOverrideOption: null | number;
   onComplete: () => void;
 };
@@ -15,7 +15,8 @@ export type ManagedAnimationOptions = {
 export class ManagedAnimation {
   timeStarted: number = Date.now();
   weight: number = 0;
-  frameEventFired: boolean = false;
+  animationEventOption: null | AnimationEvent = null;
+  eventCompleted: boolean = false;
   constructor(
     public animationGroupOption: null | AnimationGroup,
     public transitionDuration: number = 0,
@@ -24,8 +25,12 @@ export class ManagedAnimation {
     const { animationEventOption } = options;
     const animation = this.animationGroupOption?.targetedAnimations[0]?.animation;
     if (animation && animationEventOption) {
-      animationEventOption.onlyOnce = true;
-      animation.addEvent(animationEventOption);
+      const animationEvent = new AnimationEvent(animationEventOption.frame, () => {
+        animationEventOption.fn();
+        this.eventCompleted = true;
+      });
+      animationEvent.onlyOnce = true;
+      animation.addEvent(animationEvent);
     }
   }
 
@@ -122,14 +127,15 @@ export class AnimationManager {
 
     managedAnimation.animationGroupOption?.stop();
 
-    // if (!managedAnimation.frameEventFired && animationEventOption) {
-    //   animationEventOption.action(animationEventOption.frame);
-    // }
+    if (animationEventOption && !managedAnimation.eventCompleted) {
+      animationEventOption.fn();
+    }
 
     onComplete();
 
-    // else causes memory leaks
-    managedAnimation.animationGroupOption?.dispose();
+    if (managedAnimation.animationGroupOption)
+      // else causes memory leaks
+      managedAnimation.animationGroupOption?.dispose();
   }
 
   handleCompletedAnimations() {
@@ -138,6 +144,8 @@ export class AnimationManager {
       this.previous = null;
     }
 
+    if (this.playing?.animationGroupOption === null)
+      console.log("animation completed ", this.playing.isCompleted());
     if (this.playing && this.playing.isCompleted()) {
       this.cleanUpFinishedAnimation(this.playing);
       this.playing = null;

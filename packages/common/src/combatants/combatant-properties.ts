@@ -118,7 +118,7 @@ export class CombatantProperties {
 
   static getForward(combatantProperties: CombatantProperties) {
     const { x, y, z } = combatantProperties.homeLocation;
-    console.log(formatVector3(combatantProperties.homeLocation));
+    // console.log(formatVector3(combatantProperties.homeLocation));
     // return cloneVector3(combatantProperties.homeLocation).subtract(new Vector3(0, 0, z));
     return cloneVector3(new Vector3(0, 0, z)).subtract(combatantProperties.homeLocation);
   }

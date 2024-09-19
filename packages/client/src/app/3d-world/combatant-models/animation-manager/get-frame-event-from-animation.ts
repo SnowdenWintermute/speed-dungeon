@@ -1,4 +1,3 @@
-import { AnimationEvent } from "babylonjs";
 import {
   CombatActionType,
   CombatantAbilityName,
@@ -20,11 +19,12 @@ export default function getFrameEventFromAnimation(
   gameWorld: GameWorld,
   actionPayload: PerformCombatActionActionCommandPayload,
   actionUserId: string
-) {
+): { fn: () => void; frame: number } {
   const { combatAction, hpChangesByEntityId, mpChangesByEntityId, missesByEntityId } =
     actionPayload;
 
-  let animationEventOption: null | AnimationEvent = null;
+  let animationEventOption: null | (() => void) = null;
+
   switch (combatAction.type) {
     case CombatActionType.AbilityUsed:
       switch (combatAction.abilityName) {
@@ -41,144 +41,140 @@ export default function getFrameEventFromAnimation(
     case CombatActionType.ConsumableUsed:
   }
 
-  animationEventOption = new AnimationEvent(
-    20,
-    () => {
-      let wasSpell = false;
-      gameWorld.mutateGameState((state) => {
-        const gameOption = state.game;
-        if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-        const game = gameOption;
-        const actionUserResult = SpeedDungeonGame.getCombatantById(game, actionUserId);
-        if (actionUserResult instanceof Error) return console.error(actionUserResult);
-        if (combatAction.type === CombatActionType.AbilityUsed) {
-          switch (combatAction.abilityName) {
-            case CombatantAbilityName.Attack:
-            case CombatantAbilityName.AttackMeleeMainhand:
-            case CombatantAbilityName.AttackMeleeOffhand:
-            case CombatantAbilityName.AttackRangedMainhand:
-              break;
-            case CombatantAbilityName.Fire:
-            case CombatantAbilityName.Ice:
-            case CombatantAbilityName.Healing:
-              wasSpell = true;
-              state.combatLogMessages.push(
-                new CombatLogMessage(
-                  `${actionUserResult.entityProperties.name} casts ${formatAbilityName(combatAction.abilityName)}`,
-                  CombatLogMessageStyle.Basic
-                )
-              );
-          }
-        } else if (combatAction.type === CombatActionType.ConsumableUsed) {
-          const itemResult = Inventory.getConsumableProperties(
-            actionUserResult.combatantProperties.inventory,
-            combatAction.itemId
-          );
-          if (itemResult instanceof Error) return console.error(itemResult);
-          new CombatLogMessage(
-            `${actionUserResult.entityProperties.name} uses ${formatConsumableType(itemResult.consumableType)}`,
-            CombatLogMessageStyle.Basic
-          );
-        }
-      });
-
-      if (hpChangesByEntityId)
-        for (const [targetId, hpChange] of Object.entries(hpChangesByEntityId)) {
-          induceHitRecovery(
-            gameWorld,
-            actionUserId,
-            targetId,
-            hpChange.hpChange,
-            hpChange.isCrit,
-            wasSpell
-          );
-        }
-
-      if (mpChangesByEntityId) {
-        for (const [targetId, mpChange] of Object.entries(mpChangesByEntityId)) {
-          startFloatingText(
-            gameWorld.mutateGameState,
-            targetId,
-            mpChange.toString(),
-            FloatingTextColor.ManaGained,
-            false,
-            2000
-          );
-          gameWorld.mutateGameState((state) => {
-            const gameOption = state.game;
-            if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-            const game = gameOption;
-            if (!state.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
-            const partyOptionResult = getCurrentParty(state, state.username);
-            if (partyOptionResult instanceof Error) return console.error(partyOptionResult);
-            if (partyOptionResult === undefined)
-              return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
-
-            const targetResult = SpeedDungeonGame.getCombatantById(game, targetId);
-            if (targetResult instanceof Error) return console.error(targetResult);
-            CombatantProperties.changeMana(targetResult.combatantProperties, mpChange);
-
+  animationEventOption = () => {
+    let wasSpell = false;
+    gameWorld.mutateGameState((state) => {
+      const gameOption = state.game;
+      if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+      const game = gameOption;
+      const actionUserResult = SpeedDungeonGame.getCombatantById(game, actionUserId);
+      if (actionUserResult instanceof Error) return console.error(actionUserResult);
+      if (combatAction.type === CombatActionType.AbilityUsed) {
+        switch (combatAction.abilityName) {
+          case CombatantAbilityName.Attack:
+          case CombatantAbilityName.AttackMeleeMainhand:
+          case CombatantAbilityName.AttackMeleeOffhand:
+          case CombatantAbilityName.AttackRangedMainhand:
+            break;
+          case CombatantAbilityName.Fire:
+          case CombatantAbilityName.Ice:
+          case CombatantAbilityName.Healing:
+            wasSpell = true;
             state.combatLogMessages.push(
               new CombatLogMessage(
-                `${targetResult.entityProperties.name} recovered ${mpChange} mana`,
+                `${actionUserResult.entityProperties.name} casts ${formatAbilityName(combatAction.abilityName)}`,
                 CombatLogMessageStyle.Basic
               )
             );
-          });
         }
+      } else if (combatAction.type === CombatActionType.ConsumableUsed) {
+        const itemResult = Inventory.getConsumableProperties(
+          actionUserResult.combatantProperties.inventory,
+          combatAction.itemId
+        );
+        if (itemResult instanceof Error) return console.error(itemResult);
+        new CombatLogMessage(
+          `${actionUserResult.entityProperties.name} uses ${formatConsumableType(itemResult.consumableType)}`,
+          CombatLogMessageStyle.Basic
+        );
+      }
+    });
+
+    if (hpChangesByEntityId)
+      for (const [targetId, hpChange] of Object.entries(hpChangesByEntityId)) {
+        induceHitRecovery(
+          gameWorld,
+          actionUserId,
+          targetId,
+          hpChange.hpChange,
+          hpChange.isCrit,
+          wasSpell
+        );
       }
 
-      if (missesByEntityId)
-        for (const targetId of missesByEntityId) {
-          // push evade action
-          const targetModel = gameWorld.modelManager.combatantModels[targetId];
-          if (targetModel === undefined)
-            return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+    if (mpChangesByEntityId) {
+      for (const [targetId, mpChange] of Object.entries(mpChangesByEntityId)) {
+        startFloatingText(
+          gameWorld.mutateGameState,
+          targetId,
+          mpChange.toString(),
+          FloatingTextColor.ManaGained,
+          false,
+          2000
+        );
+        gameWorld.mutateGameState((state) => {
+          const gameOption = state.game;
+          if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+          const game = gameOption;
+          if (!state.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+          const partyOptionResult = getCurrentParty(state, state.username);
+          if (partyOptionResult instanceof Error) return console.error(partyOptionResult);
+          if (partyOptionResult === undefined)
+            return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
 
-          // START THEIR EVADE ANIMATION
+          const targetResult = SpeedDungeonGame.getCombatantById(game, targetId);
+          if (targetResult instanceof Error) return console.error(targetResult);
+          CombatantProperties.changeMana(targetResult.combatantProperties, mpChange);
 
-          targetModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.EVADE, 500, {
-            shouldLoop: false,
-            animationEventOption: null,
-            animationDurationOverrideOption: null,
-            onComplete: () => {},
-          });
-
-          gameWorld.mutateGameState((state) => {
-            const gameOption = state.game;
-            if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-            const game = gameOption;
-            if (!state.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
-            const partyOptionResult = getCurrentParty(state, state.username);
-            if (partyOptionResult instanceof Error) return console.error(partyOptionResult);
-            if (partyOptionResult === undefined)
-              return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
-
-            const targetResult = SpeedDungeonGame.getCombatantById(game, targetId);
-            if (targetResult instanceof Error) return console.error(targetResult);
-
-            state.combatLogMessages.push(
-              new CombatLogMessage(
-                `${targetResult.entityProperties.name} evaded`,
-                CombatLogMessageStyle.Basic
-              )
-            );
-          });
-
-          startFloatingText(
-            gameWorld.mutateGameState,
-            targetId,
-            "Evaded",
-            FloatingTextColor.Healing,
-            false,
-            2000
+          state.combatLogMessages.push(
+            new CombatLogMessage(
+              `${targetResult.entityProperties.name} recovered ${mpChange} mana`,
+              CombatLogMessageStyle.Basic
+            )
           );
-        }
-    },
-    true
-  );
+        });
+      }
+    }
 
-  return animationEventOption;
+    if (missesByEntityId)
+      for (const targetId of missesByEntityId) {
+        // push evade action
+        const targetModel = gameWorld.modelManager.combatantModels[targetId];
+        if (targetModel === undefined)
+          return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+
+        // START THEIR EVADE ANIMATION
+
+        targetModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.EVADE, 500, {
+          shouldLoop: false,
+          animationEventOption: null,
+          animationDurationOverrideOption: null,
+          onComplete: () => {},
+        });
+
+        gameWorld.mutateGameState((state) => {
+          const gameOption = state.game;
+          if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+          const game = gameOption;
+          if (!state.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+          const partyOptionResult = getCurrentParty(state, state.username);
+          if (partyOptionResult instanceof Error) return console.error(partyOptionResult);
+          if (partyOptionResult === undefined)
+            return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+
+          const targetResult = SpeedDungeonGame.getCombatantById(game, targetId);
+          if (targetResult instanceof Error) return console.error(targetResult);
+
+          state.combatLogMessages.push(
+            new CombatLogMessage(
+              `${targetResult.entityProperties.name} evaded`,
+              CombatLogMessageStyle.Basic
+            )
+          );
+        });
+
+        startFloatingText(
+          gameWorld.mutateGameState,
+          targetId,
+          "Evaded",
+          FloatingTextColor.Healing,
+          false,
+          2000
+        );
+      }
+  };
+
+  return { fn: animationEventOption, frame: 20 };
 }
 
 function induceHitRecovery(
@@ -279,6 +275,7 @@ function induceHitRecovery(
     }
 
     if (!combatantWasAliveBeforeHpChange && combatantProperties.hitPoints > 0) {
+      targetModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 500);
       // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
     }
   });
