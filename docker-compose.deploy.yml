@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  next-client:
+    image: snowd3n/speed-dungeon:client
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    ports:
+      - 3000:3000
+  node-server:
+    image: snowd3n/speed-dungeon:server
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    ports:
+      - 8080:8080

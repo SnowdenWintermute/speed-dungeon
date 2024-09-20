@@ -39,12 +39,13 @@ COPY packages/client/.env ./packages/client/
 COPY packages/common/ ./packages/common/
 COPY packages/client/src ./packages/client/src
 COPY packages/client/public ./packages/client/public
-COPY packages/client/package.json packages/client/next.config.mjs ./packages/client/
-COPY packages/client/package.json packages/client/next-env.d.ts ./packages/client/
-COPY packages/client/package.json packages/client/tailwind.config.ts ./packages/client/
-COPY packages/client/package.json packages/client/postcss.config.mjs ./packages/client/
-COPY packages/client/package.json packages/client/tsconfig.json ./packages/client/
+COPY packages/client/next.config.mjs ./packages/client/
+COPY packages/client/next-env.d.ts ./packages/client/
+COPY packages/client/tailwind.config.ts ./packages/client/
+COPY packages/client/postcss.config.mjs ./packages/client/
+COPY packages/client/tsconfig.json ./packages/client/
 COPY tsconfig.json .
+COPY packages/client/package.json ./packages/client
 
 WORKDIR /app/packages/common
 RUN tsc && echo compiled common directory
