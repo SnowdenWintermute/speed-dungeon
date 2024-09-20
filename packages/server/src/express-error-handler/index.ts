@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import CustomError from "./CustomError";
+import CustomError from "./CustomError.js";
 import { CustomErrorDetails, ERROR_MESSAGES } from "@speed-dungeon/common";
 
 export default function expressErrorHandler(

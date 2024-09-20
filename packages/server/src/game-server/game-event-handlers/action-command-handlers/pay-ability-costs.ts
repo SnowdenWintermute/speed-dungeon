@@ -3,8 +3,8 @@ import {
   Inventory,
   PayAbilityCostsActionCommandPayload,
 } from "@speed-dungeon/common";
-import { GameServer } from "../..";
-import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
+import { GameServer } from "../../index.js";
+import { ActionCommandManager } from "@speed-dungeon/common";
 
 // SERVER
 // - apply ability costs to game

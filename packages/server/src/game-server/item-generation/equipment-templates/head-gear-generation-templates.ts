@@ -8,8 +8,8 @@ import {
   iterateNumericEnum,
   SuffixType,
 } from "@speed-dungeon/common";
-import { ArmorGenerationTemplate } from "./equipment-generation-template-abstract-classes";
-import { modifyPossibleAffixesByArmorCategory } from "./armor-category-affixes";
+import { ArmorGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
+import { modifyPossibleAffixesByArmorCategory } from "./armor-category-affixes.js";
 
 export class HeadGearGenerationTemplate extends ArmorGenerationTemplate {
   constructor(

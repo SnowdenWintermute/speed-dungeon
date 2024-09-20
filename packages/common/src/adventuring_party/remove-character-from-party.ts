@@ -1,5 +1,5 @@
-import { AdventuringParty } from ".";
-import { EntityId } from "../primatives";
+import { AdventuringParty } from "./index.js";
+import { EntityId } from "../primatives/index.js";
 
 export default function removeCharacterFromParty(party: AdventuringParty, characterId: EntityId) {
   delete party.characters[characterId];

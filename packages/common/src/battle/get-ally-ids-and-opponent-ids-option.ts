@@ -1,5 +1,5 @@
-import { Battle } from ".";
-import { ERROR_MESSAGES } from "../errors";
+import { Battle } from "./index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
 
 export interface AllyIdsAndOpponentIdsOption {
   allyIds: string[];

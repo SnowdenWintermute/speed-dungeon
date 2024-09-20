@@ -1,6 +1,6 @@
 import { CharacterAssociatedData, ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
-import { GameServer } from "../..";
-import validateCombatActionUse from "../combat-action-results-processing/validate-combat-action-use";
+import { GameServer } from "../../index.js";
+import validateCombatActionUse from "../combat-action-results-processing/validate-combat-action-use.js";
 
 export default function useSelectedCombatActionHandler(
   this: GameServer,

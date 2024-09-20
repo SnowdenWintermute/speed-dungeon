@@ -4,7 +4,7 @@ import {
   ServerToClientEventTypes,
   getPlayerParty,
 } from "@speed-dungeon/common";
-import { GameServer } from "..";
+import { GameServer } from "../index.js";
 
 export default function acknowledgeReceiptOfItemOnGroundHandler(
   this: GameServer,

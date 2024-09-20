@@ -1,7 +1,7 @@
 import cloneDeep from "lodash.clonedeep";
-import { CombatantProperties } from "./combatant-properties";
-import { CombatantTraitType } from "./combatant-traits";
-import { PhysicalDamageType } from "../combat/hp-change-source-types";
+import { CombatantProperties } from "./combatant-properties.js";
+import { CombatantTraitType } from "./combatant-traits.js";
+import { PhysicalDamageType } from "../combat/hp-change-source-types.js";
 
 export default function getCombatantTotalPhysicalDamageTypeAffinities(
   combatantProperties: CombatantProperties

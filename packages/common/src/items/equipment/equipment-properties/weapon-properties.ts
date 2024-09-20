@@ -1,11 +1,11 @@
-import { HpChangeSource } from "../../../combat/hp-change-source-types";
-import { NumberRange } from "../../../primatives/number-range";
+import { HpChangeSource } from "../../../combat/hp-change-source-types.js";
+import { NumberRange } from "../../../primatives/number-range.js";
 import {
   EquipmentType,
   OneHandedMeleeWeapon,
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
-} from "../equipment-types";
+} from "../equipment-types/index.js";
 
 export interface WeaponProperties {
   type:

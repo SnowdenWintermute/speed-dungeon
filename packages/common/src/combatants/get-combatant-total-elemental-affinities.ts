@@ -1,7 +1,7 @@
 import cloneDeep from "lodash.clonedeep";
-import { CombatantProperties } from "./combatant-properties";
-import { CombatantTraitType } from "./combatant-traits";
-import { MagicalElement } from "../combat/magical-elements";
+import { CombatantProperties } from "./combatant-properties.js";
+import { CombatantTraitType } from "./combatant-traits.js";
+import { MagicalElement } from "../combat/magical-elements.js";
 
 export default function getCombatantTotalElementalAffinities(
   combatantProperties: CombatantProperties

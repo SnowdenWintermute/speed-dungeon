@@ -4,8 +4,8 @@ import {
   SpeedDungeonGame,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { GameServer } from "..";
-import errorHandler from "../error-handler";
+import { GameServer } from "../index.js";
+import errorHandler from "../error-handler.js";
 
 export default function joinPartyHandler(this: GameServer, socketId: string, partyName: string) {
   const [socket, socketMeta] = this.getConnection(socketId);

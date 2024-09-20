@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
-import { GameServer } from "..";
-import { BrowserTabSession } from "../socket-connection-metadata";
+import { GameServer } from "../index.js";
+import { BrowserTabSession } from "../socket-connection-metadata.js";
 import {
   CharacterAssociatedData,
   ERROR_MESSAGES,

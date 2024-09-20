@@ -14,9 +14,9 @@ import {
   formatTwoHandedMeleeWeapon,
   formatTwoHandedRangedWeapon,
 } from "@speed-dungeon/common";
-import { TaggedBaseItem } from "../item-generation-builder";
-import { getPrefixName } from "./get-prefix-name";
-import { getSuffixName } from "./get-suffix-name";
+import { TaggedBaseItem } from "../item-generation-builder.js";
+import { getPrefixName } from "./get-prefix-name.js";
+import { getSuffixName } from "./get-suffix-name.js";
 
 export abstract class ItemNamer {
   buildItemName(baseItem: TaggedBaseItem, affixes: null | Affixes) {

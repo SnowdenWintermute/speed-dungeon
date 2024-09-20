@@ -3,12 +3,10 @@ import {
   Battle,
   CharacterAssociatedData,
   CombatAction,
-  CombatActionType,
   ERROR_MESSAGES,
   getCombatActionPropertiesIfOwned,
+  CombatActionTarget,
 } from "@speed-dungeon/common";
-import { CombatActionTarget } from "@speed-dungeon/common/src/combat/targeting/combat-action-targets";
-import getAbilityAttributes from "@speed-dungeon/common/src/combatants/abilities/get-ability-attributes";
 
 export default function validateCombatActionUse(
   characterAssociatedData: CharacterAssociatedData,

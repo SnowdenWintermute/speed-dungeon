@@ -1,11 +1,11 @@
-import { Vector3 } from "babylonjs";
-import { AdventuringParty } from "../adventuring_party";
+import { Vector3 } from "@babylonjs/core";
+import { AdventuringParty } from "../adventuring_party/index.js";
 import {
   COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
   COMBATANT_POSITION_SPACING_SIDE,
-} from "../app_consts";
-import { MonsterType } from "../monsters";
-import { CombatantProperties } from "./combatant-properties";
+} from "../app_consts.js";
+import { MonsterType } from "../monsters/index.js";
+import { CombatantProperties } from "./combatant-properties.js";
 
 export function updateCombatantHomePosition(
   entityId: string,

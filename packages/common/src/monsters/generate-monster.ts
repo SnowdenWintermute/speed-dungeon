@@ -1,17 +1,17 @@
-import { Vector3 } from "babylonjs";
-import { Monster } from ".";
-import { CombatAttribute, CombatantProperties } from "../combatants";
-import { addAttributesToAccumulator } from "../combatants/get-combatant-total-attributes";
-import { IdGenerator } from "../game/id-generator";
-import { randomNormal } from "../utils";
-import getMonsterAbilities from "./get-monster-abilities";
-import getMonsterCombatantSpecies from "./get-monster-combatant-species";
-import getMonsterEquipment from "./get-monster-equipment";
-import getMonsterPerLevelAttributes from "./get-monster-per-level-attributes";
-import getMonsterStartingAttributes from "./get-monster-starting-attributes";
-import getMonsterTraits from "./get-monster-traits";
-import getSpawnableMonsterTypesByFloor from "./get-spawnable-monster-types-by-floor";
-import { formatMonsterType, getMonsterCombatantClass } from "./monster-types";
+import { Vector3 } from "@babylonjs/core";
+import { Monster } from "./index.js";
+import { CombatAttribute, CombatantProperties } from "../combatants/index.js";
+import { randomNormal } from "../utils/index.js";
+import { addAttributesToAccumulator } from "../combatants/get-combatant-total-attributes.js";
+import { IdGenerator } from "../game/id-generator.js";
+import getMonsterAbilities from "./get-monster-abilities.js";
+import getMonsterCombatantSpecies from "./get-monster-combatant-species.js";
+import getMonsterEquipment from "./get-monster-equipment.js";
+import getMonsterPerLevelAttributes from "./get-monster-per-level-attributes.js";
+import getMonsterStartingAttributes from "./get-monster-starting-attributes.js";
+import getMonsterTraits from "./get-monster-traits.js";
+import getSpawnableMonsterTypesByFloor from "./get-spawnable-monster-types-by-floor.js";
+import { formatMonsterType, getMonsterCombatantClass } from "./monster-types.js";
 
 export default function generateMonster(idGenerator: IdGenerator, level: number) {
   // roll a random monster type from list of pre determined types

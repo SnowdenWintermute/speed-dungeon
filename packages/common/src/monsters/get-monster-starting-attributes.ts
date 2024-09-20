@@ -1,5 +1,5 @@
-import { CombatAttribute, CombatantAttributeRecord } from "../combatants";
-import { MonsterType } from "./monster-types";
+import { CombatAttribute, CombatantAttributeRecord } from "../combatants/index.js";
+import { MonsterType } from "./monster-types.js";
 
 export default function getMonsterStartingAttributes(
   monsterType: MonsterType

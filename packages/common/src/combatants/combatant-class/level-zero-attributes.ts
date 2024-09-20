@@ -1,5 +1,5 @@
-import { CombatAttribute } from "../combat-attributes";
-import { CombatantClass } from "./classes";
+import { CombatAttribute } from "../combat-attributes.js";
+import { CombatantClass } from "./classes.js";
 
 export const BASE_STARTING_ATTRIBUTES: Record<
   CombatantClass,

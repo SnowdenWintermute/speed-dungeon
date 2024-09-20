@@ -4,8 +4,8 @@ import {
   ServerToClientEvent,
   removeFromArray,
 } from "@speed-dungeon/common";
-import { GameServer } from "..";
-import errorHandler from "../error-handler";
+import { GameServer } from "../index.js";
+import errorHandler from "../error-handler.js";
 
 export default function toggleReadyToStartGameHandler(this: GameServer, socketId: string) {
   const [socket, socketMeta] = this.getConnection(socketId);

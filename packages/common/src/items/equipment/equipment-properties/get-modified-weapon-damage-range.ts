@@ -1,10 +1,10 @@
-import { EquipmentProperties } from ".";
-import { CombatAttribute } from "../../../combatants";
-import { ERROR_MESSAGES } from "../../../errors";
-import { NumberRange } from "../../../primatives/number-range";
-import { AffixType, PrefixType } from "../affixes";
-import { EquipmentTraitType } from "../equipment-traits";
-import { EquipmentType } from "../equipment-types";
+import { EquipmentProperties } from "./index.js";
+import { CombatAttribute } from "../../../combatants/index.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
+import { NumberRange } from "../../../primatives/number-range.js";
+import { AffixType, PrefixType } from "../affixes.js";
+import { EquipmentTraitType } from "../equipment-traits/index.js";
+import { EquipmentType } from "../equipment-types/index.js";
 
 export default function getModifiedWeaponDamageRange(
   equipmentProperties: EquipmentProperties

@@ -6,6 +6,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "module",
   "dependencies": {
     "@babylonjs/core": "^7.26.0",
     "immer": "10.1.1",

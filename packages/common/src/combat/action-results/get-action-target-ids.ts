@@ -1,9 +1,9 @@
-import { Battle } from "../../battle";
-import { CombatantProperties } from "../../combatants";
-import { SpeedDungeonGame } from "../../game";
-import { filterPossibleTargetIdsByProhibitedCombatantStates } from "../targeting/filtering";
-import getActionTargetsIfSchemeIsValid from "../targeting/get-targets-if-scheme-is-valid";
-import { ActionResultCalculationArguments } from "./action-result-calculator";
+import { Battle } from "../../battle/index.js";
+import { CombatantProperties } from "../../combatants/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
+import { filterPossibleTargetIdsByProhibitedCombatantStates } from "../targeting/filtering.js";
+import getActionTargetsIfSchemeIsValid from "../targeting/get-targets-if-scheme-is-valid.js";
+import { ActionResultCalculationArguments } from "./action-result-calculator.js";
 
 export default function getCombatActionTargetIds(
   game: SpeedDungeonGame,

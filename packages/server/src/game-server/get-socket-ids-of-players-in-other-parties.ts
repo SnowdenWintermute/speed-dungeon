@@ -1,5 +1,5 @@
 import { AdventuringParty, SpeedDungeonGame } from "@speed-dungeon/common";
-import { GameServer, SocketId } from ".";
+import { GameServer, SocketId } from "./index.js";
 
 export function getSocketIdsOfPlayersInOtherParties(
   this: GameServer,

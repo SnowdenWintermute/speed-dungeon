@@ -1,4 +1,4 @@
-import { CombatAttribute } from "./combatants/combat-attributes";
+import { CombatAttribute } from "./combatants/combat-attributes.js";
 
 export const INVENTORY_DEFAULT_CAPACITY = 3;
 export const DEEPEST_FLOOR = 10;

@@ -1,5 +1,9 @@
-import { CombatAttribute, CombatantProperties, CombatantTraitType } from "../../../combatants";
-import { SpeedDungeonGame } from "../../../game";
+import {
+  CombatAttribute,
+  CombatantProperties,
+  CombatantTraitType,
+} from "../../../combatants/index.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
 
 export default function getHealingHpChangeOnTargetCombatant(
   game: SpeedDungeonGame,

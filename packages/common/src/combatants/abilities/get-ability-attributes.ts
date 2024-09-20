@@ -1,25 +1,25 @@
-import { CombatantAbilityName } from ".";
-import { OFF_HAND_ACCURACY_MODIFIER, OFF_HAND_DAMAGE_MODIFIER } from "../../app_consts";
+import { CombatantAbilityName } from "../index.js";
+import { OFF_HAND_ACCURACY_MODIFIER, OFF_HAND_DAMAGE_MODIFIER } from "../../app_consts.js";
 import {
   CombatActionProperties,
   ActionUsableContext,
   CombatActionHpChangeProperties,
-} from "../../combat/combat-actions/combat-action-properties";
+} from "../../combat/combat-actions/combat-action-properties.js";
 import {
   Evadable,
   HpChangeSourceCategoryType,
   MeleeOrRanged,
-} from "../../combat/hp-change-source-types";
-import { MagicalElement } from "../../combat/magical-elements";
+} from "../../combat/hp-change-source-types.js";
+import { MagicalElement } from "../../combat/magical-elements.js";
 import {
   ProhibitedTargetCombatantStates,
   TargetCategories,
   TargetingScheme,
-} from "../../combat/targeting";
-import { WeaponSlot } from "../../items/equipment/slots";
-import { NumberRange } from "../../primatives/number-range";
-import { CombatAttribute } from "../combat-attributes";
-import CombatantAbilityAttributes from "./ability-attributes";
+} from "../../combat/targeting/index.js";
+import { WeaponSlot } from "../../items/equipment/slots.js";
+import { NumberRange } from "../../primatives/number-range.js";
+import { CombatAttribute } from "../combat-attributes.js";
+import CombatantAbilityAttributes from "./ability-attributes.js";
 
 // @TODO - performance - store computed values from this function
 

@@ -1,6 +1,6 @@
-import { CombatantAbilityName } from "../../../combatants";
-import { ERROR_MESSAGES } from "../../../errors";
-import { EquipmentType } from "../../../items";
+import { CombatantAbilityName } from "../../../combatants/index.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
+import { EquipmentType } from "../../../items/index.js";
 
 export default function getAttackAbilityName(
   equipmentType: null | EquipmentType,

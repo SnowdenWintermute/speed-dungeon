@@ -1,5 +1,5 @@
-import { Item } from "../items";
-import { CombatantProperties } from "./combatant-properties";
+import { Item } from "../items/index.js";
+import { CombatantProperties } from "./combatant-properties.js";
 
 export default function combatantCanUseItem(
   combatantProperties: CombatantProperties,

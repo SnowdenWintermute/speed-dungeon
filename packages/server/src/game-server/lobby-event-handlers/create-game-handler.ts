@@ -4,8 +4,8 @@ import {
   ServerToClientEvent,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import { GameServer } from "..";
-import { generateRandomGameName } from "../../utils";
+import { GameServer } from "../index.js";
+import { generateRandomGameName } from "../../utils/index.js";
 
 export default function createGameHandler(this: GameServer, socketId: string, gameName: string) {
   const [socket, socketMeta] = this.getConnection(socketId);

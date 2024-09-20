@@ -1,8 +1,8 @@
-import { COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER } from "../../app_consts";
-import { CombatantProperties } from "../../combatants";
-import { NumberRange } from "../../primatives/number-range";
-import addWeaponDamageToCombatActionHpChange from "./add-weapon-damage-to-hp-change-range";
-import { CombatActionHpChangeProperties } from "./combat-action-properties";
+import { COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER } from "../../app_consts.js";
+import { CombatantProperties } from "../../combatants/index.js";
+import { NumberRange } from "../../primatives/number-range.js";
+import addWeaponDamageToCombatActionHpChange from "./add-weapon-damage-to-hp-change-range.js";
+import { CombatActionHpChangeProperties } from "./combat-action-properties.js";
 
 export function calculateCombatActionHpChangeRange(
   userCombatantProperties: CombatantProperties,

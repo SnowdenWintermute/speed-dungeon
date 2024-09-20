@@ -1,16 +1,16 @@
-import { CombatAction, CombatActionType } from "..";
+import { CombatAction, CombatActionType } from "../index.js";
 import {
   CombatAttribute,
   CombatantDetails,
   CombatantProperties,
   CombatantTraitType,
   Inventory,
-} from "../../combatants";
-import { ERROR_MESSAGES } from "../../errors";
-import { SpeedDungeonGame } from "../../game";
-import { ConsumableType, ItemPropertiesType } from "../../items";
-import { randBetween } from "../../utils";
-import { ActionResult } from "./action-result";
+} from "../../combatants/index.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
+import { ConsumableType, ItemPropertiesType } from "../../items/index.js";
+import { randBetween } from "../../utils/index.js";
+import { ActionResult } from "./action-result.js";
 
 export default function applyConsumableUseToActionResult(
   game: SpeedDungeonGame,

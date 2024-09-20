@@ -4,7 +4,7 @@ import {
   ERROR_MESSAGES,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import { GameServer } from "..";
+import { GameServer } from "../index.js";
 
 export default function getGamePartyAndCombatant(
   this: GameServer,

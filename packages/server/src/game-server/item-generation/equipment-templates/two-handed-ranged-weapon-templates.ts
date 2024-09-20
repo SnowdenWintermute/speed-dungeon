@@ -13,7 +13,7 @@ import {
   TwoHandedRangedWeapon,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
-import { WeaponGenerationTemplate } from "./equipment-generation-template-abstract-classes";
+import { WeaponGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
 
 export class TwoHandedRangedWeaponGenerationTemplate extends WeaponGenerationTemplate {
   constructor(

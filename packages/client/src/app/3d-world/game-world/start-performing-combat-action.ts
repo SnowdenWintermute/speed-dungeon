@@ -7,7 +7,7 @@ import {
 import { GameWorld } from ".";
 import { StartPerformingCombatActionMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import cloneDeep from "lodash.clonedeep";
-import { Vector3 } from "babylonjs";
+import { Vector3 } from "@babylonjs/core";
 import getCombatActionAnimationName from "../combatant-models/animation-manager/animation-names";
 import {
   CombatantModelAction,

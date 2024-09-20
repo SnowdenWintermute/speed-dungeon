@@ -1,6 +1,6 @@
-import { CombatantTurnTracker } from ".";
-import { BattleGroup } from "../../battle";
-import { SpeedDungeonGame } from "../../game";
+import { CombatantTurnTracker } from "./index.js";
+import { BattleGroup } from "../../battle/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
 
 export default function createCombatTurnTrackers(
   game: SpeedDungeonGame,

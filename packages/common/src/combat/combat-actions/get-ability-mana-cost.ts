@@ -1,5 +1,5 @@
-import { CombatantAbility, CombatantProperties } from "../../combatants";
-import getAbilityAttributes from "../../combatants/abilities/get-ability-attributes";
+import { CombatantAbility, CombatantProperties } from "../../combatants/index.js";
+import getAbilityAttributes from "../../combatants/abilities/get-ability-attributes.js";
 
 export function getAbilityManaCost(
   combatantProperties: CombatantProperties,

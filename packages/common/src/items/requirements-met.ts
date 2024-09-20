@@ -1,6 +1,6 @@
-import { Item } from ".";
-import { CombatAttribute } from "../combatants/combat-attributes";
-import { CombatantAttributeRecord } from "../combatants/combatant-properties";
+import { Item } from "./index.js";
+import { CombatAttribute } from "../combatants/combat-attributes.js";
+import { CombatantAttributeRecord } from "../combatants/combatant-properties.js";
 
 export default function itemRequirementsMet(
   item: Item,

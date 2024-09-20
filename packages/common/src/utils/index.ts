@@ -1,4 +1,4 @@
-import { Vector3 } from "babylonjs";
+import { Vector3 } from "@babylonjs/core";
 
 export function removeFromArray<T>(array: T[], item: T): undefined | T {
   const indexToRemove = array.indexOf(item);

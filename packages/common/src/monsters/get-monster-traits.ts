@@ -1,6 +1,6 @@
-import { MagicalElement, PhysicalDamageType } from "../combat";
-import { CombatantTrait, CombatantTraitType } from "../combatants";
-import { MonsterType } from "./monster-types";
+import { MagicalElement, PhysicalDamageType } from "../combat/index.js";
+import { CombatantTrait, CombatantTraitType } from "../combatants/index.js";
+import { MonsterType } from "./monster-types.js";
 
 export default function getMonsterTraits(monsterType: MonsterType): CombatantTrait[] {
   switch (monsterType) {

@@ -6,8 +6,8 @@ import {
   SceneLoader,
   ShadowGenerator,
   Mesh,
-} from "babylonjs";
-import "babylonjs/loaders";
+} from "@babylonjs/core";
+import "@babylonjs/loaders";
 import { BASE_FILE_PATH } from "../combatant-models/modular-character-parts";
 import { initScene } from "./init-scene";
 import { CombatTurnResult } from "@speed-dungeon/common";

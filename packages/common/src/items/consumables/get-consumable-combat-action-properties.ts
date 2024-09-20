@@ -1,9 +1,9 @@
-import { ConsumableProperties, ConsumableType } from ".";
-import { TargetCategories } from "../../combat";
+import { ConsumableProperties, ConsumableType } from "./index.js";
+import { TargetCategories } from "../../combat/index.js";
 import {
   CombatActionProperties,
   ActionUsableContext,
-} from "../../combat/combat-actions/combat-action-properties";
+} from "../../combat/combat-actions/combat-action-properties.js";
 
 export default function getConsumableCombatActionProperties(
   consumableProperties: ConsumableProperties

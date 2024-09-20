@@ -1,6 +1,6 @@
 import { LOBBY_CHANNEL, ServerToClientEvent, SpeedDungeonGame } from "@speed-dungeon/common";
-import { GameServer } from "..";
-import errorHandler from "../error-handler";
+import { GameServer } from "../index.js";
+import errorHandler from "../error-handler.js";
 
 export default function leaveGameHandler(this: GameServer, socketId: string) {
   this.leavePartyHandler(socketId);

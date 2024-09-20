@@ -1,5 +1,5 @@
 import { LOBBY_CHANNEL } from "@speed-dungeon/common";
-import { SocketId, Username } from ".";
+import { SocketId, Username } from "./index.js";
 
 export class BrowserTabSession {
   constructor(

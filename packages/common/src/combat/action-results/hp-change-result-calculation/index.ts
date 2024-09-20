@@ -1,23 +1,23 @@
 import cloneDeep from "lodash.clonedeep";
-import { CombatantAbility, CombatantProperties } from "../../../combatants";
-import { ERROR_MESSAGES } from "../../../errors";
-import { SpeedDungeonGame } from "../../../game";
+import { CombatantAbility, CombatantProperties } from "../../../combatants/index.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
 import {
   CombatActionProperties,
   CombatActionType,
   calculateCombatActionHpChangeRange,
-} from "../../combat-actions";
-import { ActionResultCalculationArguments } from "../action-result-calculator";
-import getMostDamagingWeaponElementOnTarget from "./get-most-damaging-weapon-element-on-target";
-import getMostDamagingWeaponPhysicalDamageTypeOnTarget from "./get-most-damaging-weapon-damage-type-on-target";
-import { randBetween } from "../../../utils";
-import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus";
-import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app_consts";
-import { HpChangeSourceCategoryType } from "../../hp-change-source-types";
-import getIdsOfEvadingEntities from "./get-ids-of-evading-entities";
-import calculatePhysicalDamageHpChangesAndCrits from "./calculate-physical-damage-hp-changes-and-crits";
-import calculateMagicalDamageHpChangesAndCrits from "./calculate-magical-damage-hp-changes-and-crits";
-import calculateHealingHpChangesAndCrits from "./calculate-healing-hp-changes-and-crits";
+} from "../../combat-actions/index.js";
+import { randBetween } from "../../../utils/index.js";
+import { ActionResultCalculationArguments } from "../action-result-calculator.js";
+import getMostDamagingWeaponElementOnTarget from "./get-most-damaging-weapon-element-on-target.js";
+import getMostDamagingWeaponPhysicalDamageTypeOnTarget from "./get-most-damaging-weapon-damage-type-on-target.js";
+import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
+import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app_consts.js";
+import { HpChangeSourceCategoryType } from "../../hp-change-source-types.js";
+import getIdsOfEvadingEntities from "./get-ids-of-evading-entities.js";
+import calculatePhysicalDamageHpChangesAndCrits from "./calculate-physical-damage-hp-changes-and-crits.js";
+import calculateMagicalDamageHpChangesAndCrits from "./calculate-magical-damage-hp-changes-and-crits.js";
+import calculateHealingHpChangesAndCrits from "./calculate-healing-hp-changes-and-crits.js";
 
 export interface ValueChangesAndCrits {
   valueChangesByEntityId: { [entityId: string]: number };

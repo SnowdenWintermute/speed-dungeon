@@ -6,6 +6,7 @@
   "scripts": {
     "serve": "tsc-watch -b --onSuccess \"node dist/index.js\""
   },
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",

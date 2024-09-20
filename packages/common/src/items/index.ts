@@ -1,13 +1,13 @@
-export * from "./equipment/";
-export * from "./consumables/";
-export * from "./item-properties";
+export * from "./equipment/index.js";
+export * from "./consumables/index.js";
+export * from "./item-properties.js";
 
-import { CombatAttribute } from "../combatants/combat-attributes";
-import { EntityProperties } from "../primatives";
-import createConsumableByType from "./consumables/create-consumable-by-type";
-import getEquipmentProperties from "./get-equipment-properties";
-import { ItemProperties } from "./item-properties";
-import itemRequirementsMet from "./requirements-met";
+import { CombatAttribute } from "../combatants/combat-attributes.js";
+import { EntityProperties } from "../primatives/index.js";
+import createConsumableByType from "./consumables/create-consumable-by-type.js";
+import getEquipmentProperties from "./get-equipment-properties.js";
+import { ItemProperties } from "./item-properties.js";
+import itemRequirementsMet from "./requirements-met.js";
 
 export class Item {
   constructor(

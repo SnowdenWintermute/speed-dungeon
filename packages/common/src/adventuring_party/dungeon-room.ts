@@ -1,6 +1,6 @@
-import { Item } from "../items";
-import { Monster } from "../monsters";
-import generateDungeonRoom from "./generate-dungeon-room";
+import { Item } from "../items/index.js";
+import { Monster } from "../monsters/index.js";
+import generateDungeonRoom from "./generate-dungeon-room.js";
 
 export class DungeonRoom {
   items: Item[] = [];

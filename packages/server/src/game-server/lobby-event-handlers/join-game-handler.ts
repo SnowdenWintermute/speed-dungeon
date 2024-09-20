@@ -1,7 +1,7 @@
-import { ERROR_MESSAGES, LOBBY_CHANNEL, ServerToClientEvent } from "@speed-dungeon/common";
-import { GameServer } from "..";
+import { ERROR_MESSAGES, ServerToClientEvent } from "@speed-dungeon/common";
+import { GameServer } from "../index.js";
 import { SpeedDungeonPlayer } from "@speed-dungeon/common";
-import errorHandler from "../error-handler";
+import errorHandler from "../error-handler.js";
 
 export default function joinGameHandler(this: GameServer, socketId: string, gameName: string) {
   const [socket, socketMeta] = this.getConnection(socketId);

@@ -1,8 +1,8 @@
 import { ServerToClientEvent } from "@speed-dungeon/common";
-import { GameServer } from ".";
+import { GameServer } from "./index.js";
 import { Socket } from "socket.io";
-import { BrowserTabSession } from "./socket-connection-metadata";
-import { EventsMap } from "socket.io/dist/typed-events";
+import { BrowserTabSession } from "./socket-connection-metadata.js";
+import { EventsMap } from "socket.io/dist/typed-events.js";
 
 export default function getConnection<T extends EventsMap, U extends EventsMap>(
   this: GameServer,

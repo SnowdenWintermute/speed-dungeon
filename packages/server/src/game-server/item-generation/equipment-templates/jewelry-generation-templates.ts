@@ -7,7 +7,7 @@ import {
   SuffixType,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
-import { EquipmentGenerationTemplate } from "./equipment-generation-template-abstract-classes";
+import { EquipmentGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
 
 export class JewelryGenerationTemplate extends EquipmentGenerationTemplate {
   constructor(public equipmentBaseItem: EquipmentBaseItem) {

@@ -5,7 +5,7 @@ import {
   SpeedDungeonGame,
   PlayerAssociatedData,
 } from "@speed-dungeon/common";
-import { GameServer } from "..";
+import { GameServer } from "../index.js";
 
 export default function playerAssociatedDataProvider(
   this: GameServer,

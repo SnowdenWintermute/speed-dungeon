@@ -6,8 +6,8 @@ import {
   SpeedDungeonGame,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { GameServer } from "..";
-import { BrowserTabSession } from "../socket-connection-metadata";
+import { GameServer } from "../index.js";
+import { BrowserTabSession } from "../socket-connection-metadata.js";
 import { Socket } from "socket.io";
 
 export default function cycleTargetsHandler(

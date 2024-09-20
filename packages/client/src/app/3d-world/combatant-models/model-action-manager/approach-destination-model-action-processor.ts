@@ -1,7 +1,7 @@
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { CombatantModelActionProgressTracker, CombatantModelActionType } from "./model-actions";
 import { ModularCharacter } from "../modular-character";
-import { Quaternion, Vector3 } from "babylonjs";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 
 export default function approachDestinationModelActionProcessor(
   combatantModel: ModularCharacter,

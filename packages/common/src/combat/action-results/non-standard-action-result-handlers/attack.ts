@@ -1,12 +1,12 @@
-import { CombatantProperties } from "../../../combatants";
-import { SpeedDungeonGame } from "../../../game";
-import { EquipmentProperties, EquipmentSlot, EquipmentType } from "../../../items";
-import { CombatAction, CombatActionType } from "../../combat-actions";
-import { ActionResult } from "../action-result";
-import { ActionResultCalculationArguments } from "../action-result-calculator";
-import calculateActionResult from "../calculate-action-result";
-import allTargetsWereKilled from "./all-targets-were-killed";
-import getAttackAbilityName from "./get-attack-ability-name";
+import { CombatantProperties } from "../../../combatants/index.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { EquipmentProperties, EquipmentSlot, EquipmentType } from "../../../items/index.js";
+import { CombatAction, CombatActionType } from "../../combat-actions/index.js";
+import { ActionResult } from "../action-result.js";
+import { ActionResultCalculationArguments } from "../action-result-calculator.js";
+import calculateActionResult from "../calculate-action-result.js";
+import allTargetsWereKilled from "./all-targets-were-killed.js";
+import getAttackAbilityName from "./get-attack-ability-name.js";
 
 export default function calculateAttackActionResult(
   game: SpeedDungeonGame,

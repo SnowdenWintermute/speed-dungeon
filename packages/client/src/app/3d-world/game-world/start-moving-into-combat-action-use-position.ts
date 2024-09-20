@@ -1,4 +1,4 @@
-import { Matrix, Quaternion, Vector3 } from "babylonjs";
+import { Matrix, Quaternion, Vector3 } from "@babylonjs/core";
 import { GameWorld } from ".";
 import cloneDeep from "lodash.clonedeep";
 import { StartMovingCombatantIntoCombatActionPositionMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";

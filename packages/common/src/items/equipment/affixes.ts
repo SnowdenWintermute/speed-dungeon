@@ -1,5 +1,5 @@
-import { CombatAttribute } from "../../combatants";
-import { EquipmentTrait, EquipmentTraitType } from "./equipment-traits";
+import { CombatAttribute } from "../../combatants/index.js";
+import { EquipmentTrait, EquipmentTraitType } from "./equipment-traits/index.js";
 
 export enum AffixType {
   Prefix,

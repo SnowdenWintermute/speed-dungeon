@@ -1,8 +1,9 @@
-export * from "./action-command";
-export * from "./action-command-receiver";
-import { BattleConclusion } from "../battle";
-import { CombatAction } from "../combat";
-import { EquipmentSlot, Item } from "../items";
+export * from "./action-command.js";
+export * from "./action-command-receiver.js";
+export * from "./action-command-manager.js";
+import { BattleConclusion } from "../battle/index.js";
+import { CombatAction } from "../combat/index.js";
+import { EquipmentSlot, Item } from "../items/index.js";
 
 export enum ActionCommandType {
   PayAbilityCosts,

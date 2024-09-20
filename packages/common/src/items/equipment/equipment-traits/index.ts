@@ -1,4 +1,4 @@
-import { AffixType, Affixes } from "../affixes";
+import { AffixType, Affixes } from "../affixes.js";
 
 export enum EquipmentTraitType {
   ArmorClassPercentage,

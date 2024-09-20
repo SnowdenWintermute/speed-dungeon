@@ -5,7 +5,7 @@ import {
   RANDOM_GAME_NAMES_FIRST,
   RANDOM_GAME_NAMES_LAST,
   RANDOM_PARTY_NAMES,
-} from "../random-names";
+} from "../random-names/index.js";
 
 export function generateRandomUsername() {
   const firstName = PLAYER_FIRST_NAMES[Math.floor(Math.random() * PLAYER_FIRST_NAMES.length)];

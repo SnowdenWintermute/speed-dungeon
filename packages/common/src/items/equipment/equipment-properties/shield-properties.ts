@@ -1,5 +1,5 @@
-import { EquipmentType } from "../equipment-types";
-import { Shield } from "../equipment-types/shield";
+import { EquipmentType } from "../equipment-types/index.js";
+import { Shield } from "../equipment-types/shield.js";
 
 export interface ShieldProperties {
   type: EquipmentType.Shield;

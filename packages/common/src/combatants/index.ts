@@ -1,16 +1,16 @@
-import { EntityProperties } from "../primatives";
-import { CombatantProperties } from "./combatant-properties";
+import { EntityProperties } from "../primatives/index.js";
+import { CombatantProperties } from "./combatant-properties.js";
 
-export * from "./combatant-class/";
-export * from "./combatant-species";
-export * from "./combatant-properties";
-export * from "./combatant-traits";
-export * from "./combat-attributes";
-export * from "./abilities/";
-export * from "./get-combat-action-properties";
-export * from "./inventory";
-export * from "./update-home-position";
-export * from "./apply-experience-point-changes";
+export * from "./combatant-class/index.js";
+export * from "./combatant-species.js";
+export * from "./combatant-properties.js";
+export * from "./combatant-traits.js";
+export * from "./combat-attributes.js";
+export * from "./abilities/index.js";
+export * from "./get-combat-action-properties.js";
+export * from "./inventory.js";
+export * from "./update-home-position.js";
+export * from "./apply-experience-point-changes.js";
 
 export type CombatantDetails = {
   entityProperties: EntityProperties;

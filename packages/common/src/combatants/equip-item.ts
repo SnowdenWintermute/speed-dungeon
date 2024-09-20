@@ -1,8 +1,8 @@
-import { ERROR_MESSAGES } from "../errors";
-import { EquipmentProperties, EquipmentSlot, Item } from "../items";
-import { EntityId } from "../primatives";
-import { CombatantProperties } from "./combatant-properties";
-import { Inventory } from "./inventory";
+import { ERROR_MESSAGES } from "../errors/index.js";
+import { EquipmentProperties, EquipmentSlot, Item } from "../items/index.js";
+import { EntityId } from "../primatives/index.js";
+import { Inventory } from "./inventory.js";
+import { CombatantProperties } from "./combatant-properties.js";
 
 /** 
   *
@@ -56,7 +56,9 @@ export default function equipItem(
           const equipmentInMainHandResult = Item.getEquipmentProperties(itemInMainHandOption);
           if (equipmentInMainHandResult instanceof Error) return equipmentInMainHandResult;
           if (
-            EquipmentProperties.isTwoHanded(equipmentInMainHandResult.equipmentBaseItemProperties.type)
+            EquipmentProperties.isTwoHanded(
+              equipmentInMainHandResult.equipmentBaseItemProperties.type
+            )
           )
             return [EquipmentSlot.MainHand, EquipmentSlot.OffHand];
         }

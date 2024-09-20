@@ -1,5 +1,5 @@
-import { AdventuringParty } from ".";
-import { removeFromArray } from "../utils";
+import { AdventuringParty } from "./index.js";
+import { removeFromArray } from "../utils/index.js";
 
 export enum DescendOrExplore {
   Explore,

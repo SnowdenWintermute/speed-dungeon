@@ -1,8 +1,8 @@
-import { CombatAction } from "../combat";
-import { CombatAttribute, CombatantClass } from "../combatants";
-import { EquipmentSlot } from "../items";
-import { NextOrPrevious } from "../primatives";
-import { CharacterAndItem, EquipItemPacket } from "./server-to-client";
+import { CombatAction } from "../combat/index.js";
+import { CombatAttribute, CombatantClass } from "../combatants/index.js";
+import { EquipmentSlot } from "../items/index.js";
+import { NextOrPrevious } from "../primatives/index.js";
+import { CharacterAndItem, EquipItemPacket } from "./server-to-client.js";
 
 export enum ClientToServerEvent {
   RequestToJoinGame = "0",

@@ -1,4 +1,4 @@
-import { SpeedDungeonGame } from "../game";
+import { SpeedDungeonGame } from "../game/index.js";
 
 export default function allCombatantsInGroupAreDead(
   game: SpeedDungeonGame,

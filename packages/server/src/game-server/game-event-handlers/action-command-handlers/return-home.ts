@@ -11,10 +11,10 @@ import {
   ServerToClientEvent,
   SpeedDungeonGame,
   getPartyChannelName,
+  ActionCommandManager,
 } from "@speed-dungeon/common";
-import { GameServer } from "../..";
-import checkForWipes from "../combat-action-results-processing/check-for-wipes";
-import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
+import { GameServer } from "../../index.js";
+import checkForWipes from "../combat-action-results-processing/check-for-wipes.js";
 
 export default function returnHomeActionCommandHandler(
   this: GameServer,

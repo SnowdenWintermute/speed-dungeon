@@ -1,13 +1,13 @@
-import { Battle } from "../../battle";
-import { CombatantAbilityName, CombatantProperties } from "../../combatants";
-import { ERROR_MESSAGES } from "../../errors";
-import { SpeedDungeonGame } from "../../game";
-import { CombatAction, CombatActionType } from "../combat-actions";
-import { CombatActionTarget } from "../targeting/combat-action-targets";
-import { ActionResult } from "./action-result";
-import { ActionResultCalculationArguments } from "./action-result-calculator";
-import calculateActionResult from "./calculate-action-result";
-import calculateAttackActionResult from "./non-standard-action-result-handlers/attack";
+import { Battle } from "../../battle/index.js";
+import { CombatantAbilityName, CombatantProperties } from "../../combatants/index.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
+import { CombatAction, CombatActionType } from "../combat-actions/index.js";
+import { CombatActionTarget } from "../targeting/combat-action-targets.js";
+import { ActionResult } from "./action-result.js";
+import { ActionResultCalculationArguments } from "./action-result-calculator.js";
+import calculateActionResult from "./calculate-action-result.js";
+import calculateAttackActionResult from "./non-standard-action-result-handlers/attack.js";
 
 export default function getActionResults(
   game: SpeedDungeonGame,

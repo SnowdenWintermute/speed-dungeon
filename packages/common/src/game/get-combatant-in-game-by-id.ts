@@ -1,7 +1,7 @@
-import { SpeedDungeonGame } from ".";
-import getCombatantInParty from "../adventuring_party/get-combatant-in-party";
-import { CombatantDetails } from "../combatants";
-import { ERROR_MESSAGES } from "../errors";
+import { SpeedDungeonGame } from "./index.js";
+import getCombatantInParty from "../adventuring_party/get-combatant-in-party.js";
+import { CombatantDetails } from "../combatants/index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
 
 export default function getCombatantInGameById(
   game: SpeedDungeonGame,

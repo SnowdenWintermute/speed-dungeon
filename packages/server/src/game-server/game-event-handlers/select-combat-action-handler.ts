@@ -7,8 +7,8 @@ import {
   SpeedDungeonGame,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { BrowserTabSession } from "../socket-connection-metadata";
-import { GameServer } from "..";
+import { BrowserTabSession } from "../socket-connection-metadata.js";
+import { GameServer } from "../index.js";
 
 export default function selectCombatActionHandler(
   this: GameServer,

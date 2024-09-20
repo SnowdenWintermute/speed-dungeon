@@ -1,5 +1,5 @@
-import { MAX_CRIT_CHANCE } from "../../../app_consts";
-import { randBetween } from "../../../utils";
+import { MAX_CRIT_CHANCE } from "../../../app_consts.js";
+import { randBetween } from "../../../utils/index.js";
 
 export default function rollCrit(critChancePercentage: number): boolean {
   const cappedCritChance = Math.min(MAX_CRIT_CHANCE, critChancePercentage);

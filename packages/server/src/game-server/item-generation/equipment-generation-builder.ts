@@ -17,11 +17,11 @@ import {
   randBetween,
   shuffleArray,
 } from "@speed-dungeon/common";
-import { ItemGenerationBuilder, TaggedBaseItem } from "./item-generation-builder";
-import { EquipmentGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes";
-import { getEquipmentGenerationTemplate } from "./equipment-templates";
-import { rollAffix, rollAffixTier } from "./roll-affix";
-import { ItemNamer } from "./item-names/item-namer";
+import { ItemGenerationBuilder, TaggedBaseItem } from "./item-generation-builder.js";
+import { EquipmentGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes.js";
+import { getEquipmentGenerationTemplate } from "./equipment-templates/index.js";
+import { rollAffix, rollAffixTier } from "./roll-affix.js";
+import { ItemNamer } from "./item-names/item-namer.js";
 
 export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
   extends ItemNamer

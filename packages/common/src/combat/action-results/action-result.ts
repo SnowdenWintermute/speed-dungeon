@@ -1,5 +1,5 @@
-import { CombatAction } from "../combat-actions";
-import { CombatActionTarget } from "../targeting/combat-action-targets";
+import { CombatAction } from "../combat-actions/index.js";
+import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 
 export class ActionResult {
   hitPointChangesByEntityId: null | { [entityId: string]: number } = null;

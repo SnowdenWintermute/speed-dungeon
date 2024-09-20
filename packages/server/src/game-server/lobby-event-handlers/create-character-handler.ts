@@ -8,11 +8,11 @@ import {
   SpeedDungeonGame,
   updateCombatantHomePosition,
 } from "@speed-dungeon/common";
-import { generateRandomCharacterName } from "../../utils";
-import errorHandler from "../error-handler";
+import { generateRandomCharacterName } from "../../utils/index.js";
+import errorHandler from "../error-handler.js";
 import { MAX_PARTY_SIZE } from "@speed-dungeon/common";
-import outfitNewCharacter from "../item-generation/outfit-new-character";
-import { Vector3 } from "babylonjs";
+import outfitNewCharacter from "../item-generation/outfit-new-character.js";
+import { Vector3 } from "@babylonjs/core";
 
 const ATTEMPT_TEXT = "A client tried to create a character but";
 

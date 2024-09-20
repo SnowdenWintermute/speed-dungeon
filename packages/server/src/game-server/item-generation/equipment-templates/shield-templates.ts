@@ -9,7 +9,7 @@ import {
   ShieldSize,
   CombatAttribute,
 } from "@speed-dungeon/common";
-import { EquipmentGenerationTemplate } from "./equipment-generation-template-abstract-classes";
+import { EquipmentGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
 
 export class ShieldGenerationTemplate extends EquipmentGenerationTemplate {
   constructor(

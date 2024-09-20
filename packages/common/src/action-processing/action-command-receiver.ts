@@ -5,8 +5,8 @@ import {
   PayAbilityCostsActionCommandPayload,
   PerformCombatActionActionCommandPayload,
   ReturnHomeActionCommandPayload,
-} from ".";
-import { ActionCommandManager } from "./action-command-manager";
+} from "./index.js";
+import { ActionCommandManager } from "./action-command-manager.js";
 
 export interface ActionCommandReceiver {
   payAbilityCostsActionCommandHandler: (

@@ -1,13 +1,13 @@
-import { ValueChangesAndCrits } from ".";
-import { ARMOR_CLASS_EQUATION_MODIFIER, BASE_CRIT_CHANCE } from "../../../app_consts";
-import { CombatAttribute, CombatantProperties } from "../../../combatants";
-import { SpeedDungeonGame } from "../../../game";
-import { CombatActionHpChangeProperties } from "../../combat-actions";
-import { MeleeOrRanged } from "../../hp-change-source-types";
-import applyAffinityToHpChange from "./apply-affinity-to-hp-change";
-import applyCritMultiplierToHpChange from "./apply-crit-multiplier-to-hp-change";
-import getDerivedArmorPenAttributeBasedOnWeaponType from "./get-armor-pen-derived-attribute-based-on-weapon-type";
-import rollCrit from "./roll-crit";
+import { ValueChangesAndCrits } from "./index.js";
+import { CombatAttribute, CombatantProperties } from "../../../combatants/index.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";
+import { ARMOR_CLASS_EQUATION_MODIFIER, BASE_CRIT_CHANCE } from "../../../app_consts.js";
+import { MeleeOrRanged } from "../../hp-change-source-types.js";
+import applyAffinityToHpChange from "./apply-affinity-to-hp-change.js";
+import applyCritMultiplierToHpChange from "./apply-crit-multiplier-to-hp-change.js";
+import getDerivedArmorPenAttributeBasedOnWeaponType from "./get-armor-pen-derived-attribute-based-on-weapon-type.js";
+import rollCrit from "./roll-crit.js";
 
 export default function calculatePhysicalDamageHpChangesAndCrits(
   game: SpeedDungeonGame,

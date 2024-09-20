@@ -1,7 +1,7 @@
-import { GameServer } from ".";
-import { generateRandomUsername } from "../utils";
+import { GameServer } from "./index.js";
+import { generateRandomUsername } from "../utils/index.js";
 import { LOBBY_CHANNEL, ServerToClientEvent } from "@speed-dungeon/common";
-import { BrowserTabSession } from "./socket-connection-metadata";
+import { BrowserTabSession } from "./socket-connection-metadata.js";
 
 export function connectionHandler(this: GameServer) {
   this.io.of("/").on("connection", (socket) => {

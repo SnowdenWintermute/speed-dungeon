@@ -1,4 +1,4 @@
-import { AdventuringParty } from ".";
+import { AdventuringParty } from "./index.js";
 
 export default function playerOwnsCharacter(
   party: AdventuringParty,

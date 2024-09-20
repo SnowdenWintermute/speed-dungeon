@@ -1,5 +1,5 @@
 import { ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
-import { GameServer, SocketId } from ".";
+import { GameServer, SocketId } from "./index.js";
 
 export default function getSocketIdOfPlayer(
   this: GameServer,

@@ -1,4 +1,4 @@
-import { MagicalElement } from "./magical-elements";
+import { MagicalElement } from "./magical-elements.js";
 
 export class HpChangeSource {
   constructor(

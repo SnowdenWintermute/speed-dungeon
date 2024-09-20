@@ -14,7 +14,7 @@ import {
   TwoHandedMeleeWeapon,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
-import { WeaponGenerationTemplate } from "./equipment-generation-template-abstract-classes";
+import { WeaponGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
 
 export class TwoHandedMeleeWeaponGenerationTemplate extends WeaponGenerationTemplate {
   constructor(

@@ -1,14 +1,14 @@
-import { ValueChangesAndCrits } from ".";
+import { ValueChangesAndCrits } from "./index.js";
 import {
   BASE_CRIT_CHANCE,
   RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO,
-} from "../../../app_consts";
-import { CombatAttribute, CombatantProperties } from "../../../combatants";
-import { SpeedDungeonGame } from "../../../game";
-import { CombatActionHpChangeProperties } from "../../combat-actions";
-import applyAffinityToHpChange from "./apply-affinity-to-hp-change";
-import applyCritMultiplierToHpChange from "./apply-crit-multiplier-to-hp-change";
-import rollCrit from "./roll-crit";
+} from "../../../app_consts.js";
+import { CombatAttribute, CombatantProperties } from "../../../combatants/index.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";
+import applyAffinityToHpChange from "./apply-affinity-to-hp-change.js";
+import applyCritMultiplierToHpChange from "./apply-crit-multiplier-to-hp-change.js";
+import rollCrit from "./roll-crit.js";
 
 export default function calculateMagicalDamageHpChangesAndCrits(
   game: SpeedDungeonGame,

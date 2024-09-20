@@ -1,6 +1,9 @@
-import { DEX_TO_RANGED_ARMOR_PEN_RATIO, STR_TO_MELEE_ARMOR_PEN_RATIO } from "../../../app_consts";
-import { CombatAttribute, CombatantAttributeRecord } from "../../../combatants";
-import { MeleeOrRanged } from "../../hp-change-source-types";
+import { CombatAttribute, CombatantAttributeRecord } from "../../../combatants/index.js";
+import {
+  DEX_TO_RANGED_ARMOR_PEN_RATIO,
+  STR_TO_MELEE_ARMOR_PEN_RATIO,
+} from "../../../app_consts.js";
+import { MeleeOrRanged } from "../../hp-change-source-types.js";
 
 export default function getDerivedArmorPenAttributeBasedOnWeaponType(
   totalAttributes: CombatantAttributeRecord,

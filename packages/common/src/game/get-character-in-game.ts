@@ -1,7 +1,7 @@
-import { SpeedDungeonGame } from ".";
-import { PlayerCharacter } from "../adventuring_party";
-import { ERROR_MESSAGES } from "../errors";
-import { EntityId } from "../primatives";
+import { SpeedDungeonGame } from "./index.js";
+import { PlayerCharacter } from "../adventuring_party/index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
+import { EntityId } from "../primatives/index.js";
 
 export default function getCharacterInGame(
   game: SpeedDungeonGame,

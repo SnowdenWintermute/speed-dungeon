@@ -1,5 +1,5 @@
-import { EquipmentProperties } from ".";
-import { EquipmentType } from "../equipment-types";
+import { EquipmentProperties } from "./index.js";
+import { EquipmentType } from "../equipment-types/index.js";
 
 export default function getBaseArmorClass(equipmentProperties: EquipmentProperties) {
   switch (equipmentProperties.equipmentBaseItemProperties.type) {

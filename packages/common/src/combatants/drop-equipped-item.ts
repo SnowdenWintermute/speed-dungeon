@@ -1,8 +1,8 @@
-import { AdventuringParty } from "../adventuring_party";
-import { ERROR_MESSAGES } from "../errors";
-import { EquipmentSlot } from "../items";
-import { EntityId } from "../primatives";
-import { CombatantProperties } from "./combatant-properties";
+import { AdventuringParty } from "../adventuring_party/index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
+import { EquipmentSlot } from "../items/index.js";
+import { EntityId } from "../primatives/index.js";
+import { CombatantProperties } from "./combatant-properties.js";
 
 export default function dropEquippedItem(
   party: AdventuringParty,

@@ -1,17 +1,17 @@
-import { CombatantAttributeRecord } from "../../../combatants/combatant-properties";
-import { MaxAndCurrent } from "../../../primatives/max-and-current";
-import { AffixType, Affixes } from "../affixes";
-import { getEquipableSlots } from "../slots";
-import { ArmorProperties } from "./armor-properties";
-import getBaseArmorClass from "./get-base-armor-class";
-import getModifiedWeaponDamageRange from "./get-modified-weapon-damage-range";
-import { JewelryProperties } from "./jewelry-properties";
-import { ShieldProperties } from "./shield-properties";
-import { WeaponProperties, equipmentIsTwoHandedWeapon } from "./weapon-properties";
-export * from "./armor-properties";
-export * from "./jewelry-properties";
-export * from "./shield-properties";
-export * from "./weapon-properties";
+import { CombatantAttributeRecord } from "../../../combatants/combatant-properties.js";
+import { MaxAndCurrent } from "../../../primatives/max-and-current.js";
+import { AffixType, Affixes } from "../affixes.js";
+import { getEquipableSlots } from "../slots.js";
+import { ArmorProperties } from "./armor-properties.js";
+import getBaseArmorClass from "./get-base-armor-class.js";
+import getModifiedWeaponDamageRange from "./get-modified-weapon-damage-range.js";
+import { JewelryProperties } from "./jewelry-properties.js";
+import { ShieldProperties } from "./shield-properties.js";
+import { WeaponProperties, equipmentIsTwoHandedWeapon } from "./weapon-properties.js";
+export * from "./armor-properties.js";
+export * from "./jewelry-properties.js";
+export * from "./shield-properties.js";
+export * from "./weapon-properties.js";
 
 export class EquipmentProperties {
   attributes: CombatantAttributeRecord = {};

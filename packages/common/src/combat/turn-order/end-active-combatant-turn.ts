@@ -1,7 +1,7 @@
-import { CombatantTurnTracker } from ".";
-import { ERROR_MESSAGES } from "../../errors";
-import { SpeedDungeonGame } from "../../game";
-import { REQUIRED_MOVEMENT_TO_MOVE } from "./consts";
+import { CombatantTurnTracker } from "./index.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
+import { REQUIRED_MOVEMENT_TO_MOVE } from "./consts.js";
 
 export default function endActiveCombatantTurn(
   game: SpeedDungeonGame,

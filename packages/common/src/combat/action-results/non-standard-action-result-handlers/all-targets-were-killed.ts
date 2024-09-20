@@ -1,5 +1,5 @@
-import { SpeedDungeonGame } from "../../../game";
-import { ActionResult } from "../action-result";
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { ActionResult } from "../action-result.js";
 
 export default function allTargetsWereKilled(
   game: SpeedDungeonGame,

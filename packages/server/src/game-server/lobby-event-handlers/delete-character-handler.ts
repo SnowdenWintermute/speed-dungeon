@@ -5,7 +5,7 @@ import {
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
 import { removeFromArray } from "@speed-dungeon/common";
-import errorHandler from "../error-handler";
+import errorHandler from "../error-handler.js";
 
 const ATTEMPT_TEXT = "A client tried to delete a character but";
 

@@ -1,5 +1,5 @@
 import { Battle, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
-import checkForDefeatedCombatantGroups from "./check-for-defeated-combatant-groups";
+import checkForDefeatedCombatantGroups from "./check-for-defeated-combatant-groups.js";
 
 export default function checkForWipes(
   game: SpeedDungeonGame,

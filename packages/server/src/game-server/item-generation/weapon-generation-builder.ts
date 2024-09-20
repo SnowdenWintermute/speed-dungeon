@@ -8,9 +8,9 @@ import {
   formatEquipmentType,
   shuffleArray,
 } from "@speed-dungeon/common";
-import { ItemGenerationBuilder } from "./item-generation-builder";
-import { WeaponGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes";
-import { EquipmentGenerationBuilder } from "./equipment-generation-builder";
+import { ItemGenerationBuilder } from "./item-generation-builder.js";
+import { WeaponGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes.js";
+import { EquipmentGenerationBuilder } from "./equipment-generation-builder.js";
 import cloneDeep from "lodash.clonedeep";
 
 export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>

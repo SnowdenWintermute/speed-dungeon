@@ -1,13 +1,13 @@
-import { EntityProperties } from "../primatives/entity-properties";
+import { EntityProperties } from "../primatives/entity-properties.js";
 import {
   CombatantAbility,
   CombatantAbilityName,
   CombatantClass,
   CombatantSpecies,
-} from "../combatants";
-import { CombatantProperties } from "../combatants/combatant-properties";
+} from "../combatants/index.js";
+import { CombatantProperties } from "../combatants/combatant-properties.js";
 import { immerable } from "immer";
-import { Vector3 } from "babylonjs";
+import { Vector3 } from "@babylonjs/core";
 
 export class PlayerCharacter {
   [immerable] = true;

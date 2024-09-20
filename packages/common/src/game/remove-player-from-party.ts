@@ -1,7 +1,7 @@
-import { SpeedDungeonGame } from ".";
 import cloneDeep from "lodash.clonedeep";
-import { removeFromArray } from "../utils";
-import removeCharacterFromParty from "../adventuring_party/remove-character-from-party";
+import { SpeedDungeonGame } from "./index.js";
+import { removeFromArray } from "../utils/index.js";
+import removeCharacterFromParty from "../adventuring_party/remove-character-from-party.js";
 
 export default function removePlayerFromParty(game: SpeedDungeonGame, username: string) {
   const player = game.players[username];

@@ -4,8 +4,8 @@ import {
   InputLock,
   MoveIntoCombatActionPositionActionCommandPayload,
 } from "@speed-dungeon/common";
-import { GameServer } from "../..";
-import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
+import { GameServer } from "../../index.js";
+import { ActionCommandManager } from "@speed-dungeon/common";
 
 // SERVER
 // - lock this combatant from recieving inputs
@@ -35,10 +35,7 @@ export default function moveIntoCombatActionPositionActionCommandHandler(
     isMelee
   );
 
-  InputLock.increaseLockoutDuration(
-    party.inputLock,
-    totalTimeToReachDestination
-  );
+  InputLock.increaseLockoutDuration(party.inputLock, totalTimeToReachDestination);
 
   actionCommandManager.processNextCommand();
 }

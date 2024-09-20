@@ -1,6 +1,6 @@
-import { AdventuringParty, PlayerCharacter } from "./adventuring_party";
-import { CombatantDetails } from "./combatants";
-import { SpeedDungeonGame } from "./game";
+import { AdventuringParty, PlayerCharacter } from "./adventuring_party/index.js";
+import { CombatantDetails } from "./combatants/index.js";
+import { SpeedDungeonGame } from "./game/index.js";
 
 export interface CharacterAssociatedData {
   username: string;

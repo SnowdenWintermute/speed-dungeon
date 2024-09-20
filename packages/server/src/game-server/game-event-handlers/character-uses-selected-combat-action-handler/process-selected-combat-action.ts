@@ -8,8 +8,8 @@ import {
   SpeedDungeonGame,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import composeActionCommandPayloadsFromActionResults from "./compose-action-command-payloads-from-action-results";
-import { GameServer } from "../..";
+import composeActionCommandPayloadsFromActionResults from "./compose-action-command-payloads-from-action-results.js";
+import { GameServer } from "../../index.js";
 
 export default function processSelectedCombatAction(
   this: GameServer,

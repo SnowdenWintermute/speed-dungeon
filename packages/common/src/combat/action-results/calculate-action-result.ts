@@ -1,15 +1,15 @@
-import cloneDeep from "lodash.clonedeep";
-import { SpeedDungeonGame } from "../../game";
-import { ActionResult } from "./action-result";
-import { CombatantProperties } from "../../combatants";
+import cloneDeep from "lodash.clonedeep/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
+import { ActionResult } from "./action-result.js";
+import { CombatantProperties } from "../../combatants/index.js";
 import {
   ActionResultCalculationArguments,
   ActionResultCalculator,
-} from "./action-result-calculator";
-import calculateActionHitPointChangesCritsAndEvasions from "./hp-change-result-calculation";
-import { CombatActionType } from "..";
-import applyConsumableUseToActionResult from "./apply-consumable-use-to-action-result";
-import { ERROR_MESSAGES } from "../../errors";
+} from "./action-result-calculator.js";
+import calculateActionHitPointChangesCritsAndEvasions from "./hp-change-result-calculation/index.js";
+import { CombatActionType } from "../index.js";
+import applyConsumableUseToActionResult from "./apply-consumable-use-to-action-result.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
 
 export default function calculateActionResult(
   game: SpeedDungeonGame,

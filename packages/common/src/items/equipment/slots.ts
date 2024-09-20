@@ -1,5 +1,5 @@
-import { EquipmentProperties } from "./equipment-properties";
-import { EquipmentType } from "./equipment-types";
+import { EquipmentProperties } from "./equipment-properties/index.js";
+import { EquipmentType } from "./equipment-types/index.js";
 
 export enum WeaponSlot {
   MainHand,

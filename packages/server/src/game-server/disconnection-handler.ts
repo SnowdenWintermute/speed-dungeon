@@ -3,7 +3,7 @@ import {
   ServerToClientEventTypes,
   removeFromArray,
 } from "@speed-dungeon/common";
-import { GameServer } from ".";
+import { GameServer } from "./index.js";
 import { Socket } from "socket.io";
 
 export default function disconnectionHandler(

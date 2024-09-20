@@ -1,9 +1,9 @@
-import { CombatantProperties } from "../../../combatants";
-import { Inventory } from "../../../combatants/inventory";
-import { ERROR_MESSAGES } from "../../../errors";
-import { SpeedDungeonGame } from "../../../game";
-import { CombatActionType } from "../../combat-actions";
-import { ActionResult } from "../action-result";
+import { CombatantProperties } from "../../../combatants/index.js";
+import { Inventory } from "../../../combatants/inventory.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { CombatActionType } from "../../combat-actions/index.js";
+import { ActionResult } from "../action-result.js";
 
 export default function applyActionResult(
   game: SpeedDungeonGame,

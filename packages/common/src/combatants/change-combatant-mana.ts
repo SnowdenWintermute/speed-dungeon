@@ -1,5 +1,5 @@
-import { CombatAttribute } from "./combat-attributes";
-import { CombatantProperties } from "./combatant-properties";
+import { CombatAttribute } from "./combat-attributes.js";
+import { CombatantProperties } from "./combatant-properties.js";
 
 export default function changeCombatantMana(
   combatantProperties: CombatantProperties,

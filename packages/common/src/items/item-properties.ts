@@ -1,6 +1,6 @@
-import { ConsumableProperties, ConsumableType } from "./consumables";
-import { EquipmentBaseItem, EquipmentType } from "./equipment";
-import { EquipmentProperties } from "./equipment/equipment-properties";
+import { ConsumableProperties, ConsumableType } from "./consumables/index.js";
+import { EquipmentBaseItem, EquipmentType } from "./equipment/index.js";
+import { EquipmentProperties } from "./equipment/equipment-properties/index.js";
 
 export enum ItemPropertiesType {
   Equipment,

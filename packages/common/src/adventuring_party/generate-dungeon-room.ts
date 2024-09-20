@@ -1,8 +1,8 @@
-import { NUM_MONSTERS_PER_ROOM } from "../app_consts";
-import { IdGenerator } from "../game/id-generator";
-import { Monster } from "../monsters";
-import generateMonster from "../monsters/generate-monster";
-import { DungeonRoom, DungeonRoomType } from "./dungeon-room";
+import { NUM_MONSTERS_PER_ROOM } from "../app_consts.js";
+import { IdGenerator } from "../game/id-generator.js";
+import { Monster } from "../monsters/index.js";
+import generateMonster from "../monsters/generate-monster.js";
+import { DungeonRoom, DungeonRoomType } from "./dungeon-room.js";
 
 export default function generateDungeonRoom(
   idGenerator: IdGenerator,

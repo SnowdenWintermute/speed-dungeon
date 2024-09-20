@@ -1,5 +1,5 @@
-import { CombatantAbility, CombatantAbilityName } from "../combatants";
-import { MonsterType } from "./monster-types";
+import { CombatantAbility, CombatantAbilityName } from "../combatants/index.js";
+import { MonsterType } from "./monster-types.js";
 
 export default function getMonsterAbilities(
   monsterType: MonsterType

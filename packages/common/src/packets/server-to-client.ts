@@ -1,13 +1,13 @@
-import { DungeonRoom, DungeonRoomType, PlayerCharacter } from "../adventuring_party";
-import { DescendOrExplore } from "../adventuring_party/update-player-readiness";
-import { Battle, BattleConclusion } from "../battle";
-import { CombatAction } from "../combat";
-import { ActionCommandPayload } from "../action-processing";
-import { SpeedDungeonGame } from "../game";
-import { EquipmentSlot, Item } from "../items";
-import { NextOrPrevious } from "../primatives";
-import { GameMessage } from "./game-message";
-import { CombatAttribute } from "../combatants";
+import { DungeonRoom, DungeonRoomType, PlayerCharacter } from "../adventuring_party/index.js";
+import { Battle, BattleConclusion } from "../battle/index.js";
+import { CombatAction } from "../combat/index.js";
+import { ActionCommandPayload } from "../action-processing/index.js";
+import { SpeedDungeonGame } from "../game/index.js";
+import { EquipmentSlot, Item } from "../items/index.js";
+import { NextOrPrevious } from "../primatives/index.js";
+import { CombatAttribute } from "../combatants/index.js";
+import { GameMessage } from "./game-message.js";
+import { DescendOrExplore } from "../adventuring_party/update-player-readiness.js";
 
 export enum ServerToClientEvent {
   GameList = "0",

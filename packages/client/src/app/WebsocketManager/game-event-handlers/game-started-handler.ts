@@ -8,7 +8,7 @@ import {
   COMBATANT_POSITION_SPACING_SIDE,
   CombatantSpecies,
 } from "@speed-dungeon/common";
-import { Vector3 } from "babylonjs";
+import { Vector3 } from "@babylonjs/core";
 
 export default function gameStartedHandler(
   mutateGameStore: MutateState<GameState>,

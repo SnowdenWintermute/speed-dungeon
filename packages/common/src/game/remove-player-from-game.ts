@@ -1,6 +1,6 @@
-import { SpeedDungeonGame } from ".";
-import { removeFromArray } from "../utils/";
-import removePlayerFromParty from "./remove-player-from-party";
+import { SpeedDungeonGame } from "./index.js";
+import { removeFromArray } from "../utils//index.js";
+import removePlayerFromParty from "./remove-player-from-party.js";
 
 export default function removePlayerFromGame(game: SpeedDungeonGame, username: string) {
   removePlayerFromParty(game, username);

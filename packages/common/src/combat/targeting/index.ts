@@ -1,6 +1,6 @@
-export * from "./combat-action-targets";
-export * from "./assign-character-action-targets";
-export * from "./cycle-character-targeting-schemes";
+export * from "./combat-action-targets.js";
+export * from "./assign-character-action-targets.js";
+export * from "./cycle-character-targeting-schemes.js";
 
 export enum FriendOrFoe {
   Friendly,

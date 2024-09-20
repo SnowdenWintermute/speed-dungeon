@@ -1,10 +1,10 @@
-import { AdventuringParty } from "../../adventuring_party";
-import { SpeedDungeonGame } from "../../game";
-import { CombatActionProperties } from "../combat-actions";
+import { AdventuringParty } from "../../adventuring_party/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
+import { CombatActionProperties } from "../combat-actions/index.js";
 import {
   filterPossibleTargetIdsByActionTargetCategories,
   filterPossibleTargetIdsByProhibitedCombatantStates,
-} from "./filtering";
+} from "./filtering.js";
 
 export default function getFilteredPotentialTargetIds(
   game: SpeedDungeonGame,

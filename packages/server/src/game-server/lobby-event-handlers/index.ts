@@ -6,7 +6,7 @@ import {
   ClientToServerEvent,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
-import { GameServer } from "..";
+import { GameServer } from "../index.js";
 
 export default function initiateLobbyEventListeners(
   this: GameServer,

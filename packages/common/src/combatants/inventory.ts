@@ -1,8 +1,8 @@
 import { immerable } from "immer";
-import { INVENTORY_DEFAULT_CAPACITY } from "../app_consts";
-import { ERROR_MESSAGES } from "../errors";
-import { ConsumableProperties, Item } from "../items";
-import { ItemPropertiesType } from "../items/item-properties";
+import { INVENTORY_DEFAULT_CAPACITY } from "../app_consts.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
+import { ConsumableProperties, Item } from "../items/index.js";
+import { ItemPropertiesType } from "../items/item-properties.js";
 
 export class Inventory {
   [immerable] = true;

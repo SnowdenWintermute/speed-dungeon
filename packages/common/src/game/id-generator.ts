@@ -1,4 +1,4 @@
-import { EntityId } from "../primatives";
+import { EntityId } from "../primatives/index.js";
 
 export class IdGenerator {
   last_assigned_entity_id: number = 0;

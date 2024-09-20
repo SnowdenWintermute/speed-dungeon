@@ -1,4 +1,4 @@
-import { FriendOrFoe } from ".";
+import { FriendOrFoe } from "./index.js";
 
 export enum CombatActionTargetType {
   Single,

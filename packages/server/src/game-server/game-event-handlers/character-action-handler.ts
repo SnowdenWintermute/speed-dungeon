@@ -6,8 +6,8 @@ import {
   SpeedDungeonGame,
   CharacterAssociatedData,
 } from "@speed-dungeon/common";
-import { GameServer } from "..";
-import { BrowserTabSession } from "../socket-connection-metadata";
+import { GameServer } from "../index.js";
+import { BrowserTabSession } from "../socket-connection-metadata.js";
 
 export default function characterActionHandler(
   this: GameServer,

@@ -1,7 +1,7 @@
-import { EquipmentSlot, WeaponSlot } from "../items";
-import { WeaponProperties } from "../items/equipment/equipment-properties/weapon-properties";
-import { EquipmentType } from "../items/equipment/equipment-types";
-import { CombatantProperties } from "./combatant-properties";
+import { EquipmentSlot, WeaponSlot } from "../items/index.js";
+import { WeaponProperties } from "../items/equipment/equipment-properties/weapon-properties.js";
+import { EquipmentType } from "../items/equipment/equipment-types/index.js";
+import { CombatantProperties } from "./combatant-properties.js";
 
 export default function getEquippedWeapon(
   combatantProperties: CombatantProperties,

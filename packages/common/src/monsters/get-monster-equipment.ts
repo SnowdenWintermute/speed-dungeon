@@ -1,6 +1,11 @@
-import { IdGenerator } from "../game/id-generator";
-import { EquipmentSlot, Item, PreDeterminedItemType, generatePreDeterminedItem } from "../items";
-import { MonsterType } from "./monster-types";
+import {
+  EquipmentSlot,
+  Item,
+  PreDeterminedItemType,
+  generatePreDeterminedItem,
+} from "../items/index.js";
+import { IdGenerator } from "../game/id-generator.js";
+import { MonsterType } from "./monster-types.js";
 
 export default function getMonsterEquipment(
   monsterType: MonsterType,

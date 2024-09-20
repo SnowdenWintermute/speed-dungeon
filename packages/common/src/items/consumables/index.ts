@@ -1,4 +1,4 @@
-import getConsumableCombatActionProperties from "./get-consumable-combat-action-properties";
+import getConsumableCombatActionProperties from "./get-consumable-combat-action-properties.js";
 
 export enum ConsumableType {
   HpAutoinjector,

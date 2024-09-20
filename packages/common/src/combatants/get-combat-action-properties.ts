@@ -1,13 +1,17 @@
-import { AdventuringParty } from "../adventuring_party";
-import getCombatantInParty from "../adventuring_party/get-combatant-in-party";
-import { getItemInAdventuringParty } from "../adventuring_party/get-item-in-party";
-import { CombatAction, CombatActionProperties, CombatActionType } from "../combat/combat-actions";
-import { ERROR_MESSAGES } from "../errors";
-import { ConsumableProperties } from "../items";
-import { ItemPropertiesType } from "../items/item-properties";
-import getAbilityAttributes from "./abilities/get-ability-attributes";
-import { CombatantProperties } from "./combatant-properties";
-import { Inventory } from "./inventory";
+import { AdventuringParty } from "../adventuring_party/index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
+import { ConsumableProperties } from "../items/index.js";
+import getCombatantInParty from "../adventuring_party/get-combatant-in-party.js";
+import { getItemInAdventuringParty } from "../adventuring_party/get-item-in-party.js";
+import {
+  CombatAction,
+  CombatActionProperties,
+  CombatActionType,
+} from "../combat/combat-actions/index.js";
+import { ItemPropertiesType } from "../items/item-properties.js";
+import getAbilityAttributes from "./abilities/get-ability-attributes.js";
+import { CombatantProperties } from "./combatant-properties.js";
+import { Inventory } from "./inventory.js";
 
 export function getCombatActionPropertiesIfOwned(
   combatantProperties: CombatantProperties,

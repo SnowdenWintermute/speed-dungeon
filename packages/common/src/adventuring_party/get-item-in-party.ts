@@ -1,6 +1,6 @@
-import { AdventuringParty } from ".";
-import { ERROR_MESSAGES } from "../errors";
-import { Item } from "../items";
+import { AdventuringParty } from "./index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
+import { Item } from "../items/index.js";
 
 export function getItemInAdventuringParty(party: AdventuringParty, itemId: string) {
   let toReturn: undefined | Item;

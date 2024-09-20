@@ -6,7 +6,7 @@ import {
   ReturnHomeActionCommandPayload,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
-import { Vector3 } from "babylonjs";
+import { Vector3 } from "@babylonjs/core";
 
 export enum NextToBabylonMessageTypes {
   SpawnCombatantModel,

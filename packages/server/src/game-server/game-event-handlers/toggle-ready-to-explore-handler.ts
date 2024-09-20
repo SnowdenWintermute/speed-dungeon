@@ -10,7 +10,7 @@ import {
   PlayerAssociatedData,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import { GameServer } from "..";
+import { GameServer } from "../index.js";
 import { DungeonRoom, DungeonRoomType } from "@speed-dungeon/common";
 import { tickCombatUntilNextCombatantIsActive } from "@speed-dungeon/common";
 import { DescendOrExplore } from "@speed-dungeon/common";

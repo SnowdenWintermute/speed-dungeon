@@ -2,14 +2,14 @@ import {
   DERIVED_ATTRIBUTE_RATIOS,
   DEX_TO_RANGED_ARMOR_PEN_RATIO,
   STR_TO_MELEE_ARMOR_PEN_RATIO,
-} from "../app_consts";
-import { Item, WeaponSlot } from "../items";
-import { EquipmentProperties } from "../items/equipment/equipment-properties";
-import { EquipmentType } from "../items/equipment/equipment-types";
-import { ItemPropertiesType } from "../items/item-properties";
-import { iterateNumericEnumKeyedRecord } from "../utils";
-import { CombatAttribute } from "./combat-attributes";
-import { CombatantAttributeRecord, CombatantProperties } from "./combatant-properties";
+} from "../app_consts.js";
+import { Item, WeaponSlot } from "../items/index.js";
+import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import { EquipmentProperties } from "../items/equipment/equipment-properties/index.js";
+import { EquipmentType } from "../items/equipment/equipment-types/index.js";
+import { ItemPropertiesType } from "../items/item-properties.js";
+import { CombatAttribute } from "./combat-attributes.js";
+import { CombatantAttributeRecord, CombatantProperties } from "./combatant-properties.js";
 
 function initializeCombatAttributeRecord() {
   const allAttributesAsZero: CombatantAttributeRecord = {};

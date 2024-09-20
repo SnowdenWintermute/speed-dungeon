@@ -1,8 +1,8 @@
-import { AdventuringParty } from ".";
-import { CombatAction, CombatActionTargetType, FriendOrFoe } from "../combat";
-import { filterPossibleTargetIdsByProhibitedCombatantStates } from "../combat/targeting/filtering";
-import { CombatantProperties } from "../combatants";
-import getMonsterIdsInParty from "./get-monster-ids-in-party";
+import { AdventuringParty } from "./index.js";
+import { CombatAction, CombatActionTargetType, FriendOrFoe } from "../combat/index.js";
+import { filterPossibleTargetIdsByProhibitedCombatantStates } from "../combat/targeting/filtering.js";
+import { CombatantProperties } from "../combatants/index.js";
+import getMonsterIdsInParty from "./get-monster-ids-in-party.js";
 
 export default function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
   party: AdventuringParty,

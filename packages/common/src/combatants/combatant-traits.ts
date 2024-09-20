@@ -1,5 +1,5 @@
-import { PhysicalDamageType, formatPhysicalDamageType } from "../combat/hp-change-source-types";
-import { MagicalElement, formatMagicalElement } from "../combat/magical-elements";
+import { PhysicalDamageType, formatPhysicalDamageType } from "../combat/hp-change-source-types.js";
+import { MagicalElement, formatMagicalElement } from "../combat/magical-elements.js";
 
 export enum CombatantTraitType {
   HpBioavailability,

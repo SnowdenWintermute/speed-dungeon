@@ -1,5 +1,5 @@
-import { Battle, BattleGroup } from ".";
-import { ERROR_MESSAGES } from "../errors";
+import { Battle, BattleGroup } from "./index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
 
 export interface AllAndEnemyBattleGroups {
   allyGroup: BattleGroup;

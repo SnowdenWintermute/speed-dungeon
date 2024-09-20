@@ -1,6 +1,6 @@
-import { CombatantAbility, CombatantAbilityName } from ".";
-import { ERROR_MESSAGES } from "../../errors";
-import { CombatantProperties } from "../combatant-properties";
+import { CombatantAbility, CombatantAbilityName } from "./index.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { CombatantProperties } from "../combatant-properties.js";
 
 export default function getAbilityIfOwned(
   combatantProperties: CombatantProperties,

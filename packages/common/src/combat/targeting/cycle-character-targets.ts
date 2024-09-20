@@ -1,10 +1,10 @@
-import { AdventuringParty } from "../../adventuring_party";
-import { SpeedDungeonGame, SpeedDungeonPlayer } from "../../game";
-import { NextOrPrevious } from "../../primatives";
-import getOwnedCharacterAndSelectedCombatAction from "../../utils/get-owned-character-and-selected-combat-action";
-import getFilteredPotentialTargetIds from "./get-filtered-potential-target-ids";
-import getNextOrPreviousTarget from "./get-next-or-previous-target";
-import getUpdatedTargetPreferences from "./get-updated-target-preferences";
+import { AdventuringParty } from "../../adventuring_party/index.js";
+import { SpeedDungeonGame, SpeedDungeonPlayer } from "../../game/index.js";
+import { NextOrPrevious } from "../../primatives/index.js";
+import getOwnedCharacterAndSelectedCombatAction from "../../utils/get-owned-character-and-selected-combat-action.js";
+import getFilteredPotentialTargetIds from "./get-filtered-potential-target-ids.js";
+import getNextOrPreviousTarget from "./get-next-or-previous-target.js";
+import getUpdatedTargetPreferences from "./get-updated-target-preferences.js";
 
 export default function cycleCharacterTargets(
   game: SpeedDungeonGame,

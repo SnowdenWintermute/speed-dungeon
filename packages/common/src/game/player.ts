@@ -1,6 +1,6 @@
 import { immerable } from "immer";
-import { FriendOrFoe, TargetingScheme } from "../combat/targeting";
-import { EntityId } from "../primatives";
+import { FriendOrFoe, TargetingScheme } from "../combat/targeting/index.js";
+import { EntityId } from "../primatives/index.js";
 
 export class SpeedDungeonPlayer {
   [immerable] = true;

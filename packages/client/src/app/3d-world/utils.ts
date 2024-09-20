@@ -7,7 +7,7 @@ import {
   Node,
   Scene,
   Vector3,
-} from "babylonjs";
+} from "@babylonjs/core";
 
 export function getTransformNodeByName(sceneResult: ISceneLoaderAsyncResult, name: string) {
   for (const transformNode of sceneResult.transformNodes) {

@@ -1,6 +1,6 @@
-import { EquipmentProperties } from ".";
-import { EquipmentType } from "../equipment-types";
-import { EquipmentSlot } from "../slots";
+import { EquipmentProperties } from "./index.js";
+import { EquipmentType } from "../equipment-types/index.js";
+import { EquipmentSlot } from "../slots.js";
 
 export interface EquipableSlots {
   main: EquipmentSlot;

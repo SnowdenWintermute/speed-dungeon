@@ -1,7 +1,7 @@
-import { CombatantTurnTracker } from ".";
-import { CombatAttribute, CombatantProperties } from "../../combatants";
-import { ERROR_MESSAGES } from "../../errors";
-import { SpeedDungeonGame } from "../../game";
+import { CombatantTurnTracker } from "./index.js";
+import { CombatAttribute, CombatantProperties } from "../../combatants/index.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
 import {
   MIN_MOVEMENT_PER_TICK,
   MIN_SPEED,
@@ -9,7 +9,7 @@ import {
   REQUIRED_MOVEMENT_TO_MOVE,
   SPEED_MODIFIER,
   SPEED_RANGE,
-} from "./consts";
+} from "./consts.js";
 
 export function tickCombatUntilNextCombatantIsActive(game: SpeedDungeonGame, battleId: string) {
   const battleOption = game.battles[battleId];

@@ -1,11 +1,11 @@
-import { MIN_HIT_CHANCE } from "../../../app_consts";
+import { MIN_HIT_CHANCE } from "../../../app_consts.js";
 import {
   CombatAttribute,
   CombatantAttributeRecord,
   CombatantProperties,
-} from "../../../combatants";
-import { SpeedDungeonGame } from "../../../game";
-import { randBetween } from "../../../utils";
+} from "../../../combatants/index.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { randBetween } from "../../../utils/index.js";
 
 export default function getIdsOfEvadingEntities(
   game: SpeedDungeonGame,

@@ -1,6 +1,6 @@
-import { FriendOrFoe, TargetingScheme } from "..";
-import { ERROR_MESSAGES } from "../../errors";
-import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets";
+import { FriendOrFoe, TargetingScheme } from "../index.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 
 const INVALID_TARGETING_SCHEME_ERROR = new Error(
   ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TARGETS_SELECTED

@@ -1,4 +1,4 @@
-import { ActionCommand } from "./action-command";
+import { ActionCommand } from "./action-command.js";
 
 export class ActionCommandManager {
   queue: ActionCommand[] = [];

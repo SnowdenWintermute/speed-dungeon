@@ -1,6 +1,6 @@
-import { ActionCommandPayload, ActionCommandType } from ".";
-import { ActionCommandManager } from "./action-command-manager";
-import { ActionCommandReceiver } from "./action-command-receiver";
+import { ActionCommandPayload, ActionCommandType } from "./index.js";
+import { ActionCommandManager } from "./action-command-manager.js";
+import { ActionCommandReceiver } from "./action-command-receiver.js";
 
 export class ActionCommand {
   constructor(

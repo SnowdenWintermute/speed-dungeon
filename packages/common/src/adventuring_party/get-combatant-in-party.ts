@@ -1,6 +1,6 @@
-import { AdventuringParty } from ".";
-import { CombatantDetails } from "../combatants";
-import { ERROR_MESSAGES } from "../errors";
+import { AdventuringParty } from "./index.js";
+import { CombatantDetails } from "../combatants/index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
 
 export default function getCombatantInParty(
   party: AdventuringParty,

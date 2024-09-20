@@ -1,7 +1,7 @@
-import { CombatantProperties } from "../combatants/combatant-properties";
-import { EntityProperties } from "../primatives";
-import { MonsterType } from "./monster-types";
-export * from "./monster-types";
+import { CombatantProperties } from "../combatants/combatant-properties.js";
+import { EntityProperties } from "../primatives/index.js";
+import { MonsterType } from "./monster-types.js";
+export * from "./monster-types.js";
 
 export class Monster {
   constructor(

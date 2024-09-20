@@ -1,4 +1,4 @@
-import { Color3, Mesh, MeshBuilder, StandardMaterial, Vector3 } from "babylonjs";
+import { Color3, Mesh, MeshBuilder, StandardMaterial, Vector3 } from "@babylonjs/core";
 import cloneDeep from "lodash.clonedeep";
 import { ModularCharacter } from "./modular-character";
 

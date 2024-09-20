@@ -1,8 +1,8 @@
-import { AdventuringParty } from "../../adventuring_party";
-import { ERROR_MESSAGES } from "../../errors";
-import { SpeedDungeonGame, SpeedDungeonPlayer } from "../../game";
-import getOwnedCharacterAndSelectedCombatAction from "../../utils/get-owned-character-and-selected-combat-action";
-import assignCharacterActionTargets from "./assign-character-action-targets";
+import { AdventuringParty } from "../../adventuring_party/index.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { SpeedDungeonGame, SpeedDungeonPlayer } from "../../game/index.js";
+import getOwnedCharacterAndSelectedCombatAction from "../../utils/get-owned-character-and-selected-combat-action.js";
+import assignCharacterActionTargets from "./assign-character-action-targets.js";
 
 export default function cycleCharacterTargetingSchemes(
   game: SpeedDungeonGame,

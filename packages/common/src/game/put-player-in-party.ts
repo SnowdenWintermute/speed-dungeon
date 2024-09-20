@@ -1,4 +1,4 @@
-import { SpeedDungeonGame } from ".";
+import { SpeedDungeonGame } from "./index.js";
 
 export default function putPlayerInParty(
   game: SpeedDungeonGame,

@@ -1,40 +1,40 @@
 import { EquipmentBaseItemType, EquipmentType } from "@speed-dungeon/common";
-import { GameServer } from "..";
-import { ItemGenerationDirector } from "./item-generation-director";
-import { ShieldGenerationBuilder } from "./shield-generation-builder";
-import { WeaponGenerationBuilder } from "./weapon-generation-builder";
+import { GameServer } from "../index.js";
+import { ItemGenerationDirector } from "./item-generation-director.js";
+import { ShieldGenerationBuilder } from "./shield-generation-builder.js";
+import { WeaponGenerationBuilder } from "./weapon-generation-builder.js";
 import {
   SHIELD_EQUIPMENT_GENERATION_TEMPLATES,
   ShieldGenerationTemplate,
-} from "./equipment-templates/shield-templates";
+} from "./equipment-templates/shield-templates.js";
 import {
   ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES,
   OneHandedMeleeWeaponGenerationTemplate,
-} from "./equipment-templates/one-handed-melee-weapon-templates";
+} from "./equipment-templates/one-handed-melee-weapon-templates.js";
 import {
   TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES,
   TwoHandedMeleeWeaponGenerationTemplate,
-} from "./equipment-templates/two-handed-melee-weapon-templates";
+} from "./equipment-templates/two-handed-melee-weapon-templates.js";
 import {
   TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES,
   TwoHandedRangedWeaponGenerationTemplate,
-} from "./equipment-templates/two-handed-ranged-weapon-templates";
+} from "./equipment-templates/two-handed-ranged-weapon-templates.js";
 import {
   BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES,
   BodyArmorGenerationTemplate,
-} from "./equipment-templates/body-armor-generation-templates";
+} from "./equipment-templates/body-armor-generation-templates.js";
 import {
   HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES,
   HeadGearGenerationTemplate,
-} from "./equipment-templates/head-gear-generation-templates";
-import { ArmorGenerationBuilder } from "./armor-generation-builder";
+} from "./equipment-templates/head-gear-generation-templates.js";
+import { ArmorGenerationBuilder } from "./armor-generation-builder.js";
 import { EquipmentGenerationBuilder } from "./equipment-generation-builder";
 import {
   AMULET_GENERATION_TEMPLATES,
   JewelryGenerationTemplate,
   RING_GENERATION_TEMPLATES,
-} from "./equipment-templates/jewelry-generation-templates";
-import { JewelryGenerationBuilder } from "./jewelry-generation-builder";
+} from "./equipment-templates/jewelry-generation-templates.js";
+import { JewelryGenerationBuilder } from "./jewelry-generation-builder.js";
 
 export function createItemGenerationDirectors(
   this: GameServer

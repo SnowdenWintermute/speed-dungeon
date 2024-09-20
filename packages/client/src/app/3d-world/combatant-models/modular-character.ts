@@ -9,7 +9,7 @@ import {
   StandardMaterial,
   TransformNode,
   Vector3,
-} from "babylonjs";
+} from "@babylonjs/core";
 import {
   disposeAsyncLoadedScene,
   getChildMeshByName,

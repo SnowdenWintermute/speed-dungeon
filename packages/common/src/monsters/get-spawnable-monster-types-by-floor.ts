@@ -1,5 +1,5 @@
-import { iterateNumericEnum } from "../utils";
-import { MonsterType } from "./monster-types";
+import { iterateNumericEnum } from "../utils/index.js";
+import { MonsterType } from "./monster-types.js";
 
 export default function getSpawnableMonsterTypesByFloor(floor: number) {
   // if (floor === 1) return [MonsterType.FireMage, MonsterType.Cultist];

@@ -1,14 +1,14 @@
-import { EquipmentProperties, EquipmentType, Item, ItemPropertiesType } from "../..";
+import { EquipmentProperties, EquipmentType, Item, ItemPropertiesType } from "../../index.js";
 import {
   HpChangeSource,
   HpChangeSourceCategoryType,
   MeleeOrRanged,
   PhysicalDamageType,
-} from "../../../combat";
-import { IdGenerator } from "../../../game/id-generator";
-import { EntityProperties } from "../../../primatives";
-import { OneHandedMeleeWeapon } from "../equipment-types/one-handed-melee-weapon";
-import { TwoHandedRangedWeapon } from "../equipment-types/two-handed-ranged-weapon";
+} from "../../../combat/index.js";
+import { EntityProperties } from "../../../primatives/index.js";
+import { IdGenerator } from "../../../game/id-generator.js";
+import { OneHandedMeleeWeapon } from "../equipment-types/one-handed-melee-weapon.js";
+import { TwoHandedRangedWeapon } from "../equipment-types/two-handed-ranged-weapon.js";
 
 export enum PreDeterminedItemType {
   SkeletonArcherShortBow,

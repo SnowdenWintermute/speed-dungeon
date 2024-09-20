@@ -3,9 +3,12 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
+    "module": "ESNext",
+    "moduleResolution": "node",
     "noUncheckedIndexedAccess": true,
     "paths": {
       "@speed-dungeon/*": ["../packages/*"]
+      // "*": ["./src/*"]
     }
   },
   "references": [

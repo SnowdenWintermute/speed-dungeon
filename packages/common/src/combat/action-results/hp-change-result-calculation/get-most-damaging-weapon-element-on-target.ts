@@ -1,7 +1,7 @@
-import { CombatantProperties } from "../../../combatants";
-import { SpeedDungeonGame } from "../../../game";
-import { WeaponSlot } from "../../../items";
-import { MagicalElement } from "../../magical-elements";
+import { CombatantProperties } from "../../../combatants/index.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { WeaponSlot } from "../../../items/index.js";
+import { MagicalElement } from "../../magical-elements.js";
 
 export default function getMostDamagingWeaponElementOnTarget(
   game: SpeedDungeonGame,

@@ -1,5 +1,5 @@
-import { CombatantSpecies } from "../combatants";
-import { MonsterType } from "./monster-types";
+import { CombatantSpecies } from "../combatants/index.js";
+import { MonsterType } from "./monster-types.js";
 
 export default function getMonsterCombatantSpecies(monsterType: MonsterType) {
   switch (monsterType) {

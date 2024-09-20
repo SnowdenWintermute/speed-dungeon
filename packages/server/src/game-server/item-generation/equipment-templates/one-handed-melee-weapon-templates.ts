@@ -14,7 +14,7 @@ import {
   SuffixType,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
-import { WeaponGenerationTemplate } from "./equipment-generation-template-abstract-classes";
+import { WeaponGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
 
 export class OneHandedMeleeWeaponGenerationTemplate extends WeaponGenerationTemplate {
   constructor(

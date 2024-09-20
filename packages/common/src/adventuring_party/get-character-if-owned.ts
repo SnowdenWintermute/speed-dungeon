@@ -1,5 +1,5 @@
-import { AdventuringParty, PlayerCharacter } from ".";
-import { ERROR_MESSAGES } from "../errors";
+import { AdventuringParty, PlayerCharacter } from "./index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
 
 export default function getCharacterIfOwned(
   party: AdventuringParty,

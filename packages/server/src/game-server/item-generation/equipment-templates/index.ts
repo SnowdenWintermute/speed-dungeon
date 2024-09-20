@@ -1,11 +1,11 @@
 import { EquipmentBaseItem, EquipmentType, Jewelry } from "@speed-dungeon/common";
-import { ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "./one-handed-melee-weapon-templates";
-import { SHIELD_EQUIPMENT_GENERATION_TEMPLATES } from "./shield-templates";
-import { TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "./two-handed-melee-weapon-templates";
-import { TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES } from "./two-handed-ranged-weapon-templates";
-import { BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES } from "./body-armor-generation-templates";
-import { HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES } from "./head-gear-generation-templates";
-import { JewelryGenerationTemplate } from "./jewelry-generation-templates";
+import { ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "./one-handed-melee-weapon-templates.js";
+import { SHIELD_EQUIPMENT_GENERATION_TEMPLATES } from "./shield-templates.js";
+import { TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "./two-handed-melee-weapon-templates.js";
+import { TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES } from "./two-handed-ranged-weapon-templates.js";
+import { BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES } from "./body-armor-generation-templates.js";
+import { HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES } from "./head-gear-generation-templates.js";
+import { JewelryGenerationTemplate } from "./jewelry-generation-templates.js";
 
 export function getEquipmentGenerationTemplate(equipmentBaseItem: EquipmentBaseItem) {
   switch (equipmentBaseItem.equipmentType) {

@@ -1,5 +1,5 @@
 import { ServerToClientEvent } from "@speed-dungeon/common";
-import { GameServer } from ".";
+import { GameServer } from "./index.js";
 
 export default function removeSocketFromChannel(
   this: GameServer,

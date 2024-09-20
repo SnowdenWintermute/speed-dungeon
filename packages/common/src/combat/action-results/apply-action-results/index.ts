@@ -1,6 +1,6 @@
-import { SpeedDungeonGame } from "../../../game";
-import { ActionResult } from "../action-result";
-import applyActionResult from "./apply-action-result";
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { ActionResult } from "../action-result.js";
+import applyActionResult from "./apply-action-result.js";
 
 export default function applyActionResults(
   game: SpeedDungeonGame,

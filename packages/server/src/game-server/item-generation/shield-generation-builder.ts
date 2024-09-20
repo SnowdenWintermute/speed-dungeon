@@ -6,9 +6,9 @@ import {
   ShieldProperties,
   randBetween,
 } from "@speed-dungeon/common";
-import { ItemGenerationBuilder } from "./item-generation-builder";
-import { EquipmentGenerationBuilder } from "./equipment-generation-builder";
-import { ShieldGenerationTemplate } from "./equipment-templates/shield-templates";
+import { ItemGenerationBuilder } from "./item-generation-builder.js";
+import { EquipmentGenerationBuilder } from "./equipment-generation-builder.js";
+import { ShieldGenerationTemplate } from "./equipment-templates/shield-templates.js";
 
 export class ShieldGenerationBuilder<T extends ShieldGenerationTemplate>
   extends EquipmentGenerationBuilder<T>

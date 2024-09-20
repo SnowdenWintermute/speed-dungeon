@@ -1,6 +1,6 @@
-import { SpeedDungeonGame } from ".";
-import { AdventuringParty } from "../adventuring_party";
-import { ERROR_MESSAGES } from "../errors";
+import { SpeedDungeonGame } from "./index.js";
+import { AdventuringParty } from "../adventuring_party/index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
 
 export function getPlayerParty(game: SpeedDungeonGame, username: string): Error | AdventuringParty {
   const playerOption = game.players[username];

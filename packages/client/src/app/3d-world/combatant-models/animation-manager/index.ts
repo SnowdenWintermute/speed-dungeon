@@ -1,4 +1,4 @@
-import { AnimationGroup, AnimationEvent } from "babylonjs";
+import { AnimationGroup, AnimationEvent } from "@babylonjs/core";
 import { ModularCharacter } from "../modular-character";
 import { MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME } from "@speed-dungeon/common";
 import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";

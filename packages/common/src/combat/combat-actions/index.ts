@@ -1,8 +1,8 @@
-export * from "./calculate-combat-action-hp-change-range";
-export * from "./combat-action-properties";
-export * from "./get-ability-mana-cost";
-export * from "./combat-action-requires-melee-range";
-export * from "./get-combat-action-execution-time";
+export * from "./calculate-combat-action-hp-change-range.js";
+export * from "./combat-action-properties.js";
+export * from "./get-ability-mana-cost.js";
+export * from "./combat-action-requires-melee-range.js";
+export * from "./get-combat-action-execution-time.js";
 
 import { CombatantAbilityName } from "../../combatants";
 

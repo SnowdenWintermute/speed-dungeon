@@ -4,10 +4,10 @@ import {
   InputLock,
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
+  getCombatActionExecutionTime,
+  ActionCommandManager,
 } from "@speed-dungeon/common";
-import { GameServer } from "../..";
-import { getCombatActionExecutionTime } from "@speed-dungeon/common";
-import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
+import { GameServer } from "../../index.js";
 
 export default function performCombatActionActionCommandHandler(
   this: GameServer,

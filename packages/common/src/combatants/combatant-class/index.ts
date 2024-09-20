@@ -1,3 +1,3 @@
-export * from "./starting-traits";
-export * from "./level-zero-attributes";
-export * from "./classes";
+export * from "./starting-traits.js";
+export * from "./level-zero-attributes.js";
+export * from "./classes.js";

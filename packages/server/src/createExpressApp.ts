@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
-import expressErrorHandler from "./express-error-handler";
+import expressErrorHandler from "./express-error-handler/index.js";
 
 export default function createExpressApp() {
   const app = express();

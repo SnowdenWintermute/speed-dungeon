@@ -1,6 +1,6 @@
-import { CombatantProperties } from "../combatants";
-import { COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL } from "../combatants/combatant-class/class-attributes-by-level";
-import { iterateNumericEnumKeyedRecord } from "../utils";
+import { CombatantProperties } from "../combatants/index.js";
+import { COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL } from "../combatants/combatant-class/class-attributes-by-level.js";
+import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 
 const XP_REQUIRED_TO_LEVEL_INCREASE_INCREMENT = 25;
 const ABILITY_POINTS_AWARDED_PER_LEVEL = 2;

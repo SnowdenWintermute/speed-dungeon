@@ -1,8 +1,8 @@
-export * from "./hash-set";
-export * from "./hash-map";
-export * from "./entity-properties";
-export * from "./max-and-current";
-export * from "./number-range";
+export * from "./hash-set.js";
+export * from "./hash-map.js";
+export * from "./entity-properties.js";
+export * from "./max-and-current.js";
+export * from "./number-range.js";
 export type EntityId = string;
 export enum NextOrPrevious {
   Next,

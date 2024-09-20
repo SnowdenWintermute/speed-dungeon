@@ -7,7 +7,7 @@ import {
   formatConsumableType,
   randBetween,
 } from "@speed-dungeon/common";
-import { GameServer } from "..";
+import { GameServer } from "../index.js";
 
 export function generateRandomItem(
   this: GameServer,

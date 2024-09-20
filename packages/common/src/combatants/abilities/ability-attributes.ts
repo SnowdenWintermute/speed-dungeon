@@ -1,5 +1,5 @@
-import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../app_consts";
-import { CombatActionProperties } from "../../combat/combat-actions/combat-action-properties";
+import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../app_consts.js";
+import { CombatActionProperties } from "../../combat/combat-actions/combat-action-properties.js";
 
 export default class CombatantAbilityAttributes {
   combatActionProperties: CombatActionProperties = new CombatActionProperties();

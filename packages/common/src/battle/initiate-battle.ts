@@ -1,6 +1,6 @@
-import { Battle, BattleGroup } from ".";
-import createCombatTurnTrackers from "../combat/turn-order/create-turn-trackers";
-import { SpeedDungeonGame } from "../game";
+import { Battle, BattleGroup } from "./index.js";
+import createCombatTurnTrackers from "../combat/turn-order/create-turn-trackers.js";
+import { SpeedDungeonGame } from "../game/index.js";
 
 export function initateBattle(
   game: SpeedDungeonGame,

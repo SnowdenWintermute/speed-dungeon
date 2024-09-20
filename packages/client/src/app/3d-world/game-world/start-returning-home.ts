@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "babylonjs";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 import { GameWorld } from ".";
 import cloneDeep from "lodash.clonedeep";
 import { StartReturningHomeMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";

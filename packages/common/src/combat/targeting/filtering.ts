@@ -1,6 +1,6 @@
-import { ProhibitedTargetCombatantStates, TargetCategories } from ".";
-import { AdventuringParty } from "../../adventuring_party";
-import getCombatantInParty from "../../adventuring_party/get-combatant-in-party";
+import { ProhibitedTargetCombatantStates, TargetCategories } from "./index.js";
+import { AdventuringParty } from "../../adventuring_party/index.js";
+import getCombatantInParty from "../../adventuring_party/get-combatant-in-party.js";
 
 export function filterPossibleTargetIdsByProhibitedCombatantStates(
   party: AdventuringParty,

@@ -10,7 +10,7 @@ import {
   ShadowGenerator,
   Mesh,
   Scene,
-} from "babylonjs";
+} from "@babylonjs/core";
 import { GameWorld } from ".";
 
 export function initScene(this: GameWorld): [ArcRotateCamera, ShadowGenerator, Mesh] {

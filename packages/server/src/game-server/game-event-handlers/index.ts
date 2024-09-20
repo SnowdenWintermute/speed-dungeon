@@ -12,8 +12,8 @@ import {
   ServerToClientEvent,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
-import { GameServer } from "..";
-import { BrowserTabSession } from "../socket-connection-metadata";
+import { GameServer } from "../index.js";
+import { BrowserTabSession } from "../socket-connection-metadata.js";
 
 export default function initiateGameEventListeners(
   this: GameServer,

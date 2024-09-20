@@ -1,7 +1,7 @@
-import { CombatantProperties } from "../../../combatants";
-import { SpeedDungeonGame } from "../../../game";
-import { WeaponSlot } from "../../../items";
-import { PhysicalDamageType } from "../../hp-change-source-types";
+import { CombatantProperties } from "../../../combatants/index.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { WeaponSlot } from "../../../items/index.js";
+import { PhysicalDamageType } from "../../hp-change-source-types.js";
 
 export default function getMostDamagingWeaponPhysicalDamageTypeOnTarget(
   game: SpeedDungeonGame,

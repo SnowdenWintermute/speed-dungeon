@@ -1,4 +1,4 @@
-import { ActionResult } from "./action-result";
+import { ActionResult } from "./action-result.js";
 
 export interface CombatTurnResult {
   combatantId: string;

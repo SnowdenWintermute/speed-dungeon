@@ -11,12 +11,10 @@ import {
   IdGenerator,
   Item,
   PlayerCharacter,
-  randBetween,
-  DEEPEST_FLOOR,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
-import createStartingEquipment from "./create-starting-equipment";
-import { GameServer } from "..";
+import createStartingEquipment from "./create-starting-equipment.js";
+import { GameServer } from "../index.js";
 
 export default function outfitNewCharacter(
   gameServer: GameServer,

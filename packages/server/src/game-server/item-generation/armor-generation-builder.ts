@@ -7,9 +7,9 @@ import {
   formatEquipmentType,
   randBetween,
 } from "@speed-dungeon/common";
-import { ItemGenerationBuilder } from "./item-generation-builder";
-import { ArmorGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes";
-import { EquipmentGenerationBuilder } from "./equipment-generation-builder";
+import { ItemGenerationBuilder } from "./item-generation-builder.js";
+import { ArmorGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes.js";
+import { EquipmentGenerationBuilder } from "./equipment-generation-builder.js";
 
 export class ArmorGenerationBuilder<T extends ArmorGenerationTemplate>
   extends EquipmentGenerationBuilder<T>

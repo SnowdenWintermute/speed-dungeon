@@ -14,7 +14,7 @@ import {
   ModularCharacterPartCategory,
   SKELETONS,
 } from "../combatant-models/modular-character-parts";
-import { Color3, StandardMaterial } from "babylonjs";
+import { Color3, StandardMaterial } from "@babylonjs/core";
 
 // the whole point of all this is to make sure we never handle spawn and despawn messages out of order due
 // to the asynchronous nature of spawning models

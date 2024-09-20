@@ -4,9 +4,9 @@ import {
   EquipmentBaseItemType,
   EquipmentType,
 } from "@speed-dungeon/common";
-import { ItemGenerationBuilder } from "./item-generation-builder";
-import { EquipmentGenerationBuilder } from "./equipment-generation-builder";
-import { JewelryGenerationTemplate } from "./equipment-templates/jewelry-generation-templates";
+import { ItemGenerationBuilder } from "./item-generation-builder.js";
+import { EquipmentGenerationBuilder } from "./equipment-generation-builder.js";
+import { JewelryGenerationTemplate } from "./equipment-templates/jewelry-generation-templates.js";
 
 export class JewelryGenerationBuilder<T extends JewelryGenerationTemplate>
   extends EquipmentGenerationBuilder<T>
