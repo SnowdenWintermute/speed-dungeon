@@ -40,7 +40,7 @@ import characterSelectedCombatActionHandler from "./game-event-handlers/characte
 import characterCycledTargetingSchemesHandler from "./game-event-handlers/character-cycled-targeting-schemes-handler";
 import playerLeftGameHandler from "./player-left-game-handler";
 import { ClientActionCommandReceiver } from "../client-action-command-receiver";
-import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
+import { ActionCommandManager } from "@speed-dungeon/common";
 import getCurrentParty from "@/utils/getCurrentParty";
 import characterIncrementedAttributePointHandler from "./game-event-handlers/character-incremented-attribute-point-handler";
 import gameProgressMessageHandler from "./game-event-handlers/game-progress-message-handler";

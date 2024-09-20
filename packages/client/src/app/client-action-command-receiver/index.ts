@@ -8,7 +8,7 @@ import moveIntoCombatActionPositionActionCommandHandler from "./move-into-combat
 import performCombatActionActionCommandHandler from "./perform-combat-action";
 import returnHomeActionCommandHandler from "./return-home";
 import battleResultActionCommandHandler from "./process-battle-result";
-import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
+import { ActionCommandManager } from "@speed-dungeon/common";
 
 export class ClientActionCommandReceiver implements ActionCommandReceiver {
   constructor(

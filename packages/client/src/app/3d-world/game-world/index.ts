@@ -20,7 +20,7 @@ import { NextBabylonMessagingState } from "@/stores/next-babylon-messaging-store
 import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
 import { MutableRefObject } from "react";
-import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
+import { ActionCommandManager } from "@speed-dungeon/common";
 
 export class GameWorld {
   scene: Scene;

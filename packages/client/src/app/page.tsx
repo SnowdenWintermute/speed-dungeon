@@ -15,8 +15,8 @@ import { useEffect, useRef } from "react";
 import { ClientActionCommandReceiver } from "./client-action-command-receiver";
 import { useAlertStore } from "@/stores/alert-store";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
-import { ActionCommand, ERROR_MESSAGES } from "@speed-dungeon/common";
-import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
+import { ActionCommand } from "@speed-dungeon/common";
+import { ActionCommandManager } from "@speed-dungeon/common";
 // for immer to be able to use map and set
 enableMapSet();
 

@@ -6,7 +6,7 @@ import {
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
 import { combatantAssociatedDataProvider } from "../WebsocketManager/combatant-associated-details-providers";
-import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
+import { ActionCommandManager } from "@speed-dungeon/common";
 
 export default function payAbilityCostsActionCommandHandler(
   this: ClientActionCommandReceiver,

@@ -2,7 +2,7 @@ import React, { MutableRefObject, useEffect, useRef } from "react";
 import { GameWorld } from "./game-world/";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 import { useGameStore } from "@/stores/game-store";
-import { ActionCommandManager } from "@speed-dungeon/common/src/action-processing/action-command-manager";
+import { ActionCommandManager } from "@speed-dungeon/common";
 
 export default function SceneManager({
   actionCommandManager,
