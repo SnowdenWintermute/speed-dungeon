@@ -2,12 +2,7 @@
 "use client";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import { FormEvent, useState } from "react";
-import {
-  ClientToServerEvent,
-  CombatActionType,
-  CombatantAbilityName,
-  CombatantClass,
-} from "@speed-dungeon/common";
+import { ClientToServerEvent, CombatantClass } from "@speed-dungeon/common";
 import ButtonBasic from "../components/atoms/ButtonBasic";
 import { useGameStore } from "@/stores/game-store";
 
@@ -30,8 +25,8 @@ export default function LobbyMenu() {
   function quickStartGame() {
     socketOption?.emit(ClientToServerEvent.CreateGame, "");
     socketOption?.emit(ClientToServerEvent.CreateParty, "");
-    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
-    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
+    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Warrior);
+    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Rogue);
     socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
     socketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
     // socketOption?.emit(ClientToServerEvent.ToggleReadyToExplore);
@@ -73,8 +68,10 @@ export default function LobbyMenu() {
           <ButtonBasic onClick={quickStartGame} hotkey={"KeyS"} extraStyles=" text-yellow-400 ml-2">
             Quick Start
           </ButtonBasic>
-          <ButtonBasic onClick={quickHost}>Quick Host</ButtonBasic>
-          <ButtonBasic onClick={quickJoin}>Quick Join</ButtonBasic>
+          {
+            // <ButtonBasic onClick={quickHost}>Quick Host</ButtonBasic>
+            // <ButtonBasic onClick={quickJoin}>Quick Join</ButtonBasic>
+          }
         </form>
         <ButtonBasic onClick={refreshGameList}>Refresh List</ButtonBasic>
       </div>

@@ -9,7 +9,7 @@ export default function WelcomeInfo() {
   return (
     <section className="h-[19rem] max-h-[19rem] p-4 mb-4 mr-4 bg-slate-700 border border-slate-400 overflow-y-auto pointer-events-auto">
       <div className="flex justify-between mb-2">
-        <h3 className="text-lg mb-2">{"Roguelike Racing alpha 0.7.0 "}</h3>
+        <h3 className="text-lg mb-2">{"Roguelike Racing alpha 0.8.0 "}</h3>
         <button
           onClick={() => setShowPatchNotes(!showPatchNotes)}
           className="border border-slate-400 p-[.25rem] pr-2 pl-2"
@@ -25,6 +25,10 @@ export default function WelcomeInfo() {
 function PatchNotes() {
   return (
     <>
+      <p className="font-bold">{"0.8.0 9/23/2024"}</p>
+      <p className="underline">{"Summary:"}</p>
+      <p className="mb-2">{"Rewrote the app in Typescript"}</p>
+      <Divider />
       <p className="font-bold">{"0.7.0 5/2/2024"}</p>
       <p className="underline">{"Summary:"}</p>
       <p className="mb-2">
