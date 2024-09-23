@@ -40,5 +40,8 @@ export function calculateCombatActionHpChangeRange(
     );
   }
 
+  hpChangeRange.min = Math.floor(hpChangeRange.min);
+  hpChangeRange.max = Math.floor(hpChangeRange.max);
+
   return hpChangeRange;
 }

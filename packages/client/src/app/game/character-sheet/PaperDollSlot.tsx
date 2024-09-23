@@ -2,7 +2,13 @@ import { useGameStore } from "@/stores/game-store";
 import { DetailableEntity, DetailableEntityType } from "@/stores/game-store/detailable-entities";
 import selectItem from "@/utils/selectItem";
 import setItemHovered from "@/utils/set-item-hovered";
-import { CombatantAttributeRecord, EquipmentSlot, Item } from "@speed-dungeon/common";
+import {
+  AdventuringParty,
+  CombatantAttributeRecord,
+  ERROR_MESSAGES,
+  EquipmentSlot,
+  Item,
+} from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
 
 interface Props {
@@ -27,6 +33,19 @@ export default function PaperDollSlot({
   const hoveredEntityOption = useGameStore().hoveredEntity;
   const comparedSlot = useGameStore().comparedSlot;
   const consideredItemUnmetRequirements = useGameStore().consideredItemUnmetRequirements;
+
+  const partyResult = useGameStore().getParty();
+  const username = useGameStore().username;
+  if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
+  const focusedCharacterResult = useGameStore().getFocusedCharacter();
+  const focusedCharacterOption =
+    focusedCharacterResult instanceof Error ? null : focusedCharacterResult;
+  if (!focusedCharacterOption) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND}</div>;
+  const playerOwnsCharacter = AdventuringParty.playerOwnsCharacter(
+    partyResult,
+    username || "",
+    focusedCharacterOption.entityProperties.id
+  );
 
   const itemNameDisplay = itemOption ? itemOption.entityProperties.name : "";
 
@@ -64,12 +83,15 @@ export default function PaperDollSlot({
     setItemHovered(mutateGameState, null);
   }
   function handleClick() {
+    if (!playerOwnsCharacter) return;
     selectItem(mutateGameState, itemOption);
   }
 
+  const disabledStyle = playerOwnsCharacter ? "" : "opacity-50";
+
   return (
     <button
-      className={`overflow-ellipsis overflow-hidden border ${tailwindClasses} ${highlightStyle} ${bgStyle}`}
+      className={`overflow-ellipsis overflow-hidden border ${tailwindClasses} ${highlightStyle} ${bgStyle} ${disabledStyle}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onFocus={handleFocus}

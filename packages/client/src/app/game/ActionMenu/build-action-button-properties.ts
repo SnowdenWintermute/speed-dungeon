@@ -49,7 +49,9 @@ export default function buildActionButtonProperties(
 
   const { dedicatedKeysOption, category } = getButtonDedicatedKeyAndCategory(action);
 
-  const shouldBeDisabled = actionButtonShouldBeDisabled(gameState, uiState, action);
+  const shouldBeDisabledResult = actionButtonShouldBeDisabled(gameState, uiState, action);
+  if (shouldBeDisabledResult instanceof Error) return shouldBeDisabledResult;
+  const shouldBeDisabled = shouldBeDisabledResult;
   console.log("should be disabled: ", shouldBeDisabled);
 
   return {
@@ -59,7 +61,7 @@ export default function buildActionButtonProperties(
     blurHandler: mouseLeaveHandler,
     mouseEnterHandler,
     mouseLeaveHandler,
-    shouldBeDisabled: shouldBeDisabled || true,
+    shouldBeDisabled: shouldBeDisabled,
     dedicatedKeysOption,
     category,
     action,

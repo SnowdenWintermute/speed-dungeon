@@ -67,6 +67,7 @@ export function createKeyHandler(
   codes: Partial<Record<GameKey, string[]>>,
   e: KeyboardEvent
 ) {
+  if (properties.shouldBeDisabled) return;
   if (properties.dedicatedKeysOption === null)
     return setAlert(mutateAlertState, `no keycode found for button ${properties.text}`);
 

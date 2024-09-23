@@ -24,7 +24,12 @@ export default function AbilityDetails({
   userCombatantProperties,
 }: Props) {
   const abilityAttributes = CombatantAbility.getAttributes(ability.name);
-  const mpCost = getAbilityManaCost(userCombatantProperties, ability);
+  const mpCostResult = CombatantProperties.getAbilityCostIfOwned(
+    userCombatantProperties,
+    ability.name
+  );
+  if (mpCostResult instanceof Error) return <div>{mpCostResult.message}</div>;
+  const mpCost = mpCostResult;
   const mpCostStyle = mpCost > userCombatantProperties.mana ? UNMET_REQUIREMENT_TEXT_COLOR : "";
 
   const attackDamageDisplay =

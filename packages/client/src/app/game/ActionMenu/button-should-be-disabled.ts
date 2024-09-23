@@ -14,10 +14,10 @@ export default function actionButtonShouldBeDisabled(
   gameState: GameState,
   uiState: UIState,
   action: GameAction
-) {
-  if (!gameState.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+): Error | boolean {
+  if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
   const partyOption = getCurrentParty(gameState, gameState.username);
-  if (!partyOption) return console.error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+  if (!partyOption) return new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
   const playerOwnsCharacter = AdventuringParty.playerOwnsCharacter(
     partyOption,
     gameState.username,
@@ -47,10 +47,12 @@ export default function actionButtonShouldBeDisabled(
       shouldBeDisabled = !playerOwnsCharacter;
   }
 
+  if (action.type === GameActionType.DeselectItem) return false;
+
   if (shouldBeDisabled) return shouldBeDisabled;
 
   const focusedCharacterResult = gameState.getFocusedCharacter();
-  if (focusedCharacterResult instanceof Error) return console.error(focusedCharacterResult);
+  if (focusedCharacterResult instanceof Error) return focusedCharacterResult;
   let abilityNameOption: null | CombatantAbilityName = null;
 
   switch (action.type) {
@@ -81,7 +83,7 @@ export default function actionButtonShouldBeDisabled(
     focusedCharacterResult.combatantProperties,
     abilityNameOption
   );
-  if (abilityCostResult instanceof Error) return console.error(abilityCostResult);
+  if (abilityCostResult instanceof Error) return abilityCostResult;
   if (abilityCostResult > focusedCharacterResult.combatantProperties.mana) return true;
   return shouldBeDisabled;
 }

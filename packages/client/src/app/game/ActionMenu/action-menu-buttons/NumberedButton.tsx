@@ -13,6 +13,7 @@ export default function NumberedButton({ number, properties }: Props) {
   useEffect(() => {
     keyupHandlerRef.current = (e: KeyboardEvent) => {
       if (e.code === `Digit${number}`) {
+        if (properties.shouldBeDisabled) return;
         // @ts-ignore
         properties.clickHandler(new MouseEvent("mouseup"));
       }
@@ -30,12 +31,11 @@ export default function NumberedButton({ number, properties }: Props) {
     <button
       className={`${disabledStyle} w-full border-b border-r border-l first:border-t border-slate-400 bg-slate-700 flex hover:bg-slate-950 disabled:opacity-50`}
       style={{ height: `${BUTTON_HEIGHT}rem` }}
-      onClick={properties.clickHandler}
+      onClick={properties.shouldBeDisabled ? () => {} : properties.clickHandler}
       onMouseEnter={properties.mouseEnterHandler}
       onMouseLeave={properties.mouseLeaveHandler}
       onFocus={properties.focusHandler}
       onBlur={properties.blurHandler}
-      disabled={properties.shouldBeDisabled}
     >
       <span
         className="h-full w-10 !min-w-[2.5rem] border-r border-slate-400

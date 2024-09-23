@@ -69,8 +69,10 @@ export default function LobbyMenu() {
             Quick Start
           </ButtonBasic>
           {
-            // <ButtonBasic onClick={quickHost}>Quick Host</ButtonBasic>
-            // <ButtonBasic onClick={quickJoin}>Quick Join</ButtonBasic>
+            <>
+              <ButtonBasic onClick={quickHost}>Quick Host</ButtonBasic>
+              <ButtonBasic onClick={quickJoin}>Quick Join</ButtonBasic>
+            </>
           }
         </form>
         <ButtonBasic onClick={refreshGameList}>Refresh List</ButtonBasic>
