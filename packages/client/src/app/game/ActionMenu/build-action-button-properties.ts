@@ -17,6 +17,7 @@ import {
   createActionButtonMouseLeaveHandler,
 } from "./hover-handlers";
 import { GameAction } from "./game-actions";
+import actionButtonShouldBeDisabled from "./button-should-be-disabled";
 
 export default function buildActionButtonProperties(
   gameState: GameState,
@@ -48,6 +49,9 @@ export default function buildActionButtonProperties(
 
   const { dedicatedKeysOption, category } = getButtonDedicatedKeyAndCategory(action);
 
+  const shouldBeDisabled = actionButtonShouldBeDisabled(gameState, uiState, action);
+  console.log("should be disabled: ", shouldBeDisabled);
+
   return {
     text,
     clickHandler,
@@ -55,7 +59,7 @@ export default function buildActionButtonProperties(
     blurHandler: mouseLeaveHandler,
     mouseEnterHandler,
     mouseLeaveHandler,
-    shouldBeDisabled: false,
+    shouldBeDisabled: shouldBeDisabled || true,
     dedicatedKeysOption,
     category,
     action,

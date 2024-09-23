@@ -51,7 +51,7 @@ WORKDIR /app/packages/common
 RUN tsc && echo compiled common directory
 
 WORKDIR /app/packages/client
-RUN yarn run build
+RUN NEXT_PUBLIC_PRODUCTION="production" yarn run build
 
 FROM node:alpine
 WORKDIR /app

@@ -24,9 +24,11 @@ export default function NumberedButton({ number, properties }: Props) {
     };
   }, [properties.clickHandler]);
 
+  const disabledStyle = properties.shouldBeDisabled ? "opacity-50" : "";
+
   return (
     <button
-      className="w-full border-b border-r border-l first:border-t border-slate-400 bg-slate-700 flex hover:bg-slate-950 disabled:opacity-50"
+      className={`${disabledStyle} w-full border-b border-r border-l first:border-t border-slate-400 bg-slate-700 flex hover:bg-slate-950 disabled:opacity-50`}
       style={{ height: `${BUTTON_HEIGHT}rem` }}
       onClick={properties.clickHandler}
       onMouseEnter={properties.mouseEnterHandler}

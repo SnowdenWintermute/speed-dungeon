@@ -45,8 +45,11 @@ import getCurrentParty from "@/utils/getCurrentParty";
 import characterIncrementedAttributePointHandler from "./game-event-handlers/character-incremented-attribute-point-handler";
 import gameProgressMessageHandler from "./game-event-handlers/game-progress-message-handler";
 
-// const socketAddress = process.env.NODE_ENV === "production" ? SOCKET_ADDRESS_PRODUCTION : process.env.NEXT_PUBLIC_SOCKET_API;
-const socketAddress = "http://localhost:8080";
+const socketAddress =
+  process.env.NEXT_PUBLIC_PRODUCTION === "production"
+    ? "https://roguelikeracing.com"
+    : "http://localhost:8080";
+// const socketAddress = "http://localhost:8080";
 
 function SocketManager({
   actionCommandReceiver,
