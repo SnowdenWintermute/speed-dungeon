@@ -5,10 +5,15 @@ import { FormEvent, useState } from "react";
 import { ClientToServerEvent, CombatantClass } from "@speed-dungeon/common";
 import ButtonBasic from "../components/atoms/ButtonBasic";
 import { useGameStore } from "@/stores/game-store";
+import Link from "next/link";
+import signInWithGoogle from "../auth/sign-in-with-google";
+import { setAlert } from "../components/alerts";
+import { useAlertStore } from "@/stores/alert-store";
 
 export default function LobbyMenu() {
   const socketOption = useWebsocketStore().socketOption;
   const [gameName, setGameName] = useState("");
+  const mutateAlertStore = useAlertStore().mutateState;
 
   const username = useGameStore().username;
   const firstLetterOfUsername = username ? username.charAt(0) : "?";
@@ -70,6 +75,26 @@ export default function LobbyMenu() {
           </ButtonBasic>
           {
             <>
+              <ButtonBasic
+                onClick={async () => {
+                  const requestUriResponse = await fetch("http://localhost:8081/oauth/google", {
+                    method: "POST",
+                    credentials: "include",
+                  });
+                  const asJson = await requestUriResponse.json();
+
+                  if (typeof asJson.requestUri !== "string") {
+                    return setAlert(
+                      mutateAlertStore,
+                      "Couldn't get the google sign in link from the auth server"
+                    );
+                  }
+
+                  window.location.href = asJson.requestUri;
+                }}
+              >
+                Google Login
+              </ButtonBasic>
               <ButtonBasic onClick={quickHost}>Quick Host</ButtonBasic>
               <ButtonBasic onClick={quickJoin}>Quick Join</ButtonBasic>
             </>
