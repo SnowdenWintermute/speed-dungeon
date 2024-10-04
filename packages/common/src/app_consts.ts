@@ -1,5 +1,6 @@
 import { CombatAttribute } from "./combatants/combat-attributes.js";
 
+export const GOLDEN_RATIO = 657 / 1063;
 export const INVENTORY_DEFAULT_CAPACITY = 3;
 export const DEEPEST_FLOOR = 10;
 export const MONSTER_LAIRS_PER_FLOOR = 3;
