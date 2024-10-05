@@ -3,11 +3,11 @@
 
 import { useGameStore } from "@/stores/game-store";
 import TopBar from "./TopBar";
-import { GOLDEN_RATIO } from "@speed-dungeon/common";
+import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
 import { TOP_BAR_HEIGHT_REM } from "@/client_consts";
+import GamesSection from "./games-section";
 
 export default function Lobby() {
-  const username = useGameStore().username;
   // top bar
   // - logo
   // - app title
@@ -22,9 +22,8 @@ export default function Lobby() {
   // - quick start button
   // - quick start button popover info
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);
-  const baseScreenSize = 1920;
-  const usersContainerWidth = Math.floor(baseScreenSize * usersContainerWidthMultiplier);
-  const authContainerWidth = Math.floor(baseScreenSize * Math.pow(GOLDEN_RATIO, 3));
+  const usersContainerWidth = Math.floor(BASE_SCREEN_SIZE * usersContainerWidthMultiplier);
+  const authContainerWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 2));
   console.log(authContainerWidth);
   return (
     <main className="h-full w-full text-zinc-300 relative">
@@ -38,16 +37,16 @@ export default function Lobby() {
       >
         <div
           id="games-container"
-          className="h-full border-r border-slate-400 inline-block bg-black opacity-50"
+          className="h-full border-r-2 border-slate-400 inline-block"
           style={{
             width: `calc(100% - ${usersContainerWidth}px)`,
           }}
         >
-          games container
+          <GamesSection />
         </div>
         <div
           id="users-container"
-          className="h-full inline-block bg-black"
+          className="h-full inline-block"
           style={{
             width: `${usersContainerWidth}px`,
           }}
@@ -55,20 +54,21 @@ export default function Lobby() {
           users container
         </div>
       </section>
-      <section
-        id="auth-form-container"
-        className="absolute bg-blue-500 h-full top-0 right-0 opacity-15 flex items-center text-black border-8 border-red-900"
-        style={{
-          width: `calc(100% * ${1 - GOLDEN_RATIO})`,
-          minWidth: `${authContainerWidth}px`,
-          maxWidth: "100vw !important",
-        }}
-      >
-        auth form container
-      </section>
-      <section id="quick-start-button-container">
-        <div id="quick-start-button"></div>
-      </section>
+      {
+        // <section
+        //   id="auth-form-container"
+        //   className="absolute h-full top-0 right-0 flex items-center border-l-2 border-red-900"
+        //   style={{
+        // width: `${authContainerWidth}px`,
+        //  maxWidth: "100%",
+        //   }}
+        // >
+        //   auth form container
+        //   </section>
+        //   <section id="quick-start-button-container">
+        //   <div id="quick-start-button"></div>
+        //   </section>
+      }
     </main>
   );
 }

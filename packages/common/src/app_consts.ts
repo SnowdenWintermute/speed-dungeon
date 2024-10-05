@@ -1,5 +1,6 @@
 import { CombatAttribute } from "./combatants/combat-attributes.js";
 
+export const BASE_SCREEN_SIZE = 1920;
 export const GOLDEN_RATIO = 657 / 1063;
 export const INVENTORY_DEFAULT_CAPACITY = 3;
 export const DEEPEST_FLOOR = 10;

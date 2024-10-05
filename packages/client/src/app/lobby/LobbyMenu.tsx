@@ -5,8 +5,6 @@ import { FormEvent, useState } from "react";
 import { ClientToServerEvent, CombatantClass } from "@speed-dungeon/common";
 import ButtonBasic from "../components/atoms/ButtonBasic";
 import { useGameStore } from "@/stores/game-store";
-import Link from "next/link";
-import signInWithGoogle from "../auth/sign-in-with-google";
 import { setAlert } from "../components/alerts";
 import { useAlertStore } from "@/stores/alert-store";
 

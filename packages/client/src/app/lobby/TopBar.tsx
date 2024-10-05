@@ -1,4 +1,4 @@
-import { TOP_BAR_HEIGHT_REM } from "@/client_consts";
+import { SPACING_REM_LARGE, TOP_BAR_HEIGHT_REM } from "@/client_consts";
 import { useGameStore } from "@/stores/game-store";
 
 export default function TopBar() {
@@ -19,9 +19,13 @@ export default function TopBar() {
   // - quick start button popover info
   return (
     <section
-      className={`bg-slate-700 w-full border-b border-b-slate-400 pt-[0.625rem] pb-[0.625rem] pr-[1.563rem] pl-[1.563rem]
+      className={`bg-slate-700 w-full border-b border-b-slate-400 pt-[0.625rem] pb-[0.625rem]
         pointer-events-auto flex justify-between`}
-      style={{ height: `${TOP_BAR_HEIGHT_REM}rem` }}
+      style={{
+        height: `${TOP_BAR_HEIGHT_REM}rem`,
+        paddingLeft: `${SPACING_REM_LARGE}rem`,
+        paddingRight: `${SPACING_REM_LARGE}rem`,
+      }}
     >
       <div className="h-full flex items-center">
         <img src="speed-dungeon-logo.svg" className="h-full pr-[0.625rem]" />
@@ -31,7 +35,7 @@ export default function TopBar() {
         </h1>
       </div>
       <div className="border border-slate-400 rounded-full h-10 w-10 flex justify-center items-center">
-        <span className="text-lg font-bold">{firstLetterOfUsername}</span>
+        <span className="text-lg font-bold">{firstLetterOfUsername.toUpperCase()}</span>
       </div>
     </section>
   );
