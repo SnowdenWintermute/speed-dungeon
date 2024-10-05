@@ -1,3 +1,4 @@
+"use client";
 import { ChangeEvent, useState } from "react";
 import ButtonBasic from "../atoms/ButtonBasic";
 import TextInput from "../atoms/TextInput";
@@ -29,7 +30,11 @@ export default function TextSubmit(props: Props) {
         changeHandler={handleInputChange}
         value={value}
       />
-      <ButtonBasic disabled={props.submitDisabled} extraStyles="border-l-0 " buttonType="submit">
+      <ButtonBasic
+        disabled={props.submitDisabled}
+        extraStyles="border-l-0 bg-slate-700"
+        buttonType="submit"
+      >
         {props.buttonTitle}
       </ButtonBasic>
     </form>

@@ -30,14 +30,14 @@ export default function Lobby() {
       <TopBar />
       <section
         id="games-and-users"
-        className={`w-full`}
+        className={`w-full flex`}
         style={{
           height: `calc(100vh - ${TOP_BAR_HEIGHT_REM}rem)`,
         }}
       >
         <div
           id="games-container"
-          className="h-full border-r-2 border-slate-400 inline-block"
+          className="h-full border-r-2 border-slate-400"
           style={{
             width: `calc(100% - ${usersContainerWidth}px)`,
           }}
@@ -46,7 +46,7 @@ export default function Lobby() {
         </div>
         <div
           id="users-container"
-          className="h-full inline-block"
+          className="h-full"
           style={{
             width: `${usersContainerWidth}px`,
           }}
