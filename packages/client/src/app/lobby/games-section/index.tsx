@@ -1,23 +1,21 @@
 // @refresh reset
 "use client";
 import { useWebsocketStore } from "@/stores/websocket-store";
-import { FormEvent, useEffect, useState } from "react";
-import {
-  BASE_SCREEN_SIZE,
-  ClientToServerEvent,
-  GOLDEN_RATIO,
-  GameListEntry,
-} from "@speed-dungeon/common";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { ClientToServerEvent, GameListEntry } from "@speed-dungeon/common";
 import ButtonBasic from "../../components/atoms/ButtonBasic";
 import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client_consts";
 import Divider from "@/app/components/atoms/Divider";
 import { useLobbyStore } from "@/stores/lobby-store";
+import useElementIsOverflowing from "@/hooks/use-element-is-overflowing";
 
 export default function GamesSection() {
   const socketOption = useWebsocketStore().socketOption;
   const [gameName, setGameName] = useState("");
   const [gameListRefreshedAt, setGameListRefreshedAt] = useState("...");
   const gameList = useLobbyStore().gameList;
+  const gameListRef = useRef(null);
+  const gameListIsOverflowing = useElementIsOverflowing(gameListRef.current);
 
   useEffect(() => {
     setGameListRefreshedAt(new Date(Date.now()).toLocaleTimeString());
@@ -33,7 +31,7 @@ export default function GamesSection() {
     setGameListRefreshedAt(new Date(Date.now()).toLocaleTimeString());
   }
 
-  const testGames = new Array(4).fill("").map((item) => {
+  const testGames = new Array(40).fill("").map((item) => {
     const entry = {
       gameName: "some game nameeeeeeeeeeeee",
       numberOfUsers: Math.floor(Math.random() * 3),
@@ -42,8 +40,6 @@ export default function GamesSection() {
 
     return <GameListItem game={entry} />;
   });
-
-  console.log(testGames);
 
   return (
     <div
@@ -68,10 +64,18 @@ export default function GamesSection() {
           }}
         >
           <div>{gameList.length ? "Current games" : "No current games..."}</div>
-          <ButtonBasic onClick={refreshGameList}>Refresh List</ButtonBasic>
+          <ButtonBasic extraStyles="border-r-0" onClick={refreshGameList}>
+            Refresh List
+          </ButtonBasic>
         </div>
         {<Divider />}
-        <ul className="mb-1">
+        <ul
+          className="mb-1 max-h-72 overflow-y-auto"
+          ref={gameListRef}
+          style={{
+            paddingRight: gameListIsOverflowing ? `${SPACING_REM_SMALL}rem` : "",
+          }}
+        >
           {
             // testGames
           }

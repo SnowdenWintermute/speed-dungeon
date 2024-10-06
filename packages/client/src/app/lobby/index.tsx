@@ -6,6 +6,7 @@ import TopBar from "./TopBar";
 import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
 import { TOP_BAR_HEIGHT_REM } from "@/client_consts";
 import GamesSection from "./games-section";
+import UserList from "./UserList";
 
 export default function Lobby() {
   // top bar
@@ -37,7 +38,7 @@ export default function Lobby() {
       >
         <div
           id="games-container"
-          className="h-full border-r-2 border-slate-400"
+          className="h-full border-slate-400"
           style={{
             width: `calc(100% - ${usersContainerWidth}px)`,
           }}
@@ -46,12 +47,12 @@ export default function Lobby() {
         </div>
         <div
           id="users-container"
-          className="h-full"
+          className="h-full max-h-full"
           style={{
             width: `${usersContainerWidth}px`,
           }}
         >
-          users container
+          <UserList />
         </div>
       </section>
       {
