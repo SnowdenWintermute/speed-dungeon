@@ -10,6 +10,14 @@ const nextConfig = {
     // !! WARN !!
     ignoreBuildErrors: true,
   },
+  webpack: (config) => {
+    // this part of the config is from chat-gpt and is supposed to let us import svg as react components
+    config.module.rules.push({
+      test: /\.svg$/, // Test for .svg files
+      use: ["@svgr/webpack"], // Use the svgr webpack loader
+    });
+    return config;
+  },
 };
 
 export default nextConfig;

@@ -40,6 +40,7 @@ export default function ButtonBasic(props: Props) {
       className={`
       border border-slate-400 h-10 cursor-pointer pr-4 pl-4 
       flex justify-center items-center disabled:opacity-50
+      pointer-events-auto
       disabled:cursor-auto ${props.extraStyles}
       `}
       onClick={onClick}

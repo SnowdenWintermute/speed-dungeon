@@ -8,6 +8,7 @@ import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client_consts";
 import Divider from "@/app/components/atoms/Divider";
 import { useLobbyStore } from "@/stores/lobby-store";
 import useElementIsOverflowing from "@/hooks/use-element-is-overflowing";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 export default function GamesSection() {
   const socketOption = useWebsocketStore().socketOption;
@@ -89,7 +90,15 @@ export default function GamesSection() {
         className="pointer-events-auto h-fit w-full laptop:w-6/12 laptop:pl-2"
         onSubmit={createGame}
       >
-        <div className="mb-2">Host a multiplayer game</div>
+        <div className="mb-2">
+          Host a multiplayer game{" "}
+          <HoverableTooltipWrapper
+            extraStyles="inline"
+            tooltipText="Host a game where multiple players can control multiple parties of characters and race to the bottom of the dungeon"
+          >
+            ⓘ{" "}
+          </HoverableTooltipWrapper>
+        </div>
         <div className="flex flex-1 mb-2">
           <input
             className="bg-slate-700 border border-slate-400 h-10 p-4 min-w-0 flex-1"

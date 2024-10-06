@@ -6,9 +6,7 @@ import { useEffect, useState } from "react";
 export default function UserList() {
   const usernamesInMainChannel = useWebsocketStore().usernamesInMainChannel;
   const mainChannelName = useWebsocketStore().mainChannelName;
-  const [usernamesInMainChannelArray, setUsernamesInMainChannelArray] = useState(
-    Array.from(usernamesInMainChannel.values())
-  );
+  const usernamesArray = Array.from(usernamesInMainChannel.values());
 
   // useEffect(() => {
   //   const newList = cloneDeep(usernamesInMainChannelArray);
@@ -28,10 +26,10 @@ export default function UserList() {
       }}
     >
       <h2 className="text-slate-200 text-l mb-2 pointer-events-auto w-fit">
-        {"In lobby"} - {usernamesInMainChannelArray.length}
+        {"In lobby"} - {usernamesArray.length}
       </h2>
       <ul className="list-none flex-grow overflow-y-auto pointer-events-auto">
-        {usernamesInMainChannelArray.map((username) => (
+        {usernamesArray.map((username) => (
           <li
             className="h-10 bg-slate-700 border border-slate-400 flex items-center mb-2 pointer-events-auto"
             style={{

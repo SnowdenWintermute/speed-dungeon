@@ -29,6 +29,7 @@ export default function joinSocketToChannel(
   }
 
   socket.emit(ServerToClientEvent.ChannelFullUpdate, newChannelName, usernamesInRoom);
+  console.log("sent channel update - ", usernamesInRoom);
 
   this.io
     .of(namespace)

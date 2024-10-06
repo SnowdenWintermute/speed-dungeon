@@ -31,6 +31,11 @@ const config: Config = {
           "0%": { transform: "translateX(-1rem)", opacity: "0%" },
           "100%": { transform: "translateX(0rem)", opacity: "100%" },
         },
+        "slide-down-appear-keyframes": {
+          "0%": { transform: "translateY(-1rem)", opacity: "0%" },
+          // "80%": { transform: "translateY(.2rem)", opacity: "80%" },
+          "100%": { transform: "translateY(0rem)", opacity: "100%" },
+        },
         "up-and-down-keyframes": {
           "0%": {
             transform: "translate(-50%,-.35rem)",
@@ -42,6 +47,7 @@ const config: Config = {
       },
       animation: {
         "slide-appear-from-left": "slide-left-appear-keyframes .3s linear",
+        "slide-appear-from-top": "slide-down-appear-keyframes 1s ease-in-out",
         "up-and-down": "up-and-down-keyframes 1.5s ease-in-out infinite alternate-reverse",
       },
     },
