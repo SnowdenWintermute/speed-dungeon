@@ -12,11 +12,13 @@ import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper
 import GithubLogo from "../../../public/github-logo.svg";
 import DiscordLogo from "../../../public/discord-logo.svg";
 import Link from "next/link";
+import AuthForm from "./auth-form";
 
 export default function Lobby() {
   const socketOption = useWebsocketStore().socketOption;
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);
   const usersContainerWidth = Math.floor(BASE_SCREEN_SIZE * usersContainerWidthMultiplier);
+  const authContainerWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 2));
 
   return (
     <main className="h-full w-full text-zinc-300 relative">
@@ -47,21 +49,19 @@ export default function Lobby() {
           <UserList />
         </div>
       </section>
-      {
-        // <section
-        //   id="auth-form-container"
-        //   className="absolute h-full top-0 right-0 flex items-center border-l-2 border-red-900"
-        //   style={{
-        // width: `${authContainerWidth}px`,
-        //  maxWidth: "100%",
-        //   }}
-        // >
-        //   auth form container
-        //   </section>
-        //   <section id="quick-start-button-container">
-        //   <div id="quick-start-button"></div>
-        //   </section>
-      }
+      <section
+        id="auth-form-container"
+        className="absolute h-full top-0 right-0 flex items-center border-l-2 border-red-900"
+        style={{
+          width: `${authContainerWidth}px`,
+          maxWidth: "100%",
+        }}
+      >
+        <AuthForm />
+      </section>
+      <section id="quick-start-button-container">
+        <div id="quick-start-button"></div>
+      </section>
       <div className="absolute bottom-0 w-full p-7 flex items-center justify-center">
         <HoverableTooltipWrapper tooltipText="Start a single player game where you control one of each character type.">
           <ButtonBasic
