@@ -8,6 +8,8 @@ import GoogleLogo from "../../../../public/google-logo.svg";
 import { setAlert } from "@/app/components/alerts";
 import { useAlertStore } from "@/stores/alert-store";
 import { useHttpRequestStore } from "@/stores/http-request-store";
+import SignUpWithCredentialsForm from "./sign-up-with-credentials-form";
+import LoginWithCredentialsForm from "./login-with-credentials-form";
 
 export default function AuthForm() {
   const authFormWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3.5));
@@ -22,20 +24,14 @@ export default function AuthForm() {
   );
 }
 
+export enum AuthForms {
+  Registration,
+  SignIn,
+}
+
 function RegistrationForm() {
   const mutateAlertStore = useAlertStore().mutateState;
-  const registrationResponseTracker = useHttpRequestStore().requests["sign in"];
-  const fetchData = useHttpRequestStore().fetchData;
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
-
-  console.log(registrationResponseTracker);
-  // HTTP fetcher element
-  // set loading
-  // set error
-  // set data
-  // provide fetch function
+  const [activeForm, setActiveForm] = useState(AuthForms.Registration);
 
   async function startGoogleSignIn() {
     const requestUriResponse = await fetch("http://localhost:8081/oauth/google", {
@@ -55,86 +51,16 @@ function RegistrationForm() {
     window.location.href = asJson.requestUri;
   }
 
+  const formToShow =
+    activeForm === AuthForms.Registration ? (
+      <SignUpWithCredentialsForm setActiveForm={setActiveForm} />
+    ) : (
+      <LoginWithCredentialsForm setActiveForm={setActiveForm} />
+    );
+
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-      }}
-      className="text-slate-400"
-    >
-      <LabeledTextInputWithErrorDisplay
-        name={"email"}
-        type={"email"}
-        label={"Email Address"}
-        placeholder={"Email address..."}
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        disabled={false}
-        autofocus={false}
-        error={""}
-        extraStyles="text-slate-400 placeholder:opacity-50 mb-2"
-      />
-      <LabeledTextInputWithErrorDisplay
-        name={"password"}
-        type={"password"}
-        label={"Password"}
-        placeholder={"A strong password..."}
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        disabled={false}
-        autofocus={false}
-        error={""}
-        extraStyles="text-slate-400 placeholder:opacity-50 mb-2"
-      />
-      <LabeledTextInputWithErrorDisplay
-        name={"password confirm"}
-        type={"password"}
-        label={"Confirm Password"}
-        placeholder={"Confirm password..."}
-        value={passwordConfirm}
-        onChange={(e) => setPasswordConfirm(e.target.value)}
-        disabled={false}
-        autofocus={false}
-        error={""}
-        extraStyles="text-slate-400 placeholder:opacity-50 mb-3"
-      />
-      <ButtonBasic buttonType="submit" extraStyles="w-full mb-4">
-        CREATE ACCOUNT
-      </ButtonBasic>
-      <Divider extraStyles="mb-4 h-[1px] border-0" />
-      <ButtonBasic
-        buttonType="button"
-        extraStyles="w-full mb-3"
-        onClick={async () => {
-          try {
-            fetchData("sign in", "http://localhost:8081/sessions", {
-              method: "POST",
-              credentials: "include",
-              body: JSON.stringify({
-                email: "m",
-                password: "o",
-              }),
-            });
-            // const res = await fetch("http://localhost:8081/sessions", {
-            //   method: "POST",
-            //   credentials: "include",
-            //   body: JSON.stringify({
-            //     email: "m",
-            //     password: "o",
-            //   }),
-            // });
-
-            // console.log(res);
-
-            // const asJson = await res.json();
-            // console.log(asJson);
-          } catch (err) {
-            // console.log(err);
-          }
-        }}
-      >
-        SIGN IN
-      </ButtonBasic>
+    <div>
+      {formToShow}
       <ButtonBasic
         buttonType="button"
         extraStyles="w-full justify-start!"
@@ -142,6 +68,6 @@ function RegistrationForm() {
       >
         <GoogleLogo className="mr-3" /> SIGN IN WITH GOOGLE
       </ButtonBasic>
-    </form>
+    </div>
   );
 }

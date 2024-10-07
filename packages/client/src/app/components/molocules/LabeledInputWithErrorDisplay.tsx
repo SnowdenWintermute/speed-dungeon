@@ -7,8 +7,8 @@ type Props = {
   placeholder: string;
   value: string;
   onChange: (e: any) => void;
-  disabled: boolean;
-  autofocus: boolean;
+  disabled?: boolean;
+  autofocus?: boolean;
   error?: string;
   extraStyles?: string;
   dataCy?: string;
