@@ -1,38 +1,44 @@
-import { setAlert } from "@/app/components/alerts";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import Divider from "@/app/components/atoms/Divider";
 import LabeledTextInputWithErrorDisplay from "@/app/components/molocules/LabeledInputWithErrorDisplay";
-import { useAlertStore } from "@/stores/alert-store";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import React, { useEffect, useState } from "react";
-import { AuthForms } from ".";
-import useFormFieldErrors from "@/hooks/use-form-field-errors";
+import { AuthFormTypes } from ".";
+import useHttpResponseErrors from "@/hooks/use-http-response-errors";
+import { useAlertStore } from "@/stores/alert-store";
+import { setAlert } from "@/app/components/alerts";
 
 interface Props {
-  setActiveForm: React.Dispatch<React.SetStateAction<AuthForms>>;
+  setActiveForm: React.Dispatch<React.SetStateAction<AuthFormTypes>>;
+  setNonFieldErrors: React.Dispatch<React.SetStateAction<string[]>>;
+  setSuccessMessage: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export default function SignUpWithCredentialsForm({ setActiveForm }: Props) {
+export default function SignUpWithCredentialsForm({
+  setActiveForm,
+  setNonFieldErrors,
+  setSuccessMessage,
+}: Props) {
   const mutateAlertStore = useAlertStore().mutateState;
   const httpRequestTrackerName = "sign up with credentials";
-  const registrationResponseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
+  const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
   const fetchData = useHttpRequestStore().fetchData;
   const [email, setEmail] = useState("");
-  // const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
-  const [fieldErrors, setFieldErrors] = useFormFieldErrors(registrationResponseTracker);
+  const [fieldErrors, setFieldErrors, nonFieldErrors] = useHttpResponseErrors(responseTracker);
 
-  // useEffect(() => {
-  //   const newFieldErrors: { [key: string]: string } = {};
-  //   if (!registrationResponseTracker?.errors) return;
-  //   registrationResponseTracker.errors.map((error) => {
-  //     if (!error.field) {
-  //       setAlert(mutateAlertStore, error.message);
-  //     } else {
-  //       newFieldErrors[error.field] = error.message;
-  //     }
-  //   });
-  //   setFieldErrors(newFieldErrors);
-  // }, [registrationResponseTracker?.errors]);
+  useEffect(() => {
+    setNonFieldErrors(nonFieldErrors);
+  }, [nonFieldErrors]);
+
+  useEffect(() => {
+    console.log("responseTracker?.statusCode", responseTracker?.statusCode);
+    if (responseTracker?.statusCode === 201) {
+      setSuccessMessage(
+        "An email has been sent to your address with a link to activate your account"
+      );
+      setAlert(mutateAlertStore, "Success! Check your email for the activation link");
+    }
+  }, [responseTracker?.statusCode]);
 
   return (
     <form
@@ -45,7 +51,7 @@ export default function SignUpWithCredentialsForm({ setActiveForm }: Props) {
           body: JSON.stringify({
             email,
             websiteName: "Speed Dungeon",
-            activationPageUrl: `${process.env.BASE_URL + "/account-activation"}`,
+            activationPageUrl: `${process.env.NEXT_PUBLIC_BASE_URL + "/account-activation"}`,
           }),
         });
       }}
@@ -61,36 +67,21 @@ export default function SignUpWithCredentialsForm({ setActiveForm }: Props) {
           setEmail(e.target.value);
           setFieldErrors({ ...fieldErrors, email: "" });
         }}
-        disabled={registrationResponseTracker?.loading}
+        disabled={responseTracker?.loading}
         error={fieldErrors["email"]}
         extraStyles="text-slate-400 placeholder:opacity-50 mb-2"
       />
       <ButtonBasic buttonType="submit" extraStyles="w-full mb-4">
-        {registrationResponseTracker?.loading ? "..." : "CREATE ACCOUNT"}
+        {responseTracker?.loading ? "..." : "CREATE ACCOUNT"}
       </ButtonBasic>
       <Divider extraStyles="mb-4 h-[1px] border-0" />
       <ButtonBasic
         buttonType="button"
         extraStyles="w-full mb-3"
-        onClick={() => setActiveForm(AuthForms.SignIn)}
+        onClick={() => setActiveForm(AuthFormTypes.SignIn)}
       >
         SIGN IN
       </ButtonBasic>
     </form>
   );
 }
-
-// <LabeledTextInputWithErrorDisplay
-//   name={"password"}
-//   type={"password"}
-//   label={"Password"}
-//   placeholder={"A strong password..."}
-//   value={password}
-//   onChange={(e) => {
-//     setPassword(e.target.value);
-//     setFieldErrors({ ...fieldErrors, password: "" });
-//   }}
-//   disabled={false}
-//   error={fieldErrors["password"]}
-//   extraStyles="text-slate-400 placeholder:opacity-50 mb-2"
-// />

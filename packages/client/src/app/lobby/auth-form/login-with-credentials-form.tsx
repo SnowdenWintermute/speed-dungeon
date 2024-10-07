@@ -1,24 +1,37 @@
-import { setAlert } from "@/app/components/alerts";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import Divider from "@/app/components/atoms/Divider";
 import LabeledTextInputWithErrorDisplay from "@/app/components/molocules/LabeledInputWithErrorDisplay";
-import { useAlertStore } from "@/stores/alert-store";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import React, { useEffect, useState } from "react";
-import { AuthForms } from ".";
-import useFormFieldErrors from "@/hooks/use-form-field-errors";
+import { AuthFormTypes } from ".";
+import useHttpResponseErrors from "@/hooks/use-http-response-errors";
+import { useAlertStore } from "@/stores/alert-store";
+import { setAlert } from "@/app/components/alerts";
 
 interface Props {
-  setActiveForm: React.Dispatch<React.SetStateAction<AuthForms>>;
+  setActiveForm: React.Dispatch<React.SetStateAction<AuthFormTypes>>;
+  setNonFieldErrors: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-export default function LoginWithCredentialsForm({ setActiveForm }: Props) {
+export default function LoginWithCredentialsForm({ setActiveForm, setNonFieldErrors }: Props) {
+  const mutateAlertStore = useAlertStore().mutateState;
   const httpRequestTrackerName = "login with credentials";
   const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
   const fetchData = useHttpRequestStore().fetchData;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fieldErrors, setFieldErrors] = useFormFieldErrors(responseTracker);
+  const [fieldErrors, setFieldErrors, nonFieldErrors] = useHttpResponseErrors(responseTracker);
+
+  useEffect(() => {
+    setNonFieldErrors(nonFieldErrors);
+  }, [nonFieldErrors]);
+
+  useEffect(() => {
+    console.log("responseTracker?.statusCode", responseTracker?.statusCode);
+    if (responseTracker?.statusCode === 201) {
+      setAlert(mutateAlertStore, "Welcome back!");
+    }
+  }, [responseTracker?.statusCode]);
 
   return (
     <form
@@ -55,7 +68,7 @@ export default function LoginWithCredentialsForm({ setActiveForm }: Props) {
         name={"password"}
         type={"password"}
         label={"Password"}
-        placeholder={"A strong password..."}
+        placeholder={"Password..."}
         value={password}
         onChange={(e) => {
           setPassword(e.target.value);
@@ -73,7 +86,7 @@ export default function LoginWithCredentialsForm({ setActiveForm }: Props) {
       <ButtonBasic
         buttonType="button"
         extraStyles="w-full mb-3"
-        onClick={() => setActiveForm(AuthForms.Registration)}
+        onClick={() => setActiveForm(AuthFormTypes.Registration)}
       >
         CREATE ACCOUNT
       </ButtonBasic>

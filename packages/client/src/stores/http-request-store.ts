@@ -34,10 +34,14 @@ export const useHttpRequestStore = create<HttpRequestState>()(
         const response = await fetch(url, options);
         tracker.loading = false;
         tracker.statusCode = response.status;
-        const data = await response.json();
-
-        if (data["errors"]) tracker.errors = data["errors"];
-        else tracker.data = data;
+        let data: { [key: string]: any } = {};
+        try {
+          data = await response.json();
+          if (data["errors"]) tracker.errors = data["errors"];
+          else data = data;
+        } catch {
+          // no json in response
+        }
 
         set((state) => ({
           requests: {
