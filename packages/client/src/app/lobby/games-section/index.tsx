@@ -66,7 +66,7 @@ export default function GamesSection() {
         >
           <div>{gameList.length ? "Current games" : "No current games..."}</div>
           <ButtonBasic extraStyles="border-r-0" onClick={refreshGameList}>
-            Refresh List
+            REFRESH LIST
           </ButtonBasic>
         </div>
         {<Divider />}

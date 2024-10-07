@@ -13,12 +13,25 @@ import GithubLogo from "../../../public/github-logo.svg";
 import DiscordLogo from "../../../public/discord-logo.svg";
 import Link from "next/link";
 import AuthForm from "./auth-form";
+import { useEffect, useState } from "react";
 
 export default function Lobby() {
   const socketOption = useWebsocketStore().socketOption;
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);
   const usersContainerWidth = Math.floor(BASE_SCREEN_SIZE * usersContainerWidthMultiplier);
-  const authContainerWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 2));
+  const [authContainerWidth, setAuthContainerWidth] = useState(0);
+
+  function adjustWidth() {
+    setAuthContainerWidth(Math.floor(window.innerWidth * Math.pow(GOLDEN_RATIO, 2)));
+  }
+
+  useEffect(() => {
+    adjustWidth();
+    window.addEventListener("resize", adjustWidth);
+    return () => {
+      window.removeEventListener("resize", adjustWidth);
+    };
+  }, []);
 
   return (
     <main className="h-full w-full text-zinc-300 relative">
@@ -51,7 +64,7 @@ export default function Lobby() {
       </section>
       <section
         id="auth-form-container"
-        className="absolute h-full top-0 right-0 flex items-center border-l-2 border-red-900"
+        className="absolute h-full top-0 right-0 flex items-center"
         style={{
           width: `${authContainerWidth}px`,
           maxWidth: "100%",
@@ -59,17 +72,13 @@ export default function Lobby() {
       >
         <AuthForm />
       </section>
-      <section id="quick-start-button-container">
-        <div id="quick-start-button"></div>
-      </section>
       <div className="absolute bottom-0 w-full p-7 flex items-center justify-center">
         <HoverableTooltipWrapper tooltipText="Start a single player game where you control one of each character type.">
           <ButtonBasic
-            hotkey={"KeyS"}
             onClick={() => quickStartGame(socketOption)}
-            extraStyles="h-20 pr-10 pl-10 text-xl bg-slate-950 text-slate-400"
+            extraStyles="h-20 pr-11 pl-11 text-xl bg-slate-950 text-slate-400"
           >
-            PLAY NOW (S)
+            PLAY NOW
           </ButtonBasic>
         </HoverableTooltipWrapper>
         <div
