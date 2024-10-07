@@ -9,6 +9,8 @@ export default function AccountActivation() {
   const existingUsernameOption = searchParams.get("existing_username_option");
   const router = useRouter();
 
+  // PUT authServerUrl /users // token, username, password, passwordConfirm
+  const url = `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/users`;
   return (
     <div>
       email: {email}

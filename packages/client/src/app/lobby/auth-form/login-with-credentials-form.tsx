@@ -37,7 +37,7 @@ export default function LoginWithCredentialsForm({ setActiveForm, setNonFieldErr
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        fetchData(httpRequestTrackerName, "http://localhost:8081/sessions", {
+        fetchData(httpRequestTrackerName, `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/sessions`, {
           method: "POST",
           headers: { "content-type": "application/json" },
           credentials: "include",

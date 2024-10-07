@@ -44,7 +44,7 @@ export default function SignUpWithCredentialsForm({
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        fetchData(httpRequestTrackerName, "http://localhost:8081/users", {
+        fetchData(httpRequestTrackerName, `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/users`, {
           method: "POST",
           credentials: "include",
           headers: { "content-type": "application/json" },
