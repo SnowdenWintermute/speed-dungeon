@@ -7,6 +7,7 @@ import React, { useState } from "react";
 import GoogleLogo from "../../../../public/google-logo.svg";
 import { setAlert } from "@/app/components/alerts";
 import { useAlertStore } from "@/stores/alert-store";
+import { useHttpRequestStore } from "@/stores/http-request-store";
 
 export default function AuthForm() {
   const authFormWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3.5));
@@ -23,10 +24,13 @@ export default function AuthForm() {
 
 function RegistrationForm() {
   const mutateAlertStore = useAlertStore().mutateState;
+  const registrationResponseTracker = useHttpRequestStore().requests["sign in"];
+  const fetchData = useHttpRequestStore().fetchData;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
 
+  console.log(registrationResponseTracker);
   // HTTP fetcher element
   // set loading
   // set error
@@ -103,7 +107,7 @@ function RegistrationForm() {
         extraStyles="w-full mb-3"
         onClick={async () => {
           try {
-            const res = await fetch("http://localhost:8081/sessions", {
+            fetchData("sign in", "http://localhost:8081/sessions", {
               method: "POST",
               credentials: "include",
               body: JSON.stringify({
@@ -111,11 +115,21 @@ function RegistrationForm() {
                 password: "o",
               }),
             });
+            // const res = await fetch("http://localhost:8081/sessions", {
+            //   method: "POST",
+            //   credentials: "include",
+            //   body: JSON.stringify({
+            //     email: "m",
+            //     password: "o",
+            //   }),
+            // });
 
-            const asJson = await res.json();
-            console.log(asJson);
+            // console.log(res);
+
+            // const asJson = await res.json();
+            // console.log(asJson);
           } catch (err) {
-            console.log(err);
+            // console.log(err);
           }
         }}
       >
