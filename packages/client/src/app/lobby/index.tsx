@@ -13,6 +13,7 @@ import GithubLogo from "../../../public/github-logo.svg";
 import DiscordLogo from "../../../public/discord-logo.svg";
 import Link from "next/link";
 import AuthForm from "./auth-form";
+import WithTopBar from "../components/layouts/with-top-bar";
 
 export default function Lobby() {
   const socketOption = useWebsocketStore().socketOption;
@@ -20,8 +21,7 @@ export default function Lobby() {
   const usersContainerWidth = Math.floor(BASE_SCREEN_SIZE * usersContainerWidthMultiplier);
 
   return (
-    <main className="h-full w-full text-zinc-300 relative">
-      <TopBar />
+    <WithTopBar>
       <section
         id="games-and-users"
         className={`w-full flex`}
@@ -85,6 +85,6 @@ export default function Lobby() {
           </Link>
         </div>
       </div>
-    </main>
+    </WithTopBar>
   );
 }

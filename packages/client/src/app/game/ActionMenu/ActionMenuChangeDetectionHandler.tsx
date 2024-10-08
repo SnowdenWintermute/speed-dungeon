@@ -130,12 +130,13 @@ export default function ActionMenuChangeDetectionHandler({
           socketOption,
           gameAction
         );
-        if (buttonPropertiesResult instanceof Error)
+        if (buttonPropertiesResult instanceof Error) {
+          console.log("BUTTON PROPERTIES ERROR: ", buttonPropertiesResult);
           return setAlert(
             mutateAlertState,
             `Error creating button properties for game action type ${gameAction}`
           );
-        else buttonPropertiesByCategory[category].push(buttonPropertiesResult);
+        } else buttonPropertiesByCategory[category].push(buttonPropertiesResult);
       }
     }
 

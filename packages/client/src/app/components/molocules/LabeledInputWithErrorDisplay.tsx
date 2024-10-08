@@ -28,7 +28,7 @@ function LabeledTextInputWithErrorDisplay({
   dataCy = "",
 }: Props) {
   return (
-    <label htmlFor={name} className={extraStyles}>
+    <label htmlFor={name} className={`${disabled && "opacity-70"} ${extraStyles}`}>
       <p className={`mb-2 ${error && "text-red-500"}`}>
         {label}
         {error && (
@@ -38,7 +38,7 @@ function LabeledTextInputWithErrorDisplay({
         )}
       </p>
       <input
-        className={`pl-3 border border-slate-400 h-10 w-full bg-transparent ${error && "border border-red-500"} ${extraStyles}`}
+        className={`pl-3 border border-slate-400 h-10 w-full bg-transparent disabled:opacity-70 ${error && "border border-red-500"} ${extraStyles}`}
         aria-label={name}
         type={type}
         placeholder={placeholder}

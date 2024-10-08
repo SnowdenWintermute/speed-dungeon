@@ -3,20 +3,7 @@ import { useGameStore } from "@/stores/game-store";
 
 export default function TopBar() {
   const username = useGameStore().username;
-  const firstLetterOfUsername = username ? username.charAt(0) : "?";
-  // top bar
-  // - logo
-  // - app title
-  // - app version info button
-  // - user icon button
-  // main container
-  // - games container
-  // - users list
-  // - login form container
-  //   * login form
-  // bottom bar
-  // - quick start button
-  // - quick start button popover info
+  const firstLetterOfUsername = username ? username.charAt(0) : "...";
   return (
     <section
       className={`bg-slate-700 w-full border-b border-b-slate-400 pt-[0.625rem] pb-[0.625rem]
@@ -34,9 +21,13 @@ export default function TopBar() {
           <span className="text-sm ">alpha 0.9.0 ⓘ </span>
         </h1>
       </div>
-      <div className="border border-slate-400 rounded-full h-10 w-10 flex justify-center items-center">
-        <span className="text-lg font-bold">{firstLetterOfUsername.toUpperCase()}</span>
-      </div>
+      {username ? (
+        <div className="border border-slate-400 rounded-full h-10 w-10 flex justify-center items-center">
+          <span className="text-lg font-bold">{firstLetterOfUsername.toUpperCase()}</span>
+        </div>
+      ) : (
+        <div />
+      )}
     </section>
   );
 }
