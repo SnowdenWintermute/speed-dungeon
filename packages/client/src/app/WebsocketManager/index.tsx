@@ -44,12 +44,7 @@ import { ActionCommandManager } from "@speed-dungeon/common";
 import getCurrentParty from "@/utils/getCurrentParty";
 import characterIncrementedAttributePointHandler from "./game-event-handlers/character-incremented-attribute-point-handler";
 import gameProgressMessageHandler from "./game-event-handlers/game-progress-message-handler";
-
-const socketAddress =
-  process.env.NEXT_PUBLIC_PRODUCTION === "production"
-    ? "https://roguelikeracing.com"
-    : "http://localhost:8080";
-// const socketAddress = "http://localhost:8080";
+import { TabMessageType, useBroadcastChannelStore } from "@/stores/broadcast-channel-store";
 
 function SocketManager({
   actionCommandReceiver,
@@ -61,30 +56,36 @@ function SocketManager({
   actionCommandWaitingArea: MutableRefObject<ActionCommand[] | null | undefined>;
 }) {
   const mutateWebsocketStore = useWebsocketStore().mutateState;
+  const disconnectSocket = useWebsocketStore().disconnect;
+  const resetConnection = useWebsocketStore().resetConnection;
+  const websocketOption = useWebsocketStore().socketOption;
   const mutateLobbyStore = useLobbyStore().mutateState;
   const mutateGameStore = useGameStore().mutateState;
   const gameName = useGameStore().gameName;
   const mutateAlertStore = useAlertStore().mutateState;
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const socketOption = useWebsocketStore().socketOption;
+  const tabMessages = useBroadcastChannelStore().messages;
+  const mutateBroacastChannelState = useBroadcastChannelStore().mutateState;
+
+  useEffect(() => {
+    mutateBroacastChannelState((state) => {
+      const newMessageOption = state.messages.shift();
+      if (newMessageOption) {
+        if (newMessageOption.type === TabMessageType.ReconnectSocket) resetConnection();
+      }
+    });
+  }, [tabMessages]);
 
   // setup socket
   useEffect(() => {
-    mutateWebsocketStore((state) => {
-      state.socketOption = io(socketAddress || "", {
-        transports: ["websocket"],
-      });
-    });
-    // console.log("socket address: ", socketAddress);
+    websocketOption.connect();
     return () => {
-      mutateWebsocketStore((state) => {
-        state.socketOption?.disconnect();
-      });
+      disconnectSocket();
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
-    if (!socketOption) return;
     const socket = socketOption;
 
     socket.emit(ClientToServerEvent.RequestsGameList);

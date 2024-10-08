@@ -19,7 +19,7 @@ export default function AuthForm() {
   const authFormWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3.5));
   return (
     <div
-      className="bg-slate-950 pointer-events-auto"
+      className="bg-slate-950 pointer-events-auto border border-slate-400"
       style={{ padding: `${SPACING_REM_LARGE}rem`, width: `${authFormWidth}px` }}
     >
       <h3 className="text-lg mb-3">

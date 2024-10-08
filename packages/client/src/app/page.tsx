@@ -17,6 +17,7 @@ import { useAlertStore } from "@/stores/alert-store";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 import { ActionCommand } from "@speed-dungeon/common";
 import { ActionCommandManager } from "@speed-dungeon/common";
+// import { useBroadcastChannel } from "@/hooks/use-broadcast-channel";
 // for immer to be able to use map and set
 enableMapSet();
 
@@ -26,6 +27,7 @@ export default function Home() {
   const mutateAlertStore = useAlertStore().mutateState;
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const combatantModelsAwaitingSpawn = useGameStore().combatantModelsAwaitingSpawn;
+  // const channel = useBroadcastChannel();
 
   // ACTION COMMAND HANDLING - PROBABLY CAN MOVE THIS ELSEWHERE
   const actionCommandReceiverRef = useRef<null | ClientActionCommandReceiver>();

@@ -1,5 +1,5 @@
 import { ServerToClientEvent } from "@speed-dungeon/common";
-import { GameServer } from "./index.js";
+import { Channel, GameServer } from "./index.js";
 
 export default function joinSocketToChannel(
   this: GameServer,
@@ -15,24 +15,27 @@ export default function joinSocketToChannel(
   this.io.to(newChannelName).emit(ServerToClientEvent.UserJoinedChannel, socketMeta.username);
 
   socket.join(newChannelName);
+  if (this.channels[newChannelName] === undefined) this.channels[newChannelName] = new Channel();
+  const channel = this.channels[newChannelName] as Channel;
+  if (!channel.users[socketMeta.username]) channel.users[socketMeta.username] = {};
+  const browserTabSessionsInChannel = channel.users[socketMeta.username];
+  if (!browserTabSessionsInChannel)
+    return console.error(
+      "Expectation failed - browserTabSessionsInChannel was undefined after assignment"
+    );
+  browserTabSessionsInChannel[socketId] = socketMeta;
 
-  const adapter = this.io.of(namespace).adapter;
-  const socketIdsInRoom = adapter.rooms.get(newChannelName);
-  const usernamesInRoom: string[] = [];
-  if (socketIdsInRoom) {
-    socketIdsInRoom.forEach((socketId) => {
-      const socketMetaInRoom = this.connections.get(socketId);
-      if (socketMetaInRoom) {
-        usernamesInRoom.push(socketMetaInRoom.username);
-      }
-    });
-  }
+  const usernamesInRoom = Object.keys(channel.users);
 
   socket.emit(ServerToClientEvent.ChannelFullUpdate, newChannelName, usernamesInRoom);
   console.log("sent channel update - ", usernamesInRoom);
 
-  this.io
-    .of(namespace)
-    .to(newChannelName)
-    .emit(ServerToClientEvent.UserJoinedChannel, socketMeta.username);
+  if (Object.keys(browserTabSessionsInChannel).length === 1) {
+    // if they already had a browser tab in this channel, don't send a notification
+    // because that would lead to duplicate names displayed on the client
+    this.io
+      .of(namespace)
+      .to(newChannelName)
+      .emit(ServerToClientEvent.UserJoinedChannel, socketMeta.username);
+  }
 }

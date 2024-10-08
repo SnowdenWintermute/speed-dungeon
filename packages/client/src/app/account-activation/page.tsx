@@ -18,8 +18,7 @@ export default function AccountActivation() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const email = searchParams.get("email");
-  // const existingUsernameOption = searchParams.get("existing_username_option");
-  const existingUsernameOption = "Bob";
+  const existingUsernameOption = searchParams.get("existing_username_option");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -34,6 +33,7 @@ export default function AccountActivation() {
     if (responseTracker?.statusCode === 201) {
       setSuccessMessage("Success!");
       setAlert(mutateAlertStore, "Account activated!");
+      router.push("/");
     }
   }, [responseTracker?.statusCode]);
 

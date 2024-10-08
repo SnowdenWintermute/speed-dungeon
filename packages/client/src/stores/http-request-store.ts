@@ -3,7 +3,7 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 export class HttpRequestTracker {
-  data: null | Object | string = null;
+  data: null | string | { [key: string]: any } = null;
   loading: boolean = true;
   statusCode: number = 0;
   errors: null | { message: string; field?: string }[] = null;
@@ -38,10 +38,11 @@ export const useHttpRequestStore = create<HttpRequestState>()(
         try {
           data = await response.json();
           if (data["errors"]) tracker.errors = data["errors"];
-          else data = data;
+          else tracker.data = data;
         } catch {
           // no json in response
         }
+        console.log("data: ", data);
 
         set((state) => ({
           requests: {

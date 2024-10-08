@@ -64,33 +64,22 @@ import characterSpentAttributePointHandler from "./game-event-handlers/character
 
 export type Username = string;
 export type SocketId = string;
+export type ChannelName = string;
+
+export class Channel {
+  users: Partial<Record<string, { [socketId: string]: BrowserTabSession }>> = {};
+}
 
 export class GameServer implements ActionCommandReceiver {
   games: HashMap<string, SpeedDungeonGame> = new HashMap();
   socketIdsByUsername: HashMap<Username, SocketId[]> = new HashMap();
   connections: HashMap<SocketId, BrowserTabSession> = new HashMap();
+  channels: Partial<Record<ChannelName, Channel>> = {};
   itemGenerationDirectors: Partial<Record<EquipmentType, ItemGenerationDirector>>;
   constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     console.log("constructed game server");
     this.connectionHandler();
     this.itemGenerationDirectors = this.createItemGenerationDirectors();
-    const idGenerator = new IdGenerator();
-    // for (let i = 0; i < 100; i += 1) {
-    //   const iLvl = randBetween(1, DEEPEST_FLOOR);
-    //   const randomItem = this.generateRandomItem(iLvl, idGenerator);
-    //   if (!(randomItem instanceof Error)) console.log(randomItem.entityProperties.name);
-    // const director = this.itemGenerationDirectors[EquipmentType.TwoHandedMeleeWeapon];
-    // if (director !== undefined) {
-    //   const itemResult = director.createItem(5, idGenerator, {
-    //     type: ItemPropertiesType.Equipment,
-    //     baseItem: {
-    //       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-    //       baseItemType: TwoHandedMeleeWeapon.MahoganyStaff,
-    //     },
-    //   });
-    //   console.log(itemResult);
-    // }
-    // }
   }
   getConnection = getConnection;
   connectionHandler = connectionHandler;

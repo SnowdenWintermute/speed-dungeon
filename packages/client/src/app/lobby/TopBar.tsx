@@ -1,8 +1,10 @@
+"use client";
 import { SPACING_REM_LARGE, TOP_BAR_HEIGHT_REM } from "@/client_consts";
 import { useGameStore } from "@/stores/game-store";
 
 export default function TopBar() {
   const username = useGameStore().username;
+
   const firstLetterOfUsername = username ? username.charAt(0) : "...";
   return (
     <section

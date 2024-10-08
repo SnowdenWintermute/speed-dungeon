@@ -7,7 +7,9 @@ import { AuthFormTypes } from ".";
 import useHttpResponseErrors from "@/hooks/use-http-response-errors";
 import { useAlertStore } from "@/stores/alert-store";
 import { setAlert } from "@/app/components/alerts";
-
+import { useGameStore } from "@/stores/game-store";
+import { TabMessageType, useBroadcastChannelStore } from "@/stores/broadcast-channel-store";
+import { useWebsocketStore } from "@/stores/websocket-store";
 interface Props {
   setActiveForm: React.Dispatch<React.SetStateAction<AuthFormTypes>>;
   setNonFieldErrors: React.Dispatch<React.SetStateAction<string[]>>;
@@ -15,21 +17,42 @@ interface Props {
 
 export default function LoginWithCredentialsForm({ setActiveForm, setNonFieldErrors }: Props) {
   const mutateAlertStore = useAlertStore().mutateState;
+  const mutateGameStore = useGameStore().mutateState;
   const httpRequestTrackerName = "login with credentials";
   const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
   const fetchData = useHttpRequestStore().fetchData;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors, nonFieldErrors] = useHttpResponseErrors(responseTracker);
+  const mutateBroadcastState = useBroadcastChannelStore().mutateState;
+  const resetSocketConnection = useWebsocketStore().resetConnection;
 
   useEffect(() => {
     setNonFieldErrors(nonFieldErrors);
   }, [nonFieldErrors]);
 
   useEffect(() => {
-    console.log("responseTracker?.statusCode", responseTracker?.statusCode);
     if (responseTracker?.statusCode === 201) {
       setAlert(mutateAlertStore, "Welcome back!");
+      if (!responseTracker.data || typeof responseTracker.data === "string")
+        return console.error("expected an object body type");
+      if (!responseTracker.data["username"])
+        return console.error("expected to get the username in the response body");
+      const username = typeof responseTracker.data["username"];
+      if (username !== "string") return console.error("expected username to be a string");
+
+      console.log("username: ", username);
+
+      resetSocketConnection();
+      mutateBroadcastState((state) => {
+        // message to have their other tabs reconnect with new cookie
+        // to keep socket connections consistent with current authorization
+        state.channel.postMessage({ type: TabMessageType.ReconnectSocket });
+      });
+
+      mutateGameStore((state) => {
+        state.username = username;
+      });
     }
   }, [responseTracker?.statusCode]);
 
