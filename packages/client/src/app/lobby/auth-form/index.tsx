@@ -53,8 +53,26 @@ function AuthForms({
 }) {
   const mutateAlertStore = useAlertStore().mutateState;
   const [activeForm, setActiveForm] = useState(AuthFormTypes.Registration);
+  const [googleAuthLoading, setGoogleAuthLoading] = useState(false);
+
+  function handleGoogleSignInWindowMessage(event: any) {
+    if (event.origin !== "http://localhost:3000") return;
+    if (event.data.googleSignInResult) {
+      console.log("event.data.googleSignInResult: ", event.data.googleSignInResult);
+      setGoogleAuthLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener("message", handleGoogleSignInWindowMessage);
+
+    return () => {
+      window.removeEventListener("message", handleGoogleSignInWindowMessage);
+    };
+  }, []);
 
   async function startGoogleSignIn() {
+    setGoogleAuthLoading(true);
     const requestUriResponse = await fetch("http://localhost:8081/oauth/google", {
       method: "POST",
       credentials: "include",
@@ -69,7 +87,16 @@ function AuthForms({
       );
     }
 
-    window.location.href = asJson.requestUri;
+    const width = 500;
+    const height = 600;
+    const left = screen.width / 2 - width / 2;
+    const top = screen.height / 2 - height / 2;
+
+    const authWindow = window.open(
+      asJson.requestUri,
+      "Google OAuth",
+      `width=${width},height=${height},top=${top},left=${left}`
+    );
   }
 
   const formToShow =
@@ -84,6 +111,25 @@ function AuthForms({
         setActiveForm={setActiveForm}
         setNonFieldErrors={setNonFieldErrors}
       />
+    );
+
+  if (googleAuthLoading)
+    return (
+      <div>
+        <p className="mb-2">
+          {" "}
+          Authenticating with Google. Please choose your Google account in the newly opened window.
+          If you have blocked pop ups you may need to allow them.
+        </p>
+        <ButtonBasic
+          extraStyles="w-full"
+          onClick={() => {
+            setGoogleAuthLoading(false);
+          }}
+        >
+          TRY ANOTHER METHOD
+        </ButtonBasic>
+      </div>
     );
 
   return (

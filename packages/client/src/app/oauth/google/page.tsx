@@ -1,13 +1,19 @@
 "use client";
+import { TabMessageType, useBroadcastChannelStore } from "@/stores/broadcast-channel-store";
+import { useWebsocketStore } from "@/stores/websocket-store";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { enableMapSet } from "immer";
+enableMapSet();
 
 export default function GoogleOAuthLoader() {
   const searchParams = useSearchParams();
   const state = searchParams.get("state");
   const code = searchParams.get("code");
   const router = useRouter();
+  const resetSocketConnection = useWebsocketStore().resetConnection;
+  const mutateBroadcastState = useBroadcastChannelStore().mutateState;
 
   const [loadingTextState, setLoadingStateText] = useState("Authenticating...");
   // don't run this effect twice in development using strict mode
@@ -18,8 +24,19 @@ export default function GoogleOAuthLoader() {
     effectRan.current = true;
     if (!code || !state)
       return setLoadingStateText("Error authenticating - missing query parameters");
+    (async () => {
+      await fetchToken(code, state, router);
 
-    fetchToken(code, state, router);
+      resetSocketConnection();
+      mutateBroadcastState((state) => {
+        // message to have their other tabs reconnect with new cookie
+        // to keep socket connections consistent with current authorization
+        state.channel.postMessage({ type: TabMessageType.ReconnectSocket });
+      });
+
+      window.opener.postMessage({ googleSignInResult: "success" }, "*");
+      window.close();
+    })();
   }, [code, state]);
 
   return <div>{loadingTextState}</div>;
@@ -39,7 +56,8 @@ async function fetchToken(code: string, state: string, router: AppRouterInstance
 
     const data = await response.json();
     console.log(data);
-    router.push("/");
+
+    // router.push("/");
   } catch (err) {
     console.log(err);
 
