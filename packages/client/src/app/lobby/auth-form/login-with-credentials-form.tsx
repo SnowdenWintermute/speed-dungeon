@@ -10,6 +10,7 @@ import { setAlert } from "@/app/components/alerts";
 import { useGameStore } from "@/stores/game-store";
 import { TabMessageType, useBroadcastChannelStore } from "@/stores/broadcast-channel-store";
 import { useWebsocketStore } from "@/stores/websocket-store";
+
 interface Props {
   setActiveForm: React.Dispatch<React.SetStateAction<AuthFormTypes>>;
   setNonFieldErrors: React.Dispatch<React.SetStateAction<string[]>>;
@@ -19,6 +20,7 @@ export default function LoginWithCredentialsForm({ setActiveForm, setNonFieldErr
   const mutateAlertStore = useAlertStore().mutateState;
   const mutateGameStore = useGameStore().mutateState;
   const httpRequestTrackerName = "login with credentials";
+  const getSessionRequestTrackerName = "get session";
   const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
   const fetchData = useHttpRequestStore().fetchData;
   const [email, setEmail] = useState("");
@@ -47,6 +49,15 @@ export default function LoginWithCredentialsForm({ setActiveForm, setNonFieldErr
         // to keep socket connections consistent with current authorization
         state.channel.postMessage({ type: TabMessageType.ReconnectSocket });
       });
+
+      fetchData(
+        getSessionRequestTrackerName,
+        `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/sessions`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
 
       mutateGameStore((state) => {
         state.username = username;

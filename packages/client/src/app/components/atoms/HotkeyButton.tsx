@@ -1,8 +1,8 @@
+import React from "react";
 import { FocusEventHandler, MouseEventHandler, useEffect, useRef } from "react";
-import HotkeyButton from "./HotkeyButton";
 
 interface Props {
-  extraStyles?: string;
+  className?: string;
   children: React.ReactNode;
   hotkey?: string;
   buttonType?: "button" | "submit" | "reset";
@@ -12,7 +12,7 @@ interface Props {
   onBlur?: FocusEventHandler<HTMLButtonElement>;
 }
 
-export default function ButtonBasic(props: Props) {
+export default function HotkeyButton(props: Props) {
   const onClick = typeof props.onClick !== "undefined" ? props.onClick : () => {};
   const onFocus = typeof props.onFocus !== "undefined" ? props.onFocus : () => {};
   const onBlur = typeof props.onFocus !== "undefined" ? props.onFocus : () => {};
@@ -35,20 +35,15 @@ export default function ButtonBasic(props: Props) {
   }, [onClick]);
 
   return (
-    <HotkeyButton
-      buttonType={props.buttonType || "button"}
+    <button
+      type={props.buttonType || "button"}
       disabled={props.disabled || false}
-      className={`
-      border border-slate-400 h-10 cursor-pointer pr-4 pl-4 
-      flex justify-center items-center disabled:opacity-50
-      pointer-events-auto
-      disabled:cursor-auto ${props.extraStyles}
-      `}
+      className={`${props.className}`}
       onClick={onClick}
       onFocus={onFocus}
       onBlur={onBlur}
     >
       {props.children}
-    </HotkeyButton>
+    </button>
   );
 }

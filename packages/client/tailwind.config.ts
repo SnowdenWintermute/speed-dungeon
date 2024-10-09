@@ -27,6 +27,14 @@ const config: Config = {
         ffxipink: "#ff9b9b",
       },
       keyframes: {
+        "spin-full-keyframes": {
+          "0%": {
+            transform: "rotate(0deg)",
+          },
+          "100%": {
+            transform: "rotate(360deg)",
+          },
+        },
         "slide-left-appear-keyframes": {
           "0%": { transform: "translateX(-1rem)", opacity: "0%" },
           "100%": { transform: "translateX(0rem)", opacity: "100%" },
@@ -49,6 +57,7 @@ const config: Config = {
         "slide-appear-from-left": "slide-left-appear-keyframes .3s linear",
         "slide-appear-from-top": "slide-down-appear-keyframes 1s ease-in-out",
         "up-and-down": "up-and-down-keyframes 1.5s ease-in-out infinite alternate-reverse",
+        "spin-full": "spin-full-keyframes 3s linear forwards infinite",
       },
     },
   },

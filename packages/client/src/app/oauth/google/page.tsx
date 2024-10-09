@@ -4,6 +4,7 @@ import { useWebsocketStore } from "@/stores/websocket-store";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { enableMapSet } from "immer";
+import { useHttpRequestStore } from "@/stores/http-request-store";
 enableMapSet();
 
 export default function GoogleOAuthLoader() {
@@ -12,6 +13,8 @@ export default function GoogleOAuthLoader() {
   const code = searchParams.get("code");
   const resetSocketConnection = useWebsocketStore().resetConnection;
   const mutateBroadcastState = useBroadcastChannelStore().mutateState;
+  const fetchData = useHttpRequestStore().fetchData;
+  const httpRequestTrackerName = "get session";
 
   const [loadingTextState, setLoadingStateText] = useState("Authenticating...");
   // don't run this effect twice in development using strict mode
@@ -30,6 +33,11 @@ export default function GoogleOAuthLoader() {
         // message to have their other tabs reconnect with new cookie
         // to keep socket connections consistent with current authorization
         state.channel.postMessage({ type: TabMessageType.ReconnectSocket });
+      });
+
+      fetchData(httpRequestTrackerName, `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/sessions`, {
+        method: "GET",
+        credentials: "include",
       });
 
       window.opener.postMessage({ googleSignInResult: "success" }, "*");

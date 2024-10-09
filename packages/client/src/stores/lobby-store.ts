@@ -7,6 +7,8 @@ import { GameListEntry } from "@speed-dungeon/common";
 export type LobbyState = {
   gameList: GameListEntry[];
   usernamesInCurrentChannel: string[];
+  showAuthForm: boolean;
+  highlightAuthForm: boolean;
   mutateState: (fn: (state: LobbyState) => void) => void;
 };
 
@@ -16,6 +18,8 @@ export const useLobbyStore = create<LobbyState>()(
       (set, _get) => ({
         gameList: [],
         usernamesInCurrentChannel: [],
+        showAuthForm: false,
+        highlightAuthForm: false,
         mutateState: (fn: (state: LobbyState) => void) => set(produce(fn)),
       }),
       { enabled: true, name: "lobby store" }

@@ -4,7 +4,6 @@ import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
 import { SPACING_REM, SPACING_REM_LARGE, TOP_BAR_HEIGHT_REM } from "@/client_consts";
 import GamesSection from "./games-section";
 import UserList from "./user-list/";
-import ButtonBasic from "../components/atoms/ButtonBasic";
 import quickStartGame from "./games-section/quick-start-game";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
@@ -13,11 +12,24 @@ import DiscordLogo from "../../../public/discord-logo.svg";
 import Link from "next/link";
 import AuthForm from "./auth-form";
 import WithTopBar from "../components/layouts/with-top-bar";
+import { useHttpRequestStore } from "@/stores/http-request-store";
+import { useEffect } from "react";
+import { useLobbyStore } from "@/stores/lobby-store";
 
 export default function Lobby() {
   const socketOption = useWebsocketStore().socketOption;
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);
   const usersContainerWidth = Math.floor(BASE_SCREEN_SIZE * usersContainerWidthMultiplier);
+  const currentSessionHttpResponseTracker = useHttpRequestStore().requests["get session"];
+  const mutateLobbyState = useLobbyStore().mutateState;
+  const showAuthForm = useLobbyStore().showAuthForm;
+
+  useEffect(() => {
+    if (currentSessionHttpResponseTracker?.statusCode === 200)
+      mutateLobbyState((state) => {
+        state.showAuthForm = false;
+      });
+  }, [currentSessionHttpResponseTracker]);
 
   return (
     <WithTopBar>
@@ -51,16 +63,22 @@ export default function Lobby() {
         id="auth-form-container"
         className="absolute h-full w-full top-0 right-0 flex items-center justify-center"
       >
-        <AuthForm />
+        {showAuthForm &&
+          currentSessionHttpResponseTracker &&
+          currentSessionHttpResponseTracker?.statusCode !== 200 &&
+          !currentSessionHttpResponseTracker?.loading && <AuthForm />}
       </section>
       <div className="absolute bottom-0 w-full p-7 flex items-center justify-center">
         <HoverableTooltipWrapper tooltipText="Start a single player game where you control one of each character type">
-          <ButtonBasic
+          <button
             onClick={() => quickStartGame(socketOption)}
-            extraStyles="h-20 pr-10 pl-10 text-xl bg-slate-950 text-slate-400"
+            className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
+            flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
+            text-xl bg-slate-950 text-slate-400
+            `}
           >
             PLAY NOW
-          </ButtonBasic>
+          </button>
         </HoverableTooltipWrapper>
         <div
           className="flex absolute right-0 bottom-0"

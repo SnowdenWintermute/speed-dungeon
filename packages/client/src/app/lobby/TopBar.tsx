@@ -1,11 +1,8 @@
 "use client";
 import { SPACING_REM_LARGE, TOP_BAR_HEIGHT_REM } from "@/client_consts";
-import { useGameStore } from "@/stores/game-store";
+import UserMenuContainer from "./user-menu";
 
 export default function TopBar() {
-  const username = useGameStore().username;
-
-  const firstLetterOfUsername = username ? username.charAt(0) : "...";
   return (
     <section
       className={`bg-slate-700 w-full border-b border-b-slate-400 pt-[0.625rem] pb-[0.625rem]
@@ -23,13 +20,7 @@ export default function TopBar() {
           <span className="text-sm ">alpha 0.9.0 ⓘ </span>
         </h1>
       </div>
-      {username ? (
-        <div className="border border-slate-400 rounded-full h-10 w-10 flex justify-center items-center">
-          <span className="text-lg font-bold">{firstLetterOfUsername.toUpperCase()}</span>
-        </div>
-      ) : (
-        <div />
-      )}
+      <UserMenuContainer />
     </section>
   );
 }
