@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+import { MutateState } from "./mutate-state";
+import { produce } from "immer";
 
 export class HttpRequestTracker {
   data: null | string | { [key: string]: any } = null;
@@ -13,6 +15,7 @@ export type HttpRequestState = {
   requests: { [url: string]: HttpRequestTracker };
   fetchData: (key: string, url: string, options: RequestInit) => Promise<void>;
   clearRequest: (key: string) => void;
+  mutateState: MutateState<HttpRequestState>;
 };
 
 /** We are acting under the assumption that requests made with this store
@@ -58,6 +61,7 @@ export const useHttpRequestStore = create<HttpRequestState>()(
           return { requests: newRequests };
         });
       },
+      mutateState: (fn: (state: HttpRequestState) => void) => set(produce(fn)),
     }))
   )
 );

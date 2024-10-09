@@ -49,6 +49,7 @@ export const useWebsocketStore = create<WebsocketState>()(
           resetConnection: () =>
             set(
               produce((state: WebsocketState) => {
+                if (!state.socketOption.connected) return;
                 state.socketOption.disconnect();
                 console.log("reconnecting");
                 state.socketOption = io(socketAddress || "", {

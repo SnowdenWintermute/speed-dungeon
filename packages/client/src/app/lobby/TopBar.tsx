@@ -1,6 +1,7 @@
 "use client";
 import { SPACING_REM_LARGE, TOP_BAR_HEIGHT_REM } from "@/client_consts";
 import UserMenuContainer from "./user-menu";
+import Link from "next/link";
 
 export default function TopBar() {
   return (
@@ -13,13 +14,13 @@ export default function TopBar() {
         paddingRight: `${SPACING_REM_LARGE}rem`,
       }}
     >
-      <div className="h-full flex items-center">
+      <Link href="/" className="h-full flex items-center">
         <img src="speed-dungeon-logo.svg" className="h-full pr-[0.625rem]" />
         <h1 className="text-3xl flex items-end relative">
           <span className="pr-[0.625rem] z-20">Speed Dungeon</span>
           <span className="text-sm ">alpha 0.9.0 ⓘ </span>
         </h1>
-      </div>
+      </Link>
       <UserMenuContainer />
     </section>
   );

@@ -18,7 +18,7 @@ export const useLobbyStore = create<LobbyState>()(
       (set, _get) => ({
         gameList: [],
         usernamesInCurrentChannel: [],
-        showAuthForm: false,
+        showAuthForm: true,
         highlightAuthForm: false,
         mutateState: (fn: (state: LobbyState) => void) => set(produce(fn)),
       }),
