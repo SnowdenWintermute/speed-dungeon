@@ -1,8 +1,7 @@
 "use client";
 import { TabMessageType, useBroadcastChannelStore } from "@/stores/broadcast-channel-store";
 import { useWebsocketStore } from "@/stores/websocket-store";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { enableMapSet } from "immer";
 enableMapSet();
@@ -11,7 +10,6 @@ export default function GoogleOAuthLoader() {
   const searchParams = useSearchParams();
   const state = searchParams.get("state");
   const code = searchParams.get("code");
-  const router = useRouter();
   const resetSocketConnection = useWebsocketStore().resetConnection;
   const mutateBroadcastState = useBroadcastChannelStore().mutateState;
 
@@ -25,7 +23,7 @@ export default function GoogleOAuthLoader() {
     if (!code || !state)
       return setLoadingStateText("Error authenticating - missing query parameters");
     (async () => {
-      await fetchToken(code, state, router);
+      await fetchToken(code, state);
 
       resetSocketConnection();
       mutateBroadcastState((state) => {
@@ -39,10 +37,10 @@ export default function GoogleOAuthLoader() {
     })();
   }, [code, state]);
 
-  return <div>{loadingTextState}</div>;
+  return <div className="w-full flex justify-center p-4">{loadingTextState}</div>;
 }
 
-async function fetchToken(code: string, state: string, router: AppRouterInstance) {
+async function fetchToken(code: string, state: string) {
   try {
     const response = await fetch("http://localhost:8081/oauth/google", {
       method: "PUT",
@@ -56,11 +54,7 @@ async function fetchToken(code: string, state: string, router: AppRouterInstance
 
     const data = await response.json();
     console.log(data);
-
-    // router.push("/");
   } catch (err) {
-    console.log(err);
-
-    // Handle errors
+    console.error(err);
   }
 }

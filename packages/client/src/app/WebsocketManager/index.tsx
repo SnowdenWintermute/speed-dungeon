@@ -16,7 +16,6 @@ import {
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
 import React, { MutableRefObject, useEffect } from "react";
-import { io } from "socket.io-client";
 import characterCreationHandler from "./lobby-event-handlers/character-creation-handler";
 import characterDeletionHandler from "./lobby-event-handlers/character-deletion-handler";
 import { useAlertStore } from "@/stores/alert-store";
@@ -123,12 +122,12 @@ function SocketManager({
     socket.on(ServerToClientEvent.ErrorMessage, (message) => {
       setAlert(mutateAlertStore, message);
     });
-    socket.on(ServerToClientEvent.ChannelFullUpdate, (channelName, usernamesInChannel) => {
+    socket.on(ServerToClientEvent.ChannelFullUpdate, (channelName, usersInChannel) => {
       mutateWebsocketStore((state) => {
         state.mainChannelName = channelName;
-        state.usernamesInMainChannel = new Set();
-        usernamesInChannel.forEach((username) => {
-          state.usernamesInMainChannel.add(username);
+        state.usersInMainChannel = {};
+        usersInChannel.forEach(({ username, userChannelDisplayData }) => {
+          state.usersInMainChannel[username] = userChannelDisplayData;
         });
       });
     });
@@ -137,14 +136,14 @@ function SocketManager({
         state.username = username;
       });
     });
-    socket.on(ServerToClientEvent.UserJoinedChannel, (username) => {
+    socket.on(ServerToClientEvent.UserJoinedChannel, (username, userChannelDisplayData) => {
       mutateWebsocketStore((state) => {
-        state.usernamesInMainChannel.add(username);
+        state.usersInMainChannel[username] = userChannelDisplayData;
       });
     });
     socket.on(ServerToClientEvent.UserLeftChannel, (username) => {
       mutateWebsocketStore((state) => {
-        state.usernamesInMainChannel.delete(username);
+        delete state.usersInMainChannel[username];
       });
     });
     socket.on(ServerToClientEvent.GameList, (gameList) => {

@@ -41,8 +41,6 @@ export default function LoginWithCredentialsForm({ setActiveForm, setNonFieldErr
       const username = typeof responseTracker.data["username"];
       if (username !== "string") return console.error("expected username to be a string");
 
-      console.log("username: ", username);
-
       resetSocketConnection();
       mutateBroadcastState((state) => {
         // message to have their other tabs reconnect with new cookie

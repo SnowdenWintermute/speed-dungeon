@@ -1,10 +1,9 @@
 // @refresh reset
 "use client";
-import TopBar from "./TopBar";
 import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
 import { SPACING_REM, SPACING_REM_LARGE, TOP_BAR_HEIGHT_REM } from "@/client_consts";
 import GamesSection from "./games-section";
-import UserList from "./UserList";
+import UserList from "./user-list/";
 import ButtonBasic from "../components/atoms/ButtonBasic";
 import quickStartGame from "./games-section/quick-start-game";
 import { useWebsocketStore } from "@/stores/websocket-store";

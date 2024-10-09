@@ -42,6 +42,7 @@ export class GameState {
   // };
   game: null | SpeedDungeonGame = null;
   gameName: string | null = null;
+  /** Unique name which characters may list as their controller */
   username: null | string = null;
   focusedCharacterId: string = "";
   detailedEntity: null | DetailableEntity = null;

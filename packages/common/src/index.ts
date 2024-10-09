@@ -1,4 +1,5 @@
 export * from "./app_consts.js";
+export * from "./users/index.js";
 export * from "./types.js";
 export * from "./utils/index.js";
 export * from "./errors/index.js";

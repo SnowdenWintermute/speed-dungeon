@@ -1,12 +1,10 @@
 import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client_consts";
 import { useWebsocketStore } from "@/stores/websocket-store";
-import cloneDeep from "lodash.clonedeep";
-import { useEffect, useState } from "react";
+import UserPlaque from "./UserPlaque";
 
 export default function UserList() {
-  const usernamesInMainChannel = useWebsocketStore().usernamesInMainChannel;
-  const mainChannelName = useWebsocketStore().mainChannelName;
-  const usernamesArray = Array.from(usernamesInMainChannel.values());
+  const usersInChannel = useWebsocketStore().usersInMainChannel;
+  const usersArray = Object.entries(usersInChannel);
 
   // useEffect(() => {
   //   const newList = cloneDeep(usernamesInMainChannelArray);
@@ -26,19 +24,11 @@ export default function UserList() {
       }}
     >
       <h2 className="text-slate-200 text-l mb-2 pointer-events-auto w-fit">
-        {"In lobby"} - {usernamesArray.length}
+        {"In lobby"} - {usersArray.length}
       </h2>
       <ul className="list-none flex-grow overflow-y-auto pointer-events-auto">
-        {usernamesArray.map((username) => (
-          <li
-            className="h-10 bg-slate-700 border border-slate-400 flex items-center mb-2 pointer-events-auto"
-            style={{
-              marginRight: `${SPACING_REM_SMALL}rem`,
-            }}
-            key={username}
-          >
-            <div className="pl-2 overflow-hidden whitespace-nowrap text-ellipsis">{username}</div>
-          </li>
+        {usersArray.map(([username, displayData]) => (
+          <UserPlaque username={username} displayData={displayData} key={username} />
         ))}
       </ul>
     </section>

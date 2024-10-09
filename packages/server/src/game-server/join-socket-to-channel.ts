@@ -1,4 +1,4 @@
-import { ServerToClientEvent } from "@speed-dungeon/common";
+import { ServerToClientEvent, UserChannelDisplayData } from "@speed-dungeon/common";
 import { Channel, GameServer } from "./index.js";
 
 export default function joinSocketToChannel(
@@ -12,12 +12,20 @@ export default function joinSocketToChannel(
 
   if (!socket || !socketMeta) return;
 
-  this.io.to(newChannelName).emit(ServerToClientEvent.UserJoinedChannel, socketMeta.username);
+  // this.io
+  //   .to(newChannelName)
+  //   .emit(
+  //     ServerToClientEvent.UserJoinedChannel,
+  //     socketMeta.username,
+  //     new UserChannelDisplayData(socketMeta.authStatus)
+  //   );
 
   socket.join(newChannelName);
+
   if (this.channels[newChannelName] === undefined) this.channels[newChannelName] = new Channel();
   const channel = this.channels[newChannelName] as Channel;
   if (!channel.users[socketMeta.username]) channel.users[socketMeta.username] = {};
+
   const browserTabSessionsInChannel = channel.users[socketMeta.username];
   if (!browserTabSessionsInChannel)
     return console.error(
@@ -25,10 +33,20 @@ export default function joinSocketToChannel(
     );
   browserTabSessionsInChannel[socketId] = socketMeta;
 
-  const usernamesInRoom = Object.keys(channel.users);
+  const usersInRoom: { username: string; userChannelDisplayData: UserChannelDisplayData }[] = [];
 
-  socket.emit(ServerToClientEvent.ChannelFullUpdate, newChannelName, usernamesInRoom);
-  console.log("sent channel update - ", usernamesInRoom);
+  for (const [username, browserTabSessions] of Object.entries(channel.users)) {
+    if (!browserTabSessions) continue;
+    const arbitrarySession = Object.values(browserTabSessions)[0];
+    if (!arbitrarySession) continue;
+    usersInRoom.push({
+      username,
+      userChannelDisplayData: new UserChannelDisplayData(arbitrarySession.authStatus),
+    });
+  }
+
+  socket.emit(ServerToClientEvent.ChannelFullUpdate, newChannelName, usersInRoom);
+  console.log("sent channel update - ", usersInRoom);
 
   if (Object.keys(browserTabSessionsInChannel).length === 1) {
     // if they already had a browser tab in this channel, don't send a notification
@@ -36,6 +54,10 @@ export default function joinSocketToChannel(
     this.io
       .of(namespace)
       .to(newChannelName)
-      .emit(ServerToClientEvent.UserJoinedChannel, socketMeta.username);
+      .emit(
+        ServerToClientEvent.UserJoinedChannel,
+        socketMeta.username,
+        new UserChannelDisplayData(socketMeta.authStatus)
+      );
   }
 }

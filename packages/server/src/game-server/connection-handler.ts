@@ -1,6 +1,6 @@
 import { GameServer } from "./index.js";
 import { generateRandomUsername } from "../utils/index.js";
-import { LOBBY_CHANNEL, ServerToClientEvent } from "@speed-dungeon/common";
+import { LOBBY_CHANNEL, ServerToClientEvent, UserAuthStatus } from "@speed-dungeon/common";
 import { BrowserTabSession } from "./socket-connection-metadata.js";
 import { env } from "../validate-env.js";
 
@@ -10,9 +10,9 @@ export function connectionHandler(this: GameServer) {
     const cookies = req.headers.cookie;
     let usernameOption;
     let username = "";
+    let userAuthStatus = UserAuthStatus.Guest;
 
     if (cookies) {
-      console.log("Cookies received in WebSocket connection:", cookies);
       const res = await fetch(`${env.AUTH_SERVER_URL}/sessions`, {
         method: "GET",
         headers: {
@@ -23,15 +23,17 @@ export function connectionHandler(this: GameServer) {
       usernameOption = body["username"];
       if (usernameOption) {
         username = body["username"];
-        // they are logged in
-        // combine their BrowserTabSession into one username
-        // for the list of online players
+        userAuthStatus = UserAuthStatus.LoggedIn;
+        // this is a logged in user
       }
     }
-    if (!username) username = generateRandomUsername();
+    if (!username) {
+      username = generateRandomUsername();
+      // this is a guest
+    }
 
     console.log(`-- ${username} (${socket.id}) connected`);
-    this.connections.insert(socket.id, new BrowserTabSession(socket.id, username, LOBBY_CHANNEL));
+    this.connections.insert(socket.id, new BrowserTabSession(socket.id, username, userAuthStatus));
 
     if (this.socketIdsByUsername.has(username)) {
       const currentSockets = this.socketIdsByUsername.get(username)!;

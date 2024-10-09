@@ -3,14 +3,18 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { produce } from "immer";
 import { Socket, io } from "socket.io-client";
-import { ClientToServerEventTypes, ServerToClientEventTypes } from "@speed-dungeon/common";
+import {
+  ClientToServerEventTypes,
+  ServerToClientEventTypes,
+  UserChannelDisplayData,
+} from "@speed-dungeon/common";
 
 export type PartyClientSocket = Socket<ServerToClientEventTypes, ClientToServerEventTypes>;
 
 type WebsocketState = {
   socketOption: Socket<ServerToClientEventTypes, ClientToServerEventTypes>;
   mainChannelName: string;
-  usernamesInMainChannel: Set<string>;
+  usersInMainChannel: { [username: string]: UserChannelDisplayData };
   mutateState: (fn: (state: WebsocketState) => void) => void;
   disconnect: () => void;
   resetConnection: () => void;
@@ -33,7 +37,7 @@ export const useWebsocketStore = create<WebsocketState>()(
 
         return {
           socketOption: socket,
-          usernamesInMainChannel: new Set(),
+          usersInMainChannel: {},
           mainChannelName: "",
           mutateState: (fn: (state: WebsocketState) => void) => set(produce(fn)),
           disconnect: () =>
