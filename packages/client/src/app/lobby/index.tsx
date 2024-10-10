@@ -5,7 +5,6 @@ import { SPACING_REM, SPACING_REM_LARGE, TOP_BAR_HEIGHT_REM } from "@/client_con
 import GamesSection from "./games-section";
 import UserList from "./user-list/";
 import quickStartGame from "./games-section/quick-start-game";
-import { useWebsocketStore } from "@/stores/websocket-store";
 import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
 import GithubLogo from "../../../public/github-logo.svg";
 import DiscordLogo from "../../../public/discord-logo.svg";
@@ -15,9 +14,10 @@ import { useHttpRequestStore } from "@/stores/http-request-store";
 import { useEffect } from "react";
 import { useLobbyStore } from "@/stores/lobby-store";
 import AuthFormContainer from "./auth-form";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 export default function Lobby() {
-  const socketOption = useWebsocketStore().socketOption;
+  const socketOption = websocketConnection;
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);
   const usersContainerWidth = Math.floor(BASE_SCREEN_SIZE * usersContainerWidthMultiplier);
   const currentSessionHttpResponseTracker = useHttpRequestStore().requests["get session"];

@@ -23,7 +23,7 @@ import "./floating-text-animation.css";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
 import { getTailwindClassFromFloatingTextColor } from "@/stores/game-store/floating-text";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
-import { useWebsocketStore } from "@/stores/websocket-store";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 interface Props {
   entityId: string;
@@ -39,7 +39,6 @@ const modelDomPositionElements: { [entityId: string]: null | HTMLDivElement } = 
 export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const gameOption = useGameStore().game;
   const mutateGameState = useGameStore().mutateState;
-  const socketOption = useWebsocketStore().socketOption;
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
@@ -123,9 +122,8 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
     mutateGameState((store) => {
       const focusedCharacterResult = getFocusedCharacter(store);
       if (focusedCharacterResult instanceof Error) return console.error(focusedCharacterResult);
-      if (!socketOption) return console.error(ERROR_MESSAGES.CLIENT.NO_SOCKET_OBJECT);
       focusedCharacterResult.combatantProperties.selectedCombatAction = null;
-      socketOption.emit(ClientToServerEvent.SelectCombatAction, entityId, null);
+      websocketConnection.emit(ClientToServerEvent.SelectCombatAction, entityId, null);
       store.focusedCharacterId = entityId;
       store.menuContext = MenuContext.InventoryItems;
     });

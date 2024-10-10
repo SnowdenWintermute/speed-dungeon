@@ -1,19 +1,19 @@
+import { websocketConnection } from "@/singletons/websocket-connection";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
-import { PartyClientSocket } from "@/stores/websocket-store";
 import { ClientToServerEvent, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
 
-export default function useSelectedCombatActionHandler(
-  mutateGameState: MutateState<GameState>,
-  socket: PartyClientSocket
-) {
+export default function useSelectedCombatActionHandler(mutateGameState: MutateState<GameState>) {
   mutateGameState((gameState) => {
     gameState.detailedEntity = null;
     const previousActionMenuPageNumberOption = gameState.actionMenuParentPageNumbers.pop();
     if (typeof previousActionMenuPageNumberOption === "number") {
       gameState.actionMenuCurrentPageNumber = previousActionMenuPageNumberOption;
     }
-    socket.emit(ClientToServerEvent.UseSelectedCombatAction, gameState.focusedCharacterId);
+    websocketConnection.emit(
+      ClientToServerEvent.UseSelectedCombatAction,
+      gameState.focusedCharacterId
+    );
 
     if (!gameState.game) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
     const partyResult = gameState.getParty();

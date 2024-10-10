@@ -1,15 +1,14 @@
 import { setAlert } from "@/app/components/alerts";
+import { websocketConnection } from "@/singletons/websocket-connection";
 import { AlertState } from "@/stores/alert-store";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
-import { PartyClientSocket } from "@/stores/websocket-store";
 import getClientPlayerAssociatedData from "@/utils/getClientPlayerAssociatedData";
 import { ClientToServerEvent, SpeedDungeonGame } from "@speed-dungeon/common";
 
 export default function cycleTargetingSchemeHandler(
   mutateGameState: MutateState<GameState>,
-  mutateAlertState: MutateState<AlertState>,
-  socket: PartyClientSocket
+  mutateAlertState: MutateState<AlertState>
 ) {
   mutateGameState((gameState) => {
     const clientPlayerAssociatedDataResult = getClientPlayerAssociatedData(gameState);
@@ -24,6 +23,9 @@ export default function cycleTargetingSchemeHandler(
       focusedCharacter.entityProperties.id
     );
 
-    socket.emit(ClientToServerEvent.CycleTargetingSchemes, focusedCharacter.entityProperties.id);
+    websocketConnection.emit(
+      ClientToServerEvent.CycleTargetingSchemes,
+      focusedCharacter.entityProperties.id
+    );
   });
 }

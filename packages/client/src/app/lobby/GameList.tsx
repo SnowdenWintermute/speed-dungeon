@@ -2,7 +2,7 @@ import { useLobbyStore } from "@/stores/lobby-store";
 import React from "react";
 import ButtonBasic from "../components/atoms/ButtonBasic";
 import { ClientToServerEvent, GameListEntry } from "@speed-dungeon/common";
-import { useWebsocketStore } from "@/stores/websocket-store";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 export default function GameList() {
   const gameList = useLobbyStore().gameList;
@@ -27,9 +27,8 @@ interface GameListItemProps {
 }
 
 function GameListItem(props: GameListItemProps) {
-  const socketOption = useWebsocketStore().socketOption;
   function joinGame() {
-    socketOption?.emit(ClientToServerEvent.JoinGame, props.game.gameName);
+    websocketConnection.emit(ClientToServerEvent.JoinGame, props.game.gameName);
   }
 
   return (

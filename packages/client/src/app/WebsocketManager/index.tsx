@@ -43,6 +43,7 @@ import { ActionCommandManager } from "@speed-dungeon/common";
 import getCurrentParty from "@/utils/getCurrentParty";
 import characterIncrementedAttributePointHandler from "./game-event-handlers/character-incremented-attribute-point-handler";
 import gameProgressMessageHandler from "./game-event-handlers/game-progress-message-handler";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 function SocketManager({
   actionCommandReceiver,
@@ -54,20 +55,18 @@ function SocketManager({
   actionCommandWaitingArea: MutableRefObject<ActionCommand[] | null | undefined>;
 }) {
   const mutateWebsocketStore = useWebsocketStore().mutateState;
-  const disconnectSocket = useWebsocketStore().disconnect;
-  const websocketOption = useWebsocketStore().socketOption;
   const mutateLobbyStore = useLobbyStore().mutateState;
   const mutateGameStore = useGameStore().mutateState;
   const gameName = useGameStore().gameName;
   const mutateAlertStore = useAlertStore().mutateState;
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
-  const socketOption = useWebsocketStore().socketOption;
+  const socketOption = websocketConnection;
 
   // setup socket
   useEffect(() => {
-    websocketOption.connect();
+    socketOption.connect();
     return () => {
-      disconnectSocket();
+      socketOption.disconnect();
     };
   }, []);
 

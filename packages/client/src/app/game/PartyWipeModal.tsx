@@ -1,15 +1,14 @@
 import { useGameStore } from "@/stores/game-store";
 import React from "react";
 import ButtonBasic from "../components/atoms/ButtonBasic";
-import { useWebsocketStore } from "@/stores/websocket-store";
 import { AdventuringParty, ClientToServerEvent } from "@speed-dungeon/common";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 export default function PartyWipeModal({ party }: { party: AdventuringParty }) {
   const mutateGameState = useGameStore().mutateState;
-  const socketOption = useWebsocketStore().socketOption;
 
   function leaveGame() {
-    socketOption?.emit(ClientToServerEvent.LeaveGame);
+    websocketConnection.emit(ClientToServerEvent.LeaveGame);
     mutateGameState((state) => {
       state.game = null;
     });

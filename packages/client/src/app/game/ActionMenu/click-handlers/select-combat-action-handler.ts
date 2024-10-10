@@ -1,8 +1,8 @@
 import { setAlert } from "@/app/components/alerts";
+import { websocketConnection } from "@/singletons/websocket-connection";
 import { AlertState } from "@/stores/alert-store";
 import { GameState, MenuContext } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
-import { PartyClientSocket } from "@/stores/websocket-store";
 import getClientPlayerAssociatedData from "@/utils/getClientPlayerAssociatedData";
 import {
   CombatAction,
@@ -16,7 +16,6 @@ import { getCombatActionProperties } from "@speed-dungeon/common";
 export default function selectCombatActionHandler(
   gameState: GameState,
   mutateAlertState: MutateState<AlertState>,
-  socket: PartyClientSocket,
   combatActionOption: null | CombatAction
 ) {
   gameState.mutateState((gameState) => {
@@ -54,7 +53,7 @@ export default function selectCombatActionHandler(
     gameState.hoveredAction = null;
     gameState.hoveredEntity = null;
 
-    socket.emit(
+    websocketConnection.emit(
       ClientToServerEvent.SelectCombatAction,
       focusedCharacter.entityProperties.id,
       combatActionOption

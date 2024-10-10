@@ -9,9 +9,9 @@ import Divider from "@/app/components/atoms/Divider";
 import { useLobbyStore } from "@/stores/lobby-store";
 import useElementIsOverflowing from "@/hooks/use-element-is-overflowing";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 export default function GamesSection() {
-  const socketOption = useWebsocketStore().socketOption;
   const [gameName, setGameName] = useState("");
   const [gameListRefreshedAt, setGameListRefreshedAt] = useState("...");
   const gameList = useLobbyStore().gameList;
@@ -24,23 +24,23 @@ export default function GamesSection() {
 
   function createGame(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    socketOption?.emit(ClientToServerEvent.CreateGame, gameName);
+    websocketConnection.emit(ClientToServerEvent.CreateGame, gameName);
   }
 
   function refreshGameList() {
-    socketOption?.emit(ClientToServerEvent.RequestsGameList);
+    websocketConnection.emit(ClientToServerEvent.RequestsGameList);
     setGameListRefreshedAt(new Date(Date.now()).toLocaleTimeString());
   }
 
-  const testGames = new Array(40).fill("").map((item) => {
-    const entry = {
-      gameName: "some game nameeeeeeeeeeeee",
-      numberOfUsers: Math.floor(Math.random() * 3),
-      timeStarted: null,
-    };
+  // const testGames = new Array(40).fill("").map((item) => {
+  //   const entry = {
+  //     gameName: "some game nameeeeeeeeeeeee",
+  //     numberOfUsers: Math.floor(Math.random() * 3),
+  //     timeStarted: null,
+  //   };
 
-    return <GameListItem game={entry} />;
-  });
+  //   return <GameListItem game={entry} />;
+  // });
 
   return (
     <div
@@ -122,9 +122,8 @@ interface GameListItemProps {
 }
 
 function GameListItem(props: GameListItemProps) {
-  const socketOption = useWebsocketStore().socketOption;
   function joinGame() {
-    socketOption?.emit(ClientToServerEvent.JoinGame, props.game.gameName);
+    websocketConnection.emit(ClientToServerEvent.JoinGame, props.game.gameName);
   }
 
   return (

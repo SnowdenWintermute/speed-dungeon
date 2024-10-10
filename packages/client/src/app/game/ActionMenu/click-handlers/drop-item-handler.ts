@@ -1,15 +1,14 @@
 import { setAlert } from "@/app/components/alerts";
+import { websocketConnection } from "@/singletons/websocket-connection";
 import { AlertState } from "@/stores/alert-store";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
-import { PartyClientSocket } from "@/stores/websocket-store";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { CombatantProperties, ClientToServerEvent } from "@speed-dungeon/common";
 
 export default function dropItemHandler(
   mutateGameState: MutateState<GameState>,
   mutateAlertState: MutateState<AlertState>,
-  socket: PartyClientSocket,
   itemId: string
 ) {
   mutateGameState((gameState) => {
@@ -25,9 +24,13 @@ export default function dropItemHandler(
     const characterId = focusedCharacter.entityProperties.id;
 
     if (slotItemIsEquipped !== null) {
-      socket.emit(ClientToServerEvent.DropEquippedItem, characterId, slotItemIsEquipped);
+      websocketConnection.emit(
+        ClientToServerEvent.DropEquippedItem,
+        characterId,
+        slotItemIsEquipped
+      );
     } else {
-      socket.emit(ClientToServerEvent.DropItem, characterId, itemId);
+      websocketConnection.emit(ClientToServerEvent.DropItem, characterId, itemId);
     }
 
     gameState.detailedEntity = null;
