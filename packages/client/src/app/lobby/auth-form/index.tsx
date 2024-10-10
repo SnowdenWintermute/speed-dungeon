@@ -65,6 +65,7 @@ export default function AuthFormContainer() {
 // - on success
 //   * reset socket connections accross tabs
 //   * fetch active session
+//   * success alert
 
 export enum AuthFormTypes {
   Registration,
