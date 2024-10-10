@@ -1,10 +1,10 @@
 "use client";
-import { TabMessageType, useBroadcastChannelStore } from "@/stores/broadcast-channel-store";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { enableMapSet } from "immer";
 import { useHttpRequestStore } from "@/stores/http-request-store";
+import { TabMessageType, broadcastChannel } from "@/singletons/broadcast-channel";
 enableMapSet();
 
 export default function GoogleOAuthLoader() {
@@ -12,7 +12,6 @@ export default function GoogleOAuthLoader() {
   const state = searchParams.get("state");
   const authorizationCode = searchParams.get("code");
   const resetSocketConnection = useWebsocketStore().resetConnection;
-  const mutateBroadcastState = useBroadcastChannelStore().mutateState;
   const fetchData = useHttpRequestStore().fetchData;
   const httpRequestTrackerName = "get session";
 
@@ -29,11 +28,9 @@ export default function GoogleOAuthLoader() {
       await fetchToken(authorizationCode, state);
 
       resetSocketConnection();
-      mutateBroadcastState((state) => {
-        // message to have their other tabs reconnect with new cookie
-        // to keep socket connections consistent with current authorization
-        state.channel.postMessage({ type: TabMessageType.ReconnectSocket });
-      });
+      // message to have their other tabs reconnect with new cookie
+      // to keep socket connections consistent with current authorization
+      broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });
 
       fetchData(httpRequestTrackerName, `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/sessions`, {
         method: "GET",

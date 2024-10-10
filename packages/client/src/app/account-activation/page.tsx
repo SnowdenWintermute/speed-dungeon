@@ -10,12 +10,11 @@ import ButtonBasic from "../components/atoms/ButtonBasic";
 import { SPACING_REM_LARGE } from "@/client_consts";
 import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
 import WithTopBar from "../components/layouts/with-top-bar";
-import { TabMessageType, useBroadcastChannelStore } from "@/stores/broadcast-channel-store";
+import { TabMessageType, broadcastChannel } from "@/singletons/broadcast-channel";
 
 export default function AccountActivation() {
   const fetchData = useHttpRequestStore().fetchData;
   const mutateAlertStore = useAlertStore().mutateState;
-  const mutateBroadcastState = useBroadcastChannelStore().mutateState;
   const httpRequestTrackerName = "activate account";
   const getSessionRequestTrackerName = "get session";
   const searchParams = useSearchParams();
@@ -37,11 +36,9 @@ export default function AccountActivation() {
       setSuccessMessage("Success!");
       setAlert(mutateAlertStore, "Account activated!");
 
-      mutateBroadcastState((state) => {
-        // message to have their other tabs reconnect with new cookie
-        // to keep socket connections consistent with current authorization
-        state.channel.postMessage({ type: TabMessageType.ReconnectSocket });
-      });
+      // message to have their other tabs reconnect with new cookie
+      // to keep socket connections consistent with current authorization
+      broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });
 
       fetchData(
         getSessionRequestTrackerName,

@@ -8,8 +8,9 @@ import useHttpResponseErrors from "@/hooks/use-http-response-errors";
 import { useAlertStore } from "@/stores/alert-store";
 import { setAlert } from "@/app/components/alerts";
 import { useGameStore } from "@/stores/game-store";
-import { TabMessageType, useBroadcastChannelStore } from "@/stores/broadcast-channel-store";
 import { useWebsocketStore } from "@/stores/websocket-store";
+import { HTTP_REQUEST_NAMES } from "@/client_consts";
+import { TabMessageType, broadcastChannel } from "@/singletons/broadcast-channel";
 
 interface Props {
   setActiveForm: React.Dispatch<React.SetStateAction<AuthFormTypes>>;
@@ -19,22 +20,18 @@ interface Props {
 export default function LoginWithCredentialsForm({ setActiveForm, setNonFieldErrors }: Props) {
   const mutateAlertStore = useAlertStore().mutateState;
   const mutateGameStore = useGameStore().mutateState;
-  const httpRequestTrackerName = "login with credentials";
-  const getSessionRequestTrackerName = "get session";
+  const httpRequestTrackerName = HTTP_REQUEST_NAMES.LOGIN_WITH_CREDENTIALS;
+  const getSessionRequestTrackerName = HTTP_REQUEST_NAMES.GET_SESSION;
   const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
   const fetchData = useHttpRequestStore().fetchData;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors, nonFieldErrors] = useHttpResponseErrors(responseTracker);
-  const mutateBroadcastState = useBroadcastChannelStore().mutateState;
   const resetSocketConnection = useWebsocketStore().resetConnection;
 
   useEffect(() => {
     setNonFieldErrors(nonFieldErrors);
   }, [nonFieldErrors]);
-
-  const statusCode = responseTracker?.statusCode;
-  console.log("statusCode", statusCode);
 
   useEffect(() => {
     if (responseTracker?.statusCode === 201) {
@@ -47,11 +44,9 @@ export default function LoginWithCredentialsForm({ setActiveForm, setNonFieldErr
       if (username !== "string") return console.error("expected username to be a string");
 
       resetSocketConnection();
-      mutateBroadcastState((state) => {
-        // message to have their other tabs reconnect with new cookie
-        // to keep socket connections consistent with current authorization
-        state.channel.postMessage({ type: TabMessageType.ReconnectSocket });
-      });
+      // message to have their other tabs reconnect with new cookie
+      // to keep socket connections consistent with current authorization
+      broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });
 
       fetchData(
         getSessionRequestTrackerName,
@@ -66,7 +61,7 @@ export default function LoginWithCredentialsForm({ setActiveForm, setNonFieldErr
         state.username = username;
       });
     }
-  }, [statusCode]);
+  }, [responseTracker?.statusCode]);
 
   return (
     <form

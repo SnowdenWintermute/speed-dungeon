@@ -1,7 +1,7 @@
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
-import { TabMessageType, useBroadcastChannelStore } from "@/stores/broadcast-channel-store";
+import { TabMessageType, broadcastChannel } from "@/singletons/broadcast-channel";
 import { useGameStore } from "@/stores/game-store";
 import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
 import { useLobbyStore } from "@/stores/lobby-store";
@@ -78,7 +78,6 @@ export default function UserMenuContainer() {
 function UserMenu({ username }: { username: null | string }) {
   const firstLetterOfUsername = username ? username.charAt(0) : "";
   const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const mutateBroadcastState = useBroadcastChannelStore().mutateState;
   const resetSocketConnection = useWebsocketStore().resetConnection;
   const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
@@ -105,11 +104,9 @@ function UserMenu({ username }: { username: null | string }) {
     });
 
     resetSocketConnection();
-    mutateBroadcastState((state) => {
-      // message to have their other tabs reconnect with new cookie
-      // to keep socket connections consistent with current authorization
-      state.channel.postMessage({ type: TabMessageType.ReconnectSocket });
-    });
+    // message to have their other tabs reconnect with new cookie
+    // to keep socket connections consistent with current authorization
+    broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });
   }
   return (
     <div className={`flex flex-col h-fit items-end relative`}>

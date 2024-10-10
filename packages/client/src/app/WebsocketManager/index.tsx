@@ -43,7 +43,6 @@ import { ActionCommandManager } from "@speed-dungeon/common";
 import getCurrentParty from "@/utils/getCurrentParty";
 import characterIncrementedAttributePointHandler from "./game-event-handlers/character-incremented-attribute-point-handler";
 import gameProgressMessageHandler from "./game-event-handlers/game-progress-message-handler";
-import { TabMessageType, useBroadcastChannelStore } from "@/stores/broadcast-channel-store";
 
 function SocketManager({
   actionCommandReceiver,
@@ -56,7 +55,6 @@ function SocketManager({
 }) {
   const mutateWebsocketStore = useWebsocketStore().mutateState;
   const disconnectSocket = useWebsocketStore().disconnect;
-  const resetConnection = useWebsocketStore().resetConnection;
   const websocketOption = useWebsocketStore().socketOption;
   const mutateLobbyStore = useLobbyStore().mutateState;
   const mutateGameStore = useGameStore().mutateState;
@@ -64,17 +62,6 @@ function SocketManager({
   const mutateAlertStore = useAlertStore().mutateState;
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const socketOption = useWebsocketStore().socketOption;
-  const tabMessages = useBroadcastChannelStore().messages;
-  const mutateBroacastChannelState = useBroadcastChannelStore().mutateState;
-
-  useEffect(() => {
-    mutateBroacastChannelState((state) => {
-      const newMessageOption = state.messages.shift();
-      if (newMessageOption) {
-        if (newMessageOption.type === TabMessageType.ReconnectSocket) resetConnection();
-      }
-    });
-  }, [tabMessages]);
 
   // setup socket
   useEffect(() => {
