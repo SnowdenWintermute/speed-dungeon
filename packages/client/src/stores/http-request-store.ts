@@ -15,7 +15,6 @@ export class HttpRequestTracker {
 export type HttpRequestState = {
   requests: { [url: string]: HttpRequestTracker };
   fetchData: (key: string, url: string, options: RequestInit) => Promise<void>;
-  clearRequest: (key: string) => void;
   mutateState: MutateState<HttpRequestState>;
 };
 
@@ -55,13 +54,6 @@ export const useHttpRequestStore = create<HttpRequestState>()(
             [key]: tracker,
           },
         }));
-      },
-      clearRequest: (key: string) => {
-        set((state) => {
-          const newRequests = { ...state.requests };
-          delete newRequests[key];
-          return { requests: newRequests };
-        });
       },
       mutateState: (fn: (state: HttpRequestState) => void) => set(produce(fn)),
     }))

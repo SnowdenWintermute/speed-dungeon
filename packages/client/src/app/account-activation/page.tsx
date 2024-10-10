@@ -5,13 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import LabeledTextInputWithErrorDisplay from "../components/molocules/LabeledInputWithErrorDisplay";
 import ButtonBasic from "../components/atoms/ButtonBasic";
-import { SPACING_REM_LARGE } from "@/client_consts";
+import { HTTP_REQUEST_NAMES, SPACING_REM_LARGE } from "@/client_consts";
 import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
 import WithTopBar from "../components/layouts/with-top-bar";
 import AuthForm from "../lobby/auth-form/AuthForm";
 
 export default function AccountActivation() {
-  const httpRequestTrackerName = "activate account";
+  const httpRequestTrackerName = HTTP_REQUEST_NAMES.ACTIVATE_ACCOUNT;
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const email = searchParams.get("email");

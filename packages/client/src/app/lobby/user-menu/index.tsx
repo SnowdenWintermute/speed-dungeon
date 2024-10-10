@@ -17,14 +17,12 @@ export default function UserMenuContainer() {
   const responseTracker = useHttpRequestStore().requests[getSessionRequestTrackerName];
   const mutateLobbyState = useLobbyStore().mutateState;
   const mutateGameState = useGameStore().mutateState;
+  const mutateHttpState = useHttpRequestStore().mutateState;
   const showAuthForm = useLobbyStore().showAuthForm;
   const router = useRouter();
 
   useEffect(() => {
-    // check for logged in
-    // - when mount component
-    // - when login flow complete
-    // - when logout pressed
+    // always at least check auth status whenever the top bar is mounted
     fetchData(getSessionRequestTrackerName, `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/sessions`, {
       method: "GET",
       credentials: "include",
@@ -65,6 +63,10 @@ export default function UserMenuContainer() {
     <ButtonBasic
       onClick={() => {
         router.push("/");
+        mutateHttpState((state) => {
+          // so we don't see any old error messages
+          delete state.requests[HTTP_REQUEST_NAMES.SIGN_UP_WITH_CREDENTIALS];
+        });
 
         if (showAuthForm) {
           mutateLobbyState((state) => {

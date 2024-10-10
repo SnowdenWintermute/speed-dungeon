@@ -6,13 +6,14 @@ import React, { useState } from "react";
 import { AuthFormTypes } from ".";
 import useHttpResponseErrors from "@/hooks/use-http-response-errors";
 import AuthForm from "./AuthForm";
+import { HTTP_REQUEST_NAMES } from "@/client_consts";
 
 interface Props {
   setActiveForm: React.Dispatch<React.SetStateAction<AuthFormTypes>>;
 }
 
 export default function SignUpWithCredentialsForm({ setActiveForm }: Props) {
-  const httpRequestTrackerName = "sign up with credentials";
+  const httpRequestTrackerName = HTTP_REQUEST_NAMES.SIGN_UP_WITH_CREDENTIALS;
   const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
   const [email, setEmail] = useState("");
   const [fieldErrors, setFieldErrors, nonFieldErrors] = useHttpResponseErrors(responseTracker);

@@ -10,4 +10,6 @@ export const UNMET_REQUIREMENT_TEXT_COLOR = "text-red-400";
 export const HTTP_REQUEST_NAMES = {
   GET_SESSION: "get session",
   LOGIN_WITH_CREDENTIALS: "login with credentials",
+  SIGN_UP_WITH_CREDENTIALS: "sign up with credentials",
+  ACTIVATE_ACCOUNT: "activate account",
 };

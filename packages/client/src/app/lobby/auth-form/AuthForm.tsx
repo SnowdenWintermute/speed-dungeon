@@ -64,7 +64,7 @@ export default function AuthForm({
     <div>
       <h3 className="text-lg mb-3">
         <div className="text-zinc-300">{titleText}</div>
-        {responseTracker?.ok && (successMessage || "")}
+        {responseTracker?.ok && <div className="text-green-600">{successMessage || ""}</div>}
         {!responseTracker?.ok && nonFieldErrorElements}
       </h3>
       <form onSubmit={handleSubmit}>{children}</form>
