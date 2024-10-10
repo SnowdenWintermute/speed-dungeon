@@ -10,7 +10,7 @@ enableMapSet();
 export default function GoogleOAuthLoader() {
   const searchParams = useSearchParams();
   const state = searchParams.get("state");
-  const code = searchParams.get("code");
+  const authorizationCode = searchParams.get("code");
   const resetSocketConnection = useWebsocketStore().resetConnection;
   const mutateBroadcastState = useBroadcastChannelStore().mutateState;
   const fetchData = useHttpRequestStore().fetchData;
@@ -23,10 +23,10 @@ export default function GoogleOAuthLoader() {
   useEffect(() => {
     if (effectRan.current) return;
     effectRan.current = true;
-    if (!code || !state)
+    if (!authorizationCode || !state)
       return setLoadingStateText("Error authenticating - missing query parameters");
     (async () => {
-      await fetchToken(code, state);
+      await fetchToken(authorizationCode, state);
 
       resetSocketConnection();
       mutateBroadcastState((state) => {
@@ -40,17 +40,16 @@ export default function GoogleOAuthLoader() {
         credentials: "include",
       });
 
-      window.opener.postMessage({ googleSignInResult: "success" }, "*");
       window.close();
     })();
-  }, [code, state]);
+  }, [authorizationCode, state]);
 
   return <div className="w-full flex justify-center p-4">{loadingTextState}</div>;
 }
 
 async function fetchToken(code: string, state: string) {
   try {
-    const response = await fetch("http://localhost:8081/oauth/google", {
+    await fetch("http://localhost:8081/oauth/google", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -59,9 +58,6 @@ async function fetchToken(code: string, state: string) {
       credentials: "include",
       body: JSON.stringify({ code, state }),
     });
-
-    const data = await response.json();
-    console.log(data);
   } catch (err) {
     console.error(err);
   }

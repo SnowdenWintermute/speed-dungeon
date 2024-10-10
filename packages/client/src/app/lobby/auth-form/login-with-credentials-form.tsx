@@ -33,6 +33,9 @@ export default function LoginWithCredentialsForm({ setActiveForm, setNonFieldErr
     setNonFieldErrors(nonFieldErrors);
   }, [nonFieldErrors]);
 
+  const statusCode = responseTracker?.statusCode;
+  console.log("statusCode", statusCode);
+
   useEffect(() => {
     if (responseTracker?.statusCode === 201) {
       setAlert(mutateAlertStore, "Welcome back!");
@@ -63,7 +66,7 @@ export default function LoginWithCredentialsForm({ setActiveForm, setNonFieldErr
         state.username = username;
       });
     }
-  }, [responseTracker?.statusCode]);
+  }, [statusCode]);
 
   return (
     <form

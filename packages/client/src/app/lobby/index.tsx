@@ -10,11 +10,11 @@ import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper
 import GithubLogo from "../../../public/github-logo.svg";
 import DiscordLogo from "../../../public/discord-logo.svg";
 import Link from "next/link";
-import AuthForm from "./auth-form";
 import WithTopBar from "../components/layouts/with-top-bar";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import { useEffect } from "react";
 import { useLobbyStore } from "@/stores/lobby-store";
+import AuthFormContainer from "./auth-form";
 
 export default function Lobby() {
   const socketOption = useWebsocketStore().socketOption;
@@ -30,6 +30,22 @@ export default function Lobby() {
         state.showAuthForm = false;
       });
   }, [currentSessionHttpResponseTracker]);
+
+  console.log("showAuthForm", showAuthForm);
+
+  const hideAuthForm =
+    !showAuthForm ||
+    currentSessionHttpResponseTracker === undefined ||
+    currentSessionHttpResponseTracker.statusCode === 200 ||
+    currentSessionHttpResponseTracker.loading;
+
+  console.log(
+    currentSessionHttpResponseTracker,
+    currentSessionHttpResponseTracker?.statusCode !== 200,
+    !currentSessionHttpResponseTracker?.loading,
+    "shouldShowAuthForm: ",
+    hideAuthForm
+  );
 
   return (
     <WithTopBar>
@@ -60,15 +76,12 @@ export default function Lobby() {
         </div>
       </section>
       <section
-        id="auth-form-container"
-        className="absolute h-full w-full top-0 right-0 flex items-center justify-center"
+        id="auth-form-section"
+        className="absolute h-full w-full z-20 top-0 right-0 flex items-center justify-center"
       >
-        {showAuthForm &&
-          currentSessionHttpResponseTracker &&
-          currentSessionHttpResponseTracker?.statusCode !== 200 &&
-          !currentSessionHttpResponseTracker?.loading && <AuthForm />}
+        {!hideAuthForm && <AuthFormContainer />}
       </section>
-      <div className="absolute bottom-0 w-full p-7 flex items-center justify-center">
+      <div className="absolute z-10 bottom-0 w-full p-7 flex items-center justify-center">
         <HoverableTooltipWrapper tooltipText="Start a single player game where you control one of each character type">
           <button
             onClick={() => quickStartGame(socketOption)}

@@ -1,8 +1,9 @@
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
+import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import { TabMessageType, useBroadcastChannelStore } from "@/stores/broadcast-channel-store";
 import { useGameStore } from "@/stores/game-store";
-import { useHttpRequestStore } from "@/stores/http-request-store";
+import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { useWebsocketStore } from "@/stores/websocket-store";
 import Link from "next/link";
@@ -24,12 +25,11 @@ export default function UserMenuContainer() {
     // - when mount component
     // - when login flow complete
     // - when logout pressed
-    // - we'll get new usernames when login flow complete or logout pressed because we reset the socket connection
     fetchData(getSessionRequestTrackerName, `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/sessions`, {
       method: "GET",
       credentials: "include",
     });
-  }, [username]);
+  }, []);
 
   useEffect(() => {
     if (responseTracker && responseTracker.data) {
@@ -92,7 +92,12 @@ function UserMenu({ username }: { username: null | string }) {
       credentials: "include",
     });
     mutateHttpState((state) => {
-      delete state.requests["get session"];
+      if (!state.requests[HTTP_REQUEST_NAMES.GET_SESSION])
+        state.requests[HTTP_REQUEST_NAMES.GET_SESSION] = new HttpRequestTracker();
+      // don't delete the tracker because our auth form and user menu loading spinner
+      // state depend on if this request tracke has been created yet
+      state.requests[HTTP_REQUEST_NAMES.GET_SESSION]!.statusCode = 1;
+      delete state.requests[HTTP_REQUEST_NAMES.LOGIN_WITH_CREDENTIALS];
     });
 
     mutateGameState((state) => {
@@ -115,7 +120,7 @@ function UserMenu({ username }: { username: null | string }) {
         aria-controls="user-menu-items"
         aria-expanded={showUserDropdown}
         aria-label={"toggle user menu"}
-        onClick={(e) => {
+        onClick={(_e) => {
           setShowUserDropdown(!showUserDropdown);
         }}
       >

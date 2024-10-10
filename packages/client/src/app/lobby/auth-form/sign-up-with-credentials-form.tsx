@@ -31,7 +31,6 @@ export default function SignUpWithCredentialsForm({
   }, [nonFieldErrors]);
 
   useEffect(() => {
-    console.log("responseTracker?.statusCode", responseTracker?.statusCode);
     if (responseTracker?.statusCode === 201) {
       setSuccessMessage(
         "An email has been sent to your address with a link to activate your account"

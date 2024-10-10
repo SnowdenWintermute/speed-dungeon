@@ -2,17 +2,15 @@ import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import { SPACING_REM_LARGE } from "@/client_consts";
 import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
-import GoogleLogo from "../../../../public/google-logo.svg";
-import { setAlert } from "@/app/components/alerts";
-import { useAlertStore } from "@/stores/alert-store";
 import SignUpWithCredentialsForm from "./sign-up-with-credentials-form";
 import LoginWithCredentialsForm from "./login-with-credentials-form";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useLobbyStore } from "@/stores/lobby-store";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import LogInWithGoogleButton from "./login-in-with-google-button";
 
-export default function AuthForm() {
+export default function AuthFormContainer() {
   const mutateLobbyState = useLobbyStore().mutateState;
   const highlightAuthForm = useLobbyStore().highlightAuthForm;
   const [nonFieldErrors, setNonFieldErrors] = useState<string[]>([]);
@@ -59,6 +57,15 @@ export default function AuthForm() {
   );
 }
 
+// common among auth forms
+// - nonFieldErrors
+// - success message
+// - success alert
+// - route method and address
+// - on success
+//   * reset socket connections accross tabs
+//   * fetch active session
+
 export enum AuthFormTypes {
   Registration,
   SignIn,
@@ -71,53 +78,8 @@ function AuthForms({
   setNonFieldErrors: React.Dispatch<React.SetStateAction<string[]>>;
   setSuccessMessage: React.Dispatch<React.SetStateAction<string>>;
 }) {
-  const mutateAlertStore = useAlertStore().mutateState;
   const [activeForm, setActiveForm] = useState(AuthFormTypes.Registration);
   const [googleAuthLoading, setGoogleAuthLoading] = useState(false);
-
-  function handleGoogleSignInWindowMessage(event: any) {
-    if (event.origin !== "http://localhost:3000") return;
-    if (event.data.googleSignInResult) {
-      console.log("event.data.googleSignInResult: ", event.data.googleSignInResult);
-      setGoogleAuthLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    window.addEventListener("message", handleGoogleSignInWindowMessage);
-
-    return () => {
-      window.removeEventListener("message", handleGoogleSignInWindowMessage);
-    };
-  }, []);
-
-  async function startGoogleSignIn() {
-    setGoogleAuthLoading(true);
-    const requestUriResponse = await fetch("http://localhost:8081/oauth/google", {
-      method: "POST",
-      credentials: "include",
-    });
-
-    const asJson = await requestUriResponse.json();
-
-    if (typeof asJson.requestUri !== "string") {
-      return setAlert(
-        mutateAlertStore,
-        "Couldn't get the google sign in link from the auth server"
-      );
-    }
-
-    const width = 500;
-    const height = 600;
-    const left = screen.width / 2 - width / 2;
-    const top = screen.height / 2 - height / 2;
-
-    const authWindow = window.open(
-      asJson.requestUri,
-      "Google OAuth",
-      `width=${width},height=${height},top=${top},left=${left}`
-    );
-  }
 
   const formToShow =
     activeForm === AuthFormTypes.Registration ? (
@@ -158,13 +120,7 @@ function AuthForms({
   return (
     <div>
       {formToShow}
-      <ButtonBasic
-        buttonType="button"
-        extraStyles="w-full justify-start! text-slate-400"
-        onClick={startGoogleSignIn}
-      >
-        <GoogleLogo className="mr-3" /> SIGN IN WITH GOOGLE
-      </ButtonBasic>
+      <LogInWithGoogleButton setGoogleAuthLoading={setGoogleAuthLoading} />
     </div>
   );
 }
