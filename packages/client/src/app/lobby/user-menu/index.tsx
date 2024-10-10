@@ -1,11 +1,11 @@
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
-import { TabMessageType, broadcastChannel } from "@/singletons/broadcast-channel";
+import { TabMessageType, broadcastChannel, sessionFetcher } from "@/singletons/broadcast-channel";
+import { resetWebsocketConnection } from "@/singletons/websocket-connection";
 import { useGameStore } from "@/stores/game-store";
 import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
 import { useLobbyStore } from "@/stores/lobby-store";
-import { useWebsocketStore } from "@/stores/websocket-store";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { ReactNode, useEffect, useState } from "react";
@@ -29,6 +29,18 @@ export default function UserMenuContainer() {
       method: "GET",
       credentials: "include",
     });
+
+    // this allows us to fetch the session from outside of a react component
+    // and still track updates inside components subscribed to this HttpRequestTracker
+    sessionFetcher.fromZustand = () =>
+      fetchData(
+        getSessionRequestTrackerName,
+        `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/sessions`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
   }, []);
 
   useEffect(() => {
@@ -78,7 +90,6 @@ export default function UserMenuContainer() {
 function UserMenu({ username }: { username: null | string }) {
   const firstLetterOfUsername = username ? username.charAt(0) : "";
   const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const resetSocketConnection = useWebsocketStore().resetConnection;
   const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
   // on log out
@@ -103,7 +114,7 @@ function UserMenu({ username }: { username: null | string }) {
       state.username = null;
     });
 
-    resetSocketConnection();
+    resetWebsocketConnection();
     // message to have their other tabs reconnect with new cookie
     // to keep socket connections consistent with current authorization
     broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });

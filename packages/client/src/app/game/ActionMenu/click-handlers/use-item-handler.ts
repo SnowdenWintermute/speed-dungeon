@@ -2,7 +2,6 @@ import { AlertState } from "@/stores/alert-store";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { UIState } from "@/stores/ui-store";
-import { PartyClientSocket } from "@/stores/websocket-store";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import {
   CombatActionType,

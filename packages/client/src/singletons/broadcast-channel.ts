@@ -1,8 +1,14 @@
+import { resetWebsocketConnection } from "./websocket-connection";
+
 const channelName = "speed dungeon broadcast channel";
 export const broadcastChannel = new BroadcastChannel(channelName);
+export const sessionFetcher: {
+  fromZustand: null | (() => Promise<void>);
+} = { fromZustand: null };
 
 export enum TabMessageType {
   ReconnectSocket,
+  RefetchAuthSession,
 }
 
 export type TabMessage = {
@@ -10,9 +16,10 @@ export type TabMessage = {
 };
 
 broadcastChannel.onmessage = (message: any) => {
-  console.log("got bc message in module level variable");
-  console.log(message);
   if (message.data.type === TabMessageType.ReconnectSocket) {
-    console.log("resetting connection");
+    resetWebsocketConnection();
+  }
+  if (message.data.type === TabMessageType.RefetchAuthSession) {
+    if (sessionFetcher.fromZustand) sessionFetcher.fromZustand();
   }
 };

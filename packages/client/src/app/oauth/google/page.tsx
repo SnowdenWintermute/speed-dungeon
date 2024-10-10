@@ -1,19 +1,17 @@
 "use client";
-import { useWebsocketStore } from "@/stores/websocket-store";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { enableMapSet } from "immer";
-import { useHttpRequestStore } from "@/stores/http-request-store";
-import { TabMessageType, broadcastChannel } from "@/singletons/broadcast-channel";
+import {
+  reconnectWebsocketInAllTabs,
+  refetchAuthSessionInAllTabs,
+} from "@/app/lobby/auth-form/auth-utils";
 enableMapSet();
 
 export default function GoogleOAuthLoader() {
   const searchParams = useSearchParams();
   const state = searchParams.get("state");
   const authorizationCode = searchParams.get("code");
-  const resetSocketConnection = useWebsocketStore().resetConnection;
-  const fetchData = useHttpRequestStore().fetchData;
-  const httpRequestTrackerName = "get session";
 
   const [loadingTextState, setLoadingStateText] = useState("Authenticating...");
   // don't run this effect twice in development using strict mode
@@ -26,17 +24,8 @@ export default function GoogleOAuthLoader() {
       return setLoadingStateText("Error authenticating - missing query parameters");
     (async () => {
       await fetchToken(authorizationCode, state);
-
-      resetSocketConnection();
-      // message to have their other tabs reconnect with new cookie
-      // to keep socket connections consistent with current authorization
-      broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });
-
-      fetchData(httpRequestTrackerName, `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/sessions`, {
-        method: "GET",
-        credentials: "include",
-      });
-
+      refetchAuthSessionInAllTabs();
+      reconnectWebsocketInAllTabs();
       window.close();
     })();
   }, [authorizationCode, state]);

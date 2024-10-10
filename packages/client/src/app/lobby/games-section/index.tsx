@@ -1,6 +1,5 @@
 // @refresh reset
 "use client";
-import { useWebsocketStore } from "@/stores/websocket-store";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { ClientToServerEvent, GameListEntry } from "@speed-dungeon/common";
 import ButtonBasic from "../../components/atoms/ButtonBasic";

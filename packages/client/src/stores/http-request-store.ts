@@ -9,6 +9,7 @@ export class HttpRequestTracker {
   loading: boolean = true;
   statusCode: number = 0;
   errors: null | { message: string; field?: string }[] = null;
+  ok: boolean = false;
 }
 
 export type HttpRequestState = {
@@ -35,6 +36,7 @@ export const useHttpRequestStore = create<HttpRequestState>()(
         const tracker = new HttpRequestTracker();
         console.log("fetching with options: ", options);
         const response = await fetch(url, options);
+        tracker.ok = response.ok;
         tracker.loading = false;
         tracker.statusCode = response.status;
         let data: { [key: string]: any } = {};

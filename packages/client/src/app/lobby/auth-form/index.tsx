@@ -1,7 +1,7 @@
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import { SPACING_REM_LARGE } from "@/client_consts";
 import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import SignUpWithCredentialsForm from "./sign-up-with-credentials-form";
 import LoginWithCredentialsForm from "./login-with-credentials-form";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
@@ -13,12 +13,6 @@ import LogInWithGoogleButton from "./login-in-with-google-button";
 export default function AuthFormContainer() {
   const mutateLobbyState = useLobbyStore().mutateState;
   const highlightAuthForm = useLobbyStore().highlightAuthForm;
-  const [nonFieldErrors, setNonFieldErrors] = useState<string[]>([]);
-  const [successMessage, setSuccessMessage] = useState<string>("");
-
-  useEffect(() => {
-    setSuccessMessage("");
-  }, [nonFieldErrors]);
 
   const authFormWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3.5));
   const borderStyle = highlightAuthForm ? "border-zinc-300" : "border-slate-400";
@@ -40,60 +34,25 @@ export default function AuthFormContainer() {
           <XShape className="h-full w-full fill-slate-400" />
         </HotkeyButton>
       </div>
-      <h3 className="text-lg mb-3">
-        {nonFieldErrors.map((message) => (
-          <div className="text-red-500" key={message}>
-            {message}
-          </div>
-        ))}
-        {successMessage ? (
-          <div className="text-green-600">{successMessage}</div>
-        ) : (
-          <div>Log in or sign up to save your progress</div>
-        )}
-      </h3>
-      <AuthForms setNonFieldErrors={setNonFieldErrors} setSuccessMessage={setSuccessMessage} />
+      <AuthForms />
     </div>
   );
 }
-
-// common among auth forms
-// - nonFieldErrors
-// - success message
-// - success alert
-// - route method and address
-// - on success
-//   * reset socket connections accross tabs
-//   * fetch active session
-//   * success alert
 
 export enum AuthFormTypes {
   Registration,
   SignIn,
 }
 
-function AuthForms({
-  setNonFieldErrors,
-  setSuccessMessage,
-}: {
-  setNonFieldErrors: React.Dispatch<React.SetStateAction<string[]>>;
-  setSuccessMessage: React.Dispatch<React.SetStateAction<string>>;
-}) {
+function AuthForms() {
   const [activeForm, setActiveForm] = useState(AuthFormTypes.Registration);
   const [googleAuthLoading, setGoogleAuthLoading] = useState(false);
 
   const formToShow =
     activeForm === AuthFormTypes.Registration ? (
-      <SignUpWithCredentialsForm
-        setActiveForm={setActiveForm}
-        setNonFieldErrors={setNonFieldErrors}
-        setSuccessMessage={setSuccessMessage}
-      />
+      <SignUpWithCredentialsForm setActiveForm={setActiveForm} />
     ) : (
-      <LoginWithCredentialsForm
-        setActiveForm={setActiveForm}
-        setNonFieldErrors={setNonFieldErrors}
-      />
+      <LoginWithCredentialsForm setActiveForm={setActiveForm} />
     );
 
   if (googleAuthLoading)

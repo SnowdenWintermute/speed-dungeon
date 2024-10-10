@@ -1,5 +1,4 @@
 import { useLobbyStore } from "@/stores/lobby-store";
-import { useWebsocketStore } from "@/stores/websocket-store";
 import {
   ActionCommand,
   AdventuringParty,
@@ -54,7 +53,6 @@ function SocketManager({
   actionCommandManager: MutableRefObject<ActionCommandManager | null | undefined>;
   actionCommandWaitingArea: MutableRefObject<ActionCommand[] | null | undefined>;
 }) {
-  const mutateWebsocketStore = useWebsocketStore().mutateState;
   const mutateLobbyStore = useLobbyStore().mutateState;
   const mutateGameStore = useGameStore().mutateState;
   const gameName = useGameStore().gameName;
@@ -62,7 +60,6 @@ function SocketManager({
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const socketOption = websocketConnection;
 
-  // setup socket
   useEffect(() => {
     socketOption.connect();
     return () => {
@@ -109,7 +106,7 @@ function SocketManager({
       setAlert(mutateAlertStore, message);
     });
     socket.on(ServerToClientEvent.ChannelFullUpdate, (channelName, usersInChannel) => {
-      mutateWebsocketStore((state) => {
+      mutateLobbyStore((state) => {
         state.mainChannelName = channelName;
         state.usersInMainChannel = {};
         usersInChannel.forEach(({ username, userChannelDisplayData }) => {
@@ -123,12 +120,12 @@ function SocketManager({
       });
     });
     socket.on(ServerToClientEvent.UserJoinedChannel, (username, userChannelDisplayData) => {
-      mutateWebsocketStore((state) => {
+      mutateLobbyStore((state) => {
         state.usersInMainChannel[username] = userChannelDisplayData;
       });
     });
     socket.on(ServerToClientEvent.UserLeftChannel, (username) => {
-      mutateWebsocketStore((state) => {
+      mutateLobbyStore((state) => {
         delete state.usersInMainChannel[username];
       });
     });

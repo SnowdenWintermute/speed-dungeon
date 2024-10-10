@@ -31,21 +31,11 @@ export default function Lobby() {
       });
   }, [currentSessionHttpResponseTracker]);
 
-  console.log("showAuthForm", showAuthForm);
-
   const hideAuthForm =
     !showAuthForm ||
     currentSessionHttpResponseTracker === undefined ||
     currentSessionHttpResponseTracker.statusCode === 200 ||
     currentSessionHttpResponseTracker.loading;
-
-  console.log(
-    currentSessionHttpResponseTracker,
-    currentSessionHttpResponseTracker?.statusCode !== 200,
-    !currentSessionHttpResponseTracker?.loading,
-    "shouldShowAuthForm: ",
-    hideAuthForm
-  );
 
   return (
     <WithTopBar>

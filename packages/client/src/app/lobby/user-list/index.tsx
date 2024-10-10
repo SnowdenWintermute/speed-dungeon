@@ -1,9 +1,9 @@
 import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client_consts";
-import { useWebsocketStore } from "@/stores/websocket-store";
 import UserPlaque from "./UserPlaque";
+import { useLobbyStore } from "@/stores/lobby-store";
 
 export default function UserList() {
-  const usersInChannel = useWebsocketStore().usersInMainChannel;
+  const usersInChannel = useLobbyStore().usersInMainChannel;
   const usersArray = Object.entries(usersInChannel);
 
   // useEffect(() => {
