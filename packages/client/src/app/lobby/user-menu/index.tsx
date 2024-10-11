@@ -7,9 +7,8 @@ import { useGameStore } from "@/stores/game-store";
 import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { useUIStore } from "@/stores/ui-store";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 
 export default function UserMenuContainer() {
   const username = useGameStore().username;
@@ -96,6 +95,7 @@ function UserMenu({ username }: { username: null | string }) {
   const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
   const mutateUIState = useUIStore().mutateState;
+  const userMenuRef = useRef<HTMLDivElement>(null);
   // on log out
   // send log out to auth server
   // reset socket connection
@@ -130,18 +130,30 @@ function UserMenu({ username }: { username: null | string }) {
     setShowUserDropdown(false);
   }
 
+  const handleClickOutsideMenu = (e: MouseEvent) => {
+    if (userMenuRef.current) {
+      const menuRect = userMenuRef.current.getBoundingClientRect();
+      const { x, y, width, height } = menuRect;
+      const maxX = x + width;
+      const maxY = y + height;
+      if (e.x < x || e.x > maxX || e.y > maxY || e.y < y) closeUserMenu();
+    }
+  };
+
   useEffect(() => {
     window.addEventListener("keyup", closeUserMenu);
+    window.addEventListener("click", handleClickOutsideMenu);
     return () => {
       window.removeEventListener("keyup", closeUserMenu);
+      window.removeEventListener("click", handleClickOutsideMenu);
     };
   }, []);
 
   return (
     <div className={`flex flex-col h-fit items-end relative`}>
       <button
-        id="user-menu-button"
         type="button"
+        id="user-menu-button"
         className={`border border-slate-400 rounded-full h-10 w-10 flex justify-center items-center pb-1 hover:bg-slate-950`}
         aria-controls="user-menu-items"
         aria-expanded={showUserDropdown}
@@ -150,11 +162,16 @@ function UserMenu({ username }: { username: null | string }) {
           setShowUserDropdown(!showUserDropdown);
         }}
       >
-        <span className="text-lg font-bold">{firstLetterOfUsername.toUpperCase()}</span>
+        <span className="text-lg font-bold pointer-events-none">
+          {firstLetterOfUsername.toUpperCase()}
+        </span>
       </button>
 
       {showUserDropdown && (
-        <div className="w-52 absolute border border-slate-400 -top-2 -right-2 pointer-events-none">
+        <div
+          className="w-52 absolute border border-slate-400 -top-2 -right-2 pointer-events-none"
+          ref={userMenuRef}
+        >
           <div className="h-14 flex items-center p-4 mb-[2px]" id="user-menu-spacer">
             <span className="text-lg">User Menu</span>
           </div>

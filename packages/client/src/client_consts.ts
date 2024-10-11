@@ -16,4 +16,5 @@ export const HTTP_REQUEST_NAMES = {
   PASSWORD_RESET_EMAIL: "get password reset email",
   CHANGE_PASSWORD: "change password",
   DELETE_ACCOUNT: "delete account",
+  CHANGE_USERNAME: "change username",
 };

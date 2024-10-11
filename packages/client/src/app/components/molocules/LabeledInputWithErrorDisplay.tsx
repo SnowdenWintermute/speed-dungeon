@@ -9,6 +9,7 @@ type Props = {
   onChange: (e: any) => void;
   disabled?: boolean;
   autofocus?: boolean;
+  autoComplete?: "on" | "off";
   error?: string;
   extraStyles?: string;
   dataCy?: string;
@@ -24,6 +25,7 @@ function LabeledTextInputWithErrorDisplay({
   disabled,
   error,
   autofocus,
+  autoComplete = "on",
   extraStyles = "",
   dataCy = "",
 }: Props) {
@@ -48,6 +50,7 @@ function LabeledTextInputWithErrorDisplay({
         onChange={(e) => onChange(e)}
         disabled={disabled}
         autoFocus={autofocus}
+        autoComplete={autoComplete === "on" ? "on" : "new-password"}
         aria-invalid={!!error}
         data-cy={dataCy}
       />

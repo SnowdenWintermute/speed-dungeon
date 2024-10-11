@@ -28,7 +28,7 @@ export default function DeleteAccountForm() {
       successAlert="Account deleted"
       successMessage="Your account has been deleted"
     >
-      <div className="flex justify-between align-middle text-lg mb-2">
+      <div className="flex justify-between align-middle text-red-500 mb-2">
         <span>Check the box to confirm your intent to delete your account</span>
         <button
           className="h-10 w-10 p-2 border border-slate-400 hover:bg-slate-950"
@@ -45,7 +45,9 @@ export default function DeleteAccountForm() {
         extraStyles={`w-full mb-4 ${confirmDeletion && "bg-red-800"}`}
         disabled={!confirmDeletion}
       >
+        {confirmDeletion && "!!! "}
         {responseTracker?.loading ? "..." : "DELETE ACCOUNT"}
+        {confirmDeletion && " !!!"}
       </ButtonBasic>
     </AuthForm>
   );
