@@ -9,6 +9,7 @@ import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useLobbyStore } from "@/stores/lobby-store";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import LogInWithGoogleButton from "./login-in-with-google-button";
+import PasswordResetEmailForm from "./password-reset-email-form";
 
 export default function AuthFormContainer() {
   const mutateLobbyState = useLobbyStore().mutateState;
@@ -42,18 +43,23 @@ export default function AuthFormContainer() {
 export enum AuthFormTypes {
   Registration,
   SignIn,
+  PasswordReset,
 }
 
 function AuthForms() {
   const [activeForm, setActiveForm] = useState(AuthFormTypes.Registration);
   const [googleAuthLoading, setGoogleAuthLoading] = useState(false);
 
-  const formToShow =
-    activeForm === AuthFormTypes.Registration ? (
-      <SignUpWithCredentialsForm setActiveForm={setActiveForm} />
-    ) : (
-      <LoginWithCredentialsForm setActiveForm={setActiveForm} />
-    );
+  const formToShow = (() => {
+    switch (activeForm) {
+      case AuthFormTypes.Registration:
+        return <SignUpWithCredentialsForm setActiveForm={setActiveForm} />;
+      case AuthFormTypes.SignIn:
+        return <LoginWithCredentialsForm setActiveForm={setActiveForm} />;
+      case AuthFormTypes.PasswordReset:
+        return <PasswordResetEmailForm setActiveForm={setActiveForm} />;
+    }
+  })();
 
   if (googleAuthLoading)
     return (
@@ -80,7 +86,9 @@ function AuthForms() {
   return (
     <div>
       {formToShow}
-      <LogInWithGoogleButton setGoogleAuthLoading={setGoogleAuthLoading} />
+      {activeForm !== AuthFormTypes.PasswordReset && (
+        <LogInWithGoogleButton setGoogleAuthLoading={setGoogleAuthLoading} />
+      )}
     </div>
   );
 }

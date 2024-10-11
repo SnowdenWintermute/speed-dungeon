@@ -10,16 +10,12 @@ import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
 import WithTopBar from "../components/layouts/with-top-bar";
 import AuthForm from "../lobby/auth-forms/AuthForm";
 
-export default function AccountActivation() {
-  const httpRequestTrackerName = HTTP_REQUEST_NAMES.ACTIVATE_ACCOUNT;
+export default function PasswordResetPage() {
+  const httpRequestTrackerName = HTTP_REQUEST_NAMES.CHANGE_PASSWORD;
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
-  const email = searchParams.get("email");
-  const existingUsernameOption = searchParams.get("existing_username_option");
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
-  const router = useRouter();
 
   const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
   const [fieldErrors, setFieldErrors, nonFieldErrors] = useHttpResponseErrors(responseTracker);
@@ -34,41 +30,22 @@ export default function AccountActivation() {
           style={{ padding: `${SPACING_REM_LARGE}rem`, width: `${authFormWidth}px` }}
         >
           <AuthForm
-            titleText={`Finish setting up your account for ${email}`}
+            titleText={`Enter your new password`}
             httpRequestTrackerName={httpRequestTrackerName}
             submitRoute={{
-              url: `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/users`,
+              url: `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/credentials`,
               method: "PUT",
             }}
             fieldValues={{
               token,
-              username: existingUsernameOption || username,
               password,
               passwordConfirm,
             }}
             nonFieldErrors={nonFieldErrors}
             reauthorizeOnSuccess={true}
             successAlert="Success!"
-            successMessage="Account activated!"
-            handleSuccess={() => {
-              router.push("/");
-            }}
+            successMessage="Password changed! You may now log in with your new password."
           >
-            <LabeledTextInputWithErrorDisplay
-              name={"username"}
-              type={"text"}
-              label={"Username"}
-              placeholder={"Username..."}
-              value={existingUsernameOption || username}
-              onChange={(e) => {
-                setUsername(e.target.value);
-                setFieldErrors({ ...fieldErrors, password: "" });
-              }}
-              disabled={!!existingUsernameOption}
-              error={fieldErrors["username"]}
-              extraStyles="text-slate-400 placeholder:opacity-50 mb-2"
-            />
-
             <LabeledTextInputWithErrorDisplay
               name={"password"}
               type={"password"}

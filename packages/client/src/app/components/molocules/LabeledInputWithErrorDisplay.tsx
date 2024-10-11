@@ -38,7 +38,7 @@ function LabeledTextInputWithErrorDisplay({
         )}
       </p>
       <input
-        className={`pl-3 border border-slate-400 h-10 w-full bg-transparent disabled:opacity-70 ${error && "border border-red-500"} ${extraStyles}`}
+        className={`pl-3 border border-slate-400 h-10 w-full bg-transparent autofill:bg-transparent disabled:opacity-70 ${error && "border border-red-500"} ${extraStyles}`}
         aria-label={name}
         type={type}
         placeholder={placeholder}

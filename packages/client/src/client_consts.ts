@@ -1,3 +1,4 @@
+export const WEBSITE_NAME = "Speed Dungeon";
 export const BUTTON_HEIGHT_SMALL = 1.875;
 export const BUTTON_HEIGHT = 2.5;
 export const SPACING_REM = 0.875;
@@ -12,4 +13,6 @@ export const HTTP_REQUEST_NAMES = {
   LOGIN_WITH_CREDENTIALS: "login with credentials",
   SIGN_UP_WITH_CREDENTIALS: "sign up with credentials",
   ACTIVATE_ACCOUNT: "activate account",
+  PASSWORD_RESET_EMAIL: "get password reset email",
+  CHANGE_PASSWORD: "change password",
 };

@@ -5,7 +5,7 @@ import { enableMapSet } from "immer";
 import {
   reconnectWebsocketInAllTabs,
   refetchAuthSessionInAllTabs,
-} from "@/app/lobby/auth-form/auth-utils";
+} from "@/app/lobby/auth-forms/auth-utils";
 enableMapSet();
 
 export default function GoogleOAuthLoader() {

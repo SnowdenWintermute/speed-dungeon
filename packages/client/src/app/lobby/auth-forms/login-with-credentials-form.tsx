@@ -5,36 +5,37 @@ import { useHttpRequestStore } from "@/stores/http-request-store";
 import React, { useState } from "react";
 import { AuthFormTypes } from ".";
 import useHttpResponseErrors from "@/hooks/use-http-response-errors";
-import AuthForm from "./AuthForm";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
+import AuthForm from "./AuthForm";
+import { useUIStore } from "@/stores/ui-store";
 
 interface Props {
   setActiveForm: React.Dispatch<React.SetStateAction<AuthFormTypes>>;
 }
 
-export default function SignUpWithCredentialsForm({ setActiveForm }: Props) {
-  const httpRequestTrackerName = HTTP_REQUEST_NAMES.SIGN_UP_WITH_CREDENTIALS;
+export default function LoginWithCredentialsForm({ setActiveForm }: Props) {
+  const httpRequestTrackerName = HTTP_REQUEST_NAMES.LOGIN_WITH_CREDENTIALS;
   const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
-  const [email, setEmail] = useState("");
   const [fieldErrors, setFieldErrors, nonFieldErrors] = useHttpResponseErrors(responseTracker);
+  const email = useUIStore().authFormEmailField;
+  const setEmail = useUIStore().setAuthFormEmailField;
+  const [password, setPassword] = useState("");
 
   return (
     <AuthForm
       titleText="Log in or sign up to save your progress"
       httpRequestTrackerName={httpRequestTrackerName}
       submitRoute={{
-        url: `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/users`,
+        url: `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/sessions`,
         method: "POST",
       }}
       fieldValues={{
         email,
-        websiteName: "Speed Dungeon",
-        activationPageUrl: `${process.env.NEXT_PUBLIC_BASE_URL + "/account-activation"}`,
+        password,
       }}
       nonFieldErrors={nonFieldErrors}
-      reauthorizeOnSuccess={false}
-      successAlert="Success! Check your email for the activation link"
-      successMessage="An email has been sent to your address with a link to activate your account"
+      reauthorizeOnSuccess={true}
+      successAlert="Welcome back!"
     >
       <LabeledTextInputWithErrorDisplay
         name={"email"}
@@ -50,16 +51,36 @@ export default function SignUpWithCredentialsForm({ setActiveForm }: Props) {
         error={fieldErrors["email"]}
         extraStyles="text-slate-400 placeholder:opacity-50 mb-2"
       />
-      <ButtonBasic buttonType="submit" extraStyles="w-full mb-4">
-        {responseTracker?.loading ? "..." : "CREATE ACCOUNT"}
+
+      <LabeledTextInputWithErrorDisplay
+        name={"password"}
+        type={"password"}
+        label={"Password"}
+        placeholder={"Password..."}
+        value={password}
+        onChange={(e) => {
+          setPassword(e.target.value);
+          setFieldErrors({ ...fieldErrors, password: "" });
+        }}
+        disabled={responseTracker?.loading}
+        error={fieldErrors["password"]}
+        extraStyles="text-slate-400 placeholder:opacity-50 mb-2"
+      />
+
+      <ButtonBasic buttonType="submit" extraStyles="w-full mb-2">
+        {responseTracker?.loading ? "..." : "SIGN IN"}
       </ButtonBasic>
+
+      <div className="mb-3">
+        <button onClick={() => setActiveForm(AuthFormTypes.PasswordReset)}>Reset password</button>
+      </div>
       <Divider extraStyles="mb-4 h-[1px] border-0" />
       <ButtonBasic
         buttonType="button"
         extraStyles="w-full mb-3"
-        onClick={() => setActiveForm(AuthFormTypes.SignIn)}
+        onClick={() => setActiveForm(AuthFormTypes.Registration)}
       >
-        SIGN IN
+        CREATE ACCOUNT
       </ButtonBasic>
     </AuthForm>
   );

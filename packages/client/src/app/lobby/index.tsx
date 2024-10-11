@@ -13,7 +13,7 @@ import WithTopBar from "../components/layouts/with-top-bar";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import { useEffect } from "react";
 import { useLobbyStore } from "@/stores/lobby-store";
-import AuthFormContainer from "./auth-form";
+import AuthFormContainer from "./auth-forms";
 import { websocketConnection } from "@/singletons/websocket-connection";
 
 export default function Lobby() {

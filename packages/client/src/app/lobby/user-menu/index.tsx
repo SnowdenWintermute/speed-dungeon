@@ -6,6 +6,7 @@ import { resetWebsocketConnection } from "@/singletons/websocket-connection";
 import { useGameStore } from "@/stores/game-store";
 import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
 import { useLobbyStore } from "@/stores/lobby-store";
+import { useUIStore } from "@/stores/ui-store";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { ReactNode, useEffect, useState } from "react";
@@ -94,6 +95,7 @@ function UserMenu({ username }: { username: null | string }) {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
+  const mutateUIState = useUIStore().mutateState;
   // on log out
   // send log out to auth server
   // reset socket connection
@@ -120,7 +122,21 @@ function UserMenu({ username }: { username: null | string }) {
     // message to have their other tabs reconnect with new cookie
     // to keep socket connections consistent with current authorization
     broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });
+
+    setShowUserDropdown(false);
   }
+
+  function closeUserMenu() {
+    setShowUserDropdown(false);
+  }
+
+  useEffect(() => {
+    window.addEventListener("keyup", closeUserMenu);
+    return () => {
+      window.removeEventListener("keyup", closeUserMenu);
+    };
+  }, []);
+
   return (
     <div className={`flex flex-col h-fit items-end relative`}>
       <button
@@ -146,9 +162,17 @@ function UserMenu({ username }: { username: null | string }) {
             <div className="p-4 text-lg">{username}</div>
             <ul id="user-menu-items" className="pointer-events-auto border-t border-slate-400">
               <UserMenuItem>
-                <Link href="/settings" className="h-full w-full flex items-center p-4">
+                <button
+                  className="h-full w-full flex items-center p-4"
+                  onClick={() => {
+                    setShowUserDropdown(false);
+                    mutateUIState((state) => {
+                      state.showSettings = !state.showSettings;
+                    });
+                  }}
+                >
                   Settings
-                </Link>
+                </button>
               </UserMenuItem>
               <UserMenuItem>
                 <button className="h-full w-full flex items-center p-4" onClick={logout}>
