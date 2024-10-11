@@ -36,7 +36,7 @@ export default function SignUpWithCredentialsForm({ setActiveForm }: Props) {
       nonFieldErrors={nonFieldErrors}
       reauthorizeOnSuccess={false}
       successAlert="Success! Check your email for the activation link"
-      successMessage="An email has been sent to your address with a link to activate your account"
+      successMessage="An email has been sent to your address with a link to activate your account. Please allow up to 10 minutes for emails to arrive."
     >
       <LabeledTextInputWithErrorDisplay
         name={"email"}

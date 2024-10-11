@@ -9,7 +9,7 @@ interface Props {
   children: ReactNode;
   httpRequestTrackerName: string;
   submitRoute: { url: string; method: string };
-  fieldValues: { [fieldName: string]: null | string };
+  fieldValues: { [fieldName: string]: null | string | boolean };
   nonFieldErrors: string[];
   reauthorizeOnSuccess: boolean;
   successMessage?: string;

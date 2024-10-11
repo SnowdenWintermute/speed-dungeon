@@ -1,4 +1,4 @@
-import React, { SetStateAction, useState } from "react";
+import React, { SetStateAction } from "react";
 import { HTTP_REQUEST_NAMES, WEBSITE_NAME } from "@/client_consts";
 import LabeledTextInputWithErrorDisplay from "@/app/components/molocules/LabeledInputWithErrorDisplay";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
@@ -9,11 +9,11 @@ import AuthForm from "./AuthForm";
 import { AuthFormTypes } from ".";
 import { useUIStore } from "@/stores/ui-store";
 
-export default function PasswordResetEmailForm({
-  setActiveForm,
-}: {
-  setActiveForm: React.Dispatch<SetStateAction<AuthFormTypes>>;
-}) {
+interface Props {
+  setActiveForm?: React.Dispatch<SetStateAction<AuthFormTypes>>;
+}
+
+export default function PasswordResetEmailForm({ setActiveForm }: Props) {
   const httpRequestTrackerName = HTTP_REQUEST_NAMES.PASSWORD_RESET_EMAIL;
   const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
   const [fieldErrors, setFieldErrors, nonFieldErrors] = useHttpResponseErrors(responseTracker);
@@ -56,6 +56,18 @@ export default function PasswordResetEmailForm({
       <ButtonBasic buttonType="submit" extraStyles="w-full mb-4">
         {responseTracker?.loading ? "..." : "GET RESET LINK"}
       </ButtonBasic>
+      {setActiveForm && <PasswordResetEmailFormBottomButtons setActiveForm={setActiveForm} />}
+    </AuthForm>
+  );
+}
+
+function PasswordResetEmailFormBottomButtons({
+  setActiveForm,
+}: {
+  setActiveForm: React.Dispatch<SetStateAction<AuthFormTypes>>;
+}) {
+  return (
+    <>
       <Divider extraStyles="mb-4 h-[1px] border-0" />
       <ButtonBasic
         buttonType="button"
@@ -71,6 +83,6 @@ export default function PasswordResetEmailForm({
       >
         CREATE ACCOUNT
       </ButtonBasic>
-    </AuthForm>
+    </>
   );
 }

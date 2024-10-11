@@ -1,39 +1,63 @@
-import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
+import { HTTP_REQUEST_NAMES, SPACING_REM_SMALL } from "@/client_consts";
 import React from "react";
 import HotkeyButton from "../components/atoms/HotkeyButton";
 import XShape from "../../../public/img/basic-shapes/x-shape.svg";
 import { useUIStore } from "@/stores/ui-store";
+import PasswordResetEmailForm from "../lobby/auth-forms/password-reset-email-form";
+import ButtonBasic from "../components/atoms/ButtonBasic";
+import { useHttpRequestStore } from "@/stores/http-request-store";
+import { useGameStore } from "@/stores/game-store";
+import Divider from "../components/atoms/Divider";
+import DeleteAccountForm from "../lobby/auth-forms/delete-account-form";
 
 export default function Settings() {
   const mutateUIState = useUIStore().mutateState;
+  const mutateHttpRequestState = useHttpRequestStore().mutateState;
+  const username = useGameStore().username;
   const showSettings = useUIStore().showSettings;
 
   if (!showSettings) return <></>;
 
   return (
     <section
-      className="absolute z-20 bg-slate-700 border border-slate-400 pointer-events-auto"
-      style={{
-        width: `calc(100% - ${SPACING_REM_SMALL}rem * 2)`,
-        height: `calc(100% - ${SPACING_REM_SMALL}rem * 2)`,
-        top: `${SPACING_REM_SMALL}rem`,
-        right: `${SPACING_REM_SMALL}rem`,
-      }}
+      aria-label="settings menu"
+      className="absolute h-full w-full z-20 bg-slate-700 border border-slate-400 pointer-events-auto"
     >
-      <div className="h-10 w-full border-b border-slate-400 flex items-center justify-between">
-        <span>Settings</span>
+      <div
+        className="h-10 w-full border-b border-slate-400 flex items-center justify-between"
+        style={{ paddingLeft: `${SPACING_REM_SMALL}rem` }}
+      >
+        <h2 className="text-lg">Settings</h2>
         <HotkeyButton
           className="p-2 h-full w-fit border cursor-pointer"
           hotkey="Escape"
-          onClick={() =>
+          ariaLabel="close settings window"
+          onClick={() => {
             mutateUIState((state) => {
               state.showSettings = false;
-            })
-          }
+            });
+
+            mutateHttpRequestState((state) => {
+              delete state.requests[HTTP_REQUEST_NAMES.PASSWORD_RESET_EMAIL];
+            });
+          }}
         >
           <XShape className="h-full w-full fill-slate-400" />
         </HotkeyButton>
       </div>
+      <div className="flex flex-col" style={{ padding: `${SPACING_REM_SMALL}rem` }}>
+        <h3 className="self-end">Logged in as {username}</h3>
+        <Divider />
+        <div style={{ width: `450px` }}>
+          <PasswordResetEmailForm />
+        </div>
+        <Divider />
+        <div style={{ width: `450px` }}>
+          <DeleteAccountForm />
+        </div>
+      </div>
     </section>
   );
 }
+
+// function PasswordResetEmailForm

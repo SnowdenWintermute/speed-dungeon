@@ -4,6 +4,7 @@ import { FocusEventHandler, MouseEventHandler, useEffect, useRef } from "react";
 interface Props {
   className?: string;
   children: React.ReactNode;
+  ariaLabel?: string;
   hotkey?: string;
   buttonType?: "button" | "submit" | "reset";
   disabled?: boolean;
@@ -42,6 +43,7 @@ export default function HotkeyButton(props: Props) {
       onClick={onClick}
       onFocus={onFocus}
       onBlur={onBlur}
+      aria-label={props.ariaLabel}
     >
       {props.children}
     </button>
