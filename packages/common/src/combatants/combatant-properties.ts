@@ -52,7 +52,6 @@ export class CombatantProperties {
   equipment: Partial<Record<EquipmentSlot, Item>> = {};
   inventory: Inventory = new Inventory();
   traits: CombatantTrait[] = [];
-  // inherent_elemental_affinities: HashMap<MagicalElements; i16>,
   selectedCombatAction: null | CombatAction = null;
   combatActionTarget: null | CombatActionTarget = null;
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
