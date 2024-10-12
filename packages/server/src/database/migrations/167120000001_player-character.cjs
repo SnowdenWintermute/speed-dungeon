@@ -15,7 +15,7 @@ exports.up = (pgm) => {
       game_version VARCHAR(16),
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-      combatant JSONB NOT NULL
+      combatant_properties JSONB NOT NULL
     );
     `);
 };

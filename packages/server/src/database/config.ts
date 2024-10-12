@@ -4,7 +4,7 @@ dotenv.config();
 
 export const pgOptions = {
   host: env.POSTGRES_HOST,
-  port: 5432,
+  port: 5433,
   database: env.POSTGRES_DB,
   user: env.POSTGRES_USER,
   password: env.POSTGRES_PASSWORD,
