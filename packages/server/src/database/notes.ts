@@ -5,7 +5,12 @@
 //
 // TODO:
 // - combine monster and playercharacter into a Combatant class
+// - change entity ids to uuids
+// - figure out simple serialization of Combatants to JSONB data
+// - figure out deserialization of Combatants
 //
+//
+// patchVersion: number
 // id: unique integer (need to change how ids are assigned in game then)
 // ownerId: foreign key unique integer,
 // name: string
@@ -26,5 +31,9 @@
 //   traits: CombatantTrait[] = [];
 //
 //   equipment: Partial<Record<EquipmentSlot, Item>> = {};
-//   inventory: Inventory = new Inventory();
+//   inventory: {
+//     items: Item[] = [];
+//     capacity: number;
+//     shards: number;
+//   }
 // }
