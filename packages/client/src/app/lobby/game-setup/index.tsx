@@ -1,5 +1,5 @@
 import React from "react";
-import UserList from "../UserList";
+import UserList from "../user-list/";
 import GameSetupMenu from "./GameSetupMenu";
 import CharacterAndPartySelection from "./CharacterAndPartySelection";
 

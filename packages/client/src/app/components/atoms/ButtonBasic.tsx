@@ -1,4 +1,5 @@
 import { FocusEventHandler, MouseEventHandler, useEffect, useRef } from "react";
+import HotkeyButton from "./HotkeyButton";
 
 interface Props {
   extraStyles?: string;
@@ -34,12 +35,13 @@ export default function ButtonBasic(props: Props) {
   }, [onClick]);
 
   return (
-    <button
-      type={props.buttonType || "button"}
+    <HotkeyButton
+      buttonType={props.buttonType || "button"}
       disabled={props.disabled || false}
       className={`
       border border-slate-400 h-10 cursor-pointer pr-4 pl-4 
       flex justify-center items-center disabled:opacity-50
+      pointer-events-auto
       disabled:cursor-auto ${props.extraStyles}
       `}
       onClick={onClick}
@@ -47,6 +49,6 @@ export default function ButtonBasic(props: Props) {
       onBlur={onBlur}
     >
       {props.children}
-    </button>
+    </HotkeyButton>
   );
 }

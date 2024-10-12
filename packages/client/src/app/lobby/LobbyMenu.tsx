@@ -1,17 +1,14 @@
 // @refresh reset
 "use client";
-import { useWebsocketStore } from "@/stores/websocket-store";
 import { FormEvent, useState } from "react";
 import { ClientToServerEvent, CombatantClass } from "@speed-dungeon/common";
 import ButtonBasic from "../components/atoms/ButtonBasic";
 import { useGameStore } from "@/stores/game-store";
-import Link from "next/link";
-import signInWithGoogle from "../auth/sign-in-with-google";
 import { setAlert } from "../components/alerts";
 import { useAlertStore } from "@/stores/alert-store";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 export default function LobbyMenu() {
-  const socketOption = useWebsocketStore().socketOption;
   const [gameName, setGameName] = useState("");
   const mutateAlertStore = useAlertStore().mutateState;
 
@@ -20,39 +17,39 @@ export default function LobbyMenu() {
 
   function createGame(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    socketOption?.emit(ClientToServerEvent.CreateGame, gameName);
+    websocketConnection.emit(ClientToServerEvent.CreateGame, gameName);
   }
 
   function refreshGameList() {
-    socketOption?.emit(ClientToServerEvent.RequestsGameList);
+    websocketConnection.emit(ClientToServerEvent.RequestsGameList);
   }
 
   function quickStartGame() {
-    socketOption?.emit(ClientToServerEvent.CreateGame, "");
-    socketOption?.emit(ClientToServerEvent.CreateParty, "");
-    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Warrior);
-    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Rogue);
-    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
-    socketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
-    // socketOption?.emit(ClientToServerEvent.ToggleReadyToExplore);
-    // socketOption?.emit(ClientToServerEvent.SelectCombatAction, "1", {
+    websocketConnection.emit(ClientToServerEvent.CreateGame, "");
+    websocketConnection.emit(ClientToServerEvent.CreateParty, "");
+    websocketConnection.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Warrior);
+    websocketConnection.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Rogue);
+    websocketConnection.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
+    websocketConnection.emit(ClientToServerEvent.ToggleReadyToStartGame);
+    // websocketConnection.emit(ClientToServerEvent.ToggleReadyToExplore);
+    // websocketConnection.emit(ClientToServerEvent.SelectCombatAction, "1", {
     //   type: CombatActionType.AbilityUsed,
     //   abilityName: CombatantAbilityName.Attack,
     // });
   }
 
   function quickHost() {
-    socketOption?.emit(ClientToServerEvent.CreateGame, "test game");
-    socketOption?.emit(ClientToServerEvent.CreateParty, "test party");
-    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Warrior);
+    websocketConnection.emit(ClientToServerEvent.CreateGame, "test game");
+    websocketConnection.emit(ClientToServerEvent.CreateParty, "test party");
+    websocketConnection.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Warrior);
   }
 
   function quickJoin() {
-    socketOption?.emit(ClientToServerEvent.RequestsGameList);
-    socketOption?.emit(ClientToServerEvent.JoinGame, "test game");
-    socketOption?.emit(ClientToServerEvent.JoinParty, "test party");
-    socketOption?.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
-    socketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
+    websocketConnection.emit(ClientToServerEvent.RequestsGameList);
+    websocketConnection.emit(ClientToServerEvent.JoinGame, "test game");
+    websocketConnection.emit(ClientToServerEvent.JoinParty, "test party");
+    websocketConnection.emit(ClientToServerEvent.CreateCharacter, "", CombatantClass.Mage);
+    websocketConnection.emit(ClientToServerEvent.ToggleReadyToStartGame);
   }
 
   return (

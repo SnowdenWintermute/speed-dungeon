@@ -1,16 +1,14 @@
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
-import { useWebsocketStore } from "@/stores/websocket-store";
+import { websocketConnection } from "@/singletons/websocket-connection";
 import { ClientToServerEvent } from "@speed-dungeon/common";
 import React from "react";
 
 export default function GameSetupMenu() {
-  const socketOption = useWebsocketStore().socketOption;
-
   function leaveGame() {
-    socketOption?.emit(ClientToServerEvent.LeaveGame);
+    websocketConnection.emit(ClientToServerEvent.LeaveGame);
   }
   function toggleReady() {
-    socketOption?.emit(ClientToServerEvent.ToggleReadyToStartGame);
+    websocketConnection.emit(ClientToServerEvent.ToggleReadyToStartGame);
   }
 
   return (

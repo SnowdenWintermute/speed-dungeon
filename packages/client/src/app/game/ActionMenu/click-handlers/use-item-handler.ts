@@ -2,7 +2,6 @@ import { AlertState } from "@/stores/alert-store";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { UIState } from "@/stores/ui-store";
-import { PartyClientSocket } from "@/stores/websocket-store";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import {
   CombatActionType,
@@ -12,12 +11,12 @@ import {
 } from "@speed-dungeon/common";
 import selectCombatActionHandler from "./select-combat-action-handler";
 import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 export default function useItemHandler(
   gameState: GameState,
   uiState: UIState,
-  mutateAlertState: MutateState<AlertState>,
-  socket: PartyClientSocket
+  mutateAlertState: MutateState<AlertState>
 ) {
   const altSlotTargeted = uiState.modKeyHeld;
 
@@ -28,9 +27,9 @@ export default function useItemHandler(
   if (itemOption) {
     switch (itemOption.itemProperties.type) {
       case ItemPropertiesType.Equipment:
-        useEquipmentHandler(gameState, socket, itemOption.entityProperties.id, altSlotTargeted);
+        useEquipmentHandler(gameState, itemOption.entityProperties.id, altSlotTargeted);
       case ItemPropertiesType.Consumable:
-        selectCombatActionHandler(gameState, mutateAlertState, socket, {
+        selectCombatActionHandler(gameState, mutateAlertState, {
           type: CombatActionType.ConsumableUsed,
           itemId: itemOption.entityProperties.id,
         });
@@ -38,12 +37,7 @@ export default function useItemHandler(
   }
 }
 
-function useEquipmentHandler(
-  gameState: GameState,
-  socket: PartyClientSocket,
-  itemId: string,
-  altSlot: boolean
-) {
+function useEquipmentHandler(gameState: GameState, itemId: string, altSlot: boolean) {
   const focusedCharacterResult = getFocusedCharacter(gameState);
   if (focusedCharacterResult instanceof Error) return focusedCharacterResult;
   const focusedCharacter = focusedCharacterResult;
@@ -52,13 +46,13 @@ function useEquipmentHandler(
     itemId
   );
   if (slotEquippedOption !== null) {
-    socket.emit(
+    websocketConnection.emit(
       ClientToServerEvent.UnequipSlot,
       focusedCharacter.entityProperties.id,
       slotEquippedOption
     );
   } else {
-    socket.emit(ClientToServerEvent.EquipInventoryItem, {
+    websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
       characterId: focusedCharacter.entityProperties.id,
       itemId,
       equipToAlternateSlot: altSlot,

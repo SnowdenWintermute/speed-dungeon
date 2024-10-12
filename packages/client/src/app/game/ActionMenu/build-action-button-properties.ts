@@ -2,12 +2,6 @@ import { AlertState } from "@/stores/alert-store";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { UIState } from "@/stores/ui-store";
-import {
-  ERROR_MESSAGES,
-  ClientToServerEventTypes,
-  ServerToClientEventTypes,
-} from "@speed-dungeon/common";
-import { Socket } from "socket.io-client";
 import createActionButtonClickHandler from "./click-handlers";
 import determineActionButtonText from "./determine-action-menu-button-text";
 import { ActionMenuButtonProperties } from "./action-menu-button-properties";
@@ -18,16 +12,15 @@ import {
 } from "./hover-handlers";
 import { GameAction } from "./game-actions";
 import actionButtonShouldBeDisabled from "./button-should-be-disabled";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 export default function buildActionButtonProperties(
   gameState: GameState,
   uiState: UIState,
   mutateAlertState: MutateState<AlertState>,
-  socketOption: undefined | Socket<ServerToClientEventTypes, ClientToServerEventTypes>,
   action: GameAction
 ): Error | ActionMenuButtonProperties {
-  if (!socketOption) return new Error(ERROR_MESSAGES.CLIENT.NO_SOCKET_OBJECT);
-  const socket = socketOption;
+  const socket = websocketConnection;
   const textResult = determineActionButtonText(gameState, action);
   if (textResult instanceof Error) return textResult;
   const text = textResult;

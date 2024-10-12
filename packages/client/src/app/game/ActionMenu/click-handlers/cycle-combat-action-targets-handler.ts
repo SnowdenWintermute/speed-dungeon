@@ -1,15 +1,14 @@
 import { setAlert } from "@/app/components/alerts";
+import { websocketConnection } from "@/singletons/websocket-connection";
 import { AlertState } from "@/stores/alert-store";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
-import { PartyClientSocket } from "@/stores/websocket-store";
 import getClientPlayerAssociatedData from "@/utils/getClientPlayerAssociatedData";
 import { ClientToServerEvent, NextOrPrevious, SpeedDungeonGame } from "@speed-dungeon/common";
 
 export default function cycleCombatActionTargetsHandler(
   mutateGameState: MutateState<GameState>,
   mutateAlertState: MutateState<AlertState>,
-  socket: PartyClientSocket,
   direction: NextOrPrevious
 ) {
   mutateGameState((gameState) => {
@@ -27,7 +26,7 @@ export default function cycleCombatActionTargetsHandler(
     );
     if (result instanceof Error) return setAlert(mutateAlertState, result.message);
 
-    socket.emit(
+    websocketConnection.emit(
       ClientToServerEvent.CycleCombatActionTargets,
       focusedCharacter.entityProperties.id,
       direction

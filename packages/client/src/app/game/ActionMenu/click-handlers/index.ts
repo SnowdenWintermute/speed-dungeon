@@ -1,7 +1,6 @@
 import { GameAction, GameActionType } from "../game-actions";
 import { GameState, MenuContext } from "@/stores/game-store";
 import { UIState } from "@/stores/ui-store";
-import { PartyClientSocket } from "@/stores/websocket-store";
 import { MutateState } from "@/stores/mutate-state";
 import { AlertState } from "@/stores/alert-store";
 import { ClientToServerEvent } from "@speed-dungeon/common";
@@ -15,13 +14,13 @@ import cycleTargetingSchemeHandler from "./cycle-targeting-scheme-handler";
 import useSelectedCombatActionHandler from "./use-selected-combat-action-handler";
 import dropItemHandler from "./drop-item-handler";
 import getItemOnGround from "@/utils/getItemOnGround";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 export default function createActionButtonClickHandler(
   gameAction: GameAction,
   gameState: GameState,
   uiState: UIState,
-  mutateAlertState: MutateState<AlertState>,
-  socket: PartyClientSocket
+  mutateAlertState: MutateState<AlertState>
 ) {
   const mutateGameState = gameState.mutateState;
 
@@ -32,7 +31,7 @@ export default function createActionButtonClickHandler(
 
   switch (gameAction.type) {
     case GameActionType.ToggleReadyToExplore:
-      return () => socket.emit(ClientToServerEvent.ToggleReadyToExplore);
+      return () => websocketConnection.emit(ClientToServerEvent.ToggleReadyToExplore);
     case GameActionType.SetInventoryOpen:
       return () =>
         mutateGameState((gameState) => {
@@ -72,28 +71,26 @@ export default function createActionButtonClickHandler(
         selectItem(gameState.mutateState, itemResult);
       };
     case GameActionType.UseItem:
-      return () => useItemHandler(gameState, uiState, mutateAlertState, socket);
+      return () => useItemHandler(gameState, uiState, mutateAlertState);
     case GameActionType.DeselectCombatAction:
-      return () => selectCombatActionHandler(gameState, mutateAlertState, socket, null);
+      return () => selectCombatActionHandler(gameState, mutateAlertState, null);
     case GameActionType.SelectCombatAction:
-      return () =>
-        selectCombatActionHandler(gameState, mutateAlertState, socket, gameAction.combatAction);
+      return () => selectCombatActionHandler(gameState, mutateAlertState, gameAction.combatAction);
     case GameActionType.CycleTargets:
       return () =>
         cycleCombatActionTargetsHandler(
           mutateGameState,
           mutateAlertState,
-          socket,
           gameAction.nextOrPrevious
         );
     case GameActionType.CycleTargetingScheme:
-      return () => cycleTargetingSchemeHandler(mutateGameState, mutateAlertState, socket);
+      return () => cycleTargetingSchemeHandler(mutateGameState, mutateAlertState);
     case GameActionType.UseSelectedCombatAction:
-      return () => useSelectedCombatActionHandler(mutateGameState, socket);
+      return () => useSelectedCombatActionHandler(mutateGameState);
     case GameActionType.DropItem:
-      return () => dropItemHandler(mutateGameState, mutateAlertState, socket, gameAction.itemId);
+      return () => dropItemHandler(mutateGameState, mutateAlertState, gameAction.itemId);
     case GameActionType.ToggleReadyToDescend:
-      return () => socket.emit(ClientToServerEvent.ToggleReadyToDescend);
+      return () => websocketConnection.emit(ClientToServerEvent.ToggleReadyToDescend);
     case GameActionType.SetAssignAttributePointsMenuOpen:
       return () =>
         mutateGameState((gameState) => {
@@ -101,7 +98,7 @@ export default function createActionButtonClickHandler(
         });
     case GameActionType.AssignAttributePoint:
       return () =>
-        socket.emit(
+        websocketConnection.emit(
           ClientToServerEvent.AssignAttributePoint,
           gameState.focusedCharacterId,
           gameAction.attribute

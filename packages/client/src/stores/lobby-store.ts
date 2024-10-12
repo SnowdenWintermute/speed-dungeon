@@ -2,11 +2,14 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { produce } from "immer";
-import { GameListEntry } from "@speed-dungeon/common";
+import { GameListEntry, UserChannelDisplayData } from "@speed-dungeon/common";
 
 export type LobbyState = {
   gameList: GameListEntry[];
-  usernamesInCurrentChannel: string[];
+  mainChannelName: string;
+  usersInMainChannel: { [username: string]: UserChannelDisplayData };
+  showAuthForm: boolean;
+  highlightAuthForm: boolean;
   mutateState: (fn: (state: LobbyState) => void) => void;
 };
 
@@ -15,7 +18,10 @@ export const useLobbyStore = create<LobbyState>()(
     devtools(
       (set, _get) => ({
         gameList: [],
-        usernamesInCurrentChannel: [],
+        mainChannelName: "",
+        usersInMainChannel: {},
+        showAuthForm: true,
+        highlightAuthForm: false,
         mutateState: (fn: (state: LobbyState) => void) => set(produce(fn)),
       }),
       { enabled: true, name: "lobby store" }

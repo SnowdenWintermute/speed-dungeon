@@ -1,5 +1,5 @@
+import { websocketConnection } from "@/singletons/websocket-connection";
 import { useGameStore } from "@/stores/game-store";
-import { useWebsocketStore } from "@/stores/websocket-store";
 import { AdventuringParty, ClientToServerEvent, DungeonRoomType } from "@speed-dungeon/common";
 import React, { MouseEventHandler } from "react";
 
@@ -10,13 +10,12 @@ interface Props {
 export default function ReadyUpDisplay({ party }: Props) {
   const username = useGameStore().username;
   if (username === null) return <div>no username</div>;
-  const socketOption = useWebsocketStore().socketOption;
 
   function handleExploreClick() {
-    socketOption?.emit(ClientToServerEvent.ToggleReadyToExplore);
+    websocketConnection.emit(ClientToServerEvent.ToggleReadyToExplore);
   }
   function handleDescendClick() {
-    socketOption?.emit(ClientToServerEvent.ToggleReadyToDescend);
+    websocketConnection.emit(ClientToServerEvent.ToggleReadyToDescend);
   }
 
   const exploreButtonsText =

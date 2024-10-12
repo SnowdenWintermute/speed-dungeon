@@ -2,13 +2,12 @@ import { setAlert } from "@/app/components/alerts";
 import { AlertState } from "@/stores/alert-store";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
-import { PartyClientSocket } from "@/stores/websocket-store";
 import { ERROR_MESSAGES, ClientToServerEvent } from "@speed-dungeon/common";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 export default function setFocusedCharacter(
   mutateGameState: MutateState<GameState>,
   mutateAlertState: MutateState<AlertState>,
-  socketOption: undefined | PartyClientSocket,
   id: string
 ) {
   mutateGameState((gameState) => {
@@ -31,7 +30,7 @@ export default function setFocusedCharacter(
     );
 
     if (playerOwnsCharacterSwitchingFocusAwayFrom) {
-      socketOption?.emit(
+      websocketConnection.emit(
         ClientToServerEvent.SelectCombatAction,
         characterSwitchingFocusAwayFromId,
         null

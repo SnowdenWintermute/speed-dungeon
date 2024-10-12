@@ -9,9 +9,9 @@ import getItemOnGround from "@/utils/getItemOnGround";
 import selectItem from "@/utils/selectItem";
 import { useAlertStore } from "@/stores/alert-store";
 import { setAlert } from "@/app/components/alerts";
-import { useWebsocketStore } from "@/stores/websocket-store";
 import { ClientToServerEvent } from "@speed-dungeon/common";
 import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 interface Props {
   itemId: string;
@@ -21,7 +21,6 @@ interface Props {
 
 export default function ItemOnGround(props: Props) {
   const { itemId } = props;
-  const socketOption = useWebsocketStore().socketOption;
   const gameState = useGameStore();
   const mutateAlertState = useAlertStore().mutateState;
   function mouseEnterHandler() {
@@ -49,7 +48,7 @@ export default function ItemOnGround(props: Props) {
       gameState.hoveredEntity = null;
       gameState.detailedEntity = null;
     });
-    socketOption?.emit(ClientToServerEvent.PickUpItem, {
+    websocketConnection.emit(ClientToServerEvent.PickUpItem, {
       characterId: gameState.focusedCharacterId,
       itemId,
     });

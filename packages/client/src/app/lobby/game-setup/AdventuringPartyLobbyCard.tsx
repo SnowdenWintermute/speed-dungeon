@@ -1,20 +1,18 @@
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import Divider from "@/app/components/atoms/Divider";
 import { useGameStore } from "@/stores/game-store";
-import { useLobbyStore } from "@/stores/lobby-store";
 import { AdventuringParty, ClientToServerEvent, PlayerCharacter } from "@speed-dungeon/common";
 import React from "react";
 import CharacterLobbyCard from "./CharacterLobbyCard";
-import { useWebsocketStore } from "@/stores/websocket-store";
 import CharacterCreationMenu from "./CharacterCreationMenu";
 import getCurrentPartyName from "@/utils/getCurrentPartyName";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 interface Props {
   party: AdventuringParty;
 }
 
 export default function AdventuringPartyLobbyCard(props: Props) {
-  const socketOption = useWebsocketStore().socketOption;
   const username = useGameStore().username;
   const game = useGameStore().game;
   if (!username) return <div>Client has no username</div>;
@@ -22,10 +20,10 @@ export default function AdventuringPartyLobbyCard(props: Props) {
   const currentPartyName = getCurrentPartyName(game, username);
 
   function leaveParty() {
-    socketOption?.emit(ClientToServerEvent.LeaveParty);
+    websocketConnection.emit(ClientToServerEvent.LeaveParty);
   }
   function joinParty() {
-    socketOption?.emit(ClientToServerEvent.JoinParty, props.party.name);
+    websocketConnection.emit(ClientToServerEvent.JoinParty, props.party.name);
   }
 
   const charactersByUsername: [string, PlayerCharacter[]][] = [];

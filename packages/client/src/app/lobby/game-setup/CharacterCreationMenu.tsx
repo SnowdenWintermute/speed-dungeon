@@ -1,6 +1,6 @@
 import CombatantClassIcon from "@/app/components/atoms/CombatantClassIcon";
 import TextSubmit from "@/app/components/molocules/TextSubmit";
-import { useWebsocketStore } from "@/stores/websocket-store";
+import { websocketConnection } from "@/singletons/websocket-connection";
 import { ClientToServerEvent } from "@speed-dungeon/common";
 import {
   COMBATANT_CLASS_DESCRIPTIONS,
@@ -10,11 +10,14 @@ import {
 import React, { useState } from "react";
 
 export default function CharacterCreationMenu() {
-  const socketOption = useWebsocketStore().socketOption;
   const [combatantClassSelection, setCombatantClassSelection] = useState(CombatantClass.Warrior);
 
   function createCharacter(characterName: string) {
-    socketOption?.emit(ClientToServerEvent.CreateCharacter, characterName, combatantClassSelection);
+    websocketConnection.emit(
+      ClientToServerEvent.CreateCharacter,
+      characterName,
+      combatantClassSelection
+    );
   }
 
   const combatantClasses = Object.values(CombatantClass);

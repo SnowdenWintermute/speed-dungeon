@@ -1,13 +1,17 @@
 "use client";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { enableMapSet } from "immer";
+import {
+  reconnectWebsocketInAllTabs,
+  refetchAuthSessionInAllTabs,
+} from "@/app/lobby/auth-forms/auth-utils";
+enableMapSet();
 
 export default function GoogleOAuthLoader() {
   const searchParams = useSearchParams();
   const state = searchParams.get("state");
-  const code = searchParams.get("code");
-  const router = useRouter();
+  const authorizationCode = searchParams.get("code");
 
   const [loadingTextState, setLoadingStateText] = useState("Authenticating...");
   // don't run this effect twice in development using strict mode
@@ -16,18 +20,22 @@ export default function GoogleOAuthLoader() {
   useEffect(() => {
     if (effectRan.current) return;
     effectRan.current = true;
-    if (!code || !state)
+    if (!authorizationCode || !state)
       return setLoadingStateText("Error authenticating - missing query parameters");
+    (async () => {
+      await fetchToken(authorizationCode, state);
+      refetchAuthSessionInAllTabs();
+      reconnectWebsocketInAllTabs();
+      window.close();
+    })();
+  }, [authorizationCode, state]);
 
-    fetchToken(code, state, router);
-  }, [code, state]);
-
-  return <div>{loadingTextState}</div>;
+  return <div className="w-full flex justify-center p-4">{loadingTextState}</div>;
 }
 
-async function fetchToken(code: string, state: string, router: AppRouterInstance) {
+async function fetchToken(code: string, state: string) {
   try {
-    const response = await fetch("http://localhost:8081/oauth/google", {
+    await fetch("http://localhost:8081/oauth/google", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -36,13 +44,7 @@ async function fetchToken(code: string, state: string, router: AppRouterInstance
       credentials: "include",
       body: JSON.stringify({ code, state }),
     });
-
-    const data = await response.json();
-    console.log(data);
-    router.push("/");
   } catch (err) {
-    console.log(err);
-
-    // Handle errors
+    console.error(err);
   }
 }

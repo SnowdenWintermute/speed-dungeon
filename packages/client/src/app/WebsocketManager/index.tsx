@@ -1,5 +1,4 @@
 import { useLobbyStore } from "@/stores/lobby-store";
-import { useWebsocketStore } from "@/stores/websocket-store";
 import {
   ActionCommand,
   AdventuringParty,
@@ -16,7 +15,6 @@ import {
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
 import React, { MutableRefObject, useEffect } from "react";
-import { io } from "socket.io-client";
 import characterCreationHandler from "./lobby-event-handlers/character-creation-handler";
 import characterDeletionHandler from "./lobby-event-handlers/character-deletion-handler";
 import { useAlertStore } from "@/stores/alert-store";
@@ -44,12 +42,7 @@ import { ActionCommandManager } from "@speed-dungeon/common";
 import getCurrentParty from "@/utils/getCurrentParty";
 import characterIncrementedAttributePointHandler from "./game-event-handlers/character-incremented-attribute-point-handler";
 import gameProgressMessageHandler from "./game-event-handlers/game-progress-message-handler";
-
-const socketAddress =
-  process.env.NEXT_PUBLIC_PRODUCTION === "production"
-    ? "https://roguelikeracing.com"
-    : "http://localhost:8080";
-// const socketAddress = "http://localhost:8080";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 function SocketManager({
   actionCommandReceiver,
@@ -60,31 +53,21 @@ function SocketManager({
   actionCommandManager: MutableRefObject<ActionCommandManager | null | undefined>;
   actionCommandWaitingArea: MutableRefObject<ActionCommand[] | null | undefined>;
 }) {
-  const mutateWebsocketStore = useWebsocketStore().mutateState;
   const mutateLobbyStore = useLobbyStore().mutateState;
   const mutateGameStore = useGameStore().mutateState;
   const gameName = useGameStore().gameName;
   const mutateAlertStore = useAlertStore().mutateState;
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
-  const socketOption = useWebsocketStore().socketOption;
+  const socketOption = websocketConnection;
 
-  // setup socket
   useEffect(() => {
-    mutateWebsocketStore((state) => {
-      state.socketOption = io(socketAddress || "", {
-        transports: ["websocket"],
-      });
-    });
-    // console.log("socket address: ", socketAddress);
+    socketOption.connect();
     return () => {
-      mutateWebsocketStore((state) => {
-        state.socketOption?.disconnect();
-      });
+      socketOption.disconnect();
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
-    if (!socketOption) return;
     const socket = socketOption;
 
     socket.emit(ClientToServerEvent.RequestsGameList);
@@ -122,12 +105,12 @@ function SocketManager({
     socket.on(ServerToClientEvent.ErrorMessage, (message) => {
       setAlert(mutateAlertStore, message);
     });
-    socket.on(ServerToClientEvent.ChannelFullUpdate, (channelName, usernamesInChannel) => {
-      mutateWebsocketStore((state) => {
+    socket.on(ServerToClientEvent.ChannelFullUpdate, (channelName, usersInChannel) => {
+      mutateLobbyStore((state) => {
         state.mainChannelName = channelName;
-        state.usernamesInMainChannel = new Set();
-        usernamesInChannel.forEach((username) => {
-          state.usernamesInMainChannel.add(username);
+        state.usersInMainChannel = {};
+        usersInChannel.forEach(({ username, userChannelDisplayData }) => {
+          state.usersInMainChannel[username] = userChannelDisplayData;
         });
       });
     });
@@ -136,14 +119,14 @@ function SocketManager({
         state.username = username;
       });
     });
-    socket.on(ServerToClientEvent.UserJoinedChannel, (username) => {
-      mutateWebsocketStore((state) => {
-        state.usernamesInMainChannel.add(username);
+    socket.on(ServerToClientEvent.UserJoinedChannel, (username, userChannelDisplayData) => {
+      mutateLobbyStore((state) => {
+        state.usersInMainChannel[username] = userChannelDisplayData;
       });
     });
     socket.on(ServerToClientEvent.UserLeftChannel, (username) => {
-      mutateWebsocketStore((state) => {
-        state.usernamesInMainChannel.delete(username);
+      mutateLobbyStore((state) => {
+        delete state.usersInMainChannel[username];
       });
     });
     socket.on(ServerToClientEvent.GameList, (gameList) => {

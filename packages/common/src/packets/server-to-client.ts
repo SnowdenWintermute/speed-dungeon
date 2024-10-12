@@ -8,6 +8,7 @@ import { NextOrPrevious } from "../primatives/index.js";
 import { CombatAttribute } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
 import { DescendOrExplore } from "../adventuring_party/update-player-readiness.js";
+import { UserChannelDisplayData } from "../users/index.js";
 
 export enum ServerToClientEvent {
   GameList = "0",
@@ -48,9 +49,15 @@ export enum ServerToClientEvent {
 
 export interface ServerToClientEventTypes {
   [ServerToClientEvent.GameList]: (gameList: GameListEntry[]) => void;
-  [ServerToClientEvent.ChannelFullUpdate]: (channelName: string, userNames: string[]) => void;
+  [ServerToClientEvent.ChannelFullUpdate]: (
+    channelName: string,
+    userNames: { username: string; userChannelDisplayData: UserChannelDisplayData }[]
+  ) => void;
   [ServerToClientEvent.ClientUsername]: (username: string) => void;
-  [ServerToClientEvent.UserJoinedChannel]: (username: string) => void;
+  [ServerToClientEvent.UserJoinedChannel]: (
+    username: string,
+    userChannelDisplayData: UserChannelDisplayData
+  ) => void;
   [ServerToClientEvent.UserLeftChannel]: (username: string) => void;
   [ServerToClientEvent.ErrorMessage]: (message: string) => void;
   [ServerToClientEvent.GameFullUpdate]: (game: null | SpeedDungeonGame) => void;

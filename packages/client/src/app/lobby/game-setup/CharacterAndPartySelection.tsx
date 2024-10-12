@@ -1,19 +1,18 @@
 import Divider from "@/app/components/atoms/Divider";
 import TextSubmit from "@/app/components/molocules/TextSubmit";
 import { useGameStore } from "@/stores/game-store";
-import { useWebsocketStore } from "@/stores/websocket-store";
 import { ClientToServerEvent } from "@speed-dungeon/common";
 import React from "react";
 import AdventuringPartyLobbyCard from "./AdventuringPartyLobbyCard";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 export default function CharacterAndPartySelection() {
   const game = useGameStore().game;
-  const socketOption = useWebsocketStore().socketOption;
 
   if (!game) return <div>No game found</div>;
 
   function createParty(data: string) {
-    socketOption?.emit(ClientToServerEvent.CreateParty, data);
+    websocketConnection.emit(ClientToServerEvent.CreateParty, data);
   }
 
   return (

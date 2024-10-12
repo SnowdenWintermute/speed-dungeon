@@ -1,7 +1,7 @@
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { websocketConnection } from "@/singletons/websocket-connection";
 import { useGameStore } from "@/stores/game-store";
-import { useWebsocketStore } from "@/stores/websocket-store";
 import {
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
   CombatAttribute,
@@ -50,7 +50,7 @@ export function AttributeListItem(props: Props) {
 }
 
 function IncreaseAttributeButton({ attribute }: { attribute: CombatAttribute }) {
-  const socketOption = useWebsocketStore().socketOption;
+  const socketOption = websocketConnection;
   const focusedCharacterId = useGameStore().focusedCharacterId;
 
   function handleClick() {

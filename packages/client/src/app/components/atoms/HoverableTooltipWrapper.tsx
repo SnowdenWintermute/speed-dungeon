@@ -4,6 +4,7 @@ import React, { ReactNode, useEffect, useRef } from "react";
 
 interface Props {
   tooltipText: string;
+  extraStyles?: string;
   children: ReactNode;
 }
 
@@ -53,7 +54,7 @@ export default function HoverableTooltipWrapper(props: Props) {
 
   return (
     <div
-      className="h-fit w-fit pointer-events-auto cursor-help"
+      className={`h-fit w-fit pointer-events-auto cursor-help ${props.extraStyles}`}
       ref={elementRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

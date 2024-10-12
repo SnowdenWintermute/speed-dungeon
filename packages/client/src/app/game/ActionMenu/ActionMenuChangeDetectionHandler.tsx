@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import buildActionButtonProperties from "./build-action-button-properties";
 import { useAlertStore } from "@/stores/alert-store";
 import { useGameStore } from "@/stores/game-store";
-import { useWebsocketStore } from "@/stores/websocket-store";
 import { useUIStore } from "@/stores/ui-store";
 import { setAlert } from "@/app/components/alerts";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
@@ -29,7 +28,6 @@ export default function ActionMenuChangeDetectionHandler({
   setButtonProperties,
   setNumberOfPages,
 }: Props) {
-  const socketOption = useWebsocketStore().socketOption;
   const gameState = useGameStore();
   const getActiveCombatant = useGameStore().getActiveCombatant;
   const uiState = useUIStore();
@@ -127,15 +125,15 @@ export default function ActionMenuChangeDetectionHandler({
           gameState,
           uiState,
           mutateAlertState,
-          socketOption,
           gameAction
         );
-        if (buttonPropertiesResult instanceof Error)
+        if (buttonPropertiesResult instanceof Error) {
+          console.log("BUTTON PROPERTIES ERROR: ", buttonPropertiesResult);
           return setAlert(
             mutateAlertState,
             `Error creating button properties for game action type ${gameAction}`
           );
-        else buttonPropertiesByCategory[category].push(buttonPropertiesResult);
+        } else buttonPropertiesByCategory[category].push(buttonPropertiesResult);
       }
     }
 
