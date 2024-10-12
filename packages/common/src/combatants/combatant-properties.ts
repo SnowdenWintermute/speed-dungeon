@@ -49,14 +49,14 @@ export class CombatantProperties {
   mana: number = 0;
   speccedAttributes: CombatantAttributeRecord = {};
   experiencePoints: ExperiencePoints = { current: 0, requiredForNextLevel: 100 };
-  // status_effects: Vec<StatusEffects>;
+  abilities: Partial<Record<CombatantAbilityName, CombatantAbility>> = {};
+  traits: CombatantTrait[] = [];
   equipment: Partial<Record<EquipmentSlot, Item>> = {};
   inventory: Inventory = new Inventory();
-  traits: CombatantTrait[] = [];
+  //
   selectedCombatAction: null | CombatAction = null;
   combatActionTarget: null | CombatActionTarget = null;
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
-  abilities: Partial<Record<CombatantAbilityName, CombatantAbility>> = {};
   constructor(
     public combatantClass: CombatantClass,
     public combatantSpecies: CombatantSpecies,

@@ -1,6 +1,5 @@
 import { Combatant } from "../combatants/index.js";
 import { Item } from "../items/index.js";
-import generateDungeonRoom from "./generate-dungeon-room.js";
 
 export class DungeonRoom {
   items: Item[] = [];
@@ -9,8 +8,6 @@ export class DungeonRoom {
     public roomType: DungeonRoomType,
     public monsters: { [entityId: string]: Combatant }
   ) {}
-
-  static generate = generateDungeonRoom;
 }
 export enum DungeonRoomType {
   MonsterLair,

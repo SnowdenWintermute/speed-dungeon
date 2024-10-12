@@ -2,7 +2,6 @@ import { CombatantTurnTracker } from "../combat/turn-order/index.js";
 import { EntityId } from "../primatives/index.js";
 import { getAllyAndEnemyBattleGroups } from "./get-ally-and-enemy-battle-groups.js";
 import getAllyIdsAndOpponentIdsOption from "./get-ally-ids-and-opponent-ids-option.js";
-export * from "./initiate-battle.js";
 
 export class Battle {
   constructor(

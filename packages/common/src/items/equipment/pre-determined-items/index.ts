@@ -6,7 +6,6 @@ import {
   PhysicalDamageType,
 } from "../../../combat/index.js";
 import { EntityProperties } from "../../../primatives/index.js";
-import { IdGenerator } from "../../../game/id-generator.js";
 import { OneHandedMeleeWeapon } from "../equipment-types/one-handed-melee-weapon.js";
 import { TwoHandedRangedWeapon } from "../equipment-types/two-handed-ranged-weapon.js";
 
@@ -17,11 +16,8 @@ export enum PreDeterminedItemType {
   Spike,
 }
 
-export function generatePreDeterminedItem(
-  itemType: PreDeterminedItemType,
-  idGenerator: IdGenerator
-) {
-  const entityProperties: EntityProperties = { name: "", id: idGenerator.getNextEntityId() };
+export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: string) {
+  const entityProperties: EntityProperties = { name: "", id };
 
   switch (itemType) {
     case PreDeterminedItemType.SkeletonArcherShortBow:

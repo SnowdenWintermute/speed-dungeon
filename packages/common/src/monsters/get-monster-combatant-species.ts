@@ -1,7 +1,7 @@
 import { CombatantSpecies } from "../combatants/index.js";
 import { MonsterType } from "./monster-types.js";
 
-export default function getMonsterCombatantSpecies(monsterType: MonsterType) {
+export function getMonsterCombatantSpecies(monsterType: MonsterType) {
   switch (monsterType) {
     case MonsterType.MetallicGolem:
       return CombatantSpecies.Golem;

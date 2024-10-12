@@ -1,12 +1,10 @@
 export * from "./player.js";
-export * from "./id-generator.js";
 export * from "./remove-player-from-party.js";
 export * from "./get-player-party.js";
 import { immerable } from "immer";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
 import { EntityId } from "../primatives/index.js";
-import { IdGenerator } from "./id-generator.js";
 import { SpeedDungeonPlayer } from "./player.js";
 import assignCharacterActionTargets from "../combat/targeting/assign-character-action-targets.js";
 import putPlayerInParty from "./put-player-in-party.js";
@@ -35,7 +33,6 @@ export class SpeedDungeonGame {
   adventuringParties: { [partyName: string]: AdventuringParty } = {};
   battles: { [id: EntityId]: Battle } = {};
   timeStarted: null | number = null;
-  idGenerator: IdGenerator = new IdGenerator();
   constructor(name: string) {
     this.name = name;
   }

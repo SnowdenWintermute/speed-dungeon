@@ -10,12 +10,7 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import {
-  AdventuringParty,
-  ClientToServerEvent,
-  ERROR_MESSAGES,
-  InputLock,
-} from "@speed-dungeon/common";
+import { AdventuringParty, ClientToServerEvent, InputLock } from "@speed-dungeon/common";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
