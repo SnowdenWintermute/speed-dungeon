@@ -57,6 +57,7 @@ export const ERROR_MESSAGES = {
     NOT_ACTIVE: "It is not that combatant's turn",
     NO_UNSPENT_ATTRIBUTE_POINTS: "That combatant has no unspent attribute points",
     ATTRIBUTE_IS_NOT_ASSIGNABLE: "Points may not be spent on that attribute",
+    EXPECTED_OWNER_ID_MISSING: "Failed to find expected controlling player id",
   },
   MONSTERS: {
     NO_MONSTERS_FOUND: "No monsters were found in the current room",

@@ -1,9 +1,9 @@
 import { GameState } from "@/stores/game-store";
 import getCurrentBattleOption from "./getCurrentBattleOption";
 import getGameAndParty from "./getGameAndParty";
-import { CombatantDetails, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
+import { Combatant, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
 
-export default function getActiveCombatant(gameState: GameState): Error | null | CombatantDetails {
+export default function getActiveCombatant(gameState: GameState): Error | null | Combatant {
   const gameAndPartyResult = getGameAndParty(gameState.game, gameState.username);
   if (gameAndPartyResult instanceof Error) return gameAndPartyResult;
   const [game, party] = gameAndPartyResult;

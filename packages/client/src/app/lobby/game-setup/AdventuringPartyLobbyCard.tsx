@@ -1,7 +1,7 @@
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import Divider from "@/app/components/atoms/Divider";
 import { useGameStore } from "@/stores/game-store";
-import { AdventuringParty, ClientToServerEvent, PlayerCharacter } from "@speed-dungeon/common";
+import { AdventuringParty, ClientToServerEvent, Combatant } from "@speed-dungeon/common";
 import React from "react";
 import CharacterLobbyCard from "./CharacterLobbyCard";
 import CharacterCreationMenu from "./CharacterCreationMenu";
@@ -26,11 +26,11 @@ export default function AdventuringPartyLobbyCard(props: Props) {
     websocketConnection.emit(ClientToServerEvent.JoinParty, props.party.name);
   }
 
-  const charactersByUsername: [string, PlayerCharacter[]][] = [];
+  const charactersByUsername: [string, Combatant[]][] = [];
   props.party.playerUsernames.forEach((username) => {
-    const characters: PlayerCharacter[] = [];
+    const characters: Combatant[] = [];
     Object.values(props.party.characters).forEach((character) => {
-      if (username === character.nameOfControllingUser) {
+      if (username === character.combatantProperties.controllingPlayer) {
         characters.push(character);
       }
     });
@@ -70,7 +70,7 @@ export default function AdventuringPartyLobbyCard(props: Props) {
 
 interface UserCharactersProps {
   username: string;
-  characters: PlayerCharacter[];
+  characters: Combatant[];
 }
 
 function UserCharacters(props: UserCharactersProps) {

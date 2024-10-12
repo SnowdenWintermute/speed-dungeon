@@ -1,4 +1,4 @@
-import { BASE_CRIT_MULTIPLIER } from "../../../app_consts.js";
+import { BASE_CRIT_MULTIPLIER } from "../../../app-consts.js";
 import { CombatantAttributeRecord } from "../../../combatants/index.js";
 import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";
 

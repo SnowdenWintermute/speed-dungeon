@@ -1,5 +1,5 @@
 import { immerable } from "immer";
-import { INVENTORY_DEFAULT_CAPACITY } from "../app_consts.js";
+import { INVENTORY_DEFAULT_CAPACITY } from "../app-consts.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ConsumableProperties, Item } from "../items/index.js";
 import { ItemPropertiesType } from "../items/item-properties.js";

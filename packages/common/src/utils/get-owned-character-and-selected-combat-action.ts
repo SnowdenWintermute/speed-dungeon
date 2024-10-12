@@ -1,12 +1,13 @@
-import { AdventuringParty, PlayerCharacter } from "../adventuring_party/index.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
 import { CombatActionProperties } from "../combat/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonPlayer } from "../game/index.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
 import { getCombatActionPropertiesIfOwned } from "../combatants/get-combat-action-properties.js";
+import { Combatant } from "../combatants/index.js";
 
 interface CharacterAndSelectedActionData {
-  character: PlayerCharacter;
+  character: Combatant;
   combatActionProperties: CombatActionProperties;
   currentTarget: CombatActionTarget;
 }

@@ -1,4 +1,4 @@
-import { DERIVED_ATTRIBUTE_RATIOS } from "../app_consts.js";
+import { DERIVED_ATTRIBUTE_RATIOS } from "../app-consts.js";
 import { CombatAttribute } from "./combat-attributes.js";
 import { CombatantProperties } from "./combatant-properties.js";
 

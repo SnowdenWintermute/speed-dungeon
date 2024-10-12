@@ -10,17 +10,12 @@ import {
   EquipmentSlot,
   IdGenerator,
   Item,
-  PlayerCharacter,
+  Combatant,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
-import { GameServer } from "../index.js";
 
-export default function outfitNewCharacter(
-  gameServer: GameServer,
-  idGenerator: IdGenerator,
-  character: PlayerCharacter
-) {
+export default function outfitNewCharacter(idGenerator: IdGenerator, character: Combatant) {
   const combatantProperties = character.combatantProperties;
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
   if (baseStartingAttributesOption) {

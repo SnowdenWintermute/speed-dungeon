@@ -1,8 +1,4 @@
-import {
-  ERROR_MESSAGES,
-  PlayerCharacter,
-  updateCombatantHomePosition,
-} from "@speed-dungeon/common";
+import { Combatant, ERROR_MESSAGES, updateCombatantHomePosition } from "@speed-dungeon/common";
 import { setAlert } from "../../components/alerts";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
@@ -13,7 +9,7 @@ export default function characterCreationHandler(
   mutateAlertStore: MutateState<AlertState>,
   partyName: string,
   username: string,
-  character: PlayerCharacter
+  character: Combatant
 ) {
   mutateGameStore((gameState) => {
     const game = gameState.game;

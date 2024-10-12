@@ -1,6 +1,6 @@
-import { NUM_MONSTERS_PER_ROOM } from "../app_consts.js";
+import { NUM_MONSTERS_PER_ROOM } from "../app-consts.js";
+import { Combatant } from "../combatants/index.js";
 import { IdGenerator } from "../game/id-generator.js";
-import { Monster } from "../monsters/index.js";
 import generateMonster from "../monsters/generate-monster.js";
 import { DungeonRoom, DungeonRoomType } from "./dungeon-room.js";
 
@@ -9,7 +9,7 @@ export default function generateDungeonRoom(
   floor: number,
   roomType: DungeonRoomType
 ): DungeonRoom {
-  const monsters: { [entityId: string]: Monster } = {};
+  const monsters: { [entityId: string]: Combatant } = {};
   if (roomType === DungeonRoomType.MonsterLair) {
     for (let i = 0; i < NUM_MONSTERS_PER_ROOM; i += 1) {
       const newMonster = generateMonster(idGenerator, floor);

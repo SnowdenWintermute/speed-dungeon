@@ -3,7 +3,7 @@ export * from "./id-generator.js";
 export * from "./remove-player-from-party.js";
 export * from "./get-player-party.js";
 import { immerable } from "immer";
-import { AdventuringParty } from "../adventuring_party/index.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
 import { EntityId } from "../primatives/index.js";
 import { IdGenerator } from "./id-generator.js";

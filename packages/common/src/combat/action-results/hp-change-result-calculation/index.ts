@@ -12,7 +12,7 @@ import { ActionResultCalculationArguments } from "../action-result-calculator.js
 import getMostDamagingWeaponElementOnTarget from "./get-most-damaging-weapon-element-on-target.js";
 import getMostDamagingWeaponPhysicalDamageTypeOnTarget from "./get-most-damaging-weapon-damage-type-on-target.js";
 import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
-import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app_consts.js";
+import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app-consts.js";
 import { HpChangeSourceCategoryType } from "../../hp-change-source-types.js";
 import getIdsOfEvadingEntities from "./get-ids-of-evading-entities.js";
 import calculatePhysicalDamageHpChangesAndCrits from "./calculate-physical-damage-hp-changes-and-crits.js";

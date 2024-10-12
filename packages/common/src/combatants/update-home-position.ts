@@ -1,9 +1,9 @@
 import { Vector3 } from "@babylonjs/core";
-import { AdventuringParty } from "../adventuring_party/index.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
 import {
   COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
   COMBATANT_POSITION_SPACING_SIDE,
-} from "../app_consts.js";
+} from "../app-consts.js";
 import { MonsterType } from "../monsters/index.js";
 import { CombatantProperties } from "./combatant-properties.js";
 
@@ -34,7 +34,7 @@ export function updateCombatantHomePosition(
     monsters.forEach(([monsterId, monster], i) => {
       if (monsterId === entityId) {
         rowPositionOffset = rowStart - i * COMBATANT_POSITION_SPACING_SIDE;
-        monsterType = monster.monsterType;
+        monsterType = monster.combatantProperties.monsterType;
       }
     });
   }

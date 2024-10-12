@@ -1,6 +1,5 @@
 import { immerable } from "immer";
 import { EntityId } from "../primatives/index.js";
-import { PlayerCharacter } from "./player-character.js";
 import { DungeonRoom, DungeonRoomType } from "./dungeon-room.js";
 import getCombatant from "./get-combatant-in-party.js";
 import { getItemInAdventuringParty } from "./get-item-in-party.js";
@@ -13,7 +12,7 @@ import updatePlayerReadiness from "./update-player-readiness.js";
 import playerOwnsCharacter from "./player-owns-character.js";
 import { ActionCommandManager } from "../action-processing/action-command-manager.js";
 import { InputLock } from "./input-lock.js";
-export * from "./player-character.js";
+import { Combatant } from "../combatants/index.js";
 export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
 export * from "./update-player-readiness.js";
@@ -26,7 +25,7 @@ export class AdventuringParty {
   playerUsernames: string[] = [];
   playersReadyToExplore: string[] = [];
   playersReadyToDescend: string[] = [];
-  characters: { [id: string]: PlayerCharacter } = {};
+  characters: { [id: string]: Combatant } = {};
   characterPositions: string[] = [];
   currentFloor: number = 1;
   roomsExplored: RoomsExploredTracker = { total: 0, onCurrentFloor: 1 };

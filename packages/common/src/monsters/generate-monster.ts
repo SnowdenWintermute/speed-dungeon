@@ -1,6 +1,5 @@
 import { Vector3 } from "@babylonjs/core";
-import { Monster } from "./index.js";
-import { CombatAttribute, CombatantProperties } from "../combatants/index.js";
+import { CombatAttribute, Combatant, CombatantProperties } from "../combatants/index.js";
 import { randomNormal } from "../utils/index.js";
 import { addAttributesToAccumulator } from "../combatants/get-combatant-total-attributes.js";
 import { IdGenerator } from "../game/id-generator.js";
@@ -28,12 +27,12 @@ export default function generateMonster(idGenerator: IdGenerator, level: number)
   const combatantProperties = new CombatantProperties(
     combatantClass,
     combatantSpecies,
-    {},
+    monsterType,
     null,
     Vector3.Zero()
   );
   // will modify this monster after creation with basic values
-  const monster = new Monster(entityProperties, combatantProperties, monsterType);
+  const monster = new Combatant(entityProperties, combatantProperties);
   monster.combatantProperties.level = level;
   // assign their "discretionary" attributes
   // assign attributes that would have come from wearing gear

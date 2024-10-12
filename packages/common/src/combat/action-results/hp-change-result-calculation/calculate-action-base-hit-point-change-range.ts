@@ -2,7 +2,7 @@ import cloneDeep from "lodash.clonedeep";
 import { CombatantProperties } from "../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";
-import { COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER } from "../../../app_consts.js";
+import { COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER } from "../../../app-consts.js";
 import { EquipmentProperties, EquipmentSlot, WeaponSlot } from "../../../items/index.js";
 
 export default function calculateActionBaseHitPointChangeRange(

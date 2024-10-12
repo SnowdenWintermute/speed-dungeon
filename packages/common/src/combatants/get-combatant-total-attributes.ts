@@ -2,7 +2,7 @@ import {
   DERIVED_ATTRIBUTE_RATIOS,
   DEX_TO_RANGED_ARMOR_PEN_RATIO,
   STR_TO_MELEE_ARMOR_PEN_RATIO,
-} from "../app_consts.js";
+} from "../app-consts.js";
 import { Item, WeaponSlot } from "../items/index.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { EquipmentProperties } from "../items/equipment/equipment-properties/index.js";

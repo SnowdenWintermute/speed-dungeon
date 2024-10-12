@@ -2,7 +2,7 @@ import { ValueChangesAndCrits } from "./index.js";
 import { CombatAttribute, CombatantProperties } from "../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";
-import { ARMOR_CLASS_EQUATION_MODIFIER, BASE_CRIT_CHANCE } from "../../../app_consts.js";
+import { ARMOR_CLASS_EQUATION_MODIFIER, BASE_CRIT_CHANCE } from "../../../app-consts.js";
 import { MeleeOrRanged } from "../../hp-change-source-types.js";
 import applyAffinityToHpChange from "./apply-affinity-to-hp-change.js";
 import applyCritMultiplierToHpChange from "./apply-crit-multiplier-to-hp-change.js";

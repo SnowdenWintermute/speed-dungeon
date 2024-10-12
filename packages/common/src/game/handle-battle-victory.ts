@@ -1,6 +1,6 @@
 import { SpeedDungeonGame } from "./index.js";
 import { BattleResultActionCommandPayload } from "../action-processing/index.js";
-import { AdventuringParty } from "../adventuring_party/index.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
 import { CombatantProperties, applyExperiencePointChanges } from "../combatants/index.js";
 
 /** Returns any levelups by character id  */

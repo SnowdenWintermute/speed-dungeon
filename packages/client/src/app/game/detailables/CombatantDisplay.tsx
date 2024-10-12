@@ -2,15 +2,15 @@ import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import Divider from "@/app/components/atoms/Divider";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { useGameStore } from "@/stores/game-store";
-import { CombatantDetails, TRAIT_DESCRIPTIONS, formatCombatantTrait } from "@speed-dungeon/common";
+import { Combatant, TRAIT_DESCRIPTIONS, formatCombatantTrait } from "@speed-dungeon/common";
 import React from "react";
 import CharacterAttributes from "../character-sheet/CharacterAttributes";
 
 interface Props {
-  combatantDetails: CombatantDetails;
+  combatantDetails: Combatant;
 }
 
-export default function CombatantDetailsDisplay({ combatantDetails }: Props) {
+export default function CombatantDisplay({ combatantDetails }: Props) {
   const mutateGameState = useGameStore().mutateState;
   const { entityProperties, combatantProperties } = combatantDetails;
 

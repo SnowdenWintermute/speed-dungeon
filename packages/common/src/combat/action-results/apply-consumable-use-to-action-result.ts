@@ -1,7 +1,7 @@
 import { CombatAction, CombatActionType } from "../index.js";
 import {
   CombatAttribute,
-  CombatantDetails,
+  Combatant,
   CombatantProperties,
   CombatantTraitType,
   Inventory,
@@ -17,7 +17,7 @@ export default function applyConsumableUseToActionResult(
   actionResult: ActionResult,
   combatAction: CombatAction,
   targetIds: string[],
-  actionUser: CombatantDetails
+  actionUser: Combatant
 ) {
   if (combatAction.type !== CombatActionType.ConsumableUsed)
     return new Error(

@@ -6,5 +6,8 @@ export default function playerOwnsCharacter(
   characterId: string
 ) {
   const characterOption = party.characters[characterId];
-  return characterOption !== undefined && characterOption.nameOfControllingUser === username;
+  return (
+    characterOption !== undefined &&
+    characterOption.combatantProperties.controllingPlayer === username
+  );
 }

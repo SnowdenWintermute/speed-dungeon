@@ -31,10 +31,11 @@ import { Inventory } from "./inventory.js";
 import setHpAndMpToMax from "./set-hp-and-mp-to-max.js";
 import unequipSlots from "./unequip-slots.js";
 import { immerable } from "immer";
-import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app_consts.js";
-import { cloneVector3, formatVector3 } from "../utils/index.js";
+import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app-consts.js";
+import { cloneVector3 } from "../utils/index.js";
 import awardLevelups from "./award-levelups.js";
 import { incrementAttributePoint } from "./increment-attribute-point.js";
+import { MonsterType } from "../monsters/monster-types.js";
 
 export class CombatantProperties {
   [immerable] = true;
@@ -55,13 +56,27 @@ export class CombatantProperties {
   selectedCombatAction: null | CombatAction = null;
   combatActionTarget: null | CombatActionTarget = null;
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
+  abilities: Partial<Record<CombatantAbilityName, CombatantAbility>> = {};
   constructor(
     public combatantClass: CombatantClass,
     public combatantSpecies: CombatantSpecies,
-    public abilities: Partial<Record<CombatantAbilityName, CombatantAbility>>,
+    public monsterType: null | MonsterType,
     public controllingPlayer: null | string,
     public homeLocation: Vector3
-  ) {}
+  ) {
+    this.abilities[CombatantAbilityName.Attack] = CombatantAbility.createByName(
+      CombatantAbilityName.Attack
+    );
+    this.abilities[CombatantAbilityName.AttackMeleeMainhand] = CombatantAbility.createByName(
+      CombatantAbilityName.AttackMeleeMainhand
+    );
+    this.abilities[CombatantAbilityName.AttackMeleeOffhand] = CombatantAbility.createByName(
+      CombatantAbilityName.AttackMeleeOffhand
+    );
+    this.abilities[CombatantAbilityName.AttackRangedMainhand] = CombatantAbility.createByName(
+      CombatantAbilityName.AttackRangedMainhand
+    );
+  }
 
   static getCombatActionPropertiesIfOwned = getCombatActionPropertiesIfOwned;
   static getTotalAttributes = getCombatantTotalAttributes;

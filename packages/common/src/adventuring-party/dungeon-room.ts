@@ -1,5 +1,5 @@
+import { Combatant } from "../combatants/index.js";
 import { Item } from "../items/index.js";
-import { Monster } from "../monsters/index.js";
 import generateDungeonRoom from "./generate-dungeon-room.js";
 
 export class DungeonRoom {
@@ -7,7 +7,7 @@ export class DungeonRoom {
 
   constructor(
     public roomType: DungeonRoomType,
-    public monsters: { [entityId: string]: Monster }
+    public monsters: { [entityId: string]: Combatant }
   ) {}
 
   static generate = generateDungeonRoom;

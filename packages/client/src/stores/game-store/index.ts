@@ -8,10 +8,9 @@ import {
   BattleReport,
   CombatAction,
   CombatAttribute,
-  CombatantDetails,
+  Combatant,
   ERROR_MESSAGES,
   Item,
-  PlayerCharacter,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
@@ -79,10 +78,10 @@ export class GameState {
   hasGame: () => boolean = () => {
     return this.get().game ? true : false;
   };
-  getFocusedCharacter: () => Error | PlayerCharacter = () => {
+  getFocusedCharacter: () => Error | Combatant = () => {
     return getFocusedCharacter(this.get());
   };
-  getCharacter: (characterId: string) => Error | PlayerCharacter = (characterId: string) => {
+  getCharacter: (characterId: string) => Error | Combatant = (characterId: string) => {
     const partyResult = this.getParty();
     if (partyResult instanceof Error) return partyResult;
     const gameOption = this.get().game;
@@ -93,7 +92,7 @@ export class GameState {
   constructor(
     public mutateState: MutateState<GameState>,
     public get: () => GameState,
-    public getActiveCombatant: () => Error | null | CombatantDetails,
+    public getActiveCombatant: () => Error | null | Combatant,
     public getParty: () => Error | AdventuringParty
   ) {}
 }

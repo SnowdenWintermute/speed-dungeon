@@ -1,5 +1,5 @@
 import { AdventuringParty } from "./index.js";
-import { EMPTY_ROOMS_PER_FLOOR, MONSTER_LAIRS_PER_FLOOR } from "../app_consts.js";
+import { EMPTY_ROOMS_PER_FLOOR, MONSTER_LAIRS_PER_FLOOR } from "../app-consts.js";
 import { shuffleArray } from "../utils/index.js";
 import { DungeonRoomType } from "./dungeon-room.js";
 

@@ -1,13 +1,13 @@
-import { DungeonRoom, DungeonRoomType, PlayerCharacter } from "../adventuring_party/index.js";
+import { DungeonRoom, DungeonRoomType } from "../adventuring-party/index.js";
 import { Battle, BattleConclusion } from "../battle/index.js";
 import { CombatAction } from "../combat/index.js";
 import { ActionCommandPayload } from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { EquipmentSlot, Item } from "../items/index.js";
 import { NextOrPrevious } from "../primatives/index.js";
-import { CombatAttribute } from "../combatants/index.js";
+import { CombatAttribute, Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
-import { DescendOrExplore } from "../adventuring_party/update-player-readiness.js";
+import { DescendOrExplore } from "../adventuring-party/update-player-readiness.js";
 import { UserChannelDisplayData } from "../users/index.js";
 
 export enum ServerToClientEvent {
@@ -72,7 +72,7 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.CharacterCreated]: (
     partyName: string,
     username: string,
-    character: PlayerCharacter
+    character: Combatant
   ) => void;
   [ServerToClientEvent.CharacterDeleted]: (
     partyName: string,

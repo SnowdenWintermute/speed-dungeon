@@ -1,13 +1,10 @@
 import { GameState } from "@/stores/game-store";
 import getGameAndParty from "./getGameAndParty";
 import getFocusedCharacter from "./getFocusedCharacter";
-import { MutateState } from "@/stores/mutate-state";
-import { AlertState } from "@/stores/alert-store";
-import { setAlert } from "@/app/components/alerts";
 import {
   AdventuringParty,
+  Combatant,
   ERROR_MESSAGES,
-  PlayerCharacter,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
@@ -16,7 +13,7 @@ export interface ClientPlayerAssociatedData {
   game: SpeedDungeonGame;
   party: AdventuringParty;
   player: SpeedDungeonPlayer;
-  focusedCharacter: PlayerCharacter;
+  focusedCharacter: Combatant;
 }
 
 export default function getClientPlayerAssociatedData(

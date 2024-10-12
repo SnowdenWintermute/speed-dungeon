@@ -1,9 +1,11 @@
 import { GameServer } from "..";
 import {
+  Combatant,
   CombatantClass,
+  CombatantProperties,
+  CombatantSpecies,
   ERROR_MESSAGES,
   EntityId,
-  PlayerCharacter,
   ServerToClientEvent,
   SpeedDungeonGame,
   updateCombatantHomePosition,
@@ -37,7 +39,6 @@ export default function createCharacterHandler(
     if (characterName === "") characterName = generateRandomCharacterName();
 
     const newCharacterId = addCharacterToParty(
-      this,
       game,
       player.partyName,
       combatantClass,
@@ -66,7 +67,6 @@ export default function createCharacterHandler(
 }
 
 function addCharacterToParty(
-  gameServer: GameServer,
   game: SpeedDungeonGame,
   partyName: string,
   combatantClass: CombatantClass,
@@ -81,17 +81,18 @@ function addCharacterToParty(
 
   const characterId = game.idGenerator.getNextEntityId();
 
-  // const homePosition
-
-  const newCharacter = new PlayerCharacter(
-    nameOfControllingUser,
+  const entityProperties = { id: characterId, name: characterName };
+  const combatantProperties = new CombatantProperties(
     combatantClass,
-    characterName,
-    characterId,
+    CombatantSpecies.Humanoid,
+    null,
+    nameOfControllingUser,
     Vector3.Zero()
   );
 
-  outfitNewCharacter(gameServer, game.idGenerator, newCharacter);
+  const newCharacter = new Combatant(entityProperties, combatantProperties);
+
+  outfitNewCharacter(game.idGenerator, newCharacter);
   // newCharacter.combatantProperties.hitPoints = 1;
 
   party.characters[characterId] = newCharacter;

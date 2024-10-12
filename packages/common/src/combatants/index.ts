@@ -1,6 +1,6 @@
+import { immerable } from "immer";
 import { EntityProperties } from "../primatives/index.js";
 import { CombatantProperties } from "./combatant-properties.js";
-
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
 export * from "./combatant-properties.js";
@@ -12,7 +12,10 @@ export * from "./inventory.js";
 export * from "./update-home-position.js";
 export * from "./apply-experience-point-changes.js";
 
-export type CombatantDetails = {
-  entityProperties: EntityProperties;
-  combatantProperties: CombatantProperties;
-};
+export class Combatant {
+  [immerable] = true;
+  constructor(
+    public entityProperties: EntityProperties,
+    public combatantProperties: CombatantProperties
+  ) {}
+}
