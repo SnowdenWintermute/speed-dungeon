@@ -4,8 +4,8 @@ import {
   Item,
   ItemPropertiesType,
 } from "@speed-dungeon/common";
-import { IdGenerator } from "@speed-dungeon/common";
 import { ItemGenerationBuilder, TaggedBaseItem } from "./item-generation-builder";
+import { IdGenerator } from "../../singletons";
 
 export class ItemGenerationDirector {
   constructor(public builder: ItemGenerationBuilder) {}
@@ -28,7 +28,7 @@ export class ItemGenerationDirector {
     const name = builder.buildItemName(baseItemResult, affixes);
 
     const entityProperties = {
-      id: idGenerator.getNextEntityId(),
+      id: idGenerator.generate(),
       name,
     };
 

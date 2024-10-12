@@ -15,6 +15,7 @@ import errorHandler from "../error-handler.js";
 import { MAX_PARTY_SIZE } from "@speed-dungeon/common";
 import outfitNewCharacter from "../item-generation/outfit-new-character.js";
 import { Vector3 } from "@babylonjs/core";
+import { idGenerator } from "../../singletons.js";
 
 const ATTEMPT_TEXT = "A client tried to create a character but";
 
@@ -79,7 +80,7 @@ function addCharacterToParty(
   if (Object.keys(party.characters).length >= MAX_PARTY_SIZE)
     throw new Error(ERROR_MESSAGES.GAME.MAX_PARTY_SIZE);
 
-  const characterId = game.idGenerator.getNextEntityId();
+  const characterId = idGenerator.generate();
 
   const entityProperties = { id: characterId, name: characterName };
   const combatantProperties = new CombatantProperties(
@@ -92,7 +93,7 @@ function addCharacterToParty(
 
   const newCharacter = new Combatant(entityProperties, combatantProperties);
 
-  outfitNewCharacter(game.idGenerator, newCharacter);
+  outfitNewCharacter(newCharacter);
   // newCharacter.combatantProperties.hitPoints = 1;
 
   party.characters[characterId] = newCharacter;

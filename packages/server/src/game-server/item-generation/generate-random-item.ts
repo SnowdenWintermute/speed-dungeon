@@ -1,19 +1,15 @@
 import {
   ConsumableProperties,
   ConsumableType,
-  IdGenerator,
   Item,
   ItemPropertiesType,
   formatConsumableType,
   randBetween,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
+import { idGenerator } from "../../singletons.js";
 
-export function generateRandomItem(
-  this: GameServer,
-  itemLevel: number,
-  idGenerator: IdGenerator
-): Error | Item {
+export function generateRandomItem(this: GameServer, itemLevel: number): Error | Item {
   const randomIndex = randBetween(0, Object.keys(this.itemGenerationDirectors).length - 1);
   const randomItemGenerationDirector = Object.values(this.itemGenerationDirectors)[randomIndex];
   if (randomItemGenerationDirector === undefined)
@@ -34,7 +30,7 @@ export function generateRandomItem(
     );
     return new Item(
       {
-        id: idGenerator.getNextEntityId(),
+        id: idGenerator.generate(),
         name: formatConsumableType(ConsumableType.HpAutoinjector),
       },
       1,

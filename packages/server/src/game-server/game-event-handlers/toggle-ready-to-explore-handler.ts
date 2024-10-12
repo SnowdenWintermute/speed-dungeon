@@ -4,16 +4,19 @@ import {
   BattleGroupType,
   ERROR_MESSAGES,
   ServerToClientEvent,
-  initateBattle,
   getPartyChannelName,
   updateCombatantHomePosition,
   PlayerAssociatedData,
   SpeedDungeonGame,
+  Battle,
+  CombatantTurnTracker,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
 import { DungeonRoom, DungeonRoomType } from "@speed-dungeon/common";
 import { tickCombatUntilNextCombatantIsActive } from "@speed-dungeon/common";
 import { DescendOrExplore } from "@speed-dungeon/common";
+import { idGenerator } from "../../singletons.js";
+import generateDungeonRoom from "../dungeon-room-generation/index.js";
 
 export default function toggleReadyToExploreHandler(
   this: GameServer,
@@ -75,7 +78,7 @@ export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party:
   }
   const roomTypeToGenerate: DungeonRoomType = roomTypeToGenerateOption;
 
-  const newRoom = DungeonRoom.generate(game.idGenerator, party.currentFloor, roomTypeToGenerate);
+  const newRoom = generateDungeonRoom(party.currentFloor, roomTypeToGenerate);
   party.currentRoom = newRoom;
 
   for (const monster of Object.values(party.currentRoom.monsters))
@@ -101,7 +104,7 @@ export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party:
       BattleGroupType.ComputerControlled
     );
 
-    const battleIdResult = initateBattle(game, battleGroupA, battleGroupB);
+    const battleIdResult = initiateBattle(game, battleGroupA, battleGroupB);
     if (battleIdResult instanceof Error) return battleIdResult;
     party.battleId = battleIdResult;
     tickCombatUntilNextCombatantIsActive(game, battleIdResult);
@@ -122,4 +125,45 @@ export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party:
     );
     if (maybeError instanceof Error) return maybeError;
   }
+}
+
+function initiateBattle(
+  game: SpeedDungeonGame,
+  groupA: BattleGroup,
+  groupB: BattleGroup
+): Error | string {
+  const turnTrackersResult = createCombatTurnTrackers(game, groupA, groupB);
+  if (turnTrackersResult instanceof Error) return turnTrackersResult;
+  const battle = new Battle(idGenerator.generate(), groupA, groupB, turnTrackersResult);
+  game.battles[battle.id] = battle;
+  return battle.id;
+}
+
+function createCombatTurnTrackers(
+  game: SpeedDungeonGame,
+  battleGroupA: BattleGroup,
+  battleGroupB: BattleGroup
+): Error | CombatantTurnTracker[] {
+  const groupATrackersResult = createTrackersForBattleGroupCombatants(game, battleGroupA);
+  if (groupATrackersResult instanceof Error) return groupATrackersResult;
+  const groupBTrackersResult = createTrackersForBattleGroupCombatants(game, battleGroupB);
+  if (groupBTrackersResult instanceof Error) return groupBTrackersResult;
+
+  return groupATrackersResult.concat(groupBTrackersResult);
+}
+
+function createTrackersForBattleGroupCombatants(
+  game: SpeedDungeonGame,
+  battleGroup: BattleGroup
+): Error | CombatantTurnTracker[] {
+  const trackers: CombatantTurnTracker[] = [];
+  for (const entityId of battleGroup.combatantIds) {
+    const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+    if (combatantResult instanceof Error) return combatantResult;
+    const combatant = combatantResult;
+    if (combatant.combatantProperties.hitPoints > 0) {
+      trackers.push(new CombatantTurnTracker(entityId));
+    }
+  }
+  return trackers;
 }

@@ -2,7 +2,6 @@ import {
   ActionCommandReceiver,
   ClientToServerEventTypes,
   EquipmentType,
-  IdGenerator,
   ServerToClientEventTypes,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";

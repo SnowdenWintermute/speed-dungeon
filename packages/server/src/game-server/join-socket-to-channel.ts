@@ -46,7 +46,6 @@ export default function joinSocketToChannel(
   }
 
   socket.emit(ServerToClientEvent.ChannelFullUpdate, newChannelName, usersInRoom);
-  console.log("sent channel update - ", usersInRoom);
 
   if (Object.keys(browserTabSessionsInChannel).length === 1) {
     // if they already had a browser tab in this channel, don't send a notification

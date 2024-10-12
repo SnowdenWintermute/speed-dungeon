@@ -5,7 +5,6 @@ import {
   EquipmentType,
   HpChangeSource,
   HpChangeSourceCategoryType,
-  IdGenerator,
   Item,
   ItemPropertiesType,
   MaxAndCurrent,
@@ -15,11 +14,9 @@ import {
   PhysicalDamageType,
   TwoHandedMeleeWeapon,
 } from "@speed-dungeon/common";
+import { idGenerator } from "../../singletons.js";
 
-export default function createStartingEquipment(
-  idGenerator: IdGenerator,
-  combatantClass: CombatantClass
-) {
+export default function createStartingEquipment(combatantClass: CombatantClass) {
   const startingEquipment: Partial<Record<EquipmentSlot, Item>> = {};
 
   let mainHandProperties, offhandProperties;
@@ -91,7 +88,7 @@ export default function createStartingEquipment(
         : "Butter Knife";
 
   const mhEntityProperties = {
-    id: idGenerator.getNextEntityId(),
+    id: idGenerator.generate(),
     name: weaponName,
   };
   const mhItem = new Item(
@@ -104,7 +101,7 @@ export default function createStartingEquipment(
 
   if (offhandProperties) {
     const ohEntityProperties = {
-      id: idGenerator.getNextEntityId(),
+      id: idGenerator.generate(),
       name: weaponName,
     };
     const ohItem = new Item(
