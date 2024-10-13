@@ -45,6 +45,9 @@ export enum ServerToClientEvent {
   CharacterCycledTargetingSchemes = "31",
   DungeonFloorNumber = "32",
   CharacterSpentAttributePoint = "33",
+  SavedCharacterList = "34",
+  SavedCharacter = "35",
+  SavedCharacterDeleted = "36",
 }
 
 export interface ServerToClientEventTypes {
@@ -120,6 +123,9 @@ export interface ServerToClientEventTypes {
     characterId: string,
     attribute: CombatAttribute
   ) => void;
+  [ServerToClientEvent.SavedCharacterList]: (characters: Combatant[]) => void;
+  [ServerToClientEvent.SavedCharacter]: (character: Combatant) => void;
+  [ServerToClientEvent.SavedCharacterDeleted]: (id: string) => void;
 }
 
 export interface EquipItemPacket {

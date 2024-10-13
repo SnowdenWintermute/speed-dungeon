@@ -29,7 +29,7 @@ export default function Settings() {
   return (
     <section
       aria-label="settings menu"
-      className="absolute h-full w-full z-20 bg-slate-700 pointer-events-auto"
+      className="absolute h-full w-full z-30 bg-slate-700 pointer-events-auto"
     >
       <div
         className="h-10 w-full border-b border-slate-400 flex items-center justify-between"

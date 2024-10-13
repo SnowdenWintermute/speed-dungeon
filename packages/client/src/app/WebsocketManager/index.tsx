@@ -43,6 +43,7 @@ import getCurrentParty from "@/utils/getCurrentParty";
 import characterIncrementedAttributePointHandler from "./game-event-handlers/character-incremented-attribute-point-handler";
 import gameProgressMessageHandler from "./game-event-handlers/game-progress-message-handler";
 import { websocketConnection } from "@/singletons/websocket-connection";
+import setUpSavedCharacterEventListeners from "./saved-character-event-handlers";
 
 function SocketManager({
   actionCommandReceiver,
@@ -80,9 +81,6 @@ function SocketManager({
         state.websocketConnected = true;
         console.log("set connected true");
       });
-
-      console.log("asking for saved characters");
-      socket.emit(ClientToServerEvent.GetSavedCharactersList);
     });
 
     socket.on("disconnect", () => {
@@ -302,6 +300,8 @@ function SocketManager({
     socket.on(ServerToClientEvent.GameMessage, (message) =>
       gameProgressMessageHandler(mutateGameStore, message)
     );
+
+    setUpSavedCharacterEventListeners(socket, mutateLobbyStore);
 
     return () => {
       Object.values(ServerToClientEvent).forEach((value) => {

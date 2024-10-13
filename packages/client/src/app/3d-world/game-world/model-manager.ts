@@ -34,7 +34,10 @@ class ModelMessageQueue {
     while (currentMessageProcessing) {
       switch (currentMessageProcessing.type) {
         case ModelManagerMessageType.SpawnModel:
-          await this.modelManager.spawnCharacterModel(currentMessageProcessing.blueprint);
+          await this.modelManager.spawnCharacterModel(
+            currentMessageProcessing.blueprint,
+            currentMessageProcessing.checkIfRoomLoaded
+          );
           break;
         case ModelManagerMessageType.DespawnModel:
           this.modelManager.despawnCharacterModel(this.entityId);
@@ -67,7 +70,10 @@ export class ModelManager {
     this.modelMessageQueues[entityId]!.messages.push(message);
   }
 
-  async spawnCharacterModel(blueprint: CombatantModelBlueprint): Promise<Error | ModularCharacter> {
+  async spawnCharacterModel(
+    blueprint: CombatantModelBlueprint,
+    checkIfRoomLoaded: boolean
+  ): Promise<Error | ModularCharacter> {
     const parts = [];
     if (blueprint.monsterType !== null) {
       if (
@@ -157,7 +163,7 @@ export class ModelManager {
 
     modularCharacter.updateBoundingBox();
 
-    this.checkIfAllModelsInCurrentRoomAreLoaded();
+    if (checkIfRoomLoaded) this.checkIfAllModelsInCurrentRoomAreLoaded();
 
     this.world.mutateGameState((state) => {
       removeFromArray(state.combatantModelsAwaitingSpawn, blueprint.entityId);
@@ -212,6 +218,7 @@ export enum ModelManagerMessageType {
 type SpawnCombatantModelManagerMessage = {
   type: ModelManagerMessageType.SpawnModel;
   blueprint: CombatantModelBlueprint;
+  checkIfRoomLoaded: boolean;
 };
 
 type DespawnModelManagerMessage = {

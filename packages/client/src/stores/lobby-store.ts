@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { produce } from "immer";
-import { GameListEntry, UserChannelDisplayData } from "@speed-dungeon/common";
+import { Combatant, GameListEntry, UserChannelDisplayData } from "@speed-dungeon/common";
 
 export type LobbyState = {
   websocketConnected: boolean;
@@ -11,6 +11,7 @@ export type LobbyState = {
   usersInMainChannel: { [username: string]: UserChannelDisplayData };
   showAuthForm: boolean;
   highlightAuthForm: boolean;
+  savedCharacters: Combatant[];
   mutateState: (fn: (state: LobbyState) => void) => void;
 };
 
@@ -24,6 +25,7 @@ export const useLobbyStore = create<LobbyState>()(
         usersInMainChannel: {},
         showAuthForm: true,
         highlightAuthForm: false,
+        savedCharacters: [],
         mutateState: (fn: (state: LobbyState) => void) => set(produce(fn)),
       }),
       { enabled: true, name: "lobby store" }

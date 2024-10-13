@@ -2,6 +2,7 @@ import SocketIO from "socket.io";
 import {
   ClientToServerEvent,
   ClientToServerEventTypes,
+  Combatant,
   ERROR_MESSAGES,
   ServerToClientEvent,
   ServerToClientEventTypes,
@@ -30,7 +31,12 @@ export default function initiateSavedCharacterListeners(
     const charactersResult = await fetchSavedCharacters(this, socket.id);
     if (charactersResult instanceof Error)
       return socket.emit(ServerToClientEvent.ErrorMessage, charactersResult.message);
-    console.log("CHARACTERS: ", charactersResult);
+    if (charactersResult) {
+      const combatants = charactersResult.map(
+        (item) => new Combatant({ id: item.id, name: item.name }, item.combatantProperties)
+      );
+      socket.emit(ServerToClientEvent.SavedCharacterList, combatants);
+    }
   });
 
   socket.on(ClientToServerEvent.GetSavedCharacterById, async (entityId) => {});

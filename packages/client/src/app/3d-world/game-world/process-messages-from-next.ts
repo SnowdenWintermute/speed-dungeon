@@ -27,6 +27,7 @@ function handleMessageFromNext(gameWorld: GameWorld, message: NextToBabylonMessa
       gameWorld.modelManager.enqueueMessage(message.combatantModelBlueprint.entityId, {
         type: ModelManagerMessageType.SpawnModel,
         blueprint: message.combatantModelBlueprint,
+        checkIfRoomLoaded: message.checkIfRoomLoaded,
       });
       break;
     case NextToBabylonMessageTypes.RemoveCombatantModel:

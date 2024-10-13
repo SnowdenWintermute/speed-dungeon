@@ -30,6 +30,7 @@ export interface CombatantModelBlueprint {
 export type SpawnCombatantModelMessage = {
   type: NextToBabylonMessageTypes.SpawnCombatantModel;
   combatantModelBlueprint: CombatantModelBlueprint;
+  checkIfRoomLoaded: boolean;
 };
 
 export type RemoveCombatantModelMessage = {

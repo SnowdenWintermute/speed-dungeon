@@ -44,6 +44,7 @@ export default function requestSpawnCombatantModel(
         modelCorrectionRotation,
         modelDomPositionElement,
       },
+      checkIfRoomLoaded: true,
     });
   });
 }
