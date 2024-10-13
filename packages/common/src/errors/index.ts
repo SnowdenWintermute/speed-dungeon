@@ -4,12 +4,15 @@ export const ERROR_MESSAGES = {
   TODO: "Not yet implemented",
   SERVER_GENERIC: "Internal server error",
   NOT_IMPLEMENTED: "This feature is not yet implemented",
+  GAME_DOESNT_EXIST: "No game by that name exists",
   SERVER: {
     USERNAME_HAS_NO_SOCKET_IDS: "No socket ids were found by that username",
     BROWSER_SESSION_NOT_FOUND: "No browser session was found associated with that socked id",
     SOCKET_NOT_FOUND: "No socket by that id was found",
   },
-  GAME_DOESNT_EXIST: "No game by that name exists",
+  AUTH: {
+    REQUIRED: "Only a logged in user may perform that action",
+  },
   CLIENT: {
     NO_CURRENT_GAME: "This client has no current game",
     NO_CURRENT_PARTY: "Expected this client to have a party but couldn't find it",
@@ -49,6 +52,8 @@ export const ERROR_MESSAGES = {
   },
   USER: {
     NO_CURRENT_GAME: "This user has no current game",
+    MISSING_PROFILE: "Failed to find expected user profile",
+    SAVED_CHARACTER_CAPACITY: "You have filled all your available character slots",
   },
   COMBATANT: {
     NOT_FOUND: "No combatant was found with the provided id",

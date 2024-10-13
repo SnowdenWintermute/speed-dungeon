@@ -1,21 +1,15 @@
 import { GameServer } from "..";
 import {
-  Combatant,
   CombatantClass,
-  CombatantProperties,
-  CombatantSpecies,
   ERROR_MESSAGES,
   EntityId,
   ServerToClientEvent,
   SpeedDungeonGame,
   updateCombatantHomePosition,
 } from "@speed-dungeon/common";
-import { generateRandomCharacterName } from "../../utils/index.js";
 import errorHandler from "../error-handler.js";
 import { MAX_PARTY_SIZE } from "@speed-dungeon/common";
-import outfitNewCharacter from "../item-generation/outfit-new-character.js";
-import { Vector3 } from "@babylonjs/core";
-import { idGenerator } from "../../singletons.js";
+import { createCharacter } from "../character-creation/index.js";
 
 const ATTEMPT_TEXT = "A client tried to create a character but";
 
@@ -36,8 +30,6 @@ export default function createCharacterHandler(
     const player = game.players[socketMeta.username];
     if (!player) return errorHandler(socket, `${ATTEMPT_TEXT} their player wasn't in the game`);
     if (!player.partyName) return errorHandler(socket, ERROR_MESSAGES.GAME.MISSING_PARTY_NAME);
-
-    if (characterName === "") characterName = generateRandomCharacterName();
 
     const newCharacterId = addCharacterToParty(
       game,
@@ -80,20 +72,9 @@ function addCharacterToParty(
   if (Object.keys(party.characters).length >= MAX_PARTY_SIZE)
     throw new Error(ERROR_MESSAGES.GAME.MAX_PARTY_SIZE);
 
-  const characterId = idGenerator.generate();
-
-  const entityProperties = { id: characterId, name: characterName };
-  const combatantProperties = new CombatantProperties(
-    combatantClass,
-    CombatantSpecies.Humanoid,
-    null,
-    nameOfControllingUser,
-    Vector3.Zero()
-  );
-
-  const newCharacter = new Combatant(entityProperties, combatantProperties);
-
-  outfitNewCharacter(newCharacter);
+  const newCharacter = createCharacter(characterName, combatantClass);
+  const characterId = newCharacter.entityProperties.id;
+  newCharacter.combatantProperties.controllingPlayer = nameOfControllingUser;
   // newCharacter.combatantProperties.hitPoints = 1;
 
   party.characters[characterId] = newCharacter;

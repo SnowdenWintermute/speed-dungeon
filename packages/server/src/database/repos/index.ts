@@ -22,6 +22,18 @@ export class DatabaseRepository<T> {
     return undefined;
   }
 
+  async find(field: keyof T, value: any): Promise<undefined | T[]> {
+    const snakeCaseField = camelToSnakeCase(field.toString());
+    const result = await this.pgPool.query(
+      format(`SELECT * FROM ${this.tableName} WHERE %I = %L;`, snakeCaseField, value)
+    );
+    const { rows } = result;
+
+    if (rows[0]) return toCamelCase(rows) as unknown as T[];
+
+    return undefined;
+  }
+
   async findById(id: string): Promise<undefined | T> {
     const result = await this.pgPool.query(
       format(`SELECT * FROM ${this.tableName} WHERE id = %L;`, id)

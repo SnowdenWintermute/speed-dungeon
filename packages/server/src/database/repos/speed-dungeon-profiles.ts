@@ -20,7 +20,7 @@ class SpeedDungeonProfileRepo extends DatabaseRepository<SpeedDungeonProfile> {
   async insert(ownerId: number) {
     const { rows } = await this.pgPool.query(
       format(
-        `INSERT INTO ${tableName} (owner_id, character_capacity) VALUES (%L, %L, %L) RETURNING *;`,
+        `INSERT INTO ${tableName} (owner_id, character_capacity) VALUES (%L, %L) RETURNING *;`,
         ownerId,
         DEFAULT_ACCOUNT_CHARACTER_CAPACITY
       )

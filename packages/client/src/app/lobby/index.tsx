@@ -15,6 +15,7 @@ import { useEffect } from "react";
 import { useLobbyStore } from "@/stores/lobby-store";
 import AuthFormContainer from "./auth-forms";
 import { websocketConnection } from "@/singletons/websocket-connection";
+import SavedCharacterManager from "./saved-character-manager";
 
 export default function Lobby() {
   const socketOption = websocketConnection;
@@ -70,6 +71,7 @@ export default function Lobby() {
         className="absolute h-full w-full z-20 top-0 right-0 flex items-center justify-center"
       >
         {!hideAuthForm && <AuthFormContainer />}
+        {hideAuthForm && <SavedCharacterManager />}
       </section>
       <div className="absolute z-10 bottom-0 w-full p-7 flex items-center justify-center">
         <HoverableTooltipWrapper tooltipText="Start a single player game where you control one of each character type">

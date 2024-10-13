@@ -60,6 +60,7 @@ import generateExperiencePoints from "./game-event-handlers/action-command-handl
 import playerAssociatedDataProvider from "./game-event-handlers/player-data-provider.js";
 import toggleReadyToDescendHandler from "./game-event-handlers/toggle-ready-to-descend-handler.js";
 import characterSpentAttributePointHandler from "./game-event-handlers/character-spent-attribute-point-handler.js";
+import initiateSavedCharacterListeners from "./saved-character-event-handlers/index.js";
 
 export type Username = string;
 export type SocketId = string;
@@ -85,6 +86,7 @@ export class GameServer implements ActionCommandReceiver {
   disconnectionHandler = disconnectionHandler;
   initiateLobbyEventListeners = initiateLobbyEventListeners;
   initiateGameEventListeners = initiateGameEventListeners;
+  initiateSavedCharacterListeners = initiateSavedCharacterListeners;
   joinSocketToChannel = joinSocketToChannel;
   removeSocketFromChannel = removeSocketFromChannel;
   createGameHandler = createGameHandler;

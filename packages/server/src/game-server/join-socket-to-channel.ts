@@ -1,4 +1,4 @@
-import { ServerToClientEvent, UserChannelDisplayData } from "@speed-dungeon/common";
+import { ServerToClientEvent, UserAuthStatus, UserChannelDisplayData } from "@speed-dungeon/common";
 import { Channel, GameServer } from "./index.js";
 
 export default function joinSocketToChannel(
@@ -41,13 +41,16 @@ export default function joinSocketToChannel(
     if (!arbitrarySession) continue;
     usersInRoom.push({
       username,
-      userChannelDisplayData: new UserChannelDisplayData(arbitrarySession.authStatus),
+      userChannelDisplayData: new UserChannelDisplayData(
+        arbitrarySession.userId !== null ? UserAuthStatus.LoggedIn : UserAuthStatus.Guest
+      ),
     });
   }
 
   socket.emit(ServerToClientEvent.ChannelFullUpdate, newChannelName, usersInRoom);
 
   if (Object.keys(browserTabSessionsInChannel).length === 1) {
+    console.log("socketMeta.userId", socketMeta.userId);
     // if they already had a browser tab in this channel, don't send a notification
     // because that would lead to duplicate names displayed on the client
     this.io
@@ -56,7 +59,9 @@ export default function joinSocketToChannel(
       .emit(
         ServerToClientEvent.UserJoinedChannel,
         socketMeta.username,
-        new UserChannelDisplayData(socketMeta.authStatus)
+        new UserChannelDisplayData(
+          socketMeta.userId !== null ? UserAuthStatus.LoggedIn : UserAuthStatus.Guest
+        )
       );
   }
 }

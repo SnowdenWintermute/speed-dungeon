@@ -5,6 +5,7 @@ import { produce } from "immer";
 import { GameListEntry, UserChannelDisplayData } from "@speed-dungeon/common";
 
 export type LobbyState = {
+  websocketConnected: boolean;
   gameList: GameListEntry[];
   mainChannelName: string;
   usersInMainChannel: { [username: string]: UserChannelDisplayData };
@@ -17,6 +18,7 @@ export const useLobbyStore = create<LobbyState>()(
   immer(
     devtools(
       (set, _get) => ({
+        websocketConnected: false,
         gameList: [],
         mainChannelName: "",
         usersInMainChannel: {},

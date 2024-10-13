@@ -12,9 +12,7 @@ export function connectionHandler(this: GameServer) {
     cookies += `; internal=${env.INTERNAL_SERVICES_SECRET};`;
     let usernameOption;
     let username = "";
-    let userAuthStatus = UserAuthStatus.Guest;
-
-    console.log("sending cookies: ", cookies);
+    let userId: null | number = null;
 
     if (cookies) {
       const res = await fetch(`${env.AUTH_SERVER_URL}/internal/sessions`, {
@@ -23,15 +21,22 @@ export function connectionHandler(this: GameServer) {
           Cookie: cookies,
         },
       });
-      console.log("RES", res);
       const body = await res.json();
-      console.log(body);
       usernameOption = body["username"];
-      if (usernameOption) {
+      const userIdOption = body["userId"];
+      if (usernameOption && userIdOption && typeof userIdOption === "number") {
         username = body["username"];
-        userAuthStatus = UserAuthStatus.LoggedIn;
+        const userIdAsNumber = userIdOption;
+        userId = userIdAsNumber;
         // this is a logged in user
-        // const speedDungeonProfileOption = speedDungeonProfilesRepo.findOne("ownerId", )
+        const speedDungeonProfileOption = await speedDungeonProfilesRepo.findOne(
+          "ownerId",
+          userIdOption
+        );
+        if (speedDungeonProfileOption === undefined) {
+          console.info("creating speed dungeon profile for user");
+          await speedDungeonProfilesRepo.insert(userId);
+        } else console.info("user has an existing profile");
       }
     }
     if (!username) {
@@ -40,7 +45,7 @@ export function connectionHandler(this: GameServer) {
     }
 
     console.log(`-- ${username} (${socket.id}) connected`);
-    this.connections.insert(socket.id, new BrowserTabSession(socket.id, username, userAuthStatus));
+    this.connections.insert(socket.id, new BrowserTabSession(socket.id, username, userId));
 
     if (this.socketIdsByUsername.has(username)) {
       const currentSockets = this.socketIdsByUsername.get(username)!;
@@ -50,6 +55,7 @@ export function connectionHandler(this: GameServer) {
     this.disconnectionHandler(socket);
     this.initiateLobbyEventListeners(socket);
     this.initiateGameEventListeners(socket);
+    this.initiateSavedCharacterListeners(socket);
     this.joinSocketToChannel(socket.id, LOBBY_CHANNEL);
     socket.emit(ServerToClientEvent.ClientUsername, username);
   });

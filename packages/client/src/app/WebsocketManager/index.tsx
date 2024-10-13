@@ -76,6 +76,19 @@ function SocketManager({
       mutateGameStore((state) => {
         state.game = null;
       });
+      mutateLobbyStore((state) => {
+        state.websocketConnected = true;
+        console.log("set connected true");
+      });
+
+      console.log("asking for saved characters");
+      socket.emit(ClientToServerEvent.GetSavedCharactersList);
+    });
+
+    socket.on("disconnect", () => {
+      mutateLobbyStore((state) => {
+        state.websocketConnected = false;
+      });
     });
 
     socket.on(ServerToClientEvent.ActionCommandPayloads, (entityId, payloads) => {
@@ -291,11 +304,9 @@ function SocketManager({
     );
 
     return () => {
-      if (socketOption) {
-        Object.values(ServerToClientEvent).forEach((value) => {
-          socketOption.off(value);
-        });
-      }
+      Object.values(ServerToClientEvent).forEach((value) => {
+        socketOption.off(value);
+      });
     };
   }, [socketOption, gameName]); // eslint-disable-line react-hooks/exhaustive-deps
 

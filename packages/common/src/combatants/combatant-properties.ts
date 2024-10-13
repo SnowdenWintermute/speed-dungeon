@@ -61,6 +61,11 @@ export class CombatantProperties {
     public combatantClass: CombatantClass,
     public combatantSpecies: CombatantSpecies,
     public monsterType: null | MonsterType,
+    /** We use the player name, even though it can change, because using the ownerId (snowauth id)
+     * would expose it to the client. The tradeoff is a player can not change their username mid game without
+     * forfeiting control of their characters. In practice, we ask their client to reconnect all sockets anyway
+     * after a username change.
+     * */
     public controllingPlayer: null | string,
     public homeLocation: Vector3
   ) {
