@@ -23,15 +23,15 @@ export let gameServer: undefined | GameServer = undefined;
 
 pgPool.connect(pgOptions);
 
-const retrieved = await playerCharactersRepo.findById("ea11e933-67c8-476b-8d07-a83a25cf7094");
-if (retrieved?.combatantProperties) {
-  console.log(retrieved.name);
-  const combatant = retrieved.combatantProperties;
-  console.log(combatant);
-}
-if (retrieved === undefined) process.exit(1);
+// const retrieved = await playerCharactersRepo.findById("ea11e933-67c8-476b-8d07-a83a25cf7094");
+// if (retrieved?.combatantProperties) {
+//   console.log(retrieved.name);
+//   const combatant = retrieved.combatantProperties;
+//   console.log(combatant);
+// }
+// if (retrieved === undefined) process.exit(1);
 
-export const STOCK_MONSTER = retrieved;
+// export const STOCK_MONSTER = retrieved;
 
 const expressApp = createExpressApp();
 const listening = expressApp.listen(PORT, async () => {

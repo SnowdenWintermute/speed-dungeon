@@ -3,6 +3,7 @@ export type CustomErrorDetails = { message: string; field?: string };
 export const ERROR_MESSAGES = {
   TODO: "Not yet implemented",
   SERVER_GENERIC: "Internal server error",
+  NOT_IMPLEMENTED: "This feature is not yet implemented",
   SERVER: {
     USERNAME_HAS_NO_SOCKET_IDS: "No socket ids were found by that username",
     BROWSER_SESSION_NOT_FOUND: "No browser session was found associated with that socked id",

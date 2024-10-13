@@ -19,6 +19,18 @@ export class Battle {
 
   static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
   static getAllyAndEnemyBattleGroups = getAllyAndEnemyBattleGroups;
+  static sortTurnTrackers(battle: Battle) {
+    battle.turnTrackers.sort((a, b) => {
+      if (a.movement > b.movement) return -1;
+      if (a.movement < b.movement) return 1;
+
+      if (a.tieBreakerId > b.tieBreakerId) return -1;
+      if (a.tieBreakerId < b.tieBreakerId) return 1;
+
+      return 0;
+    });
+    return battle.turnTrackers;
+  }
 }
 
 export enum BattleGroupType {

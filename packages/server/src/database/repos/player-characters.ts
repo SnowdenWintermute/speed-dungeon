@@ -56,7 +56,4 @@ class PlayerCharacterRepo extends DatabaseRepository<PlayerCharacter> {
   }
 }
 
-export const playerCharactersRepo = new PlayerCharacterRepo(
-  pgPool,
-  RESOURCE_NAMES.PLAYER_CHARACTERS
-);
+export const playerCharactersRepo = new PlayerCharacterRepo(pgPool, tableName);

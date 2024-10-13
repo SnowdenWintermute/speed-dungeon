@@ -30,6 +30,10 @@ export enum ClientToServerEvent {
   AssignAttributePoint = "22",
   AcknowledgeReceiptOfItemOnGroundUpdate = "23",
   PickUpItem = "24",
+  GetSavedCharactersList = "25",
+  GetSavedCharacterById = "26",
+  CreateSavedCharacter = "27",
+  DeleteSavedCharacter = "28",
 }
 
 export interface ClientToServerEventTypes {
@@ -73,4 +77,11 @@ export interface ClientToServerEventTypes {
   ) => void;
   [ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate]: (itemId: string) => void;
   [ClientToServerEvent.PickUpItem]: (characterAndItem: CharacterAndItem) => void;
+  [ClientToServerEvent.GetSavedCharactersList]: () => void;
+  [ClientToServerEvent.GetSavedCharacterById]: (entityId: string) => void;
+  [ClientToServerEvent.CreateSavedCharacter]: (
+    name: string,
+    combatantClass: CombatantClass
+  ) => void;
+  [ClientToServerEvent.DeleteSavedCharacter]: (entityId: string) => void;
 }

@@ -3,28 +3,35 @@ import { generateRandomUsername } from "../utils/index.js";
 import { LOBBY_CHANNEL, ServerToClientEvent, UserAuthStatus } from "@speed-dungeon/common";
 import { BrowserTabSession } from "./socket-connection-metadata.js";
 import { env } from "../validate-env.js";
+import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
 
 export function connectionHandler(this: GameServer) {
   this.io.of("/").on("connection", async (socket) => {
     const req = socket.request;
-    const cookies = req.headers.cookie;
+    let cookies = req.headers.cookie;
+    cookies += `; internal=${env.INTERNAL_SERVICES_SECRET};`;
     let usernameOption;
     let username = "";
     let userAuthStatus = UserAuthStatus.Guest;
 
+    console.log("sending cookies: ", cookies);
+
     if (cookies) {
-      const res = await fetch(`${env.AUTH_SERVER_URL}/sessions`, {
+      const res = await fetch(`${env.AUTH_SERVER_URL}/internal/sessions`, {
         method: "GET",
         headers: {
           Cookie: cookies,
         },
       });
+      console.log("RES", res);
       const body = await res.json();
+      console.log(body);
       usernameOption = body["username"];
       if (usernameOption) {
         username = body["username"];
         userAuthStatus = UserAuthStatus.LoggedIn;
         // this is a logged in user
+        // const speedDungeonProfileOption = speedDungeonProfilesRepo.findOne("ownerId", )
       }
     }
     if (!username) {

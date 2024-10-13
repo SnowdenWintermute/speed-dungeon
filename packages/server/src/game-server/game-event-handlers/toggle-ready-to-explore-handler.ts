@@ -12,7 +12,7 @@ import {
   CombatantTurnTracker,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
-import { DungeonRoom, DungeonRoomType } from "@speed-dungeon/common";
+import { DungeonRoomType } from "@speed-dungeon/common";
 import { tickCombatUntilNextCombatantIsActive } from "@speed-dungeon/common";
 import { DescendOrExplore } from "@speed-dungeon/common";
 import { idGenerator } from "../../singletons.js";
@@ -144,9 +144,18 @@ function createCombatTurnTrackers(
   battleGroupA: BattleGroup,
   battleGroupB: BattleGroup
 ): Error | CombatantTurnTracker[] {
-  const groupATrackersResult = createTrackersForBattleGroupCombatants(game, battleGroupA);
+  let currTieBreakingIndexCounter = { currTieBreakingIndex: 0 };
+  const groupATrackersResult = createTrackersForBattleGroupCombatants(
+    game,
+    battleGroupA,
+    currTieBreakingIndexCounter
+  );
   if (groupATrackersResult instanceof Error) return groupATrackersResult;
-  const groupBTrackersResult = createTrackersForBattleGroupCombatants(game, battleGroupB);
+  const groupBTrackersResult = createTrackersForBattleGroupCombatants(
+    game,
+    battleGroupB,
+    currTieBreakingIndexCounter
+  );
   if (groupBTrackersResult instanceof Error) return groupBTrackersResult;
 
   return groupATrackersResult.concat(groupBTrackersResult);
@@ -154,7 +163,8 @@ function createCombatTurnTrackers(
 
 function createTrackersForBattleGroupCombatants(
   game: SpeedDungeonGame,
-  battleGroup: BattleGroup
+  battleGroup: BattleGroup,
+  currTieBreakingIndexCounter: { currTieBreakingIndex: number }
 ): Error | CombatantTurnTracker[] {
   const trackers: CombatantTurnTracker[] = [];
   for (const entityId of battleGroup.combatantIds) {
@@ -162,8 +172,11 @@ function createTrackersForBattleGroupCombatants(
     if (combatantResult instanceof Error) return combatantResult;
     const combatant = combatantResult;
     if (combatant.combatantProperties.hitPoints > 0) {
-      trackers.push(new CombatantTurnTracker(entityId));
+      trackers.push(
+        new CombatantTurnTracker(entityId, currTieBreakingIndexCounter.currTieBreakingIndex)
+      );
     }
+    currTieBreakingIndexCounter.currTieBreakingIndex += 1;
   }
   return trackers;
 }
