@@ -76,7 +76,12 @@ export class GameWorld {
   processMessagesFromNext = processMessagesFromNext;
 
   async importMesh(path: string) {
-    const sceneResult = await SceneLoader.ImportMeshAsync("", BASE_FILE_PATH, path, this.scene);
+    const sceneResult = await SceneLoader.ImportMeshAsync(
+      "",
+      BASE_FILE_PATH || "",
+      path,
+      this.scene
+    );
     if (this.useShadows)
       for (const mesh of sceneResult.meshes) this.shadowGenerator?.addShadowCaster(mesh, true);
     return sceneResult;

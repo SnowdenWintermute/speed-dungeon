@@ -41,5 +41,12 @@ function handleMessageFromNext(gameWorld: GameWorld, message: NextToBabylonMessa
       return startPerformingCombatAction(gameWorld, message);
     case NextToBabylonMessageTypes.StartReturningHome:
       return startReturningHome(gameWorld, message);
+    case NextToBabylonMessageTypes.MoveCamera:
+      if (!gameWorld.camera) return;
+      const { radius, target, alpha, beta } = message;
+      gameWorld.camera.radius = radius;
+      gameWorld.camera.target = target;
+      gameWorld.camera.alpha = alpha;
+      gameWorld.camera.beta = beta;
   }
 }

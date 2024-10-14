@@ -9,6 +9,7 @@ import { MonsterType } from "@speed-dungeon/common";
 import { Vector3 } from "@babylonjs/core";
 
 export enum NextToBabylonMessageTypes {
+  MoveCamera,
   SpawnCombatantModel,
   RemoveCombatantModel,
   StartMovingCombatantIntoCombatActionPosition,
@@ -26,6 +27,15 @@ export interface CombatantModelBlueprint {
   modelCorrectionRotation: number;
   modelDomPositionElement: HTMLDivElement | null;
 }
+
+export type MoveCameraMessage = {
+  type: NextToBabylonMessageTypes.MoveCamera;
+  instant: boolean;
+  alpha: number;
+  beta: number;
+  radius: number;
+  target: Vector3;
+};
 
 export type SpawnCombatantModelMessage = {
   type: NextToBabylonMessageTypes.SpawnCombatantModel;
@@ -61,4 +71,5 @@ export type NextToBabylonMessage =
   | RemoveCombatantModelMessage
   | StartMovingCombatantIntoCombatActionPositionMessage
   | StartPerformingCombatActionMessage
-  | StartReturningHomeMessage;
+  | StartReturningHomeMessage
+  | MoveCameraMessage;

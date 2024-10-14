@@ -9,13 +9,15 @@ import React, { useEffect } from "react";
 
 export default function SavedCharacterManager() {
   const savedCharacters = useLobbyStore().savedCharacters;
+  const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
+
   useEffect(() => {
     console.log("asking for saved characters");
     websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
   }, []);
 
   return (
-    <div className="w-[400px] flex flex-col p-8 border border-slate-400 bg-slate-700">
+    <div className="w-[400px] flex flex-col p-8 border border-slate-400">
       <div>
         {savedCharacters.map((character, i) => (
           <SavedCharacterDisplay
@@ -44,11 +46,25 @@ export default function SavedCharacterManager() {
       >
         CREATE CHARACTER
       </ButtonBasic>
+      <ButtonBasic
+        onClick={() => {
+          mutateNextBabylonMessagingStore((state) => {
+            state.nextToBabylonMessages.push({
+              type: NextToBabylonMessageTypes.MoveCamera,
+              instant: true,
+              alpha: Math.PI / 2,
+              beta: (Math.PI / 5) * 2,
+              radius: 4,
+              target: new Vector3(0, 1, 0),
+            });
+          });
+        }}
+      >
+        MOVE CAMERA
+      </ButtonBasic>
     </div>
   );
 }
-
-const modelDomPositionElements: { [entityId: string]: null | HTMLDivElement } = {};
 
 function SavedCharacterDisplay({ character, index }: { character: Combatant; index: number }) {
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
@@ -70,7 +86,7 @@ function SavedCharacterDisplay({ character, index }: { character: Combatant; ind
           species: combatantProperties.combatantSpecies,
           monsterType: null,
           class: combatantProperties.combatantClass,
-          startPosition: new Vector3(index * 1, 0, 0),
+          startPosition: new Vector3(-1 + index * 1, 0, 0),
           startRotation: 0,
           modelCorrectionRotation: 0,
           modelDomPositionElement,
