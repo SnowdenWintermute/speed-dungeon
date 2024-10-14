@@ -6,14 +6,21 @@ import {
   Color4,
   PointLight,
   StandardMaterial,
-  Color3,
   ShadowGenerator,
   Mesh,
-  Scene,
+  DynamicTexture,
+  ICanvasRenderingContext,
 } from "@babylonjs/core";
 import { GameWorld } from ".";
 
-export function initScene(this: GameWorld): [ArcRotateCamera, ShadowGenerator, Mesh] {
+export const GROUND_WIDTH = 50;
+export const GROUND_HEIGHT = 50;
+export const GROUND_TEXTURE_WIDTH = 10000;
+export const GROUND_TEXTURE_HEIGHT = 10000;
+
+export function initScene(
+  this: GameWorld
+): [ArcRotateCamera, ShadowGenerator, Mesh, ICanvasRenderingContext, DynamicTexture] {
   this.scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
 
   // this.scene.fogMode = 3;
@@ -47,14 +54,26 @@ export function initScene(this: GameWorld): [ArcRotateCamera, ShadowGenerator, M
   pointLight.intensity = 0.2;
 
   // GROUND
-  const ground = MeshBuilder.CreateGround("ground", { width: 50, height: 50 }, this.scene);
+  const ground = MeshBuilder.CreateGround(
+    "ground",
+    { width: GROUND_WIDTH, height: GROUND_HEIGHT },
+    this.scene
+  );
   const material = new StandardMaterial("ground-material", this.scene);
-  material.diffuseColor = new Color3(0.203, 0.295, 0.208);
+  // material.diffuseColor = new Color3(0.203, 0.295, 0.208);
   ground.material = material;
+
+  const dynTex = new DynamicTexture(
+    "ground texture context",
+    { width: GROUND_TEXTURE_WIDTH, height: GROUND_TEXTURE_HEIGHT },
+    this.scene
+  );
+  const groundTextureContext = dynTex.getContext();
+  material.diffuseTexture = dynTex;
 
   // SHADOWS
   const shadowGenerator = new ShadowGenerator(1024, pointLight);
   ground.receiveShadows = true;
 
-  return [camera, shadowGenerator, ball];
+  return [camera, shadowGenerator, ball, groundTextureContext, dynTex];
 }

@@ -6,10 +6,18 @@ import {
   SceneLoader,
   ShadowGenerator,
   Mesh,
+  ICanvasRenderingContext,
+  DynamicTexture,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { BASE_FILE_PATH } from "../combatant-models/modular-character-parts";
-import { initScene } from "./init-scene";
+import {
+  GROUND_HEIGHT,
+  GROUND_TEXTURE_HEIGHT,
+  GROUND_TEXTURE_WIDTH,
+  GROUND_WIDTH,
+  initScene,
+} from "./init-scene";
 import { CombatTurnResult } from "@speed-dungeon/common";
 import { NextToBabylonMessage } from "@/singletons/next-to-babylon-message-queue";
 import { MutateState } from "@/stores/mutate-state";
@@ -35,6 +43,8 @@ export class GameWorld {
   modelManager: ModelManager = new ModelManager(this);
   turnResultsQueue: CombatTurnResult[] = [];
   currentRoomLoaded: boolean = false;
+  groundTextureContext: ICanvasRenderingContext;
+  groundTexture: DynamicTexture;
   constructor(
     public canvas: HTMLCanvasElement,
     public mutateGameState: MutateState<GameState>,
@@ -45,7 +55,30 @@ export class GameWorld {
     this.engine = new Engine(canvas, true);
     this.scene = new Scene(this.engine);
     this.debug.debugRef = debugRef;
-    [this.camera, this.shadowGenerator, this.sun] = this.initScene();
+    [this.camera, this.shadowGenerator, this.sun, this.groundTextureContext, this.groundTexture] =
+      this.initScene();
+
+    // create floor textures
+
+    this.groundTextureContext.save();
+    this.groundTextureContext.fillStyle = "#264908";
+    this.groundTextureContext.fillRect(0, 0, GROUND_TEXTURE_WIDTH, GROUND_TEXTURE_HEIGHT);
+
+    // character slots
+    const radius = 25;
+    for (let i = 0; i < 3; i += 1) {
+      const center = { x: GROUND_TEXTURE_WIDTH / 2 + -1 + 1 * i, y: GROUND_TEXTURE_HEIGHT / 2 };
+      this.groundTextureContext.beginPath();
+      this.groundTextureContext.arc(center.x, center.y, radius, 0, Math.PI * 2); // Full circle (0 to 2π radians)
+      this.groundTextureContext.strokeStyle = "blue";
+      this.groundTextureContext.lineWidth = 1;
+      this.groundTextureContext.stroke();
+    }
+
+    this.groundTextureContext.restore();
+    this.groundTexture.update();
+
+    // end floor texture canvas setup
 
     this.engine.runRenderLoop(() => {
       this.updateGameWorld();

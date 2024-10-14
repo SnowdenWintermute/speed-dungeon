@@ -29,11 +29,11 @@ export default function HotkeyButton(props: Props) {
           onClick(new MouseEvent("mouseup"));
         }
       };
-      window.addEventListener("keyup", keypressListenerRef.current);
+      window.addEventListener("keydown", keypressListenerRef.current);
     }
     return () => {
       if (keypressListenerRef.current)
-        window.removeEventListener("keyup", keypressListenerRef.current);
+        window.removeEventListener("keydown", keypressListenerRef.current);
     };
   }, [onClick, hotkeysDisabled]);
 
