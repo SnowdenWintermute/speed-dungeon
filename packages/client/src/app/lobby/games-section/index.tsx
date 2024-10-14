@@ -9,10 +9,12 @@ import { useLobbyStore } from "@/stores/lobby-store";
 import useElementIsOverflowing from "@/hooks/use-element-is-overflowing";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { websocketConnection } from "@/singletons/websocket-connection";
+import { useUIStore } from "@/stores/ui-store";
 
 export default function GamesSection() {
   const [gameName, setGameName] = useState("");
   const [gameListRefreshedAt, setGameListRefreshedAt] = useState("...");
+  const mutateUIState = useUIStore().mutateState;
   const gameList = useLobbyStore().gameList;
   const gameListRef = useRef(null);
   const gameListIsOverflowing = useElementIsOverflowing(gameListRef.current);
@@ -100,6 +102,16 @@ export default function GamesSection() {
         </div>
         <div className="flex flex-1 mb-2">
           <input
+            onFocus={() => {
+              mutateUIState((state) => {
+                state.hotkeysDisabled = true;
+              });
+            }}
+            onBlur={() => {
+              mutateUIState((state) => {
+                state.hotkeysDisabled = false;
+              });
+            }}
             className="bg-slate-700 border border-slate-400 h-10 p-4 min-w-0 flex-1"
             type="text"
             name="game name"

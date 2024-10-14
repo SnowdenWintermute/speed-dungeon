@@ -1,3 +1,4 @@
+import { useUIStore } from "@/stores/ui-store";
 import React from "react";
 import { FocusEventHandler, MouseEventHandler, useEffect, useRef } from "react";
 
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export default function HotkeyButton(props: Props) {
+  const hotkeysDisabled = useUIStore().hotkeysDisabled;
   const onClick = typeof props.onClick !== "undefined" ? props.onClick : () => {};
   const onFocus = typeof props.onFocus !== "undefined" ? props.onFocus : () => {};
   const onBlur = typeof props.onFocus !== "undefined" ? props.onFocus : () => {};
@@ -22,7 +24,7 @@ export default function HotkeyButton(props: Props) {
   useEffect(() => {
     if (props.hotkey !== undefined) {
       keypressListenerRef.current = (e: KeyboardEvent) => {
-        if (e.code === props.hotkey) {
+        if (e.code === props.hotkey && !hotkeysDisabled) {
           // @ts-ignore
           onClick(new MouseEvent("mouseup"));
         }
@@ -33,7 +35,7 @@ export default function HotkeyButton(props: Props) {
       if (keypressListenerRef.current)
         window.removeEventListener("keyup", keypressListenerRef.current);
     };
-  }, [onClick]);
+  }, [onClick, hotkeysDisabled]);
 
   return (
     <button

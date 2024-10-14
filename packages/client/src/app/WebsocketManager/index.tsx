@@ -58,7 +58,6 @@ function SocketManager({
   const mutateGameStore = useGameStore().mutateState;
   const gameName = useGameStore().gameName;
   const mutateAlertStore = useAlertStore().mutateState;
-  const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const socketOption = websocketConnection;
 
   useEffect(() => {
@@ -196,7 +195,7 @@ function SocketManager({
       playerToggledReadyToStartGameHandler(mutateGameStore, mutateAlertStore, username);
     });
     socket.on(ServerToClientEvent.GameStarted, (timeStarted) => {
-      gameStartedHandler(mutateGameStore, mutateNextBabylonMessagingStore, timeStarted);
+      gameStartedHandler(mutateGameStore, timeStarted);
     });
     socket.on(
       ServerToClientEvent.PlayerToggledReadyToDescendOrExplore,

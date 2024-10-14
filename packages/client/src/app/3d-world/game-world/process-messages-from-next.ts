@@ -10,10 +10,8 @@ import startPerformingCombatAction from "./start-performing-combat-action";
 import startReturningHome from "./start-returning-home";
 
 export default function processMessagesFromNext(this: GameWorld) {
-  // console.log("messages: ", nextToBabylonMessageQueue.messages);
   if (nextToBabylonMessageQueue.messages.length > 0) {
     const message = nextToBabylonMessageQueue.messages.shift();
-    console.log("processing message: ", message);
     if (message !== undefined) {
       const maybeError = handleMessageFromNext(this, message);
       // if (maybeError instanceof Error) {
@@ -47,9 +45,10 @@ function handleMessageFromNext(gameWorld: GameWorld, message: NextToBabylonMessa
     case NextToBabylonMessageTypes.MoveCamera:
       if (!gameWorld.camera) return;
       const { radius, target, alpha, beta } = message;
-      gameWorld.camera.radius = radius;
-      gameWorld.camera.target = target;
-      gameWorld.camera.alpha = alpha;
-      gameWorld.camera.beta = beta;
+      const { camera } = gameWorld;
+      camera.target = target;
+      camera.radius = radius;
+      camera.alpha = alpha;
+      camera.beta = beta;
   }
 }

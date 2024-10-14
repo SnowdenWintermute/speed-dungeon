@@ -6,9 +6,9 @@ export const ERROR_MESSAGES = {
   NOT_IMPLEMENTED: "This feature is not yet implemented",
   GAME_DOESNT_EXIST: "No game by that name exists",
   SERVER: {
-    USERNAME_HAS_NO_SOCKET_IDS: "No socket ids were found by that username",
-    BROWSER_SESSION_NOT_FOUND: "No browser session was found associated with that socked id",
-    SOCKET_NOT_FOUND: "No socket by that id was found",
+    USERNAME_HAS_NO_SOCKET_IDS: "No socket IDs were found by that username",
+    BROWSER_SESSION_NOT_FOUND: "No browser session was found associated with that socked ID",
+    SOCKET_NOT_FOUND: "No socket by that ID was found",
   },
   AUTH: {
     REQUIRED: "Only a logged in user may perform that action",
@@ -31,13 +31,13 @@ export const ERROR_MESSAGES = {
     MISSING_PARTY_NAME: "Player doesn't have a party name",
     PARTY_DOES_NOT_EXIST: "No party was found with the provided name",
     MAX_PARTY_SIZE: "Maximum party size reached",
-    CHARACTER_DOES_NOT_EXIST: "No character was found by the provided id",
+    CHARACTER_DOES_NOT_EXIST: "No character was found by the provided ID",
     PLAYER_DOES_NOT_EXIST: "No player by that name was found in the game",
-    BATTLE_DOES_NOT_EXIST: "No battle found by that id",
+    BATTLE_DOES_NOT_EXIST: "No battle found by that ID",
   },
   PARTY: {
     PLAYER_NOT_FOUND: "The provided username does not belong to any player in this party",
-    CHARACTER_NOT_FOUND: "No character was found in the party by the provided id",
+    CHARACTER_NOT_FOUND: "No character was found in the party by the provided ID",
     MISSING_CHARACTERS: "Somehow we have a party with no characters",
     CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT:
       "Can't explore while there are still monsters in the room",
@@ -54,16 +54,17 @@ export const ERROR_MESSAGES = {
     NO_CURRENT_GAME: "This user has no current game",
     MISSING_PROFILE: "Failed to find expected user profile",
     SAVED_CHARACTER_CAPACITY: "You have filled all your available character slots",
+    SAVED_CHARACTER_NOT_OWNED: "You do not own the character with the provided ID",
   },
   COMBATANT: {
-    NOT_FOUND: "No combatant was found with the provided id",
+    NOT_FOUND: "No combatant was found with the provided ID",
     NO_ACTION_SELECTED: "That combatant has no selected combat action",
     NO_TARGET_SELECTED: "That combatant has no selected target",
     IS_DEAD: "Dead combatants may not take any actions",
     NOT_ACTIVE: "It is not that combatant's turn",
     NO_UNSPENT_ATTRIBUTE_POINTS: "That combatant has no unspent attribute points",
     ATTRIBUTE_IS_NOT_ASSIGNABLE: "Points may not be spent on that attribute",
-    EXPECTED_OWNER_ID_MISSING: "Failed to find expected controlling player id",
+    EXPECTED_OWNER_ID_MISSING: "Failed to find expected controlling player ID",
   },
   MONSTERS: {
     NO_MONSTERS_FOUND: "No monsters were found in the current room",
@@ -105,7 +106,7 @@ export const ERROR_MESSAGES = {
     TURN_TRACKERS_EMPTY: "Battle has no combatant turn trackers",
   },
   GAME_WORLD: {
-    NO_COMBATANT_MODEL: "No combatant model exists with the provided entity id",
+    NO_COMBATANT_MODEL: "No combatant model exists with the provided entity ID",
     INCOMPLETE_SKELETON_FILE: "The loaded skeleton asset is missing something",
     MISSING_ROTATION_QUATERNION: "Expected rotation data was missing",
     MISSING_ANIMATION: "No animation found",

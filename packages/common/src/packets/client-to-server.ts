@@ -81,7 +81,8 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.GetSavedCharacterById]: (entityId: string) => void;
   [ClientToServerEvent.CreateSavedCharacter]: (
     name: string,
-    combatantClass: CombatantClass
+    combatantClass: CombatantClass,
+    slot: number
   ) => void;
   [ClientToServerEvent.DeleteSavedCharacter]: (entityId: string) => void;
 }

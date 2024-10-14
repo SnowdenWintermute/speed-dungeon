@@ -41,7 +41,7 @@ export default function initiateSavedCharacterListeners(
 
   socket.on(ClientToServerEvent.GetSavedCharacterById, async (entityId) => {});
 
-  socket.on(ClientToServerEvent.CreateSavedCharacter, async (name, combatantClass) => {
+  socket.on(ClientToServerEvent.CreateSavedCharacter, async (name, combatantClass, slot) => {
     const browserTabSessionOption = this.connections.get(socket.id);
     if (browserTabSessionOption === undefined)
       return errorHandler(socket, ERROR_MESSAGES.SERVER.BROWSER_SESSION_NOT_FOUND);
@@ -53,17 +53,30 @@ export default function initiateSavedCharacterListeners(
     if (profileOption === undefined)
       return errorHandler(socket, ERROR_MESSAGES.USER.MISSING_PROFILE);
 
-    console.log("characters length", characters?.length);
-    console.log("character capacity: ", profileOption.characterCapacity);
     const reachedCapacity = (characters?.length || 0) >= profileOption.characterCapacity;
 
     if (reachedCapacity) return errorHandler(socket, ERROR_MESSAGES.USER.SAVED_CHARACTER_CAPACITY);
 
     const newCharacter = createCharacter(name, combatantClass);
     await playerCharactersRepo.insert(newCharacter, userIdOption);
-    //
+
+    console.log("created character in slot", slot);
+
+    socket.emit(ServerToClientEvent.SavedCharacter, newCharacter, slot);
   });
-  socket.on(ClientToServerEvent.DeleteSavedCharacter, (entityId) => {
-    //
+
+  socket.on(ClientToServerEvent.DeleteSavedCharacter, async (entityId) => {
+    if (!entityId) return errorHandler(socket, ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+    // check if they even own the character they're trying to delete
+    const browserTabSessionOption = this.connections.get(socket.id);
+    if (browserTabSessionOption === undefined)
+      return errorHandler(socket, ERROR_MESSAGES.SERVER.BROWSER_SESSION_NOT_FOUND);
+    const userIdOption = browserTabSessionOption.userId;
+    if (userIdOption === null) return errorHandler(socket, ERROR_MESSAGES.AUTH.REQUIRED);
+    const characterToDelete = await playerCharactersRepo.findOne("id", entityId);
+    if (characterToDelete?.ownerId !== userIdOption)
+      return errorHandler(socket, ERROR_MESSAGES.USER.SAVED_CHARACTER_NOT_OWNED);
+    await playerCharactersRepo.delete(entityId);
+    socket.emit(ServerToClientEvent.SavedCharacterDeleted, entityId);
   });
 }

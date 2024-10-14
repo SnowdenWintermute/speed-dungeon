@@ -11,7 +11,7 @@ export type LobbyState = {
   usersInMainChannel: { [username: string]: UserChannelDisplayData };
   showAuthForm: boolean;
   highlightAuthForm: boolean;
-  savedCharacters: Combatant[];
+  savedCharacters: { [slot: number]: Combatant | null };
   mutateState: (fn: (state: LobbyState) => void) => void;
 };
 
@@ -25,7 +25,7 @@ export const useLobbyStore = create<LobbyState>()(
         usersInMainChannel: {},
         showAuthForm: true,
         highlightAuthForm: false,
-        savedCharacters: [],
+        savedCharacters: {},
         mutateState: (fn: (state: LobbyState) => void) => set(produce(fn)),
       }),
       { enabled: true, name: "lobby store" }
