@@ -1,14 +1,13 @@
+import { nextToBabylonMessageQueue } from "@/singletons/next-to-babylon-message-queue";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
-import { NextBabylonMessagingState } from "@/stores/next-babylon-messaging-store";
-import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
+import { NextToBabylonMessageTypes } from "@/singletons/next-to-babylon-message-queue";
 import { AdventuringParty, Combatant, cloneVector3 } from "@speed-dungeon/common";
 
 export default function requestSpawnCombatantModel(
   combatantDetails: Combatant,
   party: AdventuringParty,
   mutateGameStore: MutateState<GameState>,
-  mutateNextBabylonMessagingStore: MutateState<NextBabylonMessagingState>,
   modelDomPositionElement: HTMLDivElement | null
 ) {
   const entityId = combatantDetails.entityProperties.id;
@@ -31,20 +30,18 @@ export default function requestSpawnCombatantModel(
 
   if (!isPlayer && monsterType === null) return;
 
-  mutateNextBabylonMessagingStore((state) => {
-    state.nextToBabylonMessages.push({
-      type: NextToBabylonMessageTypes.SpawnCombatantModel,
-      combatantModelBlueprint: {
-        entityId,
-        species: combatantProperties.combatantSpecies,
-        monsterType,
-        class: combatantProperties.combatantClass,
-        startPosition: cloneVector3(combatantProperties.homeLocation),
-        startRotation,
-        modelCorrectionRotation,
-        modelDomPositionElement,
-      },
-      checkIfRoomLoaded: true,
-    });
+  nextToBabylonMessageQueue.messages.push({
+    type: NextToBabylonMessageTypes.SpawnCombatantModel,
+    combatantModelBlueprint: {
+      entityId,
+      species: combatantProperties.combatantSpecies,
+      monsterType,
+      class: combatantProperties.combatantClass,
+      startPosition: cloneVector3(combatantProperties.homeLocation),
+      startRotation,
+      modelCorrectionRotation,
+      modelDomPositionElement,
+    },
+    checkIfRoomLoaded: true,
   });
 }

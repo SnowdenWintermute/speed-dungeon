@@ -14,7 +14,6 @@ export default function SceneManager({
   const debugRef = useRef<HTMLDivElement>(null);
   const resizeHandlerRef = useRef<(e: UIEvent) => void | null>();
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
-  const nextToBabylonMessages = useNextBabylonMessagingStore().nextToBabylonMessages;
   const mutateGameState = useGameStore().mutateState;
 
   useEffect(() => {
@@ -40,17 +39,6 @@ export default function SceneManager({
       if (resizeHandlerRef.current) window.removeEventListener("resize", resizeHandlerRef.current);
     };
   }, []);
-
-  // SEND MESSAGES TO BABYLON
-  useEffect(() => {
-    if (nextToBabylonMessages.length < 1) return;
-
-    mutateNextBabylonMessagingStore((state) => {
-      if (sceneRef.current === null) return;
-      sceneRef.current.messages.push(...nextToBabylonMessages);
-      state.nextToBabylonMessages = [];
-    });
-  }, [nextToBabylonMessages]);
 
   return (
     <>

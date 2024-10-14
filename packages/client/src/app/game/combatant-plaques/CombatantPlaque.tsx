@@ -12,13 +12,14 @@ import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
 import { AdventuringParty, ClientToServerEvent, InputLock } from "@speed-dungeon/common";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
-import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
+import { NextToBabylonMessageTypes } from "@/singletons/next-to-babylon-message-queue";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
 import { getTailwindClassFromFloatingTextColor } from "@/stores/game-store/floating-text";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { websocketConnection } from "@/singletons/websocket-connection";
+import { nextToBabylonMessageQueue } from "@/singletons/next-to-babylon-message-queue";
 
 interface Props {
   entityId: string;
@@ -78,7 +79,6 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
       combatantDetailsResult,
       party,
       mutateGameState,
-      mutateNextBabylonMessagingStore,
       element as HTMLDivElement | null
     );
     mutateGameState((state) => {
@@ -92,11 +92,9 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
         delete state.babylonControlledCombatantDOMData[entityId];
       });
 
-      mutateNextBabylonMessagingStore((state) => {
-        state.nextToBabylonMessages.push({
-          type: NextToBabylonMessageTypes.RemoveCombatantModel,
-          entityId,
-        });
+      nextToBabylonMessageQueue.messages.push({
+        type: NextToBabylonMessageTypes.RemoveCombatantModel,
+        entityId,
       });
     };
   }, []);

@@ -1,7 +1,8 @@
 import {
   NextToBabylonMessage,
   NextToBabylonMessageTypes,
-} from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
+  nextToBabylonMessageQueue,
+} from "@/singletons/next-to-babylon-message-queue";
 import { GameWorld } from ".";
 import { ModelManagerMessageType } from "./model-manager";
 import startMovingIntoCombatActionUsePosition from "./start-moving-into-combat-action-use-position";
@@ -9,8 +10,10 @@ import startPerformingCombatAction from "./start-performing-combat-action";
 import startReturningHome from "./start-returning-home";
 
 export default function processMessagesFromNext(this: GameWorld) {
-  if (this.messages.length > 0) {
-    const message = this.messages.shift();
+  // console.log("messages: ", nextToBabylonMessageQueue.messages);
+  if (nextToBabylonMessageQueue.messages.length > 0) {
+    const message = nextToBabylonMessageQueue.messages.shift();
+    console.log("processing message: ", message);
     if (message !== undefined) {
       const maybeError = handleMessageFromNext(this, message);
       // if (maybeError instanceof Error) {

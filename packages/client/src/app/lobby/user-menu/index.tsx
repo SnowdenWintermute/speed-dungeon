@@ -95,6 +95,7 @@ function UserMenu({ username }: { username: null | string }) {
   const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
   const mutateUIState = useUIStore().mutateState;
+  const mutateLobbyState = useLobbyStore().mutateState;
   const userMenuRef = useRef<HTMLDivElement>(null);
   // on log out
   // send log out to auth server
@@ -110,8 +111,14 @@ function UserMenu({ username }: { username: null | string }) {
         state.requests[HTTP_REQUEST_NAMES.GET_SESSION] = new HttpRequestTracker();
       // don't delete the tracker because our auth form and user menu loading spinner
       // state depend on if this request tracke has been created yet
-      state.requests[HTTP_REQUEST_NAMES.GET_SESSION]!.statusCode = 1;
+      if (state.requests[HTTP_REQUEST_NAMES.GET_SESSION]) {
+        state.requests[HTTP_REQUEST_NAMES.GET_SESSION]!.statusCode = 1;
+      }
       delete state.requests[HTTP_REQUEST_NAMES.LOGIN_WITH_CREDENTIALS];
+    });
+
+    mutateLobbyState((state) => {
+      state.showAuthForm = true;
     });
 
     mutateGameState((state) => {

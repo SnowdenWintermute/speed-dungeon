@@ -1,3 +1,7 @@
+export const nextToBabylonMessageQueue: { messages: NextToBabylonMessage[] } = {
+  messages: [],
+};
+
 import {
   CombatantClass,
   CombatantSpecies,
