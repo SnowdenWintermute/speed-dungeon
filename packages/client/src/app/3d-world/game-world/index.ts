@@ -8,6 +8,8 @@ import {
   Mesh,
   ICanvasRenderingContext,
   DynamicTexture,
+  MeshBuilder,
+  StandardMaterial,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { BASE_FILE_PATH } from "../combatant-models/modular-character-parts";
@@ -57,28 +59,6 @@ export class GameWorld {
     this.debug.debugRef = debugRef;
     [this.camera, this.shadowGenerator, this.sun, this.groundTextureContext, this.groundTexture] =
       this.initScene();
-
-    // create floor textures
-
-    this.groundTextureContext.save();
-    this.groundTextureContext.fillStyle = "#264908";
-    this.groundTextureContext.fillRect(0, 0, GROUND_TEXTURE_WIDTH, GROUND_TEXTURE_HEIGHT);
-
-    // character slots
-    const radius = 25;
-    for (let i = 0; i < 3; i += 1) {
-      const center = { x: GROUND_TEXTURE_WIDTH / 2 + -1 + 1 * i, y: GROUND_TEXTURE_HEIGHT / 2 };
-      this.groundTextureContext.beginPath();
-      this.groundTextureContext.arc(center.x, center.y, radius, 0, Math.PI * 2); // Full circle (0 to 2π radians)
-      this.groundTextureContext.strokeStyle = "blue";
-      this.groundTextureContext.lineWidth = 1;
-      this.groundTextureContext.stroke();
-    }
-
-    this.groundTextureContext.restore();
-    this.groundTexture.update();
-
-    // end floor texture canvas setup
 
     this.engine.runRenderLoop(() => {
       this.updateGameWorld();

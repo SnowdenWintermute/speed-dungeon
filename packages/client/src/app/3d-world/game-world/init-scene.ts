@@ -10,12 +10,13 @@ import {
   Mesh,
   DynamicTexture,
   ICanvasRenderingContext,
+  Color3,
 } from "@babylonjs/core";
 import { GameWorld } from ".";
 
 export const GROUND_WIDTH = 50;
 export const GROUND_HEIGHT = 50;
-export const GROUND_TEXTURE_WIDTH = 10000;
+export const GROUND_TEXTURE_WIDTH = 8000;
 export const GROUND_TEXTURE_HEIGHT = 10000;
 
 export function initScene(
@@ -53,27 +54,44 @@ export function initScene(
   ball.position = lightPosition;
   pointLight.intensity = 0.2;
 
-  // GROUND
-  const ground = MeshBuilder.CreateGround(
-    "ground",
-    { width: GROUND_WIDTH, height: GROUND_HEIGHT },
+  var ground = MeshBuilder.CreateGround(
+    "ground1",
+    { width: GROUND_WIDTH, height: GROUND_HEIGHT, subdivisions: 25 },
     this.scene
   );
-  const material = new StandardMaterial("ground-material", this.scene);
-  // material.diffuseColor = new Color3(0.203, 0.295, 0.208);
-  ground.material = material;
 
-  const dynTex = new DynamicTexture(
-    "ground texture context",
-    { width: GROUND_TEXTURE_WIDTH, height: GROUND_TEXTURE_HEIGHT },
-    this.scene
-  );
-  const groundTextureContext = dynTex.getContext();
-  material.diffuseTexture = dynTex;
+  // Create dynamic texture
+  const textureGround = new DynamicTexture("dynamic texture", GROUND_TEXTURE_WIDTH, this.scene);
+  const textureContext = textureGround.getContext();
 
+  const materialGround = new StandardMaterial("Mat", this.scene);
+  materialGround.diffuseTexture = textureGround;
+  ground.material = materialGround;
+
+  // Draw on canvas
+  textureContext.beginPath();
+  textureContext.fillStyle = "#344b35";
+  textureContext.fillRect(0, 0, GROUND_TEXTURE_WIDTH, GROUND_TEXTURE_HEIGHT);
+
+  for (let i = 0; i < 3; i += 1) {
+    const spacingInResolutionUnits = GROUND_TEXTURE_WIDTH / GROUND_WIDTH;
+    const centerX =
+      -spacingInResolutionUnits + GROUND_TEXTURE_WIDTH / 2 + spacingInResolutionUnits * i;
+    const centerY = GROUND_TEXTURE_WIDTH / 2;
+    const radius = 70;
+
+    textureContext.beginPath();
+
+    textureContext.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    textureContext.strokeStyle = "white";
+    textureContext.lineWidth = 10;
+    textureContext.stroke();
+  }
+
+  textureGround.update();
   // SHADOWS
   const shadowGenerator = new ShadowGenerator(1024, pointLight);
-  ground.receiveShadows = true;
+  // ground.receiveShadows = true;
 
-  return [camera, shadowGenerator, ball, groundTextureContext, dynTex];
+  return [camera, shadowGenerator, ball, textureContext, textureGround];
 }

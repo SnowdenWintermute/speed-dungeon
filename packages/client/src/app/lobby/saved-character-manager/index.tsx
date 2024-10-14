@@ -58,7 +58,7 @@ export default function SavedCharacterManager() {
   }
 
   return (
-    <div className="w-[17vw] h-[64vh] flex flex-col justify-between ">
+    <div className="w-[300px] h-[64vh] flex flex-col justify-between ">
       <div className="p-4 w-full flex flex-col justify-center items-center bg-slate-700 border-slate-400 border pointer-events-auto">
         <h4>Slot {currentSlot + 1}</h4>
         <h3>{selectedCharacterOption?.entityProperties.name || "Empty"}</h3>
