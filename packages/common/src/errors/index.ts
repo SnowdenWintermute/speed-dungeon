@@ -1,3 +1,5 @@
+import { MAX_CHARACTER_NAME_LENGTH } from "../app-consts.js";
+
 export type CustomErrorDetails = { message: string; field?: string };
 
 export const ERROR_MESSAGES = {
@@ -65,6 +67,7 @@ export const ERROR_MESSAGES = {
     NO_UNSPENT_ATTRIBUTE_POINTS: "That combatant has no unspent attribute points",
     ATTRIBUTE_IS_NOT_ASSIGNABLE: "Points may not be spent on that attribute",
     EXPECTED_OWNER_ID_MISSING: "Failed to find expected controlling player ID",
+    MAX_NAME_LENGTH_EXCEEDED: `Character names must be no longer than ${MAX_CHARACTER_NAME_LENGTH} characters`,
   },
   MONSTERS: {
     NO_MONSTERS_FOUND: "No monsters were found in the current room",

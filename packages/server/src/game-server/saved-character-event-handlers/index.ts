@@ -4,6 +4,7 @@ import {
   ClientToServerEventTypes,
   Combatant,
   ERROR_MESSAGES,
+  MAX_CHARACTER_NAME_LENGTH,
   ServerToClientEvent,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
@@ -11,7 +12,7 @@ import { GameServer } from "..";
 import { playerCharactersRepo } from "../../database/repos/player-characters.js";
 import { speedDungeonProfilesRepo } from "../../database/repos/speed-dungeon-profiles.js";
 import errorHandler from "../error-handler.js";
-import { createCharacter } from "../character-creation/index.js";
+import { characterSlotsRepo } from "../../database/repos/character-slots.js";
 
 async function fetchSavedCharacters(gameServer: GameServer, socketId: string) {
   const browserTabSessionOption = gameServer.connections.get(socketId);
@@ -42,6 +43,9 @@ export default function initiateSavedCharacterListeners(
   socket.on(ClientToServerEvent.GetSavedCharacterById, async (entityId) => {});
 
   socket.on(ClientToServerEvent.CreateSavedCharacter, async (name, combatantClass, slot) => {
+    if (name.length > MAX_CHARACTER_NAME_LENGTH)
+      return errorHandler(socket, ERROR_MESSAGES.COMBATANT.MAX_NAME_LENGTH_EXCEEDED);
+
     const browserTabSessionOption = this.connections.get(socket.id);
     if (browserTabSessionOption === undefined)
       return errorHandler(socket, ERROR_MESSAGES.SERVER.BROWSER_SESSION_NOT_FOUND);
@@ -53,16 +57,19 @@ export default function initiateSavedCharacterListeners(
     if (profileOption === undefined)
       return errorHandler(socket, ERROR_MESSAGES.USER.MISSING_PROFILE);
 
-    const reachedCapacity = (characters?.length || 0) >= profileOption.characterCapacity;
+    const characterSlots = await characterSlotsRepo.findOne("profileId", profileOption.id);
+    console.log("got slots: ", characterSlots);
 
-    if (reachedCapacity) return errorHandler(socket, ERROR_MESSAGES.USER.SAVED_CHARACTER_CAPACITY);
+    // const reachedCapacity = (characters?.length || 0) >= profileOption.characterCapacity;
 
-    const newCharacter = createCharacter(name, combatantClass);
-    await playerCharactersRepo.insert(newCharacter, userIdOption);
+    // if (reachedCapacity) return errorHandler(socket, ERROR_MESSAGES.USER.SAVED_CHARACTER_CAPACITY);
 
-    console.log("created character in slot", slot);
+    // const newCharacter = createCharacter(name, combatantClass);
+    // await playerCharactersRepo.insert(newCharacter, userIdOption);
 
-    socket.emit(ServerToClientEvent.SavedCharacter, newCharacter, slot);
+    // console.log("created character in slot", slot);
+
+    // socket.emit(ServerToClientEvent.SavedCharacter, newCharacter, slot);
   });
 
   socket.on(ClientToServerEvent.DeleteSavedCharacter, async (entityId) => {

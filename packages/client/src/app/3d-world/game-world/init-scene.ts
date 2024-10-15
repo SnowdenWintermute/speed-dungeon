@@ -83,7 +83,7 @@ export function initScene(
     textureContext.beginPath();
 
     textureContext.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    textureContext.strokeStyle = "white";
+    textureContext.strokeStyle = "grey";
     textureContext.lineWidth = 10;
     textureContext.stroke();
   }

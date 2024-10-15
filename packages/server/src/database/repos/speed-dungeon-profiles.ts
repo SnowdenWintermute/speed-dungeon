@@ -3,8 +3,7 @@ import { pgPool } from "../../singletons.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { toCamelCase } from "../utils.js";
 import { DatabaseRepository } from "./index.js";
-import { SERVER_VERSION } from "../../index.js";
-import { Combatant, DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "@speed-dungeon/common";
+import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "@speed-dungeon/common";
 
 export type SpeedDungeonProfile = {
   id: string; // UUID
@@ -25,10 +24,21 @@ class SpeedDungeonProfileRepo extends DatabaseRepository<SpeedDungeonProfile> {
         DEFAULT_ACCOUNT_CHARACTER_CAPACITY
       )
     );
+    if (!rows[0]) {
+      console.error(`Failed to insert a new ${tableName} record`);
+      return undefined;
+    }
+    const newProfile = toCamelCase(rows)[0] as unknown as SpeedDungeonProfile;
 
-    if (rows[0]) return toCamelCase(rows)[0] as unknown as SpeedDungeonProfile;
-    console.error(`Failed to insert a new ${tableName} record`);
-    return undefined;
+    await this.pgPool.query(
+      format(
+        `INSERT INTO character_slots (profile_id, slot_number) SELECT %L, generate_series(1, %L);`,
+        newProfile.id,
+        DEFAULT_ACCOUNT_CHARACTER_CAPACITY
+      )
+    );
+
+    return newProfile;
   }
 
   async update(speedDungeonProfile: SpeedDungeonProfile) {
