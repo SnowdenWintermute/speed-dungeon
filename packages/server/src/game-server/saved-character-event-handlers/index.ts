@@ -77,7 +77,6 @@ export default function initiateSavedCharacterListeners(
 
     const slot = await characterSlotsRepo.getSlot(profileOption.id, slotNumber);
     if (!slot) return errorHandler(socket, "Character slot missing");
-    console.log("got slot: ", slot);
 
     if (slot.characterId !== null)
       return errorHandler(socket, ERROR_MESSAGES.USER.CHARACTER_SLOT_FULL);
@@ -86,7 +85,6 @@ export default function initiateSavedCharacterListeners(
     await playerCharactersRepo.insert(newCharacter, userIdOption);
     slot.characterId = newCharacter.entityProperties.id;
     await characterSlotsRepo.update(slot);
-    console.log("created character in slot", slot);
 
     socket.emit(ServerToClientEvent.SavedCharacter, newCharacter, slotNumber);
   });

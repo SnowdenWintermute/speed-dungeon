@@ -25,7 +25,7 @@ export default function AuthFormContainer() {
       <div className="h-10 w-10 flex justify-end absolute right-0 top-0 border-b border-l border-slate-400">
         <HotkeyButton
           className="p-2"
-          hotkey="Escape"
+          hotkeys={["Escape"]}
           onClick={() =>
             mutateLobbyState((state) => {
               state.showAuthForm = false;

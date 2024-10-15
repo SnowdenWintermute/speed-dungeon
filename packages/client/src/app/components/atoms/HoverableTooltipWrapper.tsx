@@ -5,6 +5,7 @@ import React, { ReactNode, useEffect, useRef } from "react";
 interface Props {
   tooltipText: string;
   extraStyles?: string;
+  offsetTop?: number;
   children: ReactNode;
 }
 
@@ -19,8 +20,9 @@ export default function HoverableTooltipWrapper(props: Props) {
   ) {
     if (!elementOption) return;
     const { x, y, width } = elementOption.getBoundingClientRect();
+    const offsetTop = props.offsetTop !== undefined ? props.offsetTop : 4;
     mutateUIState((store) => {
-      store.tooltipPosition = { x: x + width / 2.0, y: y - 4 };
+      store.tooltipPosition = { x: x + width / 2.0, y: y - offsetTop };
       store.tooltipText = text;
     });
   }

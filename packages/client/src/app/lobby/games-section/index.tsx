@@ -1,6 +1,7 @@
 // @refresh reset
 "use client";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
+import { useEffect, useRef, useState } from "react";
 import { ClientToServerEvent, GameListEntry } from "@speed-dungeon/common";
 import ButtonBasic from "../../components/atoms/ButtonBasic";
 import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client_consts";
@@ -9,39 +10,46 @@ import { useLobbyStore } from "@/stores/lobby-store";
 import useElementIsOverflowing from "@/hooks/use-element-is-overflowing";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { useUIStore } from "@/stores/ui-store";
+import HostGameForm from "./HostGameForm";
+import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 
 export default function GamesSection() {
-  const [gameName, setGameName] = useState("");
   const [gameListRefreshedAt, setGameListRefreshedAt] = useState("...");
-  const mutateUIState = useUIStore().mutateState;
   const gameList = useLobbyStore().gameList;
   const gameListRef = useRef(null);
   const gameListIsOverflowing = useElementIsOverflowing(gameListRef.current);
+  const mutateLobbyState = useLobbyStore().mutateState;
+  const showGameCreationForm = useLobbyStore().showGameCreationForm;
+  const gameFormHolderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setGameListRefreshedAt(new Date(Date.now()).toLocaleTimeString());
   }, []);
-
-  function createGame(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    websocketConnection.emit(ClientToServerEvent.CreateGame, gameName);
-  }
 
   function refreshGameList() {
     websocketConnection.emit(ClientToServerEvent.RequestsGameList);
     setGameListRefreshedAt(new Date(Date.now()).toLocaleTimeString());
   }
 
-  // const testGames = new Array(40).fill("").map((item) => {
-  //   const entry = {
-  //     gameName: "some game nameeeeeeeeeeeee",
-  //     numberOfUsers: Math.floor(Math.random() * 3),
-  //     timeStarted: null,
-  //   };
+  const handleClickOutside = (e: MouseEvent) => {
+    if (gameFormHolderRef.current) {
+      const menuRect = gameFormHolderRef.current.getBoundingClientRect();
+      const { x, y, width, height } = menuRect;
+      const maxX = x + width;
+      const maxY = y + height;
+      if (e.x < x || e.x > maxX || e.y > maxY || e.y < y)
+        mutateLobbyState((state) => {
+          state.showGameCreationForm = false;
+        });
+    }
+  };
 
-  //   return <GameListItem game={entry} />;
-  // });
+  useEffect(() => {
+    window.addEventListener("click", handleClickOutside);
+    return () => {
+      window.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div
@@ -86,44 +94,51 @@ export default function GamesSection() {
           ))}
         </ul>
       </div>
-      <form
-        id="create-game-form"
-        className="pointer-events-auto h-fit w-full laptop:w-6/12 laptop:pl-2"
-        onSubmit={createGame}
+      <div
+        className="pointer-events-auto h-fit w-full laptop:w-6/12 laptop:pl-2 relative"
+        id="game-form-holder"
+        ref={gameFormHolderRef}
       >
         <div className="mb-2">
-          Host a multiplayer game{" "}
+          Host a custom game{" "}
           <HoverableTooltipWrapper
             extraStyles="inline"
-            tooltipText="Host a game where multiple players can control multiple parties of characters and race to the bottom of the dungeon"
+            tooltipText="Choose from Race or Progression mode and enter the dungeon in a single or multiplayer game (A)"
           >
             ⓘ{" "}
           </HoverableTooltipWrapper>
         </div>
-        <div className="flex flex-1 mb-2">
-          <input
-            onFocus={() => {
-              mutateUIState((state) => {
-                state.hotkeysDisabled = true;
-              });
-            }}
-            onBlur={() => {
-              mutateUIState((state) => {
-                state.hotkeysDisabled = false;
-              });
-            }}
-            className="bg-slate-700 border border-slate-400 h-10 p-4 min-w-0 flex-1"
-            type="text"
-            name="game name"
-            placeholder="Game name..."
-            onChange={(e) => setGameName(e.target.value)}
-            value={gameName}
-          />
-          <ButtonBasic buttonType="submit" extraStyles="border-l-0 bg-slate-700">
-            CREATE
-          </ButtonBasic>
+        <div
+          className={`bg-slate-700 w-full h-10 border border-slate-400 flex pl-4 justify-between items-center pointer-events-auto`}
+        >
+          <HotkeyButton
+            hotkeys={["KeyA"]}
+            className="w-full h-full"
+            onClick={() =>
+              mutateLobbyState((state) => {
+                state.showGameCreationForm = !state.showGameCreationForm;
+              })
+            }
+          >
+            <span className={`transition`}>HOST GAME {showGameCreationForm}</span>
+          </HotkeyButton>
+          {showGameCreationForm && (
+            <HotkeyButton
+              className="p-2 h-10 w-10 border-l border-slate-400 cursor-pointer pointer-events-none absolute right-0"
+              hotkeys={["Escape"]}
+              onClick={() => {
+                mutateLobbyState((state) => {
+                  state.showGameCreationForm = false;
+                });
+              }}
+              ariaLabel="close game form"
+            >
+              <XShape className="h-full w-full fill-zinc-300" />
+            </HotkeyButton>
+          )}
         </div>
-      </form>
+        {showGameCreationForm && <HostGameForm />}
+      </div>
     </div>
   );
 }

@@ -30,6 +30,8 @@ export default function Lobby() {
     useHttpRequestStore().requests[HTTP_REQUEST_NAMES.GET_SESSION];
   const mutateLobbyState = useLobbyStore().mutateState;
   const showAuthForm = useLobbyStore().showAuthForm;
+  const showSavedCharacterManager = useLobbyStore().showSavedCharacterManager;
+  const showGameCreationForm = useLobbyStore().showGameCreationForm;
 
   useEffect(() => {
     if (currentSessionHttpResponseTracker?.statusCode === 200)
@@ -60,7 +62,7 @@ export default function Lobby() {
             width: `calc(100% - ${usersContainerWidth}px)`,
           }}
         >
-          <GamesSection />
+          {!showSavedCharacterManager && <GamesSection />}
         </div>
         <div
           id="users-container"
@@ -80,17 +82,22 @@ export default function Lobby() {
         {currentSessionHttpResponseTracker?.statusCode === 200 && <SavedCharacterManager />}
       </section>
       <div className="absolute z-10 bottom-0 w-full p-7 flex items-center justify-center">
-        <HoverableTooltipWrapper tooltipText="Start a single player game where you control one of each character type">
-          <button
-            onClick={() => quickStartGame(socketOption)}
-            className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
-            flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
+        {!showGameCreationForm && !showSavedCharacterManager && (
+          <HoverableTooltipWrapper
+            offsetTop={8}
+            tooltipText="Start a single player game where you control one of each character type"
+          >
+            <button
+              onClick={() => quickStartGame(socketOption)}
+              className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
+          flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
             text-xl bg-slate-950 text-slate-400
             `}
-          >
-            PLAY NOW
-          </button>
-        </HoverableTooltipWrapper>
+            >
+              PLAY NOW
+            </button>
+          </HoverableTooltipWrapper>
+        )}
         <div
           className="flex absolute right-0 bottom-0"
           style={{

@@ -6,7 +6,7 @@ interface Props {
   className?: string;
   children: React.ReactNode;
   ariaLabel?: string;
-  hotkey?: string;
+  hotkeys?: string[];
   buttonType?: "button" | "submit" | "reset";
   disabled?: boolean;
   onClick?: MouseEventHandler<HTMLButtonElement>;
@@ -22,11 +22,13 @@ export default function HotkeyButton(props: Props) {
   const keypressListenerRef = useRef<(e: KeyboardEvent) => void | null>();
 
   useEffect(() => {
-    if (props.hotkey !== undefined) {
+    if (props.hotkeys !== undefined) {
       keypressListenerRef.current = (e: KeyboardEvent) => {
-        if (e.code === props.hotkey && !hotkeysDisabled) {
-          // @ts-ignore
-          onClick(new MouseEvent("mouseup"));
+        for (const hotkey of props.hotkeys!) {
+          if (e.code === hotkey && !hotkeysDisabled) {
+            // @ts-ignore
+            onClick(new MouseEvent("mouseup"));
+          }
         }
       };
       window.addEventListener("keydown", keypressListenerRef.current);

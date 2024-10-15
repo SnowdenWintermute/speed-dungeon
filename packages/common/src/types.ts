@@ -20,3 +20,17 @@ export interface PlayerAssociatedData {
   game: SpeedDungeonGame;
   party: AdventuringParty;
 }
+
+export enum GameMode {
+  Race,
+  Progression,
+}
+
+export function formatGameMode(gameMode: GameMode) {
+  switch (gameMode) {
+    case GameMode.Race:
+      return "Race";
+    case GameMode.Progression:
+      return "Progression";
+  }
+}

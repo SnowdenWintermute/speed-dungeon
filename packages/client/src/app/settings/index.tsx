@@ -38,7 +38,7 @@ export default function Settings() {
         <h2 className="text-lg">Settings</h2>
         <HotkeyButton
           className="p-2 h-full w-fit border cursor-pointer"
-          hotkey="Escape"
+          hotkeys={["Escape"]}
           ariaLabel="close settings window"
           onClick={() => {
             mutateUIState((state) => {
