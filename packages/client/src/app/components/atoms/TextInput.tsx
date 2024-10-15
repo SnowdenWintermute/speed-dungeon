@@ -1,5 +1,5 @@
 import { useUIStore } from "@/stores/ui-store";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 
 interface Props {
   placeholder: string;
@@ -13,6 +13,14 @@ interface Props {
 
 export default function TextInput(props: Props) {
   const mutateUIState = useUIStore().mutateState;
+
+  useEffect(() => {
+    return () => {
+      mutateUIState((state) => {
+        state.hotkeysDisabled = false;
+      });
+    };
+  }, []);
 
   return (
     <input

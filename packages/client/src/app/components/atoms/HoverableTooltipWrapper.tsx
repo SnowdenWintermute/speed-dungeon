@@ -3,7 +3,7 @@ import { UIState, useUIStore } from "@/stores/ui-store";
 import React, { ReactNode, useEffect, useRef } from "react";
 
 interface Props {
-  tooltipText: string;
+  tooltipText?: string;
   extraStyles?: string;
   offsetTop?: number;
   children: ReactNode;
@@ -39,7 +39,7 @@ export default function HoverableTooltipWrapper(props: Props) {
   }, []);
 
   function handleMouseEnter(_e: React.MouseEvent) {
-    showTooltip(mutateUIState, elementRef.current, props.tooltipText);
+    if (props.tooltipText) showTooltip(mutateUIState, elementRef.current, props.tooltipText);
   }
 
   function handleMouseLeave(_e: React.MouseEvent) {
@@ -47,7 +47,7 @@ export default function HoverableTooltipWrapper(props: Props) {
   }
 
   function handleFocus(_e: React.FocusEvent): void {
-    showTooltip(mutateUIState, elementRef.current, props.tooltipText);
+    if (props.tooltipText) showTooltip(mutateUIState, elementRef.current, props.tooltipText);
   }
 
   function handleBlur(_e: React.FocusEvent): void {

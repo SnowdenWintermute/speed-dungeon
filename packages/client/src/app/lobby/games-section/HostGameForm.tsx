@@ -1,11 +1,20 @@
-import { ClientToServerEvent, GameMode } from "@speed-dungeon/common";
+import { ClientToServerEvent, GameMode, formatGameMode } from "@speed-dungeon/common";
 import React, { FormEvent, useState } from "react";
 import TextInput from "@/app/components/atoms/TextInput";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
+import { useHttpRequestStore } from "@/stores/http-request-store";
+import { HTTP_REQUEST_NAMES } from "@/client_consts";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import Divider from "@/app/components/atoms/Divider";
 
 export default function HostGameForm() {
-  const [selectedGameMode, setSelectedGameMode] = useState(GameMode.Progression);
+  const currentSessionHttpResponseTracker =
+    useHttpRequestStore().requests[HTTP_REQUEST_NAMES.GET_SESSION];
+  const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
+  const [selectedGameMode, setSelectedGameMode] = useState(
+    isLoggedIn ? GameMode.Progression : GameMode.Race
+  );
   const [gameName, setGameName] = useState("");
   const [gamePassword, setGamePassword] = useState("");
 
@@ -41,7 +50,26 @@ export default function HostGameForm() {
             autoComplete="new-password"
           />
         </div>
-        <div className="flex items-center mb-2">Game mode:</div>
+        <div className="flex items-center font-bold">
+          Game mode: {formatGameMode(selectedGameMode)}
+        </div>
+        <Divider />
+        <div className="mb-4">
+          {selectedGameMode === GameMode.Race && (
+            <p>
+              Race to the bottom of the dungeon! Face off against other parties or go for a personal
+              best time. This mode uses all new level 1 characters which can be controlled by
+              individual players.
+            </p>
+          )}
+          {selectedGameMode === GameMode.Progression && (
+            <p>
+              Level up your existing characters and try to reach deeper floors and find better
+              equipment. You may only control one character so it may be a good idea to bring some
+              friends.
+            </p>
+          )}
+        </div>
         <div className="flex mb-2">
           <button
             type="button"
@@ -55,18 +83,24 @@ export default function HostGameForm() {
           >
             RACE
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedGameMode(GameMode.Progression);
-            }}
-            className={`flex-1 h-10 border border-slate-400
-                        ${selectedGameMode === GameMode.Progression ? "bg-slate-950" : "bg-slate-700"}
-                        ml-1
-                        `}
+          <HoverableTooltipWrapper
+            tooltipText={isLoggedIn ? undefined : "You must be logged in to select this"}
+            extraStyles="flex-1 ml-1 "
           >
-            PROGRESSION
-          </button>
+            <button
+              type="button"
+              disabled={!isLoggedIn}
+              onClick={() => {
+                setSelectedGameMode(GameMode.Progression);
+              }}
+              className={`flex-1 h-10 w-full border border-slate-400
+                        ${selectedGameMode === GameMode.Progression ? "bg-slate-950" : "bg-slate-700"}
+                        disabled:opacity-50
+                        `}
+            >
+              PROGRESSION
+            </button>
+          </HoverableTooltipWrapper>
         </div>
         <ButtonBasic buttonType="submit" extraStyles="bg-slate-700">
           CREATE
