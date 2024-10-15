@@ -1,18 +1,18 @@
+import { GameMode, SpeedDungeonGame } from "@speed-dungeon/common";
 import React from "react";
-import UserList from "../user-list/";
-import GameSetupMenu from "./GameSetupMenu";
-import CharacterAndPartySelection from "./CharacterAndPartySelection";
+import ProgressionGameLobby from "./ProgressionGameLobby";
+import { SPACING_REM_LARGE } from "@/client_consts";
 
-export function GameSetup() {
+export function GameSetup({ game }: { game: SpeedDungeonGame }) {
   return (
-    <main className="min-h-screen w-screen flex justify-center">
-      <div className="w-full max-w-[80rem] p-4 text-zinc-300 flex flex-col">
-        <GameSetupMenu />
-        <div className="w-full flex flex-1">
-          <CharacterAndPartySelection />
-          <UserList />
-        </div>
-      </div>
+    <main className="h-screen w-screen" style={{ padding: `${SPACING_REM_LARGE}rem` }}>
+      {game.mode === GameMode.Progression && <ProgressionGameLobby game={game} />}
     </main>
   );
 }
+
+// <GameSetupMenu />
+// <div className="w-full flex flex-1">
+//   <CharacterAndPartySelection />
+//   <UserList />
+// </div>

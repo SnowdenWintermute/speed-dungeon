@@ -2,6 +2,7 @@ import { CombatAction } from "../combat/index.js";
 import { CombatAttribute, CombatantClass } from "../combatants/index.js";
 import { EquipmentSlot } from "../items/index.js";
 import { NextOrPrevious } from "../primatives/index.js";
+import { GameMode } from "../types.js";
 import { CharacterAndItem, EquipItemPacket } from "./server-to-client.js";
 
 export enum ClientToServerEvent {
@@ -39,7 +40,7 @@ export enum ClientToServerEvent {
 export interface ClientToServerEventTypes {
   [ClientToServerEvent.RequestToJoinGame]: (gameName: string) => void;
   [ClientToServerEvent.RequestsGameList]: () => void;
-  [ClientToServerEvent.CreateGame]: (gameName: string) => void;
+  [ClientToServerEvent.CreateGame]: (gameName: string, gameMode: GameMode) => void;
   [ClientToServerEvent.JoinGame]: (gameName: string) => void;
   [ClientToServerEvent.LeaveGame]: () => void;
   [ClientToServerEvent.CreateParty]: (partyName: string) => void;

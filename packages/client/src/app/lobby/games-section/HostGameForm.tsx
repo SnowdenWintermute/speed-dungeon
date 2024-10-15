@@ -20,7 +20,7 @@ export default function HostGameForm() {
 
   function createGame(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    websocketConnection.emit(ClientToServerEvent.CreateGame, gameName);
+    websocketConnection.emit(ClientToServerEvent.CreateGame, gameName, selectedGameMode);
   }
 
   return (

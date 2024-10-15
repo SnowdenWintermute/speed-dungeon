@@ -1,13 +1,19 @@
 import {
   ERROR_MESSAGES,
   GAME_CHANNEL_PREFIX,
+  GameMode,
   ServerToClientEvent,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
 import { generateRandomGameName } from "../../utils/index.js";
 
-export default function createGameHandler(this: GameServer, socketId: string, gameName: string) {
+export default function createGameHandler(
+  this: GameServer,
+  socketId: string,
+  gameName: string,
+  gameMode: GameMode
+) {
   const [socket, socketMeta] = this.getConnection(socketId);
 
   if (socketMeta.currentGameName)
@@ -22,6 +28,6 @@ export default function createGameHandler(this: GameServer, socketId: string, ga
     );
   if (gameName === "") gameName = generateRandomGameName();
   console.log(`created game "${gameName}"`);
-  this.games.insert(gameName, new SpeedDungeonGame(gameName));
+  this.games.insert(gameName, new SpeedDungeonGame(gameName, gameMode));
   this.joinGameHandler(socketId, gameName);
 }

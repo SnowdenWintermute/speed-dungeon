@@ -57,7 +57,13 @@ export default function Home() {
     }
   }, [combatantModelsAwaitingSpawn]);
 
-  const componentToRender = game?.timeStarted ? <Game /> : game ? <GameSetup /> : <Lobby />;
+  const componentToRender = game?.timeStarted ? (
+    <Game />
+  ) : game ? (
+    <GameSetup game={game} />
+  ) : (
+    <Lobby />
+  );
 
   return (
     <>

@@ -21,8 +21,8 @@ export default function initiateLobbyEventListeners(
       );
     socket.emit(ServerToClientEvent.GameList, gameList);
   });
-  socket.on(ClientToServerEvent.CreateGame, (gameName) => {
-    this.createGameHandler(socket.id, gameName);
+  socket.on(ClientToServerEvent.CreateGame, (gameName, gameMode) => {
+    this.createGameHandler(socket.id, gameName, gameMode);
   });
   socket.on(ClientToServerEvent.JoinGame, (gameName) => {
     this.joinGameHandler(socket.id, gameName);

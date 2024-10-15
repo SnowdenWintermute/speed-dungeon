@@ -24,18 +24,19 @@ import cycleCharacterTargetingSchemes from "../combat/targeting/cycle-character-
 import getActionResults from "../combat/action-results/get-action-results.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import handleBattleVictory from "./handle-battle-victory.js";
+import { GameMode } from "../types.js";
 
 export class SpeedDungeonGame {
   [immerable] = true;
-  name: string;
   players: { [username: string]: SpeedDungeonPlayer } = {};
   playersReadied: string[] = [];
   adventuringParties: { [partyName: string]: AdventuringParty } = {};
   battles: { [id: EntityId]: Battle } = {};
   timeStarted: null | number = null;
-  constructor(name: string) {
-    this.name = name;
-  }
+  constructor(
+    public name: string,
+    public mode: GameMode
+  ) {}
 
   static removePlayerFromParty = removePlayerFromParty;
   static removePlayer = removePlayerFromGame;
