@@ -12,6 +12,7 @@ export default function setUpSavedCharacterEventListeners(
   mutateLobbyState: MutateState<LobbyState>
 ) {
   socket.on(ServerToClientEvent.SavedCharacterList, (characters) => {
+    console.log("characters list: ", characters);
     mutateLobbyState((state) => {
       state.savedCharacters = characters;
     });

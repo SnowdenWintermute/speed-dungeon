@@ -23,6 +23,7 @@ export class DatabaseRepository<T> {
   }
 
   async find(field: keyof T, value: any): Promise<undefined | T[]> {
+    console.log("finding all records for table name", this.tableName);
     const snakeCaseField = camelToSnakeCase(field.toString());
     const result = await this.pgPool.query(
       format(`SELECT * FROM ${this.tableName} WHERE %I = %L;`, snakeCaseField, value)

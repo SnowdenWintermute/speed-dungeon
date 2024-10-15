@@ -123,7 +123,9 @@ export interface ServerToClientEventTypes {
     characterId: string,
     attribute: CombatAttribute
   ) => void;
-  [ServerToClientEvent.SavedCharacterList]: (characters: Combatant[]) => void;
+  [ServerToClientEvent.SavedCharacterList]: (characterSlots: {
+    [slot: number]: null | Combatant;
+  }) => void;
   [ServerToClientEvent.SavedCharacter]: (character: Combatant, slot: number) => void;
   [ServerToClientEvent.SavedCharacterDeleted]: (id: string) => void;
 }

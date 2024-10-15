@@ -6,7 +6,7 @@ import { DatabaseRepository } from "./index.js";
 import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "@speed-dungeon/common";
 
 export type SpeedDungeonProfile = {
-  id: string; // UUID
+  id: number;
   ownerId: number;
   characterCapacity: number;
   createdAt: number | Date;
@@ -32,9 +32,9 @@ class SpeedDungeonProfileRepo extends DatabaseRepository<SpeedDungeonProfile> {
 
     await this.pgPool.query(
       format(
-        `INSERT INTO character_slots (profile_id, slot_number) SELECT %L, generate_series(1, %L);`,
+        `INSERT INTO character_slots (profile_id, slot_number) SELECT %L, generate_series(0, %L);`,
         newProfile.id,
-        DEFAULT_ACCOUNT_CHARACTER_CAPACITY
+        DEFAULT_ACCOUNT_CHARACTER_CAPACITY - 1
       )
     );
 

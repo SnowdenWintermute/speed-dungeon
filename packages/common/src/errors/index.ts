@@ -55,7 +55,7 @@ export const ERROR_MESSAGES = {
   USER: {
     NO_CURRENT_GAME: "This user has no current game",
     MISSING_PROFILE: "Failed to find expected user profile",
-    SAVED_CHARACTER_CAPACITY: "You have filled all your available character slots",
+    CHARACTER_SLOT_FULL: "That character slot is occupied",
     SAVED_CHARACTER_NOT_OWNED: "You do not own the character with the provided ID",
   },
   COMBATANT: {

@@ -63,13 +63,15 @@ export default function SavedCharacterManager() {
     <>
       {Object.entries(savedCharacters)
         .filter(([_slot, characterOption]) => characterOption !== null)
-        .map(([slot, character]) => (
-          <SavedCharacterDisplay
-            character={character!}
-            index={parseInt(slot)}
-            key={character!.entityProperties.id}
-          />
-        ))}
+        .map(([slot, character]) => {
+          return (
+            <SavedCharacterDisplay
+              character={character!}
+              index={parseInt(slot)}
+              key={character!.entityProperties.id}
+            />
+          );
+        })}
       <div className="w-[300px] h-[64vh] flex flex-col justify-between relative">
         <div className="p-4 w-full flex flex-col justify-center items-center bg-slate-700 border-slate-400 border pointer-events-auto">
           <h4>{!selectedCharacterOption && ` Slot ${currentSlot + 1} `}</h4>
@@ -130,6 +132,7 @@ export default function SavedCharacterManager() {
               <div className="pointer-events-auto flex justify-between mb-2">
                 {iterateNumericEnum(CombatantClass).map((combatantClass) => (
                   <button
+                    key={combatantClass}
                     type="button"
                     className={`${selectedNewCharacterClass === combatantClass ? "bg-slate-950" : "bg-slate-700"} h-10 border border-slate-400 flex items-center pl-2 pr-2`}
                     onClick={() => setSelectedNewCharacterClass(combatantClass)}

@@ -8,12 +8,12 @@ export type CharacterSlot = {
   id: string;
   profileId: number;
   slotNumber: number;
-  characterId: string; // UUID
+  characterId: null | string; // UUID
   createdAt: number | Date;
   updatedAt: number | Date;
 };
 
-const tableName = RESOURCE_NAMES.SPEED_DUNGEON_PROFILES;
+const tableName = RESOURCE_NAMES.CHARACTER_SLOTS;
 
 class CharacterSlotsRepo extends DatabaseRepository<CharacterSlot> {
   async insert(profileId: number, slotNumber: number, characterId: string) {
@@ -32,6 +32,19 @@ class CharacterSlotsRepo extends DatabaseRepository<CharacterSlot> {
     const newSlot = toCamelCase(rows)[0] as unknown as CharacterSlot;
 
     return newSlot;
+  }
+
+  async getSlot(profileId: number, slotNumber: number) {
+    const { rows } = await this.pgPool.query(
+      format(
+        `SELECT * FROM ${tableName} WHERE profile_id = %L AND slot_number = %L;`,
+        profileId,
+        slotNumber
+      )
+    );
+
+    if (rows[0]) return toCamelCase(rows)[0] as unknown as CharacterSlot;
+    return undefined;
   }
 
   async update(characterSlot: CharacterSlot) {
