@@ -12,6 +12,7 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { websocketConnection } from "@/singletons/websocket-connection";
 import HostGameForm from "./HostGameForm";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import RefreshIcon from "../../../../public/img/menu-icons/refresh.svg";
 
 export default function GamesSection() {
   const [gameListRefreshedAt, setGameListRefreshedAt] = useState("...");
@@ -74,8 +75,8 @@ export default function GamesSection() {
           }}
         >
           <div>{gameList.length ? "Current games" : "No current games..."}</div>
-          <ButtonBasic extraStyles="border-r-0" onClick={refreshGameList}>
-            REFRESH LIST
+          <ButtonBasic extraStyles="border-r-0 p-2" onClick={refreshGameList}>
+            <RefreshIcon className="h-full w-10 fill-zinc-300" />
           </ButtonBasic>
         </div>
         {<Divider />}

@@ -2,11 +2,11 @@ import { ClientToServerEvent, GameMode, formatGameMode } from "@speed-dungeon/co
 import React, { FormEvent, useState } from "react";
 import TextInput from "@/app/components/atoms/TextInput";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import Divider from "@/app/components/atoms/Divider";
+import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 
 export default function HostGameForm() {
   const currentSessionHttpResponseTracker =
@@ -18,7 +18,9 @@ export default function HostGameForm() {
   const [gameName, setGameName] = useState("");
   const [gamePassword, setGamePassword] = useState("");
 
-  function createGame(event: FormEvent<HTMLFormElement>) {
+  function createGame(
+    event: FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) {
     event.preventDefault();
     websocketConnection.emit(ClientToServerEvent.CreateGame, gameName, selectedGameMode);
   }
@@ -71,8 +73,9 @@ export default function HostGameForm() {
           )}
         </div>
         <div className="flex mb-2">
-          <button
-            type="button"
+          <HotkeyButton
+            buttonType="button"
+            hotkeys={["KeyW"]}
             onClick={() => {
               setSelectedGameMode(GameMode.Race);
             }}
@@ -82,13 +85,14 @@ export default function HostGameForm() {
                         `}
           >
             RACE
-          </button>
+          </HotkeyButton>
           <HoverableTooltipWrapper
             tooltipText={isLoggedIn ? undefined : "You must be logged in to select this"}
             extraStyles="flex-1 ml-1 "
           >
-            <button
-              type="button"
+            <HotkeyButton
+              buttonType="button"
+              hotkeys={["KeyE"]}
               disabled={!isLoggedIn}
               onClick={() => {
                 setSelectedGameMode(GameMode.Progression);
@@ -99,12 +103,19 @@ export default function HostGameForm() {
                         `}
             >
               PROGRESSION
-            </button>
+            </HotkeyButton>
           </HoverableTooltipWrapper>
         </div>
-        <ButtonBasic buttonType="submit" extraStyles="bg-slate-700">
+        <HotkeyButton
+          buttonType="submit"
+          hotkeys={["KeyR", "Enter"]}
+          onClick={(e) => {
+            createGame(e);
+          }}
+          className="h-10 w-full border border-slate-400 bg-slate-700"
+        >
           CREATE
-        </ButtonBasic>
+        </HotkeyButton>
       </div>
     </form>
   );

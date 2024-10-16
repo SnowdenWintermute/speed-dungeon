@@ -161,7 +161,7 @@ function UserMenu({ username }: { username: null | string }) {
       <button
         type="button"
         id="user-menu-button"
-        className={`border border-slate-400 rounded-full h-10 w-10 flex justify-center items-center pb-1 hover:bg-slate-950`}
+        className={`border border-slate-400 rounded-full h-10 w-10 flex justify-center items-center hover:bg-slate-950`}
         aria-controls="user-menu-items"
         aria-expanded={showUserDropdown}
         aria-label={"toggle user menu"}
