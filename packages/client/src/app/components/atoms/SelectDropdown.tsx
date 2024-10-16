@@ -64,27 +64,34 @@ export default function SelectDropdown(props: Props) {
       else setIndexSelected(indexSelected + 1);
   }
 
-  function handleClick(e: MouseEvent) {
-    const node = e.target as HTMLElement;
-    if (node.id !== `select-${props.title}-selected-option`) handleBlur();
-    else setIsOpen(!isOpen);
-  }
+  const handleClickOutsideMenu = (e: MouseEvent) => {
+    if (selectInputRef.current) {
+      const menuRect = selectInputRef.current.getBoundingClientRect();
+      const { x, y, width, height } = menuRect;
+      const maxX = x + width;
+      const maxY = y + height;
+      if (e.x < x || e.x > maxX || e.y > maxY || e.y < y) handleBlur();
+    }
+  };
 
   useEffect(() => {
     window.addEventListener("keydown", handleUserKeydown);
-    window.addEventListener("click", handleClick);
+    window.addEventListener("click", handleClickOutsideMenu);
     return () => {
       window.removeEventListener("keydown", handleUserKeydown);
-      window.removeEventListener("click", handleClick);
+      window.removeEventListener("click", handleClickOutsideMenu);
     };
-  });
+  }, [isOpen]);
 
-  const selectedOptionAsOpenButton = options.map(
-    (option) =>
-      option.value === value && (
+  const selectedOptionAsOpenButton = options
+    .filter((option) => option.value === value)
+    .map((option) => {
+      if (option.value !== value) return null;
+      return (
         <button
           onFocus={handleFocus}
           onBlur={handleBlur}
+          onClick={() => setIsOpen(!isOpen)}
           onKeyDown={(e) => {
             if (e.code === "Space") e.preventDefault(); // we don't want the default behavior because we're handling spacebar events ourselves
           }}
@@ -101,25 +108,27 @@ export default function SelectDropdown(props: Props) {
             />
           </div>
         </button>
-      )
-  );
+      );
+    });
 
-  const optionButtons = options.map((option, i) => (
-    <li className="w-full">
-      <button
-        disabled={props.disabled}
-        type="button"
-        key={option.value}
-        onClick={() => {
-          setIsOpen(false);
-          setIndexSelected(i);
-        }}
-        className={`h-10 text-left pl-2 w-full bg-slate-700 border-slate-400 border-b ${value === option.value && "bg-slate-950"}`}
-      >
-        {option.title}
-      </button>
-    </li>
-  ));
+  const optionButtons = options.map((option, i) => {
+    return (
+      <li className="w-full" key={option.value}>
+        <button
+          disabled={props.disabled}
+          type="button"
+          onMouseDown={() => {
+            console.log("clicked");
+            setIsOpen(false);
+            setIndexSelected(i);
+          }}
+          className={`pointer-events-auto h-10 text-left pl-2 w-full bg-slate-700 border-slate-400 border-b ${value === option.value && "bg-slate-950"}`}
+        >
+          {option.title}
+        </button>
+      </li>
+    );
+  });
 
   return (
     <div

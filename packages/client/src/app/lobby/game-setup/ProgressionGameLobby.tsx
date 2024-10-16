@@ -100,8 +100,12 @@ function PlayerDisplay({
     : "";
 
   return (
-    <div className="w-full mb-2">
-      {isControlledByUser && (
+    <div className="w-full mb-2 flex flex-col">
+      <div className="flex justify-between mb-1">
+        <div className="pointer-events-auto">{playerOption?.username || "Empty slot"}</div>
+        <div className="pointer-events-auto">{readyText}</div>
+      </div>
+      {isControlledByUser ? (
         <SelectDropdown
           title={"character-select"}
           value={selectedCharacterId}
@@ -109,7 +113,7 @@ function PlayerDisplay({
             setSelectedCharacterId(value);
           }}
           options={Object.values(savedCharacters)
-            .filter((character) => character !== undefined)
+            .filter((character) => !!character)
             .map((character) => {
               return {
                 title: `${character!.entityProperties.name}`,
@@ -118,13 +122,13 @@ function PlayerDisplay({
             })}
           disabled={undefined}
         />
+      ) : (
+        <div className="w-full border border-slate-400 bg-slate-700 h-10 pl-2 flex items-center">
+          Other selected character
+        </div>
       )}
     </div>
     // <li className="mb-2 relative">
-    //   <div className="flex justify-between mb-1">
-    //     <div className="pointer-events-auto">{playerOption?.username || "Empty slot"}</div>
-    //     <div className="pointer-events-auto">{readyText}</div>
-    //   </div>
     //   <button
     //     className={`h-10 w-full pl-2 border border-slate-400 bg-slate-700 flex
     //                 justify-between items-center pointer-events-auto ${!playerOption && "opacity-50"}`}
