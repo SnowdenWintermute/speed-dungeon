@@ -4,6 +4,7 @@ import Triangle from "../../../../public/img/basic-shapes/triangle.svg";
 import {
   BASE_SCREEN_SIZE,
   ClientToServerEvent,
+  Combatant,
   GOLDEN_RATIO,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
@@ -13,6 +14,7 @@ import React, { useEffect, useState } from "react";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
+import SelectDropdown from "@/app/components/atoms/SelectDropdown";
 
 export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame }) {
   const [playerDisplays, setPlayerDisplays] = useState<(SpeedDungeonPlayer | null)[]>([]);
@@ -62,15 +64,17 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
           <h2 className="text-xl">{game.name}</h2>
           <h4 className="text-slate-400">{formatGameMode(game.mode) + " game"}</h4>
         </div>
-        <ul>
-          {playerDisplays.map((playerOption, i) => (
-            <PlayerDisplay
-              playerOption={playerOption}
-              game={game}
-              key={playerOption?.username || i}
-            />
-          ))}
-        </ul>
+        {
+          <ul className="w-full flex flex-col">
+            {playerDisplays.map((playerOption, i) => (
+              <PlayerDisplay
+                playerOption={playerOption}
+                game={game}
+                key={playerOption?.username || i}
+              />
+            ))}
+          </ul>
+        }
       </div>
     </div>
   );
@@ -87,6 +91,7 @@ function PlayerDisplay({
   const [expanded, setExpanded] = useState(false);
   const savedCharacters = useLobbyStore().savedCharacters;
   const isControlledByUser = username === playerOption?.username;
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string>("");
 
   const readyText = playerOption
     ? game.playersReadied.includes(playerOption.username || "")
@@ -95,40 +100,60 @@ function PlayerDisplay({
     : "";
 
   return (
-    <li className="mb-2 relative">
-      <div className="flex justify-between mb-1">
-        <div className="pointer-events-auto">{playerOption?.username || "Empty slot"}</div>
-        <div className="pointer-events-auto">{readyText}</div>
-      </div>
-      <button
-        className={`h-10 w-full pl-2 border border-slate-400 bg-slate-700 flex 
-                    justify-between items-center pointer-events-auto ${!playerOption && "opacity-50"}`}
-        disabled={!isControlledByUser}
-        onClick={() => {
-          setExpanded(!expanded);
-        }}
-      >
-        <div>Character - Level 1 classname</div>
-        <div className="h-full p-3">
-          {playerOption && (
-            <Triangle
-              className={`h-full w-10 fill-slate-400 transition-transform ${expanded && "rotate-180"}`}
-            />
-          )}
-        </div>
-      </button>
-      {expanded && (
-        <ul className="flex flex-col absolute z-10 bottom-0 translate-y-full w-full pointer-events-auto">
-          {Object.values(savedCharacters).map(
-            (character) =>
-              character && (
-                <li className="h-10 bg-slate-700  w-full" key={character.entityProperties.id}>
-                  <button className="h-full w-full pl-2">{character.entityProperties.name}</button>
-                </li>
-              )
-          )}
-        </ul>
+    <div className="w-full mb-2">
+      {isControlledByUser && (
+        <SelectDropdown
+          title={"character-select"}
+          value={selectedCharacterId}
+          setValue={(value: string) => {
+            setSelectedCharacterId(value);
+          }}
+          options={Object.values(savedCharacters)
+            .filter((character) => character !== undefined)
+            .map((character) => {
+              return {
+                title: `${character!.entityProperties.name}`,
+                value: character!.entityProperties.id,
+              };
+            })}
+          disabled={undefined}
+        />
       )}
-    </li>
+    </div>
+    // <li className="mb-2 relative">
+    //   <div className="flex justify-between mb-1">
+    //     <div className="pointer-events-auto">{playerOption?.username || "Empty slot"}</div>
+    //     <div className="pointer-events-auto">{readyText}</div>
+    //   </div>
+    //   <button
+    //     className={`h-10 w-full pl-2 border border-slate-400 bg-slate-700 flex
+    //                 justify-between items-center pointer-events-auto ${!playerOption && "opacity-50"}`}
+    //     disabled={!isControlledByUser}
+    //     onClick={() => {
+    //       setExpanded(!expanded);
+    //     }}
+    //   >
+    //     <div>Character - Level 1 classname</div>
+    //     <div className="h-full p-3">
+    //       {playerOption && (
+    //         <Triangle
+    //           className={`h-full w-10 fill-slate-400 transition-transform ${expanded && "rotate-180"}`}
+    //         />
+    //       )}
+    //     </div>
+    //   </button>
+    //   {expanded && (
+    //     <ul className="flex flex-col absolute z-10 bottom-0 translate-y-full w-full pointer-events-auto">
+    //       {Object.values(savedCharacters).map(
+    //         (character) =>
+    //           character && (
+    //             <li className="h-10 bg-slate-700  w-full" key={character.entityProperties.id}>
+    //               <button className="h-full w-full pl-2">{character.entityProperties.name}</button>
+    //             </li>
+    //           )
+    //       )}
+    //     </ul>
+    //   )}
+    // </li>
   );
 }

@@ -1,0 +1,136 @@
+import { useUIStore } from "@/stores/ui-store";
+import Triangle from "../../../../public/img/basic-shapes/triangle.svg";
+import React, { useEffect, useRef, useState } from "react";
+
+interface Props {
+  title: string;
+  value: any;
+  setValue: (value: any) => void;
+  options: { title: string; value: any }[];
+  disabled: boolean | undefined;
+  extraStyles?: string;
+}
+
+export default function SelectDropdown(props: Props) {
+  const { options, value } = props;
+  const mutateUIState = useUIStore().mutateState;
+  const selectInputRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const [indexSelected, setIndexSelected] = useState<number>(
+    options.reduce((accumulator, option, i) => (option.value === value ? i : accumulator), 0)
+  );
+
+  useEffect(() => {
+    const option = options[indexSelected];
+    if (!option) return;
+    if (option.value === value) return;
+    props.setValue(option.value);
+  }, [indexSelected, value]);
+
+  function handleBlur() {
+    mutateUIState((state) => {
+      state.hotkeysDisabled = false;
+    });
+    setIsFocused(false);
+    setIsOpen(false);
+    const activeElement = document.activeElement as HTMLElement;
+    if (activeElement && activeElement !== document.body) {
+      activeElement.blur();
+    }
+  }
+
+  function handleFocus() {
+    if (!selectInputRef.current) return;
+    mutateUIState((state) => {
+      state.hotkeysDisabled = true;
+    });
+    setIsFocused(true);
+  }
+
+  function handleUserKeydown(e: KeyboardEvent) {
+    const { code } = e;
+    if (code === "Escape" || code === "Esc") handleBlur();
+    if (!selectInputRef.current) return;
+    if (!isFocused) return;
+
+    if (code === "Space") setIsOpen(!isOpen);
+    if (code === "ArrowUp") {
+      if (indexSelected === 0) setIndexSelected(options.length - 1);
+      else setIndexSelected(indexSelected - 1);
+    }
+    if (code === "ArrowDown")
+      if (indexSelected === options.length - 1) setIndexSelected(0);
+      else setIndexSelected(indexSelected + 1);
+  }
+
+  function handleClick(e: MouseEvent) {
+    const node = e.target as HTMLElement;
+    if (node.id !== `select-${props.title}-selected-option`) handleBlur();
+    else setIsOpen(!isOpen);
+  }
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleUserKeydown);
+    window.addEventListener("click", handleClick);
+    return () => {
+      window.removeEventListener("keydown", handleUserKeydown);
+      window.removeEventListener("click", handleClick);
+    };
+  });
+
+  const selectedOptionAsOpenButton = options.map(
+    (option) =>
+      option.value === value && (
+        <button
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyDown={(e) => {
+            if (e.code === "Space") e.preventDefault(); // we don't want the default behavior because we're handling spacebar events ourselves
+          }}
+          disabled={props.disabled}
+          type="button"
+          key={option.value}
+          id={`select-${props.title}-selected-option`}
+          className={`h-10 w-full flex justify-between items-center pl-2 bg-slate-700 border border-b-0 border-slate-400 ${isFocused && "outline"}`}
+        >
+          <span>{option.title}</span>
+          <div className="h-full p-3 pointer-events-none">
+            <Triangle
+              className={`h-full w-10 fill-slate-400 transition-transform ${isOpen && "rotate-180"}`}
+            />
+          </div>
+        </button>
+      )
+  );
+
+  const optionButtons = options.map((option, i) => (
+    <li className="w-full">
+      <button
+        disabled={props.disabled}
+        type="button"
+        key={option.value}
+        onClick={() => {
+          setIsOpen(false);
+          setIndexSelected(i);
+        }}
+        className={`h-10 text-left pl-2 w-full bg-slate-700 border-slate-400 border-b ${value === option.value && "bg-slate-950"}`}
+      >
+        {option.title}
+      </button>
+    </li>
+  ));
+
+  return (
+    <div
+      ref={selectInputRef}
+      aria-label={`select ${props.title}`}
+      className={`w-full pointer-events-auto relative ${props.extraStyles}`}
+    >
+      {selectedOptionAsOpenButton}
+      <ul className="absolute z-10 w-full border border-b-0 border-slate-400">
+        {isOpen && optionButtons}
+      </ul>
+    </div>
+  );
+}
