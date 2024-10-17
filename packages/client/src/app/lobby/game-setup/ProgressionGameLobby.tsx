@@ -12,7 +12,7 @@ import {
   formatGameMode,
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
-import React from "react";
+import React, { useEffect } from "react";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
@@ -20,6 +20,11 @@ import SelectDropdown from "@/app/components/atoms/SelectDropdown";
 
 export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame }) {
   const username = useGameStore().username;
+
+  useEffect(() => {
+    websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
+  }, []);
+
   function leaveGame() {
     websocketConnection.emit(ClientToServerEvent.LeaveGame);
   }
@@ -64,7 +69,8 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
         }
       </div>
       <div className="absolute z-10 bottom-0 left-0 w-full p-7 flex items-center justify-center">
-        <button
+        <HotkeyButton
+          hotkeys={["KeyR", "Enter"]}
           onClick={toggleReady}
           className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
                         flex justify-center items-center disabled:opacity-50 pointer-events-auto 
@@ -72,7 +78,7 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
                         `}
         >
           READY
-        </button>
+        </HotkeyButton>
       </div>
     </div>
   );
@@ -135,7 +141,7 @@ function PlayerDisplay({
                 value: character!.entityProperties.id,
               };
             })}
-          disabled={undefined}
+          disabled={game.playersReadied.includes(username)}
         />
       ) : (
         <div

@@ -22,8 +22,10 @@ export default function SelectDropdown(props: Props) {
   );
 
   useEffect(() => {
+    console.log("value:", value);
     if (value === undefined) return;
     const option = options[indexSelected];
+    console.log("option: ", option);
     if (!option) return;
     if (option.value === value) return;
     props.setValue(option.value);
@@ -33,6 +35,7 @@ export default function SelectDropdown(props: Props) {
     mutateUIState((state) => {
       state.hotkeysDisabled = false;
     });
+    console.log("bluring");
     setIsFocused(false);
     setIsOpen(false);
     const activeElement = document.activeElement as HTMLElement;
@@ -42,23 +45,27 @@ export default function SelectDropdown(props: Props) {
   }
 
   function handleFocus() {
-    if (!selectInputRef.current) return;
+    if (!selectInputRef.current) return console.log("no input ref");
+    setIsFocused(true);
+    console.log("set focused");
     mutateUIState((state) => {
       state.hotkeysDisabled = true;
     });
-    setIsFocused(true);
   }
 
   function handleUserKeydown(e: KeyboardEvent) {
     const { code } = e;
+    console.log("kecode: ", code);
     if (code === "Escape" || code === "Esc") handleBlur();
-    if (!selectInputRef.current) return;
-    if (!isFocused) return;
+    if (!selectInputRef.current) return console.log("no input ref");
+    if (!isFocused) return console.log("not focused");
 
     if (code === "Space") setIsOpen(!isOpen);
     if (code === "ArrowUp") {
-      if (indexSelected === 0) setIndexSelected(options.length - 1);
-      else setIndexSelected(indexSelected - 1);
+      if (indexSelected === 0) {
+        setIndexSelected(options.length - 1);
+        console.log("set index to: ", options.length - 1);
+      } else setIndexSelected(indexSelected - 1);
     }
     if (code === "ArrowDown")
       if (indexSelected === options.length - 1) setIndexSelected(0);
@@ -77,12 +84,14 @@ export default function SelectDropdown(props: Props) {
 
   useEffect(() => {
     window.addEventListener("keydown", handleUserKeydown);
+    console.log("added event listener");
     window.addEventListener("click", handleClickOutsideMenu);
     return () => {
+      console.log("removed event listener");
       window.removeEventListener("keydown", handleUserKeydown);
       window.removeEventListener("click", handleClickOutsideMenu);
     };
-  }, [isOpen]);
+  }, [isOpen, isFocused, value]);
 
   const selectedOptionAsOpenButton = options
     .filter((option) => option.value === value)
@@ -100,7 +109,8 @@ export default function SelectDropdown(props: Props) {
           type="button"
           key={option.value}
           id={`select-${props.title}-selected-option`}
-          className={`h-10 w-full flex justify-between items-center pl-2 bg-slate-700 border border-b-0 border-slate-400 ${isFocused && "outline"}`}
+          className={`h-10 w-full flex justify-between items-center pl-2 bg-slate-700 
+          border border-b-0 border-slate-400 ${isFocused && "bg-slate-950"} ${props.disabled && "opacity-50"}`}
         >
           <span>{option.title}</span>
           <div className="h-full p-3 pointer-events-none">
@@ -123,7 +133,9 @@ export default function SelectDropdown(props: Props) {
             setIsOpen(false);
             setIndexSelected(i);
           }}
-          className={`pointer-events-auto h-10 text-left pl-2 w-full bg-slate-700 border-slate-400 border-b ${value === option.value && "bg-slate-950"}`}
+          className={`pointer-events-auto h-10 text-left pl-2 w-full bg-slate-700 
+          border-slate-400 border-b ${value === option.value && "bg-slate-950"}
+          `}
         >
           {option.title}
         </button>
@@ -138,7 +150,11 @@ export default function SelectDropdown(props: Props) {
       className={`w-full pointer-events-auto relative ${props.extraStyles}`}
     >
       {selectedOptionAsOpenButton}
-      <ul className="absolute z-10 w-full border border-b-0 border-slate-400">
+      <ul
+        className={`absolute z-10 w-full border border-b-0 border-slate-400 
+          ${props.disabled && "opacity-50"}
+          `}
+      >
         {isOpen && optionButtons}
       </ul>
     </div>

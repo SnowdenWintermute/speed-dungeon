@@ -6,7 +6,7 @@ import {
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
 import errorHandler from "../error-handler.js";
-import { playerCharactersRepo } from "../../database/repos/player-characters.js";
+import writePlayerCharactersInGameToDb from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 
 export default async function leaveGameHandler(this: GameServer, socketId: string) {
   let [socket, socketMeta] = this.getConnection(socketId);
@@ -26,24 +26,8 @@ export default async function leaveGameHandler(this: GameServer, socketId: strin
   // save their characters
   const playerOption = game.players[socketMeta.username];
   if (playerOption && playerOption.partyName && game.mode === GameMode.Progression) {
-    console.log("saving characters");
-    for (const id of playerOption.characterIds) {
-      const characterResult = SpeedDungeonGame.getCharacter(game, playerOption.partyName, id);
-      if (characterResult instanceof Error)
-        console.error("Couldn't save character: " + characterResult);
-      else {
-        const existingCharacter = await playerCharactersRepo.findById(
-          characterResult.entityProperties.id
-        );
-        if (!existingCharacter)
-          console.error("Tried to update character but it didn't exist in the database");
-        else {
-          existingCharacter.combatantProperties = characterResult.combatantProperties;
-          await playerCharactersRepo.update(existingCharacter);
-          console.log("initiated character update transaction for ", existingCharacter.name);
-        }
-      }
-    }
+    const maybeError = await writePlayerCharactersInGameToDb(game, playerOption);
+    if (maybeError instanceof Error) return errorHandler(socket, maybeError.message);
   }
 
   this.leavePartyHandler(socketId);

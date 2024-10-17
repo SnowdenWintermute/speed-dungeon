@@ -15,7 +15,6 @@ export default function deleteCharacterHandler(
   socketId: string,
   characterId: string
 ) {
-  console.log("delete character ", characterId);
   const [socket, socketMeta] = this.getConnection(socketId);
   if (!socketMeta.currentGameName)
     return errorHandler(socket, `${ATTEMPT_TEXT} they didn't know what game they were in`);
@@ -23,7 +22,7 @@ export default function deleteCharacterHandler(
   if (!game) return errorHandler(socket, `${ATTEMPT_TEXT} their game was not found`);
   const player = game.players[socketMeta.username];
   if (!player) return errorHandler(socket, `${ATTEMPT_TEXT} their player wasn't in the game`);
-  if (!player.partyName) return errorHandler(socket, ERROR_MESSAGES.GAME.MISSING_PARTY_NAME);
+  if (!player.partyName) return errorHandler(socket, ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
   const party = game.adventuringParties[player.partyName];
   if (!party) return errorHandler(socket, ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
 

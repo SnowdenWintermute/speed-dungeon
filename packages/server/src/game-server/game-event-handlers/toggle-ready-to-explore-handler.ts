@@ -10,6 +10,7 @@ import {
   SpeedDungeonGame,
   Battle,
   CombatantTurnTracker,
+  GameMode,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
 import { DungeonRoomType } from "@speed-dungeon/common";
@@ -17,6 +18,9 @@ import { tickCombatUntilNextCombatantIsActive } from "@speed-dungeon/common";
 import { DescendOrExplore } from "@speed-dungeon/common";
 import { idGenerator } from "../../singletons.js";
 import generateDungeonRoom from "../dungeon-room-generation/index.js";
+import writePlayerCharactersInGameToDb, {
+  writeAllPlayerCharacterInGameToDb,
+} from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 
 export default function toggleReadyToExploreHandler(
   this: GameServer,
@@ -53,6 +57,8 @@ export default function toggleReadyToExploreHandler(
 }
 
 export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party: AdventuringParty) {
+  if (game.mode === GameMode.Progression) writeAllPlayerCharacterInGameToDb(this, game);
+
   party.playersReadyToExplore = [];
 
   if (party.unexploredRooms.length < 1) {

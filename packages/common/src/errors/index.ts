@@ -32,7 +32,6 @@ export const ERROR_MESSAGES = {
     PARTY_NAME_EXISTS: "A party by that name already exists in the current game",
   },
   GAME: {
-    MISSING_PARTY_NAME: "Player doesn't have a party name",
     PARTY_DOES_NOT_EXIST: "No party was found with the provided name",
     MAX_PARTY_SIZE: "Maximum party size reached",
     CHARACTER_DOES_NOT_EXIST: "No character was found by the provided ID",
@@ -55,6 +54,7 @@ export const ERROR_MESSAGES = {
     NO_CHARACTERS: "The provided player doesn't own any characters",
     CHARACTER_NOT_OWNED:
       "The provided character is not in the list of that player's owned characters",
+    MISSING_PARTY_NAME: "Player doesn't have a party name",
   },
   USER: {
     NO_CURRENT_GAME: "This user has no current game",

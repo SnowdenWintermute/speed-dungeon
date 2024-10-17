@@ -42,8 +42,6 @@ export function tickCombatUntilNextCombatantIsActive(game: SpeedDungeonGame, bat
     // @TODO - handle end of battle
   }
 
-  console.log("ay: ", activeCombatantTurnTracker.movement < REQUIRED_MOVEMENT_TO_MOVE);
-
   while (activeCombatantTurnTracker.movement < REQUIRED_MOVEMENT_TO_MOVE) {
     for (const tracker of Object.values(battle.turnTrackers)) {
       const maybeError = recoverMovement(game, tracker);

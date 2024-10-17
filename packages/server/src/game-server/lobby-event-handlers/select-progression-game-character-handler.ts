@@ -27,7 +27,7 @@ export default async function selectProgressionGameCharacterHandler(
   if (!game) return errorHandler(socket, `${ATTEMPT_TEXT} their game was not found`);
   const player = game.players[socketMeta.username];
   if (!player) return errorHandler(socket, `${ATTEMPT_TEXT} their player wasn't in the game`);
-  if (!player.partyName) return errorHandler(socket, ERROR_MESSAGES.GAME.MISSING_PARTY_NAME);
+  if (!player.partyName) return errorHandler(socket, ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
 
   try {
     const charactersResult = await fetchSavedCharacters(this, socketId);
