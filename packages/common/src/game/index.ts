@@ -35,7 +35,8 @@ export class SpeedDungeonGame {
   timeStarted: null | number = null;
   constructor(
     public name: string,
-    public mode: GameMode
+    public mode: GameMode,
+    public gameCreator: string | null = null
   ) {}
 
   static removePlayerFromParty = removePlayerFromParty;

@@ -36,6 +36,8 @@ export const ERROR_MESSAGES = {
     CHARACTER_DOES_NOT_EXIST: "No character was found by the provided ID",
     PLAYER_DOES_NOT_EXIST: "No player by that name was found in the game",
     BATTLE_DOES_NOT_EXIST: "No battle found by that ID",
+    MODE: "Your current game mode does not allow for that action",
+    NO_SAVED_CHARACTERS: "You must create a saved character to play in that game mode",
   },
   PARTY: {
     PLAYER_NOT_FOUND: "The provided username does not belong to any player in this party",

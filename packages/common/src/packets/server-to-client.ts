@@ -23,7 +23,7 @@ export enum ServerToClientEvent {
   PlayerLeftGame = "9",
   PlayerJoinedGame = "10",
   PartyCreated = "11",
-  CharacterCreated = "12",
+  CharacterAddedToParty = "12",
   CharacterDeleted = "13",
   PlayerToggledReadyToStartGame = "14",
   GameStarted = "15",
@@ -72,7 +72,7 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.PlayerLeftGame]: (userame: string) => void;
   [ServerToClientEvent.PlayerJoinedGame]: (userame: string) => void;
   [ServerToClientEvent.PartyCreated]: (partyName: string) => void;
-  [ServerToClientEvent.CharacterCreated]: (
+  [ServerToClientEvent.CharacterAddedToParty]: (
     partyName: string,
     username: string,
     character: Combatant

@@ -15,7 +15,7 @@ import errorHandler from "../error-handler.js";
 import { characterSlotsRepo } from "../../database/repos/character-slots.js";
 import { createCharacter } from "../character-creation/index.js";
 
-async function fetchSavedCharacters(gameServer: GameServer, socketId: string) {
+export async function fetchSavedCharacters(gameServer: GameServer, socketId: string) {
   const browserTabSessionOption = gameServer.connections.get(socketId);
   if (browserTabSessionOption === undefined)
     return new Error(ERROR_MESSAGES.SERVER.BROWSER_SESSION_NOT_FOUND);
@@ -69,7 +69,6 @@ export default function initiateSavedCharacterListeners(
       return errorHandler(socket, ERROR_MESSAGES.SERVER.BROWSER_SESSION_NOT_FOUND);
     const userIdOption = browserTabSessionOption.userId;
     if (userIdOption === null) return errorHandler(socket, ERROR_MESSAGES.AUTH.REQUIRED);
-    const characters = await playerCharactersRepo.find("ownerId", userIdOption);
 
     const profileOption = await speedDungeonProfilesRepo.findOne("ownerId", userIdOption);
     if (profileOption === undefined)

@@ -1,10 +1,8 @@
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import Triangle from "../../../../public/img/basic-shapes/triangle.svg";
 import {
   BASE_SCREEN_SIZE,
   ClientToServerEvent,
-  Combatant,
   GOLDEN_RATIO,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
@@ -88,10 +86,13 @@ function PlayerDisplay({
   game: SpeedDungeonGame;
 }) {
   const username = useGameStore().username;
-  const [expanded, setExpanded] = useState(false);
   const savedCharacters = useLobbyStore().savedCharacters;
   const isControlledByUser = username === playerOption?.username;
-  const [selectedCharacterId, setSelectedCharacterId] = useState<string>("");
+
+  const selectedCharacterId = playerOption?.characterIds[0];
+  function changeSelectedCharacterId(entityId: string) {
+    websocketConnection.emit(ClientToServerEvent.SelectSavedCharacterForProgressGame, entityId);
+  }
 
   const readyText = playerOption
     ? game.playersReadied.includes(playerOption.username || "")
@@ -110,7 +111,7 @@ function PlayerDisplay({
           title={"character-select"}
           value={selectedCharacterId}
           setValue={(value: string) => {
-            setSelectedCharacterId(value);
+            changeSelectedCharacterId(value);
           }}
           options={Object.values(savedCharacters)
             .filter((character) => !!character)
@@ -123,41 +124,13 @@ function PlayerDisplay({
           disabled={undefined}
         />
       ) : (
-        <div className="w-full border border-slate-400 bg-slate-700 h-10 pl-2 flex items-center">
-          Other selected character
+        <div
+          className={`h-10 w-full pl-2 border border-slate-400 bg-slate-700 flex
+                    justify-between items-center pointer-events-auto ${!playerOption && "opacity-50"}`}
+        >
+          {!playerOption ? "Awaiting player..." : "Their selected character"}
         </div>
       )}
     </div>
-    // <li className="mb-2 relative">
-    //   <button
-    //     className={`h-10 w-full pl-2 border border-slate-400 bg-slate-700 flex
-    //                 justify-between items-center pointer-events-auto ${!playerOption && "opacity-50"}`}
-    //     disabled={!isControlledByUser}
-    //     onClick={() => {
-    //       setExpanded(!expanded);
-    //     }}
-    //   >
-    //     <div>Character - Level 1 classname</div>
-    //     <div className="h-full p-3">
-    //       {playerOption && (
-    //         <Triangle
-    //           className={`h-full w-10 fill-slate-400 transition-transform ${expanded && "rotate-180"}`}
-    //         />
-    //       )}
-    //     </div>
-    //   </button>
-    //   {expanded && (
-    //     <ul className="flex flex-col absolute z-10 bottom-0 translate-y-full w-full pointer-events-auto">
-    //       {Object.values(savedCharacters).map(
-    //         (character) =>
-    //           character && (
-    //             <li className="h-10 bg-slate-700  w-full" key={character.entityProperties.id}>
-    //               <button className="h-full w-full pl-2">{character.entityProperties.name}</button>
-    //             </li>
-    //           )
-    //       )}
-    //     </ul>
-    //   )}
-    // </li>
   );
 }

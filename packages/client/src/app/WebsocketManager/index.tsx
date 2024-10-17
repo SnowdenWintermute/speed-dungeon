@@ -185,7 +185,7 @@ function SocketManager({
         }
       });
     });
-    socket.on(ServerToClientEvent.CharacterCreated, (partyName, username, character) => {
+    socket.on(ServerToClientEvent.CharacterAddedToParty, (partyName, username, character) => {
       characterCreationHandler(mutateGameStore, mutateAlertStore, partyName, username, character);
     });
     socket.on(ServerToClientEvent.CharacterDeleted, (partyName, username, characterId) => {

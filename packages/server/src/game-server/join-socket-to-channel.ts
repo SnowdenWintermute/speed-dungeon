@@ -12,15 +12,8 @@ export default function joinSocketToChannel(
 
   if (!socket || !socketMeta) return;
 
-  // this.io
-  //   .to(newChannelName)
-  //   .emit(
-  //     ServerToClientEvent.UserJoinedChannel,
-  //     socketMeta.username,
-  //     new UserChannelDisplayData(socketMeta.authStatus)
-  //   );
-
   socket.join(newChannelName);
+  socketMeta.channelName = newChannelName;
 
   if (this.channels[newChannelName] === undefined) this.channels[newChannelName] = new Channel();
   const channel = this.channels[newChannelName] as Channel;
@@ -50,7 +43,6 @@ export default function joinSocketToChannel(
   socket.emit(ServerToClientEvent.ChannelFullUpdate, newChannelName, usersInRoom);
 
   if (Object.keys(browserTabSessionsInChannel).length === 1) {
-    console.log("socketMeta.userId", socketMeta.userId);
     // if they already had a browser tab in this channel, don't send a notification
     // because that would lead to duplicate names displayed on the client
     this.io

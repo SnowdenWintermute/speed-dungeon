@@ -35,6 +35,7 @@ export enum ClientToServerEvent {
   GetSavedCharacterById = "26",
   CreateSavedCharacter = "27",
   DeleteSavedCharacter = "28",
+  SelectSavedCharacterForProgressGame = "29",
 }
 
 export interface ClientToServerEventTypes {
@@ -86,4 +87,5 @@ export interface ClientToServerEventTypes {
     slot: number
   ) => void;
   [ClientToServerEvent.DeleteSavedCharacter]: (entityId: string) => void;
+  [ClientToServerEvent.SelectSavedCharacterForProgressGame]: (entityId: string) => void;
 }

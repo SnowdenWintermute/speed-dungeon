@@ -48,7 +48,7 @@ export default function createCharacterHandler(
       .of("/")
       .in(game.name)
       .emit(
-        ServerToClientEvent.CharacterCreated,
+        ServerToClientEvent.CharacterAddedToParty,
         player.partyName,
         socketMeta.username,
         characterResult
