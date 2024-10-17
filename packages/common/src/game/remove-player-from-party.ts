@@ -1,7 +1,7 @@
 import cloneDeep from "lodash.clonedeep";
 import { SpeedDungeonGame } from "./index.js";
 import { removeFromArray } from "../utils/index.js";
-import removeCharacterFromParty from "../adventuring-party/remove-character-from-party.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
 
 export default function removePlayerFromParty(game: SpeedDungeonGame, username: string) {
   const player = game.players[username];
@@ -10,14 +10,15 @@ export default function removePlayerFromParty(game: SpeedDungeonGame, username: 
 
   const partyLeaving = game.adventuringParties[player.partyName];
   if (!partyLeaving) throw new Error("No party exists");
+
   const characterIds = cloneDeep(player.characterIds);
-  player.characterIds = [];
-  player.partyName = null;
   if (characterIds) {
     Object.values(characterIds).forEach((characterId) => {
-      removeCharacterFromParty(partyLeaving, characterId);
+      AdventuringParty.removeCharacter(partyLeaving, characterId, player);
     });
   }
+
+  player.partyName = null;
 
   removeFromArray(partyLeaving.playerUsernames, username);
 

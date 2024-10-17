@@ -33,7 +33,6 @@ export const useHttpRequestStore = create<HttpRequestState>()(
         }));
 
         const tracker = new HttpRequestTracker();
-        console.log("fetching with options: ", options);
         const response = await fetch(url, options);
         tracker.ok = response.ok;
         tracker.loading = false;
@@ -46,7 +45,6 @@ export const useHttpRequestStore = create<HttpRequestState>()(
         } catch {
           // no json in response
         }
-        console.log("data: ", data);
 
         set((state) => ({
           requests: {

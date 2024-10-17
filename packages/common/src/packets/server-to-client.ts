@@ -48,6 +48,7 @@ export enum ServerToClientEvent {
   SavedCharacterList = "34",
   SavedCharacter = "35",
   SavedCharacterDeleted = "36",
+  PlayerSelectedSavedCharacterInProgressionGame = "37",
 }
 
 export interface ServerToClientEventTypes {
@@ -128,6 +129,10 @@ export interface ServerToClientEventTypes {
   }) => void;
   [ServerToClientEvent.SavedCharacter]: (character: Combatant, slot: number) => void;
   [ServerToClientEvent.SavedCharacterDeleted]: (id: string) => void;
+  [ServerToClientEvent.PlayerSelectedSavedCharacterInProgressionGame]: (
+    username: string,
+    character: Combatant
+  ) => void;
 }
 
 export interface EquipItemPacket {

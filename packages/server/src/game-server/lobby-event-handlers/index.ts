@@ -48,4 +48,7 @@ export default function initiateLobbyEventListeners(
   socket.on(ClientToServerEvent.ToggleReadyToStartGame, () => {
     this.toggleReadyToStartGameHandler(socket.id);
   });
+  socket.on(ClientToServerEvent.SelectSavedCharacterForProgressGame, (entityId) => {
+    this.selectProgressionGameCharacterHandler(socket.id, entityId);
+  });
 }

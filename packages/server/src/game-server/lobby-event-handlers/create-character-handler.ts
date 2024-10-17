@@ -22,7 +22,6 @@ export default function createCharacterHandler(
 
   try {
     if (!currentGameName) return errorHandler(socket, `${ATTEMPT_TEXT} they have a game`);
-
     const game = this.games.get(currentGameName);
     if (!game) return errorHandler(socket, `${ATTEMPT_TEXT} their game was not found`);
     const player = game.players[socketMeta.username];

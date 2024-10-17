@@ -46,6 +46,7 @@ export default function SavedCharacterDisplay({
       });
     };
   }, []);
+
   return (
     <div id={`${entityId}-position-div`} className="absolute flex flex-col items-center"></div>
   );

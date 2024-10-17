@@ -1,9 +1,11 @@
 import {
+  AdventuringParty,
   ClientToServerEventTypes,
   ERROR_MESSAGES,
   GameMode,
   ServerToClientEventTypes,
   SpeedDungeonGame,
+  getProgressionGamePartyName,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import { GameServer } from "..";
@@ -29,6 +31,11 @@ export default async function createProgressionGameHandler(
       return errorHandler(socket, defaultSavedCharacterResult.message);
 
     const game = new SpeedDungeonGame(gameName, GameMode.Progression, socketMeta.username);
+    const defaultPartyName = getProgressionGamePartyName(game.name);
+    game.adventuringParties[getProgressionGamePartyName(game.name)] = new AdventuringParty(
+      defaultPartyName
+    );
+
     gameServer.games.insert(gameName, game);
 
     await joinPlayerToProgressionGame(

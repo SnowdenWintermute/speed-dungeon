@@ -110,7 +110,7 @@ export default function GamesSection() {
           </HoverableTooltipWrapper>
         </div>
         <div
-          className={`bg-slate-700 w-full h-10 border border-slate-400 flex pl-4 justify-between items-center pointer-events-auto`}
+          className={`bg-slate-700 w-full h-10 border border-slate-400 flex justify-between items-center pointer-events-auto`}
         >
           <HotkeyButton
             hotkeys={["KeyA"]}
@@ -121,7 +121,7 @@ export default function GamesSection() {
               })
             }
           >
-            <span className={`transition`}>HOST GAME {showGameCreationForm}</span>
+            HOST GAME {showGameCreationForm}
           </HotkeyButton>
           {showGameCreationForm && (
             <HotkeyButton

@@ -15,8 +15,6 @@ export default function createPartyHandler(this: GameServer, socketId: string, p
     ServerToClientEventTypes
   >(socketId);
 
-  console.log("got socketMeta: ", socketMeta);
-
   if (!socketMeta.currentGameName)
     return errorHandler(
       socket,

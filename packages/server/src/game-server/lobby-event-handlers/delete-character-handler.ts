@@ -1,4 +1,5 @@
 import {
+  AdventuringParty,
   ERROR_MESSAGES,
   ServerToClientEvent,
   updateCombatantHomePosition,
@@ -29,9 +30,7 @@ export default function deleteCharacterHandler(
   if (!player.characterIds.includes(characterId.toString()))
     return errorHandler(socket, ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
 
-  removeFromArray(player.characterIds, characterId);
-  delete party.characters[characterId];
-  removeFromArray(party.characterPositions, characterId);
+  AdventuringParty.removeCharacter(party, characterId, player);
 
   for (const character of Object.values(party.characters))
     updateCombatantHomePosition(

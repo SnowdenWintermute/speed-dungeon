@@ -1,7 +1,7 @@
 import { AlertState } from "@/stores/alert-store";
 import {
+  AdventuringParty,
   ERROR_MESSAGES,
-  removeFromArray,
   updateCombatantHomePosition,
 } from "@speed-dungeon/common";
 import { setAlert } from "../../components/alerts";
@@ -23,9 +23,7 @@ export default function characterDeletionHandler(
     const player = game.players[username];
     if (!player) return setAlert(mutateAlertStore, ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
-    removeFromArray(player.characterIds, characterId);
-    delete party.characters[characterId];
-    removeFromArray(party.characterPositions, characterId);
+    AdventuringParty.removeCharacter(party, characterId, player);
 
     for (const character of Object.values(party.characters))
       updateCombatantHomePosition(

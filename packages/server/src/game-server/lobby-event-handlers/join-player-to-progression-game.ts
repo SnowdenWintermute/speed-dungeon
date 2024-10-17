@@ -6,12 +6,13 @@ import {
   ServerToClientEventTypes,
   SpeedDungeonGame,
   addCharacterToParty,
+  getProgressionGamePartyName,
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
-import { getProgressionGamePartyName } from "./utils.js";
 import errorHandler from "../error-handler.js";
-import { BrowserTabSession } from "../socket-connection-metadata";
+import { BrowserTabSession } from "../socket-connection-metadata.js";
 import SocketIO from "socket.io";
+import joinPlayerToGame from "./join-player-to-game.js";
 
 export default async function joinPlayerToProgressionGame(
   gameServer: GameServer,
@@ -20,10 +21,10 @@ export default async function joinPlayerToProgressionGame(
   game: SpeedDungeonGame,
   character: Combatant
 ) {
-  await gameServer.joinGameHandler(socket.id, game.name);
+  joinPlayerToGame(gameServer, game, socketMeta, socket);
 
   const partyName = getProgressionGamePartyName(game.name);
-  gameServer.createPartyHandler(socket.id, partyName);
+  gameServer.joinPartyHandler(socket.id, partyName);
 
   const playerOption = game.players[socketMeta.username];
   if (playerOption === undefined)

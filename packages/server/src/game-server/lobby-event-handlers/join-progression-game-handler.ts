@@ -8,8 +8,8 @@ import SocketIO from "socket.io";
 import { GameServer } from "..";
 import errorHandler from "../error-handler.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
-import getDefaultSavedCharacterForProgressionGame from "./get-default-saved-character-for-progression-game";
-import joinPlayerToProgressionGame from "./join-player-to-progression-game";
+import getDefaultSavedCharacterForProgressionGame from "./get-default-saved-character-for-progression-game.js";
+import joinPlayerToProgressionGame from "./join-player-to-progression-game.js";
 
 export default async function joinProgressionGameHandler(
   gameServer: GameServer,

@@ -22,6 +22,7 @@ export default function SelectDropdown(props: Props) {
   );
 
   useEffect(() => {
+    if (value === undefined) return;
     const option = options[indexSelected];
     if (!option) return;
     if (option.value === value) return;

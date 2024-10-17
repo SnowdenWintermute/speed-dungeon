@@ -61,6 +61,7 @@ import playerAssociatedDataProvider from "./game-event-handlers/player-data-prov
 import toggleReadyToDescendHandler from "./game-event-handlers/toggle-ready-to-descend-handler.js";
 import characterSpentAttributePointHandler from "./game-event-handlers/character-spent-attribute-point-handler.js";
 import initiateSavedCharacterListeners from "./saved-character-event-handlers/index.js";
+import selectProgressionGameCharacterHandler from "./lobby-event-handlers/select-progression-game-character-handler.js";
 
 export type Username = string;
 export type SocketId = string;
@@ -98,6 +99,8 @@ export class GameServer implements ActionCommandReceiver {
   createCharacterHandler = createCharacterHandler;
   deleteCharacterHandler = deleteCharacterHandler;
   toggleReadyToStartGameHandler = toggleReadyToStartGameHandler;
+  selectProgressionGameCharacterHandler = selectProgressionGameCharacterHandler;
+  //
   handlePartyWipe = handlePartyWipe;
   toggleReadyToExploreHandler = toggleReadyToExploreHandler;
   toggleReadyToDescendHandler = toggleReadyToDescendHandler;

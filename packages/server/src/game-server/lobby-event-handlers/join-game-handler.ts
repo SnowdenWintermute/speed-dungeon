@@ -1,7 +1,8 @@
-import { ERROR_MESSAGES, ServerToClientEvent } from "@speed-dungeon/common";
+import { ERROR_MESSAGES, GameMode, ServerToClientEvent } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
-import { SpeedDungeonPlayer } from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
+import joinProgressionGameHandler from "./join-progression-game-handler.js";
+import joinPlayerToGame from "./join-player-to-game.js";
 
 export default async function joinGameHandler(
   this: GameServer,
@@ -24,21 +25,7 @@ export default async function joinGameHandler(
       ServerToClientEvent.ErrorMessage,
       ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED
     );
-
-  game.players[socketMeta.username] = new SpeedDungeonPlayer(socketMeta.username);
-
-  socketMeta.currentGameName = gameName;
-
-  console.log("set socketMeta current game name: ", socketMeta.currentGameName);
-
-  this.removeSocketFromChannel(socketId, socketMeta.channelName);
-  this.joinSocketToChannel(socketId, gameName);
-
-  socket.emit(ServerToClientEvent.GameFullUpdate, game);
-
-  this.io
-    .of("/")
-    .except(socketId)
-    .in(game.name)
-    .emit(ServerToClientEvent.PlayerJoinedGame, socketMeta.username);
+  if (game.mode === GameMode.Progression)
+    joinProgressionGameHandler(this, socketMeta, socket, game);
+  else joinPlayerToGame(this, game, socketMeta, socket);
 }

@@ -11,7 +11,7 @@ import {
   formatCombatantClassName,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ArrowShape from "../../../../public/img/menu-icons/arrow-button-icon.svg";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
@@ -32,7 +32,6 @@ export default function SavedCharacterManager() {
   const showGameCreationForm = useLobbyStore().showGameCreationForm;
 
   useEffect(() => {
-    console.log("asking for saved characters");
     websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
   }, []);
 
@@ -76,6 +75,7 @@ export default function SavedCharacterManager() {
             />
           );
         })}
+
       {!showCharacterManager && !showGameCreationForm && (
         <div className="absolute bottom-40">
           <HoverableTooltipWrapper

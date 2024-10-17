@@ -3,20 +3,23 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import {
   BASE_SCREEN_SIZE,
   ClientToServerEvent,
+  Combatant,
   GOLDEN_RATIO,
+  MAX_PARTY_SIZE,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
+  formatCombatantClassName,
   formatGameMode,
+  getProgressionGamePartyName,
 } from "@speed-dungeon/common";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import SelectDropdown from "@/app/components/atoms/SelectDropdown";
 
 export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame }) {
-  const [playerDisplays, setPlayerDisplays] = useState<(SpeedDungeonPlayer | null)[]>([]);
-
+  const username = useGameStore().username;
   function leaveGame() {
     websocketConnection.emit(ClientToServerEvent.LeaveGame);
   }
@@ -24,25 +27,10 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
     websocketConnection.emit(ClientToServerEvent.ToggleReadyToStartGame);
   }
 
+  let isReady = username && game.playersReadied.includes(username);
+  let readyStyle = isReady ? "bg-green-800" : "";
+
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
-
-  const playerNamesConcat = Object.values(game.players)
-    .map((player) => player.username)
-    .join("");
-
-  useEffect(() => {
-    const playerSlots: (SpeedDungeonPlayer | null)[] = [];
-    const players = Object.values(game.players);
-    for (let i = 0; i < 3; i += 1) {
-      const player = players[i];
-      if (player) playerSlots.push(player);
-      else playerSlots.push(null);
-    }
-
-    setPlayerDisplays(playerSlots);
-  }, [playerNamesConcat]);
-
-  console.log("playerNamesConcat", playerNamesConcat);
 
   return (
     <div className="w-full h-full flex">
@@ -64,15 +52,27 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
         </div>
         {
           <ul className="w-full flex flex-col">
-            {playerDisplays.map((playerOption, i) => (
-              <PlayerDisplay
-                playerOption={playerOption}
-                game={game}
-                key={playerOption?.username || i}
-              />
+            {Object.values(game.players).map((player) => (
+              <PlayerDisplay playerOption={player} game={game} key={player.username} />
             ))}
+            {new Array(MAX_PARTY_SIZE - Object.values(game.players).length)
+              .fill(null)
+              .map((item, i) => (
+                <PlayerDisplay playerOption={null} game={game} key={i} />
+              ))}
           </ul>
         }
+      </div>
+      <div className="absolute z-10 bottom-0 left-0 w-full p-7 flex items-center justify-center">
+        <button
+          onClick={toggleReady}
+          className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
+                        flex justify-center items-center disabled:opacity-50 pointer-events-auto 
+                        disabled:cursor-auto text-xl ${isReady ? readyStyle : "bg-slate-950"} text-slate-400
+                        `}
+        >
+          READY
+        </button>
       </div>
     </div>
   );
@@ -89,7 +89,21 @@ function PlayerDisplay({
   const savedCharacters = useLobbyStore().savedCharacters;
   const isControlledByUser = username === playerOption?.username;
 
+  const partyName = getProgressionGamePartyName(game.name);
+  const partyOption = game.adventuringParties[partyName];
+  if (!partyOption) return <div>Progression default party not found</div>;
+
+  let selectedCharacterOptionOfUncontrolledPlayer: null | Combatant = null;
+  if (!isControlledByUser && playerOption !== null) {
+    const characterId = playerOption.characterIds[0];
+    if (characterId === undefined) return <div></div>;
+    const selectedCharacter = partyOption.characters[characterId];
+    if (selectedCharacter === undefined) return <div></div>;
+    selectedCharacterOptionOfUncontrolledPlayer = selectedCharacter;
+  }
+
   const selectedCharacterId = playerOption?.characterIds[0];
+
   function changeSelectedCharacterId(entityId: string) {
     websocketConnection.emit(ClientToServerEvent.SelectSavedCharacterForProgressGame, entityId);
   }
@@ -117,7 +131,7 @@ function PlayerDisplay({
             .filter((character) => !!character)
             .map((character) => {
               return {
-                title: `${character!.entityProperties.name}`,
+                title: formatCharacterTag(character!),
                 value: character!.entityProperties.id,
               };
             })}
@@ -126,11 +140,17 @@ function PlayerDisplay({
       ) : (
         <div
           className={`h-10 w-full pl-2 border border-slate-400 bg-slate-700 flex
-                    justify-between items-center pointer-events-auto ${!playerOption && "opacity-50"}`}
+                     justify-between items-center pointer-events-auto ${!playerOption && "opacity-50"}`}
         >
-          {!playerOption ? "Awaiting player..." : "Their selected character"}
+          {selectedCharacterOptionOfUncontrolledPlayer
+            ? formatCharacterTag(selectedCharacterOptionOfUncontrolledPlayer)
+            : "Awaiting player..."}
         </div>
       )}
     </div>
   );
+}
+
+export function formatCharacterTag(combatant: Combatant) {
+  return `${combatant.entityProperties.name} - level ${combatant.combatantProperties.level} ${formatCombatantClassName(combatant.combatantProperties.combatantClass)}`;
 }
