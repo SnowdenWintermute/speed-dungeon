@@ -17,6 +17,7 @@ export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
 export * from "./update-player-readiness.js";
 export * from "./input-lock.js";
+export * from "./add-character-to-party.js";
 
 export type RoomsExploredTracker = { total: number; onCurrentFloor: number };
 

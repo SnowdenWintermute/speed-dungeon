@@ -2,13 +2,11 @@ import { GameServer } from "..";
 import {
   CombatantClass,
   ERROR_MESSAGES,
-  EntityId,
   ServerToClientEvent,
   SpeedDungeonGame,
-  updateCombatantHomePosition,
+  addCharacterToParty,
 } from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
-import { MAX_PARTY_SIZE } from "@speed-dungeon/common";
 import { createCharacter } from "../character-creation/index.js";
 
 const ATTEMPT_TEXT = "A client tried to create a character but";
@@ -20,26 +18,21 @@ export default function createCharacterHandler(
   combatantClass: CombatantClass
 ) {
   const [socket, socketMeta] = this.getConnection(socketId);
+  const { currentGameName } = socketMeta;
 
   try {
-    if (!socketMeta.currentGameName)
-      return errorHandler(socket, `${ATTEMPT_TEXT} they didn't know what game they were in`);
+    if (!currentGameName) return errorHandler(socket, `${ATTEMPT_TEXT} they have a game`);
 
-    const game = this.games.get(socketMeta.currentGameName);
+    const game = this.games.get(currentGameName);
     if (!game) return errorHandler(socket, `${ATTEMPT_TEXT} their game was not found`);
     const player = game.players[socketMeta.username];
     if (!player) return errorHandler(socket, `${ATTEMPT_TEXT} their player wasn't in the game`);
     if (!player.partyName) return errorHandler(socket, ERROR_MESSAGES.GAME.MISSING_PARTY_NAME);
 
-    const newCharacterId = addCharacterToParty(
-      game,
-      player.partyName,
-      combatantClass,
-      characterName,
-      player.username
-    );
+    const newCharacter = createCharacter(characterName, combatantClass);
+    addCharacterToParty(game, player, newCharacter);
 
-    player.characterIds.push(newCharacterId);
+    const newCharacterId = newCharacter.entityProperties.id;
 
     const characterResult = SpeedDungeonGame.getCharacter(game, player.partyName, newCharacterId);
     if (characterResult instanceof Error) throw characterResult;
@@ -57,35 +50,4 @@ export default function createCharacterHandler(
     if (e instanceof Error) return errorHandler(socket, e.message);
     else console.error(e);
   }
-}
-
-function addCharacterToParty(
-  game: SpeedDungeonGame,
-  partyName: string,
-  combatantClass: CombatantClass,
-  characterName: string,
-  nameOfControllingUser: string
-): EntityId {
-  const party = game.adventuringParties[partyName];
-  if (!party) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
-
-  if (Object.keys(party.characters).length >= MAX_PARTY_SIZE)
-    throw new Error(ERROR_MESSAGES.GAME.MAX_PARTY_SIZE);
-
-  const newCharacter = createCharacter(characterName, combatantClass);
-  const characterId = newCharacter.entityProperties.id;
-  newCharacter.combatantProperties.controllingPlayer = nameOfControllingUser;
-  // newCharacter.combatantProperties.hitPoints = 1;
-
-  party.characters[characterId] = newCharacter;
-  party.characterPositions.push(characterId);
-
-  for (const character of Object.values(party.characters))
-    updateCombatantHomePosition(
-      character.entityProperties.id,
-      character.combatantProperties,
-      party
-    );
-
-  return characterId;
 }

@@ -15,7 +15,6 @@ import {
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
 import React, { MutableRefObject, useEffect } from "react";
-import characterCreationHandler from "./lobby-event-handlers/character-creation-handler";
 import characterDeletionHandler from "./lobby-event-handlers/character-deletion-handler";
 import { useAlertStore } from "@/stores/alert-store";
 import { setAlert } from "../components/alerts";
@@ -32,7 +31,6 @@ import characterUnequippedSlotHandler from "./game-event-handlers/character-uneq
 import characterEquippedItemHandler from "./game-event-handlers/character-equipped-item-handler";
 import characterPickedUpItemHandler from "./game-event-handlers/character-picked-up-item-handler";
 import gameStartedHandler from "./game-event-handlers/game-started-handler";
-import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 import characterCycledTargetsHandler from "./game-event-handlers/character-cycled-targets-handler";
 import characterSelectedCombatActionHandler from "./game-event-handlers/character-selected-combat-action-handler";
 import characterCycledTargetingSchemesHandler from "./game-event-handlers/character-cycled-targeting-schemes-handler";
@@ -44,6 +42,7 @@ import characterIncrementedAttributePointHandler from "./game-event-handlers/cha
 import gameProgressMessageHandler from "./game-event-handlers/game-progress-message-handler";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import setUpSavedCharacterEventListeners from "./saved-character-event-handlers";
+import characterAddedToPartyHandler from "./lobby-event-handlers/character-added-to-party-handler";
 
 function SocketManager({
   actionCommandReceiver,
@@ -78,7 +77,6 @@ function SocketManager({
       });
       mutateLobbyStore((state) => {
         state.websocketConnected = true;
-        console.log("set connected true");
       });
     });
 
@@ -186,7 +184,13 @@ function SocketManager({
       });
     });
     socket.on(ServerToClientEvent.CharacterAddedToParty, (partyName, username, character) => {
-      characterCreationHandler(mutateGameStore, mutateAlertStore, partyName, username, character);
+      characterAddedToPartyHandler(
+        mutateGameStore,
+        mutateAlertStore,
+        partyName,
+        username,
+        character
+      );
     });
     socket.on(ServerToClientEvent.CharacterDeleted, (partyName, username, characterId) => {
       characterDeletionHandler(mutateGameStore, mutateAlertStore, partyName, username, characterId);

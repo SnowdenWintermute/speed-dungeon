@@ -25,10 +25,12 @@ import getActionResults from "../combat/action-results/get-action-results.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import handleBattleVictory from "./handle-battle-victory.js";
 import { GameMode } from "../types.js";
+import { MAX_PARTY_SIZE } from "../app-consts.js";
 
 export class SpeedDungeonGame {
   [immerable] = true;
   players: { [username: string]: SpeedDungeonPlayer } = {};
+  playerCapacity: number | null = null;
   playersReadied: string[] = [];
   adventuringParties: { [partyName: string]: AdventuringParty } = {};
   battles: { [id: EntityId]: Battle } = {};
@@ -37,7 +39,9 @@ export class SpeedDungeonGame {
     public name: string,
     public mode: GameMode,
     public gameCreator: string | null = null
-  ) {}
+  ) {
+    if (mode === GameMode.Progression) this.playerCapacity = MAX_PARTY_SIZE;
+  }
 
   static removePlayerFromParty = removePlayerFromParty;
   static removePlayer = removePlayerFromGame;
