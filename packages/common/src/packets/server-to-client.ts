@@ -49,6 +49,7 @@ export enum ServerToClientEvent {
   SavedCharacter = "35",
   SavedCharacterDeleted = "36",
   PlayerSelectedSavedCharacterInProgressionGame = "37",
+  ProgressionGameStartingFloorSelected = "38",
 }
 
 export interface ServerToClientEventTypes {
@@ -125,14 +126,18 @@ export interface ServerToClientEventTypes {
     attribute: CombatAttribute
   ) => void;
   [ServerToClientEvent.SavedCharacterList]: (characterSlots: {
-    [slot: number]: null | Combatant;
+    [slot: number]: null | { combatant: Combatant; deepestFloorReached: number };
   }) => void;
-  [ServerToClientEvent.SavedCharacter]: (character: Combatant, slot: number) => void;
+  [ServerToClientEvent.SavedCharacter]: (
+    character: { combatant: Combatant; deepestFloorReached: number },
+    slot: number
+  ) => void;
   [ServerToClientEvent.SavedCharacterDeleted]: (id: string) => void;
   [ServerToClientEvent.PlayerSelectedSavedCharacterInProgressionGame]: (
     username: string,
-    character: Combatant
+    character: { combatant: Combatant; deepestFloorReached: number }
   ) => void;
+  [ServerToClientEvent.ProgressionGameStartingFloorSelected]: (floor: number) => void;
 }
 
 export interface EquipItemPacket {

@@ -16,25 +16,25 @@ export default async function writePlayerCharactersInGameToDb(
   try {
     console.log("saving characters for player ", player.username);
     for (const id of player.characterIds) {
-      if (!player.partyName) return new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+      if (!player.partyName) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
       const characterResult = SpeedDungeonGame.getCharacter(game, player.partyName, id);
       if (characterResult instanceof Error)
-        return new Error("Couldn't save character: " + characterResult);
-      else {
-        const existingCharacter = await playerCharactersRepo.findById(
-          characterResult.entityProperties.id
-        );
-        if (!existingCharacter)
-          console.error("Tried to update character but it didn't exist in the database");
-        else {
-          characterResult.combatantProperties.selectedCombatAction = null;
-          characterResult.combatantProperties.combatActionTarget = null;
+        throw new Error("Couldn't save character: " + characterResult);
+      const existingCharacter = await playerCharactersRepo.findById(
+        characterResult.entityProperties.id
+      );
+      if (!existingCharacter)
+        throw new Error("Tried to update character but it didn't exist in the database");
+      characterResult.combatantProperties.selectedCombatAction = null;
+      characterResult.combatantProperties.combatActionTarget = null;
+      const partyOption = game.adventuringParties[getProgressionGamePartyName(game.name)];
+      if (partyOption === undefined) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+      if (partyOption.currentFloor > existingCharacter.deepestFloorReached)
+        existingCharacter.deepestFloorReached = partyOption.currentFloor;
 
-          existingCharacter.combatantProperties = characterResult.combatantProperties;
-          await playerCharactersRepo.update(existingCharacter);
-          console.log("initiated character update transaction for ", existingCharacter.name);
-        }
-      }
+      existingCharacter.combatantProperties = characterResult.combatantProperties;
+      await playerCharactersRepo.update(existingCharacter);
+      console.log("initiated character update transaction for ", existingCharacter.name);
     }
   } catch (error) {
     if (error instanceof Error) return error;

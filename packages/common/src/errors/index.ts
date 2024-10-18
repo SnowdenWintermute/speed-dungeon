@@ -39,6 +39,8 @@ export const ERROR_MESSAGES = {
     BATTLE_DOES_NOT_EXIST: "No battle found by that ID",
     MODE: "Your current game mode does not allow for that action",
     NO_SAVED_CHARACTERS: "You must create a saved character to play in that game mode",
+    STARTING_FLOOR_LIMIT:
+      "You can't start on a deeper floor than the deepest floor reached by any character in your party",
   },
   PARTY: {
     PLAYER_NOT_FOUND: "The provided username does not belong to any player in this party",
@@ -61,12 +63,13 @@ export const ERROR_MESSAGES = {
     MISSING_PROFILE: "Failed to find expected user profile",
     CHARACTER_SLOT_FULL: "That character slot is occupied",
     SAVED_CHARACTER_NOT_OWNED: "You do not own the character with the provided ID",
+    NO_LIVING_CHARACTERS: "You have no characters that are alive",
   },
   COMBATANT: {
     NOT_FOUND: "No combatant was found with the provided ID",
     NO_ACTION_SELECTED: "That combatant has no selected combat action",
     NO_TARGET_SELECTED: "That combatant has no selected target",
-    IS_DEAD: "Dead combatants may not take any actions",
+    IS_DEAD: "That combatant is dead",
     NOT_ACTIVE: "It is not that combatant's turn",
     NO_UNSPENT_ATTRIBUTE_POINTS: "That combatant has no unspent attribute points",
     ATTRIBUTE_IS_NOT_ASSIGNABLE: "Points may not be spent on that attribute",

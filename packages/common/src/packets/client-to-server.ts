@@ -36,6 +36,7 @@ export enum ClientToServerEvent {
   CreateSavedCharacter = "27",
   DeleteSavedCharacter = "28",
   SelectSavedCharacterForProgressGame = "29",
+  SelectProgressionGameStartingFloor = "30",
 }
 
 export interface ClientToServerEventTypes {
@@ -88,4 +89,5 @@ export interface ClientToServerEventTypes {
   ) => void;
   [ClientToServerEvent.DeleteSavedCharacter]: (entityId: string) => void;
   [ClientToServerEvent.SelectSavedCharacterForProgressGame]: (entityId: string) => void;
+  [ClientToServerEvent.SelectProgressionGameStartingFloor]: (floor: number) => void;
 }

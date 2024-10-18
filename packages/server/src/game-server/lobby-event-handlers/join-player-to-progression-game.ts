@@ -19,7 +19,7 @@ export default async function joinPlayerToProgressionGame(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
   socketMeta: BrowserTabSession,
   game: SpeedDungeonGame,
-  character: Combatant
+  character: { combatant: Combatant; deepestFloorReached: number }
 ) {
   joinPlayerToGame(gameServer, game, socketMeta, socket);
 
@@ -29,10 +29,16 @@ export default async function joinPlayerToProgressionGame(
   const playerOption = game.players[socketMeta.username];
   if (playerOption === undefined)
     return errorHandler(socket, ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
-  addCharacterToParty(game, playerOption, character);
+  addCharacterToParty(game, playerOption, character.combatant);
+  game.selectedStartingFloor.max = character.deepestFloorReached;
 
   gameServer.io
     .of("/")
     .in(game.name)
-    .emit(ServerToClientEvent.CharacterAddedToParty, partyName, socketMeta.username, character);
+    .emit(
+      ServerToClientEvent.CharacterAddedToParty,
+      partyName,
+      socketMeta.username,
+      character.combatant
+    );
 }

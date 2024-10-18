@@ -25,7 +25,7 @@ export async function fetchSavedCharacters(gameServer: GameServer, socketId: str
   if (profileOption === undefined) return new Error(ERROR_MESSAGES.USER.MISSING_PROFILE);
   const slots = await characterSlotsRepo.find("profileId", profileOption.id);
   if (slots === undefined) return new Error("No character slots found");
-  const toReturn: { [slot: number]: Combatant } = {};
+  const toReturn: { [slot: number]: { combatant: Combatant; deepestFloorReached: number } } = {};
   const characterPromises: Promise<void>[] = [];
   for (const slot of slots) {
     if (slot.characterId === null) continue;
@@ -35,10 +35,13 @@ export async function fetchSavedCharacters(gameServer: GameServer, socketId: str
         if (character === undefined)
           return console.error("Character slot was holding an id that didn't match any character");
 
-        toReturn[slot.slotNumber] = new Combatant(
-          { id: character.id, name: character.name },
-          character.combatantProperties
-        );
+        toReturn[slot.slotNumber] = {
+          combatant: new Combatant(
+            { id: character.id, name: character.name },
+            character.combatantProperties
+          ),
+          deepestFloorReached: character.deepestFloorReached,
+        };
       })()
     );
   }
@@ -85,7 +88,11 @@ export default function initiateSavedCharacterListeners(
     slot.characterId = newCharacter.entityProperties.id;
     await characterSlotsRepo.update(slot);
 
-    socket.emit(ServerToClientEvent.SavedCharacter, newCharacter, slotNumber);
+    socket.emit(
+      ServerToClientEvent.SavedCharacter,
+      { combatant: newCharacter, deepestFloorReached: 1 },
+      slotNumber
+    );
   });
 
   socket.on(ClientToServerEvent.DeleteSavedCharacter, async (entityId) => {

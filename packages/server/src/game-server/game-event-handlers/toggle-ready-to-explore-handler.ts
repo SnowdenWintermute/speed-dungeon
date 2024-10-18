@@ -18,9 +18,7 @@ import { tickCombatUntilNextCombatantIsActive } from "@speed-dungeon/common";
 import { DescendOrExplore } from "@speed-dungeon/common";
 import { idGenerator } from "../../singletons.js";
 import generateDungeonRoom from "../dungeon-room-generation/index.js";
-import writePlayerCharactersInGameToDb, {
-  writeAllPlayerCharacterInGameToDb,
-} from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
+import { writeAllPlayerCharacterInGameToDb } from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 
 export default function toggleReadyToExploreHandler(
   this: GameServer,
@@ -83,7 +81,7 @@ export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party:
     return new Error(ERROR_MESSAGES.SERVER_GENERIC);
   }
   const roomTypeToGenerate: DungeonRoomType = roomTypeToGenerateOption;
-
+  console.log("generating room on floor ", party.currentFloor);
   const newRoom = generateDungeonRoom(party.currentFloor, roomTypeToGenerate);
   party.currentRoom = newRoom;
 

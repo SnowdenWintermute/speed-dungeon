@@ -1,4 +1,3 @@
-import { GameState } from "@/stores/game-store";
 import { LobbyState } from "@/stores/lobby-store";
 import { MutateState } from "@/stores/mutate-state";
 import {
@@ -22,7 +21,7 @@ export default function setUpSavedCharacterEventListeners(
     mutateLobbyState((state) => {
       for (const [slot, character] of Object.entries(state.savedCharacters)) {
         const slotAsNumber = parseInt(slot);
-        if (character?.entityProperties.id === id) {
+        if (character?.combatant.entityProperties.id === id) {
           state.savedCharacters[slotAsNumber] = null;
           break;
         }

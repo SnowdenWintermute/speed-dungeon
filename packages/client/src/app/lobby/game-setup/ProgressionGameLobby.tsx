@@ -12,16 +12,16 @@ import {
   formatGameMode,
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import SelectDropdown from "@/app/components/atoms/SelectDropdown";
 import SavedCharacterDisplay from "../saved-character-manager/SavedCharacterDisplay";
+import Divider from "@/app/components/atoms/Divider";
 
 export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame }) {
   const username = useGameStore().username;
-  const partyOption = game.adventuringParties[getProgressionGamePartyName(game.name)];
 
   useEffect(() => {
     websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
@@ -58,17 +58,39 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
           <h2 className="text-xl">{game.name}</h2>
           <h4 className="text-slate-400">{formatGameMode(game.mode) + " game"}</h4>
         </div>
-
-        {
+        <div>
           <ul className="w-full flex flex-col">
             {Object.values(game.players).map((player, i) => (
               <PlayerDisplay playerOption={player} game={game} index={i} key={player.username} />
             ))}
-            {new Array(MAX_PARTY_SIZE - numPlayersInGame).fill(null).map((item, i) => (
+            {new Array(MAX_PARTY_SIZE - numPlayersInGame).fill(null).map((_item, i) => (
               <PlayerDisplay playerOption={null} game={game} index={i + numPlayersInGame} key={i} />
             ))}
           </ul>
-        }
+          <Divider />
+          <div className="text-lg mb-2">
+            Starting on floor: max {game.selectedStartingFloor.max}
+          </div>
+          <div>
+            {
+              <SelectDropdown
+                title={"starting-floor-select"}
+                value={game.selectedStartingFloor.current}
+                setValue={(value: number) => {
+                  websocketConnection.emit(
+                    ClientToServerEvent.SelectProgressionGameStartingFloor,
+                    value
+                  );
+                }}
+                options={Array.from({ length: game.selectedStartingFloor.max }, (_, index) => ({
+                  title: `Floor ${index + 1}`,
+                  value: index + 1,
+                }))}
+                disabled={Object.values(game.players)[0]?.username !== username}
+              />
+            }
+          </div>
+        </div>
       </div>
       <div className="absolute z-10 bottom-0 left-0 w-full p-7 flex items-center justify-center">
         <HotkeyButton
@@ -127,13 +149,20 @@ function PlayerDisplay({
   return (
     <div className="w-full mb-2 flex flex-col">
       {selectedCharacterOption && (
-        <div className="w-full absolute overflow-hidden">
-          <SavedCharacterDisplay
-            character={selectedCharacterOption}
-            index={index}
-            key={selectedCharacterOption.entityProperties.id}
-          />
-        </div>
+        <SavedCharacterDisplay
+          character={selectedCharacterOption}
+          index={index}
+          key={selectedCharacterOption.entityProperties.id}
+        >
+          <div className="h-full w-full flex flex-col items-center justify-end text-lg ">
+            <div className="h-fit flex flex-col items-center text-nowrap absolute bottom-0">
+              <div className="text-xl">{selectedCharacterOption.entityProperties.name}</div>
+              <div className="text-base">
+                {formatCharacterLevelAndClass(selectedCharacterOption)}
+              </div>
+            </div>
+          </div>
+        </SavedCharacterDisplay>
       )}
       <div className="flex justify-between mb-1">
         <div className="pointer-events-auto">{playerOption?.username || "Empty slot"}</div>
@@ -150,8 +179,8 @@ function PlayerDisplay({
             .filter((character) => !!character)
             .map((character) => {
               return {
-                title: formatCharacterTag(character!),
-                value: character!.entityProperties.id,
+                title: formatCharacterTag(character!.combatant),
+                value: character!.combatant.entityProperties.id,
               };
             })}
           disabled={game.playersReadied.includes(username)}
@@ -171,5 +200,9 @@ function PlayerDisplay({
 }
 
 export function formatCharacterTag(combatant: Combatant) {
-  return `${combatant.entityProperties.name} - level ${combatant.combatantProperties.level} ${formatCombatantClassName(combatant.combatantProperties.combatantClass)}`;
+  return `${combatant.entityProperties.name} - ${formatCharacterLevelAndClass(combatant)}`;
+}
+
+export function formatCharacterLevelAndClass(combatant: Combatant) {
+  return `level ${combatant.combatantProperties.level} ${formatCombatantClassName(combatant.combatantProperties.combatantClass)}`;
 }

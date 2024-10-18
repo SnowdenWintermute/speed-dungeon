@@ -4,7 +4,7 @@ export * from "./get-player-party.js";
 import { immerable } from "immer";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
-import { EntityId } from "../primatives/index.js";
+import { EntityId, MaxAndCurrent } from "../primatives/index.js";
 import { SpeedDungeonPlayer } from "./player.js";
 import assignCharacterActionTargets from "../combat/targeting/assign-character-action-targets.js";
 import putPlayerInParty from "./put-player-in-party.js";
@@ -35,6 +35,7 @@ export class SpeedDungeonGame {
   adventuringParties: { [partyName: string]: AdventuringParty } = {};
   battles: { [id: EntityId]: Battle } = {};
   timeStarted: null | number = null;
+  selectedStartingFloor: MaxAndCurrent = new MaxAndCurrent(1, 1);
   constructor(
     public name: string,
     public mode: GameMode,

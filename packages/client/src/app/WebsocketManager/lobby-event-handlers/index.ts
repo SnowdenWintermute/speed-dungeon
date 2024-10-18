@@ -23,7 +23,7 @@ export default function setUpGameLobbyEventHandlers(
   mutateAlertStore: MutateState<AlertState>
 ) {
   socket.on(ServerToClientEvent.GameFullUpdate, (game) => {
-    console.log("got full game update");
+    console.log("got full game update: ", game?.selectedStartingFloor);
     mutateGameStore((state) => {
       if (game === null) {
         state.game = null;
@@ -84,5 +84,10 @@ export default function setUpGameLobbyEventHandlers(
   });
   socket.on(ServerToClientEvent.GameStarted, (timeStarted) => {
     gameStartedHandler(mutateGameStore, timeStarted);
+  });
+  socket.on(ServerToClientEvent.ProgressionGameStartingFloorSelected, (floorNumber) => {
+    mutateGameStore((state) => {
+      if (state.game) state.game.selectedStartingFloor.current = floorNumber;
+    });
   });
 }

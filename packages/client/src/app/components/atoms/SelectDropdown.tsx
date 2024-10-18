@@ -22,6 +22,7 @@ export default function SelectDropdown(props: Props) {
   );
 
   useEffect(() => {
+    if (props.disabled) return;
     if (value === undefined) return;
     const option = options[indexSelected];
     if (!option) return;
@@ -35,10 +36,10 @@ export default function SelectDropdown(props: Props) {
     });
     setIsFocused(false);
     setIsOpen(false);
-    const activeElement = document.activeElement as HTMLElement;
-    if (activeElement && activeElement !== document.body) {
-      activeElement.blur();
-    }
+    // const activeElement = document.activeElement as HTMLElement;
+    // if (activeElement && activeElement !== document.body) {
+    //   activeElement.blur();
+    // }
   }
 
   function handleFocus() {
@@ -68,6 +69,7 @@ export default function SelectDropdown(props: Props) {
 
   const handleClickOutsideMenu = (e: MouseEvent) => {
     if (selectInputRef.current) {
+      console.log("clicked outside menu ", props.title);
       const menuRect = selectInputRef.current.getBoundingClientRect();
       const { x, y, width, height } = menuRect;
       const maxX = x + width;

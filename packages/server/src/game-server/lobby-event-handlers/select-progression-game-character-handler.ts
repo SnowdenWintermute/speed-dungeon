@@ -37,9 +37,11 @@ export default async function selectProgressionGameCharacterHandler(
 
     // make sure the character exists
     let savedCharacterOption;
-    for (const combatant of Object.values(charactersResult)) {
-      if (combatant.entityProperties.id === entityId) {
-        savedCharacterOption = combatant;
+    for (const character of Object.values(charactersResult)) {
+      if (character.combatant.entityProperties.id === entityId) {
+        if (character.combatant.combatantProperties.hitPoints <= 0)
+          return errorHandler(socket, ERROR_MESSAGES.COMBATANT.IS_DEAD);
+        savedCharacterOption = character;
         break;
       }
     }
@@ -55,8 +57,9 @@ export default async function selectProgressionGameCharacterHandler(
       return errorHandler(socket, "Expected to have a selected character but didn't");
     AdventuringParty.removeCharacter(partyOption, characterIdToRemoveOption, player);
     // add their newly selected character to the party
-    addCharacterToParty(game, player, savedCharacterOption);
-    console.log("selected new character: ", savedCharacterOption.entityProperties.name);
+    addCharacterToParty(game, player, savedCharacterOption.combatant);
+    game.selectedStartingFloor.max = savedCharacterOption.deepestFloorReached;
+    console.log("selected new character: ", savedCharacterOption.combatant.entityProperties.name);
     // let everyone know about it
     this.io
       .of("/")
@@ -66,5 +69,7 @@ export default async function selectProgressionGameCharacterHandler(
         player.username,
         savedCharacterOption
       );
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+  }
 }

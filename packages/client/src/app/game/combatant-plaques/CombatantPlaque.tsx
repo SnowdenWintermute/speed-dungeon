@@ -187,9 +187,9 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
           </div>
         </div>
         <div className="flex-grow" ref={nameAndBarsRef}>
-          <div className="mb-1.5 flex justify-between text-lg">
+          <div className="mb-1.5 flex justify-between text-lg ">
             <span>
-              {entityProperties.name}
+              <span className="">{entityProperties.name}</span>
               {
                 // entityId
               }

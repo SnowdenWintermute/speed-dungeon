@@ -11,7 +11,7 @@ import {
   formatCombatantClassName,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ArrowShape from "../../../../public/img/menu-icons/arrow-button-icon.svg";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
@@ -58,22 +58,31 @@ export default function SavedCharacterManager() {
   function deleteCharacter() {
     websocketConnection.emit(
       ClientToServerEvent.DeleteSavedCharacter,
-      selectedCharacterOption?.entityProperties.id || ""
+      selectedCharacterOption?.combatant.entityProperties.id || ""
     );
   }
 
   return (
     <>
-      <div className="w-full absolute overflow-hidden">
+      <div className="w-full h-full absolute ">
         {Object.entries(savedCharacters)
           .filter(([_slot, characterOption]) => characterOption !== null)
           .map(([slot, character]) => {
             return (
               <SavedCharacterDisplay
-                character={character!}
+                character={character!.combatant}
                 index={parseInt(slot)}
-                key={character!.entityProperties.id}
-              />
+                key={character!.combatant.entityProperties.id}
+              >
+                <div className="w-full h-full flex justify-center">
+                  {character!.combatant.combatantProperties.hitPoints <= 0 && (
+                    <div className="relative text-2xl">
+                      <span className="text-red-600">DEAD</span>
+                      <span className="absolute z-[-1] text-black top-[3px] left-[3px]">DEAD</span>
+                    </div>
+                  )}
+                </div>
+              </SavedCharacterDisplay>
             );
           })}
       </div>
@@ -113,13 +122,13 @@ export default function SavedCharacterManager() {
               <XShape className="h-full w-full fill-slate-400" />
             </HotkeyButton>
             <h4>{!selectedCharacterOption && ` Slot ${currentSlot + 1} `}</h4>
-            <h3>{selectedCharacterOption?.entityProperties.name || "Empty"}</h3>
+            <h3>{selectedCharacterOption?.combatant.entityProperties.name || "Empty"}</h3>
             {selectedCharacterOption && (
               <div>
-                Level: {selectedCharacterOption.combatantProperties.level}
+                Level: {selectedCharacterOption.combatant.combatantProperties.level}
                 {" " +
                   formatCombatantClassName(
-                    selectedCharacterOption.combatantProperties.combatantClass
+                    selectedCharacterOption.combatant.combatantProperties.combatantClass
                   )}
               </div>
             )}

@@ -11,6 +11,7 @@ export type PlayerCharacter = {
   name: string;
   ownerId: number;
   gameVersion: string;
+  deepestFloorReached: number;
   combatantProperties: CombatantProperties;
   createdAt: number | Date;
   updatedAt: number | Date;
@@ -39,13 +40,14 @@ class PlayerCharacterRepo extends DatabaseRepository<PlayerCharacter> {
   }
 
   async update(playerCharacter: PlayerCharacter) {
-    const { id, ownerId, name, gameVersion, combatantProperties } = playerCharacter;
+    const { id, ownerId, name, deepestFloorReached, combatantProperties } = playerCharacter;
     const { rows } = await this.pgPool.query(
       format(
-        `UPDATE ${tableName} SET owner_id = %L, name = %L, game_version = %L, combatant_properties = %L WHERE id = %L RETURNING *;`,
+        `UPDATE ${tableName} SET owner_id = %L, name = %L, game_version = %L, deepest_floor_reached = %L, combatant_properties = %L WHERE id = %L RETURNING *;`,
         ownerId,
         name,
-        gameVersion,
+        SERVER_VERSION,
+        deepestFloorReached,
         combatantProperties,
         id
       )

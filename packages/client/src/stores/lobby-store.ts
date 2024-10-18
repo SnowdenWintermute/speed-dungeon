@@ -13,7 +13,7 @@ export type LobbyState = {
   showSavedCharacterManager: boolean;
   showGameCreationForm: boolean;
   highlightAuthForm: boolean;
-  savedCharacters: { [slot: number]: Combatant | null };
+  savedCharacters: { [slot: number]: { combatant: Combatant; deepestFloorReached: number } | null };
   mutateState: (fn: (state: LobbyState) => void) => void;
 };
 

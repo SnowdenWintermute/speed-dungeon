@@ -1,4 +1,4 @@
-import { ERROR_MESSAGES } from "@speed-dungeon/common";
+import { Combatant, ERROR_MESSAGES } from "@speed-dungeon/common";
 import { GameServer } from "..";
 import { fetchSavedCharacters } from "../saved-character-event-handlers/index.js";
 
@@ -28,11 +28,22 @@ export default async function getDefaultSavedCharacterForProgressionGame(
     if (Object.values(charactersResult).length === 0)
       return new Error(ERROR_MESSAGES.GAME.NO_SAVED_CHARACTERS);
 
-    const defaultSavedCharacter = Object.values(charactersResult)[0];
-    if (defaultSavedCharacter === undefined) {
-      console.error("Supposed checked expectation failed");
-      return new Error(ERROR_MESSAGES.SERVER_GENERIC);
+    let defaultSavedCharacter:
+      | {
+          combatant: Combatant;
+          deepestFloorReached: number;
+        }
+      | undefined = undefined;
+
+    for (const character of Object.values(charactersResult)) {
+      if (character.combatant.combatantProperties.hitPoints > 0) {
+        defaultSavedCharacter = character;
+        break;
+      }
     }
+
+    if (defaultSavedCharacter === undefined)
+      return new Error(ERROR_MESSAGES.USER.NO_LIVING_CHARACTERS);
 
     return defaultSavedCharacter;
   } catch (error) {

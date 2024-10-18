@@ -10,7 +10,7 @@ import { GameServer } from "../../index.js";
 import { ActionCommandManager } from "@speed-dungeon/common";
 import { writeAllPlayerCharacterInGameToDb } from "../../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 
-export default function battleResultActionCommandHandler(
+export default async function battleResultActionCommandHandler(
   this: GameServer,
   actionCommandManager: ActionCommandManager,
   gameName: string,
@@ -22,7 +22,7 @@ export default function battleResultActionCommandHandler(
   const { game, party } = actionAssociatedDataResult;
   const { conclusion } = payload;
 
-  writeAllPlayerCharacterInGameToDb(this, game);
+  await writeAllPlayerCharacterInGameToDb(this, game);
 
   switch (conclusion) {
     case BattleConclusion.Defeat:

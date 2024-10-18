@@ -15,11 +15,12 @@ export default function savedCharacterSelectionInProgressGameHandler(
   mutateGameState: MutateState<GameState>,
   mutateAlertStore: MutateState<AlertState>,
   username: string,
-  character: Combatant
+  character: { combatant: Combatant; deepestFloorReached: number }
 ) {
   mutateGameState((gameState) => {
     const game = gameState.game;
     if (!game) return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    game.selectedStartingFloor.max = character.deepestFloorReached;
     const partyName = getProgressionGamePartyName(game.name);
     const party = game.adventuringParties[partyName];
     if (!party) return setAlert(mutateAlertStore, ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
@@ -37,6 +38,6 @@ export default function savedCharacterSelectionInProgressGameHandler(
         );
     }
 
-    addCharacterToParty(game, player, character);
+    addCharacterToParty(game, player, character.combatant);
   });
 }
