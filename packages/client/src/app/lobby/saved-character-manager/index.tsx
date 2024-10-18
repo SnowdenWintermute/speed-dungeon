@@ -64,17 +64,19 @@ export default function SavedCharacterManager() {
 
   return (
     <>
-      {Object.entries(savedCharacters)
-        .filter(([_slot, characterOption]) => characterOption !== null)
-        .map(([slot, character]) => {
-          return (
-            <SavedCharacterDisplay
-              character={character!}
-              index={parseInt(slot)}
-              key={character!.entityProperties.id}
-            />
-          );
-        })}
+      <div className="w-full absolute overflow-hidden">
+        {Object.entries(savedCharacters)
+          .filter(([_slot, characterOption]) => characterOption !== null)
+          .map(([slot, character]) => {
+            return (
+              <SavedCharacterDisplay
+                character={character!}
+                index={parseInt(slot)}
+                key={character!.entityProperties.id}
+              />
+            );
+          })}
+      </div>
 
       {!showCharacterManager && !showGameCreationForm && (
         <div className="absolute bottom-40">

@@ -22,10 +22,8 @@ export default function SelectDropdown(props: Props) {
   );
 
   useEffect(() => {
-    console.log("value:", value);
     if (value === undefined) return;
     const option = options[indexSelected];
-    console.log("option: ", option);
     if (!option) return;
     if (option.value === value) return;
     props.setValue(option.value);
@@ -35,7 +33,6 @@ export default function SelectDropdown(props: Props) {
     mutateUIState((state) => {
       state.hotkeysDisabled = false;
     });
-    console.log("bluring");
     setIsFocused(false);
     setIsOpen(false);
     const activeElement = document.activeElement as HTMLElement;
@@ -47,7 +44,6 @@ export default function SelectDropdown(props: Props) {
   function handleFocus() {
     if (!selectInputRef.current) return console.log("no input ref");
     setIsFocused(true);
-    console.log("set focused");
     mutateUIState((state) => {
       state.hotkeysDisabled = true;
     });
@@ -55,7 +51,6 @@ export default function SelectDropdown(props: Props) {
 
   function handleUserKeydown(e: KeyboardEvent) {
     const { code } = e;
-    console.log("kecode: ", code);
     if (code === "Escape" || code === "Esc") handleBlur();
     if (!selectInputRef.current) return console.log("no input ref");
     if (!isFocused) return console.log("not focused");
@@ -64,7 +59,6 @@ export default function SelectDropdown(props: Props) {
     if (code === "ArrowUp") {
       if (indexSelected === 0) {
         setIndexSelected(options.length - 1);
-        console.log("set index to: ", options.length - 1);
       } else setIndexSelected(indexSelected - 1);
     }
     if (code === "ArrowDown")
@@ -84,10 +78,8 @@ export default function SelectDropdown(props: Props) {
 
   useEffect(() => {
     window.addEventListener("keydown", handleUserKeydown);
-    console.log("added event listener");
     window.addEventListener("click", handleClickOutsideMenu);
     return () => {
-      console.log("removed event listener");
       window.removeEventListener("keydown", handleUserKeydown);
       window.removeEventListener("click", handleClickOutsideMenu);
     };

@@ -1,4 +1,3 @@
-import { CombatantModelBlueprint } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import { GameWorld } from ".";
 import { ModularCharacter } from "../combatant-models/modular-character";
 import { disposeAsyncLoadedScene } from "../utils";
@@ -15,6 +14,7 @@ import {
   SKELETONS,
 } from "../combatant-models/modular-character-parts";
 import { Color3, StandardMaterial } from "@babylonjs/core";
+import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
 
 // the whole point of all this is to make sure we never handle spawn and despawn messages out of order due
 // to the asynchronous nature of spawning models
@@ -75,6 +75,7 @@ export class ModelManager {
     checkIfRoomLoaded: boolean
   ): Promise<Error | ModularCharacter> {
     const parts = [];
+    console.log(blueprint.entityId, blueprint.startPosition);
     if (blueprint.monsterType !== null) {
       if (
         blueprint.monsterType === MonsterType.FireMage ||

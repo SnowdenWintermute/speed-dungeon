@@ -90,8 +90,8 @@ export default function Lobby() {
             <button
               onClick={() => quickStartGame(socketOption)}
               className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
-          flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
-            text-xl bg-slate-950 text-slate-400
+                          flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
+                          text-xl bg-slate-950 text-slate-400
             `}
             >
               PLAY NOW

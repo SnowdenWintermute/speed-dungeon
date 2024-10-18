@@ -16,6 +16,13 @@ export default function SavedCharacterDisplay({
 }) {
   const { entityProperties, combatantProperties } = character;
   const entityId = entityProperties.id;
+  console.log(
+    "combatant: ",
+    character.entityProperties.name,
+    "index: ",
+    index,
+    new Vector3(-CHARACTER_SLOT_SPACING + index * CHARACTER_SLOT_SPACING, 0, 0)
+  );
 
   useEffect(() => {
     // display them in "slots" in the 3d world

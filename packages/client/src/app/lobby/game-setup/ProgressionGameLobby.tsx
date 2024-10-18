@@ -17,9 +17,11 @@ import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import SelectDropdown from "@/app/components/atoms/SelectDropdown";
+import SavedCharacterDisplay from "../saved-character-manager/SavedCharacterDisplay";
 
 export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame }) {
   const username = useGameStore().username;
+  const partyOption = game.adventuringParties[getProgressionGamePartyName(game.name)];
 
   useEffect(() => {
     websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
@@ -36,6 +38,7 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
   let readyStyle = isReady ? "bg-green-800" : "";
 
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
+  const numPlayersInGame = Object.values(game.players).length;
 
   return (
     <div className="w-full h-full flex">
@@ -55,16 +58,15 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
           <h2 className="text-xl">{game.name}</h2>
           <h4 className="text-slate-400">{formatGameMode(game.mode) + " game"}</h4>
         </div>
+
         {
           <ul className="w-full flex flex-col">
-            {Object.values(game.players).map((player) => (
-              <PlayerDisplay playerOption={player} game={game} key={player.username} />
+            {Object.values(game.players).map((player, i) => (
+              <PlayerDisplay playerOption={player} game={game} index={i} key={player.username} />
             ))}
-            {new Array(MAX_PARTY_SIZE - Object.values(game.players).length)
-              .fill(null)
-              .map((item, i) => (
-                <PlayerDisplay playerOption={null} game={game} key={i} />
-              ))}
+            {new Array(MAX_PARTY_SIZE - numPlayersInGame).fill(null).map((item, i) => (
+              <PlayerDisplay playerOption={null} game={game} index={i + numPlayersInGame} key={i} />
+            ))}
           </ul>
         }
       </div>
@@ -87,9 +89,11 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
 function PlayerDisplay({
   playerOption,
   game,
+  index,
 }: {
   playerOption: null | SpeedDungeonPlayer;
   game: SpeedDungeonGame;
+  index: number;
 }) {
   const username = useGameStore().username;
   const savedCharacters = useLobbyStore().savedCharacters;
@@ -99,13 +103,13 @@ function PlayerDisplay({
   const partyOption = game.adventuringParties[partyName];
   if (!partyOption) return <div>Progression default party not found</div>;
 
-  let selectedCharacterOptionOfUncontrolledPlayer: null | Combatant = null;
-  if (!isControlledByUser && playerOption !== null) {
+  let selectedCharacterOption: null | Combatant = null;
+  if (playerOption !== null) {
     const characterId = playerOption.characterIds[0];
     if (characterId === undefined) return <div></div>;
     const selectedCharacter = partyOption.characters[characterId];
     if (selectedCharacter === undefined) return <div></div>;
-    selectedCharacterOptionOfUncontrolledPlayer = selectedCharacter;
+    selectedCharacterOption = selectedCharacter;
   }
 
   const selectedCharacterId = playerOption?.characterIds[0];
@@ -122,6 +126,15 @@ function PlayerDisplay({
 
   return (
     <div className="w-full mb-2 flex flex-col">
+      {selectedCharacterOption && (
+        <div className="w-full absolute overflow-hidden">
+          <SavedCharacterDisplay
+            character={selectedCharacterOption}
+            index={index}
+            key={selectedCharacterOption.entityProperties.id}
+          />
+        </div>
+      )}
       <div className="flex justify-between mb-1">
         <div className="pointer-events-auto">{playerOption?.username || "Empty slot"}</div>
         <div className="pointer-events-auto">{readyText}</div>
@@ -148,8 +161,8 @@ function PlayerDisplay({
           className={`h-10 w-full pl-2 border border-slate-400 bg-slate-700 flex
                      justify-between items-center pointer-events-auto ${!playerOption && "opacity-50"}`}
         >
-          {selectedCharacterOptionOfUncontrolledPlayer
-            ? formatCharacterTag(selectedCharacterOptionOfUncontrolledPlayer)
+          {selectedCharacterOption
+            ? formatCharacterTag(selectedCharacterOption)
             : "Awaiting player..."}
         </div>
       )}
