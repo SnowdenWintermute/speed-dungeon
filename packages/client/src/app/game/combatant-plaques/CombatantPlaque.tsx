@@ -20,6 +20,8 @@ import { getTailwindClassFromFloatingTextColor } from "@/stores/game-store/float
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { nextToBabylonMessageQueue } from "@/singletons/next-to-babylon-message-queue";
+import { gameWorld } from "@/app/3d-world/SceneManager";
+import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
 
 interface Props {
   entityId: string;
@@ -92,9 +94,8 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
         delete state.babylonControlledCombatantDOMData[entityId];
       });
 
-      nextToBabylonMessageQueue.messages.push({
-        type: NextToBabylonMessageTypes.RemoveCombatantModel,
-        entityId,
+      gameWorld.current?.modelManager.enqueueMessage(entityId, {
+        type: ModelManagerMessageType.DespawnModel,
       });
     };
   }, []);

@@ -41,17 +41,6 @@ export type MoveCameraMessage = {
   target: Vector3;
 };
 
-export type SpawnCombatantModelMessage = {
-  type: NextToBabylonMessageTypes.SpawnCombatantModel;
-  combatantModelBlueprint: CombatantModelBlueprint;
-  checkIfRoomLoaded: boolean;
-};
-
-export type RemoveCombatantModelMessage = {
-  type: NextToBabylonMessageTypes.RemoveCombatantModel;
-  entityId: string;
-};
-
 export type StartMovingCombatantIntoCombatActionPositionMessage = {
   type: NextToBabylonMessageTypes.StartMovingCombatantIntoCombatActionPosition;
   actionCommandPayload: MoveIntoCombatActionPositionActionCommandPayload;
@@ -71,8 +60,6 @@ export type StartReturningHomeMessage = {
 };
 
 export type NextToBabylonMessage =
-  | SpawnCombatantModelMessage
-  | RemoveCombatantModelMessage
   | StartMovingCombatantIntoCombatActionPositionMessage
   | StartPerformingCombatActionMessage
   | StartReturningHomeMessage

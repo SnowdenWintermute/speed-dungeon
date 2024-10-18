@@ -4,13 +4,14 @@ import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-st
 import { useGameStore } from "@/stores/game-store";
 import { ActionCommandManager } from "@speed-dungeon/common";
 
+export const gameWorld: { current: null | GameWorld } = { current: null };
+
 export default function SceneManager({
   actionCommandManager,
 }: {
   actionCommandManager: MutableRefObject<ActionCommandManager | null | undefined>;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const sceneRef = useRef<GameWorld | null>(null);
   const debugRef = useRef<HTMLDivElement>(null);
   const resizeHandlerRef = useRef<(e: UIEvent) => void | null>();
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
@@ -18,7 +19,7 @@ export default function SceneManager({
 
   useEffect(() => {
     if (canvasRef.current) {
-      sceneRef.current = new GameWorld(
+      gameWorld.current = new GameWorld(
         canvasRef.current,
         mutateGameState,
         mutateNextBabylonMessagingStore,
@@ -27,14 +28,14 @@ export default function SceneManager({
       );
     }
     resizeHandlerRef.current = function () {
-      sceneRef.current?.engine?.resize();
+      gameWorld.current?.engine?.resize();
     };
     window.addEventListener("resize", resizeHandlerRef.current);
 
     return () => {
-      sceneRef.current?.scene.dispose();
-      sceneRef.current?.engine.dispose();
-      sceneRef.current = null;
+      gameWorld.current?.scene.dispose();
+      gameWorld.current?.engine.dispose();
+      gameWorld.current = null;
 
       if (resizeHandlerRef.current) window.removeEventListener("resize", resizeHandlerRef.current);
     };

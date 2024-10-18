@@ -8,18 +8,10 @@ import {
   Mesh,
   ICanvasRenderingContext,
   DynamicTexture,
-  MeshBuilder,
-  StandardMaterial,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { BASE_FILE_PATH } from "../combatant-models/modular-character-parts";
-import {
-  GROUND_HEIGHT,
-  GROUND_TEXTURE_HEIGHT,
-  GROUND_TEXTURE_WIDTH,
-  GROUND_WIDTH,
-  initScene,
-} from "./init-scene";
+import { initScene } from "./init-scene";
 import { CombatTurnResult } from "@speed-dungeon/common";
 import { NextToBabylonMessage } from "@/singletons/next-to-babylon-message-queue";
 import { MutateState } from "@/stores/mutate-state";

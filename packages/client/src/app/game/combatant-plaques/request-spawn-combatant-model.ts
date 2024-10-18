@@ -1,8 +1,8 @@
-import { nextToBabylonMessageQueue } from "@/singletons/next-to-babylon-message-queue";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
-import { NextToBabylonMessageTypes } from "@/singletons/next-to-babylon-message-queue";
 import { AdventuringParty, Combatant, cloneVector3 } from "@speed-dungeon/common";
+import { gameWorld } from "@/app/3d-world/SceneManager";
+import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
 
 export default function requestSpawnCombatantModel(
   combatantDetails: Combatant,
@@ -30,9 +30,9 @@ export default function requestSpawnCombatantModel(
 
   if (!isPlayer && monsterType === null) return;
 
-  nextToBabylonMessageQueue.messages.push({
-    type: NextToBabylonMessageTypes.SpawnCombatantModel,
-    combatantModelBlueprint: {
+  gameWorld.current?.modelManager.enqueueMessage(entityId, {
+    type: ModelManagerMessageType.SpawnModel,
+    blueprint: {
       entityId,
       species: combatantProperties.combatantSpecies,
       monsterType,

@@ -6,6 +6,8 @@ import { Vector3 } from "@babylonjs/core";
 import { Combatant } from "@speed-dungeon/common";
 import { useEffect } from "react";
 import { CHARACTER_SLOT_SPACING } from ".";
+import { gameWorld } from "@/app/3d-world/SceneManager";
+import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
 
 export default function SavedCharacterDisplay({
   character,
@@ -31,9 +33,9 @@ export default function SavedCharacterDisplay({
     ) as HTMLDivElement | null;
     if (modelDomPositionElement === null) return;
 
-    nextToBabylonMessageQueue.messages.push({
-      type: NextToBabylonMessageTypes.SpawnCombatantModel,
-      combatantModelBlueprint: {
+    gameWorld.current?.modelManager.enqueueMessage(entityId, {
+      type: ModelManagerMessageType.SpawnModel,
+      blueprint: {
         entityId: entityProperties.id,
         species: combatantProperties.combatantSpecies,
         monsterType: null,
@@ -47,9 +49,8 @@ export default function SavedCharacterDisplay({
     });
 
     return () => {
-      nextToBabylonMessageQueue.messages.push({
-        type: NextToBabylonMessageTypes.RemoveCombatantModel,
-        entityId,
+      gameWorld.current?.modelManager.enqueueMessage(entityId, {
+        type: ModelManagerMessageType.DespawnModel,
       });
     };
   }, []);
