@@ -1,25 +1,22 @@
 import {
-  AdventuringParty,
   ERROR_MESSAGES,
-  SpeedDungeonGame,
-  Combatant,
-  SpeedDungeonPlayer,
+  ClientToServerEventTypes,
+  ServerToClientEventTypes,
+  CharacterAssociatedData,
 } from "@speed-dungeon/common";
-import { MiddlewareFn } from "./index.js";
+import { SocketEventNextFunction } from "./index.js";
+import { Socket } from "socket.io";
 
-export const prohibitIfDead: MiddlewareFn<
-  { characterId: string; [key: string]: any },
-  {
-    character: Combatant;
-    player: SpeedDungeonPlayer;
-    game: SpeedDungeonGame;
-    party: AdventuringParty;
-  }
-> = async (_socket, eventData, midlewareProvidedData, next) => {
-  if (!midlewareProvidedData) throw new Error(ERROR_MESSAGES.EVENT_MIDDLEWARE.MISSING_DATA);
+export async function prohibitIfDead<T extends { characterId: string }>(
+  _socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
+  eventData: T,
+  middlewareProvidedData: CharacterAssociatedData | undefined,
+  next: SocketEventNextFunction<T, CharacterAssociatedData>
+) {
+  if (!middlewareProvidedData) throw new Error(ERROR_MESSAGES.EVENT_MIDDLEWARE.MISSING_DATA);
 
-  if (midlewareProvidedData.character.combatantProperties.hitPoints <= 0)
+  if (middlewareProvidedData.character.combatantProperties.hitPoints <= 0)
     throw new Error(`${ERROR_MESSAGES.COMBATANT.IS_DEAD}`);
 
-  next(eventData, midlewareProvidedData);
-};
+  next(eventData, middlewareProvidedData);
+}

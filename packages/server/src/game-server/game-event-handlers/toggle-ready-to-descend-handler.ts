@@ -1,6 +1,5 @@
 import {
   AdventuringParty,
-  ClientToServerEventTypes,
   DescendOrExplore,
   DungeonRoomType,
   ERROR_MESSAGES,
@@ -8,14 +7,11 @@ import {
   LEVEL_TO_REACH_FOR_ESCAPE,
   PlayerAssociatedData,
   ServerToClientEvent,
-  ServerToClientEventTypes,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { Socket } from "socket.io";
 import { getGameServer } from "../../index.js";
 
 export default function toggleReadyToDescendHandler(
-  _socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
   eventData: undefined,
   playerAssociatedData: PlayerAssociatedData
 ) {

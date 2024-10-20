@@ -3,7 +3,7 @@ import { CombatAttribute, CombatantClass } from "../combatants/index.js";
 import { EquipmentSlot } from "../items/index.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { CharacterAssociatedData, GameMode, PlayerAssociatedData } from "../types.js";
-import { CharacterAndItem, EquipItemPacket } from "./server-to-client.js";
+import { CharacterAndItem } from "./server-to-client.js";
 
 export enum ClientToServerEvent {
   RequestToJoinGame = "0",
@@ -70,7 +70,10 @@ export interface ClientToServerEventTypes {
     eventData: { characterId: string; slot: EquipmentSlot },
     middlewareProvidedData?: CharacterAssociatedData
   ) => void;
-  [ClientToServerEvent.EquipInventoryItem]: (equipItemPacket: EquipItemPacket) => void;
+  [ClientToServerEvent.EquipInventoryItem]: (
+    eventData: { characterId: string; itemId: string; equipToAltSlot: boolean },
+    middlewareProvidedData?: CharacterAssociatedData
+  ) => void;
   [ClientToServerEvent.CycleCombatActionTargets]: (
     characterId: string,
     direction: NextOrPrevious

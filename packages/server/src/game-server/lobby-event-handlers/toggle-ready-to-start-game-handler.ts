@@ -42,7 +42,7 @@ export default function toggleReadyToStartGameHandler(this: GameServer, socketId
         const partyOption = game.adventuringParties[player.partyName];
         if (!partyOption) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
 
-        toggleReadyToExploreHandler(socket, undefined, { game, partyOption, player });
+        toggleReadyToExploreHandler(undefined, { game, partyOption, player });
         // const maybeError = this.toggleReadyToExploreHandler(socketIdResult);
         // if(maybeError instanceof Error) return maybeError
       }

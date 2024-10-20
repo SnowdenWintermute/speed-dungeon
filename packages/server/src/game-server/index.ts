@@ -31,8 +31,6 @@ import { exploreNextRoom } from "./game-event-handlers/toggle-ready-to-explore-h
 import emitErrorEventIfError from "./emit-error-event-if-error.js";
 import initiateGameEventListeners from "./game-event-handlers/index.js";
 import characterActionHandler from "./game-event-handlers/character-action-handler.js";
-import unequipSlotHandler from "./game-event-handlers/unequip-slot-handler.js";
-import equipItemHandler from "./game-event-handlers/equip-item-handler.js";
 import acknowledgeReceiptOfItemOnGroundHandler from "./game-event-handlers/acknowledge_receipt_of_item_on_ground_handler.js";
 import pickUpItemHandler from "./game-event-handlers/pick-up-item-handler.js";
 import { ItemGenerationDirector } from "./item-generation/item-generation-director.js";
@@ -101,7 +99,6 @@ export class GameServer implements ActionCommandReceiver {
   selectProgressionGameStartingFloorHandler = selectProgressionGameStartingFloorHandler;
   //
   handlePartyWipe = handlePartyWipe;
-  equipItemHandler = equipItemHandler;
   acknowledgeReceiptOfItemOnGroundHandler = acknowledgeReceiptOfItemOnGroundHandler;
   pickUpItemHandler = pickUpItemHandler;
   useSelectedCombatActionHandler = useSelectedCombatActionHandler;

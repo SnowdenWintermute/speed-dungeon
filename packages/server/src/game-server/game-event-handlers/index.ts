@@ -3,7 +3,6 @@ import {
   ServerToClientEventTypes,
   ClientToServerEvent,
   CharacterAssociatedData,
-  EquipmentSlot,
   CombatAction,
   NextOrPrevious,
   CombatAttribute,
@@ -22,6 +21,7 @@ import { prohibitIfDead } from "../event-middleware/prohibit-if-dead.js";
 import dropItemHandler from "./drop-item-handler.js";
 import dropEquippedItemHandler from "./drop-equipped-item-handler.js";
 import unequipSlotHandler from "./unequip-slot-handler.js";
+import equipItemHandler from "./equip-item-handler.js";
 
 export default function initiateGameEventListeners(
   this: GameServer,
@@ -47,20 +47,11 @@ export default function initiateGameEventListeners(
     ClientToServerEvent.UnequipSlot,
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, unequipSlotHandler)
   );
-
   socket.on(
     ClientToServerEvent.EquipInventoryItem,
-    ({ characterId, itemId, equipToAlternateSlot }) => {
-      this.emitErrorEventIfError(socket, () =>
-        this.characterActionHandler(
-          socket.id,
-          characterId,
-          (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-            this.equipItemHandler(characterAssociatedData, itemId, equipToAlternateSlot)
-        )
-      );
-    }
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, equipItemHandler)
   );
+
   socket.on(ClientToServerEvent.PickUpItem, ({ characterId, itemId }) => {
     this.emitErrorEventIfError(socket, () =>
       this.characterActionHandler(

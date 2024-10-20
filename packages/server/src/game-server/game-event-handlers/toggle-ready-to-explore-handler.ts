@@ -10,8 +10,6 @@ import {
   Battle,
   CombatantTurnTracker,
   GameMode,
-  ClientToServerEventTypes,
-  ServerToClientEventTypes,
   PlayerAssociatedData,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
@@ -21,18 +19,16 @@ import { DescendOrExplore } from "@speed-dungeon/common";
 import { idGenerator } from "../../singletons.js";
 import generateDungeonRoom from "../dungeon-room-generation/index.js";
 import { writeAllPlayerCharacterInGameToDb } from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
-import { Socket } from "socket.io";
 import { getGameServer } from "../../index.js";
 
 export default function toggleReadyToExploreHandler(
-  socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
   _eventData: undefined,
   data: PlayerAssociatedData
 ): Error | void {
   const { game, partyOption, player } = data;
   const { username } = player;
   const gameServer = getGameServer();
-  console.log("socketid: ", socket.id);
+  // console.log("socketid: ", socket.id);
   if (partyOption === undefined) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
   const party = partyOption;
 

@@ -1,18 +1,14 @@
 import {
   CharacterAssociatedData,
-  ClientToServerEventTypes,
   CombatantProperties,
   ERROR_MESSAGES,
   EquipmentSlot,
   ServerToClientEvent,
-  ServerToClientEventTypes,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../index.js";
-import SocketIO from "socket.io";
 
 export default function unequipSlotHandler(
-  _socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
   eventProvidedData: {
     characterId?: string;
     slot?: EquipmentSlot;

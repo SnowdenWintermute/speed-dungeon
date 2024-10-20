@@ -6,13 +6,16 @@ import {
   SpeedDungeonGame,
   CharacterAssociatedData,
 } from "@speed-dungeon/common";
-import { MiddlewareFn } from "./index.js";
+import { SocketEventNextFunction } from "./index.js";
 import { getGameServer } from "../../index.js";
+import { Socket } from "socket.io";
 
-export const getCharacterAssociatedData: MiddlewareFn<
-  { characterId: string; [key: string]: any },
-  CharacterAssociatedData
-> = async (socket, eventData, _middlewareProvidedData, next) => {
+export async function getCharacterAssociatedData<T extends { characterId: string }>(
+  socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
+  eventData: T,
+  _middlewareProvidedData: CharacterAssociatedData | undefined,
+  next: SocketEventNextFunction<T, CharacterAssociatedData>
+) {
   const gameServer = getGameServer();
   const [_socket, socketMeta] = gameServer.getConnection<
     ClientToServerEventTypes,
@@ -39,4 +42,4 @@ export const getCharacterAssociatedData: MiddlewareFn<
   if (characterResult instanceof Error) throw characterResult;
 
   next(eventData, { player, character: characterResult, game, party });
-};
+}

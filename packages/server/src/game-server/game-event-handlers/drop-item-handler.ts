@@ -1,8 +1,8 @@
 import {
+  CharacterAndItem,
   CharacterAssociatedData,
   ClientToServerEventTypes,
   CombatantProperties,
-  ERROR_MESSAGES,
   GameMode,
   ServerToClientEvent,
   ServerToClientEventTypes,
@@ -14,15 +14,10 @@ import SocketIO from "socket.io";
 import { getGameServer } from "../../index.js";
 
 export default function dropItemHandler(
-  socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
-  eventData: {
-    itemId?: string; // since the preceding middleware only guarantees passing a type with a key 'characterId', this may
-    // technically be undefined
-    characterId: string;
-  },
-  characterAssociatedData: CharacterAssociatedData
+  eventData: CharacterAndItem,
+  characterAssociatedData: CharacterAssociatedData,
+  socket?: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
-  if (!eventData.itemId) throw new Error(ERROR_MESSAGES.SOCKET_EVENTS.MISSING_DATA);
   const { game, party, character, player } = characterAssociatedData;
   const gameServer = getGameServer();
 

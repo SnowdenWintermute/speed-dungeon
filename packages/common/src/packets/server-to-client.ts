@@ -104,7 +104,11 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.CharacterDroppedItem]: (characterAndItem: CharacterAndItem) => void;
   [ServerToClientEvent.CharacterDroppedEquippedItem]: (characterAndItem: CharacterAndSlot) => void;
   [ServerToClientEvent.CharacterUnequippedItem]: (characterAndItem: CharacterAndSlot) => void;
-  [ServerToClientEvent.CharacterEquippedItem]: (characterAndItem: EquipItemPacket) => void;
+  [ServerToClientEvent.CharacterEquippedItem]: (characterEquip: {
+    itemId: string;
+    equipToAlternateSlot: boolean;
+    characterId: string;
+  }) => void;
   [ServerToClientEvent.CharacterPickedUpItem]: (characterAndItem: CharacterAndItem) => void;
   // [ServerToClientEvent.RawActionResults]: (actionResults: ActionResult[]) => void;
   [ServerToClientEvent.CharacterSelectedCombatAction]: (
@@ -138,12 +142,6 @@ export interface ServerToClientEventTypes {
     character: { combatant: Combatant; deepestFloorReached: number }
   ) => void;
   [ServerToClientEvent.ProgressionGameStartingFloorSelected]: (floor: number) => void;
-}
-
-export interface EquipItemPacket {
-  characterId: string;
-  itemId: string;
-  equipToAlternateSlot: boolean;
 }
 
 export interface CharacterAndItem {

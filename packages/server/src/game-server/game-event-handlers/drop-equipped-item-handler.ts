@@ -1,9 +1,8 @@
 import {
+  CharacterAndSlot,
   CharacterAssociatedData,
   ClientToServerEventTypes,
   CombatantProperties,
-  ERROR_MESSAGES,
-  EquipmentSlot,
   GameMode,
   ServerToClientEvent,
   ServerToClientEventTypes,
@@ -15,15 +14,11 @@ import SocketIO from "socket.io";
 import { getGameServer } from "../../index.js";
 
 export default function dropEquippedItemHandler(
-  socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
-  eventProvidedData: {
-    characterId?: string;
-    slot?: EquipmentSlot;
-  },
-  characterAssociatedData: CharacterAssociatedData
+  eventProvidedData: CharacterAndSlot,
+  characterAssociatedData: CharacterAssociatedData,
+  socket?: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
   const { game, party, character, player } = characterAssociatedData;
-  if (!eventProvidedData.slot) throw new Error(ERROR_MESSAGES.EVENT_MIDDLEWARE.MISSING_DATA);
 
   const gameServer = getGameServer();
 

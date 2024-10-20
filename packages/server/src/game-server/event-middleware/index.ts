@@ -2,14 +2,16 @@ import { Socket } from "socket.io";
 import errorHandler from "../error-handler.js";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 
+export type SocketEventNextFunction<T, U> = (
+  eventData: T,
+  middlewareProvidedData?: U | undefined
+) => Promise<Error | void> | Error | void;
+
 export type MiddlewareFn<T, U> = (
   socket: Socket,
   eventData: T,
   middlewareProvidedData: U | undefined,
-  next: (
-    eventData: T,
-    middlewareProvidedData?: U | undefined
-  ) => Promise<Error | void> | Error | void
+  next: SocketEventNextFunction<T, U>
 ) => Promise<Error | void> | Error | void;
 
 export const applyMiddlewares =
@@ -17,9 +19,9 @@ export const applyMiddlewares =
   (
     socket: Socket,
     handler: (
-      socket: Socket,
       eventData: T,
-      middlewareProvidedData: U
+      middlewareProvidedData: U,
+      socket?: Socket
     ) => Promise<Error | void> | Error | void
   ) => {
     return async (eventData: T, middlewareProvidedDataOption?: U): Promise<void> => {
@@ -39,7 +41,7 @@ export const applyMiddlewares =
             return errorHandler(socket, ERROR_MESSAGES.EVENT_MIDDLEWARE.MISSING_DATA);
 
           try {
-            await handler(socket, eventData, middlewareProvidedDataOption);
+            await handler(eventData, middlewareProvidedDataOption, socket);
           } catch (error) {
             if (error instanceof Error) errorHandler(socket, error.message);
             else console.error(error);
