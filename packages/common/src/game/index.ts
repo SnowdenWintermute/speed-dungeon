@@ -19,7 +19,7 @@ import applyActionResults from "../combat/action-results/apply-action-results/in
 import { tickCombatUntilNextCombatantIsActive } from "../combat/turn-order/tick-combat-until-next-combatant-is-active.js";
 import endActiveCombatantTurn from "../combat/turn-order/end-active-combatant-turn.js";
 import allCombatantsInGroupAreDead from "../combat/all-combatants-in-group-are-dead.js";
-import { getPlayerParty } from "./get-player-party.js";
+import { getPlayerPartyOption } from "./get-player-party.js";
 import cycleCharacterTargetingSchemes from "../combat/targeting/cycle-character-targeting-schemes.js";
 import getActionResults from "../combat/action-results/get-action-results.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
@@ -54,7 +54,7 @@ export class SpeedDungeonGame {
   static cycleCharacterTargetingSchemes = cycleCharacterTargetingSchemes;
   static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
   static getPartyOfCombatant = getPartyOfCombatant;
-  static getPlayerParty = getPlayerParty;
+  static getPlayerPartyOption = getPlayerPartyOption;
   static getActionResults = getActionResults;
   static applyActionResults = applyActionResults;
   static tickCombatUntilNextCombatantIsActive = tickCombatUntilNextCombatantIsActive;

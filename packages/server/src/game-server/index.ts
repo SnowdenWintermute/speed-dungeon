@@ -27,14 +27,10 @@ import getSocketCurrentGame from "./utils/get-socket-current-game.js";
 import handlePartyWipe from "./game-event-handlers/combat-action-results-processing/handle-party-wipe.js";
 import { getSocketIdsOfPlayersInOtherParties } from "./get-socket-ids-of-players-in-other-parties.js";
 import getSocketIdOfPlayer from "./get-player-socket-id.js";
-import toggleReadyToExploreHandler, {
-  exploreNextRoom,
-} from "./game-event-handlers/toggle-ready-to-explore-handler.js";
+import { exploreNextRoom } from "./game-event-handlers/toggle-ready-to-explore-handler.js";
 import emitErrorEventIfError from "./emit-error-event-if-error.js";
 import initiateGameEventListeners from "./game-event-handlers/index.js";
 import characterActionHandler from "./game-event-handlers/character-action-handler.js";
-import dropItemHandler from "./game-event-handlers/drop-item-handler.js";
-import dropEquippedItemHandler from "./game-event-handlers/drop-equipped-item-handler.js";
 import unequipSlotHandler from "./game-event-handlers/unequip-slot-handler.js";
 import equipItemHandler from "./game-event-handlers/equip-item-handler.js";
 import acknowledgeReceiptOfItemOnGroundHandler from "./game-event-handlers/acknowledge_receipt_of_item_on_ground_handler.js";
@@ -57,8 +53,6 @@ import processSelectedCombatAction from "./game-event-handlers/character-uses-se
 import takeAiControlledTurnIfActive from "./game-event-handlers/combat-action-results-processing/take-ai-combatant-turn-if-active.js";
 import generateLoot from "./game-event-handlers/action-command-handlers/generate-loot.js";
 import generateExperiencePoints from "./game-event-handlers/action-command-handlers/generate-experience-points.js";
-import playerAssociatedDataProvider from "./game-event-handlers/player-data-provider.js";
-import toggleReadyToDescendHandler from "./game-event-handlers/toggle-ready-to-descend-handler.js";
 import characterSpentAttributePointHandler from "./game-event-handlers/character-spent-attribute-point-handler.js";
 import initiateSavedCharacterListeners from "./saved-character-event-handlers/index.js";
 import selectProgressionGameCharacterHandler from "./lobby-event-handlers/select-progression-game-character-handler.js";
@@ -107,11 +101,6 @@ export class GameServer implements ActionCommandReceiver {
   selectProgressionGameStartingFloorHandler = selectProgressionGameStartingFloorHandler;
   //
   handlePartyWipe = handlePartyWipe;
-  toggleReadyToExploreHandler = toggleReadyToExploreHandler;
-  toggleReadyToDescendHandler = toggleReadyToDescendHandler;
-  dropItemHandler = dropItemHandler;
-  dropEquippedItemHandler = dropEquippedItemHandler;
-  unequipSlotHandler = unequipSlotHandler;
   equipItemHandler = equipItemHandler;
   acknowledgeReceiptOfItemOnGroundHandler = acknowledgeReceiptOfItemOnGroundHandler;
   pickUpItemHandler = pickUpItemHandler;
@@ -137,7 +126,6 @@ export class GameServer implements ActionCommandReceiver {
   getSocketIdOfPlayer = getSocketIdOfPlayer;
   emitErrorEventIfError = emitErrorEventIfError;
   characterActionHandler = characterActionHandler;
-  playerAssociatedDataProvider = playerAssociatedDataProvider;
   getGamePartyAndCombatant = getGamePartyAndCombatant;
   // ITEMS
   createItemGenerationDirectors = createItemGenerationDirectors;

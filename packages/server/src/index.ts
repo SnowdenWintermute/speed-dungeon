@@ -32,3 +32,10 @@ const listening = expressApp.listen(PORT, async () => {
 
   gameServer = new GameServer(io);
 });
+
+export const getGameServer = () => {
+  if (!gameServer) {
+    throw new Error("GameServer is not initialized yet!");
+  }
+  return gameServer;
+};

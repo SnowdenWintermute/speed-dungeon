@@ -2,7 +2,7 @@ import {
   ClientToServerEventTypes,
   ERROR_MESSAGES,
   ServerToClientEventTypes,
-  getPlayerParty,
+  SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
 
@@ -20,8 +20,9 @@ export default function acknowledgeReceiptOfItemOnGroundHandler(
   const gameResult = this.getSocketCurrentGame(socketMeta);
   if (gameResult instanceof Error) return new Error(gameResult.message);
   const game = gameResult;
-  const partyResult = getPlayerParty(gameResult, socketMeta.username);
+  const partyResult = SpeedDungeonGame.getPlayerPartyOption(gameResult, socketMeta.username);
   if (partyResult instanceof Error) return new Error(partyResult.message);
+  if (partyResult === undefined) return new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
   const party = partyResult;
   const receivedBy = party.itemsOnGroundNotYetReceivedByAllClients[itemId];
   if (receivedBy === undefined)

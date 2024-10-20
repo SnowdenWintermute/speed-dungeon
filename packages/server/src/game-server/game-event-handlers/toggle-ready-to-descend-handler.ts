@@ -1,5 +1,6 @@
 import {
   AdventuringParty,
+  ClientToServerEventTypes,
   DescendOrExplore,
   DungeonRoomType,
   ERROR_MESSAGES,
@@ -7,15 +8,21 @@ import {
   LEVEL_TO_REACH_FOR_ESCAPE,
   PlayerAssociatedData,
   ServerToClientEvent,
+  ServerToClientEventTypes,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { GameServer } from "../index.js";
+import { Socket } from "socket.io";
+import { getGameServer } from "../../index.js";
 
 export default function toggleReadyToDescendHandler(
-  this: GameServer,
+  _socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
+  eventData: undefined,
   playerAssociatedData: PlayerAssociatedData
 ) {
-  const { username, game, party } = playerAssociatedData;
+  const gameServer = getGameServer();
+  const { player, game, partyOption } = playerAssociatedData;
+  if (partyOption === undefined) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+  const party = partyOption;
 
   if (Object.values(party.currentRoom.monsters).length > 0)
     return new Error(ERROR_MESSAGES.PARTY.CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT);
@@ -23,14 +30,14 @@ export default function toggleReadyToDescendHandler(
   if (party.currentRoom.roomType !== DungeonRoomType.Staircase)
     return new Error(ERROR_MESSAGES.PARTY.NOT_AT_STAIRCASE);
 
-  AdventuringParty.updatePlayerReadiness(party, username, DescendOrExplore.Descend);
+  AdventuringParty.updatePlayerReadiness(party, player.username, DescendOrExplore.Descend);
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
-  this.io
+  gameServer.io
     .in(partyChannelName)
     .emit(
       ServerToClientEvent.PlayerToggledReadyToDescendOrExplore,
-      username,
+      player.username,
       DescendOrExplore.Descend
     );
 
@@ -48,9 +55,11 @@ export default function toggleReadyToDescendHandler(
   party.unexploredRooms = [];
   party.playersReadyToDescend = [];
 
-  this.io.in(partyChannelName).emit(ServerToClientEvent.DungeonFloorNumber, party.currentFloor);
+  gameServer.io
+    .in(partyChannelName)
+    .emit(ServerToClientEvent.DungeonFloorNumber, party.currentFloor);
   // tell other parties so they feel the pressure of other parties descending
-  this.io.in(game.name).emit(ServerToClientEvent.GameMessage, {
+  gameServer.io.in(game.name).emit(ServerToClientEvent.GameMessage, {
     type: GameMessageType.PartyDescent,
     partyName: party.name,
     newFloor: party.currentFloor,
@@ -61,7 +70,7 @@ export default function toggleReadyToDescendHandler(
     const timeOfEscape = Date.now();
     party.timeOfEscape = timeOfEscape;
 
-    this.io.in(game.name).emit(ServerToClientEvent.GameMessage, {
+    gameServer.io.in(game.name).emit(ServerToClientEvent.GameMessage, {
       type: GameMessageType.PartyEscape,
       partyName: party.name,
       timeOfEscape,
@@ -69,5 +78,5 @@ export default function toggleReadyToDescendHandler(
   }
 
   // generate next floor etc
-  return this.exploreNextRoom(game, party);
+  return gameServer.exploreNextRoom(game, party);
 }

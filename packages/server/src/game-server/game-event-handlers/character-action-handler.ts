@@ -27,8 +27,9 @@ export default function characterActionHandler(
   const gameResult = this.getSocketCurrentGame(socketMeta);
   if (gameResult instanceof Error) return gameResult;
   const game = gameResult;
-  const partyResult = SpeedDungeonGame.getPlayerParty(game, socketMeta.username);
+  const partyResult = SpeedDungeonGame.getPlayerPartyOption(game, socketMeta.username);
   if (partyResult instanceof Error) return partyResult;
+  if (partyResult === undefined) throw new Error("noparty");
   const party = partyResult;
   const playerOption = game.players[socketMeta.username];
   if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
@@ -48,5 +49,5 @@ export default function characterActionHandler(
     );
   }
 
-  return fn(socketMeta, { username: socketMeta.username, character, party, game });
+  return fn(socketMeta, { player, character, party, game });
 }

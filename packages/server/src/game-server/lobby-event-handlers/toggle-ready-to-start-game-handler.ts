@@ -1,14 +1,11 @@
-import {
-  ERROR_MESSAGES,
-  PlayerAssociatedData,
-  ServerToClientEvent,
-  removeFromArray,
-} from "@speed-dungeon/common";
+import { ERROR_MESSAGES, ServerToClientEvent, removeFromArray } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
 import errorHandler from "../error-handler.js";
+import toggleReadyToExploreHandler from "../game-event-handlers/toggle-ready-to-explore-handler.js";
 
 export default function toggleReadyToStartGameHandler(this: GameServer, socketId: string) {
   const [socket, socketMeta] = this.getConnection(socketId);
+  if (!socket) throw new Error("No socket");
   const { username } = socketMeta;
   try {
     const gameName = socketMeta.currentGameName;
@@ -41,12 +38,13 @@ export default function toggleReadyToStartGameHandler(this: GameServer, socketId
       for (const player of Object.values(game.players)) {
         const socketIdResult = this.getSocketIdOfPlayer(game, player.username);
         if (socketIdResult instanceof Error) return socketIdResult;
-        const maybeError = this.playerAssociatedDataProvider(
-          socketIdResult,
-          (playerAssociatedData: PlayerAssociatedData) =>
-            this.toggleReadyToExploreHandler(playerAssociatedData)
-        );
-        if (maybeError instanceof Error) return maybeError;
+        if (!player.partyName) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+        const partyOption = game.adventuringParties[player.partyName];
+        if (!partyOption) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+
+        toggleReadyToExploreHandler(socket, undefined, { game, partyOption, player });
+        // const maybeError = this.toggleReadyToExploreHandler(socketIdResult);
+        // if(maybeError instanceof Error) return maybeError
       }
       game.timeStarted = Date.now();
       this.io.of("/").in(game.name).emit(ServerToClientEvent.GameStarted, game.timeStarted);

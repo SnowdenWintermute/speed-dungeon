@@ -6,11 +6,13 @@ import {
   ServerToClientEvent,
   getPartyChannelName,
   updateCombatantHomePosition,
-  PlayerAssociatedData,
   SpeedDungeonGame,
   Battle,
   CombatantTurnTracker,
   GameMode,
+  ClientToServerEventTypes,
+  ServerToClientEventTypes,
+  PlayerAssociatedData,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
 import { DungeonRoomType } from "@speed-dungeon/common";
@@ -19,19 +21,27 @@ import { DescendOrExplore } from "@speed-dungeon/common";
 import { idGenerator } from "../../singletons.js";
 import generateDungeonRoom from "../dungeon-room-generation/index.js";
 import { writeAllPlayerCharacterInGameToDb } from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
+import { Socket } from "socket.io";
+import { getGameServer } from "../../index.js";
 
 export default function toggleReadyToExploreHandler(
-  this: GameServer,
-  playerAssociatedData: PlayerAssociatedData
+  socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
+  _eventData: undefined,
+  data: PlayerAssociatedData
 ): Error | void {
-  const { game, party, username } = playerAssociatedData;
+  const { game, partyOption, player } = data;
+  const { username } = player;
+  const gameServer = getGameServer();
+  console.log("socketid: ", socket.id);
+  if (partyOption === undefined) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+  const party = partyOption;
 
   if (Object.values(party.currentRoom.monsters).length > 0)
     return new Error(ERROR_MESSAGES.PARTY.CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT);
 
   AdventuringParty.updatePlayerReadiness(party, username, DescendOrExplore.Explore);
 
-  this.io
+  gameServer.io
     .in(getPartyChannelName(game.name, party.name))
     .emit(
       ServerToClientEvent.PlayerToggledReadyToDescendOrExplore,
@@ -51,7 +61,7 @@ export default function toggleReadyToExploreHandler(
 
   if (!allPlayersReadyToExplore) return;
 
-  return this.exploreNextRoom(game, party);
+  return gameServer.exploreNextRoom(game, party);
 }
 
 export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party: AdventuringParty) {

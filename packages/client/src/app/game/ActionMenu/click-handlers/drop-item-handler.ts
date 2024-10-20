@@ -24,13 +24,12 @@ export default function dropItemHandler(
     const characterId = focusedCharacter.entityProperties.id;
 
     if (slotItemIsEquipped !== null) {
-      websocketConnection.emit(
-        ClientToServerEvent.DropEquippedItem,
+      websocketConnection.emit(ClientToServerEvent.DropEquippedItem, {
         characterId,
-        slotItemIsEquipped
-      );
+        slot: slotItemIsEquipped,
+      });
     } else {
-      websocketConnection.emit(ClientToServerEvent.DropItem, characterId, itemId);
+      websocketConnection.emit(ClientToServerEvent.DropItem, { characterId, itemId });
     }
 
     gameState.detailedEntity = null;

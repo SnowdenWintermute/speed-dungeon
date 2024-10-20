@@ -6,7 +6,6 @@ import {
   EquipmentSlot,
   CombatAction,
   NextOrPrevious,
-  PlayerAssociatedData,
   CombatAttribute,
   getPartyChannelName,
   ServerToClientEvent,
@@ -14,71 +13,41 @@ import {
 import SocketIO from "socket.io";
 import { GameServer } from "../index.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
-import { applyMiddlewares, playerDataMiddleware } from "../event-middleware.js";
-
-// async function handler(
-//   socket: Socket,
-//   data: {
-//     characterId: string;
-//     [key: string]: any;
-//   }
-// ) {
-//   console.log("got data from middleware", data);
-// }
-// socket.on(
-//   ClientToServerEvent.RequestsGameList,
-//   applyMiddlewares(playerDataMiddleware)(socket, handler)
-// );
+import { applyMiddlewares } from "../event-middleware/index.js";
+import toggleReadyToExploreHandler from "./toggle-ready-to-explore-handler.js";
+import { getPlayerAssociatedData } from "../event-middleware/get-player-associated-data.js";
+import toggleReadyToDescendHandler from "./toggle-ready-to-descend-handler.js";
+import { getCharacterAssociatedData } from "../event-middleware/get-character-associated-data.js";
+import { prohibitIfDead } from "../event-middleware/prohibit-if-dead.js";
+import dropItemHandler from "./drop-item-handler.js";
+import dropEquippedItemHandler from "./drop-equipped-item-handler.js";
+import unequipSlotHandler from "./unequip-slot-handler.js";
 
 export default function initiateGameEventListeners(
   this: GameServer,
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
-  socket.on(ClientToServerEvent.ToggleReadyToExplore, () => {
-    this.emitErrorEventIfError(socket, () =>
-      this.playerAssociatedDataProvider(socket.id, (playerAssociatedData: PlayerAssociatedData) =>
-        this.toggleReadyToExploreHandler(playerAssociatedData)
-      )
-    );
-  });
-  socket.on(ClientToServerEvent.ToggleReadyToDescend, () => {
-    this.emitErrorEventIfError(socket, () =>
-      this.playerAssociatedDataProvider(socket.id, (playerAssociatedData: PlayerAssociatedData) =>
-        this.toggleReadyToDescendHandler(playerAssociatedData)
-      )
-    );
-  });
+  socket.on(
+    ClientToServerEvent.ToggleReadyToExplore,
+    applyMiddlewares(getPlayerAssociatedData)(socket, toggleReadyToExploreHandler)
+  );
+  socket.on(
+    ClientToServerEvent.ToggleReadyToDescend,
+    applyMiddlewares(getPlayerAssociatedData)(socket, toggleReadyToDescendHandler)
+  );
+  socket.on(
+    ClientToServerEvent.DropItem,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, dropItemHandler)
+  );
+  socket.on(
+    ClientToServerEvent.DropEquippedItem,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, dropEquippedItemHandler)
+  );
+  socket.on(
+    ClientToServerEvent.UnequipSlot,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, unequipSlotHandler)
+  );
 
-  socket.on(ClientToServerEvent.DropItem, (characterId: string, itemId: string) => {
-    this.emitErrorEventIfError(socket, () =>
-      this.characterActionHandler(
-        socket.id,
-        characterId,
-        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-          this.dropItemHandler(socket, characterAssociatedData, itemId)
-      )
-    );
-  });
-  socket.on(ClientToServerEvent.DropEquippedItem, (characterId: string, slot: EquipmentSlot) => {
-    this.emitErrorEventIfError(socket, () =>
-      this.characterActionHandler(
-        socket.id,
-        characterId,
-        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-          this.dropEquippedItemHandler(socket, characterAssociatedData, slot)
-      )
-    );
-  });
-  socket.on(ClientToServerEvent.UnequipSlot, (characterId: string, slot: EquipmentSlot) => {
-    this.emitErrorEventIfError(socket, () =>
-      this.characterActionHandler(
-        socket.id,
-        characterId,
-        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-          this.unequipSlotHandler(characterAssociatedData, slot)
-      )
-    );
-  });
   socket.on(
     ClientToServerEvent.EquipInventoryItem,
     ({ characterId, itemId, equipToAlternateSlot }) => {

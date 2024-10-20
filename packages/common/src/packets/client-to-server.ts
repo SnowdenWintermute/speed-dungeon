@@ -2,7 +2,7 @@ import { CombatAction } from "../combat/index.js";
 import { CombatAttribute, CombatantClass } from "../combatants/index.js";
 import { EquipmentSlot } from "../items/index.js";
 import { NextOrPrevious } from "../primatives/index.js";
-import { GameMode } from "../types.js";
+import { CharacterAssociatedData, GameMode, PlayerAssociatedData } from "../types.js";
 import { CharacterAndItem, EquipItemPacket } from "./server-to-client.js";
 
 export enum ClientToServerEvent {
@@ -62,8 +62,14 @@ export interface ClientToServerEventTypes {
     characterId: string,
     attribute: CombatAttribute
   ) => void;
-  [ClientToServerEvent.ToggleReadyToExplore]: () => void;
-  [ClientToServerEvent.UnequipSlot]: (characterId: string, slot: EquipmentSlot) => void;
+  [ClientToServerEvent.ToggleReadyToExplore]: (
+    eventData?: undefined,
+    data?: PlayerAssociatedData
+  ) => void;
+  [ClientToServerEvent.UnequipSlot]: (
+    eventData: { characterId: string; slot: EquipmentSlot },
+    middlewareProvidedData?: CharacterAssociatedData
+  ) => void;
   [ClientToServerEvent.EquipInventoryItem]: (equipItemPacket: EquipItemPacket) => void;
   [ClientToServerEvent.CycleCombatActionTargets]: (
     characterId: string,
@@ -71,9 +77,18 @@ export interface ClientToServerEventTypes {
   ) => void;
   [ClientToServerEvent.CycleTargetingSchemes]: (characterId: string) => void;
   [ClientToServerEvent.UseSelectedCombatAction]: (characterId: string) => void;
-  [ClientToServerEvent.DropEquippedItem]: (characterId: string, slot: EquipmentSlot) => void;
-  [ClientToServerEvent.DropItem]: (characterId: string, itemId: string) => void;
-  [ClientToServerEvent.ToggleReadyToDescend]: () => void;
+  [ClientToServerEvent.DropEquippedItem]: (
+    eventData: { characterId: string; slot: EquipmentSlot },
+    middlewareProvidedData?: CharacterAssociatedData
+  ) => void;
+  [ClientToServerEvent.DropItem]: (
+    eventData: { characterId: string; itemId: string },
+    middlewareProvidedData?: CharacterAssociatedData
+  ) => void;
+  [ClientToServerEvent.ToggleReadyToDescend]: (
+    eventData?: undefined,
+    data?: PlayerAssociatedData
+  ) => void;
   [ClientToServerEvent.AssignAttributePoint]: (
     characterId: string,
     attribute: CombatAttribute

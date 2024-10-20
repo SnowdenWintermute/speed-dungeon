@@ -1,12 +1,12 @@
 import { AdventuringParty } from "./adventuring-party/index.js";
 import { Combatant } from "./combatants/index.js";
-import { SpeedDungeonGame } from "./game/index.js";
+import { SpeedDungeonGame, SpeedDungeonPlayer } from "./game/index.js";
 
 export interface CharacterAssociatedData {
-  username: string;
+  character: Combatant;
+  player: SpeedDungeonPlayer;
   game: SpeedDungeonGame;
   party: AdventuringParty;
-  character: Combatant;
 }
 
 export interface CombatantAssociatedData {
@@ -16,9 +16,9 @@ export interface CombatantAssociatedData {
 }
 
 export interface PlayerAssociatedData {
-  username: string;
+  player: SpeedDungeonPlayer;
   game: SpeedDungeonGame;
-  party: AdventuringParty;
+  partyOption: AdventuringParty | undefined;
 }
 
 export enum GameMode {
