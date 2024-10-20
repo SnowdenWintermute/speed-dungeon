@@ -96,7 +96,10 @@ export interface ClientToServerEventTypes {
     characterId: string,
     attribute: CombatAttribute
   ) => void;
-  [ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate]: (itemId: string) => void;
+  [ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate]: (
+    itemId: string,
+    middlewareProvidedData?: PlayerAssociatedData
+  ) => void;
   [ClientToServerEvent.PickUpItem]: (characterAndItem: CharacterAndItem) => void;
   [ClientToServerEvent.GetSavedCharactersList]: () => void;
   [ClientToServerEvent.GetSavedCharacterById]: (entityId: string) => void;

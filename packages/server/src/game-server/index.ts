@@ -30,7 +30,6 @@ import getSocketIdOfPlayer from "./get-player-socket-id.js";
 import { exploreNextRoom } from "./game-event-handlers/toggle-ready-to-explore-handler.js";
 import emitErrorEventIfError from "./emit-error-event-if-error.js";
 import initiateGameEventListeners from "./game-event-handlers/index.js";
-import characterActionHandler from "./game-event-handlers/character-action-handler.js";
 import { ItemGenerationDirector } from "./item-generation/item-generation-director.js";
 import { createItemGenerationDirectors } from "./item-generation/create-item-generation-directors.js";
 import { generateRandomItem } from "./item-generation/generate-random-item.js";
@@ -108,7 +107,6 @@ export class GameServer implements ActionCommandReceiver {
   getSocketIdsOfPlayersInOtherParties = getSocketIdsOfPlayersInOtherParties;
   getSocketIdOfPlayer = getSocketIdOfPlayer;
   emitErrorEventIfError = emitErrorEventIfError;
-  characterActionHandler = characterActionHandler;
   getGamePartyAndCombatant = getGamePartyAndCombatant;
   // ITEMS
   createItemGenerationDirectors = createItemGenerationDirectors;

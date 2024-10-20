@@ -55,11 +55,10 @@ export default function initiateGameEventListeners(
     ClientToServerEvent.PickUpItem,
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, pickUpItemHandler)
   );
-  socket.on(ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate, (itemId: string) => {
-    this.emitErrorEventIfError(socket, () =>
-      acknowledgeReceiptOfItemOnGroundHandler(itemId, socket)
-    );
-  });
+  socket.on(
+    ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate,
+    applyMiddlewares(getPlayerAssociatedData)(socket, acknowledgeReceiptOfItemOnGroundHandler)
+  );
   socket.on(
     ClientToServerEvent.SelectCombatAction,
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, selectCombatActionHandler)

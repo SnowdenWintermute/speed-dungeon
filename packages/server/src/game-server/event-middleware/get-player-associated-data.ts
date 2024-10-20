@@ -5,15 +5,16 @@ import {
   ServerToClientEventTypes,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import { MiddlewareFn } from ".";
+import { SocketEventNextFunction } from ".";
 import { getGameServer } from "../../index.js";
+import { Socket } from "socket.io";
 
-export const getPlayerAssociatedData: MiddlewareFn<undefined, PlayerAssociatedData> = async (
-  socket,
-  _eventData,
-  _data,
-  next
-) => {
+export async function getPlayerAssociatedData<T>(
+  socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
+  eventData: T,
+  _middlewareProvidedData: PlayerAssociatedData | undefined,
+  next: SocketEventNextFunction<T, PlayerAssociatedData>
+) {
   const gameServer = getGameServer();
   const [_socket, socketMeta] = gameServer.getConnection<
     ClientToServerEventTypes,
@@ -28,5 +29,5 @@ export const getPlayerAssociatedData: MiddlewareFn<undefined, PlayerAssociatedDa
   const playerOption = game.players[socketMeta.username];
   if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
-  next(undefined, { player: playerOption, game, partyOption: partyResult });
-};
+  next(eventData, { player: playerOption, game, partyOption: partyResult });
+}

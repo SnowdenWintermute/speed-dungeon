@@ -124,7 +124,10 @@ export const ERROR_MESSAGES = {
   },
   CHECKED_EXPECTATION_FAILED:
     "Code was reached that should have been impossible due to prior value checks",
-  EVENT_MIDDLEWARE: { MISSING_DATA: "Missing expected data in middleware" },
+  EVENT_MIDDLEWARE: {
+    MISSING_DATA: "Missing expected data in middleware",
+    MISSING_SOCKET: "Didn't get the socket passed from socket event middleware",
+  },
   SOCKET_EVENTS: {
     MISSING_DATA: "Missing expected data in socket event",
   },
