@@ -14,6 +14,21 @@ import {
 import SocketIO from "socket.io";
 import { GameServer } from "../index.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
+import { applyMiddlewares, playerDataMiddleware } from "../event-middleware.js";
+
+// async function handler(
+//   socket: Socket,
+//   data: {
+//     characterId: string;
+//     [key: string]: any;
+//   }
+// ) {
+//   console.log("got data from middleware", data);
+// }
+// socket.on(
+//   ClientToServerEvent.RequestsGameList,
+//   applyMiddlewares(playerDataMiddleware)(socket, handler)
+// );
 
 export default function initiateGameEventListeners(
   this: GameServer,
@@ -40,7 +55,7 @@ export default function initiateGameEventListeners(
         socket.id,
         characterId,
         (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-          this.dropItemHandler(characterAssociatedData, itemId)
+          this.dropItemHandler(socket, characterAssociatedData, itemId)
       )
     );
   });
@@ -50,7 +65,7 @@ export default function initiateGameEventListeners(
         socket.id,
         characterId,
         (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-          this.dropEquippedItemHandler(characterAssociatedData, slot)
+          this.dropEquippedItemHandler(socket, characterAssociatedData, slot)
       )
     );
   });
@@ -165,4 +180,15 @@ export default function initiateGameEventListeners(
       });
     }
   );
+}
+
+function registerGameEvent(
+  this: GameServer,
+  socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
+  event: ClientToServerEvent,
+  handler: (data: any) => void
+) {
+  socket.on(event, (data: any) => {
+    this.useSelectedCombatActionHandler(data);
+  });
 }

@@ -1,8 +1,6 @@
 import {
   ClientToServerEventTypes,
   ServerToClientEventTypes,
-  GameListEntry,
-  ServerToClientEvent,
   ClientToServerEvent,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
@@ -13,13 +11,7 @@ export default function initiateLobbyEventListeners(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
   socket.on(ClientToServerEvent.RequestsGameList, () => {
-    const gameList: GameListEntry[] = this.games
-      .entries()
-      .map(
-        ([gameName, game]) =>
-          new GameListEntry(gameName, Object.keys(game.players).length, game.timeStarted)
-      );
-    socket.emit(ServerToClientEvent.GameList, gameList);
+    this.requestGameListHandler(socket);
   });
   socket.on(ClientToServerEvent.CreateGame, (gameName, gameMode) => {
     this.createGameHandler(socket.id, gameName, gameMode);

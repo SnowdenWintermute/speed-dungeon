@@ -63,6 +63,7 @@ import characterSpentAttributePointHandler from "./game-event-handlers/character
 import initiateSavedCharacterListeners from "./saved-character-event-handlers/index.js";
 import selectProgressionGameCharacterHandler from "./lobby-event-handlers/select-progression-game-character-handler.js";
 import selectProgressionGameStartingFloorHandler from "./lobby-event-handlers/select-progression-game-starting-floor-handler.js";
+import requestGameListHandler from "./lobby-event-handlers/request-game-list-handler.js";
 
 export type Username = string;
 export type SocketId = string;
@@ -91,6 +92,8 @@ export class GameServer implements ActionCommandReceiver {
   initiateSavedCharacterListeners = initiateSavedCharacterListeners;
   joinSocketToChannel = joinSocketToChannel;
   removeSocketFromChannel = removeSocketFromChannel;
+  //
+  requestGameListHandler = requestGameListHandler;
   createGameHandler = createGameHandler;
   joinGameHandler = joinGameHandler;
   leaveGameHandler = leaveGameHandler;

@@ -12,7 +12,7 @@ import {
   formatGameMode,
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
@@ -200,7 +200,8 @@ function PlayerDisplay({
 }
 
 export function formatCharacterTag(combatant: Combatant) {
-  return `${combatant.entityProperties.name} - ${formatCharacterLevelAndClass(combatant)}`;
+  const deadText = combatant.combatantProperties.hitPoints <= 0 ? " - DEAD" : "";
+  return `${combatant.entityProperties.name} - ${formatCharacterLevelAndClass(combatant)}${deadText}`;
 }
 
 export function formatCharacterLevelAndClass(combatant: Combatant) {

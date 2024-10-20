@@ -1,6 +1,6 @@
 import { GameServer } from "./index.js";
 import { generateRandomUsername } from "../utils/index.js";
-import { LOBBY_CHANNEL, ServerToClientEvent, UserAuthStatus } from "@speed-dungeon/common";
+import { LOBBY_CHANNEL, ServerToClientEvent } from "@speed-dungeon/common";
 import { BrowserTabSession } from "./socket-connection-metadata.js";
 import { env } from "../validate-env.js";
 import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
