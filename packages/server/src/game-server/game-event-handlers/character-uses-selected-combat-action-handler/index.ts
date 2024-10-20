@@ -1,12 +1,13 @@
 import { CharacterAssociatedData, ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
-import { GameServer } from "../../index.js";
 import validateCombatActionUse from "../combat-action-results-processing/validate-combat-action-use.js";
+import { getGameServer } from "../../../index.js";
 
 export default function useSelectedCombatActionHandler(
-  this: GameServer,
+  _eventData: { characterId: string },
   characterAssociatedData: CharacterAssociatedData
 ) {
   const { game, party, character } = characterAssociatedData;
+  const gameServer = getGameServer();
 
   if (InputLock.isLocked(party.inputLock)) return new Error(ERROR_MESSAGES.PARTY.INPUT_IS_LOCKED);
 
@@ -21,7 +22,7 @@ export default function useSelectedCombatActionHandler(
   if (targetsAndBattleResult instanceof Error) return targetsAndBattleResult;
   const { targets, battleOption } = targetsAndBattleResult;
 
-  return this.processSelectedCombatAction(
+  return gameServer.processSelectedCombatAction(
     game,
     party,
     character.entityProperties.id,

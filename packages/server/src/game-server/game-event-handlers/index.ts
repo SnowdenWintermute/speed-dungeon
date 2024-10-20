@@ -2,15 +2,9 @@ import {
   ClientToServerEventTypes,
   ServerToClientEventTypes,
   ClientToServerEvent,
-  CharacterAssociatedData,
-  NextOrPrevious,
-  CombatAttribute,
-  getPartyChannelName,
-  ServerToClientEvent,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import { GameServer } from "../index.js";
-import { BrowserTabSession } from "../socket-connection-metadata.js";
 import { applyMiddlewares } from "../event-middleware/index.js";
 import toggleReadyToExploreHandler from "./toggle-ready-to-explore-handler.js";
 import { getPlayerAssociatedData } from "../event-middleware/get-player-associated-data.js";
@@ -26,6 +20,8 @@ import acknowledgeReceiptOfItemOnGroundHandler from "./acknowledge_receipt_of_it
 import selectCombatActionHandler from "./select-combat-action-handler.js";
 import cycleTargetsHandler from "./cycle-targets-handler.js";
 import cycleTargetingSchemesHandler from "./cycle-targeting-schemes-handler.js";
+import useSelectedCombatActionHandler from "./character-uses-selected-combat-action-handler/index.js";
+import characterSpentAttributePointHandler from "./character-spent-attribute-point-handler.js";
 
 export default function initiateGameEventListeners(
   this: GameServer,
@@ -55,28 +51,23 @@ export default function initiateGameEventListeners(
     ClientToServerEvent.EquipInventoryItem,
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, equipItemHandler)
   );
-
   socket.on(
     ClientToServerEvent.PickUpItem,
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, pickUpItemHandler)
   );
-
   socket.on(ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate, (itemId: string) => {
     this.emitErrorEventIfError(socket, () =>
       acknowledgeReceiptOfItemOnGroundHandler(itemId, socket)
     );
   });
-
   socket.on(
     ClientToServerEvent.SelectCombatAction,
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, selectCombatActionHandler)
   );
-
   socket.on(
     ClientToServerEvent.CycleCombatActionTargets,
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, cycleTargetsHandler)
   );
-
   socket.on(
     ClientToServerEvent.CycleTargetingSchemes,
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(
@@ -84,42 +75,18 @@ export default function initiateGameEventListeners(
       cycleTargetingSchemesHandler
     )
   );
-
-  socket.on(ClientToServerEvent.UseSelectedCombatAction, (characterId: string) => {
-    this.emitErrorEventIfError(socket, () => {
-      return this.characterActionHandler(
-        socket.id,
-        characterId,
-        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) => {
-          const result = this.useSelectedCombatActionHandler(characterAssociatedData);
-          if (result instanceof Error) {
-            console.error(result);
-            const { game, party } = characterAssociatedData;
-            this.io
-              .in(getPartyChannelName(game.name, party.name))
-              .emit(ServerToClientEvent.CharacterSelectedCombatAction, characterId, null);
-          }
-          return result;
-        }
-      );
-    });
-  });
+  socket.on(
+    ClientToServerEvent.UseSelectedCombatAction,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(
+      socket,
+      useSelectedCombatActionHandler
+    )
+  );
   socket.on(
     ClientToServerEvent.IncrementAttribute,
-    (characterId: string, attribute: CombatAttribute) => {
-      this.emitErrorEventIfError(socket, () => {
-        return this.characterActionHandler(
-          socket.id,
-          characterId,
-          (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) => {
-            const result = this.characterSpentAttributePointHandler(
-              characterAssociatedData,
-              attribute
-            );
-            if (result instanceof Error) console.error(result);
-          }
-        );
-      });
-    }
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(
+      socket,
+      characterSpentAttributePointHandler
+    )
   );
 }

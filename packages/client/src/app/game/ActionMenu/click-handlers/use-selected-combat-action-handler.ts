@@ -10,10 +10,9 @@ export default function useSelectedCombatActionHandler(mutateGameState: MutateSt
     if (typeof previousActionMenuPageNumberOption === "number") {
       gameState.actionMenuCurrentPageNumber = previousActionMenuPageNumberOption;
     }
-    websocketConnection.emit(
-      ClientToServerEvent.UseSelectedCombatAction,
-      gameState.focusedCharacterId
-    );
+    websocketConnection.emit(ClientToServerEvent.UseSelectedCombatAction, {
+      characterId: gameState.focusedCharacterId,
+    });
 
     if (!gameState.game) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
     const partyResult = gameState.getParty();

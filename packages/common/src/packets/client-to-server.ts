@@ -58,10 +58,10 @@ export interface ClientToServerEventTypes {
     characterId: string;
     combatActionOption: null | CombatAction;
   }) => void;
-  [ClientToServerEvent.IncrementAttribute]: (
-    characterId: string,
-    attribute: CombatAttribute
-  ) => void;
+  [ClientToServerEvent.IncrementAttribute]: (eventData: {
+    characterId: string;
+    attribute: CombatAttribute;
+  }) => void;
   [ClientToServerEvent.ToggleReadyToExplore]: (
     eventData?: undefined,
     data?: PlayerAssociatedData
@@ -79,7 +79,7 @@ export interface ClientToServerEventTypes {
     direction: NextOrPrevious;
   }) => void;
   [ClientToServerEvent.CycleTargetingSchemes]: (eventData: { characterId: string }) => void;
-  [ClientToServerEvent.UseSelectedCombatAction]: (characterId: string) => void;
+  [ClientToServerEvent.UseSelectedCombatAction]: (eventData: { characterId: string }) => void;
   [ClientToServerEvent.DropEquippedItem]: (
     eventData: { characterId: string; slot: EquipmentSlot },
     middlewareProvidedData?: CharacterAssociatedData

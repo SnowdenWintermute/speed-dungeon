@@ -54,7 +54,10 @@ function IncreaseAttributeButton({ attribute }: { attribute: CombatAttribute }) 
   const focusedCharacterId = useGameStore().focusedCharacterId;
 
   function handleClick() {
-    socketOption?.emit(ClientToServerEvent.IncrementAttribute, focusedCharacterId, attribute);
+    socketOption?.emit(ClientToServerEvent.IncrementAttribute, {
+      characterId: focusedCharacterId,
+      attribute,
+    });
   }
 
   return (

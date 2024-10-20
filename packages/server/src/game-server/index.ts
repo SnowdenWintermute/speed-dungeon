@@ -41,12 +41,10 @@ import returnHomeActionCommandHandler from "./game-event-handlers/action-command
 import changeEquipmentActionCommandHandler from "./game-event-handlers/action-command-handlers/change-equipment.js";
 import battleResultActionCommandHandler from "./game-event-handlers/action-command-handlers/battle-results.js";
 import getGamePartyAndCombatant from "./utils/get-game-party-and-combatant.js";
-import useSelectedCombatActionHandler from "./game-event-handlers/character-uses-selected-combat-action-handler/index.js";
 import processSelectedCombatAction from "./game-event-handlers/character-uses-selected-combat-action-handler/process-selected-combat-action.js";
 import takeAiControlledTurnIfActive from "./game-event-handlers/combat-action-results-processing/take-ai-combatant-turn-if-active.js";
 import generateLoot from "./game-event-handlers/action-command-handlers/generate-loot.js";
 import generateExperiencePoints from "./game-event-handlers/action-command-handlers/generate-experience-points.js";
-import characterSpentAttributePointHandler from "./game-event-handlers/character-spent-attribute-point-handler.js";
 import initiateSavedCharacterListeners from "./saved-character-event-handlers/index.js";
 import selectProgressionGameCharacterHandler from "./lobby-event-handlers/select-progression-game-character-handler.js";
 import selectProgressionGameStartingFloorHandler from "./lobby-event-handlers/select-progression-game-starting-floor-handler.js";
@@ -94,9 +92,7 @@ export class GameServer implements ActionCommandReceiver {
   selectProgressionGameStartingFloorHandler = selectProgressionGameStartingFloorHandler;
   //
   handlePartyWipe = handlePartyWipe;
-  useSelectedCombatActionHandler = useSelectedCombatActionHandler;
   exploreNextRoom = exploreNextRoom;
-  characterSpentAttributePointHandler = characterSpentAttributePointHandler;
   // ACTION COMMAND HANDLERS
   processSelectedCombatAction = processSelectedCombatAction;
   payAbilityCostsActionCommandHandler = payAbilityCostsActionCommandHandler;
