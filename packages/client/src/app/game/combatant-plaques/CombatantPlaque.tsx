@@ -117,7 +117,10 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
       const focusedCharacterResult = getFocusedCharacter(store);
       if (focusedCharacterResult instanceof Error) return console.error(focusedCharacterResult);
       focusedCharacterResult.combatantProperties.selectedCombatAction = null;
-      websocketConnection.emit(ClientToServerEvent.SelectCombatAction, entityId, null);
+      websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+        characterId: entityId,
+        combatActionOption: null,
+      });
       store.focusedCharacterId = entityId;
       store.menuContext = MenuContext.InventoryItems;
     });

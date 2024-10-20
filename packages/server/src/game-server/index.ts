@@ -31,14 +31,9 @@ import { exploreNextRoom } from "./game-event-handlers/toggle-ready-to-explore-h
 import emitErrorEventIfError from "./emit-error-event-if-error.js";
 import initiateGameEventListeners from "./game-event-handlers/index.js";
 import characterActionHandler from "./game-event-handlers/character-action-handler.js";
-import acknowledgeReceiptOfItemOnGroundHandler from "./game-event-handlers/acknowledge_receipt_of_item_on_ground_handler.js";
-import pickUpItemHandler from "./game-event-handlers/pick-up-item-handler.js";
 import { ItemGenerationDirector } from "./item-generation/item-generation-director.js";
 import { createItemGenerationDirectors } from "./item-generation/create-item-generation-directors.js";
 import { generateRandomItem } from "./item-generation/generate-random-item.js";
-import selectCombatActionHandler from "./game-event-handlers/select-combat-action-handler.js";
-import cycleTargetsHandler from "./game-event-handlers/cycle-targets-handler.js";
-import cycleTargetingSchemesHandler from "./game-event-handlers/cycle-targeting-schemes-handler.js";
 import { payAbilityCostsActionCommandHandler } from "./game-event-handlers/action-command-handlers/pay-ability-costs.js";
 import moveIntoCombatActionPositionActionCommandHandler from "./game-event-handlers/action-command-handlers/move-into-combat-action-position.js";
 import performCombatActionActionCommandHandler from "./game-event-handlers/action-command-handlers/perform-combat-action.js";
@@ -99,12 +94,7 @@ export class GameServer implements ActionCommandReceiver {
   selectProgressionGameStartingFloorHandler = selectProgressionGameStartingFloorHandler;
   //
   handlePartyWipe = handlePartyWipe;
-  acknowledgeReceiptOfItemOnGroundHandler = acknowledgeReceiptOfItemOnGroundHandler;
-  pickUpItemHandler = pickUpItemHandler;
   useSelectedCombatActionHandler = useSelectedCombatActionHandler;
-  selectCombatActionHandler = selectCombatActionHandler;
-  cycleTargetsHandler = cycleTargetsHandler;
-  cycleTargetingSchemesHandler = cycleTargetingSchemesHandler;
   exploreNextRoom = exploreNextRoom;
   characterSpentAttributePointHandler = characterSpentAttributePointHandler;
   // ACTION COMMAND HANDLERS

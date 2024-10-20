@@ -26,10 +26,9 @@ export default function cycleCombatActionTargetsHandler(
     );
     if (result instanceof Error) return setAlert(mutateAlertState, result.message);
 
-    websocketConnection.emit(
-      ClientToServerEvent.CycleCombatActionTargets,
-      focusedCharacter.entityProperties.id,
-      direction
-    );
+    websocketConnection.emit(ClientToServerEvent.CycleCombatActionTargets, {
+      characterId: focusedCharacter.entityProperties.id,
+      direction,
+    });
   });
 }

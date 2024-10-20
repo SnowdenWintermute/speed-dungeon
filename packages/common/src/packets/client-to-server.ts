@@ -54,10 +54,10 @@ export interface ClientToServerEventTypes {
     combatantClass: CombatantClass
   ) => void;
   [ClientToServerEvent.DeleteCharacter]: (characterId: string) => void;
-  [ClientToServerEvent.SelectCombatAction]: (
-    characterId: string,
-    combatActionOption: null | CombatAction
-  ) => void;
+  [ClientToServerEvent.SelectCombatAction]: (eventData: {
+    characterId: string;
+    combatActionOption: null | CombatAction;
+  }) => void;
   [ClientToServerEvent.IncrementAttribute]: (
     characterId: string,
     attribute: CombatAttribute
@@ -74,11 +74,11 @@ export interface ClientToServerEventTypes {
     eventData: { characterId: string; itemId: string; equipToAltSlot: boolean },
     middlewareProvidedData?: CharacterAssociatedData
   ) => void;
-  [ClientToServerEvent.CycleCombatActionTargets]: (
-    characterId: string,
-    direction: NextOrPrevious
-  ) => void;
-  [ClientToServerEvent.CycleTargetingSchemes]: (characterId: string) => void;
+  [ClientToServerEvent.CycleCombatActionTargets]: (eventData: {
+    characterId: string;
+    direction: NextOrPrevious;
+  }) => void;
+  [ClientToServerEvent.CycleTargetingSchemes]: (eventData: { characterId: string }) => void;
   [ClientToServerEvent.UseSelectedCombatAction]: (characterId: string) => void;
   [ClientToServerEvent.DropEquippedItem]: (
     eventData: { characterId: string; slot: EquipmentSlot },

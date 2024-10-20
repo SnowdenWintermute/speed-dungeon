@@ -12,7 +12,7 @@ import {
 import { getGameServer } from "../../index.js";
 
 export default function toggleReadyToDescendHandler(
-  eventData: undefined,
+  _eventData: undefined,
   playerAssociatedData: PlayerAssociatedData
 ) {
   const gameServer = getGameServer();

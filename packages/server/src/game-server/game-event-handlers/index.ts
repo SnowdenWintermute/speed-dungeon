@@ -3,7 +3,6 @@ import {
   ServerToClientEventTypes,
   ClientToServerEvent,
   CharacterAssociatedData,
-  CombatAction,
   NextOrPrevious,
   CombatAttribute,
   getPartyChannelName,
@@ -22,6 +21,11 @@ import dropItemHandler from "./drop-item-handler.js";
 import dropEquippedItemHandler from "./drop-equipped-item-handler.js";
 import unequipSlotHandler from "./unequip-slot-handler.js";
 import equipItemHandler from "./equip-item-handler.js";
+import pickUpItemHandler from "./pick-up-item-handler.js";
+import acknowledgeReceiptOfItemOnGroundHandler from "./acknowledge_receipt_of_item_on_ground_handler.js";
+import selectCombatActionHandler from "./select-combat-action-handler.js";
+import cycleTargetsHandler from "./cycle-targets-handler.js";
+import cycleTargetingSchemesHandler from "./cycle-targeting-schemes-handler.js";
 
 export default function initiateGameEventListeners(
   this: GameServer,
@@ -52,57 +56,35 @@ export default function initiateGameEventListeners(
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, equipItemHandler)
   );
 
-  socket.on(ClientToServerEvent.PickUpItem, ({ characterId, itemId }) => {
-    this.emitErrorEventIfError(socket, () =>
-      this.characterActionHandler(
-        socket.id,
-        characterId,
-        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-          this.pickUpItemHandler(characterAssociatedData, itemId)
-      )
-    );
-  });
+  socket.on(
+    ClientToServerEvent.PickUpItem,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, pickUpItemHandler)
+  );
+
   socket.on(ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate, (itemId: string) => {
     this.emitErrorEventIfError(socket, () =>
-      this.acknowledgeReceiptOfItemOnGroundHandler(socket.id, itemId)
+      acknowledgeReceiptOfItemOnGroundHandler(itemId, socket)
     );
   });
+
   socket.on(
     ClientToServerEvent.SelectCombatAction,
-    (characterId: string, combatAction: null | CombatAction) => {
-      this.emitErrorEventIfError(socket, () =>
-        this.characterActionHandler(
-          socket.id,
-          characterId,
-          (socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-            this.selectCombatActionHandler(socketMeta, characterAssociatedData, combatAction)
-        )
-      );
-    }
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, selectCombatActionHandler)
   );
+
   socket.on(
     ClientToServerEvent.CycleCombatActionTargets,
-    (characterId: string, direction: NextOrPrevious) => {
-      this.emitErrorEventIfError(socket, () =>
-        this.characterActionHandler(
-          socket.id,
-          characterId,
-          (socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-            this.cycleTargetsHandler(socket, socketMeta, characterAssociatedData, direction)
-        )
-      );
-    }
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, cycleTargetsHandler)
   );
-  socket.on(ClientToServerEvent.CycleTargetingSchemes, (characterId: string) => {
-    this.emitErrorEventIfError(socket, () =>
-      this.characterActionHandler(
-        socket.id,
-        characterId,
-        (socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-          this.cycleTargetingSchemesHandler(socket, socketMeta, characterAssociatedData)
-      )
-    );
-  });
+
+  socket.on(
+    ClientToServerEvent.CycleTargetingSchemes,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(
+      socket,
+      cycleTargetingSchemesHandler
+    )
+  );
+
   socket.on(ClientToServerEvent.UseSelectedCombatAction, (characterId: string) => {
     this.emitErrorEventIfError(socket, () => {
       return this.characterActionHandler(
@@ -140,15 +122,4 @@ export default function initiateGameEventListeners(
       });
     }
   );
-}
-
-function registerGameEvent(
-  this: GameServer,
-  socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
-  event: ClientToServerEvent,
-  handler: (data: any) => void
-) {
-  socket.on(event, (data: any) => {
-    this.useSelectedCombatActionHandler(data);
-  });
 }

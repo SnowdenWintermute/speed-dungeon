@@ -23,9 +23,8 @@ export default function cycleTargetingSchemeHandler(
       focusedCharacter.entityProperties.id
     );
 
-    websocketConnection.emit(
-      ClientToServerEvent.CycleTargetingSchemes,
-      focusedCharacter.entityProperties.id
-    );
+    websocketConnection.emit(ClientToServerEvent.CycleTargetingSchemes, {
+      characterId: focusedCharacter.entityProperties.id,
+    });
   });
 }

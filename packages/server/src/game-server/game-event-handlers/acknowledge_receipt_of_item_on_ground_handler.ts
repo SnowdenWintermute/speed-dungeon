@@ -4,20 +4,21 @@ import {
   ServerToClientEventTypes,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import { GameServer } from "../index.js";
+import { getGameServer } from "../../index.js";
+import { Socket } from "socket.io";
 
 export default function acknowledgeReceiptOfItemOnGroundHandler(
-  this: GameServer,
-  socketId: string,
-  itemId: string
+  itemId: string,
+  socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
-  const [socket, socketMeta] = this.getConnection<
+  const gameServer = getGameServer();
+  const [_socket, socketMeta] = gameServer.getConnection<
     ClientToServerEventTypes,
     ServerToClientEventTypes
-  >(socketId);
+  >(socket.id);
   if (!socket) return new Error(ERROR_MESSAGES.SERVER.SOCKET_NOT_FOUND);
 
-  const gameResult = this.getSocketCurrentGame(socketMeta);
+  const gameResult = gameServer.getSocketCurrentGame(socketMeta);
   if (gameResult instanceof Error) return new Error(gameResult.message);
   const game = gameResult;
   const partyResult = SpeedDungeonGame.getPlayerPartyOption(gameResult, socketMeta.username);

@@ -1,18 +1,20 @@
 import {
+  CharacterAndItem,
   CharacterAssociatedData,
   ERROR_MESSAGES,
   Item,
   ServerToClientEvent,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { GameServer } from "../index.js";
+import { getGameServer } from "../../index.js";
 
 export default function pickUpItemHandler(
-  this: GameServer,
-  characterAssociatedData: CharacterAssociatedData,
-  itemId: string
+  eventData: CharacterAndItem,
+  characterAssociatedData: CharacterAssociatedData
 ) {
   const { game, party, character } = characterAssociatedData;
+  const gameServer = getGameServer();
+  const { itemId } = eventData;
 
   // make sure all players know about the item or else desync will occur
   if (party.itemsOnGroundNotYetReceivedByAllClients[itemId] !== undefined)
@@ -24,7 +26,7 @@ export default function pickUpItemHandler(
   character.combatantProperties.inventory.items.push(itemOption);
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
-  this.io.to(partyChannelName).emit(ServerToClientEvent.CharacterPickedUpItem, {
+  gameServer.io.to(partyChannelName).emit(ServerToClientEvent.CharacterPickedUpItem, {
     characterId: character.entityProperties.id,
     itemId,
   });
