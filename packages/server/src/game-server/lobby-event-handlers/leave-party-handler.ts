@@ -1,27 +1,27 @@
 import { ServerToClientEvent, SpeedDungeonGame, getPartyChannelName } from "@speed-dungeon/common";
-import { GameServer } from "../index.js";
-import errorHandler from "../error-handler.js";
+import { Socket } from "socket.io";
+import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
+import { getGameServer } from "../../index.js";
 
-export default function leavePartyHandler(this: GameServer, socketId: string) {
-  const [socket, socketMeta] = this.getConnection(socketId);
-  try {
-    if (!socketMeta.currentGameName) return;
-    const game = this.games.get(socketMeta.currentGameName);
-    if (!game) return errorHandler(socket, "No game exists");
+export default function leavePartyHandler(
+  _eventData: undefined,
+  playerAssociatedData: ServerPlayerAssociatedData,
+  socket: Socket
+) {
+  const gameServer = getGameServer();
+  const { game, player, session } = playerAssociatedData;
+  const { username } = player;
 
-    const partyNameLeaving = SpeedDungeonGame.removePlayerFromParty(game, socketMeta.username);
-    if (!partyNameLeaving) return;
+  const partyNameLeaving = SpeedDungeonGame.removePlayerFromParty(game, username);
+  if (!partyNameLeaving) return;
 
-    const partyChannelName = getPartyChannelName(game.name, partyNameLeaving);
-    this.removeSocketFromChannel(socketId, partyChannelName);
-    socketMeta.currentPartyName = null;
+  const partyChannelName = getPartyChannelName(game.name, partyNameLeaving);
+  gameServer.removeSocketFromChannel(socket.id, partyChannelName);
+  session.currentPartyName = null;
 
-    socket?.emit(ServerToClientEvent.PartyNameUpdate, null);
-    this.io
-      .of("/")
-      .in(game.name)
-      .emit(ServerToClientEvent.PlayerChangedAdventuringParty, socketMeta.username, null);
-  } catch (error: any) {
-    socket?.emit(ServerToClientEvent.ErrorMessage, error.message);
-  }
+  socket.emit(ServerToClientEvent.PartyNameUpdate, null);
+  gameServer.io
+    .of("/")
+    .in(game.name)
+    .emit(ServerToClientEvent.PlayerChangedAdventuringParty, username, null);
 }

@@ -9,12 +9,19 @@ import { ServerPlayerAssociatedData, SocketEventNextFunction } from ".";
 import { getGameServer } from "../../index.js";
 import { Socket } from "socket.io";
 
-export async function getPlayerAssociatedData<T>(
+export async function playerInGame<T>(
   socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
   eventData: T,
   _middlewareProvidedData: PlayerAssociatedData | undefined,
   next: SocketEventNextFunction<T, ServerPlayerAssociatedData>
 ) {
+  const playerDataResult = getPlayerAssociatedData(socket);
+  if (playerDataResult instanceof Error) return playerDataResult;
+
+  next(eventData, playerDataResult);
+}
+
+export function getPlayerAssociatedData(socket: Socket): Error | ServerPlayerAssociatedData {
   const gameServer = getGameServer();
   const [_socket, session] = gameServer.getConnection<
     ClientToServerEventTypes,
@@ -29,5 +36,5 @@ export async function getPlayerAssociatedData<T>(
   const playerOption = game.players[session.username];
   if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
-  next(eventData, { player: playerOption, game, partyOption: partyResult, session });
+  return { session, game, partyOption: partyResult, player: playerOption };
 }

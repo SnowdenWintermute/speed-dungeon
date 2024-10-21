@@ -1,22 +1,13 @@
-import {
-  ClientToServerEventTypes,
-  ERROR_MESSAGES,
-  ServerToClientEventTypes,
-} from "@speed-dungeon/common";
-import { Socket } from "socket.io";
+import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { ServerPlayerAssociatedData } from "../event-middleware";
 
 export default function acknowledgeReceiptOfItemOnGroundHandler(
   itemId: string,
-  playerAssociatedData: ServerPlayerAssociatedData,
-  socket?: Socket<ClientToServerEventTypes, ServerToClientEventTypes>
+  playerAssociatedData: ServerPlayerAssociatedData
 ) {
-  if (!socket) return new Error(ERROR_MESSAGES.EVENT_MIDDLEWARE.MISSING_SOCKET);
   const { partyOption, player, game } = playerAssociatedData;
   if (!partyOption) return new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
   const party = partyOption;
-
-  if (!socket) return new Error(ERROR_MESSAGES.SERVER.SOCKET_NOT_FOUND);
 
   const receivedBy = party.itemsOnGroundNotYetReceivedByAllClients[itemId];
 

@@ -1,17 +1,17 @@
 import { Socket } from "socket.io";
-import { GameServer } from "..";
 import {
   ClientToServerEventTypes,
   GameListEntry,
   ServerToClientEvent,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
+import { getGameServer } from "../../index.js";
 
 export default function requestGameListHandler(
-  this: GameServer,
   socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
-  const gameList: GameListEntry[] = this.games
+  const gameServer = getGameServer();
+  const gameList: GameListEntry[] = gameServer.games
     .entries()
     .map(
       ([gameName, game]) =>

@@ -32,7 +32,7 @@ export const applyMiddlewares =
     handler: (
       eventData: T,
       middlewareProvidedData: U,
-      socket?: Socket
+      socket: Socket
     ) => Promise<Error | void> | Error | void
     // and produces a function which is acceptable in a socket.io event handler
     // this function will create a recursive chain of "next" functions which eventually

@@ -13,11 +13,10 @@ export default function CharacterCreationMenu() {
   const [combatantClassSelection, setCombatantClassSelection] = useState(CombatantClass.Warrior);
 
   function createCharacter(characterName: string) {
-    websocketConnection.emit(
-      ClientToServerEvent.CreateCharacter,
-      characterName,
-      combatantClassSelection
-    );
+    websocketConnection.emit(ClientToServerEvent.CreateCharacter, {
+      name: characterName,
+      combatantClass: combatantClassSelection,
+    });
   }
 
   const combatantClasses = Object.values(CombatantClass);

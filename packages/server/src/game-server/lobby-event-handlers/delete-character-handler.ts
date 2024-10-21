@@ -4,27 +4,20 @@ import {
   ServerToClientEvent,
   updateCombatantHomePosition,
 } from "@speed-dungeon/common";
-import { GameServer } from "..";
 import { removeFromArray } from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
-
-const ATTEMPT_TEXT = "A client tried to delete a character but";
+import { ServerPlayerAssociatedData } from "../event-middleware";
+import { Socket } from "socket.io";
+import { getGameServer } from "../../index.js";
 
 export default function deleteCharacterHandler(
-  this: GameServer,
-  socketId: string,
-  characterId: string
+  characterId: string,
+  playerAssociatedData: ServerPlayerAssociatedData,
+  socket: Socket
 ) {
-  const [socket, socketMeta] = this.getConnection(socketId);
-  if (!socketMeta.currentGameName)
-    return errorHandler(socket, `${ATTEMPT_TEXT} they didn't know what game they were in`);
-  const game = this.games.get(socketMeta.currentGameName);
-  if (!game) return errorHandler(socket, `${ATTEMPT_TEXT} their game was not found`);
-  const player = game.players[socketMeta.username];
-  if (!player) return errorHandler(socket, `${ATTEMPT_TEXT} their player wasn't in the game`);
-  if (!player.partyName) return errorHandler(socket, ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
-  const party = game.adventuringParties[player.partyName];
-  if (!party) return errorHandler(socket, ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+  const { game, partyOption, player, session } = playerAssociatedData;
+  if (!partyOption) return errorHandler(socket, ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+  const party = partyOption;
 
   if (!player.characterIds.includes(characterId.toString()))
     return errorHandler(socket, ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
@@ -38,17 +31,18 @@ export default function deleteCharacterHandler(
       party
     );
 
-  const wasReadied = game.playersReadied.includes(socketMeta.username);
-  removeFromArray(game.playersReadied, socketMeta.username);
-  if (wasReadied) {
-    this.io
+  const wasReadied = game.playersReadied.includes(session.username);
+  removeFromArray(game.playersReadied, session.username);
+  const gameServer = getGameServer();
+
+  if (wasReadied)
+    gameServer.io
       .of("/")
       .in(game.name)
-      .emit(ServerToClientEvent.PlayerToggledReadyToStartGame, socketMeta.username);
-  }
+      .emit(ServerToClientEvent.PlayerToggledReadyToStartGame, session.username);
 
-  this.io
+  gameServer.io
     .of("/")
     .in(game.name)
-    .emit(ServerToClientEvent.CharacterDeleted, player.partyName, socketMeta.username, characterId);
+    .emit(ServerToClientEvent.CharacterDeleted, party.name, session.username, characterId);
 }

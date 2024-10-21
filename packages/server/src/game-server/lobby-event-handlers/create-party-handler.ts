@@ -9,9 +9,8 @@ import { Socket } from "socket.io";
 export default function createPartyHandler(
   partyName: string,
   playerAssociatedData: ServerPlayerAssociatedData,
-  socket?: Socket
+  socket: Socket
 ) {
-  if (!socket) return new Error(ERROR_MESSAGES.EVENT_MIDDLEWARE.MISSING_SOCKET);
   const { player, game } = playerAssociatedData;
 
   if (player.partyName) return new Error(ERROR_MESSAGES.LOBBY.ALREADY_IN_PARTY);
@@ -22,5 +21,5 @@ export default function createPartyHandler(
 
   game.adventuringParties[partyName] = new AdventuringParty(partyName);
   getGameServer().io.of("/").in(game.name).emit(ServerToClientEvent.PartyCreated, partyName);
-  joinPartyHandler(partyName, playerAssociatedData);
+  joinPartyHandler(partyName, playerAssociatedData, socket);
 }

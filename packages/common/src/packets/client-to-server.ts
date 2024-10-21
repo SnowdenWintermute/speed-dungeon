@@ -42,17 +42,17 @@ export enum ClientToServerEvent {
 export interface ClientToServerEventTypes {
   [ClientToServerEvent.RequestToJoinGame]: (gameName: string) => void;
   [ClientToServerEvent.RequestsGameList]: () => void;
-  [ClientToServerEvent.CreateGame]: (gameName: string, gameMode: GameMode) => void;
+  [ClientToServerEvent.CreateGame]: (eventData: { gameName: string; mode: GameMode }) => void;
   [ClientToServerEvent.JoinGame]: (gameName: string) => void;
-  [ClientToServerEvent.LeaveGame]: () => void;
+  [ClientToServerEvent.LeaveGame]: (eventData?: undefined) => void;
   [ClientToServerEvent.CreateParty]: (partyName: string) => void;
   [ClientToServerEvent.JoinParty]: (partyName: string) => void;
-  [ClientToServerEvent.LeaveParty]: () => void;
+  [ClientToServerEvent.LeaveParty]: (eventData?: undefined) => void;
   [ClientToServerEvent.ToggleReadyToStartGame]: (eventData?: undefined) => void;
-  [ClientToServerEvent.CreateCharacter]: (
-    characterName: string,
-    combatantClass: CombatantClass
-  ) => void;
+  [ClientToServerEvent.CreateCharacter]: (eventData: {
+    name: string;
+    combatantClass: CombatantClass;
+  }) => void;
   [ClientToServerEvent.DeleteCharacter]: (characterId: string) => void;
   [ClientToServerEvent.SelectCombatAction]: (eventData: {
     characterId: string;

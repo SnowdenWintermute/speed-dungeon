@@ -10,9 +10,8 @@ import {
 export default function cycleTargetingSchemesHandler(
   _eventData: { characterId: string },
   characterAssociatedData: CharacterAssociatedData,
-  socket?: Socket
+  socket: Socket
 ) {
-  if (!socket) return console.error(ERROR_MESSAGES.SERVER.SOCKET_NOT_FOUND);
   const { game, party, character } = characterAssociatedData;
   const { username } = characterAssociatedData.player;
   const playerOption = game.players[username];

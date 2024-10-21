@@ -4,51 +4,39 @@ import {
   ServerToClientEvent,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import { GameServer } from "../index.js";
 import errorHandler from "../error-handler.js";
 import writePlayerCharactersInGameToDb from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
+import leavePartyHandler from "./leave-party-handler.js";
+import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
+import { Socket } from "socket.io";
+import { getGameServer } from "../../index.js";
 
-export default async function leaveGameHandler(this: GameServer, socketId: string) {
-  let [socket, socketMeta] = this.getConnection(socketId);
-  if (!socketMeta.currentGameName) {
-    console.log(
-      "Tried to handle a user leaving a game but they didn't know what game they were in"
-    );
-    return;
-  }
-  const game = this.games.get(socketMeta.currentGameName);
-  if (!game)
-    return errorHandler(
-      socket,
-      "Tried handle a user leaving a game but the game they thought they were in didn't exist"
-    );
+export default async function leaveGameHandler(
+  _eventData: undefined,
+  playerAssociatedData: ServerPlayerAssociatedData,
+  socket: Socket
+) {
+  const gameServer = getGameServer();
+  const { game, player, session } = playerAssociatedData;
 
-  // save their characters
-  const playerOption = game.players[socketMeta.username];
-  if (playerOption && playerOption.partyName && game.mode === GameMode.Progression) {
-    const maybeError = await writePlayerCharactersInGameToDb(game, playerOption);
+  if (player.partyName && game.mode === GameMode.Progression) {
+    const maybeError = await writePlayerCharactersInGameToDb(game, player);
     if (maybeError instanceof Error) return errorHandler(socket, maybeError.message);
   }
 
-  this.leavePartyHandler(socketId);
-  if (!game)
-    return errorHandler(
-      socket,
-      "Tried handle a user leaving a game but the game they thought they were in didn't exist"
-    );
-  SpeedDungeonGame.removePlayer(game, socketMeta.username);
-  const gameNameLeaving = socketMeta.currentGameName;
-  socketMeta.currentGameName = null;
-  if (Object.keys(game.players).length === 0) this.games.remove(game.name);
+  leavePartyHandler(undefined, playerAssociatedData, socket);
 
-  this.removeSocketFromChannel(socketId, gameNameLeaving);
-  this.joinSocketToChannel(socketId, LOBBY_CHANNEL);
-
-  if (this.games.get(gameNameLeaving)) {
-    this.io
+  SpeedDungeonGame.removePlayer(game, session.username);
+  const gameNameLeaving = game.name;
+  session.currentGameName = null;
+  if (Object.keys(game.players).length === 0) gameServer.games.remove(game.name);
+  gameServer.removeSocketFromChannel(socket.id, gameNameLeaving);
+  gameServer.joinSocketToChannel(socket.id, LOBBY_CHANNEL);
+  if (gameServer.games.get(gameNameLeaving)) {
+    gameServer.io
       .of("/")
       .in(gameNameLeaving)
-      .emit(ServerToClientEvent.PlayerLeftGame, socketMeta.username);
+      .emit(ServerToClientEvent.PlayerLeftGame, session.username);
   }
   socket?.emit(ServerToClientEvent.GameFullUpdate, null);
 }

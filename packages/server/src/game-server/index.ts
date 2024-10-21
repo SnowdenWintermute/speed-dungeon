@@ -10,16 +10,9 @@ import initiateLobbyEventListeners from "./lobby-event-handlers/index.js";
 import { BrowserTabSession } from "./socket-connection-metadata.js";
 import joinSocketToChannel from "./join-socket-to-channel.js";
 import { connectionHandler } from "./connection-handler.js";
-import disconnectionHandler from "./disconnection-handler.js";
 import removeSocketFromChannel from "./remove-socket-from-channel.js";
 import { HashMap } from "@speed-dungeon/common";
-import createGameHandler from "./lobby-event-handlers/create-game-handler.js";
 import getConnection from "./get-connection.js";
-import joinGameHandler from "./lobby-event-handlers/join-game-handler.js";
-import leavePartyHandler from "./lobby-event-handlers/leave-party-handler.js";
-import leaveGameHandler from "./lobby-event-handlers/leave-game-handler.js";
-import createCharacterHandler from "./lobby-event-handlers/create-character-handler.js";
-import deleteCharacterHandler from "./lobby-event-handlers/delete-character-handler.js";
 import getSocketCurrentGame from "./utils/get-socket-current-game.js";
 import handlePartyWipe from "./game-event-handlers/combat-action-results-processing/handle-party-wipe.js";
 import { getSocketIdsOfPlayersInOtherParties } from "./get-socket-ids-of-players-in-other-parties.js";
@@ -42,9 +35,6 @@ import takeAiControlledTurnIfActive from "./game-event-handlers/combat-action-re
 import generateLoot from "./game-event-handlers/action-command-handlers/generate-loot.js";
 import generateExperiencePoints from "./game-event-handlers/action-command-handlers/generate-experience-points.js";
 import initiateSavedCharacterListeners from "./saved-character-event-handlers/index.js";
-import selectProgressionGameCharacterHandler from "./lobby-event-handlers/select-progression-game-character-handler.js";
-import selectProgressionGameStartingFloorHandler from "./lobby-event-handlers/select-progression-game-starting-floor-handler.js";
-import requestGameListHandler from "./lobby-event-handlers/request-game-list-handler.js";
 
 export type Username = string;
 export type SocketId = string;
@@ -67,22 +57,11 @@ export class GameServer implements ActionCommandReceiver {
   }
   getConnection = getConnection;
   connectionHandler = connectionHandler;
-  disconnectionHandler = disconnectionHandler;
   initiateLobbyEventListeners = initiateLobbyEventListeners;
   initiateGameEventListeners = initiateGameEventListeners;
   initiateSavedCharacterListeners = initiateSavedCharacterListeners;
   joinSocketToChannel = joinSocketToChannel;
   removeSocketFromChannel = removeSocketFromChannel;
-  //
-  requestGameListHandler = requestGameListHandler;
-  createGameHandler = createGameHandler;
-  joinGameHandler = joinGameHandler;
-  leaveGameHandler = leaveGameHandler;
-  leavePartyHandler = leavePartyHandler;
-  createCharacterHandler = createCharacterHandler;
-  deleteCharacterHandler = deleteCharacterHandler;
-  selectProgressionGameCharacterHandler = selectProgressionGameCharacterHandler;
-  selectProgressionGameStartingFloorHandler = selectProgressionGameStartingFloorHandler;
   //
   handlePartyWipe = handlePartyWipe;
   exploreNextRoom = exploreNextRoom;

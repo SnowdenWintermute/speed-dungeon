@@ -6,7 +6,7 @@ import {
 import SocketIO from "socket.io";
 import { applyMiddlewares } from "../event-middleware/index.js";
 import toggleReadyToExploreHandler from "./toggle-ready-to-explore-handler.js";
-import { getPlayerAssociatedData } from "../event-middleware/get-player-associated-data.js";
+import { playerInGame } from "../event-middleware/get-player-associated-data.js";
 import toggleReadyToDescendHandler from "./toggle-ready-to-descend-handler.js";
 import { getCharacterAssociatedData } from "../event-middleware/get-character-associated-data.js";
 import { prohibitIfDead } from "../event-middleware/prohibit-if-dead.js";
@@ -27,11 +27,11 @@ export default function initiateGameEventListeners(
 ) {
   socket.on(
     ClientToServerEvent.ToggleReadyToExplore,
-    applyMiddlewares(getPlayerAssociatedData)(socket, toggleReadyToExploreHandler)
+    applyMiddlewares(playerInGame)(socket, toggleReadyToExploreHandler)
   );
   socket.on(
     ClientToServerEvent.ToggleReadyToDescend,
-    applyMiddlewares(getPlayerAssociatedData)(socket, toggleReadyToDescendHandler)
+    applyMiddlewares(playerInGame)(socket, toggleReadyToDescendHandler)
   );
   socket.on(
     ClientToServerEvent.DropItem,
@@ -55,7 +55,7 @@ export default function initiateGameEventListeners(
   );
   socket.on(
     ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate,
-    applyMiddlewares(getPlayerAssociatedData)(socket, acknowledgeReceiptOfItemOnGroundHandler)
+    applyMiddlewares(playerInGame)(socket, acknowledgeReceiptOfItemOnGroundHandler)
   );
   socket.on(
     ClientToServerEvent.SelectCombatAction,

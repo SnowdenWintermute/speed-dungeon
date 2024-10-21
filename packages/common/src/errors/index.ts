@@ -56,7 +56,7 @@ export const ERROR_MESSAGES = {
     NO_CHARACTERS: "The provided player doesn't own any characters",
     CHARACTER_NOT_OWNED:
       "The provided character is not in the list of that player's owned characters",
-    MISSING_PARTY_NAME: "Player doesn't have a party name",
+    MISSING_PARTY_NAME: "Player doesn't have a party name or party does not exist",
   },
   USER: {
     NO_CURRENT_GAME: "This user has no current game",

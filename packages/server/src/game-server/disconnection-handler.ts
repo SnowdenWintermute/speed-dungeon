@@ -3,30 +3,33 @@ import {
   ServerToClientEventTypes,
   removeFromArray,
 } from "@speed-dungeon/common";
-import { GameServer } from "./index.js";
-import { Socket } from "socket.io";
+import { DisconnectReason, Socket } from "socket.io";
+import leaveGameHandler from "./lobby-event-handlers/leave-game-handler.js";
+import { getGameServer } from "../index.js";
+import { BrowserTabSession } from "./socket-connection-metadata.js";
+import { getPlayerAssociatedData } from "./event-middleware/get-player-associated-data.js";
 
-export default function disconnectionHandler(
-  this: GameServer,
+export default async function disconnectionHandler(
+  reason: DisconnectReason,
+  session: BrowserTabSession,
   socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
-  socket.on("disconnect", async () => {
-    const socketMetadata = this.connections.get(socket.id);
-    console.log(`-- ${socketMetadata?.username} (${socket.id})  disconnected`);
-    if (!socketMetadata)
-      return console.error("a socket disconnected but couldn't find their metadata");
+  const gameServer = getGameServer();
 
-    if (socketMetadata.currentGameName) {
-      await this.leaveGameHandler(socket.id);
-    }
+  console.log(`-- ${session.username} (${socket.id})  disconnected. Reason - ${reason}`);
 
-    const userCurrentSockets = this.socketIdsByUsername.get(socketMetadata.username);
-    if (userCurrentSockets) removeFromArray(userCurrentSockets, socket.id);
-    if (userCurrentSockets && Object.keys(userCurrentSockets).length < 1)
-      this.socketIdsByUsername.remove(socketMetadata.username);
+  if (session.currentGameName) {
+    const playerAssociatedDataResult = getPlayerAssociatedData(socket);
+    if (playerAssociatedDataResult instanceof Error) return playerAssociatedDataResult;
+    await leaveGameHandler(undefined, playerAssociatedDataResult, socket);
+  }
 
-    this.removeSocketFromChannel(socket.id, socketMetadata.channelName);
+  const userCurrentSockets = gameServer.socketIdsByUsername.get(session.username);
+  if (userCurrentSockets) removeFromArray(userCurrentSockets, socket.id);
+  if (userCurrentSockets && Object.keys(userCurrentSockets).length < 1)
+    gameServer.socketIdsByUsername.remove(session.username);
 
-    this.connections.remove(socket.id);
-  });
+  gameServer.removeSocketFromChannel(socket.id, session.channelName);
+
+  gameServer.connections.remove(socket.id);
 }

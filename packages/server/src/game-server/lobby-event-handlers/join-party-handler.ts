@@ -12,9 +12,8 @@ import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 export default function joinPartyHandler(
   partyName: string,
   playerAssociatedData: ServerPlayerAssociatedData,
-  socket?: Socket
+  socket: Socket
 ) {
-  if (!socket) return new Error(ERROR_MESSAGES.EVENT_MIDDLEWARE.MISSING_SOCKET);
   const gameServer = getGameServer();
   const { game, player, session } = playerAssociatedData;
   if (player.partyName) return errorHandler(socket, ERROR_MESSAGES.LOBBY.ALREADY_IN_PARTY);

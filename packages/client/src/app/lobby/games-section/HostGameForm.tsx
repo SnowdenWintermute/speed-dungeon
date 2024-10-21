@@ -22,7 +22,7 @@ export default function HostGameForm() {
     event: FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) {
     event.preventDefault();
-    websocketConnection.emit(ClientToServerEvent.CreateGame, gameName, selectedGameMode);
+    websocketConnection.emit(ClientToServerEvent.CreateGame, { gameName, mode: selectedGameMode });
   }
 
   return (

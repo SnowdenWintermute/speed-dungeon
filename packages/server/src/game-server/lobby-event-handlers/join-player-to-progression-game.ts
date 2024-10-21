@@ -25,7 +25,7 @@ export default async function joinPlayerToProgressionGame(
   const player = joinPlayerToGame(gameServer, game, session, socket);
 
   const partyName = getProgressionGamePartyName(game.name);
-  joinPartyHandler(partyName, { game, partyOption: undefined, session, player });
+  joinPartyHandler(partyName, { game, partyOption: undefined, session, player }, socket);
 
   const playerOption = game.players[session.username];
   if (playerOption === undefined)

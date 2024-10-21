@@ -4,6 +4,10 @@ import { LOBBY_CHANNEL, ServerToClientEvent } from "@speed-dungeon/common";
 import { BrowserTabSession } from "./socket-connection-metadata.js";
 import { env } from "../validate-env.js";
 import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
+import { applyMiddlewares } from "./event-middleware/index.js";
+import disconnectionHandler from "./disconnection-handler.js";
+import { playerInGame } from "./event-middleware/get-player-associated-data.js";
+import getSession from "./event-middleware/get-session.js";
 
 export function connectionHandler(this: GameServer) {
   this.io.of("/").on("connection", async (socket) => {
@@ -52,7 +56,7 @@ export function connectionHandler(this: GameServer) {
       currentSockets.push(socket.id);
     } else this.socketIdsByUsername.insert(username, [socket.id]);
 
-    this.disconnectionHandler(socket);
+    socket.on("disconnect", applyMiddlewares(getSession)(socket, disconnectionHandler));
     this.initiateLobbyEventListeners(socket);
     this.initiateGameEventListeners(socket);
     this.initiateSavedCharacterListeners(socket);

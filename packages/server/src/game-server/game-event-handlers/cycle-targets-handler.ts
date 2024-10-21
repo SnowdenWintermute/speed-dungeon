@@ -13,11 +13,10 @@ import { Socket } from "socket.io";
 export default function cycleTargetsHandler(
   eventData: { characterId: string; direction: NextOrPrevious },
   characterAssociatedData: CharacterAssociatedData,
-  socket?: Socket<ClientToServerEventTypes, ServerToClientEventTypes>
+  socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ): Error | void {
   const { game, party, character } = characterAssociatedData;
   const { username } = characterAssociatedData.player;
-  if (!socket) return console.error(ERROR_MESSAGES.SERVER.SOCKET_NOT_FOUND);
 
   const playerOption = game.players[username];
   if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
