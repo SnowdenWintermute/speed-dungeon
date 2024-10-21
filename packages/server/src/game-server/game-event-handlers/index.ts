@@ -15,7 +15,7 @@ import dropEquippedItemHandler from "./drop-equipped-item-handler.js";
 import unequipSlotHandler from "./unequip-slot-handler.js";
 import equipItemHandler from "./equip-item-handler.js";
 import pickUpItemHandler from "./pick-up-item-handler.js";
-import acknowledgeReceiptOfItemOnGroundHandler from "./acknowledge_receipt_of_item_on_ground_handler.js";
+import acknowledgeReceiptOfItemOnGroundHandler from "./acknowledge-receipt-of-item-on-ground-handler.js";
 import selectCombatActionHandler from "./select-combat-action-handler.js";
 import cycleTargetsHandler from "./cycle-targets-handler.js";
 import cycleTargetingSchemesHandler from "./cycle-targeting-schemes-handler.js";

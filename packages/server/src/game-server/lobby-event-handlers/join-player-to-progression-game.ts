@@ -13,7 +13,7 @@ import errorHandler from "../error-handler.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import SocketIO from "socket.io";
 import joinPlayerToGame from "./join-player-to-game.js";
-import joinPartyHandler from "./join-party-handler";
+import joinPartyHandler from "./join-party-handler.js";
 
 export default async function joinPlayerToProgressionGame(
   gameServer: GameServer,
@@ -22,10 +22,10 @@ export default async function joinPlayerToProgressionGame(
   game: SpeedDungeonGame,
   character: { combatant: Combatant; deepestFloorReached: number }
 ) {
-  joinPlayerToGame(gameServer, game, session, socket);
+  const player = joinPlayerToGame(gameServer, game, session, socket);
 
   const partyName = getProgressionGamePartyName(game.name);
-  joinPartyHandler(partyName, {game,partyOption: undefined,session, player:  });
+  joinPartyHandler(partyName, { game, partyOption: undefined, session, player });
 
   const playerOption = game.players[session.username];
   if (playerOption === undefined)

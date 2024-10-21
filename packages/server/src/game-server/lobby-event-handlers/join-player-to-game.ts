@@ -15,7 +15,8 @@ export default function joinPlayerToGame(
   socketMeta: BrowserTabSession,
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
-  game.players[socketMeta.username] = new SpeedDungeonPlayer(socketMeta.username);
+  const player = new SpeedDungeonPlayer(socketMeta.username);
+  game.players[socketMeta.username] = player;
 
   socketMeta.currentGameName = game.name;
 
@@ -29,4 +30,5 @@ export default function joinPlayerToGame(
     .except(socket.id)
     .in(game.name)
     .emit(ServerToClientEvent.PlayerJoinedGame, socketMeta.username);
+  return player;
 }
