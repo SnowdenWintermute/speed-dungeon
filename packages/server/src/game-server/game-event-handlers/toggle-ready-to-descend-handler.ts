@@ -5,15 +5,15 @@ import {
   ERROR_MESSAGES,
   GameMessageType,
   LEVEL_TO_REACH_FOR_ESCAPE,
-  PlayerAssociatedData,
   ServerToClientEvent,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../index.js";
+import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 
 export default function toggleReadyToDescendHandler(
   _eventData: undefined,
-  playerAssociatedData: PlayerAssociatedData
+  playerAssociatedData: ServerPlayerAssociatedData
 ) {
   const gameServer = getGameServer();
   const { player, game, partyOption } = playerAssociatedData;

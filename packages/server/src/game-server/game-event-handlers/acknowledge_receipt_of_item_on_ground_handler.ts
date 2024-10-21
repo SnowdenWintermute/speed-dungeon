@@ -1,14 +1,14 @@
 import {
   ClientToServerEventTypes,
   ERROR_MESSAGES,
-  PlayerAssociatedData,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io";
+import { ServerPlayerAssociatedData } from "../event-middleware";
 
 export default function acknowledgeReceiptOfItemOnGroundHandler(
   itemId: string,
-  playerAssociatedData: PlayerAssociatedData,
+  playerAssociatedData: ServerPlayerAssociatedData,
   socket?: Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
   if (!socket) return new Error(ERROR_MESSAGES.EVENT_MIDDLEWARE.MISSING_SOCKET);

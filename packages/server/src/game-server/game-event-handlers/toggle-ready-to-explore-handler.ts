@@ -10,7 +10,6 @@ import {
   Battle,
   CombatantTurnTracker,
   GameMode,
-  PlayerAssociatedData,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
 import { DungeonRoomType } from "@speed-dungeon/common";
@@ -20,10 +19,11 @@ import { idGenerator } from "../../singletons.js";
 import generateDungeonRoom from "../dungeon-room-generation/index.js";
 import { writeAllPlayerCharacterInGameToDb } from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 import { getGameServer } from "../../index.js";
+import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 
 export default function toggleReadyToExploreHandler(
   _eventData: undefined,
-  data: PlayerAssociatedData
+  data: ServerPlayerAssociatedData
 ): Error | void {
   const { game, partyOption, player } = data;
   const { username } = player;

@@ -18,11 +18,8 @@ import getConnection from "./get-connection.js";
 import joinGameHandler from "./lobby-event-handlers/join-game-handler.js";
 import leavePartyHandler from "./lobby-event-handlers/leave-party-handler.js";
 import leaveGameHandler from "./lobby-event-handlers/leave-game-handler.js";
-import joinPartyHandler from "./lobby-event-handlers/join-party-handler.js";
-import createPartyHandler from "./lobby-event-handlers/create-party-handler.js";
 import createCharacterHandler from "./lobby-event-handlers/create-character-handler.js";
 import deleteCharacterHandler from "./lobby-event-handlers/delete-character-handler.js";
-import toggleReadyToStartGameHandler from "./lobby-event-handlers/toggle-ready-to-start-game-handler.js";
 import getSocketCurrentGame from "./utils/get-socket-current-game.js";
 import handlePartyWipe from "./game-event-handlers/combat-action-results-processing/handle-party-wipe.js";
 import { getSocketIdsOfPlayersInOtherParties } from "./get-socket-ids-of-players-in-other-parties.js";
@@ -81,12 +78,9 @@ export class GameServer implements ActionCommandReceiver {
   createGameHandler = createGameHandler;
   joinGameHandler = joinGameHandler;
   leaveGameHandler = leaveGameHandler;
-  createPartyHandler = createPartyHandler;
-  joinPartyHandler = joinPartyHandler;
   leavePartyHandler = leavePartyHandler;
   createCharacterHandler = createCharacterHandler;
   deleteCharacterHandler = deleteCharacterHandler;
-  toggleReadyToStartGameHandler = toggleReadyToStartGameHandler;
   selectProgressionGameCharacterHandler = selectProgressionGameCharacterHandler;
   selectProgressionGameStartingFloorHandler = selectProgressionGameStartingFloorHandler;
   //

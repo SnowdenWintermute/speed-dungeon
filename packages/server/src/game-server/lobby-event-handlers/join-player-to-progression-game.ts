@@ -13,20 +13,21 @@ import errorHandler from "../error-handler.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import SocketIO from "socket.io";
 import joinPlayerToGame from "./join-player-to-game.js";
+import joinPartyHandler from "./join-party-handler";
 
 export default async function joinPlayerToProgressionGame(
   gameServer: GameServer,
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
-  socketMeta: BrowserTabSession,
+  session: BrowserTabSession,
   game: SpeedDungeonGame,
   character: { combatant: Combatant; deepestFloorReached: number }
 ) {
-  joinPlayerToGame(gameServer, game, socketMeta, socket);
+  joinPlayerToGame(gameServer, game, session, socket);
 
   const partyName = getProgressionGamePartyName(game.name);
-  gameServer.joinPartyHandler(socket.id, partyName);
+  joinPartyHandler(partyName, {game,partyOption: undefined,session, player:  });
 
-  const playerOption = game.players[socketMeta.username];
+  const playerOption = game.players[session.username];
   if (playerOption === undefined)
     return errorHandler(socket, ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
   addCharacterToParty(game, playerOption, character.combatant);
@@ -38,7 +39,7 @@ export default async function joinPlayerToProgressionGame(
     .emit(
       ServerToClientEvent.CharacterAddedToParty,
       partyName,
-      socketMeta.username,
+      session.username,
       character.combatant
     );
 }

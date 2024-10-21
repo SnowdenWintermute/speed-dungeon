@@ -4,7 +4,6 @@ import {
   ClientToServerEvent,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
-import { GameServer } from "../index.js";
 import { applyMiddlewares } from "../event-middleware/index.js";
 import toggleReadyToExploreHandler from "./toggle-ready-to-explore-handler.js";
 import { getPlayerAssociatedData } from "../event-middleware/get-player-associated-data.js";
@@ -24,7 +23,6 @@ import useSelectedCombatActionHandler from "./character-uses-selected-combat-act
 import characterSpentAttributePointHandler from "./character-spent-attribute-point-handler.js";
 
 export default function initiateGameEventListeners(
-  this: GameServer,
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
   socket.on(

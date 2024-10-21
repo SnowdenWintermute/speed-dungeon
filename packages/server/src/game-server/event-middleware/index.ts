@@ -1,6 +1,11 @@
 import { Socket } from "socket.io";
 import errorHandler from "../error-handler.js";
-import { ERROR_MESSAGES } from "@speed-dungeon/common";
+import { ERROR_MESSAGES, PlayerAssociatedData } from "@speed-dungeon/common";
+import { BrowserTabSession } from "../socket-connection-metadata.js";
+
+export interface ServerPlayerAssociatedData extends PlayerAssociatedData {
+  session: BrowserTabSession;
+}
 
 export type SocketEventNextFunction<T, U> = (
   eventData: T,

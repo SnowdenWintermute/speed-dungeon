@@ -2,7 +2,7 @@ import { CombatAction } from "../combat/index.js";
 import { CombatAttribute, CombatantClass } from "../combatants/index.js";
 import { EquipmentSlot } from "../items/index.js";
 import { NextOrPrevious } from "../primatives/index.js";
-import { CharacterAssociatedData, GameMode, PlayerAssociatedData } from "../types.js";
+import { GameMode } from "../types.js";
 import { CharacterAndItem } from "./server-to-client.js";
 
 export enum ClientToServerEvent {
@@ -48,7 +48,7 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.CreateParty]: (partyName: string) => void;
   [ClientToServerEvent.JoinParty]: (partyName: string) => void;
   [ClientToServerEvent.LeaveParty]: () => void;
-  [ClientToServerEvent.ToggleReadyToStartGame]: () => void;
+  [ClientToServerEvent.ToggleReadyToStartGame]: (eventData?: undefined) => void;
   [ClientToServerEvent.CreateCharacter]: (
     characterName: string,
     combatantClass: CombatantClass
@@ -62,44 +62,33 @@ export interface ClientToServerEventTypes {
     characterId: string;
     attribute: CombatAttribute;
   }) => void;
-  [ClientToServerEvent.ToggleReadyToExplore]: (
-    eventData?: undefined,
-    data?: PlayerAssociatedData
-  ) => void;
-  [ClientToServerEvent.UnequipSlot]: (
-    eventData: { characterId: string; slot: EquipmentSlot },
-    middlewareProvidedData?: CharacterAssociatedData
-  ) => void;
-  [ClientToServerEvent.EquipInventoryItem]: (
-    eventData: { characterId: string; itemId: string; equipToAltSlot: boolean },
-    middlewareProvidedData?: CharacterAssociatedData
-  ) => void;
+  [ClientToServerEvent.ToggleReadyToExplore]: (eventData?: undefined) => void;
+  [ClientToServerEvent.UnequipSlot]: (eventData: {
+    characterId: string;
+    slot: EquipmentSlot;
+  }) => void;
+  [ClientToServerEvent.EquipInventoryItem]: (eventData: {
+    characterId: string;
+    itemId: string;
+    equipToAltSlot: boolean;
+  }) => void;
   [ClientToServerEvent.CycleCombatActionTargets]: (eventData: {
     characterId: string;
     direction: NextOrPrevious;
   }) => void;
   [ClientToServerEvent.CycleTargetingSchemes]: (eventData: { characterId: string }) => void;
   [ClientToServerEvent.UseSelectedCombatAction]: (eventData: { characterId: string }) => void;
-  [ClientToServerEvent.DropEquippedItem]: (
-    eventData: { characterId: string; slot: EquipmentSlot },
-    middlewareProvidedData?: CharacterAssociatedData
-  ) => void;
-  [ClientToServerEvent.DropItem]: (
-    eventData: { characterId: string; itemId: string },
-    middlewareProvidedData?: CharacterAssociatedData
-  ) => void;
-  [ClientToServerEvent.ToggleReadyToDescend]: (
-    eventData?: undefined,
-    data?: PlayerAssociatedData
-  ) => void;
+  [ClientToServerEvent.DropEquippedItem]: (eventData: {
+    characterId: string;
+    slot: EquipmentSlot;
+  }) => void;
+  [ClientToServerEvent.DropItem]: (eventData: { characterId: string; itemId: string }) => void;
+  [ClientToServerEvent.ToggleReadyToDescend]: (eventData?: undefined) => void;
   [ClientToServerEvent.AssignAttributePoint]: (
     characterId: string,
     attribute: CombatAttribute
   ) => void;
-  [ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate]: (
-    itemId: string,
-    middlewareProvidedData?: PlayerAssociatedData
-  ) => void;
+  [ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate]: (itemId: string) => void;
   [ClientToServerEvent.PickUpItem]: (characterAndItem: CharacterAndItem) => void;
   [ClientToServerEvent.GetSavedCharactersList]: () => void;
   [ClientToServerEvent.GetSavedCharacterById]: (entityId: string) => void;
