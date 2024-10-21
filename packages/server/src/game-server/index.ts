@@ -18,7 +18,6 @@ import handlePartyWipe from "./game-event-handlers/combat-action-results-process
 import { getSocketIdsOfPlayersInOtherParties } from "./get-socket-ids-of-players-in-other-parties.js";
 import getSocketIdOfPlayer from "./get-player-socket-id.js";
 import { exploreNextRoom } from "./game-event-handlers/toggle-ready-to-explore-handler.js";
-import emitErrorEventIfError from "./emit-error-event-if-error.js";
 import initiateGameEventListeners from "./game-event-handlers/index.js";
 import { ItemGenerationDirector } from "./item-generation/item-generation-director.js";
 import { createItemGenerationDirectors } from "./item-generation/create-item-generation-directors.js";
@@ -79,7 +78,6 @@ export class GameServer implements ActionCommandReceiver {
   getSocketCurrentGame = getSocketCurrentGame;
   getSocketIdsOfPlayersInOtherParties = getSocketIdsOfPlayersInOtherParties;
   getSocketIdOfPlayer = getSocketIdOfPlayer;
-  emitErrorEventIfError = emitErrorEventIfError;
   getGamePartyAndCombatant = getGamePartyAndCombatant;
   // ITEMS
   createItemGenerationDirectors = createItemGenerationDirectors;

@@ -9,6 +9,7 @@ import { CombatAttribute, Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
 import { DescendOrExplore } from "../adventuring-party/update-player-readiness.js";
 import { UserChannelDisplayData } from "../users/index.js";
+import { GameMode } from "../types.js";
 
 export enum ServerToClientEvent {
   GameList = "0",
@@ -158,6 +159,7 @@ export class GameListEntry {
   constructor(
     public gameName: string,
     public numberOfUsers: number,
+    public gameMode: GameMode,
     public timeStarted: null | number
   ) {}
 }

@@ -2,7 +2,13 @@
 "use client";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useEffect, useRef, useState } from "react";
-import { ClientToServerEvent, GameListEntry } from "@speed-dungeon/common";
+import {
+  ClientToServerEvent,
+  GameListEntry,
+  GameMode,
+  MAX_PARTY_SIZE,
+  formatGameMode,
+} from "@speed-dungeon/common";
 import ButtonBasic from "../../components/atoms/ButtonBasic";
 import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client_consts";
 import Divider from "@/app/components/atoms/Divider";
@@ -148,9 +154,9 @@ interface GameListItemProps {
   game: GameListEntry;
 }
 
-function GameListItem(props: GameListItemProps) {
+function GameListItem({ game }: GameListItemProps) {
   function joinGame() {
-    websocketConnection.emit(ClientToServerEvent.JoinGame, props.game.gameName);
+    websocketConnection.emit(ClientToServerEvent.JoinGame, game.gameName);
   }
 
   return (
@@ -161,18 +167,23 @@ function GameListItem(props: GameListItemProps) {
           paddingLeft: `${SPACING_REM_SMALL}rem`,
         }}
       >
-        {props.game.gameName}
+        {game.gameName} - [{formatGameMode(game.gameMode)}]
       </div>
-      <div className="h-10 w-28 flex items-center border-r border-l border-slate-400 pl-4 pr-4">
+      <div className="h-10 w-32 flex items-center border-r border-l border-slate-400 pl-4 pr-4">
         <div className="overflow-hidden whitespace-nowrap overflow-ellipsis">
-          {props.game.numberOfUsers}
+          {game.numberOfUsers}
+          {game.gameMode === GameMode.Progression && `/${MAX_PARTY_SIZE}`}
           {" player"}
-          {props.game.numberOfUsers > 1 || props.game.numberOfUsers === 0 ? "s" : ""}
+          {game.numberOfUsers > 1 ||
+          game.numberOfUsers === 0 ||
+          game.gameMode === GameMode.Progression
+            ? "s"
+            : ""}
         </div>
       </div>
       <ButtonBasic
         onClick={joinGame}
-        disabled={typeof props.game.timeStarted === "number"}
+        disabled={typeof game.timeStarted === "number"}
         extraStyles="border-0"
       >
         {"Join"}

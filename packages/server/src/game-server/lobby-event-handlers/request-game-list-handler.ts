@@ -15,7 +15,7 @@ export default function requestGameListHandler(
     .entries()
     .map(
       ([gameName, game]) =>
-        new GameListEntry(gameName, Object.keys(game.players).length, game.timeStarted)
+        new GameListEntry(gameName, Object.keys(game.players).length, game.mode, game.timeStarted)
     );
   socket.emit(ServerToClientEvent.GameList, gameList);
 }

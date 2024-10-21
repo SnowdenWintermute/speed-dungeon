@@ -13,7 +13,7 @@ import errorHandler from "../error-handler.js";
 import SocketIO from "socket.io";
 import { getGameServer } from "../../index.js";
 
-export default function dropItemHandler(
+export default async function dropItemHandler(
   eventData: CharacterAndItem,
   characterAssociatedData: CharacterAssociatedData,
   socket?: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
@@ -31,9 +31,8 @@ export default function dropItemHandler(
 
   const playerOption = game.players[player.username];
   if (playerOption && playerOption.partyName && game.mode === GameMode.Progression) {
-    writePlayerCharactersInGameToDb(game, playerOption).then((maybeError) => {
-      if (maybeError instanceof Error) return errorHandler(socket, maybeError.message);
-    });
+    const maybeError = await writePlayerCharactersInGameToDb(game, playerOption);
+    if (maybeError instanceof Error) return errorHandler(socket, maybeError.message);
   }
 
   party.itemsOnGroundNotYetReceivedByAllClients[itemDroppedIdResult] = [];
