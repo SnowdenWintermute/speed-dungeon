@@ -21,7 +21,7 @@ export default async function joinProgressionGameHandler(
     const defaultSavedCharacterResult = await getDefaultSavedCharacterForProgressionGame(
       gameServer,
       socketMeta.username,
-      socket.id
+      socket
     );
 
     if (defaultSavedCharacterResult instanceof Error)

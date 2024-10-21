@@ -93,7 +93,8 @@ export default function HostGameForm() {
             <HotkeyButton
               buttonType="button"
               hotkeys={["KeyE"]}
-              disabled={!isLoggedIn}
+              // disabled={!isLoggedIn}
+              disabled={false}
               onClick={() => {
                 setSelectedGameMode(GameMode.Progression);
               }}

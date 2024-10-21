@@ -5,11 +5,12 @@ import {
   ServerToClientEvent,
   addCharacterToParty,
 } from "@speed-dungeon/common";
-import { fetchSavedCharacters } from "../saved-character-event-handlers/index.js";
 import errorHandler from "../error-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../index.js";
 import { Socket } from "socket.io";
+import { fetchSavedCharacters } from "../saved-character-event-handlers/fetch-saved-characters.js";
+import { getLoggedInUser } from "../event-middleware/get-logged-in-user.js";
 
 export default async function selectProgressionGameCharacterHandler(
   entityId: string,
@@ -21,7 +22,10 @@ export default async function selectProgressionGameCharacterHandler(
   if (partyOption === undefined) return new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
   const gameServer = getGameServer();
 
-  const charactersResult = await fetchSavedCharacters(gameServer, socket.id);
+  const loggedInUserResult = await getLoggedInUser(socket);
+  if (loggedInUserResult instanceof Error) return loggedInUserResult;
+  const charactersResult = await fetchSavedCharacters(loggedInUserResult);
+
   if (charactersResult instanceof Error) return new Error(charactersResult.message);
   if (Object.values(charactersResult).length === 0)
     return new Error(ERROR_MESSAGES.GAME.NO_SAVED_CHARACTERS);

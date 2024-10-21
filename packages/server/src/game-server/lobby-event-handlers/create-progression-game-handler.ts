@@ -20,35 +20,30 @@ export default async function createProgressionGameHandler(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>,
   gameName: string
 ) {
-  try {
-    const defaultSavedCharacterResult = await getDefaultSavedCharacterForProgressionGame(
-      gameServer,
-      socketMeta.username,
-      socket.id
-    );
+  const defaultSavedCharacterResult = await getDefaultSavedCharacterForProgressionGame(
+    gameServer,
+    socketMeta.username,
+    socket
+  );
 
-    if (defaultSavedCharacterResult instanceof Error)
-      return errorHandler(socket, defaultSavedCharacterResult.message);
+  if (defaultSavedCharacterResult instanceof Error)
+    return errorHandler(socket, defaultSavedCharacterResult.message);
 
-    const game = new SpeedDungeonGame(gameName, GameMode.Progression, socketMeta.username);
-    game.selectedStartingFloor.max = defaultSavedCharacterResult.deepestFloorReached;
-    game.selectedStartingFloor.current = defaultSavedCharacterResult.deepestFloorReached;
-    const defaultPartyName = getProgressionGamePartyName(game.name);
-    game.adventuringParties[getProgressionGamePartyName(game.name)] = new AdventuringParty(
-      defaultPartyName
-    );
+  const game = new SpeedDungeonGame(gameName, GameMode.Progression, socketMeta.username);
+  game.selectedStartingFloor.max = defaultSavedCharacterResult.deepestFloorReached;
+  game.selectedStartingFloor.current = defaultSavedCharacterResult.deepestFloorReached;
+  const defaultPartyName = getProgressionGamePartyName(game.name);
+  game.adventuringParties[getProgressionGamePartyName(game.name)] = new AdventuringParty(
+    defaultPartyName
+  );
 
-    gameServer.games.insert(gameName, game);
+  gameServer.games.insert(gameName, game);
 
-    await joinPlayerToProgressionGame(
-      gameServer,
-      socket,
-      socketMeta,
-      game,
-      defaultSavedCharacterResult
-    );
-  } catch (error) {
-    console.error(error);
-    return errorHandler(socket, ERROR_MESSAGES.SERVER_GENERIC);
-  }
+  await joinPlayerToProgressionGame(
+    gameServer,
+    socket,
+    socketMeta,
+    game,
+    defaultSavedCharacterResult
+  );
 }

@@ -90,13 +90,13 @@ export interface ClientToServerEventTypes {
   ) => void;
   [ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate]: (itemId: string) => void;
   [ClientToServerEvent.PickUpItem]: (characterAndItem: CharacterAndItem) => void;
-  [ClientToServerEvent.GetSavedCharactersList]: () => void;
+  [ClientToServerEvent.GetSavedCharactersList]: (eventData?: undefined) => void;
   [ClientToServerEvent.GetSavedCharacterById]: (entityId: string) => void;
-  [ClientToServerEvent.CreateSavedCharacter]: (
-    name: string,
-    combatantClass: CombatantClass,
-    slot: number
-  ) => void;
+  [ClientToServerEvent.CreateSavedCharacter]: (eventData: {
+    name: string;
+    combatantClass: CombatantClass;
+    slotNumber: number;
+  }) => void;
   [ClientToServerEvent.DeleteSavedCharacter]: (entityId: string) => void;
   [ClientToServerEvent.SelectSavedCharacterForProgressGame]: (entityId: string) => void;
   [ClientToServerEvent.SelectProgressionGameStartingFloor]: (floor: number) => void;

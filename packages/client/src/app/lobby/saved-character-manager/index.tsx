@@ -47,12 +47,11 @@ export default function SavedCharacterManager() {
   }, [currentSlot]);
 
   function createCharacter() {
-    websocketConnection.emit(
-      ClientToServerEvent.CreateSavedCharacter,
-      newCharacterName,
-      selectedNewCharacterClass,
-      currentSlot
-    );
+    websocketConnection.emit(ClientToServerEvent.CreateSavedCharacter, {
+      name: newCharacterName,
+      combatantClass: selectedNewCharacterClass,
+      slotNumber: currentSlot,
+    });
   }
 
   function deleteCharacter() {
