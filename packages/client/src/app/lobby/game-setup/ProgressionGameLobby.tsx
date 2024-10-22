@@ -1,4 +1,3 @@
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import {
   BASE_SCREEN_SIZE,
@@ -9,16 +8,15 @@ import {
   SpeedDungeonGame,
   SpeedDungeonPlayer,
   formatCombatantClassName,
-  formatGameMode,
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
 import React, { useEffect } from "react";
-import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import SelectDropdown from "@/app/components/atoms/SelectDropdown";
 import SavedCharacterDisplay from "../saved-character-manager/SavedCharacterDisplay";
 import Divider from "@/app/components/atoms/Divider";
+import GameLobby from "./GameLobby";
 
 export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame }) {
   const username = useGameStore().username;
@@ -27,84 +25,43 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
     websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
   }, []);
 
-  function leaveGame() {
-    websocketConnection.emit(ClientToServerEvent.LeaveGame);
-  }
-  function toggleReady() {
-    websocketConnection.emit(ClientToServerEvent.ToggleReadyToStartGame);
-  }
-
-  let isReady = username && game.playersReadied.includes(username);
-  let readyStyle = isReady ? "bg-green-800" : "";
-
-  const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
   const numPlayersInGame = Object.values(game.players).length;
+  const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
 
   return (
-    <div className="w-full h-full flex">
-      <div className="flex flex-col">
-        <div
-          id="game-title-container"
-          className="p-2 border-slate-400 border bg-slate-700 h-fit relative pointer-events-auto mb-4"
-          style={{ width: `${menuWidth}px` }}
-        >
-          <HotkeyButton
-            className="h-10 w-10 p-2 border-b border-l absolute top-0 right-0 border-slate-400"
-            hotkeys={["Escape"]}
-            onClick={() => leaveGame()}
-          >
-            <XShape className="h-full w-full fill-slate-400" />
-          </HotkeyButton>
-          <h2 className="text-xl">{game.name}</h2>
-          <h4 className="text-slate-400">{formatGameMode(game.mode) + " game"}</h4>
-        </div>
+    <GameLobby game={game}>
+      <div style={{ width: `${menuWidth}px` }}>
+        <ul className="w-full flex flex-col">
+          {Object.values(game.players).map((player, i) => (
+            <PlayerDisplay playerOption={player} game={game} index={i} key={player.username} />
+          ))}
+          {new Array(MAX_PARTY_SIZE - numPlayersInGame).fill(null).map((_item, i) => (
+            <PlayerDisplay playerOption={null} game={game} index={i + numPlayersInGame} key={i} />
+          ))}
+        </ul>
+        <Divider />
+        <div className="text-lg mb-2">Starting on floor: max {game.selectedStartingFloor.max}</div>
         <div>
-          <ul className="w-full flex flex-col">
-            {Object.values(game.players).map((player, i) => (
-              <PlayerDisplay playerOption={player} game={game} index={i} key={player.username} />
-            ))}
-            {new Array(MAX_PARTY_SIZE - numPlayersInGame).fill(null).map((_item, i) => (
-              <PlayerDisplay playerOption={null} game={game} index={i + numPlayersInGame} key={i} />
-            ))}
-          </ul>
-          <Divider />
-          <div className="text-lg mb-2">
-            Starting on floor: max {game.selectedStartingFloor.max}
-          </div>
-          <div>
-            {
-              <SelectDropdown
-                title={"starting-floor-select"}
-                value={game.selectedStartingFloor.current}
-                setValue={(value: number) => {
-                  websocketConnection.emit(
-                    ClientToServerEvent.SelectProgressionGameStartingFloor,
-                    value
-                  );
-                }}
-                options={Array.from({ length: game.selectedStartingFloor.max }, (_, index) => ({
-                  title: `Floor ${index + 1}`,
-                  value: index + 1,
-                }))}
-                disabled={Object.values(game.players)[0]?.username !== username}
-              />
-            }
-          </div>
+          {
+            <SelectDropdown
+              title={"starting-floor-select"}
+              value={game.selectedStartingFloor.current}
+              setValue={(value: number) => {
+                websocketConnection.emit(
+                  ClientToServerEvent.SelectProgressionGameStartingFloor,
+                  value
+                );
+              }}
+              options={Array.from({ length: game.selectedStartingFloor.max }, (_, index) => ({
+                title: `Floor ${index + 1}`,
+                value: index + 1,
+              }))}
+              disabled={Object.values(game.players)[0]?.username !== username}
+            />
+          }
         </div>
       </div>
-      <div className="absolute z-10 bottom-0 left-0 w-full p-7 flex items-center justify-center">
-        <HotkeyButton
-          hotkeys={["KeyR", "Enter"]}
-          onClick={toggleReady}
-          className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
-                        flex justify-center items-center disabled:opacity-50 pointer-events-auto 
-                        disabled:cursor-auto text-xl ${isReady ? readyStyle : "bg-slate-950"} text-slate-400
-                        `}
-        >
-          READY
-        </HotkeyButton>
-      </div>
-    </div>
+    </GameLobby>
   );
 }
 

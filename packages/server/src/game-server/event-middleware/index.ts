@@ -69,7 +69,8 @@ export const applyMiddlewares =
           try {
             // we should now have the middlewareProvidedDataOption because it was passed by a middleware
             // and we should be checking for it above
-            await handler(eventData, middlewareProvidedDataOption, socket);
+            const maybeError = await handler(eventData, middlewareProvidedDataOption, socket);
+            if (maybeError instanceof Error) return errorHandler(socket, maybeError.message);
           } catch (error) {
             if (error instanceof Error) errorHandler(socket, error.message);
             else console.error(error);

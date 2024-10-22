@@ -1,12 +1,13 @@
 import { GameMode, SpeedDungeonGame } from "@speed-dungeon/common";
 import React from "react";
 import ProgressionGameLobby from "./ProgressionGameLobby";
-import { SPACING_REM_LARGE } from "@/client_consts";
+import RaceGameLobby from "./RaceGameLobby";
 
 export function GameSetup({ game }: { game: SpeedDungeonGame }) {
   return (
-    <main className="h-screen w-screen" style={{ padding: `${SPACING_REM_LARGE}rem` }}>
+    <main className="h-screen w-screen">
       {game.mode === GameMode.Progression && <ProgressionGameLobby game={game} />}
+      {game.mode === GameMode.Race && <RaceGameLobby game={game} />}
     </main>
   );
 }

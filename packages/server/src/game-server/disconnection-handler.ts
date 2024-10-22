@@ -18,16 +18,16 @@ export default async function disconnectionHandler(
 
   console.log(`-- ${session.username} (${socket.id})  disconnected. Reason - ${reason}`);
 
+  const userCurrentSockets = gameServer.socketIdsByUsername.get(session.username);
+  if (userCurrentSockets) removeFromArray(userCurrentSockets, socket.id);
+  if (userCurrentSockets && Object.keys(userCurrentSockets).length < 1)
+    gameServer.socketIdsByUsername.remove(session.username);
+
   if (session.currentGameName) {
     const playerAssociatedDataResult = getPlayerAssociatedData(socket);
     if (playerAssociatedDataResult instanceof Error) return playerAssociatedDataResult;
     await leaveGameHandler(undefined, playerAssociatedDataResult, socket);
   }
-
-  const userCurrentSockets = gameServer.socketIdsByUsername.get(session.username);
-  if (userCurrentSockets) removeFromArray(userCurrentSockets, socket.id);
-  if (userCurrentSockets && Object.keys(userCurrentSockets).length < 1)
-    gameServer.socketIdsByUsername.remove(session.username);
 
   gameServer.removeSocketFromChannel(socket.id, session.channelName);
 
