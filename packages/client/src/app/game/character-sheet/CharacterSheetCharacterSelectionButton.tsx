@@ -1,5 +1,4 @@
 import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { useAlertStore } from "@/stores/alert-store";
 import { useGameStore } from "@/stores/game-store";
 import setFocusedCharacter from "@/utils/set-focused-character";
@@ -12,7 +11,6 @@ interface Props {
 export default function CharacterSheetCharacterSelectionButton({ characterId }: Props) {
   const mutateGameState = useGameStore().mutateState;
   const mutateAlertState = useAlertStore().mutateState;
-  const socketOption = websocketConnection;
   const focusedCharacterId = useGameStore().focusedCharacterId;
   const characterResult = useGameStore().getCharacter(characterId);
   if (characterResult instanceof Error) return <div>{characterResult.message}</div>;
@@ -21,7 +19,7 @@ export default function CharacterSheetCharacterSelectionButton({ characterId }: 
     focusedCharacterId === character.entityProperties.id ? "border-yellow-400" : "";
 
   function handleClick() {
-    setFocusedCharacter(mutateGameState, mutateAlertState, socketOption, characterId);
+    setFocusedCharacter(mutateGameState, mutateAlertState, characterId);
   }
 
   return (
