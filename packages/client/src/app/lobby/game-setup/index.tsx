@@ -1,7 +1,7 @@
 import { GameMode, SpeedDungeonGame } from "@speed-dungeon/common";
 import React from "react";
 import ProgressionGameLobby from "./ProgressionGameLobby";
-import RaceGameLobby from "./RaceGameLobby";
+import RaceGameLobby from "./race-game-lobby/";
 
 export function GameSetup({ game }: { game: SpeedDungeonGame }) {
   return (
@@ -11,9 +11,3 @@ export function GameSetup({ game }: { game: SpeedDungeonGame }) {
     </main>
   );
 }
-
-// <GameSetupMenu />
-// <div className="w-full flex flex-1">
-//   <CharacterAndPartySelection />
-//   <UserList />
-// </div>

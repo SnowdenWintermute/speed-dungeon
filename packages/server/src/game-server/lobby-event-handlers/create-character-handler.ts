@@ -1,6 +1,7 @@
 import {
   CombatantClass,
   ERROR_MESSAGES,
+  MAX_CHARACTER_NAME_LENGTH,
   ServerToClientEvent,
   SpeedDungeonGame,
   addCharacterToParty,
@@ -18,6 +19,8 @@ export default function createCharacterHandler(
 
   const { name, combatantClass } = eventData;
 
+  if (name.length > MAX_CHARACTER_NAME_LENGTH)
+    return new Error(ERROR_MESSAGES.COMBATANT.MAX_NAME_LENGTH_EXCEEDED);
   const newCharacter = createCharacter(name, combatantClass);
   addCharacterToParty(game, player, newCharacter);
 

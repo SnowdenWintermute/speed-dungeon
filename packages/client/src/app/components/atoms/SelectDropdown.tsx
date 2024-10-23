@@ -67,7 +67,7 @@ export default function SelectDropdown(props: Props) {
       else setIndexSelected(indexSelected + 1);
   }
 
-  const handleClickOutsideMenu = (e: MouseEvent) => {
+  function handleClickOutsideMenu(e: MouseEvent) {
     if (selectInputRef.current) {
       console.log("clicked outside menu ", props.title);
       const menuRect = selectInputRef.current.getBoundingClientRect();
@@ -76,14 +76,14 @@ export default function SelectDropdown(props: Props) {
       const maxY = y + height;
       if (e.x < x || e.x > maxX || e.y > maxY || e.y < y) handleBlur();
     }
-  };
+  }
 
   useEffect(() => {
     window.addEventListener("keydown", handleUserKeydown);
-    window.addEventListener("click", handleClickOutsideMenu);
+    window.addEventListener("mousedown", handleClickOutsideMenu);
     return () => {
       window.removeEventListener("keydown", handleUserKeydown);
-      window.removeEventListener("click", handleClickOutsideMenu);
+      window.removeEventListener("mousedown", handleClickOutsideMenu);
     };
   }, [isOpen, isFocused, value]);
 

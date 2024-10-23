@@ -1,5 +1,5 @@
 import { useUIStore } from "@/stores/ui-store";
-import { ChangeEvent, useEffect } from "react";
+import { ChangeEvent, useEffect, useRef } from "react";
 
 interface Props {
   placeholder: string;
@@ -12,28 +12,42 @@ interface Props {
 }
 
 export default function TextInput(props: Props) {
+  const inputRef = useRef<HTMLInputElement>(null);
   const mutateUIState = useUIStore().mutateState;
 
   useEffect(() => {
-    return () => {
-      mutateUIState((state) => {
-        state.hotkeysDisabled = false;
-      });
-    };
+    return handleBlur;
+  }, []);
+
+  function handleBlur() {
+    mutateUIState((state) => {
+      state.hotkeysDisabled = false;
+    });
+  }
+
+  function handleKeydown(e: KeyboardEvent) {
+    const { code } = e;
+    console.log("CODE: ", code);
+    if (code === "Escape" || code === "Esc") {
+      console.log(inputRef.current);
+      inputRef.current?.blur();
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeydown);
+    return () => window.removeEventListener("keydown", handleKeydown);
   }, []);
 
   return (
     <input
+      ref={inputRef}
       onFocus={() => {
         mutateUIState((state) => {
           state.hotkeysDisabled = true;
         });
       }}
-      onBlur={() => {
-        mutateUIState((state) => {
-          state.hotkeysDisabled = false;
-        });
-      }}
+      onBlur={handleBlur}
       className={`pointer-events-auto ${props.className}`}
       type={props.type || "text"}
       placeholder={props.placeholder}

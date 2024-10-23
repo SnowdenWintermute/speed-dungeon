@@ -1,4 +1,4 @@
-import { MAX_CHARACTER_NAME_LENGTH } from "../app-consts.js";
+import { INVENTORY_DEFAULT_CAPACITY, MAX_CHARACTER_NAME_LENGTH } from "../app-consts.js";
 
 export type CustomErrorDetails = { message: string; field?: string };
 
@@ -75,6 +75,7 @@ export const ERROR_MESSAGES = {
     ATTRIBUTE_IS_NOT_ASSIGNABLE: "Points may not be spent on that attribute",
     EXPECTED_OWNER_ID_MISSING: "Failed to find expected controlling player ID",
     MAX_NAME_LENGTH_EXCEEDED: `Character names must be no longer than ${MAX_CHARACTER_NAME_LENGTH} characters`,
+    MAX_INVENTORY_CAPACITY: `Combatants may carry no more than ${INVENTORY_DEFAULT_CAPACITY} items`,
   },
   MONSTERS: {
     NO_MONSTERS_FOUND: "No monsters were found in the current room",

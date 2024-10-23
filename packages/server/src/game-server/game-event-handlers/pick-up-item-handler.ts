@@ -2,6 +2,7 @@ import {
   CharacterAndItem,
   CharacterAssociatedData,
   ERROR_MESSAGES,
+  INVENTORY_DEFAULT_CAPACITY,
   Item,
   ServerToClientEvent,
   getPartyChannelName,
@@ -13,6 +14,8 @@ export default function pickUpItemHandler(
   characterAssociatedData: CharacterAssociatedData
 ) {
   const { game, party, character } = characterAssociatedData;
+  if (character.combatantProperties.inventory.items.length >= INVENTORY_DEFAULT_CAPACITY)
+    return new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);
   const gameServer = getGameServer();
   const { itemId } = eventData;
 
