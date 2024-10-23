@@ -103,11 +103,11 @@ export default function SelectDropdown(props: Props) {
           type="button"
           key={option.value}
           id={`select-${props.title}-selected-option`}
-          className={`h-10 w-full flex justify-between items-center pl-2 bg-slate-700 
-          border border-b-0 border-slate-400 ${isFocused && "bg-slate-950"} ${props.disabled && "opacity-50"}`}
+          className={`h-full w-full flex justify-between items-center pl-2 bg-slate-700 
+          border ${isOpen && "border-b-0"} border-slate-400 ${isFocused && "bg-slate-950"} ${props.disabled && "opacity-50"}`}
         >
           <span>{option.title}</span>
-          <div className="h-full p-3 pointer-events-none">
+          <div className="h-full pt-3 pb-3 pointer-events-none">
             <Triangle
               className={`h-full w-10 fill-slate-400 transition-transform ${isOpen && "rotate-180"}`}
             />
@@ -141,16 +141,18 @@ export default function SelectDropdown(props: Props) {
     <div
       ref={selectInputRef}
       aria-label={`select ${props.title}`}
-      className={`w-full pointer-events-auto relative ${props.extraStyles}`}
+      className={`h-10 w-full pointer-events-auto relative ${props.extraStyles}`}
     >
       {selectedOptionAsOpenButton}
-      <ul
-        className={`absolute z-10 w-full border border-b-0 border-slate-400 
-          ${props.disabled && "opacity-50"}
-          `}
-      >
-        {isOpen && optionButtons}
-      </ul>
+      {isOpen && (
+        <ul
+          className={`absolute z-10 w-full border border-b-0 border-slate-400 
+       ${props.disabled && "opacity-50"}
+       `}
+        >
+          {optionButtons}
+        </ul>
+      )}
     </div>
   );
 }

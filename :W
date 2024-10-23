@@ -9,6 +9,7 @@ import {
   GOLDEN_RATIO,
   MAX_PARTY_SIZE,
   SpeedDungeonGame,
+  SpeedDungeonPlayer,
   formatCombatantClassName,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
@@ -19,9 +20,8 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import TextInput from "@/app/components/atoms/TextInput";
 import SelectDropdown from "@/app/components/atoms/SelectDropdown";
 import Axe from "../../../../public/img/combatant-class-icons/axe.svg";
-import DualSwords from "../../../../public/img/combatant-class-icons/dual-swords.svg";
+import CrossedSwords from "../../../../public/img/combatant-class-icons/crossed-swords.svg";
 import StaffWithSnowflake from "../../../../public/img/combatant-class-icons/staff-with-snowflake.svg";
-import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 
 export default function RaceGameLobby({ game }: { game: SpeedDungeonGame }) {
   const username = useGameStore().username;
@@ -91,7 +91,7 @@ function PartySetupCard({ party }: { party: AdventuringParty }) {
       className="mb-4 border border-slate-400 bg-slate-700 pointer-events-auto"
       style={{ width: `${menuWidth}px` }}
     >
-      <div className="w-full p-2 pr-4 pl-4 flex justify-between">
+      <div className="w-full p-2 flex justify-between">
         <h4 className="text-xl w-full flex justify-between">
           <span>{party.name}</span>
           <span>
@@ -104,14 +104,18 @@ function PartySetupCard({ party }: { party: AdventuringParty }) {
           const character = party.characters[characterId];
           if (!character) return <li>Character not found</li>;
 
-          return <CharacterCard character={character} username={username} />;
+          return (
+            <li className="h-20 mb-2 last:mb-0 border-slate-400 border">
+              <CharacterCard character={character} />
+            </li>
+          );
         })}
         {new Array(MAX_PARTY_SIZE - numCharacters).fill(null).map((item, i) =>
           i === 0 && userIsInThisParty ? (
             <li key={i}>
               <form
                 onSubmit={handleCreateCharacter}
-                className="h-20 mb-2 last:mb-0 flex items-center text-lg relative"
+                className="h-20  mb-2 last:mb-0 flex items-center text-lg relative"
               >
                 <div className="absolute top-0 text-sm">New Character:</div>
                 <TextInput
@@ -144,7 +148,7 @@ function PartySetupCard({ party }: { party: AdventuringParty }) {
             </li>
           ) : (
             <li
-              className="h-20 p-2 border border-slate-400 mb-2 last:mb-0 flex items-center text-lg "
+              className="h-20 p-2 border border-slate-400 mb-2 last:mb-0 flex items-center text-lg"
               key={i}
             >
               <span>Empty slot</span>
@@ -156,12 +160,8 @@ function PartySetupCard({ party }: { party: AdventuringParty }) {
   );
 }
 
-function CharacterCard({ character, username }: { character: Combatant; username: string }) {
+function CharacterCard({ character }: { character: Combatant }) {
   const { combatantClass, controllingPlayer } = character.combatantProperties;
-  function deleteCharacter() {
-    websocketConnection.emit(ClientToServerEvent.DeleteCharacter, character.entityProperties.id);
-  }
-
   let icon;
   switch (combatantClass) {
     case CombatantClass.Warrior:
@@ -171,25 +171,17 @@ function CharacterCard({ character, username }: { character: Combatant; username
       icon = <StaffWithSnowflake className="h-20 fill-slate-400 stroke-slate-400" />;
       break;
     case CombatantClass.Rogue:
-      icon = <DualSwords className="h-20 fill-slate-400" />;
+      icon = <CrossedSwords className="h-20 fill-slate-400" />;
   }
   return (
-    <li className="h-20 mb-2 last:mb-0 flex items-center pr-2">
-      <div className="h-full mr-4 w-32 flex justify-center">{icon}</div>
+    <li className="h-20 mb-2 last:mb-0 flex items-center">
+      <div className="h-full mr-2">{icon}</div>
       <div className="flex w-full justify-between">
         <div>
           <h5 className="text-lg">{character.entityProperties.name}</h5>
           <p className="text-slate-400">{formatCombatantClassName(combatantClass)}</p>
         </div>
-        <div className="flex ">
-          {controllingPlayer !== username ? (
-            <h5 className="text-lg text-slate-400">{controllingPlayer}</h5>
-          ) : (
-            <HotkeyButton className="border border-slate-400 p-1 h-10" onClick={deleteCharacter}>
-              <XShape className="h-full w-full fill-slate-400" />
-            </HotkeyButton>
-          )}
-        </div>
+        <h5 className="text-lg text-slate-400">{controllingPlayer}</h5>
       </div>
     </li>
   );
