@@ -6,6 +6,7 @@ import {
   GameMode,
   ServerToClientEvent,
   SpeedDungeonGame,
+  getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
 import { ActionCommandManager } from "@speed-dungeon/common";
@@ -41,23 +42,16 @@ export default async function battleResultActionCommandHandler(
   switch (conclusion) {
     case BattleConclusion.Defeat:
       if (party.battleId !== null) delete game.battles[party.battleId];
-      const socketIdsOfPlayersInOtherPartiesResult = this.getSocketIdsOfPlayersInOtherParties(
-        game,
-        party
-      );
-      if (socketIdsOfPlayersInOtherPartiesResult instanceof Error)
-        return socketIdsOfPlayersInOtherPartiesResult;
-      const socketIdsOfPlayersInOtherParties = socketIdsOfPlayersInOtherPartiesResult;
-      for (const socketId of socketIdsOfPlayersInOtherParties) {
-        const socketOption = this.io.sockets.sockets.get(socketId);
-        if (socketOption === undefined) return new Error(ERROR_MESSAGES.SERVER.SOCKET_NOT_FOUND);
-        socketOption.emit(ServerToClientEvent.GameMessage, {
+
+      getGameServer()
+        .io.in(game.name)
+        .except(getPartyChannelName(game.name, party.name))
+        .emit(ServerToClientEvent.GameMessage, {
           type: GameMessageType.PartyWipe,
           partyName: party.name,
           dlvl: party.currentFloor,
           timeOfWipe: new Date().getTime(),
         });
-      }
 
       if (game.mode === GameMode.Progression) {
         // REMOVE DEAD CHARACTERS FROM LADDER

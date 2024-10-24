@@ -14,8 +14,6 @@ import removeSocketFromChannel from "./remove-socket-from-channel.js";
 import { HashMap } from "@speed-dungeon/common";
 import getConnection from "./get-connection.js";
 import getSocketCurrentGame from "./utils/get-socket-current-game.js";
-import handlePartyWipe from "./game-event-handlers/combat-action-results-processing/handle-party-wipe.js";
-import { getSocketIdsOfPlayersInOtherParties } from "./get-socket-ids-of-players-in-other-parties.js";
 import getSocketIdOfPlayer from "./get-player-socket-id.js";
 import { exploreNextRoom } from "./game-event-handlers/toggle-ready-to-explore-handler.js";
 import initiateGameEventListeners from "./game-event-handlers/index.js";
@@ -62,7 +60,6 @@ export class GameServer implements ActionCommandReceiver {
   joinSocketToChannel = joinSocketToChannel;
   removeSocketFromChannel = removeSocketFromChannel;
   //
-  handlePartyWipe = handlePartyWipe;
   exploreNextRoom = exploreNextRoom;
   // ACTION COMMAND HANDLERS
   processSelectedCombatAction = processSelectedCombatAction;
@@ -76,7 +73,6 @@ export class GameServer implements ActionCommandReceiver {
   takeAiControlledTurnIfActive = takeAiControlledTurnIfActive;
   // UTILS
   getSocketCurrentGame = getSocketCurrentGame;
-  getSocketIdsOfPlayersInOtherParties = getSocketIdsOfPlayersInOtherParties;
   getSocketIdOfPlayer = getSocketIdOfPlayer;
   getGamePartyAndCombatant = getGamePartyAndCombatant;
   // ITEMS
