@@ -15,8 +15,8 @@ export default async function writePlayerCharactersInGameToDb(
 ): Promise<Error | void> {
   try {
     console.log("saving characters for player ", player.username);
+    if (!player.partyName) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
     for (const id of player.characterIds) {
-      if (!player.partyName) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
       const characterResult = SpeedDungeonGame.getCharacter(game, player.partyName, id);
       if (characterResult instanceof Error)
         throw new Error("Couldn't save character: " + characterResult);

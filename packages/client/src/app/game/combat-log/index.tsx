@@ -45,6 +45,8 @@ function CombatLogMessageElement({ message }: { message: CombatLogMessage }) {
     case CombatLogMessageStyle.BattleVictory:
       color = "text-yellow-400";
       break;
+    case CombatLogMessageStyle.LadderProgress:
+      color = "text-purple-400";
   }
 
   return <li className={color}>{message.message}</li>;

@@ -27,11 +27,7 @@ export default function TextInput(props: Props) {
 
   function handleKeydown(e: KeyboardEvent) {
     const { code } = e;
-    console.log("CODE: ", code);
-    if (code === "Escape" || code === "Esc") {
-      console.log(inputRef.current);
-      inputRef.current?.blur();
-    }
+    if (code === "Escape" || code === "Esc") inputRef.current?.blur();
   }
 
   useEffect(() => {

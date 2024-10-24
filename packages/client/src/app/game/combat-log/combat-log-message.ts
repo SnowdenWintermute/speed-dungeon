@@ -9,6 +9,7 @@ export class CombatLogMessage {
 export enum CombatLogMessageStyle {
   Basic,
   PartyProgress,
+  LadderProgress,
   GameProgress,
   PartyWipe,
   PartyEscape,

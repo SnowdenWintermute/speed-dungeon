@@ -14,6 +14,7 @@ import { valkeyManager } from "../../../kv-store/index.js";
 import { CHARACTER_LEVEL_LADDER } from "../../../kv-store/consts.js";
 import { removeDeadCharactersFromLadder } from "../../../kv-store/utils.js";
 import { getGameServer } from "../../../index.js";
+import { notifyOnlinePlayersOfTopRankedDeaths } from "../../ladders/utils.js";
 
 export default async function battleResultActionCommandHandler(
   this: GameServer,
@@ -61,19 +62,7 @@ export default async function battleResultActionCommandHandler(
       if (game.mode === GameMode.Progression) {
         // REMOVE DEAD CHARACTERS FROM LADDER
         const deathsAndRanks = await removeDeadCharactersFromLadder(party.characters);
-        console.log("deaths and ranks: ", deathsAndRanks);
-        for (const [characterName, deathAndRank] of Object.entries(deathsAndRanks)) {
-          console.log(
-            `${characterName} [${deathAndRank.owner}] died at level ${deathAndRank.level}, losing their position of ${deathAndRank.rank} in the ladder`
-          );
-          getGameServer().io.emit(ServerToClientEvent.GameMessage, {
-            type: GameMessageType.LadderDeath,
-            characterName,
-            playerName: deathAndRank.owner,
-            level: deathAndRank.level,
-            rank: deathAndRank.rank,
-          });
-        }
+        notifyOnlinePlayersOfTopRankedDeaths(deathsAndRanks);
       }
 
       for (const username of party.playerUsernames)
@@ -96,18 +85,17 @@ export default async function battleResultActionCommandHandler(
         ]);
 
         // - if they ranked up and were in the top 10 ranks, emit a message to everyone
-        if (newRank !== currentRankOption && newRank >= 9) {
-          console.log(
-            `${name} [${controllingPlayer}] gained level ${level} and rose to rank ${newRank} in the ladder!`
-          );
-          getGameServer().io.emit(ServerToClientEvent.GameMessage, {
-            type: GameMessageType.LadderProgress,
-            characterName: name,
-            playerName: controllingPlayer || "",
-            level,
-            rank: newRank,
-          });
-        }
+        if (newRank === currentRankOption || newRank >= 10) continue;
+        console.log(
+          `${name} [${controllingPlayer}] gained level ${level} and rose to rank ${newRank} in the ladder!`
+        );
+        getGameServer().io.emit(ServerToClientEvent.GameMessage, {
+          type: GameMessageType.LadderProgress,
+          characterName: name,
+          playerName: controllingPlayer || "",
+          level,
+          rank: newRank,
+        });
       }
     }
   }

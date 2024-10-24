@@ -1,4 +1,6 @@
 import {
+  Combatant,
+  ERROR_MESSAGES,
   GameMode,
   LOBBY_CHANNEL,
   ServerToClientEvent,
@@ -10,6 +12,8 @@ import leavePartyHandler from "./leave-party-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { Socket } from "socket.io";
 import { getGameServer } from "../../index.js";
+import { removeDeadCharactersFromLadder } from "../../kv-store/utils.js";
+import { notifyOnlinePlayersOfTopRankedDeaths } from "../ladders/utils.js";
 
 export default async function leaveGameHandler(
   _eventData: undefined,
@@ -22,6 +26,16 @@ export default async function leaveGameHandler(
   if (player.partyName && game.mode === GameMode.Progression) {
     const maybeError = await writePlayerCharactersInGameToDb(game, player);
     if (maybeError instanceof Error) return errorHandler(socket, maybeError.message);
+
+    // If they're leaving a game while dead, this character should be removed from the ladder
+    const characters: { [combatantId: string]: Combatant } = {};
+    for (const id of player.characterIds) {
+      const characterResult = SpeedDungeonGame.getCharacter(game, player.partyName, id);
+      if (characterResult instanceof Error) return characterResult;
+      characters[characterResult.entityProperties.id] = characterResult;
+    }
+    const deathsAndRanks = await removeDeadCharactersFromLadder(characters);
+    notifyOnlinePlayersOfTopRankedDeaths(deathsAndRanks);
   }
 
   leavePartyHandler(undefined, playerAssociatedData, socket);

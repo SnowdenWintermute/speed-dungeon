@@ -31,13 +31,13 @@ export default function gameProgressMessageHandler(
       case GameMessageType.LadderProgress:
         combatLogMessage = new CombatLogMessage(
           `${message.characterName} [${message.playerName}] gained level ${message.level} and rose to rank ${message.rank} in the ladder!`,
-          CombatLogMessageStyle.PartyProgress
+          CombatLogMessageStyle.LadderProgress
         );
         break;
       case GameMessageType.LadderDeath:
         combatLogMessage = new CombatLogMessage(
-          `${message.characterName} [${message.playerName}] died at level ${message.level}, losing their position of ${message.rank} in the ladder`,
-          CombatLogMessageStyle.PartyProgress
+          `${message.characterName} [${message.playerName}] died at level ${message.level}, losing their position of rank ${message.rank + 1} in the ladder`,
+          CombatLogMessageStyle.LadderProgress
         );
         break;
     }
