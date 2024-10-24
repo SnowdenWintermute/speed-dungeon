@@ -95,7 +95,7 @@ export default function SelectDropdown(props: Props) {
         <button
           onFocus={handleFocus}
           onBlur={handleBlur}
-          onClick={() => setIsOpen(!isOpen)}
+          onMouseDown={() => setIsOpen(!isOpen)}
           onKeyDown={(e) => {
             if (e.code === "Space") e.preventDefault(); // we don't want the default behavior because we're handling spacebar events ourselves
           }}
@@ -104,7 +104,7 @@ export default function SelectDropdown(props: Props) {
           key={option.value}
           id={`select-${props.title}-selected-option`}
           className={`h-full w-full flex justify-between items-center pl-2 bg-slate-700 
-          border ${isOpen && "border-b-0"} border-slate-400 ${isFocused && "bg-slate-950"} ${props.disabled && "opacity-50"}`}
+          border ${isOpen && "border-b-transparent"} border-slate-400 ${isFocused && "bg-slate-950"} ${props.disabled && "opacity-50"}`}
         >
           <span>{option.title}</span>
           <div className="h-full pt-3 pb-3 pointer-events-none">

@@ -11,5 +11,6 @@ export const env = cleanEnv(process.env, {
   POSTGRES_USER: str(),
   POSTGRES_PASSWORD: str(),
   DATABASE_URL: url(),
-  INTERNAL_SERVICES_SECRET: str()
+  INTERNAL_SERVICES_SECRET: str(),
+  VALKEY_URL: url(),
 });

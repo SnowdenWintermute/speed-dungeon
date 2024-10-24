@@ -9,6 +9,8 @@ import { LoggedInUser } from "../event-middleware/get-logged-in-user.js";
 import { characterSlotsRepo } from "../../database/repos/character-slots.js";
 import { createCharacter } from "../character-creation/index.js";
 import { playerCharactersRepo } from "../../database/repos/player-characters.js";
+import { valkeyManager } from "../../kv-store/index.js";
+import { CHARACTER_LEVEL_LADDER } from "../../kv-store/consts.js";
 
 export default async function createSavedCharacterHandler(
   eventData: { name: string; combatantClass: CombatantClass; slotNumber: number },
@@ -30,6 +32,10 @@ export default async function createSavedCharacterHandler(
   await playerCharactersRepo.insert(newCharacter, userId);
   slot.characterId = newCharacter.entityProperties.id;
   await characterSlotsRepo.update(slot);
+
+  await valkeyManager.context.zAdd(CHARACTER_LEVEL_LADDER, [
+    { value: newCharacter.entityProperties.id, score: newCharacter.combatantProperties.level },
+  ]);
 
   socket.emit(
     ServerToClientEvent.SavedCharacter,

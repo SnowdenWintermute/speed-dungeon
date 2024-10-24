@@ -52,7 +52,7 @@ function CreatePartyCard() {
       className="h-32 border border-slate-400 bg-slate-700 flex items-center justify-center pointer-events-auto mb-4"
       style={{ width: `${menuWidth}px` }}
     >
-      <HotkeyButton className="h-full w-full text-lg" onClick={createParty}>
+      <HotkeyButton hotkeys={["KeyA"]} className="h-full w-full text-lg" onClick={createParty}>
         CREATE PARTY
       </HotkeyButton>
     </section>

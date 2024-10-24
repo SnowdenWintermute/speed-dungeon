@@ -2,6 +2,8 @@ import { Socket } from "socket.io";
 import { LoggedInUser } from "../event-middleware/get-logged-in-user.js";
 import { ERROR_MESSAGES, ServerToClientEvent } from "@speed-dungeon/common";
 import { playerCharactersRepo } from "../../database/repos/player-characters.js";
+import { valkeyManager } from "../../kv-store/index.js";
+import { CHARACTER_LEVEL_LADDER } from "../../kv-store/consts.js";
 
 export default async function deleteSavedCharacterHandler(
   entityId: string,
@@ -16,5 +18,8 @@ export default async function deleteSavedCharacterHandler(
   if (characterToDelete?.ownerId !== userId)
     return new Error(ERROR_MESSAGES.USER.SAVED_CHARACTER_NOT_OWNED);
   await playerCharactersRepo.delete(entityId);
+
+  await valkeyManager.context.zRank(CHARACTER_LEVEL_LADDER, entityId);
+
   socket.emit(ServerToClientEvent.SavedCharacterDeleted, entityId);
 }

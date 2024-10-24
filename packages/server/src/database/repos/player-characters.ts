@@ -56,6 +56,19 @@ class PlayerCharacterRepo extends DatabaseRepository<PlayerCharacter> {
     if (rows[0]) return toCamelCase(rows)[0] as unknown as PlayerCharacter;
     return undefined;
   }
+
+  async getAllByLevel() {
+    const { rows } = await this.pgPool.query(
+      `
+      SELECT id, combatant_properties->>'level' AS level, combatant_properties->>'hitPoints' AS hit_points
+      FROM player_characters;
+      `
+    );
+
+    if (rows[0])
+      return toCamelCase(rows) as unknown as { id: string; level: number; hitPoints: number }[];
+    return undefined;
+  }
 }
 
 export const playerCharactersRepo = new PlayerCharacterRepo(pgPool, tableName);

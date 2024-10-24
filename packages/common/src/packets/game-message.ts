@@ -2,6 +2,8 @@ export enum GameMessageType {
   PartyDescent,
   PartyEscape,
   PartyWipe,
+  LadderProgress,
+  LadderDeath,
 }
 
 interface PartyDescentGameMessage {
@@ -23,4 +25,25 @@ interface PartyWipeGameMessage {
   timeOfWipe: number;
 }
 
-export type GameMessage = PartyWipeGameMessage | PartyEscapeGameMessage | PartyDescentGameMessage;
+interface LadderProgressGameMessage {
+  type: GameMessageType.LadderProgress;
+  characterName: string;
+  playerName: string;
+  level: number;
+  rank: number;
+}
+
+interface LadderDeathGameMessage {
+  type: GameMessageType.LadderDeath;
+  characterName: string;
+  playerName: string;
+  level: number;
+  rank: number;
+}
+
+export type GameMessage =
+  | PartyWipeGameMessage
+  | PartyEscapeGameMessage
+  | PartyDescentGameMessage
+  | LadderProgressGameMessage
+  | LadderDeathGameMessage;

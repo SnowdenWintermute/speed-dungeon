@@ -28,6 +28,18 @@ export default function gameProgressMessageHandler(
           CombatLogMessageStyle.GameProgress
         );
         break;
+      case GameMessageType.LadderProgress:
+        combatLogMessage = new CombatLogMessage(
+          `${message.characterName} [${message.playerName}] gained level ${message.level} and rose to rank ${message.rank} in the ladder!`,
+          CombatLogMessageStyle.PartyProgress
+        );
+        break;
+      case GameMessageType.LadderDeath:
+        combatLogMessage = new CombatLogMessage(
+          `${message.characterName} [${message.playerName}] died at level ${message.level}, losing their position of ${message.rank} in the ladder`,
+          CombatLogMessageStyle.PartyProgress
+        );
+        break;
     }
 
     state.combatLogMessages.push(combatLogMessage);

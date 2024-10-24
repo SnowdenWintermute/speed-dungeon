@@ -1,9 +1,10 @@
 version: "3.8"
 services:
-  postgres:
+  speed-dungeon-postgres:
     image: postgres:16
+    container_name: speed-dungeon-postgres
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - speed-dungeon-postgres_data:/var/lib/postgresql/data
     env_file:
       - .env
     environment:
@@ -12,7 +13,15 @@ services:
       - POSTGRES_DB:${POSTGRES_DB}
     ports:
       - 5433:5432
+  speed-dungeon-valkey:
+    image: valkey/valkey
+    container_name: speed-dungeon-valkey
+    ports:
+      - 6380:6379
+    volumes:
+      - speed-dungeon-valkey:/data
 volumes:
-  postgres_data:
+  speed-dungeon-postgres_data:
+  speed-dungeon-valkey:
 
 

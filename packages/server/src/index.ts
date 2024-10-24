@@ -6,6 +6,9 @@ import { env } from "./validate-env.js";
 import { pgPool } from "./singletons.js";
 import { pgOptions } from "./database/config.js";
 import fs from "fs";
+import { valkeyManager } from "./kv-store/index.js";
+import { playerCharactersRepo } from "./database/repos/player-characters.js";
+import { loadLadderIntoKvStore } from "./kv-store/utils.js";
 
 // we care about the version because when we save characters and games
 // we want to know what version of the game they were from
@@ -21,6 +24,9 @@ const PORT = 8080;
 export let gameServer: undefined | GameServer = undefined;
 
 pgPool.connect(pgOptions);
+await valkeyManager.context.connect();
+
+await loadLadderIntoKvStore();
 
 const expressApp = createExpressApp();
 const listening = expressApp.listen(PORT, async () => {
