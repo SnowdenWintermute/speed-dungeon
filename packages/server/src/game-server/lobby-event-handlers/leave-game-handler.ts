@@ -5,6 +5,7 @@ import {
   LOBBY_CHANNEL,
   ServerToClientEvent,
   SpeedDungeonGame,
+  getPartyChannelName,
 } from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
 import writePlayerCharactersInGameToDb from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
@@ -35,7 +36,7 @@ export default async function leaveGameHandler(
       characters[characterResult.entityProperties.id] = characterResult;
     }
     const deathsAndRanks = await removeDeadCharactersFromLadder(characters);
-    notifyOnlinePlayersOfTopRankedDeaths(deathsAndRanks);
+    notifyOnlinePlayersOfTopRankedDeaths(deathsAndRanks, "");
   }
 
   leavePartyHandler(undefined, playerAssociatedData, socket);

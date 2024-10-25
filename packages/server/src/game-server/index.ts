@@ -1,7 +1,9 @@
 import {
+  ActionCommandManager,
   ActionCommandReceiver,
   ClientToServerEventTypes,
   EquipmentType,
+  LadderUpdatePayload,
   ServerToClientEventTypes,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
@@ -51,6 +53,12 @@ export class GameServer implements ActionCommandReceiver {
     console.log("constructed game server");
     this.connectionHandler();
     this.itemGenerationDirectors = this.createItemGenerationDirectors();
+  }
+  ladderUpdateActionCommandHandler(
+    actionCommandManager: ActionCommandManager,
+    payload: LadderUpdatePayload
+  ) {
+    //
   }
   getConnection = getConnection;
   connectionHandler = connectionHandler;

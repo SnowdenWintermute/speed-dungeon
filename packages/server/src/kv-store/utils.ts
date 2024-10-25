@@ -1,4 +1,4 @@
-import { Combatant } from "@speed-dungeon/common";
+import { Combatant, LadderDeathsUpdate } from "@speed-dungeon/common";
 import { valkeyManager } from "./index.js";
 import { CHARACTER_LEVEL_LADDER } from "./consts.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
@@ -6,9 +6,7 @@ import { playerCharactersRepo } from "../database/repos/player-characters.js";
 export async function removeDeadCharactersFromLadder(characters: {
   [combatantId: string]: Combatant;
 }) {
-  const deathsAndRanks: {
-    [combatantName: string]: { owner: string; rank: number; level: number };
-  } = {};
+  const ladderDeathsUpdate: LadderDeathsUpdate = {};
 
   for (const character of Object.values(characters)) {
     if (character.combatantProperties.hitPoints > 0) continue; // still alive
@@ -18,7 +16,7 @@ export async function removeDeadCharactersFromLadder(characters: {
       character.entityProperties.id
     );
     if (rank === null) continue;
-    deathsAndRanks[character.entityProperties.name] = {
+    ladderDeathsUpdate[character.entityProperties.name] = {
       owner: character.combatantProperties.controllingPlayer || "",
       rank,
       level: character.combatantProperties.level,
@@ -26,7 +24,7 @@ export async function removeDeadCharactersFromLadder(characters: {
     valkeyManager.context.zRem(CHARACTER_LEVEL_LADDER, [character.entityProperties.id]);
   }
 
-  return deathsAndRanks;
+  return ladderDeathsUpdate;
 }
 
 export async function loadLadderIntoKvStore() {

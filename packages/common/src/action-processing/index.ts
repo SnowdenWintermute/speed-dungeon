@@ -12,6 +12,7 @@ export enum ActionCommandType {
   ReturnHome,
   ChangeEquipment,
   BattleResult,
+  LadderUpdate,
 }
 
 export type PayAbilityCostsActionCommandPayload = {
@@ -60,13 +61,32 @@ export type BattleResultActionCommandPayload = {
   timestamp: number;
 };
 
+export type LadderDeathsUpdate = {
+  [combatantName: string]: { owner: string; rank: number; level: number };
+};
+
+export type LadderUpdatePayload = {
+  type: ActionCommandType.LadderUpdate;
+  messages: string[];
+};
+
+export function createLadderDeathsMessage(
+  characterName: string,
+  owner: string,
+  level: number,
+  rank: number
+) {
+  return `${characterName} [${owner}] died at level ${level}, losing their position of rank ${rank + 1} in the ladder`;
+}
+
 export type ActionCommandPayload =
   | PayAbilityCostsActionCommandPayload
   | MoveIntoCombatActionPositionActionCommandPayload
   | ReturnHomeActionCommandPayload
   | PerformCombatActionActionCommandPayload
   | ChangeEquipmentActionCommandPayload
-  | BattleResultActionCommandPayload;
+  | BattleResultActionCommandPayload
+  | LadderUpdatePayload;
 
 export function formatActionCommandType(type: ActionCommandType) {
   switch (type) {
@@ -82,6 +102,8 @@ export function formatActionCommandType(type: ActionCommandType) {
       return "Change equipment";
     case ActionCommandType.BattleResult:
       return "Battle result";
+    case ActionCommandType.LadderUpdate:
+      return "Ladder update";
   }
 }
 

@@ -1,11 +1,12 @@
 import {
+  ActionCommandType,
   BattleConclusion,
   BattleResultActionCommandPayload,
-  ERROR_MESSAGES,
   GameMessageType,
   GameMode,
   ServerToClientEvent,
   SpeedDungeonGame,
+  createLadderDeathsMessage,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
@@ -24,6 +25,7 @@ export default async function battleResultActionCommandHandler(
   combatantId: string,
   payload: BattleResultActionCommandPayload
 ) {
+  const gameServer = getGameServer();
   const actionAssociatedDataResult = this.getGamePartyAndCombatant(gameName, combatantId);
   if (actionAssociatedDataResult instanceof Error) return actionAssociatedDataResult;
   const { game, party } = actionAssociatedDataResult;
@@ -42,21 +44,41 @@ export default async function battleResultActionCommandHandler(
   switch (conclusion) {
     case BattleConclusion.Defeat:
       if (party.battleId !== null) delete game.battles[party.battleId];
+      const partyChannel = getPartyChannelName(game.name, party.name);
 
-      getGameServer()
-        .io.in(game.name)
-        .except(getPartyChannelName(game.name, party.name))
-        .emit(ServerToClientEvent.GameMessage, {
-          type: GameMessageType.PartyWipe,
-          partyName: party.name,
-          dlvl: party.currentFloor,
-          timeOfWipe: new Date().getTime(),
-        });
+      gameServer.io.in(game.name).except(partyChannel).emit(ServerToClientEvent.GameMessage, {
+        type: GameMessageType.PartyWipe,
+        partyName: party.name,
+        dlvl: party.currentFloor,
+        timeOfWipe: new Date().getTime(),
+      });
 
       if (game.mode === GameMode.Progression) {
         // REMOVE DEAD CHARACTERS FROM LADDER
-        const deathsAndRanks = await removeDeadCharactersFromLadder(party.characters);
-        notifyOnlinePlayersOfTopRankedDeaths(deathsAndRanks);
+        const ladderDeathsUpdate = await removeDeadCharactersFromLadder(party.characters);
+        // send action command to party memebers with ladder update so they see it after their battle report
+        const messages: string[] = [];
+        for (const [characterName, deathAndRank] of Object.entries(ladderDeathsUpdate)) {
+          messages.push(
+            createLadderDeathsMessage(
+              characterName,
+              deathAndRank.owner,
+              deathAndRank.level,
+              deathAndRank.rank
+            )
+          );
+        }
+
+        gameServer.io
+          .in(partyChannel)
+          .emit(ServerToClientEvent.ActionCommandPayloads, combatantId, [
+            {
+              type: ActionCommandType.LadderUpdate,
+              messages,
+            },
+          ]);
+        // let everyone else know immediately
+        notifyOnlinePlayersOfTopRankedDeaths(ladderDeathsUpdate, partyChannel);
       }
 
       for (const username of party.playerUsernames)
