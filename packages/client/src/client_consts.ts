@@ -17,4 +17,5 @@ export const HTTP_REQUEST_NAMES = {
   CHANGE_PASSWORD: "change password",
   DELETE_ACCOUNT: "delete account",
   CHANGE_USERNAME: "change username",
+  LEVEL_LADDER: "level ladder",
 };

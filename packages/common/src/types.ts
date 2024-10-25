@@ -34,3 +34,12 @@ export function formatGameMode(gameMode: GameMode) {
       return "Progression";
   }
 }
+
+export type LevelLadderEntry = {
+  owner: string;
+  characterName: string;
+  characterId: string;
+  level: number;
+  rank: number;
+  gameVersion: string;
+};

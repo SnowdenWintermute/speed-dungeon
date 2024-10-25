@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import ButtonBasic from "../components/atoms/ButtonBasic";
 import { useRouter } from "next/navigation";
+import ButtonBasic from "./components/atoms/ButtonBasic";
 
 export default function page() {
   const router = useRouter();

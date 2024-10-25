@@ -12,7 +12,6 @@ export function notifyOnlinePlayersOfTopRankedDeaths(
   partyChannel: string
 ) {
   for (const [characterName, deathAndRank] of Object.entries(deathsAndRanks)) {
-    console.log();
     getGameServer().io.except(partyChannel).emit(ServerToClientEvent.GameMessage, {
       type: GameMessageType.LadderDeath,
       characterName,

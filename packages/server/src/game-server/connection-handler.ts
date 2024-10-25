@@ -1,12 +1,11 @@
 import { GameServer } from "./index.js";
 import { generateRandomUsername } from "../utils/index.js";
-import { LOBBY_CHANNEL, ServerToClientEvent } from "@speed-dungeon/common";
+import { ERROR_MESSAGES, LOBBY_CHANNEL, ServerToClientEvent } from "@speed-dungeon/common";
 import { BrowserTabSession } from "./socket-connection-metadata.js";
 import { env } from "../validate-env.js";
 import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
 import { applyMiddlewares } from "./event-middleware/index.js";
 import disconnectionHandler from "./disconnection-handler.js";
-import { playerInGame } from "./event-middleware/get-player-associated-data.js";
 import getSession from "./event-middleware/get-session.js";
 
 export function connectionHandler(this: GameServer) {
@@ -19,28 +18,32 @@ export function connectionHandler(this: GameServer) {
     let userId: null | number = null;
 
     if (cookies) {
-      const res = await fetch(`${env.AUTH_SERVER_URL}/internal/sessions`, {
-        method: "GET",
-        headers: {
-          Cookie: cookies,
-        },
-      });
-      const body = await res.json();
-      usernameOption = body["username"];
-      const userIdOption = body["userId"];
-      if (usernameOption && userIdOption && typeof userIdOption === "number") {
-        username = body["username"];
-        const userIdAsNumber = userIdOption;
-        userId = userIdAsNumber;
-        // this is a logged in user
-        const speedDungeonProfileOption = await speedDungeonProfilesRepo.findOne(
-          "ownerId",
-          userIdOption
-        );
-        if (speedDungeonProfileOption === undefined) {
-          console.info("creating speed dungeon profile for user");
-          await speedDungeonProfilesRepo.insert(userId);
-        } else console.info("user has an existing profile");
+      try {
+        const res = await fetch(`${env.AUTH_SERVER_URL}/internal/sessions`, {
+          method: "GET",
+          headers: {
+            Cookie: cookies,
+          },
+        });
+        const body = await res.json();
+        usernameOption = body["username"];
+        const userIdOption = body["userId"];
+        if (usernameOption && userIdOption && typeof userIdOption === "number") {
+          username = body["username"];
+          const userIdAsNumber = userIdOption;
+          userId = userIdAsNumber;
+          // this is a logged in user
+          const speedDungeonProfileOption = await speedDungeonProfilesRepo.findOne(
+            "ownerId",
+            userIdOption
+          );
+          if (speedDungeonProfileOption === undefined) {
+            console.info("creating speed dungeon profile for user");
+            await speedDungeonProfilesRepo.insert(userId);
+          } else console.info("user has an existing profile");
+        }
+      } catch (error) {
+        socket.emit(ServerToClientEvent.ErrorMessage, "Auth server error");
       }
     }
     if (!username) {
