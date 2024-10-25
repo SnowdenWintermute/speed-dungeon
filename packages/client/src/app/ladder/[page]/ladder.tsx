@@ -1,3 +1,5 @@
+import { TOP_BAR_HEIGHT_REM } from "@/client_consts";
+import { className } from "@babylonjs/core";
 import { LevelLadderEntry } from "@speed-dungeon/common";
 import Link from "next/link";
 import React from "react";
@@ -22,11 +24,18 @@ export default async function Ladder({ params }: { params: { page: string } }) {
   const entriesOnThisPage: LevelLadderEntry[] | undefined = data["entriesOnPage"];
 
   return (
-    <main className="pointer-events-auto h-full w-full flex flex-col p-4">
-      <div className="flex justify-center items-center h-20 mb-4">
+    <main className="pointer-events-auto flex-grow h-full min-h-0 flex flex-col items-center p-4 ">
+      <div className="flex justify-center items-center min-h-20 h-20 mb-4">
         <h1 className="text-2xl">Highest Level Characters</h1>
       </div>
-      <table className="block border-0 border-collapse mb-4">
+
+      <table
+        className="block w-full border-collapse mb-4 max-w-[720px]"
+        style={{
+          minHeight: `calc(100% - 2.5rem - ${TOP_BAR_HEIGHT_REM}rem - 5rem)`,
+          maxHeight: `calc(100% - 2.5rem - ${TOP_BAR_HEIGHT_REM}rem - 5rem)`,
+        }}
+      >
         <tbody className="w-full block h-10">
           <tr className="flex border-b border-slate-400 font-bold">
             <LadderTableTd text={"Rank"} numCols={4} />
@@ -35,7 +44,13 @@ export default async function Ladder({ params }: { params: { page: string } }) {
             <LadderTableTd text={"Level"} numCols={4} />
           </tr>
         </tbody>
-        <tbody className="block min-h-0 overflow-y-auto">
+        <tbody
+          className="block min-h-0 overflow-y-auto "
+          style={{
+            minHeight: `calc(100% - 2.5rem)`,
+            maxHeight: `calc(100% - 2.5rem)`,
+          }}
+        >
           {entriesOnThisPage &&
             entriesOnThisPage
               .sort((a, b) => a.rank - b.rank)
@@ -56,15 +71,28 @@ export default async function Ladder({ params }: { params: { page: string } }) {
           )}
         </tbody>
       </table>
-      <section className="flex justify-center">
-        {currentPage > 1 && <Link href={`/ladder/${currentPage - 1}`}>Previous Page</Link>}
-        <div>
-          Page {currentPage} / {totalNumberOfPages}
+      {
+        <div className="flex justify-center h-10 items-center">
+          <Link
+            href={`/ladder/${currentPage - 1}`}
+            className={`${currentPage <= 1 && "opacity-0 pointer-events-none"} flex items-center justify-center h-full w-32`}
+            aria-disabled={currentPage <= 1}
+          >
+            Previous
+          </Link>
+          <div className="h-full flex items-center justify-center mr-2 ml-2">
+            Page {currentPage} / {totalNumberOfPages}
+          </div>
+
+          <Link
+            className={`${currentPage >= totalNumberOfPages && "opacity-0 pointer-events-none"} flex items-center justify-center h-full w-32`}
+            href={`/ladder/${currentPage + 1}`}
+            aria-disabled={currentPage >= totalNumberOfPages}
+          >
+            Next
+          </Link>
         </div>
-        {currentPage < totalNumberOfPages && (
-          <Link href={`/ladder/${currentPage + 1}`}>Next Page</Link>
-        )}
-      </section>
+      }
     </main>
   );
 }

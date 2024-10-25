@@ -38,9 +38,11 @@ export default async function getCharacterLevelLadderPageHandler(
       }
     );
 
+    console.log("inValkey: ", inValkey);
+
     const ranksByCharacterId: { [characterId: string]: number } = {};
     inValkey.forEach((item, i) => {
-      ranksByCharacterId[item.value] = i + pageNumber + 1;
+      ranksByCharacterId[item.value] = i + pageNumber * LADDER_PAGE_SIZE + 1;
     });
 
     if (!inValkey) {
