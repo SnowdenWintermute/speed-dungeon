@@ -1,7 +1,12 @@
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
-import { GameMessage, GameMessageType } from "@speed-dungeon/common";
+import {
+  GameMessage,
+  GameMessageType,
+  createLadderDeathsMessage,
+  createLevelLadderRankMessage,
+} from "@speed-dungeon/common";
 
 export default function gameProgressMessageHandler(
   mutateGameStore: MutateState<GameState>,
@@ -30,13 +35,23 @@ export default function gameProgressMessageHandler(
         break;
       case GameMessageType.LadderProgress:
         combatLogMessage = new CombatLogMessage(
-          `${message.characterName} [${message.playerName}] gained level ${message.level} and rose to rank ${message.rank} in the ladder!`,
+          createLevelLadderRankMessage(
+            message.characterName,
+            message.playerName,
+            message.level,
+            message.rank
+          ),
           CombatLogMessageStyle.LadderProgress
         );
         break;
       case GameMessageType.LadderDeath:
         combatLogMessage = new CombatLogMessage(
-          `${message.characterName} [${message.playerName}] died at level ${message.level}, losing their position of rank ${message.rank + 1} in the ladder`,
+          createLadderDeathsMessage(
+            message.playerName,
+            message.playerName,
+            message.level,
+            message.rank
+          ),
           CombatLogMessageStyle.LadderProgress
         );
         break;

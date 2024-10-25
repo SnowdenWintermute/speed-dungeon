@@ -11,7 +11,7 @@ export async function removeDeadCharactersFromLadder(characters: {
   for (const character of Object.values(characters)) {
     if (character.combatantProperties.hitPoints > 0) continue; // still alive
 
-    const rank = await valkeyManager.context.zRank(
+    const rank = await valkeyManager.context.zRevRank(
       CHARACTER_LEVEL_LADDER,
       character.entityProperties.id
     );
@@ -38,6 +38,8 @@ export async function loadLadderIntoKvStore() {
   }
 
   await valkeyManager.context.zAdd(CHARACTER_LEVEL_LADDER, forValkey);
-  const topTen = await valkeyManager.context.zRangeWithScores(CHARACTER_LEVEL_LADDER, 0, 10, {});
+  const topTen = await valkeyManager.context.zRangeWithScores(CHARACTER_LEVEL_LADDER, 0, 10, {
+    REV: true,
+  });
   console.log("Top 10 characters by level: ", topTen);
 }

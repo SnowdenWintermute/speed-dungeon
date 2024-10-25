@@ -80,7 +80,7 @@ export class ValkeyManager {
   async zRem(key: string, members: string[]) {
     return await this.client.zRem(this.keyPrefix + key, members);
   }
-  async zRangeWithScores(key: string, min: number, max: number, options: {}) {
+  async zRangeWithScores(key: string, min: number, max: number, options: Object) {
     return this.client.zRangeWithScores(this.keyPrefix + key, min, max, options);
   }
   async zRevRank(key: string, member: string) {

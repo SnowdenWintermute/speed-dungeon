@@ -7,6 +7,7 @@ import {
   ServerToClientEvent,
   SpeedDungeonGame,
   createLadderDeathsMessage,
+  createLevelLadderRankMessage,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
@@ -30,6 +31,7 @@ export default async function battleResultActionCommandHandler(
   if (actionAssociatedDataResult instanceof Error) return actionAssociatedDataResult;
   const { game, party } = actionAssociatedDataResult;
   const { conclusion } = payload;
+  const partyChannel = getPartyChannelName(game.name, party.name);
 
   // for deciding if we need to update their rank
   const characterLevelsBeforeChanges: { [id: string]: number } = {};
@@ -44,7 +46,6 @@ export default async function battleResultActionCommandHandler(
   switch (conclusion) {
     case BattleConclusion.Defeat:
       if (party.battleId !== null) delete game.battles[party.battleId];
-      const partyChannel = getPartyChannelName(game.name, party.name);
 
       gameServer.io.in(game.name).except(partyChannel).emit(ServerToClientEvent.GameMessage, {
         type: GameMessageType.PartyWipe,
@@ -77,6 +78,7 @@ export default async function battleResultActionCommandHandler(
               messages,
             },
           ]);
+
         // let everyone else know immediately
         notifyOnlinePlayersOfTopRankedDeaths(ladderDeathsUpdate, partyChannel);
       }
@@ -95,23 +97,38 @@ export default async function battleResultActionCommandHandler(
       const { name, id } = character.entityProperties;
       const { level, controllingPlayer } = character.combatantProperties;
       if (level !== characterLevelsBeforeChanges[id]) {
-        const currentRankOption = await valkeyManager.context.zRank(CHARACTER_LEVEL_LADDER, id);
-        const newRank = await valkeyManager.context.zAdd(CHARACTER_LEVEL_LADDER, [
-          { value: id, score: level },
-        ]);
-
+        const currentRankOption = await valkeyManager.context.zRevRank(CHARACTER_LEVEL_LADDER, id);
+        await valkeyManager.context.zAdd(CHARACTER_LEVEL_LADDER, [{ value: id, score: level }]);
+        const newRank = await valkeyManager.context.zRevRank(CHARACTER_LEVEL_LADDER, id);
         // - if they ranked up and were in the top 10 ranks, emit a message to everyone
-        if (newRank === currentRankOption || newRank >= 10) continue;
-        console.log(
-          `${name} [${controllingPlayer}] gained level ${level} and rose to rank ${newRank} in the ladder!`
-        );
-        getGameServer().io.emit(ServerToClientEvent.GameMessage, {
-          type: GameMessageType.LadderProgress,
-          characterName: name,
-          playerName: controllingPlayer || "",
+        if (newRank === null || newRank === currentRankOption || newRank >= 10) continue;
+        const levelLadderUpdateMessage = createLevelLadderRankMessage(
+          name,
+          controllingPlayer || "",
           level,
-          rank: newRank,
-        });
+          newRank
+        );
+
+        // only tell the players once their battle report is completed
+        gameServer.io
+          .in(partyChannel)
+          .emit(ServerToClientEvent.ActionCommandPayloads, combatantId, [
+            {
+              type: ActionCommandType.LadderUpdate,
+              messages: [levelLadderUpdateMessage],
+            },
+          ]);
+
+        // everyone else on the server can just be updated immediately
+        getGameServer()
+          .io.except(partyChannel)
+          .emit(ServerToClientEvent.GameMessage, {
+            type: GameMessageType.LadderProgress,
+            characterName: name,
+            playerName: controllingPlayer || "",
+            level,
+            rank: newRank,
+          });
       }
     }
   }

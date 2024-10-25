@@ -19,7 +19,7 @@ export default async function deleteSavedCharacterHandler(
     return new Error(ERROR_MESSAGES.USER.SAVED_CHARACTER_NOT_OWNED);
   await playerCharactersRepo.delete(entityId);
 
-  await valkeyManager.context.zRank(CHARACTER_LEVEL_LADDER, entityId);
+  await valkeyManager.context.zRevRank(CHARACTER_LEVEL_LADDER, entityId);
 
   socket.emit(ServerToClientEvent.SavedCharacterDeleted, entityId);
 }

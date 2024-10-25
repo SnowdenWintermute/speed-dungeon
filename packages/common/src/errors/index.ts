@@ -52,6 +52,11 @@ export const ERROR_MESSAGES = {
     NOT_AT_STAIRCASE: "Can't descend if no staircase",
     INPUT_IS_LOCKED: "Can't accept new inputs until current events are resolved",
   },
+  LADDER: {
+    USER_NOT_FOUND: "No record found for that user",
+    CHARACTER_NOT_FOUND: "No record found for that character",
+    NO_ENTRIES_FOUND: "No ladder entries found",
+  },
   PLAYER: {
     NO_CHARACTERS: "The provided player doesn't own any characters",
     CHARACTER_NOT_OWNED:

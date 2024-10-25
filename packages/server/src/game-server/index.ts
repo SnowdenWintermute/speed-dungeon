@@ -58,7 +58,7 @@ export class GameServer implements ActionCommandReceiver {
     actionCommandManager: ActionCommandManager,
     payload: LadderUpdatePayload
   ) {
-    //
+    console.log(...payload.messages);
   }
   getConnection = getConnection;
   connectionHandler = connectionHandler;

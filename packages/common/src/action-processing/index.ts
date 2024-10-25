@@ -79,6 +79,15 @@ export function createLadderDeathsMessage(
   return `${characterName} [${owner}] died at level ${level}, losing their position of rank ${rank + 1} in the ladder`;
 }
 
+export function createLevelLadderRankMessage(
+  name: string,
+  controllingPlayer: string,
+  level: number,
+  newRank: number
+) {
+  return `${name} [${controllingPlayer}] gained level ${level} and rose to rank ${newRank + 1} in the ladder!`;
+}
+
 export type ActionCommandPayload =
   | PayAbilityCostsActionCommandPayload
   | MoveIntoCombatActionPositionActionCommandPayload
