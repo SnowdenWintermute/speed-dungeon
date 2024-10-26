@@ -36,14 +36,14 @@ export default async function Ladder({ params }: { params: { page: string } }) {
           maxHeight: `calc(100% - 2.5rem - ${TOP_BAR_HEIGHT_REM}rem - 5rem)`,
         }}
       >
-        <tbody className="w-full block h-10">
+        <thead className="w-full block h-10">
           <tr className="flex border-b border-slate-400 font-bold">
             <LadderTableTd text={"Rank"} numCols={4} />
             <LadderTableTd text={"Name"} numCols={4} />
             <LadderTableTd text={"User"} numCols={4} />
             <LadderTableTd text={"Level"} numCols={4} />
           </tr>
-        </tbody>
+        </thead>
         <tbody
           className="block min-h-0 overflow-y-auto "
           style={{

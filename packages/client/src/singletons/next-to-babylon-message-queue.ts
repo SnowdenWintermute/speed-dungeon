@@ -19,6 +19,8 @@ export enum NextToBabylonMessageTypes {
   StartMovingCombatantIntoCombatActionPosition,
   StartPerformingCombatAction,
   StartReturningHome,
+  // ClearCharacterSlots,
+  // DrawCharacterSlots
 }
 
 export interface CombatantModelBlueprint {
@@ -58,6 +60,13 @@ export type StartReturningHomeMessage = {
   actionCommandPayload: ReturnHomeActionCommandPayload;
   actionUserId: string;
 };
+
+// export type ClearCharacterSlotsMessage={
+//   type: NextToBabylonMessageTypes.ClearCharacterSlots
+// }
+// export type DrawCharacterSlotsMessage={
+//   type: NextToBabylonMessageTypes.DrawCharacterSlots
+// }
 
 export type NextToBabylonMessage =
   | StartMovingCombatantIntoCombatActionPositionMessage

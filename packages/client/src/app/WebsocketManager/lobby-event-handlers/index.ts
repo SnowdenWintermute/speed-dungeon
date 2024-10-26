@@ -16,6 +16,7 @@ import gameStartedHandler from "../game-event-handlers/game-started-handler";
 import { AlertState } from "@/stores/alert-store";
 import playerLeftGameHandler from "../player-left-game-handler";
 import savedCharacterSelectionInProgressGameHandler from "./saved-character-selection-in-progress-game-handler";
+import { gameWorld } from "@/app/3d-world/SceneManager";
 
 export default function setUpGameLobbyEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>,
@@ -28,6 +29,7 @@ export default function setUpGameLobbyEventHandlers(
       if (game === null) {
         state.game = null;
         state.gameName = null;
+        gameWorld.current?.drawCharacterSlots();
       } else {
         state.game = game;
         state.gameName = game.name;
@@ -84,6 +86,8 @@ export default function setUpGameLobbyEventHandlers(
   });
   socket.on(ServerToClientEvent.GameStarted, (timeStarted) => {
     gameStartedHandler(mutateGameStore, timeStarted);
+
+    gameWorld.current?.clearFloorTexture();
   });
   socket.on(ServerToClientEvent.ProgressionGameStartingFloorSelected, (floorNumber) => {
     mutateGameStore((state) => {

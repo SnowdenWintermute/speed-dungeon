@@ -9,8 +9,6 @@ import {
   ShadowGenerator,
   Mesh,
   DynamicTexture,
-  ICanvasRenderingContext,
-  Color3,
 } from "@babylonjs/core";
 import { GameWorld } from ".";
 
@@ -21,7 +19,7 @@ export const GROUND_TEXTURE_HEIGHT = 10000;
 
 export function initScene(
   this: GameWorld
-): [ArcRotateCamera, ShadowGenerator, Mesh, ICanvasRenderingContext, DynamicTexture] {
+): [ArcRotateCamera, ShadowGenerator, Mesh, DynamicTexture] {
   this.scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
 
   // this.scene.fogMode = 3;
@@ -54,44 +52,25 @@ export function initScene(
   ball.position = lightPosition;
   pointLight.intensity = 0.2;
 
-  var ground = MeshBuilder.CreateGround(
+  const ground = MeshBuilder.CreateGround(
     "ground1",
     { width: GROUND_WIDTH, height: GROUND_HEIGHT, subdivisions: 25 },
     this.scene
   );
 
   // Create dynamic texture
-  const textureGround = new DynamicTexture("dynamic texture", GROUND_TEXTURE_WIDTH, this.scene);
-  const textureContext = textureGround.getContext();
+  this.groundTexture = new DynamicTexture("dynamic texture", GROUND_TEXTURE_WIDTH, this.scene);
 
   const materialGround = new StandardMaterial("Mat", this.scene);
-  materialGround.diffuseTexture = textureGround;
+  materialGround.diffuseTexture = this.groundTexture;
   ground.material = materialGround;
 
   // Draw on canvas
-  textureContext.beginPath();
-  textureContext.fillStyle = "#344b35";
-  textureContext.fillRect(0, 0, GROUND_TEXTURE_WIDTH, GROUND_TEXTURE_HEIGHT);
 
-  for (let i = 0; i < 3; i += 1) {
-    const spacingInResolutionUnits = GROUND_TEXTURE_WIDTH / GROUND_WIDTH;
-    const centerX =
-      -spacingInResolutionUnits + GROUND_TEXTURE_WIDTH / 2 + spacingInResolutionUnits * i;
-    const centerY = GROUND_TEXTURE_WIDTH / 2;
-    const radius = 70;
-
-    textureContext.beginPath();
-
-    textureContext.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    textureContext.strokeStyle = "grey";
-    textureContext.lineWidth = 10;
-    textureContext.stroke();
-  }
-
-  textureGround.update();
+  this.drawCharacterSlots();
   // SHADOWS
   const shadowGenerator = new ShadowGenerator(1024, pointLight);
   // ground.receiveShadows = true;
 
-  return [camera, shadowGenerator, ball, textureContext, textureGround];
+  return [camera, shadowGenerator, ball, this.groundTexture];
 }

@@ -8,6 +8,7 @@ import {
   Mesh,
   ICanvasRenderingContext,
   DynamicTexture,
+  GroundMesh,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { BASE_FILE_PATH } from "../combatant-models/modular-character-parts";
@@ -23,6 +24,8 @@ import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
 import { MutableRefObject } from "react";
 import { ActionCommandManager } from "@speed-dungeon/common";
+import { clearFloorTexture } from "./clear-floor-texture";
+import drawCharacterSlots from "./draw-character-slots";
 
 export class GameWorld {
   scene: Scene;
@@ -37,7 +40,6 @@ export class GameWorld {
   modelManager: ModelManager = new ModelManager(this);
   turnResultsQueue: CombatTurnResult[] = [];
   currentRoomLoaded: boolean = false;
-  groundTextureContext: ICanvasRenderingContext;
   groundTexture: DynamicTexture;
   constructor(
     public canvas: HTMLCanvasElement,
@@ -49,8 +51,7 @@ export class GameWorld {
     this.engine = new Engine(canvas, true);
     this.scene = new Scene(this.engine);
     this.debug.debugRef = debugRef;
-    [this.camera, this.shadowGenerator, this.sun, this.groundTextureContext, this.groundTexture] =
-      this.initScene();
+    [this.camera, this.shadowGenerator, this.sun, this.groundTexture] = this.initScene();
 
     this.engine.runRenderLoop(() => {
       this.updateGameWorld();
@@ -77,6 +78,8 @@ export class GameWorld {
 
   handleError = handleGameWorldError;
   initScene = initScene;
+  clearFloorTexture = clearFloorTexture;
+  drawCharacterSlots = drawCharacterSlots;
   showDebugText = showDebugText;
   processMessagesFromNext = processMessagesFromNext;
 

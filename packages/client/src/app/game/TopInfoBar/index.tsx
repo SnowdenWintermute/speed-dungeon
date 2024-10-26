@@ -3,8 +3,9 @@ import { useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import TurnOrderBar from "./TurnOrderBar";
 import RoomExplorationTracker from "./RoomExplorationTracker";
-import { formatDungeonRoomType } from "@speed-dungeon/common";
+import { ClientToServerEvent, formatDungeonRoomType } from "@speed-dungeon/common";
 import getGameAndParty from "@/utils/getGameAndParty";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 export default function TopInfoBar() {
   const gameOption = useGameStore().game;
@@ -16,7 +17,7 @@ export default function TopInfoBar() {
   const battleOptionResult = getCurrentBattleOption(game, party.name);
 
   return (
-    <div className="h-10 w-full border-b border-slate-400 bg-slate-700 flex justify-center pointer-events-auto relative">
+    <div className="h-10 w-full border-b border-slate-400 bg-slate-700 flex justify-center items-center pointer-events-auto relative">
       <div className="p-2 absolute left-0">
         {"Floor "}
         {party.currentFloor}
@@ -30,6 +31,11 @@ export default function TopInfoBar() {
       ) : (
         <RoomExplorationTracker />
       )}
+      <div className="absolute right-2 pr-2 pl-2 border border-slate-400">
+        <button onClick={() => websocketConnection.emit(ClientToServerEvent.LeaveGame)}>
+          LEAVE GAME{" "}
+        </button>
+      </div>
     </div>
   );
 }

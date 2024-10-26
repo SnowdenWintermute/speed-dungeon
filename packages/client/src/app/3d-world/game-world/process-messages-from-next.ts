@@ -11,13 +11,12 @@ import startReturningHome from "./start-returning-home";
 export default function processMessagesFromNext(this: GameWorld) {
   if (nextToBabylonMessageQueue.messages.length > 0) {
     const message = nextToBabylonMessageQueue.messages.shift();
-    if (message !== undefined) {
-      const maybeError = handleMessageFromNext(this, message);
-      // if (maybeError instanceof Error) {
-      //   console.error(maybeError.message);
-      //   this.engine.stopRenderLoop();
-      // }
-    }
+    if (message === undefined) return;
+    const maybeError = handleMessageFromNext(this, message);
+    // if (maybeError instanceof Error) {
+    //   console.error(maybeError.message);
+    //   this.engine.stopRenderLoop();
+    // }
   }
 }
 

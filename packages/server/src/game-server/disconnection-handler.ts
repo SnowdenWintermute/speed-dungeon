@@ -19,6 +19,13 @@ export default async function disconnectionHandler(
   console.log(`-- ${session.username} (${socket.id})  disconnected. Reason - ${reason}`);
 
   const userCurrentSockets = gameServer.socketIdsByUsername.get(session.username);
+
+  // there was once a bug where we saved their session but the associated socket was disconnected
+  // and the user couldn't create a game because that session had a current game name
+  for (const socketId of userCurrentSockets || []) {
+    // if()
+  }
+
   if (userCurrentSockets) removeFromArray(userCurrentSockets, socket.id);
   if (userCurrentSockets && Object.keys(userCurrentSockets).length < 1)
     gameServer.socketIdsByUsername.remove(session.username);
