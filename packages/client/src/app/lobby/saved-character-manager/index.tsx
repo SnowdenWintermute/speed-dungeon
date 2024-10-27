@@ -6,34 +6,36 @@ import { NextToBabylonMessageTypes } from "@/singletons/next-to-babylon-message-
 import { Vector3 } from "@babylonjs/core";
 import {
   ClientToServerEvent,
-  CombatantClass,
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
   formatCombatantClassName,
-  iterateNumericEnum,
 } from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
 import ArrowShape from "../../../../public/img/menu-icons/arrow-button-icon.svg";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import TextInput from "@/app/components/atoms/TextInput";
 import SavedCharacterDisplay from "./SavedCharacterDisplay";
+import CreateCharacterForm from "./CreateCharacterForm";
+import { useHttpRequestStore } from "@/stores/http-request-store";
+import { HTTP_REQUEST_NAMES } from "@/client_consts";
+import DeleteCharacterForm from "./DeleteCharacterForm";
 
 export const CHARACTER_SLOT_SPACING = 1;
 export const CHARACTER_MANAGER_HOTKEY = "S";
 
 export default function SavedCharacterManager() {
   const savedCharacters = useLobbyStore().savedCharacters;
-  const [selectedNewCharacterClass, setSelectedNewCharacterClass] = useState(CombatantClass.Mage);
-  const [newCharacterName, setNewCharacterName] = useState("");
   const [currentSlot, setCurrentSlot] = useState(1);
   const selectedCharacterOption = savedCharacters[currentSlot];
   const showCharacterManager = useLobbyStore().showSavedCharacterManager;
   const mutateLobbyState = useLobbyStore().mutateState;
   const showGameCreationForm = useLobbyStore().showGameCreationForm;
+  const currentSessionHttpResponseTracker =
+    useHttpRequestStore().requests[HTTP_REQUEST_NAMES.GET_SESSION];
+  const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
 
   useEffect(() => {
     websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
-  }, []);
+  }, [isLoggedIn]);
 
   useEffect(() => {
     nextToBabylonMessageQueue.messages.push({
@@ -45,21 +47,6 @@ export default function SavedCharacterManager() {
       target: new Vector3(-CHARACTER_SLOT_SPACING + CHARACTER_SLOT_SPACING * currentSlot, 1, 0),
     });
   }, [currentSlot]);
-
-  function createCharacter() {
-    websocketConnection.emit(ClientToServerEvent.CreateSavedCharacter, {
-      name: newCharacterName,
-      combatantClass: selectedNewCharacterClass,
-      slotNumber: currentSlot,
-    });
-  }
-
-  function deleteCharacter() {
-    websocketConnection.emit(
-      ClientToServerEvent.DeleteSavedCharacter,
-      selectedCharacterOption?.combatant.entityProperties.id || ""
-    );
-  }
 
   return (
     <>
@@ -162,45 +149,9 @@ export default function SavedCharacterManager() {
           </div>
           <div>
             {selectedCharacterOption ? (
-              <HotkeyButton
-                className="bg-slate-700 h-10 w-full p-2 border border-slate-400 pointer-events-auto"
-                onClick={deleteCharacter}
-              >
-                DELETE CHARACTER
-              </HotkeyButton>
+              <DeleteCharacterForm character={selectedCharacterOption.combatant} />
             ) : (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  createCharacter();
-                }}
-              >
-                <div className="pointer-events-auto flex justify-between mb-2">
-                  {iterateNumericEnum(CombatantClass).map((combatantClass) => (
-                    <button
-                      key={combatantClass}
-                      type="button"
-                      className={`${selectedNewCharacterClass === combatantClass ? "bg-slate-950" : "bg-slate-700"} h-10 border border-slate-400 flex items-center pl-2 pr-2`}
-                      onClick={() => setSelectedNewCharacterClass(combatantClass)}
-                    >
-                      <div>{formatCombatantClassName(combatantClass)}</div>
-                    </button>
-                  ))}
-                </div>
-                <TextInput
-                  placeholder="Character name..."
-                  name={"Character name"}
-                  className="border border-slate-400 bg-slate-700 p-2 pl-4 mb-2 w-full"
-                  changeHandler={(e) => setNewCharacterName(e.target.value)}
-                  value={newCharacterName}
-                />
-                <HotkeyButton
-                  buttonType="submit"
-                  className="bg-slate-700 h-10 w-full p-2 border border-slate-400 pointer-events-auto"
-                >
-                  CREATE CHARACTER
-                </HotkeyButton>
-              </form>
+              <CreateCharacterForm currentSlot={currentSlot} />
             )}
           </div>
         </div>
