@@ -47,7 +47,7 @@ export default function Game() {
     : "w-full";
 
   return (
-    <main className="h-screen w-screen flex justify-center relative">
+    <main className="h-screen w-screen flex justify-center relative overflow-hidden">
       <CharacterAutofocusManager />
       <PartyWipeModal party={party} />
       <div className="w-full h-full max-h-[calc(0.5625 * 100vw)] text-zinc-300 flex flex-col">
@@ -60,7 +60,7 @@ export default function Game() {
             </div>
           </div>
           <div className="flex flex-wrap justify-between">
-            <div className="h-[14rem] min-w-[23rem] max-w-[26rem] w-full border border-slate-400 bg-slate-700 p-2 pointer-events-auto">
+            <div className="h-[14rem] min-w-[23rem] max-w-[26rem]  border border-slate-400 bg-slate-700 p-2 pointer-events-auto">
               {
                 // <div>Alpha: {cameraData.alpha}</div>
                 // <div>Beta: {cameraData.beta}</div>
@@ -69,8 +69,8 @@ export default function Game() {
                 <CombatLog />
               }
             </div>
-            <div className="flex flex-grow justify-end mt-3.5">
-              <div className="w-fit flex items-end">
+            <div className="flex flex-grow justify-end mt-3.5 max-w-full">
+              <div className="w-fit max-w-full flex items-end">
                 <CombatantPlaqueGroup
                   party={party}
                   combatantIds={party.characterPositions}
@@ -98,11 +98,13 @@ export default function Game() {
                   <ActionMenu inputLocked={InputLock.isLocked(party.inputLock)} />
                 }
                 {!viewingCharacterSheet && (
-                  <div className="flex overflow-hidden">
-                    <div className="max-h-[13.375rem] h-fit flex flex-grow justify-end">
-                      <div className="mr-2 w-[50rem]">
-                        {<ItemDetailsWithComparison flipDisplayOrder={true} />}
-                      </div>
+                  <div className="flex ">
+                    <div className="max-h-[13.375rem] h-fit flex flex-grow justify-end relative">
+                      {
+                        <div className="absolute w-[50rem] right-[25rem]">
+                          {<ItemDetailsWithComparison flipDisplayOrder={true} />}
+                        </div>
+                      }
                       {
                         // if !game_state.combatants_animating.len() > 0 && !focused_character_is_animating {
                         <div className="max-w-[25rem] w-[25rem]">

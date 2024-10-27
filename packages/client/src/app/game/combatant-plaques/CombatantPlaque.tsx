@@ -11,15 +11,12 @@ import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
 import { AdventuringParty, ClientToServerEvent, InputLock } from "@speed-dungeon/common";
-import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
-import { NextToBabylonMessageTypes } from "@/singletons/next-to-babylon-message-queue";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
 import { getTailwindClassFromFloatingTextColor } from "@/stores/game-store/floating-text";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { nextToBabylonMessageQueue } from "@/singletons/next-to-babylon-message-queue";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
 
@@ -37,7 +34,6 @@ const modelDomPositionElements: { [entityId: string]: null | HTMLDivElement } = 
 export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const gameOption = useGameStore().game;
   const mutateGameState = useGameStore().mutateState;
-  const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
       detailedEntity: state.detailedEntity,
@@ -132,7 +128,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
       : "pointer-events-auto ";
 
   return (
-    <div>
+    <div className="">
       {
         <div id={`${entityId}-position-div`} className="absolute">
           {
