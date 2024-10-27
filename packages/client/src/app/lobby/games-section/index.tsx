@@ -167,7 +167,8 @@ function GameListItem({ game }: GameListItemProps) {
           paddingLeft: `${SPACING_REM_SMALL}rem`,
         }}
       >
-        {game.gameName} - [{formatGameMode(game.gameMode)}]
+        {game.gameName} - [{game.isRanked && "Ranked "}
+        {formatGameMode(game.gameMode)}]
       </div>
       <div className="h-10 w-32 flex items-center border-r border-l border-slate-400 pl-4 pr-4">
         <div className="overflow-hidden whitespace-nowrap overflow-ellipsis">

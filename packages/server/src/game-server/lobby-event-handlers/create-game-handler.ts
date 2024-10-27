@@ -2,7 +2,6 @@ import {
   ERROR_MESSAGES,
   GAME_CHANNEL_PREFIX,
   GameMode,
-  MAX_CHARACTER_NAME_LENGTH,
   MAX_GAME_NAME_LENGTH,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
@@ -15,13 +14,16 @@ import { Socket } from "socket.io";
 import { getGameServer } from "../../index.js";
 
 export default async function createGameHandler(
-  eventData: { gameName: string; mode: GameMode },
+  eventData: { gameName: string; mode: GameMode; isRanked?: boolean },
   session: BrowserTabSession,
   socket: Socket
 ) {
   if (session.currentGameName) return errorHandler(socket, ERROR_MESSAGES.LOBBY.ALREADY_IN_GAME);
   const gameServer = getGameServer();
-  let { gameName, mode } = eventData;
+  let { gameName, mode, isRanked } = eventData;
+
+  if (isRanked && session.userId === null)
+    return errorHandler(socket, ERROR_MESSAGES.AUTH.REQUIRED);
 
   if (gameName.length > MAX_GAME_NAME_LENGTH)
     return errorHandler(
@@ -38,7 +40,7 @@ export default async function createGameHandler(
   if (mode === GameMode.Progression)
     await createProgressionGameHandler(gameServer, session, socket, gameName);
   else {
-    const game = new SpeedDungeonGame(gameName, GameMode.Race, session.username);
+    const game = new SpeedDungeonGame(gameName, GameMode.Race, session.username, isRanked);
     gameServer.games.insert(gameName, game);
     joinGameHandler(gameName, session, socket);
   }

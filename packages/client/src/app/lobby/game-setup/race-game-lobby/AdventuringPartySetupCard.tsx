@@ -173,7 +173,12 @@ function CreateCharacterForm({ i }: { i: number }) {
           })}
           disabled={false}
         />
-        <HotkeyButton buttonType="submit" className="h-10 pr-4 pl-4 border border-slate-400">
+        <HotkeyButton
+          hotkeys={["KeyA"]}
+          buttonType="button"
+          onClick={handleCreateCharacter}
+          className="h-10 pr-4 pl-4 border border-slate-400"
+        >
           CREATE
         </HotkeyButton>
       </form>

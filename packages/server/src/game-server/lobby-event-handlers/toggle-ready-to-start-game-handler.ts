@@ -1,9 +1,15 @@
-import { ERROR_MESSAGES, ServerToClientEvent, removeFromArray } from "@speed-dungeon/common";
+import {
+  ERROR_MESSAGES,
+  GameMode,
+  ServerToClientEvent,
+  removeFromArray,
+} from "@speed-dungeon/common";
 import toggleReadyToExploreHandler from "../game-event-handlers/toggle-ready-to-explore-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../index.js";
+import { raceGameRecordsRepo } from "../../database/repos/race-game-records.js";
 
-export default function toggleReadyToStartGameHandler(
+export default async function toggleReadyToStartGameHandler(
   _eventData: undefined,
   playerAssociatedData: ServerPlayerAssociatedData
 ) {
@@ -42,6 +48,12 @@ export default function toggleReadyToStartGameHandler(
   if (!allPlayersReadied) return;
 
   game.timeStarted = Date.now();
+
+  if (game.mode === GameMode.Race && game.isRanked) {
+    const maybeError = await raceGameRecordsRepo.insertGameRecord(game);
+    if (maybeError instanceof Error) return maybeError;
+  }
+
   gameServer.io.of("/").in(game.name).emit(ServerToClientEvent.GameStarted, game.timeStarted);
 
   for (const player of Object.values(game.players)) {

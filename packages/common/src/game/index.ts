@@ -36,10 +36,12 @@ export class SpeedDungeonGame {
   battles: { [id: EntityId]: Battle } = {};
   timeStarted: null | number = null;
   selectedStartingFloor: MaxAndCurrent = new MaxAndCurrent(1, 1);
+  gameRecordId: null | number = null;
   constructor(
     public name: string,
     public mode: GameMode,
-    public gameCreator: string | null = null
+    public gameCreator: string | null = null,
+    public isRanked: boolean = false
   ) {
     if (mode === GameMode.Progression) this.playerCapacity = MAX_PARTY_SIZE;
   }

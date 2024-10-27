@@ -160,7 +160,8 @@ export class GameListEntry {
     public gameName: string,
     public numberOfUsers: number,
     public gameMode: GameMode,
-    public timeStarted: null | number
+    public timeStarted: null | number,
+    public isRanked: boolean
   ) {}
 }
 

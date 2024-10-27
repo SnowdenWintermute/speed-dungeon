@@ -14,6 +14,7 @@ export default async function joinGameHandler(
   if (session.currentGameName) return new Error(ERROR_MESSAGES.LOBBY.ALREADY_IN_GAME);
 
   const game = gameServer.games.get(gameName);
+  if (session.userId === null && game?.isRanked) return new Error(ERROR_MESSAGES.AUTH.REQUIRED);
 
   if (!game) return new Error(ERROR_MESSAGES.GAME_DOESNT_EXIST);
   if (game.timeStarted) return new Error(ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED);

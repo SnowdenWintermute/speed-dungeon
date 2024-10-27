@@ -26,6 +26,7 @@ export default function HotkeyButton(props: Props) {
       keypressListenerRef.current = (e: KeyboardEvent) => {
         for (const hotkey of props.hotkeys!) {
           if (e.code === hotkey && !hotkeysDisabled && !props.disabled) {
+            console.log("hotkey pressed: ", hotkey)
             // @ts-ignore
             onClick(new MouseEvent("mouseup"));
           }

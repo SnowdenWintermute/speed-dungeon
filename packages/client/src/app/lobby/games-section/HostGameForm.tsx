@@ -15,6 +15,7 @@ export default function HostGameForm() {
   const [selectedGameMode, setSelectedGameMode] = useState(
     isLoggedIn ? GameMode.Progression : GameMode.Race
   );
+  const [isRanked, setIsRanked] = useState(false);
   const [gameName, setGameName] = useState("");
   const [gamePassword, setGamePassword] = useState("");
 
@@ -22,7 +23,11 @@ export default function HostGameForm() {
     event: FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) {
     event.preventDefault();
-    websocketConnection.emit(ClientToServerEvent.CreateGame, { gameName, mode: selectedGameMode });
+    websocketConnection.emit(ClientToServerEvent.CreateGame, {
+      gameName,
+      mode: selectedGameMode,
+      isRanked,
+    });
   }
 
   return (
@@ -72,39 +77,65 @@ export default function HostGameForm() {
             </p>
           )}
         </div>
-        <div className="flex mb-2">
-          <HotkeyButton
-            buttonType="button"
-            hotkeys={["KeyW"]}
-            onClick={() => {
-              setSelectedGameMode(GameMode.Race);
-            }}
-            className={`flex-1 h-10 border border-slate-400 
-                        ${selectedGameMode === GameMode.Race ? "bg-slate-950" : "bg-slate-700"}
-                        mr-1
-                        `}
-          >
-            RACE
-          </HotkeyButton>
-          <HoverableTooltipWrapper
-            tooltipText={isLoggedIn ? undefined : "You must be logged in to select this"}
-            extraStyles="flex-1 ml-1 "
-          >
+        <div className="flex flex-col mb-2">
+          <div className="flex w-full mb-2">
             <HotkeyButton
               buttonType="button"
-              hotkeys={["KeyE"]}
-              disabled={!isLoggedIn}
+              hotkeys={["KeyW"]}
               onClick={() => {
-                setSelectedGameMode(GameMode.Progression);
+                setSelectedGameMode(GameMode.Race);
+                setIsRanked(false);
               }}
-              className={`flex-1 h-10 w-full border border-slate-400
+              className={`flex-1 h-10 border border-slate-400 
+                        ${selectedGameMode === GameMode.Race && !isRanked ? "bg-slate-950" : "bg-slate-700"}
+                        mr-1
+                        `}
+            >
+              RACE
+            </HotkeyButton>
+            <HoverableTooltipWrapper
+              tooltipText={isLoggedIn ? undefined : "You must be logged in to select this"}
+              extraStyles="flex-1 ml-1 "
+            >
+              <HotkeyButton
+                buttonType="button"
+                hotkeys={["KeyE"]}
+                disabled={!isLoggedIn}
+                onClick={() => {
+                  setSelectedGameMode(GameMode.Progression);
+                }}
+                className={`flex-1 h-10 w-full border border-slate-400
                         ${selectedGameMode === GameMode.Progression ? "bg-slate-950" : "bg-slate-700"}
                         disabled:opacity-50
                         `}
+              >
+                PROGRESSION
+              </HotkeyButton>
+            </HoverableTooltipWrapper>
+          </div>
+          <div className="flex w-full mb-2">
+            <div id="game-mode-spacer" className={`flex-1 h-10 mr-1`} />
+            <HoverableTooltipWrapper
+              tooltipText={isLoggedIn ? undefined : "You must be logged in to select this"}
+              extraStyles="flex-1 ml-1 "
             >
-              PROGRESSION
-            </HotkeyButton>
-          </HoverableTooltipWrapper>
+              <HotkeyButton
+                buttonType="button"
+                hotkeys={["KeyD"]}
+                disabled={!isLoggedIn}
+                onClick={() => {
+                  setSelectedGameMode(GameMode.Race);
+                  setIsRanked(true);
+                }}
+                className={`flex-1 h-10 w-full border border-slate-400
+                        ${selectedGameMode === GameMode.Race && isRanked ? "bg-slate-950" : "bg-slate-700"}
+                        disabled:opacity-50
+                        `}
+              >
+                RACE (RANKED)
+              </HotkeyButton>
+            </HoverableTooltipWrapper>
+          </div>
         </div>
         <HotkeyButton
           buttonType="submit"

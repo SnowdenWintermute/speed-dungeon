@@ -18,6 +18,7 @@ import { CHARACTER_LEVEL_LADDER } from "../../../kv-store/consts.js";
 import { removeDeadCharactersFromLadder } from "../../../kv-store/utils.js";
 import { getGameServer } from "../../../index.js";
 import { notifyOnlinePlayersOfTopRankedDeaths } from "../../ladders/utils.js";
+import createRaceGamePartyRecord from "./create-race-game-party-record.js";
 
 export default async function battleResultActionCommandHandler(
   this: GameServer,
@@ -82,6 +83,9 @@ export default async function battleResultActionCommandHandler(
         // let everyone else know immediately
         notifyOnlinePlayersOfTopRankedDeaths(ladderDeathsUpdate, partyChannel);
       }
+
+      // @TODO
+      // if (game.mode === GameMode.Race && game.isRanked) updateRaceGamePartyRecord();
 
       for (const username of party.playerUsernames)
         SpeedDungeonGame.removePlayerFromParty(game, username);

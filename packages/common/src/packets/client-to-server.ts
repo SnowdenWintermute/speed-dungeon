@@ -42,7 +42,11 @@ export enum ClientToServerEvent {
 export interface ClientToServerEventTypes {
   [ClientToServerEvent.RequestToJoinGame]: (gameName: string) => void;
   [ClientToServerEvent.RequestsGameList]: () => void;
-  [ClientToServerEvent.CreateGame]: (eventData: { gameName: string; mode: GameMode }) => void;
+  [ClientToServerEvent.CreateGame]: (eventData: {
+    gameName: string;
+    mode: GameMode;
+    isRanked?: boolean;
+  }) => void;
   [ClientToServerEvent.JoinGame]: (gameName: string) => void;
   [ClientToServerEvent.LeaveGame]: (eventData?: undefined) => void;
   [ClientToServerEvent.CreateParty]: (partyName: string) => void;
