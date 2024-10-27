@@ -2,6 +2,8 @@ import {
   ERROR_MESSAGES,
   GAME_CHANNEL_PREFIX,
   GameMode,
+  MAX_CHARACTER_NAME_LENGTH,
+  MAX_GAME_NAME_LENGTH,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { generateRandomGameName } from "../../utils/index.js";
@@ -20,6 +22,12 @@ export default async function createGameHandler(
   if (session.currentGameName) return errorHandler(socket, ERROR_MESSAGES.LOBBY.ALREADY_IN_GAME);
   const gameServer = getGameServer();
   let { gameName, mode } = eventData;
+
+  if (gameName.length > MAX_GAME_NAME_LENGTH)
+    return errorHandler(
+      socket,
+      `Game names may be no longer than ${MAX_GAME_NAME_LENGTH} characters`
+    );
 
   if (gameName.slice(0, GAME_CHANNEL_PREFIX.length - 1) === GAME_CHANNEL_PREFIX)
     return errorHandler(socket, `Game name must not start with "${GAME_CHANNEL_PREFIX}"`);

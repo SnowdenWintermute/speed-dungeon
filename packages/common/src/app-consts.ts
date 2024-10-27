@@ -67,3 +67,5 @@ export const LADDER_PAGE_SIZE = 20;
 
 // VALIDATION
 export const MAX_CHARACTER_NAME_LENGTH = 32;
+export const MAX_GAME_NAME_LENGTH = 128;
+export const MAX_PARTY_NAME_LENGTH = 128;
