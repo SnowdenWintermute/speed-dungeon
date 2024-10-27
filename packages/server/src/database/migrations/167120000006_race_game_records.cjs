@@ -6,7 +6,7 @@ exports.up = (pgm) => {
         id SERIAL PRIMARY KEY,
         game_name VARCHAR(128) NOT NULL,
         game_version VARCHAR(16),
-        date_of_completion TIMESTAMPTZ NOT NULL
+        time_of_completion TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP 
     );
 
     CREATE TABLE race_game_party_records (
@@ -18,7 +18,7 @@ exports.up = (pgm) => {
         is_winner BOOLEAN DEFAULT FALSE
     );
 
-    CREATE TABLE race_game_participants (
+    CREATE TABLE race_game_participant_records (
         id SERIAL PRIMARY KEY,
         party_id INT REFERENCES race_game_party_records(id) ON DELETE CASCADE,
         user_id UUID
@@ -38,7 +38,7 @@ exports.up = (pgm) => {
 exports.down = (pgm) => {
   pgm.sql(`
     DROP TABLE race_game_character_records;
-    DROP TABLE race_game_participants;
+    DROP TABLE race_game_participant_records;
     DROP TABLE race_game_party_records;
     DROP TABLE race_game_records;
     `);
