@@ -6,6 +6,7 @@ import { DatabaseRepository } from "./index.js";
 import { SERVER_VERSION } from "../../index.js";
 import {
   AdventuringParty,
+  Combatant,
   ERROR_MESSAGES,
   SpeedDungeonGame,
   formatCombatantClassName,
@@ -61,13 +62,19 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
 
     const gameRecord = rows[0] as unknown as RaceGameRecord;
     const gameRecordId = gameRecord.id;
+    game.gameRecordId = gameRecordId;
 
     const partyRecordPromises: Promise<Error | undefined>[] = [];
 
     for (const party of Object.values(game.adventuringParties))
       partyRecordPromises.push(this.insertPartyRecord(game, party, false));
 
-    await Promise.all(partyRecordPromises);
+    const results = await Promise.all(partyRecordPromises);
+    const errorMessages: string[] = [];
+    for (const result of results) {
+      if (result instanceof Error) errorMessages.push(result.message);
+    }
+    if (errorMessages.length) return new Error(errorMessages.join(", "));
 
     return gameRecordId;
   }
@@ -105,12 +112,13 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
       const { rows } = await this.pgPool.query(
         format(
           `INSERT INTO race_game_character_records
-             (party_id, character_name, level, combatant_class, id_of_controlling_user)
-             VALUES (%L, %L, %L, %L, %L) RETURNING *;`,
+             (id, party_id, character_name, level, combatant_class, id_of_controlling_user)
+             VALUES (%L ,%L, %L, %L, %L, %L) RETURNING *;`,
+          character.entityProperties.id,
           partyRecordId,
           character.entityProperties.name,
           character.combatantProperties.level,
-          formatCombatantClassName(character.combatantProperties.combatantClass),
+          formatCombatantClassName(character.combatantProperties.combatantClass).toLowerCase(),
           controllingPlayerIdOption || null
         )
       );
@@ -131,25 +139,37 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
       );
     }
   }
+
+  async updatePlayerCharacterRecord(character: Combatant) {
+    const { rows } = await this.pgPool.query(
+      format(
+        `
+        UPDATE race_game_character_records
+        SET level = %L
+        WHERE id = %L;
+       `,
+        character.combatantProperties.level,
+        character.entityProperties.id
+      )
+    );
+  }
+
+  async markGameAsCompleted(gameRecordId: number) {
+    const { rows } = await this.pgPool.query(
+      format(
+        `
+        UPDATE race_game_records
+        SET time_of_completion = %L
+        WHERE id = %L;
+       `,
+        new Date(),
+        gameRecordId
+      )
+    );
+  }
 }
 
 export const raceGameRecordsRepo = new RaceGameRecordRepo(pgPool, tableName);
-
-function calculateRaceGameWinningParty(game: SpeedDungeonGame, timeStarted: number) {
-  let winningPartyName: string | null = null;
-  let bestEscapeDuration: null | number = null;
-
-  for (const party of Object.values(game.adventuringParties)) {
-    if (!party.timeOfEscape) continue;
-    const escapeDuration = party.timeOfEscape - timeStarted;
-    if (bestEscapeDuration === null || bestEscapeDuration > escapeDuration) {
-      bestEscapeDuration = escapeDuration;
-      winningPartyName = party.name;
-    }
-  }
-
-  return winningPartyName;
-}
 
 async function getUserIdsByUsername(usernames: string[]) {
   const cookies = `internal=${env.INTERNAL_SERVICES_SECRET};`;
@@ -171,3 +191,30 @@ async function getUserIdsByUsername(usernames: string[]) {
 
   return playerUserIdsByUsername;
 }
+
+// --select * from race_game_records;
+// SELECT
+//     g.id AS game_id,
+//     g.game_name,
+//     g.game_version,
+//     g.time_of_completion,
+//     p.id AS party_id,
+//     p.party_name,
+//     p.duration_to_wipe,
+//     p.duration_to_escape,
+//     p.is_winner,
+//     pr.user_id AS participant_user_id,
+//     c.character_name,
+//     c.level,
+//     c.combatant_class,
+//     c.id_of_controlling_user
+// FROM
+//     race_game_records g
+// JOIN
+//     race_game_party_records p ON p.game_record_id = g.id
+// LEFT JOIN
+//     race_game_participant_records pr ON pr.party_id = p.id
+// LEFT JOIN
+//     race_game_character_records c ON c.party_id = p.id
+// WHERE
+//     g.id = 1;

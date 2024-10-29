@@ -3,13 +3,14 @@ import { SpeedDungeonGame } from "./index.js";
 import { removeFromArray } from "../utils/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 
+/** returns the name of the party and if the party was removed from the game (in the case of its last member being removed) */
 export default function removePlayerFromParty(game: SpeedDungeonGame, username: string) {
   const player = game.players[username];
-  if (!player) throw new Error("No player found to remove");
-  if (!player.partyName) return;
+  if (!player) return new Error("No player found to remove");
+  if (!player.partyName) return { partyNameLeft: null, partyWasRemoved: false };
 
   const partyLeaving = game.adventuringParties[player.partyName];
-  if (!partyLeaving) throw new Error("No party exists");
+  if (!partyLeaving) return new Error("No party exists");
 
   const characterIds = cloneDeep(player.characterIds);
   if (characterIds) {
@@ -23,8 +24,9 @@ export default function removePlayerFromParty(game: SpeedDungeonGame, username: 
   removeFromArray(partyLeaving.playerUsernames, username);
 
   if (partyLeaving.playerUsernames.length < 1) {
-    console.log("removing party", partyLeaving.name, "since no players remain");
     delete game.adventuringParties[partyLeaving.name];
+    return { partyNameLeft: partyLeaving.name, partyWasRemoved: true };
   }
-  return partyLeaving.name;
+
+  return { partyNameLeft: partyLeaving.name, partyWasRemoved: false };
 }

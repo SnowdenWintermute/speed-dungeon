@@ -40,7 +40,10 @@ export class AdventuringParty {
   actionCommandManager: ActionCommandManager = new ActionCommandManager();
   inputLock: InputLock = new InputLock();
 
-  constructor(public name: string) {}
+  constructor(
+    public id: string,
+    public name: string
+  ) {}
 
   static removeCharacter = removeCharacterFromParty;
   static getCombatant = getCombatant;

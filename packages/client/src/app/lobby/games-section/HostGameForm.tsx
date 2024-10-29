@@ -12,10 +12,13 @@ export default function HostGameForm() {
   const currentSessionHttpResponseTracker =
     useHttpRequestStore().requests[HTTP_REQUEST_NAMES.GET_SESSION];
   const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
+  // const [selectedGameMode, setSelectedGameMode] = useState(
+  //   isLoggedIn ? GameMode.Progression : GameMode.Race
+  // );
   const [selectedGameMode, setSelectedGameMode] = useState(
-    isLoggedIn ? GameMode.Progression : GameMode.Race
+    GameMode.Race
   );
-  const [isRanked, setIsRanked] = useState(false);
+  const [isRanked, setIsRanked] = useState(isLoggedIn);
   const [gameName, setGameName] = useState("");
   const [gamePassword, setGamePassword] = useState("");
 

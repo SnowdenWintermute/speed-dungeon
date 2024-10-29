@@ -5,6 +5,7 @@ import joinPartyHandler from "./join-party-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../index.js";
 import { Socket } from "socket.io";
+import { idGenerator } from "../../singletons.js";
 
 export default function createPartyHandler(
   partyName: string,
@@ -21,7 +22,11 @@ export default function createPartyHandler(
 
   if (game.adventuringParties[partyName]) return new Error(ERROR_MESSAGES.LOBBY.PARTY_NAME_EXISTS);
 
-  game.adventuringParties[partyName] = new AdventuringParty(partyName);
-  getGameServer().io.of("/").in(game.name).emit(ServerToClientEvent.PartyCreated, partyName);
+  const party = new AdventuringParty(idGenerator.generate(), partyName);
+  game.adventuringParties[partyName] = party;
+  getGameServer()
+    .io.of("/")
+    .in(game.name)
+    .emit(ServerToClientEvent.PartyCreated, party.id, partyName);
   joinPartyHandler(partyName, playerAssociatedData, socket);
 }

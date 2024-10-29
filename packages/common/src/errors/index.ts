@@ -42,6 +42,7 @@ export const ERROR_MESSAGES = {
     NO_SAVED_CHARACTERS: "You must create a saved character to play in that game mode",
     STARTING_FLOOR_LIMIT:
       "You can't start on a deeper floor than the deepest floor reached by any character in your party",
+    MISSING_GAME_RECORD_ID: "No game record id was found",
   },
   PARTY: {
     PLAYER_NOT_FOUND: "The provided username does not belong to any player in this party",
@@ -70,6 +71,7 @@ export const ERROR_MESSAGES = {
     CHARACTER_SLOT_FULL: "That character slot is occupied",
     SAVED_CHARACTER_NOT_OWNED: "You do not own the character with the provided ID",
     NO_LIVING_CHARACTERS: "You have no characters that are alive",
+    NOT_FOUND: "User not found",
   },
   COMBATANT: {
     NOT_FOUND: "No combatant was found with the provided ID",

@@ -44,10 +44,10 @@ export default function setUpGameLobbyEventHandlers(
   socket.on(ServerToClientEvent.PlayerLeftGame, (username) => {
     playerLeftGameHandler(mutateGameStore, username);
   });
-  socket.on(ServerToClientEvent.PartyCreated, (partyName) => {
+  socket.on(ServerToClientEvent.PartyCreated, (partyId, partyName) => {
     mutateGameStore((state) => {
       if (state.game) {
-        state.game.adventuringParties[partyName] = new AdventuringParty(partyName);
+        state.game.adventuringParties[partyName] = new AdventuringParty(partyId, partyName);
       }
     });
   });

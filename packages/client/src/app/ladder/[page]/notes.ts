@@ -17,7 +17,7 @@
 // - best time from game start to floor clear for each floor by month and version
 // - each player's best floor times by month and version
 //
-// each record will hold:
+// each floor time record will hold:
 // - floor number
 // - time from game start to descent
 // - game name
@@ -39,3 +39,5 @@
 //   - character names/classes/levels
 // - game version
 // - date
+//
+// update player record to keep a list of their record ids

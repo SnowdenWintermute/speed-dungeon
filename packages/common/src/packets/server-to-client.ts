@@ -74,7 +74,7 @@ export interface ServerToClientEventTypes {
   ) => void;
   [ServerToClientEvent.PlayerLeftGame]: (userame: string) => void;
   [ServerToClientEvent.PlayerJoinedGame]: (userame: string) => void;
-  [ServerToClientEvent.PartyCreated]: (partyName: string) => void;
+  [ServerToClientEvent.PartyCreated]: (partyId: string, partyName: string) => void;
   [ServerToClientEvent.CharacterAddedToParty]: (
     partyName: string,
     username: string,

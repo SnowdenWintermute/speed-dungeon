@@ -2,6 +2,7 @@ import { ServerToClientEvent, SpeedDungeonGame, getPartyChannelName } from "@spe
 import { Socket } from "socket.io";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../index.js";
+import errorHandler from "../error-handler.js";
 
 export default function leavePartyHandler(
   _eventData: undefined,
@@ -12,10 +13,12 @@ export default function leavePartyHandler(
   const { game, player, session } = playerAssociatedData;
   const { username } = player;
 
-  const partyNameLeaving = SpeedDungeonGame.removePlayerFromParty(game, username);
-  if (!partyNameLeaving) return;
+  const result = SpeedDungeonGame.removePlayerFromParty(game, username);
+  if (result instanceof Error) return errorHandler(socket, result.message);
+  const { partyNameLeft, partyWasRemoved } = result;
+  if (!partyNameLeft) return;
 
-  const partyChannelName = getPartyChannelName(game.name, partyNameLeaving);
+  const partyChannelName = getPartyChannelName(game.name, partyNameLeft);
   gameServer.removeSocketFromChannel(socket.id, partyChannelName);
   session.currentPartyName = null;
 

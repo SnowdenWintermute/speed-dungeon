@@ -15,6 +15,7 @@ import { Socket } from "socket.io";
 import { getGameServer } from "../../index.js";
 import { removeDeadCharactersFromLadder } from "../../kv-store/utils.js";
 import { notifyOnlinePlayersOfTopRankedDeaths } from "../ladders/utils.js";
+import { raceGameRecordsRepo } from "../../database/repos/race-game-records.js";
 
 export default async function leaveGameHandler(
   _eventData: undefined,
@@ -22,7 +23,16 @@ export default async function leaveGameHandler(
   socket: Socket
 ) {
   const gameServer = getGameServer();
-  const { game, player, session } = playerAssociatedData;
+  const { game, partyOption, player, session } = playerAssociatedData;
+
+  if (game.timeStarted && game.mode === GameMode.Race && game.isRanked) {
+    if (!partyOption) return new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+    for (const character of Object.values(partyOption.characters)) {
+      if (character.combatantProperties.controllingPlayer === player.username) {
+        raceGameRecordsRepo.updatePlayerCharacterRecord(character);
+      }
+    }
+  }
 
   if (player.partyName && game.mode === GameMode.Progression) {
     const maybeError = await writePlayerCharactersInGameToDb(game, player);
@@ -40,11 +50,25 @@ export default async function leaveGameHandler(
   }
 
   leavePartyHandler(undefined, playerAssociatedData, socket);
+  const partyWasRemoved = partyOption && !game.adventuringParties[partyOption.name];
+  if (partyWasRemoved && Object.values(game.adventuringParties).length > 0) {
+    // @TODO notify other players that a party has left
+    // mark the race game as completed if in a ranked race game and set the only
+    // remaining party as the winner
+  }
 
   SpeedDungeonGame.removePlayer(game, session.username);
   const gameNameLeaving = game.name;
   session.currentGameName = null;
-  if (Object.keys(game.players).length === 0) gameServer.games.remove(game.name);
+
+  if (Object.keys(game.players).length === 0) {
+    if (game.timeStarted && game.mode === GameMode.Race && game.isRanked) {
+      if (!game.gameRecordId) return new Error(ERROR_MESSAGES.GAME.MISSING_GAME_RECORD_ID);
+      raceGameRecordsRepo.markGameAsCompleted(game.gameRecordId);
+    }
+    gameServer.games.remove(game.name);
+  }
+
   gameServer.removeSocketFromChannel(socket.id, gameNameLeaving);
   gameServer.joinSocketToChannel(socket.id, LOBBY_CHANNEL);
   if (gameServer.games.get(gameNameLeaving)) {

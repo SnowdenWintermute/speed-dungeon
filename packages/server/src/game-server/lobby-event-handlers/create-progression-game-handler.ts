@@ -1,7 +1,6 @@
 import {
   AdventuringParty,
   ClientToServerEventTypes,
-  ERROR_MESSAGES,
   GameMode,
   ServerToClientEventTypes,
   SpeedDungeonGame,
@@ -13,6 +12,7 @@ import errorHandler from "../error-handler.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import getDefaultSavedCharacterForProgressionGame from "./get-default-saved-character-for-progression-game.js";
 import joinPlayerToProgressionGame from "./join-player-to-progression-game.js";
+import { idGenerator } from "../../singletons.js";
 
 export default async function createProgressionGameHandler(
   gameServer: GameServer,
@@ -34,6 +34,7 @@ export default async function createProgressionGameHandler(
   game.selectedStartingFloor.current = defaultSavedCharacterResult.deepestFloorReached;
   const defaultPartyName = getProgressionGamePartyName(game.name);
   game.adventuringParties[getProgressionGamePartyName(game.name)] = new AdventuringParty(
+    idGenerator.generate(),
     defaultPartyName
   );
 
