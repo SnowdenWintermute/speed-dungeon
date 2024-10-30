@@ -8,7 +8,6 @@ export interface GameModeStrategy {
     player: SpeedDungeonPlayer
   ): Promise<Error | void>;
   onLastPlayerLeftGame(game: SpeedDungeonGame): Promise<Error | void>;
-  onPartyDissolve(game: SpeedDungeonGame, party: AdventuringParty): Promise<Error | void>;
   onPartyEscape(game: SpeedDungeonGame, party: AdventuringParty): Promise<Error | void>;
   onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<Error | void>;
 }

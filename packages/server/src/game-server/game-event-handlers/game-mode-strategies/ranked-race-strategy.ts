@@ -1,6 +1,13 @@
-import { AdventuringParty, SpeedDungeonGame, SpeedDungeonPlayer } from "@speed-dungeon/common";
+import {
+  AdventuringParty,
+  ERROR_MESSAGES,
+  SpeedDungeonGame,
+  SpeedDungeonPlayer,
+} from "@speed-dungeon/common";
 import { GameModeStrategy } from "./index.js";
 import { raceGameRecordsRepo } from "../../../database/repos/race-game-records.js";
+import { raceGamePartyRecordsRepo } from "../../../database/repos/race-game-party-records.js";
+import { raceGameCharacterRecordsRepo } from "../../../database/repos/race-game-character-records.js";
 
 export default class RankedRaceStrategy implements GameModeStrategy {
   onGameStart(game: SpeedDungeonGame): Promise<Error | void> {
@@ -13,36 +20,54 @@ export default class RankedRaceStrategy implements GameModeStrategy {
   ): Promise<Error | void> {
     if (!game.timeStarted) return Promise.resolve();
 
-    try {
-      for (const character of Object.values(party.characters)) {
-        if (character.combatantProperties.controllingPlayer !== player.username) continue;
-        await raceGameRecordsRepo.updatePlayerCharacterRecord(character);
-      }
-    } catch (error) {
-      return error as unknown as Error;
-    }
+    const maybeError = await updateRaceGameCharacterRecordLevels(party, player.username);
+    if (maybeError instanceof Error) return maybeError;
 
     return Promise.resolve();
   }
   onLastPlayerLeftGame(game: SpeedDungeonGame): Promise<Error | void> {
     return raceGameRecordsRepo.markGameAsCompleted(game.id);
   }
-  onPartyDissolve(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
-    throw new Error("Method not implemented.");
+  async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<Error | void> {
+    if (!game.timeStarted) return new Error(ERROR_MESSAGES.GAME.NOT_STARTED);
+    const maybeError = await updateRaceGameCharacterRecordLevels(party);
+    if (maybeError instanceof Error) return maybeError;
+
+    const partyRecord = await raceGamePartyRecordsRepo.findById(party.id);
+    if (!partyRecord) return new Error(ERROR_MESSAGES.GAME_RECORDS.PARTY_RECORD_NOT_FOUND);
+    partyRecord.durationToWipe = Date.now() - game.timeStarted;
+    await raceGamePartyRecordsRepo.update(partyRecord);
+
+    if (Object.keys(game.adventuringParties).length === 0)
+      await raceGameRecordsRepo.markGameAsCompleted(game.id);
   }
-  onPartyEscape(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-  onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
-    throw new Error("Method not implemented.");
+
+  async onPartyEscape(game: SpeedDungeonGame, party: AdventuringParty): Promise<Error | void> {
+    if (!game.timeStarted) return new Error(ERROR_MESSAGES.GAME.NOT_STARTED);
+    const maybeError = await updateRaceGameCharacterRecordLevels(party);
+    if (maybeError instanceof Error) return maybeError;
+
+    const partyRecord = await raceGamePartyRecordsRepo.findById(party.id);
+    if (!partyRecord) return new Error(ERROR_MESSAGES.GAME_RECORDS.PARTY_RECORD_NOT_FOUND);
+    partyRecord.durationToEscape = Date.now() - game.timeStarted;
+    partyRecord.isWinner = true;
+    await raceGamePartyRecordsRepo.update(partyRecord);
+
+    await raceGameRecordsRepo.markGameAsCompleted(game.id);
   }
 }
 
-// if (game.timeStarted) return raceGameRecordsRepo.markGameAsCompleted(game.id);
-// on player disconnect / game leave
-// - update their character record's levels
-// - if they were last one alive in their party to leave
-//     - update their entire party's character records
-//     - if at least 1 other party
-//       - notify other parties of their defeat
-//       - if there is only one other party, set that party as victors
+async function updateRaceGameCharacterRecordLevels(
+  party: AdventuringParty,
+  onlyForUsername: null | string = null
+) {
+  try {
+    for (const character of Object.values(party.characters)) {
+      if (onlyForUsername && character.combatantProperties.controllingPlayer !== onlyForUsername)
+        continue;
+      await raceGameCharacterRecordsRepo.update(character);
+    }
+  } catch (error) {
+    return error as unknown as Error;
+  }
+}

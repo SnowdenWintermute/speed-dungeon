@@ -1,6 +1,7 @@
 import {
   Combatant,
   ERROR_MESSAGES,
+  GameMessageType,
   GameMode,
   LOBBY_CHANNEL,
   ServerToClientEvent,
@@ -50,10 +51,16 @@ export default async function leaveGameHandler(
 
   leavePartyHandler(undefined, playerAssociatedData, socket);
   const partyWasRemoved = partyOption && !game.adventuringParties[partyOption.name];
-  if (partyWasRemoved && Object.values(game.adventuringParties).length > 0) {
-    // @TODO notify other players that a party has left
-    // mark the race game as completed if in a ranked race game and set the only
-    // remaining party as the winner
+
+  const remainingParties = Object.values(game.adventuringParties);
+  if (partyWasRemoved && remainingParties.length) {
+    // strategy.onPartyDissolve
+    getGameServer().io.in(game.name).emit(ServerToClientEvent.GameMessage, {
+      type: GameMessageType.PartyWipe,
+      partyName: partyOption.name,
+      dlvl: partyOption.currentFloor,
+      timeOfWipe: Date.now(),
+    });
   }
 
   SpeedDungeonGame.removePlayer(game, session.username);
@@ -62,8 +69,8 @@ export default async function leaveGameHandler(
 
   if (Object.keys(game.players).length === 0) {
     if (game.timeStarted && game.mode === GameMode.Race && game.isRanked) {
-      if (!game.gameRecordId) return new Error(ERROR_MESSAGES.GAME.MISSING_GAME_RECORD_ID);
-      raceGameRecordsRepo.markGameAsCompleted(game.gameRecordId);
+      add the strategy here;
+      raceGameRecordsRepo.markGameAsCompleted(game.id);
     }
     gameServer.games.remove(game.name);
   }
