@@ -1,6 +1,5 @@
 import {
   Combatant,
-  ERROR_MESSAGES,
   GameMessageType,
   GameMode,
   LOBBY_CHANNEL,
@@ -15,7 +14,6 @@ import { Socket } from "socket.io";
 import { getGameServer } from "../../index.js";
 import { removeDeadCharactersFromLadder } from "../../kv-store/utils.js";
 import { notifyOnlinePlayersOfTopRankedDeaths } from "../ladders/utils.js";
-import { raceGameRecordsRepo } from "../../database/repos/race-game-records.js";
 
 export default async function leaveGameHandler(
   _eventData: undefined,
@@ -24,14 +22,11 @@ export default async function leaveGameHandler(
 ) {
   const gameServer = getGameServer();
   const { game, partyOption, player, session } = playerAssociatedData;
+  const gameModeContext = gameServer.gameModeContexts[game.mode];
 
-  if (game.timeStarted && game.mode === GameMode.Race && game.isRanked) {
-    if (!partyOption) return new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
-    for (const character of Object.values(partyOption.characters)) {
-      if (character.combatantProperties.controllingPlayer === player.username) {
-        raceGameRecordsRepo.updatePlayerCharacterRecord(character);
-      }
-    }
+  if (partyOption) {
+    const maybeError = await gameModeContext.onGameLeave(game, partyOption, player);
+    if (maybeError instanceof Error) return maybeError;
   }
 
   if (player.partyName && game.mode === GameMode.Progression) {
@@ -68,10 +63,8 @@ export default async function leaveGameHandler(
   session.currentGameName = null;
 
   if (Object.keys(game.players).length === 0) {
-    if (game.timeStarted && game.mode === GameMode.Race && game.isRanked) {
-      add the strategy here;
-      raceGameRecordsRepo.markGameAsCompleted(game.id);
-    }
+    const maybeError = await gameModeContext.onLastPlayerLeftGame(game);
+    if (maybeError instanceof Error) return maybeError;
     gameServer.games.remove(game.name);
   }
 

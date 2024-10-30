@@ -3,9 +3,11 @@ import {
   ActionCommandReceiver,
   ClientToServerEventTypes,
   EquipmentType,
+  GameMode,
   LadderUpdatePayload,
   ServerToClientEventTypes,
   SpeedDungeonGame,
+  iterateNumericEnum,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import initiateLobbyEventListeners from "./lobby-event-handlers/index.js";
@@ -34,6 +36,8 @@ import takeAiControlledTurnIfActive from "./game-event-handlers/combat-action-re
 import generateLoot from "./game-event-handlers/action-command-handlers/generate-loot.js";
 import generateExperiencePoints from "./game-event-handlers/action-command-handlers/generate-experience-points.js";
 import initiateSavedCharacterListeners from "./saved-character-event-handlers/index.js";
+import { GameModeStrategy } from "./game-event-handlers/game-mode-strategies/index.js";
+import GameModeContext from "./game-event-handlers/game-mode-strategies/game-mode-context.js";
 
 export type Username = string;
 export type SocketId = string;
@@ -49,6 +53,10 @@ export class GameServer implements ActionCommandReceiver {
   connections: HashMap<SocketId, BrowserTabSession> = new HashMap();
   channels: Partial<Record<ChannelName, Channel>> = {};
   itemGenerationDirectors: Partial<Record<EquipmentType, ItemGenerationDirector>>;
+  gameModeContexts: Record<GameMode, GameModeContext> = {
+    [GameMode.Race]: new GameModeContext(GameMode.Race),
+    [GameMode.Progression]: new GameModeContext(GameMode.Progression),
+  };
   constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     console.log("constructed game server");
     this.connectionHandler();

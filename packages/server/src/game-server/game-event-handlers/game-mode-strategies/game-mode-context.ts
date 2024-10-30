@@ -18,12 +18,22 @@ export default class GameModeContext implements GameModeStrategy {
   onGameStart(game: SpeedDungeonGame): Promise<void | Error> {
     return this.strategy.onGameStart(game);
   }
+  onBattleResult(game: SpeedDungeonGame, party: AdventuringParty): Promise<Error | void> {
+    return this.strategy.onBattleResult(game, party);
+  }
   onGameLeave(
     game: SpeedDungeonGame,
     party: AdventuringParty,
     player: SpeedDungeonPlayer
   ): Promise<void | Error> {
     return this.strategy.onGameLeave(game, party, player);
+  }
+  onPartyLeave(
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    player: SpeedDungeonPlayer
+  ): Promise<void | Error> {
+    return this.strategy.onPartyLeave(game, party, player);
   }
   onLastPlayerLeftGame(game: SpeedDungeonGame): Promise<void | Error> {
     return this.strategy.onLastPlayerLeftGame(game);
@@ -33,6 +43,13 @@ export default class GameModeContext implements GameModeStrategy {
   }
   onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<void | Error> {
     return this.strategy.onPartyWipe(game, party);
+  }
+  onPartyVictory(
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    levelups: { [id: string]: number }
+  ): Promise<void | Error> {
+    return this.strategy.onPartyVictory(game, party, levelups);
   }
 
   private createStrategy(mode: GameMode): GameModeStrategy {

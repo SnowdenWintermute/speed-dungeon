@@ -10,7 +10,11 @@ import { raceGamePartyRecordsRepo } from "../../../database/repos/race-game-part
 import { raceGameCharacterRecordsRepo } from "../../../database/repos/race-game-character-records.js";
 
 export default class RankedRaceStrategy implements GameModeStrategy {
+  onBattleResult(_game: SpeedDungeonGame, _party: AdventuringParty): Promise<Error | void> {
+    return Promise.resolve();
+  }
   onGameStart(game: SpeedDungeonGame): Promise<Error | void> {
+    if (!game.isRanked) return Promise.resolve();
     return raceGameRecordsRepo.insertGameRecord(game);
   }
   async onGameLeave(
@@ -18,17 +22,30 @@ export default class RankedRaceStrategy implements GameModeStrategy {
     party: AdventuringParty,
     player: SpeedDungeonPlayer
   ): Promise<Error | void> {
-    if (!game.timeStarted) return Promise.resolve();
+    if (!game.timeStarted || !game.isRanked) return Promise.resolve();
 
     const maybeError = await updateRaceGameCharacterRecordLevels(party, player.username);
     if (maybeError instanceof Error) return maybeError;
 
     return Promise.resolve();
   }
+
+  async onPartyLeave(
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    player: SpeedDungeonPlayer
+  ): Promise<void | Error> {
+    // check if only dead characters remain in the party
+    // call onPartyWipe if so
+  }
+
   onLastPlayerLeftGame(game: SpeedDungeonGame): Promise<Error | void> {
+    if (!game.isRanked) return Promise.resolve();
     return raceGameRecordsRepo.markGameAsCompleted(game.id);
   }
+
   async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<Error | void> {
+    if (!game.isRanked) return Promise.resolve();
     if (!game.timeStarted) return new Error(ERROR_MESSAGES.GAME.NOT_STARTED);
     const maybeError = await updateRaceGameCharacterRecordLevels(party);
     if (maybeError instanceof Error) return maybeError;
@@ -40,9 +57,22 @@ export default class RankedRaceStrategy implements GameModeStrategy {
 
     if (Object.keys(game.adventuringParties).length === 0)
       await raceGameRecordsRepo.markGameAsCompleted(game.id);
+
+    // @TODO - if there is only one party left, tell them they are the last ones left alive
+    // but they must escape to claim victory
+  }
+
+  onPartyVictory(
+    _game: SpeedDungeonGame,
+    _party: AdventuringParty,
+    _levelups: { [id: string]: number }
+  ): Promise<void | Error> {
+    // we only care if they escape, die or disconnect
+    return Promise.resolve();
   }
 
   async onPartyEscape(game: SpeedDungeonGame, party: AdventuringParty): Promise<Error | void> {
+    if (!game.isRanked) return Promise.resolve();
     if (!game.timeStarted) return new Error(ERROR_MESSAGES.GAME.NOT_STARTED);
     const maybeError = await updateRaceGameCharacterRecordLevels(party);
     if (maybeError instanceof Error) return maybeError;
