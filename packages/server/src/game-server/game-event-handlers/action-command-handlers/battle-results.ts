@@ -85,9 +85,16 @@ export default async function battleResultActionCommandHandler(
       }
 
       if (game.mode === GameMode.Race && game.isRanked) {
+        // write the final character levels for this party
         for (const character of Object.values(party.characters)) {
           raceGameRecordsRepo.updatePlayerCharacterRecord(character);
         }
+
+        // set the party's time of wipe on their game record
+        // if there is only one other party left
+        // - set them as the winner
+        // - mark the game as completed
+        // - let the victorious party know they won
       }
 
       for (const username of party.playerUsernames)

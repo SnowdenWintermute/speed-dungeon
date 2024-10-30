@@ -12,6 +12,7 @@ import joinGameHandler from "./join-game-handler.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import { Socket } from "socket.io";
 import { getGameServer } from "../../index.js";
+import { idGenerator } from "../../singletons.js";
 
 export default async function createGameHandler(
   eventData: { gameName: string; mode: GameMode; isRanked?: boolean },
@@ -40,7 +41,13 @@ export default async function createGameHandler(
   if (mode === GameMode.Progression)
     await createProgressionGameHandler(gameServer, session, socket, gameName);
   else {
-    const game = new SpeedDungeonGame(gameName, GameMode.Race, session.username, isRanked);
+    const game = new SpeedDungeonGame(
+      idGenerator.generate(),
+      gameName,
+      GameMode.Race,
+      session.username,
+      isRanked
+    );
     gameServer.games.insert(gameName, game);
     joinGameHandler(gameName, session, socket);
   }

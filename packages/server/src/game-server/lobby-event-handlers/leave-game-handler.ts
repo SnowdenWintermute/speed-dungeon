@@ -5,7 +5,6 @@ import {
   LOBBY_CHANNEL,
   ServerToClientEvent,
   SpeedDungeonGame,
-  getPartyChannelName,
 } from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
 import writePlayerCharactersInGameToDb from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";

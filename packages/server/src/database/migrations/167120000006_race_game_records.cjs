@@ -13,7 +13,7 @@ exports.up = (pgm) => {
 
     CREATE TABLE race_game_party_records (
         id SERIAL PRIMARY KEY,
-        game_record_id INT REFERENCES race_game_records(id) ON DELETE CASCADE,
+        game_id INT REFERENCES race_game_records(id) ON DELETE CASCADE,
         party_name VARCHAR(128) NOT NULL,
         duration_to_wipe INTERVAL,
         duration_to_escape INTERVAL,
@@ -37,7 +37,7 @@ exports.up = (pgm) => {
     );
 
 
-    CREATE INDEX idx_party_records_game_record_id ON race_game_party_records (game_record_id);
+    CREATE INDEX idx_party_records_game_id ON race_game_party_records (game_id);
     CREATE INDEX idx_participant_records_party_id ON race_game_participant_records (party_id);
     CREATE INDEX idx_character_records_party_id ON race_game_character_records (party_id);
     `);

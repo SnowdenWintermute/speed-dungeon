@@ -53,16 +53,13 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
     const { rows } = await this.pgPool.query(
       format(
         `INSERT INTO race_game_records
-         (game_name, game_version)
+         (id, game_name, game_version)
          VALUES (%L, %L) RETURNING *;`,
+        game.id,
         game.name,
         SERVER_VERSION
       )
     );
-
-    const gameRecord = rows[0] as unknown as RaceGameRecord;
-    const gameRecordId = gameRecord.id;
-    game.gameRecordId = gameRecordId;
 
     const partyRecordPromises: Promise<Error | undefined>[] = [];
 
@@ -75,16 +72,12 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
       if (result instanceof Error) errorMessages.push(result.message);
     }
     if (errorMessages.length) return new Error(errorMessages.join(", "));
-
-    return gameRecordId;
   }
 
   async insertPartyRecord(game: SpeedDungeonGame, party: AdventuringParty, isWinner: boolean) {
     const userIdsByUsernameResult = await getUserIdsByUsername(Object.keys(game.players));
     if (userIdsByUsernameResult instanceof Error) return userIdsByUsernameResult;
-    console.log("got ids: ", userIdsByUsernameResult);
     if (game.timeStarted === null) return new Error(ERROR_MESSAGES.GAME.NOT_STARTED);
-    if (game.gameRecordId === null) return new Error("Expected gameRecordId was missing");
 
     const durationToWipe = party.timeOfWipe ? party.timeOfWipe - game.timeStarted : null;
     const durationToEscape = party.timeOfEscape ? party.timeOfEscape - game.timeStarted : null;
@@ -92,9 +85,9 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
     const { rows } = await this.pgPool.query(
       format(
         `INSERT INTO race_game_party_records
-           (game_record_id, party_name, duration_to_wipe, duration_to_escape, is_winner)
+           (game_id, party_name, duration_to_wipe, duration_to_escape, is_winner)
            VALUES (%L, %L, %L, %L, %L) RETURNING *;`,
-        game.gameRecordId,
+        game.id,
         party.name,
         durationToWipe,
         durationToEscape,
@@ -154,7 +147,7 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
     );
   }
 
-  async markGameAsCompleted(gameRecordId: number) {
+  async markGameAsCompleted(gameId: string) {
     const { rows } = await this.pgPool.query(
       format(
         `
@@ -163,7 +156,7 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
         WHERE id = %L;
        `,
         new Date(),
-        gameRecordId
+        gameId
       )
     );
   }

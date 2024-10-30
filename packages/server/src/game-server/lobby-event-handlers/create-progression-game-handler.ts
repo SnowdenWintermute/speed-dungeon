@@ -29,7 +29,12 @@ export default async function createProgressionGameHandler(
   if (defaultSavedCharacterResult instanceof Error)
     return errorHandler(socket, defaultSavedCharacterResult.message);
 
-  const game = new SpeedDungeonGame(gameName, GameMode.Progression, socketMeta.username);
+  const game = new SpeedDungeonGame(
+    idGenerator.generate(),
+    gameName,
+    GameMode.Progression,
+    socketMeta.username
+  );
   game.selectedStartingFloor.max = defaultSavedCharacterResult.deepestFloorReached;
   game.selectedStartingFloor.current = defaultSavedCharacterResult.deepestFloorReached;
   const defaultPartyName = getProgressionGamePartyName(game.name);
