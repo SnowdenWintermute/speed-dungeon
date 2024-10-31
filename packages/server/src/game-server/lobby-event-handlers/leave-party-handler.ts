@@ -1,7 +1,10 @@
 import {
+  GameMessage,
   GameMessageType,
   ServerToClientEvent,
   SpeedDungeonGame,
+  createPartyAbandonedMessage,
+  createPartyWipeMessage,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io";
@@ -40,7 +43,14 @@ export default function leavePartyHandler(
 
       gameServer.io
         .in(getPartyChannelName(game.name, partyOption.name))
-        .emit(ServerToClientEvent.GameMessage, {});
+        .emit(
+          ServerToClientEvent.GameMessage,
+          new GameMessage(
+            GameMessageType.PartyDissolved,
+            false,
+            createPartyAbandonedMessage(partyOption.name)
+          )
+        );
 
       partyWasRemoved = true;
       gameModeContext.onPartyWipe(game, partyOption);
@@ -49,12 +59,16 @@ export default function leavePartyHandler(
 
   const remainingParties = Object.values(game.adventuringParties);
   if (partyWasRemoved && remainingParties.length) {
-    gameServer.io.in(game.name).emit(ServerToClientEvent.GameMessage, {
-      type: GameMessageType.PartyWipe,
-      partyName: partyOption.name,
-      dlvl: partyOption.currentFloor,
-      timeOfWipe: Date.now(),
-    });
+    gameServer.io
+      .in(game.name)
+      .emit(
+        ServerToClientEvent.GameMessage,
+        new GameMessage(
+          GameMessageType.PartyWipe,
+          true,
+          createPartyWipeMessage(partyOption.name, partyOption.currentFloor, new Date())
+        )
+      );
   }
 
   const partyChannelName = getPartyChannelName(game.name, partyOption.name);

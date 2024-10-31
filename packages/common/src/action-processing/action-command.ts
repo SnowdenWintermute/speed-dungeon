@@ -55,11 +55,8 @@ export class ActionCommand {
           this.entityId,
           this.payload
         );
-      case ActionCommandType.LadderUpdate:
-        return this.receiver.ladderUpdateActionCommandHandler(
-          this.actionCommandManager,
-          this.payload
-        );
+      case ActionCommandType.GameMessages:
+        return this.receiver.gameMessageCommandHandler(this.actionCommandManager, this.payload);
     }
   }
 }

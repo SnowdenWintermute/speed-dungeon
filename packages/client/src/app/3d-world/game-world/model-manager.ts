@@ -15,7 +15,6 @@ import {
 } from "../combatant-models/modular-character-parts";
 import { Color3, StandardMaterial } from "@babylonjs/core";
 import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
-import { BabylonToNextMessageTypes } from "@/stores/next-babylon-messaging-store/babylon-to-next-messages";
 
 // the whole point of all this is to make sure we never handle spawn and despawn messages out of order due
 // to the asynchronous nature of spawning models

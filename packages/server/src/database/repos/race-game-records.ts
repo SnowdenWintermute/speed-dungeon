@@ -28,7 +28,7 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
       format(
         `INSERT INTO race_game_records
          (id, game_name, game_version)
-         VALUES (%L, %L) RETURNING *;`,
+         VALUES (%L, %L, %L) RETURNING *;`,
         game.id,
         game.name,
         SERVER_VERSION

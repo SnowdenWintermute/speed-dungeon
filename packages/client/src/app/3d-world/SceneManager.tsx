@@ -1,16 +1,11 @@
-import React, { MutableRefObject, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { GameWorld } from "./game-world/";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 import { useGameStore } from "@/stores/game-store";
-import { ActionCommandManager } from "@speed-dungeon/common";
 
 export const gameWorld: { current: null | GameWorld } = { current: null };
 
-export default function SceneManager({
-  actionCommandManager,
-}: {
-  actionCommandManager: MutableRefObject<ActionCommandManager | null | undefined>;
-}) {
+export default function SceneManager() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const debugRef = useRef<HTMLDivElement>(null);
   const resizeHandlerRef = useRef<(e: UIEvent) => void | null>();
@@ -23,7 +18,6 @@ export default function SceneManager({
         canvasRef.current,
         mutateGameState,
         mutateNextBabylonMessagingStore,
-        actionCommandManager,
         debugRef
       );
     }

@@ -3,11 +3,10 @@ import {
   ActionCommandReceiver,
   ClientToServerEventTypes,
   EquipmentType,
+  GameMessagesPayload,
   GameMode,
-  LadderUpdatePayload,
   ServerToClientEventTypes,
   SpeedDungeonGame,
-  iterateNumericEnum,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import initiateLobbyEventListeners from "./lobby-event-handlers/index.js";
@@ -36,7 +35,6 @@ import takeAiControlledTurnIfActive from "./game-event-handlers/combat-action-re
 import generateLoot from "./game-event-handlers/action-command-handlers/generate-loot.js";
 import generateExperiencePoints from "./game-event-handlers/action-command-handlers/generate-experience-points.js";
 import initiateSavedCharacterListeners from "./saved-character-event-handlers/index.js";
-import { GameModeStrategy } from "./game-event-handlers/game-mode-strategies/index.js";
 import GameModeContext from "./game-event-handlers/game-mode-strategies/game-mode-context.js";
 
 export type Username = string;
@@ -62,9 +60,9 @@ export class GameServer implements ActionCommandReceiver {
     this.connectionHandler();
     this.itemGenerationDirectors = this.createItemGenerationDirectors();
   }
-  ladderUpdateActionCommandHandler(
+  gameMessageCommandHandler(
     actionCommandManager: ActionCommandManager,
-    payload: LadderUpdatePayload
+    payload: GameMessagesPayload
   ) {
     console.log(...payload.messages);
   }

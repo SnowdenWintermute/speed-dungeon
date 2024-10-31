@@ -11,14 +11,16 @@ import TailwindClassLoader from "./TailwindClassLoader";
 import GlobalKeyboardEventManager from "./GlobalKeyboardEventManager";
 import TooltipManager from "./TooltipManager";
 import SceneManager from "./3d-world/SceneManager";
-import { useEffect, useRef } from "react";
-import { ClientActionCommandReceiver } from "./client-action-command-receiver";
+import { useEffect } from "react";
 import { useAlertStore } from "@/stores/alert-store";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
-import { ActionCommand } from "@speed-dungeon/common";
-import { ActionCommandManager } from "@speed-dungeon/common";
 import Settings from "./settings";
-// import { useBroadcastChannel } from "@/hooks/use-broadcast-channel";
+import {
+  actionCommandManager,
+  actionCommandReceiver,
+  actionCommandWaitingArea,
+} from "@/singletons/action-command-manager";
+import { ClientActionCommandReceiver } from "./client-action-command-receiver";
 // for immer to be able to use map and set
 enableMapSet();
 
@@ -28,32 +30,25 @@ export default function Home() {
   const mutateAlertStore = useAlertStore().mutateState;
   const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const combatantModelsAwaitingSpawn = useGameStore().combatantModelsAwaitingSpawn;
-  // const channel = useBroadcastChannel();
-
-  // ACTION COMMAND HANDLING - PROBABLY CAN MOVE THIS ELSEWHERE
-  const actionCommandReceiverRef = useRef<null | ClientActionCommandReceiver>();
-  const actionCommandManagerRef = useRef<null | ActionCommandManager>();
-  const actionCommandWaitingAreaRef = useRef<ActionCommand[]>([]);
 
   useEffect(() => {
-    actionCommandReceiverRef.current = new ClientActionCommandReceiver(
+    actionCommandReceiver.current = new ClientActionCommandReceiver(
       mutateGameStore,
       mutateAlertStore,
       mutateNextBabylonMessagingStore
     );
-    actionCommandManagerRef.current = new ActionCommandManager();
 
     return () => {
-      actionCommandReceiverRef.current = null;
-      actionCommandManagerRef.current = null;
+      actionCommandReceiver.current = null;
     };
   }, []);
 
   useEffect(() => {
-    if (combatantModelsAwaitingSpawn.length || !actionCommandManagerRef.current) return;
-    if (actionCommandWaitingAreaRef.current.length) {
-      actionCommandManagerRef.current.enqueueNewCommands(actionCommandWaitingAreaRef.current);
-      actionCommandWaitingAreaRef.current = [];
+    if (combatantModelsAwaitingSpawn.length || !actionCommandManager) return;
+    if (actionCommandWaitingArea.length) {
+      actionCommandManager.enqueueNewCommands(
+        actionCommandWaitingArea.splice(0, actionCommandWaitingArea.length)
+      );
     }
   }, [combatantModelsAwaitingSpawn]);
 
@@ -68,15 +63,11 @@ export default function Home() {
   return (
     <>
       <TailwindClassLoader />
-      <SocketManager
-        actionCommandReceiver={actionCommandReceiverRef}
-        actionCommandManager={actionCommandManagerRef}
-        actionCommandWaitingArea={actionCommandWaitingAreaRef}
-      />
+      <SocketManager />
       <AlertManager />
       <GlobalKeyboardEventManager />
       <TooltipManager />
-      <SceneManager actionCommandManager={actionCommandManagerRef} />
+      <SceneManager />
       <Settings />
       {componentToRender}
     </>

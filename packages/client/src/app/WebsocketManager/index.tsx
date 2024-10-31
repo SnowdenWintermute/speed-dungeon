@@ -5,26 +5,22 @@ import {
   ERROR_MESSAGES,
   ServerToClientEvent,
 } from "@speed-dungeon/common";
-import React, { MutableRefObject, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useAlertStore } from "@/stores/alert-store";
 import { setAlert } from "../components/alerts";
 import { useGameStore } from "@/stores/game-store";
-import { ClientActionCommandReceiver } from "../client-action-command-receiver";
-import { ActionCommandManager } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import setUpSavedCharacterEventListeners from "./saved-character-event-handlers";
 import setUpGameLobbyEventHandlers from "./lobby-event-handlers";
 import setUpGameEventHandlers from "./game-event-handlers";
-
-function SocketManager({
-  actionCommandReceiver,
+import {
   actionCommandManager,
+  actionCommandReceiver,
   actionCommandWaitingArea,
-}: {
-  actionCommandReceiver: MutableRefObject<ClientActionCommandReceiver | null | undefined>;
-  actionCommandManager: MutableRefObject<ActionCommandManager | null | undefined>;
-  actionCommandWaitingArea: MutableRefObject<ActionCommand[] | null | undefined>;
-}) {
+  enqueueClientActionCommand,
+} from "@/singletons/action-command-manager";
+
+function SocketManager() {
   const mutateLobbyStore = useLobbyStore().mutateState;
   const mutateGameStore = useGameStore().mutateState;
   const gameName = useGameStore().gameName;
@@ -59,27 +55,7 @@ function SocketManager({
     });
 
     socket.on(ServerToClientEvent.ActionCommandPayloads, (entityId, payloads) => {
-      mutateGameStore((gameState) => {
-        if (gameName === undefined || gameName === null)
-          return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-        if (!actionCommandManager.current) return console.error("NO COMMAND MANAGER");
-        if (!actionCommandReceiver.current) return console.error("NO RECEIVER");
-        if (!actionCommandWaitingArea.current) return console.error("NO WAITING AREA");
-
-        const actionCommands = payloads.map(
-          (payload) =>
-            new ActionCommand(
-              gameName,
-              actionCommandManager.current!,
-              entityId,
-              payload,
-              actionCommandReceiver.current!
-            )
-        );
-        if (gameState.combatantModelsAwaitingSpawn.length === 0)
-          actionCommandManager.current.enqueueNewCommands(actionCommands);
-        else actionCommandWaitingArea.current.push(...actionCommands);
-      });
+      enqueueClientActionCommand(mutateGameStore, mutateAlertStore, entityId, payloads);
     });
 
     socket.on(ServerToClientEvent.ErrorMessage, (message) => {

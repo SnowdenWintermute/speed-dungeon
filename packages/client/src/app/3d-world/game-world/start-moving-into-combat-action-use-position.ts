@@ -16,6 +16,7 @@ import {
   CombatantModelAction,
   CombatantModelActionType,
 } from "../combatant-models/model-action-manager/model-actions";
+import { actionCommandManager } from "@/singletons/action-command-manager";
 
 export default function startMovingIntoCombatActionUsePosition(
   gameWorld: GameWorld,
@@ -89,11 +90,7 @@ export default function startMovingIntoCombatActionUsePosition(
       destinationRotation: cloneDeep(destinationQuaternion),
       percentTranslationToTriggerCompletionEvent: 1,
       timeToRotate,
-      onComplete: () => {
-        if (!gameWorld.actionCommandManager.current)
-          console.error(ERROR_MESSAGES.CLIENT.NO_COMMAND_MANAGER);
-        gameWorld.actionCommandManager.current!.processNextCommand();
-      },
+      onComplete: () => actionCommandManager.processNextCommand(),
     };
 
     userCombatantModel.modelActionManager.startNewModelAction(modelAction);

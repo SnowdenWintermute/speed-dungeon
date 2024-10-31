@@ -4,46 +4,39 @@ export enum GameMessageType {
   PartyWipe,
   LadderProgress,
   LadderDeath,
+  PartyDissolved,
 }
 
-interface PartyDescentGameMessage {
-  type: GameMessageType.PartyDescent;
-  partyName: string;
-  newFloor: number;
+export class GameMessage {
+  constructor(
+    public type: GameMessageType,
+    public showAfterActionQueueResolution: boolean,
+    public message: string
+  ) {}
 }
 
-interface PartyEscapeGameMessage {
-  type: GameMessageType.PartyEscape;
-  partyName: string;
-  timeOfEscape: number;
+export function createPartyWipeMessage(partyName: string, dlvl: number, timeOfWipe: Date) {
+  return `Party "${partyName}" was defeated on floor ${dlvl} at ${timeOfWipe.toLocaleTimeString()} `;
 }
 
-interface PartyWipeGameMessage {
-  type: GameMessageType.PartyWipe;
-  partyName: string;
-  dlvl: number;
-  timeOfWipe: number;
+export function createPartyAbandonedMessage(partyName: string) {
+  return `Party "${partyName}" was abandoned by its last living character and has been dissolved`;
 }
 
-interface LadderProgressGameMessage {
-  type: GameMessageType.LadderProgress;
-  characterName: string;
-  playerName: string;
-  level: number;
-  rank: number;
+export function createLadderDeathsMessage(
+  characterName: string,
+  owner: string,
+  level: number,
+  rank: number
+) {
+  return `${characterName} [${owner}] died at level ${level}, losing their position of rank ${rank + 1} in the ladder`;
 }
 
-interface LadderDeathGameMessage {
-  type: GameMessageType.LadderDeath;
-  characterName: string;
-  playerName: string;
-  level: number;
-  rank: number;
+export function createLevelLadderRankMessage(
+  name: string,
+  controllingPlayer: string,
+  level: number,
+  newRank: number
+) {
+  return `${name} [${controllingPlayer}] gained level ${level} and rose to rank ${newRank + 1} in the ladder!`;
 }
-
-export type GameMessage =
-  | PartyWipeGameMessage
-  | PartyEscapeGameMessage
-  | PartyDescentGameMessage
-  | LadderProgressGameMessage
-  | LadderDeathGameMessage;

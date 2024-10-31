@@ -4,6 +4,7 @@ export * from "./action-command-manager.js";
 import { BattleConclusion } from "../battle/index.js";
 import { CombatAction } from "../combat/index.js";
 import { EquipmentSlot, Item } from "../items/index.js";
+import { GameMessageType } from "../packets/game-message.js";
 
 export enum ActionCommandType {
   PayAbilityCosts,
@@ -12,7 +13,7 @@ export enum ActionCommandType {
   ReturnHome,
   ChangeEquipment,
   BattleResult,
-  LadderUpdate,
+  GameMessages,
 }
 
 export type PayAbilityCostsActionCommandPayload = {
@@ -65,28 +66,10 @@ export type LadderDeathsUpdate = {
   [combatantName: string]: { owner: string; rank: number; level: number };
 };
 
-export type LadderUpdatePayload = {
-  type: ActionCommandType.LadderUpdate;
-  messages: string[];
+export type GameMessagesPayload = {
+  type: ActionCommandType.GameMessages;
+  messages: { text: string; type: GameMessageType }[];
 };
-
-export function createLadderDeathsMessage(
-  characterName: string,
-  owner: string,
-  level: number,
-  rank: number
-) {
-  return `${characterName} [${owner}] died at level ${level}, losing their position of rank ${rank + 1} in the ladder`;
-}
-
-export function createLevelLadderRankMessage(
-  name: string,
-  controllingPlayer: string,
-  level: number,
-  newRank: number
-) {
-  return `${name} [${controllingPlayer}] gained level ${level} and rose to rank ${newRank + 1} in the ladder!`;
-}
 
 export type ActionCommandPayload =
   | PayAbilityCostsActionCommandPayload
@@ -95,7 +78,7 @@ export type ActionCommandPayload =
   | PerformCombatActionActionCommandPayload
   | ChangeEquipmentActionCommandPayload
   | BattleResultActionCommandPayload
-  | LadderUpdatePayload;
+  | GameMessagesPayload;
 
 export function formatActionCommandType(type: ActionCommandType) {
   switch (type) {
@@ -111,8 +94,8 @@ export function formatActionCommandType(type: ActionCommandType) {
       return "Change equipment";
     case ActionCommandType.BattleResult:
       return "Battle result";
-    case ActionCommandType.LadderUpdate:
-      return "Ladder update";
+    case ActionCommandType.GameMessages:
+      return "Game messages";
   }
 }
 

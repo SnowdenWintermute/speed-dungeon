@@ -1,7 +1,7 @@
 import {
   BattleResultActionCommandPayload,
   ChangeEquipmentActionCommandPayload,
-  LadderUpdatePayload,
+  GameMessagesPayload,
   MoveIntoCombatActionPositionActionCommandPayload,
   PayAbilityCostsActionCommandPayload,
   PerformCombatActionActionCommandPayload,
@@ -46,8 +46,8 @@ export interface ActionCommandReceiver {
     combatantId: string,
     payload: BattleResultActionCommandPayload
   ) => void;
-  ladderUpdateActionCommandHandler: (
+  gameMessageCommandHandler: (
     actionCommandManager: ActionCommandManager,
-    payload: LadderUpdatePayload
+    payload: GameMessagesPayload
   ) => void;
 }

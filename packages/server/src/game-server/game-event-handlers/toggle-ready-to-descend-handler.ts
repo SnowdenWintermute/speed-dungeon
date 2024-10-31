@@ -3,6 +3,7 @@ import {
   DescendOrExplore,
   DungeonRoomType,
   ERROR_MESSAGES,
+  GameMessage,
   GameMessageType,
   LEVEL_TO_REACH_FOR_ESCAPE,
   ServerToClientEvent,
@@ -55,22 +56,31 @@ export default function toggleReadyToDescendHandler(
     .in(partyChannelName)
     .emit(ServerToClientEvent.DungeonFloorNumber, party.currentFloor);
   // tell other parties so they feel the pressure of other parties descending
-  gameServer.io.in(game.name).emit(ServerToClientEvent.GameMessage, {
-    type: GameMessageType.PartyDescent,
-    partyName: party.name,
-    newFloor: party.currentFloor,
-  });
+  gameServer.io
+    .in(game.name)
+    .emit(
+      ServerToClientEvent.GameMessage,
+      new GameMessage(
+        GameMessageType.PartyDescent,
+        true,
+        `Party "${party.name}" descended to floor ${party.currentFloor}`
+      )
+    );
 
   // IF THEY HAVE ESCAPED
   if (party.currentFloor === LEVEL_TO_REACH_FOR_ESCAPE) {
     const timeOfEscape = Date.now();
     party.timeOfEscape = timeOfEscape;
-
-    gameServer.io.in(game.name).emit(ServerToClientEvent.GameMessage, {
-      type: GameMessageType.PartyEscape,
-      partyName: party.name,
-      timeOfEscape,
-    });
+    gameServer.io
+      .in(game.name)
+      .emit(
+        ServerToClientEvent.GameMessage,
+        new GameMessage(
+          GameMessageType.PartyEscape,
+          false,
+          `Party "${party.name}" escaped the dungeon at ${timeOfEscape.toLocaleString()}`
+        )
+      );
   }
 
   // generate next floor etc

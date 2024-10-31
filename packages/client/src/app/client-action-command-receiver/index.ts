@@ -9,7 +9,7 @@ import performCombatActionActionCommandHandler from "./perform-combat-action";
 import returnHomeActionCommandHandler from "./return-home";
 import battleResultActionCommandHandler from "./process-battle-result";
 import { ActionCommandManager } from "@speed-dungeon/common";
-import ladderUpdateActionCommandHandler from "./ladder-update";
+import gameMessageActionCommandHandler from "./game-message";
 
 export class ClientActionCommandReceiver implements ActionCommandReceiver {
   constructor(
@@ -26,7 +26,7 @@ export class ClientActionCommandReceiver implements ActionCommandReceiver {
   returnHomeActionCommandHandler = returnHomeActionCommandHandler;
   battleResultActionCommandHandler = battleResultActionCommandHandler;
 
-  ladderUpdateActionCommandHandler = ladderUpdateActionCommandHandler;
+  gameMessageCommandHandler = gameMessageActionCommandHandler;
 
   changeEquipmentActionCommandHandler: (
     actionCommandManager: ActionCommandManager,

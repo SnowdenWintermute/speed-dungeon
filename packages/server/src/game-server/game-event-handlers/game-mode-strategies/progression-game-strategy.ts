@@ -1,12 +1,11 @@
 import {
-  ActionCommandType,
   AdventuringParty,
   Combatant,
+  GameMessage,
   GameMessageType,
   ServerToClientEvent,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
-  createLadderDeathsMessage,
   createLevelLadderRankMessage,
   getPartyChannelName,
 } from "@speed-dungeon/common";
@@ -46,17 +45,7 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
       characters[characterResult.entityProperties.id] = characterResult;
     }
     const deathsAndRanks = await removeDeadCharactersFromLadder(characters);
-    notifyOnlinePlayersOfTopRankedDeaths(deathsAndRanks, "");
-  }
-
-  onPartyLeave(
-    game: SpeedDungeonGame,
-    party: AdventuringParty,
-    player: SpeedDungeonPlayer
-  ): Promise<void | Error> {
-    // check if all remaining characters are dead
-    // call onPartyWipe if so
-    // this would happen if a player disconnects mid battle and all their allies were dead in that battle
+    notifyOnlinePlayersOfTopRankedDeaths(deathsAndRanks);
   }
 
   onLastPlayerLeftGame(game: SpeedDungeonGame): Promise<void | Error> {
@@ -68,32 +57,8 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
   }
 
   async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<void | Error> {
-    const partyChannel = getPartyChannelName(game.name, party.name);
     const ladderDeathsUpdate = await removeDeadCharactersFromLadder(party.characters);
-    // send action command to party memebers with ladder update so they see it after their battle report
-    const messages: string[] = [];
-    for (const [characterName, deathAndRank] of Object.entries(ladderDeathsUpdate)) {
-      messages.push(
-        createLadderDeathsMessage(
-          characterName,
-          deathAndRank.owner,
-          deathAndRank.level,
-          deathAndRank.rank
-        )
-      );
-    }
-
-    getGameServer() // a delayed message to be displayed in the client's action command queue
-      .io.in(partyChannel)
-      .emit(ServerToClientEvent.ActionCommandPayloads, "", [
-        {
-          type: ActionCommandType.LadderUpdate,
-          messages,
-        },
-      ]);
-
-    // let everyone else know immediately
-    notifyOnlinePlayersOfTopRankedDeaths(ladderDeathsUpdate, partyChannel);
+    notifyOnlinePlayersOfTopRankedDeaths(ladderDeathsUpdate);
   }
 
   async onPartyVictory(
@@ -113,33 +78,17 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
       const newRank = await valkeyManager.context.zRevRank(CHARACTER_LEVEL_LADDER, id);
       // - if they ranked up and were in the top 10 ranks, emit a message to everyone
       if (newRank === null || newRank === currentRankOption || newRank >= 10) continue;
-      const levelLadderUpdateMessage = createLevelLadderRankMessage(
-        name,
-        controllingPlayer || "",
-        level,
-        newRank
-      );
 
-      // only tell the players once their battle report is completed
-      getGameServer()
-        .io.in(partyChannel)
-        .emit(ServerToClientEvent.ActionCommandPayloads, "", [
-          {
-            type: ActionCommandType.LadderUpdate,
-            messages: [levelLadderUpdateMessage],
-          },
-        ]);
-
-      // everyone else on the server can just be updated immediately
       getGameServer()
         .io.except(partyChannel)
-        .emit(ServerToClientEvent.GameMessage, {
-          type: GameMessageType.LadderProgress,
-          characterName: name,
-          playerName: controllingPlayer || "",
-          level,
-          rank: newRank,
-        });
+        .emit(
+          ServerToClientEvent.GameMessage,
+          new GameMessage(
+            GameMessageType.LadderProgress,
+            false,
+            createLevelLadderRankMessage(name, controllingPlayer || "", level, newRank)
+          )
+        );
     }
   }
 }

@@ -1,24 +1,32 @@
-import { GameMessageType, ServerToClientEvent } from "@speed-dungeon/common";
+import {
+  GameMessage,
+  GameMessageType,
+  ServerToClientEvent,
+  createLadderDeathsMessage,
+} from "@speed-dungeon/common";
 import { getGameServer } from "../../index.js";
 
-export function notifyOnlinePlayersOfTopRankedDeaths(
-  deathsAndRanks: {
-    [combatantName: string]: {
-      owner: string;
-      rank: number;
-      level: number;
-    };
-  },
-  partyChannel: string
-) {
+export function notifyOnlinePlayersOfTopRankedDeaths(deathsAndRanks: {
+  [combatantName: string]: {
+    owner: string;
+    rank: number;
+    level: number;
+  };
+}) {
   for (const [characterName, deathAndRank] of Object.entries(deathsAndRanks)) {
-    getGameServer().io.except(partyChannel).emit(ServerToClientEvent.GameMessage, {
-      type: GameMessageType.LadderDeath,
-      characterName,
-      playerName: deathAndRank.owner,
-      level: deathAndRank.level,
-      rank: deathAndRank.rank,
-    });
+    getGameServer().io.emit(
+      ServerToClientEvent.GameMessage,
+      new GameMessage(
+        GameMessageType.LadderDeath,
+        true,
+        createLadderDeathsMessage(
+          characterName,
+          deathAndRank.owner,
+          deathAndRank.level,
+          deathAndRank.rank
+        )
+      )
+    );
   }
 }
 

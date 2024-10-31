@@ -15,6 +15,7 @@ import {
 } from "../combatant-models/model-action-manager/model-actions";
 import getFrameEventFromAnimation from "../combatant-models/animation-manager/get-frame-event-from-animation";
 import { getCombatActionExecutionTime } from "@speed-dungeon/common";
+import { actionCommandManager } from "@/singletons/action-command-manager";
 
 export default function startPerformingCombatAction(
   gameWorld: GameWorld,
@@ -70,11 +71,7 @@ export default function startPerformingCombatAction(
     shouldLoop: false,
     animationEventOption,
     animationDurationOverrideOption: combatActionExecutionTimeResult,
-    onComplete: () => {
-      if (!gameWorld.actionCommandManager.current)
-        console.error(ERROR_MESSAGES.CLIENT.NO_COMMAND_MANAGER);
-      gameWorld.actionCommandManager.current!.processNextCommand();
-    },
+    onComplete: () => actionCommandManager.processNextCommand(),
   });
 
   const isMelee = combatActionRequiresMeleeRange(combatAction);

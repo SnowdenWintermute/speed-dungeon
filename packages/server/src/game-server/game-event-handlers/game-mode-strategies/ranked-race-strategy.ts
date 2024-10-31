@@ -31,15 +31,6 @@ export default class RankedRaceStrategy implements GameModeStrategy {
     return Promise.resolve();
   }
 
-  async onPartyLeave(
-    game: SpeedDungeonGame,
-    party: AdventuringParty,
-    player: SpeedDungeonPlayer
-  ): Promise<void | Error> {
-    // check if only dead characters remain in the party
-    // call onPartyWipe if so
-  }
-
   onLastPlayerLeftGame(game: SpeedDungeonGame): Promise<Error | void> {
     if (!game.isRanked) return Promise.resolve();
     return raceGameRecordsRepo.markGameAsCompleted(game.id);

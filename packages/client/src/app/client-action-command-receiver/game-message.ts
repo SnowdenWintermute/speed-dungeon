@@ -1,5 +1,8 @@
 import { ActionCommandManager, GameMessagesPayload } from "@speed-dungeon/common";
-import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
+import {
+  CombatLogMessage,
+  getCombatLogMessageStyleFromGameMessageType,
+} from "../game/combat-log/combat-log-message";
 import { ClientActionCommandReceiver } from ".";
 
 export default function gameMessageActionCommandHandler(
@@ -9,10 +12,8 @@ export default function gameMessageActionCommandHandler(
 ) {
   payload.messages.forEach((message) => {
     this.mutateGameState((state) => {
-      const style;
-      state.combatLogMessages.push(
-        new CombatLogMessage(message.text, CombatLogMessageStyle.LadderProgress)
-      );
+      const style = getCombatLogMessageStyleFromGameMessageType(message.type);
+      state.combatLogMessages.push(new CombatLogMessage(message.text, style));
     });
   });
 }
