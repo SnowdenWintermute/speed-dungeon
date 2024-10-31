@@ -38,6 +38,7 @@ export function enqueueClientActionCommand(
           actionCommandReceiver.current!
         )
     );
+
     if (gameState.combatantModelsAwaitingSpawn.length === 0)
       actionCommandManager.enqueueNewCommands(actionCommands);
     else actionCommandWaitingArea.push(...actionCommands);

@@ -21,9 +21,9 @@ export default function gameProgressMessageHandler(
           messages: [{ text: message.message, type: message.type }],
         },
       ]);
+    } else {
+      const style = getCombatLogMessageStyleFromGameMessageType(message.type);
+      state.combatLogMessages.push(new CombatLogMessage(message.message, style));
     }
-
-    const style = getCombatLogMessageStyleFromGameMessageType(message.type);
-    state.combatLogMessages.push(new CombatLogMessage(message.message, style));
   });
 }

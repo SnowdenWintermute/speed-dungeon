@@ -15,8 +15,8 @@ exports.up = (pgm) => {
         id UUID PRIMARY KEY,
         game_id UUID REFERENCES race_game_records(id) ON DELETE CASCADE,
         party_name VARCHAR(128) NOT NULL,
-        duration_to_wipe INTERVAL,
-        duration_to_escape INTERVAL,
+        duration_to_wipe BIGINT,
+        duration_to_escape BIGINT,
         is_winner BOOLEAN DEFAULT FALSE
     );
 

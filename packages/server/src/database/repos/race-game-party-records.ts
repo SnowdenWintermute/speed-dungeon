@@ -67,8 +67,8 @@ class RaceGamePartyRecordRepo extends DatabaseRepository<RaceGamePartyRecord> {
     await this.pgPool.query(
       format(
         `UPDATE race_game_party_records
-           (party_name, duration_to_wipe, duration_to_escape, is_winner)
-           VALUES (%L, %L, %L, %L) WHERE id = %L;`,
+         SET party_name = %L, duration_to_wipe = %L, duration_to_escape = %L, is_winner = %L 
+         WHERE id = %L;`,
         partyRecord.partyName,
         partyRecord.durationToWipe,
         partyRecord.durationToEscape,

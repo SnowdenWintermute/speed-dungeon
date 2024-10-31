@@ -67,7 +67,8 @@ export default function startReturningHome(
     // check the queue length so we don't unlock for a split second in between the ai's turns
     if (
       actionCommandManager.queue.length === 0 ||
-      actionCommandManager.queue[0]?.payload.type === ActionCommandType.BattleResult
+      actionCommandManager.queue[0]?.payload.type === ActionCommandType.BattleResult ||
+      actionCommandManager.queue[0]?.payload.type === ActionCommandType.GameMessages
     )
       InputLock.unlockInput(party.inputLock);
 
