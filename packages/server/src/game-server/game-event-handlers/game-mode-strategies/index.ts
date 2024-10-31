@@ -5,7 +5,7 @@ export interface GameModeStrategy {
   onGameStart(game: SpeedDungeonGame): Promise<Error | void>;
   onGameLeave(
     game: SpeedDungeonGame,
-    party: AdventuringParty,
+    partyOption: undefined | AdventuringParty,
     player: SpeedDungeonPlayer
   ): Promise<Error | void>;
   onPartyLeave(

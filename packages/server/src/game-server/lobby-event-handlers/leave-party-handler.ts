@@ -1,4 +1,9 @@
-import { ServerToClientEvent, SpeedDungeonGame, getPartyChannelName } from "@speed-dungeon/common";
+import {
+  GameMessageType,
+  ServerToClientEvent,
+  SpeedDungeonGame,
+  getPartyChannelName,
+} from "@speed-dungeon/common";
 import { Socket } from "socket.io";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../index.js";
@@ -10,15 +15,49 @@ export default function leavePartyHandler(
   socket: Socket
 ) {
   const gameServer = getGameServer();
-  const { game, player, session } = playerAssociatedData;
+  const { game, player, partyOption, session } = playerAssociatedData;
+  const gameModeContext = gameServer.gameModeContexts[game.mode];
+  if (!partyOption) return;
   const { username } = player;
 
   const result = SpeedDungeonGame.removePlayerFromParty(game, username);
   if (result instanceof Error) return errorHandler(socket, result.message);
-  const { partyNameLeft, partyWasRemoved } = result;
-  if (!partyNameLeft) return;
+  let { partyNameLeft, partyWasRemoved } = result;
 
-  const partyChannelName = getPartyChannelName(game.name, partyNameLeft);
+  // check if only dead players remain
+  if (!partyWasRemoved && partyOption.playerUsernames.length > 0) {
+    let allRemainingCharactersAreDead = true;
+    for (const character of Object.values(partyOption.characters)) {
+      if (character.combatantProperties.hitPoints > 0) {
+        allRemainingCharactersAreDead = false;
+        break;
+      }
+    }
+    if (allRemainingCharactersAreDead) {
+      for (const username of partyOption.playerUsernames) {
+        SpeedDungeonGame.removePlayerFromParty(game, username);
+      }
+
+      gameServer.io
+        .in(getPartyChannelName(game.name, partyOption.name))
+        .emit(ServerToClientEvent.GameMessage, {});
+
+      partyWasRemoved = true;
+      gameModeContext.onPartyWipe(game, partyOption);
+    }
+  }
+
+  const remainingParties = Object.values(game.adventuringParties);
+  if (partyWasRemoved && remainingParties.length) {
+    gameServer.io.in(game.name).emit(ServerToClientEvent.GameMessage, {
+      type: GameMessageType.PartyWipe,
+      partyName: partyOption.name,
+      dlvl: partyOption.currentFloor,
+      timeOfWipe: Date.now(),
+    });
+  }
+
+  const partyChannelName = getPartyChannelName(game.name, partyOption.name);
   gameServer.removeSocketFromChannel(socket.id, partyChannelName);
   session.currentPartyName = null;
 

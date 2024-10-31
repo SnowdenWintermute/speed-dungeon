@@ -23,10 +23,10 @@ export default class GameModeContext implements GameModeStrategy {
   }
   onGameLeave(
     game: SpeedDungeonGame,
-    party: AdventuringParty,
+    partyOption: undefined | AdventuringParty,
     player: SpeedDungeonPlayer
   ): Promise<void | Error> {
-    return this.strategy.onGameLeave(game, party, player);
+    return this.strategy.onGameLeave(game, partyOption, player);
   }
   onPartyLeave(
     game: SpeedDungeonGame,
