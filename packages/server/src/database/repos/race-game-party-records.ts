@@ -31,8 +31,9 @@ class RaceGamePartyRecordRepo extends DatabaseRepository<RaceGamePartyRecord> {
     const { rows } = await this.pgPool.query(
       format(
         `INSERT INTO race_game_party_records
-           (game_id, party_name, duration_to_wipe, duration_to_escape, is_winner)
-           VALUES (%L, %L, %L, %L, %L) RETURNING *;`,
+           (id, game_id, party_name, duration_to_wipe, duration_to_escape, is_winner)
+           VALUES (%L, %L, %L, %L, %L, %L) RETURNING *;`,
+        party.id,
         game.id,
         party.name,
         durationToWipe,
@@ -67,7 +68,7 @@ class RaceGamePartyRecordRepo extends DatabaseRepository<RaceGamePartyRecord> {
       format(
         `UPDATE race_game_party_records
            (party_name, duration_to_wipe, duration_to_escape, is_winner)
-           VALUES (%L, %L, %L, %L, %L) WHERE id = %L;`,
+           VALUES (%L, %L, %L, %L) WHERE id = %L;`,
         partyRecord.partyName,
         partyRecord.durationToWipe,
         partyRecord.durationToEscape,

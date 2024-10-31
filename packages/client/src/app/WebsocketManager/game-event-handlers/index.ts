@@ -121,6 +121,6 @@ export default function setUpGameEventHandlers(
     );
   });
   socket.on(ServerToClientEvent.GameMessage, (message) =>
-    gameProgressMessageHandler(mutateGameStore, message)
+    gameProgressMessageHandler(mutateGameStore, mutateAlertStore, message)
   );
 }
