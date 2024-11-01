@@ -21,7 +21,7 @@ const PORT = 8080;
 pgPool.connect(pgOptions);
 await valkeyManager.context.connect();
 
-// await loadLadderIntoKvStore();
+await loadLadderIntoKvStore();
 
 // await createTestCharacters();
 // const rows = await raceGameRecordsRepo.findAllGamesByUserId(3);

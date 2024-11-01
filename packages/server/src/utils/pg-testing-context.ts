@@ -42,6 +42,7 @@ export default class PGTestingContext {
     await pgPool.query(format("DROP SCHEMA %I CASCADE;", this.roleName));
     await pgPool.query(format("DROP ROLE %I;", this.roleName));
     await pgPool.close();
+    console.log("Postgres test db cleaned up");
   }
 
   constructor(roleName: string) {
