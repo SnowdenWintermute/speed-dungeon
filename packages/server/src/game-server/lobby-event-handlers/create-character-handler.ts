@@ -8,7 +8,7 @@ import {
 } from "@speed-dungeon/common";
 import { createCharacter } from "../character-creation/index.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
-import { getGameServer } from "../../index.js";
+import { getGameServer } from "../../singletons.js";
 
 export default function createCharacterHandler(
   eventData: { name: string; combatantClass: CombatantClass },

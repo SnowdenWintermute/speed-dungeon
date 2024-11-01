@@ -3,7 +3,7 @@ import { generateRandomPartyName } from "../../utils/index.js";
 import { AdventuringParty } from "@speed-dungeon/common";
 import joinPartyHandler from "./join-party-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
-import { getGameServer } from "../../index.js";
+import { getGameServer } from "../../singletons.js";
 import { Socket } from "socket.io";
 import { idGenerator } from "../../singletons.js";
 

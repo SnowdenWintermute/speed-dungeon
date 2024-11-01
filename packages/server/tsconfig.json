@@ -5,10 +5,14 @@
     "outDir": "dist",
     "module": "ESNext",
     "moduleResolution": "node",
+    "baseUrl": ".",
     "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+    "allowJs": true,
     "paths": {
       "@speed-dungeon/*": ["../packages/*"]
-      // "*": ["./src/*"]
     }
   },
   "references": [

@@ -2,7 +2,7 @@ import { ERROR_MESSAGES, GameMode } from "@speed-dungeon/common";
 import joinProgressionGameHandler from "./join-progression-game-handler.js";
 import joinPlayerToGame from "./join-player-to-game.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
-import { getGameServer } from "../../index.js";
+import { getGameServer } from "../../singletons.js";
 import { Socket } from "socket.io";
 
 export default async function joinGameHandler(

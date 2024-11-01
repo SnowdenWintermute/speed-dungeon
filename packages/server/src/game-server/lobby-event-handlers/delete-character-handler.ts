@@ -8,7 +8,7 @@ import { removeFromArray } from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware";
 import { Socket } from "socket.io";
-import { getGameServer } from "../../index.js";
+import { getGameServer } from "../../singletons.js";
 
 export default function deleteCharacterHandler(
   characterId: string,

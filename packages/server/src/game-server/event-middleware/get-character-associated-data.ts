@@ -7,7 +7,7 @@ import {
   CharacterAssociatedData,
 } from "@speed-dungeon/common";
 import { SocketEventNextFunction } from "./index.js";
-import { getGameServer } from "../../index.js";
+import { getGameServer } from "../../singletons.js";
 import { Socket } from "socket.io";
 
 export async function getCharacterAssociatedData<T extends { characterId: string }>(

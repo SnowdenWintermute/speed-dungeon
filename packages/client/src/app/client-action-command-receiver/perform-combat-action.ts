@@ -1,5 +1,4 @@
 import { PerformCombatActionActionCommandPayload } from "@speed-dungeon/common";
-import { ClientActionCommandReceiver } from ".";
 import { ActionCommandManager } from "@speed-dungeon/common";
 import {
   NextToBabylonMessageTypes,

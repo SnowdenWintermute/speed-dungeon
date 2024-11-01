@@ -13,7 +13,7 @@ import { GameModeStrategy } from "./index.js";
 import writePlayerCharactersInGameToDb, {
   writeAllPlayerCharacterInGameToDb,
 } from "../../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
-import { getGameServer } from "../../../index.js";
+import { getGameServer } from "../../../singletons.js";
 import { removeDeadCharactersFromLadder } from "../../../kv-store/utils.js";
 import { notifyOnlinePlayersOfTopRankedDeaths } from "../../ladders/utils.js";
 import { valkeyManager } from "../../../kv-store/index.js";

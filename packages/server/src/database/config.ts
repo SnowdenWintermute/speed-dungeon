@@ -14,7 +14,7 @@ export const TEST_DB_NAME = "test-db";
 
 export const pgOptionsTestDB = {
   host: "localhost",
-  port: 5432,
+  port: 5433,
   database: TEST_DB_NAME,
   user: "postgres",
   password: "postgres",

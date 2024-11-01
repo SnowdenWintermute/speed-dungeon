@@ -3,8 +3,8 @@ import { pgPool } from "../../singletons.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { toCamelCase } from "../utils.js";
 import { DatabaseRepository } from "./index.js";
-import { SERVER_VERSION } from "../../index.js";
 import { Combatant, CombatantProperties } from "@speed-dungeon/common";
+import { SERVER_VERSION } from "../../server-version.js";
 
 export type PlayerCharacter = {
   id: string; // UUID

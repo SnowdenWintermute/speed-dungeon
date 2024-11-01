@@ -1,13 +1,8 @@
-import {
-  GameMessageType,
-  LOBBY_CHANNEL,
-  ServerToClientEvent,
-  SpeedDungeonGame,
-} from "@speed-dungeon/common";
+import { LOBBY_CHANNEL, ServerToClientEvent, SpeedDungeonGame } from "@speed-dungeon/common";
 import leavePartyHandler from "./leave-party-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { Socket } from "socket.io";
-import { getGameServer } from "../../index.js";
+import { getGameServer } from "../../singletons.js";
 
 export default async function leaveGameHandler(
   _eventData: undefined,

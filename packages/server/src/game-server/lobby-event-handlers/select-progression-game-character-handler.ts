@@ -7,7 +7,7 @@ import {
 } from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
-import { getGameServer } from "../../index.js";
+import { getGameServer } from "../../singletons.js";
 import { Socket } from "socket.io";
 import { fetchSavedCharacters } from "../saved-character-event-handlers/fetch-saved-characters.js";
 import { getLoggedInUser } from "../event-middleware/get-logged-in-user.js";

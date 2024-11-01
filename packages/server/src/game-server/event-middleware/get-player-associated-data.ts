@@ -6,7 +6,7 @@ import {
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { ServerPlayerAssociatedData, SocketEventNextFunction } from ".";
-import { getGameServer } from "../../index.js";
+import { getGameServer } from "../../singletons.js";
 import { Socket } from "socket.io";
 
 export async function playerInGame<T>(

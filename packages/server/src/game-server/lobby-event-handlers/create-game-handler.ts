@@ -11,7 +11,7 @@ import createProgressionGameHandler from "./create-progression-game-handler.js";
 import joinGameHandler from "./join-game-handler.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import { Socket } from "socket.io";
-import { getGameServer } from "../../index.js";
+import { getGameServer } from "../../singletons.js";
 import { idGenerator } from "../../singletons.js";
 
 export default async function createGameHandler(

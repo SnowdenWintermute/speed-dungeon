@@ -1,10 +1,10 @@
 import express, { Request, Response, NextFunction } from "express";
-import expressErrorHandler from "./express-error-handler/index.js";
 import cookieParser from "cookie-parser";
-import getCharacterLevelLadderPageHandler from "./game-server/route-handlers/get-character-level-ladder-page.js";
 import cors from "cors";
+import expressErrorHandler from "./express-error-handler/index.js";
+import getCharacterLevelLadderPageHandler from "./game-server/route-handlers/get-character-level-ladder-page.js";
 
-export default function createExpressApp() {
+export function createExpressApp() {
   const app = express();
   app.use(express.json({ limit: "10kb" }));
   app.use(cookieParser());

@@ -6,7 +6,7 @@ import {
 } from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
 import { Socket } from "socket.io";
-import { getGameServer } from "../../index.js";
+import { getGameServer } from "../../singletons.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 
 export default function joinPartyHandler(

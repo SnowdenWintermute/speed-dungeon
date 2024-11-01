@@ -4,7 +4,7 @@ import {
   ServerToClientEvent,
   createLadderDeathsMessage,
 } from "@speed-dungeon/common";
-import { getGameServer } from "../../index.js";
+import { getGameServer } from "../../singletons.js";
 
 export function notifyOnlinePlayersOfTopRankedDeaths(deathsAndRanks: {
   [combatantName: string]: {
@@ -29,11 +29,3 @@ export function notifyOnlinePlayersOfTopRankedDeaths(deathsAndRanks: {
     );
   }
 }
-
-// update ladder when:
-// - party wipes X
-// - dead character disconnects X
-// - character levels up X
-// - character deleted X
-// - character created X
-// - server started X

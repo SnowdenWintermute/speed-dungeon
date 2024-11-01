@@ -3,14 +3,14 @@ import {
   DescendOrExplore,
   DungeonRoomType,
   ERROR_MESSAGES,
-  GameMessage,
   GameMessageType,
   LEVEL_TO_REACH_FOR_ESCAPE,
   ServerToClientEvent,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { getGameServer } from "../../index.js";
+import { getGameServer } from "../../singletons.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
+import emitMessageInGameWithOptionalDelayForParty from "../utils/emit-message-in-game-with-optional-delay-for-party.js";
 
 export default function toggleReadyToDescendHandler(
   _eventData: undefined,
@@ -18,6 +18,7 @@ export default function toggleReadyToDescendHandler(
 ) {
   const gameServer = getGameServer();
   const { player, game, partyOption } = playerAssociatedData;
+  const gameModeContext = gameServer.gameModeContexts[game.mode];
   if (partyOption === undefined) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
   const party = partyOption;
 
@@ -56,31 +57,24 @@ export default function toggleReadyToDescendHandler(
     .in(partyChannelName)
     .emit(ServerToClientEvent.DungeonFloorNumber, party.currentFloor);
   // tell other parties so they feel the pressure of other parties descending
-  gameServer.io
-    .in(game.name)
-    .emit(
-      ServerToClientEvent.GameMessage,
-      new GameMessage(
-        GameMessageType.PartyDescent,
-        true,
-        `Party "${party.name}" descended to floor ${party.currentFloor}`
-      )
-    );
+  emitMessageInGameWithOptionalDelayForParty(
+    game.name,
+    GameMessageType.PartyDescent,
+    `Party "${party.name}" descended to floor ${party.currentFloor}`
+  );
 
   // IF THEY HAVE ESCAPED
   if (party.currentFloor === LEVEL_TO_REACH_FOR_ESCAPE) {
     const timeOfEscape = Date.now();
     party.timeOfEscape = timeOfEscape;
-    gameServer.io
-      .in(game.name)
-      .emit(
-        ServerToClientEvent.GameMessage,
-        new GameMessage(
-          GameMessageType.PartyEscape,
-          false,
-          `Party "${party.name}" escaped the dungeon at ${timeOfEscape.toLocaleString()}`
-        )
-      );
+
+    emitMessageInGameWithOptionalDelayForParty(
+      game.name,
+      GameMessageType.PartyEscape,
+      `Party "${party.name}" escaped the dungeon at ${timeOfEscape.toLocaleString()}`
+    );
+
+    gameModeContext.onPartyEscape(game, party);
   }
 
   // generate next floor etc

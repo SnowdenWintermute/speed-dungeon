@@ -5,7 +5,7 @@ import {
 } from "@speed-dungeon/common";
 import { DisconnectReason, Socket } from "socket.io";
 import leaveGameHandler from "./lobby-event-handlers/leave-game-handler.js";
-import { getGameServer } from "../index.js";
+import { getGameServer } from "../singletons.js";
 import { BrowserTabSession } from "./socket-connection-metadata.js";
 import { getPlayerAssociatedData } from "./event-middleware/get-player-associated-data.js";
 

@@ -19,6 +19,7 @@ import {
   actionCommandWaitingArea,
   enqueueClientActionCommand,
 } from "@/singletons/action-command-manager";
+import setUpBasicLobbyEventHandlers from "./basic-lobby-event-handlers";
 
 function SocketManager() {
   const mutateLobbyStore = useLobbyStore().mutateState;
@@ -53,44 +54,15 @@ function SocketManager() {
         state.websocketConnected = false;
       });
     });
+    socket.on(ServerToClientEvent.ErrorMessage, (message) => {
+      setAlert(mutateAlertStore, message);
+    });
 
     socket.on(ServerToClientEvent.ActionCommandPayloads, (entityId, payloads) => {
       enqueueClientActionCommand(mutateGameStore, mutateAlertStore, entityId, payloads);
     });
 
-    socket.on(ServerToClientEvent.ErrorMessage, (message) => {
-      setAlert(mutateAlertStore, message);
-    });
-    socket.on(ServerToClientEvent.ChannelFullUpdate, (channelName, usersInChannel) => {
-      mutateLobbyStore((state) => {
-        state.mainChannelName = channelName;
-        state.usersInMainChannel = {};
-        usersInChannel.forEach(({ username, userChannelDisplayData }) => {
-          state.usersInMainChannel[username] = userChannelDisplayData;
-        });
-      });
-    });
-    socket.on(ServerToClientEvent.ClientUsername, (username) => {
-      mutateGameStore((state) => {
-        state.username = username;
-      });
-    });
-    socket.on(ServerToClientEvent.UserJoinedChannel, (username, userChannelDisplayData) => {
-      mutateLobbyStore((state) => {
-        state.usersInMainChannel[username] = userChannelDisplayData;
-      });
-    });
-    socket.on(ServerToClientEvent.UserLeftChannel, (username) => {
-      mutateLobbyStore((state) => {
-        delete state.usersInMainChannel[username];
-      });
-    });
-    socket.on(ServerToClientEvent.GameList, (gameList) => {
-      mutateLobbyStore((state) => {
-        state.gameList = gameList;
-      });
-    });
-
+    setUpBasicLobbyEventHandlers(socket, mutateGameStore, mutateLobbyStore, mutateAlertStore);
     setUpGameLobbyEventHandlers(socket, mutateGameStore, mutateAlertStore);
     setUpGameEventHandlers(socket, mutateGameStore, mutateAlertStore);
     setUpSavedCharacterEventListeners(socket, mutateLobbyStore);

@@ -7,7 +7,7 @@ import { ClientActionCommandReceiver } from ".";
 
 export default function gameMessageActionCommandHandler(
   this: ClientActionCommandReceiver,
-  _actionCommandManager: ActionCommandManager,
+  actionCommandManager: ActionCommandManager,
   payload: GameMessagesPayload
 ) {
   payload.messages.forEach((message) => {
@@ -16,4 +16,6 @@ export default function gameMessageActionCommandHandler(
       state.combatLogMessages.push(new CombatLogMessage(message.text, style));
     });
   });
+
+  actionCommandManager.processNextCommand();
 }

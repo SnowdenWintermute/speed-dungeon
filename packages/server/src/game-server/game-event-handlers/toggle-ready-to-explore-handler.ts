@@ -18,7 +18,7 @@ import { DescendOrExplore } from "@speed-dungeon/common";
 import { idGenerator } from "../../singletons.js";
 import generateDungeonRoom from "../dungeon-room-generation/index.js";
 import { writeAllPlayerCharacterInGameToDb } from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
-import { getGameServer } from "../../index.js";
+import { getGameServer } from "../../singletons.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 
 export default function toggleReadyToExploreHandler(

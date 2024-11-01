@@ -7,7 +7,7 @@ import {
   ServerToClientEvent,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { getGameServer } from "../../index.js";
+import { getGameServer } from "../../singletons.js";
 
 export default function characterSpentAttributePointHandler(
   eventData: { characterId: string; attribute: CombatAttribute },

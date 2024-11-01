@@ -7,7 +7,7 @@ export class ValkeyManager {
   client: RedisClientType;
   connected: boolean = false;
   constructor(public keyPrefix: string) {
-    console.log("connecting to valkey at", env.VALKEY_URL);
+    console.log("connecting to valkey at", env.VALKEY_URL, " prefix ", keyPrefix);
     this.client = createClient({
       url: env.VALKEY_URL,
     });

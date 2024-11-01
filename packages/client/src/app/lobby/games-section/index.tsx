@@ -81,9 +81,13 @@ export default function GamesSection() {
           }}
         >
           <div>{gameList.length ? "Current games" : "No current games..."}</div>
-          <ButtonBasic extraStyles="border-r-0 p-2" onClick={refreshGameList}>
+          <HotkeyButton
+            hotkeys={["KeyR"]}
+            className="border-l border-slate-400 p-2 h-full"
+            onClick={refreshGameList}
+          >
             <RefreshIcon className="h-full w-10 fill-zinc-300" />
-          </ButtonBasic>
+          </HotkeyButton>
         </div>
         {<Divider />}
         <ul

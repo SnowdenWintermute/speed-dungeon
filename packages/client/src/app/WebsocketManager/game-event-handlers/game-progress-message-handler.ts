@@ -13,17 +13,17 @@ export default function gameProgressMessageHandler(
   mutateAlertStore: MutateState<AlertState>,
   message: GameMessage
 ) {
-  mutateGameStore((state) => {
-    if (message.showAfterActionQueueResolution) {
-      enqueueClientActionCommand(mutateGameStore, mutateAlertStore, "", [
-        {
-          type: ActionCommandType.GameMessages,
-          messages: [{ text: message.message, type: message.type }],
-        },
-      ]);
-    } else {
+  if (message.showAfterActionQueueResolution) {
+    enqueueClientActionCommand(mutateGameStore, mutateAlertStore, "", [
+      {
+        type: ActionCommandType.GameMessages,
+        messages: [{ text: message.message, type: message.type }],
+      },
+    ]);
+  } else {
+    mutateGameStore((state) => {
       const style = getCombatLogMessageStyleFromGameMessageType(message.type);
       state.combatLogMessages.push(new CombatLogMessage(message.message, style));
-    }
-  });
+    });
+  }
 }

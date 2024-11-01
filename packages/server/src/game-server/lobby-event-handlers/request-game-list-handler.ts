@@ -5,7 +5,7 @@ import {
   ServerToClientEvent,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
-import { getGameServer } from "../../index.js";
+import { getGameServer } from "../../singletons.js";
 
 export default function requestGameListHandler(
   socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>

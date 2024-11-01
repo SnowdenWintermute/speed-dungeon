@@ -1,16 +1,14 @@
 import {
   BattleConclusion,
   BattleResultActionCommandPayload,
-  GameMessage,
   GameMessageType,
-  ServerToClientEvent,
   SpeedDungeonGame,
   createPartyWipeMessage,
-  getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
 import { ActionCommandManager } from "@speed-dungeon/common";
-import { getGameServer } from "../../../index.js";
+import { getGameServer } from "../../../singletons.js";
+import emitMessageInGameWithOptionalDelayForParty from "../../utils/emit-message-in-game-with-optional-delay-for-party.js";
 
 export default async function battleResultActionCommandHandler(
   this: GameServer,
@@ -25,7 +23,6 @@ export default async function battleResultActionCommandHandler(
   const { game, party } = actionAssociatedDataResult;
   const gameModeContext = gameServer.gameModeContexts[game.mode];
   const { conclusion } = payload;
-  const partyChannel = getPartyChannelName(game.name, party.name);
 
   const maybeError = await gameModeContext.onBattleResult(game, party);
   if (maybeError instanceof Error) return maybeError;
@@ -34,17 +31,13 @@ export default async function battleResultActionCommandHandler(
     case BattleConclusion.Defeat:
       if (party.battleId !== null) delete game.battles[party.battleId];
 
-      gameServer.io
-        .in(game.name)
-        .except(partyChannel)
-        .emit(
-          ServerToClientEvent.GameMessage,
-          new GameMessage(
-            GameMessageType.PartyWipe,
-            true,
-            createPartyWipeMessage(party.name, party.currentFloor, new Date())
-          )
-        );
+      party.timeOfWipe = Date.now();
+      emitMessageInGameWithOptionalDelayForParty(
+        game.name,
+        GameMessageType.PartyWipe,
+        createPartyWipeMessage(party.name, party.currentFloor, new Date()),
+        party.name
+      );
 
       const maybeError = await gameModeContext.onPartyWipe(game, party);
       if (maybeError instanceof Error) return maybeError;

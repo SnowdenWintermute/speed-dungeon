@@ -7,7 +7,7 @@ import {
   SpeedDungeonGame,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { getGameServer } from "../../index.js";
+import { getGameServer } from "../../singletons.js";
 
 export default function selectCombatActionHandler(
   eventData: { characterId: string; combatActionOption: null | CombatAction },
