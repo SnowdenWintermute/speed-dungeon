@@ -1,7 +1,7 @@
 import migrate from "node-pg-migrate";
 import format from "pg-format";
 import { pgOptionsTestDB, TEST_DB_NAME } from "../database/config.js";
-import { pgPool } from "../singletons.js";
+import { pgPool } from "../singletons/pg-pool";
 
 export default class PGTestingContext {
   roleName: string;
@@ -42,7 +42,6 @@ export default class PGTestingContext {
     await pgPool.query(format("DROP SCHEMA %I CASCADE;", this.roleName));
     await pgPool.query(format("DROP ROLE %I;", this.roleName));
     await pgPool.close();
-    console.log("Postgres test db cleaned up");
   }
 
   constructor(roleName: string) {

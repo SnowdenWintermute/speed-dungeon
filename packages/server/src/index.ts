@@ -7,7 +7,8 @@ import {
 } from "@speed-dungeon/common";
 import { GameServer } from "./game-server/index.js";
 import { env } from "./validate-env.js";
-import { gameServer, pgPool } from "./singletons.js";
+import { gameServer } from "./singletons.js";
+import { pgPool } from "./singletons/pg-pool.js";
 import { playerCharactersRepo } from "./database/repos/player-characters.js";
 import { pgOptions } from "./database/config.js";
 import { valkeyManager } from "./kv-store/index.js";
