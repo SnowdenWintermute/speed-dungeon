@@ -6,9 +6,9 @@ jest.unstable_mockModule("../game-server/authenticate-user.js", () => ({
 jest.unstable_mockModule("../database/get-user-ids-by-username.js", () => ({
   getUserIdsByUsername: jest.fn(),
 }));
-
 let { authenticateUser } = await import("../game-server/authenticate-user.js");
 let { getUserIdsByUsername } = await import("../database/get-user-ids-by-username.js");
+let { raceGameRecordsRepo } = await import("../database/repos/race-game-records.js");
 let mockedAuthenticateUser = authenticateUser as jest.MockedFunction<typeof authenticateUser>;
 let mockedGetUserIdsByUsername = getUserIdsByUsername as jest.MockedFunction<
   typeof getUserIdsByUsername
@@ -30,6 +30,7 @@ import {
   GameMode,
   ServerToClientEvent,
   ServerToClientEventTypes,
+  createPartyWipeMessage,
 } from "@speed-dungeon/common";
 import { env } from "../validate-env.js";
 import { createServer } from "http";
@@ -46,6 +47,7 @@ describe("race game records", () => {
   const clientSockets: {
     [name: string]: ClientSocket<ServerToClientEventTypes, ClientToServerEventTypes>;
   } = {};
+  const realDateNow = Date.now.bind(global.Date);
 
   beforeAll(async () => {
     pgContext = await setUpTestDatabaseContexts(testId);
@@ -61,6 +63,8 @@ describe("race game records", () => {
   });
 
   beforeEach(async () => {
+    global.Date.now = realDateNow;
+
     io.sockets.sockets.forEach((socket) => {
       socket.disconnect();
     });
@@ -88,14 +92,6 @@ describe("race game records", () => {
   });
 
   it("does something", (done) => {
-    // client 1 hosts game
-    // client 1 creates party
-    // client 1 creates character
-    // client 2 joins game
-    // client 2 creates party
-    // client 2 creates character
-    // client 1 clicks ready
-    // client 2 clicks ready
     // client 1 disconnects
     // client 2 disconnects
     // there should be a race game record with
@@ -104,7 +100,7 @@ describe("race game records", () => {
     // - both should have a duration to wipe
     // - game record should be marked as completed
     // - neither party should be the winner
-    console.log("TEST 1");
+
     const gameName = "test game";
     const party1Name = "party 1";
     const party2Name = "party 2";
@@ -112,16 +108,9 @@ describe("race game records", () => {
     const character2Name = "character 2";
     const user1 = registerSocket("user1", serverAddress, clientSockets);
     const user2 = registerSocket("user2", serverAddress, clientSockets);
-    Object.values(clientSockets).forEach((socket) => {
-      socket.on(ServerToClientEvent.ErrorMessage, (data) => {
-        console.log("ERROR: ", data);
-      });
-    });
 
-    user2.on(ServerToClientEvent.GameMessage, (data) => {
-      console.log("got game message data: ", data);
-      done();
-    });
+    const someTimestamp = Date.now();
+    global.Date.now = jest.fn(() => someTimestamp);
 
     user1.on("connect", () => {
       user1.emit(ClientToServerEvent.CreateGame, { gameName, mode: GameMode.Race, isRanked: true });
@@ -137,10 +126,51 @@ describe("race game records", () => {
         name: character2Name,
         combatantClass: CombatantClass.Mage,
       });
-
-      user1.emit(ClientToServerEvent.ToggleReadyToStartGame);
+    });
+    // best to wait for this event to make sure user1 doesn't ready up before user 2 has
+    // created their character
+    user2.on(ServerToClientEvent.CharacterAddedToParty, (_partyName, _username, character) => {
+      if (character.entityProperties.name !== character2Name) return;
       user2.emit(ClientToServerEvent.ToggleReadyToStartGame);
+      user1.emit(ClientToServerEvent.ToggleReadyToStartGame);
+    });
 
+    user2.on(ServerToClientEvent.GameMessage, async (data) => {
+      console.log("GOT GAME MESSAGE: ", data);
+      expect(data.message).toContain(
+        createPartyWipeMessage(party1Name, 1, new Date(someTimestamp))
+      );
+
+      const rows = await raceGameRecordsRepo.findAllGamesByUserId(1);
+      const gameRecord = rows[0];
+      if (!gameRecord) return expect(gameRecord).toBeTruthy();
+      console.log("game record: ", JSON.stringify(gameRecord, null, 2));
+      expect(gameRecord.time_of_completion).toBe(null);
+      const party1Record = gameRecord.parties[party1Name];
+      if (!party1Record) return expect(party1Record).toBeTruthy();
+      expect(party1Record.duration_to_wipe).not.toBe(null);
+      user2.disconnect();
+
+      await waitForCondition(async () => {
+        const rowsAfterLastPlayerLeft = await raceGameRecordsRepo.findAllGamesByUserId(1);
+        const record = rowsAfterLastPlayerLeft[0];
+        if (!record) return false;
+        const party2Record = record.parties[party2Name];
+        if (!party2Record) return false;
+
+        console.log(
+          "rowsAfterLastPlayerLeft record: ",
+          JSON.stringify(rowsAfterLastPlayerLeft, null, 2)
+        );
+        const partyWipeTimeUpdated = party2Record.duration_to_wipe !== null;
+        const gameMarkedComplete = record.time_of_completion !== null;
+        return partyWipeTimeUpdated && gameMarkedComplete;
+      });
+
+      done();
+    });
+
+    user1.on(ServerToClientEvent.DungeonRoomUpdate, (data) => {
       user1.disconnect();
     });
   });
@@ -156,4 +186,22 @@ function registerSocket(
   const socket = clientSocket(serverAddress);
   clientSockets[name] = socket;
   return socket;
+}
+
+async function waitForCondition(
+  conditionFn: () => Promise<boolean>,
+  timeout = 5000,
+  interval = 100
+) {
+  const startTime = Date.now();
+
+  while (true) {
+    if (await conditionFn()) return; // Exit if the condition is met
+
+    if (Date.now() - startTime >= timeout) {
+      throw new Error("Condition not met within timeout");
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, interval));
+  }
 }

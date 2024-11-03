@@ -19,7 +19,6 @@ export default async function createGameHandler(
   session: BrowserTabSession,
   socket: Socket
 ) {
-  console.log("creating game...");
   if (session.currentGameName) return errorHandler(socket, ERROR_MESSAGES.LOBBY.ALREADY_IN_GAME);
   const gameServer = getGameServer();
   let { gameName, mode, isRanked } = eventData;
@@ -51,7 +50,5 @@ export default async function createGameHandler(
     );
     gameServer.games.insert(gameName, game);
     joinGameHandler(gameName, session, socket);
-
-    console.log("game created");
   }
 }

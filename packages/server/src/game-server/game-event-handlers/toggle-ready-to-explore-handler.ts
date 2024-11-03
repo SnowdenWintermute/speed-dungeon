@@ -65,7 +65,6 @@ export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party:
   party.playersReadyToExplore = [];
 
   if (party.unexploredRooms.length < 1) {
-    console.log("generating room types");
     party.generateUnexploredRoomsQueue();
     // we only want the client to know about the monster lairs, they will discover other room types as they enter them
     const newRoomTypesListForClientOption: (DungeonRoomType | null)[] = party.unexploredRooms.map(
@@ -86,7 +85,6 @@ export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party:
     return new Error(ERROR_MESSAGES.SERVER_GENERIC);
   }
   const roomTypeToGenerate: DungeonRoomType = roomTypeToGenerateOption;
-  console.log("generating room on floor ", party.currentFloor);
   const newRoom = generateDungeonRoom(party.currentFloor, roomTypeToGenerate);
   party.currentRoom = newRoom;
 

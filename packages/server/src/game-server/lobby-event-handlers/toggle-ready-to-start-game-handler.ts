@@ -1,13 +1,7 @@
-import {
-  ERROR_MESSAGES,
-  GameMode,
-  ServerToClientEvent,
-  removeFromArray,
-} from "@speed-dungeon/common";
+import { ERROR_MESSAGES, ServerToClientEvent, removeFromArray } from "@speed-dungeon/common";
 import toggleReadyToExploreHandler from "../game-event-handlers/toggle-ready-to-explore-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../singletons.js";
-import { raceGameRecordsRepo } from "../../database/repos/race-game-records.js";
 
 export default async function toggleReadyToStartGameHandler(
   _eventData: undefined,
@@ -16,7 +10,6 @@ export default async function toggleReadyToStartGameHandler(
   const gameServer = getGameServer();
   const { game, session, player } = playerAssociatedData;
   const { username } = player;
-
   if (game.timeStarted) return new Error(ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED);
 
   if (Object.keys(game.adventuringParties).length < 1)
@@ -49,10 +42,8 @@ export default async function toggleReadyToStartGameHandler(
 
   game.timeStarted = Date.now();
 
-  if (game.mode === GameMode.Race && game.isRanked) {
-    const maybeError = await raceGameRecordsRepo.insertGameRecord(game);
-    if (maybeError instanceof Error) return maybeError;
-  }
+  const gameModeContext = gameServer.gameModeContexts[game.mode];
+  await gameModeContext.onGameStart(game);
 
   gameServer.io.of("/").in(game.name).emit(ServerToClientEvent.GameStarted, game.timeStarted);
 
@@ -65,6 +56,4 @@ export default async function toggleReadyToStartGameHandler(
 
     toggleReadyToExploreHandler(undefined, { game, partyOption, player, session });
   }
-
-  console.log("game ", game.name, " started");
 }

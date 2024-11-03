@@ -19,6 +19,31 @@ export type RaceGameParticipant = {
   userId: string; // UUID
 };
 
+export type RaceGameAggregatedRecordList = {
+  game_id: string;
+  game_name: string;
+  game_version: string;
+  time_of_completion: null | number;
+  parties: {
+    [partyName: string]: {
+      party_id: string;
+      party_name: string;
+      duration_to_wipe: null | number;
+      duration_to_escape: null | number;
+      is_winner: boolean;
+      characters: {
+        [characterId: string]: {
+          character_id: string;
+          character_name: string;
+          level: number;
+          combatant_class: string;
+          id_of_controlling_user: number;
+        };
+      };
+    };
+  };
+}[];
+
 const tableName = RESOURCE_NAMES.RACE_GAME_RECORDS;
 
 class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
@@ -71,17 +96,17 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
         gr.game_name,
         gr.game_version,
         gr.time_of_completion,
-        json_agg(
+        json_object_agg(
+          pr.party_name,
           json_build_object(
             'party_id', pr.id,
-            'party_name', pr.party_name,
             'duration_to_wipe', pr.duration_to_wipe,
             'duration_to_escape', pr.duration_to_escape,
             'is_winner', pr.is_winner,
             'characters', (
-              SELECT json_agg(
+              SELECT json_object_agg(
+                cr.id,
                 json_build_object(
-                  'character_id', cr.id,
                   'character_name', cr.character_name,
                   'level', cr.level,
                   'combatant_class', cr.combatant_class,
@@ -103,14 +128,14 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
           FROM race_game_records gr
           JOIN race_game_party_records pr ON pr.game_id = gr.id
           JOIN race_game_participant_records prt ON prt.party_id = pr.id
-          WHERE prt.user_id = 3)
+          WHERE prt.user_id = %L)
           GROUP BY 
           gr.id;
           `,
         userId
       )
     );
-    return rows;
+    return rows as unknown as RaceGameAggregatedRecordList;
   }
 }
 

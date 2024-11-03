@@ -20,13 +20,6 @@ export default async function disconnectionHandler(
 
   const userCurrentSockets = gameServer.socketIdsByUsername.get(session.username);
 
-  // there was once a bug where we saved their session but the associated socket was disconnected
-  // and the user couldn't create a game because that session had a current game name
-
-  if (userCurrentSockets) removeFromArray(userCurrentSockets, socket.id);
-  if (userCurrentSockets && Object.keys(userCurrentSockets).length < 1)
-    gameServer.socketIdsByUsername.remove(session.username);
-
   if (session.currentGameName) {
     const playerAssociatedDataResult = getPlayerAssociatedData(socket);
     if (playerAssociatedDataResult instanceof Error) return playerAssociatedDataResult;
@@ -36,6 +29,10 @@ export default async function disconnectionHandler(
   for (const channelName of session.channels) {
     gameServer.removeSocketFromChannel(socket.id, channelName);
   }
+
+  if (userCurrentSockets) removeFromArray(userCurrentSockets, socket.id);
+  if (userCurrentSockets && Object.keys(userCurrentSockets).length < 1)
+    gameServer.socketIdsByUsername.remove(session.username);
 
   gameServer.connections.remove(socket.id);
 }

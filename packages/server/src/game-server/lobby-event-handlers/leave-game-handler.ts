@@ -16,7 +16,7 @@ export default async function leaveGameHandler(
   const maybeError = await gameModeContext.onGameLeave(game, partyOption, player);
   if (maybeError instanceof Error) return maybeError;
 
-  leavePartyHandler(undefined, playerAssociatedData, socket);
+  await leavePartyHandler(undefined, playerAssociatedData, socket);
 
   SpeedDungeonGame.removePlayer(game, session.username);
   const gameNameLeaving = game.name;
@@ -30,11 +30,13 @@ export default async function leaveGameHandler(
 
   gameServer.removeSocketFromChannel(socket.id, gameNameLeaving);
   gameServer.joinSocketToChannel(socket.id, LOBBY_CHANNEL);
+
   if (gameServer.games.get(gameNameLeaving)) {
     gameServer.io
       .of("/")
       .in(gameNameLeaving)
       .emit(ServerToClientEvent.PlayerLeftGame, session.username);
   }
-  socket?.emit(ServerToClientEvent.GameFullUpdate, null);
+
+  socket.emit(ServerToClientEvent.GameFullUpdate, null);
 }

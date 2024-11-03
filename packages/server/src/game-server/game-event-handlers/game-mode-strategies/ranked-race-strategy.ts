@@ -45,11 +45,12 @@ export default class RankedRaceStrategy implements GameModeStrategy {
     const partyRecord = await raceGamePartyRecordsRepo.findById(party.id);
     if (!partyRecord) return new Error(ERROR_MESSAGES.GAME_RECORDS.PARTY_RECORD_NOT_FOUND);
     partyRecord.durationToWipe = Date.now() - game.timeStarted;
-    console.log("set duration to wipe: ", partyRecord.durationToWipe);
     await raceGamePartyRecordsRepo.update(partyRecord);
 
-    if (Object.keys(game.adventuringParties).length === 0)
+    if (Object.keys(game.adventuringParties).length === 0) {
       await raceGameRecordsRepo.markGameAsCompleted(game.id);
+      console.log("marked game completed");
+    }
 
     // @TODO - if there is only one party left, tell them they are the last ones left alive
     // but they must escape to claim victory

@@ -12,14 +12,12 @@ import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../singletons.js";
 import errorHandler from "../error-handler.js";
 import emitMessageInGameWithOptionalDelayForParty from "../utils/emit-message-in-game-with-optional-delay-for-party.js";
-import GameModeContext from "../game-event-handlers/game-mode-strategies/game-mode-context.js";
 
-export default function leavePartyHandler(
+export default async function leavePartyHandler(
   _eventData: undefined,
   playerAssociatedData: ServerPlayerAssociatedData,
   socket: Socket
 ) {
-  console.log("leave party handler called");
   const gameServer = getGameServer();
   const { game, player, partyOption, session } = playerAssociatedData;
   const gameModeContext = gameServer.gameModeContexts[game.mode];
@@ -32,14 +30,20 @@ export default function leavePartyHandler(
 
   // check if only dead players remain
   if (!partyWasRemoved && partyOption.playerUsernames.length > 0)
-    partyWasRemoved = handleAbandoningDeadPartyMembers(game, partyOption, gameModeContext);
+    partyWasRemoved = handleAbandoningDeadPartyMembers(game, partyOption);
+
+  console.log("party was removed: ", partyWasRemoved, partyOption.name);
+  if (partyWasRemoved) {
+    const maybeError = await gameModeContext.onPartyWipe(game, partyOption);
+    if (maybeError instanceof Error) return errorHandler(socket, maybeError.message);
+  }
 
   const remainingParties = Object.values(game.adventuringParties);
   if (partyWasRemoved && remainingParties.length) {
     emitMessageInGameWithOptionalDelayForParty(
       game.name,
       GameMessageType.PartyWipe,
-      createPartyWipeMessage(partyOption.name, partyOption.currentFloor, new Date())
+      createPartyWipeMessage(partyOption.name, partyOption.currentFloor, new Date(Date.now()))
     );
   }
 
@@ -54,11 +58,7 @@ export default function leavePartyHandler(
     .emit(ServerToClientEvent.PlayerChangedAdventuringParty, username, null);
 }
 
-function handleAbandoningDeadPartyMembers(
-  game: SpeedDungeonGame,
-  party: AdventuringParty,
-  gameModeContext: GameModeContext
-) {
+function handleAbandoningDeadPartyMembers(game: SpeedDungeonGame, party: AdventuringParty) {
   let allRemainingCharactersAreDead = true;
   for (const character of Object.values(party.characters)) {
     if (character.combatantProperties.hitPoints > 0) {
@@ -77,7 +77,6 @@ function handleAbandoningDeadPartyMembers(
       createPartyAbandonedMessage(party.name)
     );
 
-    gameModeContext.onPartyWipe(game, party);
     return true;
   }
 

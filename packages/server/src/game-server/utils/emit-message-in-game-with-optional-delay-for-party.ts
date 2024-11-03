@@ -16,7 +16,6 @@ export default function emitMessageInGameWithOptionalDelayForParty(
   partyNameToDelayReceipt?: string
 ) {
   if (!partyNameToDelayReceipt) {
-    console.log("emitted game message");
     getGameServer()
       .io.in(gameName)
       .emit(
