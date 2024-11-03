@@ -65,4 +65,6 @@ export default async function toggleReadyToStartGameHandler(
 
     toggleReadyToExploreHandler(undefined, { game, partyOption, player, session });
   }
+
+  console.log("game ", game.name, " started");
 }

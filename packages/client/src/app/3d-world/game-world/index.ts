@@ -46,6 +46,7 @@ export class GameWorld {
     debugRef: React.RefObject<HTMLDivElement>
   ) {
     this.engine = new Engine(canvas, true);
+    // this.engine.setHardwareScalingLevel(10); // renders at lower resolutions
     this.scene = new Scene(this.engine);
     this.debug.debugRef = debugRef;
     [this.camera, this.shadowGenerator, this.sun, this.groundTexture] = this.initScene();

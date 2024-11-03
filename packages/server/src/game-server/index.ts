@@ -60,12 +60,6 @@ export class GameServer implements ActionCommandReceiver {
     this.connectionHandler();
     this.itemGenerationDirectors = this.createItemGenerationDirectors();
   }
-  gameMessageCommandHandler(
-    actionCommandManager: ActionCommandManager,
-    payload: GameMessagesPayload
-  ) {
-    console.log(...payload.messages);
-  }
   getConnection = getConnection;
   connectionHandler = connectionHandler;
   initiateLobbyEventListeners = initiateLobbyEventListeners;
@@ -84,6 +78,12 @@ export class GameServer implements ActionCommandReceiver {
   returnHomeActionCommandHandler = returnHomeActionCommandHandler;
   changeEquipmentActionCommandHandler = changeEquipmentActionCommandHandler;
   battleResultActionCommandHandler = battleResultActionCommandHandler;
+  gameMessageCommandHandler(
+    _actionCommandManager: ActionCommandManager,
+    payload: GameMessagesPayload
+  ) {
+    console.log(...payload.messages);
+  }
   takeAiControlledTurnIfActive = takeAiControlledTurnIfActive;
   // UTILS
   getSocketCurrentGame = getSocketCurrentGame;

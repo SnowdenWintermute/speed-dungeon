@@ -12,15 +12,17 @@ import SocketIO from "socket.io";
 export default function joinPlayerToGame(
   gameServer: GameServer,
   game: SpeedDungeonGame,
-  socketMeta: BrowserTabSession,
+  session: BrowserTabSession,
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
-  const player = new SpeedDungeonPlayer(socketMeta.username);
-  game.players[socketMeta.username] = player;
+  const player = new SpeedDungeonPlayer(session.username);
+  game.players[session.username] = player;
 
-  socketMeta.currentGameName = game.name;
+  session.currentGameName = game.name;
 
-  gameServer.removeSocketFromChannel(socket.id, socketMeta.channelName);
+  for (const channelName of session.channels) {
+    gameServer.removeSocketFromChannel(socket.id, channelName);
+  }
   gameServer.joinSocketToChannel(socket.id, game.name);
 
   socket.emit(ServerToClientEvent.GameFullUpdate, game);
@@ -29,6 +31,6 @@ export default function joinPlayerToGame(
     .of("/")
     .except(socket.id)
     .in(game.name)
-    .emit(ServerToClientEvent.PlayerJoinedGame, socketMeta.username);
+    .emit(ServerToClientEvent.PlayerJoinedGame, session.username);
   return player;
 }

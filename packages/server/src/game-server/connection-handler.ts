@@ -27,11 +27,11 @@ export function connectionHandler(this: GameServer) {
       currentSockets.push(socket.id);
     } else this.socketIdsByUsername.insert(username, [socket.id]);
 
+    this.joinSocketToChannel(socket.id, LOBBY_CHANNEL);
     socket.on("disconnect", applyMiddlewares(getSession)(socket, disconnectionHandler));
     this.initiateLobbyEventListeners(socket);
     this.initiateGameEventListeners(socket);
     this.initiateSavedCharacterListeners(socket);
-    this.joinSocketToChannel(socket.id, LOBBY_CHANNEL);
     socket.emit(ServerToClientEvent.ClientUsername, username);
   });
 }

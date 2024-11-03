@@ -33,7 +33,9 @@ export default async function disconnectionHandler(
     await leaveGameHandler(undefined, playerAssociatedDataResult, socket);
   }
 
-  gameServer.removeSocketFromChannel(socket.id, session.channelName);
+  for (const channelName of session.channels) {
+    gameServer.removeSocketFromChannel(socket.id, channelName);
+  }
 
   gameServer.connections.remove(socket.id);
 }

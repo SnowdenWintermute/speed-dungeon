@@ -3,10 +3,9 @@ import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { DatabaseRepository } from "./index.js";
 import { AdventuringParty, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
-import { env } from "../../validate-env.js";
-import { userIdsByUsernameSchema } from "../../validation/user-ids-by-username-schema.js";
 import { raceGameCharacterRecordsRepo } from "./race-game-character-records.js";
 import { raceGameParticipantRecordsRepo } from "./race-game-participants-repo.js";
+import { getUserIdsByUsername } from "../get-user-ids-by-username.js";
 
 export type RaceGamePartyRecord = {
   id: number;
@@ -80,24 +79,3 @@ class RaceGamePartyRecordRepo extends DatabaseRepository<RaceGamePartyRecord> {
 }
 
 export const raceGamePartyRecordsRepo = new RaceGamePartyRecordRepo(pgPool, tableName);
-
-async function getUserIdsByUsername(usernames: string[]) {
-  const cookies = `internal=${env.INTERNAL_SERVICES_SECRET};`;
-  const usernamesQueryString = `?usernames=${usernames.join(",")}`;
-  const userIdsResponse = await fetch(
-    `${env.AUTH_SERVER_URL}/internal/user_ids${usernamesQueryString}`,
-    {
-      method: "GET",
-      headers: {
-        Cookie: cookies,
-      },
-    }
-  );
-
-  const responseBody = await userIdsResponse.json();
-  const validationResult = userIdsByUsernameSchema.safeParse(responseBody);
-  if (validationResult.error) return new Error(JSON.stringify(validationResult.error.format()));
-  const playerUserIdsByUsername = validationResult.data;
-
-  return playerUserIdsByUsername;
-}

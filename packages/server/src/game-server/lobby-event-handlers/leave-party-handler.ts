@@ -19,6 +19,7 @@ export default function leavePartyHandler(
   playerAssociatedData: ServerPlayerAssociatedData,
   socket: Socket
 ) {
+  console.log("leave party handler called");
   const gameServer = getGameServer();
   const { game, player, partyOption, session } = playerAssociatedData;
   const gameModeContext = gameServer.gameModeContexts[game.mode];

@@ -7,7 +7,7 @@ export class BrowserTabSession {
     public username: Username,
     /** snowauth user id */
     public userId: null | number,
-    public channelName: string = LOBBY_CHANNEL,
+    public channels: string[] = [LOBBY_CHANNEL],
     public currentGameName: null | string = null,
     public currentPartyName: null | string = null
   ) {}

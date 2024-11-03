@@ -1,4 +1,9 @@
-import { ServerToClientEvent, UserAuthStatus, UserChannelDisplayData } from "@speed-dungeon/common";
+import {
+  ServerToClientEvent,
+  UserAuthStatus,
+  UserChannelDisplayData,
+  removeFromArray,
+} from "@speed-dungeon/common";
 import { Channel, GameServer } from "./index.js";
 
 export default function joinSocketToChannel(
@@ -8,23 +13,24 @@ export default function joinSocketToChannel(
 ) {
   const namespace = "/";
   const socket = this.io.of(namespace).sockets.get(socketId);
-  const socketMeta = this.connections.get(socketId);
+  const session = this.connections.get(socketId);
 
-  if (!socket || !socketMeta) return;
+  if (!socket || !session) return;
 
   socket.join(newChannelName);
-  socketMeta.channelName = newChannelName;
+  removeFromArray(session.channels, newChannelName);
+  session.channels.push(newChannelName);
 
   if (this.channels[newChannelName] === undefined) this.channels[newChannelName] = new Channel();
   const channel = this.channels[newChannelName] as Channel;
-  if (!channel.users[socketMeta.username]) channel.users[socketMeta.username] = {};
+  if (!channel.users[session.username]) channel.users[session.username] = {};
 
-  const browserTabSessionsInChannel = channel.users[socketMeta.username];
+  const browserTabSessionsInChannel = channel.users[session.username];
   if (!browserTabSessionsInChannel)
     return console.error(
       "Expectation failed - browserTabSessionsInChannel was undefined after assignment"
     );
-  browserTabSessionsInChannel[socketId] = socketMeta;
+  browserTabSessionsInChannel[socketId] = session;
 
   const usersInRoom: { username: string; userChannelDisplayData: UserChannelDisplayData }[] = [];
 
@@ -50,9 +56,9 @@ export default function joinSocketToChannel(
       .to(newChannelName)
       .emit(
         ServerToClientEvent.UserJoinedChannel,
-        socketMeta.username,
+        session.username,
         new UserChannelDisplayData(
-          socketMeta.userId !== null ? UserAuthStatus.LoggedIn : UserAuthStatus.Guest
+          session.userId !== null ? UserAuthStatus.LoggedIn : UserAuthStatus.Guest
         )
       );
   }
