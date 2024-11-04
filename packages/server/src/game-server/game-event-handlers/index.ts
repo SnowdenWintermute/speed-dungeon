@@ -7,7 +7,7 @@ import SocketIO from "socket.io";
 import { applyMiddlewares } from "../event-middleware/index.js";
 import toggleReadyToExploreHandler from "./toggle-ready-to-explore-handler.js";
 import { playerInGame } from "../event-middleware/get-player-associated-data.js";
-import toggleReadyToDescendHandler from "./toggle-ready-to-descend-handler.js";
+import { toggleReadyToDescendHandler } from "./toggle-ready-to-descend-handler/index.js";
 import { getCharacterAssociatedData } from "../event-middleware/get-character-associated-data.js";
 import { prohibitIfDead } from "../event-middleware/prohibit-if-dead.js";
 import dropItemHandler from "./drop-item-handler.js";
