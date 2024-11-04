@@ -1,14 +1,9 @@
-import {
-  ActionCommandPayload,
-  ActionCommandType,
-  ActionResult,
-  CombatActionTargetType,
-  combatActionRequiresMeleeRange,
-} from "@speed-dungeon/common";
+import { ActionCommandPayload, ActionCommandType, ActionResult } from "@speed-dungeon/common";
+import { createMoveIntoCombatActionPositionActionCommand } from "./create-move-into-combat-action-position-action-command.js";
 
-export default function composeActionCommandPayloadsFromActionResults(
+export function composeActionCommandPayloadsFromActionResults(
   actionResults: ActionResult[]
-) {
+): ActionCommandPayload[] {
   if (!actionResults[0]) return [];
 
   const payloads: ActionCommandPayload[] = [];
@@ -48,19 +43,4 @@ export default function composeActionCommandPayloadsFromActionResults(
   payloads.push({ type: ActionCommandType.ReturnHome, shouldEndTurn });
 
   return payloads;
-}
-
-function createMoveIntoCombatActionPositionActionCommand(
-  actionResult: ActionResult
-): ActionCommandPayload {
-  const isMelee = combatActionRequiresMeleeRange(actionResult.action);
-
-  let primaryTargetId: string;
-  if (actionResult.target.type === CombatActionTargetType.Single) {
-    primaryTargetId = actionResult.target.targetId;
-  } else {
-    primaryTargetId = actionResult.targetIds[0] || actionResult.userId;
-  }
-
-  return { type: ActionCommandType.MoveIntoCombatActionPosition, isMelee, primaryTargetId };
 }

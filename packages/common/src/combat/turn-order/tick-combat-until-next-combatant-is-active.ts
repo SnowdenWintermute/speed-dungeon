@@ -20,8 +20,6 @@ export function tickCombatUntilNextCombatantIsActive(game: SpeedDungeonGame, bat
   let activeCombatantTurnTracker = battle.turnTrackers[0];
   if (!activeCombatantTurnTracker) return new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
 
-  console.log("active combatant movement: ", activeCombatantTurnTracker.movement);
-
   // make sure someone has at least 1 speed or accumulating movement will be an infinite loop
   let atLeastOneCombatantHasNonZeroSpeed = false;
   for (const tracker of battle.turnTrackers) {

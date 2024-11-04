@@ -32,7 +32,6 @@ export default async function leavePartyHandler(
   if (!partyWasRemoved && partyOption.playerUsernames.length > 0)
     partyWasRemoved = handleAbandoningDeadPartyMembers(game, partyOption);
 
-  console.log("party was removed: ", partyWasRemoved, partyOption.name);
   if (partyWasRemoved) {
     const maybeError = await gameModeContext.onPartyWipe(game, partyOption);
     if (maybeError instanceof Error) return errorHandler(socket, maybeError.message);

@@ -2,7 +2,7 @@ import { jest } from "@jest/globals";
 import { Application } from "express";
 import request, { Agent } from "supertest";
 import { createServer } from "http";
-import { Socket as ClientSocket, io as clientSocket } from "socket.io-client";
+import { Socket as ClientSocket } from "socket.io-client";
 // this syntax is for mocking ESM files in jest
 jest.unstable_mockModule("../game-server/authenticate-user.js", () => ({
   authenticateUser: jest.fn(),
@@ -16,12 +16,21 @@ jest.unstable_mockModule(
     checkIfAllowedToDescend: jest.fn(),
   })
 );
+jest.unstable_mockModule(
+  "../game-server/game-event-handlers/character-uses-selected-combat-action-handler/compose-action-command-payloads-from-action-results.js",
+  () => ({
+    composeActionCommandPayloadsFromActionResults: jest.fn(),
+  })
+);
 
 let { authenticateUser } = await import("../game-server/authenticate-user.js");
 let { getUserIdsByUsername } = await import("../database/get-user-ids-by-username.js");
 let { raceGameRecordsRepo } = await import("../database/repos/race-game-records.js");
 let { checkIfAllowedToDescend } = await import(
   "../game-server/game-event-handlers/toggle-ready-to-descend-handler/check-if-allowed-to-descend.js"
+);
+let { composeActionCommandPayloadsFromActionResults } = await import(
+  "../game-server/game-event-handlers/character-uses-selected-combat-action-handler/compose-action-command-payloads-from-action-results.js"
 );
 let mockedAuthenticateUser = authenticateUser as jest.MockedFunction<typeof authenticateUser>;
 let mockedGetUserIdsByUsername = getUserIdsByUsername as jest.MockedFunction<
@@ -30,6 +39,10 @@ let mockedGetUserIdsByUsername = getUserIdsByUsername as jest.MockedFunction<
 let mockedCheckIfAllowedToDescend = checkIfAllowedToDescend as jest.MockedFunction<
   typeof checkIfAllowedToDescend
 >;
+let mockedComposeActionCommandPayloadsFromActionResults =
+  composeActionCommandPayloadsFromActionResults as jest.MockedFunction<
+    typeof composeActionCommandPayloadsFromActionResults
+  >;
 let { gameServer } = await import("../singletons.js");
 let { GameServer } = await import("../game-server/index.js");
 
@@ -39,15 +52,21 @@ import { valkeyManager } from "../kv-store/index.js";
 import setUpTestDatabaseContexts from "../utils/set-up-test-database-contexts.js";
 import { Server } from "socket.io";
 import {
+  ActionCommandType,
+  BattleConclusion,
   ClientToServerEvent,
   ClientToServerEventTypes,
-  CombatantClass,
+  CombatActionType,
+  Combatant,
+  CombatantAbilityName,
+  DEFAULT_LEVEL_TO_REACH_FOR_ESCAPE,
   GAME_CONFIG,
-  GameMode,
+  GameMessageType,
   ServerToClientEvent,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 import { env } from "../validate-env.js";
+import { emitGameSetupForTwoUsers, registerSocket, waitForCondition } from "./utils.js";
 
 describe("race game records", () => {
   const testId = Date.now().toString();
@@ -82,18 +101,14 @@ describe("race game records", () => {
       socket.disconnect();
     });
     await valkeyManager.context.removeAllKeys();
+    await raceGameRecordsRepo.dropAll();
     agent = request.agent(expressApp);
+    GAME_CONFIG.LEVEL_TO_REACH_FOR_ESCAPE = DEFAULT_LEVEL_TO_REACH_FOR_ESCAPE;
     jest.clearAllMocks();
     ({ authenticateUser } = await import("../game-server/authenticate-user.js"));
-    // mockedAuthenticateUser = authenticateUser as jest.MockedFunction<typeof authenticateUser>;
     mockedAuthenticateUser.mockResolvedValueOnce(["user1", 1]).mockResolvedValueOnce(["user2", 2]);
     ({ getUserIdsByUsername } = await import("../database/get-user-ids-by-username.js"));
-    // mockedGetUserIdsByUsername = getUserIdsByUsername as jest.MockedFunction<
-    //   typeof getUserIdsByUsername
-    // >;
     mockedGetUserIdsByUsername.mockResolvedValue({ ["user1"]: 1, ["user2"]: 2 });
-
-    mockedCheckIfAllowedToDescend.mockReturnValue(undefined); // just let them descend so we can do the test
   });
 
   afterAll(async () => {
@@ -107,29 +122,23 @@ describe("race game records", () => {
   });
 
   it("correctly records a game record when both players disconnect at the start of a game", (done) => {
-    let party1Name: string, party2Name: string, character2Name: string;
+    let party1Name: string, party2Name: string;
     const user1 = registerSocket("user1", serverAddress, clientSockets);
     const user2 = registerSocket("user2", serverAddress, clientSockets);
 
-    user1.on("connect", () => {
-      ({ party1Name, party2Name, character2Name } = emitGameSetupForTwoUsers(user1, user2));
-    });
-    // best to wait for this event to make sure user1 doesn't ready up before user 2 has
-    // created their character
-    user2.on(ServerToClientEvent.CharacterAddedToParty, (_partyName, _username, character) => {
-      if (character.entityProperties.name !== character2Name) return;
+    user1.on("connect", async () => {
+      ({ party1Name, party2Name } = await emitGameSetupForTwoUsers("test game", user1, user2));
+
       user2.emit(ClientToServerEvent.ToggleReadyToStartGame);
       user1.emit(ClientToServerEvent.ToggleReadyToStartGame);
     });
 
     user2.on(ServerToClientEvent.GameMessage, async (data) => {
-      console.log("GOT GAME MESSAGE: ", data);
       expect(data.message).toContain(`Party "${party1Name}" was defeated`);
 
       const rows = await raceGameRecordsRepo.findAllGamesByUserId(1);
       const gameRecord = rows[0];
       if (!gameRecord) return expect(gameRecord).toBeTruthy();
-      console.log("game record: ", JSON.stringify(gameRecord, null, 2));
       expect(gameRecord.time_of_completion).toBe(null);
       const party1Record = gameRecord.parties[party1Name];
       if (!party1Record) return expect(party1Record).toBeTruthy();
@@ -143,10 +152,6 @@ describe("race game records", () => {
         const party2Record = record.parties[party2Name];
         if (!party2Record) return false;
 
-        console.log(
-          "rowsAfterLastPlayerLeft record: ",
-          JSON.stringify(rowsAfterLastPlayerLeft, null, 2)
-        );
         const partyWipeTimeUpdated = party2Record.duration_to_wipe !== null;
         const gameMarkedComplete = record.time_of_completion !== null;
         return partyWipeTimeUpdated && gameMarkedComplete;
@@ -160,15 +165,96 @@ describe("race game records", () => {
     });
   });
 
-  it("handles the record updates for when one party wipes and another escapes later", async () => {
+  it("handles the record updates for when one party wipes and another escapes later", (done) => {
     GAME_CONFIG.LEVEL_TO_REACH_FOR_ESCAPE = 2;
+    // just let the winning party descend so they can escape
+    mockedCheckIfAllowedToDescend.mockReturnValue(undefined);
+    // this should simulate a wipe whenever a player takes any combat action
+    mockedComposeActionCommandPayloadsFromActionResults.mockImplementation(() => {
+      return [
+        {
+          type: ActionCommandType.BattleResult,
+          conclusion: BattleConclusion.Defeat,
+          loot: [],
+          experiencePointChanges: {},
+          timestamp: Date.now(),
+        },
+      ];
+    });
 
-    let party1Name: string, party2Name: string, character2Name: string;
+    let party1Name: string, party2Name: string, character1: Combatant;
     const user1 = registerSocket("user1", serverAddress, clientSockets);
     const user2 = registerSocket("user2", serverAddress, clientSockets);
 
-    user1.on("connect", () => {
-      ({ party1Name, party2Name, character2Name } = emitGameSetupForTwoUsers(user1, user2));
+    user1.on("connect", async () => {
+      ({ party1Name, party2Name, character1 } = await emitGameSetupForTwoUsers(
+        "test game 2",
+        user1,
+        user2
+      ));
+
+      user2.emit(ClientToServerEvent.ToggleReadyToStartGame);
+      user1.emit(ClientToServerEvent.ToggleReadyToStartGame);
+    });
+
+    user1.on(ServerToClientEvent.GameStarted, () => {
+      user1.off(ServerToClientEvent.GameStarted);
+      user1.emit(ClientToServerEvent.ToggleReadyToExplore);
+      user1.emit(ClientToServerEvent.SelectCombatAction, {
+        characterId: character1.entityProperties.id,
+        combatActionOption: {
+          type: CombatActionType.AbilityUsed,
+          abilityName: CombatantAbilityName.Attack,
+        },
+      });
+
+      // we mocked the handling of this event to create
+      // a battle result action command with defeat (so we wipe them)
+      user1.emit(ClientToServerEvent.UseSelectedCombatAction, {
+        characterId: character1.entityProperties.id,
+      });
+    });
+
+    user2.on(ServerToClientEvent.GameMessage, async (data) => {
+      if (data.type === GameMessageType.PartyWipe) {
+        await waitForCondition(async () => {
+          const recordShouldContainWipe = await raceGameRecordsRepo.findAllGamesByUserId(1);
+          const record = recordShouldContainWipe[0];
+          if (!record) return false;
+          const party1Record = record.parties[party1Name];
+          if (!party1Record) return false;
+
+          const partyWipeTimeUpdated = party1Record.duration_to_wipe !== null;
+          const gameNotYetMarkedComplete = record.time_of_completion === null;
+          return partyWipeTimeUpdated && gameNotYetMarkedComplete;
+        });
+
+        user2.emit(ClientToServerEvent.ToggleReadyToDescend);
+      } else if (data.type === GameMessageType.PartyEscape) {
+        user2.off(ServerToClientEvent.GameMessage);
+
+        await waitForCondition(async () => {
+          const recordShouldContainWipeAndVictory =
+            await raceGameRecordsRepo.findAllGamesByUserId(1);
+          const record = recordShouldContainWipeAndVictory[0];
+          if (!record) return false;
+          const party1Record = record.parties[party1Name];
+          const party2Record = record.parties[party2Name];
+          if (!party1Record || !party2Record) return false;
+
+          const partyWipeTimeUpdated = party1Record.duration_to_wipe !== null;
+          const partyEscapeTimeUpdated = party2Record.duration_to_escape !== null;
+          const gameMarkedComplete = record.time_of_completion !== null;
+          const party2MarkedWinner = party2Record.is_winner && !party1Record.is_winner;
+          return (
+            partyWipeTimeUpdated &&
+            partyEscapeTimeUpdated &&
+            gameMarkedComplete &&
+            party2MarkedWinner
+          );
+        });
+        done();
+      }
     });
   });
 
@@ -176,60 +262,3 @@ describe("race game records", () => {
   // one party escapes, other stays in game
   // server crashes mid game
 });
-
-function registerSocket(
-  name: string,
-  serverAddress: string,
-  clientSockets: {
-    [name: string]: ClientSocket<ServerToClientEventTypes, ClientToServerEventTypes>;
-  }
-): ClientSocket<ServerToClientEventTypes, ClientToServerEventTypes> {
-  const socket = clientSocket(serverAddress);
-  clientSockets[name] = socket;
-  return socket;
-}
-
-async function waitForCondition(
-  conditionFn: () => Promise<boolean>,
-  timeout = 5000,
-  interval = 100
-) {
-  const startTime = Date.now();
-
-  console.log("startTime", startTime);
-
-  while (true) {
-    if (await conditionFn()) return;
-
-    if (Date.now() - startTime >= timeout) {
-      throw new Error("Condition not met within timeout");
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, interval));
-  }
-}
-
-function emitGameSetupForTwoUsers(
-  user1: ClientSocket<ServerToClientEventTypes, ClientToServerEventTypes>,
-  user2: ClientSocket<ServerToClientEventTypes, ClientToServerEventTypes>
-) {
-  const gameName = "test game";
-  const party1Name = "party 1";
-  const party2Name = "party 2";
-  const character1Name = "character 1";
-  const character2Name = "character 2";
-  user1.emit(ClientToServerEvent.CreateGame, { gameName, mode: GameMode.Race, isRanked: true });
-  user1.emit(ClientToServerEvent.CreateParty, party1Name);
-  user1.emit(ClientToServerEvent.CreateCharacter, {
-    name: character1Name,
-    combatantClass: CombatantClass.Mage,
-  });
-
-  user2.emit(ClientToServerEvent.JoinGame, gameName);
-  user2.emit(ClientToServerEvent.CreateParty, party2Name);
-  user2.emit(ClientToServerEvent.CreateCharacter, {
-    name: character2Name,
-    combatantClass: CombatantClass.Mage,
-  });
-  return { gameName, party1Name, party2Name, character1Name, character2Name };
-}

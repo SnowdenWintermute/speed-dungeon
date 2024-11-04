@@ -17,7 +17,6 @@ import getMonsterTraits from "./get-monster-traits.js";
 import getMonsterEquipment from "./get-monster-equipment.js";
 import getMonsterAbilities from "./get-monster-abilities.js";
 // import { STOCK_MONSTER } from "../../index.js";
-import cloneDeep from "lodash.clonedeep";
 
 export default function generateMonster(level: number) {
   // roll a random monster type from list of pre determined types

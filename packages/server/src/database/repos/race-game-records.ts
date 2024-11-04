@@ -5,6 +5,7 @@ import { DatabaseRepository } from "./index.js";
 import { ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
 import { raceGamePartyRecordsRepo } from "./race-game-party-records.js";
 import { SERVER_VERSION } from "../../server-version.js";
+import { env } from "../../validate-env.js";
 
 export type RaceGameRecord = {
   id: number;
@@ -47,6 +48,12 @@ export type RaceGameAggregatedRecordList = {
 const tableName = RESOURCE_NAMES.RACE_GAME_RECORDS;
 
 class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
+  async dropAll() {
+    if (env.NODE_ENV !== "test")
+      throw new Error("Don't try to delete all game records when not in test env");
+    await this.pgPool.query("DELETE FROM race_game_records");
+  }
+
   async insertGameRecord(game: SpeedDungeonGame) {
     if (!game.timeStarted) return new Error(ERROR_MESSAGES.GAME.NOT_STARTED);
     const { rows } = await this.pgPool.query(

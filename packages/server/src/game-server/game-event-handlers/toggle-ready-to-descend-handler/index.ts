@@ -54,7 +54,10 @@ export function togglePlayerReadyToDescend(
   return true;
 }
 
-export function descendParty(game: SpeedDungeonGame, party: AdventuringParty): Error | void {
+export async function descendParty(
+  game: SpeedDungeonGame,
+  party: AdventuringParty
+): Promise<Error | void> {
   const gameServer = getGameServer();
   const gameModeContext = gameServer.gameModeContexts[game.mode];
 
@@ -83,7 +86,8 @@ export function descendParty(game: SpeedDungeonGame, party: AdventuringParty): E
       `Party "${party.name}" escaped the dungeon at ${timeOfEscape.toLocaleString()} and has been marked as the winner!`
     );
 
-    gameModeContext.onPartyEscape(game, party);
+    const maybeError = await gameModeContext.onPartyEscape(game, party);
+    if (maybeError instanceof Error) return maybeError;
   }
 
   // generate next floor etc

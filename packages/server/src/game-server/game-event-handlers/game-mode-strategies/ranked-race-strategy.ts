@@ -49,7 +49,6 @@ export default class RankedRaceStrategy implements GameModeStrategy {
 
     if (Object.keys(game.adventuringParties).length === 0) {
       await raceGameRecordsRepo.markGameAsCompleted(game.id);
-      console.log("marked game completed");
     }
 
     // @TODO - if there is only one party left, tell them they are the last ones left alive
