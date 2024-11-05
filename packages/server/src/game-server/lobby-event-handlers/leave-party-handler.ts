@@ -27,23 +27,25 @@ export default async function leavePartyHandler(
   const result = SpeedDungeonGame.removePlayerFromParty(game, username);
   if (result instanceof Error) return errorHandler(socket, result.message);
   let { partyWasRemoved } = result;
+  let deadPartyMembersAbandoned = false;
 
   // check if only dead players remain
   if (!partyWasRemoved && partyOption.playerUsernames.length > 0)
-    partyWasRemoved = handleAbandoningDeadPartyMembers(game, partyOption);
+    deadPartyMembersAbandoned = handleAbandoningDeadPartyMembers(game, partyOption);
 
-  if (partyWasRemoved) {
+  if (partyWasRemoved || (deadPartyMembersAbandoned && !partyOption.timeOfWipe)) {
+    partyOption.timeOfWipe = Date.now();
     const maybeError = await gameModeContext.onPartyWipe(game, partyOption);
     if (maybeError instanceof Error) return errorHandler(socket, maybeError.message);
-  }
 
-  const remainingParties = Object.values(game.adventuringParties);
-  if (partyWasRemoved && remainingParties.length) {
-    emitMessageInGameWithOptionalDelayForParty(
-      game.name,
-      GameMessageType.PartyWipe,
-      createPartyWipeMessage(partyOption.name, partyOption.currentFloor, new Date(Date.now()))
-    );
+    const remainingParties = Object.values(game.adventuringParties);
+    if (remainingParties.length) {
+      emitMessageInGameWithOptionalDelayForParty(
+        game.name,
+        GameMessageType.PartyWipe,
+        createPartyWipeMessage(partyOption.name, partyOption.currentFloor, new Date(Date.now()))
+      );
+    }
   }
 
   const partyChannelName = getPartyChannelName(game.name, partyOption.name);
@@ -65,11 +67,8 @@ function handleAbandoningDeadPartyMembers(game: SpeedDungeonGame, party: Adventu
       break;
     }
   }
-  if (allRemainingCharactersAreDead) {
-    for (const username of party.playerUsernames) {
-      SpeedDungeonGame.removePlayerFromParty(game, username);
-    }
 
+  if (allRemainingCharactersAreDead) {
     emitMessageInGameWithOptionalDelayForParty(
       game.name,
       GameMessageType.PartyDissolved,

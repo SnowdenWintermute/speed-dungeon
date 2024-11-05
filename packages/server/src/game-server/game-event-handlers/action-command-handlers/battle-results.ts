@@ -9,7 +9,6 @@ import { GameServer } from "../../index.js";
 import { ActionCommandManager } from "@speed-dungeon/common";
 import { getGameServer } from "../../../singletons.js";
 import emitMessageInGameWithOptionalDelayForParty from "../../utils/emit-message-in-game-with-optional-delay-for-party.js";
-import leavePartyHandler from "src/game-server/lobby-event-handlers/leave-party-handler.js";
 
 export default async function battleResultActionCommandHandler(
   this: GameServer,

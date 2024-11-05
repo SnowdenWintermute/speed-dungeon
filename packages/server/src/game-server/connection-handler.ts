@@ -6,7 +6,7 @@ import { env } from "../validate-env.js";
 import { applyMiddlewares } from "./event-middleware/index.js";
 import disconnectionHandler from "./disconnection-handler.js";
 import getSession from "./event-middleware/get-session.js";
-import { authenticateUser } from "./authenticate-user.js";
+import { getLoggedInUser } from "./get-logged-in-user.js";
 
 export function connectionHandler(this: GameServer) {
   this.io.of("/").on("connection", async (socket) => {
@@ -14,9 +14,7 @@ export function connectionHandler(this: GameServer) {
     let cookies = req.headers.cookie;
     cookies += `; internal=${env.INTERNAL_SERVICES_SECRET};`;
 
-    let [username, userId] = await authenticateUser(cookies, socket);
-
-    // this is a guest
+    let [username, userId] = await getLoggedInUser(cookies, socket);
     if (username === null) username = generateRandomUsername();
 
     console.log(`-- ${username} (${socket.id}) connected`);

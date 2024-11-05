@@ -1,7 +1,5 @@
 import {
   AdventuringParty,
-  Combatant,
-  CombatantProperties,
   ERROR_MESSAGES,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
@@ -87,7 +85,6 @@ export default class RankedRaceStrategy implements GameModeStrategy {
     const gameRecord = await raceGameRecordsRepo.findAggregatedGameRecordById(game.id);
     if (!gameRecord) return new Error(ERROR_MESSAGES.GAME_RECORDS.NOT_FOUND);
     let gameAlreadyHasWinner = false;
-    console.log("game record: ", gameRecord);
 
     for (const party of Object.values(gameRecord.parties)) {
       if (party.is_winner) {

@@ -32,6 +32,7 @@ export default function validateCombatActionUse(
     if (battle !== undefined) battleOption = battle;
     else return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
   }
+
   if (
     battleOption !== null &&
     !Battle.combatantIsFirstInTurnOrder(battleOption, character.entityProperties.id)

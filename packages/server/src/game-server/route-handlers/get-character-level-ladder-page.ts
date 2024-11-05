@@ -11,7 +11,6 @@ export default async function getCharacterLevelLadderPageHandler(
   res: Response,
   next: NextFunction
 ) {
-  console.log("hit level ladder route");
   try {
     if (!req.params.page) return next([new CustomError("No page number provided", 400)]);
     const pageNumberAsString = req.params.page;
