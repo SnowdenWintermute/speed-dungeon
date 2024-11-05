@@ -52,12 +52,10 @@ export default class RankedRaceStrategy implements GameModeStrategy {
     await raceGamePartyRecordsRepo.update(partyRecord);
 
     let allPartiesAreDead = true;
-    outerloop: for (const party of Object.values(game.adventuringParties)) {
-      for (const character of Object.values(party.characters)) {
-        if (character.combatantProperties.hitPoints > 0) {
-          allPartiesAreDead = false;
-          break outerloop;
-        }
+    for (const party of Object.values(game.adventuringParties)) {
+      if (party.timeOfWipe === null) {
+        allPartiesAreDead = false;
+        break;
       }
     }
 

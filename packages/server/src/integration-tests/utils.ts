@@ -8,6 +8,7 @@ import {
   GameMode,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
+import { GameServer } from "../game-server";
 
 export function registerSocket(
   name: string,
@@ -83,4 +84,21 @@ export async function emitGameSetupForTwoUsers(
   });
 
   return { gameName, party1Name, party2Name, character1: character1!, character2: character2! };
+}
+
+export async function waitForUsersLeavingServer(
+  gameServer: {
+    current: GameServer | undefined;
+  },
+  userSockets: ClientSocket<ServerToClientEventTypes, ClientToServerEventTypes>[]
+) {
+  for (const socket of userSockets) {
+    socket.disconnect();
+  }
+  // wait for all games to be done so we don't try to write any game records
+  // after the test is finished
+  await waitForCondition(async () => {
+    if (!gameServer.current) return false;
+    return gameServer.current.games.size() === 0;
+  });
 }

@@ -45,6 +45,9 @@ let mockedComposeActionCommandPayloadsFromActionResults =
   >;
 let { gameServer } = await import("../singletons.js");
 let { GameServer } = await import("../game-server/index.js");
+let { getRaceGameRecordWithTwoPartyRecords } = await import(
+  "./get-race-record-with-two-parties.js"
+);
 
 import PGTestingContext from "../utils/pg-testing-context.js";
 import { createExpressApp } from "../create-express-app.js";
@@ -66,7 +69,12 @@ import {
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 import { env } from "../validate-env.js";
-import { emitGameSetupForTwoUsers, registerSocket, waitForCondition } from "./utils.js";
+import {
+  emitGameSetupForTwoUsers,
+  registerSocket,
+  waitForCondition,
+  waitForUsersLeavingServer,
+} from "./utils.js";
 
 describe("race game records", () => {
   const testId = Date.now().toString();
@@ -136,21 +144,16 @@ describe("race game records", () => {
     user2.on(ServerToClientEvent.GameMessage, async (data) => {
       expect(data.message).toContain(`Party "${party1Name}" was defeated`);
 
-      const rows = await raceGameRecordsRepo.findAllGamesByUserId(1);
-      const gameRecord = rows[0];
-      if (!gameRecord) return expect(gameRecord).toBeTruthy();
-      expect(gameRecord.time_of_completion).toBe(null);
-      const party1Record = gameRecord.parties[party1Name];
-      if (!party1Record) return expect(party1Record).toBeTruthy();
-      expect(party1Record.duration_to_wipe).not.toBe(null);
+      const records = await getRaceGameRecordWithTwoPartyRecords(1, party1Name, party2Name);
+      if (!records) return expect(records).toBeTruthy();
+      expect(records.record.time_of_completion).toBe(null);
+      expect(records.party1Record.duration_to_wipe).not.toBe(null);
       user2.disconnect();
 
       await waitForCondition(async () => {
-        const rowsAfterLastPlayerLeft = await raceGameRecordsRepo.findAllGamesByUserId(1);
-        const record = rowsAfterLastPlayerLeft[0];
-        if (!record) return false;
-        const party2Record = record.parties[party2Name];
-        if (!party2Record) return false;
+        const records = await getRaceGameRecordWithTwoPartyRecords(1, party1Name, party2Name);
+        if (!records) return false;
+        const { record, party2Record } = records;
 
         const partyWipeTimeUpdated = party2Record.duration_to_wipe !== null;
         const gameMarkedComplete = record.time_of_completion !== null;
@@ -200,29 +203,15 @@ describe("race game records", () => {
     user1.on(ServerToClientEvent.GameStarted, () => {
       user1.off(ServerToClientEvent.GameStarted);
       user1.emit(ClientToServerEvent.ToggleReadyToExplore);
-      user1.emit(ClientToServerEvent.SelectCombatAction, {
-        characterId: character1.entityProperties.id,
-        combatActionOption: {
-          type: CombatActionType.AbilityUsed,
-          abilityName: CombatantAbilityName.Attack,
-        },
-      });
-
-      // we mocked the handling of this event to create
-      // a battle result action command with defeat (so we wipe them)
-      user1.emit(ClientToServerEvent.UseSelectedCombatAction, {
-        characterId: character1.entityProperties.id,
-      });
+      useAttackAction(user1, character1);
     });
 
     user2.on(ServerToClientEvent.GameMessage, async (data) => {
       if (data.type === GameMessageType.PartyWipe) {
         await waitForCondition(async () => {
-          const recordShouldContainWipe = await raceGameRecordsRepo.findAllGamesByUserId(1);
-          const record = recordShouldContainWipe[0];
-          if (!record) return false;
-          const party1Record = record.parties[party1Name];
-          if (!party1Record) return false;
+          const records = await getRaceGameRecordWithTwoPartyRecords(1, party1Name, party2Name);
+          if (!records) return false;
+          const { record, party1Record } = records;
 
           const partyWipeTimeUpdated = party1Record.duration_to_wipe !== null;
           const gameNotYetMarkedComplete = record.time_of_completion === null;
@@ -234,22 +223,15 @@ describe("race game records", () => {
         user2.off(ServerToClientEvent.GameMessage);
 
         await waitForCondition(async () => {
-          const recordShouldContainWipeAndVictory =
-            await raceGameRecordsRepo.findAllGamesByUserId(1);
-          const record = recordShouldContainWipeAndVictory[0];
-          if (!record) return false;
-          const party1Record = record.parties[party1Name];
-          const party2Record = record.parties[party2Name];
-          if (!party1Record || !party2Record) return false;
+          const records = await getRaceGameRecordWithTwoPartyRecords(1, party1Name, party2Name);
+          if (!records) return false;
+          const { record, party1Record, party2Record } = records;
 
-          const partyWipeTimeUpdated = party1Record.duration_to_wipe !== null;
-          const partyEscapeTimeUpdated = party2Record.duration_to_escape !== null;
-          const gameMarkedComplete = record.time_of_completion !== null;
           const party2MarkedWinner = party2Record.is_winner && !party1Record.is_winner;
           return (
-            partyWipeTimeUpdated &&
-            partyEscapeTimeUpdated &&
-            gameMarkedComplete &&
+            party1Record.duration_to_wipe !== null &&
+            party2Record.duration_to_escape !== null &&
+            record.time_of_completion !== null &&
             party2MarkedWinner
           );
         });
@@ -262,16 +244,12 @@ describe("race game records", () => {
     GAME_CONFIG.LEVEL_TO_REACH_FOR_ESCAPE = 2;
     // just let the winning party descend so they can escape
     mockedCheckIfAllowedToDescend.mockReturnValue(undefined);
-    let party1Name: string, party2Name: string, character1: Combatant;
+    let party1Name: string, party2Name: string;
     const user1 = registerSocket("user1", serverAddress, clientSockets);
     const user2 = registerSocket("user2", serverAddress, clientSockets);
 
     user1.on("connect", async () => {
-      ({ party1Name, party2Name, character1 } = await emitGameSetupForTwoUsers(
-        "test game",
-        user1,
-        user2
-      ));
+      ({ party1Name, party2Name } = await emitGameSetupForTwoUsers("test game", user1, user2));
       user2.emit(ClientToServerEvent.ToggleReadyToStartGame);
       user1.emit(ClientToServerEvent.ToggleReadyToStartGame);
     });
@@ -280,12 +258,9 @@ describe("race game records", () => {
       user1.off(ServerToClientEvent.GameStarted);
       user1.emit(ClientToServerEvent.ToggleReadyToDescend);
       await waitForCondition(async () => {
-        const records = await raceGameRecordsRepo.findAllGamesByUserId(1);
-        const record = records[0];
-        if (!record) return false;
-        const party1Record = record.parties[party1Name];
-        if (!party1Record) return false;
-        console.log(party1Record);
+        const records = await getRaceGameRecordWithTwoPartyRecords(1, party1Name, party2Name);
+        if (!records) return false;
+        const { record, party1Record } = records;
 
         const gameMarkedComplete = record.time_of_completion !== null;
         const party1MarkedWinner = party1Record.is_winner;
@@ -300,35 +275,88 @@ describe("race game records", () => {
       if (data !== 2) return;
 
       await waitForCondition(async () => {
-        const records = await raceGameRecordsRepo.findAllGamesByUserId(1);
-        const record = records[0];
-        if (!record) return false;
-        const party1Record = record.parties[party1Name];
-        const party2Record = record.parties[party2Name];
-        if (!party1Record) return false;
-        if (!party2Record) return false;
+        const records = await getRaceGameRecordWithTwoPartyRecords(1, party1Name, party2Name);
+        if (!records) return false;
+        const { party2Record, party1Record } = records;
 
         const party1WipeMarked = party1Record.duration_to_wipe;
         const party2MarkedWinner = party2Record.is_winner;
         const party2TimeOfEscapeMarked = party2Record.duration_to_escape !== null;
         return !party1WipeMarked && !party2MarkedWinner && party2TimeOfEscapeMarked;
       });
-      user1.disconnect();
-      user2.disconnect();
+      await waitForUsersLeavingServer(gameServer, [user1, user2]);
+      done();
+    });
+  });
 
-      // wait for all games to be done so we don't try to write any game records
-      // after the test is finished
+  it("correctly records a ranked race game in which both parties suffer natural wipes", (done) => {
+    // taking any combat action should now wipe a party
+    mockedComposeActionCommandPayloadsFromActionResults.mockImplementation(() => {
+      return [
+        {
+          type: ActionCommandType.BattleResult,
+          conclusion: BattleConclusion.Defeat,
+          loot: [],
+          experiencePointChanges: {},
+          timestamp: Date.now(),
+        },
+      ];
+    });
+    let party1Name: string, party2Name: string, character1: Combatant, character2: Combatant;
+    const user1 = registerSocket("user1", serverAddress, clientSockets);
+    const user2 = registerSocket("user2", serverAddress, clientSockets);
+    user1.on("connect", async () => {
+      ({ party1Name, party2Name, character1, character2 } = await emitGameSetupForTwoUsers(
+        "test game",
+        user1,
+        user2
+      ));
+      user2.emit(ClientToServerEvent.ToggleReadyToStartGame);
+      user1.emit(ClientToServerEvent.ToggleReadyToStartGame);
+    });
+    user1.on(ServerToClientEvent.GameStarted, async () => {
+      user1.emit(ClientToServerEvent.ToggleReadyToExplore);
+      useAttackAction(user1, character1);
+      user2.emit(ClientToServerEvent.ToggleReadyToExplore);
+      useAttackAction(user2, character2);
+
       await waitForCondition(async () => {
-        const existingGameServer = gameServer.current;
-        if (!existingGameServer) return false;
-        return existingGameServer.games.size() === 0;
+        const records = await getRaceGameRecordWithTwoPartyRecords(1, party1Name, party2Name);
+        if (!records) return false;
+        const { record, party2Record, party1Record } = records;
+
+        console.log("RECORD: ", record);
+
+        return (
+          party1Record.duration_to_wipe !== null &&
+          !party1Record.is_winner &&
+          party2Record.duration_to_wipe !== null &&
+          !party2Record.is_winner &&
+          record.time_of_completion !== null
+        );
       });
+      await waitForUsersLeavingServer(gameServer, [user1, user2]);
       done();
     });
   });
 
   // OTHER TESTS TO DO
-  // all parties suffer natural wipes
   // abandoning dead party members
   // server crashes mid game
 });
+
+function useAttackAction(
+  socket: ClientSocket<ServerToClientEventTypes, ClientToServerEventTypes>,
+  character: Combatant
+) {
+  socket.emit(ClientToServerEvent.SelectCombatAction, {
+    characterId: character.entityProperties.id,
+    combatActionOption: {
+      type: CombatActionType.AbilityUsed,
+      abilityName: CombatantAbilityName.Attack,
+    },
+  });
+  socket.emit(ClientToServerEvent.UseSelectedCombatAction, {
+    characterId: character.entityProperties.id,
+  });
+}

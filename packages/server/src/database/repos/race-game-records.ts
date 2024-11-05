@@ -45,6 +45,23 @@ export type RaceGameAggregatedRecord = {
   };
 };
 
+export type RacePartyAggregatedRecord = {
+  party_id: string;
+  party_name: string;
+  duration_to_wipe: number | null;
+  duration_to_escape: number | null;
+  is_winner: boolean;
+  characters: {
+    [characterId: string]: {
+      character_id: string;
+      character_name: string;
+      level: number;
+      combatant_class: string;
+      id_of_controlling_user: number;
+    };
+  };
+};
+
 const tableName = RESOURCE_NAMES.RACE_GAME_RECORDS;
 
 class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
