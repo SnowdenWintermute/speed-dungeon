@@ -140,6 +140,7 @@ export const ERROR_MESSAGES = {
     MISSING_DATA: "Missing expected data in socket event",
   },
   GAME_RECORDS: {
+    NOT_FOUND: "No game record was found by that ID",
     PARTY_RECORD_NOT_FOUND: "Expected party record was not found",
   },
 };

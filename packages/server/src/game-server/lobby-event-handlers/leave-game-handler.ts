@@ -14,7 +14,9 @@ export default async function leaveGameHandler(
   const gameModeContext = gameServer.gameModeContexts[game.mode];
 
   const maybeError = await gameModeContext.onGameLeave(game, partyOption, player);
-  if (maybeError instanceof Error) return maybeError;
+  if (maybeError instanceof Error) {
+    return maybeError;
+  }
 
   await leavePartyHandler(undefined, playerAssociatedData, socket);
 

@@ -98,7 +98,7 @@ describe("race game records", () => {
     global.Date.now = realDateNow;
 
     io.sockets.sockets.forEach((socket) => {
-      socket.disconnect();
+      socket.disconnect(true);
     });
     await valkeyManager.context.removeAllKeys();
     await raceGameRecordsRepo.dropAll();
@@ -188,7 +188,7 @@ describe("race game records", () => {
 
     user1.on("connect", async () => {
       ({ party1Name, party2Name, character1 } = await emitGameSetupForTwoUsers(
-        "test game 2",
+        "test game",
         user1,
         user2
       ));
@@ -258,7 +258,77 @@ describe("race game records", () => {
     });
   });
 
+  it("correctly records a ranked race game in which one party escapes and another party stays and later escapes", (done) => {
+    GAME_CONFIG.LEVEL_TO_REACH_FOR_ESCAPE = 2;
+    // just let the winning party descend so they can escape
+    mockedCheckIfAllowedToDescend.mockReturnValue(undefined);
+    let party1Name: string, party2Name: string, character1: Combatant;
+    const user1 = registerSocket("user1", serverAddress, clientSockets);
+    const user2 = registerSocket("user2", serverAddress, clientSockets);
+
+    user1.on("connect", async () => {
+      ({ party1Name, party2Name, character1 } = await emitGameSetupForTwoUsers(
+        "test game",
+        user1,
+        user2
+      ));
+      user2.emit(ClientToServerEvent.ToggleReadyToStartGame);
+      user1.emit(ClientToServerEvent.ToggleReadyToStartGame);
+    });
+
+    user1.on(ServerToClientEvent.GameStarted, async () => {
+      user1.off(ServerToClientEvent.GameStarted);
+      user1.emit(ClientToServerEvent.ToggleReadyToDescend);
+      await waitForCondition(async () => {
+        const records = await raceGameRecordsRepo.findAllGamesByUserId(1);
+        const record = records[0];
+        if (!record) return false;
+        const party1Record = record.parties[party1Name];
+        if (!party1Record) return false;
+        console.log(party1Record);
+
+        const gameMarkedComplete = record.time_of_completion !== null;
+        const party1MarkedWinner = party1Record.is_winner;
+        const party1TimeOfEscapeMarked = party1Record.duration_to_escape !== null;
+        return gameMarkedComplete && party1MarkedWinner && party1TimeOfEscapeMarked;
+      });
+      user1.disconnect();
+      user2.emit(ClientToServerEvent.ToggleReadyToDescend);
+    });
+
+    user2.on(ServerToClientEvent.DungeonFloorNumber, async (data) => {
+      if (data !== 2) return;
+
+      await waitForCondition(async () => {
+        const records = await raceGameRecordsRepo.findAllGamesByUserId(1);
+        const record = records[0];
+        if (!record) return false;
+        const party1Record = record.parties[party1Name];
+        const party2Record = record.parties[party2Name];
+        if (!party1Record) return false;
+        if (!party2Record) return false;
+
+        const party1WipeMarked = party1Record.duration_to_wipe;
+        const party2MarkedWinner = party2Record.is_winner;
+        const party2TimeOfEscapeMarked = party2Record.duration_to_escape !== null;
+        return !party1WipeMarked && !party2MarkedWinner && party2TimeOfEscapeMarked;
+      });
+      user1.disconnect();
+      user2.disconnect();
+
+      // wait for all games to be done so we don't try to write any game records
+      // after the test is finished
+      await waitForCondition(async () => {
+        const existingGameServer = gameServer.current;
+        if (!existingGameServer) return false;
+        return existingGameServer.games.size() === 0;
+      });
+      done();
+    });
+  });
+
   // OTHER TESTS TO DO
-  // one party escapes, other stays in game
+  // all parties suffer natural wipes
+  // abandoning dead party members
   // server crashes mid game
 });

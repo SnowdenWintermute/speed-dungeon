@@ -9,6 +9,7 @@ import { GameServer } from "../../index.js";
 import { ActionCommandManager } from "@speed-dungeon/common";
 import { getGameServer } from "../../../singletons.js";
 import emitMessageInGameWithOptionalDelayForParty from "../../utils/emit-message-in-game-with-optional-delay-for-party.js";
+import leavePartyHandler from "src/game-server/lobby-event-handlers/leave-party-handler.js";
 
 export default async function battleResultActionCommandHandler(
   this: GameServer,
@@ -41,10 +42,6 @@ export default async function battleResultActionCommandHandler(
 
       const maybeError = await gameModeContext.onPartyWipe(game, party);
       if (maybeError instanceof Error) return maybeError;
-
-      for (const username of party.playerUsernames)
-        SpeedDungeonGame.removePlayerFromParty(game, username);
-
       break;
     case BattleConclusion.Victory:
       const levelups = SpeedDungeonGame.handleBattleVictory(game, party, payload);

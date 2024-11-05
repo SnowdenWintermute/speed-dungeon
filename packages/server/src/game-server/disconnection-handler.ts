@@ -23,7 +23,8 @@ export default async function disconnectionHandler(
   if (session.currentGameName) {
     const playerAssociatedDataResult = getPlayerAssociatedData(socket);
     if (playerAssociatedDataResult instanceof Error) return playerAssociatedDataResult;
-    await leaveGameHandler(undefined, playerAssociatedDataResult, socket);
+    const maybeError = await leaveGameHandler(undefined, playerAssociatedDataResult, socket);
+    if (maybeError instanceof Error) return maybeError;
   }
 
   for (const channelName of session.channels) {
