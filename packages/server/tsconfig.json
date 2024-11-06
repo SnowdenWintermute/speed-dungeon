@@ -5,7 +5,6 @@
     "outDir": "dist",
     "module": "ESNext",
     "moduleResolution": "node",
-    "baseUrl": ".",
     "noUncheckedIndexedAccess": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,

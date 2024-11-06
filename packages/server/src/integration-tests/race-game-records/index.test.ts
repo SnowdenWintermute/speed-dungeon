@@ -27,7 +27,6 @@ let { getLoggedInUserOrCreateGuest } = await import(
   "../../game-server/get-logged-in-user-or-create-guest.js"
 );
 let { getUserIdsByUsername } = await import("../../database/get-user-ids-by-username.js");
-let { raceGameRecordsRepo } = await import("../../database/repos/race-game-records.js");
 let { checkIfAllowedToDescend } = await import(
   "../../game-server/game-event-handlers/toggle-ready-to-descend-handler/check-if-allowed-to-descend.js"
 );
@@ -47,6 +46,8 @@ let mockedComposeActionCommandPayloadsFromActionResults =
   composeActionCommandPayloadsFromActionResults as jest.MockedFunction<
     typeof composeActionCommandPayloadsFromActionResults
   >;
+
+let { raceGameRecordsRepo } = await import("../../database/repos/race-game-records.js");
 let { GameServer } = await import("../../game-server/index.js");
 let { gameServer } = await import("../../singletons.js");
 let { getRaceGameRecordWithTwoPartyRecords } = await import(
@@ -54,7 +55,7 @@ let { getRaceGameRecordWithTwoPartyRecords } = await import(
 );
 
 import PGTestingContext from "../../utils/pg-testing-context.js";
-import { createExpressApp } from "../../create-express-app.js";
+const { createExpressApp } = await import("../../create-express-app.js");
 import { valkeyManager } from "../../kv-store/index.js";
 import setUpTestDatabaseContexts from "../../utils/set-up-test-database-contexts.js";
 import { Server } from "socket.io";

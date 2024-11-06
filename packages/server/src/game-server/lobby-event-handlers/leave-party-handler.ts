@@ -33,7 +33,10 @@ export default async function leavePartyHandler(
   if (!partyWasRemoved && partyOption.playerUsernames.length > 0)
     deadPartyMembersAbandoned = handleAbandoningDeadPartyMembers(game, partyOption);
 
-  if (partyWasRemoved || (deadPartyMembersAbandoned && !partyOption.timeOfWipe)) {
+  if (
+    partyWasRemoved ||
+    (deadPartyMembersAbandoned && typeof partyOption.timeOfWipe !== "number")
+  ) {
     partyOption.timeOfWipe = Date.now();
     const maybeError = await gameModeContext.onPartyWipe(game, partyOption);
     if (maybeError instanceof Error) return errorHandler(socket, maybeError.message);

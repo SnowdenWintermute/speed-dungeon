@@ -38,6 +38,7 @@ exports.up = (pgm) => {
 
 
     CREATE INDEX idx_party_records_game_id ON race_game_party_records (game_id);
+    CREATE INDEX idx_participant_user_id ON race_game_participant_records (user_id);
     CREATE INDEX idx_participant_records_party_id ON race_game_participant_records (party_id);
     CREATE INDEX idx_character_records_party_id ON race_game_character_records (party_id);
     `);

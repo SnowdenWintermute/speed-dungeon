@@ -27,6 +27,7 @@ class RaceGamePartyRecordRepo extends DatabaseRepository<RaceGamePartyRecord> {
     const durationToWipe = party.timeOfWipe ? party.timeOfWipe - game.timeStarted : null;
     const durationToEscape = party.timeOfEscape ? party.timeOfEscape - game.timeStarted : null;
 
+    console.log("INSERTING PARTY RECORD");
     const { rows } = await this.pgPool.query(
       format(
         `INSERT INTO race_game_party_records

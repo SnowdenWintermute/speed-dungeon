@@ -3,6 +3,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import expressErrorHandler from "./express-error-handler/index.js";
 import getCharacterLevelLadderPageHandler from "./game-server/route-handlers/get-character-level-ladder-page.js";
+import getUserRankedRaceGameCountHandler from "./game-server/route-handlers/get-user-ranked-race-game-count.js";
+import getUserRankedRaceHistoryHandler from "./game-server/route-handlers/get-user-ranked-race-history.js";
 
 export function createExpressApp() {
   const app = express();
@@ -17,6 +19,8 @@ export function createExpressApp() {
 
   app.get("/", (_: Request, res: Response) => res.send("this is the api server"));
   app.get("/ladders/level/:page", getCharacterLevelLadderPageHandler);
+  app.get("/game-records/count/:username", getUserRankedRaceGameCountHandler);
+  app.get("/game-records/:username/:page", getUserRankedRaceHistoryHandler);
 
   app.all("*", (req: Request, _: Response, next: NextFunction) => {
     const err = new Error(`Route ${req.originalUrl} not found`) as any;

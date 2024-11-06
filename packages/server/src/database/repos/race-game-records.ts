@@ -89,12 +89,33 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
     for (const party of Object.values(game.adventuringParties))
       partyRecordPromises.push(raceGamePartyRecordsRepo.insert(game, party, false));
 
+    console.log("PARTY RECROD PROM:", partyRecordPromises);
+
     const results = await Promise.all(partyRecordPromises);
     const errorMessages: string[] = [];
     for (const result of results) {
-      if (result instanceof Error) errorMessages.push(result.message);
+      if (result instanceof Error) {
+        console.log("ERROR CERATING PTR RECR", result);
+        errorMessages.push(result.message);
+      }
     }
     if (errorMessages.length) return new Error(errorMessages.join(", "));
+  }
+
+  async getCountByUserId(userId: number) {
+    const { rows } = await this.pgPool.query(
+      format(
+        `
+        SELECT COUNT(DISTINCT gr.id) AS games_participated
+        FROM race_game_records gr
+        JOIN race_game_party_records pr ON pr.game_id = gr.id
+        JOIN race_game_participant_records prt ON prt.party_id = pr.id
+        WHERE prt.user_id = %L;
+        `,
+        userId
+      )
+    );
+    return parseInt(rows[0]["games_participated"]);
   }
 
   async markGameAsCompleted(gameId: string) {
