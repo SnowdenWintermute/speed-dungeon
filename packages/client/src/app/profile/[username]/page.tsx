@@ -1,8 +1,11 @@
+// "use client";
 import React, { Suspense } from "react";
 import TopBar from "@/app/lobby/TopBar";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
+import UserProfile from "../user-profile";
 
 export default function ViewProfilePage({ params }: { params: { username: string } }) {
+  // const [pageNumber, setPageNumber] = useState(0);
   return (
     <div className="flex flex-col h-screen w-screen">
       <TopBar />
@@ -15,7 +18,7 @@ export default function ViewProfilePage({ params }: { params: { username: string
           </div>
         }
       >
-        profile {params.username}
+        <UserProfile username={params.username} pageNumber={0} />
       </Suspense>
     </div>
   );
