@@ -1,4 +1,4 @@
-import { LoggedInUser } from "../event-middleware/get-logged-in-user.js";
+import { LoggedInUser } from "../event-middleware/get-logged-in-user-from-socket.js";
 import { characterSlotsRepo } from "../../database/repos/character-slots.js";
 import { Combatant } from "@speed-dungeon/common";
 import { playerCharactersRepo } from "../../database/repos/player-characters.js";

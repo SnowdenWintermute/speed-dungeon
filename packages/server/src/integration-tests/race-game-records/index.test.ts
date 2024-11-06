@@ -4,8 +4,8 @@ import request, { Agent } from "supertest";
 import { createServer } from "http";
 import { Socket as ClientSocket } from "socket.io-client";
 // this syntax is for mocking ESM files in jest
-jest.unstable_mockModule("../../game-server/get-logged-in-user.js", () => ({
-  getLoggedInUser: jest.fn(),
+jest.unstable_mockModule("../../game-server/get-logged-in-user-or-create-guest.js", () => ({
+  getLoggedInUserOrCreateGuest: jest.fn(),
 }));
 jest.unstable_mockModule("../../database/get-user-ids-by-username.js", () => ({
   getUserIdsByUsername: jest.fn(),
@@ -23,7 +23,9 @@ jest.unstable_mockModule(
   })
 );
 
-let { getLoggedInUser } = await import("../../game-server/get-logged-in-user.js");
+let { getLoggedInUserOrCreateGuest } = await import(
+  "../../game-server/get-logged-in-user-or-create-guest.js"
+);
 let { getUserIdsByUsername } = await import("../../database/get-user-ids-by-username.js");
 let { raceGameRecordsRepo } = await import("../../database/repos/race-game-records.js");
 let { checkIfAllowedToDescend } = await import(
@@ -32,7 +34,9 @@ let { checkIfAllowedToDescend } = await import(
 let { composeActionCommandPayloadsFromActionResults } = await import(
   "../../game-server/game-event-handlers/character-uses-selected-combat-action-handler/compose-action-command-payloads-from-action-results.js"
 );
-let mockedAuthenticateUser = getLoggedInUser as jest.MockedFunction<typeof getLoggedInUser>;
+let mockedGetLoggedInUserOrCreateGuest = getLoggedInUserOrCreateGuest as jest.MockedFunction<
+  typeof getLoggedInUserOrCreateGuest
+>;
 let mockedGetUserIdsByUsername = getUserIdsByUsername as jest.MockedFunction<
   typeof getUserIdsByUsername
 >;
@@ -43,8 +47,8 @@ let mockedComposeActionCommandPayloadsFromActionResults =
   composeActionCommandPayloadsFromActionResults as jest.MockedFunction<
     typeof composeActionCommandPayloadsFromActionResults
   >;
-let { gameServer } = await import("../../singletons.js");
 let { GameServer } = await import("../../game-server/index.js");
+let { gameServer } = await import("../../singletons.js");
 let { getRaceGameRecordWithTwoPartyRecords } = await import(
   "../get-race-record-with-two-parties.js"
 );
@@ -117,8 +121,12 @@ describe("race game records", () => {
     agent = request.agent(expressApp);
     GAME_CONFIG.LEVEL_TO_REACH_FOR_ESCAPE = DEFAULT_LEVEL_TO_REACH_FOR_ESCAPE;
     jest.clearAllMocks();
-    ({ getLoggedInUser } = await import("../../game-server/get-logged-in-user.js"));
-    mockedAuthenticateUser.mockResolvedValueOnce(["user1", 1]).mockResolvedValueOnce(["user2", 2]);
+    ({ getLoggedInUserOrCreateGuest } = await import(
+      "../../game-server/get-logged-in-user-or-create-guest.js"
+    ));
+    mockedGetLoggedInUserOrCreateGuest
+      .mockResolvedValueOnce({ username: "user1", userId: 1 })
+      .mockResolvedValueOnce({ username: "user2", userId: 2 });
     ({ getUserIdsByUsername } = await import("../../database/get-user-ids-by-username.js"));
     mockedGetUserIdsByUsername.mockResolvedValue({ ["user1"]: 1, ["user2"]: 2 });
   });

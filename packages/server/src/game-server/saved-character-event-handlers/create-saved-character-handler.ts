@@ -5,7 +5,7 @@ import {
   ServerToClientEvent,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io";
-import { LoggedInUser } from "../event-middleware/get-logged-in-user.js";
+import { LoggedInUser } from "../event-middleware/get-logged-in-user-from-socket.js";
 import { characterSlotsRepo } from "../../database/repos/character-slots.js";
 import { createCharacter } from "../character-creation/index.js";
 import { playerCharactersRepo } from "../../database/repos/player-characters.js";

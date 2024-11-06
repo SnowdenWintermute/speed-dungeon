@@ -1,5 +1,5 @@
 import { ServerToClientEvent } from "@speed-dungeon/common";
-import { LoggedInUser } from "../event-middleware/get-logged-in-user.js";
+import { LoggedInUser } from "../event-middleware/get-logged-in-user-from-socket.js";
 import { fetchSavedCharacters } from "./fetch-saved-characters.js";
 import { Socket } from "socket.io";
 

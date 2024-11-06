@@ -1,7 +1,7 @@
 import { Combatant, ERROR_MESSAGES } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
 import { fetchSavedCharacters } from "../saved-character-event-handlers/fetch-saved-characters.js";
-import { getLoggedInUser } from "../event-middleware/get-logged-in-user.js";
+import { getLoggedInUserFromSocket } from "../event-middleware/get-logged-in-user-from-socket.js";
 import { Socket } from "socket.io";
 
 export default async function getDefaultSavedCharacterForProgressionGame(
@@ -23,7 +23,7 @@ export default async function getDefaultSavedCharacterForProgressionGame(
     if (socketMeta.currentGameName) return new Error(ERROR_MESSAGES.LOBBY.USER_IN_GAME);
   }
 
-  const loggedInUserResult = await getLoggedInUser(socket);
+  const loggedInUserResult = await getLoggedInUserFromSocket(socket);
   if (loggedInUserResult instanceof Error) return loggedInUserResult;
 
   // only let them create/join a progression game if they have a saved character

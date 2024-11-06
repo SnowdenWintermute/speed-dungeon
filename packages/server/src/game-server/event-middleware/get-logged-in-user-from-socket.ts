@@ -24,12 +24,12 @@ export async function provideLoggedInUser<T>(
   _middlewareProvidedData: LoggedInUser | undefined,
   next: SocketEventNextFunction<T, LoggedInUser>
 ) {
-  const loggedInUserResult = await getLoggedInUser(socket);
+  const loggedInUserResult = await getLoggedInUserFromSocket(socket);
   if (loggedInUserResult instanceof Error) return loggedInUserResult;
   next(eventData, loggedInUserResult);
 }
 
-export async function getLoggedInUser(socket: Socket) {
+export async function getLoggedInUserFromSocket(socket: Socket) {
   const gameServer = getGameServer();
   const browserTabSessionOption = gameServer.connections.get(socket.id);
   if (browserTabSessionOption === undefined)

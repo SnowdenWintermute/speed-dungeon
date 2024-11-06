@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { LoggedInUser } from "../event-middleware/get-logged-in-user.js";
+import { LoggedInUser } from "../event-middleware/get-logged-in-user-from-socket.js";
 import { ERROR_MESSAGES, ServerToClientEvent } from "@speed-dungeon/common";
 import { playerCharactersRepo } from "../../database/repos/player-characters.js";
 import { valkeyManager } from "../../kv-store/index.js";

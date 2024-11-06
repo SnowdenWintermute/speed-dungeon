@@ -10,7 +10,7 @@ import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../singletons.js";
 import { Socket } from "socket.io";
 import { fetchSavedCharacters } from "../saved-character-event-handlers/fetch-saved-characters.js";
-import { getLoggedInUser } from "../event-middleware/get-logged-in-user.js";
+import { getLoggedInUserFromSocket } from "../event-middleware/get-logged-in-user-from-socket.js";
 
 export default async function selectProgressionGameCharacterHandler(
   entityId: string,
@@ -22,7 +22,7 @@ export default async function selectProgressionGameCharacterHandler(
   if (partyOption === undefined) return new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
   const gameServer = getGameServer();
 
-  const loggedInUserResult = await getLoggedInUser(socket);
+  const loggedInUserResult = await getLoggedInUserFromSocket(socket);
   if (loggedInUserResult instanceof Error) return loggedInUserResult;
   const charactersResult = await fetchSavedCharacters(loggedInUserResult);
 
