@@ -18,4 +18,5 @@ export const HTTP_REQUEST_NAMES = {
   DELETE_ACCOUNT: "delete account",
   CHANGE_USERNAME: "change username",
   LEVEL_LADDER: "level ladder",
+  GET_USER_GAME_HISTORY: "get user game history",
 };

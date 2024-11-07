@@ -33,6 +33,11 @@ export const useHttpRequestStore = create<HttpRequestState>()(
         }));
 
         const tracker = new HttpRequestTracker();
+        // const fakeLatency = await new Promise((resolve) => {
+        //   setTimeout(() => {
+        //     resolve(true);
+        //   }, 2000);
+        // });
         const response = await fetch(url, options);
         tracker.ok = response.ok;
         tracker.loading = false;

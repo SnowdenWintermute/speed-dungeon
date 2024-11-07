@@ -22,15 +22,16 @@ export default async function getUserRankedRaceHistoryHandler(
       return next([new CustomError(ERROR_MESSAGES.SERVER_GENERIC, 500)]);
     }
 
-    const page = req.params.page ? parseInt(req.params.page) : null;
-    if (typeof page !== "number") {
-      return next([new CustomError("No page provided", 500)]);
-    }
+    let { page } = req.query;
+    if (typeof page !== "string") return next([new CustomError("Invalid query string", 400)]);
+
+    const pageNumber = parseInt(page);
+    if (pageNumber < 0) return next([new CustomError("Page number must not be negative", 400)]);
 
     const games = await raceGameRecordsRepo.getPageOfGameRecordsByUserId(
       userIdResult,
       RACE_GAME_RECORDS_PAGE_SIZE,
-      page
+      pageNumber
     );
 
     res.json(games);

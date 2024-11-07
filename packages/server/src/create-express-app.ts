@@ -20,7 +20,7 @@ export function createExpressApp() {
   app.get("/", (_: Request, res: Response) => res.send("this is the api server"));
   app.get("/ladders/level/:page", getCharacterLevelLadderPageHandler);
   app.get("/game-records/count/:username", getUserRankedRaceGameCountHandler);
-  app.get("/game-records/:username/:page", getUserRankedRaceHistoryHandler);
+  app.get("/game-records/:username", getUserRankedRaceHistoryHandler);
 
   app.all("*", (req: Request, _: Response, next: NextFunction) => {
     const err = new Error(`Route ${req.originalUrl} not found`) as any;
