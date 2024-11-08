@@ -8,6 +8,7 @@ exports.up = (pgm) => {
         id UUID PRIMARY KEY,
         game_name VARCHAR(128) NOT NULL,
         game_version VARCHAR(16),
+        time_started TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         time_of_completion TIMESTAMP WITH TIME ZONE
     );
 
@@ -41,6 +42,7 @@ exports.up = (pgm) => {
     CREATE INDEX idx_participant_user_id ON race_game_participant_records (user_id);
     CREATE INDEX idx_participant_records_party_id ON race_game_participant_records (party_id);
     CREATE INDEX idx_character_records_party_id ON race_game_character_records (party_id);
+    CREATE INDEX idx_race_game_records_time_started ON race_game_records (time_started);
     `);
 };
 

@@ -48,7 +48,7 @@ export default function PageSelector({ username }: { username: string }) {
 
   return (
     <div className="w-full flex justify-center">
-      <div className="flex pointer-events-auto">
+      <div className="flex pointer-events-auto items-center">
         <HotkeyButton
           hotkeys={["KeyW"]}
           className="h-10 p-2 border border-slate-400 flex justify-center items-center w-10"
@@ -59,7 +59,7 @@ export default function PageSelector({ username }: { username: string }) {
           <ArrowShape className="h-full fill-slate-400" />
         </HotkeyButton>
         {
-          <div>
+          <div className="text-lg mr-4 ml-4">
             Page {page}/{numPages}
           </div>
         }

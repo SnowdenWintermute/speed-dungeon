@@ -4,7 +4,12 @@ import { useHttpRequestStore } from "@/stores/http-request-store";
 import { useParams, useSearchParams } from "next/navigation";
 import React, { useEffect } from "react";
 import PageSelector from "./page-selector";
-import { CustomErrorDetails, RaceGameAggregatedRecord } from "@speed-dungeon/common";
+import {
+  CustomErrorDetails,
+  SanitizedRaceGameAggregatedRecord,
+  SanitizedRacePartyAggregatedRecord,
+} from "@speed-dungeon/common";
+import Divider from "@/app/components/atoms/Divider";
 
 export default function GameHistory() {
   const searchParams = useSearchParams();
@@ -30,7 +35,8 @@ export default function GameHistory() {
 
   const errorsOption = !responseTracker?.ok && (responseTracker?.data as CustomErrorDetails[]);
 
-  const data = responseTracker?.ok && (responseTracker?.data as RaceGameAggregatedRecord[]);
+  const data =
+    responseTracker?.ok && (responseTracker?.data as SanitizedRaceGameAggregatedRecord[]);
 
   console.log(JSON.stringify(data, null, 2));
 
@@ -50,23 +56,79 @@ export default function GameHistory() {
           ))}
         </div>
       )}
-      <ul>{data && data.map((item) => <GameRecordCard key={item.game_id} gameRecord={item} />)}</ul>
+      <ul>
+        {data &&
+          data.map((item) => (
+            <GameRecordCard key={item.game_id} username={username} gameRecord={item} />
+          ))}
+      </ul>
+      {data && data.length === 0 && (
+        <div>No games to show. Participate in raked race games to accumulate a game history.</div>
+      )}
 
-      <PageSelector username={username} />
+      <div className="mt-4">{data && data.length ? <PageSelector username={username} /> : ""}</div>
     </div>
   );
 }
 
-function GameRecordCard({ gameRecord }: { gameRecord: RaceGameAggregatedRecord }) {
+function GameRecordCard({
+  gameRecord,
+  username,
+}: {
+  username: string;
+  gameRecord: SanitizedRaceGameAggregatedRecord;
+}) {
+  const wasVictory = (() => {
+    for (const party of Object.values(gameRecord.parties)) {
+      for (const character of Object.values(party.characters)) {
+        if (character.usernameOfControllingUser === username) {
+          if (party.is_winner) return true;
+          else return false;
+        }
+      }
+    }
+  })();
+
   return (
-    <li className="border border-slate-400">
-      <div className="flex justify-between">
+    <li className="max-w-full border border-slate-400 p-2 mb-2 last:mb-0">
+      <div className="w-full flex justify-between">
         <h5 className="text-lg">{gameRecord.game_name}</h5>
         <p>
           {gameRecord.time_of_completion
             ? new Date(gameRecord.time_of_completion).toLocaleString()
-            : "Pending"}
+            : "In progress..."}
         </p>
+      </div>
+      <div>{wasVictory ? "Victory" : !gameRecord.time_of_completion ? "Pending" : "Wipe"}</div>
+      <div className="w-full pr-2 pl-2">
+        <Divider />
+      </div>
+      <h4 className="text-lg">Adventuring Parties</h4>
+      <ul className="max-w-72">
+        {Object.entries(gameRecord.parties).map(([name, party]) => (
+          <PartyRecordCard key={party.party_id} partyName={name} party={party} />
+        ))}
+      </ul>
+    </li>
+  );
+}
+
+function PartyRecordCard({
+  party,
+  partyName,
+}: {
+  partyName: string;
+  party: SanitizedRacePartyAggregatedRecord;
+}) {
+  return (
+    <li className="mb-1">
+      <div className="flex justify-between">
+        <h5>{partyName}</h5>
+        <div>
+          {party.is_winner && "Winners"}
+          {!party.is_winner &&
+            (party.duration_to_wipe ? "Wiped" : party.duration_to_escape ? "Escaped" : "Wandering")}
+        </div>
       </div>
     </li>
   );

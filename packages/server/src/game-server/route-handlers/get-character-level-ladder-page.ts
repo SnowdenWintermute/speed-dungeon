@@ -5,6 +5,7 @@ import CustomError from "../../express-error-handler/CustomError.js";
 import { ERROR_MESSAGES, LADDER_PAGE_SIZE, LevelLadderEntry } from "@speed-dungeon/common";
 import { env } from "../../validate-env.js";
 import { PlayerCharacter, playerCharactersRepo } from "../../database/repos/player-characters.js";
+import { getUsernamesByUserIds } from "../../database/get-usernames-by-user-ids.js";
 
 export default async function getCharacterLevelLadderPageHandler(
   req: Request,
@@ -76,20 +77,12 @@ export default async function getCharacterLevelLadderPageHandler(
 
     const characterOwnerIds = Object.values(charactersById).map((character) => character.ownerId);
 
-    const cookies = `internal=${env.INTERNAL_SERVICES_SECRET};`;
-    const idsQueryString = `?ids=${characterOwnerIds.join(",")}`;
+    const usernamesResponse = await getUsernamesByUserIds(characterOwnerIds);
+    if (usernamesResponse instanceof Error) {
+      console.error(usernamesResponse);
+      return next([new CustomError(ERROR_MESSAGES.SERVER_GENERIC, 500)]);
+    }
 
-    const usernamesResponse = await fetch(
-      `${env.AUTH_SERVER_URL}/internal/usernames${idsQueryString}`,
-      {
-        method: "GET",
-        headers: {
-          Cookie: cookies,
-        },
-      }
-    );
-
-    const usernamesByOwnerId = await usernamesResponse.json();
     const toReturn: LevelLadderEntry[] = [];
 
     for (const character of Object.values(charactersById)) {
@@ -99,7 +92,7 @@ export default async function getCharacterLevelLadderPageHandler(
         continue;
       }
       toReturn.push({
-        owner: usernamesByOwnerId[character.ownerId] || "",
+        owner: usernamesResponse[character.ownerId] || "",
         characterName: character.name,
         characterId: character.id,
         level: character.combatantProperties.level,
@@ -107,8 +100,6 @@ export default async function getCharacterLevelLadderPageHandler(
         gameVersion: character.gameVersion,
       });
     }
-
-    console.log("sending data: ", toReturn);
 
     res.json({ entriesOnPage: toReturn, totalNumberOfPages });
   } catch (error) {

@@ -2,12 +2,7 @@ import format from "pg-format";
 import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { DatabaseRepository } from "./index.js";
-import {
-  ERROR_MESSAGES,
-  RaceGameAggregatedRecord,
-  RacePartyAggregatedRecord,
-  SpeedDungeonGame,
-} from "@speed-dungeon/common";
+import { ERROR_MESSAGES, RaceGameAggregatedRecord, SpeedDungeonGame } from "@speed-dungeon/common";
 import { raceGamePartyRecordsRepo } from "./race-game-party-records.js";
 import { SERVER_VERSION } from "../../server-version.js";
 import { env } from "../../validate-env.js";
@@ -101,6 +96,7 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
         gr.id AS game_id,
         gr.game_name,
         gr.game_version,
+        gr.time_started,
         gr.time_of_completion,
         json_object_agg(
           pr.party_name,
@@ -153,6 +149,7 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
         gr.id AS game_id,
         gr.game_name,
         gr.game_version,
+        gr.time_started,
         gr.time_of_completion,
         json_object_agg(
           pr.party_name,
@@ -200,57 +197,52 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
     const { rows } = await this.pgPool.query(
       format(
         `
-      SELECT 
-      gr.id AS game_id,
-      gr.game_name,
-      gr.game_version,
-      gr.time_of_completion,
-      json_object_agg(
-        pr.party_name,
-        json_build_object(
-          'party_id', pr.id,
-          'duration_to_wipe', pr.duration_to_wipe,
-          'duration_to_escape', pr.duration_to_escape,
-          'is_winner', pr.is_winner,
-          'characters', (
-            SELECT json_object_agg(
-              cr.id,
-              json_build_object(
-                'character_name', cr.character_name,
-                'level', cr.level,
-                'combatant_class', cr.combatant_class,
-                'id_of_controlling_user', cr.id_of_controlling_user
+        SELECT 
+        gr.id AS game_id,
+        gr.game_name,
+        gr.game_version,
+        gr.time_of_completion,
+        json_object_agg(
+          pr.party_name,
+          json_build_object(
+            'party_id', pr.id,
+            'duration_to_wipe', pr.duration_to_wipe,
+            'duration_to_escape', pr.duration_to_escape,
+            'is_winner', pr.is_winner,
+            'characters', (
+              SELECT json_object_agg(
+                cr.id,
+                json_build_object(
+                  'character_name', cr.character_name,
+                  'level', cr.level,
+                  'combatant_class', cr.combatant_class,
+                  'id_of_controlling_user', cr.id_of_controlling_user
+                )
               )
+              FROM race_game_character_records cr
+              WHERE cr.party_id = pr.id
             )
-            FROM race_game_character_records cr
-            WHERE cr.party_id = pr.id
           )
+        ) AS parties
+        FROM 
+        race_game_records gr
+        JOIN 
+        race_game_party_records pr ON pr.game_id = gr.id
+        WHERE 
+        gr.id IN (
+          SELECT DISTINCT gr.id AS game_id
+          FROM race_game_records gr
+          JOIN race_game_party_records pr ON pr.game_id = gr.id
+          JOIN race_game_participant_records prt ON prt.party_id = pr.id
+          WHERE prt.user_id = %L
         )
-      ) AS parties
-      FROM 
-      race_game_records gr
-      JOIN 
-      race_game_party_records pr ON pr.game_id = gr.id
-      WHERE 
-      gr.id IN (
-        SELECT DISTINCT gr.id AS game_id
-        FROM race_game_records gr
-        JOIN race_game_party_records pr ON pr.game_id = gr.id
-        JOIN race_game_participant_records prt ON prt.party_id = pr.id
-        WHERE prt.user_id = %L
-      )
-      GROUP BY 
-      gr.id
-      ORDER BY 
-      (SELECT prt.id 
-       FROM race_game_participant_records prt 
-       JOIN race_game_party_records pr ON prt.party_id = pr.id
-       WHERE prt.user_id = %L AND prt.party_id = pr.id
-       LIMIT 1) DESC
-       LIMIT %L
-       OFFSET (%L)::INTEGER * (%L)::INTEGER;
-       `,
-        userId,
+        GROUP BY 
+        gr.id
+        ORDER BY 
+        gr.time_started DESC
+        LIMIT %L
+        OFFSET (%L)::INTEGER * (%L)::INTEGER;
+        `,
         userId,
         pageSize,
         pageNumber,
@@ -258,7 +250,7 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
       )
     );
 
-    return rows as unknown as RacePartyAggregatedRecord[];
+    return rows as unknown as RaceGameAggregatedRecord[];
   }
 }
 

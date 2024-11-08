@@ -12,7 +12,6 @@ export default async function Ladder({ params }: { params: { page: string } }) {
     `${process.env.NEXT_PUBLIC_GAME_SERVER_URL}/ladders/level/${params.page}`,
     {
       method: "GET",
-      next: { revalidate: 0 },
       cache: "no-store",
       headers: { "content-type": "application/json" },
     }

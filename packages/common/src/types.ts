@@ -50,22 +50,7 @@ export type RaceGameAggregatedRecord = {
   game_version: string;
   time_of_completion: null | number;
   parties: {
-    [partyName: string]: {
-      party_id: string;
-      party_name: string;
-      duration_to_wipe: null | number;
-      duration_to_escape: null | number;
-      is_winner: boolean;
-      characters: {
-        [characterId: string]: {
-          character_id: string;
-          character_name: string;
-          level: number;
-          combatant_class: string;
-          id_of_controlling_user: number;
-        };
-      };
-    };
+    [partyName: string]: RacePartyAggregatedRecord;
   };
 };
 
@@ -85,3 +70,40 @@ export type RacePartyAggregatedRecord = {
     };
   };
 };
+
+export class SanitizedRaceGameAggregatedRecord {
+  game_id: string;
+  game_name: string;
+  game_version: string;
+  time_of_completion: null | number;
+  parties: {
+    [partyName: string]: SanitizedRacePartyAggregatedRecord;
+  } = {};
+  constructor(gameRecord: RaceGameAggregatedRecord) {
+    this.game_id = gameRecord.game_id;
+    this.game_name = gameRecord.game_name;
+    this.game_version = gameRecord.game_version;
+    this.time_of_completion = gameRecord.time_of_completion;
+  }
+}
+
+export class SanitizedRacePartyAggregatedRecord {
+  party_id: string;
+  duration_to_wipe: number | null;
+  duration_to_escape: number | null;
+  is_winner: boolean;
+  characters: {
+    [characterId: string]: {
+      character_name: string;
+      level: number;
+      combatant_class: string;
+      usernameOfControllingUser: string;
+    };
+  } = {};
+  constructor(partyRecord: RacePartyAggregatedRecord) {
+    this.party_id = partyRecord.party_id;
+    this.duration_to_wipe = partyRecord.duration_to_wipe;
+    this.duration_to_escape = partyRecord.duration_to_escape;
+    this.is_winner = partyRecord.is_winner;
+  }
+}

@@ -7,6 +7,7 @@ import { useGameStore } from "@/stores/game-store";
 import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { useUIStore } from "@/stores/ui-store";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 
@@ -97,6 +98,7 @@ function UserMenu({ username }: { username: null | string }) {
   const mutateUIState = useUIStore().mutateState;
   const mutateLobbyState = useLobbyStore().mutateState;
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
   // on log out
   // send log out to auth server
   // reset socket connection
@@ -196,6 +198,17 @@ function UserMenu({ username }: { username: null | string }) {
                   }}
                 >
                   Settings
+                </button>
+              </UserMenuItem>
+              <UserMenuItem>
+                <button
+                  className="h-full w-full flex items-center p-4"
+                  onClick={() => {
+                    router.push(`/profile/${username}?page=1`);
+                    setShowUserDropdown(false);
+                  }}
+                >
+                  Profile
                 </button>
               </UserMenuItem>
               <UserMenuItem>

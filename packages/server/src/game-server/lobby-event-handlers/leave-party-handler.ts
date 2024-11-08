@@ -34,8 +34,8 @@ export default async function leavePartyHandler(
     deadPartyMembersAbandoned = handleAbandoningDeadPartyMembers(game, partyOption);
 
   if (
-    partyWasRemoved ||
-    (deadPartyMembersAbandoned && typeof partyOption.timeOfWipe !== "number")
+    !partyOption.timeOfEscape && // if they already escaped they shouldn't be marked as wiped
+    (partyWasRemoved || (deadPartyMembersAbandoned && typeof partyOption.timeOfWipe !== "number"))
   ) {
     partyOption.timeOfWipe = Date.now();
     const maybeError = await gameModeContext.onPartyWipe(game, partyOption);

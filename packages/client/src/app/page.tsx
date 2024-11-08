@@ -14,7 +14,6 @@ import SceneManager from "./3d-world/SceneManager";
 import { useEffect } from "react";
 import { useAlertStore } from "@/stores/alert-store";
 import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
-import Settings from "./settings";
 import {
   actionCommandManager,
   actionCommandReceiver,
@@ -68,7 +67,6 @@ export default function Home() {
       <GlobalKeyboardEventManager />
       <TooltipManager />
       <SceneManager />
-      <Settings />
       {componentToRender}
     </>
   );

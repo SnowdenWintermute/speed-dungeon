@@ -77,13 +77,27 @@ export async function descendParty(
   );
 
   if (party.currentFloor === GAME_CONFIG.LEVEL_TO_REACH_FOR_ESCAPE) {
+    let anotherPartyAlreadyEscaped = false;
+    for (const party of Object.values(game.adventuringParties)) {
+      if (party.timeOfEscape) {
+        anotherPartyAlreadyEscaped = true;
+        break;
+      }
+    }
+
     const timeOfEscape = Date.now();
     party.timeOfEscape = timeOfEscape;
+
+    console.log("anotherPartyAlreadyEscaped: ", anotherPartyAlreadyEscaped);
+
+    let hasBeenMarkedAsWinnerMessageOption = "";
+    if (!anotherPartyAlreadyEscaped)
+      hasBeenMarkedAsWinnerMessageOption = " and has been marked as the winner";
 
     emitMessageInGameWithOptionalDelayForParty(
       game.name,
       GameMessageType.PartyEscape,
-      `Party "${party.name}" escaped the dungeon at ${timeOfEscape.toLocaleString()} and has been marked as the winner!`
+      `Party "${party.name}" escaped the dungeon at ${new Date(timeOfEscape).toLocaleString()}${hasBeenMarkedAsWinnerMessageOption}!`
     );
 
     const maybeError = await gameModeContext.onPartyEscape(game, party);
