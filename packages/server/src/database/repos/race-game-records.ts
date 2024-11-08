@@ -2,7 +2,12 @@ import format from "pg-format";
 import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { DatabaseRepository } from "./index.js";
-import { ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
+import {
+  ERROR_MESSAGES,
+  RaceGameAggregatedRecord,
+  RacePartyAggregatedRecord,
+  SpeedDungeonGame,
+} from "@speed-dungeon/common";
 import { raceGamePartyRecordsRepo } from "./race-game-party-records.js";
 import { SERVER_VERSION } from "../../server-version.js";
 import { env } from "../../validate-env.js";
@@ -18,48 +23,6 @@ export type RaceGameParticipant = {
   id: number;
   partyId: number;
   userId: string; // UUID
-};
-
-export type RaceGameAggregatedRecord = {
-  game_id: string;
-  game_name: string;
-  game_version: string;
-  time_of_completion: null | number;
-  parties: {
-    [partyName: string]: {
-      party_id: string;
-      party_name: string;
-      duration_to_wipe: null | number;
-      duration_to_escape: null | number;
-      is_winner: boolean;
-      characters: {
-        [characterId: string]: {
-          character_id: string;
-          character_name: string;
-          level: number;
-          combatant_class: string;
-          id_of_controlling_user: number;
-        };
-      };
-    };
-  };
-};
-
-export type RacePartyAggregatedRecord = {
-  party_id: string;
-  party_name: string;
-  duration_to_wipe: number | null;
-  duration_to_escape: number | null;
-  is_winner: boolean;
-  characters: {
-    [characterId: string]: {
-      character_id: string;
-      character_name: string;
-      level: number;
-      combatant_class: string;
-      id_of_controlling_user: number;
-    };
-  };
 };
 
 const tableName = RESOURCE_NAMES.RACE_GAME_RECORDS;

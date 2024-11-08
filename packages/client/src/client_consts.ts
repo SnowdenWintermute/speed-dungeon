@@ -19,4 +19,5 @@ export const HTTP_REQUEST_NAMES = {
   CHANGE_USERNAME: "change username",
   LEVEL_LADDER: "level ladder",
   GET_USER_GAME_HISTORY: "get user game history",
+  GET_USER_NUM_GAMES_PLAYED: "get user num games played",
 };

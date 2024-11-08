@@ -43,3 +43,45 @@ export type LevelLadderEntry = {
   rank: number;
   gameVersion: string;
 };
+
+export type RaceGameAggregatedRecord = {
+  game_id: string;
+  game_name: string;
+  game_version: string;
+  time_of_completion: null | number;
+  parties: {
+    [partyName: string]: {
+      party_id: string;
+      party_name: string;
+      duration_to_wipe: null | number;
+      duration_to_escape: null | number;
+      is_winner: boolean;
+      characters: {
+        [characterId: string]: {
+          character_id: string;
+          character_name: string;
+          level: number;
+          combatant_class: string;
+          id_of_controlling_user: number;
+        };
+      };
+    };
+  };
+};
+
+export type RacePartyAggregatedRecord = {
+  party_id: string;
+  party_name: string;
+  duration_to_wipe: number | null;
+  duration_to_escape: number | null;
+  is_winner: boolean;
+  characters: {
+    [characterId: string]: {
+      character_id: string;
+      character_name: string;
+      level: number;
+      combatant_class: string;
+      id_of_controlling_user: number;
+    };
+  };
+};

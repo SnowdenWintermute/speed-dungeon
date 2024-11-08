@@ -26,12 +26,14 @@ export default async function getUserRankedRaceHistoryHandler(
     if (typeof page !== "string") return next([new CustomError("Invalid query string", 400)]);
 
     const pageNumber = parseInt(page);
-    if (pageNumber < 0) return next([new CustomError("Page number must not be negative", 400)]);
+    if (pageNumber < 1) return next([new CustomError("Page number must not be negative", 400)]);
 
     const games = await raceGameRecordsRepo.getPageOfGameRecordsByUserId(
       userIdResult,
       RACE_GAME_RECORDS_PAGE_SIZE,
-      pageNumber
+      // this is where we'll finally convert to zero index pages so the client can think of the first page as page "1"
+      // even though it really is page 0
+      pageNumber - 1
     );
 
     res.json(games);
