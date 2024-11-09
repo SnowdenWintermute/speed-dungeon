@@ -6,6 +6,7 @@ import React, { useEffect } from "react";
 import PageSelector from "./page-selector";
 import {
   CustomErrorDetails,
+  PartyFate,
   SanitizedRaceGameAggregatedRecord,
   SanitizedRacePartyAggregatedRecord,
 } from "@speed-dungeon/common";
@@ -55,14 +56,14 @@ export default function GameHistory() {
         </div>
       )}
       <ul className="overflow-y-auto" style={{ flex: "1 1 1px" }}>
+        {data && data.length === 0 && (
+          <div>No games to show. Participate in raked race games to accumulate a game history.</div>
+        )}
         {data &&
           data.map((item) => (
             <GameRecordCard key={item.game_id} username={username} gameRecord={item} />
           ))}
       </ul>
-      {data && data.length === 0 && (
-        <div>No games to show. Participate in raked race games to accumulate a game history.</div>
-      )}
 
       <div className="mt-4">{data && data.length ? <PageSelector username={username} /> : ""}</div>
     </div>
@@ -134,7 +135,13 @@ function PartyRecordCard({
         <div>
           {party.is_winner && "Winners"}
           {!party.is_winner &&
-            (party.duration_to_wipe ? "Wiped" : party.duration_to_escape ? "Escaped" : "Wandering")}
+            (party.party_fate === PartyFate.Wipe
+              ? "Wiped"
+              : party.party_fate === PartyFate.Escape
+                ? "Escaped"
+                : "Wandering") +
+              " on floor " +
+              party.deepest_floor}
         </div>
       </div>
       <Divider />

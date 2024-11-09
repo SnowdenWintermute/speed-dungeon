@@ -3,6 +3,7 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { MutateState } from "./mutate-state";
 import { produce } from "immer";
+import { setAlert } from "@/app/components/alerts";
 
 export class HttpRequestTracker {
   data: null | string | { [key: string]: any } = null;
@@ -49,6 +50,7 @@ export const useHttpRequestStore = create<HttpRequestState>()(
           else tracker.data = data;
         } catch {
           // no json in response
+          console.log("No response from game server");
         }
 
         set((state) => ({

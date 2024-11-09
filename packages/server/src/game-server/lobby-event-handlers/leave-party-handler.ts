@@ -34,6 +34,7 @@ export default async function leavePartyHandler(
     deadPartyMembersAbandoned = handleAbandoningDeadPartyMembers(game, partyOption);
 
   if (
+    game.timeStarted &&
     !partyOption.timeOfEscape && // if they already escaped they shouldn't be marked as wiped
     (partyWasRemoved || (deadPartyMembersAbandoned && typeof partyOption.timeOfWipe !== "number"))
   ) {

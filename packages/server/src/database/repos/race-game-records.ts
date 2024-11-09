@@ -22,6 +22,33 @@ export type RaceGameParticipant = {
 
 const tableName = RESOURCE_NAMES.RACE_GAME_RECORDS;
 
+const AGGREGATE_PARTY_RECORD_QUERY = `
+json_object_agg(
+  pr.party_name,
+  json_build_object(
+    'party_id', pr.id,
+    'party_fate', pr.party_fate,
+    'party_fate_recorded_at', pr.party_fate_recorded_at,
+    'is_winner', pr.is_winner,
+    'deepest_floor', pr.deepest_floor,
+    'characters', (
+      SELECT json_object_agg(
+        cr.id,
+        json_build_object(
+          'character_id', cr.id,
+          'character_name', cr.character_name,
+          'level', cr.level,
+          'combatant_class', cr.combatant_class,
+          'id_of_controlling_user', cr.id_of_controlling_user
+        )
+      )
+      FROM race_game_character_records cr
+      WHERE cr.party_id = pr.id
+    )
+  )
+)
+`;
+
 class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
   async dropAll() {
     if (env.NODE_ENV !== "test")
@@ -45,13 +72,12 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
     const partyRecordPromises: Promise<Error | undefined>[] = [];
 
     for (const party of Object.values(game.adventuringParties))
-      partyRecordPromises.push(raceGamePartyRecordsRepo.insert(game, party, false));
+      partyRecordPromises.push(raceGamePartyRecordsRepo.insert(game, party));
 
     const results = await Promise.all(partyRecordPromises);
     const errorMessages: string[] = [];
     for (const result of results) {
       if (result instanceof Error) {
-        console.log("ERROR CERATING PTR RECR", result);
         errorMessages.push(result.message);
       }
     }
@@ -98,29 +124,7 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
         gr.game_version,
         gr.time_started,
         gr.time_of_completion,
-        json_object_agg(
-          pr.party_name,
-          json_build_object(
-            'party_id', pr.id,
-            'duration_to_wipe', pr.duration_to_wipe,
-            'duration_to_escape', pr.duration_to_escape,
-            'is_winner', pr.is_winner,
-            'characters', (
-              SELECT json_object_agg(
-                cr.id,
-                json_build_object(
-                  'character_id', cr.id,
-                  'character_name', cr.character_name,
-                  'level', cr.level,
-                  'combatant_class', cr.combatant_class,
-                  'id_of_controlling_user', cr.id_of_controlling_user
-                )
-              )
-              FROM race_game_character_records cr
-              WHERE cr.party_id = pr.id
-            )
-          )
-        ) AS parties
+        ${AGGREGATE_PARTY_RECORD_QUERY} AS parties
         FROM 
         race_game_records gr
         JOIN 
@@ -152,29 +156,7 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
         gr.game_version,
         gr.time_started,
         gr.time_of_completion,
-        json_object_agg(
-          pr.party_name,
-          json_build_object(
-            'party_id', pr.id,
-            'duration_to_wipe', pr.duration_to_wipe,
-            'duration_to_escape', pr.duration_to_escape,
-            'is_winner', pr.is_winner,
-            'characters', (
-              SELECT json_object_agg(
-                cr.id,
-                json_build_object(
-                  'character_id', cr.id,
-                  'character_name', cr.character_name,
-                  'level', cr.level,
-                  'combatant_class', cr.combatant_class,
-                  'id_of_controlling_user', cr.id_of_controlling_user
-                )
-              )
-              FROM race_game_character_records cr
-              WHERE cr.party_id = pr.id
-            )
-          )
-        ) AS parties
+        ${AGGREGATE_PARTY_RECORD_QUERY} AS parties
         FROM 
         race_game_records gr
         JOIN 
@@ -204,29 +186,7 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
         gr.game_name,
         gr.game_version,
         gr.time_of_completion,
-        json_object_agg(
-          pr.party_name,
-          json_build_object(
-            'party_id', pr.id,
-            'duration_to_wipe', pr.duration_to_wipe,
-            'duration_to_escape', pr.duration_to_escape,
-            'is_winner', pr.is_winner,
-            'characters', (
-              SELECT json_object_agg(
-                cr.id,
-                json_build_object(
-                  'character_id', cr.id,
-                  'character_name', cr.character_name,
-                  'level', cr.level,
-                  'combatant_class', cr.combatant_class,
-                  'id_of_controlling_user', cr.id_of_controlling_user
-                )
-              )
-              FROM race_game_character_records cr
-              WHERE cr.party_id = pr.id
-            )
-          )
-        ) AS parties
+        ${AGGREGATE_PARTY_RECORD_QUERY} AS parties
         FROM 
         race_game_records gr
         JOIN 
@@ -252,8 +212,34 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
         pageSize
       )
     );
-
     return rows as unknown as RaceGameAggregatedRecord[];
+  }
+
+  async getNumberOfWinsAndLosses(userId: number) {
+    const { rows } = await pgPool.query(
+      format(
+        `
+        SELECT 
+        COUNT(CASE WHEN pr.is_winner THEN 1 END) AS wins,
+        COUNT(CASE WHEN NOT pr.is_winner THEN 1 END) AS losses
+        FROM 
+        race_game_records gr
+        JOIN 
+        race_game_party_records pr ON pr.game_id = gr.id
+        JOIN 
+        race_game_participant_records prt ON prt.party_id = pr.id
+        WHERE 
+        prt.user_id = %L
+        GROUP BY 
+        prt.user_id;
+        `,
+        userId
+      )
+    );
+
+    console.log("WINS LOSSES ROWS: ", rows);
+
+    return rows;
   }
 }
 

@@ -2,7 +2,12 @@ import format from "pg-format";
 import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { DatabaseRepository } from "./index.js";
-import { AdventuringParty, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
+import {
+  AdventuringParty,
+  ERROR_MESSAGES,
+  PartyFate,
+  SpeedDungeonGame,
+} from "@speed-dungeon/common";
 import { raceGameCharacterRecordsRepo } from "./race-game-character-records.js";
 import { raceGameParticipantRecordsRepo } from "./race-game-participants-repo.js";
 import { getUserIdsByUsername } from "../get-user-ids-by-username.js";
@@ -11,34 +16,28 @@ export type RaceGamePartyRecord = {
   id: number;
   gameRecordId: number;
   partyName: string;
-  durationToWipe: null | number;
-  durationToEscape: null | number;
+  partyFate: PartyFate;
+  partyFateRecordedAt: null | string;
   isWinner: boolean;
+  deepestFloor: number;
 };
 
 const tableName = RESOURCE_NAMES.RACE_GAME_PARTY_RECORDS;
 
 class RaceGamePartyRecordRepo extends DatabaseRepository<RaceGamePartyRecord> {
-  async insert(game: SpeedDungeonGame, party: AdventuringParty, isWinner: boolean) {
+  async insert(game: SpeedDungeonGame, party: AdventuringParty) {
     const userIdsByUsernameResult = await getUserIdsByUsername(Object.keys(game.players));
     if (userIdsByUsernameResult instanceof Error) return userIdsByUsernameResult;
     if (game.timeStarted === null) return new Error(ERROR_MESSAGES.GAME.NOT_STARTED);
 
-    const durationToWipe = party.timeOfWipe ? party.timeOfWipe - game.timeStarted : null;
-    const durationToEscape = party.timeOfEscape ? party.timeOfEscape - game.timeStarted : null;
-
-    console.log("INSERTING PARTY RECORD");
     const { rows } = await this.pgPool.query(
       format(
         `INSERT INTO race_game_party_records
-           (id, game_id, party_name, duration_to_wipe, duration_to_escape, is_winner)
-           VALUES (%L, %L, %L, %L, %L, %L) RETURNING *;`,
+           (id, game_id, party_name)
+           VALUES (%L, %L, %L) RETURNING *;`,
         party.id,
         game.id,
-        party.name,
-        durationToWipe,
-        durationToEscape,
-        isWinner
+        party.name
       )
     );
 
@@ -67,12 +66,13 @@ class RaceGamePartyRecordRepo extends DatabaseRepository<RaceGamePartyRecord> {
     await this.pgPool.query(
       format(
         `UPDATE race_game_party_records
-         SET party_name = %L, duration_to_wipe = %L, duration_to_escape = %L, is_winner = %L 
+         SET party_name = %L, party_fate = %L, party_fate_recorded_at = %L, is_winner = %L, deepest_floor = %L
          WHERE id = %L;`,
         partyRecord.partyName,
-        partyRecord.durationToWipe,
-        partyRecord.durationToEscape,
+        partyRecord.partyFate,
+        partyRecord.partyFateRecordedAt,
         partyRecord.isWinner,
+        partyRecord.deepestFloor,
         partyRecord.id
       )
     );

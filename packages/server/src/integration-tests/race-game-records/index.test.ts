@@ -73,6 +73,7 @@ import {
   GAME_CONFIG,
   GameMessageType,
   GameMode,
+  PartyFate,
   ServerToClientEvent,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
@@ -109,6 +110,7 @@ describe("race game records", () => {
     gameServer.current = new GameServer(io);
     httpServer.listen();
     serverAddress = `http://localhost:${(httpServer.address() as any).port}`;
+    GAME_CONFIG.MONSTER_LAIRS_PER_FLOOR = 1;
   });
 
   beforeEach(async () => {
@@ -160,7 +162,7 @@ describe("race game records", () => {
       const records = await getRaceGameRecordWithTwoPartyRecords(1, party1Name, party2Name);
       if (!records) return expect(records).toBeTruthy();
       expect(records.record.time_of_completion).toBe(null);
-      expect(records.party1Record.duration_to_wipe).not.toBe(null);
+      expect(records.party1Record.party_fate).toBe(PartyFate.Wipe);
       user2.disconnect();
 
       await waitForCondition(async () => {
@@ -168,9 +170,9 @@ describe("race game records", () => {
         if (!records) return false;
         const { record, party2Record } = records;
 
-        const partyWipeTimeUpdated = party2Record.duration_to_wipe !== null;
+        const party2Wiped = party2Record.party_fate === PartyFate.Wipe;
         const gameMarkedComplete = record.time_of_completion !== null;
-        return partyWipeTimeUpdated && gameMarkedComplete;
+        return party2Wiped && gameMarkedComplete;
       });
 
       done();
@@ -226,9 +228,9 @@ describe("race game records", () => {
           if (!records) return false;
           const { record, party1Record } = records;
 
-          const partyWipeTimeUpdated = party1Record.duration_to_wipe !== null;
+          const party1Wiped = party1Record.party_fate === PartyFate.Wipe;
           const gameNotYetMarkedComplete = record.time_of_completion === null;
-          return partyWipeTimeUpdated && gameNotYetMarkedComplete;
+          return party1Wiped && gameNotYetMarkedComplete;
         });
 
         user2.emit(ClientToServerEvent.ToggleReadyToDescend);
@@ -242,8 +244,8 @@ describe("race game records", () => {
 
           const party2MarkedWinner = party2Record.is_winner && !party1Record.is_winner;
           return (
-            party1Record.duration_to_wipe !== null &&
-            party2Record.duration_to_escape !== null &&
+            party1Record.party_fate === PartyFate.Wipe &&
+            party2Record.party_fate === PartyFate.Escape &&
             record.time_of_completion !== null &&
             party2MarkedWinner
           );
@@ -277,8 +279,8 @@ describe("race game records", () => {
 
         const gameMarkedComplete = record.time_of_completion !== null;
         const party1MarkedWinner = party1Record.is_winner;
-        const party1TimeOfEscapeMarked = party1Record.duration_to_escape !== null;
-        return gameMarkedComplete && party1MarkedWinner && party1TimeOfEscapeMarked;
+        const party1Escaped = party1Record.party_fate === PartyFate.Escape;
+        return gameMarkedComplete && party1MarkedWinner && party1Escaped;
       });
       user1.disconnect();
       user2.emit(ClientToServerEvent.ToggleReadyToDescend);
@@ -292,10 +294,10 @@ describe("race game records", () => {
         if (!records) return false;
         const { party2Record, party1Record } = records;
 
-        const party1WipeMarked = party1Record.duration_to_wipe;
+        const party1WipeMarked = party1Record.party_fate === PartyFate.Wipe;
         const party2MarkedWinner = party2Record.is_winner;
-        const party2TimeOfEscapeMarked = party2Record.duration_to_escape !== null;
-        return !party1WipeMarked && !party2MarkedWinner && party2TimeOfEscapeMarked;
+        const party2EscapeMarked = party2Record.party_fate === PartyFate.Escape;
+        return !party1WipeMarked && !party2MarkedWinner && party2EscapeMarked;
       });
       await waitForUsersLeavingServer(gameServer, [user1, user2]);
       done();
@@ -340,9 +342,9 @@ describe("race game records", () => {
         const { record, party2Record, party1Record } = records;
 
         return (
-          party1Record.duration_to_wipe !== null &&
+          party1Record.party_fate === PartyFate.Wipe &&
           !party1Record.is_winner &&
-          party2Record.duration_to_wipe !== null &&
+          party2Record.party_fate === PartyFate.Wipe &&
           !party2Record.is_winner &&
           record.time_of_completion !== null
         );
@@ -353,6 +355,7 @@ describe("race game records", () => {
   });
 
   it("correctly records a ranked race game in which a player abandons their dead allies", (done) => {
+    GAME_CONFIG.MIN_RACE_GAME_PARTIES = 1;
     const gameName = "test game";
     const user1 = registerSocket("user1", serverAddress, clientSockets);
     const user2 = registerSocket("user2", serverAddress, clientSockets);
@@ -440,7 +443,9 @@ describe("race game records", () => {
         const party1Record = gameRecord.parties[party1Name];
         if (!records) return false;
 
-        return party1Record?.duration_to_wipe !== null && gameRecord.time_of_completion !== null;
+        return (
+          party1Record?.party_fate === PartyFate.Wipe && gameRecord.time_of_completion !== null
+        );
       });
 
       await waitForUsersLeavingServer(gameServer, [user1]);

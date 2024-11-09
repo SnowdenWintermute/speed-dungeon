@@ -1,5 +1,6 @@
 import {
   ERROR_MESSAGES,
+  GAME_CONFIG,
   GameMode,
   ServerToClientEvent,
   removeFromArray,
@@ -17,7 +18,8 @@ export default async function toggleReadyToStartGameHandler(
   const { username } = player;
   if (game.timeStarted) return new Error(ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED);
 
-  const minimumNumberOfParties = game.mode === GameMode.Race && game.isRanked ? 2 : 1;
+  const minimumNumberOfParties =
+    game.mode === GameMode.Race && game.isRanked ? GAME_CONFIG.MIN_RACE_GAME_PARTIES : 1;
 
   if (Object.keys(game.adventuringParties).length < minimumNumberOfParties)
     return new Error(

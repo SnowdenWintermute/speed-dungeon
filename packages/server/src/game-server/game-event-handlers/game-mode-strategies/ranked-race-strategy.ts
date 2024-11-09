@@ -1,6 +1,7 @@
 import {
   AdventuringParty,
   ERROR_MESSAGES,
+  PartyFate,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
@@ -44,9 +45,11 @@ export default class RankedRaceStrategy implements GameModeStrategy {
 
     const partyRecord = await raceGamePartyRecordsRepo.findById(party.id);
     if (!partyRecord) return new Error(ERROR_MESSAGES.GAME_RECORDS.PARTY_RECORD_NOT_FOUND);
-    if (partyRecord.durationToEscape) return Promise.resolve();
+    if (partyRecord.partyFate) return Promise.resolve();
 
-    partyRecord.durationToWipe = Date.now() - game.timeStarted;
+    partyRecord.partyFate = PartyFate.Wipe;
+    partyRecord.partyFateRecordedAt = new Date(Date.now()).toISOString();
+    partyRecord.deepestFloor = party.currentFloor;
     await raceGamePartyRecordsRepo.update(partyRecord);
 
     let allPartiesAreDead = true;
@@ -80,7 +83,10 @@ export default class RankedRaceStrategy implements GameModeStrategy {
 
     const partyRecord = await raceGamePartyRecordsRepo.findById(party.id);
     if (!partyRecord) return new Error(ERROR_MESSAGES.GAME_RECORDS.PARTY_RECORD_NOT_FOUND);
-    partyRecord.durationToEscape = Date.now() - game.timeStarted;
+    if (partyRecord.partyFate) return Promise.resolve();
+    partyRecord.partyFate = PartyFate.Escape;
+    partyRecord.partyFateRecordedAt = new Date(Date.now()).toISOString();
+    partyRecord.deepestFloor = party.currentFloor;
 
     const gameRecord = await raceGameRecordsRepo.findAggregatedGameRecordById(game.id);
     if (!gameRecord) return new Error(ERROR_MESSAGES.GAME_RECORDS.NOT_FOUND);

@@ -35,6 +35,8 @@ export default async function getUserRankedRaceHistoryHandler(
     const pageNumber = parseInt(page);
     if (pageNumber < 1) return next([new CustomError("Page number must not be negative", 400)]);
 
+    const winslosses = await raceGameRecordsRepo.getNumberOfWinsAndLosses(userIdResult);
+
     const games = await raceGameRecordsRepo.getPageOfGameRecordsByUserId(
       userIdResult,
       RACE_GAME_RECORDS_PAGE_SIZE,

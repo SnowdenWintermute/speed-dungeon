@@ -1,11 +1,11 @@
 import { AdventuringParty } from "./index.js";
-import { EMPTY_ROOMS_PER_FLOOR, MONSTER_LAIRS_PER_FLOOR } from "../app-consts.js";
+import { EMPTY_ROOMS_PER_FLOOR, GAME_CONFIG } from "../app-consts.js";
 import { shuffleArray } from "../utils/index.js";
 import { DungeonRoomType } from "./dungeon-room.js";
 
 export default function generateUnexploredRoomsQueue(this: AdventuringParty) {
   this.unexploredRooms = [];
-  for (let i = 0; i < MONSTER_LAIRS_PER_FLOOR; i += 1) {
+  for (let i = 0; i < GAME_CONFIG.MONSTER_LAIRS_PER_FLOOR; i += 1) {
     this.unexploredRooms.push(DungeonRoomType.MonsterLair);
   }
   for (let i = 0; i < EMPTY_ROOMS_PER_FLOOR; i += 1) {

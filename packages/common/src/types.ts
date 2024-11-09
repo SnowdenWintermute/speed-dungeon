@@ -44,6 +44,11 @@ export type LevelLadderEntry = {
   gameVersion: string;
 };
 
+export enum PartyFate {
+  Wipe = "wipe",
+  Escape = "escape",
+}
+
 export type RaceGameAggregatedRecord = {
   game_id: string;
   game_name: string;
@@ -57,9 +62,10 @@ export type RaceGameAggregatedRecord = {
 export type RacePartyAggregatedRecord = {
   party_id: string;
   party_name: string;
-  duration_to_wipe: number | null;
-  duration_to_escape: number | null;
+  party_fate: PartyFate | null;
+  party_fate_recorded_at: string | null;
   is_winner: boolean;
+  deepest_floor: number;
   characters: {
     [characterId: string]: {
       character_id: string;
@@ -89,9 +95,11 @@ export class SanitizedRaceGameAggregatedRecord {
 
 export class SanitizedRacePartyAggregatedRecord {
   party_id: string;
-  duration_to_wipe: number | null;
-  duration_to_escape: number | null;
+  party_name: string;
+  party_fate: PartyFate | null;
+  party_fate_recorded_at: string | null;
   is_winner: boolean;
+  deepest_floor: number;
   characters: {
     [characterId: string]: {
       character_name: string;
@@ -102,8 +110,10 @@ export class SanitizedRacePartyAggregatedRecord {
   } = {};
   constructor(partyRecord: RacePartyAggregatedRecord) {
     this.party_id = partyRecord.party_id;
-    this.duration_to_wipe = partyRecord.duration_to_wipe;
-    this.duration_to_escape = partyRecord.duration_to_escape;
+    this.party_name = partyRecord.party_name;
+    this.party_fate = partyRecord.party_fate;
+    this.party_fate_recorded_at = partyRecord.party_fate_recorded_at;
     this.is_winner = partyRecord.is_winner;
+    this.deepest_floor = partyRecord.deepest_floor;
   }
 }
