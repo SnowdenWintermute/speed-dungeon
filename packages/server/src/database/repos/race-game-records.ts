@@ -109,6 +109,7 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
               SELECT json_object_agg(
                 cr.id,
                 json_build_object(
+                  'character_id', cr.id,
                   'character_name', cr.character_name,
                   'level', cr.level,
                   'combatant_class', cr.combatant_class,
@@ -162,6 +163,7 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
               SELECT json_object_agg(
                 cr.id,
                 json_build_object(
+                  'character_id', cr.id,
                   'character_name', cr.character_name,
                   'level', cr.level,
                   'combatant_class', cr.combatant_class,
@@ -213,6 +215,7 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
               SELECT json_object_agg(
                 cr.id,
                 json_build_object(
+                  'character_id', cr.id,
                   'character_name', cr.character_name,
                   'level', cr.level,
                   'combatant_class', cr.combatant_class,

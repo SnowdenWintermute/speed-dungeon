@@ -38,13 +38,11 @@ export default function GameHistory() {
   const data =
     responseTracker?.ok && (responseTracker?.data as SanitizedRaceGameAggregatedRecord[]);
 
-  console.log(JSON.stringify(data, null, 2));
-
   return (
-    <div className="w-full">
-      <h3 className="text-xl">Game History</h3>
+    <div className="w-full flex flex-col flex-1">
+      <h3 className="text-xl mb-1">Game History</h3>
       {responseTracker?.loading && (
-        <div className="h-10 w-10">
+        <div className="h-10 w-10 self-center">
           <LoadingSpinner />
         </div>
       )}
@@ -56,7 +54,7 @@ export default function GameHistory() {
           ))}
         </div>
       )}
-      <ul>
+      <ul className="overflow-y-auto" style={{ flex: "1 1 1px" }}>
         {data &&
           data.map((item) => (
             <GameRecordCard key={item.game_id} username={username} gameRecord={item} />
@@ -90,21 +88,30 @@ function GameRecordCard({
   })();
 
   return (
-    <li className="max-w-full border border-slate-400 p-2 mb-2 last:mb-0">
-      <div className="w-full flex justify-between">
-        <h5 className="text-lg">{gameRecord.game_name}</h5>
-        <p>
+    <li
+      className="max-w-full border border-slate-400 p-2 mb-2 last:mb-0 w-96"
+      style={{ flex: "1 1 1px" }}
+    >
+      <div className="w-full flex justify-between items-center">
+        <h5 className="text-xl italic">{gameRecord.game_name}</h5>
+        <p className="text-sm">
           {gameRecord.time_of_completion
             ? new Date(gameRecord.time_of_completion).toLocaleString()
             : "In progress..."}
         </p>
       </div>
-      <div>{wasVictory ? "Victory" : !gameRecord.time_of_completion ? "Pending" : "Wipe"}</div>
+      <div
+        className={
+          wasVictory ? "text-green-600" : !gameRecord.time_of_completion ? "" : "text-red-400"
+        }
+      >
+        {wasVictory ? "Victory" : !gameRecord.time_of_completion ? "Pending" : "Wipe"}
+      </div>
       <div className="w-full pr-2 pl-2">
         <Divider />
       </div>
       <h4 className="text-lg">Adventuring Parties</h4>
-      <ul className="max-w-72">
+      <ul className="w-full">
         {Object.entries(gameRecord.parties).map(([name, party]) => (
           <PartyRecordCard key={party.party_id} partyName={name} party={party} />
         ))}
@@ -121,7 +128,7 @@ function PartyRecordCard({
   party: SanitizedRacePartyAggregatedRecord;
 }) {
   return (
-    <li className="mb-1">
+    <li className="mb-1 p-1 bg-slate-700">
       <div className="flex justify-between">
         <h5>{partyName}</h5>
         <div>
@@ -130,6 +137,21 @@ function PartyRecordCard({
             (party.duration_to_wipe ? "Wiped" : party.duration_to_escape ? "Escaped" : "Wandering")}
         </div>
       </div>
+      <Divider />
+      <ul>
+        {Object.values(party.characters).map((character) => (
+          <li key={character.character_name} className="flex">
+            <div className="w-full flex justify-between">
+              <div>
+                [{character.usernameOfControllingUser}] {character.character_name}
+              </div>
+              <div>
+                level {character.level} {character.combatant_class}
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
     </li>
   );
 }

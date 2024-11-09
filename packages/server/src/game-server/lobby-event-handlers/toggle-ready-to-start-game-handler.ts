@@ -1,4 +1,9 @@
-import { ERROR_MESSAGES, ServerToClientEvent, removeFromArray } from "@speed-dungeon/common";
+import {
+  ERROR_MESSAGES,
+  GameMode,
+  ServerToClientEvent,
+  removeFromArray,
+} from "@speed-dungeon/common";
 import toggleReadyToExploreHandler from "../game-event-handlers/toggle-ready-to-explore-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { getGameServer } from "../../singletons.js";
@@ -12,8 +17,12 @@ export default async function toggleReadyToStartGameHandler(
   const { username } = player;
   if (game.timeStarted) return new Error(ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED);
 
-  if (Object.keys(game.adventuringParties).length < 1)
-    return new Error("A game must have at least one Adventuring Party before it can start");
+  const minimumNumberOfParties = game.mode === GameMode.Race && game.isRanked ? 2 : 1;
+
+  if (Object.keys(game.adventuringParties).length < minimumNumberOfParties)
+    return new Error(
+      `Game does not have the minimum number of parties (${minimumNumberOfParties})`
+    );
 
   for (const party of Object.values(game.adventuringParties)) {
     if (party.characterPositions.length < 1)

@@ -15,10 +15,10 @@ export default function ProfilePage() {
     <div className="flex flex-col h-screen w-screen pointer-events-auto">
       <TopBar />
       <main
-        className="p-4 w-full overflow-y-auto"
+        className="p-4 w-full overflow-y-auto flex flex-col"
         style={{
-          minHeight: `calc(100% ${TOP_BAR_HEIGHT_REM}rem)`,
-          maxHeight: `calc(100% ${TOP_BAR_HEIGHT_REM}rem)`,
+          minHeight: `calc(100vh - ${TOP_BAR_HEIGHT_REM}rem)`,
+          maxHeight: `calc(100vh - ${TOP_BAR_HEIGHT_REM}rem)`,
         }}
       >
         <h1 className="text-2xl mb-2">{username}'s profile</h1>
