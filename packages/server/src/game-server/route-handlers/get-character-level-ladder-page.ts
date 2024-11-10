@@ -3,7 +3,6 @@ import { valkeyManager } from "../../kv-store/index.js";
 import { CHARACTER_LEVEL_LADDER } from "../../kv-store/consts.js";
 import CustomError from "../../express-error-handler/CustomError.js";
 import { ERROR_MESSAGES, LADDER_PAGE_SIZE, LevelLadderEntry } from "@speed-dungeon/common";
-import { env } from "../../validate-env.js";
 import { PlayerCharacter, playerCharactersRepo } from "../../database/repos/player-characters.js";
 import { getUsernamesByUserIds } from "../../database/get-usernames-by-user-ids.js";
 
@@ -22,10 +21,7 @@ export default async function getCharacterLevelLadderPageHandler(
     const totalNumEntries = await valkeyManager.context.zCard(CHARACTER_LEVEL_LADDER);
     if (!totalNumEntries)
       return next([new CustomError(ERROR_MESSAGES.LADDER.NO_ENTRIES_FOUND, 404)]);
-    console.log("totalNumEntries: ", totalNumEntries);
-    console.log("LADDER_PAGE_SIZE: ", LADDER_PAGE_SIZE);
     const totalNumberOfPages = Math.ceil(totalNumEntries / LADDER_PAGE_SIZE);
-    console.log("totalNumberOfPages: ", totalNumberOfPages);
     const start = pageNumber * LADDER_PAGE_SIZE;
     const end = LADDER_PAGE_SIZE + LADDER_PAGE_SIZE * pageNumber;
 

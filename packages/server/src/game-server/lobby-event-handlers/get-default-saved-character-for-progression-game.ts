@@ -27,7 +27,7 @@ export default async function getDefaultSavedCharacterForProgressionGame(
   if (loggedInUserResult instanceof Error) return loggedInUserResult;
 
   // only let them create/join a progression game if they have a saved character
-  const charactersResult = await fetchSavedCharacters(loggedInUserResult);
+  const charactersResult = await fetchSavedCharacters(loggedInUserResult.profile.id);
   if (charactersResult instanceof Error) return new Error(charactersResult.message);
   if (Object.values(charactersResult).length === 0)
     return new Error(ERROR_MESSAGES.GAME.NO_SAVED_CHARACTERS);

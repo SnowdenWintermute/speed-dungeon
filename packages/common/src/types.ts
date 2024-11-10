@@ -1,5 +1,5 @@
 import { AdventuringParty } from "./adventuring-party/index.js";
-import { Combatant } from "./combatants/index.js";
+import { Combatant, CombatantClass } from "./combatants/index.js";
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "./game/index.js";
 
 export interface CharacterAssociatedData {
@@ -117,3 +117,24 @@ export class SanitizedRacePartyAggregatedRecord {
     this.deepest_floor = partyRecord.deepest_floor;
   }
 }
+
+export type SpeedDungeonProfile = {
+  id: number;
+  ownerId: number;
+  characterCapacity: number;
+  createdAt: number | Date;
+  updatedAt: number | Date;
+};
+
+export class SanitizedProfile {
+  createdAt: number;
+  characterCapacity: number;
+  constructor(profile: SpeedDungeonProfile) {
+    this.createdAt = +profile.createdAt;
+    this.characterCapacity = +profile.characterCapacity;
+  }
+}
+
+export type ProfileCharacterRanks = {
+  [id: string]: { name: string; level: number; rank: number | null; class: CombatantClass };
+};

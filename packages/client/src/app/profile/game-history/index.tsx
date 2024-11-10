@@ -1,7 +1,8 @@
+"use client";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import { useHttpRequestStore } from "@/stores/http-request-store";
-import { useParams, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import React, { useEffect } from "react";
 import PageSelector from "./page-selector";
 import {
@@ -12,11 +13,8 @@ import {
 } from "@speed-dungeon/common";
 import Divider from "@/app/components/atoms/Divider";
 
-export default function GameHistory() {
+export default function GameHistory({ username }: { username: string }) {
   const searchParams = useSearchParams();
-  const params = useParams();
-  const { username } = params;
-  if (typeof username !== "string") return <div>ERROR: No username provided in url</div>;
   const pageParam = searchParams.get("page") || "1";
   const page = parseInt(pageParam);
   const httpRequestTrackerName = HTTP_REQUEST_NAMES.GET_USER_GAME_HISTORY;
@@ -40,7 +38,7 @@ export default function GameHistory() {
     responseTracker?.ok && (responseTracker?.data as SanitizedRaceGameAggregatedRecord[]);
 
   return (
-    <div className="w-full flex flex-col flex-1">
+    <div className="w-full h-full flex flex-col flex-1">
       <h3 className="text-xl mb-1">Game History</h3>
       {responseTracker?.loading && (
         <div className="h-10 w-10 self-center">
@@ -90,7 +88,7 @@ function GameRecordCard({
 
   return (
     <li
-      className="max-w-full border border-slate-400 p-2 mb-2 last:mb-0 w-96"
+      className="max-w-full border border-slate-400 p-2 mb-2 last:mb-0 w-full"
       style={{ flex: "1 1 1px" }}
     >
       <div className="w-full flex justify-between items-center">
@@ -153,7 +151,7 @@ function PartyRecordCard({
                 [{character.usernameOfControllingUser}] {character.character_name}
               </div>
               <div>
-                level {character.level} {character.combatant_class}
+                {character.combatant_class} lv. {character.level}
               </div>
             </div>
           </li>

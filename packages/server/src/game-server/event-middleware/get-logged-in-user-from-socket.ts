@@ -4,11 +4,9 @@ import {
   ClientToServerEventTypes,
   ERROR_MESSAGES,
   ServerToClientEventTypes,
-} from "@speed-dungeon/common";
-import {
   SpeedDungeonProfile,
-  speedDungeonProfilesRepo,
-} from "../../database/repos/speed-dungeon-profiles.js";
+} from "@speed-dungeon/common";
+import { speedDungeonProfilesRepo } from "../../database/repos/speed-dungeon-profiles.js";
 import { BrowserTabSession } from "../socket-connection-metadata.js";
 import { SocketEventNextFunction } from "./index.js";
 

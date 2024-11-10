@@ -237,9 +237,7 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
       )
     );
 
-    console.log("WINS LOSSES ROWS: ", rows);
-
-    return rows;
+    return rows[0] as unknown as { wins: number; losses: number };
   }
 }
 

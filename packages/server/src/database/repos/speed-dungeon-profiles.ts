@@ -3,15 +3,7 @@ import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { toCamelCase } from "../utils.js";
 import { DatabaseRepository } from "./index.js";
-import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "@speed-dungeon/common";
-
-export type SpeedDungeonProfile = {
-  id: number;
-  ownerId: number;
-  characterCapacity: number;
-  createdAt: number | Date;
-  updatedAt: number | Date;
-};
+import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY, SpeedDungeonProfile } from "@speed-dungeon/common";
 
 const tableName = RESOURCE_NAMES.SPEED_DUNGEON_PROFILES;
 

@@ -24,7 +24,7 @@ export default async function selectProgressionGameCharacterHandler(
 
   const loggedInUserResult = await getLoggedInUserFromSocket(socket);
   if (loggedInUserResult instanceof Error) return loggedInUserResult;
-  const charactersResult = await fetchSavedCharacters(loggedInUserResult);
+  const charactersResult = await fetchSavedCharacters(loggedInUserResult.profile.id);
 
   if (charactersResult instanceof Error) return new Error(charactersResult.message);
   if (Object.values(charactersResult).length === 0)

@@ -17,9 +17,11 @@ export default function AuthFormContainer() {
 
   const authFormWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3.5));
   const borderStyle = highlightAuthForm ? "border-zinc-300" : "border-slate-400";
+  const bgStyle = highlightAuthForm ? "bg-slate-700" : "bg-slate-950";
+
   return (
     <div
-      className={`bg-slate-950 pointer-events-auto border ${borderStyle} relative`}
+      className={`${bgStyle} pointer-events-auto border ${borderStyle} relative`}
       style={{ padding: `${SPACING_REM_LARGE}rem`, width: `${authFormWidth}px` }}
     >
       <div className="h-10 w-10 flex justify-end absolute right-0 top-0 border-b border-l border-slate-400">
