@@ -21,6 +21,7 @@ import { useLobbyStore } from "@/stores/lobby-store";
 import AuthFormContainer from "./auth-forms";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import SavedCharacterManager from "./saved-character-manager";
+import CombatLog from "../game/combat-log";
 
 export default function Lobby() {
   const socketOption = websocketConnection;

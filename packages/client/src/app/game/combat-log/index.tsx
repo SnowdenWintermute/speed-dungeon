@@ -8,7 +8,7 @@ export default function CombatLog() {
 
   return (
     <div className="h-full flex flex-col pointer-events-auto">
-      <h3 className="flex-grow-0 flex-shrink">CombatLog</h3>
+      <h3 className="flex-grow-0 flex-shrink">Message Log</h3>
       <Divider />
       <div className="list-none overflow-y-auto flex flex-col-reverse flex-1">
         <ul>

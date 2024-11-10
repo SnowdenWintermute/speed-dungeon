@@ -131,7 +131,7 @@ export default function ActionMenuChangeDetectionHandler({
           console.log("BUTTON PROPERTIES ERROR: ", buttonPropertiesResult);
           return setAlert(
             mutateAlertState,
-            `Error creating button properties for game action type ${gameAction}`
+            `Error creating button properties for game action type ${JSON.stringify(gameAction)}`
           );
         } else buttonPropertiesByCategory[category].push(buttonPropertiesResult);
       }
