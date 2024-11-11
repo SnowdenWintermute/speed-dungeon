@@ -2,6 +2,7 @@ import { CombatantTurnTracker } from "./index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { REQUIRED_MOVEMENT_TO_MOVE } from "./consts.js";
+import { Battle } from "../../battle/index.js";
 
 export default function endActiveCombatantTurn(
   game: SpeedDungeonGame,
@@ -22,10 +23,7 @@ export default function endActiveCombatantTurn(
   const activeCombatantTurnTracker = activeCombatantTurnTrackerOption;
   activeCombatantTurnTracker.movement -= REQUIRED_MOVEMENT_TO_MOVE;
 
-  battle.turnTrackers = battle.turnTrackers.sort((a, b) => {
-    if (Math.floor(a.movement) !== Math.floor(b.movement)) return b.movement - a.movement;
-    return parseInt(a.entityId) - parseInt(b.entityId);
-  });
+  battle.turnTrackers = Battle.sortTurnTrackers(battle);
 
   const newActiveCombatantTrackerOption = battle.turnTrackers[0];
   if (!newActiveCombatantTrackerOption) return new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);

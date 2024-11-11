@@ -1,40 +1,24 @@
-import { ERROR_MESSAGES, ServerToClientEvent } from "@speed-dungeon/common";
-import { GameServer } from "../index.js";
-import { SpeedDungeonPlayer } from "@speed-dungeon/common";
-import errorHandler from "../error-handler.js";
+import { ERROR_MESSAGES, GameMode } from "@speed-dungeon/common";
+import joinProgressionGameHandler from "./join-progression-game-handler.js";
+import joinPlayerToGame from "./join-player-to-game.js";
+import { BrowserTabSession } from "../socket-connection-metadata.js";
+import { getGameServer } from "../../singletons.js";
+import { Socket } from "socket.io";
 
-export default function joinGameHandler(this: GameServer, socketId: string, gameName: string) {
-  const [socket, socketMeta] = this.getConnection(socketId);
-  console.log("socket tried to join a game");
-  if (!socket)
-    return errorHandler(socket, "A socket tried to join a game but the socket didn't exist");
+export default async function joinGameHandler(
+  gameName: string,
+  session: BrowserTabSession,
+  socket: Socket
+) {
+  const gameServer = getGameServer();
+  if (session.currentGameName) return new Error(ERROR_MESSAGES.LOBBY.ALREADY_IN_GAME);
 
-  if (socketMeta.currentGameName)
-    return socket?.emit(ServerToClientEvent.ErrorMessage, ERROR_MESSAGES.LOBBY.ALREADY_IN_GAME);
+  const game = gameServer.games.get(gameName);
+  if (session.userId === null && game?.isRanked) return new Error(ERROR_MESSAGES.AUTH.REQUIRED);
 
-  const game = this.games.get(gameName);
-
-  if (!game)
-    return socket?.emit(ServerToClientEvent.ErrorMessage, ERROR_MESSAGES.GAME_DOESNT_EXIST);
-  if (game.timeStarted)
-    return socket?.emit(
-      ServerToClientEvent.ErrorMessage,
-      ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED
-    );
-
-  game.players[socketMeta.username] = new SpeedDungeonPlayer(socketMeta.username);
-
-  socketMeta.currentGameName = gameName;
-
-  this.removeSocketFromChannel(socketId, socketMeta.channelName);
-  this.joinSocketToChannel(socketId, gameName);
-  socketMeta.channelName = game.name;
-
-  socket.emit(ServerToClientEvent.GameFullUpdate, game);
-
-  this.io
-    .of("/")
-    .except(socketId)
-    .in(game.name)
-    .emit(ServerToClientEvent.PlayerJoinedGame, socketMeta.username);
+  if (!game) return new Error(ERROR_MESSAGES.GAME_DOESNT_EXIST);
+  if (game.timeStarted) return new Error(ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED);
+  if (game.mode === GameMode.Progression)
+    joinProgressionGameHandler(gameServer, session, socket, game);
+  else joinPlayerToGame(gameServer, game, session, socket);
 }

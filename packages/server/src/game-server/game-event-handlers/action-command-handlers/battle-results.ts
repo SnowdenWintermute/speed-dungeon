@@ -1,52 +1,51 @@
 import {
   BattleConclusion,
   BattleResultActionCommandPayload,
-  ERROR_MESSAGES,
   GameMessageType,
-  ServerToClientEvent,
   SpeedDungeonGame,
+  createPartyWipeMessage,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
 import { ActionCommandManager } from "@speed-dungeon/common";
+import { getGameServer } from "../../../singletons.js";
+import emitMessageInGameWithOptionalDelayForParty from "../../utils/emit-message-in-game-with-optional-delay-for-party.js";
 
-export default function battleResultActionCommandHandler(
+export default async function battleResultActionCommandHandler(
   this: GameServer,
   actionCommandManager: ActionCommandManager,
   gameName: string,
   combatantId: string,
   payload: BattleResultActionCommandPayload
 ) {
+  const gameServer = getGameServer();
   const actionAssociatedDataResult = this.getGamePartyAndCombatant(gameName, combatantId);
   if (actionAssociatedDataResult instanceof Error) return actionAssociatedDataResult;
   const { game, party } = actionAssociatedDataResult;
+  const gameModeContext = gameServer.gameModeContexts[game.mode];
   const { conclusion } = payload;
+
+  const maybeError = await gameModeContext.onBattleResult(game, party);
+  if (maybeError instanceof Error) return maybeError;
 
   switch (conclusion) {
     case BattleConclusion.Defeat:
       if (party.battleId !== null) delete game.battles[party.battleId];
-      const socketIdsOfPlayersInOtherPartiesResult = this.getSocketIdsOfPlayersInOtherParties(
-        game,
-        party
-      );
-      if (socketIdsOfPlayersInOtherPartiesResult instanceof Error)
-        return socketIdsOfPlayersInOtherPartiesResult;
-      const socketIdsOfPlayersInOtherParties = socketIdsOfPlayersInOtherPartiesResult;
-      for (const socketId of socketIdsOfPlayersInOtherParties) {
-        const socketOption = this.io.sockets.sockets.get(socketId);
-        if (socketOption === undefined) return new Error(ERROR_MESSAGES.SERVER.SOCKET_NOT_FOUND);
-        socketOption.emit(ServerToClientEvent.GameMessage, {
-          type: GameMessageType.PartyWipe,
-          partyName: party.name,
-          dlvl: party.currentFloor,
-          timeOfWipe: new Date().getTime(),
-        });
-      }
 
-      for (const username of party.playerUsernames)
-        SpeedDungeonGame.removePlayerFromParty(game, username);
+      party.timeOfWipe = Date.now();
+      emitMessageInGameWithOptionalDelayForParty(
+        game.name,
+        GameMessageType.PartyWipe,
+        createPartyWipeMessage(party.name, party.currentFloor, new Date()),
+        party.name
+      );
+
+      const maybeError = await gameModeContext.onPartyWipe(game, party);
+      if (maybeError instanceof Error) return maybeError;
       break;
     case BattleConclusion.Victory:
-      SpeedDungeonGame.handleBattleVictory(game, party, payload);
+      const levelups = SpeedDungeonGame.handleBattleVictory(game, party, payload);
+      const onPartyVictoryResult = await gameModeContext.onPartyVictory(game, party, levelups);
+      if (onPartyVictoryResult instanceof Error) return onPartyVictoryResult;
       break;
   }
 

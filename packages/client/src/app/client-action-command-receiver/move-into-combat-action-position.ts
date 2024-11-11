@@ -1,10 +1,11 @@
 import { MoveIntoCombatActionPositionActionCommandPayload } from "@speed-dungeon/common";
-import { ClientActionCommandReceiver } from ".";
-import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
+import {
+  NextToBabylonMessageTypes,
+  nextToBabylonMessageQueue,
+} from "@/singletons/next-to-babylon-message-queue";
 import { ActionCommandManager } from "@speed-dungeon/common";
 
 export default function moveIntoCombatActionPositionActionCommandHandler(
-  this: ClientActionCommandReceiver,
   _actionCommandManager: ActionCommandManager,
   _gameName: string,
   combatantId: string,
@@ -16,11 +17,9 @@ export default function moveIntoCombatActionPositionActionCommandHandler(
   // - start animating them toward their destination
   // - on reach destination, process the next command
 
-  this.mutateNextBabylonMessagingState((state) => {
-    state.nextToBabylonMessages.push({
-      type: NextToBabylonMessageTypes.StartMovingCombatantIntoCombatActionPosition,
-      actionCommandPayload: payload,
-      actionUserId: combatantId,
-    });
+  nextToBabylonMessageQueue.messages.push({
+    type: NextToBabylonMessageTypes.StartMovingCombatantIntoCombatActionPosition,
+    actionCommandPayload: payload,
+    actionUserId: combatantId,
   });
 }

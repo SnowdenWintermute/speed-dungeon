@@ -1,4 +1,4 @@
-import { CombatantDetails, Item } from "@speed-dungeon/common";
+import { Combatant, Item } from "@speed-dungeon/common";
 
 export enum DetailableEntityType {
   Combatant,
@@ -12,7 +12,7 @@ export interface ItemDetailable {
 
 export interface CombatantDetailable {
   type: DetailableEntityType.Combatant;
-  combatant: CombatantDetails;
+  combatant: Combatant;
 }
 
 export type DetailableEntity = ItemDetailable | CombatantDetailable;

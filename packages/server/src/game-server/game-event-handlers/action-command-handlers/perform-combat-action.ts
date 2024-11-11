@@ -20,7 +20,6 @@ export default function performCombatActionActionCommandHandler(
   const actionAssociatedDataResult = this.getGamePartyAndCombatant(gameName, combatantId);
   if (actionAssociatedDataResult instanceof Error) return actionAssociatedDataResult;
   const { game, party, combatant } = actionAssociatedDataResult;
-  console.log("payload: ", payload);
   // SERVER
   // - add the "action performance time" to the lockout time
   const actionExecutionTimeResult = getCombatActionExecutionTime(

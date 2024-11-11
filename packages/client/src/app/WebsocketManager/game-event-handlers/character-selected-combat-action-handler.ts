@@ -28,11 +28,13 @@ export default function characterSelectedCombatActionHandler(
         ? getCombatActionProperties(party, combatActionOption, characterId)
         : null;
       if (combatActionPropertiesOption instanceof Error) return combatActionPropertiesOption;
+      if (character.combatantProperties.controllingPlayer === null)
+        return new Error(ERROR_MESSAGES.COMBATANT.EXPECTED_OWNER_ID_MISSING);
 
       SpeedDungeonGame.assignCharacterActionTargets(
         game,
         characterId,
-        character.nameOfControllingUser,
+        character.combatantProperties.controllingPlayer,
         combatActionPropertiesOption
       );
     }

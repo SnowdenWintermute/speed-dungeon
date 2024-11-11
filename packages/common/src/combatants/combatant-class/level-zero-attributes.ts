@@ -12,7 +12,7 @@ export const BASE_STARTING_ATTRIBUTES: Record<
     [CombatAttribute.Hp]: 20,
     [CombatAttribute.Mp]: 2,
     [CombatAttribute.Accuracy]: 75,
-    [CombatAttribute.Speed]: 1,
+    [CombatAttribute.Speed]: 2,
   },
   [CombatantClass.Mage]: {
     [CombatAttribute.Intelligence]: 3,
@@ -20,7 +20,7 @@ export const BASE_STARTING_ATTRIBUTES: Record<
     [CombatAttribute.Hp]: 15,
     [CombatAttribute.Mp]: 4,
     [CombatAttribute.Accuracy]: 65,
-    [CombatAttribute.Speed]: 1,
+    [CombatAttribute.Speed]: 2,
   },
   [CombatantClass.Rogue]: {
     [CombatAttribute.Strength]: 2,
@@ -28,6 +28,6 @@ export const BASE_STARTING_ATTRIBUTES: Record<
     [CombatAttribute.Hp]: 17,
     [CombatAttribute.Mp]: 3,
     [CombatAttribute.Accuracy]: 85,
-    [CombatAttribute.Speed]: 1,
+    [CombatAttribute.Speed]: 2,
   },
 };

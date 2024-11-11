@@ -2,7 +2,6 @@ import { CombatActionProperties } from "../index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import getCharacterInGame from "../../game/get-character-in-game.js";
-import { getPlayerParty } from "../../game/get-player-party.js";
 import { CombatActionTarget } from "./combat-action-targets.js";
 import getActionTargetsBySavedPreferenceOrDefault from "./get-action-targets-by-saved-preference-or-default.js";
 import getFilteredPotentialTargetIds from "./get-filtered-potential-target-ids.js";
@@ -14,8 +13,9 @@ export default function assignCharacterActionTargets(
   username: string,
   combatActionPropertiesOption: null | CombatActionProperties
 ): Error | null | CombatActionTarget {
-  const partyResult = getPlayerParty(game, username);
+  const partyResult = SpeedDungeonGame.getPlayerPartyOption(game, username);
   if (partyResult instanceof Error) return partyResult;
+  if (partyResult === undefined) return new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
   const characterResult = getCharacterInGame(game, partyResult.name, characterId);
   if (characterResult instanceof Error) return characterResult;
   const party = partyResult;

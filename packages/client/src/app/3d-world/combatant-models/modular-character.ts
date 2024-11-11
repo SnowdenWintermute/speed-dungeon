@@ -1,12 +1,10 @@
 import {
   AbstractMesh,
   BoundingInfo,
-  Color3,
   Color4,
   ISceneLoaderAsyncResult,
   Mesh,
   Quaternion,
-  StandardMaterial,
   TransformNode,
   Vector3,
 } from "@babylonjs/core";
@@ -19,7 +17,7 @@ import {
 import { ModularCharacterPartCategory } from "./modular-character-parts";
 import { GameWorld } from "../game-world";
 import { DEFAULT_HITBOX_RADIUS_FALLBACK, ERROR_MESSAGES } from "@speed-dungeon/common";
-import { MonsterType } from "@speed-dungeon/common/src/monsters/monster-types";
+import { MonsterType } from "@speed-dungeon/common";
 import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
 import cloneDeep from "lodash.clonedeep";
 import { AnimationManager } from "./animation-manager";

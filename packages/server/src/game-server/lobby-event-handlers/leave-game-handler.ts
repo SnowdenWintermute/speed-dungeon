@@ -1,36 +1,44 @@
 import { LOBBY_CHANNEL, ServerToClientEvent, SpeedDungeonGame } from "@speed-dungeon/common";
-import { GameServer } from "../index.js";
-import errorHandler from "../error-handler.js";
+import leavePartyHandler from "./leave-party-handler.js";
+import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
+import { Socket } from "socket.io";
+import { getGameServer } from "../../singletons.js";
 
-export default function leaveGameHandler(this: GameServer, socketId: string) {
-  this.leavePartyHandler(socketId);
-  let [socket, socketMeta] = this.getConnection(socketId);
-  if (!socketMeta.currentGameName) {
-    console.log(
-      "Tried to handle a user leaving a game but they didn't know what game they were in"
-    );
-    return;
+export default async function leaveGameHandler(
+  _eventData: undefined,
+  playerAssociatedData: ServerPlayerAssociatedData,
+  socket: Socket
+) {
+  const gameServer = getGameServer();
+  const { game, partyOption, player, session } = playerAssociatedData;
+  const gameModeContext = gameServer.gameModeContexts[game.mode];
+
+  const maybeError = await gameModeContext.onGameLeave(game, partyOption, player);
+  if (maybeError instanceof Error) {
+    return maybeError;
   }
-  const game = this.games.get(socketMeta.currentGameName);
-  if (!game)
-    return errorHandler(
-      socket,
-      "Tried handle a user leaving a game but the game they thought they were in didn't exist"
-    );
-  SpeedDungeonGame.removePlayer(game, socketMeta.username);
-  const gameNameLeaving = socketMeta.currentGameName;
-  socketMeta.currentGameName = null;
-  if (Object.keys(game.players).length === 0) this.games.remove(game.name);
 
-  this.removeSocketFromChannel(socketId, gameNameLeaving);
-  this.joinSocketToChannel(socketId, LOBBY_CHANNEL);
-  socketMeta.channelName = LOBBY_CHANNEL;
+  await leavePartyHandler(undefined, playerAssociatedData, socket);
 
-  if (this.games.get(gameNameLeaving)) {
-    this.io
+  SpeedDungeonGame.removePlayer(game, session.username);
+  const gameNameLeaving = game.name;
+  session.currentGameName = null;
+
+  if (Object.keys(game.players).length === 0) {
+    const maybeError = await gameModeContext.onLastPlayerLeftGame(game);
+    if (maybeError instanceof Error) return maybeError;
+    gameServer.games.remove(game.name);
+  }
+
+  gameServer.removeSocketFromChannel(socket.id, gameNameLeaving);
+  gameServer.joinSocketToChannel(socket.id, LOBBY_CHANNEL);
+
+  if (gameServer.games.get(gameNameLeaving)) {
+    gameServer.io
       .of("/")
       .in(gameNameLeaving)
-      .emit(ServerToClientEvent.PlayerLeftGame, socketMeta.username);
+      .emit(ServerToClientEvent.PlayerLeftGame, session.username);
   }
-  socket?.emit(ServerToClientEvent.GameFullUpdate, null);
+
+  socket.emit(ServerToClientEvent.GameFullUpdate, null);
 }

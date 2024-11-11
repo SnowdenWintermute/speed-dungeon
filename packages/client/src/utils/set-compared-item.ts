@@ -1,7 +1,7 @@
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import { getItemInAdventuringParty } from "@speed-dungeon/common";
-import { getPlayerParty } from "@speed-dungeon/common";
+import { getPlayerPartyOption } from "@speed-dungeon/common";
 import getFocusedCharacter from "./getFocusedCharacter";
 import { EquipableSlots, ItemPropertiesType, getEquipableSlots } from "@speed-dungeon/common";
 
@@ -12,8 +12,9 @@ export default function setComparedItem(
 ) {
   mutateGameState((gameState) => {
     if (!gameState.game || gameState.username === null) return;
-    const partyResult = getPlayerParty(gameState.game, gameState.username);
+    const partyResult = getPlayerPartyOption(gameState.game, gameState.username);
     if (partyResult instanceof Error) return console.error(partyResult);
+    if (partyResult === undefined) return console.error("NO PARTY");
     const itemResult = getItemInAdventuringParty(partyResult, itemId);
     if (itemResult instanceof Error) return console.error(itemResult);
     const focusedCharacterResult = getFocusedCharacter(gameState);

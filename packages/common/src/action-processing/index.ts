@@ -4,6 +4,7 @@ export * from "./action-command-manager.js";
 import { BattleConclusion } from "../battle/index.js";
 import { CombatAction } from "../combat/index.js";
 import { EquipmentSlot, Item } from "../items/index.js";
+import { GameMessageType } from "../packets/game-message.js";
 
 export enum ActionCommandType {
   PayAbilityCosts,
@@ -12,6 +13,7 @@ export enum ActionCommandType {
   ReturnHome,
   ChangeEquipment,
   BattleResult,
+  GameMessages,
 }
 
 export type PayAbilityCostsActionCommandPayload = {
@@ -60,13 +62,23 @@ export type BattleResultActionCommandPayload = {
   timestamp: number;
 };
 
+export type LadderDeathsUpdate = {
+  [combatantName: string]: { owner: string; rank: number; level: number };
+};
+
+export type GameMessagesPayload = {
+  type: ActionCommandType.GameMessages;
+  messages: { text: string; type: GameMessageType }[];
+};
+
 export type ActionCommandPayload =
   | PayAbilityCostsActionCommandPayload
   | MoveIntoCombatActionPositionActionCommandPayload
   | ReturnHomeActionCommandPayload
   | PerformCombatActionActionCommandPayload
   | ChangeEquipmentActionCommandPayload
-  | BattleResultActionCommandPayload;
+  | BattleResultActionCommandPayload
+  | GameMessagesPayload;
 
 export function formatActionCommandType(type: ActionCommandType) {
   switch (type) {
@@ -82,6 +94,8 @@ export function formatActionCommandType(type: ActionCommandType) {
       return "Change equipment";
     case ActionCommandType.BattleResult:
       return "Battle result";
+    case ActionCommandType.GameMessages:
+      return "Game messages";
   }
 }
 

@@ -1,14 +1,15 @@
-import { DungeonRoom, DungeonRoomType, PlayerCharacter } from "../adventuring_party/index.js";
+import { DungeonRoom, DungeonRoomType } from "../adventuring-party/index.js";
 import { Battle, BattleConclusion } from "../battle/index.js";
 import { CombatAction } from "../combat/index.js";
 import { ActionCommandPayload } from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { EquipmentSlot, Item } from "../items/index.js";
 import { NextOrPrevious } from "../primatives/index.js";
-import { CombatAttribute } from "../combatants/index.js";
+import { CombatAttribute, Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
-import { DescendOrExplore } from "../adventuring_party/update-player-readiness.js";
+import { DescendOrExplore } from "../adventuring-party/update-player-readiness.js";
 import { UserChannelDisplayData } from "../users/index.js";
+import { GameMode } from "../types.js";
 
 export enum ServerToClientEvent {
   GameList = "0",
@@ -23,7 +24,7 @@ export enum ServerToClientEvent {
   PlayerLeftGame = "9",
   PlayerJoinedGame = "10",
   PartyCreated = "11",
-  CharacterCreated = "12",
+  CharacterAddedToParty = "12",
   CharacterDeleted = "13",
   PlayerToggledReadyToStartGame = "14",
   GameStarted = "15",
@@ -45,6 +46,11 @@ export enum ServerToClientEvent {
   CharacterCycledTargetingSchemes = "31",
   DungeonFloorNumber = "32",
   CharacterSpentAttributePoint = "33",
+  SavedCharacterList = "34",
+  SavedCharacter = "35",
+  SavedCharacterDeleted = "36",
+  PlayerSelectedSavedCharacterInProgressionGame = "37",
+  ProgressionGameStartingFloorSelected = "38",
 }
 
 export interface ServerToClientEventTypes {
@@ -68,11 +74,11 @@ export interface ServerToClientEventTypes {
   ) => void;
   [ServerToClientEvent.PlayerLeftGame]: (userame: string) => void;
   [ServerToClientEvent.PlayerJoinedGame]: (userame: string) => void;
-  [ServerToClientEvent.PartyCreated]: (partyName: string) => void;
-  [ServerToClientEvent.CharacterCreated]: (
+  [ServerToClientEvent.PartyCreated]: (partyId: string, partyName: string) => void;
+  [ServerToClientEvent.CharacterAddedToParty]: (
     partyName: string,
     username: string,
-    character: PlayerCharacter
+    character: Combatant
   ) => void;
   [ServerToClientEvent.CharacterDeleted]: (
     partyName: string,
@@ -99,7 +105,11 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.CharacterDroppedItem]: (characterAndItem: CharacterAndItem) => void;
   [ServerToClientEvent.CharacterDroppedEquippedItem]: (characterAndItem: CharacterAndSlot) => void;
   [ServerToClientEvent.CharacterUnequippedItem]: (characterAndItem: CharacterAndSlot) => void;
-  [ServerToClientEvent.CharacterEquippedItem]: (characterAndItem: EquipItemPacket) => void;
+  [ServerToClientEvent.CharacterEquippedItem]: (characterEquip: {
+    itemId: string;
+    equipToAlternateSlot: boolean;
+    characterId: string;
+  }) => void;
   [ServerToClientEvent.CharacterPickedUpItem]: (characterAndItem: CharacterAndItem) => void;
   // [ServerToClientEvent.RawActionResults]: (actionResults: ActionResult[]) => void;
   [ServerToClientEvent.CharacterSelectedCombatAction]: (
@@ -120,12 +130,19 @@ export interface ServerToClientEventTypes {
     characterId: string,
     attribute: CombatAttribute
   ) => void;
-}
-
-export interface EquipItemPacket {
-  characterId: string;
-  itemId: string;
-  equipToAlternateSlot: boolean;
+  [ServerToClientEvent.SavedCharacterList]: (characterSlots: {
+    [slot: number]: null | { combatant: Combatant; deepestFloorReached: number };
+  }) => void;
+  [ServerToClientEvent.SavedCharacter]: (
+    character: { combatant: Combatant; deepestFloorReached: number },
+    slot: number
+  ) => void;
+  [ServerToClientEvent.SavedCharacterDeleted]: (id: string) => void;
+  [ServerToClientEvent.PlayerSelectedSavedCharacterInProgressionGame]: (
+    username: string,
+    character: { combatant: Combatant; deepestFloorReached: number }
+  ) => void;
+  [ServerToClientEvent.ProgressionGameStartingFloorSelected]: (floor: number) => void;
 }
 
 export interface CharacterAndItem {
@@ -142,7 +159,9 @@ export class GameListEntry {
   constructor(
     public gameName: string,
     public numberOfUsers: number,
-    public timeStarted: null | number
+    public gameMode: GameMode,
+    public timeStarted: null | number,
+    public isRanked: boolean
   ) {}
 }
 

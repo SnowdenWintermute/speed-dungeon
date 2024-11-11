@@ -46,11 +46,10 @@ function useEquipmentHandler(gameState: GameState, itemId: string, altSlot: bool
     itemId
   );
   if (slotEquippedOption !== null) {
-    websocketConnection.emit(
-      ClientToServerEvent.UnequipSlot,
-      focusedCharacter.entityProperties.id,
-      slotEquippedOption
-    );
+    websocketConnection.emit(ClientToServerEvent.UnequipSlot, {
+      characterId: focusedCharacter.entityProperties.id,
+      slot: slotEquippedOption,
+    });
   } else {
     websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
       characterId: focusedCharacter.entityProperties.id,

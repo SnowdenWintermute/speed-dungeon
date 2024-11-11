@@ -1,7 +1,12 @@
 // @refresh reset
 "use client";
 import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
-import { SPACING_REM, SPACING_REM_LARGE, TOP_BAR_HEIGHT_REM } from "@/client_consts";
+import {
+  HTTP_REQUEST_NAMES,
+  SPACING_REM,
+  SPACING_REM_LARGE,
+  TOP_BAR_HEIGHT_REM,
+} from "@/client_consts";
 import GamesSection from "./games-section";
 import UserList from "./user-list/";
 import quickStartGame from "./games-section/quick-start-game";
@@ -15,14 +20,19 @@ import { useEffect } from "react";
 import { useLobbyStore } from "@/stores/lobby-store";
 import AuthFormContainer from "./auth-forms";
 import { websocketConnection } from "@/singletons/websocket-connection";
+import SavedCharacterManager from "./saved-character-manager";
+import CombatLog from "../game/combat-log";
 
 export default function Lobby() {
   const socketOption = websocketConnection;
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);
   const usersContainerWidth = Math.floor(BASE_SCREEN_SIZE * usersContainerWidthMultiplier);
-  const currentSessionHttpResponseTracker = useHttpRequestStore().requests["get session"];
+  const currentSessionHttpResponseTracker =
+    useHttpRequestStore().requests[HTTP_REQUEST_NAMES.GET_SESSION];
   const mutateLobbyState = useLobbyStore().mutateState;
   const showAuthForm = useLobbyStore().showAuthForm;
+  const showSavedCharacterManager = useLobbyStore().showSavedCharacterManager;
+  const showGameCreationForm = useLobbyStore().showGameCreationForm;
 
   useEffect(() => {
     if (currentSessionHttpResponseTracker?.statusCode === 200)
@@ -53,7 +63,7 @@ export default function Lobby() {
             width: `calc(100% - ${usersContainerWidth}px)`,
           }}
         >
-          <GamesSection />
+          {!showSavedCharacterManager && <GamesSection />}
         </div>
         <div
           id="users-container"
@@ -70,19 +80,25 @@ export default function Lobby() {
         className="absolute h-full w-full z-20 top-0 right-0 flex items-center justify-center"
       >
         {!hideAuthForm && <AuthFormContainer />}
+        {currentSessionHttpResponseTracker?.statusCode === 200 && <SavedCharacterManager />}
       </section>
       <div className="absolute z-10 bottom-0 w-full p-7 flex items-center justify-center">
-        <HoverableTooltipWrapper tooltipText="Start a single player game where you control one of each character type">
-          <button
-            onClick={() => quickStartGame(socketOption)}
-            className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
-            flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
-            text-xl bg-slate-950 text-slate-400
-            `}
+        {!showGameCreationForm && !showSavedCharacterManager && (
+          <HoverableTooltipWrapper
+            offsetTop={8}
+            tooltipText="Start a single player game where you control one of each character type"
           >
-            PLAY NOW
-          </button>
-        </HoverableTooltipWrapper>
+            <button
+              onClick={() => quickStartGame(socketOption)}
+              className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
+                          flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
+                          text-xl bg-slate-950 text-slate-400
+            `}
+            >
+              PLAY NOW
+            </button>
+          </HoverableTooltipWrapper>
+        )}
         <div
           className="flex absolute right-0 bottom-0"
           style={{

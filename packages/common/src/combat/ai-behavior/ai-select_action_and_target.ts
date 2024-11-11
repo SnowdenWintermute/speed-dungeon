@@ -2,7 +2,7 @@ import { CombatActionTargetType, FriendOrFoe } from "../index.js";
 import { BattleGroup } from "../../battle/index.js";
 import {
   CombatantAbilityName,
-  CombatantDetails,
+  Combatant,
   CombatantProperties,
 } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
@@ -77,7 +77,7 @@ export function AISelectActionAndTarget(
 function getRandomAliveEnemy(
   game: SpeedDungeonGame,
   enemyBattleGroup: BattleGroup
-): Error | CombatantDetails {
+): Error | Combatant {
   const idsOfAliveTargets = [];
   for (const enemyId of enemyBattleGroup.combatantIds) {
     let combatantResult = SpeedDungeonGame.getCombatantById(game, enemyId);

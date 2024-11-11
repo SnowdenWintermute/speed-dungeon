@@ -1,5 +1,5 @@
 import { SpeedDungeonGame } from "./index.js";
-import { AdventuringParty } from "../adventuring_party/index.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 

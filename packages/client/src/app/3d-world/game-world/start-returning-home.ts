@@ -16,6 +16,7 @@ import {
   CombatantModelActionType,
 } from "../combatant-models/model-action-manager/model-actions";
 import getCurrentParty from "@/utils/getCurrentParty";
+import { actionCommandManager } from "@/singletons/action-command-manager";
 
 export default function startReturningHome(
   gameWorld: GameWorld,
@@ -65,9 +66,9 @@ export default function startReturningHome(
 
     // check the queue length so we don't unlock for a split second in between the ai's turns
     if (
-      gameWorld.actionCommandManager.current?.queue.length === 0 ||
-      gameWorld.actionCommandManager.current?.queue[0]?.payload.type ===
-        ActionCommandType.BattleResult
+      actionCommandManager.queue.length === 0 ||
+      actionCommandManager.queue[0]?.payload.type === ActionCommandType.BattleResult ||
+      actionCommandManager.queue[0]?.payload.type === ActionCommandType.GameMessages
     )
       InputLock.unlockInput(party.inputLock);
 
@@ -89,10 +90,7 @@ export default function startReturningHome(
     percentTranslationToTriggerCompletionEvent: 1,
     onComplete: () => {
       userCombatantModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 500);
-
-      if (!gameWorld.actionCommandManager.current)
-        console.error(ERROR_MESSAGES.CLIENT.NO_COMMAND_MANAGER);
-      gameWorld.actionCommandManager.current!.processNextCommand();
+      actionCommandManager.processNextCommand();
     },
   };
 

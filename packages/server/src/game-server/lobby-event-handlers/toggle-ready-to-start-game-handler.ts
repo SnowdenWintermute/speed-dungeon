@@ -1,60 +1,70 @@
 import {
   ERROR_MESSAGES,
-  PlayerAssociatedData,
+  GAME_CONFIG,
+  GameMode,
   ServerToClientEvent,
   removeFromArray,
 } from "@speed-dungeon/common";
-import { GameServer } from "../index.js";
-import errorHandler from "../error-handler.js";
+import toggleReadyToExploreHandler from "../game-event-handlers/toggle-ready-to-explore-handler.js";
+import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
+import { getGameServer } from "../../singletons.js";
 
-export default function toggleReadyToStartGameHandler(this: GameServer, socketId: string) {
-  const [socket, socketMeta] = this.getConnection(socketId);
-  const { username } = socketMeta;
-  try {
-    const gameName = socketMeta.currentGameName;
-    if (!gameName) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-    const game = this.games.get(gameName);
-    if (!game) throw new Error(ERROR_MESSAGES.GAME_DOESNT_EXIST);
-    if (game.timeStarted) throw new Error(ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED);
+export default async function toggleReadyToStartGameHandler(
+  _eventData: undefined,
+  playerAssociatedData: ServerPlayerAssociatedData
+) {
+  const gameServer = getGameServer();
+  const { game, session, player } = playerAssociatedData;
+  const { username } = player;
+  if (game.timeStarted) return new Error(ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED);
 
-    if (Object.keys(game.adventuringParties).length < 1)
-      throw new Error("A game must have at least one Adventuring Party before it can start");
+  const minimumNumberOfParties =
+    game.mode === GameMode.Race && game.isRanked ? GAME_CONFIG.MIN_RACE_GAME_PARTIES : 1;
 
-    Object.values(game.adventuringParties).forEach((party) => {
-      if (party.characterPositions.length < 1)
-        throw new Error("Each party must have at least one character");
-    });
+  if (Object.keys(game.adventuringParties).length < minimumNumberOfParties)
+    return new Error(
+      `Game does not have the minimum number of parties (${minimumNumberOfParties})`
+    );
 
-    if (game.playersReadied.includes(username)) removeFromArray(game.playersReadied, username);
-    else game.playersReadied.push(username);
+  for (const party of Object.values(game.adventuringParties)) {
+    if (party.characterPositions.length < 1)
+      return new Error("Each party must have at least one character");
+  }
 
-    let allPlayersReadied = true;
+  if (game.playersReadied.includes(username)) removeFromArray(game.playersReadied, username);
+  else game.playersReadied.push(username);
 
-    Object.keys(game.players).forEach((usernameInGame) => {
-      if (game.playersReadied.includes(usernameInGame)) {
-        return;
-      }
+  let allPlayersReadied = true;
+
+  for (const usernameInGame of Object.keys(game.players)) {
+    if (game.playersReadied.includes(usernameInGame)) continue;
+    else {
       allPlayersReadied = false;
-    });
-
-    if (allPlayersReadied) {
-      for (const player of Object.values(game.players)) {
-        const socketIdResult = this.getSocketIdOfPlayer(game, player.username);
-        if (socketIdResult instanceof Error) return socketIdResult;
-        const maybeError = this.playerAssociatedDataProvider(
-          socketIdResult,
-          (playerAssociatedData: PlayerAssociatedData) =>
-            this.toggleReadyToExploreHandler(playerAssociatedData)
-        );
-        if (maybeError instanceof Error) return maybeError;
-      }
-      game.timeStarted = Date.now();
-      this.io.of("/").in(game.name).emit(ServerToClientEvent.GameStarted, game.timeStarted);
+      break;
     }
+  }
 
-    this.io.of("/").in(game.name).emit(ServerToClientEvent.PlayerToggledReadyToStartGame, username);
-  } catch (e) {
-    if (e instanceof Error) errorHandler(socket, e.message);
-    else console.error(e);
+  gameServer.io
+    .of("/")
+    .in(game.name)
+    .emit(ServerToClientEvent.PlayerToggledReadyToStartGame, username);
+
+  if (!allPlayersReadied) return;
+
+  game.timeStarted = Date.now();
+
+  const gameModeContext = gameServer.gameModeContexts[game.mode];
+  await gameModeContext.onGameStart(game);
+
+  gameServer.io.of("/").in(game.name).emit(ServerToClientEvent.GameStarted, game.timeStarted);
+
+  for (const player of Object.values(game.players)) {
+    const socketIdResult = gameServer.getSocketIdOfPlayer(game, player.username);
+    if (socketIdResult instanceof Error) return socketIdResult;
+    if (!player.partyName) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+    const partyOption = game.adventuringParties[player.partyName];
+    if (!partyOption) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+
+    toggleReadyToExploreHandler(undefined, { game, partyOption, player, session });
   }
 }

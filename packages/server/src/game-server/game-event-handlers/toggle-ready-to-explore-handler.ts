@@ -4,29 +4,39 @@ import {
   BattleGroupType,
   ERROR_MESSAGES,
   ServerToClientEvent,
-  initateBattle,
   getPartyChannelName,
   updateCombatantHomePosition,
-  PlayerAssociatedData,
   SpeedDungeonGame,
+  Battle,
+  CombatantTurnTracker,
+  GameMode,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
-import { DungeonRoom, DungeonRoomType } from "@speed-dungeon/common";
+import { DungeonRoomType } from "@speed-dungeon/common";
 import { tickCombatUntilNextCombatantIsActive } from "@speed-dungeon/common";
 import { DescendOrExplore } from "@speed-dungeon/common";
+import { idGenerator, getGameServer } from "../../singletons.js";
+import generateDungeonRoom from "../dungeon-room-generation/index.js";
+import { writeAllPlayerCharacterInGameToDb } from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
+import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 
 export default function toggleReadyToExploreHandler(
-  this: GameServer,
-  playerAssociatedData: PlayerAssociatedData
+  _eventData: undefined,
+  data: ServerPlayerAssociatedData
 ): Error | void {
-  const { game, party, username } = playerAssociatedData;
+  const { game, partyOption, player } = data;
+  const { username } = player;
+  const gameServer = getGameServer();
+  // console.log("socketid: ", socket.id);
+  if (partyOption === undefined) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+  const party = partyOption;
 
   if (Object.values(party.currentRoom.monsters).length > 0)
     return new Error(ERROR_MESSAGES.PARTY.CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT);
 
   AdventuringParty.updatePlayerReadiness(party, username, DescendOrExplore.Explore);
 
-  this.io
+  gameServer.io
     .in(getPartyChannelName(game.name, party.name))
     .emit(
       ServerToClientEvent.PlayerToggledReadyToDescendOrExplore,
@@ -46,14 +56,15 @@ export default function toggleReadyToExploreHandler(
 
   if (!allPlayersReadyToExplore) return;
 
-  return this.exploreNextRoom(game, party);
+  return gameServer.exploreNextRoom(game, party);
 }
 
 export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party: AdventuringParty) {
+  if (game.mode === GameMode.Progression) writeAllPlayerCharacterInGameToDb(this, game);
+
   party.playersReadyToExplore = [];
 
   if (party.unexploredRooms.length < 1) {
-    console.log("generating room types");
     party.generateUnexploredRoomsQueue();
     // we only want the client to know about the monster lairs, they will discover other room types as they enter them
     const newRoomTypesListForClientOption: (DungeonRoomType | null)[] = party.unexploredRooms.map(
@@ -74,8 +85,7 @@ export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party:
     return new Error(ERROR_MESSAGES.SERVER_GENERIC);
   }
   const roomTypeToGenerate: DungeonRoomType = roomTypeToGenerateOption;
-
-  const newRoom = DungeonRoom.generate(game.idGenerator, party.currentFloor, roomTypeToGenerate);
+  const newRoom = generateDungeonRoom(party.currentFloor, roomTypeToGenerate);
   party.currentRoom = newRoom;
 
   for (const monster of Object.values(party.currentRoom.monsters))
@@ -101,7 +111,7 @@ export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party:
       BattleGroupType.ComputerControlled
     );
 
-    const battleIdResult = initateBattle(game, battleGroupA, battleGroupB);
+    const battleIdResult = initiateBattle(game, battleGroupA, battleGroupB);
     if (battleIdResult instanceof Error) return battleIdResult;
     party.battleId = battleIdResult;
     tickCombatUntilNextCombatantIsActive(game, battleIdResult);
@@ -122,4 +132,58 @@ export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party:
     );
     if (maybeError instanceof Error) return maybeError;
   }
+}
+
+function initiateBattle(
+  game: SpeedDungeonGame,
+  groupA: BattleGroup,
+  groupB: BattleGroup
+): Error | string {
+  const turnTrackersResult = createCombatTurnTrackers(game, groupA, groupB);
+  if (turnTrackersResult instanceof Error) return turnTrackersResult;
+  const battle = new Battle(idGenerator.generate(), groupA, groupB, turnTrackersResult);
+  game.battles[battle.id] = battle;
+  return battle.id;
+}
+
+function createCombatTurnTrackers(
+  game: SpeedDungeonGame,
+  battleGroupA: BattleGroup,
+  battleGroupB: BattleGroup
+): Error | CombatantTurnTracker[] {
+  let currTieBreakingIndexCounter = { currTieBreakingIndex: 0 };
+  const groupATrackersResult = createTrackersForBattleGroupCombatants(
+    game,
+    battleGroupA,
+    currTieBreakingIndexCounter
+  );
+  if (groupATrackersResult instanceof Error) return groupATrackersResult;
+  const groupBTrackersResult = createTrackersForBattleGroupCombatants(
+    game,
+    battleGroupB,
+    currTieBreakingIndexCounter
+  );
+  if (groupBTrackersResult instanceof Error) return groupBTrackersResult;
+
+  return groupATrackersResult.concat(groupBTrackersResult);
+}
+
+function createTrackersForBattleGroupCombatants(
+  game: SpeedDungeonGame,
+  battleGroup: BattleGroup,
+  currTieBreakingIndexCounter: { currTieBreakingIndex: number }
+): Error | CombatantTurnTracker[] {
+  const trackers: CombatantTurnTracker[] = [];
+  for (const entityId of battleGroup.combatantIds) {
+    const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+    if (combatantResult instanceof Error) return combatantResult;
+    const combatant = combatantResult;
+    if (combatant.combatantProperties.hitPoints > 0) {
+      trackers.push(
+        new CombatantTurnTracker(entityId, currTieBreakingIndexCounter.currTieBreakingIndex)
+      );
+    }
+    currTieBreakingIndexCounter.currTieBreakingIndex += 1;
+  }
+  return trackers;
 }

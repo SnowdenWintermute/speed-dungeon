@@ -7,13 +7,13 @@ import {
   ServerToClientEvent,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { GameServer } from "../index.js";
+import { getGameServer } from "../../singletons.js";
 
 export default function characterSpentAttributePointHandler(
-  this: GameServer,
-  characterAssociatedData: CharacterAssociatedData,
-  attribute: CombatAttribute
+  eventData: { characterId: string; attribute: CombatAttribute },
+  characterAssociatedData: CharacterAssociatedData
 ) {
+  const { attribute } = eventData;
   const { game, party, character } = characterAssociatedData;
   const { combatantProperties } = character;
   if (combatantProperties.unspentAttributePoints <= 0)
@@ -23,8 +23,8 @@ export default function characterSpentAttributePointHandler(
 
   CombatantProperties.incrementAttributePoint(combatantProperties, attribute);
 
-  this.io
-    .in(getPartyChannelName(game.name, party.name))
+  getGameServer()
+    .io.in(getPartyChannelName(game.name, party.name))
     .emit(
       ServerToClientEvent.CharacterSpentAttributePoint,
       character.entityProperties.id,

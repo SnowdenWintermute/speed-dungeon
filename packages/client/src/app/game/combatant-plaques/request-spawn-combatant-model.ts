@@ -1,14 +1,13 @@
 import { GameState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
-import { NextBabylonMessagingState } from "@/stores/next-babylon-messaging-store";
-import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
-import { AdventuringParty, CombatantDetails, cloneVector3 } from "@speed-dungeon/common";
+import { AdventuringParty, Combatant, cloneVector3 } from "@speed-dungeon/common";
+import { gameWorld } from "@/app/3d-world/SceneManager";
+import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
 
 export default function requestSpawnCombatantModel(
-  combatantDetails: CombatantDetails,
+  combatantDetails: Combatant,
   party: AdventuringParty,
   mutateGameStore: MutateState<GameState>,
-  mutateNextBabylonMessagingStore: MutateState<NextBabylonMessagingState>,
   modelDomPositionElement: HTMLDivElement | null
 ) {
   const entityId = combatantDetails.entityProperties.id;
@@ -22,7 +21,7 @@ export default function requestSpawnCombatantModel(
   let modelCorrectionRotation = 0;
 
   const isPlayer = combatantProperties.controllingPlayer !== null;
-  const monsterType = party.currentRoom.monsters[entityId]?.monsterType ?? null;
+  const monsterType = party.currentRoom.monsters[entityId]?.combatantProperties.monsterType ?? null;
 
   if (!isPlayer) {
     startRotation = -Math.PI / 2;
@@ -31,19 +30,18 @@ export default function requestSpawnCombatantModel(
 
   if (!isPlayer && monsterType === null) return;
 
-  mutateNextBabylonMessagingStore((state) => {
-    state.nextToBabylonMessages.push({
-      type: NextToBabylonMessageTypes.SpawnCombatantModel,
-      combatantModelBlueprint: {
-        entityId,
-        species: combatantProperties.combatantSpecies,
-        monsterType,
-        class: combatantProperties.combatantClass,
-        startPosition: cloneVector3(combatantProperties.homeLocation),
-        startRotation,
-        modelCorrectionRotation,
-        modelDomPositionElement,
-      },
-    });
+  gameWorld.current?.modelManager.enqueueMessage(entityId, {
+    type: ModelManagerMessageType.SpawnModel,
+    blueprint: {
+      entityId,
+      species: combatantProperties.combatantSpecies,
+      monsterType,
+      class: combatantProperties.combatantClass,
+      startPosition: cloneVector3(combatantProperties.homeLocation),
+      startRotation,
+      modelCorrectionRotation,
+      modelDomPositionElement,
+    },
+    checkIfRoomLoaded: true,
   });
 }

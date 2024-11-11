@@ -1,5 +1,8 @@
 import { CombatantClass } from "@speed-dungeon/common";
 import React from "react";
+import Axe from "../../../../public/img/combatant-class-icons/axe.svg";
+import Sword from "../../../../public/img/combatant-class-icons/sword.svg";
+import Staff from "../../../../public/img/combatant-class-icons/staff.svg";
 
 interface Props {
   combatantClass: CombatantClass;
@@ -8,14 +11,10 @@ interface Props {
 export default function CombatantClassIcon(props: Props) {
   switch (props.combatantClass) {
     case CombatantClass.Warrior:
-      return (
-        <img src="img/combatant-class-icons/warrior.svg" alt="warrior icon" className="h-full" />
-      );
+      return <Axe className="h-full fill-slate-400" />;
     case CombatantClass.Mage:
-      return <img src="img/combatant-class-icons/staff.svg" alt={"mage icon"} className="h-full" />;
+      return <Staff className="h-full" />;
     case CombatantClass.Rogue:
-      return (
-        <img src="img/combatant-class-icons/sword.svg" alt={"rogue icon"} className="h-full" />
-      );
+      return <Sword className="h-full" />;
   }
 }

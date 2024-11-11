@@ -60,3 +60,7 @@ export function formatVector3(vec3: Vector3) {
 export function cloneVector3(vec3: Vector3) {
   return new Vector3(vec3.x, vec3.y, vec3.z);
 }
+
+export function getProgressionGamePartyName(gameName: string) {
+  return `Delvers of ${gameName}`;
+}

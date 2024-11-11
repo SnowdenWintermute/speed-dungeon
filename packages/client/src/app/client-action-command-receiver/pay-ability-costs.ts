@@ -24,10 +24,6 @@ export default function payAbilityCostsActionCommandHandler(
   );
 }
 
-// CLIENT
-// - apply ability costs to game
-// - process the next command
-
 function handler(
   combatantAssociatedData: CombatantAssociatedData,
   actionCommandManager: ActionCommandManager,

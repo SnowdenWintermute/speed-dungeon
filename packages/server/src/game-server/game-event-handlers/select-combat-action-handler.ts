@@ -7,15 +7,15 @@ import {
   SpeedDungeonGame,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { BrowserTabSession } from "../socket-connection-metadata.js";
-import { GameServer } from "../index.js";
+import { getGameServer } from "../../singletons.js";
 
 export default function selectCombatActionHandler(
-  this: GameServer,
-  browserTabSession: BrowserTabSession,
-  characterAssociatedData: CharacterAssociatedData,
-  combatActionOption: null | CombatAction
+  eventData: { characterId: string; combatActionOption: null | CombatAction },
+  characterAssociatedData: CharacterAssociatedData
 ) {
+  const gameServer = getGameServer();
+  const { combatActionOption } = eventData;
+
   const { character, game, party } = characterAssociatedData;
   let combatActionPropertiesOption: null | CombatActionProperties = null;
   if (combatActionOption !== null) {
@@ -30,7 +30,7 @@ export default function selectCombatActionHandler(
   const newTargetsResult = SpeedDungeonGame.assignCharacterActionTargets(
     game,
     character.entityProperties.id,
-    browserTabSession.username,
+    characterAssociatedData.player.username,
     combatActionPropertiesOption
   );
 
@@ -38,7 +38,7 @@ export default function selectCombatActionHandler(
 
   character.combatantProperties.selectedCombatAction = combatActionOption;
 
-  this.io
+  gameServer.io
     .in(getPartyChannelName(game.name, party.name))
     .emit(
       ServerToClientEvent.CharacterSelectedCombatAction,

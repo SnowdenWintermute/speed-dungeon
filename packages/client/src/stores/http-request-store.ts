@@ -3,6 +3,7 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { MutateState } from "./mutate-state";
 import { produce } from "immer";
+import { setAlert } from "@/app/components/alerts";
 
 export class HttpRequestTracker {
   data: null | string | { [key: string]: any } = null;
@@ -33,7 +34,11 @@ export const useHttpRequestStore = create<HttpRequestState>()(
         }));
 
         const tracker = new HttpRequestTracker();
-        console.log("fetching with options: ", options);
+        // const fakeLatency = await new Promise((resolve) => {
+        //   setTimeout(() => {
+        //     resolve(true);
+        //   }, 2000);
+        // });
         const response = await fetch(url, options);
         tracker.ok = response.ok;
         tracker.loading = false;
@@ -45,8 +50,8 @@ export const useHttpRequestStore = create<HttpRequestState>()(
           else tracker.data = data;
         } catch {
           // no json in response
+          console.log("No response from game server");
         }
-        console.log("data: ", data);
 
         set((state) => ({
           requests: {

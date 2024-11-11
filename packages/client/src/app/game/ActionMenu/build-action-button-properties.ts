@@ -12,7 +12,6 @@ import {
 } from "./hover-handlers";
 import { GameAction } from "./game-actions";
 import actionButtonShouldBeDisabled from "./button-should-be-disabled";
-import { websocketConnection } from "@/singletons/websocket-connection";
 
 export default function buildActionButtonProperties(
   gameState: GameState,
@@ -20,18 +19,11 @@ export default function buildActionButtonProperties(
   mutateAlertState: MutateState<AlertState>,
   action: GameAction
 ): Error | ActionMenuButtonProperties {
-  const socket = websocketConnection;
   const textResult = determineActionButtonText(gameState, action);
   if (textResult instanceof Error) return textResult;
   const text = textResult;
 
-  const clickHandler = createActionButtonClickHandler(
-    action,
-    gameState,
-    uiState,
-    mutateAlertState,
-    socket
-  );
+  const clickHandler = createActionButtonClickHandler(action, gameState, uiState, mutateAlertState);
 
   const mouseEnterHandler = createActionButtonMouseEnterHandler(
     gameState,
@@ -45,7 +37,6 @@ export default function buildActionButtonProperties(
   const shouldBeDisabledResult = actionButtonShouldBeDisabled(gameState, uiState, action);
   if (shouldBeDisabledResult instanceof Error) return shouldBeDisabledResult;
   const shouldBeDisabled = shouldBeDisabledResult;
-  console.log("should be disabled: ", shouldBeDisabled);
 
   return {
     text,

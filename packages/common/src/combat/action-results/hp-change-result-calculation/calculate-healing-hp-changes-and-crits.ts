@@ -1,4 +1,4 @@
-import { BASE_CRIT_CHANCE } from "../../../app_consts.js";
+import { BASE_CRIT_CHANCE } from "../../../app-consts.js";
 import { CombatAttribute, CombatantProperties } from "../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";

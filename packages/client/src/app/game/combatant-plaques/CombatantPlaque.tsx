@@ -10,20 +10,15 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import {
-  AdventuringParty,
-  ClientToServerEvent,
-  ERROR_MESSAGES,
-  InputLock,
-} from "@speed-dungeon/common";
-import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
-import { NextToBabylonMessageTypes } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
+import { AdventuringParty, ClientToServerEvent, InputLock } from "@speed-dungeon/common";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
 import { getTailwindClassFromFloatingTextColor } from "@/stores/game-store/floating-text";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { websocketConnection } from "@/singletons/websocket-connection";
+import { gameWorld } from "@/app/3d-world/SceneManager";
+import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
 
 interface Props {
   entityId: string;
@@ -39,7 +34,6 @@ const modelDomPositionElements: { [entityId: string]: null | HTMLDivElement } = 
 export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const gameOption = useGameStore().game;
   const mutateGameState = useGameStore().mutateState;
-  const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
       detailedEntity: state.detailedEntity,
@@ -83,7 +77,6 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
       combatantDetailsResult,
       party,
       mutateGameState,
-      mutateNextBabylonMessagingStore,
       element as HTMLDivElement | null
     );
     mutateGameState((state) => {
@@ -97,11 +90,8 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
         delete state.babylonControlledCombatantDOMData[entityId];
       });
 
-      mutateNextBabylonMessagingStore((state) => {
-        state.nextToBabylonMessages.push({
-          type: NextToBabylonMessageTypes.RemoveCombatantModel,
-          entityId,
-        });
+      gameWorld.current?.modelManager.enqueueMessage(entityId, {
+        type: ModelManagerMessageType.DespawnModel,
       });
     };
   }, []);
@@ -123,7 +113,10 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
       const focusedCharacterResult = getFocusedCharacter(store);
       if (focusedCharacterResult instanceof Error) return console.error(focusedCharacterResult);
       focusedCharacterResult.combatantProperties.selectedCombatAction = null;
-      websocketConnection.emit(ClientToServerEvent.SelectCombatAction, entityId, null);
+      websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+        characterId: entityId,
+        combatActionOption: null,
+      });
       store.focusedCharacterId = entityId;
       store.menuContext = MenuContext.InventoryItems;
     });
@@ -135,7 +128,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
       : "pointer-events-auto ";
 
   return (
-    <div>
+    <div className="">
       {
         <div id={`${entityId}-position-div`} className="absolute">
           {
@@ -193,9 +186,9 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
           </div>
         </div>
         <div className="flex-grow" ref={nameAndBarsRef}>
-          <div className="mb-1.5 flex justify-between text-lg">
+          <div className="mb-1.5 flex justify-between text-lg ">
             <span>
-              {entityProperties.name}
+              <span className="">{entityProperties.name}</span>
               {
                 // entityId
               }

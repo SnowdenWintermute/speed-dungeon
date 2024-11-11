@@ -5,19 +5,23 @@ import {
   ServerToClientEvent,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { GameServer } from "../index.js";
+import { getGameServer } from "../../singletons.js";
 
 export default function unequipSlotHandler(
-  this: GameServer,
-  characterAssociatedData: CharacterAssociatedData,
-  slot: EquipmentSlot
+  eventProvidedData: {
+    characterId: string;
+    slot: EquipmentSlot;
+  },
+  characterAssociatedData: CharacterAssociatedData
 ) {
   const { game, party, character } = characterAssociatedData;
+  const { slot } = eventProvidedData;
+  const gameServer = getGameServer();
 
   CombatantProperties.unequipSlots(character.combatantProperties, [slot]);
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
-  this.io.to(partyChannelName).emit(ServerToClientEvent.CharacterUnequippedItem, {
+  gameServer.io.to(partyChannelName).emit(ServerToClientEvent.CharacterUnequippedItem, {
     characterId: character.entityProperties.id,
     slot,
   });

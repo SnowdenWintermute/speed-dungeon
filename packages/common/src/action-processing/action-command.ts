@@ -55,6 +55,8 @@ export class ActionCommand {
           this.entityId,
           this.payload
         );
+      case ActionCommandType.GameMessages:
+        return this.receiver.gameMessageCommandHandler(this.actionCommandManager, this.payload);
     }
   }
 }

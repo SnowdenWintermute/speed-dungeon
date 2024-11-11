@@ -7,7 +7,7 @@ export default function getParty(game: null | SpeedDungeonGame, username: null |
   const player = game.players[username];
   if (!player) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
   const partyName = player.partyName;
-  if (!partyName) return new Error(ERROR_MESSAGES.GAME.MISSING_PARTY_NAME);
+  if (!partyName) return new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
   const party = game.adventuringParties[partyName];
   if (!party) return new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
 

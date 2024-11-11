@@ -1,4 +1,4 @@
-import { COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER } from "../../app_consts.js";
+import { COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER } from "../../app-consts.js";
 import { CombatantProperties } from "../../combatants/index.js";
 import { NumberRange } from "../../primatives/number-range.js";
 import addWeaponDamageToCombatActionHpChange from "./add-weapon-damage-to-hp-change-range.js";

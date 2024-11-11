@@ -1,4 +1,4 @@
-import { AdventuringParty } from "../adventuring_party/index.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
 import { EntityId } from "../primatives/index.js";
 import { Inventory } from "./inventory.js";
 import { CombatantProperties } from "./combatant-properties.js";

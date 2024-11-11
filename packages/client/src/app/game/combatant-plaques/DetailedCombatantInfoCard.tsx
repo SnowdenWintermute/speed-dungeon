@@ -2,7 +2,7 @@ import { useGameStore } from "@/stores/game-store";
 import { useShallow } from "zustand/react/shallow";
 import React, { useEffect, useRef, useState } from "react";
 import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
-import CombatantDetailsDisplay from "../detailables/CombatantDetailsDisplay";
+import CombatantDisplay from "../detailables/CombatantDisplay";
 import { SPACING_REM_SMALL } from "@/client_consts";
 
 interface Props {
@@ -42,7 +42,7 @@ export default function DetailedCombatantInfoCard(props: Props) {
 
   const detailedInfoCard = combatantDetailsOption ? (
     <div className="border border-slate-400 bg-slate-700 p-2.5">
-      <CombatantDetailsDisplay combatantDetails={combatantDetailsOption} />
+      <CombatantDisplay combatantDetails={combatantDetailsOption} />
     </div>
   ) : (
     <div />

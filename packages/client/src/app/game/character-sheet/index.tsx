@@ -1,11 +1,10 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import { MenuContext, useGameStore } from "@/stores/game-store";
-import { AdventuringParty, CombatantProperties, ERROR_MESSAGES } from "@speed-dungeon/common";
+import { CombatantProperties, ERROR_MESSAGES } from "@speed-dungeon/common";
 import React from "react";
 import CharacterSheetCharacterSelectionButton from "./CharacterSheetCharacterSelectionButton";
 import CharacterAttributes from "./CharacterAttributes";
 import PaperDoll from "./PaperDoll";
-import playerOwnsCharacter from "@speed-dungeon/common/src/adventuring_party/player-owns-character";
 
 export default function CharacterSheet() {
   const partyResult = useGameStore().getParty();

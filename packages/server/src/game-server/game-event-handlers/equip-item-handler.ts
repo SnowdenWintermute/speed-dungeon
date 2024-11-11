@@ -4,15 +4,19 @@ import {
   ServerToClientEvent,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { GameServer } from "../index.js";
+import { getGameServer } from "../../singletons.js";
 
 export default function equipItemHandler(
-  this: GameServer,
-  characterAssociatedData: CharacterAssociatedData,
-  itemId: string,
-  equipToAltSlot: boolean
+  eventData: {
+    characterId: string;
+    itemId: string;
+    equipToAltSlot: boolean;
+  },
+  characterAssociatedData: CharacterAssociatedData
 ) {
   const { game, party, character } = characterAssociatedData;
+  const { itemId, equipToAltSlot } = eventData;
+  const gameServer = getGameServer();
 
   const equipItemResult = CombatantProperties.equipItem(
     character.combatantProperties,
@@ -22,7 +26,7 @@ export default function equipItemHandler(
   if (equipItemResult instanceof Error) return equipItemResult;
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
-  this.io.to(partyChannelName).emit(ServerToClientEvent.CharacterEquippedItem, {
+  gameServer.io.to(partyChannelName).emit(ServerToClientEvent.CharacterEquippedItem, {
     characterId: character.entityProperties.id,
     itemId,
     equipToAlternateSlot: equipToAltSlot,

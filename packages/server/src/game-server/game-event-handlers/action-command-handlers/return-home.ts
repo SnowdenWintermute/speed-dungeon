@@ -26,9 +26,8 @@ export default function returnHomeActionCommandHandler(
   const { shouldEndTurn } = payload;
   const actionAssociatedDataResult = this.getGamePartyAndCombatant(gameName, combatantId);
   if (actionAssociatedDataResult instanceof Error) return actionAssociatedDataResult;
-  const { game, party, combatant } = actionAssociatedDataResult;
-  // SERVER
-  // - end the combatant's turn if in battle and action required turn
+  const { game, party } = actionAssociatedDataResult;
+
   let newActiveCombatantTrackerOption: null | CombatantTurnTracker = null;
   if (party.battleId !== null && shouldEndTurn) {
     // @todo - if this combatant is dead that means they killed themselves on their own turn
@@ -38,9 +37,6 @@ export default function returnHomeActionCommandHandler(
     newActiveCombatantTrackerOption = maybeError;
   }
 
-  // - check for party wipes and victories and apply/emit them
-
-  // check for wipes from the perspective of the players (allies are the party characters, enemies are the monsters)
   if (!party.characterPositions[0]) return new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
   const partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
   if (partyWipesResult instanceof Error) return partyWipesResult;
@@ -56,7 +52,7 @@ export default function returnHomeActionCommandHandler(
     } else {
       conclusion = BattleConclusion.Victory;
       console.log("BATTLE VICTORY");
-      loot.push(...this.generateLoot(game, party));
+      loot.push(...this.generateLoot(party));
       experiencePointChanges = this.generateExperiencePoints(party);
     }
 

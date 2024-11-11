@@ -53,10 +53,9 @@ export default function selectCombatActionHandler(
     gameState.hoveredAction = null;
     gameState.hoveredEntity = null;
 
-    websocketConnection.emit(
-      ClientToServerEvent.SelectCombatAction,
-      focusedCharacter.entityProperties.id,
-      combatActionOption
-    );
+    websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+      characterId: focusedCharacter.entityProperties.id,
+      combatActionOption,
+    });
   });
 }

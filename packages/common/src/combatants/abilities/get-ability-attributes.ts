@@ -1,5 +1,5 @@
 import { CombatantAbilityName } from "../index.js";
-import { OFF_HAND_ACCURACY_MODIFIER, OFF_HAND_DAMAGE_MODIFIER } from "../../app_consts.js";
+import { OFF_HAND_ACCURACY_MODIFIER, OFF_HAND_DAMAGE_MODIFIER } from "../../app-consts.js";
 import {
   CombatActionProperties,
   ActionUsableContext,

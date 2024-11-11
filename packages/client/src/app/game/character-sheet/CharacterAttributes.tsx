@@ -77,7 +77,7 @@ export default function CharacterAttributes({
           {entityProperties.name}
           {` (${formatCombatantClassName(combatantProperties.combatantClass)})`}
         </span>
-        <span className="h-10 w-10 p-1 flex justify-center rotate-45">
+        <span className="h-10 w-10 flex justify-center rotate-45">
           <CombatantClassIcon combatantClass={combatantProperties.combatantClass} />
         </span>
       </div>

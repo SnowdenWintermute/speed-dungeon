@@ -1,12 +1,10 @@
 export * from "./player.js";
-export * from "./id-generator.js";
 export * from "./remove-player-from-party.js";
 export * from "./get-player-party.js";
 import { immerable } from "immer";
-import { AdventuringParty } from "../adventuring_party/index.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
-import { EntityId } from "../primatives/index.js";
-import { IdGenerator } from "./id-generator.js";
+import { EntityId, MaxAndCurrent } from "../primatives/index.js";
 import { SpeedDungeonPlayer } from "./player.js";
 import assignCharacterActionTargets from "../combat/targeting/assign-character-action-targets.js";
 import putPlayerInParty from "./put-player-in-party.js";
@@ -21,23 +19,31 @@ import applyActionResults from "../combat/action-results/apply-action-results/in
 import { tickCombatUntilNextCombatantIsActive } from "../combat/turn-order/tick-combat-until-next-combatant-is-active.js";
 import endActiveCombatantTurn from "../combat/turn-order/end-active-combatant-turn.js";
 import allCombatantsInGroupAreDead from "../combat/all-combatants-in-group-are-dead.js";
-import { getPlayerParty } from "./get-player-party.js";
+import { getPlayerPartyOption } from "./get-player-party.js";
 import cycleCharacterTargetingSchemes from "../combat/targeting/cycle-character-targeting-schemes.js";
 import getActionResults from "../combat/action-results/get-action-results.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import handleBattleVictory from "./handle-battle-victory.js";
+import { GameMode } from "../types.js";
+import { MAX_PARTY_SIZE } from "../app-consts.js";
 
 export class SpeedDungeonGame {
   [immerable] = true;
-  name: string;
   players: { [username: string]: SpeedDungeonPlayer } = {};
+  playerCapacity: number | null = null;
   playersReadied: string[] = [];
   adventuringParties: { [partyName: string]: AdventuringParty } = {};
   battles: { [id: EntityId]: Battle } = {};
   timeStarted: null | number = null;
-  idGenerator: IdGenerator = new IdGenerator();
-  constructor(name: string) {
-    this.name = name;
+  selectedStartingFloor: MaxAndCurrent = new MaxAndCurrent(1, 1);
+  constructor(
+    public id: string,
+    public name: string,
+    public mode: GameMode,
+    public gameCreator: string | null = null,
+    public isRanked: boolean = false
+  ) {
+    if (mode === GameMode.Progression) this.playerCapacity = MAX_PARTY_SIZE;
   }
 
   static removePlayerFromParty = removePlayerFromParty;
@@ -50,7 +56,7 @@ export class SpeedDungeonGame {
   static cycleCharacterTargetingSchemes = cycleCharacterTargetingSchemes;
   static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
   static getPartyOfCombatant = getPartyOfCombatant;
-  static getPlayerParty = getPlayerParty;
+  static getPlayerPartyOption = getPlayerPartyOption;
   static getActionResults = getActionResults;
   static applyActionResults = applyActionResults;
   static tickCombatUntilNextCombatantIsActive = tickCombatUntilNextCombatantIsActive;

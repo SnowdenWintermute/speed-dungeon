@@ -1,4 +1,4 @@
-import { AdventuringParty } from "../../adventuring_party/index.js";
+import { AdventuringParty } from "../../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { CombatActionProperties } from "../combat-actions/index.js";
 import {

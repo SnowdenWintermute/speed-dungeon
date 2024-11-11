@@ -1,4 +1,4 @@
-import { AdventuringParty } from "../../adventuring_party/index.js";
+import { AdventuringParty } from "../../adventuring-party/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "../../game/index.js";
 import getOwnedCharacterAndSelectedCombatAction from "../../utils/get-owned-character-and-selected-combat-action.js";

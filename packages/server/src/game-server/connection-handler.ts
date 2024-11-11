@@ -1,49 +1,33 @@
 import { GameServer } from "./index.js";
-import { generateRandomUsername } from "../utils/index.js";
-import { LOBBY_CHANNEL, ServerToClientEvent, UserAuthStatus } from "@speed-dungeon/common";
+import { LOBBY_CHANNEL, ServerToClientEvent } from "@speed-dungeon/common";
 import { BrowserTabSession } from "./socket-connection-metadata.js";
 import { env } from "../validate-env.js";
+import { applyMiddlewares } from "./event-middleware/index.js";
+import disconnectionHandler from "./disconnection-handler.js";
+import getSession from "./event-middleware/get-session.js";
+import { getLoggedInUserOrCreateGuest } from "./get-logged-in-user-or-create-guest.js";
 
 export function connectionHandler(this: GameServer) {
   this.io.of("/").on("connection", async (socket) => {
     const req = socket.request;
-    const cookies = req.headers.cookie;
-    let usernameOption;
-    let username = "";
-    let userAuthStatus = UserAuthStatus.Guest;
+    let cookies = req.headers.cookie;
+    cookies += `; internal=${env.INTERNAL_SERVICES_SECRET};`;
 
-    if (cookies) {
-      const res = await fetch(`${env.AUTH_SERVER_URL}/sessions`, {
-        method: "GET",
-        headers: {
-          Cookie: cookies,
-        },
-      });
-      const body = await res.json();
-      usernameOption = body["username"];
-      if (usernameOption) {
-        username = body["username"];
-        userAuthStatus = UserAuthStatus.LoggedIn;
-        // this is a logged in user
-      }
-    }
-    if (!username) {
-      username = generateRandomUsername();
-      // this is a guest
-    }
+    let { username, userId } = await getLoggedInUserOrCreateGuest(cookies, socket);
 
     console.log(`-- ${username} (${socket.id}) connected`);
-    this.connections.insert(socket.id, new BrowserTabSession(socket.id, username, userAuthStatus));
+    this.connections.insert(socket.id, new BrowserTabSession(socket.id, username, userId));
 
     if (this.socketIdsByUsername.has(username)) {
       const currentSockets = this.socketIdsByUsername.get(username)!;
       currentSockets.push(socket.id);
     } else this.socketIdsByUsername.insert(username, [socket.id]);
 
-    this.disconnectionHandler(socket);
+    this.joinSocketToChannel(socket.id, LOBBY_CHANNEL);
+    socket.on("disconnect", applyMiddlewares(getSession)(socket, disconnectionHandler));
     this.initiateLobbyEventListeners(socket);
     this.initiateGameEventListeners(socket);
-    this.joinSocketToChannel(socket.id, LOBBY_CHANNEL);
+    this.initiateSavedCharacterListeners(socket);
     socket.emit(ServerToClientEvent.ClientUsername, username);
   });
 }

@@ -1,7 +1,14 @@
 // @refresh reset
 "use client";
-import { FormEvent, useEffect, useRef, useState } from "react";
-import { ClientToServerEvent, GameListEntry } from "@speed-dungeon/common";
+import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
+import { useEffect, useRef, useState } from "react";
+import {
+  ClientToServerEvent,
+  GameListEntry,
+  GameMode,
+  MAX_PARTY_SIZE,
+  formatGameMode,
+} from "@speed-dungeon/common";
 import ButtonBasic from "../../components/atoms/ButtonBasic";
 import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client_consts";
 import Divider from "@/app/components/atoms/Divider";
@@ -9,37 +16,47 @@ import { useLobbyStore } from "@/stores/lobby-store";
 import useElementIsOverflowing from "@/hooks/use-element-is-overflowing";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { websocketConnection } from "@/singletons/websocket-connection";
+import HostGameForm from "./HostGameForm";
+import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import RefreshIcon from "../../../../public/img/menu-icons/refresh.svg";
 
 export default function GamesSection() {
-  const [gameName, setGameName] = useState("");
   const [gameListRefreshedAt, setGameListRefreshedAt] = useState("...");
   const gameList = useLobbyStore().gameList;
   const gameListRef = useRef(null);
   const gameListIsOverflowing = useElementIsOverflowing(gameListRef.current);
+  const mutateLobbyState = useLobbyStore().mutateState;
+  const showGameCreationForm = useLobbyStore().showGameCreationForm;
+  const gameFormHolderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setGameListRefreshedAt(new Date(Date.now()).toLocaleTimeString());
   }, []);
-
-  function createGame(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    websocketConnection.emit(ClientToServerEvent.CreateGame, gameName);
-  }
 
   function refreshGameList() {
     websocketConnection.emit(ClientToServerEvent.RequestsGameList);
     setGameListRefreshedAt(new Date(Date.now()).toLocaleTimeString());
   }
 
-  // const testGames = new Array(40).fill("").map((item) => {
-  //   const entry = {
-  //     gameName: "some game nameeeeeeeeeeeee",
-  //     numberOfUsers: Math.floor(Math.random() * 3),
-  //     timeStarted: null,
-  //   };
+  const handleClickOutside = (e: MouseEvent) => {
+    if (gameFormHolderRef.current) {
+      const menuRect = gameFormHolderRef.current.getBoundingClientRect();
+      const { x, y, width, height } = menuRect;
+      const maxX = x + width;
+      const maxY = y + height;
+      if (e.x < x || e.x > maxX || e.y > maxY || e.y < y)
+        mutateLobbyState((state) => {
+          state.showGameCreationForm = false;
+        });
+    }
+  };
 
-  //   return <GameListItem game={entry} />;
-  // });
+  useEffect(() => {
+    window.addEventListener("click", handleClickOutside);
+    return () => {
+      window.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div
@@ -64,9 +81,13 @@ export default function GamesSection() {
           }}
         >
           <div>{gameList.length ? "Current games" : "No current games..."}</div>
-          <ButtonBasic extraStyles="border-r-0" onClick={refreshGameList}>
-            REFRESH LIST
-          </ButtonBasic>
+          <HotkeyButton
+            hotkeys={["KeyR"]}
+            className="border-l border-slate-400 p-2 h-full"
+            onClick={refreshGameList}
+          >
+            <RefreshIcon className="h-full w-10 fill-zinc-300" />
+          </HotkeyButton>
         </div>
         {<Divider />}
         <ul
@@ -84,34 +105,51 @@ export default function GamesSection() {
           ))}
         </ul>
       </div>
-      <form
-        id="create-game-form"
-        className="pointer-events-auto h-fit w-full laptop:w-6/12 laptop:pl-2"
-        onSubmit={createGame}
+      <div
+        className="pointer-events-auto h-fit w-full laptop:w-6/12 laptop:pl-2 relative"
+        id="game-form-holder"
+        ref={gameFormHolderRef}
       >
         <div className="mb-2">
-          Host a multiplayer game{" "}
+          Host a custom game{" "}
           <HoverableTooltipWrapper
             extraStyles="inline"
-            tooltipText="Host a game where multiple players can control multiple parties of characters and race to the bottom of the dungeon"
+            tooltipText="Choose from Race or Progression mode and enter the dungeon in a single or multiplayer game (A)"
           >
             ⓘ{" "}
           </HoverableTooltipWrapper>
         </div>
-        <div className="flex flex-1 mb-2">
-          <input
-            className="bg-slate-700 border border-slate-400 h-10 p-4 min-w-0 flex-1"
-            type="text"
-            name="game name"
-            placeholder="Game name..."
-            onChange={(e) => setGameName(e.target.value)}
-            value={gameName}
-          />
-          <ButtonBasic buttonType="submit" extraStyles="border-l-0 bg-slate-700">
-            CREATE
-          </ButtonBasic>
+        <div
+          className={`bg-slate-700 w-full h-10 border border-slate-400 flex justify-between items-center pointer-events-auto`}
+        >
+          <HotkeyButton
+            hotkeys={["KeyA"]}
+            className="w-full h-full"
+            onClick={() =>
+              mutateLobbyState((state) => {
+                state.showGameCreationForm = !state.showGameCreationForm;
+              })
+            }
+          >
+            HOST GAME {showGameCreationForm}
+          </HotkeyButton>
+          {showGameCreationForm && (
+            <HotkeyButton
+              className="p-2 h-10 w-10 border-l border-slate-400 cursor-pointer pointer-events-none absolute right-0"
+              hotkeys={["Escape"]}
+              onClick={() => {
+                mutateLobbyState((state) => {
+                  state.showGameCreationForm = false;
+                });
+              }}
+              ariaLabel="close game form"
+            >
+              <XShape className="h-full w-full fill-zinc-300" />
+            </HotkeyButton>
+          )}
         </div>
-      </form>
+        {showGameCreationForm && <HostGameForm />}
+      </div>
     </div>
   );
 }
@@ -120,9 +158,9 @@ interface GameListItemProps {
   game: GameListEntry;
 }
 
-function GameListItem(props: GameListItemProps) {
+function GameListItem({ game }: GameListItemProps) {
   function joinGame() {
-    websocketConnection.emit(ClientToServerEvent.JoinGame, props.game.gameName);
+    websocketConnection.emit(ClientToServerEvent.JoinGame, game.gameName);
   }
 
   return (
@@ -133,18 +171,24 @@ function GameListItem(props: GameListItemProps) {
           paddingLeft: `${SPACING_REM_SMALL}rem`,
         }}
       >
-        {props.game.gameName}
+        {game.gameName} - [{game.isRanked && "Ranked "}
+        {formatGameMode(game.gameMode)}]
       </div>
-      <div className="h-10 w-28 flex items-center border-r border-l border-slate-400 pl-4 pr-4">
+      <div className="h-10 w-32 flex items-center border-r border-l border-slate-400 pl-4 pr-4">
         <div className="overflow-hidden whitespace-nowrap overflow-ellipsis">
-          {props.game.numberOfUsers}
+          {game.numberOfUsers}
+          {game.gameMode === GameMode.Progression && `/${MAX_PARTY_SIZE}`}
           {" player"}
-          {props.game.numberOfUsers > 1 || props.game.numberOfUsers === 0 ? "s" : ""}
+          {game.numberOfUsers > 1 ||
+          game.numberOfUsers === 0 ||
+          game.gameMode === GameMode.Progression
+            ? "s"
+            : ""}
         </div>
       </div>
       <ButtonBasic
         onClick={joinGame}
-        disabled={typeof props.game.timeStarted === "number"}
+        disabled={typeof game.timeStarted === "number"}
         extraStyles="border-0"
       >
         {"Join"}

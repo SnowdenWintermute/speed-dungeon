@@ -1,6 +1,4 @@
 import { Socket } from "socket.io";
-import { GameServer } from "../index.js";
-import { BrowserTabSession } from "../socket-connection-metadata.js";
 import {
   CharacterAssociatedData,
   ERROR_MESSAGES,
@@ -10,13 +8,13 @@ import {
 } from "@speed-dungeon/common";
 
 export default function cycleTargetingSchemesHandler(
-  this: GameServer,
-  socket: Socket,
-  browserTabSession: BrowserTabSession,
-  characterAssociatedData: CharacterAssociatedData
+  _eventData: { characterId: string },
+  characterAssociatedData: CharacterAssociatedData,
+  socket: Socket
 ) {
   const { game, party, character } = characterAssociatedData;
-  const playerOption = game.players[browserTabSession.username];
+  const { username } = characterAssociatedData.player;
+  const playerOption = game.players[username];
   if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
   SpeedDungeonGame.cycleCharacterTargetingSchemes(
@@ -34,6 +32,6 @@ export default function cycleTargetingSchemesHandler(
     .emit(
       ServerToClientEvent.CharacterCycledTargetingSchemes,
       character.entityProperties.id,
-      browserTabSession.username
+      username
     );
 }

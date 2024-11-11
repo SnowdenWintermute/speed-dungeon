@@ -1,108 +1,41 @@
-import { GameServer } from "..";
 import {
   CombatantClass,
   ERROR_MESSAGES,
-  EntityId,
-  PlayerCharacter,
+  MAX_CHARACTER_NAME_LENGTH,
   ServerToClientEvent,
   SpeedDungeonGame,
-  updateCombatantHomePosition,
+  addCharacterToParty,
 } from "@speed-dungeon/common";
-import { generateRandomCharacterName } from "../../utils/index.js";
-import errorHandler from "../error-handler.js";
-import { MAX_PARTY_SIZE } from "@speed-dungeon/common";
-import outfitNewCharacter from "../item-generation/outfit-new-character.js";
-import { Vector3 } from "@babylonjs/core";
-
-const ATTEMPT_TEXT = "A client tried to create a character but";
+import { createCharacter } from "../character-creation/index.js";
+import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
+import { getGameServer } from "../../singletons.js";
 
 export default function createCharacterHandler(
-  this: GameServer,
-  socketId: string,
-  characterName: string,
-  combatantClass: CombatantClass
+  eventData: { name: string; combatantClass: CombatantClass },
+  playerAssociatedData: ServerPlayerAssociatedData
 ) {
-  const [socket, socketMeta] = this.getConnection(socketId);
+  const { game, player, session } = playerAssociatedData;
+  if (!player.partyName) return new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
 
-  try {
-    if (!socketMeta.currentGameName)
-      return errorHandler(socket, `${ATTEMPT_TEXT} they didn't know what game they were in`);
+  const { name, combatantClass } = eventData;
 
-    const game = this.games.get(socketMeta.currentGameName);
-    if (!game) return errorHandler(socket, `${ATTEMPT_TEXT} their game was not found`);
-    const player = game.players[socketMeta.username];
-    if (!player) return errorHandler(socket, `${ATTEMPT_TEXT} their player wasn't in the game`);
-    if (!player.partyName) return errorHandler(socket, ERROR_MESSAGES.GAME.MISSING_PARTY_NAME);
+  if (name.length > MAX_CHARACTER_NAME_LENGTH)
+    return new Error(ERROR_MESSAGES.COMBATANT.MAX_NAME_LENGTH_EXCEEDED);
+  const newCharacter = createCharacter(name, combatantClass);
+  addCharacterToParty(game, player, newCharacter);
 
-    if (characterName === "") characterName = generateRandomCharacterName();
+  const newCharacterId = newCharacter.entityProperties.id;
 
-    const newCharacterId = addCharacterToParty(
-      this,
-      game,
+  const characterResult = SpeedDungeonGame.getCharacter(game, player.partyName, newCharacterId);
+  if (characterResult instanceof Error) throw characterResult;
+
+  getGameServer()
+    .io.of("/")
+    .in(game.name)
+    .emit(
+      ServerToClientEvent.CharacterAddedToParty,
       player.partyName,
-      combatantClass,
-      characterName,
-      player.username
+      session.username,
+      characterResult
     );
-
-    player.characterIds.push(newCharacterId);
-
-    const characterResult = SpeedDungeonGame.getCharacter(game, player.partyName, newCharacterId);
-    if (characterResult instanceof Error) throw characterResult;
-
-    this.io
-      .of("/")
-      .in(game.name)
-      .emit(
-        ServerToClientEvent.CharacterCreated,
-        player.partyName,
-        socketMeta.username,
-        characterResult
-      );
-  } catch (e) {
-    if (e instanceof Error) return errorHandler(socket, e.message);
-    else console.error(e);
-  }
-}
-
-function addCharacterToParty(
-  gameServer: GameServer,
-  game: SpeedDungeonGame,
-  partyName: string,
-  combatantClass: CombatantClass,
-  characterName: string,
-  nameOfControllingUser: string
-): EntityId {
-  const party = game.adventuringParties[partyName];
-  if (!party) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
-
-  if (Object.keys(party.characters).length >= MAX_PARTY_SIZE)
-    throw new Error(ERROR_MESSAGES.GAME.MAX_PARTY_SIZE);
-
-  const characterId = game.idGenerator.getNextEntityId();
-
-  // const homePosition
-
-  const newCharacter = new PlayerCharacter(
-    nameOfControllingUser,
-    combatantClass,
-    characterName,
-    characterId,
-    Vector3.Zero()
-  );
-
-  outfitNewCharacter(gameServer, game.idGenerator, newCharacter);
-  // newCharacter.combatantProperties.hitPoints = 1;
-
-  party.characters[characterId] = newCharacter;
-  party.characterPositions.push(characterId);
-
-  for (const character of Object.values(party.characters))
-    updateCombatantHomePosition(
-      character.entityProperties.id,
-      character.combatantProperties,
-      party
-    );
-
-  return characterId;
 }

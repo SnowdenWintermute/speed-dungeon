@@ -6,12 +6,15 @@ import {
   SceneLoader,
   ShadowGenerator,
   Mesh,
+  ICanvasRenderingContext,
+  DynamicTexture,
+  GroundMesh,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { BASE_FILE_PATH } from "../combatant-models/modular-character-parts";
 import { initScene } from "./init-scene";
 import { CombatTurnResult } from "@speed-dungeon/common";
-import { NextToBabylonMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
+import { NextToBabylonMessage } from "@/singletons/next-to-babylon-message-queue";
 import { MutateState } from "@/stores/mutate-state";
 import { GameState } from "@/stores/game-store";
 import showDebugText from "./show-debug-text";
@@ -19,8 +22,8 @@ import processMessagesFromNext from "./process-messages-from-next";
 import { NextBabylonMessagingState } from "@/stores/next-babylon-messaging-store";
 import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
-import { MutableRefObject } from "react";
-import { ActionCommandManager } from "@speed-dungeon/common";
+import { clearFloorTexture } from "./clear-floor-texture";
+import drawCharacterSlots from "./draw-character-slots";
 
 export class GameWorld {
   scene: Scene;
@@ -35,17 +38,18 @@ export class GameWorld {
   modelManager: ModelManager = new ModelManager(this);
   turnResultsQueue: CombatTurnResult[] = [];
   currentRoomLoaded: boolean = false;
+  groundTexture: DynamicTexture;
   constructor(
     public canvas: HTMLCanvasElement,
     public mutateGameState: MutateState<GameState>,
     public mutateNextBabylonMessagingState: MutateState<NextBabylonMessagingState>,
-    public actionCommandManager: MutableRefObject<ActionCommandManager | null | undefined>,
     debugRef: React.RefObject<HTMLDivElement>
   ) {
     this.engine = new Engine(canvas, true);
+    // this.engine.setHardwareScalingLevel(10); // renders at lower resolutions
     this.scene = new Scene(this.engine);
     this.debug.debugRef = debugRef;
-    [this.camera, this.shadowGenerator, this.sun] = this.initScene();
+    [this.camera, this.shadowGenerator, this.sun, this.groundTexture] = this.initScene();
 
     this.engine.runRenderLoop(() => {
       this.updateGameWorld();
@@ -72,11 +76,18 @@ export class GameWorld {
 
   handleError = handleGameWorldError;
   initScene = initScene;
+  clearFloorTexture = clearFloorTexture;
+  drawCharacterSlots = drawCharacterSlots;
   showDebugText = showDebugText;
   processMessagesFromNext = processMessagesFromNext;
 
   async importMesh(path: string) {
-    const sceneResult = await SceneLoader.ImportMeshAsync("", BASE_FILE_PATH, path, this.scene);
+    const sceneResult = await SceneLoader.ImportMeshAsync(
+      "",
+      BASE_FILE_PATH || "",
+      path,
+      this.scene
+    );
     if (this.useShadows)
       for (const mesh of sceneResult.meshes) this.shadowGenerator?.addShadowCaster(mesh, true);
     return sceneResult;

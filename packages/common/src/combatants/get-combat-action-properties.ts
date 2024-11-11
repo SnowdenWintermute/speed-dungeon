@@ -1,8 +1,8 @@
-import { AdventuringParty } from "../adventuring_party/index.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ConsumableProperties } from "../items/index.js";
-import getCombatantInParty from "../adventuring_party/get-combatant-in-party.js";
-import { getItemInAdventuringParty } from "../adventuring_party/get-item-in-party.js";
+import getCombatantInParty from "../adventuring-party/get-combatant-in-party.js";
+import { getItemInAdventuringParty } from "../adventuring-party/get-item-in-party.js";
 import {
   CombatAction,
   CombatActionProperties,

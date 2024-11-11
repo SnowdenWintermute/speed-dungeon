@@ -7,6 +7,7 @@ import { useGameStore } from "@/stores/game-store";
 import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { useUIStore } from "@/stores/ui-store";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 
@@ -95,7 +96,9 @@ function UserMenu({ username }: { username: null | string }) {
   const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
   const mutateUIState = useUIStore().mutateState;
+  const mutateLobbyState = useLobbyStore().mutateState;
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
   // on log out
   // send log out to auth server
   // reset socket connection
@@ -110,8 +113,14 @@ function UserMenu({ username }: { username: null | string }) {
         state.requests[HTTP_REQUEST_NAMES.GET_SESSION] = new HttpRequestTracker();
       // don't delete the tracker because our auth form and user menu loading spinner
       // state depend on if this request tracke has been created yet
-      state.requests[HTTP_REQUEST_NAMES.GET_SESSION]!.statusCode = 1;
+      if (state.requests[HTTP_REQUEST_NAMES.GET_SESSION]) {
+        state.requests[HTTP_REQUEST_NAMES.GET_SESSION]!.statusCode = 1;
+      }
       delete state.requests[HTTP_REQUEST_NAMES.LOGIN_WITH_CREDENTIALS];
+    });
+
+    mutateLobbyState((state) => {
+      state.showAuthForm = true;
     });
 
     mutateGameState((state) => {
@@ -154,7 +163,7 @@ function UserMenu({ username }: { username: null | string }) {
       <button
         type="button"
         id="user-menu-button"
-        className={`border border-slate-400 rounded-full h-10 w-10 flex justify-center items-center pb-1 hover:bg-slate-950`}
+        className={`border border-slate-400 rounded-full h-10 w-10 flex justify-center items-center hover:bg-slate-950`}
         aria-controls="user-menu-items"
         aria-expanded={showUserDropdown}
         aria-label={"toggle user menu"}
@@ -189,6 +198,17 @@ function UserMenu({ username }: { username: null | string }) {
                   }}
                 >
                   Settings
+                </button>
+              </UserMenuItem>
+              <UserMenuItem>
+                <button
+                  className="h-full w-full flex items-center p-4"
+                  onClick={() => {
+                    router.push(`/profile/${username}?page=1`);
+                    setShowUserDropdown(false);
+                  }}
+                >
+                  Profile
                 </button>
               </UserMenuItem>
               <UserMenuItem>

@@ -1,4 +1,4 @@
-export * from "./app_consts.js";
+export * from "./app-consts.js";
 export * from "./users/index.js";
 export * from "./types.js";
 export * from "./utils/index.js";
@@ -8,7 +8,7 @@ export * from "./combat/index.js";
 export * from "./monsters/index.js";
 export * from "./battle/index.js";
 export * from "./combatants/index.js";
-export * from "./adventuring_party/index.js";
+export * from "./adventuring-party/index.js";
 export * from "./packets/index.js";
 export * from "./primatives/index.js";
 export * from "./items/index.js";

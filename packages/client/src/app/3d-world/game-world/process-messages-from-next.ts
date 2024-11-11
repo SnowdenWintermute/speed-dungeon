@@ -1,44 +1,40 @@
 import {
   NextToBabylonMessage,
   NextToBabylonMessageTypes,
-} from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
+  nextToBabylonMessageQueue,
+} from "@/singletons/next-to-babylon-message-queue";
 import { GameWorld } from ".";
-import { ModelManagerMessageType } from "./model-manager";
 import startMovingIntoCombatActionUsePosition from "./start-moving-into-combat-action-use-position";
 import startPerformingCombatAction from "./start-performing-combat-action";
 import startReturningHome from "./start-returning-home";
 
 export default function processMessagesFromNext(this: GameWorld) {
-  if (this.messages.length > 0) {
-    const message = this.messages.shift();
-    if (message !== undefined) {
-      const maybeError = handleMessageFromNext(this, message);
-      // if (maybeError instanceof Error) {
-      //   console.error(maybeError.message);
-      //   this.engine.stopRenderLoop();
-      // }
-    }
+  if (nextToBabylonMessageQueue.messages.length > 0) {
+    const message = nextToBabylonMessageQueue.messages.shift();
+    if (message === undefined) return;
+    const maybeError = handleMessageFromNext(this, message);
+    // if (maybeError instanceof Error) {
+    //   console.error(maybeError.message);
+    //   this.engine.stopRenderLoop();
+    // }
   }
 }
 
 function handleMessageFromNext(gameWorld: GameWorld, message: NextToBabylonMessage) {
   switch (message.type) {
-    case NextToBabylonMessageTypes.SpawnCombatantModel:
-      gameWorld.modelManager.enqueueMessage(message.combatantModelBlueprint.entityId, {
-        type: ModelManagerMessageType.SpawnModel,
-        blueprint: message.combatantModelBlueprint,
-      });
-      break;
-    case NextToBabylonMessageTypes.RemoveCombatantModel:
-      gameWorld.modelManager.enqueueMessage(message.entityId, {
-        type: ModelManagerMessageType.DespawnModel,
-      });
-      break;
     case NextToBabylonMessageTypes.StartMovingCombatantIntoCombatActionPosition:
       return startMovingIntoCombatActionUsePosition(gameWorld, message);
     case NextToBabylonMessageTypes.StartPerformingCombatAction:
       return startPerformingCombatAction(gameWorld, message);
     case NextToBabylonMessageTypes.StartReturningHome:
       return startReturningHome(gameWorld, message);
+    case NextToBabylonMessageTypes.MoveCamera:
+      if (!gameWorld.camera) return;
+      const { radius, target, alpha, beta } = message;
+      const { camera } = gameWorld;
+      camera.target = target;
+      camera.radius = radius;
+      camera.alpha = alpha;
+      camera.beta = beta;
   }
 }

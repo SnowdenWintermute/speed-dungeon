@@ -1,4 +1,3 @@
-import { CombatantModelBlueprint } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import { GameWorld } from ".";
 import { ModularCharacter } from "../combatant-models/modular-character";
 import { disposeAsyncLoadedScene } from "../utils";
@@ -15,6 +14,7 @@ import {
   SKELETONS,
 } from "../combatant-models/modular-character-parts";
 import { Color3, StandardMaterial } from "@babylonjs/core";
+import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
 
 // the whole point of all this is to make sure we never handle spawn and despawn messages out of order due
 // to the asynchronous nature of spawning models
@@ -34,7 +34,10 @@ class ModelMessageQueue {
     while (currentMessageProcessing) {
       switch (currentMessageProcessing.type) {
         case ModelManagerMessageType.SpawnModel:
-          await this.modelManager.spawnCharacterModel(currentMessageProcessing.blueprint);
+          await this.modelManager.spawnCharacterModel(
+            currentMessageProcessing.blueprint,
+            currentMessageProcessing.checkIfRoomLoaded
+          );
           break;
         case ModelManagerMessageType.DespawnModel:
           this.modelManager.despawnCharacterModel(this.entityId);
@@ -67,8 +70,12 @@ export class ModelManager {
     this.modelMessageQueues[entityId]!.messages.push(message);
   }
 
-  async spawnCharacterModel(blueprint: CombatantModelBlueprint): Promise<Error | ModularCharacter> {
+  async spawnCharacterModel(
+    blueprint: CombatantModelBlueprint,
+    checkIfRoomLoaded: boolean
+  ): Promise<Error | ModularCharacter> {
     const parts = [];
+
     if (blueprint.monsterType !== null) {
       if (
         blueprint.monsterType === MonsterType.FireMage ||
@@ -157,7 +164,7 @@ export class ModelManager {
 
     modularCharacter.updateBoundingBox();
 
-    this.checkIfAllModelsInCurrentRoomAreLoaded();
+    if (checkIfRoomLoaded) this.checkIfAllModelsInCurrentRoomAreLoaded();
 
     this.world.mutateGameState((state) => {
       removeFromArray(state.combatantModelsAwaitingSpawn, blueprint.entityId);
@@ -212,6 +219,7 @@ export enum ModelManagerMessageType {
 type SpawnCombatantModelManagerMessage = {
   type: ModelManagerMessageType.SpawnModel;
   blueprint: CombatantModelBlueprint;
+  checkIfRoomLoaded: boolean;
 };
 
 type DespawnModelManagerMessage = {

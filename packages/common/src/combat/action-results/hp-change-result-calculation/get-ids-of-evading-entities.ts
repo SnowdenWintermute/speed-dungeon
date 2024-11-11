@@ -1,4 +1,4 @@
-import { MIN_HIT_CHANCE } from "../../../app_consts.js";
+import { MIN_HIT_CHANCE } from "../../../app-consts.js";
 import {
   CombatAttribute,
   CombatantAttributeRecord,

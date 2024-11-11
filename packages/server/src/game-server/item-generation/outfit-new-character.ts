@@ -8,19 +8,14 @@ import {
   CombatantProperties,
   ConsumableType,
   EquipmentSlot,
-  IdGenerator,
   Item,
-  PlayerCharacter,
+  Combatant,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
-import { GameServer } from "../index.js";
+import { idGenerator } from "../../singletons.js";
 
-export default function outfitNewCharacter(
-  gameServer: GameServer,
-  idGenerator: IdGenerator,
-  character: PlayerCharacter
-) {
+export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
   if (baseStartingAttributesOption) {
@@ -44,21 +39,12 @@ export default function outfitNewCharacter(
       CombatantAbilityName.Ice
     );
 
-  const hpInjector = Item.createConsumable(
-    idGenerator.getNextEntityId(),
-    ConsumableType.HpAutoinjector
-  );
-  const mpInjector = Item.createConsumable(
-    idGenerator.getNextEntityId(),
-    ConsumableType.MpAutoinjector
-  );
+  const hpInjector = Item.createConsumable(idGenerator.generate(), ConsumableType.HpAutoinjector);
+  const mpInjector = Item.createConsumable(idGenerator.generate(), ConsumableType.MpAutoinjector);
   combatantProperties.inventory.items.push(hpInjector);
   combatantProperties.inventory.items.push(mpInjector);
 
-  const startingEquipment = createStartingEquipment(
-    idGenerator,
-    combatantProperties.combatantClass
-  );
+  const startingEquipment = createStartingEquipment(combatantProperties.combatantClass);
   for (const [slotKey, item] of Object.entries(startingEquipment)) {
     const slot = parseInt(slotKey) as EquipmentSlot;
     combatantProperties.equipment[slot] = item;

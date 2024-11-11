@@ -30,11 +30,10 @@ export default function setFocusedCharacter(
     );
 
     if (playerOwnsCharacterSwitchingFocusAwayFrom) {
-      websocketConnection.emit(
-        ClientToServerEvent.SelectCombatAction,
-        characterSwitchingFocusAwayFromId,
-        null
-      );
+      websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+        characterId: characterSwitchingFocusAwayFromId,
+        combatActionOption: null,
+      });
     }
   });
 }

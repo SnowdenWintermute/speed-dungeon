@@ -2,167 +2,88 @@ import {
   ClientToServerEventTypes,
   ServerToClientEventTypes,
   ClientToServerEvent,
-  CharacterAssociatedData,
-  EquipmentSlot,
-  CombatAction,
-  NextOrPrevious,
-  PlayerAssociatedData,
-  CombatAttribute,
-  getPartyChannelName,
-  ServerToClientEvent,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
-import { GameServer } from "../index.js";
-import { BrowserTabSession } from "../socket-connection-metadata.js";
+import { applyMiddlewares } from "../event-middleware/index.js";
+import toggleReadyToExploreHandler from "./toggle-ready-to-explore-handler.js";
+import { playerInGame } from "../event-middleware/get-player-associated-data.js";
+import { toggleReadyToDescendHandler } from "./toggle-ready-to-descend-handler/index.js";
+import { getCharacterAssociatedData } from "../event-middleware/get-character-associated-data.js";
+import { prohibitIfDead } from "../event-middleware/prohibit-if-dead.js";
+import dropItemHandler from "./drop-item-handler.js";
+import dropEquippedItemHandler from "./drop-equipped-item-handler.js";
+import unequipSlotHandler from "./unequip-slot-handler.js";
+import equipItemHandler from "./equip-item-handler.js";
+import pickUpItemHandler from "./pick-up-item-handler.js";
+import acknowledgeReceiptOfItemOnGroundHandler from "./acknowledge-receipt-of-item-on-ground-handler.js";
+import selectCombatActionHandler from "./select-combat-action-handler.js";
+import cycleTargetsHandler from "./cycle-targets-handler.js";
+import cycleTargetingSchemesHandler from "./cycle-targeting-schemes-handler.js";
+import useSelectedCombatActionHandler from "./character-uses-selected-combat-action-handler/index.js";
+import characterSpentAttributePointHandler from "./character-spent-attribute-point-handler.js";
 
 export default function initiateGameEventListeners(
-  this: GameServer,
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
-  socket.on(ClientToServerEvent.ToggleReadyToExplore, () => {
-    this.emitErrorEventIfError(socket, () =>
-      this.playerAssociatedDataProvider(socket.id, (playerAssociatedData: PlayerAssociatedData) =>
-        this.toggleReadyToExploreHandler(playerAssociatedData)
-      )
-    );
-  });
-  socket.on(ClientToServerEvent.ToggleReadyToDescend, () => {
-    this.emitErrorEventIfError(socket, () =>
-      this.playerAssociatedDataProvider(socket.id, (playerAssociatedData: PlayerAssociatedData) =>
-        this.toggleReadyToDescendHandler(playerAssociatedData)
-      )
-    );
-  });
-
-  socket.on(ClientToServerEvent.DropItem, (characterId: string, itemId: string) => {
-    this.emitErrorEventIfError(socket, () =>
-      this.characterActionHandler(
-        socket.id,
-        characterId,
-        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-          this.dropItemHandler(characterAssociatedData, itemId)
-      )
-    );
-  });
-  socket.on(ClientToServerEvent.DropEquippedItem, (characterId: string, slot: EquipmentSlot) => {
-    this.emitErrorEventIfError(socket, () =>
-      this.characterActionHandler(
-        socket.id,
-        characterId,
-        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-          this.dropEquippedItemHandler(characterAssociatedData, slot)
-      )
-    );
-  });
-  socket.on(ClientToServerEvent.UnequipSlot, (characterId: string, slot: EquipmentSlot) => {
-    this.emitErrorEventIfError(socket, () =>
-      this.characterActionHandler(
-        socket.id,
-        characterId,
-        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-          this.unequipSlotHandler(characterAssociatedData, slot)
-      )
-    );
-  });
+  socket.on(
+    ClientToServerEvent.ToggleReadyToExplore,
+    applyMiddlewares(playerInGame)(socket, toggleReadyToExploreHandler)
+  );
+  socket.on(
+    ClientToServerEvent.ToggleReadyToDescend,
+    applyMiddlewares(playerInGame)(socket, toggleReadyToDescendHandler)
+  );
+  socket.on(
+    ClientToServerEvent.DropItem,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, dropItemHandler)
+  );
+  socket.on(
+    ClientToServerEvent.DropEquippedItem,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, dropEquippedItemHandler)
+  );
+  socket.on(
+    ClientToServerEvent.UnequipSlot,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, unequipSlotHandler)
+  );
   socket.on(
     ClientToServerEvent.EquipInventoryItem,
-    ({ characterId, itemId, equipToAlternateSlot }) => {
-      this.emitErrorEventIfError(socket, () =>
-        this.characterActionHandler(
-          socket.id,
-          characterId,
-          (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-            this.equipItemHandler(characterAssociatedData, itemId, equipToAlternateSlot)
-        )
-      );
-    }
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, equipItemHandler)
   );
-  socket.on(ClientToServerEvent.PickUpItem, ({ characterId, itemId }) => {
-    this.emitErrorEventIfError(socket, () =>
-      this.characterActionHandler(
-        socket.id,
-        characterId,
-        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-          this.pickUpItemHandler(characterAssociatedData, itemId)
-      )
-    );
-  });
-  socket.on(ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate, (itemId: string) => {
-    this.emitErrorEventIfError(socket, () =>
-      this.acknowledgeReceiptOfItemOnGroundHandler(socket.id, itemId)
-    );
-  });
+  socket.on(
+    ClientToServerEvent.PickUpItem,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, pickUpItemHandler)
+  );
+  socket.on(
+    ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate,
+    applyMiddlewares(playerInGame)(socket, acknowledgeReceiptOfItemOnGroundHandler)
+  );
   socket.on(
     ClientToServerEvent.SelectCombatAction,
-    (characterId: string, combatAction: null | CombatAction) => {
-      this.emitErrorEventIfError(socket, () =>
-        this.characterActionHandler(
-          socket.id,
-          characterId,
-          (socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-            this.selectCombatActionHandler(socketMeta, characterAssociatedData, combatAction)
-        )
-      );
-    }
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, selectCombatActionHandler)
   );
   socket.on(
     ClientToServerEvent.CycleCombatActionTargets,
-    (characterId: string, direction: NextOrPrevious) => {
-      this.emitErrorEventIfError(socket, () =>
-        this.characterActionHandler(
-          socket.id,
-          characterId,
-          (socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-            this.cycleTargetsHandler(socket, socketMeta, characterAssociatedData, direction)
-        )
-      );
-    }
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, cycleTargetsHandler)
   );
-  socket.on(ClientToServerEvent.CycleTargetingSchemes, (characterId: string) => {
-    this.emitErrorEventIfError(socket, () =>
-      this.characterActionHandler(
-        socket.id,
-        characterId,
-        (socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) =>
-          this.cycleTargetingSchemesHandler(socket, socketMeta, characterAssociatedData)
-      )
-    );
-  });
-  socket.on(ClientToServerEvent.UseSelectedCombatAction, (characterId: string) => {
-    this.emitErrorEventIfError(socket, () => {
-      return this.characterActionHandler(
-        socket.id,
-        characterId,
-        (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) => {
-          const result = this.useSelectedCombatActionHandler(characterAssociatedData);
-          if (result instanceof Error) {
-            console.error(result);
-            const { game, party } = characterAssociatedData;
-            this.io
-              .in(getPartyChannelName(game.name, party.name))
-              .emit(ServerToClientEvent.CharacterSelectedCombatAction, characterId, null);
-          }
-          return result;
-        }
-      );
-    });
-  });
+  socket.on(
+    ClientToServerEvent.CycleTargetingSchemes,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(
+      socket,
+      cycleTargetingSchemesHandler
+    )
+  );
+  socket.on(
+    ClientToServerEvent.UseSelectedCombatAction,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(
+      socket,
+      useSelectedCombatActionHandler
+    )
+  );
   socket.on(
     ClientToServerEvent.IncrementAttribute,
-    (characterId: string, attribute: CombatAttribute) => {
-      this.emitErrorEventIfError(socket, () => {
-        return this.characterActionHandler(
-          socket.id,
-          characterId,
-          (_socketMeta: BrowserTabSession, characterAssociatedData: CharacterAssociatedData) => {
-            const result = this.characterSpentAttributePointHandler(
-              characterAssociatedData,
-              attribute
-            );
-            if (result instanceof Error) console.error(result);
-          }
-        );
-      });
-    }
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(
+      socket,
+      characterSpentAttributePointHandler
+    )
   );
 }

@@ -6,14 +6,20 @@ import {
   Color4,
   PointLight,
   StandardMaterial,
-  Color3,
   ShadowGenerator,
   Mesh,
-  Scene,
+  DynamicTexture,
 } from "@babylonjs/core";
 import { GameWorld } from ".";
 
-export function initScene(this: GameWorld): [ArcRotateCamera, ShadowGenerator, Mesh] {
+export const GROUND_WIDTH = 50;
+export const GROUND_HEIGHT = 50;
+export const GROUND_TEXTURE_WIDTH = 8000;
+export const GROUND_TEXTURE_HEIGHT = 10000;
+
+export function initScene(
+  this: GameWorld
+): [ArcRotateCamera, ShadowGenerator, Mesh, DynamicTexture] {
   this.scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
 
   // this.scene.fogMode = 3;
@@ -46,15 +52,25 @@ export function initScene(this: GameWorld): [ArcRotateCamera, ShadowGenerator, M
   ball.position = lightPosition;
   pointLight.intensity = 0.2;
 
-  // GROUND
-  const ground = MeshBuilder.CreateGround("ground", { width: 50, height: 50 }, this.scene);
-  const material = new StandardMaterial("ground-material", this.scene);
-  material.diffuseColor = new Color3(0.203, 0.295, 0.208);
-  ground.material = material;
+  const ground = MeshBuilder.CreateGround(
+    "ground1",
+    { width: GROUND_WIDTH, height: GROUND_HEIGHT, subdivisions: 25 },
+    this.scene
+  );
 
+  // Create dynamic texture
+  this.groundTexture = new DynamicTexture("dynamic texture", GROUND_TEXTURE_WIDTH, this.scene);
+
+  const materialGround = new StandardMaterial("Mat", this.scene);
+  materialGround.diffuseTexture = this.groundTexture;
+  ground.material = materialGround;
+
+  // Draw on canvas
+
+  this.drawCharacterSlots();
   // SHADOWS
   const shadowGenerator = new ShadowGenerator(1024, pointLight);
-  ground.receiveShadows = true;
+  // ground.receiveShadows = true;
 
-  return [camera, shadowGenerator, ball];
+  return [camera, shadowGenerator, ball, this.groundTexture];
 }
