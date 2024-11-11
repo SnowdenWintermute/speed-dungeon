@@ -13,10 +13,17 @@
 //   Staircase,
 // }
 
-import { GameState } from "@/stores/game-store";
-import { UIState } from "@/stores/ui-store";
-import { AlertState } from "@/stores/alert-store";
+import {
+  GameState,
+  baseMenuState,
+  inventoryItemsMenuState,
+  useGameStore,
+} from "@/stores/game-store";
+import { UIState, useUIStore } from "@/stores/ui-store";
+import { AlertState, useAlertStore } from "@/stores/alert-store";
 import { FocusEventHandler, MouseEventHandler } from "react";
+import { websocketConnection } from "@/singletons/websocket-connection";
+import { ClientToServerEvent } from "@speed-dungeon/common";
 
 export enum ActionButtonCategory {
   Top,
@@ -52,13 +59,17 @@ export class BaseMenuState implements ActionMenuState {
 
     const setInventoryOpen = new ActionMenuButtonProperties("Open Inventory", () => {
       this.gameState.mutateState((state) => {
-        state;
+        state.menuState = inventoryItemsMenuState;
       });
     });
     setInventoryOpen.dedicatedKeys = ["KeyI", "KeyS"];
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
-    // gameActions.push({ type: GameActionType.SetInventoryOpen, shouldBeOpen: !inventoryIsOpen });
-    // gameActions.push({ type: GameActionType.ToggleReadyToExplore });
+
+    const toggleReadyToExplore = new ActionMenuButtonProperties("Ready to explore", () => {
+      websocketConnection.emit(ClientToServerEvent.ToggleReadyToExplore);
+    });
+    toReturn[ActionButtonCategory.Numbered].push(toggleReadyToExplore);
+
     // addAbilityGameActionsToList(gameActions, abilities);
     // gameActions.push({
     //   type: GameActionType.SetAssignAttributePointsMenuOpen,
@@ -68,8 +79,49 @@ export class BaseMenuState implements ActionMenuState {
   }
 }
 
-// instantiate all states upfront and save them, or just save them as they are created
-// so we don't pay object creation cost every time we switch state
+export class InCombatMenuState implements ActionMenuState {
+  constructor(
+    public gameState: GameState,
+    public uiState: UIState,
+    public alertState: AlertState
+    // public setState: React.Dispatch<Sta
+  ) {}
+  getButtonProperties(): ActionButtonsByCategory {
+    const toReturn = new ActionButtonsByCategory();
+
+    const inCombatButton = new ActionMenuButtonProperties("In combat button", () => {});
+    inCombatButton.dedicatedKeys = ["KeyI", "KeyS"];
+    toReturn[ActionButtonCategory.Top].push(inCombatButton);
+
+    // addAbilityGameActionsToList(gameActions, abilities);
+    // gameActions.push({
+    //   type: GameActionType.SetAssignAttributePointsMenuOpen,
+    //   shouldBeOpen: true,
+    // });
+    return toReturn;
+  }
+}
+
+export class InventoryItemsMenuState implements ActionMenuState {
+  constructor(
+    public gameState: GameState,
+    public uiState: UIState,
+    public alertState: AlertState
+  ) {}
+  getButtonProperties(): ActionButtonsByCategory {
+    const toReturn = new ActionButtonsByCategory();
+
+    const closeInventory = new ActionMenuButtonProperties("Close Inventory", () => {
+      this.gameState.mutateState((state) => {
+        state.menuState = baseMenuState;
+      });
+    });
+    closeInventory.dedicatedKeys = ["KeyI", "KeyS", "Escape"];
+    toReturn[ActionButtonCategory.Top].push(closeInventory);
+
+    return toReturn;
+  }
+}
 
 export class ActionMenuButtonProperties {
   focusHandler?: FocusEventHandler<HTMLButtonElement>;

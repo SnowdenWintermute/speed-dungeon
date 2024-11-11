@@ -25,7 +25,12 @@ import { FloatingText } from "./floating-text";
 import { BabylonControlledCombatantData } from "./babylon-controlled-combatant-data";
 import { useUIStore } from "../ui-store";
 import { useAlertStore } from "../alert-store";
-import { ActionMenuState, BaseMenuState } from "@/app/game/ActionMenu/menu-state";
+import {
+  ActionMenuState,
+  BaseMenuState,
+  InCombatMenuState,
+  InventoryItemsMenuState,
+} from "@/app/game/ActionMenu/menu-state";
 
 export enum MenuContext {
   InventoryItems,
@@ -119,4 +124,23 @@ export const useGameStore = create<GameState>()(
       }
     )
   )
+);
+
+// instantiate all states upfront and save them, or just save them as they are created
+// so we don't pay object creation cost every time we switch state
+
+export const baseMenuState = new BaseMenuState(
+  useGameStore.getState(),
+  useUIStore.getState(),
+  useAlertStore.getState()
+);
+export const inventoryItemsMenuState = new InventoryItemsMenuState(
+  useGameStore.getState(),
+  useUIStore.getState(),
+  useAlertStore.getState()
+);
+export const inCombatMenuState = new InCombatMenuState(
+  useGameStore.getState(),
+  useUIStore.getState(),
+  useAlertStore.getState()
 );

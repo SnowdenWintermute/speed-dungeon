@@ -1,6 +1,6 @@
 import { setAlert } from "@/app/components/alerts";
 import { AlertState } from "@/stores/alert-store";
-import { GameState } from "@/stores/game-store";
+import { GameState, inCombatMenuState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { DungeonRoom, ERROR_MESSAGES, updateCombatantHomePosition } from "@speed-dungeon/common";
@@ -25,5 +25,7 @@ export default function newDungeonRoomHandler(
     party.roomsExplored.total += 1;
     const indexOfRoomTypeToReveal = party.roomsExplored.onCurrentFloor - 1;
     party.clientCurrentFloorRoomsList[indexOfRoomTypeToReveal] = room.roomType;
+
+    if (Object.values(party.currentRoom.monsters).length) gameState.menuState = inCombatMenuState;
   });
 }

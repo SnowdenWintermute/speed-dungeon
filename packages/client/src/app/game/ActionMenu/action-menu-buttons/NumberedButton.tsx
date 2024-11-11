@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
-import { ActionMenuButtonProperties } from "../action-menu-button-properties";
 import { BUTTON_HEIGHT } from "@/client_consts";
+import { ActionMenuButtonProperties } from "../menu-state";
 
 interface Props {
   number: number;
