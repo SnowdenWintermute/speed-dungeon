@@ -13,8 +13,8 @@ export const GAME_CONFIG = {
 };
 export const MAX_PARTY_SIZE = 3;
 export const NUM_MONSTERS_PER_ROOM = 3;
-// export const BASE_XP_PER_MONSTER = 30.0;
-export const BASE_XP_PER_MONSTER = 100.0;
+export const BASE_XP_PER_MONSTER = 30.0;
+// export const BASE_XP_PER_MONSTER = 100.0;
 export const BASE_XP_LEVEL_DIFF_MULTIPLIER = 0.25;
 
 // EQUIPMENT
