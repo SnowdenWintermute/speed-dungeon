@@ -23,6 +23,9 @@ import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
 import { FloatingText } from "./floating-text";
 import { BabylonControlledCombatantData } from "./babylon-controlled-combatant-data";
+import { useUIStore } from "../ui-store";
+import { useAlertStore } from "../alert-store";
+import { ActionMenuState, BaseMenuState } from "@/app/game/ActionMenu/menu-state";
 
 export enum MenuContext {
   InventoryItems,
@@ -33,6 +36,7 @@ export enum MenuContext {
 
 export class GameState {
   [immerable] = true;
+  menuState: ActionMenuState;
   // cameraData: { alpha: number; beta: number; radius: number; focus: Vector3 } = {
   //   alpha: 0,
   //   beta: 0,
@@ -94,7 +98,9 @@ export class GameState {
     public get: () => GameState,
     public getActiveCombatant: () => Error | null | Combatant,
     public getParty: () => Error | AdventuringParty
-  ) {}
+  ) {
+    this.menuState = new BaseMenuState(this, useUIStore.getState(), useAlertStore.getState());
+  }
 }
 
 export const useGameStore = create<GameState>()(
