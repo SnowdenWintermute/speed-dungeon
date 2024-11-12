@@ -1,4 +1,4 @@
-import { GameState } from "@/stores/game-store";
+import { GameState, useGameStore } from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -6,22 +6,24 @@ import {
   ActionMenuState,
   MenuStateType,
 } from ".";
-import { UIState } from "@/stores/ui-store";
-import { AlertState } from "@/stores/alert-store";
-import getFocusedCharacter from "@/utils/getFocusedCharacter";
+import { UIState, useUIStore } from "@/stores/ui-store";
+import { AlertState, useAlertStore } from "@/stores/alert-store";
 import {
-  ClientToServerEvent,
-  CombatActionType,
   ConsumableType,
   ERROR_MESSAGES,
+  Item,
   ItemPropertiesType,
   formatConsumableType,
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
-import { websocketConnection } from "@/singletons/websocket-connection";
+import { ConsideringItemMenuState } from "./considering-item";
+import { ACTION_MENU_PAGE_SIZE } from "..";
+import { immerable } from "immer";
 
 export class InventoryItemsMenuState implements ActionMenuState {
+  [immerable] = true;
   type = MenuStateType.InventoryItems;
+  page = 0;
   constructor(
     public gameState: GameState,
     public uiState: UIState,
@@ -38,12 +40,13 @@ export class InventoryItemsMenuState implements ActionMenuState {
     closeInventory.dedicatedKeys = ["KeyI", "KeyS", "Escape"];
     toReturn[ActionButtonCategory.Top].push(closeInventory);
 
-    // const toggleViewEquippedItems = (new ActionMenuButtonProperties("Show Equipped", () => {
-    //   this.gameState.mutateState((state) => {
-    //     state.menuState = state.baseMenuState;
-    //   });
-    // }));
-    // toggleViewEquippedItems.dedicatedKeys = ["KeyF"];
+    const toggleViewEquippedItems = new ActionMenuButtonProperties("Show Equipped", () => {
+      // this.gameState.mutateState((state) => {
+      //   state.menuState = state.baseMenuState;
+      // });
+    });
+    toggleViewEquippedItems.dedicatedKeys = ["KeyF"];
+    toReturn[ActionButtonCategory.Top].push(toggleViewEquippedItems);
 
     let focusedCharacterResult = this.gameState.getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {
@@ -51,45 +54,92 @@ export class InventoryItemsMenuState implements ActionMenuState {
       console.error(focusedCharacterResult);
       return toReturn;
     }
-    const { combatantProperties, entityProperties } = focusedCharacterResult;
+    const { combatantProperties } = focusedCharacterResult;
 
-    const equipmentIds = [];
-    const consumableIdsByType: Partial<Record<ConsumableType, string[]>> = {};
+    const equipment: Item[] = [];
+    const consumablesByType: Partial<Record<ConsumableType, Item[]>> = {};
 
     for (const item of Object.values(combatantProperties.inventory.items)) {
       switch (item.itemProperties.type) {
         case ItemPropertiesType.Equipment:
-          equipmentIds.push(item.entityProperties.id);
+          equipment.push(item);
           break;
         case ItemPropertiesType.Consumable:
           const { consumableType } = item.itemProperties.consumableProperties;
-          if (!consumableIdsByType[consumableType])
-            consumableIdsByType[consumableType] = [item.entityProperties.id];
-          else consumableIdsByType[consumableType]!.push(item.entityProperties.id);
+          if (!consumablesByType[consumableType]) consumablesByType[consumableType] = [item];
+          else consumablesByType[consumableType]!.push(item);
       }
     }
-    for (const [consumableTypeKey, ids] of Object.entries(consumableIdsByType)) {
+
+    for (const [consumableTypeKey, consumables] of Object.entries(consumablesByType)) {
+      const firstConsumableOfThisType = consumables[0];
+      if (!firstConsumableOfThisType) continue;
       let consumableName = formatConsumableType(parseInt(consumableTypeKey));
-      if (ids.length > 1) consumableName += ` (${ids.length})`;
+      if (consumables.length > 1) consumableName += ` (${consumables.length})`;
 
       const button = new ActionMenuButtonProperties(consumableName, () => {
-        websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-          characterId: entityProperties.id,
-          combatActionOption: {
-            type: CombatActionType.ConsumableUsed,
-            itemId: ids[0]!,
-          },
+        this.gameState.mutateState((state) => {
+          state.stackedMenuStates.push(
+            new ConsideringItemMenuState(
+              useGameStore.getState(),
+              useUIStore.getState(),
+              useAlertStore.getState(),
+              firstConsumableOfThisType
+            )
+          );
         });
       });
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
-    // for (const itemId of equipmentIds) {
-    //   gameActions.push({
-    //     type: GameActionType.SelectItem,
-    //     itemId,
-    //     stackSize: null,
-    //   });
-    // }
+
+    for (const item of equipment) {
+      const button = new ActionMenuButtonProperties(item.entityProperties.name, () => {
+        this.gameState.mutateState((state) => {
+          state.stackedMenuStates.push(
+            new ConsideringItemMenuState(
+              useGameStore.getState(),
+              useUIStore.getState(),
+              useAlertStore.getState(),
+              item
+            )
+          );
+        });
+      });
+      toReturn[ActionButtonCategory.Numbered].push(button);
+    }
+
+    if (toReturn[ActionButtonCategory.Numbered].length > ACTION_MENU_PAGE_SIZE) {
+      const previousPageButton = new ActionMenuButtonProperties("Previous", () => {
+        this.gameState.mutateState((state) => {
+          const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];
+          if (topStackedMenu) {
+            topStackedMenu.page -= 1;
+          } else {
+            state.menuState.page -= 1;
+          }
+        });
+      });
+      previousPageButton.dedicatedKeys = ["KeyW", "ArrowLeft"];
+      toReturn[ActionButtonCategory.Bottom].push(previousPageButton);
+
+      const nextPageButton = new ActionMenuButtonProperties("Next", () => {
+        this.gameState.mutateState((state) => {
+          const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];
+          if (topStackedMenu) {
+            topStackedMenu.page += 1;
+          } else {
+            state.menuState.page += 1;
+          }
+        });
+      });
+      nextPageButton.dedicatedKeys = ["KeyE", "ArrowRight"];
+      toReturn[ActionButtonCategory.Bottom].push(nextPageButton);
+    }
+
+    toReturn[ActionButtonCategory.Numbered] = toReturn[ActionButtonCategory.Numbered].slice(
+      this.page * ACTION_MENU_PAGE_SIZE,
+      this.page * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE
+    );
 
     return toReturn;
   }

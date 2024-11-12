@@ -8,22 +8,28 @@ import {
 } from ".";
 import { UIState } from "@/stores/ui-store";
 import { AlertState } from "@/stores/alert-store";
+import { Item } from "@speed-dungeon/common";
 
-export class InCombatMenuState implements ActionMenuState {
+export class ConsideringItemMenuState implements ActionMenuState {
   page = 0;
   type = MenuStateType.BaseOutOfCombat;
   constructor(
     public gameState: GameState,
     public uiState: UIState,
-    public alertState: AlertState
-    // public setState: React.Dispatch<Sta
+    public alertState: AlertState,
+    public item: Item
   ) {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    const inCombatButton = new ActionMenuButtonProperties("In combat button", () => {});
-    inCombatButton.dedicatedKeys = ["KeyI", "KeyS"];
-    toReturn[ActionButtonCategory.Top].push(inCombatButton);
+    const cancelButton = new ActionMenuButtonProperties("Cancel", () => {
+      this.gameState.mutateState((state) => {
+        state.stackedMenuStates.pop();
+      });
+    });
+
+    cancelButton.dedicatedKeys = ["Escape"];
+    toReturn[ActionButtonCategory.Top].push(cancelButton);
 
     // addAbilityGameActionsToList(gameActions, abilities);
     // gameActions.push({

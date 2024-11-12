@@ -29,6 +29,7 @@ import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
 import { BaseOutOfCombatMenuState } from "@/app/game/ActionMenu/menu-state/base-out-of-combat";
 import { InventoryItemsMenuState } from "@/app/game/ActionMenu/menu-state/inventory-items";
 import { InCombatMenuState } from "@/app/game/ActionMenu/menu-state/base-in-combat";
+import { ConsideringItemMenuState } from "@/app/game/ActionMenu/menu-state/considering-item";
 
 export enum MenuContext {
   InventoryItems,
@@ -41,6 +42,7 @@ export class GameState {
   [immerable] = true;
   menuState: ActionMenuState;
   baseMenuState: ActionMenuState;
+  stackedMenuStates: ActionMenuState[] = [];
   // cameraData: { alpha: number; beta: number; radius: number; focus: Vector3 } = {
   //   alpha: 0,
   //   beta: 0,

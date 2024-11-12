@@ -1,9 +1,9 @@
 import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
-import React, { useEffect, useRef } from "react";
-import { ActionButtonCategory } from "./action-menu-button-properties";
+import React, { useEffect, useRef, useState } from "react";
 import { useGameStore } from "@/stores/game-store";
 import TopButton from "./action-menu-buttons/TopButton";
 import NumberedButton from "./action-menu-buttons/NumberedButton";
+import { ActionButtonCategory } from "./menu-state";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const listStyle = { height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` };
@@ -11,8 +11,18 @@ const topButtoLiStyle = { marginRight: `${SPACING_REM}rem` };
 
 export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   const actionMenuRef = useRef<HTMLUListElement>(null);
-  const menuState = useGameStore((state) => state.menuState);
-  const buttonProperties = menuState.getButtonProperties();
+  const stackedMenuStates = useGameStore((state) => state.stackedMenuStates);
+  const baseMenuState = useGameStore((state) => state.menuState);
+  const currentMenu = stackedMenuStates[stackedMenuStates.length - 1] || baseMenuState;
+  const buttonProperties = currentMenu.getButtonProperties();
+  const [menuAnimation, setMenuAnimation] = useState("");
+
+  useEffect(() => {
+    setMenuAnimation("animate-slide-appear-from-left-fast animate-appear-fast");
+    setTimeout(() => {
+      setMenuAnimation("");
+    }, 301);
+  }, [stackedMenuStates.length, baseMenuState]);
 
   return (
     <section
@@ -36,7 +46,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
           );
         })}
       </ul>
-      <div className={`mb-2`} style={listStyle}>
+      <div className={`mb-2 ${menuAnimation}`} style={listStyle}>
         <ul className="list-none relative pointer-events-auto" ref={actionMenuRef}>
           {buttonProperties[ActionButtonCategory.Numbered].map((button, i) => (
             <li key={button.text + i}>
@@ -44,6 +54,13 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
             </li>
           ))}
         </ul>
+      </div>
+      <div>
+        {buttonProperties[ActionButtonCategory.Bottom].map((button) => (
+          <li key={button.text}>
+            <TopButton properties={button} />
+          </li>
+        ))}
       </div>
     </section>
   );
