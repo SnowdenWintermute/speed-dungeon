@@ -10,8 +10,9 @@ import { UIState } from "@/stores/ui-store";
 import { AlertState } from "@/stores/alert-store";
 
 export class InCombatMenuState implements ActionMenuState {
-  page = 0;
+  page = 1;
   type = MenuStateType.BaseOutOfCombat;
+  numPages: number = 1;
   constructor(
     public gameState: GameState,
     public uiState: UIState,

@@ -1,5 +1,5 @@
 import React from "react";
-import { MenuContext, useGameStore } from "@/stores/game-store";
+import { MenuContext, getCurrentMenu, useGameStore } from "@/stores/game-store";
 import PartyWipeModal from "./PartyWipeModal";
 import TopInfoBar from "./TopInfoBar";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
@@ -13,10 +13,12 @@ import CharacterSheetItemDetailsViewer from "./character-sheet/CharacterSheetIte
 import ItemsOnGround from "./ItemsOnGround";
 import ReadyUpDisplay from "./ReadyUpDisplay";
 import CombatLog from "./combat-log";
+import { MenuStateType } from "./ActionMenu/menu-state";
 
 export default function Game() {
   const game = useGameStore().game;
   const menuContext = useGameStore().menuContext;
+  const currentMenu = useGameStore().getCurrentMenu();
 
   const username = useGameStore().username;
   if (!username)
@@ -38,7 +40,11 @@ export default function Game() {
   const party = game.adventuringParties[partyName];
   if (!party) return <div>Client thinks it is in a party that doesn't exist</div>;
 
-  const viewingCharacterSheet = menuContext !== null && menuContext !== MenuContext.ItemsOnGround;
+  const viewingCharacterSheet =
+    currentMenu.type === MenuStateType.InventoryItems ||
+    currentMenu.type === MenuStateType.AssignAttributePoints ||
+    currentMenu.type === MenuStateType.ItemSelected ||
+    currentMenu.type === MenuStateType.ViewingEquipedItems;
 
   const conditionalStyles = viewingCharacterSheet ? "items-center justify-end" : "";
 

@@ -32,7 +32,8 @@ export class ActionButtonsByCategory {
 }
 
 export abstract class ActionMenuState {
-  page: number = 0;
+  page: number = 1;
+  numPages: number = 1;
   constructor(
     public gameState: GameState,
     public uiState: UIState,

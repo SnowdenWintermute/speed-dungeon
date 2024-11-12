@@ -8,20 +8,14 @@ interface Props {
 
 export default function TopButton({ properties }: Props) {
   const keydownHandlerRef = useRef<(e: KeyboardEvent) => void | null>();
-  const keypressHandlerRef = useRef<(e: KeyboardEvent) => void | null>();
 
   useEffect(() => {
-    keypressHandlerRef.current = (e: KeyboardEvent) => createKeyHandler(properties, e, "keypress");
-    window.addEventListener("keypress", keypressHandlerRef.current);
-
-    keydownHandlerRef.current = (e: KeyboardEvent) => createKeyHandler(properties, e, "keydown");
+    keydownHandlerRef.current = (e: KeyboardEvent) => createKeyHandler(properties, e);
     window.addEventListener("keydown", keydownHandlerRef.current);
 
     return () => {
       if (keydownHandlerRef.current)
         window.removeEventListener("keydown", keydownHandlerRef.current);
-      if (keypressHandlerRef.current)
-        window.removeEventListener("keypress", keypressHandlerRef.current);
     };
   }, [properties.clickHandler]);
 
@@ -43,12 +37,7 @@ export default function TopButton({ properties }: Props) {
   );
 }
 
-export function createKeyHandler(
-  properties: ActionMenuButtonProperties,
-  e: KeyboardEvent,
-  type: "keydown" | "keypress"
-) {
-  if (type === "keydown" && e.code !== "Escape" && e.code !== "Enter") return;
+export function createKeyHandler(properties: ActionMenuButtonProperties, e: KeyboardEvent) {
   if (properties.shouldBeDisabled) return;
 
   for (const key of properties.dedicatedKeys) {

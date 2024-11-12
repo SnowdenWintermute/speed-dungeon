@@ -11,7 +11,8 @@ import { AlertState } from "@/stores/alert-store";
 import { Item } from "@speed-dungeon/common";
 
 export class ConsideringItemMenuState implements ActionMenuState {
-  page = 0;
+  page = 1;
+  numPages: number = 1;
   type = MenuStateType.BaseOutOfCombat;
   constructor(
     public gameState: GameState,

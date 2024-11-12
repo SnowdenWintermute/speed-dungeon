@@ -12,7 +12,8 @@ import { ClientToServerEvent } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 
 export class BaseOutOfCombatMenuState implements ActionMenuState {
-  page = 0;
+  page = 1;
+  numPages: number = 1;
   type = MenuStateType.BaseOutOfCombat;
   constructor(
     public gameState: GameState,

@@ -1,4 +1,4 @@
-import { GameState, useGameStore } from "@/stores/game-store";
+import { GameState, getCurrentMenu, useGameStore } from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -13,6 +13,8 @@ import {
   ERROR_MESSAGES,
   Item,
   ItemPropertiesType,
+  NextOrPrevious,
+  changePage,
   formatConsumableType,
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
@@ -23,7 +25,8 @@ import { immerable } from "immer";
 export class InventoryItemsMenuState implements ActionMenuState {
   [immerable] = true;
   type = MenuStateType.InventoryItems;
-  page = 0;
+  page = 1;
+  numPages = 1;
   constructor(
     public gameState: GameState,
     public uiState: UIState,
@@ -108,15 +111,20 @@ export class InventoryItemsMenuState implements ActionMenuState {
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
-    if (toReturn[ActionButtonCategory.Numbered].length > ACTION_MENU_PAGE_SIZE) {
+    // const numPagesMod = toReturn[ActionButtonCategory.Numbered].length % ACTION_MENU_PAGE_SIZE
+    const numPages = Math.ceil(
+      toReturn[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE
+    );
+
+    this.gameState.mutateState((state) => {
+      getCurrentMenu(state).numPages = numPages;
+    });
+
+    if (numPages > 1) {
       const previousPageButton = new ActionMenuButtonProperties("Previous", () => {
         this.gameState.mutateState((state) => {
-          const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];
-          if (topStackedMenu) {
-            topStackedMenu.page -= 1;
-          } else {
-            state.menuState.page -= 1;
-          }
+          const newPage = changePage(this.page, numPages, NextOrPrevious.Previous);
+          getCurrentMenu(state).page = newPage;
         });
       });
       previousPageButton.dedicatedKeys = ["KeyW", "ArrowLeft"];
@@ -124,12 +132,8 @@ export class InventoryItemsMenuState implements ActionMenuState {
 
       const nextPageButton = new ActionMenuButtonProperties("Next", () => {
         this.gameState.mutateState((state) => {
-          const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];
-          if (topStackedMenu) {
-            topStackedMenu.page += 1;
-          } else {
-            state.menuState.page += 1;
-          }
+          const newPage = changePage(this.page, numPages, NextOrPrevious.Next);
+          getCurrentMenu(state).page = newPage;
         });
       });
       nextPageButton.dedicatedKeys = ["KeyE", "ArrowRight"];
@@ -137,8 +141,8 @@ export class InventoryItemsMenuState implements ActionMenuState {
     }
 
     toReturn[ActionButtonCategory.Numbered] = toReturn[ActionButtonCategory.Numbered].slice(
-      this.page * ACTION_MENU_PAGE_SIZE,
-      this.page * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE
+      (this.page - 1) * ACTION_MENU_PAGE_SIZE,
+      (this.page - 1) * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE
     );
 
     return toReturn;

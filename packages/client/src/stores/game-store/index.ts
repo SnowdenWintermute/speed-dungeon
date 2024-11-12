@@ -103,7 +103,8 @@ export class GameState {
     public mutateState: MutateState<GameState>,
     public get: () => GameState,
     public getActiveCombatant: () => Error | null | Combatant,
-    public getParty: () => Error | AdventuringParty
+    public getParty: () => Error | AdventuringParty,
+    public getCurrentMenu: () => ActionMenuState
   ) {
     this.baseMenuState = new BaseOutOfCombatMenuState(
       this,
@@ -122,7 +123,8 @@ export const useGameStore = create<GameState>()(
           (fn: (state: GameState) => void) => set(produce(fn)),
           get,
           () => getActiveCombatant(get()),
-          () => getParty(get().game, get().username)
+          () => getParty(get().game, get().username),
+          () => getCurrentMenu(get())
         ),
       {
         enabled: true,
@@ -153,3 +155,9 @@ export const inCombatMenuState = new InCombatMenuState(
   useUIStore.getState(),
   useAlertStore.getState()
 );
+
+export function getCurrentMenu(state: GameState) {
+  const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];
+  if (topStackedMenu) return topStackedMenu;
+  else return state.menuState;
+}
