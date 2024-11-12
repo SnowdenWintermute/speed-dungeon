@@ -25,12 +25,10 @@ import { FloatingText } from "./floating-text";
 import { BabylonControlledCombatantData } from "./babylon-controlled-combatant-data";
 import { useUIStore } from "../ui-store";
 import { useAlertStore } from "../alert-store";
-import {
-  ActionMenuState,
-  BaseMenuState,
-  InCombatMenuState,
-  InventoryItemsMenuState,
-} from "@/app/game/ActionMenu/menu-state";
+import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
+import { BaseOutOfCombatMenuState } from "@/app/game/ActionMenu/menu-state/base-out-of-combat";
+import { InventoryItemsMenuState } from "@/app/game/ActionMenu/menu-state/inventory-items";
+import { InCombatMenuState } from "@/app/game/ActionMenu/menu-state/base-in-combat";
 
 export enum MenuContext {
   InventoryItems,
@@ -42,6 +40,7 @@ export enum MenuContext {
 export class GameState {
   [immerable] = true;
   menuState: ActionMenuState;
+  baseMenuState: ActionMenuState;
   // cameraData: { alpha: number; beta: number; radius: number; focus: Vector3 } = {
   //   alpha: 0,
   //   beta: 0,
@@ -104,7 +103,12 @@ export class GameState {
     public getActiveCombatant: () => Error | null | Combatant,
     public getParty: () => Error | AdventuringParty
   ) {
-    this.menuState = new BaseMenuState(this, useUIStore.getState(), useAlertStore.getState());
+    this.baseMenuState = new BaseOutOfCombatMenuState(
+      this,
+      useUIStore.getState(),
+      useAlertStore.getState()
+    );
+    this.menuState = this.baseMenuState;
   }
 }
 
@@ -128,8 +132,11 @@ export const useGameStore = create<GameState>()(
 
 // instantiate all states upfront and save them, or just save them as they are created
 // so we don't pay object creation cost every time we switch state
+//
+// if we don't declare them in this file we get an error for trying to use the stores
+// before they're initialized
 
-export const baseMenuState = new BaseMenuState(
+export const baseMenuState = new BaseOutOfCombatMenuState(
   useGameStore.getState(),
   useUIStore.getState(),
   useAlertStore.getState()

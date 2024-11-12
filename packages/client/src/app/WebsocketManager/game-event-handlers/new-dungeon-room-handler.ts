@@ -1,4 +1,5 @@
 import { setAlert } from "@/app/components/alerts";
+import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
 import { AlertState } from "@/stores/alert-store";
 import { GameState, inCombatMenuState } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
@@ -26,6 +27,11 @@ export default function newDungeonRoomHandler(
     const indexOfRoomTypeToReveal = party.roomsExplored.onCurrentFloor - 1;
     party.clientCurrentFloorRoomsList[indexOfRoomTypeToReveal] = room.roomType;
 
-    if (Object.values(party.currentRoom.monsters).length) gameState.menuState = inCombatMenuState;
+    if (Object.values(party.currentRoom.monsters).length) {
+      gameState.baseMenuState = inCombatMenuState;
+      if (gameState.menuState.type === MenuStateType.BaseOutOfCombat) {
+        gameState.menuState = gameState.baseMenuState;
+      }
+    }
   });
 }
