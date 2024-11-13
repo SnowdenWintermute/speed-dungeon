@@ -37,9 +37,7 @@ export default function setUpGameLobbyEventHandlers(
       if (state.game) state.game.players[username] = new SpeedDungeonPlayer(username);
     });
   });
-  socket.on(ServerToClientEvent.PlayerLeftGame, (username) => {
-    playerLeftGameHandler(mutateGameStore, username);
-  });
+  socket.on(ServerToClientEvent.PlayerLeftGame, playerLeftGameHandler);
   socket.on(ServerToClientEvent.PartyCreated, (partyId, partyName) => {
     mutateGameStore((state) => {
       if (state.game) {
@@ -60,21 +58,16 @@ export default function setUpGameLobbyEventHandlers(
       }
     });
   });
-  socket.on(ServerToClientEvent.CharacterAddedToParty, (partyName, username, character) => {
-    characterAddedToPartyHandler(partyName, username, character);
-  });
-  socket.on(ServerToClientEvent.CharacterDeleted, (partyName, username, characterId) => {
-    characterDeletionHandler(partyName, username, characterId);
-  });
+  socket.on(ServerToClientEvent.CharacterAddedToParty, characterAddedToPartyHandler);
+  socket.on(ServerToClientEvent.CharacterDeleted, characterDeletionHandler);
   socket.on(
     ServerToClientEvent.PlayerSelectedSavedCharacterInProgressionGame,
-    (username, character) => {
-      savedCharacterSelectionInProgressGameHandler(username, character);
-    }
+    savedCharacterSelectionInProgressGameHandler
   );
-  socket.on(ServerToClientEvent.PlayerToggledReadyToStartGame, (username) => {
-    playerToggledReadyToStartGameHandler(username);
-  });
+  socket.on(
+    ServerToClientEvent.PlayerToggledReadyToStartGame,
+    playerToggledReadyToStartGameHandler
+  );
   socket.on(ServerToClientEvent.GameStarted, (timeStarted) => {
     gameStartedHandler(timeStarted);
 

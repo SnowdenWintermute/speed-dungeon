@@ -14,29 +14,12 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   const baseMenuState = useGameStore((state) => state.menuState);
   const currentMenu = stackedMenuStates[stackedMenuStates.length - 1] || baseMenuState;
   const buttonProperties = currentMenu.getButtonProperties();
-  const [menuAnimation, setMenuAnimation] = useState("");
-  // const [opacity, setOpacity] = useState(0);
-  const animationTimeoutRef = useRef<NodeJS.Timeout>();
-
-  // useEffect(() => {
-  //   // clearTimeout(animationTimeoutRef.current);
-  //   // setMenuAnimation("");
-  //   // setOpacity(0);
-  //   // animationTimeoutRef.current = setTimeout(() => {
-  //   //   setOpacity(100);
-  //   //   setMenuAnimation("animate-slide-appear-from-left-fast animate-appear-fast");
-  //   // }, 10);
-  //   // return () => {
-  //   //   clearTimeout(animationTimeoutRef.current);
-  //   // };
-  // }, [stackedMenuStates.length, baseMenuState]);
 
   return (
     <section
       className={`max-h-fit max-w-[25rem] flex flex-col justify-between`}
       style={{ marginRight: `${SPACING_REM}rem` }}
     >
-      ACTION MENU
       <ul
         className={`flex list-none min-w-[25rem] max-w-[25rem]`}
         style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
@@ -54,7 +37,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         })}
       </ul>
       <div
-        className={`mb-2 ${menuAnimation}`}
+        className={`mb-2`}
         style={{
           height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem`,
         }}

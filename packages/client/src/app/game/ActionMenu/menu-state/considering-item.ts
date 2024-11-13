@@ -10,7 +10,6 @@ import {
   ClientToServerEvent,
   CombatActionType,
   CombatantProperties,
-  ERROR_MESSAGES,
   Item,
   ItemPropertiesType,
 } from "@speed-dungeon/common";
@@ -37,8 +36,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
 
     const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {
-      setAlert(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
-      console.error(focusedCharacterResult);
+      setAlert(focusedCharacterResult.message);
       return toReturn;
     }
 

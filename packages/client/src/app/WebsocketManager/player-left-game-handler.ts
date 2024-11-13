@@ -1,12 +1,8 @@
-import { GameState } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
+import { useGameStore } from "@/stores/game-store";
 import { ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
 
-export default function playerLeftGameHandler(
-  mutateGameStore: MutateState<GameState>,
-  username: string
-) {
-  mutateGameStore((state) => {
+export default function playerLeftGameHandler(username: string) {
+  useGameStore.getState().mutateState((state) => {
     if (!state.game) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
     SpeedDungeonGame.removePlayer(state.game, username);
   });

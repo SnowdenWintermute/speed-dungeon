@@ -1,22 +1,14 @@
+import { websocketConnection } from "@/singletons/websocket-connection";
 import { useGameStore } from "@/stores/game-store";
-import {
-  BattleReport,
-  ClientToServerEvent,
-  ClientToServerEventTypes,
-  ServerToClientEventTypes,
-} from "@speed-dungeon/common";
-import { Socket } from "socket.io-client";
+import { BattleReport, ClientToServerEvent } from "@speed-dungeon/common";
 
-export default function battleReportHandler(
-  socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>,
-  report: BattleReport
-) {
+export default function battleReportHandler(report: BattleReport) {
   // once all clients have told the server they know about the items,
   // the server will start to accept requests to pick up the items.
   // That way no client will end up getting an update about an item
   // that was already picked up
   for (const item of report.loot) {
-    socket.emit(
+    websocketConnection.emit(
       ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate,
       item.entityProperties.id
     );

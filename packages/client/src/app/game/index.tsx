@@ -14,6 +14,7 @@ import ItemsOnGround from "./ItemsOnGround";
 import ReadyUpDisplay from "./ReadyUpDisplay";
 import CombatLog from "./combat-log";
 import { MenuStateType } from "./ActionMenu/menu-state";
+import getFocusedCharacter from "@/utils/getFocusedCharacter";
 
 export default function Game() {
   const game = useGameStore().game;
@@ -33,6 +34,15 @@ export default function Game() {
         {ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME}
       </div>
     );
+  const focusedCharacterResult = getFocusedCharacter();
+  if (focusedCharacterResult instanceof Error)
+    return (
+      <div>
+        <CharacterAutofocusManager />
+        <div>Awaiting focused character...</div>
+      </div>
+    );
+
   const player = game.players[username];
   if (!player) return <div>Client player not found</div>;
   const partyName = player.partyName;

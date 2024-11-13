@@ -6,8 +6,15 @@ import {
   ActionMenuState,
   MenuStateType,
 } from ".";
-import { ClientToServerEvent } from "@speed-dungeon/common";
+import {
+  ActionUsableContext,
+  ClientToServerEvent,
+  CombatActionType,
+  CombatantAbility,
+  formatAbilityName,
+} from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
+import { setAlert } from "@/app/components/alerts";
 
 export class BaseOutOfCombatMenuState implements ActionMenuState {
   page = 1;
@@ -30,7 +37,28 @@ export class BaseOutOfCombatMenuState implements ActionMenuState {
     });
     toReturn[ActionButtonCategory.Numbered].push(toggleReadyToExplore);
 
-    // addAbilityGameActionsToList(gameActions, abilities);
+    let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
+    if (focusedCharacterResult instanceof Error) {
+      setAlert(focusedCharacterResult.message);
+      return toReturn;
+    }
+    const { combatantProperties, entityProperties } = focusedCharacterResult;
+    const characterId = entityProperties.id;
+
+    for (const ability of Object.values(combatantProperties.abilities)) {
+      const abilityAttributes = CombatantAbility.getAttributes(ability.name);
+      const { usabilityContext } = abilityAttributes.combatActionProperties;
+      if (usabilityContext === ActionUsableContext.InCombat) continue;
+
+      const button = new ActionMenuButtonProperties(formatAbilityName(ability.name), () => {
+        websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+          characterId,
+          combatActionOption: { type: CombatActionType.AbilityUsed, abilityName: ability.name },
+        });
+      });
+      toReturn[ActionButtonCategory.Numbered].push(button);
+    }
+
     // gameActions.push({
     //   type: GameActionType.SetAssignAttributePointsMenuOpen,
     //   shouldBeOpen: true,

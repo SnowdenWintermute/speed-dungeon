@@ -44,13 +44,13 @@ export class InventoryItemsMenuState implements ActionMenuState {
       //   state.menuState = state.baseMenuState;
       // });
     });
+
     toggleViewEquippedItems.dedicatedKeys = ["KeyF"];
     toReturn[ActionButtonCategory.Top].push(toggleViewEquippedItems);
 
     let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {
-      setAlert(useAlertStore.getState().mutateState, ERROR_MESSAGES.COMBATANT.NOT_FOUND);
-      console.error(focusedCharacterResult);
+      setAlert(focusedCharacterResult.message);
       return toReturn;
     }
     const { combatantProperties } = focusedCharacterResult;

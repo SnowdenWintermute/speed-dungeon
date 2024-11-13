@@ -28,52 +28,29 @@ export default function setUpGameEventHandlers(
 ) {
   socket.on(
     ServerToClientEvent.PlayerToggledReadyToDescendOrExplore,
-    (username, descendOrExplore) => {
-      playerToggledReadyToDescendOrExploreHandler(username, descendOrExplore);
-    }
+    playerToggledReadyToDescendOrExploreHandler
   );
-  socket.on(ServerToClientEvent.DungeonRoomTypesOnCurrentFloor, (newRoomTypes) => {
-    newDungeonRoomTypesOnCurrentFloorHandler(newRoomTypes);
-  });
-  socket.on(ServerToClientEvent.DungeonRoomUpdate, (newRoom) => {
-    newDungeonRoomHandler(newRoom);
-  });
-  socket.on(ServerToClientEvent.BattleFullUpdate, (battleOption) => {
-    battleFullUpdateHandler(battleOption);
-  });
-  socket.on(ServerToClientEvent.BattleReport, (report) => {
-    battleReportHandler(socket, report);
-  });
-  socket.on(ServerToClientEvent.CharacterDroppedItem, (characterAndItem) => {
-    characterDroppedItemHandler(socket, characterAndItem);
-  });
-  socket.on(ServerToClientEvent.CharacterDroppedEquippedItem, (characterAndSlot) => {
-    characterDroppedEquippedItemHandler(socket, characterAndSlot);
-  });
-  socket.on(ServerToClientEvent.CharacterUnequippedItem, (characterAndSlot) => {
-    characterUnequippedSlotHandler(characterAndSlot);
-  });
-  socket.on(ServerToClientEvent.CharacterEquippedItem, (packet) => {
-    characterEquippedItemHandler(packet);
-  });
-  socket.on(ServerToClientEvent.CharacterPickedUpItem, (packet) => {
-    characterPickedUpItemHandler(packet);
-  });
+  socket.on(
+    ServerToClientEvent.DungeonRoomTypesOnCurrentFloor,
+    newDungeonRoomTypesOnCurrentFloorHandler
+  );
+  socket.on(ServerToClientEvent.DungeonRoomUpdate, newDungeonRoomHandler);
+  socket.on(ServerToClientEvent.BattleFullUpdate, battleFullUpdateHandler);
+  socket.on(ServerToClientEvent.BattleReport, battleReportHandler);
+  socket.on(ServerToClientEvent.CharacterDroppedItem, characterDroppedItemHandler);
+  socket.on(ServerToClientEvent.CharacterDroppedEquippedItem, characterDroppedEquippedItemHandler);
+  socket.on(ServerToClientEvent.CharacterUnequippedItem, characterUnequippedSlotHandler);
+  socket.on(ServerToClientEvent.CharacterEquippedItem, characterEquippedItemHandler);
+  socket.on(ServerToClientEvent.CharacterPickedUpItem, characterPickedUpItemHandler);
   socket.on(
     ServerToClientEvent.CharacterSelectedCombatAction,
-    (characterId, combatActionOption) => {
-      characterSelectedCombatActionHandler(characterId, combatActionOption);
-    }
+    characterSelectedCombatActionHandler
   );
+  socket.on(ServerToClientEvent.CharacterCycledTargets, characterCycledTargetsHandler);
   socket.on(
-    ServerToClientEvent.CharacterCycledTargets,
-    (characterId, direction, playerUsername) => {
-      characterCycledTargetsHandler(characterId, direction, playerUsername);
-    }
+    ServerToClientEvent.CharacterCycledTargetingSchemes,
+    characterCycledTargetingSchemesHandler
   );
-  socket.on(ServerToClientEvent.CharacterCycledTargetingSchemes, (characterId, playerUsername) => {
-    characterCycledTargetingSchemesHandler(characterId, playerUsername);
-  });
   socket.on(ServerToClientEvent.DungeonFloorNumber, (newFloorNumber) => {
     useGameStore.getState().mutateState((state) => {
       if (!state.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
@@ -82,8 +59,9 @@ export default function setUpGameEventHandlers(
       partyOption.currentFloor = newFloorNumber;
     });
   });
-  socket.on(ServerToClientEvent.CharacterSpentAttributePoint, (characterId, attribute) => {
-    characterIncrementedAttributePointHandler(characterId, attribute);
-  });
-  socket.on(ServerToClientEvent.GameMessage, (message) => gameProgressMessageHandler(message));
+  socket.on(
+    ServerToClientEvent.CharacterSpentAttributePoint,
+    characterIncrementedAttributePointHandler
+  );
+  socket.on(ServerToClientEvent.GameMessage, gameProgressMessageHandler);
 }
