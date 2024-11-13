@@ -111,7 +111,6 @@ export class InventoryItemsMenuState implements ActionMenuState {
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
-    // const numPagesMod = toReturn[ActionButtonCategory.Numbered].length % ACTION_MENU_PAGE_SIZE
     const numPages = Math.ceil(
       toReturn[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE
     );

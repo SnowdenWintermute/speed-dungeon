@@ -1,20 +1,28 @@
-import { AlertState } from "@/stores/alert-store";
-import { GameState } from "@/stores/game-store";
+import { AlertState, useAlertStore } from "@/stores/alert-store";
+import { GameState, useGameStore } from "@/stores/game-store";
 import { MutateState } from "@/stores/mutate-state";
 import {
   AdventuringParty,
   CharacterAssociatedData,
   CombatantProperties,
   ERROR_MESSAGES,
-  EquipItemPacket,
 } from "@speed-dungeon/common";
-import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
+import { ConsideringItemMenuState } from "@/app/game/ActionMenu/menu-state/considering-item";
+import { useUIStore } from "@/stores/ui-store";
 
 export default function characterEquippedItemHandler(
   mutateGameState: MutateState<GameState>,
   mutateAlertState: MutateState<AlertState>,
-  { characterId, itemId, equipToAlternateSlot }: EquipItemPacket
+  {
+    characterId,
+    itemId,
+    equipToAlternateSlot,
+  }: {
+    itemId: string;
+    equipToAlternateSlot: boolean;
+    characterId: string;
+  }
 ) {
   characterAssociatedDataProvider(
     mutateGameState,
@@ -45,11 +53,21 @@ export default function characterEquippedItemHandler(
       );
 
       if (!playerOwnsCharacter) return;
-      if (itemToSelectOption === null) return;
+      if (itemToSelectOption === null) {
+        gameState.stackedMenuStates.pop();
+        return;
+      }
       const itemToSelect = itemToSelectOption;
 
       gameState.hoveredEntity = null;
-      gameState.detailedEntity = { item: itemToSelect, type: DetailableEntityType.Item };
+      // gameState.detailedEntity = { item: itemToSelect, type: DetailableEntityType.Item };
+      gameState.stackedMenuStates[gameState.stackedMenuStates.length - 1] =
+        new ConsideringItemMenuState(
+          useGameStore.getState(),
+          useUIStore.getState(),
+          useAlertStore.getState(),
+          itemToSelect
+        );
     }
   );
 }
