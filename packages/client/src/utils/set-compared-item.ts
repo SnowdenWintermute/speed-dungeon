@@ -1,16 +1,11 @@
-import { GameState } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
+import { useGameStore } from "@/stores/game-store";
 import { getItemInAdventuringParty } from "@speed-dungeon/common";
 import { getPlayerPartyOption } from "@speed-dungeon/common";
 import getFocusedCharacter from "./getFocusedCharacter";
 import { EquipableSlots, ItemPropertiesType, getEquipableSlots } from "@speed-dungeon/common";
 
-export default function setComparedItem(
-  mutateGameState: MutateState<GameState>,
-  itemId: string,
-  compareAltSlot: boolean
-) {
-  mutateGameState((gameState) => {
+export default function setComparedItem(itemId: string, compareAltSlot: boolean) {
+  useGameStore.getState().mutateState((gameState) => {
     if (!gameState.game || gameState.username === null) return;
     const partyResult = getPlayerPartyOption(gameState.game, gameState.username);
     if (partyResult instanceof Error) return console.error(partyResult);

@@ -16,6 +16,7 @@ import {
 import getFrameEventFromAnimation from "../combatant-models/animation-manager/get-frame-event-from-animation";
 import { getCombatActionExecutionTime } from "@speed-dungeon/common";
 import { actionCommandManager } from "@/singletons/action-command-manager";
+import { useGameStore } from "@/stores/game-store";
 
 export default function startPerformingCombatAction(
   gameWorld: GameWorld,
@@ -53,7 +54,7 @@ export default function startPerformingCombatAction(
     "couldn't get action execution time"
   );
 
-  gameWorld.mutateGameState((gameState) => {
+  useGameStore.getState().mutateState((gameState) => {
     if (!gameState.game)
       return (combatActionExecutionTimeResult = new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
     const combatantResult = SpeedDungeonGame.getCombatantById(gameState.game, actionUserId);

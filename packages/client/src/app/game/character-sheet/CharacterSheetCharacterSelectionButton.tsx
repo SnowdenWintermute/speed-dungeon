@@ -1,5 +1,4 @@
 import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
-import { useAlertStore } from "@/stores/alert-store";
 import { useGameStore } from "@/stores/game-store";
 import setFocusedCharacter from "@/utils/set-focused-character";
 import React from "react";
@@ -9,8 +8,6 @@ interface Props {
 }
 
 export default function CharacterSheetCharacterSelectionButton({ characterId }: Props) {
-  const mutateGameState = useGameStore().mutateState;
-  const mutateAlertState = useAlertStore().mutateState;
   const focusedCharacterId = useGameStore().focusedCharacterId;
   const characterResult = useGameStore().getCharacter(characterId);
   if (characterResult instanceof Error) return <div>{characterResult.message}</div>;
@@ -19,7 +16,7 @@ export default function CharacterSheetCharacterSelectionButton({ characterId }: 
     focusedCharacterId === character.entityProperties.id ? "border-yellow-400" : "";
 
   function handleClick() {
-    setFocusedCharacter(mutateGameState, mutateAlertState, characterId);
+    setFocusedCharacter(characterId);
   }
 
   return (

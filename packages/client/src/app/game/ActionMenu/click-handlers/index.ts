@@ -58,8 +58,8 @@ export default function createActionButtonClickHandler(gameAction: GameAction) {
         });
     case GameActionType.SelectItem:
       return () => {
-        let itemResult = getItemOwnedByFocusedCharacter(gameState, gameAction.itemId);
-        if (itemResult instanceof Error) itemResult = getItemOnGround(gameState, gameAction.itemId);
+        let itemResult = getItemOwnedByFocusedCharacter(gameAction.itemId);
+        if (itemResult instanceof Error) itemResult = getItemOnGround(gameAction.itemId);
         if (itemResult instanceof Error) return setAlert(itemResult.message);
         selectItem(itemResult);
       };

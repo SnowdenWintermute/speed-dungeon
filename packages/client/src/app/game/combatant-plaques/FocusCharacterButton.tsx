@@ -1,5 +1,3 @@
-import { useAlertStore } from "@/stores/alert-store";
-import { useGameStore } from "@/stores/game-store";
 import setFocusedCharacter from "@/utils/set-focused-character";
 import React from "react";
 
@@ -9,12 +7,10 @@ interface Props {
 }
 
 export default function FocusCharacterButton({ combatantId, isFocused }: Props) {
-  const mutateGameState = useGameStore().mutateState;
-  const mutateAlertState = useAlertStore().mutateState;
   const conditionalStyles = isFocused ? "bg-slate-400 text-slate-700" : "";
 
   function handleClick() {
-    setFocusedCharacter(mutateGameState, mutateAlertState, combatantId);
+    setFocusedCharacter(combatantId);
   }
 
   return (

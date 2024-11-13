@@ -15,6 +15,7 @@ import {
 } from "../combatant-models/modular-character-parts";
 import { Color3, StandardMaterial } from "@babylonjs/core";
 import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
+import { useGameStore } from "@/stores/game-store";
 
 // the whole point of all this is to make sure we never handle spawn and despawn messages out of order due
 // to the asynchronous nature of spawning models
@@ -166,7 +167,7 @@ export class ModelManager {
 
     if (checkIfRoomLoaded) this.checkIfAllModelsInCurrentRoomAreLoaded();
 
-    this.world.mutateGameState((state) => {
+    useGameStore.getState().mutateState((state) => {
       removeFromArray(state.combatantModelsAwaitingSpawn, blueprint.entityId);
     });
 
@@ -188,7 +189,7 @@ export class ModelManager {
   }
 
   checkIfAllModelsInCurrentRoomAreLoaded() {
-    this.world.mutateGameState((gameState) => {
+    useGameStore.getState().mutateState((gameState) => {
       const partyResult = gameState.getParty();
       if (partyResult instanceof Error) return console.error(partyResult);
       const party = partyResult;

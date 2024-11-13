@@ -14,12 +14,7 @@ export default function SceneManager() {
 
   useEffect(() => {
     if (canvasRef.current) {
-      gameWorld.current = new GameWorld(
-        canvasRef.current,
-        mutateGameState,
-        mutateNextBabylonMessagingStore,
-        debugRef
-      );
+      gameWorld.current = new GameWorld(canvasRef.current, debugRef);
     }
     resizeHandlerRef.current = function () {
       gameWorld.current?.engine?.resize();

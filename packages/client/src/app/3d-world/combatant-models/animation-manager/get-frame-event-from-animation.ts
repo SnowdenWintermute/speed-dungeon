@@ -14,6 +14,7 @@ import { FloatingTextColor, startFloatingText } from "@/stores/game-store/floati
 import { ANIMATION_NAMES } from "./animation-names";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
+import { useGameStore } from "@/stores/game-store";
 
 export default function getFrameEventFromAnimation(
   gameWorld: GameWorld,
@@ -43,7 +44,7 @@ export default function getFrameEventFromAnimation(
 
   animationEventOption = () => {
     let wasSpell = false;
-    gameWorld.mutateGameState((state) => {
+    useGameStore.getState().mutateState((state) => {
       const gameOption = state.game;
       if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
       const game = gameOption;
@@ -94,15 +95,8 @@ export default function getFrameEventFromAnimation(
 
     if (mpChangesByEntityId) {
       for (const [targetId, mpChange] of Object.entries(mpChangesByEntityId)) {
-        startFloatingText(
-          gameWorld.mutateGameState,
-          targetId,
-          mpChange.toString(),
-          FloatingTextColor.ManaGained,
-          false,
-          2000
-        );
-        gameWorld.mutateGameState((state) => {
+        startFloatingText(targetId, mpChange.toString(), FloatingTextColor.ManaGained, false, 2000);
+        useGameStore.getState().mutateState((state) => {
           const gameOption = state.game;
           if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
           const game = gameOption;
@@ -142,7 +136,7 @@ export default function getFrameEventFromAnimation(
           onComplete: () => {},
         });
 
-        gameWorld.mutateGameState((state) => {
+        useGameStore.getState().mutateState((state) => {
           const gameOption = state.game;
           if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
           const game = gameOption;
@@ -163,14 +157,7 @@ export default function getFrameEventFromAnimation(
           );
         });
 
-        startFloatingText(
-          gameWorld.mutateGameState,
-          targetId,
-          "Evaded",
-          FloatingTextColor.Healing,
-          false,
-          2000
-        );
+        startFloatingText(targetId, "Evaded", FloatingTextColor.Healing, false, 2000);
       }
   };
 
@@ -190,16 +177,9 @@ function induceHitRecovery(
 
   const color = hpChange >= 0 ? FloatingTextColor.Healing : FloatingTextColor.Damage;
 
-  startFloatingText(
-    gameWorld.mutateGameState,
-    targetId,
-    Math.abs(hpChange).toString(),
-    color,
-    isCrit,
-    2000
-  );
+  startFloatingText(targetId, Math.abs(hpChange).toString(), color, isCrit, 2000);
 
-  gameWorld.mutateGameState((gameState) => {
+  useGameStore.getState().mutateState((gameState) => {
     // - change their hp
     // - determine if died or ressurected
     // - handle any death by removing the affected combatant's turn tracker

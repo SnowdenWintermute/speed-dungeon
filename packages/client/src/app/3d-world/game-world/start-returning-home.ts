@@ -1,7 +1,6 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { GameWorld } from ".";
 import cloneDeep from "lodash.clonedeep";
-import { StartReturningHomeMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import {
   ActionCommandType,
   COMBATANT_TIME_TO_MOVE_ONE_METER,
@@ -17,6 +16,8 @@ import {
 } from "../combatant-models/model-action-manager/model-actions";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { actionCommandManager } from "@/singletons/action-command-manager";
+import { useGameStore } from "@/stores/game-store";
+import { StartReturningHomeMessage } from "@/singletons/next-to-babylon-message-queue";
 
 export default function startReturningHome(
   gameWorld: GameWorld,
@@ -55,7 +56,7 @@ export default function startReturningHome(
 
   // unlock input / end turn as they are running back
   // so players can start their next input already
-  gameWorld.mutateGameState((gameState) => {
+  useGameStore.getState().mutateState((gameState) => {
     if (!gameState.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
     const partyResult = getCurrentParty(gameState, gameState.username);
     if (partyResult instanceof Error) return console.error(partyResult);

@@ -28,7 +28,6 @@ export default function PaperDollSlot({
 }: Props) {
   const [highlightStyle, setHighlightStyle] = useState("border-slate-400");
   const [bgStyle, setBgStyle] = useState("");
-  const mutateGameState = useGameStore().mutateState;
   const detailedEntityOption = useGameStore().detailedEntity;
   const hoveredEntityOption = useGameStore().hoveredEntity;
   const comparedSlot = useGameStore().comparedSlot;
@@ -71,20 +70,20 @@ export default function PaperDollSlot({
   }, [detailedEntityOption, hoveredEntityOption, itemOption, comparedSlot, characterAttributes]);
 
   function handleMouseEnter() {
-    setItemHovered(mutateGameState, itemOption);
+    setItemHovered(itemOption);
   }
   function handleMouseLeave() {
-    setItemHovered(mutateGameState, null);
+    setItemHovered(null);
   }
   function handleFocus() {
-    setItemHovered(mutateGameState, itemOption);
+    setItemHovered(itemOption);
   }
   function handleBlur() {
-    setItemHovered(mutateGameState, null);
+    setItemHovered(null);
   }
   function handleClick() {
     if (!playerOwnsCharacter) return;
-    selectItem(mutateGameState, itemOption);
+    selectItem(itemOption);
   }
 
   const disabledStyle = playerOwnsCharacter ? "" : "opacity-50";

@@ -1,6 +1,5 @@
 import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
-import { GameState, useGameStore } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
+import { useGameStore } from "@/stores/game-store";
 import { NextOrPrevious } from "@speed-dungeon/common";
 import React, { useEffect, useRef } from "react";
 
@@ -10,35 +9,34 @@ interface Props {
 }
 
 export default function PageTurningButtons({ numberOfPages, hidden }: Props) {
-  const mutateGameState = useGameStore().mutateState;
   const currentPageNumber = useGameStore().actionMenuCurrentPageNumber;
   const keypressListenerRef = useRef<(e: KeyboardEvent) => void | null>();
   const keyupListenerRef = useRef<(e: KeyboardEvent) => void | null>();
 
   function handleClickNextPage() {
-    turnPage(mutateGameState, currentPageNumber, numberOfPages, NextOrPrevious.Next);
+    turnPage(currentPageNumber, numberOfPages, NextOrPrevious.Next);
   }
   function handleClickPreviousPage() {
-    turnPage(mutateGameState, currentPageNumber, numberOfPages, NextOrPrevious.Previous);
+    turnPage(currentPageNumber, numberOfPages, NextOrPrevious.Previous);
   }
 
   useEffect(() => {
     keypressListenerRef.current = (e: KeyboardEvent) => {
       if (numberOfPages < 1) return;
       if (e.code === "KeyW") {
-        turnPage(mutateGameState, currentPageNumber, numberOfPages, NextOrPrevious.Previous);
+        turnPage(currentPageNumber, numberOfPages, NextOrPrevious.Previous);
       }
       if (e.code === "KeyE") {
-        turnPage(mutateGameState, currentPageNumber, numberOfPages, NextOrPrevious.Next);
+        turnPage(currentPageNumber, numberOfPages, NextOrPrevious.Next);
       }
     };
     keyupListenerRef.current = (e: KeyboardEvent) => {
       if (numberOfPages < 1) return;
       if (e.code === "ArrowLeft") {
-        turnPage(mutateGameState, currentPageNumber, numberOfPages, NextOrPrevious.Previous);
+        turnPage(currentPageNumber, numberOfPages, NextOrPrevious.Previous);
       }
       if (e.code === "ArrowRight") {
-        turnPage(mutateGameState, currentPageNumber, numberOfPages, NextOrPrevious.Next);
+        turnPage(currentPageNumber, numberOfPages, NextOrPrevious.Next);
       }
     };
     window.addEventListener("keypress", keypressListenerRef.current);
@@ -77,13 +75,8 @@ export default function PageTurningButtons({ numberOfPages, hidden }: Props) {
   );
 }
 
-function turnPage(
-  mutateGameState: MutateState<GameState>,
-  currentPageNumber: number,
-  numberOfPages: number,
-  direction: NextOrPrevious
-) {
-  mutateGameState((gameState) => {
+function turnPage(currentPageNumber: number, numberOfPages: number, direction: NextOrPrevious) {
+  useGameStore.getState().mutateState((gameState) => {
     switch (direction) {
       case NextOrPrevious.Next:
         if (currentPageNumber >= numberOfPages - 1) gameState.actionMenuCurrentPageNumber = 0;

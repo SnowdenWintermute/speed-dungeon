@@ -19,7 +19,7 @@ export default function FocusedAndComparedItemDetails({ focusedItem, flipDisplay
   const focusedItemId = focusedItem.entityProperties.id;
 
   useEffect(() => {
-    setComparedItem(mutateGameState, focusedItemId, modKeyHeld);
+    setComparedItem(focusedItemId, modKeyHeld);
 
     return () =>
       mutateGameState((gameState) => {

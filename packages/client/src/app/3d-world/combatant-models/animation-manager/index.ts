@@ -85,7 +85,6 @@ export class AnimationManager {
     if (clonedAnimationOption === null) {
       // send message to client with timout duration to remove itself
       setDebugMessage(
-        this.characterModel.world.mutateGameState,
         this.characterModel.entityId,
         `Missing animation: ${newAnimationName}`,
         MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME

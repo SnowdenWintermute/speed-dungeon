@@ -73,12 +73,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
     const element = document.getElementById(`${entityId}-position-div`);
     modelDomPositionElements[entityId] = element as HTMLDivElement | null;
 
-    requestSpawnCombatantModel(
-      combatantDetailsResult,
-      party,
-      mutateGameState,
-      element as HTMLDivElement | null
-    );
+    requestSpawnCombatantModel(combatantDetailsResult, party, element as HTMLDivElement | null);
     mutateGameState((state) => {
       state.babylonControlledCombatantDOMData[entityId] = new BabylonControlledCombatantData();
     });
