@@ -9,13 +9,13 @@ import {
 import {
   ClientToServerEvent,
   CombatActionType,
+  CombatantProperties,
   ERROR_MESSAGES,
   Item,
   ItemPropertiesType,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
-import { useAlertStore } from "@/stores/alert-store";
 import { useUIStore } from "@/stores/ui-store";
 
 export class ConsideringItemMenuState implements ActionMenuState {
@@ -35,9 +35,9 @@ export class ConsideringItemMenuState implements ActionMenuState {
     cancelButton.dedicatedKeys = ["Escape"];
     toReturn[ActionButtonCategory.Top].push(cancelButton);
 
-    let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
+    const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {
-      setAlert(useAlertStore.getState().mutateState, ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+      setAlert(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
       console.error(focusedCharacterResult);
       return toReturn;
     }
@@ -48,13 +48,25 @@ export class ConsideringItemMenuState implements ActionMenuState {
     const useItemButton = (() => {
       switch (this.item.itemProperties.type) {
         case ItemPropertiesType.Equipment:
-          return new ActionMenuButtonProperties("Equip", () => {
-            websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
-              characterId,
-              itemId,
-              equipToAltSlot: useUIStore.getState().modKeyHeld,
+          const slotItemIsEquippedTo = CombatantProperties.getSlotItemIsEquippedTo(
+            focusedCharacterResult.combatantProperties,
+            itemId
+          );
+          if (slotItemIsEquippedTo !== null)
+            return new ActionMenuButtonProperties("Unequip", () => {
+              websocketConnection.emit(ClientToServerEvent.UnequipSlot, {
+                characterId,
+                slot: slotItemIsEquippedTo,
+              });
             });
-          });
+          else
+            return new ActionMenuButtonProperties("Equip", () => {
+              websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
+                characterId,
+                itemId,
+                equipToAltSlot: useUIStore.getState().modKeyHeld,
+              });
+            });
         case ItemPropertiesType.Consumable:
           return new ActionMenuButtonProperties("Use", () => {
             websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {

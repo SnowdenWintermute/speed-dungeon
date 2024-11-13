@@ -140,21 +140,9 @@ export const useGameStore = create<GameState>()(
 // if we don't declare them in this file we get an error for trying to use the stores
 // before they're initialized
 
-export const baseMenuState = new BaseOutOfCombatMenuState(
-  useGameStore.getState(),
-  useUIStore.getState(),
-  useAlertStore.getState()
-);
-export const inventoryItemsMenuState = new InventoryItemsMenuState(
-  useGameStore.getState(),
-  useUIStore.getState(),
-  useAlertStore.getState()
-);
-export const inCombatMenuState = new InCombatMenuState(
-  useGameStore.getState(),
-  useUIStore.getState(),
-  useAlertStore.getState()
-);
+export const baseMenuState = new BaseOutOfCombatMenuState();
+export const inventoryItemsMenuState = new InventoryItemsMenuState();
+export const inCombatMenuState = new InCombatMenuState();
 
 export function getCurrentMenu(state: GameState) {
   const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];
