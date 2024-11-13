@@ -23,7 +23,7 @@ export default function buildActionButtonProperties(
   if (textResult instanceof Error) return textResult;
   const text = textResult;
 
-  const clickHandler = createActionButtonClickHandler(action, gameState, uiState, mutateAlertState);
+  const clickHandler = createActionButtonClickHandler(action);
 
   const mouseEnterHandler = createActionButtonMouseEnterHandler(
     gameState,

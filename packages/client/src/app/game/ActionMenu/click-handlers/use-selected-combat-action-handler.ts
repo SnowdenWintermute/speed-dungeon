@@ -1,10 +1,9 @@
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { GameState } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
+import { useGameStore } from "@/stores/game-store";
 import { ClientToServerEvent, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
 
-export default function useSelectedCombatActionHandler(mutateGameState: MutateState<GameState>) {
-  mutateGameState((gameState) => {
+export default function useSelectedCombatActionHandler() {
+  useGameStore.getState().mutateState((gameState) => {
     gameState.detailedEntity = null;
     const previousActionMenuPageNumberOption = gameState.actionMenuParentPageNumbers.pop();
     if (typeof previousActionMenuPageNumberOption === "number") {

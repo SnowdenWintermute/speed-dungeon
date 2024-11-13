@@ -1,7 +1,5 @@
-import { AlertState } from "@/stores/alert-store";
-import { GameState } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
-import { UIState } from "@/stores/ui-store";
+import { GameState, useGameStore } from "@/stores/game-store";
+import { useUIStore } from "@/stores/ui-store";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import {
   CombatActionType,
@@ -13,13 +11,10 @@ import selectCombatActionHandler from "./select-combat-action-handler";
 import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
 import { websocketConnection } from "@/singletons/websocket-connection";
 
-export default function useItemHandler(
-  gameState: GameState,
-  uiState: UIState,
-  mutateAlertState: MutateState<AlertState>
-) {
-  const altSlotTargeted = uiState.modKeyHeld;
+export default function useItemHandler() {
+  const altSlotTargeted = useUIStore.getState().modKeyHeld;
 
+  const gameState = useGameStore.getState();
   const itemOption =
     gameState.detailedEntity?.type === DetailableEntityType.Item
       ? gameState.detailedEntity.item
@@ -29,7 +24,7 @@ export default function useItemHandler(
       case ItemPropertiesType.Equipment:
         useEquipmentHandler(gameState, itemOption.entityProperties.id, altSlotTargeted);
       case ItemPropertiesType.Consumable:
-        selectCombatActionHandler(gameState, mutateAlertState, {
+        selectCombatActionHandler({
           type: CombatActionType.ConsumableUsed,
           itemId: itemOption.entityProperties.id,
         });
@@ -54,7 +49,7 @@ function useEquipmentHandler(gameState: GameState, itemId: string, altSlot: bool
     websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
       characterId: focusedCharacter.entityProperties.id,
       itemId,
-      equipToAlternateSlot: altSlot,
+      equipToAltSlot: altSlot,
     });
   }
 }

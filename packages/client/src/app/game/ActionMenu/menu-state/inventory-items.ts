@@ -27,16 +27,12 @@ export class InventoryItemsMenuState implements ActionMenuState {
   type = MenuStateType.InventoryItems;
   page = 1;
   numPages = 1;
-  constructor(
-    public gameState: GameState,
-    public uiState: UIState,
-    public alertState: AlertState
-  ) {}
+  constructor() {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
     const closeInventory = new ActionMenuButtonProperties("Close Inventory", () => {
-      this.gameState.mutateState((state) => {
+      useGameStore.getState().mutateState((state) => {
         state.menuState = state.baseMenuState;
       });
     });
@@ -51,9 +47,9 @@ export class InventoryItemsMenuState implements ActionMenuState {
     toggleViewEquippedItems.dedicatedKeys = ["KeyF"];
     toReturn[ActionButtonCategory.Top].push(toggleViewEquippedItems);
 
-    let focusedCharacterResult = this.gameState.getFocusedCharacter();
+    let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {
-      setAlert(this.alertState.mutateState, ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+      setAlert(useAlertStore.getState().mutateState, ERROR_MESSAGES.COMBATANT.NOT_FOUND);
       console.error(focusedCharacterResult);
       return toReturn;
     }
@@ -81,15 +77,8 @@ export class InventoryItemsMenuState implements ActionMenuState {
       if (consumables.length > 1) consumableName += ` (${consumables.length})`;
 
       const button = new ActionMenuButtonProperties(consumableName, () => {
-        this.gameState.mutateState((state) => {
-          state.stackedMenuStates.push(
-            new ConsideringItemMenuState(
-              useGameStore.getState(),
-              useUIStore.getState(),
-              useAlertStore.getState(),
-              firstConsumableOfThisType
-            )
-          );
+        useGameStore.getState().mutateState((state) => {
+          state.stackedMenuStates.push(new ConsideringItemMenuState(firstConsumableOfThisType));
         });
       });
       toReturn[ActionButtonCategory.Numbered].push(button);
@@ -97,15 +86,8 @@ export class InventoryItemsMenuState implements ActionMenuState {
 
     for (const item of equipment) {
       const button = new ActionMenuButtonProperties(item.entityProperties.name, () => {
-        this.gameState.mutateState((state) => {
-          state.stackedMenuStates.push(
-            new ConsideringItemMenuState(
-              useGameStore.getState(),
-              useUIStore.getState(),
-              useAlertStore.getState(),
-              item
-            )
-          );
+        useGameStore.getState().mutateState((state) => {
+          state.stackedMenuStates.push(new ConsideringItemMenuState(item));
         });
       });
       toReturn[ActionButtonCategory.Numbered].push(button);
@@ -115,13 +97,13 @@ export class InventoryItemsMenuState implements ActionMenuState {
       toReturn[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE
     );
 
-    this.gameState.mutateState((state) => {
+    useGameStore.getState().mutateState((state) => {
       getCurrentMenu(state).numPages = numPages;
     });
 
     if (numPages > 1) {
       const previousPageButton = new ActionMenuButtonProperties("Previous", () => {
-        this.gameState.mutateState((state) => {
+        useGameStore.getState().mutateState((state) => {
           const newPage = changePage(this.page, numPages, NextOrPrevious.Previous);
           getCurrentMenu(state).page = newPage;
         });
@@ -130,7 +112,7 @@ export class InventoryItemsMenuState implements ActionMenuState {
       toReturn[ActionButtonCategory.Bottom].push(previousPageButton);
 
       const nextPageButton = new ActionMenuButtonProperties("Next", () => {
-        this.gameState.mutateState((state) => {
+        useGameStore.getState().mutateState((state) => {
           const newPage = changePage(this.page, numPages, NextOrPrevious.Next);
           getCurrentMenu(state).page = newPage;
         });

@@ -1,20 +1,13 @@
 import { setAlert } from "@/app/components/alerts";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
-import { AlertState } from "@/stores/alert-store";
-import { GameState, inCombatMenuState } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
+import { inCombatMenuState, useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { DungeonRoom, ERROR_MESSAGES, updateCombatantHomePosition } from "@speed-dungeon/common";
 
-export default function newDungeonRoomHandler(
-  mutateGameState: MutateState<GameState>,
-  mutateAlertState: MutateState<AlertState>,
-  room: DungeonRoom
-) {
-  mutateGameState((gameState) => {
+export default function newDungeonRoomHandler(room: DungeonRoom) {
+  useGameStore.getState().mutateState((gameState) => {
     const party = getCurrentParty(gameState, gameState.username || "");
-    if (party === undefined)
-      return setAlert(mutateAlertState, ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+    if (party === undefined) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
 
     party.playersReadyToDescend = [];
     party.playersReadyToExplore = [];

@@ -1,7 +1,5 @@
-import { AlertState } from "@/stores/alert-store";
-import { GameState } from "@/stores/game-store";
-import { LobbyState } from "@/stores/lobby-store";
-import { MutateState } from "@/stores/mutate-state";
+import { useGameStore } from "@/stores/game-store";
+import { useLobbyStore } from "@/stores/lobby-store";
 import {
   ClientToServerEventTypes,
   ServerToClientEventTypes,
@@ -10,11 +8,11 @@ import {
 import { Socket } from "socket.io-client";
 
 export default function setUpBasicLobbyEventHandlers(
-  socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>,
-  mutateGameStore: MutateState<GameState>,
-  mutateLobbyStore: MutateState<LobbyState>,
-  mutateAlertStore: MutateState<AlertState>
+  socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
 ) {
+  const mutateGameStore = useGameStore.getState().mutateState;
+  const mutateLobbyStore = useLobbyStore.getState().mutateState;
+
   socket.on("connect", () => {
     mutateGameStore((state) => {
       state.game = null;

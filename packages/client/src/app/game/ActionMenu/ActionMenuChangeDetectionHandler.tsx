@@ -81,10 +81,10 @@ export default function ActionMenuChangeDetectionHandler({
     // know the page number
     // get relevant information
     const partyResult = getParty(gameState.game, gameState.username);
-    if (partyResult instanceof Error) return setAlert(mutateAlertState, partyResult.message);
+    if (partyResult instanceof Error) return setAlert(partyResult.message);
     const relevantInformationResult = collectActionMenuRelevantInformation(gameState, partyResult);
     if (relevantInformationResult instanceof Error)
-      return setAlert(mutateAlertState, relevantInformationResult.message);
+      return setAlert(relevantInformationResult.message);
     const gameActions = createGameActions(relevantInformationResult);
 
     const gameActionsByButtonCategory: Record<ActionButtonCategory, GameAction[]> = {
@@ -130,7 +130,6 @@ export default function ActionMenuChangeDetectionHandler({
         if (buttonPropertiesResult instanceof Error) {
           console.log("BUTTON PROPERTIES ERROR: ", buttonPropertiesResult);
           return setAlert(
-            mutateAlertState,
             `Error creating button properties for game action type ${JSON.stringify(gameAction)}`
           );
         } else buttonPropertiesByCategory[category].push(buttonPropertiesResult);

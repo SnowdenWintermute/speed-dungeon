@@ -1,3 +1,5 @@
+import { FocusEventHandler, MouseEventHandler } from "react";
+
 export enum MenuStateType {
   BaseOutOfCombat,
   BaseInCombat,
@@ -12,11 +14,6 @@ export enum MenuStateType {
   UnopenedChest,
   Staircase,
 }
-
-import { GameState } from "@/stores/game-store";
-import { UIState } from "@/stores/ui-store";
-import { AlertState } from "@/stores/alert-store";
-import { FocusEventHandler, MouseEventHandler } from "react";
 
 export enum ActionButtonCategory {
   Top,
@@ -34,12 +31,7 @@ export class ActionButtonsByCategory {
 export abstract class ActionMenuState {
   page: number = 1;
   numPages: number = 1;
-  constructor(
-    public gameState: GameState,
-    public uiState: UIState,
-    public alertState: AlertState,
-    public type: MenuStateType
-  ) {}
+  constructor(public type: MenuStateType) {}
   abstract getButtonProperties(): ActionButtonsByCategory;
 }
 

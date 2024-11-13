@@ -1,8 +1,5 @@
 import { GameAction, GameActionType } from "../game-actions";
-import { GameState, MenuContext } from "@/stores/game-store";
-import { UIState } from "@/stores/ui-store";
-import { MutateState } from "@/stores/mutate-state";
-import { AlertState } from "@/stores/alert-store";
+import { MenuContext, useGameStore } from "@/stores/game-store";
 import { ClientToServerEvent } from "@speed-dungeon/common";
 import getItemOwnedByFocusedCharacter from "@/utils/getItemOwnedByFocusedCharacter";
 import selectItem from "@/utils/selectItem";
@@ -16,12 +13,8 @@ import dropItemHandler from "./drop-item-handler";
 import getItemOnGround from "@/utils/getItemOnGround";
 import { websocketConnection } from "@/singletons/websocket-connection";
 
-export default function createActionButtonClickHandler(
-  gameAction: GameAction,
-  gameState: GameState,
-  uiState: UIState,
-  mutateAlertState: MutateState<AlertState>
-) {
+export default function createActionButtonClickHandler(gameAction: GameAction) {
+  const gameState = useGameStore.getState();
   const mutateGameState = gameState.mutateState;
 
   if (gameState.combatantModelsAwaitingSpawn.length || gameState.actionCommandWaitingArea.length)
@@ -67,28 +60,23 @@ export default function createActionButtonClickHandler(
       return () => {
         let itemResult = getItemOwnedByFocusedCharacter(gameState, gameAction.itemId);
         if (itemResult instanceof Error) itemResult = getItemOnGround(gameState, gameAction.itemId);
-        if (itemResult instanceof Error) return setAlert(mutateAlertState, itemResult.message);
-        selectItem(gameState.mutateState, itemResult);
+        if (itemResult instanceof Error) return setAlert(itemResult.message);
+        selectItem(itemResult);
       };
     case GameActionType.UseItem:
-      return () => useItemHandler(gameState, uiState, mutateAlertState);
+      return () => useItemHandler();
     case GameActionType.DeselectCombatAction:
-      return () => selectCombatActionHandler(gameState, mutateAlertState, null);
+      return () => selectCombatActionHandler(null);
     case GameActionType.SelectCombatAction:
-      return () => selectCombatActionHandler(gameState, mutateAlertState, gameAction.combatAction);
+      return () => selectCombatActionHandler(gameAction.combatAction);
     case GameActionType.CycleTargets:
-      return () =>
-        cycleCombatActionTargetsHandler(
-          mutateGameState,
-          mutateAlertState,
-          gameAction.nextOrPrevious
-        );
+      return () => cycleCombatActionTargetsHandler(gameAction.nextOrPrevious);
     case GameActionType.CycleTargetingScheme:
-      return () => cycleTargetingSchemeHandler(mutateGameState, mutateAlertState);
+      return () => cycleTargetingSchemeHandler();
     case GameActionType.UseSelectedCombatAction:
-      return () => useSelectedCombatActionHandler(mutateGameState);
+      return () => useSelectedCombatActionHandler();
     case GameActionType.DropItem:
-      return () => dropItemHandler(mutateGameState, mutateAlertState, gameAction.itemId);
+      return () => dropItemHandler(gameAction.itemId);
     case GameActionType.ToggleReadyToDescend:
       return () => websocketConnection.emit(ClientToServerEvent.ToggleReadyToDescend);
     case GameActionType.SetAssignAttributePointsMenuOpen:

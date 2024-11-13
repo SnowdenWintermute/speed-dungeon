@@ -1,18 +1,13 @@
 import getItemOwnedByFocusedCharacter from "@/utils/getItemOwnedByFocusedCharacter";
 import { GameAction, GameActionType } from "../game-actions";
-import { GameState } from "@/stores/game-store";
+import { GameState, useGameStore } from "@/stores/game-store";
 import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
 import getItemOnGround from "@/utils/getItemOnGround";
 import { CombatAttribute, CombatantProperties } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
-import { AlertState } from "@/stores/alert-store";
-import { MutateState } from "@/stores/mutate-state";
 
-export function createActionButtonMouseEnterHandler(
-  gameState: GameState,
-  mutateAlertState: MutateState<AlertState>,
-  action: GameAction
-) {
+export function createActionButtonMouseEnterHandler(action: GameAction) {
+  const gameState = useGameStore.getState();
   const mutateGameState = gameState.mutateState;
   switch (action.type) {
     case GameActionType.SelectCombatAction:
@@ -36,7 +31,7 @@ export function createActionButtonMouseEnterHandler(
             }
           }
 
-          if (itemResult instanceof Error) return setAlert(mutateAlertState, itemResult.message);
+          if (itemResult instanceof Error) return setAlert(itemResult.message);
 
           // calculate unmet requirements
           const focusedCharacterResult = gameState.getFocusedCharacter();
@@ -66,8 +61,8 @@ export function createActionButtonMouseEnterHandler(
   }
 }
 
-export function createActionButtonMouseLeaveHandler(gameState: GameState, action: GameAction) {
-  const mutateGameState = gameState.mutateState;
+export function createActionButtonMouseLeaveHandler(action: GameAction) {
+  const mutateGameState = useGameStore.getState().mutateState;
   switch (action.type) {
     case GameActionType.SelectItem:
       return () => {

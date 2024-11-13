@@ -1,13 +1,9 @@
-import { GameState } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
-import { MutateState } from "@/stores/mutate-state";
 import { Item } from "@speed-dungeon/common";
 
-export default function selectItem(
-  mutateGameState: MutateState<GameState>,
-  itemOption: null | Item
-) {
-  mutateGameState((gameState) => {
+export default function selectItem(itemOption: null | Item) {
+  useGameStore.getState().mutateState((gameState) => {
     if (itemOption) {
       if (
         gameState.detailedEntity?.type === DetailableEntityType.Item &&

@@ -18,18 +18,18 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   // const [opacity, setOpacity] = useState(0);
   const animationTimeoutRef = useRef<NodeJS.Timeout>();
 
-  useEffect(() => {
-    // clearTimeout(animationTimeoutRef.current);
-    // setMenuAnimation("");
-    // setOpacity(0);
-    // animationTimeoutRef.current = setTimeout(() => {
-    //   setOpacity(100);
-    //   setMenuAnimation("animate-slide-appear-from-left-fast animate-appear-fast");
-    // }, 10);
-    // return () => {
-    //   clearTimeout(animationTimeoutRef.current);
-    // };
-  }, [stackedMenuStates.length, baseMenuState]);
+  // useEffect(() => {
+  //   // clearTimeout(animationTimeoutRef.current);
+  //   // setMenuAnimation("");
+  //   // setOpacity(0);
+  //   // animationTimeoutRef.current = setTimeout(() => {
+  //   //   setOpacity(100);
+  //   //   setMenuAnimation("animate-slide-appear-from-left-fast animate-appear-fast");
+  //   // }, 10);
+  //   // return () => {
+  //   //   clearTimeout(animationTimeoutRef.current);
+  //   // };
+  // }, [stackedMenuStates.length, baseMenuState]);
 
   return (
     <section

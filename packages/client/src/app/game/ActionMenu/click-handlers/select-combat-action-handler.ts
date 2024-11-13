@@ -1,8 +1,6 @@
 import { setAlert } from "@/app/components/alerts";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { AlertState } from "@/stores/alert-store";
-import { GameState, MenuContext } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
+import { MenuContext, useGameStore } from "@/stores/game-store";
 import getClientPlayerAssociatedData from "@/utils/getClientPlayerAssociatedData";
 import {
   CombatAction,
@@ -13,15 +11,11 @@ import {
 } from "@speed-dungeon/common";
 import { getCombatActionProperties } from "@speed-dungeon/common";
 
-export default function selectCombatActionHandler(
-  gameState: GameState,
-  mutateAlertState: MutateState<AlertState>,
-  combatActionOption: null | CombatAction
-) {
-  gameState.mutateState((gameState) => {
+export default function selectCombatActionHandler(combatActionOption: null | CombatAction) {
+  useGameStore.getState().mutateState((gameState) => {
     const clientPlayerAssociatedDataResult = getClientPlayerAssociatedData(gameState);
     if (clientPlayerAssociatedDataResult instanceof Error)
-      return setAlert(mutateAlertState, clientPlayerAssociatedDataResult.message);
+      return setAlert(clientPlayerAssociatedDataResult.message);
     const { party, focusedCharacter } = clientPlayerAssociatedDataResult;
 
     const combatActionPropertiesOption = combatActionOption
@@ -30,8 +24,8 @@ export default function selectCombatActionHandler(
     if (combatActionPropertiesOption instanceof Error) return combatActionPropertiesOption;
     if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
 
-    if (!gameState.username) return setAlert(mutateAlertState, ERROR_MESSAGES.CLIENT.NO_USERNAME);
-    if (!gameState.game) return setAlert(mutateAlertState, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    if (!gameState.username) return setAlert(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+    if (!gameState.game) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
 
     SpeedDungeonGame.assignCharacterActionTargets(
       gameState.game,

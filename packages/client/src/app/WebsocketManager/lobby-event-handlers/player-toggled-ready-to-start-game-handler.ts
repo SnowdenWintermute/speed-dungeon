@@ -1,17 +1,11 @@
-import { MutateState } from "@/stores/mutate-state";
 import { setAlert } from "../../components/alerts";
 import { ERROR_MESSAGES, removeFromArray } from "@speed-dungeon/common";
-import { GameState } from "@/stores/game-store";
-import { AlertState } from "@/stores/alert-store";
+import { useGameStore } from "@/stores/game-store";
 
-export default function playerToggledReadyToStartGameHandler(
-  mutateGameStore: MutateState<GameState>,
-  mutateAlertStore: MutateState<AlertState>,
-  username: string
-) {
-  mutateGameStore((gameState) => {
+export default function playerToggledReadyToStartGameHandler(username: string) {
+  useGameStore.getState().mutateState((gameState) => {
     const { game } = gameState;
-    if (!game) return setAlert(mutateAlertStore, ERROR_MESSAGES.GAME_DOESNT_EXIST);
+    if (!game) return setAlert(ERROR_MESSAGES.GAME_DOESNT_EXIST);
 
     if (game.playersReadied.includes(username)) removeFromArray(game.playersReadied, username);
     else game.playersReadied.push(username);

@@ -45,17 +45,17 @@ function SocketManager() {
       });
     });
     socket.on(ServerToClientEvent.ErrorMessage, (message) => {
-      setAlert(mutateAlertStore, message);
+      setAlert(message);
     });
 
     socket.on(ServerToClientEvent.ActionCommandPayloads, (entityId, payloads) => {
-      enqueueClientActionCommand(mutateGameStore, mutateAlertStore, entityId, payloads);
+      enqueueClientActionCommand(entityId, payloads);
     });
 
-    setUpBasicLobbyEventHandlers(socket, mutateGameStore, mutateLobbyStore, mutateAlertStore);
-    setUpGameLobbyEventHandlers(socket, mutateGameStore, mutateAlertStore);
-    setUpGameEventHandlers(socket, mutateGameStore, mutateAlertStore);
-    setUpSavedCharacterEventListeners(socket, mutateLobbyStore);
+    setUpBasicLobbyEventHandlers(socket);
+    setUpGameLobbyEventHandlers(socket);
+    setUpGameEventHandlers(socket);
+    setUpSavedCharacterEventListeners(socket);
 
     return () => {
       Object.values(ServerToClientEvent).forEach((value) => {

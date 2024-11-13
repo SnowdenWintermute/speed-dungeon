@@ -1,20 +1,13 @@
 import { setAlert } from "@/app/components/alerts";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { AlertState } from "@/stores/alert-store";
-import { GameState } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
+import { useGameStore } from "@/stores/game-store";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { CombatantProperties, ClientToServerEvent } from "@speed-dungeon/common";
 
-export default function dropItemHandler(
-  mutateGameState: MutateState<GameState>,
-  mutateAlertState: MutateState<AlertState>,
-  itemId: string
-) {
-  mutateGameState((gameState) => {
+export default function dropItemHandler(itemId: string) {
+  useGameStore.getState().mutateState((gameState) => {
     const focusedCharacterResult = getFocusedCharacter(gameState);
-    if (focusedCharacterResult instanceof Error)
-      return setAlert(mutateAlertState, focusedCharacterResult.message);
+    if (focusedCharacterResult instanceof Error) return setAlert(focusedCharacterResult.message);
     const focusedCharacter = focusedCharacterResult;
     const slotItemIsEquipped = CombatantProperties.getSlotItemIsEquippedTo(
       focusedCharacter.combatantProperties,

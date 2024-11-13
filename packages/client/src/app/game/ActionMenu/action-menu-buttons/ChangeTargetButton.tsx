@@ -6,8 +6,6 @@ import {
   GameKey,
 } from "../action-menu-button-properties";
 import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
-import { AlertState, useAlertStore } from "@/stores/alert-store";
-import { MutateState } from "@/stores/mutate-state";
 import { setAlert } from "@/app/components/alerts";
 
 interface Props {
@@ -15,13 +13,12 @@ interface Props {
 }
 
 export default function ChangeTargetButton({ properties }: Props) {
-  const mutateAlertState = useAlertStore().mutateState;
   const keyupHandlerRef = useRef<(e: KeyboardEvent) => void | null>();
   const keypressHandlerRef = useRef<(e: KeyboardEvent) => void | null>();
 
   useEffect(() => {
     keypressHandlerRef.current = (e: KeyboardEvent) =>
-      createKeyHandler(properties, mutateAlertState, GAME_KEYS_TO_KEYPRESS_CODES, e);
+      createKeyHandler(properties, GAME_KEYS_TO_KEYPRESS_CODES, e);
     window.addEventListener("keypress", keypressHandlerRef.current);
 
     return () => {
@@ -32,7 +29,7 @@ export default function ChangeTargetButton({ properties }: Props) {
 
   useEffect(() => {
     keyupHandlerRef.current = (e: KeyboardEvent) =>
-      createKeyHandler(properties, mutateAlertState, GAME_KEYS_TO_KEYUP_CODES, e);
+      createKeyHandler(properties, GAME_KEYS_TO_KEYUP_CODES, e);
     window.addEventListener("keyup", keyupHandlerRef.current);
 
     return () => {
@@ -75,13 +72,12 @@ export default function ChangeTargetButton({ properties }: Props) {
 
 function createKeyHandler(
   properties: ActionMenuButtonProperties,
-  mutateAlertState: MutateState<AlertState>,
   codes: Partial<Record<GameKey, string[]>>,
   e: KeyboardEvent
 ) {
   if (properties.shouldBeDisabled) return;
   if (properties.dedicatedKeysOption === null)
-    return setAlert(mutateAlertState, `no keycode found for button ${properties.text}`);
+    return setAlert(`no keycode found for button ${properties.text}`);
 
   for (const key of properties.dedicatedKeysOption) {
     if (codes[key]?.includes(e.code)) {

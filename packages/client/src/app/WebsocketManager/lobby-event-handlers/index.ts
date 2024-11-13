@@ -1,5 +1,3 @@
-import { GameState } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
 import {
   ClientToServerEventTypes,
   ServerToClientEventTypes,
@@ -13,18 +11,16 @@ import characterAddedToPartyHandler from "./character-added-to-party-handler";
 import characterDeletionHandler from "./character-deletion-handler";
 import playerToggledReadyToStartGameHandler from "./player-toggled-ready-to-start-game-handler";
 import gameStartedHandler from "../game-event-handlers/game-started-handler";
-import { AlertState } from "@/stores/alert-store";
 import playerLeftGameHandler from "../player-left-game-handler";
 import savedCharacterSelectionInProgressGameHandler from "./saved-character-selection-in-progress-game-handler";
 import { gameWorld } from "@/app/3d-world/SceneManager";
+import { useGameStore } from "@/stores/game-store";
 
 export default function setUpGameLobbyEventHandlers(
-  socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>,
-  mutateGameStore: MutateState<GameState>,
-  mutateAlertStore: MutateState<AlertState>
+  socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
 ) {
+  const mutateGameStore = useGameStore.getState().mutateState;
   socket.on(ServerToClientEvent.GameFullUpdate, (game) => {
-    console.log("got full game update: ", game?.selectedStartingFloor);
     mutateGameStore((state) => {
       if (game === null) {
         state.game = null;
@@ -65,27 +61,22 @@ export default function setUpGameLobbyEventHandlers(
     });
   });
   socket.on(ServerToClientEvent.CharacterAddedToParty, (partyName, username, character) => {
-    characterAddedToPartyHandler(mutateGameStore, mutateAlertStore, partyName, username, character);
+    characterAddedToPartyHandler(partyName, username, character);
   });
   socket.on(ServerToClientEvent.CharacterDeleted, (partyName, username, characterId) => {
-    characterDeletionHandler(mutateGameStore, mutateAlertStore, partyName, username, characterId);
+    characterDeletionHandler(partyName, username, characterId);
   });
   socket.on(
     ServerToClientEvent.PlayerSelectedSavedCharacterInProgressionGame,
     (username, character) => {
-      savedCharacterSelectionInProgressGameHandler(
-        mutateGameStore,
-        mutateAlertStore,
-        username,
-        character
-      );
+      savedCharacterSelectionInProgressGameHandler(username, character);
     }
   );
   socket.on(ServerToClientEvent.PlayerToggledReadyToStartGame, (username) => {
-    playerToggledReadyToStartGameHandler(mutateGameStore, mutateAlertStore, username);
+    playerToggledReadyToStartGameHandler(username);
   });
   socket.on(ServerToClientEvent.GameStarted, (timeStarted) => {
-    gameStartedHandler(mutateGameStore, timeStarted);
+    gameStartedHandler(timeStarted);
 
     gameWorld.current?.clearFloorTexture();
   });

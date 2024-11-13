@@ -1,4 +1,4 @@
-import { GameState } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -6,8 +6,6 @@ import {
   ActionMenuState,
   MenuStateType,
 } from ".";
-import { UIState } from "@/stores/ui-store";
-import { AlertState } from "@/stores/alert-store";
 import {
   ClientToServerEvent,
   CombatActionType,
@@ -17,22 +15,19 @@ import {
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
+import { useAlertStore } from "@/stores/alert-store";
+import { useUIStore } from "@/stores/ui-store";
 
 export class ConsideringItemMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.ItemSelected;
-  constructor(
-    public gameState: GameState,
-    public uiState: UIState,
-    public alertState: AlertState,
-    public item: Item
-  ) {}
+  constructor(public item: Item) {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
     const cancelButton = new ActionMenuButtonProperties("Cancel", () => {
-      this.gameState.mutateState((state) => {
+      useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.pop();
       });
     });
@@ -40,9 +35,9 @@ export class ConsideringItemMenuState implements ActionMenuState {
     cancelButton.dedicatedKeys = ["Escape"];
     toReturn[ActionButtonCategory.Top].push(cancelButton);
 
-    let focusedCharacterResult = this.gameState.getFocusedCharacter();
+    let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {
-      setAlert(this.alertState.mutateState, ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+      setAlert(useAlertStore.getState().mutateState, ERROR_MESSAGES.COMBATANT.NOT_FOUND);
       console.error(focusedCharacterResult);
       return toReturn;
     }
@@ -57,7 +52,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
             websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
               characterId,
               itemId,
-              equipToAltSlot: this.uiState.modKeyHeld,
+              equipToAltSlot: useUIStore.getState().modKeyHeld,
             });
           });
         case ItemPropertiesType.Consumable:
@@ -78,7 +73,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
 
     const dropItemButton = new ActionMenuButtonProperties("Drop", () => {
       websocketConnection.emit(ClientToServerEvent.DropItem, { characterId, itemId });
-      this.gameState.mutateState((state) => {
+      useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.pop();
       });
     });

@@ -13,12 +13,7 @@ export class InCombatMenuState implements ActionMenuState {
   page = 1;
   type = MenuStateType.BaseOutOfCombat;
   numPages: number = 1;
-  constructor(
-    public gameState: GameState,
-    public uiState: UIState,
-    public alertState: AlertState
-    // public setState: React.Dispatch<Sta
-  ) {}
+  constructor() {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 

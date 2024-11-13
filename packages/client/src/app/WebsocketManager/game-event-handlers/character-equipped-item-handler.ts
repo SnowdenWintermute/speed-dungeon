@@ -1,32 +1,25 @@
-import { AlertState, useAlertStore } from "@/stores/alert-store";
-import { GameState, useGameStore } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
+import { GameState } from "@/stores/game-store";
 import {
   AdventuringParty,
   CharacterAssociatedData,
   CombatantProperties,
   ERROR_MESSAGES,
+  Item,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
-import { ConsideringItemMenuState } from "@/app/game/ActionMenu/menu-state/considering-item";
-import { useUIStore } from "@/stores/ui-store";
 
-export default function characterEquippedItemHandler(
-  mutateGameState: MutateState<GameState>,
-  mutateAlertState: MutateState<AlertState>,
-  {
-    characterId,
-    itemId,
-    equipToAlternateSlot,
-  }: {
-    itemId: string;
-    equipToAlternateSlot: boolean;
-    characterId: string;
-  }
-) {
+export default function characterEquippedItemHandler({
+  characterId,
+  itemId,
+  equipToAlternateSlot,
+}: {
+  itemId: string;
+  equipToAlternateSlot: boolean;
+  characterId: string;
+}) {
+  let itemToSelectOption: Item | null = null;
+
   characterAssociatedDataProvider(
-    mutateGameState,
-    mutateAlertState,
     characterId,
     ({ party, character }: CharacterAssociatedData, gameState: GameState) => {
       if (gameState.username === null) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
@@ -37,8 +30,6 @@ export default function characterEquippedItemHandler(
         equipToAlternateSlot
       );
       if (unequippedItemIdsResult instanceof Error) return unequippedItemIdsResult;
-
-      let itemToSelectOption = null;
 
       if (unequippedItemIdsResult[0] !== undefined) {
         for (const item of character.combatantProperties.inventory.items) {
@@ -52,22 +43,19 @@ export default function characterEquippedItemHandler(
         characterId
       );
 
-      if (!playerOwnsCharacter) return;
-      if (itemToSelectOption === null) {
-        gameState.stackedMenuStates.pop();
-        return;
-      }
-      const itemToSelect = itemToSelectOption;
-
       gameState.hoveredEntity = null;
+      if (!playerOwnsCharacter) return;
+      if (itemToSelectOption === null) return;
+
       // gameState.detailedEntity = { item: itemToSelect, type: DetailableEntityType.Item };
-      gameState.stackedMenuStates[gameState.stackedMenuStates.length - 1] =
-        new ConsideringItemMenuState(
-          useGameStore.getState(),
-          useUIStore.getState(),
-          useAlertStore.getState(),
-          itemToSelect
-        );
     }
   );
+
+  // if (itemToSelectOption !== null) {
+  //   useGameStore.getState().mutateState((state) => {
+  //     state.stackedMenuStates[state.stackedMenuStates.length - 1] = new ConsideringItemMenuState(
+  //       itemToSelectOption!
+  //     );
+  //   });
+  // }
 }

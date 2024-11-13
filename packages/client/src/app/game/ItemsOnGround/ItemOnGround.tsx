@@ -22,25 +22,24 @@ interface Props {
 export default function ItemOnGround(props: Props) {
   const { itemId } = props;
   const gameState = useGameStore();
-  const mutateAlertState = useAlertStore().mutateState;
   function mouseEnterHandler() {
-    createActionButtonMouseEnterHandler(gameState, mutateAlertState, {
+    createActionButtonMouseEnterHandler({
       type: GameActionType.SelectItem,
       itemId,
       stackSize: 1,
     })();
   }
   function mouseLeaveHandler() {
-    createActionButtonMouseLeaveHandler(gameState, {
+    createActionButtonMouseLeaveHandler({
       type: GameActionType.SelectItem,
       itemId,
       stackSize: 1,
     })();
   }
   function clickHandler() {
-    const itemResult = getItemOnGround(gameState, itemId);
-    if (itemResult instanceof Error) return setAlert(mutateAlertState, itemResult.message);
-    selectItem(gameState.mutateState, itemResult);
+    const itemResult = getItemOnGround(itemId);
+    if (itemResult instanceof Error) return setAlert(itemResult.message);
+    selectItem(itemResult);
   }
 
   function takeItem() {

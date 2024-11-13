@@ -1,5 +1,4 @@
-import { LobbyState } from "@/stores/lobby-store";
-import { MutateState } from "@/stores/mutate-state";
+import { useLobbyStore } from "@/stores/lobby-store";
 import {
   ClientToServerEventTypes,
   ServerToClientEvent,
@@ -8,9 +7,9 @@ import {
 import { Socket } from "socket.io-client";
 
 export default function setUpSavedCharacterEventListeners(
-  socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>,
-  mutateLobbyState: MutateState<LobbyState>
+  socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
 ) {
+  const mutateLobbyState = useLobbyStore.getState().mutateState;
   socket.on(ServerToClientEvent.SavedCharacterList, (characters) => {
     mutateLobbyState((state) => {
       state.savedCharacters = characters;

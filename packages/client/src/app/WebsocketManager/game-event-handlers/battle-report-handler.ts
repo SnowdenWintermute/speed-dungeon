@@ -1,5 +1,4 @@
-import { GameState } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
+import { useGameStore } from "@/stores/game-store";
 import {
   BattleReport,
   ClientToServerEvent,
@@ -10,7 +9,6 @@ import { Socket } from "socket.io-client";
 
 export default function battleReportHandler(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>,
-  mutateGameState: MutateState<GameState>,
   report: BattleReport
 ) {
   // once all clients have told the server they know about the items,
@@ -24,7 +22,7 @@ export default function battleReportHandler(
     );
   }
 
-  mutateGameState((gameState) => {
+  useGameStore.getState().mutateState((gameState) => {
     gameState.battleReportPendingProcessing = report;
   });
 }
