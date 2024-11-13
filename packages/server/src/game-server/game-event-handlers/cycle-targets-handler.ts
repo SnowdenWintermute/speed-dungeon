@@ -1,19 +1,16 @@
 import {
   CharacterAssociatedData,
-  ClientToServerEventTypes,
   ERROR_MESSAGES,
   NextOrPrevious,
   ServerToClientEvent,
-  ServerToClientEventTypes,
   SpeedDungeonGame,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { Socket } from "socket.io";
+import { getGameServer } from "../../singletons.js";
 
 export default function cycleTargetsHandler(
   eventData: { characterId: string; direction: NextOrPrevious },
-  characterAssociatedData: CharacterAssociatedData,
-  socket: Socket<ClientToServerEventTypes, ServerToClientEventTypes>
+  characterAssociatedData: CharacterAssociatedData
 ): Error | void {
   const { game, party, character } = characterAssociatedData;
   const { username } = characterAssociatedData.player;
@@ -31,8 +28,8 @@ export default function cycleTargetsHandler(
 
   if (result instanceof Error) return result;
 
-  socket.broadcast
-    .to(getPartyChannelName(game.name, party.name))
+  getGameServer()
+    .io.to(getPartyChannelName(game.name, party.name))
     .emit(
       ServerToClientEvent.CharacterCycledTargets,
       character.entityProperties.id,

@@ -1,5 +1,6 @@
-import { GameState } from "@/stores/game-store";
+import { GameState, getCurrentMenu } from "@/stores/game-store";
 import {
+  AdventuringParty,
   CharacterAssociatedData,
   CombatAction,
   ERROR_MESSAGES,
@@ -7,6 +8,7 @@ import {
   getCombatActionProperties,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
+import { ConsideringCombatActionMenuState } from "@/app/game/ActionMenu/menu-state/considering-combat-action";
 
 export default function characterSelectedCombatActionHandler(
   characterId: string,
@@ -31,6 +33,16 @@ export default function characterSelectedCombatActionHandler(
         character.combatantProperties.controllingPlayer,
         combatActionPropertiesOption
       );
+
+      const playerOwnsCharacter = AdventuringParty.playerOwnsCharacter(
+        party,
+        gameState.username,
+        characterId
+      );
+
+      if (!playerOwnsCharacter || !combatActionOption) return;
+
+      gameState.stackedMenuStates.push(new ConsideringCombatActionMenuState(combatActionOption));
     }
   );
 }

@@ -12,12 +12,14 @@ export default function characterCycledTargetsHandler(
   direction: NextOrPrevious,
   playerUsername: string
 ) {
+  console.log("cycleCharacterTargets handler ");
   characterAssociatedDataProvider(
     characterId,
     ({ game, party }: CharacterAssociatedData, gameState: GameState) => {
       if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
       const playerOption = game.players[playerUsername];
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+      console.log("character cycleCharacterTargets");
       return SpeedDungeonGame.cycleCharacterTargets(
         game,
         party,
