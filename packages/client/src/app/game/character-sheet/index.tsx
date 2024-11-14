@@ -10,7 +10,7 @@ import { MenuStateType } from "../ActionMenu/menu-state";
 export default function CharacterSheet() {
   const partyResult = useGameStore().getParty();
   const username = useGameStore().username;
-  const menuStateType = useGameStore((state) => state.menuState.type);
+  const stackedMenuStates = useGameStore.getState().stackedMenuStates;
   if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
   const focusedCharacterResult = useGameStore().getFocusedCharacter();
   const focusedCharacterOption =
@@ -25,7 +25,8 @@ export default function CharacterSheet() {
   const focusedCharacterHasSelectedAction = combatantProperties.selectedCombatAction !== null;
 
   const showCharacterSheet =
-    menuStateType === MenuStateType.InventoryItems && !focusedCharacterHasSelectedAction;
+    stackedMenuStates.map((item) => item.type).includes(MenuStateType.InventoryItems) &&
+    !focusedCharacterHasSelectedAction;
 
   let conditionalStyles = showCharacterSheet ? "overflow-hidden" : "opacity-0 w-0 overflow-hidden";
 

@@ -18,8 +18,7 @@ import getFocusedCharacter from "@/utils/getFocusedCharacter";
 
 export default function Game() {
   const game = useGameStore().game;
-  const menuContext = useGameStore().menuContext;
-  const currentMenu = useGameStore().getCurrentMenu();
+  const stackedMenuStates = useGameStore.getState().stackedMenuStates;
 
   const username = useGameStore().username;
   if (!username)
@@ -50,12 +49,9 @@ export default function Game() {
   const party = game.adventuringParties[partyName];
   if (!party) return <div>Client thinks it is in a party that doesn't exist</div>;
 
-  const viewingCharacterSheet =
-    currentMenu.type === MenuStateType.InventoryItems ||
-    currentMenu.type === MenuStateType.AssignAttributePoints ||
-    currentMenu.type === MenuStateType.ItemSelected ||
-    currentMenu.type === MenuStateType.ViewingEquipedItems;
-
+  const viewingCharacterSheet = shouldShowCharacterSheet(
+    stackedMenuStates.map((item) => item.type)
+  );
   const conditionalStyles = viewingCharacterSheet ? "items-center justify-end" : "";
 
   const actionMenuAndCharacterSheetContainerConditionalClasses = viewingCharacterSheet
@@ -144,5 +140,14 @@ export default function Game() {
         </div>
       </div>
     </main>
+  );
+}
+
+function shouldShowCharacterSheet(menuTypes: MenuStateType[]) {
+  return (
+    menuTypes.includes(MenuStateType.InventoryItems) ||
+    menuTypes.includes(MenuStateType.AssignAttributePoints) ||
+    menuTypes.includes(MenuStateType.ItemSelected) ||
+    menuTypes.includes(MenuStateType.ViewingEquipedItems)
   );
 }

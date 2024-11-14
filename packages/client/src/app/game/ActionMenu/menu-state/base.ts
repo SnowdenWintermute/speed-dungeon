@@ -20,6 +20,7 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import getGameAndParty from "@/utils/getGameAndParty";
+import cloneDeep from "lodash.clonedeep";
 
 export class BaseMenuState implements ActionMenuState {
   page = 1;
@@ -31,7 +32,7 @@ export class BaseMenuState implements ActionMenuState {
 
     const setInventoryOpen = new ActionMenuButtonProperties("Open Inventory", () => {
       useGameStore.getState().mutateState((state) => {
-        state.menuState = inventoryItemsMenuState;
+        state.stackedMenuStates.push(inventoryItemsMenuState);
       });
     });
     setInventoryOpen.dedicatedKeys = ["KeyI", "KeyS"];
@@ -84,7 +85,22 @@ export class BaseMenuState implements ActionMenuState {
           characterId,
           combatActionOption: { type: CombatActionType.AbilityUsed, abilityName: ability.name },
         });
+        useGameStore.getState().mutateState((state) => {
+          state.hoveredAction = null;
+        });
       });
+
+      button.mouseEnterHandler = button.focusHandler = () =>
+        useGameStore.getState().mutateState((state) => {
+          state.hoveredAction = cloneDeep({
+            type: CombatActionType.AbilityUsed,
+            abilityName: ability.name,
+          });
+        });
+      button.mouseLeaveHandler = button.blurHandler = () =>
+        useGameStore.getState().mutateState((state) => {
+          state.hoveredAction = null;
+        });
 
       const abilityAttributes = CombatantAbility.getAttributes(ability.name);
       const { usabilityContext } = abilityAttributes.combatActionProperties;

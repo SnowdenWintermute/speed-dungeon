@@ -70,7 +70,7 @@ export default function createGameActions({
         for (const [consumableTypeKey, ids] of Object.entries(consumableIdsByType)) {
           gameActions.push({
             type: GameActionType.SelectItem,
-            itemId: ids[0],
+            itemId: ids[0]!,
             stackSize: ids.length,
           });
         }

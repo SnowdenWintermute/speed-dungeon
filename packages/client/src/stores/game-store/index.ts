@@ -3,7 +3,6 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { immerable, produce } from "immer";
 import {
-  ActionCommand,
   AdventuringParty,
   CombatAction,
   CombatAttribute,
@@ -35,7 +34,6 @@ export enum MenuContext {
 
 export class GameState {
   [immerable] = true;
-  menuState: ActionMenuState;
   baseMenuState: BaseMenuState;
   stackedMenuStates: ActionMenuState[] = [];
   // cameraData: { alpha: number; beta: number; radius: number; focus: Vector3 } = {
@@ -63,7 +61,6 @@ export class GameState {
   babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
   combatantFloatingText: { [combatantId: string]: FloatingText[] } = {};
   combatantModelsAwaitingSpawn: string[] = [];
-  actionCommandWaitingArea: ActionCommand[] = [];
   testText: string = "test";
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
@@ -101,7 +98,6 @@ export class GameState {
     public getCurrentMenu: () => ActionMenuState
   ) {
     this.baseMenuState = new BaseMenuState(false);
-    this.menuState = this.baseMenuState;
   }
 }
 
@@ -136,5 +132,5 @@ export const inventoryItemsMenuState = new InventoryItemsMenuState();
 export function getCurrentMenu(state: GameState) {
   const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];
   if (topStackedMenu) return topStackedMenu;
-  else return state.menuState;
+  else return state.baseMenuState;
 }

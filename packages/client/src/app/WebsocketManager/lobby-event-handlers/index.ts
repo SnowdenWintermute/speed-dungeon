@@ -30,6 +30,7 @@ export default function setUpGameLobbyEventHandlers(
         state.game = game;
         state.gameName = game.name;
       }
+      state.stackedMenuStates = [];
     });
   });
   socket.on(ServerToClientEvent.PlayerJoinedGame, (username) => {

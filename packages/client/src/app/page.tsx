@@ -12,8 +12,6 @@ import GlobalKeyboardEventManager from "./GlobalKeyboardEventManager";
 import TooltipManager from "./TooltipManager";
 import SceneManager from "./3d-world/SceneManager";
 import { useEffect } from "react";
-import { useAlertStore } from "@/stores/alert-store";
-import { useNextBabylonMessagingStore } from "@/stores/next-babylon-messaging-store";
 import {
   actionCommandManager,
   actionCommandReceiver,
@@ -25,17 +23,10 @@ enableMapSet();
 
 export default function Home() {
   const game = useGameStore().game;
-  const mutateGameStore = useGameStore().mutateState;
-  const mutateAlertStore = useAlertStore().mutateState;
-  const mutateNextBabylonMessagingStore = useNextBabylonMessagingStore().mutateState;
   const combatantModelsAwaitingSpawn = useGameStore().combatantModelsAwaitingSpawn;
 
   useEffect(() => {
-    actionCommandReceiver.current = new ClientActionCommandReceiver(
-      mutateGameStore,
-      mutateAlertStore,
-      mutateNextBabylonMessagingStore
-    );
+    actionCommandReceiver.current = new ClientActionCommandReceiver();
 
     return () => {
       actionCommandReceiver.current = null;

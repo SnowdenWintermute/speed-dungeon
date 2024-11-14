@@ -28,7 +28,7 @@ export class GameWorld {
   shadowGenerator: null | ShadowGenerator = null;
   messages: NextToBabylonMessage[] = [];
   mouse: Vector3 = new Vector3(0, 1, 0);
-  debug: { debugRef: React.RefObject<HTMLDivElement> | null } = { debugRef: null };
+  debug: { debugRef: React.RefObject<HTMLUListElement> | null } = { debugRef: null };
   useShadows: boolean = false;
   modelManager: ModelManager = new ModelManager(this);
   turnResultsQueue: CombatTurnResult[] = [];
@@ -36,7 +36,7 @@ export class GameWorld {
   groundTexture: DynamicTexture;
   constructor(
     public canvas: HTMLCanvasElement,
-    debugRef: React.RefObject<HTMLDivElement>
+    debugRef: React.RefObject<HTMLUListElement>
   ) {
     this.engine = new Engine(canvas, true);
     // this.engine.setHardwareScalingLevel(10); // renders at lower resolutions

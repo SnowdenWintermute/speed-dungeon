@@ -12,10 +12,9 @@ const topButtoLiStyle = { marginRight: `${SPACING_REM}rem` };
 
 export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   const actionMenuRef = useRef<HTMLUListElement>(null);
-  const stackedMenuStates = useGameStore((state) => state.stackedMenuStates);
   const combatantModelsAwaitingSpawn = useGameStore((state) => state.combatantModelsAwaitingSpawn);
-  const baseMenuState = useGameStore((state) => state.menuState);
-  const currentMenu = stackedMenuStates[stackedMenuStates.length - 1] || baseMenuState;
+  const hoveredAction = useGameStore((state) => state.hoveredAction);
+  const currentMenu = useGameStore.getState().getCurrentMenu();
   const buttonProperties = currentMenu.getButtonProperties();
 
   if (inputLocked) return <div />;
@@ -30,6 +29,17 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
       >
         <ActionDetails combatAction={currentMenu.combatAction} hideTitle={false} />
+      </div>
+    );
+  }
+
+  let hoveredActionDisplay = <></>;
+  if (hoveredAction) {
+    hoveredActionDisplay = (
+      <div className="absolute top-0 left-full pl-2">
+        <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2">
+          <ActionDetails combatAction={hoveredAction} hideTitle={false} />
+        </div>
       </div>
     );
   }
@@ -68,6 +78,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
             </li>
           ))}
           {selectedActionDisplay}
+          {hoveredActionDisplay}
         </ul>
       </div>
       <div>

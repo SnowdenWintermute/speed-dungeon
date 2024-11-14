@@ -1,6 +1,6 @@
 import getItemOwnedByFocusedCharacter from "@/utils/getItemOwnedByFocusedCharacter";
 import { GameAction, GameActionType } from "../game-actions";
-import { GameState, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
 import getItemOnGround from "@/utils/getItemOnGround";
 import { CombatAttribute, CombatantProperties } from "@speed-dungeon/common";
@@ -18,11 +18,11 @@ export function createActionButtonMouseEnterHandler(action: GameAction) {
     case GameActionType.SelectItem:
       return () => {
         mutateGameState((gameState) => {
-          let itemResult = getItemOwnedByFocusedCharacter(gameState, action.itemId);
+          let itemResult = getItemOwnedByFocusedCharacter(action.itemId);
           if (!(itemResult instanceof Error)) {
             gameState.hoveredEntity = { type: DetailableEntityType.Item, item: itemResult };
           } else {
-            itemResult = getItemOnGround(gameState, action.itemId);
+            itemResult = getItemOnGround(action.itemId);
             if (!(itemResult instanceof Error)) {
               gameState.hoveredEntity = {
                 type: DetailableEntityType.Item,

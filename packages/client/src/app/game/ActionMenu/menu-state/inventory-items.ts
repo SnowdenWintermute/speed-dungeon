@@ -1,4 +1,4 @@
-import { GameState, getCurrentMenu, useGameStore } from "@/stores/game-store";
+import { getCurrentMenu, useGameStore } from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -6,11 +6,8 @@ import {
   ActionMenuState,
   MenuStateType,
 } from ".";
-import { UIState, useUIStore } from "@/stores/ui-store";
-import { AlertState, useAlertStore } from "@/stores/alert-store";
 import {
   ConsumableType,
-  ERROR_MESSAGES,
   Item,
   ItemPropertiesType,
   NextOrPrevious,
@@ -33,16 +30,14 @@ export class InventoryItemsMenuState implements ActionMenuState {
 
     const closeInventory = new ActionMenuButtonProperties("Close Inventory", () => {
       useGameStore.getState().mutateState((state) => {
-        state.menuState = state.baseMenuState;
+        state.stackedMenuStates.pop();
       });
     });
     closeInventory.dedicatedKeys = ["KeyI", "KeyS", "Escape"];
     toReturn[ActionButtonCategory.Top].push(closeInventory);
 
     const toggleViewEquippedItems = new ActionMenuButtonProperties("Show Equipped", () => {
-      // this.gameState.mutateState((state) => {
-      //   state.menuState = state.baseMenuState;
-      // });
+      // @TODO
     });
 
     toggleViewEquippedItems.dedicatedKeys = ["KeyF"];
