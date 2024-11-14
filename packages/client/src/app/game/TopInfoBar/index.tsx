@@ -36,7 +36,7 @@ export default function TopInfoBar() {
       ) : (
         <RoomExplorationTracker />
       )}
-      <div className="absolute right-2 pr-2 pl-2 border border-slate-400">
+      <div className="absolute right-0 pr-4 pl-4 h-full w-fit border-l border-slate-400 flex items-center justify-center">
         <HotkeyButton onClick={() => setShowLeaveGameModal(!showLeaveGameModal)}>
           LEAVE GAME{" "}
         </HotkeyButton>

@@ -1,7 +1,8 @@
 import { setAlert } from "@/app/components/alerts";
-import { useGameStore } from "@/stores/game-store";
+import { getCurrentMenu, useGameStore } from "@/stores/game-store";
 import { ERROR_MESSAGES, ClientToServerEvent } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
+import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
 
 export default function setFocusedCharacter(id: string) {
   useGameStore.getState().mutateState((gameState) => {
@@ -9,7 +10,14 @@ export default function setFocusedCharacter(id: string) {
     gameState.detailedEntity = null;
     gameState.hoveredEntity = null;
     gameState.focusedCharacterId = id;
-    gameState.stackedMenuStates = [];
+    const currentMenuType = getCurrentMenu(gameState).type;
+
+    if (
+      currentMenuType !== MenuStateType.InventoryItems &&
+      currentMenuType !== MenuStateType.ViewingEquipedItems
+    )
+      gameState.stackedMenuStates = [];
+
     const game = gameState.game;
     if (!game) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
     if (!gameState.username) return setAlert(ERROR_MESSAGES.CLIENT.NO_USERNAME);
