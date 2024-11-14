@@ -9,6 +9,7 @@ export default function setFocusedCharacter(id: string) {
     gameState.detailedEntity = null;
     gameState.hoveredEntity = null;
     gameState.focusedCharacterId = id;
+    gameState.stackedMenuStates = [];
     const game = gameState.game;
     if (!game) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
     if (!gameState.username) return setAlert(ERROR_MESSAGES.CLIENT.NO_USERNAME);

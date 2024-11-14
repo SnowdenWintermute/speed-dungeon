@@ -10,7 +10,6 @@ import playerToggledReadyToDescendOrExploreHandler from "./player-toggled-ready-
 import newDungeonRoomTypesOnCurrentFloorHandler from "./new-dungeon-room-types-on-current-floor-handler";
 import newDungeonRoomHandler from "./new-dungeon-room-handler";
 import battleFullUpdateHandler from "./battle-full-update-handler";
-import battleReportHandler from "./battle-report-handler";
 import characterDroppedItemHandler from "./character-dropped-item-handler";
 import characterDroppedEquippedItemHandler from "./character-dropped-equipped-item-handler";
 import characterUnequippedSlotHandler from "./character-unequipped-slot-handler";
@@ -36,7 +35,6 @@ export default function setUpGameEventHandlers(
   );
   socket.on(ServerToClientEvent.DungeonRoomUpdate, newDungeonRoomHandler);
   socket.on(ServerToClientEvent.BattleFullUpdate, battleFullUpdateHandler);
-  socket.on(ServerToClientEvent.BattleReport, battleReportHandler);
   socket.on(ServerToClientEvent.CharacterDroppedItem, characterDroppedItemHandler);
   socket.on(ServerToClientEvent.CharacterDroppedEquippedItem, characterDroppedEquippedItemHandler);
   socket.on(ServerToClientEvent.CharacterUnequippedItem, characterUnequippedSlotHandler);

@@ -16,7 +16,7 @@ import {
 } from "../combatant-models/model-action-manager/model-actions";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { actionCommandManager } from "@/singletons/action-command-manager";
-import { useGameStore } from "@/stores/game-store";
+import { getCurrentMenu, useGameStore } from "@/stores/game-store";
 import { StartReturningHomeMessage } from "@/singletons/next-to-babylon-message-queue";
 
 export default function startReturningHome(

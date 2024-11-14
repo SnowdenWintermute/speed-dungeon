@@ -8,8 +8,9 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import setUpSavedCharacterEventListeners from "./saved-character-event-handlers";
 import setUpGameLobbyEventHandlers from "./lobby-event-handlers";
 import setUpGameEventHandlers from "./game-event-handlers";
-import { enqueueClientActionCommand } from "@/singletons/action-command-manager";
+import { enqueueClientActionCommands } from "@/singletons/action-command-manager";
 import setUpBasicLobbyEventHandlers from "./basic-lobby-event-handlers";
+import getFocusedCharacter from "@/utils/getFocusedCharacter";
 
 function SocketManager() {
   const mutateLobbyStore = useLobbyStore().mutateState;
@@ -49,7 +50,13 @@ function SocketManager() {
     });
 
     socket.on(ServerToClientEvent.ActionCommandPayloads, (entityId, payloads) => {
-      enqueueClientActionCommand(entityId, payloads);
+      const focusedCharacteResult = getFocusedCharacter();
+      if (focusedCharacteResult instanceof Error) return console.trace(focusedCharacteResult);
+
+      mutateGameStore((state) => {
+        if (entityId === focusedCharacteResult.entityProperties.id) state.stackedMenuStates = [];
+      });
+      enqueueClientActionCommands(entityId, payloads);
     });
 
     setUpBasicLobbyEventHandlers(socket);

@@ -34,7 +34,7 @@ export enum ServerToClientEvent {
   BattleFullUpdate = "19",
   ActionCommandPayloads = "20",
   GameMessage = "21",
-  BattleReport = "22",
+  // BattleReport = "22",
   CharacterDroppedItem = "23",
   CharacterDroppedEquippedItem = "24",
   CharacterUnequippedItem = "25",
@@ -101,7 +101,7 @@ export interface ServerToClientEventTypes {
     payloads: ActionCommandPayload[]
   ) => void;
   [ServerToClientEvent.GameMessage]: (message: GameMessage) => void;
-  [ServerToClientEvent.BattleReport]: (report: BattleReport) => void;
+  // [ServerToClientEvent.BattleReport]: (report: BattleReport) => void;
   [ServerToClientEvent.CharacterDroppedItem]: (characterAndItem: CharacterAndItem) => void;
   [ServerToClientEvent.CharacterDroppedEquippedItem]: (characterAndItem: CharacterAndSlot) => void;
   [ServerToClientEvent.CharacterUnequippedItem]: (characterAndItem: CharacterAndSlot) => void;

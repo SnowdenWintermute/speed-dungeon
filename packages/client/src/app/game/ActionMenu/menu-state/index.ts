@@ -1,17 +1,14 @@
 import { FocusEventHandler, MouseEventHandler } from "react";
 
 export enum MenuStateType {
-  BaseOutOfCombat,
-  BaseInCombat,
-  CombatActionSelected,
-  LevelUpAbilities,
+  Base, //
+  CombatActionSelected, //
   AssignAttributePoints,
-  InventoryItems,
+  InventoryItems, //
   ViewingEquipedItems,
-  ItemSelected,
+  ItemSelected, //
   ItemOnGroundSelected,
   ItemsOnGround,
-  UnopenedChest,
   Staircase,
 }
 

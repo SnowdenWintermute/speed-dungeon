@@ -23,8 +23,8 @@ export default class RankedRaceStrategy implements GameModeStrategy {
     partyOption: undefined | AdventuringParty,
     player: SpeedDungeonPlayer
   ): Promise<Error | void> {
-    if (!partyOption) return new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
     if (!game.timeStarted || !game.isRanked) return Promise.resolve();
+    if (!partyOption) return new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
 
     const maybeError = await updateRaceGameCharacterRecordLevels(partyOption, player.username);
     if (maybeError instanceof Error) return maybeError;

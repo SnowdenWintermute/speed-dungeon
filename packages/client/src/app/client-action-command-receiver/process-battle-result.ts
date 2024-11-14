@@ -9,6 +9,7 @@ import getCurrentParty from "@/utils/getCurrentParty";
 import { ActionCommandManager } from "@speed-dungeon/common";
 import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
 import { useGameStore } from "@/stores/game-store";
+import { BaseMenuState } from "../game/ActionMenu/menu-state/base";
 
 export default function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
@@ -56,6 +57,8 @@ export default function battleResultActionCommandHandler(
         }
         break;
     }
+
+    state.baseMenuState.inCombat = false;
   });
   actionCommandManager.processNextCommand();
 }

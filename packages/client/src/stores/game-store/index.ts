@@ -5,7 +5,6 @@ import { immerable, produce } from "immer";
 import {
   ActionCommand,
   AdventuringParty,
-  BattleReport,
   CombatAction,
   CombatAttribute,
   Combatant,
@@ -23,13 +22,9 @@ import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
 import { FloatingText } from "./floating-text";
 import { BabylonControlledCombatantData } from "./babylon-controlled-combatant-data";
-import { useUIStore } from "../ui-store";
-import { useAlertStore } from "../alert-store";
 import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
-import { BaseOutOfCombatMenuState } from "@/app/game/ActionMenu/menu-state/base-out-of-combat";
 import { InventoryItemsMenuState } from "@/app/game/ActionMenu/menu-state/inventory-items";
-import { InCombatMenuState } from "@/app/game/ActionMenu/menu-state/base-in-combat";
-import { ConsideringItemMenuState } from "@/app/game/ActionMenu/menu-state/considering-item";
+import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
 
 export enum MenuContext {
   InventoryItems,
@@ -41,7 +36,7 @@ export enum MenuContext {
 export class GameState {
   [immerable] = true;
   menuState: ActionMenuState;
-  baseMenuState: ActionMenuState;
+  baseMenuState: BaseMenuState;
   stackedMenuStates: ActionMenuState[] = [];
   // cameraData: { alpha: number; beta: number; radius: number; focus: Vector3 } = {
   //   alpha: 0,
@@ -63,7 +58,6 @@ export class GameState {
   actionMenuParentPageNumbers: number[] = [];
   consideredItemUnmetRequirements: null | CombatAttribute[] = null;
   menuContext: MenuContext | null = null;
-  battleReportPendingProcessing: null | BattleReport = null;
   combatLogMessages: CombatLogMessage[] = [];
   lastDebugMessageId: number = 0;
   babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
@@ -89,7 +83,7 @@ export class GameState {
     return this.get().game ? true : false;
   };
   getFocusedCharacter: () => Error | Combatant = () => {
-    return getFocusedCharacter(this.get());
+    return getFocusedCharacter();
   };
   getCharacter: (characterId: string) => Error | Combatant = (characterId: string) => {
     const partyResult = this.getParty();
@@ -106,11 +100,7 @@ export class GameState {
     public getParty: () => Error | AdventuringParty,
     public getCurrentMenu: () => ActionMenuState
   ) {
-    this.baseMenuState = new BaseOutOfCombatMenuState(
-      this,
-      useUIStore.getState(),
-      useAlertStore.getState()
-    );
+    this.baseMenuState = new BaseMenuState(false);
     this.menuState = this.baseMenuState;
   }
 }
@@ -140,9 +130,8 @@ export const useGameStore = create<GameState>()(
 // if we don't declare them in this file we get an error for trying to use the stores
 // before they're initialized
 
-export const baseMenuState = new BaseOutOfCombatMenuState();
+export const baseMenuState = new BaseMenuState(false);
 export const inventoryItemsMenuState = new InventoryItemsMenuState();
-export const inCombatMenuState = new InCombatMenuState();
 
 export function getCurrentMenu(state: GameState) {
   const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];

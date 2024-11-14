@@ -14,7 +14,7 @@ export const actionCommandReceiver: { current: null | ClientActionCommandReceive
 export const actionCommandManager = new ActionCommandManager();
 export const actionCommandWaitingArea: ActionCommand[] = [];
 
-export function enqueueClientActionCommand(entityId: string, payloads: ActionCommandPayload[]) {
+export function enqueueClientActionCommands(entityId: string, payloads: ActionCommandPayload[]) {
   useGameStore.getState().mutateState((gameState) => {
     const { gameName } = gameState;
     if (gameName === undefined || gameName === null)

@@ -1,6 +1,5 @@
 import { setAlert } from "@/app/components/alerts";
-import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
-import { inCombatMenuState, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { DungeonRoom, ERROR_MESSAGES, updateCombatantHomePosition } from "@speed-dungeon/common";
 
@@ -20,11 +19,6 @@ export default function newDungeonRoomHandler(room: DungeonRoom) {
     const indexOfRoomTypeToReveal = party.roomsExplored.onCurrentFloor - 1;
     party.clientCurrentFloorRoomsList[indexOfRoomTypeToReveal] = room.roomType;
 
-    if (Object.values(party.currentRoom.monsters).length) {
-      gameState.baseMenuState = inCombatMenuState;
-      if (gameState.menuState.type === MenuStateType.BaseOutOfCombat) {
-        gameState.menuState = gameState.baseMenuState;
-      }
-    }
+    if (Object.keys(room.monsters).length) gameState.baseMenuState.inCombat = true;
   });
 }
