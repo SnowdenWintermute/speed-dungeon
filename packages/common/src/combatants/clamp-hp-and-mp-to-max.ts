@@ -7,5 +7,5 @@ export default function clampHpAndMpToMax(combatantProperties: CombatantProperti
   const maxMp = totalAttributes[CombatAttribute.Mp];
 
   if (combatantProperties.hitPoints > maxHp) combatantProperties.hitPoints = maxHp;
-  if (combatantProperties.hitPoints > maxMp) combatantProperties.mana = maxMp;
+  if (combatantProperties.mana > maxMp) combatantProperties.mana = maxMp;
 }

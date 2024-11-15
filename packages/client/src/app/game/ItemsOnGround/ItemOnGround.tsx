@@ -1,43 +1,26 @@
 import React from "react";
-import {
-  createActionButtonMouseEnterHandler,
-  createActionButtonMouseLeaveHandler,
-} from "../ActionMenu/hover-handlers";
-import { GameActionType } from "../ActionMenu/game-actions";
 import { useGameStore } from "@/stores/game-store";
-import getItemOnGround from "@/utils/getItemOnGround";
 import selectItem from "@/utils/selectItem";
-import { setAlert } from "@/app/components/alerts";
 import { ClientToServerEvent, Item } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
+import setItemHovered from "@/utils/set-item-hovered";
 
 interface Props {
-  itemId: string;
-  name: string;
+  item: Item;
   disabled: boolean;
 }
 
 export default function ItemOnGround(props: Props) {
-  const { itemId } = props;
+  const { item } = props;
   const gameState = useGameStore();
   function mouseEnterHandler() {
-    createActionButtonMouseEnterHandler({
-      type: GameActionType.SelectItem,
-      itemId,
-      stackSize: 1,
-    })();
+    setItemHovered(item);
   }
   function mouseLeaveHandler() {
-    createActionButtonMouseLeaveHandler({
-      type: GameActionType.SelectItem,
-      itemId,
-      stackSize: 1,
-    })();
+    setItemHovered(null);
   }
   function clickHandler() {
-    const itemResult = getItemOnGround(itemId);
-    if (itemResult instanceof Error) return setAlert(itemResult.message);
-    selectItem(itemResult);
+    selectItem(item);
   }
 
   function takeItem() {
@@ -47,7 +30,7 @@ export default function ItemOnGround(props: Props) {
     });
     websocketConnection.emit(ClientToServerEvent.PickUpItem, {
       characterId: gameState.focusedCharacterId,
-      itemId,
+      itemId: item.entityProperties.id,
     });
   }
 
@@ -55,14 +38,14 @@ export default function ItemOnGround(props: Props) {
     if (gameState.detailedEntity !== null) {
       if (
         gameState.detailedEntity instanceof Item &&
-        gameState.detailedEntity.entityProperties.id === itemId
+        gameState.detailedEntity.entityProperties.id === item.entityProperties.id
       )
         return "border-yellow-400 hover:border-t";
     }
     if (gameState.hoveredEntity !== null) {
       if (
         gameState.hoveredEntity instanceof Item &&
-        gameState.hoveredEntity.entityProperties.id === itemId
+        gameState.hoveredEntity.entityProperties.id === item.entityProperties.id
       )
         return "border-white hover:border-t";
     }
@@ -89,7 +72,9 @@ export default function ItemOnGround(props: Props) {
         {"Take"}
       </button>
       <button onClick={clickHandler} className="flex items-center h-full w-full ">
-        <span className="pl-2 overflow-hidden whitespace-nowrap text-ellipsis ">{props.name}</span>
+        <span className="pl-2 overflow-hidden whitespace-nowrap text-ellipsis ">
+          {item.entityProperties.name}
+        </span>
       </button>
     </li>
   );

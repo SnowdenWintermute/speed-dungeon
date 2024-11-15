@@ -38,13 +38,6 @@ export class BaseMenuState implements ActionMenuState {
     setInventoryOpen.dedicatedKeys = ["KeyI", "KeyS"];
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
-    if (!this.inCombat) {
-      const toggleReadyToExplore = new ActionMenuButtonProperties("Ready to explore", () => {
-        websocketConnection.emit(ClientToServerEvent.ToggleReadyToExplore);
-      });
-      toReturn[ActionButtonCategory.Numbered].push(toggleReadyToExplore);
-    }
-
     let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {
       setAlert(focusedCharacterResult.message);
