@@ -1,5 +1,5 @@
 import React from "react";
-import { MenuContext, getCurrentMenu, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import PartyWipeModal from "./PartyWipeModal";
 import TopInfoBar from "./TopInfoBar";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
@@ -73,13 +73,7 @@ export default function Game() {
           </div>
           <div className="flex flex-wrap justify-between">
             <div className="h-[14rem] min-w-[23rem] max-w-[26rem]  border border-slate-400 bg-slate-700 p-2 pointer-events-auto">
-              {
-                // <div>Alpha: {cameraData.alpha}</div>
-                // <div>Beta: {cameraData.beta}</div>
-                // <div>Radius: {cameraData.radius}</div>
-                // <div>Target: {JSON.stringify(cameraData.focus)}</div>
-                <CombatLog />
-              }
+              <CombatLog />
             </div>
             <div className="flex flex-grow justify-end mt-3.5 max-w-full">
               <div className="w-fit max-w-full flex items-end">

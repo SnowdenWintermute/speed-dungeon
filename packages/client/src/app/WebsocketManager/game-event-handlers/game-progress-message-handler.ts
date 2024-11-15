@@ -2,13 +2,13 @@ import {
   CombatLogMessage,
   getCombatLogMessageStyleFromGameMessageType,
 } from "@/app/game/combat-log/combat-log-message";
-import { enqueueClientActionCommand } from "@/singletons/action-command-manager";
 import { useGameStore } from "@/stores/game-store";
 import { ActionCommandType, GameMessage } from "@speed-dungeon/common";
+import { enqueueClientActionCommands } from "@/singletons/action-command-manager";
 
 export default function gameProgressMessageHandler(message: GameMessage) {
   if (message.showAfterActionQueueResolution) {
-    enqueueClientActionCommand("", [
+    enqueueClientActionCommands("", [
       {
         type: ActionCommandType.GameMessages,
         messages: [{ text: message.message, type: message.type }],
