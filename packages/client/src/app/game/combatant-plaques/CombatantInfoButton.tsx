@@ -1,50 +1,38 @@
 import { useGameStore } from "@/stores/game-store";
-import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
-import { CombatantProperties, EntityProperties } from "@speed-dungeon/common";
+import { Combatant } from "@speed-dungeon/common";
 import React from "react";
 
 interface Props {
-  combatantId: string;
-  entityProperties: EntityProperties;
-  combatantProperties: CombatantProperties;
+  combatant: Combatant;
 }
 
-export default function CombatantInfoButton({
-  combatantId,
-  entityProperties,
-  combatantProperties,
-}: Props) {
+export default function CombatantInfoButton({ combatant }: Props) {
   const mutateGameState = useGameStore().mutateState;
 
   function handleClick() {
     mutateGameState((store) => {
       const detailedEntity = store.detailedEntity;
       let shouldSetEntityDetailed = true;
-      if (detailedEntity && detailedEntity.type === DetailableEntityType.Combatant) {
-        shouldSetEntityDetailed = detailedEntity.combatant.entityProperties.id !== combatantId;
+      if (detailedEntity && detailedEntity instanceof Combatant) {
+        shouldSetEntityDetailed =
+          detailedEntity.entityProperties.id !== combatant.entityProperties.id;
       }
 
       if (shouldSetEntityDetailed)
-        store.detailedEntity = {
-          type: DetailableEntityType.Combatant,
-          combatant: {
-            entityProperties,
-            combatantProperties,
-          },
-        };
+        store.detailedEntity = new Combatant(
+          combatant.entityProperties,
+          combatant.combatantProperties
+        );
       else store.detailedEntity = null;
     });
   }
 
   function handleMouseEnter() {
     mutateGameState((store) => {
-      store.hoveredEntity = {
-        type: DetailableEntityType.Combatant,
-        combatant: {
-          entityProperties,
-          combatantProperties,
-        },
-      };
+      store.hoveredEntity = new Combatant(
+        combatant.entityProperties,
+        combatant.combatantProperties
+      );
     });
   }
 

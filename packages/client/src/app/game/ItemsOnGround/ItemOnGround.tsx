@@ -7,10 +7,8 @@ import { GameActionType } from "../ActionMenu/game-actions";
 import { useGameStore } from "@/stores/game-store";
 import getItemOnGround from "@/utils/getItemOnGround";
 import selectItem from "@/utils/selectItem";
-import { useAlertStore } from "@/stores/alert-store";
 import { setAlert } from "@/app/components/alerts";
-import { ClientToServerEvent } from "@speed-dungeon/common";
-import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
+import { ClientToServerEvent, Item } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 
 interface Props {
@@ -56,15 +54,15 @@ export default function ItemOnGround(props: Props) {
   const conditionalClassNames = (() => {
     if (gameState.detailedEntity !== null) {
       if (
-        gameState.detailedEntity.type === DetailableEntityType.Item &&
-        gameState.detailedEntity.item.entityProperties.id === itemId
+        gameState.detailedEntity instanceof Item &&
+        gameState.detailedEntity.entityProperties.id === itemId
       )
         return "border-yellow-400 hover:border-t";
     }
     if (gameState.hoveredEntity !== null) {
       if (
-        gameState.hoveredEntity.type === DetailableEntityType.Item &&
-        gameState.hoveredEntity.item.entityProperties.id === itemId
+        gameState.hoveredEntity instanceof Item &&
+        gameState.hoveredEntity.entityProperties.id === itemId
       )
         return "border-white hover:border-t";
     }

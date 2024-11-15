@@ -24,7 +24,6 @@ export default function HotkeyButton(props: Props) {
   useEffect(() => {
     if (props.hotkeys === undefined) return;
     keydownListenerRef.current = (e: KeyboardEvent) => {
-      console.log("got key event");
       for (const hotkey of props.hotkeys!) {
         if (e.code === hotkey && !hotkeysDisabled && !props.disabled) {
           //@ts-ignore

@@ -1,9 +1,9 @@
 import { useGameStore } from "@/stores/game-store";
-import { DetailableEntity, DetailableEntityType } from "@/stores/game-store/detailable-entities";
 import selectItem from "@/utils/selectItem";
 import setItemHovered from "@/utils/set-item-hovered";
 import {
   AdventuringParty,
+  Combatant,
   CombatantAttributeRecord,
   ERROR_MESSAGES,
   EquipmentSlot,
@@ -103,27 +103,19 @@ export default function PaperDollSlot({
 }
 
 function determineAndSetHighlightStyle(
-  detailedEntityOption: null | DetailableEntity,
-  hoveredEntityOption: null | DetailableEntity,
+  detailedEntityOption: null | Item | Combatant,
+  hoveredEntityOption: null | Item | Combatant,
   itemOption: null | Item,
   setHighlightStyle: (style: string) => void
 ) {
-  if (
-    detailedEntityOption !== null &&
-    detailedEntityOption.type === DetailableEntityType.Item &&
-    itemOption !== null
-  ) {
-    if (itemOption.entityProperties.id === detailedEntityOption.item.entityProperties.id) {
+  if (detailedEntityOption instanceof Item && itemOption !== null) {
+    if (itemOption.entityProperties.id === detailedEntityOption.entityProperties.id) {
       setHighlightStyle(`border-yellow-400`);
       return;
     }
   }
-  if (
-    hoveredEntityOption !== null &&
-    hoveredEntityOption.type === DetailableEntityType.Item &&
-    itemOption !== null
-  ) {
-    if (itemOption.entityProperties.id === hoveredEntityOption.item.entityProperties.id) {
+  if (hoveredEntityOption instanceof Item && itemOption !== null) {
+    if (itemOption.entityProperties.id === hoveredEntityOption.entityProperties.id) {
       setHighlightStyle(`border-white`);
       return;
     }

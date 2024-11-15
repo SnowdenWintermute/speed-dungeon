@@ -1,9 +1,8 @@
 import { useGameStore } from "@/stores/game-store";
-import { useShallow } from "zustand/react/shallow";
 import React, { useEffect, useRef, useState } from "react";
-import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
 import CombatantDisplay from "../detailables/CombatantDisplay";
 import { SPACING_REM_SMALL } from "@/client_consts";
+import { Combatant } from "@speed-dungeon/common";
 
 interface Props {
   combatantId: string;
@@ -11,12 +10,9 @@ interface Props {
 }
 
 export default function DetailedCombatantInfoCard(props: Props) {
-  const { detailedEntity, hoveredEntity } = useGameStore(
-    useShallow((state) => ({
-      detailedEntity: state.detailedEntity,
-      hoveredEntity: state.hoveredEntity,
-    }))
-  );
+  const detailedEntity = useGameStore((state) => state.detailedEntity);
+  const hoveredEntity = useGameStore((state) => state.hoveredEntity);
+
   const detailedInfoContainerRef = useRef<HTMLDivElement>(null);
   const [cardPositionStyle, setCardPositionStyle] = useState<{ [key: string]: string }>({
     opacity: "0",
@@ -25,20 +21,18 @@ export default function DetailedCombatantInfoCard(props: Props) {
   // const [cardPositionStyle, setCardPositionStyle] = useState<{ [key: string]: string }>({});
   let infoButtonHoveredStyles = "";
 
-  let combatantDetailsOption;
+  let combatantDetailsOption: Combatant | undefined;
   if (
-    hoveredEntity &&
-    hoveredEntity.type === DetailableEntityType.Combatant &&
-    hoveredEntity.combatant.entityProperties.id === props.combatantId
+    hoveredEntity instanceof Combatant &&
+    hoveredEntity.entityProperties.id === props.combatantId
   ) {
-    combatantDetailsOption = hoveredEntity.combatant;
+    combatantDetailsOption = hoveredEntity;
     infoButtonHoveredStyles = "z-50";
   } else if (
-    detailedEntity &&
-    detailedEntity.type === DetailableEntityType.Combatant &&
-    detailedEntity.combatant.entityProperties.id === props.combatantId
+    detailedEntity instanceof Combatant &&
+    detailedEntity.entityProperties.id === props.combatantId
   )
-    combatantDetailsOption = detailedEntity.combatant;
+    combatantDetailsOption = detailedEntity;
 
   const detailedInfoCard = combatantDetailsOption ? (
     <div className="border border-slate-400 bg-slate-700 p-2.5">

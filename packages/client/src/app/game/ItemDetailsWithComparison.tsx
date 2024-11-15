@@ -1,5 +1,4 @@
 import { useGameStore } from "@/stores/game-store";
-import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
 import { Item } from "@speed-dungeon/common";
 import React from "react";
 import FocusedAndComparedItemDetails from "./detailables/FocusedAndComparedItemDetails";
@@ -13,12 +12,10 @@ export default function ItemDetailsWithComparison({ flipDisplayOrder }: Props) {
   const hoveredEntity = useGameStore().hoveredEntity;
 
   let detailedItemOption: null | Item = null;
-  if (detailedEntity !== null && detailedEntity.type === DetailableEntityType.Item)
-    detailedItemOption = detailedEntity.item;
+  if (detailedEntity instanceof Item) detailedItemOption = detailedEntity;
 
   let hoveredItemOption: null | Item = null;
-  if (hoveredEntity !== null && hoveredEntity.type === DetailableEntityType.Item)
-    hoveredItemOption = hoveredEntity.item;
+  if (hoveredEntity instanceof Item) hoveredItemOption = hoveredEntity;
 
   const focusedItemOption =
     hoveredItemOption !== null

@@ -3,14 +3,14 @@ import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import getGameAndParty from "@/utils/getGameAndParty";
 import React, { useEffect, useRef, useState } from "react";
 import TargetingIndicators from "./TargetingIndicators";
-import { DetailableEntityType, entityIsDetailed } from "@/stores/game-store/detailable-entities";
+import { entityIsDetailed } from "@/stores/game-store/detailable-entities";
 import UnspentAttributesButton from "../UnspentAttributesButton";
 import { useShallow } from "zustand/react/shallow";
 import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import { AdventuringParty, ClientToServerEvent, InputLock } from "@speed-dungeon/common";
+import { AdventuringParty, ClientToServerEvent, Combatant, InputLock } from "@speed-dungeon/common";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
@@ -93,8 +93,8 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
 
   function isHovered() {
     if (!hoveredEntity) return false;
-    if (hoveredEntity.type !== DetailableEntityType.Combatant) return false;
-    if (hoveredEntity.combatant.entityProperties.id === entityId) return true;
+    if (hoveredEntity instanceof Combatant) return false;
+    if (hoveredEntity.entityProperties.id === entityId) return true;
     return false;
   }
 
@@ -105,7 +105,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
 
   function handleUnspentAttributesButtonClick() {
     mutateGameState((store) => {
-      const focusedCharacterResult = getFocusedCharacter(store);
+      const focusedCharacterResult = getFocusedCharacter();
       if (focusedCharacterResult instanceof Error) return console.error(focusedCharacterResult);
       focusedCharacterResult.combatantProperties.selectedCombatAction = null;
       websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
@@ -193,11 +193,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
               />
             </span>
             <span>
-              <CombatantInfoButton
-                combatantId={entityId}
-                entityProperties={entityProperties}
-                combatantProperties={combatantProperties}
-              />
+              <CombatantInfoButton combatant={combatantDetailsResult} />
             </span>
           </div>
           <ValueBarsAndFocusButton
