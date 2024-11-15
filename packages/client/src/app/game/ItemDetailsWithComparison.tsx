@@ -8,21 +8,12 @@ interface Props {
 }
 
 export default function ItemDetailsWithComparison({ flipDisplayOrder }: Props) {
-  const detailedEntity = useGameStore().detailedEntity;
-  const hoveredEntity = useGameStore().hoveredEntity;
+  const hoveredEntity = useGameStore((state) => state.hoveredEntity);
+  const detailedEntity = useGameStore((state) => state.detailedEntity);
 
-  let detailedItemOption: null | Item = null;
-  if (detailedEntity instanceof Item) detailedItemOption = detailedEntity;
-
-  let hoveredItemOption: null | Item = null;
-  if (hoveredEntity instanceof Item) hoveredItemOption = hoveredEntity;
-
-  const focusedItemOption =
-    hoveredItemOption !== null
-      ? hoveredItemOption
-      : detailedItemOption !== null
-        ? detailedItemOption
-        : null;
+  const hoveredItemOption = hoveredEntity instanceof Item ? hoveredEntity : null;
+  const detailedItemOption = detailedEntity instanceof Item ? detailedEntity : null;
+  const focusedItemOption = hoveredItemOption || detailedItemOption;
 
   if (!focusedItemOption) return <></>;
   else

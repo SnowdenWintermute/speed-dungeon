@@ -9,31 +9,16 @@ export function createActionButtonMouseEnterHandler(action: GameAction) {
   const gameState = useGameStore.getState();
   const mutateGameState = gameState.mutateState;
   switch (action.type) {
-    case GameActionType.SelectCombatAction:
-      return () =>
-        mutateGameState((gameState) => {
-          gameState.hoveredAction = action.combatAction;
-        });
     case GameActionType.SelectItem:
       return () => {
         mutateGameState((gameState) => {
           let itemResult = getItemOwnedByFocusedCharacter(action.itemId);
           if (!(itemResult instanceof Error)) {
-            gameState.hoveredEntity = new Item(
-              itemResult.entityProperties,
-              itemResult.itemLevel,
-              itemResult.requirements,
-              itemResult.itemProperties
-            );
+            gameState.hoveredEntity = Item.fromObject(itemResult);
           } else {
             itemResult = getItemOnGround(action.itemId);
             if (!(itemResult instanceof Error)) {
-              gameState.hoveredEntity = new Item(
-                itemResult.entityProperties,
-                itemResult.itemLevel,
-                itemResult.requirements,
-                itemResult.itemProperties
-              );
+              gameState.hoveredEntity = Item.fromObject(itemResult);
             }
           }
 

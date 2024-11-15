@@ -16,12 +16,18 @@ import {
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import { useUIStore } from "@/stores/ui-store";
+import selectItem from "@/utils/selectItem";
+import getSlotItemIsEquippedTo from "@speed-dungeon/common/src/combatants/get-slot-item-is-equipped-to";
 
 export class ConsideringItemMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.ItemSelected;
   constructor(public item: Item) {}
+  setItem(item: Item) {
+    this.item = item;
+    selectItem(item);
+  }
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
@@ -29,6 +35,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
       useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.pop();
       });
+      selectItem(null);
     });
 
     cancelButton.dedicatedKeys = ["Escape"];
@@ -82,9 +89,22 @@ export class ConsideringItemMenuState implements ActionMenuState {
     toReturn[ActionButtonCategory.Top].push(useItemButton);
 
     const dropItemButton = new ActionMenuButtonProperties("Drop", () => {
-      websocketConnection.emit(ClientToServerEvent.DropItem, { characterId, itemId });
+      const slotEquipped = CombatantProperties.getSlotItemIsEquippedTo(
+        focusedCharacterResult.combatantProperties,
+        itemId
+      );
+
+      if (slotEquipped)
+        websocketConnection.emit(ClientToServerEvent.DropEquippedItem, {
+          characterId,
+          slot: slotEquipped,
+        });
+      else websocketConnection.emit(ClientToServerEvent.DropItem, { characterId, itemId });
       useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.pop();
+        state.hoveredEntity = null;
+        state.consideredItemUnmetRequirements = null;
+        state.detailedEntity = null;
       });
     });
     toReturn[ActionButtonCategory.Numbered].push(dropItemButton);

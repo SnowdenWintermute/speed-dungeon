@@ -4,12 +4,6 @@ import { Item } from "@speed-dungeon/common";
 export default function setItemHovered(itemOption: null | Item) {
   useGameStore.getState().mutateState((gameState) => {
     if (!itemOption) gameState.hoveredEntity = itemOption;
-    else
-      gameState.hoveredEntity = new Item(
-        itemOption.entityProperties,
-        itemOption.itemLevel,
-        itemOption.requirements,
-        itemOption.itemProperties
-      );
+    else gameState.hoveredEntity = Item.fromObject(itemOption);
   });
 }

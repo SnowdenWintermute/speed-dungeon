@@ -1,7 +1,6 @@
 import { useLobbyStore } from "@/stores/lobby-store";
 import { ClientToServerEvent, ServerToClientEvent } from "@speed-dungeon/common";
 import React, { useEffect } from "react";
-import { useAlertStore } from "@/stores/alert-store";
 import { setAlert } from "../components/alerts";
 import { useGameStore } from "@/stores/game-store";
 import { websocketConnection } from "@/singletons/websocket-connection";
@@ -16,7 +15,6 @@ function SocketManager() {
   const mutateLobbyStore = useLobbyStore().mutateState;
   const mutateGameStore = useGameStore().mutateState;
   const gameName = useGameStore().gameName;
-  const mutateAlertStore = useAlertStore().mutateState;
   const socketOption = websocketConnection;
 
   useEffect(() => {

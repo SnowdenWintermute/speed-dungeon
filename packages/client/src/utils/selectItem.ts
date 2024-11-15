@@ -2,26 +2,24 @@ import { useGameStore } from "@/stores/game-store";
 import { Item } from "@speed-dungeon/common";
 
 export default function selectItem(itemOption: null | Item) {
+  let detailedItemIsNowNull = true;
   useGameStore.getState().mutateState((gameState) => {
-    if (itemOption) {
-      if (
-        gameState.detailedEntity instanceof Item &&
-        gameState.detailedEntity.entityProperties.id === itemOption.entityProperties.id
-      ) {
-        gameState.detailedEntity = null;
-        gameState.actionMenuParentPageNumbers.pop();
-      } else {
-        gameState.detailedEntity = new Item(
-          itemOption.entityProperties,
-          itemOption.itemLevel,
-          itemOption.requirements,
-          itemOption.itemProperties
-        );
-        gameState.actionMenuParentPageNumbers.push(gameState.actionMenuCurrentPageNumber);
-        gameState.actionMenuCurrentPageNumber = 0;
-      }
-    }
-
     gameState.hoveredEntity = null;
+
+    if (
+      !itemOption ||
+      gameState.detailedEntity?.entityProperties.id === itemOption.entityProperties.id
+    ) {
+      console.log("set detailedEntity null");
+      gameState.detailedEntity = null;
+      gameState.consideredItemUnmetRequirements = null;
+      return;
+    }
+    console.log("set detailedEntity", itemOption.entityProperties.name);
+
+    gameState.detailedEntity = Item.fromObject(itemOption);
+    detailedItemIsNowNull = false;
   });
+
+  return detailedItemIsNowNull;
 }

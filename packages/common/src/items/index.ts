@@ -17,6 +17,10 @@ export class Item {
     public itemProperties: ItemProperties
   ) {}
 
+  static fromObject(item: Item) {
+    return new Item(item.entityProperties, item.itemLevel, item.requirements, item.itemProperties);
+  }
+
   static removeFromArray(array: Item[], itemId: string) {
     let indexToRemove = -1;
     array.forEach((item, i) => {

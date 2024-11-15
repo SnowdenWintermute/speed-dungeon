@@ -7,6 +7,9 @@ import {
   MenuStateType,
 } from ".";
 import {
+  CombatAttribute,
+  Combatant,
+  CombatantProperties,
   ConsumableType,
   Item,
   ItemPropertiesType,
@@ -18,6 +21,8 @@ import { setAlert } from "@/app/components/alerts";
 import { ConsideringItemMenuState } from "./considering-item";
 import { ACTION_MENU_PAGE_SIZE } from "..";
 import { immerable } from "immer";
+import selectItem from "@/utils/selectItem";
+import setItemHovered from "@/utils/set-item-hovered";
 
 export class ItemsMenuState implements ActionMenuState {
   [immerable] = true;
@@ -34,6 +39,8 @@ export class ItemsMenuState implements ActionMenuState {
     const closeInventory = new ActionMenuButtonProperties(this.closeMenuTextAndHotkeys.text, () => {
       useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.pop();
+        state.hoveredEntity = null;
+        state.consideredItemUnmetRequirements = null;
       });
     });
     closeInventory.dedicatedKeys = [...this.closeMenuTextAndHotkeys.hotkeys, "Escape"];
@@ -79,7 +86,12 @@ export class ItemsMenuState implements ActionMenuState {
         useGameStore.getState().mutateState((state) => {
           state.stackedMenuStates.push(new ConsideringItemMenuState(firstConsumableOfThisType));
         });
+        selectItem(firstConsumableOfThisType);
+        setUnmetAttributeRequirements(focusedCharacterResult, firstConsumableOfThisType);
       });
+      button.mouseEnterHandler = () =>
+        itemButtonMouseEnterHandler(focusedCharacterResult, firstConsumableOfThisType);
+      button.mouseLeaveHandler = () => itemButtonMouseLeaveHandler();
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
@@ -88,7 +100,12 @@ export class ItemsMenuState implements ActionMenuState {
         useGameStore.getState().mutateState((state) => {
           state.stackedMenuStates.push(new ConsideringItemMenuState(item));
         });
+        selectItem(item);
+        setUnmetAttributeRequirements(focusedCharacterResult, item);
       });
+
+      button.mouseEnterHandler = () => itemButtonMouseEnterHandler(focusedCharacterResult, item);
+      button.mouseLeaveHandler = () => itemButtonMouseLeaveHandler();
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
@@ -134,4 +151,39 @@ export class ItemsMenuState implements ActionMenuState {
 
     return toReturn;
   }
+}
+
+function itemButtonMouseLeaveHandler() {
+  useGameStore.getState().mutateState((gameState) => {
+    gameState.hoveredEntity = null;
+    gameState.consideredItemUnmetRequirements = null;
+  });
+}
+
+function itemButtonMouseEnterHandler(focusedCharacter: Combatant, item: Item) {
+  setItemHovered(item);
+  setUnmetAttributeRequirements(focusedCharacter, item);
+}
+
+export function setUnmetAttributeRequirements(focusedCharacter: Combatant, item: Item) {
+  useGameStore.getState().mutateState((gameState) => {
+    // calculate unmet requirements
+    const totalAttributes = CombatantProperties.getTotalAttributes(
+      focusedCharacter.combatantProperties
+    );
+
+    const unmetAttributeRequirements: CombatAttribute[] = [];
+    if (Object.keys(item.requirements).length !== 0) {
+      for (const [attributeKey, value] of Object.entries(item.requirements)) {
+        const attribute = parseInt(attributeKey) as CombatAttribute;
+        const characterAttribute = totalAttributes[attribute] || 0;
+        if (characterAttribute >= value) continue;
+        else unmetAttributeRequirements.push(attribute);
+      }
+    }
+
+    if (unmetAttributeRequirements.length > 0)
+      gameState.consideredItemUnmetRequirements = unmetAttributeRequirements;
+    else gameState.consideredItemUnmetRequirements = null;
+  });
 }

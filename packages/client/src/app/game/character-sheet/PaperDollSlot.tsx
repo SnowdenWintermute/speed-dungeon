@@ -1,4 +1,4 @@
-import { useGameStore } from "@/stores/game-store";
+import { getCurrentMenu, useGameStore } from "@/stores/game-store";
 import selectItem from "@/utils/selectItem";
 import setItemHovered from "@/utils/set-item-hovered";
 import {
@@ -10,6 +10,8 @@ import {
   Item,
 } from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
+import { MenuStateType } from "../ActionMenu/menu-state";
+import { ConsideringItemMenuState } from "../ActionMenu/menu-state/considering-item";
 
 interface Props {
   itemOption: null | Item;
@@ -83,7 +85,21 @@ export default function PaperDollSlot({
   }
   function handleClick() {
     if (!playerOwnsCharacter) return;
-    selectItem(itemOption);
+    if (!itemOption) return;
+
+    const detailedItemIsNowNull = selectItem(itemOption);
+
+    const currentMenu = useGameStore.getState().getCurrentMenu();
+    if (currentMenu instanceof ConsideringItemMenuState && detailedItemIsNowNull)
+      return useGameStore.getState().mutateState((state) => {
+        state.stackedMenuStates.pop();
+      });
+
+    if (currentMenu instanceof ConsideringItemMenuState) currentMenu.item = itemOption;
+    else
+      useGameStore.getState().mutateState((state) => {
+        state.stackedMenuStates.push(new ConsideringItemMenuState(itemOption));
+      });
   }
 
   const disabledStyle = playerOwnsCharacter ? "" : "opacity-50";
