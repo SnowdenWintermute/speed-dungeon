@@ -10,6 +10,8 @@ export default async function WinLossRecord({ username }: { username: string }) 
     }
   );
 
+  if (!res.ok) return <div>Connection to game server failed</div>;
+
   const data: { wins: string; losses: string } = await res.json();
   if (typeof data.wins !== "string") return <div>No record found</div>;
   const wins = parseInt(data.wins);

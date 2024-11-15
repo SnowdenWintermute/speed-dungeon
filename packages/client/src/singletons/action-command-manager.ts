@@ -1,8 +1,6 @@
 import { ClientActionCommandReceiver } from "@/app/client-action-command-receiver";
 import { setAlert } from "@/app/components/alerts";
-import { AlertState } from "@/stores/alert-store";
-import { GameState } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
+import { useGameStore } from "@/stores/game-store";
 import {
   ActionCommand,
   ActionCommandManager,
@@ -16,16 +14,11 @@ export const actionCommandReceiver: { current: null | ClientActionCommandReceive
 export const actionCommandManager = new ActionCommandManager();
 export const actionCommandWaitingArea: ActionCommand[] = [];
 
-export function enqueueClientActionCommand(
-  mutateGameStore: MutateState<GameState>,
-  mutateAlertStore: MutateState<AlertState>,
-  entityId: string,
-  payloads: ActionCommandPayload[]
-) {
-  mutateGameStore((gameState) => {
+export function enqueueClientActionCommands(entityId: string, payloads: ActionCommandPayload[]) {
+  useGameStore.getState().mutateState((gameState) => {
     const { gameName } = gameState;
     if (gameName === undefined || gameName === null)
-      return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+      return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
     if (!actionCommandReceiver.current) return console.error("NO RECEIVER");
 
     const actionCommands = payloads.map(

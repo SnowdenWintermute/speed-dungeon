@@ -1,26 +1,18 @@
 import { setAlert } from "@/app/components/alerts";
-import { AlertState } from "@/stores/alert-store";
-import { GameState } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
+import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { Battle, ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
 
-export default function battleFullUpdateHandler(
-  mutateGameState: MutateState<GameState>,
-  mutateAlertState: MutateState<AlertState>,
-  battleOption: null | Battle
-) {
-  mutateGameState((gameState) => {
+export default function battleFullUpdateHandler(battleOption: null | Battle) {
+  useGameStore.getState().mutateState((gameState) => {
     const gameOption = gameState.game;
-    if (gameOption === null)
-      return setAlert(mutateAlertState, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    if (gameOption === null) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
     const game = gameOption;
 
     if (battleOption !== null) {
       const battle = battleOption;
       const partyOption = getCurrentParty(gameState, gameState.username || "");
-      if (partyOption === undefined)
-        return setAlert(mutateAlertState, ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+      if (partyOption === undefined) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
       const party = partyOption;
       party.battleId = battle.id;
       game.battles[battle.id] = battle;

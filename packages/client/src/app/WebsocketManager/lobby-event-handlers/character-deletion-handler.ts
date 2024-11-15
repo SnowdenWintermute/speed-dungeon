@@ -1,27 +1,23 @@
-import { AlertState } from "@/stores/alert-store";
 import {
   AdventuringParty,
   ERROR_MESSAGES,
   updateCombatantHomePosition,
 } from "@speed-dungeon/common";
 import { setAlert } from "../../components/alerts";
-import { MutateState } from "@/stores/mutate-state";
-import { GameState } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 
 export default function characterDeletionHandler(
-  mutateGameStore: MutateState<GameState>,
-  mutateAlertStore: MutateState<AlertState>,
   partyName: string,
   username: string,
   characterId: string
 ) {
-  mutateGameStore((gameState) => {
+  useGameStore.getState().mutateState((gameState) => {
     const game = gameState.game;
-    if (!game) return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    if (!game) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
     const party = game.adventuringParties[partyName];
-    if (!party) return setAlert(mutateAlertStore, ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+    if (!party) return setAlert(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
     const player = game.players[username];
-    if (!player) return setAlert(mutateAlertStore, ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+    if (!player) return setAlert(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
     AdventuringParty.removeCharacter(party, characterId, player);
 

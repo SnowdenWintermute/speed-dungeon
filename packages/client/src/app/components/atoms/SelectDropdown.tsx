@@ -69,7 +69,6 @@ export default function SelectDropdown(props: Props) {
 
   function handleClickOutsideMenu(e: MouseEvent) {
     if (selectInputRef.current) {
-      console.log("clicked outside menu ", props.title);
       const menuRect = selectInputRef.current.getBoundingClientRect();
       const { x, y, width, height } = menuRect;
       const maxX = x + width;

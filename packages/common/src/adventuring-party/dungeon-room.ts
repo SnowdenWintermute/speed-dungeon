@@ -6,7 +6,8 @@ export class DungeonRoom {
 
   constructor(
     public roomType: DungeonRoomType,
-    public monsters: { [entityId: string]: Combatant }
+    public monsters: { [entityId: string]: Combatant },
+    public monsterPositions: string[]
   ) {}
 }
 export enum DungeonRoomType {

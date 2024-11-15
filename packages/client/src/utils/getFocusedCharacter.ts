@@ -1,8 +1,9 @@
-import { GameState } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import getCurrentParty from "./getCurrentParty";
 
-export default function getFocusedCharacter(gameState: GameState) {
+export default function getFocusedCharacter() {
+  const gameState = useGameStore.getState();
   if (!gameState.game) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
   if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
   const partyOption = getCurrentParty(gameState, gameState.username);

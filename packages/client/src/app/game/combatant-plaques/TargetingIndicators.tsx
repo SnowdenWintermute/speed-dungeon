@@ -37,7 +37,6 @@ function TargetingIndicator({ combatAction }: TargetingIndicatorProps) {
     combatAction.abilityName === CombatantAbilityName.Healing
   ) {
     color = "green-600";
-    console.log("combat action name: ", combatAction.abilityName);
   }
   if (combatAction.type === CombatActionType.ConsumableUsed) color = "green-600";
   return (

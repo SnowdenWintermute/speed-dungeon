@@ -3,9 +3,7 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { immerable, produce } from "immer";
 import {
-  ActionCommand,
   AdventuringParty,
-  BattleReport,
   CombatAction,
   CombatAttribute,
   Combatant,
@@ -14,7 +12,6 @@ import {
   SpeedDungeonGame,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
-import { DetailableEntity } from "./detailable-entities";
 import { EquipmentSlot } from "@speed-dungeon/common";
 import { MutateState } from "../mutate-state";
 import getActiveCombatant from "@/utils/getActiveCombatant";
@@ -23,9 +20,9 @@ import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
 import { FloatingText } from "./floating-text";
 import { BabylonControlledCombatantData } from "./babylon-controlled-combatant-data";
-import { useUIStore } from "../ui-store";
-import { useAlertStore } from "../alert-store";
-import { ActionMenuState, BaseMenuState } from "@/app/game/ActionMenu/menu-state";
+import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
+import { InventoryItemsMenuState } from "@/app/game/ActionMenu/menu-state/inventory-items";
+import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
 
 export enum MenuContext {
   InventoryItems,
@@ -36,7 +33,8 @@ export enum MenuContext {
 
 export class GameState {
   [immerable] = true;
-  menuState: ActionMenuState;
+  baseMenuState: BaseMenuState;
+  stackedMenuStates: ActionMenuState[] = [];
   // cameraData: { alpha: number; beta: number; radius: number; focus: Vector3 } = {
   //   alpha: 0,
   //   beta: 0,
@@ -48,8 +46,8 @@ export class GameState {
   /** Unique name which characters may list as their controller */
   username: null | string = null;
   focusedCharacterId: string = "";
-  detailedEntity: null | DetailableEntity = null;
-  hoveredEntity: null | DetailableEntity = null;
+  detailedEntity: null | Combatant | Item = null;
+  hoveredEntity: null | Combatant | Item = null;
   comparedItem: null | Item = null;
   comparedSlot: null | EquipmentSlot = null;
   hoveredAction: null | CombatAction = null;
@@ -57,13 +55,11 @@ export class GameState {
   actionMenuParentPageNumbers: number[] = [];
   consideredItemUnmetRequirements: null | CombatAttribute[] = null;
   menuContext: MenuContext | null = null;
-  battleReportPendingProcessing: null | BattleReport = null;
   combatLogMessages: CombatLogMessage[] = [];
   lastDebugMessageId: number = 0;
   babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
   combatantFloatingText: { [combatantId: string]: FloatingText[] } = {};
   combatantModelsAwaitingSpawn: string[] = [];
-  actionCommandWaitingArea: ActionCommand[] = [];
   testText: string = "test";
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
@@ -83,7 +79,7 @@ export class GameState {
     return this.get().game ? true : false;
   };
   getFocusedCharacter: () => Error | Combatant = () => {
-    return getFocusedCharacter(this.get());
+    return getFocusedCharacter();
   };
   getCharacter: (characterId: string) => Error | Combatant = (characterId: string) => {
     const partyResult = this.getParty();
@@ -97,9 +93,10 @@ export class GameState {
     public mutateState: MutateState<GameState>,
     public get: () => GameState,
     public getActiveCombatant: () => Error | null | Combatant,
-    public getParty: () => Error | AdventuringParty
+    public getParty: () => Error | AdventuringParty,
+    public getCurrentMenu: () => ActionMenuState
   ) {
-    this.menuState = new BaseMenuState(this, useUIStore.getState(), useAlertStore.getState());
+    this.baseMenuState = new BaseMenuState(false);
   }
 }
 
@@ -111,7 +108,8 @@ export const useGameStore = create<GameState>()(
           (fn: (state: GameState) => void) => set(produce(fn)),
           get,
           () => getActiveCombatant(get()),
-          () => getParty(get().game, get().username)
+          () => getParty(get().game, get().username),
+          () => getCurrentMenu(get())
         ),
       {
         enabled: true,
@@ -120,3 +118,18 @@ export const useGameStore = create<GameState>()(
     )
   )
 );
+
+// instantiate all states upfront and save them, or just save them as they are created
+// so we don't pay object creation cost every time we switch state
+//
+// if we don't declare them in this file we get an error for trying to use the stores
+// before they're initialized
+
+export const baseMenuState = new BaseMenuState(false);
+export const inventoryItemsMenuState = new InventoryItemsMenuState();
+
+export function getCurrentMenu(state: GameState) {
+  const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];
+  if (topStackedMenu) return topStackedMenu;
+  else return state.baseMenuState;
+}

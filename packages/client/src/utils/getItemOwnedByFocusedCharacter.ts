@@ -1,13 +1,9 @@
-import { GameState } from "@/stores/game-store";
 import getFocusedCharacter from "./getFocusedCharacter";
 import { ERROR_MESSAGES, Item } from "@speed-dungeon/common";
 import { Inventory } from "@speed-dungeon/common";
 
-export default function getItemOwnedByFocusedCharacter(
-  gameState: GameState,
-  itemId: string
-): Error | Item {
-  const focusedCharacterResult = getFocusedCharacter(gameState);
+export default function getItemOwnedByFocusedCharacter(itemId: string): Error | Item {
+  const focusedCharacterResult = getFocusedCharacter();
   if (focusedCharacterResult instanceof Error) return focusedCharacterResult;
   const itemInInventoryResult = Inventory.getItem(
     focusedCharacterResult.combatantProperties.inventory,

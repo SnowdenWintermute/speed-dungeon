@@ -1,6 +1,4 @@
-import { AlertState } from "@/stores/alert-store";
-import { GameState } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
+import { useGameStore } from "@/stores/game-store";
 import {
   ClientToServerEventTypes,
   ServerToClientEventTypes,
@@ -12,7 +10,6 @@ import playerToggledReadyToDescendOrExploreHandler from "./player-toggled-ready-
 import newDungeonRoomTypesOnCurrentFloorHandler from "./new-dungeon-room-types-on-current-floor-handler";
 import newDungeonRoomHandler from "./new-dungeon-room-handler";
 import battleFullUpdateHandler from "./battle-full-update-handler";
-import battleReportHandler from "./battle-report-handler";
 import characterDroppedItemHandler from "./character-dropped-item-handler";
 import characterDroppedEquippedItemHandler from "./character-dropped-equipped-item-handler";
 import characterUnequippedSlotHandler from "./character-unequipped-slot-handler";
@@ -26,101 +23,43 @@ import characterIncrementedAttributePointHandler from "./character-incremented-a
 import gameProgressMessageHandler from "./game-progress-message-handler";
 
 export default function setUpGameEventHandlers(
-  socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>,
-  mutateGameStore: MutateState<GameState>,
-  mutateAlertStore: MutateState<AlertState>
+  socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
 ) {
   socket.on(
     ServerToClientEvent.PlayerToggledReadyToDescendOrExplore,
-    (username, descendOrExplore) => {
-      playerToggledReadyToDescendOrExploreHandler(
-        mutateGameStore,
-        mutateAlertStore,
-        username,
-        descendOrExplore
-      );
-    }
+    playerToggledReadyToDescendOrExploreHandler
   );
-  socket.on(ServerToClientEvent.DungeonRoomTypesOnCurrentFloor, (newRoomTypes) => {
-    newDungeonRoomTypesOnCurrentFloorHandler(mutateGameStore, mutateAlertStore, newRoomTypes);
-  });
-  socket.on(ServerToClientEvent.DungeonRoomUpdate, (newRoom) => {
-    newDungeonRoomHandler(mutateGameStore, mutateAlertStore, newRoom);
-  });
-  socket.on(ServerToClientEvent.BattleFullUpdate, (battleOption) => {
-    battleFullUpdateHandler(mutateGameStore, mutateAlertStore, battleOption);
-  });
-  socket.on(ServerToClientEvent.BattleReport, (report) => {
-    battleReportHandler(socket, mutateGameStore, report);
-  });
-  socket.on(ServerToClientEvent.CharacterDroppedItem, (characterAndItem) => {
-    characterDroppedItemHandler(socket, mutateGameStore, mutateAlertStore, characterAndItem);
-  });
-  socket.on(ServerToClientEvent.CharacterDroppedEquippedItem, (characterAndSlot) => {
-    characterDroppedEquippedItemHandler(
-      socket,
-      mutateGameStore,
-      mutateAlertStore,
-      characterAndSlot
-    );
-  });
-  socket.on(ServerToClientEvent.CharacterUnequippedItem, (characterAndSlot) => {
-    characterUnequippedSlotHandler(mutateGameStore, mutateAlertStore, characterAndSlot);
-  });
-  socket.on(ServerToClientEvent.CharacterEquippedItem, (packet) => {
-    characterEquippedItemHandler(mutateGameStore, mutateAlertStore, packet);
-  });
-  socket.on(ServerToClientEvent.CharacterPickedUpItem, (packet) => {
-    characterPickedUpItemHandler(mutateGameStore, mutateAlertStore, packet);
-  });
+  socket.on(
+    ServerToClientEvent.DungeonRoomTypesOnCurrentFloor,
+    newDungeonRoomTypesOnCurrentFloorHandler
+  );
+  socket.on(ServerToClientEvent.DungeonRoomUpdate, newDungeonRoomHandler);
+  socket.on(ServerToClientEvent.BattleFullUpdate, battleFullUpdateHandler);
+  socket.on(ServerToClientEvent.CharacterDroppedItem, characterDroppedItemHandler);
+  socket.on(ServerToClientEvent.CharacterDroppedEquippedItem, characterDroppedEquippedItemHandler);
+  socket.on(ServerToClientEvent.CharacterUnequippedItem, characterUnequippedSlotHandler);
+  socket.on(ServerToClientEvent.CharacterEquippedItem, characterEquippedItemHandler);
+  socket.on(ServerToClientEvent.CharacterPickedUpItem, characterPickedUpItemHandler);
   socket.on(
     ServerToClientEvent.CharacterSelectedCombatAction,
-    (characterId, combatActionOption) => {
-      characterSelectedCombatActionHandler(
-        mutateGameStore,
-        mutateAlertStore,
-        characterId,
-        combatActionOption
-      );
-    }
+    characterSelectedCombatActionHandler
   );
+  socket.on(ServerToClientEvent.CharacterCycledTargets, characterCycledTargetsHandler);
   socket.on(
-    ServerToClientEvent.CharacterCycledTargets,
-    (characterId, direction, playerUsername) => {
-      characterCycledTargetsHandler(
-        mutateGameStore,
-        mutateAlertStore,
-        characterId,
-        direction,
-        playerUsername
-      );
-    }
+    ServerToClientEvent.CharacterCycledTargetingSchemes,
+    characterCycledTargetingSchemesHandler
   );
-  socket.on(ServerToClientEvent.CharacterCycledTargetingSchemes, (characterId, playerUsername) => {
-    characterCycledTargetingSchemesHandler(
-      mutateGameStore,
-      mutateAlertStore,
-      characterId,
-      playerUsername
-    );
-  });
   socket.on(ServerToClientEvent.DungeonFloorNumber, (newFloorNumber) => {
-    mutateGameStore((state) => {
+    useGameStore.getState().mutateState((state) => {
       if (!state.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
       const partyOption = getCurrentParty(state, state.username);
       if (!partyOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
       partyOption.currentFloor = newFloorNumber;
     });
   });
-  socket.on(ServerToClientEvent.CharacterSpentAttributePoint, (characterId, attribute) => {
-    characterIncrementedAttributePointHandler(
-      mutateGameStore,
-      mutateAlertStore,
-      characterId,
-      attribute
-    );
-  });
-  socket.on(ServerToClientEvent.GameMessage, (message) =>
-    gameProgressMessageHandler(mutateGameStore, mutateAlertStore, message)
+  socket.on(
+    ServerToClientEvent.CharacterSpentAttributePoint,
+    characterIncrementedAttributePointHandler
   );
+  socket.on(ServerToClientEvent.GameMessage, gameProgressMessageHandler);
 }

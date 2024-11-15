@@ -1,15 +1,17 @@
-import { useGameStore } from "@/stores/game-store";
-import { DetailableEntity, DetailableEntityType } from "@/stores/game-store/detailable-entities";
+import { getCurrentMenu, useGameStore } from "@/stores/game-store";
 import selectItem from "@/utils/selectItem";
 import setItemHovered from "@/utils/set-item-hovered";
 import {
   AdventuringParty,
+  Combatant,
   CombatantAttributeRecord,
   ERROR_MESSAGES,
   EquipmentSlot,
   Item,
 } from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
+import { MenuStateType } from "../ActionMenu/menu-state";
+import { ConsideringItemMenuState } from "../ActionMenu/menu-state/considering-item";
 
 interface Props {
   itemOption: null | Item;
@@ -28,7 +30,6 @@ export default function PaperDollSlot({
 }: Props) {
   const [highlightStyle, setHighlightStyle] = useState("border-slate-400");
   const [bgStyle, setBgStyle] = useState("");
-  const mutateGameState = useGameStore().mutateState;
   const detailedEntityOption = useGameStore().detailedEntity;
   const hoveredEntityOption = useGameStore().hoveredEntity;
   const comparedSlot = useGameStore().comparedSlot;
@@ -71,20 +72,34 @@ export default function PaperDollSlot({
   }, [detailedEntityOption, hoveredEntityOption, itemOption, comparedSlot, characterAttributes]);
 
   function handleMouseEnter() {
-    setItemHovered(mutateGameState, itemOption);
+    setItemHovered(itemOption);
   }
   function handleMouseLeave() {
-    setItemHovered(mutateGameState, null);
+    setItemHovered(null);
   }
   function handleFocus() {
-    setItemHovered(mutateGameState, itemOption);
+    setItemHovered(itemOption);
   }
   function handleBlur() {
-    setItemHovered(mutateGameState, null);
+    setItemHovered(null);
   }
   function handleClick() {
     if (!playerOwnsCharacter) return;
-    selectItem(mutateGameState, itemOption);
+    if (!itemOption) return;
+
+    const detailedItemIsNowNull = selectItem(itemOption);
+
+    const currentMenu = useGameStore.getState().getCurrentMenu();
+    if (currentMenu instanceof ConsideringItemMenuState && detailedItemIsNowNull)
+      return useGameStore.getState().mutateState((state) => {
+        state.stackedMenuStates.pop();
+      });
+
+    if (currentMenu instanceof ConsideringItemMenuState) currentMenu.item = itemOption;
+    else
+      useGameStore.getState().mutateState((state) => {
+        state.stackedMenuStates.push(new ConsideringItemMenuState(itemOption));
+      });
   }
 
   const disabledStyle = playerOwnsCharacter ? "" : "opacity-50";
@@ -104,27 +119,19 @@ export default function PaperDollSlot({
 }
 
 function determineAndSetHighlightStyle(
-  detailedEntityOption: null | DetailableEntity,
-  hoveredEntityOption: null | DetailableEntity,
+  detailedEntityOption: null | Item | Combatant,
+  hoveredEntityOption: null | Item | Combatant,
   itemOption: null | Item,
   setHighlightStyle: (style: string) => void
 ) {
-  if (
-    detailedEntityOption !== null &&
-    detailedEntityOption.type === DetailableEntityType.Item &&
-    itemOption !== null
-  ) {
-    if (itemOption.entityProperties.id === detailedEntityOption.item.entityProperties.id) {
+  if (detailedEntityOption instanceof Item && itemOption !== null) {
+    if (itemOption.entityProperties.id === detailedEntityOption.entityProperties.id) {
       setHighlightStyle(`border-yellow-400`);
       return;
     }
   }
-  if (
-    hoveredEntityOption !== null &&
-    hoveredEntityOption.type === DetailableEntityType.Item &&
-    itemOption !== null
-  ) {
-    if (itemOption.entityProperties.id === hoveredEntityOption.item.entityProperties.id) {
+  if (hoveredEntityOption instanceof Item && itemOption !== null) {
+    if (itemOption.entityProperties.id === hoveredEntityOption.entityProperties.id) {
       setHighlightStyle(`border-white`);
       return;
     }

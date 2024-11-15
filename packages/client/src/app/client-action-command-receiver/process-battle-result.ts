@@ -8,6 +8,8 @@ import { ClientActionCommandReceiver } from ".";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { ActionCommandManager } from "@speed-dungeon/common";
 import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
+import { useGameStore } from "@/stores/game-store";
+import { BaseMenuState } from "../game/ActionMenu/menu-state/base";
 
 export default function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
@@ -17,7 +19,7 @@ export default function battleResultActionCommandHandler(
   payload: BattleResultActionCommandPayload
 ) {
   const { timestamp } = payload;
-  this.mutateGameState((state) => {
+  useGameStore.getState().mutateState((state) => {
     const gameOption = state.game;
     if (gameOption === null) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
     if (state.username === null) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
@@ -55,6 +57,8 @@ export default function battleResultActionCommandHandler(
         }
         break;
     }
+
+    state.baseMenuState.inCombat = false;
   });
   actionCommandManager.processNextCommand();
 }

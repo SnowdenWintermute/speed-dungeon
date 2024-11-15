@@ -107,7 +107,7 @@ export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party:
     const battleGroupB = new BattleGroup(
       `${party.name}-monsters`,
       party.name,
-      AdventuringParty.getMonsterIds(party),
+      party.currentRoom.monsterPositions,
       BattleGroupType.ComputerControlled
     );
 

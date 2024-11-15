@@ -1,21 +1,20 @@
 import { useLobbyStore } from "@/stores/lobby-store";
 import { ClientToServerEvent, ServerToClientEvent } from "@speed-dungeon/common";
 import React, { useEffect } from "react";
-import { useAlertStore } from "@/stores/alert-store";
 import { setAlert } from "../components/alerts";
 import { useGameStore } from "@/stores/game-store";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import setUpSavedCharacterEventListeners from "./saved-character-event-handlers";
 import setUpGameLobbyEventHandlers from "./lobby-event-handlers";
 import setUpGameEventHandlers from "./game-event-handlers";
-import { enqueueClientActionCommand } from "@/singletons/action-command-manager";
+import { enqueueClientActionCommands } from "@/singletons/action-command-manager";
 import setUpBasicLobbyEventHandlers from "./basic-lobby-event-handlers";
+import getFocusedCharacter from "@/utils/getFocusedCharacter";
 
 function SocketManager() {
   const mutateLobbyStore = useLobbyStore().mutateState;
   const mutateGameStore = useGameStore().mutateState;
   const gameName = useGameStore().gameName;
-  const mutateAlertStore = useAlertStore().mutateState;
   const socketOption = websocketConnection;
 
   useEffect(() => {
@@ -45,17 +44,23 @@ function SocketManager() {
       });
     });
     socket.on(ServerToClientEvent.ErrorMessage, (message) => {
-      setAlert(mutateAlertStore, message);
+      setAlert(message);
     });
 
     socket.on(ServerToClientEvent.ActionCommandPayloads, (entityId, payloads) => {
-      enqueueClientActionCommand(mutateGameStore, mutateAlertStore, entityId, payloads);
+      const focusedCharacteResult = getFocusedCharacter();
+      if (focusedCharacteResult instanceof Error) return console.trace(focusedCharacteResult);
+
+      mutateGameStore((state) => {
+        if (entityId === focusedCharacteResult.entityProperties.id) state.stackedMenuStates = [];
+      });
+      enqueueClientActionCommands(entityId, payloads);
     });
 
-    setUpBasicLobbyEventHandlers(socket, mutateGameStore, mutateLobbyStore, mutateAlertStore);
-    setUpGameLobbyEventHandlers(socket, mutateGameStore, mutateAlertStore);
-    setUpGameEventHandlers(socket, mutateGameStore, mutateAlertStore);
-    setUpSavedCharacterEventListeners(socket, mutateLobbyStore);
+    setUpBasicLobbyEventHandlers(socket);
+    setUpGameLobbyEventHandlers(socket);
+    setUpGameEventHandlers(socket);
+    setUpSavedCharacterEventListeners(socket);
 
     return () => {
       Object.values(ServerToClientEvent).forEach((value) => {

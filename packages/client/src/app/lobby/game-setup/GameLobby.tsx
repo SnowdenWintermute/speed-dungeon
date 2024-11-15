@@ -111,7 +111,6 @@ function PlayerInGameIcon({
     : player.partyName
       ? "bg-slate-950"
       : "bg-slate-700";
-  console.log(bgStyle);
 
   return (
     <HoverableTooltipWrapper tooltipText={player.username} extraStyles="mr-2 last:mr-0">

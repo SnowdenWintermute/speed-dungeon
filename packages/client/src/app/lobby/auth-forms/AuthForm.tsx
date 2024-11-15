@@ -1,7 +1,6 @@
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import React, { ReactNode, useEffect } from "react";
 import { reconnectWebsocketInAllTabs, refetchAuthSessionInAllTabs } from "./auth-utils";
-import { useAlertStore } from "@/stores/alert-store";
 import { setAlert } from "@/app/components/alerts";
 
 interface Props {
@@ -29,14 +28,13 @@ export default function AuthForm({
   successMessage,
   handleSuccess,
 }: Props) {
-  const mutateAlertStore = useAlertStore().mutateState;
   const fetchData = useHttpRequestStore().fetchData;
   const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
 
   useEffect(() => {
     if (responseTracker?.ok) {
       if (handleSuccess) handleSuccess();
-      successAlert && setAlert(mutateAlertStore, successAlert);
+      successAlert && setAlert(successAlert);
       if (reauthorizeOnSuccess) {
         refetchAuthSessionInAllTabs();
         reconnectWebsocketInAllTabs();

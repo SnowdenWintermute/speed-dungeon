@@ -1,7 +1,8 @@
-import { GameState } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import { ERROR_MESSAGES, Item } from "@speed-dungeon/common";
 
-export default function getItemOnGround(gameState: GameState, itemId: string): Error | Item {
+export default function getItemOnGround(itemId: string): Error | Item {
+  const gameState = useGameStore.getState();
   const partyResult = gameState.getParty();
   if (partyResult instanceof Error) return partyResult;
   for (const item of Object.values(partyResult.currentRoom.items)) {

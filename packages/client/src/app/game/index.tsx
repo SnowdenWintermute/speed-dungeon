@@ -1,5 +1,5 @@
 import React from "react";
-import { MenuContext, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import PartyWipeModal from "./PartyWipeModal";
 import TopInfoBar from "./TopInfoBar";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
@@ -13,10 +13,12 @@ import CharacterSheetItemDetailsViewer from "./character-sheet/CharacterSheetIte
 import ItemsOnGround from "./ItemsOnGround";
 import ReadyUpDisplay from "./ReadyUpDisplay";
 import CombatLog from "./combat-log";
+import { MenuStateType } from "./ActionMenu/menu-state";
+import getFocusedCharacter from "@/utils/getFocusedCharacter";
 
 export default function Game() {
   const game = useGameStore().game;
-  const menuContext = useGameStore().menuContext;
+  const stackedMenuStates = useGameStore.getState().stackedMenuStates;
 
   const username = useGameStore().username;
   if (!username)
@@ -31,6 +33,15 @@ export default function Game() {
         {ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME}
       </div>
     );
+  const focusedCharacterResult = getFocusedCharacter();
+  if (focusedCharacterResult instanceof Error)
+    return (
+      <div>
+        <CharacterAutofocusManager />
+        <div>Awaiting focused character...</div>
+      </div>
+    );
+
   const player = game.players[username];
   if (!player) return <div>Client player not found</div>;
   const partyName = player.partyName;
@@ -38,8 +49,9 @@ export default function Game() {
   const party = game.adventuringParties[partyName];
   if (!party) return <div>Client thinks it is in a party that doesn't exist</div>;
 
-  const viewingCharacterSheet = menuContext !== null && menuContext !== MenuContext.ItemsOnGround;
-
+  const viewingCharacterSheet = shouldShowCharacterSheet(
+    stackedMenuStates.map((item) => item.type)
+  );
   const conditionalStyles = viewingCharacterSheet ? "items-center justify-end" : "";
 
   const actionMenuAndCharacterSheetContainerConditionalClasses = viewingCharacterSheet
@@ -61,13 +73,7 @@ export default function Game() {
           </div>
           <div className="flex flex-wrap justify-between">
             <div className="h-[14rem] min-w-[23rem] max-w-[26rem]  border border-slate-400 bg-slate-700 p-2 pointer-events-auto">
-              {
-                // <div>Alpha: {cameraData.alpha}</div>
-                // <div>Beta: {cameraData.beta}</div>
-                // <div>Radius: {cameraData.radius}</div>
-                // <div>Target: {JSON.stringify(cameraData.focus)}</div>
-                <CombatLog />
-              }
+              <CombatLog />
             </div>
             <div className="flex flex-grow justify-end mt-3.5 max-w-full">
               <div className="w-fit max-w-full flex items-end">
@@ -123,10 +129,22 @@ export default function Game() {
           </div>
           {
             // if !focused_character_is_animating{
-            <CharacterSheetItemDetailsViewer party={party} />
+            <CharacterSheetItemDetailsViewer
+              party={party}
+              viewingCharacterSheet={viewingCharacterSheet}
+            />
           }
         </div>
       </div>
     </main>
+  );
+}
+
+function shouldShowCharacterSheet(menuTypes: MenuStateType[]) {
+  return (
+    menuTypes.includes(MenuStateType.InventoryItems) ||
+    menuTypes.includes(MenuStateType.AssignAttributePoints) ||
+    menuTypes.includes(MenuStateType.ItemSelected) ||
+    menuTypes.includes(MenuStateType.ViewingEquipedItems)
   );
 }

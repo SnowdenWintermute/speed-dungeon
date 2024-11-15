@@ -17,6 +17,7 @@ import {
   CombatantModelActionType,
 } from "../combatant-models/model-action-manager/model-actions";
 import { actionCommandManager } from "@/singletons/action-command-manager";
+import { useGameStore } from "@/stores/game-store";
 
 export default function startMovingIntoCombatActionUsePosition(
   gameWorld: GameWorld,
@@ -25,7 +26,7 @@ export default function startMovingIntoCombatActionUsePosition(
   const { actionUserId, actionCommandPayload } = message;
   const { primaryTargetId, isMelee } = actionCommandPayload;
 
-  gameWorld.mutateGameState((gameState) => {
+  useGameStore.getState().mutateState((gameState) => {
     const partyResult = getCurrentParty(gameState, gameState.username || "");
     if (partyResult === undefined) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
     const party = partyResult;

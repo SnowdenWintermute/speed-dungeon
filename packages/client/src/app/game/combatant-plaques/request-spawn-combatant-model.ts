@@ -1,5 +1,4 @@
-import { GameState } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
+import { useGameStore } from "@/stores/game-store";
 import { AdventuringParty, Combatant, cloneVector3 } from "@speed-dungeon/common";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
@@ -7,13 +6,12 @@ import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager
 export default function requestSpawnCombatantModel(
   combatantDetails: Combatant,
   party: AdventuringParty,
-  mutateGameStore: MutateState<GameState>,
   modelDomPositionElement: HTMLDivElement | null
 ) {
   const entityId = combatantDetails.entityProperties.id;
   const { combatantProperties } = combatantDetails;
 
-  mutateGameStore((state) => {
+  useGameStore.getState().mutateState((state) => {
     state.combatantModelsAwaitingSpawn.push(entityId);
   });
 

@@ -43,7 +43,9 @@ function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTurnTracker }) {
     >
       <div className="h-full w-full rounded-full bg-slate-600 border border-slate-400 flex items-center justify-center">
         <span className="mr-1 text-green-600">{entityProperties.name.charAt(0).toUpperCase()}</span>
-        <div>{tracker.movement.toFixed(0)}</div>
+        {
+          // <div>{tracker.movement.toFixed(0)}</div>
+        }
       </div>
     </button>
   );

@@ -1,7 +1,5 @@
 import { setAlert } from "@/app/components/alerts";
-import { AlertState } from "@/stores/alert-store";
-import { GameState } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
+import { useGameStore } from "@/stores/game-store";
 import {
   AdventuringParty,
   Combatant,
@@ -12,20 +10,18 @@ import {
 } from "@speed-dungeon/common";
 
 export default function savedCharacterSelectionInProgressGameHandler(
-  mutateGameState: MutateState<GameState>,
-  mutateAlertStore: MutateState<AlertState>,
   username: string,
   character: { combatant: Combatant; deepestFloorReached: number }
 ) {
-  mutateGameState((gameState) => {
+  useGameStore.getState().mutateState((gameState) => {
     const game = gameState.game;
-    if (!game) return setAlert(mutateAlertStore, ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    if (!game) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
     game.selectedStartingFloor.max = character.deepestFloorReached;
     const partyName = getProgressionGamePartyName(game.name);
     const party = game.adventuringParties[partyName];
-    if (!party) return setAlert(mutateAlertStore, ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+    if (!party) return setAlert(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
     const player = game.players[username];
-    if (!player) return setAlert(mutateAlertStore, ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+    if (!player) return setAlert(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
     const previouslySelectedCharacterId = player.characterIds[0];
     if (previouslySelectedCharacterId) {

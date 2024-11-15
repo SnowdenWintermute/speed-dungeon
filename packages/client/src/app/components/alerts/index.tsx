@@ -1,4 +1,4 @@
-import { AlertState } from "@/stores/alert-store";
+import { AlertState, useAlertStore } from "@/stores/alert-store";
 
 const ALERT_DISPLAY_TIME = 4000;
 
@@ -15,19 +15,16 @@ export class Alert {
   ) {}
 }
 
-export function setAlert(
-  mutateAlertStore: (fn: (state: AlertState) => void) => void,
-  message: string
-) {
-  mutateAlertStore((alertState) => {
-    console.log("alert set: ", message);
+export function setAlert(message: string) {
+  useAlertStore.getState().mutateState((alertState) => {
+    console.info("alert set: ", message);
     // console.trace();
     let newAlert = new Alert(message, AlertType.Error, alertState.lastAlertId.toString());
 
     alertState.alerts.push(newAlert);
     alertState.lastAlertId += 1;
     setTimeout(() => {
-      mutateAlertStore((alertState) => {
+      useAlertStore.getState().mutateState((alertState) => {
         removeAlert(alertState, newAlert.id);
       });
     }, ALERT_DISPLAY_TIME);

@@ -1,27 +1,25 @@
-import { GameState } from "@/stores/game-store";
-import { DetailableEntityType } from "@/stores/game-store/detailable-entities";
-import { MutateState } from "@/stores/mutate-state";
+import { useGameStore } from "@/stores/game-store";
 import { Item } from "@speed-dungeon/common";
 
-export default function selectItem(
-  mutateGameState: MutateState<GameState>,
-  itemOption: null | Item
-) {
-  mutateGameState((gameState) => {
-    if (itemOption) {
-      if (
-        gameState.detailedEntity?.type === DetailableEntityType.Item &&
-        gameState.detailedEntity.item.entityProperties.id === itemOption.entityProperties.id
-      ) {
-        gameState.detailedEntity = null;
-        gameState.actionMenuParentPageNumbers.pop();
-      } else {
-        gameState.detailedEntity = { type: DetailableEntityType.Item, item: itemOption };
-        gameState.actionMenuParentPageNumbers.push(gameState.actionMenuCurrentPageNumber);
-        gameState.actionMenuCurrentPageNumber = 0;
-      }
-    }
-
+export default function selectItem(itemOption: null | Item) {
+  let detailedItemIsNowNull = true;
+  useGameStore.getState().mutateState((gameState) => {
     gameState.hoveredEntity = null;
+
+    if (
+      !itemOption ||
+      gameState.detailedEntity?.entityProperties.id === itemOption.entityProperties.id
+    ) {
+      console.log("set detailedEntity null");
+      gameState.detailedEntity = null;
+      gameState.consideredItemUnmetRequirements = null;
+      return;
+    }
+    console.log("set detailedEntity", itemOption.entityProperties.name);
+
+    gameState.detailedEntity = Item.fromObject(itemOption);
+    detailedItemIsNowNull = false;
   });
+
+  return detailedItemIsNowNull;
 }

@@ -2,15 +2,11 @@ import {
   nextToBabylonMessageQueue,
   NextToBabylonMessageTypes,
 } from "@/singletons/next-to-babylon-message-queue";
-import { GameState } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
+import { useGameStore } from "@/stores/game-store";
 import { Vector3 } from "@babylonjs/core";
 
-export default function gameStartedHandler(
-  mutateGameStore: MutateState<GameState>,
-  timeStarted: number
-) {
-  mutateGameStore((gameState) => {
+export default function gameStartedHandler(timeStarted: number) {
+  useGameStore.getState().mutateState((gameState) => {
     if (gameState.game) gameState.game.timeStarted = timeStarted;
     nextToBabylonMessageQueue.messages.push({
       type: NextToBabylonMessageTypes.MoveCamera,

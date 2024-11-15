@@ -39,9 +39,11 @@ export default function outfitNewCharacter(character: Combatant) {
       CombatantAbilityName.Ice
     );
 
-  const hpInjector = Item.createConsumable(idGenerator.generate(), ConsumableType.HpAutoinjector);
+  const hpInjectors = new Array(1)
+    .fill(null)
+    .map(() => Item.createConsumable(idGenerator.generate(), ConsumableType.HpAutoinjector));
   const mpInjector = Item.createConsumable(idGenerator.generate(), ConsumableType.MpAutoinjector);
-  combatantProperties.inventory.items.push(hpInjector);
+  combatantProperties.inventory.items.push(...hpInjectors);
   combatantProperties.inventory.items.push(mpInjector);
 
   const startingEquipment = createStartingEquipment(combatantProperties.combatantClass);
@@ -50,9 +52,10 @@ export default function outfitNewCharacter(character: Combatant) {
     combatantProperties.equipment[slot] = item;
   }
 
+  // FOR TESTING INVENTORY
   // for (let i = 0; i < 50; i += 1) {
   //   const iLvl = randBetween(1, DEEPEST_FLOOR);
-  //   const randomItem = gameServer.generateRandomItem(1, idGenerator);
+  //   const randomItem = getGameServer().generateRandomItem(1);
   //   if (!(randomItem instanceof Error)) combatantProperties.inventory.items.push(randomItem);
   // }
 

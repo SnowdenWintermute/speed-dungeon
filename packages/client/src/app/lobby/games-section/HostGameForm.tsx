@@ -15,9 +15,7 @@ export default function HostGameForm() {
   // const [selectedGameMode, setSelectedGameMode] = useState(
   //   isLoggedIn ? GameMode.Progression : GameMode.Race
   // );
-  const [selectedGameMode, setSelectedGameMode] = useState(
-    GameMode.Race
-  );
+  const [selectedGameMode, setSelectedGameMode] = useState(GameMode.Race);
   const [isRanked, setIsRanked] = useState(isLoggedIn);
   const [gameName, setGameName] = useState("");
   const [gamePassword, setGamePassword] = useState("");
@@ -68,13 +66,13 @@ export default function HostGameForm() {
           {selectedGameMode === GameMode.Race && (
             <p>
               Race to the bottom of the dungeon! Face off against other parties or go for a personal
-              best time. This mode uses all new level 1 characters which can be controlled by
-              individual players.
+              best time. This mode uses all new level 1 characters. Players can control one or more
+              characters.
             </p>
           )}
           {selectedGameMode === GameMode.Progression && (
             <p>
-              Level up your existing characters and try to reach deeper floors and find better
+              Level up your existing characters. Try to reach deeper floors and find better
               equipment. You may only control one character so it may be a good idea to bring some
               friends.
             </p>

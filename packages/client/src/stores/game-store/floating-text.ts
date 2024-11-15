@@ -1,4 +1,4 @@
-import { GameState } from ".";
+import { GameState, useGameStore } from ".";
 import { BabylonControlledCombatantData } from "./babylon-controlled-combatant-data";
 
 export enum FloatingTextColor {
@@ -29,7 +29,6 @@ export function getTailwindClassFromFloatingTextColor(color: FloatingTextColor) 
 }
 
 export function startFloatingText(
-  mutateGameState: (fn: (state: GameState) => void) => void,
   combatantId: string,
   message: string,
   color: FloatingTextColor,
@@ -37,7 +36,7 @@ export function startFloatingText(
   displayTime: number
 ) {
   let id: string;
-  mutateGameState((gameState) => {
+  useGameStore.getState().mutateState((gameState) => {
     id = gameState.lastDebugMessageId.toString();
     let newMessage = new FloatingText(id, message, color, isCrit, displayTime);
 
@@ -51,7 +50,7 @@ export function startFloatingText(
   });
 
   setTimeout(() => {
-    mutateGameState((gameState) => {
+    useGameStore.getState().mutateState((gameState) => {
       removeFloatingText(gameState, combatantId, id);
     });
   }, displayTime);

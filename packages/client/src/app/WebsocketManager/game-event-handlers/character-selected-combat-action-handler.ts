@@ -1,7 +1,6 @@
-import { AlertState } from "@/stores/alert-store";
-import { GameState } from "@/stores/game-store";
-import { MutateState } from "@/stores/mutate-state";
+import { GameState, getCurrentMenu } from "@/stores/game-store";
 import {
+  AdventuringParty,
   CharacterAssociatedData,
   CombatAction,
   ERROR_MESSAGES,
@@ -9,16 +8,13 @@ import {
   getCombatActionProperties,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
+import { ConsideringCombatActionMenuState } from "@/app/game/ActionMenu/menu-state/considering-combat-action";
 
 export default function characterSelectedCombatActionHandler(
-  mutateGameState: MutateState<GameState>,
-  mutateAlertState: MutateState<AlertState>,
   characterId: string,
   combatActionOption: null | CombatAction
 ) {
   characterAssociatedDataProvider(
-    mutateGameState,
-    mutateAlertState,
     characterId,
     ({ character, game, party }: CharacterAssociatedData, gameState: GameState) => {
       character.combatantProperties.selectedCombatAction = combatActionOption;
@@ -37,6 +33,16 @@ export default function characterSelectedCombatActionHandler(
         character.combatantProperties.controllingPlayer,
         combatActionPropertiesOption
       );
+
+      const playerOwnsCharacter = AdventuringParty.playerOwnsCharacter(
+        party,
+        gameState.username,
+        characterId
+      );
+
+      if (!playerOwnsCharacter || !combatActionOption) return;
+
+      gameState.stackedMenuStates.push(new ConsideringCombatActionMenuState(combatActionOption));
     }
   );
 }

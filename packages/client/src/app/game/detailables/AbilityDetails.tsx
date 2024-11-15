@@ -6,7 +6,6 @@ import {
   CombatantProperties,
   calculateCombatActionHpChangeRange,
 } from "@speed-dungeon/common";
-import { getAbilityManaCost } from "@speed-dungeon/common";
 import React from "react";
 import CharacterSheetWeaponDamage from "../character-sheet/CharacterSheetWeaponDamage";
 import { NumberRange } from "@speed-dungeon/common";

@@ -15,12 +15,8 @@ export default function payAbilityCostsActionCommandHandler(
   entityId: string,
   payload: PayAbilityCostsActionCommandPayload
 ) {
-  combatantAssociatedDataProvider(
-    this.mutateGameState,
-    this.mutateAlertState,
-    entityId,
-    (combatantAssociatedData: CombatantAssociatedData) =>
-      handler(combatantAssociatedData, actionCommandManager, payload)
+  combatantAssociatedDataProvider(entityId, (combatantAssociatedData: CombatantAssociatedData) =>
+    handler(combatantAssociatedData, actionCommandManager, payload)
   );
 }
 

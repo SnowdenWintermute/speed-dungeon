@@ -56,7 +56,7 @@ export const applyMiddlewares =
             await middleware(socket, eventData, middlewareProvidedDataOption, next);
           } catch (error) {
             if (error instanceof Error) errorHandler(socket, error.message);
-            else console.error(error);
+            else console.trace(error);
           }
         } else {
           // it is possible we wrote a middleware and forgot to pass the correct data
@@ -73,7 +73,7 @@ export const applyMiddlewares =
             if (maybeError instanceof Error) return errorHandler(socket, maybeError.message);
           } catch (error) {
             if (error instanceof Error) errorHandler(socket, error.message);
-            else console.error(error);
+            else console.trace(error);
           }
         }
       };

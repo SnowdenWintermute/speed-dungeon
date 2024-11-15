@@ -21,6 +21,7 @@ export default function handleBattleVictory(
   }
 
   party.currentRoom.monsters = {};
+  party.currentRoom.monsterPositions = [];
 
   const battleIdToRemoveOption = party.battleId;
   party.battleId = null;

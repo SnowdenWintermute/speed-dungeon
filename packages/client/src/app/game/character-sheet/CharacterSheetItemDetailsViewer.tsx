@@ -7,12 +7,11 @@ import { AdventuringParty } from "@speed-dungeon/common";
 
 interface Props {
   party: AdventuringParty;
+  viewingCharacterSheet: boolean;
 }
 
-export default function CharacterSheetItemDetailsViewer({ party }: Props) {
+export default function CharacterSheetItemDetailsViewer({ party, viewingCharacterSheet }: Props) {
   const menuContext = useGameStore().menuContext;
-
-  const viewingCharacterSheet = menuContext !== null && menuContext !== MenuContext.ItemsOnGround;
 
   return (
     <div className="flex" style={{ paddingTop: `${SPACING_REM_SMALL}rem` }}>
