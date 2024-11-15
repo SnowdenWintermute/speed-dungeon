@@ -8,7 +8,7 @@ export default function getPartyOfCombatant(
 ): Error | AdventuringParty {
   for (const party of Object.values(game.adventuringParties)) {
     if (party.characterPositions.includes(combatantId)) return party;
-    if (AdventuringParty.getMonsterIds(party).includes(combatantId)) return party;
+    if (party.currentRoom.monsterPositions.includes(combatantId)) return party;
   }
 
   return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);

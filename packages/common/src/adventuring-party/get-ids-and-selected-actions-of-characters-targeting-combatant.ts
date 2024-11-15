@@ -2,7 +2,6 @@ import { AdventuringParty } from "./index.js";
 import { CombatAction, CombatActionTargetType, FriendOrFoe } from "../combat/index.js";
 import { filterPossibleTargetIdsByProhibitedCombatantStates } from "../combat/targeting/filtering.js";
 import { CombatantProperties } from "../combatants/index.js";
-import getMonsterIdsInParty from "./get-monster-ids-in-party.js";
 
 export default function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
   party: AdventuringParty,
@@ -11,7 +10,7 @@ export default function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
   let error;
   const idsAndActionsOfCharactersTargetingThisCombatant: [string, CombatAction][] = [];
   const characterPositions = party.characterPositions;
-  const monsterPositions = getMonsterIdsInParty(party);
+  const monsterPositions = party.currentRoom.monsterPositions;
 
   for (const [characterId, character] of Object.entries(party.characters)) {
     const currentTarget = character.combatantProperties.combatActionTarget;
