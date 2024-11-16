@@ -21,6 +21,7 @@ import { setAlert } from "@/app/components/alerts";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import getGameAndParty from "@/utils/getGameAndParty";
 import cloneDeep from "lodash.clonedeep";
+import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 
 export class BaseMenuState implements ActionMenuState {
   page = 1;
@@ -94,11 +95,14 @@ export class BaseMenuState implements ActionMenuState {
       const notEnoughMana =
         abilityCostIfOwned instanceof Error || combatantProperties.mana < abilityCostIfOwned;
 
+      const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+
       button.shouldBeDisabled =
         (usabilityContext === ActionUsableContext.InCombat && !this.inCombat) ||
         (usabilityContext === ActionUsableContext.OutOfCombat && this.inCombat) ||
         notEnoughMana ||
-        disabledBecauseNotThisCombatantTurnResult;
+        disabledBecauseNotThisCombatantTurnResult ||
+        !userControlsThisCharacter;
 
       toReturn[ActionButtonCategory.Numbered].push(button);
     }

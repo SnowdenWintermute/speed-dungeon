@@ -15,6 +15,7 @@ export default async function toggleReadyToStartGameHandler(
 ) {
   const gameServer = getGameServer();
   const { game, session, player } = playerAssociatedData;
+
   const { username } = player;
   if (game.timeStarted) return new Error(ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED);
 
@@ -25,6 +26,8 @@ export default async function toggleReadyToStartGameHandler(
     return new Error(
       `Game does not have the minimum number of parties (${minimumNumberOfParties})`
     );
+
+  if (!player.characterIds.length) return new Error("You must control at least one character");
 
   for (const party of Object.values(game.adventuringParties)) {
     if (party.characterPositions.length < 1)

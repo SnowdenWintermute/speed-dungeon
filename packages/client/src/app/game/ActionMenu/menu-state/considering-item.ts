@@ -17,7 +17,7 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import { useUIStore } from "@/stores/ui-store";
 import selectItem from "@/utils/selectItem";
-import getSlotItemIsEquippedTo from "@speed-dungeon/common/src/combatants/get-slot-item-is-equipped-to";
+import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 
 export class ConsideringItemMenuState implements ActionMenuState {
   page = 1;
@@ -48,6 +48,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
     }
 
     const characterId = focusedCharacterResult.entityProperties.id;
+    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
     const itemId = this.item.entityProperties.id;
 
     const useItemButton = (() => {
@@ -86,6 +87,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
     })();
 
     useItemButton.dedicatedKeys = ["Enter", "KeyR"];
+    useItemButton.shouldBeDisabled = !userControlsThisCharacter;
     toReturn[ActionButtonCategory.Top].push(useItemButton);
 
     const dropItemButton = new ActionMenuButtonProperties("Drop", () => {
@@ -100,6 +102,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
           slot: slotEquipped,
         });
       else websocketConnection.emit(ClientToServerEvent.DropItem, { characterId, itemId });
+
       useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.pop();
         state.hoveredEntity = null;
@@ -107,6 +110,8 @@ export class ConsideringItemMenuState implements ActionMenuState {
         state.detailedEntity = null;
       });
     });
+
+    dropItemButton.shouldBeDisabled = !userControlsThisCharacter;
     toReturn[ActionButtonCategory.Numbered].push(dropItemButton);
 
     return toReturn;
