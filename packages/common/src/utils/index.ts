@@ -1,4 +1,4 @@
-export * from "./change-page.js";
+export * from "./get-next-or-previous-number.js";
 import { Vector3 } from "@babylonjs/core";
 
 export function removeFromArray<T>(array: T[], item: T): undefined | T {

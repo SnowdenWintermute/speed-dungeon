@@ -70,6 +70,10 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
       websocketConnection.emit(ClientToServerEvent.UseSelectedCombatAction, {
         characterId,
       });
+      useGameStore.getState().mutateState((state) => {
+        state.detailedEntity = null;
+        state.hoveredEntity = null;
+      });
     });
     executeActionButton.dedicatedKeys = ["Enter", "KeyR"];
     toReturn[ActionButtonCategory.Top].push(executeActionButton);

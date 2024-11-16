@@ -8,12 +8,17 @@ interface Props {
 }
 
 export default function TurnOrderBar(props: Props) {
-  return props.battle.turnTrackers.map((tracker) => (
-    <TurnOrderTrackerIcon key={tracker.entityId} tracker={tracker} />
-  ));
+  return (
+    <div className="flex h-full items-center">
+      <div className="h-full mr-2 flex items-center">Turn order: </div>
+      {props.battle.turnTrackers.map((tracker) => (
+        <TurnOrderTrackerIcon key={tracker.entityId} tracker={tracker} />
+      ))}
+    </div>
+  );
 }
 
-const SHOWN_CLASSES = "w-10 mr-2 last:mr-0";
+const SHOWN_CLASSES = "mr-2 last:mr-0";
 
 function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTurnTracker }) {
   const gameOption = useGameStore().game;
@@ -37,12 +42,12 @@ function TurnOrderTrackerIcon({ tracker }: { tracker: CombatantTurnTracker }) {
 
   return (
     <button
-      className={`border border-slate-400 h-10 w-32 ${conditionalClasses} mr-2 last:mr-0 ${preRemovalClassesState}`}
+      className={`border border-slate-400 h-10 w-10 ${conditionalClasses} mr-2 last:mr-0 ${preRemovalClassesState}`}
       style={transitionStyle}
       onClick={handleClick}
     >
       <div className="h-full w-full rounded-full bg-slate-600 border border-slate-400 flex items-center justify-center">
-        <span className="mr-1 text-green-600">{entityProperties.name.charAt(0).toUpperCase()}</span>
+        <span className="">{entityProperties.name.charAt(0).toUpperCase()}</span>
         {
           // <div>{tracker.movement.toFixed(0)}</div>
         }

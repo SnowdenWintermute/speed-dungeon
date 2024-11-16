@@ -37,7 +37,7 @@ export const COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL: Record<
     [CombatAttribute.Focus]: 2.0,
     [CombatAttribute.Vitality]: 1.0,
     [CombatAttribute.Resilience]: 1.5,
-    [CombatAttribute.Agility]: 10,
+    [CombatAttribute.Agility]: 0.5,
   },
   [CombatantClass.Rogue]: {
     [CombatAttribute.Damage]: 0,

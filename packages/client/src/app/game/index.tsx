@@ -15,10 +15,10 @@ import ReadyUpDisplay from "./ReadyUpDisplay";
 import CombatLog from "./combat-log";
 import { MenuStateType } from "./ActionMenu/menu-state";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
+import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
 
 export default function Game() {
   const game = useGameStore().game;
-  const stackedMenuStates = useGameStore.getState().stackedMenuStates;
 
   const username = useGameStore().username;
   if (!username)
@@ -49,9 +49,8 @@ export default function Game() {
   const party = game.adventuringParties[partyName];
   if (!party) return <div>Client thinks it is in a party that doesn't exist</div>;
 
-  const viewingCharacterSheet = shouldShowCharacterSheet(
-    stackedMenuStates.map((item) => item.type)
-  );
+  const currentMenu = useGameStore.getState().getCurrentMenu();
+  const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
   const conditionalStyles = viewingCharacterSheet ? "items-center justify-end" : "";
 
   const actionMenuAndCharacterSheetContainerConditionalClasses = viewingCharacterSheet
@@ -106,45 +105,27 @@ export default function Game() {
                 {!viewingCharacterSheet && (
                   <div className="flex ">
                     <div className="max-h-[13.375rem] h-fit flex flex-grow justify-end relative">
-                      {
-                        <div className="absolute w-[50rem] right-[25rem]">
-                          {<ItemDetailsWithComparison flipDisplayOrder={true} />}
-                        </div>
-                      }
-                      {
-                        // if !game_state.combatants_animating.len() > 0 && !focused_character_is_animating {
-                        <div className="max-w-[25rem] w-[25rem]">
-                          <ItemsOnGround party={party} maxHeightRem={25.0} />
-                        </div>
-                      }
+                      <div className="absolute w-[50rem] right-[25rem]">
+                        {currentMenu.type !== MenuStateType.CombatActionSelected && (
+                          <ItemDetailsWithComparison flipDisplayOrder={true} />
+                        )}
+                      </div>
+                      <div className="max-w-[25rem] w-[25rem]">
+                        <ItemsOnGround party={party} maxHeightRem={25.0} />
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
             </div>
-            {
-              // !focused_character_is_animating &&
-              <CharacterSheet />
-            }
+            <CharacterSheet />
           </div>
-          {
-            // if !focused_character_is_animating{
-            <CharacterSheetItemDetailsViewer
-              party={party}
-              viewingCharacterSheet={viewingCharacterSheet}
-            />
-          }
+          <CharacterSheetItemDetailsViewer
+            party={party}
+            viewingCharacterSheet={viewingCharacterSheet}
+          />
         </div>
       </div>
     </main>
-  );
-}
-
-function shouldShowCharacterSheet(menuTypes: MenuStateType[]) {
-  return (
-    menuTypes.includes(MenuStateType.InventoryItems) ||
-    menuTypes.includes(MenuStateType.AssignAttributePoints) ||
-    menuTypes.includes(MenuStateType.ItemSelected) ||
-    menuTypes.includes(MenuStateType.ViewingEquipedItems)
   );
 }

@@ -1,3 +1,4 @@
+import { gameWorld } from "@/app/3d-world/SceneManager";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
@@ -108,6 +109,7 @@ function UserMenu({ username }: { username: null | string }) {
       method: "DELETE",
       credentials: "include",
     });
+    gameWorld.current?.clearFloorTexture();
     mutateHttpState((state) => {
       if (!state.requests[HTTP_REQUEST_NAMES.GET_SESSION])
         state.requests[HTTP_REQUEST_NAMES.GET_SESSION] = new HttpRequestTracker();

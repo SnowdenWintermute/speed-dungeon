@@ -14,8 +14,8 @@ import {
   Item,
   ItemPropertiesType,
   NextOrPrevious,
-  changePage,
   formatConsumableType,
+  getNextOrPreviousNumber,
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
 import { ConsideringItemMenuState } from "./considering-item";
@@ -120,7 +120,7 @@ export class ItemsMenuState implements ActionMenuState {
     if (numPages > 1) {
       const previousPageButton = new ActionMenuButtonProperties("Previous", () => {
         useGameStore.getState().mutateState((state) => {
-          const newPage = changePage(this.page, numPages, NextOrPrevious.Previous);
+          const newPage = getNextOrPreviousNumber(this.page, numPages, NextOrPrevious.Previous);
           getCurrentMenu(state).page = newPage;
         });
       });
@@ -129,7 +129,7 @@ export class ItemsMenuState implements ActionMenuState {
 
       const nextPageButton = new ActionMenuButtonProperties("Next", () => {
         useGameStore.getState().mutateState((state) => {
-          const newPage = changePage(this.page, numPages, NextOrPrevious.Next);
+          const newPage = getNextOrPreviousNumber(this.page, numPages, NextOrPrevious.Next);
           getCurrentMenu(state).page = newPage;
         });
       });

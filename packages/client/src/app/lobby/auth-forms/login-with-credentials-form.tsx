@@ -8,6 +8,7 @@ import useHttpResponseErrors from "@/hooks/use-http-response-errors";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import AuthForm from "./AuthForm";
 import { useUIStore } from "@/stores/ui-store";
+import { gameWorld } from "@/app/3d-world/SceneManager";
 
 interface Props {
   setActiveForm: React.Dispatch<React.SetStateAction<AuthFormTypes>>;
@@ -36,6 +37,7 @@ export default function LoginWithCredentialsForm({ setActiveForm }: Props) {
       nonFieldErrors={nonFieldErrors}
       reauthorizeOnSuccess={true}
       successAlert="Welcome back!"
+      handleSuccess={() => gameWorld.current?.drawCharacterSlots()}
     >
       <LabeledTextInputWithErrorDisplay
         name={"email"}

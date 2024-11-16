@@ -14,6 +14,7 @@ import {
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { idGenerator } from "../../singletons.js";
+import generateTestItems from "./generate-test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -53,11 +54,7 @@ export default function outfitNewCharacter(character: Combatant) {
   }
 
   // FOR TESTING INVENTORY
-  // for (let i = 0; i < 50; i += 1) {
-  //   const iLvl = randBetween(1, DEEPEST_FLOOR);
-  //   const randomItem = getGameServer().generateRandomItem(1);
-  //   if (!(randomItem instanceof Error)) combatantProperties.inventory.items.push(randomItem);
-  // }
+  generateTestItems(combatantProperties, 17);
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
 }
