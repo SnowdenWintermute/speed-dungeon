@@ -54,7 +54,6 @@ export class GameState {
   actionMenuCurrentPageNumber: number = 0;
   actionMenuParentPageNumbers: number[] = [];
   consideredItemUnmetRequirements: null | CombatAttribute[] = null;
-  menuContext: MenuContext | null = null;
   combatLogMessages: CombatLogMessage[] = [];
   lastDebugMessageId: number = 0;
   babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};

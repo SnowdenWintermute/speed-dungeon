@@ -1,4 +1,4 @@
-import { MenuContext, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import getGameAndParty from "@/utils/getGameAndParty";
 import React, { useEffect, useRef, useState } from "react";
@@ -19,6 +19,8 @@ import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
+import setFocusedCharacter from "@/utils/set-focused-character";
+import { AssigningAttributePointsMenuState } from "../ActionMenu/menu-state/assigning-attribute-points";
 
 interface Props {
   entityId: string;
@@ -104,16 +106,14 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const conditionalBorder = getConditionalBorder(isHovered(), isFocused, combatantIsDetailed);
 
   function handleUnspentAttributesButtonClick() {
+    websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+      characterId: entityId,
+      combatActionOption: null,
+    });
+    setFocusedCharacter(entityId);
+
     mutateGameState((store) => {
-      const focusedCharacterResult = getFocusedCharacter();
-      if (focusedCharacterResult instanceof Error) return console.error(focusedCharacterResult);
-      focusedCharacterResult.combatantProperties.selectedCombatAction = null;
-      websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-        characterId: entityId,
-        combatActionOption: null,
-      });
-      store.focusedCharacterId = entityId;
-      store.menuContext = MenuContext.InventoryItems;
+      store.stackedMenuStates = [new AssigningAttributePointsMenuState()];
     });
   }
 

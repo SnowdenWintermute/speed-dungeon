@@ -9,7 +9,7 @@ export class InventoryItemsMenuState extends ItemsMenuState {
   page = 1;
   numPages = 1;
   constructor() {
-    const viewEquipmentButton = new ActionMenuButtonProperties("View Equipped", () => {
+    const viewEquipmentButton = new ActionMenuButtonProperties("View Equipped (F)", () => {
       useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.push(new EquippedItemsMenuState());
       });

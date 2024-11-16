@@ -18,6 +18,9 @@ import generateTestItems from "./generate-test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
+
+  combatantProperties.unspentAttributePoints = 3;
+
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
   if (baseStartingAttributesOption) {
     for (const [attributeKey, value] of Object.entries(baseStartingAttributesOption)) {

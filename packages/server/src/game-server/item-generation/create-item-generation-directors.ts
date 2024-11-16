@@ -28,7 +28,6 @@ import {
   HeadGearGenerationTemplate,
 } from "./equipment-templates/head-gear-generation-templates.js";
 import { ArmorGenerationBuilder } from "./armor-generation-builder.js";
-import { EquipmentGenerationBuilder } from "./equipment-generation-builder";
 import {
   AMULET_GENERATION_TEMPLATES,
   JewelryGenerationTemplate,

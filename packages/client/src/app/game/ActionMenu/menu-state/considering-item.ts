@@ -59,14 +59,14 @@ export class ConsideringItemMenuState implements ActionMenuState {
             itemId
           );
           if (slotItemIsEquippedTo !== null)
-            return new ActionMenuButtonProperties("Unequip", () => {
+            return new ActionMenuButtonProperties("Unequip (R)", () => {
               websocketConnection.emit(ClientToServerEvent.UnequipSlot, {
                 characterId,
                 slot: slotItemIsEquippedTo,
               });
             });
           else
-            return new ActionMenuButtonProperties("Equip", () => {
+            return new ActionMenuButtonProperties("Equip (R)", () => {
               websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
                 characterId,
                 itemId,
@@ -74,7 +74,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
               });
             });
         case ItemPropertiesType.Consumable:
-          return new ActionMenuButtonProperties("Use", () => {
+          return new ActionMenuButtonProperties("Use (R)", () => {
             websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
               characterId,
               combatActionOption: {

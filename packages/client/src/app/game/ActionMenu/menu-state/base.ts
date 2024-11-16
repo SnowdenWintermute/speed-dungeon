@@ -31,7 +31,7 @@ export class BaseMenuState implements ActionMenuState {
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    const setInventoryOpen = new ActionMenuButtonProperties("Open Inventory", () => {
+    const setInventoryOpen = new ActionMenuButtonProperties("Open Inventory (A)", () => {
       useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.push(inventoryItemsMenuState);
       });
@@ -107,10 +107,12 @@ export class BaseMenuState implements ActionMenuState {
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
+    // @TODO - add assign attributes button
     // gameActions.push({
     //   type: GameActionType.SetAssignAttributePointsMenuOpen,
     //   shouldBeOpen: true,
     // });
+
     return toReturn;
   }
 }

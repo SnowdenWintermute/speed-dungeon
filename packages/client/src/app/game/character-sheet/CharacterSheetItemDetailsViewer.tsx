@@ -1,5 +1,4 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
-import { MenuContext, useGameStore } from "@/stores/game-store";
 import React from "react";
 import ItemDetailsWithComparison from "../ItemDetailsWithComparison";
 import ItemsOnGround from "../ItemsOnGround";
@@ -11,8 +10,6 @@ interface Props {
 }
 
 export default function CharacterSheetItemDetailsViewer({ party, viewingCharacterSheet }: Props) {
-  const menuContext = useGameStore().menuContext;
-
   return (
     <div className="flex" style={{ paddingTop: `${SPACING_REM_SMALL}rem` }}>
       <div

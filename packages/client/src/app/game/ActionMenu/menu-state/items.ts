@@ -13,16 +13,14 @@ import {
   ConsumableType,
   Item,
   ItemPropertiesType,
-  NextOrPrevious,
   formatConsumableType,
-  getNextOrPreviousNumber,
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
 import { ConsideringItemMenuState } from "./considering-item";
-import { ACTION_MENU_PAGE_SIZE } from "..";
 import { immerable } from "immer";
 import selectItem from "@/utils/selectItem";
 import setItemHovered from "@/utils/set-item-hovered";
+import createPageButtons from "./create-page-buttons";
 
 export class ItemsMenuState implements ActionMenuState {
   [immerable] = true;
@@ -109,38 +107,7 @@ export class ItemsMenuState implements ActionMenuState {
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
-    const numPages = Math.ceil(
-      toReturn[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE
-    );
-
-    useGameStore.getState().mutateState((state) => {
-      getCurrentMenu(state).numPages = numPages;
-    });
-
-    if (numPages > 1) {
-      const previousPageButton = new ActionMenuButtonProperties("Previous", () => {
-        useGameStore.getState().mutateState((state) => {
-          const newPage = getNextOrPreviousNumber(this.page, numPages, NextOrPrevious.Previous);
-          getCurrentMenu(state).page = newPage;
-        });
-      });
-      previousPageButton.dedicatedKeys = ["KeyW", "ArrowLeft"];
-      toReturn[ActionButtonCategory.Bottom].push(previousPageButton);
-
-      const nextPageButton = new ActionMenuButtonProperties("Next", () => {
-        useGameStore.getState().mutateState((state) => {
-          const newPage = getNextOrPreviousNumber(this.page, numPages, NextOrPrevious.Next);
-          getCurrentMenu(state).page = newPage;
-        });
-      });
-      nextPageButton.dedicatedKeys = ["KeyE", "ArrowRight"];
-      toReturn[ActionButtonCategory.Bottom].push(nextPageButton);
-    }
-
-    toReturn[ActionButtonCategory.Numbered] = toReturn[ActionButtonCategory.Numbered].slice(
-      (this.page - 1) * ACTION_MENU_PAGE_SIZE,
-      (this.page - 1) * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE
-    );
+    createPageButtons(this, toReturn);
 
     if (!this.extraButtons) return toReturn;
 

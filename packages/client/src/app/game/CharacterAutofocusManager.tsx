@@ -43,7 +43,7 @@ export default function CharacterAutofocusManager() {
       if (playerResult instanceof Error) return console.error(playerResult.message);
       const player = playerResult;
       previousBattleId = party.battleId;
-      const clientIsViewingMenus = gameState.menuContext !== null;
+      const clientIsViewingMenus = gameState.stackedMenuStates.length;
       if (clientIsViewingMenus) return;
 
       if (previousActiveCombatantIdOption !== null && activeCombatantIdOption !== null) {
