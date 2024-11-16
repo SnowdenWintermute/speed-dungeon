@@ -3,6 +3,7 @@ import { useGameStore } from "@/stores/game-store";
 import { AdventuringParty, ERROR_MESSAGES } from "@speed-dungeon/common";
 import React from "react";
 import ItemOnGround from "./ItemOnGround";
+import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 
 interface Props {
   party: AdventuringParty;
@@ -15,11 +16,7 @@ export default function ItemsOnGround({ party, maxHeightRem }: Props) {
   const focusedCharacterId = useGameStore().focusedCharacterId;
   const itemsToDisplay = party.currentRoom.items;
 
-  const playerOwnsCharacter = AdventuringParty.playerOwnsCharacter(
-    party,
-    username,
-    focusedCharacterId
-  );
+  const playerOwnsCharacter = clientUserControlsCombatant(focusedCharacterId);
 
   if (itemsToDisplay.length < 1) return <></>;
 

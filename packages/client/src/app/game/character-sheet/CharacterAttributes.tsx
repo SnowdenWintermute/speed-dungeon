@@ -1,9 +1,7 @@
 import CombatantClassIcon from "@/app/components/atoms/CombatantClassIcon";
 import Divider from "@/app/components/atoms/Divider";
-import { useGameStore } from "@/stores/game-store";
 import {
   CombatantProperties,
-  ERROR_MESSAGES,
   EntityProperties,
   formatCombatantClassName,
 } from "@speed-dungeon/common";
@@ -12,6 +10,7 @@ import React from "react";
 import { AttributeListItem } from "./AttributeListItem";
 import HpAndMp from "./HpAndMp";
 import CharacterSheetWeaponDamage from "./CharacterSheetWeaponDamage";
+import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 
 interface Props {
   combatantProperties: CombatantProperties;
@@ -24,14 +23,7 @@ export default function CharacterAttributes({
   entityProperties,
   showAttributeAssignmentButtons,
 }: Props) {
-  const username = useGameStore().username;
-  if (!username) return <div>{ERROR_MESSAGES.CLIENT.NO_USERNAME}</div>;
-  const gameOption = useGameStore().game;
-  if (!gameOption) return <div>{ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME}</div>;
-  const playerOption = gameOption.players[username];
-  if (!playerOption) return <div>{ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST}</div>;
-
-  const playerOwnsCharacter = playerOption.characterIds.includes(entityProperties.id);
+  const playerOwnsCharacter = clientUserControlsCombatant(entityProperties.id);
 
   const hasUnspentAttributePoints = combatantProperties.unspentAttributePoints > 0;
   const shouldShowNumberOfUnspentAttributes =

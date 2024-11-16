@@ -18,7 +18,7 @@ export class InventoryItemsMenuState extends ItemsMenuState {
 
     super(
       MenuStateType.InventoryItems,
-      { text: "Close Inventory", hotkeys: ["KeyI", "KeyS"] },
+      { text: "Close Inventory", hotkeys: ["KeyI", "KeyA"] },
       {
         [ActionButtonCategory.Top]: [viewEquipmentButton],
       }

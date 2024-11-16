@@ -35,7 +35,7 @@ export class BaseMenuState implements ActionMenuState {
         state.stackedMenuStates.push(inventoryItemsMenuState);
       });
     });
-    setInventoryOpen.dedicatedKeys = ["KeyI", "KeyS"];
+    setInventoryOpen.dedicatedKeys = ["KeyI", "KeyA"];
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
     let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
@@ -47,22 +47,11 @@ export class BaseMenuState implements ActionMenuState {
     const characterId = entityProperties.id;
 
     // disabled abilities if not their turn in a battle
-    const gameOption = useGameStore.getState().game;
-    const username = useGameStore.getState().username;
-    const gameAndPartyResult = getGameAndParty(gameOption, username);
-    if (gameAndPartyResult instanceof Error) {
-      console.trace(gameAndPartyResult);
+    const disabledBecauseNotThisCombatantTurnResult =
+      disableButtonBecauseNotThisCombatantTurn(characterId);
+    if (disabledBecauseNotThisCombatantTurnResult instanceof Error) {
+      console.trace(disabledBecauseNotThisCombatantTurnResult);
       return toReturn;
-    }
-    const [game, party] = gameAndPartyResult;
-
-    const battleOptionResult = getCurrentBattleOption(game, party.name);
-    let disabledBecauseNotThisCombatantTurn = false;
-    if (battleOptionResult && !(battleOptionResult instanceof Error)) {
-      disabledBecauseNotThisCombatantTurn = !Battle.combatantIsFirstInTurnOrder(
-        battleOptionResult,
-        characterId
-      );
     }
 
     const abilitiesNotToMakeButtonsFor = [
@@ -109,7 +98,7 @@ export class BaseMenuState implements ActionMenuState {
         (usabilityContext === ActionUsableContext.InCombat && !this.inCombat) ||
         (usabilityContext === ActionUsableContext.OutOfCombat && this.inCombat) ||
         notEnoughMana ||
-        disabledBecauseNotThisCombatantTurn;
+        disabledBecauseNotThisCombatantTurnResult;
 
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
@@ -120,4 +109,25 @@ export class BaseMenuState implements ActionMenuState {
     // });
     return toReturn;
   }
+}
+
+function disableButtonBecauseNotThisCombatantTurn(combatantId: string) {
+  const gameOption = useGameStore.getState().game;
+  const username = useGameStore.getState().username;
+  const gameAndPartyResult = getGameAndParty(gameOption, username);
+  if (gameAndPartyResult instanceof Error) return gameAndPartyResult;
+
+  const [game, party] = gameAndPartyResult;
+
+  const battleOptionResult = getCurrentBattleOption(game, party.name);
+  let disableButtonBecauseNotThisCombatantTurn = false;
+
+  if (battleOptionResult && !(battleOptionResult instanceof Error)) {
+    disableButtonBecauseNotThisCombatantTurn = !Battle.combatantIsFirstInTurnOrder(
+      battleOptionResult,
+      combatantId
+    );
+  }
+
+  return disableButtonBecauseNotThisCombatantTurn;
 }

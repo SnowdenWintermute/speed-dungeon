@@ -158,9 +158,9 @@ function CharacterFocusingButtons() {
   }
 
   const previousCharacterButton = createFocusCharacterButtonProperties(
-    "Previous (A)",
+    "Previous (S)",
     NextOrPrevious.Previous,
-    ["KeyA"]
+    ["KeyS"]
   );
   const nextCharacterButton = createFocusCharacterButtonProperties(
     "Next (D)",

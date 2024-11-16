@@ -7,6 +7,7 @@ import {
   MenuStateType,
 } from ".";
 import {
+  AdventuringParty,
   ClientToServerEvent,
   CombatAction,
   CombatantProperties,
@@ -14,6 +15,8 @@ import {
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
+import getCurrentParty from "@/utils/getCurrentParty";
+import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 
 export class ConsideringCombatActionMenuState implements ActionMenuState {
   page = 1;
@@ -76,6 +79,10 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
       });
     });
     executeActionButton.dedicatedKeys = ["Enter", "KeyR"];
+
+    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+    executeActionButton.shouldBeDisabled = !userControlsThisCharacter;
+
     toReturn[ActionButtonCategory.Top].push(executeActionButton);
 
     // CYCLE SCHEMES
