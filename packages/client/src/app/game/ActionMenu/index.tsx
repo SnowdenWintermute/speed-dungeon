@@ -10,6 +10,7 @@ import setFocusedCharacter from "@/utils/set-focused-character";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
+import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
@@ -156,15 +157,17 @@ function CharacterFocusingButtons() {
     return button;
   }
 
+  const previousCharacterHotkey = HOTKEYS.LEFT_ALT;
   const previousCharacterButton = createFocusCharacterButtonProperties(
-    "Previous (S)",
+    `Previous (${letterFromKeyCode(previousCharacterHotkey)})`,
     NextOrPrevious.Previous,
-    ["KeyS"]
+    [previousCharacterHotkey]
   );
+  const nextCharacterHotkey = HOTKEYS.RIGHT_ALT;
   const nextCharacterButton = createFocusCharacterButtonProperties(
-    "Next (D)",
+    `Next (${letterFromKeyCode(nextCharacterHotkey)})`,
     NextOrPrevious.Next,
-    ["KeyD"]
+    [nextCharacterHotkey]
   );
 
   const focusedCharacter = getFocusedCharacter();

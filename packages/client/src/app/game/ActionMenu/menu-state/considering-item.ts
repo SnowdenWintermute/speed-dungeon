@@ -18,6 +18,7 @@ import { setAlert } from "@/app/components/alerts";
 import { useUIStore } from "@/stores/ui-store";
 import selectItem from "@/utils/selectItem";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
+import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 
 export class ConsideringItemMenuState implements ActionMenuState {
   page = 1;
@@ -38,7 +39,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
       selectItem(null);
     });
 
-    cancelButton.dedicatedKeys = ["Escape"];
+    cancelButton.dedicatedKeys = [HOTKEYS.CANCEL];
     toReturn[ActionButtonCategory.Top].push(cancelButton);
 
     const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
@@ -51,6 +52,8 @@ export class ConsideringItemMenuState implements ActionMenuState {
     const userControlsThisCharacter = clientUserControlsCombatant(characterId);
     const itemId = this.item.entityProperties.id;
 
+    const useItemHotkey = HOTKEYS.MAIN_1;
+    const useItemLetter = letterFromKeyCode(useItemHotkey);
     const useItemButton = (() => {
       switch (this.item.itemProperties.type) {
         case ItemPropertiesType.Equipment:
@@ -59,14 +62,14 @@ export class ConsideringItemMenuState implements ActionMenuState {
             itemId
           );
           if (slotItemIsEquippedTo !== null)
-            return new ActionMenuButtonProperties("Unequip (R)", () => {
+            return new ActionMenuButtonProperties(`Unequip (${useItemLetter})`, () => {
               websocketConnection.emit(ClientToServerEvent.UnequipSlot, {
                 characterId,
                 slot: slotItemIsEquippedTo,
               });
             });
           else
-            return new ActionMenuButtonProperties("Equip (R)", () => {
+            return new ActionMenuButtonProperties(`Equip (${useItemLetter})`, () => {
               websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
                 characterId,
                 itemId,
@@ -74,7 +77,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
               });
             });
         case ItemPropertiesType.Consumable:
-          return new ActionMenuButtonProperties("Use (R)", () => {
+          return new ActionMenuButtonProperties(`Use (${useItemLetter})`, () => {
             websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
               characterId,
               combatActionOption: {
@@ -86,33 +89,39 @@ export class ConsideringItemMenuState implements ActionMenuState {
       }
     })();
 
-    useItemButton.dedicatedKeys = ["Enter", "KeyR"];
+    useItemButton.dedicatedKeys = ["Enter", useItemHotkey];
     useItemButton.shouldBeDisabled = !userControlsThisCharacter;
     toReturn[ActionButtonCategory.Top].push(useItemButton);
 
-    const dropItemButton = new ActionMenuButtonProperties("Drop", () => {
-      const slotEquipped = CombatantProperties.getSlotItemIsEquippedTo(
-        focusedCharacterResult.combatantProperties,
-        itemId
-      );
+    const dropItemHotkey = HOTKEYS.MAIN_2;
 
-      if (slotEquipped)
-        websocketConnection.emit(ClientToServerEvent.DropEquippedItem, {
-          characterId,
-          slot: slotEquipped,
+    const dropItemButton = new ActionMenuButtonProperties(
+      `Drop (${letterFromKeyCode(dropItemHotkey)})`,
+      () => {
+        const slotEquipped = CombatantProperties.getSlotItemIsEquippedTo(
+          focusedCharacterResult.combatantProperties,
+          itemId
+        );
+
+        if (slotEquipped)
+          websocketConnection.emit(ClientToServerEvent.DropEquippedItem, {
+            characterId,
+            slot: slotEquipped,
+          });
+        else websocketConnection.emit(ClientToServerEvent.DropItem, { characterId, itemId });
+
+        useGameStore.getState().mutateState((state) => {
+          state.stackedMenuStates.pop();
+          state.hoveredEntity = null;
+          state.consideredItemUnmetRequirements = null;
+          state.detailedEntity = null;
         });
-      else websocketConnection.emit(ClientToServerEvent.DropItem, { characterId, itemId });
-
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.pop();
-        state.hoveredEntity = null;
-        state.consideredItemUnmetRequirements = null;
-        state.detailedEntity = null;
-      });
-    });
+      }
+    );
 
     dropItemButton.shouldBeDisabled = !userControlsThisCharacter;
-    toReturn[ActionButtonCategory.Numbered].push(dropItemButton);
+    dropItemButton.dedicatedKeys = [dropItemHotkey];
+    toReturn[ActionButtonCategory.Top].push(dropItemButton);
 
     return toReturn;
   }

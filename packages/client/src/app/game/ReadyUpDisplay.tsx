@@ -4,6 +4,7 @@ import { AdventuringParty, ClientToServerEvent, DungeonRoomType } from "@speed-d
 import React, { MouseEventHandler } from "react";
 import HotkeyButton from "../components/atoms/HotkeyButton";
 import { BaseMenuState } from "./ActionMenu/menu-state/base";
+import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 
 interface Props {
   party: AdventuringParty;
@@ -46,6 +47,8 @@ export default function ReadyUpDisplay({ party }: Props) {
   const hoveredEntity = useGameStore.getState().hoveredEntity;
 
   const shouldDim = detailedEntity || hoveredEntity;
+  const descendHotkey = HOTKEYS.SIDE_2;
+  const exploreHotkey = HOTKEYS.SIDE_1;
 
   return (
     <>
@@ -74,17 +77,17 @@ export default function ReadyUpDisplay({ party }: Props) {
           <div className="flex justify-between">
             <HotkeyButton
               className="h-10 pr-2 pl-2 border border-slate-400 w-1/2 text-center hover:bg-slate-950 mr-1"
-              hotkeys={["KeyG"]}
+              hotkeys={[exploreHotkey]}
               onClick={handleExploreClick}
             >
-              Vote to stay (G)
+              Vote to stay ({letterFromKeyCode(exploreHotkey)})
             </HotkeyButton>
             <HotkeyButton
               className="h-10 pr-2 pl-2 border border-slate-400 w-1/2 text-center hover:bg-slate-950 ml-1"
-              hotkeys={["KeyH"]}
+              hotkeys={[descendHotkey]}
               onClick={handleDescendClick}
             >
-              Vote to descend (H)
+              Vote to descend ({letterFromKeyCode(descendHotkey)})
             </HotkeyButton>
           </div>
         </div>

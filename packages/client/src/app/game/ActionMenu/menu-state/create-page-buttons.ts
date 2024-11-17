@@ -5,10 +5,10 @@ import {
   ActionButtonsByCategory,
   ActionMenuButtonProperties,
   ActionMenuState,
-  formatMenuStateType,
 } from ".";
 import { ACTION_MENU_PAGE_SIZE } from "..";
 import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
+import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 
 export default function createPageButtons(
   menuState: ActionMenuState,
@@ -23,22 +23,31 @@ export default function createPageButtons(
   });
 
   if (numPages > 1) {
-    const previousPageButton = new ActionMenuButtonProperties("Previous", () => {
-      useGameStore.getState().mutateState((state) => {
-        const newPage = getNextOrPreviousNumber(menuState.page, numPages, NextOrPrevious.Previous);
-        getCurrentMenu(state).page = newPage;
-      });
-    });
-    previousPageButton.dedicatedKeys = ["KeyW", "ArrowLeft"];
+    const prevButtonHotkey = HOTKEYS.RIGHT_MAIN;
+    const previousPageButton = new ActionMenuButtonProperties(
+      `Previous (${letterFromKeyCode(prevButtonHotkey)})`,
+      () => {
+        useGameStore.getState().mutateState((state) => {
+          const newPage = getNextOrPreviousNumber(
+            menuState.page,
+            numPages,
+            NextOrPrevious.Previous
+          );
+          getCurrentMenu(state).page = newPage;
+        });
+      }
+    );
+    previousPageButton.dedicatedKeys = [prevButtonHotkey, "ArrowLeft"];
     buttonsByCategory[ActionButtonCategory.Bottom].push(previousPageButton);
 
-    const nextPageButton = new ActionMenuButtonProperties("Next", () => {
+    const nextButtonHotkey = HOTKEYS.LEFT_MAIN;
+    const nextPageButton = new ActionMenuButtonProperties(`Next (${nextButtonHotkey})`, () => {
       useGameStore.getState().mutateState((state) => {
         const newPage = getNextOrPreviousNumber(menuState.page, numPages, NextOrPrevious.Next);
         getCurrentMenu(state).page = newPage;
       });
     });
-    nextPageButton.dedicatedKeys = ["KeyE", "ArrowRight"];
+    nextPageButton.dedicatedKeys = [nextButtonHotkey, "ArrowRight"];
     buttonsByCategory[ActionButtonCategory.Bottom].push(nextPageButton);
   }
 

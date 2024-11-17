@@ -15,6 +15,7 @@ import {
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
+import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 
 export class ConsideringCombatActionMenuState implements ActionMenuState {
   page = 1;
@@ -47,36 +48,48 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
     toReturn[ActionButtonCategory.Top].push(cancelButton);
 
     // CYCLE BACK
-    const previousTargetButton = new ActionMenuButtonProperties("Previous Target (W)", () => {
-      websocketConnection.emit(ClientToServerEvent.CycleCombatActionTargets, {
-        characterId,
-        direction: NextOrPrevious.Previous,
-      });
-    });
-    previousTargetButton.dedicatedKeys = ["KeyW", "ArrowLeft"];
+    const prevHotkey = HOTKEYS.LEFT_MAIN;
+    const previousTargetButton = new ActionMenuButtonProperties(
+      `Previous Target (${letterFromKeyCode(prevHotkey)})`,
+      () => {
+        websocketConnection.emit(ClientToServerEvent.CycleCombatActionTargets, {
+          characterId,
+          direction: NextOrPrevious.Previous,
+        });
+      }
+    );
+    previousTargetButton.dedicatedKeys = [prevHotkey, "ArrowLeft"];
     toReturn[ActionButtonCategory.Bottom].push(previousTargetButton);
 
     // CYCLE FORWARD
-    const nextTargetButton = new ActionMenuButtonProperties("Next Target (E)", () => {
-      websocketConnection.emit(ClientToServerEvent.CycleCombatActionTargets, {
-        characterId,
-        direction: NextOrPrevious.Next,
-      });
-    });
-    nextTargetButton.dedicatedKeys = ["KeyE", "ArrowRight"];
+    const nextHotkey = HOTKEYS.RIGHT_MAIN;
+    const nextTargetButton = new ActionMenuButtonProperties(
+      `Next Target (${letterFromKeyCode(nextHotkey)})`,
+      () => {
+        websocketConnection.emit(ClientToServerEvent.CycleCombatActionTargets, {
+          characterId,
+          direction: NextOrPrevious.Next,
+        });
+      }
+    );
+    nextTargetButton.dedicatedKeys = [nextHotkey, "ArrowRight"];
     toReturn[ActionButtonCategory.Bottom].push(nextTargetButton);
 
     // EXECUTE
-    const executeActionButton = new ActionMenuButtonProperties("Execute (R)", () => {
-      websocketConnection.emit(ClientToServerEvent.UseSelectedCombatAction, {
-        characterId,
-      });
-      useGameStore.getState().mutateState((state) => {
-        state.detailedEntity = null;
-        state.hoveredEntity = null;
-      });
-    });
-    executeActionButton.dedicatedKeys = ["Enter", "KeyR"];
+    const executeHotkey = HOTKEYS.MAIN_1;
+    const executeActionButton = new ActionMenuButtonProperties(
+      `Execute (${letterFromKeyCode(executeHotkey)})`,
+      () => {
+        websocketConnection.emit(ClientToServerEvent.UseSelectedCombatAction, {
+          characterId,
+        });
+        useGameStore.getState().mutateState((state) => {
+          state.detailedEntity = null;
+          state.hoveredEntity = null;
+        });
+      }
+    );
+    executeActionButton.dedicatedKeys = ["Enter", executeHotkey];
 
     const userControlsThisCharacter = clientUserControlsCombatant(characterId);
     executeActionButton.shouldBeDisabled = !userControlsThisCharacter;
@@ -95,13 +108,14 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
     }
     if (combatActionProperties.targetingSchemes.length <= 1) return toReturn;
 
+    const targetingSchemeHotkey = HOTKEYS.MAIN_2;
     const cycleTargetingSchemesButton = new ActionMenuButtonProperties(
-      "Targeting Scheme (T)",
+      `Targeting Scheme (${letterFromKeyCode(targetingSchemeHotkey)})`,
       () => {
         websocketConnection.emit(ClientToServerEvent.CycleTargetingSchemes, { characterId });
       }
     );
-    cycleTargetingSchemesButton.dedicatedKeys = ["KeyT"];
+    cycleTargetingSchemesButton.dedicatedKeys = [targetingSchemeHotkey];
     toReturn[ActionButtonCategory.Top].push(cycleTargetingSchemesButton);
 
     return toReturn;

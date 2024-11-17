@@ -26,6 +26,10 @@ import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import getGameAndParty from "@/utils/getGameAndParty";
 import cloneDeep from "lodash.clonedeep";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
+import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
+
+export const toggleInventoryHotkey = HOTKEYS.MAIN_1;
+export const toggleAssignAttributesHotkey = HOTKEYS.ALT_1;
 
 export class BaseMenuState implements ActionMenuState {
   page = 1;
@@ -35,12 +39,15 @@ export class BaseMenuState implements ActionMenuState {
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    const setInventoryOpen = new ActionMenuButtonProperties("Open Inventory (A)", () => {
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.push(inventoryItemsMenuState);
-      });
-    });
-    setInventoryOpen.dedicatedKeys = ["KeyI", "KeyA"];
+    const setInventoryOpen = new ActionMenuButtonProperties(
+      `Open Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
+      () => {
+        useGameStore.getState().mutateState((state) => {
+          state.stackedMenuStates.push(inventoryItemsMenuState);
+        });
+      }
+    );
+    setInventoryOpen.dedicatedKeys = ["KeyI", toggleInventoryHotkey];
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
     let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
@@ -52,12 +59,15 @@ export class BaseMenuState implements ActionMenuState {
     const characterId = entityProperties.id;
 
     if (focusedCharacterResult.combatantProperties.unspentAttributePoints) {
-      const assignAttributesButton = new ActionMenuButtonProperties("Assign Attributes (F)", () => {
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(assignAttributesMenuState);
-        });
-      });
-      assignAttributesButton.dedicatedKeys = ["KeyI", "KeyF"];
+      const assignAttributesButton = new ActionMenuButtonProperties(
+        `Assign Attributes (${letterFromKeyCode(toggleAssignAttributesHotkey)})`,
+        () => {
+          useGameStore.getState().mutateState((state) => {
+            state.stackedMenuStates.push(assignAttributesMenuState);
+          });
+        }
+      );
+      assignAttributesButton.dedicatedKeys = ["KeyI", toggleAssignAttributesHotkey];
       toReturn[ActionButtonCategory.Top].push(assignAttributesButton);
     }
 

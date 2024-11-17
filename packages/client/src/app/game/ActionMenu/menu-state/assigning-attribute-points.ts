@@ -15,6 +15,8 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
+import { HOTKEYS } from "@/hotkeys";
+import { toggleAssignAttributesHotkey } from "./base";
 
 export class AssigningAttributePointsMenuState implements ActionMenuState {
   [immerable] = true;
@@ -38,7 +40,7 @@ export class AssigningAttributePointsMenuState implements ActionMenuState {
       });
     });
 
-    cancelButton.dedicatedKeys = ["Escape", "KeyF"];
+    cancelButton.dedicatedKeys = [HOTKEYS.CANCEL, toggleAssignAttributesHotkey];
     toReturn[ActionButtonCategory.Top].push(cancelButton);
 
     for (const attribute of ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES) {
