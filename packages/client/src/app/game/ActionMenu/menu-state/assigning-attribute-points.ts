@@ -14,8 +14,10 @@ import {
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import createPageButtons from "./create-page-buttons";
+import { immerable } from "immer";
 
 export class AssigningAttributePointsMenuState implements ActionMenuState {
+  [immerable] = true;
   page = 1;
   numPages: number = 1;
   type = MenuStateType.AssignAttributePoints;
@@ -36,13 +38,18 @@ export class AssigningAttributePointsMenuState implements ActionMenuState {
       });
     });
 
-    cancelButton.dedicatedKeys = ["Escape"];
+    cancelButton.dedicatedKeys = ["Escape", "KeyF"];
     toReturn[ActionButtonCategory.Top].push(cancelButton);
 
     for (const attribute of ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES) {
       const button = new ActionMenuButtonProperties(formatCombatAttribute(attribute), () => {
-        websocketConnection.emit(ClientToServerEvent.AssignAttributePoint, characterId, attribute);
+        websocketConnection.emit(ClientToServerEvent.IncrementAttribute, {
+          characterId,
+          attribute,
+        });
       });
+      button.shouldBeDisabled =
+        focusedCharacterResult.combatantProperties.unspentAttributePoints === 0;
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 

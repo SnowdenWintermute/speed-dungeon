@@ -1,5 +1,5 @@
 import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
-import React, { useRef } from "react";
+import React from "react";
 import { useGameStore } from "@/stores/game-store";
 import { ActionButtonCategory, ActionMenuButtonProperties } from "./menu-state";
 import ActionDetails from "../detailables/ActionDetails";
@@ -12,10 +12,9 @@ import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
-const topButtoLiStyle = { marginRight: `${SPACING_REM}rem` };
+const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
 
 export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
-  const actionMenuRef = useRef<HTMLUListElement>(null);
   const combatantModelsAwaitingSpawn = useGameStore((state) => state.combatantModelsAwaitingSpawn);
   const hoveredAction = useGameStore((state) => state.hoveredAction);
   const currentMenu = useGameStore.getState().getCurrentMenu();
@@ -63,7 +62,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
           // in the old method we used a more unique key so different cancel buttons would
           // actually update, but cancel buttons tend to do the same thing anyway now
           return (
-            <li key={thisButtonProperties.text} style={topButtoLiStyle}>
+            <li key={thisButtonProperties.text} style={topButtonLiStyle}>
               <ActionMenuDedicatedButton
                 extraStyles="border border-slate-400 mr-2 last:mr-0"
                 properties={button}
@@ -78,9 +77,9 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
           height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem`,
         }}
       >
-        <ul className="list-none relative pointer-events-auto" ref={actionMenuRef}>
+        <ul className="list-none relative pointer-events-auto">
           {buttonProperties[ActionButtonCategory.Numbered].map((button, i) => (
-            <li key={button.text + i}>
+            <li key={button.text + i + currentMenu.page}>
               <NumberedButton number={i + 1} properties={button} />
             </li>
           ))}

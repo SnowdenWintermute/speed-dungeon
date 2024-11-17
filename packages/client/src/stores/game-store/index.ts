@@ -23,6 +23,7 @@ import { BabylonControlledCombatantData } from "./babylon-controlled-combatant-d
 import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
 import { InventoryItemsMenuState } from "@/app/game/ActionMenu/menu-state/inventory-items";
 import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
+import { AssigningAttributePointsMenuState } from "@/app/game/ActionMenu/menu-state/assigning-attribute-points";
 
 export enum MenuContext {
   InventoryItems,
@@ -126,6 +127,7 @@ export const useGameStore = create<GameState>()(
 
 export const baseMenuState = new BaseMenuState(false);
 export const inventoryItemsMenuState = new InventoryItemsMenuState();
+export const assignAttributesMenuState = new AssigningAttributePointsMenuState();
 
 export function getCurrentMenu(state: GameState) {
   const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];

@@ -1,4 +1,8 @@
-import { inventoryItemsMenuState, useGameStore } from "@/stores/game-store";
+import {
+  inventoryItemsMenuState,
+  assignAttributesMenuState,
+  useGameStore,
+} from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -46,6 +50,16 @@ export class BaseMenuState implements ActionMenuState {
     }
     const { combatantProperties, entityProperties } = focusedCharacterResult;
     const characterId = entityProperties.id;
+
+    if (focusedCharacterResult.combatantProperties.unspentAttributePoints) {
+      const assignAttributesButton = new ActionMenuButtonProperties("Assign Attributes (F)", () => {
+        useGameStore.getState().mutateState((state) => {
+          state.stackedMenuStates.push(assignAttributesMenuState);
+        });
+      });
+      assignAttributesButton.dedicatedKeys = ["KeyI", "KeyF"];
+      toReturn[ActionButtonCategory.Top].push(assignAttributesButton);
+    }
 
     // disabled abilities if not their turn in a battle
     const disabledBecauseNotThisCombatantTurnResult =
@@ -106,12 +120,6 @@ export class BaseMenuState implements ActionMenuState {
 
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
-
-    // @TODO - add assign attributes button
-    // gameActions.push({
-    //   type: GameActionType.SetAssignAttributePointsMenuOpen,
-    //   shouldBeOpen: true,
-    // });
 
     return toReturn;
   }

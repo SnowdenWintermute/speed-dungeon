@@ -57,7 +57,7 @@ export default function outfitNewCharacter(character: Combatant) {
   }
 
   // FOR TESTING INVENTORY
-  generateTestItems(combatantProperties, 17);
+  generateTestItems(combatantProperties, 6);
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
 }

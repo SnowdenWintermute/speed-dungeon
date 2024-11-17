@@ -5,6 +5,7 @@ import {
   ActionButtonsByCategory,
   ActionMenuButtonProperties,
   ActionMenuState,
+  formatMenuStateType,
 } from ".";
 import { ACTION_MENU_PAGE_SIZE } from "..";
 import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
@@ -24,7 +25,6 @@ export default function createPageButtons(
   if (numPages > 1) {
     const previousPageButton = new ActionMenuButtonProperties("Previous", () => {
       useGameStore.getState().mutateState((state) => {
-        console.log("prev page button pressed, current page", getCurrentMenu(state).page, numPages);
         const newPage = getNextOrPreviousNumber(menuState.page, numPages, NextOrPrevious.Previous);
         getCurrentMenu(state).page = newPage;
       });

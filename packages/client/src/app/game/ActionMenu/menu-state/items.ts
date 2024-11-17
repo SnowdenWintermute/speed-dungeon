@@ -116,6 +116,13 @@ export class ItemsMenuState implements ActionMenuState {
       for (const button of buttons) toReturn[categoryAsEnum].push(button);
     }
 
+    // possible when a numbered button disapears like when equipping the last item
+    // on a page
+    if (this.page > this.numPages)
+      useGameStore.getState().mutateState((state) => {
+        getCurrentMenu(state).page = this.page - 1;
+      });
+
     return toReturn;
   }
 }

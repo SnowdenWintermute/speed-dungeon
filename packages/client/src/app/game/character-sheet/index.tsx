@@ -5,12 +5,9 @@ import React from "react";
 import CharacterSheetCharacterSelectionButton from "./CharacterSheetCharacterSelectionButton";
 import CharacterAttributes from "./CharacterAttributes";
 import PaperDoll from "./PaperDoll";
-import { MenuStateType } from "../ActionMenu/menu-state";
 
-export default function CharacterSheet() {
+export default function CharacterSheet({ showCharacterSheet }: { showCharacterSheet: boolean }) {
   const partyResult = useGameStore().getParty();
-  const username = useGameStore().username;
-  const stackedMenuStates = useGameStore.getState().stackedMenuStates;
   if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
   const focusedCharacterResult = useGameStore().getFocusedCharacter();
   const focusedCharacterOption =
@@ -22,11 +19,6 @@ export default function CharacterSheet() {
 
   const { equipment } = combatantProperties;
   const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
-  const focusedCharacterHasSelectedAction = combatantProperties.selectedCombatAction !== null;
-
-  const showCharacterSheet =
-    stackedMenuStates.map((item) => item.type).includes(MenuStateType.InventoryItems) &&
-    !focusedCharacterHasSelectedAction;
 
   let conditionalStyles = showCharacterSheet ? "overflow-hidden" : "opacity-0 w-0 overflow-hidden";
 

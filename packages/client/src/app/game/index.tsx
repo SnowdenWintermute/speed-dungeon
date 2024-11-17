@@ -118,7 +118,7 @@ export default function Game() {
                 )}
               </div>
             </div>
-            <CharacterSheet />
+            <CharacterSheet showCharacterSheet={viewingCharacterSheet} />
           </div>
           <CharacterSheetItemDetailsViewer
             party={party}
