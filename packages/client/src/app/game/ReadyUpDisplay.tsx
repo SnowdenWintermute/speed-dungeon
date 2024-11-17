@@ -53,7 +53,7 @@ export default function ReadyUpDisplay({ party }: Props) {
   return (
     <>
       {!inStaircaseRoom &&
-        Object.keys(party.currentRoom.monsters).length === 0 &&
+        party.currentRoom.monsterPositions.length === 0 &&
         currentMenu instanceof BaseMenuState && (
           <div
             className="absolute top-1/3 -translate-y-1/2 left-1/2 -translate-x-1/2 border border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto"

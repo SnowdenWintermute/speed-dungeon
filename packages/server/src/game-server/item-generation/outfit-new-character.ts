@@ -14,12 +14,9 @@ import {
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { idGenerator } from "../../singletons.js";
-import generateTestItems from "./generate-test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
-
-  combatantProperties.unspentAttributePoints = 3;
 
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
   if (baseStartingAttributesOption) {
@@ -57,7 +54,9 @@ export default function outfitNewCharacter(character: Combatant) {
   }
 
   // FOR TESTING INVENTORY
-  generateTestItems(combatantProperties, 6);
+  // generateTestItems(combatantProperties, 6);
+  // FOR TESTING ATTRIBUTE ASSIGNMENT
+  // combatantProperties.unspentAttributePoints = 3;
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
 }

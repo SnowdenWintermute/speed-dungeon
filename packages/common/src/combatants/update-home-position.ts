@@ -12,37 +12,23 @@ export function updateCombatantHomePosition(
   combatantProperties: CombatantProperties,
   party: AdventuringParty
 ) {
-  let rowPositionOffset = 0;
-  let rowLength = COMBATANT_POSITION_SPACING_SIDE * (party.characterPositions.length - 1);
-  let rowStart = rowLength / 2;
-
   const isPlayer = combatantProperties.controllingPlayer !== null;
-  let monsterType: null | MonsterType = null;
 
-  party.characterPositions.forEach((id, i) => {
-    if (id === entityId) {
-      rowPositionOffset = rowStart - i * COMBATANT_POSITION_SPACING_SIDE;
-    }
-  });
+  const combatantIdsInRow = isPlayer
+    ? party.characterPositions
+    : party.currentRoom.monsterPositions;
+  const numberOfCombatantsInRow = combatantIdsInRow.length;
 
-  if (!isPlayer) {
-    rowLength =
-      COMBATANT_POSITION_SPACING_SIDE * (Object.values(party.currentRoom.monsters).length - 1);
-    rowStart = rowLength / 2;
-    const monsters = Object.entries(party.currentRoom.monsters);
-    monsters.sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
-    monsters.forEach(([monsterId, monster], i) => {
-      if (monsterId === entityId) {
-        rowPositionOffset = rowStart - i * COMBATANT_POSITION_SPACING_SIDE;
-        monsterType = monster.combatantProperties.monsterType;
-      }
-    });
-  }
+  const rowLength = COMBATANT_POSITION_SPACING_SIDE * (numberOfCombatantsInRow - 1);
+  const rowStart = rowLength / 2;
 
-  if (!isPlayer && monsterType === null) return;
+  const combatantRowIndex = combatantIdsInRow.indexOf(entityId);
+  if (combatantRowIndex === -1) return console.error("Expected combatant id not found in row");
+
+  const rowPositionOffset = rowStart - combatantRowIndex * COMBATANT_POSITION_SPACING_SIDE;
 
   let positionSpacing = -COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2;
-  if (monsterType !== null) positionSpacing *= -1;
+  if (!isPlayer) positionSpacing *= -1;
 
   combatantProperties.homeLocation = new Vector3(positionSpacing, 0, rowPositionOffset);
 }

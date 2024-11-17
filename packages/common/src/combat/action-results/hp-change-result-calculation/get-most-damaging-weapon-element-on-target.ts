@@ -15,7 +15,8 @@ export default function getMostDamagingWeaponElementOnTarget(
 
   const elementsToSelectFrom: MagicalElement[] = [];
   for (const hpChangeSource of weaponProperties.damageClassification) {
-    if (hpChangeSource.elementOption) elementsToSelectFrom.push(hpChangeSource.elementOption);
+    if (hpChangeSource.elementOption !== null)
+      elementsToSelectFrom.push(hpChangeSource.elementOption);
   }
 
   const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, targetId);

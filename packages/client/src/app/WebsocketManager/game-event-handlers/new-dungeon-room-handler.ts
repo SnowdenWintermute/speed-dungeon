@@ -19,6 +19,6 @@ export default function newDungeonRoomHandler(room: DungeonRoom) {
     const indexOfRoomTypeToReveal = party.roomsExplored.onCurrentFloor - 1;
     party.clientCurrentFloorRoomsList[indexOfRoomTypeToReveal] = room.roomType;
 
-    if (Object.keys(room.monsters).length) gameState.baseMenuState.inCombat = true;
+    if (room.monsterPositions.length) gameState.baseMenuState.inCombat = true;
   });
 }

@@ -17,6 +17,7 @@ import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
 import { HOTKEYS } from "@/hotkeys";
 import { toggleAssignAttributesHotkey } from "./base";
+import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 
 export class AssigningAttributePointsMenuState implements ActionMenuState {
   [immerable] = true;
@@ -33,6 +34,7 @@ export class AssigningAttributePointsMenuState implements ActionMenuState {
       return toReturn;
     }
     const characterId = focusedCharacterResult.entityProperties.id;
+    const userControlsThisCharacter = clientUserControlsCombatant(characterId);
 
     const cancelButton = new ActionMenuButtonProperties("Cancel", () => {
       useGameStore.getState().mutateState((state) => {
@@ -51,7 +53,8 @@ export class AssigningAttributePointsMenuState implements ActionMenuState {
         });
       });
       button.shouldBeDisabled =
-        focusedCharacterResult.combatantProperties.unspentAttributePoints === 0;
+        focusedCharacterResult.combatantProperties.unspentAttributePoints === 0 ||
+        !userControlsThisCharacter;
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 

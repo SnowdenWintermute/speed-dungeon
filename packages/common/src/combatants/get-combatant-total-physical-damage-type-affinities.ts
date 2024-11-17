@@ -10,8 +10,9 @@ export default function getCombatantTotalPhysicalDamageTypeAffinities(
 
   for (const combatantTrait of combatantProperties.traits) {
     if (combatantTrait.type === CombatantTraitType.PhysicalDamageTypeResistance) {
-      if (!totals[combatantTrait.damageType]) totals[combatantTrait.damageType] = 0;
-      totals[combatantTrait.damageType]! += combatantTrait.percent;
+      if (totals[combatantTrait.damageType] === undefined)
+        totals[combatantTrait.damageType] = combatantTrait.percent;
+      else totals[combatantTrait.damageType]! += combatantTrait.percent;
     }
   }
 

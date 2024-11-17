@@ -125,7 +125,7 @@ export default function getAbilityAttributes(abilityName: CombatantAbilityName) 
       cap.validTargetCategories = TargetCategories.Any;
       cap.usabilityContext = ActionUsableContext.All;
       cap.prohibitedTargetCombatantStates = [ProhibitedTargetCombatantStates.Dead];
-      hpcp.baseValues = new NumberRange(6, 12);
+      hpcp.baseValues = new NumberRange(4, 8);
       hpcp.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Intelligence, 100];
       hpcp.critChanceAttribute = CombatAttribute.Focus;
       hpcp.critMultiplierAttribute = CombatAttribute.Focus;
