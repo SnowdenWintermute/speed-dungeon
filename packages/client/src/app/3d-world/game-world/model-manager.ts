@@ -200,8 +200,8 @@ export class ModelManager {
           break;
         }
       }
-      for (const monster of Object.values(party.currentRoom.monsters)) {
-        if (!this.combatantModels[monster.entityProperties.id]) {
+      for (const monsterId of party.currentRoom.monsterPositions) {
+        if (!this.combatantModels[monsterId]) {
           allModelsLoaded = false;
           break;
         }

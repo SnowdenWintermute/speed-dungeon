@@ -1,0 +1,69 @@
+version: "2.2"
+services:
+    next-client:
+        image: snowd3n/mike-silverman:client
+        restart: unless-stopped
+        environment:
+             - NODE_ENV=production
+        ports:
+             - 3000:3000
+    roguelike-racing-client:
+       image: snowd3n/roguelike-racing:client
+       restart: unless-stopped
+       ports:
+             - 3001:80
+    roguelike-racing-server:
+       image: snowd3n/roguelike-racing:server
+       restart: unless-stopped
+       ports:
+             - 8082:8082
+    speed-dungeon-client:
+       image: snowd3n/speed-dungeon:client
+       restart: unless-stopped
+       ports:
+             - 3002:3000
+    speed-dungeon-server:
+       image: snowd3n/speed-dungeon:server
+       env_file:
+             - .speed-dungeon-env
+       restart: unless-stopped
+       ports:
+             - 8083:8080
+    speed-dungeon-postgres:
+       image: postgres:16
+       volumes:
+             - speed_dungeon_pg_volume:/var/lib/postgresql/data
+       env_file:
+             - .speed-dungeon-env
+       environment:
+             - POSTGRES_USER:${POSTGRES_USER}
+             - POSTGRES_PASSWORD:${POSTGRES_PASSWORD}
+             - POSTGRES_DB:${POSTGRES_DB}
+    speed-dungeon-valkey:
+       image: valkey/valkey
+       container_name: speed-dungeon-valkey
+       volumes:
+             - speed_dungeon_valkey_volume:/data
+    snowauth-server:
+       image: snowd3n/snowauth:server
+       container_name: snowauth-server
+       restart: unless-stopped
+       env_file:
+            - .env
+       ports:
+            - 8084:8081
+    snowauth-postgres:
+       image: postgres:16
+       volumes:
+             - snowauth_pg_volume:/var/lib/postgresql/data
+       env_file:
+             - .env
+       environment:
+             - POSTGRES_USER:${POSTGRES_USER}
+             - POSTGRES_PASSWORD:${POSTGRES_PASSWORD}
+             - POSTGRES_DB:${POSTGRES_DB}
+    snowauth-valkey:
+       image: valkey/valkey
+       container_name: valkey
+       volumes:
+             - snowauth_valkey_volume:/data

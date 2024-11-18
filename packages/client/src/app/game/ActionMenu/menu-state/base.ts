@@ -1,4 +1,8 @@
-import { inventoryItemsMenuState, useGameStore } from "@/stores/game-store";
+import {
+  inventoryItemsMenuState,
+  assignAttributesMenuState,
+  useGameStore,
+} from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -21,6 +25,11 @@ import { setAlert } from "@/app/components/alerts";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import getGameAndParty from "@/utils/getGameAndParty";
 import cloneDeep from "lodash.clonedeep";
+import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
+import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
+
+export const toggleInventoryHotkey = HOTKEYS.MAIN_1;
+export const toggleAssignAttributesHotkey = HOTKEYS.ALT_1;
 
 export class BaseMenuState implements ActionMenuState {
   page = 1;
@@ -30,12 +39,15 @@ export class BaseMenuState implements ActionMenuState {
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    const setInventoryOpen = new ActionMenuButtonProperties("Open Inventory", () => {
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.push(inventoryItemsMenuState);
-      });
-    });
-    setInventoryOpen.dedicatedKeys = ["KeyI", "KeyS"];
+    const setInventoryOpen = new ActionMenuButtonProperties(
+      `Open Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
+      () => {
+        useGameStore.getState().mutateState((state) => {
+          state.stackedMenuStates.push(inventoryItemsMenuState);
+        });
+      }
+    );
+    setInventoryOpen.dedicatedKeys = ["KeyI", toggleInventoryHotkey];
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
     let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
@@ -46,23 +58,25 @@ export class BaseMenuState implements ActionMenuState {
     const { combatantProperties, entityProperties } = focusedCharacterResult;
     const characterId = entityProperties.id;
 
-    // disabled abilities if not their turn in a battle
-    const gameOption = useGameStore.getState().game;
-    const username = useGameStore.getState().username;
-    const gameAndPartyResult = getGameAndParty(gameOption, username);
-    if (gameAndPartyResult instanceof Error) {
-      console.trace(gameAndPartyResult);
-      return toReturn;
-    }
-    const [game, party] = gameAndPartyResult;
-
-    const battleOptionResult = getCurrentBattleOption(game, party.name);
-    let disabledBecauseNotThisCombatantTurn = false;
-    if (battleOptionResult && !(battleOptionResult instanceof Error)) {
-      disabledBecauseNotThisCombatantTurn = !Battle.combatantIsFirstInTurnOrder(
-        battleOptionResult,
-        characterId
+    if (focusedCharacterResult.combatantProperties.unspentAttributePoints) {
+      const assignAttributesButton = new ActionMenuButtonProperties(
+        `Assign Attributes (${letterFromKeyCode(toggleAssignAttributesHotkey)})`,
+        () => {
+          useGameStore.getState().mutateState((state) => {
+            state.stackedMenuStates.push(assignAttributesMenuState);
+          });
+        }
       );
+      assignAttributesButton.dedicatedKeys = ["KeyI", toggleAssignAttributesHotkey];
+      toReturn[ActionButtonCategory.Top].push(assignAttributesButton);
+    }
+
+    // disabled abilities if not their turn in a battle
+    const disabledBecauseNotThisCombatantTurnResult =
+      disableButtonBecauseNotThisCombatantTurn(characterId);
+    if (disabledBecauseNotThisCombatantTurnResult instanceof Error) {
+      console.trace(disabledBecauseNotThisCombatantTurnResult);
+      return toReturn;
     }
 
     const abilitiesNotToMakeButtonsFor = [
@@ -105,19 +119,39 @@ export class BaseMenuState implements ActionMenuState {
       const notEnoughMana =
         abilityCostIfOwned instanceof Error || combatantProperties.mana < abilityCostIfOwned;
 
+      const userControlsThisCharacter = clientUserControlsCombatant(characterId);
+
       button.shouldBeDisabled =
         (usabilityContext === ActionUsableContext.InCombat && !this.inCombat) ||
         (usabilityContext === ActionUsableContext.OutOfCombat && this.inCombat) ||
         notEnoughMana ||
-        disabledBecauseNotThisCombatantTurn;
+        disabledBecauseNotThisCombatantTurnResult ||
+        !userControlsThisCharacter;
 
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
-    // gameActions.push({
-    //   type: GameActionType.SetAssignAttributePointsMenuOpen,
-    //   shouldBeOpen: true,
-    // });
     return toReturn;
   }
+}
+
+function disableButtonBecauseNotThisCombatantTurn(combatantId: string) {
+  const gameOption = useGameStore.getState().game;
+  const username = useGameStore.getState().username;
+  const gameAndPartyResult = getGameAndParty(gameOption, username);
+  if (gameAndPartyResult instanceof Error) return gameAndPartyResult;
+
+  const [game, party] = gameAndPartyResult;
+
+  const battleOptionResult = getCurrentBattleOption(game, party.name);
+  let disableButtonBecauseNotThisCombatantTurn = false;
+
+  if (battleOptionResult && !(battleOptionResult instanceof Error)) {
+    disableButtonBecauseNotThisCombatantTurn = !Battle.combatantIsFirstInTurnOrder(
+      battleOptionResult,
+      combatantId
+    );
+  }
+
+  return disableButtonBecauseNotThisCombatantTurn;
 }

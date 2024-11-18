@@ -17,6 +17,7 @@ import { idGenerator } from "../../singletons.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
+
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
   if (baseStartingAttributesOption) {
     for (const [attributeKey, value] of Object.entries(baseStartingAttributesOption)) {
@@ -53,11 +54,9 @@ export default function outfitNewCharacter(character: Combatant) {
   }
 
   // FOR TESTING INVENTORY
-  // for (let i = 0; i < 50; i += 1) {
-  //   const iLvl = randBetween(1, DEEPEST_FLOOR);
-  //   const randomItem = getGameServer().generateRandomItem(1);
-  //   if (!(randomItem instanceof Error)) combatantProperties.inventory.items.push(randomItem);
-  // }
+  // generateTestItems(combatantProperties, 6);
+  // FOR TESTING ATTRIBUTE ASSIGNMENT
+  // combatantProperties.unspentAttributePoints = 3;
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
 }

@@ -3,6 +3,7 @@ import React from "react";
 import ButtonBasic from "../components/atoms/ButtonBasic";
 import { AdventuringParty, ClientToServerEvent } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
+import Divider from "../components/atoms/Divider";
 
 export default function PartyWipeModal({ party }: { party: AdventuringParty }) {
   const mutateGameState = useGameStore().mutateState;
@@ -11,6 +12,7 @@ export default function PartyWipeModal({ party }: { party: AdventuringParty }) {
     websocketConnection.emit(ClientToServerEvent.LeaveGame);
     mutateGameState((state) => {
       state.game = null;
+      state.combatLogMessages = [];
     });
   }
 
@@ -19,14 +21,14 @@ export default function PartyWipeModal({ party }: { party: AdventuringParty }) {
     <div
       id="party-wipe-modal"
       className=" border border-slate-400 bg-slate-700 p-4 pointer-events-auto text-zinc-300
-          absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col"
     >
-      <div>{party.name} was defeated</div>
-      <span className="text-lg mb-2">
-        {"Time of death: "}
-        {party.timeOfWipe}
-      </span>
-      <ButtonBasic onClick={leaveGame}>{"Leave Game"}</ButtonBasic>
+      <div className="text-lg">{party.name} was defeated</div>
+      <span className="text-lg mb-2">at {new Date(party.timeOfWipe).toLocaleString()}</span>
+      <Divider extraStyles="mb-4" />
+      <ButtonBasic extraStyles="w-full" onClick={leaveGame}>
+        {"Leave Game"}
+      </ButtonBasic>
     </div>
   );
 }

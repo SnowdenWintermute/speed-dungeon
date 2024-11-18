@@ -1,7 +1,11 @@
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import { useHttpRequestStore } from "@/stores/http-request-store";
-import { NextOrPrevious, RACE_GAME_RECORDS_PAGE_SIZE, changePage } from "@speed-dungeon/common";
+import {
+  NextOrPrevious,
+  RACE_GAME_RECORDS_PAGE_SIZE,
+  getNextOrPreviousNumber,
+} from "@speed-dungeon/common";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect } from "react";
 import ArrowShape from "../../../../public/img/menu-icons/arrow-button-icon.svg";
@@ -33,7 +37,7 @@ export default function PageSelector({ username }: { username: string }) {
 
   function setNewPage(direction: NextOrPrevious) {
     const params = new URLSearchParams(searchParams);
-    const newPage = changePage(page, numPages, direction);
+    const newPage = getNextOrPreviousNumber(page, numPages, direction);
     params.set("page", newPage.toString());
     replace(`${pathname}?${params.toString()}`);
   }

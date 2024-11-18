@@ -72,7 +72,7 @@ function handleAbandoningDeadPartyMembers(game: SpeedDungeonGame, party: Adventu
     }
   }
 
-  if (allRemainingCharactersAreDead) {
+  if (allRemainingCharactersAreDead && !party.timeOfWipe) {
     emitMessageInGameWithOptionalDelayForParty(
       game.name,
       GameMessageType.PartyDissolved,

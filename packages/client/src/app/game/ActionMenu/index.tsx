@@ -1,17 +1,21 @@
 import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
-import React, { useRef } from "react";
+import React from "react";
 import { useGameStore } from "@/stores/game-store";
 import { ActionButtonCategory, ActionMenuButtonProperties } from "./menu-state";
 import ActionDetails from "../detailables/ActionDetails";
 import { ConsideringCombatActionMenuState } from "./menu-state/considering-combat-action";
 import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicatedButton";
 import NumberedButton from "./action-menu-buttons/NumberedButton";
+import setFocusedCharacter from "@/utils/set-focused-character";
+import getCurrentParty from "@/utils/getCurrentParty";
+import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
+import getFocusedCharacter from "@/utils/getFocusedCharacter";
+import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
-const topButtoLiStyle = { marginRight: `${SPACING_REM}rem` };
+const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
 
 export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
-  const actionMenuRef = useRef<HTMLUListElement>(null);
   const combatantModelsAwaitingSpawn = useGameStore((state) => state.combatantModelsAwaitingSpawn);
   const hoveredAction = useGameStore((state) => state.hoveredAction);
   const currentMenu = useGameStore.getState().getCurrentMenu();
@@ -49,6 +53,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
       className={`max-h-fit max-w-[25rem] flex flex-col justify-between`}
       style={{ marginRight: `${SPACING_REM}rem` }}
     >
+      <CharacterFocusingButtons />
       <ul
         className={`flex list-none min-w-[25rem] max-w-[25rem]`}
         style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
@@ -58,7 +63,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
           // in the old method we used a more unique key so different cancel buttons would
           // actually update, but cancel buttons tend to do the same thing anyway now
           return (
-            <li key={thisButtonProperties.text} style={topButtoLiStyle}>
+            <li key={thisButtonProperties.text} style={topButtonLiStyle}>
               <ActionMenuDedicatedButton
                 extraStyles="border border-slate-400 mr-2 last:mr-0"
                 properties={button}
@@ -73,9 +78,9 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
           height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem`,
         }}
       >
-        <ul className="list-none relative pointer-events-auto" ref={actionMenuRef}>
+        <ul className="list-none relative pointer-events-auto">
           {buttonProperties[ActionButtonCategory.Numbered].map((button, i) => (
-            <li key={button.text + i}>
+            <li key={button.text + i + currentMenu.page}>
               <NumberedButton number={i + 1} properties={button} />
             </li>
           ))}
@@ -104,20 +109,86 @@ function BottomButtons({
       className="flex justify-between bg-slate-700 relative border border-slate-400 h-8"
       style={!left && !right ? { opacity: 0 } : {}}
     >
-      <div key={left?.text} className="w-1/3 border-r border-slate-400 h-full">
+      <div key={left?.text} className="flex-1 border-r border-slate-400 h-full">
         {left && <ActionMenuDedicatedButton extraStyles="w-full" properties={left} />}
       </div>
       <div
-        className="h-full flex items-center justify-center"
-        style={currentMenu.numPages <= 1 ? { opacity: 0 } : {}}
+        className="h-full flex items-center justify-center pr-2 pl-2"
+        style={currentMenu.numPages <= 1 ? { display: "none" } : {}}
       >
         <span>
           Page {currentMenu.page}/{currentMenu.numPages}
         </span>
       </div>
-      <div key={right?.text} className="w-1/3 flex border-l border-slate-400 h-full">
+      <div key={right?.text} className="flex-1 flex border-l border-slate-400 h-full">
         {right && <ActionMenuDedicatedButton extraStyles="w-full justify-end" properties={right} />}
       </div>
     </div>
+  );
+}
+
+function CharacterFocusingButtons() {
+  function createFocusCharacterButtonProperties(
+    text: string,
+    direction: NextOrPrevious,
+    hotkeys: string[]
+  ) {
+    const button = new ActionMenuButtonProperties(text, () => {
+      const currentFocusedCharacterId = useGameStore.getState().focusedCharacterId;
+      const party = getCurrentParty(
+        useGameStore.getState(),
+        useGameStore.getState().username || ""
+      );
+      if (!party) return;
+      const currCharIndex = party.characterPositions.indexOf(currentFocusedCharacterId);
+      if (currCharIndex === -1) return console.error("Character ID not in position list");
+      const nextIndex = getNextOrPreviousNumber(
+        currCharIndex,
+        party.characterPositions.length - 1,
+        direction,
+        { minNumber: 0 }
+      );
+      const newCharacterId = party.characterPositions[nextIndex];
+      if (newCharacterId === undefined) return console.error("Invalid character position index");
+      setFocusedCharacter(newCharacterId);
+    });
+
+    button.dedicatedKeys = hotkeys;
+    return button;
+  }
+
+  const previousCharacterHotkey = HOTKEYS.LEFT_ALT;
+  const previousCharacterButton = createFocusCharacterButtonProperties(
+    `Previous (${letterFromKeyCode(previousCharacterHotkey)})`,
+    NextOrPrevious.Previous,
+    [previousCharacterHotkey]
+  );
+  const nextCharacterHotkey = HOTKEYS.RIGHT_ALT;
+  const nextCharacterButton = createFocusCharacterButtonProperties(
+    `Next (${letterFromKeyCode(nextCharacterHotkey)})`,
+    NextOrPrevious.Next,
+    [nextCharacterHotkey]
+  );
+
+  const focusedCharacter = getFocusedCharacter();
+  if (focusedCharacter instanceof Error) return <div>Error: no focused character</div>;
+
+  return (
+    <ul
+      className={`flex list-none min-w-[25rem] max-w-[25rem] justify-between bg-slate-700 border border-slate-400`}
+      style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
+    >
+      <ActionMenuDedicatedButton
+        extraStyles="flex-1 flex border-r border-slate-400 h-full"
+        properties={previousCharacterButton}
+      />
+      <span className="h-full flex items-center justify-center pr-2 pl-2 overflow-hidden w-1/3 text-nowrap overflow-ellipsis">
+        {focusedCharacter.entityProperties.name}
+      </span>
+      <ActionMenuDedicatedButton
+        extraStyles="flex-1 flex border-l border-slate-400 h-full"
+        properties={nextCharacterButton}
+      />
+    </ul>
   );
 }

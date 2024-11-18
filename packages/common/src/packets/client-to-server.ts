@@ -28,7 +28,7 @@ export enum ClientToServerEvent {
   DropEquippedItem = "19",
   DropItem = "20",
   ToggleReadyToDescend = "21",
-  AssignAttributePoint = "22",
+  // AssignAttributePoint = "22", replaced by IncrementAttribute
   AcknowledgeReceiptOfItemOnGroundUpdate = "23",
   PickUpItem = "24",
   GetSavedCharactersList = "25",
@@ -88,10 +88,6 @@ export interface ClientToServerEventTypes {
   }) => void;
   [ClientToServerEvent.DropItem]: (eventData: { characterId: string; itemId: string }) => void;
   [ClientToServerEvent.ToggleReadyToDescend]: (eventData?: undefined) => void;
-  [ClientToServerEvent.AssignAttributePoint]: (
-    characterId: string,
-    attribute: CombatAttribute
-  ) => void;
   [ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate]: (itemId: string) => void;
   [ClientToServerEvent.PickUpItem]: (characterAndItem: CharacterAndItem) => void;
   [ClientToServerEvent.GetSavedCharactersList]: (eventData?: undefined) => void;

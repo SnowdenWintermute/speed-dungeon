@@ -237,6 +237,7 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
       )
     );
 
+    if (rows[0] === undefined) return { wins: 0, losses: 0 };
     return rows[0] as unknown as { wins: number; losses: number };
   }
 }

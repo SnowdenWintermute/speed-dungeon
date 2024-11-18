@@ -158,7 +158,7 @@ function CreateCharacterForm({ i }: { i: number }) {
           value={characterName}
           placeholder={"Character name..."}
           name={"Character Name"}
-          changeHandler={(e) => setCharacterName(e.target.value)}
+          onChange={(e) => setCharacterName(e.target.value)}
         />
         <SelectDropdown
           extraStyles="flex-grow mr-2"

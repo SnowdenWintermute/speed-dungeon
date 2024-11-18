@@ -12,6 +12,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { MenuStateType } from "../ActionMenu/menu-state";
 import { ConsideringItemMenuState } from "../ActionMenu/menu-state/considering-item";
+import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 
 interface Props {
   itemOption: null | Item;
@@ -35,18 +36,8 @@ export default function PaperDollSlot({
   const comparedSlot = useGameStore().comparedSlot;
   const consideredItemUnmetRequirements = useGameStore().consideredItemUnmetRequirements;
 
-  const partyResult = useGameStore().getParty();
-  const username = useGameStore().username;
-  if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
-  const focusedCharacterResult = useGameStore().getFocusedCharacter();
-  const focusedCharacterOption =
-    focusedCharacterResult instanceof Error ? null : focusedCharacterResult;
-  if (!focusedCharacterOption) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND}</div>;
-  const playerOwnsCharacter = AdventuringParty.playerOwnsCharacter(
-    partyResult,
-    username || "",
-    focusedCharacterOption.entityProperties.id
-  );
+  const focusedCharacterId = useGameStore.getState().focusedCharacterId;
+  const playerOwnsCharacter = clientUserControlsCombatant(focusedCharacterId);
 
   const itemNameDisplay = itemOption ? itemOption.entityProperties.name : "";
 

@@ -10,6 +10,7 @@ export default async function getUserWinsAndLossesHandler(
   try {
     const userId: number = res.locals.userId; // expected from middleware
     const winslosses = await raceGameRecordsRepo.getNumberOfWinsAndLosses(userId);
+    console.log("sending win/loss record", winslosses);
 
     res.json(winslosses);
   } catch (error) {

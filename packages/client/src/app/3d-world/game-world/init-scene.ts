@@ -67,7 +67,9 @@ export function initScene(
 
   // Draw on canvas
 
-  this.drawCharacterSlots();
+  this.clearFloorTexture();
+
+  // this.drawCharacterSlots();
   // SHADOWS
   const shadowGenerator = new ShadowGenerator(1024, pointLight);
   // ground.receiveShadows = true;

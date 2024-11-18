@@ -8,6 +8,12 @@ import getUserRankedRaceHistoryHandler from "./game-server/route-handlers/get-us
 import getUserIdFromUsernameInPath from "./game-server/route-handlers/middleware/userIdFromUsernameInPath.js";
 import getUserWinsAndLossesHandler from "./game-server/route-handlers/get-user-wins-and-losses.js";
 import getUserProfileHandler from "./game-server/route-handlers/get-user-profile.js";
+import { env } from "./validate-env.js";
+
+export default function appRoute(...args: string[]) {
+  const baseRoute = env.NODE_ENV === "production" ? "/api" : "";
+  return baseRoute.concat(...args);
+}
 
 export function createExpressApp() {
   const app = express();
@@ -15,27 +21,31 @@ export function createExpressApp() {
   app.use(cookieParser());
   app.use(
     cors({
-      origin: "http://localhost:3000",
+      origin: env.FRONT_END_URL,
       credentials: true,
     })
   );
 
-  app.get("/", (_: Request, res: Response) => res.send("this is the api server"));
-  app.get("/profiles/:username", getUserIdFromUsernameInPath, getUserProfileHandler);
-  app.get("/ladders/level/:page", getCharacterLevelLadderPageHandler);
+  app.get(appRoute("/"), (_: Request, res: Response) => res.send("this is the api server"));
+  app.get(appRoute("/profiles/:username"), getUserIdFromUsernameInPath, getUserProfileHandler);
+  app.get(appRoute("/ladders/level/:page"), getCharacterLevelLadderPageHandler);
   app.get(
-    "/game-records/count/:username",
+    appRoute("/game-records/count/:username"),
     getUserIdFromUsernameInPath,
     getUserRankedRaceGameCountHandler
   );
-  app.get("/game-records/:username", getUserIdFromUsernameInPath, getUserRankedRaceHistoryHandler);
   app.get(
-    "/game-records/win-loss-records/:username",
+    appRoute("/game-records/:username"),
+    getUserIdFromUsernameInPath,
+    getUserRankedRaceHistoryHandler
+  );
+  app.get(
+    appRoute("/game-records/win-loss-records/:username"),
     getUserIdFromUsernameInPath,
     getUserWinsAndLossesHandler
   );
 
-  app.all("*", (req: Request, _: Response, next: NextFunction) => {
+  app.all(appRoute("*"), (req: Request, _: Response, next: NextFunction) => {
     const err = new Error(`Route ${req.originalUrl} not found`) as any;
     err.status = 404;
     next(err);

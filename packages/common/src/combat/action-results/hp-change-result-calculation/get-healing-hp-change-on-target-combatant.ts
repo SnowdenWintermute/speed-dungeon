@@ -5,6 +5,8 @@ import {
 } from "../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 
+export const UNDEAD_DAMAGE_FROM_HEALING_MULTIPLIER = -1;
+
 export default function getHealingHpChangeOnTargetCombatant(
   game: SpeedDungeonGame,
   targetId: string,
@@ -27,7 +29,7 @@ export default function getHealingHpChangeOnTargetCombatant(
   }
 
   if (isUndead) {
-    hpChange *= -1.5;
+    hpChange *= UNDEAD_DAMAGE_FROM_HEALING_MULTIPLIER;
   } else {
     hpChange *= resilienceMultiplier;
   }

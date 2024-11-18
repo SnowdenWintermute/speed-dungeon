@@ -1,3 +1,4 @@
+import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useLobbyStore } from "@/stores/lobby-store";
 import {
   ClientToServerEventTypes,
@@ -11,6 +12,7 @@ export default function setUpSavedCharacterEventListeners(
 ) {
   const mutateLobbyState = useLobbyStore.getState().mutateState;
   socket.on(ServerToClientEvent.SavedCharacterList, (characters) => {
+    gameWorld.current?.drawCharacterSlots();
     mutateLobbyState((state) => {
       state.savedCharacters = characters;
     });

@@ -1,3 +1,4 @@
+import { gameWorld } from "@/app/3d-world/SceneManager";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
@@ -7,7 +8,6 @@ import { useGameStore } from "@/stores/game-store";
 import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { useUIStore } from "@/stores/ui-store";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 
@@ -108,6 +108,7 @@ function UserMenu({ username }: { username: null | string }) {
       method: "DELETE",
       credentials: "include",
     });
+    gameWorld.current?.clearFloorTexture();
     mutateHttpState((state) => {
       if (!state.requests[HTTP_REQUEST_NAMES.GET_SESSION])
         state.requests[HTTP_REQUEST_NAMES.GET_SESSION] = new HttpRequestTracker();

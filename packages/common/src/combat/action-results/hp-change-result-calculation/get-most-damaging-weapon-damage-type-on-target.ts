@@ -11,12 +11,15 @@ export default function getMostDamagingWeaponPhysicalDamageTypeOnTarget(
 ): Error | null | PhysicalDamageType {
   const weaponOption = CombatantProperties.getEquippedWeapon(userCombatantProperties, weaponSlot);
   if (!weaponOption) return null;
+
   const weaponProperties = weaponOption;
+
   const damageTypesToSelectFrom: PhysicalDamageType[] = [];
   for (const hpChangeSource of weaponProperties.damageClassification) {
-    if (hpChangeSource.physicalDamageTypeOption)
+    if (hpChangeSource.physicalDamageTypeOption !== null)
       damageTypesToSelectFrom.push(hpChangeSource.physicalDamageTypeOption);
   }
+
   const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, targetId);
   if (targetCombatantResult instanceof Error) return targetCombatantResult;
   const { combatantProperties: targetCombatantProperties } = targetCombatantResult;

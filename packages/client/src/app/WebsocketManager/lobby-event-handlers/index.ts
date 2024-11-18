@@ -15,6 +15,7 @@ import playerLeftGameHandler from "../player-left-game-handler";
 import savedCharacterSelectionInProgressGameHandler from "./saved-character-selection-in-progress-game-handler";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
+import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 
 export default function setUpGameLobbyEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -29,6 +30,9 @@ export default function setUpGameLobbyEventHandlers(
       } else {
         state.game = game;
         state.gameName = game.name;
+        state.combatLogMessages = [
+          new CombatLogMessage("A new game has begun!", CombatLogMessageStyle.Basic),
+        ];
       }
       state.stackedMenuStates = [];
     });

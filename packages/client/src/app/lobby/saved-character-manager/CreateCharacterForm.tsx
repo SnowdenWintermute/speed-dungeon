@@ -44,7 +44,7 @@ export default function CreateCharacterForm({ currentSlot }: { currentSlot: numb
         placeholder="Character name..."
         name={"Character name"}
         className="border border-slate-400 bg-slate-700 p-2 pl-4 mb-2 w-full"
-        changeHandler={(e) => setNewCharacterName(e.target.value)}
+        onChange={(e) => setNewCharacterName(e.target.value)}
         value={newCharacterName}
       />
       <HotkeyButton
