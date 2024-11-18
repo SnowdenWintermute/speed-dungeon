@@ -24,8 +24,6 @@ export default async function getUserRankedRaceHistoryHandler(
     const pageNumber = parseInt(page);
     if (pageNumber < 1) return next([new CustomError("Page number must not be negative", 400)]);
 
-    const winslosses = await raceGameRecordsRepo.getNumberOfWinsAndLosses(userId);
-
     const games = await raceGameRecordsRepo.getPageOfGameRecordsByUserId(
       userId,
       RACE_GAME_RECORDS_PAGE_SIZE,
@@ -39,6 +37,8 @@ export default async function getUserRankedRaceHistoryHandler(
       console.error(sanitizedGamesResult);
       return next([new CustomError(ERROR_MESSAGES.SERVER_GENERIC, 500)]);
     }
+
+    console.log("sending game history: ", sanitizedGamesResult);
 
     res.json(sanitizedGamesResult);
   } catch (error) {

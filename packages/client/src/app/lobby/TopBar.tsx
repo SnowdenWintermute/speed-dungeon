@@ -29,7 +29,7 @@ export default function TopBar() {
             />
             <h1 className="desktop:text-3xl laptop:text-2xl flex items-end relative">
               <span className="pr-[0.625rem]">{WEBSITE_NAME}</span>
-              <span className="text-sm ">alpha 0.9.0 ⓘ </span>
+              <span className="text-sm ">alpha 0.9.0</span>
             </h1>
           </Link>
           <div className="h-full w-[1px] bg-slate-400 mr-8" />

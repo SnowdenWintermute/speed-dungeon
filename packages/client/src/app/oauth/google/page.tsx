@@ -35,7 +35,7 @@ export default function GoogleOAuthLoader() {
 
 async function fetchToken(code: string, state: string) {
   try {
-    await fetch("http://localhost:8081/oauth/google", {
+    await fetch(`${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/oauth/google`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

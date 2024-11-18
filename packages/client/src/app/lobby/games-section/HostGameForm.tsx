@@ -44,7 +44,7 @@ export default function HostGameForm() {
             type="text"
             name="game name"
             placeholder="Game name..."
-            changeHandler={(e) => setGameName(e.target.value)}
+            onChange={(e) => setGameName(e.target.value)}
             value={gameName}
             autoComplete="new-password"
           />
@@ -53,7 +53,7 @@ export default function HostGameForm() {
             type="password"
             name="password"
             placeholder="Password..."
-            changeHandler={(e) => setGamePassword(e.target.value)}
+            onChange={(e) => setGamePassword(e.target.value)}
             value={gamePassword}
             autoComplete="new-password"
           />

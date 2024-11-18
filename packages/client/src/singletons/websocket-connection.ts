@@ -1,7 +1,7 @@
 import { ClientToServerEventTypes, ServerToClientEventTypes } from "@speed-dungeon/common";
 import { Socket, io } from "socket.io-client";
 
-const socketAddress = process.env.NEXT_PUBLIC_GAME_SERVER_URL;
+const socketAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
 
 export const websocketConnection: Socket<ServerToClientEventTypes, ClientToServerEventTypes> = io(
   socketAddress || "",

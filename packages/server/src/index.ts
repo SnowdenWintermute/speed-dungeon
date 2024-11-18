@@ -1,24 +1,18 @@
 import { createExpressApp } from "./create-express-app.js";
 import { Server } from "socket.io";
-import {
-  ClientToServerEventTypes,
-  CombatantClass,
-  ServerToClientEventTypes,
-} from "@speed-dungeon/common";
+import { ClientToServerEventTypes, ServerToClientEventTypes } from "@speed-dungeon/common";
 import { GameServer } from "./game-server/index.js";
 import { env } from "./validate-env.js";
 import { gameServer } from "./singletons.js";
 import { pgPool } from "./singletons/pg-pool.js";
-import { playerCharactersRepo } from "./database/repos/player-characters.js";
 import { pgOptions } from "./database/config.js";
 import { valkeyManager } from "./kv-store/index.js";
 import { loadLadderIntoKvStore } from "./kv-store/utils.js";
-import { createCharacter } from "./game-server/character-creation/index.js";
-import { generateRandomCharacterName } from "./utils/index.js";
-import { raceGameRecordsRepo } from "./database/repos/race-game-records.js";
+import runMigrations from "./database/run-migrations.js";
 
 const PORT = 8080;
 
+await runMigrations();
 pgPool.connect(pgOptions);
 await valkeyManager.context.connect();
 

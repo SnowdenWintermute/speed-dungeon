@@ -27,7 +27,7 @@ export default function TextSubmit(props: Props) {
       <TextInput
         name={props.inputName}
         placeholder={props.inputPlaceholder}
-        changeHandler={handleInputChange}
+        onChange={handleInputChange}
         value={value}
       />
       <ButtonBasic

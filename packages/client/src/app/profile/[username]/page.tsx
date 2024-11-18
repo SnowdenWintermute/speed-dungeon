@@ -39,9 +39,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
           <div className="laptop:w-1/2 w-1/3 pt-2 pr-2">
             <ProfileGeneralData username={username} />
           </div>
-          <div className="flex-1 h-full pt-2 pl-2">
-            <GameHistory username={username} />
-          </div>
+          <div className="flex-1 h-full pt-2 pl-2">{<GameHistory username={username} />}</div>
         </div>
       </main>
     </div>

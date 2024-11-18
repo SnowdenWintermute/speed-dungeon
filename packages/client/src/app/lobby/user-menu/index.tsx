@@ -8,7 +8,6 @@ import { useGameStore } from "@/stores/game-store";
 import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { useUIStore } from "@/stores/ui-store";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 

@@ -1,4 +1,5 @@
 import React from "react";
+import TextInput from "../atoms/TextInput";
 
 type Props = {
   name: string;
@@ -39,7 +40,7 @@ function LabeledTextInputWithErrorDisplay({
           </span>
         )}
       </p>
-      <input
+      <TextInput
         className={`pl-3 border border-slate-400 h-10 w-full bg-transparent autofill:bg-transparent disabled:opacity-70 ${error && "border border-red-500"} ${extraStyles}`}
         aria-label={name}
         type={type}
@@ -49,7 +50,7 @@ function LabeledTextInputWithErrorDisplay({
         value={value}
         onChange={(e) => onChange(e)}
         disabled={disabled}
-        autoFocus={autofocus}
+        autofocus={autofocus}
         autoComplete={autoComplete === "on" ? "on" : "new-password"}
         aria-invalid={!!error}
         data-cy={dataCy}

@@ -4,11 +4,16 @@ import { ChangeEvent, useEffect, useRef } from "react";
 interface Props {
   placeholder: string;
   name: string;
-  changeHandler: (e: ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   value: string;
   className?: string;
   type?: string;
   autoComplete?: string;
+  disabled?: boolean;
+  autofocus?: boolean;
+  ariaInvalid?: boolean;
+  dataCy?: string;
+  id?: string;
 }
 
 export default function TextInput(props: Props) {
@@ -47,10 +52,16 @@ export default function TextInput(props: Props) {
       className={`pointer-events-auto ${props.className}`}
       type={props.type || "text"}
       placeholder={props.placeholder}
-      name={props.name}
-      onChange={props.changeHandler}
       value={props.value}
-      autoComplete={props.autoComplete || ""}
+      aria-label={props.name}
+      id={props.name}
+      name={props.name}
+      onChange={(e) => props.onChange(e)}
+      disabled={props.disabled}
+      autoFocus={props.autofocus}
+      autoComplete={props.autoComplete}
+      aria-invalid={props.ariaInvalid}
+      data-cy={props.dataCy}
     />
   );
 }

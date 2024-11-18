@@ -1,7 +1,6 @@
 import { GameServer } from "./index.js";
 import { LOBBY_CHANNEL, ServerToClientEvent } from "@speed-dungeon/common";
 import { BrowserTabSession } from "./socket-connection-metadata.js";
-import { env } from "../validate-env.js";
 import { applyMiddlewares } from "./event-middleware/index.js";
 import disconnectionHandler from "./disconnection-handler.js";
 import getSession from "./event-middleware/get-session.js";
@@ -11,7 +10,6 @@ export function connectionHandler(this: GameServer) {
   this.io.of("/").on("connection", async (socket) => {
     const req = socket.request;
     let cookies = req.headers.cookie;
-    cookies += `; internal=${env.INTERNAL_SERVICES_SECRET};`;
 
     let { username, userId } = await getLoggedInUserOrCreateGuest(cookies, socket);
 
