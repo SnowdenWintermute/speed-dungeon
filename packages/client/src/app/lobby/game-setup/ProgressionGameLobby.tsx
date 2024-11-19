@@ -41,25 +41,18 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
         </ul>
         <Divider />
         <div className="text-lg mb-2">Starting on floor: max {game.selectedStartingFloor.max}</div>
-        <div>
-          {
-            <SelectDropdown
-              title={"starting-floor-select"}
-              value={game.selectedStartingFloor.current}
-              setValue={(value: number) => {
-                websocketConnection.emit(
-                  ClientToServerEvent.SelectProgressionGameStartingFloor,
-                  value
-                );
-              }}
-              options={Array.from({ length: game.selectedStartingFloor.max }, (_, index) => ({
-                title: `Floor ${index + 1}`,
-                value: index + 1,
-              }))}
-              disabled={Object.values(game.players)[0]?.username !== username}
-            />
-          }
-        </div>
+        <SelectDropdown
+          title={"starting-floor-select"}
+          value={game.selectedStartingFloor.current}
+          setValue={(value: number) => {
+            websocketConnection.emit(ClientToServerEvent.SelectProgressionGameStartingFloor, value);
+          }}
+          options={Array.from({ length: game.selectedStartingFloor.max }, (_, index) => ({
+            title: `Floor ${index + 1}`,
+            value: index + 1,
+          }))}
+          disabled={Object.values(game.players)[0]?.username !== username}
+        />
       </div>
     </GameLobby>
   );

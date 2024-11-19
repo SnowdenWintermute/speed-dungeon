@@ -120,7 +120,7 @@ export default function getAbilityAttributes(abilityName: CombatantAbilityName) 
       attr.abilityLevelManaCostMultiplier = 1;
       attr.combatantLevelManaCostMultiplier = 1;
       attr.baseHpChangeValuesLevelMultiplier = 1.0;
-      cap.description = "Deals ice element damage";
+      cap.description = "Restores hit points (damages undead)";
       cap.targetingSchemes = [TargetingScheme.Single, TargetingScheme.Area];
       cap.validTargetCategories = TargetCategories.Any;
       cap.usabilityContext = ActionUsableContext.All;
