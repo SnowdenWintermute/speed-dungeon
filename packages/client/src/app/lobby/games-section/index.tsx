@@ -128,6 +128,7 @@ export default function GamesSection() {
             onClick={() =>
               mutateLobbyState((state) => {
                 state.showGameCreationForm = !state.showGameCreationForm;
+                state.showAuthForm = false;
               })
             }
           >

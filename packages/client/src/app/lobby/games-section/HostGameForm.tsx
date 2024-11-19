@@ -48,15 +48,17 @@ export default function HostGameForm() {
             value={gameName}
             autoComplete="new-password"
           />
-          <TextInput
-            className="bg-slate-700 border border-slate-400 h-10 p-4 min-w-0 flex-1 ml-1"
-            type="password"
-            name="password"
-            placeholder="Password..."
-            onChange={(e) => setGamePassword(e.target.value)}
-            value={gamePassword}
-            autoComplete="new-password"
-          />
+          {
+          // <TextInput
+          // className="bg-slate-700 border border-slate-400 h-10 p-4 min-w-0 flex-1 ml-1"
+          // type="password"
+          // name="password"
+          // placeholder="Password..."
+          // onChange={(e) => setGamePassword(e.target.value)}
+          // value={gamePassword}
+          // autoComplete="new-password"
+          //   />
+          }
         </div>
         <div className="flex items-center font-bold">
           Game mode: {formatGameMode(selectedGameMode)}

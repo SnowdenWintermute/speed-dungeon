@@ -3,6 +3,7 @@ import { useUIStore } from "@/stores/ui-store";
 
 export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTMLUListElement> }) {
   const showDebug = useUIStore((state) => state.showDebug);
+  const hotkeysDisabled = useUIStore((state) => state.hotkeysDisabled);
   const headerRef = useRef<HTMLDivElement>(null);
   const keydownListenerRef = useRef<(e: KeyboardEvent) => void>();
   const mouseDownListenerRef = useRef<(e: MouseEvent) => void>();
@@ -14,7 +15,7 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
 
   useEffect(() => {
     keydownListenerRef.current = function (e: KeyboardEvent) {
-      if (e.code !== "KeyP") return;
+      if (e.code !== "KeyP" || hotkeysDisabled) return;
       useUIStore.getState().mutateState((state) => {
         state.showDebug = !state.showDebug;
       });
@@ -61,7 +62,7 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
       if (mouseMoveListenerRef.current)
         window.removeEventListener("mousemove", mouseMoveListenerRef.current);
     };
-  }, []);
+  }, [hotkeysDisabled]);
 
   return (
     <div
