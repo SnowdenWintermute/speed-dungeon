@@ -143,8 +143,6 @@ export class AnimationManager {
       this.previous = null;
     }
 
-    if (this.playing?.animationGroupOption === null)
-      console.log("animation completed ", this.playing.isCompleted());
     if (this.playing && this.playing.isCompleted()) {
       this.cleanUpFinishedAnimation(this.playing);
       this.playing = null;
@@ -153,7 +151,6 @@ export class AnimationManager {
     // @TODO - if playing and previous are both null, try to play idle
     if (this.playing === null && this.previous === null && !this.locked) {
       this.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 500);
-      if (this.characterModel.entityId === "13") console.log("started idle animation");
     }
   }
 

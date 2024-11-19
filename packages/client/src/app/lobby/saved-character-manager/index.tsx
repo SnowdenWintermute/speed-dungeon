@@ -36,7 +36,10 @@ export default function SavedCharacterManager() {
 
   useEffect(() => {
     if (websocketConnected) {
-      console.log("requested saved characters list");
+      console.log(
+        "requested saved characters list socket is connected: ",
+        websocketConnection.connected
+      );
       websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
     }
   }, [isLoggedIn, websocketConnected]);

@@ -249,7 +249,6 @@ function induceHitRecovery(
         animationEventOption: null,
         onComplete: () => {
           targetModel.animationManager.locked = true;
-          if (targetModel.entityId === "13") console.log("locked animation player");
         },
       });
     }

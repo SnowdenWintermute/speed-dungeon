@@ -43,7 +43,7 @@ export default function SelectDropdown(props: Props) {
   }
 
   function handleFocus() {
-    if (!selectInputRef.current) return console.log("no input ref");
+    if (!selectInputRef.current) return;
     setIsFocused(true);
     mutateUIState((state) => {
       state.hotkeysDisabled = true;
@@ -53,8 +53,8 @@ export default function SelectDropdown(props: Props) {
   function handleUserKeydown(e: KeyboardEvent) {
     const { code } = e;
     if (code === "Escape" || code === "Esc") handleBlur();
-    if (!selectInputRef.current) return console.log("no input ref");
-    if (!isFocused) return console.log("not focused");
+    if (!selectInputRef.current) return;
+    if (!isFocused) return;
 
     if (code === "Space") setIsOpen(!isOpen);
     if (code === "ArrowUp") {
@@ -122,7 +122,6 @@ export default function SelectDropdown(props: Props) {
           disabled={props.disabled}
           type="button"
           onMouseDown={() => {
-            console.log("clicked");
             setIsOpen(false);
             setIndexSelected(i);
           }}

@@ -17,11 +17,9 @@ export default function ClickOutsideHandlerWrapper({ children, onClickOutside, i
   }, [isActive]);
 
   function handleClickOutside(e: MouseEvent) {
-    console.log(isActive);
     if (elementRef.current && isActive) {
       const menuRect = elementRef.current.getBoundingClientRect();
       const { x, y, width, height } = menuRect;
-      console.log(x, y, width, height);
       const maxX = x + width;
       const maxY = y + height;
       if (e.x < x || e.x > maxX || e.y > maxY || e.y < y) onClickOutside();

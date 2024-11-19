@@ -27,7 +27,6 @@ export default function toggleReadyToExploreHandler(
   const { game, partyOption, player } = data;
   const { username } = player;
   const gameServer = getGameServer();
-  // console.log("socketid: ", socket.id);
   if (partyOption === undefined) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
   const party = partyOption;
 

@@ -32,6 +32,7 @@ export default function Lobby() {
   const showAuthForm = useLobbyStore().showAuthForm;
   const showSavedCharacterManager = useLobbyStore().showSavedCharacterManager;
   const showGameCreationForm = useLobbyStore().showGameCreationForm;
+  const websocketConnected = useLobbyStore().websocketConnected;
 
   useEffect(() => {
     if (currentSessionHttpResponseTracker?.statusCode === 200)
@@ -79,7 +80,9 @@ export default function Lobby() {
         className="absolute h-full w-full z-20 top-0 right-0 flex items-center justify-center"
       >
         {!hideAuthForm && <AuthFormContainer />}
-        {currentSessionHttpResponseTracker?.statusCode === 200 && <SavedCharacterManager />}
+        {currentSessionHttpResponseTracker?.statusCode === 200 && websocketConnected && (
+          <SavedCharacterManager />
+        )}
       </section>
       <div className="absolute z-10 bottom-0 w-full p-7 flex items-center justify-center">
         {!showGameCreationForm && !showSavedCharacterManager && (
