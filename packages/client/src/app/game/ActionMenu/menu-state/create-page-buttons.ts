@@ -23,7 +23,7 @@ export default function createPageButtons(
   });
 
   if (numPages > 1) {
-    const prevButtonHotkey = HOTKEYS.RIGHT_MAIN;
+    const prevButtonHotkey = HOTKEYS.LEFT_MAIN;
     const previousPageButton = new ActionMenuButtonProperties(
       `Previous (${letterFromKeyCode(prevButtonHotkey)})`,
       () => {
@@ -40,13 +40,16 @@ export default function createPageButtons(
     previousPageButton.dedicatedKeys = [prevButtonHotkey, "ArrowLeft"];
     buttonsByCategory[ActionButtonCategory.Bottom].push(previousPageButton);
 
-    const nextButtonHotkey = HOTKEYS.LEFT_MAIN;
-    const nextPageButton = new ActionMenuButtonProperties(`Next (${nextButtonHotkey})`, () => {
-      useGameStore.getState().mutateState((state) => {
-        const newPage = getNextOrPreviousNumber(menuState.page, numPages, NextOrPrevious.Next);
-        getCurrentMenu(state).page = newPage;
-      });
-    });
+    const nextButtonHotkey = HOTKEYS.RIGHT_MAIN;
+    const nextPageButton = new ActionMenuButtonProperties(
+      `Next (${letterFromKeyCode(nextButtonHotkey)})`,
+      () => {
+        useGameStore.getState().mutateState((state) => {
+          const newPage = getNextOrPreviousNumber(menuState.page, numPages, NextOrPrevious.Next);
+          getCurrentMenu(state).page = newPage;
+        });
+      }
+    );
     nextPageButton.dedicatedKeys = [nextButtonHotkey, "ArrowRight"];
     buttonsByCategory[ActionButtonCategory.Bottom].push(nextPageButton);
   }

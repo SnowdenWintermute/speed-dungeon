@@ -5,6 +5,8 @@ import { applyMiddlewares } from "./event-middleware/index.js";
 import disconnectionHandler from "./disconnection-handler.js";
 import getSession from "./event-middleware/get-session.js";
 import { getLoggedInUserOrCreateGuest } from "./get-logged-in-user-or-create-guest.js";
+import { getLoggedInUserFromSocket } from "./event-middleware/get-logged-in-user-from-socket.js";
+import { fetchSavedCharactersHandler } from "./saved-character-event-handlers/fetch-saved-characters-handler.js";
 
 export function connectionHandler(this: GameServer) {
   this.io.of("/").on("connection", async (socket) => {
@@ -20,6 +22,7 @@ export function connectionHandler(this: GameServer) {
       const currentSockets = this.socketIdsByUsername.get(username)!;
       currentSockets.push(socket.id);
     } else this.socketIdsByUsername.insert(username, [socket.id]);
+    // try to send their saved characters
 
     this.joinSocketToChannel(socket.id, LOBBY_CHANNEL);
     socket.on("disconnect", applyMiddlewares(getSession)(socket, disconnectionHandler));
@@ -27,5 +30,10 @@ export function connectionHandler(this: GameServer) {
     this.initiateGameEventListeners(socket);
     this.initiateSavedCharacterListeners(socket);
     socket.emit(ServerToClientEvent.ClientUsername, username);
+
+    const loggedInUserResult = await getLoggedInUserFromSocket(socket);
+    if (!(loggedInUserResult instanceof Error)) {
+      fetchSavedCharactersHandler(undefined, loggedInUserResult, socket);
+    }
   });
 }

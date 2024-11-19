@@ -8,7 +8,7 @@ export async function fetchSavedCharactersHandler(
   loggedInUser: LoggedInUser,
   socket: Socket
 ) {
-  console.log("fetching saved characters");
+  console.log("fetching saved characters for user", loggedInUser.session.username);
   const charactersResult = await fetchSavedCharacters(loggedInUser.profile.id);
   console.log("charactersResult: ", charactersResult);
   if (charactersResult instanceof Error) return charactersResult;

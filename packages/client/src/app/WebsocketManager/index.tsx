@@ -35,7 +35,7 @@ function SocketManager() {
         state.websocketConnected = true;
       });
       socket.emit(ClientToServerEvent.RequestsGameList);
-      // socket.emit(ClientToServerEvent.GetSavedCharactersList);
+      socket.emit(ClientToServerEvent.GetSavedCharactersList);
     });
 
     socket.on("disconnect", () => {
