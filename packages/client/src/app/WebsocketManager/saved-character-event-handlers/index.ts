@@ -12,6 +12,7 @@ export default function setUpSavedCharacterEventListeners(
 ) {
   const mutateLobbyState = useLobbyStore.getState().mutateState;
   socket.on(ServerToClientEvent.SavedCharacterList, (characters) => {
+    console.log("got saved characters list: ", characters)
     gameWorld.current?.drawCharacterSlots();
     mutateLobbyState((state) => {
       state.savedCharacters = characters;

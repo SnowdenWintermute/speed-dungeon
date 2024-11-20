@@ -24,6 +24,7 @@ export const CHARACTER_MANAGER_HOTKEY = "S";
 
 export default function SavedCharacterManager() {
   const savedCharacters = useLobbyStore().savedCharacters;
+  const websocketConnected = useLobbyStore().websocketConnected;
   const [currentSlot, setCurrentSlot] = useState(1);
   const selectedCharacterOption = savedCharacters[currentSlot];
   const showCharacterManager = useLobbyStore().showSavedCharacterManager;
@@ -34,8 +35,14 @@ export default function SavedCharacterManager() {
   const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
 
   useEffect(() => {
-    websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
-  }, [isLoggedIn]);
+    if (websocketConnected) {
+      console.log(
+        "requested saved characters list socket is connected: ",
+        websocketConnection.connected
+      );
+      websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
+    }
+  }, [isLoggedIn, websocketConnected]);
 
   useEffect(() => {
     nextToBabylonMessageQueue.messages.push({

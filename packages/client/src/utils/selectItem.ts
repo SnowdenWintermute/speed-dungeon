@@ -10,12 +10,10 @@ export default function selectItem(itemOption: null | Item) {
       !itemOption ||
       gameState.detailedEntity?.entityProperties.id === itemOption.entityProperties.id
     ) {
-      console.log("set detailedEntity null");
       gameState.detailedEntity = null;
       gameState.consideredItemUnmetRequirements = null;
       return;
     }
-    console.log("set detailedEntity", itemOption.entityProperties.name);
 
     gameState.detailedEntity = Item.fromObject(itemOption);
     detailedItemIsNowNull = false;

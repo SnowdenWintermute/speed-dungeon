@@ -33,7 +33,7 @@ WORKDIR /app
 COPY --from=buildDeps /app/package.json ./package.json
 COPY --from=buildDeps /app/node_modules ./node_modules
 COPY --from=deployDeps /app/packages/client/node_modules ./packages/client/node_modules
-COPY packages/client/.env.local ./packages/client/
+COPY packages/client/.env.production ./packages/client/
 # COPY --from=buildDeps /app/packages/common/node_modules ./packages/client/node_modules
 
 COPY packages/common/ ./packages/common/

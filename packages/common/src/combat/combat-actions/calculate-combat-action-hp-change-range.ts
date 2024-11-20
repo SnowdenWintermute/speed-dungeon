@@ -17,7 +17,7 @@ export function calculateCombatActionHpChangeRange(
 
   // add to base values if level greater than 1
   min = min * actionLevel * baseHpChangeValuesActionLevelMultiplier;
-  min = max * actionLevel * baseHpChangeValuesActionLevelMultiplier;
+  max = max * actionLevel * baseHpChangeValuesActionLevelMultiplier;
 
   // add scaling attribute to range
   if (hpChangeProperties.additiveAttributeAndPercentScalingFactor) {
