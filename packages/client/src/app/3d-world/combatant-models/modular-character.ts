@@ -16,7 +16,14 @@ import {
 } from "../utils";
 import { ModularCharacterPartCategory } from "./modular-character-parts";
 import { GameWorld } from "../game-world";
-import { DEFAULT_HITBOX_RADIUS_FALLBACK, ERROR_MESSAGES } from "@speed-dungeon/common";
+import {
+  DEFAULT_HITBOX_RADIUS_FALLBACK,
+  ERROR_MESSAGES,
+  EquipmentProperties,
+  EquipmentSlot,
+  WeaponSlot,
+  equipmentIsTwoHandedWeapon,
+} from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
 import cloneDeep from "lodash.clonedeep";
@@ -33,6 +40,15 @@ export class ModularCharacter {
     [ModularCharacterPartCategory.Torso]: null,
     [ModularCharacterPartCategory.Legs]: null,
     [ModularCharacterPartCategory.Full]: null,
+  };
+  equipment: Record<EquipmentSlot, null | ISceneLoaderAsyncResult> = {
+    [EquipmentSlot.Head]: null,
+    [EquipmentSlot.Body]: null,
+    [EquipmentSlot.MainHand]: null,
+    [EquipmentSlot.OffHand]: null,
+    [EquipmentSlot.RingL]: null,
+    [EquipmentSlot.RingR]: null,
+    [EquipmentSlot.Amulet]: null,
   };
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   homeLocation: {
@@ -153,10 +169,23 @@ export class ModularCharacter {
     return part;
   }
 
-  async equipWeapon(_partPath: string, oh: boolean) {
+  async equipWeapon(equipment: EquipmentProperties, weaponSlot: WeaponSlot) {
+    const is2h = equipmentIsTwoHandedWeapon(equipment.equipmentBaseItemProperties.type);
+    if (is2h) {
+      disposeAsyncLoadedScene(this.equipment[EquipmentSlot.MainHand]);
+      disposeAsyncLoadedScene(this.equipment[EquipmentSlot.OffHand]);
+    } else if (weaponSlot === WeaponSlot.MainHand) {
+      disposeAsyncLoadedScene(this.equipment[EquipmentSlot.MainHand]);
+    } else {
+      disposeAsyncLoadedScene(this.equipment[EquipmentSlot.OffHand]);
+    }
+
+    // get model path
+    // const modelPath =
+
     const weapon = await this.world.importMesh("equipment/weapons/dagger.glb");
 
-    if (oh) {
+    if (weaponSlot === WeaponSlot.OffHand) {
       weapon.meshes[0]?.translate(Vector3.Up(), 0.1);
       weapon.meshes[0]?.translate(Vector3.Forward(), -0.05);
       weapon.meshes[0]?.rotate(Vector3.Backward(), -Math.PI / 2);

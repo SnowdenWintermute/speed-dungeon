@@ -1,14 +1,8 @@
-import {
-  BodyArmor,
-  EquipmentBaseItem,
-  EquipmentType,
-  OneHandedMeleeWeapon,
-} from "@speed-dungeon/common";
+import { EquipmentBaseItem, EquipmentType, OneHandedMeleeWeapon } from "@speed-dungeon/common";
 
 export function equipmentBaseItemToModelPath(baseItem: EquipmentBaseItem) {
   switch (baseItem.equipmentType) {
     case EquipmentType.BodyArmor:
-      baseItem.baseItemType;
       return "";
     case EquipmentType.HeadGear:
       return "";
@@ -17,9 +11,13 @@ export function equipmentBaseItemToModelPath(baseItem: EquipmentBaseItem) {
     case EquipmentType.Amulet:
       return "";
     case EquipmentType.OneHandedMeleeWeapon:
+      return ONE_HANDED_MELEE_WEAPON_MODEL_PATHS[baseItem.baseItemType];
     case EquipmentType.TwoHandedMeleeWeapon:
+      return "";
     case EquipmentType.TwoHandedRangedWeapon:
+      return "";
     case EquipmentType.Shield:
+      return "";
   }
 }
 

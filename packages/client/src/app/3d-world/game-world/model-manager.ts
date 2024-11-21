@@ -4,7 +4,10 @@ import { disposeAsyncLoadedScene } from "../utils";
 import {
   CombatantClass,
   CombatantSpecies,
+  EquipmentSlot,
+  ItemPropertiesType,
   MonsterType,
+  WeaponSlot,
   removeFromArray,
 } from "@speed-dungeon/common";
 import {
@@ -166,10 +169,22 @@ export class ModelManager {
     }
 
     if (combatantProperties.combatantSpecies === CombatantSpecies.Humanoid) {
-      // despawn any current equipped weapon
-      // equip new weapon model and save a reference to it
-      await modularCharacter.equipWeapon("", false);
-      await modularCharacter.equipWeapon("", true);
+      for (const [slot, item] of Object.entries(combatantProperties.equipment)) {
+        if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
+        const slotEnumMember = parseInt(slot) as EquipmentSlot;
+        if (slotEnumMember === EquipmentSlot.MainHand) {
+          await modularCharacter.equipWeapon(
+            item.itemProperties.equipmentProperties,
+            WeaponSlot.MainHand
+          );
+        }
+        if (slotEnumMember === EquipmentSlot.OffHand) {
+          await modularCharacter.equipWeapon(
+            item.itemProperties.equipmentProperties,
+            WeaponSlot.OffHand
+          );
+        }
+      }
     }
 
     this.combatantModels[entityProperties.id] = modularCharacter;
