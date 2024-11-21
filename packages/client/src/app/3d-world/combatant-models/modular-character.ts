@@ -154,7 +154,7 @@ export class ModularCharacter {
   }
 
   async equipWeapon(_partPath: string, oh: boolean) {
-    const weapon = await this.world.importMesh("sword.glb");
+    const weapon = await this.world.importMesh("equipment/weapons/dagger.glb");
 
     if (oh) {
       weapon.meshes[0]?.translate(Vector3.Up(), 0.1);

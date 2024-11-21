@@ -52,16 +52,21 @@ export const TRAIT_DESCRIPTIONS: Record<CombatantTraitType, string> = {
 };
 
 export function formatCombatantTrait(trait: CombatantTrait): string {
+  let affinityOrResistance, percentToShow;
   switch (trait.type) {
     case CombatantTraitType.HpBioavailability:
       return `Hp Bioavailability ${trait.percent}%`;
     case CombatantTraitType.MpBioavailability:
       return `Mp Bioavailability ${trait.percent}%`;
     case CombatantTraitType.ElementalAffinity:
-      return `${formatMagicalElement(trait.element)} affinity ${trait.percent}%`;
+      affinityOrResistance = trait.percent > 100 ? "affinity" : "resistance";
+      percentToShow = trait.percent > 100 ? trait.percent - 100 : trait.percent;
+      return `${formatMagicalElement(trait.element)} ${affinityOrResistance} ${percentToShow}%`;
     case CombatantTraitType.Undead:
       return "Undead";
     case CombatantTraitType.PhysicalDamageTypeResistance:
-      return `${formatPhysicalDamageType(trait.damageType)} affinity ${trait.percent}%`;
+      affinityOrResistance = trait.percent > 100 ? "affinity" : "resistance";
+      percentToShow = trait.percent > 100 ? trait.percent - 100 : trait.percent;
+      return `${formatPhysicalDamageType(trait.damageType)} ${affinityOrResistance} ${percentToShow}%`;
   }
 }

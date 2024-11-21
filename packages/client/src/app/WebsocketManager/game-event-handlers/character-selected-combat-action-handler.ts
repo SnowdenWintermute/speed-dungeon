@@ -1,4 +1,4 @@
-import { GameState, getCurrentMenu } from "@/stores/game-store";
+import { GameState } from "@/stores/game-store";
 import {
   AdventuringParty,
   CharacterAssociatedData,
@@ -27,12 +27,14 @@ export default function characterSelectedCombatActionHandler(
       if (character.combatantProperties.controllingPlayer === null)
         return new Error(ERROR_MESSAGES.COMBATANT.EXPECTED_OWNER_ID_MISSING);
 
-      SpeedDungeonGame.assignCharacterActionTargets(
+      const newTargetsResult = SpeedDungeonGame.assignCharacterActionTargets(
         game,
         characterId,
         character.combatantProperties.controllingPlayer,
         combatActionPropertiesOption
       );
+
+      if (newTargetsResult instanceof Error) return newTargetsResult;
 
       const playerOwnsCharacter = AdventuringParty.playerOwnsCharacter(
         party,

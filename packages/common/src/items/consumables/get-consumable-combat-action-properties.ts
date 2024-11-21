@@ -15,11 +15,13 @@ export default function getConsumableCombatActionProperties(
       cap.usabilityContext = ActionUsableContext.All;
       cap.requiresCombatTurn = false;
       cap.description = "Heal a friendly target";
+      break;
     case ConsumableType.MpAutoinjector:
       cap.validTargetCategories = TargetCategories.Friendly;
       cap.usabilityContext = ActionUsableContext.All;
       cap.requiresCombatTurn = false;
       cap.description = "Restore MP to a friendly target";
+      break;
   }
 
   return cap;
