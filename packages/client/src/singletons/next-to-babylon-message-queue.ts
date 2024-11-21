@@ -3,13 +3,11 @@ export const nextToBabylonMessageQueue: { messages: NextToBabylonMessage[] } = {
 };
 
 import {
-  CombatantClass,
-  CombatantSpecies,
+  Combatant,
   MoveIntoCombatActionPositionActionCommandPayload,
   PerformCombatActionActionCommandPayload,
   ReturnHomeActionCommandPayload,
 } from "@speed-dungeon/common";
-import { MonsterType } from "@speed-dungeon/common";
 import { Vector3 } from "@babylonjs/core";
 
 export enum NextToBabylonMessageTypes {
@@ -19,15 +17,10 @@ export enum NextToBabylonMessageTypes {
   StartMovingCombatantIntoCombatActionPosition,
   StartPerformingCombatAction,
   StartReturningHome,
-  // ClearCharacterSlots,
-  // DrawCharacterSlots
 }
 
 export interface CombatantModelBlueprint {
-  entityId: string;
-  species: CombatantSpecies;
-  monsterType: null | MonsterType;
-  class: CombatantClass;
+  combatant: Combatant;
   startPosition: Vector3;
   startRotation: number;
   modelCorrectionRotation: number;

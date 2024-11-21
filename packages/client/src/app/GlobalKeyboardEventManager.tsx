@@ -5,7 +5,7 @@ export default function GlobalKeyboardEventManager() {
   const mutateUiState = useUIStore().mutateState;
 
   function keypressHandler(e: KeyboardEvent) {
-    if (e.code === "KeyQ") e.preventDefault();
+    // if (e.code === "KeyQ") e.preventDefault();
   }
 
   function keydownEventHandler(e: KeyboardEvent) {

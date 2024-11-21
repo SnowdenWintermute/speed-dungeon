@@ -16,7 +16,7 @@ export default function SavedCharacterDisplay({
   children?: ReactNode;
 }) {
   const mutateGameStore = useGameStore().mutateState;
-  const { entityProperties, combatantProperties } = character;
+  const { entityProperties } = character;
   const entityId = entityProperties.id;
   const isLoading = useGameStore().combatantModelsAwaitingSpawn.includes(entityId);
 
@@ -34,10 +34,7 @@ export default function SavedCharacterDisplay({
     gameWorld.current?.modelManager.enqueueMessage(entityId, {
       type: ModelManagerMessageType.SpawnModel,
       blueprint: {
-        entityId: entityProperties.id,
-        species: combatantProperties.combatantSpecies,
-        monsterType: null,
-        class: combatantProperties.combatantClass,
+        combatant: character,
         startPosition: new Vector3(-CHARACTER_SLOT_SPACING + index * CHARACTER_SLOT_SPACING, 0, 0),
         startRotation: 0,
         modelCorrectionRotation: 0,

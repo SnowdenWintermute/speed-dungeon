@@ -36,7 +36,7 @@ export const CHARACTER_PARTS: Record<
   },
 };
 
-export const SKELETONS: Partial<Record<CombatantSpecies, string>> = {
+export const SKELETONS: Record<CombatantSpecies, string> = {
   [CombatantSpecies.Humanoid]: "humanoid-skeleton.glb",
   [CombatantSpecies.Wasp]: "monsters/wasp-main-skeleton.glb",
   [CombatantSpecies.Frog]: "monsters/frog-main-skeleton.glb",

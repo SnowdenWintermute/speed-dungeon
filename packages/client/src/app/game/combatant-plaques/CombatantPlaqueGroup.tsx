@@ -17,7 +17,7 @@ export default function CombatantPlaqueGroup(props: Props) {
         else
           return (
             <li key={`plaque-${id}`} className="mr-4 last:mr-0 box-border">
-              <CombatantPlaque entityId={id} showExperience={props.showExperience} />
+              <CombatantPlaque combatant={combatantResult} showExperience={props.showExperience} />
             </li>
           );
       })}

@@ -75,12 +75,14 @@ export class ModelManager {
     blueprint: CombatantModelBlueprint,
     checkIfRoomLoaded: boolean
   ): Promise<Error | ModularCharacter> {
+    console.log("blueprint: ", blueprint);
     const parts = [];
+    const { combatantProperties, entityProperties } = blueprint.combatant;
 
-    if (blueprint.monsterType !== null) {
+    if (combatantProperties.monsterType !== null) {
       if (
-        blueprint.monsterType === MonsterType.FireMage ||
-        blueprint.monsterType === MonsterType.Cultist
+        combatantProperties.monsterType === MonsterType.FireMage ||
+        combatantProperties.monsterType === MonsterType.Cultist
       ) {
         parts.push({
           category: ModularCharacterPartCategory.Head,
@@ -97,24 +99,27 @@ export class ModelManager {
       } else {
         parts.push({
           category: ModularCharacterPartCategory.Full,
-          assetPath: MONSTER_FULL_SKINS[blueprint.monsterType] || "",
+          assetPath: MONSTER_FULL_SKINS[combatantProperties.monsterType] || "",
         });
       }
     } else {
       // is humanoid
-      let headPath = CHARACTER_PARTS[blueprint.class][ModularCharacterPartCategory.Head] || "";
-      let torsoPath = CHARACTER_PARTS[blueprint.class][ModularCharacterPartCategory.Torso] || "";
-      let legsPath = CHARACTER_PARTS[blueprint.class][ModularCharacterPartCategory.Legs] || "";
+      let headPath =
+        CHARACTER_PARTS[combatantProperties.combatantClass][ModularCharacterPartCategory.Head];
+      let torsoPath =
+        CHARACTER_PARTS[combatantProperties.combatantClass][ModularCharacterPartCategory.Torso];
+      let legsPath =
+        CHARACTER_PARTS[combatantProperties.combatantClass][ModularCharacterPartCategory.Legs];
       parts.push({ category: ModularCharacterPartCategory.Head, assetPath: headPath });
       parts.push({ category: ModularCharacterPartCategory.Torso, assetPath: torsoPath });
       parts.push({ category: ModularCharacterPartCategory.Legs, assetPath: legsPath });
     }
-    const skeleton = await this.world.importMesh(SKELETONS[blueprint.species]!);
+    const skeleton = await this.world.importMesh(SKELETONS[combatantProperties.combatantSpecies]);
 
     const modularCharacter = new ModularCharacter(
-      blueprint.entityId,
+      entityProperties.id,
       this.world,
-      blueprint.monsterType,
+      combatantProperties.monsterType,
       skeleton,
       blueprint.modelDomPositionElement,
       blueprint.startPosition,
@@ -123,10 +128,14 @@ export class ModelManager {
     );
 
     for (const part of parts) {
+      if (!part.assetPath) {
+        console.error("no part asset path provided for part", part);
+        continue;
+      }
       const partResult = await modularCharacter.attachPart(part.category, part.assetPath);
       if (partResult instanceof Error) return partResult;
 
-      if (blueprint.monsterType === MonsterType.FireElemental)
+      if (combatantProperties.monsterType === MonsterType.FireElemental)
         for (const mesh of partResult.meshes) {
           if (mesh.material?.name === "cube-material") {
             const redMaterial = new StandardMaterial("red");
@@ -135,7 +144,7 @@ export class ModelManager {
           }
         }
 
-      if (blueprint.monsterType === MonsterType.FireMage) {
+      if (combatantProperties.monsterType === MonsterType.FireMage) {
         for (const mesh of partResult.meshes) {
           if (mesh.material?.name === "Purple") {
             const redMaterial = new StandardMaterial("red");
@@ -145,7 +154,7 @@ export class ModelManager {
         }
       }
 
-      if (blueprint.monsterType === MonsterType.Cultist) {
+      if (combatantProperties.monsterType === MonsterType.Cultist) {
         for (const mesh of partResult.meshes) {
           if (mesh.material?.name === "Purple") {
             const whiteMaterial = new StandardMaterial("white");
@@ -156,19 +165,21 @@ export class ModelManager {
       }
     }
 
-    if (blueprint.species === CombatantSpecies.Humanoid)
+    if (combatantProperties.combatantSpecies === CombatantSpecies.Humanoid) {
+      // despawn any current equipped weapon
+      // equip new weapon model and save a reference to it
       await modularCharacter.equipWeapon("", false);
-    if (blueprint.species === CombatantSpecies.Humanoid)
       await modularCharacter.equipWeapon("", true);
+    }
 
-    this.combatantModels[blueprint.entityId] = modularCharacter;
+    this.combatantModels[entityProperties.id] = modularCharacter;
 
     modularCharacter.updateBoundingBox();
 
     if (checkIfRoomLoaded) this.checkIfAllModelsInCurrentRoomAreLoaded();
 
     useGameStore.getState().mutateState((state) => {
-      removeFromArray(state.combatantModelsAwaitingSpawn, blueprint.entityId);
+      removeFromArray(state.combatantModelsAwaitingSpawn, entityProperties.id);
     });
 
     return modularCharacter;
