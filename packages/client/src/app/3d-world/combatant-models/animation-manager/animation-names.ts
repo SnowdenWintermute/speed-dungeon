@@ -4,6 +4,7 @@ export const ANIMATION_NAMES = {
   MOVE_FORWARD: "move-forward",
   MOVE_BACK: "move-back",
   IDLE: "idle",
+  IDLE_GRIPPING: "idle-sword",
   DEATH: "death",
   HIT_RECOVERY: "hit-recovery",
   EVADE: "evade",

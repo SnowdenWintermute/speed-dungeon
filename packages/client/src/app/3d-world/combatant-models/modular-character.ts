@@ -194,10 +194,8 @@ export class ModularCharacter {
 
     // get model path
     const modelPath = equipmentBaseItemToModelPath(item.itemProperties.equipmentProperties);
-    console.log("model path:", modelPath);
     if (modelPath === null) return;
     const equipmentModel = await this.world.importMesh(modelPath);
-    console.log("imported mesh: ", equipmentModel);
     this.equipment[slot] = equipmentModel;
 
     if (slot === EquipmentSlot.OffHand) {

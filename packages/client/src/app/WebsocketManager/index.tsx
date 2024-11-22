@@ -63,6 +63,8 @@ function SocketManager() {
     setUpSavedCharacterEventListeners(socket);
 
     return () => {
+      socketOption.off("connect");
+
       Object.values(ServerToClientEvent).forEach((value) => {
         socketOption.off(value);
       });
