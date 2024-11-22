@@ -183,12 +183,10 @@ export class ModularCharacter {
     const is2h = equipmentIsTwoHandedWeapon(
       item.itemProperties.equipmentProperties.equipmentBaseItemProperties.type
     );
-    console.log("equip item slot: ", formatEquipmentSlot(slot));
     if (is2h) {
       disposeAsyncLoadedScene(this.equipment[EquipmentSlot.MainHand]);
       disposeAsyncLoadedScene(this.equipment[EquipmentSlot.OffHand]);
     } else if (slot === EquipmentSlot.MainHand) {
-      console.log("despawning mainhand");
       disposeAsyncLoadedScene(this.equipment[EquipmentSlot.MainHand]);
     } else {
       disposeAsyncLoadedScene(this.equipment[EquipmentSlot.OffHand]);
@@ -196,8 +194,10 @@ export class ModularCharacter {
 
     // get model path
     const modelPath = equipmentBaseItemToModelPath(item.itemProperties.equipmentProperties);
+    console.log("model path:", modelPath);
     if (modelPath === null) return;
     const equipmentModel = await this.world.importMesh(modelPath);
+    console.log("imported mesh: ", equipmentModel);
     this.equipment[slot] = equipmentModel;
 
     if (slot === EquipmentSlot.OffHand) {

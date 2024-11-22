@@ -32,8 +32,8 @@ export function equipmentBaseItemToModelPath(equipmentProperties: EquipmentPrope
 }
 
 export const ONE_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<OneHandedMeleeWeapon, null | string> = {
-  [OneHandedMeleeWeapon.Stick]: null,
-  [OneHandedMeleeWeapon.Mace]: null,
+  [OneHandedMeleeWeapon.Stick]: "mace.glb",
+  [OneHandedMeleeWeapon.Mace]: "mace.glb",
   [OneHandedMeleeWeapon.Morningstar]: null,
   [OneHandedMeleeWeapon.WarHammer]: null,
   [OneHandedMeleeWeapon.ShortSword]: "sword.glb",
