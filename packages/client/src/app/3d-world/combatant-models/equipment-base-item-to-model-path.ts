@@ -1,43 +1,53 @@
-import { EquipmentBaseItem, EquipmentType, OneHandedMeleeWeapon } from "@speed-dungeon/common";
+import { EquipmentProperties, EquipmentType, OneHandedMeleeWeapon } from "@speed-dungeon/common";
 
-export function equipmentBaseItemToModelPath(baseItem: EquipmentBaseItem) {
-  switch (baseItem.equipmentType) {
+export function equipmentBaseItemToModelPath(equipmentProperties: EquipmentProperties) {
+  switch (equipmentProperties.equipmentBaseItemProperties.type) {
     case EquipmentType.BodyArmor:
-      return "";
+      return null;
     case EquipmentType.HeadGear:
-      return "";
+      return null;
     case EquipmentType.Ring:
-      return "";
+      return null;
     case EquipmentType.Amulet:
-      return "";
+      return null;
     case EquipmentType.OneHandedMeleeWeapon:
-      return ONE_HANDED_MELEE_WEAPON_MODEL_PATHS[baseItem.baseItemType];
+      const modelFileName =
+        ONE_HANDED_MELEE_WEAPON_MODEL_PATHS[
+          equipmentProperties.equipmentBaseItemProperties.baseItem
+        ];
+      if (modelFileName === null) return null;
+      return (
+        "equipment/weapons/one-handed-melee/" +
+        ONE_HANDED_MELEE_WEAPON_MODEL_PATHS[
+          equipmentProperties.equipmentBaseItemProperties.baseItem
+        ]
+      );
     case EquipmentType.TwoHandedMeleeWeapon:
-      return "";
+      return null;
     case EquipmentType.TwoHandedRangedWeapon:
-      return "";
+      return null;
     case EquipmentType.Shield:
-      return "";
+      return null;
   }
 }
 
-export const ONE_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<OneHandedMeleeWeapon, string> = {
-  [OneHandedMeleeWeapon.Stick]: "",
-  [OneHandedMeleeWeapon.Mace]: "",
-  [OneHandedMeleeWeapon.Morningstar]: "",
-  [OneHandedMeleeWeapon.WarHammer]: "",
+export const ONE_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<OneHandedMeleeWeapon, null | string> = {
+  [OneHandedMeleeWeapon.Stick]: null,
+  [OneHandedMeleeWeapon.Mace]: null,
+  [OneHandedMeleeWeapon.Morningstar]: null,
+  [OneHandedMeleeWeapon.WarHammer]: null,
   [OneHandedMeleeWeapon.ShortSword]: "sword.glb",
-  [OneHandedMeleeWeapon.Blade]: "",
-  [OneHandedMeleeWeapon.BroadSword]: "",
-  [OneHandedMeleeWeapon.BastardSword]: "",
+  [OneHandedMeleeWeapon.Blade]: null,
+  [OneHandedMeleeWeapon.BroadSword]: null,
+  [OneHandedMeleeWeapon.BastardSword]: null,
   [OneHandedMeleeWeapon.Dagger]: "dagger.glb",
-  [OneHandedMeleeWeapon.Rapier]: "",
+  [OneHandedMeleeWeapon.Rapier]: null,
   [OneHandedMeleeWeapon.ShortSpear]: "spear.glb",
-  [OneHandedMeleeWeapon.RuneSword]: "",
-  [OneHandedMeleeWeapon.EtherBlade]: "",
-  [OneHandedMeleeWeapon.IceBlade]: "",
-  [OneHandedMeleeWeapon.MapleWand]: "",
-  [OneHandedMeleeWeapon.WillowWand]: "",
-  [OneHandedMeleeWeapon.YewWand]: "",
-  [OneHandedMeleeWeapon.RoseWand]: "",
+  [OneHandedMeleeWeapon.RuneSword]: null,
+  [OneHandedMeleeWeapon.EtherBlade]: null,
+  [OneHandedMeleeWeapon.IceBlade]: null,
+  [OneHandedMeleeWeapon.MapleWand]: null,
+  [OneHandedMeleeWeapon.WillowWand]: null,
+  [OneHandedMeleeWeapon.YewWand]: null,
+  [OneHandedMeleeWeapon.RoseWand]: null,
 };

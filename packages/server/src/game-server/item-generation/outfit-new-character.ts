@@ -10,10 +10,14 @@ import {
   EquipmentSlot,
   Item,
   Combatant,
+  EquipmentType,
+  OneHandedMeleeWeapon,
+  iterateNumericEnum,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { idGenerator } from "../../singletons.js";
+import { generateSpecificEquipmentType } from "./generate-test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -55,8 +59,29 @@ export default function outfitNewCharacter(character: Combatant) {
 
   // FOR TESTING INVENTORY
   // generateTestItems(combatantProperties, 6);
+
+  giveTestingCombatAttributes(combatantProperties);
+
+  for (const baseWeapon of iterateNumericEnum(OneHandedMeleeWeapon)) {
+    const item = generateSpecificEquipmentType({
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: baseWeapon,
+    });
+    if (item instanceof Error || item === undefined) {
+      console.error("forced item type not generated:", item);
+      continue;
+    }
+    combatantProperties.inventory.items.push(item);
+  }
+
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
+}
+
+function giveTestingCombatAttributes(combatantProperties: CombatantProperties) {
+  for (const attribute of iterateNumericEnum(CombatAttribute)) {
+    combatantProperties.inherentAttributes[attribute] = 100;
+  }
 }

@@ -21,8 +21,12 @@ import {
   ERROR_MESSAGES,
   EquipmentProperties,
   EquipmentSlot,
+  EquipmentType,
+  Item,
+  ItemPropertiesType,
   WeaponSlot,
   equipmentIsTwoHandedWeapon,
+  formatEquipmentSlot,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
@@ -31,6 +35,7 @@ import { AnimationManager } from "./animation-manager";
 import { ModelActionManager } from "./model-action-manager";
 import setUpDebugMeshes from "./set-up-debug-meshes";
 import { ANIMATION_NAMES } from "./animation-manager/animation-names";
+import { equipmentBaseItemToModelPath } from "./equipment-base-item-to-model-path";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -169,38 +174,50 @@ export class ModularCharacter {
     return part;
   }
 
-  async equipWeapon(equipment: EquipmentProperties, weaponSlot: WeaponSlot) {
-    const is2h = equipmentIsTwoHandedWeapon(equipment.equipmentBaseItemProperties.type);
+  async unequipItem(slot: EquipmentSlot) {
+    disposeAsyncLoadedScene(this.equipment[slot]);
+  }
+
+  async equipItem(item: Item, slot: EquipmentSlot) {
+    if (item.itemProperties.type !== ItemPropertiesType.Equipment) return;
+    const is2h = equipmentIsTwoHandedWeapon(
+      item.itemProperties.equipmentProperties.equipmentBaseItemProperties.type
+    );
+    console.log("equip item slot: ", formatEquipmentSlot(slot));
     if (is2h) {
       disposeAsyncLoadedScene(this.equipment[EquipmentSlot.MainHand]);
       disposeAsyncLoadedScene(this.equipment[EquipmentSlot.OffHand]);
-    } else if (weaponSlot === WeaponSlot.MainHand) {
+    } else if (slot === EquipmentSlot.MainHand) {
+      console.log("despawning mainhand");
       disposeAsyncLoadedScene(this.equipment[EquipmentSlot.MainHand]);
     } else {
       disposeAsyncLoadedScene(this.equipment[EquipmentSlot.OffHand]);
     }
 
     // get model path
-    // const modelPath =
+    const modelPath = equipmentBaseItemToModelPath(item.itemProperties.equipmentProperties);
+    if (modelPath === null) return;
+    const equipmentModel = await this.world.importMesh(modelPath);
+    this.equipment[slot] = equipmentModel;
 
-    const weapon = await this.world.importMesh("equipment/weapons/dagger.glb");
-
-    if (weaponSlot === WeaponSlot.OffHand) {
-      weapon.meshes[0]?.translate(Vector3.Up(), 0.1);
-      weapon.meshes[0]?.translate(Vector3.Forward(), -0.05);
-      weapon.meshes[0]?.rotate(Vector3.Backward(), -Math.PI / 2);
+    if (slot === EquipmentSlot.OffHand) {
+      equipmentModel.meshes[0]?.translate(Vector3.Up(), 0.1);
+      equipmentModel.meshes[0]?.translate(Vector3.Forward(), -0.05);
+      equipmentModel.meshes[0]?.rotate(Vector3.Backward(), -Math.PI / 2);
       const equipmentBone = this.skeleton.meshes[0]
         ? getChildMeshByName(this.skeleton.meshes[0], "Wrist.L")
         : undefined;
-      if (equipmentBone && weapon.meshes[0]) weapon.meshes[0].parent = equipmentBone;
+      if (equipmentBone && equipmentModel.meshes[0])
+        equipmentModel.meshes[0].parent = equipmentBone;
     } else {
-      weapon.meshes[0]?.translate(Vector3.Up(), 0.1);
-      weapon.meshes[0]?.translate(Vector3.Forward(), -0.05);
-      weapon.meshes[0]?.rotate(Vector3.Backward(), Math.PI / 2);
+      equipmentModel.meshes[0]?.translate(Vector3.Up(), 0.1);
+      equipmentModel.meshes[0]?.translate(Vector3.Forward(), -0.05);
+      equipmentModel.meshes[0]?.rotate(Vector3.Backward(), Math.PI / 2);
       const equipmentBone = this.skeleton.meshes[0]
         ? getChildMeshByName(this.skeleton.meshes[0], "Wrist.R")
         : undefined;
-      if (equipmentBone && weapon.meshes[0]) weapon.meshes[0].parent = equipmentBone;
+      if (equipmentBone && equipmentModel.meshes[0])
+        equipmentModel.meshes[0].parent = equipmentBone;
     }
   }
 

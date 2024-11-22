@@ -5,6 +5,7 @@ import {
   EquipmentType,
   GameMessagesPayload,
   GameMode,
+  OneHandedMeleeWeapon,
   ServerToClientEventTypes,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
@@ -36,6 +37,7 @@ import generateLoot from "./game-event-handlers/action-command-handlers/generate
 import generateExperiencePoints from "./game-event-handlers/action-command-handlers/generate-experience-points.js";
 import initiateSavedCharacterListeners from "./saved-character-event-handlers/index.js";
 import GameModeContext from "./game-event-handlers/game-mode-strategies/game-mode-context.js";
+import { generateSpecificEquipmentType } from "./item-generation/generate-test-items.js";
 
 export type Username = string;
 export type SocketId = string;

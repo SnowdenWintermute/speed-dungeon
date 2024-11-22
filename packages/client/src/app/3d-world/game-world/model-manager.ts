@@ -4,7 +4,9 @@ import { disposeAsyncLoadedScene } from "../utils";
 import {
   CombatantClass,
   CombatantSpecies,
+  ERROR_MESSAGES,
   EquipmentSlot,
+  Item,
   ItemPropertiesType,
   MonsterType,
   WeaponSlot,
@@ -46,6 +48,12 @@ class ModelMessageQueue {
         case ModelManagerMessageType.DespawnModel:
           this.modelManager.despawnCharacterModel(this.entityId);
           break;
+        case ModelManagerMessageType.ChangeEquipment:
+          this.modelManager.handleEquipmentChange(
+            this.entityId,
+            currentMessageProcessing.slot,
+            currentMessageProcessing.item
+          );
       }
       currentMessageProcessing = this.messages.shift();
     }
@@ -74,11 +82,17 @@ export class ModelManager {
     this.modelMessageQueues[entityId]!.messages.push(message);
   }
 
+  async handleEquipmentChange(entityId: string, slot: EquipmentSlot, item?: Item) {
+    const modularCharacter = this.combatantModels[entityId];
+    if (!modularCharacter) return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+    if (!item) modularCharacter.unequipItem(slot);
+    else modularCharacter.equipItem(item, slot);
+  }
+
   async spawnCharacterModel(
     blueprint: CombatantModelBlueprint,
     checkIfRoomLoaded: boolean
   ): Promise<Error | ModularCharacter> {
-    console.log("blueprint: ", blueprint);
     const parts = [];
     const { combatantProperties, entityProperties } = blueprint.combatant;
 
@@ -172,18 +186,7 @@ export class ModelManager {
       for (const [slot, item] of Object.entries(combatantProperties.equipment)) {
         if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
         const slotEnumMember = parseInt(slot) as EquipmentSlot;
-        if (slotEnumMember === EquipmentSlot.MainHand) {
-          await modularCharacter.equipWeapon(
-            item.itemProperties.equipmentProperties,
-            WeaponSlot.MainHand
-          );
-        }
-        if (slotEnumMember === EquipmentSlot.OffHand) {
-          await modularCharacter.equipWeapon(
-            item.itemProperties.equipmentProperties,
-            WeaponSlot.OffHand
-          );
-        }
+        await modularCharacter.equipItem(item, slotEnumMember);
       }
     }
 
@@ -241,6 +244,7 @@ export class ModelManager {
 export enum ModelManagerMessageType {
   SpawnModel,
   DespawnModel,
+  ChangeEquipment,
 }
 
 type SpawnCombatantModelManagerMessage = {
@@ -253,4 +257,13 @@ type DespawnModelManagerMessage = {
   type: ModelManagerMessageType.DespawnModel;
 };
 
-type ModelManagerMessage = SpawnCombatantModelManagerMessage | DespawnModelManagerMessage;
+type ChangeEquimpentModelManagerMessage = {
+  type: ModelManagerMessageType.ChangeEquipment;
+  slot: EquipmentSlot;
+  item?: Item;
+};
+
+type ModelManagerMessage =
+  | SpawnCombatantModelManagerMessage
+  | DespawnModelManagerMessage
+  | ChangeEquimpentModelManagerMessage;
