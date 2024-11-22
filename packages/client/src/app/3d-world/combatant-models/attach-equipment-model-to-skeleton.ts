@@ -1,5 +1,10 @@
-import { ISceneLoaderAsyncResult, Vector3 } from "@babylonjs/core";
-import { EquipmentProperties, EquipmentSlot, EquipmentType } from "@speed-dungeon/common";
+import { Color3, ISceneLoaderAsyncResult, StandardMaterial, Vector3 } from "@babylonjs/core";
+import {
+  EquipmentProperties,
+  EquipmentSlot,
+  EquipmentType,
+  TwoHandedMeleeWeapon,
+} from "@speed-dungeon/common";
 import { ModularCharacter } from "./modular-character";
 import { getChildMeshByName } from "../utils";
 
@@ -31,5 +36,26 @@ export default function attachEquipmentModelToSkeleton(
       ? getChildMeshByName(combatantModel.skeleton.meshes[0], "Wrist.R")
       : undefined;
     if (equipmentBone && equipmentModel.meshes[0]) equipmentModel.meshes[0].parent = equipmentBone;
+  }
+}
+
+function modifyColors(
+  equipmentProperties: EquipmentProperties,
+  equipmentModel: ISceneLoaderAsyncResult
+) {
+  if (
+    equipmentProperties.equipmentBaseItemProperties.type === EquipmentType.TwoHandedMeleeWeapon &&
+    equipmentProperties.equipmentBaseItemProperties.baseItem === TwoHandedMeleeWeapon.BoStaff
+  ) {
+    const meshes = equipmentModel.meshes;
+    for (const mesh of meshes) {
+      if (mesh.material?.name === "Accent1") {
+        const newMaterial = new StandardMaterial("red");
+        newMaterial.emissiveColor = new Color3(0.0, 0.9, 0.9);
+        newMaterial.emissiveFresnelParameters;
+        newMaterial.diffuseColor = new Color3(0.7, 0.2, 0.2);
+        mesh.material = newMaterial;
+      }
+    }
   }
 }
