@@ -36,6 +36,7 @@ import { ModelActionManager } from "./model-action-manager";
 import setUpDebugMeshes from "./set-up-debug-meshes";
 import { ANIMATION_NAMES } from "./animation-manager/animation-names";
 import { equipmentBaseItemToModelPath } from "./equipment-base-item-to-model-path";
+import attachEquipmentModelToSkeleton from "./attach-equipment-model-to-skeleton";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -198,25 +199,12 @@ export class ModularCharacter {
     const equipmentModel = await this.world.importMesh(modelPath);
     this.equipment[slot] = equipmentModel;
 
-    if (slot === EquipmentSlot.OffHand) {
-      equipmentModel.meshes[0]?.translate(Vector3.Up(), 0.1);
-      equipmentModel.meshes[0]?.translate(Vector3.Forward(), -0.05);
-      equipmentModel.meshes[0]?.rotate(Vector3.Backward(), -Math.PI / 2);
-      const equipmentBone = this.skeleton.meshes[0]
-        ? getChildMeshByName(this.skeleton.meshes[0], "Wrist.L")
-        : undefined;
-      if (equipmentBone && equipmentModel.meshes[0])
-        equipmentModel.meshes[0].parent = equipmentBone;
-    } else {
-      equipmentModel.meshes[0]?.translate(Vector3.Up(), 0.1);
-      equipmentModel.meshes[0]?.translate(Vector3.Forward(), -0.05);
-      equipmentModel.meshes[0]?.rotate(Vector3.Backward(), Math.PI / 2);
-      const equipmentBone = this.skeleton.meshes[0]
-        ? getChildMeshByName(this.skeleton.meshes[0], "Wrist.R")
-        : undefined;
-      if (equipmentBone && equipmentModel.meshes[0])
-        equipmentModel.meshes[0].parent = equipmentBone;
-    }
+    attachEquipmentModelToSkeleton(
+      this,
+      equipmentModel,
+      slot,
+      item.itemProperties.equipmentProperties
+    );
   }
 
   removePart(partCategory: ModularCharacterPartCategory) {
