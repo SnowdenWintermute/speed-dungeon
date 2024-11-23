@@ -29,6 +29,7 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
         {
           type: EquipmentType.OneHandedMeleeWeapon,
           baseItem: OneHandedMeleeWeapon.Stick,
+          // baseItem: TwoHandedMeleeWeapon.Bardiche,
           damage: new NumberRange(1, 2),
           damageClassification: [
             new HpChangeSource(

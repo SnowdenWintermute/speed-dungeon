@@ -78,20 +78,20 @@ export const ONE_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<OneHandedMeleeWeapon, n
 };
 
 export const TWO_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<TwoHandedMeleeWeapon, null | string> = {
-  [TwoHandedMeleeWeapon.BoStaff]: "spear.glb",
+  [TwoHandedMeleeWeapon.BoStaff]: "elemental-staff.glb",
   [TwoHandedMeleeWeapon.Spear]: "spear.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
-  [TwoHandedMeleeWeapon.Bardiche]: null,
-  [TwoHandedMeleeWeapon.SplittingMaul]: null,
+  [TwoHandedMeleeWeapon.Bardiche]: "bardiche.glb", // https://opengameart.org/content/kingdom-weapon-set
+  [TwoHandedMeleeWeapon.SplittingMaul]: "splitting-maul.glb", // https://opengameart.org/content/low-poly-axes-pack
   [TwoHandedMeleeWeapon.Maul]: "maul.glb", // https://opengameart.org/content/medieval-weapon-pack
-  [TwoHandedMeleeWeapon.BattleAxe]: null,
+  [TwoHandedMeleeWeapon.BattleAxe]: "battle-axe.glb", // https://opengameart.org/content/low-poly-axes-pack
   [TwoHandedMeleeWeapon.Glaive]: "glaive.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
-  [TwoHandedMeleeWeapon.ElementalStaff]: null,
+  [TwoHandedMeleeWeapon.ElementalStaff]: "elemental-staff.glb", // https://opengameart.org/content/kingdom-weapon-set
   [TwoHandedMeleeWeapon.Trident]: null,
-  [TwoHandedMeleeWeapon.GreatAxe]: null,
+  [TwoHandedMeleeWeapon.GreatAxe]: "great-axe.glb", // https://opengameart.org/content/low-poly-axes-pack
   [TwoHandedMeleeWeapon.GravityHammer]: "gravity-hammer.glb", // https://opengameart.org/content/3d-hammer-pack
   [TwoHandedMeleeWeapon.ElmStaff]: "elm-staff.glb", // https://opengameart.org/content/medieval-weapon-pack
   [TwoHandedMeleeWeapon.MahoganyStaff]: "gem-staff.glb", // https://opengameart.org/content/weapons-pack-0
-  [TwoHandedMeleeWeapon.EbonyStaff]: null,
+  [TwoHandedMeleeWeapon.EbonyStaff]: "ebony-staff.glb", // https://opengameart.org/content/stylised-fantasy-weapons
 };
 
 export const TWO_HANDED_RANGED_WEAPON_MODEL_PATHS: Record<TwoHandedRangedWeapon, null | string> = {
@@ -103,11 +103,11 @@ export const TWO_HANDED_RANGED_WEAPON_MODEL_PATHS: Record<TwoHandedRangedWeapon,
 };
 
 export const SHIELD_MODEL_PATHS: Record<Shield, null | string> = {
-  [Shield.MakeshiftBuckler]: "gothic-shield.glb",
+  [Shield.MakeshiftBuckler]: "aspis.glb",
   [Shield.WoodenKiteShield]: null,
   [Shield.Buckler]: "buckler.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [Shield.Pavise]: null,
-  [Shield.Aspis]: null,
+  [Shield.Aspis]: "aspis.glb", // https://opengameart.org/content/stylised-fantasy-weapons
   [Shield.LanternShield]: "lantern-shield.glb", // https://opengameart.org/content/skeleton-warrior-0
   [Shield.KiteShield]: "kite-shield.glb", // https://opengameart.org/content/medieval-weapon-pack
   [Shield.TowerShield]: null,

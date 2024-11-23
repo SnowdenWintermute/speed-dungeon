@@ -161,7 +161,7 @@ export default function getFrameEventFromAnimation(
       }
   };
 
-  return { fn: animationEventOption, frame: 20 };
+  return { fn: animationEventOption, frame: 22 };
 }
 
 function induceHitRecovery(
