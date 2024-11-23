@@ -57,45 +57,45 @@ export const MODEL_FOLDER_PATHS: Record<EquipmentType, null | string> = {
 };
 
 export const ONE_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<OneHandedMeleeWeapon, null | string> = {
-  [OneHandedMeleeWeapon.Stick]: "yew-wand.glb",
-  [OneHandedMeleeWeapon.Mace]: "mace.glb",
-  [OneHandedMeleeWeapon.Morningstar]: "morning-star.glb",
-  [OneHandedMeleeWeapon.WarHammer]: "war-hammer.glb",
-  [OneHandedMeleeWeapon.ShortSword]: "short-sword.glb",
+  [OneHandedMeleeWeapon.Stick]: "mace.glb",
+  [OneHandedMeleeWeapon.Mace]: "mace.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
+  [OneHandedMeleeWeapon.Morningstar]: "morning-star.glb", // https://opengameart.org/content/medieval-weapon-pack
+  [OneHandedMeleeWeapon.WarHammer]: "war-hammer.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
+  [OneHandedMeleeWeapon.ShortSword]: null,
   [OneHandedMeleeWeapon.Blade]: null,
-  [OneHandedMeleeWeapon.BroadSword]: "broad-sword.glb",
+  [OneHandedMeleeWeapon.BroadSword]: "broad-sword.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [OneHandedMeleeWeapon.BastardSword]: null,
-  [OneHandedMeleeWeapon.Dagger]: "dagger.glb",
-  [OneHandedMeleeWeapon.Rapier]: "rapier.glb",
-  [OneHandedMeleeWeapon.ShortSpear]: "spear.glb",
+  [OneHandedMeleeWeapon.Dagger]: "dagger.glb", // https://opengameart.org/content/medieval-weapon-pack
+  [OneHandedMeleeWeapon.Rapier]: "rapier.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
+  [OneHandedMeleeWeapon.ShortSpear]: "spear.glb", // quaternius
   [OneHandedMeleeWeapon.RuneSword]: null,
   [OneHandedMeleeWeapon.EtherBlade]: null,
   [OneHandedMeleeWeapon.IceBlade]: null,
-  [OneHandedMeleeWeapon.MapleWand]: "maple-wand.glb",
+  [OneHandedMeleeWeapon.MapleWand]: "maple-wand.glb", // https://opengameart.org/content/medieval-weapon-pack
   [OneHandedMeleeWeapon.WillowWand]: null,
-  [OneHandedMeleeWeapon.YewWand]: "yew-wand.glb",
+  [OneHandedMeleeWeapon.YewWand]: "yew-wand.glb", // https://opengameart.org/content/basic-wand
   [OneHandedMeleeWeapon.RoseWand]: null,
 };
 
 export const TWO_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<TwoHandedMeleeWeapon, null | string> = {
   [TwoHandedMeleeWeapon.BoStaff]: "spear.glb",
-  [TwoHandedMeleeWeapon.Spear]: "spear.glb",
+  [TwoHandedMeleeWeapon.Spear]: "spear.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [TwoHandedMeleeWeapon.Bardiche]: null,
   [TwoHandedMeleeWeapon.SplittingMaul]: null,
-  [TwoHandedMeleeWeapon.Maul]: "maul.glb",
+  [TwoHandedMeleeWeapon.Maul]: "maul.glb", // https://opengameart.org/content/medieval-weapon-pack
   [TwoHandedMeleeWeapon.BattleAxe]: null,
-  [TwoHandedMeleeWeapon.Glaive]: "glaive.glb",
+  [TwoHandedMeleeWeapon.Glaive]: "glaive.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [TwoHandedMeleeWeapon.ElementalStaff]: null,
   [TwoHandedMeleeWeapon.Trident]: null,
   [TwoHandedMeleeWeapon.GreatAxe]: null,
-  [TwoHandedMeleeWeapon.GravityHammer]: "gravity-hammer.glb",
-  [TwoHandedMeleeWeapon.ElmStaff]: "elm-staff.glb",
-  [TwoHandedMeleeWeapon.MahoganyStaff]: "gem-staff.glb", // attribution
+  [TwoHandedMeleeWeapon.GravityHammer]: "gravity-hammer.glb", // https://opengameart.org/content/3d-hammer-pack
+  [TwoHandedMeleeWeapon.ElmStaff]: "elm-staff.glb", // https://opengameart.org/content/medieval-weapon-pack
+  [TwoHandedMeleeWeapon.MahoganyStaff]: "gem-staff.glb", // https://opengameart.org/content/weapons-pack-0
   [TwoHandedMeleeWeapon.EbonyStaff]: null,
 };
 
 export const TWO_HANDED_RANGED_WEAPON_MODEL_PATHS: Record<TwoHandedRangedWeapon, null | string> = {
-  [TwoHandedRangedWeapon.ShortBow]: "short-bow.glb",
+  [TwoHandedRangedWeapon.ShortBow]: "short-bow.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [TwoHandedRangedWeapon.RecurveBow]: null,
   [TwoHandedRangedWeapon.CompositeBow]: null,
   [TwoHandedRangedWeapon.MilitaryBow]: null,
@@ -103,14 +103,14 @@ export const TWO_HANDED_RANGED_WEAPON_MODEL_PATHS: Record<TwoHandedRangedWeapon,
 };
 
 export const SHIELD_MODEL_PATHS: Record<Shield, null | string> = {
-  [Shield.MakeshiftBuckler]: "kite-shield.glb",
+  [Shield.MakeshiftBuckler]: "gothic-shield.glb",
   [Shield.WoodenKiteShield]: null,
-  [Shield.Buckler]: "buckler.glb",
+  [Shield.Buckler]: "buckler.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [Shield.Pavise]: null,
   [Shield.Aspis]: null,
-  [Shield.LanternShield]: null,
-  [Shield.KiteShield]: "kite-shield.glb",
+  [Shield.LanternShield]: "lantern-shield.glb", // https://opengameart.org/content/skeleton-warrior-0
+  [Shield.KiteShield]: "kite-shield.glb", // https://opengameart.org/content/medieval-weapon-pack
   [Shield.TowerShield]: null,
-  [Shield.AncientBuckler]: null,
-  [Shield.GothicShield]: null,
+  [Shield.AncientBuckler]: "ancient-buckler.glb", // https://opengameart.org/content/iron-buckler
+  [Shield.GothicShield]: "gothic-shield.glb", // https://opengameart.org/content/kite-shield-1
 };
