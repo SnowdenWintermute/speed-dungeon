@@ -57,7 +57,7 @@ export const MODEL_FOLDER_PATHS: Record<EquipmentType, null | string> = {
 };
 
 export const ONE_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<OneHandedMeleeWeapon, null | string> = {
-  [OneHandedMeleeWeapon.Stick]: "mace.glb",
+  [OneHandedMeleeWeapon.Stick]: "stick.glb", // https://opengameart.org/content/wooden-stick
   [OneHandedMeleeWeapon.Mace]: "mace.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [OneHandedMeleeWeapon.Morningstar]: "morning-star.glb", // https://opengameart.org/content/medieval-weapon-pack
   [OneHandedMeleeWeapon.WarHammer]: "war-hammer.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
@@ -78,7 +78,7 @@ export const ONE_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<OneHandedMeleeWeapon, n
 };
 
 export const TWO_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<TwoHandedMeleeWeapon, null | string> = {
-  [TwoHandedMeleeWeapon.BoStaff]: "elemental-staff.glb",
+  [TwoHandedMeleeWeapon.BoStaff]: null,
   [TwoHandedMeleeWeapon.Spear]: "spear.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [TwoHandedMeleeWeapon.Bardiche]: "bardiche.glb", // https://opengameart.org/content/kingdom-weapon-set
   [TwoHandedMeleeWeapon.SplittingMaul]: "splitting-maul.glb", // https://opengameart.org/content/low-poly-axes-pack
@@ -103,7 +103,7 @@ export const TWO_HANDED_RANGED_WEAPON_MODEL_PATHS: Record<TwoHandedRangedWeapon,
 };
 
 export const SHIELD_MODEL_PATHS: Record<Shield, null | string> = {
-  [Shield.MakeshiftBuckler]: "aspis.glb",
+  [Shield.MakeshiftBuckler]: "makeshift-buckler.glb", // https://opengameart.org/content/trap-door
   [Shield.WoodenKiteShield]: null,
   [Shield.Buckler]: "buckler.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [Shield.Pavise]: null,
