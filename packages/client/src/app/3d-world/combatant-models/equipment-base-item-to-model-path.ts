@@ -90,23 +90,24 @@ export const TWO_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<TwoHandedMeleeWeapon, n
 };
 
 export const TWO_HANDED_RANGED_WEAPON_MODEL_PATHS: Record<TwoHandedRangedWeapon, null | string> = {
-  [TwoHandedRangedWeapon.ShortBow]: "short-bow.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
-  [TwoHandedRangedWeapon.RecurveBow]: null,
-  [TwoHandedRangedWeapon.CompositeBow]: null,
-  [TwoHandedRangedWeapon.MilitaryBow]: null,
+  [TwoHandedRangedWeapon.ShortBow]: "military-bow.glb",
+  // [TwoHandedRangedWeapon.ShortBow]: "recurve-bow.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
+  [TwoHandedRangedWeapon.RecurveBow]: "recurve-bow.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
+  [TwoHandedRangedWeapon.CompositeBow]: "composite-bow.glb", // quaternius
+  [TwoHandedRangedWeapon.MilitaryBow]: "military-bow.glb", // quaternius
   [TwoHandedRangedWeapon.EtherBow]: null,
 };
 
 export const SHIELD_MODEL_PATHS: Record<Shield, null | string> = {
-  [Shield.MakeshiftBuckler]: "pavise.glb",
-  // [Shield.MakeshiftBuckler]: "makeshift-buckler.glb", // https://opengameart.org/content/trap-door
-  [Shield.WoodenKiteShield]: null,
+  // [Shield.MakeshiftBuckler]: "tower-shield.glb",
+  [Shield.MakeshiftBuckler]: "makeshift-buckler.glb", // https://opengameart.org/content/trap-door
+  [Shield.WoodenKiteShield]: "wooden-kite-shield.glb", // quaternius
   [Shield.Buckler]: "buckler.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [Shield.Pavise]: "pavise.glb", // self-made
   [Shield.Aspis]: "aspis.glb", // https://opengameart.org/content/stylised-fantasy-weapons
   [Shield.LanternShield]: "lantern-shield.glb", // https://opengameart.org/content/skeleton-warrior-0
   [Shield.KiteShield]: "kite-shield.glb", // https://opengameart.org/content/medieval-weapon-pack
-  [Shield.TowerShield]: null,
+  [Shield.TowerShield]: "tower-shield.glb", // quaternius
   [Shield.AncientBuckler]: "ancient-buckler.glb", // https://opengameart.org/content/iron-buckler
   [Shield.GothicShield]: "gothic-shield.glb", // https://opengameart.org/content/kite-shield-1
 };
