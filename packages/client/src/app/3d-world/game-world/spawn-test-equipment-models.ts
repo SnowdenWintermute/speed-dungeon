@@ -12,7 +12,7 @@ import {
   nextToBabylonMessageQueue,
 } from "@/singletons/next-to-babylon-message-queue";
 
-const ROW_SIZE = 12;
+const ROW_SIZE = 20;
 const ROW_SPACING = 1;
 let i = 0;
 let j = 0;

@@ -1,5 +1,5 @@
 import {
-    EquipmentBaseItemType,
+  EquipmentBaseItemType,
   EquipmentType,
   OneHandedMeleeWeapon,
   Shield,
@@ -7,7 +7,10 @@ import {
   TwoHandedRangedWeapon,
 } from "@speed-dungeon/common";
 
-export function equipmentBaseItemToModelPath(equipmentType: EquipmentType, baseItem: EquipmentBaseItemType |null) {
+export function equipmentBaseItemToModelPath(
+  equipmentType: EquipmentType,
+  baseItem: EquipmentBaseItemType | null
+) {
   let filePath;
   const folderPath = MODEL_FOLDER_PATHS[equipmentType];
   switch (equipmentType) {
@@ -20,20 +23,13 @@ export function equipmentBaseItemToModelPath(equipmentType: EquipmentType, baseI
     case EquipmentType.Amulet:
       return null;
     case EquipmentType.OneHandedMeleeWeapon:
-      filePath =
-        ONE_HANDED_MELEE_WEAPON_MODEL_PATHS[baseItem as OneHandedMeleeWeapon];
+      filePath = ONE_HANDED_MELEE_WEAPON_MODEL_PATHS[baseItem as OneHandedMeleeWeapon];
       break;
     case EquipmentType.TwoHandedMeleeWeapon:
-      filePath =
-        TWO_HANDED_MELEE_WEAPON_MODEL_PATHS[
-          baseItem as TwoHandedMeleeWeapon
-        ];
+      filePath = TWO_HANDED_MELEE_WEAPON_MODEL_PATHS[baseItem as TwoHandedMeleeWeapon];
       break;
     case EquipmentType.TwoHandedRangedWeapon:
-      filePath =
-        TWO_HANDED_RANGED_WEAPON_MODEL_PATHS[
-          baseItem as TwoHandedRangedWeapon
-        ];
+      filePath = TWO_HANDED_RANGED_WEAPON_MODEL_PATHS[baseItem as TwoHandedRangedWeapon];
       break;
     case EquipmentType.Shield:
       filePath = SHIELD_MODEL_PATHS[baseItem as Shield];
@@ -55,7 +51,8 @@ export const MODEL_FOLDER_PATHS: Record<EquipmentType, null | string> = {
 };
 
 export const ONE_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<OneHandedMeleeWeapon, null | string> = {
-  [OneHandedMeleeWeapon.Stick]: "stick.glb", // https://opengameart.org/content/wooden-stick
+  // [OneHandedMeleeWeapon.Stick]: "stick.glb", // https://opengameart.org/content/wooden-stick
+  [OneHandedMeleeWeapon.Stick]: "rose-wand.glb",
   [OneHandedMeleeWeapon.Mace]: "mace.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [OneHandedMeleeWeapon.Morningstar]: "morning-star.glb", // https://opengameart.org/content/medieval-weapon-pack
   [OneHandedMeleeWeapon.WarHammer]: "war-hammer.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
@@ -70,9 +67,9 @@ export const ONE_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<OneHandedMeleeWeapon, n
   [OneHandedMeleeWeapon.EtherBlade]: null,
   [OneHandedMeleeWeapon.IceBlade]: null,
   [OneHandedMeleeWeapon.MapleWand]: "maple-wand.glb", // https://opengameart.org/content/medieval-weapon-pack
-  [OneHandedMeleeWeapon.WillowWand]: null,
+  [OneHandedMeleeWeapon.WillowWand]: "willow-wand.glb", // self made
   [OneHandedMeleeWeapon.YewWand]: "yew-wand.glb", // https://opengameart.org/content/basic-wand
-  [OneHandedMeleeWeapon.RoseWand]: null,
+  [OneHandedMeleeWeapon.RoseWand]: "rose-wand.glb", // self made
 };
 
 export const TWO_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<TwoHandedMeleeWeapon, null | string> = {
@@ -101,10 +98,11 @@ export const TWO_HANDED_RANGED_WEAPON_MODEL_PATHS: Record<TwoHandedRangedWeapon,
 };
 
 export const SHIELD_MODEL_PATHS: Record<Shield, null | string> = {
-  [Shield.MakeshiftBuckler]: "makeshift-buckler.glb", // https://opengameart.org/content/trap-door
+  [Shield.MakeshiftBuckler]: "pavise.glb",
+  // [Shield.MakeshiftBuckler]: "makeshift-buckler.glb", // https://opengameart.org/content/trap-door
   [Shield.WoodenKiteShield]: null,
   [Shield.Buckler]: "buckler.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
-  [Shield.Pavise]: null,
+  [Shield.Pavise]: "pavise.glb", // self-made
   [Shield.Aspis]: "aspis.glb", // https://opengameart.org/content/stylised-fantasy-weapons
   [Shield.LanternShield]: "lantern-shield.glb", // https://opengameart.org/content/skeleton-warrior-0
   [Shield.KiteShield]: "kite-shield.glb", // https://opengameart.org/content/medieval-weapon-pack

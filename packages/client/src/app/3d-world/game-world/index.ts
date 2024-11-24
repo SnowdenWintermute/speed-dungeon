@@ -12,7 +12,7 @@ import "@babylonjs/loaders";
 import { BASE_FILE_PATH } from "../combatant-models/modular-character-parts";
 import { initScene } from "./init-scene";
 import { CombatTurnResult } from "@speed-dungeon/common";
-import { NextToBabylonMessage, NextToBabylonMessageTypes, nextToBabylonMessageQueue } from "@/singletons/next-to-babylon-message-queue";
+import { NextToBabylonMessage } from "@/singletons/next-to-babylon-message-queue";
 import showDebugText from "./show-debug-text";
 import processMessagesFromNext from "./process-messages-from-next";
 import { ModelManager } from "./model-manager";
@@ -45,9 +45,7 @@ export class GameWorld {
     this.debug.debugRef = debugRef;
     [this.camera, this.shadowGenerator, this.sun, this.groundTexture] = this.initScene();
 
-
-
-    spawnTestEquipmentModels(this);
+    // spawnTestEquipmentModels(this);
 
     this.engine.runRenderLoop(() => {
       this.updateGameWorld();
