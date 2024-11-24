@@ -19,14 +19,10 @@ import { GameWorld } from "../game-world";
 import {
   DEFAULT_HITBOX_RADIUS_FALLBACK,
   ERROR_MESSAGES,
-  EquipmentProperties,
   EquipmentSlot,
-  EquipmentType,
   Item,
   ItemPropertiesType,
-  WeaponSlot,
   equipmentIsTwoHandedWeapon,
-  formatEquipmentSlot,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
@@ -194,7 +190,8 @@ export class ModularCharacter {
     }
 
     // get model path
-    const modelPath = equipmentBaseItemToModelPath(item.itemProperties.equipmentProperties);
+    const { equipmentProperties } = item.itemProperties
+    const modelPath = equipmentBaseItemToModelPath(equipmentProperties.equipmentBaseItemProperties.type, equipmentProperties.equipmentBaseItemProperties.baseItem);
     if (modelPath === null) return;
     const equipmentModel = await this.world.importMesh(modelPath);
     this.equipment[slot] = equipmentModel;

@@ -29,10 +29,10 @@ export default function showDebugText(this: GameWorld) {
       `queue: ${actionCommandManager.queue.map((item) => formatActionCommandType(item.payload.type))}`,
       `current: ${actionCommandManager.currentlyProcessing ? formatActionCommandType(actionCommandManager.currentlyProcessing.payload.type) : null}`,
       // modelManagerMessages,
-      // cameraAlpha,
-      // cameraBeta,
-      // cameraRadius,
-      // cameraTarget,
+      cameraAlpha,
+      cameraBeta,
+      cameraRadius,
+      cameraTarget,
     ]
       .map((text) => `<li>${text}</li>`)
       .join("");
