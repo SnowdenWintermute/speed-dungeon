@@ -1,9 +1,7 @@
 import {
+  BASE_ITEMS_BY_EQUIPMENT_TYPE,
+  EquipmentBaseItemEnum,
   EquipmentType,
-  OneHandedMeleeWeapon,
-  Shield,
-  TwoHandedMeleeWeapon,
-  TwoHandedRangedWeapon,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 import { GameWorld } from ".";
@@ -14,66 +12,27 @@ import {
   nextToBabylonMessageQueue,
 } from "@/singletons/next-to-babylon-message-queue";
 
+const ROW_SIZE = 12;
+const ROW_SPACING = 1;
+let i = 0;
+let j = 0;
+
 export default async function spawnTestEquipmentModels(world: GameWorld) {
-  const ROW_SIZE = 10;
-  const ROW_SPACING = 1;
-  let i = 0;
-  let j = 0;
-  for (const item of iterateNumericEnum(OneHandedMeleeWeapon)) {
-    i += 1;
-    if (i > ROW_SIZE) {
-      i = 0;
-      j += 1;
-    }
+  for (const [equipmentTypeString, baseItemEnum] of Object.entries(
+    BASE_ITEMS_BY_EQUIPMENT_TYPE
+  ).sort((a, b) => parseInt(a[0]) - parseInt(b[0]))) {
+    const equipmentType = parseInt(equipmentTypeString) as EquipmentType;
+    if (
+      ![
+        // EquipmentType.OneHandedMeleeWeapon,
+        EquipmentType.TwoHandedMeleeWeapon,
+        // EquipmentType.TwoHandedRangedWeapon,
+        // EquipmentType.Shield,
+      ].includes(equipmentType)
+    )
+      continue;
 
-    const modelPath = equipmentBaseItemToModelPath(EquipmentType.OneHandedMeleeWeapon, item);
-    if (modelPath === null) {
-      const parentMesh = MeshBuilder.CreateSphere("ball", { diameter: 0.25 }, world.scene);
-      parentMesh.position = new Vector3(i * ROW_SPACING, 3, j * ROW_SPACING);
-    } else {
-      const equipmentModel = await world.importMesh(modelPath);
-      const parentMesh = equipmentModel.meshes[0];
-      if (!parentMesh) continue;
-      parentMesh.position = new Vector3(i * ROW_SPACING, 3, j * ROW_SPACING);
-    }
-  }
-
-  for (const item of iterateNumericEnum(Shield)) {
-    i += 1;
-    if (i > ROW_SIZE) {
-      i = 0;
-      j += 1;
-    }
-
-    const modelPath = equipmentBaseItemToModelPath(EquipmentType.Shield, item);
-    if (modelPath === null) {
-      const parentMesh = MeshBuilder.CreateSphere("ball", { diameter: 0.25 }, world.scene);
-      parentMesh.position = new Vector3(i * ROW_SPACING, 3, j * ROW_SPACING);
-    } else {
-      const equipmentModel = await world.importMesh(modelPath);
-      const parentMesh = equipmentModel.meshes[0];
-      if (!parentMesh) continue;
-      parentMesh.position = new Vector3(i * ROW_SPACING, 3, j * ROW_SPACING);
-    }
-  }
-
-  for (const item of iterateNumericEnum(TwoHandedMeleeWeapon)) {
-    i += 1;
-    if (i > ROW_SIZE) {
-      i = 0;
-      j += 1;
-    }
-
-    const modelPath = equipmentBaseItemToModelPath(EquipmentType.TwoHandedMeleeWeapon, item);
-    if (modelPath === null) {
-      const parentMesh = MeshBuilder.CreateSphere("ball", { diameter: 0.25 }, world.scene);
-      parentMesh.position = new Vector3(i * ROW_SPACING, 3, j * ROW_SPACING);
-    } else {
-      const equipmentModel = await world.importMesh(modelPath);
-      const parentMesh = equipmentModel.meshes[0];
-      if (!parentMesh) continue;
-      parentMesh.position = new Vector3(i * ROW_SPACING, 3, j * ROW_SPACING);
-    }
+    spawnBaseItemModels(world, equipmentType, baseItemEnum);
   }
 
   nextToBabylonMessageQueue.messages.push({
@@ -84,4 +43,37 @@ export default async function spawnTestEquipmentModels(world: GameWorld) {
     radius: 7,
     target: new Vector3(ROW_SIZE / 2, 3, 0),
   });
+}
+
+async function spawnBaseItemModels(
+  world: GameWorld,
+  equipmentType: EquipmentType,
+  baseItemEnum: EquipmentBaseItemEnum
+) {
+  console.log(iterateNumericEnum(baseItemEnum));
+  for (const baseItemString of iterateNumericEnum(baseItemEnum).sort(
+    (a, b) => parseInt(a) - parseInt(b)
+  )) {
+    const item = parseInt(baseItemString) as keyof EquipmentBaseItemEnum;
+    i += 1;
+    if (i > ROW_SIZE) {
+      i = 0;
+      j += 1;
+    }
+
+    const position = new Vector3(i * ROW_SPACING, 3, j * ROW_SPACING);
+    const modelPath = equipmentBaseItemToModelPath(equipmentType, item);
+    if (modelPath === null) {
+      const parentMesh = MeshBuilder.CreateSphere("ball", { diameter: 0.25 }, world.scene);
+      parentMesh.position = position;
+    } else {
+      const equipmentModel = await world.importMesh(modelPath);
+      const parentMesh = equipmentModel.meshes[0];
+      if (!parentMesh) {
+        console.log("NO PARENT MESH");
+        continue;
+      }
+      parentMesh.position = position;
+    }
+  }
 }
