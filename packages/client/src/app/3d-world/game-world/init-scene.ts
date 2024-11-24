@@ -10,6 +10,7 @@ import {
   Mesh,
   DynamicTexture,
   GlowLayer,
+  Color3,
 } from "@babylonjs/core";
 import { GameWorld } from ".";
 
@@ -48,9 +49,12 @@ export function initScene(
   const hemiLight = new HemisphericLight("hemi-light", new Vector3(0, 1, 0), this.scene);
   hemiLight.intensity = 0.85;
   // hemiLight.intensity = 0.0;
-  const lightPosition = new Vector3(4.0, 4.0, 8.0);
+  const lightPosition = new Vector3(4.0, 20.0, 8.0);
   const pointLight = new PointLight("point-light", lightPosition, this.scene);
   const ball = MeshBuilder.CreateSphere("ball", { diameter: 0.25 }, this.scene);
+  const sunMaterial = new StandardMaterial("sun material");
+  sunMaterial.emissiveColor = new Color3(1, 1, 1);
+  ball.material = sunMaterial;
   ball.position = lightPosition;
   pointLight.intensity = 0.2;
   // pointLight.intensity = 0.0;
