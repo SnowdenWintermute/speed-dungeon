@@ -7,6 +7,8 @@ import {
   ShadowGenerator,
   Mesh,
   DynamicTexture,
+  Camera,
+  StandardMaterial,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { BASE_FILE_PATH } from "../combatant-models/modular-character-parts";
@@ -19,14 +21,14 @@ import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
 import { clearFloorTexture } from "./clear-floor-texture";
 import drawCharacterSlots from "./draw-character-slots";
-import spawnTestEquipmentModels from "./spawn-test-equipment-models";
+import spawnTestEquipmentModels, { DEFAULT_MATERIAL_COLORS } from "./spawn-test-equipment-models";
 
 export class GameWorld {
   scene: Scene;
   engine: Engine;
   camera: ArcRotateCamera | null = null;
   sun: Mesh;
-  shadowGenerator: null | ShadowGenerator = null;
+  // shadowGenerator: null | ShadowGenerator = null;
   messages: NextToBabylonMessage[] = [];
   mouse: Vector3 = new Vector3(0, 1, 0);
   debug: { debugRef: React.RefObject<HTMLUListElement> | null } = { debugRef: null };
@@ -35,6 +37,7 @@ export class GameWorld {
   turnResultsQueue: CombatTurnResult[] = [];
   currentRoomLoaded: boolean = false;
   groundTexture: DynamicTexture;
+  defaultMaterials: { [materialName: string]: StandardMaterial };
   constructor(
     public canvas: HTMLCanvasElement,
     debugRef: React.RefObject<HTMLUListElement>
@@ -43,7 +46,20 @@ export class GameWorld {
     // this.engine.setHardwareScalingLevel(10); // renders at lower resolutions
     this.scene = new Scene(this.engine);
     this.debug.debugRef = debugRef;
-    [this.camera, this.shadowGenerator, this.sun, this.groundTexture] = this.initScene();
+    // [this.camera, this.shadowGenerator, this.sun, this.groundTexture] = this.initScene();
+    [this.camera, this.sun, this.groundTexture] = this.initScene();
+
+    this.defaultMaterials = (() => {
+      const toReturn: { [materialName: string]: StandardMaterial } = {};
+      for (const [name, color] of Object.entries(DEFAULT_MATERIAL_COLORS)) {
+        const material = new StandardMaterial(name);
+        material.diffuseColor = color;
+        material.roughness = 1;
+        toReturn[name] = material;
+      }
+
+      return toReturn;
+    })();
 
     // spawnTestEquipmentModels(this);
 
@@ -84,8 +100,8 @@ export class GameWorld {
       path,
       this.scene
     );
-    if (this.useShadows)
-      for (const mesh of sceneResult.meshes) this.shadowGenerator?.addShadowCaster(mesh, true);
+    // if (this.useShadows)
+    //   for (const mesh of sceneResult.meshes) this.shadowGenerator?.addShadowCaster(mesh, true);
     return sceneResult;
   }
 

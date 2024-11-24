@@ -19,9 +19,7 @@ export const GROUND_HEIGHT = 50;
 export const GROUND_TEXTURE_WIDTH = 8000;
 export const GROUND_TEXTURE_HEIGHT = 10000;
 
-export function initScene(
-  this: GameWorld
-): [ArcRotateCamera, ShadowGenerator, Mesh, DynamicTexture] {
+export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTexture] {
   this.scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
 
   // this.scene.fogMode = 3;
@@ -50,13 +48,13 @@ export function initScene(
   hemiLight.intensity = 0.85;
   // hemiLight.intensity = 0.0;
   const lightPosition = new Vector3(4.0, 20.0, 8.0);
-  const pointLight = new PointLight("point-light", lightPosition, this.scene);
+  // const pointLight = new PointLight("point-light", lightPosition, this.scene);
   const ball = MeshBuilder.CreateSphere("ball", { diameter: 0.25 }, this.scene);
   const sunMaterial = new StandardMaterial("sun material");
   sunMaterial.emissiveColor = new Color3(1, 1, 1);
   ball.material = sunMaterial;
   ball.position = lightPosition;
-  pointLight.intensity = 0.2;
+  // pointLight.intensity = 0.2;
   // pointLight.intensity = 0.0;
 
   const glowLayer = new GlowLayer("glow", this.scene);
@@ -82,8 +80,9 @@ export function initScene(
 
   // this.drawCharacterSlots();
   // SHADOWS
-  const shadowGenerator = new ShadowGenerator(1024, pointLight);
+  // const shadowGenerator = new ShadowGenerator(1024, pointLight);
   // ground.receiveShadows = true;
 
-  return [camera, shadowGenerator, ball, this.groundTexture];
+  // return [camera, shadowGenerator, ball, this.groundTexture];
+  return [camera, ball, this.groundTexture];
 }

@@ -6,11 +6,12 @@ import {
 } from "@speed-dungeon/common";
 import { GameWorld } from ".";
 import { equipmentBaseItemToModelPath } from "../combatant-models/equipment-base-item-to-model-path";
-import { MeshBuilder, Vector3 } from "@babylonjs/core";
+import { Color3, MeshBuilder, StandardMaterial, Vector3 } from "@babylonjs/core";
 import {
   NextToBabylonMessageTypes,
   nextToBabylonMessageQueue,
 } from "@/singletons/next-to-babylon-message-queue";
+import { gameWorld } from "../SceneManager";
 
 const ROW_SIZE = 10;
 const ROW_SPACING = 1;
@@ -78,7 +79,37 @@ async function spawnBaseItemModels(
         console.log("NO PARENT MESH");
         continue;
       }
+
+      for (const [name, color] of Object.entries(DEFAULT_MATERIAL_COLORS)) {
+        for (const mesh of equipmentModel.meshes) {
+          if (mesh.material?.name === name) {
+            const materialOption = world.defaultMaterials[name];
+            if (materialOption) mesh.material = materialOption;
+          }
+        }
+      }
+
       parentMesh.position = position;
     }
   }
 }
+
+export enum MaterialType {
+  Main,
+  Alternate,
+  Accent1,
+  Accent2,
+  Handle,
+  Hilt,
+  Blade,
+}
+
+export const DEFAULT_MATERIAL_COLORS: { [name: string]: Color3 } = {
+  Main: new Color3(0.792, 0.761, 0.694),
+  Alternate: new Color3(0.259, 0.208, 0.18),
+  Accent1: new Color3(0.482, 0.486, 0.467),
+  Accent2: new Color3(0.278, 0.518, 0.447),
+  Handle: new Color3(0.169, 0.145, 0.11),
+  Hilt: new Color3(0.2, 0.204, 0.204),
+  Blade: new Color3(0.6, 0.6, 0.55),
+};

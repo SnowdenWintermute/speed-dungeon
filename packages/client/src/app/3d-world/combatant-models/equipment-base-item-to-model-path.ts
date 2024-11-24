@@ -51,7 +51,7 @@ export const MODEL_FOLDER_PATHS: Record<EquipmentType, null | string> = {
 };
 
 export const ONE_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<OneHandedMeleeWeapon, null | string> = {
-  // [OneHandedMeleeWeapon.Stick]: "rune-sword.glb", // https://opengameart.org/content/low-poly-swords-asset-2
+  // [OneHandedMeleeWeapon.Stick]: "short-sword.glb", // https://opengameart.org/content/low-poly-swords-asset-2
   [OneHandedMeleeWeapon.Stick]: "stick.glb", // https://opengameart.org/content/wooden-stick
   [OneHandedMeleeWeapon.Mace]: "mace.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [OneHandedMeleeWeapon.Morningstar]: "morning-star.glb", // https://opengameart.org/content/medieval-weapon-pack
@@ -73,8 +73,8 @@ export const ONE_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<OneHandedMeleeWeapon, n
 };
 
 export const TWO_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<TwoHandedMeleeWeapon, null | string> = {
-  [TwoHandedMeleeWeapon.BoStaff]: "mahogany-staff.glb",
-  // [TwoHandedMeleeWeapon.BoStaff]: "elemental-staff.glb", // https://opengameart.org/content/kingdom-weapon-set
+  // [TwoHandedMeleeWeapon.BoStaff]: "bardiche.glb",
+  [TwoHandedMeleeWeapon.BoStaff]: "elemental-staff.glb", // https://opengameart.org/content/kingdom-weapon-set
   [TwoHandedMeleeWeapon.Spear]: "spear.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [TwoHandedMeleeWeapon.Bardiche]: "bardiche.glb", // https://opengameart.org/content/kingdom-weapon-set
   [TwoHandedMeleeWeapon.SplittingMaul]: "splitting-maul.glb", // https://opengameart.org/content/low-poly-axes-pack
@@ -91,8 +91,8 @@ export const TWO_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<TwoHandedMeleeWeapon, n
 };
 
 export const TWO_HANDED_RANGED_WEAPON_MODEL_PATHS: Record<TwoHandedRangedWeapon, null | string> = {
-  // [TwoHandedRangedWeapon.ShortBow]: "ether-bow.glb",
-  [TwoHandedRangedWeapon.ShortBow]: "short-bow.glb", // zsky
+  [TwoHandedRangedWeapon.ShortBow]: "composite-bow.glb",
+  // [TwoHandedRangedWeapon.ShortBow]: "short-bow.glb", // zsky
   [TwoHandedRangedWeapon.RecurveBow]: "recurve-bow.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [TwoHandedRangedWeapon.CompositeBow]: "composite-bow.glb", // quaternius
   [TwoHandedRangedWeapon.MilitaryBow]: "military-bow.glb", // quaternius

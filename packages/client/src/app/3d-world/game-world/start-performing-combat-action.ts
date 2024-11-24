@@ -5,7 +5,6 @@ import {
   combatActionRequiresMeleeRange,
 } from "@speed-dungeon/common";
 import { GameWorld } from ".";
-import { StartPerformingCombatActionMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import cloneDeep from "lodash.clonedeep";
 import { Vector3 } from "@babylonjs/core";
 import getCombatActionAnimationName from "../combatant-models/animation-manager/animation-names";
@@ -17,6 +16,7 @@ import getFrameEventFromAnimation from "../combatant-models/animation-manager/ge
 import { getCombatActionExecutionTime } from "@speed-dungeon/common";
 import { actionCommandManager } from "@/singletons/action-command-manager";
 import { useGameStore } from "@/stores/game-store";
+import { StartPerformingCombatActionMessage } from "@/singletons/next-to-babylon-message-queue";
 
 export default function startPerformingCombatAction(
   gameWorld: GameWorld,
