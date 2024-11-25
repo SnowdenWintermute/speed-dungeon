@@ -1829,15 +1829,15 @@
     "@babel/helper-string-parser" "^7.25.9"
     "@babel/helper-validator-identifier" "^7.25.9"
 
-"@babylonjs/core@7.26.0", "@babylonjs/core@^7.26.0":
-  version "7.26.0"
-  resolved "https://registry.yarnpkg.com/@babylonjs/core/-/core-7.26.0.tgz#efc8e4eec524310f80a3b37bdfbe486fc854bfdf"
-  integrity sha512-4Z3QDraILM/yrfvBmqpJ07tsF7mGrM7M/Qt23QNXuCLyceXtfvOEzu7Kvg2oR3p18OQqLjrKnGTR2idRWRRgwA==
+"@babylonjs/core@7.35.1", "@babylonjs/core@^7.35.1":
+  version "7.35.1"
+  resolved "https://registry.yarnpkg.com/@babylonjs/core/-/core-7.35.1.tgz#61049f259d240971e05a34b9f108d5b0d5d2078b"
+  integrity sha512-/KTRczb7WGfeeBbF6QEsari38IFBkKqlELys3GXMcBOjiP+XMLAxnsL49RJvidpN7ckvkEXOpa7fmgVHC/i0eQ==
 
-"@babylonjs/loaders@7.26.0":
-  version "7.26.0"
-  resolved "https://registry.yarnpkg.com/@babylonjs/loaders/-/loaders-7.26.0.tgz#21dd27ce9fe7200dc6571f85bcf88e9ed28becb3"
-  integrity sha512-aHchCG7xYw10R+GRDbF7ilIKJ5pUIEOYLX1+TaGni+LskubHfWieN0rdh0Mn/S2OTg172EoTG/Mqpz1gLRH6Ig==
+"@babylonjs/loaders@7.35.1":
+  version "7.35.1"
+  resolved "https://registry.yarnpkg.com/@babylonjs/loaders/-/loaders-7.35.1.tgz#8f993913e561b99be255b6fa0f0d7287779ebad6"
+  integrity sha512-rxRBDyv9k50b3rxFEBeWHX4njWRTudvfDsARyXK6qLvKxhMGQnDZf9VXBO7w67X5vHry9IF4+U3QWDoF5qeGcw==
 
 "@bcoe/v8-coverage@^0.2.3":
   version "0.2.3"

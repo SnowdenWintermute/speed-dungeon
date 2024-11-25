@@ -1,13 +1,15 @@
 import {
   EquipmentType,
+  HpChangeSource,
   Item,
   ItemPropertiesType,
   MagicalElement,
   OneHandedMeleeWeapon,
   Shield,
+  TwoHandedMeleeWeapon,
 } from "@speed-dungeon/common";
 import { GameWorld } from "..";
-import { ISceneLoaderAsyncResult, StandardMaterial } from "@babylonjs/core";
+import { ISceneLoaderAsyncResult, Material, StandardMaterial } from "@babylonjs/core";
 import { AccentColor, CustomMaterial, LightestToDarkest, MATERIAL_NAMES } from "./material-colors";
 import applyMaterialsToModelMeshes from "./apply-materials-to-model-meshes";
 
@@ -98,14 +100,11 @@ export function assignEquipmentMaterials(
             gameWorld.defaultMaterials.accent[AccentColor.Rose];
           break;
         case OneHandedMeleeWeapon.RuneSword:
-          let i = 1;
-          for (const classification of equipmentBaseItemProperties.damageClassification) {
-            if (classification.elementOption) {
-              const material = gameWorld.defaultMaterials.elements[classification.elementOption];
-              materialsByName["Accent" + i] = material;
-            }
-            i += 1;
-          }
+          assignElementalMaterials(
+            materialsByName,
+            gameWorld,
+            equipmentBaseItemProperties.damageClassification
+          );
           materialsByName[MATERIAL_NAMES.HANDLE] =
             gameWorld.defaultMaterials.metal[LightestToDarkest.Medium];
           materialsByName[MATERIAL_NAMES.HILT] =
@@ -132,10 +131,109 @@ export function assignEquipmentMaterials(
             gameWorld.defaultMaterials.metal[LightestToDarkest.Darker];
           break;
         case OneHandedMeleeWeapon.MapleWand:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Medium];
+          materialsByName[MATERIAL_NAMES.HILT] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Darker];
+          materialsByName[MATERIAL_NAMES.MAIN] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Darker];
+          break;
         case OneHandedMeleeWeapon.WillowWand:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Medium];
+          materialsByName[MATERIAL_NAMES.ACCENT_1] =
+            gameWorld.defaultMaterials.accent[AccentColor.Brass];
+          materialsByName[MATERIAL_NAMES.MAIN] =
+            gameWorld.defaultMaterials.accent[AccentColor.CobaltBlue];
+          break;
         case OneHandedMeleeWeapon.YewWand:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Darker];
+          materialsByName[MATERIAL_NAMES.ALTERNATE] =
+            gameWorld.defaultMaterials.accent[AccentColor.Brass];
+          materialsByName[MATERIAL_NAMES.ACCENT_1] =
+            gameWorld.defaultMaterials.custom[CustomMaterial.Ether];
+          materialsByName[MATERIAL_NAMES.MAIN] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Darker];
+          materialsByName[MATERIAL_NAMES.HILT] =
+            gameWorld.defaultMaterials.accent[AccentColor.Brass];
+          break;
         case OneHandedMeleeWeapon.RoseWand:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Darker];
+          materialsByName[MATERIAL_NAMES.MAIN] =
+            gameWorld.defaultMaterials.accent[AccentColor.Cherry];
+          materialsByName[MATERIAL_NAMES.ACCENT_1] =
+            gameWorld.defaultMaterials.accent[AccentColor.Rose];
       }
+      break;
+    case EquipmentType.TwoHandedMeleeWeapon:
+      switch (equipmentBaseItemProperties.baseItem) {
+        case TwoHandedMeleeWeapon.BoStaff:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Lighter];
+          materialsByName[MATERIAL_NAMES.HILT] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Lighter];
+          materialsByName[MATERIAL_NAMES.ACCENT_2] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Lighter];
+          materialsByName[MATERIAL_NAMES.ACCENT_1] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Lighter];
+          break;
+        case TwoHandedMeleeWeapon.Spear:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Medium];
+          break;
+        case TwoHandedMeleeWeapon.Bardiche:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Medium];
+          materialsByName[MATERIAL_NAMES.HILT] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Lighter];
+          break;
+        case TwoHandedMeleeWeapon.SplittingMaul:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Darker];
+          materialsByName[MATERIAL_NAMES.ACCENT_2] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Darkest];
+          break;
+        case TwoHandedMeleeWeapon.Maul:
+          materialsByName[MATERIAL_NAMES.BLADE] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Darker];
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Darker];
+          materialsByName[MATERIAL_NAMES.ACCENT_1] =
+            gameWorld.defaultMaterials.accent[AccentColor.Brass];
+          break;
+        case TwoHandedMeleeWeapon.BattleAxe:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Medium];
+          materialsByName[MATERIAL_NAMES.ACCENT_2] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Darker];
+          break;
+        case TwoHandedMeleeWeapon.Glaive:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Lighter];
+          break;
+        case TwoHandedMeleeWeapon.ElementalStaff:
+          assignElementalMaterials(
+            materialsByName,
+            gameWorld,
+            equipmentBaseItemProperties.damageClassification
+          );
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Lighter];
+          materialsByName[MATERIAL_NAMES.HILT] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Lighter];
+
+          break;
+        case TwoHandedMeleeWeapon.Trident:
+        case TwoHandedMeleeWeapon.GreatAxe:
+        case TwoHandedMeleeWeapon.GravityHammer:
+        case TwoHandedMeleeWeapon.ElmStaff:
+        case TwoHandedMeleeWeapon.MahoganyStaff:
+        case TwoHandedMeleeWeapon.EbonyStaff:
+      }
+      break;
+    case EquipmentType.TwoHandedRangedWeapon:
       break;
     case EquipmentType.Shield:
       switch (equipmentBaseItemProperties.baseItem) {
@@ -217,4 +315,19 @@ export function assignEquipmentMaterials(
       }
   }
   applyMaterialsToModelMeshes(itemModel, materialsByName);
+}
+
+function assignElementalMaterials(
+  materialsByName: { [name: string]: StandardMaterial },
+  gameWorld: GameWorld,
+  damageClassification: HpChangeSource[]
+) {
+  let i = 1;
+  for (const classification of damageClassification) {
+    if (classification.elementOption) {
+      const material = gameWorld.defaultMaterials.elements[classification.elementOption];
+      materialsByName["Accent" + i] = material;
+    }
+    i += 1;
+  }
 }
