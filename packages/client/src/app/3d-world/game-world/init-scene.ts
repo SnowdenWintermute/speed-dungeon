@@ -48,13 +48,13 @@ export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTextu
   hemiLight.intensity = 0.85;
   // hemiLight.intensity = 0.0;
   const lightPosition = new Vector3(4.0, 20.0, 8.0);
-  // const pointLight = new PointLight("point-light", lightPosition, this.scene);
+  const pointLight = new PointLight("point-light", lightPosition, this.scene);
   const ball = MeshBuilder.CreateSphere("ball", { diameter: 0.25 }, this.scene);
   const sunMaterial = new StandardMaterial("sun material");
   sunMaterial.emissiveColor = new Color3(1, 1, 1);
   ball.material = sunMaterial;
   ball.position = lightPosition;
-  // pointLight.intensity = 0.2;
+  pointLight.intensity = 0.2;
   // pointLight.intensity = 0.0;
 
   const glowLayer = new GlowLayer("glow", this.scene);
