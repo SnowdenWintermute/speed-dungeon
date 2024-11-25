@@ -21,7 +21,8 @@ import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
 import { clearFloorTexture } from "./clear-floor-texture";
 import drawCharacterSlots from "./draw-character-slots";
-import spawnTestEquipmentModels, { DEFAULT_MATERIAL_COLORS } from "./spawn-test-equipment-models";
+import spawnTestEquipmentModels from "./spawn-test-equipment-models";
+import { DEFAULT_MATERIAL_COLORS, createDefaultMaterials } from "./set-default-materials";
 
 export class GameWorld {
   scene: Scene;
@@ -49,17 +50,7 @@ export class GameWorld {
     // [this.camera, this.shadowGenerator, this.sun, this.groundTexture] = this.initScene();
     [this.camera, this.sun, this.groundTexture] = this.initScene();
 
-    this.defaultMaterials = (() => {
-      const toReturn: { [materialName: string]: StandardMaterial } = {};
-      for (const [name, color] of Object.entries(DEFAULT_MATERIAL_COLORS)) {
-        const material = new StandardMaterial(name);
-        material.diffuseColor = color;
-        material.roughness = 1;
-        toReturn[name] = material;
-      }
-
-      return toReturn;
-    })();
+    this.defaultMaterials = createDefaultMaterials();
 
     // spawnTestEquipmentModels(this);
 

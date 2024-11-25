@@ -11,9 +11,11 @@ import {
   Item,
   Combatant,
   EquipmentType,
-  OneHandedMeleeWeapon,
   iterateNumericEnum,
   Shield,
+  OneHandedMeleeWeapon,
+  TwoHandedMeleeWeapon,
+  TwoHandedRangedWeapon,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
@@ -63,9 +65,9 @@ export default function outfitNewCharacter(character: Combatant) {
 
   giveTestingCombatAttributes(combatantProperties);
 
-  for (const baseWeapon of iterateNumericEnum(Shield)) {
+  for (const baseWeapon of iterateNumericEnum(TwoHandedRangedWeapon)) {
     const item = generateSpecificEquipmentType({
-      equipmentType: EquipmentType.Shield,
+      equipmentType: EquipmentType.TwoHandedRangedWeapon,
       baseItemType: baseWeapon,
     });
     if (item instanceof Error || item === undefined) {

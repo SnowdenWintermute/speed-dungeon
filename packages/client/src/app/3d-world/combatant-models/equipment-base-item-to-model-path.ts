@@ -91,8 +91,8 @@ export const TWO_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<TwoHandedMeleeWeapon, n
 };
 
 export const TWO_HANDED_RANGED_WEAPON_MODEL_PATHS: Record<TwoHandedRangedWeapon, null | string> = {
-  [TwoHandedRangedWeapon.ShortBow]: "composite-bow.glb",
-  // [TwoHandedRangedWeapon.ShortBow]: "short-bow.glb", // zsky
+  // [TwoHandedRangedWeapon.ShortBow]: "composite-bow.glb",
+  [TwoHandedRangedWeapon.ShortBow]: "short-bow.glb", // zsky
   [TwoHandedRangedWeapon.RecurveBow]: "recurve-bow.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [TwoHandedRangedWeapon.CompositeBow]: "composite-bow.glb", // quaternius
   [TwoHandedRangedWeapon.MilitaryBow]: "military-bow.glb", // quaternius
