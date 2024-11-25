@@ -23,5 +23,6 @@ export default function requestGameListHandler(
           game.isRanked
         )
     );
+
   socket.emit(ServerToClientEvent.GameList, gameList);
 }

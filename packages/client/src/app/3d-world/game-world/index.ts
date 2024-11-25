@@ -4,11 +4,8 @@ import {
   Vector3,
   ArcRotateCamera,
   SceneLoader,
-  ShadowGenerator,
   Mesh,
   DynamicTexture,
-  Camera,
-  StandardMaterial,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { BASE_FILE_PATH } from "../combatant-models/modular-character-parts";
@@ -52,7 +49,7 @@ export class GameWorld {
 
     this.defaultMaterials = createDefaultMaterials();
 
-    spawnTestEquipmentModels(this);
+    // spawnTestEquipmentModels(this);
 
     this.engine.runRenderLoop(() => {
       this.updateGameWorld();

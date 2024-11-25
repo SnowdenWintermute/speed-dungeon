@@ -4,20 +4,17 @@ import {
   EquipmentType,
   Item,
   ItemPropertiesType,
-  NumberRange,
-  Shield,
-  TwoHandedRangedWeapon,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 import { GameWorld } from ".";
 import { equipmentBaseItemToModelPath } from "../combatant-models/equipment-base-item-to-model-path";
-import { Color3, MeshBuilder, StandardMaterial, Vector3 } from "@babylonjs/core";
+import { MeshBuilder, Vector3 } from "@babylonjs/core";
 import {
   NextToBabylonMessageTypes,
   nextToBabylonMessageQueue,
 } from "@/singletons/next-to-babylon-message-queue";
-import { gameWorld } from "../SceneManager";
-import setDefaultMaterials, { assignEquipmentMaterials } from "./set-default-materials";
+import setDefaultMaterials from "./set-default-materials";
+import spawnEquipmentModel from "../combatant-models/spawn-equipment-model";
 
 const ROW_SIZE = 10;
 const ROW_SPACING = 1;
@@ -92,12 +89,47 @@ async function spawnBaseItemModels(
   }
 }
 
-export enum MaterialType {
-  Main,
-  Alternate,
-  Accent1,
-  Accent2,
-  Handle,
-  Hilt,
-  Blade,
+export async function spawnEquipmentModelsFromItemList(world: GameWorld, items: Item[]) {
+  const ROW_SPACING = 1;
+  const ROW_SIZE = 10;
+  let i = 0;
+  let j = 0;
+
+  nextToBabylonMessageQueue.messages.push({
+    type: NextToBabylonMessageTypes.MoveCamera,
+    instant: true,
+    alpha: Math.PI / 2,
+    beta: (Math.PI / 5) * 2,
+    radius: 7,
+    target: new Vector3(ROW_SIZE / 2, 3, 0),
+  });
+
+  items.sort((a, b) => {
+    if (
+      a.itemProperties.type === ItemPropertiesType.Equipment &&
+      b.itemProperties.type === ItemPropertiesType.Equipment
+    ) {
+      return (
+        a.itemProperties.equipmentProperties.equipmentBaseItemProperties.type -
+        b.itemProperties.equipmentProperties.equipmentBaseItemProperties.type
+      );
+    }
+    return 0;
+  });
+
+  for (const item of items) {
+    i += 1;
+    if (i > ROW_SIZE) {
+      i = 0;
+      j += 1;
+    }
+    const model = await spawnEquipmentModel(world, item);
+    if (!(model instanceof Error)) {
+      const parentMesh = model.meshes[0];
+      if (!parentMesh) continue;
+
+      const position = new Vector3(i * ROW_SPACING, 3, j * ROW_SPACING);
+      parentMesh.position = position;
+    }
+  }
 }

@@ -51,6 +51,8 @@ export enum ServerToClientEvent {
   SavedCharacterDeleted = "36",
   PlayerSelectedSavedCharacterInProgressionGame = "37",
   ProgressionGameStartingFloorSelected = "38",
+  //TEST
+  TestItems = "39",
 }
 
 export interface ServerToClientEventTypes {
@@ -143,6 +145,7 @@ export interface ServerToClientEventTypes {
     character: { combatant: Combatant; deepestFloorReached: number }
   ) => void;
   [ServerToClientEvent.ProgressionGameStartingFloorSelected]: (floor: number) => void;
+  [ServerToClientEvent.TestItems]: (items: Item[]) => void;
 }
 
 export interface CharacterAndItem {

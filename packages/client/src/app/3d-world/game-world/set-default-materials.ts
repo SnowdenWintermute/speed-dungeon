@@ -1,6 +1,12 @@
 import { Color3, ISceneLoaderAsyncResult, StandardMaterial } from "@babylonjs/core";
 import { GameWorld } from ".";
-import { EquipmentType, Item, ItemPropertiesType, Shield } from "@speed-dungeon/common";
+import {
+  EquipmentType,
+  Item,
+  ItemPropertiesType,
+  Shield,
+  iterateNumericEnum,
+} from "@speed-dungeon/common";
 
 export const DEFAULT_MATERIAL_COLORS: { [name: string]: Color3 } = {
   Main: new Color3(0.792, 0.761, 0.694),
@@ -14,29 +20,44 @@ export const DEFAULT_MATERIAL_COLORS: { [name: string]: Color3 } = {
 
 export type SavedMaterials = {
   default: { [materialName: string]: StandardMaterial };
-  wood: { [materialName: string]: StandardMaterial };
-  metal: { [materialName: string]: StandardMaterial };
+  wood: Record<LightestToDarkest, StandardMaterial>;
+  metal: Record<LightestToDarkest, StandardMaterial>;
+  accent: Record<AccentColor, StandardMaterial>;
 };
 
 export function createDefaultMaterials() {
-  const toReturn: SavedMaterials = { default: {}, wood: {}, metal: {} };
+  const toReturn: {
+    default: { [materialName: string]: StandardMaterial };
+    wood: Partial<Record<LightestToDarkest, StandardMaterial>>;
+    metal: Partial<Record<LightestToDarkest, StandardMaterial>>;
+    accent: Partial<Record<AccentColor, StandardMaterial>>;
+  } = { default: {}, wood: {}, metal: {}, accent: {} };
   for (const [name, color] of Object.entries(DEFAULT_MATERIAL_COLORS)) {
     const material = new StandardMaterial(name);
     material.diffuseColor = color;
     material.roughness = 1;
     toReturn.default[name] = material;
   }
-  for (const [name, color] of Object.entries(WOOD_COLORS)) {
-    const material = new StandardMaterial(name);
+  for (const name of iterateNumericEnum(LightestToDarkest)) {
+    const color = WOOD_COLORS[name];
+    const material = new StandardMaterial(formatLightestToDarkest(name) + "-wood");
     material.diffuseColor = color;
     material.roughness = 1;
     toReturn.wood[name] = material;
   }
-  for (const [name, color] of Object.entries(METAL_COLORS)) {
-    const material = new StandardMaterial(name);
+  for (const name of iterateNumericEnum(LightestToDarkest)) {
+    const color = METAL_COLORS[name];
+    const material = new StandardMaterial(formatLightestToDarkest(name) + "-metal");
     material.diffuseColor = color;
     material.roughness = 1;
     toReturn.metal[name] = material;
+  }
+  for (const name of iterateNumericEnum(AccentColor)) {
+    const color = ACCENT_COLORS[name];
+    const material = new StandardMaterial(name + "-accent");
+    material.diffuseColor = color;
+    material.roughness = 1;
+    toReturn.accent[name] = material;
   }
 
   return toReturn;
@@ -53,22 +74,62 @@ export default function setDefaultMaterials(world: GameWorld, model: ISceneLoade
   }
 }
 
-export const WOOD_COLORS = {
-  lightest: new Color3(0.722, 0.612, 0.463),
-  lighter: new Color3(0.447, 0.365, 0.282),
-  medium: new Color3(0.435, 0.314, 0.235),
-  darker: new Color3(0.294, 0.224, 0.176),
-  darkest: new Color3(0.125, 0.106, 0.086),
-  rose: new Color3(0.557, 0.365, 0.318),
+export enum MaterialType {
+  Main,
+  Alternate,
+  Accent1,
+  Accent2,
+  Handle,
+  Hilt,
+  Blade,
+}
+
+export enum LightestToDarkest {
+  Lightest,
+  Lighter,
+  Medium,
+  Darker,
+  Darkest,
+}
+export function formatLightestToDarkest(enumMember: LightestToDarkest) {
+  switch (enumMember) {
+    case LightestToDarkest.Lightest:
+      return "Lightest";
+    case LightestToDarkest.Lighter:
+      return "Lighter";
+    case LightestToDarkest.Medium:
+      return "Medium";
+    case LightestToDarkest.Darker:
+      return "Darker";
+    case LightestToDarkest.Darkest:
+      return "Darkest";
+  }
+}
+
+export const WOOD_COLORS: Record<LightestToDarkest, Color3> = {
+  [LightestToDarkest.Lightest]: new Color3(0.722, 0.612, 0.463),
+  [LightestToDarkest.Lighter]: new Color3(0.447, 0.365, 0.282),
+  [LightestToDarkest.Medium]: new Color3(0.435, 0.314, 0.235),
+  [LightestToDarkest.Darker]: new Color3(0.294, 0.224, 0.176),
+  [LightestToDarkest.Darkest]: new Color3(0.125, 0.106, 0.086),
 };
 
-export const METAL_COLORS = {
-  lightest: new Color3(0.71, 0.694, 0.682),
-  lighter: new Color3(0.588, 0.553, 0.553),
-  medium: new Color3(0.306, 0.298, 0.306),
-  darker: new Color3(0.125, 0.129, 0.133),
-  darkest: new Color3(0.114, 0.118, 0.114),
-  brass: new Color3(0.518, 0.369, 0.227),
+export const METAL_COLORS: Record<LightestToDarkest, Color3> = {
+  [LightestToDarkest.Lightest]: new Color3(0.71, 0.694, 0.682),
+  [LightestToDarkest.Lighter]: new Color3(0.588, 0.553, 0.553),
+  [LightestToDarkest.Medium]: new Color3(0.306, 0.298, 0.306),
+  [LightestToDarkest.Darker]: new Color3(0.125, 0.129, 0.133),
+  [LightestToDarkest.Darkest]: new Color3(0.114, 0.118, 0.114),
+};
+
+export enum AccentColor {
+  Rose,
+  Brass,
+}
+
+export const ACCENT_COLORS: Record<AccentColor, Color3> = {
+  [AccentColor.Rose]: new Color3(0.557, 0.365, 0.318),
+  [AccentColor.Brass]: new Color3(0.518, 0.369, 0.227),
 };
 
 export const MATERIAL_NAMES = {
@@ -86,46 +147,47 @@ export function assignEquipmentMaterials(
   item: Item,
   itemModel: ISceneLoaderAsyncResult
 ) {
-  switch (item.itemProperties.type) {
-    case ItemPropertiesType.Consumable:
-      break;
-    case ItemPropertiesType.Equipment:
-      switch (item.itemProperties.equipmentProperties.equipmentBaseItemProperties.type) {
-        case EquipmentType.Shield:
-          switch (item.itemProperties.equipmentProperties.equipmentBaseItemProperties.baseItem) {
-            case Shield.MakeshiftBuckler:
-              for (const mesh of itemModel.meshes) {
-                if (mesh.material?.name === MATERIAL_NAMES.MAIN)
-                  mesh.material = gameWorld.defaultMaterials.wood["darker"]!;
-                if (mesh.material?.name === MATERIAL_NAMES.ALTERNATE)
-                  mesh.material = gameWorld.defaultMaterials.wood["medium"]!;
-                if (mesh.material?.name === MATERIAL_NAMES.ACCENT_1)
-                  mesh.material = gameWorld.defaultMaterials.metal["brass"]!;
-                if (mesh.material?.name === MATERIAL_NAMES.ACCENT_2)
-                  mesh.material = gameWorld.defaultMaterials.wood["darkest"]!;
-              }
-              break;
-            case Shield.WoodenKiteShield:
-              for (const mesh of itemModel.meshes) {
-                if (mesh.material?.name === MATERIAL_NAMES.MAIN)
-                  mesh.material = gameWorld.defaultMaterials.wood["lightest"]!;
-                if (mesh.material?.name === MATERIAL_NAMES.ALTERNATE)
-                  mesh.material = gameWorld.defaultMaterials.wood["lighter"]!;
-                if (mesh.material?.name === MATERIAL_NAMES.ACCENT_1)
-                  mesh.material = gameWorld.defaultMaterials.metal["medium"]!;
-                if (mesh.material?.name === MATERIAL_NAMES.ACCENT_2)
-                  mesh.material = gameWorld.defaultMaterials.wood["medium"]!;
-              }
-              break;
-            case Shield.Buckler:
-            case Shield.Pavise:
-            case Shield.Aspis:
-            case Shield.LanternShield:
-            case Shield.KiteShield:
-            case Shield.TowerShield:
-            case Shield.AncientBuckler:
-            case Shield.GothicShield:
-          }
+  let materialsByName = {};
+  if (item.itemProperties.type === ItemPropertiesType.Consumable) return;
+
+  switch (item.itemProperties.equipmentProperties.equipmentBaseItemProperties.type) {
+    case EquipmentType.Shield:
+      switch (item.itemProperties.equipmentProperties.equipmentBaseItemProperties.baseItem) {
+        case Shield.MakeshiftBuckler:
+          materialsByName = {
+            [MATERIAL_NAMES.MAIN]: gameWorld.defaultMaterials.wood[LightestToDarkest.Darker],
+            [MATERIAL_NAMES.ALTERNATE]: gameWorld.defaultMaterials.wood[LightestToDarkest.Medium],
+            [MATERIAL_NAMES.ACCENT_1]: gameWorld.defaultMaterials.accent[AccentColor.Brass],
+            [MATERIAL_NAMES.ACCENT_2]: gameWorld.defaultMaterials.wood[LightestToDarkest.Darkest],
+          };
+          break;
+        case Shield.WoodenKiteShield:
+          materialsByName = {
+            [MATERIAL_NAMES.MAIN]: gameWorld.defaultMaterials.wood[LightestToDarkest.Lightest],
+            [MATERIAL_NAMES.ALTERNATE]: gameWorld.defaultMaterials.wood[LightestToDarkest.Lighter],
+            [MATERIAL_NAMES.ACCENT_1]: gameWorld.defaultMaterials.metal[LightestToDarkest.Medium],
+            [MATERIAL_NAMES.ACCENT_2]: gameWorld.defaultMaterials.wood[LightestToDarkest.Medium],
+          };
+          break;
+        case Shield.Buckler:
+        case Shield.Pavise:
+        case Shield.Aspis:
+        case Shield.LanternShield:
+        case Shield.KiteShield:
+        case Shield.TowerShield:
+        case Shield.AncientBuckler:
+        case Shield.GothicShield:
       }
+  }
+  applyMaterialsToModelMeshes(itemModel, materialsByName);
+}
+
+function applyMaterialsToModelMeshes(
+  model: ISceneLoaderAsyncResult,
+  materialNamesToMaterials: { [materialName: string]: StandardMaterial }
+) {
+  for (const mesh of model.meshes) {
+    for (const [materialName, material] of Object.entries(materialNamesToMaterials))
+      if (mesh.material?.name === materialName) mesh.material = material;
   }
 }

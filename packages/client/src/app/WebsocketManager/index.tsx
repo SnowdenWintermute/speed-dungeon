@@ -1,5 +1,5 @@
 import { useLobbyStore } from "@/stores/lobby-store";
-import { ClientToServerEvent, ServerToClientEvent } from "@speed-dungeon/common";
+import { ClientToServerEvent, Item, ServerToClientEvent } from "@speed-dungeon/common";
 import React, { useEffect } from "react";
 import { setAlert } from "../components/alerts";
 import { useGameStore } from "@/stores/game-store";
@@ -10,6 +10,10 @@ import setUpGameEventHandlers from "./game-event-handlers";
 import { enqueueClientActionCommands } from "@/singletons/action-command-manager";
 import setUpBasicLobbyEventHandlers from "./basic-lobby-event-handlers";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
+import { gameWorld } from "../3d-world/SceneManager";
+import { spawnEquipmentModelsFromItemList } from "../3d-world/game-world/spawn-test-equipment-models";
+
+export const TEST_ITEMS: Item[] = [];
 
 function SocketManager() {
   const mutateLobbyStore = useLobbyStore().mutateState;
@@ -26,6 +30,14 @@ function SocketManager() {
 
   useEffect(() => {
     const socket = socketOption;
+
+    socket.on(ServerToClientEvent.TestItems, (items) => {
+      console.log("got items: ", items);
+      TEST_ITEMS.length = 0;
+      TEST_ITEMS.push(...items);
+      const currGameWorld = gameWorld.current;
+      if (currGameWorld) spawnEquipmentModelsFromItemList(currGameWorld, TEST_ITEMS);
+    });
 
     socket.on("connect", () => {
       mutateGameStore((state) => {

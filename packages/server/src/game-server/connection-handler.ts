@@ -7,6 +7,7 @@ import getSession from "./event-middleware/get-session.js";
 import { getLoggedInUserOrCreateGuest } from "./get-logged-in-user-or-create-guest.js";
 import { getLoggedInUserFromSocket } from "./event-middleware/get-logged-in-user-from-socket.js";
 import { fetchSavedCharactersHandler } from "./saved-character-event-handlers/fetch-saved-characters-handler.js";
+import { generateOneOfEachItem } from "./item-generation/generate-test-items.js";
 
 export function connectionHandler(this: GameServer) {
   this.io.of("/").on("connection", async (socket) => {
@@ -35,5 +36,8 @@ export function connectionHandler(this: GameServer) {
     if (!(loggedInUserResult instanceof Error)) {
       fetchSavedCharactersHandler(undefined, loggedInUserResult, socket);
     }
+
+    const items = generateOneOfEachItem();
+    socket.emit(ServerToClientEvent.TestItems, items);
   });
 }
