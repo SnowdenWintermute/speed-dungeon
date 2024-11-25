@@ -65,9 +65,9 @@ export default function outfitNewCharacter(character: Combatant) {
 
   giveTestingCombatAttributes(combatantProperties);
 
-  for (const baseWeapon of iterateNumericEnum(TwoHandedRangedWeapon)) {
+  for (const baseWeapon of iterateNumericEnum(Shield)) {
     const item = generateSpecificEquipmentType({
-      equipmentType: EquipmentType.TwoHandedRangedWeapon,
+      equipmentType: EquipmentType.Shield,
       baseItemType: baseWeapon,
     });
     if (item instanceof Error || item === undefined) {

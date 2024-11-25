@@ -33,7 +33,7 @@ import setUpDebugMeshes from "./set-up-debug-meshes";
 import { ANIMATION_NAMES } from "./animation-manager/animation-names";
 import { equipmentBaseItemToModelPath } from "./equipment-base-item-to-model-path";
 import attachEquipmentModelToSkeleton from "./attach-equipment-model-to-skeleton";
-import setDefaultMaterials from "../game-world/set-default-materials";
+import setDefaultMaterials, { assignEquipmentMaterials } from "../game-world/set-default-materials";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -199,6 +199,7 @@ export class ModularCharacter {
     if (modelPath === null) return;
     const equipmentModel = await this.world.importMesh(modelPath);
     setDefaultMaterials(this.world, equipmentModel);
+    assignEquipmentMaterials(this.world, item, equipmentModel);
     this.equipment[slot] = equipmentModel;
 
     attachEquipmentModelToSkeleton(

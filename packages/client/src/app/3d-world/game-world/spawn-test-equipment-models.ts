@@ -2,6 +2,11 @@ import {
   BASE_ITEMS_BY_EQUIPMENT_TYPE,
   EquipmentBaseItemEnum,
   EquipmentType,
+  Item,
+  ItemPropertiesType,
+  NumberRange,
+  Shield,
+  TwoHandedRangedWeapon,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 import { GameWorld } from ".";
@@ -12,7 +17,7 @@ import {
   nextToBabylonMessageQueue,
 } from "@/singletons/next-to-babylon-message-queue";
 import { gameWorld } from "../SceneManager";
-import setDefaultMaterials from "./set-default-materials";
+import setDefaultMaterials, { assignEquipmentMaterials } from "./set-default-materials";
 
 const ROW_SIZE = 10;
 const ROW_SPACING = 1;

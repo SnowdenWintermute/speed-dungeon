@@ -22,7 +22,7 @@ import handleGameWorldError from "./handle-error";
 import { clearFloorTexture } from "./clear-floor-texture";
 import drawCharacterSlots from "./draw-character-slots";
 import spawnTestEquipmentModels from "./spawn-test-equipment-models";
-import { DEFAULT_MATERIAL_COLORS, createDefaultMaterials } from "./set-default-materials";
+import { SavedMaterials, createDefaultMaterials } from "./set-default-materials";
 
 export class GameWorld {
   scene: Scene;
@@ -38,7 +38,7 @@ export class GameWorld {
   turnResultsQueue: CombatTurnResult[] = [];
   currentRoomLoaded: boolean = false;
   groundTexture: DynamicTexture;
-  defaultMaterials: { [materialName: string]: StandardMaterial };
+  defaultMaterials: SavedMaterials;
   constructor(
     public canvas: HTMLCanvasElement,
     debugRef: React.RefObject<HTMLUListElement>
@@ -52,7 +52,7 @@ export class GameWorld {
 
     this.defaultMaterials = createDefaultMaterials();
 
-    // spawnTestEquipmentModels(this);
+    spawnTestEquipmentModels(this);
 
     this.engine.runRenderLoop(() => {
       this.updateGameWorld();
