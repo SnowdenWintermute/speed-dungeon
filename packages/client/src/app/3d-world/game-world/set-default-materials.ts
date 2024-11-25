@@ -1,13 +1,15 @@
-import { Color3, ISceneLoaderAsyncResult, StandardMaterial } from "@babylonjs/core";
+import { Color3, Color4, ISceneLoaderAsyncResult, StandardMaterial } from "@babylonjs/core";
 import { GameWorld } from ".";
 import {
   EquipmentType,
   Item,
   ItemPropertiesType,
   MagicalElement,
+  OneHandedMeleeWeapon,
   Shield,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
+import cloneDeep from "lodash.clonedeep";
 
 export const DEFAULT_MATERIAL_COLORS: { [name: string]: Color3 } = {
   Main: new Color3(0.792, 0.761, 0.694),
@@ -24,6 +26,8 @@ export type SavedMaterials = {
   wood: Record<LightestToDarkest, StandardMaterial>;
   metal: Record<LightestToDarkest, StandardMaterial>;
   accent: Record<AccentColor, StandardMaterial>;
+  elements: Record<MagicalElement, StandardMaterial>;
+  custom: { [materialName: string]: StandardMaterial };
 };
 
 export function createDefaultMaterials() {
@@ -32,7 +36,16 @@ export function createDefaultMaterials() {
     wood: Partial<Record<LightestToDarkest, StandardMaterial>>;
     metal: Partial<Record<LightestToDarkest, StandardMaterial>>;
     accent: Partial<Record<AccentColor, StandardMaterial>>;
-  } = { default: {}, wood: {}, metal: {}, accent: {} };
+    elements: Partial<Record<MagicalElement, StandardMaterial>>;
+    custom: { [materialName: string]: StandardMaterial };
+  } = { default: {}, wood: {}, metal: {}, accent: {}, elements: {}, custom: {} };
+  // CUSTOM
+  const etherMaterial = new StandardMaterial("ether");
+  etherMaterial.diffuseColor = new Color3(0.486, 0.286, 0.878);
+  etherMaterial.alpha = 0.4;
+  etherMaterial.emissiveColor = new Color3(0.486, 0.286, 0.878);
+  toReturn.custom["ether"] = etherMaterial;
+
   for (const [name, color] of Object.entries(DEFAULT_MATERIAL_COLORS)) {
     const material = new StandardMaterial(name);
     material.diffuseColor = color;
@@ -63,6 +76,14 @@ export function createDefaultMaterials() {
     material.roughness = 255;
     material.specularColor = color;
     toReturn.accent[name] = material;
+  }
+  for (const name of iterateNumericEnum(MagicalElement)) {
+    const color = ELEMENT_COLORS[name];
+    const material = new StandardMaterial(name + "-element");
+    material.diffuseColor = color;
+    material.roughness = 255;
+    material.specularColor = color;
+    toReturn.elements[name] = material;
   }
 
   return toReturn;
@@ -114,7 +135,7 @@ export const METAL_COLORS: Record<LightestToDarkest, Color3> = {
   [LightestToDarkest.Lighter]: new Color3(0.588, 0.553, 0.553),
   [LightestToDarkest.Medium]: new Color3(0.306, 0.298, 0.306),
   [LightestToDarkest.Darker]: new Color3(0.125, 0.129, 0.133),
-  [LightestToDarkest.Darkest]: new Color3(0.114, 0.118, 0.114),
+  [LightestToDarkest.Darkest]: new Color3(0.07, 0.11, 0.09),
 };
 
 export enum AccentColor {
@@ -123,6 +144,8 @@ export enum AccentColor {
   Cherry,
   BurntOrange,
   KellyGreen,
+  CobaltBlue,
+  DarkBlue,
 }
 
 export const ACCENT_COLORS: Record<AccentColor, Color3> = {
@@ -131,6 +154,8 @@ export const ACCENT_COLORS: Record<AccentColor, Color3> = {
   [AccentColor.Cherry]: new Color3(0.643, 0.278, 0.298),
   [AccentColor.BurntOrange]: new Color3(0.616, 0.404, 0.247),
   [AccentColor.KellyGreen]: new Color3(0.361, 0.608, 0.494),
+  [AccentColor.CobaltBlue]: new Color3(0.165, 0.392, 0.58),
+  [AccentColor.DarkBlue]: new Color3(0.071, 0.208, 0.322),
 };
 
 export const ELEMENT_COLORS: Record<MagicalElement, Color3> = {
@@ -160,12 +185,117 @@ export function assignEquipmentMaterials(
   item: Item,
   itemModel: ISceneLoaderAsyncResult
 ) {
-  let materialsByName = {};
+  let materialsByName: { [name: string]: StandardMaterial } = {};
   if (item.itemProperties.type === ItemPropertiesType.Consumable) return;
+  const { equipmentBaseItemProperties } = item.itemProperties.equipmentProperties;
 
-  switch (item.itemProperties.equipmentProperties.equipmentBaseItemProperties.type) {
+  switch (equipmentBaseItemProperties.type) {
+    case EquipmentType.OneHandedMeleeWeapon:
+      materialsByName[MATERIAL_NAMES.BLADE] =
+        gameWorld.defaultMaterials.metal[LightestToDarkest.Lighter];
+      materialsByName[MATERIAL_NAMES.ACCENT_1] =
+        gameWorld.defaultMaterials.metal[LightestToDarkest.Lightest];
+      switch (equipmentBaseItemProperties.baseItem) {
+        case OneHandedMeleeWeapon.Stick:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Lighter];
+          break;
+        case OneHandedMeleeWeapon.Mace:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Darker];
+          break;
+        case OneHandedMeleeWeapon.Morningstar:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Darkest];
+          materialsByName[MATERIAL_NAMES.BLADE] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Darker];
+          materialsByName[MATERIAL_NAMES.HILT] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Darker];
+          break;
+        case OneHandedMeleeWeapon.WarHammer:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Darker];
+          materialsByName[MATERIAL_NAMES.BLADE] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Darkest];
+          break;
+        case OneHandedMeleeWeapon.ShortSword:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Medium];
+          materialsByName[MATERIAL_NAMES.HILT] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Medium];
+          break;
+        case OneHandedMeleeWeapon.Blade:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Lighter];
+          materialsByName[MATERIAL_NAMES.HILT] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Lightest];
+          break;
+        case OneHandedMeleeWeapon.BroadSword:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Darker];
+          materialsByName[MATERIAL_NAMES.HILT] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Darker];
+          materialsByName[MATERIAL_NAMES.BLADE] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Medium];
+          break;
+        case OneHandedMeleeWeapon.BastardSword:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Darker];
+          materialsByName[MATERIAL_NAMES.HILT] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Darker];
+          materialsByName[MATERIAL_NAMES.BLADE] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Darkest];
+          break;
+        case OneHandedMeleeWeapon.Dagger:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Lighter];
+          materialsByName[MATERIAL_NAMES.HILT] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Medium];
+          break;
+        case OneHandedMeleeWeapon.Rapier:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Medium];
+          materialsByName[MATERIAL_NAMES.HILT] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Medium];
+          materialsByName[MATERIAL_NAMES.ACCENT_1] =
+            gameWorld.defaultMaterials.accent[AccentColor.Brass];
+          break;
+        case OneHandedMeleeWeapon.ShortSpear:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.wood[LightestToDarkest.Lighter];
+          materialsByName[MATERIAL_NAMES.ACCENT_2] =
+            gameWorld.defaultMaterials.accent[AccentColor.Rose];
+          break;
+        case OneHandedMeleeWeapon.RuneSword:
+          let i = 1;
+          for (const classification of equipmentBaseItemProperties.damageClassification) {
+            if (classification.elementOption) {
+              const material = gameWorld.defaultMaterials.elements[classification.elementOption];
+              materialsByName["Accent" + i] = material;
+            }
+            i += 1;
+          }
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Medium];
+          materialsByName[MATERIAL_NAMES.HILT] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Darker];
+          break;
+        case OneHandedMeleeWeapon.EtherBlade:
+          materialsByName[MATERIAL_NAMES.HANDLE] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Medium];
+          materialsByName[MATERIAL_NAMES.HILT] =
+            gameWorld.defaultMaterials.metal[LightestToDarkest.Darker];
+          materialsByName[MATERIAL_NAMES.BLADE] = gameWorld.defaultMaterials.custom["ether"]!;
+          break;
+        case OneHandedMeleeWeapon.IceBlade:
+        case OneHandedMeleeWeapon.MapleWand:
+        case OneHandedMeleeWeapon.WillowWand:
+        case OneHandedMeleeWeapon.YewWand:
+        case OneHandedMeleeWeapon.RoseWand:
+      }
+      break;
     case EquipmentType.Shield:
-      switch (item.itemProperties.equipmentProperties.equipmentBaseItemProperties.baseItem) {
+      switch (equipmentBaseItemProperties.baseItem) {
         case Shield.MakeshiftBuckler:
           materialsByName = {
             [MATERIAL_NAMES.MAIN]: gameWorld.defaultMaterials.wood[LightestToDarkest.Darker],
@@ -219,13 +349,31 @@ export function assignEquipmentMaterials(
           break;
         case Shield.TowerShield:
           materialsByName = {
-            [MATERIAL_NAMES.MAIN]: gameWorld.defaultMaterials.metal[LightestToDarkest.Lighter],
+            [MATERIAL_NAMES.MAIN]: gameWorld.defaultMaterials.wood[LightestToDarkest.Medium],
             [MATERIAL_NAMES.ALTERNATE]: gameWorld.defaultMaterials.metal[LightestToDarkest.Medium],
             [MATERIAL_NAMES.ACCENT_1]: gameWorld.defaultMaterials.accent[AccentColor.Brass],
           };
           break;
         case Shield.AncientBuckler:
+          const accentMaterial = cloneDeep(
+            gameWorld.defaultMaterials.accent[AccentColor.KellyGreen]
+          );
+          accentMaterial.emissiveColor = new Color3(0.094, 0.839, 0.812);
+          materialsByName = {
+            [MATERIAL_NAMES.MAIN]: gameWorld.defaultMaterials.accent[AccentColor.DarkBlue],
+            [MATERIAL_NAMES.ALTERNATE]: gameWorld.defaultMaterials.accent[AccentColor.CobaltBlue],
+            [MATERIAL_NAMES.ACCENT_1]: gameWorld.defaultMaterials.metal[LightestToDarkest.Medium],
+            [MATERIAL_NAMES.ACCENT_2]: gameWorld.defaultMaterials.metal[LightestToDarkest.Lighter],
+            [MATERIAL_NAMES.ACCENT_3]: accentMaterial,
+          };
+          break;
         case Shield.GothicShield:
+          materialsByName = {
+            [MATERIAL_NAMES.MAIN]: gameWorld.defaultMaterials.accent[AccentColor.DarkBlue],
+            [MATERIAL_NAMES.ALTERNATE]: gameWorld.defaultMaterials.metal[LightestToDarkest.Medium],
+            [MATERIAL_NAMES.ACCENT_1]: gameWorld.defaultMaterials.metal[LightestToDarkest.Lighter],
+          };
+          break;
       }
   }
   applyMaterialsToModelMeshes(itemModel, materialsByName);

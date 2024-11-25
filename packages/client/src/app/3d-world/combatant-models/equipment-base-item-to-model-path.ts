@@ -60,7 +60,7 @@ export const ONE_HANDED_MELEE_WEAPON_MODEL_PATHS: Record<OneHandedMeleeWeapon, n
   [OneHandedMeleeWeapon.Blade]: "blade.glb", // https://opengameart.org/content/low-poly-swords-asset-2
   [OneHandedMeleeWeapon.BroadSword]: "broad-sword.glb", // https://opengameart.org/content/low-poly-swords-asset-2
   [OneHandedMeleeWeapon.BastardSword]: "bastard-sword.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
-  [OneHandedMeleeWeapon.Dagger]: "dagger.glb", // https://opengameart.org/content/medieval-weapon-pack
+  [OneHandedMeleeWeapon.Dagger]: "dagger.glb", // drummyfish
   [OneHandedMeleeWeapon.Rapier]: "rapier.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [OneHandedMeleeWeapon.ShortSpear]: "short-spear.glb", // quaternius
   [OneHandedMeleeWeapon.RuneSword]: "rune-sword.glb", // https://opengameart.org/content/low-poly-swords-asset-2
@@ -110,5 +110,5 @@ export const SHIELD_MODEL_PATHS: Record<Shield, null | string> = {
   [Shield.KiteShield]: "kite-shield.glb", // https://opengameart.org/content/medieval-weapon-pack
   [Shield.TowerShield]: "tower-shield.glb", // quaternius
   [Shield.AncientBuckler]: "ancient-buckler.glb", // https://opengameart.org/content/iron-buckler
-  [Shield.GothicShield]: "gothic-shield.glb", // https://opengameart.org/content/kite-shield-1
+  [Shield.GothicShield]: "gothic-shield.glb", // https://opengameart.org/content/medieval-weapon-pack
 };

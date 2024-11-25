@@ -40,8 +40,9 @@ export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTextu
     // Vector3.Zero(),
     this.scene
   );
-  camera.wheelDeltaPercentage = 0.02;
+  camera.wheelDeltaPercentage = 0.01;
   camera.attachControl();
+  camera.minZ = 0;
 
   // LIGHTS
   const hemiLight = new HemisphericLight("hemi-light", new Vector3(0, 1, 0), this.scene);
