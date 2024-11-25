@@ -1,7 +1,8 @@
 import { Item, ItemPropertiesType } from "@speed-dungeon/common";
 import { equipmentBaseItemToModelPath } from "./equipment-base-item-to-model-path";
-import setDefaultMaterials, { assignEquipmentMaterials } from "../game-world/set-default-materials";
 import { GameWorld } from "../game-world";
+import setDefaultMaterials from "../game-world/materials/set-default-materials";
+import { assignEquipmentMaterials } from "../game-world/materials/assign-equipment-materials";
 
 export default async function spawnEquipmentModel(world: GameWorld, item: Item) {
   if (item.itemProperties.type !== ItemPropertiesType.Equipment)

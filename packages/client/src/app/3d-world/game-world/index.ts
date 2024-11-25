@@ -18,8 +18,7 @@ import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
 import { clearFloorTexture } from "./clear-floor-texture";
 import drawCharacterSlots from "./draw-character-slots";
-import spawnTestEquipmentModels from "./spawn-test-equipment-models";
-import { SavedMaterials, createDefaultMaterials } from "./set-default-materials";
+import { SavedMaterials, createDefaultMaterials } from "./materials/create-default-materials";
 
 export class GameWorld {
   scene: Scene;

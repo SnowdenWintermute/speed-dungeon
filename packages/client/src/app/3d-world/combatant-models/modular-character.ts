@@ -31,9 +31,7 @@ import { AnimationManager } from "./animation-manager";
 import { ModelActionManager } from "./model-action-manager";
 import setUpDebugMeshes from "./set-up-debug-meshes";
 import { ANIMATION_NAMES } from "./animation-manager/animation-names";
-import { equipmentBaseItemToModelPath } from "./equipment-base-item-to-model-path";
 import attachEquipmentModelToSkeleton from "./attach-equipment-model-to-skeleton";
-import setDefaultMaterials, { assignEquipmentMaterials } from "../game-world/set-default-materials";
 import spawnEquipmentModel from "./spawn-equipment-model";
 
 export class ModularCharacter {

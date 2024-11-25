@@ -13,7 +13,7 @@ import {
   NextToBabylonMessageTypes,
   nextToBabylonMessageQueue,
 } from "@/singletons/next-to-babylon-message-queue";
-import setDefaultMaterials from "./set-default-materials";
+import setDefaultMaterials from "./materials/set-default-materials";
 import spawnEquipmentModel from "../combatant-models/spawn-equipment-model";
 
 const ROW_SIZE = 10;
