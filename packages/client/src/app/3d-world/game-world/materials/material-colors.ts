@@ -34,9 +34,12 @@ export function formatLightestToDarkest(enumMember: LightestToDarkest) {
 }
 
 export const WOOD_COLORS: Record<LightestToDarkest, Color3> = {
+  // [LightestToDarkest.Lightest]: new Color3(0.722, 0.612, 0.463),
   [LightestToDarkest.Lightest]: new Color3(0.722, 0.612, 0.463),
-  [LightestToDarkest.Lighter]: new Color3(0.447, 0.365, 0.282),
-  [LightestToDarkest.Medium]: new Color3(0.435, 0.314, 0.235),
+  // [LightestToDarkest.Lighter]: new Color3(0.447, 0.365, 0.282),
+  [LightestToDarkest.Lighter]: new Color3(0.431, 0.365, 0.298),
+  // [LightestToDarkest.Medium]: new Color3(0.435, 0.314, 0.235),
+  [LightestToDarkest.Medium]: new Color3(0.396, 0.322, 0.275),
   [LightestToDarkest.Darker]: new Color3(0.294, 0.224, 0.176),
   [LightestToDarkest.Darkest]: new Color3(0.125, 0.106, 0.086),
 };

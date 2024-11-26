@@ -12,6 +12,8 @@ import {
 } from "./material-colors";
 import { MagicalElement, iterateNumericEnum } from "@speed-dungeon/common";
 
+export const DYNAMIC_MATERIAL_TAG = "-dynamic-material";
+
 export type SavedMaterials = {
   default: { [materialName: string]: StandardMaterial };
   wood: Record<LightestToDarkest, StandardMaterial>;

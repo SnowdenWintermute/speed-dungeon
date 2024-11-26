@@ -8,6 +8,8 @@ import {
   Scene,
   Vector3,
 } from "@babylonjs/core";
+import { disposeMeshMaterials } from "./game-world/materials/utils";
+import { DYNAMIC_MATERIAL_TAG } from "./game-world/materials/create-default-materials";
 
 export function getTransformNodeByName(sceneResult: ISceneLoaderAsyncResult, name: string) {
   for (const transformNode of sceneResult.transformNodes) {
@@ -25,7 +27,11 @@ export function getChildMeshByName(mesh: Mesh | AbstractMesh, name: string) {
 
 export function disposeAsyncLoadedScene(sceneResult: ISceneLoaderAsyncResult | null) {
   if (sceneResult === null) return;
-  while (sceneResult.meshes.length) sceneResult.meshes.pop()!.dispose();
+  while (sceneResult.meshes.length) {
+    const mesh = sceneResult.meshes.pop()!;
+    disposeMeshMaterials(mesh, DYNAMIC_MATERIAL_TAG);
+    mesh.dispose();
+  }
   while (sceneResult.skeletons.length) sceneResult.skeletons.pop()!.dispose();
   while (sceneResult.transformNodes.length) sceneResult.transformNodes.pop()!.dispose();
   while (sceneResult.lights.length) sceneResult.lights.pop()!.dispose();

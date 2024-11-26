@@ -7,11 +7,21 @@ import {
   OneHandedMeleeWeapon,
   Shield,
   TwoHandedMeleeWeapon,
+  formatMagicalElement,
 } from "@speed-dungeon/common";
 import { GameWorld } from "..";
-import { ISceneLoaderAsyncResult, Material, StandardMaterial } from "@babylonjs/core";
-import { AccentColor, CustomMaterial, LightestToDarkest, MATERIAL_NAMES } from "./material-colors";
+import { Color3, ISceneLoaderAsyncResult, Material, StandardMaterial } from "@babylonjs/core";
+import {
+  AccentColor,
+  CustomMaterial,
+  ELEMENT_COLORS,
+  LightestToDarkest,
+  MATERIAL_NAMES,
+} from "./material-colors";
 import applyMaterialsToModelMeshes from "./apply-materials-to-model-meshes";
+import { desaturate, lighten } from "./utils";
+import cloneDeep from "lodash.clonedeep";
+import { DYNAMIC_MATERIAL_TAG } from "./create-default-materials";
 
 export function assignEquipmentMaterials(
   gameWorld: GameWorld,
@@ -100,11 +110,20 @@ export function assignEquipmentMaterials(
             gameWorld.defaultMaterials.accent[AccentColor.Rose];
           break;
         case OneHandedMeleeWeapon.RuneSword:
-          assignElementalMaterials(
-            materialsByName,
-            gameWorld,
-            equipmentBaseItemProperties.damageClassification
-          );
+          let i = 1;
+          for (const classification of equipmentBaseItemProperties.damageClassification) {
+            if (classification.elementOption !== null) {
+              const material = new StandardMaterial(
+                DYNAMIC_MATERIAL_TAG + formatMagicalElement(classification.elementOption)
+              );
+
+              const color = desaturate(ELEMENT_COLORS[classification.elementOption], 0.25);
+              material.diffuseColor = color;
+              material.roughness = 0;
+              materialsByName["Accent" + i] = material;
+            }
+            i += 1;
+          }
           materialsByName[MATERIAL_NAMES.HANDLE] =
             gameWorld.defaultMaterials.metal[LightestToDarkest.Medium];
           materialsByName[MATERIAL_NAMES.HILT] =
@@ -324,7 +343,7 @@ function assignElementalMaterials(
 ) {
   let i = 1;
   for (const classification of damageClassification) {
-    if (classification.elementOption) {
+    if (classification.elementOption !== null) {
       const material = gameWorld.defaultMaterials.elements[classification.elementOption];
       materialsByName["Accent" + i] = material;
     }

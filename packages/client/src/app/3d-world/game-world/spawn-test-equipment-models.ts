@@ -4,6 +4,7 @@ import {
   EquipmentType,
   Item,
   ItemPropertiesType,
+  OneHandedMeleeWeapon,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 import { GameWorld } from ".";
@@ -15,6 +16,7 @@ import {
 } from "@/singletons/next-to-babylon-message-queue";
 import setDefaultMaterials from "./materials/set-default-materials";
 import spawnEquipmentModel from "../combatant-models/spawn-equipment-model";
+import { disposeAsyncLoadedScene } from "../utils";
 
 const ROW_SIZE = 10;
 const ROW_SPACING = 1;
