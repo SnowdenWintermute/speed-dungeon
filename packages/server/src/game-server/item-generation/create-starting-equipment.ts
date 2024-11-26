@@ -73,40 +73,40 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
       );
       break;
     case CombatantClass.Rogue:
-      mainHandProperties = new EquipmentProperties(
-        {
-          type: EquipmentType.TwoHandedRangedWeapon,
-          baseItem: TwoHandedRangedWeapon.ShortBow,
-          damage: new NumberRange(1, 4),
-          damageClassification: [
-            new HpChangeSource(
-              {
-                type: HpChangeSourceCategoryType.PhysicalDamage,
-                meleeOrRanged: MeleeOrRanged.Ranged,
-              },
-              PhysicalDamageType.Piercing
-            ),
-          ],
-        },
-        new MaxAndCurrent(1, 1)
-      );
-      // mainHandProperties = offhandProperties = new EquipmentProperties(
+      // mainHandProperties = new EquipmentProperties(
       //   {
-      //     type: EquipmentType.OneHandedMeleeWeapon,
-      //     baseItem: OneHandedMeleeWeapon.Dagger,
-      //     damage: new NumberRange(1, 2),
+      //     type: EquipmentType.TwoHandedRangedWeapon,
+      //     baseItem: TwoHandedRangedWeapon.ShortBow,
+      //     damage: new NumberRange(1, 4),
       //     damageClassification: [
       //       new HpChangeSource(
       //         {
       //           type: HpChangeSourceCategoryType.PhysicalDamage,
-      //           meleeOrRanged: MeleeOrRanged.Melee,
+      //           meleeOrRanged: MeleeOrRanged.Ranged,
       //         },
-      //         PhysicalDamageType.Slashing
+      //         PhysicalDamageType.Piercing
       //       ),
       //     ],
       //   },
       //   new MaxAndCurrent(1, 1)
       // );
+      mainHandProperties = offhandProperties = new EquipmentProperties(
+        {
+          type: EquipmentType.OneHandedMeleeWeapon,
+          baseItem: OneHandedMeleeWeapon.Dagger,
+          damage: new NumberRange(1, 2),
+          damageClassification: [
+            new HpChangeSource(
+              {
+                type: HpChangeSourceCategoryType.PhysicalDamage,
+                meleeOrRanged: MeleeOrRanged.Melee,
+              },
+              PhysicalDamageType.Slashing
+            ),
+          ],
+        },
+        new MaxAndCurrent(1, 1)
+      );
       break;
   }
 

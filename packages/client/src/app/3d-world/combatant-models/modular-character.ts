@@ -11,6 +11,7 @@ import {
 import {
   disposeAsyncLoadedScene,
   getChildMeshByName,
+  getClientRectFromMesh,
   getTransformNodeByName,
   paintCubesOnNodes,
 } from "../utils";
@@ -111,7 +112,7 @@ export class ModularCharacter {
   setUpDebugMeshes = setUpDebugMeshes;
 
   updateDomRefPosition() {
-    const boundingBox = this.getClientRectFromMesh(this.rootMesh);
+    const boundingBox = getClientRectFromMesh(this.world.scene, this.world.canvas, this.rootMesh);
     if (this.modelDomPositionElement) {
       this.modelDomPositionElement.setAttribute(
         "style",
@@ -189,9 +190,16 @@ export class ModularCharacter {
       disposeAsyncLoadedScene(this.equipment[EquipmentSlot.OffHand]);
     }
 
-    const equipmentModelResult = await spawnEquipmentModel(this.world, item);
+    const equipmentModelResult = await spawnEquipmentModel(
+      this.world,
+      item,
+      this.world.scene,
+      this.world.defaultMaterials
+    );
     if (equipmentModelResult instanceof Error) return console.error(equipmentModelResult);
     this.equipment[slot] = equipmentModelResult;
+
+    await this.world.createItemImage(item);
 
     attachEquipmentModelToSkeleton(
       this,
@@ -213,43 +221,5 @@ export class ModularCharacter {
     const skeletonRootBone = getChildMeshByName(this.skeleton.meshes[0], "Root");
     if (skeletonRootBone !== undefined)
       paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.world.scene);
-  }
-
-  // adapted from https://forum.babylonjs.com/t/get-mesh-bounding-box-position-and-size-in-2d-screen-coordinates/1058/3
-  getClientRectFromMesh(mesh: Mesh | AbstractMesh): DOMRect {
-    // get bounding box of the mesh
-    const meshVectors = mesh.getBoundingInfo().boundingBox.vectors;
-
-    // get the matrix and viewport needed to project the vectors onto the screen
-    const worldMatrix = mesh.getWorldMatrix();
-    const transformMatrix = this.world.scene.getTransformMatrix();
-    const viewport = this.world.scene.activeCamera!.viewport;
-
-    // loop though all the vectors and project them against the current camera viewport to get a set of coordinates
-    const coordinates = meshVectors.map((v) => {
-      const proj = Vector3.Project(v, worldMatrix, transformMatrix, viewport);
-      proj.x = proj.x * this.world.canvas.clientWidth;
-      proj.y = proj.y * this.world.canvas.clientHeight;
-      return proj;
-    });
-
-    if (!coordinates[0]) throw new Error("no coordinates on that mesh");
-    const extent = {
-      minX: coordinates[0].x,
-      maxX: coordinates[0].x,
-      minY: coordinates[0].y,
-      maxY: coordinates[0].y,
-    };
-
-    coordinates.forEach((current, i) => {
-      if (i === 0) return;
-      if (current.x < extent.minX) extent.minX = current.x;
-      if (current.x > extent.maxX) extent.maxX = current.x;
-      if (current.y < extent.minY) extent.minY = current.y;
-      if (current.y > extent.maxY) extent.maxY = current.y;
-    });
-    const { minX, maxX, minY, maxY } = extent;
-
-    return new DOMRect(minX, minY, maxX - minX, maxY - minY);
   }
 }

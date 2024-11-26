@@ -1,4 +1,4 @@
-import { Color3, StandardMaterial } from "@babylonjs/core";
+import { Color3, Scene, StandardMaterial } from "@babylonjs/core";
 import {
   ACCENT_COLORS,
   AccentColor,
@@ -23,7 +23,7 @@ export type SavedMaterials = {
   custom: Record<CustomMaterial, StandardMaterial>;
 };
 
-export function createDefaultMaterials(): SavedMaterials {
+export function createDefaultMaterials(scene: Scene): SavedMaterials {
   const toReturn: {
     default: { [materialName: string]: StandardMaterial };
     wood: Partial<Record<LightestToDarkest, StandardMaterial>>;
@@ -33,24 +33,24 @@ export function createDefaultMaterials(): SavedMaterials {
     custom: Partial<Record<CustomMaterial, StandardMaterial>>;
   } = { default: {}, wood: {}, metal: {}, accent: {}, elements: {}, custom: {} };
   // CUSTOM
-  const etherMaterial = new StandardMaterial("ether");
+  const etherMaterial = new StandardMaterial("ether", scene);
   etherMaterial.diffuseColor = new Color3(0.486, 0.286, 0.878);
   etherMaterial.alpha = 0.4;
   etherMaterial.emissiveColor = new Color3(0.486, 0.286, 0.878);
   toReturn.custom[CustomMaterial.Ether] = etherMaterial;
 
-  const iceMaterial = new StandardMaterial("ice");
+  const iceMaterial = new StandardMaterial("ice", scene);
   iceMaterial.diffuseColor = ELEMENT_COLORS[MagicalElement.Ice];
   iceMaterial.alpha = 0.6;
   toReturn.custom[CustomMaterial.Ice] = iceMaterial;
 
-  const ancientMetal = new StandardMaterial("ancient-metal");
+  const ancientMetal = new StandardMaterial("ancient-metal", scene);
   ancientMetal.emissiveColor = new Color3(0.094, 0.839, 0.812);
   toReturn.custom[CustomMaterial.AncientMetal] = ancientMetal;
 
   //
   for (const [name, color] of Object.entries(DEFAULT_MATERIAL_COLORS)) {
-    const material = new StandardMaterial(name);
+    const material = new StandardMaterial(name, scene);
     material.diffuseColor = color;
     material.roughness = 255;
     material.specularColor = color;
@@ -58,7 +58,7 @@ export function createDefaultMaterials(): SavedMaterials {
   }
   for (const name of iterateNumericEnum(LightestToDarkest)) {
     const color = WOOD_COLORS[name];
-    const material = new StandardMaterial(formatLightestToDarkest(name) + "-wood");
+    const material = new StandardMaterial(formatLightestToDarkest(name) + "-wood", scene);
     material.diffuseColor = color;
     material.roughness = 255;
     material.specularColor = color;
@@ -66,7 +66,7 @@ export function createDefaultMaterials(): SavedMaterials {
   }
   for (const name of iterateNumericEnum(LightestToDarkest)) {
     const color = METAL_COLORS[name];
-    const material = new StandardMaterial(formatLightestToDarkest(name) + "-metal");
+    const material = new StandardMaterial(formatLightestToDarkest(name) + "-metal", scene);
     material.diffuseColor = color;
     material.roughness = 255;
     material.specularColor = color;
@@ -74,7 +74,7 @@ export function createDefaultMaterials(): SavedMaterials {
   }
   for (const name of iterateNumericEnum(AccentColor)) {
     const color = ACCENT_COLORS[name];
-    const material = new StandardMaterial(name + "-accent");
+    const material = new StandardMaterial(name + "-accent", scene);
     material.diffuseColor = color;
     material.roughness = 255;
     material.specularColor = color;
@@ -82,7 +82,7 @@ export function createDefaultMaterials(): SavedMaterials {
   }
   for (const name of iterateNumericEnum(MagicalElement)) {
     const color = ELEMENT_COLORS[name];
-    const material = new StandardMaterial(name + "-element");
+    const material = new StandardMaterial(name + "-element", scene);
     material.diffuseColor = color;
     material.roughness = 255;
     material.specularColor = color;

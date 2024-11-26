@@ -131,7 +131,10 @@ export class ModelManager {
       parts.push({ category: ModularCharacterPartCategory.Torso, assetPath: torsoPath });
       parts.push({ category: ModularCharacterPartCategory.Legs, assetPath: legsPath });
     }
-    const skeleton = await this.world.importMesh(SKELETONS[combatantProperties.combatantSpecies]);
+    const skeleton = await this.world.importMesh(
+      SKELETONS[combatantProperties.combatantSpecies],
+      this.world.scene
+    );
 
     const modularCharacter = new ModularCharacter(
       entityProperties.id,

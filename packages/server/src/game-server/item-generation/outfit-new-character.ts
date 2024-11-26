@@ -20,7 +20,7 @@ import {
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { idGenerator } from "../../singletons.js";
-import { generateSpecificEquipmentType } from "./generate-test-items.js";
+import generateTestItems, { generateSpecificEquipmentType } from "./generate-test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -65,9 +65,9 @@ export default function outfitNewCharacter(character: Combatant) {
 
   giveTestingCombatAttributes(combatantProperties);
 
-  for (const baseWeapon of iterateNumericEnum(Shield)) {
+  for (const baseWeapon of iterateNumericEnum(TwoHandedMeleeWeapon)) {
     const item = generateSpecificEquipmentType({
-      equipmentType: EquipmentType.Shield,
+      equipmentType: EquipmentType.TwoHandedMeleeWeapon,
       baseItemType: baseWeapon,
     });
     if (item instanceof Error || item === undefined) {

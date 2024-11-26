@@ -78,13 +78,13 @@ async function spawnBaseItemModels(
       const parentMesh = MeshBuilder.CreateSphere("ball", { diameter: 0.25 }, world.scene);
       parentMesh.position = position;
     } else {
-      const equipmentModel = await world.importMesh(modelPath);
+      const equipmentModel = await world.importMesh(modelPath, world.scene);
       const parentMesh = equipmentModel.meshes[0];
       if (!parentMesh) {
         console.log("NO PARENT MESH");
         continue;
       }
-      setDefaultMaterials(world, equipmentModel);
+      setDefaultMaterials(equipmentModel, world.defaultMaterials);
 
       parentMesh.position = position;
     }
@@ -125,7 +125,7 @@ export async function spawnEquipmentModelsFromItemList(world: GameWorld, items: 
       i = 0;
       j += 1;
     }
-    const model = await spawnEquipmentModel(world, item);
+    const model = await spawnEquipmentModel(world, item, world.scene, world.defaultMaterials);
     if (!(model instanceof Error)) {
       const parentMesh = model.meshes[0];
       if (!parentMesh) continue;
