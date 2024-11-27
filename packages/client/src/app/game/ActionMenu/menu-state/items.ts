@@ -7,9 +7,6 @@ import {
   MenuStateType,
 } from ".";
 import {
-  CombatAttribute,
-  Combatant,
-  CombatantProperties,
   ConsumableType,
   Item,
   ItemPropertiesType,
@@ -85,10 +82,8 @@ export class ItemsMenuState implements ActionMenuState {
           state.stackedMenuStates.push(new ConsideringItemMenuState(firstConsumableOfThisType));
         });
         selectItem(firstConsumableOfThisType);
-        setUnmetAttributeRequirements(focusedCharacterResult, firstConsumableOfThisType);
       });
-      button.mouseEnterHandler = () =>
-        itemButtonMouseEnterHandler(focusedCharacterResult, firstConsumableOfThisType);
+      button.mouseEnterHandler = () => itemButtonMouseEnterHandler(firstConsumableOfThisType);
       button.mouseLeaveHandler = () => itemButtonMouseLeaveHandler();
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
@@ -99,10 +94,9 @@ export class ItemsMenuState implements ActionMenuState {
           state.stackedMenuStates.push(new ConsideringItemMenuState(item));
         });
         selectItem(item);
-        setUnmetAttributeRequirements(focusedCharacterResult, item);
       });
 
-      button.mouseEnterHandler = () => itemButtonMouseEnterHandler(focusedCharacterResult, item);
+      button.mouseEnterHandler = () => itemButtonMouseEnterHandler(item);
       button.mouseLeaveHandler = () => itemButtonMouseLeaveHandler();
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
@@ -130,34 +124,9 @@ export class ItemsMenuState implements ActionMenuState {
 function itemButtonMouseLeaveHandler() {
   useGameStore.getState().mutateState((gameState) => {
     gameState.hoveredEntity = null;
-    gameState.consideredItemUnmetRequirements = null;
   });
 }
 
-function itemButtonMouseEnterHandler(focusedCharacter: Combatant, item: Item) {
+function itemButtonMouseEnterHandler(item: Item) {
   setItemHovered(item);
-  setUnmetAttributeRequirements(focusedCharacter, item);
-}
-
-export function setUnmetAttributeRequirements(focusedCharacter: Combatant, item: Item) {
-  useGameStore.getState().mutateState((gameState) => {
-    // calculate unmet requirements
-    const totalAttributes = CombatantProperties.getTotalAttributes(
-      focusedCharacter.combatantProperties
-    );
-
-    const unmetAttributeRequirements: CombatAttribute[] = [];
-    if (Object.keys(item.requirements).length !== 0) {
-      for (const [attributeKey, value] of Object.entries(item.requirements)) {
-        const attribute = parseInt(attributeKey) as CombatAttribute;
-        const characterAttribute = totalAttributes[attribute] || 0;
-        if (characterAttribute >= value) continue;
-        else unmetAttributeRequirements.push(attribute);
-      }
-    }
-
-    if (unmetAttributeRequirements.length > 0)
-      gameState.consideredItemUnmetRequirements = unmetAttributeRequirements;
-    else gameState.consideredItemUnmetRequirements = null;
-  });
 }

@@ -16,6 +16,7 @@ import CombatLog from "./combat-log";
 import { MenuStateType } from "./ActionMenu/menu-state";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
+import CurrentItemUnmetRequirementsUpdater from "./CurrentItemUnmetRequirementsUpdater";
 
 export default function Game() {
   const game = useGameStore().game;
@@ -60,6 +61,7 @@ export default function Game() {
   return (
     <main className="h-screen w-screen flex justify-center relative overflow-hidden">
       <CharacterAutofocusManager />
+      <CurrentItemUnmetRequirementsUpdater />
       <PartyWipeModal party={party} />
       <div className="w-full h-full max-h-[calc(0.5625 * 100vw)] text-zinc-300 flex flex-col">
         <TopInfoBar />

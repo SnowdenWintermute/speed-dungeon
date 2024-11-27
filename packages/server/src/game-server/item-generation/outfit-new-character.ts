@@ -20,7 +20,10 @@ import {
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { idGenerator } from "../../singletons.js";
-import generateTestItems, { generateSpecificEquipmentType } from "./generate-test-items.js";
+import generateTestItems, {
+  generateOneOfEachItem,
+  generateSpecificEquipmentType,
+} from "./generate-test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -63,19 +66,24 @@ export default function outfitNewCharacter(character: Combatant) {
   // FOR TESTING INVENTORY
   // generateTestItems(combatantProperties, 6);
 
-  giveTestingCombatAttributes(combatantProperties);
+  // giveTestingCombatAttributes(combatantProperties);
 
-  for (const baseWeapon of iterateNumericEnum(TwoHandedMeleeWeapon)) {
-    const item = generateSpecificEquipmentType({
-      equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-      baseItemType: baseWeapon,
-    });
-    if (item instanceof Error || item === undefined) {
-      console.error("forced item type not generated:", item);
-      continue;
-    }
-    combatantProperties.inventory.items.push(item);
-  }
+  const items = generateOneOfEachItem();
+  combatantProperties.inventory.items.push(...items);
+
+  combatantProperties.unspentAttributePoints = 100;
+
+  // for (const baseWeapon of iterateNumericEnum(Shield)) {
+  //   const item = generateSpecificEquipmentType({
+  //     equipmentType: EquipmentType.Shield,
+  //     baseItemType: baseWeapon,
+  //   });
+  //   if (item instanceof Error || item === undefined) {
+  //     console.error("forced item type not generated:", item);
+  //     continue;
+  //   }
+  //   combatantProperties.inventory.items.push(item);
+  // }
 
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;

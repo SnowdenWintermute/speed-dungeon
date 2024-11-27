@@ -40,7 +40,7 @@ export default function SceneManager() {
       />
       <canvas
         ref={imageCreatorCanvasRef}
-        className="absolute z-[-1] border bottom-0 pointer-events-auto"
+        className="absolute z-[-1] border bottom-0 pointer-events-auto top-0 -translate-y-full"
         style={{ height: `600px`, width: "480px" }}
         id="babylon-image-generation-canvas"
       />

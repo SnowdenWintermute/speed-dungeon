@@ -61,6 +61,7 @@ export class GameState {
   combatantFloatingText: { [combatantId: string]: FloatingText[] } = {};
   combatantModelsAwaitingSpawn: string[] = [];
   testText: string = "test";
+  itemThumbnails: { [itemId: string]: string } = {};
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
     if (party instanceof Error) return null;

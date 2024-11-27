@@ -1,8 +1,14 @@
-import { Combatant, ERROR_MESSAGES, addCharacterToParty } from "@speed-dungeon/common";
+import {
+  Combatant,
+  ERROR_MESSAGES,
+  ItemPropertiesType,
+  addCharacterToParty,
+} from "@speed-dungeon/common";
 import { setAlert } from "../../components/alerts";
 import { useGameStore } from "@/stores/game-store";
+import { gameWorld } from "@/app/3d-world/SceneManager";
 
-export default function characterAddedToPartyHandler(
+export default async function characterAddedToPartyHandler(
   partyName: string,
   username: string,
   character: Combatant
@@ -21,4 +27,13 @@ export default function characterAddedToPartyHandler(
       else console.error(error);
     }
   });
+
+  for (const item of character.combatantProperties.inventory.items) {
+    if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
+    await gameWorld.current?.createItemImage(item);
+  }
+  for (const item of Object.values(character.combatantProperties.equipment)) {
+    if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
+    await gameWorld.current?.createItemImage(item);
+  }
 }

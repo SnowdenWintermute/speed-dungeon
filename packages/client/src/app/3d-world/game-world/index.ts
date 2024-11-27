@@ -6,10 +6,8 @@ import {
   SceneLoader,
   Mesh,
   DynamicTexture,
-  MeshBuilder,
   ISceneLoaderAsyncResult,
   UniversalCamera,
-  CreateScreenshotUsingRenderTarget,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { BASE_FILE_PATH } from "../combatant-models/modular-character-parts";
@@ -29,21 +27,15 @@ import {
 } from "./materials/create-default-materials";
 import { createImageCreatorScene } from "./image-creator-scene";
 import spawnEquipmentModel from "../combatant-models/spawn-equipment-model";
-import {
-  calculateCompositeBoundingBox,
-  disposeAsyncLoadedScene,
-  getClientRectFromMesh,
-  takeScreenshot,
-} from "../utils";
+import { calculateCompositeBoundingBox, takeScreenshot } from "../utils";
 import { disposeMeshMaterials } from "./materials/utils";
+import { useGameStore } from "@/stores/game-store";
 
 export class GameWorld {
   engine: Engine;
   scene: Scene;
-
   imageCreatorEngine: Engine;
   imageCreatorScene: Scene;
-
   camera: ArcRotateCamera | null = null;
   sun: Mesh;
   // shadowGenerator: null | ShadowGenerator = null;
@@ -120,25 +112,19 @@ export class GameWorld {
     const distance = maxDimension / (2 * Math.tan(fov / 2));
     camera.position = center.add(new Vector3(0, 0, distance));
     camera.setTarget(center);
-    const canvasWidth = 100; // Example width
-    const canvasHeight = (size.y / size.x) * canvasWidth;
+    const canvasHeight = 200;
+    const canvasWidth = (size.x / size.y) * canvasHeight;
     this.imageCreatorCanvas.width = canvasWidth;
     this.imageCreatorCanvas.height = canvasHeight;
-    // this.imageCreatorCanvas.style.width = `${canvasWidth}px`;
-    // this.imageCreatorCanvas.style.height = `${canvasHeight}px`;
     this.imageCreatorEngine.resize();
-    this.imageCreatorScene.render();
-    console.log("canvas dimensions: ", canvasWidth, canvasHeight);
     this.imageCreatorEngine.runRenderLoop(() => {
       this.imageCreatorScene.render();
       this.imageCreatorEngine.stopRenderLoop(); // Stop after rendering one frame
     });
     const image = await takeScreenshot(this.imageCreatorEngine, camera, canvasWidth, canvasHeight);
-    console.log("image: ", image);
-
-    console.log("Bounding Box Center:", center);
-    console.log("Bounding Box Size:", size);
-    console.log("box: ", box);
+    useGameStore.getState().mutateState((state) => {
+      state.itemThumbnails[item.entityProperties.id] = image;
+    });
   }
 
   updateGameWorld() {

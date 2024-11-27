@@ -10,7 +10,6 @@ import {
   TwoHandedRangedWeapon,
   formatMagicalElement,
 } from "@speed-dungeon/common";
-import { GameWorld } from "..";
 import { ISceneLoaderAsyncResult, StandardMaterial } from "@babylonjs/core";
 import {
   AccentColor,
@@ -22,6 +21,7 @@ import {
 import applyMaterialsToModelMeshes from "./apply-materials-to-model-meshes";
 import { desaturate } from "./utils";
 import { DYNAMIC_MATERIAL_TAG, SavedMaterials } from "./create-default-materials";
+import cloneDeep from "lodash.clonedeep";
 
 export function assignEquipmentMaterials(
   item: Item,
@@ -178,6 +178,10 @@ export function assignEquipmentMaterials(
           break;
         case TwoHandedMeleeWeapon.Trident:
           materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.elements[MagicalElement.Water];
+          // const tridentMaterial = new StandardMaterial(`trident${DYNAMIC_MATERIAL_TAG}`);
+          // tridentMaterial.emissiveColor = ELEMENT_COLORS[MagicalElement.Water];
+          // tridentMaterial.alpha = 0.1;
+          // materials[MATERIAL_NAMES.ACCENT_2] = tridentMaterial;
           materials[MATERIAL_NAMES.BLADE] = savedMaterials.accent[AccentColor.Brass];
           materials[MATERIAL_NAMES.HILT] = savedMaterials.accent[AccentColor.Brass];
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Medium];

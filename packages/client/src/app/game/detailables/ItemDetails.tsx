@@ -4,6 +4,7 @@ import React from "react";
 import ActionDetails from "./ActionDetails";
 import EquipmentDetails from "./EquipmentDetails";
 import ModKeyTooltip from "./ModKeyTooltip";
+import { useGameStore } from "@/stores/game-store";
 
 interface Props {
   title: string;
@@ -24,12 +25,16 @@ export default function ItemDetails({
 }: Props) {
   let itemDetailsDisplay = <></>;
   let hiddenClass = "pointer-events-auto";
+  let thumbnailPath = "";
+  const thumbnailOption = useGameStore().itemThumbnails[itemOption?.entityProperties.id || ""];
 
   if (!itemOption) {
     itemDetailsDisplay = <></>;
     hiddenClass = "opacity-0 h-0 pointer-events-none";
   } else {
     const item = itemOption;
+    thumbnailPath = thumbnailOption || "img/equipment-icons/1h-sword-a.svg";
+
     if (item.itemProperties.type === ItemPropertiesType.Consumable) {
       itemDetailsDisplay = (
         <ActionDetails
@@ -65,8 +70,8 @@ export default function ItemDetails({
       <div className="mr-2 mb-1 mt-1 h-[1px] bg-slate-400" />
       {itemOption?.entityProperties.name}
       {itemDetailsDisplay}
-      <div className="opacity-50 fill-slate-400 h-40 absolute bottom-5 right-3">
-        <img src="img/equipment-icons/1h-sword-a.svg" className="h-40 filter" />
+      <div className="h-40 absolute bottom-5 right-3">
+        <img src={thumbnailPath} className="h-40 " />
       </div>
     </div>
   );

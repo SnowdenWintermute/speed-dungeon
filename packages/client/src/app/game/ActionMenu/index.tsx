@@ -67,7 +67,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
               <ActionMenuDedicatedButton
                 extraStyles="border border-slate-400 mr-2 last:mr-0"
                 properties={button}
-              ></ActionMenuDedicatedButton>
+              />
             </li>
           );
         })}

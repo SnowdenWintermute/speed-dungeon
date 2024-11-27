@@ -199,8 +199,6 @@ export class ModularCharacter {
     if (equipmentModelResult instanceof Error) return console.error(equipmentModelResult);
     this.equipment[slot] = equipmentModelResult;
 
-    await this.world.createItemImage(item);
-
     attachEquipmentModelToSkeleton(
       this,
       equipmentModelResult,

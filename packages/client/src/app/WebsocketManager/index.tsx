@@ -15,21 +15,19 @@ import { spawnEquipmentModelsFromItemList } from "../3d-world/game-world/spawn-t
 
 export const TEST_ITEMS: Item[] = [];
 
-function SocketManager() {
+export default function WebsocketManager() {
   const mutateLobbyStore = useLobbyStore().mutateState;
   const mutateGameStore = useGameStore().mutateState;
-  const gameName = useGameStore().gameName;
-  const socketOption = websocketConnection;
 
   useEffect(() => {
-    socketOption.connect();
+    websocketConnection.connect();
     return () => {
-      socketOption.disconnect();
+      websocketConnection.disconnect();
     };
   }, []);
 
   useEffect(() => {
-    const socket = socketOption;
+    const socket = websocketConnection;
 
     socket.on(ServerToClientEvent.TestItems, (items) => {
       console.log("got items: ", items);
@@ -75,15 +73,13 @@ function SocketManager() {
     setUpSavedCharacterEventListeners(socket);
 
     return () => {
-      socketOption.off("connect");
+      websocketConnection.off("connect");
 
       Object.values(ServerToClientEvent).forEach((value) => {
-        socketOption.off(value);
+        websocketConnection.off(value);
       });
     };
-  }, [socketOption, gameName]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
-  return <div id="websocket-manager"></div>;
+  return <div id="websocket-manager" />;
 }
-
-export default SocketManager;

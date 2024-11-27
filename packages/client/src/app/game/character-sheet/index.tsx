@@ -1,7 +1,7 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import { useGameStore } from "@/stores/game-store";
 import { CombatantProperties, ERROR_MESSAGES } from "@speed-dungeon/common";
-import React from "react";
+import React, { useMemo } from "react";
 import CharacterSheetCharacterSelectionButton from "./CharacterSheetCharacterSelectionButton";
 import CharacterAttributes from "./CharacterAttributes";
 import PaperDoll from "./PaperDoll";
@@ -18,7 +18,11 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
   const partyCharacterIds = partyResult.characterPositions;
 
   const { equipment } = combatantProperties;
-  const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
+
+  const totalAttributes = useMemo(
+    () => CombatantProperties.getTotalAttributes(combatantProperties),
+    [combatantProperties]
+  );
 
   let conditionalStyles = showCharacterSheet ? "overflow-hidden" : "opacity-0 w-0 overflow-hidden";
 
