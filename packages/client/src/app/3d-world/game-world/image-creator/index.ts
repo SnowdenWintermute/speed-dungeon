@@ -1,9 +1,6 @@
 import {
-  Camera,
   CreateScreenshotUsingRenderTarget,
-  CreateScreenshotUsingRenderTargetAsync,
   Engine,
-  MeshBuilder,
   Scene,
   UniversalCamera,
   Vector3,
@@ -41,32 +38,35 @@ export class ImageCreator {
     this.materials = createDefaultMaterials(this.scene);
   }
 
+  processNextMessage() {
+    if (this.queue.length === 0) {
+      this.isProcessing = false;
+      this.engine.stopRenderLoop();
+      console.log("finished generating screenshots");
+      return;
+    }
+
+    const message = this.queue.shift();
+    if (!message) return console.error("expected message not found");
+
+    try {
+      const camera = this.scene.cameras[0];
+      if (!camera) return console.error("expected camera not found");
+      this.createItemImage(message.item);
+      this.engine.runRenderLoop(() => {});
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   async enqueueMessage(message: ImageCreationRequest) {
     this.queue.push(message);
-    console.log(this.queue.length);
-    // console.log("isProcessing: ", this.isProcessing, "queue: ", this.queue, message);
     if (this.isProcessing) return;
 
     this.isProcessing = true;
     while (this.queue.length > 0) {
-      const message = this.queue.shift();
-      if (!message) break;
-      console.log("trying to create screenshot");
-      try {
-        const image = await CreateScreenshotUsingRenderTargetAsync(
-          this.engine,
-          this.scene.cameras[0]!,
-          { width: 100, height: 100 },
-          "image/png"
-        );
-        console.log(image);
-      } catch (err) {
-        console.error(err);
-      }
-
-      // await this.createItemImage(message.item);
+      this.processNextMessage();
     }
-    this.isProcessing = false;
   }
 
   async createItemImage(item: Item) {
@@ -88,29 +88,28 @@ export class ImageCreator {
     const distance = maxDimension / (2 * Math.tan(fov / 2));
     camera.position = center.add(new Vector3(0, 0, distance));
     camera.setTarget(center);
-    const canvasWidth = 144;
-    const canvasHeight = (size.y / size.x) * canvasWidth;
+
+    const itemHeight = box.max.y - box.min.y;
+    console.log("item height", item.entityProperties.name, itemHeight);
+
+    const canvasHeight = itemHeight * 100;
+    const canvasWidth = (size.x / size.y) * canvasHeight;
     this.canvas.width = canvasWidth;
     this.canvas.height = canvasHeight;
 
-    this.engine.beginFrame();
-    this.scene.render();
-    this.engine.endFrame();
-    console.log("about to take screenshot", this.engine, camera);
-    // const image = await takeScreenshot(this.engine, camera, canvasWidth, canvasHeight);
-    const image = await CreateScreenshotUsingRenderTargetAsync(
+    CreateScreenshotUsingRenderTarget(
       this.engine,
       camera,
       { width: canvasWidth, height: canvasHeight },
+      (image) => {
+        this.engine.stopRenderLoop();
+        useGameStore.getState().mutateState((state) => {
+          state.itemThumbnails[item.entityProperties.id] = image;
+        });
+        disposeAsyncLoadedScene(equipmentModelResult);
+        this.processNextMessage();
+      },
       "image/png"
     );
-
-    useGameStore.getState().mutateState((state) => {
-      state.itemThumbnails[item.entityProperties.id] = image;
-    });
-
-    disposeAsyncLoadedScene(equipmentModelResult);
-
-    console.log(image.slice(0, 10));
   }
 }

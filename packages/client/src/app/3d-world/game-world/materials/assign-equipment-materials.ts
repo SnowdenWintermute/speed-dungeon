@@ -31,10 +31,11 @@ export function assignEquipmentMaterials(
   if (item.itemProperties.type === ItemPropertiesType.Consumable) return;
   const { equipmentBaseItemProperties } = item.itemProperties.equipmentProperties;
 
+  materials[MATERIAL_NAMES.BLADE] = savedMaterials.metal[LightestToDarkest.Lighter];
+  materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.metal[LightestToDarkest.Lightest];
+
   switch (equipmentBaseItemProperties.type) {
     case EquipmentType.OneHandedMeleeWeapon:
-      materials[MATERIAL_NAMES.BLADE] = savedMaterials.metal[LightestToDarkest.Lighter];
-      materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.metal[LightestToDarkest.Lightest];
       switch (equipmentBaseItemProperties.baseItem) {
         case OneHandedMeleeWeapon.Stick:
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Lighter];
@@ -109,7 +110,6 @@ export function assignEquipmentMaterials(
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.metal[LightestToDarkest.Medium];
           materials[MATERIAL_NAMES.HILT] = savedMaterials.metal[LightestToDarkest.Darker];
           materials[MATERIAL_NAMES.BLADE] = savedMaterials.custom[CustomMaterial.Ice];
-          materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.metal[LightestToDarkest.Lightest];
           materials[MATERIAL_NAMES.ACCENT_2] = savedMaterials.metal[LightestToDarkest.Darker];
           break;
         case OneHandedMeleeWeapon.MapleWand:

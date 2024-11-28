@@ -47,7 +47,6 @@ export default function ItemDetails({
         <EquipmentDetails
           item={item}
           equipmentProperties={item.itemProperties.equipmentProperties}
-          isComparedItem={isComparedItem}
         />
       );
     }
@@ -70,8 +69,10 @@ export default function ItemDetails({
       <div className="mr-2 mb-1 mt-1 h-[1px] bg-slate-400" />
       {itemOption?.entityProperties.name}
       {itemDetailsDisplay}
-      <div className="h-40 absolute bottom-5 right-3">
-        <img src={thumbnailPath} className="h-40 " />
+      <div className="h-full w-full absolute top-0 left-0 p-2 pr-8 flex items-center justify-end">
+        <div className="bg-gray-500 border border-black max-h-full p-2">
+          <img src={thumbnailPath} />
+        </div>
       </div>
     </div>
   );
