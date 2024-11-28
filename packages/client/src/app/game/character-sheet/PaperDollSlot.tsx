@@ -2,7 +2,7 @@ import { useGameStore } from "@/stores/game-store";
 import selectItem from "@/utils/selectItem";
 import setItemHovered from "@/utils/set-item-hovered";
 import { CombatantAttributeRecord, EquipmentSlot, Item } from "@speed-dungeon/common";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ConsideringItemMenuState } from "../ActionMenu/menu-state/considering-item";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 
@@ -30,27 +30,27 @@ export default function PaperDollSlot({
   const playerOwnsCharacter = clientUserControlsCombatant(focusedCharacterId);
 
   const itemNameDisplay = itemOption ? itemOption.entityProperties.name : "";
+  const [bgStyle, setBgStyle] = useState("");
+  const bgStyleRef = useRef("");
 
-  const bgStyle = useMemo(() => {
+  useEffect(() => {
     // if not focusing an item, highlight the item in this slot's usability style
+    let newBgStyle = "";
+    if (comparedSlot === null) {
+      if (itemOption && !Item.requirementsMet(itemOption, characterAttributes)) {
+        newBgStyle = UNUSABLE_ITEM_BG_STYLES;
+      } else newBgStyle = "";
+    }
     // if focusing an item, highlight the slot that item would go into with it's usibility style
-    //
-    let bgStyles = "";
-    let equippedItemIsUsable = true;
-    if (itemOption) equippedItemIsUsable = Item.requirementsMet(itemOption, characterAttributes);
+    else if (comparedSlot === slot) {
+      console.log("compared against this slot");
+      if (consideredItemUnmetRequirements !== null) newBgStyle = UNUSABLE_ITEM_BG_STYLES;
+      else newBgStyle = "bg-slate-800";
+    } else newBgStyle = "";
 
-    if (!equippedItemIsUsable) {
-      console.log("equippedItemIs NOT USABLE");
-      bgStyles = UNUSABLE_ITEM_BG_STYLES;
-    }
-
-    if (comparedSlot !== null && comparedSlot === slot) {
-      if (consideredItemUnmetRequirements !== null) bgStyles = UNUSABLE_ITEM_BG_STYLES;
-      else bgStyles = "bg-slate-800";
-    }
-
-    return bgStyles;
-  }, [detailedEntityOption, hoveredEntityOption, itemOption, comparedSlot, characterAttributes]);
+    if (bgStyleRef.current !== newBgStyle) setBgStyle(newBgStyle);
+    bgStyleRef.current = newBgStyle;
+  }, [itemOption, hoveredEntityOption, detailedEntityOption, characterAttributes]);
 
   const highlightStyle = useMemo(() => {
     if (itemOption === null) return `border-slate-400`;

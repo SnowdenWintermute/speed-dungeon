@@ -10,7 +10,7 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import { AdventuringParty, ClientToServerEvent, Combatant, InputLock } from "@speed-dungeon/common";
+import { ClientToServerEvent, Combatant, InputLock } from "@speed-dungeon/common";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";

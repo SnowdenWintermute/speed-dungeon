@@ -1,53 +1,48 @@
-import React, { useEffect, useMemo } from "react";
 import { useGameStore } from "@/stores/game-store";
 import { CombatAttribute, Combatant, CombatantProperties, Item } from "@speed-dungeon/common";
+import React, { useEffect, useMemo } from "react";
 
 export default function CurrentItemUnmetRequirementsUpdater() {
   const focusedCharacterResult = useGameStore().getFocusedCharacter();
-  const mutateGameStore = useGameStore().mutateState;
-  const detailedEntity = useGameStore.getState().detailedEntity;
-  const hoveredEntity = useGameStore.getState().hoveredEntity;
+  const hoveredEntity = useGameStore().hoveredEntity;
+  const detailedEntity = useGameStore().detailedEntity;
+  const mutateGameState = useGameStore().mutateState;
 
-  const unmetRequirements = useMemo(() => {
+  const unmetRequiremnts = useMemo(() => {
     if (focusedCharacterResult instanceof Error) return null;
 
     let focusedItem = null;
     if (hoveredEntity instanceof Item) focusedItem = hoveredEntity;
     else if (detailedEntity instanceof Item) focusedItem = detailedEntity;
-    console.log("focusedItem: ", focusedItem?.entityProperties.name);
 
     if (focusedItem === null) return null;
 
     const unmet = caluclateUnmetItemRequirements(focusedCharacterResult, focusedItem);
-    console.log("found unmet: ", unmet);
     return unmet;
-  }, [focusedCharacterResult, hoveredEntity, detailedEntity]);
+  }, [hoveredEntity, detailedEntity, focusedCharacterResult]);
 
   useEffect(() => {
-    console.log("updating unmet: ", unmetRequirements);
-    mutateGameStore((state) => {
-      state.consideredItemUnmetRequirements = unmetRequirements;
+    mutateGameState((state) => {
+      state.consideredItemUnmetRequirements = unmetRequiremnts;
     });
-  }, [unmetRequirements]);
+  }, [unmetRequiremnts]);
 
-  return <div />;
-}
+  function caluclateUnmetItemRequirements(character: Combatant, item: Item) {
+    // calculate unmet requirements
+    const totalAttributes = CombatantProperties.getTotalAttributes(character.combatantProperties);
 
-function caluclateUnmetItemRequirements(character: Combatant, item: Item) {
-  // calculate unmet requirements
-  console.log("calculating unmet for ", item.entityProperties.name);
-  const totalAttributes = CombatantProperties.getTotalAttributes(character.combatantProperties);
-
-  const unmetAttributeRequirements: CombatAttribute[] = [];
-  if (Object.keys(item.requirements).length !== 0) {
-    for (const [attributeKey, value] of Object.entries(item.requirements)) {
-      const attribute = parseInt(attributeKey) as CombatAttribute;
-      const characterAttribute = totalAttributes[attribute] || 0;
-      if (characterAttribute >= value) continue;
-      else unmetAttributeRequirements.push(attribute);
+    const unmetAttributeRequirements: CombatAttribute[] = [];
+    if (Object.keys(item.requirements).length !== 0) {
+      for (const [attributeKey, value] of Object.entries(item.requirements)) {
+        const attribute = parseInt(attributeKey) as CombatAttribute;
+        const characterAttribute = totalAttributes[attribute] || 0;
+        if (characterAttribute >= value) continue;
+        else unmetAttributeRequirements.push(attribute);
+      }
     }
-  }
 
-  if (unmetAttributeRequirements.length > 0) return unmetAttributeRequirements;
-  else return null;
+    if (unmetAttributeRequirements.length > 0) return unmetAttributeRequirements;
+    else return null;
+  }
+  return <div />;
 }
