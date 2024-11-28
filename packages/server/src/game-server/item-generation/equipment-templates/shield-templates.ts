@@ -75,7 +75,7 @@ export const SHIELD_EQUIPMENT_GENERATION_TEMPLATES: Record<Shield, ShieldGenerat
           template.size = ShieldSize.Small;
           template.maxDurability = 6;
           break;
-        case Shield.WoodenKiteShield:
+        case Shield.Heater:
           template.levelRange = new NumberRange(2, 4);
           template.acRange = new NumberRange(10, 18);
           template.size = ShieldSize.Medium;

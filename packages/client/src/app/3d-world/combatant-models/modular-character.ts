@@ -192,7 +192,6 @@ export class ModularCharacter {
     }
 
     const equipmentModelResult = await spawnEquipmentModel(
-      this.world,
       item,
       this.world.scene,
       this.world.defaultMaterials

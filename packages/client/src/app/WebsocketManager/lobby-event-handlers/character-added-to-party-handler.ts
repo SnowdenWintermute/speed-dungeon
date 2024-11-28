@@ -7,6 +7,8 @@ import {
 import { setAlert } from "../../components/alerts";
 import { useGameStore } from "@/stores/game-store";
 import { gameWorld } from "@/app/3d-world/SceneManager";
+import { ImageCreationRequestType } from "@/app/3d-world/game-world/image-creator";
+import cloneDeep from "lodash.clonedeep";
 
 export default async function characterAddedToPartyHandler(
   partyName: string,
@@ -30,7 +32,12 @@ export default async function characterAddedToPartyHandler(
 
   for (const item of character.combatantProperties.inventory.items) {
     if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
-    await gameWorld.current?.createItemImage(item);
+    // await gameWorld.current?.imageCreator.createItemImage(item);
+
+    gameWorld.current?.imageCreator.enqueueMessage({
+      type: ImageCreationRequestType.Item,
+      item: cloneDeep(item),
+    });
   }
   // for (const item of Object.values(character.combatantProperties.equipment)) {
   //   if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;

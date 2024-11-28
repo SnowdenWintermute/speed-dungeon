@@ -254,7 +254,7 @@ export function assignEquipmentMaterials(
             [MATERIAL_NAMES.ACCENT_2]: savedMaterials.wood[LightestToDarkest.Darkest],
           };
           break;
-        case Shield.WoodenKiteShield:
+        case Shield.Heater:
           materials = {
             [MATERIAL_NAMES.MAIN]: savedMaterials.wood[LightestToDarkest.Lightest],
             [MATERIAL_NAMES.ALTERNATE]: savedMaterials.wood[LightestToDarkest.Lighter],

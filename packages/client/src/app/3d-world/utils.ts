@@ -148,26 +148,3 @@ export function calculateCompositeBoundingBox(meshes: AbstractMesh[]): {
 
   return { min: compositeMin, max: compositeMax };
 }
-
-export function takeScreenshot(
-  engine: Engine,
-  camera: Camera,
-  width: number,
-  height: number
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    try {
-      CreateScreenshotUsingRenderTarget(
-        engine,
-        camera,
-        { width, height },
-        (image) => {
-          resolve(image); // Resolve with the base64 image string
-        },
-        "image/png"
-      );
-    } catch (error) {
-      reject(error); // Reject if something goes wrong
-    }
-  });
-}

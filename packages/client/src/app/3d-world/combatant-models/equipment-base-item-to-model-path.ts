@@ -102,7 +102,7 @@ export const TWO_HANDED_RANGED_WEAPON_MODEL_PATHS: Record<TwoHandedRangedWeapon,
 export const SHIELD_MODEL_PATHS: Record<Shield, null | string> = {
   // [Shield.MakeshiftBuckler]: "wooden-kite-shield.glb",
   [Shield.MakeshiftBuckler]: "makeshift-buckler.glb", // https://opengameart.org/content/trap-door
-  [Shield.WoodenKiteShield]: "wooden-kite-shield.glb", // quaternius
+  [Shield.Heater]: "wooden-kite-shield.glb", // quaternius
   [Shield.Buckler]: "buckler.glb", // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [Shield.Pavise]: "pavise.glb", // self-made
   [Shield.Aspis]: "aspis.glb", // https://opengameart.org/content/stylised-fantasy-weapons

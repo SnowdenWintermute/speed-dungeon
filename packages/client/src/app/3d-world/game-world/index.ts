@@ -30,6 +30,7 @@ import spawnEquipmentModel from "../combatant-models/spawn-equipment-model";
 import { calculateCompositeBoundingBox, takeScreenshot } from "../utils";
 import { disposeMeshMaterials } from "./materials/utils";
 import { useGameStore } from "@/stores/game-store";
+import { ImageCreator } from "./image-creator";
 
 export class GameWorld {
   engine: Engine;
@@ -48,6 +49,7 @@ export class GameWorld {
   defaultMaterials: SavedMaterials;
   // imageCreationDefaultMaterials: SavedMaterials;
   numImagesBeingCreated: number = 0;
+  imageCreator: ImageCreator = new ImageCreator();
 
   constructor(
     public canvas: HTMLCanvasElement,
