@@ -32,8 +32,8 @@ export default async function characterAddedToPartyHandler(
     if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
     await gameWorld.current?.createItemImage(item);
   }
-  for (const item of Object.values(character.combatantProperties.equipment)) {
-    if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
-    await gameWorld.current?.createItemImage(item);
-  }
+  // for (const item of Object.values(character.combatantProperties.equipment)) {
+  //   if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
+  //   await gameWorld.current?.createItemImage(item);
+  // }
 }

@@ -49,7 +49,6 @@ export class GameWorld {
   groundTexture: DynamicTexture;
   defaultMaterials: SavedMaterials;
   imageCreationDefaultMaterials: SavedMaterials;
-  lastSpawnedImageCreatorItem: null | ISceneLoaderAsyncResult = null;
   constructor(
     public canvas: HTMLCanvasElement,
     public imageCreatorCanvas: HTMLCanvasElement,
@@ -82,8 +81,8 @@ export class GameWorld {
   async createItemImage(item: Item) {
     while (this.imageCreatorScene.meshes.length) {
       const mesh = this.imageCreatorScene.meshes.pop()!;
-      disposeMeshMaterials(mesh, DYNAMIC_MATERIAL_TAG);
-      mesh.dispose();
+      mesh.visibility = 0;
+      mesh.dispose(false);
     }
 
     const equipmentModelResult = await spawnEquipmentModel(
@@ -94,7 +93,7 @@ export class GameWorld {
     );
     if (equipmentModelResult instanceof Error) return console.error(equipmentModelResult);
 
-    this.lastSpawnedImageCreatorItem = equipmentModelResult;
+    // this.lastSpawnedImageCreatorItem = equipmentModelResult;
 
     const parentMesh = equipmentModelResult.meshes[0];
     if (!parentMesh) return console.error("no parent mesh");
@@ -106,22 +105,22 @@ export class GameWorld {
     const size = box.max.subtract(box.min);
 
     const camera = this.imageCreatorScene.cameras[0];
+    // const camera = new UniversalCamera("camera", new Vector3(0, 0, 0), this.imageCreatorScene);
     if (!(camera instanceof UniversalCamera)) return console.error("no camera");
     const fov = camera.fov; // Field of view in radians
     const maxDimension = Math.max(size.x, size.y); // Largest dimension of the equipment
     const distance = maxDimension / (2 * Math.tan(fov / 2));
     camera.position = center.add(new Vector3(0, 0, distance));
     camera.setTarget(center);
-    const canvasHeight = 200;
-    const canvasWidth = (size.x / size.y) * canvasHeight;
+    const canvasWidth = 144;
+    const canvasHeight = (size.y / size.x) * canvasWidth;
     this.imageCreatorCanvas.width = canvasWidth;
     this.imageCreatorCanvas.height = canvasHeight;
-    this.imageCreatorEngine.resize();
-    this.imageCreatorEngine.runRenderLoop(() => {
-      this.imageCreatorScene.render();
-      this.imageCreatorEngine.stopRenderLoop(); // Stop after rendering one frame
-    });
+    this.imageCreatorEngine.beginFrame();
+    this.imageCreatorScene.render();
+    this.imageCreatorEngine.endFrame();
     const image = await takeScreenshot(this.imageCreatorEngine, camera, canvasWidth, canvasHeight);
+
     useGameStore.getState().mutateState((state) => {
       state.itemThumbnails[item.entityProperties.id] = image;
     });

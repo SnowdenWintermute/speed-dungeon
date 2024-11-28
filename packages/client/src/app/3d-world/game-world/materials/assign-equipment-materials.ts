@@ -21,7 +21,6 @@ import {
 import applyMaterialsToModelMeshes from "./apply-materials-to-model-meshes";
 import { desaturate } from "./utils";
 import { DYNAMIC_MATERIAL_TAG, SavedMaterials } from "./create-default-materials";
-import cloneDeep from "lodash.clonedeep";
 
 export function assignEquipmentMaterials(
   item: Item,
