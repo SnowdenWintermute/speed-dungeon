@@ -33,32 +33,12 @@ export default function PaperDollSlot({
   const itemNameDisplay = itemOption ? itemOption.entityProperties.name : "";
 
   const bgStyle = useMemo(() => {
-    if (comparedSlot === slot) {
+    if (comparedSlot === slot)
       if (consideredItemUnmetRequirements !== null) return UNUSABLE_ITEM_BG_STYLES;
       else return USABLE_ITEM_BG_STYLES;
-    }
-    // // if not focusing an item, highlight the item in this slot's usability style
-    // let newBgStyle = "";
-    // if (comparedSlot === null) {
-    //   if (itemOption && !Item.requirementsMet(itemOption, characterAttributes)) {
-    //     newBgStyle = UNUSABLE_ITEM_BG_STYLES;
-    //   } else newBgStyle = "";
-    // }
-    // // if focusing an item, highlight the slot that item would go into with it's usibility style
-    // else if (comparedSlot === slot) {
-    //   console.log("compared against this slot");
-    //   else newBgStyle = "bg-slate-800";
-    // } else newBgStyle = "";
-
-    // return newBgStyle;
-  }, [
-    itemOption,
-    hoveredEntityOption,
-    detailedEntityOption,
-    characterAttributes,
-    consideredItemUnmetRequirements,
-    comparedSlot,
-  ]);
+    if (!itemOption) return "";
+    if (!Item.requirementsMet(itemOption, characterAttributes)) return UNUSABLE_ITEM_BG_STYLES;
+  }, [itemOption, characterAttributes, consideredItemUnmetRequirements, comparedSlot]);
 
   const highlightStyle = useMemo(() => {
     if (itemOption === null) return `border-slate-400`;
@@ -71,18 +51,13 @@ export default function PaperDollSlot({
     } else return `border-slate-400`;
   }, [detailedEntityOption, hoveredEntityOption, itemOption]);
 
-  function handleMouseEnter() {
-    setItemHovered(itemOption);
-  }
-  function handleMouseLeave() {
-    setItemHovered(null);
-  }
   function handleFocus() {
     setItemHovered(itemOption);
   }
   function handleBlur() {
     setItemHovered(null);
   }
+
   function handleClick() {
     if (!playerOwnsCharacter) return;
     if (!itemOption) return;
@@ -107,8 +82,8 @@ export default function PaperDollSlot({
   return (
     <button
       className={`overflow-ellipsis overflow-hidden border ${tailwindClasses} ${highlightStyle} ${bgStyle} ${disabledStyle}`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={handleFocus}
+      onMouseLeave={handleBlur}
       onFocus={handleFocus}
       onBlur={handleBlur}
       onClick={handleClick}

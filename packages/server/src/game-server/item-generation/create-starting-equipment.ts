@@ -1,4 +1,5 @@
 import {
+  CombatAttribute,
   CombatantClass,
   EquipmentProperties,
   EquipmentSlot,
@@ -126,6 +127,7 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
     mhEntityProperties,
     0,
     {},
+    // { [CombatAttribute.Strength]: 5 },
     { type: ItemPropertiesType.Equipment, equipmentProperties: mainHandProperties }
   );
   startingEquipment[EquipmentSlot.MainHand] = mhItem;

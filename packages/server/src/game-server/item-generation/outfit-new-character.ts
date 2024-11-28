@@ -10,20 +10,12 @@ import {
   EquipmentSlot,
   Item,
   Combatant,
-  EquipmentType,
   iterateNumericEnum,
-  Shield,
-  OneHandedMeleeWeapon,
-  TwoHandedMeleeWeapon,
-  TwoHandedRangedWeapon,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { idGenerator } from "../../singletons.js";
-import generateTestItems, {
-  generateOneOfEachItem,
-  generateSpecificEquipmentType,
-} from "./generate-test-items.js";
+import { generateOneOfEachItem } from "./generate-test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
