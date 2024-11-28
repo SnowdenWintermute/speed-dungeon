@@ -22,7 +22,7 @@ import createPageButtons from "./create-page-buttons";
 export class ItemsMenuState implements ActionMenuState {
   [immerable] = true;
   page = 1;
-  numPages = 1;
+  numPages: number = 1;
   constructor(
     public type: MenuStateType.InventoryItems | MenuStateType.ViewingEquipedItems,
     public closeMenuTextAndHotkeys: { text: string; hotkeys: string[] },

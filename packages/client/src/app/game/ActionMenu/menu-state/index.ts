@@ -50,8 +50,10 @@ export class ActionButtonsByCategory {
 
 export abstract class ActionMenuState {
   page: number = 1;
-  numPages: number = 1;
-  constructor(public type: MenuStateType) {}
+  constructor(
+    public type: MenuStateType,
+    public numPages: number
+  ) {}
   abstract getButtonProperties(): ActionButtonsByCategory;
 }
 

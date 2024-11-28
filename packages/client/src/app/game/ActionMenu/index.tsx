@@ -1,7 +1,11 @@
 import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, ActionMenuButtonProperties } from "./menu-state";
+import {
+  ActionButtonCategory,
+  ActionButtonsByCategory,
+  ActionMenuButtonProperties,
+} from "./menu-state";
 import ActionDetails from "../detailables/ActionDetails";
 import { ConsideringCombatActionMenuState } from "./menu-state/considering-combat-action";
 import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicatedButton";
@@ -19,7 +23,20 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   const combatantModelsAwaitingSpawn = useGameStore((state) => state.combatantModelsAwaitingSpawn);
   const hoveredAction = useGameStore((state) => state.hoveredAction);
   const currentMenu = useGameStore.getState().getCurrentMenu();
-  const buttonProperties = currentMenu.getButtonProperties();
+  const [buttonProperties, setButtonProperties] = useState<ActionButtonsByCategory>(
+    new ActionButtonsByCategory()
+  );
+
+  // instead of directly getting the button properties, we must put it in a useEffect
+  // because some of the button creation calls zustand mutation/set state functions
+  // which causes a warning which was hard to track down about updating other components
+  // while this component was rendering, in short, you aren't allowed to update state in
+  // a component render, which is what happens if you try to call currentMenu.getButtonProperties()
+  // directly in the component
+  useEffect(() => {
+    const buttonProperties = currentMenu.getButtonProperties();
+    setButtonProperties(buttonProperties);
+  }, [currentMenu.type, currentMenu.page]);
 
   if (inputLocked) return <div />;
   if (combatantModelsAwaitingSpawn.length)
@@ -104,6 +121,7 @@ function BottomButtons({
   right?: ActionMenuButtonProperties;
 }) {
   const currentMenu = useGameStore.getState().getCurrentMenu();
+
   return (
     <div
       className="flex justify-between bg-slate-700 relative border border-slate-400 h-8"

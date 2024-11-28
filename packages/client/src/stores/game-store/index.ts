@@ -95,7 +95,7 @@ export class GameState {
     public get: () => GameState,
     public getActiveCombatant: () => Error | null | Combatant,
     public getParty: () => Error | AdventuringParty,
-    public getCurrentMenu: () => ActionMenuState
+    public getCurrentMenu: () => ActionMenuState,
   ) {
     this.baseMenuState = new BaseMenuState(false);
   }
