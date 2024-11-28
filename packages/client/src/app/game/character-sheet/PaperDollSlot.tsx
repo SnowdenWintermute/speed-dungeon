@@ -50,7 +50,7 @@ export default function PaperDollSlot({
 
     if (bgStyleRef.current !== newBgStyle) setBgStyle(newBgStyle);
     bgStyleRef.current = newBgStyle;
-  }, [itemOption, hoveredEntityOption, detailedEntityOption, characterAttributes]);
+  }, [itemOption, hoveredEntityOption, detailedEntityOption, characterAttributes, comparedSlot]);
 
   const highlightStyle = useMemo(() => {
     if (itemOption === null) return `border-slate-400`;
