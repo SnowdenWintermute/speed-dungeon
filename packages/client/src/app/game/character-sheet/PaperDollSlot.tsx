@@ -14,6 +14,7 @@ interface Props {
 }
 
 const UNUSABLE_ITEM_BG_STYLES = "bg-red-800 opacity-50";
+const USABLE_ITEM_BG_STYLES = "bg-slate-800";
 
 export default function PaperDollSlot({
   itemOption,
@@ -30,27 +31,34 @@ export default function PaperDollSlot({
   const playerOwnsCharacter = clientUserControlsCombatant(focusedCharacterId);
 
   const itemNameDisplay = itemOption ? itemOption.entityProperties.name : "";
-  const [bgStyle, setBgStyle] = useState("");
-  const bgStyleRef = useRef("");
 
-  useEffect(() => {
-    // if not focusing an item, highlight the item in this slot's usability style
-    let newBgStyle = "";
-    if (comparedSlot === null) {
-      if (itemOption && !Item.requirementsMet(itemOption, characterAttributes)) {
-        newBgStyle = UNUSABLE_ITEM_BG_STYLES;
-      } else newBgStyle = "";
+  const bgStyle = useMemo(() => {
+    if (comparedSlot === slot) {
+      if (consideredItemUnmetRequirements !== null) return UNUSABLE_ITEM_BG_STYLES;
+      else return USABLE_ITEM_BG_STYLES;
     }
-    // if focusing an item, highlight the slot that item would go into with it's usibility style
-    else if (comparedSlot === slot) {
-      console.log("compared against this slot");
-      if (consideredItemUnmetRequirements !== null) newBgStyle = UNUSABLE_ITEM_BG_STYLES;
-      else newBgStyle = "bg-slate-800";
-    } else newBgStyle = "";
+    // // if not focusing an item, highlight the item in this slot's usability style
+    // let newBgStyle = "";
+    // if (comparedSlot === null) {
+    //   if (itemOption && !Item.requirementsMet(itemOption, characterAttributes)) {
+    //     newBgStyle = UNUSABLE_ITEM_BG_STYLES;
+    //   } else newBgStyle = "";
+    // }
+    // // if focusing an item, highlight the slot that item would go into with it's usibility style
+    // else if (comparedSlot === slot) {
+    //   console.log("compared against this slot");
+    //   else newBgStyle = "bg-slate-800";
+    // } else newBgStyle = "";
 
-    if (bgStyleRef.current !== newBgStyle) setBgStyle(newBgStyle);
-    bgStyleRef.current = newBgStyle;
-  }, [itemOption, hoveredEntityOption, detailedEntityOption, characterAttributes, comparedSlot]);
+    // return newBgStyle;
+  }, [
+    itemOption,
+    hoveredEntityOption,
+    detailedEntityOption,
+    characterAttributes,
+    consideredItemUnmetRequirements,
+    comparedSlot,
+  ]);
 
   const highlightStyle = useMemo(() => {
     if (itemOption === null) return `border-slate-400`;

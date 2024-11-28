@@ -1,11 +1,7 @@
 import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import React, { useEffect, useState } from "react";
-import { useGameStore } from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionButtonsByCategory,
-  ActionMenuButtonProperties,
-} from "./menu-state";
+import { getCurrentMenu, useGameStore } from "@/stores/game-store";
+import { ActionButtonCategory, ActionMenuButtonProperties } from "./menu-state";
 import ActionDetails from "../detailables/ActionDetails";
 import { ConsideringCombatActionMenuState } from "./menu-state/considering-combat-action";
 import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicatedButton";
@@ -23,9 +19,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   const combatantModelsAwaitingSpawn = useGameStore((state) => state.combatantModelsAwaitingSpawn);
   const hoveredAction = useGameStore((state) => state.hoveredAction);
   const currentMenu = useGameStore.getState().getCurrentMenu();
-  const [buttonProperties, setButtonProperties] = useState<ActionButtonsByCategory>(
-    new ActionButtonsByCategory()
-  );
+  const buttonProperties = currentMenu.getButtonProperties();
 
   // instead of directly getting the button properties, we must put it in a useEffect
   // because some of the button creation calls zustand mutation/set state functions
@@ -34,9 +28,13 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   // a component render, which is what happens if you try to call currentMenu.getButtonProperties()
   // directly in the component
   useEffect(() => {
-    const buttonProperties = currentMenu.getButtonProperties();
-    setButtonProperties(buttonProperties);
-  }, [currentMenu.type, currentMenu.page]);
+    const numPages = Math.ceil(
+      buttonProperties[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE
+    );
+    useGameStore.getState().mutateState((state) => {
+      getCurrentMenu(state).numPages = numPages;
+    });
+  }, [buttonProperties[ActionButtonCategory.Numbered].length]);
 
   if (inputLocked) return <div />;
   if (combatantModelsAwaitingSpawn.length)
@@ -96,16 +94,24 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         }}
       >
         <ul className="list-none relative pointer-events-auto">
-          {buttonProperties[ActionButtonCategory.Numbered].map((button, i) => (
-            <li key={button.text + i + currentMenu.page}>
-              <NumberedButton number={i + 1} properties={button} />
-            </li>
-          ))}
+          {buttonProperties[ActionButtonCategory.Numbered]
+
+            .slice(
+              (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE,
+              (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE
+            )
+            .map((button, i) => (
+              <li key={button.text + i + currentMenu.page}>
+                <NumberedButton number={i + 1} properties={button} />
+              </li>
+            ))}
           {selectedActionDisplay}
           {hoveredActionDisplay}
         </ul>
       </div>
       <BottomButtons
+        numPages={currentMenu.numPages}
+        currentPageNumber={currentMenu.page}
         left={buttonProperties[ActionButtonCategory.Bottom][0]}
         right={buttonProperties[ActionButtonCategory.Bottom][1]}
       />
@@ -114,14 +120,16 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
 }
 
 function BottomButtons({
+  numPages,
+  currentPageNumber,
   left,
   right,
 }: {
+  numPages: number;
+  currentPageNumber: number;
   left?: ActionMenuButtonProperties;
   right?: ActionMenuButtonProperties;
 }) {
-  const currentMenu = useGameStore.getState().getCurrentMenu();
-
   return (
     <div
       className="flex justify-between bg-slate-700 relative border border-slate-400 h-8"
@@ -132,10 +140,10 @@ function BottomButtons({
       </div>
       <div
         className="h-full flex items-center justify-center pr-2 pl-2"
-        style={currentMenu.numPages <= 1 ? { display: "none" } : {}}
+        style={numPages <= 1 ? { display: "none" } : {}}
       >
         <span>
-          Page {currentMenu.page}/{currentMenu.numPages}
+          Page {currentPageNumber}/{numPages}
         </span>
       </div>
       <div key={right?.text} className="flex-1 flex border-l border-slate-400 h-full">
