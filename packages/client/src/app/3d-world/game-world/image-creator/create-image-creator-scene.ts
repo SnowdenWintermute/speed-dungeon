@@ -7,13 +7,7 @@ import {
   Engine,
   Scene,
   UniversalCamera,
-  MeshBuilder,
 } from "@babylonjs/core";
-
-export const GROUND_WIDTH = 50;
-export const GROUND_HEIGHT = 50;
-export const GROUND_TEXTURE_WIDTH = 8000;
-export const GROUND_TEXTURE_HEIGHT = 10000;
 
 export function createImageCreatorScene(engine: Engine): Scene {
   const scene = new Scene(engine);
@@ -34,8 +28,6 @@ export function createImageCreatorScene(engine: Engine): Scene {
 
   const glowLayer = new GlowLayer("glow-2", scene);
   glowLayer.intensity = 0.5;
-
-  const ball = MeshBuilder.CreateSphere("ball", { diameter: 0.25 }, scene);
 
   return scene;
 }

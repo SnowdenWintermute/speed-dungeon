@@ -13,6 +13,7 @@ import {
   getChildMeshByName,
   getClientRectFromMesh,
   getTransformNodeByName,
+  importMesh,
   paintCubesOnNodes,
 } from "../utils";
 import { ModularCharacterPartCategory } from "./modular-character-parts";
@@ -150,7 +151,7 @@ export class ModularCharacter {
   }
 
   async attachPart(partCategory: ModularCharacterPartCategory, partPath: string) {
-    const part = await this.world.importMesh(partPath);
+    const part = await importMesh(partPath, this.world.scene);
     const parent = getTransformNodeByName(this.skeleton, "CharacterArmature");
     if (!this.skeleton.skeletons[0])
       return new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);

@@ -16,7 +16,7 @@ import {
 } from "@/singletons/next-to-babylon-message-queue";
 import setDefaultMaterials from "./materials/set-default-materials";
 import spawnEquipmentModel from "../combatant-models/spawn-equipment-model";
-import { disposeAsyncLoadedScene } from "../utils";
+import { disposeAsyncLoadedScene, importMesh } from "../utils";
 
 const ROW_SIZE = 10;
 const ROW_SPACING = 1;
@@ -78,7 +78,7 @@ async function spawnBaseItemModels(
       const parentMesh = MeshBuilder.CreateSphere("ball", { diameter: 0.25 }, world.scene);
       parentMesh.position = position;
     } else {
-      const equipmentModel = await world.importMesh(modelPath, world.scene);
+      const equipmentModel = await importMesh(modelPath, world.scene);
       const parentMesh = equipmentModel.meshes[0];
       if (!parentMesh) {
         console.log("NO PARENT MESH");
@@ -125,7 +125,7 @@ export async function spawnEquipmentModelsFromItemList(world: GameWorld, items: 
       i = 0;
       j += 1;
     }
-    const model = await spawnEquipmentModel(world, item, world.scene, world.defaultMaterials);
+    const model = await spawnEquipmentModel(item, world.scene, world.defaultMaterials);
     if (!(model instanceof Error)) {
       const parentMesh = model.meshes[0];
       if (!parentMesh) continue;

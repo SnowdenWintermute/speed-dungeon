@@ -1,6 +1,6 @@
 import { GameWorld } from ".";
 import { ModularCharacter } from "../combatant-models/modular-character";
-import { disposeAsyncLoadedScene } from "../utils";
+import { disposeAsyncLoadedScene, importMesh } from "../utils";
 import {
   CombatantClass,
   CombatantSpecies,
@@ -9,7 +9,6 @@ import {
   Item,
   ItemPropertiesType,
   MonsterType,
-  WeaponSlot,
   removeFromArray,
 } from "@speed-dungeon/common";
 import {
@@ -131,7 +130,7 @@ export class ModelManager {
       parts.push({ category: ModularCharacterPartCategory.Torso, assetPath: torsoPath });
       parts.push({ category: ModularCharacterPartCategory.Legs, assetPath: legsPath });
     }
-    const skeleton = await this.world.importMesh(
+    const skeleton = await importMesh(
       SKELETONS[combatantProperties.combatantSpecies],
       this.world.scene
     );

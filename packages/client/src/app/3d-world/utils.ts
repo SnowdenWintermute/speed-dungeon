@@ -9,10 +9,19 @@ import {
   MeshBuilder,
   Node,
   Scene,
+  SceneLoader,
   Vector3,
 } from "@babylonjs/core";
 import { disposeMeshMaterials } from "./game-world/materials/utils";
 import { DYNAMIC_MATERIAL_TAG } from "./game-world/materials/create-default-materials";
+import { BASE_FILE_PATH } from "./combatant-models/modular-character-parts";
+
+export async function importMesh(path: string, scene: Scene) {
+  const sceneResult = await SceneLoader.ImportMeshAsync("", BASE_FILE_PATH || "", path, scene);
+  // if (this.useShadows)
+  //   for (const mesh of sceneResult.meshes) this.shadowGenerator?.addShadowCaster(mesh, true);
+  return sceneResult;
+}
 
 export function getTransformNodeByName(sceneResult: ISceneLoaderAsyncResult, name: string) {
   for (const transformNode of sceneResult.transformNodes) {

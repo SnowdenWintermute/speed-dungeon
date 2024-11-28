@@ -34,8 +34,6 @@ import { useGameStore } from "@/stores/game-store";
 export class GameWorld {
   engine: Engine;
   scene: Scene;
-  imageCreatorEngine: Engine;
-  imageCreatorScene: Scene;
   camera: ArcRotateCamera | null = null;
   sun: Mesh;
   // shadowGenerator: null | ShadowGenerator = null;
@@ -48,25 +46,25 @@ export class GameWorld {
   currentRoomLoaded: boolean = false;
   groundTexture: DynamicTexture;
   defaultMaterials: SavedMaterials;
-  imageCreationDefaultMaterials: SavedMaterials;
+  // imageCreationDefaultMaterials: SavedMaterials;
+  numImagesBeingCreated: number = 0;
+
   constructor(
     public canvas: HTMLCanvasElement,
-    public imageCreatorCanvas: HTMLCanvasElement,
     debugRef: React.RefObject<HTMLUListElement>
   ) {
-    this.imageCreatorEngine = new Engine(imageCreatorCanvas, false);
-    this.imageCreatorScene = createImageCreatorScene(this.imageCreatorEngine);
+    // this.imageCreatorEngine = new Engine(imageCreatorCanvas, false);
+    // this.imageCreatorScene = createImageCreatorScene(this.imageCreatorEngine);
 
     // this.engine.setHardwareScalingLevel(10); // renders at lower resolutions
     this.engine = new Engine(canvas, false);
     this.scene = new Scene(this.engine);
 
     this.debug.debugRef = debugRef;
-    // [this.camera, this.shadowGenerator, this.sun, this.groundTexture] = this.initScene();
     [this.camera, this.sun, this.groundTexture] = this.initScene();
 
     this.defaultMaterials = createDefaultMaterials(this.scene);
-    this.imageCreationDefaultMaterials = createDefaultMaterials(this.imageCreatorScene);
+    // this.imageCreationDefaultMaterials = createDefaultMaterials(this.imageCreatorScene);
 
     // spawnTestEquipmentModels(this);
 
@@ -76,54 +74,6 @@ export class GameWorld {
     });
 
     // this.startLimitedFramerateRenderLoop(3, 3000);
-  }
-
-  async createItemImage(item: Item) {
-    while (this.imageCreatorScene.meshes.length) {
-      const mesh = this.imageCreatorScene.meshes.pop()!;
-      mesh.visibility = 0;
-      mesh.dispose(false);
-    }
-
-    const equipmentModelResult = await spawnEquipmentModel(
-      this,
-      item,
-      this.imageCreatorScene,
-      this.imageCreationDefaultMaterials
-    );
-    if (equipmentModelResult instanceof Error) return console.error(equipmentModelResult);
-
-    // this.lastSpawnedImageCreatorItem = equipmentModelResult;
-
-    const parentMesh = equipmentModelResult.meshes[0];
-    if (!parentMesh) return console.error("no parent mesh");
-    parentMesh.position = Vector3.Zero();
-
-    const box = calculateCompositeBoundingBox(equipmentModelResult.meshes);
-    const center = box.min.add(box.max).scale(0.5);
-    // parentMesh.position = center;
-    const size = box.max.subtract(box.min);
-
-    const camera = this.imageCreatorScene.cameras[0];
-    // const camera = new UniversalCamera("camera", new Vector3(0, 0, 0), this.imageCreatorScene);
-    if (!(camera instanceof UniversalCamera)) return console.error("no camera");
-    const fov = camera.fov; // Field of view in radians
-    const maxDimension = Math.max(size.x, size.y); // Largest dimension of the equipment
-    const distance = maxDimension / (2 * Math.tan(fov / 2));
-    camera.position = center.add(new Vector3(0, 0, distance));
-    camera.setTarget(center);
-    const canvasWidth = 144;
-    const canvasHeight = (size.y / size.x) * canvasWidth;
-    this.imageCreatorCanvas.width = canvasWidth;
-    this.imageCreatorCanvas.height = canvasHeight;
-    this.imageCreatorEngine.beginFrame();
-    this.imageCreatorScene.render();
-    this.imageCreatorEngine.endFrame();
-    const image = await takeScreenshot(this.imageCreatorEngine, camera, canvasWidth, canvasHeight);
-
-    useGameStore.getState().mutateState((state) => {
-      state.itemThumbnails[item.entityProperties.id] = image;
-    });
   }
 
   updateGameWorld() {
@@ -147,13 +97,6 @@ export class GameWorld {
   drawCharacterSlots = drawCharacterSlots;
   showDebugText = showDebugText;
   processMessagesFromNext = processMessagesFromNext;
-
-  async importMesh(path: string, scene: Scene) {
-    const sceneResult = await SceneLoader.ImportMeshAsync("", BASE_FILE_PATH || "", path, scene);
-    // if (this.useShadows)
-    //   for (const mesh of sceneResult.meshes) this.shadowGenerator?.addShadowCaster(mesh, true);
-    return sceneResult;
-  }
 
   startLimitedFramerateRenderLoop(fps: number, timeout: number) {
     window.setTimeout(() => {

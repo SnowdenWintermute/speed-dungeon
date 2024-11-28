@@ -1,13 +1,11 @@
 import { Item, ItemPropertiesType } from "@speed-dungeon/common";
 import { equipmentBaseItemToModelPath } from "./equipment-base-item-to-model-path";
-import { GameWorld } from "../game-world";
-import setDefaultMaterials from "../game-world/materials/set-default-materials";
 import { assignEquipmentMaterials } from "../game-world/materials/assign-equipment-materials";
 import { Scene } from "@babylonjs/core";
 import { SavedMaterials } from "../game-world/materials/create-default-materials";
+import { importMesh } from "../utils";
 
 export default async function spawnEquipmentModel(
-  world: GameWorld,
   item: Item,
   scene: Scene,
   materials: SavedMaterials
@@ -20,8 +18,8 @@ export default async function spawnEquipmentModel(
     equipmentProperties.equipmentBaseItemProperties.baseItem
   );
   if (modelPath === null) return new Error("No model path");
-  const equipmentModel = await world.importMesh(modelPath, scene);
-  setDefaultMaterials(equipmentModel, materials);
+  const equipmentModel = await importMesh(modelPath, scene);
+
   assignEquipmentMaterials(item, equipmentModel, materials);
   if (!equipmentModel) return new Error("Model not successfully spawned");
   return equipmentModel;

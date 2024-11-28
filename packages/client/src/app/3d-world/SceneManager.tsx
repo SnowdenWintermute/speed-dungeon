@@ -11,8 +11,10 @@ export default function SceneManager() {
   const resizeHandlerRef = useRef<(e: UIEvent) => void | null>();
 
   useEffect(() => {
-    if (canvasRef.current && imageCreatorCanvasRef.current) {
-      gameWorld.current = new GameWorld(canvasRef.current, imageCreatorCanvasRef.current, debugRef);
+    // if (canvasRef.current && imageCreatorCanvasRef.current) {
+    if (canvasRef.current) {
+      // gameWorld.current = new GameWorld(canvasRef.current, imageCreatorCanvasRef.current, debugRef);
+      gameWorld.current = new GameWorld(canvasRef.current, debugRef);
     }
     resizeHandlerRef.current = function () {
       gameWorld.current?.engine?.resize();
@@ -23,7 +25,7 @@ export default function SceneManager() {
     return () => {
       gameWorld.current?.scene.dispose();
       gameWorld.current?.engine.dispose();
-      gameWorld.current?.imageCreatorEngine.dispose();
+      // gameWorld.current?.imageCreatorEngine.dispose();
       gameWorld.current = null;
 
       if (resizeHandlerRef.current) window.removeEventListener("resize", resizeHandlerRef.current);
@@ -38,12 +40,14 @@ export default function SceneManager() {
         className="h-full w-full absolute z-[-1] pointer-events-auto "
         id="babylon-canvas"
       />
-      <canvas
-        ref={imageCreatorCanvasRef}
-        className="absolute z-[-1] border bottom-0 pointer-events-auto top-0 -translate-y-full"
-        style={{ height: `600px`, width: "480px" }}
-        id="babylon-image-generation-canvas"
-      />
+      {
+        // <canvas
+        // ref={imageCreatorCanvasRef}
+        // className="absolute z-[-1] border bottom-0 pointer-events-auto top-0 -translate-y-full"
+        // style={{ height: `600px`, width: "480px" }}
+        // id="babylon-image-generation-canvas"
+        // />
+      }
     </>
   );
 }
