@@ -13,7 +13,7 @@ interface Props {
   tailwindClasses: string;
 }
 
-const UNUSABLE_ITEM_BG_STYLES = "bg-red-800 opacity-50";
+const UNUSABLE_ITEM_BG_STYLES = "bg-slate-700 filter-red";
 const USABLE_ITEM_BG_STYLES = "bg-slate-800";
 
 export default function PaperDollSlot({
@@ -31,6 +31,14 @@ export default function PaperDollSlot({
   const playerOwnsCharacter = clientUserControlsCombatant(focusedCharacterId);
 
   const itemNameDisplay = itemOption ? itemOption.entityProperties.name : "";
+
+  const thumbnailOption = useGameStore().itemThumbnails[itemOption?.entityProperties.id || ""];
+
+  const itemDisplay = thumbnailOption ? (
+    <img src={thumbnailOption} className={"max-h-full"} />
+  ) : (
+    itemNameDisplay
+  );
 
   const bgStyle = useMemo(() => {
     if (comparedSlot === slot)
@@ -81,14 +89,14 @@ export default function PaperDollSlot({
 
   return (
     <button
-      className={`overflow-ellipsis overflow-hidden border ${tailwindClasses} ${highlightStyle} ${bgStyle} ${disabledStyle}`}
+      className={`overflow-ellipsis overflow-hidden border flex items-center justify-center p-4 ${tailwindClasses} ${highlightStyle} ${bgStyle} ${disabledStyle}`}
       onMouseEnter={handleFocus}
       onMouseLeave={handleBlur}
       onFocus={handleFocus}
       onBlur={handleBlur}
       onClick={handleClick}
     >
-      {itemNameDisplay}
+      {itemDisplay}
     </button>
   );
 }

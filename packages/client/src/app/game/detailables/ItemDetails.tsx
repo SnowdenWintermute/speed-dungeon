@@ -5,6 +5,7 @@ import ActionDetails from "./ActionDetails";
 import EquipmentDetails from "./EquipmentDetails";
 import ModKeyTooltip from "./ModKeyTooltip";
 import { useGameStore } from "@/stores/game-store";
+import { className } from "@babylonjs/core";
 
 interface Props {
   title: string;
@@ -14,6 +15,8 @@ interface Props {
   marginSide: string;
   isComparedItem: boolean;
 }
+
+export const UNMET_REQUIREMENTS_FILTER = "grayscale(1) brightness(0.8) sepia(1) hue-rotate(-90deg)";
 
 export default function ItemDetails({
   title,
@@ -27,6 +30,8 @@ export default function ItemDetails({
   let hiddenClass = "pointer-events-auto";
   let thumbnailPath = "";
   const thumbnailOption = useGameStore().itemThumbnails[itemOption?.entityProperties.id || ""];
+
+  const unmetRequirements = useGameStore().consideredItemUnmetRequirements;
 
   if (!itemOption) {
     itemDetailsDisplay = <></>;
@@ -70,8 +75,11 @@ export default function ItemDetails({
       {itemOption?.entityProperties.name}
       {itemDetailsDisplay}
       <div className="h-full w-full absolute top-0 left-0 p-2 pr-8 flex items-center justify-end">
-        <div className="bg-gray-500 border border-black max-h-full p-2">
-          <img src={thumbnailPath} />
+        <div
+          // style={unmetRequirements?.length ? { filter: UNMET_REQUIREMENTS_FILTER } : {}}
+          className="filter-red bg-slate-700 border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4"
+        >
+          <img src={thumbnailPath} className="max-h-full filter-red" />
         </div>
       </div>
     </div>

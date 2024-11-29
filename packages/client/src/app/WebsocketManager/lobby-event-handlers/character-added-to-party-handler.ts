@@ -36,11 +36,14 @@ export default async function characterAddedToPartyHandler(
 
     gameWorld.current?.imageCreator.enqueueMessage({
       type: ImageCreationRequestType.Item,
-      item: cloneDeep(item),
+      item: item,
     });
   }
-  // for (const item of Object.values(character.combatantProperties.equipment)) {
-  //   if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
-  //   await gameWorld.current?.createItemImage(item);
-  // }
+  for (const item of Object.values(character.combatantProperties.equipment)) {
+    if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
+    gameWorld.current?.imageCreator.enqueueMessage({
+      type: ImageCreationRequestType.Item,
+      item: item,
+    });
+  }
 }
