@@ -79,7 +79,7 @@ export default function ItemDetails({
           // style={unmetRequirements?.length ? { filter: UNMET_REQUIREMENTS_FILTER } : {}}
           className="filter-red bg-slate-700 border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4"
         >
-          <img src={thumbnailPath} className="max-h-full filter-red" />
+          <img src={thumbnailPath} className="max-h-full bg-white" />
         </div>
       </div>
     </div>

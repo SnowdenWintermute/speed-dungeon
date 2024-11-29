@@ -1,9 +1,11 @@
 import {
+  BoundingBoxGizmo,
   CreateScreenshotUsingRenderTarget,
   Engine,
   Scene,
   UniversalCamera,
   Vector3,
+  Viewport,
 } from "@babylonjs/core";
 import { useGameStore } from "@/stores/game-store";
 import { createImageCreatorScene } from "./create-image-creator-scene";
@@ -77,23 +79,42 @@ export class ImageCreator {
 
     parentMesh.position = Vector3.Zero();
 
-    const box = calculateCompositeBoundingBox(equipmentModelResult.meshes);
-    const center = box.min.add(box.max).scale(0.5);
-    const size = box.max.subtract(box.min);
+    const canvasWidth = 87;
+    const canvasHeight = 160;
+
+    const rotationAngle = Math.atan(canvasWidth / canvasHeight);
+
+    let box = calculateCompositeBoundingBox(equipmentModelResult.meshes);
+    let center = box.min.add(box.max).scale(0.5);
+    // parentMesh.rotateAround(center, Vector3.Forward(), -rotationAngle);
+    parentMesh.rotateAround(center, Vector3.Forward(), -Math.PI / 2);
 
     const camera = this.scene.cameras[0];
     if (!(camera instanceof UniversalCamera)) return console.error("no camera");
+    camera.viewport = new Viewport(
+      0,
+      0,
+      canvasWidth / this.canvas.width,
+      canvasHeight / this.canvas.height
+    );
     const fov = camera.fov;
-    const maxDimension = Math.max(size.x, size.y);
-    const distance = maxDimension / (2 * Math.tan(fov / 2));
+
+    equipmentModelResult.meshes.forEach((mesh) => {
+      mesh.refreshBoundingInfo({});
+      mesh.computeWorldMatrix(true);
+    });
+
+    box = calculateCompositeBoundingBox(equipmentModelResult.meshes);
+    center = box.min.add(box.max).scale(0.5);
+    // center = box.min.add(box.max).scale(0.5);
+    const size = box.max.subtract(box.min);
+    const diagonal = Math.sqrt(size.x ** 2 + size.y ** 2);
+    const distance = diagonal / (2 * Math.tan(fov / 2));
+    // const maxDimension = Math.max(size.x, size.y);
+    // const distance = maxDimension / (2 * Math.tan(fov / 2));
     camera.position = center.add(new Vector3(0, 0, distance));
     camera.setTarget(center);
 
-    const itemHeight = box.max.y - box.min.y;
-    console.log("item height", item.entityProperties.name, itemHeight);
-
-    const canvasHeight = itemHeight * 100;
-    const canvasWidth = (size.x / size.y) * canvasHeight;
     this.canvas.width = canvasWidth;
     this.canvas.height = canvasHeight;
 
@@ -113,3 +134,46 @@ export class ImageCreator {
     );
   }
 }
+
+// async createItemImage(item: Item) {
+//    const equipmentModelResult = await spawnEquipmentModel(item, this.scene, this.materials);
+//    if (equipmentModelResult instanceof Error) return console.error(equipmentModelResult);
+//    const parentMesh = equipmentModelResult.meshes[0];
+//    if (!parentMesh) return console.error("no parent mesh");
+
+//    parentMesh.position = Vector3.Zero();
+
+//    const box = calculateCompositeBoundingBox(equipmentModelResult.meshes);
+//    const itemHeight = box.max.y - box.min.y;
+
+//    const center = box.min.add(box.max).scale(0.5);
+//    const size = box.max.subtract(box.min);
+
+//    const camera = this.scene.cameras[0];
+//    if (!(camera instanceof UniversalCamera)) return console.error("no camera");
+//    const fov = camera.fov;
+//    const maxDimension = Math.max(size.x, size.y);
+//    const distance = maxDimension / (2 * Math.tan(fov / 2));
+//    camera.position = center.add(new Vector3(0, 0, distance));
+//    camera.setTarget(center);
+
+//    const canvasHeight = itemHeight * 100;
+//    const canvasWidth = (size.x / size.y) * canvasHeight;
+//    this.canvas.width = canvasWidth;
+//    this.canvas.height = canvasHeight;
+
+//    CreateScreenshotUsingRenderTarget(
+//      this.engine,
+//      camera,
+//      { width: canvasWidth, height: canvasHeight },
+//      (image) => {
+//        this.engine.stopRenderLoop();
+//        useGameStore.getState().mutateState((state) => {
+//          state.itemThumbnails[item.entityProperties.id] = image;
+//        });
+//        disposeAsyncLoadedScene(equipmentModelResult);
+//        this.processNextMessage();
+//      },
+//      "image/png"
+//    );
+//  }
