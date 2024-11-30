@@ -1,5 +1,5 @@
 import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { getCurrentMenu, useGameStore } from "@/stores/game-store";
 import { ActionButtonCategory, ActionMenuButtonProperties } from "./menu-state";
 import ActionDetails from "../detailables/ActionDetails";
@@ -80,7 +80,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
           return (
             <li key={thisButtonProperties.text} style={topButtonLiStyle}>
               <ActionMenuDedicatedButton
-                extraStyles="border border-slate-400 mr-2 last:mr-0"
+                extraStyles="border border-slate-400 mr-2 last:mr-0 h-10"
                 properties={button}
               />
             </li>

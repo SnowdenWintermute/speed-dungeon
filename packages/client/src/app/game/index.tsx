@@ -17,6 +17,7 @@ import { MenuStateType } from "./ActionMenu/menu-state";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
 import CurrentItemUnmetRequirementsUpdater from "./CurrentItemUnmetRequirementsUpdater";
+import ActionMenuAndCharacterSheetLayer from "./ActionMenuAndCharacterSheetLayer";
 
 export default function Game() {
   const game = useGameStore().game;
@@ -50,19 +51,14 @@ export default function Game() {
   const party = game.adventuringParties[partyName];
   if (!party) return <div>Client thinks it is in a party that doesn't exist</div>;
 
-  const currentMenu = useGameStore.getState().getCurrentMenu();
-  const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
-  const conditionalStyles = viewingCharacterSheet ? "items-center justify-end" : "";
-
-  const actionMenuAndCharacterSheetContainerConditionalClasses = viewingCharacterSheet
-    ? ""
-    : "w-full";
-
   return (
     <main className="h-screen w-screen flex justify-center relative overflow-hidden">
       <CharacterAutofocusManager />
       <CurrentItemUnmetRequirementsUpdater />
       <PartyWipeModal party={party} />
+      {
+        // BASE LAYER
+      }
       <div className="w-full h-full max-h-[calc(0.5625 * 100vw)] text-zinc-300 flex flex-col">
         <TopInfoBar />
         <div className="p-4 flex-grow flex flex-col justify-between">
@@ -88,46 +84,7 @@ export default function Game() {
           </div>
         </div>
       </div>
-      {
-        // ACTION MENU AND INVENTORY/EQUIPMENT/CHARACTER SHEET CONTAINER
-      }
-      <div
-        className={`absolute z-31 top-1/2 -translate-y-1/2 w-full p-4 text-zinc-300 flex flex-row ${conditionalStyles} pointer-events-none`}
-      >
-        <div
-          className={`flex flex-col max-w-full ${actionMenuAndCharacterSheetContainerConditionalClasses} `}
-        >
-          <div className="flex">
-            <div className="flex flex-col flex-grow justify-end max-w-full">
-              <div className="flex justify-between overflow-hidden">
-                {
-                  // !focused_character_is_animating &&
-                  <ActionMenu inputLocked={InputLock.isLocked(party.inputLock)} />
-                }
-                {!viewingCharacterSheet && (
-                  <div className="flex ">
-                    <div className="max-h-[13.375rem] h-fit flex flex-grow justify-end relative">
-                      <div className="absolute w-[50rem] right-[25rem]">
-                        {currentMenu.type !== MenuStateType.CombatActionSelected && (
-                          <ItemDetailsWithComparison flipDisplayOrder={true} />
-                        )}
-                      </div>
-                      <div className="max-w-[25rem] w-[25rem]">
-                        <ItemsOnGround party={party} maxHeightRem={25.0} />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-            <CharacterSheet showCharacterSheet={viewingCharacterSheet} />
-          </div>
-          <CharacterSheetItemDetailsViewer
-            party={party}
-            viewingCharacterSheet={viewingCharacterSheet}
-          />
-        </div>
-      </div>
+      <ActionMenuAndCharacterSheetLayer party={party} />
     </main>
   );
 }

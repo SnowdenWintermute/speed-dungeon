@@ -131,17 +131,14 @@ export function calculateCompositeBoundingBox(meshes: AbstractMesh[]): {
     throw new Error("No meshes provided to calculate bounding box.");
   }
 
-  // Initialize the min and max values with the first mesh's bounding info
   let compositeMin = parentMesh.getBoundingInfo().boundingBox.minimumWorld.clone();
   let compositeMax = parentMesh.getBoundingInfo().boundingBox.maximumWorld.clone();
 
-  // Iterate through all meshes
   for (const mesh of meshes) {
     const boundingInfo = mesh.getBoundingInfo();
     const min = boundingInfo.boundingBox.minimumWorld;
     const max = boundingInfo.boundingBox.maximumWorld;
 
-    // Update the composite bounding box
     compositeMin = Vector3.Minimize(compositeMin, min);
     compositeMax = Vector3.Maximize(compositeMax, max);
   }

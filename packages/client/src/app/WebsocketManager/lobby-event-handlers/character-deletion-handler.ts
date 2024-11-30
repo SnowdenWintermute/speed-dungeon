@@ -19,6 +19,15 @@ export default function characterDeletionHandler(
     const player = game.players[username];
     if (!player) return setAlert(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
+    // const characterOption = party.characters[characterId];
+    // if (characterOption) {
+    //   for (const item of characterOption.combatantProperties.inventory.items.concat(
+    //     Object.values(characterOption.combatantProperties.equipment)
+    //   )) {
+    //     delete gameState.itemThumbnails[item.entityProperties.id];
+    //   }
+    // }
+
     AdventuringParty.removeCharacter(party, characterId, player);
 
     for (const character of Object.values(party.characters))
