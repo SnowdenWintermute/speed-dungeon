@@ -29,14 +29,16 @@ export class ImageCreator {
   materials: SavedMaterials;
   queue: ImageCreationRequest[] = [];
   isProcessing: boolean = false;
+  camera: UniversalCamera;
   constructor() {
     this.canvas = new OffscreenCanvas(100, 100);
     const gl = this.canvas.getContext("webgl2");
     if (!gl) throw new Error("Failed to create WebGL context.");
 
     this.engine = new Engine(gl, true, { preserveDrawingBuffer: true, stencil: true });
-
     this.scene = createImageCreatorScene(this.engine);
+    this.camera = new UniversalCamera("camera", new Vector3(0, 0, 3), this.scene);
+    this.camera.minZ = 0;
     this.materials = createDefaultMaterials(this.scene);
   }
 
@@ -79,42 +81,22 @@ export class ImageCreator {
 
     parentMesh.position = Vector3.Zero();
 
-    const canvasWidth = 87;
-    const canvasHeight = 160;
+    const box = calculateCompositeBoundingBox(equipmentModelResult.meshes);
+    const itemHeight = box.max.y - box.min.y;
 
-    const rotationAngle = Math.atan(canvasWidth / canvasHeight);
-
-    let box = calculateCompositeBoundingBox(equipmentModelResult.meshes);
-    let center = box.min.add(box.max).scale(0.5);
-    // parentMesh.rotateAround(center, Vector3.Forward(), -rotationAngle);
-    parentMesh.rotateAround(center, Vector3.Forward(), -Math.PI / 2);
+    const center = box.min.add(box.max).scale(0.5);
+    const size = box.max.subtract(box.min);
 
     const camera = this.scene.cameras[0];
     if (!(camera instanceof UniversalCamera)) return console.error("no camera");
-    camera.viewport = new Viewport(
-      0,
-      0,
-      canvasWidth / this.canvas.width,
-      canvasHeight / this.canvas.height
-    );
     const fov = camera.fov;
-
-    equipmentModelResult.meshes.forEach((mesh) => {
-      mesh.refreshBoundingInfo({});
-      mesh.computeWorldMatrix(true);
-    });
-
-    box = calculateCompositeBoundingBox(equipmentModelResult.meshes);
-    center = box.min.add(box.max).scale(0.5);
-    // center = box.min.add(box.max).scale(0.5);
-    const size = box.max.subtract(box.min);
-    const diagonal = Math.sqrt(size.x ** 2 + size.y ** 2);
-    const distance = diagonal / (2 * Math.tan(fov / 2));
-    // const maxDimension = Math.max(size.x, size.y);
-    // const distance = maxDimension / (2 * Math.tan(fov / 2));
+    const maxDimension = Math.max(size.x, size.y);
+    const distance = maxDimension / (2 * Math.tan(fov / 2));
     camera.position = center.add(new Vector3(0, 0, distance));
     camera.setTarget(center);
 
+    const canvasHeight = itemHeight * 120;
+    const canvasWidth = (size.x / size.y) * canvasHeight;
     this.canvas.width = canvasWidth;
     this.canvas.height = canvasHeight;
 
@@ -136,44 +118,55 @@ export class ImageCreator {
 }
 
 // async createItemImage(item: Item) {
-//    const equipmentModelResult = await spawnEquipmentModel(item, this.scene, this.materials);
-//    if (equipmentModelResult instanceof Error) return console.error(equipmentModelResult);
-//    const parentMesh = equipmentModelResult.meshes[0];
-//    if (!parentMesh) return console.error("no parent mesh");
+//   const { camera } = this;
+//   const equipmentModelResult = await spawnEquipmentModel(item, this.scene, this.materials);
+//   if (equipmentModelResult instanceof Error) return console.error(equipmentModelResult);
+//   const parentMesh = equipmentModelResult.meshes[0];
+//   if (!parentMesh) return console.error("no parent mesh");
 
-//    parentMesh.position = Vector3.Zero();
+//   const canvasWidth = 87;
+//   const canvasHeight = 160;
 
-//    const box = calculateCompositeBoundingBox(equipmentModelResult.meshes);
-//    const itemHeight = box.max.y - box.min.y;
+//   const rotationAngle = Math.atan(canvasWidth / canvasHeight);
 
-//    const center = box.min.add(box.max).scale(0.5);
-//    const size = box.max.subtract(box.min);
+//   let box = calculateCompositeBoundingBox(equipmentModelResult.meshes);
 
-//    const camera = this.scene.cameras[0];
-//    if (!(camera instanceof UniversalCamera)) return console.error("no camera");
-//    const fov = camera.fov;
-//    const maxDimension = Math.max(size.x, size.y);
-//    const distance = maxDimension / (2 * Math.tan(fov / 2));
-//    camera.position = center.add(new Vector3(0, 0, distance));
-//    camera.setTarget(center);
+//   let center = box.min.add(box.max).scale(0.5);
+//   camera.setTarget(center);
 
-//    const canvasHeight = itemHeight * 100;
-//    const canvasWidth = (size.x / size.y) * canvasHeight;
-//    this.canvas.width = canvasWidth;
-//    this.canvas.height = canvasHeight;
+//   const fov = camera.fov;
 
-//    CreateScreenshotUsingRenderTarget(
-//      this.engine,
-//      camera,
-//      { width: canvasWidth, height: canvasHeight },
-//      (image) => {
-//        this.engine.stopRenderLoop();
-//        useGameStore.getState().mutateState((state) => {
-//          state.itemThumbnails[item.entityProperties.id] = image;
-//        });
-//        disposeAsyncLoadedScene(equipmentModelResult);
-//        this.processNextMessage();
-//      },
-//      "image/png"
-//    );
-//  }
+//   // parentMesh.rotateAround(center, Vector3.Forward(), -Math.PI / 2);
+//   parentMesh.rotateAround(Vector3.Zero(), Vector3.Forward(), rotationAngle);
+
+//   equipmentModelResult.meshes.forEach((mesh) => {
+//     mesh.refreshBoundingInfo({});
+//     mesh.computeWorldMatrix(true);
+//   });
+//   box = calculateCompositeBoundingBox(equipmentModelResult.meshes);
+
+//   center = box.min.add(box.max).scale(0.5);
+//   const size = box.max.subtract(box.min);
+
+//   const diagonal = Math.sqrt(size.x ** 2 + size.y ** 2);
+//   const distance = diagonal / (2 * Math.tan(fov / 2));
+//   camera.position = center.add(new Vector3(0, 0, distance));
+
+//   this.canvas.width = canvasWidth;
+//   this.canvas.height = canvasHeight;
+
+//   CreateScreenshotUsingRenderTarget(
+//     this.engine,
+//     camera,
+//     { width: canvasWidth, height: canvasHeight },
+//     (image) => {
+//       this.engine.stopRenderLoop();
+//       useGameStore.getState().mutateState((state) => {
+//         state.itemThumbnails[item.entityProperties.id] = image;
+//       });
+//       disposeAsyncLoadedScene(equipmentModelResult);
+//       this.processNextMessage();
+//     },
+//     "image/png"
+//   );
+// }

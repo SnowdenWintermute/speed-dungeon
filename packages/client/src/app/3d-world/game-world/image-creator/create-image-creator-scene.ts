@@ -14,10 +14,6 @@ export function createImageCreatorScene(engine: Engine): Scene {
   scene.clearColor = new Color4(0, 0, 0, 0);
   // scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
 
-  const camera = new UniversalCamera("camera", new Vector3(0, 0, 3), scene);
-  camera.minZ = 0;
-  camera.attachControl();
-
   // LIGHTS
   const hemiLight = new HemisphericLight("hemi-light-2", new Vector3(0, 1, 0), scene);
   hemiLight.intensity = 0.85;

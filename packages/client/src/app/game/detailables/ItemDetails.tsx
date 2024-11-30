@@ -1,6 +1,6 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import { CombatActionType, Item, ItemPropertiesType } from "@speed-dungeon/common";
-import React from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import ActionDetails from "./ActionDetails";
 import EquipmentDetails from "./EquipmentDetails";
 import ModKeyTooltip from "./ModKeyTooltip";
@@ -27,11 +27,16 @@ export default function ItemDetails({
   isComparedItem,
 }: Props) {
   let itemDetailsDisplay = <></>;
+  const imageRef = useRef<HTMLImageElement>(null);
   let hiddenClass = "pointer-events-auto";
   let thumbnailPath = "";
   const thumbnailOption = useGameStore().itemThumbnails[itemOption?.entityProperties.id || ""];
 
   const unmetRequirements = useGameStore().consideredItemUnmetRequirements;
+
+  const angle = useMemo(() => {
+    return ((Math.atan(7.5 / 12.125) * 180) / Math.PI) * -1 + Math.PI * 2;
+  }, [thumbnailPath]);
 
   if (!itemOption) {
     itemDetailsDisplay = <></>;
@@ -59,7 +64,10 @@ export default function ItemDetails({
 
   return (
     <div
-      className={`border border-slate-400 bg-slate-700 h-[13.375rem] max-h-[13.375rem] pointer-events-auto max-w-1/2 relative overflow-y-auto ${extraStyles} ${hiddenClass}`}
+      className={`border border-slate-400 bg-slate-700 h-[13.375rem] max-h-[13.375rem]
+      pointer-events-auto max-w-1/2 relative overflow-y-auto ${extraStyles} ${hiddenClass}
+      flex
+      `}
       style={{
         [`margin${marginSide}`]: `${SPACING_REM_SMALL / 2.0}rem`,
         width: "50%",
@@ -67,20 +75,25 @@ export default function ItemDetails({
         scrollbarGutter: "stable",
       }}
     >
-      <span className="flex justify-between pr-2">
-        {title}
-        {shouldShowModKeyTooltip && <ModKeyTooltip />}
-      </span>
-      <div className="mr-2 mb-1 mt-1 h-[1px] bg-slate-400" />
-      {itemOption?.entityProperties.name}
-      {itemDetailsDisplay}
-      <div className="h-full w-full absolute top-0 left-0 p-2 pr-8 flex items-center justify-end">
-        <div
-          // style={unmetRequirements?.length ? { filter: UNMET_REQUIREMENTS_FILTER } : {}}
-          className="filter-red bg-slate-700 border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4"
-        >
-          <img src={thumbnailPath} className="max-h-full bg-white" />
-        </div>
+      <div className="flex-1">
+        <span className="flex justify-between pr-2">
+          {title}
+          {shouldShowModKeyTooltip && <ModKeyTooltip />}
+        </span>
+        <div className="mr-2 mb-1 mt-1 h-[1px] bg-slate-400" />
+        <span>{itemOption?.entityProperties.name}</span>
+        {itemDetailsDisplay}
+      </div>
+      <div
+        className={`${unmetRequirements ? "filter-red bg-gray-700" : "bg-slate-700"}  border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4`}
+        // className={`${unmetRequirements ? "" : "bg-slate-700"}  border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4`}
+      >
+        <img
+          src={thumbnailPath}
+          ref={imageRef}
+          className="max-h-full object-contain"
+          style={{ transform: `rotate(${0}deg)`, objectFit: "contain" }}
+        />
       </div>
     </div>
   );
