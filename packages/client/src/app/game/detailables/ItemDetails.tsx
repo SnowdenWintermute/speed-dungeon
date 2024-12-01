@@ -7,6 +7,10 @@ import ModKeyTooltip from "./ModKeyTooltip";
 import { useGameStore } from "@/stores/game-store";
 import Divider from "@/app/components/atoms/Divider";
 import Model3DIcon from "../../../../public/img/menu-icons/3d-model-icon.svg";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import getModelAttribution, {
+  ARTISTS,
+} from "@/app/3d-world/combatant-models/get-model-attribution";
 
 interface Props {
   title: string;
@@ -59,11 +63,13 @@ export default function ItemDetails({
     }
   }
 
+  const attribution = itemOption && getModelAttribution(itemOption);
+
   return (
     <div
       className={`border border-slate-400 bg-slate-700 h-fit
       pointer-events-auto max-w-1/2 ${extraStyles} ${hiddenClass}
-      flex relative
+      flex relative max-h-[20rem]
       `}
       style={{
         [`margin${marginSide}`]: `${SPACING_REM_SMALL / 2.0}rem`,
@@ -84,7 +90,8 @@ export default function ItemDetails({
       </div>
       <div className="self-start flex flex-col">
         <div
-          className={`${unmetRequirements ? "filter-red bg-gray-700" : "bg-slate-800"} border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4`}
+          className={`${unmetRequirements ? "filter-red bg-gray-700" : "bg-slate-800"} 
+          border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4 mb-1`}
           // className={`bg-slate-700 self-start border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4`}
         >
           <img
@@ -95,12 +102,21 @@ export default function ItemDetails({
           />
         </div>
 
-        <div className="text-rose-300 text-sm">
-          <span className="h-8 w-8">
-            <Model3DIcon className="stroke-pink-300 h-full w-full" />
-          </span>
-          <a href="">(*) Quaternius</a>
-        </div>
+        {attribution && (
+          <HoverableTooltipWrapper
+            tooltipText={`3D model by ${attribution.name}`}
+            extraStyles="flex items-center justify-center w-full max-w-[7.5rem]"
+          >
+            <a
+              href={attribution.link}
+              target="_blank"
+              className="text-gray-400 text-sm w-fit text-center align-middle"
+            >
+              <Model3DIcon className="inline stroke-gray-400 h-4 w-4 mr-1 align-middle" />
+              <span className="align-middle">{attribution.name}</span>
+            </a>
+          </HoverableTooltipWrapper>
+        )}
       </div>
     </div>
   );

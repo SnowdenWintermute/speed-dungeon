@@ -12,7 +12,7 @@ export default function setComparedItem(itemId: string, compareAltSlot: boolean)
     if (partyResult === undefined) return console.error("NO PARTY");
     const itemResult = getItemInAdventuringParty(partyResult, itemId);
     if (itemResult instanceof Error) return console.error(itemResult);
-    const focusedCharacterResult = getFocusedCharacter(gameState);
+    const focusedCharacterResult = getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) return console.error(focusedCharacterResult);
     const focusedCharacter = focusedCharacterResult;
     const item = itemResult;
@@ -22,7 +22,10 @@ export default function setComparedItem(itemId: string, compareAltSlot: boolean)
       slotsOption = getEquipableSlots(item.itemProperties.equipmentProperties);
     }
 
-    if (slotsOption === null) return;
+    if (slotsOption === null) {
+      gameState.comparedItem = null;
+      return;
+    }
     let slotToCompare = slotsOption.main;
     if (slotsOption.alternate !== null && compareAltSlot) slotToCompare = slotsOption.alternate;
     gameState.comparedSlot = slotToCompare;

@@ -25,7 +25,7 @@ export default function NumberedButton({ number, properties }: Props) {
     >
       <span
         className="h-full w-10 !min-w-[2.5rem] border-r border-slate-400
-            flex items-center justify-center mr-2"
+            flex items-center justify-center mr-2 animate-slide-appear-from-left-fast"
       >
         {number}
       </span>
