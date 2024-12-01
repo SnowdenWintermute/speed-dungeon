@@ -5,7 +5,7 @@ export default function ModKeyTooltip() {
   return (
     <span className="flex items-center">
       <HoverableTooltipWrapper tooltipText={"hold shift to compare alternate slot"}>
-        <span className="pr-1 pl-1 mr-2">( shift )</span>
+        <span className="pr-1 pl-1 mr-2 text-nowrap">hold ( shift )</span>
         <span>{"ⓘ "}</span>
       </HoverableTooltipWrapper>
     </span>

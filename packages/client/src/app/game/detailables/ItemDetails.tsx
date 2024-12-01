@@ -1,11 +1,12 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import { CombatActionType, Item, ItemPropertiesType } from "@speed-dungeon/common";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useRef } from "react";
 import ActionDetails from "./ActionDetails";
 import EquipmentDetails from "./EquipmentDetails";
 import ModKeyTooltip from "./ModKeyTooltip";
 import { useGameStore } from "@/stores/game-store";
-import { className } from "@babylonjs/core";
+import Divider from "@/app/components/atoms/Divider";
+import Model3DIcon from "../../../../public/img/menu-icons/3d-model-icon.svg";
 
 interface Props {
   title: string;
@@ -34,10 +35,6 @@ export default function ItemDetails({
 
   const unmetRequirements = useGameStore().consideredItemUnmetRequirements;
 
-  const angle = useMemo(() => {
-    return ((Math.atan(7.5 / 12.125) * 180) / Math.PI) * -1 + Math.PI * 2;
-  }, [thumbnailPath]);
-
   if (!itemOption) {
     itemDetailsDisplay = <></>;
     hiddenClass = "opacity-0 h-0 pointer-events-none";
@@ -65,8 +62,8 @@ export default function ItemDetails({
   return (
     <div
       className={`border border-slate-400 bg-slate-700 h-fit
-      pointer-events-auto max-w-1/2 relative overflow-y-auto ${extraStyles} ${hiddenClass}
-      flex items-center
+      pointer-events-auto max-w-1/2 ${extraStyles} ${hiddenClass}
+      flex relative
       `}
       style={{
         [`margin${marginSide}`]: `${SPACING_REM_SMALL / 2.0}rem`,
@@ -75,27 +72,35 @@ export default function ItemDetails({
         scrollbarGutter: "stable",
       }}
     >
-      <div className="flex-1 justify-center items-center text-center">
-        {
-          // <span className="flex justify-between pr-2">
-          // {title}
-          // {shouldShowModKeyTooltip && <ModKeyTooltip />}
-          // </span>
-          // <div className="mr-2 mb-1 mt-1 h-[1px] bg-slate-400" />
-        }
+      {shouldShowModKeyTooltip && isComparedItem && (
+        <div className="border border-slate-400 p-2 z-30 absolute -right-4 -top-10 translate-y-1/2 bg-slate-800">
+          <ModKeyTooltip />
+        </div>
+      )}
+      <div className="flex-1 justify-center items-center text-center overflow-y-auto ">
         <span>{itemOption?.entityProperties.name}</span>
+        <Divider extraStyles="mr-4" />
         {itemDetailsDisplay}
       </div>
-      <div
-        className={`${unmetRequirements ? "filter-red bg-gray-700" : "bg-slate-700"}  border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4`}
-        // className={`${unmetRequirements ? "" : "bg-slate-700"}  border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4`}
-      >
-        <img
-          src={thumbnailPath}
-          ref={imageRef}
-          className="max-h-full object-contain"
-          style={{ transform: `rotate(${0}deg)`, objectFit: "contain" }}
-        />
+      <div className="self-start flex flex-col">
+        <div
+          className={`${unmetRequirements ? "filter-red bg-gray-700" : "bg-slate-800"} border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4`}
+          // className={`bg-slate-700 self-start border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4`}
+        >
+          <img
+            src={thumbnailPath}
+            ref={imageRef}
+            className="max-h-full object-contain"
+            style={{ transform: `rotate(${0}deg)`, objectFit: "contain" }}
+          />
+        </div>
+
+        <div className="text-rose-300 text-sm">
+          <span className="h-8 w-8">
+            <Model3DIcon className="stroke-pink-300 h-full w-full" />
+          </span>
+          <a href="">(*) Quaternius</a>
+        </div>
       </div>
     </div>
   );

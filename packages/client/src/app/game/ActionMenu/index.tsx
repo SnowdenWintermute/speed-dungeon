@@ -1,4 +1,9 @@
-import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
+import {
+  BUTTON_HEIGHT,
+  BUTTON_HEIGHT_SMALL,
+  SPACING_REM,
+  SPACING_REM_SMALL,
+} from "@/client_consts";
 import React, { useEffect } from "react";
 import { getCurrentMenu, useGameStore } from "@/stores/game-store";
 import { ActionButtonCategory, ActionMenuButtonProperties } from "./menu-state";
@@ -133,7 +138,7 @@ function BottomButtons({
       style={!left && !right ? { opacity: 0 } : {}}
     >
       <div key={left?.text} className="flex-1 border-r border-slate-400 h-full">
-        {left && <ActionMenuDedicatedButton extraStyles="w-full" properties={left} />}
+        {left && <ActionMenuDedicatedButton extraStyles="w-full h-full" properties={left} />}
       </div>
       <div
         className="h-full flex items-center justify-center pr-2 pl-2"
@@ -199,7 +204,7 @@ function CharacterFocusingButtons() {
   return (
     <ul
       className={`flex list-none min-w-[25rem] max-w-[25rem] justify-between bg-slate-700 border border-slate-400`}
-      style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
+      style={{ marginBottom: `${SPACING_REM_SMALL}rem`, height: `${BUTTON_HEIGHT_SMALL}rem` }}
     >
       <ActionMenuDedicatedButton
         extraStyles="flex-1 flex border-r border-slate-400 h-full"

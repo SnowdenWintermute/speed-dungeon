@@ -55,7 +55,7 @@ export default function ActionDetails({ combatAction, hideTitle }: Props) {
   });
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
       {!hideTitle && (
         <>
           <span>{getCombatActionName(party, combatAction)}</span>

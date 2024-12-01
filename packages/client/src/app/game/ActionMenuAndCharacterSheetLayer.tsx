@@ -31,12 +31,6 @@ export default function ActionMenuAndCharacterSheetLayer({ party }: { party: Adv
             <ItemsOnGround maxHeightRem={13.375} party={party} />
           </div>
           <ItemDetailsWithComparison flipDisplayOrder={false} />
-          {
-            // <CharacterSheetItemDetailsViewer
-            //   party={party}
-            //   viewingCharacterSheet={viewingCharacterSheet}
-            // />
-          }
         </div>
       </div>
     </section>
