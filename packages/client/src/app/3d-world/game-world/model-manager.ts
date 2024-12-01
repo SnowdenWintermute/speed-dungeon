@@ -259,13 +259,14 @@ type DespawnModelManagerMessage = {
   type: ModelManagerMessageType.DespawnModel;
 };
 
-type ChangeEquimpentModelManagerMessage = {
+type ChangeEquipmentModelManagerMessage = {
   type: ModelManagerMessageType.ChangeEquipment;
   slot: EquipmentSlot;
+  unequippedSlots: EquipmentSlot[];
   item?: Item;
 };
 
 type ModelManagerMessage =
   | SpawnCombatantModelManagerMessage
   | DespawnModelManagerMessage
-  | ChangeEquimpentModelManagerMessage;
+  | ChangeEquipmentModelManagerMessage;

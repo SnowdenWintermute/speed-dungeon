@@ -42,6 +42,7 @@ export default function characterEquippedItemHandler(packet: {
           gameWorld.current?.modelManager.enqueueMessage(character.entityProperties.id, {
             type: ModelManagerMessageType.ChangeEquipment,
             item: cloneDeep(item), // must clone since sending from within a zustand mutateState
+            unequippedItemIds: unequippedItemIdsResult,
             slot,
           });
       }

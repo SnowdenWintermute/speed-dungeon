@@ -69,7 +69,7 @@ export default function ItemDetails({
     <div
       className={`border border-slate-400 bg-slate-700 h-fit
       pointer-events-auto max-w-1/2 ${extraStyles} ${hiddenClass}
-      flex relative max-h-[20rem]
+      flex relative 
       `}
       style={{
         [`margin${marginSide}`]: `${SPACING_REM_SMALL / 2.0}rem`,
@@ -83,7 +83,7 @@ export default function ItemDetails({
           <ModKeyTooltip />
         </div>
       )}
-      <div className="flex-1 justify-center items-center text-center overflow-y-auto ">
+      <div className="flex-1 justify-center items-center text-center ">
         <span>{itemOption?.entityProperties.name}</span>
         <Divider extraStyles="mr-4" />
         {itemDetailsDisplay}
