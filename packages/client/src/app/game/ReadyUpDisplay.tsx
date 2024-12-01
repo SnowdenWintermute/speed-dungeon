@@ -56,7 +56,7 @@ export default function ReadyUpDisplay({ party }: Props) {
         party.currentRoom.monsterPositions.length === 0 &&
         currentMenu instanceof BaseMenuState && (
           <div
-            className="absolute top-1/3 -translate-y-1/2 left-1/2 -translate-x-1/2 border border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto"
+            className="absolute top-1/5  left-1/2 -translate-x-1/2 border border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto"
             style={{ opacity: shouldDim ? "50%" : "100%" }}
           >
             <h3 className="text-xl mb-2">The room is empty of monsters</h3>

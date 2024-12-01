@@ -28,6 +28,6 @@ export default function characterDroppedEquippedItemHandler(characterAndSlot: Ch
 
   gameWorld.current?.modelManager.enqueueMessage(characterId, {
     type: ModelManagerMessageType.ChangeEquipment,
-    slot,
+    unequippedSlots: [slot],
   });
 }

@@ -45,6 +45,7 @@ export default function ItemDetails({
   } else {
     const item = itemOption;
     thumbnailPath = thumbnailOption || "img/equipment-icons/1h-sword-a.svg";
+    hiddenClass = "pointer-events-auto ";
 
     if (item.itemProperties.type === ItemPropertiesType.Consumable) {
       itemDetailsDisplay = (
@@ -68,7 +69,7 @@ export default function ItemDetails({
   return (
     <div
       className={`border border-slate-400 bg-slate-700 h-fit
-      pointer-events-auto max-w-1/2 ${extraStyles} ${hiddenClass}
+      max-w-1/2 ${extraStyles} ${hiddenClass}
       flex relative 
       `}
       style={{

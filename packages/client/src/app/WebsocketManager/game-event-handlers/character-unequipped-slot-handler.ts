@@ -15,6 +15,6 @@ export default function characterUnequippedSlotHandler(characterAndSlot: Charact
   });
   gameWorld.current?.modelManager.enqueueMessage(characterId, {
     type: ModelManagerMessageType.ChangeEquipment,
-    slot,
+    unequippedSlots: [slot],
   });
 }

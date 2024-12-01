@@ -48,11 +48,14 @@ class ModelMessageQueue {
           this.modelManager.despawnCharacterModel(this.entityId);
           break;
         case ModelManagerMessageType.ChangeEquipment:
-          this.modelManager.handleEquipmentChange(
-            this.entityId,
-            currentMessageProcessing.slot,
-            currentMessageProcessing.item
-          );
+          for (const slot of currentMessageProcessing.unequippedSlots)
+            this.modelManager.handleEquipmentChange(this.entityId, slot);
+          if (currentMessageProcessing.toEquip)
+            this.modelManager.handleEquipmentChange(
+              this.entityId,
+              currentMessageProcessing.toEquip.slot,
+              currentMessageProcessing.toEquip.item
+            );
       }
       currentMessageProcessing = this.messages.shift();
     }
@@ -261,9 +264,8 @@ type DespawnModelManagerMessage = {
 
 type ChangeEquipmentModelManagerMessage = {
   type: ModelManagerMessageType.ChangeEquipment;
-  slot: EquipmentSlot;
   unequippedSlots: EquipmentSlot[];
-  item?: Item;
+  toEquip?: { item: Item; slot: EquipmentSlot };
 };
 
 type ModelManagerMessage =
