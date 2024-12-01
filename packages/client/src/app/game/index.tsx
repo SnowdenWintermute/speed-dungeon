@@ -4,16 +4,10 @@ import PartyWipeModal from "./PartyWipeModal";
 import TopInfoBar from "./TopInfoBar";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
 import MonsterPlaques from "./MonsterPlaques";
-import { ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
-import ActionMenu from "./ActionMenu";
+import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import CharacterAutofocusManager from "./CharacterAutofocusManager";
-import CharacterSheet from "./character-sheet";
-import ItemDetailsWithComparison from "./ItemDetailsWithComparison";
-import CharacterSheetItemDetailsViewer from "./character-sheet/CharacterSheetItemDetailsViewer";
-import ItemsOnGround from "./ItemsOnGround";
 import ReadyUpDisplay from "./ReadyUpDisplay";
 import CombatLog from "./combat-log";
-import { MenuStateType } from "./ActionMenu/menu-state";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
 import CurrentItemUnmetRequirementsUpdater from "./CurrentItemUnmetRequirementsUpdater";
@@ -21,6 +15,8 @@ import ActionMenuAndCharacterSheetLayer from "./ActionMenuAndCharacterSheetLayer
 
 export default function Game() {
   const game = useGameStore().game;
+  const currentMenu = useGameStore.getState().getCurrentMenu();
+  const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
 
   const username = useGameStore().username;
   if (!username)
@@ -52,39 +48,43 @@ export default function Game() {
   if (!party) return <div>Client thinks it is in a party that doesn't exist</div>;
 
   return (
-    <main className="h-screen w-screen flex justify-center relative overflow-hidden">
-      <CharacterAutofocusManager />
-      <CurrentItemUnmetRequirementsUpdater />
-      <PartyWipeModal party={party} />
-      {
-        // BASE LAYER
-      }
-      <div className="w-full h-full max-h-[calc(0.5625 * 100vw)] text-zinc-300 flex flex-col">
-        <TopInfoBar />
-        <div className="p-4 flex-grow flex flex-col justify-between">
-          <ReadyUpDisplay party={party} />
-          <div className="flex justify-end">
-            <div className="w-fit">
-              <MonsterPlaques game={game} party={party} />
+    <>
+      <main
+        className={`h-screen w-screen flex justify-center relative overflow-hidden ${viewingCharacterSheet && "opacity-50"}`}
+      >
+        <CharacterAutofocusManager />
+        <CurrentItemUnmetRequirementsUpdater />
+        <PartyWipeModal party={party} />
+        {
+          // BASE LAYER
+        }
+        <div className="w-full h-full max-h-[calc(0.5625 * 100vw)] text-zinc-300 flex flex-col">
+          <TopInfoBar />
+          <div className="p-4 flex-grow flex flex-col justify-between">
+            <ReadyUpDisplay party={party} />
+            <div className="flex justify-end">
+              <div className="w-fit">
+                <MonsterPlaques game={game} party={party} />
+              </div>
             </div>
-          </div>
-          <div className="flex flex-wrap justify-between">
-            <div className="h-[14rem] min-w-[23rem] max-w-[26rem]  border border-slate-400 bg-slate-700 p-2 pointer-events-auto">
-              <CombatLog />
-            </div>
-            <div className="flex flex-grow justify-end mt-3.5 max-w-full">
-              <div className="w-fit max-w-full flex items-end">
-                <CombatantPlaqueGroup
-                  party={party}
-                  combatantIds={party.characterPositions}
-                  showExperience={true}
-                />
+            <div className="flex flex-wrap justify-between">
+              <div className="h-[14rem] min-w-[23rem] max-w-[26rem]  border border-slate-400 bg-slate-700 p-2 pointer-events-auto">
+                <CombatLog />
+              </div>
+              <div className="flex flex-grow justify-end mt-3.5 max-w-full">
+                <div className="w-fit max-w-full flex items-end">
+                  <CombatantPlaqueGroup
+                    party={party}
+                    combatantIds={party.characterPositions}
+                    showExperience={true}
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </main>
       <ActionMenuAndCharacterSheetLayer party={party} />
-    </main>
+    </>
   );
 }

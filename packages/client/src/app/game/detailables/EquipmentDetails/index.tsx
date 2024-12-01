@@ -15,14 +15,14 @@ interface Props {
 export default function EquipmentDetails({ item, equipmentProperties }: Props) {
   const armorCategoryTextOption = getArmorCategoryText(equipmentProperties);
   return (
-    <div>
+    <div className="mr-2">
       {formatEquipmentType(equipmentProperties.equipmentBaseItemProperties.type)}
       {armorCategoryTextOption && armorCategoryTextOption}
+      <Durability equipmentProperties={equipmentProperties} />
+      <ItemRequirements attributeRequirements={item.requirements} />
       <ArmorClassText equipmentProperties={equipmentProperties} />
       <WeaponDamage equipmentProperties={equipmentProperties} />
-      <Durability equipmentProperties={equipmentProperties} />
       <CombatAttributesAndTraits equipmentProperties={equipmentProperties} />
-      <ItemRequirements attributeRequirements={item.requirements} />
     </div>
   );
 }

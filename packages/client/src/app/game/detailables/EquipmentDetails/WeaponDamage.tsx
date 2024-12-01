@@ -22,15 +22,15 @@ export default function WeaponDamage({ equipmentProperties }: Props) {
   if (damageOption === null || damagetypes === null) return <></>;
 
   return (
-    <div>
+    <>
       <div className="mb-1">{`Damage: ${damageOption.min}-${damageOption.max}`}</div>
       {damagetypes.length > 0 && (
-        <ul className="list-none m-0 p-0">
+        <ul className="list-none p-0 w-fit m-auto flex flex-col items-center">
           {damagetypes.map((item, i) => (
             <DamageTypeBadge key={i} hpChangeSource={item} />
           ))}
         </ul>
       )}
-    </div>
+    </>
   );
 }

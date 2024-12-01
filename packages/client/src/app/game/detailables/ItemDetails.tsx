@@ -64,9 +64,9 @@ export default function ItemDetails({
 
   return (
     <div
-      className={`border border-slate-400 bg-slate-700 h-[13.375rem] max-h-[13.375rem]
+      className={`border border-slate-400 bg-slate-700 h-fit
       pointer-events-auto max-w-1/2 relative overflow-y-auto ${extraStyles} ${hiddenClass}
-      flex
+      flex items-center
       `}
       style={{
         [`margin${marginSide}`]: `${SPACING_REM_SMALL / 2.0}rem`,
@@ -75,12 +75,14 @@ export default function ItemDetails({
         scrollbarGutter: "stable",
       }}
     >
-      <div className="flex-1">
-        <span className="flex justify-between pr-2">
-          {title}
-          {shouldShowModKeyTooltip && <ModKeyTooltip />}
-        </span>
-        <div className="mr-2 mb-1 mt-1 h-[1px] bg-slate-400" />
+      <div className="flex-1 justify-center items-center text-center">
+        {
+          // <span className="flex justify-between pr-2">
+          // {title}
+          // {shouldShowModKeyTooltip && <ModKeyTooltip />}
+          // </span>
+          // <div className="mr-2 mb-1 mt-1 h-[1px] bg-slate-400" />
+        }
         <span>{itemOption?.entityProperties.name}</span>
         {itemDetailsDisplay}
       </div>

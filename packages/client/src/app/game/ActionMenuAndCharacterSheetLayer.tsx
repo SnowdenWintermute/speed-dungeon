@@ -1,57 +1,43 @@
-import React from "react";
+import React, { useRef } from "react";
 import ActionMenu from "./ActionMenu";
 import { AdventuringParty, InputLock } from "@speed-dungeon/common";
-import { MenuStateType } from "./ActionMenu/menu-state";
 import ItemDetailsWithComparison from "./ItemDetailsWithComparison";
 import ItemsOnGround from "./ItemsOnGround";
 import CharacterSheet from "./character-sheet";
-import CharacterSheetItemDetailsViewer from "./character-sheet/CharacterSheetItemDetailsViewer";
 import { useGameStore } from "@/stores/game-store";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
+import { SPACING_REM } from "@/client_consts";
 
 export default function ActionMenuAndCharacterSheetLayer({ party }: { party: AdventuringParty }) {
   const currentMenu = useGameStore.getState().getCurrentMenu();
   const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
-  const conditionalStyles = viewingCharacterSheet ? "items-center justify-end" : "";
-
-  const actionMenuAndCharacterSheetContainerConditionalClasses = viewingCharacterSheet
-    ? ""
-    : "w-full";
+  const topContentRef = useRef<HTMLDivElement>(null);
 
   return (
-    <section
-      className={`absolute z-31 top-1/2 -translate-y-1/2 w-full p-4 
-      text-zinc-300 flex flex-row ${conditionalStyles} pointer-events-none`}
-    >
-      <div
-        className={`flex flex-col max-w-full ${actionMenuAndCharacterSheetContainerConditionalClasses}`}
-      >
-        <div className="flex">
-          <div className="flex flex-col flex-grow justify-end max-w-full">
-            <div className="flex justify-between overflow-hidden">
-              <ActionMenu inputLocked={InputLock.isLocked(party.inputLock)} />
-              {!viewingCharacterSheet && (
-                <div className="flex ">
-                  <div className="max-h-[13.375rem] h-fit flex flex-grow justify-end relative">
-                    <div className="absolute w-[50rem] right-[25rem]">
-                      {currentMenu.type !== MenuStateType.CombatActionSelected && (
-                        <ItemDetailsWithComparison flipDisplayOrder={true} />
-                      )}
-                    </div>
-                    <div className="max-w-[25rem] w-[25rem]">
-                      <ItemsOnGround party={party} maxHeightRem={25.0} />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+    <section className={`absolute top-0 pl-4 z-31 h-screen w-screen overscroll-auto`}>
+      <div className="flex flex-col w-fit absolute" style={{ top: `calc(100vh / 7)` }}>
+        <div
+          ref={topContentRef}
+          className="flex items-end w-fit"
+          style={{ marginBottom: `${SPACING_REM}rem` }}
+        >
+          <div style={{ marginRight: `${SPACING_REM}rem` }}>
+            <ActionMenu inputLocked={InputLock.isLocked(party.inputLock)} />
           </div>
           <CharacterSheet showCharacterSheet={viewingCharacterSheet} />
         </div>
-        <CharacterSheetItemDetailsViewer
-          party={party}
-          viewingCharacterSheet={viewingCharacterSheet}
-        />
+        <div className="flex">
+          <div className="min-w-[25rem] max-w-[25rem]" style={{ marginRight: `${SPACING_REM}rem` }}>
+            <ItemsOnGround maxHeightRem={13.375} party={party} />
+          </div>
+          <ItemDetailsWithComparison flipDisplayOrder={false} />
+          {
+            // <CharacterSheetItemDetailsViewer
+            //   party={party}
+            //   viewingCharacterSheet={viewingCharacterSheet}
+            // />
+          }
+        </div>
       </div>
     </section>
   );

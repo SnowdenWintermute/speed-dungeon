@@ -24,10 +24,12 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
     [combatantProperties]
   );
 
-  let conditionalStyles = showCharacterSheet ? "overflow-hidden" : "opacity-0 w-0 overflow-hidden";
+  let conditionalStyles = showCharacterSheet
+    ? "overflow-hidden"
+    : "opacity-0 w-0 overflow-hidden pointer-events-none";
 
   return (
-    <section className={conditionalStyles}>
+    <section className={`w-fit ${conditionalStyles}`}>
       <ul
         className="flex list-none pointer-events-auto"
         style={{ marginBottom: `${SPACING_REM_SMALL}rem ` }}
@@ -37,7 +39,7 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
         ))}
       </ul>
       <div
-        className="border border-slate-400 bg-slate-700 overflow-y-auto flex pointer-events-auto"
+        className={`border border-slate-400 bg-slate-700 overflow-y-auto flex ${showCharacterSheet && "pointer-events-auto"}`}
         style={{ padding: `${SPACING_REM}rem` }}
       >
         <PaperDoll equipment={equipment} characterAttributes={totalAttributes} />

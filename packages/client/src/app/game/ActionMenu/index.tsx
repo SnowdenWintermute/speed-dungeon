@@ -64,10 +64,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   }
 
   return (
-    <section
-      className={`max-h-fit max-w-[25rem] flex flex-col justify-between`}
-      style={{ marginRight: `${SPACING_REM}rem` }}
-    >
+    <section className={`max-h-fit max-w-[25rem] flex flex-col justify-between`}>
       <CharacterFocusingButtons />
       <ul
         className={`flex list-none min-w-[25rem] max-w-[25rem]`}

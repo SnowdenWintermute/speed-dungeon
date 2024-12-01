@@ -62,6 +62,7 @@ export class GameState {
   testText: string = "test";
   itemThumbnails: { [itemId: string]: string } = {};
   consideredItemUnmetRequirements: null | CombatAttribute[] = null;
+  showItemsOnGround: boolean = true;
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
     if (party instanceof Error) return null;
@@ -95,7 +96,7 @@ export class GameState {
     public get: () => GameState,
     public getActiveCombatant: () => Error | null | Combatant,
     public getParty: () => Error | AdventuringParty,
-    public getCurrentMenu: () => ActionMenuState,
+    public getCurrentMenu: () => ActionMenuState
   ) {
     this.baseMenuState = new BaseMenuState(false);
   }

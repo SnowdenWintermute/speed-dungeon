@@ -11,16 +11,16 @@ interface Props {
 
 export default function CharacterSheetItemDetailsViewer({ party, viewingCharacterSheet }: Props) {
   return (
-    <div className="flex" style={{ paddingTop: `${SPACING_REM_SMALL}rem` }}>
-      <div
-        className="min-w-[25rem] max-w-[25rem] h-[13.375rem]"
-        style={{ marginRight: `${SPACING_REM}rem` }}
-      >
-        <div className="max-h-[13.375rem]">
-          {viewingCharacterSheet && <ItemsOnGround maxHeightRem={13.375} party={party} />}
-        </div>
-      </div>
-      {viewingCharacterSheet && <ItemDetailsWithComparison flipDisplayOrder={false} />}
-    </div>
+    // <div className="flex" style={{ paddingTop: `${SPACING_REM_SMALL}rem` }}>
+    //   <div
+    //     className="min-w-[25rem] max-w-[25rem] h-[13.375rem]"
+    //     style={{ marginRight: `${SPACING_REM}rem` }}
+    //   >
+    //     <div className="max-h-[13.375rem]">
+    //       {viewingCharacterSheet && <ItemsOnGround maxHeightRem={13.375} party={party} />}
+    //     </div>
+    //   </div>
+    //   {viewingCharacterSheet && <ItemDetailsWithComparison flipDisplayOrder={false} />}
+    // </div>
   );
 }
