@@ -68,6 +68,7 @@ export enum Artist {
   Zsky,
   Mastahcez,
   Djonvincent,
+  P0ss,
 }
 
 export const ARTISTS: Record<Artist, Attribution> = {
@@ -126,6 +127,10 @@ export const ARTISTS: Record<Artist, Attribution> = {
   [Artist.Djonvincent]: {
     name: "djonvincent",
     link: "https://opengameart.org/users/djonvincent",
+  },
+  [Artist.P0ss]: {
+    name: "p0ss",
+    link: "https://opengameart.org/users/p0ss",
   },
 };
 

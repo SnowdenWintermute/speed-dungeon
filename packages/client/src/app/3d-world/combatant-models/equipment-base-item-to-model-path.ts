@@ -60,10 +60,7 @@ export const ONE_HANDED_MELEE_WEAPON_MODELS: Record<
   [OneHandedMeleeWeapon.Mace]: { path: "mace.glb", artist: Artist.RyanHetchler }, // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [OneHandedMeleeWeapon.Morningstar]: { path: "morning-star.glb", artist: Artist.SystemG6 }, // https://opengameart.org/content/medieval-weapon-pack
   [OneHandedMeleeWeapon.WarHammer]: { path: "war-hammer.glb", artist: Artist.RyanHetchler }, // https://opengameart.org/content/19-low-poly-fantasy-weapons
-  [OneHandedMeleeWeapon.ButterKnife]: {
-    path: null,
-    artist: Artist.Snowden,
-  },
+  [OneHandedMeleeWeapon.ButterKnife]: { path: "butter-knife.glb", artist: Artist.P0ss }, // https://opengameart.org/content/cutlery-pack
   [OneHandedMeleeWeapon.ShortSword]: { path: "short-sword.glb", artist: Artist.ProxyGames }, // https://opengameart.org/content/low-poly-swords-asset-2
   [OneHandedMeleeWeapon.Blade]: { path: "blade.glb", artist: Artist.ProxyGames }, // https://opengameart.org/content/low-poly-swords-asset-2
   [OneHandedMeleeWeapon.BroadSword]: { path: "broad-sword.glb", artist: Artist.ProxyGames }, // https://opengameart.org/content/low-poly-swords-asset-2
