@@ -25,7 +25,12 @@ export default function savedCharacterSelectionInProgressGameHandler(
 
     const previouslySelectedCharacterId = player.characterIds[0];
     if (previouslySelectedCharacterId) {
-      AdventuringParty.removeCharacter(party, previouslySelectedCharacterId, player);
+      const removedCharacterResult = AdventuringParty.removeCharacter(
+        party,
+        previouslySelectedCharacterId,
+        player
+      );
+      if (removedCharacterResult instanceof Error) return setAlert(removedCharacterResult.message);
       for (const character of Object.values(party.characters))
         updateCombatantHomePosition(
           character.entityProperties.id,

@@ -5,6 +5,7 @@ import {
   SpeedDungeonPlayer,
   AdventuringParty,
   SpeedDungeonGame,
+  ERROR_MESSAGES,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io-client";
 import characterAddedToPartyHandler from "./character-added-to-party-handler";
@@ -16,12 +17,17 @@ import savedCharacterSelectionInProgressGameHandler from "./saved-character-sele
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
+import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
+import enqueueCharacterItemsForThumbnails from "@/utils/enqueue-character-items-for-thumbnails";
 
 export default function setUpGameLobbyEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
 ) {
   const mutateGameStore = useGameStore.getState().mutateState;
   socket.on(ServerToClientEvent.GameFullUpdate, (game) => {
+    gameWorld.current?.imageManager.enqueueMessage({
+      type: ImageManagerRequestType.ClearState,
+    });
     mutateGameStore((state) => {
       if (game === null) {
         state.game = null;
@@ -77,6 +83,12 @@ export default function setUpGameLobbyEventHandlers(
     gameStartedHandler(timeStarted);
 
     gameWorld.current?.clearFloorTexture();
+
+    const partyOption = useGameStore.getState().getParty();
+    if (partyOption instanceof Error) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+    for (const character of Object.values(partyOption.characters)) {
+      enqueueCharacterItemsForThumbnails(character);
+    }
   });
   socket.on(ServerToClientEvent.ProgressionGameStartingFloorSelected, (floorNumber) => {
     mutateGameStore((state) => {

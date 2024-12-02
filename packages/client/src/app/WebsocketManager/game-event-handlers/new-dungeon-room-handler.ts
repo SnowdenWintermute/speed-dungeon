@@ -6,16 +6,13 @@ import getCurrentParty from "@/utils/getCurrentParty";
 import { DungeonRoom, ERROR_MESSAGES, updateCombatantHomePosition } from "@speed-dungeon/common";
 
 export default function newDungeonRoomHandler(room: DungeonRoom) {
+  const itemIdsOnGround: string[] = [];
+
   useGameStore.getState().mutateState((gameState) => {
     const party = getCurrentParty(gameState, gameState.username || "");
     if (party === undefined) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
 
-    for (const item of party.currentRoom.items) {
-      gameWorld.current?.imageManager.enqueueMessage({
-        type: ImageManagerRequestType.ItemDeletion,
-        itemId: item.entityProperties.id,
-      });
-    }
+    itemIdsOnGround.push(...party.currentRoom.items.map((item) => item.entityProperties.id));
 
     party.playersReadyToDescend = [];
     party.playersReadyToExplore = [];
@@ -29,5 +26,11 @@ export default function newDungeonRoomHandler(room: DungeonRoom) {
     party.clientCurrentFloorRoomsList[indexOfRoomTypeToReveal] = room.roomType;
 
     if (room.monsterPositions.length) gameState.baseMenuState.inCombat = true;
+  });
+
+  if (!gameWorld.current) console.error("No game world!!!");
+  gameWorld.current?.imageManager.enqueueMessage({
+    type: ImageManagerRequestType.ItemDeletion,
+    itemIds: itemIdsOnGround,
   });
 }

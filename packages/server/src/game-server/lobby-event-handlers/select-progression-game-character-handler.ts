@@ -46,7 +46,12 @@ export default async function selectProgressionGameCharacterHandler(
   const characterIdToRemoveOption = player.characterIds[0];
   if (characterIdToRemoveOption === undefined)
     return errorHandler(socket, "Expected to have a selected character but didn't");
-  AdventuringParty.removeCharacter(partyOption, characterIdToRemoveOption, player);
+  const removeCharacterResult = AdventuringParty.removeCharacter(
+    partyOption,
+    characterIdToRemoveOption,
+    player
+  );
+  if (removeCharacterResult instanceof Error) return removeCharacterResult;
 
   addCharacterToParty(game, player, savedCharacterOption.combatant);
   game.selectedStartingFloor.max = savedCharacterOption.deepestFloorReached;

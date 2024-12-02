@@ -145,6 +145,8 @@ export interface ServerToClientEventTypes {
     character: { combatant: Combatant; deepestFloorReached: number }
   ) => void;
   [ServerToClientEvent.ProgressionGameStartingFloorSelected]: (floor: number) => void;
+  // was using this to create models of items on client with randomly generated
+  // properties since only the server code can currently do that
   [ServerToClientEvent.TestItems]: (items: Item[]) => void;
 }
 

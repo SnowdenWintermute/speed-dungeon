@@ -15,6 +15,7 @@ import { calculateCompositeBoundingBox, disposeAsyncLoadedScene } from "../../ut
 export enum ImageManagerRequestType {
   ItemCreation,
   ItemDeletion,
+  ClearState,
 }
 
 export type ItemImageCreationRequest = {
@@ -23,10 +24,17 @@ export type ItemImageCreationRequest = {
 };
 export type ItemImageDeletionRequest = {
   type: ImageManagerRequestType.ItemDeletion;
-  itemId: string;
+  itemIds: string[];
 };
 
-export type ImageManagerRequest = ItemImageCreationRequest | ItemImageDeletionRequest;
+export type ItemImageClearStateRequest = {
+  type: ImageManagerRequestType.ClearState;
+};
+
+export type ImageManagerRequest =
+  | ItemImageCreationRequest
+  | ItemImageDeletionRequest
+  | ItemImageClearStateRequest;
 
 export class ImageManager {
   canvas: OffscreenCanvas;
@@ -51,8 +59,7 @@ export class ImageManager {
   processNextMessage() {
     if (this.queue.length === 0) {
       this.isProcessing = false;
-      this.engine.stopRenderLoop();
-      console.log("finished generating screenshots");
+      console.log("image manager queue emptied");
       return;
     }
 
@@ -60,7 +67,7 @@ export class ImageManager {
     if (!message) return console.error("expected message not found");
 
     switch (message.type) {
-      case ImageManagerCreationRequestType.ItemCreation:
+      case ImageManagerRequestType.ItemCreation:
         try {
           const camera = this.scene.cameras[0];
           if (!camera) return console.error("expected camera not found");
@@ -70,7 +77,23 @@ export class ImageManager {
           console.error(err);
         }
         break;
-      case ImageManagerCreationRequestType.ItemDeletion:
+      case ImageManagerRequestType.ItemDeletion:
+        useGameStore.getState().mutateState((state) => {
+          for (const id of message.itemIds) {
+            delete state.itemThumbnails[id];
+            console.log("deleted: ", state.itemThumbnails[id]);
+          }
+        });
+
+        this.processNextMessage();
+        break;
+      case ImageManagerRequestType.ClearState:
+        useGameStore.getState().mutateState((state) => {
+          state.itemThumbnails = {};
+        });
+
+        this.processNextMessage();
+        break;
     }
   }
 
@@ -79,9 +102,7 @@ export class ImageManager {
     if (this.isProcessing) return;
 
     this.isProcessing = true;
-    while (this.queue.length > 0) {
-      this.processNextMessage();
-    }
+    this.processNextMessage();
   }
 
   async createItemImage(item: Item) {

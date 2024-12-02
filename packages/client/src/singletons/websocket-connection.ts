@@ -36,14 +36,14 @@ export function resetWebsocketConnection() {
 }
 
 // TESTING
-export const TEST_ITEMS: Item[] = [];
-websocketConnection.on(ServerToClientEvent.TestItems, (items) => {
-  console.log("got items: ", items);
-  TEST_ITEMS.length = 0;
-  TEST_ITEMS.push(...items);
-  const currGameWorld = gameWorld.current;
-  if (currGameWorld) spawnEquipmentModelsFromItemList(currGameWorld, TEST_ITEMS);
-});
+// export const TEST_ITEMS: Item[] = [];
+// websocketConnection.on(ServerToClientEvent.TestItems, (items) => {
+//   console.log("got items: ", items);
+//   TEST_ITEMS.length = 0;
+//   TEST_ITEMS.push(...items);
+//   const currGameWorld = gameWorld.current;
+//   if (currGameWorld) spawnEquipmentModelsFromItemList(currGameWorld, TEST_ITEMS);
+// });
 
 websocketConnection.on("connect", () => {
   console.log("connected");
