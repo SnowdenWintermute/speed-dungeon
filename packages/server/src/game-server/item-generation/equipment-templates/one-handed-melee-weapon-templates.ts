@@ -97,6 +97,11 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.damage = new NumberRange(4, 16);
         template.requirements[CombatAttribute.Strength] = 24;
         break;
+      case OneHandedMeleeWeapon.ButterKnife:
+        template.levelRange = new NumberRange(0, 0);
+        template.damage = new NumberRange(1, 2);
+        mainDamageClassification.physicalDamageTypeOption = PhysicalDamageType.Slashing;
+        break;
       case OneHandedMeleeWeapon.ShortSword:
         template.levelRange = new NumberRange(2, 4);
         template.damage = new NumberRange(2, 6);

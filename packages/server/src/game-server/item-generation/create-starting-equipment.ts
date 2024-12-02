@@ -19,6 +19,7 @@ import {
   TwoHandedRangedWeapon,
 } from "@speed-dungeon/common";
 import { idGenerator } from "../../singletons.js";
+import { generateSpecificEquipmentType } from "./generate-test-items.js";
 
 export default function createStartingEquipment(combatantClass: CombatantClass) {
   const startingEquipment: Partial<Record<EquipmentSlot, Item>> = {};
@@ -94,7 +95,7 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
       mainHandProperties = offhandProperties = new EquipmentProperties(
         {
           type: EquipmentType.OneHandedMeleeWeapon,
-          baseItem: OneHandedMeleeWeapon.Dagger,
+          baseItem: OneHandedMeleeWeapon.ButterKnife,
           damage: new NumberRange(1, 2),
           damageClassification: [
             new HpChangeSource(

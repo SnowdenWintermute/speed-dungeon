@@ -1,11 +1,6 @@
 import { createExpressApp } from "./create-express-app.js";
 import { Server } from "socket.io";
-import {
-  ClientToServerEventTypes,
-  EquipmentType,
-  OneHandedMeleeWeapon,
-  ServerToClientEventTypes,
-} from "@speed-dungeon/common";
+import { ClientToServerEventTypes, ServerToClientEventTypes } from "@speed-dungeon/common";
 import { GameServer } from "./game-server/index.js";
 import { env } from "./validate-env.js";
 import { gameServer } from "./singletons.js";
@@ -14,7 +9,6 @@ import { pgOptions } from "./database/config.js";
 import { valkeyManager } from "./kv-store/index.js";
 import { loadLadderIntoKvStore } from "./kv-store/utils.js";
 import runMigrations from "./database/run-migrations.js";
-import { generateSpecificEquipmentType } from "./game-server/item-generation/generate-test-items.js";
 
 const PORT = 8080;
 

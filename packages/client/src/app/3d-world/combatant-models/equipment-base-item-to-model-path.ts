@@ -60,6 +60,10 @@ export const ONE_HANDED_MELEE_WEAPON_MODELS: Record<
   [OneHandedMeleeWeapon.Mace]: { path: "mace.glb", artist: Artist.RyanHetchler }, // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [OneHandedMeleeWeapon.Morningstar]: { path: "morning-star.glb", artist: Artist.SystemG6 }, // https://opengameart.org/content/medieval-weapon-pack
   [OneHandedMeleeWeapon.WarHammer]: { path: "war-hammer.glb", artist: Artist.RyanHetchler }, // https://opengameart.org/content/19-low-poly-fantasy-weapons
+  [OneHandedMeleeWeapon.ButterKnife]: {
+    path: null,
+    artist: Artist.Snowden,
+  },
   [OneHandedMeleeWeapon.ShortSword]: { path: "short-sword.glb", artist: Artist.ProxyGames }, // https://opengameart.org/content/low-poly-swords-asset-2
   [OneHandedMeleeWeapon.Blade]: { path: "blade.glb", artist: Artist.ProxyGames }, // https://opengameart.org/content/low-poly-swords-asset-2
   [OneHandedMeleeWeapon.BroadSword]: { path: "broad-sword.glb", artist: Artist.ProxyGames }, // https://opengameart.org/content/low-poly-swords-asset-2
@@ -73,7 +77,7 @@ export const ONE_HANDED_MELEE_WEAPON_MODELS: Record<
   [OneHandedMeleeWeapon.MapleWand]: { path: "maple-wand.glb", artist: Artist.SystemG6 }, // https://opengameart.org/content/medieval-weapon-pack
   [OneHandedMeleeWeapon.WillowWand]: { path: "willow-wand.glb", artist: Artist.Snowden }, // self made
   [OneHandedMeleeWeapon.YewWand]: { path: "yew-wand.glb", artist: Artist.WeaponGuy }, // https://opengameart.org/content/basic-wand
-  [OneHandedMeleeWeapon.RoseWand]: { path: "rose-wand.glb", artist: Artist.Snowden }, // self made
+  [OneHandedMeleeWeapon.RoseWand]: { path: "rose-wand.glb", artist: Artist.Snowden },
 };
 
 export const TWO_HANDED_MELEE_WEAPON_MODELS: Record<

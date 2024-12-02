@@ -20,12 +20,18 @@ export default function generateTestItems(combatantProperties: CombatantProperti
   }
 }
 
-export function generateSpecificEquipmentType(equipmentBaseItem: EquipmentBaseItem) {
+export function generateSpecificEquipmentType(
+  equipmentBaseItem: EquipmentBaseItem,
+  noAffixes?: boolean
+) {
   const itemGenerationDirector =
     getGameServer().itemGenerationDirectors[equipmentBaseItem.equipmentType];
   const item = itemGenerationDirector?.createItem(1, idGenerator, {
-    type: ItemPropertiesType.Equipment,
-    baseItem: equipmentBaseItem,
+    forcedBaseItemOption: {
+      type: ItemPropertiesType.Equipment,
+      baseItem: equipmentBaseItem,
+    },
+    noAffixes,
   });
   return item;
 }
