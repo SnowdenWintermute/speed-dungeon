@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useUIStore } from "@/stores/ui-store";
+import { useGameStore } from "@/stores/game-store";
 
 export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTMLUListElement> }) {
+  const thumbnails = useGameStore().itemThumbnails;
   const showDebug = useUIStore((state) => state.showDebug);
   const hotkeysDisabled = useUIStore((state) => state.hotkeysDisabled);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -83,6 +85,9 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
         </button>
       </div>
       <ul ref={debugRef} className="p-2"></ul>
+      <ul>
+        <li>Num thumbnails: {Object.keys(thumbnails).length}</li>
+      </ul>
     </div>
   );
 }

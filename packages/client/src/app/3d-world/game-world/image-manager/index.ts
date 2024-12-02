@@ -1,11 +1,9 @@
 import {
-  BoundingBoxGizmo,
   CreateScreenshotUsingRenderTarget,
   Engine,
   Scene,
   UniversalCamera,
   Vector3,
-  Viewport,
 } from "@babylonjs/core";
 import { useGameStore } from "@/stores/game-store";
 import { createImageCreatorScene } from "./create-image-creator-scene";
@@ -14,20 +12,28 @@ import { Item } from "@speed-dungeon/common";
 import spawnEquipmentModel from "../../combatant-models/spawn-equipment-model";
 import { calculateCompositeBoundingBox, disposeAsyncLoadedScene } from "../../utils";
 
-export enum ImageCreationRequestType {
-  Item,
+export enum ImageManagerRequestType {
+  ItemCreation,
+  ItemDeletion,
 }
 
-export type ItemImageCreationRequest = { type: ImageCreationRequestType.Item; item: Item };
+export type ItemImageCreationRequest = {
+  type: ImageManagerRequestType.ItemCreation;
+  item: Item;
+};
+export type ItemImageDeletionRequest = {
+  type: ImageManagerRequestType.ItemDeletion;
+  itemId: string;
+};
 
-export type ImageCreationRequest = ItemImageCreationRequest;
+export type ImageManagerRequest = ItemImageCreationRequest | ItemImageDeletionRequest;
 
-export class ImageCreator {
+export class ImageManager {
   canvas: OffscreenCanvas;
   engine: Engine;
   scene: Scene;
   materials: SavedMaterials;
-  queue: ImageCreationRequest[] = [];
+  queue: ImageManagerRequest[] = [];
   isProcessing: boolean = false;
   camera: UniversalCamera;
   constructor() {
@@ -53,17 +59,22 @@ export class ImageCreator {
     const message = this.queue.shift();
     if (!message) return console.error("expected message not found");
 
-    try {
-      const camera = this.scene.cameras[0];
-      if (!camera) return console.error("expected camera not found");
-      this.createItemImage(message.item);
-      this.engine.runRenderLoop(() => {});
-    } catch (err) {
-      console.error(err);
+    switch (message.type) {
+      case ImageManagerCreationRequestType.ItemCreation:
+        try {
+          const camera = this.scene.cameras[0];
+          if (!camera) return console.error("expected camera not found");
+          this.createItemImage(message.item);
+          this.engine.runRenderLoop(() => {});
+        } catch (err) {
+          console.error(err);
+        }
+        break;
+      case ImageManagerCreationRequestType.ItemDeletion:
     }
   }
 
-  async enqueueMessage(message: ImageCreationRequest) {
+  async enqueueMessage(message: ImageManagerRequest) {
     this.queue.push(message);
     if (this.isProcessing) return;
 

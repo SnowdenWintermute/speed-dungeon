@@ -1,3 +1,5 @@
+import { gameWorld } from "@/app/3d-world/SceneManager";
+import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 import { setAlert } from "@/app/components/alerts";
 import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
@@ -7,6 +9,13 @@ export default function newDungeonRoomHandler(room: DungeonRoom) {
   useGameStore.getState().mutateState((gameState) => {
     const party = getCurrentParty(gameState, gameState.username || "");
     if (party === undefined) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+
+    for (const item of party.currentRoom.items) {
+      gameWorld.current?.imageManager.enqueueMessage({
+        type: ImageManagerRequestType.ItemDeletion,
+        itemId: item.entityProperties.id,
+      });
+    }
 
     party.playersReadyToDescend = [];
     party.playersReadyToExplore = [];

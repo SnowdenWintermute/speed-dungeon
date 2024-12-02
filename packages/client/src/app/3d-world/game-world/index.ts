@@ -1,18 +1,7 @@
-import {
-  Scene,
-  Engine,
-  Vector3,
-  ArcRotateCamera,
-  SceneLoader,
-  Mesh,
-  DynamicTexture,
-  ISceneLoaderAsyncResult,
-  UniversalCamera,
-} from "@babylonjs/core";
+import { Scene, Engine, Vector3, ArcRotateCamera, Mesh, DynamicTexture } from "@babylonjs/core";
 import "@babylonjs/loaders";
-import { BASE_FILE_PATH } from "../combatant-models/modular-character-parts";
 import { initScene } from "./init-scene";
-import { CombatTurnResult, Item } from "@speed-dungeon/common";
+import { CombatTurnResult } from "@speed-dungeon/common";
 import { NextToBabylonMessage } from "@/singletons/next-to-babylon-message-queue";
 import showDebugText from "./show-debug-text";
 import processMessagesFromNext from "./process-messages-from-next";
@@ -20,17 +9,8 @@ import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
 import { clearFloorTexture } from "./clear-floor-texture";
 import drawCharacterSlots from "./draw-character-slots";
-import {
-  DYNAMIC_MATERIAL_TAG,
-  SavedMaterials,
-  createDefaultMaterials,
-} from "./materials/create-default-materials";
-import { createImageCreatorScene } from "./image-creator-scene";
-import spawnEquipmentModel from "../combatant-models/spawn-equipment-model";
-import { calculateCompositeBoundingBox, takeScreenshot } from "../utils";
-import { disposeMeshMaterials } from "./materials/utils";
-import { useGameStore } from "@/stores/game-store";
-import { ImageCreator } from "./image-creator";
+import { SavedMaterials, createDefaultMaterials } from "./materials/create-default-materials";
+import { ImageManager } from "./image-manager";
 
 export class GameWorld {
   engine: Engine;
@@ -49,7 +29,7 @@ export class GameWorld {
   defaultMaterials: SavedMaterials;
   // imageCreationDefaultMaterials: SavedMaterials;
   numImagesBeingCreated: number = 0;
-  imageCreator: ImageCreator = new ImageCreator();
+  imageManager: ImageManager = new ImageManager();
 
   constructor(
     public canvas: HTMLCanvasElement,

@@ -1,5 +1,5 @@
 import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ImageCreationRequestType } from "@/app/3d-world/game-world/image-creator";
+import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 import { Combatant, ItemPropertiesType } from "@speed-dungeon/common";
 
 export default function enqueueCharacterItemsForThumbnails(character: Combatant) {
@@ -7,8 +7,8 @@ export default function enqueueCharacterItemsForThumbnails(character: Combatant)
     Object.values(character.combatantProperties.equipment)
   )) {
     if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
-    gameWorld.current?.imageCreator.enqueueMessage({
-      type: ImageCreationRequestType.Item,
+    gameWorld.current?.imageManager.enqueueMessage({
+      type: ImageManagerRequestType.ItemCreation,
       item: item,
     });
   }

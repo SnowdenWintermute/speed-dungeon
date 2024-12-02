@@ -6,7 +6,6 @@ import {
   GlowLayer,
   Engine,
   Scene,
-  UniversalCamera,
 } from "@babylonjs/core";
 
 export function createImageCreatorScene(engine: Engine): Scene {
