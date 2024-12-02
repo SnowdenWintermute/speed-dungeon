@@ -10,7 +10,7 @@ import {
   TwoHandedRangedWeapon,
   formatMagicalElement,
 } from "@speed-dungeon/common";
-import { ISceneLoaderAsyncResult, StandardMaterial } from "@babylonjs/core";
+import { ISceneLoaderAsyncResult, Scene, StandardMaterial } from "@babylonjs/core";
 import {
   AccentColor,
   CustomMaterial,
@@ -25,7 +25,8 @@ import { DYNAMIC_MATERIAL_TAG, SavedMaterials } from "./create-default-materials
 export function assignEquipmentMaterials(
   item: Item,
   itemModel: ISceneLoaderAsyncResult,
-  savedMaterials: SavedMaterials
+  savedMaterials: SavedMaterials,
+  scene: Scene
 ) {
   let materials: { [name: string]: StandardMaterial } = {};
   if (item.itemProperties.type === ItemPropertiesType.Consumable) return;
@@ -88,7 +89,8 @@ export function assignEquipmentMaterials(
           for (const classification of equipmentBaseItemProperties.damageClassification) {
             if (classification.elementOption !== null) {
               const material = new StandardMaterial(
-                DYNAMIC_MATERIAL_TAG + formatMagicalElement(classification.elementOption)
+                DYNAMIC_MATERIAL_TAG + formatMagicalElement(classification.elementOption),
+                scene
               );
 
               const color = desaturate(ELEMENT_COLORS[classification.elementOption], 0.25);

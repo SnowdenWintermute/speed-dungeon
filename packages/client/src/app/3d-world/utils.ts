@@ -37,7 +37,7 @@ export function getChildMeshByName(mesh: Mesh | AbstractMesh, name: string) {
   return undefined;
 }
 
-export function disposeAsyncLoadedScene(sceneResult: ISceneLoaderAsyncResult | null) {
+export function disposeAsyncLoadedScene(sceneResult: ISceneLoaderAsyncResult | null, scene: Scene) {
   if (sceneResult === null) return;
   while (sceneResult.meshes.length) {
     const mesh = sceneResult.meshes.pop()!;

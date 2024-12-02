@@ -212,9 +212,9 @@ export class ModelManager {
     const toRemove = this.combatantModels[entityId];
     if (!toRemove) return new Error("tried to remove a combatant model that doesn't exist");
     toRemove.rootTransformNode.dispose();
-    disposeAsyncLoadedScene(toRemove.skeleton);
+    disposeAsyncLoadedScene(toRemove.skeleton, this.world.scene);
     for (const part of Object.values(toRemove.parts)) {
-      disposeAsyncLoadedScene(part);
+      disposeAsyncLoadedScene(part, this.world.scene);
     }
 
     toRemove.modelActionManager.removeActiveModelAction();

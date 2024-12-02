@@ -11,11 +11,13 @@ import {
   Item,
   Combatant,
   iterateNumericEnum,
+  EquipmentType,
+  OneHandedMeleeWeapon,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { idGenerator } from "../../singletons.js";
-import { generateOneOfEachItem } from "./generate-test-items.js";
+import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -58,10 +60,22 @@ export default function outfitNewCharacter(character: Combatant) {
   // FOR TESTING INVENTORY
   // generateTestItems(combatantProperties, 6);
 
-  // giveTestingCombatAttributes(combatantProperties);
+  giveTestingCombatAttributes(combatantProperties);
 
   const items = generateOneOfEachItem();
   combatantProperties.inventory.items.push(...items);
+  // const runeSwords = (() => {
+  //   const swords: Item[] = [];
+  //   for (let i = 0; i < 10; i += 1) {
+  //     const sword = generateSpecificEquipmentType({
+  //       equipmentType: EquipmentType.OneHandedMeleeWeapon,
+  //       baseItemType: OneHandedMeleeWeapon.RuneSword,
+  //     });
+  //     if (sword instanceof Item) swords.push(sword);
+  //   }
+  //   return swords;
+  // })();
+  // combatantProperties.inventory.items.push(...runeSwords);
 
   combatantProperties.unspentAttributePoints = 100;
 

@@ -67,6 +67,10 @@ export class ImageManager {
     if (!message) return console.error("expected message not found");
 
     switch (message.type) {
+      // we're calling processNextMessage() individually because we haven't figured out how
+      // to await createItemImage because we need to run the render loop for it to finish
+      // so we call processNextMessage() in the promise resolution of that one, so even though we'd like to
+      // just call processNextMessage() after the switch statement, I haven't figured out how to make it work
       case ImageManagerRequestType.ItemCreation:
         try {
           const camera = this.scene.cameras[0];
@@ -81,17 +85,14 @@ export class ImageManager {
         useGameStore.getState().mutateState((state) => {
           for (const id of message.itemIds) {
             delete state.itemThumbnails[id];
-            console.log("deleted: ", state.itemThumbnails[id]);
           }
         });
-
         this.processNextMessage();
         break;
       case ImageManagerRequestType.ClearState:
         useGameStore.getState().mutateState((state) => {
           state.itemThumbnails = {};
         });
-
         this.processNextMessage();
         break;
     }
@@ -110,6 +111,8 @@ export class ImageManager {
     if (equipmentModelResult instanceof Error) return console.error(equipmentModelResult);
     const parentMesh = equipmentModelResult.meshes[0];
     if (!parentMesh) return console.error("no parent mesh");
+
+    console.log(this.scene.materials.map((material) => material.name));
 
     parentMesh.position = Vector3.Zero();
 
@@ -142,6 +145,11 @@ export class ImageManager {
           state.itemThumbnails[item.entityProperties.id] = image;
         });
         disposeAsyncLoadedScene(equipmentModelResult);
+
+        console.log(
+          "materials after disposed: ",
+          this.scene.materials.map((materail) => materail.name)
+        );
         this.processNextMessage();
       },
       "image/png"

@@ -20,7 +20,8 @@ export default async function spawnEquipmentModel(
   if (modelPath === null) return new Error("No model path");
   const equipmentModel = await importMesh(modelPath, scene);
 
-  assignEquipmentMaterials(item, equipmentModel, materials);
+  assignEquipmentMaterials(item, equipmentModel, materials, scene);
+  console.log("num materials: ", scene.materials.length);
   if (!equipmentModel) return new Error("Model not successfully spawned");
   return equipmentModel;
 }

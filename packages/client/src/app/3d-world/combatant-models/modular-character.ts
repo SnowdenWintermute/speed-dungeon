@@ -174,22 +174,11 @@ export class ModularCharacter {
   }
 
   async unequipItem(slot: EquipmentSlot) {
-    disposeAsyncLoadedScene(this.equipment[slot]);
+    disposeAsyncLoadedScene(this.equipment[slot], this.world.scene);
   }
 
   async equipItem(item: Item, slot: EquipmentSlot) {
     if (item.itemProperties.type !== ItemPropertiesType.Equipment) return;
-    const is2h = equipmentIsTwoHandedWeapon(
-      item.itemProperties.equipmentProperties.equipmentBaseItemProperties.type
-    );
-    if (is2h) {
-      disposeAsyncLoadedScene(this.equipment[EquipmentSlot.MainHand]);
-      disposeAsyncLoadedScene(this.equipment[EquipmentSlot.OffHand]);
-    } else if (slot === EquipmentSlot.MainHand) {
-      disposeAsyncLoadedScene(this.equipment[EquipmentSlot.MainHand]);
-    } else {
-      disposeAsyncLoadedScene(this.equipment[EquipmentSlot.OffHand]);
-    }
 
     const equipmentModelResult = await spawnEquipmentModel(
       item,
@@ -208,7 +197,7 @@ export class ModularCharacter {
   }
 
   removePart(partCategory: ModularCharacterPartCategory) {
-    disposeAsyncLoadedScene(this.parts[partCategory]);
+    disposeAsyncLoadedScene(this.parts[partCategory], this.world.scene);
     this.parts[partCategory] = null;
   }
 
