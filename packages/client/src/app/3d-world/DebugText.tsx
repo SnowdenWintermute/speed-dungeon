@@ -91,7 +91,7 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
           Num thumbnails: {Object.keys(thumbnails).length}
         </li>
         {Object.entries(thumbnails).map(([id, data], i) => (
-          <div className="relative">
+          <div className="relative" key={id} >
             <div className="absolute top-0 left-0 border bg-slate-800">{i}</div>
             <button
               onClick={() => {
@@ -100,7 +100,7 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
                 });
               }}
             >
-              <img alt={id} key={id} src={data} className="object-contain h-16" />
+              <img alt={id} src={data} className="object-contain h-16" />
             </button>
           </div>
         ))}

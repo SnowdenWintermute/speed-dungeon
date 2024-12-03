@@ -8,7 +8,7 @@ import {
 import { useGameStore } from "@/stores/game-store";
 import { createImageCreatorScene } from "./create-image-creator-scene";
 import { SavedMaterials, createDefaultMaterials } from "../materials/create-default-materials";
-import { Item } from "@speed-dungeon/common";
+import { Item, ItemPropertiesType } from "@speed-dungeon/common";
 import { calculateCompositeBoundingBox, disposeAsyncLoadedScene } from "../../utils";
 import { spawnItemModel } from "../../combatant-models/spawn-item-models";
 
@@ -128,7 +128,10 @@ export class ImageManager {
     camera.position = center.add(new Vector3(0, 0, distance));
     camera.setTarget(center);
 
-    const canvasHeight = itemHeight * 120;
+    const canvasHeight =
+      item.itemProperties.type === ItemPropertiesType.Equipment
+        ? itemHeight * 120
+        : itemHeight * 420;
     const canvasWidth = (size.x / size.y) * canvasHeight;
     this.canvas.width = canvasWidth;
     this.canvas.height = canvasHeight;
@@ -144,10 +147,6 @@ export class ImageManager {
         });
         disposeAsyncLoadedScene(equipmentModelResult, this.scene);
 
-        console.log(
-          "materials after disposed: ",
-          this.scene.materials.map((materail) => materail.name)
-        );
         this.processNextMessage();
       },
       "image/png"

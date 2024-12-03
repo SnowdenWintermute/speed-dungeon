@@ -7,6 +7,8 @@ import {
   ELEMENT_COLORS,
   LightestToDarkest,
   METAL_COLORS,
+  PLASTIC_COLORS,
+  PlasticColor,
   WOOD_COLORS,
   formatLightestToDarkest,
 } from "./material-colors";
@@ -21,6 +23,7 @@ export type SavedMaterials = {
   accent: Record<AccentColor, StandardMaterial>;
   elements: Record<MagicalElement, StandardMaterial>;
   custom: Record<CustomMaterial, StandardMaterial>;
+  plastic: Record<PlasticColor, StandardMaterial>;
 };
 
 export function createDefaultMaterials(scene: Scene): SavedMaterials {
@@ -31,7 +34,8 @@ export function createDefaultMaterials(scene: Scene): SavedMaterials {
     accent: Partial<Record<AccentColor, StandardMaterial>>;
     elements: Partial<Record<MagicalElement, StandardMaterial>>;
     custom: Partial<Record<CustomMaterial, StandardMaterial>>;
-  } = { default: {}, wood: {}, metal: {}, accent: {}, elements: {}, custom: {} };
+    plastic: Partial<Record<PlasticColor, StandardMaterial>>;
+  } = { default: {}, wood: {}, metal: {}, plastic: {}, accent: {}, elements: {}, custom: {} };
   // CUSTOM
   const etherMaterial = new StandardMaterial("ether", scene);
   etherMaterial.diffuseColor = new Color3(0.486, 0.286, 0.878);
@@ -68,9 +72,17 @@ export function createDefaultMaterials(scene: Scene): SavedMaterials {
     const color = METAL_COLORS[name];
     const material = new StandardMaterial(formatLightestToDarkest(name) + "-metal", scene);
     material.diffuseColor = color;
-    material.roughness = 255;
+    material.roughness = 1;
     material.specularColor = color;
     toReturn.metal[name] = material;
+  }
+  for (const name of iterateNumericEnum(PlasticColor)) {
+    const color = PLASTIC_COLORS[name];
+    const material = new StandardMaterial(name + "-plastic", scene);
+    material.diffuseColor = color;
+    material.roughness = 3;
+    material.specularColor = color;
+    toReturn.plastic[name] = material;
   }
   for (const name of iterateNumericEnum(AccentColor)) {
     const color = ACCENT_COLORS[name];

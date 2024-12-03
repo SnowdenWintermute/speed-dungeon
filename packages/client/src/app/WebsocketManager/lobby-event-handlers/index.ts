@@ -18,7 +18,7 @@ import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
-import { enqueueCharacterItemsForThumbnails } from "@/utils/enqueue-character-items-for-thumbnails";
+import { enqueueCharacterItemsForThumbnails, enqueueConsumableGenericThumbnailCreation } from "@/utils/enqueue-character-items-for-thumbnails";
 
 export default function setUpGameLobbyEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -83,6 +83,8 @@ export default function setUpGameLobbyEventHandlers(
     gameStartedHandler(timeStarted);
 
     gameWorld.current?.clearFloorTexture();
+
+    enqueueConsumableGenericThumbnailCreation()
 
     const partyOption = useGameStore.getState().getParty();
     if (partyOption instanceof Error) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);

@@ -6,7 +6,7 @@ import {
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
 } from "@speed-dungeon/common";
-import { Artist } from "./get-model-attribution";
+import { Artist } from "./artists";
 
 export function equipmentBaseItemToModelPath(
   equipmentType: EquipmentType,

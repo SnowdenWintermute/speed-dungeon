@@ -18,6 +18,7 @@ import {
   ELEMENT_COLORS,
   LightestToDarkest,
   MATERIAL_NAMES,
+  PlasticColor,
 } from "./material-colors";
 import applyMaterialsToModelMeshes from "./apply-materials-to-model-meshes";
 import { desaturate } from "./utils";
@@ -35,10 +36,19 @@ export function assignConsumableMaterials(
     return console.error("passed equipment to consumable materials function");
   switch (item.itemProperties.consumableProperties.consumableType) {
     case ConsumableType.HpAutoinjector:
-      materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.accent[AccentColor.KellyGreen];
+      materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.accent[AccentColor.HPGreen];
+      materials[MATERIAL_NAMES.ACCENT_2] = savedMaterials.plastic[PlasticColor.Blue];
+      materials[MATERIAL_NAMES.ACCENT_3] = savedMaterials.plastic[PlasticColor.Yellow];
+      materials[MATERIAL_NAMES.MAIN] = savedMaterials.plastic[PlasticColor.White];
+      materials[MATERIAL_NAMES.ALTERNATE] = savedMaterials.plastic[PlasticColor.Orange];
       break;
     case ConsumableType.MpAutoinjector:
-      materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.accent[AccentColor.CobaltBlue];
+      materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.accent[AccentColor.MPBlue];
+      materials[MATERIAL_NAMES.ACCENT_2] = savedMaterials.plastic[PlasticColor.Blue];
+      materials[MATERIAL_NAMES.ACCENT_3] = savedMaterials.plastic[PlasticColor.Yellow];
+      materials[MATERIAL_NAMES.MAIN] = savedMaterials.plastic[PlasticColor.White];
+      materials[MATERIAL_NAMES.ALTERNATE] = savedMaterials.plastic[PlasticColor.Orange];
+      break;
   }
 
   applyMaterialsToModelMeshes(itemModel, materials);

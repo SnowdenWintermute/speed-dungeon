@@ -1,5 +1,10 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
-import { CombatActionType, Item, ItemPropertiesType } from "@speed-dungeon/common";
+import {
+  CombatActionType,
+  Item,
+  ItemPropertiesType,
+  formatConsumableType,
+} from "@speed-dungeon/common";
 import React, { useRef } from "react";
 import ActionDetails from "./ActionDetails";
 import EquipmentDetails from "./EquipmentDetails";
@@ -8,7 +13,7 @@ import { useGameStore } from "@/stores/game-store";
 import Divider from "@/app/components/atoms/Divider";
 import Model3DIcon from "../../../../public/img/menu-icons/3d-model-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import getModelAttribution from "@/app/3d-world/combatant-models/get-model-attribution";
+import { getModelAttribution } from "@/app/3d-world/combatant-models/get-model-attribution";
 
 interface Props {
   title: string;
@@ -33,34 +38,46 @@ export default function ItemDetails({
   const imageRef = useRef<HTMLImageElement>(null);
   let hiddenClass = "pointer-events-auto";
   let thumbnailPath = "";
-  const thumbnailOption = useGameStore().itemThumbnails[itemOption?.entityProperties.id || ""];
 
   const unmetRequirements = useGameStore().consideredItemUnmetRequirements;
+  let BG_COLOR = "bg-slate-800";
+
+  let thumbnailIdOption = "";
 
   if (!itemOption) {
     itemDetailsDisplay = <></>;
     hiddenClass = "opacity-0 h-0 pointer-events-none";
   } else {
     const item = itemOption;
-    thumbnailPath = thumbnailOption || "img/equipment-icons/1h-sword-a.svg";
     hiddenClass = "pointer-events-auto ";
+    const { itemProperties } = item;
 
-    if (item.itemProperties.type === ItemPropertiesType.Consumable) {
-      itemDetailsDisplay = (
-        <ActionDetails
-          combatAction={{ type: CombatActionType.ConsumableUsed, itemId: item.entityProperties.id }}
-          hideTitle={true}
-        />
-      );
-    } else {
-      itemDetailsDisplay = (
-        <EquipmentDetails
-          item={item}
-          equipmentProperties={item.itemProperties.equipmentProperties}
-        />
-      );
+    switch (itemProperties.type) {
+      case ItemPropertiesType.Equipment:
+        itemDetailsDisplay = (
+          <EquipmentDetails item={item} equipmentProperties={itemProperties.equipmentProperties} />
+        );
+        thumbnailIdOption = item.entityProperties.id;
+        break;
+      case ItemPropertiesType.Consumable:
+        BG_COLOR = "bg-slate-700";
+        thumbnailIdOption = formatConsumableType(
+          itemProperties.consumableProperties.consumableType
+        );
+        itemDetailsDisplay = (
+          <ActionDetails
+            combatAction={{
+              type: CombatActionType.ConsumableUsed,
+              itemId: item.entityProperties.id,
+            }}
+            hideTitle={true}
+          />
+        );
     }
   }
+
+  thumbnailPath =
+    useGameStore().itemThumbnails[thumbnailIdOption] || "img/equipment-icons/1h-sword-a.svg";
 
   const attribution = itemOption && getModelAttribution(itemOption);
 
@@ -89,7 +106,7 @@ export default function ItemDetails({
       </div>
       <div className="self-start flex flex-col">
         <div
-          className={`${unmetRequirements ? "filter-red bg-gray-700" : "bg-slate-800"} 
+          className={`${unmetRequirements ? "filter-red bg-gray-700" : BG_COLOR} 
           border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4 mb-1`}
           // className={`bg-slate-700 self-start border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4`}
         >
