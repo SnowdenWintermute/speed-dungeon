@@ -46,7 +46,7 @@ export function generateOneOfEachItem() {
     if (
       ![
         EquipmentType.OneHandedMeleeWeapon,
-        // EquipmentType.TwoHandedMeleeWeapon,
+        EquipmentType.TwoHandedMeleeWeapon,
         EquipmentType.TwoHandedRangedWeapon,
         EquipmentType.Shield,
       ].includes(equipmentType)

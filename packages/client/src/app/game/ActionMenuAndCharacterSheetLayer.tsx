@@ -14,7 +14,9 @@ export default function ActionMenuAndCharacterSheetLayer({ party }: { party: Adv
   const topContentRef = useRef<HTMLDivElement>(null);
 
   return (
-    <section className={`absolute top-0 pl-4 z-31 h-screen w-screen overscroll-auto`}>
+    <section
+      className={`absolute top-0 pl-4 z-31 h-screen w-screen max-h-screen max-w-screen overflow-auto`}
+    >
       <div className="flex flex-col w-fit absolute" style={{ top: `calc(100vh / 7)` }}>
         <div
           ref={topContentRef}

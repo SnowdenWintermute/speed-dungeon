@@ -64,18 +64,18 @@ export default function outfitNewCharacter(character: Combatant) {
 
   const items = generateOneOfEachItem();
   combatantProperties.inventory.items.push(...items);
-  // const runeSwords = (() => {
-  //   const swords: Item[] = [];
-  //   for (let i = 0; i < 10; i += 1) {
-  //     const sword = generateSpecificEquipmentType({
-  //       equipmentType: EquipmentType.OneHandedMeleeWeapon,
-  //       baseItemType: OneHandedMeleeWeapon.RuneSword,
-  //     });
-  //     if (sword instanceof Item) swords.push(sword);
-  //   }
-  //   return swords;
-  // })();
-  // combatantProperties.inventory.items.push(...runeSwords);
+  const runeSwords = (() => {
+    const swords: Item[] = [];
+    for (let i = 0; i < 10; i += 1) {
+      const sword = generateSpecificEquipmentType({
+        equipmentType: EquipmentType.OneHandedMeleeWeapon,
+        baseItemType: OneHandedMeleeWeapon.RuneSword,
+      });
+      if (sword instanceof Item) swords.push(sword);
+    }
+    return swords;
+  })();
+  combatantProperties.inventory.items.push(...runeSwords);
 
   combatantProperties.unspentAttributePoints = 100;
 

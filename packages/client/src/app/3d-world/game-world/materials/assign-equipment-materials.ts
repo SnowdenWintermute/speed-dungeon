@@ -47,10 +47,11 @@ export function assignEquipmentMaterials(
         case OneHandedMeleeWeapon.Morningstar:
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Darkest];
           materials[MATERIAL_NAMES.BLADE] = savedMaterials.metal[LightestToDarkest.Darker];
-          materials[MATERIAL_NAMES.HILT] = savedMaterials.metal[LightestToDarkest.Darker];
+          materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.metal[LightestToDarkest.Darker];
           break;
         case OneHandedMeleeWeapon.WarHammer:
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Darker];
+          materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.metal[LightestToDarkest.Darkest];
           materials[MATERIAL_NAMES.BLADE] = savedMaterials.metal[LightestToDarkest.Darkest];
           break;
         case OneHandedMeleeWeapon.ShortSword:
