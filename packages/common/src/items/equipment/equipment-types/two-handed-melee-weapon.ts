@@ -1,4 +1,5 @@
 export enum TwoHandedMeleeWeapon {
+  RottingBranch,
   BoStaff,
   Spear,
   Bardiche,
@@ -18,6 +19,8 @@ export enum TwoHandedMeleeWeapon {
 
 export function formatTwoHandedMeleeWeapon(weapon: TwoHandedMeleeWeapon): string {
   switch (weapon) {
+    case TwoHandedMeleeWeapon.RottingBranch:
+      return "Rotting Branch";
     case TwoHandedMeleeWeapon.BoStaff:
       return "Bo Staff";
     case TwoHandedMeleeWeapon.Spear:

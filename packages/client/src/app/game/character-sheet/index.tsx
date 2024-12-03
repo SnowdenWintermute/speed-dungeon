@@ -25,15 +25,12 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
   );
 
   let conditionalStyles = showCharacterSheet
-    ? "overflow-hidden"
+    ? "overflow-hidden pointer-events-auto"
     : "opacity-0 w-0 overflow-hidden pointer-events-none";
 
   return (
     <section className={`w-fit ${conditionalStyles}`}>
-      <ul
-        className="flex list-none pointer-events-auto"
-        style={{ marginBottom: `${SPACING_REM_SMALL}rem ` }}
-      >
+      <ul className="flex list-none" style={{ marginBottom: `${SPACING_REM_SMALL}rem ` }}>
         {partyCharacterIds.map((id) => (
           <CharacterSheetCharacterSelectionButton key={id} characterId={id} />
         ))}

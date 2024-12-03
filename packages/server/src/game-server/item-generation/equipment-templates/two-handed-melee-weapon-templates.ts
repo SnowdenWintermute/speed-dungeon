@@ -79,6 +79,11 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
     );
 
     switch (weapon) {
+      case TwoHandedMeleeWeapon.RottingBranch:
+        template.levelRange = new NumberRange(0, 0);
+        template.damage = new NumberRange(2, 7);
+        template.maxDurability = 4;
+        break;
       case TwoHandedMeleeWeapon.BoStaff:
         template.levelRange = new NumberRange(1, 4);
         template.damage = new NumberRange(2, 8);

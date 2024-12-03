@@ -8,6 +8,7 @@ export enum CombatantAbilityName {
   Fire,
   Ice,
   Healing,
+  Destruction,
 }
 
 export class CombatantAbility {
@@ -38,5 +39,7 @@ export function formatAbilityName(abilityName: CombatantAbilityName) {
       return "Ice";
     case CombatantAbilityName.Healing:
       return "Healing";
+    case CombatantAbilityName.Destruction:
+      return "Destruction";
   }
 }

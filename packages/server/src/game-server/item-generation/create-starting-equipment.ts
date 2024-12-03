@@ -48,7 +48,7 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
       offhandProperties = new EquipmentProperties(
         {
           type: EquipmentType.Shield,
-          baseItem: Shield.MakeshiftBuckler,
+          baseItem: Shield.PotLid,
           armorClass: 2,
           size: ShieldSize.Small,
         },

@@ -69,6 +69,12 @@ export const SHIELD_EQUIPMENT_GENERATION_TEMPLATES: Record<Shield, ShieldGenerat
       });
 
       switch (shield) {
+        case Shield.PotLid:
+          template.levelRange = new NumberRange(0, 0);
+          template.acRange = new NumberRange(2, 2);
+          template.size = ShieldSize.Small;
+          template.maxDurability = 4;
+          break;
         case Shield.MakeshiftBuckler:
           template.levelRange = new NumberRange(1, 3);
           template.acRange = new NumberRange(2, 6);

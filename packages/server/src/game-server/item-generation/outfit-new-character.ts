@@ -62,6 +62,10 @@ export default function outfitNewCharacter(character: Combatant) {
 
   giveTestingCombatAttributes(combatantProperties);
 
+  combatantProperties.abilities[CombatantAbilityName.Destruction] = CombatantAbility.createByName(
+    CombatantAbilityName.Destruction
+  );
+
   const items = generateOneOfEachItem();
   combatantProperties.inventory.items.push(...items);
   const runeSwords = (() => {

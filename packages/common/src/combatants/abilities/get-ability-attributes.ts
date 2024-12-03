@@ -134,6 +134,16 @@ export default function getAbilityAttributes(abilityName: CombatantAbilityName) 
       };
       hpcp.sourceProperties.elementOption = MagicalElement.Light;
       break;
+    case CombatantAbilityName.Destruction:
+      attr.manaCost = 0;
+      cap.description = "Deals direct damage to targets";
+      cap.targetingSchemes = [TargetingScheme.Single, TargetingScheme.Area];
+      hpcp.baseValues = new NumberRange(9999, 9999);
+      hpcp.sourceProperties.category = {
+        type: HpChangeSourceCategoryType.MagicalDamage,
+        evadable: Evadable.False,
+      };
+      break;
   }
   cap.hpChangeProperties = hpcp;
   attr.combatActionProperties = cap;

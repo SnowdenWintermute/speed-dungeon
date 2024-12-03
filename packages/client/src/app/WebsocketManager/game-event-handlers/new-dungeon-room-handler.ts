@@ -28,7 +28,7 @@ export default function newDungeonRoomHandler(room: DungeonRoom) {
     if (room.monsterPositions.length) gameState.baseMenuState.inCombat = true;
   });
 
-  if (!gameWorld.current) console.error("No game world!!!");
+  // clean up unused screenshots for items left behind
   gameWorld.current?.imageManager.enqueueMessage({
     type: ImageManagerRequestType.ItemDeletion,
     itemIds: itemIdsOnGround,

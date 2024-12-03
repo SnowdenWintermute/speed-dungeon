@@ -115,6 +115,7 @@ export const TWO_HANDED_RANGED_WEAPON_MODELS: Record<
 
 export const SHIELD_MODELS: Record<Shield, { path: null | string; artist: Artist }> = {
   // [Shield.MakeshiftBuckler]: "wooden-kite-shield.glb",
+  [Shield.PotLid]: { path: "pot-lid.glb", artist: Artist.P0ss },
   [Shield.MakeshiftBuckler]: { path: "makeshift-buckler.glb", artist: Artist.Djonvincent }, // https://opengameart.org/content/trap-door
   [Shield.Heater]: { path: "wooden-kite-shield.glb", artist: Artist.Quaternius }, // quaternius
   [Shield.Buckler]: { path: "buckler.glb", artist: Artist.RyanHetchler }, // https://opengameart.org/content/19-low-poly-fantasy-weapons

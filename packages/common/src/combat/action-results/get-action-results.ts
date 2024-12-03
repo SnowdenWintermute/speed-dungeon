@@ -46,6 +46,7 @@ export default function getActionResults(
       case CombatantAbilityName.Fire:
       case CombatantAbilityName.Ice:
       case CombatantAbilityName.Healing:
+      case CombatantAbilityName.Destruction:
         const actionResultResult = calculateActionResult(game, args);
         if (actionResultResult instanceof Error) return actionResultResult;
         return [actionResultResult];
