@@ -4,7 +4,6 @@ import {
   EquipmentType,
   Item,
   ItemPropertiesType,
-  OneHandedMeleeWeapon,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 import { GameWorld } from ".";
@@ -15,8 +14,8 @@ import {
   nextToBabylonMessageQueue,
 } from "@/singletons/next-to-babylon-message-queue";
 import setDefaultMaterials from "./materials/set-default-materials";
-import spawnEquipmentModel from "../combatant-models/spawn-equipment-model";
-import { disposeAsyncLoadedScene, importMesh } from "../utils";
+import { importMesh } from "../utils";
+import { spawnItemModel } from "../combatant-models/spawn-item-models";
 
 const ROW_SIZE = 10;
 const ROW_SPACING = 1;
@@ -125,7 +124,7 @@ export async function spawnEquipmentModelsFromItemList(world: GameWorld, items: 
       i = 0;
       j += 1;
     }
-    const model = await spawnEquipmentModel(item, world.scene, world.defaultMaterials);
+    const model = await spawnItemModel(item, world.scene, world.defaultMaterials);
     if (!(model instanceof Error)) {
       const parentMesh = model.meshes[0];
       if (!parentMesh) continue;

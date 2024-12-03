@@ -34,7 +34,7 @@ import { ModelActionManager } from "./model-action-manager";
 import setUpDebugMeshes from "./set-up-debug-meshes";
 import { ANIMATION_NAMES } from "./animation-manager/animation-names";
 import attachEquipmentModelToSkeleton from "./attach-equipment-model-to-skeleton";
-import spawnEquipmentModel from "./spawn-equipment-model";
+import { spawnItemModel } from "./spawn-item-models";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -180,7 +180,7 @@ export class ModularCharacter {
   async equipItem(item: Item, slot: EquipmentSlot) {
     if (item.itemProperties.type !== ItemPropertiesType.Equipment) return;
 
-    const equipmentModelResult = await spawnEquipmentModel(
+    const equipmentModelResult = await spawnItemModel(
       item,
       this.world.scene,
       this.world.defaultMaterials

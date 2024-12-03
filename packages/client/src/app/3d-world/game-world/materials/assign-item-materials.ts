@@ -1,4 +1,5 @@
 import {
+  ConsumableType,
   EquipmentType,
   HpChangeSource,
   Item,
@@ -22,6 +23,27 @@ import applyMaterialsToModelMeshes from "./apply-materials-to-model-meshes";
 import { desaturate } from "./utils";
 import { DYNAMIC_MATERIAL_TAG, SavedMaterials } from "./create-default-materials";
 
+export function assignConsumableMaterials(
+  item: Item,
+  itemModel: ISceneLoaderAsyncResult,
+  savedMaterials: SavedMaterials,
+  _scene: Scene
+) {
+  let materials: { [name: string]: StandardMaterial } = {};
+
+  if (item.itemProperties.type !== ItemPropertiesType.Consumable)
+    return console.error("passed equipment to consumable materials function");
+  switch (item.itemProperties.consumableProperties.consumableType) {
+    case ConsumableType.HpAutoinjector:
+      materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.accent[AccentColor.KellyGreen];
+      break;
+    case ConsumableType.MpAutoinjector:
+      materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.accent[AccentColor.CobaltBlue];
+  }
+
+  applyMaterialsToModelMeshes(itemModel, materials);
+}
+
 export function assignEquipmentMaterials(
   item: Item,
   itemModel: ISceneLoaderAsyncResult,
@@ -29,7 +51,9 @@ export function assignEquipmentMaterials(
   scene: Scene
 ) {
   let materials: { [name: string]: StandardMaterial } = {};
-  if (item.itemProperties.type === ItemPropertiesType.Consumable) return;
+  if (item.itemProperties.type === ItemPropertiesType.Consumable)
+    return console.error("passed consumable to equipment materials function");
+
   const { equipmentBaseItemProperties } = item.itemProperties.equipmentProperties;
 
   materials[MATERIAL_NAMES.BLADE] = savedMaterials.metal[LightestToDarkest.Lighter];

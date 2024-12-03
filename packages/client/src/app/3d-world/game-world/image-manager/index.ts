@@ -9,8 +9,8 @@ import { useGameStore } from "@/stores/game-store";
 import { createImageCreatorScene } from "./create-image-creator-scene";
 import { SavedMaterials, createDefaultMaterials } from "../materials/create-default-materials";
 import { Item } from "@speed-dungeon/common";
-import spawnEquipmentModel from "../../combatant-models/spawn-equipment-model";
 import { calculateCompositeBoundingBox, disposeAsyncLoadedScene } from "../../utils";
+import { spawnItemModel } from "../../combatant-models/spawn-item-models";
 
 export enum ImageManagerRequestType {
   ItemCreation,
@@ -107,12 +107,10 @@ export class ImageManager {
   }
 
   async createItemImage(item: Item) {
-    const equipmentModelResult = await spawnEquipmentModel(item, this.scene, this.materials);
+    const equipmentModelResult = await spawnItemModel(item, this.scene, this.materials);
     if (equipmentModelResult instanceof Error) return console.error(equipmentModelResult);
     const parentMesh = equipmentModelResult.meshes[0];
     if (!parentMesh) return console.error("no parent mesh");
-
-    console.log(this.scene.materials.map((material) => material.name));
 
     parentMesh.position = Vector3.Zero();
 
@@ -144,7 +142,7 @@ export class ImageManager {
         useGameStore.getState().mutateState((state) => {
           state.itemThumbnails[item.entityProperties.id] = image;
         });
-        disposeAsyncLoadedScene(equipmentModelResult);
+        disposeAsyncLoadedScene(equipmentModelResult, this.scene);
 
         console.log(
           "materials after disposed: ",
@@ -156,57 +154,3 @@ export class ImageManager {
     );
   }
 }
-
-// async createItemImage(item: Item) {
-//   const { camera } = this;
-//   const equipmentModelResult = await spawnEquipmentModel(item, this.scene, this.materials);
-//   if (equipmentModelResult instanceof Error) return console.error(equipmentModelResult);
-//   const parentMesh = equipmentModelResult.meshes[0];
-//   if (!parentMesh) return console.error("no parent mesh");
-
-//   const canvasWidth = 87;
-//   const canvasHeight = 160;
-
-//   const rotationAngle = Math.atan(canvasWidth / canvasHeight);
-
-//   let box = calculateCompositeBoundingBox(equipmentModelResult.meshes);
-
-//   let center = box.min.add(box.max).scale(0.5);
-//   camera.setTarget(center);
-
-//   const fov = camera.fov;
-
-//   // parentMesh.rotateAround(center, Vector3.Forward(), -Math.PI / 2);
-//   parentMesh.rotateAround(Vector3.Zero(), Vector3.Forward(), rotationAngle);
-
-//   equipmentModelResult.meshes.forEach((mesh) => {
-//     mesh.refreshBoundingInfo({});
-//     mesh.computeWorldMatrix(true);
-//   });
-//   box = calculateCompositeBoundingBox(equipmentModelResult.meshes);
-
-//   center = box.min.add(box.max).scale(0.5);
-//   const size = box.max.subtract(box.min);
-
-//   const diagonal = Math.sqrt(size.x ** 2 + size.y ** 2);
-//   const distance = diagonal / (2 * Math.tan(fov / 2));
-//   camera.position = center.add(new Vector3(0, 0, distance));
-
-//   this.canvas.width = canvasWidth;
-//   this.canvas.height = canvasHeight;
-
-//   CreateScreenshotUsingRenderTarget(
-//     this.engine,
-//     camera,
-//     { width: canvasWidth, height: canvasHeight },
-//     (image) => {
-//       this.engine.stopRenderLoop();
-//       useGameStore.getState().mutateState((state) => {
-//         state.itemThumbnails[item.entityProperties.id] = image;
-//       });
-//       disposeAsyncLoadedScene(equipmentModelResult);
-//       this.processNextMessage();
-//     },
-//     "image/png"
-//   );
-// }
