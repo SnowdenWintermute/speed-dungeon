@@ -80,7 +80,11 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
 
     switch (weapon) {
       case OneHandedMeleeWeapon.Stick:
+        template.levelRange = new NumberRange(0, 0);
+        break;
+      case OneHandedMeleeWeapon.Club:
         template.levelRange = new NumberRange(1, 3);
+        template.damage = new NumberRange(1, 4);
         break;
       case OneHandedMeleeWeapon.Mace:
         template.levelRange = new NumberRange(2, 6);

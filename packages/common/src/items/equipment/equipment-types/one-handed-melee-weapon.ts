@@ -1,6 +1,7 @@
 export enum OneHandedMeleeWeapon {
   // PHYSICAL BLUNT
   Stick,
+  Club,
   Mace,
   Morningstar,
   WarHammer,
@@ -28,6 +29,7 @@ export enum OneHandedMeleeWeapon {
 
 export const ONE_HANDED_MELEE_WEAPON_NAMES: Record<OneHandedMeleeWeapon, string> = {
   [OneHandedMeleeWeapon.Stick]: "Stick",
+  [OneHandedMeleeWeapon.Club]: "Club",
   [OneHandedMeleeWeapon.Mace]: "Mace",
   [OneHandedMeleeWeapon.Morningstar]: "Morningstar",
   [OneHandedMeleeWeapon.WarHammer]: "War Hammer",

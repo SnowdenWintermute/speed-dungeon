@@ -57,6 +57,7 @@ export const ONE_HANDED_MELEE_WEAPON_MODELS: Record<
 > = {
   // [OneHandedMeleeWeapon.Stick]: "short-sword.glb", // https://opengameart.org/content/low-poly-swords-asset-2
   [OneHandedMeleeWeapon.Stick]: { path: "stick.glb", artist: Artist.OveractionGS }, // https://opengameart.org/content/wooden-stick
+  [OneHandedMeleeWeapon.Club]: { path: "club.glb", artist: Artist.Mastahcez }, // https://opengameart.org/content/stylised-fantasy-weapons
   [OneHandedMeleeWeapon.Mace]: { path: "mace.glb", artist: Artist.RyanHetchler }, // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [OneHandedMeleeWeapon.Morningstar]: { path: "morning-star.glb", artist: Artist.SystemG6 }, // https://opengameart.org/content/medieval-weapon-pack
   [OneHandedMeleeWeapon.WarHammer]: { path: "war-hammer.glb", artist: Artist.RyanHetchler }, // https://opengameart.org/content/19-low-poly-fantasy-weapons
@@ -82,6 +83,7 @@ export const TWO_HANDED_MELEE_WEAPON_MODELS: Record<
   { path: null | string; artist: Artist }
 > = {
   // [TwoHandedMeleeWeapon.BoStaff]: "bardiche.glb",
+  [TwoHandedMeleeWeapon.RottingBranch]: { path: "rotting-branch.glb", artist: Artist.Quaternius }, // https://quaternius.com/packs/stylizednaturemegakit.html
   [TwoHandedMeleeWeapon.BoStaff]: { path: "elemental-staff.glb", artist: Artist.ClintBellanger }, // https://opengameart.org/content/kingdom-weapon-set
   [TwoHandedMeleeWeapon.Spear]: { path: "spear.glb", artist: Artist.RyanHetchler }, // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [TwoHandedMeleeWeapon.Bardiche]: { path: "bardiche.glb", artist: Artist.ClintBellanger }, // https://opengameart.org/content/kingdom-weapon-set

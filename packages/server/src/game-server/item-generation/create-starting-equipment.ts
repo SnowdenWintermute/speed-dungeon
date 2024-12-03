@@ -59,7 +59,7 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
       mainHandProperties = new EquipmentProperties(
         {
           type: EquipmentType.TwoHandedMeleeWeapon,
-          baseItem: TwoHandedMeleeWeapon.BoStaff,
+          baseItem: TwoHandedMeleeWeapon.RottingBranch,
           damage: new NumberRange(2, 7),
           damageClassification: [
             new HpChangeSource(

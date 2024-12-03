@@ -39,7 +39,7 @@ export function assignConsumableMaterials(
       materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.accent[AccentColor.HPGreen];
       materials[MATERIAL_NAMES.ACCENT_2] = savedMaterials.plastic[PlasticColor.Blue];
       materials[MATERIAL_NAMES.ACCENT_3] = savedMaterials.plastic[PlasticColor.Yellow];
-      materials[MATERIAL_NAMES.MAIN] = savedMaterials.plastic[PlasticColor.White];
+      materials[MATERIAL_NAMES.MAIN] = savedMaterials.accent[PlasticColor.White];
       materials[MATERIAL_NAMES.ALTERNATE] = savedMaterials.plastic[PlasticColor.Orange];
       break;
     case ConsumableType.MpAutoinjector:
@@ -74,6 +74,10 @@ export function assignEquipmentMaterials(
       switch (equipmentBaseItemProperties.baseItem) {
         case OneHandedMeleeWeapon.Stick:
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Lighter];
+          break;
+        case OneHandedMeleeWeapon.Club:
+          materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Darker];
+          materials[MATERIAL_NAMES.BLADE] = savedMaterials.metal[LightestToDarkest.Medium];
           break;
         case OneHandedMeleeWeapon.Mace:
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Darker];
@@ -174,6 +178,9 @@ export function assignEquipmentMaterials(
       break;
     case EquipmentType.TwoHandedMeleeWeapon:
       switch (equipmentBaseItemProperties.baseItem) {
+        case TwoHandedMeleeWeapon.RottingBranch:
+          materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Medium];
+          break;
         case TwoHandedMeleeWeapon.BoStaff:
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Lighter];
           materials[MATERIAL_NAMES.HILT] = savedMaterials.wood[LightestToDarkest.Lighter];
