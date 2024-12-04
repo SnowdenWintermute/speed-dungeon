@@ -25,7 +25,7 @@ export async function spawnItemModel(item: Item, scene: Scene, materials: SavedM
   })();
 
   if (modelPath === null)
-    return console.log(`No model path was found for item [${item.entityProperties.name}]`);
+    return new Error(`No model path was found for item [${item.entityProperties.name}]`);
   const itemModel = await importMesh(modelPath, scene);
 
   switch (item.itemProperties.type) {

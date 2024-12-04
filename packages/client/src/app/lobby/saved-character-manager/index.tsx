@@ -50,7 +50,7 @@ export default function SavedCharacterManager() {
       instant: true,
       alpha: Math.PI / 2,
       beta: (Math.PI / 5) * 2,
-      radius: 5,
+      radius: 4.28,
       target: new Vector3(-CHARACTER_SLOT_SPACING + CHARACTER_SLOT_SPACING * currentSlot, 1, 0),
     });
   }, [currentSlot]);

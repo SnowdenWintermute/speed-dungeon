@@ -11,6 +11,7 @@ import { SavedMaterials, createDefaultMaterials } from "../materials/create-defa
 import { Item, ItemPropertiesType } from "@speed-dungeon/common";
 import { calculateCompositeBoundingBox, disposeAsyncLoadedScene } from "../../utils";
 import { spawnItemModel } from "../../combatant-models/spawn-item-models";
+import { pixelate } from "..";
 
 export enum ImageManagerRequestType {
   ItemCreation,
@@ -54,6 +55,8 @@ export class ImageManager {
     this.camera = new UniversalCamera("camera", new Vector3(0, 0, 3), this.scene);
     this.camera.minZ = 0;
     this.materials = createDefaultMaterials(this.scene);
+
+    // pixelate(this.camera, this.scene, 2);
   }
 
   processNextMessage() {

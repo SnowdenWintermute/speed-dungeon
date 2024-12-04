@@ -11,6 +11,7 @@ import {
   DynamicTexture,
   GlowLayer,
   Color3,
+  Camera,
 } from "@babylonjs/core";
 import { GameWorld } from ".";
 
@@ -43,6 +44,27 @@ export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTextu
   camera.wheelDeltaPercentage = 0.01;
   camera.attachControl();
   camera.minZ = 0;
+
+  // ORTHO setup
+  // camera.mode = Camera.ORTHOGRAPHIC_CAMERA;
+  // camera.orthoLeft = -10;
+  // camera.orthoRight = 10;
+  // // needed to calculate orthoTop and orthoBottom without distortion
+  // const ratio = this.canvas.height / this.canvas.width;
+  // setOrthoCameraTopBottom(camera, ratio);
+
+  // let oldRadius = camera.radius;
+  // this.scene.onBeforeRenderObservable.add(() => {
+  //   if (oldRadius !== camera.radius) {
+  //     const radiusChangeRatio = camera.radius / oldRadius;
+  //     if (!camera.orthoLeft || !camera.orthoRight) return;
+  //     camera.orthoLeft *= radiusChangeRatio;
+  //     camera.orthoRight *= radiusChangeRatio;
+  //     oldRadius = camera.radius;
+  //     setOrthoCameraTopBottom(camera, ratio);
+
+  //   }
+  // });
 
   // LIGHTS
   const hemiLight = new HemisphericLight("hemi-light", new Vector3(0, 1, 0), this.scene);
@@ -86,4 +108,11 @@ export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTextu
 
   // return [camera, shadowGenerator, ball, this.groundTexture];
   return [camera, ball, this.groundTexture];
+}
+
+function setOrthoCameraTopBottom(camera: Camera, ratio: number) {
+  if (camera.orthoRight && camera.orthoLeft) {
+    camera.orthoTop = camera.orthoRight * ratio;
+    camera.orthoBottom = camera.orthoLeft * ratio;
+  }
 }
