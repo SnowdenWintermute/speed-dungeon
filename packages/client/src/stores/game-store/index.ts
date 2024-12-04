@@ -54,13 +54,15 @@ export class GameState {
   hoveredAction: null | CombatAction = null;
   actionMenuCurrentPageNumber: number = 0;
   actionMenuParentPageNumbers: number[] = [];
-  consideredItemUnmetRequirements: null | CombatAttribute[] = null;
   combatLogMessages: CombatLogMessage[] = [];
   lastDebugMessageId: number = 0;
   babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
   combatantFloatingText: { [combatantId: string]: FloatingText[] } = {};
   combatantModelsAwaitingSpawn: string[] = [];
   testText: string = "test";
+  itemThumbnails: { [itemId: string]: string } = {};
+  consideredItemUnmetRequirements: null | CombatAttribute[] = null;
+  showItemsOnGround: boolean = true;
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
     if (party instanceof Error) return null;

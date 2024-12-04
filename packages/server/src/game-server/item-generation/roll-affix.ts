@@ -30,7 +30,7 @@ export function rollAffix(
   };
 
   const rollAttributeValue = (min: number, max: number) =>
-    randBetween(tier * min, tier * max) * attributeMultiplier;
+    randBetween(tier * (min * attributeMultiplier), tier * (max * attributeMultiplier));
 
   switch (taggedAffixType.affixType) {
     case AffixType.Prefix:

@@ -12,14 +12,19 @@ export class ItemGenerationDirector {
   createItem(
     itemLevel: number,
     idGenerator: IdGenerator,
-    forcedBaseItemOption?: undefined | TaggedBaseItem
+    options?: {
+      forcedBaseItemOption?: TaggedBaseItem;
+      noAffixes?: boolean;
+    }
   ): Error | Item {
     const { builder } = this;
-    const baseItemResult = builder.buildBaseItem(itemLevel, forcedBaseItemOption);
+    const baseItemResult = builder.buildBaseItem(itemLevel, options?.forcedBaseItemOption);
     if (baseItemResult instanceof Error) return baseItemResult;
     const { type: itemType, baseItem } = baseItemResult;
     const affixesResult =
-      itemType === ItemPropertiesType.Equipment ? builder.buildAffixes(itemLevel, baseItem) : null;
+      !options?.noAffixes && itemType === ItemPropertiesType.Equipment
+        ? builder.buildAffixes(itemLevel, baseItem)
+        : null;
     if (affixesResult instanceof Error) return affixesResult;
     const affixes = affixesResult;
     const requirementsResult = builder.buildRequirements(baseItemResult, affixes);

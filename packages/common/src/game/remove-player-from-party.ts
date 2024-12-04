@@ -2,12 +2,23 @@ import cloneDeep from "lodash.clonedeep";
 import { SpeedDungeonGame } from "./index.js";
 import { removeFromArray } from "../utils/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
+import { Combatant } from "../combatants/index.js";
+
+export type RemovedPlayerData = {
+  partyNameLeft: null | string;
+  partyWasRemoved: boolean;
+  charactersRemoved: Combatant[];
+};
 
 /** returns the name of the party and if the party was removed from the game (in the case of its last member being removed) */
-export default function removePlayerFromParty(game: SpeedDungeonGame, username: string) {
+export default function removePlayerFromParty(
+  game: SpeedDungeonGame,
+  username: string
+): Error | RemovedPlayerData {
   const player = game.players[username];
+  const charactersRemoved: Combatant[] = [];
   if (!player) return new Error("No player found to remove");
-  if (!player.partyName) return { partyNameLeft: null, partyWasRemoved: false };
+  if (!player.partyName) return { partyNameLeft: null, partyWasRemoved: false, charactersRemoved };
 
   const partyLeaving = game.adventuringParties[player.partyName];
   if (!partyLeaving) return new Error("No party exists");
@@ -15,7 +26,13 @@ export default function removePlayerFromParty(game: SpeedDungeonGame, username: 
   const characterIds = cloneDeep(player.characterIds);
   if (characterIds) {
     Object.values(characterIds).forEach((characterId) => {
-      AdventuringParty.removeCharacter(partyLeaving, characterId, player);
+      const removedCharacterResult = AdventuringParty.removeCharacter(
+        partyLeaving,
+        characterId,
+        player
+      );
+      if (removedCharacterResult instanceof Error) return removedCharacterResult;
+      charactersRemoved.push(removedCharacterResult);
     });
   }
 
@@ -25,8 +42,8 @@ export default function removePlayerFromParty(game: SpeedDungeonGame, username: 
 
   if (partyLeaving.playerUsernames.length < 1) {
     delete game.adventuringParties[partyLeaving.name];
-    return { partyNameLeft: partyLeaving.name, partyWasRemoved: true };
+    return { partyNameLeft: partyLeaving.name, partyWasRemoved: true, charactersRemoved };
   }
 
-  return { partyNameLeft: partyLeaving.name, partyWasRemoved: false };
+  return { partyNameLeft: partyLeaving.name, partyWasRemoved: false, charactersRemoved };
 }

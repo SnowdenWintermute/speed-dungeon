@@ -1,6 +1,12 @@
 import React from "react";
 import PaperDollSlot from "./PaperDollSlot";
-import { CombatantAttributeRecord, EquipmentSlot, Item } from "@speed-dungeon/common";
+import {
+  CombatantAttributeRecord,
+  EquipmentSlot,
+  Item,
+  ItemPropertiesType,
+  equipmentIsTwoHandedWeapon,
+} from "@speed-dungeon/common";
 
 interface Props {
   equipment: Partial<Record<EquipmentSlot, Item>>;
@@ -8,6 +14,20 @@ interface Props {
 }
 
 export default function PaperDoll({ equipment, characterAttributes }: Props) {
+  const mainhandOption = equipment[EquipmentSlot.MainHand];
+  const mainhandEquipmentType = (() => {
+    if (!mainhandOption) return null;
+    switch (mainhandOption.itemProperties.type) {
+      case ItemPropertiesType.Equipment:
+        return mainhandOption.itemProperties.equipmentProperties.equipmentBaseItemProperties.type;
+      case ItemPropertiesType.Consumable:
+        return null;
+    }
+  })();
+
+  const mainHandIs2h =
+    mainhandEquipmentType !== null ? equipmentIsTwoHandedWeapon(mainhandEquipmentType) : false;
+
   return (
     <div id="paper-doll" className="flex w-[23.75rem] mr-5">
       <div className="w-[7.5rem] mr-2.5">
@@ -56,10 +76,14 @@ export default function PaperDoll({ equipment, characterAttributes }: Props) {
           />
         </div>
         <PaperDollSlot
-          itemOption={equipment[EquipmentSlot.OffHand] ?? null}
+          itemOption={
+            mainHandIs2h
+              ? equipment[EquipmentSlot.MainHand]!
+              : equipment[EquipmentSlot.OffHand] ?? null
+          }
           characterAttributes={characterAttributes}
           slot={EquipmentSlot.OffHand}
-          tailwindClasses="h-[12.125rem] w-full"
+          tailwindClasses={`h-[12.125rem] w-full ${mainHandIs2h ? " opacity-50" : ""}`}
         />
       </div>
     </div>

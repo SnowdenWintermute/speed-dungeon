@@ -51,6 +51,8 @@ export enum ServerToClientEvent {
   SavedCharacterDeleted = "36",
   PlayerSelectedSavedCharacterInProgressionGame = "37",
   ProgressionGameStartingFloorSelected = "38",
+  //TEST
+  TestItems = "39",
 }
 
 export interface ServerToClientEventTypes {
@@ -143,6 +145,9 @@ export interface ServerToClientEventTypes {
     character: { combatant: Combatant; deepestFloorReached: number }
   ) => void;
   [ServerToClientEvent.ProgressionGameStartingFloorSelected]: (floor: number) => void;
+  // was using this to create models of items on client with randomly generated
+  // properties since only the server code can currently do that
+  [ServerToClientEvent.TestItems]: (items: Item[]) => void;
 }
 
 export interface CharacterAndItem {

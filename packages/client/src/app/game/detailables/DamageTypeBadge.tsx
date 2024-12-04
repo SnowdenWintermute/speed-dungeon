@@ -32,12 +32,16 @@ export default function DamageTypeBadge({ hpChangeSource }: Props) {
   const damageCategoryBorderColor = getDamageCategoryBorderColor(hpChangeSource.category.type);
 
   return (
-    <div className={`border-2 max-w-fit mb-1 last:mb-0 ${damageCategoryBorderColor}`}>
+    <div
+      className={`border-2 w-fit min-w-fit max-w-fit mb-1 last:mb-0 ${damageCategoryBorderColor}`}
+    >
       <span className={`inline-block pl-1 pr-1 h-full`}>
         {formatHpChangeSourceCategory(hpChangeSource.category)}
       </span>
       {physicalDamageTypeTextOption && (
-        <span className={`border-l-2 inline-block h-full pr-1 pl-1 bg-zinc-300 text-slate-700`}>
+        <span
+          className={`border-l-2 inline-block w-fit h-full pr-1 pl-1 bg-zinc-300 text-slate-700`}
+        >
           {physicalDamageTypeTextOption}
         </span>
       )}

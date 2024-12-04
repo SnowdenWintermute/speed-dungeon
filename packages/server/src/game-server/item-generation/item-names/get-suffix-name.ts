@@ -37,7 +37,7 @@ export function getSuffixName(suffixType: SuffixType, tier: number) {
         case 1:
           return "Dexterity";
         case 2:
-          return "Proficiancy";
+          return "Proficiency";
         case 3:
           return "Finesse";
         case 4:

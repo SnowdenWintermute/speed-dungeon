@@ -3,13 +3,13 @@ import {
   Affixes,
   EquipmentType,
   ItemPropertiesType,
+  ONE_HANDED_MELEE_WEAPON_NAMES,
   PrefixType,
   SuffixType,
   formatBodyArmor,
   formatConsumableType,
   formatHeadGear,
   formatJewelry,
-  formatOneHandedMeleeWeapon,
   formatShield,
   formatTwoHandedMeleeWeapon,
   formatTwoHandedRangedWeapon,
@@ -37,7 +37,7 @@ export abstract class ItemNamer {
             baseItemName = formatJewelry(baseItem.baseItem.baseItemType);
             break;
           case EquipmentType.OneHandedMeleeWeapon:
-            baseItemName = formatOneHandedMeleeWeapon(baseItem.baseItem.baseItemType);
+            baseItemName = ONE_HANDED_MELEE_WEAPON_NAMES[baseItem.baseItem.baseItemType];
             break;
           case EquipmentType.TwoHandedMeleeWeapon:
             baseItemName = formatTwoHandedMeleeWeapon(baseItem.baseItem.baseItemType);

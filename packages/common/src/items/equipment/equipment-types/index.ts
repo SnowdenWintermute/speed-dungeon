@@ -1,6 +1,6 @@
 import { BodyArmor } from "./body-armor.js";
 import { HeadGear } from "./head-gear.js";
-import { Jewelry } from "./jewelry.js";
+import { Amulet, Jewelry, Ring } from "./jewelry.js";
 import { OneHandedMeleeWeapon } from "./one-handed-melee-weapon.js";
 import { Shield } from "./shield.js";
 import { TwoHandedMeleeWeapon } from "./two-handed-melee-weapon.js";
@@ -23,6 +23,27 @@ export enum EquipmentType {
   TwoHandedRangedWeapon,
   Shield,
 }
+
+export type EquipmentBaseItemEnum =
+  | typeof BodyArmor
+  | typeof HeadGear
+  | typeof OneHandedMeleeWeapon
+  | typeof TwoHandedMeleeWeapon
+  | typeof TwoHandedRangedWeapon
+  | typeof Shield
+  | typeof Ring
+  | typeof Amulet;
+
+export const BASE_ITEMS_BY_EQUIPMENT_TYPE: Record<EquipmentType, EquipmentBaseItemEnum> = {
+  [EquipmentType.BodyArmor]: BodyArmor,
+  [EquipmentType.HeadGear]: HeadGear,
+  [EquipmentType.OneHandedMeleeWeapon]: OneHandedMeleeWeapon,
+  [EquipmentType.TwoHandedMeleeWeapon]: TwoHandedMeleeWeapon,
+  [EquipmentType.TwoHandedRangedWeapon]: TwoHandedRangedWeapon,
+  [EquipmentType.Shield]: Shield,
+  [EquipmentType.Ring]: Ring,
+  [EquipmentType.Amulet]: Amulet,
+};
 
 export interface BodyArmorBaseItemType {
   equipmentType: EquipmentType.BodyArmor;

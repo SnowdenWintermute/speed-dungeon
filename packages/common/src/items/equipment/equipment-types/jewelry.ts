@@ -3,6 +3,14 @@ export enum Jewelry {
   Amulet,
 }
 
+export enum Ring {
+  Ring,
+}
+
+export enum Amulet {
+  Amulet,
+}
+
 export function formatJewelry(jewelry: Jewelry): string {
   switch (jewelry) {
     case Jewelry.Ring:

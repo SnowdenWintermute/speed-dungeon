@@ -50,18 +50,3 @@ export const TRAIT_DESCRIPTIONS: Record<CombatantTraitType, string> = {
   [CombatantTraitType.Undead]: "Healing magic damages this target",
   [CombatantTraitType.PhysicalDamageTypeResistance]: "Resistance or weakness to this damage type",
 };
-
-export function formatCombatantTrait(trait: CombatantTrait): string {
-  switch (trait.type) {
-    case CombatantTraitType.HpBioavailability:
-      return `Hp Bioavailability ${trait.percent}%`;
-    case CombatantTraitType.MpBioavailability:
-      return `Mp Bioavailability ${trait.percent}%`;
-    case CombatantTraitType.ElementalAffinity:
-      return `${formatMagicalElement(trait.element)} affinity ${trait.percent}%`;
-    case CombatantTraitType.Undead:
-      return "Undead";
-    case CombatantTraitType.PhysicalDamageTypeResistance:
-      return `${formatPhysicalDamageType(trait.damageType)} affinity ${trait.percent}%`;
-  }
-}

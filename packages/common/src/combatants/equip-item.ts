@@ -12,7 +12,7 @@ export default function equipItem(
   combatantProperties: CombatantProperties,
   itemId: string,
   equipToAltSlot: boolean
-): Error | EntityId[] {
+): Error | { idsOfUnequippedItems: EntityId[]; unequippedSlots: EquipmentSlot[] } {
   let itemOption: null | Item = null;
 
   for (const item of combatantProperties.inventory.items) {
@@ -85,5 +85,5 @@ export default function equipItem(
 
   CombatantProperties.clampHpAndMpToMax(combatantProperties);
 
-  return idsOfUnequippedItems;
+  return { idsOfUnequippedItems, unequippedSlots: slotsToUnequip };
 }

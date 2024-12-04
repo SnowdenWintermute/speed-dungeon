@@ -9,6 +9,8 @@ import {
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { ConsideringItemMenuState } from "@/app/game/ActionMenu/menu-state/considering-item";
 import cloneDeep from "lodash.clonedeep";
+import { gameWorld } from "@/app/3d-world/SceneManager";
+import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
 
 export default function characterEquippedItemHandler(packet: {
   itemId: string;
@@ -23,14 +25,29 @@ export default function characterEquippedItemHandler(packet: {
     ({ party, character }: CharacterAssociatedData, gameState: GameState) => {
       if (gameState.username === null) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
 
-      const unequippedItemIdsResult = CombatantProperties.equipItem(
+      const unequippedResult = CombatantProperties.equipItem(
         character.combatantProperties,
         itemId,
         equipToAlternateSlot
       );
-      if (unequippedItemIdsResult instanceof Error) return unequippedItemIdsResult;
+      if (unequippedResult instanceof Error) return unequippedResult;
+      const { unequippedSlots, idsOfUnequippedItems } = unequippedResult;
 
-      if (unequippedItemIdsResult[0] === undefined) return;
+      const slot = CombatantProperties.getSlotItemIsEquippedTo(
+        character.combatantProperties,
+        itemId
+      );
+      if (slot !== null) {
+        const item = character.combatantProperties.equipment[slot];
+        if (item !== undefined)
+          gameWorld.current?.modelManager.enqueueMessage(character.entityProperties.id, {
+            type: ModelManagerMessageType.ChangeEquipment,
+            toEquip: { item: cloneDeep(item), slot }, // must clone since sending from within a zustand mutateState
+            unequippedSlots,
+          });
+      }
+
+      if (idsOfUnequippedItems[0] === undefined) return;
 
       const playerOwnsCharacter = AdventuringParty.playerOwnsCharacter(
         party,
@@ -42,7 +59,7 @@ export default function characterEquippedItemHandler(packet: {
 
       // we want the user to be now selecting the item they just unequipped
       for (const item of character.combatantProperties.inventory.items) {
-        if (item.entityProperties.id === unequippedItemIdsResult[0]) {
+        if (item.entityProperties.id === idsOfUnequippedItems[0]) {
           itemToSelectOption = item;
           break;
         }

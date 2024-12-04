@@ -18,10 +18,6 @@ export default function createPageButtons(
     buttonsByCategory[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE
   );
 
-  useGameStore.getState().mutateState((state) => {
-    getCurrentMenu(state).numPages = numPages;
-  });
-
   if (numPages > 1) {
     const prevButtonHotkey = HOTKEYS.LEFT_MAIN;
     const previousPageButton = new ActionMenuButtonProperties(
@@ -53,11 +49,4 @@ export default function createPageButtons(
     nextPageButton.dedicatedKeys = [nextButtonHotkey, "ArrowRight"];
     buttonsByCategory[ActionButtonCategory.Bottom].push(nextPageButton);
   }
-
-  buttonsByCategory[ActionButtonCategory.Numbered] = buttonsByCategory[
-    ActionButtonCategory.Numbered
-  ].slice(
-    (menuState.page - 1) * ACTION_MENU_PAGE_SIZE,
-    (menuState.page - 1) * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE
-  );
 }

@@ -10,12 +10,11 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import { AdventuringParty, ClientToServerEvent, Combatant, InputLock } from "@speed-dungeon/common";
+import { ClientToServerEvent, Combatant, InputLock } from "@speed-dungeon/common";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
 import { getTailwindClassFromFloatingTextColor } from "@/stores/game-store/floating-text";
-import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
@@ -23,7 +22,7 @@ import setFocusedCharacter from "@/utils/set-focused-character";
 import { AssigningAttributePointsMenuState } from "../ActionMenu/menu-state/assigning-attribute-points";
 
 interface Props {
-  entityId: string;
+  combatant: Combatant;
   showExperience: boolean;
 }
 
@@ -33,7 +32,7 @@ interface Props {
 // other players left the game
 const modelDomPositionElements: { [entityId: string]: null | HTMLDivElement } = {};
 
-export default function CombatantPlaque({ entityId, showExperience }: Props) {
+export default function CombatantPlaque({ combatant, showExperience }: Props) {
   const gameOption = useGameStore().game;
   const mutateGameState = useGameStore().mutateState;
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
@@ -43,6 +42,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
       hoveredEntity: state.hoveredEntity,
     }))
   );
+  const entityId = combatant.entityProperties.id;
   const babylonDebugMessages =
     useGameStore().babylonControlledCombatantDOMData[entityId]?.debugMessages;
   const floatingText = useGameStore().babylonControlledCombatantDOMData[entityId]?.floatingText;
@@ -52,10 +52,8 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
   const result = getGameAndParty(gameOption, usernameOption);
   if (result instanceof Error) return <div>{result.message}</div>;
   const [game, party] = result;
-  const combatantDetailsResult = AdventuringParty.getCombatant(party, entityId);
-  if (combatantDetailsResult instanceof Error) return <div>{combatantDetailsResult.message}</div>;
 
-  const { entityProperties, combatantProperties } = combatantDetailsResult;
+  const { entityProperties, combatantProperties } = combatant;
   const battleOptionResult = getCurrentBattleOption(game, party.name);
   if (battleOptionResult instanceof Error) return <div>{battleOptionResult.message}</div>;
   const battleOption = battleOptionResult;
@@ -75,7 +73,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
     const element = document.getElementById(`${entityId}-position-div`);
     modelDomPositionElements[entityId] = element as HTMLDivElement | null;
 
-    requestSpawnCombatantModel(combatantDetailsResult, party, element as HTMLDivElement | null);
+    requestSpawnCombatantModel(combatant, party, element as HTMLDivElement | null);
     mutateGameState((state) => {
       state.babylonControlledCombatantDOMData[entityId] = new BabylonControlledCombatantData();
     });
@@ -193,7 +191,7 @@ export default function CombatantPlaque({ entityId, showExperience }: Props) {
               />
             </span>
             <span>
-              <CombatantInfoButton combatant={combatantDetailsResult} />
+              <CombatantInfoButton combatant={combatant} />
             </span>
           </div>
           <ValueBarsAndFocusButton

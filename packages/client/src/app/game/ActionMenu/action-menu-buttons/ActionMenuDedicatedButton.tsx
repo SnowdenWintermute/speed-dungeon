@@ -14,7 +14,7 @@ export default function ActionMenuDedicatedButton({ properties, extraStyles }: P
       className={`${extraStyles}
       bg-slate-700 flex hover:bg-slate-950 disabled:opacity-50 
       whitespace-nowrap text-ellipsis overflow-hidden pointer-events-auto`}
-      style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}
+      // style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}
       onClick={properties.clickHandler}
       onMouseEnter={properties.mouseEnterHandler}
       onMouseLeave={properties.mouseLeaveHandler}

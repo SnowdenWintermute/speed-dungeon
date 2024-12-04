@@ -20,7 +20,7 @@ export function generateRandomItem(this: GameServer, itemLevel: number): Error |
   // it is possible for no valid item to be available in certain item level ranges
   // so try 4 times to randomly get a valid one, else resort to an autoinjector
   let randomItemResult = randomItemGenerationDirector.createItem(itemLevel, idGenerator);
-  while (attempts < 4 && randomItemResult instanceof Error) {
+  while (attempts < 2 && randomItemResult instanceof Error) {
     randomItemResult = randomItemGenerationDirector.createItem(itemLevel, idGenerator);
     attempts += 1;
   }
@@ -28,16 +28,19 @@ export function generateRandomItem(this: GameServer, itemLevel: number): Error |
     console.log(
       `Couldn't find a valid item to generate, giving an autoinjector (${randomItemResult.message})`
     );
+    const autoinjectorType =
+      Math.random() > 0.3 ? ConsumableType.HpAutoinjector : ConsumableType.MpAutoinjector;
+
     return new Item(
       {
         id: idGenerator.generate(),
-        name: formatConsumableType(ConsumableType.HpAutoinjector),
+        name: formatConsumableType(autoinjectorType),
       },
       1,
       {},
       {
         type: ItemPropertiesType.Consumable,
-        consumableProperties: new ConsumableProperties(ConsumableType.HpAutoinjector, 1),
+        consumableProperties: new ConsumableProperties(autoinjectorType, 1),
       }
     );
   } else return randomItemResult;

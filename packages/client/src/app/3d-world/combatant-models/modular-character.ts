@@ -11,12 +11,21 @@ import {
 import {
   disposeAsyncLoadedScene,
   getChildMeshByName,
+  getClientRectFromMesh,
   getTransformNodeByName,
+  importMesh,
   paintCubesOnNodes,
 } from "../utils";
 import { ModularCharacterPartCategory } from "./modular-character-parts";
 import { GameWorld } from "../game-world";
-import { DEFAULT_HITBOX_RADIUS_FALLBACK, ERROR_MESSAGES } from "@speed-dungeon/common";
+import {
+  DEFAULT_HITBOX_RADIUS_FALLBACK,
+  ERROR_MESSAGES,
+  EquipmentSlot,
+  Item,
+  ItemPropertiesType,
+  equipmentIsTwoHandedWeapon,
+} from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
 import cloneDeep from "lodash.clonedeep";
@@ -24,6 +33,8 @@ import { AnimationManager } from "./animation-manager";
 import { ModelActionManager } from "./model-action-manager";
 import setUpDebugMeshes from "./set-up-debug-meshes";
 import { ANIMATION_NAMES } from "./animation-manager/animation-names";
+import attachEquipmentModelToSkeleton from "./attach-equipment-model-to-skeleton";
+import { spawnItemModel } from "./spawn-item-models";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -33,6 +44,15 @@ export class ModularCharacter {
     [ModularCharacterPartCategory.Torso]: null,
     [ModularCharacterPartCategory.Legs]: null,
     [ModularCharacterPartCategory.Full]: null,
+  };
+  equipment: Record<EquipmentSlot, null | ISceneLoaderAsyncResult> = {
+    [EquipmentSlot.Head]: null,
+    [EquipmentSlot.Body]: null,
+    [EquipmentSlot.MainHand]: null,
+    [EquipmentSlot.OffHand]: null,
+    [EquipmentSlot.RingL]: null,
+    [EquipmentSlot.RingR]: null,
+    [EquipmentSlot.Amulet]: null,
   };
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   homeLocation: {
@@ -93,7 +113,7 @@ export class ModularCharacter {
   setUpDebugMeshes = setUpDebugMeshes;
 
   updateDomRefPosition() {
-    const boundingBox = this.getClientRectFromMesh(this.rootMesh);
+    const boundingBox = getClientRectFromMesh(this.world.scene, this.world.canvas, this.rootMesh);
     if (this.modelDomPositionElement) {
       this.modelDomPositionElement.setAttribute(
         "style",
@@ -131,7 +151,7 @@ export class ModularCharacter {
   }
 
   async attachPart(partCategory: ModularCharacterPartCategory, partPath: string) {
-    const part = await this.world.importMesh(partPath);
+    const part = await importMesh(partPath, this.world.scene);
     const parent = getTransformNodeByName(this.skeleton, "CharacterArmature");
     if (!this.skeleton.skeletons[0])
       return new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
@@ -153,30 +173,31 @@ export class ModularCharacter {
     return part;
   }
 
-  async equipWeapon(_partPath: string, oh: boolean) {
-    const weapon = await this.world.importMesh("sword.glb");
+  async unequipItem(slot: EquipmentSlot) {
+    disposeAsyncLoadedScene(this.equipment[slot], this.world.scene);
+  }
 
-    if (oh) {
-      weapon.meshes[0]?.translate(Vector3.Up(), 0.1);
-      weapon.meshes[0]?.translate(Vector3.Forward(), -0.05);
-      weapon.meshes[0]?.rotate(Vector3.Backward(), -Math.PI / 2);
-      const equipmentBone = this.skeleton.meshes[0]
-        ? getChildMeshByName(this.skeleton.meshes[0], "Wrist.L")
-        : undefined;
-      if (equipmentBone && weapon.meshes[0]) weapon.meshes[0].parent = equipmentBone;
-    } else {
-      weapon.meshes[0]?.translate(Vector3.Up(), 0.1);
-      weapon.meshes[0]?.translate(Vector3.Forward(), -0.05);
-      weapon.meshes[0]?.rotate(Vector3.Backward(), Math.PI / 2);
-      const equipmentBone = this.skeleton.meshes[0]
-        ? getChildMeshByName(this.skeleton.meshes[0], "Wrist.R")
-        : undefined;
-      if (equipmentBone && weapon.meshes[0]) weapon.meshes[0].parent = equipmentBone;
-    }
+  async equipItem(item: Item, slot: EquipmentSlot) {
+    if (item.itemProperties.type !== ItemPropertiesType.Equipment) return;
+
+    const equipmentModelResult = await spawnItemModel(
+      item,
+      this.world.scene,
+      this.world.defaultMaterials
+    );
+    if (equipmentModelResult instanceof Error) return console.error(equipmentModelResult);
+    this.equipment[slot] = equipmentModelResult;
+
+    attachEquipmentModelToSkeleton(
+      this,
+      equipmentModelResult,
+      slot,
+      item.itemProperties.equipmentProperties
+    );
   }
 
   removePart(partCategory: ModularCharacterPartCategory) {
-    disposeAsyncLoadedScene(this.parts[partCategory]);
+    disposeAsyncLoadedScene(this.parts[partCategory], this.world.scene);
     this.parts[partCategory] = null;
   }
 
@@ -187,43 +208,5 @@ export class ModularCharacter {
     const skeletonRootBone = getChildMeshByName(this.skeleton.meshes[0], "Root");
     if (skeletonRootBone !== undefined)
       paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.world.scene);
-  }
-
-  // adapted from https://forum.babylonjs.com/t/get-mesh-bounding-box-position-and-size-in-2d-screen-coordinates/1058/3
-  getClientRectFromMesh(mesh: Mesh | AbstractMesh): DOMRect {
-    // get bounding box of the mesh
-    const meshVectors = mesh.getBoundingInfo().boundingBox.vectors;
-
-    // get the matrix and viewport needed to project the vectors onto the screen
-    const worldMatrix = mesh.getWorldMatrix();
-    const transformMatrix = this.world.scene.getTransformMatrix();
-    const viewport = this.world.scene.activeCamera!.viewport;
-
-    // loop though all the vectors and project them against the current camera viewport to get a set of coordinates
-    const coordinates = meshVectors.map((v) => {
-      const proj = Vector3.Project(v, worldMatrix, transformMatrix, viewport);
-      proj.x = proj.x * this.world.canvas.clientWidth;
-      proj.y = proj.y * this.world.canvas.clientHeight;
-      return proj;
-    });
-
-    if (!coordinates[0]) throw new Error("no coordinates on that mesh");
-    const extent = {
-      minX: coordinates[0].x,
-      maxX: coordinates[0].x,
-      minY: coordinates[0].y,
-      maxY: coordinates[0].y,
-    };
-
-    coordinates.forEach((current, i) => {
-      if (i === 0) return;
-      if (current.x < extent.minX) extent.minX = current.x;
-      if (current.x > extent.maxX) extent.maxX = current.x;
-      if (current.y < extent.minY) extent.minY = current.y;
-      if (current.y > extent.maxY) extent.maxY = current.y;
-    });
-    const { minX, maxX, minY, maxY } = extent;
-
-    return new DOMRect(minX, minY, maxX - minX, maxY - minY);
   }
 }

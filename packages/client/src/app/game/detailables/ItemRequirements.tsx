@@ -1,4 +1,5 @@
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { useGameStore } from "@/stores/game-store";
 import {
   CombatAttribute,
   CombatantAttributeRecord,
@@ -8,10 +9,10 @@ import React from "react";
 
 interface Props {
   attributeRequirements: CombatantAttributeRecord;
-  unmetRequirements: null | CombatAttribute[];
 }
 
-export default function ItemRequirements({ attributeRequirements, unmetRequirements }: Props) {
+export default function ItemRequirements({ attributeRequirements }: Props) {
+  const unmetRequirements = useGameStore().consideredItemUnmetRequirements;
   let displays = [];
 
   let i = 0;

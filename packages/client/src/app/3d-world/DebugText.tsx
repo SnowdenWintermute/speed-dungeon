@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useUIStore } from "@/stores/ui-store";
+import { useGameStore } from "@/stores/game-store";
 
 export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTMLUListElement> }) {
+  const thumbnails = useGameStore((state) => state.itemThumbnails);
   const showDebug = useUIStore((state) => state.showDebug);
   const hotkeysDisabled = useUIStore((state) => state.hotkeysDisabled);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -16,6 +18,7 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
   useEffect(() => {
     keydownListenerRef.current = function (e: KeyboardEvent) {
       if (e.code !== "KeyP" || hotkeysDisabled) return;
+
       useUIStore.getState().mutateState((state) => {
         state.showDebug = !state.showDebug;
       });
@@ -83,6 +86,25 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
         </button>
       </div>
       <ul ref={debugRef} className="p-2"></ul>
+      <ul className="flex max-w-96 flex-wrap">
+        <li key="ayy" className="border p-5 bg-slate-700">
+          Num thumbnails: {Object.keys(thumbnails).length}
+        </li>
+        {Object.entries(thumbnails).map(([id, data], i) => (
+          <div className="relative" key={id} >
+            <div className="absolute top-0 left-0 border bg-slate-800">{i}</div>
+            <button
+              onClick={() => {
+                useGameStore.getState().mutateState((state) => {
+                  state.itemThumbnails[id];
+                });
+              }}
+            >
+              <img alt={id} src={data} className="object-contain h-16" />
+            </button>
+          </div>
+        ))}
+      </ul>
     </div>
   );
 }

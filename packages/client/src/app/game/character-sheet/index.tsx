@@ -1,7 +1,11 @@
-import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
+import { SPACING_REM, SPACING_REM_SMALL, UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { useGameStore } from "@/stores/game-store";
-import { CombatantProperties, ERROR_MESSAGES } from "@speed-dungeon/common";
-import React from "react";
+import {
+  CombatantProperties,
+  ERROR_MESSAGES,
+  INVENTORY_DEFAULT_CAPACITY,
+} from "@speed-dungeon/common";
+import React, { useMemo } from "react";
 import CharacterSheetCharacterSelectionButton from "./CharacterSheetCharacterSelectionButton";
 import CharacterAttributes from "./CharacterAttributes";
 import PaperDoll from "./PaperDoll";
@@ -18,25 +22,39 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
   const partyCharacterIds = partyResult.characterPositions;
 
   const { equipment } = combatantProperties;
-  const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
 
-  let conditionalStyles = showCharacterSheet ? "overflow-hidden" : "opacity-0 w-0 overflow-hidden";
+  const totalAttributes = useMemo(
+    () => CombatantProperties.getTotalAttributes(combatantProperties),
+    [combatantProperties]
+  );
+
+  let conditionalStyles = showCharacterSheet
+    ? "overflow-hidden pointer-events-auto"
+    : "opacity-0 w-0 overflow-hidden pointer-events-none";
+
+  const numItemsInInventory = combatantProperties.inventory.items.length;
 
   return (
-    <section className={conditionalStyles}>
-      <ul
-        className="flex list-none pointer-events-auto"
-        style={{ marginBottom: `${SPACING_REM_SMALL}rem ` }}
-      >
+    <section className={`w-fit ${conditionalStyles}`}>
+      <ul className="flex list-none" style={{ marginBottom: `${SPACING_REM_SMALL}rem ` }}>
         {partyCharacterIds.map((id) => (
           <CharacterSheetCharacterSelectionButton key={id} characterId={id} />
         ))}
       </ul>
       <div
-        className="border border-slate-400 bg-slate-700 overflow-y-auto flex pointer-events-auto"
+        className={`border border-slate-400 bg-slate-700 overflow-y-auto flex ${showCharacterSheet && "pointer-events-auto"}`}
         style={{ padding: `${SPACING_REM}rem` }}
       >
-        <PaperDoll equipment={equipment} characterAttributes={totalAttributes} />
+        <div className="flex flex-col justify-between">
+          <PaperDoll equipment={equipment} characterAttributes={totalAttributes} />
+          <div
+            className={
+              numItemsInInventory > INVENTORY_DEFAULT_CAPACITY ? UNMET_REQUIREMENT_TEXT_COLOR : ""
+            }
+          >
+            Inventory Capacity: {numItemsInInventory}/{INVENTORY_DEFAULT_CAPACITY}
+          </div>
+        </div>
         <CharacterAttributes
           combatantProperties={combatantProperties}
           entityProperties={entityProperties}

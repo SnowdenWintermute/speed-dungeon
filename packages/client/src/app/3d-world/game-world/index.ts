@@ -1,15 +1,5 @@
-import {
-  Scene,
-  Engine,
-  Vector3,
-  ArcRotateCamera,
-  SceneLoader,
-  ShadowGenerator,
-  Mesh,
-  DynamicTexture,
-} from "@babylonjs/core";
+import { Scene, Engine, Vector3, ArcRotateCamera, Mesh, DynamicTexture } from "@babylonjs/core";
 import "@babylonjs/loaders";
-import { BASE_FILE_PATH } from "../combatant-models/modular-character-parts";
 import { initScene } from "./init-scene";
 import { CombatTurnResult } from "@speed-dungeon/common";
 import { NextToBabylonMessage } from "@/singletons/next-to-babylon-message-queue";
@@ -19,13 +9,15 @@ import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
 import { clearFloorTexture } from "./clear-floor-texture";
 import drawCharacterSlots from "./draw-character-slots";
+import { SavedMaterials, createDefaultMaterials } from "./materials/create-default-materials";
+import { ImageManager } from "./image-manager";
 
 export class GameWorld {
-  scene: Scene;
   engine: Engine;
+  scene: Scene;
   camera: ArcRotateCamera | null = null;
   sun: Mesh;
-  shadowGenerator: null | ShadowGenerator = null;
+  // shadowGenerator: null | ShadowGenerator = null;
   messages: NextToBabylonMessage[] = [];
   mouse: Vector3 = new Vector3(0, 1, 0);
   debug: { debugRef: React.RefObject<HTMLUListElement> | null } = { debugRef: null };
@@ -34,15 +26,29 @@ export class GameWorld {
   turnResultsQueue: CombatTurnResult[] = [];
   currentRoomLoaded: boolean = false;
   groundTexture: DynamicTexture;
+  defaultMaterials: SavedMaterials;
+  // imageCreationDefaultMaterials: SavedMaterials;
+  numImagesBeingCreated: number = 0;
+  imageManager: ImageManager = new ImageManager();
+
   constructor(
     public canvas: HTMLCanvasElement,
     debugRef: React.RefObject<HTMLUListElement>
   ) {
-    this.engine = new Engine(canvas, true);
+    // this.imageCreatorEngine = new Engine(imageCreatorCanvas, false);
+    // this.imageCreatorScene = createImageCreatorScene(this.imageCreatorEngine);
+
     // this.engine.setHardwareScalingLevel(10); // renders at lower resolutions
+    this.engine = new Engine(canvas, false);
     this.scene = new Scene(this.engine);
+
     this.debug.debugRef = debugRef;
-    [this.camera, this.shadowGenerator, this.sun, this.groundTexture] = this.initScene();
+    [this.camera, this.sun, this.groundTexture] = this.initScene();
+
+    this.defaultMaterials = createDefaultMaterials(this.scene);
+    // this.imageCreationDefaultMaterials = createDefaultMaterials(this.imageCreatorScene);
+
+    // spawnTestEquipmentModels(this);
 
     this.engine.runRenderLoop(() => {
       this.updateGameWorld();
@@ -73,18 +79,6 @@ export class GameWorld {
   drawCharacterSlots = drawCharacterSlots;
   showDebugText = showDebugText;
   processMessagesFromNext = processMessagesFromNext;
-
-  async importMesh(path: string) {
-    const sceneResult = await SceneLoader.ImportMeshAsync(
-      "",
-      BASE_FILE_PATH || "",
-      path,
-      this.scene
-    );
-    if (this.useShadows)
-      for (const mesh of sceneResult.meshes) this.shadowGenerator?.addShadowCaster(mesh, true);
-    return sceneResult;
-  }
 
   startLimitedFramerateRenderLoop(fps: number, timeout: number) {
     window.setTimeout(() => {

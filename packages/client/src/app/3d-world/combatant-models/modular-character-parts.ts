@@ -20,24 +20,24 @@ export const CHARACTER_PARTS: Record<
   Partial<Record<ModularCharacterPartCategory, string>>
 > = {
   [CombatantClass.Warrior]: {
-    [ModularCharacterPartCategory.Head]: "adventurer-head.glb",
-    [ModularCharacterPartCategory.Torso]: "adventurer-torso.glb",
-    [ModularCharacterPartCategory.Legs]: "adventurer-legs.glb",
+    [ModularCharacterPartCategory.Head]: "humanoid/adventurer/adventurer-head.glb",
+    [ModularCharacterPartCategory.Torso]: "humanoid/adventurer/adventurer-torso.glb",
+    [ModularCharacterPartCategory.Legs]: "humanoid/adventurer/adventurer-legs.glb",
   },
   [CombatantClass.Rogue]: {
-    [ModularCharacterPartCategory.Head]: "midieval-head.glb",
-    [ModularCharacterPartCategory.Torso]: "midieval-torso.glb",
-    [ModularCharacterPartCategory.Legs]: "midieval-legs.glb",
+    [ModularCharacterPartCategory.Head]: "humanoid/midieval/midieval-head.glb",
+    [ModularCharacterPartCategory.Torso]: "humanoid/midieval/midieval-torso.glb",
+    [ModularCharacterPartCategory.Legs]: "humanoid/midieval/midieval-legs.glb",
   },
   [CombatantClass.Mage]: {
-    [ModularCharacterPartCategory.Head]: "witch-head.glb",
-    [ModularCharacterPartCategory.Torso]: "witch-torso.glb",
-    [ModularCharacterPartCategory.Legs]: "witch-legs.glb",
+    [ModularCharacterPartCategory.Head]: "humanoid/witch/witch-head.glb",
+    [ModularCharacterPartCategory.Torso]: "humanoid/witch/witch-torso.glb",
+    [ModularCharacterPartCategory.Legs]: "humanoid/witch/witch-legs.glb",
   },
 };
 
-export const SKELETONS: Partial<Record<CombatantSpecies, string>> = {
-  [CombatantSpecies.Humanoid]: "humanoid-skeleton.glb",
+export const SKELETONS: Record<CombatantSpecies, string> = {
+  [CombatantSpecies.Humanoid]: "humanoid/humanoid-skeleton.glb",
   [CombatantSpecies.Wasp]: "monsters/wasp-main-skeleton.glb",
   [CombatantSpecies.Frog]: "monsters/frog-main-skeleton.glb",
   [CombatantSpecies.Dragon]: "monsters/dragon-main-skeleton.glb",

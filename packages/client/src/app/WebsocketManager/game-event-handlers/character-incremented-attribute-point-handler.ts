@@ -12,7 +12,7 @@ export default function characterIncrementedAttributePointHandler(
 ) {
   characterAssociatedDataProvider(
     characterId,
-    ({ character }: CharacterAssociatedData, _gameState: GameState) => {
+    ({ character }: CharacterAssociatedData, gameState: GameState) => {
       CombatantProperties.incrementAttributePoint(character.combatantProperties, attribute);
     }
   );

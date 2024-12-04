@@ -1,10 +1,12 @@
 export enum OneHandedMeleeWeapon {
   // PHYSICAL BLUNT
   Stick,
+  Club,
   Mace,
   Morningstar,
   WarHammer,
   // PHYSICAL SLASHING
+  ButterKnife,
   ShortSword,
   Blade,
   BroadSword,
@@ -25,43 +27,25 @@ export enum OneHandedMeleeWeapon {
   RoseWand,
 }
 
-export function formatOneHandedMeleeWeapon(weapon: OneHandedMeleeWeapon) {
-  switch (weapon) {
-    case OneHandedMeleeWeapon.Stick:
-      return "Stick";
-    case OneHandedMeleeWeapon.Mace:
-      return "Mace";
-    case OneHandedMeleeWeapon.Morningstar:
-      return "Morningstar";
-    case OneHandedMeleeWeapon.WarHammer:
-      return "War Hammer";
-    case OneHandedMeleeWeapon.ShortSword:
-      return "Short Sword";
-    case OneHandedMeleeWeapon.Blade:
-      return "Blade";
-    case OneHandedMeleeWeapon.BroadSword:
-      return "Broad Sword";
-    case OneHandedMeleeWeapon.BastardSword:
-      return "Bastard Sword";
-    case OneHandedMeleeWeapon.Dagger:
-      return "Dagger";
-    case OneHandedMeleeWeapon.Rapier:
-      return "Rapier";
-    case OneHandedMeleeWeapon.ShortSpear:
-      return "Short Spear";
-    case OneHandedMeleeWeapon.RuneSword:
-      return "Rune Sword";
-    case OneHandedMeleeWeapon.EtherBlade:
-      return "Ether Blade";
-    case OneHandedMeleeWeapon.IceBlade:
-      return "Ice Blade";
-    case OneHandedMeleeWeapon.MapleWand:
-      return "Maple Wand";
-    case OneHandedMeleeWeapon.WillowWand:
-      return "Willow Wand";
-    case OneHandedMeleeWeapon.YewWand:
-      return "Yew Wand";
-    case OneHandedMeleeWeapon.RoseWand:
-      return "Rose Wand";
-  }
-}
+export const ONE_HANDED_MELEE_WEAPON_NAMES: Record<OneHandedMeleeWeapon, string> = {
+  [OneHandedMeleeWeapon.Stick]: "Stick",
+  [OneHandedMeleeWeapon.Club]: "Club",
+  [OneHandedMeleeWeapon.Mace]: "Mace",
+  [OneHandedMeleeWeapon.Morningstar]: "Morningstar",
+  [OneHandedMeleeWeapon.WarHammer]: "War Hammer",
+  [OneHandedMeleeWeapon.ButterKnife]: "Butter Knife",
+  [OneHandedMeleeWeapon.ShortSword]: "Short Sword",
+  [OneHandedMeleeWeapon.Blade]: "Blade",
+  [OneHandedMeleeWeapon.BroadSword]: "Broad Sword",
+  [OneHandedMeleeWeapon.BastardSword]: "Bastard Sword",
+  [OneHandedMeleeWeapon.Dagger]: "Dagger",
+  [OneHandedMeleeWeapon.Rapier]: "Rapier",
+  [OneHandedMeleeWeapon.ShortSpear]: "Short Spear",
+  [OneHandedMeleeWeapon.RuneSword]: "Rune Sword",
+  [OneHandedMeleeWeapon.EtherBlade]: "Ether Blade",
+  [OneHandedMeleeWeapon.IceBlade]: "Ice Blade",
+  [OneHandedMeleeWeapon.MapleWand]: "Maple Wand",
+  [OneHandedMeleeWeapon.WillowWand]: "Willow Wand",
+  [OneHandedMeleeWeapon.YewWand]: "Yew Wand",
+  [OneHandedMeleeWeapon.RoseWand]: "Rose Wand",
+};

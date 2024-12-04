@@ -10,10 +10,12 @@ import {
   EquipmentSlot,
   Item,
   Combatant,
+  iterateNumericEnum,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { idGenerator } from "../../singletons.js";
+import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -48,6 +50,8 @@ export default function outfitNewCharacter(character: Combatant) {
   combatantProperties.inventory.items.push(mpInjector);
 
   const startingEquipment = createStartingEquipment(combatantProperties.combatantClass);
+  if (startingEquipment instanceof Error) return startingEquipment;
+
   for (const [slotKey, item] of Object.entries(startingEquipment)) {
     const slot = parseInt(slotKey) as EquipmentSlot;
     combatantProperties.equipment[slot] = item;
@@ -55,8 +59,25 @@ export default function outfitNewCharacter(character: Combatant) {
 
   // FOR TESTING INVENTORY
   // generateTestItems(combatantProperties, 6);
+
+  // giveTestingCombatAttributes(combatantProperties);
+
+  combatantProperties.abilities[CombatantAbilityName.Destruction] = CombatantAbility.createByName(
+    CombatantAbilityName.Destruction
+  );
+
+  // const items = generateOneOfEachItem();
+  // combatantProperties.inventory.items.push(...items);
+  combatantProperties.unspentAttributePoints = 100;
+
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
+}
+
+function giveTestingCombatAttributes(combatantProperties: CombatantProperties) {
+  for (const attribute of iterateNumericEnum(CombatAttribute)) {
+    combatantProperties.inherentAttributes[attribute] = 100;
+  }
 }

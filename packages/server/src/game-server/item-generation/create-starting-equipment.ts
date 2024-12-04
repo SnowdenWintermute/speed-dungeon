@@ -1,117 +1,65 @@
 import {
   CombatantClass,
-  EquipmentProperties,
   EquipmentSlot,
   EquipmentType,
-  HpChangeSource,
-  HpChangeSourceCategoryType,
   Item,
-  ItemPropertiesType,
-  MaxAndCurrent,
-  MeleeOrRanged,
-  NumberRange,
   OneHandedMeleeWeapon,
-  PhysicalDamageType,
+  Shield,
   TwoHandedMeleeWeapon,
 } from "@speed-dungeon/common";
-import { idGenerator } from "../../singletons.js";
+import { generateSpecificEquipmentType } from "./generate-test-items.js";
 
 export default function createStartingEquipment(combatantClass: CombatantClass) {
   const startingEquipment: Partial<Record<EquipmentSlot, Item>> = {};
 
-  let mainHandProperties, offhandProperties;
+  let mainhand: Item | Error | undefined, offhand: Item | Error | undefined;
   switch (combatantClass) {
     case CombatantClass.Warrior:
-      mainHandProperties = new EquipmentProperties(
+      mainhand = generateSpecificEquipmentType(
         {
-          type: EquipmentType.OneHandedMeleeWeapon,
-          baseItem: OneHandedMeleeWeapon.Stick,
-          damage: new NumberRange(1, 2),
-          damageClassification: [
-            new HpChangeSource(
-              {
-                type: HpChangeSourceCategoryType.PhysicalDamage,
-                meleeOrRanged: MeleeOrRanged.Melee,
-              },
-              PhysicalDamageType.Blunt
-            ),
-          ],
+          equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: OneHandedMeleeWeapon.Stick,
         },
-        new MaxAndCurrent(1, 1)
+        true
       );
+      offhand = generateSpecificEquipmentType(
+        { equipmentType: EquipmentType.Shield, baseItemType: Shield.PotLid },
+        true
+      );
+      // startingEquipment[EquipmentSlot.MainHand]
       break;
     case CombatantClass.Mage:
-      mainHandProperties = new EquipmentProperties(
+      mainhand = generateSpecificEquipmentType(
         {
-          type: EquipmentType.TwoHandedMeleeWeapon,
-          baseItem: TwoHandedMeleeWeapon.BoStaff,
-          damage: new NumberRange(2, 7),
-          damageClassification: [
-            new HpChangeSource(
-              {
-                type: HpChangeSourceCategoryType.PhysicalDamage,
-                meleeOrRanged: MeleeOrRanged.Melee,
-              },
-              PhysicalDamageType.Blunt
-            ),
-          ],
+          equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+          baseItemType: TwoHandedMeleeWeapon.RottingBranch,
         },
-        new MaxAndCurrent(1, 1)
+        true
       );
       break;
     case CombatantClass.Rogue:
-      mainHandProperties = offhandProperties = new EquipmentProperties(
+      mainhand = generateSpecificEquipmentType(
         {
-          type: EquipmentType.OneHandedMeleeWeapon,
-          baseItem: OneHandedMeleeWeapon.Dagger,
-          damage: new NumberRange(1, 2),
-          damageClassification: [
-            new HpChangeSource(
-              {
-                type: HpChangeSourceCategoryType.PhysicalDamage,
-                meleeOrRanged: MeleeOrRanged.Melee,
-              },
-              PhysicalDamageType.Slashing
-            ),
-          ],
+          equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: OneHandedMeleeWeapon.ButterKnife,
         },
-        new MaxAndCurrent(1, 1)
+        true
+      );
+      offhand = generateSpecificEquipmentType(
+        {
+          equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: OneHandedMeleeWeapon.ButterKnife,
+        },
+        true
       );
       break;
   }
 
-  const weaponName =
-    combatantClass === CombatantClass.Warrior
-      ? "Mud Soaked Stick"
-      : combatantClass === CombatantClass.Mage
-        ? "Rotting Branch"
-        : "Butter Knife";
+  if (mainhand instanceof Error) return mainhand;
+  if (offhand instanceof Error) return offhand;
 
-  const mhEntityProperties = {
-    id: idGenerator.generate(),
-    name: weaponName,
-  };
-  const mhItem = new Item(
-    mhEntityProperties,
-    0,
-    {},
-    { type: ItemPropertiesType.Equipment, equipmentProperties: mainHandProperties }
-  );
-  startingEquipment[EquipmentSlot.MainHand] = mhItem;
-
-  if (offhandProperties) {
-    const ohEntityProperties = {
-      id: idGenerator.generate(),
-      name: weaponName,
-    };
-    const ohItem = new Item(
-      ohEntityProperties,
-      0,
-      {},
-      { type: ItemPropertiesType.Equipment, equipmentProperties: mainHandProperties }
-    );
-    startingEquipment[EquipmentSlot.OffHand] = ohItem;
-  }
+  if (mainhand) startingEquipment[EquipmentSlot.MainHand] = mainhand;
+  if (offhand) startingEquipment[EquipmentSlot.OffHand] = offhand;
 
   return startingEquipment;
 }

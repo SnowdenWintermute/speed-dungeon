@@ -6,29 +6,23 @@ import WeaponDamage from "./WeaponDamage";
 import Durability from "./Durability";
 import CombatAttributesAndTraits from "./CombatAttributesAndTraits";
 import ItemRequirements from "../ItemRequirements";
-import { useGameStore } from "@/stores/game-store";
 
 interface Props {
   item: Item;
   equipmentProperties: EquipmentProperties;
-  isComparedItem: boolean;
 }
 
-export default function EquipmentDetails({ item, equipmentProperties, isComparedItem }: Props) {
-  const unmetRequirements = useGameStore().consideredItemUnmetRequirements;
+export default function EquipmentDetails({ item, equipmentProperties }: Props) {
   const armorCategoryTextOption = getArmorCategoryText(equipmentProperties);
   return (
-    <div>
+    <div className="mr-2">
       {formatEquipmentType(equipmentProperties.equipmentBaseItemProperties.type)}
       {armorCategoryTextOption && armorCategoryTextOption}
+      <Durability equipmentProperties={equipmentProperties} />
+      <ItemRequirements attributeRequirements={item.requirements} />
       <ArmorClassText equipmentProperties={equipmentProperties} />
       <WeaponDamage equipmentProperties={equipmentProperties} />
-      <Durability equipmentProperties={equipmentProperties} />
       <CombatAttributesAndTraits equipmentProperties={equipmentProperties} />
-      <ItemRequirements
-        attributeRequirements={item.requirements}
-        unmetRequirements={unmetRequirements}
-      />
     </div>
   );
 }

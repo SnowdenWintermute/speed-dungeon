@@ -4,12 +4,12 @@ import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
 
 export default function requestSpawnCombatantModel(
-  combatantDetails: Combatant,
+  combatant: Combatant,
   party: AdventuringParty,
   modelDomPositionElement: HTMLDivElement | null
 ) {
-  const entityId = combatantDetails.entityProperties.id;
-  const { combatantProperties } = combatantDetails;
+  const entityId = combatant.entityProperties.id;
+  const { combatantProperties } = combatant;
 
   useGameStore.getState().mutateState((state) => {
     state.combatantModelsAwaitingSpawn.push(entityId);
@@ -31,10 +31,7 @@ export default function requestSpawnCombatantModel(
   gameWorld.current?.modelManager.enqueueMessage(entityId, {
     type: ModelManagerMessageType.SpawnModel,
     blueprint: {
-      entityId,
-      species: combatantProperties.combatantSpecies,
-      monsterType,
-      class: combatantProperties.combatantClass,
+      combatant,
       startPosition: cloneVector3(combatantProperties.homeLocation),
       startRotation,
       modelCorrectionRotation,

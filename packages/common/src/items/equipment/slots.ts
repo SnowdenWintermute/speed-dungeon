@@ -16,6 +16,25 @@ export enum EquipmentSlot {
   Amulet,
 }
 
+export function formatEquipmentSlot(slot: EquipmentSlot) {
+  switch (slot) {
+    case EquipmentSlot.Head:
+      return "Head";
+    case EquipmentSlot.Body:
+      return "Body";
+    case EquipmentSlot.MainHand:
+      return "MainHand";
+    case EquipmentSlot.OffHand:
+      return "OffHand";
+    case EquipmentSlot.RingL:
+      return "RingL";
+    case EquipmentSlot.RingR:
+      return "RingR";
+    case EquipmentSlot.Amulet:
+      return "Amulet";
+  }
+}
+
 export interface EquipableSlots {
   main: EquipmentSlot;
   alternate: null | EquipmentSlot;

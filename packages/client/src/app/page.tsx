@@ -1,6 +1,5 @@
 // @refresh reset
 "use client";
-import SocketManager from "./WebsocketManager";
 import Lobby from "./lobby";
 import { enableMapSet } from "immer";
 import { useGameStore } from "@/stores/game-store";
@@ -18,6 +17,7 @@ import {
   actionCommandWaitingArea,
 } from "@/singletons/action-command-manager";
 import { ClientActionCommandReceiver } from "./client-action-command-receiver";
+import WebsocketManager from "./WebsocketManager";
 // for immer to be able to use map and set
 enableMapSet();
 
@@ -53,7 +53,7 @@ export default function Home() {
   return (
     <>
       <TailwindClassLoader />
-      <SocketManager />
+      <WebsocketManager />
       <AlertManager />
       <GlobalKeyboardEventManager />
       <TooltipManager />

@@ -22,6 +22,7 @@ export class JewelryGenerationBuilder<T extends JewelryGenerationTemplate>
   buildEquipmentBaseItemProperties(_baseEquipmentItem: EquipmentBaseItem) {
     const properties: JewelryProperties = {
       type: this.equipmentType,
+      baseItem: null,
     };
     return properties;
   }

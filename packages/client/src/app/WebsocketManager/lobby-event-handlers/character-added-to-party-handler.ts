@@ -2,7 +2,7 @@ import { Combatant, ERROR_MESSAGES, addCharacterToParty } from "@speed-dungeon/c
 import { setAlert } from "../../components/alerts";
 import { useGameStore } from "@/stores/game-store";
 
-export default function characterAddedToPartyHandler(
+export default async function characterAddedToPartyHandler(
   partyName: string,
   username: string,
   character: Combatant

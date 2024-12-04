@@ -1,16 +1,8 @@
-import { getCurrentMenu, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import selectItem from "@/utils/selectItem";
 import setItemHovered from "@/utils/set-item-hovered";
-import {
-  AdventuringParty,
-  Combatant,
-  CombatantAttributeRecord,
-  ERROR_MESSAGES,
-  EquipmentSlot,
-  Item,
-} from "@speed-dungeon/common";
-import React, { useEffect, useState } from "react";
-import { MenuStateType } from "../ActionMenu/menu-state";
+import { CombatantAttributeRecord, EquipmentSlot, Item } from "@speed-dungeon/common";
+import React, { useMemo } from "react";
 import { ConsideringItemMenuState } from "../ActionMenu/menu-state/considering-item";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 
@@ -21,7 +13,8 @@ interface Props {
   tailwindClasses: string;
 }
 
-const UNUSABLE_ITEM_BG_STYLES = "bg-red-800 opacity-50";
+const UNUSABLE_ITEM_BG_STYLES = "bg-slate-700 filter-red";
+const USABLE_ITEM_BG_STYLES = "bg-slate-800";
 
 export default function PaperDollSlot({
   itemOption,
@@ -29,8 +22,6 @@ export default function PaperDollSlot({
   characterAttributes,
   tailwindClasses,
 }: Props) {
-  const [highlightStyle, setHighlightStyle] = useState("border-slate-400");
-  const [bgStyle, setBgStyle] = useState("");
   const detailedEntityOption = useGameStore().detailedEntity;
   const hoveredEntityOption = useGameStore().hoveredEntity;
   const comparedSlot = useGameStore().comparedSlot;
@@ -41,39 +32,40 @@ export default function PaperDollSlot({
 
   const itemNameDisplay = itemOption ? itemOption.entityProperties.name : "";
 
-  useEffect(() => {
-    let bgStyles = "";
-    let equippedItemIsUsable = true;
-    if (itemOption) equippedItemIsUsable = Item.requirementsMet(itemOption, characterAttributes);
-    if (!equippedItemIsUsable) bgStyles = UNUSABLE_ITEM_BG_STYLES;
-    if (comparedSlot !== null) {
-      if (comparedSlot === slot) {
-        if (consideredItemUnmetRequirements !== null) bgStyles = UNUSABLE_ITEM_BG_STYLES;
-        else bgStyles = "bg-slate-800";
-      }
-    }
-    setBgStyle(bgStyles);
+  const thumbnailOption = useGameStore().itemThumbnails[itemOption?.entityProperties.id || ""];
 
-    determineAndSetHighlightStyle(
-      detailedEntityOption,
-      hoveredEntityOption,
-      itemOption,
-      setHighlightStyle
-    );
-  }, [detailedEntityOption, hoveredEntityOption, itemOption, comparedSlot, characterAttributes]);
+  const itemDisplay = thumbnailOption ? (
+    <img src={thumbnailOption} className={"max-h-full"} />
+  ) : (
+    itemNameDisplay
+  );
 
-  function handleMouseEnter() {
-    setItemHovered(itemOption);
-  }
-  function handleMouseLeave() {
-    setItemHovered(null);
-  }
+  const bgStyle = useMemo(() => {
+    if (comparedSlot === slot)
+      if (consideredItemUnmetRequirements !== null) return UNUSABLE_ITEM_BG_STYLES;
+      else return USABLE_ITEM_BG_STYLES;
+    if (!itemOption) return "";
+    if (!Item.requirementsMet(itemOption, characterAttributes)) return UNUSABLE_ITEM_BG_STYLES;
+  }, [itemOption, characterAttributes, consideredItemUnmetRequirements, comparedSlot]);
+
+  const highlightStyle = useMemo(() => {
+    if (itemOption === null) return `border-slate-400`;
+    const itemId = itemOption.entityProperties.id;
+
+    if (detailedEntityOption && itemId === detailedEntityOption.entityProperties.id) {
+      return `border-yellow-400`;
+    } else if (hoveredEntityOption && itemId === hoveredEntityOption.entityProperties.id) {
+      return `border-white`;
+    } else return `border-slate-400`;
+  }, [detailedEntityOption, hoveredEntityOption, itemOption]);
+
   function handleFocus() {
     setItemHovered(itemOption);
   }
   function handleBlur() {
     setItemHovered(null);
   }
+
   function handleClick() {
     if (!playerOwnsCharacter) return;
     if (!itemOption) return;
@@ -97,36 +89,14 @@ export default function PaperDollSlot({
 
   return (
     <button
-      className={`overflow-ellipsis overflow-hidden border ${tailwindClasses} ${highlightStyle} ${bgStyle} ${disabledStyle}`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      className={`overflow-ellipsis overflow-hidden border flex items-center justify-center p-4 ${tailwindClasses} ${highlightStyle} ${bgStyle} ${disabledStyle}`}
+      onMouseEnter={handleFocus}
+      onMouseLeave={handleBlur}
       onFocus={handleFocus}
       onBlur={handleBlur}
       onClick={handleClick}
     >
-      {itemNameDisplay}
+      {itemDisplay}
     </button>
   );
-}
-
-function determineAndSetHighlightStyle(
-  detailedEntityOption: null | Item | Combatant,
-  hoveredEntityOption: null | Item | Combatant,
-  itemOption: null | Item,
-  setHighlightStyle: (style: string) => void
-) {
-  if (detailedEntityOption instanceof Item && itemOption !== null) {
-    if (itemOption.entityProperties.id === detailedEntityOption.entityProperties.id) {
-      setHighlightStyle(`border-yellow-400`);
-      return;
-    }
-  }
-  if (hoveredEntityOption instanceof Item && itemOption !== null) {
-    if (itemOption.entityProperties.id === hoveredEntityOption.entityProperties.id) {
-      setHighlightStyle(`border-white`);
-      return;
-    }
-  }
-
-  setHighlightStyle(`border-slate-400`);
 }
