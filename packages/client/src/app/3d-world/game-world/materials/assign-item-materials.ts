@@ -39,7 +39,7 @@ export function assignConsumableMaterials(
       materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.accent[AccentColor.HPGreen];
       materials[MATERIAL_NAMES.ACCENT_2] = savedMaterials.plastic[PlasticColor.Blue];
       materials[MATERIAL_NAMES.ACCENT_3] = savedMaterials.plastic[PlasticColor.Yellow];
-      materials[MATERIAL_NAMES.MAIN] = savedMaterials.accent[PlasticColor.White];
+      materials[MATERIAL_NAMES.MAIN] = savedMaterials.plastic[PlasticColor.White];
       materials[MATERIAL_NAMES.ALTERNATE] = savedMaterials.plastic[PlasticColor.Orange];
       break;
     case ConsumableType.MpAutoinjector:

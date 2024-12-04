@@ -1,6 +1,10 @@
-import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
+import { SPACING_REM, SPACING_REM_SMALL, UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { useGameStore } from "@/stores/game-store";
-import { CombatantProperties, ERROR_MESSAGES } from "@speed-dungeon/common";
+import {
+  CombatantProperties,
+  ERROR_MESSAGES,
+  INVENTORY_DEFAULT_CAPACITY,
+} from "@speed-dungeon/common";
 import React, { useMemo } from "react";
 import CharacterSheetCharacterSelectionButton from "./CharacterSheetCharacterSelectionButton";
 import CharacterAttributes from "./CharacterAttributes";
@@ -28,6 +32,8 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
     ? "overflow-hidden pointer-events-auto"
     : "opacity-0 w-0 overflow-hidden pointer-events-none";
 
+  const numItemsInInventory = combatantProperties.inventory.items.length;
+
   return (
     <section className={`w-fit ${conditionalStyles}`}>
       <ul className="flex list-none" style={{ marginBottom: `${SPACING_REM_SMALL}rem ` }}>
@@ -39,7 +45,16 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
         className={`border border-slate-400 bg-slate-700 overflow-y-auto flex ${showCharacterSheet && "pointer-events-auto"}`}
         style={{ padding: `${SPACING_REM}rem` }}
       >
-        <PaperDoll equipment={equipment} characterAttributes={totalAttributes} />
+        <div className="flex flex-col justify-between">
+          <PaperDoll equipment={equipment} characterAttributes={totalAttributes} />
+          <div
+            className={
+              numItemsInInventory > INVENTORY_DEFAULT_CAPACITY ? UNMET_REQUIREMENT_TEXT_COLOR : ""
+            }
+          >
+            Inventory Capacity: {numItemsInInventory}/{INVENTORY_DEFAULT_CAPACITY}
+          </div>
+        </div>
         <CharacterAttributes
           combatantProperties={combatantProperties}
           entityProperties={entityProperties}

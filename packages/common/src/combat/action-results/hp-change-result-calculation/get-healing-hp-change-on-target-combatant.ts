@@ -1,3 +1,4 @@
+import { RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO } from "../../../app-consts.js";
 import {
   CombatAttribute,
   CombatantProperties,
@@ -19,7 +20,10 @@ export default function getHealingHpChangeOnTargetCombatant(
   const { combatantProperties: targetCombatantProperties } = targetCombatantResult;
   const targetCombatAttributes = CombatantProperties.getTotalAttributes(targetCombatantProperties);
   const targetResilience = targetCombatAttributes[CombatAttribute.Resilience] || 0;
-  const resilienceMultiplier = targetResilience / 100 + 1.0;
+
+  const resilienceMultiplier =
+    (targetResilience / 100) * RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO + 1.0;
+
   let isUndead = false;
   for (const trait of targetCombatantProperties.traits) {
     if (trait.type === CombatantTraitType.Undead) {

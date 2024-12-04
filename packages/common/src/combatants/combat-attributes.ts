@@ -1,3 +1,8 @@
+import {
+  RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO,
+  RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO,
+} from "../app-consts.js";
+
 export enum CombatAttribute {
   // DERIVED
   // offensive
@@ -91,23 +96,23 @@ export function getCombatAttributeDescription(attribute: CombatAttribute) {
     case CombatAttribute.Evasion:
       return "Chance to avoid being hit";
     case CombatAttribute.Hp:
-      return "If reduced to zero; the combatant can no longer take actions";
+      return "If reduced to zero the combatant can no longer take actions";
     case CombatAttribute.Speed:
       return "Determines turn order";
     case CombatAttribute.Mp:
       return "The primary resource for using abilities";
     case CombatAttribute.Focus:
-      return "Negates magic defense and increases crit chance and crit multiplier for spells";
+      return "Negates target magic defense and increases crit chance and crit multiplier for spells";
     case CombatAttribute.Dexterity:
-      return "Increases accuracy; crit chance with physical attacks, ranged attack damage and ranged attack armor penetration";
+      return "Increases accuracy, crit chance with physical attacks, ranged attack damage and ranged attack armor penetration";
     case CombatAttribute.Intelligence:
       return "Increases mana and spell damage";
     case CombatAttribute.Strength:
-      return "Increases attack damage; crit multiplier and armor penetration with physical attacks";
+      return "Increases attack damage, crit multiplier and armor penetration for melee attacks";
     case CombatAttribute.Vitality:
       return "Increases hit points";
     case CombatAttribute.Resilience:
-      return "Reduces magical damage by a percentage and increases healing received from spells";
+      return `Reduces magical damage by ${RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO}% and increases healing received from magical sources by ${RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO}% per point`;
     case CombatAttribute.Agility:
       return "Increases evasion and speed";
   }

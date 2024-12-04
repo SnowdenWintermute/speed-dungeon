@@ -30,7 +30,7 @@ export default function calculateAttackActionResult(
   if (
     (mhEquipmentOption !== null &&
       EquipmentProperties.isTwoHanded(mhEquipmentOption.equipmentBaseItemProperties.type)) ||
-    (ohEquipmentOption &&
+    (ohEquipmentOption !== null &&
       ohEquipmentOption.equipmentBaseItemProperties.type === EquipmentType.Shield)
   )
     mhAttackEndsTurn = true;

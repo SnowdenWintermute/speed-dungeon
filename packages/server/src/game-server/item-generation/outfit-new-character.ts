@@ -11,8 +11,6 @@ import {
   Item,
   Combatant,
   iterateNumericEnum,
-  EquipmentType,
-  OneHandedMeleeWeapon,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
@@ -52,6 +50,8 @@ export default function outfitNewCharacter(character: Combatant) {
   combatantProperties.inventory.items.push(mpInjector);
 
   const startingEquipment = createStartingEquipment(combatantProperties.combatantClass);
+  if (startingEquipment instanceof Error) return startingEquipment;
+
   for (const [slotKey, item] of Object.entries(startingEquipment)) {
     const slot = parseInt(slotKey) as EquipmentSlot;
     combatantProperties.equipment[slot] = item;
@@ -60,40 +60,15 @@ export default function outfitNewCharacter(character: Combatant) {
   // FOR TESTING INVENTORY
   // generateTestItems(combatantProperties, 6);
 
-  giveTestingCombatAttributes(combatantProperties);
+  // giveTestingCombatAttributes(combatantProperties);
 
   combatantProperties.abilities[CombatantAbilityName.Destruction] = CombatantAbility.createByName(
     CombatantAbilityName.Destruction
   );
 
-  const items = generateOneOfEachItem();
-  combatantProperties.inventory.items.push(...items);
-  const runeSwords = (() => {
-    const swords: Item[] = [];
-    for (let i = 0; i < 10; i += 1) {
-      const sword = generateSpecificEquipmentType({
-        equipmentType: EquipmentType.OneHandedMeleeWeapon,
-        baseItemType: OneHandedMeleeWeapon.RuneSword,
-      });
-      if (sword instanceof Item) swords.push(sword);
-    }
-    return swords;
-  })();
-  combatantProperties.inventory.items.push(...runeSwords);
-
+  // const items = generateOneOfEachItem();
+  // combatantProperties.inventory.items.push(...items);
   combatantProperties.unspentAttributePoints = 100;
-
-  // for (const baseWeapon of iterateNumericEnum(Shield)) {
-  //   const item = generateSpecificEquipmentType({
-  //     equipmentType: EquipmentType.Shield,
-  //     baseItemType: baseWeapon,
-  //   });
-  //   if (item instanceof Error || item === undefined) {
-  //     console.error("forced item type not generated:", item);
-  //     continue;
-  //   }
-  //   combatantProperties.inventory.items.push(item);
-  // }
 
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
