@@ -13,35 +13,40 @@ import getMostDamagingWeaponElementOnTarget from "./get-most-damaging-weapon-ele
 import getMostDamagingWeaponPhysicalDamageTypeOnTarget from "./get-most-damaging-weapon-damage-type-on-target.js";
 import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
 import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app-consts.js";
-import { HpChangeSourceCategoryType } from "../../hp-change-source-types.js";
+import { HpChangeSource, HpChangeSourceCategoryType } from "../../hp-change-source-types.js";
 import getIdsOfEvadingEntities from "./get-ids-of-evading-entities.js";
 import calculatePhysicalDamageHpChangesAndCrits from "./calculate-physical-damage-hp-changes-and-crits.js";
 import calculateMagicalDamageHpChangesAndCrits from "./calculate-magical-damage-hp-changes-and-crits.js";
 import calculateHealingHpChangesAndCrits from "./calculate-healing-hp-changes-and-crits.js";
 
-export interface ValueChangesAndCrits {
-  valueChangesByEntityId: { [entityId: string]: number };
-  entityIdsCrit: string[];
+export class HpChange {
+  constructor(
+    public value: number,
+    public source: HpChangeSource,
+    public isCrit?: boolean
+  ) {}
 }
 
-export default function calculateActionHitPointChangesCritsAndEvasions(
+export default function calculateActionHitPointChangesAndEvasions(
   game: SpeedDungeonGame,
   args: ActionResultCalculationArguments,
   targetIds: string[],
   actionProperties: CombatActionProperties
 ):
   | Error
-  | { hitPointChanges: { [entityId: string]: number }; evasions: string[]; crits: string[] } {
+  | {
+      hitPointChanges: { [entityId: string]: HpChange };
+      evasions: string[];
+    } {
   const firstTargetIdOption = targetIds[0];
   if (firstTargetIdOption === undefined)
     return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
   const firstTargetId = firstTargetIdOption;
-  let hitPointChanges: { [entityId: string]: number } = {};
+  let hitPointChanges: { [entityId: string]: HpChange } = {};
   let evasions: string[] = [];
-  let crits: string[] = [];
 
   const hpChangeProperties = cloneDeep(actionProperties.hpChangeProperties);
-  if (hpChangeProperties === null) return { hitPointChanges, evasions, crits };
+  if (hpChangeProperties === null) return { hitPointChanges, evasions };
 
   const { userId, combatAction } = args;
   const combatantResult = SpeedDungeonGame.getCombatantById(game, userId);
@@ -77,7 +82,8 @@ export default function calculateActionHitPointChangesCritsAndEvasions(
       firstTargetId
     );
     if (elementToAddOptionResult instanceof Error) return elementToAddOptionResult;
-    hpChangeProperties.sourceProperties.elementOption = elementToAddOptionResult;
+    if (elementToAddOptionResult !== null)
+      hpChangeProperties.sourceProperties.elementOption = elementToAddOptionResult;
   }
 
   if (hpChangeProperties.addWeaponDamageTypeFrom !== null) {
@@ -89,8 +95,9 @@ export default function calculateActionHitPointChangesCritsAndEvasions(
     );
     if (physicalDamageTypeToAddOptionResult instanceof Error)
       return physicalDamageTypeToAddOptionResult;
-    hpChangeProperties.sourceProperties.physicalDamageTypeOption =
-      physicalDamageTypeToAddOptionResult;
+    if (physicalDamageTypeToAddOptionResult !== null)
+      hpChangeProperties.sourceProperties.physicalDamageTypeOption =
+        physicalDamageTypeToAddOptionResult;
   }
 
   // roll the hp change value
@@ -132,8 +139,7 @@ export default function calculateActionHitPointChangesCritsAndEvasions(
         hpChangeProperties
       );
       if (physicalHpChangesResult instanceof Error) return physicalHpChangesResult;
-      crits = physicalHpChangesResult.entityIdsCrit;
-      hitPointChanges = physicalHpChangesResult.valueChangesByEntityId;
+      hitPointChanges = physicalHpChangesResult;
       break;
     case HpChangeSourceCategoryType.MagicalDamage:
       const magicalHpChangesResult = calculateMagicalDamageHpChangesAndCrits(
@@ -144,8 +150,7 @@ export default function calculateActionHitPointChangesCritsAndEvasions(
         hpChangeProperties
       );
       if (magicalHpChangesResult instanceof Error) return magicalHpChangesResult;
-      crits = magicalHpChangesResult.entityIdsCrit;
-      hitPointChanges = magicalHpChangesResult.valueChangesByEntityId;
+      hitPointChanges = magicalHpChangesResult;
       break;
     case HpChangeSourceCategoryType.Healing:
       const healingHpChangesResult = calculateHealingHpChangesAndCrits(
@@ -156,16 +161,15 @@ export default function calculateActionHitPointChangesCritsAndEvasions(
         hpChangeProperties
       );
       if (healingHpChangesResult instanceof Error) return healingHpChangesResult;
-      crits = healingHpChangesResult.entityIdsCrit;
-      hitPointChanges = healingHpChangesResult.valueChangesByEntityId;
+      hitPointChanges = healingHpChangesResult;
       break;
     case HpChangeSourceCategoryType.Direct:
       return new Error(ERROR_MESSAGES.TODO);
   }
 
-  Object.entries(hitPointChanges).forEach(([entityId, hpChange]) => {
-    hitPointChanges[entityId] = Math.floor(hpChange);
-  });
+  for (const hpChange of Object.values(hitPointChanges)) {
+    hpChange.value = Math.floor(hpChange.value);
+  }
 
-  return { hitPointChanges, crits, evasions };
+  return { hitPointChanges, evasions };
 }

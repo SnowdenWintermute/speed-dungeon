@@ -22,19 +22,10 @@ export function composeActionCommandPayloadsFromActionResults(
       itemIds: actionResult.itemIdsConsumed,
     });
 
-    let hpChangesByEntityId: { [entityId: string]: { hpChange: number; isCrit: boolean } } = {};
-    if (actionResult.hitPointChangesByEntityId)
-      for (const [targetId, hpChange] of Object.entries(actionResult.hitPointChangesByEntityId)) {
-        hpChangesByEntityId[targetId] = {
-          hpChange,
-          isCrit: actionResult.critsByEntityId?.includes(targetId) || false,
-        };
-      }
-
     payloads.push({
       type: ActionCommandType.PerformCombatAction,
       combatAction: actionResult.action,
-      hpChangesByEntityId,
+      hpChangesByEntityId: actionResult.hitPointChangesByEntityId || {},
       mpChangesByEntityId: actionResult.manaChangesByEntityId,
       missesByEntityId: actionResult.missesByEntityId || [],
     });

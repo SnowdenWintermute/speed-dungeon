@@ -43,7 +43,7 @@ export default function performCombatActionActionCommandHandler(
       if (targetResult instanceof Error) return targetResult;
       const { combatantProperties: targetCombatantProperties } = targetResult;
       const combatantWasAliveBeforeHpChange = targetCombatantProperties.hitPoints > 0;
-      CombatantProperties.changeHitPoints(targetCombatantProperties, hpChange.hpChange);
+      CombatantProperties.changeHitPoints(targetCombatantProperties, hpChange.value);
 
       if (targetCombatantProperties.hitPoints <= 0)
         SpeedDungeonGame.handlePlayerDeath(game, party.battleId, targetId);

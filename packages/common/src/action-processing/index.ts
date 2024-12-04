@@ -2,6 +2,7 @@ export * from "./action-command.js";
 export * from "./action-command-receiver.js";
 export * from "./action-command-manager.js";
 import { BattleConclusion } from "../battle/index.js";
+import { HpChange } from "../combat/action-results/hp-change-result-calculation/index.js";
 import { CombatAction } from "../combat/index.js";
 import { EquipmentSlot, Item } from "../items/index.js";
 import { GameMessageType } from "../packets/game-message.js";
@@ -38,7 +39,7 @@ export type PerformCombatActionActionCommandPayload = {
   type: ActionCommandType.PerformCombatAction;
   combatAction: CombatAction;
   hpChangesByEntityId: null | {
-    [entityId: string]: { hpChange: number; isCrit: boolean };
+    [entityId: string]: HpChange;
   };
   mpChangesByEntityId: null | {
     [entityId: string]: number;

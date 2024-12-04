@@ -20,6 +20,7 @@ import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
 import setFocusedCharacter from "@/utils/set-focused-character";
 import { AssigningAttributePointsMenuState } from "../ActionMenu/menu-state/assigning-attribute-points";
+import { FloatingMessageElementType } from "@/stores/game-store/floating-messages";
 
 interface Props {
   combatant: Combatant;
@@ -45,7 +46,8 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
   const entityId = combatant.entityProperties.id;
   const babylonDebugMessages =
     useGameStore().babylonControlledCombatantDOMData[entityId]?.debugMessages;
-  const floatingText = useGameStore().babylonControlledCombatantDOMData[entityId]?.floatingText;
+  const floatingMessages =
+    useGameStore().babylonControlledCombatantDOMData[entityId]?.floatingMessages;
   const modelsAwaitingSpawn = useGameStore().combatantModelsAwaitingSpawn;
 
   const usernameOption = useGameStore().username;
@@ -134,8 +136,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
             </div>
           }
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full flex flex-col items-center text-center">
-            {floatingText?.map((message) => {
-              const colorClass = getTailwindClassFromFloatingTextColor(message.color);
+            {floatingMessages?.map((message) => {
               return (
                 <div
                   className="text-2xl relative"
@@ -147,10 +148,25 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
                   }}
                   key={message.id}
                 >
-                  <div className={colorClass}>{message.text}</div>
-                  <div className="absolute z-[-1] text-black top-[3px] left-[3px]">
-                    {message.text}
-                  </div>
+                  {message.elements.map((element, i) => {
+                    switch (element.type) {
+                      case FloatingMessageElementType.Text:
+                        return (
+                          <div key={i} className={element.classNames} style={element.styles}>
+                            {element.text}
+                          </div>
+                        );
+                      case FloatingMessageElementType.Image:
+                        return (
+                          <img
+                            key={i}
+                            src={element.src}
+                            className={element.classNames}
+                            style={element.styles}
+                          ></img>
+                        );
+                    }
+                  })}
                 </div>
               );
             })}

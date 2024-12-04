@@ -5,7 +5,6 @@ import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import {
   ClientToServerEvent,
   ClientToServerEventTypes,
-  Item,
   ServerToClientEvent,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
@@ -15,8 +14,6 @@ import setUpBasicLobbyEventHandlers from "@/app/WebsocketManager/basic-lobby-eve
 import setUpGameLobbyEventHandlers from "@/app/WebsocketManager/lobby-event-handlers";
 import setUpGameEventHandlers from "@/app/WebsocketManager/game-event-handlers";
 import setUpSavedCharacterEventListeners from "@/app/WebsocketManager/saved-character-event-handlers";
-import { gameWorld } from "@/app/3d-world/SceneManager";
-import { spawnEquipmentModelsFromItemList } from "@/app/3d-world/game-world/spawn-test-equipment-models";
 
 const socketAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
 

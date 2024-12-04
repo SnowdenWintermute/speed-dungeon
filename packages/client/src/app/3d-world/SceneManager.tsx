@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { GameWorld } from "./game-world/";
+import { GameWorld } from "./game-world";
 import DebugText from "./DebugText";
 
 export const gameWorld: { current: null | GameWorld } = { current: null };

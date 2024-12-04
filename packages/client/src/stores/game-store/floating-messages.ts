@@ -1,51 +1,68 @@
 import { GameState, useGameStore } from ".";
 import { BabylonControlledCombatantData } from "./babylon-controlled-combatant-data";
 
-export enum FloatingTextColor {
+export enum FloatingMessageTextColor {
   Damage,
   Healing,
   ManaGained,
 }
 
-export class FloatingText {
+export enum FloatingMessageElementType {
+  Text,
+  Image,
+}
+
+export type FloatingMessageTextElement = {
+  type: FloatingMessageElementType.Text;
+  text: string | number;
+  classNames?: string;
+  styles?: { [key: string]: number | string };
+};
+
+export type FloatingMessageImageElement = {
+  type: FloatingMessageElementType.Image;
+  src: string;
+  classNames: string;
+  styles: { [key: string]: number | string };
+};
+
+export type FloatingMessageElement = FloatingMessageImageElement | FloatingMessageTextElement;
+
+export class FloatingMessage {
   constructor(
     public id: string,
-    public text: string,
-    public color: FloatingTextColor,
-    public isCrit: boolean,
+    public elements: FloatingMessageElement[],
     public displayTime: number = 2000
   ) {}
 }
 
-export function getTailwindClassFromFloatingTextColor(color: FloatingTextColor) {
+export function getTailwindClassFromFloatingTextColor(color: FloatingMessageTextColor) {
   switch (color) {
-    case FloatingTextColor.Damage:
+    case FloatingMessageTextColor.Damage:
       return "text-zinc-300";
-    case FloatingTextColor.Healing:
+    case FloatingMessageTextColor.Healing:
       return "text-green-600";
-    case FloatingTextColor.ManaGained:
+    case FloatingMessageTextColor.ManaGained:
       return "text-blue-600";
   }
 }
 
-export function startFloatingText(
+export function startFloatingMessage(
   combatantId: string,
-  message: string,
-  color: FloatingTextColor,
-  isCrit: boolean,
+  elements: FloatingMessageElement[],
   displayTime: number
 ) {
   let id: string;
   useGameStore.getState().mutateState((gameState) => {
     id = gameState.lastDebugMessageId.toString();
-    let newMessage = new FloatingText(id, message, color, isCrit, displayTime);
+    let newMessage = new FloatingMessage(id, elements, displayTime);
 
     if (!gameState.babylonControlledCombatantDOMData[combatantId]) {
       gameState.babylonControlledCombatantDOMData[combatantId] =
         new BabylonControlledCombatantData();
     }
 
-    gameState.babylonControlledCombatantDOMData[combatantId]?.floatingText.push(newMessage);
+    gameState.babylonControlledCombatantDOMData[combatantId]?.floatingMessages.push(newMessage);
     gameState.lastDebugMessageId += 1;
   });
 
@@ -59,7 +76,7 @@ export function startFloatingText(
 // @todo - abstract this to work with both floatingText and debugMessages
 export function removeFloatingText(gameState: GameState, combatantId: string, messageId: string) {
   const indicesToRemove: number[] = [];
-  gameState.babylonControlledCombatantDOMData[combatantId]?.floatingText.forEach(
+  gameState.babylonControlledCombatantDOMData[combatantId]?.floatingMessages.forEach(
     (message, index) => {
       if (messageId === message.id) {
         indicesToRemove.push(index);
@@ -67,6 +84,6 @@ export function removeFloatingText(gameState: GameState, combatantId: string, me
     }
   );
   indicesToRemove.forEach((index) => {
-    gameState.babylonControlledCombatantDOMData[combatantId]?.floatingText.splice(index, 1);
+    gameState.babylonControlledCombatantDOMData[combatantId]?.floatingMessages.splice(index, 1);
   });
 }

@@ -1,4 +1,9 @@
-import { CombatAction, CombatActionType } from "../index.js";
+import {
+  CombatAction,
+  CombatActionType,
+  HpChangeSource,
+  HpChangeSourceCategoryType,
+} from "../index.js";
 import {
   CombatAttribute,
   Combatant,
@@ -52,10 +57,10 @@ export default function applyConsumableUseToActionResult(
       const minHealing = (hpBioavailability * maxHp) / 8;
       const maxHealing = (hpBioavailability * 3 * maxHp) / 8;
       if (!actionResult.hitPointChangesByEntityId) actionResult.hitPointChangesByEntityId = {};
-      actionResult.hitPointChangesByEntityId[targetOption] = Math.max(
-        1,
-        randBetween(minHealing, maxHealing)
-      );
+      actionResult.hitPointChangesByEntityId[targetOption] = {
+        value: Math.max(1, randBetween(minHealing, maxHealing)),
+        source: new HpChangeSource({ type: HpChangeSourceCategoryType.Medical }),
+      };
 
       break;
     case ConsumableType.MpAutoinjector:

@@ -18,12 +18,12 @@ import getActiveCombatant from "@/utils/getActiveCombatant";
 import getParty from "@/utils/getParty";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
-import { FloatingText } from "./floating-text";
 import { BabylonControlledCombatantData } from "./babylon-controlled-combatant-data";
 import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
 import { InventoryItemsMenuState } from "@/app/game/ActionMenu/menu-state/inventory-items";
 import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
 import { AssigningAttributePointsMenuState } from "@/app/game/ActionMenu/menu-state/assigning-attribute-points";
+import { FloatingMessage } from "./floating-messages";
 
 export enum MenuContext {
   InventoryItems,
@@ -57,7 +57,7 @@ export class GameState {
   combatLogMessages: CombatLogMessage[] = [];
   lastDebugMessageId: number = 0;
   babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
-  combatantFloatingText: { [combatantId: string]: FloatingText[] } = {};
+  combatantFloatingMessages: { [combatantId: string]: FloatingMessage[] } = {};
   combatantModelsAwaitingSpawn: string[] = [];
   testText: string = "test";
   itemThumbnails: { [itemId: string]: string } = {};

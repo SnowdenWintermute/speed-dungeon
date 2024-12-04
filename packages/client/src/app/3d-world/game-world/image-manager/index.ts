@@ -11,7 +11,6 @@ import { SavedMaterials, createDefaultMaterials } from "../materials/create-defa
 import { Item, ItemPropertiesType } from "@speed-dungeon/common";
 import { calculateCompositeBoundingBox, disposeAsyncLoadedScene } from "../../utils";
 import { spawnItemModel } from "../../combatant-models/spawn-item-models";
-import { pixelate } from "..";
 
 export enum ImageManagerRequestType {
   ItemCreation,
@@ -111,7 +110,10 @@ export class ImageManager {
 
   async createItemImage(item: Item) {
     const equipmentModelResult = await spawnItemModel(item, this.scene, this.materials);
-    if (equipmentModelResult instanceof Error) return console.error(equipmentModelResult);
+    if (equipmentModelResult instanceof Error) {
+      this.processNextMessage();
+      return console.error(equipmentModelResult);
+    }
     const parentMesh = equipmentModelResult.meshes[0];
     if (!parentMesh) return console.error("no parent mesh");
 

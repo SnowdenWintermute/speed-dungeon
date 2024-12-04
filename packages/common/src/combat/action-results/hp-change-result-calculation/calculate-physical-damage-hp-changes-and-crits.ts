@@ -1,4 +1,4 @@
-import { ValueChangesAndCrits } from "./index.js";
+import { HpChange } from "./index.js";
 import { CombatAttribute, CombatantProperties } from "../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";
@@ -16,14 +16,13 @@ export default function calculatePhysicalDamageHpChangesAndCrits(
   idsOfNonEvadingTargets: string[],
   incomingDamagePerTarget: number,
   hpChangeProperties: CombatActionHpChangeProperties
-): Error | ValueChangesAndCrits {
-  const hitPointChanges: { [entityId: string]: number } = {};
-  const entitiesCrit: string[] = [];
+): Error | { [entityId: string]: HpChange } {
+  const hitPointChanges: { [entityId: string]: HpChange } = {};
 
   const userCombatAttributes = CombatantProperties.getTotalAttributes(userCombatantProperties);
 
   for (const targetId of idsOfNonEvadingTargets) {
-    let hpChange = incomingDamagePerTarget;
+    const hpChange = new HpChange(incomingDamagePerTarget, hpChangeProperties.sourceProperties);
     const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, targetId);
     if (targetCombatantResult instanceof Error) return targetCombatantResult;
     const { combatantProperties: targetCombatantProperties } = targetCombatantResult;
@@ -36,8 +35,12 @@ export default function calculatePhysicalDamageHpChangesAndCrits(
     const critChance = userDexterity - targetAgility + BASE_CRIT_CHANCE;
     const isCrit = rollCrit(critChance);
     if (isCrit) {
-      hpChange = applyCritMultiplierToHpChange(hpChangeProperties, userCombatAttributes, hpChange);
-      entitiesCrit.push(targetId);
+      hpChange.value = applyCritMultiplierToHpChange(
+        hpChangeProperties,
+        userCombatAttributes,
+        hpChange.value
+      );
+      hpChange.isCrit = true;
     }
 
     const targetAc = targetCombatAttributes[CombatAttribute.ArmorClass] || 0;
@@ -49,37 +52,34 @@ export default function calculatePhysicalDamageHpChangesAndCrits(
     userArmorPen += armorPenBonusBasedOnWeaponType;
     const finalAc = Math.max(0, targetAc - userArmorPen);
     const damageAfterAc =
-      (ARMOR_CLASS_EQUATION_MODIFIER * Math.pow(hpChange, 2.0)) /
-      (finalAc + ARMOR_CLASS_EQUATION_MODIFIER * hpChange);
-    hpChange = damageAfterAc;
+      (ARMOR_CLASS_EQUATION_MODIFIER * Math.pow(hpChange.value, 2.0)) /
+      (finalAc + ARMOR_CLASS_EQUATION_MODIFIER * hpChange.value);
+    hpChange.value = damageAfterAc;
 
     const hpChangeElement = hpChangeProperties.sourceProperties.elementOption;
-    if (hpChangeElement !== null) {
+    if (hpChangeElement !== undefined) {
       const targetAffinities =
         CombatantProperties.getCombatantTotalElementalAffinities(targetCombatantProperties);
       const affinityValue = targetAffinities[hpChangeElement] || 0;
-      hpChange = applyAffinityToHpChange(affinityValue, hpChange);
+      hpChange.value = applyAffinityToHpChange(affinityValue, hpChange.value);
     }
     const physicalDamageType = hpChangeProperties.sourceProperties.physicalDamageTypeOption;
-    if (physicalDamageType !== null) {
+    if (physicalDamageType !== undefined) {
       const targetAffinities =
         CombatantProperties.getCombatantTotalPhysicalDamageTypeAffinities(
           targetCombatantProperties
         );
       const affinityValue = targetAffinities[physicalDamageType] || 0;
-      hpChange = applyAffinityToHpChange(affinityValue, hpChange);
+      hpChange.value = applyAffinityToHpChange(affinityValue, hpChange.value);
     }
 
-    hpChange *= hpChangeProperties.finalDamagePercentMultiplier / 100;
+    hpChange.value *= hpChangeProperties.finalDamagePercentMultiplier / 100;
 
     // since "damage" is written as positive numbers in the action definitions
     // we convert to a negative value as the "hp change"
-    hpChange *= -1;
+    hpChange.value *= -1;
     hitPointChanges[targetId] = hpChange;
   }
 
-  return {
-    valueChangesByEntityId: hitPointChanges,
-    entityIdsCrit: entitiesCrit,
-  };
+  return hitPointChanges;
 }

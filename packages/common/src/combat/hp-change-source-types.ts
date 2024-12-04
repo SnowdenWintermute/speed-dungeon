@@ -5,8 +5,8 @@ export class HpChangeSource {
     public category: HpChangeSourceCategory = {
       type: HpChangeSourceCategoryType.Direct,
     },
-    public physicalDamageTypeOption: null | PhysicalDamageType = null,
-    public elementOption: null | MagicalElement = null
+    public physicalDamageTypeOption?: PhysicalDamageType,
+    public elementOption?: MagicalElement
   ) {}
 }
 
@@ -32,6 +32,7 @@ export enum HpChangeSourceCategoryType {
   MagicalDamage,
   Healing,
   Direct,
+  Medical,
 }
 
 export interface PhysicalDamage {
@@ -52,7 +53,11 @@ export interface Direct {
   type: HpChangeSourceCategoryType.Direct;
 }
 
-export type HpChangeSourceCategory = PhysicalDamage | MagicalDamage | Healing | Direct;
+export interface Medical {
+  type: HpChangeSourceCategoryType.Medical;
+}
+
+export type HpChangeSourceCategory = PhysicalDamage | MagicalDamage | Healing | Direct | Medical;
 
 export enum MeleeOrRanged {
   Melee,
@@ -84,5 +89,7 @@ export function formatHpChangeSourceCategory(sourceCategory: HpChangeSourceCateg
       return "Healing";
     case HpChangeSourceCategoryType.Direct:
       return "Direct";
+    case HpChangeSourceCategoryType.Medical:
+      return "Medical";
   }
 }

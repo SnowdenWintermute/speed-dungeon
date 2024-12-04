@@ -73,6 +73,9 @@ import {
   GAME_CONFIG,
   GameMessageType,
   GameMode,
+  HpChangeSource,
+  HpChangeSourceCategoryType,
+  MeleeOrRanged,
   PartyFate,
   ServerToClientEvent,
   ServerToClientEventTypes,
@@ -84,6 +87,7 @@ import {
   waitForCondition,
   waitForUsersLeavingServer,
 } from "../utils.js";
+import { HpChange } from "@speed-dungeon/common/src/combat/action-results/hp-change-result-calculation/index.js";
 
 export let pgContext: PGTestingContext;
 export let expressApp: Application;
@@ -411,7 +415,13 @@ describe("race game records", () => {
             abilityName: CombatantAbilityName.Attack,
           },
           hpChangesByEntityId: {
-            [character1.entityProperties.id]: { hpChange: -9999, isCrit: false },
+            [character1.entityProperties.id]: new HpChange(
+              -9999,
+              new HpChangeSource({
+                type: HpChangeSourceCategoryType.PhysicalDamage,
+                meleeOrRanged: MeleeOrRanged.Melee,
+              })
+            ),
           },
           mpChangesByEntityId: null,
           missesByEntityId: [],

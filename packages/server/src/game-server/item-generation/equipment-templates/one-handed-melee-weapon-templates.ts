@@ -225,7 +225,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case OneHandedMeleeWeapon.MapleWand:
         template.levelRange = new NumberRange(2, 4);
         template.damage = new NumberRange(1, 8);
-        mainDamageClassification.physicalDamageTypeOption = null;
+        mainDamageClassification.physicalDamageTypeOption = undefined;
         mainDamageClassification.category = {
           type: HpChangeSourceCategoryType.MagicalDamage,
           evadable: Evadable.True,
@@ -235,7 +235,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case OneHandedMeleeWeapon.WillowWand:
         template.levelRange = new NumberRange(3, 6);
         template.damage = new NumberRange(2, 10);
-        mainDamageClassification.physicalDamageTypeOption = null;
+        mainDamageClassification.physicalDamageTypeOption = undefined;
         mainDamageClassification.category = {
           type: HpChangeSourceCategoryType.MagicalDamage,
           evadable: Evadable.True,
@@ -245,7 +245,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case OneHandedMeleeWeapon.YewWand:
         template.levelRange = new NumberRange(5, 7);
         template.damage = new NumberRange(3, 13);
-        mainDamageClassification.physicalDamageTypeOption = null;
+        mainDamageClassification.physicalDamageTypeOption = undefined;
         mainDamageClassification.category = {
           type: HpChangeSourceCategoryType.MagicalDamage,
           evadable: Evadable.True,
@@ -255,7 +255,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case OneHandedMeleeWeapon.RoseWand:
         template.levelRange = new NumberRange(8, 10);
         template.damage = new NumberRange(6, 16);
-        mainDamageClassification.physicalDamageTypeOption = null;
+        mainDamageClassification.physicalDamageTypeOption = undefined;
         mainDamageClassification.category = {
           type: HpChangeSourceCategoryType.MagicalDamage,
           evadable: Evadable.True,

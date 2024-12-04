@@ -12,6 +12,7 @@ import {
   GlowLayer,
   Color3,
   Camera,
+  Scene,
 } from "@babylonjs/core";
 import { GameWorld } from ".";
 
@@ -46,25 +47,7 @@ export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTextu
   camera.minZ = 0;
 
   // ORTHO setup
-  // camera.mode = Camera.ORTHOGRAPHIC_CAMERA;
-  // camera.orthoLeft = -10;
-  // camera.orthoRight = 10;
-  // // needed to calculate orthoTop and orthoBottom without distortion
-  // const ratio = this.canvas.height / this.canvas.width;
-  // setOrthoCameraTopBottom(camera, ratio);
-
-  // let oldRadius = camera.radius;
-  // this.scene.onBeforeRenderObservable.add(() => {
-  //   if (oldRadius !== camera.radius) {
-  //     const radiusChangeRatio = camera.radius / oldRadius;
-  //     if (!camera.orthoLeft || !camera.orthoRight) return;
-  //     camera.orthoLeft *= radiusChangeRatio;
-  //     camera.orthoRight *= radiusChangeRatio;
-  //     oldRadius = camera.radius;
-  //     setOrthoCameraTopBottom(camera, ratio);
-
-  //   }
-  // });
+  // setupOrthoCamera()
 
   // LIGHTS
   const hemiLight = new HemisphericLight("hemi-light", new Vector3(0, 1, 0), this.scene);
@@ -115,4 +98,25 @@ function setOrthoCameraTopBottom(camera: Camera, ratio: number) {
     camera.orthoTop = camera.orthoRight * ratio;
     camera.orthoBottom = camera.orthoLeft * ratio;
   }
+}
+
+function setupOrthoCamera(scene: Scene, camera: ArcRotateCamera, canvas: HTMLCanvasElement) {
+  camera.mode = Camera.ORTHOGRAPHIC_CAMERA;
+  camera.orthoLeft = -15;
+  camera.orthoRight = 15;
+  // needed to calculate orthoTop and orthoBottom without distortion
+  const ratio = canvas.height / canvas.width;
+  setOrthoCameraTopBottom(camera, ratio);
+
+  let oldRadius = camera.radius;
+  scene.onBeforeRenderObservable.add(() => {
+    if (oldRadius !== camera.radius) {
+      const radiusChangeRatio = camera.radius / oldRadius;
+      if (!camera.orthoLeft || !camera.orthoRight) return;
+      camera.orthoLeft *= radiusChangeRatio;
+      camera.orthoRight *= radiusChangeRatio;
+      oldRadius = camera.radius;
+      setOrthoCameraTopBottom(camera, ratio);
+    }
+  });
 }

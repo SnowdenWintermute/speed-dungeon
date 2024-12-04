@@ -4,6 +4,7 @@ import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";
 import applyCritMultiplierToHpChange from "./apply-crit-multiplier-to-hp-change.js";
 import getHealingHpChangeOnTargetCombatant from "./get-healing-hp-change-on-target-combatant.js";
+import { HpChange } from "./index.js";
 import rollCrit from "./roll-crit.js";
 
 export default function calculateHealingHpChangesAndCrits(
@@ -13,11 +14,10 @@ export default function calculateHealingHpChangesAndCrits(
   incomingHealingPerTarget: number,
   hpChangeProperties: CombatActionHpChangeProperties
 ) {
-  const hitPointChanges: { [entityId: string]: number } = {};
-  let entitiesCrit: string[] = [];
+  const hitPointChanges: { [entityId: string]: HpChange } = {};
   const userCombatAttributes = CombatantProperties.getTotalAttributes(userCombatantProperties);
 
-  let hpChangeInitial = incomingHealingPerTarget;
+  const hpChange = new HpChange(incomingHealingPerTarget, hpChangeProperties.sourceProperties);
   // calculate crit by action instead of per entity for
   // healing because there is no per entity "crit resistance" for healing
   const userFocus = userCombatAttributes[CombatAttribute.Focus] || 0;
@@ -25,22 +25,20 @@ export default function calculateHealingHpChangesAndCrits(
   const isCrit = rollCrit(critChance);
 
   if (isCrit) {
-    hpChangeInitial = applyCritMultiplierToHpChange(
+    hpChange.value = applyCritMultiplierToHpChange(
       hpChangeProperties,
       userCombatAttributes,
       incomingHealingPerTarget
     );
-    entitiesCrit = targetIds;
+    hpChange.isCrit = true;
   }
 
   for (const targetId of targetIds) {
-    const hpChangeResult = getHealingHpChangeOnTargetCombatant(game, targetId, hpChangeInitial);
+    const hpChangeResult = getHealingHpChangeOnTargetCombatant(game, targetId, hpChange.value);
     if (hpChangeResult instanceof Error) return hpChangeResult;
-    hitPointChanges[targetId] = hpChangeResult;
+    hpChange.value = hpChangeResult;
+    hitPointChanges[targetId] = hpChange;
   }
 
-  return {
-    valueChangesByEntityId: hitPointChanges,
-    entityIdsCrit: entitiesCrit,
-  };
+  return hitPointChanges;
 }

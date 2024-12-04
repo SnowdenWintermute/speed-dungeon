@@ -17,7 +17,7 @@ export default function allTargetsWereKilled(
       const combatantResult = SpeedDungeonGame.getCombatantById(game, combatantId);
       if (combatantResult instanceof Error) return combatantResult;
       const { combatantProperties } = combatantResult;
-      if (combatantProperties.hitPoints + hpChange > 0) {
+      if (combatantProperties.hitPoints + hpChange.value > 0) {
         allDamagedTargetsWereKilled = false;
         break;
       }

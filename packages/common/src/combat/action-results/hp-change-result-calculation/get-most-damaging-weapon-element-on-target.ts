@@ -15,7 +15,7 @@ export default function getMostDamagingWeaponElementOnTarget(
 
   const elementsToSelectFrom: MagicalElement[] = [];
   for (const hpChangeSource of weaponProperties.damageClassification) {
-    if (hpChangeSource.elementOption !== null)
+    if (hpChangeSource.elementOption !== undefined)
       elementsToSelectFrom.push(hpChangeSource.elementOption);
   }
 

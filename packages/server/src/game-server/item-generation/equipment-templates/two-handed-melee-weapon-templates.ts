@@ -193,7 +193,7 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.possibleDamageClassifications = [
           new HpChangeSource(
             { type: HpChangeSourceCategoryType.MagicalDamage, evadable: Evadable.False },
-            null,
+            undefined,
             MagicalElement.Water
           ),
           new HpChangeSource(

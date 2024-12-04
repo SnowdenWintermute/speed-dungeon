@@ -16,7 +16,7 @@ export default function getMostDamagingWeaponPhysicalDamageTypeOnTarget(
 
   const damageTypesToSelectFrom: PhysicalDamageType[] = [];
   for (const hpChangeSource of weaponProperties.damageClassification) {
-    if (hpChangeSource.physicalDamageTypeOption !== null)
+    if (hpChangeSource.physicalDamageTypeOption !== undefined)
       damageTypesToSelectFrom.push(hpChangeSource.physicalDamageTypeOption);
   }
 

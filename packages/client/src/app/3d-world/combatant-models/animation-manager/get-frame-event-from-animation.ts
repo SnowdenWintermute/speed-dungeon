@@ -10,11 +10,18 @@ import {
   formatConsumableType,
 } from "@speed-dungeon/common";
 import { GameWorld } from "../../game-world";
-import { FloatingTextColor, startFloatingText } from "@/stores/game-store/floating-text";
+import {
+  FloatingMessageElementType,
+  FloatingMessageTextColor,
+  getTailwindClassFromFloatingTextColor,
+  startFloatingMessage,
+} from "@/stores/game-store/floating-messages";
 import { ANIMATION_NAMES } from "./animation-names";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { useGameStore } from "@/stores/game-store";
+import { HpChange } from "@speed-dungeon/common/src/combat/action-results/hp-change-result-calculation";
+import startHpChangeFloatingMessage from "./start-hp-change-floating-message";
 
 export default function getFrameEventFromAnimation(
   gameWorld: GameWorld,
@@ -83,19 +90,25 @@ export default function getFrameEventFromAnimation(
 
     if (hpChangesByEntityId)
       for (const [targetId, hpChange] of Object.entries(hpChangesByEntityId)) {
-        induceHitRecovery(
-          gameWorld,
-          actionUserId,
-          targetId,
-          hpChange.hpChange,
-          hpChange.isCrit,
-          wasSpell
-        );
+        induceHitRecovery(gameWorld, actionUserId, targetId, hpChange, wasSpell);
       }
 
     if (mpChangesByEntityId) {
       for (const [targetId, mpChange] of Object.entries(mpChangesByEntityId)) {
-        startFloatingText(targetId, mpChange.toString(), FloatingTextColor.ManaGained, false, 2000);
+        startFloatingMessage(
+          targetId,
+          [
+            {
+              type: FloatingMessageElementType.Text,
+              text: mpChange,
+              classNames: getTailwindClassFromFloatingTextColor(
+                FloatingMessageTextColor.ManaGained
+              ),
+            },
+          ],
+          2000
+        );
+
         useGameStore.getState().mutateState((state) => {
           const gameOption = state.game;
           if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
@@ -157,7 +170,11 @@ export default function getFrameEventFromAnimation(
           );
         });
 
-        startFloatingText(targetId, "Evaded", FloatingTextColor.Healing, false, 2000);
+        startFloatingMessage(
+          targetId,
+          [{ type: FloatingMessageElementType.Text, text: "Evaded", classNames: "text-gray-500" }],
+          2000
+        );
       }
   };
 
@@ -168,16 +185,13 @@ function induceHitRecovery(
   gameWorld: GameWorld,
   actionUserId: string,
   targetId: string,
-  hpChange: number,
-  isCrit: boolean,
+  hpChange: HpChange,
   wasSpell: boolean
 ) {
   const targetModel = gameWorld.modelManager.combatantModels[targetId];
   if (targetModel === undefined) return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
-  const color = hpChange >= 0 ? FloatingTextColor.Healing : FloatingTextColor.Damage;
-
-  startFloatingText(targetId, Math.abs(hpChange).toString(), color, isCrit, 2000);
+  startHpChangeFloatingMessage(targetId, hpChange, 2000);
 
   useGameStore.getState().mutateState((gameState) => {
     // - change their hp
@@ -199,26 +213,28 @@ function induceHitRecovery(
     const { combatantProperties } = combatantResult;
 
     const combatantWasAliveBeforeHpChange = combatantProperties.hitPoints > 0;
-    CombatantProperties.changeHitPoints(combatantProperties, hpChange);
+    CombatantProperties.changeHitPoints(combatantProperties, hpChange.value);
 
     const actionUserResult = SpeedDungeonGame.getCombatantById(game, actionUserId);
     if (actionUserResult instanceof Error) return console.error(actionUserResult);
 
+    const hpOrDamage = hpChange.value > 0 ? "hit points" : "damage";
+
     if (wasSpell) {
-      const damagedOrHealed = hpChange > 0 ? "recovers" : "takes";
-      const hpOrDamage = hpChange > 0 ? "hit points" : "damage";
-      const style = hpChange > 0 ? CombatLogMessageStyle.Healing : CombatLogMessageStyle.Basic;
+      const damagedOrHealed = hpChange.value > 0 ? "recovers" : "takes";
+      const style =
+        hpChange.value > 0 ? CombatLogMessageStyle.Healing : CombatLogMessageStyle.Basic;
 
       gameState.combatLogMessages.push(
         new CombatLogMessage(
-          `${combatantResult.entityProperties.name} ${damagedOrHealed} ${Math.abs(hpChange)} ${hpOrDamage}`,
+          `${combatantResult.entityProperties.name} ${damagedOrHealed} ${Math.abs(hpChange.value)} ${hpOrDamage}`,
           style
         )
       );
     } else {
-      const damagedOrHealed = hpChange > 0 ? "healed" : "hit";
-      const hpOrDamage = hpChange > 0 ? "hit points" : "damage";
-      const style = hpChange > 0 ? CombatLogMessageStyle.Healing : CombatLogMessageStyle.Basic;
+      const damagedOrHealed = hpChange.value > 0 ? "healed" : "hit";
+      const style =
+        hpChange.value > 0 ? CombatLogMessageStyle.Healing : CombatLogMessageStyle.Basic;
 
       const isTargetingSelf =
         actionUserResult.entityProperties.id === combatantResult.entityProperties.id;
@@ -226,7 +242,7 @@ function induceHitRecovery(
 
       gameState.combatLogMessages.push(
         new CombatLogMessage(
-          `${actionUserResult.entityProperties.name} ${damagedOrHealed} ${targetNameText} for ${Math.abs(hpChange)} ${hpOrDamage}`,
+          `${actionUserResult.entityProperties.name} ${damagedOrHealed} ${targetNameText} for ${Math.abs(hpChange.value)} ${hpOrDamage}`,
           style
         )
       );

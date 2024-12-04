@@ -1,4 +1,3 @@
-import { ValueChangesAndCrits } from "./index.js";
 import {
   BASE_CRIT_CHANCE,
   RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO,
@@ -8,6 +7,7 @@ import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";
 import applyAffinityToHpChange from "./apply-affinity-to-hp-change.js";
 import applyCritMultiplierToHpChange from "./apply-crit-multiplier-to-hp-change.js";
+import { HpChange } from "./index.js";
 import rollCrit from "./roll-crit.js";
 
 export default function calculateMagicalDamageHpChangesAndCrits(
@@ -16,13 +16,12 @@ export default function calculateMagicalDamageHpChangesAndCrits(
   idsOfNonEvadingTargets: string[],
   incomingDamagePerTarget: number,
   hpChangeProperties: CombatActionHpChangeProperties
-): Error | ValueChangesAndCrits {
-  const hitPointChanges: { [entityId: string]: number } = {};
-  const entitiesCrit: string[] = [];
+): Error | { [entityId: string]: HpChange } {
+  const hitPointChanges: { [entityId: string]: HpChange } = {};
   const userCombatAttributes = CombatantProperties.getTotalAttributes(userCombatantProperties);
 
   for (const targetId of idsOfNonEvadingTargets) {
-    let hpChange = incomingDamagePerTarget;
+    const hpChange = new HpChange(incomingDamagePerTarget, hpChangeProperties.sourceProperties);
     const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, targetId);
     if (targetCombatantResult instanceof Error) return targetCombatantResult;
     const { combatantProperties: targetCombatantProperties } = targetCombatantResult;
@@ -33,31 +32,35 @@ export default function calculateMagicalDamageHpChangesAndCrits(
     const critChance = userFocus + BASE_CRIT_CHANCE;
     const isCrit = rollCrit(critChance);
     if (isCrit) {
-      hpChange = applyCritMultiplierToHpChange(hpChangeProperties, userCombatAttributes, hpChange);
-      entitiesCrit.push(targetId);
+      hpChange.value = applyCritMultiplierToHpChange(
+        hpChangeProperties,
+        userCombatAttributes,
+        hpChange.value
+      );
+      hpChange.isCrit = true;
     }
     // affinities
     const hpChangeElement = hpChangeProperties.sourceProperties.elementOption;
-    if (hpChangeElement !== null) {
+    if (hpChangeElement !== undefined) {
       const targetAffinities =
         CombatantProperties.getCombatantTotalElementalAffinities(targetCombatantProperties);
       const affinityValue = targetAffinities[hpChangeElement] || 0;
-      hpChange = applyAffinityToHpChange(affinityValue, hpChange);
+      hpChange.value = applyAffinityToHpChange(affinityValue, hpChange.value);
     }
     const physicalDamageType = hpChangeProperties.sourceProperties.physicalDamageTypeOption;
-    if (physicalDamageType !== null) {
+    if (physicalDamageType !== undefined) {
       const targetAffinities =
         CombatantProperties.getCombatantTotalPhysicalDamageTypeAffinities(
           targetCombatantProperties
         );
       const affinityValue = targetAffinities[physicalDamageType] || 0;
-      hpChange = applyAffinityToHpChange(affinityValue, hpChange);
+      hpChange.value = applyAffinityToHpChange(affinityValue, hpChange.value);
     }
 
-    hpChange *= hpChangeProperties.finalDamagePercentMultiplier / 100;
+    hpChange.value *= hpChangeProperties.finalDamagePercentMultiplier / 100;
 
     // only apply resilience damage reduction if not getting healed due to affinities
-    if (hpChange > 0) {
+    if (hpChange.value > 0) {
       const targetResilience = targetCombatAttributes[CombatAttribute.Resilience] || 0;
       const penetratedResilience = Math.max(0, targetResilience - userFocus);
       const damageReductionPercentage = Math.min(
@@ -65,20 +68,17 @@ export default function calculateMagicalDamageHpChangesAndCrits(
         penetratedResilience * RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO
       );
       const damageReductionMultiplier = 1.0 - damageReductionPercentage / 100;
-      hpChange *= damageReductionMultiplier;
+      hpChange.value *= damageReductionMultiplier;
     }
 
     // final mods
-    hpChange *= hpChangeProperties.finalDamagePercentMultiplier / 100;
+    hpChange.value *= hpChangeProperties.finalDamagePercentMultiplier / 100;
 
     // since "damage" is written as positive numbers in the action definitions
     // we convert to a negative value as the "hp change"
-    hpChange *= -1;
+    hpChange.value *= -1;
     hitPointChanges[targetId] = hpChange;
   }
 
-  return {
-    valueChangesByEntityId: hitPointChanges,
-    entityIdsCrit: entitiesCrit,
-  };
+  return hitPointChanges;
 }

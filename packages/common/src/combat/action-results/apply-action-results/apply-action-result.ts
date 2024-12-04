@@ -38,7 +38,7 @@ export default function applyActionResult(
       const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
       if (combatantResult instanceof Error) return combatantResult;
       const { combatantProperties, entityProperties } = combatantResult;
-      CombatantProperties.changeHitPoints(combatantProperties, hitPointChange);
+      CombatantProperties.changeHitPoints(combatantProperties, hitPointChange.value);
       // if dead, remove their tracker
       if (combatantProperties.hitPoints < 1 && battleIdOption !== null) {
         const battleOption = game.battles[battleIdOption];
