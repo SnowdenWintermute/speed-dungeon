@@ -22,8 +22,8 @@ export type FloatingMessageTextElement = {
 export type FloatingMessageImageElement = {
   type: FloatingMessageElementType.Image;
   src: string;
-  classNames: string;
-  styles: { [key: string]: number | string };
+  classNames?: string;
+  styles?: { [key: string]: number | string };
 };
 
 export type FloatingMessageElement = FloatingMessageImageElement | FloatingMessageTextElement;

@@ -24,6 +24,11 @@ export default function startHpChangeFloatingMessage(
         text: Math.abs(hpChange.value),
         classNames: colorClass,
       },
+      {
+        type: FloatingMessageElementType.Image,
+        src: "img/hp-change-icons/slashing.svg",
+        classNames: colorClass,
+      },
     ],
     displayTime
   );
