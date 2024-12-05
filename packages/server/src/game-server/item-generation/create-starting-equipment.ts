@@ -31,8 +31,8 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
     case CombatantClass.Mage:
       mainhand = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-          baseItemType: TwoHandedMeleeWeapon.Trident,
+          equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: OneHandedMeleeWeapon.Club,
         },
         true
       );
@@ -41,7 +41,7 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
       mainhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.ButterKnife,
+          baseItemType: OneHandedMeleeWeapon.WarHammer,
         },
         true
       );

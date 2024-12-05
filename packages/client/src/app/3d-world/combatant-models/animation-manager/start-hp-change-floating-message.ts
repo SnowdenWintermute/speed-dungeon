@@ -23,7 +23,7 @@ export default function startHpChangeFloatingMessage(
   const elements: FloatingMessageElement[] = [
     {
       type: FloatingMessageElementType.Text,
-      text: `${Math.abs(hpChange.value)}${elementOption ? " " + MAGICAL_ELEMENT_STRINGS[elementOption] : ""}${kineticDamageTypeOption ? " " + KINETIC_DAMAGE_TYPE_STRINGS[kineticDamageTypeOption] : ""}`,
+      text: `${Math.abs(hpChange.value)}${elementOption !== undefined ? " " + MAGICAL_ELEMENT_STRINGS[elementOption] : ""}${kineticDamageTypeOption !== undefined ? " " + KINETIC_DAMAGE_TYPE_STRINGS[kineticDamageTypeOption] : ""}`,
       classNames: colorClass,
     },
   ];

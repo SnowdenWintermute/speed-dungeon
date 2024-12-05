@@ -10,7 +10,7 @@ export default function getMostDamagingWeaponKineticDamageTypeOnTarget(
   targetId: string
 ): Error | null | KineticDamageType {
   const weaponOption = CombatantProperties.getEquippedWeapon(userCombatantProperties, weaponSlot);
-  if (!weaponOption) return null;
+  if (!weaponOption) return KineticDamageType.Blunt; // fists are blunt weapons
 
   const weaponProperties = weaponOption;
 
@@ -19,6 +19,8 @@ export default function getMostDamagingWeaponKineticDamageTypeOnTarget(
     if (hpChangeSource.kineticDamageTypeOption !== undefined)
       damageTypesToSelectFrom.push(hpChangeSource.kineticDamageTypeOption);
   }
+
+  console.log("selecting from damage types: ", damageTypesToSelectFrom);
 
   const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, targetId);
   if (targetCombatantResult instanceof Error) return targetCombatantResult;
