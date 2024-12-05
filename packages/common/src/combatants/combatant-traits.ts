@@ -1,12 +1,12 @@
-import { PhysicalDamageType, formatPhysicalDamageType } from "../combat/hp-change-source-types.js";
-import { MagicalElement, formatMagicalElement } from "../combat/magical-elements.js";
+import { KineticDamageType } from "../combat/kinetic-damage-types.js";
+import { MagicalElement } from "../combat/magical-elements.js";
 
 export enum CombatantTraitType {
   HpBioavailability,
   MpBioavailability,
   ElementalAffinity,
   Undead,
-  PhysicalDamageTypeResistance,
+  KineticDamageTypeResistance,
 }
 
 export interface TraitHpBioavailability {
@@ -26,8 +26,8 @@ export interface TraitElementalAffinity {
 }
 
 export interface TraitPhysicalDamageTypeResistance {
-  type: CombatantTraitType.PhysicalDamageTypeResistance;
-  damageType: PhysicalDamageType;
+  type: CombatantTraitType.KineticDamageTypeResistance;
+  damageType: KineticDamageType;
   percent: number;
 }
 
@@ -48,5 +48,5 @@ export const TRAIT_DESCRIPTIONS: Record<CombatantTraitType, string> = {
   [CombatantTraitType.ElementalAffinity]:
     "Resistance or weakness to this element. If above 100%, actions of this element will cause healing instead of damage.",
   [CombatantTraitType.Undead]: "Healing magic damages this target",
-  [CombatantTraitType.PhysicalDamageTypeResistance]: "Resistance or weakness to this damage type",
+  [CombatantTraitType.KineticDamageTypeResistance]: "Resistance or weakness to this damage type",
 };

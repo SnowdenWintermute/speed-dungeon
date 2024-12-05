@@ -4,7 +4,7 @@ import { ABILITY_ATTRIBUTES } from "../../combatants/abilities/get-ability-attri
 export function combatActionRequiresMeleeRange(combatAction: CombatAction): boolean {
   switch (combatAction.type) {
     case CombatActionType.AbilityUsed:
-      return ABILITY_ATTRIBUTES[combatAction.abilityName].isMelee;
+      return ABILITY_ATTRIBUTES[combatAction.abilityName].combatActionProperties.isMelee;
     case CombatActionType.ConsumableUsed:
       return false;
   }

@@ -17,7 +17,7 @@ export default function calculateHealingHpChangesAndCrits(
   const hitPointChanges: { [entityId: string]: HpChange } = {};
   const userCombatAttributes = CombatantProperties.getTotalAttributes(userCombatantProperties);
 
-  const hpChange = new HpChange(incomingHealingPerTarget, hpChangeProperties.sourceProperties);
+  const hpChange = new HpChange(incomingHealingPerTarget, hpChangeProperties.hpChangeSource);
   // calculate crit by action instead of per entity for
   // healing because there is no per entity "crit resistance" for healing
   const userFocus = userCombatAttributes[CombatAttribute.Focus] || 0;

@@ -21,7 +21,7 @@ export default function calculateMagicalDamageHpChangesAndCrits(
   const userCombatAttributes = CombatantProperties.getTotalAttributes(userCombatantProperties);
 
   for (const targetId of idsOfNonEvadingTargets) {
-    const hpChange = new HpChange(incomingDamagePerTarget, hpChangeProperties.sourceProperties);
+    const hpChange = new HpChange(incomingDamagePerTarget, hpChangeProperties.hpChangeSource);
     const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, targetId);
     if (targetCombatantResult instanceof Error) return targetCombatantResult;
     const { combatantProperties: targetCombatantProperties } = targetCombatantResult;
@@ -40,20 +40,18 @@ export default function calculateMagicalDamageHpChangesAndCrits(
       hpChange.isCrit = true;
     }
     // affinities
-    const hpChangeElement = hpChangeProperties.sourceProperties.elementOption;
+    const hpChangeElement = hpChangeProperties.hpChangeSource.elementOption;
     if (hpChangeElement !== undefined) {
       const targetAffinities =
         CombatantProperties.getCombatantTotalElementalAffinities(targetCombatantProperties);
       const affinityValue = targetAffinities[hpChangeElement] || 0;
       hpChange.value = applyAffinityToHpChange(affinityValue, hpChange.value);
     }
-    const physicalDamageType = hpChangeProperties.sourceProperties.physicalDamageTypeOption;
-    if (physicalDamageType !== undefined) {
+    const kineticDamageType = hpChangeProperties.hpChangeSource.kineticDamageTypeOption;
+    if (kineticDamageType !== undefined) {
       const targetAffinities =
-        CombatantProperties.getCombatantTotalPhysicalDamageTypeAffinities(
-          targetCombatantProperties
-        );
-      const affinityValue = targetAffinities[physicalDamageType] || 0;
+        CombatantProperties.getCombatantTotalKineticDamageTypeAffinities(targetCombatantProperties);
+      const affinityValue = targetAffinities[kineticDamageType] || 0;
       hpChange.value = applyAffinityToHpChange(affinityValue, hpChange.value);
     }
 

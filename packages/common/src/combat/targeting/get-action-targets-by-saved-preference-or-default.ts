@@ -1,8 +1,12 @@
-import { CombatActionProperties, FriendOrFoe, TargetingScheme } from "../index.js";
+import { CombatActionProperties } from "../index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonPlayer } from "../../game/index.js";
 import { iterateNumericEnum } from "../../utils/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
+import {
+  FriendOrFoe,
+  TargetingScheme,
+} from "../combat-actions/targeting-schemes-and-categories.js";
 
 export default function getActionTargetsBySavedPreferenceOrDefault(
   player: SpeedDungeonPlayer,

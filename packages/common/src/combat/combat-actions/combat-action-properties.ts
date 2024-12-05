@@ -1,12 +1,12 @@
-import { CombatAttribute } from "../../combatants/combat-attributes.js";
-import { WeaponSlot } from "../../items/equipment/slots.js";
-import { NumberRange } from "../../primatives/number-range.js";
-import { HpChangeSource } from "../hp-change-source-types.js";
 import {
   ProhibitedTargetCombatantStates,
   TargetCategories,
   TargetingScheme,
-} from "../targeting/index.js";
+} from "./targeting-schemes-and-categories.js";
+import { CombatAttribute } from "../../combatants/combat-attributes.js";
+import { WeaponSlot } from "../../items/equipment/slots.js";
+import { NumberRange } from "../../primatives/number-range.js";
+import { HpChangeSource } from "../hp-change-source-types.js";
 
 export class CombatActionProperties {
   targetingSchemes: TargetingScheme[] = [TargetingScheme.Single];

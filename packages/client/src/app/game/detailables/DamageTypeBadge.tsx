@@ -1,11 +1,11 @@
 import getMagicalElementTailwindColor from "@/utils/getMagicalElementTailwindColor";
 import {
+  HP_CHANGE_SOURCE_CATEGORY_STRINGS,
   HpChangeSource,
-  HpChangeSourceCategoryType,
-  formatHpChangeSourceCategory,
-  formatPhysicalDamageType,
+  HpChangeSourceCategory,
+  KINETIC_DAMAGE_TYPE_STRINGS,
+  MAGICAL_ELEMENT_STRINGS,
 } from "@speed-dungeon/common";
-import { formatMagicalElement } from "@speed-dungeon/common";
 import React from "react";
 
 interface Props {
@@ -14,29 +14,28 @@ interface Props {
 
 export default function DamageTypeBadge({ hpChangeSource }: Props) {
   let physicalDamageTypeTextOption: null | string = null;
-  if (hpChangeSource.physicalDamageTypeOption !== null) {
-    physicalDamageTypeTextOption = formatPhysicalDamageType(
-      hpChangeSource.physicalDamageTypeOption
-    );
+  if (hpChangeSource.kineticDamageTypeOption !== undefined) {
+    physicalDamageTypeTextOption =
+      KINETIC_DAMAGE_TYPE_STRINGS[hpChangeSource.kineticDamageTypeOption];
   }
 
   let elementTextOption: null | string = null;
-  if (hpChangeSource.elementOption !== null) {
-    elementTextOption = formatMagicalElement(hpChangeSource.elementOption);
+  if (hpChangeSource.elementOption !== undefined) {
+    elementTextOption = MAGICAL_ELEMENT_STRINGS[hpChangeSource.elementOption];
   }
   const elementStyle =
-    hpChangeSource.elementOption !== null
+    hpChangeSource.elementOption !== undefined
       ? getMagicalElementTailwindColor(hpChangeSource.elementOption)
       : "";
 
-  const damageCategoryBorderColor = getDamageCategoryBorderColor(hpChangeSource.category.type);
+  const damageCategoryBorderColor = getDamageCategoryBorderColor(hpChangeSource.category);
 
   return (
     <div
       className={`border-2 w-fit min-w-fit max-w-fit mb-1 last:mb-0 ${damageCategoryBorderColor}`}
     >
       <span className={`inline-block pl-1 pr-1 h-full`}>
-        {formatHpChangeSourceCategory(hpChangeSource.category)}
+        {HP_CHANGE_SOURCE_CATEGORY_STRINGS[hpChangeSource.category]}
       </span>
       {physicalDamageTypeTextOption && (
         <span
@@ -57,15 +56,15 @@ export default function DamageTypeBadge({ hpChangeSource }: Props) {
   );
 }
 
-function getDamageCategoryBorderColor(hpChangeSourceCategoryType: HpChangeSourceCategoryType) {
+function getDamageCategoryBorderColor(hpChangeSourceCategoryType: HpChangeSourceCategory) {
   switch (hpChangeSourceCategoryType) {
-    case HpChangeSourceCategoryType.PhysicalDamage:
+    case HpChangeSourceCategory.Physical:
       return "border-zinc-300";
-    case HpChangeSourceCategoryType.MagicalDamage:
+    case HpChangeSourceCategory.Magical:
       return "border-sky-300";
-    case HpChangeSourceCategoryType.Healing:
+    case HpChangeSourceCategory.Medical:
       return "border-green-600";
-    case HpChangeSourceCategoryType.Direct:
+    case HpChangeSourceCategory.Direct:
       return "border-black-300";
   }
 }

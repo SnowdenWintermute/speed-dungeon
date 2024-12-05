@@ -4,12 +4,12 @@ import {
   HpChangeSource,
   Item,
   ItemPropertiesType,
+  MAGICAL_ELEMENT_STRINGS,
   MagicalElement,
   OneHandedMeleeWeapon,
   Shield,
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
-  formatMagicalElement,
 } from "@speed-dungeon/common";
 import { ISceneLoaderAsyncResult, Scene, StandardMaterial } from "@babylonjs/core";
 import {
@@ -126,9 +126,9 @@ export function assignEquipmentMaterials(
         case OneHandedMeleeWeapon.RuneSword:
           let i = 1;
           for (const classification of equipmentBaseItemProperties.damageClassification) {
-            if (classification.elementOption !== null) {
+            if (classification.elementOption !== undefined) {
               const material = new StandardMaterial(
-                DYNAMIC_MATERIAL_TAG + formatMagicalElement(classification.elementOption),
+                DYNAMIC_MATERIAL_TAG + MAGICAL_ELEMENT_STRINGS[classification.elementOption],
                 scene
               );
 
@@ -376,7 +376,7 @@ function assignElementalMaterials(
 ) {
   let i = 1;
   for (const classification of damageClassification) {
-    if (classification.elementOption !== null) {
+    if (classification.elementOption !== undefined) {
       const material = savedMaterials.elements[classification.elementOption];
       materials["Accent" + i] = material;
     }

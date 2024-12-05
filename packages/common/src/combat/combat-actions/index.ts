@@ -3,6 +3,7 @@ export * from "./combat-action-properties.js";
 export * from "./get-ability-mana-cost.js";
 export * from "./combat-action-requires-melee-range.js";
 export * from "./get-combat-action-execution-time.js";
+export * from "./targeting-schemes-and-categories.js";
 
 import { AbilityName } from "../../combatants";
 

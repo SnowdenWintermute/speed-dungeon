@@ -32,9 +32,9 @@ export function calculateCombatActionHpChangeRange(
   }
   // if weapon damage, determine main/off hand and add appropriate damage to range
   const hpChangeRange = new NumberRange(min, max);
-  if (hpChangeProperties.addWeaponDamageFrom) {
+  if (hpChangeProperties.addWeaponDamageFromSlots) {
     addWeaponDamageToCombatActionHpChange(
-      hpChangeProperties.addWeaponDamageFrom,
+      hpChangeProperties.addWeaponDamageFromSlots,
       userCombatantProperties,
       hpChangeRange
     );

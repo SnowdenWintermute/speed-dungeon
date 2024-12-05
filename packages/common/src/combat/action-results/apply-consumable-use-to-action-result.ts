@@ -2,7 +2,8 @@ import {
   CombatAction,
   CombatActionType,
   HpChangeSource,
-  HpChangeSourceCategoryType,
+  HpChangeSourceCategory,
+  MeleeOrRanged,
 } from "../index.js";
 import {
   CombatAttribute,
@@ -57,9 +58,15 @@ export default function applyConsumableUseToActionResult(
       const minHealing = (hpBioavailability * maxHp) / 8;
       const maxHealing = (hpBioavailability * 3 * maxHp) / 8;
       if (!actionResult.hitPointChangesByEntityId) actionResult.hitPointChangesByEntityId = {};
+      const hpChangeSource = new HpChangeSource(
+        HpChangeSourceCategory.Medical,
+        MeleeOrRanged.Ranged,
+        true
+      );
+      hpChangeSource.isHealing = true;
       actionResult.hitPointChangesByEntityId[targetOption] = {
         value: Math.max(1, randBetween(minHealing, maxHealing)),
-        source: new HpChangeSource({ type: HpChangeSourceCategoryType.Medical }),
+        source: hpChangeSource,
       };
 
       break;

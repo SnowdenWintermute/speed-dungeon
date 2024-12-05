@@ -1,12 +1,11 @@
 import {
   FloatingMessageElement,
   FloatingMessageElementType,
-  FloatingMessageIconType,
   FloatingMessageTextColor,
   getTailwindClassFromFloatingTextColor,
   startFloatingMessage,
 } from "@/stores/game-store/floating-messages";
-import { formatMagicalElement, formatPhysicalDamageType } from "@speed-dungeon/common";
+import { KINETIC_DAMAGE_TYPE_STRINGS, MAGICAL_ELEMENT_STRINGS } from "@speed-dungeon/common";
 import { HpChange } from "@speed-dungeon/common/src/combat/action-results/hp-change-result-calculation";
 
 export default function startHpChangeFloatingMessage(
@@ -19,12 +18,12 @@ export default function startHpChangeFloatingMessage(
 
   const colorClass = getTailwindClassFromFloatingTextColor(color);
 
-  const { elementOption, physicalDamageTypeOption } = hpChange.source;
+  const { elementOption, kineticDamageTypeOption } = hpChange.source;
 
   const elements: FloatingMessageElement[] = [
     {
       type: FloatingMessageElementType.Text,
-      text: `${Math.abs(hpChange.value)}${elementOption ? " " + formatMagicalElement(elementOption) : ""}${physicalDamageTypeOption ? " " + formatPhysicalDamageType(physicalDamageTypeOption) : ""}`,
+      text: `${Math.abs(hpChange.value)}${elementOption ? " " + MAGICAL_ELEMENT_STRINGS[elementOption] : ""}${kineticDamageTypeOption ? " " + KINETIC_DAMAGE_TYPE_STRINGS[kineticDamageTypeOption] : ""}`,
       classNames: colorClass,
     },
   ];

@@ -1,22 +1,25 @@
 import cloneDeep from "lodash.clonedeep";
-import { OFF_HAND_ACCURACY_MODIFIER, OFF_HAND_DAMAGE_MODIFIER } from "../../app-consts.js";
 import {
   CombatActionProperties,
   CombatActionHpChangeProperties,
   ActionUsableContext,
 } from "../../combat/combat-actions/combat-action-properties.js";
+import { OFF_HAND_ACCURACY_MODIFIER, OFF_HAND_DAMAGE_MODIFIER } from "../../app-consts.js";
 import {
   HpChangeSource,
   HpChangeSourceCategory,
   MeleeOrRanged,
 } from "../../combat/hp-change-source-types.js";
 import { MagicalElement } from "../../combat/magical-elements.js";
-import { TargetCategories, TargetingScheme } from "../../combat/targeting/index.js";
 import { WeaponSlot } from "../../items/equipment/slots.js";
 import { NumberRange } from "../../primatives/number-range.js";
 import { CombatAttribute } from "../combat-attributes.js";
 import AbilityAttributes from "./ability-attributes.js";
-import { AbilityName } from "./index.js";
+import { AbilityName } from "./ability-names.js";
+import {
+  TargetCategories,
+  TargetingScheme,
+} from "../../combat/combat-actions/targeting-schemes-and-categories.js";
 
 const ATTACK = (() => {
   const combatActionProperties = new CombatActionProperties();
@@ -37,6 +40,8 @@ const ATTACK_MELEE_MAIN_HAND = (() => {
   hpChangeProperties.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Strength, 100];
   hpChangeProperties.critChanceAttribute = CombatAttribute.Dexterity;
   hpChangeProperties.critMultiplierAttribute = CombatAttribute.Strength;
+
+  combatActionProperties.hpChangeProperties = hpChangeProperties;
   const attributes = new AbilityAttributes(combatActionProperties);
   return attributes;
 })();
@@ -44,6 +49,7 @@ const ATTACK_MELEE_MAIN_HAND = (() => {
 const ATTACK_MELEE_OFF_HAND = (() => {
   const attributes = cloneDeep(ATTACK_MELEE_MAIN_HAND);
   const { hpChangeProperties } = attributes.combatActionProperties;
+
   if (!hpChangeProperties) throw new Error("Expected ability not implemented");
   hpChangeProperties.addWeaponDamageFromSlots = [WeaponSlot.OffHand];
   hpChangeProperties.addWeaponElementFromSlot = WeaponSlot.OffHand;
@@ -81,6 +87,7 @@ const FIRE = (() => {
   );
   hpChangeProperties.hpChangeSource.elementOption = MagicalElement.Fire;
   hpChangeProperties.hpChangeSource.unavoidable = true;
+  combatActionProperties.hpChangeProperties = hpChangeProperties;
 
   const attributes = new AbilityAttributes(combatActionProperties);
 
@@ -109,6 +116,7 @@ const HEALING = (() => {
   const attributes = cloneDeep(FIRE);
   attributes.combatActionProperties.validTargetCategories = TargetCategories.Any;
   attributes.combatActionProperties.usabilityContext = ActionUsableContext.All;
+  attributes.combatActionProperties.description = "Restores hit points to target (damages undead)";
 
   const { hpChangeProperties } = attributes.combatActionProperties;
   if (!hpChangeProperties) throw new Error("Expected ability not implemented");
@@ -119,6 +127,7 @@ const HEALING = (() => {
 
 const DESTRUCTION = (() => {
   const attributes = cloneDeep(FIRE);
+  attributes.combatActionProperties.description = "For testing purposes";
   const { hpChangeProperties } = attributes.combatActionProperties;
   if (!hpChangeProperties) throw new Error("Expected ability not implemented");
   hpChangeProperties.hpChangeSource.elementOption = undefined;

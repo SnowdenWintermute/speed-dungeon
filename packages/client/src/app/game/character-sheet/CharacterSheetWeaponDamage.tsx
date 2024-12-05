@@ -2,7 +2,6 @@ import {
   CombatAction,
   CombatActionType,
   CombatAttribute,
-  CombatantAbility,
   AbilityName,
   CombatantProperties,
   ERROR_MESSAGES,
@@ -14,6 +13,7 @@ import {
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
+import { ABILITY_ATTRIBUTES } from "@speed-dungeon/common";
 import React from "react";
 
 export default function CharacterSheetWeaponDamage({
@@ -107,9 +107,7 @@ function getAttackAbilityDamageAndAccuracy(
   combatantAccuracy: number,
   isOffHand: boolean
 ): Error | [NumberRange, number] {
-  let abilityName = isOffHand
-    ? AbilityName.AttackMeleeOffhand
-    : AbilityName.AttackMeleeMainhand;
+  let abilityName = isOffHand ? AbilityName.AttackMeleeOffhand : AbilityName.AttackMeleeMainhand;
 
   if (weaponOption) {
     const weaponProperties = weaponOption;
@@ -135,7 +133,7 @@ function getAttackAbilityDamageAndAccuracy(
   if (attackActionPropertiesResult.hpChangeProperties === null)
     return new Error(ERROR_MESSAGES.ABILITIES.INVALID_TYPE);
   const hpChangeProperties = attackActionPropertiesResult.hpChangeProperties;
-  const abilityAttributes = CombatantAbility.getAttributes(abilityName);
+  const abilityAttributes = ABILITY_ATTRIBUTES[abilityName];
 
   const damageRangeResult = calculateCombatActionHpChangeRange(
     combatantProperties,

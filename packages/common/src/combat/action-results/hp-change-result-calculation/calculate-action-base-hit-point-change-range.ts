@@ -1,12 +1,10 @@
 import cloneDeep from "lodash.clonedeep";
 import { CombatantProperties } from "../../../combatants/index.js";
-import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";
 import { COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER } from "../../../app-consts.js";
 import { EquipmentProperties, EquipmentSlot, WeaponSlot } from "../../../items/index.js";
 
 export default function calculateActionBaseHitPointChangeRange(
-  game: SpeedDungeonGame,
   userCombatantProperties: CombatantProperties,
   hpChangeProperties: CombatActionHpChangeProperties,
   abilityLevelAndBaseValueScalingFactorOption: null | [number, number]
@@ -32,22 +30,22 @@ export default function calculateActionBaseHitPointChangeRange(
     range.max += combatantLevelAdjustedValue;
   }
 
+  if (hpChangeProperties.addWeaponDamageFromSlots === null) return range;
+
   // ADD WEAPON DAMAGE
-  if (hpChangeProperties.addWeaponDamageFrom !== null) {
-    for (const weaponSlot of hpChangeProperties.addWeaponDamageFrom) {
-      let equipmentSlot =
-        weaponSlot === WeaponSlot.OffHand ? EquipmentSlot.OffHand : EquipmentSlot.MainHand;
-      const weaponEquipmentProperties = CombatantProperties.getEquipmentInSlot(
-        userCombatantProperties,
-        equipmentSlot
-      );
-      if (weaponEquipmentProperties) {
-        const weaponDamageResult =
-          EquipmentProperties.getModifiedWeaponDamageRange(weaponEquipmentProperties);
-        if (weaponDamageResult instanceof Error) return weaponDamageResult;
-        range.min += weaponDamageResult.min;
-        range.max += weaponDamageResult.max;
-      }
+  for (const weaponSlot of hpChangeProperties.addWeaponDamageFromSlots) {
+    let equipmentSlot =
+      weaponSlot === WeaponSlot.OffHand ? EquipmentSlot.OffHand : EquipmentSlot.MainHand;
+    const weaponEquipmentProperties = CombatantProperties.getEquipmentInSlot(
+      userCombatantProperties,
+      equipmentSlot
+    );
+    if (weaponEquipmentProperties) {
+      const weaponDamageResult =
+        EquipmentProperties.getModifiedWeaponDamageRange(weaponEquipmentProperties);
+      if (weaponDamageResult instanceof Error) return weaponDamageResult;
+      range.min += weaponDamageResult.min;
+      range.max += weaponDamageResult.max;
     }
   }
 

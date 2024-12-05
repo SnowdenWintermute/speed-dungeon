@@ -5,13 +5,13 @@ import {
 import React from "react";
 import FloatingMessageText from "./FloatingMessageText";
 import { useGameStore } from "@/stores/game-store";
-import {
-  PhysicalDamageType,
-  formatMagicalElement,
-  formatPhysicalDamageType,
-} from "@speed-dungeon/common";
 import PiercingIcon from "../../../../../public/img/hp-change-source-icons/piercing.svg";
 import SlashingIcon from "../../../../../public/img/hp-change-source-icons/slashing.svg";
+import {
+  KINETIC_DAMAGE_TYPE_STRINGS,
+  KineticDamageType,
+  MAGICAL_ELEMENT_STRINGS,
+} from "@speed-dungeon/common";
 
 export default function CombatantFloatingMessagesDisplay({ entityId }: { entityId: string }) {
   const floatingMessages =
@@ -47,9 +47,9 @@ export default function CombatantFloatingMessagesDisplay({ entityId }: { entityI
                       key={i}
                       classNames={element.classNames + " mr-1 last:mr-0"}
                       text={`${
-                        element.iconData.type === FloatingMessageIconType.PhysicalDamage
-                          ? formatPhysicalDamageType(element.iconData.damageType)
-                          : formatMagicalElement(element.iconData.element)
+                        element.iconData.type === FloatingMessageIconType.KineticDamage
+                          ? KINETIC_DAMAGE_TYPE_STRINGS[element.iconData.damageType]
+                          : MAGICAL_ELEMENT_STRINGS[element.iconData.element]
                       }`}
                     />
                   );
@@ -62,13 +62,13 @@ export default function CombatantFloatingMessagesDisplay({ entityId }: { entityI
   );
 }
 
-function getPhysicalDamageTypeIcon(damageType: PhysicalDamageType) {
+function getPhysicalDamageTypeIcon(damageType: KineticDamageType) {
   switch (damageType) {
-    case PhysicalDamageType.Blunt:
+    case KineticDamageType.Blunt:
       return "Blunt";
-    case PhysicalDamageType.Slashing:
+    case KineticDamageType.Slashing:
       return <SlashingIcon className="h-10 w-10" />;
-    case PhysicalDamageType.Piercing:
+    case KineticDamageType.Piercing:
       return <PiercingIcon className="h-10 w-10" />;
   }
 }

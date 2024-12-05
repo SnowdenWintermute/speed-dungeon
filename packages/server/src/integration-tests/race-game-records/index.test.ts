@@ -74,11 +74,11 @@ import {
   GameMessageType,
   GameMode,
   HpChangeSource,
-  HpChangeSourceCategoryType,
   MeleeOrRanged,
   PartyFate,
   ServerToClientEvent,
   ServerToClientEventTypes,
+  HpChangeSourceCategory,
 } from "@speed-dungeon/common";
 import { env } from "../../validate-env.js";
 import {
@@ -417,10 +417,7 @@ describe("race game records", () => {
           hpChangesByEntityId: {
             [character1.entityProperties.id]: new HpChange(
               -9999,
-              new HpChangeSource({
-                type: HpChangeSourceCategoryType.PhysicalDamage,
-                meleeOrRanged: MeleeOrRanged.Melee,
-              })
+              new HpChangeSource(HpChangeSourceCategory.Physical, MeleeOrRanged.Melee, true)
             ),
           },
           mpChangesByEntityId: null,

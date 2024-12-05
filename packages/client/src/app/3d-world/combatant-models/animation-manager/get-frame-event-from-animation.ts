@@ -6,8 +6,8 @@ import {
   Inventory,
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
-  formatAbilityName,
   formatConsumableType,
+  ABILITY_NAME_STRINGS,
 } from "@speed-dungeon/common";
 import { GameWorld } from "../../game-world";
 import {
@@ -70,7 +70,7 @@ export default function getFrameEventFromAnimation(
             wasSpell = true;
             state.combatLogMessages.push(
               new CombatLogMessage(
-                `${actionUserResult.entityProperties.name} casts ${formatAbilityName(combatAction.abilityName)}`,
+                `${actionUserResult.entityProperties.name} casts ${ABILITY_NAME_STRINGS[combatAction.abilityName]}`,
                 CombatLogMessageStyle.Basic
               )
             );

@@ -1,6 +1,5 @@
 import { Vector3 } from "@babylonjs/core";
 import { CombatAction } from "../combat/combat-actions/index.js";
-import { PhysicalDamageType } from "../combat/hp-change-source-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
 import { Item } from "../items/index.js";
@@ -23,7 +22,6 @@ import getAbilityNamesFilteredByUseableContext from "./get-ability-names-filtere
 import { getCombatActionPropertiesIfOwned } from "./get-combat-action-properties.js";
 import getCombatantTotalAttributes from "./get-combatant-total-attributes.js";
 import getCombatantTotalElementalAffinities from "./get-combatant-total-elemental-affinities.js";
-import getCombatantTotalPhysicalDamageTypeAffinities from "./get-combatant-total-physical-damage-type-affinities.js";
 import getEquipmentInSlot from "./get-equipment-in-slot.js";
 import getEquippedWeapon from "./get-equipped-weapon.js";
 import getSlotItemIsEquippedTo from "./get-slot-item-is-equipped-to.js";
@@ -36,12 +34,14 @@ import { cloneVector3 } from "../utils/index.js";
 import awardLevelups from "./award-levelups.js";
 import { incrementAttributePoint } from "./increment-attribute-point.js";
 import { MonsterType } from "../monsters/monster-types.js";
+import { KineticDamageType } from "../combat/kinetic-damage-types.js";
+import getCombatantTotalKineticDamageTypeAffinities from "./get-combatant-total-kinetic-damage-type-affinities.js";
 
 export class CombatantProperties {
   [immerable] = true;
   inherentAttributes: CombatantAttributeRecord = {};
   inherentElementalAffinities: Partial<Record<MagicalElement, number>> = {};
-  inherentPhysicalDamageTypeAffinities: Partial<Record<PhysicalDamageType, number>> = {};
+  inherentKineticDamageTypeAffinities: Partial<Record<KineticDamageType, number>> = {};
   level: number = 1;
   unspentAttributePoints: number = 0;
   unspentAbilityPoints: number = 0;
@@ -69,9 +69,7 @@ export class CombatantProperties {
     public controllingPlayer: null | string,
     public homeLocation: Vector3
   ) {
-    this.abilities[AbilityName.Attack] = CombatantAbility.createByName(
-      AbilityName.Attack
-    );
+    this.abilities[AbilityName.Attack] = CombatantAbility.createByName(AbilityName.Attack);
     this.abilities[AbilityName.AttackMeleeMainhand] = CombatantAbility.createByName(
       AbilityName.AttackMeleeMainhand
     );
@@ -86,8 +84,8 @@ export class CombatantProperties {
   static getCombatActionPropertiesIfOwned = getCombatActionPropertiesIfOwned;
   static getTotalAttributes = getCombatantTotalAttributes;
   static getCombatantTotalElementalAffinities = getCombatantTotalElementalAffinities;
-  static getCombatantTotalPhysicalDamageTypeAffinities =
-    getCombatantTotalPhysicalDamageTypeAffinities;
+  static getCombatantTotalKineticDamageTypeAffinities =
+    getCombatantTotalKineticDamageTypeAffinities;
   static getEquipmentInSlot = getEquipmentInSlot;
   static getEquippedWeapon = getEquippedWeapon;
   static setHpAndMpToMax = setHpAndMpToMax;

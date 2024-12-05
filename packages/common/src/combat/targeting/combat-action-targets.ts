@@ -1,4 +1,4 @@
-import { FriendOrFoe } from "./index.js";
+import { FriendOrFoe } from "../combat-actions/targeting-schemes-and-categories";
 
 export enum CombatActionTargetType {
   Single,

@@ -9,10 +9,10 @@ export function getAbilityCostIfOwned(
 ): Error | number {
   const abilityOption = combatantProperties.abilities[abilityName];
   if (!abilityOption) return new Error(ERROR_MESSAGES.ABILITIES.NOT_OWNED);
-  return getAbilityManaCost(combatantProperties, abilityOption);
+  return getAbilityManaCostForCombatant(combatantProperties, abilityOption);
 }
 
-export function getAbilityManaCost(
+export function getAbilityManaCostForCombatant(
   combatantProperties: CombatantProperties,
   ability: CombatantAbility
 ): number {

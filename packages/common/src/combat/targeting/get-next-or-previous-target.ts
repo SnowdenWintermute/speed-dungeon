@@ -1,7 +1,10 @@
-import { FriendOrFoe, TargetCategories } from "../index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { NextOrPrevious } from "../../primatives/index.js";
 import { CombatActionProperties } from "../combat-actions/index.js";
+import {
+  FriendOrFoe,
+  TargetCategories,
+} from "../combat-actions/targeting-schemes-and-categories.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 
 export default function getNextOrPreviousTarget(

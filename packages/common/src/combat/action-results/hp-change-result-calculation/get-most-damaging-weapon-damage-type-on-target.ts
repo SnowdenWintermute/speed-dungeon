@@ -1,31 +1,31 @@
 import { CombatantProperties } from "../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { WeaponSlot } from "../../../items/index.js";
-import { PhysicalDamageType } from "../../hp-change-source-types.js";
+import { KineticDamageType } from "../../kinetic-damage-types.js";
 
-export default function getMostDamagingWeaponPhysicalDamageTypeOnTarget(
+export default function getMostDamagingWeaponKineticDamageTypeOnTarget(
   game: SpeedDungeonGame,
   weaponSlot: WeaponSlot,
   userCombatantProperties: CombatantProperties,
   targetId: string
-): Error | null | PhysicalDamageType {
+): Error | null | KineticDamageType {
   const weaponOption = CombatantProperties.getEquippedWeapon(userCombatantProperties, weaponSlot);
   if (!weaponOption) return null;
 
   const weaponProperties = weaponOption;
 
-  const damageTypesToSelectFrom: PhysicalDamageType[] = [];
+  const damageTypesToSelectFrom: KineticDamageType[] = [];
   for (const hpChangeSource of weaponProperties.damageClassification) {
-    if (hpChangeSource.physicalDamageTypeOption !== undefined)
-      damageTypesToSelectFrom.push(hpChangeSource.physicalDamageTypeOption);
+    if (hpChangeSource.kineticDamageTypeOption !== undefined)
+      damageTypesToSelectFrom.push(hpChangeSource.kineticDamageTypeOption);
   }
 
   const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, targetId);
   if (targetCombatantResult instanceof Error) return targetCombatantResult;
   const { combatantProperties: targetCombatantProperties } = targetCombatantResult;
   const targetAffinities =
-    CombatantProperties.getCombatantTotalPhysicalDamageTypeAffinities(targetCombatantProperties);
-  let weakestAffinityOption: null | [PhysicalDamageType, number] = null;
+    CombatantProperties.getCombatantTotalKineticDamageTypeAffinities(targetCombatantProperties);
+  let weakestAffinityOption: null | [KineticDamageType, number] = null;
   for (const damageType of damageTypesToSelectFrom) {
     const targetAffinityValueOption = targetAffinities[damageType];
     if (targetAffinityValueOption === undefined) continue;

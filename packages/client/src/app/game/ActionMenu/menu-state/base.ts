@@ -15,10 +15,9 @@ import {
   Battle,
   ClientToServerEvent,
   CombatActionType,
-  CombatantAbility,
   AbilityName,
   CombatantProperties,
-  formatAbilityName,
+  ABILITY_NAME_STRINGS,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -27,6 +26,7 @@ import getGameAndParty from "@/utils/getGameAndParty";
 import cloneDeep from "lodash.clonedeep";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
+import { ABILITY_ATTRIBUTES } from "@speed-dungeon/common";
 
 export const toggleInventoryHotkey = HOTKEYS.MAIN_1;
 export const toggleAssignAttributesHotkey = HOTKEYS.ALT_1;
@@ -87,7 +87,7 @@ export class BaseMenuState implements ActionMenuState {
 
     for (const ability of Object.values(combatantProperties.abilities)) {
       if (abilitiesNotToMakeButtonsFor.includes(ability.name)) continue;
-      const button = new ActionMenuButtonProperties(formatAbilityName(ability.name), () => {
+      const button = new ActionMenuButtonProperties(ABILITY_NAME_STRINGS[ability.name], () => {
         websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
           characterId,
           combatActionOption: { type: CombatActionType.AbilityUsed, abilityName: ability.name },
@@ -109,7 +109,7 @@ export class BaseMenuState implements ActionMenuState {
           state.hoveredAction = null;
         });
 
-      const abilityAttributes = CombatantAbility.getAttributes(ability.name);
+      const abilityAttributes = ABILITY_ATTRIBUTES[ability.name];
       const { usabilityContext } = abilityAttributes.combatActionProperties;
 
       const abilityCostIfOwned = CombatantProperties.getAbilityCostIfOwned(

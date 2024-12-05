@@ -1,12 +1,12 @@
 import {
+  ABILITY_NAME_STRINGS,
   AdventuringParty,
+  COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   CombatAction,
   CombatActionType,
   CombatantAbility,
   ERROR_MESSAGES,
   ItemPropertiesType,
-  formatAbilityName,
-  formatActionUsabilityContext,
   formatConsumableType,
   formatTargetCategories,
   formatTargetingScheme,
@@ -75,7 +75,7 @@ export default function ActionDetails({ combatAction, hideTitle }: Props) {
           {`Valid targets: ${formatTargetCategories(combatActionProperties.validTargetCategories)}`}
         </div>
         <div>{`Targeting schemes: ${targetingSchemesText}`}</div>
-        <div>{`Usable ${formatActionUsabilityContext(combatActionProperties.usabilityContext)}`}</div>
+        <div>{`Usable ${COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[combatActionProperties.usabilityContext]}`}</div>
       </div>
     </div>
   );
@@ -85,7 +85,7 @@ function getCombatActionName(party: AdventuringParty, combatAction: CombatAction
   let actionName = "";
   switch (combatAction.type) {
     case CombatActionType.AbilityUsed:
-      actionName = formatAbilityName(combatAction.abilityName);
+      actionName = ABILITY_NAME_STRINGS[combatAction.abilityName];
       break;
     case CombatActionType.ConsumableUsed:
       const itemResult = AdventuringParty.getItem(party, combatAction.itemId);

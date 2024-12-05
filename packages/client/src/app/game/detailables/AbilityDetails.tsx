@@ -10,6 +10,7 @@ import React from "react";
 import CharacterSheetWeaponDamage from "../character-sheet/CharacterSheetWeaponDamage";
 import { NumberRange } from "@speed-dungeon/common";
 import DamageTypeBadge from "./DamageTypeBadge";
+import { ABILITY_ATTRIBUTES } from "@speed-dungeon/common";
 
 interface Props {
   ability: CombatantAbility;
@@ -22,7 +23,7 @@ export default function AbilityDetails({
   combatActionProperties,
   userCombatantProperties,
 }: Props) {
-  const abilityAttributes = CombatantAbility.getAttributes(ability.name);
+  const abilityAttributes = ABILITY_ATTRIBUTES[ability.name];
   const mpCostResult = CombatantProperties.getAbilityCostIfOwned(
     userCombatantProperties,
     ability.name
@@ -59,7 +60,7 @@ export default function AbilityDetails({
       {attackDamageDisplay}
       {combatActionProperties.hpChangeProperties && (
         <DamageTypeBadge
-          hpChangeSource={combatActionProperties.hpChangeProperties.sourceProperties}
+          hpChangeSource={combatActionProperties.hpChangeProperties.hpChangeSource}
         />
       )}
     </div>

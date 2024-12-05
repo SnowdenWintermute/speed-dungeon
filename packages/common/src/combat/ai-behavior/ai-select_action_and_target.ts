@@ -1,13 +1,10 @@
-import { CombatActionTargetType, FriendOrFoe } from "../index.js";
+import { CombatActionTargetType } from "../index.js";
 import { BattleGroup } from "../../battle/index.js";
-import {
-  AbilityName,
-  Combatant,
-  CombatantProperties,
-} from "../../combatants/index.js";
+import { AbilityName, Combatant, CombatantProperties } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { chooseRandomFromArray } from "../../utils/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
+import { FriendOrFoe } from "../combat-actions/targeting-schemes-and-categories.js";
 
 export interface AbilityAndTarget {
   abilityName: AbilityName;

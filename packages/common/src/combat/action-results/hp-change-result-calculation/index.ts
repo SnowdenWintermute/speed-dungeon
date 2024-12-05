@@ -10,7 +10,6 @@ import {
 import { randBetween } from "../../../utils/index.js";
 import { ActionResultCalculationArguments } from "../action-result-calculator.js";
 import getMostDamagingWeaponElementOnTarget from "./get-most-damaging-weapon-element-on-target.js";
-import getMostDamagingWeaponPhysicalDamageTypeOnTarget from "./get-most-damaging-weapon-damage-type-on-target.js";
 import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
 import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app-consts.js";
 import { HpChangeSource, HpChangeSourceCategory } from "../../hp-change-source-types.js";
@@ -19,6 +18,7 @@ import calculatePhysicalDamageHpChangesAndCrits from "./calculate-physical-damag
 import calculateMagicalDamageHpChangesAndCrits from "./calculate-magical-damage-hp-changes-and-crits.js";
 import calculateHealingHpChangesAndCrits from "./calculate-healing-hp-changes-and-crits.js";
 import { ABILITY_ATTRIBUTES } from "../../../combatants/abilities/get-ability-attributes.js";
+import getMostDamagingWeaponKineticDamageTypeOnTarget from "./get-most-damaging-weapon-damage-type-on-target.js";
 
 export class HpChange {
   constructor(
@@ -88,7 +88,7 @@ export default function calculateActionHitPointChangesAndEvasions(
   }
 
   if (hpChangeProperties.addWeaponKineticDamageTypeFromSlot !== null) {
-    const physicalDamageTypeToAddOptionResult = getMostDamagingWeaponPhysicalDamageTypeOnTarget(
+    const physicalDamageTypeToAddOptionResult = getMostDamagingWeaponKineticDamageTypeOnTarget(
       game,
       hpChangeProperties.addWeaponKineticDamageTypeFromSlot,
       userCombatantProperties,
