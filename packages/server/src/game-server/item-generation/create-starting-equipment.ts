@@ -32,7 +32,7 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
       mainhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-          baseItemType: TwoHandedMeleeWeapon.RottingBranch,
+          baseItemType: TwoHandedMeleeWeapon.Trident,
         },
         true
       );
@@ -48,7 +48,7 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
       offhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.ButterKnife,
+          baseItemType: OneHandedMeleeWeapon.RuneSword,
         },
         true
       );

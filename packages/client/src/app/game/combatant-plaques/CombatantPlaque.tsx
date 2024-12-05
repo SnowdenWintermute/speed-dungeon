@@ -14,13 +14,12 @@ import { ClientToServerEvent, Combatant, InputLock } from "@speed-dungeon/common
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
-import { getTailwindClassFromFloatingTextColor } from "@/stores/game-store/floating-text";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
 import setFocusedCharacter from "@/utils/set-focused-character";
 import { AssigningAttributePointsMenuState } from "../ActionMenu/menu-state/assigning-attribute-points";
-import { FloatingMessageElementType } from "@/stores/game-store/floating-messages";
+import CombatantFloatingMessagesDisplay from "./combatant-floating-messages-display";
 
 interface Props {
   combatant: Combatant;
@@ -46,8 +45,6 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
   const entityId = combatant.entityProperties.id;
   const babylonDebugMessages =
     useGameStore().babylonControlledCombatantDOMData[entityId]?.debugMessages;
-  const floatingMessages =
-    useGameStore().babylonControlledCombatantDOMData[entityId]?.floatingMessages;
   const modelsAwaitingSpawn = useGameStore().combatantModelsAwaitingSpawn;
 
   const usernameOption = useGameStore().username;
@@ -124,62 +121,16 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
 
   return (
     <div className="">
-      {
-        <div id={`${entityId}-position-div`} className="absolute">
-          {
-            <div className="text-2xl absolute w-fit bottom-0 bg-gray-700 opacity-50 ">
-              {
-                // activeModelAction !== null &&
-                // activeModelAction !== undefined &&
-                // formatCombatModelActionType(activeModelAction)
-              }
+      <div id={`${entityId}-position-div`} className="absolute">
+        <CombatantFloatingMessagesDisplay entityId={entityId} />
+        <div className="absolute flex flex-col justify-center items-center text-center top-1/2 left-1/2 -translate-x-1/2 w-[400px]">
+          {babylonDebugMessages?.map((message) => (
+            <div className="text-xl relative w-[400px] text-center" key={message.id}>
+              <div className="">{message.text}</div>
             </div>
-          }
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full flex flex-col items-center text-center">
-            {floatingMessages?.map((message) => {
-              return (
-                <div
-                  className="text-2xl relative"
-                  style={{
-                    animation: "float-up-and-fade-out", // defined in css file same directory
-                    animationDuration: `${message.displayTime + 50}ms`,
-                    animationTimingFunction: "linear",
-                    animationIterationCount: 1,
-                  }}
-                  key={message.id}
-                >
-                  {message.elements.map((element, i) => {
-                    switch (element.type) {
-                      case FloatingMessageElementType.Text:
-                        return (
-                          <div key={i} className={element.classNames} style={element.styles}>
-                            {element.text}
-                          </div>
-                        );
-                      case FloatingMessageElementType.Image:
-                        return (
-                          <img
-                            key={i}
-                            src={element.src}
-                            className={element.classNames}
-                            style={element.styles}
-                          ></img>
-                        );
-                    }
-                  })}
-                </div>
-              );
-            })}
-          </div>
-          <div className="absolute flex flex-col justify-center items-center text-center top-1/2 left-1/2 -translate-x-1/2 w-[400px]">
-            {babylonDebugMessages?.map((message) => (
-              <div className="text-xl relative w-[400px] text-center" key={message.id}>
-                <div className="">{message.text}</div>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
-      }
+      </div>
       <div
         className={`w-96 h-fit border bg-slate-700 flex p-2.5 relative box-border ${conditionalBorder} ${lockedUiState}`}
         ref={combatantPlaqueRef}

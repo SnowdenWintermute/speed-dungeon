@@ -1,3 +1,4 @@
+import { MagicalElement, PhysicalDamageType } from "@speed-dungeon/common";
 import { GameState, useGameStore } from ".";
 import { BabylonControlledCombatantData } from "./babylon-controlled-combatant-data";
 
@@ -16,17 +17,33 @@ export type FloatingMessageTextElement = {
   type: FloatingMessageElementType.Text;
   text: string | number;
   classNames?: string;
-  styles?: { [key: string]: number | string };
 };
 
-export type FloatingMessageImageElement = {
+export enum FloatingMessageIconType {
+  PhysicalDamage,
+  MagicalElement,
+}
+
+export type FloatingMessagePhysicalDamageTypeIcon = {
+  type: FloatingMessageIconType.PhysicalDamage;
+  damageType: PhysicalDamageType;
+};
+export type FloatingMessageMagicalElementIcon = {
+  type: FloatingMessageIconType.MagicalElement;
+  element: MagicalElement;
+};
+
+export type FloatingMessageIconData =
+  | FloatingMessagePhysicalDamageTypeIcon
+  | FloatingMessageMagicalElementIcon;
+
+export type FloatingMessageIconElement = {
   type: FloatingMessageElementType.Image;
-  src: string;
+  iconData: FloatingMessageIconData;
   classNames?: string;
-  styles?: { [key: string]: number | string };
 };
 
-export type FloatingMessageElement = FloatingMessageImageElement | FloatingMessageTextElement;
+export type FloatingMessageElement = FloatingMessageIconElement | FloatingMessageTextElement;
 
 export class FloatingMessage {
   constructor(

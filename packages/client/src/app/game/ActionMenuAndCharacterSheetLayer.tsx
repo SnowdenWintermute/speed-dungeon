@@ -32,7 +32,7 @@ export default function ActionMenuAndCharacterSheetLayer({ party }: { party: Adv
           <div className="min-w-[25rem] max-w-[25rem]" style={{ marginRight: `${SPACING_REM}rem` }}>
             <ItemsOnGround maxHeightRem={13.375} party={party} />
           </div>
-          <ItemDetailsWithComparison flipDisplayOrder={false} />
+          {viewingCharacterSheet && <ItemDetailsWithComparison flipDisplayOrder={false} />}
         </div>
       </div>
     </section>
