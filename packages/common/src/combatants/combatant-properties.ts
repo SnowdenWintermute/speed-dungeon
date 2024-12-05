@@ -5,7 +5,7 @@ import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
 import { Item } from "../items/index.js";
 import { EquipmentSlot } from "../items/equipment/slots.js";
-import { CombatantAbility, CombatantAbilityName } from "./abilities/index.js";
+import { CombatantAbility, AbilityName } from "./abilities/index.js";
 import { getAbilityCostIfOwned } from "./abilities/ability-mana-cost-getters.js";
 import getAbilityIfOwned from "./abilities/get-ability-if-owned.js";
 import combatantCanUseItem from "./can-use-item.js";
@@ -49,7 +49,7 @@ export class CombatantProperties {
   mana: number = 0;
   speccedAttributes: CombatantAttributeRecord = {};
   experiencePoints: ExperiencePoints = { current: 0, requiredForNextLevel: 100 };
-  abilities: Partial<Record<CombatantAbilityName, CombatantAbility>> = {};
+  abilities: Partial<Record<AbilityName, CombatantAbility>> = {};
   traits: CombatantTrait[] = [];
   equipment: Partial<Record<EquipmentSlot, Item>> = {};
   inventory: Inventory = new Inventory();
@@ -69,17 +69,17 @@ export class CombatantProperties {
     public controllingPlayer: null | string,
     public homeLocation: Vector3
   ) {
-    this.abilities[CombatantAbilityName.Attack] = CombatantAbility.createByName(
-      CombatantAbilityName.Attack
+    this.abilities[AbilityName.Attack] = CombatantAbility.createByName(
+      AbilityName.Attack
     );
-    this.abilities[CombatantAbilityName.AttackMeleeMainhand] = CombatantAbility.createByName(
-      CombatantAbilityName.AttackMeleeMainhand
+    this.abilities[AbilityName.AttackMeleeMainhand] = CombatantAbility.createByName(
+      AbilityName.AttackMeleeMainhand
     );
-    this.abilities[CombatantAbilityName.AttackMeleeOffhand] = CombatantAbility.createByName(
-      CombatantAbilityName.AttackMeleeOffhand
+    this.abilities[AbilityName.AttackMeleeOffhand] = CombatantAbility.createByName(
+      AbilityName.AttackMeleeOffhand
     );
-    this.abilities[CombatantAbilityName.AttackRangedMainhand] = CombatantAbility.createByName(
-      CombatantAbilityName.AttackRangedMainhand
+    this.abilities[AbilityName.AttackRangedMainhand] = CombatantAbility.createByName(
+      AbilityName.AttackRangedMainhand
     );
   }
 

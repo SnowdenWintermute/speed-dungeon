@@ -1,4 +1,4 @@
-import { AdventuringParty, CombatantAbilityName } from "@speed-dungeon/common";
+import { AdventuringParty, AbilityName } from "@speed-dungeon/common";
 
 interface Props {
   party: AdventuringParty;
@@ -34,7 +34,7 @@ function TargetingIndicator({ combatAction }: TargetingIndicatorProps) {
   let color = "yellow-700";
   if (
     combatAction.type === CombatActionType.AbilityUsed &&
-    combatAction.abilityName === CombatantAbilityName.Healing
+    combatAction.abilityName === AbilityName.Healing
   ) {
     color = "green-600";
   }

@@ -1,7 +1,7 @@
 import { CombatActionTargetType, FriendOrFoe } from "../index.js";
 import { BattleGroup } from "../../battle/index.js";
 import {
-  CombatantAbilityName,
+  AbilityName,
   Combatant,
   CombatantProperties,
 } from "../../combatants/index.js";
@@ -10,7 +10,7 @@ import { chooseRandomFromArray } from "../../utils/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 
 export interface AbilityAndTarget {
-  abilityName: CombatantAbilityName;
+  abilityName: AbilityName;
   target: CombatActionTarget;
 }
 
@@ -28,45 +28,45 @@ export function AISelectActionAndTarget(
   if (userCombatantResult instanceof Error) return userCombatantResult;
   const { combatantProperties: userCombatantProperties } = userCombatantResult;
 
-  if (userCombatantProperties.abilities[CombatantAbilityName.Fire]) {
+  if (userCombatantProperties.abilities[AbilityName.Fire]) {
     const manaCostResult = CombatantProperties.getAbilityCostIfOwned(
       userCombatantProperties,
-      CombatantAbilityName.Fire
+      AbilityName.Fire
     );
     if (manaCostResult instanceof Error) return manaCostResult;
     return {
-      abilityName: CombatantAbilityName.Fire,
+      abilityName: AbilityName.Fire,
       target: { type: CombatActionTargetType.Group, friendOrFoe: FriendOrFoe.Hostile },
     };
   }
-  if (userCombatantProperties.abilities[CombatantAbilityName.Ice]) {
+  if (userCombatantProperties.abilities[AbilityName.Ice]) {
     const manaCostResult = CombatantProperties.getAbilityCostIfOwned(
       userCombatantProperties,
-      CombatantAbilityName.Ice
+      AbilityName.Ice
     );
     if (manaCostResult instanceof Error) return manaCostResult;
     return {
-      abilityName: CombatantAbilityName.Ice,
+      abilityName: AbilityName.Ice,
       target: {
         type: CombatActionTargetType.Single,
         targetId: randomEnemyTarget.entityProperties.id,
       },
     };
   }
-  if (userCombatantProperties.abilities[CombatantAbilityName.Healing]) {
+  if (userCombatantProperties.abilities[AbilityName.Healing]) {
     const manaCostResult = CombatantProperties.getAbilityCostIfOwned(
       userCombatantProperties,
-      CombatantAbilityName.Healing
+      AbilityName.Healing
     );
     if (manaCostResult instanceof Error) return manaCostResult;
     return {
-      abilityName: CombatantAbilityName.Healing,
+      abilityName: AbilityName.Healing,
       target: { type: CombatActionTargetType.Group, friendOrFoe: FriendOrFoe.Friendly },
     };
   }
 
   return {
-    abilityName: CombatantAbilityName.Attack,
+    abilityName: AbilityName.Attack,
     target: {
       type: CombatActionTargetType.Single,
       targetId: randomEnemyTarget.entityProperties.id,

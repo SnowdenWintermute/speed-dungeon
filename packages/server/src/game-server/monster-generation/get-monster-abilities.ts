@@ -1,37 +1,37 @@
-import { CombatantAbility, CombatantAbilityName, MonsterType } from "@speed-dungeon/common";
+import { CombatantAbility, AbilityName, MonsterType } from "@speed-dungeon/common";
 
 export default function getMonsterAbilities(
   monsterType: MonsterType
-): Partial<Record<CombatantAbilityName, CombatantAbility>> {
-  const abilities: Partial<Record<CombatantAbilityName, CombatantAbility>> = {};
+): Partial<Record<AbilityName, CombatantAbility>> {
+  const abilities: Partial<Record<AbilityName, CombatantAbility>> = {};
 
-  abilities[CombatantAbilityName.Attack] = CombatantAbility.createByName(
-    CombatantAbilityName.Attack
+  abilities[AbilityName.Attack] = CombatantAbility.createByName(
+    AbilityName.Attack
   );
-  abilities[CombatantAbilityName.AttackMeleeMainhand] = CombatantAbility.createByName(
-    CombatantAbilityName.AttackMeleeMainhand
+  abilities[AbilityName.AttackMeleeMainhand] = CombatantAbility.createByName(
+    AbilityName.AttackMeleeMainhand
   );
-  abilities[CombatantAbilityName.AttackMeleeOffhand] = CombatantAbility.createByName(
-    CombatantAbilityName.AttackMeleeOffhand
+  abilities[AbilityName.AttackMeleeOffhand] = CombatantAbility.createByName(
+    AbilityName.AttackMeleeOffhand
   );
-  abilities[CombatantAbilityName.AttackRangedMainhand] = CombatantAbility.createByName(
-    CombatantAbilityName.AttackRangedMainhand
+  abilities[AbilityName.AttackRangedMainhand] = CombatantAbility.createByName(
+    AbilityName.AttackRangedMainhand
   );
 
   switch (monsterType) {
     case MonsterType.FireMage:
     case MonsterType.FireElemental:
-      abilities[CombatantAbilityName.Fire] = CombatantAbility.createByName(
-        CombatantAbilityName.Fire
+      abilities[AbilityName.Fire] = CombatantAbility.createByName(
+        AbilityName.Fire
       );
       break;
     case MonsterType.Cultist:
-      abilities[CombatantAbilityName.Healing] = CombatantAbility.createByName(
-        CombatantAbilityName.Healing
+      abilities[AbilityName.Healing] = CombatantAbility.createByName(
+        AbilityName.Healing
       );
       break;
     case MonsterType.IceElemental:
-      abilities[CombatantAbilityName.Ice] = CombatantAbility.createByName(CombatantAbilityName.Ice);
+      abilities[AbilityName.Ice] = CombatantAbility.createByName(AbilityName.Ice);
       break;
     case MonsterType.MetallicGolem:
     case MonsterType.Zombie:

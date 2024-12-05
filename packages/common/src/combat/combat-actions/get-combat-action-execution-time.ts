@@ -1,6 +1,6 @@
 import { CombatAction, CombatActionType } from "../index.js";
 import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../app-consts.js";
-import { CombatantAbilityName, CombatantProperties } from "../../combatants/index.js";
+import { AbilityName, CombatantProperties } from "../../combatants/index.js";
 import { EquipmentProperties, EquipmentSlot, Item } from "../../items/index.js";
 
 export function getCombatActionExecutionTime(
@@ -10,9 +10,9 @@ export function getCombatActionExecutionTime(
   switch (combatAction.type) {
     case CombatActionType.AbilityUsed:
       switch (combatAction.abilityName) {
-        case CombatantAbilityName.Attack:
-        case CombatantAbilityName.AttackMeleeMainhand:
-        case CombatantAbilityName.AttackMeleeOffhand:
+        case AbilityName.Attack:
+        case AbilityName.AttackMeleeMainhand:
+        case AbilityName.AttackMeleeOffhand:
           const mhWeaponOption = combatantProperties.equipment[EquipmentSlot.MainHand];
           if (!mhWeaponOption) return 1000;
           const equipmentPropertiesResult = Item.getEquipmentProperties(mhWeaponOption);
@@ -22,10 +22,10 @@ export function getCombatActionExecutionTime(
           );
           if (isTwoHanded) return 2000;
           else return 1000;
-        case CombatantAbilityName.AttackRangedMainhand:
-        case CombatantAbilityName.Fire:
-        case CombatantAbilityName.Ice:
-        case CombatantAbilityName.Healing:
+        case AbilityName.AttackRangedMainhand:
+        case AbilityName.Fire:
+        case AbilityName.Ice:
+        case AbilityName.Healing:
           return 2000;
       }
     case CombatActionType.ConsumableUsed:

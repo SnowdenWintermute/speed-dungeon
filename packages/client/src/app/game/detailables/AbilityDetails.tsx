@@ -2,7 +2,7 @@ import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import {
   CombatActionProperties,
   CombatantAbility,
-  CombatantAbilityName,
+  AbilityName,
   CombatantProperties,
   calculateCombatActionHpChangeRange,
 } from "@speed-dungeon/common";
@@ -32,7 +32,7 @@ export default function AbilityDetails({
   const mpCostStyle = mpCost > userCombatantProperties.mana ? UNMET_REQUIREMENT_TEXT_COLOR : "";
 
   const attackDamageDisplay =
-    ability.name === CombatantAbilityName.Attack ? (
+    ability.name === AbilityName.Attack ? (
       <CharacterSheetWeaponDamage combatantProperties={userCombatantProperties} />
     ) : (
       <></>

@@ -3,7 +3,7 @@ import {
   CombatActionType,
   CombatAttribute,
   CombatantAbility,
-  CombatantAbilityName,
+  AbilityName,
   CombatantProperties,
   ERROR_MESSAGES,
   EquipmentProperties,
@@ -108,14 +108,14 @@ function getAttackAbilityDamageAndAccuracy(
   isOffHand: boolean
 ): Error | [NumberRange, number] {
   let abilityName = isOffHand
-    ? CombatantAbilityName.AttackMeleeOffhand
-    : CombatantAbilityName.AttackMeleeMainhand;
+    ? AbilityName.AttackMeleeOffhand
+    : AbilityName.AttackMeleeMainhand;
 
   if (weaponOption) {
     const weaponProperties = weaponOption;
     switch (weaponProperties.type) {
       case EquipmentType.TwoHandedRangedWeapon:
-        abilityName = CombatantAbilityName.AttackRangedMainhand;
+        abilityName = AbilityName.AttackRangedMainhand;
       case EquipmentType.TwoHandedMeleeWeapon:
         break;
       case EquipmentType.OneHandedMeleeWeapon:

@@ -1,6 +1,6 @@
 import {
   CombatActionType,
-  CombatantAbilityName,
+  AbilityName,
   CombatantProperties,
   ERROR_MESSAGES,
   Inventory,
@@ -36,14 +36,14 @@ export default function getFrameEventFromAnimation(
   switch (combatAction.type) {
     case CombatActionType.AbilityUsed:
       switch (combatAction.abilityName) {
-        case CombatantAbilityName.Attack:
-        case CombatantAbilityName.AttackMeleeMainhand:
+        case AbilityName.Attack:
+        case AbilityName.AttackMeleeMainhand:
         // @todo - select correct frames for various attack animations
-        case CombatantAbilityName.AttackMeleeOffhand:
-        case CombatantAbilityName.AttackRangedMainhand:
-        case CombatantAbilityName.Fire:
-        case CombatantAbilityName.Ice:
-        case CombatantAbilityName.Healing:
+        case AbilityName.AttackMeleeOffhand:
+        case AbilityName.AttackRangedMainhand:
+        case AbilityName.Fire:
+        case AbilityName.Ice:
+        case AbilityName.Healing:
           break;
       }
     case CombatActionType.ConsumableUsed:
@@ -59,14 +59,14 @@ export default function getFrameEventFromAnimation(
       if (actionUserResult instanceof Error) return console.error(actionUserResult);
       if (combatAction.type === CombatActionType.AbilityUsed) {
         switch (combatAction.abilityName) {
-          case CombatantAbilityName.Attack:
-          case CombatantAbilityName.AttackMeleeMainhand:
-          case CombatantAbilityName.AttackMeleeOffhand:
-          case CombatantAbilityName.AttackRangedMainhand:
+          case AbilityName.Attack:
+          case AbilityName.AttackMeleeMainhand:
+          case AbilityName.AttackMeleeOffhand:
+          case AbilityName.AttackRangedMainhand:
             break;
-          case CombatantAbilityName.Fire:
-          case CombatantAbilityName.Ice:
-          case CombatantAbilityName.Healing:
+          case AbilityName.Fire:
+          case AbilityName.Ice:
+          case AbilityName.Healing:
             wasSpell = true;
             state.combatLogMessages.push(
               new CombatLogMessage(

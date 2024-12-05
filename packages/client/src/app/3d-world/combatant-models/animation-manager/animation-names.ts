@@ -1,4 +1,4 @@
-import { CombatAction, CombatActionType, CombatantAbilityName } from "@speed-dungeon/common";
+import { CombatAction, CombatActionType, AbilityName } from "@speed-dungeon/common";
 
 export const ANIMATION_NAMES = {
   MOVE_FORWARD: "move-forward",
@@ -19,16 +19,16 @@ export default function getCombatActionAnimationName(combatAction: CombatAction)
   switch (combatAction.type) {
     case CombatActionType.AbilityUsed:
       switch (combatAction.abilityName) {
-        case CombatantAbilityName.Attack:
-        case CombatantAbilityName.AttackMeleeMainhand:
+        case AbilityName.Attack:
+        case AbilityName.AttackMeleeMainhand:
           return "melee-attack";
-        case CombatantAbilityName.AttackMeleeOffhand:
+        case AbilityName.AttackMeleeOffhand:
           return "melee-attack-offhand";
-        case CombatantAbilityName.AttackRangedMainhand:
+        case AbilityName.AttackRangedMainhand:
           return "ranged-attack";
-        case CombatantAbilityName.Fire:
-        case CombatantAbilityName.Ice:
-        case CombatantAbilityName.Healing:
+        case AbilityName.Fire:
+        case AbilityName.Ice:
+        case AbilityName.Healing:
           return "cast-spell";
       }
     case CombatActionType.ConsumableUsed:

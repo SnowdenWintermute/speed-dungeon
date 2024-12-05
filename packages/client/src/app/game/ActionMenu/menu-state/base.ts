@@ -16,7 +16,7 @@ import {
   ClientToServerEvent,
   CombatActionType,
   CombatantAbility,
-  CombatantAbilityName,
+  AbilityName,
   CombatantProperties,
   formatAbilityName,
 } from "@speed-dungeon/common";
@@ -80,9 +80,9 @@ export class BaseMenuState implements ActionMenuState {
     }
 
     const abilitiesNotToMakeButtonsFor = [
-      CombatantAbilityName.AttackMeleeOffhand,
-      CombatantAbilityName.AttackMeleeMainhand,
-      CombatantAbilityName.AttackRangedMainhand,
+      AbilityName.AttackMeleeOffhand,
+      AbilityName.AttackMeleeMainhand,
+      AbilityName.AttackRangedMainhand,
     ];
 
     for (const ability of Object.values(combatantProperties.abilities)) {

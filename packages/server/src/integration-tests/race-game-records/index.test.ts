@@ -67,7 +67,7 @@ import {
   CombatActionType,
   CombatAttribute,
   Combatant,
-  CombatantAbilityName,
+  AbilityName,
   CombatantClass,
   DEFAULT_LEVEL_TO_REACH_FOR_ESCAPE,
   GAME_CONFIG,
@@ -412,7 +412,7 @@ describe("race game records", () => {
           type: ActionCommandType.PerformCombatAction,
           combatAction: {
             type: CombatActionType.AbilityUsed,
-            abilityName: CombatantAbilityName.Attack,
+            abilityName: AbilityName.Attack,
           },
           hpChangesByEntityId: {
             [character1.entityProperties.id]: new HpChange(
@@ -475,7 +475,7 @@ function useAttackAction(
     characterId: character.entityProperties.id,
     combatActionOption: {
       type: CombatActionType.AbilityUsed,
-      abilityName: CombatantAbilityName.Attack,
+      abilityName: AbilityName.Attack,
     },
   });
   socket.emit(ClientToServerEvent.UseSelectedCombatAction, {

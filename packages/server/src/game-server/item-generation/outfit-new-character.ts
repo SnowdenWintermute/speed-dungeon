@@ -3,7 +3,7 @@ import {
   STARTING_COMBATANT_TRAITS,
   CombatAttribute,
   CombatantAbility,
-  CombatantAbilityName,
+  AbilityName,
   CombatantClass,
   CombatantProperties,
   ConsumableType,
@@ -31,15 +31,15 @@ export default function outfitNewCharacter(character: Combatant) {
   const classTraitsOption = STARTING_COMBATANT_TRAITS[combatantProperties.combatantClass];
   if (classTraitsOption) combatantProperties.traits = cloneDeep(classTraitsOption);
 
-  combatantProperties.abilities[CombatantAbilityName.Fire] = CombatantAbility.createByName(
-    CombatantAbilityName.Fire
+  combatantProperties.abilities[AbilityName.Fire] = CombatantAbility.createByName(
+    AbilityName.Fire
   );
-  combatantProperties.abilities[CombatantAbilityName.Healing] = CombatantAbility.createByName(
-    CombatantAbilityName.Healing
+  combatantProperties.abilities[AbilityName.Healing] = CombatantAbility.createByName(
+    AbilityName.Healing
   );
   if (combatantProperties.combatantClass === CombatantClass.Mage)
-    combatantProperties.abilities[CombatantAbilityName.Ice] = CombatantAbility.createByName(
-      CombatantAbilityName.Ice
+    combatantProperties.abilities[AbilityName.Ice] = CombatantAbility.createByName(
+      AbilityName.Ice
     );
 
   const hpInjectors = new Array(1)
@@ -62,8 +62,8 @@ export default function outfitNewCharacter(character: Combatant) {
 
   // giveTestingCombatAttributes(combatantProperties);
 
-  combatantProperties.abilities[CombatantAbilityName.Destruction] = CombatantAbility.createByName(
-    CombatantAbilityName.Destruction
+  combatantProperties.abilities[AbilityName.Destruction] = CombatantAbility.createByName(
+    AbilityName.Destruction
   );
 
   // const items = generateOneOfEachItem();

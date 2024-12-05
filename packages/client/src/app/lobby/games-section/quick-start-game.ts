@@ -20,6 +20,6 @@ export default function quickStartGame(socketOption: Socket | undefined) {
   // socketOption?.emit(ClientToServerEvent.ToggleReadyToExplore);
   // socketOption?.emit(ClientToServerEvent.SelectCombatAction, "1", {
   //   type: CombatActionType.AbilityUsed,
-  //   abilityName: CombatantAbilityName.Attack,
+  //   abilityName: AbilityName.Attack,
   // });
 }
