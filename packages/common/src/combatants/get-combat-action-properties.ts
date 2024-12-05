@@ -9,9 +9,9 @@ import {
   CombatActionType,
 } from "../combat/combat-actions/index.js";
 import { ItemPropertiesType } from "../items/item-properties.js";
-import getAbilityAttributes from "./abilities/get-ability-attributes.js";
 import { CombatantProperties } from "./combatant-properties.js";
 import { Inventory } from "./inventory.js";
+import { ABILITY_ATTRIBUTES } from "./abilities/get-ability-attributes.js";
 
 export function getCombatActionPropertiesIfOwned(
   combatantProperties: CombatantProperties,
@@ -23,7 +23,7 @@ export function getCombatActionPropertiesIfOwned(
         return new Error(ERROR_MESSAGES.ABILITIES.NOT_OWNED);
       } else {
         // for some reason the static method gets the error "is not a function" in nextjs so using it directly here
-        const toReturn = getAbilityAttributes(combatAction.abilityName).combatActionProperties;
+        const toReturn = ABILITY_ATTRIBUTES[combatAction.abilityName].combatActionProperties;
         return toReturn;
       }
     case CombatActionType.ConsumableUsed:
@@ -44,7 +44,7 @@ export function getCombatActionProperties(
 ) {
   switch (combatAction.type) {
     case CombatActionType.AbilityUsed:
-      return getAbilityAttributes(combatAction.abilityName).combatActionProperties;
+      return ABILITY_ATTRIBUTES[combatAction.abilityName].combatActionProperties;
     case CombatActionType.ConsumableUsed:
       const combatantResult = getCombatantInParty(party, actionUserId);
       if (combatantResult instanceof Error) return combatantResult;

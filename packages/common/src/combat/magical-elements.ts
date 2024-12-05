@@ -9,23 +9,13 @@ export enum MagicalElement {
   Light,
 }
 
-export function formatMagicalElement(element: MagicalElement) {
-  switch (element) {
-    case MagicalElement.Fire:
-      return "Fire";
-    case MagicalElement.Ice:
-      return "Ice";
-    case MagicalElement.Lightning:
-      return "Lightning";
-    case MagicalElement.Water:
-      return "Water";
-    case MagicalElement.Earth:
-      return "Earth";
-    case MagicalElement.Wind:
-      return "Wind";
-    case MagicalElement.Dark:
-      return "Dark";
-    case MagicalElement.Light:
-      return "Light";
-  }
-}
+export const MAGICAL_ELEMENT_STRINGS: Record<MagicalElement, string> = {
+  [MagicalElement.Fire]: "Fire",
+  [MagicalElement.Ice]: "Ice",
+  [MagicalElement.Lightning]: "Lightning",
+  [MagicalElement.Water]: "Water",
+  [MagicalElement.Earth]: "Earth",
+  [MagicalElement.Wind]: "Wind",
+  [MagicalElement.Dark]: "Dark",
+  [MagicalElement.Light]: "Light",
+};

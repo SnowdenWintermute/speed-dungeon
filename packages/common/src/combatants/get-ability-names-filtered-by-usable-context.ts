@@ -1,21 +1,21 @@
-import { CombatantAbilityName, CombatantProperties } from "./index.js";
+import { AbilityName, CombatantProperties } from "./index.js";
 import { ActionUsableContext } from "../combat/combat-actions/combat-action-properties.js";
-import getAbilityAttributes from "./abilities/get-ability-attributes.js";
+import { ABILITY_ATTRIBUTES } from "./abilities/get-ability-attributes.js";
 
 export default function getAbilityNamesFilteredByUseableContext(
   combatantProperties: CombatantProperties,
   excludedContext: null | ActionUsableContext
-): CombatantAbilityName[] {
-  const toReturn: CombatantAbilityName[] = [];
+): AbilityName[] {
+  const toReturn: AbilityName[] = [];
 
   for (const abilityNameKey in combatantProperties.abilities) {
-    const abilityName = parseInt(abilityNameKey) as CombatantAbilityName;
-    const abilityAtributes = getAbilityAttributes(abilityName);
+    const abilityName = parseInt(abilityNameKey) as AbilityName;
+    const abilityAtributes = ABILITY_ATTRIBUTES[abilityName];
     if (
       excludedContext !== abilityAtributes.combatActionProperties.usabilityContext &&
-      abilityName !== CombatantAbilityName.AttackRangedMainhand &&
-      abilityName !== CombatantAbilityName.AttackMeleeOffhand &&
-      abilityName !== CombatantAbilityName.AttackMeleeMainhand
+      abilityName !== AbilityName.AttackRangedMainhand &&
+      abilityName !== AbilityName.AttackMeleeOffhand &&
+      abilityName !== AbilityName.AttackMeleeMainhand
     )
       toReturn.push(abilityName);
   }

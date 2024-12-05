@@ -18,6 +18,7 @@ export class CombatActionProperties {
   requiresCombatTurn: boolean = true;
   hpChangeProperties: null | CombatActionHpChangeProperties = null;
   description: string = "";
+  isMelee: boolean = true;
   constructor() {}
 }
 
@@ -27,27 +28,21 @@ export enum ActionUsableContext {
   OutOfCombat,
 }
 
-export function formatActionUsabilityContext(actionUsabilityContext: ActionUsableContext): string {
-  switch (actionUsabilityContext) {
-    case ActionUsableContext.All:
-      return "Any time";
-    case ActionUsableContext.InCombat:
-      return "In combat";
-    case ActionUsableContext.OutOfCombat:
-      return "Out of combat";
-  }
-}
+export const COMBAT_ACTION_USABLITY_CONTEXT_STRINGS: Record<ActionUsableContext, string> = {
+  [ActionUsableContext.All]: "any time",
+  [ActionUsableContext.InCombat]: "in combat",
+  [ActionUsableContext.OutOfCombat]: "out of combat",
+};
 
 export class CombatActionHpChangeProperties {
   baseValues: NumberRange = new NumberRange(0, 0);
   finalDamagePercentMultiplier: number = 100;
   accuracyPercentModifier: number = 100;
-  addWeaponDamageFrom: null | WeaponSlot[] = null;
-  addWeaponElementFrom: null | WeaponSlot = null;
-  addWeaponDamageTypeFrom: null | WeaponSlot = null;
+  addWeaponDamageFromSlots: null | WeaponSlot[] = null;
+  addWeaponElementFromSlot: null | WeaponSlot = null;
+  addWeaponKineticDamageTypeFromSlot: null | WeaponSlot = null;
   additiveAttributeAndPercentScalingFactor: null | [CombatAttribute, number] = null;
   critChanceAttribute: null | CombatAttribute = null;
   critMultiplierAttribute: null | CombatAttribute = null;
-  sourceProperties: HpChangeSource = new HpChangeSource();
-  constructor() {}
+  constructor(public hpChangeSource: HpChangeSource) {}
 }

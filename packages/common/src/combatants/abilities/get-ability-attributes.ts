@@ -1,151 +1,138 @@
-import { CombatantAbilityName } from "../index.js";
+import cloneDeep from "lodash.clonedeep";
 import { OFF_HAND_ACCURACY_MODIFIER, OFF_HAND_DAMAGE_MODIFIER } from "../../app-consts.js";
 import {
   CombatActionProperties,
-  ActionUsableContext,
   CombatActionHpChangeProperties,
+  ActionUsableContext,
 } from "../../combat/combat-actions/combat-action-properties.js";
 import {
-  Evadable,
-  HpChangeSourceCategoryType,
+  HpChangeSource,
+  HpChangeSourceCategory,
   MeleeOrRanged,
 } from "../../combat/hp-change-source-types.js";
 import { MagicalElement } from "../../combat/magical-elements.js";
-import {
-  ProhibitedTargetCombatantStates,
-  TargetCategories,
-  TargetingScheme,
-} from "../../combat/targeting/index.js";
+import { TargetCategories, TargetingScheme } from "../../combat/targeting/index.js";
 import { WeaponSlot } from "../../items/equipment/slots.js";
 import { NumberRange } from "../../primatives/number-range.js";
 import { CombatAttribute } from "../combat-attributes.js";
-import CombatantAbilityAttributes from "./ability-attributes.js";
+import AbilityAttributes from "./ability-attributes.js";
+import { AbilityName } from "./index.js";
 
-// @TODO - performance - store computed values from this function
+const ATTACK = (() => {
+  const combatActionProperties = new CombatActionProperties();
+  combatActionProperties.description = "Use equipped weapon(s) or fists to strike the enemy.";
+  const attributes = new AbilityAttributes(combatActionProperties);
+  return attributes;
+})();
 
-export default function getAbilityAttributes(abilityName: CombatantAbilityName) {
-  const attr = new CombatantAbilityAttributes();
-  const cap = new CombatActionProperties();
-  let hpcp: null | CombatActionHpChangeProperties = new CombatActionHpChangeProperties();
-  switch (abilityName) {
-    case CombatantAbilityName.Attack:
-      attr.manaCost = 0;
-      attr.isMelee = true;
-      cap.description = "Use equipped weapon(s) or fists to strike the enemy.";
-      hpcp = null;
-      break;
-    case CombatantAbilityName.AttackMeleeMainhand:
-      attr.isMelee = true;
-      attr.baseHpChangeValuesLevelMultiplier = 1.0;
-      hpcp.baseValues = new NumberRange(1, 1);
-      hpcp.addWeaponDamageFrom = [WeaponSlot.MainHand];
-      hpcp.addWeaponElementFrom = WeaponSlot.MainHand;
-      hpcp.addWeaponDamageTypeFrom = WeaponSlot.MainHand;
-      hpcp.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Strength, 100];
-      hpcp.critChanceAttribute = CombatAttribute.Dexterity;
-      hpcp.critMultiplierAttribute = CombatAttribute.Strength;
-      hpcp.sourceProperties.category = {
-        type: HpChangeSourceCategoryType.PhysicalDamage,
-        meleeOrRanged: MeleeOrRanged.Melee,
-      };
-      break;
-    case CombatantAbilityName.AttackMeleeOffhand:
-      attr.isMelee = true;
-      attr.baseHpChangeValuesLevelMultiplier = 1.0;
-      hpcp.baseValues = new NumberRange(1, 1);
-      hpcp.addWeaponDamageFrom = [WeaponSlot.OffHand];
-      hpcp.addWeaponElementFrom = WeaponSlot.OffHand;
-      hpcp.addWeaponDamageTypeFrom = WeaponSlot.OffHand;
-      hpcp.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Strength, 100];
-      hpcp.critChanceAttribute = CombatAttribute.Dexterity;
-      hpcp.critMultiplierAttribute = CombatAttribute.Strength;
-      hpcp.finalDamagePercentMultiplier = OFF_HAND_DAMAGE_MODIFIER;
-      hpcp.accuracyPercentModifier = OFF_HAND_ACCURACY_MODIFIER;
-      hpcp.sourceProperties.category = {
-        type: HpChangeSourceCategoryType.PhysicalDamage,
-        meleeOrRanged: MeleeOrRanged.Melee,
-      };
-      break;
-    case CombatantAbilityName.AttackRangedMainhand:
-      attr.isMelee = false;
-      attr.baseHpChangeValuesLevelMultiplier = 1.0;
-      hpcp.baseValues = new NumberRange(1, 1);
-      hpcp.addWeaponDamageFrom = [WeaponSlot.MainHand];
-      hpcp.addWeaponElementFrom = WeaponSlot.MainHand;
-      hpcp.addWeaponDamageTypeFrom = WeaponSlot.MainHand;
-      hpcp.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Dexterity, 100];
-      hpcp.critChanceAttribute = CombatAttribute.Dexterity;
-      hpcp.critMultiplierAttribute = CombatAttribute.Dexterity;
-      hpcp.sourceProperties.category = {
-        type: HpChangeSourceCategoryType.PhysicalDamage,
-        meleeOrRanged: MeleeOrRanged.Ranged,
-      };
-      break;
-    case CombatantAbilityName.Fire:
-      attr.manaCost = 2;
-      attr.abilityLevelManaCostMultiplier = 1;
-      attr.combatantLevelManaCostMultiplier = 1;
-      attr.baseHpChangeValuesLevelMultiplier = 1.0;
-      cap.description = "Deals fire element damage";
-      cap.targetingSchemes = [TargetingScheme.Single, TargetingScheme.Area];
-      hpcp.baseValues = new NumberRange(4, 8);
-      hpcp.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Intelligence, 100];
-      hpcp.critChanceAttribute = CombatAttribute.Focus;
-      hpcp.critMultiplierAttribute = CombatAttribute.Focus;
-      hpcp.sourceProperties.category = {
-        type: HpChangeSourceCategoryType.MagicalDamage,
-        evadable: Evadable.False,
-      };
-      hpcp.sourceProperties.elementOption = MagicalElement.Fire;
-      break;
-    case CombatantAbilityName.Ice:
-      attr.manaCost = 2;
-      attr.abilityLevelManaCostMultiplier = 1;
-      attr.combatantLevelManaCostMultiplier = 1;
-      attr.baseHpChangeValuesLevelMultiplier = 1.0;
-      cap.description = "Deals ice element damage";
-      cap.targetingSchemes = [TargetingScheme.Single, TargetingScheme.Area];
-      hpcp.baseValues = new NumberRange(4, 8);
-      hpcp.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Intelligence, 100];
-      hpcp.critChanceAttribute = CombatAttribute.Focus;
-      hpcp.critMultiplierAttribute = CombatAttribute.Focus;
-      hpcp.sourceProperties.category = {
-        type: HpChangeSourceCategoryType.MagicalDamage,
-        evadable: Evadable.False,
-      };
-      hpcp.sourceProperties.elementOption = MagicalElement.Ice;
-      break;
-    case CombatantAbilityName.Healing:
-      attr.manaCost = 2;
-      attr.abilityLevelManaCostMultiplier = 1;
-      attr.combatantLevelManaCostMultiplier = 1;
-      attr.baseHpChangeValuesLevelMultiplier = 1.0;
-      cap.description = "Restores hit points (damages undead)";
-      cap.targetingSchemes = [TargetingScheme.Single, TargetingScheme.Area];
-      cap.validTargetCategories = TargetCategories.Any;
-      cap.usabilityContext = ActionUsableContext.All;
-      cap.prohibitedTargetCombatantStates = [ProhibitedTargetCombatantStates.Dead];
-      hpcp.baseValues = new NumberRange(4, 8);
-      hpcp.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Intelligence, 100];
-      hpcp.critChanceAttribute = CombatAttribute.Focus;
-      hpcp.critMultiplierAttribute = CombatAttribute.Focus;
-      hpcp.sourceProperties.category = {
-        type: HpChangeSourceCategoryType.Healing,
-      };
-      hpcp.sourceProperties.elementOption = MagicalElement.Light;
-      break;
-    case CombatantAbilityName.Destruction:
-      attr.manaCost = 0;
-      cap.description = "Deals direct damage to targets";
-      cap.targetingSchemes = [TargetingScheme.Single, TargetingScheme.Area];
-      hpcp.baseValues = new NumberRange(9999, 9999);
-      hpcp.sourceProperties.category = {
-        type: HpChangeSourceCategoryType.MagicalDamage,
-        evadable: Evadable.False,
-      };
-      break;
-  }
-  cap.hpChangeProperties = hpcp;
-  attr.combatActionProperties = cap;
-  return attr;
-}
+const ATTACK_MELEE_MAIN_HAND = (() => {
+  const combatActionProperties = new CombatActionProperties();
+  const hpChangeProperties = new CombatActionHpChangeProperties(
+    new HpChangeSource(HpChangeSourceCategory.Physical, MeleeOrRanged.Melee)
+  );
+  hpChangeProperties.baseValues = new NumberRange(1, 1);
+  hpChangeProperties.addWeaponDamageFromSlots = [WeaponSlot.MainHand];
+  hpChangeProperties.addWeaponElementFromSlot = WeaponSlot.MainHand;
+  hpChangeProperties.addWeaponKineticDamageTypeFromSlot = WeaponSlot.MainHand;
+  hpChangeProperties.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Strength, 100];
+  hpChangeProperties.critChanceAttribute = CombatAttribute.Dexterity;
+  hpChangeProperties.critMultiplierAttribute = CombatAttribute.Strength;
+  const attributes = new AbilityAttributes(combatActionProperties);
+  return attributes;
+})();
+
+const ATTACK_MELEE_OFF_HAND = (() => {
+  const attributes = cloneDeep(ATTACK_MELEE_MAIN_HAND);
+  const { hpChangeProperties } = attributes.combatActionProperties;
+  if (!hpChangeProperties) throw new Error("Expected ability not implemented");
+  hpChangeProperties.addWeaponDamageFromSlots = [WeaponSlot.OffHand];
+  hpChangeProperties.addWeaponElementFromSlot = WeaponSlot.OffHand;
+  hpChangeProperties.addWeaponKineticDamageTypeFromSlot = WeaponSlot.OffHand;
+  hpChangeProperties.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Strength, 100];
+  hpChangeProperties.critChanceAttribute = CombatAttribute.Dexterity;
+  hpChangeProperties.critMultiplierAttribute = CombatAttribute.Strength;
+  hpChangeProperties.finalDamagePercentMultiplier = OFF_HAND_DAMAGE_MODIFIER;
+  hpChangeProperties.accuracyPercentModifier = OFF_HAND_ACCURACY_MODIFIER;
+  return attributes;
+})();
+
+const ATTACK_RANGED_MAIN_HAND = (() => {
+  const attributes = cloneDeep(ATTACK_MELEE_MAIN_HAND);
+  attributes.combatActionProperties.isMelee = false;
+  const { hpChangeProperties } = attributes.combatActionProperties;
+  if (!hpChangeProperties) throw new Error("Expected ability not implemented");
+  hpChangeProperties.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Dexterity, 100];
+  hpChangeProperties.critChanceAttribute = CombatAttribute.Dexterity;
+  hpChangeProperties.critMultiplierAttribute = CombatAttribute.Dexterity;
+  hpChangeProperties.finalDamagePercentMultiplier = OFF_HAND_DAMAGE_MODIFIER;
+  hpChangeProperties.accuracyPercentModifier = OFF_HAND_ACCURACY_MODIFIER;
+  hpChangeProperties.hpChangeSource.meleeOrRanged = MeleeOrRanged.Ranged;
+  return attributes;
+})();
+
+const FIRE = (() => {
+  const combatActionProperties = new CombatActionProperties();
+  combatActionProperties.description = "Deals fire element damage";
+  combatActionProperties.isMelee = false;
+  combatActionProperties.targetingSchemes = [TargetingScheme.Single, TargetingScheme.Area];
+
+  const hpChangeProperties = new CombatActionHpChangeProperties(
+    new HpChangeSource(HpChangeSourceCategory.Magical, MeleeOrRanged.Ranged)
+  );
+  hpChangeProperties.hpChangeSource.elementOption = MagicalElement.Fire;
+  hpChangeProperties.hpChangeSource.unavoidable = true;
+
+  const attributes = new AbilityAttributes(combatActionProperties);
+
+  attributes.manaCost = 2;
+  attributes.abilityLevelManaCostMultiplier = 1;
+  attributes.combatantLevelManaCostMultiplier = 1;
+  attributes.baseHpChangeValuesLevelMultiplier = 1.0;
+  hpChangeProperties.baseValues = new NumberRange(4, 8);
+  hpChangeProperties.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Intelligence, 100];
+  hpChangeProperties.critChanceAttribute = CombatAttribute.Focus;
+  hpChangeProperties.critMultiplierAttribute = CombatAttribute.Focus;
+
+  return attributes;
+})();
+
+const ICE = (() => {
+  const attributes = cloneDeep(FIRE);
+  const { hpChangeProperties } = attributes.combatActionProperties;
+  if (!hpChangeProperties) throw new Error("Expected ability not implemented");
+  attributes.combatActionProperties.description = "Deals ice element damage";
+  hpChangeProperties.hpChangeSource.elementOption = MagicalElement.Ice;
+  return attributes;
+})();
+
+const HEALING = (() => {
+  const attributes = cloneDeep(FIRE);
+  attributes.combatActionProperties.validTargetCategories = TargetCategories.Any;
+  attributes.combatActionProperties.usabilityContext = ActionUsableContext.All;
+
+  const { hpChangeProperties } = attributes.combatActionProperties;
+  if (!hpChangeProperties) throw new Error("Expected ability not implemented");
+  hpChangeProperties.hpChangeSource.elementOption = MagicalElement.Light;
+  hpChangeProperties.hpChangeSource.isHealing = true;
+  return attributes;
+})();
+
+const DESTRUCTION = (() => {
+  const attributes = cloneDeep(FIRE);
+  const { hpChangeProperties } = attributes.combatActionProperties;
+  if (!hpChangeProperties) throw new Error("Expected ability not implemented");
+  hpChangeProperties.hpChangeSource.elementOption = undefined;
+  hpChangeProperties.baseValues = new NumberRange(99999, 99999);
+  return attributes;
+})();
+
+export const ABILITY_ATTRIBUTES: Record<AbilityName, AbilityAttributes> = {
+  [AbilityName.Attack]: ATTACK,
+  [AbilityName.AttackMeleeMainhand]: ATTACK_MELEE_MAIN_HAND,
+  [AbilityName.AttackMeleeOffhand]: ATTACK_MELEE_OFF_HAND,
+  [AbilityName.AttackRangedMainhand]: ATTACK_RANGED_MAIN_HAND,
+  [AbilityName.Fire]: FIRE,
+  [AbilityName.Ice]: ICE,
+  [AbilityName.Healing]: HEALING,
+  [AbilityName.Destruction]: DESTRUCTION,
+};

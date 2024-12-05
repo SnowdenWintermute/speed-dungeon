@@ -4,7 +4,7 @@ export * from "./get-ability-mana-cost.js";
 export * from "./combat-action-requires-melee-range.js";
 export * from "./get-combat-action-execution-time.js";
 
-import { CombatantAbilityName } from "../../combatants";
+import { AbilityName } from "../../combatants";
 
 export enum CombatActionType {
   AbilityUsed,
@@ -13,7 +13,7 @@ export enum CombatActionType {
 
 export interface AbilityUsed {
   type: CombatActionType.AbilityUsed;
-  abilityName: CombatantAbilityName;
+  abilityName: AbilityName;
 }
 
 export interface ConsumableUsed {

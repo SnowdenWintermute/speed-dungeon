@@ -1,6 +1,4 @@
-import getAbilityAttributes from "./get-ability-attributes.js";
-
-export enum CombatantAbilityName {
+export enum AbilityName {
   Attack,
   AttackMeleeMainhand,
   AttackMeleeOffhand,
@@ -13,33 +11,22 @@ export enum CombatantAbilityName {
 
 export class CombatantAbility {
   constructor(
-    public name: CombatantAbilityName = CombatantAbilityName.Attack,
+    public name: AbilityName = AbilityName.Attack,
     public level = 0
   ) {}
 
-  static getAttributes = getAbilityAttributes;
-  static createByName(abilityName: CombatantAbilityName) {
+  static createByName(abilityName: AbilityName) {
     return new CombatantAbility(abilityName, 1);
   }
 }
 
-export function formatAbilityName(abilityName: CombatantAbilityName) {
-  switch (abilityName) {
-    case CombatantAbilityName.Attack:
-      return "Attack";
-    case CombatantAbilityName.AttackMeleeMainhand:
-      return "Attack Melee Main Hand";
-    case CombatantAbilityName.AttackMeleeOffhand:
-      return "Attack Melee Off Hand";
-    case CombatantAbilityName.AttackRangedMainhand:
-      return "Ranged Attack";
-    case CombatantAbilityName.Fire:
-      return "Fire";
-    case CombatantAbilityName.Ice:
-      return "Ice";
-    case CombatantAbilityName.Healing:
-      return "Healing";
-    case CombatantAbilityName.Destruction:
-      return "Destruction";
-  }
-}
+export const ABILITY_NAME_STRINGS: Record<AbilityName, string> = {
+  [AbilityName.Attack]: "Attack",
+  [AbilityName.AttackMeleeMainhand]: "Attack Melee Mainhand",
+  [AbilityName.AttackMeleeOffhand]: "Attack Melee Offhand",
+  [AbilityName.AttackRangedMainhand]: "Attack Ranged Mainhand",
+  [AbilityName.Fire]: "Fire",
+  [AbilityName.Ice]: "Ice",
+  [AbilityName.Healing]: "Healing",
+  [AbilityName.Destruction]: "Destruction",
+};
