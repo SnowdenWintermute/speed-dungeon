@@ -55,8 +55,18 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
       break;
   }
 
+  mainhand = generateSpecificEquipmentType(
+    {
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.MapleWand,
+    },
+    true
+  );
+
   if (mainhand instanceof Error) return mainhand;
   if (offhand instanceof Error) return offhand;
+
+  offhand = undefined;
 
   if (mainhand) startingEquipment[EquipmentSlot.MainHand] = mainhand;
   if (offhand) startingEquipment[EquipmentSlot.OffHand] = offhand;

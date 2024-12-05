@@ -6,6 +6,7 @@ export enum FloatingMessageTextColor {
   Damage,
   Healing,
   ManaGained,
+  MagicalDamage,
 }
 
 export enum FloatingMessageElementType {
@@ -61,6 +62,8 @@ export function getTailwindClassFromFloatingTextColor(color: FloatingMessageText
       return "text-green-600";
     case FloatingMessageTextColor.ManaGained:
       return "text-blue-600";
+    case FloatingMessageTextColor.MagicalDamage:
+      return "text-purple-500";
   }
 }
 
