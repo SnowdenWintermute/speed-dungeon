@@ -18,11 +18,11 @@ export default function CombatantFloatingMessagesDisplay({ entityId }: { entityI
     useGameStore().babylonControlledCombatantDOMData[entityId]?.floatingMessages;
 
   return (
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full flex flex-col items-center text-center w-[200px]">
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full flex flex-col items-center text-center w-[300px]">
       {floatingMessages?.map((message) => {
         return (
           <div
-            className="text-2xl relative flex"
+            className="text-xl relative flex"
             style={{
               animation: "float-up-and-fade-out", // defined in css file same directory
               animationDuration: `${message.displayTime + 50}ms`,

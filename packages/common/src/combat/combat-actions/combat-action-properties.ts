@@ -39,6 +39,7 @@ export class CombatActionHpChangeProperties {
   finalDamagePercentMultiplier: number = 100;
   accuracyPercentModifier: number = 100;
   addWeaponDamageFromSlots: null | WeaponSlot[] = null;
+  addWeaponHpChangeSourceCategoryFromSlot: null | WeaponSlot = null;
   addWeaponElementFromSlot: null | WeaponSlot = null;
   addWeaponKineticDamageTypeFromSlot: null | WeaponSlot = null;
   additiveAttributeAndPercentScalingFactor: null | [CombatAttribute, number] = null;

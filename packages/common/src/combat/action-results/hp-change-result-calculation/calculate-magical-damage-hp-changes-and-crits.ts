@@ -7,6 +7,7 @@ import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";
 import applyAffinityToHpChange from "./apply-affinity-to-hp-change.js";
 import applyCritMultiplierToHpChange from "./apply-crit-multiplier-to-hp-change.js";
+import getDamageAfterResilience from "./get-damage-after-resilience.js";
 import { HpChange } from "./index.js";
 import rollCrit from "./roll-crit.js";
 
@@ -58,16 +59,12 @@ export default function calculateMagicalDamageHpChangesAndCrits(
     hpChange.value *= hpChangeProperties.finalDamagePercentMultiplier / 100;
 
     // only apply resilience damage reduction if not getting healed due to affinities
-    if (hpChange.value > 0) {
-      const targetResilience = targetCombatAttributes[CombatAttribute.Resilience] || 0;
-      const penetratedResilience = Math.max(0, targetResilience - userFocus);
-      const damageReductionPercentage = Math.min(
-        100,
-        penetratedResilience * RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO
+    if (hpChange.value > 0)
+      hpChange.value = getDamageAfterResilience(
+        hpChange.value,
+        userCombatAttributes,
+        targetCombatAttributes
       );
-      const damageReductionMultiplier = 1.0 - damageReductionPercentage / 100;
-      hpChange.value *= damageReductionMultiplier;
-    }
 
     // final mods
     hpChange.value *= hpChangeProperties.finalDamagePercentMultiplier / 100;

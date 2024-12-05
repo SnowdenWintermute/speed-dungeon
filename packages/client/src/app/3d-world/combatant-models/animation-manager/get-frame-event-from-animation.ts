@@ -20,8 +20,7 @@ import { ANIMATION_NAMES } from "./animation-names";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { useGameStore } from "@/stores/game-store";
-import { HpChange } from "@speed-dungeon/common/src/combat/action-results/hp-change-result-calculation";
-import startHpChangeFloatingMessage from "./start-hp-change-floating-message";
+import { induceHitRecovery } from "./induce-hit-recovery";
 
 export default function getFrameEventFromAnimation(
   gameWorld: GameWorld,
@@ -89,9 +88,8 @@ export default function getFrameEventFromAnimation(
     });
 
     if (hpChangesByEntityId)
-      for (const [targetId, hpChange] of Object.entries(hpChangesByEntityId)) {
+      for (const [targetId, hpChange] of Object.entries(hpChangesByEntityId))
         induceHitRecovery(gameWorld, actionUserId, targetId, hpChange, wasSpell);
-      }
 
     if (mpChangesByEntityId) {
       for (const [targetId, mpChange] of Object.entries(mpChangesByEntityId)) {
@@ -179,99 +177,4 @@ export default function getFrameEventFromAnimation(
   };
 
   return { fn: animationEventOption, frame: 22 };
-}
-
-function induceHitRecovery(
-  gameWorld: GameWorld,
-  actionUserId: string,
-  targetId: string,
-  hpChange: HpChange,
-  wasSpell: boolean
-) {
-  const targetModel = gameWorld.modelManager.combatantModels[targetId];
-  if (targetModel === undefined) return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-
-  startHpChangeFloatingMessage(targetId, hpChange, 2000);
-
-  useGameStore.getState().mutateState((gameState) => {
-    // - change their hp
-    // - determine if died or ressurected
-    // - handle any death by removing the affected combatant's turn tracker
-    // - handle any ressurection by adding the affected combatant's turn tracker
-
-    const gameOption = gameState.game;
-    if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-    const game = gameOption;
-    if (!gameState.username) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
-    const partyOptionResult = getCurrentParty(gameState, gameState.username);
-    if (partyOptionResult instanceof Error) return console.error(partyOptionResult);
-    if (partyOptionResult === undefined)
-      return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
-    const party = partyOptionResult;
-    const combatantResult = SpeedDungeonGame.getCombatantById(game, targetId);
-    if (combatantResult instanceof Error) return console.error(combatantResult);
-    const { combatantProperties } = combatantResult;
-
-    const combatantWasAliveBeforeHpChange = combatantProperties.hitPoints > 0;
-    CombatantProperties.changeHitPoints(combatantProperties, hpChange.value);
-
-    const actionUserResult = SpeedDungeonGame.getCombatantById(game, actionUserId);
-    if (actionUserResult instanceof Error) return console.error(actionUserResult);
-
-    const hpOrDamage = hpChange.value > 0 ? "hit points" : "damage";
-
-    if (wasSpell) {
-      const damagedOrHealed = hpChange.value > 0 ? "recovers" : "takes";
-      const style =
-        hpChange.value > 0 ? CombatLogMessageStyle.Healing : CombatLogMessageStyle.Basic;
-
-      gameState.combatLogMessages.push(
-        new CombatLogMessage(
-          `${combatantResult.entityProperties.name} ${damagedOrHealed} ${Math.abs(hpChange.value)} ${hpOrDamage}`,
-          style
-        )
-      );
-    } else {
-      const damagedOrHealed = hpChange.value > 0 ? "healed" : "hit";
-      const style =
-        hpChange.value > 0 ? CombatLogMessageStyle.Healing : CombatLogMessageStyle.Basic;
-
-      const isTargetingSelf =
-        actionUserResult.entityProperties.id === combatantResult.entityProperties.id;
-      const targetNameText = isTargetingSelf ? "themselves" : combatantResult.entityProperties.name;
-
-      gameState.combatLogMessages.push(
-        new CombatLogMessage(
-          `${actionUserResult.entityProperties.name} ${damagedOrHealed} ${targetNameText} for ${Math.abs(hpChange.value)} ${hpOrDamage}`,
-          style
-        )
-      );
-    }
-
-    if (combatantProperties.hitPoints <= 0) {
-      const maybeError = SpeedDungeonGame.handlePlayerDeath(game, party.battleId, targetId);
-      if (maybeError instanceof Error) return console.error(maybeError);
-
-      gameState.combatLogMessages.push(
-        new CombatLogMessage(
-          `${combatantResult.entityProperties.name}'s hp was reduced to zero`,
-          CombatLogMessageStyle.Basic
-        )
-      );
-
-      targetModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.DEATH, 0, {
-        shouldLoop: false,
-        animationDurationOverrideOption: null,
-        animationEventOption: null,
-        onComplete: () => {
-          targetModel.animationManager.locked = true;
-        },
-      });
-    }
-
-    if (!combatantWasAliveBeforeHpChange && combatantProperties.hitPoints > 0) {
-      targetModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 500);
-      // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
-    }
-  });
 }

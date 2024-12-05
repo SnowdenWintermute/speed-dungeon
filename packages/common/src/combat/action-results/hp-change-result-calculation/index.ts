@@ -19,6 +19,7 @@ import calculateMagicalDamageHpChangesAndCrits from "./calculate-magical-damage-
 import calculateHealingHpChangesAndCrits from "./calculate-healing-hp-changes-and-crits.js";
 import { ABILITY_ATTRIBUTES } from "../../../combatants/abilities/get-ability-attributes.js";
 import getMostDamagingWeaponKineticDamageTypeOnTarget from "./get-most-damaging-weapon-damage-type-on-target.js";
+import getMostDamagingHpChangeSourceCategoryOnTarget from "./get-most-damaging-weapon-hp-change-source-category-on-target.js";
 
 export class HpChange {
   constructor(
@@ -56,6 +57,7 @@ export default function calculateActionHitPointChangesAndEvasions(
 
   let actionLevel = 1;
   let actionLevelHpChangeModifier = 1;
+
   if (combatAction.type === CombatActionType.AbilityUsed) {
     const abilityOption = userCombatantProperties.abilities[combatAction.abilityName];
     if (!abilityOption) return new Error(ERROR_MESSAGES.ABILITIES.NOT_OWNED);
@@ -74,34 +76,34 @@ export default function calculateActionHitPointChangesAndEvasions(
   if (hpChangeRangeResult instanceof Error) return hpChangeRangeResult;
   const hpChangeRange = hpChangeRangeResult;
 
-  // add weapon elements and damage types to the action's hp change source properties
+  const firstTargetCombatant = SpeedDungeonGame.getCombatantById(game, firstTargetId);
+  if (firstTargetCombatant instanceof Error) return firstTargetCombatant;
+  const { combatantProperties: targetCombatantProperties } = firstTargetCombatant;
+
+  const { hpChangeSource } = hpChangeProperties;
+
   if (hpChangeProperties.addWeaponElementFromSlot !== null) {
-    const elementToAddOptionResult = getMostDamagingWeaponElementOnTarget(
-      game,
+    const elementToAddOption = getMostDamagingWeaponElementOnTarget(
       hpChangeProperties.addWeaponElementFromSlot,
       userCombatantProperties,
-      firstTargetId
+      targetCombatantProperties
     );
-    if (elementToAddOptionResult instanceof Error) return elementToAddOptionResult;
-    if (elementToAddOptionResult !== null)
-      hpChangeProperties.hpChangeSource.elementOption = elementToAddOptionResult;
+    if (elementToAddOption !== null) hpChangeSource.elementOption = elementToAddOption;
   }
 
   if (hpChangeProperties.addWeaponKineticDamageTypeFromSlot !== null) {
-    const physicalDamageTypeToAddOptionResult = getMostDamagingWeaponKineticDamageTypeOnTarget(
-      game,
+    const physicalDamageTypeToAddOption = getMostDamagingWeaponKineticDamageTypeOnTarget(
       hpChangeProperties.addWeaponKineticDamageTypeFromSlot,
       userCombatantProperties,
-      firstTargetId
+      targetCombatantProperties
     );
-    if (physicalDamageTypeToAddOptionResult instanceof Error)
-      return physicalDamageTypeToAddOptionResult;
-    if (physicalDamageTypeToAddOptionResult !== null)
-      hpChangeProperties.hpChangeSource.kineticDamageTypeOption =
-        physicalDamageTypeToAddOptionResult;
+    if (physicalDamageTypeToAddOption !== null)
+      hpChangeSource.kineticDamageTypeOption = physicalDamageTypeToAddOption;
   }
 
-  // roll the hp change value
+  // roll the hp change value. neet to roll it before selecting weapon hp change
+  // source type because we need to check against armor class which has variable
+  // mitigation based on rolled damage
   const rolledHpChangeValue = randBetween(hpChangeRange.min, hpChangeRange.max);
   const incomingHpChangePerTarget = splitHpChangeWithMultiTargetBonus(
     rolledHpChangeValue,
@@ -109,8 +111,20 @@ export default function calculateActionHitPointChangesAndEvasions(
     MULTI_TARGET_HP_CHANGE_BONUS
   );
 
+  if (hpChangeProperties.addWeaponHpChangeSourceCategoryFromSlot !== null) {
+    const hpChangeSourceCategoryToAddOption = getMostDamagingHpChangeSourceCategoryOnTarget(
+      hpChangeProperties.addWeaponHpChangeSourceCategoryFromSlot,
+      userCombatantProperties,
+      targetCombatantProperties,
+      // we must include this because selecting the best damage type depends on how
+      // much armor is mitigating, which depends on the asymptotic function of damage vs armor class
+      incomingHpChangePerTarget
+    );
+    if (hpChangeSourceCategoryToAddOption !== null)
+      hpChangeSource.category = hpChangeSourceCategoryToAddOption;
+  }
+
   const userCombatantAttributes = CombatantProperties.getTotalAttributes(userCombatantProperties);
-  const { hpChangeSource } = hpChangeProperties;
 
   if (!hpChangeSource.unavoidable) {
     const idsOfEvadingEntitiesResult = getIdsOfEvadingEntities(

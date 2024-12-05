@@ -37,6 +37,7 @@ const ATTACK_MELEE_MAIN_HAND = (() => {
   hpChangeProperties.addWeaponDamageFromSlots = [WeaponSlot.MainHand];
   hpChangeProperties.addWeaponElementFromSlot = WeaponSlot.MainHand;
   hpChangeProperties.addWeaponKineticDamageTypeFromSlot = WeaponSlot.MainHand;
+  hpChangeProperties.addWeaponHpChangeSourceCategoryFromSlot = WeaponSlot.MainHand;
   hpChangeProperties.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Strength, 100];
   hpChangeProperties.critChanceAttribute = CombatAttribute.Dexterity;
   hpChangeProperties.critMultiplierAttribute = CombatAttribute.Strength;
@@ -54,6 +55,7 @@ const ATTACK_MELEE_OFF_HAND = (() => {
   hpChangeProperties.addWeaponDamageFromSlots = [WeaponSlot.OffHand];
   hpChangeProperties.addWeaponElementFromSlot = WeaponSlot.OffHand;
   hpChangeProperties.addWeaponKineticDamageTypeFromSlot = WeaponSlot.OffHand;
+  hpChangeProperties.addWeaponHpChangeSourceCategoryFromSlot = WeaponSlot.OffHand;
   hpChangeProperties.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Strength, 100];
   hpChangeProperties.critChanceAttribute = CombatAttribute.Dexterity;
   hpChangeProperties.critMultiplierAttribute = CombatAttribute.Strength;

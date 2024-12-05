@@ -63,7 +63,7 @@ export function getTailwindClassFromFloatingTextColor(color: FloatingMessageText
     case FloatingMessageTextColor.ManaGained:
       return "text-blue-600";
     case FloatingMessageTextColor.MagicalDamage:
-      return "text-purple-500";
+      return "text-sky-300";
   }
 }
 

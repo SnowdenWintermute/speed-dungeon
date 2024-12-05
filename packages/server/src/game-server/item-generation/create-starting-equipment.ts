@@ -18,7 +18,7 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
       mainhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.Stick,
+          baseItemType: OneHandedMeleeWeapon.RuneSword,
         },
         true
       );
@@ -32,7 +32,7 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
       mainhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.Club,
+          baseItemType: OneHandedMeleeWeapon.EtherBlade,
         },
         true
       );
@@ -40,33 +40,23 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
     case CombatantClass.Rogue:
       mainhand = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.WarHammer,
+          equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+          baseItemType: TwoHandedMeleeWeapon.Trident,
         },
         true
       );
-      offhand = generateSpecificEquipmentType(
-        {
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.RuneSword,
-        },
-        true
-      );
+      // offhand = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      //     baseItemType: OneHandedMeleeWeapon.RuneSword,
+      //   },
+      //   true
+      // );
       break;
   }
 
-  mainhand = generateSpecificEquipmentType(
-    {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.MapleWand,
-    },
-    true
-  );
-
   if (mainhand instanceof Error) return mainhand;
   if (offhand instanceof Error) return offhand;
-
-  offhand = undefined;
 
   if (mainhand) startingEquipment[EquipmentSlot.MainHand] = mainhand;
   if (offhand) startingEquipment[EquipmentSlot.OffHand] = offhand;

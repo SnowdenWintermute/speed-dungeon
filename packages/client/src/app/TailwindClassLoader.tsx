@@ -33,7 +33,7 @@ export default function TailwindClassLoader() {
       <div className="bg-green-700" />
       <div className="text-red-400" />
       <div className="text-yellow-400" />
-      <div className="text-purple-500" />
+      <div className="text-sky-300" />
       <div className="border-t-yellow-700" />
       <div className="border-blue-700" />
       <div className="border-t-green-600" />

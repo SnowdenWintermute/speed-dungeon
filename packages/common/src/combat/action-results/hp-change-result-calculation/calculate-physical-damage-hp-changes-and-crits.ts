@@ -2,12 +2,12 @@ import { HpChange } from "./index.js";
 import { CombatAttribute, CombatantProperties } from "../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";
-import { ARMOR_CLASS_EQUATION_MODIFIER, BASE_CRIT_CHANCE } from "../../../app-consts.js";
+import { BASE_CRIT_CHANCE } from "../../../app-consts.js";
 import { MeleeOrRanged } from "../../hp-change-source-types.js";
 import applyAffinityToHpChange from "./apply-affinity-to-hp-change.js";
 import applyCritMultiplierToHpChange from "./apply-crit-multiplier-to-hp-change.js";
-import getDerivedArmorPenAttributeBasedOnWeaponType from "./get-armor-pen-derived-attribute-based-on-weapon-type.js";
 import rollCrit from "./roll-crit.js";
+import getDamageAfterArmorClass from "./get-damage-after-armor-class.js";
 
 export default function calculatePhysicalDamageHpChangesAndCrits(
   game: SpeedDungeonGame,
@@ -43,17 +43,12 @@ export default function calculatePhysicalDamageHpChangesAndCrits(
       hpChange.isCrit = true;
     }
 
-    const targetAc = targetCombatAttributes[CombatAttribute.ArmorClass] || 0;
-    let userArmorPen = userCombatAttributes[CombatAttribute.ArmorPenetration] || 0;
-    const armorPenBonusBasedOnWeaponType = getDerivedArmorPenAttributeBasedOnWeaponType(
+    const damageAfterAc = getDamageAfterArmorClass(
+      hpChange.value,
       userCombatAttributes,
+      targetCombatAttributes,
       meleeOrRanged
     );
-    userArmorPen += armorPenBonusBasedOnWeaponType;
-    const finalAc = Math.max(0, targetAc - userArmorPen);
-    const damageAfterAc =
-      (ARMOR_CLASS_EQUATION_MODIFIER * Math.pow(hpChange.value, 2.0)) /
-      (finalAc + ARMOR_CLASS_EQUATION_MODIFIER * hpChange.value);
     hpChange.value = damageAfterAc;
 
     const hpChangeElement = hpChangeProperties.hpChangeSource.elementOption;

@@ -18,16 +18,11 @@ export default function startHpChangeFloatingMessage(
   displayTime: number
 ) {
   let color =
-    hpChange.value >= 0 ? FloatingMessageTextColor.Healing : FloatingMessageTextColor.Damage;
-
-  if (hpChange.source.category === HpChangeSourceCategory.Magical)
-    color = FloatingMessageTextColor.MagicalDamage;
-
-  console.log(
-    "IS MAGICAL FLOATING TEXT: ",
-    hpChange.source.category === HpChangeSourceCategory.Magical,
-    JSON.stringify(hpChange, null, 2)
-  );
+    hpChange.value >= 0
+      ? FloatingMessageTextColor.Healing
+      : hpChange.source.category === HpChangeSourceCategory.Magical
+        ? FloatingMessageTextColor.MagicalDamage
+        : FloatingMessageTextColor.Damage;
 
   const colorClass = getTailwindClassFromFloatingTextColor(color);
 
@@ -36,7 +31,7 @@ export default function startHpChangeFloatingMessage(
   const elements: FloatingMessageElement[] = [
     {
       type: FloatingMessageElementType.Text,
-      text: `${Math.abs(hpChange.value)}${elementOption !== undefined ? " " + MAGICAL_ELEMENT_STRINGS[elementOption] : ""}${kineticDamageTypeOption !== undefined ? " " + KINETIC_DAMAGE_TYPE_STRINGS[kineticDamageTypeOption] : ""}`,
+      text: `${Math.abs(hpChange.value)}${kineticDamageTypeOption !== undefined ? " " + KINETIC_DAMAGE_TYPE_STRINGS[kineticDamageTypeOption].toLowerCase() : ""}${elementOption !== undefined ? " " + MAGICAL_ELEMENT_STRINGS[elementOption].toLowerCase() : ""}`,
       classNames: colorClass,
     },
   ];
