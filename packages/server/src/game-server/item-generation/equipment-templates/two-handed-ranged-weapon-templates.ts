@@ -2,12 +2,11 @@ import {
   CombatAttribute,
   EquipmentBaseItem,
   EquipmentType,
-  Evadable,
   HpChangeSource,
-  HpChangeSourceCategoryType,
+  HpChangeSourceCategory,
+  KineticDamageType,
   MeleeOrRanged,
   NumberRange,
-  PhysicalDamageType,
   PrefixType,
   SuffixType,
   TwoHandedRangedWeapon,
@@ -68,13 +67,15 @@ export const TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES: Record<
     {};
 
   for (const weapon of iterateNumericEnum(TwoHandedRangedWeapon)) {
-    let template = new TwoHandedRangedWeaponGenerationTemplate(new NumberRange(1, 3), [], {
+    const template = new TwoHandedRangedWeaponGenerationTemplate(new NumberRange(1, 3), [], {
       equipmentType: EquipmentType.TwoHandedRangedWeapon,
       baseItemType: weapon,
     });
-    let mainDamageClassification: null | HpChangeSource = new HpChangeSource(
-      { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Ranged },
-      PhysicalDamageType.Piercing
+    const mainDamageClassification: null | HpChangeSource = new HpChangeSource(
+      HpChangeSourceCategory.Physical,
+      MeleeOrRanged.Ranged,
+      false,
+      KineticDamageType.Piercing
     );
 
     switch (weapon) {
@@ -106,10 +107,7 @@ export const TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.damage = new NumberRange(10, 22);
         template.requirements[CombatAttribute.Dexterity] = 7;
         template.requirements[CombatAttribute.Intelligence] = 13;
-        mainDamageClassification.category = {
-          type: HpChangeSourceCategoryType.MagicalDamage,
-          evadable: Evadable.True,
-        };
+        mainDamageClassification.category = HpChangeSourceCategory.Magical;
         break;
     }
 

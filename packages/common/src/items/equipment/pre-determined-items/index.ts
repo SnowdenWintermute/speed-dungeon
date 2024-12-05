@@ -1,9 +1,9 @@
 import { EquipmentProperties, EquipmentType, Item, ItemPropertiesType } from "../../index.js";
 import {
   HpChangeSource,
-  HpChangeSourceCategoryType,
+  HpChangeSourceCategory,
+  KineticDamageType,
   MeleeOrRanged,
-  PhysicalDamageType,
 } from "../../../combat/index.js";
 import { EntityProperties } from "../../../primatives/index.js";
 import { OneHandedMeleeWeapon } from "../equipment-types/one-handed-melee-weapon.js";
@@ -35,11 +35,10 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
               damage: { min: 1, max: 4 },
               damageClassification: [
                 new HpChangeSource(
-                  {
-                    type: HpChangeSourceCategoryType.PhysicalDamage,
-                    meleeOrRanged: MeleeOrRanged.Ranged,
-                  },
-                  PhysicalDamageType.Piercing
+                  HpChangeSourceCategory.Physical,
+                  MeleeOrRanged.Ranged,
+                  false,
+                  KineticDamageType.Piercing
                 ),
               ],
             },
@@ -62,11 +61,10 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
               damage: { min: 1, max: 4 },
               damageClassification: [
                 new HpChangeSource(
-                  {
-                    type: HpChangeSourceCategoryType.PhysicalDamage,
-                    meleeOrRanged: MeleeOrRanged.Melee,
-                  },
-                  PhysicalDamageType.Slashing
+                  HpChangeSourceCategory.Physical,
+                  MeleeOrRanged.Melee,
+                  false,
+                  KineticDamageType.Slashing
                 ),
               ],
             },
@@ -89,11 +87,10 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
               damage: { min: 1, max: 1 },
               damageClassification: [
                 new HpChangeSource(
-                  {
-                    type: HpChangeSourceCategoryType.PhysicalDamage,
-                    meleeOrRanged: MeleeOrRanged.Melee,
-                  },
-                  PhysicalDamageType.Blunt
+                  HpChangeSourceCategory.Physical,
+                  MeleeOrRanged.Melee,
+                  false,
+                  KineticDamageType.Blunt
                 ),
               ],
             },
@@ -116,11 +113,10 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
               damage: { min: 1, max: 4 },
               damageClassification: [
                 new HpChangeSource(
-                  {
-                    type: HpChangeSourceCategoryType.PhysicalDamage,
-                    meleeOrRanged: MeleeOrRanged.Melee,
-                  },
-                  PhysicalDamageType.Piercing
+                  HpChangeSourceCategory.Physical,
+                  MeleeOrRanged.Melee,
+                  false,
+                  KineticDamageType.Piercing
                 ),
               ],
             },
