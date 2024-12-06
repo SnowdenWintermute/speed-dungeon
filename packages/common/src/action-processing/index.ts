@@ -2,8 +2,7 @@ export * from "./action-command.js";
 export * from "./action-command-receiver.js";
 export * from "./action-command-manager.js";
 import { BattleConclusion } from "../battle/index.js";
-import { HpChange } from "../combat/action-results/hp-change-result-calculation/index.js";
-import { CombatAction } from "../combat/index.js";
+import { CombatAction, HpChange } from "../combat/index.js";
 import { EquipmentSlot, Item } from "../items/index.js";
 import { GameMessageType } from "../packets/game-message.js";
 

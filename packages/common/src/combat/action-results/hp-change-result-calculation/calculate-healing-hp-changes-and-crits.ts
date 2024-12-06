@@ -2,9 +2,9 @@ import { BASE_CRIT_CHANCE } from "../../../app-consts.js";
 import { CombatAttribute, CombatantProperties } from "../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";
+import { HpChange } from "../../hp-change-source-types.js";
 import applyCritMultiplierToHpChange from "./apply-crit-multiplier-to-hp-change.js";
 import getHealingHpChangeOnTargetCombatant from "./get-healing-hp-change-on-target-combatant.js";
-import { HpChange } from "./index.js";
 import rollCrit from "./roll-crit.js";
 
 export default function calculateHealingHpChangesAndCrits(

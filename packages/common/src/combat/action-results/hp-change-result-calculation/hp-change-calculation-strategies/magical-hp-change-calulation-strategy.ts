@@ -1,6 +1,6 @@
-import { HpChange } from "..";
 import { BASE_CRIT_CHANCE } from "../../../../app-consts.js";
 import { CombatAttribute, CombatantProperties } from "../../../../combatants/index.js";
+import { HpChange } from "../../../hp-change-source-types.js";
 import getDamageAfterResilience from "../get-damage-after-resilience.js";
 import rollCrit from "../roll-crit.js";
 import { GenericHpCalculationStrategy } from "./generic-hp-calculation-strategy.js";

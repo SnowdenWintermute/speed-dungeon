@@ -30,3 +30,11 @@ export const HP_CHANGE_SOURCE_CATEGORY_STRINGS: Record<HpChangeSourceCategory, s
   [HpChangeSourceCategory.Medical]: "Medical",
   [HpChangeSourceCategory.Direct]: "Direct",
 };
+
+export class HpChange {
+  constructor(
+    public value: number,
+    public source: HpChangeSource,
+    public isCrit?: boolean
+  ) {}
+}

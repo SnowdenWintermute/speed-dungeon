@@ -79,6 +79,7 @@ import {
   ServerToClientEvent,
   ServerToClientEventTypes,
   HpChangeSourceCategory,
+  HpChange,
 } from "@speed-dungeon/common";
 import { env } from "../../validate-env.js";
 import {
@@ -87,7 +88,6 @@ import {
   waitForCondition,
   waitForUsersLeavingServer,
 } from "../utils.js";
-import { HpChange } from "@speed-dungeon/common/src/combat/action-results/hp-change-result-calculation/index.js";
 
 export let pgContext: PGTestingContext;
 export let expressApp: Application;

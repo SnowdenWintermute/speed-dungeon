@@ -2,13 +2,12 @@ export * from "./generic-hp-calculation-strategy.js";
 export * from "./magical-hp-change-calulation-strategy.js";
 export * from "./physical-hp-change-calculation-strategy.js";
 import {
-  HpChange,
   MagicalHpChangeCalculationStrategy,
   PhysicalHpChangeCalculationStrategy,
 } from "../index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatActionHpChangeProperties } from "../../../combat-actions";
-import { HpChangeSourceCategory } from "../../../hp-change-source-types.js";
+import { HpChange, HpChangeSourceCategory } from "../../../hp-change-source-types.js";
 
 export interface HpChangeCalculationStrategy {
   rollCrit(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties): HpChange;
@@ -63,11 +62,11 @@ export class HpChangeCalulationContext implements HpChangeCalculationStrategy {
     return this.strategy.applyArmorClass(hpChange, user, target);
   }
   applyResilience(
-    _hpChange: HpChange,
-    _user: CombatantProperties,
-    _target: CombatantProperties
+    hpChange: HpChange,
+    user: CombatantProperties,
+    target: CombatantProperties
   ): HpChange {
-    throw new Error("Method not implemented.");
+    return this.strategy.applyResilience(hpChange, user, target);
   }
 
   private createStrategy(

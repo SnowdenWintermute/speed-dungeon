@@ -1,9 +1,9 @@
 import { HpChangeCalculationStrategy } from "./index.js";
-import { HpChange } from "../index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatActionHpChangeProperties } from "../../../combat-actions/index.js";
 import applyAffinityToHpChange from "../apply-affinity-to-hp-change.js";
 import applyCritMultiplierToHpChange from "../apply-crit-multiplier-to-hp-change.js";
+import { HpChange } from "../../../hp-change-source-types.js";
 
 export class GenericHpCalculationStrategy implements HpChangeCalculationStrategy {
   rollCrit(

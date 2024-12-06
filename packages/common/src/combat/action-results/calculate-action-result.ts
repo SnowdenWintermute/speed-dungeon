@@ -6,10 +6,10 @@ import {
   ActionResultCalculationArguments,
   ActionResultCalculator,
 } from "./action-result-calculator.js";
-import calculateActionHitPointChangesAndEvasions from "./hp-change-result-calculation/index.js";
 import { CombatActionType } from "../index.js";
 import applyConsumableUseToActionResult from "./apply-consumable-use-to-action-result.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
+import calculateActionHitPointChangesAndEvasions from "./hp-change-result-calculation/calculate-hp-changes-and-evasions.js";
 
 export default function calculateActionResult(
   game: SpeedDungeonGame,
