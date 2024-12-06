@@ -1,8 +1,14 @@
-import { HpChange } from "../";
+export * from "./generic-hp-calculation-strategy.js";
+export * from "./magical-hp-change-calulation-strategy.js";
+export * from "./physical-hp-change-calculation-strategy.js";
+import {
+  HpChange,
+  MagicalHpChangeCalculationStrategy,
+  PhysicalHpChangeCalculationStrategy,
+} from "../";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatActionHpChangeProperties } from "../../../combat-actions";
 import { HpChangeSourceCategory } from "../../../hp-change-source-types.js";
-import MagicalDamageHpCalculationStrategy from "./magical-damage-hp-calulation-strategy";
 
 export interface HpChangeCalculationStrategy {
   rollCrit(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties): HpChange;
@@ -26,7 +32,7 @@ export interface HpChangeCalculationStrategy {
   ): HpChange;
 }
 
-export default class HpChangeCalulationContext implements HpChangeCalculationStrategy {
+export class HpChangeCalulationContext implements HpChangeCalculationStrategy {
   private strategy: HpChangeCalculationStrategy;
 
   constructor(hpChangeSourceCategory: HpChangeSourceCategory) {
@@ -57,9 +63,9 @@ export default class HpChangeCalulationContext implements HpChangeCalculationStr
     return this.strategy.applyArmorClass(hpChange, user, target);
   }
   applyResilience(
-    hpChange: HpChange,
-    user: CombatantProperties,
-    target: CombatantProperties
+    _hpChange: HpChange,
+    _user: CombatantProperties,
+    _target: CombatantProperties
   ): HpChange {
     throw new Error("Method not implemented.");
   }
@@ -67,14 +73,15 @@ export default class HpChangeCalulationContext implements HpChangeCalculationStr
   private createStrategy(
     hpChangeSourceCategory: HpChangeSourceCategory
   ): HpChangeCalculationStrategy {
-    //
     switch (hpChangeSourceCategory) {
       case HpChangeSourceCategory.Physical:
+        return new PhysicalHpChangeCalculationStrategy();
       case HpChangeSourceCategory.Magical:
+        return new MagicalHpChangeCalculationStrategy();
       case HpChangeSourceCategory.Medical:
+        throw new Error("not implemented");
       case HpChangeSourceCategory.Direct:
+        throw new Error("not implemented");
     }
-
-    return new MagicalDamageHpCalculationStrategy();
   }
 }

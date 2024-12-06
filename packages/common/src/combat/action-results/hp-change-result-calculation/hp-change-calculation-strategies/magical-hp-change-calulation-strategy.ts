@@ -3,9 +3,9 @@ import { BASE_CRIT_CHANCE } from "../../../../app-consts";
 import { CombatAttribute, CombatantProperties } from "../../../../combatants";
 import getDamageAfterResilience from "../get-damage-after-resilience";
 import rollCrit from "../roll-crit";
-import GenericHpCalculationStrategy from "./generic-hp-calculation-strategy";
+import { GenericHpCalculationStrategy } from "./generic-hp-calculation-strategy";
 
-export default class MagicalDamageHpCalculationStrategy extends GenericHpCalculationStrategy {
+export class MagicalHpChangeCalculationStrategy extends GenericHpCalculationStrategy {
   rollCrit(hpChange: HpChange, user: CombatantProperties, _target: CombatantProperties): HpChange {
     const userAttributes = CombatantProperties.getTotalAttributes(user);
     const userFocus = userAttributes[CombatAttribute.Focus];
@@ -25,9 +25,9 @@ export default class MagicalDamageHpCalculationStrategy extends GenericHpCalcula
     user: CombatantProperties,
     target: CombatantProperties
   ): HpChange {
-    const userAttributes = CombatantProperties.getTotalAttributes(user);
-    const targetAttributes = CombatantProperties.getTotalAttributes(user);
     if (hpChange.value > 0) return hpChange; // don't apply resilience if being healed
+    const userAttributes = CombatantProperties.getTotalAttributes(user);
+    const targetAttributes = CombatantProperties.getTotalAttributes(target);
     hpChange.value = getDamageAfterResilience(hpChange.value, userAttributes, targetAttributes);
     return hpChange;
   }

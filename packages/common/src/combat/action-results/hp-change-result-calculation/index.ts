@@ -1,3 +1,4 @@
+export * from "./hp-change-calculation-strategies/";
 import cloneDeep from "lodash.clonedeep";
 import { CombatantProperties } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";

@@ -4,10 +4,13 @@ import { CombatantProperties } from "../../../../combatants";
 import { CombatActionHpChangeProperties } from "../../../combat-actions";
 import applyAffinityToHpChange from "../apply-affinity-to-hp-change";
 import applyCritMultiplierToHpChange from "../apply-crit-multiplier-to-hp-change";
-import getDamageAfterResilience from "../get-damage-after-resilience";
 
-export default class GenericHpCalculationStrategy implements HpChangeCalculationStrategy {
-  rollCrit(hpChange: HpChange, user: CombatantProperties, _target: CombatantProperties): HpChange {
+export class GenericHpCalculationStrategy implements HpChangeCalculationStrategy {
+  rollCrit(
+    _hpChange: HpChange,
+    _user: CombatantProperties,
+    _target: CombatantProperties
+  ): HpChange {
     throw new Error("Not implemented");
   }
   applyCritMultiplier(
@@ -16,7 +19,7 @@ export default class GenericHpCalculationStrategy implements HpChangeCalculation
     user: CombatantProperties,
     _target: CombatantProperties
   ): HpChange {
-    if (hpChange.isCrit) return hpChange;
+    if (!hpChange.isCrit) return hpChange;
     const userAttributes = CombatantProperties.getTotalAttributes(user);
     hpChange.value = applyCritMultiplierToHpChange(
       hpChangeProperties,
@@ -43,16 +46,16 @@ export default class GenericHpCalculationStrategy implements HpChangeCalculation
     return hpChange;
   }
   applyArmorClass(
-    hpChange: HpChange,
+    _hpChange: HpChange,
     _user: CombatantProperties,
     _target: CombatantProperties
   ): HpChange {
     throw new Error("Not implemented");
   }
   applyResilience(
-    hpChange: HpChange,
-    user: CombatantProperties,
-    target: CombatantProperties
+    _hpChange: HpChange,
+    _user: CombatantProperties,
+    _target: CombatantProperties
   ): HpChange {
     throw new Error("Not implemented");
   }

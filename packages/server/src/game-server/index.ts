@@ -5,9 +5,10 @@ import {
   EquipmentType,
   GameMessagesPayload,
   GameMode,
-  OneHandedMeleeWeapon,
+  HpChangeSourceCategory,
   ServerToClientEventTypes,
   SpeedDungeonGame,
+  HpChangeCalulationContext,
 } from "@speed-dungeon/common";
 import SocketIO from "socket.io";
 import initiateLobbyEventListeners from "./lobby-event-handlers/index.js";
@@ -37,7 +38,6 @@ import generateLoot from "./game-event-handlers/action-command-handlers/generate
 import generateExperiencePoints from "./game-event-handlers/action-command-handlers/generate-experience-points.js";
 import initiateSavedCharacterListeners from "./saved-character-event-handlers/index.js";
 import GameModeContext from "./game-event-handlers/game-mode-strategies/game-mode-context.js";
-import { generateSpecificEquipmentType } from "./item-generation/generate-test-items.js";
 
 export type Username = string;
 export type SocketId = string;
@@ -56,6 +56,14 @@ export class GameServer implements ActionCommandReceiver {
   gameModeContexts: Record<GameMode, GameModeContext> = {
     [GameMode.Race]: new GameModeContext(GameMode.Race),
     [GameMode.Progression]: new GameModeContext(GameMode.Progression),
+  };
+  hpCalclulationContexts: Record<HpChangeSourceCategory, HpChangeCalulationContext> = {
+    [HpChangeSourceCategory.Physical]: new HpChangeCalulationContext(
+      HpChangeSourceCategory.Physical
+    ),
+    [HpChangeSourceCategory.Magical]: new HpChangeCalulationContext(HpChangeSourceCategory.Magical),
+    [HpChangeSourceCategory.Medical]: new HpChangeCalulationContext(HpChangeSourceCategory.Medical),
+    [HpChangeSourceCategory.Direct]: new HpChangeCalulationContext(HpChangeSourceCategory.Direct),
   };
   constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     console.log("constructed game server");

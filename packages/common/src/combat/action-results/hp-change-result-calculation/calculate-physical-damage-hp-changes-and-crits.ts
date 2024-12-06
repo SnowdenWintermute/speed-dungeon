@@ -64,7 +64,7 @@ export default function calculatePhysicalDamageHpChangesAndCrits(
       hpChange.value,
       userCombatAttributes,
       targetCombatAttributes,
-      meleeOrRanged
+      hpChange.source.meleeOrRanged
     );
     hpChange.value = damageAfterAc;
 
