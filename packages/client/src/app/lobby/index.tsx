@@ -85,7 +85,7 @@ export default function Lobby() {
         )}
       </section>
       <div className="absolute z-10 bottom-0 w-full p-7 flex items-center justify-center">
-        {!showGameCreationForm && !showSavedCharacterManager && (
+        {!showGameCreationForm && !showSavedCharacterManager && websocketConnected && (
           <HoverableTooltipWrapper
             offsetTop={8}
             tooltipText="Start a single player game where you control one of each character type"
@@ -94,7 +94,7 @@ export default function Lobby() {
               onClick={() => quickStartGame(socketOption)}
               className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
                           flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
-                          text-xl bg-slate-950 text-slate-400
+                          text-xl bg-slate-950 text-slate-400 animate-slide-appear-from-top 
             `}
             >
               PLAY NOW

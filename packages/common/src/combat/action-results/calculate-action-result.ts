@@ -6,7 +6,7 @@ import {
   ActionResultCalculationArguments,
   ActionResultCalculator,
 } from "./action-result-calculator.js";
-import calculateActionHitPointChangesCritsAndEvasions from "./hp-change-result-calculation/index.js";
+import calculateActionHitPointChangesAndEvasions from "./hp-change-result-calculation/index.js";
 import { CombatActionType } from "../index.js";
 import applyConsumableUseToActionResult from "./apply-consumable-use-to-action-result.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
@@ -55,7 +55,7 @@ export default function calculateActionResult(
   }
   // END CONSUMABLE
 
-  const hitPointChangesCritsAndEvasionsResult = calculateActionHitPointChangesCritsAndEvasions(
+  const hitPointChangesCritsAndEvasionsResult = calculateActionHitPointChangesAndEvasions(
     game,
     args,
     targetIds,

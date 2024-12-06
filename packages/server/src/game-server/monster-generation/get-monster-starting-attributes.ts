@@ -60,7 +60,7 @@ export default function getMonsterStartingAttributes(
       break;
     case MonsterType.Cultist:
       attributes[CombatAttribute.Damage] = 1.0;
-      attributes[CombatAttribute.Intelligence] = 4.0;
+      attributes[CombatAttribute.Intelligence] = 6.0;
       attributes[CombatAttribute.Hp] = 3.0;
       attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 1.5;

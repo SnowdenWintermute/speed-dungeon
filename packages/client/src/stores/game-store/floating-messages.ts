@@ -17,7 +17,7 @@ export enum FloatingMessageElementType {
 export type FloatingMessageTextElement = {
   type: FloatingMessageElementType.Text;
   text: string | number;
-  classNames?: string;
+  classNames?: {mainText: string, shadowText: string};
 };
 
 export enum FloatingMessageIconType {

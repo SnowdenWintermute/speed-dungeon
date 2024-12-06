@@ -1,7 +1,4 @@
-import {
-  BASE_CRIT_CHANCE,
-  RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO,
-} from "../../../app-consts.js";
+import { BASE_CRIT_CHANCE } from "../../../app-consts.js";
 import { CombatAttribute, CombatantProperties } from "../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";

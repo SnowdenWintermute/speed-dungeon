@@ -11,6 +11,15 @@ import {
   Item,
   Combatant,
   iterateNumericEnum,
+  EquipmentProperties,
+  EquipmentType,
+  BodyArmor,
+  ArmorCategory,
+  MaxAndCurrent,
+  AffixType,
+  SuffixType,
+  PrefixType,
+  ItemPropertiesType,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
@@ -31,16 +40,12 @@ export default function outfitNewCharacter(character: Combatant) {
   const classTraitsOption = STARTING_COMBATANT_TRAITS[combatantProperties.combatantClass];
   if (classTraitsOption) combatantProperties.traits = cloneDeep(classTraitsOption);
 
-  combatantProperties.abilities[AbilityName.Fire] = CombatantAbility.createByName(
-    AbilityName.Fire
-  );
+  combatantProperties.abilities[AbilityName.Fire] = CombatantAbility.createByName(AbilityName.Fire);
   combatantProperties.abilities[AbilityName.Healing] = CombatantAbility.createByName(
     AbilityName.Healing
   );
   if (combatantProperties.combatantClass === CombatantClass.Mage)
-    combatantProperties.abilities[AbilityName.Ice] = CombatantAbility.createByName(
-      AbilityName.Ice
-    );
+    combatantProperties.abilities[AbilityName.Ice] = CombatantAbility.createByName(AbilityName.Ice);
 
   const hpInjectors = new Array(1)
     .fill(null)
@@ -72,8 +77,46 @@ export default function outfitNewCharacter(character: Combatant) {
 
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
+  const TEST_ARMOR_EQUIPMENT_PROPERTIES = new EquipmentProperties(
+    {
+      type: EquipmentType.BodyArmor,
+      baseItem: BodyArmor.GothicPlate,
+      armorClass: 1,
+      armorCategory: ArmorCategory.Plate,
+    },
+    new MaxAndCurrent(1, 1)
+  );
+
+  TEST_ARMOR_EQUIPMENT_PROPERTIES.affixes[AffixType.Suffix] = {
+    [SuffixType.Hp]: {
+      combatAttributes: { [CombatAttribute.Hp]: 4 },
+      equipmentTraits: {},
+      tier: 1,
+    },
+  };
+  TEST_ARMOR_EQUIPMENT_PROPERTIES.affixes[AffixType.Prefix] = {
+    [PrefixType.Mp]: {
+      combatAttributes: { [CombatAttribute.Mp]: 4 },
+      equipmentTraits: {},
+      tier: 1,
+    },
+  };
+
+  const HP_ARMOR_TEST_ITEM = new Item(
+    { id: idGenerator.generate(), name: "hp armor less" },
+    0,
+    {},
+    {
+      type: ItemPropertiesType.Equipment,
+      equipmentProperties: TEST_ARMOR_EQUIPMENT_PROPERTIES,
+    }
+  );
+
+  combatantProperties.inventory.items.push(HP_ARMOR_TEST_ITEM);
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
+  // TESTING
+  combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
 }
 
 function giveTestingCombatAttributes(combatantProperties: CombatantProperties) {

@@ -1,3 +1,4 @@
+import { transform } from "next/dist/build/swc";
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -27,6 +28,14 @@ const config: Config = {
         ffxipink: "#ff9b9b",
       },
       keyframes: {
+        "crit-text-keyframes": {
+          "0%": {
+            transform: "scale(2.5)",
+          },
+          "100%": {
+            transform: "scale(1.25)",
+          },
+        },
         "appear-keyframes": {
           "0%": {
             opacity: "0%",
@@ -62,6 +71,7 @@ const config: Config = {
         },
       },
       animation: {
+        "crit-text": "crit-text-keyframes .3s ease-out",
         "appear-fast": "appear-keyframes .1s ease-out",
         "slide-appear-from-left": "slide-left-appear-keyframes .3s ease-out",
         "slide-appear-from-left-fast": "slide-left-appear-keyframes .1s linear",

@@ -1,13 +1,23 @@
 import {
+  AffixType,
+  ArmorCategory,
+  BodyArmor,
+  CombatAttribute,
   CombatantClass,
+  EquipmentProperties,
   EquipmentSlot,
   EquipmentType,
   Item,
+  ItemPropertiesType,
+  MaxAndCurrent,
   OneHandedMeleeWeapon,
+  PrefixType,
   Shield,
+  SuffixType,
   TwoHandedMeleeWeapon,
 } from "@speed-dungeon/common";
 import { generateSpecificEquipmentType } from "./generate-test-items.js";
+import { idGenerator } from "../../singletons.js";
 
 export default function createStartingEquipment(combatantClass: CombatantClass) {
   const startingEquipment: Partial<Record<EquipmentSlot, Item>> = {};
@@ -60,6 +70,43 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
 
   if (mainhand) startingEquipment[EquipmentSlot.MainHand] = mainhand;
   if (offhand) startingEquipment[EquipmentSlot.OffHand] = offhand;
+
+  const TEST_ARMOR_EQUIPMENT_PROPERTIES = new EquipmentProperties(
+    {
+      type: EquipmentType.BodyArmor,
+      baseItem: BodyArmor.GothicPlate,
+      armorClass: 1,
+      armorCategory: ArmorCategory.Plate,
+    },
+    new MaxAndCurrent(1, 1)
+  );
+
+  TEST_ARMOR_EQUIPMENT_PROPERTIES.affixes[AffixType.Suffix] = {
+    [SuffixType.Hp]: {
+      combatAttributes: { [CombatAttribute.Hp]: 10 },
+      equipmentTraits: {},
+      tier: 1,
+    },
+  };
+  TEST_ARMOR_EQUIPMENT_PROPERTIES.affixes[AffixType.Prefix] = {
+    [PrefixType.Mp]: {
+      combatAttributes: { [CombatAttribute.Mp]: 10 },
+      equipmentTraits: {},
+      tier: 1,
+    },
+  };
+
+  const HP_ARMOR_TEST_ITEM = new Item(
+    { id: idGenerator.generate(), name: "hp armor" },
+    0,
+    {},
+    {
+      type: ItemPropertiesType.Equipment,
+      equipmentProperties: TEST_ARMOR_EQUIPMENT_PROPERTIES,
+    }
+  );
+
+  startingEquipment[EquipmentSlot.Body] = HP_ARMOR_TEST_ITEM;
 
   return startingEquipment;
 }

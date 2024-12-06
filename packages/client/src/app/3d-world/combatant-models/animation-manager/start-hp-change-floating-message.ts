@@ -26,13 +26,15 @@ export default function startHpChangeFloatingMessage(
 
   const colorClass = getTailwindClassFromFloatingTextColor(color);
 
+  const critClass = hpChange.isCrit ? " scale-[1.25] animate-crit-text" : "";
+
   const { elementOption, kineticDamageTypeOption } = hpChange.source;
 
   const elements: FloatingMessageElement[] = [
     {
       type: FloatingMessageElementType.Text,
       text: `${Math.abs(hpChange.value)}${kineticDamageTypeOption !== undefined ? " " + KINETIC_DAMAGE_TYPE_STRINGS[kineticDamageTypeOption].toLowerCase() : ""}${elementOption !== undefined ? " " + MAGICAL_ELEMENT_STRINGS[elementOption].toLowerCase() : ""}`,
-      classNames: colorClass,
+      classNames: { mainText: colorClass + critClass, shadowText: critClass },
     },
   ];
 

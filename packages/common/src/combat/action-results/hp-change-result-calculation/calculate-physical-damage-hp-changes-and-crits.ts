@@ -43,14 +43,6 @@ export default function calculatePhysicalDamageHpChangesAndCrits(
       hpChange.isCrit = true;
     }
 
-    const damageAfterAc = getDamageAfterArmorClass(
-      hpChange.value,
-      userCombatAttributes,
-      targetCombatAttributes,
-      meleeOrRanged
-    );
-    hpChange.value = damageAfterAc;
-
     const hpChangeElement = hpChangeProperties.hpChangeSource.elementOption;
     if (hpChangeElement !== undefined) {
       const targetAffinities =
@@ -67,6 +59,14 @@ export default function calculatePhysicalDamageHpChangesAndCrits(
     }
 
     hpChange.value *= hpChangeProperties.finalDamagePercentMultiplier / 100;
+
+    const damageAfterAc = getDamageAfterArmorClass(
+      hpChange.value,
+      userCombatAttributes,
+      targetCombatAttributes,
+      meleeOrRanged
+    );
+    hpChange.value = damageAfterAc;
 
     // since "damage" is written as positive numbers in the action definitions
     // we convert to a negative value as the "hp change"

@@ -24,6 +24,8 @@ export function induceHitRecovery(
   const targetModel = gameWorld.modelManager.combatantModels[targetId];
   if (targetModel === undefined) return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
+  // hpChange.isCrit = Math.random() > 0.5;
+
   startHpChangeFloatingMessage(targetId, hpChange, 2000);
 
   useGameStore.getState().mutateState((gameState) => {
@@ -62,36 +64,27 @@ export function induceHitRecovery(
 
     const hpChangeSourceCategoryText = HP_CHANGE_SOURCE_CATEGORY_STRINGS[hpChange.source.category];
 
-    const damageText = `points of${kineticOption ? ` ${kineticOption.toLowerCase()}` : ""}${elementOption ? ` ${elementOption.toLowerCase()}` : ""} ${hpChangeSourceCategoryText.toLowerCase()} damage`;
+    const damageText = `points of ${hpChangeSourceCategoryText.toLowerCase()}${kineticOption ? ` ${kineticOption.toLowerCase()}` : ""}${elementOption ? ` ${elementOption.toLowerCase()}` : ""} damage`;
     const hpOrDamage = hpChange.value > 0 ? "hit points" : damageText;
+
+    const style = hpChange.value > 0 ? CombatLogMessageStyle.Healing : CombatLogMessageStyle.Basic;
+    let messageText = "";
 
     if (wasSpell) {
       const damagedOrHealed = hpChange.value > 0 ? "recovers" : "takes";
-      const style =
-        hpChange.value > 0 ? CombatLogMessageStyle.Healing : CombatLogMessageStyle.Basic;
-
-      gameState.combatLogMessages.push(
-        new CombatLogMessage(
-          `${combatantResult.entityProperties.name} ${damagedOrHealed} ${Math.abs(hpChange.value)} ${hpOrDamage}`,
-          style
-        )
-      );
+      messageText = `${combatantResult.entityProperties.name} ${damagedOrHealed} ${Math.abs(hpChange.value)} ${hpOrDamage}`;
     } else {
       const damagedOrHealed = hpChange.value > 0 ? "healed" : "hit";
-      const style =
-        hpChange.value > 0 ? CombatLogMessageStyle.Healing : CombatLogMessageStyle.Basic;
 
       const isTargetingSelf =
         actionUserResult.entityProperties.id === combatantResult.entityProperties.id;
       const targetNameText = isTargetingSelf ? "themselves" : combatantResult.entityProperties.name;
-
-      gameState.combatLogMessages.push(
-        new CombatLogMessage(
-          `${actionUserResult.entityProperties.name} ${damagedOrHealed} ${targetNameText} for ${Math.abs(hpChange.value)} ${hpOrDamage}`,
-          style
-        )
-      );
+      messageText = `${actionUserResult.entityProperties.name} ${damagedOrHealed} ${targetNameText} for ${Math.abs(hpChange.value)} ${hpOrDamage}`;
     }
+
+    if (hpChange.isCrit) messageText = "Critical! " + messageText;
+
+    gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
 
     if (combatantProperties.hitPoints <= 0) {
       const maybeError = SpeedDungeonGame.handlePlayerDeath(game, party.battleId, targetId);

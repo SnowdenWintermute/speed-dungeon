@@ -3,6 +3,7 @@ import { EquipmentProperties, EquipmentSlot, Item } from "../items/index.js";
 import { EntityId } from "../primatives/index.js";
 import { Inventory } from "./inventory.js";
 import { CombatantProperties } from "./combatant-properties.js";
+import { CombatAttribute } from "./combat-attributes.js";
 
 /** 
   *
@@ -27,6 +28,12 @@ export default function equipItem(
 
   if (!CombatantProperties.canUseItem(combatantProperties, item))
     return new Error(ERROR_MESSAGES.EQUIPMENT.REQUIREMENTS_NOT_MET);
+
+  const attributesBefore = CombatantProperties.getTotalAttributes(combatantProperties);
+  const maxHitPoints = attributesBefore[CombatAttribute.Hp];
+  const maxMana = attributesBefore[CombatAttribute.Mp];
+  const percentOfMaxHitPoints = combatantProperties.hitPoints / maxHitPoints;
+  const percentOfMaxMana = combatantProperties.mana / maxMana;
 
   // @TODO: Check if equiping the item would necessitate unequiping multiple items,
   // (as with equiping a 2h weapon when wielding two 1h items) and
@@ -83,7 +90,13 @@ export default function equipItem(
   if (itemToEquipResult instanceof Error) return itemToEquipResult;
   combatantProperties.equipment[slot] = itemToEquipResult;
 
-  CombatantProperties.clampHpAndMpToMax(combatantProperties);
+  const attributesAfter = CombatantProperties.getTotalAttributes(combatantProperties);
+  const maxHitPointsAfter = attributesAfter[CombatAttribute.Hp];
+  const maxManaAfter = attributesAfter[CombatAttribute.Mp];
+
+  combatantProperties.hitPoints = Math.round(maxHitPointsAfter * percentOfMaxHitPoints);
+  combatantProperties.mana = Math.round(maxManaAfter * percentOfMaxMana);
+  // CombatantProperties.clampHpAndMpToMax(combatantProperties);
 
   return { idsOfUnequippedItems, unequippedSlots: slotsToUnequip };
 }

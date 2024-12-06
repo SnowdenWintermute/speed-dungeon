@@ -37,7 +37,8 @@ export default function CombatantFloatingMessagesDisplay({ entityId }: { entityI
                   return (
                     <FloatingMessageText
                       key={i}
-                      classNames={element.classNames + " mr-1 last:mr-0"}
+                      classNames={element.classNames?.mainText + " mr-1 last:mr-0"}
+                      shadowTextClassnames={element.classNames?.shadowText}
                       text={element.text}
                     />
                   );

@@ -20,6 +20,11 @@ function calculateAndAddWeaponDamage(
 ) {
   const equipmentSlot =
     weaponSlot === WeaponSlot.MainHand ? EquipmentSlot.MainHand : EquipmentSlot.OffHand;
+  const itemOption = userCombatantProperties.equipment[equipmentSlot];
+
+  // don't add damage if wearing an unusable item
+  if (itemOption && !CombatantProperties.canUseItem(userCombatantProperties, itemOption)) return;
+
   const equipmentOption = CombatantProperties.getEquipmentInSlot(
     userCombatantProperties,
     equipmentSlot

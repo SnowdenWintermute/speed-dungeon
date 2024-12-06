@@ -9,6 +9,7 @@ export function getAbilityManaCost(
   const { manaCost, abilityLevelManaCostMultiplier, combatantLevelManaCostMultiplier } =
     abilityAttributes;
   const adjustedForAbilityLevel = ability.level * (manaCost * abilityLevelManaCostMultiplier);
+
   const adjustedForCombatantLevel = adjustedForAbilityLevel * combatantProperties.level;
 
   return Math.floor(adjustedForCombatantLevel);
