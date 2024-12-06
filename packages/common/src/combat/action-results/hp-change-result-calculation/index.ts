@@ -1,4 +1,4 @@
-export * from "./hp-change-calculation-strategies/";
+export * from "./hp-change-calculation-strategies/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { CombatantProperties } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
@@ -13,14 +13,12 @@ import { ActionResultCalculationArguments } from "../action-result-calculator.js
 import getMostDamagingWeaponElementOnTarget from "./get-most-damaging-weapon-element-on-target.js";
 import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
 import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app-consts.js";
-import { HpChangeSource, HpChangeSourceCategory } from "../../hp-change-source-types.js";
+import { HpChangeSource } from "../../hp-change-source-types.js";
 import getIdsOfEvadingEntities from "./get-ids-of-evading-entities.js";
-import calculatePhysicalDamageHpChangesAndCrits from "./calculate-physical-damage-hp-changes-and-crits.js";
-import calculateMagicalDamageHpChangesAndCrits from "./calculate-magical-damage-hp-changes-and-crits.js";
-import calculateHealingHpChangesAndCrits from "./calculate-healing-hp-changes-and-crits.js";
 import { ABILITY_ATTRIBUTES } from "../../../combatants/abilities/get-ability-attributes.js";
 import getMostDamagingWeaponKineticDamageTypeOnTarget from "./get-most-damaging-weapon-damage-type-on-target.js";
 import getMostDamagingHpChangeSourceCategoryOnTarget from "./get-most-damaging-weapon-hp-change-source-category-on-target.js";
+import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 
 export class HpChange {
   constructor(
@@ -138,51 +136,50 @@ export default function calculateActionHitPointChangesAndEvasions(
   }
 
   const idsOfNonEvadingTargets = targetIds.filter((id) => !evasions.includes(id));
+  for (const id of idsOfNonEvadingTargets) {
+    const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, id);
+    if (targetCombatantResult instanceof Error) return targetCombatantResult;
+    const { combatantProperties: targetCombatantProperties } = targetCombatantResult;
+    let hpChange = new HpChange(incomingHpChangePerTarget, hpChangeSource);
+    const hpChangeCalculationContext = HP_CALCLULATION_CONTEXTS[hpChangeSource.category];
 
-  if (hpChangeSource.isHealing) {
-    const healingHpChangesResult = calculateHealingHpChangesAndCrits(
-      game,
+    hpChange = hpChangeCalculationContext.rollCrit(
+      hpChange,
       userCombatantProperties,
-      idsOfNonEvadingTargets,
-      incomingHpChangePerTarget,
-      hpChangeProperties
+      targetCombatantProperties
     );
-    if (healingHpChangesResult instanceof Error) return healingHpChangesResult;
-    hitPointChanges = healingHpChangesResult;
-  } else {
-    switch (hpChangeSource.category) {
-      case HpChangeSourceCategory.Physical:
-        const physicalHpChangesResult = calculatePhysicalDamageHpChangesAndCrits(
-          game,
-          hpChangeSource.meleeOrRanged,
-          userCombatantProperties,
-          idsOfNonEvadingTargets,
-          incomingHpChangePerTarget,
-          hpChangeProperties
-        );
-        if (physicalHpChangesResult instanceof Error) return physicalHpChangesResult;
-        hitPointChanges = physicalHpChangesResult;
-        break;
-      case HpChangeSourceCategory.Magical:
-        const magicalHpChangesResult = calculateMagicalDamageHpChangesAndCrits(
-          game,
-          userCombatantProperties,
-          idsOfNonEvadingTargets,
-          incomingHpChangePerTarget,
-          hpChangeProperties
-        );
-        if (magicalHpChangesResult instanceof Error) return magicalHpChangesResult;
-        hitPointChanges = magicalHpChangesResult;
-        break;
-      case HpChangeSourceCategory.Direct:
-        return new Error(ERROR_MESSAGES.TODO);
-      case HpChangeSourceCategory.Medical:
-        return new Error(ERROR_MESSAGES.TODO);
-    }
-  }
+    hpChange = hpChangeCalculationContext.applyCritMultiplier(
+      hpChange,
+      hpChangeProperties,
+      userCombatantProperties,
+      targetCombatantProperties
+    );
+    hpChange = hpChangeCalculationContext.applyKineticAffinities(
+      hpChange,
+      targetCombatantProperties
+    );
+    hpChange = hpChangeCalculationContext.applyElementalAffinities(
+      hpChange,
+      targetCombatantProperties
+    );
+    // do this first since armor class effectiveness is based on total incomming damage
+    hpChange.value *= hpChangeProperties.finalDamagePercentMultiplier;
+    hpChange = hpChangeCalculationContext.applyResilience(
+      hpChange,
+      userCombatantProperties,
+      targetCombatantProperties
+    );
+    hpChange = hpChangeCalculationContext.applyArmorClass(
+      hpChange,
+      userCombatantProperties,
+      targetCombatantProperties
+    );
 
-  for (const hpChange of Object.values(hitPointChanges)) {
     hpChange.value = Math.floor(hpChange.value);
+    // since "damage" is written as positive numbers in the action definitions
+    // we convert to a negative value as the "hp change"
+    hpChange.value *= -1;
+    hitPointChanges[id] = hpChange;
   }
 
   return { hitPointChanges, evasions };

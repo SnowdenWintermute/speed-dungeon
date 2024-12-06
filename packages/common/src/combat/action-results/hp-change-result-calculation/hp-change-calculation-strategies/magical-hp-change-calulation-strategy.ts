@@ -1,9 +1,9 @@
 import { HpChange } from "..";
-import { BASE_CRIT_CHANCE } from "../../../../app-consts";
-import { CombatAttribute, CombatantProperties } from "../../../../combatants";
-import getDamageAfterResilience from "../get-damage-after-resilience";
-import rollCrit from "../roll-crit";
-import { GenericHpCalculationStrategy } from "./generic-hp-calculation-strategy";
+import { BASE_CRIT_CHANCE } from "../../../../app-consts.js";
+import { CombatAttribute, CombatantProperties } from "../../../../combatants/index.js";
+import getDamageAfterResilience from "../get-damage-after-resilience.js";
+import rollCrit from "../roll-crit.js";
+import { GenericHpCalculationStrategy } from "./generic-hp-calculation-strategy.js";
 
 export class MagicalHpChangeCalculationStrategy extends GenericHpCalculationStrategy {
   rollCrit(hpChange: HpChange, user: CombatantProperties, _target: CombatantProperties): HpChange {

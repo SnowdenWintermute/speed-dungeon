@@ -57,14 +57,6 @@ export class GameServer implements ActionCommandReceiver {
     [GameMode.Race]: new GameModeContext(GameMode.Race),
     [GameMode.Progression]: new GameModeContext(GameMode.Progression),
   };
-  hpCalclulationContexts: Record<HpChangeSourceCategory, HpChangeCalulationContext> = {
-    [HpChangeSourceCategory.Physical]: new HpChangeCalulationContext(
-      HpChangeSourceCategory.Physical
-    ),
-    [HpChangeSourceCategory.Magical]: new HpChangeCalulationContext(HpChangeSourceCategory.Magical),
-    [HpChangeSourceCategory.Medical]: new HpChangeCalulationContext(HpChangeSourceCategory.Medical),
-    [HpChangeSourceCategory.Direct]: new HpChangeCalulationContext(HpChangeSourceCategory.Direct),
-  };
   constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
     console.log("constructed game server");
     this.connectionHandler();

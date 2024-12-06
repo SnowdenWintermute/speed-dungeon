@@ -5,7 +5,7 @@ import {
   HpChange,
   MagicalHpChangeCalculationStrategy,
   PhysicalHpChangeCalculationStrategy,
-} from "../";
+} from "../index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatActionHpChangeProperties } from "../../../combat-actions";
 import { HpChangeSourceCategory } from "../../../hp-change-source-types.js";
@@ -79,9 +79,16 @@ export class HpChangeCalulationContext implements HpChangeCalculationStrategy {
       case HpChangeSourceCategory.Magical:
         return new MagicalHpChangeCalculationStrategy();
       case HpChangeSourceCategory.Medical:
-        throw new Error("not implemented");
+        return new MagicalHpChangeCalculationStrategy();
       case HpChangeSourceCategory.Direct:
-        throw new Error("not implemented");
+        return new MagicalHpChangeCalculationStrategy();
     }
   }
 }
+
+export const HP_CALCLULATION_CONTEXTS: Record<HpChangeSourceCategory, HpChangeCalulationContext> = {
+  [HpChangeSourceCategory.Physical]: new HpChangeCalulationContext(HpChangeSourceCategory.Physical),
+  [HpChangeSourceCategory.Magical]: new HpChangeCalulationContext(HpChangeSourceCategory.Magical),
+  [HpChangeSourceCategory.Medical]: new HpChangeCalulationContext(HpChangeSourceCategory.Medical),
+  [HpChangeSourceCategory.Direct]: new HpChangeCalulationContext(HpChangeSourceCategory.Direct),
+};
