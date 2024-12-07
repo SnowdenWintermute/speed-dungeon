@@ -1,8 +1,8 @@
-import { CombatantProperties } from "../../../combatants/index.js";
-import { WeaponProperties } from "../../../items/index.js";
-import { MagicalElement } from "../../magical-elements.js";
+import { CombatantProperties } from "../../../../combatants/index.js";
+import { WeaponProperties } from "../../../../items/index.js";
+import { MagicalElement } from "../../../magical-elements.js";
 
-export default function getMostDamagingWeaponElementOnTarget(
+export function getMostEffectiveWeaponElementOnTarget(
   weaponProperties: WeaponProperties,
   targetCombatantProperties: CombatantProperties
 ): null | MagicalElement {

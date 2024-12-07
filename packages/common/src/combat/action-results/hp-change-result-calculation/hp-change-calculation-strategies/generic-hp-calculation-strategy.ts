@@ -32,7 +32,7 @@ export class GenericHpCalculationStrategy implements HpChangeCalculationStrategy
     _user: CombatantProperties,
     _target: CombatantProperties,
     _targetWantsToBeHit: boolean
-  ): HpChange {
+  ) {
     throw new Error("Not implemented");
   }
   applyCritMultiplier(
@@ -40,45 +40,34 @@ export class GenericHpCalculationStrategy implements HpChangeCalculationStrategy
     hpChangeProperties: CombatActionHpChangeProperties,
     user: CombatantProperties,
     _target: CombatantProperties
-  ): HpChange {
-    if (!hpChange.isCrit) return hpChange;
+  ) {
+    if (!hpChange.isCrit) return;
     const userAttributes = CombatantProperties.getTotalAttributes(user);
     hpChange.value = applyCritMultiplierToHpChange(
       hpChangeProperties,
       userAttributes,
       hpChange.value
     );
-    return hpChange;
   }
-  applyKineticAffinities(hpChange: HpChange, target: CombatantProperties): HpChange {
+  applyKineticAffinities(hpChange: HpChange, target: CombatantProperties) {
     const kineticDamageType = hpChange.source.kineticDamageTypeOption;
-    if (kineticDamageType === undefined) return hpChange;
+    if (kineticDamageType === undefined) return;
     const targetAffinities =
       CombatantProperties.getCombatantTotalKineticDamageTypeAffinities(target);
     const affinityValue = targetAffinities[kineticDamageType] || 0;
     hpChange.value = applyAffinityToHpChange(affinityValue, hpChange.value);
-    return hpChange;
   }
-  applyElementalAffinities(hpChange: HpChange, target: CombatantProperties): HpChange {
+  applyElementalAffinities(hpChange: HpChange, target: CombatantProperties) {
     const hpChangeElement = hpChange.source.elementOption;
-    if (hpChangeElement === undefined) return hpChange;
+    if (hpChangeElement === undefined) return;
     const targetAffinities = CombatantProperties.getCombatantTotalElementalAffinities(target);
     const affinityValue = targetAffinities[hpChangeElement] || 0;
     hpChange.value = applyAffinityToHpChange(affinityValue, hpChange.value);
-    return hpChange;
   }
-  applyArmorClass(
-    _hpChange: HpChange,
-    _user: CombatantProperties,
-    _target: CombatantProperties
-  ): HpChange {
+  applyArmorClass(_hpChange: HpChange, _user: CombatantProperties, _target: CombatantProperties) {
     throw new Error("Not implemented");
   }
-  applyResilience(
-    _hpChange: HpChange,
-    _user: CombatantProperties,
-    _target: CombatantProperties
-  ): HpChange {
+  applyResilience(_hpChange: HpChange, _user: CombatantProperties, _target: CombatantProperties) {
     throw new Error("Not implemented");
   }
 }

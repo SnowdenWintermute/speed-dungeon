@@ -1,5 +1,5 @@
-import { EquipmentType, Item, ItemPropertiesType, WeaponProperties } from ".";
 import { ERROR_MESSAGES } from "../errors/index.js";
+import { EquipmentType, Item, ItemPropertiesType, WeaponProperties } from "./index.js";
 
 export function getWeaponProperties(item: Item): Error | WeaponProperties {
   if (item.itemProperties.type !== ItemPropertiesType.Equipment)

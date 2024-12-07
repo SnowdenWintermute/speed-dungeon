@@ -1,10 +1,10 @@
-import { CombatantProperties } from "../../../combatants/index.js";
-import { WeaponProperties } from "../../../items/index.js";
-import { HpChangeSource, HpChangeSourceCategory } from "../../hp-change-source-types.js";
-import getDamageAfterArmorClass from "./get-damage-after-armor-class.js";
-import getDamageAfterResilience from "./get-damage-after-resilience.js";
+import { CombatantProperties } from "../../../../combatants/index.js";
+import { WeaponProperties } from "../../../../items/index.js";
+import { HpChangeSource, HpChangeSourceCategory } from "../../../hp-change-source-types.js";
+import getDamageAfterArmorClass from "../get-damage-after-armor-class.js";
+import getDamageAfterResilience from "../get-damage-after-resilience.js";
 
-export default function getMostDamagingHpChangeSourceCategoryOnTargetAvailableOnThisWeapon(
+export function getMostEffectiveHpChangeSourceCategoryOnTargetAvailableOnThisWeapon(
   weaponOption: WeaponProperties,
   userCombatantProperties: CombatantProperties,
   targetCombatantProperties: CombatantProperties,

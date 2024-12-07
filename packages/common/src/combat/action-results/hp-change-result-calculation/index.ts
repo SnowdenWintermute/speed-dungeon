@@ -5,25 +5,18 @@ import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatActionProperties, CombatActionType } from "../../combat-actions/index.js";
 import { randBetween } from "../../../utils/index.js";
 import { ActionResultCalculationArguments } from "../action-result-calculator.js";
-import getMostDamagingWeaponElementOnTarget from "./get-most-damaging-weapon-element-on-target.js";
 import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
 import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app-consts.js";
 import { ABILITY_ATTRIBUTES } from "../../../combatants/abilities/get-ability-attributes.js";
-import getMostDamagingWeaponKineticDamageTypeOnTarget from "./get-most-damaging-weapon-damage-type-on-target.js";
-import getMostDamagingHpChangeSourceCategoryOnTarget from "./get-most-damaging-weapon-hp-change-source-category-on-target.js";
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { HpChange } from "../../hp-change-source-types.js";
 import checkIfTargetWantsToBeHit from "./check-if-target-wants-to-be-hit.js";
 import { NumberRange } from "../../../primatives/number-range.js";
 import { scaleRangeToActionLevel } from "./scale-hp-range-to-action-level.js";
 import { applyAdditiveAttributeToRange } from "./apply-additive-attribute-to-range.js";
-import { addWeaponsDamageToRange } from "./add-weapons-damage-to-range.js";
-import { Item, WeaponProperties, WeaponSlot } from "../../../items/index.js";
-import {
-  applyWeaponElementToHpChangeSource,
-  applyWeaponHpChangeCategoryToHpChangeSource,
-  applyWeaponKineticTypeToHpChangeSource,
-} from "./apply-weapon-hp-change-source-modifiers.js";
+import { Item, WeaponSlot } from "../../../items/index.js";
+import { addWeaponsDamageToRange } from "./weapon-hp-change-modifiers/add-weapons-damage-to-range.js";
+import { applyWeaponHpChangeModifiers } from "./weapon-hp-change-modifiers/index.js";
 
 export default function calculateActionHitPointChangesAndEvasions(
   game: SpeedDungeonGame,
@@ -68,14 +61,18 @@ export default function calculateActionHitPointChangesAndEvasions(
   scaleRangeToActionLevel(hpChangeRange, actionLevel, actionLevelHpChangeModifier);
   applyAdditiveAttributeToRange(hpChangeRange, userCombatantProperties, hpChangeProperties);
 
-  const equippedUsableWeapons = CombatantProperties.getUsableWeaponsInSlots(
+  const equippedUsableWeaponsResult = CombatantProperties.getUsableWeaponsInSlots(
     userCombatantProperties,
     [WeaponSlot.MainHand, WeaponSlot.OffHand]
   );
+  if (equippedUsableWeaponsResult instanceof Error) return equippedUsableWeaponsResult;
+  const equippedUsableWeapons = equippedUsableWeaponsResult;
 
   const weaponsToAddDamageFrom: Partial<Record<WeaponSlot, Item>> = {};
   for (const slot of hpChangeProperties.addWeaponDamageFromSlots || []) {
-    weaponsToAddDamageFrom[slot] = equippedUsableWeapons[slot];
+    const weapon = equippedUsableWeapons[slot];
+    if (!weapon) continue;
+    weaponsToAddDamageFrom[slot] = weapon.item;
   }
 
   addWeaponsDamageToRange(weaponsToAddDamageFrom, hpChangeRange);
@@ -91,9 +88,8 @@ export default function calculateActionHitPointChangesAndEvasions(
 
   const { hpChangeSource } = hpChangeProperties;
 
-  // roll the hp change value. neet to roll it before selecting weapon hp change
-  // source type because we need to check against armor class which has variable
-  // mitigation based on rolled damage
+  // need to roll it before selecting weapon hp change source type because
+  // we need to check against armor class which mitigates based on rolled damage
   const rolledHpChangeValue = randBetween(hpChangeRange.min, hpChangeRange.max);
   const incomingHpChangePerTarget = splitHpChangeWithMultiTargetBonus(
     rolledHpChangeValue,
@@ -101,43 +97,12 @@ export default function calculateActionHitPointChangesAndEvasions(
     MULTI_TARGET_HP_CHANGE_BONUS
   );
 
-  const equippedUsableWeaponProperties: Partial<Record<WeaponSlot, WeaponProperties>> = {};
-  const mhOption = equippedUsableWeapons[WeaponSlot.MainHand];
-  const mhWeaponPropertiesOptionResult = mhOption ? Item.getWeaponProperties(mhOption) : undefined;
-  if (mhWeaponPropertiesOptionResult instanceof Error) return mhWeaponPropertiesOptionResult;
-  equippedUsableWeaponProperties[WeaponSlot.MainHand] = mhWeaponPropertiesOptionResult;
-  const ohOption = equippedUsableWeapons[WeaponSlot.OffHand];
-  const ohWeaponPropertiesOptionResult = ohOption ? Item.getWeaponProperties(ohOption) : undefined;
-  if (ohWeaponPropertiesOptionResult instanceof Error) return ohWeaponPropertiesOptionResult;
-  equippedUsableWeaponProperties[WeaponSlot.OffHand] = ohWeaponPropertiesOptionResult;
-
-  const weaponToAddHpChangeCategoryFrom = hpChangeProperties.addWeaponHpChangeSourceCategoryFromSlot
-    ? equippedUsableWeaponProperties[hpChangeProperties.addWeaponHpChangeSourceCategoryFromSlot]
-    : undefined;
-
-  applyWeaponHpChangeCategoryToHpChangeSource(
-    hpChangeSource,
-    weaponToAddHpChangeCategoryFrom,
+  applyWeaponHpChangeModifiers(
+    hpChangeProperties,
+    equippedUsableWeapons,
     userCombatantProperties,
     targetCombatantProperties,
     incomingHpChangePerTarget
-  );
-
-  const weaponToAddKineticTypeFrom = hpChangeProperties.addWeaponKineticDamageTypeFromSlot
-    ? equippedUsableWeaponProperties[hpChangeProperties.addWeaponKineticDamageTypeFromSlot]
-    : undefined;
-  applyWeaponKineticTypeToHpChangeSource(
-    hpChangeSource,
-    weaponToAddKineticTypeFrom,
-    targetCombatantProperties
-  );
-  const weaponToAddElementFrom = hpChangeProperties.addWeaponElementFromSlot
-    ? equippedUsableWeaponProperties[hpChangeProperties.addWeaponElementFromSlot]
-    : undefined;
-  applyWeaponElementToHpChangeSource(
-    hpChangeSource,
-    weaponToAddElementFrom,
-    targetCombatantProperties
   );
 
   for (const id of targetIds) {
@@ -152,8 +117,6 @@ export default function calculateActionHitPointChangesAndEvasions(
       hpChangeProperties
     );
 
-    // @TODO mutate instead of returning new
-    //
     const isHit = hpChangeCalculationContext.rollHit(
       userCombatantProperties,
       targetCombatantProperties,
@@ -165,26 +128,20 @@ export default function calculateActionHitPointChangesAndEvasions(
       continue;
     }
 
-    hpChange = hpChangeCalculationContext.rollCrit(
+    hpChangeCalculationContext.rollCrit(
       hpChange,
       userCombatantProperties,
       targetCombatantProperties,
       targetWantsToBeHit
     );
-    hpChange = hpChangeCalculationContext.applyCritMultiplier(
+    hpChangeCalculationContext.applyCritMultiplier(
       hpChange,
       hpChangeProperties,
       userCombatantProperties,
       targetCombatantProperties
     );
-    hpChange = hpChangeCalculationContext.applyKineticAffinities(
-      hpChange,
-      targetCombatantProperties
-    );
-    hpChange = hpChangeCalculationContext.applyElementalAffinities(
-      hpChange,
-      targetCombatantProperties
-    );
+    hpChangeCalculationContext.applyKineticAffinities(hpChange, targetCombatantProperties);
+    hpChangeCalculationContext.applyElementalAffinities(hpChange, targetCombatantProperties);
 
     if (
       !(
@@ -198,14 +155,15 @@ export default function calculateActionHitPointChangesAndEvasions(
       hpChange.value *= -1;
     }
 
-    // do this first since armor class effectiveness is based on total incomming damage
+    // do this first since armor class effectiveness is based on total incoming damage
     hpChange.value *= hpChangeProperties.finalDamagePercentMultiplier / 100;
-    hpChange = hpChangeCalculationContext.applyResilience(
+
+    hpChangeCalculationContext.applyResilience(
       hpChange,
       userCombatantProperties,
       targetCombatantProperties
     );
-    hpChange = hpChangeCalculationContext.applyArmorClass(
+    hpChangeCalculationContext.applyArmorClass(
       hpChange,
       userCombatantProperties,
       targetCombatantProperties

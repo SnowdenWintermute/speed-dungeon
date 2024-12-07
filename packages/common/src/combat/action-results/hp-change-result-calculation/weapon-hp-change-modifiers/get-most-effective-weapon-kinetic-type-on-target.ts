@@ -1,8 +1,8 @@
-import { CombatantProperties } from "../../../combatants/index.js";
-import { WeaponProperties } from "../../../items/index.js";
-import { KineticDamageType } from "../../kinetic-damage-types.js";
+import { CombatantProperties } from "../../../../combatants/index.js";
+import { WeaponProperties } from "../../../../items/index.js";
+import { KineticDamageType } from "../../../kinetic-damage-types.js";
 
-export default function getMostDamagingWeaponKineticDamageTypeOnTarget(
+export function getMostEffectiveWeaponKineticTypeOnTarget(
   weaponOption: undefined | WeaponProperties,
   targetCombatantProperties: CombatantProperties
 ): null | KineticDamageType {
@@ -30,6 +30,7 @@ export default function getMostDamagingWeaponKineticDamageTypeOnTarget(
     if (weakestAffinityOption === null || targetAffinityValueOption < weakestAffinityOption[1])
       weakestAffinityOption = [damageType, targetAffinityValue];
   }
+
   if (weakestAffinityOption !== null) return weakestAffinityOption[0];
   return null;
 }

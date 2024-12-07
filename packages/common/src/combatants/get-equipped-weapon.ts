@@ -1,4 +1,4 @@
-import { EquipmentProperties, EquipmentSlot, WeaponSlot } from "../items/index.js";
+import { EquipmentSlot, Item, WeaponSlot } from "../items/index.js";
 import { WeaponProperties } from "../items/equipment/equipment-properties/weapon-properties.js";
 import { CombatantProperties } from "./combatant-properties.js";
 
@@ -11,5 +11,5 @@ export default function getEquippedWeapon(
   const itemOption = combatantProperties.equipment[equipmentSlot];
   if (itemOption === undefined) return undefined;
 
-  return EquipmentProperties.getWeaponProperties(itemOption);
+  return Item.getWeaponProperties(itemOption);
 }

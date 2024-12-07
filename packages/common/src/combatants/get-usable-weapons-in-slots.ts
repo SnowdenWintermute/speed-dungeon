@@ -1,11 +1,12 @@
-import { EquipmentSlot, Item, WeaponSlot } from "../items/index.js";
+import { EquipmentSlot, Item, WeaponProperties, WeaponSlot } from "../items/index.js";
 import { CombatantProperties } from "./combatant-properties.js";
 
 export function getUsableWeaponsInSlots(
   combatantProperties: CombatantProperties,
   weaponSlots: WeaponSlot[]
 ) {
-  const toReturn: Partial<Record<WeaponSlot, Item>> = {};
+  const toReturn: Partial<Record<WeaponSlot, { item: Item; weaponProperties: WeaponProperties }>> =
+    {};
 
   for (const weaponSlot of weaponSlots) {
     let equipmentSlot =
@@ -13,7 +14,10 @@ export function getUsableWeaponsInSlots(
     const weapon = combatantProperties.equipment[equipmentSlot];
     if (!weapon) continue;
     if (!CombatantProperties.canUseItem(combatantProperties, weapon)) continue;
-    toReturn[weaponSlot] = weapon;
+
+    const weaponPropertiesResult = Item.getWeaponProperties(weapon);
+    if (weaponPropertiesResult instanceof Error) continue; // could be a shield so just skip it
+    toReturn[weaponSlot] = { item: weapon, weaponProperties: weaponPropertiesResult };
   }
 
   return toReturn;

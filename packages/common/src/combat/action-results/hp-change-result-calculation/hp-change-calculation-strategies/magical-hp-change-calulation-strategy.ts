@@ -7,32 +7,27 @@ import { HpChange } from "../../../hp-change-source-types.js";
 import getDamageAfterResilience from "../get-damage-after-resilience.js";
 import rollCrit from "../roll-crit.js";
 import { GenericHpCalculationStrategy } from "./generic-hp-calculation-strategy.js";
+import { HpChangeCalculationStrategy } from "./index.js";
 
-export class MagicalHpChangeCalculationStrategy extends GenericHpCalculationStrategy {
+export class MagicalHpChangeCalculationStrategy
+  extends GenericHpCalculationStrategy
+  implements HpChangeCalculationStrategy
+{
   rollCrit(
     hpChange: HpChange,
     user: CombatantProperties,
     _target: CombatantProperties,
     _targetWantsToBeHit: boolean
-  ): HpChange {
+  ): void {
     const userAttributes = CombatantProperties.getTotalAttributes(user);
     const userFocus = userAttributes[CombatAttribute.Focus];
     const critChance = userFocus + BASE_CRIT_CHANCE;
     hpChange.isCrit = rollCrit(critChance);
-    return hpChange;
   }
-  applyArmorClass(
-    hpChange: HpChange,
-    _user: CombatantProperties,
-    _target: CombatantProperties
-  ): HpChange {
-    return hpChange;
+  applyArmorClass(_hpChange: HpChange, _user: CombatantProperties, _target: CombatantProperties) {
+    return;
   }
-  applyResilience(
-    hpChange: HpChange,
-    user: CombatantProperties,
-    target: CombatantProperties
-  ): HpChange {
+  applyResilience(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties) {
     if (hpChange.value > 0) {
       // don't apply resilience if being healed
       // instead increase the healing done
@@ -41,11 +36,10 @@ export class MagicalHpChangeCalculationStrategy extends GenericHpCalculationStra
       const resilienceMultiplier =
         (targetResilience / 100) * RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO + 1.0;
       hpChange.value *= resilienceMultiplier;
-      return hpChange;
+    } else {
+      const userAttributes = CombatantProperties.getTotalAttributes(user);
+      const targetAttributes = CombatantProperties.getTotalAttributes(target);
+      hpChange.value = getDamageAfterResilience(hpChange.value, userAttributes, targetAttributes);
     }
-    const userAttributes = CombatantProperties.getTotalAttributes(user);
-    const targetAttributes = CombatantProperties.getTotalAttributes(target);
-    hpChange.value = getDamageAfterResilience(hpChange.value, userAttributes, targetAttributes);
-    return hpChange;
   }
 }

@@ -4,14 +4,18 @@ import { HpChange } from "../../../hp-change-source-types.js";
 import getDamageAfterArmorClass from "../get-damage-after-armor-class.js";
 import rollCrit from "../roll-crit.js";
 import { GenericHpCalculationStrategy } from "./generic-hp-calculation-strategy.js";
+import { HpChangeCalculationStrategy } from "./index.js";
 
-export class PhysicalHpChangeCalculationStrategy extends GenericHpCalculationStrategy {
+export class PhysicalHpChangeCalculationStrategy
+  extends GenericHpCalculationStrategy
+  implements HpChangeCalculationStrategy
+{
   rollCrit(
     hpChange: HpChange,
     user: CombatantProperties,
     _target: CombatantProperties,
     targetWantsToBeHit: boolean
-  ): HpChange {
+  ) {
     const userAttributes = CombatantProperties.getTotalAttributes(user);
     const targetAttributes = CombatantProperties.getTotalAttributes(user);
     const userDexterity = userAttributes[CombatAttribute.Dexterity];
@@ -19,13 +23,8 @@ export class PhysicalHpChangeCalculationStrategy extends GenericHpCalculationStr
     const critChance = userDexterity - targetAgility + BASE_CRIT_CHANCE;
 
     hpChange.isCrit = rollCrit(critChance);
-    return hpChange;
   }
-  applyArmorClass(
-    hpChange: HpChange,
-    user: CombatantProperties,
-    target: CombatantProperties
-  ): HpChange {
+  applyArmorClass(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties) {
     if (hpChange.value > 0) return hpChange; // don't resist being healed
     const userAttributes = CombatantProperties.getTotalAttributes(user);
     const targetAttributes = CombatantProperties.getTotalAttributes(target);
@@ -35,13 +34,8 @@ export class PhysicalHpChangeCalculationStrategy extends GenericHpCalculationStr
       targetAttributes,
       hpChange.source.meleeOrRanged
     );
-    return hpChange;
   }
-  applyResilience(
-    hpChange: HpChange,
-    _user: CombatantProperties,
-    _target: CombatantProperties
-  ): HpChange {
-    return hpChange;
+  applyResilience(_hpChange: HpChange, _user: CombatantProperties, _target: CombatantProperties) {
+    return;
   }
 }

@@ -95,6 +95,7 @@ function getArmorPenDerivedBonus(
     combatantProperties,
     WeaponSlot.MainHand
   );
+  if (mhWeaponOption instanceof Error) return 0;
   let attributeToDeriveFrom = CombatAttribute.Strength;
   if (mhWeaponOption) {
     const weaponProperties = mhWeaponOption;

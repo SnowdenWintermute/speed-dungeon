@@ -19,24 +19,28 @@ export default function calculateAttackActionResult(
 
   const actionResults: ActionResult[] = [];
 
-  let mhEquipmentOption =
-    CombatantProperties.getEquipmentInSlot(userCombatantProperties, EquipmentSlot.MainHand) || null;
-  let ohEquipmentOption =
-    CombatantProperties.getEquipmentInSlot(userCombatantProperties, EquipmentSlot.MainHand) || null;
+  let mhEquipmentOption = CombatantProperties.getEquipmentInSlot(
+    userCombatantProperties,
+    EquipmentSlot.MainHand
+  );
+  let ohEquipmentOption = CombatantProperties.getEquipmentInSlot(
+    userCombatantProperties,
+    EquipmentSlot.MainHand
+  );
 
   // shields can't be used to attack, if not holding a shield they can attack with offhand unarmed strike
   let mhAttackEndsTurn = false;
 
   if (
-    (mhEquipmentOption !== null &&
+    (mhEquipmentOption !== undefined &&
       EquipmentProperties.isTwoHanded(mhEquipmentOption.equipmentBaseItemProperties.type)) ||
-    (ohEquipmentOption !== null &&
+    (ohEquipmentOption !== undefined &&
       ohEquipmentOption.equipmentBaseItemProperties.type === EquipmentType.Shield)
   )
     mhAttackEndsTurn = true;
 
   const mhAttackAbilityNameResult = getAttackAbilityName(
-    mhEquipmentOption?.equipmentBaseItemProperties.type ?? null,
+    mhEquipmentOption?.equipmentBaseItemProperties.type || null,
     false
   );
 
@@ -69,7 +73,7 @@ export default function calculateAttackActionResult(
 
   // OFFHAND
   const ohAttackAbilityNameResult = getAttackAbilityName(
-    ohEquipmentOption?.equipmentBaseItemProperties.type ?? null,
+    ohEquipmentOption?.equipmentBaseItemProperties.type || null,
     true
   );
   if (ohAttackAbilityNameResult instanceof Error) return ohAttackAbilityNameResult;

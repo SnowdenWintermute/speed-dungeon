@@ -19,25 +19,17 @@ export interface HpChangeCalculationStrategy {
     user: CombatantProperties,
     target: CombatantProperties,
     targetWantsToBeHit: boolean
-  ): HpChange;
+  ): void;
   applyCritMultiplier(
     hpChange: HpChange,
     hpChangeProperties: CombatActionHpChangeProperties,
     user: CombatantProperties,
     target: CombatantProperties
-  ): HpChange;
-  applyKineticAffinities(hpChange: HpChange, target: CombatantProperties): HpChange;
-  applyElementalAffinities(hpChange: HpChange, target: CombatantProperties): HpChange;
-  applyArmorClass(
-    hpChange: HpChange,
-    user: CombatantProperties,
-    target: CombatantProperties
-  ): HpChange;
-  applyResilience(
-    hpChange: HpChange,
-    user: CombatantProperties,
-    target: CombatantProperties
-  ): HpChange;
+  ): void;
+  applyKineticAffinities(hpChange: HpChange, target: CombatantProperties): void;
+  applyElementalAffinities(hpChange: HpChange, target: CombatantProperties): void;
+  applyArmorClass(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties): void;
+  applyResilience(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties): void;
 }
 
 export class HpChangeCalulationContext implements HpChangeCalculationStrategy {
@@ -64,7 +56,7 @@ export class HpChangeCalulationContext implements HpChangeCalculationStrategy {
     user: CombatantProperties,
     target: CombatantProperties,
     targetWantsToBeHit: boolean
-  ): HpChange {
+  ) {
     return this.strategy.rollCrit(hpChange, user, target, targetWantsToBeHit);
   }
   applyCritMultiplier(
@@ -72,27 +64,19 @@ export class HpChangeCalulationContext implements HpChangeCalculationStrategy {
     hpChangeProperties: CombatActionHpChangeProperties,
     user: CombatantProperties,
     target: CombatantProperties
-  ): HpChange {
+  ) {
     return this.strategy.applyCritMultiplier(hpChange, hpChangeProperties, user, target);
   }
-  applyKineticAffinities(hpChange: HpChange, target: CombatantProperties): HpChange {
+  applyKineticAffinities(hpChange: HpChange, target: CombatantProperties) {
     return this.strategy.applyKineticAffinities(hpChange, target);
   }
-  applyElementalAffinities(hpChange: HpChange, target: CombatantProperties): HpChange {
+  applyElementalAffinities(hpChange: HpChange, target: CombatantProperties) {
     return this.strategy.applyElementalAffinities(hpChange, target);
   }
-  applyArmorClass(
-    hpChange: HpChange,
-    user: CombatantProperties,
-    target: CombatantProperties
-  ): HpChange {
+  applyArmorClass(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties) {
     return this.strategy.applyArmorClass(hpChange, user, target);
   }
-  applyResilience(
-    hpChange: HpChange,
-    user: CombatantProperties,
-    target: CombatantProperties
-  ): HpChange {
+  applyResilience(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties) {
     return this.strategy.applyResilience(hpChange, user, target);
   }
 
