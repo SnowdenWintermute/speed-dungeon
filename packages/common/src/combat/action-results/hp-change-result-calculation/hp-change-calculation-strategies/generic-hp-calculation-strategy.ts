@@ -11,10 +11,11 @@ export class GenericHpCalculationStrategy implements HpChangeCalculationStrategy
   rollHit(
     userCombatantProperties: CombatantProperties,
     targetCombatantProperties: CombatantProperties,
-    isAvoidable: boolean,
+    unavoidable: boolean,
     targetWantsToBeHit: boolean
   ) {
-    if (!isAvoidable) return true;
+    if (unavoidable) return true;
+
     const userCombatAttributes = CombatantProperties.getTotalAttributes(userCombatantProperties);
     const userAccuracy = userCombatAttributes[CombatAttribute.Accuracy];
     const targetCombatAttributes =
@@ -22,13 +23,15 @@ export class GenericHpCalculationStrategy implements HpChangeCalculationStrategy
     const targetEvasion = targetWantsToBeHit ? 0 : targetCombatAttributes[CombatAttribute.Evasion];
     const accComparedToEva = userAccuracy - targetEvasion;
     const percentChangeToHit = Math.max(MIN_HIT_CHANCE, accComparedToEva);
-    const evasionRoll = randBetween(0, 100);
-    return evasionRoll <= percentChangeToHit;
+    const hitRoll = randBetween(0, 100);
+
+    return hitRoll <= percentChangeToHit;
   }
   rollCrit(
     _hpChange: HpChange,
     _user: CombatantProperties,
-    _target: CombatantProperties
+    _target: CombatantProperties,
+    _targetWantsToBeHit: boolean
   ): HpChange {
     throw new Error("Not implemented");
   }

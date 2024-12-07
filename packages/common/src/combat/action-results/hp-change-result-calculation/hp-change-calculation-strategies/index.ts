@@ -13,10 +13,15 @@ export interface HpChangeCalculationStrategy {
   rollHit(
     userCombatantProperties: CombatantProperties,
     targetCombatantProperties: CombatantProperties,
-    isAvoidable: boolean,
+    unavoidable: boolean,
     targetWantsToBeHit: boolean
   ): boolean;
-  rollCrit(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties): HpChange;
+  rollCrit(
+    hpChange: HpChange,
+    user: CombatantProperties,
+    target: CombatantProperties,
+    targetWantsToBeHit: boolean
+  ): HpChange;
   applyCritMultiplier(
     hpChange: HpChange,
     hpChangeProperties: CombatActionHpChangeProperties,
@@ -56,8 +61,13 @@ export class HpChangeCalulationContext implements HpChangeCalculationStrategy {
       targetWantsToBeHit
     );
   }
-  rollCrit(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties): HpChange {
-    return this.strategy.rollCrit(hpChange, user, target);
+  rollCrit(
+    hpChange: HpChange,
+    user: CombatantProperties,
+    target: CombatantProperties,
+    targetWantsToBeHit: boolean
+  ): HpChange {
+    return this.strategy.rollCrit(hpChange, user, target, targetWantsToBeHit);
   }
   applyCritMultiplier(
     hpChange: HpChange,

@@ -14,7 +14,7 @@ import clampHpAndMpToMax from "./clamp-hp-and-mp-to-max.js";
 import { CombatAttribute } from "./combat-attributes.js";
 import { CombatantClass } from "./combatant-class/index.js";
 import { CombatantSpecies } from "./combatant-species.js";
-import { CombatantTrait } from "./combatant-traits.js";
+import { CombatantTrait, CombatantTraitType } from "./combatant-traits.js";
 import dropEquippedItem from "./drop-equipped-item.js";
 import dropItem from "./drop-item.js";
 import equipItem from "./equip-item.js";
@@ -103,6 +103,16 @@ export class CombatantProperties {
   static equipItem = equipItem;
   static awardLevelups = awardLevelups;
   static incrementAttributePoint = incrementAttributePoint;
+  static hasTraitType(combatantProperties: CombatantProperties, traitType: CombatantTraitType) {
+    let hasTrait = false;
+    for (const trait of combatantProperties.traits) {
+      if (trait.type === traitType) {
+        hasTrait = true;
+        break;
+      }
+    }
+    return hasTrait;
+  }
   static getPositionForActionUse(
     user: CombatantProperties,
     target: CombatantProperties,

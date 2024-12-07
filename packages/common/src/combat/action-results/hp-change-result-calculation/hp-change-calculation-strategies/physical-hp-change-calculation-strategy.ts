@@ -6,11 +6,16 @@ import rollCrit from "../roll-crit.js";
 import { GenericHpCalculationStrategy } from "./generic-hp-calculation-strategy.js";
 
 export class PhysicalHpChangeCalculationStrategy extends GenericHpCalculationStrategy {
-  rollCrit(hpChange: HpChange, user: CombatantProperties, _target: CombatantProperties): HpChange {
+  rollCrit(
+    hpChange: HpChange,
+    user: CombatantProperties,
+    _target: CombatantProperties,
+    targetWantsToBeHit: boolean
+  ): HpChange {
     const userAttributes = CombatantProperties.getTotalAttributes(user);
     const targetAttributes = CombatantProperties.getTotalAttributes(user);
     const userDexterity = userAttributes[CombatAttribute.Dexterity];
-    const targetAgility = targetAttributes[CombatAttribute.Agility];
+    const targetAgility = targetWantsToBeHit ? 0 : targetAttributes[CombatAttribute.Agility];
     const critChance = userDexterity - targetAgility + BASE_CRIT_CHANCE;
 
     hpChange.isCrit = rollCrit(critChance);

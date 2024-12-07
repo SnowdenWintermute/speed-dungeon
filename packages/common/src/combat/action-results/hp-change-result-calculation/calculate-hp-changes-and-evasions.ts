@@ -1,5 +1,5 @@
 import cloneDeep from "lodash.clonedeep";
-import { CombatantProperties } from "../../../combatants/index.js";
+import { CombatantProperties, CombatantTraitType } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import {
@@ -17,6 +17,7 @@ import getMostDamagingWeaponKineticDamageTypeOnTarget from "./get-most-damaging-
 import getMostDamagingHpChangeSourceCategoryOnTarget from "./get-most-damaging-weapon-hp-change-source-category-on-target.js";
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { HpChange } from "../../hp-change-source-types.js";
+import checkIfTargetWantsToBeHit from "./check-if-target-wants-to-be-hit.js";
 
 export default function calculateActionHitPointChangesAndEvasions(
   game: SpeedDungeonGame,
@@ -74,6 +75,16 @@ export default function calculateActionHitPointChangesAndEvasions(
 
   const { hpChangeSource } = hpChangeProperties;
 
+  // roll the hp change value. neet to roll it before selecting weapon hp change
+  // source type because we need to check against armor class which has variable
+  // mitigation based on rolled damage
+  const rolledHpChangeValue = randBetween(hpChangeRange.min, hpChangeRange.max);
+  const incomingHpChangePerTarget = splitHpChangeWithMultiTargetBonus(
+    rolledHpChangeValue,
+    targetIds.length,
+    MULTI_TARGET_HP_CHANGE_BONUS
+  );
+
   if (hpChangeProperties.addWeaponElementFromSlot !== null) {
     const elementToAddOption = getMostDamagingWeaponElementOnTarget(
       hpChangeProperties.addWeaponElementFromSlot,
@@ -93,16 +104,6 @@ export default function calculateActionHitPointChangesAndEvasions(
       hpChangeSource.kineticDamageTypeOption = physicalDamageTypeToAddOption;
   }
 
-  // roll the hp change value. neet to roll it before selecting weapon hp change
-  // source type because we need to check against armor class which has variable
-  // mitigation based on rolled damage
-  const rolledHpChangeValue = randBetween(hpChangeRange.min, hpChangeRange.max);
-  const incomingHpChangePerTarget = splitHpChangeWithMultiTargetBonus(
-    rolledHpChangeValue,
-    targetIds.length,
-    MULTI_TARGET_HP_CHANGE_BONUS
-  );
-
   if (hpChangeProperties.addWeaponHpChangeSourceCategoryFromSlot !== null) {
     const hpChangeSourceCategoryToAddOption = getMostDamagingHpChangeSourceCategoryOnTarget(
       hpChangeProperties.addWeaponHpChangeSourceCategoryFromSlot,
@@ -116,17 +117,6 @@ export default function calculateActionHitPointChangesAndEvasions(
       hpChangeSource.category = hpChangeSourceCategoryToAddOption;
   }
 
-  // - determine if target wants this ability to hit them
-  // - if would damage them, probably not
-  // - if isHealing and target is undead, no
-  // - if isHealing and target not undead, yes
-  // - if is a buff, yes
-  // - if is a debuff, yes
-  // if want the ability to hit
-  // - don't try to evade
-  // - don't try to avoid being crit
-  // - use resilience to increase value for magical / healing
-
   for (const id of targetIds) {
     const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, id);
     if (targetCombatantResult instanceof Error) return targetCombatantResult;
@@ -134,20 +124,29 @@ export default function calculateActionHitPointChangesAndEvasions(
     let hpChange = new HpChange(incomingHpChangePerTarget, hpChangeSource);
     const hpChangeCalculationContext = HP_CALCLULATION_CONTEXTS[hpChangeSource.category];
 
+    const targetWantsToBeHit = checkIfTargetWantsToBeHit(
+      targetCombatantProperties,
+      hpChangeProperties
+    );
+
     // @TODO mutate instead of returning new
     //
     const isHit = hpChangeCalculationContext.rollHit(
       userCombatantProperties,
       targetCombatantProperties,
-      !!hpChangeSource.unavoidable,
-      true
+      hpChangeSource.unavoidable || false,
+      targetWantsToBeHit
     );
-    if (!isHit) evasions.push(id);
+    if (!isHit) {
+      evasions.push(id);
+      continue;
+    }
 
     hpChange = hpChangeCalculationContext.rollCrit(
       hpChange,
       userCombatantProperties,
-      targetCombatantProperties
+      targetCombatantProperties,
+      targetWantsToBeHit
     );
     hpChange = hpChangeCalculationContext.applyCritMultiplier(
       hpChange,
@@ -163,6 +162,19 @@ export default function calculateActionHitPointChangesAndEvasions(
       hpChange,
       targetCombatantProperties
     );
+
+    if (
+      !(
+        hpChangeSource.isHealing &&
+        // if it wasn't intended as healing, but is actually healing target due to affinities,
+        // don't "un healify" the hp change here
+        hpChange.value > 0 &&
+        !CombatantProperties.hasTraitType(targetCombatantProperties, CombatantTraitType.Undead)
+      )
+    ) {
+      hpChange.value *= -1;
+    }
+
     // do this first since armor class effectiveness is based on total incomming damage
     hpChange.value *= hpChangeProperties.finalDamagePercentMultiplier / 100;
     hpChange = hpChangeCalculationContext.applyResilience(
@@ -177,7 +189,6 @@ export default function calculateActionHitPointChangesAndEvasions(
     );
 
     hpChange.value = Math.floor(hpChange.value);
-    hpChange.value *= -1;
 
     hitPointChanges[id] = hpChange;
   }
