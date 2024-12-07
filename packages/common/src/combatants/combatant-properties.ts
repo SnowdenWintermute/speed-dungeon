@@ -36,6 +36,7 @@ import { incrementAttributePoint } from "./increment-attribute-point.js";
 import { MonsterType } from "../monsters/monster-types.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import getCombatantTotalKineticDamageTypeAffinities from "./get-combatant-total-kinetic-damage-type-affinities.js";
+import { getWeaponsInSlots } from "./get-weapons-in-slots.js";
 
 export class CombatantProperties {
   [immerable] = true;
@@ -88,6 +89,7 @@ export class CombatantProperties {
     getCombatantTotalKineticDamageTypeAffinities;
   static getEquipmentInSlot = getEquipmentInSlot;
   static getEquippedWeapon = getEquippedWeapon;
+  static getWeaponsInSlots = getWeaponsInSlots;
   static setHpAndMpToMax = setHpAndMpToMax;
   static getAbilityNamesFilteredByUseableContext = getAbilityNamesFilteredByUseableContext;
   static getSlotItemIsEquippedTo = getSlotItemIsEquippedTo;

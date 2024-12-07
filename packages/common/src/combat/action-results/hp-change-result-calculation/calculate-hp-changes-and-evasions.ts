@@ -18,6 +18,10 @@ import getMostDamagingHpChangeSourceCategoryOnTarget from "./get-most-damaging-w
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { HpChange } from "../../hp-change-source-types.js";
 import checkIfTargetWantsToBeHit from "./check-if-target-wants-to-be-hit.js";
+import { NumberRange } from "../../../primatives/number-range.js";
+import { scaleRangeToActionLevel } from "./scale-hp-range-to-action-level.js";
+import { applyAdditiveAttributeToRange } from "./apply-additive-attribute-to-range.js";
+import { addWeaponsDamageToRange } from "./add-weapons-damage-to-range.js";
 
 export default function calculateActionHitPointChangesAndEvasions(
   game: SpeedDungeonGame,
@@ -59,6 +63,30 @@ export default function calculateActionHitPointChangesAndEvasions(
 
   // @TODO set up chain of response billy cheese for checking
   // if can even use the weapon, then adding damage/weapon types
+  //
+  // calculate base damage range
+  // - get initial
+  // - scale to action level
+  // - apply additive attribute
+  // determine weapons to add to damage range
+  // - add weapon damages
+  const { min, max } = hpChangeProperties.baseValues;
+  const hpChangeRange = new NumberRange(min, max);
+  scaleRangeToActionLevel(hpChangeRange, actionLevel, actionLevelHpChangeModifier);
+  applyAdditiveAttributeToRange(hpChangeRange, userCombatantProperties, hpChangeProperties);
+
+  const weaponsToAddDamageFrom = CombatantProperties.getWeaponsInSlots(
+    userCombatantProperties,
+    hpChangeProperties.addWeaponDamageFromSlots || []
+  );
+  addWeaponsDamageToRange(weaponsToAddDamageFrom, hpChangeRange);
+
+  // determine weaponOption to add category
+  // determine weaponOption to add kinetic
+  // determine weaponOption to add element
+  // pass weaponOption to addWeaponOptionHpChangeCategoryToHpChange
+  // pass weaponOption to addWeaponOptionKineticTypeToHpChange
+  // pass weaponOption to addWeaponOptionElementTypeToHpChange
 
   const hpChangeRangeResult = calculateCombatActionHpChangeRange(
     userCombatantProperties,
@@ -66,8 +94,15 @@ export default function calculateActionHitPointChangesAndEvasions(
     actionLevel,
     actionLevelHpChangeModifier
   );
-  if (hpChangeRangeResult instanceof Error) return hpChangeRangeResult;
-  const hpChangeRange = hpChangeRangeResult;
+
+  // if weapon damage, determine main/off hand and add appropriate damage to range
+  // if (hpChangeProperties.addWeaponDamageFromSlots) {
+  //   addWeaponDamageToCombatActionHpChange(
+  //     hpChangeProperties.addWeaponDamageFromSlots,
+  //     userCombatantProperties,
+  //     hpChangeRange
+  //   );
+  // }
 
   const firstTargetCombatant = SpeedDungeonGame.getCombatantById(game, firstTargetId);
   if (firstTargetCombatant instanceof Error) return firstTargetCombatant;

@@ -1,7 +1,6 @@
 import { COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER } from "../../app-consts.js";
 import { CombatantProperties } from "../../combatants/index.js";
 import { NumberRange } from "../../primatives/number-range.js";
-import addWeaponDamageToCombatActionHpChange from "./add-weapon-damage-to-hp-change-range.js";
 import { CombatActionHpChangeProperties } from "./combat-action-properties.js";
 
 export function calculateCombatActionHpChangeRange(
@@ -9,7 +8,7 @@ export function calculateCombatActionHpChangeRange(
   hpChangeProperties: CombatActionHpChangeProperties,
   actionLevel: number,
   baseHpChangeValuesActionLevelMultiplier: number
-): Error | NumberRange {
+): NumberRange {
   let userCombatAttributes = CombatantProperties.getTotalAttributes(userCombatantProperties);
   let combatantLevel = userCombatantProperties.level;
 
@@ -23,22 +22,14 @@ export function calculateCombatActionHpChangeRange(
   if (hpChangeProperties.additiveAttributeAndPercentScalingFactor) {
     const [additiveAttribute, percentScalingFactor] =
       hpChangeProperties.additiveAttributeAndPercentScalingFactor;
-    const attributeValue = userCombatAttributes[additiveAttribute] || 0;
+    const attributeValue = userCombatAttributes[additiveAttribute];
     const scaledAttributeValue = attributeValue * (percentScalingFactor / 100);
     const levelAdjustedValue =
       (scaledAttributeValue * combatantLevel) / COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER;
     min += levelAdjustedValue;
     max += levelAdjustedValue;
   }
-  // if weapon damage, determine main/off hand and add appropriate damage to range
   const hpChangeRange = new NumberRange(min, max);
-  if (hpChangeProperties.addWeaponDamageFromSlots) {
-    addWeaponDamageToCombatActionHpChange(
-      hpChangeProperties.addWeaponDamageFromSlots,
-      userCombatantProperties,
-      hpChangeRange
-    );
-  }
 
   hpChangeRange.min = Math.floor(hpChangeRange.min);
   hpChangeRange.max = Math.floor(hpChangeRange.max);
