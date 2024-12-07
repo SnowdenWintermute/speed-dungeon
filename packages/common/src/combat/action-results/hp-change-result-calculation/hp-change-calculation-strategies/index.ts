@@ -10,6 +10,12 @@ import { CombatActionHpChangeProperties } from "../../../combat-actions";
 import { HpChange, HpChangeSourceCategory } from "../../../hp-change-source-types.js";
 
 export interface HpChangeCalculationStrategy {
+  rollHit(
+    userCombatantProperties: CombatantProperties,
+    targetCombatantProperties: CombatantProperties,
+    isAvoidable: boolean,
+    targetWantsToBeHit: boolean
+  ): boolean;
   rollCrit(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties): HpChange;
   applyCritMultiplier(
     hpChange: HpChange,
@@ -36,6 +42,19 @@ export class HpChangeCalulationContext implements HpChangeCalculationStrategy {
 
   constructor(hpChangeSourceCategory: HpChangeSourceCategory) {
     this.strategy = this.createStrategy(hpChangeSourceCategory);
+  }
+  rollHit(
+    userCombatantProperties: CombatantProperties,
+    targetCombatantProperties: CombatantProperties,
+    isAvoidable: boolean,
+    targetWantsToBeHit: boolean
+  ): boolean {
+    return this.strategy.rollHit(
+      userCombatantProperties,
+      targetCombatantProperties,
+      isAvoidable,
+      targetWantsToBeHit
+    );
   }
   rollCrit(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties): HpChange {
     return this.strategy.rollCrit(hpChange, user, target);

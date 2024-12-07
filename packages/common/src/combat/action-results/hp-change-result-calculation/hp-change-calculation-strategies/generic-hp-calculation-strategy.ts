@@ -1,11 +1,30 @@
 import { HpChangeCalculationStrategy } from "./index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
+import { CombatAttribute, CombatantProperties } from "../../../../combatants/index.js";
 import { CombatActionHpChangeProperties } from "../../../combat-actions/index.js";
 import applyAffinityToHpChange from "../apply-affinity-to-hp-change.js";
 import applyCritMultiplierToHpChange from "../apply-crit-multiplier-to-hp-change.js";
 import { HpChange } from "../../../hp-change-source-types.js";
+import { MIN_HIT_CHANCE } from "../../../../app-consts.js";
+import { randBetween } from "../../../../utils/index.js";
 
 export class GenericHpCalculationStrategy implements HpChangeCalculationStrategy {
+  rollHit(
+    userCombatantProperties: CombatantProperties,
+    targetCombatantProperties: CombatantProperties,
+    isAvoidable: boolean,
+    targetWantsToBeHit: boolean
+  ) {
+    if (!isAvoidable) return true;
+    const userCombatAttributes = CombatantProperties.getTotalAttributes(userCombatantProperties);
+    const userAccuracy = userCombatAttributes[CombatAttribute.Accuracy];
+    const targetCombatAttributes =
+      CombatantProperties.getTotalAttributes(targetCombatantProperties);
+    const targetEvasion = targetWantsToBeHit ? 0 : targetCombatAttributes[CombatAttribute.Evasion];
+    const accComparedToEva = userAccuracy - targetEvasion;
+    const percentChangeToHit = Math.max(MIN_HIT_CHANCE, accComparedToEva);
+    const evasionRoll = randBetween(0, 100);
+    return evasionRoll <= percentChangeToHit;
+  }
   rollCrit(
     _hpChange: HpChange,
     _user: CombatantProperties,
