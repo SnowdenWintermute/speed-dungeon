@@ -6,8 +6,8 @@ import { CombatAction, CombatActionType } from "../combat-actions/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { ActionResult } from "./action-result.js";
 import { ActionResultCalculationArguments } from "./action-result-calculator.js";
-import calculateActionResult from "./calculate-action-result.js";
 import calculateAttackActionResult from "./non-standard-action-result-handlers/attack.js";
+import calculateActionResult from "./index.js";
 
 export default function getActionResults(
   game: SpeedDungeonGame,

@@ -6,6 +6,7 @@ import { CombatAttribute } from "../combatants/combat-attributes.js";
 import { EntityProperties } from "../primatives/index.js";
 import createConsumableByType from "./consumables/create-consumable-by-type.js";
 import getEquipmentProperties from "./get-equipment-properties.js";
+import { getWeaponProperties } from "./get-weapon-properties.js";
 import { ItemProperties } from "./item-properties.js";
 import itemRequirementsMet from "./requirements-met.js";
 
@@ -36,4 +37,5 @@ export class Item {
   static createConsumable = createConsumableByType;
   static requirementsMet = itemRequirementsMet;
   static getEquipmentProperties = getEquipmentProperties;
+  static getWeaponProperties = getWeaponProperties;
 }

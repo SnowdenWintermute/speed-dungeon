@@ -1,13 +1,11 @@
 export * from "./generic-hp-calculation-strategy.js";
 export * from "./magical-hp-change-calulation-strategy.js";
 export * from "./physical-hp-change-calculation-strategy.js";
-import {
-  MagicalHpChangeCalculationStrategy,
-  PhysicalHpChangeCalculationStrategy,
-} from "../index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatActionHpChangeProperties } from "../../../combat-actions";
 import { HpChange, HpChangeSourceCategory } from "../../../hp-change-source-types.js";
+import { MagicalHpChangeCalculationStrategy } from "./magical-hp-change-calulation-strategy.js";
+import { PhysicalHpChangeCalculationStrategy } from "./physical-hp-change-calculation-strategy.js";
 
 export interface HpChangeCalculationStrategy {
   rollHit(

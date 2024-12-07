@@ -1,13 +1,11 @@
 import { CombatantProperties } from "../../../combatants/index.js";
-import { WeaponSlot } from "../../../items/index.js";
+import { WeaponProperties } from "../../../items/index.js";
 import { KineticDamageType } from "../../kinetic-damage-types.js";
 
 export default function getMostDamagingWeaponKineticDamageTypeOnTarget(
-  weaponSlot: WeaponSlot,
-  userCombatantProperties: CombatantProperties,
+  weaponOption: undefined | WeaponProperties,
   targetCombatantProperties: CombatantProperties
 ): null | KineticDamageType {
-  const weaponOption = CombatantProperties.getEquippedWeapon(userCombatantProperties, weaponSlot);
   if (!weaponOption) return KineticDamageType.Blunt; // fists are blunt weapons
 
   const weaponProperties = weaponOption;

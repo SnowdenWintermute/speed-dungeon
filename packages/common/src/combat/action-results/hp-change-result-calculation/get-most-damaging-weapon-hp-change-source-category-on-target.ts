@@ -1,16 +1,15 @@
 import { CombatantProperties } from "../../../combatants/index.js";
-import { WeaponSlot } from "../../../items/index.js";
+import { WeaponProperties } from "../../../items/index.js";
 import { HpChangeSource, HpChangeSourceCategory } from "../../hp-change-source-types.js";
 import getDamageAfterArmorClass from "./get-damage-after-armor-class.js";
 import getDamageAfterResilience from "./get-damage-after-resilience.js";
 
 export default function getMostDamagingHpChangeSourceCategoryOnTargetAvailableOnThisWeapon(
-  weaponSlot: WeaponSlot,
+  weaponOption: WeaponProperties,
   userCombatantProperties: CombatantProperties,
   targetCombatantProperties: CombatantProperties,
   initialRolledDamage: number
 ): null | HpChangeSourceCategory {
-  const weaponOption = CombatantProperties.getEquippedWeapon(userCombatantProperties, weaponSlot);
   if (!weaponOption) return null;
 
   const weaponProperties = weaponOption;

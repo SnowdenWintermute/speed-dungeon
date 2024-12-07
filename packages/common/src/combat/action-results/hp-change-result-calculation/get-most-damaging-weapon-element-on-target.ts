@@ -1,16 +1,11 @@
 import { CombatantProperties } from "../../../combatants/index.js";
-import { WeaponSlot } from "../../../items/index.js";
+import { WeaponProperties } from "../../../items/index.js";
 import { MagicalElement } from "../../magical-elements.js";
 
 export default function getMostDamagingWeaponElementOnTarget(
-  weaponSlot: WeaponSlot,
-  userCombatantProperties: CombatantProperties,
+  weaponProperties: WeaponProperties,
   targetCombatantProperties: CombatantProperties
 ): null | MagicalElement {
-  const weaponOption = CombatantProperties.getEquippedWeapon(userCombatantProperties, weaponSlot);
-  if (!weaponOption) return null;
-  const weaponProperties = weaponOption;
-
   const elementsToSelectFrom: MagicalElement[] = [];
   for (const hpChangeSource of weaponProperties.damageClassification) {
     if (hpChangeSource.elementOption !== undefined)

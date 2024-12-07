@@ -4,9 +4,9 @@ import { EquipmentProperties, EquipmentSlot, EquipmentType } from "../../../item
 import { CombatAction, CombatActionType } from "../../combat-actions/index.js";
 import { ActionResult } from "../action-result.js";
 import { ActionResultCalculationArguments } from "../action-result-calculator.js";
-import calculateActionResult from "../calculate-action-result.js";
 import allTargetsWereKilled from "./all-targets-were-killed.js";
 import getAttackAbilityName from "./get-attack-ability-name.js";
+import calculateActionResult from "../index.js";
 
 export default function calculateAttackActionResult(
   game: SpeedDungeonGame,
