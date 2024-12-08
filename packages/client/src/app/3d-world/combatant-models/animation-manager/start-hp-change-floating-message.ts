@@ -10,7 +10,7 @@ import {
   KINETIC_DAMAGE_TYPE_STRINGS,
   MAGICAL_ELEMENT_STRINGS,
 } from "@speed-dungeon/common";
-import { HpChange } from "@speed-dungeon/common/src/combat/action-results/hp-change-result-calculation";
+import { HpChange } from "@speed-dungeon/common";
 
 export default function startHpChangeFloatingMessage(
   targetId: string,
@@ -18,7 +18,7 @@ export default function startHpChangeFloatingMessage(
   displayTime: number
 ) {
   let color =
-    hpChange.value >= 0
+    hpChange.value > 0
       ? FloatingMessageTextColor.Healing
       : hpChange.source.category === HpChangeSourceCategory.Magical
         ? FloatingMessageTextColor.MagicalDamage

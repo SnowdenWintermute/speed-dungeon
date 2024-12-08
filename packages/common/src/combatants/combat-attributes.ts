@@ -90,7 +90,7 @@ export function getCombatAttributeDescription(attribute: CombatAttribute) {
     case CombatAttribute.ArmorPenetration:
       return "Negates a target's armor class";
     case CombatAttribute.Accuracy:
-      return "Chance to hit a target with an evadable attack";
+      return "Chance to hit a target with an evadable attack. Targets that wish to evade will subtract their evasion from this number.";
     case CombatAttribute.ArmorClass:
       return "Reduces physical damage";
     case CombatAttribute.Evasion:

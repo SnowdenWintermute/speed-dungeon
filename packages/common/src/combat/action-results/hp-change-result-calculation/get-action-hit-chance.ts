@@ -1,12 +1,11 @@
 import { MIN_HIT_CHANCE } from "../../../app-consts.js";
 import { CombatAttribute, CombatantProperties } from "../../../combatants/index.js";
-import { randBetween } from "../../../utils/index.js";
-import { CombatAction, CombatActionProperties } from "../../index.js";
+import { CombatActionProperties } from "../../index.js";
 
 export function getActionHitChance(
   combatActionProperties: CombatActionProperties,
   userCombatantProperties: CombatantProperties,
-  targetCombatantProperties: CombatantProperties,
+  targetEvasion: number,
   unavoidable: boolean,
   targetWantsToBeHit: boolean
 ): number {
@@ -14,14 +13,9 @@ export function getActionHitChance(
 
   const userCombatAttributes = CombatantProperties.getTotalAttributes(userCombatantProperties);
   const userAccuracy = userCombatAttributes[CombatAttribute.Accuracy];
-  const targetCombatAttributes = CombatantProperties.getTotalAttributes(targetCombatantProperties);
-  const targetEvasion = targetWantsToBeHit ? 0 : targetCombatAttributes[CombatAttribute.Evasion];
-  const accComparedToEva = userAccuracy - targetEvasion;
-  let percentChangeToHit = Math.max(MIN_HIT_CHANCE, accComparedToEva);
-  percentChangeToHit = Math.max(
-    MIN_HIT_CHANCE,
-    percentChangeToHit * (combatActionProperties.accuracyPercentModifier / 100)
-  );
+  const modifiedAccuracy = userAccuracy * (combatActionProperties.accuracyPercentModifier / 100);
+  const finalTargetEvasion = targetWantsToBeHit ? 0 : targetEvasion;
+  const accComparedToEva = modifiedAccuracy - finalTargetEvasion;
 
-  return percentChangeToHit;
+  return Math.max(MIN_HIT_CHANCE, accComparedToEva);
 }

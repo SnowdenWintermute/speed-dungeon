@@ -1,7 +1,6 @@
 import {
   CombatAction,
   CombatActionType,
-  CombatAttribute,
   AbilityName,
   CombatantProperties,
   ERROR_MESSAGES,
@@ -9,11 +8,11 @@ import {
   EquipmentSlot,
   WeaponSlot,
   getCombatActionHpChangeRange,
-  applyWeaponHpChangeModifiers,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
+import { getActionHitChance } from "@speed-dungeon/common";
 import React from "react";
 
 export default function CharacterSheetWeaponDamage({
@@ -21,9 +20,6 @@ export default function CharacterSheetWeaponDamage({
 }: {
   combatantProperties: CombatantProperties;
 }) {
-  const combatAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
-  const combatantAccuracy = combatAttributes[CombatAttribute.Accuracy] || 0;
-
   const mhWeaponOption = CombatantProperties.getEquippedWeapon(
     combatantProperties,
     WeaponSlot.MainHand
@@ -32,7 +28,6 @@ export default function CharacterSheetWeaponDamage({
   const mhDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(
     combatantProperties,
     mhWeaponOption,
-    combatantAccuracy,
     false
   );
   const isTwoHanded = mhWeaponOption ? EquipmentProperties.isTwoHanded(mhWeaponOption.type) : false;
@@ -53,7 +48,6 @@ export default function CharacterSheetWeaponDamage({
     ohDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(
       combatantProperties,
       ohWeaponOption,
-      combatantAccuracy,
       true
     );
   }
@@ -80,24 +74,29 @@ export default function CharacterSheetWeaponDamage({
 }
 
 interface WeaponDamageEntryProps {
-  damageAndAccuracyOption: undefined | [NumberRange, number];
+  damageAndAccuracyOption:
+    | undefined
+    | {
+        hpChangeRange: NumberRange;
+        hitChance: number;
+      };
   label: string;
   paddingClass: string;
 }
 
 function WeaponDamageEntry(props: WeaponDamageEntryProps) {
   if (!props.damageAndAccuracyOption) return <div className={`w-1/2 mr-1${props.paddingClass}`} />;
-  const [damage, accuracy] = props.damageAndAccuracyOption;
+  const { hpChangeRange, hitChance } = props.damageAndAccuracyOption;
 
   return (
     <div className={`w-1/2 ${props.paddingClass}`}>
       <div className="w-full flex justify-between">
         <span>{props.label}</span>
-        <span>{`${damage.min.toFixed(0)}-${damage.max.toFixed(0)}`}</span>
+        <span>{`${hpChangeRange.min}-${hpChangeRange.max}`}</span>
       </div>
       <div className="w-full flex justify-between">
-        <span>{"Accuracy"}</span>
-        <span>{accuracy.toFixed(0)}</span>
+        <span>{"Accuracy "}</span>
+        <span>{hitChance.toFixed(0)}%</span>
       </div>
     </div>
   );
@@ -106,9 +105,8 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
 function getAttackAbilityDamageAndAccuracy(
   combatantProperties: CombatantProperties,
   weaponOption: undefined | WeaponProperties,
-  combatantAccuracy: number,
   isOffHand: boolean
-): Error | [NumberRange, number] {
+) {
   let abilityName = isOffHand ? AbilityName.AttackMeleeOffhand : AbilityName.AttackMeleeMainhand;
 
   if (weaponOption) {
@@ -153,19 +151,13 @@ function getAttackAbilityDamageAndAccuracy(
 
   const hpChangeRange = hpChangeRangeResult;
 
-  const averageRoll = Math.floor(hpChangeRange.min + hpChangeRange.max / 2);
-
-  applyWeaponHpChangeModifiers(
-    hpChangeProperties,
-    equippedUsableWeapons,
+  const hitChance = getActionHitChance(
+    attackActionPropertiesResult,
     combatantProperties,
-    targetCombatantProperties,
-    averageRoll
+    0,
+    !!attackActionPropertiesResult.hpChangeProperties.hpChangeSource.unavoidable,
+    false
   );
 
-  // get hitchance
-
-  const { hpChangeSource } = hpChangeProperties;
-
-  return [damageRangeResult, modifiedAccuracy];
+  return { hpChangeRange, hitChance };
 }

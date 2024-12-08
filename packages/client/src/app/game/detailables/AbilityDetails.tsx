@@ -4,7 +4,8 @@ import {
   CombatantAbility,
   AbilityName,
   CombatantProperties,
-  calculateCombatActionHpChangeRange,
+  getCombatActionHpChangeRange,
+  CombatActionType,
 } from "@speed-dungeon/common";
 import React from "react";
 import CharacterSheetWeaponDamage from "../character-sheet/CharacterSheetWeaponDamage";
@@ -41,11 +42,11 @@ export default function AbilityDetails({
 
   let valueRangeOption: null | NumberRange = null;
   if (combatActionProperties.hpChangeProperties) {
-    let valueRangeOptionResult = calculateCombatActionHpChangeRange(
-      userCombatantProperties,
+    let valueRangeOptionResult = getCombatActionHpChangeRange(
+      { type: CombatActionType.AbilityUsed, abilityName: ability.name },
       combatActionProperties.hpChangeProperties,
-      ability.level,
-      abilityAttributes.baseHpChangeValuesLevelMultiplier
+      userCombatantProperties,
+      {}
     );
     if (valueRangeOptionResult instanceof Error) return <div>{valueRangeOptionResult.message}</div>;
     valueRangeOption = valueRangeOptionResult;

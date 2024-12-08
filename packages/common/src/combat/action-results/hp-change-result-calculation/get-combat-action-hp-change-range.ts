@@ -42,6 +42,11 @@ export function getCombatActionHpChangeRange(
 
   addWeaponsDamageToRange(weaponsToAddDamageFrom, hpChangeRange);
 
+  // do this here so displaying range in tooltip makes sense
+  const flatRangeMultiplier = hpChangeProperties.finalDamagePercentMultiplier / 100;
+  hpChangeRange.min *= flatRangeMultiplier;
+  hpChangeRange.max *= flatRangeMultiplier;
+
   hpChangeRange.min = Math.floor(hpChangeRange.min);
   hpChangeRange.max = Math.floor(hpChangeRange.max);
 
