@@ -6,6 +6,7 @@ import {
   CombatantProperties,
   getCombatActionHpChangeRange,
   CombatActionType,
+  Combatant,
 } from "@speed-dungeon/common";
 import React from "react";
 import CharacterSheetWeaponDamage from "../character-sheet/CharacterSheetWeaponDamage";
@@ -16,14 +17,11 @@ import { ABILITY_ATTRIBUTES } from "@speed-dungeon/common";
 interface Props {
   ability: CombatantAbility;
   combatActionProperties: CombatActionProperties;
-  userCombatantProperties: CombatantProperties;
+  user: Combatant;
 }
 
-export default function AbilityDetails({
-  ability,
-  combatActionProperties,
-  userCombatantProperties,
-}: Props) {
+export default function AbilityDetails({ ability, combatActionProperties, user }: Props) {
+  const { combatantProperties: userCombatantProperties } = user;
   const abilityAttributes = ABILITY_ATTRIBUTES[ability.name];
   const mpCostResult = CombatantProperties.getAbilityCostIfOwned(
     userCombatantProperties,
@@ -34,11 +32,7 @@ export default function AbilityDetails({
   const mpCostStyle = mpCost > userCombatantProperties.mana ? UNMET_REQUIREMENT_TEXT_COLOR : "";
 
   const attackDamageDisplay =
-    ability.name === AbilityName.Attack ? (
-      <CharacterSheetWeaponDamage combatantProperties={userCombatantProperties} />
-    ) : (
-      <></>
-    );
+    ability.name === AbilityName.Attack ? <CharacterSheetWeaponDamage combatant={user} /> : <></>;
 
   let valueRangeOption: null | NumberRange = null;
   if (combatActionProperties.hpChangeProperties) {

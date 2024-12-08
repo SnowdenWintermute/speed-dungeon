@@ -1,10 +1,6 @@
 import CombatantClassIcon from "@/app/components/atoms/CombatantClassIcon";
 import Divider from "@/app/components/atoms/Divider";
-import {
-  CombatantProperties,
-  EntityProperties,
-  formatCombatantClassName,
-} from "@speed-dungeon/common";
+import { Combatant, CombatantProperties, formatCombatantClassName } from "@speed-dungeon/common";
 import { CombatAttribute } from "@speed-dungeon/common";
 import React from "react";
 import { AttributeListItem } from "./AttributeListItem";
@@ -13,16 +9,12 @@ import CharacterSheetWeaponDamage from "./CharacterSheetWeaponDamage";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 
 interface Props {
-  combatantProperties: CombatantProperties;
-  entityProperties: EntityProperties;
+  combatant: Combatant;
   showAttributeAssignmentButtons: boolean;
 }
 
-export default function CharacterAttributes({
-  combatantProperties,
-  entityProperties,
-  showAttributeAssignmentButtons,
-}: Props) {
+export default function CharacterAttributes({ combatant, showAttributeAssignmentButtons }: Props) {
+  const { entityProperties, combatantProperties } = combatant;
   const playerOwnsCharacter = clientUserControlsCombatant(entityProperties.id);
 
   const hasUnspentAttributePoints = combatantProperties.unspentAttributePoints > 0;
@@ -101,7 +93,7 @@ export default function CharacterAttributes({
       </div>
       <Divider extraStyles={"mr-2 ml-2 "} />
       <HpAndMp combatantProperties={combatantProperties} totalAttributes={totalAttributes} />
-      <CharacterSheetWeaponDamage combatantProperties={combatantProperties} />
+      <CharacterSheetWeaponDamage combatant={combatant} />
     </div>
   );
 }

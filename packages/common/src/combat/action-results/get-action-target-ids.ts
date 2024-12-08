@@ -5,7 +5,7 @@ import { filterPossibleTargetIdsByProhibitedCombatantStates } from "../targeting
 import getActionTargetsIfSchemeIsValid from "../targeting/get-targets-if-scheme-is-valid.js";
 import { ActionResultCalculationArguments } from "./action-result-calculator.js";
 
-export default function getCombatActionTargetIds(
+export function getCombatActionTargetIds(
   game: SpeedDungeonGame,
   args: ActionResultCalculationArguments
 ): Error | string[] {

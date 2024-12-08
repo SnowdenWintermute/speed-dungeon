@@ -56,8 +56,7 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
           </div>
         </div>
         <CharacterAttributes
-          combatantProperties={combatantProperties}
-          entityProperties={entityProperties}
+          combatant={focusedCharacterOption}
           showAttributeAssignmentButtons={true}
         />
       </div>

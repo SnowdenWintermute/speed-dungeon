@@ -26,6 +26,7 @@ import { getCombatActionHpChangeRange } from "./get-combat-action-hp-change-rang
 export * from "./get-combat-action-hp-change-range.js";
 export * from "./weapon-hp-change-modifiers/index.js";
 export * from "./get-action-hit-chance.js";
+export * from "./hp-change-calculation-strategies/index.js";
 
 export default function calculateActionHitPointChangesAndEvasions(
   game: SpeedDungeonGame,
@@ -89,16 +90,12 @@ export default function calculateActionHitPointChangesAndEvasions(
   const { hpChangeSource } = hpChangeProperties;
 
   const rolledHpChangeValue = randBetween(hpChangeRange.min, hpChangeRange.max);
-  console.log("rolled: ", hpChangeRange.min, hpChangeRange.max, rolledHpChangeValue);
 
   const incomingHpChangePerTarget = splitHpChangeWithMultiTargetBonus(
     rolledHpChangeValue,
     targetIds.length,
     MULTI_TARGET_HP_CHANGE_BONUS
   );
-
-  console.log("rolled: ", hpChangeRange.min, hpChangeRange.max, rolledHpChangeValue);
-  console.log("split: ", incomingHpChangePerTarget);
 
   for (const id of targetIds) {
     const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, id);

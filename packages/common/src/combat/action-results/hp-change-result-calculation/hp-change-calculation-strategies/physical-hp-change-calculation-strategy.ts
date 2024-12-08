@@ -16,7 +16,7 @@ export class PhysicalHpChangeCalculationStrategy implements HpChangeCalculationS
     const targetAgility = targetWantsToBeHit ? 0 : targetAttributes[CombatAttribute.Agility];
     const critChance = userDexterity - targetAgility + BASE_CRIT_CHANCE;
 
-    return Math.min(MAX_CRIT_CHANCE, critChance);
+    return Math.max(0, Math.min(MAX_CRIT_CHANCE, critChance));
   }
   applyArmorClass(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties) {
     if (hpChange.value > 0) return hpChange; // don't resist being healed

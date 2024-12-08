@@ -123,7 +123,6 @@ const HEALING = (() => {
   if (!hpChangeProperties) throw new Error("Expected ability not implemented");
   hpChangeProperties.hpChangeSource.elementOption = MagicalElement.Light;
   hpChangeProperties.hpChangeSource.isHealing = true;
-  console.log("healing ability attributes const: ", JSON.stringify(attributes, null, 2));
   return attributes;
 })();
 

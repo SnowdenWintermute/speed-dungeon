@@ -1,3 +1,5 @@
+import { useGameStore } from "@/stores/game-store";
+import { Vector3 } from "@babylonjs/core";
 import {
   CombatAction,
   CombatActionType,
@@ -8,6 +10,16 @@ import {
   EquipmentSlot,
   WeaponSlot,
   getCombatActionHpChangeRange,
+  HP_CALCLULATION_CONTEXTS,
+  ActionResultCalculator,
+  SpeedDungeonGame,
+  CombatActionTarget,
+  Combatant,
+  CombatantClass,
+  CombatantSpecies,
+  applyWeaponHpChangeModifiers,
+  BattleGroup,
+  Battle,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
@@ -15,18 +27,16 @@ import { NumberRange } from "@speed-dungeon/common";
 import { getActionHitChance } from "@speed-dungeon/common";
 import React from "react";
 
-export default function CharacterSheetWeaponDamage({
-  combatantProperties,
-}: {
-  combatantProperties: CombatantProperties;
-}) {
+export default function CharacterSheetWeaponDamage({ combatant }: { combatant: Combatant }) {
+  const { combatantProperties } = combatant;
+
   const mhWeaponOption = CombatantProperties.getEquippedWeapon(
     combatantProperties,
     WeaponSlot.MainHand
   );
   if (mhWeaponOption instanceof Error) return <div>{mhWeaponOption.message}</div>;
   const mhDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(
-    combatantProperties,
+    combatant,
     mhWeaponOption,
     false
   );
@@ -45,11 +55,7 @@ export default function CharacterSheetWeaponDamage({
       WeaponSlot.OffHand
     );
     if (ohWeaponOption instanceof Error) ohWeaponOption = undefined; // might be a shield
-    ohDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(
-      combatantProperties,
-      ohWeaponOption,
-      true
-    );
+    ohDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(combatant, ohWeaponOption, true);
   }
 
   if (mhDamageAndAccuracyResult instanceof Error)
@@ -79,6 +85,7 @@ interface WeaponDamageEntryProps {
     | {
         hpChangeRange: NumberRange;
         hitChance: number;
+        critChance: number;
       };
   label: string;
   paddingClass: string;
@@ -86,7 +93,7 @@ interface WeaponDamageEntryProps {
 
 function WeaponDamageEntry(props: WeaponDamageEntryProps) {
   if (!props.damageAndAccuracyOption) return <div className={`w-1/2 mr-1${props.paddingClass}`} />;
-  const { hpChangeRange, hitChance } = props.damageAndAccuracyOption;
+  const { hpChangeRange, hitChance, critChance } = props.damageAndAccuracyOption;
 
   return (
     <div className={`w-1/2 ${props.paddingClass}`}>
@@ -98,16 +105,21 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
         <span>{"Accuracy "}</span>
         <span>{hitChance.toFixed(0)}%</span>
       </div>
+      <div className="w-full flex justify-between">
+        <span>{"Crit chance "}</span>
+        <span>{critChance.toFixed(0)}%</span>
+      </div>
     </div>
   );
 }
 
 function getAttackAbilityDamageAndAccuracy(
-  combatantProperties: CombatantProperties,
+  combatant: Combatant,
   weaponOption: undefined | WeaponProperties,
   isOffHand: boolean
 ) {
   let abilityName = isOffHand ? AbilityName.AttackMeleeOffhand : AbilityName.AttackMeleeMainhand;
+  const { entityProperties, combatantProperties } = combatant;
 
   if (weaponOption) {
     const weaponProperties = weaponOption;
@@ -124,6 +136,23 @@ function getAttackAbilityDamageAndAccuracy(
     type: CombatActionType.AbilityUsed,
     abilityName: abilityName,
   };
+
+  const gameOption = useGameStore.getState().game;
+
+  const target =
+    getTargetOption(
+      gameOption,
+      combatAction,
+      entityProperties.id,
+      combatantProperties.combatActionTarget
+    ) ||
+    new CombatantProperties(
+      CombatantClass.Warrior,
+      CombatantSpecies.Humanoid,
+      null,
+      null,
+      Vector3.Zero()
+    );
 
   const attackActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
     combatantProperties,
@@ -151,6 +180,16 @@ function getAttackAbilityDamageAndAccuracy(
 
   const hpChangeRange = hpChangeRangeResult;
 
+  const averageRoll = Math.floor(hpChangeRange.min + hpChangeRange.max / 2);
+
+  applyWeaponHpChangeModifiers(
+    hpChangeProperties,
+    equippedUsableWeapons,
+    combatantProperties,
+    target,
+    averageRoll
+  );
+
   const hitChance = getActionHitChance(
     attackActionPropertiesResult,
     combatantProperties,
@@ -159,5 +198,48 @@ function getAttackAbilityDamageAndAccuracy(
     false
   );
 
-  return { hpChangeRange, hitChance };
+  const hpCalculationContext = HP_CALCLULATION_CONTEXTS[hpChangeProperties.hpChangeSource.category];
+
+  const critChance = hpCalculationContext.getActionCritChance(combatantProperties, target, false);
+
+  return { hpChangeRange, hitChance, critChance };
+}
+
+function getTargetOption(
+  gameOption: null | SpeedDungeonGame,
+  combatAction: CombatAction,
+  userId: string,
+  targets: CombatActionTarget | null
+) {
+  if (!gameOption || !targets) return undefined;
+  const game = gameOption;
+  const partyResult = useGameStore().getParty();
+  if (partyResult instanceof Error) return undefined;
+  const battleOption = partyResult.battleId ? game.battles[partyResult.battleId]!! : null;
+
+  const allyIds = (() => {
+    if (battleOption) {
+      const result = Battle.getAllyIdsAndOpponentIdsOption(battleOption, userId);
+      if (result instanceof Error) return partyResult.characterPositions;
+      return result.allyIds;
+    }
+    return partyResult.characterPositions;
+  })();
+
+  const args = {
+    combatAction,
+    userId,
+    targets,
+    battleOption,
+    allyIds,
+  };
+
+  const targetIdsResult = ActionResultCalculator.getCombatActionTargetIds(game, args);
+  if (targetIdsResult instanceof Error) return undefined;
+  const targetIds = targetIdsResult;
+  const firstTargetIdOption = targetIds[0];
+  if (firstTargetIdOption === undefined) return undefined;
+  const firstTargetCombatant = SpeedDungeonGame.getCombatantById(game, firstTargetIdOption);
+  if (firstTargetCombatant instanceof Error) return undefined;
+  return firstTargetCombatant.combatantProperties;
 }

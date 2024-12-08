@@ -66,7 +66,7 @@ export default function ActionDetails({ combatAction, hideTitle }: Props) {
         {abilityOption && (
           <AbilityDetails
             ability={abilityOption}
-            userCombatantProperties={focusedCharacter.combatantProperties}
+            user={focusedCharacter}
             combatActionProperties={combatActionProperties}
           />
         )}

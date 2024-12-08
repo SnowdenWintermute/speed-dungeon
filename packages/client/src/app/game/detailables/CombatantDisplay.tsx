@@ -14,12 +14,12 @@ import React from "react";
 import CharacterAttributes from "../character-sheet/CharacterAttributes";
 
 interface Props {
-  combatantDetails: Combatant;
+  combatant: Combatant;
 }
 
-export default function CombatantDisplay({ combatantDetails }: Props) {
+export default function CombatantDisplay({ combatant }: Props) {
   const mutateGameState = useGameStore().mutateState;
-  const { entityProperties, combatantProperties } = combatantDetails;
+  const { combatantProperties } = combatant;
 
   function closeDisplay() {
     mutateGameState((store) => {
@@ -30,11 +30,7 @@ export default function CombatantDisplay({ combatantDetails }: Props) {
 
   return (
     <div className="flex justify-between ">
-      <CharacterAttributes
-        combatantProperties={combatantProperties}
-        entityProperties={entityProperties}
-        showAttributeAssignmentButtons={false}
-      />
+      <CharacterAttributes combatant={combatant} showAttributeAssignmentButtons={false} />
       <div className="h-full pl-4 w-1/2">
         <div className="w-full flex justify-end">
           <ButtonBasic onClick={closeDisplay}>{"Close"}</ButtonBasic>

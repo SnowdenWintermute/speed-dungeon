@@ -21,28 +21,28 @@ export default function DetailedCombatantInfoCard(props: Props) {
   // const [cardPositionStyle, setCardPositionStyle] = useState<{ [key: string]: string }>({});
   let infoButtonHoveredStyles = "";
 
-  let combatantDetailsOption: Combatant | undefined;
+  let combatantOption: Combatant | undefined;
   if (
     hoveredEntity instanceof Combatant &&
     hoveredEntity.entityProperties.id === props.combatantId
   ) {
-    combatantDetailsOption = hoveredEntity;
+    combatantOption = hoveredEntity;
     infoButtonHoveredStyles = "z-50";
   } else if (
     detailedEntity instanceof Combatant &&
     detailedEntity.entityProperties.id === props.combatantId
   )
-    combatantDetailsOption = detailedEntity;
+    combatantOption = detailedEntity;
 
-  const detailedInfoCard = combatantDetailsOption ? (
-    <div className="border border-slate-400 bg-slate-700 p-2.5">
-      <CombatantDisplay combatantDetails={combatantDetailsOption} />
+  const detailedInfoCard = combatantOption ? (
+    <div className="border border-slate-400 bg-slate-700 p-2.5 w-[600px]">
+      <CombatantDisplay combatant={combatantOption} />
     </div>
   ) : (
     <div />
   );
 
-  const showingCard = combatantDetailsOption !== undefined;
+  const showingCard = combatantOption !== undefined;
 
   useEffect(() => {
     let plaqueOption = props.combatantPlaqueRef.current;

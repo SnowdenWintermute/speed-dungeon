@@ -102,7 +102,7 @@ export function getCombatAttributeDescription(attribute: CombatAttribute) {
     case CombatAttribute.Mp:
       return "The primary resource for using abilities";
     case CombatAttribute.Focus:
-      return "Negates target magic defense and increases crit chance and crit multiplier for spells";
+      return "Negates target magic defense and increases crit chance and crit multiplier for magical effects";
     case CombatAttribute.Dexterity:
       return "Increases accuracy, crit chance with physical attacks, ranged attack damage and ranged attack armor penetration";
     case CombatAttribute.Intelligence:
@@ -114,6 +114,6 @@ export function getCombatAttributeDescription(attribute: CombatAttribute) {
     case CombatAttribute.Resilience:
       return `Reduces magical damage by ${RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO}% and increases healing received from magical sources by ${RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO}% per point`;
     case CombatAttribute.Agility:
-      return "Increases evasion and speed";
+      return "Increases evasion and speed and reduces the crit chance of unwanted physical effects against you";
   }
 }

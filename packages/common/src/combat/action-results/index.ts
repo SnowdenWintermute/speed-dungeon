@@ -61,8 +61,6 @@ export default function calculateActionResult(
   }
   // END CONSUMABLE
 
-  // context.getHits()
-
   const hitPointChangesCritsAndEvasionsResult = calculateActionHitPointChangesAndEvasions(
     game,
     args,
