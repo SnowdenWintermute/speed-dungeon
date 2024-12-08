@@ -1,4 +1,3 @@
-export * from "./calculate-combat-action-hp-change-range.js";
 export * from "./combat-action-properties.js";
 export * from "./get-ability-mana-cost.js";
 export * from "./combat-action-requires-melee-range.js";

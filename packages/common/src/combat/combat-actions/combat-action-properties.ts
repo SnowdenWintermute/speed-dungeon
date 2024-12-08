@@ -19,6 +19,7 @@ export class CombatActionProperties {
   hpChangeProperties: null | CombatActionHpChangeProperties = null;
   description: string = "";
   isMelee: boolean = true;
+  accuracyPercentModifier: number = 100;
   constructor() {}
 }
 
@@ -37,7 +38,6 @@ export const COMBAT_ACTION_USABLITY_CONTEXT_STRINGS: Record<ActionUsableContext,
 export class CombatActionHpChangeProperties {
   baseValues: NumberRange = new NumberRange(0, 0);
   finalDamagePercentMultiplier: number = 100;
-  accuracyPercentModifier: number = 100;
   addWeaponDamageFromSlots: null | WeaponSlot[] = null;
   addWeaponHpChangeSourceCategoryFromSlot: null | WeaponSlot = null;
   addWeaponElementFromSlot: null | WeaponSlot = null;

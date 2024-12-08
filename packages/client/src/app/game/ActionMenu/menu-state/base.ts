@@ -44,6 +44,7 @@ export class BaseMenuState implements ActionMenuState {
       () => {
         useGameStore.getState().mutateState((state) => {
           state.stackedMenuStates.push(inventoryItemsMenuState);
+          state.hoveredAction = null;
         });
       }
     );

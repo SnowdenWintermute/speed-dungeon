@@ -1,24 +1,22 @@
 import {
   BASE_CRIT_CHANCE,
+  MAX_CRIT_CHANCE,
   RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO,
 } from "../../../../app-consts.js";
 import { CombatAttribute, CombatantProperties } from "../../../../combatants/index.js";
 import { HpChange } from "../../../hp-change-source-types.js";
 import getDamageAfterResilience from "../get-damage-after-resilience.js";
-import rollCrit from "../roll-crit.js";
 import { HpChangeCalculationStrategy } from "./index.js";
 
 export class MagicalHpChangeCalculationStrategy implements HpChangeCalculationStrategy {
-  rollCrit(
-    hpChange: HpChange,
+  getActionCritChance(
     user: CombatantProperties,
     _target: CombatantProperties,
     _targetWantsToBeHit: boolean
-  ): void {
+  ) {
     const userAttributes = CombatantProperties.getTotalAttributes(user);
     const userFocus = userAttributes[CombatAttribute.Focus];
-    const critChance = userFocus + BASE_CRIT_CHANCE;
-    hpChange.isCrit = rollCrit(critChance);
+    return Math.min(MAX_CRIT_CHANCE, userFocus + BASE_CRIT_CHANCE);
   }
   applyArmorClass(_hpChange: HpChange, _user: CombatantProperties, _target: CombatantProperties) {
     return;

@@ -50,6 +50,7 @@ const ATTACK_MELEE_MAIN_HAND = (() => {
 const ATTACK_MELEE_OFF_HAND = (() => {
   const attributes = cloneDeep(ATTACK_MELEE_MAIN_HAND);
   const { hpChangeProperties } = attributes.combatActionProperties;
+  attributes.combatActionProperties.accuracyPercentModifier = OFF_HAND_ACCURACY_MODIFIER;
 
   if (!hpChangeProperties) throw new Error("Expected ability not implemented");
   hpChangeProperties.addWeaponDamageFromSlots = [WeaponSlot.OffHand];
@@ -60,7 +61,6 @@ const ATTACK_MELEE_OFF_HAND = (() => {
   hpChangeProperties.critChanceAttribute = CombatAttribute.Dexterity;
   hpChangeProperties.critMultiplierAttribute = CombatAttribute.Strength;
   hpChangeProperties.finalDamagePercentMultiplier = OFF_HAND_DAMAGE_MODIFIER;
-  hpChangeProperties.accuracyPercentModifier = OFF_HAND_ACCURACY_MODIFIER;
   return attributes;
 })();
 
@@ -73,7 +73,6 @@ const ATTACK_RANGED_MAIN_HAND = (() => {
   hpChangeProperties.critChanceAttribute = CombatAttribute.Dexterity;
   hpChangeProperties.critMultiplierAttribute = CombatAttribute.Dexterity;
   hpChangeProperties.finalDamagePercentMultiplier = OFF_HAND_DAMAGE_MODIFIER;
-  hpChangeProperties.accuracyPercentModifier = OFF_HAND_ACCURACY_MODIFIER;
   hpChangeProperties.hpChangeSource.meleeOrRanged = MeleeOrRanged.Ranged;
   return attributes;
 })();

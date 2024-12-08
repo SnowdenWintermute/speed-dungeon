@@ -1,13 +1,11 @@
-import { BASE_CRIT_CHANCE } from "../../../../app-consts.js";
+import { BASE_CRIT_CHANCE, MAX_CRIT_CHANCE } from "../../../../app-consts.js";
 import { CombatAttribute, CombatantProperties } from "../../../../combatants/index.js";
 import { HpChange } from "../../../hp-change-source-types.js";
 import getDamageAfterArmorClass from "../get-damage-after-armor-class.js";
-import rollCrit from "../roll-crit.js";
 import { HpChangeCalculationStrategy } from "./index.js";
 
 export class PhysicalHpChangeCalculationStrategy implements HpChangeCalculationStrategy {
-  rollCrit(
-    hpChange: HpChange,
+  getActionCritChance(
     user: CombatantProperties,
     _target: CombatantProperties,
     targetWantsToBeHit: boolean
@@ -18,7 +16,7 @@ export class PhysicalHpChangeCalculationStrategy implements HpChangeCalculationS
     const targetAgility = targetWantsToBeHit ? 0 : targetAttributes[CombatAttribute.Agility];
     const critChance = userDexterity - targetAgility + BASE_CRIT_CHANCE;
 
-    hpChange.isCrit = rollCrit(critChance);
+    return Math.min(MAX_CRIT_CHANCE, critChance);
   }
   applyArmorClass(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties) {
     if (hpChange.value > 0) return hpChange; // don't resist being healed

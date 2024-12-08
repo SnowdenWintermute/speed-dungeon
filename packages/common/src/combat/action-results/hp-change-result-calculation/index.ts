@@ -2,27 +2,25 @@ import cloneDeep from "lodash.clonedeep";
 import { CombatantProperties, CombatantTraitType } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import { CombatActionProperties, CombatActionType } from "../../combat-actions/index.js";
+import { CombatActionProperties } from "../../combat-actions/index.js";
 import { randBetween } from "../../../utils/index.js";
 import { ActionResultCalculationArguments } from "../action-result-calculator.js";
 import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
 import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app-consts.js";
-import { ABILITY_ATTRIBUTES } from "../../../combatants/abilities/get-ability-attributes.js";
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { HpChange } from "../../hp-change-source-types.js";
 import checkIfTargetWantsToBeHit from "./check-if-target-wants-to-be-hit.js";
-import { NumberRange } from "../../../primatives/number-range.js";
-import { scaleRangeToActionLevel } from "./scale-hp-range-to-action-level.js";
-import { applyAdditiveAttributeToRange } from "./apply-additive-attribute-to-range.js";
-import { Item, WeaponSlot } from "../../../items/index.js";
-import { addWeaponsDamageToRange } from "./weapon-hp-change-modifiers/add-weapons-damage-to-range.js";
-import { applyWeaponHpChangeModifiers } from "./weapon-hp-change-modifiers/index.js";
-import { rollHit } from "./roll-hit.js";
+import { getActionHitChance } from "./get-action-hit-chance.js";
 import { applyCritMultiplier } from "./apply-crit-multiplier-to-hp-change.js";
 import {
   applyElementalAffinities,
   applyKineticAffinities,
 } from "./apply-affinites-to-hp-change.js";
+import { applyWeaponHpChangeModifiers } from "./weapon-hp-change-modifiers/index.js";
+import { WeaponSlot } from "../../../items/index.js";
+import { getCombatActionHpChangeRange } from "./get-combat-action-hp-change-range.js";
+export * from "./get-combat-action-hp-change-range.js";
+export * from "./weapon-hp-change-modifiers/index.js";
 
 export default function calculateActionHitPointChangesAndEvasions(
   game: SpeedDungeonGame,
@@ -35,37 +33,26 @@ export default function calculateActionHitPointChangesAndEvasions(
       hitPointChanges: { [entityId: string]: HpChange };
       evasions: string[];
     } {
-  const firstTargetIdOption = targetIds[0];
-  if (firstTargetIdOption === undefined)
-    return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
-  const firstTargetId = firstTargetIdOption;
-  let hitPointChanges: { [entityId: string]: HpChange } = {};
-  let evasions: string[] = [];
-
-  const hpChangeProperties = cloneDeep(actionProperties.hpChangeProperties);
-  if (hpChangeProperties === null) return { hitPointChanges, evasions };
-
   const { userId, combatAction } = args;
   const combatantResult = SpeedDungeonGame.getCombatantById(game, userId);
   if (combatantResult instanceof Error) return combatantResult;
   const { combatantProperties: userCombatantProperties } = combatantResult;
 
-  let actionLevel = 1;
-  let actionLevelHpChangeModifier = 1;
+  // we need a target to check against to find the best affinity to choose
+  // so we'll use the first target for now, until a better system comes to light
+  const firstTargetIdOption = targetIds[0];
+  if (firstTargetIdOption === undefined)
+    return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
+  const firstTargetId = firstTargetIdOption;
+  const firstTargetCombatant = SpeedDungeonGame.getCombatantById(game, firstTargetId);
+  if (firstTargetCombatant instanceof Error) return firstTargetCombatant;
+  const { combatantProperties: targetCombatantProperties } = firstTargetCombatant;
 
-  if (combatAction.type === CombatActionType.AbilityUsed) {
-    const abilityOption = userCombatantProperties.abilities[combatAction.abilityName];
-    if (!abilityOption) return new Error(ERROR_MESSAGES.ABILITIES.NOT_OWNED);
-    const ability = abilityOption;
-    actionLevel = ability.level;
-    const abilityAttributes = ABILITY_ATTRIBUTES[ability.name];
-    actionLevelHpChangeModifier = abilityAttributes.baseHpChangeValuesLevelMultiplier;
-  }
+  let hitPointChanges: { [entityId: string]: HpChange } = {};
+  let evasions: string[] = [];
 
-  const { min, max } = hpChangeProperties.baseValues;
-  const hpChangeRange = new NumberRange(min, max);
-  scaleRangeToActionLevel(hpChangeRange, actionLevel, actionLevelHpChangeModifier);
-  applyAdditiveAttributeToRange(hpChangeRange, userCombatantProperties, hpChangeProperties);
+  if (actionProperties.hpChangeProperties === null) return { hitPointChanges, evasions };
+  const hpChangeProperties = cloneDeep(actionProperties.hpChangeProperties);
 
   const equippedUsableWeaponsResult = CombatantProperties.getUsableWeaponsInSlots(
     userCombatantProperties,
@@ -74,41 +61,33 @@ export default function calculateActionHitPointChangesAndEvasions(
   if (equippedUsableWeaponsResult instanceof Error) return equippedUsableWeaponsResult;
   const equippedUsableWeapons = equippedUsableWeaponsResult;
 
-  const weaponsToAddDamageFrom: Partial<Record<WeaponSlot, Item>> = {};
-  for (const slot of hpChangeProperties.addWeaponDamageFromSlots || []) {
-    const weapon = equippedUsableWeapons[slot];
-    if (!weapon) continue;
-    weaponsToAddDamageFrom[slot] = weapon.item;
-  }
-
-  addWeaponsDamageToRange(weaponsToAddDamageFrom, hpChangeRange);
-
-  hpChangeRange.min = Math.floor(hpChangeRange.min);
-  hpChangeRange.max = Math.floor(hpChangeRange.max);
-
-  // we need a target to check against to find the best affinity to choose
-  // so we'll use the first target for now, until a better system comes to light
-  const firstTargetCombatant = SpeedDungeonGame.getCombatantById(game, firstTargetId);
-  if (firstTargetCombatant instanceof Error) return firstTargetCombatant;
-  const { combatantProperties: targetCombatantProperties } = firstTargetCombatant;
-
-  const { hpChangeSource } = hpChangeProperties;
-
-  // need to roll it before selecting weapon hp change source type because
-  // we need to check against armor class which mitigates based on rolled damage
-  const rolledHpChangeValue = randBetween(hpChangeRange.min, hpChangeRange.max);
-  const incomingHpChangePerTarget = splitHpChangeWithMultiTargetBonus(
-    rolledHpChangeValue,
-    targetIds.length,
-    MULTI_TARGET_HP_CHANGE_BONUS
+  const hpChangeRangeResult = getCombatActionHpChangeRange(
+    combatAction,
+    hpChangeProperties,
+    userCombatantProperties,
+    equippedUsableWeapons
   );
+  if (hpChangeRangeResult instanceof Error) return hpChangeRangeResult;
+
+  const hpChangeRange = hpChangeRangeResult;
+
+  const averageRoll = Math.floor(hpChangeRange.min + hpChangeRange.max / 2);
 
   applyWeaponHpChangeModifiers(
     hpChangeProperties,
     equippedUsableWeapons,
     userCombatantProperties,
     targetCombatantProperties,
-    incomingHpChangePerTarget
+    averageRoll
+  );
+
+  const { hpChangeSource } = hpChangeProperties;
+
+  const rolledHpChangeValue = randBetween(hpChangeRange.min, hpChangeRange.max);
+  const incomingHpChangePerTarget = splitHpChangeWithMultiTargetBonus(
+    rolledHpChangeValue,
+    targetIds.length,
+    MULTI_TARGET_HP_CHANGE_BONUS
   );
 
   for (const id of targetIds) {
@@ -123,23 +102,30 @@ export default function calculateActionHitPointChangesAndEvasions(
       hpChangeProperties
     );
 
-    const isHit = rollHit(
+    const percentChanceToHit = getActionHitChance(
+      actionProperties,
       userCombatantProperties,
       targetCombatantProperties,
       hpChangeSource.unavoidable || false,
       targetWantsToBeHit
     );
+
+    const hitRoll = randBetween(0, 100);
+
+    const isHit = hitRoll <= percentChanceToHit;
+
     if (!isHit) {
       evasions.push(id);
       continue;
     }
 
-    hpChangeCalculationContext.rollCrit(
-      hpChange,
+    const percentChanceToCrit = hpChangeCalculationContext.getActionCritChance(
       userCombatantProperties,
       targetCombatantProperties,
       targetWantsToBeHit
     );
+
+    hpChange.isCrit = randBetween(0, 100) < percentChanceToCrit;
 
     applyCritMultiplier(
       hpChange,

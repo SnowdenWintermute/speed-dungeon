@@ -13,7 +13,7 @@ export function applyWeaponHpChangeModifiers(
   >,
   userCombatantProperties: CombatantProperties,
   targetCombatantProperties: CombatantProperties,
-  incomingHpChangePerTarget: number
+  expectedRolledValueAverage: number
 ) {
   const { hpChangeSource } = hpChangeProperties;
 
@@ -27,7 +27,7 @@ export function applyWeaponHpChangeModifiers(
     weaponToAddHpChangeCategoryFrom,
     userCombatantProperties,
     targetCombatantProperties,
-    incomingHpChangePerTarget
+    expectedRolledValueAverage
   );
 
   const weaponToAddKineticTypeFrom =
@@ -85,7 +85,7 @@ export function applyWeaponHpChangeCategoryToHpChangeSource(
   weaponPropertiesOption: undefined | WeaponProperties,
   userProperties: CombatantProperties,
   targetProperties: CombatantProperties,
-  incomingHpChangePerTarget: number
+  expectedRolledValueAverage: number
 ) {
   if (!weaponPropertiesOption) return;
   const hpChangeSourceCategoryToAddOption =
@@ -95,7 +95,7 @@ export function applyWeaponHpChangeCategoryToHpChangeSource(
       targetProperties,
       // we must include this because selecting the best damage type depends on how
       // much armor is mitigating, which depends on the asymptotic function of damage vs armor class
-      incomingHpChangePerTarget
+      expectedRolledValueAverage
     );
   if (hpChangeSourceCategoryToAddOption === null) return;
   hpChangeSource.category = hpChangeSourceCategoryToAddOption;

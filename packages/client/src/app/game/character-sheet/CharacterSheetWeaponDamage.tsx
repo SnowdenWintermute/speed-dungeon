@@ -8,12 +8,12 @@ import {
   EquipmentProperties,
   EquipmentSlot,
   WeaponSlot,
-  calculateCombatActionHpChangeRange,
+  getCombatActionHpChangeRange,
+  applyWeaponHpChangeModifiers,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
-import { ABILITY_ATTRIBUTES } from "@speed-dungeon/common";
 import React from "react";
 
 export default function CharacterSheetWeaponDamage({
@@ -28,6 +28,7 @@ export default function CharacterSheetWeaponDamage({
     combatantProperties,
     WeaponSlot.MainHand
   );
+  if (mhWeaponOption instanceof Error) return <div>{mhWeaponOption.message}</div>;
   const mhDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(
     combatantProperties,
     mhWeaponOption,
@@ -44,10 +45,11 @@ export default function CharacterSheetWeaponDamage({
     !isTwoHanded &&
     ohEquipmentOption?.equipmentBaseItemProperties.type !== EquipmentType.Shield
   ) {
-    const ohWeaponOption = CombatantProperties.getEquippedWeapon(
+    let ohWeaponOption = CombatantProperties.getEquippedWeapon(
       combatantProperties,
       WeaponSlot.OffHand
     );
+    if (ohWeaponOption instanceof Error) ohWeaponOption = undefined; // might be a shield
     ohDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(
       combatantProperties,
       ohWeaponOption,
@@ -120,34 +122,50 @@ function getAttackAbilityDamageAndAccuracy(
     }
   }
 
-  const attackAction: CombatAction = {
+  const combatAction: CombatAction = {
     type: CombatActionType.AbilityUsed,
     abilityName: abilityName,
   };
 
   const attackActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
     combatantProperties,
-    attackAction
+    combatAction
   );
   if (attackActionPropertiesResult instanceof Error) return attackActionPropertiesResult;
   if (attackActionPropertiesResult.hpChangeProperties === null)
     return new Error(ERROR_MESSAGES.ABILITIES.INVALID_TYPE);
   const hpChangeProperties = attackActionPropertiesResult.hpChangeProperties;
-  const abilityAttributes = ABILITY_ATTRIBUTES[abilityName];
 
-  const damageRangeResult = calculateCombatActionHpChangeRange(
+  const equippedUsableWeaponsResult = CombatantProperties.getUsableWeaponsInSlots(
     combatantProperties,
+    [WeaponSlot.MainHand, WeaponSlot.OffHand]
+  );
+  if (equippedUsableWeaponsResult instanceof Error) return equippedUsableWeaponsResult;
+  const equippedUsableWeapons = equippedUsableWeaponsResult;
+
+  const hpChangeRangeResult = getCombatActionHpChangeRange(
+    combatAction,
     hpChangeProperties,
-    1,
-    abilityAttributes.baseHpChangeValuesLevelMultiplier
+    combatantProperties,
+    equippedUsableWeapons
+  );
+  if (hpChangeRangeResult instanceof Error) return hpChangeRangeResult;
+
+  const hpChangeRange = hpChangeRangeResult;
+
+  const averageRoll = Math.floor(hpChangeRange.min + hpChangeRange.max / 2);
+
+  applyWeaponHpChangeModifiers(
+    hpChangeProperties,
+    equippedUsableWeapons,
+    combatantProperties,
+    targetCombatantProperties,
+    averageRoll
   );
 
-  if (damageRangeResult instanceof Error) return damageRangeResult;
+  // get hitchance
 
-  damageRangeResult;
-  damageRangeResult.min *= hpChangeProperties.finalDamagePercentMultiplier / 100;
-  damageRangeResult.max *= hpChangeProperties.finalDamagePercentMultiplier / 100;
-  const modifiedAccuracy = combatantAccuracy * (hpChangeProperties.accuracyPercentModifier / 100);
+  const { hpChangeSource } = hpChangeProperties;
 
   return [damageRangeResult, modifiedAccuracy];
 }
