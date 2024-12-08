@@ -6,13 +6,9 @@ import { CombatAttribute, CombatantProperties } from "../../../../combatants/ind
 import { HpChange } from "../../../hp-change-source-types.js";
 import getDamageAfterResilience from "../get-damage-after-resilience.js";
 import rollCrit from "../roll-crit.js";
-import { GenericHpCalculationStrategy } from "./generic-hp-calculation-strategy.js";
 import { HpChangeCalculationStrategy } from "./index.js";
 
-export class MagicalHpChangeCalculationStrategy
-  extends GenericHpCalculationStrategy
-  implements HpChangeCalculationStrategy
-{
+export class MagicalHpChangeCalculationStrategy implements HpChangeCalculationStrategy {
   rollCrit(
     hpChange: HpChange,
     user: CombatantProperties,

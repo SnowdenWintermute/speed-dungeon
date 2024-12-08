@@ -17,6 +17,12 @@ import { applyAdditiveAttributeToRange } from "./apply-additive-attribute-to-ran
 import { Item, WeaponSlot } from "../../../items/index.js";
 import { addWeaponsDamageToRange } from "./weapon-hp-change-modifiers/add-weapons-damage-to-range.js";
 import { applyWeaponHpChangeModifiers } from "./weapon-hp-change-modifiers/index.js";
+import { rollHit } from "./roll-hit.js";
+import { applyCritMultiplier } from "./apply-crit-multiplier-to-hp-change.js";
+import {
+  applyElementalAffinities,
+  applyKineticAffinities,
+} from "./apply-affinites-to-hp-change.js";
 
 export default function calculateActionHitPointChangesAndEvasions(
   game: SpeedDungeonGame,
@@ -117,7 +123,7 @@ export default function calculateActionHitPointChangesAndEvasions(
       hpChangeProperties
     );
 
-    const isHit = hpChangeCalculationContext.rollHit(
+    const isHit = rollHit(
       userCombatantProperties,
       targetCombatantProperties,
       hpChangeSource.unavoidable || false,
@@ -134,14 +140,15 @@ export default function calculateActionHitPointChangesAndEvasions(
       targetCombatantProperties,
       targetWantsToBeHit
     );
-    hpChangeCalculationContext.applyCritMultiplier(
+
+    applyCritMultiplier(
       hpChange,
       hpChangeProperties,
       userCombatantProperties,
       targetCombatantProperties
     );
-    hpChangeCalculationContext.applyKineticAffinities(hpChange, targetCombatantProperties);
-    hpChangeCalculationContext.applyElementalAffinities(hpChange, targetCombatantProperties);
+    applyKineticAffinities(hpChange, targetCombatantProperties);
+    applyElementalAffinities(hpChange, targetCombatantProperties);
 
     if (
       !(

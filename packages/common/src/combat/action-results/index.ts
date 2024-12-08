@@ -23,7 +23,6 @@ export default function calculateActionResult(
 ): Error | ActionResult {
   const { userId, combatAction, targets } = args;
   const actionResult = new ActionResult(userId, cloneDeep(combatAction), cloneDeep(targets));
-  console.log("calculateActionResult");
 
   const combatantResult = SpeedDungeonGame.getCombatantById(game, userId);
   if (combatantResult instanceof Error) return combatantResult;
