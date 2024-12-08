@@ -17,6 +17,11 @@ export function applyWeaponHpChangeModifiers(
 ) {
   const { hpChangeSource } = hpChangeProperties;
 
+  // collect category, kinetic and element from each weapons source
+  // compare rolled expected avg value with each source
+  // select best
+  // apply to hp change source
+
   const weaponToAddHpChangeCategoryFrom =
     hpChangeProperties.addWeaponHpChangeSourceCategoryFromSlot !== null
       ? equippedUsableWeapons[hpChangeProperties.addWeaponHpChangeSourceCategoryFromSlot]

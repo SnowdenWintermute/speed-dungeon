@@ -26,6 +26,8 @@ import { EquipmentType } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
 import { getActionHitChance } from "@speed-dungeon/common";
 import React from "react";
+import AccuracyIcon from "../../../../public/img/hp-change-source-icons/accuracy.svg";
+import CritChanceIcon from "../../../../public/img/hp-change-source-icons/crit-chance.svg";
 
 export default function CharacterSheetWeaponDamage({ combatant }: { combatant: Combatant }) {
   const { combatantProperties } = combatant;
@@ -104,10 +106,12 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
       </div>
       <div className="w-full flex justify-between">
         <span>{"Accuracy "}</span>
+        <AccuracyIcon className="h-5 w-5 fill-zinc-300" />
         <span>{hitChance.toFixed(0)}%</span>
       </div>
       <div className="w-full flex justify-between">
         <span>{"Crit chance "}</span>
+        <CritChanceIcon className="h-5 w-5 fill-zinc-300" />
         <span>{critChance.toFixed(0)}%</span>
       </div>
     </div>
