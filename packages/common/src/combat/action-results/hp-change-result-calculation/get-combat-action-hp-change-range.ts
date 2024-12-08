@@ -47,8 +47,8 @@ export function getCombatActionHpChangeRange(
   hpChangeRange.min *= flatRangeMultiplier;
   hpChangeRange.max *= flatRangeMultiplier;
 
-  hpChangeRange.min = Math.floor(hpChangeRange.min);
-  hpChangeRange.max = Math.floor(hpChangeRange.max);
+  hpChangeRange.min = Math.max(1, Math.floor(hpChangeRange.min));
+  hpChangeRange.max = Math.max(1, Math.floor(hpChangeRange.max));
 
   return hpChangeRange;
 }

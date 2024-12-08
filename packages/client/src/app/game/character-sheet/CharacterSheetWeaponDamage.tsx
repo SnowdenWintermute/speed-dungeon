@@ -18,8 +18,8 @@ import {
   CombatantClass,
   CombatantSpecies,
   applyWeaponHpChangeModifiers,
-  BattleGroup,
   Battle,
+  HP_CHANGE_SOURCE_CATEGORY_STRINGS,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
@@ -34,6 +34,7 @@ export default function CharacterSheetWeaponDamage({ combatant }: { combatant: C
     combatantProperties,
     WeaponSlot.MainHand
   );
+
   if (mhWeaponOption instanceof Error) return <div>{mhWeaponOption.message}</div>;
   const mhDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(
     combatant,
@@ -68,12 +69,12 @@ export default function CharacterSheetWeaponDamage({ combatant }: { combatant: C
       <WeaponDamageEntry
         damageAndAccuracyOption={mhDamageAndAccuracyResult}
         label="Main Hand"
-        paddingClass="mr-1"
+        paddingClass="pr-1"
       />
       <WeaponDamageEntry
         damageAndAccuracyOption={ohDamageAndAccuracyResult}
         label="Off Hand"
-        paddingClass="ml-1"
+        paddingClass="pl-1"
       />
     </div>
   );
@@ -96,7 +97,7 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
   const { hpChangeRange, hitChance, critChance } = props.damageAndAccuracyOption;
 
   return (
-    <div className={`w-1/2 ${props.paddingClass}`}>
+    <div className={`w-1/2 min-w-1/2 ${props.paddingClass}`}>
       <div className="w-full flex justify-between">
         <span>{props.label}</span>
         <span>{`${hpChangeRange.min}-${hpChangeRange.max}`}</span>
@@ -196,6 +197,11 @@ function getAttackAbilityDamageAndAccuracy(
     0,
     !!attackActionPropertiesResult.hpChangeProperties.hpChangeSource.unavoidable,
     false
+  );
+
+  console.log(
+    "HP CHANGE SOURCE CATEGORY ",
+    HP_CHANGE_SOURCE_CATEGORY_STRINGS[hpChangeProperties.hpChangeSource.category]
   );
 
   const hpCalculationContext = HP_CALCLULATION_CONTEXTS[hpChangeProperties.hpChangeSource.category];

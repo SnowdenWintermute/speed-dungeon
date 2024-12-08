@@ -50,5 +50,5 @@ export function getMostEffectiveHpChangeSourceCategoryOnTargetAvailableOnThisWea
     }
   }
 
-  return mostDamaging?.source.category || null;
+  return mostDamaging?.source.category !== undefined ? mostDamaging.source.category : null;
 }
