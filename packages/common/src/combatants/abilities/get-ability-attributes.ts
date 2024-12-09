@@ -4,7 +4,11 @@ import {
   CombatActionHpChangeProperties,
   ActionUsableContext,
 } from "../../combat/combat-actions/combat-action-properties.js";
-import { OFF_HAND_ACCURACY_MODIFIER, OFF_HAND_DAMAGE_MODIFIER } from "../../app-consts.js";
+import {
+  OFF_HAND_ACCURACY_MODIFIER,
+  OFF_HAND_CRIT_CHANCE_MODIFIER,
+  OFF_HAND_DAMAGE_MODIFIER,
+} from "../../app-consts.js";
 import {
   HpChangeSource,
   HpChangeSourceCategory,
@@ -60,6 +64,7 @@ const ATTACK_MELEE_OFF_HAND = (() => {
   hpChangeProperties.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Strength, 100];
   hpChangeProperties.critChanceAttribute = CombatAttribute.Dexterity;
   hpChangeProperties.critMultiplierAttribute = CombatAttribute.Strength;
+  hpChangeProperties.critChanceModifier = OFF_HAND_CRIT_CHANCE_MODIFIER;
   hpChangeProperties.finalDamagePercentMultiplier = OFF_HAND_DAMAGE_MODIFIER;
   return attributes;
 })();

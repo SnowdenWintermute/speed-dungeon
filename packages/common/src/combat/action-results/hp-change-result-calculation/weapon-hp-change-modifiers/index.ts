@@ -17,6 +17,7 @@ export function applyWeaponHpChangeModifiers(
 ) {
   const { hpChangeSource } = hpChangeProperties;
 
+  // modify so an ability gets all weapon modifiers from the same weapon
   // collect category, kinetic and element from each weapons source
   // compare rolled expected avg value with each source
   // select best
@@ -75,9 +76,8 @@ export function applyWeaponKineticTypeToHpChangeSource(
   weaponPropertiesOption: undefined | WeaponProperties,
   targetProperties: CombatantProperties
 ) {
-  if (!weaponPropertiesOption) {
-    return console.log("no weapon to add kinetic for");
-  }
+  if (!weaponPropertiesOption) return;
+
   const typeToAddOption = getMostEffectiveWeaponKineticTypeOnTarget(
     weaponPropertiesOption,
     targetProperties

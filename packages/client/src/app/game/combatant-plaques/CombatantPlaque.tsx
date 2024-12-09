@@ -132,7 +132,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
         </div>
       </div>
       <div
-        className={`w-96 h-fit border bg-slate-700 flex p-2.5 relative box-border ${conditionalBorder} ${lockedUiState}`}
+        className={`w-[23rem] h-fit border bg-slate-700 flex p-2.5 relative box-border ${conditionalBorder} ${lockedUiState}`}
         ref={combatantPlaqueRef}
       >
         <TargetingIndicators party={party} entityId={entityId} />

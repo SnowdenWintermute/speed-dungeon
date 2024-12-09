@@ -19,6 +19,7 @@ import {
   applyWeaponHpChangeModifiers,
   Battle,
   getCombatActionTargetIds,
+  CombatAttribute,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
@@ -27,6 +28,7 @@ import { getActionHitChance, getActionCritChance } from "@speed-dungeon/common";
 import React from "react";
 import AccuracyIcon from "../../../../public/img/hp-change-source-icons/accuracy.svg";
 import CritChanceIcon from "../../../../public/img/hp-change-source-icons/crit-chance.svg";
+import { getTargetOption } from "@/utils/get-target-option";
 
 export default function CharacterSheetWeaponDamage({ combatant }: { combatant: Combatant }) {
   const { combatantProperties } = combatant;
@@ -105,12 +107,10 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
       </div>
       <div className="w-full flex justify-between items-center">
         <span>{"Accuracy "}</span>
-        <AccuracyIcon className="h-5 w-5 stroke-zinc-300" />
         <span>{hitChance.toFixed(0)}%</span>
       </div>
       <div className="w-full flex justify-between items-center">
         <span>{"Crit chance "}</span>
-        <CritChanceIcon className="h-5 w-5 fill-zinc-300" />
         <span>{critChance.toFixed(0)}%</span>
       </div>
     </div>
@@ -123,7 +123,7 @@ function getAttackAbilityDamageAndAccuracy(
   isOffHand: boolean
 ) {
   let abilityName = isOffHand ? AbilityName.AttackMeleeOffhand : AbilityName.AttackMeleeMainhand;
-  const { entityProperties, combatantProperties } = combatant;
+  const { combatantProperties } = combatant;
 
   if (weaponOption) {
     const weaponProperties = weaponOption;
@@ -194,7 +194,7 @@ function getAttackAbilityDamageAndAccuracy(
   const hitChance = getActionHitChance(
     attackActionPropertiesResult,
     combatantProperties,
-    0,
+    CombatantProperties.getTotalAttributes(target)[CombatAttribute.Evasion],
     !!attackActionPropertiesResult.hpChangeProperties.hpChangeSource.unavoidable,
     false
   );
@@ -202,50 +202,4 @@ function getAttackAbilityDamageAndAccuracy(
   const critChance = getActionCritChance(hpChangeProperties, combatantProperties, target, false);
 
   return { hpChangeRange, hitChance, critChance };
-}
-
-function getTargetOption(
-  gameOption: null | SpeedDungeonGame,
-  user: Combatant,
-  combatAction: CombatAction
-) {
-  const { combatActionTarget } = user.combatantProperties;
-  const userId = user.entityProperties.id;
-  if (!gameOption || !combatActionTarget) return undefined;
-  const game = gameOption;
-  const partyResult = useGameStore().getParty();
-  if (partyResult instanceof Error) return undefined;
-  const battleOption = partyResult.battleId ? game.battles[partyResult.battleId]!! : null;
-
-  const allyIds = (() => {
-    if (battleOption) {
-      const result = Battle.getAllyIdsAndOpponentIdsOption(battleOption, userId);
-      if (result instanceof Error) return partyResult.characterPositions;
-      return result.allyIds;
-    }
-    return partyResult.characterPositions;
-  })();
-
-  const actionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
-    user.combatantProperties,
-    combatAction
-  );
-  if (actionPropertiesResult instanceof Error) return actionPropertiesResult;
-  const combatActionProperties = actionPropertiesResult;
-
-  const targetIdsResult = getCombatActionTargetIds(
-    partyResult,
-    combatActionProperties,
-    userId,
-    allyIds,
-    battleOption,
-    combatActionTarget
-  );
-  if (targetIdsResult instanceof Error) return undefined;
-  const targetIds = targetIdsResult;
-  const firstTargetIdOption = targetIds[0];
-  if (firstTargetIdOption === undefined) return undefined;
-  const firstTargetCombatant = SpeedDungeonGame.getCombatantById(game, firstTargetIdOption);
-  if (firstTargetCombatant instanceof Error) return undefined;
-  return firstTargetCombatant.combatantProperties;
 }

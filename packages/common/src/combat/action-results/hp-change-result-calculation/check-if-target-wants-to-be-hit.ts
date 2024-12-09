@@ -1,10 +1,11 @@
 import { CombatantProperties, CombatantTraitType } from "../../../combatants/index.js";
 import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";
 
-export default function checkIfTargetWantsToBeHit(
+export function checkIfTargetWantsToBeHit(
   targetCombatantProperties: CombatantProperties,
-  hpChangeProperties: CombatActionHpChangeProperties
+  hpChangeProperties?: CombatActionHpChangeProperties
 ) {
+  if (!hpChangeProperties) return true;
   const isUndead = CombatantProperties.hasTraitType(
     targetCombatantProperties,
     CombatantTraitType.Undead

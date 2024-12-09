@@ -22,7 +22,8 @@ export function getActionCritChance(
   const targetAvoidaceAttributeValue = targetAttributes[CombatAttribute.Resilience];
 
   const targetCritAvoidance = targetWantsToBeHit ? 0 : targetAvoidaceAttributeValue;
-  const critChance = userCritChanceAttributeValue - targetCritAvoidance + BASE_CRIT_CHANCE;
+  let critChance = userCritChanceAttributeValue - targetCritAvoidance + BASE_CRIT_CHANCE;
+  critChance *= (hpChangeProperties.critChanceModifier || 100) / 100;
 
-  return Math.max(0, Math.min(MAX_CRIT_CHANCE, critChance));
+  return Math.floor(Math.max(0, Math.min(MAX_CRIT_CHANCE, critChance)));
 }

@@ -44,6 +44,7 @@ export class CombatActionHpChangeProperties {
   addWeaponKineticDamageTypeFromSlot: null | WeaponSlot = null;
   additiveAttributeAndPercentScalingFactor: null | [CombatAttribute, number] = null;
   critChanceAttribute: null | CombatAttribute = null;
+  critChanceModifier: null | number = null;
   critMultiplierAttribute: null | CombatAttribute = null;
   constructor(public hpChangeSource: HpChangeSource) {}
 }

@@ -13,7 +13,7 @@ import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-targ
 import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app-consts.js";
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { HpChange } from "../../hp-change-source-types.js";
-import checkIfTargetWantsToBeHit from "./check-if-target-wants-to-be-hit.js";
+import { checkIfTargetWantsToBeHit } from "./check-if-target-wants-to-be-hit.js";
 import { getActionHitChance } from "./get-action-hit-chance.js";
 import { applyCritMultiplier } from "./apply-crit-multiplier-to-hp-change.js";
 import {
@@ -29,6 +29,7 @@ export * from "./weapon-hp-change-modifiers/index.js";
 export * from "./get-action-hit-chance.js";
 export * from "./get-action-crit-chance.js";
 export * from "./hp-change-calculation-strategies/index.js";
+export * from "./check-if-target-wants-to-be-hit.js";
 
 export default function calculateActionHitPointChangesAndEvasions(
   game: SpeedDungeonGame,
@@ -119,21 +120,21 @@ export default function calculateActionHitPointChangesAndEvasions(
       targetWantsToBeHit
     );
 
-    const hitRoll = randBetween(0, 100);
-
-    const isHit = hitRoll <= percentChanceToHit;
-
-    if (!isHit) {
-      evasions.push(id);
-      continue;
-    }
-
     const percentChanceToCrit = getActionCritChance(
       hpChangeProperties,
       userCombatantProperties,
       targetCombatantProperties,
       targetWantsToBeHit
     );
+
+    ///////////////////////////////////////////////////
+
+    const isHit = randBetween(0, 100) <= percentChanceToHit;
+
+    if (!isHit) {
+      evasions.push(id);
+      continue;
+    }
 
     hpChange.isCrit = randBetween(0, 100) < percentChanceToCrit;
 

@@ -10,7 +10,7 @@ export default function TooltipManager() {
   const { x, y } = tooltipPosition;
   return (
     <div className="absolute z-40" style={{ top: `${y}px`, left: `${x}px` }} ref={tooltipRef}>
-      <div className="border border-slate-400 bg-slate-950 text-zinc-300 p-2 -translate-x-1/2 -translate-y-[100%]">
+      <div className="border border-slate-400 bg-slate-950 text-zinc-300 p-2 -translate-x-1/2 -translate-y-[100%] max-w-96">
         {tooltipText}
       </div>
     </div>

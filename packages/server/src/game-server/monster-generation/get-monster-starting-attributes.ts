@@ -18,6 +18,7 @@ export default function getMonsterStartingAttributes(
       attributes[CombatAttribute.Strength] = 3.0;
       attributes[CombatAttribute.Dexterity] = 1.0;
       attributes[CombatAttribute.Vitality] = 2.0;
+      attributes[CombatAttribute.Resilience] = 4.0;
       attributes[CombatAttribute.Hp] = 1.0;
       attributes[CombatAttribute.Agility] = 0.5;
       attributes[CombatAttribute.Accuracy] = 60.0;
