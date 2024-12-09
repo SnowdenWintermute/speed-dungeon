@@ -1,8 +1,4 @@
-import {
-  DERIVED_ATTRIBUTE_RATIOS,
-  DEX_TO_RANGED_ARMOR_PEN_RATIO,
-  STR_TO_MELEE_ARMOR_PEN_RATIO,
-} from "../app-consts.js";
+import { DEX_TO_RANGED_ARMOR_PEN_RATIO, STR_TO_MELEE_ARMOR_PEN_RATIO } from "../app-consts.js";
 import { Item, WeaponSlot } from "../items/index.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { EquipmentProperties } from "../items/equipment/equipment-properties/index.js";
@@ -10,6 +6,25 @@ import { EquipmentType } from "../items/equipment/equipment-types/index.js";
 import { ItemPropertiesType } from "../items/item-properties.js";
 import { CombatAttribute } from "./combat-attributes.js";
 import { CombatantAttributeRecord, CombatantProperties } from "./combatant-properties.js";
+
+// ATTRIBUTES
+export const DERIVED_ATTRIBUTE_RATIOS: Partial<
+  Record<CombatAttribute, Partial<Record<CombatAttribute, number>>>
+> = {
+  [CombatAttribute.Dexterity]: {
+    [CombatAttribute.Accuracy]: 2,
+  },
+  [CombatAttribute.Intelligence]: {
+    [CombatAttribute.Mp]: 2,
+  },
+  [CombatAttribute.Agility]: {
+    [CombatAttribute.Evasion]: 2,
+    [CombatAttribute.Speed]: 1,
+  },
+  [CombatAttribute.Vitality]: {
+    [CombatAttribute.Hp]: 2,
+  },
+};
 
 function initializeCombatAttributeRecord() {
   const allAttributesAsZero: CombatantAttributeRecord = {};

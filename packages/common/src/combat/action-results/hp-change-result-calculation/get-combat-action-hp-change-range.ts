@@ -33,11 +33,13 @@ export function getCombatActionHpChangeRange(
   scaleRangeToActionLevel(hpChangeRange, actionLevel, actionLevelHpChangeModifier);
   applyAdditiveAttributeToRange(hpChangeRange, userCombatantProperties, hpChangeProperties);
 
-  const weaponsToAddDamageFrom: Partial<Record<WeaponSlot, Item>> = {};
+  const weaponsToAddDamageFrom: Partial<
+    Record<WeaponSlot, { item: Item; weaponProperties: WeaponProperties }>
+  > = {};
   for (const slot of hpChangeProperties.addWeaponDamageFromSlots || []) {
     const weapon = equippedUsableWeapons[slot];
     if (!weapon) continue;
-    weaponsToAddDamageFrom[slot] = weapon.item;
+    weaponsToAddDamageFrom[slot] = weapon;
   }
 
   addWeaponsDamageToRange(weaponsToAddDamageFrom, hpChangeRange);

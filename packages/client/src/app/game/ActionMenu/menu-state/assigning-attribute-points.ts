@@ -8,8 +8,8 @@ import {
 } from ".";
 import {
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
+  COMBAT_ATTRIBUTE_STRINGS,
   ClientToServerEvent,
-  formatCombatAttribute,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -46,7 +46,7 @@ export class AssigningAttributePointsMenuState implements ActionMenuState {
     toReturn[ActionButtonCategory.Top].push(cancelButton);
 
     for (const attribute of ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES) {
-      const button = new ActionMenuButtonProperties(formatCombatAttribute(attribute), () => {
+      const button = new ActionMenuButtonProperties(COMBAT_ATTRIBUTE_STRINGS[attribute], () => {
         websocketConnection.emit(ClientToServerEvent.IncrementAttribute, {
           characterId,
           attribute,

@@ -1,9 +1,9 @@
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { useGameStore } from "@/stores/game-store";
 import {
+  COMBAT_ATTRIBUTE_STRINGS,
   CombatAttribute,
   CombatantAttributeRecord,
-  formatCombatAttribute,
 } from "@speed-dungeon/common";
 import React from "react";
 
@@ -28,7 +28,7 @@ export default function ItemRequirements({ attributeRequirements }: Props) {
       <div
         key={i}
         className={`${unmetRequirementStyles}`}
-      >{`${requirementValue} ${formatCombatAttribute(attribute)}`}</div>
+      >{`${requirementValue} ${COMBAT_ATTRIBUTE_STRINGS[attribute]}`}</div>
     );
 
     i += 1;

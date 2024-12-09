@@ -1,22 +1,25 @@
-import { EquipmentProperties, Item, WeaponSlot } from "../../../../items/index.js";
+import {
+  EquipmentProperties,
+  Item,
+  WeaponProperties,
+  WeaponSlot,
+} from "../../../../items/index.js";
 import { NumberRange } from "../../../../primatives/index.js";
 
 export function addWeaponsDamageToRange(
-  weapons: Partial<Record<WeaponSlot, Item>>,
+  weapons: Partial<Record<WeaponSlot, { item: Item; weaponProperties: WeaponProperties }>>,
   range: NumberRange
 ) {
-  for (const weapon of Object.values(weapons)) {
-    const equipmentProperties = Item.getEquipmentProperties(weapon);
+  for (const { item, weaponProperties } of Object.values(weapons)) {
+    const equipmentProperties = Item.getEquipmentProperties(item);
     if (equipmentProperties instanceof Error) continue;
 
-    const weaponDamageResult =
-      EquipmentProperties.getModifiedWeaponDamageRange(equipmentProperties);
-    if (weaponDamageResult instanceof Error) {
-      console.error(weaponDamageResult);
-      continue;
-    }
+    const weaponDamage = EquipmentProperties.getModifiedWeaponDamageRange(
+      equipmentProperties.affixes,
+      weaponProperties.damage
+    );
 
-    range.min += weaponDamageResult.min;
-    range.max += weaponDamageResult.max;
+    range.min += weaponDamage.min;
+    range.max += weaponDamage.max;
   }
 }

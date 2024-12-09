@@ -232,6 +232,7 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         delete template.possibleAffixes.suffix[SuffixType.Damage];
         delete template.possibleAffixes.suffix[SuffixType.Dexterity];
         delete template.possibleAffixes.suffix[SuffixType.Strength];
+        template.possibleAffixes.prefix[PrefixType.Mp] = 5;
         break;
       default:
     }

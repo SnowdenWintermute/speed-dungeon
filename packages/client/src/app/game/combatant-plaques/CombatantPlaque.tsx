@@ -1,4 +1,4 @@
-import { useGameStore } from "@/stores/game-store";
+import { getCurrentMenu, inventoryItemsMenuState, useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import getGameAndParty from "@/utils/getGameAndParty";
 import React, { useEffect, useRef, useState } from "react";
@@ -21,6 +21,7 @@ import setFocusedCharacter from "@/utils/set-focused-character";
 import { AssigningAttributePointsMenuState } from "../ActionMenu/menu-state/assigning-attribute-points";
 import CombatantFloatingMessagesDisplay from "./combatant-floating-messages-display";
 import BackpackIcon from "../../../../public/img/game-ui-icons/backpack.svg";
+import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
 
 interface Props {
   combatant: Combatant;
@@ -138,8 +139,26 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
         ref={combatantPlaqueRef}
       >
         {isPartyMember && (
-          <button className="absolute -bottom-1 -left-1 p-1 h-8 w-8 bg-slate-700 border border-slate-400">
-            <BackpackIcon className="fill-zinc-300 h-full w-full" />
+          <button
+            className="absolute -bottom-1 -left-1 p-1 h-8 w-8 bg-slate-700 border border-slate-400"
+            onClick={() => {
+              mutateGameState((state) => {
+                let switchedFocusedCharacter = false;
+                if (state.focusedCharacterId !== entityId) {
+                  state.focusedCharacterId = entityId;
+                  switchedFocusedCharacter = true;
+                }
+                if (
+                  shouldShowCharacterSheet(getCurrentMenu(state).type) &&
+                  !switchedFocusedCharacter
+                )
+                  state.stackedMenuStates = [];
+                else if (!shouldShowCharacterSheet(getCurrentMenu(state).type))
+                  state.stackedMenuStates.push(inventoryItemsMenuState);
+              });
+            }}
+          >
+            <BackpackIcon className="fill-slate-400 h-full w-full" />
           </button>
         )}
         <TargetingIndicators party={party} entityId={entityId} />

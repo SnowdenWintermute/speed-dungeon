@@ -22,25 +22,6 @@ export const BASE_XP_LEVEL_DIFF_MULTIPLIER = 0.25;
 // EQUIPMENT
 export const TWO_HANDED_WEAPON_ATTRIBUTE_MULTIPLIER = 1.75;
 
-// ATTRIBUTES
-export const DERIVED_ATTRIBUTE_RATIOS: Partial<
-  Record<CombatAttribute, Partial<Record<CombatAttribute, number>>>
-> = {
-  [CombatAttribute.Dexterity]: {
-    [CombatAttribute.Accuracy]: 2,
-  },
-  [CombatAttribute.Intelligence]: {
-    [CombatAttribute.Mp]: 2,
-  },
-  [CombatAttribute.Agility]: {
-    [CombatAttribute.Evasion]: 2,
-    [CombatAttribute.Speed]: 1,
-  },
-  [CombatAttribute.Vitality]: {
-    [CombatAttribute.Hp]: 2,
-  },
-};
-
 export const DEX_TO_RANGED_ARMOR_PEN_RATIO = 1;
 export const STR_TO_MELEE_ARMOR_PEN_RATIO = 1;
 export const FOCUS_TO_CRIT_CHANCE_RATIO = 0.5;

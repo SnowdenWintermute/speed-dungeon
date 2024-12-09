@@ -23,12 +23,12 @@ export class JewelryGenerationTemplate extends EquipmentGenerationTemplate {
     for (const prefix of iterateNumericEnum(PrefixType)) {
       switch (prefix) {
         case PrefixType.ArmorClass:
+        case PrefixType.PercentDamage:
           break;
         case PrefixType.Mp:
         case PrefixType.Resilience:
         case PrefixType.Evasion:
         case PrefixType.Accuracy:
-        case PrefixType.PercentDamage:
         case PrefixType.LifeSteal:
         case PrefixType.ArmorPenetration:
         case PrefixType.Agility:

@@ -1,9 +1,8 @@
 import {
+  COMBAT_ATTRIBUTE_STRINGS,
   CORE_ATTRIBUTES,
-  CombatAttribute,
   EquipmentProperties,
   EquipmentTraitType,
-  formatCombatAttribute,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { Affix, AffixType, PrefixType, SuffixType } from "@speed-dungeon/common";
@@ -49,7 +48,7 @@ export default function CombatAttributesAndTraits({ equipmentProperties }: Props
   equipmentModDisplaysInPrefixSuffixOrder.push(...affixBonusText[AffixType.Suffix].traits);
 
   return (
-    <div>
+    <div className="text-blue-300">
       {equipmentModDisplaysInPrefixSuffixOrder.map((text, i) => (
         <div key={text + i}>{text}</div>
       ))}
@@ -78,7 +77,7 @@ function formatAffixCombatAttributeBonuses(
     toReturn.push(`+${lastCoreAttributeValue} to core attributes`);
   } else {
     for (const [attribute, value] of iterateNumericEnumKeyedRecord(affix.combatAttributes)) {
-      toReturn.push(`+${value} ${formatCombatAttribute(attribute)}`);
+      toReturn.push(`+${value} ${COMBAT_ATTRIBUTE_STRINGS[attribute]}`);
     }
   }
 
@@ -89,14 +88,17 @@ function formatAffixEquipmentTraits(affix: Affix): string[] {
   const toReturn = [];
   for (const equipmentTrait of Object.values(affix.equipmentTraits)) {
     switch (equipmentTrait.equipmentTraitType) {
+      case EquipmentTraitType.FlatDamageAdditive:
+        toReturn.push(`+${equipmentTrait.value} weapon damage`);
+        break;
       case EquipmentTraitType.ArmorClassPercentage:
-        toReturn.push(`+ ${equipmentTrait.percentage}% armor class`);
+        toReturn.push(`+${equipmentTrait.value}% armor class`);
         break;
       case EquipmentTraitType.LifeSteal:
-        toReturn.push(`Heal ${equipmentTrait.percentage}% of damage dealt on hit`);
+        toReturn.push(`Heal ${equipmentTrait.value}% of damage dealt on hit`);
         break;
       case EquipmentTraitType.DamagePercentage:
-        toReturn.push(`+ ${equipmentTrait.percentage}% weapon damage`);
+        toReturn.push(`+${equipmentTrait.value}% weapon damage`);
         break;
     }
   }

@@ -6,8 +6,8 @@ import {
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
   CombatAttribute,
   ClientToServerEvent,
-  formatCombatAttribute,
-  getCombatAttributeDescription,
+  COMBAT_ATTRIBUTE_DESCRIPTIONS,
+  COMBAT_ATTRIBUTE_STRINGS,
 } from "@speed-dungeon/common";
 
 interface Props {
@@ -33,11 +33,11 @@ export function AttributeListItem(props: Props) {
     <li className={`flex justify-between ${highlightClass}`}>
       <span className="flex">
         <span className="inline-block h-6 w-6 whitespace-nowrap text-ellipsis overflow-hidden">
-          <HoverableTooltipWrapper tooltipText={getCombatAttributeDescription(props.attribute)}>
+          <HoverableTooltipWrapper tooltipText={COMBAT_ATTRIBUTE_DESCRIPTIONS[props.attribute]}>
             <span className="cursor-help h-full w-full inline-block">{"ⓘ "}</span>
           </HoverableTooltipWrapper>
         </span>
-        {formatCombatAttribute(props.attribute)}
+        {COMBAT_ATTRIBUTE_STRINGS[props.attribute]}
       </span>
       <span>
         <span>{Math.floor(props.value)}</span>

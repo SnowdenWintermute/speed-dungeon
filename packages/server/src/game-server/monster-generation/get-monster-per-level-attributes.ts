@@ -6,7 +6,6 @@ export default function getMonsterPerLevelAttributes(
   const attributes: CombatantAttributeRecord = {};
   switch (monsterType) {
     case MonsterType.Zombie:
-      attributes[CombatAttribute.Damage] = 4.0;
       attributes[CombatAttribute.Strength] = 3.0;
       attributes[CombatAttribute.Dexterity] = 1.0;
       attributes[CombatAttribute.Vitality] = 2.0;
@@ -16,7 +15,6 @@ export default function getMonsterPerLevelAttributes(
       attributes[CombatAttribute.ArmorClass] = 10.0;
 
     case MonsterType.SkeletonArcher:
-      attributes[CombatAttribute.Damage] = 3.0;
       attributes[CombatAttribute.Dexterity] = 3.0;
       attributes[CombatAttribute.Vitality] = 1.0;
       attributes[CombatAttribute.Hp] = 5.5;
@@ -24,7 +22,6 @@ export default function getMonsterPerLevelAttributes(
       attributes[CombatAttribute.ArmorClass] = 5.0;
 
     case MonsterType.Scavenger:
-      attributes[CombatAttribute.Damage] = 3.0;
       attributes[CombatAttribute.Dexterity] = 2.0;
       attributes[CombatAttribute.Strength] = 2.0;
       attributes[CombatAttribute.Vitality] = 1.5;
@@ -34,7 +31,6 @@ export default function getMonsterPerLevelAttributes(
       attributes[CombatAttribute.ArmorClass] = 7.5;
 
     case MonsterType.Vulture:
-      attributes[CombatAttribute.Damage] = 3.0;
       attributes[CombatAttribute.Dexterity] = 2.5;
       attributes[CombatAttribute.Strength] = 1.5;
       attributes[CombatAttribute.Vitality] = 1.5;
@@ -77,7 +73,6 @@ export default function getMonsterPerLevelAttributes(
       attributes[CombatAttribute.Agility] = 1.5;
 
     case MonsterType.MetallicGolem:
-      attributes[CombatAttribute.Damage] = 3.0;
       attributes[CombatAttribute.Vitality] = 2.0;
       attributes[CombatAttribute.ArmorClass] = 15.0;
       attributes[CombatAttribute.Hp] = 9.5;

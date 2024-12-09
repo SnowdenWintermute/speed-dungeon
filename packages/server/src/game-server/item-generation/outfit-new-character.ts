@@ -25,6 +25,7 @@ import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { idGenerator } from "../../singletons.js";
 import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
+import { HP_ARMOR_TEST_ITEM, WEAPON_TEST_ITEM } from "./test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -65,55 +66,22 @@ export default function outfitNewCharacter(character: Combatant) {
   // FOR TESTING INVENTORY
   // generateTestItems(combatantProperties, 6);
 
-  giveTestingCombatAttributes(combatantProperties);
+  // giveTestingCombatAttributes(combatantProperties);
   // combatantProperties.level = 5;
 
   combatantProperties.abilities[AbilityName.Destruction] = CombatantAbility.createByName(
     AbilityName.Destruction
   );
 
-  const items = generateOneOfEachItem();
-  combatantProperties.inventory.items.push(...items);
+  // const items = generateOneOfEachItem();
+  // combatantProperties.inventory.items.push(...items);
   combatantProperties.unspentAttributePoints = 100;
 
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
-  const TEST_ARMOR_EQUIPMENT_PROPERTIES = new EquipmentProperties(
-    {
-      type: EquipmentType.BodyArmor,
-      baseItem: BodyArmor.GothicPlate,
-      armorClass: 1,
-      armorCategory: ArmorCategory.Plate,
-    },
-    new MaxAndCurrent(1, 1)
-  );
-
-  TEST_ARMOR_EQUIPMENT_PROPERTIES.affixes[AffixType.Suffix] = {
-    [SuffixType.Hp]: {
-      combatAttributes: { [CombatAttribute.Hp]: 4 },
-      equipmentTraits: {},
-      tier: 1,
-    },
-  };
-  TEST_ARMOR_EQUIPMENT_PROPERTIES.affixes[AffixType.Prefix] = {
-    [PrefixType.Mp]: {
-      combatAttributes: { [CombatAttribute.Mp]: 4 },
-      equipmentTraits: {},
-      tier: 1,
-    },
-  };
-
-  const HP_ARMOR_TEST_ITEM = new Item(
-    { id: idGenerator.generate(), name: "hp armor less" },
-    0,
-    {},
-    {
-      type: ItemPropertiesType.Equipment,
-      equipmentProperties: TEST_ARMOR_EQUIPMENT_PROPERTIES,
-    }
-  );
 
   combatantProperties.inventory.items.push(HP_ARMOR_TEST_ITEM);
+  combatantProperties.inventory.items.push(WEAPON_TEST_ITEM);
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
   // TESTING

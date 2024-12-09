@@ -28,7 +28,7 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
       mainhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.RuneSword,
+          baseItemType: OneHandedMeleeWeapon.Stick,
         },
         true
       );
@@ -41,8 +41,8 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
     case CombatantClass.Mage:
       mainhand = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.EtherBlade,
+          equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+          baseItemType: TwoHandedMeleeWeapon.RottingBranch,
         },
         true
       );
@@ -50,18 +50,18 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
     case CombatantClass.Rogue:
       mainhand = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-          baseItemType: TwoHandedMeleeWeapon.Trident,
+          equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: OneHandedMeleeWeapon.ButterKnife,
         },
         true
       );
-      // offhand = generateSpecificEquipmentType(
-      //   {
-      //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      //     baseItemType: OneHandedMeleeWeapon.RuneSword,
-      //   },
-      //   true
-      // );
+      offhand = generateSpecificEquipmentType(
+        {
+          equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: OneHandedMeleeWeapon.RuneSword,
+        },
+        true
+      );
       break;
   }
 
@@ -70,43 +70,6 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
 
   if (mainhand) startingEquipment[EquipmentSlot.MainHand] = mainhand;
   if (offhand) startingEquipment[EquipmentSlot.OffHand] = offhand;
-
-  const TEST_ARMOR_EQUIPMENT_PROPERTIES = new EquipmentProperties(
-    {
-      type: EquipmentType.BodyArmor,
-      baseItem: BodyArmor.GothicPlate,
-      armorClass: 1,
-      armorCategory: ArmorCategory.Plate,
-    },
-    new MaxAndCurrent(1, 1)
-  );
-
-  TEST_ARMOR_EQUIPMENT_PROPERTIES.affixes[AffixType.Suffix] = {
-    [SuffixType.Hp]: {
-      combatAttributes: { [CombatAttribute.Hp]: 10 },
-      equipmentTraits: {},
-      tier: 1,
-    },
-  };
-  TEST_ARMOR_EQUIPMENT_PROPERTIES.affixes[AffixType.Prefix] = {
-    [PrefixType.Mp]: {
-      combatAttributes: { [CombatAttribute.Mp]: 10 },
-      equipmentTraits: {},
-      tier: 1,
-    },
-  };
-
-  const HP_ARMOR_TEST_ITEM = new Item(
-    { id: idGenerator.generate(), name: "hp armor" },
-    0,
-    {},
-    {
-      type: ItemPropertiesType.Equipment,
-      equipmentProperties: TEST_ARMOR_EQUIPMENT_PROPERTIES,
-    }
-  );
-
-  startingEquipment[EquipmentSlot.Body] = HP_ARMOR_TEST_ITEM;
 
   return startingEquipment;
 }

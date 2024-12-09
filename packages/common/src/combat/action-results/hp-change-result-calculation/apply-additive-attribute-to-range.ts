@@ -1,5 +1,5 @@
 import { COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER } from "../../../app-consts.js";
-import { CombatantProperties, formatCombatAttribute } from "../../../combatants/index.js";
+import { CombatantProperties } from "../../../combatants/index.js";
 import { NumberRange } from "../../../primatives/index.js";
 import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";
 
