@@ -16,6 +16,8 @@ import { CombatActionType } from "../index.js";
 import applyConsumableUseToActionResult from "./apply-consumable-use-to-action-result.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import calculateActionHitPointChangesAndEvasions from "./hp-change-result-calculation/index.js";
+import { getCombatActionTargetIds } from "./get-action-target-ids.js";
+export * from "./get-action-target-ids.js";
 
 export default function calculateActionResult(
   game: SpeedDungeonGame,
@@ -36,7 +38,18 @@ export default function calculateActionResult(
   const combatActionProperties = actionPropertiesResult;
   actionResult.endsTurn = combatActionProperties.requiresCombatTurn;
 
-  const targetIdsResult = ActionResultCalculator.getCombatActionTargetIds(game, args);
+  const partyResult = SpeedDungeonGame.getPartyOfCombatant(game, userId);
+  if (partyResult instanceof Error) return partyResult;
+
+  const targetIdsResult = getCombatActionTargetIds(
+    partyResult,
+    combatActionProperties,
+    userId,
+    args.allyIds,
+    args.battleOption,
+    targets
+  );
+
   if (targetIdsResult instanceof Error) return targetIdsResult;
   const targetIds = targetIdsResult;
   actionResult.targetIds = targetIds;

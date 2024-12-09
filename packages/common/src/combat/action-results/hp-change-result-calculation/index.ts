@@ -23,9 +23,11 @@ import {
 import { applyWeaponHpChangeModifiers } from "./weapon-hp-change-modifiers/index.js";
 import { WeaponSlot } from "../../../items/index.js";
 import { getCombatActionHpChangeRange } from "./get-combat-action-hp-change-range.js";
+import { getActionCritChance } from "./get-action-crit-chance.js";
 export * from "./get-combat-action-hp-change-range.js";
 export * from "./weapon-hp-change-modifiers/index.js";
 export * from "./get-action-hit-chance.js";
+export * from "./get-action-crit-chance.js";
 export * from "./hp-change-calculation-strategies/index.js";
 
 export default function calculateActionHitPointChangesAndEvasions(
@@ -126,7 +128,8 @@ export default function calculateActionHitPointChangesAndEvasions(
       continue;
     }
 
-    const percentChanceToCrit = hpChangeCalculationContext.getActionCritChance(
+    const percentChanceToCrit = getActionCritChance(
+      hpChangeProperties,
       userCombatantProperties,
       targetCombatantProperties,
       targetWantsToBeHit

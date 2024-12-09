@@ -1,4 +1,5 @@
 import {
+  DERIVED_ATTRIBUTE_RATIOS,
   RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO,
   RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO,
 } from "../app-consts.js";
@@ -112,8 +113,8 @@ export function getCombatAttributeDescription(attribute: CombatAttribute) {
     case CombatAttribute.Vitality:
       return "Increases hit points";
     case CombatAttribute.Resilience:
-      return `Reduces magical damage by ${RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO}% and increases healing received from magical sources by ${RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO}% per point`;
+      return `Reduces magical damage by ${RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO}%, increases healing received from magical sources by ${RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO}% and reduces the chance of unwanted critical strikes by 1% per point`;
     case CombatAttribute.Agility:
-      return "Increases evasion and speed and reduces the crit chance of unwanted physical effects against you";
+      return `Increases evasion and speed`;
   }
 }

@@ -10,7 +10,6 @@ import {
   EquipmentSlot,
   WeaponSlot,
   getCombatActionHpChangeRange,
-  HP_CALCLULATION_CONTEXTS,
   ActionResultCalculator,
   SpeedDungeonGame,
   CombatActionTarget,
@@ -19,12 +18,12 @@ import {
   CombatantSpecies,
   applyWeaponHpChangeModifiers,
   Battle,
-  HP_CHANGE_SOURCE_CATEGORY_STRINGS,
+  getCombatActionTargetIds,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
-import { getActionHitChance } from "@speed-dungeon/common";
+import { getActionHitChance, getActionCritChance } from "@speed-dungeon/common";
 import React from "react";
 import AccuracyIcon from "../../../../public/img/hp-change-source-icons/accuracy.svg";
 import CritChanceIcon from "../../../../public/img/hp-change-source-icons/crit-chance.svg";
@@ -104,12 +103,12 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
         <span>{props.label}</span>
         <span>{`${hpChangeRange.min}-${hpChangeRange.max}`}</span>
       </div>
-      <div className="w-full flex justify-between">
+      <div className="w-full flex justify-between items-center">
         <span>{"Accuracy "}</span>
-        <AccuracyIcon className="h-5 w-5 fill-zinc-300" />
+        <AccuracyIcon className="h-5 w-5 stroke-zinc-300" />
         <span>{hitChance.toFixed(0)}%</span>
       </div>
-      <div className="w-full flex justify-between">
+      <div className="w-full flex justify-between items-center">
         <span>{"Crit chance "}</span>
         <CritChanceIcon className="h-5 w-5 fill-zinc-300" />
         <span>{critChance.toFixed(0)}%</span>
@@ -144,13 +143,10 @@ function getAttackAbilityDamageAndAccuracy(
 
   const gameOption = useGameStore.getState().game;
 
+  const targetResult = getTargetOption(gameOption, combatant, combatAction);
+  if (targetResult instanceof Error) return targetResult;
   const target =
-    getTargetOption(
-      gameOption,
-      combatAction,
-      entityProperties.id,
-      combatantProperties.combatActionTarget
-    ) ||
+    targetResult ||
     new CombatantProperties(
       CombatantClass.Warrior,
       CombatantSpecies.Humanoid,
@@ -203,25 +199,19 @@ function getAttackAbilityDamageAndAccuracy(
     false
   );
 
-  console.log(
-    "HP CHANGE SOURCE CATEGORY ",
-    HP_CHANGE_SOURCE_CATEGORY_STRINGS[hpChangeProperties.hpChangeSource.category]
-  );
-
-  const hpCalculationContext = HP_CALCLULATION_CONTEXTS[hpChangeProperties.hpChangeSource.category];
-
-  const critChance = hpCalculationContext.getActionCritChance(combatantProperties, target, false);
+  const critChance = getActionCritChance(hpChangeProperties, combatantProperties, target, false);
 
   return { hpChangeRange, hitChance, critChance };
 }
 
 function getTargetOption(
   gameOption: null | SpeedDungeonGame,
-  combatAction: CombatAction,
-  userId: string,
-  targets: CombatActionTarget | null
+  user: Combatant,
+  combatAction: CombatAction
 ) {
-  if (!gameOption || !targets) return undefined;
+  const { combatActionTarget } = user.combatantProperties;
+  const userId = user.entityProperties.id;
+  if (!gameOption || !combatActionTarget) return undefined;
   const game = gameOption;
   const partyResult = useGameStore().getParty();
   if (partyResult instanceof Error) return undefined;
@@ -236,15 +226,21 @@ function getTargetOption(
     return partyResult.characterPositions;
   })();
 
-  const args = {
-    combatAction,
-    userId,
-    targets,
-    battleOption,
-    allyIds,
-  };
+  const actionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
+    user.combatantProperties,
+    combatAction
+  );
+  if (actionPropertiesResult instanceof Error) return actionPropertiesResult;
+  const combatActionProperties = actionPropertiesResult;
 
-  const targetIdsResult = ActionResultCalculator.getCombatActionTargetIds(game, args);
+  const targetIdsResult = getCombatActionTargetIds(
+    partyResult,
+    combatActionProperties,
+    userId,
+    allyIds,
+    battleOption,
+    combatActionTarget
+  );
   if (targetIdsResult instanceof Error) return undefined;
   const targetIds = targetIdsResult;
   const firstTargetIdOption = targetIds[0];

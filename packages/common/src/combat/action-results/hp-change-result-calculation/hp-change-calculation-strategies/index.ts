@@ -6,11 +6,6 @@ import { MagicalHpChangeCalculationStrategy } from "./magical-hp-change-calulati
 import { PhysicalHpChangeCalculationStrategy } from "./physical-hp-change-calculation-strategy.js";
 
 export interface HpChangeCalculationStrategy {
-  getActionCritChance(
-    user: CombatantProperties,
-    target: CombatantProperties,
-    targetWantsToBeHit: boolean
-  ): number;
   applyArmorClass(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties): void;
   applyResilience(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties): void;
 }
@@ -20,13 +15,6 @@ export class HpChangeCalulationContext implements HpChangeCalculationStrategy {
 
   constructor(hpChangeSourceCategory: HpChangeSourceCategory) {
     this.strategy = this.createStrategy(hpChangeSourceCategory);
-  }
-  getActionCritChance(
-    user: CombatantProperties,
-    target: CombatantProperties,
-    targetWantsToBeHit: boolean
-  ) {
-    return this.strategy.getActionCritChance(user, target, targetWantsToBeHit);
   }
   applyArmorClass(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties) {
     return this.strategy.applyArmorClass(hpChange, user, target);

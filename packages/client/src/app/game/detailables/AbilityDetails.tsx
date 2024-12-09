@@ -7,12 +7,15 @@ import {
   getCombatActionHpChangeRange,
   CombatActionType,
   Combatant,
+  CombatAction,
+  getActionCritChance,
 } from "@speed-dungeon/common";
 import React from "react";
 import CharacterSheetWeaponDamage from "../character-sheet/CharacterSheetWeaponDamage";
 import { NumberRange } from "@speed-dungeon/common";
 import DamageTypeBadge from "./DamageTypeBadge";
 import { ABILITY_ATTRIBUTES } from "@speed-dungeon/common";
+import checkIfTargetWantsToBeHit from "@speed-dungeon/common/src/combat/action-results/hp-change-result-calculation/check-if-target-wants-to-be-hit";
 
 interface Props {
   ability: CombatantAbility;
@@ -34,10 +37,18 @@ export default function AbilityDetails({ ability, combatActionProperties, user }
   const attackDamageDisplay =
     ability.name === AbilityName.Attack ? <CharacterSheetWeaponDamage combatant={user} /> : <></>;
 
+  // checkIfTargetWantsToBeHit()
+
+  // const critChance = getActionCritChance(combatActionProperties.hpChangeProperties, user)
+
   let valueRangeOption: null | NumberRange = null;
+  const combatAction: CombatAction = {
+    type: CombatActionType.AbilityUsed,
+    abilityName: ability.name,
+  };
   if (combatActionProperties.hpChangeProperties) {
     let valueRangeOptionResult = getCombatActionHpChangeRange(
-      { type: CombatActionType.AbilityUsed, abilityName: ability.name },
+      combatAction,
       combatActionProperties.hpChangeProperties,
       userCombatantProperties,
       {}
