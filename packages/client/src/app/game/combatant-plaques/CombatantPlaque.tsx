@@ -100,6 +100,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
 
   const combatantIsDetailed = entityIsDetailed(entityId, detailedEntity);
   const isFocused = focusedCharacterId === entityId;
+  const isPartyMember = party.characterPositions.includes(entityId);
 
   const conditionalBorder = getConditionalBorder(isHovered(), isFocused, combatantIsDetailed);
 
@@ -136,6 +137,11 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
         className={`w-[23rem] h-fit border bg-slate-700 flex p-2.5 relative box-border ${conditionalBorder} ${lockedUiState}`}
         ref={combatantPlaqueRef}
       >
+        {isPartyMember && (
+          <button className="absolute -bottom-1 -left-1 p-1 h-8 w-8 bg-slate-700 border border-slate-400">
+            <BackpackIcon className="fill-zinc-300 h-full w-full" />
+          </button>
+        )}
         <TargetingIndicators party={party} entityId={entityId} />
         <DetailedCombatantInfoCard combatantId={entityId} combatantPlaqueRef={combatantPlaqueRef} />
         <div
