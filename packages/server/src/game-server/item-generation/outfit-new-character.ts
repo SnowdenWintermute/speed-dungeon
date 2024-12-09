@@ -66,6 +66,7 @@ export default function outfitNewCharacter(character: Combatant) {
   // generateTestItems(combatantProperties, 6);
 
   giveTestingCombatAttributes(combatantProperties);
+  // combatantProperties.level = 5;
 
   combatantProperties.abilities[AbilityName.Destruction] = CombatantAbility.createByName(
     AbilityName.Destruction
