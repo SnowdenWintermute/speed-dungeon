@@ -12,6 +12,7 @@ import {
 import {
   HpChangeSource,
   HpChangeSourceCategory,
+  HpChangeSourceModifiers,
   MeleeOrRanged,
 } from "../../combat/hp-change-source-types.js";
 import { MagicalElement } from "../../combat/magical-elements.js";
@@ -32,6 +33,12 @@ const ATTACK = (() => {
   return attributes;
 })();
 
+const allWeaponModifiers = new Set<HpChangeSourceModifiers>([
+  HpChangeSourceModifiers.KineticType,
+  HpChangeSourceModifiers.MagicalElement,
+  HpChangeSourceModifiers.SourceCategory,
+]);
+
 const ATTACK_MELEE_MAIN_HAND = (() => {
   const combatActionProperties = new CombatActionProperties();
   const hpChangeProperties = new CombatActionHpChangeProperties(
@@ -39,9 +46,10 @@ const ATTACK_MELEE_MAIN_HAND = (() => {
   );
   hpChangeProperties.baseValues = new NumberRange(1, 1);
   hpChangeProperties.addWeaponDamageFromSlots = [WeaponSlot.MainHand];
-  hpChangeProperties.addWeaponElementFromSlot = WeaponSlot.MainHand;
-  hpChangeProperties.addWeaponKineticDamageTypeFromSlot = WeaponSlot.MainHand;
-  hpChangeProperties.addWeaponHpChangeSourceCategoryFromSlot = WeaponSlot.MainHand;
+  hpChangeProperties.addWeaponModifiersFromSlot = {
+    slot: WeaponSlot.MainHand,
+    modifiers: allWeaponModifiers,
+  };
   hpChangeProperties.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Strength, 100];
   hpChangeProperties.critChanceAttribute = CombatAttribute.Dexterity;
   hpChangeProperties.critMultiplierAttribute = CombatAttribute.Strength;
@@ -58,9 +66,10 @@ const ATTACK_MELEE_OFF_HAND = (() => {
 
   if (!hpChangeProperties) throw new Error("Expected ability not implemented");
   hpChangeProperties.addWeaponDamageFromSlots = [WeaponSlot.OffHand];
-  hpChangeProperties.addWeaponElementFromSlot = WeaponSlot.OffHand;
-  hpChangeProperties.addWeaponKineticDamageTypeFromSlot = WeaponSlot.OffHand;
-  hpChangeProperties.addWeaponHpChangeSourceCategoryFromSlot = WeaponSlot.OffHand;
+  hpChangeProperties.addWeaponModifiersFromSlot = {
+    slot: WeaponSlot.OffHand,
+    modifiers: allWeaponModifiers,
+  };
   hpChangeProperties.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Strength, 100];
   hpChangeProperties.critChanceAttribute = CombatAttribute.Dexterity;
   hpChangeProperties.critMultiplierAttribute = CombatAttribute.Strength;

@@ -52,7 +52,7 @@ export default function getMonsterPerLevelAttributes(
       attributes[CombatAttribute.ArmorClass] = 2.5;
 
     case MonsterType.Cultist:
-      attributes[CombatAttribute.Intelligence] = 8.0;
+      // attributes[CombatAttribute.Intelligence] = 8.0;
       attributes[CombatAttribute.Focus] = 2.0;
       attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 4.5;

@@ -24,6 +24,7 @@ import { applyWeaponHpChangeModifiers } from "./weapon-hp-change-modifiers/index
 import { WeaponSlot } from "../../../items/index.js";
 import { getCombatActionHpChangeRange } from "./get-combat-action-hp-change-range.js";
 import { getActionCritChance } from "./get-action-crit-chance.js";
+import { convertHpChangeValueToFinalSign } from "./convert-hp-change-value-to-final-sign.js";
 export * from "./get-combat-action-hp-change-range.js";
 export * from "./weapon-hp-change-modifiers/index.js";
 export * from "./get-action-hit-chance.js";
@@ -147,17 +148,7 @@ export default function calculateActionHitPointChangesAndEvasions(
     applyKineticAffinities(hpChange, targetCombatantProperties);
     applyElementalAffinities(hpChange, targetCombatantProperties);
 
-    if (
-      !(
-        hpChangeSource.isHealing &&
-        // if it wasn't intended as healing, but is actually healing target due to affinities,
-        // don't "un healify" the hp change here
-        hpChange.value > 0 &&
-        !CombatantProperties.hasTraitType(targetCombatantProperties, CombatantTraitType.Undead)
-      )
-    ) {
-      hpChange.value *= -1;
-    }
+    convertHpChangeValueToFinalSign(hpChange, targetCombatantProperties);
 
     hpChangeCalculationContext.applyResilience(
       hpChange,

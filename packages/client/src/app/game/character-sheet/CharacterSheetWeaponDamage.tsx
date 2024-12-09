@@ -10,15 +10,10 @@ import {
   EquipmentSlot,
   WeaponSlot,
   getCombatActionHpChangeRange,
-  ActionResultCalculator,
-  SpeedDungeonGame,
-  CombatActionTarget,
   Combatant,
   CombatantClass,
   CombatantSpecies,
   applyWeaponHpChangeModifiers,
-  Battle,
-  getCombatActionTargetIds,
   CombatAttribute,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
@@ -26,8 +21,6 @@ import { EquipmentType } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
 import { getActionHitChance, getActionCritChance } from "@speed-dungeon/common";
 import React from "react";
-import AccuracyIcon from "../../../../public/img/hp-change-source-icons/accuracy.svg";
-import CritChanceIcon from "../../../../public/img/hp-change-source-icons/crit-chance.svg";
 import { getTargetOption } from "@/utils/get-target-option";
 
 export default function CharacterSheetWeaponDamage({ combatant }: { combatant: Combatant }) {

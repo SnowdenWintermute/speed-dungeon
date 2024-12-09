@@ -25,12 +25,21 @@ export function AISelectActionAndTarget(
   if (userCombatantResult instanceof Error) return userCombatantResult;
   const { combatantProperties: userCombatantProperties } = userCombatantResult;
 
+  const attackAbility: AbilityAndTarget = {
+    abilityName: AbilityName.Attack,
+    target: {
+      type: CombatActionTargetType.Single,
+      targetId: randomEnemyTarget.entityProperties.id,
+    },
+  };
+
   if (userCombatantProperties.abilities[AbilityName.Fire]) {
     const manaCostResult = CombatantProperties.getAbilityCostIfOwned(
       userCombatantProperties,
       AbilityName.Fire
     );
     if (manaCostResult instanceof Error) return manaCostResult;
+    if (userCombatantProperties.mana < manaCostResult) return attackAbility;
     return {
       abilityName: AbilityName.Fire,
       target: { type: CombatActionTargetType.Group, friendOrFoe: FriendOrFoe.Hostile },
@@ -42,6 +51,7 @@ export function AISelectActionAndTarget(
       AbilityName.Ice
     );
     if (manaCostResult instanceof Error) return manaCostResult;
+    if (userCombatantProperties.mana < manaCostResult) return attackAbility;
     return {
       abilityName: AbilityName.Ice,
       target: {
@@ -56,19 +66,14 @@ export function AISelectActionAndTarget(
       AbilityName.Healing
     );
     if (manaCostResult instanceof Error) return manaCostResult;
+    if (userCombatantProperties.mana < manaCostResult) return attackAbility;
     return {
       abilityName: AbilityName.Healing,
       target: { type: CombatActionTargetType.Group, friendOrFoe: FriendOrFoe.Friendly },
     };
   }
 
-  return {
-    abilityName: AbilityName.Attack,
-    target: {
-      type: CombatActionTargetType.Single,
-      targetId: randomEnemyTarget.entityProperties.id,
-    },
-  };
+  return attackAbility;
 }
 
 function getRandomAliveEnemy(

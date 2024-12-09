@@ -1,13 +1,19 @@
 import { KineticDamageType } from "./kinetic-damage-types.js";
 import { MagicalElement } from "./magical-elements.js";
 
+export enum HpChangeSourceModifiers {
+  KineticType,
+  MagicalElement,
+  SourceCategory,
+}
+
 export class HpChangeSource {
   constructor(
     public category: HpChangeSourceCategory,
     public meleeOrRanged: MeleeOrRanged,
-    public unavoidable?: boolean,
     public kineticDamageTypeOption?: KineticDamageType,
     public elementOption?: MagicalElement,
+    public unavoidable?: boolean,
     public isHealing?: boolean
   ) {}
 }

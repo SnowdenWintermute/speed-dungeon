@@ -60,8 +60,7 @@ export default function applyConsumableUseToActionResult(
       if (!actionResult.hitPointChangesByEntityId) actionResult.hitPointChangesByEntityId = {};
       const hpChangeSource = new HpChangeSource(
         HpChangeSourceCategory.Medical,
-        MeleeOrRanged.Ranged,
-        true
+        MeleeOrRanged.Ranged
       );
       hpChangeSource.isHealing = true;
       actionResult.hitPointChangesByEntityId[targetOption] = {

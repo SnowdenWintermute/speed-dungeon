@@ -6,7 +6,7 @@ import {
 import { CombatAttribute } from "../../combatants/combat-attributes.js";
 import { WeaponSlot } from "../../items/equipment/slots.js";
 import { NumberRange } from "../../primatives/number-range.js";
-import { HpChangeSource } from "../hp-change-source-types.js";
+import { HpChangeSource, HpChangeSourceModifiers } from "../hp-change-source-types.js";
 
 export class CombatActionProperties {
   targetingSchemes: TargetingScheme[] = [TargetingScheme.Single];
@@ -39,9 +39,10 @@ export class CombatActionHpChangeProperties {
   baseValues: NumberRange = new NumberRange(0, 0);
   finalDamagePercentMultiplier: number = 100;
   addWeaponDamageFromSlots: null | WeaponSlot[] = null;
-  addWeaponHpChangeSourceCategoryFromSlot: null | WeaponSlot = null;
-  addWeaponElementFromSlot: null | WeaponSlot = null;
-  addWeaponKineticDamageTypeFromSlot: null | WeaponSlot = null;
+  addWeaponModifiersFromSlot: null | {
+    slot: WeaponSlot;
+    modifiers: Set<HpChangeSourceModifiers>;
+  } = null;
   additiveAttributeAndPercentScalingFactor: null | [CombatAttribute, number] = null;
   critChanceAttribute: null | CombatAttribute = null;
   critChanceModifier: null | number = null;

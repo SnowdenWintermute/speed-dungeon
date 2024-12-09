@@ -75,7 +75,6 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
     let mainDamageClassification: null | HpChangeSource = new HpChangeSource(
       HpChangeSourceCategory.Physical,
       MeleeOrRanged.Melee,
-      false,
       KineticDamageType.Blunt
     );
 
@@ -111,13 +110,11 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
           new HpChangeSource(
             HpChangeSourceCategory.Physical,
             MeleeOrRanged.Melee,
-            false,
             KineticDamageType.Slashing
           ),
           new HpChangeSource(
             HpChangeSourceCategory.Physical,
             MeleeOrRanged.Melee,
-            false,
             KineticDamageType.Blunt
           ),
         ];
@@ -145,13 +142,11 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
           new HpChangeSource(
             HpChangeSourceCategory.Physical,
             MeleeOrRanged.Melee,
-            false,
             KineticDamageType.Slashing
           ),
           new HpChangeSource(
             HpChangeSourceCategory.Physical,
             MeleeOrRanged.Melee,
-            false,
             KineticDamageType.Piercing
           ),
         ];
@@ -170,7 +165,6 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
               new HpChangeSource(
                 HpChangeSourceCategory.Physical,
                 MeleeOrRanged.Melee,
-                false,
                 KineticDamageType.Blunt,
                 element
               )
@@ -187,14 +181,12 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
           new HpChangeSource(
             HpChangeSourceCategory.Magical,
             MeleeOrRanged.Melee,
-            false,
             undefined,
             MagicalElement.Water
           ),
           new HpChangeSource(
             HpChangeSourceCategory.Physical,
             MeleeOrRanged.Melee,
-            false,
             KineticDamageType.Piercing
           ),
         ];

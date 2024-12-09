@@ -417,7 +417,13 @@ describe("race game records", () => {
           hpChangesByEntityId: {
             [character1.entityProperties.id]: new HpChange(
               -9999,
-              new HpChangeSource(HpChangeSourceCategory.Physical, MeleeOrRanged.Melee, true)
+              new HpChangeSource(
+                HpChangeSourceCategory.Physical,
+                MeleeOrRanged.Melee,
+                undefined,
+                undefined,
+                true
+              )
             ),
           },
           mpChangesByEntityId: null,

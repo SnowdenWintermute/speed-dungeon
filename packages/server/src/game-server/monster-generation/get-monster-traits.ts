@@ -11,6 +11,11 @@ export default function getMonsterTraits(monsterType: MonsterType): CombatantTra
     case MonsterType.Zombie:
     case MonsterType.SkeletonArcher:
       return [
+        {
+          type: CombatantTraitType.ElementalAffinity,
+          element: MagicalElement.Water,
+          percent: -25,
+        },
         { type: CombatantTraitType.Undead },
         {
           type: CombatantTraitType.KineticDamageTypeResistance,

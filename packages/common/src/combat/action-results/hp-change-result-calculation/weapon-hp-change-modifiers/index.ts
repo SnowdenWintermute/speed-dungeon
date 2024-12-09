@@ -1,10 +1,18 @@
+import cloneDeep from "lodash.clonedeep";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { Item, WeaponProperties, WeaponSlot } from "../../../../items/index.js";
 import { CombatActionHpChangeProperties } from "../../../combat-actions/combat-action-properties.js";
-import { HpChangeSource } from "../../../hp-change-source-types.js";
-import { getMostEffectiveWeaponElementOnTarget } from "./get-most-effective-weapon-element-on-target.js";
-import { getMostEffectiveHpChangeSourceCategoryOnTargetAvailableOnThisWeapon } from "./get-most-effective-weapon-hp-change-source-category-on-target.js";
-import { getMostEffectiveWeaponKineticTypeOnTarget } from "./get-most-effective-weapon-kinetic-type-on-target.js";
+import {
+  HpChange,
+  HpChangeSource,
+  HpChangeSourceModifiers,
+} from "../../../hp-change-source-types.js";
+import { convertHpChangeValueToFinalSign } from "../convert-hp-change-value-to-final-sign.js";
+import {
+  applyElementalAffinities,
+  applyKineticAffinities,
+} from "../apply-affinites-to-hp-change.js";
+import { HP_CALCLULATION_CONTEXTS } from "../hp-change-calculation-strategies/index.js";
 
 export function applyWeaponHpChangeModifiers(
   hpChangeProperties: CombatActionHpChangeProperties,
@@ -15,93 +23,73 @@ export function applyWeaponHpChangeModifiers(
   targetCombatantProperties: CombatantProperties,
   expectedRolledValueAverage: number
 ) {
-  const { hpChangeSource } = hpChangeProperties;
+  const hpChange = new HpChange(expectedRolledValueAverage, hpChangeProperties.hpChangeSource);
 
-  // modify so an ability gets all weapon modifiers from the same weapon
-  // collect category, kinetic and element from each weapons source
-  // compare rolled expected avg value with each source
-  // select best
-  // apply to hp change source
+  if (!hpChangeProperties.addWeaponModifiersFromSlot) return;
+  const { slot, modifiers } = hpChangeProperties.addWeaponModifiersFromSlot;
+  const weaponOption = equippedUsableWeapons[slot];
+  if (weaponOption === undefined) return;
 
-  const weaponToAddHpChangeCategoryFrom =
-    hpChangeProperties.addWeaponHpChangeSourceCategoryFromSlot !== null
-      ? equippedUsableWeapons[hpChangeProperties.addWeaponHpChangeSourceCategoryFromSlot]
-          ?.weaponProperties
-      : undefined;
-  applyWeaponHpChangeCategoryToHpChangeSource(
-    hpChangeSource,
-    weaponToAddHpChangeCategoryFrom,
-    userCombatantProperties,
-    targetCombatantProperties,
-    expectedRolledValueAverage
-  );
+  let mostEffectiveClassificationOnTarget: null | {
+    classification: HpChangeSource;
+    value: number;
+  } = null;
 
-  const weaponToAddKineticTypeFrom =
-    hpChangeProperties.addWeaponKineticDamageTypeFromSlot !== null
-      ? equippedUsableWeapons[hpChangeProperties.addWeaponKineticDamageTypeFromSlot]
-          ?.weaponProperties
-      : undefined;
-  applyWeaponKineticTypeToHpChangeSource(
-    hpChangeSource,
-    weaponToAddKineticTypeFrom,
-    targetCombatantProperties
-  );
+  for (const classification of weaponOption.weaponProperties.damageClassification) {
+    const hpChangeToTest = cloneDeep(hpChange);
+    const source = hpChangeToTest.source;
 
-  const weaponToAddElementFrom =
-    hpChangeProperties.addWeaponElementFromSlot !== null
-      ? equippedUsableWeapons[hpChangeProperties.addWeaponElementFromSlot]?.weaponProperties
-      : undefined;
-  applyWeaponElementToHpChangeSource(
-    hpChangeSource,
-    weaponToAddElementFrom,
-    targetCombatantProperties
-  );
-}
+    applyWeaponModifiersToHpChangeSource(source, classification, modifiers);
 
-export function applyWeaponElementToHpChangeSource(
-  hpChangeSource: HpChangeSource,
-  weaponPropertiesOption: undefined | WeaponProperties,
-  targetProperties: CombatantProperties
-) {
-  if (!weaponPropertiesOption) return;
-  const elementToAddOption = getMostEffectiveWeaponElementOnTarget(
-    weaponPropertiesOption,
-    targetProperties
-  );
-  if (elementToAddOption !== null) hpChangeSource.elementOption = elementToAddOption;
-}
+    const hpChangeCalculationContext = HP_CALCLULATION_CONTEXTS[source.category];
 
-export function applyWeaponKineticTypeToHpChangeSource(
-  hpChangeSource: HpChangeSource,
-  weaponPropertiesOption: undefined | WeaponProperties,
-  targetProperties: CombatantProperties
-) {
-  if (!weaponPropertiesOption) return;
-
-  const typeToAddOption = getMostEffectiveWeaponKineticTypeOnTarget(
-    weaponPropertiesOption,
-    targetProperties
-  );
-  if (typeToAddOption !== null) hpChangeSource.kineticDamageTypeOption = typeToAddOption;
-}
-
-export function applyWeaponHpChangeCategoryToHpChangeSource(
-  hpChangeSource: HpChangeSource,
-  weaponPropertiesOption: undefined | WeaponProperties,
-  userProperties: CombatantProperties,
-  targetProperties: CombatantProperties,
-  expectedRolledValueAverage: number
-) {
-  if (!weaponPropertiesOption) return;
-  const hpChangeSourceCategoryToAddOption =
-    getMostEffectiveHpChangeSourceCategoryOnTargetAvailableOnThisWeapon(
-      weaponPropertiesOption,
-      userProperties,
-      targetProperties,
-      // we must include this because selecting the best damage type depends on how
-      // much armor is mitigating, which depends on the asymptotic function of damage vs armor class
-      expectedRolledValueAverage
+    applyKineticAffinities(hpChangeToTest, targetCombatantProperties);
+    applyElementalAffinities(hpChangeToTest, targetCombatantProperties);
+    convertHpChangeValueToFinalSign(hpChangeToTest, targetCombatantProperties);
+    hpChangeCalculationContext.applyResilience(
+      hpChangeToTest,
+      userCombatantProperties,
+      targetCombatantProperties
     );
-  if (hpChangeSourceCategoryToAddOption === null) return;
-  hpChangeSource.category = hpChangeSourceCategoryToAddOption;
+    hpChangeCalculationContext.applyArmorClass(
+      hpChangeToTest,
+      userCombatantProperties,
+      targetCombatantProperties
+    );
+
+    hpChangeToTest.value = Math.floor(hpChange.value);
+
+    if (
+      mostEffectiveClassificationOnTarget === null ||
+      hpChangeToTest.value < mostEffectiveClassificationOnTarget.value
+    )
+      mostEffectiveClassificationOnTarget = { classification, value: hpChangeToTest.value };
+  }
+
+  if (mostEffectiveClassificationOnTarget)
+    applyWeaponModifiersToHpChangeSource(
+      hpChange.source,
+      mostEffectiveClassificationOnTarget.classification,
+      modifiers
+    );
+}
+
+export function applyWeaponModifiersToHpChangeSource(
+  source: HpChangeSource,
+  classification: HpChangeSource,
+  modifiers: Set<HpChangeSourceModifiers>
+) {
+  for (const modifier of modifiers) {
+    switch (modifier) {
+      case HpChangeSourceModifiers.KineticType:
+        source.kineticDamageTypeOption = classification.kineticDamageTypeOption;
+        break;
+      case HpChangeSourceModifiers.MagicalElement:
+        source.elementOption = classification.elementOption;
+        break;
+      case HpChangeSourceModifiers.SourceCategory:
+        source.category = classification.category;
+        break;
+    }
+  }
 }

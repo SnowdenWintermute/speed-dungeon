@@ -20,6 +20,7 @@ import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager
 import setFocusedCharacter from "@/utils/set-focused-character";
 import { AssigningAttributePointsMenuState } from "../ActionMenu/menu-state/assigning-attribute-points";
 import CombatantFloatingMessagesDisplay from "./combatant-floating-messages-display";
+import BackpackIcon from "../../../../public/img/game-ui-icons/backpack.svg";
 
 interface Props {
   combatant: Combatant;
@@ -157,7 +158,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
                 handleClick={handleUnspentAttributesButtonClick}
               />
             </span>
-            <span>
+            <span className="flex items-center">
               <CombatantInfoButton combatant={combatant} />
             </span>
           </div>

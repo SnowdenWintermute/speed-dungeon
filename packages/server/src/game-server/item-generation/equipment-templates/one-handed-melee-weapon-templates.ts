@@ -75,7 +75,6 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
     let mainDamageClassification: null | HpChangeSource = new HpChangeSource(
       HpChangeSourceCategory.Physical,
       MeleeOrRanged.Melee,
-      false,
       KineticDamageType.Blunt
     );
 
@@ -136,13 +135,11 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
           new HpChangeSource(
             HpChangeSourceCategory.Physical,
             MeleeOrRanged.Melee,
-            false,
             KineticDamageType.Slashing
           ),
           new HpChangeSource(
             HpChangeSourceCategory.Physical,
             MeleeOrRanged.Melee,
-            false,
             KineticDamageType.Piercing
           ),
         ];
@@ -182,7 +179,6 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
                 new HpChangeSource(
                   HpChangeSourceCategory.Physical,
                   MeleeOrRanged.Melee,
-                  false,
                   KineticDamageType.Slashing,
                   element
                 )

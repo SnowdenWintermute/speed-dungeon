@@ -1,23 +1,13 @@
-import {
-  AffixType,
-  ArmorCategory,
-  BodyArmor,
-  EquipmentProperties,
-  EquipmentType,
-  Item,
-  ItemPropertiesType,
-  SuffixType,
-} from "../../index.js";
+import { EquipmentProperties, EquipmentType, Item, ItemPropertiesType } from "../../index.js";
 import {
   HpChangeSource,
   HpChangeSourceCategory,
   KineticDamageType,
   MeleeOrRanged,
 } from "../../../combat/index.js";
-import { EntityProperties, MaxAndCurrent } from "../../../primatives/index.js";
+import { EntityProperties } from "../../../primatives/index.js";
 import { OneHandedMeleeWeapon } from "../equipment-types/one-handed-melee-weapon.js";
 import { TwoHandedRangedWeapon } from "../equipment-types/two-handed-ranged-weapon.js";
-import { CombatAttribute } from "../../../combatants/combat-attributes.js";
 
 export enum PreDeterminedItemType {
   SkeletonArcherShortBow,
@@ -47,7 +37,6 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
                 new HpChangeSource(
                   HpChangeSourceCategory.Physical,
                   MeleeOrRanged.Ranged,
-                  false,
                   KineticDamageType.Piercing
                 ),
               ],
@@ -73,7 +62,6 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
                 new HpChangeSource(
                   HpChangeSourceCategory.Physical,
                   MeleeOrRanged.Melee,
-                  false,
                   KineticDamageType.Slashing
                 ),
               ],
@@ -99,7 +87,6 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
                 new HpChangeSource(
                   HpChangeSourceCategory.Physical,
                   MeleeOrRanged.Melee,
-                  false,
                   KineticDamageType.Blunt
                 ),
               ],
@@ -125,7 +112,6 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
                 new HpChangeSource(
                   HpChangeSourceCategory.Physical,
                   MeleeOrRanged.Melee,
-                  false,
                   KineticDamageType.Piercing
                 ),
               ],

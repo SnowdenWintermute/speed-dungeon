@@ -74,7 +74,6 @@ export const TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES: Record<
     const mainDamageClassification: null | HpChangeSource = new HpChangeSource(
       HpChangeSourceCategory.Physical,
       MeleeOrRanged.Ranged,
-      false,
       KineticDamageType.Piercing
     );
 

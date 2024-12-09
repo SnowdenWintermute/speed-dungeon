@@ -99,9 +99,12 @@ export default function getFrameEventFromAnimation(
             {
               type: FloatingMessageElementType.Text,
               text: mpChange,
-              classNames: getTailwindClassFromFloatingTextColor(
-                FloatingMessageTextColor.ManaGained
-              ),
+              classNames: {
+                mainText: getTailwindClassFromFloatingTextColor(
+                  FloatingMessageTextColor.ManaGained
+                ),
+                shadowText: "",
+              },
             },
           ],
           2000
