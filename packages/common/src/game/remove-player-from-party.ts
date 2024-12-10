@@ -3,6 +3,7 @@ import { SpeedDungeonGame } from "./index.js";
 import { removeFromArray } from "../utils/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { Combatant } from "../combatants/index.js";
+import { Battle } from "../battle/index.js";
 
 export type RemovedPlayerData = {
   partyNameLeft: null | string;
@@ -23,13 +24,17 @@ export default function removePlayerFromParty(
   const partyLeaving = game.adventuringParties[player.partyName];
   if (!partyLeaving) return new Error("No party exists");
 
+  // if a removed character was taking their turn, end their turn
+  const battleOption = SpeedDungeonGame.getBattleOption(game, partyLeaving.battleId);
+
   const characterIds = cloneDeep(player.characterIds);
   if (characterIds) {
     Object.values(characterIds).forEach((characterId) => {
       const removedCharacterResult = AdventuringParty.removeCharacter(
         partyLeaving,
         characterId,
-        player
+        player,
+        battleOption
       );
       if (removedCharacterResult instanceof Error) return removedCharacterResult;
       charactersRemoved.push(removedCharacterResult);

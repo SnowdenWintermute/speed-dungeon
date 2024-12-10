@@ -10,6 +10,7 @@ import {
   Battle,
   CombatantTurnTracker,
   GameMode,
+  InputLock,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
 import { DungeonRoomType } from "@speed-dungeon/common";
@@ -29,6 +30,11 @@ export default function toggleReadyToExploreHandler(
   const gameServer = getGameServer();
   if (partyOption === undefined) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
   const party = partyOption;
+
+  if (InputLock.isLocked(party.inputLock)) {
+    console.error("input is locked");
+    throw new Error(ERROR_MESSAGES.PARTY.INPUT_IS_LOCKED);
+  }
 
   if (Object.values(party.currentRoom.monsters).length > 0)
     return new Error(ERROR_MESSAGES.PARTY.CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT);

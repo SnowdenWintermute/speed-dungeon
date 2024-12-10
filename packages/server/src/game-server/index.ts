@@ -78,6 +78,10 @@ export class GameServer implements ActionCommandReceiver {
   returnHomeActionCommandHandler = returnHomeActionCommandHandler;
   changeEquipmentActionCommandHandler = changeEquipmentActionCommandHandler;
   battleResultActionCommandHandler = battleResultActionCommandHandler;
+  removePlayerFromGameCommandHandler: (
+    actionCommandManager: ActionCommandManager,
+    username: string
+  ) => void = () => {}; // we only use it on the client
   gameMessageCommandHandler(
     _actionCommandManager: ActionCommandManager,
     payload: GameMessagesPayload

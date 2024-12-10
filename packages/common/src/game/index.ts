@@ -63,6 +63,10 @@ export class SpeedDungeonGame {
   static endActiveCombatantTurn = endActiveCombatantTurn;
   static allCombatantsInGroupAreDead = allCombatantsInGroupAreDead;
   static handleBattleVictory = handleBattleVictory;
+  static getBattleOption(game: SpeedDungeonGame, battleIdOption: null | string) {
+    if (!battleIdOption) return undefined;
+    return game.battles[battleIdOption];
+  }
   static handlePlayerDeath(
     game: SpeedDungeonGame,
     battleIdOption: null | string,
@@ -73,12 +77,6 @@ export class SpeedDungeonGame {
     const battleOption = game.battles[battleIdOption];
     if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     const battle = battleOption;
-    let indexToRemoveOption = null;
-    battle.turnTrackers.forEach((turnTracker, i) => {
-      if (turnTracker.entityId === combatantId) {
-        indexToRemoveOption = i;
-      }
-    });
-    if (indexToRemoveOption !== null) battle.turnTrackers.splice(indexToRemoveOption, 1);
+    Battle.removeCombatantTurnTrackers(battle, combatantId);
   }
 }

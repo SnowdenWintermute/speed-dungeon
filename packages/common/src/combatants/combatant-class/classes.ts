@@ -6,12 +6,12 @@ export enum CombatantClass {
 
 export function formatCombatantClassName(combatantClass: CombatantClass): string {
   switch (combatantClass) {
+    case CombatantClass.Rogue:
+      return "Rogue";
     case CombatantClass.Warrior:
       return "Warrior";
     case CombatantClass.Mage:
       return "Mage";
-    case CombatantClass.Rogue:
-      return "Rogue";
   }
 }
 

@@ -50,4 +50,8 @@ export interface ActionCommandReceiver {
     actionCommandManager: ActionCommandManager,
     payload: GameMessagesPayload
   ) => void;
+  removePlayerFromGameCommandHandler: (
+    actionCommandManager: ActionCommandManager,
+    username: string
+  ) => void;
 }

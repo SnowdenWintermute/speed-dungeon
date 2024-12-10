@@ -30,9 +30,11 @@ export default function returnHomeActionCommandHandler(
 
   let newActiveCombatantTrackerOption: null | CombatantTurnTracker = null;
   if (party.battleId !== null && shouldEndTurn) {
+    const battleOption = SpeedDungeonGame.getBattleOption(game, party.battleId);
+    if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     // @todo - if this combatant is dead that means they killed themselves on their own turn
     // which means their turn tracker was already removed, so we'll need to custom handle that
-    const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, party.battleId);
+    const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, battleOption);
     if (maybeError instanceof Error) return maybeError;
     newActiveCombatantTrackerOption = maybeError;
   }
@@ -83,7 +85,10 @@ export default function returnHomeActionCommandHandler(
   // - we'll let the next player input now, even if it takes a long time to animate this player running home
   //   the clien't shouldn't play the next action until they get back. They can show a "ready up" pose while waiting but
   //   at least they get to put in their inputs
-  InputLock.unlockInput(party.inputLock);
+  // InputLock.unlockInput(party.inputLock);
+  // actually, don't do this on the server, instead we'll check if the lockoutDuration is elapsed
+  // otherwise since we instantly process all commands on the server it will be unlocked prematurely
+  // but we still use this fn on the client
 
   // - if in combat, take ai controlled turn if appropriate
   if (!battleConcluded && newActiveCombatantTrackerOption !== null) {

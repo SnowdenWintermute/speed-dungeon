@@ -3,7 +3,7 @@ import { ActionCommand } from "./action-command.js";
 export class ActionCommandManager {
   queue: ActionCommand[] = [];
   currentlyProcessing: null | ActionCommand = null;
-  constructor() {}
+  constructor(public onQueueEmpty?: () => void) {}
 
   enqueueNewCommands(commands: ActionCommand[]) {
     const queueWasPreviouslyEmpty = this.queue.length === 0;
@@ -15,7 +15,11 @@ export class ActionCommandManager {
   processNextCommand() {
     const nextCommand = this.queue.shift();
 
-    if (nextCommand === undefined) return (this.currentlyProcessing = null);
+    if (nextCommand === undefined) {
+      this.currentlyProcessing = null;
+      this.onQueueEmpty && this.onQueueEmpty();
+      return;
+    }
     this.currentlyProcessing = nextCommand;
     const maybeError = nextCommand.execute();
     if (maybeError instanceof Error) return console.error(maybeError);

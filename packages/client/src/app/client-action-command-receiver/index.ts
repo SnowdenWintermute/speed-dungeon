@@ -6,12 +6,12 @@ import returnHomeActionCommandHandler from "./return-home";
 import battleResultActionCommandHandler from "./process-battle-result";
 import { ActionCommandManager } from "@speed-dungeon/common";
 import gameMessageActionCommandHandler from "./game-message";
+import { removeClientPlayerFromGame } from "./remove-client-player-from-game";
 
 export class ClientActionCommandReceiver implements ActionCommandReceiver {
   constructor() {}
-
+  removePlayerFromGameCommandHandler = removeClientPlayerFromGame;
   payAbilityCostsActionCommandHandler = payAbilityCostsActionCommandHandler;
-
   moveIntoCombatActionPositionActionCommandHandler =
     moveIntoCombatActionPositionActionCommandHandler;
   performCombatActionActionCommandHandler = performCombatActionActionCommandHandler;

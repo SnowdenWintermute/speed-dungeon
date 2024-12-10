@@ -66,17 +66,20 @@ export default function startReturningHome(
     if (!gameState.game) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
 
     // check the queue length so we don't unlock for a split second in between the ai's turns
-    if (
-      actionCommandManager.queue.length === 0 ||
-      actionCommandManager.queue[0]?.payload.type === ActionCommandType.BattleResult ||
-      actionCommandManager.queue[0]?.payload.type === ActionCommandType.GameMessages
-    )
-      InputLock.unlockInput(party.inputLock);
+    // if (
+    //   actionCommandManager.queue.length === 0 ||
+    //   actionCommandManager.queue[0]?.payload.type === ActionCommandType.BattleResult ||
+    //   actionCommandManager.queue[0]?.payload.type === ActionCommandType.GameMessages
+    // )
+    //   InputLock.unlockInput(party.inputLock);
 
     if (shouldEndTurn && party.battleId !== null) {
       const gameOption = gameState.game;
       if (gameOption === null) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-      SpeedDungeonGame.endActiveCombatantTurn(gameOption, party.battleId);
+      const battleOption = SpeedDungeonGame.getBattleOption(gameState.game, party.battleId);
+      if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
+      const maybeError = SpeedDungeonGame.endActiveCombatantTurn(gameOption, battleOption);
+      if (maybeError instanceof Error) console.error(maybeError);
     }
   });
 

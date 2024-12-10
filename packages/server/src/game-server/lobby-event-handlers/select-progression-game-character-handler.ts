@@ -49,7 +49,8 @@ export default async function selectProgressionGameCharacterHandler(
   const removeCharacterResult = AdventuringParty.removeCharacter(
     partyOption,
     characterIdToRemoveOption,
-    player
+    player,
+    undefined
   );
   if (removeCharacterResult instanceof Error) return removeCharacterResult;
 

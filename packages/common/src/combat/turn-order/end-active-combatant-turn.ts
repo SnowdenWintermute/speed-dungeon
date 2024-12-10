@@ -6,15 +6,8 @@ import { Battle } from "../../battle/index.js";
 
 export default function endActiveCombatantTurn(
   game: SpeedDungeonGame,
-  battleId: string
+  battle: Battle
 ): Error | CombatantTurnTracker {
-  const battleOption = game.battles[battleId];
-  if (battleOption === undefined)
-    return new Error(
-      `${ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST} (id: ${JSON.stringify(battleId)})`
-    );
-  const battle = battleOption;
-
   const tickResult = SpeedDungeonGame.tickCombatUntilNextCombatantIsActive(game, battle.id);
   if (tickResult instanceof Error) return tickResult;
   const activeCombatantTurnTrackerOption = battle.turnTrackers[0];

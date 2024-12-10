@@ -88,15 +88,18 @@ export class BaseMenuState implements ActionMenuState {
 
     for (const ability of Object.values(combatantProperties.abilities)) {
       if (abilitiesNotToMakeButtonsFor.includes(ability.name)) continue;
-      const button = new ActionMenuButtonProperties(ABILITY_NAME_STRINGS[ability.name], () => {
-        websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-          characterId,
-          combatActionOption: { type: CombatActionType.AbilityUsed, abilityName: ability.name },
-        });
-        useGameStore.getState().mutateState((state) => {
-          state.hoveredAction = null;
-        });
-      });
+      const button = new ActionMenuButtonProperties(
+        ABILITY_NAME_STRINGS[ability.name] + characterId.slice(0, 5),
+        () => {
+          websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+            characterId,
+            combatActionOption: { type: CombatActionType.AbilityUsed, abilityName: ability.name },
+          });
+          useGameStore.getState().mutateState((state) => {
+            state.hoveredAction = null;
+          });
+        }
+      );
 
       button.mouseEnterHandler = button.focusHandler = () =>
         useGameStore.getState().mutateState((state) => {

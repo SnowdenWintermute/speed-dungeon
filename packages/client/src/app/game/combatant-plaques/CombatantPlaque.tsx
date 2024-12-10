@@ -175,9 +175,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
           <div className="mb-1.5 flex justify-between text-lg ">
             <span>
               <span className="">{entityProperties.name}</span>
-              {
-                // entityId
-              }
+              {entityId.slice(0, 5)}
               <UnspentAttributesButton
                 combatantProperties={combatantProperties}
                 handleClick={handleUnspentAttributesButtonClick}

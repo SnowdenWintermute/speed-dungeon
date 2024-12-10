@@ -11,6 +11,16 @@ export class Battle {
     public turnTrackers: CombatantTurnTracker[]
   ) {}
 
+  static removeCombatantTurnTrackers(battle: Battle, combatantId: string) {
+    let indexToRemoveOption = null;
+    battle.turnTrackers.forEach((turnTracker, i) => {
+      if (turnTracker.entityId === combatantId) {
+        indexToRemoveOption = i;
+      }
+    });
+    if (indexToRemoveOption !== null) battle.turnTrackers.splice(indexToRemoveOption, 1);
+  }
+
   static combatantIsFirstInTurnOrder(battle: Battle, combatantId: string) {
     if (battle.turnTrackers.length < 1) return false;
 

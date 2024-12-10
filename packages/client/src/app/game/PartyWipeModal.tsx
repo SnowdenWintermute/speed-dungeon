@@ -26,8 +26,8 @@ export default function PartyWipeModal({ party }: { party: AdventuringParty }) {
       <div className="text-lg">{party.name} was defeated</div>
       <span className="text-lg mb-2">at {new Date(party.timeOfWipe).toLocaleString()}</span>
       <Divider extraStyles="mb-4" />
-      <ButtonBasic extraStyles="w-full" onClick={leaveGame}>
-        {"Leave Game"}
+      <ButtonBasic extraStyles="w-full bg-slate-950" onClick={leaveGame}>
+        Leave Game
       </ButtonBasic>
     </div>
   );

@@ -4,7 +4,7 @@ import {
   actionCommandManager,
   actionCommandWaitingArea,
 } from "@/singletons/action-command-manager";
-import { formatActionCommandType } from "@speed-dungeon/common";
+import { ACTION_COMMAND_TYPE_STRINGS } from "@speed-dungeon/common";
 
 export default function showDebugText(this: GameWorld) {
   if (this.debug.debugRef?.current) {
@@ -25,9 +25,9 @@ export default function showDebugText(this: GameWorld) {
     this.debug.debugRef.current.innerHTML = [
       `fps: ${fps}`,
       `models awaiting spawn:${useGameStore.getState().combatantModelsAwaitingSpawn.join(", ")}`,
-      `waiting area: ${actionCommandWaitingArea.map((item) => formatActionCommandType(item.payload.type))}`,
-      `queue: ${actionCommandManager.queue.map((item) => formatActionCommandType(item.payload.type))}`,
-      `current: ${actionCommandManager.currentlyProcessing ? formatActionCommandType(actionCommandManager.currentlyProcessing.payload.type) : null}`,
+      `waiting area: ${actionCommandWaitingArea.map((item) => ACTION_COMMAND_TYPE_STRINGS[item.payload.type])}`,
+      `queue: ${actionCommandManager.queue.map((item) => ACTION_COMMAND_TYPE_STRINGS[item.payload.type])}`,
+      `current: ${actionCommandManager.currentlyProcessing ? ACTION_COMMAND_TYPE_STRINGS[actionCommandManager.currentlyProcessing.payload.type] : null}`,
       // modelManagerMessages,
       cameraAlpha,
       cameraBeta,

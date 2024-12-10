@@ -14,6 +14,7 @@ export enum ActionCommandType {
   ChangeEquipment,
   BattleResult,
   GameMessages,
+  RemovePlayerFromGame,
 }
 
 export type PayAbilityCostsActionCommandPayload = {
@@ -71,6 +72,11 @@ export type GameMessagesPayload = {
   messages: { text: string; type: GameMessageType }[];
 };
 
+export type RemovePlayerFromGamePayload = {
+  type: ActionCommandType.RemovePlayerFromGame;
+  username: string;
+};
+
 export type ActionCommandPayload =
   | PayAbilityCostsActionCommandPayload
   | MoveIntoCombatActionPositionActionCommandPayload
@@ -78,26 +84,19 @@ export type ActionCommandPayload =
   | PerformCombatActionActionCommandPayload
   | ChangeEquipmentActionCommandPayload
   | BattleResultActionCommandPayload
-  | GameMessagesPayload;
+  | GameMessagesPayload
+  | RemovePlayerFromGamePayload;
 
-export function formatActionCommandType(type: ActionCommandType) {
-  switch (type) {
-    case ActionCommandType.PayAbilityCosts:
-      return "Pay ability costs";
-    case ActionCommandType.MoveIntoCombatActionPosition:
-      return "Move into combat action position";
-    case ActionCommandType.PerformCombatAction:
-      return "Perform combat action";
-    case ActionCommandType.ReturnHome:
-      return "Return home";
-    case ActionCommandType.ChangeEquipment:
-      return "Change equipment";
-    case ActionCommandType.BattleResult:
-      return "Battle result";
-    case ActionCommandType.GameMessages:
-      return "Game messages";
-  }
-}
+export const ACTION_COMMAND_TYPE_STRINGS: Record<ActionCommandType, string> = {
+  [ActionCommandType.PayAbilityCosts]: "Pay ability costs",
+  [ActionCommandType.MoveIntoCombatActionPosition]: "Move into combat action position",
+  [ActionCommandType.PerformCombatAction]: "Perform combat action",
+  [ActionCommandType.ReturnHome]: "Return home",
+  [ActionCommandType.ChangeEquipment]: "Change equipment",
+  [ActionCommandType.BattleResult]: "Battle result",
+  [ActionCommandType.GameMessages]: "Game messages",
+  [ActionCommandType.RemovePlayerFromGame]: "Remove player from game",
+};
 
 // - change equipment shouldn't lock input
 // - can't change equipment in battle unless input not locked and have the special trait

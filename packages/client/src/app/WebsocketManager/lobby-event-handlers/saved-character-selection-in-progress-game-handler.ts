@@ -28,7 +28,8 @@ export default function savedCharacterSelectionInProgressGameHandler(
       const removedCharacterResult = AdventuringParty.removeCharacter(
         party,
         previouslySelectedCharacterId,
-        player
+        player,
+        undefined
       );
       if (removedCharacterResult instanceof Error) return setAlert(removedCharacterResult.message);
       for (const character of Object.values(party.characters))

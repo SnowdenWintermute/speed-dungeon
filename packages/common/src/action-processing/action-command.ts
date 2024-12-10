@@ -57,6 +57,11 @@ export class ActionCommand {
         );
       case ActionCommandType.GameMessages:
         return this.receiver.gameMessageCommandHandler(this.actionCommandManager, this.payload);
+      case ActionCommandType.RemovePlayerFromGame:
+        return this.receiver.removePlayerFromGameCommandHandler(
+          this.actionCommandManager,
+          this.payload.username
+        );
     }
   }
 }

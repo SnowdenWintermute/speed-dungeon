@@ -19,7 +19,7 @@ export default function characterDeletionHandler(
     const player = game.players[username];
     if (!player) return setAlert(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
 
-    AdventuringParty.removeCharacter(party, characterId, player);
+    AdventuringParty.removeCharacter(party, characterId, player, undefined);
 
     for (const character of Object.values(party.characters))
       updateCombatantHomePosition(
