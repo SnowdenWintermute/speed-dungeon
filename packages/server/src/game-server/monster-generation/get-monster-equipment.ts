@@ -53,6 +53,15 @@ export default function getMonsterEquipment(
       );
       break;
     case MonsterType.Vulture:
+      equipment[EquipmentSlot.MainHand] = generatePreDeterminedItem(
+        PreDeterminedItemType.AnimalClaw,
+        idGenerator.generate()
+      );
+      equipment[EquipmentSlot.OffHand] = generatePreDeterminedItem(
+        PreDeterminedItemType.AnimalClaw,
+        idGenerator.generate()
+      );
+      break;
     case MonsterType.FireMage:
     case MonsterType.Cultist:
     case MonsterType.FireElemental:

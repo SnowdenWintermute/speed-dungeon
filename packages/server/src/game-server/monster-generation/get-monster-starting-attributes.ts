@@ -11,9 +11,10 @@ export default function getMonsterStartingAttributes(
       attributes[CombatAttribute.Hp] = 7.5;
       attributes[CombatAttribute.Resilience] = 3.0;
       attributes[CombatAttribute.Accuracy] = 70.0;
+      attributes[CombatAttribute.Strength] = 10.0;
       break;
     case MonsterType.Zombie:
-      attributes[CombatAttribute.Strength] = 3.0;
+      attributes[CombatAttribute.Strength] = 10.0;
       attributes[CombatAttribute.Dexterity] = 1.0;
       attributes[CombatAttribute.Vitality] = 2.0;
       attributes[CombatAttribute.Resilience] = 4.0;
@@ -23,7 +24,7 @@ export default function getMonsterStartingAttributes(
       attributes[CombatAttribute.Speed] = 1.0;
       break;
     case MonsterType.SkeletonArcher:
-      attributes[CombatAttribute.Dexterity] = 3.0;
+      attributes[CombatAttribute.Dexterity] = 10.0;
       attributes[CombatAttribute.Vitality] = 1.0;
       attributes[CombatAttribute.Hp] = 4.0;
       attributes[CombatAttribute.Speed] = 10.0;
@@ -31,8 +32,8 @@ export default function getMonsterStartingAttributes(
       break;
     case MonsterType.Scavenger:
       // attributes[CombatAttribute.Dexterity] = 2.0;
-      attributes[CombatAttribute.Dexterity] = 3.0;
-      attributes[CombatAttribute.Strength] = 2.0;
+      attributes[CombatAttribute.Dexterity] = 7.0;
+      attributes[CombatAttribute.Strength] = 10.0;
       attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 1.0;
       // attributes[CombatAttribute.Agility] = 1.0;
@@ -41,7 +42,7 @@ export default function getMonsterStartingAttributes(
       break;
     case MonsterType.Vulture:
       attributes[CombatAttribute.Dexterity] = 2.5;
-      attributes[CombatAttribute.Strength] = 1.5;
+      attributes[CombatAttribute.Strength] = 10;
       attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 4.0;
       attributes[CombatAttribute.Accuracy] = 80.0;

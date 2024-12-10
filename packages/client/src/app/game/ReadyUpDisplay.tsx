@@ -62,7 +62,7 @@ export default function ReadyUpDisplay({ party }: Props) {
             <h3 className="text-xl mb-2">The room is empty of monsters</h3>
             <div className="flex justify-between">
               <HotkeyButton
-                className="h-10 pr-2 pl-2 border border-slate-400 w-full text-center hover:bg-slate-950"
+                className="h-10 pr-2 pl-2 bg-slate-950 border border-slate-400 w-full text-center hover:bg-slate-950"
                 hotkeys={["KeyG"]}
                 onClick={handleExploreClick}
               >
@@ -93,23 +93,25 @@ export default function ReadyUpDisplay({ party }: Props) {
         </div>
       )}
       <div className="max-w-fit" id="ready-to-explore-display">
-        <div
+        <button
+          onClick={handleExploreClick}
           className="border border-slate-400 bg-slate-700 h-10 
                             pr-2 pl-2 mr-4 mb-1 pointer-events-auto flex 
                             items-center max-w-fit"
         >
           {exploreButtonsText}
-        </div>
+        </button>
         <ul className="flex mb-2">{readyToExploreButtons}</ul>
         {inStaircaseRoom && (
           <>
-            <div
+            <button
+              onClick={handleDescendClick}
               className="border border-slate-400 bg-slate-700 h-10
                             pr-2 pl-2 mr-4 mb-1 pointer-events-auto flex
                             items-center"
             >
               Players voting to descend deeper into the dungeon:
-            </div>
+            </button>
             <ul className="flex">{readyToDescendButtons}</ul>
           </>
         )}
