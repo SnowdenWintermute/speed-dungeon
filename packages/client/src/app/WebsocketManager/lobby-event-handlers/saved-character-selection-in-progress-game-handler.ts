@@ -15,13 +15,13 @@ export default function savedCharacterSelectionInProgressGameHandler(
 ) {
   useGameStore.getState().mutateState((gameState) => {
     const game = gameState.game;
-    if (!game) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    if (!game) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
     game.selectedStartingFloor.max = character.deepestFloorReached;
     const partyName = getProgressionGamePartyName(game.name);
     const party = game.adventuringParties[partyName];
-    if (!party) return setAlert(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+    if (!party) return setAlert(new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST));
     const player = game.players[username];
-    if (!player) return setAlert(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+    if (!player) return setAlert(new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
 
     const previouslySelectedCharacterId = player.characterIds[0];
     if (previouslySelectedCharacterId) {
@@ -31,7 +31,7 @@ export default function savedCharacterSelectionInProgressGameHandler(
         player,
         undefined
       );
-      if (removedCharacterResult instanceof Error) return setAlert(removedCharacterResult.message);
+      if (removedCharacterResult instanceof Error) return setAlert(removedCharacterResult);
       for (const character of Object.values(party.characters))
         updateCombatantHomePosition(
           character.entityProperties.id,

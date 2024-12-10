@@ -85,7 +85,7 @@ export default function outfitNewCharacter(character: Combatant) {
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
   // TESTING
-  combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
+  // combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
 }
 
 function giveTestingCombatAttributes(combatantProperties: CombatantProperties) {

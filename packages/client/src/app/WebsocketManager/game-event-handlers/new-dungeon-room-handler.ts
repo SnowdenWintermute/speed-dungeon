@@ -10,7 +10,7 @@ export default function newDungeonRoomHandler(room: DungeonRoom) {
 
   useGameStore.getState().mutateState((gameState) => {
     const party = getCurrentParty(gameState, gameState.username || "");
-    if (party === undefined) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+    if (party === undefined) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY));
 
     itemIdsOnGround.push(...party.currentRoom.items.map((item) => item.entityProperties.id));
 

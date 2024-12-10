@@ -28,7 +28,7 @@ export function enqueueClientActionCommands(entityId: string, payloads: ActionCo
   useGameStore.getState().mutateState((gameState) => {
     const { gameName } = gameState;
     if (gameName === undefined || gameName === null)
-      return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+      return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
     if (!actionCommandReceiver.current) return console.error("NO RECEIVER");
 
     const actionCommands = payloads.map(

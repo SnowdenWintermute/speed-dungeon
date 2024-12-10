@@ -6,13 +6,14 @@ import { Battle, ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
 export default function battleFullUpdateHandler(battleOption: null | Battle) {
   useGameStore.getState().mutateState((gameState) => {
     const gameOption = gameState.game;
-    if (gameOption === null) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    if (gameOption === null) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
     const game = gameOption;
 
     if (battleOption !== null) {
       const battle = battleOption;
       const partyOption = getCurrentParty(gameState, gameState.username || "");
-      if (partyOption === undefined) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+      if (partyOption === undefined)
+        return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY));
       const party = partyOption;
       party.battleId = battle.id;
       game.battles[battle.id] = battle;

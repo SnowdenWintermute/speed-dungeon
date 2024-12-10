@@ -13,11 +13,11 @@ export default function characterDeletionHandler(
 ) {
   useGameStore.getState().mutateState((gameState) => {
     const game = gameState.game;
-    if (!game) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    if (!game) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
     const party = game.adventuringParties[partyName];
-    if (!party) return setAlert(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+    if (!party) return setAlert(new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST));
     const player = game.players[username];
-    if (!player) return setAlert(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+    if (!player) return setAlert(new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
 
     AdventuringParty.removeCharacter(party, characterId, player, undefined);
 

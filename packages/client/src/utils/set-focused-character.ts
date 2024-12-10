@@ -22,10 +22,10 @@ export default function setFocusedCharacter(id: string) {
     currentMenu.page = 1;
 
     const game = gameState.game;
-    if (!game) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-    if (!gameState.username) return setAlert(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+    if (!game) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
+    if (!gameState.username) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME));
     const playerOption = game.players[gameState.username];
-    if (!playerOption) return setAlert(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+    if (!playerOption) return setAlert(new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
     const playerOwnsCharacterSwitchingFocusAwayFrom = playerOption.characterIds.includes(
       characterSwitchingFocusAwayFromId
     );

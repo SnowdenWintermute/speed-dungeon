@@ -12,7 +12,7 @@ export default function removeCharacterFromParty(
   player: SpeedDungeonPlayer,
   battleOption: undefined | Battle
 ): Error | Combatant {
-  if (battleOption) Battle.removeCombatantTurnTrackers(battleOption, characterId);
+  if (battleOption) Battle.removeCombatant(battleOption, characterId);
 
   removeFromArray(player.characterIds, characterId);
   const character = party.characters[characterId];

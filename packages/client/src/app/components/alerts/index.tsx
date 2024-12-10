@@ -15,11 +15,13 @@ export class Alert {
   ) {}
 }
 
-export function setAlert(message: string) {
+export function setAlert(message: Error | string) {
   useAlertStore.getState().mutateState((alertState) => {
     console.info("alert set: ", message);
+    if (message instanceof Error) console.trace(message);
+    const text = message instanceof Error ? message.message : message;
     // console.trace();
-    let newAlert = new Alert(message, AlertType.Error, alertState.lastAlertId.toString());
+    let newAlert = new Alert(text, AlertType.Error, alertState.lastAlertId.toString());
 
     alertState.alerts.push(newAlert);
     alertState.lastAlertId += 1;

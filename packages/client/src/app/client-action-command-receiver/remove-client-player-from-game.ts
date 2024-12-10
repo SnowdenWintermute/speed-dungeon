@@ -11,9 +11,9 @@ export function removeClientPlayerFromGame(
 ) {
   const thumbnailIdsToRemove: string[] = [];
   useGameStore.getState().mutateState((state) => {
-    if (!state.game) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+    if (!state.game) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
     const removedPlayerResult = SpeedDungeonGame.removePlayer(state.game, username);
-    if (removedPlayerResult instanceof Error) return setAlert(removedPlayerResult.message);
+    if (removedPlayerResult instanceof Error) return setAlert(removedPlayerResult);
     for (const character of removedPlayerResult.charactersRemoved) {
       for (const item of character.combatantProperties.inventory.items.concat(
         Object.values(character.combatantProperties.equipment)
@@ -31,6 +31,5 @@ export function removeClientPlayerFromGame(
     type: ImageManagerRequestType.ItemDeletion,
     itemIds: thumbnailIdsToRemove,
   });
-
   actionCommandManager.processNextCommand();
 }
