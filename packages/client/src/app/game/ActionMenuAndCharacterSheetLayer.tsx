@@ -12,27 +12,39 @@ import { ZIndexLayers } from "../z-index-layers";
 export default function ActionMenuAndCharacterSheetLayer({ party }: { party: AdventuringParty }) {
   const currentMenu = useGameStore.getState().getCurrentMenu();
   const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
-  const topContentRef = useRef<HTMLDivElement>(null);
 
   return (
     <section
-      style={{ zIndex: ZIndexLayers.CharacterSheetAndActionMenu }}
-      className={`absolute top-0 pl-4 h-screen w-screen max-h-screen max-w-screen overflow-auto`}
+      style={{ zIndex: ZIndexLayers.CharacterSheetAndActionMenu, paddingTop: `calc(100vh / 7)` }}
+      className={`absolute top-0 h-screen w-screen max-h-screen max-w-screen overflow-auto
+      flex
+      ${viewingCharacterSheet && "justify-end"}
+      `}
     >
-      <div className="flex flex-col w-fit absolute" style={{ top: `calc(100vh / 7)` }}>
-        <div
-          ref={topContentRef}
-          className="flex items-end w-fit"
-          style={{ marginBottom: `${SPACING_REM}rem` }}
-        >
-          <div style={{ marginRight: `${SPACING_REM}rem` }}>
+      <div className={`pl-4 pr-4 flex flex-col w-fit relative`}>
+        <div className={`flex items-end w-fit`} style={{ marginBottom: `${SPACING_REM}rem` }}>
+          <div className="relative" style={{ marginRight: `${SPACING_REM}rem` }}>
             <ActionMenu inputLocked={InputLock.isLocked(party.inputLock)} />
+            {!viewingCharacterSheet && (
+              <div
+                className="absolute top-0 w-full"
+                style={{ left: `calc(100% + ${SPACING_REM}rem)` }}
+              >
+                <ItemsOnGround maxHeightRem={13.375} party={party} />{" "}
+                <div
+                  className="absolute min-w-[50rem] max-w-[50rem]"
+                  style={{ top: `calc(100% + ${SPACING_REM}rem)` }}
+                >
+                  <ItemDetailsWithComparison flipDisplayOrder={false} />
+                </div>
+              </div>
+            )}
           </div>
           <CharacterSheet showCharacterSheet={viewingCharacterSheet} />
         </div>
         <div className="flex">
           <div className="min-w-[25rem] max-w-[25rem]" style={{ marginRight: `${SPACING_REM}rem` }}>
-            <ItemsOnGround maxHeightRem={13.375} party={party} />
+            {viewingCharacterSheet && <ItemsOnGround maxHeightRem={13.375} party={party} />}
           </div>
           {viewingCharacterSheet && <ItemDetailsWithComparison flipDisplayOrder={false} />}
         </div>
