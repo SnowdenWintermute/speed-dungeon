@@ -9,6 +9,7 @@ import {
   Item,
   ItemPropertiesType,
   MonsterType,
+  formatEquipmentSlot,
   removeFromArray,
 } from "@speed-dungeon/common";
 import {
@@ -48,10 +49,14 @@ class ModelMessageQueue {
           this.modelManager.despawnCharacterModel(this.entityId);
           break;
         case ModelManagerMessageType.ChangeEquipment:
+          console.log(
+            "unequippedSlots: ",
+            currentMessageProcessing.unequippedSlots.map((item) => formatEquipmentSlot(item))
+          );
           for (const slot of currentMessageProcessing.unequippedSlots)
-            this.modelManager.handleEquipmentChange(this.entityId, slot);
+            await this.modelManager.handleEquipmentChange(this.entityId, slot);
           if (currentMessageProcessing.toEquip)
-            this.modelManager.handleEquipmentChange(
+            await this.modelManager.handleEquipmentChange(
               this.entityId,
               currentMessageProcessing.toEquip.slot,
               currentMessageProcessing.toEquip.item
@@ -87,8 +92,8 @@ export class ModelManager {
   async handleEquipmentChange(entityId: string, slot: EquipmentSlot, item?: Item) {
     const modularCharacter = this.combatantModels[entityId];
     if (!modularCharacter) return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-    if (!item) modularCharacter.unequipItem(slot);
-    else modularCharacter.equipItem(item, slot);
+    if (!item) await modularCharacter.unequipItem(slot);
+    else await modularCharacter.equipItem(item, slot);
   }
 
   async spawnCharacterModel(

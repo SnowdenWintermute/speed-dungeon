@@ -6,8 +6,6 @@ import {
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 
 export default function characterDroppedItemHandler(characterAndItem: CharacterAndItem) {
   const { characterId, itemId } = characterAndItem;
@@ -19,9 +17,4 @@ export default function characterDroppedItemHandler(characterAndItem: CharacterA
     const item = itemResult;
     party.currentRoom.items.push(item);
   });
-
-  // gameWorld.current?.imageManager.enqueueMessage({
-  //   type: ImageManagerRequestType.ItemDeletion,
-  //   itemIds: [itemId],
-  // });
 }

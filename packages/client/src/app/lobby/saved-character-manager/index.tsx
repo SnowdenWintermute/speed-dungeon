@@ -74,7 +74,7 @@ export default function SavedCharacterManager() {
                       <span
                         className="text-red-600"
                         style={{
-                          textShadow: "2px 2px 2px #000000",
+                          textShadow: "2px 2px 0px #000000",
                         }}
                       >
                         DEAD

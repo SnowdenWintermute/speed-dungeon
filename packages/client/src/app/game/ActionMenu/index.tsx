@@ -33,8 +33,9 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   // a component render, which is what happens if you try to call currentMenu.getButtonProperties()
   // directly in the component
   useEffect(() => {
-    const numPages = Math.ceil(
-      buttonProperties[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE
+    const numPages = Math.max(
+      1,
+      Math.ceil(buttonProperties[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE)
     );
     useGameStore.getState().mutateState((state) => {
       getCurrentMenu(state).numPages = numPages;

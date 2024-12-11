@@ -25,6 +25,7 @@ import {
   Item,
   ItemPropertiesType,
   equipmentIsTwoHandedWeapon,
+  formatEquipmentSlot,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
@@ -174,7 +175,10 @@ export class ModularCharacter {
   }
 
   async unequipItem(slot: EquipmentSlot) {
+    console.log("unequiping model for slot ", formatEquipmentSlot(slot), this.equipment[slot]);
+    if (!this.equipment[slot]) return;
     disposeAsyncLoadedScene(this.equipment[slot], this.world.scene);
+    delete this.equipment[slot];
   }
 
   async equipItem(item: Item, slot: EquipmentSlot) {

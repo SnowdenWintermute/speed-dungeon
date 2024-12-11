@@ -3,7 +3,6 @@ import React from "react";
 
 export default function FloatingMessageText({
   classNames,
-  shadowTextClassnames,
   text,
 }: {
   classNames?: string;
@@ -11,14 +10,11 @@ export default function FloatingMessageText({
   text: string | number;
 }) {
   return (
-    <div className="relative mr-1">
-      <div className={classNames}>{text}</div>
-      <div
-        className={`${shadowTextClassnames} absolute text-black top-[3px] left-[3px]`}
-        style={{ zIndex: ZIndexLayers.FloatingMessagesTextShadow }}
-      >
-        {text}
-      </div>
+    <div
+      className={classNames}
+      style={{ zIndex: ZIndexLayers.FloatingMessages, textShadow: "2px 2px 0px #000000" }}
+    >
+      {text}
     </div>
   );
 }
