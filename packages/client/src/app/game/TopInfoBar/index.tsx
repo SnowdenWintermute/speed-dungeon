@@ -7,6 +7,7 @@ import { ClientToServerEvent, formatDungeonRoomType } from "@speed-dungeon/commo
 import getGameAndParty from "@/utils/getGameAndParty";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { ZIndexLayers } from "@/app/z-index-layers";
 
 export default function TopInfoBar() {
   const gameOption = useGameStore().game;
@@ -42,7 +43,10 @@ export default function TopInfoBar() {
         </HotkeyButton>
       </div>
       {showLeaveGameModal && (
-        <div className="absolute z-50 max-w-96 top-24 p-8 border border-slate-400 bg-slate-950 pointer-events-auto">
+        <div
+          className={`absolute max-w-96 top-24 p-8 border border-slate-400 bg-slate-950 pointer-events-auto`}
+          style={{ zIndex: ZIndexLayers.GameModal }}
+        >
           <h4 className="text-lg mb-1">Leaving the game...</h4>
           <div className="mb-1">
             <p className="mb-1">

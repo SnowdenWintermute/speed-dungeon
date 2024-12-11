@@ -21,6 +21,7 @@ import { useLobbyStore } from "@/stores/lobby-store";
 import AuthFormContainer from "./auth-forms";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import SavedCharacterManager from "./saved-character-manager";
+import { ZIndexLayers } from "../z-index-layers";
 
 export default function Lobby() {
   const socketOption = websocketConnection;
@@ -58,9 +59,10 @@ export default function Lobby() {
       >
         <div
           id="games-container"
-          className="h-full border-slate-400"
+          className="h-full border-slate-400 relative"
           style={{
             width: `calc(100% - ${usersContainerWidth}px)`,
+            zIndex: ZIndexLayers.LobbyGameSetup,
           }}
         >
           {!showSavedCharacterManager && <GamesSection />}
@@ -70,6 +72,7 @@ export default function Lobby() {
           className="h-full max-h-full"
           style={{
             width: `${usersContainerWidth}px`,
+            zIndex: ZIndexLayers.UsersList,
           }}
         >
           <UserList />
@@ -77,14 +80,24 @@ export default function Lobby() {
       </section>
       <section
         id="auth-form-section"
-        className="absolute h-full w-full z-20 top-0 right-0 flex items-center justify-center"
+        className={`absolute h-full w-full top-0 right-0 flex items-center justify-center`}
+        style={{ zIndex: ZIndexLayers.AuthForm }}
       >
         {!hideAuthForm && <AuthFormContainer />}
+      </section>
+      <section
+        id="saved-characters-section"
+        className={`absolute h-full w-full top-0 right-0 flex items-center justify-center`}
+        style={{ zIndex: -0 }}
+      >
         {currentSessionHttpResponseTracker?.statusCode === 200 && websocketConnected && (
           <SavedCharacterManager />
         )}
       </section>
-      <div className="absolute z-10 bottom-0 w-full p-7 flex items-center justify-center">
+      <div
+        className={`absolute bottom-0 w-full p-7 flex items-center justify-center`}
+        style={{ zIndex: ZIndexLayers.PlayNowButton }}
+      >
         {!showGameCreationForm && !showSavedCharacterManager && websocketConnected && (
           <HoverableTooltipWrapper
             offsetTop={8}

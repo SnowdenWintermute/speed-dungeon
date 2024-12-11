@@ -18,6 +18,7 @@ import CreateCharacterForm from "./CreateCharacterForm";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import DeleteCharacterForm from "./DeleteCharacterForm";
+import { ZIndexLayers } from "@/app/z-index-layers";
 
 export const CHARACTER_SLOT_SPACING = 1;
 export const CHARACTER_MANAGER_HOTKEY = "S";
@@ -57,7 +58,7 @@ export default function SavedCharacterManager() {
 
   return (
     <>
-      <div className="w-full h-full absolute ">
+      <div className="w-full h-full absolute">
         {Object.entries(savedCharacters)
           .filter(([_slot, characterOption]) => characterOption !== null)
           .map(([slot, character]) => {
@@ -67,11 +68,17 @@ export default function SavedCharacterManager() {
                 index={parseInt(slot)}
                 key={character!.combatant.entityProperties.id}
               >
-                <div className="w-full h-full flex justify-center">
+                <div className="w-full h-full flex justify-center items-center">
                   {character!.combatant.combatantProperties.hitPoints <= 0 && (
                     <div className="relative text-2xl">
-                      <span className="text-red-600">DEAD</span>
-                      <span className="absolute z-[-1] text-black top-[3px] left-[3px]">DEAD</span>
+                      <span
+                        className="text-red-600"
+                        style={{
+                          textShadow: "2px 2px 2px #000000",
+                        }}
+                      >
+                        DEAD
+                      </span>
                     </div>
                   )}
                 </div>

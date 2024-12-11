@@ -1,6 +1,7 @@
 import { useAlertStore } from "@/stores/alert-store";
 import React from "react";
 import { removeAlert } from ".";
+import { ZIndexLayers } from "@/app/z-index-layers";
 
 export default function AlertManager() {
   const alerts = useAlertStore().alerts;
@@ -13,7 +14,10 @@ export default function AlertManager() {
   }
 
   return (
-    <ul className="absolute z-50 p-3 list-none flex flex-col-reverse">
+    <ul
+      className={`absolutep-3 list-none flex flex-col-reverse`}
+      style={{ zIndex: ZIndexLayers.Alerts }}
+    >
       {alerts
         .map((alert) => (
           <li key={`alert-${alert.id}`}>

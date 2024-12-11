@@ -7,6 +7,7 @@ import CharacterSheet from "./character-sheet";
 import { useGameStore } from "@/stores/game-store";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
 import { SPACING_REM } from "@/client_consts";
+import { ZIndexLayers } from "../z-index-layers";
 
 export default function ActionMenuAndCharacterSheetLayer({ party }: { party: AdventuringParty }) {
   const currentMenu = useGameStore.getState().getCurrentMenu();
@@ -15,7 +16,8 @@ export default function ActionMenuAndCharacterSheetLayer({ party }: { party: Adv
 
   return (
     <section
-      className={`absolute top-0 pl-4 z-31 h-screen w-screen max-h-screen max-w-screen overflow-auto`}
+      style={{ zIndex: ZIndexLayers.CharacterSheetAndActionMenu }}
+      className={`absolute top-0 pl-4 h-screen w-screen max-h-screen max-w-screen overflow-auto`}
     >
       <div className="flex flex-col w-fit absolute" style={{ top: `calc(100vh / 7)` }}>
         <div

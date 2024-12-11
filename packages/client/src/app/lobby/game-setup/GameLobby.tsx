@@ -11,6 +11,7 @@ import React, { ReactNode, useEffect, useRef, useState } from "react";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { SPACING_REM_LARGE } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import { ZIndexLayers } from "@/app/z-index-layers";
 
 interface Props {
   game: SpeedDungeonGame;
@@ -83,7 +84,10 @@ export default function GameLobby({ game, children }: Props) {
       >
         {children}
       </div>
-      <div className="absolute z-10 bottom-0 left-0 w-full p-7 flex items-center justify-center">
+      <div
+        className={`absolute  bottom-0 left-0 w-full p-7 flex items-center justify-center`}
+        style={{ zIndex: ZIndexLayers.ReadyButton }}
+      >
         <HotkeyButton
           hotkeys={["Space"]}
           onClick={toggleReady}

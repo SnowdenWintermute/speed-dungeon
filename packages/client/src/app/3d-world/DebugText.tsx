@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useUIStore } from "@/stores/ui-store";
 import { useGameStore } from "@/stores/game-store";
+import { ZIndexLayers } from "../z-index-layers";
 
 export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTMLUListElement> }) {
   const thumbnails = useGameStore((state) => state.itemThumbnails);
@@ -69,8 +70,8 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
 
   return (
     <div
-      className={`absolute z-50 bottom-10 left-10 flex flex-col ${!showDebug && "hidden"} pointer-events-auto bg-black h-fit border border-white`}
-      style={{ top: `${y}px`, left: `${x}px` }}
+      className={`absolute bottom-10 left-10 flex flex-col ${!showDebug && "hidden"} pointer-events-auto bg-black h-fit border border-white`}
+      style={{ top: `${y}px`, left: `${x}px`, zIndex: ZIndexLayers.DebugText }}
     >
       <div className="cursor-grab border-b border-white flex justify-between" ref={headerRef}>
         <h5 className="p-2 ">DEBUG</h5>
@@ -91,7 +92,7 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
           Num thumbnails: {Object.keys(thumbnails).length}
         </li>
         {Object.entries(thumbnails).map(([id, data], i) => (
-          <div className="relative" key={id} >
+          <div className="relative" key={id}>
             <div className="absolute top-0 left-0 border bg-slate-800">{i}</div>
             <button
               onClick={() => {

@@ -1,6 +1,7 @@
 import { useUIStore } from "@/stores/ui-store";
 import Triangle from "../../../../public/img/basic-shapes/triangle.svg";
 import React, { useEffect, useRef, useState } from "react";
+import { ZIndexLayers } from "@/app/z-index-layers";
 
 interface Props {
   title: string;
@@ -144,7 +145,8 @@ export default function SelectDropdown(props: Props) {
       {selectedOptionAsOpenButton}
       {isOpen && (
         <ul
-          className={`absolute z-10 w-full border border-b-0 border-slate-400 
+          style={{ zIndex: ZIndexLayers.Dropdown }}
+          className={`absolute w-full border border-b-0 border-slate-400 
        ${props.disabled && "opacity-50"}
        `}
         >

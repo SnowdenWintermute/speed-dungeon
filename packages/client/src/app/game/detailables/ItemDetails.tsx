@@ -14,6 +14,7 @@ import Divider from "@/app/components/atoms/Divider";
 import Model3DIcon from "../../../../public/img/menu-icons/3d-model-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { getModelAttribution } from "@/app/3d-world/combatant-models/get-model-attribution";
+import { ZIndexLayers } from "@/app/z-index-layers";
 
 interface Props {
   title: string;
@@ -95,7 +96,10 @@ export default function ItemDetails({
       }}
     >
       {shouldShowModKeyTooltip && isComparedItem && (
-        <div className="border border-slate-400 p-2 z-30 absolute -right-4 -top-10 translate-y-1/2 bg-slate-800">
+        <div
+          style={{ zIndex: ZIndexLayers.ItemDetails }}
+          className={`border border-slate-400 p-2 absolute -right-4 -top-10 translate-y-1/2 bg-slate-800`}
+        >
           <ModKeyTooltip />
         </div>
       )}

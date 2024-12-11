@@ -13,7 +13,10 @@ export default function TargetingIndicators({ party, entityId }: Props) {
   if (targetedBy instanceof Error) return <div>targeting error: {targetedBy.message}</div>;
 
   return targetedBy.length ? (
-    <div className="absolute top-[-1.5rem] left-1/2 -translate-x-1/2 z-20 flex">
+    <div
+      className="absolute top-[-1.5rem] left-1/2 -translate-x-1/2 flex"
+      style={{ zIndex: ZIndexLayers.TargetingIndicators }}
+    >
       {targetedBy.map(([_, combatAction], i) => (
         <TargetingIndicator key={i} combatAction={combatAction} />
       ))}
@@ -25,6 +28,7 @@ export default function TargetingIndicators({ party, entityId }: Props) {
 
 import React from "react";
 import { CombatAction, CombatActionType } from "@speed-dungeon/common";
+import { ZIndexLayers } from "@/app/z-index-layers";
 
 interface TargetingIndicatorProps {
   combatAction: CombatAction;

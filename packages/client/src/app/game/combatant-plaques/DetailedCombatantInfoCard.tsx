@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import CombatantDisplay from "../detailables/CombatantDisplay";
 import { SPACING_REM_SMALL } from "@/client_consts";
 import { Combatant } from "@speed-dungeon/common";
+import { ZIndexLayers } from "@/app/z-index-layers";
 
 interface Props {
   combatantId: string;
@@ -19,7 +20,7 @@ export default function DetailedCombatantInfoCard(props: Props) {
     left: "-1000px",
   });
   // const [cardPositionStyle, setCardPositionStyle] = useState<{ [key: string]: string }>({});
-  let infoButtonHoveredStyles = "";
+  let infoButtonHoveredStyles: { [key: string]: string | number } = {};
 
   let combatantOption: Combatant | undefined;
   if (
@@ -27,7 +28,7 @@ export default function DetailedCombatantInfoCard(props: Props) {
     hoveredEntity.entityProperties.id === props.combatantId
   ) {
     combatantOption = hoveredEntity;
-    infoButtonHoveredStyles = "z-50";
+    infoButtonHoveredStyles = { zIndex: ZIndexLayers.CombatantInfoCard };
   } else if (
     detailedEntity instanceof Combatant &&
     detailedEntity.entityProperties.id === props.combatantId
@@ -76,7 +77,7 @@ export default function DetailedCombatantInfoCard(props: Props) {
   return (
     <div
       className={`absolute box-border ${infoButtonHoveredStyles}`}
-      style={cardPositionStyle}
+      style={{ ...cardPositionStyle, ...infoButtonHoveredStyles }}
       ref={detailedInfoContainerRef}
     >
       {detailedInfoCard}

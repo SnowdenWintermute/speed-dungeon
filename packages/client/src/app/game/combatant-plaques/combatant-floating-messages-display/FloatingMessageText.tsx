@@ -1,3 +1,4 @@
+import { ZIndexLayers } from "@/app/z-index-layers";
 import React from "react";
 
 export default function FloatingMessageText({
@@ -12,7 +13,10 @@ export default function FloatingMessageText({
   return (
     <div className="relative mr-1">
       <div className={classNames}>{text}</div>
-      <div className={`${shadowTextClassnames} absolute z-[-1] text-black top-[3px] left-[3px]`}>
+      <div
+        className={`${shadowTextClassnames} absolute text-black top-[3px] left-[3px]`}
+        style={{ zIndex: ZIndexLayers.FloatingMessagesTextShadow }}
+      >
         {text}
       </div>
     </div>

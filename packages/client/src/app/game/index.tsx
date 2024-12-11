@@ -12,6 +12,7 @@ import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
 import CurrentItemUnmetRequirementsUpdater from "./CurrentItemUnmetRequirementsUpdater";
 import ActionMenuAndCharacterSheetLayer from "./ActionMenuAndCharacterSheetLayer";
+import { ZIndexLayers } from "../z-index-layers";
 
 export default function Game() {
   const game = useGameStore().game;
@@ -51,6 +52,7 @@ export default function Game() {
     <>
       <main
         className={`h-screen w-screen flex justify-center relative overflow-hidden ${viewingCharacterSheet && "opacity-50"}`}
+        style={{ zIndex: ZIndexLayers.MainUI }}
       >
         <CharacterAutofocusManager />
         <CurrentItemUnmetRequirementsUpdater />

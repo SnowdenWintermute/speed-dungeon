@@ -9,6 +9,7 @@ import { useGameStore } from "@/stores/game-store";
 import Divider from "../components/atoms/Divider";
 import DeleteAccountForm from "../lobby/auth-forms/delete-account-form";
 import ChangeUsernameForm from "../lobby/auth-forms/change-username-form";
+import { ZIndexLayers } from "../z-index-layers";
 
 export default function Settings() {
   const mutateUIState = useUIStore().mutateState;
@@ -29,7 +30,8 @@ export default function Settings() {
   return (
     <section
       aria-label="settings menu"
-      className="absolute h-full w-full z-30 bg-slate-700 pointer-events-auto"
+      className={`absolute h-full w-full bg-slate-700 pointer-events-auto`}
+      style={{ zIndex: ZIndexLayers.SettingsMenu }}
     >
       <div
         className="h-10 w-full border-b border-slate-400 flex items-center justify-between"
