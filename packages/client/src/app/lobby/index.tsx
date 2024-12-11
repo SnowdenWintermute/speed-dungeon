@@ -16,7 +16,7 @@ import DiscordLogo from "../../../public/discord-logo.svg";
 import Link from "next/link";
 import WithTopBar from "../components/layouts/with-top-bar";
 import { useHttpRequestStore } from "@/stores/http-request-store";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLobbyStore } from "@/stores/lobby-store";
 import AuthFormContainer from "./auth-forms";
 import { websocketConnection } from "@/singletons/websocket-connection";

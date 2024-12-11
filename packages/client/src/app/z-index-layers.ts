@@ -17,6 +17,7 @@ export enum ZIndexLayers {
   CombatantInfoCard,
   ItemDetails,
   GameModal,
+  UserMenu,
   SettingsMenu,
   Tooltip,
   DebugText,

@@ -15,7 +15,7 @@ export default function AlertManager() {
 
   return (
     <ul
-      className={`absolutep-3 list-none flex flex-col-reverse`}
+      className={`absolute p-3 list-none flex flex-col-reverse`}
       style={{ zIndex: ZIndexLayers.Alerts }}
     >
       {alerts

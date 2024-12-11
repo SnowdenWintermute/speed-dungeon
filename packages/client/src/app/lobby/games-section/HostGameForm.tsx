@@ -1,5 +1,5 @@
 import { ClientToServerEvent, GameMode, formatGameMode } from "@speed-dungeon/common";
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import TextInput from "@/app/components/atoms/TextInput";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { useHttpRequestStore } from "@/stores/http-request-store";
@@ -15,7 +15,7 @@ export default function HostGameForm() {
   // const [selectedGameMode, setSelectedGameMode] = useState(
   //   isLoggedIn ? GameMode.Progression : GameMode.Race
   // );
-  const [selectedGameMode, setSelectedGameMode] = useState(GameMode.Race);
+  const [selectedGameMode, setSelectedGameMode] = useState(GameMode.Progression);
   const [isRanked, setIsRanked] = useState(isLoggedIn);
   const [gameName, setGameName] = useState("");
   const [gamePassword, setGamePassword] = useState("");
@@ -30,6 +30,11 @@ export default function HostGameForm() {
       isRanked,
     });
   }
+
+  useEffect(() => {
+    if (!isLoggedIn) setSelectedGameMode(GameMode.Race);
+    if (!isLoggedIn) setIsRanked(false);
+  }, [isLoggedIn]);
 
   return (
     <form
@@ -49,15 +54,15 @@ export default function HostGameForm() {
             autoComplete="new-password"
           />
           {
-          // <TextInput
-          // className="bg-slate-700 border border-slate-400 h-10 p-4 min-w-0 flex-1 ml-1"
-          // type="password"
-          // name="password"
-          // placeholder="Password..."
-          // onChange={(e) => setGamePassword(e.target.value)}
-          // value={gamePassword}
-          // autoComplete="new-password"
-          //   />
+            // <TextInput
+            // className="bg-slate-700 border border-slate-400 h-10 p-4 min-w-0 flex-1 ml-1"
+            // type="password"
+            // name="password"
+            // placeholder="Password..."
+            // onChange={(e) => setGamePassword(e.target.value)}
+            // value={gamePassword}
+            // autoComplete="new-password"
+            //   />
           }
         </div>
         <div className="flex items-center font-bold">
