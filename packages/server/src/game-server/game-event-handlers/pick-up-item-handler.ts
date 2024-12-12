@@ -22,6 +22,10 @@ export default function pickUpItemHandler(
     // make sure all players know about the item or else desync will occur
     if (party.itemsOnGroundNotYetReceivedByAllClients[itemId] !== undefined)
       return new Error(ERROR_MESSAGES.ITEM.NOT_YET_AVAILABLE);
+
+    // let them pick up to capacity
+    if (character.combatantProperties.inventory.items.length >= INVENTORY_DEFAULT_CAPACITY) break;
+
     const itemOption = Item.removeFromArray(party.currentRoom.items, itemId);
     if (itemOption === undefined) return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
     character.combatantProperties.inventory.items.push(itemOption);

@@ -17,7 +17,6 @@ import { getModelAttribution } from "@/app/3d-world/combatant-models/get-model-a
 import { ZIndexLayers } from "@/app/z-index-layers";
 
 interface Props {
-  title: string;
   shouldShowModKeyTooltip: boolean;
   itemOption: null | Item;
   extraStyles: string;
@@ -28,7 +27,6 @@ interface Props {
 export const UNMET_REQUIREMENTS_FILTER = "grayscale(1) brightness(0.8) sepia(1) hue-rotate(-90deg)";
 
 export default function ItemDetails({
-  title,
   shouldShowModKeyTooltip,
   itemOption,
   extraStyles,

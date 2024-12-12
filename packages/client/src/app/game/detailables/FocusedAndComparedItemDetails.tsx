@@ -8,10 +8,9 @@ import shouldDisplayModTooltip from "./should-display-mod-tooltip";
 
 interface Props {
   focusedItem: Item;
-  flipDisplayOrder: boolean;
 }
 
-export default function FocusedAndComparedItemDetails({ focusedItem, flipDisplayOrder }: Props) {
+export default function FocusedAndComparedItemDetails({ focusedItem }: Props) {
   const mutateGameState = useGameStore().mutateState;
   const comparedItemOption = useGameStore().comparedItem;
   const comparedSlotOption = useGameStore().comparedSlot;
@@ -30,11 +29,10 @@ export default function FocusedAndComparedItemDetails({ focusedItem, flipDisplay
   const focusedItemDisplay = (
     <ItemDetails
       key="considered"
-      title={"Item Considering"}
       shouldShowModKeyTooltip={false}
       itemOption={focusedItem}
       extraStyles={""}
-      marginSide={flipDisplayOrder ? "Left" : "Right"}
+      marginSide={"Right"}
       isComparedItem={false}
     />
   );
@@ -42,17 +40,15 @@ export default function FocusedAndComparedItemDetails({ focusedItem, flipDisplay
   const comparedItemDisplay = (
     <ItemDetails
       key="compared"
-      title={"Compared Item"}
       shouldShowModKeyTooltip={shouldDisplayModTooltip(comparedSlotOption, focusedItem)}
       itemOption={comparedItemOption}
       extraStyles={""}
-      marginSide={flipDisplayOrder ? "Right" : "Left"}
+      marginSide={"Left"}
       isComparedItem={true}
     />
   );
 
   const displays = [focusedItemDisplay, comparedItemDisplay];
-  if (flipDisplayOrder) displays.reverse();
 
   return (
     <div className="flex-grow flex">

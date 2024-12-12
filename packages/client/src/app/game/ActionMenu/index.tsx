@@ -37,6 +37,7 @@ import {
 } from "./menu-state/considering-item";
 import ItemDetailsWithComparison from "../ItemDetailsWithComparison";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
+import Divider from "@/app/components/atoms/Divider";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
@@ -101,7 +102,8 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
       >
         <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex flex-col items-center pointer-events-auto">
-          <div className="mb-2">{currentMenu.item.entityProperties.name}</div>
+          <div className="">{currentMenu.item.entityProperties.name}</div>
+          <Divider extraStyles="w-full" />
           {currentMenu.item.itemProperties.type === ItemPropertiesType.Consumable ? (
             <div>Select "use" to choose a target for this consumable</div>
           ) : (
@@ -128,7 +130,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
     hoveredItemDisplay = (
       <div className="pl-2">
         <div className="min-w-[50rem] max-w-[50rem]">
-          <ItemDetailsWithComparison flipDisplayOrder={false} />
+          <ItemDetailsWithComparison />
         </div>
       </div>
     );

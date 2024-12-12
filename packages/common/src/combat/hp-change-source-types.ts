@@ -14,7 +14,8 @@ export class HpChangeSource {
     public kineticDamageTypeOption?: KineticDamageType,
     public elementOption?: MagicalElement,
     public unavoidable?: boolean,
-    public isHealing?: boolean
+    public isHealing?: boolean,
+    public lifestealPercentage?: number
   ) {}
 }
 

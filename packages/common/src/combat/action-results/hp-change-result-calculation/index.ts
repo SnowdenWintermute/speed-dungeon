@@ -1,9 +1,5 @@
 import cloneDeep from "lodash.clonedeep";
-import {
-  CombatAttribute,
-  CombatantProperties,
-  CombatantTraitType,
-} from "../../../combatants/index.js";
+import { CombatAttribute, CombatantProperties } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatActionProperties } from "../../combat-actions/index.js";
@@ -164,6 +160,11 @@ export default function calculateActionHitPointChangesAndEvasions(
     hpChange.value = Math.floor(hpChange.value);
 
     hitPointChanges[id] = hpChange;
+
+    // apply lifesteal trait
+    // determine if hp change source has lifesteal
+    // get the percent
+    // add it to the lifesteal hp change of the action user
   }
 
   return { hitPointChanges, evasions };
