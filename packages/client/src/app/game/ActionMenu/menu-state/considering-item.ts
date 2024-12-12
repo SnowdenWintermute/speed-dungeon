@@ -23,6 +23,7 @@ import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 const useItemHotkey = HOTKEYS.MAIN_1;
 const useItemLetter = letterFromKeyCode(useItemHotkey);
 export const USE_CONSUMABLE_BUTTON_TEXT = `Use (${useItemLetter})`;
+export const EQUIP_ITEM_BUTTON_TEXT = `Equip (${useItemLetter})`;
 
 export class ConsideringItemMenuState implements ActionMenuState {
   page = 1;
@@ -73,7 +74,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
               });
             });
           else
-            return new ActionMenuButtonProperties(`Equip (${useItemLetter})`, () => {
+            return new ActionMenuButtonProperties(EQUIP_ITEM_BUTTON_TEXT, () => {
               websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
                 characterId,
                 itemId,

@@ -23,7 +23,9 @@ export default function ActionMenuAndCharacterSheetLayer({ party }: { party: Adv
     >
       <div className={`pl-4 pr-4 flex flex-col w-fit relative overflow-auto`}>
         <div className={`flex items-end w-fit`} style={{ marginBottom: `${SPACING_REM}rem` }}>
-          <ActionMenu inputLocked={InputLock.isLocked(party.inputLock)} />
+          <div style={{ marginRight: `${SPACING_REM}rem` }}>
+            <ActionMenu inputLocked={InputLock.isLocked(party.inputLock)} />
+          </div>
           <CharacterSheet showCharacterSheet={viewingCharacterSheet} />
         </div>
         <div className="flex">

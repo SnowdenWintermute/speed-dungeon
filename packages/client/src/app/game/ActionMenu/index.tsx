@@ -21,11 +21,20 @@ import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicated
 import NumberedButton from "./action-menu-buttons/NumberedButton";
 import setFocusedCharacter from "@/utils/set-focused-character";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { Item, NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
+import {
+  Item,
+  ItemPropertiesType,
+  NextOrPrevious,
+  getNextOrPreviousNumber,
+} from "@speed-dungeon/common";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { VIEW_LOOT_BUTTON_TEXT } from "./menu-state/base";
-import { USE_CONSUMABLE_BUTTON_TEXT } from "./menu-state/considering-item";
+import {
+  ConsideringItemMenuState,
+  EQUIP_ITEM_BUTTON_TEXT,
+  USE_CONSUMABLE_BUTTON_TEXT,
+} from "./menu-state/considering-item";
 import ItemDetailsWithComparison from "../ItemDetailsWithComparison";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
 
@@ -84,6 +93,25 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
     );
   }
 
+  let detailedItemDisplay = <></>;
+  if (currentMenu instanceof ConsideringItemMenuState) {
+    detailedItemDisplay = (
+      <div
+        className="min-w-[25rem] max-w-[25rem]"
+        style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
+      >
+        <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex flex-col items-center">
+          <div className="mb-2">{currentMenu.item.entityProperties.name}</div>
+          {currentMenu.item.itemProperties.type === ItemPropertiesType.Consumable ? (
+            <div>Select "use" to choose a target for this consumable</div>
+          ) : (
+            <div>Equipping this item will swap it with any currently equipped item</div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   let hoveredActionDisplay: ReactNode | null = null;
   if (hoveredAction) {
     hoveredActionDisplay = (
@@ -118,7 +146,8 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
             if (
               button.text === VIEW_LOOT_BUTTON_TEXT ||
               button.text === EXECUTE_BUTTON_TEXT ||
-              button.text === USE_CONSUMABLE_BUTTON_TEXT
+              button.text === USE_CONSUMABLE_BUTTON_TEXT ||
+              button.text === EQUIP_ITEM_BUTTON_TEXT
             )
               return "bg-slate-800 border-white";
             return "border-slate-400 bg-slate-700";
@@ -171,6 +200,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
               );
             })}
           {selectedActionDisplay}
+          {detailedItemDisplay}
         </ul>
         {hoveredActionDisplay}
         {hoveredItemDisplay}

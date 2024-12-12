@@ -25,7 +25,7 @@ export default function ItemsOnGround({ party, maxHeightRem }: Props) {
 
   return (
     <div
-      className="w-full border border-yellow-400 bg-slate-800 p-2 pointer-events-auto flex flex-col h-fit"
+      className="w-full border bg-slate-700 p-2 pointer-events-auto flex flex-col h-fit"
       style={{ maxHeight: `${maxHeightRem}rem` }}
     >
       <div className="flex justify-between">
