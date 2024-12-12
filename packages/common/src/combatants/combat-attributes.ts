@@ -4,30 +4,20 @@ import {
 } from "../app-consts.js";
 
 export enum CombatAttribute {
-  // DERIVED
-  // offensive
-  ArmorPenetration, // subtracted from target's armor class
-  Accuracy, // after target's evasion subtracted, the chance for an evadable actions to
-  // hit its target
-  // defensive
-  ArmorClass, // compared with final damage of physical attack, reduces damage on a curve
-  Evasion, // reduces the chance to be hit by evadable actions
-  Hp, // if 0 or below, a combatant can no longer take actions
-  // utility
-  Speed, // determines turn order
-  Mp, // a resource for ability use
-  // MAIN
-  // offensive
-  Strength, // damage with melee attacks, melee crit multiplier, melee armor pen, shield block
-  // chance
-  Dexterity, // ranged damage, accuracy, physical crit chance, armor ranged armor pen, shield
-  // block chance
+  Strength, // damage with melee attacks, melee crit multiplier, melee armor pen, shield block chance
+  Dexterity, // ranged damage, accuracy, physical crit chance, armor ranged armor pen, shield block chance
   Intelligence, // mp, magic ability damage
-  Focus, // negates %magic reduction and increases spell crit chance and crit multiplier
-  // defensive
   Vitality, // hp, and debuff duration, shield block damage reduction
+  Focus, // negates %magic reduction and increases spell crit chance and crit multiplier
   Resilience, // %magic damage reduction, healing received, debuff duration
   Agility, // movement speed, evasion, physical crit chance reduction
+  Speed, // determines turn order
+  ArmorClass, // compared with final damage of physical attack, reduces damage on a curve
+  ArmorPenetration, // subtracted from target's armor class
+  Accuracy, // after target's evasion subtracted, the chance for an evadable actions to hit its target
+  Evasion, // reduces the chance to be hit by evadable actions
+  Hp, // if 0 or below, a combatant can no longer take actions
+  Mp, // a resource for ability use
 }
 
 export const CORE_ATTRIBUTES = [

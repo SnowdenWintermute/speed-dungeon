@@ -33,16 +33,21 @@ export default function CharacterAttributes({ combatant, showAttributeAssignment
       : "";
 
   const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
-  const totalAttributesSortedArray: [CombatAttribute, number][] = Object.entries(
-    totalAttributes
-  ).map(([key, value]) => {
-    const attribute = parseInt(key) as CombatAttribute;
-    return [attribute, value];
-  });
+  let totalAttributesSortedArray: [CombatAttribute, number][] = Object.entries(totalAttributes).map(
+    ([key, value]) => {
+      const attribute = parseInt(key) as CombatAttribute;
+      return [attribute, value];
+    }
+  );
+  totalAttributesSortedArray = totalAttributesSortedArray.filter(
+    ([attribute, _value]) => attribute !== CombatAttribute.Hp && attribute !== CombatAttribute.Mp
+  );
+
   totalAttributesSortedArray.sort((a, b) => a[0] - b[0]);
   const numberOfAttributes = totalAttributesSortedArray.length;
   const halfNumberOfAttributes =
     numberOfAttributes % 2 === 0 ? numberOfAttributes / 2 : (numberOfAttributes - 1) / 2;
+
   const listItems = totalAttributesSortedArray.map(([attribute, value]) => (
     <AttributeListItem
       key={attribute}
