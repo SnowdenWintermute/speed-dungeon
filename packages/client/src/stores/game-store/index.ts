@@ -24,6 +24,7 @@ import { InventoryItemsMenuState } from "@/app/game/ActionMenu/menu-state/invent
 import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
 import { AssigningAttributePointsMenuState } from "@/app/game/ActionMenu/menu-state/assigning-attribute-points";
 import { FloatingMessage } from "./floating-messages";
+import { ItemsOnGroundMenuState } from "@/app/game/ActionMenu/menu-state/items-on-ground";
 
 export enum MenuContext {
   InventoryItems,
@@ -129,6 +130,7 @@ export const useGameStore = create<GameState>()(
 
 export const baseMenuState = new BaseMenuState(false);
 export const inventoryItemsMenuState = new InventoryItemsMenuState();
+export const itemsOnGroundMenuState = new ItemsOnGroundMenuState();
 export const assignAttributesMenuState = new AssigningAttributePointsMenuState();
 
 export function getCurrentMenu(state: GameState) {

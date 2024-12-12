@@ -9,9 +9,10 @@ import { ClientActionCommandReceiver } from ".";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { ActionCommandManager } from "@speed-dungeon/common";
 import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
-import { useGameStore } from "@/stores/game-store";
+import { itemsOnGroundMenuState, useGameStore } from "@/stores/game-store";
 import { gameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
+import { MenuStateType } from "../game/ActionMenu/menu-state";
 
 export default function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
@@ -32,6 +33,12 @@ export default function battleResultActionCommandHandler(
         item,
       });
     }
+
+    const currentMenu = useGameStore.getState().getCurrentMenu();
+    if (currentMenu.type === MenuStateType.Base)
+      useGameStore.getState().mutateState((state) => {
+        state.stackedMenuStates.push(itemsOnGroundMenuState);
+      });
   }
 
   useGameStore.getState().mutateState((state) => {

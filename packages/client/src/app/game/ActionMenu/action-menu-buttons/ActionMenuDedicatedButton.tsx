@@ -11,7 +11,7 @@ export default function ActionMenuDedicatedButton({ properties, extraStyles }: P
   return (
     <HotkeyButton
       className={`${extraStyles}
-      bg-slate-700 flex hover:bg-slate-950 disabled:opacity-50 
+      flex hover:bg-slate-950 disabled:opacity-50 
       whitespace-nowrap text-ellipsis overflow-hidden pointer-events-auto`}
       onClick={properties.clickHandler}
       onMouseEnter={properties.mouseEnterHandler}

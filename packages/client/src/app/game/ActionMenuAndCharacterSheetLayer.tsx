@@ -30,11 +30,7 @@ export default function ActionMenuAndCharacterSheetLayer({ party }: { party: Adv
                 className="absolute top-0 w-full"
                 style={{ left: `calc(100% + ${SPACING_REM}rem)` }}
               >
-                <ItemsOnGround maxHeightRem={13.375} party={party} />{" "}
-                <div
-                  className="absolute min-w-[50rem] max-w-[50rem]"
-                  style={{ top: `calc(100% + ${SPACING_REM}rem)` }}
-                >
+                <div className="absolute min-w-[50rem] max-w-[50rem]">
                   <ItemDetailsWithComparison flipDisplayOrder={false} />
                 </div>
               </div>

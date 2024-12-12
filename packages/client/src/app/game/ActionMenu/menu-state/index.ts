@@ -58,10 +58,10 @@ export abstract class ActionMenuState {
 }
 
 export class ActionMenuButtonProperties {
-  focusHandler?: FocusEventHandler<HTMLButtonElement>;
-  blurHandler?: FocusEventHandler<HTMLButtonElement>;
-  mouseEnterHandler?: MouseEventHandler<HTMLButtonElement>;
-  mouseLeaveHandler?: MouseEventHandler<HTMLButtonElement>;
+  focusHandler?: FocusEventHandler<HTMLLIElement>;
+  blurHandler?: FocusEventHandler<HTMLLIElement>;
+  mouseEnterHandler?: MouseEventHandler<HTMLLIElement>;
+  mouseLeaveHandler?: MouseEventHandler<HTMLLIElement>;
   shouldBeDisabled: boolean = false;
   dedicatedKeys: string[] = [];
   constructor(

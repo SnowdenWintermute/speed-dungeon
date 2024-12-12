@@ -5,6 +5,7 @@ import React, { MouseEventHandler } from "react";
 import HotkeyButton from "../components/atoms/HotkeyButton";
 import { BaseMenuState } from "./ActionMenu/menu-state/base";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
+import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
 
 interface Props {
   party: AdventuringParty;
@@ -46,31 +47,29 @@ export default function ReadyUpDisplay({ party }: Props) {
   const detailedEntity = useGameStore.getState().detailedEntity;
   const hoveredEntity = useGameStore.getState().hoveredEntity;
 
-  const shouldDim = detailedEntity || hoveredEntity;
+  const shouldDim = detailedEntity || hoveredEntity || shouldShowCharacterSheet(currentMenu.type);
   const descendHotkey = HOTKEYS.SIDE_2;
   const exploreHotkey = HOTKEYS.SIDE_1;
 
   return (
     <>
-      {!inStaircaseRoom &&
-        party.currentRoom.monsterPositions.length === 0 &&
-        currentMenu instanceof BaseMenuState && (
-          <div
-            className="absolute top-1/5  left-1/2 -translate-x-1/2 border border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto"
-            style={{ opacity: shouldDim ? "50%" : "100%" }}
-          >
-            <h3 className="text-xl mb-2">The room is empty of monsters</h3>
-            <div className="flex justify-between">
-              <HotkeyButton
-                className="h-10 pr-2 pl-2 bg-slate-950 border border-slate-400 w-full text-center hover:bg-slate-950"
-                hotkeys={["KeyG"]}
-                onClick={handleExploreClick}
-              >
-                Explore next room (G)
-              </HotkeyButton>
-            </div>
+      {!inStaircaseRoom && party.currentRoom.monsterPositions.length === 0 && (
+        <div
+          className="absolute top-1/5  left-1/2 -translate-x-1/2 border border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto"
+          style={{ opacity: shouldDim ? "50%" : "100%" }}
+        >
+          <h3 className="text-xl mb-2">The room is empty of monsters</h3>
+          <div className="flex justify-between">
+            <HotkeyButton
+              className="h-10 pr-2 pl-2 bg-slate-800 border border-white w-full text-center hover:bg-slate-950"
+              hotkeys={["KeyG"]}
+              onClick={handleExploreClick}
+            >
+              Explore next room (G)
+            </HotkeyButton>
           </div>
-        )}
+        </div>
+      )}
       {inStaircaseRoom && (
         <div className="absolute top-1/3 -translate-y-1/2 left-1/2 -translate-x-1/2 border border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto">
           <h3 className="text-xl mb-2">You have found the staircase to the next floor</h3>

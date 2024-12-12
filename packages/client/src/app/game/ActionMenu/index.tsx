@@ -6,9 +6,17 @@ import {
 } from "@/client_consts";
 import React, { useEffect } from "react";
 import { getCurrentMenu, useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, ActionMenuButtonProperties } from "./menu-state";
+import {
+  ActionButtonCategory,
+  ActionMenuButtonProperties,
+  MenuStateType,
+  formatMenuStateType,
+} from "./menu-state";
 import ActionDetails from "../detailables/ActionDetails";
-import { ConsideringCombatActionMenuState } from "./menu-state/considering-combat-action";
+import {
+  ConsideringCombatActionMenuState,
+  EXECUTE_BUTTON_TEXT,
+} from "./menu-state/considering-combat-action";
 import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicatedButton";
 import NumberedButton from "./action-menu-buttons/NumberedButton";
 import setFocusedCharacter from "@/utils/set-focused-character";
@@ -16,6 +24,8 @@ import getCurrentParty from "@/utils/getCurrentParty";
 import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
+import { VIEW_LOOT_BUTTON_TEXT } from "./menu-state/base";
+import { USE_CONSUMABLE_BUTTON_TEXT } from "./menu-state/considering-item";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
@@ -25,6 +35,16 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   const hoveredAction = useGameStore((state) => state.hoveredAction);
   const currentMenu = useGameStore.getState().getCurrentMenu();
   const buttonProperties = currentMenu.getButtonProperties();
+  const numberOfNumberedButtons = buttonProperties[ActionButtonCategory.Numbered].length;
+  const mutateGameState = useGameStore().mutateState;
+
+  useEffect(() => {
+    if (currentMenu.type === MenuStateType.ItemsOnGround && numberOfNumberedButtons === 0) {
+      mutateGameState((state) => {
+        state.stackedMenuStates.pop();
+      });
+    }
+  }, [currentMenu.type, numberOfNumberedButtons]);
 
   // instead of directly getting the button properties, we must put it in a useEffect
   // because some of the button creation calls zustand mutation/set state functions
@@ -77,13 +97,22 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
       >
         {buttonProperties[ActionButtonCategory.Top].map((button, i) => {
+          const conditionalStyles = (() => {
+            if (
+              button.text === VIEW_LOOT_BUTTON_TEXT ||
+              button.text === EXECUTE_BUTTON_TEXT ||
+              button.text === USE_CONSUMABLE_BUTTON_TEXT
+            )
+              return "bg-slate-800 border-white";
+            return "border-slate-400 bg-slate-700";
+          })();
           const thisButtonProperties = buttonProperties[ActionButtonCategory.Top][i]!;
           // in the old method we used a more unique key so different cancel buttons would
           // actually update, but cancel buttons tend to do the same thing anyway now
           return (
             <li key={thisButtonProperties.text} style={topButtonLiStyle}>
               <ActionMenuDedicatedButton
-                extraStyles="border border-slate-400 mr-2 last:mr-0 h-10"
+                extraStyles={`border mr-2 last:mr-0 h-10 ${conditionalStyles}`}
                 properties={button}
               />
             </li>
@@ -98,16 +127,32 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
       >
         <ul className="list-none relative pointer-events-auto">
           {buttonProperties[ActionButtonCategory.Numbered]
-
             .slice(
               (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE,
               (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE
             )
-            .map((button, i) => (
-              <li key={button.text + i + currentMenu.page}>
-                <NumberedButton number={i + 1} properties={button} />
-              </li>
-            ))}
+            .map((button, i) => {
+              const conditionalStyles =
+                currentMenu.type === MenuStateType.ItemsOnGround
+                  ? "bg-slate-800 border-white"
+                  : "border-slate-400 bg-slate-700";
+
+              return (
+                <li
+                  key={button.text + i + currentMenu.page}
+                  tabIndex={button.shouldBeDisabled ? 0 : undefined} // so you can tab over to get the popups
+                  className={`
+                   ${conditionalStyles} w-full border-b border-r border-l first:border-t flex hover:bg-slate-950
+                   `}
+                  onMouseEnter={button.mouseEnterHandler}
+                  onMouseLeave={button.mouseLeaveHandler}
+                  onFocus={button.focusHandler}
+                  onBlur={button.blurHandler}
+                >
+                  <NumberedButton number={i + 1} properties={button} />
+                </li>
+              );
+            })}
           {selectedActionDisplay}
           {hoveredActionDisplay}
         </ul>

@@ -20,6 +20,10 @@ import selectItem from "@/utils/selectItem";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 
+const useItemHotkey = HOTKEYS.MAIN_1;
+const useItemLetter = letterFromKeyCode(useItemHotkey);
+export const USE_CONSUMABLE_BUTTON_TEXT = `Use (${useItemLetter})`;
+
 export class ConsideringItemMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
@@ -77,7 +81,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
               });
             });
         case ItemPropertiesType.Consumable:
-          return new ActionMenuButtonProperties(`Use (${useItemLetter})`, () => {
+          return new ActionMenuButtonProperties(USE_CONSUMABLE_BUTTON_TEXT, () => {
             websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
               characterId,
               combatActionOption: {

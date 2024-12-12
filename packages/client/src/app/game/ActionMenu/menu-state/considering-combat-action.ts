@@ -17,6 +17,9 @@ import { setAlert } from "@/app/components/alerts";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 
+export const executeHotkey = HOTKEYS.MAIN_1;
+export const EXECUTE_BUTTON_TEXT = `Execute (${letterFromKeyCode(executeHotkey)})`;
+
 export class ConsideringCombatActionMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
@@ -76,19 +79,15 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
     toReturn[ActionButtonCategory.Bottom].push(nextTargetButton);
 
     // EXECUTE
-    const executeHotkey = HOTKEYS.MAIN_1;
-    const executeActionButton = new ActionMenuButtonProperties(
-      `Execute (${letterFromKeyCode(executeHotkey)})`,
-      () => {
-        websocketConnection.emit(ClientToServerEvent.UseSelectedCombatAction, {
-          characterId,
-        });
-        useGameStore.getState().mutateState((state) => {
-          state.detailedEntity = null;
-          state.hoveredEntity = null;
-        });
-      }
-    );
+    const executeActionButton = new ActionMenuButtonProperties(EXECUTE_BUTTON_TEXT, () => {
+      websocketConnection.emit(ClientToServerEvent.UseSelectedCombatAction, {
+        characterId,
+      });
+      useGameStore.getState().mutateState((state) => {
+        state.detailedEntity = null;
+        state.hoveredEntity = null;
+      });
+    });
     executeActionButton.dedicatedKeys = ["Enter", executeHotkey];
 
     const userControlsThisCharacter = clientUserControlsCombatant(characterId);

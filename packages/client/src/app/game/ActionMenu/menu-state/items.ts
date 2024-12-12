@@ -18,13 +18,17 @@ import { immerable } from "immer";
 import selectItem from "@/utils/selectItem";
 import setItemHovered from "@/utils/set-item-hovered";
 import createPageButtons from "./create-page-buttons";
+import { takeItem } from "../../ItemsOnGround/ItemOnGround";
 
 export class ItemsMenuState implements ActionMenuState {
   [immerable] = true;
   page = 1;
   numPages: number = 1;
   constructor(
-    public type: MenuStateType.InventoryItems | MenuStateType.ViewingEquipedItems,
+    public type:
+      | MenuStateType.InventoryItems
+      | MenuStateType.ViewingEquipedItems
+      | MenuStateType.ItemsOnGround,
     public closeMenuTextAndHotkeys: { text: string; hotkeys: string[] },
     public extraButtons?: Partial<Record<ActionButtonCategory, ActionMenuButtonProperties[]>>
   ) {}
@@ -43,7 +47,13 @@ export class ItemsMenuState implements ActionMenuState {
 
     let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
+      setAlert(focusedCharacterResult);
+      return toReturn;
+    }
+
+    const partyResult = useGameStore.getState().getParty();
+    if (partyResult instanceof Error) {
+      setAlert(partyResult);
       return toReturn;
     }
 
@@ -53,6 +63,8 @@ export class ItemsMenuState implements ActionMenuState {
           return focusedCharacterResult.combatantProperties.inventory.items;
         case MenuStateType.ViewingEquipedItems:
           return Object.values(focusedCharacterResult.combatantProperties.equipment);
+        case MenuStateType.ItemsOnGround:
+          return partyResult.currentRoom.items;
       }
     })();
 
@@ -71,6 +83,21 @@ export class ItemsMenuState implements ActionMenuState {
       }
     }
 
+    const itemButtonClickHandler = (() => {
+      switch (this.type) {
+        case MenuStateType.InventoryItems:
+        case MenuStateType.ViewingEquipedItems:
+          return (item: Item) => {
+            selectItem(item);
+            useGameStore.getState().mutateState((state) => {
+              state.stackedMenuStates.push(new ConsideringItemMenuState(item));
+            });
+          };
+        case MenuStateType.ItemsOnGround:
+          return takeItem;
+      }
+    })();
+
     for (const [consumableTypeKey, consumables] of Object.entries(consumablesByType)) {
       const firstConsumableOfThisType = consumables[0];
       if (!firstConsumableOfThisType) continue;
@@ -78,26 +105,24 @@ export class ItemsMenuState implements ActionMenuState {
       if (consumables.length > 1) consumableName += ` (${consumables.length})`;
 
       const button = new ActionMenuButtonProperties(consumableName, () => {
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(new ConsideringItemMenuState(firstConsumableOfThisType));
-        });
-        selectItem(firstConsumableOfThisType);
+        itemButtonClickHandler(firstConsumableOfThisType);
       });
       button.mouseEnterHandler = () => itemButtonMouseEnterHandler(firstConsumableOfThisType);
       button.mouseLeaveHandler = () => itemButtonMouseLeaveHandler();
+      button.focusHandler = () => itemButtonMouseEnterHandler(firstConsumableOfThisType);
+      button.blurHandler = () => itemButtonMouseLeaveHandler();
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
     for (const item of equipment) {
       const button = new ActionMenuButtonProperties(item.entityProperties.name, () => {
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(new ConsideringItemMenuState(item));
-        });
-        selectItem(item);
+        itemButtonClickHandler(item);
       });
 
       button.mouseEnterHandler = () => itemButtonMouseEnterHandler(item);
       button.mouseLeaveHandler = () => itemButtonMouseLeaveHandler();
+      button.focusHandler = () => itemButtonMouseEnterHandler(item);
+      button.blurHandler = () => itemButtonMouseLeaveHandler();
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 

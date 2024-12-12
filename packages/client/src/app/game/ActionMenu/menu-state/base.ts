@@ -2,6 +2,7 @@ import {
   inventoryItemsMenuState,
   assignAttributesMenuState,
   useGameStore,
+  itemsOnGroundMenuState,
 } from "@/stores/game-store";
 import {
   ActionButtonCategory,
@@ -29,7 +30,10 @@ import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { ABILITY_ATTRIBUTES } from "@speed-dungeon/common";
 
 export const toggleInventoryHotkey = HOTKEYS.MAIN_1;
-export const toggleAssignAttributesHotkey = HOTKEYS.ALT_1;
+export const toggleAssignAttributesHotkey = HOTKEYS.MAIN_2;
+export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
+
+export const VIEW_LOOT_BUTTON_TEXT = `Loot (${letterFromKeyCode(viewItemsOnGroundHotkey)})`;
 
 export class BaseMenuState implements ActionMenuState {
   page = 1;
@@ -40,7 +44,7 @@ export class BaseMenuState implements ActionMenuState {
     const toReturn = new ActionButtonsByCategory();
 
     const setInventoryOpen = new ActionMenuButtonProperties(
-      `Open Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
+      `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
       () => {
         useGameStore.getState().mutateState((state) => {
           state.stackedMenuStates.push(inventoryItemsMenuState);
@@ -53,15 +57,21 @@ export class BaseMenuState implements ActionMenuState {
 
     let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
+      setAlert(focusedCharacterResult);
       return toReturn;
     }
     const { combatantProperties, entityProperties } = focusedCharacterResult;
     const characterId = entityProperties.id;
 
+    const partyResult = useGameStore.getState().getParty();
+    if (partyResult instanceof Error) {
+      setAlert(partyResult);
+      return toReturn;
+    }
+
     if (focusedCharacterResult.combatantProperties.unspentAttributePoints) {
       const assignAttributesButton = new ActionMenuButtonProperties(
-        `Assign Attributes (${letterFromKeyCode(toggleAssignAttributesHotkey)})`,
+        `Attributes (${letterFromKeyCode(toggleAssignAttributesHotkey)})`,
         () => {
           useGameStore.getState().mutateState((state) => {
             state.stackedMenuStates.push(assignAttributesMenuState);
@@ -70,6 +80,16 @@ export class BaseMenuState implements ActionMenuState {
       );
       assignAttributesButton.dedicatedKeys = ["KeyI", toggleAssignAttributesHotkey];
       toReturn[ActionButtonCategory.Top].push(assignAttributesButton);
+    }
+
+    if (partyResult.currentRoom.items.length) {
+      const viewItemsOnGroundButton = new ActionMenuButtonProperties(VIEW_LOOT_BUTTON_TEXT, () => {
+        useGameStore.getState().mutateState((state) => {
+          state.stackedMenuStates.push(itemsOnGroundMenuState);
+        });
+      });
+      viewItemsOnGroundButton.dedicatedKeys = [viewItemsOnGroundHotkey];
+      toReturn[ActionButtonCategory.Top].push(viewItemsOnGroundButton);
     }
 
     // disabled abilities if not their turn in a battle
