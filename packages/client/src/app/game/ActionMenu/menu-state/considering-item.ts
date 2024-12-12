@@ -10,6 +10,7 @@ import {
   ClientToServerEvent,
   CombatActionType,
   CombatantProperties,
+  EquipmentType,
   Item,
   ItemPropertiesType,
 } from "@speed-dungeon/common";
@@ -20,8 +21,10 @@ import selectItem from "@/utils/selectItem";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 
+const equipAltSlotHotkey = HOTKEYS.ALT_1;
 const useItemHotkey = HOTKEYS.MAIN_1;
 const useItemLetter = letterFromKeyCode(useItemHotkey);
+const dropItemHotkey = HOTKEYS.MAIN_2;
 export const USE_CONSUMABLE_BUTTON_TEXT = `Use (${useItemLetter})`;
 export const EQUIP_ITEM_BUTTON_TEXT = `Equip (${useItemLetter})`;
 
@@ -59,13 +62,37 @@ export class ConsideringItemMenuState implements ActionMenuState {
 
     const useItemHotkey = HOTKEYS.MAIN_1;
     const useItemLetter = letterFromKeyCode(useItemHotkey);
+    const slotItemIsEquippedTo = CombatantProperties.getSlotItemIsEquippedTo(
+      focusedCharacterResult.combatantProperties,
+      itemId
+    );
+
+    if (
+      !useUIStore.getState().modKeyHeld &&
+      this.item.itemProperties.type === ItemPropertiesType.Equipment &&
+      (this.item.itemProperties.equipmentProperties.equipmentBaseItemProperties.type ===
+        EquipmentType.OneHandedMeleeWeapon ||
+        this.item.itemProperties.equipmentProperties.equipmentBaseItemProperties.type ===
+          EquipmentType.Ring) &&
+      slotItemIsEquippedTo === null
+    ) {
+      const equipToAltSlotButton = new ActionMenuButtonProperties(
+        `Equip Alt. (${letterFromKeyCode(equipAltSlotHotkey)})`,
+        () => {
+          websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
+            characterId,
+            itemId,
+            equipToAltSlot: true,
+          });
+        }
+      );
+      equipToAltSlotButton.dedicatedKeys = [equipAltSlotHotkey];
+      toReturn[ActionButtonCategory.Top].push(equipToAltSlotButton);
+    }
+
     const useItemButton = (() => {
       switch (this.item.itemProperties.type) {
         case ItemPropertiesType.Equipment:
-          const slotItemIsEquippedTo = CombatantProperties.getSlotItemIsEquippedTo(
-            focusedCharacterResult.combatantProperties,
-            itemId
-          );
           if (slotItemIsEquippedTo !== null)
             return new ActionMenuButtonProperties(`Unequip (${useItemLetter})`, () => {
               websocketConnection.emit(ClientToServerEvent.UnequipSlot, {
@@ -97,8 +124,6 @@ export class ConsideringItemMenuState implements ActionMenuState {
     useItemButton.dedicatedKeys = ["Enter", useItemHotkey];
     useItemButton.shouldBeDisabled = !userControlsThisCharacter;
     toReturn[ActionButtonCategory.Top].push(useItemButton);
-
-    const dropItemHotkey = HOTKEYS.MAIN_2;
 
     const dropItemButton = new ActionMenuButtonProperties(
       `Drop (${letterFromKeyCode(dropItemHotkey)})`,

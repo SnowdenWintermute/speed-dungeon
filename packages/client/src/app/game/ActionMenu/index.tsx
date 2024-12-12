@@ -100,7 +100,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         className="min-w-[25rem] max-w-[25rem]"
         style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
       >
-        <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex flex-col items-center">
+        <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex flex-col items-center pointer-events-auto">
           <div className="mb-2">{currentMenu.item.entityProperties.name}</div>
           {currentMenu.item.itemProperties.type === ItemPropertiesType.Consumable ? (
             <div>Select "use" to choose a target for this consumable</div>
@@ -171,7 +171,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
           height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem`,
         }}
       >
-        <ul className="list-none relative pointer-events-auto min-w-[25rem] max-w-[25rem]">
+        <ul className="list-none relative min-w-[25rem] max-w-[25rem]">
           {buttonProperties[ActionButtonCategory.Numbered]
             .slice(
               (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE,
@@ -188,7 +188,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
                   key={button.text + i + currentMenu.page}
                   tabIndex={button.shouldBeDisabled ? 0 : undefined} // so you can tab over to get the popups
                   className={`
-                   ${conditionalStyles} w-full border-b border-r border-l first:border-t flex hover:bg-slate-950
+                   ${conditionalStyles} pointer-events-auto w-full border-b border-r border-l first:border-t flex hover:bg-slate-950
                    `}
                   onMouseEnter={button.mouseEnterHandler}
                   onMouseLeave={button.mouseLeaveHandler}
