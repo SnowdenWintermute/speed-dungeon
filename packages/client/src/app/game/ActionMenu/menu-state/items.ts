@@ -71,6 +71,8 @@ export class ItemsMenuState implements ActionMenuState {
     const equipment: Item[] = [];
     const consumablesByType: Partial<Record<ConsumableType, Item[]>> = {};
 
+    const buttonTextPrefix = this.type === MenuStateType.ItemsOnGround ? "" : "";
+
     for (const item of itemsToShow) {
       switch (item.itemProperties.type) {
         case ItemPropertiesType.Equipment:
@@ -101,7 +103,7 @@ export class ItemsMenuState implements ActionMenuState {
     for (const [consumableTypeKey, consumables] of Object.entries(consumablesByType)) {
       const firstConsumableOfThisType = consumables[0];
       if (!firstConsumableOfThisType) continue;
-      let consumableName = formatConsumableType(parseInt(consumableTypeKey));
+      let consumableName = buttonTextPrefix + formatConsumableType(parseInt(consumableTypeKey));
       if (consumables.length > 1) consumableName += ` (${consumables.length})`;
 
       const button = new ActionMenuButtonProperties(consumableName, () => {
@@ -115,9 +117,12 @@ export class ItemsMenuState implements ActionMenuState {
     }
 
     for (const item of equipment) {
-      const button = new ActionMenuButtonProperties(item.entityProperties.name, () => {
-        itemButtonClickHandler(item);
-      });
+      const button = new ActionMenuButtonProperties(
+        buttonTextPrefix + item.entityProperties.name,
+        () => {
+          itemButtonClickHandler(item);
+        }
+      );
 
       button.mouseEnterHandler = () => itemButtonMouseEnterHandler(item);
       button.mouseLeaveHandler = () => itemButtonMouseLeaveHandler();

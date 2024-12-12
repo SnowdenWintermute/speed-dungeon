@@ -4,7 +4,7 @@ import {
   SPACING_REM,
   SPACING_REM_SMALL,
 } from "@/client_consts";
-import React, { useEffect } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { getCurrentMenu, useGameStore } from "@/stores/game-store";
 import {
   ActionButtonCategory,
@@ -21,11 +21,13 @@ import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicated
 import NumberedButton from "./action-menu-buttons/NumberedButton";
 import setFocusedCharacter from "@/utils/set-focused-character";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
+import { Item, NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { VIEW_LOOT_BUTTON_TEXT } from "./menu-state/base";
 import { USE_CONSUMABLE_BUTTON_TEXT } from "./menu-state/considering-item";
+import ItemDetailsWithComparison from "../ItemDetailsWithComparison";
+import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
@@ -33,10 +35,14 @@ const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
 export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   const combatantModelsAwaitingSpawn = useGameStore((state) => state.combatantModelsAwaitingSpawn);
   const hoveredAction = useGameStore((state) => state.hoveredAction);
+  const hoveredItem = useGameStore((state) =>
+    state.hoveredEntity instanceof Item ? state.hoveredEntity : null
+  );
   const currentMenu = useGameStore.getState().getCurrentMenu();
   const buttonProperties = currentMenu.getButtonProperties();
   const numberOfNumberedButtons = buttonProperties[ActionButtonCategory.Numbered].length;
   const mutateGameState = useGameStore().mutateState;
+  const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
 
   useEffect(() => {
     if (currentMenu.type === MenuStateType.ItemsOnGround && numberOfNumberedButtons === 0) {
@@ -70,7 +76,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   if (currentMenu instanceof ConsideringCombatActionMenuState) {
     selectedActionDisplay = (
       <div
-        className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2"
+        className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex"
         style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
       >
         <ActionDetails combatAction={currentMenu.combatAction} hideTitle={false} />
@@ -78,10 +84,10 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
     );
   }
 
-  let hoveredActionDisplay = <></>;
+  let hoveredActionDisplay: ReactNode | null = null;
   if (hoveredAction) {
     hoveredActionDisplay = (
-      <div className="absolute top-0 left-full pl-2">
+      <div className="pl-2">
         <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2">
           <ActionDetails combatAction={hoveredAction} hideTitle={false} />
         </div>
@@ -89,8 +95,19 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
     );
   }
 
+  let hoveredItemDisplay: ReactNode | null = null;
+  if (!viewingCharacterSheet && hoveredItem) {
+    hoveredItemDisplay = (
+      <div className="pl-2">
+        <div className="min-w-[50rem] max-w-[50rem]">
+          <ItemDetailsWithComparison flipDisplayOrder={false} />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <section className={`max-h-fit max-w-[25rem] flex flex-col justify-between`}>
+    <section className={`max-h-fit flex flex-col justify-between`}>
       <CharacterFocusingButtons />
       <ul
         className={`flex list-none min-w-[25rem] max-w-[25rem]`}
@@ -120,12 +137,12 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         })}
       </ul>
       <div
-        className={`mb-2`}
+        className={`mb-2 flex`}
         style={{
           height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem`,
         }}
       >
-        <ul className="list-none relative pointer-events-auto">
+        <ul className="list-none relative pointer-events-auto min-w-[25rem] max-w-[25rem]">
           {buttonProperties[ActionButtonCategory.Numbered]
             .slice(
               (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE,
@@ -154,8 +171,9 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
               );
             })}
           {selectedActionDisplay}
-          {hoveredActionDisplay}
         </ul>
+        {hoveredActionDisplay}
+        {hoveredItemDisplay}
       </div>
       <BottomButtons
         numPages={currentMenu.numPages}
@@ -249,7 +267,7 @@ function CharacterFocusingButtons() {
 
   return (
     <ul
-      className={`flex list-none min-w-[25rem] max-w-[25rem] justify-between bg-slate-700 border border-slate-400`}
+      className={`flex list-none min-w-[25rem] max-w-[25rem] justify-between bg-slate-700 border border-slate-400 pointer-events-auto`}
       style={{ marginBottom: `${SPACING_REM_SMALL}rem`, height: `${BUTTON_HEIGHT_SMALL}rem` }}
     >
       <ActionMenuDedicatedButton

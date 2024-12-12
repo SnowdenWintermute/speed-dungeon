@@ -3,7 +3,7 @@ import { CombatAttribute, CombatantClass } from "../combatants/index.js";
 import { EquipmentSlot } from "../items/index.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { GameMode } from "../types.js";
-import { CharacterAndItem } from "./server-to-client.js";
+import { CharacterAndItems } from "./server-to-client.js";
 
 export enum ClientToServerEvent {
   RequestToJoinGame = "0",
@@ -30,7 +30,7 @@ export enum ClientToServerEvent {
   ToggleReadyToDescend = "21",
   // AssignAttributePoint = "22", replaced by IncrementAttribute
   AcknowledgeReceiptOfItemOnGroundUpdate = "23",
-  PickUpItem = "24",
+  PickUpItems = "24",
   GetSavedCharactersList = "25",
   GetSavedCharacterById = "26",
   CreateSavedCharacter = "27",
@@ -89,7 +89,7 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.DropItem]: (eventData: { characterId: string; itemId: string }) => void;
   [ClientToServerEvent.ToggleReadyToDescend]: (eventData?: undefined) => void;
   [ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate]: (itemId: string) => void;
-  [ClientToServerEvent.PickUpItem]: (characterAndItem: CharacterAndItem) => void;
+  [ClientToServerEvent.PickUpItems]: (characterAndItem: CharacterAndItems) => void;
   [ClientToServerEvent.GetSavedCharactersList]: (eventData?: undefined) => void;
   [ClientToServerEvent.GetSavedCharacterById]: (entityId: string) => void;
   [ClientToServerEvent.CreateSavedCharacter]: (eventData: {

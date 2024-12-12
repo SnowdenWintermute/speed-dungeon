@@ -27,18 +27,12 @@ export enum TargetCategories {
   Any,
 }
 
-export function formatTargetCategories(category: TargetCategories): string {
-  switch (category) {
-    case TargetCategories.Opponent:
-      return "Opponent";
-    case TargetCategories.User:
-      return "Self";
-    case TargetCategories.Friendly:
-      return "Teammate";
-    case TargetCategories.Any:
-      return "Any";
-  }
-}
+export const TARGET_CATEGORY_STRINGS: Record<TargetCategories, string> = {
+  [TargetCategories.Opponent]: "Opponent",
+  [TargetCategories.User]: "Self",
+  [TargetCategories.Friendly]: "Teammate",
+  [TargetCategories.Any]: "Any",
+};
 
 export enum ProhibitedTargetCombatantStates {
   Dead,

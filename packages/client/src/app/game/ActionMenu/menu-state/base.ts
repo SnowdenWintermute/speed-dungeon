@@ -85,6 +85,7 @@ export class BaseMenuState implements ActionMenuState {
     if (partyResult.currentRoom.items.length) {
       const viewItemsOnGroundButton = new ActionMenuButtonProperties(VIEW_LOOT_BUTTON_TEXT, () => {
         useGameStore.getState().mutateState((state) => {
+          state.hoveredAction = null;
           state.stackedMenuStates.push(itemsOnGroundMenuState);
         });
       });

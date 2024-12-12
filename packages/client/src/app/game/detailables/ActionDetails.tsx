@@ -1,5 +1,6 @@
 import {
   ABILITY_NAME_STRINGS,
+  ActionUsableContext,
   AdventuringParty,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   CombatAction,
@@ -7,14 +8,15 @@ import {
   CombatantAbility,
   ERROR_MESSAGES,
   ItemPropertiesType,
+  TARGET_CATEGORY_STRINGS,
   formatConsumableType,
-  formatTargetCategories,
   formatTargetingScheme,
 } from "@speed-dungeon/common";
 import React from "react";
 import AbilityDetails from "./AbilityDetails";
 import { getCombatActionProperties } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 
 interface Props {
   combatAction: CombatAction;
@@ -28,6 +30,8 @@ export default function ActionDetails({ combatAction, hideTitle }: Props) {
   const focusedCharacterResult = useGameStore().getFocusedCharacter();
   if (focusedCharacterResult instanceof Error) return <div>{focusedCharacterResult.message}</div>;
   const focusedCharacter = focusedCharacterResult;
+
+  const inCombat = Object.values(party.currentRoom.monsters).length;
 
   const combatActionPropertiesResult = getCombatActionProperties(
     party,
@@ -55,7 +59,7 @@ export default function ActionDetails({ combatAction, hideTitle }: Props) {
   });
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col" style={{ flex: `1 1 1px` }}>
       {!hideTitle && (
         <>
           <span>{getCombatActionName(party, combatAction)}</span>
@@ -72,10 +76,16 @@ export default function ActionDetails({ combatAction, hideTitle }: Props) {
         )}
         <div>{combatActionProperties.description}</div>
         <div>
-          {`Valid targets: ${formatTargetCategories(combatActionProperties.validTargetCategories)}`}
+          {`Valid targets: ${TARGET_CATEGORY_STRINGS[combatActionProperties.validTargetCategories]}`}
         </div>
         <div>{`Targeting schemes: ${targetingSchemesText}`}</div>
-        <div>{`Usable ${COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[combatActionProperties.usabilityContext]}`}</div>
+        <div
+          className={
+            !inCombat && combatActionProperties.usabilityContext === ActionUsableContext.InCombat
+              ? UNMET_REQUIREMENT_TEXT_COLOR
+              : ""
+          }
+        >{`Usable ${COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[combatActionProperties.usabilityContext]}`}</div>
       </div>
     </div>
   );

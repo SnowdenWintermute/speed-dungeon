@@ -50,7 +50,7 @@ export default function initiateGameEventListeners(
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, equipItemHandler)
   );
   socket.on(
-    ClientToServerEvent.PickUpItem,
+    ClientToServerEvent.PickUpItems,
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, pickUpItemHandler)
   );
   socket.on(

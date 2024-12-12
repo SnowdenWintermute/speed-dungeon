@@ -28,7 +28,7 @@ import {
 
 const ATTACK = (() => {
   const combatActionProperties = new CombatActionProperties();
-  combatActionProperties.description = "Use equipped weapon(s) or fists to strike the enemy.";
+  combatActionProperties.description = "Use equipped weapons or fists to strike the enemy.";
   const attributes = new AbilityAttributes(combatActionProperties);
   return attributes;
 })();

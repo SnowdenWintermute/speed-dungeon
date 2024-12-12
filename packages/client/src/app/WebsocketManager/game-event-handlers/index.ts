@@ -14,13 +14,13 @@ import characterDroppedItemHandler from "./character-dropped-item-handler";
 import characterDroppedEquippedItemHandler from "./character-dropped-equipped-item-handler";
 import characterUnequippedSlotHandler from "./character-unequipped-slot-handler";
 import characterEquippedItemHandler from "./character-equipped-item-handler";
-import characterPickedUpItemHandler from "./character-picked-up-item-handler";
 import characterSelectedCombatActionHandler from "./character-selected-combat-action-handler";
 import characterCycledTargetsHandler from "./character-cycled-targets-handler";
 import characterCycledTargetingSchemesHandler from "./character-cycled-targeting-schemes-handler";
 import getCurrentParty from "@/utils/getCurrentParty";
 import characterIncrementedAttributePointHandler from "./character-incremented-attribute-point-handler";
 import gameProgressMessageHandler from "./game-progress-message-handler";
+import characterPickedUpItemsHandler from "./character-picked-up-items-handler";
 
 export default function setUpGameEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -39,7 +39,7 @@ export default function setUpGameEventHandlers(
   socket.on(ServerToClientEvent.CharacterDroppedEquippedItem, characterDroppedEquippedItemHandler);
   socket.on(ServerToClientEvent.CharacterUnequippedItem, characterUnequippedSlotHandler);
   socket.on(ServerToClientEvent.CharacterEquippedItem, characterEquippedItemHandler);
-  socket.on(ServerToClientEvent.CharacterPickedUpItem, characterPickedUpItemHandler);
+  socket.on(ServerToClientEvent.CharacterPickedUpItems, characterPickedUpItemsHandler);
   socket.on(
     ServerToClientEvent.CharacterSelectedCombatAction,
     characterSelectedCombatActionHandler

@@ -55,7 +55,7 @@ export default function AbilityDetails({ ability, combatActionProperties, user }
       type: CombatActionType.AbilityUsed,
       abilityName: ability.name,
     });
-    if (targetResult instanceof Error) return targetResult;
+    if (targetResult instanceof Error) return <div>{targetResult.message}</div>;
     const target =
       targetResult ||
       new CombatantProperties(

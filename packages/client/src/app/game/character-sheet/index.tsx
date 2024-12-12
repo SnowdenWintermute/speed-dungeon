@@ -36,13 +36,13 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
   );
 
   let conditionalStyles = showCharacterSheet
-    ? "overflow-hidden pointer-events-auto"
+    ? "overflow-auto pointer-events-auto w-fit "
     : "opacity-0 w-0 overflow-hidden pointer-events-none";
 
   const numItemsInInventory = combatantProperties.inventory.items.length;
 
   return (
-    <section className={`w-fit ${conditionalStyles}`}>
+    <section className={`${conditionalStyles}`}>
       <div className="flex justify-between">
         <ul className="flex list-none" style={{ marginBottom: `${SPACING_REM_SMALL}rem ` }}>
           {partyCharacterIds.map((id) => (

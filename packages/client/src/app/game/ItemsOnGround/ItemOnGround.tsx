@@ -15,9 +15,9 @@ export function takeItem(item: Item) {
     gameState.hoveredEntity = null;
     gameState.detailedEntity = null;
   });
-  websocketConnection.emit(ClientToServerEvent.PickUpItem, {
+  websocketConnection.emit(ClientToServerEvent.PickUpItems, {
     characterId: useGameStore.getState().focusedCharacterId,
-    itemId: item.entityProperties.id,
+    itemIds: [item.entityProperties.id],
   });
 }
 

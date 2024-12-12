@@ -39,7 +39,7 @@ export enum ServerToClientEvent {
   CharacterDroppedEquippedItem = "24",
   CharacterUnequippedItem = "25",
   CharacterEquippedItem = "26",
-  CharacterPickedUpItem = "27",
+  CharacterPickedUpItems = "27",
   // RawActionResults = "28",
   CharacterSelectedCombatAction = "29",
   CharacterCycledTargets = "30",
@@ -112,7 +112,7 @@ export interface ServerToClientEventTypes {
     equipToAlternateSlot: boolean;
     characterId: string;
   }) => void;
-  [ServerToClientEvent.CharacterPickedUpItem]: (characterAndItem: CharacterAndItem) => void;
+  [ServerToClientEvent.CharacterPickedUpItems]: (characterAndItems: CharacterAndItems) => void;
   // [ServerToClientEvent.RawActionResults]: (actionResults: ActionResult[]) => void;
   [ServerToClientEvent.CharacterSelectedCombatAction]: (
     characterId: string,
@@ -153,6 +153,11 @@ export interface ServerToClientEventTypes {
 export interface CharacterAndItem {
   characterId: string;
   itemId: string;
+}
+
+export interface CharacterAndItems {
+  characterId: string;
+  itemIds: string[];
 }
 
 export interface CharacterAndSlot {
