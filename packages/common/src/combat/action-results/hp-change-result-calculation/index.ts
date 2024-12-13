@@ -8,7 +8,12 @@ import { ActionResultCalculationArguments } from "../action-result-calculator.js
 import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
 import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app-consts.js";
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
-import { HpChange } from "../../hp-change-source-types.js";
+import {
+  HpChange,
+  HpChangeSource,
+  HpChangeSourceCategory,
+  MeleeOrRanged,
+} from "../../hp-change-source-types.js";
 import { checkIfTargetWantsToBeHit } from "./check-if-target-wants-to-be-hit.js";
 import { getActionHitChance } from "./get-action-hit-chance.js";
 import { applyCritMultiplier } from "./apply-crit-multiplier-to-hp-change.js";
@@ -54,7 +59,9 @@ export default function calculateActionHitPointChangesAndEvasions(
   if (firstTargetCombatant instanceof Error) return firstTargetCombatant;
   const { combatantProperties: targetCombatantProperties } = firstTargetCombatant;
 
-  let hitPointChanges: { [entityId: string]: HpChange } = {};
+  const hitPointChanges: { [entityId: string]: HpChange } = {};
+  let lifestealHpChange: null | HpChange = null;
+
   let evasions: string[] = [];
 
   if (actionProperties.hpChangeProperties === null) return { hitPointChanges, evasions };
@@ -165,7 +172,22 @@ export default function calculateActionHitPointChangesAndEvasions(
     // determine if hp change source has lifesteal
     // get the percent
     // add it to the lifesteal hp change of the action user
+    // if (hpChange.source.lifestealPercentage) {
+    //   const lifestealValue = hpChange.value * (hpChange.source.lifestealPercentage / 100) * -1;
+    //   if (!lifestealHpChange) {
+    //     lifestealHpChange = new HpChange(
+    //       lifestealValue,
+    //       new HpChangeSource(HpChangeSourceCategory.Magical, hpChange.source.meleeOrRanged)
+    //     );
+    //     lifestealHpChange.value = lifestealValue;
+    //   } else {
+    //     lifestealHpChange.value += lifestealValue;
+    //   }
+    // }
   }
+
+  // if (lifestealHpChange) hitPointChanges[userId] = lifestealHpChange;
+  console.log("hit hitPointChanges: ", hitPointChanges);
 
   return { hitPointChanges, evasions };
 }

@@ -2,6 +2,7 @@ import { CombatantAttributeRecord } from "../../../combatants/combatant-properti
 import { MaxAndCurrent } from "../../../primatives/max-and-current.js";
 import { AffixType, Affixes } from "../affixes.js";
 import { getEquipableSlots } from "../slots.js";
+import { applyEquipmentTraitsToHpChangeSource } from "./apply-equipment-traits-to-hp-change-source.js";
 import { ArmorProperties } from "./armor-properties.js";
 import getBaseArmorClass from "./get-base-armor-class.js";
 import getModifiedWeaponDamageRange from "./get-modified-weapon-damage-range.js";
@@ -25,6 +26,7 @@ export class EquipmentProperties {
   static getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
   static isTwoHanded = equipmentIsTwoHandedWeapon;
   static getEquipableSlots = getEquipableSlots;
+  static applyEquipmentTraitsToHpChangeSource = applyEquipmentTraitsToHpChangeSource;
 }
 
 export type EquipmentBaseItemProperties =

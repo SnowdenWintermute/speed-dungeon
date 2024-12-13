@@ -118,6 +118,7 @@ export const ERROR_MESSAGES = {
     INVALID_TYPE: "Invalid equipment type was provided",
     NO_ITEM_EQUIPPED: "No item is equipped in that slot",
     REQUIREMENTS_NOT_MET: "You don't meet the requirements to equip that item",
+    EXPECTED_TRAIT_MISSING: "Expected to find an equipment trait but didn't",
   },
   BATTLE: {
     COMBATANT_NOT_IN_BATTLE: "The provided ID did not match any combatant in this battle",

@@ -1,10 +1,13 @@
 import { KineticDamageType } from "./kinetic-damage-types.js";
 import { MagicalElement } from "./magical-elements.js";
 
+// used to designate what properties of a weapon
+// should be applied to an ability
 export enum HpChangeSourceModifiers {
   KineticType,
   MagicalElement,
   SourceCategory,
+  Lifesteal,
 }
 
 export class HpChangeSource {

@@ -73,8 +73,8 @@ export default function outfitNewCharacter(character: Combatant) {
     AbilityName.Destruction
   );
 
-  const items = generateOneOfEachItem();
-  combatantProperties.inventory.items.push(...items);
+  // const items = generateOneOfEachItem();
+  // combatantProperties.inventory.items.push(...items);
   combatantProperties.unspentAttributePoints = 100;
 
   // FOR TESTING ATTRIBUTE ASSIGNMENT

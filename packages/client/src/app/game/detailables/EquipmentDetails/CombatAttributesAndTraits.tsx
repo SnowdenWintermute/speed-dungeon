@@ -95,7 +95,7 @@ function formatAffixEquipmentTraits(affix: Affix): string[] {
         toReturn.push(`+${equipmentTrait.value}% armor class`);
         break;
       case EquipmentTraitType.LifeSteal:
-        toReturn.push(`Heal ${equipmentTrait.value}% of damage dealt on hit`);
+        toReturn.push(`Heal for ${equipmentTrait.value}% of damage dealt`);
         break;
       case EquipmentTraitType.DamagePercentage:
         toReturn.push(`+${equipmentTrait.value}% weapon damage`);

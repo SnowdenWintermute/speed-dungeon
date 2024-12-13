@@ -37,6 +37,7 @@ const allWeaponModifiers = new Set<HpChangeSourceModifiers>([
   HpChangeSourceModifiers.KineticType,
   HpChangeSourceModifiers.MagicalElement,
   HpChangeSourceModifiers.SourceCategory,
+  HpChangeSourceModifiers.Lifesteal,
 ]);
 
 const ATTACK_MELEE_MAIN_HAND = (() => {

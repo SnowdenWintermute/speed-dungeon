@@ -155,6 +155,7 @@ function getAttackAbilityDamageAndAccuracy(
   if (attackActionPropertiesResult instanceof Error) return attackActionPropertiesResult;
   if (attackActionPropertiesResult.hpChangeProperties === null)
     return new Error(ERROR_MESSAGES.ABILITIES.INVALID_TYPE);
+
   const hpChangeProperties = attackActionPropertiesResult.hpChangeProperties;
 
   const equippedUsableWeaponsResult = CombatantProperties.getUsableWeaponsInSlots(
@@ -173,16 +174,6 @@ function getAttackAbilityDamageAndAccuracy(
   if (hpChangeRangeResult instanceof Error) return hpChangeRangeResult;
 
   const hpChangeRange = hpChangeRangeResult;
-
-  const averageRoll = Math.floor(hpChangeRange.min + hpChangeRange.max / 2);
-
-  applyWeaponHpChangeModifiers(
-    hpChangeProperties,
-    equippedUsableWeapons,
-    combatantProperties,
-    target,
-    averageRoll
-  );
 
   const hitChance = getActionHitChance(
     attackActionPropertiesResult,

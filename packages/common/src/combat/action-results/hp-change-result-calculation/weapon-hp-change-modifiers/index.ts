@@ -1,6 +1,11 @@
 import cloneDeep from "lodash.clonedeep";
 import { CombatantProperties } from "../../../../combatants/index.js";
-import { Item, WeaponProperties, WeaponSlot } from "../../../../items/index.js";
+import {
+  EquipmentProperties,
+  Item,
+  WeaponProperties,
+  WeaponSlot,
+} from "../../../../items/index.js";
 import { CombatActionHpChangeProperties } from "../../../combat-actions/combat-action-properties.js";
 import {
   HpChange,
@@ -66,12 +71,21 @@ export function applyWeaponHpChangeModifiers(
       mostEffectiveClassificationOnTarget = { classification, value: hpChangeToTest.value };
   }
 
-  if (mostEffectiveClassificationOnTarget)
+  if (mostEffectiveClassificationOnTarget) {
+    // if we ever add something besides lifesteal which might affect damage, put this
+    // before the testing
+    const maybeError = EquipmentProperties.applyEquipmentTraitsToHpChangeSource(
+      weaponOption.item,
+      mostEffectiveClassificationOnTarget.classification
+    );
+    if (maybeError instanceof Error) console.error(maybeError);
+
     applyWeaponModifiersToHpChangeSource(
       hpChange.source,
       mostEffectiveClassificationOnTarget.classification,
       modifiers
     );
+  }
 }
 
 export function applyWeaponModifiersToHpChangeSource(
@@ -90,6 +104,11 @@ export function applyWeaponModifiersToHpChangeSource(
       case HpChangeSourceModifiers.SourceCategory:
         source.category = classification.category;
         break;
+      case HpChangeSourceModifiers.Lifesteal:
+        if (classification.lifestealPercentage)
+          source.lifestealPercentage
+            ? (source.lifestealPercentage += classification.lifestealPercentage)
+            : (source.lifestealPercentage = classification.lifestealPercentage);
     }
   }
 }

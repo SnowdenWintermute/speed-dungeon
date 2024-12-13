@@ -83,6 +83,16 @@ TEST_WEAPON_EQUIPMENT_PROPERTIES.affixes[AffixType.Prefix] = {
     equipmentTraits: {},
     tier: 1,
   },
+  [PrefixType.LifeSteal]: {
+    combatAttributes: {},
+    equipmentTraits: {
+      [EquipmentTraitType.LifeSteal]: {
+        equipmentTraitType: EquipmentTraitType.LifeSteal,
+        value: 100,
+      },
+    },
+    tier: 10,
+  },
   [PrefixType.PercentDamage]: {
     combatAttributes: {},
     equipmentTraits: {
