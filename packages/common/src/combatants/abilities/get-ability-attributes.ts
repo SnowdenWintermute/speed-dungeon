@@ -144,6 +144,7 @@ const HEALING = (() => {
 const DESTRUCTION = (() => {
   const attributes = cloneDeep(FIRE);
   attributes.combatActionProperties.description = "For testing purposes";
+  attributes.manaCost = 0;
   const { hpChangeProperties } = attributes.combatActionProperties;
   if (!hpChangeProperties) throw new Error("Expected ability not implemented");
   hpChangeProperties.hpChangeSource.elementOption = undefined;

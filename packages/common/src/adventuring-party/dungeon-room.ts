@@ -16,13 +16,8 @@ export enum DungeonRoomType {
   Empty,
 }
 
-export function formatDungeonRoomType(roomType: DungeonRoomType): string {
-  switch (roomType) {
-    case DungeonRoomType.MonsterLair:
-      return "Monster Lair";
-    case DungeonRoomType.Staircase:
-      return "Staircase";
-    case DungeonRoomType.Empty:
-      return "Empty";
-  }
-}
+export const DUNGEON_ROOM_TYPE_STRINGS: Record<DungeonRoomType, string> = {
+  [DungeonRoomType.MonsterLair]: "Monster Lair",
+  [DungeonRoomType.Staircase]: "Staircase",
+  [DungeonRoomType.Empty]: "Empty",
+};

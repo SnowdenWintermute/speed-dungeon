@@ -68,7 +68,10 @@ export function applyWeaponHpChangeModifiers(
       mostEffectiveClassificationOnTarget === null ||
       hpChangeToTest.value < mostEffectiveClassificationOnTarget.value
     )
-      mostEffectiveClassificationOnTarget = { classification, value: hpChangeToTest.value };
+      mostEffectiveClassificationOnTarget = {
+        classification: cloneDeep(classification),
+        value: hpChangeToTest.value,
+      };
   }
 
   if (mostEffectiveClassificationOnTarget) {

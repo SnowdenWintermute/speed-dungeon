@@ -14,6 +14,10 @@ export default function allTargetsWereKilled(
 
   if (actionResult.hitPointChangesByEntityId !== null) {
     for (const [combatantId, hpChange] of Object.entries(actionResult.hitPointChangesByEntityId)) {
+      // if they're being healed, they aren't being defeated. also this would mess with lifesteal
+      // beacuse it would see the hp change of the lifestealer
+      if (hpChange.value > 0) continue;
+
       const combatantResult = SpeedDungeonGame.getCombatantById(game, combatantId);
       if (combatantResult instanceof Error) return combatantResult;
       const { combatantProperties } = combatantResult;

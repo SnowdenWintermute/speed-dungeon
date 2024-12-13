@@ -76,12 +76,14 @@ export default function outfitNewCharacter(character: Combatant) {
   // const items = generateOneOfEachItem();
   // combatantProperties.inventory.items.push(...items);
   combatantProperties.unspentAttributePoints = 100;
+  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 100;
+  combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 100;
 
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
 
   combatantProperties.inventory.items.push(HP_ARMOR_TEST_ITEM);
-  combatantProperties.inventory.items.push(WEAPON_TEST_ITEM);
+  combatantProperties.equipment[EquipmentSlot.MainHand] = WEAPON_TEST_ITEM;
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
   // TESTING

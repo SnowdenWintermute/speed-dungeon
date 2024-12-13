@@ -81,6 +81,12 @@ export default function getNextOrPreviousTarget(
             friendOrFoe: FriendOrFoe.Friendly,
           };
         case TargetCategories.Any:
+          if (!opponentIdsOption || !opponentIdsOption.length) {
+            return {
+              type: CombatActionTargetType.Group,
+              friendOrFoe: FriendOrFoe.Friendly,
+            };
+          }
           switch (currentTargets.friendOrFoe) {
             case FriendOrFoe.Friendly:
               return {

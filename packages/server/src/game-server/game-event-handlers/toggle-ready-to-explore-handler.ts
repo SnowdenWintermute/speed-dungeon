@@ -11,6 +11,7 @@ import {
   CombatantTurnTracker,
   GameMode,
   InputLock,
+  DUNGEON_ROOM_TYPE_STRINGS,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
 import { DungeonRoomType } from "@speed-dungeon/common";
@@ -78,6 +79,8 @@ export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party:
         else return null;
       }
     );
+
+    newRoomTypesListForClientOption.reverse();
 
     this.io
       .in(getPartyChannelName(game.name, party.name))

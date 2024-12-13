@@ -108,7 +108,8 @@ export default function calculateActionHitPointChangesAndEvasions(
     const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, id);
     if (targetCombatantResult instanceof Error) return targetCombatantResult;
     const { combatantProperties: targetCombatantProperties } = targetCombatantResult;
-    let hpChange = new HpChange(incomingHpChangePerTarget, hpChangeSource);
+    let hpChange = new HpChange(incomingHpChangePerTarget, cloneDeep(hpChangeSource));
+
     const hpChangeCalculationContext = HP_CALCLULATION_CONTEXTS[hpChangeSource.category];
 
     const targetWantsToBeHit = checkIfTargetWantsToBeHit(
@@ -172,22 +173,27 @@ export default function calculateActionHitPointChangesAndEvasions(
     // determine if hp change source has lifesteal
     // get the percent
     // add it to the lifesteal hp change of the action user
-    // if (hpChange.source.lifestealPercentage) {
-    //   const lifestealValue = hpChange.value * (hpChange.source.lifestealPercentage / 100) * -1;
-    //   if (!lifestealHpChange) {
-    //     lifestealHpChange = new HpChange(
-    //       lifestealValue,
-    //       new HpChangeSource(HpChangeSourceCategory.Magical, hpChange.source.meleeOrRanged)
-    //     );
-    //     lifestealHpChange.value = lifestealValue;
-    //   } else {
-    //     lifestealHpChange.value += lifestealValue;
-    //   }
-    // }
+    if (hpChange.source.lifestealPercentage) {
+      const lifestealValue = hpChange.value * (hpChange.source.lifestealPercentage / 100) * -1;
+      if (!lifestealHpChange) {
+        lifestealHpChange = new HpChange(
+          lifestealValue,
+          new HpChangeSource(HpChangeSourceCategory.Magical, hpChange.source.meleeOrRanged)
+        );
+        lifestealHpChange.isCrit = hpChange.isCrit;
+        lifestealHpChange.value = lifestealValue;
+      } else {
+        // if aggregating lifesteal from multiple hits, call it a crit if any of the hits were crits
+        if (hpChange.isCrit) lifestealHpChange.isCrit = true;
+        lifestealHpChange.value += lifestealValue;
+      }
+    }
   }
 
-  // if (lifestealHpChange) hitPointChanges[userId] = lifestealHpChange;
-  console.log("hit hitPointChanges: ", hitPointChanges);
+  if (lifestealHpChange) {
+    lifestealHpChange.value = Math.floor(lifestealHpChange.value);
+    hitPointChanges[userId] = lifestealHpChange;
+  }
 
   return { hitPointChanges, evasions };
 }

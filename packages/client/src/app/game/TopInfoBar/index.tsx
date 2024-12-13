@@ -3,7 +3,7 @@ import { useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import TurnOrderBar from "./TurnOrderBar";
 import RoomExplorationTracker from "./RoomExplorationTracker";
-import { ClientToServerEvent, formatDungeonRoomType } from "@speed-dungeon/common";
+import { ClientToServerEvent, DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
 import getGameAndParty from "@/utils/getGameAndParty";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
@@ -30,7 +30,7 @@ export default function TopInfoBar() {
         {", room "}
         {party.roomsExplored.onCurrentFloor}
         {": "}
-        {formatDungeonRoomType(party.currentRoom.roomType)}
+        {DUNGEON_ROOM_TYPE_STRINGS[party.currentRoom.roomType]}
       </div>
       {!(battleOptionResult instanceof Error) && battleOptionResult !== null ? (
         <TurnOrderBar battle={battleOptionResult} />
