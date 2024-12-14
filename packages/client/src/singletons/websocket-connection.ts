@@ -1,3 +1,4 @@
+"use client";
 import { setAlert } from "@/app/components/alerts";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
@@ -27,6 +28,7 @@ export const websocketConnection: Socket<ServerToClientEventTypes, ClientToServe
 );
 
 export function resetWebsocketConnection() {
+  if (typeof window === undefined) return;
   websocketConnection.disconnect();
   websocketConnection.connect();
   console.log("reconnecting");
@@ -43,6 +45,7 @@ export function resetWebsocketConnection() {
 // });
 
 websocketConnection.on("connect", () => {
+  console.log("all listeners set up");
   console.log("connected");
   useGameStore.getState().mutateState((state) => {
     state.game = null;
@@ -73,10 +76,3 @@ websocketConnection.on(ServerToClientEvent.ActionCommandPayloads, (entityId, pay
   });
   enqueueClientActionCommands(entityId, payloads);
 });
-
-setUpBasicLobbyEventHandlers(websocketConnection);
-setUpGameLobbyEventHandlers(websocketConnection);
-setUpGameEventHandlers(websocketConnection);
-setUpSavedCharacterEventListeners(websocketConnection);
-
-console.log("all listeners set up");

@@ -29,12 +29,15 @@ export async function removeDeadCharactersFromLadder(characters: {
 
 export async function loadLadderIntoKvStore() {
   await valkeyManager.context.del(CHARACTER_LEVEL_LADDER);
+  console.log("loading kv ladder");
   const rows = await playerCharactersRepo.getAllByLevel();
   if (!rows) return console.error("Couldn't load character levels");
+  console.log("rows: ", rows);
   const forValkey: { value: string; score: number }[] = [];
   for (const item of rows) {
     if (item.hitPoints <= 0) continue; // only allow living characters in the ladder
-    forValkey.push({ value: item.id, score: item.level });
+    console.log("current exp: ", item.experiencePoints);
+    forValkey.push({ value: item.id, score: item.level + item.experiencePoints });
   }
 
   await valkeyManager.context.zAdd(CHARACTER_LEVEL_LADDER, forValkey);

@@ -10,7 +10,7 @@ export default function TopBar() {
 
   return (
     <>
-      {<Settings />}
+      <Settings />
       <section
         className={`bg-slate-700 w-full border-b border-b-slate-400 pt-[0.625rem] pb-[0.625rem]
         pointer-events-auto flex justify-between`}

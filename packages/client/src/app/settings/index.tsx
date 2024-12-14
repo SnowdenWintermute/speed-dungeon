@@ -1,3 +1,4 @@
+"use client";
 import { HTTP_REQUEST_NAMES, SPACING_REM_SMALL } from "@/client_consts";
 import React, { useEffect } from "react";
 import HotkeyButton from "../components/atoms/HotkeyButton";

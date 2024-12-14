@@ -1,27 +1,28 @@
+"use client";
 import { gameWorld } from "@/app/3d-world/SceneManager";
+import { useGameStore } from "@/stores/game-store";
+import { useLobbyStore } from "@/stores/lobby-store";
+import { useUIStore } from "@/stores/ui-store";
+import { useRouter } from "next/navigation";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import { TabMessageType, broadcastChannel, sessionFetcher } from "@/singletons/broadcast-channel";
-import { resetWebsocketConnection } from "@/singletons/websocket-connection";
-import { useGameStore } from "@/stores/game-store";
 import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
-import { useLobbyStore } from "@/stores/lobby-store";
-import { useUIStore } from "@/stores/ui-store";
-import { useRouter } from "next/navigation";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
+import { resetWebsocketConnection } from "@/singletons/websocket-connection";
 
 export default function UserMenuContainer() {
-  const username = useGameStore().username;
-  const fetchData = useHttpRequestStore().fetchData;
-  const getSessionRequestTrackerName = "get session";
-  const responseTracker = useHttpRequestStore().requests[getSessionRequestTrackerName];
   const mutateLobbyState = useLobbyStore().mutateState;
   const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
   const showAuthForm = useLobbyStore().showAuthForm;
   const router = useRouter();
+  const username = useGameStore().username;
+  const fetchData = useHttpRequestStore().fetchData;
+  const getSessionRequestTrackerName = "get session";
+  const responseTracker = useHttpRequestStore().requests[getSessionRequestTrackerName];
 
   useEffect(() => {
     // always at least check auth status whenever the top bar is mounted
@@ -92,12 +93,12 @@ export default function UserMenuContainer() {
 }
 
 function UserMenu({ username }: { username: null | string }) {
-  const firstLetterOfUsername = username ? username.charAt(0) : "";
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
   const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
   const mutateUIState = useUIStore().mutateState;
   const mutateLobbyState = useLobbyStore().mutateState;
+  const firstLetterOfUsername = username ? username.charAt(0) : "";
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   // on log out
@@ -129,7 +130,7 @@ function UserMenu({ username }: { username: null | string }) {
       state.username = null;
     });
 
-    resetWebsocketConnection();
+    if (typeof window !== undefined) resetWebsocketConnection();
     // message to have their other tabs reconnect with new cookie
     // to keep socket connections consistent with current authorization
     broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });

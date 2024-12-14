@@ -18,6 +18,8 @@ export default function newDungeonRoomHandler(room: DungeonRoom) {
     party.playersReadyToExplore = [];
     party.currentRoom = room;
 
+    gameState.hoveredEntity = null;
+
     for (const monster of Object.values(party.currentRoom.monsters))
       updateCombatantHomePosition(monster.entityProperties.id, monster.combatantProperties, party);
     party.roomsExplored.onCurrentFloor += 1;

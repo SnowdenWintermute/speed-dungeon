@@ -60,13 +60,20 @@ class PlayerCharacterRepo extends DatabaseRepository<PlayerCharacter> {
   async getAllByLevel() {
     const { rows } = await this.pgPool.query(
       `
-      SELECT id, combatant_properties->>'level' AS level, combatant_properties->>'hitPoints' AS hit_points
+      SELECT id, ( combatant_properties->>'level' )::int AS level,
+      ( combatant_properties->'experiencePoints'->>'current' )::int AS experience_points,
+      combatant_properties->>'hitPoints' AS hit_points
       FROM player_characters;
       `
     );
 
     if (rows[0])
-      return toCamelCase(rows) as unknown as { id: string; level: number; hitPoints: number }[];
+      return toCamelCase(rows) as unknown as {
+        id: string;
+        level: number;
+        experiencePoints: number;
+        hitPoints: number;
+      }[];
     return undefined;
   }
 }
