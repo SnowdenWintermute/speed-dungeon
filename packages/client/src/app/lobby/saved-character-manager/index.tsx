@@ -1,11 +1,9 @@
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { nextToBabylonMessageQueue } from "@/singletons/next-to-babylon-message-queue";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { NextToBabylonMessageTypes } from "@/singletons/next-to-babylon-message-queue";
 import { Vector3 } from "@babylonjs/core";
 import {
-  ClientToServerEvent,
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
   formatCombatantClassName,
 } from "@speed-dungeon/common";
@@ -18,7 +16,6 @@ import CreateCharacterForm from "./CreateCharacterForm";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import DeleteCharacterForm from "./DeleteCharacterForm";
-import { ZIndexLayers } from "@/app/z-index-layers";
 
 export const CHARACTER_SLOT_SPACING = 1;
 export const CHARACTER_MANAGER_HOTKEY = "S";

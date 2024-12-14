@@ -7,6 +7,7 @@ import { ActionCommandType, GameMessage } from "@speed-dungeon/common";
 import { enqueueClientActionCommands } from "@/singletons/action-command-manager";
 
 export default function gameProgressMessageHandler(message: GameMessage) {
+  console.log("got game progress message: ", message);
   if (message.showAfterActionQueueResolution) {
     enqueueClientActionCommands("", [
       {

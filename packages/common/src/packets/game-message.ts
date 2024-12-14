@@ -32,11 +32,20 @@ export function createLadderDeathsMessage(
   return `${characterName} [${owner}] died at level ${level}, losing their position of rank ${rank + 1} in the ladder`;
 }
 
-export function createLevelLadderRankMessage(
+export function createLevelLadderExpRankMessage(
+  name: string,
+  controllingPlayer: string,
+  totalExp: number,
+  newRank: number
+) {
+  return `${name} [${controllingPlayer}] now has ${totalExp} total experience points and has risen to rank ${newRank + 1} in the ladder!`;
+}
+
+export function createLevelLadderLevelupMessage(
   name: string,
   controllingPlayer: string,
   level: number,
-  newRank: number
+  rank: number
 ) {
-  return `${name} [${controllingPlayer}] gained level ${level} and rose to rank ${newRank + 1} in the ladder!`;
+  return `${name} (Rank ${rank + 1}) [${controllingPlayer}] gained level ${level}!`;
 }

@@ -20,8 +20,6 @@ export default function initiateSavedCharacterListeners(
     applyMiddlewares(provideLoggedInUser)(socket, fetchSavedCharactersHandler)
   );
 
-  socket.on(ClientToServerEvent.GetSavedCharacterById, async (entityId) => {});
-
   socket.on(
     ClientToServerEvent.CreateSavedCharacter,
     applyMiddlewares(provideLoggedInUser)(socket, createSavedCharacterHandler)

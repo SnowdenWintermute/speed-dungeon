@@ -38,10 +38,11 @@ export default async function Ladder({ params }: { params: { page: string } }) {
       >
         <thead className="w-full block h-10">
           <tr className="flex border-b border-slate-400 font-bold">
-            <LadderTableTd text={"Rank"} numCols={4} />
-            <LadderTableTd text={"Name"} numCols={4} />
-            <LadderTableTd text={"User"} numCols={4} />
-            <LadderTableTd text={"Level"} numCols={4} />
+            <LadderTableTd text={"Rank"} numCols={5} />
+            <LadderTableTd text={"Name"} numCols={5} />
+            <LadderTableTd text={"User"} numCols={5} />
+            <LadderTableTd text={"Level"} numCols={5} />
+            <LadderTableTd text={"Experience"} numCols={5} />
           </tr>
         </thead>
         <tbody
@@ -56,10 +57,11 @@ export default async function Ladder({ params }: { params: { page: string } }) {
               .sort((a, b) => a.rank - b.rank)
               .map((entry) => (
                 <tr className="flex border-b border-slate-400" key={entry.characterId}>
-                  <LadderTableTd text={entry.rank} numCols={4} />
-                  <LadderTableTd text={entry.characterName} numCols={4} />
-                  <LadderTableTd text={entry.owner} numCols={4} />
-                  <LadderTableTd text={entry.level} numCols={4} />
+                  <LadderTableTd text={entry.rank} numCols={5} />
+                  <LadderTableTd text={entry.characterName} numCols={5} />
+                  <LadderTableTd text={entry.owner} numCols={5} />
+                  <LadderTableTd text={entry.level} numCols={5} />
+                  <LadderTableTd text={entry.experience} numCols={5} />
                 </tr>
               ))}
           {(!entriesOnThisPage || !response.ok) && (
