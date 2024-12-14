@@ -28,7 +28,6 @@ export const websocketConnection: Socket<ServerToClientEventTypes, ClientToServe
 );
 
 export function resetWebsocketConnection() {
-  if (typeof window === undefined) return;
   websocketConnection.disconnect();
   websocketConnection.connect();
   console.log("reconnecting");
@@ -76,3 +75,8 @@ websocketConnection.on(ServerToClientEvent.ActionCommandPayloads, (entityId, pay
   });
   enqueueClientActionCommands(entityId, payloads);
 });
+
+setUpBasicLobbyEventHandlers(websocketConnection);
+setUpGameLobbyEventHandlers(websocketConnection);
+setUpGameEventHandlers(websocketConnection);
+setUpSavedCharacterEventListeners(websocketConnection);

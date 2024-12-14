@@ -62,4 +62,5 @@ export default function setUpGameEventHandlers(
     characterIncrementedAttributePointHandler
   );
   socket.on(ServerToClientEvent.GameMessage, gameProgressMessageHandler);
+  console.log("game listeners set up");
 }

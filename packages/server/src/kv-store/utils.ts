@@ -1,4 +1,4 @@
-import { Combatant, LadderDeathsUpdate } from "@speed-dungeon/common";
+import { Combatant, LadderDeathsUpdate, calculateTotalExperience } from "@speed-dungeon/common";
 import { valkeyManager } from "./index.js";
 import { CHARACTER_LEVEL_LADDER } from "./consts.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
@@ -37,7 +37,10 @@ export async function loadLadderIntoKvStore() {
   for (const item of rows) {
     if (item.hitPoints <= 0) continue; // only allow living characters in the ladder
     console.log("current exp: ", item.experiencePoints);
-    forValkey.push({ value: item.id, score: item.level + item.experiencePoints });
+    forValkey.push({
+      value: item.id,
+      score: calculateTotalExperience(item.level) + item.experiencePoints,
+    });
   }
 
   await valkeyManager.context.zAdd(CHARACTER_LEVEL_LADDER, forValkey);

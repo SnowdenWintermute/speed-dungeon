@@ -12,6 +12,7 @@ export * from "./inventory.js";
 export * from "./update-home-position.js";
 export * from "./apply-experience-point-changes.js";
 export * from "./get-combatant-total-attributes.js";
+export * from "./calculate-total-experience.js";
 
 export class Combatant {
   [immerable] = true;

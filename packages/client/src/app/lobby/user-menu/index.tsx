@@ -130,7 +130,7 @@ function UserMenu({ username }: { username: null | string }) {
       state.username = null;
     });
 
-    if (typeof window !== undefined) resetWebsocketConnection();
+    resetWebsocketConnection();
     // message to have their other tabs reconnect with new cookie
     // to keep socket connections consistent with current authorization
     broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });

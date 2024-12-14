@@ -31,7 +31,7 @@ import unequipSlots from "./unequip-slots.js";
 import { immerable } from "immer";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app-consts.js";
 import { cloneVector3 } from "../utils/index.js";
-import awardLevelups from "./award-levelups.js";
+import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./award-levelups.js";
 import { incrementAttributePoint } from "./increment-attribute-point.js";
 import { MonsterType } from "../monsters/monster-types.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
@@ -49,7 +49,10 @@ export class CombatantProperties {
   hitPoints: number = 0;
   mana: number = 0;
   speccedAttributes: CombatantAttributeRecord = {};
-  experiencePoints: ExperiencePoints = { current: 0, requiredForNextLevel: 100 };
+  experiencePoints: ExperiencePoints = {
+    current: 0,
+    requiredForNextLevel: XP_REQUIRED_TO_REACH_LEVEL_2,
+  };
   abilities: Partial<Record<AbilityName, CombatantAbility>> = {};
   traits: CombatantTrait[] = [];
   equipment: Partial<Record<EquipmentSlot, Item>> = {};

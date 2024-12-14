@@ -48,7 +48,7 @@ export default function setUpGameLobbyEventHandlers(
       if (state.game) state.game.players[username] = new SpeedDungeonPlayer(username);
     });
   });
-  socket.on(ServerToClientEvent.PlayerLeftGame, playerLeftGameHandler);
+  socket.on(ServerToClientEvent.PlayerLeftGame, () => playerLeftGameHandler);
   socket.on(ServerToClientEvent.PartyCreated, (partyId, partyName) => {
     mutateGameStore((state) => {
       if (state.game) {
