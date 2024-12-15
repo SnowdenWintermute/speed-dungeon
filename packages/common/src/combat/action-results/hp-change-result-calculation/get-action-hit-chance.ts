@@ -17,5 +17,5 @@ export function getActionHitChance(
   const finalTargetEvasion = targetWantsToBeHit ? 0 : targetEvasion;
   const accComparedToEva = modifiedAccuracy - finalTargetEvasion;
 
-  return Math.min(100, Math.max(MIN_HIT_CHANCE, accComparedToEva));
+  return Math.max(MIN_HIT_CHANCE, accComparedToEva);
 }

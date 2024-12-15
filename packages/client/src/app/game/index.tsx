@@ -16,8 +16,10 @@ import { ZIndexLayers } from "../z-index-layers";
 
 export default function Game() {
   const game = useGameStore().game;
+  const viewingLeaveGameModal = useGameStore((state) => state.viewingLeaveGameModal);
   const currentMenu = useGameStore.getState().getCurrentMenu();
   const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
+  // const leaveGameModalOpen = useGameStore.getState().leaveGameModalOpen
 
   const username = useGameStore().username;
   if (!username)
@@ -52,7 +54,7 @@ export default function Game() {
     <>
       <main
         className={`h-screen w-screen flex justify-center relative overflow-hidden ${viewingCharacterSheet && "opacity-50"}`}
-        style={{ zIndex: ZIndexLayers.MainUI }}
+        style={{ zIndex: viewingLeaveGameModal ? ZIndexLayers.GameModal : ZIndexLayers.MainUI }}
       >
         <CharacterAutofocusManager />
         <CurrentItemUnmetRequirementsUpdater />

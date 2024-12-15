@@ -78,6 +78,7 @@ export default function outfitNewCharacter(character: Combatant) {
   combatantProperties.unspentAttributePoints = 100;
   combatantProperties.inherentAttributes[CombatAttribute.Speed] = 100;
   combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 100;
+  combatantProperties.inherentAttributes[CombatAttribute.Hp] = 100;
 
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;

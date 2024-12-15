@@ -89,6 +89,16 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
 
       const levelup = levelups[id];
       if (levelup !== undefined) {
+        getGameServer()
+          .io.except(partyChannel)
+          .emit(
+            ServerToClientEvent.GameMessage,
+            new GameMessage(
+              GameMessageType.LadderProgress,
+              false,
+              createLevelLadderLevelupMessage(name, controllingPlayer || "", levelup, newRank)
+            )
+          );
         getGameServer().io.emit(
           ServerToClientEvent.GameMessage,
           new GameMessage(
@@ -101,6 +111,17 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
 
       // - if they ranked up and were in the top 10 ranks, emit a message to everyone
       if (newRank === currentRankOption || newRank >= 10) continue;
+
+      getGameServer()
+        .io.except(partyChannel)
+        .emit(
+          ServerToClientEvent.GameMessage,
+          new GameMessage(
+            GameMessageType.LadderProgress,
+            false,
+            createLevelLadderExpRankMessage(name, controllingPlayer || "", totalExp, newRank)
+          )
+        );
 
       getGameServer().io.emit(
         ServerToClientEvent.GameMessage,

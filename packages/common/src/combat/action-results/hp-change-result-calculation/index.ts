@@ -149,21 +149,28 @@ export default function calculateActionHitPointChangesAndEvasions(
       userCombatantProperties,
       targetCombatantProperties
     );
+
+    console.log("value before affinities: ", hpChange.value);
     applyKineticAffinities(hpChange, targetCombatantProperties);
+    console.log("value after kinetic: ", hpChange.value);
     applyElementalAffinities(hpChange, targetCombatantProperties);
+    console.log("value after elemental: ", hpChange.value);
 
     convertHpChangeValueToFinalSign(hpChange, targetCombatantProperties);
+    console.log("value after final sign: ", hpChange.value);
 
     hpChangeCalculationContext.applyResilience(
       hpChange,
       userCombatantProperties,
       targetCombatantProperties
     );
+    console.log("value after resilience: ", hpChange.value);
     hpChangeCalculationContext.applyArmorClass(
       hpChange,
       userCombatantProperties,
       targetCombatantProperties
     );
+    console.log("value after armor class: ", hpChange.value);
 
     hpChange.value = Math.floor(hpChange.value);
 

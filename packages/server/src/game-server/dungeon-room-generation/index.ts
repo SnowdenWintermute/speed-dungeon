@@ -11,7 +11,7 @@ export default function generateDungeonRoom(floor: number, roomType: DungeonRoom
   const monsterPositions: string[] = [];
   if (roomType === DungeonRoomType.MonsterLair) {
     for (let i = 0; i < NUM_MONSTERS_PER_ROOM; i += 1) {
-      const newMonster = generateMonster(floor);
+      const newMonster = generateMonster(floor + i);
       const monsterId = newMonster.entityProperties.id;
       monsters[monsterId] = newMonster;
       monsterPositions.push(monsterId);

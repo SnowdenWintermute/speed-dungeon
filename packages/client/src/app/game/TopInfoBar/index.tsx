@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import TurnOrderBar from "./TurnOrderBar";
@@ -10,12 +10,13 @@ import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { ZIndexLayers } from "@/app/z-index-layers";
 
 export default function TopInfoBar() {
+  const mutateGameState = useGameStore().mutateState;
+  const viewingLeaveGameModal = useGameStore((state) => state.viewingLeaveGameModal);
   const gameOption = useGameStore().game;
   const username = useGameStore().username;
   const result = getGameAndParty(gameOption, username);
   if (result instanceof Error) return <div>{result.message}</div>;
   const [game, party] = result;
-  const [showLeaveGameModal, setShowLeaveGameModal] = useState(false);
 
   const battleOptionResult = getCurrentBattleOption(game, party.name);
   function leaveGame() {
@@ -38,11 +39,18 @@ export default function TopInfoBar() {
         <RoomExplorationTracker />
       )}
       <div className="absolute right-0 pr-4 pl-4 h-full w-fit border-l border-slate-400 flex items-center justify-center">
-        <HotkeyButton onClick={() => setShowLeaveGameModal(!showLeaveGameModal)}>
+        <HotkeyButton
+          onClick={() =>
+            mutateGameState((state) => {
+              state.viewingLeaveGameModal = !state.viewingLeaveGameModal;
+              state.stackedMenuStates = [];
+            })
+          }
+        >
           LEAVE GAME{" "}
         </HotkeyButton>
       </div>
-      {showLeaveGameModal && (
+      {viewingLeaveGameModal && (
         <div
           className={`absolute max-w-96 top-24 p-8 border border-slate-400 bg-slate-950 pointer-events-auto`}
           style={{ zIndex: ZIndexLayers.GameModal }}
@@ -60,7 +68,11 @@ export default function TopInfoBar() {
           <div className="flex justify-between">
             <HotkeyButton
               hotkeys={["Escape"]}
-              onClick={() => setShowLeaveGameModal(false)}
+              onClick={() =>
+                mutateGameState((state) => {
+                  state.viewingLeaveGameModal = false;
+                })
+              }
               className="h-10 w-24 p-2 border border-slate-400 mr-1 bg-slate-700"
             >
               No

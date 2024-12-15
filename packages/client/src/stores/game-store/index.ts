@@ -64,6 +64,7 @@ export class GameState {
   itemThumbnails: { [itemId: string]: string } = {};
   consideredItemUnmetRequirements: null | CombatAttribute[] = null;
   showItemsOnGround: boolean = true;
+  viewingLeaveGameModal: boolean = false;
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
     if (party instanceof Error) return null;

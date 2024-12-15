@@ -37,6 +37,11 @@ TEST_ARMOR_EQUIPMENT_PROPERTIES.affixes[AffixType.Suffix] = {
   },
 };
 TEST_ARMOR_EQUIPMENT_PROPERTIES.affixes[AffixType.Prefix] = {
+  [PrefixType.ArmorClass]: {
+    combatAttributes: { [CombatAttribute.ArmorClass]: 4 },
+    equipmentTraits: {},
+    tier: 1,
+  },
   [PrefixType.Mp]: {
     combatAttributes: { [CombatAttribute.Mp]: 4 },
     equipmentTraits: {},

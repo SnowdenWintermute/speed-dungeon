@@ -149,7 +149,20 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case OneHandedMeleeWeapon.Dagger:
         template.levelRange = new NumberRange(1, 3);
         template.damage = new NumberRange(1, 4);
-        mainDamageClassification.kineticDamageTypeOption = KineticDamageType.Piercing;
+        mainDamageClassification = null;
+        template.numDamageClassifications = 2;
+        template.possibleDamageClassifications = [
+          new HpChangeSource(
+            HpChangeSourceCategory.Physical,
+            MeleeOrRanged.Melee,
+            KineticDamageType.Slashing
+          ),
+          new HpChangeSource(
+            HpChangeSourceCategory.Physical,
+            MeleeOrRanged.Melee,
+            KineticDamageType.Piercing
+          ),
+        ];
         break;
       case OneHandedMeleeWeapon.Rapier:
         template.levelRange = new NumberRange(3, 7);
