@@ -1,15 +1,15 @@
-import { ERROR_MESSAGES } from "../errors/index.js";
-import { EquipmentProperties, EquipmentSlot, Item } from "../items/index.js";
-import { EntityId } from "../primatives/index.js";
-import { Inventory } from "./inventory.js";
-import { CombatantProperties } from "./combatant-properties.js";
-import { CombatAttribute } from "./combat-attributes.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { EquipmentProperties, EquipmentSlot, Item } from "../../items/index.js";
+import { EntityId } from "../../primatives/index.js";
+import { Inventory } from "./../inventory.js";
+import { CombatantProperties } from "./../combatant-properties.js";
+import { CombatAttribute } from "./../combat-attributes.js";
 
 /** 
-  *
+  
   returns list of item ids unequipped
 */
-export default function equipItem(
+export function equipItem(
   combatantProperties: CombatantProperties,
   itemId: string,
   equipToAltSlot: boolean

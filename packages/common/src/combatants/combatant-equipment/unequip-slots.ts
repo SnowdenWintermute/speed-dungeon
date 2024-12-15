@@ -1,11 +1,8 @@
-import { EquipmentSlot } from "../items/index.js";
-import { CombatAttribute } from "./combat-attributes.js";
-import { CombatantProperties } from "./combatant-properties.js";
+import { EquipmentSlot } from "../../items/index.js";
+import { CombatAttribute } from "./../combat-attributes.js";
+import { CombatantProperties } from "./../combatant-properties.js";
 
-export default function unequipSlots(
-  combatantProperties: CombatantProperties,
-  slots: EquipmentSlot[]
-) {
+export function unequipSlots(combatantProperties: CombatantProperties, slots: EquipmentSlot[]) {
   const unequippedItemIds: string[] = [];
 
   const attributesBefore = CombatantProperties.getTotalAttributes(combatantProperties);

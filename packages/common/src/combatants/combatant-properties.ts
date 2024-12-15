@@ -2,7 +2,7 @@ import { Vector3 } from "@babylonjs/core";
 import { CombatAction } from "../combat/combat-actions/index.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
-import { Item, WeaponSlot } from "../items/index.js";
+import { Item } from "../items/index.js";
 import { EquipmentSlot } from "../items/equipment/slots.js";
 import { CombatantAbility, AbilityName } from "./abilities/index.js";
 import { getAbilityCostIfOwned } from "./abilities/ability-mana-cost-getters.js";
@@ -17,17 +17,12 @@ import { CombatantSpecies } from "./combatant-species.js";
 import { CombatantTrait, CombatantTraitType } from "./combatant-traits.js";
 import dropEquippedItem from "./drop-equipped-item.js";
 import dropItem from "./drop-item.js";
-import equipItem from "./equip-item.js";
 import getAbilityNamesFilteredByUseableContext from "./get-ability-names-filtered-by-usable-context.js";
 import { getCombatActionPropertiesIfOwned } from "./get-combat-action-properties.js";
 import getCombatantTotalAttributes from "./get-combatant-total-attributes.js";
 import getCombatantTotalElementalAffinities from "./get-combatant-total-elemental-affinities.js";
-import getEquipmentInSlot from "./get-equipment-in-slot.js";
-import getEquippedWeapon from "./get-equipped-weapon.js";
-import getSlotItemIsEquippedTo from "./get-slot-item-is-equipped-to.js";
 import { Inventory } from "./inventory.js";
 import setHpAndMpToMax from "./set-hp-and-mp-to-max.js";
-import unequipSlots from "./unequip-slots.js";
 import { immerable } from "immer";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app-consts.js";
 import { cloneVector3 } from "../utils/index.js";
@@ -36,7 +31,14 @@ import { incrementAttributePoint } from "./increment-attribute-point.js";
 import { MonsterType } from "../monsters/monster-types.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import getCombatantTotalKineticDamageTypeAffinities from "./get-combatant-total-kinetic-damage-type-affinities.js";
-import { getUsableWeaponsInSlots } from "./get-usable-weapons-in-slots.js";
+import {
+  equipItem,
+  getEquipmentInSlot,
+  getEquippedWeapon,
+  getSlotItemIsEquippedTo,
+  getUsableWeaponsInSlots,
+  unequipSlots,
+} from "./combatant-equipment/index.js";
 
 export class CombatantProperties {
   [immerable] = true;
@@ -56,7 +58,10 @@ export class CombatantProperties {
   abilities: Partial<Record<AbilityName, CombatantAbility>> = {};
   traits: CombatantTrait[] = [];
   equipment: Partial<Record<EquipmentSlot, Item>> = {};
-  weaponHotswapSets: { [setNumber: number]: null | Partial<Record<WeaponSlot, Item>> } = {};
+  // holdable equipment hotswap slots
+  // - should hold the item separately of the inventory bags
+  // - should be consistently accessible by their number (same items each time)
+  // - should be limitable by the type of equipment they can hold (shield only, swords only etc)
   inventory: Inventory = new Inventory();
   selectedCombatAction: null | CombatAction = null;
   combatActionTarget: null | CombatActionTarget = null;

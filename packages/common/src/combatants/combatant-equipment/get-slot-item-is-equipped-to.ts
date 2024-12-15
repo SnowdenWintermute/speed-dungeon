@@ -1,7 +1,7 @@
-import { EquipmentSlot } from "../items/index.js";
-import { CombatantProperties } from "./combatant-properties.js";
+import { EquipmentSlot } from "../../items/index.js";
+import { CombatantProperties } from "./../combatant-properties.js";
 
-export default function getSlotItemIsEquippedTo(
+export function getSlotItemIsEquippedTo(
   combatantProperties: CombatantProperties,
   itemId: string
 ): null | EquipmentSlot {

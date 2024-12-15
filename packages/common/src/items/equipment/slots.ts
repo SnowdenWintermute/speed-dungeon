@@ -16,24 +16,15 @@ export enum EquipmentSlot {
   Amulet,
 }
 
-export function formatEquipmentSlot(slot: EquipmentSlot) {
-  switch (slot) {
-    case EquipmentSlot.Head:
-      return "Head";
-    case EquipmentSlot.Body:
-      return "Body";
-    case EquipmentSlot.MainHand:
-      return "MainHand";
-    case EquipmentSlot.OffHand:
-      return "OffHand";
-    case EquipmentSlot.RingL:
-      return "RingL";
-    case EquipmentSlot.RingR:
-      return "RingR";
-    case EquipmentSlot.Amulet:
-      return "Amulet";
-  }
-}
+export const EQUIPMENT_SLOT_STRINGS: Record<EquipmentSlot, string> = {
+  [EquipmentSlot.Head]: "Head",
+  [EquipmentSlot.Body]: "Body",
+  [EquipmentSlot.MainHand]: "MainHand",
+  [EquipmentSlot.OffHand]: "OffHand",
+  [EquipmentSlot.RingL]: "RingL",
+  [EquipmentSlot.RingR]: "RingR",
+  [EquipmentSlot.Amulet]: "Amulet",
+};
 
 export interface EquipableSlots {
   main: EquipmentSlot;

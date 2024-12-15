@@ -9,7 +9,6 @@ import {
   Item,
   ItemPropertiesType,
   MonsterType,
-  formatEquipmentSlot,
   removeFromArray,
 } from "@speed-dungeon/common";
 import {
@@ -49,10 +48,6 @@ class ModelMessageQueue {
           this.modelManager.despawnCharacterModel(this.entityId);
           break;
         case ModelManagerMessageType.ChangeEquipment:
-          console.log(
-            "unequippedSlots: ",
-            currentMessageProcessing.unequippedSlots.map((item) => formatEquipmentSlot(item))
-          );
           for (const slot of currentMessageProcessing.unequippedSlots)
             await this.modelManager.handleEquipmentChange(this.entityId, slot);
           if (currentMessageProcessing.toEquip)

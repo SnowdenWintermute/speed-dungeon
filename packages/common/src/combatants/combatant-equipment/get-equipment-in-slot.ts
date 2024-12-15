@@ -1,9 +1,9 @@
-import { EquipmentSlot } from "../items/index.js";
-import { EquipmentProperties } from "../items/equipment/equipment-properties/index.js";
-import { ItemPropertiesType } from "../items/item-properties.js";
-import { CombatantProperties } from "./combatant-properties.js";
+import { EquipmentSlot } from "../../items/index.js";
+import { EquipmentProperties } from "../../items/equipment/equipment-properties/index.js";
+import { ItemPropertiesType } from "../../items/item-properties.js";
+import { CombatantProperties } from "./../combatant-properties.js";
 
-export default function getEquipmentInSlot(
+export function getEquipmentInSlot(
   combatantProperties: CombatantProperties,
   slot: EquipmentSlot
 ): EquipmentProperties | undefined {

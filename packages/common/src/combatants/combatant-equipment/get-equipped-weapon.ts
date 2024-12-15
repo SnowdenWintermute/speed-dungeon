@@ -1,8 +1,8 @@
-import { EquipmentSlot, Item, WeaponSlot } from "../items/index.js";
-import { WeaponProperties } from "../items/equipment/equipment-properties/weapon-properties.js";
-import { CombatantProperties } from "./combatant-properties.js";
+import { EquipmentSlot, Item, WeaponSlot } from "../../items/index.js";
+import { WeaponProperties } from "../../items/equipment/equipment-properties/weapon-properties.js";
+import { CombatantProperties } from "./../combatant-properties.js";
 
-export default function getEquippedWeapon(
+export function getEquippedWeapon(
   combatantProperties: CombatantProperties,
   slot: WeaponSlot
 ): undefined | Error | WeaponProperties {
