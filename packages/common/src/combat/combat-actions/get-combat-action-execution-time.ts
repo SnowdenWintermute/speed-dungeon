@@ -1,7 +1,7 @@
 import { CombatAction, CombatActionType } from "../index.js";
 import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../app-consts.js";
 import { AbilityName, CombatantProperties } from "../../combatants/index.js";
-import { EquipmentProperties, EquipmentSlot, Item } from "../../items/index.js";
+import { Equipment, EquipmentSlot } from "../../items/index.js";
 
 export function getCombatActionExecutionTime(
   combatantProperties: CombatantProperties,
@@ -15,10 +15,8 @@ export function getCombatActionExecutionTime(
         case AbilityName.AttackMeleeOffhand:
           const mhWeaponOption = combatantProperties.equipment[EquipmentSlot.MainHand];
           if (!mhWeaponOption) return 1000;
-          const equipmentPropertiesResult = Item.getEquipmentProperties(mhWeaponOption);
-          if (equipmentPropertiesResult instanceof Error) return equipmentPropertiesResult;
-          const isTwoHanded = EquipmentProperties.isTwoHanded(
-            equipmentPropertiesResult.equipmentBaseItemProperties.type
+          const isTwoHanded = Equipment.isTwoHanded(
+            mhWeaponOption.equipmentBaseItemProperties.type
           );
           if (isTwoHanded) return 2000;
           else return 1000;

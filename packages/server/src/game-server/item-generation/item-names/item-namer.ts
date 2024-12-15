@@ -2,7 +2,7 @@ import {
   AffixType,
   Affixes,
   EquipmentType,
-  ItemPropertiesType,
+  ItemType,
   ONE_HANDED_MELEE_WEAPON_NAMES,
   PrefixType,
   SuffixType,
@@ -24,7 +24,7 @@ export abstract class ItemNamer {
     const suffixNames = [];
     let baseItemName = "";
     switch (baseItem.type) {
-      case ItemPropertiesType.Equipment:
+      case ItemType.Equipment:
         switch (baseItem.baseItem.equipmentType) {
           case EquipmentType.BodyArmor:
             baseItemName = formatBodyArmor(baseItem.baseItem.baseItemType);
@@ -50,7 +50,7 @@ export abstract class ItemNamer {
             break;
         }
         break;
-      case ItemPropertiesType.Consumable:
+      case ItemType.Consumable:
         baseItemName = formatConsumableType(baseItem.baseItem);
     }
 

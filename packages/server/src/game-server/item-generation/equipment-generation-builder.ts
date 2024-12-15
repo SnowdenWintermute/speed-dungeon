@@ -7,7 +7,7 @@ import {
   EquipmentBaseItemProperties,
   EquipmentBaseItemType,
   EquipmentType,
-  ItemPropertiesType,
+  ItemType,
   MaxAndCurrent,
   PrefixType,
   SuffixType,
@@ -17,11 +17,11 @@ import {
   randBetween,
   shuffleArray,
 } from "@speed-dungeon/common";
-import { ItemGenerationBuilder, TaggedBaseItem } from "./item-generation-builder.js";
 import { EquipmentGenerationTemplate } from "./equipment-templates/equipment-generation-template-abstract-classes.js";
 import { getEquipmentGenerationTemplate } from "./equipment-templates/index.js";
 import { rollAffix, rollAffixTier } from "./roll-affix.js";
 import { ItemNamer } from "./item-names/item-namer.js";
+import { ItemGenerationBuilder, TaggedBaseItem } from "./item-generation-builder.js";
 
 export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
   extends ItemNamer
@@ -51,7 +51,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     if (baseEquipmentItem instanceof Error) return baseEquipmentItem;
 
     const toReturn: TaggedBaseItem = {
-      type: ItemPropertiesType.Equipment,
+      type: ItemType.Equipment,
       // @ts-ignore
       baseItem: {
         equipmentType: this.equipmentType,
@@ -165,7 +165,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
   ): Error | Partial<Record<CombatAttribute, number>> {
     const toReturn: Partial<Record<CombatAttribute, number>> = {};
     switch (taggedBaseItem.type) {
-      case ItemPropertiesType.Equipment:
+      case ItemType.Equipment:
         const template = getEquipmentGenerationTemplate(taggedBaseItem.baseItem);
         if (template === undefined)
           return new Error(
@@ -175,7 +175,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
               formatEquipmentType(taggedBaseItem.baseItem.equipmentType)
           );
         return template.requirements;
-      case ItemPropertiesType.Consumable:
+      case ItemType.Consumable:
         break;
     }
 

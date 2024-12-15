@@ -1,11 +1,6 @@
 import cloneDeep from "lodash.clonedeep";
 import { CombatantProperties } from "../../../../combatants/index.js";
-import {
-  EquipmentProperties,
-  Item,
-  WeaponProperties,
-  WeaponSlot,
-} from "../../../../items/index.js";
+import { Equipment, Item, WeaponProperties, WeaponSlot } from "../../../../items/index.js";
 import { CombatActionHpChangeProperties } from "../../../combat-actions/combat-action-properties.js";
 import {
   HpChange,
@@ -22,7 +17,7 @@ import { HP_CALCLULATION_CONTEXTS } from "../hp-change-calculation-strategies/in
 export function applyWeaponHpChangeModifiers(
   hpChangeProperties: CombatActionHpChangeProperties,
   equippedUsableWeapons: Partial<
-    Record<WeaponSlot, { item: Item; weaponProperties: WeaponProperties }>
+    Record<WeaponSlot, { equipment: Equipment; weaponProperties: WeaponProperties }>
   >,
   userCombatantProperties: CombatantProperties,
   targetCombatantProperties: CombatantProperties,
@@ -77,8 +72,8 @@ export function applyWeaponHpChangeModifiers(
   if (mostEffectiveClassificationOnTarget) {
     // if we ever add something besides lifesteal which might affect damage, put this
     // before the testing
-    const maybeError = EquipmentProperties.applyEquipmentTraitsToHpChangeSource(
-      weaponOption.item,
+    const maybeError = Equipment.applyEquipmentTraitsToHpChangeSource(
+      weaponOption.equipment,
       mostEffectiveClassificationOnTarget.classification
     );
     if (maybeError instanceof Error) console.error(maybeError);

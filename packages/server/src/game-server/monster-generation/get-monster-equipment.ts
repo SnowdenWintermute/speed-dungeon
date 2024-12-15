@@ -1,6 +1,6 @@
 import {
+    Equipment,
   EquipmentSlot,
-  Item,
   MonsterType,
   PreDeterminedItemType,
   generatePreDeterminedItem,
@@ -9,8 +9,8 @@ import { idGenerator } from "../../singletons.js";
 
 export default function getMonsterEquipment(
   monsterType: MonsterType
-): Partial<Record<EquipmentSlot, Item>> {
-  const equipment: Partial<Record<EquipmentSlot, Item>> = {};
+): Partial<Record<EquipmentSlot, Equipment>> {
+  const equipment: Partial<Record<EquipmentSlot, Equipment>> = {};
   switch (monsterType) {
     case MonsterType.SkeletonArcher:
       equipment[EquipmentSlot.MainHand] = generatePreDeterminedItem(

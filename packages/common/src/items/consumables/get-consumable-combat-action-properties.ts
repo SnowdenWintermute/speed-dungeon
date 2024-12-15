@@ -1,15 +1,13 @@
-import { ConsumableProperties, ConsumableType } from "./index.js";
+import { Consumable, ConsumableType } from "./index.js";
 import {
   CombatActionProperties,
   ActionUsableContext,
 } from "../../combat/combat-actions/combat-action-properties.js";
 import { TargetCategories } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
 
-export default function getConsumableCombatActionProperties(
-  consumableProperties: ConsumableProperties
-) {
+export default function getConsumableCombatActionProperties(consumable: Consumable) {
   const cap = new CombatActionProperties();
-  switch (consumableProperties.consumableType) {
+  switch (consumable.consumableType) {
     case ConsumableType.HpAutoinjector:
       cap.validTargetCategories = TargetCategories.Friendly;
       cap.usabilityContext = ActionUsableContext.All;

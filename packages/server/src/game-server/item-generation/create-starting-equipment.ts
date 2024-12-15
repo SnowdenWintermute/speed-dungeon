@@ -1,28 +1,18 @@
 import {
-  AffixType,
-  ArmorCategory,
-  BodyArmor,
-  CombatAttribute,
   CombatantClass,
-  EquipmentProperties,
+  Equipment,
   EquipmentSlot,
   EquipmentType,
-  Item,
-  ItemPropertiesType,
-  MaxAndCurrent,
   OneHandedMeleeWeapon,
-  PrefixType,
   Shield,
-  SuffixType,
   TwoHandedMeleeWeapon,
 } from "@speed-dungeon/common";
 import { generateSpecificEquipmentType } from "./generate-test-items.js";
-import { idGenerator } from "../../singletons.js";
 
 export default function createStartingEquipment(combatantClass: CombatantClass) {
-  const startingEquipment: Partial<Record<EquipmentSlot, Item>> = {};
+  const startingEquipment: Partial<Record<EquipmentSlot, Equipment>> = {};
 
-  let mainhand: Item | Error | undefined, offhand: Item | Error | undefined;
+  let mainhand: Equipment | Error | undefined, offhand: Equipment | Error | undefined;
   switch (combatantClass) {
     case CombatantClass.Warrior:
       mainhand = generateSpecificEquipmentType(

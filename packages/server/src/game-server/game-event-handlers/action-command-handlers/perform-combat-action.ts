@@ -22,12 +22,12 @@ export default function performCombatActionActionCommandHandler(
   const { game, party, combatant } = actionAssociatedDataResult;
   // SERVER
   // - add the "action performance time" to the lockout time
-  const actionExecutionTimeResult = getCombatActionExecutionTime(
+  const actionExecutionTime = getCombatActionExecutionTime(
     combatant.combatantProperties,
     combatAction
   );
-  if (actionExecutionTimeResult instanceof Error) return actionExecutionTimeResult;
-  InputLock.increaseLockoutDuration(party.inputLock, actionExecutionTimeResult);
+
+  InputLock.increaseLockoutDuration(party.inputLock, actionExecutionTime);
 
   // - apply the hpChange, mpChange, and status effect changes from the payload
 

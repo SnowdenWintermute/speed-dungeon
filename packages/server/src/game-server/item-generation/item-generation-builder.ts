@@ -4,14 +4,14 @@ import {
   ConsumableType,
   EquipmentBaseItem,
   EquipmentBaseItemProperties,
-  ItemPropertiesType,
+  ItemType,
   MaxAndCurrent,
 } from "@speed-dungeon/common";
 
 export type TaggedBaseItem =
-  | { type: ItemPropertiesType.Consumable; baseItem: ConsumableType }
+  | { type: ItemType.Consumable; baseItem: ConsumableType }
   | {
-      type: ItemPropertiesType.Equipment;
+      type: ItemType.Equipment;
       // tag the equipment base item with equipment type to distinguish the equipment base
       // item enum values from each other: ex: equipmentType: Shield, baseEquipmentItem: Shields.Aspis
       // otherwise whatever number Shields.Aspis evaluates to is indistinguishable from the same number from

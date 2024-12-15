@@ -1,5 +1,10 @@
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { EquipmentProperties, EquipmentSlot, Item } from "../../items/index.js";
+import {
+  EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
+  Equipment,
+  EquipmentSlot,
+  Item,
+} from "../../items/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { Inventory } from "./../inventory.js";
 import { CombatantProperties } from "./../combatant-properties.js";
@@ -14,19 +19,11 @@ export function equipItem(
   itemId: string,
   equipToAltSlot: boolean
 ): Error | { idsOfUnequippedItems: EntityId[]; unequippedSlots: EquipmentSlot[] } {
-  let itemOption: null | Item = null;
+  const equipmentResult = Inventory.getEquipment(combatantProperties.inventory, itemId);
+  if (equipmentResult instanceof Error) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+  const equipment = equipmentResult;
 
-  for (const item of combatantProperties.inventory.items) {
-    if (item.entityProperties.id === itemId) {
-      itemOption = item;
-      break;
-    }
-  }
-
-  if (itemOption === null) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
-  const item = itemOption;
-
-  if (!CombatantProperties.canUseItem(combatantProperties, item))
+  if (!CombatantProperties.canUseItem(combatantProperties, equipment))
     return new Error(ERROR_MESSAGES.EQUIPMENT.REQUIREMENTS_NOT_MET);
 
   const attributesBefore = CombatantProperties.getTotalAttributes(combatantProperties);
@@ -40,11 +37,8 @@ export function equipItem(
   // if so, check if there is space in the inventory to accomodate unequiping those
   // items. Reject if not.
 
-  const equipmentPropertiesResult = Item.getEquipmentProperties(item);
-  if (equipmentPropertiesResult instanceof Error) return equipmentPropertiesResult;
-  const equipmentProperties = equipmentPropertiesResult;
-
-  const possibleSlots = EquipmentProperties.getEquipableSlots(equipmentProperties);
+  const possibleSlots =
+    EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipment.equipmentBaseItemProperties.type];
 
   const slot = (() => {
     if (equipToAltSlot && possibleSlots.alternate !== null) return possibleSlots.alternate;
@@ -54,19 +48,13 @@ export function equipItem(
   const slotsToUnequipResult = (() => {
     switch (slot) {
       case EquipmentSlot.MainHand:
-        if (EquipmentProperties.isTwoHanded(equipmentProperties.equipmentBaseItemProperties.type))
+        if (Equipment.isTwoHanded(equipment.equipmentBaseItemProperties.type))
           return [EquipmentSlot.MainHand, EquipmentSlot.OffHand];
         else return [slot];
       case EquipmentSlot.OffHand:
         const itemInMainHandOption = combatantProperties.equipment[EquipmentSlot.MainHand];
         if (itemInMainHandOption !== undefined) {
-          const equipmentInMainHandResult = Item.getEquipmentProperties(itemInMainHandOption);
-          if (equipmentInMainHandResult instanceof Error) return equipmentInMainHandResult;
-          if (
-            EquipmentProperties.isTwoHanded(
-              equipmentInMainHandResult.equipmentBaseItemProperties.type
-            )
-          )
+          if (Equipment.isTwoHanded(itemInMainHandOption.equipmentBaseItemProperties.type))
             return [EquipmentSlot.MainHand, EquipmentSlot.OffHand];
         }
         return [slot];
@@ -83,9 +71,9 @@ export function equipItem(
     slotsToUnequip
   );
 
-  const itemToEquipResult = Inventory.removeItem(
+  const itemToEquipResult = Inventory.removeEquipment(
     combatantProperties.inventory,
-    item.entityProperties.id
+    equipment.entityProperties.id
   );
   if (itemToEquipResult instanceof Error) return itemToEquipResult;
   combatantProperties.equipment[slot] = itemToEquipResult;

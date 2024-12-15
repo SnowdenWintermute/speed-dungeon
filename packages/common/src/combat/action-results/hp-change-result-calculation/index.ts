@@ -8,12 +8,7 @@ import { ActionResultCalculationArguments } from "../action-result-calculator.js
 import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
 import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app-consts.js";
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
-import {
-  HpChange,
-  HpChangeSource,
-  HpChangeSourceCategory,
-  MeleeOrRanged,
-} from "../../hp-change-source-types.js";
+import { HpChange, HpChangeSource, HpChangeSourceCategory } from "../../hp-change-source-types.js";
 import { checkIfTargetWantsToBeHit } from "./check-if-target-wants-to-be-hit.js";
 import { getActionHitChance } from "./get-action-hit-chance.js";
 import { applyCritMultiplier } from "./apply-crit-multiplier-to-hp-change.js";

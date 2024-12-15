@@ -19,10 +19,7 @@ export default function applyActionResult(
 
   if (actionResult.action.type === CombatActionType.ConsumableUsed) {
     const { itemId } = actionResult.action;
-    const consumableResult = Inventory.getConsumableProperties(
-      userCombatantProperties.inventory,
-      itemId
-    );
+    const consumableResult = Inventory.getConsumable(userCombatantProperties.inventory, itemId);
     if (consumableResult instanceof Error) return consumableResult;
     consumableResult.usesRemaining -= 1;
     if (consumableResult.usesRemaining < 1) {

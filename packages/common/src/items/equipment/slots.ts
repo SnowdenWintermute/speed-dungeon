@@ -1,4 +1,3 @@
-import { EquipmentProperties } from "./equipment-properties/index.js";
 import { EquipmentType } from "./equipment-types/index.js";
 
 export enum WeaponSlot {
@@ -19,11 +18,11 @@ export enum EquipmentSlot {
 export const EQUIPMENT_SLOT_STRINGS: Record<EquipmentSlot, string> = {
   [EquipmentSlot.Head]: "Head",
   [EquipmentSlot.Body]: "Body",
-  [EquipmentSlot.MainHand]: "MainHand",
-  [EquipmentSlot.OffHand]: "OffHand",
   [EquipmentSlot.RingL]: "RingL",
   [EquipmentSlot.RingR]: "RingR",
   [EquipmentSlot.Amulet]: "Amulet",
+  [EquipmentSlot.MainHand]: "MainHand",
+  [EquipmentSlot.OffHand]: "OffHand",
 };
 
 export interface EquipableSlots {
@@ -31,23 +30,19 @@ export interface EquipableSlots {
   alternate: null | EquipmentSlot;
 }
 
-export function getEquipableSlots(equipmentProperties: EquipmentProperties): EquipableSlots {
-  switch (equipmentProperties.equipmentBaseItemProperties.type) {
-    case EquipmentType.BodyArmor:
-      return { main: EquipmentSlot.Body, alternate: null };
-    case EquipmentType.HeadGear:
-      return { main: EquipmentSlot.Head, alternate: null };
-    case EquipmentType.Ring:
-      return { main: EquipmentSlot.RingR, alternate: EquipmentSlot.RingL };
-    case EquipmentType.Amulet:
-      return { main: EquipmentSlot.Amulet, alternate: null };
-    case EquipmentType.OneHandedMeleeWeapon:
-      return { main: EquipmentSlot.MainHand, alternate: EquipmentSlot.OffHand };
-    case EquipmentType.TwoHandedMeleeWeapon:
-      return { main: EquipmentSlot.MainHand, alternate: null };
-    case EquipmentType.TwoHandedRangedWeapon:
-      return { main: EquipmentSlot.MainHand, alternate: null };
-    case EquipmentType.Shield:
-      return { main: EquipmentSlot.OffHand, alternate: null };
-  }
-}
+export const EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE: Record<
+  EquipmentType,
+  { main: EquipmentSlot; alternate: null | EquipmentSlot }
+> = {
+  [EquipmentType.BodyArmor]: { main: EquipmentSlot.Body, alternate: null },
+  [EquipmentType.HeadGear]: { main: EquipmentSlot.Head, alternate: null },
+  [EquipmentType.Ring]: { main: EquipmentSlot.RingR, alternate: EquipmentSlot.RingL },
+  [EquipmentType.Amulet]: { main: EquipmentSlot.Amulet, alternate: null },
+  [EquipmentType.OneHandedMeleeWeapon]: {
+    main: EquipmentSlot.MainHand,
+    alternate: EquipmentSlot.OffHand,
+  },
+  [EquipmentType.TwoHandedMeleeWeapon]: { main: EquipmentSlot.MainHand, alternate: null },
+  [EquipmentType.TwoHandedRangedWeapon]: { main: EquipmentSlot.MainHand, alternate: null },
+  [EquipmentType.Shield]: { main: EquipmentSlot.OffHand, alternate: null },
+};

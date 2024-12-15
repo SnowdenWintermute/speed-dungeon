@@ -1,8 +1,7 @@
 import {
-  ConsumableProperties,
+  Consumable,
   ConsumableType,
   Item,
-  ItemPropertiesType,
   formatConsumableType,
   randBetween,
 } from "@speed-dungeon/common";
@@ -31,17 +30,15 @@ export function generateRandomItem(this: GameServer, itemLevel: number): Error |
     const autoinjectorType =
       Math.random() > 0.3 ? ConsumableType.HpAutoinjector : ConsumableType.MpAutoinjector;
 
-    return new Item(
+    return new Consumable(
       {
         id: idGenerator.generate(),
         name: formatConsumableType(autoinjectorType),
       },
       1,
       {},
-      {
-        type: ItemPropertiesType.Consumable,
-        consumableProperties: new ConsumableProperties(autoinjectorType, 1),
-      }
+      autoinjectorType,
+      1
     );
   } else return randomItemResult;
 }

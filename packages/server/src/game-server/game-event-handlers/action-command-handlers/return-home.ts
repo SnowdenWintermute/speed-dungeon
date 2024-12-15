@@ -5,7 +5,6 @@ import {
   BattleResultActionCommandPayload,
   CombatantTurnTracker,
   ERROR_MESSAGES,
-  InputLock,
   Item,
   ReturnHomeActionCommandPayload,
   ServerToClientEvent,

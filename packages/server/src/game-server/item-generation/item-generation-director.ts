@@ -1,9 +1,4 @@
-import {
-  ConsumableProperties,
-  EquipmentProperties,
-  Item,
-  ItemPropertiesType,
-} from "@speed-dungeon/common";
+import { Consumable, Equipment, ItemType } from "@speed-dungeon/common";
 import { ItemGenerationBuilder, TaggedBaseItem } from "./item-generation-builder";
 import { IdGenerator } from "../../singletons";
 
@@ -16,13 +11,13 @@ export class ItemGenerationDirector {
       forcedBaseItemOption?: TaggedBaseItem;
       noAffixes?: boolean;
     }
-  ): Error | Item {
+  ): Error | Consumable | Equipment {
     const { builder } = this;
     const baseItemResult = builder.buildBaseItem(itemLevel, options?.forcedBaseItemOption);
     if (baseItemResult instanceof Error) return baseItemResult;
     const { type: itemType, baseItem } = baseItemResult;
     const affixesResult =
-      !options?.noAffixes && itemType === ItemPropertiesType.Equipment
+      !options?.noAffixes && itemType === ItemType.Equipment
         ? builder.buildAffixes(itemLevel, baseItem)
         : null;
     if (affixesResult instanceof Error) return affixesResult;
@@ -38,30 +33,24 @@ export class ItemGenerationDirector {
     };
 
     switch (itemType) {
-      case ItemPropertiesType.Equipment:
+      case ItemType.Equipment:
         const equipmentBaseItemProperties = builder.buildEquipmentBaseItemProperties(baseItem);
         if (equipmentBaseItemProperties instanceof Error) return equipmentBaseItemProperties;
         const durabilityResult = builder.buildDurability(baseItem);
         if (durabilityResult instanceof Error) return durabilityResult;
 
-        const equipmentProperties = new EquipmentProperties(
+        const item = new Equipment(
+          entityProperties,
+          itemLevel,
+          requirements,
           equipmentBaseItemProperties,
           durabilityResult
         );
-
-        if (affixes !== null) equipmentProperties.affixes = affixes;
-
-        const item = new Item(entityProperties, itemLevel, requirements, {
-          type: itemType,
-          equipmentProperties,
-        });
+        if (affixes !== null) item.affixes = affixes;
 
         return item;
-      case ItemPropertiesType.Consumable:
-        return new Item(entityProperties, itemLevel, requirements, {
-          type: itemType,
-          consumableProperties: new ConsumableProperties(baseItem, 1),
-        });
+      case ItemType.Consumable:
+        return new Consumable(entityProperties, itemLevel, requirements, baseItem, 1);
     }
   }
 }

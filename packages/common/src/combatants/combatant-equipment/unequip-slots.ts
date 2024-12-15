@@ -15,7 +15,7 @@ export function unequipSlots(combatantProperties: CombatantProperties, slots: Eq
     const itemOption = combatantProperties.equipment[slot];
     if (itemOption === undefined) continue;
 
-    combatantProperties.inventory.items.push(itemOption);
+    combatantProperties.inventory.equipment.push(itemOption);
     unequippedItemIds.push(itemOption.entityProperties.id);
     delete combatantProperties.equipment[slot];
   }

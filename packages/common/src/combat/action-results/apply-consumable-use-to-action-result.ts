@@ -14,7 +14,7 @@ import {
 } from "../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { ConsumableType, ItemPropertiesType } from "../../items/index.js";
+import { ConsumableType } from "../../items/index.js";
 import { randBetween } from "../../utils/index.js";
 import { ActionResult } from "./action-result.js";
 
@@ -30,10 +30,8 @@ export default function applyConsumableUseToActionResult(
       "Tried to calculate consumable use action but was passed a different type of action"
     );
   const { combatantProperties } = actionUser;
-  const itemResult = Inventory.getItem(combatantProperties.inventory, combatAction.itemId);
+  const itemResult = Inventory.getConsumable(combatantProperties.inventory, combatAction.itemId);
   if (itemResult instanceof Error) return itemResult;
-  if (itemResult.itemProperties.type === ItemPropertiesType.Equipment)
-    return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
 
   const targetOption = targetIds[0];
   if (targetOption === undefined)
@@ -42,7 +40,7 @@ export default function applyConsumableUseToActionResult(
   if (targetResult instanceof Error) return targetResult;
   const targetCombatantProperties = targetResult.combatantProperties;
   //
-  switch (itemResult.itemProperties.consumableProperties.consumableType) {
+  switch (itemResult.consumableType) {
     case ConsumableType.HpAutoinjector:
       if (targetCombatantProperties.hitPoints === 0)
         return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.CANT_USE_ON_DEAD_TARGET);

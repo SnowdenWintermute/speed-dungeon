@@ -2,7 +2,7 @@ import { Vector3 } from "@babylonjs/core";
 import { CombatAction } from "../combat/combat-actions/index.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
-import { Item } from "../items/index.js";
+import { Equipment, Item } from "../items/index.js";
 import { EquipmentSlot } from "../items/equipment/slots.js";
 import { CombatantAbility, AbilityName } from "./abilities/index.js";
 import { getAbilityCostIfOwned } from "./abilities/ability-mana-cost-getters.js";
@@ -33,7 +33,6 @@ import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import getCombatantTotalKineticDamageTypeAffinities from "./get-combatant-total-kinetic-damage-type-affinities.js";
 import {
   equipItem,
-  getEquipmentInSlot,
   getEquippedWeapon,
   getSlotItemIsEquippedTo,
   getUsableWeaponsInSlots,
@@ -57,7 +56,7 @@ export class CombatantProperties {
   };
   abilities: Partial<Record<AbilityName, CombatantAbility>> = {};
   traits: CombatantTrait[] = [];
-  equipment: Partial<Record<EquipmentSlot, Item>> = {};
+  equipment: Partial<Record<EquipmentSlot, Equipment>> = {};
   // holdable equipment hotswap slots
   // - should hold the item separately of the inventory bags
   // - should be consistently accessible by their number (same items each time)
@@ -95,7 +94,6 @@ export class CombatantProperties {
   static getCombatantTotalElementalAffinities = getCombatantTotalElementalAffinities;
   static getCombatantTotalKineticDamageTypeAffinities =
     getCombatantTotalKineticDamageTypeAffinities;
-  static getEquipmentInSlot = getEquipmentInSlot;
   static getEquippedWeapon = getEquippedWeapon;
   static getUsableWeaponsInSlots = getUsableWeaponsInSlots;
   static setHpAndMpToMax = setHpAndMpToMax;

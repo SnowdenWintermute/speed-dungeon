@@ -11,20 +11,12 @@ import {
   Item,
   Combatant,
   iterateNumericEnum,
-  EquipmentProperties,
-  EquipmentType,
-  BodyArmor,
-  ArmorCategory,
-  MaxAndCurrent,
-  AffixType,
-  SuffixType,
-  PrefixType,
-  ItemPropertiesType,
+  Consumable,
+  formatConsumableType,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { idGenerator } from "../../singletons.js";
-import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
 import { HP_ARMOR_TEST_ITEM, WEAPON_TEST_ITEM } from "./test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
@@ -50,10 +42,27 @@ export default function outfitNewCharacter(character: Combatant) {
 
   const hpInjectors = new Array(1)
     .fill(null)
-    .map(() => Item.createConsumable(idGenerator.generate(), ConsumableType.HpAutoinjector));
-  const mpInjector = Item.createConsumable(idGenerator.generate(), ConsumableType.MpAutoinjector);
-  combatantProperties.inventory.items.push(...hpInjectors);
-  combatantProperties.inventory.items.push(mpInjector);
+    .map(
+      () =>
+        new Consumable(
+          { name: formatConsumableType(ConsumableType.HpAutoinjector), id: idGenerator.generate() },
+          1,
+          {},
+          ConsumableType.HpAutoinjector,
+          1
+        )
+    );
+  // const mpInjector = Item.createConsumable(idGenerator.generate(), ConsumableType.MpAutoinjector);
+  combatantProperties.inventory.consumables.push(...hpInjectors);
+  combatantProperties.inventory.consumables.push(
+    new Consumable(
+      { name: formatConsumableType(ConsumableType.MpAutoinjector), id: idGenerator.generate() },
+      1,
+      {},
+      ConsumableType.HpAutoinjector,
+      1
+    )
+  );
 
   const startingEquipment = createStartingEquipment(combatantProperties.combatantClass);
   if (startingEquipment instanceof Error) return startingEquipment;
@@ -83,7 +92,7 @@ export default function outfitNewCharacter(character: Combatant) {
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
 
-  combatantProperties.inventory.items.push(HP_ARMOR_TEST_ITEM);
+  combatantProperties.inventory.equipment.push(HP_ARMOR_TEST_ITEM);
   combatantProperties.equipment[EquipmentSlot.MainHand] = WEAPON_TEST_ITEM;
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);

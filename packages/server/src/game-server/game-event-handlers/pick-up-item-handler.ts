@@ -1,8 +1,11 @@
 import {
   CharacterAndItems,
   CharacterAssociatedData,
+  Consumable,
   ERROR_MESSAGES,
+  Equipment,
   INVENTORY_DEFAULT_CAPACITY,
+  Inventory,
   Item,
   ServerToClientEvent,
   getPartyChannelName,
@@ -14,21 +17,35 @@ export default function pickUpItemHandler(
   characterAssociatedData: CharacterAssociatedData
 ) {
   const { game, party, character } = characterAssociatedData;
-  if (character.combatantProperties.inventory.items.length >= INVENTORY_DEFAULT_CAPACITY)
+  if (
+    Inventory.getTotalNumberOfItems(character.combatantProperties.inventory) >=
+    INVENTORY_DEFAULT_CAPACITY
+  )
     return new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);
+
   const gameServer = getGameServer();
   let idsPickedUp: string[] = [];
+
   for (const itemId of eventData.itemIds) {
     // make sure all players know about the item or else desync will occur
     if (party.itemsOnGroundNotYetReceivedByAllClients[itemId] !== undefined)
       return new Error(ERROR_MESSAGES.ITEM.NOT_YET_AVAILABLE);
 
     // let them pick up to capacity
-    if (character.combatantProperties.inventory.items.length >= INVENTORY_DEFAULT_CAPACITY) break;
+    if (
+      Inventory.getTotalNumberOfItems(character.combatantProperties.inventory) >=
+      INVENTORY_DEFAULT_CAPACITY
+    )
+      break;
 
     const itemOption = Item.removeFromArray(party.currentRoom.items, itemId);
     if (itemOption === undefined) return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
-    character.combatantProperties.inventory.items.push(itemOption);
+
+    if (itemOption instanceof Consumable)
+      character.combatantProperties.inventory.consumables.push(itemOption);
+    else if (itemOption instanceof Equipment)
+      character.combatantProperties.inventory.equipment.push(itemOption);
+
     idsPickedUp.push(itemOption.entityProperties.id);
   }
 

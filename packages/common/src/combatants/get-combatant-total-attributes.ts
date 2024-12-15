@@ -1,9 +1,7 @@
 import { DEX_TO_RANGED_ARMOR_PEN_RATIO, STR_TO_MELEE_ARMOR_PEN_RATIO } from "../app-consts.js";
-import { Item, WeaponSlot } from "../items/index.js";
+import { Equipment, Item, WeaponSlot } from "../items/index.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
-import { EquipmentProperties } from "../items/equipment/equipment-properties/index.js";
 import { EquipmentType } from "../items/equipment/equipment-types/index.js";
-import { ItemPropertiesType } from "../items/item-properties.js";
 import { CombatAttribute } from "./combat-attributes.js";
 import { CombatantAttributeRecord, CombatantProperties } from "./combatant-properties.js";
 
@@ -43,16 +41,13 @@ export default function getCombatantTotalAttributes(
   addAttributesToAccumulator(combatantProperties.speccedAttributes, totalAttributes);
 
   for (const item of Object.values(combatantProperties.equipment)) {
-    if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
-    addAttributesToAccumulator(item.itemProperties.equipmentProperties.attributes, totalAttributes);
-    for (const category of Object.values(item.itemProperties.equipmentProperties.affixes)) {
+    addAttributesToAccumulator(item.attributes, totalAttributes);
+    for (const category of Object.values(item.affixes)) {
       for (const affix of Object.values(category)) {
         addAttributesToAccumulator(affix.combatAttributes, totalAttributes);
       }
     }
-    const baseArmorClass = EquipmentProperties.getBaseArmorClass(
-      item.itemProperties.equipmentProperties
-    );
+    const baseArmorClass = Equipment.getBaseArmorClass(item);
     if (totalAttributes[CombatAttribute.ArmorClass])
       totalAttributes[CombatAttribute.ArmorClass] += baseArmorClass;
     else totalAttributes[CombatAttribute.ArmorClass] = baseArmorClass;
@@ -65,15 +60,9 @@ export default function getCombatantTotalAttributes(
   for (const item of Object.values(combatantProperties.equipment)) {
     const equippedItemIsUsable = Item.requirementsMet(item, totalAttributes);
     if (equippedItemIsUsable) continue;
-    if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
     // otherwise subtract its stats
-    removeAttributesFromAccumulator(
-      item.itemProperties.equipmentProperties.attributes,
-      totalAttributes
-    );
-    const baseArmorClass = EquipmentProperties.getBaseArmorClass(
-      item.itemProperties.equipmentProperties
-    );
+    removeAttributesFromAccumulator(item.attributes, totalAttributes);
+    const baseArmorClass = Equipment.getBaseArmorClass(item);
     if (totalAttributes[CombatAttribute.ArmorClass])
       totalAttributes[CombatAttribute.ArmorClass] = Math.max(
         totalAttributes[CombatAttribute.ArmorClass] - baseArmorClass,
