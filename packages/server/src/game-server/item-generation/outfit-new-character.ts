@@ -85,7 +85,7 @@ export default function outfitNewCharacter(character: Combatant) {
   // const items = generateOneOfEachItem();
   // combatantProperties.inventory.equipment.push(...items);
   combatantProperties.unspentAttributePoints = 100;
-  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 0;
+  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 100;
   combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 100;
   combatantProperties.inherentAttributes[CombatAttribute.Hp] = 100;
 

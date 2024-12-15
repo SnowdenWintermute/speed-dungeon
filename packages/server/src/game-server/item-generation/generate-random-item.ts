@@ -11,6 +11,9 @@ import { idGenerator } from "../../singletons.js";
 export function generateRandomItem(this: GameServer, itemLevel: number): Error | Item {
   const randomIndex = randBetween(0, Object.keys(this.itemGenerationDirectors).length - 1);
   const randomItemGenerationDirector = Object.values(this.itemGenerationDirectors)[randomIndex];
+  // const randomItemGenerationDirector = Object.values(this.itemGenerationDirectors)[
+  //   EquipmentType.OneHandedMeleeWeapon
+  // ];
   if (randomItemGenerationDirector === undefined)
     return new Error("no director found for that item type");
 
@@ -19,6 +22,15 @@ export function generateRandomItem(this: GameServer, itemLevel: number): Error |
   // it is possible for no valid item to be available in certain item level ranges
   // so try 4 times to randomly get a valid one, else resort to an autoinjector
   let randomItemResult = randomItemGenerationDirector.createItem(itemLevel, idGenerator);
+  // let randomItemResult = randomItemGenerationDirector.createItem(itemLevel, idGenerator, {
+  //   forcedBaseItemOption: {
+  //     type: ItemType.Equipment,
+  //     baseItem: {
+  //       equipmentType: EquipmentType.OneHandedMeleeWeapon,
+  //       baseItemType: OneHandedMeleeWeapon.Club,
+  //     },
+  //   },
+  // });
   while (attempts < 2 && randomItemResult instanceof Error) {
     randomItemResult = randomItemGenerationDirector.createItem(itemLevel, idGenerator);
     attempts += 1;

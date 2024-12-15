@@ -3,6 +3,7 @@ import {
   BattleResultActionCommandPayload,
   Consumable,
   ERROR_MESSAGES,
+  Equipment,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
@@ -13,6 +14,7 @@ import { itemsOnGroundMenuState, useGameStore } from "@/stores/game-store";
 import { gameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { MenuStateType } from "../game/ActionMenu/menu-state";
+import { plainToInstance } from "class-transformer";
 
 export default function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
@@ -24,10 +26,13 @@ export default function battleResultActionCommandHandler(
   const { timestamp } = payload;
 
   if (payload.loot) {
-    for (const item of payload.loot) {
-      console.log("enqueueing screenshot creation for ", item.entityProperties.name);
-      if (item instanceof Consumable) continue;
+    payload.loot.equipment = payload.loot.equipment.map((item) => plainToInstance(Equipment, item));
+    payload.loot.consumables = payload.loot.consumables.map((item) =>
+      plainToInstance(Consumable, item)
+    );
 
+    for (const item of payload.loot.equipment) {
+      console.log("enqueueing screenshot creation for ", item.entityProperties.name);
       gameWorld.current?.imageManager.enqueueMessage({
         type: ImageManagerRequestType.ItemCreation,
         item,

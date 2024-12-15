@@ -70,8 +70,8 @@ export class ItemsMenuState implements ActionMenuState {
       }
     })();
 
-    const equipment: Item[] = [];
-    const consumablesByType: Partial<Record<ConsumableType, Item[]>> = {};
+    const equipment: Equipment[] = [];
+    const consumablesByType: Partial<Record<ConsumableType, Consumable[]>> = {};
 
     const buttonTextPrefix = this.type === MenuStateType.ItemsOnGround ? "" : "";
 

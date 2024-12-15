@@ -5,12 +5,13 @@ import {
   BattleResultActionCommandPayload,
   CombatantTurnTracker,
   ERROR_MESSAGES,
-  Item,
   ReturnHomeActionCommandPayload,
   ServerToClientEvent,
   SpeedDungeonGame,
   getPartyChannelName,
   ActionCommandManager,
+  Equipment,
+  Consumable,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
 import checkForWipes from "../combat-action-results-processing/check-for-wipes.js";
@@ -44,23 +45,24 @@ export default function returnHomeActionCommandHandler(
   const battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
   if (battleConcluded) {
     let conclusion: BattleConclusion;
-    const loot: Item[] = [];
+    let loot: { equipment: Equipment[]; consumables: Consumable[] } = {
+      equipment: [],
+      consumables: [],
+    };
     let experiencePointChanges: { [combatantId: string]: number } = {};
 
     if (partyWipesResult.alliesDefeated) {
-      console.log("PLAYER PARTY DEFEATED");
       conclusion = BattleConclusion.Defeat;
     } else {
       conclusion = BattleConclusion.Victory;
-      console.log("BATTLE VICTORY");
-      loot.push(...this.generateLoot(party));
+      loot = this.generateLoot(party);
       experiencePointChanges = this.generateExperiencePoints(party);
     }
 
     const payload: BattleResultActionCommandPayload = {
       type: ActionCommandType.BattleResult,
       conclusion,
-      loot,
+      loot: loot,
       experiencePointChanges,
       timestamp: Date.now(),
     };

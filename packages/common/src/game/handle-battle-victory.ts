@@ -10,7 +10,7 @@ export default function handleBattleVictory(
   payload: BattleResultActionCommandPayload
 ) {
   const { experiencePointChanges, loot } = payload;
-  party.currentRoom.items.push(...loot);
+  loot && party.currentRoom.items.push(...loot.consumables, ...loot.equipment);
   applyExperiencePointChanges(party, experiencePointChanges);
   const levelUps: { [entityId: string]: number } = {};
   for (const character of Object.values(party.characters)) {

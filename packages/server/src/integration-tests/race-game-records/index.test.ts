@@ -197,7 +197,7 @@ describe("race game records", () => {
         {
           type: ActionCommandType.BattleResult,
           conclusion: BattleConclusion.Defeat,
-          loot: [],
+          loot: { equipment: [], consumables: [] },
           experiencePointChanges: {},
           timestamp: Date.now(),
         },
@@ -315,7 +315,6 @@ describe("race game records", () => {
         {
           type: ActionCommandType.BattleResult,
           conclusion: BattleConclusion.Defeat,
-          loot: [],
           experiencePointChanges: {},
           timestamp: Date.now(),
         },

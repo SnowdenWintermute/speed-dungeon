@@ -14,6 +14,7 @@ export default function setComparedItem(itemId: string, compareAltSlot: boolean)
     const partyResult = getPlayerPartyOption(gameState.game, gameState.username);
     if (partyResult instanceof Error) return console.error(partyResult);
     if (partyResult === undefined) return console.error("NO PARTY");
+    console.log("looking for itemId", itemId, "in party");
     const itemResult = getItemInAdventuringParty(partyResult, itemId);
     if (itemResult instanceof Error) return console.error(itemResult);
     const focusedCharacterResult = getFocusedCharacter();

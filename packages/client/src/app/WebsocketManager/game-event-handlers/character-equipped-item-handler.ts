@@ -71,8 +71,8 @@ export default function characterEquippedItemHandler(packet: {
       const currentMenu = getCurrentMenu(gameState);
       if (currentMenu instanceof ConsideringItemMenuState) {
         // not cloning here leads to zustand revoked proxy error
-        currentMenu.item = Item.fromObject(cloneDeep(itemToSelectOption));
-        gameState.detailedEntity = Item.fromObject(cloneDeep(itemToSelectOption));
+        currentMenu.item = cloneDeep(itemToSelectOption);
+        gameState.detailedEntity = cloneDeep(itemToSelectOption);
       }
     }
   );

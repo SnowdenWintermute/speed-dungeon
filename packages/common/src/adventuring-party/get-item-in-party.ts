@@ -7,11 +7,11 @@ import { Combatant } from "../combatants/index.js";
 function getItemOnCombatant(combatant: Combatant, itemId: string) {
   let itemOption = Inventory.getItem(combatant.combatantProperties.inventory, itemId);
   if (!(itemOption instanceof Error)) return itemOption;
-  Object.values(combatant.combatantProperties.equipment).forEach((equippedItem) => {
+  for (const equippedItem of Object.values(combatant.combatantProperties.equipment)) {
     if (equippedItem.entityProperties.id === itemId) {
       return equippedItem;
     }
-  });
+  }
 }
 
 export function getItemInAdventuringParty(party: AdventuringParty, itemId: string) {
