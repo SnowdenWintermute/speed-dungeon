@@ -25,9 +25,10 @@ export default function CombatantFloatingMessagesDisplay({ entityId }: { entityI
             className="text-xl relative flex"
             style={{
               animation: "float-up-and-fade-out", // defined in css file same directory
-              animationDuration: `${message.displayTime + 50}ms`,
+              animationDuration: `${message.displayTime}ms`,
               animationTimingFunction: "linear",
               animationIterationCount: 1,
+              opacity: 0.0,
             }}
             key={message.id}
           >

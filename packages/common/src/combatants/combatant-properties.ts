@@ -2,7 +2,7 @@ import { Vector3 } from "@babylonjs/core";
 import { CombatAction } from "../combat/combat-actions/index.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
-import { Item } from "../items/index.js";
+import { Item, WeaponSlot } from "../items/index.js";
 import { EquipmentSlot } from "../items/equipment/slots.js";
 import { CombatantAbility, AbilityName } from "./abilities/index.js";
 import { getAbilityCostIfOwned } from "./abilities/ability-mana-cost-getters.js";
@@ -56,8 +56,8 @@ export class CombatantProperties {
   abilities: Partial<Record<AbilityName, CombatantAbility>> = {};
   traits: CombatantTrait[] = [];
   equipment: Partial<Record<EquipmentSlot, Item>> = {};
+  weaponHotswapSets: { [setNumber: number]: null | Partial<Record<WeaponSlot, Item>> } = {};
   inventory: Inventory = new Inventory();
-  //
   selectedCombatAction: null | CombatAction = null;
   combatActionTarget: null | CombatActionTarget = null;
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
