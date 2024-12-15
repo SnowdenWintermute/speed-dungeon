@@ -58,7 +58,7 @@ export default function characterEquippedItemHandler(packet: {
       if (!playerOwnsCharacter) return;
 
       // we want the user to be now selecting the item they just unequipped
-      for (const item of character.combatantProperties.inventory.items) {
+      for (const item of character.combatantProperties.inventory.equipment) {
         if (item.entityProperties.id === idsOfUnequippedItems[0]) {
           itemToSelectOption = item;
           break;

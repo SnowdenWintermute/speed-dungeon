@@ -6,7 +6,7 @@
   "scripts": {
     "migrate": "node-pg-migrate -f pg-migrate-config.json",
     "serve": "tsc-watch -b --onSuccess \"node dist/index.js\"",
-    "test": "node --experimental-vm-modules $(yarn bin jest) --no-cache --setupFiles dotenv/config --watchAll"
+    "test": "node --experimental-vm-modules --trace-warnings --inspect $(yarn bin jest) --no-cache --setupFiles dotenv/config --watchAll"
   },
   "type": "module",
   "keywords": [],

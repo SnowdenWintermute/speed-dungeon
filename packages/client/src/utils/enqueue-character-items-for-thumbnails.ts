@@ -2,18 +2,16 @@ import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 import {
   Combatant,
+  Consumable,
   ConsumableType,
-  Item,
-  ItemPropertiesType,
   formatConsumableType,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 
 export function enqueueCharacterItemsForThumbnails(character: Combatant) {
-  for (const item of character.combatantProperties.inventory.items.concat(
+  for (const item of character.combatantProperties.inventory.equipment.concat(
     Object.values(character.combatantProperties.equipment)
   )) {
-    if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
     gameWorld.current?.imageManager.enqueueMessage({
       type: ImageManagerRequestType.ItemCreation,
       item: item,
@@ -23,14 +21,12 @@ export function enqueueCharacterItemsForThumbnails(character: Combatant) {
 
 export function enqueueConsumableGenericThumbnailCreation() {
   for (const consumableType of iterateNumericEnum(ConsumableType)) {
-    const item = new Item(
+    const item = new Consumable(
       { id: formatConsumableType(consumableType), name: "" },
       0,
       {},
-      {
-        type: ItemPropertiesType.Consumable,
-        consumableProperties: { consumableType, usesRemaining: 1 },
-      }
+      consumableType,
+      1
     );
 
     gameWorld.current?.imageManager.enqueueMessage({

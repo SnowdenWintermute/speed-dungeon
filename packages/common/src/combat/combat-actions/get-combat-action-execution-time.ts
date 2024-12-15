@@ -1,7 +1,8 @@
 import { CombatAction, CombatActionType } from "../index.js";
 import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../app-consts.js";
 import { AbilityName, CombatantProperties } from "../../combatants/index.js";
-import { Equipment, EquipmentSlot } from "../../items/index.js";
+import { EquipmentSlot } from "../../items/equipment/slots.js";
+import { Equipment } from "../../items/equipment/index.js";
 
 export function getCombatActionExecutionTime(
   combatantProperties: CombatantProperties,

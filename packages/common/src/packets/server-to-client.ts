@@ -3,13 +3,15 @@ import { Battle, BattleConclusion } from "../battle/index.js";
 import { CombatAction } from "../combat/index.js";
 import { ActionCommandPayload } from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
-import { EquipmentSlot, Item } from "../items/index.js";
+import { Item } from "../items/index.js";
 import { NextOrPrevious } from "../primatives/index.js";
-import { CombatAttribute, Combatant } from "../combatants/index.js";
+import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
 import { DescendOrExplore } from "../adventuring-party/update-player-readiness.js";
 import { UserChannelDisplayData } from "../users/index.js";
 import { GameMode } from "../types.js";
+import { CombatAttribute } from "../attributes/index.js";
+import { EquipmentSlot } from "../items/equipment/slots.js";
 
 export enum ServerToClientEvent {
   GameList = "0",

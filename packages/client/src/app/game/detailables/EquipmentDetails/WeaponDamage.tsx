@@ -1,39 +1,33 @@
-import {
-  ERROR_MESSAGES,
-  EquipmentProperties,
-  EquipmentType,
-  HpChangeSource,
-  WeaponProperties,
-} from "@speed-dungeon/common";
+import { Equipment, EquipmentType, HpChangeSource, WeaponProperties } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
 import React from "react";
 import DamageTypeBadge from "../DamageTypeBadge";
 
 interface Props {
-  equipmentProperties: EquipmentProperties;
+  equipment: Equipment;
 }
 
-export default function WeaponDamage({ equipmentProperties }: Props) {
+export default function WeaponDamage({ equipment }: Props) {
   let damageOption: null | NumberRange = null;
   let damagetypes: null | HpChangeSource[] = null;
 
   let weaponProperties: WeaponProperties;
 
-  switch (equipmentProperties.equipmentBaseItemProperties.type) {
+  switch (equipment.equipmentBaseItemProperties.type) {
     case EquipmentType.OneHandedMeleeWeapon:
     case EquipmentType.TwoHandedMeleeWeapon:
     case EquipmentType.TwoHandedRangedWeapon:
-      damageOption = equipmentProperties.equipmentBaseItemProperties.damage;
-      damagetypes = equipmentProperties.equipmentBaseItemProperties.damageClassification;
-      weaponProperties = equipmentProperties.equipmentBaseItemProperties;
+      damageOption = equipment.equipmentBaseItemProperties.damage;
+      damagetypes = equipment.equipmentBaseItemProperties.damageClassification;
+      weaponProperties = equipment.equipmentBaseItemProperties;
       break;
     default:
       return <></>;
   }
   if (damageOption === null || damagetypes === null) return <></>;
 
-  const modifiedWeaponDamage = EquipmentProperties.getModifiedWeaponDamageRange(
-    equipmentProperties.affixes,
+  const modifiedWeaponDamage = Equipment.getModifiedWeaponDamageRange(
+    equipment.affixes,
     weaponProperties.damage
   );
 

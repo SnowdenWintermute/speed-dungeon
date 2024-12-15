@@ -1,5 +1,6 @@
 import { MIN_HIT_CHANCE } from "../../../app-consts.js";
-import { CombatAttribute, CombatantProperties } from "../../../combatants/index.js";
+import { CombatAttribute } from "../../../attributes/index.js";
+import { CombatantProperties } from "../../../combatants/index.js";
 import { CombatActionProperties } from "../../index.js";
 
 export function getActionHitChance(

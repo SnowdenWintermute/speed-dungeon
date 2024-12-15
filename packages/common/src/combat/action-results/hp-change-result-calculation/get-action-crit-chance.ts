@@ -3,7 +3,8 @@ import {
   CRIT_ATTRIBUTE_TO_CRIT_CHANCE_RATIO,
   MAX_CRIT_CHANCE,
 } from "../../../app-consts.js";
-import { CombatAttribute, CombatantProperties } from "../../../combatants/index.js";
+import { CombatAttribute } from "../../../attributes/index.js";
+import { CombatantProperties } from "../../../combatants/index.js";
 import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";
 
 export function getActionCritChance(

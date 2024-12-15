@@ -6,15 +6,14 @@ import {
   AbilityName,
   CombatantProperties,
   ERROR_MESSAGES,
-  EquipmentProperties,
   EquipmentSlot,
   WeaponSlot,
   getCombatActionHpChangeRange,
   Combatant,
   CombatantClass,
   CombatantSpecies,
-  applyWeaponHpChangeModifiers,
   CombatAttribute,
+  Equipment,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
@@ -37,11 +36,9 @@ export default function CharacterSheetWeaponDamage({ combatant }: { combatant: C
     mhWeaponOption,
     false
   );
-  const isTwoHanded = mhWeaponOption ? EquipmentProperties.isTwoHanded(mhWeaponOption.type) : false;
-  const ohEquipmentOption = CombatantProperties.getEquipmentInSlot(
-    combatantProperties,
-    EquipmentSlot.OffHand
-  );
+  const isTwoHanded = mhWeaponOption ? Equipment.isTwoHanded(mhWeaponOption.type) : false;
+  const ohEquipmentOption = combatantProperties.equipment[EquipmentSlot.OffHand];
+
   let ohDamageAndAccuracyResult;
   if (
     !isTwoHanded &&

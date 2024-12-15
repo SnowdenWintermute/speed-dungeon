@@ -18,13 +18,13 @@ import {
 import { MagicalElement } from "../../combat/magical-elements.js";
 import { WeaponSlot } from "../../items/equipment/slots.js";
 import { NumberRange } from "../../primatives/number-range.js";
-import { CombatAttribute } from "../combat-attributes.js";
 import AbilityAttributes from "./ability-attributes.js";
 import { AbilityName } from "./ability-names.js";
 import {
   TargetCategories,
   TargetingScheme,
 } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
+import { CombatAttribute } from "../../attributes/index.js";
 
 const ATTACK = (() => {
   const combatActionProperties = new CombatActionProperties();

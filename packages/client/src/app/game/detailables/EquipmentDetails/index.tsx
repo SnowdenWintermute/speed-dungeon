@@ -1,5 +1,4 @@
-import { Item, formatEquipmentType } from "@speed-dungeon/common";
-import { EquipmentProperties } from "@speed-dungeon/common";
+import { Equipment, formatEquipmentType } from "@speed-dungeon/common";
 import React from "react";
 import { ArmorClassText, getArmorCategoryText } from "./armor";
 import WeaponDamage from "./WeaponDamage";
@@ -8,21 +7,20 @@ import CombatAttributesAndTraits from "./CombatAttributesAndTraits";
 import ItemRequirements from "../ItemRequirements";
 
 interface Props {
-  item: Item;
-  equipmentProperties: EquipmentProperties;
+  equipment: Equipment;
 }
 
-export default function EquipmentDetails({ item, equipmentProperties }: Props) {
-  const armorCategoryTextOption = getArmorCategoryText(equipmentProperties);
+export default function EquipmentDetails({ equipment }: Props) {
+  const armorCategoryTextOption = getArmorCategoryText(equipment);
   return (
     <div className="mr-2">
-      {formatEquipmentType(equipmentProperties.equipmentBaseItemProperties.type)}
+      {formatEquipmentType(equipment.equipmentBaseItemProperties.type)}
       {armorCategoryTextOption && armorCategoryTextOption}
-      <Durability equipmentProperties={equipmentProperties} />
-      <ItemRequirements attributeRequirements={item.requirements} />
-      <ArmorClassText equipmentProperties={equipmentProperties} />
-      <WeaponDamage equipmentProperties={equipmentProperties} />
-      <CombatAttributesAndTraits equipmentProperties={equipmentProperties} />
+      <Durability equipment={equipment} />
+      <ItemRequirements attributeRequirements={equipment.requirements} />
+      <ArmorClassText equipment={equipment} />
+      <WeaponDamage equipment={equipment} />
+      <CombatAttributesAndTraits equipment={equipment} />
     </div>
   );
 }

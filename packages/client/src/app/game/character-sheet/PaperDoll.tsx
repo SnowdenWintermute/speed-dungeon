@@ -2,31 +2,23 @@ import React from "react";
 import PaperDollSlot from "./PaperDollSlot";
 import {
   CombatantAttributeRecord,
+  Equipment,
   EquipmentSlot,
-  Item,
-  ItemPropertiesType,
   equipmentIsTwoHandedWeapon,
 } from "@speed-dungeon/common";
 
 interface Props {
-  equipment: Partial<Record<EquipmentSlot, Item>>;
+  equipment: Partial<Record<EquipmentSlot, Equipment>>;
   characterAttributes: CombatantAttributeRecord;
 }
 
 export default function PaperDoll({ equipment, characterAttributes }: Props) {
   const mainhandOption = equipment[EquipmentSlot.MainHand];
-  const mainhandEquipmentType = (() => {
-    if (!mainhandOption) return null;
-    switch (mainhandOption.itemProperties.type) {
-      case ItemPropertiesType.Equipment:
-        return mainhandOption.itemProperties.equipmentProperties.equipmentBaseItemProperties.type;
-      case ItemPropertiesType.Consumable:
-        return null;
-    }
-  })();
 
   const mainHandIs2h =
-    mainhandEquipmentType !== null ? equipmentIsTwoHandedWeapon(mainhandEquipmentType) : false;
+    mainhandOption?.equipmentBaseItemProperties.type !== undefined
+      ? equipmentIsTwoHandedWeapon(mainhandOption.equipmentBaseItemProperties.type)
+      : false;
 
   return (
     <div id="paper-doll" className="flex w-[23.75rem] mr-5">

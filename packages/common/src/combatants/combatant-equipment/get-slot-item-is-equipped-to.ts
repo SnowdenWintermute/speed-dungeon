@@ -1,4 +1,4 @@
-import { EquipmentSlot } from "../../items/index.js";
+import { EquipmentSlot } from "../../items/equipment/slots.js";
 import { CombatantProperties } from "./../combatant-properties.js";
 
 export function getSlotItemIsEquippedTo(

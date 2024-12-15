@@ -1,9 +1,10 @@
 import { DEX_TO_RANGED_ARMOR_PEN_RATIO, STR_TO_MELEE_ARMOR_PEN_RATIO } from "../app-consts.js";
-import { Equipment, Item, WeaponSlot } from "../items/index.js";
+import { Item } from "../items/index.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { EquipmentType } from "../items/equipment/equipment-types/index.js";
-import { CombatAttribute } from "./combat-attributes.js";
 import { CombatantAttributeRecord, CombatantProperties } from "./combatant-properties.js";
+import { CombatAttribute } from "../attributes/index.js";
+import { Equipment, WeaponSlot } from "../items/equipment/index.js";
 
 // ATTRIBUTES
 export const DERIVED_ATTRIBUTE_RATIOS: Partial<
@@ -139,7 +140,7 @@ export function addAttributesToAccumulator(
   for (const [key, value] of Object.entries(toAdd)) {
     const attribute = parseInt(key) as CombatAttribute;
     if (!acc[attribute]) acc[attribute] = value;
-    else acc[attribute]! += value; // use ! because ts complains it may be undefined even though checked above
+    else acc[attribute]! += value || 0; // use ! because ts complains it may be undefined even though checked above
   }
 }
 
@@ -150,7 +151,7 @@ function removeAttributesFromAccumulator(
   for (const [key, value] of Object.entries(toRemove)) {
     const attribute = parseInt(key) as CombatAttribute;
     if (!acc[attribute]) continue;
-    else acc[attribute]! -= value; // use ! because ts complains it may be undefined even though checked above
+    else acc[attribute]! -= value || 0; // use ! because ts complains it may be undefined even though checked above
     if (acc[attribute]! < 0) delete acc[attribute];
   }
 }

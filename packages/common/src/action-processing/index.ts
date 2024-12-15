@@ -3,7 +3,8 @@ export * from "./action-command-receiver.js";
 export * from "./action-command-manager.js";
 import { BattleConclusion } from "../battle/index.js";
 import { CombatAction, HpChange } from "../combat/index.js";
-import { EquipmentSlot, Item } from "../items/index.js";
+import { EquipmentSlot } from "../items/equipment/slots.js";
+import { Item } from "../items/index.js";
 import { GameMessageType } from "../packets/game-message.js";
 
 export enum ActionCommandType {

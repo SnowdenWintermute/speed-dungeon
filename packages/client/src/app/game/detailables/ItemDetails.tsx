@@ -1,8 +1,9 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import {
   CombatActionType,
+  Consumable,
+  Equipment,
   Item,
-  ItemPropertiesType,
   formatConsumableType,
 } from "@speed-dungeon/common";
 import React, { useRef } from "react";
@@ -49,29 +50,24 @@ export default function ItemDetails({
   } else {
     const item = itemOption;
     hiddenClass = "pointer-events-auto ";
-    const { itemProperties } = item;
 
-    switch (itemProperties.type) {
-      case ItemPropertiesType.Equipment:
-        itemDetailsDisplay = (
-          <EquipmentDetails item={item} equipmentProperties={itemProperties.equipmentProperties} />
-        );
-        thumbnailIdOption = item.entityProperties.id;
-        break;
-      case ItemPropertiesType.Consumable:
-        BG_COLOR = "bg-slate-700";
-        thumbnailIdOption = formatConsumableType(
-          itemProperties.consumableProperties.consumableType
-        );
-        itemDetailsDisplay = (
-          <ActionDetails
-            combatAction={{
-              type: CombatActionType.ConsumableUsed,
-              itemId: item.entityProperties.id,
-            }}
-            hideTitle={true}
-          />
-        );
+    if (item instanceof Equipment) {
+      itemDetailsDisplay = <EquipmentDetails equipment={item} />;
+      thumbnailIdOption = item.entityProperties.id;
+    } else if (item instanceof Consumable) {
+      BG_COLOR = "bg-slate-700";
+      thumbnailIdOption = formatConsumableType(item.consumableType);
+      itemDetailsDisplay = (
+        <ActionDetails
+          combatAction={{
+            type: CombatActionType.ConsumableUsed,
+            itemId: item.entityProperties.id,
+          }}
+          hideTitle={true}
+        />
+      );
+    } else {
+      itemDetailsDisplay = <div>unknown item type</div>;
     }
   }
 

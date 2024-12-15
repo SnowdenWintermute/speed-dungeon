@@ -1,8 +1,11 @@
+import { plainToInstance } from "class-transformer";
 import { MAX_PARTY_SIZE } from "../app-consts.js";
-import { Combatant, updateCombatantHomePosition } from "../combatants/index.js";
+import { Combatant, Inventory, updateCombatantHomePosition } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "../game/index.js";
+import { Consumable } from "../items/consumables/index.js";
 import { EntityId } from "../primatives/index.js";
+import { Equipment, EquipmentSlot } from "../items/equipment/index.js";
 
 export function addCharacterToParty(
   game: SpeedDungeonGame,
@@ -19,6 +22,14 @@ export function addCharacterToParty(
 
   if (Object.keys(party.characters).length >= MAX_PARTY_SIZE)
     throw new Error(ERROR_MESSAGES.GAME.MAX_PARTY_SIZE);
+
+  Inventory.InstantiateItemClasses(character.combatantProperties.inventory);
+  for (const [slot, item] of Object.entries(character.combatantProperties.equipment)) {
+    character.combatantProperties.equipment[parseInt(slot) as EquipmentSlot] = plainToInstance(
+      Equipment,
+      item
+    );
+  }
 
   const characterId = character.entityProperties.id;
   character.combatantProperties.controllingPlayer = player.username;

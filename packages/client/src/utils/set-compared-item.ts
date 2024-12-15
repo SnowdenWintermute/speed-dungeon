@@ -1,5 +1,9 @@
 import { useGameStore } from "@/stores/game-store";
-import { getItemInAdventuringParty } from "@speed-dungeon/common";
+import {
+  EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
+  Equipment,
+  getItemInAdventuringParty,
+} from "@speed-dungeon/common";
 import { getPlayerPartyOption } from "@speed-dungeon/common";
 import getFocusedCharacter from "./getFocusedCharacter";
 import { EquipableSlots } from "@speed-dungeon/common";
@@ -18,9 +22,8 @@ export default function setComparedItem(itemId: string, compareAltSlot: boolean)
     const item = itemResult;
 
     let slotsOption: null | EquipableSlots = null;
-    if (item.itemProperties.type === ItemPropertiesType.Equipment) {
-      slotsOption = getEquipableSlots(item.itemProperties.equipmentProperties);
-    }
+    if (item instanceof Equipment)
+      slotsOption = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[item.equipmentBaseItemProperties.type];
 
     if (slotsOption === null) {
       gameState.comparedItem = null;

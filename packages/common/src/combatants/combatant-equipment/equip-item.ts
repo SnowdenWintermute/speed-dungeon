@@ -1,14 +1,10 @@
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import {
-  EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
-  Equipment,
-  EquipmentSlot,
-  Item,
-} from "../../items/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { Inventory } from "./../inventory.js";
 import { CombatantProperties } from "./../combatant-properties.js";
-import { CombatAttribute } from "./../combat-attributes.js";
+import { CombatAttribute } from "../../attributes/index.js";
+import { EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE, EquipmentSlot } from "../../items/equipment/slots.js";
+import { Equipment } from "../../items/equipment/index.js";
 
 /** 
   

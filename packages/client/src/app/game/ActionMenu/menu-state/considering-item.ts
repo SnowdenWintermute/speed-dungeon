@@ -10,9 +10,10 @@ import {
   ClientToServerEvent,
   CombatActionType,
   CombatantProperties,
+  Consumable,
+  Equipment,
   EquipmentType,
   Item,
-  ItemPropertiesType,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -69,11 +70,9 @@ export class ConsideringItemMenuState implements ActionMenuState {
 
     if (
       !useUIStore.getState().modKeyHeld &&
-      this.item.itemProperties.type === ItemPropertiesType.Equipment &&
-      (this.item.itemProperties.equipmentProperties.equipmentBaseItemProperties.type ===
-        EquipmentType.OneHandedMeleeWeapon ||
-        this.item.itemProperties.equipmentProperties.equipmentBaseItemProperties.type ===
-          EquipmentType.Ring) &&
+      this.item instanceof Equipment &&
+      (this.item.equipmentBaseItemProperties.type === EquipmentType.OneHandedMeleeWeapon ||
+        this.item.equipmentBaseItemProperties.type === EquipmentType.Ring) &&
       slotItemIsEquippedTo === null
     ) {
       const equipToAltSlotButton = new ActionMenuButtonProperties(
@@ -91,33 +90,35 @@ export class ConsideringItemMenuState implements ActionMenuState {
     }
 
     const useItemButton = (() => {
-      switch (this.item.itemProperties.type) {
-        case ItemPropertiesType.Equipment:
-          if (slotItemIsEquippedTo !== null)
-            return new ActionMenuButtonProperties(`Unequip (${useItemLetter})`, () => {
-              websocketConnection.emit(ClientToServerEvent.UnequipSlot, {
-                characterId,
-                slot: slotItemIsEquippedTo,
-              });
-            });
-          else
-            return new ActionMenuButtonProperties(EQUIP_ITEM_BUTTON_TEXT, () => {
-              websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
-                characterId,
-                itemId,
-                equipToAltSlot: useUIStore.getState().modKeyHeld,
-              });
-            });
-        case ItemPropertiesType.Consumable:
-          return new ActionMenuButtonProperties(USE_CONSUMABLE_BUTTON_TEXT, () => {
-            websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+      if (this.item instanceof Equipment) {
+        if (slotItemIsEquippedTo !== null)
+          return new ActionMenuButtonProperties(`Unequip (${useItemLetter})`, () => {
+            websocketConnection.emit(ClientToServerEvent.UnequipSlot, {
               characterId,
-              combatActionOption: {
-                type: CombatActionType.ConsumableUsed,
-                itemId,
-              },
+              slot: slotItemIsEquippedTo,
             });
           });
+        else
+          return new ActionMenuButtonProperties(EQUIP_ITEM_BUTTON_TEXT, () => {
+            websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
+              characterId,
+              itemId,
+              equipToAltSlot: useUIStore.getState().modKeyHeld,
+            });
+          });
+      } else if (this.item instanceof Consumable) {
+        return new ActionMenuButtonProperties(USE_CONSUMABLE_BUTTON_TEXT, () => {
+          websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+            characterId,
+            combatActionOption: {
+              type: CombatActionType.ConsumableUsed,
+              itemId,
+            },
+          });
+        });
+      } else {
+        setAlert(new Error("unknown item type"));
+        throw new Error("unknown item type");
       }
     })();
 

@@ -1,5 +1,5 @@
 import { ISceneLoaderAsyncResult, Vector3 } from "@babylonjs/core";
-import { EquipmentProperties, EquipmentSlot, EquipmentType } from "@speed-dungeon/common";
+import { Equipment, EquipmentSlot, EquipmentType } from "@speed-dungeon/common";
 import { ModularCharacter } from "./modular-character";
 import { getChildMeshByName } from "../utils";
 
@@ -7,10 +7,10 @@ export default function attachEquipmentModelToSkeleton(
   combatantModel: ModularCharacter,
   equipmentModel: ISceneLoaderAsyncResult,
   slot: EquipmentSlot,
-  equipmentProperties: EquipmentProperties
+  equipment: Equipment
 ) {
   if (slot === EquipmentSlot.OffHand) {
-    if (equipmentProperties.equipmentBaseItemProperties.type === EquipmentType.Shield) {
+    if (equipment.equipmentBaseItemProperties.type === EquipmentType.Shield) {
       equipmentModel.meshes[0]?.translate(Vector3.Up(), -0.1);
       equipmentModel.meshes[0]?.translate(Vector3.Forward(), 0.06);
     } else {

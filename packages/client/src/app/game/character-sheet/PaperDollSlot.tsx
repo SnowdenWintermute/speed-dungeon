@@ -1,13 +1,13 @@
 import { useGameStore } from "@/stores/game-store";
 import selectItem from "@/utils/selectItem";
 import setItemHovered from "@/utils/set-item-hovered";
-import { CombatantAttributeRecord, EquipmentSlot, Item } from "@speed-dungeon/common";
+import { CombatantAttributeRecord, Equipment, EquipmentSlot, Item } from "@speed-dungeon/common";
 import React, { useMemo } from "react";
 import { ConsideringItemMenuState } from "../ActionMenu/menu-state/considering-item";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 
 interface Props {
-  itemOption: null | Item;
+  itemOption: null | Equipment;
   slot: EquipmentSlot;
   characterAttributes: CombatantAttributeRecord;
   tailwindClasses: string;

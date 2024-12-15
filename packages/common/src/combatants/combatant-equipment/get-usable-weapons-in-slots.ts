@@ -1,4 +1,5 @@
-import { Equipment, EquipmentSlot, WeaponProperties, WeaponSlot } from "../../items/index.js";
+import { Equipment, WeaponProperties } from "../../items/equipment/index.js";
+import { EquipmentSlot, WeaponSlot } from "../../items/equipment/slots.js";
 import { CombatantProperties } from "./../combatant-properties.js";
 
 export function getUsableWeaponsInSlots(

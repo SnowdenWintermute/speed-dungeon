@@ -9,6 +9,7 @@ import {
   CombatantProperties,
   ERROR_MESSAGES,
   INVENTORY_DEFAULT_CAPACITY,
+  Inventory,
 } from "@speed-dungeon/common";
 import React, { useMemo } from "react";
 import CharacterSheetCharacterSelectionButton from "./CharacterSheetCharacterSelectionButton";
@@ -39,7 +40,7 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
     ? "overflow-auto pointer-events-auto w-fit "
     : "opacity-0 w-0 overflow-hidden pointer-events-none";
 
-  const numItemsInInventory = combatantProperties.inventory.items.length;
+  const numItemsInInventory = Inventory.getTotalNumberOfItems(combatantProperties.inventory);
 
   return (
     <section className={`${conditionalStyles}`}>

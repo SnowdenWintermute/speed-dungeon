@@ -1,7 +1,7 @@
-import { CombatAttribute } from "../../combatants/combat-attributes.js";
 import { EntityProperties } from "../../primatives/entity-properties.js";
 import getConsumableCombatActionProperties from "./get-consumable-combat-action-properties.js";
 import { Item } from "../index.js";
+import { CombatAttribute } from "../../attributes/index.js";
 
 export enum ConsumableType {
   HpAutoinjector,

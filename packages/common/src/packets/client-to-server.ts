@@ -1,6 +1,7 @@
+import { CombatAttribute } from "../attributes/index.js";
 import { CombatAction } from "../combat/index.js";
-import { CombatAttribute, CombatantClass } from "../combatants/index.js";
-import { EquipmentSlot } from "../items/index.js";
+import { CombatantClass } from "../combatants/index.js";
+import { EquipmentSlot } from "../items/equipment/slots.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { GameMode } from "../types.js";
 import { CharacterAndItems } from "./server-to-client.js";

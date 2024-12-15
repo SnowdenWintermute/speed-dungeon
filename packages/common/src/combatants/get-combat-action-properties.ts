@@ -10,7 +10,7 @@ import {
 import { CombatantProperties } from "./combatant-properties.js";
 import { Inventory } from "./inventory.js";
 import { ABILITY_ATTRIBUTES } from "./abilities/get-ability-attributes.js";
-import { Consumable } from "../items/index.js";
+import { Consumable } from "../items/consumables/index.js";
 
 export function getCombatActionPropertiesIfOwned(
   combatantProperties: CombatantProperties,

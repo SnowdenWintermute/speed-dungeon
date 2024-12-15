@@ -1,13 +1,4 @@
-import {
-  AffixType,
-  Affixes,
-  EquipmentBaseItemProperties,
-  EquipmentType,
-  Item,
-  WeaponProperties,
-  equipmentIsTwoHandedWeapon,
-} from "../index.js";
-import { CombatAttribute } from "../../combatants/combat-attributes.js";
+import { Item } from "../index.js";
 import { CombatantAttributeRecord } from "../../combatants/combatant-properties.js";
 import { EntityProperties } from "../../primatives/entity-properties.js";
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
@@ -15,6 +6,14 @@ import { applyEquipmentTraitsToHpChangeSource } from "./equipment-properties/app
 import getBaseArmorClass from "./equipment-properties/get-base-armor-class.js";
 import getModifiedWeaponDamageRange from "./equipment-properties/get-modified-weapon-damage-range.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
+import { CombatAttribute } from "../../attributes/index.js";
+import { AffixType, Affixes } from "./affixes.js";
+import {
+  EquipmentBaseItemProperties,
+  WeaponProperties,
+  equipmentIsTwoHandedWeapon,
+} from "./equipment-properties/index.js";
+import { EquipmentType } from "./equipment-types/index.js";
 
 export * from "./equipment-properties/index.js";
 export * from "./pre-determined-items/index.js";

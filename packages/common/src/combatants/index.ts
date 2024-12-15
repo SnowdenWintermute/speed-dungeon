@@ -5,7 +5,6 @@ export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
 export * from "./combatant-properties.js";
 export * from "./combatant-traits.js";
-export * from "./combat-attributes.js";
 export * from "./abilities/index.js";
 export * from "./get-combat-action-properties.js";
 export * from "./inventory.js";

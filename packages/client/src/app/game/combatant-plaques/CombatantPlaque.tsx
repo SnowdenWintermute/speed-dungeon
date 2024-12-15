@@ -10,7 +10,7 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import { ClientToServerEvent, Combatant, InputLock } from "@speed-dungeon/common";
+import { ClientToServerEvent, Combatant, InputLock, Inventory } from "@speed-dungeon/common";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
@@ -140,7 +140,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
         {isPartyMember && (
           <InventoryIconButton
             entityId={entityId}
-            numItemsInInventory={combatantProperties.inventory.items.length}
+            numItemsInInventory={Inventory.getTotalNumberOfItems(combatantProperties.inventory)}
           />
         )}
         <TargetingIndicators party={party} entityId={entityId} />

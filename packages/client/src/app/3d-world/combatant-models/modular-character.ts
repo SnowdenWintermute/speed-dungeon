@@ -21,9 +21,9 @@ import { GameWorld } from "../game-world";
 import {
   DEFAULT_HITBOX_RADIUS_FALLBACK,
   ERROR_MESSAGES,
+  Equipment,
   EquipmentSlot,
   Item,
-  ItemPropertiesType,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
@@ -178,23 +178,16 @@ export class ModularCharacter {
     delete this.equipment[slot];
   }
 
-  async equipItem(item: Item, slot: EquipmentSlot) {
-    if (item.itemProperties.type !== ItemPropertiesType.Equipment) return;
-
+  async equipItem(equipment: Equipment, slot: EquipmentSlot) {
     const equipmentModelResult = await spawnItemModel(
-      item,
+      equipment,
       this.world.scene,
       this.world.defaultMaterials
     );
     if (equipmentModelResult instanceof Error) return console.error(equipmentModelResult);
     this.equipment[slot] = equipmentModelResult;
 
-    attachEquipmentModelToSkeleton(
-      this,
-      equipmentModelResult,
-      slot,
-      item.itemProperties.equipmentProperties
-    );
+    attachEquipmentModelToSkeleton(this, equipmentModelResult, slot, equipment);
   }
 
   removePart(partCategory: ModularCharacterPartCategory) {

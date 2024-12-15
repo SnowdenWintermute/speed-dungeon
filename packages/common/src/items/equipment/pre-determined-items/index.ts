@@ -1,4 +1,3 @@
-import { Equipment, EquipmentType } from "../../index.js";
 import {
   HpChangeSource,
   HpChangeSourceCategory,
@@ -8,6 +7,7 @@ import {
 import { EntityProperties } from "../../../primatives/index.js";
 import { OneHandedMeleeWeapon } from "../equipment-types/one-handed-melee-weapon.js";
 import { TwoHandedRangedWeapon } from "../equipment-types/two-handed-ranged-weapon.js";
+import { Equipment, EquipmentType } from "../index.js";
 
 export enum PreDeterminedItemType {
   SkeletonArcherShortBow,

@@ -1,5 +1,6 @@
 import { CombatantProperties } from "../../../combatants/index.js";
-import { Equipment, Item, WeaponProperties, WeaponSlot } from "../../../items/index.js";
+import { Equipment, WeaponProperties } from "../../../items/equipment/index.js";
+import { WeaponSlot } from "../../../items/equipment/slots.js";
 import { NumberRange } from "../../../primatives/index.js";
 import { CombatAction, CombatActionHpChangeProperties } from "../../combat-actions/index.js";
 import { applyAdditiveAttributeToRange } from "./apply-additive-attribute-to-range.js";

@@ -6,7 +6,6 @@ import {
   MeleeOrRanged,
 } from "../index.js";
 import {
-  CombatAttribute,
   Combatant,
   CombatantProperties,
   CombatantTraitType,
@@ -14,9 +13,10 @@ import {
 } from "../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { ConsumableType } from "../../items/index.js";
 import { randBetween } from "../../utils/index.js";
 import { ActionResult } from "./action-result.js";
+import { CombatAttribute } from "../../attributes/index.js";
+import { ConsumableType } from "../../items/consumables/index.js";
 
 export default function applyConsumableUseToActionResult(
   game: SpeedDungeonGame,

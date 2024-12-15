@@ -1,6 +1,11 @@
 import { useGameStore } from "@/stores/game-store";
 import { setAlert } from "../components/alerts";
-import { ActionCommandManager, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
+import {
+  ActionCommandManager,
+  ERROR_MESSAGES,
+  Inventory,
+  SpeedDungeonGame,
+} from "@speed-dungeon/common";
 import { gameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
@@ -15,7 +20,7 @@ export function removeClientPlayerFromGame(
     const removedPlayerResult = SpeedDungeonGame.removePlayer(state.game, username);
     if (removedPlayerResult instanceof Error) return setAlert(removedPlayerResult);
     for (const character of removedPlayerResult.charactersRemoved) {
-      for (const item of character.combatantProperties.inventory.items.concat(
+      for (const item of Inventory.getItems(character.combatantProperties.inventory).concat(
         Object.values(character.combatantProperties.equipment)
       )) {
         thumbnailIdsToRemove.push(item.entityProperties.id);

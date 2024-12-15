@@ -1,7 +1,7 @@
 import { useGameStore } from "@/stores/game-store";
 import { useUIStore } from "@/stores/ui-store";
 import setComparedItem from "@/utils/set-compared-item";
-import { Item } from "@speed-dungeon/common";
+import { Equipment, Item } from "@speed-dungeon/common";
 import React, { useEffect } from "react";
 import ItemDetails from "./ItemDetails";
 import shouldDisplayModTooltip from "./should-display-mod-tooltip";
@@ -37,7 +37,7 @@ export default function FocusedAndComparedItemDetails({ focusedItem }: Props) {
     />
   );
 
-  const comparedItemDisplay = (
+  const comparedItemDisplay = focusedItem instanceof Equipment && (
     <ItemDetails
       key="compared"
       shouldShowModKeyTooltip={shouldDisplayModTooltip(comparedSlotOption, focusedItem)}

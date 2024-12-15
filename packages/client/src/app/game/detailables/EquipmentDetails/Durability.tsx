@@ -1,15 +1,15 @@
-import { EquipmentProperties, EquipmentType } from "@speed-dungeon/common";
+import { Equipment, EquipmentType } from "@speed-dungeon/common";
 import React from "react";
 
 interface Props {
-  equipmentProperties: EquipmentProperties;
+  equipment: Equipment;
 }
 
-export default function Durability({ equipmentProperties }: Props) {
-  const { durability } = equipmentProperties;
+export default function Durability({ equipment }: Props) {
+  const { durability } = equipment;
   const isJewelry =
-    equipmentProperties.equipmentBaseItemProperties.type === EquipmentType.Ring ||
-    equipmentProperties.equipmentBaseItemProperties.type === EquipmentType.Amulet;
+    equipment.equipmentBaseItemProperties.type === EquipmentType.Ring ||
+    equipment.equipmentBaseItemProperties.type === EquipmentType.Amulet;
 
   if (isJewelry) return <></>;
   else if (durability === null) return <div>Indestructable</div>;

@@ -1,8 +1,6 @@
-import { CombatAttribute } from "../combatants/combat-attributes.js";
+import { CombatAttribute } from "../attributes/index.js";
 import { EntityProperties } from "../primatives/index.js";
 import itemRequirementsMet from "./requirements-met.js";
-export * from "./equipment/index.js";
-export * from "./consumables/index.js";
 
 export enum ItemType {
   Consumable,

@@ -6,8 +6,8 @@ import {
   CombatAction,
   CombatActionType,
   CombatantAbility,
+  Consumable,
   ERROR_MESSAGES,
-  ItemPropertiesType,
   TARGET_CATEGORY_STRINGS,
   formatConsumableType,
   formatTargetingScheme,
@@ -103,16 +103,9 @@ function getCombatActionName(party: AdventuringParty, combatAction: CombatAction
         actionName = itemResult.message;
         break;
       }
-      switch (itemResult.itemProperties.type) {
-        case ItemPropertiesType.Equipment:
-          actionName = "Why is an equipment being used as an action";
-          break;
-        case ItemPropertiesType.Consumable:
-          actionName = formatConsumableType(
-            itemResult.itemProperties.consumableProperties.consumableType
-          );
-          break;
-      }
+      if (!(itemResult instanceof Consumable))
+        actionName = "Why is an equipment being used as an action";
+      else actionName = formatConsumableType(itemResult.consumableType);
   }
   return actionName;
 }

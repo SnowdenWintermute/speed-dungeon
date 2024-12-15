@@ -1,8 +1,8 @@
 import {
   BattleConclusion,
   BattleResultActionCommandPayload,
+  Consumable,
   ERROR_MESSAGES,
-  ItemPropertiesType,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
@@ -26,7 +26,7 @@ export default function battleResultActionCommandHandler(
   if (payload.loot) {
     for (const item of payload.loot) {
       console.log("enqueueing screenshot creation for ", item.entityProperties.name);
-      if (item.itemProperties.type === ItemPropertiesType.Consumable) continue;
+      if (item instanceof Consumable) continue;
 
       gameWorld.current?.imageManager.enqueueMessage({
         type: ImageManagerRequestType.ItemCreation,

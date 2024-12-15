@@ -3,10 +3,10 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "./targeting-schemes-and-categories.js";
-import { CombatAttribute } from "../../combatants/combat-attributes.js";
 import { WeaponSlot } from "../../items/equipment/slots.js";
 import { NumberRange } from "../../primatives/number-range.js";
 import { HpChangeSource, HpChangeSourceModifiers } from "../hp-change-source-types.js";
+import { CombatAttribute } from "../../attributes/index.js";
 
 export class CombatActionProperties {
   targetingSchemes: TargetingScheme[] = [TargetingScheme.Single];

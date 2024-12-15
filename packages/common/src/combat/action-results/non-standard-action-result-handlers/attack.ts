@@ -1,12 +1,13 @@
 import { AbilityName, CombatantProperties } from "../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import { Equipment, EquipmentSlot, EquipmentType, WeaponSlot } from "../../../items/index.js";
 import { CombatAction, CombatActionType } from "../../combat-actions/index.js";
 import { ActionResult } from "../action-result.js";
 import { ActionResultCalculationArguments } from "../action-result-calculator.js";
 import allTargetsWereKilled from "./all-targets-were-killed.js";
 import calculateActionResult from "../index.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
+import { EquipmentSlot, WeaponSlot } from "../../../items/equipment/slots.js";
+import { Equipment, EquipmentType } from "../../../items/equipment/index.js";
 
 export default function calculateAttackActionResult(
   game: SpeedDungeonGame,

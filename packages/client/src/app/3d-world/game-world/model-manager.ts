@@ -5,9 +5,9 @@ import {
   CombatantClass,
   CombatantSpecies,
   ERROR_MESSAGES,
+  Equipment,
   EquipmentSlot,
   Item,
-  ItemPropertiesType,
   MonsterType,
   removeFromArray,
 } from "@speed-dungeon/common";
@@ -84,11 +84,11 @@ export class ModelManager {
     this.modelMessageQueues[entityId]!.messages.push(message);
   }
 
-  async handleEquipmentChange(entityId: string, slot: EquipmentSlot, item?: Item) {
+  async handleEquipmentChange(entityId: string, slot: EquipmentSlot, equipment?: Equipment) {
     const modularCharacter = this.combatantModels[entityId];
     if (!modularCharacter) return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-    if (!item) await modularCharacter.unequipItem(slot);
-    else await modularCharacter.equipItem(item, slot);
+    if (!equipment) await modularCharacter.unequipItem(slot);
+    else await modularCharacter.equipItem(equipment, slot);
   }
 
   async spawnCharacterModel(
@@ -189,7 +189,6 @@ export class ModelManager {
 
     if (combatantProperties.combatantSpecies === CombatantSpecies.Humanoid) {
       for (const [slot, item] of Object.entries(combatantProperties.equipment)) {
-        if (item.itemProperties.type !== ItemPropertiesType.Equipment) continue;
         const slotEnumMember = parseInt(slot) as EquipmentSlot;
         await modularCharacter.equipItem(item, slotEnumMember);
       }

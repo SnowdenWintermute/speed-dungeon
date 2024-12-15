@@ -7,9 +7,11 @@ import {
   MenuStateType,
 } from ".";
 import {
+  Consumable,
   ConsumableType,
+  Equipment,
+  Inventory,
   Item,
-  ItemPropertiesType,
   formatConsumableType,
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
@@ -60,7 +62,7 @@ export class ItemsMenuState implements ActionMenuState {
     const itemsToShow = (() => {
       switch (this.type) {
         case MenuStateType.InventoryItems:
-          return focusedCharacterResult.combatantProperties.inventory.items;
+          return Inventory.getItems(focusedCharacterResult.combatantProperties.inventory);
         case MenuStateType.ViewingEquipedItems:
           return Object.values(focusedCharacterResult.combatantProperties.equipment);
         case MenuStateType.ItemsOnGround:
@@ -74,14 +76,12 @@ export class ItemsMenuState implements ActionMenuState {
     const buttonTextPrefix = this.type === MenuStateType.ItemsOnGround ? "" : "";
 
     for (const item of itemsToShow) {
-      switch (item.itemProperties.type) {
-        case ItemPropertiesType.Equipment:
-          equipment.push(item);
-          break;
-        case ItemPropertiesType.Consumable:
-          const { consumableType } = item.itemProperties.consumableProperties;
-          if (!consumablesByType[consumableType]) consumablesByType[consumableType] = [item];
-          else consumablesByType[consumableType]!.push(item);
+      if (item instanceof Equipment) {
+        equipment.push(item);
+      } else if (item instanceof Consumable) {
+        const { consumableType } = item;
+        if (!consumablesByType[consumableType]) consumablesByType[consumableType] = [item];
+        else consumablesByType[consumableType]!.push(item);
       }
     }
 

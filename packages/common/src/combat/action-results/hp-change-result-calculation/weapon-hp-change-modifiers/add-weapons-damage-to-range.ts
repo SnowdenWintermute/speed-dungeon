@@ -1,4 +1,4 @@
-import { Equipment, WeaponProperties, WeaponSlot } from "../../../../items/index.js";
+import { Equipment, WeaponProperties, WeaponSlot } from "../../../../items/equipment/index.js";
 import { NumberRange } from "../../../../primatives/index.js";
 
 export function addWeaponsDamageToRange(

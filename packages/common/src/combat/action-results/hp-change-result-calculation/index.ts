@@ -1,5 +1,5 @@
 import cloneDeep from "lodash.clonedeep";
-import { CombatAttribute, CombatantProperties } from "../../../combatants/index.js";
+import { CombatantProperties } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatActionProperties } from "../../combat-actions/index.js";
@@ -17,10 +17,11 @@ import {
   applyKineticAffinities,
 } from "./apply-affinites-to-hp-change.js";
 import { applyWeaponHpChangeModifiers } from "./weapon-hp-change-modifiers/index.js";
-import { WeaponSlot } from "../../../items/index.js";
 import { getCombatActionHpChangeRange } from "./get-combat-action-hp-change-range.js";
 import { getActionCritChance } from "./get-action-crit-chance.js";
 import { convertHpChangeValueToFinalSign } from "./convert-hp-change-value-to-final-sign.js";
+import { CombatAttribute } from "../../../attributes/index.js";
+import { WeaponSlot } from "../../../items/equipment/slots.js";
 export * from "./get-combat-action-hp-change-range.js";
 export * from "./weapon-hp-change-modifiers/index.js";
 export * from "./get-action-hit-chance.js";

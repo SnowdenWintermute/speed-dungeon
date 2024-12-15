@@ -8,7 +8,7 @@ import {
 import { useGameStore } from "@/stores/game-store";
 import { createImageCreatorScene } from "./create-image-creator-scene";
 import { SavedMaterials, createDefaultMaterials } from "../materials/create-default-materials";
-import { Item, ItemPropertiesType } from "@speed-dungeon/common";
+import { Equipment, Item } from "@speed-dungeon/common";
 import { calculateCompositeBoundingBox, disposeAsyncLoadedScene } from "../../utils";
 import { spawnItemModel } from "../../combatant-models/spawn-item-models";
 
@@ -133,10 +133,7 @@ export class ImageManager {
     camera.position = center.add(new Vector3(0, 0, distance));
     camera.setTarget(center);
 
-    const canvasHeight =
-      item.itemProperties.type === ItemPropertiesType.Equipment
-        ? itemHeight * 120
-        : itemHeight * 420;
+    const canvasHeight = item instanceof Equipment ? itemHeight * 120 : itemHeight * 420;
     const canvasWidth = (size.x / size.y) * canvasHeight;
     this.canvas.width = canvasWidth;
     this.canvas.height = canvasHeight;

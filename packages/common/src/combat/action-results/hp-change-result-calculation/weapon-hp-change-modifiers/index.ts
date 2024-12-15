@@ -1,6 +1,5 @@
 import cloneDeep from "lodash.clonedeep";
 import { CombatantProperties } from "../../../../combatants/index.js";
-import { Equipment, Item, WeaponProperties, WeaponSlot } from "../../../../items/index.js";
 import { CombatActionHpChangeProperties } from "../../../combat-actions/combat-action-properties.js";
 import {
   HpChange,
@@ -13,6 +12,8 @@ import {
   applyKineticAffinities,
 } from "../apply-affinites-to-hp-change.js";
 import { HP_CALCLULATION_CONTEXTS } from "../hp-change-calculation-strategies/index.js";
+import { WeaponSlot } from "../../../../items/equipment/slots.js";
+import { Equipment, WeaponProperties } from "../../../../items/equipment/index.js";
 
 export function applyWeaponHpChangeModifiers(
   hpChangeProperties: CombatActionHpChangeProperties,

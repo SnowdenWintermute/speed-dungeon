@@ -1,4 +1,4 @@
-import { CombatAttribute } from "./combat-attributes.js";
+import { CombatAttribute } from "../attributes/index.js";
 import { CombatantProperties } from "./combatant-properties.js";
 
 export default function changeCombatantHitPoints(

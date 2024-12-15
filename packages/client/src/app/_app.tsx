@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import "./globals.css";
 import type { ReactElement, ReactNode } from "react";
 import type { NextPage } from "next";

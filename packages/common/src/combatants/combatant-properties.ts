@@ -2,7 +2,6 @@ import { Vector3 } from "@babylonjs/core";
 import { CombatAction } from "../combat/combat-actions/index.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
-import { Equipment, Item } from "../items/index.js";
 import { EquipmentSlot } from "../items/equipment/slots.js";
 import { CombatantAbility, AbilityName } from "./abilities/index.js";
 import { getAbilityCostIfOwned } from "./abilities/ability-mana-cost-getters.js";
@@ -11,7 +10,6 @@ import combatantCanUseItem from "./can-use-item.js";
 import changeCombatantMana from "./change-combatant-mana.js";
 import changeCombatantHitPoints from "./change-hit-points.js";
 import clampHpAndMpToMax from "./clamp-hp-and-mp-to-max.js";
-import { CombatAttribute } from "./combat-attributes.js";
 import { CombatantClass } from "./combatant-class/index.js";
 import { CombatantSpecies } from "./combatant-species.js";
 import { CombatantTrait, CombatantTraitType } from "./combatant-traits.js";
@@ -38,6 +36,8 @@ import {
   getUsableWeaponsInSlots,
   unequipSlots,
 } from "./combatant-equipment/index.js";
+import { CombatAttribute } from "../attributes/index.js";
+import { Equipment } from "../items/equipment/index.js";
 
 export class CombatantProperties {
   [immerable] = true;

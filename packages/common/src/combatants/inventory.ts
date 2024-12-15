@@ -1,7 +1,10 @@
 import { immerable } from "immer";
 import { INVENTORY_DEFAULT_CAPACITY } from "../app-consts.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { Consumable, Equipment, Item } from "../items/index.js";
+import { Item } from "../items/index.js";
+import { Consumable } from "../items/consumables/index.js";
+import { Equipment } from "../items/equipment/index.js";
+import { plainToInstance } from "class-transformer";
 
 export class Inventory {
   [immerable] = true;
@@ -65,5 +68,25 @@ export class Inventory {
     let itemOption: Consumable | Equipment | Error = Inventory.getConsumable(inventory, itemId);
     if (itemOption instanceof Error) itemOption = Inventory.getEquipment(inventory, itemId);
     return itemOption;
+  }
+
+  static getItems(inventory: Inventory): Item[] {
+    const toReturn: Item[] = [];
+    toReturn.push(...inventory.consumables);
+    toReturn.push(...inventory.equipment);
+    return toReturn;
+  }
+
+  static InstantiateItemClasses(inventory: Inventory) {
+    const consumables: Consumable[] = [];
+    const equipments: Equipment[] = [];
+    for (const consumable of inventory.consumables) {
+      consumables.push(plainToInstance(Consumable, consumable));
+    }
+    for (const equipment of inventory.equipment) {
+      equipments.push(plainToInstance(Equipment, equipment));
+    }
+    inventory.consumables = consumables;
+    inventory.equipment = equipments;
   }
 }

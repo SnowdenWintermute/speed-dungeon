@@ -6,12 +6,7 @@ import {
 } from "@/client_consts";
 import React, { ReactNode, useEffect } from "react";
 import { getCurrentMenu, useGameStore } from "@/stores/game-store";
-import {
-  ActionButtonCategory,
-  ActionMenuButtonProperties,
-  MenuStateType,
-  formatMenuStateType,
-} from "./menu-state";
+import { ActionButtonCategory, ActionMenuButtonProperties, MenuStateType } from "./menu-state";
 import ActionDetails from "../detailables/ActionDetails";
 import {
   ConsideringCombatActionMenuState,
@@ -21,12 +16,7 @@ import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicated
 import NumberedButton from "./action-menu-buttons/NumberedButton";
 import setFocusedCharacter from "@/utils/set-focused-character";
 import getCurrentParty from "@/utils/getCurrentParty";
-import {
-  Item,
-  ItemPropertiesType,
-  NextOrPrevious,
-  getNextOrPreviousNumber,
-} from "@speed-dungeon/common";
+import { Consumable, Item, NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { VIEW_LOOT_BUTTON_TEXT } from "./menu-state/base";
@@ -104,7 +94,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex flex-col items-center pointer-events-auto">
           <div className="">{currentMenu.item.entityProperties.name}</div>
           <Divider extraStyles="w-full" />
-          {currentMenu.item.itemProperties.type === ItemPropertiesType.Consumable ? (
+          {currentMenu.item instanceof Consumable ? (
             <div>Select "use" to choose a target for this consumable</div>
           ) : (
             <div>Equipping this item will swap it with any currently equipped item</div>
