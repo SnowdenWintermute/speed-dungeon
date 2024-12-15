@@ -16,7 +16,7 @@ import {
   MeleeOrRanged,
 } from "../../combat/hp-change-source-types.js";
 import { MagicalElement } from "../../combat/magical-elements.js";
-import { WeaponSlot } from "../../items/equipment/slots.js";
+import { HoldableSlot } from "../../items/equipment/slots.js";
 import { NumberRange } from "../../primatives/number-range.js";
 import AbilityAttributes from "./ability-attributes.js";
 import { AbilityName } from "./ability-names.js";
@@ -46,9 +46,9 @@ const ATTACK_MELEE_MAIN_HAND = (() => {
     new HpChangeSource(HpChangeSourceCategory.Physical, MeleeOrRanged.Melee)
   );
   hpChangeProperties.baseValues = new NumberRange(1, 1);
-  hpChangeProperties.addWeaponDamageFromSlots = [WeaponSlot.MainHand];
+  hpChangeProperties.addWeaponDamageFromSlots = [HoldableSlot.MainHand];
   hpChangeProperties.addWeaponModifiersFromSlot = {
-    slot: WeaponSlot.MainHand,
+    slot: HoldableSlot.MainHand,
     modifiers: allWeaponModifiers,
   };
   hpChangeProperties.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Strength, 100];
@@ -66,9 +66,9 @@ const ATTACK_MELEE_OFF_HAND = (() => {
   attributes.combatActionProperties.accuracyPercentModifier = OFF_HAND_ACCURACY_MODIFIER;
 
   if (!hpChangeProperties) throw new Error("Expected ability not implemented");
-  hpChangeProperties.addWeaponDamageFromSlots = [WeaponSlot.OffHand];
+  hpChangeProperties.addWeaponDamageFromSlots = [HoldableSlot.OffHand];
   hpChangeProperties.addWeaponModifiersFromSlot = {
-    slot: WeaponSlot.OffHand,
+    slot: HoldableSlot.OffHand,
     modifiers: allWeaponModifiers,
   };
   hpChangeProperties.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Strength, 100];

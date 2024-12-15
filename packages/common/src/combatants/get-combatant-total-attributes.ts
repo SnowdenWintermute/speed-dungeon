@@ -4,7 +4,7 @@ import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { EquipmentType } from "../items/equipment/equipment-types/index.js";
 import { CombatantAttributeRecord, CombatantProperties } from "./combatant-properties.js";
 import { CombatAttribute } from "../attributes/index.js";
-import { Equipment, WeaponSlot } from "../items/equipment/index.js";
+import { Equipment, HoldableSlot } from "../items/equipment/index.js";
 
 // ATTRIBUTES
 export const DERIVED_ATTRIBUTE_RATIOS: Partial<
@@ -98,7 +98,7 @@ function getArmorPenDerivedBonus(
 ): number {
   const mhWeaponOption = CombatantProperties.getEquippedWeapon(
     combatantProperties,
-    WeaponSlot.MainHand
+    HoldableSlot.MainHand
   );
   if (mhWeaponOption instanceof Error) return 0;
   let attributeToDeriveFrom = CombatAttribute.Strength;

@@ -1,18 +1,18 @@
 import { Equipment, WeaponProperties } from "../../items/equipment/index.js";
-import { EquipmentSlot, WeaponSlot } from "../../items/equipment/slots.js";
+import { EquipmentSlot, HoldableSlot } from "../../items/equipment/slots.js";
 import { CombatantProperties } from "./../combatant-properties.js";
 
 export function getUsableWeaponsInSlots(
   combatantProperties: CombatantProperties,
-  weaponSlots: WeaponSlot[]
+  weaponSlots: HoldableSlot[]
 ) {
   const toReturn: Partial<
-    Record<WeaponSlot, { equipment: Equipment; weaponProperties: WeaponProperties }>
+    Record<HoldableSlot, { equipment: Equipment; weaponProperties: WeaponProperties }>
   > = {};
 
   for (const weaponSlot of weaponSlots) {
     let equipmentSlot =
-      weaponSlot === WeaponSlot.OffHand ? EquipmentSlot.OffHand : EquipmentSlot.MainHand;
+      weaponSlot === HoldableSlot.OffHand ? EquipmentSlot.OffHand : EquipmentSlot.MainHand;
     const weapon = combatantProperties.equipment[equipmentSlot];
     if (!weapon) continue;
     if (!CombatantProperties.canUseItem(combatantProperties, weapon)) continue;

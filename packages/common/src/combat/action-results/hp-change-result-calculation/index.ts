@@ -21,7 +21,7 @@ import { getCombatActionHpChangeRange } from "./get-combat-action-hp-change-rang
 import { getActionCritChance } from "./get-action-crit-chance.js";
 import { convertHpChangeValueToFinalSign } from "./convert-hp-change-value-to-final-sign.js";
 import { CombatAttribute } from "../../../attributes/index.js";
-import { WeaponSlot } from "../../../items/equipment/slots.js";
+import { HoldableSlot } from "../../../items/equipment/slots.js";
 export * from "./get-combat-action-hp-change-range.js";
 export * from "./weapon-hp-change-modifiers/index.js";
 export * from "./get-action-hit-chance.js";
@@ -65,7 +65,7 @@ export default function calculateActionHitPointChangesAndEvasions(
 
   const equippedUsableWeaponsResult = CombatantProperties.getUsableWeaponsInSlots(
     userCombatantProperties,
-    [WeaponSlot.MainHand, WeaponSlot.OffHand]
+    [HoldableSlot.MainHand, HoldableSlot.OffHand]
   );
   if (equippedUsableWeaponsResult instanceof Error) return equippedUsableWeaponsResult;
   const equippedUsableWeapons = equippedUsableWeaponsResult;

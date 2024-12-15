@@ -12,13 +12,13 @@ import {
   applyKineticAffinities,
 } from "../apply-affinites-to-hp-change.js";
 import { HP_CALCLULATION_CONTEXTS } from "../hp-change-calculation-strategies/index.js";
-import { WeaponSlot } from "../../../../items/equipment/slots.js";
+import { HoldableSlot } from "../../../../items/equipment/slots.js";
 import { Equipment, WeaponProperties } from "../../../../items/equipment/index.js";
 
 export function applyWeaponHpChangeModifiers(
   hpChangeProperties: CombatActionHpChangeProperties,
   equippedUsableWeapons: Partial<
-    Record<WeaponSlot, { equipment: Equipment; weaponProperties: WeaponProperties }>
+    Record<HoldableSlot, { equipment: Equipment; weaponProperties: WeaponProperties }>
   >,
   userCombatantProperties: CombatantProperties,
   targetCombatantProperties: CombatantProperties,

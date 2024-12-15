@@ -1,6 +1,6 @@
 import { EquipmentType } from "./equipment-types/index.js";
 
-export enum WeaponSlot {
+export enum HoldableSlot {
   MainHand,
   OffHand,
 }

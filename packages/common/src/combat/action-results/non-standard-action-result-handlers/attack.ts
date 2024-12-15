@@ -6,7 +6,7 @@ import { ActionResultCalculationArguments } from "../action-result-calculator.js
 import allTargetsWereKilled from "./all-targets-were-killed.js";
 import calculateActionResult from "../index.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
-import { EquipmentSlot, WeaponSlot } from "../../../items/equipment/slots.js";
+import { EquipmentSlot, HoldableSlot } from "../../../items/equipment/slots.js";
 import { Equipment, EquipmentType } from "../../../items/equipment/index.js";
 
 export default function calculateAttackActionResult(
@@ -24,10 +24,10 @@ export default function calculateAttackActionResult(
 
   const actionsToCalculate: CombatAction[] = [];
 
-  for (const weaponSlot of iterateNumericEnum(WeaponSlot)) {
+  for (const weaponSlot of iterateNumericEnum(HoldableSlot)) {
     if (mhAttackEndsTurn) continue;
     const equipmentSlot =
-      weaponSlot === WeaponSlot.MainHand ? EquipmentSlot.MainHand : EquipmentSlot.OffHand;
+      weaponSlot === HoldableSlot.MainHand ? EquipmentSlot.MainHand : EquipmentSlot.OffHand;
     const equipmentOption = userCombatantProperties.equipment[equipmentSlot];
     mhAttackEndsTurn = !!(
       equipmentOption && Equipment.isTwoHanded(equipmentOption.equipmentBaseItemProperties.type)
@@ -60,10 +60,10 @@ export default function calculateAttackActionResult(
 
 export function getAttackCombatActionOption(
   combatantProperties: CombatantProperties,
-  weaponSlot: WeaponSlot
+  weaponSlot: HoldableSlot
 ): null | CombatAction {
   const equipmentSlot =
-    weaponSlot === WeaponSlot.MainHand ? EquipmentSlot.MainHand : EquipmentSlot.OffHand;
+    weaponSlot === HoldableSlot.MainHand ? EquipmentSlot.MainHand : EquipmentSlot.OffHand;
 
   const equipmentOption = combatantProperties.equipment[equipmentSlot];
 
@@ -73,7 +73,7 @@ export function getAttackCombatActionOption(
     equipmentOption.equipmentBaseItemProperties.type === EquipmentType.TwoHandedMeleeWeapon
   ) {
     const abilityName =
-      weaponSlot === WeaponSlot.MainHand
+      weaponSlot === HoldableSlot.MainHand
         ? AbilityName.AttackMeleeMainhand
         : AbilityName.AttackMeleeOffhand;
     return { type: CombatActionType.AbilityUsed, abilityName };

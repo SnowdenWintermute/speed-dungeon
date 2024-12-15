@@ -1,6 +1,6 @@
 import { CombatantProperties } from "../../../combatants/index.js";
 import { Equipment, WeaponProperties } from "../../../items/equipment/index.js";
-import { WeaponSlot } from "../../../items/equipment/slots.js";
+import { HoldableSlot } from "../../../items/equipment/slots.js";
 import { NumberRange } from "../../../primatives/index.js";
 import { CombatAction, CombatActionHpChangeProperties } from "../../combat-actions/index.js";
 import { applyAdditiveAttributeToRange } from "./apply-additive-attribute-to-range.js";
@@ -14,7 +14,7 @@ export function getCombatActionHpChangeRange(
   userCombatantProperties: CombatantProperties,
   equippedUsableWeapons: Partial<
     Record<
-      WeaponSlot,
+      HoldableSlot,
       {
         equipment: Equipment;
         weaponProperties: WeaponProperties;
@@ -35,7 +35,7 @@ export function getCombatActionHpChangeRange(
   applyAdditiveAttributeToRange(hpChangeRange, userCombatantProperties, hpChangeProperties);
 
   const weaponsToAddDamageFrom: Partial<
-    Record<WeaponSlot, { equipment: Equipment; weaponProperties: WeaponProperties }>
+    Record<HoldableSlot, { equipment: Equipment; weaponProperties: WeaponProperties }>
   > = {};
   for (const slot of hpChangeProperties.addWeaponDamageFromSlots || []) {
     const weapon = equippedUsableWeapons[slot];

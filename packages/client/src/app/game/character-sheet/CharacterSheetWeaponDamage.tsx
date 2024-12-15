@@ -7,7 +7,7 @@ import {
   CombatantProperties,
   ERROR_MESSAGES,
   EquipmentSlot,
-  WeaponSlot,
+  HoldableSlot,
   getCombatActionHpChangeRange,
   Combatant,
   CombatantClass,
@@ -27,7 +27,7 @@ export default function CharacterSheetWeaponDamage({ combatant }: { combatant: C
 
   const mhWeaponOption = CombatantProperties.getEquippedWeapon(
     combatantProperties,
-    WeaponSlot.MainHand
+    HoldableSlot.MainHand
   );
 
   if (mhWeaponOption instanceof Error) return <div>{mhWeaponOption.message}</div>;
@@ -46,7 +46,7 @@ export default function CharacterSheetWeaponDamage({ combatant }: { combatant: C
   ) {
     let ohWeaponOption = CombatantProperties.getEquippedWeapon(
       combatantProperties,
-      WeaponSlot.OffHand
+      HoldableSlot.OffHand
     );
     if (ohWeaponOption instanceof Error) ohWeaponOption = undefined; // might be a shield
     ohDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(combatant, ohWeaponOption, true);
@@ -157,7 +157,7 @@ function getAttackAbilityDamageAndAccuracy(
 
   const equippedUsableWeaponsResult = CombatantProperties.getUsableWeaponsInSlots(
     combatantProperties,
-    [WeaponSlot.MainHand, WeaponSlot.OffHand]
+    [HoldableSlot.MainHand, HoldableSlot.OffHand]
   );
   if (equippedUsableWeaponsResult instanceof Error) return equippedUsableWeaponsResult;
   const equippedUsableWeapons = equippedUsableWeaponsResult;
