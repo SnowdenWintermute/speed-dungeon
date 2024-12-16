@@ -1,5 +1,6 @@
+import { plainToInstance } from "class-transformer";
 import { Equipment, EquipmentBaseItem, EquipmentType } from "../../items/equipment/index.js";
-import { EquipmentSlot, HoldableSlot } from "../../items/equipment/slots.js";
+import { HoldableSlotType, WearableSlotType } from "../../items/equipment/slots.js";
 import { CombatantProperties } from "../combatant-properties.js";
 
 export * from "./equip-item.js";
@@ -19,7 +20,7 @@ export * from "./get-slot-item-is-equipped-to.js";
 // there is room in the inventory
 //
 export class HoldableHotswapSlot {
-  holdables: Partial<Record<HoldableSlot, Equipment>> = {};
+  holdables: Partial<Record<HoldableSlotType, Equipment>> = {};
   forbiddenBaseItems: EquipmentBaseItem[] = [];
   constructor(
     public allowedTypes: EquipmentType[] = [
@@ -32,13 +33,33 @@ export class HoldableHotswapSlot {
 }
 
 export class CombatantEquipment {
-  wearables: Partial<Record<EquipmentSlot, Equipment>> = {};
+  wearables: Partial<Record<WearableSlotType, Equipment>> = {};
   equippedHoldableHotswapSlotIndex: number = 0;
   inherentHoldableHotswapSlots: HoldableHotswapSlot[] = [new HoldableHotswapSlot()];
   // getAttributes
   // getWeaponHotswapSets
   // currentWeaponHotswapSet - number
   static getHoldableHotswapSlots(combatantProperties: CombatantProperties): HoldableHotswapSlot[] {
-    return [];
+    return [...combatantProperties.equipment.inherentHoldableHotswapSlots];
+  }
+
+  static getEquippedHoldableSlots(combatantProperties: CombatantProperties) {
+    return this.getHoldableHotswapSlots(combatantProperties)[
+      combatantProperties.equipment.equippedHoldableHotswapSlotIndex
+    ];
+  }
+
+  static instatiateItemClasses(combatantProperties: CombatantProperties) {
+    const { equipment } = combatantProperties;
+    for (const [slot, item] of Object.entries(equipment.wearables)) {
+      equipment.wearables[parseInt(slot) as WearableSlotType] = plainToInstance(Equipment, item);
+    }
+    for (const hotswapSlot of Object.values(
+      CombatantEquipment.getHoldableHotswapSlots(combatantProperties)
+    )) {
+      for (const [slot, item] of Object.entries(hotswapSlot.holdables)) {
+        equipment.wearables[parseInt(slot) as HoldableSlotType] = plainToInstance(Equipment, item);
+      }
+    }
   }
 }

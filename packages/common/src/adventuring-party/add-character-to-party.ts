@@ -3,9 +3,9 @@ import { MAX_PARTY_SIZE } from "../app-consts.js";
 import { Combatant, Inventory, updateCombatantHomePosition } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "../game/index.js";
-import { Consumable } from "../items/consumables/index.js";
 import { EntityId } from "../primatives/index.js";
-import { Equipment, EquipmentSlot } from "../items/equipment/index.js";
+import { Equipment, WearableSlotType } from "../items/equipment/index.js";
+import { CombatantEquipment } from "../combatants/combatant-equipment/index.js";
 
 export function addCharacterToParty(
   game: SpeedDungeonGame,
@@ -24,12 +24,7 @@ export function addCharacterToParty(
     throw new Error(ERROR_MESSAGES.GAME.MAX_PARTY_SIZE);
 
   Inventory.InstantiateItemClasses(character.combatantProperties.inventory);
-  for (const [slot, item] of Object.entries(character.combatantProperties.equipment)) {
-    character.combatantProperties.equipment[parseInt(slot) as EquipmentSlot] = plainToInstance(
-      Equipment,
-      item
-    );
-  }
+  CombatantEquipment.instatiateItemClasses(character.combatantProperties);
 
   const characterId = character.entityProperties.id;
   character.combatantProperties.controllingPlayer = player.username;

@@ -1,7 +1,7 @@
 import { CombatAttribute } from "../attributes/index.js";
 import { CombatAction } from "../combat/index.js";
 import { CombatantClass } from "../combatants/index.js";
-import { EquipmentSlot } from "../items/equipment/slots.js";
+import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { GameMode } from "../types.js";
 import { CharacterAndItems } from "./server-to-client.js";
@@ -70,7 +70,7 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.ToggleReadyToExplore]: (eventData?: undefined) => void;
   [ClientToServerEvent.UnequipSlot]: (eventData: {
     characterId: string;
-    slot: EquipmentSlot;
+    slot: TaggedEquipmentSlot;
   }) => void;
   [ClientToServerEvent.EquipInventoryItem]: (eventData: {
     characterId: string;
@@ -85,7 +85,7 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.UseSelectedCombatAction]: (eventData: { characterId: string }) => void;
   [ClientToServerEvent.DropEquippedItem]: (eventData: {
     characterId: string;
-    slot: EquipmentSlot;
+    slot: TaggedEquipmentSlot;
   }) => void;
   [ClientToServerEvent.DropItem]: (eventData: { characterId: string; itemId: string }) => void;
   [ClientToServerEvent.ToggleReadyToDescend]: (eventData?: undefined) => void;
