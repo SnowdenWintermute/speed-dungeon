@@ -1,19 +1,22 @@
 import {
   CombatantClass,
+  CombatantProperties,
+  ERROR_MESSAGES,
   Equipment,
-  EquipmentSlot,
   EquipmentType,
+  HoldableSlotType,
   OneHandedMeleeWeapon,
   Shield,
   TwoHandedMeleeWeapon,
 } from "@speed-dungeon/common";
 import { generateSpecificEquipmentType } from "./generate-test-items.js";
+import { CombatantEquipment } from "@speed-dungeon/common";
 
-export default function createStartingEquipment(combatantClass: CombatantClass) {
-  const startingEquipment: Partial<Record<EquipmentSlot, Equipment>> = {};
+export default function createStartingEquipment(combatantProperties: CombatantProperties) {
+  const startingEquipment = new CombatantEquipment();
 
   let mainhand: Equipment | Error | undefined, offhand: Equipment | Error | undefined;
-  switch (combatantClass) {
+  switch (combatantProperties.combatantClass) {
     case CombatantClass.Warrior:
       mainhand = generateSpecificEquipmentType(
         {
@@ -58,8 +61,11 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
   if (mainhand instanceof Error) return mainhand;
   if (offhand instanceof Error) return offhand;
 
-  if (mainhand) startingEquipment[EquipmentSlot.MainHand] = mainhand;
-  if (offhand) startingEquipment[EquipmentSlot.OffHand] = offhand;
+  const mainHoldableHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+  if (!mainHoldableHotswapSlot) return new Error(ERROR_MESSAGES.EQUIPMENT.NO_SELECTED_HOTSWAP_SLOT);
+
+  if (mainhand) mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = mainhand;
+  if (offhand) mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = offhand;
 
   return startingEquipment;
 }

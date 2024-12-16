@@ -2,6 +2,7 @@ import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 import {
   Combatant,
+  CombatantEquipment,
   Consumable,
   ConsumableType,
   formatConsumableType,
@@ -9,9 +10,17 @@ import {
 } from "@speed-dungeon/common";
 
 export function enqueueCharacterItemsForThumbnails(character: Combatant) {
-  for (const item of character.combatantProperties.inventory.equipment.concat(
-    Object.values(character.combatantProperties.equipment)
-  )) {
+  const itemsToCreateThumbnailsFor = [];
+  itemsToCreateThumbnailsFor.push(...character.combatantProperties.inventory.equipment);
+  const hotswapSets = CombatantEquipment.getHoldableHotswapSlots(character.combatantProperties);
+  if (hotswapSets)
+    for (const hotswapSet of hotswapSets)
+      itemsToCreateThumbnailsFor.push(...Object.values(hotswapSet.holdables));
+  itemsToCreateThumbnailsFor.push(
+    ...Object.values(character.combatantProperties.equipment.wearables)
+  );
+
+  for (const item of itemsToCreateThumbnailsFor) {
     gameWorld.current?.imageManager.enqueueMessage({
       type: ImageManagerRequestType.ItemCreation,
       item: item,

@@ -7,25 +7,26 @@ import {
   CombatantClass,
   CombatantProperties,
   ConsumableType,
-  EquipmentSlot,
-  Item,
   Combatant,
   iterateNumericEnum,
   Consumable,
   formatConsumableType,
+  ERROR_MESSAGES,
+  HoldableSlotType,
+  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { idGenerator } from "../../singletons.js";
 import { HP_ARMOR_TEST_ITEM, WEAPON_TEST_ITEM } from "./test-items.js";
+import { CombatantEquipment } from "@speed-dungeon/common";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
 
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
   if (baseStartingAttributesOption) {
-    for (const [attributeKey, value] of Object.entries(baseStartingAttributesOption)) {
-      const attribute = parseInt(attributeKey) as CombatAttribute;
+    for (const [attribute, value] of iterateNumericEnumKeyedRecord(baseStartingAttributesOption)) {
       combatantProperties.inherentAttributes[attribute] = value;
     }
   }
@@ -64,13 +65,8 @@ export default function outfitNewCharacter(character: Combatant) {
     )
   );
 
-  const startingEquipment = createStartingEquipment(combatantProperties.combatantClass);
-  if (startingEquipment instanceof Error) return startingEquipment;
-
-  for (const [slotKey, item] of Object.entries(startingEquipment)) {
-    const slot = parseInt(slotKey) as EquipmentSlot;
-    combatantProperties.equipment[slot] = item;
-  }
+  const maybeError = createStartingEquipment(combatantProperties);
+  if (maybeError instanceof Error) return maybeError;
 
   // FOR TESTING INVENTORY
   // generateTestItems(combatantProperties, 6);
@@ -93,7 +89,11 @@ export default function outfitNewCharacter(character: Combatant) {
   // combatantProperties.unspentAttributePoints = 3;
 
   combatantProperties.inventory.equipment.push(HP_ARMOR_TEST_ITEM);
-  combatantProperties.equipment[EquipmentSlot.MainHand] = WEAPON_TEST_ITEM;
+  const equippedHoldableHotswapSlot =
+    CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+  if (!equippedHoldableHotswapSlot)
+    return new Error(ERROR_MESSAGES.EQUIPMENT.NO_SELECTED_HOTSWAP_SLOT);
+  equippedHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = WEAPON_TEST_ITEM;
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
   // TESTING

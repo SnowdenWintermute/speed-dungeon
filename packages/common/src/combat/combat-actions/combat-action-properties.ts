@@ -3,7 +3,7 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "./targeting-schemes-and-categories.js";
-import { HoldableSlot } from "../../items/equipment/slots.js";
+import { HoldableSlot, HoldableSlotType } from "../../items/equipment/slots.js";
 import { NumberRange } from "../../primatives/number-range.js";
 import { HpChangeSource, HpChangeSourceModifiers } from "../hp-change-source-types.js";
 import { CombatAttribute } from "../../attributes/index.js";
@@ -38,9 +38,9 @@ export const COMBAT_ACTION_USABLITY_CONTEXT_STRINGS: Record<ActionUsableContext,
 export class CombatActionHpChangeProperties {
   baseValues: NumberRange = new NumberRange(0, 0);
   finalDamagePercentMultiplier: number = 100;
-  addWeaponDamageFromSlots: null | HoldableSlot[] = null;
+  addWeaponDamageFromSlots: null | HoldableSlotType[] = null;
   addWeaponModifiersFromSlot: null | {
-    slot: HoldableSlot;
+    slot: HoldableSlotType;
     modifiers: Set<HpChangeSourceModifiers>;
   } = null;
   additiveAttributeAndPercentScalingFactor: null | [CombatAttribute, number] = null;

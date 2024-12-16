@@ -6,14 +6,14 @@ import {
   AbilityName,
   CombatantProperties,
   ERROR_MESSAGES,
-  EquipmentSlot,
-  HoldableSlot,
   getCombatActionHpChangeRange,
   Combatant,
   CombatantClass,
   CombatantSpecies,
   CombatAttribute,
   Equipment,
+  HoldableSlotType,
+  CombatantEquipment,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
@@ -27,7 +27,7 @@ export default function CharacterSheetWeaponDamage({ combatant }: { combatant: C
 
   const mhWeaponOption = CombatantProperties.getEquippedWeapon(
     combatantProperties,
-    HoldableSlot.MainHand
+    HoldableSlotType.MainHand
   );
 
   if (mhWeaponOption instanceof Error) return <div>{mhWeaponOption.message}</div>;
@@ -37,7 +37,13 @@ export default function CharacterSheetWeaponDamage({ combatant }: { combatant: C
     false
   );
   const isTwoHanded = mhWeaponOption ? Equipment.isTwoHanded(mhWeaponOption.type) : false;
-  const ohEquipmentOption = combatantProperties.equipment[EquipmentSlot.OffHand];
+
+  const ohEquipmentOption = CombatantEquipment.getEquippedHoldable(
+    combatantProperties,
+    HoldableSlotType.OffHand
+  );
+
+  if (ohEquipmentOption instanceof Error) return <div>{ohEquipmentOption.message}</div>;
 
   let ohDamageAndAccuracyResult;
   if (
@@ -46,7 +52,7 @@ export default function CharacterSheetWeaponDamage({ combatant }: { combatant: C
   ) {
     let ohWeaponOption = CombatantProperties.getEquippedWeapon(
       combatantProperties,
-      HoldableSlot.OffHand
+      HoldableSlotType.OffHand
     );
     if (ohWeaponOption instanceof Error) ohWeaponOption = undefined; // might be a shield
     ohDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(combatant, ohWeaponOption, true);
@@ -157,7 +163,7 @@ function getAttackAbilityDamageAndAccuracy(
 
   const equippedUsableWeaponsResult = CombatantProperties.getUsableWeaponsInSlots(
     combatantProperties,
-    [HoldableSlot.MainHand, HoldableSlot.OffHand]
+    [HoldableSlotType.MainHand, HoldableSlotType.OffHand]
   );
   if (equippedUsableWeaponsResult instanceof Error) return equippedUsableWeaponsResult;
   const equippedUsableWeapons = equippedUsableWeaponsResult;

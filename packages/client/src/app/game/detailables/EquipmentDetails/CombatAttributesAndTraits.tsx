@@ -26,8 +26,7 @@ export default function CombatAttributesAndTraits({ equipment }: Props) {
   };
 
   for (const [affixCategory, affixes] of iterateNumericEnumKeyedRecord(equipment.affixes)) {
-    for (const [key, affix] of Object.entries(affixes)) {
-      const affixType = parseInt(key) as SuffixType | PrefixType;
+    for (const [affixType, affix] of iterateNumericEnumKeyedRecord(affixes)) {
       const formattedAttributeBonusResult = formatAffixCombatAttributeBonuses(
         affix,
         affixCategory,

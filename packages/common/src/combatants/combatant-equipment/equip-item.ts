@@ -3,8 +3,14 @@ import { EntityId } from "../../primatives/index.js";
 import { Inventory } from "./../inventory.js";
 import { CombatantProperties } from "./../combatant-properties.js";
 import { CombatAttribute } from "../../attributes/index.js";
-import { EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE, EquipmentSlot } from "../../items/equipment/slots.js";
+import {
+  EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
+  EquipmentSlotType,
+  HoldableSlotType,
+  TaggedEquipmentSlot,
+} from "../../items/equipment/slots.js";
 import { Equipment } from "../../items/equipment/index.js";
+import { CombatantEquipment } from "./index.js";
 
 /** 
   
@@ -14,7 +20,7 @@ export function equipItem(
   combatantProperties: CombatantProperties,
   itemId: string,
   equipToAltSlot: boolean
-): Error | { idsOfUnequippedItems: EntityId[]; unequippedSlots: EquipmentSlot[] } {
+): Error | { idsOfUnequippedItems: EntityId[]; unequippedSlots: TaggedEquipmentSlot[] } {
   const equipmentResult = Inventory.getEquipment(combatantProperties.inventory, itemId);
   if (equipmentResult instanceof Error) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   const equipment = equipmentResult;
@@ -41,20 +47,32 @@ export function equipItem(
     else return possibleSlots.main;
   })();
 
-  const slotsToUnequipResult = (() => {
-    switch (slot) {
-      case EquipmentSlot.MainHand:
-        if (Equipment.isTwoHanded(equipment.equipmentBaseItemProperties.type))
-          return [EquipmentSlot.MainHand, EquipmentSlot.OffHand];
-        else return [slot];
-      case EquipmentSlot.OffHand:
-        const itemInMainHandOption = combatantProperties.equipment[EquipmentSlot.MainHand];
-        if (itemInMainHandOption !== undefined) {
-          if (Equipment.isTwoHanded(itemInMainHandOption.equipmentBaseItemProperties.type))
-            return [EquipmentSlot.MainHand, EquipmentSlot.OffHand];
+  const slotsToUnequipResult = ((): TaggedEquipmentSlot[] => {
+    switch (slot.type) {
+      case EquipmentSlotType.Holdable:
+        switch (slot.slot) {
+          case HoldableSlotType.MainHand:
+            if (Equipment.isTwoHanded(equipment.equipmentBaseItemProperties.type))
+              return [
+                { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
+                { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
+              ];
+            else return [slot];
+          case HoldableSlotType.OffHand:
+            const equippedHotswapSlot =
+              CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+            if (!equippedHotswapSlot) return [];
+            const itemInMainHandOption = equippedHotswapSlot.holdables[HoldableSlotType.MainHand];
+            if (itemInMainHandOption !== undefined) {
+              if (Equipment.isTwoHanded(itemInMainHandOption.equipmentBaseItemProperties.type))
+                return [
+                  { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
+                  { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
+                ];
+            }
+            return [slot];
         }
-        return [slot];
-      default:
+      case EquipmentSlotType.Wearable:
         return [slot];
     }
   })();
@@ -72,7 +90,13 @@ export function equipItem(
     equipment.entityProperties.id
   );
   if (itemToEquipResult instanceof Error) return itemToEquipResult;
-  combatantProperties.equipment[slot] = itemToEquipResult;
+
+  const maybeError = CombatantEquipment.putEquipmentInSlot(
+    combatantProperties,
+    itemToEquipResult,
+    slot
+  );
+  if (maybeError instanceof Error) return maybeError;
 
   const attributesAfter = CombatantProperties.getTotalAttributes(combatantProperties);
   const maxHitPointsAfter = attributesAfter[CombatAttribute.Hp];

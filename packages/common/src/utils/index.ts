@@ -17,7 +17,9 @@ export function iterateNumericEnum<T extends { [name: string]: string | number }
 export function iterateNumericEnumKeyedRecord<T extends string | number, U>(
   record: Partial<Record<T, U>>
 ): [T, U][] {
-  return Object.entries(record).map(([key, value]) => [parseInt(key) as T, value as U]);
+  return Object.entries(record)
+    .filter(([key, value]) => value !== undefined)
+    .map(([key, value]) => [parseInt(key) as T, value as U]);
 }
 
 export function randomNormal() {

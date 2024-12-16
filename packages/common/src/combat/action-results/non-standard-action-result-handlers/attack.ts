@@ -6,8 +6,9 @@ import { ActionResultCalculationArguments } from "../action-result-calculator.js
 import allTargetsWereKilled from "./all-targets-were-killed.js";
 import calculateActionResult from "../index.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
-import { EquipmentSlot, HoldableSlot } from "../../../items/equipment/slots.js";
+import { HoldableSlotType } from "../../../items/equipment/slots.js";
 import { Equipment, EquipmentType } from "../../../items/equipment/index.js";
+import { CombatantEquipment } from "../../../combatants/combatant-equipment/index.js";
 
 export default function calculateAttackActionResult(
   game: SpeedDungeonGame,
@@ -24,16 +25,21 @@ export default function calculateAttackActionResult(
 
   const actionsToCalculate: CombatAction[] = [];
 
-  for (const weaponSlot of iterateNumericEnum(HoldableSlot)) {
+  for (const holdableSlotType of iterateNumericEnum(HoldableSlotType)) {
     if (mhAttackEndsTurn) continue;
-    const equipmentSlot =
-      weaponSlot === HoldableSlot.MainHand ? EquipmentSlot.MainHand : EquipmentSlot.OffHand;
-    const equipmentOption = userCombatantProperties.equipment[equipmentSlot];
+
+    const equipmentOption = CombatantEquipment.getEquippedHoldable(
+      userCombatantProperties,
+      holdableSlotType
+    );
     mhAttackEndsTurn = !!(
       equipmentOption && Equipment.isTwoHanded(equipmentOption.equipmentBaseItemProperties.type)
     );
 
-    const combatActionOption = getAttackCombatActionOption(userCombatantProperties, weaponSlot);
+    const combatActionOption = getAttackCombatActionOption(
+      userCombatantProperties,
+      holdableSlotType
+    );
     if (combatActionOption) actionsToCalculate.push(combatActionOption);
   }
 
@@ -60,12 +66,12 @@ export default function calculateAttackActionResult(
 
 export function getAttackCombatActionOption(
   combatantProperties: CombatantProperties,
-  weaponSlot: HoldableSlot
+  holdableSlotType: HoldableSlotType
 ): null | CombatAction {
-  const equipmentSlot =
-    weaponSlot === HoldableSlot.MainHand ? EquipmentSlot.MainHand : EquipmentSlot.OffHand;
-
-  const equipmentOption = combatantProperties.equipment[equipmentSlot];
+  const equipmentOption = CombatantEquipment.getEquippedHoldable(
+    combatantProperties,
+    holdableSlotType
+  );
 
   if (
     !equipmentOption || // unarmed
@@ -73,9 +79,10 @@ export function getAttackCombatActionOption(
     equipmentOption.equipmentBaseItemProperties.type === EquipmentType.TwoHandedMeleeWeapon
   ) {
     const abilityName =
-      weaponSlot === HoldableSlot.MainHand
+      holdableSlotType === HoldableSlotType.MainHand
         ? AbilityName.AttackMeleeMainhand
         : AbilityName.AttackMeleeOffhand;
+
     return { type: CombatActionType.AbilityUsed, abilityName };
   }
 

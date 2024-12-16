@@ -1,6 +1,11 @@
 import CombatantClassIcon from "@/app/components/atoms/CombatantClassIcon";
 import Divider from "@/app/components/atoms/Divider";
-import { Combatant, CombatantProperties, formatCombatantClassName } from "@speed-dungeon/common";
+import {
+  Combatant,
+  CombatantProperties,
+  formatCombatantClassName,
+  iterateNumericEnumKeyedRecord,
+} from "@speed-dungeon/common";
 import { CombatAttribute } from "@speed-dungeon/common";
 import React from "react";
 import { AttributeListItem } from "./AttributeListItem";
@@ -33,12 +38,11 @@ export default function CharacterAttributes({ combatant, showAttributeAssignment
       : "";
 
   const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
-  let totalAttributesSortedArray: [CombatAttribute, number][] = Object.entries(totalAttributes).map(
-    ([key, value]) => {
-      const attribute = parseInt(key) as CombatAttribute;
-      return [attribute, value];
-    }
-  );
+  let totalAttributesSortedArray: [CombatAttribute, number][] = iterateNumericEnumKeyedRecord(
+    totalAttributes
+  ).map(([attribute, value]) => {
+    return [attribute, value];
+  });
   totalAttributesSortedArray = totalAttributesSortedArray.filter(
     ([attribute, _value]) => attribute !== CombatAttribute.Hp && attribute !== CombatAttribute.Mp
   );

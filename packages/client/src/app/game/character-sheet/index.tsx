@@ -5,13 +5,8 @@ import {
   UNMET_REQUIREMENT_TEXT_COLOR,
 } from "@/client_consts";
 import { useGameStore } from "@/stores/game-store";
-import {
-  CombatantProperties,
-  ERROR_MESSAGES,
-  INVENTORY_DEFAULT_CAPACITY,
-  Inventory,
-} from "@speed-dungeon/common";
-import React, { useMemo } from "react";
+import { ERROR_MESSAGES, INVENTORY_DEFAULT_CAPACITY, Inventory } from "@speed-dungeon/common";
+import React from "react";
 import CharacterSheetCharacterSelectionButton from "./CharacterSheetCharacterSelectionButton";
 import CharacterAttributes from "./CharacterAttributes";
 import PaperDoll from "./PaperDoll";
@@ -28,13 +23,6 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
   const { combatantProperties } = focusedCharacterOption;
 
   const partyCharacterIds = partyResult.characterPositions;
-
-  const { equipment } = combatantProperties;
-
-  const totalAttributes = useMemo(
-    () => CombatantProperties.getTotalAttributes(combatantProperties),
-    [combatantProperties]
-  );
 
   let conditionalStyles = showCharacterSheet
     ? "overflow-auto pointer-events-auto w-fit "
@@ -69,7 +57,7 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
         style={{ padding: `${SPACING_REM}rem` }}
       >
         <div className="flex flex-col justify-between">
-          <PaperDoll equipment={equipment} characterAttributes={totalAttributes} />
+          <PaperDoll combatantProperties={combatantProperties} />
           <div
             className={
               numItemsInInventory > INVENTORY_DEFAULT_CAPACITY ? UNMET_REQUIREMENT_TEXT_COLOR : ""

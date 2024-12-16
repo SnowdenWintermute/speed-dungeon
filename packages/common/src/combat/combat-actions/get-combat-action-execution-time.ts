@@ -1,33 +1,50 @@
 import { CombatAction, CombatActionType } from "../index.js";
 import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../app-consts.js";
 import { AbilityName, CombatantProperties } from "../../combatants/index.js";
-import { EquipmentSlot } from "../../items/equipment/slots.js";
+import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { Equipment } from "../../items/equipment/index.js";
+import { CombatantEquipment } from "../../combatants/combatant-equipment/index.js";
+import { CombatAttribute } from "../../attributes/index.js";
 
 export function getCombatActionExecutionTime(
   combatantProperties: CombatantProperties,
   combatAction: CombatAction
 ) {
+  let ms = DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME;
   switch (combatAction.type) {
     case CombatActionType.AbilityUsed:
       switch (combatAction.abilityName) {
         case AbilityName.Attack:
         case AbilityName.AttackMeleeMainhand:
         case AbilityName.AttackMeleeOffhand:
-          const mhWeaponOption = combatantProperties.equipment[EquipmentSlot.MainHand];
+          const equippedHoldableHotswapSlot =
+            CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+          const mhWeaponOption = equippedHoldableHotswapSlot?.holdables[HoldableSlotType.MainHand];
           if (!mhWeaponOption) return 1000;
           const isTwoHanded = Equipment.isTwoHanded(
             mhWeaponOption.equipmentBaseItemProperties.type
           );
-          if (isTwoHanded) return 2000;
-          else return 1000;
+          if (isTwoHanded) ms = 2000;
+          else ms = 1000;
+          break;
         case AbilityName.AttackRangedMainhand:
         case AbilityName.Fire:
         case AbilityName.Ice:
         case AbilityName.Healing:
-          return 2000;
+          ms = 2000;
       }
     case CombatActionType.ConsumableUsed:
-      return DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME;
+      ms = DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME;
   }
+
+  const combatantSpeed =
+    CombatantProperties.getTotalAttributes(combatantProperties)[CombatAttribute.Speed];
+
+  return calculateExecutionTime(ms, combatantSpeed);
+}
+
+function calculateExecutionTime(baseTime: number, speed: number): number {
+  if (speed <= 0) throw new Error("Speed must be greater than 0.");
+  const k = 1 / 9; // Scaling factor
+  return baseTime / (1 + k * (Math.sqrt(speed) - 1));
 }

@@ -4,9 +4,7 @@ export * from "./action-command-manager.js";
 import { BattleConclusion } from "../battle/index.js";
 import { CombatAction, HpChange } from "../combat/index.js";
 import { Consumable } from "../items/consumables/index.js";
-import { Equipment } from "../items/equipment/index.js";
-import { EquipmentSlot } from "../items/equipment/slots.js";
-import { Item } from "../items/index.js";
+import { Equipment, TaggedEquipmentSlot } from "../items/equipment/index.js";
 import { GameMessageType } from "../packets/game-message.js";
 
 export enum ActionCommandType {
@@ -54,7 +52,7 @@ export type PerformCombatActionActionCommandPayload = {
 
 export type ChangeEquipmentActionCommandPayload = {
   type: ActionCommandType.ChangeEquipment;
-  slot: EquipmentSlot;
+  slot: TaggedEquipmentSlot;
   equipmentIdOption: null | string;
 };
 

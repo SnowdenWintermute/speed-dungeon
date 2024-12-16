@@ -26,6 +26,7 @@ export function createCharacter(name: string, combatantClass: CombatantClass) {
   const newCharacter = new Combatant(entityProperties, combatantProperties);
 
   const result = outfitNewCharacter(newCharacter);
+  console.log("outfitted new character: ", newCharacter);
   if (result instanceof Error) return result;
 
   return newCharacter;

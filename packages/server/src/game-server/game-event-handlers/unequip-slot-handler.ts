@@ -1,8 +1,8 @@
 import {
   CharacterAssociatedData,
   CombatantProperties,
-  EquipmentSlot,
   ServerToClientEvent,
+  TaggedEquipmentSlot,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons.js";
@@ -10,7 +10,7 @@ import { getGameServer } from "../../singletons.js";
 export default function unequipSlotHandler(
   eventProvidedData: {
     characterId: string;
-    slot: EquipmentSlot;
+    slot: TaggedEquipmentSlot;
   },
   characterAssociatedData: CharacterAssociatedData
 ) {

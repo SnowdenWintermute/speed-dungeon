@@ -22,8 +22,10 @@ import {
   DEFAULT_HITBOX_RADIUS_FALLBACK,
   ERROR_MESSAGES,
   Equipment,
-  EquipmentSlot,
-  Item,
+  EquipmentSlotType,
+  HoldableSlotType,
+  TaggedEquipmentSlot,
+  WearableSlotType,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
@@ -44,14 +46,21 @@ export class ModularCharacter {
     [ModularCharacterPartCategory.Legs]: null,
     [ModularCharacterPartCategory.Full]: null,
   };
-  equipment: Record<EquipmentSlot, null | ISceneLoaderAsyncResult> = {
-    [EquipmentSlot.Head]: null,
-    [EquipmentSlot.Body]: null,
-    [EquipmentSlot.MainHand]: null,
-    [EquipmentSlot.OffHand]: null,
-    [EquipmentSlot.RingL]: null,
-    [EquipmentSlot.RingR]: null,
-    [EquipmentSlot.Amulet]: null,
+  equipment: {
+    wearables: Record<WearableSlotType, null | ISceneLoaderAsyncResult>;
+    equippedHoldables: Record<HoldableSlotType, null | ISceneLoaderAsyncResult>;
+  } = {
+    wearables: {
+      [WearableSlotType.Head]: null,
+      [WearableSlotType.Body]: null,
+      [WearableSlotType.RingL]: null,
+      [WearableSlotType.RingR]: null,
+      [WearableSlotType.Amulet]: null,
+    },
+    equippedHoldables: {
+      [HoldableSlotType.MainHand]: null,
+      [HoldableSlotType.OffHand]: null,
+    },
   };
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   homeLocation: {
@@ -172,20 +181,37 @@ export class ModularCharacter {
     return part;
   }
 
-  async unequipItem(slot: EquipmentSlot) {
-    if (!this.equipment[slot]) return;
-    disposeAsyncLoadedScene(this.equipment[slot], this.world.scene);
-    delete this.equipment[slot];
+  async unequipItem(slot: TaggedEquipmentSlot) {
+    let toDispose;
+    switch (slot.type) {
+      case EquipmentSlotType.Holdable:
+        if (!this.equipment.equippedHoldables[slot.slot]) return;
+        toDispose = this.equipment.equippedHoldables[slot.slot];
+        delete this.equipment.equippedHoldables[slot.slot];
+      case EquipmentSlotType.Wearable:
+        if (!this.equipment.wearables[slot.slot]) return;
+        toDispose = this.equipment.wearables[slot.slot];
+        delete this.equipment.wearables[slot.slot];
+    }
+    if (!toDispose) return;
+    disposeAsyncLoadedScene(toDispose, this.world.scene);
   }
 
-  async equipItem(equipment: Equipment, slot: EquipmentSlot) {
+  async equipItem(equipment: Equipment, slot: TaggedEquipmentSlot) {
     const equipmentModelResult = await spawnItemModel(
       equipment,
       this.world.scene,
       this.world.defaultMaterials
     );
     if (equipmentModelResult instanceof Error) return console.error(equipmentModelResult);
-    this.equipment[slot] = equipmentModelResult;
+    switch (slot.type) {
+      case EquipmentSlotType.Holdable:
+        this.equipment.equippedHoldables[slot.slot] = equipmentModelResult;
+        break;
+      case EquipmentSlotType.Wearable:
+        this.equipment.wearables[slot.slot] = equipmentModelResult;
+        break;
+    }
 
     attachEquipmentModelToSkeleton(this, equipmentModelResult, slot, equipment);
   }

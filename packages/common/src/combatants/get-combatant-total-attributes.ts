@@ -4,7 +4,8 @@ import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { EquipmentType } from "../items/equipment/equipment-types/index.js";
 import { CombatantAttributeRecord, CombatantProperties } from "./combatant-properties.js";
 import { CombatAttribute } from "../attributes/index.js";
-import { Equipment, HoldableSlot } from "../items/equipment/index.js";
+import { Equipment, EquipmentSlotType, HoldableSlotType } from "../items/equipment/index.js";
+import { CombatantEquipment } from "./combatant-equipment/index.js";
 
 // ATTRIBUTES
 export const DERIVED_ATTRIBUTE_RATIOS: Partial<
@@ -41,7 +42,8 @@ export default function getCombatantTotalAttributes(
   addAttributesToAccumulator(combatantProperties.inherentAttributes, totalAttributes);
   addAttributesToAccumulator(combatantProperties.speccedAttributes, totalAttributes);
 
-  for (const item of Object.values(combatantProperties.equipment)) {
+  const allEquippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties);
+  for (const item of allEquippedItems) {
     addAttributesToAccumulator(item.attributes, totalAttributes);
     for (const category of Object.values(item.affixes)) {
       for (const affix of Object.values(category)) {
@@ -58,7 +60,7 @@ export default function getCombatantTotalAttributes(
 
   // after adding up attributes, determine if any equipped item still doesn't meet attribute
   // requirements, if so, remove it's attributes from the total
-  for (const item of Object.values(combatantProperties.equipment)) {
+  for (const item of allEquippedItems) {
     const equippedItemIsUsable = Item.requirementsMet(item, totalAttributes);
     if (equippedItemIsUsable) continue;
     // otherwise subtract its stats
@@ -71,10 +73,10 @@ export default function getCombatantTotalAttributes(
       );
   }
 
-  for (const [key, attributeRatios] of Object.entries(DERIVED_ATTRIBUTE_RATIOS)) {
-    const mainAttribute = parseInt(key) as CombatAttribute;
-    for (const [key, ratio] of Object.entries(attributeRatios)) {
-      const derivedAttribute = parseInt(key) as CombatAttribute;
+  for (const [mainAttribute, attributeRatios] of iterateNumericEnumKeyedRecord(
+    DERIVED_ATTRIBUTE_RATIOS
+  )) {
+    for (const [derivedAttribute, ratio] of iterateNumericEnumKeyedRecord(attributeRatios)) {
       calculateAndAddDerivedAttribute(totalAttributes, mainAttribute, derivedAttribute, ratio);
     }
   }
@@ -98,7 +100,7 @@ function getArmorPenDerivedBonus(
 ): number {
   const mhWeaponOption = CombatantProperties.getEquippedWeapon(
     combatantProperties,
-    HoldableSlot.MainHand
+    HoldableSlotType.MainHand
   );
   if (mhWeaponOption instanceof Error) return 0;
   let attributeToDeriveFrom = CombatAttribute.Strength;
@@ -137,8 +139,7 @@ export function addAttributesToAccumulator(
   toAdd: CombatantAttributeRecord,
   acc: CombatantAttributeRecord
 ) {
-  for (const [key, value] of Object.entries(toAdd)) {
-    const attribute = parseInt(key) as CombatAttribute;
+  for (const [attribute, value] of iterateNumericEnumKeyedRecord(toAdd)) {
     if (!acc[attribute]) acc[attribute] = value;
     else acc[attribute]! += value || 0; // use ! because ts complains it may be undefined even though checked above
   }
@@ -148,8 +149,7 @@ function removeAttributesFromAccumulator(
   toRemove: CombatantAttributeRecord,
   acc: CombatantAttributeRecord
 ) {
-  for (const [key, value] of Object.entries(toRemove)) {
-    const attribute = parseInt(key) as CombatAttribute;
+  for (const [attribute, value] of iterateNumericEnumKeyedRecord(toRemove)) {
     if (!acc[attribute]) continue;
     else acc[attribute]! -= value || 0; // use ! because ts complains it may be undefined even though checked above
     if (acc[attribute]! < 0) delete acc[attribute];

@@ -1,14 +1,20 @@
 import { useGameStore } from "@/stores/game-store";
 import selectItem from "@/utils/selectItem";
 import setItemHovered from "@/utils/set-item-hovered";
-import { CombatantAttributeRecord, Equipment, EquipmentSlot, Item } from "@speed-dungeon/common";
+import {
+  CombatantAttributeRecord,
+  Equipment,
+  Item,
+  TaggedEquipmentSlot,
+} from "@speed-dungeon/common";
 import React, { useMemo } from "react";
 import { ConsideringItemMenuState } from "../ActionMenu/menu-state/considering-item";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
+import isEqual from "lodash.isequal";
 
 interface Props {
   itemOption: null | Equipment;
-  slot: EquipmentSlot;
+  slot: TaggedEquipmentSlot;
   characterAttributes: CombatantAttributeRecord;
   tailwindClasses: string;
 }
@@ -41,7 +47,7 @@ export default function PaperDollSlot({
   );
 
   const bgStyle = useMemo(() => {
-    if (comparedSlot === slot)
+    if (isEqual(comparedSlot, slot))
       if (consideredItemUnmetRequirements !== null) return UNUSABLE_ITEM_BG_STYLES;
       else return USABLE_ITEM_BG_STYLES;
     if (!itemOption) return "";

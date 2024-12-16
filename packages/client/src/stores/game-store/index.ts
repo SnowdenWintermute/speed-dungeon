@@ -11,8 +11,8 @@ import {
   Item,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
+  TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
-import { EquipmentSlot } from "@speed-dungeon/common";
 import { MutateState } from "../mutate-state";
 import getActiveCombatant from "@/utils/getActiveCombatant";
 import getParty from "@/utils/getParty";
@@ -51,7 +51,7 @@ export class GameState {
   detailedEntity: null | Combatant | Item = null;
   hoveredEntity: null | Combatant | Item = null;
   comparedItem: null | Item = null;
-  comparedSlot: null | EquipmentSlot = null;
+  comparedSlot: null | TaggedEquipmentSlot = null;
   hoveredAction: null | CombatAction = null;
   actionMenuCurrentPageNumber: number = 0;
   actionMenuParentPageNumbers: number[] = [];

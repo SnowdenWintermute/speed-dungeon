@@ -7,12 +7,14 @@ import {
   MenuStateType,
 } from ".";
 import {
+  CombatantEquipment,
   Consumable,
   ConsumableType,
   Equipment,
   Inventory,
   Item,
   formatConsumableType,
+  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
 import { ConsideringItemMenuState } from "./considering-item";
@@ -64,7 +66,9 @@ export class ItemsMenuState implements ActionMenuState {
         case MenuStateType.InventoryItems:
           return Inventory.getItems(focusedCharacterResult.combatantProperties.inventory);
         case MenuStateType.ViewingEquipedItems:
-          return Object.values(focusedCharacterResult.combatantProperties.equipment);
+          return Object.values(
+            CombatantEquipment.getAllEquippedItems(focusedCharacterResult.combatantProperties)
+          );
         case MenuStateType.ItemsOnGround:
           return partyResult.currentRoom.items;
       }
@@ -135,9 +139,8 @@ export class ItemsMenuState implements ActionMenuState {
 
     if (!this.extraButtons) return toReturn;
 
-    for (const [category, buttons] of Object.entries(this.extraButtons)) {
-      const categoryAsEnum = parseInt(category) as ActionButtonCategory;
-      for (const button of buttons) toReturn[categoryAsEnum].push(button);
+    for (const [category, buttons] of iterateNumericEnumKeyedRecord(this.extraButtons)) {
+      for (const button of buttons) toReturn[category].push(button);
     }
 
     // possible when a numbered button disapears like when equipping the last item

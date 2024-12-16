@@ -119,6 +119,7 @@ export const ERROR_MESSAGES = {
     NO_ITEM_EQUIPPED: "No item is equipped in that slot",
     REQUIREMENTS_NOT_MET: "You don't meet the requirements to equip that item",
     EXPECTED_TRAIT_MISSING: "Expected to find an equipment trait but didn't",
+    NO_SELECTED_HOTSWAP_SLOT: "The combatant has no slots to equip holdable items",
   },
   BATTLE: {
     COMBATANT_NOT_IN_BATTLE: "The provided ID did not match any combatant in this battle",

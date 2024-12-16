@@ -3,12 +3,17 @@ import { ModularCharacter } from "../combatant-models/modular-character";
 import { disposeAsyncLoadedScene, importMesh } from "../utils";
 import {
   CombatantClass,
+  CombatantEquipment,
   CombatantSpecies,
   ERROR_MESSAGES,
   Equipment,
-  EquipmentSlot,
+  EquipmentSlotType,
+  HoldableSlotType,
   Item,
   MonsterType,
+  TaggedEquipmentSlot,
+  WearableSlotType,
+  iterateNumericEnumKeyedRecord,
   removeFromArray,
 } from "@speed-dungeon/common";
 import {
@@ -84,7 +89,7 @@ export class ModelManager {
     this.modelMessageQueues[entityId]!.messages.push(message);
   }
 
-  async handleEquipmentChange(entityId: string, slot: EquipmentSlot, equipment?: Equipment) {
+  async handleEquipmentChange(entityId: string, slot: TaggedEquipmentSlot, equipment?: Equipment) {
     const modularCharacter = this.combatantModels[entityId];
     if (!modularCharacter) return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     if (!equipment) await modularCharacter.unequipItem(slot);
@@ -188,10 +193,23 @@ export class ModelManager {
     }
 
     if (combatantProperties.combatantSpecies === CombatantSpecies.Humanoid) {
-      for (const [slot, item] of Object.entries(combatantProperties.equipment)) {
-        const slotEnumMember = parseInt(slot) as EquipmentSlot;
-        await modularCharacter.equipItem(item, slotEnumMember);
+      for (const [slot, item] of iterateNumericEnumKeyedRecord(
+        combatantProperties.equipment.wearables
+      )) {
+        await modularCharacter.equipItem(item, {
+          type: EquipmentSlotType.Wearable,
+          slot: slot,
+        });
       }
+
+      const equippedHoldables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+      if (equippedHoldables)
+        for (const [slot, item] of iterateNumericEnumKeyedRecord(equippedHoldables.holdables)) {
+          await modularCharacter.equipItem(item, {
+            type: EquipmentSlotType.Holdable,
+            slot,
+          });
+        }
     }
 
     this.combatantModels[entityProperties.id] = modularCharacter;
@@ -263,8 +281,8 @@ type DespawnModelManagerMessage = {
 
 type ChangeEquipmentModelManagerMessage = {
   type: ModelManagerMessageType.ChangeEquipment;
-  unequippedSlots: EquipmentSlot[];
-  toEquip?: { item: Item; slot: EquipmentSlot };
+  unequippedSlots: TaggedEquipmentSlot[];
+  toEquip?: { item: Item; slot: TaggedEquipmentSlot };
 };
 
 type ModelManagerMessage =

@@ -1,7 +1,9 @@
 import { useGameStore } from "@/stores/game-store";
 import {
+  CombatantEquipment,
   EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
   Equipment,
+  EquipmentSlotType,
   getItemInAdventuringParty,
 } from "@speed-dungeon/common";
 import { getPlayerPartyOption } from "@speed-dungeon/common";
@@ -14,7 +16,6 @@ export default function setComparedItem(itemId: string, compareAltSlot: boolean)
     const partyResult = getPlayerPartyOption(gameState.game, gameState.username);
     if (partyResult instanceof Error) return console.error(partyResult);
     if (partyResult === undefined) return console.error("NO PARTY");
-    console.log("looking for itemId", itemId, "in party");
     const itemResult = getItemInAdventuringParty(partyResult, itemId);
     if (itemResult instanceof Error) return console.error(itemResult);
     const focusedCharacterResult = getFocusedCharacter();
@@ -34,7 +35,11 @@ export default function setComparedItem(itemId: string, compareAltSlot: boolean)
     if (slotsOption.alternate !== null && compareAltSlot) slotToCompare = slotsOption.alternate;
     gameState.comparedSlot = slotToCompare;
 
-    const equippedItemOption = focusedCharacter.combatantProperties.equipment[slotToCompare];
+    const equippedItemOption = CombatantEquipment.getEquipmentInSlot(
+      focusedCharacter.combatantProperties,
+      slotToCompare
+    );
+
     if (!equippedItemOption || equippedItemOption.entityProperties.id === itemId)
       gameState.comparedItem = null;
     else gameState.comparedItem = equippedItemOption;

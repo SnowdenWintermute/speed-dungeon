@@ -3,7 +3,6 @@ import {
   Equipment,
   EquipmentBaseItemEnum,
   EquipmentType,
-  Item,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 import { GameWorld } from ".";

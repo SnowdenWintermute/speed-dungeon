@@ -1,4 +1,4 @@
-import { CombatantProperties } from "@speed-dungeon/common/dist/combatants/combatant-properties";
+import { CombatantProperties } from "@speed-dungeon/common";
 import React from "react";
 
 export default function UnspentAttributesButton({

@@ -1,11 +1,11 @@
 import { Equipment, WeaponProperties } from "../../items/equipment/index.js";
-import { HoldableSlot, HoldableSlotType } from "../../items/equipment/slots.js";
+import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { CombatantProperties } from "./../combatant-properties.js";
 import { CombatantEquipment } from "./index.js";
 
 export function getUsableWeaponsInSlots(
   combatantProperties: CombatantProperties,
-  weaponSlots: HoldableSlot[]
+  weaponSlots: HoldableSlotType[]
 ) {
   const toReturn: Partial<
     Record<HoldableSlotType, { equipment: Equipment; weaponProperties: WeaponProperties }>
@@ -17,7 +17,7 @@ export function getUsableWeaponsInSlots(
 
   for (const weaponSlot of weaponSlots) {
     let equipmentSlot =
-      weaponSlot.slot === HoldableSlotType.OffHand
+      weaponSlot === HoldableSlotType.OffHand
         ? HoldableSlotType.OffHand
         : HoldableSlotType.MainHand;
 
@@ -27,7 +27,7 @@ export function getUsableWeaponsInSlots(
 
     const weaponPropertiesResult = Equipment.getWeaponProperties(holdable);
     if (weaponPropertiesResult instanceof Error) continue; // could be a shield so just skip it
-    toReturn[weaponSlot.type] = { equipment: holdable, weaponProperties: weaponPropertiesResult };
+    toReturn[weaponSlot] = { equipment: holdable, weaponProperties: weaponPropertiesResult };
   }
 
   return toReturn;

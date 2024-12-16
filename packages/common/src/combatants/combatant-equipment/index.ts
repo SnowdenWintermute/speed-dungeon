@@ -1,7 +1,14 @@
 import { plainToInstance } from "class-transformer";
 import { Equipment, EquipmentBaseItem, EquipmentType } from "../../items/equipment/index.js";
-import { HoldableSlotType, WearableSlotType } from "../../items/equipment/slots.js";
+import {
+  EquipmentSlotType,
+  HoldableSlotType,
+  TaggedEquipmentSlot,
+  WearableSlotType,
+} from "../../items/equipment/slots.js";
 import { CombatantProperties } from "../combatant-properties.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 
 export * from "./equip-item.js";
 export * from "./unequip-slots.js";
@@ -49,17 +56,70 @@ export class CombatantEquipment {
     ];
   }
 
+  static getEquippedHoldable(
+    combatantProperties: CombatantProperties,
+    holdableSlotType: HoldableSlotType
+  ) {
+    const equippedHoldableHotswapSlot =
+      CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+    if (!equippedHoldableHotswapSlot) return undefined;
+    return equippedHoldableHotswapSlot.holdables[holdableSlotType];
+  }
+
   static instatiateItemClasses(combatantProperties: CombatantProperties) {
     const { equipment } = combatantProperties;
-    for (const [slot, item] of Object.entries(equipment.wearables)) {
-      equipment.wearables[parseInt(slot) as WearableSlotType] = plainToInstance(Equipment, item);
+    for (const [slot, item] of iterateNumericEnumKeyedRecord(equipment.wearables)) {
+      equipment.wearables[slot] = plainToInstance(Equipment, item);
     }
     for (const hotswapSlot of Object.values(
       CombatantEquipment.getHoldableHotswapSlots(combatantProperties)
     )) {
-      for (const [slot, item] of Object.entries(hotswapSlot.holdables)) {
-        equipment.wearables[parseInt(slot) as HoldableSlotType] = plainToInstance(Equipment, item);
+      for (const [slot, item] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
+        equipment.wearables[slot] = plainToInstance(Equipment, item);
       }
+    }
+  }
+
+  static putEquipmentInSlot(
+    combatantProperties: CombatantProperties,
+    equipmentItem: Equipment,
+    taggedSlot: TaggedEquipmentSlot
+  ) {
+    switch (taggedSlot.type) {
+      case EquipmentSlotType.Holdable:
+        const equippedHoldableHotswapSlot =
+          CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+        if (!equippedHoldableHotswapSlot)
+          return new Error(ERROR_MESSAGES.EQUIPMENT.NO_SELECTED_HOTSWAP_SLOT);
+        equippedHoldableHotswapSlot.holdables[taggedSlot.slot] = equipmentItem;
+        break;
+      case EquipmentSlotType.Wearable:
+        combatantProperties.equipment.wearables[taggedSlot.slot] = equipmentItem;
+        break;
+    }
+  }
+
+  static getAllEquippedItems(combatantProperties: CombatantProperties) {
+    const toReturn: Equipment[] = [];
+    const equippedHoldableHotswapSlot =
+      CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+    if (equippedHoldableHotswapSlot)
+      toReturn.push(...Object.values(equippedHoldableHotswapSlot.holdables));
+
+    toReturn.push(...Object.values(combatantProperties.equipment.wearables));
+
+    return toReturn;
+  }
+
+  static getEquipmentInSlot(
+    combatantProperties: CombatantProperties,
+    taggedSlot: TaggedEquipmentSlot
+  ) {
+    switch (taggedSlot.type) {
+      case EquipmentSlotType.Holdable:
+        return CombatantEquipment.getEquippedHoldable(combatantProperties, taggedSlot.slot);
+      case EquipmentSlotType.Wearable:
+        return combatantProperties.equipment.wearables[taggedSlot.slot];
     }
   }
 }
