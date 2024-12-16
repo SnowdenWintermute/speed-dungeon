@@ -21,6 +21,7 @@ import cycleTargetsHandler from "./cycle-targets-handler.js";
 import cycleTargetingSchemesHandler from "./cycle-targeting-schemes-handler.js";
 import useSelectedCombatActionHandler from "./character-uses-selected-combat-action-handler/index.js";
 import characterSpentAttributePointHandler from "./character-spent-attribute-point-handler.js";
+import selectHoldableHotswapSlotHandler from "./select-holdable-hotswap-slot-handler.js";
 
 export default function initiateGameEventListeners(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
@@ -84,6 +85,13 @@ export default function initiateGameEventListeners(
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(
       socket,
       characterSpentAttributePointHandler
+    )
+  );
+  socket.on(
+    ClientToServerEvent.SelectHoldableHotswapSlot,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(
+      socket,
+      selectHoldableHotswapSlotHandler
     )
   );
 }

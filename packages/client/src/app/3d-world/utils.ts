@@ -14,9 +14,6 @@ import { DYNAMIC_MATERIAL_TAG } from "./game-world/materials/create-default-mate
 import { BASE_FILE_PATH } from "./combatant-models/modular-character-parts";
 
 export async function importMesh(path: string, scene: Scene) {
-  const fullPath = (BASE_FILE_PATH || "") + path;
-  console.log("importing mesh from path: ", fullPath);
-
   const sceneResult = await SceneLoader.ImportMeshAsync("", BASE_FILE_PATH || "", path, scene);
   // if (this.useShadows)
   //   for (const mesh of sceneResult.meshes) this.shadowGenerator?.addShadowCaster(mesh, true);

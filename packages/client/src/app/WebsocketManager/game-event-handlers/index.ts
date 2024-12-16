@@ -21,6 +21,7 @@ import getCurrentParty from "@/utils/getCurrentParty";
 import characterIncrementedAttributePointHandler from "./character-incremented-attribute-point-handler";
 import gameProgressMessageHandler from "./game-progress-message-handler";
 import characterPickedUpItemsHandler from "./character-picked-up-items-handler";
+import characterSelectedHoldableHotswapSlotHandler from "./character-selected-holdable-hotswap-slot-handler";
 
 export default function setUpGameEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -62,5 +63,9 @@ export default function setUpGameEventHandlers(
     characterIncrementedAttributePointHandler
   );
   socket.on(ServerToClientEvent.GameMessage, gameProgressMessageHandler);
+  socket.on(
+    ServerToClientEvent.CharacterSelectedHoldableHotswapSlot,
+    characterSelectedHoldableHotswapSlotHandler
+  );
   console.log("game listeners set up");
 }

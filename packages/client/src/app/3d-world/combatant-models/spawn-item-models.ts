@@ -1,6 +1,6 @@
 import { Consumable, Equipment, Item } from "@speed-dungeon/common";
 import { equipmentBaseItemToModelPath } from "./equipment-base-item-to-model-path";
-import { Scene } from "@babylonjs/core";
+import { ISceneLoaderAsyncResult, Scene } from "@babylonjs/core";
 import { SavedMaterials } from "../game-world/materials/create-default-materials";
 import { importMesh } from "../utils";
 import { consumableItemToModelPath } from "./consumable-item-to-model-path";
@@ -9,7 +9,11 @@ import {
   assignEquipmentMaterials,
 } from "../game-world/materials/assign-item-materials";
 
-export async function spawnItemModel(item: Item, scene: Scene, materials: SavedMaterials) {
+export async function spawnItemModel(
+  item: Item,
+  scene: Scene,
+  materials: SavedMaterials
+): Promise<Error | ISceneLoaderAsyncResult> {
   const modelPath = (() => {
     if (item instanceof Equipment) {
       return equipmentBaseItemToModelPath(
@@ -24,6 +28,7 @@ export async function spawnItemModel(item: Item, scene: Scene, materials: SavedM
 
   if (modelPath === null)
     return new Error(`No model path was found for item [${item.entityProperties.name}]`);
+
   const itemModel = await importMesh(modelPath, scene);
 
   if (item instanceof Equipment) assignEquipmentMaterials(item, itemModel, materials, scene);

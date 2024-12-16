@@ -205,7 +205,7 @@ export class ModularCharacter {
     );
     if (equipmentModelResult instanceof Error) {
       console.log("equipment model error: ", equipmentModelResult.message);
-      return console.error(equipmentModelResult);
+      return;
     }
     switch (slot.type) {
       case EquipmentSlotType.Holdable:

@@ -204,7 +204,6 @@ export class ModelManager {
 
       if (equippedHoldables)
         for (const [slot, item] of iterateNumericEnumKeyedRecord(equippedHoldables.holdables)) {
-          console.log("equipping item ", item.entityProperties.name);
           await modularCharacter.equipItem(item, {
             type: EquipmentSlotType.Holdable,
             slot,

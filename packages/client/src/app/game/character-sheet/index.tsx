@@ -57,7 +57,7 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
         style={{ padding: `${SPACING_REM}rem` }}
       >
         <div className="flex flex-col justify-between">
-          <PaperDoll combatantProperties={combatantProperties} />
+          <PaperDoll combatant={focusedCharacterOption} />
           <div
             className={
               numItemsInInventory > INVENTORY_DEFAULT_CAPACITY ? UNMET_REQUIREMENT_TEXT_COLOR : ""

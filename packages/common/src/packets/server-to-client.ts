@@ -55,6 +55,8 @@ export enum ServerToClientEvent {
   ProgressionGameStartingFloorSelected = "38",
   //TEST
   TestItems = "39",
+  //
+  CharacterSelectedHoldableHotswapSlot = "40",
 }
 
 export interface ServerToClientEventTypes {
@@ -150,6 +152,10 @@ export interface ServerToClientEventTypes {
   // was using this to create models of items on client with randomly generated
   // properties since only the server code can currently do that
   [ServerToClientEvent.TestItems]: (items: Item[]) => void;
+  [ServerToClientEvent.CharacterSelectedHoldableHotswapSlot]: (
+    characterId: string,
+    slotIndex: number
+  ) => void;
 }
 
 export interface CharacterAndItem {

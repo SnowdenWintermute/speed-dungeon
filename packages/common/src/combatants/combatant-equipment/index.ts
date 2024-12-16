@@ -42,7 +42,10 @@ export class HoldableHotswapSlot {
 export class CombatantEquipment {
   wearables: Partial<Record<WearableSlotType, Equipment>> = {};
   equippedHoldableHotswapSlotIndex: number = 0;
-  inherentHoldableHotswapSlots: HoldableHotswapSlot[] = [new HoldableHotswapSlot()];
+  inherentHoldableHotswapSlots: HoldableHotswapSlot[] = [
+    new HoldableHotswapSlot(),
+    new HoldableHotswapSlot(),
+  ];
   // getAttributes
   // getWeaponHotswapSets
   // currentWeaponHotswapSet - number
