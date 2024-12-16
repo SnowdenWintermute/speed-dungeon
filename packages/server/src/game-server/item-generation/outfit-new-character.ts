@@ -96,6 +96,7 @@ export default function outfitNewCharacter(character: Combatant) {
   equippedHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = WEAPON_TEST_ITEM;
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
+
   // TESTING
   // combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
 }

@@ -37,10 +37,10 @@ export function getCombatActionExecutionTime(
       ms = DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME;
   }
 
-  const combatantSpeed =
-    CombatantProperties.getTotalAttributes(combatantProperties)[CombatAttribute.Speed];
+  // const combatantSpeed =
+  //   CombatantProperties.getTotalAttributes(combatantProperties)[CombatAttribute.Speed];
 
-  return calculateExecutionTime(ms, combatantSpeed);
+  return ms;
 }
 
 function calculateExecutionTime(baseTime: number, speed: number): number {

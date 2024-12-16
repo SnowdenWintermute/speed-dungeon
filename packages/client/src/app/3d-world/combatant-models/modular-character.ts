@@ -203,7 +203,10 @@ export class ModularCharacter {
       this.world.scene,
       this.world.defaultMaterials
     );
-    if (equipmentModelResult instanceof Error) return console.error(equipmentModelResult);
+    if (equipmentModelResult instanceof Error) {
+      console.log("equipment model error: ", equipmentModelResult.message);
+      return console.error(equipmentModelResult);
+    }
     switch (slot.type) {
       case EquipmentSlotType.Holdable:
         this.equipment.equippedHoldables[slot.slot] = equipmentModelResult;

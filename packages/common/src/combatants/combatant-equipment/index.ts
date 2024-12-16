@@ -75,7 +75,7 @@ export class CombatantEquipment {
       CombatantEquipment.getHoldableHotswapSlots(combatantProperties)
     )) {
       for (const [slot, item] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
-        equipment.wearables[slot] = plainToInstance(Equipment, item);
+        hotswapSlot.holdables[slot] = plainToInstance(Equipment, item);
       }
     }
   }

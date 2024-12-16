@@ -21,7 +21,6 @@ export default function PaperDoll({ combatantProperties }: Props) {
     () => CombatantProperties.getTotalAttributes(combatantProperties),
     [combatantProperties]
   );
-  console.log("combatant equipment: ", JSON.stringify(equipment, null, 2));
 
   const mainhandOption = equippedHoldables?.holdables[HoldableSlotType.MainHand];
 

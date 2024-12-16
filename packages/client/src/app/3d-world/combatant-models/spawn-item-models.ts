@@ -27,7 +27,7 @@ export async function spawnItemModel(item: Item, scene: Scene, materials: SavedM
   const itemModel = await importMesh(modelPath, scene);
 
   if (item instanceof Equipment) assignEquipmentMaterials(item, itemModel, materials, scene);
-  else assignConsumableMaterials(item, itemModel, materials, scene);
+  else if (item instanceof Consumable) assignConsumableMaterials(item, itemModel, materials, scene);
 
   if (!itemModel) return new Error("Model not successfully spawned");
   return itemModel;

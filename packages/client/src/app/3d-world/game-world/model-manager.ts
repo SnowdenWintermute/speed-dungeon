@@ -8,11 +8,8 @@ import {
   ERROR_MESSAGES,
   Equipment,
   EquipmentSlotType,
-  HoldableSlotType,
-  Item,
   MonsterType,
   TaggedEquipmentSlot,
-  WearableSlotType,
   iterateNumericEnumKeyedRecord,
   removeFromArray,
 } from "@speed-dungeon/common";
@@ -61,6 +58,7 @@ class ModelMessageQueue {
               currentMessageProcessing.toEquip.slot,
               currentMessageProcessing.toEquip.item
             );
+          break;
       }
       currentMessageProcessing = this.messages.shift();
     }
@@ -203,8 +201,10 @@ export class ModelManager {
       }
 
       const equippedHoldables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+
       if (equippedHoldables)
         for (const [slot, item] of iterateNumericEnumKeyedRecord(equippedHoldables.holdables)) {
+          console.log("equipping item ", item.entityProperties.name);
           await modularCharacter.equipItem(item, {
             type: EquipmentSlotType.Holdable,
             slot,
@@ -282,7 +282,7 @@ type DespawnModelManagerMessage = {
 type ChangeEquipmentModelManagerMessage = {
   type: ModelManagerMessageType.ChangeEquipment;
   unequippedSlots: TaggedEquipmentSlot[];
-  toEquip?: { item: Item; slot: TaggedEquipmentSlot };
+  toEquip?: { item: Equipment; slot: TaggedEquipmentSlot };
 };
 
 type ModelManagerMessage =
