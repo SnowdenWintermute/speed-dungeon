@@ -5,7 +5,9 @@ import {
   EquipmentSlotType,
   EquipmentType,
   HoldableSlotType,
+  OneHandedMeleeWeapon,
   TaggedEquipmentSlot,
+  TwoHandedMeleeWeapon,
   equipmentIsTwoHandedWeapon,
 } from "@speed-dungeon/common";
 import { ModularCharacter } from "./modular-character";
@@ -94,17 +96,42 @@ export function attachEquipmentModelToHolstered(
       parentMesh.rotation.y = 0;
     }
   } else if (slot.slot === HoldableSlotType.MainHand) {
-    if (combatantModel.combatantClass === CombatantClass.Warrior) parentMesh.position.z = -0.25;
-    else if (equipmentIsTwoHandedWeapon(equipment.equipmentBaseItemProperties.type))
+    if (equipmentIsTwoHandedWeapon(equipment.equipmentBaseItemProperties.type)) {
+      if (combatantModel.combatantClass === CombatantClass.Warrior) parentMesh.position.z = 0.25;
+
       parentMesh.position.z = 0.14;
-    else parentMesh.position.z = -0.1;
+    } else parentMesh.position.z = -0.1;
 
     parentMesh.position.x = 0.1;
 
     if (equipment.equipmentBaseItemProperties.type === EquipmentType.TwoHandedMeleeWeapon) {
       // parentMesh.position.z = 0.1;
-      parentMesh.position.y = -0.4;
-      parentMesh.position.x = 0.35;
+      switch (equipment.equipmentBaseItemProperties.baseItem as TwoHandedMeleeWeapon) {
+        case TwoHandedMeleeWeapon.BoStaff:
+        case TwoHandedMeleeWeapon.ElementalStaff:
+        case TwoHandedMeleeWeapon.ElmStaff:
+          parentMesh.position.y = 0;
+          parentMesh.position.x = 0;
+          break;
+        case TwoHandedMeleeWeapon.RottingBranch:
+        case TwoHandedMeleeWeapon.Spear:
+        case TwoHandedMeleeWeapon.Bardiche:
+        case TwoHandedMeleeWeapon.SplittingMaul:
+        case TwoHandedMeleeWeapon.Maul:
+        case TwoHandedMeleeWeapon.BattleAxe:
+        case TwoHandedMeleeWeapon.Glaive:
+        case TwoHandedMeleeWeapon.Trident:
+        case TwoHandedMeleeWeapon.MahoganyStaff:
+        case TwoHandedMeleeWeapon.EbonyStaff:
+          parentMesh.position.y = -0.2;
+          parentMesh.position.x = 0.15;
+          break;
+        case TwoHandedMeleeWeapon.GreatAxe:
+        case TwoHandedMeleeWeapon.GravityHammer:
+          parentMesh.position.y = -0.4;
+          parentMesh.position.x = 0.35;
+          break;
+      }
 
       parentMesh.rotation.z = 0.6;
       parentMesh.rotation.x = 0;

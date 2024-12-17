@@ -10,7 +10,13 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import { ClientToServerEvent, Combatant, InputLock, Inventory } from "@speed-dungeon/common";
+import {
+  ClientToServerEvent,
+  Combatant,
+  CombatantEquipment,
+  InputLock,
+  Inventory,
+} from "@speed-dungeon/common";
 import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
 import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
@@ -21,6 +27,7 @@ import setFocusedCharacter from "@/utils/set-focused-character";
 import { AssigningAttributePointsMenuState } from "../ActionMenu/menu-state/assigning-attribute-points";
 import CombatantFloatingMessagesDisplay from "./combatant-floating-messages-display";
 import InventoryIconButton from "./InventoryIconButton";
+import HotswapSlotButtons from "./HotswapSlotButtons";
 
 interface Props {
   combatant: Combatant;
@@ -141,6 +148,15 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
           <InventoryIconButton
             entityId={entityId}
             numItemsInInventory={Inventory.getTotalNumberOfItems(combatantProperties.inventory)}
+          />
+        )}
+        {isPartyMember && (
+          <HotswapSlotButtons
+            className={"absolute -top-2 -left-2 z-10 flex flex-col border border-slate-400"}
+            entityId={entityId}
+            selectedSlotIndex={combatantProperties.equipment.equippedHoldableHotswapSlotIndex}
+            numSlots={CombatantEquipment.getHoldableHotswapSlots(combatantProperties).length}
+            vertical={true}
           />
         )}
         <TargetingIndicators party={party} entityId={entityId} />

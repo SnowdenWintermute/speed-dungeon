@@ -19,13 +19,17 @@ import {
   TwoHandedRangedWeapon,
   TwoHandedMeleeWeapon,
   Inventory,
+  Equipment,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { idGenerator } from "../../singletons.js";
 import { HP_ARMOR_TEST_ITEM, WEAPON_TEST_ITEM } from "./test-items.js";
 import { CombatantEquipment } from "@speed-dungeon/common";
-import generateTestItems, { generateSpecificEquipmentType } from "./generate-test-items.js";
+import generateTestItems, {
+  generateOneOfEachItem,
+  generateSpecificEquipmentType,
+} from "./generate-test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -95,11 +99,13 @@ export default function outfitNewCharacter(character: Combatant) {
     AbilityName.Destruction
   );
 
-  // const items = generateOneOfEachItem();
-  // combatantProperties.inventory.equipment.push(...items);
+  const items = generateOneOfEachItem();
+  combatantProperties.inventory.equipment.push(...(items as Equipment[]));
   combatantProperties.unspentAttributePoints = 100;
   combatantProperties.inherentAttributes[CombatAttribute.Speed] = 100;
   combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 100;
+  combatantProperties.inherentAttributes[CombatAttribute.Strength] = 100;
+  combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 100;
   combatantProperties.inherentAttributes[CombatAttribute.Hp] = 100;
 
   // FOR TESTING ATTRIBUTE ASSIGNMENT

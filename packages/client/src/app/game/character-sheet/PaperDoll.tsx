@@ -11,6 +11,7 @@ import {
   equipmentIsTwoHandedWeapon,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
+import HotswapSlotButtons from "../combatant-plaques/HotswapSlotButtons";
 
 interface Props {
   combatant: Combatant;
@@ -33,26 +34,15 @@ export default function PaperDoll({ combatant }: Props) {
       ? equipmentIsTwoHandedWeapon(mainhandOption.equipmentBaseItemProperties.type)
       : false;
 
-  const hotswapButtons = CombatantEquipment.getHoldableHotswapSlots(combatantProperties).map(
-    (item, i) => (
-      <button
-        key={i}
-        className={`h-8 w-8 border ${i === combatantProperties.equipment.equippedHoldableHotswapSlotIndex ? "bg-slate-800" : "bg-slate-700"}`}
-        onClick={() => {
-          websocketConnection.emit(ClientToServerEvent.SelectHoldableHotswapSlot, {
-            characterId: entityProperties.id,
-            slotIndex: i,
-          });
-        }}
-      >
-        i={i}
-      </button>
-    )
-  );
-
   return (
-    <div id="paper-doll" className="flex w-[23.75rem] mr-5">
-      {hotswapButtons}
+    <div id="paper-doll" className="relative flex w-[23.75rem] mr-5">
+      <HotswapSlotButtons
+        vertical={false}
+        className={"absolute h-fit flex border border-slate-400"}
+        entityId={entityProperties.id}
+        selectedSlotIndex={combatantProperties.equipment.equippedHoldableHotswapSlotIndex}
+        numSlots={CombatantEquipment.getHoldableHotswapSlots(combatantProperties).length}
+      />
       <div className="w-[7.5rem] mr-2.5">
         <div className="h-[6.25rem] mb-2.5 flex justify-between items-end">
           <PaperDollSlot

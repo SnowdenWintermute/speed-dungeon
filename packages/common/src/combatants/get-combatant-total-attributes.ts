@@ -66,12 +66,6 @@ export default function getCombatantTotalAttributes(
   for (const item of allEquippedItems) {
     const equippedItemIsUsable = Item.requirementsMet(item, totalAttributes);
     if (equippedItemIsUsable) continue;
-    console.log(
-      item.entityProperties.name,
-      "is unusable: ",
-      "removing attributes ",
-      item.attributes
-    );
     // otherwise subtract its stats
     removeAttributesFromAccumulator(item.attributes, totalAttributes);
     for (const category of Object.values(item.affixes)) {

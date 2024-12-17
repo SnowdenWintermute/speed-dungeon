@@ -84,18 +84,14 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
     switch (combatantProperties.combatantClass) {
       case CombatantClass.Warrior:
         mh = generateSpecificEquipmentType({
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.BastardSword,
-        });
-        oh = generateSpecificEquipmentType({
-          equipmentType: EquipmentType.Shield,
-          baseItemType: Shield.TowerShield,
+          equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+          baseItemType: TwoHandedMeleeWeapon.BoStaff,
         });
         break;
       case CombatantClass.Mage:
         mh = generateSpecificEquipmentType({
           equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-          baseItemType: TwoHandedMeleeWeapon.GravityHammer,
+          baseItemType: TwoHandedMeleeWeapon.BoStaff,
         });
         break;
       case CombatantClass.Rogue:
@@ -107,7 +103,9 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
         break;
     }
     if (!(mh instanceof Error)) holsteredSlot.holdables[HoldableSlotType.MainHand] = mh;
-    if (!(oh instanceof Error)) holsteredSlot.holdables[HoldableSlotType.OffHand] = oh;
+    // if(oh){
+    //   if (!(oh instanceof Error)) holsteredSlot.holdables[HoldableSlotType.OffHand] = oh;
+    // }
   }
 
   return startingEquipment;
