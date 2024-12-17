@@ -8,6 +8,7 @@ import {
   OneHandedMeleeWeapon,
   Shield,
   TwoHandedMeleeWeapon,
+  TwoHandedRangedWeapon,
 } from "@speed-dungeon/common";
 import { generateSpecificEquipmentType } from "./generate-test-items.js";
 import { CombatantEquipment } from "@speed-dungeon/common";
@@ -66,6 +67,38 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
 
   if (mainhand) mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = mainhand;
   if (offhand) mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = offhand;
+
+  const holsteredSlot = combatantProperties.equipment.inherentHoldableHotswapSlots[1];
+  let mh, oh;
+  if (holsteredSlot) {
+    switch (combatantProperties.combatantClass) {
+      case CombatantClass.Warrior:
+        mh = generateSpecificEquipmentType({
+          equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: OneHandedMeleeWeapon.BastardSword,
+        });
+        oh = generateSpecificEquipmentType({
+          equipmentType: EquipmentType.Shield,
+          baseItemType: Shield.KiteShield,
+        });
+        break;
+      case CombatantClass.Mage:
+        mh = generateSpecificEquipmentType({
+          equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+          baseItemType: TwoHandedMeleeWeapon.GravityHammer,
+        });
+        break;
+      case CombatantClass.Rogue:
+      case CombatantClass.Mage:
+        mh = generateSpecificEquipmentType({
+          equipmentType: EquipmentType.TwoHandedRangedWeapon,
+          baseItemType: TwoHandedRangedWeapon.MilitaryBow,
+        });
+        break;
+    }
+    if (!(mh instanceof Error)) holsteredSlot.holdables[HoldableSlotType.MainHand] = mh;
+    if (!(oh instanceof Error)) holsteredSlot.holdables[HoldableSlotType.OffHand] = oh;
+  }
 
   return startingEquipment;
 }

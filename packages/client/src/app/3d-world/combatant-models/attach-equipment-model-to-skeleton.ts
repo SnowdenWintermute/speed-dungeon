@@ -1,10 +1,13 @@
 import { ISceneLoaderAsyncResult, Vector3 } from "@babylonjs/core";
 import {
+  CombatantClass,
   Equipment,
   EquipmentSlotType,
   EquipmentType,
+  HOLDABLE_SLOT_STRINGS,
   HoldableSlotType,
   TaggedEquipmentSlot,
+  formatEquipmentType,
 } from "@speed-dungeon/common";
 import { ModularCharacter } from "./modular-character";
 import { getChildMeshByName } from "../utils";
@@ -60,10 +63,65 @@ export function attachEquipmentModelToHolstered(
   const torsoBone = getChildMeshByName(skeletonParentMesh, "Torso");
   const hipsBone = getChildMeshByName(skeletonParentMesh, "Hips");
   if (!torsoBone || !hipsBone) return console.error("missing expected bones");
-  if (
-    slot.slot === HoldableSlotType.OffHand &&
-    equipment.equipmentBaseItemProperties.type === EquipmentType.Shield
-  ) {
-    parentMesh.parent = torsoBone;
+
+  parentMesh.rotationQuaternion = null;
+  parentMesh.parent = torsoBone;
+  if (slot.slot === HoldableSlotType.OffHand) {
+    if (combatantModel.combatantClass === CombatantClass.Warrior) parentMesh.position.z = -0.3;
+    else parentMesh.position.z = -0.15;
+    if (equipment.equipmentBaseItemProperties.type === EquipmentType.Shield) {
+      parentMesh.rotation.z = -Math.PI + 0.5;
+      parentMesh.rotation.x = -Math.PI;
+      parentMesh.rotation.y = -Math.PI;
+    } else {
+      parentMesh.position.y = 0.3;
+      parentMesh.position.x = -0.1;
+
+      parentMesh.rotation.z = Math.PI + 0.5;
+      parentMesh.rotation.x = 0;
+      parentMesh.rotation.y = 0;
+    }
+  } else {
+    // MAIN HAND
+    if (combatantModel.combatantClass === CombatantClass.Warrior) parentMesh.position.z = -0.25;
+    else parentMesh.position.z = -0.1;
+
+    parentMesh.position.x = 0.1;
+
+    if (equipment.equipmentBaseItemProperties.type === EquipmentType.TwoHandedMeleeWeapon) {
+      parentMesh.position.z = 0.1;
+      parentMesh.position.y = -0.4;
+      parentMesh.position.x = 0.35;
+
+      parentMesh.rotation.z = 0.6;
+      parentMesh.rotation.x = 0;
+      parentMesh.rotation.y = 0;
+      parentMesh.rotateAround(Vector3.Zero(), Vector3.Up(), Math.PI);
+    } else {
+      parentMesh.position.y = 0.3;
+
+      parentMesh.rotation.z = Math.PI + 0.5;
+      parentMesh.rotation.x = 0;
+      parentMesh.rotation.y = Math.PI;
+    }
   }
 }
+
+// HIP POSITIONS
+// parentMesh.parent = hipsBone;
+// parentMesh.position.x = 0.15;
+// parentMesh.position.z = 0.2;
+// parentMesh.position.y = 0.1;
+
+// parentMesh.rotation.z = -Math.PI / 2 - 0.25;
+// parentMesh.rotation.x = -0.3;
+// parentMesh.rotation.y = Math.PI / 2;
+//
+//
+// parentMesh.parent = hipsBone;
+// parentMesh.position.x = -0.15;
+// parentMesh.position.z = 0.2;
+// parentMesh.position.y = 0.1;
+// parentMesh.rotation.z = Math.PI / 2 + 0.25;
+// parentMesh.rotation.x = -0.3;
+// parentMesh.rotation.y = -Math.PI / 2;

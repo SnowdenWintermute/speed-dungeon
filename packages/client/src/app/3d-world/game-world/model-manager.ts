@@ -154,6 +154,7 @@ export class ModelManager {
       entityProperties.id,
       this.world,
       combatantProperties.monsterType,
+      combatantProperties.combatantClass,
       skeleton,
       blueprint.modelDomPositionElement,
       blueprint.startPosition,
@@ -218,6 +219,26 @@ export class ModelManager {
             slot,
           });
         }
+
+      const visibleHolsteredSlotIndex =
+        combatantProperties.equipment.equippedHoldableHotswapSlotIndex === 0 ? 1 : 0;
+
+      const visibleHolsteredHoldables =
+        CombatantEquipment.getHoldableHotswapSlots(combatantProperties)[visibleHolsteredSlotIndex];
+      if (visibleHolsteredHoldables)
+        for (const [slot, item] of iterateNumericEnumKeyedRecord(
+          visibleHolsteredHoldables.holdables
+        )) {
+          console.log("callingequipitem on visibleHolsteredHoldables slot ", slot);
+          await modularCharacter.equipItem(
+            item,
+            {
+              type: EquipmentSlotType.Holdable,
+              slot,
+            },
+            true
+          );
+        }
     }
 
     this.combatantModels[entityProperties.id] = modularCharacter;
@@ -240,6 +261,14 @@ export class ModelManager {
     disposeAsyncLoadedScene(toRemove.skeleton, this.world.scene);
     for (const part of Object.values(toRemove.parts)) {
       disposeAsyncLoadedScene(part, this.world.scene);
+    }
+
+    for (const equipment of Object.values(toRemove.equipment)) {
+      if (!equipment) continue;
+      for (const model of Object.values(equipment)) {
+        if (!model) continue;
+        disposeAsyncLoadedScene(model.scene, this.world.scene);
+      }
     }
 
     toRemove.modelActionManager.removeActiveModelAction();
