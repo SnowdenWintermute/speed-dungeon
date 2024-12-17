@@ -21,12 +21,12 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       mainhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.Stick,
+          baseItemType: OneHandedMeleeWeapon.Blade,
         },
         true
       );
       offhand = generateSpecificEquipmentType(
-        { equipmentType: EquipmentType.Shield, baseItemType: Shield.PotLid },
+        { equipmentType: EquipmentType.Shield, baseItemType: Shield.GothicShield },
         true
       );
       // startingEquipment[EquipmentSlot.MainHand]
@@ -44,7 +44,7 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       mainhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.ButterKnife,
+          baseItemType: OneHandedMeleeWeapon.BastardSword,
         },
         true
       );

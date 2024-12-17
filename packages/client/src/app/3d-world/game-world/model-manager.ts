@@ -22,6 +22,7 @@ import {
 import { Color3, StandardMaterial } from "@babylonjs/core";
 import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
 import { useGameStore } from "@/stores/game-store";
+import { HotswapSlotWithIndex } from "../combatant-models/equip-hotswap-slot";
 
 // the whole point of all this is to make sure we never handle spawn and despawn messages out of order due
 // to the asynchronous nature of spawning models
@@ -58,6 +59,14 @@ class ModelMessageQueue {
               currentMessageProcessing.toEquip.slot,
               currentMessageProcessing.toEquip.item
             );
+          break;
+        case ModelManagerMessageType.SelectHotswapSlot:
+          const modularCharacter = this.modelManager.combatantModels[this.entityId];
+          if (!modularCharacter) return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+          await modularCharacter.handleEquipHotswapSlot(
+            currentMessageProcessing.switchingAwayFrom,
+            currentMessageProcessing.selected
+          );
           break;
       }
       currentMessageProcessing = this.messages.shift();
@@ -266,6 +275,7 @@ export enum ModelManagerMessageType {
   SpawnModel,
   DespawnModel,
   ChangeEquipment,
+  SelectHotswapSlot,
 }
 
 type SpawnCombatantModelManagerMessage = {
@@ -284,7 +294,14 @@ type ChangeEquipmentModelManagerMessage = {
   toEquip?: { item: Equipment; slot: TaggedEquipmentSlot };
 };
 
+type SelectHotswapSlotModelManagerMessage = {
+  type: ModelManagerMessageType.SelectHotswapSlot;
+  selected: HotswapSlotWithIndex;
+  switchingAwayFrom: HotswapSlotWithIndex;
+};
+
 type ModelManagerMessage =
   | SpawnCombatantModelManagerMessage
   | DespawnModelManagerMessage
-  | ChangeEquipmentModelManagerMessage;
+  | ChangeEquipmentModelManagerMessage
+  | SelectHotswapSlotModelManagerMessage;

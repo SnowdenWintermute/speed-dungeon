@@ -36,6 +36,7 @@ import setUpDebugMeshes from "./set-up-debug-meshes";
 import { ANIMATION_NAMES } from "./animation-manager/animation-names";
 import attachEquipmentModelToSkeleton from "./attach-equipment-model-to-skeleton";
 import { spawnItemModel } from "./spawn-item-models";
+import { handleEquipHotswapSlot } from "./equip-hotswap-slot";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -51,13 +52,11 @@ export class ModularCharacter {
       WearableSlotType,
       null | { entityId: string; scene: ISceneLoaderAsyncResult }
     >;
-    equippedHoldables: Record<
-      HoldableSlotType,
-      null | { entityId: string; scene: ISceneLoaderAsyncResult }
+    equippedHoldables: null | Partial<
+      Record<HoldableSlotType, null | { entityId: string; scene: ISceneLoaderAsyncResult }>
     >;
-    holsteredHoldables: Record<
-      HoldableSlotType,
-      null | { entityId: string; scene: ISceneLoaderAsyncResult }
+    holsteredHoldables: null | Partial<
+      Record<HoldableSlotType, null | { entityId: string; scene: ISceneLoaderAsyncResult }>
     >;
   } = {
     wearables: {
@@ -67,14 +66,8 @@ export class ModularCharacter {
       [WearableSlotType.RingR]: null,
       [WearableSlotType.Amulet]: null,
     },
-    equippedHoldables: {
-      [HoldableSlotType.MainHand]: null,
-      [HoldableSlotType.OffHand]: null,
-    },
-    holsteredHoldables: {
-      [HoldableSlotType.MainHand]: null,
-      [HoldableSlotType.OffHand]: null,
-    },
+    equippedHoldables: null,
+    holsteredHoldables: null,
   };
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   homeLocation: {
@@ -199,7 +192,8 @@ export class ModularCharacter {
     let toDispose;
     switch (slot.type) {
       case EquipmentSlotType.Holdable:
-        if (!this.equipment.equippedHoldables[slot.slot]) return;
+        if (!this.equipment.equippedHoldables || !this.equipment.equippedHoldables[slot.slot])
+          return;
         toDispose = this.equipment.equippedHoldables[slot.slot];
         delete this.equipment.equippedHoldables[slot.slot];
         break;
@@ -225,6 +219,7 @@ export class ModularCharacter {
     }
     switch (slot.type) {
       case EquipmentSlotType.Holdable:
+        if (!this.equipment.equippedHoldables) this.equipment.equippedHoldables = {};
         this.equipment.equippedHoldables[slot.slot] = {
           entityId: equipment.entityProperties.id,
           scene: equipmentModelResult,
@@ -254,4 +249,6 @@ export class ModularCharacter {
     if (skeletonRootBone !== undefined)
       paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.world.scene);
   }
+
+  handleEquipHotswapSlot = handleEquipHotswapSlot;
 }

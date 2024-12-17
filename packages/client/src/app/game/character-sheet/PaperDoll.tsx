@@ -36,6 +36,7 @@ export default function PaperDoll({ combatant }: Props) {
   const hotswapButtons = CombatantEquipment.getHoldableHotswapSlots(combatantProperties).map(
     (item, i) => (
       <button
+        key={i}
         className={`h-8 w-8 border ${i === combatantProperties.equipment.equippedHoldableHotswapSlotIndex ? "bg-slate-800" : "bg-slate-700"}`}
         onClick={() => {
           websocketConnection.emit(ClientToServerEvent.SelectHoldableHotswapSlot, {

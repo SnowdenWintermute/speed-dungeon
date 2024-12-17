@@ -14,12 +14,18 @@ import {
   ERROR_MESSAGES,
   HoldableSlotType,
   iterateNumericEnumKeyedRecord,
+  EquipmentType,
+  OneHandedMeleeWeapon,
+  TwoHandedRangedWeapon,
+  TwoHandedMeleeWeapon,
+  Inventory,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { idGenerator } from "../../singletons.js";
 import { HP_ARMOR_TEST_ITEM, WEAPON_TEST_ITEM } from "./test-items.js";
 import { CombatantEquipment } from "@speed-dungeon/common";
+import generateTestItems, { generateSpecificEquipmentType } from "./generate-test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -70,6 +76,17 @@ export default function outfitNewCharacter(character: Combatant) {
 
   // FOR TESTING INVENTORY
   // generateTestItems(combatantProperties, 6);
+  const item1 = generateSpecificEquipmentType({
+    equipmentType: EquipmentType.OneHandedMeleeWeapon,
+    baseItemType: OneHandedMeleeWeapon.Club,
+  });
+  const item2 = generateSpecificEquipmentType({
+    equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+    baseItemType: TwoHandedMeleeWeapon.RottingBranch,
+  });
+  if (item1 instanceof Error || item2 instanceof Error) return item1;
+  Inventory.insertItem(combatantProperties.inventory, item1);
+  Inventory.insertItem(combatantProperties.inventory, item2);
 
   // giveTestingCombatAttributes(combatantProperties);
   // combatantProperties.level = 5;
@@ -93,7 +110,7 @@ export default function outfitNewCharacter(character: Combatant) {
     CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
   if (!equippedHoldableHotswapSlot)
     return new Error(ERROR_MESSAGES.EQUIPMENT.NO_SELECTED_HOTSWAP_SLOT);
-  equippedHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = WEAPON_TEST_ITEM;
+  // equippedHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = WEAPON_TEST_ITEM;
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
 

@@ -9,6 +9,7 @@ import { characterAssociatedDataProvider } from "../combatant-associated-details
 import { GameState } from "@/stores/game-store";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
+import cloneDeep from "lodash.clonedeep";
 
 export default function characterSelectedHoldableHotswapSlotHandler(
   characterId: string,
@@ -26,6 +27,7 @@ export default function characterSelectedHoldableHotswapSlotHandler(
       const { combatantProperties } = character;
       const { equipment } = combatantProperties;
 
+      const oldIndex = combatantProperties.equipment.equippedHoldableHotswapSlotIndex;
       const slotSwitchingAwayFrom =
         CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
       if (!slotSwitchingAwayFrom)
@@ -39,6 +41,11 @@ export default function characterSelectedHoldableHotswapSlotHandler(
         return new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
 
       // enqueue model managment message
+      gameWorld.current?.modelManager.enqueueMessage(character.entityProperties.id, {
+        type: ModelManagerMessageType.SelectHotswapSlot,
+        switchingAwayFrom: { index: oldIndex, slot: cloneDeep(slotSwitchingAwayFrom) },
+        selected: { index: slotIndex, slot: cloneDeep(newlySelectedSlot) },
+      });
     }
   );
 }
