@@ -7,7 +7,10 @@ import {
 import { ModularCharacter } from "./modular-character";
 import { spawnItemModel } from "./spawn-item-models";
 import { ISceneLoaderAsyncResult, Vector3 } from "@babylonjs/core";
-import attachEquipmentModelToSkeleton from "./attach-equipment-model-to-skeleton";
+import {
+  attachEquipmentModelToHolstered,
+  attachEquipmentModelToSkeleton,
+} from "./attach-equipment-model-to-skeleton";
 
 export type HotswapSlotWithIndex = { index: number; slot: HoldableHotswapSlot };
 
@@ -16,8 +19,6 @@ export async function handleEquipHotswapSlot(
   slotSwitchingAwayFrom: HotswapSlotWithIndex,
   newlySelectedSlot: HotswapSlotWithIndex
 ) {
-  console.log("trying to unequip HotswapSlotWithIndex models");
-
   let unequippedModels: Partial<
     Record<
       HoldableSlotType,
@@ -57,13 +58,11 @@ export async function handleEquipHotswapSlot(
       for (const [slot, item] of iterateNumericEnumKeyedRecord(this.equipment.holsteredHoldables)) {
         if (item?.entityId === equipment.entityProperties.id) {
           existingModel = item.scene;
-          console.log("found existing model for ", equipment.entityProperties.name);
           break;
         }
       }
     // if not, spawn it
     if (!existingModel) {
-      console.log("no existing model found for", equipment.entityProperties.name);
       const equipmentModelResult = await spawnItemModel(
         equipment,
         this.world.scene,
@@ -81,7 +80,6 @@ export async function handleEquipHotswapSlot(
       scene: existingModel,
     };
 
-    console.log("attaching model to skeleton");
     attachEquipmentModelToSkeleton(
       this,
       existingModel,
@@ -94,13 +92,21 @@ export async function handleEquipHotswapSlot(
     console.log("unequippedModels", unequippedModels);
     this.equipment.holsteredHoldables = unequippedModels;
     for (const [slot, model] of iterateNumericEnumKeyedRecord(unequippedModels)) {
-      if (model) {
-        const parentMesh = model.scene.meshes[0];
-        console.log("parent mesh:", parentMesh);
-        if (parentMesh) {
-          parentMesh.parent = null;
-          parentMesh.position = Vector3.Zero();
+      const equipment = (() => {
+        for (const [slot, equipment] of iterateNumericEnumKeyedRecord(
+          slotSwitchingAwayFrom.slot.holdables
+        )) {
+          if (equipment.entityProperties.id === model?.entityId) return equipment;
         }
+      })();
+
+      if (model && equipment) {
+        attachEquipmentModelToHolstered(
+          this,
+          model.scene,
+          { type: EquipmentSlotType.Holdable, slot },
+          equipment
+        );
       }
     }
   }

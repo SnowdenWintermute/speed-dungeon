@@ -34,7 +34,7 @@ import { AnimationManager } from "./animation-manager";
 import { ModelActionManager } from "./model-action-manager";
 import setUpDebugMeshes from "./set-up-debug-meshes";
 import { ANIMATION_NAMES } from "./animation-manager/animation-names";
-import attachEquipmentModelToSkeleton from "./attach-equipment-model-to-skeleton";
+import { attachEquipmentModelToSkeleton } from "./attach-equipment-model-to-skeleton";
 import { spawnItemModel } from "./spawn-item-models";
 import { handleEquipHotswapSlot } from "./equip-hotswap-slot";
 
