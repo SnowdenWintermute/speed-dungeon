@@ -107,9 +107,13 @@ export class CombatantEquipment {
     const equippedHoldableHotswapSlot =
       CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
     if (equippedHoldableHotswapSlot)
-      toReturn.push(...Object.values(equippedHoldableHotswapSlot.holdables));
+      toReturn.push(
+        ...Object.values(equippedHoldableHotswapSlot.holdables).filter((item) => item !== undefined)
+      );
 
-    toReturn.push(...Object.values(combatantProperties.equipment.wearables));
+    toReturn.push(
+      ...Object.values(combatantProperties.equipment.wearables).filter((item) => item !== undefined)
+    );
 
     return toReturn;
   }

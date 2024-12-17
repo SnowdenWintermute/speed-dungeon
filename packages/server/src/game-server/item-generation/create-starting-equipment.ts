@@ -1,11 +1,15 @@
 import {
+  AffixType,
+  CombatAttribute,
   CombatantClass,
   CombatantProperties,
   ERROR_MESSAGES,
   Equipment,
+  EquipmentTraitType,
   EquipmentType,
   HoldableSlotType,
   OneHandedMeleeWeapon,
+  PrefixType,
   Shield,
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
@@ -27,7 +31,7 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
         true
       );
       offhand = generateSpecificEquipmentType(
-        { equipmentType: EquipmentType.Shield, baseItemType: Shield.GothicShield },
+        { equipmentType: EquipmentType.Shield, baseItemType: Shield.TowerShield },
         true
       );
       // startingEquipment[EquipmentSlot.MainHand]
@@ -45,14 +49,14 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       mainhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.BastardSword,
+          baseItemType: OneHandedMeleeWeapon.WarHammer,
         },
         true
       );
       offhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.RuneSword,
+          baseItemType: OneHandedMeleeWeapon.WarHammer,
         },
         true
       );
@@ -61,6 +65,12 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
 
   if (mainhand instanceof Error) return mainhand;
   if (offhand instanceof Error) return offhand;
+
+  mainhand.affixes[AffixType.Prefix][PrefixType.Mp] = {
+    combatAttributes: { [CombatAttribute.Mp]: 10 },
+    equipmentTraits: {},
+    tier: 0,
+  };
 
   const mainHoldableHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
   if (!mainHoldableHotswapSlot) return new Error(ERROR_MESSAGES.EQUIPMENT.NO_SELECTED_HOTSWAP_SLOT);
@@ -79,7 +89,7 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
         });
         oh = generateSpecificEquipmentType({
           equipmentType: EquipmentType.Shield,
-          baseItemType: Shield.KiteShield,
+          baseItemType: Shield.TowerShield,
         });
         break;
       case CombatantClass.Mage:

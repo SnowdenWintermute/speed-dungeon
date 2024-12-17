@@ -4,10 +4,9 @@ import {
   Equipment,
   EquipmentSlotType,
   EquipmentType,
-  HOLDABLE_SLOT_STRINGS,
   HoldableSlotType,
   TaggedEquipmentSlot,
-  formatEquipmentType,
+  equipmentIsTwoHandedWeapon,
 } from "@speed-dungeon/common";
 import { ModularCharacter } from "./modular-character";
 import { getChildMeshByName } from "../utils";
@@ -21,26 +20,39 @@ export function attachEquipmentModelToSkeleton(
   if (slot.type === EquipmentSlotType.Wearable) return;
   const parentMesh = equipmentModel.meshes[0];
   if (!parentMesh) return console.error("no parent mesh");
+  parentMesh.rotationQuaternion = null;
+  parentMesh.rotation.x = 0;
+  parentMesh.rotation.y = 0;
+  parentMesh.rotation.z = 0;
+  parentMesh.position.x = 0;
+  parentMesh.position.y = 0;
+  parentMesh.position.z = 0;
+
   if (slot.slot === HoldableSlotType.OffHand) {
     if (equipment.equipmentBaseItemProperties.type === EquipmentType.Shield) {
       parentMesh.position.y = -0.1;
-      parentMesh.position.z = 0.06;
+      parentMesh.position.z = 0.08;
+
+      parentMesh.rotation.y = Math.PI;
+      parentMesh.rotation.z = Math.PI / 2;
     } else {
       parentMesh.position.y = 0.1;
       parentMesh.position.z = -0.05;
+      // parentMesh.rotation.y = Math.PI;
+      parentMesh.rotation.z = -Math.PI / 2;
     }
 
-    parentMesh.rotate(Vector3.Backward(), -Math.PI / 2);
+    // parentMesh.rotate(Vector3.Backward(), -Math.PI / 2);
     const equipmentBone = combatantModel.skeleton.meshes[0]
       ? getChildMeshByName(combatantModel.skeleton.meshes[0], "Wrist.L")
       : undefined;
     if (equipmentBone && equipmentModel.meshes[0]) equipmentModel.meshes[0].parent = equipmentBone;
-  } else {
+  } else if (slot.slot === HoldableSlotType.MainHand) {
     parentMesh.position.y = 0.1;
     parentMesh.position.z = -0.05;
 
-    parentMesh.rotationQuaternion = null;
     parentMesh.rotation.z = Math.PI / 2;
+    parentMesh.rotation.x = Math.PI;
 
     const equipmentBone = combatantModel.skeleton.meshes[0]
       ? getChildMeshByName(combatantModel.skeleton.meshes[0], "Wrist.R")
@@ -81,17 +93,27 @@ export function attachEquipmentModelToHolstered(
       parentMesh.rotation.x = 0;
       parentMesh.rotation.y = 0;
     }
-  } else {
-    // MAIN HAND
+  } else if (slot.slot === HoldableSlotType.MainHand) {
     if (combatantModel.combatantClass === CombatantClass.Warrior) parentMesh.position.z = -0.25;
+    else if (equipmentIsTwoHandedWeapon(equipment.equipmentBaseItemProperties.type))
+      parentMesh.position.z = 0.14;
     else parentMesh.position.z = -0.1;
 
     parentMesh.position.x = 0.1;
 
     if (equipment.equipmentBaseItemProperties.type === EquipmentType.TwoHandedMeleeWeapon) {
-      parentMesh.position.z = 0.1;
+      // parentMesh.position.z = 0.1;
       parentMesh.position.y = -0.4;
       parentMesh.position.x = 0.35;
+
+      parentMesh.rotation.z = 0.6;
+      parentMesh.rotation.x = 0;
+      parentMesh.rotation.y = 0;
+      parentMesh.rotateAround(Vector3.Zero(), Vector3.Up(), Math.PI);
+    } else if (equipment.equipmentBaseItemProperties.type === EquipmentType.TwoHandedRangedWeapon) {
+      // parentMesh.position.z = 0.1;
+      parentMesh.position.y = 0;
+      parentMesh.position.x = 0;
 
       parentMesh.rotation.z = 0.6;
       parentMesh.rotation.x = 0;

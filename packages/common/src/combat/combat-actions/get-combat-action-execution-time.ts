@@ -20,7 +20,10 @@ export function getCombatActionExecutionTime(
           const equippedHoldableHotswapSlot =
             CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
           const mhWeaponOption = equippedHoldableHotswapSlot?.holdables[HoldableSlotType.MainHand];
-          if (!mhWeaponOption) return 1000;
+          if (!mhWeaponOption) {
+            console.log("no equipment in main hand slot");
+            return 1000;
+          }
           const isTwoHanded = Equipment.isTwoHanded(
             mhWeaponOption.equipmentBaseItemProperties.type
           );
@@ -32,7 +35,9 @@ export function getCombatActionExecutionTime(
         case AbilityName.Ice:
         case AbilityName.Healing:
           ms = 2000;
+          break;
       }
+      break;
     case CombatActionType.ConsumableUsed:
       ms = DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME;
   }

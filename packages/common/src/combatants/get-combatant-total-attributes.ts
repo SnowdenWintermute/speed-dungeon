@@ -43,6 +43,9 @@ export default function getCombatantTotalAttributes(
   addAttributesToAccumulator(combatantProperties.speccedAttributes, totalAttributes);
 
   const allEquippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties);
+  // you have to add the attributes first, then subtract them later if item is unusable
+  // because some of the equipped items may be giving enough attributes that they can
+  // actually be used BECAUSE they are equipped
   for (const item of allEquippedItems) {
     addAttributesToAccumulator(item.attributes, totalAttributes);
     for (const category of Object.values(item.affixes)) {
@@ -63,8 +66,19 @@ export default function getCombatantTotalAttributes(
   for (const item of allEquippedItems) {
     const equippedItemIsUsable = Item.requirementsMet(item, totalAttributes);
     if (equippedItemIsUsable) continue;
+    console.log(
+      item.entityProperties.name,
+      "is unusable: ",
+      "removing attributes ",
+      item.attributes
+    );
     // otherwise subtract its stats
     removeAttributesFromAccumulator(item.attributes, totalAttributes);
+    for (const category of Object.values(item.affixes)) {
+      for (const affix of Object.values(category)) {
+        removeAttributesFromAccumulator(affix.combatAttributes, totalAttributes);
+      }
+    }
     const baseArmorClass = Equipment.getBaseArmorClass(item);
     if (totalAttributes[CombatAttribute.ArmorClass])
       totalAttributes[CombatAttribute.ArmorClass] = Math.max(
@@ -150,7 +164,7 @@ function removeAttributesFromAccumulator(
   acc: CombatantAttributeRecord
 ) {
   for (const [attribute, value] of iterateNumericEnumKeyedRecord(toRemove)) {
-    if (!acc[attribute]) continue;
+    if (acc[attribute] === undefined) continue;
     else acc[attribute]! -= value || 0; // use ! because ts complains it may be undefined even though checked above
     if (acc[attribute]! < 0) delete acc[attribute];
   }

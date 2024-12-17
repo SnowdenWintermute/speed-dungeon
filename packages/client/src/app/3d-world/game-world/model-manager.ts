@@ -229,7 +229,6 @@ export class ModelManager {
         for (const [slot, item] of iterateNumericEnumKeyedRecord(
           visibleHolsteredHoldables.holdables
         )) {
-          console.log("callingequipitem on visibleHolsteredHoldables slot ", slot);
           await modularCharacter.equipItem(
             item,
             {

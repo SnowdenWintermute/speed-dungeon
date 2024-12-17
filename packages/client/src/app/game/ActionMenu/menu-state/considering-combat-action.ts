@@ -30,7 +30,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
 
     const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
+      setAlert(focusedCharacterResult);
       return toReturn;
     }
     const { combatantProperties } = focusedCharacterResult;
@@ -102,7 +102,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
       this.combatAction
     );
     if (combatActionProperties instanceof Error) {
-      setAlert(combatActionProperties.message);
+      setAlert(combatActionProperties);
       return toReturn;
     }
     if (combatActionProperties.targetingSchemes.length <= 1) return toReturn;
