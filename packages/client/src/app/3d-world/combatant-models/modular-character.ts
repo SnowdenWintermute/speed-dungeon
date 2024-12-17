@@ -47,8 +47,18 @@ export class ModularCharacter {
     [ModularCharacterPartCategory.Full]: null,
   };
   equipment: {
-    wearables: Record<WearableSlotType, null | ISceneLoaderAsyncResult>;
-    equippedHoldables: Record<HoldableSlotType, null | ISceneLoaderAsyncResult>;
+    wearables: Record<
+      WearableSlotType,
+      null | { entityId: string; scene: ISceneLoaderAsyncResult }
+    >;
+    equippedHoldables: Record<
+      HoldableSlotType,
+      null | { entityId: string; scene: ISceneLoaderAsyncResult }
+    >;
+    holsteredHoldables: Record<
+      HoldableSlotType,
+      null | { entityId: string; scene: ISceneLoaderAsyncResult }
+    >;
   } = {
     wearables: {
       [WearableSlotType.Head]: null,
@@ -58,6 +68,10 @@ export class ModularCharacter {
       [WearableSlotType.Amulet]: null,
     },
     equippedHoldables: {
+      [HoldableSlotType.MainHand]: null,
+      [HoldableSlotType.OffHand]: null,
+    },
+    holsteredHoldables: {
       [HoldableSlotType.MainHand]: null,
       [HoldableSlotType.OffHand]: null,
     },
@@ -188,13 +202,15 @@ export class ModularCharacter {
         if (!this.equipment.equippedHoldables[slot.slot]) return;
         toDispose = this.equipment.equippedHoldables[slot.slot];
         delete this.equipment.equippedHoldables[slot.slot];
+        break;
       case EquipmentSlotType.Wearable:
         if (!this.equipment.wearables[slot.slot]) return;
         toDispose = this.equipment.wearables[slot.slot];
         delete this.equipment.wearables[slot.slot];
+        break;
     }
     if (!toDispose) return;
-    disposeAsyncLoadedScene(toDispose, this.world.scene);
+    disposeAsyncLoadedScene(toDispose.scene, this.world.scene);
   }
 
   async equipItem(equipment: Equipment, slot: TaggedEquipmentSlot) {
@@ -209,10 +225,16 @@ export class ModularCharacter {
     }
     switch (slot.type) {
       case EquipmentSlotType.Holdable:
-        this.equipment.equippedHoldables[slot.slot] = equipmentModelResult;
+        this.equipment.equippedHoldables[slot.slot] = {
+          entityId: equipment.entityProperties.id,
+          scene: equipmentModelResult,
+        };
         break;
       case EquipmentSlotType.Wearable:
-        this.equipment.wearables[slot.slot] = equipmentModelResult;
+        this.equipment.wearables[slot.slot] = {
+          entityId: equipment.entityProperties.id,
+          scene: equipmentModelResult,
+        };
         break;
     }
 

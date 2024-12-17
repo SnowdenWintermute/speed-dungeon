@@ -2,6 +2,7 @@ import { GameState, getCurrentMenu } from "@/stores/game-store";
 import {
   AdventuringParty,
   CharacterAssociatedData,
+  CombatantEquipment,
   CombatantProperties,
   ERROR_MESSAGES,
   Item,
@@ -38,7 +39,7 @@ export default function characterEquippedItemHandler(packet: {
         itemId
       );
       if (slot !== null) {
-        const item = character.combatantProperties.equipment[slot];
+        const item = CombatantEquipment.getEquipmentInSlot(character.combatantProperties, slot);
         if (item !== undefined)
           gameWorld.current?.modelManager.enqueueMessage(character.entityProperties.id, {
             type: ModelManagerMessageType.ChangeEquipment,
