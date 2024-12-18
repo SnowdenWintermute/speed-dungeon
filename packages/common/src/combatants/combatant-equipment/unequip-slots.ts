@@ -2,6 +2,7 @@ import { CombatAttribute } from "../../attributes/index.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { EquipmentSlotType, TaggedEquipmentSlot } from "../../items/equipment/slots.js";
 import { CombatantProperties } from "./../combatant-properties.js";
+import { getPreEquipmentChangeHpAndManaPercentage } from "./get-pre-equipment-change-hp-and-mana-percentage.js";
 import { CombatantEquipment } from "./index.js";
 
 export function unequipSlots(
@@ -10,11 +11,8 @@ export function unequipSlots(
 ) {
   const unequippedItemIds: string[] = [];
 
-  const attributesBefore = CombatantProperties.getTotalAttributes(combatantProperties);
-  const maxHitPoints = attributesBefore[CombatAttribute.Hp];
-  const maxMana = attributesBefore[CombatAttribute.Mp];
-  const percentOfMaxHitPoints = combatantProperties.hitPoints / maxHitPoints;
-  const percentOfMaxMana = combatantProperties.mana / maxMana;
+  const { percentOfMaxHitPoints, percentOfMaxMana } =
+    getPreEquipmentChangeHpAndManaPercentage(combatantProperties);
 
   for (const slot of slots) {
     let itemOption: Equipment | undefined;

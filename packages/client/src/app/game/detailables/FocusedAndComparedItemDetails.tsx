@@ -37,17 +37,26 @@ export default function FocusedAndComparedItemDetails({ focusedItem }: Props) {
     />
   );
 
-  const comparedItemDisplay = focusedItem instanceof Equipment && (
-    <ItemDetails
-      key="compared"
-      shouldShowModKeyTooltip={shouldDisplayModTooltip(comparedSlotOption, focusedItem)}
-      itemOption={comparedItemOption}
-      extraStyles={""}
-      marginSide={"Left"}
-      isComparedItem={true}
-    />
-  );
-
+  const comparedItemDisplay =
+    focusedItem instanceof Equipment ? (
+      <ItemDetails
+        key="compared"
+        shouldShowModKeyTooltip={shouldDisplayModTooltip(comparedSlotOption, focusedItem)}
+        itemOption={comparedItemOption}
+        extraStyles={""}
+        marginSide={"Left"}
+        isComparedItem={true}
+      />
+    ) : (
+      <ItemDetails
+        key="compared"
+        shouldShowModKeyTooltip={false}
+        itemOption={comparedItemOption}
+        extraStyles={""}
+        marginSide={"Left"}
+        isComparedItem={true}
+      />
+    );
   const displays = [focusedItemDisplay, comparedItemDisplay];
 
   return (

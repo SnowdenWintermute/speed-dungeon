@@ -15,6 +15,7 @@ export * from "./unequip-slots.js";
 export * from "./get-equipped-weapon.js";
 export * from "./get-usable-weapons-in-slots.js";
 export * from "./get-slot-item-is-equipped-to.js";
+export * from "./change-selected-hotswap-slot.js";
 // equipment: Partial<Record<EquipmentSlot, Item>> = {};
 
 // holdable equipment hotswap slots

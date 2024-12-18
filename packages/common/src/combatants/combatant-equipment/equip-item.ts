@@ -11,6 +11,7 @@ import {
 } from "../../items/equipment/slots.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { CombatantEquipment } from "./index.js";
+import { getPreEquipmentChangeHpAndManaPercentage } from "./get-pre-equipment-change-hp-and-mana-percentage.js";
 
 /** 
   
@@ -28,11 +29,8 @@ export function equipItem(
   if (!CombatantProperties.canUseItem(combatantProperties, equipment))
     return new Error(ERROR_MESSAGES.EQUIPMENT.REQUIREMENTS_NOT_MET);
 
-  const attributesBefore = CombatantProperties.getTotalAttributes(combatantProperties);
-  const maxHitPoints = attributesBefore[CombatAttribute.Hp];
-  const maxMana = attributesBefore[CombatAttribute.Mp];
-  const percentOfMaxHitPoints = combatantProperties.hitPoints / maxHitPoints;
-  const percentOfMaxMana = combatantProperties.mana / maxMana;
+  const { percentOfMaxHitPoints, percentOfMaxMana } =
+    getPreEquipmentChangeHpAndManaPercentage(combatantProperties);
 
   // @TODO: Check if equiping the item would necessitate unequiping multiple items,
   // (as with equiping a 2h weapon when wielding two 1h items) and
