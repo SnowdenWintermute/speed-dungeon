@@ -10,6 +10,8 @@ export const HOTKEYS = {
   LEFT_MAIN: "KeyS",
   RIGHT_ALT: "KeyE",
   LEFT_ALT: "KeyW",
+  BOTTOM_LEFT: "KeyX",
+  BOTTOM_RIGHT: "KeyC",
 };
 
 export function letterFromKeyCode(keycode: string) {

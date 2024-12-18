@@ -93,7 +93,7 @@ export async function handleEquipHotswapSlot(
     this.equipment.holsteredHoldables = unequippedModels;
     for (const [slot, model] of iterateNumericEnumKeyedRecord(unequippedModels)) {
       const equipment = (() => {
-        for (const [slot, equipment] of iterateNumericEnumKeyedRecord(
+        for (const [_slot, equipment] of iterateNumericEnumKeyedRecord(
           slotSwitchingAwayFrom.slot.holdables
         )) {
           if (equipment.entityProperties.id === model?.entityId) return equipment;

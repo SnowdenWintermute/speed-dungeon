@@ -157,6 +157,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
             selectedSlotIndex={combatantProperties.equipment.equippedHoldableHotswapSlotIndex}
             numSlots={CombatantEquipment.getHoldableHotswapSlots(combatantProperties).length}
             vertical={true}
+            registerKeyEvents={entityId === focusedCharacterId}
           />
         )}
         <TargetingIndicators party={party} entityId={entityId} />
