@@ -9,6 +9,7 @@ import {
 import { CombatantProperties } from "../combatant-properties.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
+import { CombatantTraitType } from "../combatant-traits.js";
 
 export * from "./equip-item.js";
 export * from "./unequip-slots.js";
@@ -47,11 +48,15 @@ export class CombatantEquipment {
     new HoldableHotswapSlot(),
     new HoldableHotswapSlot(),
   ];
-  // getAttributes
-  // getWeaponHotswapSets
-  // currentWeaponHotswapSet - number
   static getHoldableHotswapSlots(combatantProperties: CombatantProperties): HoldableHotswapSlot[] {
-    return [...combatantProperties.equipment.inherentHoldableHotswapSlots];
+    const slotsFromTraits = [];
+    for (const trait of combatantProperties.traits) {
+      if (trait.type === CombatantTraitType.ExtraHotswapSlot) {
+        slotsFromTraits.push(trait.hotswapSlot);
+      }
+    }
+
+    return [...combatantProperties.equipment.inherentHoldableHotswapSlots, ...slotsFromTraits];
   }
 
   static getEquippedHoldableSlots(combatantProperties: CombatantProperties) {

@@ -112,5 +112,7 @@ export function formatCombatantTrait(trait: CombatantTrait) {
           <span className={numberStyle}>{percentToShow}%</span>
         </span>
       );
+    case CombatantTraitType.ExtraHotswapSlot:
+      return "The Swipper Swapper";
   }
 }

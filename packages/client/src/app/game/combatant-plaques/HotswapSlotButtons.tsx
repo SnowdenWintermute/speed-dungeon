@@ -21,19 +21,16 @@ export default function HotswapSlotButtons({
   className,
   vertical,
 }: Props) {
-  const mutateGameState = useGameStore().mutateState;
-  const [isHovered, setIsHovered] = useState(false);
-
   return (
     <div className={className}>
-      <HoverableTooltipWrapper tooltipText={"Select equipment sets"}>
+      <HoverableTooltipWrapper tooltipText={"Select weapon swap slot"}>
         <div
           className={`bg-slate-700 h-6 w-6 p-1 ${vertical ? "border-b" : "border-r"} border-slate-400`}
         >
           <OpenHandIcon className="h-full w-full fill-slate-400" />
         </div>
       </HoverableTooltipWrapper>
-      {new Array(numSlots).fill(null).map((nullValue, i) => (
+      {new Array(numSlots).fill(null).map((_nullValue, i) => (
         <div
           key={i}
           className={`m-0 ${vertical ? "border-b" : "border-r"} border-slate-400 last:border-none`}

@@ -1,4 +1,4 @@
-import { ISceneLoaderAsyncResult, Vector3 } from "@babylonjs/core";
+import { AbstractMesh, ISceneLoaderAsyncResult, Vector3 } from "@babylonjs/core";
 import {
   CombatantClass,
   Equipment,
@@ -13,6 +13,16 @@ import {
 import { ModularCharacter } from "./modular-character";
 import { getChildMeshByName } from "../utils";
 
+function setMeshPositionAndRotationToZero(mesh: AbstractMesh) {
+  mesh.rotationQuaternion = null;
+  mesh.rotation.x = 0;
+  mesh.rotation.y = 0;
+  mesh.rotation.z = 0;
+  mesh.position.x = 0;
+  mesh.position.y = 0;
+  mesh.position.z = 0;
+}
+
 export function attachEquipmentModelToSkeleton(
   combatantModel: ModularCharacter,
   equipmentModel: ISceneLoaderAsyncResult,
@@ -22,13 +32,7 @@ export function attachEquipmentModelToSkeleton(
   if (slot.type === EquipmentSlotType.Wearable) return;
   const parentMesh = equipmentModel.meshes[0];
   if (!parentMesh) return console.error("no parent mesh");
-  parentMesh.rotationQuaternion = null;
-  parentMesh.rotation.x = 0;
-  parentMesh.rotation.y = 0;
-  parentMesh.rotation.z = 0;
-  parentMesh.position.x = 0;
-  parentMesh.position.y = 0;
-  parentMesh.position.z = 0;
+  setMeshPositionAndRotationToZero(parentMesh);
 
   if (slot.slot === HoldableSlotType.OffHand) {
     if (equipment.equipmentBaseItemProperties.type === EquipmentType.Shield) {
@@ -77,11 +81,11 @@ export function attachEquipmentModelToHolstered(
   const torsoBone = getChildMeshByName(skeletonParentMesh, "Torso");
   const hipsBone = getChildMeshByName(skeletonParentMesh, "Hips");
   if (!torsoBone || !hipsBone) return console.error("missing expected bones");
+  setMeshPositionAndRotationToZero(parentMesh);
 
-  parentMesh.rotationQuaternion = null;
   parentMesh.parent = torsoBone;
   if (slot.slot === HoldableSlotType.OffHand) {
-    if (combatantModel.combatantClass === CombatantClass.Warrior) parentMesh.position.z = -0.3;
+    if (combatantModel.combatantClass === CombatantClass.Warrior) parentMesh.position.z = -0.2;
     else parentMesh.position.z = -0.15;
     if (equipment.equipmentBaseItemProperties.type === EquipmentType.Shield) {
       parentMesh.rotation.z = -Math.PI + 0.5;

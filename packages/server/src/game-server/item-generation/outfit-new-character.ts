@@ -12,14 +12,14 @@ import {
   Consumable,
   formatConsumableType,
   ERROR_MESSAGES,
-  HoldableSlotType,
   iterateNumericEnumKeyedRecord,
   EquipmentType,
   OneHandedMeleeWeapon,
-  TwoHandedRangedWeapon,
   TwoHandedMeleeWeapon,
   Inventory,
   Equipment,
+  CombatantTraitType,
+  HoldableHotswapSlot,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
@@ -50,6 +50,12 @@ export default function outfitNewCharacter(character: Combatant) {
   );
   if (combatantProperties.combatantClass === CombatantClass.Mage)
     combatantProperties.abilities[AbilityName.Ice] = CombatantAbility.createByName(AbilityName.Ice);
+
+  if (combatantProperties.combatantClass === CombatantClass.Warrior)
+    combatantProperties.traits.push({
+      type: CombatantTraitType.ExtraHotswapSlot,
+      hotswapSlot: new HoldableHotswapSlot(),
+    });
 
   const hpInjectors = new Array(1)
     .fill(null)
