@@ -56,12 +56,18 @@ export class ModularCharacter {
       WearableSlotType,
       null | { entityId: string; scene: ISceneLoaderAsyncResult }
     >;
-    equippedHoldables: null | Partial<
-      Record<HoldableSlotType, null | { entityId: string; scene: ISceneLoaderAsyncResult }>
-    >;
-    holsteredHoldables: null | Partial<
-      Record<HoldableSlotType, null | { entityId: string; scene: ISceneLoaderAsyncResult }>
-    >;
+    equippedHoldables: null | {
+      slotIndex: number;
+      models: Partial<
+        Record<HoldableSlotType, null | { entityId: string; scene: ISceneLoaderAsyncResult }>
+      >;
+    };
+    holsteredHoldables: null | {
+      slotIndex: number;
+      models: Partial<
+        Record<HoldableSlotType, null | { entityId: string; scene: ISceneLoaderAsyncResult }>
+      >;
+    };
   } = {
     wearables: {
       [WearableSlotType.Head]: null,
@@ -197,10 +203,13 @@ export class ModularCharacter {
     let toDispose;
     switch (slot.type) {
       case EquipmentSlotType.Holdable:
-        if (!this.equipment.equippedHoldables || !this.equipment.equippedHoldables[slot.slot])
+        if (
+          !this.equipment.equippedHoldables ||
+          !this.equipment.equippedHoldables.models[slot.slot]
+        )
           return;
-        toDispose = this.equipment.equippedHoldables[slot.slot];
-        delete this.equipment.equippedHoldables[slot.slot];
+        toDispose = this.equipment.equippedHoldables.models[slot.slot];
+        delete this.equipment.equippedHoldables.models[slot.slot];
         break;
       case EquipmentSlotType.Wearable:
         if (!this.equipment.wearables[slot.slot]) return;
@@ -212,7 +221,12 @@ export class ModularCharacter {
     disposeAsyncLoadedScene(toDispose.scene, this.world.scene);
   }
 
-  async equipItem(equipment: Equipment, slot: TaggedEquipmentSlot, holstered?: boolean) {
+  async equipItem(
+    equipment: Equipment,
+    slot: TaggedEquipmentSlot,
+    hotswapSlotIndex: number,
+    holstered?: boolean
+  ) {
     const equipmentModelResult = await spawnItemModel(
       equipment,
       this.world.scene,
@@ -225,14 +239,16 @@ export class ModularCharacter {
     switch (slot.type) {
       case EquipmentSlotType.Holdable:
         if (holstered) {
-          if (!this.equipment.holsteredHoldables) this.equipment.holsteredHoldables = {};
-          this.equipment.holsteredHoldables[slot.slot] = {
+          if (!this.equipment.holsteredHoldables)
+            this.equipment.holsteredHoldables = { slotIndex: hotswapSlotIndex, models: {} };
+          this.equipment.holsteredHoldables.models[slot.slot] = {
             entityId: equipment.entityProperties.id,
             scene: equipmentModelResult,
           };
         } else {
-          if (!this.equipment.equippedHoldables) this.equipment.equippedHoldables = {};
-          this.equipment.equippedHoldables[slot.slot] = {
+          if (!this.equipment.equippedHoldables)
+            this.equipment.equippedHoldables = { slotIndex: hotswapSlotIndex, models: {} };
+          this.equipment.equippedHoldables.models[slot.slot] = {
             entityId: equipment.entityProperties.id,
             scene: equipmentModelResult,
           };

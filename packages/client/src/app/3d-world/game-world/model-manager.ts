@@ -52,11 +52,16 @@ class ModelMessageQueue {
           break;
         case ModelManagerMessageType.ChangeEquipment:
           for (const slot of currentMessageProcessing.unequippedSlots)
-            await this.modelManager.handleEquipmentChange(this.entityId, slot);
+            await this.modelManager.handleEquipmentChange(
+              this.entityId,
+              slot,
+              currentMessageProcessing.hotswapSlotIndex
+            );
           if (currentMessageProcessing.toEquip)
             await this.modelManager.handleEquipmentChange(
               this.entityId,
               currentMessageProcessing.toEquip.slot,
+              currentMessageProcessing.hotswapSlotIndex,
               currentMessageProcessing.toEquip.item
             );
           break;
@@ -96,11 +101,16 @@ export class ModelManager {
     this.modelMessageQueues[entityId]!.messages.push(message);
   }
 
-  async handleEquipmentChange(entityId: string, slot: TaggedEquipmentSlot, equipment?: Equipment) {
+  async handleEquipmentChange(
+    entityId: string,
+    slot: TaggedEquipmentSlot,
+    hotswapSlotIndex: number,
+    equipment?: Equipment
+  ) {
     const modularCharacter = this.combatantModels[entityId];
     if (!modularCharacter) return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     if (!equipment) await modularCharacter.unequipItem(slot);
-    else await modularCharacter.equipItem(equipment, slot);
+    else await modularCharacter.equipItem(equipment, slot, hotswapSlotIndex);
   }
 
   async spawnCharacterModel(
@@ -204,20 +214,28 @@ export class ModelManager {
       for (const [slot, item] of iterateNumericEnumKeyedRecord(
         combatantProperties.equipment.wearables
       )) {
-        await modularCharacter.equipItem(item, {
-          type: EquipmentSlotType.Wearable,
-          slot: slot,
-        });
+        await modularCharacter.equipItem(
+          item,
+          {
+            type: EquipmentSlotType.Wearable,
+            slot: slot,
+          },
+          combatantProperties.equipment.equippedHoldableHotswapSlotIndex
+        );
       }
 
       const equippedHoldables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
 
       if (equippedHoldables)
         for (const [slot, item] of iterateNumericEnumKeyedRecord(equippedHoldables.holdables)) {
-          await modularCharacter.equipItem(item, {
-            type: EquipmentSlotType.Holdable,
-            slot,
-          });
+          await modularCharacter.equipItem(
+            item,
+            {
+              type: EquipmentSlotType.Holdable,
+              slot,
+            },
+            combatantProperties.equipment.equippedHoldableHotswapSlotIndex
+          );
         }
 
       const visibleHolsteredSlotIndex =
@@ -235,6 +253,7 @@ export class ModelManager {
               type: EquipmentSlotType.Holdable,
               slot,
             },
+            combatantProperties.equipment.equippedHoldableHotswapSlotIndex,
             true
           );
         }
@@ -262,13 +281,22 @@ export class ModelManager {
       disposeAsyncLoadedScene(part, this.world.scene);
     }
 
-    for (const equipment of Object.values(toRemove.equipment)) {
-      if (!equipment) continue;
-      for (const model of Object.values(equipment)) {
+    for (const [_slotType, model] of iterateNumericEnumKeyedRecord(toRemove.equipment.wearables)) {
+      if (!model) continue;
+      disposeAsyncLoadedScene(model.scene, this.world.scene);
+    }
+
+    if (toRemove.equipment.holsteredHoldables)
+      for (const model of Object.values(toRemove.equipment.holsteredHoldables.models)) {
         if (!model) continue;
         disposeAsyncLoadedScene(model.scene, this.world.scene);
       }
-    }
+
+    if (toRemove.equipment.equippedHoldables)
+      for (const model of Object.values(toRemove.equipment.equippedHoldables.models)) {
+        if (!model) continue;
+        disposeAsyncLoadedScene(model.scene, this.world.scene);
+      }
 
     toRemove.modelActionManager.removeActiveModelAction();
 
@@ -319,6 +347,7 @@ type DespawnModelManagerMessage = {
 type ChangeEquipmentModelManagerMessage = {
   type: ModelManagerMessageType.ChangeEquipment;
   unequippedSlots: TaggedEquipmentSlot[];
+  hotswapSlotIndex: number;
   toEquip?: { item: Equipment; slot: TaggedEquipmentSlot };
 };
 

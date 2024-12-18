@@ -45,6 +45,8 @@ export default function characterEquippedItemHandler(packet: {
             type: ModelManagerMessageType.ChangeEquipment,
             toEquip: { item: cloneDeep(item), slot }, // must clone since sending from within a zustand mutateState
             unequippedSlots,
+            hotswapSlotIndex:
+              character.combatantProperties.equipment.equippedHoldableHotswapSlotIndex,
           });
       }
 
