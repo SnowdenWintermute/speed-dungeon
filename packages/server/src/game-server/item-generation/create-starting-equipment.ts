@@ -5,7 +5,6 @@ import {
   CombatantProperties,
   ERROR_MESSAGES,
   Equipment,
-  EquipmentTraitType,
   EquipmentType,
   HoldableSlotType,
   OneHandedMeleeWeapon,
@@ -31,7 +30,7 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
         true
       );
       offhand = generateSpecificEquipmentType(
-        { equipmentType: EquipmentType.Shield, baseItemType: Shield.TowerShield },
+        { equipmentType: EquipmentType.Shield, baseItemType: Shield.MakeshiftBuckler },
         true
       );
       // startingEquipment[EquipmentSlot.MainHand]
@@ -49,14 +48,14 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       mainhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.WarHammer,
+          baseItemType: OneHandedMeleeWeapon.Club,
         },
         true
       );
       offhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.WarHammer,
+          baseItemType: OneHandedMeleeWeapon.ShortSword,
         },
         true
       );
@@ -85,28 +84,28 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       case CombatantClass.Warrior:
         mh = generateSpecificEquipmentType({
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.YewWand,
+          baseItemType: OneHandedMeleeWeapon.Stick,
         });
         oh = generateSpecificEquipmentType({
           equipmentType: EquipmentType.Shield,
-          baseItemType: Shield.GothicShield,
+          baseItemType: Shield.KiteShield,
         });
         break;
       case CombatantClass.Mage:
         mh = generateSpecificEquipmentType({
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.IceBlade,
+          baseItemType: OneHandedMeleeWeapon.MapleWand,
         });
         oh = generateSpecificEquipmentType({
           equipmentType: EquipmentType.Shield,
-          baseItemType: Shield.AncientBuckler,
+          baseItemType: Shield.Heater,
         });
         break;
       case CombatantClass.Rogue:
       case CombatantClass.Mage:
         mh = generateSpecificEquipmentType({
           equipmentType: EquipmentType.TwoHandedRangedWeapon,
-          baseItemType: TwoHandedRangedWeapon.MilitaryBow,
+          baseItemType: TwoHandedRangedWeapon.ShortBow,
         });
         break;
     }

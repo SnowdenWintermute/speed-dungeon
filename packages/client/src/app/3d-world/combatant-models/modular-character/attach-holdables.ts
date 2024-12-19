@@ -11,10 +11,7 @@ import { ModularCharacter } from "./index";
 import { getChildMeshByName } from "../../utils";
 
 function setMeshPositionAndRotationToZero(mesh: AbstractMesh) {
-  mesh.rotationQuaternion = null;
-  mesh.rotation.x = 0;
-  mesh.rotation.y = 0;
-  mesh.rotation.z = 0;
+  setMeshRotationToZero(mesh);
   mesh.position.x = 0;
   mesh.position.y = 0;
   mesh.position.z = 0;
@@ -36,7 +33,7 @@ export function attachHoldableModelToSkeleton(
   const parentMesh = equipmentModel.meshes[0];
   if (!parentMesh) return console.error("no parent mesh");
   // setMeshPositionAndRotationToZero(parentMesh);
-  setMeshRotationToZero(parentMesh);
+  setMeshPositionAndRotationToZero(parentMesh);
 
   if (slot === HoldableSlotType.OffHand) {
     if (equipment.equipmentBaseItemProperties.type === EquipmentType.Shield) {
