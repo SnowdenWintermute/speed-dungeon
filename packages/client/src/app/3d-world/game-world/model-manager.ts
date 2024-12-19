@@ -9,6 +9,7 @@ import {
   Equipment,
   EquipmentSlotType,
   HoldableHotswapSlot,
+  HoldableSlotType,
   MonsterType,
   TaggedEquipmentSlot,
   iterateNumericEnumKeyedRecord,
@@ -51,10 +52,11 @@ class ModelMessageQueue {
           this.modelManager.despawnCharacterModel(this.entityId);
           break;
         case ModelManagerMessageType.ChangeEquipment:
-          for (const slot of currentMessageProcessing.unequippedSlots)
-            await this.modelManager.handleHoldableChange(this.entityId, slot);
+          console.log("current message:", currentMessageProcessing);
+          for (const id of currentMessageProcessing.unequippedIds)
+            this.modelManager.removeHoldableModelFromModularCharacter(this.entityId, id);
           if (currentMessageProcessing.toEquip)
-            await this.modelManager.handleHoldableChange(
+            await this.modelManager.equipHoldableModelToModularCharacter(
               this.entityId,
               currentMessageProcessing.toEquip.slot,
               currentMessageProcessing.toEquip.item
@@ -97,11 +99,22 @@ export class ModelManager {
     this.modelMessageQueues[entityId]!.messages.push(message);
   }
 
-  async handleHoldableChange(entityId: string, slot: TaggedEquipmentSlot, equipment?: Equipment) {
+  removeHoldableModelFromModularCharacter(entityId: string, holdableId: string) {
     const modularCharacter = this.combatantModels[entityId];
+    const modelOption = modularCharacter?.equipment.holdables[holdableId];
+    if (!modelOption) return;
+    disposeAsyncLoadedScene(modelOption, this.world.scene);
+    delete modularCharacter.equipment.holdables[entityId];
+  }
+
+  async equipHoldableModelToModularCharacter(
+    entityId: string,
+    slot: TaggedEquipmentSlot,
+    equipment: Equipment
+  ) {
     if (slot.type !== EquipmentSlotType.Holdable) return;
+    const modularCharacter = this.combatantModels[entityId];
     if (!modularCharacter) return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-    if (!equipment) await modularCharacter.unequipHoldableModel(entityId);
     else await modularCharacter.equipHoldableModel(equipment, slot.slot);
   }
 
@@ -299,8 +312,7 @@ type DespawnModelManagerMessage = {
 
 type ChangeEquipmentModelManagerMessage = {
   type: ModelManagerMessageType.ChangeEquipment;
-  unequippedSlots: TaggedEquipmentSlot[];
-  hotswapSlotIndex: number;
+  unequippedIds: string[];
   toEquip?: { item: Equipment; slot: TaggedEquipmentSlot };
 };
 

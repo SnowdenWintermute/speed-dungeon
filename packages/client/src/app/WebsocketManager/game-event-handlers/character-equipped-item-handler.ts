@@ -32,7 +32,7 @@ export default function characterEquippedItemHandler(packet: {
         equipToAlternateSlot
       );
       if (unequippedResult instanceof Error) return unequippedResult;
-      const { unequippedSlots, idsOfUnequippedItems } = unequippedResult;
+      const { idsOfUnequippedItems } = unequippedResult;
 
       const slot = CombatantProperties.getSlotItemIsEquippedTo(
         character.combatantProperties,
@@ -43,10 +43,8 @@ export default function characterEquippedItemHandler(packet: {
         if (item !== undefined)
           gameWorld.current?.modelManager.enqueueMessage(character.entityProperties.id, {
             type: ModelManagerMessageType.ChangeEquipment,
-            toEquip: { item: cloneDeep(item), slot }, // must clone since sending from within a zustand mutateState
-            unequippedSlots,
-            hotswapSlotIndex:
-              character.combatantProperties.equipment.equippedHoldableHotswapSlotIndex,
+            unequippedIds: unequippedResult.idsOfUnequippedItems,
+            toEquip: { item, slot },
           });
       }
 

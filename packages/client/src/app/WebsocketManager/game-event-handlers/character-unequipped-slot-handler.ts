@@ -11,11 +11,10 @@ export default function characterUnequippedSlotHandler(characterAndSlot: Charact
   const { characterId, slot } = characterAndSlot;
 
   characterAssociatedDataProvider(characterId, ({ character }: CharacterAssociatedData) => {
-    const _itemDroppedIds = CombatantProperties.unequipSlots(character.combatantProperties, [slot]);
+    const itemDroppedIds = CombatantProperties.unequipSlots(character.combatantProperties, [slot]);
     gameWorld.current?.modelManager.enqueueMessage(characterId, {
       type: ModelManagerMessageType.ChangeEquipment,
-      unequippedSlots: [slot],
-      hotswapSlotIndex: character.combatantProperties.equipment.equippedHoldableHotswapSlotIndex,
+      unequippedIds: itemDroppedIds,
     });
   });
 }
