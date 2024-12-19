@@ -20,6 +20,13 @@ function setMeshPositionAndRotationToZero(mesh: AbstractMesh) {
   mesh.position.z = 0;
 }
 
+function setMeshRotationToZero(mesh: AbstractMesh) {
+  mesh.rotationQuaternion = null;
+  mesh.rotation.x = 0;
+  mesh.rotation.y = 0;
+  mesh.rotation.z = 0;
+}
+
 export function attachHoldableModelToSkeleton(
   combatantModel: ModularCharacter,
   equipmentModel: ISceneLoaderAsyncResult,
@@ -28,7 +35,8 @@ export function attachHoldableModelToSkeleton(
 ) {
   const parentMesh = equipmentModel.meshes[0];
   if (!parentMesh) return console.error("no parent mesh");
-  setMeshPositionAndRotationToZero(parentMesh);
+  // setMeshPositionAndRotationToZero(parentMesh);
+  setMeshRotationToZero(parentMesh);
 
   if (slot === HoldableSlotType.OffHand) {
     if (equipment.equipmentBaseItemProperties.type === EquipmentType.Shield) {
@@ -69,6 +77,7 @@ export function attachHoldableModelToHolsteredPosition(
   slot: HoldableSlotType,
   equipment: Equipment
 ) {
+  console.log("attaching", equipment.entityProperties.id.slice(0, 4), "to holstered");
   const parentMesh = equipmentModel.meshes[0];
   if (!parentMesh) return console.error("no parent mesh");
   const skeletonParentMesh = combatantModel.skeleton.meshes[0];

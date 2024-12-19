@@ -37,8 +37,10 @@ export default function characterSelectedHoldableHotswapSlotHandler(
       // enqueue model managment message
       gameWorld.current?.modelManager.enqueueMessage(character.entityProperties.id, {
         type: ModelManagerMessageType.SelectHotswapSlot,
-        switchingAwayFrom: { index: oldIndex, slot: cloneDeep(slotSwitchingAwayFrom) },
-        selected: { index: slotIndex, slot: cloneDeep(newlySelectedSlot) },
+        hotswapSlots: cloneDeep(
+          CombatantEquipment.getHoldableHotswapSlots(character.combatantProperties)
+        ),
+        selectedIndex: character.combatantProperties.equipment.equippedHoldableHotswapSlotIndex,
       });
     }
   );

@@ -223,5 +223,5 @@ export class ModularCharacter {
       paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.world.scene);
   }
 
-  handleEquipHotswapSlot = handleHotswapSlotChanged;
+  handleHotswapSlotChanged = handleHotswapSlotChanged;
 }

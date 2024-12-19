@@ -63,10 +63,11 @@ class ModelMessageQueue {
         case ModelManagerMessageType.SelectHotswapSlot:
           const modularCharacter = this.modelManager.combatantModels[this.entityId];
           if (!modularCharacter) return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-          await modularCharacter.handleEquipHotswapSlot(
+          const maybeError = await modularCharacter.handleHotswapSlotChanged(
             currentMessageProcessing.hotswapSlots,
             currentMessageProcessing.selectedIndex
           );
+          if (maybeError instanceof Error) console.error(maybeError);
           break;
       }
       currentMessageProcessing = this.messages.shift();

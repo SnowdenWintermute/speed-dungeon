@@ -133,6 +133,7 @@ export const ERROR_MESSAGES = {
     MISSING_ROTATION_QUATERNION: "Expected rotation data was missing",
     MISSING_ANIMATION: "No animation found",
     INCORRECT_MODEL_ACTION: "The wrong type of model action was passed to this function",
+    NO_EQUIPMENT_MODEL: "Equipment model not found",
   },
   CHECKED_EXPECTATION_FAILED:
     "Code was reached that should have been impossible due to prior value checks",
