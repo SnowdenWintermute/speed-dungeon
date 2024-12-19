@@ -15,32 +15,30 @@ import {
   getTransformNodeByName,
   importMesh,
   paintCubesOnNodes,
-} from "../utils";
+} from "../../utils";
 import { ModularCharacterPartCategory } from "./modular-character-parts";
-import { GameWorld } from "../game-world";
+import { GameWorld } from "../../game-world";
 import {
   CombatantClass,
   DEFAULT_HITBOX_RADIUS_FALLBACK,
   ERROR_MESSAGES,
   Equipment,
-  EquipmentSlotType,
   HoldableSlotType,
-  TaggedEquipmentSlot,
   WearableSlotType,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
-import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
+import { MONSTER_SCALING_SIZES } from "../monster-scaling-sizes";
 import cloneDeep from "lodash.clonedeep";
-import { AnimationManager } from "./animation-manager";
-import { ModelActionManager } from "./model-action-manager";
+import { AnimationManager } from "../animation-manager";
+import { ModelActionManager } from "../model-action-manager";
 import setUpDebugMeshes from "./set-up-debug-meshes";
-import { ANIMATION_NAMES } from "./animation-manager/animation-names";
+import { ANIMATION_NAMES } from "../animation-manager/animation-names";
 import {
-  attachEquipmentModelToHolstered,
-  attachEquipmentModelToSkeleton,
-} from "./attach-equipment-model-to-skeleton";
-import { spawnItemModel } from "./spawn-item-models";
-import { handleEquipHotswapSlot } from "./equip-hotswap-slot";
+  attachHoldableModelToHolsteredPosition,
+  attachHoldableModelToSkeleton,
+} from "./attach-holdables";
+import { handleHotswapSlotChanged } from "./handle-hotswap-slot-changed";
+import { spawnItemModel } from "../../item-models/spawn-item-model";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -56,18 +54,7 @@ export class ModularCharacter {
       WearableSlotType,
       null | { entityId: string; scene: ISceneLoaderAsyncResult }
     >;
-    equippedHoldables: null | {
-      slotIndex: number;
-      models: Partial<
-        Record<HoldableSlotType, null | { entityId: string; scene: ISceneLoaderAsyncResult }>
-      >;
-    };
-    holsteredHoldables: null | {
-      slotIndex: number;
-      models: Partial<
-        Record<HoldableSlotType, null | { entityId: string; scene: ISceneLoaderAsyncResult }>
-      >;
-    };
+    holdables: { [entityId: string]: ISceneLoaderAsyncResult };
   } = {
     wearables: {
       [WearableSlotType.Head]: null,
@@ -76,8 +63,7 @@ export class ModularCharacter {
       [WearableSlotType.RingR]: null,
       [WearableSlotType.Amulet]: null,
     },
-    equippedHoldables: null,
-    holsteredHoldables: null,
+    holdables: {},
   };
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   homeLocation: {
@@ -199,34 +185,13 @@ export class ModularCharacter {
     return part;
   }
 
-  async unequipItem(slot: TaggedEquipmentSlot) {
-    let toDispose;
-    switch (slot.type) {
-      case EquipmentSlotType.Holdable:
-        if (
-          !this.equipment.equippedHoldables ||
-          !this.equipment.equippedHoldables.models[slot.slot]
-        )
-          return;
-        toDispose = this.equipment.equippedHoldables.models[slot.slot];
-        delete this.equipment.equippedHoldables.models[slot.slot];
-        break;
-      case EquipmentSlotType.Wearable:
-        if (!this.equipment.wearables[slot.slot]) return;
-        toDispose = this.equipment.wearables[slot.slot];
-        delete this.equipment.wearables[slot.slot];
-        break;
-    }
+  async unequipHoldableModel(entityId: string) {
+    const toDispose = this.equipment.holdables[entityId];
     if (!toDispose) return;
-    disposeAsyncLoadedScene(toDispose.scene, this.world.scene);
+    disposeAsyncLoadedScene(toDispose, this.world.scene);
   }
 
-  async equipItem(
-    equipment: Equipment,
-    slot: TaggedEquipmentSlot,
-    hotswapSlotIndex: number,
-    holstered?: boolean
-  ) {
+  async equipHoldableModel(equipment: Equipment, slot: HoldableSlotType, holstered?: boolean) {
     const equipmentModelResult = await spawnItemModel(
       equipment,
       this.world.scene,
@@ -236,34 +201,12 @@ export class ModularCharacter {
       console.log("equipment model error: ", equipmentModelResult.message);
       return;
     }
-    switch (slot.type) {
-      case EquipmentSlotType.Holdable:
-        if (holstered) {
-          if (!this.equipment.holsteredHoldables)
-            this.equipment.holsteredHoldables = { slotIndex: hotswapSlotIndex, models: {} };
-          this.equipment.holsteredHoldables.models[slot.slot] = {
-            entityId: equipment.entityProperties.id,
-            scene: equipmentModelResult,
-          };
-        } else {
-          if (!this.equipment.equippedHoldables)
-            this.equipment.equippedHoldables = { slotIndex: hotswapSlotIndex, models: {} };
-          this.equipment.equippedHoldables.models[slot.slot] = {
-            entityId: equipment.entityProperties.id,
-            scene: equipmentModelResult,
-          };
-        }
-        break;
-      case EquipmentSlotType.Wearable:
-        this.equipment.wearables[slot.slot] = {
-          entityId: equipment.entityProperties.id,
-          scene: equipmentModelResult,
-        };
-        break;
-    }
 
-    if (holstered) attachEquipmentModelToHolstered(this, equipmentModelResult, slot, equipment);
-    else attachEquipmentModelToSkeleton(this, equipmentModelResult, slot, equipment);
+    this.equipment.holdables[equipment.entityProperties.id] = equipmentModelResult;
+
+    if (holstered)
+      attachHoldableModelToHolsteredPosition(this, equipmentModelResult, slot, equipment);
+    else attachHoldableModelToSkeleton(this, equipmentModelResult, slot, equipment);
   }
 
   removePart(partCategory: ModularCharacterPartCategory) {
@@ -280,5 +223,5 @@ export class ModularCharacter {
       paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.world.scene);
   }
 
-  handleEquipHotswapSlot = handleEquipHotswapSlot;
+  handleEquipHotswapSlot = handleHotswapSlotChanged;
 }

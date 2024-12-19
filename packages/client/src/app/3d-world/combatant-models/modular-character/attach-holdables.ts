@@ -2,16 +2,13 @@ import { AbstractMesh, ISceneLoaderAsyncResult, Vector3 } from "@babylonjs/core"
 import {
   CombatantClass,
   Equipment,
-  EquipmentSlotType,
   EquipmentType,
   HoldableSlotType,
-  OneHandedMeleeWeapon,
-  TaggedEquipmentSlot,
   TwoHandedMeleeWeapon,
   equipmentIsTwoHandedWeapon,
 } from "@speed-dungeon/common";
-import { ModularCharacter } from "./modular-character";
-import { getChildMeshByName } from "../utils";
+import { ModularCharacter } from "./index";
+import { getChildMeshByName } from "../../utils";
 
 function setMeshPositionAndRotationToZero(mesh: AbstractMesh) {
   mesh.rotationQuaternion = null;
@@ -23,18 +20,17 @@ function setMeshPositionAndRotationToZero(mesh: AbstractMesh) {
   mesh.position.z = 0;
 }
 
-export function attachEquipmentModelToSkeleton(
+export function attachHoldableModelToSkeleton(
   combatantModel: ModularCharacter,
   equipmentModel: ISceneLoaderAsyncResult,
-  slot: TaggedEquipmentSlot,
+  slot: HoldableSlotType,
   equipment: Equipment
 ) {
-  if (slot.type === EquipmentSlotType.Wearable) return;
   const parentMesh = equipmentModel.meshes[0];
   if (!parentMesh) return console.error("no parent mesh");
   setMeshPositionAndRotationToZero(parentMesh);
 
-  if (slot.slot === HoldableSlotType.OffHand) {
+  if (slot === HoldableSlotType.OffHand) {
     if (equipment.equipmentBaseItemProperties.type === EquipmentType.Shield) {
       parentMesh.position.y = -0.1;
       parentMesh.position.z = 0.08;
@@ -53,7 +49,7 @@ export function attachEquipmentModelToSkeleton(
       ? getChildMeshByName(combatantModel.skeleton.meshes[0], "Wrist.L")
       : undefined;
     if (equipmentBone && equipmentModel.meshes[0]) equipmentModel.meshes[0].parent = equipmentBone;
-  } else if (slot.slot === HoldableSlotType.MainHand) {
+  } else if (slot === HoldableSlotType.MainHand) {
     parentMesh.position.y = 0.1;
     parentMesh.position.z = -0.05;
 
@@ -67,13 +63,12 @@ export function attachEquipmentModelToSkeleton(
   }
 }
 
-export function attachEquipmentModelToHolstered(
+export function attachHoldableModelToHolsteredPosition(
   combatantModel: ModularCharacter,
   equipmentModel: ISceneLoaderAsyncResult,
-  slot: TaggedEquipmentSlot,
+  slot: HoldableSlotType,
   equipment: Equipment
 ) {
-  if (slot.type === EquipmentSlotType.Wearable) return;
   const parentMesh = equipmentModel.meshes[0];
   if (!parentMesh) return console.error("no parent mesh");
   const skeletonParentMesh = combatantModel.skeleton.meshes[0];
@@ -84,7 +79,7 @@ export function attachEquipmentModelToHolstered(
   setMeshPositionAndRotationToZero(parentMesh);
 
   parentMesh.parent = torsoBone;
-  if (slot.slot === HoldableSlotType.OffHand) {
+  if (slot === HoldableSlotType.OffHand) {
     if (combatantModel.combatantClass === CombatantClass.Warrior) parentMesh.position.z = -0.2;
     else parentMesh.position.z = -0.15;
     if (equipment.equipmentBaseItemProperties.type === EquipmentType.Shield) {
@@ -99,7 +94,7 @@ export function attachEquipmentModelToHolstered(
       parentMesh.rotation.x = 0;
       parentMesh.rotation.y = 0;
     }
-  } else if (slot.slot === HoldableSlotType.MainHand) {
+  } else if (slot === HoldableSlotType.MainHand) {
     if (equipmentIsTwoHandedWeapon(equipment.equipmentBaseItemProperties.type)) {
       if (combatantModel.combatantClass === CombatantClass.Warrior) parentMesh.position.z = 0.25;
 

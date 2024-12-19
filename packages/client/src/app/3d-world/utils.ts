@@ -11,7 +11,7 @@ import {
 } from "@babylonjs/core";
 import { disposeMeshMaterials } from "./game-world/materials/utils";
 import { DYNAMIC_MATERIAL_TAG } from "./game-world/materials/create-default-materials";
-import { BASE_FILE_PATH } from "./combatant-models/modular-character-parts";
+import { BASE_FILE_PATH } from "./combatant-models/modular-character/modular-character-parts";
 
 export async function importMesh(path: string, scene: Scene) {
   const sceneResult = await SceneLoader.ImportMeshAsync("", BASE_FILE_PATH || "", path, scene);

@@ -14,8 +14,8 @@ import { useGameStore } from "@/stores/game-store";
 import Divider from "@/app/components/atoms/Divider";
 import Model3DIcon from "../../../../public/img/menu-icons/3d-model-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { getModelAttribution } from "@/app/3d-world/combatant-models/get-model-attribution";
 import { ZIndexLayers } from "@/app/z-index-layers";
+import { getModelAttribution } from "@/app/3d-world/item-models/get-model-attribution";
 
 interface Props {
   shouldShowModKeyTooltip: boolean;

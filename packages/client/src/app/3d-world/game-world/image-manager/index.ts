@@ -10,7 +10,7 @@ import { createImageCreatorScene } from "./create-image-creator-scene";
 import { SavedMaterials, createDefaultMaterials } from "../materials/create-default-materials";
 import { Equipment, Item } from "@speed-dungeon/common";
 import { calculateCompositeBoundingBox, disposeAsyncLoadedScene } from "../../utils";
-import { spawnItemModel } from "../../combatant-models/spawn-item-models";
+import { spawnItemModel } from "../../item-models/spawn-item-model";
 
 export enum ImageManagerRequestType {
   ItemCreation,

@@ -1,6 +1,6 @@
 import { Color3, Mesh, MeshBuilder, StandardMaterial, Vector3 } from "@babylonjs/core";
 import cloneDeep from "lodash.clonedeep";
-import { ModularCharacter } from "./modular-character";
+import { ModularCharacter } from "./index.js";
 
 export default function setUpDebugMeshes(this: ModularCharacter) {
   const red = new Color3(1, 0, 0);

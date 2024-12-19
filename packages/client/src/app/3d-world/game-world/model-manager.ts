@@ -1,4 +1,4 @@
-import { GameWorld } from ".";
+import { GameWorld } from "./index";
 import { ModularCharacter } from "../combatant-models/modular-character";
 import { disposeAsyncLoadedScene, importMesh } from "../utils";
 import {
@@ -8,6 +8,7 @@ import {
   ERROR_MESSAGES,
   Equipment,
   EquipmentSlotType,
+  HoldableHotswapSlot,
   MonsterType,
   TaggedEquipmentSlot,
   iterateNumericEnumKeyedRecord,
@@ -18,11 +19,10 @@ import {
   MONSTER_FULL_SKINS,
   ModularCharacterPartCategory,
   SKELETONS,
-} from "../combatant-models/modular-character-parts";
+} from "../combatant-models/modular-character/modular-character-parts";
 import { Color3, StandardMaterial } from "@babylonjs/core";
 import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
 import { useGameStore } from "@/stores/game-store";
-import { HotswapSlotWithIndex } from "../combatant-models/equip-hotswap-slot";
 
 // the whole point of all this is to make sure we never handle spawn and despawn messages out of order due
 // to the asynchronous nature of spawning models
@@ -52,16 +52,11 @@ class ModelMessageQueue {
           break;
         case ModelManagerMessageType.ChangeEquipment:
           for (const slot of currentMessageProcessing.unequippedSlots)
-            await this.modelManager.handleEquipmentChange(
-              this.entityId,
-              slot,
-              currentMessageProcessing.hotswapSlotIndex
-            );
+            await this.modelManager.handleHoldableChange(this.entityId, slot);
           if (currentMessageProcessing.toEquip)
-            await this.modelManager.handleEquipmentChange(
+            await this.modelManager.handleHoldableChange(
               this.entityId,
               currentMessageProcessing.toEquip.slot,
-              currentMessageProcessing.hotswapSlotIndex,
               currentMessageProcessing.toEquip.item
             );
           break;
@@ -69,8 +64,8 @@ class ModelMessageQueue {
           const modularCharacter = this.modelManager.combatantModels[this.entityId];
           if (!modularCharacter) return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
           await modularCharacter.handleEquipHotswapSlot(
-            currentMessageProcessing.switchingAwayFrom,
-            currentMessageProcessing.selected
+            currentMessageProcessing.hotswapSlots,
+            currentMessageProcessing.selectedIndex
           );
           break;
       }
@@ -101,16 +96,12 @@ export class ModelManager {
     this.modelMessageQueues[entityId]!.messages.push(message);
   }
 
-  async handleEquipmentChange(
-    entityId: string,
-    slot: TaggedEquipmentSlot,
-    hotswapSlotIndex: number,
-    equipment?: Equipment
-  ) {
+  async handleHoldableChange(entityId: string, slot: TaggedEquipmentSlot, equipment?: Equipment) {
     const modularCharacter = this.combatantModels[entityId];
+    if (slot.type !== EquipmentSlotType.Holdable) return;
     if (!modularCharacter) return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-    if (!equipment) await modularCharacter.unequipItem(slot);
-    else await modularCharacter.equipItem(equipment, slot, hotswapSlotIndex);
+    if (!equipment) await modularCharacter.unequipHoldableModel(entityId);
+    else await modularCharacter.equipHoldableModel(equipment, slot.slot);
   }
 
   async spawnCharacterModel(
@@ -211,52 +202,21 @@ export class ModelManager {
     }
 
     if (combatantProperties.combatantSpecies === CombatantSpecies.Humanoid) {
-      for (const [slot, item] of iterateNumericEnumKeyedRecord(
-        combatantProperties.equipment.wearables
-      )) {
-        await modularCharacter.equipItem(
-          item,
-          {
-            type: EquipmentSlotType.Wearable,
-            slot: slot,
-          },
-          combatantProperties.equipment.equippedHoldableHotswapSlotIndex
-        );
-      }
-
       const equippedHoldables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
 
       if (equippedHoldables)
-        for (const [slot, item] of iterateNumericEnumKeyedRecord(equippedHoldables.holdables)) {
-          await modularCharacter.equipItem(
-            item,
-            {
-              type: EquipmentSlotType.Holdable,
-              slot,
-            },
-            combatantProperties.equipment.equippedHoldableHotswapSlotIndex
-          );
-        }
+        for (const [slot, item] of iterateNumericEnumKeyedRecord(equippedHoldables.holdables))
+          await modularCharacter.equipHoldableModel(item, slot);
 
       const visibleHolsteredSlotIndex =
         combatantProperties.equipment.equippedHoldableHotswapSlotIndex === 0 ? 1 : 0;
 
-      const visibleHolsteredHoldables =
+      const visibleHolstered =
         CombatantEquipment.getHoldableHotswapSlots(combatantProperties)[visibleHolsteredSlotIndex];
-      if (visibleHolsteredHoldables)
-        for (const [slot, item] of iterateNumericEnumKeyedRecord(
-          visibleHolsteredHoldables.holdables
-        )) {
-          await modularCharacter.equipItem(
-            item,
-            {
-              type: EquipmentSlotType.Holdable,
-              slot,
-            },
-            combatantProperties.equipment.equippedHoldableHotswapSlotIndex,
-            true
-          );
-        }
+
+      if (visibleHolstered)
+        for (const [slot, item] of iterateNumericEnumKeyedRecord(visibleHolstered.holdables))
+          await modularCharacter.equipHoldableModel(item, slot, true);
     }
 
     this.combatantModels[entityProperties.id] = modularCharacter;
@@ -286,17 +246,9 @@ export class ModelManager {
       disposeAsyncLoadedScene(model.scene, this.world.scene);
     }
 
-    if (toRemove.equipment.holsteredHoldables)
-      for (const model of Object.values(toRemove.equipment.holsteredHoldables.models)) {
-        if (!model) continue;
-        disposeAsyncLoadedScene(model.scene, this.world.scene);
-      }
-
-    if (toRemove.equipment.equippedHoldables)
-      for (const model of Object.values(toRemove.equipment.equippedHoldables.models)) {
-        if (!model) continue;
-        disposeAsyncLoadedScene(model.scene, this.world.scene);
-      }
+    for (const model of Object.values(toRemove.equipment.holdables)) {
+      disposeAsyncLoadedScene(model, this.world.scene);
+    }
 
     toRemove.modelActionManager.removeActiveModelAction();
 
@@ -353,8 +305,8 @@ type ChangeEquipmentModelManagerMessage = {
 
 type SelectHotswapSlotModelManagerMessage = {
   type: ModelManagerMessageType.SelectHotswapSlot;
-  selected: HotswapSlotWithIndex;
-  switchingAwayFrom: HotswapSlotWithIndex;
+  hotswapSlots: HoldableHotswapSlot[];
+  selectedIndex: number;
 };
 
 type ModelManagerMessage =

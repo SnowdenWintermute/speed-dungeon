@@ -24,6 +24,7 @@ export default function characterDroppedEquippedItemHandler(characterAndSlot: Ch
       ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate,
       itemDroppedIdResult
     );
+
     gameWorld.current?.modelManager.enqueueMessage(characterId, {
       type: ModelManagerMessageType.ChangeEquipment,
       unequippedSlots: [slot],
