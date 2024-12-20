@@ -12,7 +12,7 @@ import {
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
-import { CombatTurnResult } from "@speed-dungeon/common";
+import { AdventuringParty, CombatTurnResult } from "@speed-dungeon/common";
 import { NextToBabylonMessage } from "@/singletons/next-to-babylon-message-queue";
 import showDebugText from "./show-debug-text";
 import processMessagesFromNext from "./process-messages-from-next";
@@ -23,6 +23,7 @@ import drawCharacterSlots from "./draw-character-slots";
 import { SavedMaterials, createDefaultMaterials } from "./materials/create-default-materials";
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
+import { useGameStore } from "@/stores/game-store";
 
 export class GameWorld {
   engine: Engine;
@@ -80,6 +81,22 @@ export class GameWorld {
     this.modelManager.startProcessingNewMessages();
 
     for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
+      const partyResult = useGameStore.getState().getParty();
+      if (!(partyResult instanceof Error)) {
+        const targetedBy = AdventuringParty.getIdsAndSelectedActionsOfCharactersTargetingCombatant(
+          partyResult,
+          combatantModel.entityId
+        );
+        if (targetedBy instanceof Error) continue;
+        if (targetedBy.length && !combatantModel.highlightManager.isHighlighted) {
+          console.log("set highlighted:", combatantModel.entityId);
+          combatantModel.highlightManager.setHighlighted();
+        } else if (combatantModel.highlightManager.isHighlighted && !targetedBy.length) {
+          combatantModel.highlightManager.removeHighlight();
+        }
+      }
+      combatantModel.highlightManager.updateHighlight();
+
       combatantModel.modelActionManager.processActiveModelAction();
       combatantModel.animationManager.handleCompletedAnimations();
       combatantModel.animationManager.stepAnimationTransitionWeights();

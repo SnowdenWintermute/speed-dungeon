@@ -4,11 +4,7 @@ import {
   Color4,
   ISceneLoaderAsyncResult,
   Mesh,
-  MultiMaterial,
-  PBRMaterial,
   Quaternion,
-  ShaderMaterial,
-  StandardMaterial,
   TransformNode,
   Vector3,
 } from "@babylonjs/core";
@@ -43,6 +39,7 @@ import {
 } from "./attach-holdables";
 import { handleHotswapSlotChanged } from "./handle-hotswap-slot-changed";
 import { spawnItemModel } from "../../item-models/spawn-item-model";
+import { HighlightManager } from "./highlight-manager";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -77,10 +74,7 @@ export class ModularCharacter {
   isInMeleeRangeOfTarget: boolean = false;
   modelActionManager: ModelActionManager = new ModelActionManager(this);
   animationManager: AnimationManager;
-  highlightManager: {
-    value: number;
-    direction: number;
-  } = { value: 0, direction: 1 };
+  highlightManager: HighlightManager = new HighlightManager(this);
   debugMeshes: {
     // directionLine: Mesh;
     homeLocationMesh: Mesh;
