@@ -21,6 +21,7 @@ export default function showDebugText(this: GameWorld) {
     const modelManagerMessages = `<div>
     ${Object.values(this.modelManager.modelMessageQueues)[0]?.messages.length}
     </div>`;
+    const numMaterials = `<div>num materials: ${this.scene.materials.length}</div>`;
     // const actionResultsProcessing = useGameStore.getState().;
     this.debug.debugRef.current.innerHTML = [
       `fps: ${fps}`,
@@ -29,6 +30,7 @@ export default function showDebugText(this: GameWorld) {
       `queue: ${actionCommandManager.queue.map((item) => ACTION_COMMAND_TYPE_STRINGS[item.payload.type])}`,
       `current: ${actionCommandManager.currentlyProcessing ? ACTION_COMMAND_TYPE_STRINGS[actionCommandManager.currentlyProcessing.payload.type] : null}`,
       // modelManagerMessages,
+      numMaterials,
       cameraAlpha,
       cameraBeta,
       cameraRadius,

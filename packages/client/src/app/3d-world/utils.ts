@@ -38,7 +38,7 @@ export function disposeAsyncLoadedScene(sceneResult: ISceneLoaderAsyncResult | n
   if (sceneResult === null) return;
   while (sceneResult.meshes.length) {
     const mesh = sceneResult.meshes.pop()!;
-    disposeMeshMaterials(mesh, DYNAMIC_MATERIAL_TAG);
+    disposeMeshMaterials(mesh, "");
     mesh.dispose();
   }
   while (sceneResult.skeletons.length) sceneResult.skeletons.pop()!.dispose();
