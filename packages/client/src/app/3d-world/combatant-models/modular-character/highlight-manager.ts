@@ -1,21 +1,16 @@
-import {
-  Color3,
-  MultiMaterial,
-  PBRMaterial,
-  ShaderMaterial,
-  StandardMaterial,
-} from "@babylonjs/core";
+import { Color3, PBRMaterial, StandardMaterial } from "@babylonjs/core";
 import { ModularCharacter } from ".";
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import { ModularCharacterPartCategory } from "./modular-character-parts";
 import cloneDeep from "lodash.clonedeep";
 
 export class HighlightManager {
-  private value: number = 0.0;
-  private direction: number = 0;
   private originalPartMaterialColors: Partial<
     Record<ModularCharacterPartCategory, { [meshName: string]: Color3 }>
   > = {};
+  private originalEquipmentMaterialColors: {
+    [equipmentId: string]: { [meshName: string]: Color3 };
+  } = {};
   public isHighlighted: boolean = false;
   constructor(private modularCharacter: ModularCharacter) {}
 
@@ -31,23 +26,14 @@ export class HighlightManager {
 
       for (const mesh of part.meshes) {
         const { material } = mesh;
-        if (material instanceof StandardMaterial) console.log("StandardMaterial");
-        if (material instanceof PBRMaterial) console.log("PBRMaterial");
-        if (material instanceof MultiMaterial) console.log("MultiMaterial");
-        if (material instanceof ShaderMaterial) console.log("ShaderMaterial");
-        if (!(material instanceof StandardMaterial) && !(material instanceof PBRMaterial)) {
-          console.log("this material is not colorable");
-          continue;
-        }
+        if (!(material instanceof StandardMaterial) && !(material instanceof PBRMaterial)) continue;
 
         const originalColor = cloneDeep(material.emissiveColor);
 
         originalColors[mesh.name] = originalColor;
-        console.log("saved mesh name ", mesh.name, "original color", originalColor);
       }
 
       this.originalPartMaterialColors[partCategory] = originalColors;
-      console.log("saved original colors: ", originalColors);
     }
 
     this.isHighlighted = true;
@@ -74,22 +60,20 @@ export class HighlightManager {
     }
 
     this.isHighlighted = false;
-
-    console.log("removed highlighted:", this.modularCharacter.entityId);
   }
 
   updateHighlight() {
     if (!this.isHighlighted) return;
 
-    const scale = this.value;
-    if (scale > 0.8 && this.direction === 1) {
-      this.direction = 0;
-    } else if (scale < 0.1 && this.direction === 0) this.direction = 1;
+    const base = 0.1;
+    const amplitude = 0.3;
+    const frequency = 0.3;
+    const elapsed = Date.now() / 1000;
+    const scale = base + amplitude + amplitude * Math.sin(2 * Math.PI * frequency * elapsed);
 
-    if (this.direction === 0) this.value -= 0.005;
-    if (this.direction === 1) this.value += 0.005;
-
-    for (const [partCategory, part] of iterateNumericEnumKeyedRecord(this.modularCharacter.parts)) {
+    for (const [_partCategory, part] of iterateNumericEnumKeyedRecord(
+      this.modularCharacter.parts
+    )) {
       if (!part) continue;
 
       for (const mesh of part.meshes) {
@@ -98,10 +82,9 @@ export class HighlightManager {
         if (material instanceof StandardMaterial || material instanceof PBRMaterial) {
           const baseColor =
             material instanceof PBRMaterial ? material.albedoColor : material.diffuseColor;
-          material.emissiveColor.r = baseColor.r * this.value;
-          material.emissiveColor.g = baseColor.g * this.value;
-          material.emissiveColor.b = baseColor.b * this.value;
-          // mesh.material.emissiveColor = new Color3(0, 0, 0);
+          material.emissiveColor.r = baseColor.r * scale;
+          material.emissiveColor.g = baseColor.g * scale;
+          material.emissiveColor.b = baseColor.b * scale;
         }
       }
     }
