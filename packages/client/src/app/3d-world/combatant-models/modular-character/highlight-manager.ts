@@ -27,13 +27,26 @@ export class HighlightManager {
       for (const mesh of part.meshes) {
         const { material } = mesh;
         if (!(material instanceof StandardMaterial) && !(material instanceof PBRMaterial)) continue;
-
         const originalColor = cloneDeep(material.emissiveColor);
-
         originalColors[mesh.name] = originalColor;
       }
 
       this.originalPartMaterialColors[partCategory] = originalColors;
+    }
+
+    for (const [equipmentId, equipmentModel] of Object.entries(
+      this.modularCharacter.equipment.holdables
+    )) {
+      const originalColors: { [meshName: string]: Color3 } = {};
+
+      for (const mesh of equipmentModel.meshes) {
+        const { material } = mesh;
+        if (!(material instanceof StandardMaterial) && !(material instanceof PBRMaterial)) continue;
+        const originalColor = cloneDeep(material.emissiveColor);
+        originalColors[mesh.name] = originalColor;
+      }
+
+      this.originalEquipmentMaterialColors[equipmentId] = originalColors;
     }
 
     this.isHighlighted = true;
@@ -52,11 +65,28 @@ export class HighlightManager {
       for (const mesh of part.meshes) {
         const { material } = mesh;
         if (!(material instanceof StandardMaterial) && !(material instanceof PBRMaterial)) continue;
-
         const originalColorOption = originalColors[mesh.name];
         if (originalColorOption) material.emissiveColor = originalColorOption;
       }
       delete this.originalPartMaterialColors[partCategory];
+    }
+
+    for (const [equipmentId, equipmentModel] of Object.entries(
+      this.modularCharacter.equipment.holdables
+    )) {
+      const originalColors = this.originalEquipmentMaterialColors[equipmentId];
+      if (!originalColors) {
+        console.error("original colors not found when removing highlight");
+        continue;
+      }
+      for (const mesh of equipmentModel.meshes) {
+        const { material } = mesh;
+        if (!(material instanceof StandardMaterial) && !(material instanceof PBRMaterial)) continue;
+        const originalColorOption = originalColors[mesh.name];
+        if (originalColorOption) material.emissiveColor = originalColorOption;
+      }
+
+      delete this.originalEquipmentMaterialColors[equipmentId];
     }
 
     this.isHighlighted = false;
@@ -89,12 +119,20 @@ export class HighlightManager {
       }
     }
 
-    // for (const equipment of Object.values(this.modularCharacter.equipment.holdables)) {
-    //   for (const mesh of equipment.meshes)
-    //     if (mesh.material instanceof StandardMaterial) {
-    //       mesh.material.emissiveColor = mesh.material.diffuseColor.scale(this.value);
-    //       // mesh.material.emissiveColor = new Color3(0, 0, 0);
-    //     }
-    // }
+    for (const [_entityId, equipmentModel] of Object.entries(
+      this.modularCharacter.equipment.holdables
+    )) {
+      for (const mesh of equipmentModel.meshes) {
+        const { material } = mesh;
+
+        if (material instanceof StandardMaterial || material instanceof PBRMaterial) {
+          const baseColor =
+            material instanceof PBRMaterial ? material.albedoColor : material.diffuseColor;
+          material.emissiveColor.r = baseColor.r * scale;
+          material.emissiveColor.g = baseColor.g * scale;
+          material.emissiveColor.b = baseColor.b * scale;
+        }
+      }
+    }
   }
 }
