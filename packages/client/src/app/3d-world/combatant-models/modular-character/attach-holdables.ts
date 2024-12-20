@@ -85,7 +85,7 @@ export function attachHoldableModelToHolsteredPosition(
 
   parentMesh.parent = torsoBone;
   if (slot === HoldableSlotType.OffHand) {
-    if (combatantModel.combatantClass === CombatantClass.Warrior) parentMesh.position.z = -0.2;
+    if (combatantModel.combatantClass === CombatantClass.Warrior) parentMesh.position.z = -0.22;
     else parentMesh.position.z = -0.15;
     if (equipment.equipmentBaseItemProperties.type === EquipmentType.Shield) {
       parentMesh.rotation.z = -Math.PI + 0.5;

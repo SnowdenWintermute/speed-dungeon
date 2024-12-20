@@ -12,7 +12,8 @@ import {
 export async function spawnItemModel(
   item: Item,
   scene: Scene,
-  materials: SavedMaterials
+  materials: SavedMaterials,
+  createUniqueMaterialInstances: boolean
 ): Promise<Error | ISceneLoaderAsyncResult> {
   const modelPath = (() => {
     if (item instanceof Equipment) {
@@ -31,7 +32,8 @@ export async function spawnItemModel(
 
   const itemModel = await importMesh(modelPath, scene);
 
-  if (item instanceof Equipment) assignEquipmentMaterials(item, itemModel, materials, scene);
+  if (item instanceof Equipment)
+    assignEquipmentMaterials(item, itemModel, materials, scene, createUniqueMaterialInstances);
   else if (item instanceof Consumable) assignConsumableMaterials(item, itemModel, materials, scene);
 
   if (!itemModel) return new Error("Model not successfully spawned");

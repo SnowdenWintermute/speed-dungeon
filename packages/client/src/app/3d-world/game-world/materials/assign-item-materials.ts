@@ -50,14 +50,15 @@ export function assignConsumableMaterials(
       break;
   }
 
-  applyMaterialsToModelMeshes(itemModel, materials);
+  applyMaterialsToModelMeshes(itemModel, materials, false);
 }
 
 export function assignEquipmentMaterials(
   item: Equipment,
   itemModel: ISceneLoaderAsyncResult,
   savedMaterials: SavedMaterials,
-  scene: Scene
+  scene: Scene,
+  createUniqueInstances: boolean
 ) {
   let materials: { [name: string]: StandardMaterial } = {};
 
@@ -363,7 +364,8 @@ export function assignEquipmentMaterials(
           break;
       }
   }
-  applyMaterialsToModelMeshes(itemModel, materials);
+
+  applyMaterialsToModelMeshes(itemModel, materials, createUniqueInstances);
 }
 
 function assignElementalMaterials(

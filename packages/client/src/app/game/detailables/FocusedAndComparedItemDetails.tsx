@@ -60,7 +60,7 @@ export default function FocusedAndComparedItemDetails({ focusedItem }: Props) {
   const displays = [focusedItemDisplay, comparedItemDisplay];
 
   return (
-    <div className="flex-grow flex">
+    <div className="flex-grow flex max-w-[818px]">
       {displays[0]}
       {displays[1]}
     </div>

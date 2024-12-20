@@ -109,7 +109,7 @@ export class ImageManager {
   }
 
   async createItemImage(item: Item) {
-    const equipmentModelResult = await spawnItemModel(item, this.scene, this.materials);
+    const equipmentModelResult = await spawnItemModel(item, this.scene, this.materials, false);
     if (equipmentModelResult instanceof Error) {
       this.processNextMessage();
       return console.error("no equipment model");

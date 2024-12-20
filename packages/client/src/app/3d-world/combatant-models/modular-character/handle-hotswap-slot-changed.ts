@@ -54,7 +54,8 @@ async function spawnItemModelIfNotAlready(
   const modelResult = await spawnItemModel(
     equipment,
     modularCharacter.world.scene,
-    modularCharacter.world.defaultMaterials
+    modularCharacter.world.defaultMaterials,
+    true
   );
   if (modelResult instanceof Error) return modelResult;
   modularCharacter.equipment.holdables[entityId] = modelResult;

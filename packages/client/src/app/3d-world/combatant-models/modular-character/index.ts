@@ -199,7 +199,8 @@ export class ModularCharacter {
     const equipmentModelResult = await spawnItemModel(
       equipment,
       this.world.scene,
-      this.world.defaultMaterials
+      this.world.defaultMaterials,
+      true
     );
     if (equipmentModelResult instanceof Error) {
       console.log("equipment model error: ", equipmentModelResult.message);

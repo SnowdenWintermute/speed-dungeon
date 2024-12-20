@@ -86,6 +86,7 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
           baseItemType: OneHandedMeleeWeapon.Stick,
         });
+
         oh = generateSpecificEquipmentType({
           equipmentType: EquipmentType.Shield,
           baseItemType: Shield.KiteShield,
@@ -109,7 +110,10 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
         });
         break;
     }
-    if (!(mh instanceof Error)) holsteredSlot.holdables[HoldableSlotType.MainHand] = mh;
+    if (!(mh instanceof Error)) {
+      mh.entityProperties.name = "some long ass name that is really freakin long";
+      holsteredSlot.holdables[HoldableSlotType.MainHand] = mh;
+    }
     if (oh) {
       if (!(oh instanceof Error)) holsteredSlot.holdables[HoldableSlotType.OffHand] = oh;
     }

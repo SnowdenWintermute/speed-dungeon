@@ -14,10 +14,6 @@ export class HighlightManager {
   public isHighlighted: boolean = false;
   constructor(private modularCharacter: ModularCharacter) {}
 
-  // save original diffuse colors by material
-  // update on pulsing wave function
-  // return to original colors
-  //
   setHighlighted() {
     for (const [partCategory, part] of iterateNumericEnumKeyedRecord(this.modularCharacter.parts)) {
       if (!part) continue;
@@ -95,8 +91,8 @@ export class HighlightManager {
   updateHighlight() {
     if (!this.isHighlighted) return;
 
-    const base = 0.1;
-    const amplitude = 0.3;
+    const base = 0.05;
+    const amplitude = 0.15;
     const frequency = 0.3;
     const elapsed = Date.now() / 1000;
     const scale = base + amplitude + amplitude * Math.sin(2 * Math.PI * frequency * elapsed);
@@ -128,9 +124,9 @@ export class HighlightManager {
         if (material instanceof StandardMaterial || material instanceof PBRMaterial) {
           const baseColor =
             material instanceof PBRMaterial ? material.albedoColor : material.diffuseColor;
-          material.emissiveColor.r = baseColor.r * scale;
-          material.emissiveColor.g = baseColor.g * scale;
-          material.emissiveColor.b = baseColor.b * scale;
+          material.emissiveColor.r = baseColor.r * scale * 0.5;
+          material.emissiveColor.g = baseColor.g * scale * 0.5;
+          material.emissiveColor.b = baseColor.b * scale * 0.5;
         }
       }
     }
