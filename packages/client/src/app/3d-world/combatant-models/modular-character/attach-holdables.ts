@@ -74,7 +74,6 @@ export function attachHoldableModelToHolsteredPosition(
   slot: HoldableSlotType,
   equipment: Equipment
 ) {
-  console.log("attaching", equipment.entityProperties.id.slice(0, 4), "to holstered");
   const parentMesh = equipmentModel.meshes[0];
   if (!parentMesh) return console.error("no parent mesh");
   const skeletonParentMesh = combatantModel.skeleton.meshes[0];

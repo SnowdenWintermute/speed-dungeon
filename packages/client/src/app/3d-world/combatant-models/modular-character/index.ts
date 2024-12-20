@@ -4,7 +4,11 @@ import {
   Color4,
   ISceneLoaderAsyncResult,
   Mesh,
+  MultiMaterial,
+  PBRMaterial,
   Quaternion,
+  ShaderMaterial,
+  StandardMaterial,
   TransformNode,
   Vector3,
 } from "@babylonjs/core";
@@ -73,6 +77,10 @@ export class ModularCharacter {
   isInMeleeRangeOfTarget: boolean = false;
   modelActionManager: ModelActionManager = new ModelActionManager(this);
   animationManager: AnimationManager;
+  highlightManager: {
+    value: number;
+    direction: number;
+  } = { value: 0, direction: 1 };
   debugMeshes: {
     // directionLine: Mesh;
     homeLocationMesh: Mesh;
@@ -171,6 +179,7 @@ export class ModularCharacter {
     for (const mesh of part.meshes) {
       // attach part
       if (mesh.skeleton) mesh.skeleton = this.skeleton.skeletons[0];
+
       mesh.parent = parent!;
     }
 
@@ -182,6 +191,7 @@ export class ModularCharacter {
     this.parts[partCategory] = part;
 
     this.updateBoundingBox();
+
     return part;
   }
 

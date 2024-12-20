@@ -105,6 +105,7 @@ export const ERROR_MESSAGES = {
     CANT_USE_ON_DEAD_TARGET: "That action may only be used on living targets",
     ALREADY_FULL_HP: "The target already has full hit points",
     ALREADY_FULL_MP: "The target already has full mana",
+    NOT_USABLE_IN_COMBAT: "That action can not be performed in combat",
   },
   ITEM: {
     NOT_FOUND: "No item was found with the provided ID",
