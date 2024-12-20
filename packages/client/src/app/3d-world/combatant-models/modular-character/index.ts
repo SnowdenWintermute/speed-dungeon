@@ -25,6 +25,7 @@ import {
   Equipment,
   HoldableSlotType,
   WearableSlotType,
+  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import { MONSTER_SCALING_SIZES } from "../monster-scaling-sizes";
@@ -107,6 +108,10 @@ export class ModularCharacter {
     this.rootMesh = rootMesh;
     this.rootMesh.rotate(Vector3.Up(), modelCorrectionRotation); // fix inconsistent blender export rotation
 
+    this.rootMesh.position.x = 0;
+    this.rootMesh.position.y = 0;
+    this.rootMesh.position.z = 0;
+
     this.rootMesh.setParent(this.rootTransformNode);
 
     this.rootTransformNode.rotate(Vector3.Up(), startRotation);
@@ -119,6 +124,7 @@ export class ModularCharacter {
       rotation: cloneDeep(this.rootTransformNode.rotationQuaternion!),
     };
 
+    this.rootMesh.showBoundingBox = true;
     // this.setUpDebugMeshes();
 
     // this.setShowBones();
@@ -143,7 +149,7 @@ export class ModularCharacter {
     let minimum: null | Vector3 = null;
     let maximum: null | Vector3 = null;
 
-    for (const part of Object.values(this.parts)) {
+    for (const [_category, part] of iterateNumericEnumKeyedRecord(this.parts)) {
       if (part === null) continue;
       for (const mesh of part.meshes) {
         // if (mesh.name === "__root__") continue;
@@ -158,6 +164,7 @@ export class ModularCharacter {
         maximum = Vector3.Maximize(maximum, partMeshBoundingInfo.maximum);
       }
     }
+
     if (minimum === null || maximum === null) return console.log("no mesh bounding info found");
     this.rootMesh.setBoundingInfo(
       new BoundingInfo(minimum, maximum, this.rootMesh.getWorldMatrix())

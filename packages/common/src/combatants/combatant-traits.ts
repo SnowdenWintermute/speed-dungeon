@@ -57,5 +57,6 @@ export const TRAIT_DESCRIPTIONS: Record<CombatantTraitType, string> = {
     "Resistance or weakness to this element. If above 100%, actions of this element will cause healing instead of damage.",
   [CombatantTraitType.Undead]: "Healing magic damages this target",
   [CombatantTraitType.KineticDamageTypeResistance]: "Resistance or weakness to this damage type",
-  [CombatantTraitType.ExtraHotswapSlot]: "Adds an additional weapon swap slot",
+  [CombatantTraitType.ExtraHotswapSlot]:
+    "Adds an additional weapon swap slot - 'You know I keep that mf thang on me'",
 };

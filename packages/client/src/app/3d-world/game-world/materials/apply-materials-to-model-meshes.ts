@@ -19,6 +19,10 @@ export default function applyMaterialsToModelMeshes(
           uniqueInstance.diffuseColor.g = material.diffuseColor.g;
           uniqueInstance.diffuseColor.b = material.diffuseColor.b;
           uniqueInstance.roughness = material.roughness;
+          uniqueInstance.specularColor.r = material.specularColor.r;
+          uniqueInstance.specularColor.g = material.specularColor.g;
+          uniqueInstance.specularColor.b = material.specularColor.b;
+          uniqueInstance.specularPower = material.specularPower;
           mesh.material = uniqueInstance;
         } else mesh.material = material;
         oldMaterial.dispose();

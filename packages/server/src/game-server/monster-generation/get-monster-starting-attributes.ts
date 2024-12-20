@@ -28,22 +28,22 @@ export default function getMonsterStartingAttributes(
       attributes[CombatAttribute.Dexterity] = 10.0;
       attributes[CombatAttribute.Vitality] = 1.0;
       attributes[CombatAttribute.Hp] = 4.0;
-      attributes[CombatAttribute.Speed] = 10.0;
+      attributes[CombatAttribute.Speed] = 1.5;
       attributes[CombatAttribute.Accuracy] = 75.0;
       break;
     case MonsterType.Scavenger:
       // attributes[CombatAttribute.Dexterity] = 2.0;
       attributes[CombatAttribute.Dexterity] = 7.0;
-      attributes[CombatAttribute.Strength] = 10.0;
+      attributes[CombatAttribute.Strength] = 2.0;
       attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 1.0;
       // attributes[CombatAttribute.Agility] = 1.0;
-      attributes[CombatAttribute.Agility] = 10.0;
+      attributes[CombatAttribute.Agility] = 2.0;
       attributes[CombatAttribute.Accuracy] = 80.0;
       break;
     case MonsterType.Vulture:
       attributes[CombatAttribute.Dexterity] = 2.5;
-      attributes[CombatAttribute.Strength] = 10;
+      attributes[CombatAttribute.Strength] = 2;
       attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 4.0;
       attributes[CombatAttribute.Accuracy] = 80.0;

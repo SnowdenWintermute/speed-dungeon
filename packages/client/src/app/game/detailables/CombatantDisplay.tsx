@@ -113,6 +113,6 @@ export function formatCombatantTrait(trait: CombatantTrait) {
         </span>
       );
     case CombatantTraitType.ExtraHotswapSlot:
-      return "The Swipper Swapper";
+      return "Stay strapped";
   }
 }

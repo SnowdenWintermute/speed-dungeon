@@ -89,8 +89,8 @@ export class GameWorld {
         );
         if (targetedBy instanceof Error) continue;
         if (targetedBy.length && !combatantModel.highlightManager.isHighlighted) {
-          console.log("set highlighted:", combatantModel.entityId);
           combatantModel.highlightManager.setHighlighted();
+          console.log("set highlighted:", combatantModel.entityId);
         } else if (combatantModel.highlightManager.isHighlighted && !targetedBy.length) {
           combatantModel.highlightManager.removeHighlight();
         }
