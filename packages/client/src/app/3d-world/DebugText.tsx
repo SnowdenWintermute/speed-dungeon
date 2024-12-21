@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useUIStore } from "@/stores/ui-store";
 import { useGameStore } from "@/stores/game-store";
 import { ZIndexLayers } from "../z-index-layers";
+import { gameWorld } from "./SceneManager";
 
 export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTMLUListElement> }) {
   const thumbnails = useGameStore((state) => state.itemThumbnails);
@@ -23,6 +24,16 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
       useUIStore.getState().mutateState((state) => {
         state.showDebug = !state.showDebug;
       });
+
+      if (gameWorld.current)
+        for (const modularCharacter of Object.values(
+          gameWorld.current.modelManager.combatantModels
+        )) {
+          modularCharacter.rootMesh.showBoundingBox = useUIStore.getState().showDebug;
+          if (modularCharacter.highlightManager.targetingIndicator)
+            modularCharacter.highlightManager.targetingIndicator.showBoundingBox =
+              useUIStore.getState().showDebug;
+        }
     };
 
     mouseDownListenerRef.current = function (e: MouseEvent) {

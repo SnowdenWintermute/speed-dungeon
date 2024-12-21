@@ -19,7 +19,7 @@ export class HighlightManager {
   private originalEquipmentMaterialColors: {
     [equipmentId: string]: { [meshName: string]: Color3 };
   } = {};
-  private targetingIndicator: null | Mesh = null;
+  public targetingIndicator: null | Mesh = null;
   public isHighlighted: boolean = false;
   constructor(private modularCharacter: ModularCharacter) {}
 
@@ -60,10 +60,12 @@ export class HighlightManager {
 
     this.targetingIndicator.position.copyFrom(this.modularCharacter.rootTransformNode.position);
 
+    const offsetTop = 0.2;
     this.targetingIndicator.position.y =
       this.modularCharacter.rootMesh.getBoundingInfo().boundingBox.maximumWorld.y +
-      (this.targetingIndicator.getBoundingInfo().maximum.y -
-        this.targetingIndicator.getBoundingInfo().minimum.y);
+      this.targetingIndicator.getBoundingInfo().boundingBox.maximum.y -
+      this.targetingIndicator.getBoundingInfo().boundingBox.minimum.y +
+      offsetTop;
   }
 
   removeHighlight() {
@@ -117,6 +119,21 @@ export class HighlightManager {
     const elapsed = Date.now() / 1000;
     const scale = base + amplitude + amplitude * Math.sin(2 * Math.PI * frequency * elapsed);
 
+    // spin the targetingIndicator
+
+    const rotation = elapsed;
+    const color = updateColor(scale, amplitude, base);
+    if (this.targetingIndicator) {
+      this.targetingIndicator.rotation.y = rotation;
+      if (this.targetingIndicator.material instanceof StandardMaterial) {
+        this.targetingIndicator.material.diffuseColor.r = color.r;
+        this.targetingIndicator.material.diffuseColor.g = color.g;
+        this.targetingIndicator.material.diffuseColor.b = color.b;
+      }
+    }
+
+    // glow the character and their equipment
+
     for (const [_partCategory, part] of iterateNumericEnumKeyedRecord(
       this.modularCharacter.parts
     )) {
@@ -152,10 +169,6 @@ export class HighlightManager {
     }
   }
 }
-
-// beige  0.918, 0.776, 0.69
-// darkeryellow 0.725, 0.576, 0.243
-// lighteryellow 0.941, 0.788, 0.565
 
 function create3dTargetingIndicator(scene: Scene) {
   const topRadius = 1; // Radius of the top triangle
@@ -202,7 +215,31 @@ function create3dTargetingIndicator(scene: Scene) {
 
   const material = new StandardMaterial("targeting indicator material", scene);
   material.diffuseColor = new Color3(0.941, 0.788, 0.565);
+
   mesh.material = material;
+  // mesh.visibility = 0.75;
 
   return mesh;
+}
+
+function updateColor(value: number, amplitude: number, base: number) {
+  // Define the three colors
+  // beige
+  // const colorA = new Color3(0.918, 0.776, 0.69);
+  // darkeryellow
+  const colorA = new Color3(0.725, 0.576, 0.243);
+  const colorB = new Color3(0.725, 0.576, 0.243);
+  // lighteryellow
+  const colorC = new Color3(0.941, 0.788, 0.565);
+
+  // Normalize value to [0, 1]
+  const normalizedValue = (value - base) / (2 * amplitude); // Map value to range [0, 1]
+
+  if (normalizedValue <= 0.5) {
+    const t = normalizedValue / 0.5; // Map [0, 0.5] to [0, 1]
+    return Color3.Lerp(colorA, colorB, t);
+  } else {
+    const t = (normalizedValue - 0.5) / 0.5; // Map [0.5, 1] to [0, 1]
+    return Color3.Lerp(colorB, colorC, t);
+  }
 }

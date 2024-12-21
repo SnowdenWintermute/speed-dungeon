@@ -97,6 +97,7 @@ export class ModularCharacter {
     this.animationManager.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 0);
 
     while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
+
     const rootMesh = skeleton.meshes[0];
     if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
 
@@ -124,7 +125,7 @@ export class ModularCharacter {
       rotation: cloneDeep(this.rootTransformNode.rotationQuaternion!),
     };
 
-    this.rootMesh.showBoundingBox = true;
+    // this.rootMesh.showBoundingBox = true;
     // this.setUpDebugMeshes();
 
     // this.setShowBones();
