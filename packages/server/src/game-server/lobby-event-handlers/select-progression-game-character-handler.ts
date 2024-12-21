@@ -55,6 +55,7 @@ export default async function selectProgressionGameCharacterHandler(
   if (removeCharacterResult instanceof Error) return removeCharacterResult;
 
   addCharacterToParty(game, player, savedCharacterOption.combatant);
+
   game.selectedStartingFloor.max = savedCharacterOption.deepestFloorReached;
 
   gameServer.io

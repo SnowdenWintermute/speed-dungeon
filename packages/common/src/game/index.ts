@@ -35,7 +35,8 @@ export class SpeedDungeonGame {
   adventuringParties: { [partyName: string]: AdventuringParty } = {};
   battles: { [id: EntityId]: Battle } = {};
   timeStarted: null | number = null;
-  selectedStartingFloor: MaxAndCurrent = new MaxAndCurrent(1, 1);
+  lowestStartingFloorOptionsBySavedCharacter: { [entityId: string]: number } = {};
+  selectedStartingFloor: number = 1;
   constructor(
     public id: string,
     public name: string,

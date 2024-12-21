@@ -12,6 +12,7 @@ export default function getMonsterStartingAttributes(
       attributes[CombatAttribute.Resilience] = 3.0;
       attributes[CombatAttribute.Accuracy] = 70.0;
       attributes[CombatAttribute.Strength] = 10.0;
+      attributes[CombatAttribute.Speed] = 1.0;
       break;
     case MonsterType.Zombie:
       attributes[CombatAttribute.Strength] = 10.0;
@@ -47,6 +48,7 @@ export default function getMonsterStartingAttributes(
       attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 4.0;
       attributes[CombatAttribute.Accuracy] = 80.0;
+      attributes[CombatAttribute.Speed] = 1.0;
       break;
     case MonsterType.FireMage:
       attributes[CombatAttribute.Intelligence] = 4.0;
@@ -64,6 +66,7 @@ export default function getMonsterStartingAttributes(
       attributes[CombatAttribute.Hp] = 1.5;
       attributes[CombatAttribute.Resilience] = 2.0;
       attributes[CombatAttribute.Accuracy] = 60.0;
+      attributes[CombatAttribute.Speed] = 1.0;
       break;
     case MonsterType.FireElemental:
       attributes[CombatAttribute.Intelligence] = 4.0;
@@ -72,6 +75,7 @@ export default function getMonsterStartingAttributes(
       attributes[CombatAttribute.Hp] = 3.0;
       attributes[CombatAttribute.Resilience] = 2.0;
       attributes[CombatAttribute.Accuracy] = 60.0;
+      attributes[CombatAttribute.Speed] = 1.0;
       break;
     case MonsterType.IceElemental:
       attributes[CombatAttribute.Intelligence] = 4.0;
@@ -80,6 +84,7 @@ export default function getMonsterStartingAttributes(
       attributes[CombatAttribute.Hp] = 3.0;
       attributes[CombatAttribute.Resilience] = 2.0;
       attributes[CombatAttribute.Accuracy] = 60.0;
+      attributes[CombatAttribute.Speed] = 1.0;
       break;
   }
 

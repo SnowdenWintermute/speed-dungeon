@@ -60,7 +60,7 @@ export class GameWorld {
     this.defaultMaterials = createDefaultMaterials(this.scene);
 
     // PIXELATION FILTER
-    pixelate(this.camera, this.scene);
+    // pixelate(this.camera, this.scene);
     //
 
     // spawnTestEquipmentModels(this);

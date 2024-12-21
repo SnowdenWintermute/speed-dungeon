@@ -1,12 +1,4 @@
-import {
-  Color3,
-  Mesh,
-  MeshBuilder,
-  PBRMaterial,
-  Scene,
-  StandardMaterial,
-  Vector3,
-} from "@babylonjs/core";
+import { Color3, Mesh, MeshBuilder, PBRMaterial, Scene, StandardMaterial } from "@babylonjs/core";
 import { ModularCharacter } from ".";
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import { ModularCharacterPartCategory } from "./modular-character-parts";
@@ -123,6 +115,7 @@ export class HighlightManager {
 
     const rotation = elapsed;
     const color = updateColor(scale, amplitude, base);
+
     if (this.targetingIndicator) {
       this.targetingIndicator.rotation.y = rotation;
       if (this.targetingIndicator.material instanceof StandardMaterial) {
@@ -214,32 +207,24 @@ function create3dTargetingIndicator(scene: Scene) {
   );
 
   const material = new StandardMaterial("targeting indicator material", scene);
-  material.diffuseColor = new Color3(0.941, 0.788, 0.565);
+  // material.diffuseColor = new Color3(0.941, 0.788, 0.565);
 
   mesh.material = material;
-  // mesh.visibility = 0.75;
+  mesh.visibility = 0.75;
 
   return mesh;
 }
 
 function updateColor(value: number, amplitude: number, base: number) {
-  // Define the three colors
-  // beige
-  // const colorA = new Color3(0.918, 0.776, 0.69);
-  // darkeryellow
-  const colorA = new Color3(0.725, 0.576, 0.243);
-  const colorB = new Color3(0.725, 0.576, 0.243);
-  // lighteryellow
-  const colorC = new Color3(0.941, 0.788, 0.565);
+  const colorA = DARKER_YELLOW;
+  const colorB = LIGHTER_YELLOW;
 
   // Normalize value to [0, 1]
-  const normalizedValue = (value - base) / (2 * amplitude); // Map value to range [0, 1]
+  const normalizedValue = (value - base) / (2 * amplitude);
 
-  if (normalizedValue <= 0.5) {
-    const t = normalizedValue / 0.5; // Map [0, 0.5] to [0, 1]
-    return Color3.Lerp(colorA, colorB, t);
-  } else {
-    const t = (normalizedValue - 0.5) / 0.5; // Map [0.5, 1] to [0, 1]
-    return Color3.Lerp(colorB, colorC, t);
-  }
+  return Color3.Lerp(colorA, colorB, normalizedValue);
 }
+
+const BEIGE = new Color3(0.918, 0.776, 0.69);
+const DARKER_YELLOW = new Color3(0.725, 0.576, 0.243);
+const LIGHTER_YELLOW = new Color3(0.941, 0.788, 0.565);
