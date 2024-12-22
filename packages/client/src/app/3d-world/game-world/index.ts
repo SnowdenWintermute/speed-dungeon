@@ -37,7 +37,6 @@ export class GameWorld {
   useShadows: boolean = false;
   modelManager: ModelManager = new ModelManager(this);
   turnResultsQueue: CombatTurnResult[] = [];
-  currentRoomLoaded: boolean = false;
   groundTexture: DynamicTexture;
   defaultMaterials: SavedMaterials;
   // imageCreationDefaultMaterials: SavedMaterials;

@@ -25,7 +25,7 @@ export default function showDebugText(this: GameWorld) {
     // const actionResultsProcessing = useGameStore.getState().;
     this.debug.debugRef.current.innerHTML = [
       `fps: ${fps}`,
-      `models awaiting spawn:${useGameStore.getState().combatantModelsAwaitingSpawn.join(", ")}`,
+      `models awaiting spawn:${useGameStore.getState().combatantModelsAwaitingSpawn}`,
       `waiting area: ${actionCommandWaitingArea.map((item) => ACTION_COMMAND_TYPE_STRINGS[item.payload.type])}`,
       `queue: ${actionCommandManager.queue.map((item) => ACTION_COMMAND_TYPE_STRINGS[item.payload.type])}`,
       `current: ${actionCommandManager.currentlyProcessing ? ACTION_COMMAND_TYPE_STRINGS[actionCommandManager.currentlyProcessing.payload.type] : null}`,

@@ -17,7 +17,7 @@ export default function CharacterModelDisplay({
   const mutateGameStore = useGameStore().mutateState;
   const { entityProperties } = character;
   const entityId = entityProperties.id;
-  const isLoading = useGameStore().combatantModelsAwaitingSpawn.includes(entityId);
+  const isLoading = useGameStore().combatantModelsAwaitingSpawn;
 
   useEffect(() => {
     // modelDomPositionElement's position and dimensions are set by babylonjs each frame
@@ -27,7 +27,7 @@ export default function CharacterModelDisplay({
     if (modelDomPositionElement === null) return;
 
     mutateGameStore((state) => {
-      state.combatantModelsAwaitingSpawn.push(entityId);
+      state.combatantModelsAwaitingSpawn = true;
     });
 
     gameWorld.current?.modelManager.enqueueMessage(entityId, {
@@ -39,7 +39,6 @@ export default function CharacterModelDisplay({
         modelCorrectionRotation: startPosition.modelCorrectionRotation,
         modelDomPositionElement,
       },
-      checkIfRoomLoaded: false,
     });
 
     return () => {

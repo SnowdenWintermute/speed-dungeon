@@ -9,7 +9,6 @@ import {
   Equipment,
   EquipmentSlotType,
   HoldableHotswapSlot,
-  HoldableSlotType,
   MonsterType,
   TaggedEquipmentSlot,
   iterateNumericEnumKeyedRecord,
@@ -24,6 +23,11 @@ import {
 import { Color3, StandardMaterial } from "@babylonjs/core";
 import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
 import { useGameStore } from "@/stores/game-store";
+import {
+  actionCommandManager,
+  actionCommandReceiver,
+  actionCommandWaitingArea,
+} from "@/singletons/action-command-manager";
 
 // the whole point of all this is to make sure we never handle spawn and despawn messages out of order due
 // to the asynchronous nature of spawning models
@@ -43,16 +47,12 @@ class ModelMessageQueue {
     while (currentMessageProcessing) {
       switch (currentMessageProcessing.type) {
         case ModelManagerMessageType.SpawnModel:
-          await this.modelManager.spawnCharacterModel(
-            currentMessageProcessing.blueprint,
-            currentMessageProcessing.checkIfRoomLoaded
-          );
+          await this.modelManager.spawnCharacterModel(currentMessageProcessing.blueprint);
           break;
         case ModelManagerMessageType.DespawnModel:
           this.modelManager.despawnCharacterModel(this.entityId);
           break;
         case ModelManagerMessageType.ChangeEquipment:
-          console.log("current message:", currentMessageProcessing);
           for (const id of currentMessageProcessing.unequippedIds)
             this.modelManager.removeHoldableModelFromModularCharacter(this.entityId, id);
           if (currentMessageProcessing.toEquip)
@@ -76,6 +76,12 @@ class ModelMessageQueue {
     }
 
     this.isProcessing = false;
+
+    useGameStore.getState().mutateState((state) => {
+      state.combatantModelsAwaitingSpawn = false;
+    });
+    if (actionCommandManager.currentlyProcessing === null && actionCommandWaitingArea.length)
+      actionCommandManager.processNextCommand();
   }
 }
 
@@ -118,10 +124,7 @@ export class ModelManager {
     else await modularCharacter.equipHoldableModel(equipment, slot.slot);
   }
 
-  async spawnCharacterModel(
-    blueprint: CombatantModelBlueprint,
-    checkIfRoomLoaded: boolean
-  ): Promise<Error | ModularCharacter> {
+  async spawnCharacterModel(blueprint: CombatantModelBlueprint): Promise<Error | ModularCharacter> {
     const parts = [];
     const { combatantProperties, entityProperties } = blueprint.combatant;
 
@@ -237,12 +240,6 @@ export class ModelManager {
 
     modularCharacter.updateBoundingBox();
 
-    if (checkIfRoomLoaded) this.checkIfAllModelsInCurrentRoomAreLoaded();
-
-    useGameStore.getState().mutateState((state) => {
-      removeFromArray(state.combatantModelsAwaitingSpawn, entityProperties.id);
-    });
-
     return modularCharacter;
   }
 
@@ -268,29 +265,6 @@ export class ModelManager {
 
     delete this.combatantModels[entityId];
   }
-
-  checkIfAllModelsInCurrentRoomAreLoaded() {
-    useGameStore.getState().mutateState((gameState) => {
-      const partyResult = gameState.getParty();
-      if (partyResult instanceof Error) return console.error(partyResult);
-      const party = partyResult;
-      let allModelsLoaded = true;
-      for (const characterId of party.characterPositions) {
-        if (!this.combatantModels[characterId]) {
-          allModelsLoaded = false;
-          break;
-        }
-      }
-      for (const monsterId of party.currentRoom.monsterPositions) {
-        if (!this.combatantModels[monsterId]) {
-          allModelsLoaded = false;
-          break;
-        }
-      }
-
-      this.world.currentRoomLoaded = allModelsLoaded;
-    });
-  }
 }
 
 export enum ModelManagerMessageType {
@@ -303,7 +277,6 @@ export enum ModelManagerMessageType {
 type SpawnCombatantModelManagerMessage = {
   type: ModelManagerMessageType.SpawnModel;
   blueprint: CombatantModelBlueprint;
-  checkIfRoomLoaded: boolean;
 };
 
 type DespawnModelManagerMessage = {

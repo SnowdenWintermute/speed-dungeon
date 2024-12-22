@@ -22,6 +22,13 @@ export const actionCommandManager = new ActionCommandManager(() => {
     if (!partyOption) return;
     InputLock.unlockInput(partyOption.inputLock);
   });
+
+  if (actionCommandWaitingArea.length) {
+    console.log("sending waiting area to queue");
+    actionCommandManager.queue.push(...actionCommandWaitingArea);
+    actionCommandWaitingArea.length = 0;
+    actionCommandManager.processNextCommand();
+  }
 });
 export const actionCommandWaitingArea: ActionCommand[] = [];
 
@@ -41,7 +48,7 @@ export function enqueueClientActionCommands(entityId: string, payloads: ActionCo
       )
   );
 
-  if (useGameStore.getState().combatantModelsAwaitingSpawn.length === 0)
+  if (!useGameStore.getState().combatantModelsAwaitingSpawn)
     actionCommandManager.enqueueNewCommands(actionCommands);
   else actionCommandWaitingArea.push(...actionCommands);
 }

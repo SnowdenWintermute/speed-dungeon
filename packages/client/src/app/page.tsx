@@ -23,7 +23,6 @@ enableMapSet();
 
 export default function Home() {
   const game = useGameStore().game;
-  const combatantModelsAwaitingSpawn = useGameStore().combatantModelsAwaitingSpawn;
 
   useEffect(() => {
     actionCommandReceiver.current = new ClientActionCommandReceiver();
@@ -32,15 +31,6 @@ export default function Home() {
       actionCommandReceiver.current = null;
     };
   }, []);
-
-  useEffect(() => {
-    if (combatantModelsAwaitingSpawn.length || !actionCommandManager) return;
-    if (actionCommandWaitingArea.length) {
-      actionCommandManager.enqueueNewCommands(
-        actionCommandWaitingArea.splice(0, actionCommandWaitingArea.length)
-      );
-    }
-  }, [combatantModelsAwaitingSpawn]);
 
   const componentToRender = game?.timeStarted ? (
     <Game />

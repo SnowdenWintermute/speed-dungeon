@@ -94,7 +94,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
   }
 
   const lockedUiState =
-    InputLock.isLocked(party.inputLock) || modelsAwaitingSpawn.includes(entityId)
+    InputLock.isLocked(party.inputLock) || modelsAwaitingSpawn
       ? "opacity-50 pointer-events-none "
       : "pointer-events-auto ";
 
