@@ -21,6 +21,9 @@ export default function TopInfoBar() {
   const battleOptionResult = getCurrentBattleOption(game, party.name);
   function leaveGame() {
     websocketConnection.emit(ClientToServerEvent.LeaveGame);
+    mutateGameState((state) => {
+      state.viewingLeaveGameModal = false;
+    });
   }
 
   return (

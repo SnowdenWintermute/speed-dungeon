@@ -45,6 +45,8 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
       const characterResult = SpeedDungeonGame.getCharacter(game, party.name, id);
       if (characterResult instanceof Error) return characterResult;
       characters[characterResult.entityProperties.id] = characterResult;
+
+      delete game.lowestStartingFloorOptionsBySavedCharacter[id];
     }
     const deathsAndRanks = await removeDeadCharactersFromLadder(characters);
     notifyOnlinePlayersOfTopRankedDeaths(deathsAndRanks);

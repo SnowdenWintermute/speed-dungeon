@@ -16,11 +16,8 @@ export function equipmentBaseItemToModelPath(
   const folderPath = MODEL_FOLDER_PATHS[equipmentType];
   switch (equipmentType) {
     case EquipmentType.BodyArmor:
-      return null;
     case EquipmentType.HeadGear:
-      return null;
     case EquipmentType.Ring:
-      return null;
     case EquipmentType.Amulet:
       return null;
     case EquipmentType.OneHandedMeleeWeapon:
@@ -36,6 +33,7 @@ export function equipmentBaseItemToModelPath(
       filePath = SHIELD_MODELS[baseItem as Shield].path;
       break;
   }
+
   if (!folderPath || !filePath) return null;
   return folderPath + filePath;
 }

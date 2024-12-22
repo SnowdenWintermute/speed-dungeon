@@ -25,6 +25,7 @@ import {
   Equipment,
   HoldableSlotType,
   WearableSlotType,
+  formatEquipmentType,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";

@@ -54,9 +54,13 @@ export default async function selectProgressionGameCharacterHandler(
   );
   if (removeCharacterResult instanceof Error) return removeCharacterResult;
 
+  delete game.lowestStartingFloorOptionsBySavedCharacter[removeCharacterResult.entityProperties.id];
+
   addCharacterToParty(game, player, savedCharacterOption.combatant);
 
-  game.selectedStartingFloor.max = savedCharacterOption.deepestFloorReached;
+  game.lowestStartingFloorOptionsBySavedCharacter[
+    savedCharacterOption.combatant.entityProperties.id
+  ] = savedCharacterOption.deepestFloorReached;
 
   gameServer.io
     .of("/")

@@ -14,12 +14,16 @@ export function removeClientPlayerFromGame(
   actionCommandManager: ActionCommandManager,
   username: string
 ) {
+  console.log("REMOVE CLIENT PLAYER FROM GAME CALLED");
+  console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   const thumbnailIdsToRemove: string[] = [];
   useGameStore.getState().mutateState((state) => {
     if (!state.game) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
     const removedPlayerResult = SpeedDungeonGame.removePlayer(state.game, username);
     if (removedPlayerResult instanceof Error) return setAlert(removedPlayerResult);
     for (const character of removedPlayerResult.charactersRemoved) {
+      delete state.game.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id];
+
       for (const item of Inventory.getItems(character.combatantProperties.inventory).concat(
         Object.values(character.combatantProperties.equipment)
       )) {
@@ -30,6 +34,8 @@ export function removeClientPlayerFromGame(
     state.combatLogMessages.push(
       new CombatLogMessage(`${username} left the game`, CombatLogMessageStyle.PartyWipe)
     );
+
+    console.log("removed player ", username, "players remaining: ", state.game.players);
   });
 
   gameWorld.current?.imageManager.enqueueMessage({

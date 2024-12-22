@@ -16,7 +16,10 @@ export default function savedCharacterSelectionInProgressGameHandler(
   useGameStore.getState().mutateState((gameState) => {
     const game = gameState.game;
     if (!game) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
-    game.selectedStartingFloor.max = character.deepestFloorReached;
+
+    game.lowestStartingFloorOptionsBySavedCharacter[character.combatant.entityProperties.id] =
+      character.deepestFloorReached;
+
     const partyName = getProgressionGamePartyName(game.name);
     const party = game.adventuringParties[partyName];
     if (!party) return setAlert(new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST));
@@ -32,6 +35,11 @@ export default function savedCharacterSelectionInProgressGameHandler(
         undefined
       );
       if (removedCharacterResult instanceof Error) return setAlert(removedCharacterResult);
+
+      delete game.lowestStartingFloorOptionsBySavedCharacter[
+        removedCharacterResult.entityProperties.id
+      ];
+
       for (const character of Object.values(party.characters))
         updateCombatantHomePosition(
           character.entityProperties.id,

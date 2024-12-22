@@ -18,7 +18,10 @@ import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
-import { enqueueCharacterItemsForThumbnails, enqueueConsumableGenericThumbnailCreation } from "@/utils/enqueue-character-items-for-thumbnails";
+import {
+  enqueueCharacterItemsForThumbnails,
+  enqueueConsumableGenericThumbnailCreation,
+} from "@/utils/enqueue-character-items-for-thumbnails";
 
 export default function setUpGameLobbyEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -48,7 +51,7 @@ export default function setUpGameLobbyEventHandlers(
       if (state.game) state.game.players[username] = new SpeedDungeonPlayer(username);
     });
   });
-  socket.on(ServerToClientEvent.PlayerLeftGame, () => playerLeftGameHandler);
+  socket.on(ServerToClientEvent.PlayerLeftGame, playerLeftGameHandler);
   socket.on(ServerToClientEvent.PartyCreated, (partyId, partyName) => {
     mutateGameStore((state) => {
       if (state.game) {
@@ -84,7 +87,7 @@ export default function setUpGameLobbyEventHandlers(
 
     gameWorld.current?.clearFloorTexture();
 
-    enqueueConsumableGenericThumbnailCreation()
+    enqueueConsumableGenericThumbnailCreation();
 
     const partyOption = useGameStore.getState().getParty();
     if (partyOption instanceof Error) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
@@ -92,9 +95,10 @@ export default function setUpGameLobbyEventHandlers(
       enqueueCharacterItemsForThumbnails(character);
     }
   });
+
   socket.on(ServerToClientEvent.ProgressionGameStartingFloorSelected, (floorNumber) => {
     mutateGameStore((state) => {
-      if (state.game) state.game.selectedStartingFloor.current = floorNumber;
+      if (state.game) state.game.selectedStartingFloor = floorNumber;
     });
   });
 }

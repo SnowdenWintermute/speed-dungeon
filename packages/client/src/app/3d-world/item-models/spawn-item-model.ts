@@ -8,6 +8,7 @@ import {
   assignConsumableMaterials,
   assignEquipmentMaterials,
 } from "../game-world/materials/assign-item-materials";
+import { BASE_FILE_PATH } from "../combatant-models/modular-character/modular-character-parts";
 
 export async function spawnItemModel(
   item: Item,
@@ -27,7 +28,7 @@ export async function spawnItemModel(
     return "";
   })();
 
-  if (modelPath === null)
+  if (modelPath === null || modelPath === BASE_FILE_PATH)
     return new Error(`No model path was found for item [${item.entityProperties.name}]`);
 
   const itemModel = await importMesh(modelPath, scene);

@@ -98,6 +98,12 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
         </button>
       </div>
       <ul ref={debugRef} className="p-2"></ul>
+      <div>Client Action Command Queue</div>
+      <ul>
+        {
+          // clientA
+        }
+      </ul>
       <ul className="flex max-w-96 flex-wrap">
         <li key="ayy" className="border p-5 bg-slate-700">
           Num thumbnails: {Object.keys(thumbnails).length}

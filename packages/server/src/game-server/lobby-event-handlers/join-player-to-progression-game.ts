@@ -31,7 +31,9 @@ export default async function joinPlayerToProgressionGame(
   if (playerOption === undefined)
     return errorHandler(socket, ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
   addCharacterToParty(game, playerOption, character.combatant);
-  game.selectedStartingFloor.max = character.deepestFloorReached;
+
+  game.lowestStartingFloorOptionsBySavedCharacter[character.combatant.entityProperties.id] =
+    character.deepestFloorReached;
 
   gameServer.io
     .of("/")

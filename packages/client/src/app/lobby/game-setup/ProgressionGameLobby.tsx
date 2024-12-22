@@ -27,6 +27,21 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
 
   const numPlayersInGame = Object.values(game.players).length;
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
+  const maxStartingFloor = Object.values(game.lowestStartingFloorOptionsBySavedCharacter).reduce(
+    (acc, curr) => (curr > acc ? curr : acc),
+    1
+  );
+
+  console.log(
+    "numPlayersInGame: ",
+    numPlayersInGame,
+    MAX_PARTY_SIZE - numPlayersInGame,
+    Object.values(game.players).map((item) => item.username)
+  );
+  console.log(
+    "lowestfloors: ",
+    JSON.stringify(game.lowestStartingFloorOptionsBySavedCharacter, null, 2)
+  );
 
   return (
     <GameLobby game={game}>
@@ -40,14 +55,14 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
           ))}
         </ul>
         <Divider />
-        <div className="text-lg mb-2">Starting on floor: max {game.selectedStartingFloor.max}</div>
+        <div className="text-lg mb-2">Starting floor (max {maxStartingFloor})</div>
         <SelectDropdown
           title={"starting-floor-select"}
-          value={game.selectedStartingFloor.current}
+          value={game.selectedStartingFloor}
           setValue={(value: number) => {
             websocketConnection.emit(ClientToServerEvent.SelectProgressionGameStartingFloor, value);
           }}
-          options={Array.from({ length: game.selectedStartingFloor.max }, (_, index) => ({
+          options={Array.from({ length: maxStartingFloor }, (_, index) => ({
             title: `Floor ${index + 1}`,
             value: index + 1,
           }))}

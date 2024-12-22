@@ -6,8 +6,9 @@ import { ZIndexLayers } from "@/app/z-index-layers";
 
 export function GameSetup({ game }: { game: SpeedDungeonGame }) {
   return (
-    <main className={ `h-screen w-screen absolute ` }
-    style={{zIndex: ZIndexLayers.LobbyGameSetup}}
+    <main
+      className={`h-screen w-screen absolute overflow-hidden`}
+      style={{ zIndex: ZIndexLayers.LobbyGameSetup }}
     >
       {game.mode === GameMode.Progression && <ProgressionGameLobby game={game} />}
       {game.mode === GameMode.Race && <RaceGameLobby game={game} />}

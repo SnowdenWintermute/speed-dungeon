@@ -13,11 +13,17 @@ export default async function selectProgressionGameStartingFloorHandler(
 ) {
   const { game, session } = playerAssociatedData;
   if (game.mode !== GameMode.Progression) return errorHandler(socket, ERROR_MESSAGES.GAME.MODE);
-  if (game.selectedStartingFloor.max < floorNumber)
+  const maxStartingFloor = Object.values(game.lowestStartingFloorOptionsBySavedCharacter).reduce(
+    (acc, curr) => (curr > acc ? curr : acc),
+    1
+  );
+
+  if (floorNumber > maxStartingFloor)
     return errorHandler(socket, ERROR_MESSAGES.GAME.STARTING_FLOOR_LIMIT);
-  game.selectedStartingFloor.current = floorNumber;
+  game.selectedStartingFloor = floorNumber;
+
   for (const party of Object.values(game.adventuringParties))
-    party.currentFloor = game.selectedStartingFloor.current;
+    party.currentFloor = game.selectedStartingFloor;
 
   const player = game.players[session.username];
   if (!player) return errorHandler(socket, `${ATTEMPT_TEXT} their player wasn't in the game`);
