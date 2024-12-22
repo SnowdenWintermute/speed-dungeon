@@ -1,18 +1,17 @@
 import { Vector3 } from "@babylonjs/core";
 import { Combatant } from "@speed-dungeon/common";
 import { ReactNode, useEffect } from "react";
-import { CHARACTER_SLOT_SPACING } from ".";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
 import { useGameStore } from "@/stores/game-store";
 
-export default function SavedCharacterDisplay({
+export default function CharacterModelDisplay({
   character,
-  index,
+  startPosition,
   children,
 }: {
   character: Combatant;
-  index: number;
+  startPosition: { startRotation: number; modelCorrectionRotation: number; startPosition: Vector3 };
   children?: ReactNode;
 }) {
   const mutateGameStore = useGameStore().mutateState;
@@ -35,9 +34,9 @@ export default function SavedCharacterDisplay({
       type: ModelManagerMessageType.SpawnModel,
       blueprint: {
         combatant: character,
-        startPosition: new Vector3(-CHARACTER_SLOT_SPACING + index * CHARACTER_SLOT_SPACING, 0, 0),
-        startRotation: 0,
-        modelCorrectionRotation: 0,
+        startPosition: startPosition.startPosition,
+        startRotation: startPosition.startRotation,
+        modelCorrectionRotation: startPosition.modelCorrectionRotation,
         modelDomPositionElement,
       },
       checkIfRoomLoaded: false,
@@ -48,7 +47,7 @@ export default function SavedCharacterDisplay({
         type: ModelManagerMessageType.DespawnModel,
       });
     };
-  }, [index]);
+  }, []);
 
   return (
     <div id={`${entityId}-position-div`} className={`absolute ${isLoading && "hidden"}`}>

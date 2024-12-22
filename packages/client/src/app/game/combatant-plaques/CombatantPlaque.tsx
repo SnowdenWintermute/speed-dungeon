@@ -17,28 +17,20 @@ import {
   InputLock,
   Inventory,
 } from "@speed-dungeon/common";
-import requestSpawnCombatantModel from "./request-spawn-combatant-model";
 import "./floating-text-animation.css";
-import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
 import setFocusedCharacter from "@/utils/set-focused-character";
 import { AssigningAttributePointsMenuState } from "../ActionMenu/menu-state/assigning-attribute-points";
 import CombatantFloatingMessagesDisplay from "./combatant-floating-messages-display";
 import InventoryIconButton from "./InventoryIconButton";
 import HotswapSlotButtons from "./HotswapSlotButtons";
+import CharacterModelDisplay from "@/app/character-model-display";
+import getCombatantModelStartPosition from "./get-combatant-model-start-position";
 
 interface Props {
   combatant: Combatant;
   showExperience: boolean;
 }
-
-// tried using refs but the .current property wasn't mutable at runtime
-// even though the refs were properly declared as mutable
-// so we couldn't remove them at unmount and caused client crash when
-// other players left the game
-const modelDomPositionElements: { [entityId: string]: null | HTMLDivElement } = {};
 
 export default function CombatantPlaque({ combatant, showExperience }: Props) {
   const gameOption = useGameStore().game;
@@ -76,28 +68,6 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
     setPortraitHeight(height);
   }, []);
 
-  useEffect(() => {
-    const element = document.getElementById(`${entityId}-position-div`);
-    modelDomPositionElements[entityId] = element as HTMLDivElement | null;
-
-    requestSpawnCombatantModel(combatant, party, element as HTMLDivElement | null);
-    mutateGameState((state) => {
-      state.babylonControlledCombatantDOMData[entityId] = new BabylonControlledCombatantData();
-    });
-    return () => {
-      modelDomPositionElements[entityId] = null;
-      delete modelDomPositionElements[entityId];
-
-      mutateGameState((state) => {
-        delete state.babylonControlledCombatantDOMData[entityId];
-      });
-
-      gameWorld.current?.modelManager.enqueueMessage(entityId, {
-        type: ModelManagerMessageType.DespawnModel,
-      });
-    };
-  }, []);
-
   function isHovered() {
     if (!hoveredEntity) return false;
     if (hoveredEntity instanceof Combatant) return false;
@@ -130,7 +100,10 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
 
   return (
     <div className="">
-      <div id={`${entityId}-position-div`} className="absolute">
+      <CharacterModelDisplay
+        character={combatant}
+        startPosition={getCombatantModelStartPosition(combatant)}
+      >
         <CombatantFloatingMessagesDisplay entityId={entityId} />
         <div className="absolute flex flex-col justify-center items-center text-center top-1/2 left-1/2 -translate-x-1/2 w-[400px]">
           {babylonDebugMessages?.map((message) => (
@@ -139,7 +112,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
             </div>
           ))}
         </div>
-      </div>
+      </CharacterModelDisplay>
       <div
         className={`w-[23rem] h-fit border bg-slate-700 flex p-2.5 relative box-border ${conditionalBorder} ${lockedUiState}`}
         ref={combatantPlaqueRef}

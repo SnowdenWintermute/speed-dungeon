@@ -11,11 +11,11 @@ import React, { useEffect, useState } from "react";
 import ArrowShape from "../../../../public/img/menu-icons/arrow-button-icon.svg";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import SavedCharacterDisplay from "./SavedCharacterDisplay";
 import CreateCharacterForm from "./CreateCharacterForm";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import DeleteCharacterForm from "./DeleteCharacterForm";
+import CharacterModelDisplay from "@/app/character-model-display";
 
 export const CHARACTER_SLOT_SPACING = 1;
 export const CHARACTER_MANAGER_HOTKEY = "S";
@@ -60,10 +60,18 @@ export default function SavedCharacterManager() {
           .filter(([_slot, characterOption]) => characterOption !== null)
           .map(([slot, character]) => {
             return (
-              <SavedCharacterDisplay
+              <CharacterModelDisplay
                 character={character!}
-                index={parseInt(slot)}
                 key={character!.entityProperties.id}
+                startPosition={{
+                  startRotation: 0,
+                  modelCorrectionRotation: 0,
+                  startPosition: new Vector3(
+                    -CHARACTER_SLOT_SPACING + parseInt(slot) * CHARACTER_SLOT_SPACING,
+                    0,
+                    0
+                  ),
+                }}
               >
                 <div className="w-full h-full flex justify-center items-center">
                   {character!.combatantProperties.hitPoints <= 0 && (
@@ -79,7 +87,7 @@ export default function SavedCharacterManager() {
                     </div>
                   )}
                 </div>
-              </SavedCharacterDisplay>
+              </CharacterModelDisplay>
             );
           })}
       </div>

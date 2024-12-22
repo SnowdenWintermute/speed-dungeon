@@ -14,9 +14,11 @@ import React, { useEffect, useMemo } from "react";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import SelectDropdown from "@/app/components/atoms/SelectDropdown";
-import SavedCharacterDisplay from "../saved-character-manager/SavedCharacterDisplay";
 import Divider from "@/app/components/atoms/Divider";
 import GameLobby from "./GameLobby";
+import CharacterModelDisplay from "@/app/character-model-display";
+import { CHARACTER_SLOT_SPACING } from "../saved-character-manager";
+import { Vector3 } from "@babylonjs/core";
 
 export default function ProgressionGameLobby() {
   const username = useGameStore().username;
@@ -117,9 +119,17 @@ function PlayerDisplay({
   return (
     <div className="w-full mb-2 flex flex-col">
       {selectedCharacterOption && (
-        <SavedCharacterDisplay
+        <CharacterModelDisplay
           character={selectedCharacterOption}
-          index={index}
+          startPosition={{
+            startRotation: 0,
+            modelCorrectionRotation: 0,
+            startPosition: new Vector3(
+              -CHARACTER_SLOT_SPACING + index * CHARACTER_SLOT_SPACING,
+              0,
+              0
+            ),
+          }}
           key={selectedCharacterOption.entityProperties.id}
         >
           <div className="h-full w-full flex flex-col items-center justify-end text-lg ">
@@ -130,7 +140,7 @@ function PlayerDisplay({
               </div>
             </div>
           </div>
-        </SavedCharacterDisplay>
+        </CharacterModelDisplay>
       )}
       <div className="flex justify-between mb-1">
         <div className="pointer-events-auto">{playerOption?.username || "Empty slot"}</div>
