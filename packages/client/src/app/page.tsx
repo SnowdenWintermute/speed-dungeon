@@ -45,7 +45,7 @@ export default function Home() {
   const componentToRender = game?.timeStarted ? (
     <Game />
   ) : game ? (
-    <GameSetup game={game} />
+    <GameSetup gameMode={game.mode} />
   ) : (
     <Lobby />
   );

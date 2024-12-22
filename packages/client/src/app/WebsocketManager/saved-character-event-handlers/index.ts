@@ -15,7 +15,7 @@ export default function setUpSavedCharacterEventListeners(
   socket.on(ServerToClientEvent.SavedCharacterList, (characters) => {
     for (const character of Object.values(characters)) {
       if (character !== null)
-        CombatantEquipment.instatiateItemClasses(character.combatant.combatantProperties);
+        CombatantEquipment.instatiateItemClasses(character.combatantProperties);
     }
 
     gameWorld.current?.drawCharacterSlots();
@@ -28,7 +28,7 @@ export default function setUpSavedCharacterEventListeners(
     mutateLobbyState((state) => {
       for (const [slot, character] of Object.entries(state.savedCharacters)) {
         const slotAsNumber = parseInt(slot);
-        if (character?.combatant.entityProperties.id === id) {
+        if (character?.entityProperties.id === id) {
           state.savedCharacters[slotAsNumber] = null;
           break;
         }
@@ -37,7 +37,7 @@ export default function setUpSavedCharacterEventListeners(
   });
 
   socket.on(ServerToClientEvent.SavedCharacter, (character, slot) => {
-    CombatantEquipment.instatiateItemClasses(character.combatant.combatantProperties);
+    CombatantEquipment.instatiateItemClasses(character.combatantProperties);
     mutateLobbyState((state) => {
       state.savedCharacters[slot] = character;
     });

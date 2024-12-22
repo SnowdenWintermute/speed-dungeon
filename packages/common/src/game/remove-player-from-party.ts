@@ -3,7 +3,6 @@ import { SpeedDungeonGame } from "./index.js";
 import { removeFromArray } from "../utils/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { Combatant } from "../combatants/index.js";
-import { Battle } from "../battle/index.js";
 
 export type RemovedPlayerData = {
   partyNameLeft: null | string;
@@ -38,6 +37,7 @@ export default function removePlayerFromParty(
       );
       if (removedCharacterResult instanceof Error) return removedCharacterResult;
       charactersRemoved.push(removedCharacterResult);
+      delete game.lowestStartingFloorOptionsBySavedCharacter[characterId];
     });
   }
 

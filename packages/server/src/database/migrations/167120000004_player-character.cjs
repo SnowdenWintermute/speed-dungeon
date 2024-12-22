@@ -13,7 +13,6 @@ exports.up = (pgm) => {
       name VARCHAR(32) NOT NULL,
       owner_id INTEGER,
       game_version VARCHAR(16),
-      deepest_floor_reached INTEGER,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       combatant_properties JSONB NOT NULL

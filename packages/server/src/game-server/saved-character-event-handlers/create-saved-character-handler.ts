@@ -39,9 +39,5 @@ export default async function createSavedCharacterHandler(
     { value: newCharacter.entityProperties.id, score: newCharacter.combatantProperties.level },
   ]);
 
-  socket.emit(
-    ServerToClientEvent.SavedCharacter,
-    { combatant: newCharacter, deepestFloorReached: 1 },
-    slotNumber
-  );
+  socket.emit(ServerToClientEvent.SavedCharacter, newCharacter, slotNumber);
 }

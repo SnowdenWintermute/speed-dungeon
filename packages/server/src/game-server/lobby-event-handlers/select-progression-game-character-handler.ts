@@ -33,8 +33,8 @@ export default async function selectProgressionGameCharacterHandler(
   // make sure the character exists and is alive
   let savedCharacterOption;
   for (const character of Object.values(charactersResult)) {
-    if (character.combatant.entityProperties.id === entityId) {
-      if (character.combatant.combatantProperties.hitPoints <= 0)
+    if (character.entityProperties.id === entityId) {
+      if (character.combatantProperties.hitPoints <= 0)
         return errorHandler(socket, ERROR_MESSAGES.COMBATANT.IS_DEAD);
       savedCharacterOption = character;
       break;
@@ -56,11 +56,15 @@ export default async function selectProgressionGameCharacterHandler(
 
   delete game.lowestStartingFloorOptionsBySavedCharacter[removeCharacterResult.entityProperties.id];
 
-  addCharacterToParty(game, player, savedCharacterOption.combatant);
+  addCharacterToParty(game, player, savedCharacterOption);
 
-  game.lowestStartingFloorOptionsBySavedCharacter[
-    savedCharacterOption.combatant.entityProperties.id
-  ] = savedCharacterOption.deepestFloorReached;
+  console.log(
+    "savedCharacterOption: ",
+    JSON.stringify(savedCharacterOption.combatantProperties.deepestFloorReached, null, 2)
+  );
+
+  game.lowestStartingFloorOptionsBySavedCharacter[savedCharacterOption.entityProperties.id] =
+    savedCharacterOption.combatantProperties.deepestFloorReached;
 
   gameServer.io
     .of("/")

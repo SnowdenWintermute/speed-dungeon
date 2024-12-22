@@ -17,6 +17,7 @@ export default function removeCharacterFromParty(
   removeFromArray(player.characterIds, characterId);
   const character = party.characters[characterId];
   delete party.characters[characterId];
+
   removeFromArray(party.characterPositions, characterId);
 
   if (character === undefined) return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);

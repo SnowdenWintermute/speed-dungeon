@@ -64,6 +64,7 @@ export class CombatantProperties {
   selectedCombatAction: null | CombatAction = null;
   combatActionTarget: null | CombatActionTarget = null;
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
+  deepestFloorReached: number = 1;
   constructor(
     public combatantClass: CombatantClass,
     public combatantSpecies: CombatantSpecies,

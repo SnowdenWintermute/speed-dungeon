@@ -1,12 +1,7 @@
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { useGameStore } from "@/stores/game-store";
-import {
-  ClientToServerEvent,
-  SpeedDungeonGame,
-  SpeedDungeonPlayer,
-  formatGameMode,
-} from "@speed-dungeon/common";
+import { ClientToServerEvent, SpeedDungeonPlayer, formatGameMode } from "@speed-dungeon/common";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { SPACING_REM_LARGE } from "@/client_consts";
@@ -14,11 +9,12 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { ZIndexLayers } from "@/app/z-index-layers";
 
 interface Props {
-  game: SpeedDungeonGame;
   children: ReactNode;
 }
 
-export default function GameLobby({ game, children }: Props) {
+export default function GameLobby({ children }: Props) {
+  const game = useGameStore().game;
+  if (game === null) return <div>Loading...</div>;
   const username = useGameStore().username;
   const titleRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);

@@ -10,7 +10,7 @@ import {
   formatCombatantClassName,
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import SelectDropdown from "@/app/components/atoms/SelectDropdown";
@@ -18,14 +18,16 @@ import SavedCharacterDisplay from "../saved-character-manager/SavedCharacterDisp
 import Divider from "@/app/components/atoms/Divider";
 import GameLobby from "./GameLobby";
 
-export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame }) {
+export default function ProgressionGameLobby() {
   const username = useGameStore().username;
+  const game = useGameStore().game;
+  if (game === null) return <div>Loading...</div>;
 
   useEffect(() => {
     websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
   }, []);
 
-  const numPlayersInGame = Object.values(game.players).length;
+  const numPlayersInGame = useMemo(() => Object.values(game.players).length, [game.players]);
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
   const maxStartingFloor = Object.values(game.lowestStartingFloorOptionsBySavedCharacter).reduce(
     (acc, curr) => (curr > acc ? curr : acc),
@@ -35,8 +37,9 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
   console.log(
     "numPlayersInGame: ",
     numPlayersInGame,
-    MAX_PARTY_SIZE - numPlayersInGame,
-    Object.values(game.players).map((item) => item.username)
+    Object.values(game.players)
+      .map((item) => item.username)
+      .join(", ")
   );
   console.log(
     "lowestfloors: ",
@@ -44,7 +47,7 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
   );
 
   return (
-    <GameLobby game={game}>
+    <GameLobby>
       <div style={{ width: `${menuWidth}px` }}>
         <ul className="w-full flex flex-col">
           {Object.values(game.players).map((player, i) => (
@@ -144,8 +147,8 @@ function PlayerDisplay({
             .filter((character) => !!character)
             .map((character) => {
               return {
-                title: formatCharacterTag(character!.combatant),
-                value: character!.combatant.entityProperties.id,
+                title: formatCharacterTag(character!),
+                value: character!.entityProperties.id,
               };
             })}
           disabled={game.playersReadied.includes(username)}

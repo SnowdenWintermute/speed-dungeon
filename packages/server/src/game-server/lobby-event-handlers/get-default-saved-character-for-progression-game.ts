@@ -32,15 +32,10 @@ export default async function getDefaultSavedCharacterForProgressionGame(
   if (Object.values(charactersResult).length === 0)
     return new Error(ERROR_MESSAGES.GAME.NO_SAVED_CHARACTERS);
 
-  let defaultSavedCharacter:
-    | {
-        combatant: Combatant;
-        deepestFloorReached: number;
-      }
-    | undefined = undefined;
+  let defaultSavedCharacter: Combatant | undefined = undefined;
 
   for (const character of Object.values(charactersResult)) {
-    if (character.combatant.combatantProperties.hitPoints > 0) {
+    if (character.combatantProperties.hitPoints > 0) {
       defaultSavedCharacter = character;
       break;
     }

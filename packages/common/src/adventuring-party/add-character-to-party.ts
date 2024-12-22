@@ -1,10 +1,8 @@
-import { plainToInstance } from "class-transformer";
 import { MAX_PARTY_SIZE } from "../app-consts.js";
 import { Combatant, Inventory, updateCombatantHomePosition } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "../game/index.js";
 import { EntityId } from "../primatives/index.js";
-import { Equipment, WearableSlotType } from "../items/equipment/index.js";
 import { CombatantEquipment } from "../combatants/combatant-equipment/index.js";
 
 export function addCharacterToParty(
@@ -13,6 +11,7 @@ export function addCharacterToParty(
   character: Combatant
 ): EntityId {
   const partyName = player.partyName;
+  console.log("ADING CHARACTER", character.entityProperties.name, "to party", partyName);
   if (!partyName)
     throw new Error(
       "tried to add a character to a party but their controllingPlayer didn't know what party they were in"
@@ -32,6 +31,9 @@ export function addCharacterToParty(
   party.characters[characterId] = character;
   party.characterPositions.push(characterId);
   player.characterIds.push(characterId);
+
+  game.lowestStartingFloorOptionsBySavedCharacter[characterId] =
+    character.combatantProperties.deepestFloorReached;
 
   for (const character of Object.values(party.characters))
     updateCombatantHomePosition(

@@ -61,12 +61,12 @@ export default function SavedCharacterManager() {
           .map(([slot, character]) => {
             return (
               <SavedCharacterDisplay
-                character={character!.combatant}
+                character={character!}
                 index={parseInt(slot)}
-                key={character!.combatant.entityProperties.id}
+                key={character!.entityProperties.id}
               >
                 <div className="w-full h-full flex justify-center items-center">
-                  {character!.combatant.combatantProperties.hitPoints <= 0 && (
+                  {character!.combatantProperties.hitPoints <= 0 && (
                     <div className="relative text-2xl">
                       <span
                         className="text-red-600"
@@ -119,13 +119,13 @@ export default function SavedCharacterManager() {
               <XShape className="h-full w-full fill-slate-400" />
             </HotkeyButton>
             <h4>{!selectedCharacterOption && ` Slot ${currentSlot + 1} `}</h4>
-            <h3>{selectedCharacterOption?.combatant.entityProperties.name || "Empty"}</h3>
+            <h3>{selectedCharacterOption?.entityProperties.name || "Empty"}</h3>
             {selectedCharacterOption && (
               <div>
-                Level: {selectedCharacterOption.combatant.combatantProperties.level}
+                Level: {selectedCharacterOption.combatantProperties.level}
                 {" " +
                   formatCombatantClassName(
-                    selectedCharacterOption.combatant.combatantProperties.combatantClass
+                    selectedCharacterOption.combatantProperties.combatantClass
                   )}
               </div>
             )}
@@ -160,7 +160,7 @@ export default function SavedCharacterManager() {
           </div>
           <div>
             {selectedCharacterOption ? (
-              <DeleteCharacterForm character={selectedCharacterOption.combatant} />
+              <DeleteCharacterForm character={selectedCharacterOption} />
             ) : (
               <CreateCharacterForm currentSlot={currentSlot} />
             )}

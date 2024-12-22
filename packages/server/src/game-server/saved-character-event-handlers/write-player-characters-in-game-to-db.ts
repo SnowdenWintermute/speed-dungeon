@@ -14,7 +14,6 @@ export default async function writePlayerCharactersInGameToDb(
   player: SpeedDungeonPlayer
 ): Promise<Error | void> {
   try {
-    console.log("saving characters for player ", player.username);
     if (!player.partyName) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
     for (const id of player.characterIds) {
       const characterResult = SpeedDungeonGame.getCharacter(game, player.partyName, id);
@@ -29,12 +28,12 @@ export default async function writePlayerCharactersInGameToDb(
       characterResult.combatantProperties.combatActionTarget = null;
       const partyOption = game.adventuringParties[getProgressionGamePartyName(game.name)];
       if (partyOption === undefined) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
-      if (partyOption.currentFloor > existingCharacter.deepestFloorReached)
-        existingCharacter.deepestFloorReached = partyOption.currentFloor;
+      if (partyOption.currentFloor > existingCharacter.combatantProperties.deepestFloorReached) {
+        characterResult.combatantProperties.deepestFloorReached = partyOption.currentFloor;
+      }
 
       existingCharacter.combatantProperties = characterResult.combatantProperties;
       await playerCharactersRepo.update(existingCharacter);
-      console.log("initiated character update transaction for ", existingCharacter.name);
     }
   } catch (error) {
     if (error instanceof Error) return error;

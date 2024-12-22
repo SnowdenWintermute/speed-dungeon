@@ -35,17 +35,16 @@ export default async function createProgressionGameHandler(
     GameMode.Progression,
     socketMeta.username
   );
-  game.lowestStartingFloorOptionsBySavedCharacter[
-    defaultSavedCharacterResult.combatant.entityProperties.id
-  ] = defaultSavedCharacterResult.deepestFloorReached;
+  game.lowestStartingFloorOptionsBySavedCharacter[defaultSavedCharacterResult.entityProperties.id] =
+    defaultSavedCharacterResult.combatantProperties.deepestFloorReached;
 
   console.log(
     "character",
-    defaultSavedCharacterResult.combatant,
+    defaultSavedCharacterResult.entityProperties.name,
     "deepest floor",
-    defaultSavedCharacterResult.deepestFloorReached
+    defaultSavedCharacterResult.combatantProperties.deepestFloorReached
   );
-  game.selectedStartingFloor = defaultSavedCharacterResult.deepestFloorReached;
+  game.selectedStartingFloor = defaultSavedCharacterResult.combatantProperties.deepestFloorReached;
 
   const defaultPartyName = getProgressionGamePartyName(game.name);
   game.adventuringParties[getProgressionGamePartyName(game.name)] = new AdventuringParty(

@@ -11,14 +11,14 @@ import {
 
 export default function savedCharacterSelectionInProgressGameHandler(
   username: string,
-  character: { combatant: Combatant; deepestFloorReached: number }
+  character: Combatant
 ) {
   useGameStore.getState().mutateState((gameState) => {
     const game = gameState.game;
     if (!game) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
 
-    game.lowestStartingFloorOptionsBySavedCharacter[character.combatant.entityProperties.id] =
-      character.deepestFloorReached;
+    game.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id] =
+      character.combatantProperties.deepestFloorReached;
 
     const partyName = getProgressionGamePartyName(game.name);
     const party = game.adventuringParties[partyName];
@@ -48,6 +48,6 @@ export default function savedCharacterSelectionInProgressGameHandler(
         );
     }
 
-    addCharacterToParty(game, player, character.combatant);
+    addCharacterToParty(game, player, character);
   });
 }

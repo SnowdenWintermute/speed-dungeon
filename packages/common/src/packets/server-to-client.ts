@@ -137,16 +137,13 @@ export interface ServerToClientEventTypes {
     attribute: CombatAttribute
   ) => void;
   [ServerToClientEvent.SavedCharacterList]: (characterSlots: {
-    [slot: number]: null | { combatant: Combatant; deepestFloorReached: number };
+    [slot: number]: null | Combatant;
   }) => void;
-  [ServerToClientEvent.SavedCharacter]: (
-    character: { combatant: Combatant; deepestFloorReached: number },
-    slot: number
-  ) => void;
+  [ServerToClientEvent.SavedCharacter]: (character: Combatant, slot: number) => void;
   [ServerToClientEvent.SavedCharacterDeleted]: (id: string) => void;
   [ServerToClientEvent.PlayerSelectedSavedCharacterInProgressionGame]: (
     username: string,
-    character: { combatant: Combatant; deepestFloorReached: number }
+    character: Combatant
   ) => void;
   [ServerToClientEvent.ProgressionGameStartingFloorSelected]: (floor: number) => void;
   // was using this to create models of items on client with randomly generated
