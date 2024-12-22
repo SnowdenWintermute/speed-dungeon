@@ -1,12 +1,12 @@
 import { useGameStore } from "@/stores/game-store";
-import { GameWorld } from ".";
+import { GameWorld } from "..";
 import {
   actionCommandManager,
   actionCommandWaitingArea,
 } from "@/singletons/action-command-manager";
 import { ACTION_COMMAND_TYPE_STRINGS } from "@speed-dungeon/common";
 
-export default function showDebugText(this: GameWorld) {
+export default function updateDebugText(this: GameWorld) {
   if (this.debug.debugRef?.current) {
     const fps = `<div>${this.engine.getFps().toFixed()}</div>`;
 

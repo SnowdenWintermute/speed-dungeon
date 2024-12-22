@@ -1,6 +1,6 @@
-import { GameWorld } from "./index";
-import { ModularCharacter } from "../combatant-models/modular-character";
-import { disposeAsyncLoadedScene, importMesh } from "../utils";
+import { GameWorld } from "../index";
+import { ModularCharacter } from "../../combatant-models/modular-character";
+import { disposeAsyncLoadedScene, importMesh } from "../../utils";
 import {
   CombatantClass,
   CombatantEquipment,
@@ -12,20 +12,18 @@ import {
   MonsterType,
   TaggedEquipmentSlot,
   iterateNumericEnumKeyedRecord,
-  removeFromArray,
 } from "@speed-dungeon/common";
 import {
   CHARACTER_PARTS,
   MONSTER_FULL_SKINS,
   ModularCharacterPartCategory,
   SKELETONS,
-} from "../combatant-models/modular-character/modular-character-parts";
+} from "../../combatant-models/modular-character/modular-character-parts";
 import { Color3, StandardMaterial } from "@babylonjs/core";
 import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
 import { useGameStore } from "@/stores/game-store";
 import {
   actionCommandManager,
-  actionCommandReceiver,
   actionCommandWaitingArea,
 } from "@/singletons/action-command-manager";
 
@@ -80,6 +78,7 @@ class ModelMessageQueue {
     useGameStore.getState().mutateState((state) => {
       state.combatantModelsAwaitingSpawn = false;
     });
+
     if (actionCommandManager.currentlyProcessing === null && actionCommandWaitingArea.length)
       actionCommandManager.processNextCommand();
   }

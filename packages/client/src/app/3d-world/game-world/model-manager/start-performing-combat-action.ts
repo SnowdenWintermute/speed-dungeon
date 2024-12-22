@@ -4,15 +4,15 @@ import {
   SpeedDungeonGame,
   combatActionRequiresMeleeRange,
 } from "@speed-dungeon/common";
-import { GameWorld } from ".";
+import { GameWorld } from "..";
 import cloneDeep from "lodash.clonedeep";
 import { Vector3 } from "@babylonjs/core";
-import getCombatActionAnimationName from "../combatant-models/animation-manager/animation-names";
+import getCombatActionAnimationName from "../../combatant-models/animation-manager/animation-names";
 import {
   CombatantModelAction,
   CombatantModelActionType,
-} from "../combatant-models/model-action-manager/model-actions";
-import getFrameEventFromAnimation from "../combatant-models/animation-manager/get-frame-event-from-animation";
+} from "../../combatant-models/model-action-manager/model-actions";
+import getFrameEventFromAnimation from "../../combatant-models/animation-manager/get-frame-event-from-animation";
 import { getCombatActionExecutionTime } from "@speed-dungeon/common";
 import { actionCommandManager } from "@/singletons/action-command-manager";
 import { useGameStore } from "@/stores/game-store";

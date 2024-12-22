@@ -14,7 +14,7 @@ import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
 import { AdventuringParty, CombatTurnResult } from "@speed-dungeon/common";
 import { NextToBabylonMessage } from "@/singletons/next-to-babylon-message-queue";
-import showDebugText from "./show-debug-text";
+import updateDebugText from "./model-manager/update-debug-text";
 import processMessagesFromNext from "./process-messages-from-next";
 import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
@@ -73,7 +73,7 @@ export class GameWorld {
   }
 
   updateGameWorld() {
-    this.showDebugText();
+    this.updateDebugText();
     this.processMessagesFromNext();
 
     // spawn/despawn models
@@ -107,7 +107,7 @@ export class GameWorld {
   initScene = initScene;
   clearFloorTexture = clearFloorTexture;
   drawCharacterSlots = drawCharacterSlots;
-  showDebugText = showDebugText;
+  updateDebugText = updateDebugText;
   processMessagesFromNext = processMessagesFromNext;
 
   startLimitedFramerateRenderLoop(fps: number, timeout: number) {

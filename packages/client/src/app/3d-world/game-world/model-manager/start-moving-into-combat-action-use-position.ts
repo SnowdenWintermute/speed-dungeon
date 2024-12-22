@@ -1,7 +1,6 @@
 import { Matrix, Quaternion, Vector3 } from "@babylonjs/core";
-import { GameWorld } from ".";
+import { GameWorld } from "..";
 import cloneDeep from "lodash.clonedeep";
-import { StartMovingCombatantIntoCombatActionPositionMessage } from "@/stores/next-babylon-messaging-store/next-to-babylon-messages";
 import {
   AdventuringParty,
   COMBATANT_TIME_TO_ROTATE_360,
@@ -11,13 +10,14 @@ import {
   cloneVector3,
 } from "@speed-dungeon/common";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { ANIMATION_NAMES } from "../combatant-models/animation-manager/animation-names";
+import { ANIMATION_NAMES } from "../../combatant-models/animation-manager/animation-names";
 import {
   CombatantModelAction,
   CombatantModelActionType,
-} from "../combatant-models/model-action-manager/model-actions";
+} from "../../combatant-models/model-action-manager/model-actions";
 import { actionCommandManager } from "@/singletons/action-command-manager";
 import { useGameStore } from "@/stores/game-store";
+import { StartMovingCombatantIntoCombatActionPositionMessage } from "@/singletons/next-to-babylon-message-queue";
 
 export default function startMovingIntoCombatActionUsePosition(
   gameWorld: GameWorld,
