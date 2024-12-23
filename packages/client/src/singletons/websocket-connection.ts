@@ -15,6 +15,8 @@ import setUpBasicLobbyEventHandlers from "@/app/WebsocketManager/basic-lobby-eve
 import setUpGameLobbyEventHandlers from "@/app/WebsocketManager/lobby-event-handlers";
 import setUpGameEventHandlers from "@/app/WebsocketManager/game-event-handlers";
 import setUpSavedCharacterEventListeners from "@/app/WebsocketManager/saved-character-event-handlers";
+import { gameWorld } from "@/app/3d-world/SceneManager";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 const socketAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
 
@@ -67,13 +69,14 @@ websocketConnection.on(ServerToClientEvent.ErrorMessage, (message) => {
 });
 
 websocketConnection.on(ServerToClientEvent.ActionCommandPayloads, (entityId, payloads) => {
-  const focusedCharacteResult = getFocusedCharacter();
-  if (focusedCharacteResult instanceof Error) return console.trace(focusedCharacteResult);
+  if (!gameWorld.current)
+    return console.error("Got action command payloads but no game world was found");
 
-  useGameStore.getState().mutateState((state) => {
-    if (entityId === focusedCharacteResult.entityProperties.id) state.stackedMenuStates = [];
+  gameWorld.current.modelManager.modelActionQueue.messages.push({
+    type: ModelActionType.ProcessActionCommands,
+    entityId,
+    actionCommandPayloads: payloads,
   });
-  enqueueClientActionCommands(entityId, payloads);
 });
 
 setUpBasicLobbyEventHandlers(websocketConnection);

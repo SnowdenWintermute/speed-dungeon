@@ -15,6 +15,7 @@ export const actionCommandReceiver: { current: null | ClientActionCommandReceive
 };
 
 export const actionCommandManager = new ActionCommandManager(() => {
+  // ON QUEUE EMPTY
   useGameStore.getState().mutateState((state) => {
     const usernameOption = state.username;
     if (!usernameOption) return;
@@ -22,17 +23,13 @@ export const actionCommandManager = new ActionCommandManager(() => {
     if (!partyOption) return;
     InputLock.unlockInput(partyOption.inputLock);
   });
-
-  if (actionCommandWaitingArea.length) {
-    console.log("sending waiting area to queue");
-    actionCommandManager.queue.push(...actionCommandWaitingArea);
-    actionCommandWaitingArea.length = 0;
-    actionCommandManager.processNextCommand();
-  }
 });
 export const actionCommandWaitingArea: ActionCommand[] = [];
 
-export function enqueueClientActionCommands(entityId: string, payloads: ActionCommandPayload[]) {
+export async function processClientActionCommands(
+  entityId: string,
+  payloads: ActionCommandPayload[]
+) {
   const { gameName } = useGameStore.getState();
   if (gameName === undefined || gameName === null)
     return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
@@ -48,7 +45,7 @@ export function enqueueClientActionCommands(entityId: string, payloads: ActionCo
       )
   );
 
-  if (!useGameStore.getState().combatantModelsAwaitingSpawn)
-    actionCommandManager.enqueueNewCommands(actionCommands);
-  else actionCommandWaitingArea.push(...actionCommands);
+  /// NEXT THING IS TO MAKE THIS A PROMISE THAT RESOLVES WHEN THE ACTION QUEU IS EMPTY
+  // SO THE MODEL MANAGER KNOWS IT CAN DO THE NEXT THINGS
+  actionCommandManager.enqueueNewCommands(actionCommands);
 }
