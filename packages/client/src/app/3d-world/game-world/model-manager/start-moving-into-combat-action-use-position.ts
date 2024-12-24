@@ -1,12 +1,13 @@
 import { Matrix, Quaternion, Vector3 } from "@babylonjs/core";
-import { GameWorld } from "..";
 import cloneDeep from "lodash.clonedeep";
 import {
   AdventuringParty,
   COMBATANT_TIME_TO_ROTATE_360,
   CombatantProperties,
   ERROR_MESSAGES,
+  EntityId,
   InputLock,
+  MoveIntoCombatActionPositionActionCommandPayload,
   cloneVector3,
 } from "@speed-dungeon/common";
 import getCurrentParty from "@/utils/getCurrentParty";
@@ -17,16 +18,16 @@ import {
 } from "../../combatant-models/model-action-manager/model-actions";
 import { actionCommandManager } from "@/singletons/action-command-manager";
 import { useGameStore } from "@/stores/game-store";
-import { StartMovingCombatantIntoCombatActionPositionMessage } from "@/singletons/next-to-babylon-message-queue";
+import { gameWorld } from "../../SceneManager";
 
 export default function startMovingIntoCombatActionUsePosition(
-  gameWorld: GameWorld,
-  message: StartMovingCombatantIntoCombatActionPositionMessage
+  actionUserId: EntityId,
+  actionCommandPayload: MoveIntoCombatActionPositionActionCommandPayload
 ) {
-  const { actionUserId, actionCommandPayload } = message;
   const { primaryTargetId, isMelee } = actionCommandPayload;
 
   useGameStore.getState().mutateState((gameState) => {
+    if (!gameWorld.current) return console.error("no game world");
     const partyResult = getCurrentParty(gameState, gameState.username || "");
     if (partyResult === undefined) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
     const party = partyResult;
@@ -53,7 +54,7 @@ export default function startMovingIntoCombatActionUsePosition(
     const userHomeLocation = actionUser.combatantProperties.homeLocation;
     const targetHomeLocation = primaryTarget.combatantProperties.homeLocation;
 
-    const userCombatantModelOption = gameWorld.modelManager.combatantModels[actionUserId];
+    const userCombatantModelOption = gameWorld.current.modelManager.combatantModels[actionUserId];
     if (userCombatantModelOption === undefined)
       return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     const userCombatantModel = userCombatantModelOption;

@@ -14,7 +14,7 @@ import { despawnModularCharacter } from "./despawn-modular-character";
 import { removeHoldableModelFromModularCharacter } from "./remove-holdable-from-modular-character";
 import { equipHoldableModelToModularCharacter } from "./equip-holdable-to-modular-character";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
-import { enqueueClientActionCommands } from "@/singletons/action-command-manager";
+import { processClientActionCommands } from "@/singletons/action-command-manager";
 
 export type ModelActionHandler = (...args: any[]) => Promise<Error | void> | (void | Error);
 
@@ -81,7 +81,8 @@ export function createModelActionHandlers(modelManager: ModelManager) {
         if (action.entityId === focusedCharacteResult.entityProperties.id)
           state.stackedMenuStates = [];
       });
-      enqueueClientActionCommands(action.entityId, action.actionCommandPayloads);
+
+      return processClientActionCommands(action.entityId, action.actionCommandPayloads);
     },
   };
 }

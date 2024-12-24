@@ -1,21 +1,47 @@
-import { ActionCommandReceiver, ChangeEquipmentActionCommandPayload } from "@speed-dungeon/common";
+import {
+  ActionCommandReceiver,
+  ChangeEquipmentActionCommandPayload,
+  MoveIntoCombatActionPositionActionCommandPayload,
+  PerformCombatActionActionCommandPayload,
+  ReturnHomeActionCommandPayload,
+} from "@speed-dungeon/common";
 import payAbilityCostsActionCommandHandler from "./pay-ability-costs";
-import moveIntoCombatActionPositionActionCommandHandler from "./move-into-combat-action-position";
-import performCombatActionActionCommandHandler from "./perform-combat-action";
-import returnHomeActionCommandHandler from "./return-home";
 import battleResultActionCommandHandler from "./process-battle-result";
 import { ActionCommandManager } from "@speed-dungeon/common";
 import gameMessageActionCommandHandler from "./game-message";
 import { removeClientPlayerFromGame } from "./remove-client-player-from-game";
+import startReturningHome from "../3d-world/game-world/model-manager/start-returning-home";
+import startPerformingCombatAction from "../3d-world/game-world/model-manager/start-performing-combat-action";
+import startMovingIntoCombatActionUsePosition from "../3d-world/game-world/model-manager/start-moving-into-combat-action-use-position";
 
 export class ClientActionCommandReceiver implements ActionCommandReceiver {
   constructor() {}
   removePlayerFromGameCommandHandler = removeClientPlayerFromGame;
   payAbilityCostsActionCommandHandler = payAbilityCostsActionCommandHandler;
-  moveIntoCombatActionPositionActionCommandHandler =
-    moveIntoCombatActionPositionActionCommandHandler;
-  performCombatActionActionCommandHandler = performCombatActionActionCommandHandler;
-  returnHomeActionCommandHandler = returnHomeActionCommandHandler;
+  moveIntoCombatActionPositionActionCommandHandler(
+    _actionCommandManager: ActionCommandManager,
+    _gameName: string,
+    combatantId: string,
+    payload: MoveIntoCombatActionPositionActionCommandPayload
+  ) {
+    startMovingIntoCombatActionUsePosition(combatantId, payload);
+  }
+  performCombatActionActionCommandHandler(
+    _actionCommandManager: ActionCommandManager,
+    _gameName: string,
+    combatantId: string,
+    payload: PerformCombatActionActionCommandPayload
+  ) {
+    startPerformingCombatAction(combatantId, payload);
+  }
+  returnHomeActionCommandHandler(
+    _actionCommandManager: ActionCommandManager,
+    _gameName: string,
+    combatantId: string,
+    payload: ReturnHomeActionCommandPayload
+  ) {
+    startReturningHome(combatantId, payload);
+  }
   battleResultActionCommandHandler = battleResultActionCommandHandler;
 
   gameMessageCommandHandler = gameMessageActionCommandHandler;

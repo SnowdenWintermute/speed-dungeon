@@ -1,14 +1,20 @@
+import { EntityId } from "../primatives/index.js";
 import { ActionCommand } from "./action-command.js";
 
 export class ActionCommandManager {
   queue: ActionCommand[] = [];
   currentlyProcessing: null | ActionCommand = null;
-  constructor(public onQueueEmpty?: () => void) {}
+  entitiesPerformingActions: EntityId[] = [];
+
+  constructor() {}
 
   enqueueNewCommands(commands: ActionCommand[]) {
     const queueWasPreviouslyEmpty = this.queue.length === 0;
     this.queue.push(...commands);
 
+    if (this.currentlyProcessing)
+      console.log("action commands enqueued while queue still processing");
+    if (!queueWasPreviouslyEmpty) console.log("action commands enqueued while queue not empty");
     if (this.currentlyProcessing === null && queueWasPreviouslyEmpty) this.processNextCommand();
   }
 
@@ -17,9 +23,9 @@ export class ActionCommandManager {
 
     if (nextCommand === undefined) {
       this.currentlyProcessing = null;
-      this.onQueueEmpty && this.onQueueEmpty();
       return;
     }
+
     this.currentlyProcessing = nextCommand;
     const maybeError = nextCommand.execute();
     if (maybeError instanceof Error) return console.error(maybeError);

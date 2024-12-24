@@ -5,7 +5,9 @@ import {
   COMBATANT_TIME_TO_MOVE_ONE_METER,
   COMBATANT_TIME_TO_ROTATE_360,
   ERROR_MESSAGES,
+  ReturnHomeActionCommandPayload,
   SpeedDungeonGame,
+  removeFromArray,
 } from "@speed-dungeon/common";
 import { ANIMATION_NAMES } from "../../combatant-models/animation-manager/animation-names";
 import {
@@ -15,21 +17,22 @@ import {
 import getCurrentParty from "@/utils/getCurrentParty";
 import { actionCommandManager } from "@/singletons/action-command-manager";
 import { useGameStore } from "@/stores/game-store";
-import { StartReturningHomeMessage } from "@/singletons/next-to-babylon-message-queue";
+import { gameWorld } from "../../SceneManager";
 
 export default function startReturningHome(
-  gameWorld: GameWorld,
-  message: StartReturningHomeMessage
+  actionUserId: string,
+  actionCommandPayload: ReturnHomeActionCommandPayload
 ) {
   // CLIENT
   // - set the combatant model's animation manager to translate it back to home position
   // - end the combatant's turn if in combat and action required turn
   // - process next action command if any (ai actions in queue, party wipes, party defeats, equipment swaps initiated during last action)
 
-  const { actionUserId, actionCommandPayload } = message;
+  if (!gameWorld.current) return console.error("no game world");
+
   const { shouldEndTurn } = actionCommandPayload;
 
-  const userCombatantModelOption = gameWorld.modelManager.combatantModels[actionUserId];
+  const userCombatantModelOption = gameWorld.current.modelManager.combatantModels[actionUserId];
   if (userCombatantModelOption === undefined)
     return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
   const userCombatantModel = userCombatantModelOption;
@@ -92,6 +95,9 @@ export default function startReturningHome(
     percentTranslationToTriggerCompletionEvent: 1,
     onComplete: () => {
       userCombatantModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 500);
+      actionCommandManager.endCurrentActionCommandSequenceIfAllEntitiesAreDoneProcessing(
+        actionUserId
+      );
       actionCommandManager.processNextCommand();
     },
   };

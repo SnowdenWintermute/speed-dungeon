@@ -10,23 +10,12 @@ import TailwindClassLoader from "./TailwindClassLoader";
 import GlobalKeyboardEventManager from "./GlobalKeyboardEventManager";
 import TooltipManager from "./TooltipManager";
 import SceneManager from "./3d-world/SceneManager";
-import { useEffect } from "react";
-import { actionCommandReceiver } from "@/singletons/action-command-manager";
-import { ClientActionCommandReceiver } from "./client-action-command-receiver";
 import WebsocketManager from "./WebsocketManager";
 // for immer to be able to use map and set
 enableMapSet();
 
 export default function Home() {
   const game = useGameStore().game;
-
-  useEffect(() => {
-    actionCommandReceiver.current = new ClientActionCommandReceiver();
-
-    return () => {
-      actionCommandReceiver.current = null;
-    };
-  }, []);
 
   const componentToRender = game?.timeStarted ? (
     <Game />

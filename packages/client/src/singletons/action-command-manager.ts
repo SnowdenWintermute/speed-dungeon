@@ -7,24 +7,63 @@ import {
   ActionCommandManager,
   ActionCommandPayload,
   ERROR_MESSAGES,
+  EntityId,
   InputLock,
+  removeFromArray,
 } from "@speed-dungeon/common";
 
-export const actionCommandReceiver: { current: null | ClientActionCommandReceiver } = {
-  current: null,
+export const actionCommandReceiver: { current: ClientActionCommandReceiver } = {
+  current: new ClientActionCommandReceiver(),
 };
 
-export const actionCommandManager = new ActionCommandManager(() => {
-  // ON QUEUE EMPTY
-  useGameStore.getState().mutateState((state) => {
-    const usernameOption = state.username;
-    if (!usernameOption) return;
-    const partyOption = getCurrentParty(state, usernameOption);
-    if (!partyOption) return;
-    InputLock.unlockInput(partyOption.inputLock);
-  });
-});
-export const actionCommandWaitingArea: ActionCommand[] = [];
+export class ClientActionCommandManager extends ActionCommandManager {
+  entitiesPerformingActions: EntityId[] = [];
+  markCommandSequenceAsCompleted: (() => void) | null = null;
+
+  constructor() {
+    super();
+  }
+
+  registerEntityAsProcessing(entityId: EntityId) {
+    this.entitiesPerformingActions.push(entityId);
+  }
+  unregisterEntityAsProcessing(entityId: EntityId) {
+    removeFromArray(this.entitiesPerformingActions, entityId);
+  }
+
+  enqueueNewClientCommands(
+    associatedEntity: EntityId,
+    commands: ActionCommand[],
+    markCommandSequenceAsCompleted: () => void
+  ): void {
+    actionCommandManager.registerEntityAsProcessing(associatedEntity);
+    this.markCommandSequenceAsCompleted = markCommandSequenceAsCompleted;
+    this.enqueueNewCommands(commands);
+  }
+
+  endCurrentActionCommandSequenceIfAllEntitiesAreDoneProcessing(entityDoneWithActions: EntityId) {
+    removeFromArray(actionCommandManager.entitiesPerformingActions, entityDoneWithActions);
+    if (
+      this.markCommandSequenceAsCompleted !== null &&
+      this.entitiesPerformingActions.length === 0 &&
+      this.queue.length === 0 &&
+      this.currentlyProcessing === null
+    )
+      this.markCommandSequenceAsCompleted();
+  }
+
+  onActionsCompleted() {
+    useGameStore.getState().mutateState((state) => {
+      const usernameOption = state.username;
+      if (!usernameOption) return;
+      const partyOption = getCurrentParty(state, usernameOption);
+      if (!partyOption) return;
+      InputLock.unlockInput(partyOption.inputLock);
+    });
+  }
+}
+
+export const actionCommandManager = new ClientActionCommandManager();
 
 export async function processClientActionCommands(
   entityId: string,
@@ -33,19 +72,17 @@ export async function processClientActionCommands(
   const { gameName } = useGameStore.getState();
   if (gameName === undefined || gameName === null)
     return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
-  if (!actionCommandReceiver.current) return console.error("NO RECEIVER");
+  const reciever = actionCommandReceiver.current;
+  if (!reciever) return console.error("NO RECEIVER");
   const actionCommands = payloads.map(
-    (payload) =>
-      new ActionCommand(
-        gameName,
-        actionCommandManager,
-        entityId,
-        payload,
-        actionCommandReceiver.current!
-      )
+    (payload) => new ActionCommand(gameName, actionCommandManager, entityId, payload, reciever)
   );
 
-  /// NEXT THING IS TO MAKE THIS A PROMISE THAT RESOLVES WHEN THE ACTION QUEU IS EMPTY
-  // SO THE MODEL MANAGER KNOWS IT CAN DO THE NEXT THINGS
-  actionCommandManager.enqueueNewCommands(actionCommands);
+  const waitForCommands = new Promise<void>((resolve, reject) => {
+    actionCommandManager.enqueueNewClientCommands(entityId, actionCommands, () => {
+      resolve();
+    });
+  });
+
+  return waitForCommands;
 }

@@ -1,10 +1,10 @@
 import {
   COMBATANT_TIME_TO_MOVE_ONE_METER,
   ERROR_MESSAGES,
+  PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
   combatActionRequiresMeleeRange,
 } from "@speed-dungeon/common";
-import { GameWorld } from "..";
 import cloneDeep from "lodash.clonedeep";
 import { Vector3 } from "@babylonjs/core";
 import getCombatActionAnimationName from "../../combatant-models/animation-manager/animation-names";
@@ -16,12 +16,13 @@ import getFrameEventFromAnimation from "../../combatant-models/animation-manager
 import { getCombatActionExecutionTime } from "@speed-dungeon/common";
 import { actionCommandManager } from "@/singletons/action-command-manager";
 import { useGameStore } from "@/stores/game-store";
-import { StartPerformingCombatActionMessage } from "@/singletons/next-to-babylon-message-queue";
+import { gameWorld } from "../../SceneManager";
 
 export default function startPerformingCombatAction(
-  gameWorld: GameWorld,
-  message: StartPerformingCombatActionMessage
+  actionUserId: string,
+  actionCommandPayload: PerformCombatActionActionCommandPayload
 ) {
+  if (!gameWorld.current) return console.error("no game world");
   // CLIENT
   // - if melee, animate client forward a "weapon approach distance" based on equipped weapon and action type
   // - start transitioning to their attack animation with frame event to apply hp/mp/effect changes to target
@@ -33,10 +34,9 @@ export default function startPerformingCombatAction(
   // - handle any death by removing the affected combatant's turn tracker
   // - handle any ressurection by adding the affected combatant's turn tracker
   // - on animation complete, start next action
-  const { combatAction } = message.actionCommandPayload;
-  const { actionUserId } = message;
+  const { combatAction } = actionCommandPayload;
 
-  const userCombatantModelOption = gameWorld.modelManager.combatantModels[actionUserId];
+  const userCombatantModelOption = gameWorld.current.modelManager.combatantModels[actionUserId];
   if (userCombatantModelOption === undefined)
     return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
   const userCombatantModel = userCombatantModelOption;
@@ -44,8 +44,8 @@ export default function startPerformingCombatAction(
   // START THEIR ANIMATION AND CALL ONCOMPLETE WHEN DONE
   const animationName = getCombatActionAnimationName(combatAction);
   const animationEventOption = getFrameEventFromAnimation(
-    gameWorld,
-    message.actionCommandPayload,
+    gameWorld.current,
+    actionCommandPayload,
     actionUserId
   );
 
