@@ -2,9 +2,11 @@ import { Quaternion, Vector3 } from "@babylonjs/core";
 import { GameWorld } from "..";
 import cloneDeep from "lodash.clonedeep";
 import {
+  ActionCommandType,
   COMBATANT_TIME_TO_MOVE_ONE_METER,
   COMBATANT_TIME_TO_ROTATE_360,
   ERROR_MESSAGES,
+  InputLock,
   ReturnHomeActionCommandPayload,
   SpeedDungeonGame,
   removeFromArray,
@@ -67,12 +69,11 @@ export default function startReturningHome(
     if (!gameState.game) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
 
     // check the queue length so we don't unlock for a split second in between the ai's turns
-    // if (
-    //   actionCommandManager.queue.length === 0 ||
-    //   actionCommandManager.queue[0]?.payload.type === ActionCommandType.BattleResult ||
-    //   actionCommandManager.queue[0]?.payload.type === ActionCommandType.GameMessages
-    // )
-    //   InputLock.unlockInput(party.inputLock);
+    if (
+      actionCommandManager.queue.length === 0 ||
+      actionCommandManager.queue[0]?.payload.type === ActionCommandType.GameMessages
+    )
+      InputLock.unlockInput(party.inputLock);
 
     if (shouldEndTurn && party.battleId !== null) {
       const gameOption = gameState.game;

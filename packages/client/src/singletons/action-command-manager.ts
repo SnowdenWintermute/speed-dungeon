@@ -43,23 +43,23 @@ export class ClientActionCommandManager extends ActionCommandManager {
 
   endCurrentActionCommandSequenceIfAllEntitiesAreDoneProcessing(entityDoneWithActions: EntityId) {
     removeFromArray(actionCommandManager.entitiesPerformingActions, entityDoneWithActions);
+
     if (
       this.markCommandSequenceAsCompleted !== null &&
       this.entitiesPerformingActions.length === 0 &&
-      this.queue.length === 0 &&
-      this.currentlyProcessing === null
-    )
+      this.queue.length === 0
+    ) {
       this.markCommandSequenceAsCompleted();
-  }
 
-  onActionsCompleted() {
-    useGameStore.getState().mutateState((state) => {
-      const usernameOption = state.username;
-      if (!usernameOption) return;
-      const partyOption = getCurrentParty(state, usernameOption);
-      if (!partyOption) return;
-      InputLock.unlockInput(partyOption.inputLock);
-    });
+      // unlock input if not already done so
+      useGameStore.getState().mutateState((state) => {
+        const usernameOption = state.username;
+        if (!usernameOption) return;
+        const partyOption = getCurrentParty(state, usernameOption);
+        if (!partyOption) return;
+        InputLock.unlockInput(partyOption.inputLock);
+      });
+    }
   }
 }
 
@@ -80,6 +80,7 @@ export async function processClientActionCommands(
 
   const waitForCommands = new Promise<void>((resolve, reject) => {
     actionCommandManager.enqueueNewClientCommands(entityId, actionCommands, () => {
+      console.log("action commands completed");
       resolve();
     });
   });

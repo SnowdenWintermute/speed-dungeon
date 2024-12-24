@@ -14,17 +14,4 @@ export class ModelManager {
   constructor(public world: GameWorld) {
     this.modelActionHandlers = createModelActionHandlers(this);
   }
-
-  // startProcessingNewMessages() {
-  //   for (const messageQueue of Object.values(this.modelMessageQueues)) {
-  //     if (messageQueue.isProcessing || messageQueue.messages.length === 0) continue;
-  //     messageQueue.processMessages();
-  //   }
-  // }
-
-  // enqueueMessage(entityId: string, message: ModelManagerMessage) {
-  //   if (this.modelMessageQueues[entityId] === undefined)
-  //     this.modelMessageQueues[entityId] = new ModelMessageQueue(this, entityId);
-  //   this.modelMessageQueues[entityId]!.messages.push(message);
-  // }
 }

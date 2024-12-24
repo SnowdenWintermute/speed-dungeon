@@ -72,7 +72,8 @@ websocketConnection.on(ServerToClientEvent.ActionCommandPayloads, (entityId, pay
   if (!gameWorld.current)
     return console.error("Got action command payloads but no game world was found");
 
-  gameWorld.current.modelManager.modelActionQueue.messages.push({
+  console.log("enqueing message to process action commands: ", payloads);
+  gameWorld.current.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.ProcessActionCommands,
     entityId,
     actionCommandPayloads: payloads,

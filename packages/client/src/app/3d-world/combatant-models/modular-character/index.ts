@@ -25,7 +25,6 @@ import {
   Equipment,
   HoldableSlotType,
   WearableSlotType,
-  formatEquipmentType,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
@@ -136,15 +135,14 @@ export class ModularCharacter {
 
   updateDomRefPosition() {
     const boundingBox = getClientRectFromMesh(this.world.scene, this.world.canvas, this.rootMesh);
-    if (this.modelDomPositionElement) {
-      this.modelDomPositionElement.setAttribute(
-        "style",
-        `height: ${boundingBox.height}px;
+    if (!this.modelDomPositionElement) return;
+    this.modelDomPositionElement.setAttribute(
+      "style",
+      `height: ${boundingBox.height}px;
          width: ${boundingBox.width}px;
          top: ${boundingBox.top}px;
          left: ${boundingBox.left}px;`
-      );
-    }
+    );
   }
 
   updateBoundingBox() {

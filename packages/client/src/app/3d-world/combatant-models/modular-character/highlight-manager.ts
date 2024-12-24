@@ -1,6 +1,7 @@
 import { Color3, Mesh, MeshBuilder, PBRMaterial, Scene, StandardMaterial } from "@babylonjs/core";
+import { useGameStore } from "@/stores/game-store";
 import { ModularCharacter } from ".";
-import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
+import { AdventuringParty, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import { ModularCharacterPartCategory } from "./modular-character-parts";
 import cloneDeep from "lodash.clonedeep";
 
@@ -103,6 +104,20 @@ export class HighlightManager {
   }
 
   updateHighlight() {
+    const partyResult = useGameStore.getState().getParty();
+    if (!(partyResult instanceof Error)) {
+      const targetedBy = AdventuringParty.getIdsAndSelectedActionsOfCharactersTargetingCombatant(
+        partyResult,
+        this.modularCharacter.entityId
+      );
+      if (targetedBy instanceof Error) return;
+      if (targetedBy.length && !this.isHighlighted) {
+        this.setHighlighted();
+      } else if (this.isHighlighted && !targetedBy.length) {
+        this.removeHighlight();
+      }
+    }
+
     if (!this.isHighlighted) return;
 
     const base = 0.05;

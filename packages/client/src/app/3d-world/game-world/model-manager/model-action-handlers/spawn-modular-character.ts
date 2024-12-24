@@ -17,9 +17,6 @@ import { importMesh } from "../../../utils";
 import { GameWorld } from "../../";
 import { Color3, StandardMaterial } from "@babylonjs/core";
 
-const redMaterial = new StandardMaterial("red");
-const whiteMaterial = new StandardMaterial("white");
-
 export async function spawnModularCharacter(
   world: GameWorld,
   blueprint: CombatantModelBlueprint
@@ -87,6 +84,7 @@ export async function spawnModularCharacter(
     if (combatantProperties.monsterType === MonsterType.FireElemental)
       for (const mesh of partResult.meshes) {
         if (mesh.material?.name === "cube-material") {
+          const redMaterial = new StandardMaterial("red");
           redMaterial.diffuseColor = new Color3(0.7, 0.2, 0.2);
           mesh.material = redMaterial;
         }
@@ -95,6 +93,7 @@ export async function spawnModularCharacter(
     if (combatantProperties.monsterType === MonsterType.FireMage) {
       for (const mesh of partResult.meshes) {
         if (mesh.material?.name === "Purple") {
+          const redMaterial = new StandardMaterial("red");
           redMaterial.diffuseColor = new Color3(0.7, 0.2, 0.2);
           mesh.material = redMaterial;
         }
@@ -104,6 +103,7 @@ export async function spawnModularCharacter(
     if (combatantProperties.monsterType === MonsterType.Cultist) {
       for (const mesh of partResult.meshes) {
         if (mesh.material?.name === "Purple") {
+          const whiteMaterial = new StandardMaterial("white");
           whiteMaterial.diffuseColor = new Color3(0.85, 0.75, 0.75);
           mesh.material = whiteMaterial;
         }

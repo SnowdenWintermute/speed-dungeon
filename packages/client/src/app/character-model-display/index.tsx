@@ -2,8 +2,8 @@ import { Vector3 } from "@babylonjs/core";
 import { Combatant } from "@speed-dungeon/common";
 import { ReactNode, useEffect } from "react";
 import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
 import { useGameStore } from "@/stores/game-store";
+import { ModelActionType } from "../3d-world/game-world/model-manager/model-actions";
 
 export default function CharacterModelDisplay({
   character,
@@ -30,8 +30,8 @@ export default function CharacterModelDisplay({
       state.combatantModelsAwaitingSpawn = true;
     });
 
-    gameWorld.current?.modelManager.enqueueMessage(entityId, {
-      type: ModelManagerMessageType.SpawnModel,
+    gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.SpawnCombatantModel,
       blueprint: {
         combatant: character,
         startPosition: startPosition.startPosition,
@@ -42,8 +42,9 @@ export default function CharacterModelDisplay({
     });
 
     return () => {
-      gameWorld.current?.modelManager.enqueueMessage(entityId, {
-        type: ModelManagerMessageType.DespawnModel,
+      gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+        type: ModelActionType.DespawnCombatantModel,
+        entityId,
       });
     };
   }, []);

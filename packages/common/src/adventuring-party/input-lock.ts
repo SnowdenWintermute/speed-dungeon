@@ -6,6 +6,7 @@ export class InputLock {
   lockDuration: null | number = null;
   constructor() {}
   static lockInput(inputLock: InputLock) {
+    console.log("locking input");
     inputLock.timeLocked = Date.now();
     inputLock.lockDuration = null;
   }
@@ -20,6 +21,7 @@ export class InputLock {
     return false;
   }
   static unlockInput(inputLock: InputLock) {
+    console.log("unlocking input");
     inputLock.timeLocked = null;
     inputLock.lockDuration = null;
   }

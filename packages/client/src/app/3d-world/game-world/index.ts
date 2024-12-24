@@ -12,7 +12,7 @@ import {
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
-import { AdventuringParty, CombatTurnResult } from "@speed-dungeon/common";
+import { CombatTurnResult } from "@speed-dungeon/common";
 import { NextToBabylonMessage } from "@/singletons/next-to-babylon-message-queue";
 import updateDebugText from "./model-manager/update-debug-text";
 import processMessagesFromNext from "./process-messages-from-next";
@@ -23,7 +23,6 @@ import drawCharacterSlots from "./draw-character-slots";
 import { SavedMaterials, createDefaultMaterials } from "./materials/create-default-materials";
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
-import { useGameStore } from "@/stores/game-store";
 
 export class GameWorld {
   engine: Engine;
@@ -76,26 +75,14 @@ export class GameWorld {
     this.updateDebugText();
     this.processMessagesFromNext();
 
-    // spawn/despawn models
-    this.modelManager.startProcessingNewMessages();
+    if (
+      !this.modelManager.modelActionQueue.isProcessing &&
+      this.modelManager.modelActionQueue.messages.length
+    )
+      this.modelManager.modelActionQueue.processMessages();
 
     for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
-      const partyResult = useGameStore.getState().getParty();
-      if (!(partyResult instanceof Error)) {
-        const targetedBy = AdventuringParty.getIdsAndSelectedActionsOfCharactersTargetingCombatant(
-          partyResult,
-          combatantModel.entityId
-        );
-        if (targetedBy instanceof Error) continue;
-        if (targetedBy.length && !combatantModel.highlightManager.isHighlighted) {
-          combatantModel.highlightManager.setHighlighted();
-          console.log("set highlighted:", combatantModel.entityId);
-        } else if (combatantModel.highlightManager.isHighlighted && !targetedBy.length) {
-          combatantModel.highlightManager.removeHighlight();
-        }
-      }
       combatantModel.highlightManager.updateHighlight();
-
       combatantModel.modelActionManager.processActiveModelAction();
       combatantModel.animationManager.handleCompletedAnimations();
       combatantModel.animationManager.stepAnimationTransitionWeights();
