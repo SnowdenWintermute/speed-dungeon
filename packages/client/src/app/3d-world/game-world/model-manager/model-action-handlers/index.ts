@@ -71,9 +71,9 @@ export function createModelActionHandlers(modelManager: ModelManager) {
       );
       if (maybeError instanceof Error) return maybeError;
     },
-    [ModelActionType.ProcessActionCommands]: function (
+    [ModelActionType.ProcessActionCommands]: async function (
       action: ProcessActionCommandsModelAction
-    ): void | Error | Promise<void | Error> {
+    ): Promise<void | Error> {
       const focusedCharacteResult = getFocusedCharacter();
       if (focusedCharacteResult instanceof Error) return console.trace(focusedCharacteResult);
 
@@ -82,7 +82,10 @@ export function createModelActionHandlers(modelManager: ModelManager) {
           state.stackedMenuStates = [];
       });
 
-      return processClientActionCommands(action.entityId, action.actionCommandPayloads);
+      console.log("waiting for action command sequence to resolve");
+      await processClientActionCommands(action.entityId, action.actionCommandPayloads);
+
+      return;
     },
   };
 }

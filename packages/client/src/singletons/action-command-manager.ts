@@ -25,6 +25,7 @@ export class ClientActionCommandManager extends ActionCommandManager {
   }
 
   registerEntityAsProcessing(entityId: EntityId) {
+    console.log("added entity to list of those doing stuff");
     this.entitiesPerformingActions.push(entityId);
   }
   unregisterEntityAsProcessing(entityId: EntityId) {
@@ -42,7 +43,14 @@ export class ClientActionCommandManager extends ActionCommandManager {
   }
 
   endCurrentActionCommandSequenceIfAllEntitiesAreDoneProcessing(entityDoneWithActions: EntityId) {
-    removeFromArray(actionCommandManager.entitiesPerformingActions, entityDoneWithActions);
+    actionCommandManager.unregisterEntityAsProcessing(entityDoneWithActions);
+
+    console.log("attempting to mark sequence completed: ", {
+      sequenceCompletionFunctionExists: this.markCommandSequenceAsCompleted !== null,
+      entitiesPerformingActionsLength: this.entitiesPerformingActions.length === 0,
+      actionCommandQueueLength: this.queue.length === 0,
+      currentlyProcessingDone: !this.currentlyProcessing,
+    });
 
     if (
       this.markCommandSequenceAsCompleted !== null &&

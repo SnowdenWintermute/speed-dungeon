@@ -2,7 +2,6 @@
 import { setAlert } from "@/app/components/alerts";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
-import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import {
   ClientToServerEvent,
   ClientToServerEventTypes,
@@ -10,7 +9,6 @@ import {
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 import { Socket, io } from "socket.io-client";
-import { enqueueClientActionCommands } from "./action-command-manager";
 import setUpBasicLobbyEventHandlers from "@/app/WebsocketManager/basic-lobby-event-handlers";
 import setUpGameLobbyEventHandlers from "@/app/WebsocketManager/lobby-event-handlers";
 import setUpGameEventHandlers from "@/app/WebsocketManager/game-event-handlers";

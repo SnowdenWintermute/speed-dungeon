@@ -121,6 +121,7 @@ export class CombatantProperties {
     }
     return hasTrait;
   }
+
   static getPositionForActionUse(
     user: CombatantProperties,
     target: CombatantProperties,

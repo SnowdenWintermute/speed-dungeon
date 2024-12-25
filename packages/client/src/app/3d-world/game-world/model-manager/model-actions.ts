@@ -1,6 +1,5 @@
 import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
 import {
-  ActionCommand,
   ActionCommandPayload,
   Equipment,
   HoldableHotswapSlot,
@@ -14,6 +13,14 @@ export enum ModelActionType {
   SelectHotswapSlot,
   ProcessActionCommands,
 }
+
+export const MODEL_ACTION_TYPE_STRINGS: Record<ModelActionType, string> = {
+  [ModelActionType.SpawnCombatantModel]: "Spawn Combatant Model",
+  [ModelActionType.DespawnCombatantModel]: "Despawn Combatant Model",
+  [ModelActionType.ChangeEquipment]: "Change Equipment",
+  [ModelActionType.SelectHotswapSlot]: "Select Hotswap Slot",
+  [ModelActionType.ProcessActionCommands]: "Process Action Commands",
+};
 
 export type SpawnCombatantModelAction = {
   type: ModelActionType.SpawnCombatantModel;

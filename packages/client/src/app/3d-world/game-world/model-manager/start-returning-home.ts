@@ -9,7 +9,6 @@ import {
   InputLock,
   ReturnHomeActionCommandPayload,
   SpeedDungeonGame,
-  removeFromArray,
 } from "@speed-dungeon/common";
 import { ANIMATION_NAMES } from "../../combatant-models/animation-manager/animation-names";
 import {
@@ -96,9 +95,15 @@ export default function startReturningHome(
     percentTranslationToTriggerCompletionEvent: 1,
     onComplete: () => {
       userCombatantModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 500);
+      console.log(
+        "attempting removal: ",
+        actionCommandManager.entitiesPerformingActions,
+        actionUserId
+      );
       actionCommandManager.endCurrentActionCommandSequenceIfAllEntitiesAreDoneProcessing(
         actionUserId
       );
+      console.log("after removal: ", actionCommandManager.entitiesPerformingActions);
       actionCommandManager.processNextCommand();
     },
   };

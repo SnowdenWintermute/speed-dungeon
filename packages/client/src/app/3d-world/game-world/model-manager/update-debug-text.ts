@@ -41,6 +41,7 @@ export default function updateDebugText(this: GameWorld) {
       `current: ${actionCommandManager.currentlyProcessing ? ACTION_COMMAND_TYPE_STRINGS[actionCommandManager.currentlyProcessing.payload.type] : null}`,
       `actionCommandQueueMessages: ${actionCommandQueueMessages}`,
       `modelManagerMessages: ${modelManagerMessages}`,
+      `combatants processing actions: ${actionCommandManager.entitiesPerformingActions}`,
       numMaterials,
       cameraAlpha,
       cameraBeta,

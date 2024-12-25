@@ -57,7 +57,7 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
       if (!headerBoundingRect) return;
 
       const newX = e.clientX - mousePressedRef.current.offsetX;
-      const newY = e.clientY - mousePressedRef.current.offsetY;
+      const newY = Math.max(0, e.clientY - mousePressedRef.current.offsetY);
       setX(newX);
       setY(newY);
     };

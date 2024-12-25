@@ -26,6 +26,8 @@ import InventoryIconButton from "./InventoryIconButton";
 import HotswapSlotButtons from "./HotswapSlotButtons";
 import CharacterModelDisplay from "@/app/character-model-display";
 import getCombatantModelStartPosition from "./get-combatant-model-start-position";
+import { useUIStore } from "@/stores/ui-store";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 interface Props {
   combatant: Combatant;
@@ -34,6 +36,7 @@ interface Props {
 
 export default function CombatantPlaque({ combatant, showExperience }: Props) {
   const gameOption = useGameStore().game;
+  const showDebug = useUIStore().showDebug;
   const mutateGameState = useGameStore().mutateState;
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
@@ -144,12 +147,18 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
           </div>
         </div>
         <div className="flex-grow" ref={nameAndBarsRef}>
-          <div className="mb-1.5 flex justify-between text-lg ">
-            <span>
+          <div className="mb-1.5 flex justify-between items-center align-middle leading-5 text-lg ">
+            <span className="flex">
               <span className="">{entityProperties.name}</span>
-              {
-                // entityId.slice(0, 5)
-              }
+              <span>
+                {showDebug ? (
+                  <HoverableTooltipWrapper tooltipText={entityId}>
+                    _[{entityId.slice(0, 5)}]
+                  </HoverableTooltipWrapper>
+                ) : (
+                  ""
+                )}
+              </span>
               <UnspentAttributesButton
                 combatantProperties={combatantProperties}
                 handleClick={handleUnspentAttributesButtonClick}
