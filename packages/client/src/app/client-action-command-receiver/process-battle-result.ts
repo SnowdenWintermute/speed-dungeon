@@ -8,7 +8,6 @@ import {
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { ActionCommandManager } from "@speed-dungeon/common";
 import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
 import { itemsOnGroundMenuState, useGameStore } from "@/stores/game-store";
 import { gameWorld } from "../3d-world/SceneManager";
@@ -16,9 +15,8 @@ import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { MenuStateType } from "../game/ActionMenu/menu-state";
 import { plainToInstance } from "class-transformer";
 
-export default function battleResultActionCommandHandler(
+export default async function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
-  actionCommandManager: ActionCommandManager,
   _gameName: string,
   _combatantId: string,
   payload: BattleResultActionCommandPayload
@@ -32,7 +30,6 @@ export default function battleResultActionCommandHandler(
     );
 
     for (const item of payload.loot.equipment) {
-      console.log("enqueueing screenshot creation for ", item.entityProperties.name);
       gameWorld.current?.imageManager.enqueueMessage({
         type: ImageManagerRequestType.ItemCreation,
         item,
@@ -87,5 +84,4 @@ export default function battleResultActionCommandHandler(
 
     state.baseMenuState.inCombat = false;
   });
-  actionCommandManager.processNextCommand();
 }

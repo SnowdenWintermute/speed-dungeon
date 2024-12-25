@@ -1,13 +1,11 @@
 import {
   ActionCommandReceiver,
-  ChangeEquipmentActionCommandPayload,
   MoveIntoCombatActionPositionActionCommandPayload,
   PerformCombatActionActionCommandPayload,
   ReturnHomeActionCommandPayload,
 } from "@speed-dungeon/common";
 import payAbilityCostsActionCommandHandler from "./pay-ability-costs";
 import battleResultActionCommandHandler from "./process-battle-result";
-import { ActionCommandManager } from "@speed-dungeon/common";
 import gameMessageActionCommandHandler from "./game-message";
 import { removeClientPlayerFromGame } from "./remove-client-player-from-game";
 import startReturningHome from "../3d-world/game-world/model-manager/start-returning-home";
@@ -18,38 +16,28 @@ export class ClientActionCommandReceiver implements ActionCommandReceiver {
   constructor() {}
   removePlayerFromGameCommandHandler = removeClientPlayerFromGame;
   payAbilityCostsActionCommandHandler = payAbilityCostsActionCommandHandler;
-  moveIntoCombatActionPositionActionCommandHandler(
-    _actionCommandManager: ActionCommandManager,
+  async moveIntoCombatActionPositionActionCommandHandler(
     _gameName: string,
     combatantId: string,
     payload: MoveIntoCombatActionPositionActionCommandPayload
   ) {
-    startMovingIntoCombatActionUsePosition(combatantId, payload);
+    return startMovingIntoCombatActionUsePosition(combatantId, payload);
   }
-  performCombatActionActionCommandHandler(
-    _actionCommandManager: ActionCommandManager,
+  async performCombatActionActionCommandHandler(
     _gameName: string,
     combatantId: string,
     payload: PerformCombatActionActionCommandPayload
   ) {
-    startPerformingCombatAction(combatantId, payload);
+    return startPerformingCombatAction(combatantId, payload);
   }
-  returnHomeActionCommandHandler(
-    _actionCommandManager: ActionCommandManager,
+  async returnHomeActionCommandHandler(
     _gameName: string,
     combatantId: string,
     payload: ReturnHomeActionCommandPayload
   ) {
-    startReturningHome(combatantId, payload);
+    return startReturningHome(combatantId, payload);
   }
   battleResultActionCommandHandler = battleResultActionCommandHandler;
 
   gameMessageCommandHandler = gameMessageActionCommandHandler;
-
-  changeEquipmentActionCommandHandler: (
-    actionCommandManager: ActionCommandManager,
-    gameName: string,
-    combatantId: string,
-    payload: ChangeEquipmentActionCommandPayload
-  ) => void = () => {};
 }

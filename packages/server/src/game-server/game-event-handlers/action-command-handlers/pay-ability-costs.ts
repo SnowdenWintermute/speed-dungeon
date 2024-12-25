@@ -4,14 +4,12 @@ import {
   PayAbilityCostsActionCommandPayload,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
-import { ActionCommandManager } from "@speed-dungeon/common";
 
 // SERVER
 // - apply ability costs to game
 // - process the next command
-export function payAbilityCostsActionCommandHandler(
+export async function payAbilityCostsActionCommandHandler(
   this: GameServer,
-  actionCommandManager: ActionCommandManager,
   gameName: string,
   entityId: string,
   payload: PayAbilityCostsActionCommandPayload
@@ -26,6 +24,4 @@ export function payAbilityCostsActionCommandHandler(
   }
   if (payload.hp) CombatantProperties.changeHitPoints(combatant.combatantProperties, -payload.hp);
   if (payload.mp) CombatantProperties.changeMana(combatant.combatantProperties, -payload.mp);
-
-  actionCommandManager.processNextCommand();
 }

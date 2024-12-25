@@ -1,4 +1,4 @@
-import { ActionCommandManager, GameMessagesPayload } from "@speed-dungeon/common";
+import { GameMessagesPayload } from "@speed-dungeon/common";
 import {
   CombatLogMessage,
   getCombatLogMessageStyleFromGameMessageType,
@@ -6,9 +6,8 @@ import {
 import { ClientActionCommandReceiver } from ".";
 import { useGameStore } from "@/stores/game-store";
 
-export default function gameMessageActionCommandHandler(
+export default async function gameMessageActionCommandHandler(
   this: ClientActionCommandReceiver,
-  actionCommandManager: ActionCommandManager,
   payload: GameMessagesPayload
 ) {
   payload.messages.forEach((message) => {
@@ -17,6 +16,4 @@ export default function gameMessageActionCommandHandler(
       state.combatLogMessages.push(new CombatLogMessage(message.text, style));
     });
   });
-
-  actionCommandManager.processNextCommand();
 }

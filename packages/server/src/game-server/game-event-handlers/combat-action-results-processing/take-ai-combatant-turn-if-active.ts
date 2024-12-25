@@ -9,7 +9,7 @@ import {
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
 
-export default function takeAiControlledTurnIfActive(
+export default async function takeAiControlledTurnIfActive(
   this: GameServer,
   game: SpeedDungeonGame,
   party: AdventuringParty,
@@ -43,7 +43,7 @@ export default function takeAiControlledTurnIfActive(
     abilityName,
   };
 
-  return this.processSelectedCombatAction(
+  const errors = await this.processSelectedCombatAction(
     game,
     party,
     combatantId,
@@ -52,4 +52,8 @@ export default function takeAiControlledTurnIfActive(
     battleOption,
     Object.values(party.currentRoom.monsters).map((monster) => monster.entityProperties.id)
   );
+
+  for (const error of errors) {
+    console.error(error);
+  }
 }

@@ -1,57 +1,38 @@
 import {
   BattleResultActionCommandPayload,
-  ChangeEquipmentActionCommandPayload,
   GameMessagesPayload,
   MoveIntoCombatActionPositionActionCommandPayload,
   PayAbilityCostsActionCommandPayload,
   PerformCombatActionActionCommandPayload,
   ReturnHomeActionCommandPayload,
 } from "./index.js";
-import { ActionCommandManager } from "./action-command-manager.js";
 
 export interface ActionCommandReceiver {
   payAbilityCostsActionCommandHandler: (
-    actionCommandManager: ActionCommandManager,
     gameName: string,
     combatantId: string,
     payload: PayAbilityCostsActionCommandPayload
-  ) => void;
+  ) => Promise<Error | void>;
   moveIntoCombatActionPositionActionCommandHandler: (
-    actionCommandManager: ActionCommandManager,
     gameName: string,
     combatantId: string,
     payload: MoveIntoCombatActionPositionActionCommandPayload
-  ) => void;
+  ) => Promise<Error | void>;
   performCombatActionActionCommandHandler: (
-    actionCommandManager: ActionCommandManager,
     gameName: string,
     combatantId: string,
     payload: PerformCombatActionActionCommandPayload
-  ) => void;
+  ) => Promise<Error | void>;
   returnHomeActionCommandHandler: (
-    actionCommandManager: ActionCommandManager,
     gameName: string,
     combatantId: string,
     payload: ReturnHomeActionCommandPayload
-  ) => void;
-  changeEquipmentActionCommandHandler: (
-    actionCommandManager: ActionCommandManager,
-    gameName: string,
-    combatantId: string,
-    payload: ChangeEquipmentActionCommandPayload
-  ) => void;
+  ) => Promise<Error | void>;
   battleResultActionCommandHandler: (
-    actionCommandManager: ActionCommandManager,
     gameName: string,
     combatantId: string,
     payload: BattleResultActionCommandPayload
-  ) => void;
-  gameMessageCommandHandler: (
-    actionCommandManager: ActionCommandManager,
-    payload: GameMessagesPayload
-  ) => void;
-  removePlayerFromGameCommandHandler: (
-    actionCommandManager: ActionCommandManager,
-    username: string
-  ) => void;
+  ) => Promise<Error | void>;
+  gameMessageCommandHandler: (payload: GameMessagesPayload) => Promise<Error | void>;
+  removePlayerFromGameCommandHandler: (username: string) => Promise<Error | void>;
 }

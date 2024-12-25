@@ -5,13 +5,11 @@ import {
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
   getCombatActionExecutionTime,
-  ActionCommandManager,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
 
-export default function performCombatActionActionCommandHandler(
+export default async function performCombatActionActionCommandHandler(
   this: GameServer,
-  actionCommandManager: ActionCommandManager,
   gameName: string,
   combatantId: string,
   payload: PerformCombatActionActionCommandPayload
@@ -52,8 +50,4 @@ export default function performCombatActionActionCommandHandler(
         // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
       }
     }
-
-  // - get the next action
-
-  actionCommandManager.processNextCommand();
 }

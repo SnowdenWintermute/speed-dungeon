@@ -10,10 +10,7 @@ import { gameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
 
-export function removeClientPlayerFromGame(
-  actionCommandManager: ActionCommandManager,
-  username: string
-) {
+export async function removeClientPlayerFromGame(username: string) {
   console.log("REMOVE CLIENT PLAYER FROM GAME CALLED");
   console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   const thumbnailIdsToRemove: string[] = [];
@@ -49,5 +46,4 @@ export function removeClientPlayerFromGame(
     type: ImageManagerRequestType.ItemDeletion,
     itemIds: thumbnailIdsToRemove,
   });
-  actionCommandManager.processNextCommand();
 }

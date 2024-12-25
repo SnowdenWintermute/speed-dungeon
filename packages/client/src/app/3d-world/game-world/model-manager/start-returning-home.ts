@@ -16,11 +16,10 @@ import {
   CombatantModelActionType,
 } from "../../combatant-models/model-action-manager/model-actions";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { actionCommandManager } from "@/singletons/action-command-manager";
 import { useGameStore } from "@/stores/game-store";
 import { gameWorld } from "../../SceneManager";
 
-export default function startReturningHome(
+export default async function startReturningHome(
   actionUserId: string,
   actionCommandPayload: ReturnHomeActionCommandPayload
 ) {

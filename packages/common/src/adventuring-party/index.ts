@@ -9,9 +9,9 @@ import removeCharacterFromParty from "./remove-character-from-party.js";
 import generateUnexploredRoomsQueue from "./generate-unexplored-rooms-queue.js";
 import updatePlayerReadiness from "./update-player-readiness.js";
 import playerOwnsCharacter from "./player-owns-character.js";
-import { ActionCommandManager } from "../action-processing/action-command-manager.js";
 import { InputLock } from "./input-lock.js";
 import { Combatant } from "../combatants/index.js";
+import { ActionCommandQueue } from "../action-processing/action-command-queue.js";
 export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
 export * from "./update-player-readiness.js";
@@ -36,7 +36,7 @@ export class AdventuringParty {
   timeOfWipe: null | number = null;
   timeOfEscape: null | number = null;
   itemsOnGroundNotYetReceivedByAllClients: { [id: EntityId]: EntityId[] } = {};
-  actionCommandManager: ActionCommandManager = new ActionCommandManager();
+  actionCommandQueue: ActionCommandQueue = new ActionCommandQueue();
   inputLock: InputLock = new InputLock();
 
   constructor(

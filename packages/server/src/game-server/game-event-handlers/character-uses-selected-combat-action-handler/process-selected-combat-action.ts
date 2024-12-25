@@ -10,8 +10,9 @@ import {
 } from "@speed-dungeon/common";
 import { composeActionCommandPayloadsFromActionResults } from "./compose-action-command-payloads-from-action-results.js";
 import { GameServer } from "../../index.js";
+import { handleBattleConclusionsAndAITurns } from "../action-command-handlers/handle-battle-conclusions-and-ai-turns.js";
 
-export default function processSelectedCombatAction(
+export default async function processSelectedCombatAction(
   this: GameServer,
   game: SpeedDungeonGame,
   party: AdventuringParty,
@@ -20,7 +21,7 @@ export default function processSelectedCombatAction(
   targets: CombatActionTarget,
   battleOption: null | Battle,
   allyIds: string[]
-) {
+): Promise<Error[]> {
   const actionResultsResult = SpeedDungeonGame.getActionResults(
     game,
     actionUserId,
@@ -29,7 +30,7 @@ export default function processSelectedCombatAction(
     battleOption,
     allyIds
   );
-  if (actionResultsResult instanceof Error) return actionResultsResult;
+  if (actionResultsResult instanceof Error) return [actionResultsResult];
   const actionResults = actionResultsResult;
 
   const actionCommandPayloads = composeActionCommandPayloadsFromActionResults(actionResults);
@@ -39,9 +40,17 @@ export default function processSelectedCombatAction(
     .emit(ServerToClientEvent.ActionCommandPayloads, actionUserId, actionCommandPayloads);
 
   const actionCommands = actionCommandPayloads.map(
-    (payload) =>
-      new ActionCommand(game.name, party.actionCommandManager, actionUserId, payload, this)
+    (payload) => new ActionCommand(game.name, actionUserId, payload, this)
   );
 
-  party.actionCommandManager.enqueueNewCommands(actionCommands);
+  party.actionCommandQueue.enqueueNewCommands(actionCommands);
+  if (!party.actionCommandQueue.isProcessing) {
+    const errors = await party.actionCommandQueue.processCommands();
+
+    const maybeError = await handleBattleConclusionsAndAITurns(game, party);
+    if (maybeError instanceof Error) errors.push(maybeError);
+    return errors;
+  }
+
+  return []; // aka no errors
 }

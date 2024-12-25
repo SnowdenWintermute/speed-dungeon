@@ -1,5 +1,4 @@
 import {
-  ActionCommandManager,
   ActionCommandReceiver,
   ClientToServerEventTypes,
   EquipmentType,
@@ -27,7 +26,6 @@ import { payAbilityCostsActionCommandHandler } from "./game-event-handlers/actio
 import moveIntoCombatActionPositionActionCommandHandler from "./game-event-handlers/action-command-handlers/move-into-combat-action-position.js";
 import performCombatActionActionCommandHandler from "./game-event-handlers/action-command-handlers/perform-combat-action.js";
 import returnHomeActionCommandHandler from "./game-event-handlers/action-command-handlers/return-home.js";
-import changeEquipmentActionCommandHandler from "./game-event-handlers/action-command-handlers/change-equipment.js";
 import battleResultActionCommandHandler from "./game-event-handlers/action-command-handlers/battle-results.js";
 import getGamePartyAndCombatant from "./utils/get-game-party-and-combatant.js";
 import processSelectedCombatAction from "./game-event-handlers/character-uses-selected-combat-action-handler/process-selected-combat-action.js";
@@ -76,16 +74,9 @@ export class GameServer implements ActionCommandReceiver {
     moveIntoCombatActionPositionActionCommandHandler;
   performCombatActionActionCommandHandler = performCombatActionActionCommandHandler;
   returnHomeActionCommandHandler = returnHomeActionCommandHandler;
-  changeEquipmentActionCommandHandler = changeEquipmentActionCommandHandler;
   battleResultActionCommandHandler = battleResultActionCommandHandler;
-  removePlayerFromGameCommandHandler: (
-    actionCommandManager: ActionCommandManager,
-    username: string
-  ) => void = () => {}; // we only use it on the client
-  gameMessageCommandHandler(
-    _actionCommandManager: ActionCommandManager,
-    payload: GameMessagesPayload
-  ) {
+  removePlayerFromGameCommandHandler: (username: string) => Promise<void> = async () => {}; // we only use it on the client
+  async gameMessageCommandHandler(payload: GameMessagesPayload) {
     console.log(...payload.messages);
   }
   takeAiControlledTurnIfActive = takeAiControlledTurnIfActive;

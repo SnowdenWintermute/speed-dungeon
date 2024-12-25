@@ -1,10 +1,10 @@
 export * from "./action-command.js";
 export * from "./action-command-receiver.js";
-export * from "./action-command-manager.js";
+export * from "./action-command-queue.js";
 import { BattleConclusion } from "../battle/index.js";
 import { CombatAction, HpChange } from "../combat/index.js";
 import { Consumable } from "../items/consumables/index.js";
-import { Equipment, TaggedEquipmentSlot } from "../items/equipment/index.js";
+import { Equipment } from "../items/equipment/index.js";
 import { GameMessageType } from "../packets/game-message.js";
 
 export enum ActionCommandType {
@@ -12,7 +12,6 @@ export enum ActionCommandType {
   MoveIntoCombatActionPosition,
   PerformCombatAction,
   ReturnHome,
-  ChangeEquipment,
   BattleResult,
   GameMessages,
   RemovePlayerFromGame,
@@ -50,12 +49,6 @@ export type PerformCombatActionActionCommandPayload = {
   missesByEntityId: string[];
 };
 
-export type ChangeEquipmentActionCommandPayload = {
-  type: ActionCommandType.ChangeEquipment;
-  slot: TaggedEquipmentSlot;
-  equipmentIdOption: null | string;
-};
-
 export type BattleResultActionCommandPayload = {
   type: ActionCommandType.BattleResult;
   conclusion: BattleConclusion;
@@ -83,7 +76,6 @@ export type ActionCommandPayload =
   | MoveIntoCombatActionPositionActionCommandPayload
   | ReturnHomeActionCommandPayload
   | PerformCombatActionActionCommandPayload
-  | ChangeEquipmentActionCommandPayload
   | BattleResultActionCommandPayload
   | GameMessagesPayload
   | RemovePlayerFromGamePayload;
@@ -93,7 +85,6 @@ export const ACTION_COMMAND_TYPE_STRINGS: Record<ActionCommandType, string> = {
   [ActionCommandType.MoveIntoCombatActionPosition]: "Move into combat action position",
   [ActionCommandType.PerformCombatAction]: "Perform combat action",
   [ActionCommandType.ReturnHome]: "Return home",
-  [ActionCommandType.ChangeEquipment]: "Change equipment",
   [ActionCommandType.BattleResult]: "Battle result",
   [ActionCommandType.GameMessages]: "Game messages",
   [ActionCommandType.RemovePlayerFromGame]: "Remove player from game",

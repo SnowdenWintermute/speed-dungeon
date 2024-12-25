@@ -4,7 +4,6 @@ import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import {
   ActionCommand,
-  ActionCommandManager,
   ActionCommandPayload,
   ERROR_MESSAGES,
   EntityId,
@@ -17,7 +16,6 @@ export const actionCommandReceiver: { current: ClientActionCommandReceiver } = {
 };
 
 export class ClientActionCommandManager extends ActionCommandManager {
-  entitiesPerformingActions: EntityId[] = [];
   markCommandSequenceAsCompleted: (() => void) | null = null;
 
   constructor() {
