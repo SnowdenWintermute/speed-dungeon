@@ -8,9 +8,9 @@ import {
   SpeedDungeonGame,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { composeActionCommandPayloadsFromActionResults } from "./compose-action-command-payloads-from-action-results.js";
 import { GameServer } from "../../index.js";
-import { handleBattleConclusionsAndAITurns } from "../action-command-handlers/handle-battle-conclusions-and-ai-turns.js";
+import { processBattleUntilPlayerTurnOrConclusion } from "./process-battle-until-player-turn-or-conclusion.js";
+import { getActionCommandPayloadsFromCombatActionUse } from "./get-action-command-payloads-from-combat-action-use.js";
 
 export default async function processSelectedCombatAction(
   this: GameServer,
@@ -21,8 +21,8 @@ export default async function processSelectedCombatAction(
   targets: CombatActionTarget,
   battleOption: null | Battle,
   allyIds: string[]
-): Promise<Error[]> {
-  const actionResultsResult = SpeedDungeonGame.getActionResults(
+): Promise<Error | void> {
+  const payloadsResult = getActionCommandPayloadsFromCombatActionUse(
     game,
     actionUserId,
     selectedCombatAction,
@@ -30,27 +30,30 @@ export default async function processSelectedCombatAction(
     battleOption,
     allyIds
   );
-  if (actionResultsResult instanceof Error) return [actionResultsResult];
-  const actionResults = actionResultsResult;
-
-  const actionCommandPayloads = composeActionCommandPayloadsFromActionResults(actionResults);
-
-  this.io
-    .in(getPartyChannelName(game.name, party.name))
-    .emit(ServerToClientEvent.ActionCommandPayloads, actionUserId, actionCommandPayloads);
+  if (payloadsResult instanceof Error) return payloadsResult;
+  const actionCommandPayloads = payloadsResult;
 
   const actionCommands = actionCommandPayloads.map(
     (payload) => new ActionCommand(game.name, actionUserId, payload, this)
   );
 
   party.actionCommandQueue.enqueueNewCommands(actionCommands);
-  if (!party.actionCommandQueue.isProcessing) {
-    const errors = await party.actionCommandQueue.processCommands();
-
-    const maybeError = await handleBattleConclusionsAndAITurns(game, party);
-    if (maybeError instanceof Error) errors.push(maybeError);
-    return errors;
+  const errors = await party.actionCommandQueue.processCommands();
+  if (errors.length) {
+    console.error(errors);
+    return new Error("Error processing action commands");
   }
 
-  return []; // aka no errors
+  const battleProcessingPayloadsResult = await processBattleUntilPlayerTurnOrConclusion(
+    this,
+    game,
+    party,
+    battleOption
+  );
+  if (battleProcessingPayloadsResult instanceof Error) return battleProcessingPayloadsResult;
+  actionCommandPayloads.push(...battleProcessingPayloadsResult);
+
+  this.io
+    .in(getPartyChannelName(game.name, party.name))
+    .emit(ServerToClientEvent.ActionCommandPayloads, actionUserId, actionCommandPayloads);
 }

@@ -22,7 +22,7 @@ export default async function useSelectedCombatActionHandler(
   if (targetsAndBattleResult instanceof Error) return targetsAndBattleResult;
   const { targets, battleOption } = targetsAndBattleResult;
 
-  const errors = await gameServer.processSelectedCombatAction(
+  const maybeError = await gameServer.processSelectedCombatAction(
     game,
     party,
     character.entityProperties.id,
@@ -31,9 +31,6 @@ export default async function useSelectedCombatActionHandler(
     battleOption,
     party.characterPositions
   );
-  if (errors.length) {
-    return new Error(errors.map((item) => item.message).join(", "));
-  }
 
-  // check for wipes here
+  if (maybeError instanceof Error) return maybeError;
 }

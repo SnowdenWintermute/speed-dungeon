@@ -13,6 +13,10 @@ export class ActionCommandQueue {
   }
 
   async processCommands() {
+    if (this.isProcessing) {
+      console.log("tried to start processing action command queue when it wasn't empty");
+      return [];
+    }
     const errors: Error[] = [];
     this.isProcessing = true;
     const currentCommand = this.commands.shift();

@@ -8,7 +8,7 @@ import {
   ERROR_MESSAGES,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import { composeActionCommandPayloadsFromActionResults } from "../character-uses-selected-combat-action-handler/compose-action-command-payloads-from-action-results.js";
+import { getActionCommandPayloadsFromCombatActionUse } from "../character-uses-selected-combat-action-handler/get-action-command-payloads-from-combat-action-use.js";
 
 export default async function getAIControlledTurnActionCommandPayloads(
   game: SpeedDungeonGame,
@@ -39,7 +39,7 @@ export default async function getAIControlledTurnActionCommandPayloads(
     abilityName,
   };
 
-  const actionResultsResult = SpeedDungeonGame.getActionResults(
+  const payloadsResult = getActionCommandPayloadsFromCombatActionUse(
     game,
     combatantId,
     selectedCombatAction,
@@ -47,10 +47,8 @@ export default async function getAIControlledTurnActionCommandPayloads(
     battleOption,
     allyGroup.combatantIds
   );
-  if (actionResultsResult instanceof Error) return actionResultsResult;
-  const actionResults = actionResultsResult;
-
-  const actionCommandPayloads = composeActionCommandPayloadsFromActionResults(actionResults);
+  if (payloadsResult instanceof Error) return payloadsResult;
+  const actionCommandPayloads = payloadsResult;
 
   return actionCommandPayloads;
 }

@@ -20,11 +20,12 @@ import { idGenerator, getGameServer } from "../../singletons.js";
 import generateDungeonRoom from "../dungeon-room-generation/index.js";
 import { writeAllPlayerCharacterInGameToDb } from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
+import { processBattleUntilPlayerTurnOrConclusion } from "./character-uses-selected-combat-action-handler/process-battle-until-player-turn-or-conclusion.js";
 
-export default function toggleReadyToExploreHandler(
+export default async function toggleReadyToExploreHandler(
   _eventData: undefined,
   data: ServerPlayerAssociatedData
-): Error | void {
+): Promise<Error | void> {
   const { game, partyOption, player } = data;
   const { username } = player;
   const gameServer = getGameServer();
@@ -64,7 +65,11 @@ export default function toggleReadyToExploreHandler(
   return gameServer.exploreNextRoom(game, party);
 }
 
-export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party: AdventuringParty) {
+export async function exploreNextRoom(
+  this: GameServer,
+  game: SpeedDungeonGame,
+  party: AdventuringParty
+) {
   if (game.mode === GameMode.Progression) writeAllPlayerCharacterInGameToDb(this, game);
 
   party.playersReadyToExplore = [];
@@ -132,12 +137,20 @@ export function exploreNextRoom(this: GameServer, game: SpeedDungeonGame, party:
 
     if (battle.turnTrackers[0] === undefined)
       return new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
-    const maybeError = this.takeAiControlledTurnIfActive(
+
+    // if the ai was first to go, then send the result of their turn/potential battle conclusion
+    const battleProcessingPayloadsResult = await processBattleUntilPlayerTurnOrConclusion(
+      this,
       game,
       party,
-      battle.turnTrackers[0].entityId
+      battleOption
     );
-    if (maybeError instanceof Error) return maybeError;
+    if (battleProcessingPayloadsResult instanceof Error) return battleProcessingPayloadsResult;
+    if (battleProcessingPayloadsResult.length) {
+      this.io
+        .in(getPartyChannelName(game.name, party.name))
+        .emit(ServerToClientEvent.ActionCommandPayloads, "", battleProcessingPayloadsResult);
+    }
   }
 }
 
