@@ -79,14 +79,16 @@ export function createModelActionHandlers(modelManager: ModelManager) {
       action: ProcessActionCommandsModelAction
     ): Promise<void | Error> {
       const focusedCharacteResult = getFocusedCharacter();
-      if (focusedCharacteResult instanceof Error) return console.trace(focusedCharacteResult);
 
       let actionUserEntityIdOption = action.actionCommandPayloads[0]
         ? getActionCommandPayloadUserIdOption(action.actionCommandPayloads[0])
         : "";
 
       useGameStore.getState().mutateState((state) => {
-        if (actionUserEntityIdOption === focusedCharacteResult.entityProperties.id)
+        if (
+          !(focusedCharacteResult instanceof Error) &&
+          actionUserEntityIdOption === focusedCharacteResult.entityProperties.id
+        )
           state.stackedMenuStates = [];
       });
 

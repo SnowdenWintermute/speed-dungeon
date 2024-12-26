@@ -77,7 +77,7 @@ export class Inventory {
     return toReturn;
   }
 
-  static InstantiateItemClasses(inventory: Inventory) {
+  static instantiateItemClasses(inventory: Inventory) {
     const consumables: Consumable[] = [];
     const equipments: Equipment[] = [];
     for (const consumable of inventory.consumables) {

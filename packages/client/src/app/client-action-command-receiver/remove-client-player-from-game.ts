@@ -1,6 +1,6 @@
 import { useGameStore } from "@/stores/game-store";
 import { setAlert } from "../components/alerts";
-import { ERROR_MESSAGES, Inventory, SpeedDungeonGame } from "@speed-dungeon/common";
+import { CombatantEquipment, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
 import { gameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
@@ -8,7 +8,7 @@ import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/comb
 export async function removeClientPlayerFromGame(username: string) {
   console.log("REMOVE CLIENT PLAYER FROM GAME CALLED");
   console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-  const thumbnailIdsToRemove: string[] = [];
+  const itemsToRemoveThumbnails: string[] = [];
   useGameStore.getState().mutateState((state) => {
     if (!state.game) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
     const removedPlayerResult = SpeedDungeonGame.removePlayer(state.game, username);
@@ -17,11 +17,20 @@ export async function removeClientPlayerFromGame(username: string) {
     for (const character of removedPlayerResult.charactersRemoved) {
       delete state.game.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id];
 
-      for (const item of Inventory.getItems(character.combatantProperties.inventory).concat(
-        Object.values(character.combatantProperties.equipment)
-      )) {
-        thumbnailIdsToRemove.push(item.entityProperties.id);
-      }
+      itemsToRemoveThumbnails.push(
+        ...character.combatantProperties.inventory.equipment.map((item) => item.entityProperties.id)
+      );
+      const hotswapSets = CombatantEquipment.getHoldableHotswapSlots(character.combatantProperties);
+      if (hotswapSets)
+        for (const hotswapSet of hotswapSets)
+          itemsToRemoveThumbnails.push(
+            ...Object.values(hotswapSet.holdables).map((item) => item.entityProperties.id)
+          );
+      itemsToRemoveThumbnails.push(
+        ...Object.values(character.combatantProperties.equipment.wearables).map(
+          (item) => item.entityProperties.id
+        )
+      );
     }
 
     state.combatLogMessages.push(
@@ -39,6 +48,6 @@ export async function removeClientPlayerFromGame(username: string) {
 
   gameWorld.current?.imageManager.enqueueMessage({
     type: ImageManagerRequestType.ItemDeletion,
-    itemIds: thumbnailIdsToRemove,
+    itemIds: itemsToRemoveThumbnails,
   });
 }

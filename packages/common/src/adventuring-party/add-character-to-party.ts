@@ -22,7 +22,7 @@ export function addCharacterToParty(
   if (Object.keys(party.characters).length >= MAX_PARTY_SIZE)
     throw new Error(ERROR_MESSAGES.GAME.MAX_PARTY_SIZE);
 
-  Inventory.InstantiateItemClasses(character.combatantProperties.inventory);
+  Inventory.instantiateItemClasses(character.combatantProperties.inventory);
   CombatantEquipment.instatiateItemClasses(character.combatantProperties);
 
   const characterId = character.entityProperties.id;
