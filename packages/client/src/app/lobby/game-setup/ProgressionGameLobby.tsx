@@ -30,11 +30,12 @@ export default function ProgressionGameLobby() {
   }, []);
 
   const numPlayersInGame = useMemo(() => Object.values(game.players).length, [game.players]);
+
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
-  const maxStartingFloor = Object.values(game.lowestStartingFloorOptionsBySavedCharacter).reduce(
-    (acc, curr) => (curr > acc ? curr : acc),
-    1
-  );
+  let maxStartingFloor = 1;
+  for (const floorNumber of Object.values(game.lowestStartingFloorOptionsBySavedCharacter)) {
+    if (floorNumber > maxStartingFloor) maxStartingFloor = floorNumber;
+  }
 
   console.log(
     "numPlayersInGame: ",
@@ -43,6 +44,7 @@ export default function ProgressionGameLobby() {
       .map((item) => item.username)
       .join(", ")
   );
+
   console.log(
     "lowestfloors: ",
     JSON.stringify(game.lowestStartingFloorOptionsBySavedCharacter, null, 2)
