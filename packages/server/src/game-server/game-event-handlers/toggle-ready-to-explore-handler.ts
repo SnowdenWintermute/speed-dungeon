@@ -149,7 +149,7 @@ export async function exploreNextRoom(
     if (battleProcessingPayloadsResult.length) {
       this.io
         .in(getPartyChannelName(game.name, party.name))
-        .emit(ServerToClientEvent.ActionCommandPayloads, "", battleProcessingPayloadsResult);
+        .emit(ServerToClientEvent.ActionCommandPayloads, battleProcessingPayloadsResult);
     }
   }
 }

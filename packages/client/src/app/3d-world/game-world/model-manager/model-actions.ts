@@ -48,7 +48,6 @@ export type SelectHotswapSlotModelAction = {
 
 export type ProcessActionCommandsModelAction = {
   type: ModelActionType.ProcessActionCommands;
-  entityId: string;
   actionCommandPayloads: ActionCommandPayload[];
 };
 

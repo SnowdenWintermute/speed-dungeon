@@ -66,14 +66,13 @@ websocketConnection.on(ServerToClientEvent.ErrorMessage, (message) => {
   setAlert(message);
 });
 
-websocketConnection.on(ServerToClientEvent.ActionCommandPayloads, (entityId, payloads) => {
+websocketConnection.on(ServerToClientEvent.ActionCommandPayloads, (payloads) => {
   if (!gameWorld.current)
     return console.error("Got action command payloads but no game world was found");
 
   console.log("enqueing message to process action commands: ", payloads);
   gameWorld.current.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.ProcessActionCommands,
-    entityId,
     actionCommandPayloads: payloads,
   });
 });

@@ -409,6 +409,7 @@ describe("race game records", () => {
       return [
         {
           type: ActionCommandType.PerformCombatAction,
+          actionUserId: "",
           combatAction: {
             type: CombatActionType.AbilityUsed,
             abilityName: AbilityName.Attack,

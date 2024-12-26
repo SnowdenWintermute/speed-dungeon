@@ -61,19 +61,17 @@ export async function processBattleUntilPlayerTurnOrConclusion(
     if (partyWipesResult instanceof Error) return partyWipesResult;
     battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
 
-    if (battleConcluded) {
-      const conclusionResult = await getBattleConclusionCommandAndPayload(
-        game,
-        party,
-        partyWipesResult
-      );
-      if (conclusionResult instanceof Error) return conclusionResult;
-      party.actionCommandQueue.enqueueNewCommands([conclusionResult.command]);
-      await party.actionCommandQueue.processCommands();
-      actionCommandPayloads.push(conclusionResult.payload);
-    }
-
     newActiveCombatantTrackerOption = battleOption?.turnTrackers[0];
+  }
+
+  if (battleConcluded) {
+    const conclusionResult = await getBattleConclusionCommandAndPayload(
+      game,
+      party,
+      partyWipesResult
+    );
+    if (conclusionResult instanceof Error) return conclusionResult;
+    actionCommandPayloads.push(conclusionResult.payload);
   }
 
   return actionCommandPayloads;

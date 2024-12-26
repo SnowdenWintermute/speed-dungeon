@@ -1,4 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
 import { GameWorld } from "..";
 import { actionCommandQueue } from "@/singletons/action-command-manager";
 import { ACTION_COMMAND_TYPE_STRINGS } from "@speed-dungeon/common";
@@ -36,7 +35,6 @@ export default function updateDebugText(this: GameWorld) {
 
     this.debug.debugRef.current.innerHTML = [
       `fps: ${fps}`,
-      `models awaiting spawn:${useGameStore.getState().combatantModelsAwaitingSpawn}`,
       `action command queue: ${actionCommandQueueMessages}`,
       `isProcessing: ${actionCommandQueue.isProcessing}`,
       `modelManagerMessages: ${modelManagerMessages}`,

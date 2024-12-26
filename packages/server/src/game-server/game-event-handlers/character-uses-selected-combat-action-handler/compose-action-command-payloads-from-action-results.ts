@@ -2,6 +2,7 @@ import { ActionCommandPayload, ActionCommandType, ActionResult } from "@speed-du
 import { createMoveIntoCombatActionPositionActionCommand } from "./create-move-into-combat-action-position-action-command.js";
 
 export function composeActionCommandPayloadsFromActionResults(
+  actionUserId: string,
   actionResults: ActionResult[]
 ): ActionCommandPayload[] {
   if (!actionResults[0]) return [];
@@ -17,6 +18,7 @@ export function composeActionCommandPayloadsFromActionResults(
 
     payloads.push({
       type: ActionCommandType.PayAbilityCosts,
+      actionUserId,
       mp: actionResult.manaCost,
       hp: 0,
       itemIds: actionResult.itemIdsConsumed,
@@ -24,6 +26,7 @@ export function composeActionCommandPayloadsFromActionResults(
 
     payloads.push({
       type: ActionCommandType.PerformCombatAction,
+      actionUserId,
       combatAction: actionResult.action,
       hpChangesByEntityId: actionResult.hitPointChangesByEntityId || {},
       mpChangesByEntityId: actionResult.manaChangesByEntityId,
@@ -31,7 +34,7 @@ export function composeActionCommandPayloadsFromActionResults(
     });
   }
 
-  payloads.push({ type: ActionCommandType.ReturnHome, shouldEndTurn });
+  payloads.push({ type: ActionCommandType.ReturnHome, actionUserId, shouldEndTurn });
 
   return payloads;
 }

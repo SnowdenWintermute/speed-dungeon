@@ -3,6 +3,7 @@ import { useUIStore } from "@/stores/ui-store";
 import { useGameStore } from "@/stores/game-store";
 import { ZIndexLayers } from "../z-index-layers";
 import { gameWorld } from "./SceneManager";
+import { InputLock } from "@speed-dungeon/common";
 
 export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTMLUListElement> }) {
   const thumbnails = useGameStore((state) => state.itemThumbnails);
@@ -79,6 +80,8 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
     };
   }, [hotkeysDisabled]);
 
+  const partyResult = useGameStore.getState().getParty();
+
   return (
     <div
       className={`absolute bottom-10 left-10 flex flex-col ${!showDebug && "hidden"} pointer-events-auto bg-black h-fit border border-white`}
@@ -98,12 +101,14 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
         </button>
       </div>
       <ul ref={debugRef} className="p-2"></ul>
-      <div>Client Action Command Queue</div>
-      <ul>
-        {
-          // clientA
-        }
-      </ul>
+      <div>Input Locked</div>
+      <div>
+        {!(partyResult instanceof Error)
+          ? InputLock.isLocked(partyResult.inputLock)
+            ? "true"
+            : "false"
+          : "error"}
+      </div>
       <ul className="flex max-w-96 flex-wrap">
         <li key="ayy" className="border p-5 bg-slate-700">
           Num thumbnails: {Object.keys(thumbnails).length}

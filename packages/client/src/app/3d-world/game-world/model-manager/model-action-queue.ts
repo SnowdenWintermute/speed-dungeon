@@ -1,4 +1,3 @@
-import { useGameStore } from "@/stores/game-store";
 import { ModelManager } from ".";
 import { setAlert } from "@/app/components/alerts";
 import { MODEL_ACTION_TYPE_STRINGS, ModelAction } from "./model-actions";
@@ -33,9 +32,5 @@ export class ModelActionQueue {
 
     console.log("no longer processing");
     this.isProcessing = false;
-
-    useGameStore.getState().mutateState((state) => {
-      state.combatantModelsAwaitingSpawn = false;
-    });
   }
 }

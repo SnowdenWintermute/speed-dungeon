@@ -19,6 +19,7 @@ export enum ActionCommandType {
 
 export type PayAbilityCostsActionCommandPayload = {
   type: ActionCommandType.PayAbilityCosts;
+  actionUserId: string;
   itemIds: string[];
   mp: number;
   hp: number;
@@ -26,17 +27,20 @@ export type PayAbilityCostsActionCommandPayload = {
 
 export type MoveIntoCombatActionPositionActionCommandPayload = {
   type: ActionCommandType.MoveIntoCombatActionPosition;
+  actionUserId: string;
   primaryTargetId: string;
   isMelee: boolean;
 };
 
 export type ReturnHomeActionCommandPayload = {
   type: ActionCommandType.ReturnHome;
+  actionUserId: string;
   shouldEndTurn: boolean;
 };
 
 export type PerformCombatActionActionCommandPayload = {
   type: ActionCommandType.PerformCombatAction;
+  actionUserId: string;
   combatAction: CombatAction;
   hpChangesByEntityId: null | {
     [entityId: string]: HpChange;
@@ -94,3 +98,16 @@ export const ACTION_COMMAND_TYPE_STRINGS: Record<ActionCommandType, string> = {
 // - can't change equipment in battle unless input not locked and have the special trait
 //   (can change while other players are deciding their move)
 // -
+export function getActionCommandPayloadUserIdOption(payload: ActionCommandPayload) {
+  switch (payload.type) {
+    case ActionCommandType.BattleResult:
+    case ActionCommandType.GameMessages:
+    case ActionCommandType.RemovePlayerFromGame:
+      return "";
+    case ActionCommandType.PayAbilityCosts:
+    case ActionCommandType.MoveIntoCombatActionPosition:
+    case ActionCommandType.PerformCombatAction:
+    case ActionCommandType.ReturnHome:
+      return payload.actionUserId;
+  }
+}

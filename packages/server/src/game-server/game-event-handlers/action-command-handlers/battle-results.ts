@@ -1,9 +1,12 @@
 import {
   BattleConclusion,
   BattleResultActionCommandPayload,
+  GameMessage,
   GameMessageType,
+  ServerToClientEvent,
   SpeedDungeonGame,
   createPartyWipeMessage,
+  getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
 import { getGameServer } from "../../../singletons.js";
@@ -30,12 +33,19 @@ export default async function battleResultActionCommandHandler(
       if (party.battleId !== null) delete game.battles[party.battleId];
 
       party.timeOfWipe = Date.now();
-      emitMessageInGameWithOptionalDelayForParty(
-        game.name,
-        GameMessageType.PartyWipe,
-        createPartyWipeMessage(party.name, party.currentFloor, new Date()),
-        party.name
-      );
+
+      const partyChannel = getPartyChannelName(gameName, party.name);
+      getGameServer()
+        .io.in(gameName)
+        .except(partyChannel)
+        .emit(
+          ServerToClientEvent.GameMessage,
+          new GameMessage(
+            GameMessageType.PartyWipe,
+            false,
+            createPartyWipeMessage(party.name, party.currentFloor, new Date())
+          )
+        );
 
       const maybeError = await gameModeContext.onPartyWipe(game, party);
       if (maybeError instanceof Error) return maybeError;

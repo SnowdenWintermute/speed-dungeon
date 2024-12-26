@@ -129,6 +129,7 @@ export const ERROR_MESSAGES = {
     TURN_TRACKERS_EMPTY: "Battle has no combatant turn trackers",
   },
   GAME_WORLD: {
+    NOT_FOUND: "Expected game world not found",
     NO_COMBATANT_MODEL: "No combatant model exists with the provided entity ID",
     INCOMPLETE_SKELETON_FILE: "The loaded skeleton asset is missing something",
     MISSING_ROTATION_QUATERNION: "Expected rotation data was missing",

@@ -1,4 +1,5 @@
 import {
+  ACTION_COMMAND_TYPE_STRINGS,
   ActionCommand,
   AdventuringParty,
   Battle,
@@ -52,8 +53,12 @@ export default async function processSelectedCombatAction(
   );
   if (battleProcessingPayloadsResult instanceof Error) return battleProcessingPayloadsResult;
   actionCommandPayloads.push(...battleProcessingPayloadsResult);
+  console.log(
+    "battle processing payloads: ",
+    battleProcessingPayloadsResult.map((item) => ACTION_COMMAND_TYPE_STRINGS[item.type])
+  );
 
   this.io
     .in(getPartyChannelName(game.name, party.name))
-    .emit(ServerToClientEvent.ActionCommandPayloads, actionUserId, actionCommandPayloads);
+    .emit(ServerToClientEvent.ActionCommandPayloads, actionCommandPayloads);
 }

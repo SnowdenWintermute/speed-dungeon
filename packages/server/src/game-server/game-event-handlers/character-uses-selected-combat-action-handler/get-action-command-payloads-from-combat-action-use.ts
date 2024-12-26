@@ -20,5 +20,5 @@ export function getActionCommandPayloadsFromCombatActionUse(
   if (actionResultsResult instanceof Error) return actionResultsResult;
   const actionResults = actionResultsResult;
 
-  return composeActionCommandPayloadsFromActionResults(actionResults);
+  return composeActionCommandPayloadsFromActionResults(actionUserId, actionResults);
 }

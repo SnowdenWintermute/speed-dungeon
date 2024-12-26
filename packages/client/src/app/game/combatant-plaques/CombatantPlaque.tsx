@@ -48,7 +48,6 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
   const entityId = combatant.entityProperties.id;
   const babylonDebugMessages =
     useGameStore().babylonControlledCombatantDOMData[entityId]?.debugMessages;
-  const modelsAwaitingSpawn = useGameStore().combatantModelsAwaitingSpawn;
 
   const usernameOption = useGameStore().username;
   const result = getGameAndParty(gameOption, usernameOption);
@@ -96,10 +95,9 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
     });
   }
 
-  const lockedUiState =
-    InputLock.isLocked(party.inputLock) || modelsAwaitingSpawn
-      ? "opacity-50 pointer-events-none "
-      : "pointer-events-auto ";
+  const lockedUiState = InputLock.isLocked(party.inputLock)
+    ? "opacity-50 pointer-events-none "
+    : "pointer-events-auto ";
 
   return (
     <div className="">

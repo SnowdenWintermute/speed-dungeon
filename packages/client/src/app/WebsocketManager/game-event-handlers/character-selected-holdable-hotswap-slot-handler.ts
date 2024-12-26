@@ -2,9 +2,9 @@ import { CharacterAssociatedData, CombatantEquipment, ERROR_MESSAGES } from "@sp
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { GameState } from "@/stores/game-store";
 import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
 import cloneDeep from "lodash.clonedeep";
 import { changeSelectedHotswapSlot } from "@speed-dungeon/common";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 export default function characterSelectedHoldableHotswapSlotHandler(
   characterId: string,
@@ -21,7 +21,6 @@ export default function characterSelectedHoldableHotswapSlotHandler(
 
       const { combatantProperties } = character;
 
-      const oldIndex = combatantProperties.equipment.equippedHoldableHotswapSlotIndex;
       const slotSwitchingAwayFrom =
         CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
       if (!slotSwitchingAwayFrom)
@@ -35,8 +34,9 @@ export default function characterSelectedHoldableHotswapSlotHandler(
         return new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
 
       // enqueue model managment message
-      gameWorld.current?.modelManager.enqueueMessage(character.entityProperties.id, {
-        type: ModelManagerMessageType.SelectHotswapSlot,
+      gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+        type: ModelActionType.SelectHotswapSlot,
+        entityId: character.entityProperties.id,
         hotswapSlots: cloneDeep(
           CombatantEquipment.getHoldableHotswapSlots(character.combatantProperties)
         ),

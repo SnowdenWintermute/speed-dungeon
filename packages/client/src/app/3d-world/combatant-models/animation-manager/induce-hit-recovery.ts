@@ -13,7 +13,6 @@ import startHpChangeFloatingMessage from "./start-hp-change-floating-message";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { ANIMATION_NAMES } from "./animation-names";
-import { actionCommandManager } from "@/singletons/action-command-manager";
 
 export function induceHitRecovery(
   gameWorld: GameWorld,
@@ -27,6 +26,7 @@ export function induceHitRecovery(
 
   // hpChange.isCrit = Math.random() > 0.5;
 
+  console.log("target id for floating message: ", targetId);
   startHpChangeFloatingMessage(targetId, hpChange, 2000);
 
   useGameStore.getState().mutateState((gameState) => {
@@ -104,9 +104,6 @@ export function induceHitRecovery(
         animationEventOption: null,
         onComplete: () => {
           targetModel.animationManager.locked = true;
-          actionCommandManager.endCurrentActionCommandSequenceIfAllEntitiesAreDoneProcessing(
-            targetModel.entityId
-          );
         },
       });
     }

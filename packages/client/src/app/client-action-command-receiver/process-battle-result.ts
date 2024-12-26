@@ -4,6 +4,7 @@ import {
   Consumable,
   ERROR_MESSAGES,
   Equipment,
+  InputLock,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
@@ -49,6 +50,7 @@ export default async function battleResultActionCommandHandler(
     if (state.username === null) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
     const partyOption = getCurrentParty(state, state.username);
     if (partyOption === undefined) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+    InputLock.unlockInput(partyOption.inputLock);
     switch (payload.conclusion) {
       case BattleConclusion.Defeat:
         partyOption.timeOfWipe = timestamp;

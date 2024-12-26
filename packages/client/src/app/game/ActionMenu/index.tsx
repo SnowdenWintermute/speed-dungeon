@@ -33,7 +33,6 @@ export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
 
 export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
-  const combatantModelsAwaitingSpawn = useGameStore((state) => state.combatantModelsAwaitingSpawn);
   const hoveredAction = useGameStore((state) => state.hoveredAction);
   const hoveredItem = useGameStore((state) =>
     state.hoveredEntity instanceof Item ? state.hoveredEntity : null
@@ -69,7 +68,6 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   }, [buttonProperties[ActionButtonCategory.Numbered].length]);
 
   if (inputLocked) return <div />;
-  if (combatantModelsAwaitingSpawn) <div>Awating spawn of combatant models...</div>;
 
   let selectedActionDisplay = <></>;
   if (currentMenu instanceof ConsideringCombatActionMenuState) {

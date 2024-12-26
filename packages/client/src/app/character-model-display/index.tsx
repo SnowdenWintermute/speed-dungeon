@@ -2,7 +2,6 @@ import { Vector3 } from "@babylonjs/core";
 import { Combatant } from "@speed-dungeon/common";
 import { ReactNode, useEffect } from "react";
 import { gameWorld } from "@/app/3d-world/SceneManager";
-import { useGameStore } from "@/stores/game-store";
 import { ModelActionType } from "../3d-world/game-world/model-manager/model-actions";
 
 export default function CharacterModelDisplay({
@@ -14,10 +13,8 @@ export default function CharacterModelDisplay({
   startPosition: { startRotation: number; modelCorrectionRotation: number; startPosition: Vector3 };
   children?: ReactNode;
 }) {
-  const mutateGameStore = useGameStore().mutateState;
   const { entityProperties } = character;
   const entityId = entityProperties.id;
-  const isLoading = useGameStore().combatantModelsAwaitingSpawn;
 
   useEffect(() => {
     // modelDomPositionElement's position and dimensions are set by babylonjs each frame
@@ -25,10 +22,6 @@ export default function CharacterModelDisplay({
       `${entityId}-position-div`
     ) as HTMLDivElement | null;
     if (modelDomPositionElement === null) return;
-
-    mutateGameStore((state) => {
-      state.combatantModelsAwaitingSpawn = true;
-    });
 
     gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SpawnCombatantModel,
@@ -50,7 +43,7 @@ export default function CharacterModelDisplay({
   }, []);
 
   return (
-    <div id={`${entityId}-position-div`} className={`absolute ${isLoading && "hidden"}`}>
+    <div id={`${entityId}-position-div`} className={`absolute`}>
       {children}
     </div>
   );

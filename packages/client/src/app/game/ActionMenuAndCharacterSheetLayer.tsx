@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import ActionMenu from "./ActionMenu";
 import { AdventuringParty, InputLock } from "@speed-dungeon/common";
 import ItemDetailsWithComparison from "./ItemDetailsWithComparison";
@@ -6,7 +6,7 @@ import ItemsOnGround from "./ItemsOnGround";
 import CharacterSheet from "./character-sheet";
 import { useGameStore } from "@/stores/game-store";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
-import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
+import { SPACING_REM } from "@/client_consts";
 import { ZIndexLayers } from "../z-index-layers";
 
 export default function ActionMenuAndCharacterSheetLayer({ party }: { party: AdventuringParty }) {

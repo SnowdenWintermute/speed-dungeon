@@ -35,6 +35,7 @@ export default function getMonsterStartingAttributes(
     case MonsterType.Scavenger:
       // attributes[CombatAttribute.Dexterity] = 2.0;
       attributes[CombatAttribute.Dexterity] = 7.0;
+      // attributes[CombatAttribute.Strength] = 200000.0;
       attributes[CombatAttribute.Strength] = 2.0;
       attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 1.0;

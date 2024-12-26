@@ -59,7 +59,6 @@ export class GameState {
   lastDebugMessageId: number = 0;
   babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
   combatantFloatingMessages: { [combatantId: string]: FloatingMessage[] } = {};
-  combatantModelsAwaitingSpawn: boolean = false;
   testText: string = "test";
   itemThumbnails: { [itemId: string]: string } = {};
   consideredItemUnmetRequirements: null | CombatAttribute[] = null;

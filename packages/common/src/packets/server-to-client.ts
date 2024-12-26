@@ -102,10 +102,7 @@ export interface ServerToClientEventTypes {
   ) => void;
   [ServerToClientEvent.DungeonRoomUpdate]: (dungeonRoom: DungeonRoom) => void;
   [ServerToClientEvent.BattleFullUpdate]: (battleOption: null | Battle) => void;
-  [ServerToClientEvent.ActionCommandPayloads]: (
-    entityId: string,
-    payloads: ActionCommandPayload[]
-  ) => void;
+  [ServerToClientEvent.ActionCommandPayloads]: (payloads: ActionCommandPayload[]) => void;
   [ServerToClientEvent.GameMessage]: (message: GameMessage) => void;
   // [ServerToClientEvent.BattleReport]: (report: BattleReport) => void;
   [ServerToClientEvent.CharacterDroppedItem]: (characterAndItem: CharacterAndItem) => void;

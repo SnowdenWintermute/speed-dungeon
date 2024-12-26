@@ -1,4 +1,8 @@
-import { ActionCommand, ERROR_MESSAGES } from "@speed-dungeon/common";
+import {
+  ActionCommand,
+  ERROR_MESSAGES,
+  getActionCommandPayloadUserIdOption,
+} from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
 import { spawnModularCharacter } from "./spawn-modular-character";
 import { ModelManager } from "..";
@@ -77,20 +81,31 @@ export function createModelActionHandlers(modelManager: ModelManager) {
       const focusedCharacteResult = getFocusedCharacter();
       if (focusedCharacteResult instanceof Error) return console.trace(focusedCharacteResult);
 
+      let actionUserEntityIdOption = action.actionCommandPayloads[0]
+        ? getActionCommandPayloadUserIdOption(action.actionCommandPayloads[0])
+        : "";
+
       useGameStore.getState().mutateState((state) => {
-        if (action.entityId === focusedCharacteResult.entityProperties.id)
+        if (actionUserEntityIdOption === focusedCharacteResult.entityProperties.id)
           state.stackedMenuStates = [];
       });
 
-      console.log("waiting for action command sequence to resolve");
       const gameName = useGameStore.getState().gameName;
       if (!gameName) return console.error("No game name");
       const actionCommands = action.actionCommandPayloads.map(
-        (item) => new ActionCommand(gameName, action.entityId, item, actionCommandReceiver)
+        (item) =>
+          new ActionCommand(
+            gameName,
+            getActionCommandPayloadUserIdOption(item),
+            item,
+            actionCommandReceiver
+          )
       );
       actionCommandQueue.enqueueNewCommands(actionCommands);
       const errors = await actionCommandQueue.processCommands();
-      console.log("errors: ", errors);
+      if (errors.length) {
+        console.error(errors);
+      }
 
       return;
     },
