@@ -5,6 +5,7 @@ import {
   Shield,
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
+  formatEquipmentType,
 } from "@speed-dungeon/common";
 import { Artist } from "./artists";
 
@@ -12,6 +13,7 @@ export function equipmentBaseItemToModelPath(
   equipmentType: EquipmentType,
   baseItem: EquipmentBaseItemType | null
 ): string | null {
+  console.log("finding path for equipment type:", formatEquipmentType(equipmentType));
   let filePath;
   const folderPath = MODEL_FOLDER_PATHS[equipmentType];
   switch (equipmentType) {

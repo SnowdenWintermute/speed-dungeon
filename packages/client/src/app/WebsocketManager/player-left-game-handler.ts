@@ -1,9 +1,11 @@
-import { actionCommandQueue } from "@/singletons/action-command-manager";
 import { ActionCommandType } from "@speed-dungeon/common";
 import { gameWorld } from "../3d-world/SceneManager";
+import { ModelActionType } from "../3d-world/game-world/model-manager/model-actions";
 
 export default function playerLeftGameHandler(username: string) {
   console.log("enqueued player left game handler");
-  throw new Error("not implemented");
-  // gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({ type: ActionCommandType.RemovePlayerFromGame, username });
+  gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+    type: ModelActionType.ProcessActionCommands,
+    actionCommandPayloads: [{ type: ActionCommandType.RemovePlayerFromGame, username }],
+  });
 }

@@ -3,6 +3,7 @@ import { useGameStore } from "@/stores/game-store";
 import {
   AdventuringParty,
   Combatant,
+  CombatantEquipment,
   ERROR_MESSAGES,
   addCharacterToParty,
   getProgressionGamePartyName,
@@ -16,6 +17,8 @@ export default function savedCharacterSelectionInProgressGameHandler(
   useGameStore.getState().mutateState((gameState) => {
     const game = gameState.game;
     if (!game) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
+
+    CombatantEquipment.instatiateItemClasses(character.combatantProperties);
 
     game.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id] =
       character.combatantProperties.deepestFloorReached;

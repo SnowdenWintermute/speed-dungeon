@@ -71,6 +71,8 @@ export async function processBattleUntilPlayerTurnOrConclusion(
       partyWipesResult
     );
     if (conclusionResult instanceof Error) return conclusionResult;
+    party.actionCommandQueue.enqueueNewCommands([conclusionResult.command]);
+    await party.actionCommandQueue.processCommands();
     actionCommandPayloads.push(conclusionResult.payload);
   }
 

@@ -59,7 +59,10 @@ export async function spawnModularCharacter(
     parts.push({ category: ModularCharacterPartCategory.Torso, assetPath: torsoPath });
     parts.push({ category: ModularCharacterPartCategory.Legs, assetPath: legsPath });
   }
-  const skeleton = await importMesh(SKELETONS[combatantProperties.combatantSpecies], world.scene);
+
+  const skeletonPath = SKELETONS[combatantProperties.combatantSpecies];
+
+  const skeleton = await importMesh(skeletonPath, world.scene);
 
   const modularCharacter = new ModularCharacter(
     entityProperties.id,
@@ -74,7 +77,7 @@ export async function spawnModularCharacter(
   );
 
   for (const part of parts) {
-    if (!part.assetPath) {
+    if (!part.assetPath || part.assetPath === "") {
       console.error("no part asset path provided for part", part);
       continue;
     }

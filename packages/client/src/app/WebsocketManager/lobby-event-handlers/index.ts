@@ -6,6 +6,7 @@ import {
   AdventuringParty,
   SpeedDungeonGame,
   ERROR_MESSAGES,
+  CombatantEquipment,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io-client";
 import characterAddedToPartyHandler from "./character-added-to-party-handler";
@@ -28,6 +29,13 @@ export default function setUpGameLobbyEventHandlers(
 ) {
   const mutateGameStore = useGameStore.getState().mutateState;
   socket.on(ServerToClientEvent.GameFullUpdate, (game) => {
+    if (game) {
+      for (const party of Object.values(game.adventuringParties)) {
+        for (const character of Object.values(party.characters)) {
+          CombatantEquipment.instatiateItemClasses(character.combatantProperties);
+        }
+      }
+    }
     gameWorld.current?.imageManager.enqueueMessage({
       type: ImageManagerRequestType.ClearState,
     });
