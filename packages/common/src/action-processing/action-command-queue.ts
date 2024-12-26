@@ -19,7 +19,7 @@ export class ActionCommandQueue {
     }
     const errors: Error[] = [];
     this.isProcessing = true;
-    const currentCommand = this.commands.shift();
+    let currentCommand = this.commands.shift();
     while (currentCommand) {
       console.log(
         "executing action command",
@@ -33,6 +33,7 @@ export class ActionCommandQueue {
         console.error(maybeError);
         errors.push(maybeError);
       }
+      currentCommand = this.commands.shift();
     }
     this.isProcessing = false;
     console.log("action command queue finished processing");

@@ -1,6 +1,6 @@
 import { useGameStore } from "@/stores/game-store";
 import { GameWorld } from "..";
-import { actionCommandManager } from "@/singletons/action-command-manager";
+import { actionCommandQueue } from "@/singletons/action-command-manager";
 import { ACTION_COMMAND_TYPE_STRINGS } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 
@@ -19,12 +19,12 @@ export default function updateDebugText(this: GameWorld) {
     const numMaterials = `<div>num materials: ${this.scene.materials.length}</div>`;
 
     const actionCommandQueueMessages = [];
-    if (actionCommandManager.currentlyProcessing)
+    if (actionCommandQueue.commands[0])
       actionCommandQueueMessages.push(
-        ACTION_COMMAND_TYPE_STRINGS[actionCommandManager.currentlyProcessing.payload.type]
+        ACTION_COMMAND_TYPE_STRINGS[actionCommandQueue.commands[0].payload.type]
       );
     actionCommandQueueMessages.push(
-      ...actionCommandManager.queue.map((item) => ACTION_COMMAND_TYPE_STRINGS[item.payload.type])
+      ...actionCommandQueue.commands.map((item) => ACTION_COMMAND_TYPE_STRINGS[item.payload.type])
     );
 
     const modelManagerMessages = [];
@@ -37,11 +37,11 @@ export default function updateDebugText(this: GameWorld) {
     this.debug.debugRef.current.innerHTML = [
       `fps: ${fps}`,
       `models awaiting spawn:${useGameStore.getState().combatantModelsAwaitingSpawn}`,
-      `queue: ${actionCommandManager.queue.map((item) => ACTION_COMMAND_TYPE_STRINGS[item.payload.type])}`,
-      `current: ${actionCommandManager.currentlyProcessing ? ACTION_COMMAND_TYPE_STRINGS[actionCommandManager.currentlyProcessing.payload.type] : null}`,
-      `actionCommandQueueMessages: ${actionCommandQueueMessages}`,
+      `action command queue: ${actionCommandQueueMessages}`,
+      `isProcessing: ${actionCommandQueue.isProcessing}`,
       `modelManagerMessages: ${modelManagerMessages}`,
-      `combatants processing actions: ${actionCommandManager.entitiesPerformingActions}`,
+      `isProcessing: ${this.modelManager.modelActionQueue.isProcessing}`,
+      // `combatants processing actions: ${actionCommandQueue.entitiesPerformingActions}`,
       numMaterials,
       cameraAlpha,
       cameraBeta,

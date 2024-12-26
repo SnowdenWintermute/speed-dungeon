@@ -9,8 +9,8 @@ import {
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
 import checkForWipes from "../combat-action-results-processing/check-for-wipes.js";
-import getAIControlledTurnActionCommands from "../combat-action-results-processing/get-ai-controlled-turn-action-commands.js";
 import { getBattleConclusionCommandAndPayload } from "../action-command-handlers/get-battle-conclusion-command-and-payload.js";
+import getAIControlledTurnActionCommandPayloads from "../combat-action-results-processing/get-ai-controlled-turn-action-command-payloads.js";
 
 export async function processBattleUntilPlayerTurnOrConclusion(
   gameServer: GameServer,
@@ -36,7 +36,7 @@ export async function processBattleUntilPlayerTurnOrConclusion(
     let { combatantProperties } = activeCombatantResult;
     const activeCombatantIsAiControlled = combatantProperties.controllingPlayer === null;
     if (!activeCombatantIsAiControlled) break;
-    const aiActionCommandPayloadsResult = await getAIControlledTurnActionCommands(
+    const aiActionCommandPayloadsResult = await getAIControlledTurnActionCommandPayloads(
       game,
       party,
       activeCombatantResult

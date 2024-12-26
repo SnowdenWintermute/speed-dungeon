@@ -11,9 +11,11 @@ export class ModelActionQueue {
 
   enqueueMessage(message: ModelAction) {
     this.messages.push(message);
+    // messages will be processed in game loop
   }
 
   async processMessages() {
+    if (this.isProcessing) return console.log("already processing");
     console.log("starting to process messages");
     this.isProcessing = true;
 
