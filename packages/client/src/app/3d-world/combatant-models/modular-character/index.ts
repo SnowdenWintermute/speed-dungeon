@@ -98,14 +98,26 @@ export class ModularCharacter {
 
     while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
 
-    const rootMesh = skeleton.meshes[0];
+    this.updateHomeLocation(startPosition, startRotation, modelCorrectionRotation);
+
+    // this.rootMesh.showBoundingBox = true;
+    // this.setUpDebugMeshes();
+
+    // this.setShowBones();
+  }
+
+  updateHomeLocation(
+    startPosition: Vector3,
+    startRotation: number,
+    modelCorrectionRotation: number
+  ) {
+    const rootMesh = this.skeleton.meshes[0];
     if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
 
-    if (monsterType !== null) {
-      rootMesh.scaling = Vector3.One().scale(MONSTER_SCALING_SIZES[monsterType]);
+    if (this.monsterType !== null) {
+      rootMesh.scaling = Vector3.One().scale(MONSTER_SCALING_SIZES[this.monsterType]);
     }
-
-    this.rootTransformNode = new TransformNode(`${entityId}-root-transform-node`);
+    this.rootTransformNode = new TransformNode(`${this.entityId}-root-transform-node`);
     this.rootMesh = rootMesh;
     this.rootMesh.rotate(Vector3.Up(), modelCorrectionRotation); // fix inconsistent blender export rotation
 
@@ -124,11 +136,6 @@ export class ModularCharacter {
       position: cloneDeep(this.rootTransformNode.position),
       rotation: cloneDeep(this.rootTransformNode.rotationQuaternion!),
     };
-
-    // this.rootMesh.showBoundingBox = true;
-    // this.setUpDebugMeshes();
-
-    // this.setShowBones();
   }
 
   setUpDebugMeshes = setUpDebugMeshes;
