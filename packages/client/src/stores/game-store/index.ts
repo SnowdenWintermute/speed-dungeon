@@ -37,12 +37,6 @@ export class GameState {
   [immerable] = true;
   baseMenuState: BaseMenuState;
   stackedMenuStates: ActionMenuState[] = [];
-  // cameraData: { alpha: number; beta: number; radius: number; focus: Vector3 } = {
-  //   alpha: 0,
-  //   beta: 0,
-  //   radius: 0,
-  //   focus: Vector3.Zero(),
-  // };
   game: null | SpeedDungeonGame = null;
   gameName: string | null = null;
   /** Unique name which characters may list as their controller */

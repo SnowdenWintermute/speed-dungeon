@@ -1,3 +1,4 @@
+import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import {
   nextToBabylonMessageQueue,
   NextToBabylonMessageTypes,
@@ -8,6 +9,11 @@ import { Vector3 } from "@babylonjs/core";
 export default function gameStartedHandler(timeStarted: number) {
   useGameStore.getState().mutateState((gameState) => {
     if (gameState.game) gameState.game.timeStarted = timeStarted;
+
+    gameState.combatLogMessages = [
+      new CombatLogMessage("A new game has begun!", CombatLogMessageStyle.Basic),
+    ];
+
     nextToBabylonMessageQueue.messages.push({
       type: NextToBabylonMessageTypes.MoveCamera,
       instant: true,

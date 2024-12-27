@@ -67,3 +67,7 @@ export function cloneVector3(vec3: Vector3) {
 export function getProgressionGamePartyName(gameName: string) {
   return `Delvers of ${gameName}`;
 }
+
+export function isBrowser() {
+  return typeof window !== "undefined" && typeof window.document !== "undefined";
+}

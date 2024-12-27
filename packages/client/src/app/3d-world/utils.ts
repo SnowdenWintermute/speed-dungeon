@@ -14,10 +14,7 @@ import { BASE_FILE_PATH } from "./combatant-models/modular-character/modular-cha
 
 export async function importMesh(path: string, scene: Scene) {
   if (path === "") throw new Error("Empty file path");
-  const sceneResult = await SceneLoader.ImportMeshAsync("", BASE_FILE_PATH || "", path, scene);
-  // if (this.useShadows)
-  //   for (const mesh of sceneResult.meshes) this.shadowGenerator?.addShadowCaster(mesh, true);
-  return sceneResult;
+  return SceneLoader.ImportMeshAsync("", BASE_FILE_PATH || "", path, scene);
 }
 
 export function getTransformNodeByName(sceneResult: ISceneLoaderAsyncResult, name: string) {

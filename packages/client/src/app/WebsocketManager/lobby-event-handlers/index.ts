@@ -7,6 +7,7 @@ import {
   SpeedDungeonGame,
   ERROR_MESSAGES,
   CombatantEquipment,
+  Inventory,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io-client";
 import characterAddedToPartyHandler from "./character-added-to-party-handler";
@@ -17,7 +18,6 @@ import playerLeftGameHandler from "../player-left-game-handler";
 import savedCharacterSelectionInProgressGameHandler from "./saved-character-selection-in-progress-game-handler";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
-import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 import {
   enqueueCharacterItemsForThumbnails,
@@ -32,10 +32,12 @@ export default function setUpGameLobbyEventHandlers(
     if (game) {
       for (const party of Object.values(game.adventuringParties)) {
         for (const character of Object.values(party.characters)) {
+          Inventory.instantiateItemClasses(character.combatantProperties.inventory);
           CombatantEquipment.instatiateItemClasses(character.combatantProperties);
         }
       }
     }
+
     gameWorld.current?.imageManager.enqueueMessage({
       type: ImageManagerRequestType.ClearState,
     });
@@ -47,9 +49,6 @@ export default function setUpGameLobbyEventHandlers(
       } else {
         state.game = game;
         state.gameName = game.name;
-        state.combatLogMessages = [
-          new CombatLogMessage("A new game has begun!", CombatLogMessageStyle.Basic),
-        ];
       }
       state.stackedMenuStates = [];
     });
