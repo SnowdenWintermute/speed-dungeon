@@ -12,6 +12,7 @@ export enum ModelActionType {
   ChangeEquipment,
   SelectHotswapSlot,
   ProcessActionCommands,
+  SynchronizeCombatantModels,
 }
 
 export const MODEL_ACTION_TYPE_STRINGS: Record<ModelActionType, string> = {
@@ -20,6 +21,7 @@ export const MODEL_ACTION_TYPE_STRINGS: Record<ModelActionType, string> = {
   [ModelActionType.ChangeEquipment]: "Change Equipment",
   [ModelActionType.SelectHotswapSlot]: "Select Hotswap Slot",
   [ModelActionType.ProcessActionCommands]: "Process Action Commands",
+  [ModelActionType.SynchronizeCombatantModels]: "Synchronize Combatant Models",
 };
 
 export type SpawnCombatantModelAction = {
@@ -51,9 +53,14 @@ export type ProcessActionCommandsModelAction = {
   actionCommandPayloads: ActionCommandPayload[];
 };
 
+export type SynchronizeCombatantModelsModelAction = {
+  type: ModelActionType.SynchronizeCombatantModels;
+};
+
 export type ModelAction =
   | SpawnCombatantModelAction
   | DespawnCombatantModelAction
   | ChangeEquipmentModelAction
   | SelectHotswapSlotModelAction
-  | ProcessActionCommandsModelAction;
+  | ProcessActionCommandsModelAction
+  | SynchronizeCombatantModelsModelAction;

@@ -16,15 +16,19 @@ import { spawnModularCharacter } from "./spawn-modular-character";
 import { ModularCharacter } from "@/app/3d-world/combatant-models/modular-character";
 
 export async function synchronizeCombatantModelsWithAppState() {
+  console.log("SYNCHRONIZING");
   if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
   const { modelManager } = gameWorld.current;
   // determine which models should exist and their positions based on game state
   const modelsAndPositions = getModelsAndPositions();
+  console.log("modelsAndPositions: ", modelsAndPositions);
   if (modelsAndPositions instanceof Error) return modelsAndPositions;
   // delete models which don't appear on the list
   for (const [entityId, model] of Object.entries(modelManager.combatantModels)) {
     if (!modelsAndPositions[entityId]) {
-      despawnModularCharacter(gameWorld.current, model);
+      const maybeError = despawnModularCharacter(gameWorld.current, model);
+      if (maybeError instanceof Error) return maybeError;
+      delete modelManager.combatantModels[entityId];
     }
   }
 
@@ -48,14 +52,23 @@ export async function synchronizeCombatantModelsWithAppState() {
         })
       );
     } else {
+      console.log("moving to ", JSON.stringify(position));
       // move models to correct positions
-      modelOption.updateHomeLocation(
-        position.startPosition,
-        position.startRotation,
-        position.modelCorrectionRotation
-      );
+      modelOption.setHomeLocation(position.startPosition);
     }
   }
+
+  const spawnResults = await Promise.all(modelSpawnPromises);
+  let resultsIncludedError = false;
+  for (const result of spawnResults) {
+    if (result instanceof Error) {
+      console.error(result);
+      resultsIncludedError = true;
+    } else {
+      modelManager.combatantModels[result.entityId] = result;
+    }
+  }
+  if (resultsIncludedError) return new Error("Error with spawning combatant models");
 }
 
 function getModelsAndPositions() {
@@ -105,8 +118,9 @@ function getModelsAndPositions() {
         position: getCombatantModelStartPosition(monster),
       };
     }
-  } else if (lobbyState.showSavedCharacterManager) {
+  } else {
     const savedCharacters = lobbyState.savedCharacters;
+    console.log("saved characters:", savedCharacters);
     // viewing saved characters
     for (const [slot, character] of iterateNumericEnumKeyedRecord(savedCharacters).filter(
       ([_slot, characterOption]) => characterOption !== null

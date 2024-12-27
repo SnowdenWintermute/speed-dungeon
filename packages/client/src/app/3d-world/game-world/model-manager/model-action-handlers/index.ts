@@ -19,11 +19,13 @@ import { removeHoldableModelFromModularCharacter } from "./remove-holdable-from-
 import { equipHoldableModelToModularCharacter } from "./equip-holdable-to-modular-character";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { actionCommandQueue, actionCommandReceiver } from "@/singletons/action-command-manager";
+import { synchronizeCombatantModelsWithAppState } from "./synchronize-combatant-models-with-app-state";
 
 export type ModelActionHandler = (...args: any[]) => Promise<Error | void> | (void | Error);
 
 export function createModelActionHandlers(modelManager: ModelManager) {
   return {
+    [ModelActionType.SynchronizeCombatantModels]: synchronizeCombatantModelsWithAppState,
     [ModelActionType.SpawnCombatantModel]: async function (
       action: SpawnCombatantModelAction
     ): Promise<void | Error> {

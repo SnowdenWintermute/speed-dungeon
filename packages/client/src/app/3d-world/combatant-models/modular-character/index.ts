@@ -98,19 +98,6 @@ export class ModularCharacter {
 
     while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
 
-    this.updateHomeLocation(startPosition, startRotation, modelCorrectionRotation);
-
-    // this.rootMesh.showBoundingBox = true;
-    // this.setUpDebugMeshes();
-
-    // this.setShowBones();
-  }
-
-  updateHomeLocation(
-    startPosition: Vector3,
-    startRotation: number,
-    modelCorrectionRotation: number
-  ) {
     const rootMesh = this.skeleton.meshes[0];
     if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
 
@@ -129,6 +116,21 @@ export class ModularCharacter {
 
     this.rootTransformNode.rotate(Vector3.Up(), startRotation);
     this.rootTransformNode.position = startPosition;
+
+    const rotation = this.rootTransformNode.rotationQuaternion;
+    if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
+    this.homeLocation = {
+      position: cloneDeep(this.rootTransformNode.position),
+      rotation: cloneDeep(this.rootTransformNode.rotationQuaternion!),
+    };
+    // this.rootMesh.showBoundingBox = true;
+    // this.setUpDebugMeshes();
+
+    // this.setShowBones();
+  }
+
+  setHomeLocation(position: Vector3) {
+    this.rootTransformNode.position = position;
 
     const rotation = this.rootTransformNode.rotationQuaternion;
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);

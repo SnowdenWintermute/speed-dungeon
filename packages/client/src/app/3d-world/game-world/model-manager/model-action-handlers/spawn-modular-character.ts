@@ -15,7 +15,7 @@ import {
 } from "../../../combatant-models/modular-character/modular-character-parts";
 import { importMesh } from "../../../utils";
 import { GameWorld } from "../../";
-import { Color3, StandardMaterial } from "@babylonjs/core";
+import { Color3, ISceneLoaderAsyncResult, StandardMaterial } from "@babylonjs/core";
 
 export async function spawnModularCharacter(
   world: GameWorld,
@@ -76,42 +76,56 @@ export async function spawnModularCharacter(
     blueprint.modelCorrectionRotation
   );
 
+  const partPromises: Promise<ISceneLoaderAsyncResult | Error>[] = [];
+
   for (const part of parts) {
-    if (!part.assetPath || part.assetPath === "") {
+    const { assetPath } = part;
+    if (!assetPath || assetPath === "") {
       console.error("no part asset path provided for part", part);
       continue;
     }
-    const partResult = await modularCharacter.attachPart(part.category, part.assetPath);
-    if (partResult instanceof Error) return partResult;
 
-    if (combatantProperties.monsterType === MonsterType.FireElemental)
-      for (const mesh of partResult.meshes) {
-        if (mesh.material?.name === "cube-material") {
-          const redMaterial = new StandardMaterial("red");
-          redMaterial.diffuseColor = new Color3(0.7, 0.2, 0.2);
-          mesh.material = redMaterial;
-        }
-      }
+    partPromises.push(
+      new Promise(async (resolve, reject) => {
+        const partResult = await modularCharacter.attachPart(part.category, assetPath);
+        if (partResult instanceof Error) return partResult;
 
-    if (combatantProperties.monsterType === MonsterType.FireMage) {
-      for (const mesh of partResult.meshes) {
-        if (mesh.material?.name === "Purple") {
-          const redMaterial = new StandardMaterial("red");
-          redMaterial.diffuseColor = new Color3(0.7, 0.2, 0.2);
-          mesh.material = redMaterial;
-        }
-      }
-    }
+        if (combatantProperties.monsterType === MonsterType.FireElemental)
+          for (const mesh of partResult.meshes) {
+            if (mesh.material?.name === "cube-material") {
+              const redMaterial = new StandardMaterial("red");
+              redMaterial.diffuseColor = new Color3(0.7, 0.2, 0.2);
+              mesh.material = redMaterial;
+            }
+          }
 
-    if (combatantProperties.monsterType === MonsterType.Cultist) {
-      for (const mesh of partResult.meshes) {
-        if (mesh.material?.name === "Purple") {
-          const whiteMaterial = new StandardMaterial("white");
-          whiteMaterial.diffuseColor = new Color3(0.85, 0.75, 0.75);
-          mesh.material = whiteMaterial;
+        if (combatantProperties.monsterType === MonsterType.FireMage) {
+          for (const mesh of partResult.meshes) {
+            if (mesh.material?.name === "Purple") {
+              const redMaterial = new StandardMaterial("red");
+              redMaterial.diffuseColor = new Color3(0.7, 0.2, 0.2);
+              mesh.material = redMaterial;
+            }
+          }
         }
-      }
-    }
+
+        if (combatantProperties.monsterType === MonsterType.Cultist) {
+          for (const mesh of partResult.meshes) {
+            if (mesh.material?.name === "Purple") {
+              const whiteMaterial = new StandardMaterial("white");
+              whiteMaterial.diffuseColor = new Color3(0.85, 0.75, 0.75);
+              mesh.material = whiteMaterial;
+            }
+          }
+        }
+        resolve(partResult);
+      })
+    );
+  }
+
+  const results = await Promise.all(partPromises);
+  for (const result of results) {
+    if (result instanceof Error) console.error(result);
   }
 
   if (combatantProperties.combatantSpecies === CombatantSpecies.Humanoid) {

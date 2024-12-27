@@ -16,6 +16,8 @@ import { useHttpRequestStore } from "@/stores/http-request-store";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import DeleteCharacterForm from "./DeleteCharacterForm";
 import CharacterModelDisplay from "@/app/character-model-display";
+import { gameWorld } from "@/app/3d-world/SceneManager";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 export const CHARACTER_SLOT_SPACING = 1;
 export const CHARACTER_MANAGER_HOTKEY = "S";
@@ -53,43 +55,51 @@ export default function SavedCharacterManager() {
     });
   }, [currentSlot]);
 
+  useEffect(() => {
+    gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.SynchronizeCombatantModels,
+    });
+  }, [savedCharacters]);
+
   return (
     <>
       <div className="w-full h-full absolute">
-        {Object.entries(savedCharacters)
-          .filter(([_slot, characterOption]) => characterOption !== null)
-          .map(([slot, character]) => {
-            return (
-              <CharacterModelDisplay
-                character={character!}
-                key={character!.entityProperties.id}
-                startPosition={{
-                  startRotation: 0,
-                  modelCorrectionRotation: 0,
-                  startPosition: new Vector3(
-                    -CHARACTER_SLOT_SPACING + parseInt(slot) * CHARACTER_SLOT_SPACING,
-                    0,
-                    0
-                  ),
-                }}
-              >
-                <div className="w-full h-full flex justify-center items-center">
-                  {character!.combatantProperties.hitPoints <= 0 && (
-                    <div className="relative text-2xl">
-                      <span
-                        className="text-red-600"
-                        style={{
-                          textShadow: "2px 2px 0px #000000",
-                        }}
-                      >
-                        DEAD
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </CharacterModelDisplay>
-            );
-          })}
+        {
+          // Object.entries(savedCharacters)
+          // .filter(([_slot, characterOption]) => characterOption !== null)
+          // .map(([slot, character]) => {
+          //   return (
+          //     <CharacterModelDisplay
+          //       character={character!}
+          //       key={character!.entityProperties.id}
+          //       startPosition={{
+          //         startRotation: 0,
+          //         modelCorrectionRotation: 0,
+          //         startPosition: new Vector3(
+          //           -CHARACTER_SLOT_SPACING + parseInt(slot) * CHARACTER_SLOT_SPACING,
+          //           0,
+          //           0
+          //         ),
+          //       }}
+          //     >
+          //       <div className="w-full h-full flex justify-center items-center">
+          //         {character!.combatantProperties.hitPoints <= 0 && (
+          //           <div className="relative text-2xl">
+          //             <span
+          //               className="text-red-600"
+          //               style={{
+          //                 textShadow: "2px 2px 0px #000000",
+          //               }}
+          //             >
+          //               DEAD
+          //             </span>
+          //           </div>
+          //         )}
+          //       </div>
+          // </CharacterModelDisplay>
+          // );
+          // })
+        }
       </div>
 
       {!showCharacterManager && !showGameCreationForm && (
