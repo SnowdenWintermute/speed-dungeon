@@ -8,6 +8,7 @@ import {
   CombatAttribute,
   Combatant,
   ERROR_MESSAGES,
+  EntityId,
   Item,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
@@ -51,6 +52,7 @@ export class GameState {
   actionMenuParentPageNumbers: number[] = [];
   combatLogMessages: CombatLogMessage[] = [];
   lastDebugMessageId: number = 0;
+  combatantModelLoadingStates: { [combantatId: EntityId]: boolean } = {};
   babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
   combatantFloatingMessages: { [combatantId: string]: FloatingMessage[] } = {};
   testText: string = "test";

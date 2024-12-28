@@ -29,6 +29,9 @@ export async function synchronizeCombatantModelsWithAppState() {
       const maybeError = despawnModularCharacter(gameWorld.current, model);
       if (maybeError instanceof Error) return maybeError;
       delete modelManager.combatantModels[entityId];
+      useGameStore.getState().mutateState((state) => {
+        delete state.combatantModelLoadingStates[entityId];
+      });
     }
   }
 
@@ -38,17 +41,17 @@ export async function synchronizeCombatantModelsWithAppState() {
     const modelOption = modelManager.combatantModels[entityId];
     if (!modelOption) {
       // start spawning model which we need to
-      const domElement = document.createElement("div");
-      domElement.className = "absolute";
-      domElement.id = `${entityId}-position-div`;
 
+      useGameStore.getState().mutateState((state) => {
+        state.combatantModelLoadingStates[entityId] = true;
+      });
       modelSpawnPromises.push(
         spawnModularCharacter(gameWorld.current, {
           combatant,
           startPosition: position.startPosition,
           startRotation: position.startRotation,
           modelCorrectionRotation: position.modelCorrectionRotation,
-          modelDomPositionElement: domElement,
+          modelDomPositionElement: null, // vestigial from when we used to spawn directly from next.js
         })
       );
     } else {
@@ -66,6 +69,9 @@ export async function synchronizeCombatantModelsWithAppState() {
       resultsIncludedError = true;
     } else {
       modelManager.combatantModels[result.entityId] = result;
+      useGameStore.getState().mutateState((state) => {
+        state.combatantModelLoadingStates[result.entityId] = false;
+      });
     }
   }
   if (resultsIncludedError) return new Error("Error with spawning combatant models");

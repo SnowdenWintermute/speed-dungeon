@@ -3,6 +3,7 @@ import { Combatant } from "@speed-dungeon/common";
 import { ReactNode, useEffect } from "react";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "../3d-world/game-world/model-manager/model-actions";
+import { useGameStore } from "@/stores/game-store";
 
 export default function CharacterModelDisplay({
   character,
@@ -15,6 +16,7 @@ export default function CharacterModelDisplay({
 }) {
   const { entityProperties } = character;
   const entityId = entityProperties.id;
+  const modelLoadingState = useGameStore.getState().combatantModelLoadingStates[entityId];
 
   useEffect(() => {
     // modelDomPositionElement's position and dimensions are set by babylonjs each frame
@@ -22,28 +24,35 @@ export default function CharacterModelDisplay({
       `${entityId}-position-div`
     ) as HTMLDivElement | null;
     if (modelDomPositionElement === null) return;
+    const modelOption = gameWorld.current?.modelManager.combatantModels[entityId];
+    if (!modelOption) return;
+    console.log("setting model dom element to:", modelDomPositionElement);
+    modelOption.modelDomPositionElement = modelDomPositionElement;
 
-    gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
-      type: ModelActionType.SpawnCombatantModel,
-      blueprint: {
-        combatant: character,
-        startPosition: startPosition.startPosition,
-        startRotation: startPosition.startRotation,
-        modelCorrectionRotation: startPosition.modelCorrectionRotation,
-        modelDomPositionElement,
-      },
-    });
+    // gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+    //   type: ModelActionType.SpawnCombatantModel,
+    //   blueprint: {
+    //     combatant: character,
+    //     startPosition: startPosition.startPosition,
+    //     startRotation: startPosition.startRotation,
+    //     modelCorrectionRotation: startPosition.modelCorrectionRotation,
+    //     modelDomPositionElement,
+    //   },
+    // });
 
     return () => {
-      gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
-        type: ModelActionType.DespawnCombatantModel,
-        entityId,
-      });
+      // gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+      //   type: ModelActionType.DespawnCombatantModel,
+      //   entityId,
+      // });
     };
-  }, []);
+  }, [modelLoadingState]);
 
   return (
-    <div id={`${entityId}-position-div`} className={`absolute`}>
+    <div
+      id={`${entityId}-position-div`}
+      className={`absolute ${modelLoadingState === undefined || (modelLoadingState === true && "opacity-0")}`}
+    >
       {children}
     </div>
   );
