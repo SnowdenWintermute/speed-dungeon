@@ -1,3 +1,5 @@
+import { gameWorld } from "@/app/3d-world/SceneManager";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { setAlert } from "@/app/components/alerts";
 import { useGameStore } from "@/stores/game-store";
 import {
@@ -52,5 +54,9 @@ export default function savedCharacterSelectionInProgressGameHandler(
     }
 
     addCharacterToParty(game, player, character);
+
+    gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.SynchronizeCombatantModels,
+    });
   });
 }

@@ -16,12 +16,10 @@ import { spawnModularCharacter } from "./spawn-modular-character";
 import { ModularCharacter } from "@/app/3d-world/combatant-models/modular-character";
 
 export async function synchronizeCombatantModelsWithAppState() {
-  console.log("SYNCHRONIZING");
   if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
   const { modelManager } = gameWorld.current;
   // determine which models should exist and their positions based on game state
   const modelsAndPositions = getModelsAndPositions();
-  console.log("modelsAndPositions: ", modelsAndPositions);
   if (modelsAndPositions instanceof Error) return modelsAndPositions;
   // delete models which don't appear on the list
   for (const [entityId, model] of Object.entries(modelManager.combatantModels)) {
@@ -55,9 +53,10 @@ export async function synchronizeCombatantModelsWithAppState() {
         })
       );
     } else {
-      console.log("moving to ", JSON.stringify(position));
       // move models to correct positions
       modelOption.setHomeLocation(position.startPosition);
+      console.log("setting rotation: ", position.startRotation);
+      modelOption.setHomeRotation(position.startRotation);
     }
   }
 

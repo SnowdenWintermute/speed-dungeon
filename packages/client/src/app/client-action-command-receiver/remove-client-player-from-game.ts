@@ -4,6 +4,7 @@ import { CombatantEquipment, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dun
 import { gameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
+import { ModelActionType } from "../3d-world/game-world/model-manager/model-actions";
 
 export async function removeClientPlayerFromGame(username: string) {
   console.log("REMOVE CLIENT PLAYER FROM GAME CALLED");
@@ -44,6 +45,10 @@ export async function removeClientPlayerFromGame(username: string) {
       Object.keys(state.game.players).join(", "),
       Object.entries(state.game.lowestStartingFloorOptionsBySavedCharacter)
     );
+  });
+
+  gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+    type: ModelActionType.SynchronizeCombatantModels,
   });
 
   gameWorld.current?.imageManager.enqueueMessage({

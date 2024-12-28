@@ -1,17 +1,13 @@
-import { Vector3 } from "@babylonjs/core";
 import { Combatant } from "@speed-dungeon/common";
 import { ReactNode, useEffect } from "react";
 import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ModelActionType } from "../3d-world/game-world/model-manager/model-actions";
 import { useGameStore } from "@/stores/game-store";
 
 export default function CharacterModelDisplay({
   character,
-  startPosition,
   children,
 }: {
   character: Combatant;
-  startPosition: { startRotation: number; modelCorrectionRotation: number; startPosition: Vector3 };
   children?: ReactNode;
 }) {
   const { entityProperties } = character;
@@ -26,32 +22,13 @@ export default function CharacterModelDisplay({
     if (modelDomPositionElement === null) return;
     const modelOption = gameWorld.current?.modelManager.combatantModels[entityId];
     if (!modelOption) return;
-    console.log("setting model dom element to:", modelDomPositionElement);
     modelOption.modelDomPositionElement = modelDomPositionElement;
-
-    // gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
-    //   type: ModelActionType.SpawnCombatantModel,
-    //   blueprint: {
-    //     combatant: character,
-    //     startPosition: startPosition.startPosition,
-    //     startRotation: startPosition.startRotation,
-    //     modelCorrectionRotation: startPosition.modelCorrectionRotation,
-    //     modelDomPositionElement,
-    //   },
-    // });
-
-    return () => {
-      // gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
-      //   type: ModelActionType.DespawnCombatantModel,
-      //   entityId,
-      // });
-    };
   }, [modelLoadingState]);
 
   return (
     <div
       id={`${entityId}-position-div`}
-      className={`absolute ${modelLoadingState === undefined || (modelLoadingState === true && "opacity-0")}`}
+      className={`absolute ${(modelLoadingState === undefined || modelLoadingState === true) && "opacity-0"}`}
     >
       {children}
     </div>

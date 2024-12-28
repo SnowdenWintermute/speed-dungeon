@@ -1,6 +1,8 @@
-import { Combatant, ERROR_MESSAGES, addCharacterToParty } from "@speed-dungeon/common";
+import { Combatant, ERROR_MESSAGES, GameMode, addCharacterToParty } from "@speed-dungeon/common";
 import { setAlert } from "../../components/alerts";
 import { useGameStore } from "@/stores/game-store";
+import { gameWorld } from "@/app/3d-world/SceneManager";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 export default async function characterAddedToPartyHandler(
   partyName: string,
@@ -20,6 +22,12 @@ export default async function characterAddedToPartyHandler(
     } catch (error) {
       if (error instanceof Error) setAlert(error.message);
       else console.error(error);
+    }
+
+    if (game.mode === GameMode.Progression) {
+      gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+        type: ModelActionType.SynchronizeCombatantModels,
+      });
     }
   });
 }

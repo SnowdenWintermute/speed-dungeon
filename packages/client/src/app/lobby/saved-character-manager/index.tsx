@@ -66,21 +66,9 @@ export default function SavedCharacterManager() {
       <div className="w-full h-full absolute">
         {Object.entries(savedCharacters)
           .filter(([_slot, characterOption]) => characterOption !== null)
-          .map(([slot, character]) => {
+          .map(([_slot, character]) => {
             return (
-              <CharacterModelDisplay
-                character={character!}
-                key={character!.entityProperties.id}
-                startPosition={{
-                  startRotation: 0,
-                  modelCorrectionRotation: 0,
-                  startPosition: new Vector3(
-                    -CHARACTER_SLOT_SPACING + parseInt(slot) * CHARACTER_SLOT_SPACING,
-                    0,
-                    0
-                  ),
-                }}
-              >
+              <CharacterModelDisplay character={character!} key={character!.entityProperties.id}>
                 <div className="w-full h-full flex justify-center items-center">
                   {character!.combatantProperties.hitPoints <= 0 && (
                     <div className="relative text-2xl">

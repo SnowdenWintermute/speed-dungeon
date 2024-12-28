@@ -23,6 +23,7 @@ import {
   enqueueCharacterItemsForThumbnails,
   enqueueConsumableGenericThumbnailCreation,
 } from "@/utils/enqueue-character-items-for-thumbnails";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 export default function setUpGameLobbyEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -38,6 +39,9 @@ export default function setUpGameLobbyEventHandlers(
       }
     }
 
+    gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.SynchronizeCombatantModels,
+    });
     gameWorld.current?.imageManager.enqueueMessage({
       type: ImageManagerRequestType.ClearState,
     });
@@ -91,16 +95,6 @@ export default function setUpGameLobbyEventHandlers(
   );
   socket.on(ServerToClientEvent.GameStarted, (timeStarted) => {
     gameStartedHandler(timeStarted);
-
-    gameWorld.current?.clearFloorTexture();
-
-    enqueueConsumableGenericThumbnailCreation();
-
-    const partyOption = useGameStore.getState().getParty();
-    if (partyOption instanceof Error) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
-    for (const character of Object.values(partyOption.characters)) {
-      enqueueCharacterItemsForThumbnails(character);
-    }
   });
 
   socket.on(ServerToClientEvent.ProgressionGameStartingFloorSelected, (floorNumber) => {

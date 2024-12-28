@@ -1,5 +1,6 @@
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { setAlert } from "@/app/components/alerts";
 import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
@@ -28,6 +29,10 @@ export default function newDungeonRoomHandler(room: DungeonRoom) {
     party.clientCurrentFloorRoomsList[indexOfRoomTypeToReveal] = room.roomType;
 
     if (room.monsterPositions.length) gameState.baseMenuState.inCombat = true;
+  });
+
+  gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+    type: ModelActionType.SynchronizeCombatantModels,
   });
 
   // clean up unused screenshots for items left behind

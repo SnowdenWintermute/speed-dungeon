@@ -114,6 +114,7 @@ export class ModularCharacter {
 
     this.rootMesh.setParent(this.rootTransformNode);
 
+    this.rootTransformNode.rotationQuaternion = Quaternion.Zero();
     this.rootTransformNode.rotate(Vector3.Up(), startRotation);
     this.rootTransformNode.position = startPosition;
 
@@ -127,6 +128,12 @@ export class ModularCharacter {
     // this.setUpDebugMeshes();
 
     // this.setShowBones();
+  }
+
+  setHomeRotation(rotation: number) {
+    this.rootTransformNode.rotationQuaternion = Quaternion.Zero();
+    this.rootTransformNode.rotate(Vector3.Up(), 1);
+    this.homeLocation.rotation = cloneDeep(this.rootTransformNode.rotationQuaternion);
   }
 
   setHomeLocation(position: Vector3) {

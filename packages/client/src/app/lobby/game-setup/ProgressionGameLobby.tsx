@@ -17,8 +17,6 @@ import SelectDropdown from "@/app/components/atoms/SelectDropdown";
 import Divider from "@/app/components/atoms/Divider";
 import GameLobby from "./GameLobby";
 import CharacterModelDisplay from "@/app/character-model-display";
-import { CHARACTER_SLOT_SPACING } from "../saved-character-manager";
-import { Vector3 } from "@babylonjs/core";
 
 export default function ProgressionGameLobby() {
   const username = useGameStore().username;
@@ -83,7 +81,6 @@ export default function ProgressionGameLobby() {
 function PlayerDisplay({
   playerOption,
   game,
-  index,
 }: {
   playerOption: null | SpeedDungeonPlayer;
   game: SpeedDungeonGame;
@@ -123,15 +120,6 @@ function PlayerDisplay({
       {selectedCharacterOption && (
         <CharacterModelDisplay
           character={selectedCharacterOption}
-          startPosition={{
-            startRotation: 0,
-            modelCorrectionRotation: 0,
-            startPosition: new Vector3(
-              -CHARACTER_SLOT_SPACING + index * CHARACTER_SLOT_SPACING,
-              0,
-              0
-            ),
-          }}
           key={selectedCharacterOption.entityProperties.id}
         >
           <div className="h-full w-full flex flex-col items-center justify-end text-lg ">
