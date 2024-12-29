@@ -9,7 +9,7 @@ export class ActionCommand {
     public receiver: ActionCommandReceiver
   ) {}
 
-  execute(): Promise<Error | void> {
+  execute(): Promise<Error | void | ActionCommandPayload[]> {
     switch (this.payload.type) {
       case ActionCommandType.PayAbilityCosts:
         return this.receiver.payAbilityCostsActionCommandHandler(

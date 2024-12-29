@@ -1,5 +1,5 @@
 import { ActionCommand } from "./action-command.js";
-import { ACTION_COMMAND_TYPE_STRINGS } from "./index.js";
+import { ActionCommandPayload } from "./index.js";
 
 export class ActionCommandQueue {
   commands: ActionCommand[] = [];
@@ -12,32 +12,29 @@ export class ActionCommandQueue {
     this.commands.push(...commands);
   }
 
-  async processCommands() {
+  async processCommands(): Promise<Error | ActionCommandPayload[]> {
     if (this.isProcessing) {
       console.log("tried to start processing action command queue when it wasn't empty");
       return [];
     }
     const errors: Error[] = [];
+    const newPayloads: ActionCommandPayload[] = [];
     this.isProcessing = true;
     let currentCommand = this.commands.shift();
     while (currentCommand) {
-      console.log(
-        "executing action command",
-        ACTION_COMMAND_TYPE_STRINGS[currentCommand.payload.type],
-        "time since last command processed:",
-        Date.now() - this.timeLastCommandStarted
-      );
       this.timeLastCommandStarted = Date.now();
-      const maybeError = await currentCommand.execute();
-      if (maybeError instanceof Error) {
-        console.error(maybeError);
-        errors.push(maybeError);
+      const newPayloadOptionResult = await currentCommand.execute();
+      if (newPayloadOptionResult instanceof Error) {
+        console.error(newPayloadOptionResult);
+        errors.push(newPayloadOptionResult);
+      } else if (newPayloadOptionResult) {
+        newPayloads.push(...newPayloadOptionResult);
       }
       currentCommand = this.commands.shift();
     }
     this.isProcessing = false;
-    console.log("action command queue finished processing");
 
-    return errors;
+    if (errors[0]) return errors[0];
+    else return newPayloads;
   }
 }

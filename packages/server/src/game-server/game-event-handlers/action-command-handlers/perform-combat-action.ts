@@ -44,7 +44,7 @@ export default async function performCombatActionActionCommandHandler(
       CombatantProperties.changeHitPoints(targetCombatantProperties, hpChange.value);
 
       if (targetCombatantProperties.hitPoints <= 0)
-        SpeedDungeonGame.handlePlayerDeath(game, party.battleId, targetId);
+        SpeedDungeonGame.handleCombatantDeath(game, party.battleId, targetId);
 
       if (!combatantWasAliveBeforeHpChange && targetCombatantProperties.hitPoints > 0) {
         // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle

@@ -1,16 +1,14 @@
 import {
+  ActionCommandPayload,
+  ActionCommandType,
   BattleConclusion,
   BattleResultActionCommandPayload,
-  GameMessage,
   GameMessageType,
-  ServerToClientEvent,
   SpeedDungeonGame,
   createPartyWipeMessage,
-  getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
 import { getGameServer } from "../../../singletons.js";
-import emitMessageInGameWithOptionalDelayForParty from "../../utils/emit-message-in-game-with-optional-delay-for-party.js";
 
 export default async function battleResultActionCommandHandler(
   this: GameServer,
@@ -25,6 +23,8 @@ export default async function battleResultActionCommandHandler(
   const gameModeContext = gameServer.gameModeContexts[game.mode];
   const { conclusion } = payload;
 
+  const gameMessagePayloads: ActionCommandPayload[] = [];
+
   const maybeError = await gameModeContext.onBattleResult(game, party);
   if (maybeError instanceof Error) return maybeError;
 
@@ -34,26 +34,30 @@ export default async function battleResultActionCommandHandler(
 
       party.timeOfWipe = Date.now();
 
-      const partyChannel = getPartyChannelName(gameName, party.name);
-      getGameServer()
-        .io.in(gameName)
-        .except(partyChannel)
-        .emit(
-          ServerToClientEvent.GameMessage,
-          new GameMessage(
-            GameMessageType.PartyWipe,
-            false,
-            createPartyWipeMessage(party.name, party.currentFloor, new Date())
-          )
-        );
+      gameMessagePayloads.push({
+        type: ActionCommandType.GameMessages,
+        messages: [
+          {
+            type: GameMessageType.PartyWipe,
+            text: createPartyWipeMessage(party.name, party.currentFloor, new Date()),
+          },
+        ],
+      });
 
-      const maybeError = await gameModeContext.onPartyWipe(game, party);
-      if (maybeError instanceof Error) return maybeError;
+      const defeatMessagePayloadResults = await gameModeContext.onPartyWipe(game, party);
+      if (defeatMessagePayloadResults instanceof Error) return defeatMessagePayloadResults;
+      if (defeatMessagePayloadResults) gameMessagePayloads.push(...defeatMessagePayloadResults);
       break;
     case BattleConclusion.Victory:
       const levelups = SpeedDungeonGame.handleBattleVictory(game, party, payload);
-      const onPartyVictoryResult = await gameModeContext.onPartyVictory(game, party, levelups);
-      if (onPartyVictoryResult instanceof Error) return onPartyVictoryResult;
+      const victoryMessagePayloadResults = await gameModeContext.onPartyVictory(
+        game,
+        party,
+        levelups
+      );
+      if (victoryMessagePayloadResults instanceof Error) return victoryMessagePayloadResults;
+      if (victoryMessagePayloadResults) gameMessagePayloads.push(...victoryMessagePayloadResults);
       break;
   }
+  return gameMessagePayloads;
 }

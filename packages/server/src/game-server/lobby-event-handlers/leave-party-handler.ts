@@ -1,6 +1,5 @@
 import {
   AdventuringParty,
-  Battle,
   GameMessageType,
   ServerToClientEvent,
   SpeedDungeonGame,

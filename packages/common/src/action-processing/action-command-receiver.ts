@@ -1,4 +1,5 @@
 import {
+  ActionCommandPayload,
   BattleResultActionCommandPayload,
   GameMessagesPayload,
   MoveIntoCombatActionPositionActionCommandPayload,
@@ -32,7 +33,10 @@ export interface ActionCommandReceiver {
     gameName: string,
     combatantId: string,
     payload: BattleResultActionCommandPayload
+  ) => Promise<Error | ActionCommandPayload[] | void>;
+  gameMessageCommandHandler: (
+    payload: GameMessagesPayload,
+    partyChannelToExcludeOption?: string
   ) => Promise<Error | void>;
-  gameMessageCommandHandler: (payload: GameMessagesPayload) => Promise<Error | void>;
   removePlayerFromGameCommandHandler: (username: string) => Promise<Error | void>;
 }

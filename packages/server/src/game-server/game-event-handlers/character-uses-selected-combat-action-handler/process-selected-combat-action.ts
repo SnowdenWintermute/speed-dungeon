@@ -1,5 +1,4 @@
 import {
-  ACTION_COMMAND_TYPE_STRINGS,
   ActionCommand,
   AdventuringParty,
   Battle,
@@ -39,11 +38,9 @@ export default async function processSelectedCombatAction(
   );
 
   party.actionCommandQueue.enqueueNewCommands(actionCommands);
-  const errors = await party.actionCommandQueue.processCommands();
-  if (errors.length) {
-    console.error(errors);
-    return new Error("Error processing action commands");
-  }
+  const newPayloadsOptionResult = await party.actionCommandQueue.processCommands();
+  if (newPayloadsOptionResult instanceof Error) return newPayloadsOptionResult;
+  actionCommandPayloads.push(...newPayloadsOptionResult);
 
   const battleProcessingPayloadsResult = await processBattleUntilPlayerTurnOrConclusion(
     this,
@@ -52,11 +49,18 @@ export default async function processSelectedCombatAction(
     battleOption
   );
   if (battleProcessingPayloadsResult instanceof Error) return battleProcessingPayloadsResult;
+
   actionCommandPayloads.push(...battleProcessingPayloadsResult);
-  console.log(
-    "battle processing payloads: ",
-    battleProcessingPayloadsResult.map((item) => ACTION_COMMAND_TYPE_STRINGS[item.type])
+
+  const payloadsGeneratedFromProcessing = [
+    ...newPayloadsOptionResult,
+    ...battleProcessingPayloadsResult,
+  ];
+  const actionCommandsGeneratedFromProcessing = payloadsGeneratedFromProcessing.map(
+    (payload) => new ActionCommand(game.name, actionUserId, payload, this)
   );
+  party.actionCommandQueue.enqueueNewCommands(actionCommandsGeneratedFromProcessing);
+  await party.actionCommandQueue.processCommands();
 
   this.io
     .in(getPartyChannelName(game.name, party.name))

@@ -48,13 +48,14 @@ export async function processBattleUntilPlayerTurnOrConclusion(
     );
 
     party.actionCommandQueue.enqueueNewCommands(aiActionCommands);
-    const errors = await party.actionCommandQueue.processCommands();
-    if (errors.length) {
-      console.error(errors);
-      return new Error("Error processing action commands");
+    // we may generate more payloads from processing the current commands, such as game messages about wipes
+    const newPayloadsResult = await party.actionCommandQueue.processCommands();
+    if (newPayloadsResult instanceof Error) {
+      return newPayloadsResult;
     }
 
     actionCommandPayloads.push(...aiActionCommandPayloadsResult);
+    actionCommandPayloads.push(...newPayloadsResult);
 
     if (!party.characterPositions[0]) return new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
     partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
@@ -72,8 +73,10 @@ export async function processBattleUntilPlayerTurnOrConclusion(
     );
     if (conclusionResult instanceof Error) return conclusionResult;
     party.actionCommandQueue.enqueueNewCommands([conclusionResult.command]);
-    await party.actionCommandQueue.processCommands();
+    const payloadsResult = await party.actionCommandQueue.processCommands();
+    if (payloadsResult instanceof Error) return payloadsResult;
     actionCommandPayloads.push(conclusionResult.payload);
+    actionCommandPayloads.push(...payloadsResult);
   }
 
   return actionCommandPayloads;

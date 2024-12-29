@@ -65,13 +65,15 @@ export default function ProgressionGameLobby() {
           ))}
         </ul>
         <Divider />
-        <div className="text-lg mb-2">Starting floor (max {maxStartingFloor})</div>
+        <div className="text-lg mb-2 flex justify-between">
+          <span>Selected Starting floor</span>
+          <span> (max {maxStartingFloor})</span>
+        </div>
         <SelectDropdown
           title={"starting-floor-select"}
           value={game.selectedStartingFloor}
           setValue={(value: number) => {
             websocketConnection.emit(ClientToServerEvent.SelectProgressionGameStartingFloor, value);
-            console.log("trying to select floor: ", value);
           }}
           options={Array.from({ length: potentialMaxStartingFloor }, (_, index) => ({
             title: `Floor ${index + 1}`,

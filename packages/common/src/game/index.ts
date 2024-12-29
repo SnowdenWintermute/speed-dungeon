@@ -68,7 +68,7 @@ export class SpeedDungeonGame {
     if (!battleIdOption) return undefined;
     return game.battles[battleIdOption];
   }
-  static handlePlayerDeath(
+  static handleCombatantDeath(
     game: SpeedDungeonGame,
     battleIdOption: null | string,
     combatantId: string

@@ -68,6 +68,7 @@ export type LadderDeathsUpdate = {
 export type GameMessagesPayload = {
   type: ActionCommandType.GameMessages;
   messages: { text: string; type: GameMessageType }[];
+  partyChannelToExclude?: string;
 };
 
 export type RemovePlayerFromGamePayload = {

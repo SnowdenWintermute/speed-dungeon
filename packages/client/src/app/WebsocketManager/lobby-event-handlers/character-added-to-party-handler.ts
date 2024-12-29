@@ -9,7 +9,6 @@ export default async function characterAddedToPartyHandler(
   username: string,
   character: Combatant
 ) {
-  console.log("client add character to party handler");
   useGameStore.getState().mutateState((gameState) => {
     const game = gameState.game;
     if (!game) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));

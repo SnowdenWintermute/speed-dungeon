@@ -2,8 +2,10 @@ import {
   ActionCommandReceiver,
   ClientToServerEventTypes,
   EquipmentType,
+  GameMessageType,
   GameMessagesPayload,
   GameMode,
+  ServerToClientEvent,
   ServerToClientEventTypes,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
@@ -75,7 +77,18 @@ export class GameServer implements ActionCommandReceiver {
   returnHomeActionCommandHandler = returnHomeActionCommandHandler;
   battleResultActionCommandHandler = battleResultActionCommandHandler;
   removePlayerFromGameCommandHandler: (username: string) => Promise<void> = async () => {}; // we only use it on the client
-  async gameMessageCommandHandler(payload: GameMessagesPayload) {
+  async gameMessageCommandHandler(
+    payload: GameMessagesPayload,
+    partyChannelToExcludeOption: string = ""
+  ) {
+    console.log("processing game messages", payload);
+    for (const message of payload.messages) {
+      this.io.except(partyChannelToExcludeOption).emit(ServerToClientEvent.GameMessage, {
+        type: message.type,
+        message: message.text,
+        showAfterActionQueueResolution: false,
+      });
+    }
     console.log(...payload.messages);
   }
   // UTILS

@@ -124,7 +124,6 @@ function getModelsAndPositions() {
     }
   } else {
     const savedCharacters = lobbyState.savedCharacters;
-    console.log("saved characters:", savedCharacters);
     // viewing saved characters
     for (const [slot, character] of iterateNumericEnumKeyedRecord(savedCharacters).filter(
       ([_slot, characterOption]) => characterOption !== null

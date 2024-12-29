@@ -88,7 +88,7 @@ export function induceHitRecovery(
     gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
 
     if (combatantProperties.hitPoints <= 0) {
-      const maybeError = SpeedDungeonGame.handlePlayerDeath(game, party.battleId, targetId);
+      const maybeError = SpeedDungeonGame.handleCombatantDeath(game, party.battleId, targetId);
       if (maybeError instanceof Error) return console.error(maybeError);
 
       gameState.combatLogMessages.push(

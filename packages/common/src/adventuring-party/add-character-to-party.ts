@@ -12,7 +12,6 @@ export function addCharacterToParty(
   character: Combatant
 ): EntityId {
   const partyName = player.partyName;
-  console.log("ADING CHARACTER", character.entityProperties.name, "to party", partyName);
   if (!partyName)
     throw new Error(
       "tried to add a character to a party but their controllingPlayer didn't know what party they were in"
