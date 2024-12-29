@@ -6,39 +6,46 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "cypress:firefox": "env-cmd -f .env.test.local cypress open --e2e --browser firefox",
+    "cypress:first": "env-cmd -f .env.test.local cypress open --e2e -b firefox --config-file ./cypress/cypress-first-user.config.ts",
+    "cypress:second": "env-cmd -f .env.test.local cypress open --e2e -b chromium --config-file ./cypress/cypress-second-user.config.ts",
+    "cypress:two-users": "concurrently 'node ./cypress/support/multiCypressSyncServer.js' npm:cypress:first npm:cypress:second"
   },
   "dependencies": {
     "@babylonjs/core": "7.35.1",
     "@babylonjs/loaders": "7.35.1",
     "@redux-devtools/extension": "3.3.0",
     "@svgr/webpack": "8.1.0",
-    "class-transformer": "^0.5.1",
+    "class-transformer": "0.5.1",
     "immer": "10.1.1",
     "lodash.clonedeep": "4.5.0",
-    "lodash.debounce": "^4.0.8",
-    "lodash.isequal": "^4.5.0",
+    "lodash.debounce": "4.0.8",
+    "lodash.isequal": "4.5.0",
     "next": "14.2.5",
     "react": "18",
     "react-dom": "18",
-    "reflect-metadata": "^0.2.2",
-    "socket.io-client": "4.7.5",
+    "reflect-metadata": "0.2.2",
+    "socket.io-client": "4.8.1",
     "zustand": "4.5.2"
   },
   "devDependencies": {
+    "@testing-library/cypress": "^10.0.2",
     "@types/lodash.clonedeep": "4.5.9",
-    "@types/lodash.debounce": "^4.0.9",
-    "@types/lodash.isequal": "^4.5.8",
+    "@types/lodash.debounce": "4.0.9",
+    "@types/lodash.isequal": "4.5.8",
     "@types/node": "20.12.8",
     "@types/react": "18",
     "@types/react-dom": "18",
+    "concurrently": "9.1.1",
+    "cypress": "13.17.0",
+    "env-cmd": "10.1.0",
     "eslint": "8",
     "eslint-config-next": "14.2.3",
     "postcss": "8",
+    "socket.io": "4.7.5",
     "tailwindcss": "3.4.1",
     "typescript": "5.4.5"
   },
-  "trustedDependencies": [
-    "babylonjs"
-  ]
+  "trustedDependencies": ["babylonjs"]
 }
