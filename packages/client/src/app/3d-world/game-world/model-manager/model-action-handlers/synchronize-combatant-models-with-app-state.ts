@@ -55,7 +55,6 @@ export async function synchronizeCombatantModelsWithAppState() {
     } else {
       // move models to correct positions
       modelOption.setHomeLocation(position.startPosition);
-      console.log("setting rotation: ", position.startRotation);
       modelOption.setHomeRotation(position.startRotation);
     }
   }

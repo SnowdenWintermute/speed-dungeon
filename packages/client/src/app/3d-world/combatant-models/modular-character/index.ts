@@ -114,25 +114,25 @@ export class ModularCharacter {
 
     this.rootMesh.setParent(this.rootTransformNode);
 
-    this.rootTransformNode.rotationQuaternion = Quaternion.Zero();
-    this.rootTransformNode.rotate(Vector3.Up(), startRotation);
+    this.rootTransformNode.rotationQuaternion = Quaternion.RotationAxis(
+      Vector3.Up(),
+      startRotation
+    );
     this.rootTransformNode.position = startPosition;
 
     const rotation = this.rootTransformNode.rotationQuaternion;
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
     this.homeLocation = {
       position: cloneDeep(this.rootTransformNode.position),
-      rotation: cloneDeep(this.rootTransformNode.rotationQuaternion!),
+      rotation: cloneDeep(rotation),
     };
-    // this.rootMesh.showBoundingBox = true;
-    // this.setUpDebugMeshes();
 
+    // this.setUpDebugMeshes();
     // this.setShowBones();
   }
 
   setHomeRotation(rotation: number) {
-    this.rootTransformNode.rotationQuaternion = Quaternion.Zero();
-    this.rootTransformNode.rotate(Vector3.Up(), 1);
+    this.rootTransformNode.rotationQuaternion = Quaternion.RotationAxis(Vector3.Up(), rotation);
     this.homeLocation.rotation = cloneDeep(this.rootTransformNode.rotationQuaternion);
   }
 
@@ -143,7 +143,7 @@ export class ModularCharacter {
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
     this.homeLocation = {
       position: cloneDeep(this.rootTransformNode.position),
-      rotation: cloneDeep(this.rootTransformNode.rotationQuaternion!),
+      rotation: cloneDeep(rotation),
     };
   }
 
