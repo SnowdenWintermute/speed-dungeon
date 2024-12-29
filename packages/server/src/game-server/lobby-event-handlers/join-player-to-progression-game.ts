@@ -6,6 +6,7 @@ import {
   ServerToClientEventTypes,
   SpeedDungeonGame,
   addCharacterToParty,
+  getProgressionGameMaxStartingFloor,
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
 import { GameServer } from "..";
@@ -34,6 +35,20 @@ export default async function joinPlayerToProgressionGame(
 
   game.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id] =
     character.combatantProperties.deepestFloorReached;
+
+  const maxStartingFloor = getProgressionGameMaxStartingFloor(
+    game.lowestStartingFloorOptionsBySavedCharacter
+  );
+  console.log(
+    "joined prog game, selectedStartingFloor:",
+    game.selectedStartingFloor,
+    "max:",
+    maxStartingFloor
+  );
+  if (game.selectedStartingFloor > maxStartingFloor) {
+    console.log("setting selected to max");
+    game.selectedStartingFloor = maxStartingFloor;
+  }
 
   gameServer.io
     .of("/")

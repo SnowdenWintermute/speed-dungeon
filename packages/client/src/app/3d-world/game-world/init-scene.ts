@@ -6,7 +6,6 @@ import {
   Color4,
   PointLight,
   StandardMaterial,
-  ShadowGenerator,
   Mesh,
   DynamicTexture,
   GlowLayer,
@@ -32,13 +31,13 @@ export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTextu
   const camera = new ArcRotateCamera(
     "camera",
     // alpha
-    3.09,
+    1.57,
     // beta
-    1.14,
+    1.26,
     // radius
-    8,
+    4.29,
     // target
-    new Vector3(0.92, 0.54, 0.62),
+    new Vector3(0, 1, 0),
     // Vector3.Zero(),
     this.scene
   );

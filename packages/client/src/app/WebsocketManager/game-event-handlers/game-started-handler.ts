@@ -36,6 +36,7 @@ export default function gameStartedHandler(timeStarted: number) {
     const partyOption = getParty(gameState.game, gameState.username || "");
     if (partyOption instanceof Error) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
     const party = partyOption;
+    party.currentFloor = gameState.game?.selectedStartingFloor || 1;
 
     gameWorld.current?.clearFloorTexture();
 

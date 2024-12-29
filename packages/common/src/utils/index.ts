@@ -1,4 +1,6 @@
 export * from "./get-next-or-previous-number.js";
+export * from "./get-progression-game-max-starting-floor.js";
+
 import { Vector3 } from "@babylonjs/core";
 
 export function removeFromArray<T>(array: T[], item: T): undefined | T {

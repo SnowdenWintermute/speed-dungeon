@@ -10,6 +10,7 @@ import {
   createLevelLadderExpRankMessage,
   createLevelLadderLevelupMessage,
   getPartyChannelName,
+  getProgressionGameMaxStartingFloor,
 } from "@speed-dungeon/common";
 import { GameModeStrategy } from "./index.js";
 import writePlayerCharactersInGameToDb, {
@@ -36,10 +37,6 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
     party: AdventuringParty,
     player: SpeedDungeonPlayer
   ): Promise<void | Error> {
-    const maybeError = await writePlayerCharactersInGameToDb(game, player);
-    if (maybeError instanceof Error) return maybeError;
-
-    // If they're leaving a game while dead, this character should be removed from the ladder
     const characters: { [combatantId: string]: Combatant } = {};
     for (const id of player.characterIds) {
       const characterResult = SpeedDungeonGame.getCharacter(game, party.name, id);
@@ -48,6 +45,12 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
 
       delete game.lowestStartingFloorOptionsBySavedCharacter[id];
     }
+
+    if (!game.timeStarted) return;
+
+    const maybeError = await writePlayerCharactersInGameToDb(game, player);
+    if (maybeError instanceof Error) return maybeError;
+    // If they're leaving a game while dead, this character should be removed from the ladder
     const deathsAndRanks = await removeDeadCharactersFromLadder(characters);
     notifyOnlinePlayersOfTopRankedDeaths(deathsAndRanks);
   }

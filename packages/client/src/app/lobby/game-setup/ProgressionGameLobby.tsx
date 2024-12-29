@@ -8,6 +8,7 @@ import {
   SpeedDungeonGame,
   SpeedDungeonPlayer,
   formatCombatantClassName,
+  getProgressionGameMaxStartingFloor,
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
 import React, { useEffect, useMemo } from "react";
@@ -21,6 +22,7 @@ import CharacterModelDisplay from "@/app/character-model-display";
 export default function ProgressionGameLobby() {
   const username = useGameStore().username;
   const game = useGameStore().game;
+  const mutateGameState = useGameStore().mutateState;
   if (game === null) return <div>Loading...</div>;
 
   useEffect(() => {
@@ -30,23 +32,26 @@ export default function ProgressionGameLobby() {
   const numPlayersInGame = useMemo(() => Object.values(game.players).length, [game.players]);
 
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
-  let maxStartingFloor = 1;
+
+  // potential meaning the deepest floor any character could select
+  let potentialMaxStartingFloor = 1;
   for (const floorNumber of Object.values(game.lowestStartingFloorOptionsBySavedCharacter)) {
-    if (floorNumber > maxStartingFloor) maxStartingFloor = floorNumber;
+    if (floorNumber > potentialMaxStartingFloor) potentialMaxStartingFloor = floorNumber;
   }
 
-  console.log(
-    "numPlayersInGame: ",
-    numPlayersInGame,
-    Object.values(game.players)
-      .map((item) => item.username)
-      .join(", ")
+  // true max starting floor is the deepest that all selected have reached
+  const maxStartingFloor = getProgressionGameMaxStartingFloor(
+    game.lowestStartingFloorOptionsBySavedCharacter
   );
 
-  console.log(
-    "lowestfloors: ",
-    JSON.stringify(game.lowestStartingFloorOptionsBySavedCharacter, null, 2)
-  );
+  useEffect(() => {
+    if (game.selectedStartingFloor > maxStartingFloor) {
+      console.log("selected: ", game.selectedStartingFloor, "max: ", maxStartingFloor);
+      mutateGameState((state) => {
+        if (state.game) state.game.selectedStartingFloor = maxStartingFloor;
+      });
+    }
+  }, [maxStartingFloor, game.selectedStartingFloor, game.players]);
 
   return (
     <GameLobby>
@@ -66,10 +71,12 @@ export default function ProgressionGameLobby() {
           value={game.selectedStartingFloor}
           setValue={(value: number) => {
             websocketConnection.emit(ClientToServerEvent.SelectProgressionGameStartingFloor, value);
+            console.log("trying to select floor: ", value);
           }}
-          options={Array.from({ length: maxStartingFloor }, (_, index) => ({
+          options={Array.from({ length: potentialMaxStartingFloor }, (_, index) => ({
             title: `Floor ${index + 1}`,
             value: index + 1,
+            disabled: index + 1 > maxStartingFloor,
           }))}
           disabled={Object.values(game.players)[0]?.username !== username}
         />
@@ -128,6 +135,9 @@ function PlayerDisplay({
               <div className="text-base">
                 {formatCharacterLevelAndClass(selectedCharacterOption)}
               </div>
+              <div className="text-base">
+                max floor reached: {selectedCharacterOption.combatantProperties.deepestFloorReached}
+              </div>
             </div>
           </div>
         </CharacterModelDisplay>
@@ -149,6 +159,7 @@ function PlayerDisplay({
               return {
                 title: formatCharacterTag(character!),
                 value: character!.entityProperties.id,
+                disabled: character?.combatantProperties.hitPoints === 0,
               };
             })}
           disabled={game.playersReadied.includes(username)}

@@ -7,8 +7,6 @@ import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/comb
 import { ModelActionType } from "../3d-world/game-world/model-manager/model-actions";
 
 export async function removeClientPlayerFromGame(username: string) {
-  console.log("REMOVE CLIENT PLAYER FROM GAME CALLED");
-  console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   const itemsToRemoveThumbnails: string[] = [];
   useGameStore.getState().mutateState((state) => {
     if (!state.game) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
@@ -36,14 +34,6 @@ export async function removeClientPlayerFromGame(username: string) {
 
     state.combatLogMessages.push(
       new CombatLogMessage(`${username} left the game`, CombatLogMessageStyle.PartyWipe)
-    );
-
-    console.log(
-      "removed player ",
-      username,
-      "players remaining: ",
-      Object.keys(state.game.players).join(", "),
-      Object.entries(state.game.lowestStartingFloorOptionsBySavedCharacter)
     );
   });
 

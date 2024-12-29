@@ -7,7 +7,7 @@ interface Props {
   title: string;
   value: any;
   setValue: (value: any) => void;
-  options: { title: string; value: any }[];
+  options: { title: string; value: any; disabled?: boolean }[];
   disabled: boolean | undefined;
   extraStyles?: string;
 }
@@ -30,6 +30,10 @@ export default function SelectDropdown(props: Props) {
     if (option.value === value) return;
     props.setValue(option.value);
   }, [indexSelected, value]);
+
+  useEffect(() => {
+    setIndexSelected(options.map((option) => option.value).indexOf(value));
+  }, [value]);
 
   function handleBlur() {
     mutateUIState((state) => {
@@ -120,7 +124,7 @@ export default function SelectDropdown(props: Props) {
     return (
       <li className="w-full" key={option.value}>
         <button
-          disabled={props.disabled}
+          disabled={option.disabled}
           type="button"
           onMouseDown={() => {
             setIsOpen(false);
@@ -130,7 +134,7 @@ export default function SelectDropdown(props: Props) {
           border-slate-400 border-b ${value === option.value && "bg-slate-950"}
           `}
         >
-          {option.title}
+          <span className={`${option.disabled && "opacity-50"}`}>{option.title}</span>
         </button>
       </li>
     );
