@@ -50,11 +50,15 @@ export async function processBattleUntilPlayerTurnOrConclusion(
     party.actionCommandQueue.enqueueNewCommands(aiActionCommands);
     // we may generate more payloads from processing the current commands, such as game messages about wipes
     const newPayloadsResult = await party.actionCommandQueue.processCommands();
-    if (newPayloadsResult instanceof Error) {
-      return newPayloadsResult;
-    }
-
+    if (newPayloadsResult instanceof Error) return newPayloadsResult;
     actionCommandPayloads.push(...aiActionCommandPayloadsResult);
+
+    const newPayloadsCommands = newPayloadsResult.map(
+      (item) =>
+        new ActionCommand(game.name, activeCombatantResult.entityProperties.id, item, gameServer)
+    );
+    party.actionCommandQueue.enqueueNewCommands(newPayloadsCommands);
+
     actionCommandPayloads.push(...newPayloadsResult);
 
     if (!party.characterPositions[0]) return new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
@@ -76,6 +80,13 @@ export async function processBattleUntilPlayerTurnOrConclusion(
     const payloadsResult = await party.actionCommandQueue.processCommands();
     if (payloadsResult instanceof Error) return payloadsResult;
     actionCommandPayloads.push(conclusionResult.payload);
+
+    const payloadsCommands = payloadsResult.map(
+      (item) => new ActionCommand(game.name, "", item, gameServer)
+    );
+    party.actionCommandQueue.enqueueNewCommands(payloadsCommands);
+    await party.actionCommandQueue.processCommands();
+
     actionCommandPayloads.push(...payloadsResult);
   }
 

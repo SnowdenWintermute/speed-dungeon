@@ -9,6 +9,7 @@ import {
   calculateTotalExperience,
   createLevelLadderExpRankMessage,
   createLevelLadderLevelupMessage,
+  getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameModeStrategy } from "./index.js";
 import writePlayerCharactersInGameToDb, {
@@ -50,7 +51,10 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
     if (maybeError instanceof Error) return maybeError;
     // If they're leaving a game while dead, this character should be removed from the ladder
     const deathsAndRanks = await removeDeadCharactersFromLadder(characters);
-    const deathMessagePayloads = getTopRankedDeathMessagesActionCommandPayload(deathsAndRanks);
+    const deathMessagePayloads = getTopRankedDeathMessagesActionCommandPayload(
+      getPartyChannelName(game.name, party.name),
+      deathsAndRanks
+    );
     return [deathMessagePayloads];
   }
 
@@ -63,16 +67,19 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
   }
 
   async onPartyWipe(
-    _game: SpeedDungeonGame,
+    game: SpeedDungeonGame,
     party: AdventuringParty
   ): Promise<void | Error | ActionCommandPayload[]> {
     const ladderDeathsUpdate = await removeDeadCharactersFromLadder(party.characters);
-    const deathMessagePayloads = getTopRankedDeathMessagesActionCommandPayload(ladderDeathsUpdate);
+    const deathMessagePayloads = getTopRankedDeathMessagesActionCommandPayload(
+      getPartyChannelName(game.name, party.name),
+      ladderDeathsUpdate
+    );
     return [deathMessagePayloads];
   }
 
   async onPartyVictory(
-    _game: SpeedDungeonGame,
+    game: SpeedDungeonGame,
     party: AdventuringParty,
     levelups: { [id: string]: number }
   ): Promise<void | Error | ActionCommandPayload[]> {
@@ -111,6 +118,12 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
       });
     }
 
-    return [{ type: ActionCommandType.GameMessages, messages }];
+    return [
+      {
+        type: ActionCommandType.GameMessages,
+        messages,
+        partyChannelToExclude: getPartyChannelName(game.name, party.name),
+      },
+    ];
   }
 }

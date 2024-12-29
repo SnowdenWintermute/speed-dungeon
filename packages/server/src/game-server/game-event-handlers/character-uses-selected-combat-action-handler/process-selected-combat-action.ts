@@ -52,16 +52,6 @@ export default async function processSelectedCombatAction(
 
   actionCommandPayloads.push(...battleProcessingPayloadsResult);
 
-  const payloadsGeneratedFromProcessing = [
-    ...newPayloadsOptionResult,
-    ...battleProcessingPayloadsResult,
-  ];
-  const actionCommandsGeneratedFromProcessing = payloadsGeneratedFromProcessing.map(
-    (payload) => new ActionCommand(game.name, actionUserId, payload, this)
-  );
-  party.actionCommandQueue.enqueueNewCommands(actionCommandsGeneratedFromProcessing);
-  await party.actionCommandQueue.processCommands();
-
   this.io
     .in(getPartyChannelName(game.name, party.name))
     .emit(ServerToClientEvent.ActionCommandPayloads, actionCommandPayloads);

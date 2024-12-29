@@ -6,6 +6,7 @@ import {
   GameMessageType,
   SpeedDungeonGame,
   createPartyWipeMessage,
+  getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
 import { getGameServer } from "../../../singletons.js";
@@ -42,6 +43,7 @@ export default async function battleResultActionCommandHandler(
             text: createPartyWipeMessage(party.name, party.currentFloor, new Date()),
           },
         ],
+        partyChannelToExclude: getPartyChannelName(game.name, party.name),
       });
 
       const defeatMessagePayloadResults = await gameModeContext.onPartyWipe(game, party);

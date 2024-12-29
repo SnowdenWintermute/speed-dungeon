@@ -104,7 +104,7 @@ function GameRecordCard({
           wasVictory ? "text-green-600" : !gameRecord.time_of_completion ? "" : "text-red-400"
         }
       >
-        {wasVictory ? "Victory" : !gameRecord.time_of_completion ? "Pending" : "Wipe"}
+        {wasVictory ? "Victory" : !gameRecord.time_of_completion ? "Pending" : "Loss"}
       </div>
       <div className="w-full pr-2 pl-2">
         <Divider />

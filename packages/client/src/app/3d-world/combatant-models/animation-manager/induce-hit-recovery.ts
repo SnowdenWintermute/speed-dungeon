@@ -106,6 +106,13 @@ export function induceHitRecovery(
           targetModel.animationManager.locked = true;
         },
       });
+    } else if (hpChange.value < 0) {
+      targetModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.HIT_RECOVERY, 0, {
+        shouldLoop: false,
+        animationDurationOverrideOption: null,
+        animationEventOption: null,
+        onComplete: () => {},
+      });
     }
 
     if (!combatantWasAliveBeforeHpChange && combatantProperties.hitPoints > 0) {

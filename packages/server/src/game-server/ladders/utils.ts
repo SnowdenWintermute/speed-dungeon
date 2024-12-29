@@ -7,6 +7,7 @@ import {
 } from "@speed-dungeon/common";
 
 export function getTopRankedDeathMessagesActionCommandPayload(
+  partyChannelToExclude: string,
   deathsAndRanks: LadderDeathsUpdate
 ): ActionCommandPayload {
   const messages = Object.entries(deathsAndRanks).map(([characterName, deathAndRank]) => {
@@ -21,5 +22,5 @@ export function getTopRankedDeathMessagesActionCommandPayload(
     };
   });
 
-  return { type: ActionCommandType.GameMessages, messages };
+  return { type: ActionCommandType.GameMessages, messages, partyChannelToExclude };
 }
