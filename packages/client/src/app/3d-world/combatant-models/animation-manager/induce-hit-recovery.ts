@@ -24,9 +24,8 @@ export function induceHitRecovery(
   const targetModel = gameWorld.modelManager.combatantModels[targetId];
   if (targetModel === undefined) return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
-  // hpChange.isCrit = Math.random() > 0.5;
+  // hpChange.isCrit = true;
 
-  console.log("target id for floating message: ", targetId);
   startHpChangeFloatingMessage(targetId, hpChange, 2000);
 
   useGameStore.getState().mutateState((gameState) => {
@@ -107,7 +106,15 @@ export function induceHitRecovery(
         },
       });
     } else if (hpChange.value < 0) {
-      targetModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.HIT_RECOVERY, 0, {
+      const hasCritRecoveryAnimation = targetModel.animationManager.getAnimationGroupByName(
+        ANIMATION_NAMES.CRIT_RECOVERY
+      );
+      const animationName =
+        hpChange.isCrit && hasCritRecoveryAnimation
+          ? ANIMATION_NAMES.HIT_RECOVERY
+          : ANIMATION_NAMES.CRIT_RECOVERY;
+
+      targetModel.animationManager.startAnimationWithTransition(animationName, 0, {
         shouldLoop: false,
         animationDurationOverrideOption: null,
         animationEventOption: null,
@@ -116,7 +123,7 @@ export function induceHitRecovery(
     }
 
     if (!combatantWasAliveBeforeHpChange && combatantProperties.hitPoints > 0) {
-      targetModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 500);
+      targetModel.startIdleAnimation(500);
       // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
     }
   });

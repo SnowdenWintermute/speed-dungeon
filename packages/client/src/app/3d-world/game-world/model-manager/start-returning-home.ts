@@ -98,7 +98,8 @@ export default async function startReturningHome(
       timeToRotate,
       percentTranslationToTriggerCompletionEvent: 1,
       onComplete: () => {
-        userCombatantModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 500);
+        userCombatantModel.startIdleAnimation(500);
+
         // try to mark this event as completed if no one is in hit recovery
         resolve();
       },

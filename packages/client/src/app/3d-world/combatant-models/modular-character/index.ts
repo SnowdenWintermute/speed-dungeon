@@ -94,7 +94,7 @@ export class ModularCharacter {
     modelCorrectionRotation: number = 0
   ) {
     this.animationManager = new AnimationManager(this);
-    this.animationManager.startAnimationWithTransition(ANIMATION_NAMES.IDLE, 0);
+    this.startIdleAnimation(0);
 
     while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
 
@@ -145,6 +145,16 @@ export class ModularCharacter {
       position: cloneDeep(this.rootTransformNode.position),
       rotation: cloneDeep(rotation),
     };
+  }
+
+  startIdleAnimation(transitionMs: number) {
+    // if (Object.keys(this.equipment.holdables).length && ANIMATION_NAMES.IDLE_GRIPPING) {
+    //   this.animationManager.startAnimationWithTransition(
+    //     ANIMATION_NAMES.IDLE_GRIPPING,
+    //     transitionMs
+    //   );
+    // } else
+    this.animationManager.startAnimationWithTransition(ANIMATION_NAMES.IDLE, transitionMs);
   }
 
   setUpDebugMeshes = setUpDebugMeshes;
@@ -216,6 +226,13 @@ export class ModularCharacter {
     const toDispose = this.equipment.holdables[entityId];
     if (!toDispose) return;
     disposeAsyncLoadedScene(toDispose, this.world.scene);
+
+    if (
+      this.animationManager.playing?.animationGroupOption?.name === ANIMATION_NAMES.IDLE ||
+      this.animationManager.playing?.animationGroupOption?.name === ANIMATION_NAMES.IDLE_GRIPPING
+    ) {
+      this.startIdleAnimation(500);
+    }
   }
 
   async equipHoldableModel(equipment: Equipment, slot: HoldableSlotType, holstered?: boolean) {
@@ -235,6 +252,13 @@ export class ModularCharacter {
     if (holstered)
       attachHoldableModelToHolsteredPosition(this, equipmentModelResult, slot, equipment);
     else attachHoldableModelToSkeleton(this, equipmentModelResult, slot, equipment);
+
+    if (
+      this.animationManager.playing?.animationGroupOption?.name === ANIMATION_NAMES.IDLE ||
+      this.animationManager.playing?.animationGroupOption?.name === ANIMATION_NAMES.IDLE_GRIPPING
+    ) {
+      this.startIdleAnimation(500);
+    }
   }
 
   removePart(partCategory: ModularCharacterPartCategory) {

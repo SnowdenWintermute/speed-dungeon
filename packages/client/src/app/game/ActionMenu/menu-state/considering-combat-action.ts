@@ -10,12 +10,16 @@ import {
   ClientToServerEvent,
   CombatAction,
   CombatantProperties,
+  InputLock,
   NextOrPrevious,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
+import getCurrentParty from "@/utils/getCurrentParty";
+import { gameWorld } from "@/app/3d-world/SceneManager";
+import { ANIMATION_NAMES } from "@/app/3d-world/combatant-models/animation-manager/animation-names";
 
 export const executeHotkey = HOTKEYS.MAIN_1;
 export const EXECUTE_BUTTON_TEXT = `Execute (${letterFromKeyCode(executeHotkey)})`;
@@ -86,7 +90,16 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
       useGameStore.getState().mutateState((state) => {
         state.detailedEntity = null;
         state.hoveredEntity = null;
+
+        const partyOption = getCurrentParty(state, state.username || "");
+        if (partyOption) InputLock.lockInput(partyOption.inputLock);
+        // it should theoretically be unlocked after their action resolves
       });
+      // if (gameWorld.current && gameWorld.current.modelManager.combatantModels[characterId]) {
+      //   gameWorld.current.modelManager.combatantModels[
+      //     characterId
+      //   ]?.animationManager.startAnimationWithTransition(ANIMATION_NAMES.READY, 1500);
+      // }
     });
     executeActionButton.dedicatedKeys = ["Enter", executeHotkey];
 

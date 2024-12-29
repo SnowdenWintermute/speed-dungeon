@@ -7,6 +7,8 @@ export const ANIMATION_NAMES = {
   IDLE_GRIPPING: "idle-sword",
   DEATH: "death",
   HIT_RECOVERY: "hit-recovery",
+  CRIT_RECOVERY: "crit-recovery",
+  READY: "ready",
   EVADE: "evade",
   MELEE_MAIN_HAND: "melee-attack",
   MELEE_OFF_HAND: "melee-attack-offhand",
