@@ -7,7 +7,7 @@ import {
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 export default function characterDroppedEquippedItemHandler(characterAndSlot: CharacterAndSlot) {
   const { characterId, slot } = characterAndSlot;
@@ -24,10 +24,11 @@ export default function characterDroppedEquippedItemHandler(characterAndSlot: Ch
       ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate,
       itemDroppedIdResult
     );
-  });
 
-  gameWorld.current?.modelManager.enqueueMessage(characterId, {
-    type: ModelManagerMessageType.ChangeEquipment,
-    unequippedSlots: [slot],
+    gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.ChangeEquipment,
+      entityId: characterId,
+      unequippedIds: [itemDroppedIdResult],
+    });
   });
 }

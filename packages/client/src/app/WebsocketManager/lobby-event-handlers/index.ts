@@ -6,6 +6,8 @@ import {
   AdventuringParty,
   SpeedDungeonGame,
   ERROR_MESSAGES,
+  CombatantEquipment,
+  Inventory,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io-client";
 import characterAddedToPartyHandler from "./character-added-to-party-handler";
@@ -16,15 +18,30 @@ import playerLeftGameHandler from "../player-left-game-handler";
 import savedCharacterSelectionInProgressGameHandler from "./saved-character-selection-in-progress-game-handler";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
-import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
-import { enqueueCharacterItemsForThumbnails, enqueueConsumableGenericThumbnailCreation } from "@/utils/enqueue-character-items-for-thumbnails";
+import {
+  enqueueCharacterItemsForThumbnails,
+  enqueueConsumableGenericThumbnailCreation,
+} from "@/utils/enqueue-character-items-for-thumbnails";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 export default function setUpGameLobbyEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
 ) {
   const mutateGameStore = useGameStore.getState().mutateState;
   socket.on(ServerToClientEvent.GameFullUpdate, (game) => {
+    if (game) {
+      for (const party of Object.values(game.adventuringParties)) {
+        for (const character of Object.values(party.characters)) {
+          Inventory.instantiateItemClasses(character.combatantProperties.inventory);
+          CombatantEquipment.instatiateItemClasses(character.combatantProperties);
+        }
+      }
+    }
+
+    gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.SynchronizeCombatantModels,
+    });
     gameWorld.current?.imageManager.enqueueMessage({
       type: ImageManagerRequestType.ClearState,
     });
@@ -36,9 +53,6 @@ export default function setUpGameLobbyEventHandlers(
       } else {
         state.game = game;
         state.gameName = game.name;
-        state.combatLogMessages = [
-          new CombatLogMessage("A new game has begun!", CombatLogMessageStyle.Basic),
-        ];
       }
       state.stackedMenuStates = [];
     });
@@ -81,20 +95,11 @@ export default function setUpGameLobbyEventHandlers(
   );
   socket.on(ServerToClientEvent.GameStarted, (timeStarted) => {
     gameStartedHandler(timeStarted);
-
-    gameWorld.current?.clearFloorTexture();
-
-    enqueueConsumableGenericThumbnailCreation()
-
-    const partyOption = useGameStore.getState().getParty();
-    if (partyOption instanceof Error) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
-    for (const character of Object.values(partyOption.characters)) {
-      enqueueCharacterItemsForThumbnails(character);
-    }
   });
+
   socket.on(ServerToClientEvent.ProgressionGameStartingFloorSelected, (floorNumber) => {
     mutateGameStore((state) => {
-      if (state.game) state.game.selectedStartingFloor.current = floorNumber;
+      if (state.game) state.game.selectedStartingFloor = floorNumber;
     });
   });
 }

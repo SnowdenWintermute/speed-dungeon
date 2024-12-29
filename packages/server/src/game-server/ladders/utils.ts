@@ -1,31 +1,26 @@
 import {
-  GameMessage,
+  ActionCommandPayload,
+  ActionCommandType,
   GameMessageType,
-  ServerToClientEvent,
+  LadderDeathsUpdate,
   createLadderDeathsMessage,
 } from "@speed-dungeon/common";
-import { getGameServer } from "../../singletons.js";
 
-export function notifyOnlinePlayersOfTopRankedDeaths(deathsAndRanks: {
-  [combatantName: string]: {
-    owner: string;
-    rank: number;
-    level: number;
-  };
-}) {
-  for (const [characterName, deathAndRank] of Object.entries(deathsAndRanks)) {
-    getGameServer().io.emit(
-      ServerToClientEvent.GameMessage,
-      new GameMessage(
-        GameMessageType.LadderDeath,
-        true,
-        createLadderDeathsMessage(
-          characterName,
-          deathAndRank.owner,
-          deathAndRank.level,
-          deathAndRank.rank
-        )
-      )
-    );
-  }
+export function getTopRankedDeathMessagesActionCommandPayload(
+  partyChannelToExclude: string,
+  deathsAndRanks: LadderDeathsUpdate
+): ActionCommandPayload {
+  const messages = Object.entries(deathsAndRanks).map(([characterName, deathAndRank]) => {
+    return {
+      type: GameMessageType.LadderDeath,
+      text: createLadderDeathsMessage(
+        characterName,
+        deathAndRank.owner,
+        deathAndRank.level,
+        deathAndRank.rank
+      ),
+    };
+  });
+
+  return { type: ActionCommandType.GameMessages, messages, partyChannelToExclude };
 }

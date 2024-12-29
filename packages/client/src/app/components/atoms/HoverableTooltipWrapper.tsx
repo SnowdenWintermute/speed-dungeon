@@ -19,11 +19,32 @@ export default function HoverableTooltipWrapper(props: Props) {
     text: string
   ) {
     if (!elementOption) return;
-    const { x, y, width } = elementOption.getBoundingClientRect();
+    const { x, y, width, height } = elementOption.getBoundingClientRect();
     const offsetTop = props.offsetTop !== undefined ? props.offsetTop : 4;
+    let tooltipX = x + width / 2.0;
+    let tooltipY = -9999; // send it off screen for measuring before showing it
+
+    // Temporarily show the tooltip to measure it
     mutateUIState((store) => {
-      store.tooltipPosition = { x: x + width / 2.0, y: y - offsetTop };
       store.tooltipText = text;
+      store.tooltipPosition = { x: tooltipX, y: tooltipY };
+    });
+
+    // Measure tooltip after render
+    requestAnimationFrame(() => {
+      const tooltipElement = document.getElementById("hoverable-tooltip"); // Adjust selector to your tooltip's class
+      if (!tooltipElement) return console.log("no tooltip found");
+
+      const tooltipRect = tooltipElement.getBoundingClientRect();
+      // const viewportWidth = window.innerWidth;
+
+      if (y - tooltipRect.height - offsetTop < 0) {
+        tooltipY = Math.max(tooltipY, y + height + offsetTop + tooltipRect.height);
+      } else tooltipY = y - offsetTop;
+
+      mutateUIState((store) => {
+        store.tooltipPosition = { x: tooltipX, y: tooltipY };
+      });
     });
   }
 

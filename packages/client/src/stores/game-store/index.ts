@@ -8,22 +8,24 @@ import {
   CombatAttribute,
   Combatant,
   ERROR_MESSAGES,
+  EntityId,
   Item,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
+  TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
-import { EquipmentSlot } from "@speed-dungeon/common";
 import { MutateState } from "../mutate-state";
 import getActiveCombatant from "@/utils/getActiveCombatant";
 import getParty from "@/utils/getParty";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { CombatLogMessage } from "@/app/game/combat-log/combat-log-message";
-import { FloatingText } from "./floating-text";
 import { BabylonControlledCombatantData } from "./babylon-controlled-combatant-data";
 import { ActionMenuState } from "@/app/game/ActionMenu/menu-state";
 import { InventoryItemsMenuState } from "@/app/game/ActionMenu/menu-state/inventory-items";
 import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
 import { AssigningAttributePointsMenuState } from "@/app/game/ActionMenu/menu-state/assigning-attribute-points";
+import { FloatingMessage } from "./floating-messages";
+import { ItemsOnGroundMenuState } from "@/app/game/ActionMenu/menu-state/items-on-ground";
 
 export enum MenuContext {
   InventoryItems,
@@ -36,12 +38,6 @@ export class GameState {
   [immerable] = true;
   baseMenuState: BaseMenuState;
   stackedMenuStates: ActionMenuState[] = [];
-  // cameraData: { alpha: number; beta: number; radius: number; focus: Vector3 } = {
-  //   alpha: 0,
-  //   beta: 0,
-  //   radius: 0,
-  //   focus: Vector3.Zero(),
-  // };
   game: null | SpeedDungeonGame = null;
   gameName: string | null = null;
   /** Unique name which characters may list as their controller */
@@ -50,19 +46,20 @@ export class GameState {
   detailedEntity: null | Combatant | Item = null;
   hoveredEntity: null | Combatant | Item = null;
   comparedItem: null | Item = null;
-  comparedSlot: null | EquipmentSlot = null;
+  comparedSlot: null | TaggedEquipmentSlot = null;
   hoveredAction: null | CombatAction = null;
   actionMenuCurrentPageNumber: number = 0;
   actionMenuParentPageNumbers: number[] = [];
   combatLogMessages: CombatLogMessage[] = [];
   lastDebugMessageId: number = 0;
+  combatantModelLoadingStates: { [combantatId: EntityId]: boolean } = {};
   babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
-  combatantFloatingText: { [combatantId: string]: FloatingText[] } = {};
-  combatantModelsAwaitingSpawn: string[] = [];
+  combatantFloatingMessages: { [combatantId: string]: FloatingMessage[] } = {};
   testText: string = "test";
   itemThumbnails: { [itemId: string]: string } = {};
   consideredItemUnmetRequirements: null | CombatAttribute[] = null;
   showItemsOnGround: boolean = true;
+  viewingLeaveGameModal: boolean = false;
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
     if (party instanceof Error) return null;
@@ -129,6 +126,7 @@ export const useGameStore = create<GameState>()(
 
 export const baseMenuState = new BaseMenuState(false);
 export const inventoryItemsMenuState = new InventoryItemsMenuState();
+export const itemsOnGroundMenuState = new ItemsOnGroundMenuState();
 export const assignAttributesMenuState = new AssigningAttributePointsMenuState();
 
 export function getCurrentMenu(state: GameState) {

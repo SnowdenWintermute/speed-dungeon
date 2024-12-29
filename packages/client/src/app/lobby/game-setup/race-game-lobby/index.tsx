@@ -4,7 +4,6 @@ import {
   ClientToServerEvent,
   ERROR_MESSAGES,
   GOLDEN_RATIO,
-  SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import React from "react";
 import GameLobby from "../GameLobby";
@@ -12,13 +11,15 @@ import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import PartySetupCard from "./AdventuringPartySetupCard";
 
-export default function RaceGameLobby({ game }: { game: SpeedDungeonGame }) {
+export default function RaceGameLobby() {
   const username = useGameStore().username;
+  const game = useGameStore().game;
+  if (game === null) return <div>Loading...</div>;
   if (!username) return <div>{ERROR_MESSAGES.CLIENT.NO_USERNAME}</div>;
   const playerOption = game.players[username];
 
   return (
-    <GameLobby game={game}>
+    <GameLobby>
       <div className="h-full max-h-full overflow-y-auto ">
         <div>
           <h3 className="text-xl mb-2">Adventuring Parties</h3>

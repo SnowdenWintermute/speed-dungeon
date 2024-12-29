@@ -1,4 +1,9 @@
-import { ERROR_MESSAGES, GameMode, ServerToClientEvent } from "@speed-dungeon/common";
+import {
+  ERROR_MESSAGES,
+  GameMode,
+  ServerToClientEvent,
+  getProgressionGameMaxStartingFloor,
+} from "@speed-dungeon/common";
 import errorHandler from "../error-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware";
 import { Socket } from "socket.io";
@@ -13,11 +18,14 @@ export default async function selectProgressionGameStartingFloorHandler(
 ) {
   const { game, session } = playerAssociatedData;
   if (game.mode !== GameMode.Progression) return errorHandler(socket, ERROR_MESSAGES.GAME.MODE);
-  if (game.selectedStartingFloor.max < floorNumber)
+  const maxStartingFloor = getProgressionGameMaxStartingFloor(
+    game.lowestStartingFloorOptionsBySavedCharacter
+  );
+
+  if (floorNumber > maxStartingFloor)
     return errorHandler(socket, ERROR_MESSAGES.GAME.STARTING_FLOOR_LIMIT);
-  game.selectedStartingFloor.current = floorNumber;
-  for (const party of Object.values(game.adventuringParties))
-    party.currentFloor = game.selectedStartingFloor.current;
+
+  game.selectedStartingFloor = floorNumber;
 
   const player = game.players[session.username];
   if (!player) return errorHandler(socket, `${ATTEMPT_TEXT} their player wasn't in the game`);

@@ -5,13 +5,11 @@ import {
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
   getCombatActionExecutionTime,
-  ActionCommandManager,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
 
-export default function performCombatActionActionCommandHandler(
+export default async function performCombatActionActionCommandHandler(
   this: GameServer,
-  actionCommandManager: ActionCommandManager,
   gameName: string,
   combatantId: string,
   payload: PerformCombatActionActionCommandPayload
@@ -22,12 +20,12 @@ export default function performCombatActionActionCommandHandler(
   const { game, party, combatant } = actionAssociatedDataResult;
   // SERVER
   // - add the "action performance time" to the lockout time
-  const actionExecutionTimeResult = getCombatActionExecutionTime(
+  const actionExecutionTime = getCombatActionExecutionTime(
     combatant.combatantProperties,
     combatAction
   );
-  if (actionExecutionTimeResult instanceof Error) return actionExecutionTimeResult;
-  InputLock.increaseLockoutDuration(party.inputLock, actionExecutionTimeResult);
+
+  InputLock.increaseLockoutDuration(party.inputLock, actionExecutionTime);
 
   // - apply the hpChange, mpChange, and status effect changes from the payload
 
@@ -43,17 +41,13 @@ export default function performCombatActionActionCommandHandler(
       if (targetResult instanceof Error) return targetResult;
       const { combatantProperties: targetCombatantProperties } = targetResult;
       const combatantWasAliveBeforeHpChange = targetCombatantProperties.hitPoints > 0;
-      CombatantProperties.changeHitPoints(targetCombatantProperties, hpChange.hpChange);
+      CombatantProperties.changeHitPoints(targetCombatantProperties, hpChange.value);
 
       if (targetCombatantProperties.hitPoints <= 0)
-        SpeedDungeonGame.handlePlayerDeath(game, party.battleId, targetId);
+        SpeedDungeonGame.handleCombatantDeath(game, party.battleId, targetId);
 
       if (!combatantWasAliveBeforeHpChange && targetCombatantProperties.hitPoints > 0) {
         // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
       }
     }
-
-  // - get the next action
-
-  actionCommandManager.processNextCommand();
 }

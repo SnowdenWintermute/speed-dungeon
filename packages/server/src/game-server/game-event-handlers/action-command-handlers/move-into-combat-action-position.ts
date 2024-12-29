@@ -5,7 +5,6 @@ import {
   MoveIntoCombatActionPositionActionCommandPayload,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
-import { ActionCommandManager } from "@speed-dungeon/common";
 
 // SERVER
 // - lock this combatant from recieving inputs
@@ -13,9 +12,8 @@ import { ActionCommandManager } from "@speed-dungeon/common";
 // - if not in combat, other character's inputs will be processed in order recieved
 // - add their travel time to destination to the lockout time
 // - process the next command
-export default function moveIntoCombatActionPositionActionCommandHandler(
+export default async function moveIntoCombatActionPositionActionCommandHandler(
   this: GameServer,
-  actionCommandManager: ActionCommandManager,
   gameName: string,
   combatantId: string,
   payload: MoveIntoCombatActionPositionActionCommandPayload
@@ -36,6 +34,4 @@ export default function moveIntoCombatActionPositionActionCommandHandler(
   );
 
   InputLock.increaseLockoutDuration(party.inputLock, totalTimeToReachDestination);
-
-  actionCommandManager.processNextCommand();
 }

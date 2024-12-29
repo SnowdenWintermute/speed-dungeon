@@ -1,8 +1,9 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import {
   CombatActionType,
+  Consumable,
+  Equipment,
   Item,
-  ItemPropertiesType,
   formatConsumableType,
 } from "@speed-dungeon/common";
 import React, { useRef } from "react";
@@ -13,10 +14,10 @@ import { useGameStore } from "@/stores/game-store";
 import Divider from "@/app/components/atoms/Divider";
 import Model3DIcon from "../../../../public/img/menu-icons/3d-model-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { getModelAttribution } from "@/app/3d-world/combatant-models/get-model-attribution";
+import { ZIndexLayers } from "@/app/z-index-layers";
+import { getModelAttribution } from "@/app/3d-world/item-models/get-model-attribution";
 
 interface Props {
-  title: string;
   shouldShowModKeyTooltip: boolean;
   itemOption: null | Item;
   extraStyles: string;
@@ -27,7 +28,6 @@ interface Props {
 export const UNMET_REQUIREMENTS_FILTER = "grayscale(1) brightness(0.8) sepia(1) hue-rotate(-90deg)";
 
 export default function ItemDetails({
-  title,
   shouldShowModKeyTooltip,
   itemOption,
   extraStyles,
@@ -50,29 +50,24 @@ export default function ItemDetails({
   } else {
     const item = itemOption;
     hiddenClass = "pointer-events-auto ";
-    const { itemProperties } = item;
 
-    switch (itemProperties.type) {
-      case ItemPropertiesType.Equipment:
-        itemDetailsDisplay = (
-          <EquipmentDetails item={item} equipmentProperties={itemProperties.equipmentProperties} />
-        );
-        thumbnailIdOption = item.entityProperties.id;
-        break;
-      case ItemPropertiesType.Consumable:
-        BG_COLOR = "bg-slate-700";
-        thumbnailIdOption = formatConsumableType(
-          itemProperties.consumableProperties.consumableType
-        );
-        itemDetailsDisplay = (
-          <ActionDetails
-            combatAction={{
-              type: CombatActionType.ConsumableUsed,
-              itemId: item.entityProperties.id,
-            }}
-            hideTitle={true}
-          />
-        );
+    if (item instanceof Equipment) {
+      itemDetailsDisplay = <EquipmentDetails equipment={item} />;
+      thumbnailIdOption = item.entityProperties.id;
+    } else if (item instanceof Consumable) {
+      BG_COLOR = "bg-slate-700";
+      thumbnailIdOption = formatConsumableType(item.consumableType);
+      itemDetailsDisplay = (
+        <ActionDetails
+          combatAction={{
+            type: CombatActionType.ConsumableUsed,
+            itemId: item.entityProperties.id,
+          }}
+          hideTitle={true}
+        />
+      );
+    } else {
+      itemDetailsDisplay = <div>unknown item type</div>;
     }
   }
 
@@ -95,12 +90,15 @@ export default function ItemDetails({
       }}
     >
       {shouldShowModKeyTooltip && isComparedItem && (
-        <div className="border border-slate-400 p-2 z-30 absolute -right-4 -top-10 translate-y-1/2 bg-slate-800">
+        <div
+          style={{ zIndex: ZIndexLayers.ItemDetails }}
+          className={`border border-slate-400 p-2 absolute -right-4 -top-10 translate-y-1/2 bg-slate-800`}
+        >
           <ModKeyTooltip />
         </div>
       )}
       <div className="flex-1 justify-center items-center text-center ">
-        <span>{itemOption?.entityProperties.name}</span>
+        <span className="pr-2">{itemOption?.entityProperties.name}</span>
         <Divider extraStyles="mr-4" />
         {itemDetailsDisplay}
       </div>

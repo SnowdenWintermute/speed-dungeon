@@ -32,6 +32,7 @@ export default async function toggleReadyToStartGameHandler(
   for (const party of Object.values(game.adventuringParties)) {
     if (party.characterPositions.length < 1)
       return new Error("Each party must have at least one character");
+    party.currentFloor = game.selectedStartingFloor;
   }
 
   if (game.playersReadied.includes(username)) removeFromArray(game.playersReadied, username);

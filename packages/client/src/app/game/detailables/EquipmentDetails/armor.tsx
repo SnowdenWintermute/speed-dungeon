@@ -1,35 +1,31 @@
-import { EquipmentProperties, getTraitModifiedArmorClass } from "@speed-dungeon/common";
+import { Equipment, getTraitModifiedArmorClass } from "@speed-dungeon/common";
 import { formatArmorCategory } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
 
-export function getArmorCategoryText(equipmentProperties: EquipmentProperties) {
-  switch (equipmentProperties.equipmentBaseItemProperties.type) {
+export function getArmorCategoryText(equipment: Equipment) {
+  switch (equipment.equipmentBaseItemProperties.type) {
     case EquipmentType.BodyArmor:
     case EquipmentType.HeadGear:
-      return ` (${formatArmorCategory(equipmentProperties.equipmentBaseItemProperties.armorCategory)})`;
+      return ` (${formatArmorCategory(equipment.equipmentBaseItemProperties.armorCategory)})`;
     default:
       "";
   }
 }
 
-export function ArmorClassText({
-  equipmentProperties,
-}: {
-  equipmentProperties: EquipmentProperties;
-}) {
+export function ArmorClassText({ equipment }: { equipment: Equipment }) {
   let armorClassOption: null | number = null;
-  switch (equipmentProperties.equipmentBaseItemProperties.type) {
+  switch (equipment.equipmentBaseItemProperties.type) {
     case EquipmentType.BodyArmor:
     case EquipmentType.HeadGear:
     case EquipmentType.Shield:
-      armorClassOption = equipmentProperties.equipmentBaseItemProperties.armorClass;
+      armorClassOption = equipment.equipmentBaseItemProperties.armorClass;
     default:
   }
 
   let hasTraitModifiedAc = false;
   let armorClassTextOption = null;
   if (typeof armorClassOption === "number") {
-    const modifiedAc = getTraitModifiedArmorClass(armorClassOption, equipmentProperties.affixes);
+    const modifiedAc = getTraitModifiedArmorClass(armorClassOption, equipment.affixes);
     return <div>{`Armor Class: ${modifiedAc}`}</div>;
   }
 

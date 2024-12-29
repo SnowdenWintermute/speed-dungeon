@@ -1,9 +1,9 @@
 import {
   CombatantTrait,
   CombatantTraitType,
+  KineticDamageType,
   MagicalElement,
   MonsterType,
-  PhysicalDamageType,
 } from "@speed-dungeon/common";
 
 export default function getMonsterTraits(monsterType: MonsterType): CombatantTrait[] {
@@ -11,46 +11,51 @@ export default function getMonsterTraits(monsterType: MonsterType): CombatantTra
     case MonsterType.Zombie:
     case MonsterType.SkeletonArcher:
       return [
+        {
+          type: CombatantTraitType.ElementalAffinity,
+          element: MagicalElement.Water,
+          percent: -25,
+        },
         { type: CombatantTraitType.Undead },
         {
-          type: CombatantTraitType.PhysicalDamageTypeResistance,
-          damageType: PhysicalDamageType.Blunt,
+          type: CombatantTraitType.KineticDamageTypeResistance,
+          damageType: KineticDamageType.Blunt,
           percent: -25,
         },
         {
-          type: CombatantTraitType.PhysicalDamageTypeResistance,
-          damageType: PhysicalDamageType.Slashing,
+          type: CombatantTraitType.KineticDamageTypeResistance,
+          damageType: KineticDamageType.Slashing,
           percent: 25,
         },
         {
-          type: CombatantTraitType.PhysicalDamageTypeResistance,
-          damageType: PhysicalDamageType.Piercing,
+          type: CombatantTraitType.KineticDamageTypeResistance,
+          damageType: KineticDamageType.Piercing,
           percent: 50,
         },
       ];
     case MonsterType.Scavenger:
       return [
         {
-          type: CombatantTraitType.PhysicalDamageTypeResistance,
-          damageType: PhysicalDamageType.Blunt,
+          type: CombatantTraitType.KineticDamageTypeResistance,
+          damageType: KineticDamageType.Blunt,
           percent: 50,
         },
         {
-          type: CombatantTraitType.PhysicalDamageTypeResistance,
-          damageType: PhysicalDamageType.Slashing,
+          type: CombatantTraitType.KineticDamageTypeResistance,
+          damageType: KineticDamageType.Slashing,
           percent: -25,
         },
       ];
     case MonsterType.Vulture:
       return [
         {
-          type: CombatantTraitType.PhysicalDamageTypeResistance,
-          damageType: PhysicalDamageType.Blunt,
+          type: CombatantTraitType.KineticDamageTypeResistance,
+          damageType: KineticDamageType.Blunt,
           percent: 50,
         },
         {
-          type: CombatantTraitType.PhysicalDamageTypeResistance,
-          damageType: PhysicalDamageType.Piercing,
+          type: CombatantTraitType.KineticDamageTypeResistance,
+          damageType: KineticDamageType.Piercing,
           percent: -25,
         },
       ];
@@ -59,18 +64,18 @@ export default function getMonsterTraits(monsterType: MonsterType): CombatantTra
     case MonsterType.FireElemental:
       return [
         {
-          type: CombatantTraitType.PhysicalDamageTypeResistance,
-          damageType: PhysicalDamageType.Blunt,
+          type: CombatantTraitType.KineticDamageTypeResistance,
+          damageType: KineticDamageType.Blunt,
           percent: 50,
         },
         {
-          type: CombatantTraitType.PhysicalDamageTypeResistance,
-          damageType: PhysicalDamageType.Slashing,
+          type: CombatantTraitType.KineticDamageTypeResistance,
+          damageType: KineticDamageType.Slashing,
           percent: 50,
         },
         {
-          type: CombatantTraitType.PhysicalDamageTypeResistance,
-          damageType: PhysicalDamageType.Piercing,
+          type: CombatantTraitType.KineticDamageTypeResistance,
+          damageType: KineticDamageType.Piercing,
           percent: 50,
         },
         {
@@ -87,18 +92,18 @@ export default function getMonsterTraits(monsterType: MonsterType): CombatantTra
     case MonsterType.IceElemental:
       return [
         {
-          type: CombatantTraitType.PhysicalDamageTypeResistance,
-          damageType: PhysicalDamageType.Blunt,
+          type: CombatantTraitType.KineticDamageTypeResistance,
+          damageType: KineticDamageType.Blunt,
           percent: 50,
         },
         {
-          type: CombatantTraitType.PhysicalDamageTypeResistance,
-          damageType: PhysicalDamageType.Slashing,
+          type: CombatantTraitType.KineticDamageTypeResistance,
+          damageType: KineticDamageType.Slashing,
           percent: 50,
         },
         {
-          type: CombatantTraitType.PhysicalDamageTypeResistance,
-          damageType: PhysicalDamageType.Piercing,
+          type: CombatantTraitType.KineticDamageTypeResistance,
+          damageType: KineticDamageType.Piercing,
           percent: 50,
         },
         {

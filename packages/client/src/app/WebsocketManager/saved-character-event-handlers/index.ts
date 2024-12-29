@@ -2,6 +2,7 @@ import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useLobbyStore } from "@/stores/lobby-store";
 import {
   ClientToServerEventTypes,
+  CombatantEquipment,
   ServerToClientEvent,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
@@ -12,7 +13,11 @@ export default function setUpSavedCharacterEventListeners(
 ) {
   const mutateLobbyState = useLobbyStore.getState().mutateState;
   socket.on(ServerToClientEvent.SavedCharacterList, (characters) => {
-    console.log("got saved characters list: ", characters)
+    for (const character of Object.values(characters)) {
+      if (character !== null)
+        CombatantEquipment.instatiateItemClasses(character.combatantProperties);
+    }
+
     gameWorld.current?.drawCharacterSlots();
     mutateLobbyState((state) => {
       state.savedCharacters = characters;
@@ -23,7 +28,7 @@ export default function setUpSavedCharacterEventListeners(
     mutateLobbyState((state) => {
       for (const [slot, character] of Object.entries(state.savedCharacters)) {
         const slotAsNumber = parseInt(slot);
-        if (character?.combatant.entityProperties.id === id) {
+        if (character?.entityProperties.id === id) {
           state.savedCharacters[slotAsNumber] = null;
           break;
         }
@@ -32,6 +37,7 @@ export default function setUpSavedCharacterEventListeners(
   });
 
   socket.on(ServerToClientEvent.SavedCharacter, (character, slot) => {
+    CombatantEquipment.instatiateItemClasses(character.combatantProperties);
     mutateLobbyState((state) => {
       state.savedCharacters[slot] = character;
     });

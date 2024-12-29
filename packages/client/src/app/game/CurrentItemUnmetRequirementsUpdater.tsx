@@ -1,5 +1,11 @@
 import { useGameStore } from "@/stores/game-store";
-import { CombatAttribute, Combatant, CombatantProperties, Item } from "@speed-dungeon/common";
+import {
+  CombatAttribute,
+  Combatant,
+  CombatantProperties,
+  Item,
+  iterateNumericEnumKeyedRecord,
+} from "@speed-dungeon/common";
 import React, { useEffect, useMemo } from "react";
 
 export default function CurrentItemUnmetRequirementsUpdater() {
@@ -33,8 +39,7 @@ export default function CurrentItemUnmetRequirementsUpdater() {
 
     const unmetAttributeRequirements: CombatAttribute[] = [];
     if (Object.keys(item.requirements).length !== 0) {
-      for (const [attributeKey, value] of Object.entries(item.requirements)) {
-        const attribute = parseInt(attributeKey) as CombatAttribute;
+      for (const [attribute, value] of iterateNumericEnumKeyedRecord(item.requirements)) {
         const characterAttribute = totalAttributes[attribute] || 0;
         if (characterAttribute >= value) continue;
         else unmetAttributeRequirements.push(attribute);

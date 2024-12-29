@@ -6,9 +6,12 @@ import {
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
   CombatAttribute,
   ClientToServerEvent,
-  formatCombatAttribute,
-  getCombatAttributeDescription,
+  COMBAT_ATTRIBUTE_DESCRIPTIONS,
+  COMBAT_ATTRIBUTE_STRINGS,
+  CORE_ATTRIBUTES,
+  INFO_UNICODE_SYMBOL,
 } from "@speed-dungeon/common";
+import StarShape from "../../../../public/img/basic-shapes/star.svg";
 
 interface Props {
   attribute: CombatAttribute;
@@ -21,7 +24,7 @@ interface Props {
 export function AttributeListItem(props: Props) {
   const consideredItemUnmetRequirements = useGameStore().consideredItemUnmetRequirements;
   const isUnmetRequirement = consideredItemUnmetRequirements?.includes(props.attribute);
-  const highlightClass = isUnmetRequirement ? UNMET_REQUIREMENT_TEXT_COLOR : "";
+  let highlightClass = isUnmetRequirement ? UNMET_REQUIREMENT_TEXT_COLOR : "";
 
   const shouldShowIncreaseAttributeButton =
     props.combatantHasUnspentAttributePoints &&
@@ -29,15 +32,29 @@ export function AttributeListItem(props: Props) {
     props.playerOwnsCharacter &&
     props.showAttributeAssignmentButtonsIfOwned;
 
+  const isCoreAttribute = CORE_ATTRIBUTES.includes(props.attribute);
+
+  const infoIcon = isCoreAttribute ? (
+    <div className="mr-2 h-4 w-4">
+      <StarShape className="fill-slate-400 h-full w-full" />
+    </div>
+  ) : (
+    INFO_UNICODE_SYMBOL
+  );
+
+  const tooltipCoreAttributeText = isCoreAttribute ? "[Core Attribute] " : "";
+
   return (
-    <li className={`flex justify-between ${highlightClass}`}>
+    <li className={`flex justify-between ${highlightClass} `}>
       <span className="flex">
         <span className="inline-block h-6 w-6 whitespace-nowrap text-ellipsis overflow-hidden">
-          <HoverableTooltipWrapper tooltipText={getCombatAttributeDescription(props.attribute)}>
-            <span className="cursor-help h-full w-full inline-block">{"ⓘ "}</span>
+          <HoverableTooltipWrapper
+            tooltipText={tooltipCoreAttributeText + COMBAT_ATTRIBUTE_DESCRIPTIONS[props.attribute]}
+          >
+            <span className="cursor-help h-full w-full inline-block">{infoIcon}</span>
           </HoverableTooltipWrapper>
         </span>
-        {formatCombatAttribute(props.attribute)}
+        {COMBAT_ATTRIBUTE_STRINGS[props.attribute]}
       </span>
       <span>
         <span>{Math.floor(props.value)}</span>

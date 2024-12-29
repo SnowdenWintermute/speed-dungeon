@@ -2,7 +2,7 @@ import {
   AffixType,
   Affixes,
   EquipmentType,
-  ItemPropertiesType,
+  ItemType,
   ONE_HANDED_MELEE_WEAPON_NAMES,
   PrefixType,
   SuffixType,
@@ -13,6 +13,7 @@ import {
   formatShield,
   formatTwoHandedMeleeWeapon,
   formatTwoHandedRangedWeapon,
+  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { TaggedBaseItem } from "../item-generation-builder.js";
 import { getPrefixName } from "./get-prefix-name.js";
@@ -24,7 +25,7 @@ export abstract class ItemNamer {
     const suffixNames = [];
     let baseItemName = "";
     switch (baseItem.type) {
-      case ItemPropertiesType.Equipment:
+      case ItemType.Equipment:
         switch (baseItem.baseItem.equipmentType) {
           case EquipmentType.BodyArmor:
             baseItemName = formatBodyArmor(baseItem.baseItem.baseItemType);
@@ -50,18 +51,16 @@ export abstract class ItemNamer {
             break;
         }
         break;
-      case ItemPropertiesType.Consumable:
+      case ItemType.Consumable:
         baseItemName = formatConsumableType(baseItem.baseItem);
     }
 
     if (affixes !== null) {
-      for (const [key, affix] of Object.entries(affixes[AffixType.Prefix])) {
-        const prefixType = parseInt(key) as PrefixType;
+      for (const [prefixType, affix] of iterateNumericEnumKeyedRecord(affixes[AffixType.Prefix])) {
         const name = getPrefixName(prefixType, affix.tier);
         prefixNames.push(name);
       }
-      for (const [key, affix] of Object.entries(affixes[AffixType.Suffix])) {
-        const suffixType = parseInt(key) as SuffixType;
+      for (const [suffixType, affix] of iterateNumericEnumKeyedRecord(affixes[AffixType.Suffix])) {
         const name = getSuffixName(suffixType, affix.tier);
         suffixNames.push(name);
       }

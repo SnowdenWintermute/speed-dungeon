@@ -2,6 +2,7 @@ import {
   inventoryItemsMenuState,
   assignAttributesMenuState,
   useGameStore,
+  itemsOnGroundMenuState,
 } from "@/stores/game-store";
 import {
   ActionButtonCategory,
@@ -15,10 +16,9 @@ import {
   Battle,
   ClientToServerEvent,
   CombatActionType,
-  CombatantAbility,
-  CombatantAbilityName,
+  AbilityName,
   CombatantProperties,
-  formatAbilityName,
+  ABILITY_NAME_STRINGS,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -27,9 +27,13 @@ import getGameAndParty from "@/utils/getGameAndParty";
 import cloneDeep from "lodash.clonedeep";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
+import { ABILITY_ATTRIBUTES } from "@speed-dungeon/common";
 
 export const toggleInventoryHotkey = HOTKEYS.MAIN_1;
-export const toggleAssignAttributesHotkey = HOTKEYS.ALT_1;
+export const toggleAssignAttributesHotkey = HOTKEYS.MAIN_2;
+export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
+
+export const VIEW_LOOT_BUTTON_TEXT = `Loot (${letterFromKeyCode(viewItemsOnGroundHotkey)})`;
 
 export class BaseMenuState implements ActionMenuState {
   page = 1;
@@ -40,10 +44,11 @@ export class BaseMenuState implements ActionMenuState {
     const toReturn = new ActionButtonsByCategory();
 
     const setInventoryOpen = new ActionMenuButtonProperties(
-      `Open Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
+      `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
       () => {
         useGameStore.getState().mutateState((state) => {
           state.stackedMenuStates.push(inventoryItemsMenuState);
+          state.hoveredAction = null;
         });
       }
     );
@@ -52,15 +57,21 @@ export class BaseMenuState implements ActionMenuState {
 
     let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {
-      setAlert(focusedCharacterResult.message);
+      setAlert(focusedCharacterResult);
       return toReturn;
     }
     const { combatantProperties, entityProperties } = focusedCharacterResult;
     const characterId = entityProperties.id;
 
+    const partyResult = useGameStore.getState().getParty();
+    if (partyResult instanceof Error) {
+      setAlert(partyResult);
+      return toReturn;
+    }
+
     if (focusedCharacterResult.combatantProperties.unspentAttributePoints) {
       const assignAttributesButton = new ActionMenuButtonProperties(
-        `Assign Attributes (${letterFromKeyCode(toggleAssignAttributesHotkey)})`,
+        `Attributes (${letterFromKeyCode(toggleAssignAttributesHotkey)})`,
         () => {
           useGameStore.getState().mutateState((state) => {
             state.stackedMenuStates.push(assignAttributesMenuState);
@@ -69,6 +80,17 @@ export class BaseMenuState implements ActionMenuState {
       );
       assignAttributesButton.dedicatedKeys = ["KeyI", toggleAssignAttributesHotkey];
       toReturn[ActionButtonCategory.Top].push(assignAttributesButton);
+    }
+
+    if (partyResult.currentRoom.items.length) {
+      const viewItemsOnGroundButton = new ActionMenuButtonProperties(VIEW_LOOT_BUTTON_TEXT, () => {
+        useGameStore.getState().mutateState((state) => {
+          state.hoveredAction = null;
+          state.stackedMenuStates.push(itemsOnGroundMenuState);
+        });
+      });
+      viewItemsOnGroundButton.dedicatedKeys = [viewItemsOnGroundHotkey];
+      toReturn[ActionButtonCategory.Top].push(viewItemsOnGroundButton);
     }
 
     // disabled abilities if not their turn in a battle
@@ -80,14 +102,14 @@ export class BaseMenuState implements ActionMenuState {
     }
 
     const abilitiesNotToMakeButtonsFor = [
-      CombatantAbilityName.AttackMeleeOffhand,
-      CombatantAbilityName.AttackMeleeMainhand,
-      CombatantAbilityName.AttackRangedMainhand,
+      AbilityName.AttackMeleeOffhand,
+      AbilityName.AttackMeleeMainhand,
+      AbilityName.AttackRangedMainhand,
     ];
 
     for (const ability of Object.values(combatantProperties.abilities)) {
       if (abilitiesNotToMakeButtonsFor.includes(ability.name)) continue;
-      const button = new ActionMenuButtonProperties(formatAbilityName(ability.name), () => {
+      const button = new ActionMenuButtonProperties(ABILITY_NAME_STRINGS[ability.name], () => {
         websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
           characterId,
           combatActionOption: { type: CombatActionType.AbilityUsed, abilityName: ability.name },
@@ -109,7 +131,7 @@ export class BaseMenuState implements ActionMenuState {
           state.hoveredAction = null;
         });
 
-      const abilityAttributes = CombatantAbility.getAttributes(ability.name);
+      const abilityAttributes = ABILITY_ATTRIBUTES[ability.name];
       const { usabilityContext } = abilityAttributes.combatActionProperties;
 
       const abilityCostIfOwned = CombatantProperties.getAbilityCostIfOwned(

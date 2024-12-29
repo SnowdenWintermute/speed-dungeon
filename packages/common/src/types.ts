@@ -40,6 +40,7 @@ export type LevelLadderEntry = {
   characterName: string;
   characterId: string;
   level: number;
+  experience: number;
   rank: number;
   gameVersion: string;
 };

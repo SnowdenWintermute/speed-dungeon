@@ -2,21 +2,11 @@ export const nextToBabylonMessageQueue: { messages: NextToBabylonMessage[] } = {
   messages: [],
 };
 
-import {
-  Combatant,
-  MoveIntoCombatActionPositionActionCommandPayload,
-  PerformCombatActionActionCommandPayload,
-  ReturnHomeActionCommandPayload,
-} from "@speed-dungeon/common";
+import { Combatant } from "@speed-dungeon/common";
 import { Vector3 } from "@babylonjs/core";
 
 export enum NextToBabylonMessageTypes {
   MoveCamera,
-  SpawnCombatantModel,
-  RemoveCombatantModel,
-  StartMovingCombatantIntoCombatActionPosition,
-  StartPerformingCombatAction,
-  StartReturningHome,
 }
 
 export interface CombatantModelBlueprint {
@@ -36,33 +26,4 @@ export type MoveCameraMessage = {
   target: Vector3;
 };
 
-export type StartMovingCombatantIntoCombatActionPositionMessage = {
-  type: NextToBabylonMessageTypes.StartMovingCombatantIntoCombatActionPosition;
-  actionCommandPayload: MoveIntoCombatActionPositionActionCommandPayload;
-  actionUserId: string;
-};
-
-export type StartPerformingCombatActionMessage = {
-  type: NextToBabylonMessageTypes.StartPerformingCombatAction;
-  actionCommandPayload: PerformCombatActionActionCommandPayload;
-  actionUserId: string;
-};
-
-export type StartReturningHomeMessage = {
-  type: NextToBabylonMessageTypes.StartReturningHome;
-  actionCommandPayload: ReturnHomeActionCommandPayload;
-  actionUserId: string;
-};
-
-// export type ClearCharacterSlotsMessage={
-//   type: NextToBabylonMessageTypes.ClearCharacterSlots
-// }
-// export type DrawCharacterSlotsMessage={
-//   type: NextToBabylonMessageTypes.DrawCharacterSlots
-// }
-
-export type NextToBabylonMessage =
-  | StartMovingCombatantIntoCombatActionPositionMessage
-  | StartPerformingCombatActionMessage
-  | StartReturningHomeMessage
-  | MoveCameraMessage;
+export type NextToBabylonMessage = MoveCameraMessage;

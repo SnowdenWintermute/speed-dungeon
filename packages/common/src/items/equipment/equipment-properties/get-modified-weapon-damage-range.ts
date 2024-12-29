@@ -1,44 +1,24 @@
-import { EquipmentProperties } from "./index.js";
-import { CombatAttribute } from "../../../combatants/index.js";
-import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { NumberRange } from "../../../primatives/number-range.js";
-import { AffixType, PrefixType } from "../affixes.js";
+import { AffixType, Affixes, PrefixType, SuffixType } from "../affixes.js";
 import { EquipmentTraitType } from "../equipment-traits/index.js";
-import { EquipmentType } from "../equipment-types/index.js";
 
 export default function getModifiedWeaponDamageRange(
-  equipmentProperties: EquipmentProperties
-): Error | NumberRange {
-  switch (equipmentProperties.equipmentBaseItemProperties.type) {
-    case EquipmentType.BodyArmor:
-    case EquipmentType.HeadGear:
-    case EquipmentType.Shield:
-    case EquipmentType.Amulet:
-    case EquipmentType.Ring:
-      return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
-    case EquipmentType.OneHandedMeleeWeapon:
-    case EquipmentType.TwoHandedMeleeWeapon:
-    case EquipmentType.TwoHandedRangedWeapon:
-      const damageAttribute = equipmentProperties.attributes[CombatAttribute.Damage] || 0;
-      let percentDamageModifier = 1.0;
-      if (
-        equipmentProperties.affixes[AffixType.Prefix][PrefixType.PercentDamage] !== undefined &&
-        equipmentProperties.affixes[AffixType.Prefix][PrefixType.PercentDamage].equipmentTraits[
-          EquipmentTraitType.DamagePercentage
-        ] !== undefined
-      ) {
-        percentDamageModifier =
-          1.0 +
-          equipmentProperties.affixes[AffixType.Prefix][PrefixType.PercentDamage].equipmentTraits[
-            EquipmentTraitType.DamagePercentage
-          ].percentage /
-            100.0;
-      }
-      return new NumberRange(
-        (equipmentProperties.equipmentBaseItemProperties.damage.min + damageAttribute) *
-          percentDamageModifier,
-        (equipmentProperties.equipmentBaseItemProperties.damage.max + damageAttribute) *
-          percentDamageModifier
-      );
-  }
+  affixes: Affixes,
+  damage: NumberRange
+): NumberRange {
+  const prefixes = affixes[AffixType.Prefix];
+  const percentDamagePrefix = prefixes[PrefixType.PercentDamage];
+  const traitPercentDamageBonus =
+    percentDamagePrefix?.equipmentTraits[EquipmentTraitType.DamagePercentage]?.value || 0;
+  const finalDamageMultiplier = 1 + traitPercentDamageBonus / 100;
+
+  const suffixes = affixes[AffixType.Suffix];
+  const flatDamageSuffix = suffixes[SuffixType.Damage];
+  const flatDamageBonus =
+    flatDamageSuffix?.equipmentTraits[EquipmentTraitType.FlatDamageAdditive]?.value || 0;
+
+  return new NumberRange(
+    Math.floor((damage.min + flatDamageBonus) * finalDamageMultiplier),
+    Math.floor((damage.max + flatDamageBonus) * finalDamageMultiplier)
+  );
 }

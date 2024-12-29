@@ -1,25 +1,25 @@
-import { CombatantAbilityName } from "../../../combatants/index.js";
+import { AbilityName } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
-import { EquipmentType } from "../../../items/index.js";
+import { EquipmentType } from "../../../items/equipment/index.js";
 
 export default function getAttackAbilityName(
   equipmentType: null | EquipmentType,
   isOffHand: boolean
-): Error | CombatantAbilityName {
+): Error | AbilityName {
   if (isOffHand) {
     if (equipmentType !== null && equipmentType !== EquipmentType.OneHandedMeleeWeapon) {
       console.error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
       return new Error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
-    } else return CombatantAbilityName.AttackMeleeOffhand;
+    } else return AbilityName.AttackMeleeOffhand;
   }
-  if (equipmentType === null) return CombatantAbilityName.AttackMeleeMainhand;
+  if (equipmentType === null) return AbilityName.AttackMeleeMainhand;
 
   switch (equipmentType) {
     case EquipmentType.OneHandedMeleeWeapon:
     case EquipmentType.TwoHandedMeleeWeapon:
-      return CombatantAbilityName.AttackMeleeMainhand;
+      return AbilityName.AttackMeleeMainhand;
     case EquipmentType.TwoHandedRangedWeapon:
-      return CombatantAbilityName.AttackRangedMainhand;
+      return AbilityName.AttackRangedMainhand;
     case EquipmentType.BodyArmor:
     case EquipmentType.HeadGear:
     case EquipmentType.Ring:

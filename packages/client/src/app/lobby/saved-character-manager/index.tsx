@@ -1,11 +1,9 @@
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { nextToBabylonMessageQueue } from "@/singletons/next-to-babylon-message-queue";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { NextToBabylonMessageTypes } from "@/singletons/next-to-babylon-message-queue";
 import { Vector3 } from "@babylonjs/core";
 import {
-  ClientToServerEvent,
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
   formatCombatantClassName,
 } from "@speed-dungeon/common";
@@ -13,11 +11,13 @@ import React, { useEffect, useState } from "react";
 import ArrowShape from "../../../../public/img/menu-icons/arrow-button-icon.svg";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import SavedCharacterDisplay from "./SavedCharacterDisplay";
 import CreateCharacterForm from "./CreateCharacterForm";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import DeleteCharacterForm from "./DeleteCharacterForm";
+import CharacterModelDisplay from "@/app/character-model-display";
+import { gameWorld } from "@/app/3d-world/SceneManager";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 export const CHARACTER_SLOT_SPACING = 1;
 export const CHARACTER_MANAGER_HOTKEY = "S";
@@ -50,32 +50,40 @@ export default function SavedCharacterManager() {
       instant: true,
       alpha: Math.PI / 2,
       beta: (Math.PI / 5) * 2,
-      radius: 5,
+      radius: 4.28,
       target: new Vector3(-CHARACTER_SLOT_SPACING + CHARACTER_SLOT_SPACING * currentSlot, 1, 0),
     });
   }, [currentSlot]);
 
+  useEffect(() => {
+    gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.SynchronizeCombatantModels,
+    });
+  }, [savedCharacters]);
+
   return (
     <>
-      <div className="w-full h-full absolute ">
+      <div className="w-full h-full absolute">
         {Object.entries(savedCharacters)
           .filter(([_slot, characterOption]) => characterOption !== null)
-          .map(([slot, character]) => {
+          .map(([_slot, character]) => {
             return (
-              <SavedCharacterDisplay
-                character={character!.combatant}
-                index={parseInt(slot)}
-                key={character!.combatant.entityProperties.id}
-              >
-                <div className="w-full h-full flex justify-center">
-                  {character!.combatant.combatantProperties.hitPoints <= 0 && (
+              <CharacterModelDisplay character={character!} key={character!.entityProperties.id}>
+                <div className="w-full h-full flex justify-center items-center">
+                  {character!.combatantProperties.hitPoints <= 0 && (
                     <div className="relative text-2xl">
-                      <span className="text-red-600">DEAD</span>
-                      <span className="absolute z-[-1] text-black top-[3px] left-[3px]">DEAD</span>
+                      <span
+                        className="text-red-600"
+                        style={{
+                          textShadow: "2px 2px 0px #000000",
+                        }}
+                      >
+                        DEAD
+                      </span>
                     </div>
                   )}
                 </div>
-              </SavedCharacterDisplay>
+              </CharacterModelDisplay>
             );
           })}
       </div>
@@ -115,13 +123,13 @@ export default function SavedCharacterManager() {
               <XShape className="h-full w-full fill-slate-400" />
             </HotkeyButton>
             <h4>{!selectedCharacterOption && ` Slot ${currentSlot + 1} `}</h4>
-            <h3>{selectedCharacterOption?.combatant.entityProperties.name || "Empty"}</h3>
+            <h3>{selectedCharacterOption?.entityProperties.name || "Empty"}</h3>
             {selectedCharacterOption && (
               <div>
-                Level: {selectedCharacterOption.combatant.combatantProperties.level}
+                Level: {selectedCharacterOption.combatantProperties.level}
                 {" " +
                   formatCombatantClassName(
-                    selectedCharacterOption.combatant.combatantProperties.combatantClass
+                    selectedCharacterOption.combatantProperties.combatantClass
                   )}
               </div>
             )}
@@ -156,7 +164,7 @@ export default function SavedCharacterManager() {
           </div>
           <div>
             {selectedCharacterOption ? (
-              <DeleteCharacterForm character={selectedCharacterOption.combatant} />
+              <DeleteCharacterForm character={selectedCharacterOption} />
             ) : (
               <CreateCharacterForm currentSlot={currentSlot} />
             )}

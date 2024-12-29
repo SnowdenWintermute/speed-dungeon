@@ -9,17 +9,11 @@ interface Props {
 }
 
 export default function NumberedButton({ number, properties }: Props) {
-  const disabledStyle = properties.shouldBeDisabled ? "opacity-50" : "";
-
   return (
     <HotkeyButton
-      className={`${disabledStyle} w-full border-b border-r border-l first:border-t border-slate-400 bg-slate-700 flex hover:bg-slate-950 disabled:opacity-50`}
+      className={`${properties.shouldBeDisabled ? "opacity-50" : ""} w-full flex hover:bg-slate-950`}
       style={{ height: `${BUTTON_HEIGHT}rem` }}
       onClick={properties.clickHandler}
-      onMouseEnter={properties.mouseEnterHandler}
-      onMouseLeave={properties.mouseLeaveHandler}
-      onFocus={properties.focusHandler}
-      onBlur={properties.blurHandler}
       disabled={properties.shouldBeDisabled}
       hotkeys={[`Digit${number}`]}
     >

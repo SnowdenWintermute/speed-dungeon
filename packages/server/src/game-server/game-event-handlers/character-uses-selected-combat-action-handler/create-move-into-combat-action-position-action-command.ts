@@ -18,5 +18,10 @@ export function createMoveIntoCombatActionPositionActionCommand(
     primaryTargetId = actionResult.targetIds[0] || actionResult.userId;
   }
 
-  return { type: ActionCommandType.MoveIntoCombatActionPosition, isMelee, primaryTargetId };
+  return {
+    type: ActionCommandType.MoveIntoCombatActionPosition,
+    actionUserId: actionResult.userId,
+    isMelee,
+    primaryTargetId,
+  };
 }

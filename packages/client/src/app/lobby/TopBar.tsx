@@ -1,6 +1,8 @@
 "use client";
 import { SPACING_REM_LARGE, TOP_BAR_HEIGHT_REM, WEBSITE_NAME } from "@/client_consts";
-import UserMenuContainer from "./user-menu";
+import dynamic from "next/dynamic";
+
+const UserMenuContainer = dynamic(() => import("./user-menu"), { ssr: false });
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Settings from "@/app/settings";
@@ -10,7 +12,7 @@ export default function TopBar() {
 
   return (
     <>
-      {<Settings />}
+      <Settings />
       <section
         className={`bg-slate-700 w-full border-b border-b-slate-400 pt-[0.625rem] pb-[0.625rem]
         pointer-events-auto flex justify-between`}
@@ -47,7 +49,7 @@ export default function TopBar() {
             </li>
           </ul>
         </div>
-        <UserMenuContainer />
+        {<UserMenuContainer />}
       </section>
     </>
   );

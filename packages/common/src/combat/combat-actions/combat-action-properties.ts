@@ -1,12 +1,12 @@
-import { CombatAttribute } from "../../combatants/combat-attributes.js";
-import { WeaponSlot } from "../../items/equipment/slots.js";
-import { NumberRange } from "../../primatives/number-range.js";
-import { HpChangeSource } from "../hp-change-source-types.js";
 import {
   ProhibitedTargetCombatantStates,
   TargetCategories,
   TargetingScheme,
-} from "../targeting/index.js";
+} from "./targeting-schemes-and-categories.js";
+import { HoldableSlot, HoldableSlotType } from "../../items/equipment/slots.js";
+import { NumberRange } from "../../primatives/number-range.js";
+import { HpChangeSource, HpChangeSourceModifiers } from "../hp-change-source-types.js";
+import { CombatAttribute } from "../../attributes/index.js";
 
 export class CombatActionProperties {
   targetingSchemes: TargetingScheme[] = [TargetingScheme.Single];
@@ -18,6 +18,8 @@ export class CombatActionProperties {
   requiresCombatTurn: boolean = true;
   hpChangeProperties: null | CombatActionHpChangeProperties = null;
   description: string = "";
+  isMelee: boolean = true;
+  accuracyPercentModifier: number = 100;
   constructor() {}
 }
 
@@ -27,27 +29,23 @@ export enum ActionUsableContext {
   OutOfCombat,
 }
 
-export function formatActionUsabilityContext(actionUsabilityContext: ActionUsableContext): string {
-  switch (actionUsabilityContext) {
-    case ActionUsableContext.All:
-      return "Any time";
-    case ActionUsableContext.InCombat:
-      return "In combat";
-    case ActionUsableContext.OutOfCombat:
-      return "Out of combat";
-  }
-}
+export const COMBAT_ACTION_USABLITY_CONTEXT_STRINGS: Record<ActionUsableContext, string> = {
+  [ActionUsableContext.All]: "any time",
+  [ActionUsableContext.InCombat]: "in combat",
+  [ActionUsableContext.OutOfCombat]: "out of combat",
+};
 
 export class CombatActionHpChangeProperties {
   baseValues: NumberRange = new NumberRange(0, 0);
   finalDamagePercentMultiplier: number = 100;
-  accuracyPercentModifier: number = 100;
-  addWeaponDamageFrom: null | WeaponSlot[] = null;
-  addWeaponElementFrom: null | WeaponSlot = null;
-  addWeaponDamageTypeFrom: null | WeaponSlot = null;
+  addWeaponDamageFromSlots: null | HoldableSlotType[] = null;
+  addWeaponModifiersFromSlot: null | {
+    slot: HoldableSlotType;
+    modifiers: Set<HpChangeSourceModifiers>;
+  } = null;
   additiveAttributeAndPercentScalingFactor: null | [CombatAttribute, number] = null;
   critChanceAttribute: null | CombatAttribute = null;
+  critChanceModifier: null | number = null;
   critMultiplierAttribute: null | CombatAttribute = null;
-  sourceProperties: HpChangeSource = new HpChangeSource();
-  constructor() {}
+  constructor(public hpChangeSource: HpChangeSource) {}
 }

@@ -1,4 +1,5 @@
 import {
+  ActionCommandPayload,
   AdventuringParty,
   GameMode,
   SpeedDungeonGame,
@@ -25,7 +26,7 @@ export default class GameModeContext implements GameModeStrategy {
     game: SpeedDungeonGame,
     partyOption: undefined | AdventuringParty,
     player: SpeedDungeonPlayer
-  ): Promise<void | Error> {
+  ): Promise<void | Error | ActionCommandPayload[]> {
     return this.strategy.onGameLeave(game, partyOption, player);
   }
   onLastPlayerLeftGame(game: SpeedDungeonGame): Promise<void | Error> {
@@ -34,14 +35,17 @@ export default class GameModeContext implements GameModeStrategy {
   onPartyEscape(game: SpeedDungeonGame, party: AdventuringParty): Promise<void | Error> {
     return this.strategy.onPartyEscape(game, party);
   }
-  onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<void | Error> {
+  onPartyWipe(
+    game: SpeedDungeonGame,
+    party: AdventuringParty
+  ): Promise<void | Error | ActionCommandPayload[]> {
     return this.strategy.onPartyWipe(game, party);
   }
   onPartyVictory(
     game: SpeedDungeonGame,
     party: AdventuringParty,
     levelups: { [id: string]: number }
-  ): Promise<void | Error> {
+  ): Promise<void | Error | ActionCommandPayload[]> {
     return this.strategy.onPartyVictory(game, party, levelups);
   }
 

@@ -1,12 +1,14 @@
 import {
+  ActionCommandPayload,
+  ActionCommandType,
   AdventuringParty,
   Combatant,
-  GameMessage,
   GameMessageType,
-  ServerToClientEvent,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
-  createLevelLadderRankMessage,
+  calculateTotalExperience,
+  createLevelLadderExpRankMessage,
+  createLevelLadderLevelupMessage,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameModeStrategy } from "./index.js";
@@ -15,17 +17,17 @@ import writePlayerCharactersInGameToDb, {
 } from "../../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 import { getGameServer } from "../../../singletons.js";
 import { removeDeadCharactersFromLadder } from "../../../kv-store/utils.js";
-import { notifyOnlinePlayersOfTopRankedDeaths } from "../../ladders/utils.js";
+import { getTopRankedDeathMessagesActionCommandPayload } from "../../ladders/utils.js";
 import { valkeyManager } from "../../../kv-store/index.js";
 import { CHARACTER_LEVEL_LADDER } from "../../../kv-store/consts.js";
 
 export default class ProgressionGameStrategy implements GameModeStrategy {
-  async onGameStart(game: SpeedDungeonGame): Promise<void | Error> {
+  async onGameStart(_game: SpeedDungeonGame): Promise<void | Error> {
     // we don't need to do anything unless their character changes
     return Promise.resolve();
   }
 
-  async onBattleResult(game: SpeedDungeonGame, party: AdventuringParty): Promise<Error | void> {
+  async onBattleResult(game: SpeedDungeonGame, _party: AdventuringParty): Promise<Error | void> {
     await writeAllPlayerCharacterInGameToDb(getGameServer(), game);
   }
 
@@ -33,62 +35,95 @@ export default class ProgressionGameStrategy implements GameModeStrategy {
     game: SpeedDungeonGame,
     party: AdventuringParty,
     player: SpeedDungeonPlayer
-  ): Promise<void | Error> {
-    const maybeError = await writePlayerCharactersInGameToDb(game, player);
-    if (maybeError instanceof Error) return maybeError;
-
-    // If they're leaving a game while dead, this character should be removed from the ladder
+  ): Promise<void | Error | ActionCommandPayload[]> {
     const characters: { [combatantId: string]: Combatant } = {};
     for (const id of player.characterIds) {
       const characterResult = SpeedDungeonGame.getCharacter(game, party.name, id);
       if (characterResult instanceof Error) return characterResult;
       characters[characterResult.entityProperties.id] = characterResult;
+
+      delete game.lowestStartingFloorOptionsBySavedCharacter[id];
     }
+
+    if (!game.timeStarted) return;
+
+    const maybeError = await writePlayerCharactersInGameToDb(game, player);
+    if (maybeError instanceof Error) return maybeError;
+    // If they're leaving a game while dead, this character should be removed from the ladder
     const deathsAndRanks = await removeDeadCharactersFromLadder(characters);
-    notifyOnlinePlayersOfTopRankedDeaths(deathsAndRanks);
+    const deathMessagePayloads = getTopRankedDeathMessagesActionCommandPayload(
+      getPartyChannelName(game.name, party.name),
+      deathsAndRanks
+    );
+    return [deathMessagePayloads];
   }
 
-  onLastPlayerLeftGame(game: SpeedDungeonGame): Promise<void | Error> {
+  onLastPlayerLeftGame(_game: SpeedDungeonGame): Promise<void | Error> {
     return Promise.resolve();
   }
 
-  onPartyEscape(game: SpeedDungeonGame, party: AdventuringParty): Promise<void | Error> {
+  onPartyEscape(_game: SpeedDungeonGame, _party: AdventuringParty): Promise<void | Error> {
     return Promise.resolve();
   }
 
-  async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<void | Error> {
+  async onPartyWipe(
+    game: SpeedDungeonGame,
+    party: AdventuringParty
+  ): Promise<void | Error | ActionCommandPayload[]> {
     const ladderDeathsUpdate = await removeDeadCharactersFromLadder(party.characters);
-    notifyOnlinePlayersOfTopRankedDeaths(ladderDeathsUpdate);
+    const deathMessagePayloads = getTopRankedDeathMessagesActionCommandPayload(
+      getPartyChannelName(game.name, party.name),
+      ladderDeathsUpdate
+    );
+    return [deathMessagePayloads];
   }
 
   async onPartyVictory(
     game: SpeedDungeonGame,
     party: AdventuringParty,
     levelups: { [id: string]: number }
-  ): Promise<void | Error> {
-    const partyChannel = getPartyChannelName(game.name, party.name);
+  ): Promise<void | Error | ActionCommandPayload[]> {
+    const messages: { type: GameMessageType; text: string }[] = [];
     for (const character of Object.values(party.characters)) {
       const { name, id } = character.entityProperties;
 
-      if (levelups[id] === undefined) continue;
-
       const { level, controllingPlayer } = character.combatantProperties;
       const currentRankOption = await valkeyManager.context.zRevRank(CHARACTER_LEVEL_LADDER, id);
-      await valkeyManager.context.zAdd(CHARACTER_LEVEL_LADDER, [{ value: id, score: level }]);
+      const totalExp =
+        calculateTotalExperience(level) + character.combatantProperties.experiencePoints.current;
+      await valkeyManager.context.zAdd(CHARACTER_LEVEL_LADDER, [
+        {
+          value: id,
+          score: totalExp,
+        },
+      ]);
       const newRank = await valkeyManager.context.zRevRank(CHARACTER_LEVEL_LADDER, id);
-      // - if they ranked up and were in the top 10 ranks, emit a message to everyone
-      if (newRank === null || newRank === currentRankOption || newRank >= 10) continue;
 
-      getGameServer()
-        .io.except(partyChannel)
-        .emit(
-          ServerToClientEvent.GameMessage,
-          new GameMessage(
-            GameMessageType.LadderProgress,
-            false,
-            createLevelLadderRankMessage(name, controllingPlayer || "", level, newRank)
-          )
-        );
+      // - if they leveled up and were in the top 10 ranks, emit a message to everyone
+      if (newRank === null || newRank >= 10) continue;
+
+      const levelup = levelups[id];
+      if (levelup !== undefined) {
+        messages.push({
+          type: GameMessageType.LadderProgress,
+          text: createLevelLadderLevelupMessage(name, controllingPlayer || "", levelup, newRank),
+        });
+      }
+
+      // - if they ranked up and were in the top 10 ranks, emit a message to everyone
+      if (newRank === currentRankOption || newRank >= 10) continue;
+      messages.push({
+        type: GameMessageType.LadderProgress,
+        text: createLevelLadderExpRankMessage(name, controllingPlayer || "", totalExp, newRank),
+      });
     }
+
+    return [
+      {
+        type: ActionCommandType.GameMessages,
+        messages,
+        partyChannelToExclude: getPartyChannelName(game.name, party.name),
+      },
+    ];
   }
 }

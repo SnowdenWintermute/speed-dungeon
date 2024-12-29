@@ -1,4 +1,6 @@
 export * from "./get-next-or-previous-number.js";
+export * from "./get-progression-game-max-starting-floor.js";
+
 import { Vector3 } from "@babylonjs/core";
 
 export function removeFromArray<T>(array: T[], item: T): undefined | T {
@@ -17,7 +19,9 @@ export function iterateNumericEnum<T extends { [name: string]: string | number }
 export function iterateNumericEnumKeyedRecord<T extends string | number, U>(
   record: Partial<Record<T, U>>
 ): [T, U][] {
-  return Object.entries(record).map(([key, value]) => [parseInt(key) as T, value as U]);
+  return Object.entries(record)
+    .filter(([key, value]) => value !== undefined)
+    .map(([key, value]) => [parseInt(key) as T, value as U]);
 }
 
 export function randomNormal() {
@@ -64,4 +68,8 @@ export function cloneVector3(vec3: Vector3) {
 
 export function getProgressionGamePartyName(gameName: string) {
   return `Delvers of ${gameName}`;
+}
+
+export function isBrowser() {
+  return typeof window !== "undefined" && typeof window.document !== "undefined";
 }

@@ -1,11 +1,11 @@
 import {
-  ActionCommandManager,
   ActionCommandReceiver,
   ClientToServerEventTypes,
   EquipmentType,
+  GameMessageType,
   GameMessagesPayload,
   GameMode,
-  OneHandedMeleeWeapon,
+  ServerToClientEvent,
   ServerToClientEventTypes,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
@@ -28,16 +28,13 @@ import { payAbilityCostsActionCommandHandler } from "./game-event-handlers/actio
 import moveIntoCombatActionPositionActionCommandHandler from "./game-event-handlers/action-command-handlers/move-into-combat-action-position.js";
 import performCombatActionActionCommandHandler from "./game-event-handlers/action-command-handlers/perform-combat-action.js";
 import returnHomeActionCommandHandler from "./game-event-handlers/action-command-handlers/return-home.js";
-import changeEquipmentActionCommandHandler from "./game-event-handlers/action-command-handlers/change-equipment.js";
 import battleResultActionCommandHandler from "./game-event-handlers/action-command-handlers/battle-results.js";
 import getGamePartyAndCombatant from "./utils/get-game-party-and-combatant.js";
 import processSelectedCombatAction from "./game-event-handlers/character-uses-selected-combat-action-handler/process-selected-combat-action.js";
-import takeAiControlledTurnIfActive from "./game-event-handlers/combat-action-results-processing/take-ai-combatant-turn-if-active.js";
 import generateLoot from "./game-event-handlers/action-command-handlers/generate-loot.js";
 import generateExperiencePoints from "./game-event-handlers/action-command-handlers/generate-experience-points.js";
 import initiateSavedCharacterListeners from "./saved-character-event-handlers/index.js";
 import GameModeContext from "./game-event-handlers/game-mode-strategies/game-mode-context.js";
-import { generateSpecificEquipmentType } from "./item-generation/generate-test-items.js";
 
 export type Username = string;
 export type SocketId = string;
@@ -78,15 +75,19 @@ export class GameServer implements ActionCommandReceiver {
     moveIntoCombatActionPositionActionCommandHandler;
   performCombatActionActionCommandHandler = performCombatActionActionCommandHandler;
   returnHomeActionCommandHandler = returnHomeActionCommandHandler;
-  changeEquipmentActionCommandHandler = changeEquipmentActionCommandHandler;
   battleResultActionCommandHandler = battleResultActionCommandHandler;
-  gameMessageCommandHandler(
-    _actionCommandManager: ActionCommandManager,
-    payload: GameMessagesPayload
-  ) {
+  removePlayerFromGameCommandHandler: (username: string) => Promise<void> = async () => {}; // we only use it on the client
+  async gameMessageCommandHandler(payload: GameMessagesPayload) {
+    console.log("processing game messages", payload);
+    for (const message of payload.messages) {
+      this.io.except(payload.partyChannelToExclude || "").emit(ServerToClientEvent.GameMessage, {
+        type: message.type,
+        message: message.text,
+        showAfterActionQueueResolution: false,
+      });
+    }
     console.log(...payload.messages);
   }
-  takeAiControlledTurnIfActive = takeAiControlledTurnIfActive;
   // UTILS
   getSocketCurrentGame = getSocketCurrentGame;
   getSocketIdOfPlayer = getSocketIdOfPlayer;

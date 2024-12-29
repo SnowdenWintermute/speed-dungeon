@@ -1,5 +1,8 @@
-import { FriendOrFoe, TargetingScheme } from "../index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
+import {
+  FriendOrFoe,
+  TargetingScheme,
+} from "../combat-actions/targeting-schemes-and-categories.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 
 const INVALID_TARGETING_SCHEME_ERROR = new Error(

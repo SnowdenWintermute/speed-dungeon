@@ -6,11 +6,12 @@ import {
   Color4,
   PointLight,
   StandardMaterial,
-  ShadowGenerator,
   Mesh,
   DynamicTexture,
   GlowLayer,
   Color3,
+  Camera,
+  Scene,
 } from "@babylonjs/core";
 import { GameWorld } from ".";
 
@@ -30,19 +31,22 @@ export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTextu
   const camera = new ArcRotateCamera(
     "camera",
     // alpha
-    3.09,
+    1.57,
     // beta
-    1.14,
+    1.26,
     // radius
-    8,
+    4.29,
     // target
-    new Vector3(0.92, 0.54, 0.62),
+    new Vector3(0, 1, 0),
     // Vector3.Zero(),
     this.scene
   );
   camera.wheelDeltaPercentage = 0.01;
   camera.attachControl();
   camera.minZ = 0;
+
+  // ORTHO setup
+  // setupOrthoCamera()
 
   // LIGHTS
   const hemiLight = new HemisphericLight("hemi-light", new Vector3(0, 1, 0), this.scene);
@@ -86,4 +90,32 @@ export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTextu
 
   // return [camera, shadowGenerator, ball, this.groundTexture];
   return [camera, ball, this.groundTexture];
+}
+
+function setOrthoCameraTopBottom(camera: Camera, ratio: number) {
+  if (camera.orthoRight && camera.orthoLeft) {
+    camera.orthoTop = camera.orthoRight * ratio;
+    camera.orthoBottom = camera.orthoLeft * ratio;
+  }
+}
+
+function setupOrthoCamera(scene: Scene, camera: ArcRotateCamera, canvas: HTMLCanvasElement) {
+  camera.mode = Camera.ORTHOGRAPHIC_CAMERA;
+  camera.orthoLeft = -15;
+  camera.orthoRight = 15;
+  // needed to calculate orthoTop and orthoBottom without distortion
+  const ratio = canvas.height / canvas.width;
+  setOrthoCameraTopBottom(camera, ratio);
+
+  let oldRadius = camera.radius;
+  scene.onBeforeRenderObservable.add(() => {
+    if (oldRadius !== camera.radius) {
+      const radiusChangeRatio = camera.radius / oldRadius;
+      if (!camera.orthoLeft || !camera.orthoRight) return;
+      camera.orthoLeft *= radiusChangeRatio;
+      camera.orthoRight *= radiusChangeRatio;
+      oldRadius = camera.radius;
+      setOrthoCameraTopBottom(camera, ratio);
+    }
+  });
 }

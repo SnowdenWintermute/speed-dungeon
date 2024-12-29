@@ -1,59 +1,61 @@
+import { useGameStore } from "@/stores/game-store";
+import { Vector3 } from "@babylonjs/core";
 import {
   CombatAction,
   CombatActionType,
-  CombatAttribute,
-  CombatantAbility,
-  CombatantAbilityName,
+  AbilityName,
   CombatantProperties,
   ERROR_MESSAGES,
-  EquipmentProperties,
-  EquipmentSlot,
-  WeaponSlot,
-  calculateCombatActionHpChangeRange,
+  getCombatActionHpChangeRange,
+  Combatant,
+  CombatantClass,
+  CombatantSpecies,
+  CombatAttribute,
+  Equipment,
+  HoldableSlotType,
+  CombatantEquipment,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
+import { getActionHitChance, getActionCritChance } from "@speed-dungeon/common";
 import React from "react";
+import { getTargetOption } from "@/utils/get-target-option";
 
-export default function CharacterSheetWeaponDamage({
-  combatantProperties,
-}: {
-  combatantProperties: CombatantProperties;
-}) {
-  const combatAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
-  const combatantAccuracy = combatAttributes[CombatAttribute.Accuracy] || 0;
+export default function CharacterSheetWeaponDamage({ combatant }: { combatant: Combatant }) {
+  const { combatantProperties } = combatant;
 
   const mhWeaponOption = CombatantProperties.getEquippedWeapon(
     combatantProperties,
-    WeaponSlot.MainHand
+    HoldableSlotType.MainHand
   );
+
+  if (mhWeaponOption instanceof Error) return <div>{mhWeaponOption.message}</div>;
   const mhDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(
-    combatantProperties,
+    combatant,
     mhWeaponOption,
-    combatantAccuracy,
     false
   );
-  const isTwoHanded = mhWeaponOption ? EquipmentProperties.isTwoHanded(mhWeaponOption.type) : false;
-  const ohEquipmentOption = CombatantProperties.getEquipmentInSlot(
+  const isTwoHanded = mhWeaponOption ? Equipment.isTwoHanded(mhWeaponOption.type) : false;
+
+  const ohEquipmentOption = CombatantEquipment.getEquippedHoldable(
     combatantProperties,
-    EquipmentSlot.OffHand
+    HoldableSlotType.OffHand
   );
+
+  if (ohEquipmentOption instanceof Error) return <div>{ohEquipmentOption.message}</div>;
+
   let ohDamageAndAccuracyResult;
   if (
     !isTwoHanded &&
     ohEquipmentOption?.equipmentBaseItemProperties.type !== EquipmentType.Shield
   ) {
-    const ohWeaponOption = CombatantProperties.getEquippedWeapon(
+    let ohWeaponOption = CombatantProperties.getEquippedWeapon(
       combatantProperties,
-      WeaponSlot.OffHand
+      HoldableSlotType.OffHand
     );
-    ohDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(
-      combatantProperties,
-      ohWeaponOption,
-      combatantAccuracy,
-      true
-    );
+    if (ohWeaponOption instanceof Error) ohWeaponOption = undefined; // might be a shield
+    ohDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(combatant, ohWeaponOption, true);
   }
 
   if (mhDamageAndAccuracyResult instanceof Error)
@@ -66,90 +68,125 @@ export default function CharacterSheetWeaponDamage({
       <WeaponDamageEntry
         damageAndAccuracyOption={mhDamageAndAccuracyResult}
         label="Main Hand"
-        paddingClass="mr-1"
+        paddingClass="pr-1"
       />
       <WeaponDamageEntry
         damageAndAccuracyOption={ohDamageAndAccuracyResult}
         label="Off Hand"
-        paddingClass="ml-1"
+        paddingClass="pl-1"
       />
     </div>
   );
 }
 
 interface WeaponDamageEntryProps {
-  damageAndAccuracyOption: undefined | [NumberRange, number];
+  damageAndAccuracyOption:
+    | undefined
+    | {
+        hpChangeRange: NumberRange;
+        hitChance: number;
+        critChance: number;
+      };
   label: string;
   paddingClass: string;
 }
 
 function WeaponDamageEntry(props: WeaponDamageEntryProps) {
   if (!props.damageAndAccuracyOption) return <div className={`w-1/2 mr-1${props.paddingClass}`} />;
-  const [damage, accuracy] = props.damageAndAccuracyOption;
+  const { hpChangeRange, hitChance, critChance } = props.damageAndAccuracyOption;
 
   return (
-    <div className={`w-1/2 ${props.paddingClass}`}>
+    <div className={`w-1/2 min-w-1/2 ${props.paddingClass}`}>
       <div className="w-full flex justify-between">
         <span>{props.label}</span>
-        <span>{`${damage.min.toFixed(0)}-${damage.max.toFixed(0)}`}</span>
+        <span>{`${hpChangeRange.min}-${hpChangeRange.max}`}</span>
       </div>
-      <div className="w-full flex justify-between">
-        <span>{"Accuracy"}</span>
-        <span>{accuracy.toFixed(0)}</span>
+      <div className="w-full flex justify-between items-center">
+        <span>{"Accuracy "}</span>
+        <span>{hitChance.toFixed(0)}%</span>
+      </div>
+      <div className="w-full flex justify-between items-center">
+        <span>{"Crit chance "}</span>
+        <span>{critChance.toFixed(0)}%</span>
       </div>
     </div>
   );
 }
 
 function getAttackAbilityDamageAndAccuracy(
-  combatantProperties: CombatantProperties,
+  combatant: Combatant,
   weaponOption: undefined | WeaponProperties,
-  combatantAccuracy: number,
   isOffHand: boolean
-): Error | [NumberRange, number] {
-  let abilityName = isOffHand
-    ? CombatantAbilityName.AttackMeleeOffhand
-    : CombatantAbilityName.AttackMeleeMainhand;
+) {
+  let abilityName = isOffHand ? AbilityName.AttackMeleeOffhand : AbilityName.AttackMeleeMainhand;
+  const { combatantProperties } = combatant;
 
   if (weaponOption) {
     const weaponProperties = weaponOption;
     switch (weaponProperties.type) {
       case EquipmentType.TwoHandedRangedWeapon:
-        abilityName = CombatantAbilityName.AttackRangedMainhand;
+        abilityName = AbilityName.AttackRangedMainhand;
       case EquipmentType.TwoHandedMeleeWeapon:
         break;
       case EquipmentType.OneHandedMeleeWeapon:
     }
   }
 
-  const attackAction: CombatAction = {
+  const combatAction: CombatAction = {
     type: CombatActionType.AbilityUsed,
     abilityName: abilityName,
   };
 
+  const gameOption = useGameStore.getState().game;
+
+  const targetResult = getTargetOption(gameOption, combatant, combatAction);
+  if (targetResult instanceof Error) return targetResult;
+  const target =
+    targetResult ||
+    new CombatantProperties(
+      CombatantClass.Warrior,
+      CombatantSpecies.Humanoid,
+      null,
+      null,
+      Vector3.Zero()
+    );
+
   const attackActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
     combatantProperties,
-    attackAction
+    combatAction
   );
   if (attackActionPropertiesResult instanceof Error) return attackActionPropertiesResult;
   if (attackActionPropertiesResult.hpChangeProperties === null)
     return new Error(ERROR_MESSAGES.ABILITIES.INVALID_TYPE);
-  const hpChangeProperties = attackActionPropertiesResult.hpChangeProperties;
-  const abilityAttributes = CombatantAbility.getAttributes(abilityName);
 
-  const damageRangeResult = calculateCombatActionHpChangeRange(
+  const hpChangeProperties = attackActionPropertiesResult.hpChangeProperties;
+
+  const equippedUsableWeaponsResult = CombatantProperties.getUsableWeaponsInSlots(
     combatantProperties,
+    [HoldableSlotType.MainHand, HoldableSlotType.OffHand]
+  );
+  if (equippedUsableWeaponsResult instanceof Error) return equippedUsableWeaponsResult;
+  const equippedUsableWeapons = equippedUsableWeaponsResult;
+
+  const hpChangeRangeResult = getCombatActionHpChangeRange(
+    combatAction,
     hpChangeProperties,
-    1,
-    abilityAttributes.baseHpChangeValuesLevelMultiplier
+    combatantProperties,
+    equippedUsableWeapons
+  );
+  if (hpChangeRangeResult instanceof Error) return hpChangeRangeResult;
+
+  const hpChangeRange = hpChangeRangeResult;
+
+  const hitChance = getActionHitChance(
+    attackActionPropertiesResult,
+    combatantProperties,
+    CombatantProperties.getTotalAttributes(target)[CombatAttribute.Evasion],
+    !!attackActionPropertiesResult.hpChangeProperties.hpChangeSource.unavoidable,
+    false
   );
 
-  if (damageRangeResult instanceof Error) return damageRangeResult;
+  const critChance = getActionCritChance(hpChangeProperties, combatantProperties, target, false);
 
-  damageRangeResult;
-  damageRangeResult.min *= hpChangeProperties.finalDamagePercentMultiplier / 100;
-  damageRangeResult.max *= hpChangeProperties.finalDamagePercentMultiplier / 100;
-  const modifiedAccuracy = combatantAccuracy * (hpChangeProperties.accuracyPercentModifier / 100);
-
-  return [damageRangeResult, modifiedAccuracy];
+  return { hpChangeRange, hitChance, critChance };
 }

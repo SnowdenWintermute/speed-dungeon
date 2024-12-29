@@ -1,13 +1,13 @@
 import { Battle } from "../../battle/index.js";
-import { CombatantAbilityName, CombatantProperties } from "../../combatants/index.js";
+import { AbilityName, CombatantProperties } from "../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { CombatAction, CombatActionType } from "../combat-actions/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { ActionResult } from "./action-result.js";
 import { ActionResultCalculationArguments } from "./action-result-calculator.js";
-import calculateActionResult from "./calculate-action-result.js";
 import calculateAttackActionResult from "./non-standard-action-result-handlers/attack.js";
+import calculateActionResult from "./index.js";
 
 export default function getActionResults(
   game: SpeedDungeonGame,
@@ -37,16 +37,16 @@ export default function getActionResults(
     if (abilityResult instanceof Error) return abilityResult;
 
     switch (combatAction.abilityName) {
-      case CombatantAbilityName.AttackMeleeMainhand:
-      case CombatantAbilityName.AttackMeleeOffhand:
-      case CombatantAbilityName.AttackRangedMainhand:
+      case AbilityName.AttackMeleeMainhand:
+      case AbilityName.AttackMeleeOffhand:
+      case AbilityName.AttackRangedMainhand:
         return new Error(ERROR_MESSAGES.ABILITIES.INVALID_TYPE);
-      case CombatantAbilityName.Attack:
+      case AbilityName.Attack:
         return calculateAttackActionResult(game, args);
-      case CombatantAbilityName.Fire:
-      case CombatantAbilityName.Ice:
-      case CombatantAbilityName.Healing:
-      case CombatantAbilityName.Destruction:
+      case AbilityName.Fire:
+      case AbilityName.Ice:
+      case AbilityName.Healing:
+      case AbilityName.Destruction:
         const actionResultResult = calculateActionResult(game, args);
         if (actionResultResult instanceof Error) return actionResultResult;
         return [actionResultResult];

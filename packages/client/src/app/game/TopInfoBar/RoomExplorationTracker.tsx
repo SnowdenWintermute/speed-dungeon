@@ -1,7 +1,7 @@
 import { BUTTON_HEIGHT_SMALL, SPACING_REM } from "@/client_consts";
 import { useGameStore } from "@/stores/game-store";
 import getParty from "@/utils/getParty";
-import { formatDungeonRoomType } from "@speed-dungeon/common";
+import { DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
 import React from "react";
 
 export default function RoomExplorationTracker() {
@@ -33,7 +33,7 @@ export default function RoomExplorationTracker() {
               className={`pr-2 pl-2 border text-sm flex items-center justify-center ${currentRoomClass}`}
               style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}
             >
-              {roomTypeOption === null ? "?" : formatDungeonRoomType(roomTypeOption)}
+              {roomTypeOption === null ? "????" : DUNGEON_ROOM_TYPE_STRINGS[roomTypeOption]}
             </div>
             {connectionLine}
           </li>

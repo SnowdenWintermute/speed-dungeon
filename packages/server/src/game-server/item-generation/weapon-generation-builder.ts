@@ -4,10 +4,8 @@ import {
   EquipmentBaseItemType,
   EquipmentType,
   HpChangeSource,
-  OneHandedMeleeWeapon,
   WeaponProperties,
   formatEquipmentType,
-  formatMagicalElement,
   shuffleArray,
 } from "@speed-dungeon/common";
 import { ItemGenerationBuilder } from "./item-generation-builder.js";

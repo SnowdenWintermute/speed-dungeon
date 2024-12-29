@@ -8,10 +8,11 @@ import {
   SpeedDungeonGame,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { composeActionCommandPayloadsFromActionResults } from "./compose-action-command-payloads-from-action-results.js";
 import { GameServer } from "../../index.js";
+import { processBattleUntilPlayerTurnOrConclusion } from "./process-battle-until-player-turn-or-conclusion.js";
+import { getActionCommandPayloadsFromCombatActionUse } from "./get-action-command-payloads-from-combat-action-use.js";
 
-export default function processSelectedCombatAction(
+export default async function processSelectedCombatAction(
   this: GameServer,
   game: SpeedDungeonGame,
   party: AdventuringParty,
@@ -20,8 +21,8 @@ export default function processSelectedCombatAction(
   targets: CombatActionTarget,
   battleOption: null | Battle,
   allyIds: string[]
-) {
-  const actionResultsResult = SpeedDungeonGame.getActionResults(
+): Promise<Error | void> {
+  const payloadsResult = getActionCommandPayloadsFromCombatActionUse(
     game,
     actionUserId,
     selectedCombatAction,
@@ -29,19 +30,29 @@ export default function processSelectedCombatAction(
     battleOption,
     allyIds
   );
-  if (actionResultsResult instanceof Error) return actionResultsResult;
-  const actionResults = actionResultsResult;
+  if (payloadsResult instanceof Error) return payloadsResult;
+  const actionCommandPayloads = payloadsResult;
 
-  const actionCommandPayloads = composeActionCommandPayloadsFromActionResults(actionResults);
+  const actionCommands = actionCommandPayloads.map(
+    (payload) => new ActionCommand(game.name, actionUserId, payload, this)
+  );
+
+  party.actionCommandQueue.enqueueNewCommands(actionCommands);
+  const newPayloadsOptionResult = await party.actionCommandQueue.processCommands();
+  if (newPayloadsOptionResult instanceof Error) return newPayloadsOptionResult;
+  actionCommandPayloads.push(...newPayloadsOptionResult);
+
+  const battleProcessingPayloadsResult = await processBattleUntilPlayerTurnOrConclusion(
+    this,
+    game,
+    party,
+    battleOption
+  );
+  if (battleProcessingPayloadsResult instanceof Error) return battleProcessingPayloadsResult;
+
+  actionCommandPayloads.push(...battleProcessingPayloadsResult);
 
   this.io
     .in(getPartyChannelName(game.name, party.name))
-    .emit(ServerToClientEvent.ActionCommandPayloads, actionUserId, actionCommandPayloads);
-
-  const actionCommands = actionCommandPayloads.map(
-    (payload) =>
-      new ActionCommand(game.name, party.actionCommandManager, actionUserId, payload, this)
-  );
-
-  party.actionCommandManager.enqueueNewCommands(actionCommands);
+    .emit(ServerToClientEvent.ActionCommandPayloads, actionCommandPayloads);
 }

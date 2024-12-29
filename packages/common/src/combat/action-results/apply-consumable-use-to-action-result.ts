@@ -1,6 +1,11 @@
-import { CombatAction, CombatActionType } from "../index.js";
 import {
-  CombatAttribute,
+  CombatAction,
+  CombatActionType,
+  HpChangeSource,
+  HpChangeSourceCategory,
+  MeleeOrRanged,
+} from "../index.js";
+import {
   Combatant,
   CombatantProperties,
   CombatantTraitType,
@@ -8,9 +13,10 @@ import {
 } from "../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { ConsumableType, ItemPropertiesType } from "../../items/index.js";
 import { randBetween } from "../../utils/index.js";
 import { ActionResult } from "./action-result.js";
+import { CombatAttribute } from "../../attributes/index.js";
+import { ConsumableType } from "../../items/consumables/index.js";
 
 export default function applyConsumableUseToActionResult(
   game: SpeedDungeonGame,
@@ -24,10 +30,8 @@ export default function applyConsumableUseToActionResult(
       "Tried to calculate consumable use action but was passed a different type of action"
     );
   const { combatantProperties } = actionUser;
-  const itemResult = Inventory.getItem(combatantProperties.inventory, combatAction.itemId);
+  const itemResult = Inventory.getConsumable(combatantProperties.inventory, combatAction.itemId);
   if (itemResult instanceof Error) return itemResult;
-  if (itemResult.itemProperties.type === ItemPropertiesType.Equipment)
-    return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
 
   const targetOption = targetIds[0];
   if (targetOption === undefined)
@@ -36,7 +40,7 @@ export default function applyConsumableUseToActionResult(
   if (targetResult instanceof Error) return targetResult;
   const targetCombatantProperties = targetResult.combatantProperties;
   //
-  switch (itemResult.itemProperties.consumableProperties.consumableType) {
+  switch (itemResult.consumableType) {
     case ConsumableType.HpAutoinjector:
       if (targetCombatantProperties.hitPoints === 0)
         return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.CANT_USE_ON_DEAD_TARGET);
@@ -52,10 +56,15 @@ export default function applyConsumableUseToActionResult(
       const minHealing = (hpBioavailability * maxHp) / 8;
       const maxHealing = (hpBioavailability * 3 * maxHp) / 8;
       if (!actionResult.hitPointChangesByEntityId) actionResult.hitPointChangesByEntityId = {};
-      actionResult.hitPointChangesByEntityId[targetOption] = Math.max(
-        1,
-        randBetween(minHealing, maxHealing)
+      const hpChangeSource = new HpChangeSource(
+        HpChangeSourceCategory.Medical,
+        MeleeOrRanged.Ranged
       );
+      hpChangeSource.isHealing = true;
+      actionResult.hitPointChangesByEntityId[targetOption] = {
+        value: Math.max(1, randBetween(minHealing, maxHealing)),
+        source: hpChangeSource,
+      };
 
       break;
     case ConsumableType.MpAutoinjector:

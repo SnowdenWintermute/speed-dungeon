@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useUIStore } from "@/stores/ui-store";
 import { useGameStore } from "@/stores/game-store";
+import { ZIndexLayers } from "../z-index-layers";
+import { gameWorld } from "./SceneManager";
+import { InputLock } from "@speed-dungeon/common";
 
 export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTMLUListElement> }) {
   const thumbnails = useGameStore((state) => state.itemThumbnails);
@@ -22,6 +25,16 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
       useUIStore.getState().mutateState((state) => {
         state.showDebug = !state.showDebug;
       });
+
+      if (gameWorld.current)
+        for (const modularCharacter of Object.values(
+          gameWorld.current.modelManager.combatantModels
+        )) {
+          modularCharacter.rootMesh.showBoundingBox = useUIStore.getState().showDebug;
+          if (modularCharacter.highlightManager.targetingIndicator)
+            modularCharacter.highlightManager.targetingIndicator.showBoundingBox =
+              useUIStore.getState().showDebug;
+        }
     };
 
     mouseDownListenerRef.current = function (e: MouseEvent) {
@@ -45,7 +58,7 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
       if (!headerBoundingRect) return;
 
       const newX = e.clientX - mousePressedRef.current.offsetX;
-      const newY = e.clientY - mousePressedRef.current.offsetY;
+      const newY = Math.max(0, e.clientY - mousePressedRef.current.offsetY);
       setX(newX);
       setY(newY);
     };
@@ -67,10 +80,12 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
     };
   }, [hotkeysDisabled]);
 
+  const partyResult = useGameStore.getState().getParty();
+
   return (
     <div
-      className={`absolute z-50 bottom-10 left-10 flex flex-col ${!showDebug && "hidden"} pointer-events-auto bg-black h-fit border border-white`}
-      style={{ top: `${y}px`, left: `${x}px` }}
+      className={`absolute bottom-10 left-10 flex flex-col ${!showDebug && "hidden"} pointer-events-auto bg-black h-fit border border-white`}
+      style={{ top: `${y}px`, left: `${x}px`, zIndex: ZIndexLayers.DebugText }}
     >
       <div className="cursor-grab border-b border-white flex justify-between" ref={headerRef}>
         <h5 className="p-2 ">DEBUG</h5>
@@ -86,12 +101,20 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
         </button>
       </div>
       <ul ref={debugRef} className="p-2"></ul>
+      <div>Input Locked</div>
+      <div>
+        {!(partyResult instanceof Error)
+          ? InputLock.isLocked(partyResult.inputLock)
+            ? "true"
+            : "false"
+          : "error"}
+      </div>
       <ul className="flex max-w-96 flex-wrap">
         <li key="ayy" className="border p-5 bg-slate-700">
           Num thumbnails: {Object.keys(thumbnails).length}
         </li>
         {Object.entries(thumbnails).map(([id, data], i) => (
-          <div className="relative" key={id} >
+          <div className="relative" key={id}>
             <div className="absolute top-0 left-0 border bg-slate-800">{i}</div>
             <button
               onClick={() => {

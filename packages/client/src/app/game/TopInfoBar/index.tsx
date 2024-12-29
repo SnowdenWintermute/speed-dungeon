@@ -1,24 +1,29 @@
-import React, { useState } from "react";
+import React from "react";
 import { useGameStore } from "@/stores/game-store";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import TurnOrderBar from "./TurnOrderBar";
 import RoomExplorationTracker from "./RoomExplorationTracker";
-import { ClientToServerEvent, formatDungeonRoomType } from "@speed-dungeon/common";
+import { ClientToServerEvent, DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
 import getGameAndParty from "@/utils/getGameAndParty";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { ZIndexLayers } from "@/app/z-index-layers";
 
 export default function TopInfoBar() {
+  const mutateGameState = useGameStore().mutateState;
+  const viewingLeaveGameModal = useGameStore((state) => state.viewingLeaveGameModal);
   const gameOption = useGameStore().game;
   const username = useGameStore().username;
   const result = getGameAndParty(gameOption, username);
   if (result instanceof Error) return <div>{result.message}</div>;
   const [game, party] = result;
-  const [showLeaveGameModal, setShowLeaveGameModal] = useState(false);
 
   const battleOptionResult = getCurrentBattleOption(game, party.name);
   function leaveGame() {
     websocketConnection.emit(ClientToServerEvent.LeaveGame);
+    mutateGameState((state) => {
+      state.viewingLeaveGameModal = false;
+    });
   }
 
   return (
@@ -29,7 +34,7 @@ export default function TopInfoBar() {
         {", room "}
         {party.roomsExplored.onCurrentFloor}
         {": "}
-        {formatDungeonRoomType(party.currentRoom.roomType)}
+        {DUNGEON_ROOM_TYPE_STRINGS[party.currentRoom.roomType]}
       </div>
       {!(battleOptionResult instanceof Error) && battleOptionResult !== null ? (
         <TurnOrderBar battle={battleOptionResult} />
@@ -37,12 +42,22 @@ export default function TopInfoBar() {
         <RoomExplorationTracker />
       )}
       <div className="absolute right-0 pr-4 pl-4 h-full w-fit border-l border-slate-400 flex items-center justify-center">
-        <HotkeyButton onClick={() => setShowLeaveGameModal(!showLeaveGameModal)}>
+        <HotkeyButton
+          onClick={() =>
+            mutateGameState((state) => {
+              state.viewingLeaveGameModal = !state.viewingLeaveGameModal;
+              state.stackedMenuStates = [];
+            })
+          }
+        >
           LEAVE GAME{" "}
         </HotkeyButton>
       </div>
-      {showLeaveGameModal && (
-        <div className="absolute z-50 max-w-96 top-24 p-8 border border-slate-400 bg-slate-950 pointer-events-auto">
+      {viewingLeaveGameModal && (
+        <div
+          className={`absolute max-w-96 top-24 p-8 border border-slate-400 bg-slate-950 pointer-events-auto`}
+          style={{ zIndex: ZIndexLayers.GameModal }}
+        >
           <h4 className="text-lg mb-1">Leaving the game...</h4>
           <div className="mb-1">
             <p className="mb-1">
@@ -56,7 +71,11 @@ export default function TopInfoBar() {
           <div className="flex justify-between">
             <HotkeyButton
               hotkeys={["Escape"]}
-              onClick={() => setShowLeaveGameModal(false)}
+              onClick={() =>
+                mutateGameState((state) => {
+                  state.viewingLeaveGameModal = false;
+                })
+              }
               className="h-10 w-24 p-2 border border-slate-400 mr-1 bg-slate-700"
             >
               No

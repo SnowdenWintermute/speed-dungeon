@@ -8,7 +8,7 @@ export default function newDungeonRoomTypesOnCurrentFloorHandler(
 ) {
   useGameStore.getState().mutateState((gameState) => {
     const party = getCurrentParty(gameState, gameState.username || "");
-    if (party === undefined) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+    if (party === undefined) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY));
 
     party.clientCurrentFloorRoomsList = newRoomTypes;
     party.roomsExplored.onCurrentFloor = 0;

@@ -4,27 +4,52 @@ import {
   SPACING_REM,
   SPACING_REM_SMALL,
 } from "@/client_consts";
-import React, { useEffect } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { getCurrentMenu, useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, ActionMenuButtonProperties } from "./menu-state";
+import { ActionButtonCategory, ActionMenuButtonProperties, MenuStateType } from "./menu-state";
 import ActionDetails from "../detailables/ActionDetails";
-import { ConsideringCombatActionMenuState } from "./menu-state/considering-combat-action";
+import {
+  ConsideringCombatActionMenuState,
+  EXECUTE_BUTTON_TEXT,
+} from "./menu-state/considering-combat-action";
 import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicatedButton";
 import NumberedButton from "./action-menu-buttons/NumberedButton";
 import setFocusedCharacter from "@/utils/set-focused-character";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
+import { Consumable, Item, NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
+import { VIEW_LOOT_BUTTON_TEXT } from "./menu-state/base";
+import {
+  ConsideringItemMenuState,
+  EQUIP_ITEM_BUTTON_TEXT,
+  USE_CONSUMABLE_BUTTON_TEXT,
+} from "./menu-state/considering-item";
+import ItemDetailsWithComparison from "../ItemDetailsWithComparison";
+import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
+import Divider from "@/app/components/atoms/Divider";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
 
 export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
-  const combatantModelsAwaitingSpawn = useGameStore((state) => state.combatantModelsAwaitingSpawn);
   const hoveredAction = useGameStore((state) => state.hoveredAction);
+  const hoveredItem = useGameStore((state) =>
+    state.hoveredEntity instanceof Item ? state.hoveredEntity : null
+  );
   const currentMenu = useGameStore.getState().getCurrentMenu();
   const buttonProperties = currentMenu.getButtonProperties();
+  const numberOfNumberedButtons = buttonProperties[ActionButtonCategory.Numbered].length;
+  const mutateGameState = useGameStore().mutateState;
+  const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
+
+  useEffect(() => {
+    if (currentMenu.type === MenuStateType.ItemsOnGround && numberOfNumberedButtons === 0) {
+      mutateGameState((state) => {
+        state.stackedMenuStates.pop();
+      });
+    }
+  }, [currentMenu.type, numberOfNumberedButtons]);
 
   // instead of directly getting the button properties, we must put it in a useEffect
   // because some of the button creation calls zustand mutation/set state functions
@@ -33,8 +58,9 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   // a component render, which is what happens if you try to call currentMenu.getButtonProperties()
   // directly in the component
   useEffect(() => {
-    const numPages = Math.ceil(
-      buttonProperties[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE
+    const numPages = Math.max(
+      1,
+      Math.ceil(buttonProperties[ActionButtonCategory.Numbered].length / ACTION_MENU_PAGE_SIZE)
     );
     useGameStore.getState().mutateState((state) => {
       getCurrentMenu(state).numPages = numPages;
@@ -42,14 +68,12 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   }, [buttonProperties[ActionButtonCategory.Numbered].length]);
 
   if (inputLocked) return <div />;
-  if (combatantModelsAwaitingSpawn.length)
-    <div>Awating spawn of {combatantModelsAwaitingSpawn.length} models...</div>;
 
   let selectedActionDisplay = <></>;
   if (currentMenu instanceof ConsideringCombatActionMenuState) {
     selectedActionDisplay = (
       <div
-        className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2"
+        className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex"
         style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
       >
         <ActionDetails combatAction={currentMenu.combatAction} hideTitle={false} />
@@ -57,10 +81,30 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
     );
   }
 
-  let hoveredActionDisplay = <></>;
+  let detailedItemDisplay = <></>;
+  if (currentMenu instanceof ConsideringItemMenuState) {
+    detailedItemDisplay = (
+      <div
+        className="min-w-[25rem] max-w-[25rem]"
+        style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
+      >
+        <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex flex-col items-center pointer-events-auto">
+          <div className="">{currentMenu.item.entityProperties.name}</div>
+          <Divider extraStyles="w-full" />
+          {currentMenu.item instanceof Consumable ? (
+            <div>Select "use" to choose a target for this consumable</div>
+          ) : (
+            <div>Equipping this item will swap it with any currently equipped item</div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  let hoveredActionDisplay: ReactNode | null = null;
   if (hoveredAction) {
     hoveredActionDisplay = (
-      <div className="absolute top-0 left-full pl-2">
+      <div className="pl-2">
         <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2">
           <ActionDetails combatAction={hoveredAction} hideTitle={false} />
         </div>
@@ -68,21 +112,42 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
     );
   }
 
+  let hoveredItemDisplay: ReactNode | null = null;
+  if (!viewingCharacterSheet && hoveredItem) {
+    hoveredItemDisplay = (
+      <div className="pl-2">
+        <div className="min-w-[50rem] max-w-[50rem]">
+          <ItemDetailsWithComparison />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <section className={`max-h-fit max-w-[25rem] flex flex-col justify-between`}>
+    <section className={`max-h-fit flex flex-col justify-between`}>
       <CharacterFocusingButtons />
       <ul
         className={`flex list-none min-w-[25rem] max-w-[25rem]`}
         style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
       >
         {buttonProperties[ActionButtonCategory.Top].map((button, i) => {
+          const conditionalStyles = (() => {
+            if (
+              button.text === VIEW_LOOT_BUTTON_TEXT ||
+              button.text === EXECUTE_BUTTON_TEXT ||
+              button.text === USE_CONSUMABLE_BUTTON_TEXT ||
+              button.text === EQUIP_ITEM_BUTTON_TEXT
+            )
+              return "bg-slate-800 border-white";
+            return "border-slate-400 bg-slate-700";
+          })();
           const thisButtonProperties = buttonProperties[ActionButtonCategory.Top][i]!;
           // in the old method we used a more unique key so different cancel buttons would
           // actually update, but cancel buttons tend to do the same thing anyway now
           return (
             <li key={thisButtonProperties.text} style={topButtonLiStyle}>
               <ActionMenuDedicatedButton
-                extraStyles="border border-slate-400 mr-2 last:mr-0 h-10"
+                extraStyles={`border mr-2 last:mr-0 h-10 ${conditionalStyles}`}
                 properties={button}
               />
             </li>
@@ -90,26 +155,44 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         })}
       </ul>
       <div
-        className={`mb-2`}
+        className={`mb-2 flex`}
         style={{
           height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem`,
         }}
       >
-        <ul className="list-none relative pointer-events-auto">
+        <ul className="list-none relative min-w-[25rem] max-w-[25rem]">
           {buttonProperties[ActionButtonCategory.Numbered]
-
             .slice(
               (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE,
               (currentMenu.page - 1) * ACTION_MENU_PAGE_SIZE + ACTION_MENU_PAGE_SIZE
             )
-            .map((button, i) => (
-              <li key={button.text + i + currentMenu.page}>
-                <NumberedButton number={i + 1} properties={button} />
-              </li>
-            ))}
+            .map((button, i) => {
+              const conditionalStyles =
+                currentMenu.type === MenuStateType.ItemsOnGround
+                  ? "bg-slate-800 border-white"
+                  : "border-slate-400 bg-slate-700";
+
+              return (
+                <li
+                  key={button.text + i + currentMenu.page}
+                  tabIndex={button.shouldBeDisabled ? 0 : undefined} // so you can tab over to get the popups
+                  className={`
+                   ${conditionalStyles} pointer-events-auto w-full border-b border-r border-l first:border-t flex hover:bg-slate-950
+                   `}
+                  onMouseEnter={button.mouseEnterHandler}
+                  onMouseLeave={button.mouseLeaveHandler}
+                  onFocus={button.focusHandler}
+                  onBlur={button.blurHandler}
+                >
+                  <NumberedButton number={i + 1} properties={button} />
+                </li>
+              );
+            })}
           {selectedActionDisplay}
-          {hoveredActionDisplay}
+          {detailedItemDisplay}
         </ul>
+        {hoveredActionDisplay}
+        {hoveredItemDisplay}
       </div>
       <BottomButtons
         numPages={currentMenu.numPages}
@@ -203,7 +286,7 @@ function CharacterFocusingButtons() {
 
   return (
     <ul
-      className={`flex list-none min-w-[25rem] max-w-[25rem] justify-between bg-slate-700 border border-slate-400`}
+      className={`flex list-none min-w-[25rem] max-w-[25rem] justify-between bg-slate-700 border border-slate-400 pointer-events-auto`}
       style={{ marginBottom: `${SPACING_REM_SMALL}rem`, height: `${BUTTON_HEIGHT_SMALL}rem` }}
     >
       <ActionMenuDedicatedButton

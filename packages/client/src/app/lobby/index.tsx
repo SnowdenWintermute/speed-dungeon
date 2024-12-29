@@ -16,11 +16,12 @@ import DiscordLogo from "../../../public/discord-logo.svg";
 import Link from "next/link";
 import WithTopBar from "../components/layouts/with-top-bar";
 import { useHttpRequestStore } from "@/stores/http-request-store";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLobbyStore } from "@/stores/lobby-store";
 import AuthFormContainer from "./auth-forms";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import SavedCharacterManager from "./saved-character-manager";
+import { ZIndexLayers } from "../z-index-layers";
 
 export default function Lobby() {
   const socketOption = websocketConnection;
@@ -58,9 +59,10 @@ export default function Lobby() {
       >
         <div
           id="games-container"
-          className="h-full border-slate-400"
+          className="h-full border-slate-400 relative"
           style={{
             width: `calc(100% - ${usersContainerWidth}px)`,
+            zIndex: ZIndexLayers.LobbyGameSetup,
           }}
         >
           {!showSavedCharacterManager && <GamesSection />}
@@ -70,6 +72,7 @@ export default function Lobby() {
           className="h-full max-h-full"
           style={{
             width: `${usersContainerWidth}px`,
+            zIndex: ZIndexLayers.UsersList,
           }}
         >
           <UserList />
@@ -77,15 +80,25 @@ export default function Lobby() {
       </section>
       <section
         id="auth-form-section"
-        className="absolute h-full w-full z-20 top-0 right-0 flex items-center justify-center"
+        className={`absolute h-full w-full top-0 right-0 flex items-center justify-center`}
+        style={{ zIndex: ZIndexLayers.AuthForm }}
       >
         {!hideAuthForm && <AuthFormContainer />}
+      </section>
+      <section
+        id="saved-characters-section"
+        className={`absolute h-full w-full top-0 right-0 flex items-center justify-center`}
+        style={{ zIndex: -0 }}
+      >
         {currentSessionHttpResponseTracker?.statusCode === 200 && websocketConnected && (
           <SavedCharacterManager />
         )}
       </section>
-      <div className="absolute z-10 bottom-0 w-full p-7 flex items-center justify-center">
-        {!showGameCreationForm && !showSavedCharacterManager && (
+      <div
+        className={`absolute bottom-0 w-full p-7 flex items-center justify-center`}
+        style={{ zIndex: ZIndexLayers.PlayNowButton }}
+      >
+        {!showGameCreationForm && !showSavedCharacterManager && websocketConnected && (
           <HoverableTooltipWrapper
             offsetTop={8}
             tooltipText="Start a single player game where you control one of each character type"
@@ -94,7 +107,7 @@ export default function Lobby() {
               onClick={() => quickStartGame(socketOption)}
               className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
                           flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
-                          text-xl bg-slate-950 text-slate-400
+                          text-xl bg-slate-950 text-slate-400 animate-slide-appear-from-top 
             `}
             >
               PLAY NOW

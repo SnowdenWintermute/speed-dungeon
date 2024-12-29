@@ -1,9 +1,10 @@
 import React from "react";
+import { ZIndexLayers } from "./z-index-layers";
 
 export default function TailwindClassLoader() {
   return (
     <div id="tailwind-conditional-class-loader">
-      <div className="opacity-50" />
+      <div className={`opacity-50  `} />
       <div className="pointer-events-none" />
       <div className="text-beigepaper" />
       <div className="text-green-600" />
@@ -11,7 +12,6 @@ export default function TailwindClassLoader() {
       <div className="text-blue-600" />
       <div className="text-teal-300" />
       <div className="hidden" />
-
       <div className="text-purple-400" />
       <div className="bg-green-800" />
       <div className="bg-beigepaper" />
@@ -33,6 +33,7 @@ export default function TailwindClassLoader() {
       <div className="bg-green-700" />
       <div className="text-red-400" />
       <div className="text-yellow-400" />
+      <div className="text-sky-300" />
       <div className="border-t-yellow-700" />
       <div className="border-blue-700" />
       <div className="border-t-green-600" />

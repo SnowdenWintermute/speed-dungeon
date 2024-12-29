@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
-import { GameWorld } from "./game-world/";
+import { GameWorld } from "./game-world";
 import DebugText from "./DebugText";
+import { ZIndexLayers } from "../z-index-layers";
 
 export const gameWorld: { current: null | GameWorld } = { current: null };
 
@@ -33,7 +34,8 @@ export default function SceneManager() {
       <DebugText debugRef={debugRef} />
       <canvas
         ref={canvasRef}
-        className="h-full w-full absolute z-[-1] pointer-events-auto "
+        className={`h-full w-full absolute pointer-events-auto `}
+        style={{ zIndex: ZIndexLayers.MainCanvas }}
         id="babylon-canvas"
       />
     </>

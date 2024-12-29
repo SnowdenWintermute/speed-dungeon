@@ -10,6 +10,17 @@ interface Props {
   disabled: boolean;
 }
 
+export function takeItem(item: Item) {
+  useGameStore.getState().mutateState((gameState) => {
+    gameState.hoveredEntity = null;
+    gameState.detailedEntity = null;
+  });
+  websocketConnection.emit(ClientToServerEvent.PickUpItems, {
+    characterId: useGameStore.getState().focusedCharacterId,
+    itemIds: [item.entityProperties.id],
+  });
+}
+
 export default function ItemOnGround(props: Props) {
   const { item } = props;
   const gameState = useGameStore();
@@ -21,17 +32,6 @@ export default function ItemOnGround(props: Props) {
   }
   function clickHandler() {
     selectItem(item);
-  }
-
-  function takeItem() {
-    gameState.mutateState((gameState) => {
-      gameState.hoveredEntity = null;
-      gameState.detailedEntity = null;
-    });
-    websocketConnection.emit(ClientToServerEvent.PickUpItem, {
-      characterId: gameState.focusedCharacterId,
-      itemId: item.entityProperties.id,
-    });
   }
 
   const conditionalClassNames = (() => {
@@ -64,7 +64,7 @@ export default function ItemOnGround(props: Props) {
         className="cursor-pointer pr-4 pl-4 box-border
             flex justify-center items-center disabled:opacity-50 disabled:cursor-auto
             border-slate-400 border-r h-full hover:bg-slate-950"
-        onClick={takeItem}
+        onClick={() => takeItem(item)}
         onFocus={mouseEnterHandler}
         onBlur={mouseLeaveHandler}
         disabled={props.disabled}

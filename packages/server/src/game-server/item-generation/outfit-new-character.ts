@@ -3,27 +3,43 @@ import {
   STARTING_COMBATANT_TRAITS,
   CombatAttribute,
   CombatantAbility,
-  CombatantAbilityName,
+  AbilityName,
   CombatantClass,
   CombatantProperties,
   ConsumableType,
-  EquipmentSlot,
-  Item,
   Combatant,
   iterateNumericEnum,
+  Consumable,
+  formatConsumableType,
+  ERROR_MESSAGES,
+  iterateNumericEnumKeyedRecord,
+  EquipmentType,
+  OneHandedMeleeWeapon,
+  TwoHandedMeleeWeapon,
+  Inventory,
+  Equipment,
+  CombatantTraitType,
+  HoldableHotswapSlot,
+  HoldableSlotType,
+  CombatantTrait,
+  Shield,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { idGenerator } from "../../singletons.js";
-import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
+import { HP_ARMOR_TEST_ITEM, WEAPON_TEST_ITEM } from "./test-items.js";
+import { CombatantEquipment } from "@speed-dungeon/common";
+import generateTestItems, {
+  generateOneOfEachItem,
+  generateSpecificEquipmentType,
+} from "./generate-test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
 
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
   if (baseStartingAttributesOption) {
-    for (const [attributeKey, value] of Object.entries(baseStartingAttributesOption)) {
-      const attribute = parseInt(attributeKey) as CombatAttribute;
+    for (const [attribute, value] of iterateNumericEnumKeyedRecord(baseStartingAttributesOption)) {
       combatantProperties.inherentAttributes[attribute] = value;
     }
   }
@@ -31,49 +47,104 @@ export default function outfitNewCharacter(character: Combatant) {
   const classTraitsOption = STARTING_COMBATANT_TRAITS[combatantProperties.combatantClass];
   if (classTraitsOption) combatantProperties.traits = cloneDeep(classTraitsOption);
 
-  combatantProperties.abilities[CombatantAbilityName.Fire] = CombatantAbility.createByName(
-    CombatantAbilityName.Fire
-  );
-  combatantProperties.abilities[CombatantAbilityName.Healing] = CombatantAbility.createByName(
-    CombatantAbilityName.Healing
+  combatantProperties.abilities[AbilityName.Fire] = CombatantAbility.createByName(AbilityName.Fire);
+  combatantProperties.abilities[AbilityName.Healing] = CombatantAbility.createByName(
+    AbilityName.Healing
   );
   if (combatantProperties.combatantClass === CombatantClass.Mage)
-    combatantProperties.abilities[CombatantAbilityName.Ice] = CombatantAbility.createByName(
-      CombatantAbilityName.Ice
-    );
+    combatantProperties.abilities[AbilityName.Ice] = CombatantAbility.createByName(AbilityName.Ice);
+
+  if (combatantProperties.combatantClass === CombatantClass.Warrior) {
+    const extraSlotTrait: CombatantTrait = {
+      type: CombatantTraitType.ExtraHotswapSlot,
+      hotswapSlot: new HoldableHotswapSlot(),
+    };
+    const mh = generateSpecificEquipmentType({
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.BroadSword,
+    });
+    if (!(mh instanceof Error))
+      extraSlotTrait.hotswapSlot.holdables[HoldableSlotType.MainHand] = mh;
+    const oh = generateSpecificEquipmentType({
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.Pavise,
+    });
+    if (!(oh instanceof Error)) extraSlotTrait.hotswapSlot.holdables[HoldableSlotType.OffHand] = oh;
+
+    combatantProperties.traits.push(extraSlotTrait);
+  }
 
   const hpInjectors = new Array(1)
     .fill(null)
-    .map(() => Item.createConsumable(idGenerator.generate(), ConsumableType.HpAutoinjector));
-  const mpInjector = Item.createConsumable(idGenerator.generate(), ConsumableType.MpAutoinjector);
-  combatantProperties.inventory.items.push(...hpInjectors);
-  combatantProperties.inventory.items.push(mpInjector);
+    .map(
+      () =>
+        new Consumable(
+          { name: formatConsumableType(ConsumableType.HpAutoinjector), id: idGenerator.generate() },
+          1,
+          {},
+          ConsumableType.HpAutoinjector,
+          1
+        )
+    );
+  // const mpInjector = Item.createConsumable(idGenerator.generate(), ConsumableType.MpAutoinjector);
+  combatantProperties.inventory.consumables.push(...hpInjectors);
+  combatantProperties.inventory.consumables.push(
+    new Consumable(
+      { name: formatConsumableType(ConsumableType.MpAutoinjector), id: idGenerator.generate() },
+      1,
+      {},
+      ConsumableType.HpAutoinjector,
+      1
+    )
+  );
 
-  const startingEquipment = createStartingEquipment(combatantProperties.combatantClass);
-  if (startingEquipment instanceof Error) return startingEquipment;
-
-  for (const [slotKey, item] of Object.entries(startingEquipment)) {
-    const slot = parseInt(slotKey) as EquipmentSlot;
-    combatantProperties.equipment[slot] = item;
-  }
+  const maybeError = createStartingEquipment(combatantProperties);
+  if (maybeError instanceof Error) return maybeError;
 
   // FOR TESTING INVENTORY
   // generateTestItems(combatantProperties, 6);
+  const item1 = generateSpecificEquipmentType({
+    equipmentType: EquipmentType.OneHandedMeleeWeapon,
+    baseItemType: OneHandedMeleeWeapon.Club,
+  });
+  const item2 = generateSpecificEquipmentType({
+    equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+    baseItemType: TwoHandedMeleeWeapon.RottingBranch,
+  });
+  if (item1 instanceof Error || item2 instanceof Error) return item1;
+  Inventory.insertItem(combatantProperties.inventory, item1);
+  Inventory.insertItem(combatantProperties.inventory, item2);
 
   // giveTestingCombatAttributes(combatantProperties);
+  // combatantProperties.level = 5;
 
-  combatantProperties.abilities[CombatantAbilityName.Destruction] = CombatantAbility.createByName(
-    CombatantAbilityName.Destruction
+  combatantProperties.abilities[AbilityName.Destruction] = CombatantAbility.createByName(
+    AbilityName.Destruction
   );
 
-  // const items = generateOneOfEachItem();
-  // combatantProperties.inventory.items.push(...items);
+  const items = generateOneOfEachItem();
+  combatantProperties.inventory.equipment.push(...(items as Equipment[]));
   combatantProperties.unspentAttributePoints = 100;
+  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
+  combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 100;
+  combatantProperties.inherentAttributes[CombatAttribute.Strength] = 100;
+  combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 100;
+  combatantProperties.inherentAttributes[CombatAttribute.Hp] = 10;
 
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
 
+  combatantProperties.inventory.equipment.push(HP_ARMOR_TEST_ITEM);
+  const equippedHoldableHotswapSlot =
+    CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+  if (!equippedHoldableHotswapSlot)
+    return new Error(ERROR_MESSAGES.EQUIPMENT.NO_SELECTED_HOTSWAP_SLOT);
+  // equippedHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = WEAPON_TEST_ITEM;
+
   CombatantProperties.setHpAndMpToMax(combatantProperties);
+
+  // TESTING
+  // combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
 }
 
 function giveTestingCombatAttributes(combatantProperties: CombatantProperties) {

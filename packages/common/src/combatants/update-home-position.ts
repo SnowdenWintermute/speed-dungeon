@@ -4,7 +4,6 @@ import {
   COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
   COMBATANT_POSITION_SPACING_SIDE,
 } from "../app-consts.js";
-import { MonsterType } from "../monsters/index.js";
 import { CombatantProperties } from "./combatant-properties.js";
 
 export function updateCombatantHomePosition(

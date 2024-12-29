@@ -1,9 +1,8 @@
 import {
   BASE_ITEMS_BY_EQUIPMENT_TYPE,
+  Equipment,
   EquipmentBaseItemEnum,
   EquipmentType,
-  Item,
-  ItemPropertiesType,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 import { GameWorld } from ".";
@@ -90,7 +89,7 @@ async function spawnBaseItemModels(
   }
 }
 
-export async function spawnEquipmentModelsFromItemList(world: GameWorld, items: Item[]) {
+export async function spawnEquipmentModelsFromItemList(world: GameWorld, items: Equipment[]) {
   const ROW_SPACING = 1;
   const ROW_SIZE = 10;
   let i = 0;
@@ -106,14 +105,8 @@ export async function spawnEquipmentModelsFromItemList(world: GameWorld, items: 
   });
 
   items.sort((a, b) => {
-    if (
-      a.itemProperties.type === ItemPropertiesType.Equipment &&
-      b.itemProperties.type === ItemPropertiesType.Equipment
-    ) {
-      return (
-        a.itemProperties.equipmentProperties.equipmentBaseItemProperties.type -
-        b.itemProperties.equipmentProperties.equipmentBaseItemProperties.type
-      );
+    if (a instanceof Equipment && b instanceof Equipment) {
+      return a.equipmentBaseItemProperties.type - b.equipmentBaseItemProperties.type;
     }
     return 0;
   });

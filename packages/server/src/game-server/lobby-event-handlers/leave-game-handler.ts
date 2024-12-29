@@ -1,4 +1,9 @@
-import { LOBBY_CHANNEL, ServerToClientEvent, SpeedDungeonGame } from "@speed-dungeon/common";
+import {
+  LOBBY_CHANNEL,
+  ServerToClientEvent,
+  SpeedDungeonGame,
+  getProgressionGameMaxStartingFloor,
+} from "@speed-dungeon/common";
 import leavePartyHandler from "./leave-party-handler.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { Socket } from "socket.io";
@@ -21,6 +26,12 @@ export default async function leaveGameHandler(
   await leavePartyHandler(undefined, playerAssociatedData, socket);
 
   SpeedDungeonGame.removePlayer(game, session.username);
+
+  const maxStartingFloor = getProgressionGameMaxStartingFloor(
+    game.lowestStartingFloorOptionsBySavedCharacter
+  );
+  if (game.selectedStartingFloor > maxStartingFloor) game.selectedStartingFloor = maxStartingFloor;
+
   const gameNameLeaving = game.name;
   session.currentGameName = null;
 

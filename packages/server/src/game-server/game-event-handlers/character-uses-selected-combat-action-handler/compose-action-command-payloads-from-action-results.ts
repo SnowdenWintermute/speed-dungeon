@@ -2,6 +2,7 @@ import { ActionCommandPayload, ActionCommandType, ActionResult } from "@speed-du
 import { createMoveIntoCombatActionPositionActionCommand } from "./create-move-into-combat-action-position-action-command.js";
 
 export function composeActionCommandPayloadsFromActionResults(
+  actionUserId: string,
   actionResults: ActionResult[]
 ): ActionCommandPayload[] {
   if (!actionResults[0]) return [];
@@ -17,30 +18,23 @@ export function composeActionCommandPayloadsFromActionResults(
 
     payloads.push({
       type: ActionCommandType.PayAbilityCosts,
+      actionUserId,
       mp: actionResult.manaCost,
       hp: 0,
       itemIds: actionResult.itemIdsConsumed,
     });
 
-    let hpChangesByEntityId: { [entityId: string]: { hpChange: number; isCrit: boolean } } = {};
-    if (actionResult.hitPointChangesByEntityId)
-      for (const [targetId, hpChange] of Object.entries(actionResult.hitPointChangesByEntityId)) {
-        hpChangesByEntityId[targetId] = {
-          hpChange,
-          isCrit: actionResult.critsByEntityId?.includes(targetId) || false,
-        };
-      }
-
     payloads.push({
       type: ActionCommandType.PerformCombatAction,
+      actionUserId,
       combatAction: actionResult.action,
-      hpChangesByEntityId,
+      hpChangesByEntityId: actionResult.hitPointChangesByEntityId || {},
       mpChangesByEntityId: actionResult.manaChangesByEntityId,
       missesByEntityId: actionResult.missesByEntityId || [],
     });
   }
 
-  payloads.push({ type: ActionCommandType.ReturnHome, shouldEndTurn });
+  payloads.push({ type: ActionCommandType.ReturnHome, actionUserId, shouldEndTurn });
 
   return payloads;
 }

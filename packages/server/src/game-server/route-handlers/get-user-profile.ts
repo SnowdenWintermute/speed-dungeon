@@ -7,7 +7,7 @@ import { CHARACTER_LEVEL_LADDER } from "../../kv-store/consts.js";
 import { fetchSavedCharacters } from "../saved-character-event-handlers/fetch-saved-characters.js";
 
 export default async function getUserProfileHandler(
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
 ) {
@@ -28,9 +28,9 @@ export default async function getUserProfileHandler(
     for (const character of Object.values(characterSlotsResult)) {
       const rank = await valkeyManager.context.zRevRank(
         CHARACTER_LEVEL_LADDER,
-        character.combatant.entityProperties.id
+        character.entityProperties.id
       );
-      const { combatantProperties, entityProperties } = character.combatant;
+      const { combatantProperties, entityProperties } = character;
       characterRanks[entityProperties.id] = {
         name: entityProperties.name,
         rank,

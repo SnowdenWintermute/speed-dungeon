@@ -1,4 +1,4 @@
-import { CombatAttribute } from "../combat-attributes.js";
+import { CombatAttribute } from "../../attributes/index.js";
 import { CombatantClass } from "./classes.js";
 
 export const COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL: Record<
@@ -6,7 +6,6 @@ export const COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL: Record<
   Partial<Record<CombatAttribute, number>>
 > = {
   [CombatantClass.Warrior]: {
-    [CombatAttribute.Damage]: 0,
     [CombatAttribute.ArmorPenetration]: 0,
     [CombatAttribute.Accuracy]: 0,
     [CombatAttribute.ArmorClass]: 0,
@@ -23,7 +22,6 @@ export const COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL: Record<
     [CombatAttribute.Agility]: 1.0,
   },
   [CombatantClass.Mage]: {
-    [CombatAttribute.Damage]: 0,
     [CombatAttribute.ArmorPenetration]: 0,
     [CombatAttribute.Accuracy]: 0,
     [CombatAttribute.ArmorClass]: 0,
@@ -40,7 +38,6 @@ export const COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL: Record<
     [CombatAttribute.Agility]: 0.5,
   },
   [CombatantClass.Rogue]: {
-    [CombatAttribute.Damage]: 0,
     [CombatAttribute.ArmorPenetration]: 0,
     [CombatAttribute.Accuracy]: 0,
     [CombatAttribute.ArmorClass]: 0,

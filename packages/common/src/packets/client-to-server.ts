@@ -1,9 +1,10 @@
+import { CombatAttribute } from "../attributes/index.js";
 import { CombatAction } from "../combat/index.js";
-import { CombatAttribute, CombatantClass } from "../combatants/index.js";
-import { EquipmentSlot } from "../items/index.js";
+import { CombatantClass } from "../combatants/index.js";
+import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { GameMode } from "../types.js";
-import { CharacterAndItem } from "./server-to-client.js";
+import { CharacterAndItems } from "./server-to-client.js";
 
 export enum ClientToServerEvent {
   RequestToJoinGame = "0",
@@ -30,13 +31,14 @@ export enum ClientToServerEvent {
   ToggleReadyToDescend = "21",
   // AssignAttributePoint = "22", replaced by IncrementAttribute
   AcknowledgeReceiptOfItemOnGroundUpdate = "23",
-  PickUpItem = "24",
+  PickUpItems = "24",
   GetSavedCharactersList = "25",
   GetSavedCharacterById = "26",
   CreateSavedCharacter = "27",
   DeleteSavedCharacter = "28",
   SelectSavedCharacterForProgressGame = "29",
   SelectProgressionGameStartingFloor = "30",
+  SelectHoldableHotswapSlot = "31",
 }
 
 export interface ClientToServerEventTypes {
@@ -69,7 +71,7 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.ToggleReadyToExplore]: (eventData?: undefined) => void;
   [ClientToServerEvent.UnequipSlot]: (eventData: {
     characterId: string;
-    slot: EquipmentSlot;
+    slot: TaggedEquipmentSlot;
   }) => void;
   [ClientToServerEvent.EquipInventoryItem]: (eventData: {
     characterId: string;
@@ -84,12 +86,12 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.UseSelectedCombatAction]: (eventData: { characterId: string }) => void;
   [ClientToServerEvent.DropEquippedItem]: (eventData: {
     characterId: string;
-    slot: EquipmentSlot;
+    slot: TaggedEquipmentSlot;
   }) => void;
   [ClientToServerEvent.DropItem]: (eventData: { characterId: string; itemId: string }) => void;
   [ClientToServerEvent.ToggleReadyToDescend]: (eventData?: undefined) => void;
   [ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate]: (itemId: string) => void;
-  [ClientToServerEvent.PickUpItem]: (characterAndItem: CharacterAndItem) => void;
+  [ClientToServerEvent.PickUpItems]: (characterAndItem: CharacterAndItems) => void;
   [ClientToServerEvent.GetSavedCharactersList]: (eventData?: undefined) => void;
   [ClientToServerEvent.GetSavedCharacterById]: (entityId: string) => void;
   [ClientToServerEvent.CreateSavedCharacter]: (eventData: {
@@ -100,4 +102,8 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.DeleteSavedCharacter]: (entityId: string) => void;
   [ClientToServerEvent.SelectSavedCharacterForProgressGame]: (entityId: string) => void;
   [ClientToServerEvent.SelectProgressionGameStartingFloor]: (floor: number) => void;
+  [ClientToServerEvent.SelectHoldableHotswapSlot]: (eventData: {
+    characterId: string;
+    slotIndex: number;
+  }) => void;
 }

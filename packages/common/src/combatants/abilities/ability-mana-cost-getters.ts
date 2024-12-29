@@ -1,21 +1,22 @@
-import { CombatantAbility, CombatantAbilityName } from "./index.js";
+import { CombatantAbility, AbilityName } from "./index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { CombatantProperties } from "../combatant-properties.js";
+import { ABILITY_ATTRIBUTES } from "./get-ability-attributes.js";
 
 export function getAbilityCostIfOwned(
   combatantProperties: CombatantProperties,
-  abilityName: CombatantAbilityName
+  abilityName: AbilityName
 ): Error | number {
   const abilityOption = combatantProperties.abilities[abilityName];
   if (!abilityOption) return new Error(ERROR_MESSAGES.ABILITIES.NOT_OWNED);
-  return getAbilityManaCost(combatantProperties, abilityOption);
+  return getAbilityManaCostForCombatant(combatantProperties, abilityOption);
 }
 
-export function getAbilityManaCost(
+export function getAbilityManaCostForCombatant(
   combatantProperties: CombatantProperties,
   ability: CombatantAbility
 ): number {
-  const abilityAttributes = CombatantAbility.getAttributes(ability.name);
+  const abilityAttributes = ABILITY_ATTRIBUTES[ability.name];
   const { manaCost, abilityLevelManaCostMultiplier, combatantLevelManaCostMultiplier } =
     abilityAttributes;
   const abilityLevelAdjustedManaCost = ability.level * (manaCost * abilityLevelManaCostMultiplier);

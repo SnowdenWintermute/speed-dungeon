@@ -35,7 +35,8 @@ export class SpeedDungeonGame {
   adventuringParties: { [partyName: string]: AdventuringParty } = {};
   battles: { [id: EntityId]: Battle } = {};
   timeStarted: null | number = null;
-  selectedStartingFloor: MaxAndCurrent = new MaxAndCurrent(1, 1);
+  lowestStartingFloorOptionsBySavedCharacter: { [entityId: string]: number } = {};
+  selectedStartingFloor: number = 1;
   constructor(
     public id: string,
     public name: string,
@@ -63,7 +64,11 @@ export class SpeedDungeonGame {
   static endActiveCombatantTurn = endActiveCombatantTurn;
   static allCombatantsInGroupAreDead = allCombatantsInGroupAreDead;
   static handleBattleVictory = handleBattleVictory;
-  static handlePlayerDeath(
+  static getBattleOption(game: SpeedDungeonGame, battleIdOption: null | string) {
+    if (!battleIdOption) return undefined;
+    return game.battles[battleIdOption];
+  }
+  static handleCombatantDeath(
     game: SpeedDungeonGame,
     battleIdOption: null | string,
     combatantId: string
@@ -73,12 +78,6 @@ export class SpeedDungeonGame {
     const battleOption = game.battles[battleIdOption];
     if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     const battle = battleOption;
-    let indexToRemoveOption = null;
-    battle.turnTrackers.forEach((turnTracker, i) => {
-      if (turnTracker.entityId === combatantId) {
-        indexToRemoveOption = i;
-      }
-    });
-    if (indexToRemoveOption !== null) battle.turnTrackers.splice(indexToRemoveOption, 1);
+    Battle.removeCombatantTurnTrackers(battle, combatantId);
   }
 }

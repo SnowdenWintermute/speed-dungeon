@@ -3,7 +3,7 @@ export default function splitHpChangeWithMultiTargetBonus(
   numTargets: number,
   bonus: number
 ): number {
-  const multiTargetBonus = 1.0 + (numTargets - 1.0) * bonus;
-  const valueWithBonus = hpChangeValue + multiTargetBonus;
+  const multiTargetBonus = 1 + (numTargets - 1) * bonus;
+  const valueWithBonus = hpChangeValue * multiTargetBonus;
   return valueWithBonus / numTargets;
 }

@@ -19,10 +19,7 @@ export default function applyActionResult(
 
   if (actionResult.action.type === CombatActionType.ConsumableUsed) {
     const { itemId } = actionResult.action;
-    const consumableResult = Inventory.getConsumableProperties(
-      userCombatantProperties.inventory,
-      itemId
-    );
+    const consumableResult = Inventory.getConsumable(userCombatantProperties.inventory, itemId);
     if (consumableResult instanceof Error) return consumableResult;
     consumableResult.usesRemaining -= 1;
     if (consumableResult.usesRemaining < 1) {
@@ -38,7 +35,7 @@ export default function applyActionResult(
       const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
       if (combatantResult instanceof Error) return combatantResult;
       const { combatantProperties, entityProperties } = combatantResult;
-      CombatantProperties.changeHitPoints(combatantProperties, hitPointChange);
+      CombatantProperties.changeHitPoints(combatantProperties, hitPointChange.value);
       // if dead, remove their tracker
       if (combatantProperties.hitPoints < 1 && battleIdOption !== null) {
         const battleOption = game.battles[battleIdOption];

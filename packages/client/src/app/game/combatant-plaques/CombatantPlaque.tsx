@@ -10,30 +10,33 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import { ClientToServerEvent, Combatant, InputLock } from "@speed-dungeon/common";
-import requestSpawnCombatantModel from "./request-spawn-combatant-model";
+import {
+  ClientToServerEvent,
+  Combatant,
+  CombatantEquipment,
+  InputLock,
+  Inventory,
+} from "@speed-dungeon/common";
 import "./floating-text-animation.css";
-import { BabylonControlledCombatantData } from "@/stores/game-store/babylon-controlled-combatant-data";
-import { getTailwindClassFromFloatingTextColor } from "@/stores/game-store/floating-text";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
 import setFocusedCharacter from "@/utils/set-focused-character";
 import { AssigningAttributePointsMenuState } from "../ActionMenu/menu-state/assigning-attribute-points";
+import CombatantFloatingMessagesDisplay from "./combatant-floating-messages-display";
+import InventoryIconButton from "./InventoryIconButton";
+import HotswapSlotButtons from "./HotswapSlotButtons";
+import CharacterModelDisplay from "@/app/character-model-display";
+import getCombatantModelStartPosition from "./get-combatant-model-start-position";
+import { useUIStore } from "@/stores/ui-store";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 interface Props {
   combatant: Combatant;
   showExperience: boolean;
 }
 
-// tried using refs but the .current property wasn't mutable at runtime
-// even though the refs were properly declared as mutable
-// so we couldn't remove them at unmount and caused client crash when
-// other players left the game
-const modelDomPositionElements: { [entityId: string]: null | HTMLDivElement } = {};
-
 export default function CombatantPlaque({ combatant, showExperience }: Props) {
   const gameOption = useGameStore().game;
+  const showDebug = useUIStore().showDebug;
   const mutateGameState = useGameStore().mutateState;
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
@@ -45,8 +48,6 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
   const entityId = combatant.entityProperties.id;
   const babylonDebugMessages =
     useGameStore().babylonControlledCombatantDOMData[entityId]?.debugMessages;
-  const floatingText = useGameStore().babylonControlledCombatantDOMData[entityId]?.floatingText;
-  const modelsAwaitingSpawn = useGameStore().combatantModelsAwaitingSpawn;
 
   const usernameOption = useGameStore().username;
   const result = getGameAndParty(gameOption, usernameOption);
@@ -69,28 +70,6 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
     setPortraitHeight(height);
   }, []);
 
-  useEffect(() => {
-    const element = document.getElementById(`${entityId}-position-div`);
-    modelDomPositionElements[entityId] = element as HTMLDivElement | null;
-
-    requestSpawnCombatantModel(combatant, party, element as HTMLDivElement | null);
-    mutateGameState((state) => {
-      state.babylonControlledCombatantDOMData[entityId] = new BabylonControlledCombatantData();
-    });
-    return () => {
-      modelDomPositionElements[entityId] = null;
-      delete modelDomPositionElements[entityId];
-
-      mutateGameState((state) => {
-        delete state.babylonControlledCombatantDOMData[entityId];
-      });
-
-      gameWorld.current?.modelManager.enqueueMessage(entityId, {
-        type: ModelManagerMessageType.DespawnModel,
-      });
-    };
-  }, []);
-
   function isHovered() {
     if (!hoveredEntity) return false;
     if (hoveredEntity instanceof Combatant) return false;
@@ -100,6 +79,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
 
   const combatantIsDetailed = entityIsDetailed(entityId, detailedEntity);
   const isFocused = focusedCharacterId === entityId;
+  const isPartyMember = party.characterPositions.includes(entityId);
 
   const conditionalBorder = getConditionalBorder(isHovered(), isFocused, combatantIsDetailed);
 
@@ -115,59 +95,42 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
     });
   }
 
-  const lockedUiState =
-    InputLock.isLocked(party.inputLock) || modelsAwaitingSpawn.includes(entityId)
-      ? "opacity-50 pointer-events-none "
-      : "pointer-events-auto ";
+  const lockedUiState = InputLock.isLocked(party.inputLock)
+    ? "opacity-50 pointer-events-none "
+    : "pointer-events-auto ";
 
   return (
     <div className="">
-      {
-        <div id={`${entityId}-position-div`} className="absolute">
-          {
-            <div className="text-2xl absolute w-fit bottom-0 bg-gray-700 opacity-50 ">
-              {
-                // activeModelAction !== null &&
-                // activeModelAction !== undefined &&
-                // formatCombatModelActionType(activeModelAction)
-              }
+      <CharacterModelDisplay character={combatant}>
+        <CombatantFloatingMessagesDisplay entityId={entityId} />
+        <div className="absolute flex flex-col justify-center items-center text-center top-1/2 left-1/2 -translate-x-1/2 w-[400px]">
+          {babylonDebugMessages?.map((message) => (
+            <div className="text-xl relative w-[400px] text-center" key={message.id}>
+              <div className="">{message.text}</div>
             </div>
-          }
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full flex flex-col items-center text-center">
-            {floatingText?.map((message) => {
-              const colorClass = getTailwindClassFromFloatingTextColor(message.color);
-              return (
-                <div
-                  className="text-2xl relative"
-                  style={{
-                    animation: "float-up-and-fade-out", // defined in css file same directory
-                    animationDuration: `${message.displayTime + 50}ms`,
-                    animationTimingFunction: "linear",
-                    animationIterationCount: 1,
-                  }}
-                  key={message.id}
-                >
-                  <div className={colorClass}>{message.text}</div>
-                  <div className="absolute z-[-1] text-black top-[3px] left-[3px]">
-                    {message.text}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="absolute flex flex-col justify-center items-center text-center top-1/2 left-1/2 -translate-x-1/2 w-[400px]">
-            {babylonDebugMessages?.map((message) => (
-              <div className="text-xl relative w-[400px] text-center" key={message.id}>
-                <div className="">{message.text}</div>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
-      }
+      </CharacterModelDisplay>
       <div
-        className={`w-96 h-fit border bg-slate-700 flex p-2.5 relative box-border ${conditionalBorder} ${lockedUiState}`}
+        className={`w-[23rem] h-fit border bg-slate-700 flex p-2.5 relative box-border ${conditionalBorder} ${lockedUiState}`}
         ref={combatantPlaqueRef}
       >
+        {isPartyMember && (
+          <InventoryIconButton
+            entityId={entityId}
+            numItemsInInventory={Inventory.getTotalNumberOfItems(combatantProperties.inventory)}
+          />
+        )}
+        {isPartyMember && (
+          <HotswapSlotButtons
+            className={"absolute -top-2 -left-2 z-10 flex flex-col border border-slate-400"}
+            entityId={entityId}
+            selectedSlotIndex={combatantProperties.equipment.equippedHoldableHotswapSlotIndex}
+            numSlots={CombatantEquipment.getHoldableHotswapSlots(combatantProperties).length}
+            vertical={true}
+            registerKeyEvents={entityId === focusedCharacterId}
+          />
+        )}
         <TargetingIndicators party={party} entityId={entityId} />
         <DetailedCombatantInfoCard combatantId={entityId} combatantPlaqueRef={combatantPlaqueRef} />
         <div
@@ -179,18 +142,24 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
           </div>
         </div>
         <div className="flex-grow" ref={nameAndBarsRef}>
-          <div className="mb-1.5 flex justify-between text-lg ">
-            <span>
+          <div className="mb-1.5 flex justify-between items-center align-middle leading-5 text-lg ">
+            <span className="flex">
               <span className="">{entityProperties.name}</span>
-              {
-                // entityId
-              }
+              <span>
+                {showDebug ? (
+                  <HoverableTooltipWrapper tooltipText={entityId}>
+                    _[{entityId.slice(0, 5)}]
+                  </HoverableTooltipWrapper>
+                ) : (
+                  ""
+                )}
+              </span>
               <UnspentAttributesButton
                 combatantProperties={combatantProperties}
                 handleClick={handleUnspentAttributesButtonClick}
               />
             </span>
-            <span>
+            <span className="flex items-center">
               <CombatantInfoButton combatant={combatant} />
             </span>
           </div>

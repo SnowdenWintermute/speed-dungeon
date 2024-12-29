@@ -1,5 +1,5 @@
 import getFocusedCharacter from "./getFocusedCharacter";
-import { ERROR_MESSAGES, Item } from "@speed-dungeon/common";
+import { CombatantEquipment, ERROR_MESSAGES, Item } from "@speed-dungeon/common";
 import { Inventory } from "@speed-dungeon/common";
 
 export default function getItemOwnedByFocusedCharacter(itemId: string): Error | Item {
@@ -11,7 +11,9 @@ export default function getItemOwnedByFocusedCharacter(itemId: string): Error | 
   );
   if (!(itemInInventoryResult instanceof Error)) return itemInInventoryResult;
 
-  for (const item of Object.values(focusedCharacterResult.combatantProperties.equipment)) {
+  for (const item of Object.values(
+    CombatantEquipment.getAllEquippedItems(focusedCharacterResult.combatantProperties)
+  )) {
     if (item.entityProperties.id === itemId) return item;
   }
   return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);

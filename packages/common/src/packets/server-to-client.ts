@@ -3,13 +3,15 @@ import { Battle, BattleConclusion } from "../battle/index.js";
 import { CombatAction } from "../combat/index.js";
 import { ActionCommandPayload } from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
-import { EquipmentSlot, Item } from "../items/index.js";
+import { Item } from "../items/index.js";
 import { NextOrPrevious } from "../primatives/index.js";
-import { CombatAttribute, Combatant } from "../combatants/index.js";
+import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
 import { DescendOrExplore } from "../adventuring-party/update-player-readiness.js";
 import { UserChannelDisplayData } from "../users/index.js";
 import { GameMode } from "../types.js";
+import { CombatAttribute } from "../attributes/index.js";
+import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 
 export enum ServerToClientEvent {
   GameList = "0",
@@ -39,7 +41,7 @@ export enum ServerToClientEvent {
   CharacterDroppedEquippedItem = "24",
   CharacterUnequippedItem = "25",
   CharacterEquippedItem = "26",
-  CharacterPickedUpItem = "27",
+  CharacterPickedUpItems = "27",
   // RawActionResults = "28",
   CharacterSelectedCombatAction = "29",
   CharacterCycledTargets = "30",
@@ -53,6 +55,8 @@ export enum ServerToClientEvent {
   ProgressionGameStartingFloorSelected = "38",
   //TEST
   TestItems = "39",
+  //
+  CharacterSelectedHoldableHotswapSlot = "40",
 }
 
 export interface ServerToClientEventTypes {
@@ -98,10 +102,7 @@ export interface ServerToClientEventTypes {
   ) => void;
   [ServerToClientEvent.DungeonRoomUpdate]: (dungeonRoom: DungeonRoom) => void;
   [ServerToClientEvent.BattleFullUpdate]: (battleOption: null | Battle) => void;
-  [ServerToClientEvent.ActionCommandPayloads]: (
-    entityId: string,
-    payloads: ActionCommandPayload[]
-  ) => void;
+  [ServerToClientEvent.ActionCommandPayloads]: (payloads: ActionCommandPayload[]) => void;
   [ServerToClientEvent.GameMessage]: (message: GameMessage) => void;
   // [ServerToClientEvent.BattleReport]: (report: BattleReport) => void;
   [ServerToClientEvent.CharacterDroppedItem]: (characterAndItem: CharacterAndItem) => void;
@@ -112,7 +113,7 @@ export interface ServerToClientEventTypes {
     equipToAlternateSlot: boolean;
     characterId: string;
   }) => void;
-  [ServerToClientEvent.CharacterPickedUpItem]: (characterAndItem: CharacterAndItem) => void;
+  [ServerToClientEvent.CharacterPickedUpItems]: (characterAndItems: CharacterAndItems) => void;
   // [ServerToClientEvent.RawActionResults]: (actionResults: ActionResult[]) => void;
   [ServerToClientEvent.CharacterSelectedCombatAction]: (
     characterId: string,
@@ -133,21 +134,22 @@ export interface ServerToClientEventTypes {
     attribute: CombatAttribute
   ) => void;
   [ServerToClientEvent.SavedCharacterList]: (characterSlots: {
-    [slot: number]: null | { combatant: Combatant; deepestFloorReached: number };
+    [slot: number]: null | Combatant;
   }) => void;
-  [ServerToClientEvent.SavedCharacter]: (
-    character: { combatant: Combatant; deepestFloorReached: number },
-    slot: number
-  ) => void;
+  [ServerToClientEvent.SavedCharacter]: (character: Combatant, slot: number) => void;
   [ServerToClientEvent.SavedCharacterDeleted]: (id: string) => void;
   [ServerToClientEvent.PlayerSelectedSavedCharacterInProgressionGame]: (
     username: string,
-    character: { combatant: Combatant; deepestFloorReached: number }
+    character: Combatant
   ) => void;
   [ServerToClientEvent.ProgressionGameStartingFloorSelected]: (floor: number) => void;
   // was using this to create models of items on client with randomly generated
   // properties since only the server code can currently do that
   [ServerToClientEvent.TestItems]: (items: Item[]) => void;
+  [ServerToClientEvent.CharacterSelectedHoldableHotswapSlot]: (
+    characterId: string,
+    slotIndex: number
+  ) => void;
 }
 
 export interface CharacterAndItem {
@@ -155,9 +157,14 @@ export interface CharacterAndItem {
   itemId: string;
 }
 
+export interface CharacterAndItems {
+  characterId: string;
+  itemIds: string[];
+}
+
 export interface CharacterAndSlot {
   characterId: string;
-  slot: EquipmentSlot;
+  slot: TaggedEquipmentSlot;
 }
 
 export class GameListEntry {

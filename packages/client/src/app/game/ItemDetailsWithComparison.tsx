@@ -3,11 +3,7 @@ import { Item } from "@speed-dungeon/common";
 import React from "react";
 import FocusedAndComparedItemDetails from "./detailables/FocusedAndComparedItemDetails";
 
-interface Props {
-  flipDisplayOrder: boolean;
-}
-
-export default function ItemDetailsWithComparison({ flipDisplayOrder }: Props) {
+export default function ItemDetailsWithComparison() {
   const hoveredEntity = useGameStore((state) => state.hoveredEntity);
   const detailedEntity = useGameStore((state) => state.detailedEntity);
 
@@ -16,11 +12,5 @@ export default function ItemDetailsWithComparison({ flipDisplayOrder }: Props) {
   const focusedItemOption = hoveredItemOption || detailedItemOption;
 
   if (!focusedItemOption) return <></>;
-  else
-    return (
-      <FocusedAndComparedItemDetails
-        focusedItem={focusedItemOption}
-        flipDisplayOrder={flipDisplayOrder}
-      />
-    );
+  else return <FocusedAndComparedItemDetails focusedItem={focusedItemOption} />;
 }

@@ -1,9 +1,10 @@
 export * from "./action-command.js";
 export * from "./action-command-receiver.js";
-export * from "./action-command-manager.js";
+export * from "./action-command-queue.js";
 import { BattleConclusion } from "../battle/index.js";
-import { CombatAction } from "../combat/index.js";
-import { EquipmentSlot, Item } from "../items/index.js";
+import { CombatAction, HpChange } from "../combat/index.js";
+import { Consumable } from "../items/consumables/index.js";
+import { Equipment } from "../items/equipment/index.js";
 import { GameMessageType } from "../packets/game-message.js";
 
 export enum ActionCommandType {
@@ -11,13 +12,14 @@ export enum ActionCommandType {
   MoveIntoCombatActionPosition,
   PerformCombatAction,
   ReturnHome,
-  ChangeEquipment,
   BattleResult,
   GameMessages,
+  RemovePlayerFromGame,
 }
 
 export type PayAbilityCostsActionCommandPayload = {
   type: ActionCommandType.PayAbilityCosts;
+  actionUserId: string;
   itemIds: string[];
   mp: number;
   hp: number;
@@ -25,20 +27,23 @@ export type PayAbilityCostsActionCommandPayload = {
 
 export type MoveIntoCombatActionPositionActionCommandPayload = {
   type: ActionCommandType.MoveIntoCombatActionPosition;
+  actionUserId: string;
   primaryTargetId: string;
   isMelee: boolean;
 };
 
 export type ReturnHomeActionCommandPayload = {
   type: ActionCommandType.ReturnHome;
+  actionUserId: string;
   shouldEndTurn: boolean;
 };
 
 export type PerformCombatActionActionCommandPayload = {
   type: ActionCommandType.PerformCombatAction;
+  actionUserId: string;
   combatAction: CombatAction;
   hpChangesByEntityId: null | {
-    [entityId: string]: { hpChange: number; isCrit: boolean };
+    [entityId: string]: HpChange;
   };
   mpChangesByEntityId: null | {
     [entityId: string]: number;
@@ -48,18 +53,12 @@ export type PerformCombatActionActionCommandPayload = {
   missesByEntityId: string[];
 };
 
-export type ChangeEquipmentActionCommandPayload = {
-  type: ActionCommandType.ChangeEquipment;
-  slot: EquipmentSlot;
-  equipmentIdOption: null | string;
-};
-
 export type BattleResultActionCommandPayload = {
   type: ActionCommandType.BattleResult;
   conclusion: BattleConclusion;
-  loot: Item[];
   experiencePointChanges: { [combatantId: string]: number };
   timestamp: number;
+  loot?: undefined | { equipment: Equipment[]; consumables: Consumable[] };
 };
 
 export type LadderDeathsUpdate = {
@@ -69,6 +68,12 @@ export type LadderDeathsUpdate = {
 export type GameMessagesPayload = {
   type: ActionCommandType.GameMessages;
   messages: { text: string; type: GameMessageType }[];
+  partyChannelToExclude?: string;
+};
+
+export type RemovePlayerFromGamePayload = {
+  type: ActionCommandType.RemovePlayerFromGame;
+  username: string;
 };
 
 export type ActionCommandPayload =
@@ -76,30 +81,34 @@ export type ActionCommandPayload =
   | MoveIntoCombatActionPositionActionCommandPayload
   | ReturnHomeActionCommandPayload
   | PerformCombatActionActionCommandPayload
-  | ChangeEquipmentActionCommandPayload
   | BattleResultActionCommandPayload
-  | GameMessagesPayload;
+  | GameMessagesPayload
+  | RemovePlayerFromGamePayload;
 
-export function formatActionCommandType(type: ActionCommandType) {
-  switch (type) {
-    case ActionCommandType.PayAbilityCosts:
-      return "Pay ability costs";
-    case ActionCommandType.MoveIntoCombatActionPosition:
-      return "Move into combat action position";
-    case ActionCommandType.PerformCombatAction:
-      return "Perform combat action";
-    case ActionCommandType.ReturnHome:
-      return "Return home";
-    case ActionCommandType.ChangeEquipment:
-      return "Change equipment";
-    case ActionCommandType.BattleResult:
-      return "Battle result";
-    case ActionCommandType.GameMessages:
-      return "Game messages";
-  }
-}
+export const ACTION_COMMAND_TYPE_STRINGS: Record<ActionCommandType, string> = {
+  [ActionCommandType.PayAbilityCosts]: "Pay ability costs",
+  [ActionCommandType.MoveIntoCombatActionPosition]: "Move into combat action position",
+  [ActionCommandType.PerformCombatAction]: "Perform combat action",
+  [ActionCommandType.ReturnHome]: "Return home",
+  [ActionCommandType.BattleResult]: "Battle result",
+  [ActionCommandType.GameMessages]: "Game messages",
+  [ActionCommandType.RemovePlayerFromGame]: "Remove player from game",
+};
 
 // - change equipment shouldn't lock input
 // - can't change equipment in battle unless input not locked and have the special trait
 //   (can change while other players are deciding their move)
 // -
+export function getActionCommandPayloadUserIdOption(payload: ActionCommandPayload) {
+  switch (payload.type) {
+    case ActionCommandType.BattleResult:
+    case ActionCommandType.GameMessages:
+    case ActionCommandType.RemovePlayerFromGame:
+      return "";
+    case ActionCommandType.PayAbilityCosts:
+    case ActionCommandType.MoveIntoCombatActionPosition:
+    case ActionCommandType.PerformCombatAction:
+    case ActionCommandType.ReturnHome:
+      return payload.actionUserId;
+  }
+}

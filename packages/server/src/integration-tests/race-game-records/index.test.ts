@@ -67,15 +67,19 @@ import {
   CombatActionType,
   CombatAttribute,
   Combatant,
-  CombatantAbilityName,
+  AbilityName,
   CombatantClass,
   DEFAULT_LEVEL_TO_REACH_FOR_ESCAPE,
   GAME_CONFIG,
   GameMessageType,
   GameMode,
+  HpChangeSource,
+  MeleeOrRanged,
   PartyFate,
   ServerToClientEvent,
   ServerToClientEventTypes,
+  HpChangeSourceCategory,
+  HpChange,
 } from "@speed-dungeon/common";
 import { env } from "../../validate-env.js";
 import {
@@ -193,7 +197,7 @@ describe("race game records", () => {
         {
           type: ActionCommandType.BattleResult,
           conclusion: BattleConclusion.Defeat,
-          loot: [],
+          loot: { equipment: [], consumables: [] },
           experiencePointChanges: {},
           timestamp: Date.now(),
         },
@@ -311,7 +315,6 @@ describe("race game records", () => {
         {
           type: ActionCommandType.BattleResult,
           conclusion: BattleConclusion.Defeat,
-          loot: [],
           experiencePointChanges: {},
           timestamp: Date.now(),
         },
@@ -406,12 +409,22 @@ describe("race game records", () => {
       return [
         {
           type: ActionCommandType.PerformCombatAction,
+          actionUserId: "",
           combatAction: {
             type: CombatActionType.AbilityUsed,
-            abilityName: CombatantAbilityName.Attack,
+            abilityName: AbilityName.Attack,
           },
           hpChangesByEntityId: {
-            [character1.entityProperties.id]: { hpChange: -9999, isCrit: false },
+            [character1.entityProperties.id]: new HpChange(
+              -9999,
+              new HpChangeSource(
+                HpChangeSourceCategory.Physical,
+                MeleeOrRanged.Melee,
+                undefined,
+                undefined,
+                true
+              )
+            ),
           },
           mpChangesByEntityId: null,
           missesByEntityId: [],
@@ -465,7 +478,7 @@ function useAttackAction(
     characterId: character.entityProperties.id,
     combatActionOption: {
       type: CombatActionType.AbilityUsed,
-      abilityName: CombatantAbilityName.Attack,
+      abilityName: AbilityName.Attack,
     },
   });
   socket.emit(ClientToServerEvent.UseSelectedCombatAction, {

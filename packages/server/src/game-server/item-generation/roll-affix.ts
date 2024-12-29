@@ -47,13 +47,13 @@ export function rollAffix(
         case PrefixType.PercentDamage:
           affix.equipmentTraits[EquipmentTraitType.DamagePercentage] = {
             equipmentTraitType: EquipmentTraitType.DamagePercentage,
-            percentage: tier * 10,
+            value: tier * 10,
           };
           break;
         case PrefixType.LifeSteal:
           affix.equipmentTraits[EquipmentTraitType.LifeSteal] = {
             equipmentTraitType: EquipmentTraitType.LifeSteal,
-            percentage: tier * 10,
+            value: tier * 10,
           };
           break;
         case PrefixType.Resilience:
@@ -99,7 +99,10 @@ export function rollAffix(
           affix.combatAttributes[CombatAttribute.Hp] = rollAttributeValue(2, 5);
           break;
         case SuffixType.Damage:
-          affix.combatAttributes[CombatAttribute.Damage] = rollAttributeValue(1, 2);
+          affix.equipmentTraits[EquipmentTraitType.FlatDamageAdditive] = {
+            equipmentTraitType: EquipmentTraitType.FlatDamageAdditive,
+            value: rollAttributeValue(1, 2),
+          };
           break;
         case SuffixType.Durability:
           //

@@ -67,6 +67,7 @@ export default function GamesSection() {
         // width: `calc(${BASE_SCREEN_SIZE}px * ${Math.pow(GOLDEN_RATIO, 2)})`,
         width: "900px",
         maxWidth: "100%",
+        zIndex: 100,
       }}
     >
       <div

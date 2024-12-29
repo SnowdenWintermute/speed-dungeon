@@ -2,7 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import { valkeyManager } from "../../kv-store/index.js";
 import { CHARACTER_LEVEL_LADDER } from "../../kv-store/consts.js";
 import CustomError from "../../express-error-handler/CustomError.js";
-import { ERROR_MESSAGES, LADDER_PAGE_SIZE, LevelLadderEntry } from "@speed-dungeon/common";
+import {
+  ERROR_MESSAGES,
+  LADDER_PAGE_SIZE,
+  LevelLadderEntry,
+  calculateTotalExperience,
+} from "@speed-dungeon/common";
 import { PlayerCharacter, playerCharactersRepo } from "../../database/repos/player-characters.js";
 import { getUsernamesByUserIds } from "../../database/get-usernames-by-user-ids.js";
 
@@ -92,6 +97,9 @@ export default async function getCharacterLevelLadderPageHandler(
         characterName: character.name,
         characterId: character.id,
         level: character.combatantProperties.level,
+        experience:
+          calculateTotalExperience(character.combatantProperties.level) +
+          character.combatantProperties.experiencePoints.current,
         rank,
         gameVersion: character.gameVersion,
       });

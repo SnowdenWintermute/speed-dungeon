@@ -1,12 +1,14 @@
-import { PhysicalDamageType, formatPhysicalDamageType } from "../combat/hp-change-source-types.js";
-import { MagicalElement, formatMagicalElement } from "../combat/magical-elements.js";
+import { KineticDamageType } from "../combat/kinetic-damage-types.js";
+import { MagicalElement } from "../combat/magical-elements.js";
+import { HoldableHotswapSlot } from "./combatant-equipment/index.js";
 
 export enum CombatantTraitType {
   HpBioavailability,
   MpBioavailability,
   ElementalAffinity,
   Undead,
-  PhysicalDamageTypeResistance,
+  KineticDamageTypeResistance,
+  ExtraHotswapSlot,
 }
 
 export interface TraitHpBioavailability {
@@ -26,8 +28,8 @@ export interface TraitElementalAffinity {
 }
 
 export interface TraitPhysicalDamageTypeResistance {
-  type: CombatantTraitType.PhysicalDamageTypeResistance;
-  damageType: PhysicalDamageType;
+  type: CombatantTraitType.KineticDamageTypeResistance;
+  damageType: KineticDamageType;
   percent: number;
 }
 
@@ -35,12 +37,18 @@ export interface TraitUndead {
   type: CombatantTraitType.Undead;
 }
 
+export interface TraitExtraHotswapSlot {
+  type: CombatantTraitType.ExtraHotswapSlot;
+  hotswapSlot: HoldableHotswapSlot;
+}
+
 export type CombatantTrait =
   | TraitHpBioavailability
   | TraitMpBioavailability
   | TraitElementalAffinity
   | TraitPhysicalDamageTypeResistance
-  | TraitUndead;
+  | TraitUndead
+  | TraitExtraHotswapSlot;
 
 export const TRAIT_DESCRIPTIONS: Record<CombatantTraitType, string> = {
   [CombatantTraitType.HpBioavailability]: "Effectiveness of HP Autoinjectors",
@@ -48,5 +56,7 @@ export const TRAIT_DESCRIPTIONS: Record<CombatantTraitType, string> = {
   [CombatantTraitType.ElementalAffinity]:
     "Resistance or weakness to this element. If above 100%, actions of this element will cause healing instead of damage.",
   [CombatantTraitType.Undead]: "Healing magic damages this target",
-  [CombatantTraitType.PhysicalDamageTypeResistance]: "Resistance or weakness to this damage type",
+  [CombatantTraitType.KineticDamageTypeResistance]: "Resistance or weakness to this damage type",
+  [CombatantTraitType.ExtraHotswapSlot]:
+    "Adds an additional weapon swap slot - 'You know I keep that mf thang on me'",
 };

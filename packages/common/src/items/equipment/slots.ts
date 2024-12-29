@@ -1,62 +1,83 @@
-import { EquipmentProperties } from "./equipment-properties/index.js";
 import { EquipmentType } from "./equipment-types/index.js";
 
-export enum WeaponSlot {
+export enum EquipmentSlotType {
+  Holdable,
+  Wearable,
+}
+
+export enum HoldableSlotType {
   MainHand,
   OffHand,
 }
 
-export enum EquipmentSlot {
+export enum WearableSlotType {
   Head,
   Body,
-  MainHand,
-  OffHand,
   RingL,
   RingR,
   Amulet,
 }
 
-export function formatEquipmentSlot(slot: EquipmentSlot) {
-  switch (slot) {
-    case EquipmentSlot.Head:
-      return "Head";
-    case EquipmentSlot.Body:
-      return "Body";
-    case EquipmentSlot.MainHand:
-      return "MainHand";
-    case EquipmentSlot.OffHand:
-      return "OffHand";
-    case EquipmentSlot.RingL:
-      return "RingL";
-    case EquipmentSlot.RingR:
-      return "RingR";
-    case EquipmentSlot.Amulet:
-      return "Amulet";
-  }
+export interface HoldableSlot {
+  type: EquipmentSlotType.Holdable;
+  slot: HoldableSlotType;
 }
+export interface WearableSlot {
+  type: EquipmentSlotType.Wearable;
+  slot: WearableSlotType;
+}
+
+export type TaggedEquipmentSlot = HoldableSlot | WearableSlot;
+
+export const WEARABLE_SLOT_STRINGS: Record<WearableSlotType, string> = {
+  [WearableSlotType.Head]: "Head",
+  [WearableSlotType.Body]: "Body",
+  [WearableSlotType.RingL]: "RingL",
+  [WearableSlotType.RingR]: "RingR",
+  [WearableSlotType.Amulet]: "Amulet",
+};
+
+export const HOLDABLE_SLOT_STRINGS: Record<HoldableSlotType, string> = {
+  [HoldableSlotType.MainHand]: "MainHand",
+  [HoldableSlotType.OffHand]: "OffHand",
+};
 
 export interface EquipableSlots {
-  main: EquipmentSlot;
-  alternate: null | EquipmentSlot;
+  main: TaggedEquipmentSlot;
+  alternate: null | TaggedEquipmentSlot;
 }
 
-export function getEquipableSlots(equipmentProperties: EquipmentProperties): EquipableSlots {
-  switch (equipmentProperties.equipmentBaseItemProperties.type) {
-    case EquipmentType.BodyArmor:
-      return { main: EquipmentSlot.Body, alternate: null };
-    case EquipmentType.HeadGear:
-      return { main: EquipmentSlot.Head, alternate: null };
-    case EquipmentType.Ring:
-      return { main: EquipmentSlot.RingR, alternate: EquipmentSlot.RingL };
-    case EquipmentType.Amulet:
-      return { main: EquipmentSlot.Amulet, alternate: null };
-    case EquipmentType.OneHandedMeleeWeapon:
-      return { main: EquipmentSlot.MainHand, alternate: EquipmentSlot.OffHand };
-    case EquipmentType.TwoHandedMeleeWeapon:
-      return { main: EquipmentSlot.MainHand, alternate: null };
-    case EquipmentType.TwoHandedRangedWeapon:
-      return { main: EquipmentSlot.MainHand, alternate: null };
-    case EquipmentType.Shield:
-      return { main: EquipmentSlot.OffHand, alternate: null };
-  }
-}
+export const EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE: Record<EquipmentType, EquipableSlots> = {
+  [EquipmentType.BodyArmor]: {
+    main: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.Body },
+    alternate: null,
+  },
+  [EquipmentType.HeadGear]: {
+    main: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.Head },
+    alternate: null,
+  },
+  [EquipmentType.Ring]: {
+    main: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.RingR },
+    alternate: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.RingL },
+  },
+  [EquipmentType.Amulet]: {
+    main: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.Amulet },
+    alternate: null,
+  },
+  [EquipmentType.OneHandedMeleeWeapon]: {
+    main: { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
+    alternate: { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
+  },
+  [EquipmentType.TwoHandedMeleeWeapon]: {
+    main: { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
+    alternate: null,
+  },
+  [EquipmentType.TwoHandedRangedWeapon]: {
+    main: { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
+    alternate: null,
+  },
+  [EquipmentType.Shield]: {
+    main: { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
+    alternate: null,
+  },
+};

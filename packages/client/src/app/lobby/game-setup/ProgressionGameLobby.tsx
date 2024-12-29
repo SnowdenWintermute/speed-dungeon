@@ -8,28 +8,53 @@ import {
   SpeedDungeonGame,
   SpeedDungeonPlayer,
   formatCombatantClassName,
+  getProgressionGameMaxStartingFloor,
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import SelectDropdown from "@/app/components/atoms/SelectDropdown";
-import SavedCharacterDisplay from "../saved-character-manager/SavedCharacterDisplay";
 import Divider from "@/app/components/atoms/Divider";
 import GameLobby from "./GameLobby";
+import CharacterModelDisplay from "@/app/character-model-display";
 
-export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame }) {
+export default function ProgressionGameLobby() {
   const username = useGameStore().username;
+  const game = useGameStore().game;
+  const mutateGameState = useGameStore().mutateState;
+  if (game === null) return <div>Loading...</div>;
 
   useEffect(() => {
     websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
   }, []);
 
-  const numPlayersInGame = Object.values(game.players).length;
+  const numPlayersInGame = useMemo(() => Object.values(game.players).length, [game.players]);
+
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
 
+  // potential meaning the deepest floor any character could select
+  let potentialMaxStartingFloor = 1;
+  for (const floorNumber of Object.values(game.lowestStartingFloorOptionsBySavedCharacter)) {
+    if (floorNumber > potentialMaxStartingFloor) potentialMaxStartingFloor = floorNumber;
+  }
+
+  // true max starting floor is the deepest that all selected have reached
+  const maxStartingFloor = getProgressionGameMaxStartingFloor(
+    game.lowestStartingFloorOptionsBySavedCharacter
+  );
+
+  useEffect(() => {
+    if (game.selectedStartingFloor > maxStartingFloor) {
+      console.log("selected: ", game.selectedStartingFloor, "max: ", maxStartingFloor);
+      mutateGameState((state) => {
+        if (state.game) state.game.selectedStartingFloor = maxStartingFloor;
+      });
+    }
+  }, [maxStartingFloor, game.selectedStartingFloor, game.players]);
+
   return (
-    <GameLobby game={game}>
+    <GameLobby>
       <div style={{ width: `${menuWidth}px` }}>
         <ul className="w-full flex flex-col">
           {Object.values(game.players).map((player, i) => (
@@ -40,16 +65,20 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
           ))}
         </ul>
         <Divider />
-        <div className="text-lg mb-2">Starting on floor: max {game.selectedStartingFloor.max}</div>
+        <div className="text-lg mb-2 flex justify-between">
+          <span>Selected Starting floor</span>
+          <span> (max {maxStartingFloor})</span>
+        </div>
         <SelectDropdown
           title={"starting-floor-select"}
-          value={game.selectedStartingFloor.current}
+          value={game.selectedStartingFloor}
           setValue={(value: number) => {
             websocketConnection.emit(ClientToServerEvent.SelectProgressionGameStartingFloor, value);
           }}
-          options={Array.from({ length: game.selectedStartingFloor.max }, (_, index) => ({
+          options={Array.from({ length: potentialMaxStartingFloor }, (_, index) => ({
             title: `Floor ${index + 1}`,
             value: index + 1,
+            disabled: index + 1 > maxStartingFloor,
           }))}
           disabled={Object.values(game.players)[0]?.username !== username}
         />
@@ -61,7 +90,6 @@ export default function ProgressionGameLobby({ game }: { game: SpeedDungeonGame 
 function PlayerDisplay({
   playerOption,
   game,
-  index,
 }: {
   playerOption: null | SpeedDungeonPlayer;
   game: SpeedDungeonGame;
@@ -99,9 +127,8 @@ function PlayerDisplay({
   return (
     <div className="w-full mb-2 flex flex-col">
       {selectedCharacterOption && (
-        <SavedCharacterDisplay
+        <CharacterModelDisplay
           character={selectedCharacterOption}
-          index={index}
           key={selectedCharacterOption.entityProperties.id}
         >
           <div className="h-full w-full flex flex-col items-center justify-end text-lg ">
@@ -110,9 +137,12 @@ function PlayerDisplay({
               <div className="text-base">
                 {formatCharacterLevelAndClass(selectedCharacterOption)}
               </div>
+              <div className="text-base">
+                max floor reached: {selectedCharacterOption.combatantProperties.deepestFloorReached}
+              </div>
             </div>
           </div>
-        </SavedCharacterDisplay>
+        </CharacterModelDisplay>
       )}
       <div className="flex justify-between mb-1">
         <div className="pointer-events-auto">{playerOption?.username || "Empty slot"}</div>
@@ -129,8 +159,9 @@ function PlayerDisplay({
             .filter((character) => !!character)
             .map((character) => {
               return {
-                title: formatCharacterTag(character!.combatant),
-                value: character!.combatant.entityProperties.id,
+                title: formatCharacterTag(character!),
+                value: character!.entityProperties.id,
+                disabled: character?.combatantProperties.hitPoints === 0,
               };
             })}
           disabled={game.playersReadied.includes(username)}

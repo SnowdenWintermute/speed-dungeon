@@ -1,29 +1,36 @@
 import {
+  AffixType,
+  CombatAttribute,
   CombatantClass,
-  EquipmentSlot,
+  CombatantProperties,
+  ERROR_MESSAGES,
+  Equipment,
   EquipmentType,
-  Item,
+  HoldableSlotType,
   OneHandedMeleeWeapon,
+  PrefixType,
   Shield,
   TwoHandedMeleeWeapon,
+  TwoHandedRangedWeapon,
 } from "@speed-dungeon/common";
 import { generateSpecificEquipmentType } from "./generate-test-items.js";
+import { CombatantEquipment } from "@speed-dungeon/common";
 
-export default function createStartingEquipment(combatantClass: CombatantClass) {
-  const startingEquipment: Partial<Record<EquipmentSlot, Item>> = {};
+export default function createStartingEquipment(combatantProperties: CombatantProperties) {
+  const startingEquipment = new CombatantEquipment();
 
-  let mainhand: Item | Error | undefined, offhand: Item | Error | undefined;
-  switch (combatantClass) {
+  let mainhand: Equipment | Error | undefined, offhand: Equipment | Error | undefined;
+  switch (combatantProperties.combatantClass) {
     case CombatantClass.Warrior:
       mainhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.Stick,
+          baseItemType: OneHandedMeleeWeapon.Blade,
         },
         true
       );
       offhand = generateSpecificEquipmentType(
-        { equipmentType: EquipmentType.Shield, baseItemType: Shield.PotLid },
+        { equipmentType: EquipmentType.Shield, baseItemType: Shield.MakeshiftBuckler },
         true
       );
       // startingEquipment[EquipmentSlot.MainHand]
@@ -41,14 +48,14 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
       mainhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.ButterKnife,
+          baseItemType: OneHandedMeleeWeapon.Club,
         },
         true
       );
       offhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.ButterKnife,
+          baseItemType: OneHandedMeleeWeapon.ShortSword,
         },
         true
       );
@@ -58,8 +65,59 @@ export default function createStartingEquipment(combatantClass: CombatantClass) 
   if (mainhand instanceof Error) return mainhand;
   if (offhand instanceof Error) return offhand;
 
-  if (mainhand) startingEquipment[EquipmentSlot.MainHand] = mainhand;
-  if (offhand) startingEquipment[EquipmentSlot.OffHand] = offhand;
+  mainhand.affixes[AffixType.Prefix][PrefixType.Mp] = {
+    combatAttributes: { [CombatAttribute.Mp]: 10 },
+    equipmentTraits: {},
+    tier: 0,
+  };
+
+  const mainHoldableHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+  if (!mainHoldableHotswapSlot) return new Error(ERROR_MESSAGES.EQUIPMENT.NO_SELECTED_HOTSWAP_SLOT);
+
+  if (mainhand) mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = mainhand;
+  if (offhand) mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = offhand;
+
+  const holsteredSlot = combatantProperties.equipment.inherentHoldableHotswapSlots[1];
+  let mh, oh;
+  if (holsteredSlot) {
+    switch (combatantProperties.combatantClass) {
+      case CombatantClass.Warrior:
+        mh = generateSpecificEquipmentType({
+          equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: OneHandedMeleeWeapon.Stick,
+        });
+
+        oh = generateSpecificEquipmentType({
+          equipmentType: EquipmentType.Shield,
+          baseItemType: Shield.KiteShield,
+        });
+        break;
+      case CombatantClass.Mage:
+        mh = generateSpecificEquipmentType({
+          equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: OneHandedMeleeWeapon.MapleWand,
+        });
+        oh = generateSpecificEquipmentType({
+          equipmentType: EquipmentType.Shield,
+          baseItemType: Shield.Heater,
+        });
+        break;
+      case CombatantClass.Rogue:
+      case CombatantClass.Mage:
+        mh = generateSpecificEquipmentType({
+          equipmentType: EquipmentType.TwoHandedRangedWeapon,
+          baseItemType: TwoHandedRangedWeapon.ShortBow,
+        });
+        break;
+    }
+    if (!(mh instanceof Error)) {
+      mh.entityProperties.name = "some long ass name that is really freakin long";
+      holsteredSlot.holdables[HoldableSlotType.MainHand] = mh;
+    }
+    if (oh) {
+      if (!(oh instanceof Error)) holsteredSlot.holdables[HoldableSlotType.OffHand] = oh;
+    }
+  }
 
   return startingEquipment;
 }

@@ -21,6 +21,8 @@ import cycleTargetsHandler from "./cycle-targets-handler.js";
 import cycleTargetingSchemesHandler from "./cycle-targeting-schemes-handler.js";
 import useSelectedCombatActionHandler from "./character-uses-selected-combat-action-handler/index.js";
 import characterSpentAttributePointHandler from "./character-spent-attribute-point-handler.js";
+import selectHoldableHotswapSlotHandler from "./select-holdable-hotswap-slot-handler.js";
+import { prohibitInCombat } from "../event-middleware/prohibit-in-combat.js";
 
 export default function initiateGameEventListeners(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
@@ -39,18 +41,31 @@ export default function initiateGameEventListeners(
   );
   socket.on(
     ClientToServerEvent.DropEquippedItem,
-    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, dropEquippedItemHandler)
+    applyMiddlewares(
+      getCharacterAssociatedData,
+      prohibitIfDead,
+
+      prohibitInCombat
+    )(socket, dropEquippedItemHandler)
   );
   socket.on(
     ClientToServerEvent.UnequipSlot,
-    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, unequipSlotHandler)
+    applyMiddlewares(
+      getCharacterAssociatedData,
+      prohibitIfDead,
+      prohibitInCombat
+    )(socket, unequipSlotHandler)
   );
   socket.on(
     ClientToServerEvent.EquipInventoryItem,
-    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, equipItemHandler)
+    applyMiddlewares(
+      getCharacterAssociatedData,
+      prohibitIfDead,
+      prohibitInCombat
+    )(socket, equipItemHandler)
   );
   socket.on(
-    ClientToServerEvent.PickUpItem,
+    ClientToServerEvent.PickUpItems,
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, pickUpItemHandler)
   );
   socket.on(
@@ -84,6 +99,13 @@ export default function initiateGameEventListeners(
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(
       socket,
       characterSpentAttributePointHandler
+    )
+  );
+  socket.on(
+    ClientToServerEvent.SelectHoldableHotswapSlot,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(
+      socket,
+      selectHoldableHotswapSlotHandler
     )
   );
 }

@@ -1,171 +1,196 @@
 import cloneDeep from "lodash.clonedeep";
-import { CombatantAbility, CombatantProperties } from "../../../combatants/index.js";
+import { CombatantProperties } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import {
-  CombatActionProperties,
-  CombatActionType,
-  calculateCombatActionHpChangeRange,
-} from "../../combat-actions/index.js";
+import { CombatActionProperties } from "../../combat-actions/index.js";
 import { randBetween } from "../../../utils/index.js";
 import { ActionResultCalculationArguments } from "../action-result-calculator.js";
-import getMostDamagingWeaponElementOnTarget from "./get-most-damaging-weapon-element-on-target.js";
-import getMostDamagingWeaponPhysicalDamageTypeOnTarget from "./get-most-damaging-weapon-damage-type-on-target.js";
 import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
 import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app-consts.js";
-import { HpChangeSourceCategoryType } from "../../hp-change-source-types.js";
-import getIdsOfEvadingEntities from "./get-ids-of-evading-entities.js";
-import calculatePhysicalDamageHpChangesAndCrits from "./calculate-physical-damage-hp-changes-and-crits.js";
-import calculateMagicalDamageHpChangesAndCrits from "./calculate-magical-damage-hp-changes-and-crits.js";
-import calculateHealingHpChangesAndCrits from "./calculate-healing-hp-changes-and-crits.js";
+import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
+import { HpChange, HpChangeSource, HpChangeSourceCategory } from "../../hp-change-source-types.js";
+import { checkIfTargetWantsToBeHit } from "./check-if-target-wants-to-be-hit.js";
+import { getActionHitChance } from "./get-action-hit-chance.js";
+import { applyCritMultiplier } from "./apply-crit-multiplier-to-hp-change.js";
+import {
+  applyElementalAffinities,
+  applyKineticAffinities,
+} from "./apply-affinites-to-hp-change.js";
+import { applyWeaponHpChangeModifiers } from "./weapon-hp-change-modifiers/index.js";
+import { getCombatActionHpChangeRange } from "./get-combat-action-hp-change-range.js";
+import { getActionCritChance } from "./get-action-crit-chance.js";
+import { convertHpChangeValueToFinalSign } from "./convert-hp-change-value-to-final-sign.js";
+import { CombatAttribute } from "../../../attributes/index.js";
+import { HoldableSlotType } from "../../../items/equipment/slots.js";
+export * from "./get-combat-action-hp-change-range.js";
+export * from "./weapon-hp-change-modifiers/index.js";
+export * from "./get-action-hit-chance.js";
+export * from "./get-action-crit-chance.js";
+export * from "./hp-change-calculation-strategies/index.js";
+export * from "./check-if-target-wants-to-be-hit.js";
 
-export interface ValueChangesAndCrits {
-  valueChangesByEntityId: { [entityId: string]: number };
-  entityIdsCrit: string[];
-}
-
-export default function calculateActionHitPointChangesCritsAndEvasions(
+export default function calculateActionHitPointChangesAndEvasions(
   game: SpeedDungeonGame,
   args: ActionResultCalculationArguments,
   targetIds: string[],
   actionProperties: CombatActionProperties
 ):
   | Error
-  | { hitPointChanges: { [entityId: string]: number }; evasions: string[]; crits: string[] } {
-  const firstTargetIdOption = targetIds[0];
-  if (firstTargetIdOption === undefined)
-    return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
-  const firstTargetId = firstTargetIdOption;
-  let hitPointChanges: { [entityId: string]: number } = {};
-  let evasions: string[] = [];
-  let crits: string[] = [];
-
-  const hpChangeProperties = cloneDeep(actionProperties.hpChangeProperties);
-  if (hpChangeProperties === null) return { hitPointChanges, evasions, crits };
-
+  | {
+      hitPointChanges: { [entityId: string]: HpChange };
+      evasions: string[];
+    } {
   const { userId, combatAction } = args;
   const combatantResult = SpeedDungeonGame.getCombatantById(game, userId);
   if (combatantResult instanceof Error) return combatantResult;
   const { combatantProperties: userCombatantProperties } = combatantResult;
 
-  let actionLevel = 1;
-  let actionLevelHpChangeModifier = 1;
-  if (combatAction.type === CombatActionType.AbilityUsed) {
-    const abilityOption = userCombatantProperties.abilities[combatAction.abilityName];
-    if (!abilityOption) return new Error(ERROR_MESSAGES.ABILITIES.NOT_OWNED);
-    const ability = abilityOption;
-    actionLevel = ability.level;
-    const abilityAttributes = CombatantAbility.getAttributes(ability.name);
-    actionLevelHpChangeModifier = abilityAttributes.baseHpChangeValuesLevelMultiplier;
-  }
+  // we need a target to check against to find the best affinity to choose
+  // so we'll use the first target for now, until a better system comes to light
+  const firstTargetIdOption = targetIds[0];
+  if (firstTargetIdOption === undefined)
+    return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
+  const firstTargetId = firstTargetIdOption;
+  const firstTargetCombatant = SpeedDungeonGame.getCombatantById(game, firstTargetId);
+  if (firstTargetCombatant instanceof Error) return firstTargetCombatant;
+  const { combatantProperties: targetCombatantProperties } = firstTargetCombatant;
 
-  const hpChangeRangeResult = calculateCombatActionHpChangeRange(
+  const hitPointChanges: { [entityId: string]: HpChange } = {};
+  let lifestealHpChange: null | HpChange = null;
+
+  let evasions: string[] = [];
+
+  if (actionProperties.hpChangeProperties === null) return { hitPointChanges, evasions };
+  const hpChangeProperties = cloneDeep(actionProperties.hpChangeProperties);
+
+  const equippedUsableWeaponsResult = CombatantProperties.getUsableWeaponsInSlots(
     userCombatantProperties,
+    [HoldableSlotType.MainHand, HoldableSlotType.OffHand]
+  );
+  if (equippedUsableWeaponsResult instanceof Error) return equippedUsableWeaponsResult;
+  const equippedUsableWeapons = equippedUsableWeaponsResult;
+
+  const hpChangeRangeResult = getCombatActionHpChangeRange(
+    combatAction,
     hpChangeProperties,
-    actionLevel,
-    actionLevelHpChangeModifier
+    userCombatantProperties,
+    equippedUsableWeapons
   );
   if (hpChangeRangeResult instanceof Error) return hpChangeRangeResult;
+
   const hpChangeRange = hpChangeRangeResult;
 
-  // add weapon elements and damage types to the action's hp change source properties
-  if (hpChangeProperties.addWeaponElementFrom !== null) {
-    const elementToAddOptionResult = getMostDamagingWeaponElementOnTarget(
-      game,
-      hpChangeProperties.addWeaponElementFrom,
-      userCombatantProperties,
-      firstTargetId
-    );
-    if (elementToAddOptionResult instanceof Error) return elementToAddOptionResult;
-    hpChangeProperties.sourceProperties.elementOption = elementToAddOptionResult;
-  }
+  const averageRoll = Math.floor(hpChangeRange.min + hpChangeRange.max / 2);
 
-  if (hpChangeProperties.addWeaponDamageTypeFrom !== null) {
-    const physicalDamageTypeToAddOptionResult = getMostDamagingWeaponPhysicalDamageTypeOnTarget(
-      game,
-      hpChangeProperties.addWeaponDamageTypeFrom,
-      userCombatantProperties,
-      firstTargetId
-    );
-    if (physicalDamageTypeToAddOptionResult instanceof Error)
-      return physicalDamageTypeToAddOptionResult;
-    hpChangeProperties.sourceProperties.physicalDamageTypeOption =
-      physicalDamageTypeToAddOptionResult;
-  }
+  applyWeaponHpChangeModifiers(
+    hpChangeProperties,
+    equippedUsableWeapons,
+    userCombatantProperties,
+    targetCombatantProperties,
+    averageRoll
+  );
 
-  // roll the hp change value
+  const { hpChangeSource } = hpChangeProperties;
+
   const rolledHpChangeValue = randBetween(hpChangeRange.min, hpChangeRange.max);
+
   const incomingHpChangePerTarget = splitHpChangeWithMultiTargetBonus(
     rolledHpChangeValue,
     targetIds.length,
     MULTI_TARGET_HP_CHANGE_BONUS
   );
 
-  const userCombatantAttributes = CombatantProperties.getTotalAttributes(userCombatantProperties);
+  for (const id of targetIds) {
+    const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, id);
+    if (targetCombatantResult instanceof Error) return targetCombatantResult;
+    const { combatantProperties: targetCombatantProperties } = targetCombatantResult;
+    let hpChange = new HpChange(incomingHpChangePerTarget, cloneDeep(hpChangeSource));
 
-  if (
-    hpChangeProperties.sourceProperties.category.type ===
-      HpChangeSourceCategoryType.PhysicalDamage ||
-    (hpChangeProperties.sourceProperties.category.type ===
-      HpChangeSourceCategoryType.MagicalDamage &&
-      hpChangeProperties.sourceProperties.category.evadable)
-  ) {
-    const idsOfEvadingEntitiesResult = getIdsOfEvadingEntities(
-      game,
-      userCombatantAttributes,
-      targetIds
+    const hpChangeCalculationContext = HP_CALCLULATION_CONTEXTS[hpChangeSource.category];
+
+    const targetWantsToBeHit = checkIfTargetWantsToBeHit(
+      targetCombatantProperties,
+      hpChangeProperties
     );
-    if (idsOfEvadingEntitiesResult instanceof Error) return idsOfEvadingEntitiesResult;
-    evasions = idsOfEvadingEntitiesResult;
+
+    const percentChanceToHit = getActionHitChance(
+      actionProperties,
+      userCombatantProperties,
+      CombatantProperties.getTotalAttributes(targetCombatantProperties)[CombatAttribute.Evasion],
+      hpChangeSource.unavoidable || false,
+      targetWantsToBeHit
+    );
+
+    const percentChanceToCrit = getActionCritChance(
+      hpChangeProperties,
+      userCombatantProperties,
+      targetCombatantProperties,
+      targetWantsToBeHit
+    );
+
+    ///////////////////////////////////////////////////
+
+    const isHit = randBetween(0, 100) <= percentChanceToHit;
+
+    if (!isHit) {
+      evasions.push(id);
+      continue;
+    }
+
+    hpChange.isCrit = randBetween(0, 100) < percentChanceToCrit;
+
+    applyCritMultiplier(
+      hpChange,
+      hpChangeProperties,
+      userCombatantProperties,
+      targetCombatantProperties
+    );
+
+    applyKineticAffinities(hpChange, targetCombatantProperties);
+    applyElementalAffinities(hpChange, targetCombatantProperties);
+
+    convertHpChangeValueToFinalSign(hpChange, targetCombatantProperties);
+
+    hpChangeCalculationContext.applyResilience(
+      hpChange,
+      userCombatantProperties,
+      targetCombatantProperties
+    );
+    hpChangeCalculationContext.applyArmorClass(
+      hpChange,
+      userCombatantProperties,
+      targetCombatantProperties
+    );
+
+    hpChange.value = Math.floor(hpChange.value);
+
+    hitPointChanges[id] = hpChange;
+
+    // apply lifesteal trait
+    // determine if hp change source has lifesteal
+    // get the percent
+    // add it to the lifesteal hp change of the action user
+    if (hpChange.source.lifestealPercentage) {
+      const lifestealValue = hpChange.value * (hpChange.source.lifestealPercentage / 100) * -1;
+      if (!lifestealHpChange) {
+        lifestealHpChange = new HpChange(
+          lifestealValue,
+          new HpChangeSource(HpChangeSourceCategory.Magical, hpChange.source.meleeOrRanged)
+        );
+        lifestealHpChange.isCrit = hpChange.isCrit;
+        lifestealHpChange.value = lifestealValue;
+      } else {
+        // if aggregating lifesteal from multiple hits, call it a crit if any of the hits were crits
+        if (hpChange.isCrit) lifestealHpChange.isCrit = true;
+        lifestealHpChange.value += lifestealValue;
+      }
+    }
   }
 
-  const idsOfNonEvadingTargets = targetIds.filter((id) => !evasions.includes(id));
-
-  switch (hpChangeProperties.sourceProperties.category.type) {
-    case HpChangeSourceCategoryType.PhysicalDamage:
-      const physicalHpChangesResult = calculatePhysicalDamageHpChangesAndCrits(
-        game,
-        hpChangeProperties.sourceProperties.category.meleeOrRanged,
-        userCombatantProperties,
-        idsOfNonEvadingTargets,
-        incomingHpChangePerTarget,
-        hpChangeProperties
-      );
-      if (physicalHpChangesResult instanceof Error) return physicalHpChangesResult;
-      crits = physicalHpChangesResult.entityIdsCrit;
-      hitPointChanges = physicalHpChangesResult.valueChangesByEntityId;
-      break;
-    case HpChangeSourceCategoryType.MagicalDamage:
-      const magicalHpChangesResult = calculateMagicalDamageHpChangesAndCrits(
-        game,
-        userCombatantProperties,
-        idsOfNonEvadingTargets,
-        incomingHpChangePerTarget,
-        hpChangeProperties
-      );
-      if (magicalHpChangesResult instanceof Error) return magicalHpChangesResult;
-      crits = magicalHpChangesResult.entityIdsCrit;
-      hitPointChanges = magicalHpChangesResult.valueChangesByEntityId;
-      break;
-    case HpChangeSourceCategoryType.Healing:
-      const healingHpChangesResult = calculateHealingHpChangesAndCrits(
-        game,
-        userCombatantProperties,
-        idsOfNonEvadingTargets,
-        incomingHpChangePerTarget,
-        hpChangeProperties
-      );
-      if (healingHpChangesResult instanceof Error) return healingHpChangesResult;
-      crits = healingHpChangesResult.entityIdsCrit;
-      hitPointChanges = healingHpChangesResult.valueChangesByEntityId;
-      break;
-    case HpChangeSourceCategoryType.Direct:
-      return new Error(ERROR_MESSAGES.TODO);
+  if (lifestealHpChange) {
+    lifestealHpChange.value = Math.floor(lifestealHpChange.value);
+    hitPointChanges[userId] = lifestealHpChange;
   }
 
-  Object.entries(hitPointChanges).forEach(([entityId, hpChange]) => {
-    hitPointChanges[entityId] = Math.floor(hpChange);
-  });
-
-  return { hitPointChanges, crits, evasions };
+  return { hitPointChanges, evasions };
 }

@@ -1,0 +1,14 @@
+@keyframes float-up-and-fade-out {
+  0% {
+    transform: translate(0, 0rem);
+    opacity: 1.0;
+  }
+  80% {
+    transform: translate(0, -8rem);
+    opacity: 1.0;
+  }
+  100% {
+    transform: translate(0, -10rem);
+    opacity: 0.0;
+  }
+}

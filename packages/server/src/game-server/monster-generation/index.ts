@@ -8,6 +8,7 @@ import {
   formatMonsterType,
   getMonsterCombatantClass,
   getMonsterCombatantSpecies,
+  iterateNumericEnumKeyedRecord,
   randomNormal,
 } from "@speed-dungeon/common";
 import getMonsterStartingAttributes from "./get-monster-starting-attributes.js";
@@ -49,12 +50,12 @@ export default function generateMonster(level: number) {
   const startingAttributes = getMonsterStartingAttributes(monsterType);
   addAttributesToAccumulator(startingAttributes, monster.combatantProperties.inherentAttributes);
   const attributesPerLevel = getMonsterPerLevelAttributes(monsterType);
-  for (const [attributeKey, value] of Object.entries(attributesPerLevel)) {
-    const attribute = parseInt(attributeKey) as CombatAttribute;
+  for (const [attribute, value] of iterateNumericEnumKeyedRecord(attributesPerLevel)) {
     const levelAdjustedValue = value * (monster.combatantProperties.level - 1);
-    if (!monster.combatantProperties.inherentAttributes[attribute])
-      monster.combatantProperties.inherentAttributes[attribute] = levelAdjustedValue;
-    else monster.combatantProperties.inherentAttributes[attribute]! += levelAdjustedValue;
+    if (attribute === CombatAttribute.Strength)
+      if (!monster.combatantProperties.inherentAttributes[attribute])
+        monster.combatantProperties.inherentAttributes[attribute] = levelAdjustedValue;
+      else monster.combatantProperties.inherentAttributes[attribute]! += levelAdjustedValue;
   }
   // randomize their hp a little
   const baseHp = monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] || 1;

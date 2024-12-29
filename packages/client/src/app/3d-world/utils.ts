@@ -1,9 +1,6 @@
 import {
   AbstractMesh,
-  Camera,
   Color4,
-  CreateScreenshotUsingRenderTarget,
-  Engine,
   ISceneLoaderAsyncResult,
   Mesh,
   MeshBuilder,
@@ -13,14 +10,11 @@ import {
   Vector3,
 } from "@babylonjs/core";
 import { disposeMeshMaterials } from "./game-world/materials/utils";
-import { DYNAMIC_MATERIAL_TAG } from "./game-world/materials/create-default-materials";
-import { BASE_FILE_PATH } from "./combatant-models/modular-character-parts";
+import { BASE_FILE_PATH } from "./combatant-models/modular-character/modular-character-parts";
 
 export async function importMesh(path: string, scene: Scene) {
-  const sceneResult = await SceneLoader.ImportMeshAsync("", BASE_FILE_PATH || "", path, scene);
-  // if (this.useShadows)
-  //   for (const mesh of sceneResult.meshes) this.shadowGenerator?.addShadowCaster(mesh, true);
-  return sceneResult;
+  if (path === "") throw new Error("Empty file path");
+  return SceneLoader.ImportMeshAsync("", BASE_FILE_PATH || "", path, scene);
 }
 
 export function getTransformNodeByName(sceneResult: ISceneLoaderAsyncResult, name: string) {
@@ -41,7 +35,7 @@ export function disposeAsyncLoadedScene(sceneResult: ISceneLoaderAsyncResult | n
   if (sceneResult === null) return;
   while (sceneResult.meshes.length) {
     const mesh = sceneResult.meshes.pop()!;
-    disposeMeshMaterials(mesh, DYNAMIC_MATERIAL_TAG);
+    disposeMeshMaterials(mesh, "");
     mesh.dispose();
   }
   while (sceneResult.skeletons.length) sceneResult.skeletons.pop()!.dispose();

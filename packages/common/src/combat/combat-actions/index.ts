@@ -1,10 +1,10 @@
-export * from "./calculate-combat-action-hp-change-range.js";
 export * from "./combat-action-properties.js";
 export * from "./get-ability-mana-cost.js";
 export * from "./combat-action-requires-melee-range.js";
 export * from "./get-combat-action-execution-time.js";
+export * from "./targeting-schemes-and-categories.js";
 
-import { CombatantAbilityName } from "../../combatants";
+import { AbilityName } from "../../combatants";
 
 export enum CombatActionType {
   AbilityUsed,
@@ -13,7 +13,7 @@ export enum CombatActionType {
 
 export interface AbilityUsed {
   type: CombatActionType.AbilityUsed;
-  abilityName: CombatantAbilityName;
+  abilityName: AbilityName;
 }
 
 export interface ConsumableUsed {

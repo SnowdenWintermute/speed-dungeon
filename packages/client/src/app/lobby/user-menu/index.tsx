@@ -1,26 +1,28 @@
+"use client";
 import { gameWorld } from "@/app/3d-world/SceneManager";
-import ButtonBasic from "@/app/components/atoms/ButtonBasic";
-import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
-import { HTTP_REQUEST_NAMES } from "@/client_consts";
-import { TabMessageType, broadcastChannel, sessionFetcher } from "@/singletons/broadcast-channel";
-import { resetWebsocketConnection } from "@/singletons/websocket-connection";
 import { useGameStore } from "@/stores/game-store";
-import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { useUIStore } from "@/stores/ui-store";
 import { useRouter } from "next/navigation";
+import ButtonBasic from "@/app/components/atoms/ButtonBasic";
+import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
+import { ZIndexLayers } from "@/app/z-index-layers";
+import { HTTP_REQUEST_NAMES } from "@/client_consts";
+import { TabMessageType, broadcastChannel, sessionFetcher } from "@/singletons/broadcast-channel";
+import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
+import { resetWebsocketConnection } from "@/singletons/websocket-connection";
 
 export default function UserMenuContainer() {
-  const username = useGameStore().username;
-  const fetchData = useHttpRequestStore().fetchData;
-  const getSessionRequestTrackerName = "get session";
-  const responseTracker = useHttpRequestStore().requests[getSessionRequestTrackerName];
   const mutateLobbyState = useLobbyStore().mutateState;
   const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
   const showAuthForm = useLobbyStore().showAuthForm;
   const router = useRouter();
+  const username = useGameStore().username;
+  const fetchData = useHttpRequestStore().fetchData;
+  const getSessionRequestTrackerName = "get session";
+  const responseTracker = useHttpRequestStore().requests[getSessionRequestTrackerName];
 
   useEffect(() => {
     // always at least check auth status whenever the top bar is mounted
@@ -91,12 +93,12 @@ export default function UserMenuContainer() {
 }
 
 function UserMenu({ username }: { username: null | string }) {
-  const firstLetterOfUsername = username ? username.charAt(0) : "";
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
   const mutateGameState = useGameStore().mutateState;
   const mutateHttpState = useHttpRequestStore().mutateState;
   const mutateUIState = useUIStore().mutateState;
   const mutateLobbyState = useLobbyStore().mutateState;
+  const firstLetterOfUsername = username ? username.charAt(0) : "";
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   // on log out
@@ -161,25 +163,16 @@ function UserMenu({ username }: { username: null | string }) {
 
   return (
     <div className={`flex flex-col h-fit items-end relative`}>
-      <button
-        type="button"
-        id="user-menu-button"
-        className={`border border-slate-400 rounded-full h-10 w-10 flex justify-center items-center hover:bg-slate-950`}
-        aria-controls="user-menu-items"
-        aria-expanded={showUserDropdown}
-        aria-label={"toggle user menu"}
-        onClick={(_e) => {
-          setShowUserDropdown(!showUserDropdown);
-        }}
-      >
-        <span className="text-lg font-bold pointer-events-none">
-          {firstLetterOfUsername.toUpperCase()}
-        </span>
-      </button>
+      <UserMenuToggleButton
+        showUserDropdown={showUserDropdown}
+        setShowUserDropdown={setShowUserDropdown}
+        firstLetterOfUsername={firstLetterOfUsername}
+      />
 
       {showUserDropdown && (
         <div
           className="w-52 absolute border border-slate-400 -top-2 -right-2 pointer-events-none"
+          style={{ zIndex: ZIndexLayers.UserMenu }}
           ref={userMenuRef}
         >
           <div className="h-14 flex items-center p-4 mb-[2px]" id="user-menu-spacer">
@@ -230,5 +223,33 @@ function UserMenuItem({ children }: { children: ReactNode }) {
     <li className="h-10 border-b border-slate-400 bg-slate-700 flex items-center last:border-b-0 hover:bg-slate-950">
       {children}
     </li>
+  );
+}
+
+function UserMenuToggleButton({
+  setShowUserDropdown,
+  showUserDropdown,
+  firstLetterOfUsername,
+}: {
+  setShowUserDropdown: React.Dispatch<React.SetStateAction<boolean>>;
+  showUserDropdown: boolean;
+  firstLetterOfUsername: string;
+}) {
+  return (
+    <button
+      type="button"
+      id="user-menu-button"
+      className={`border border-slate-400 rounded-full h-10 w-10 flex justify-center items-center hover:bg-slate-950`}
+      aria-controls="user-menu-items"
+      aria-expanded={showUserDropdown}
+      aria-label={"toggle user menu"}
+      onClick={(_e) => {
+        setShowUserDropdown(!showUserDropdown);
+      }}
+    >
+      <span className="text-lg font-bold pointer-events-none">
+        {firstLetterOfUsername.toUpperCase()}
+      </span>
+    </button>
   );
 }

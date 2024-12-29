@@ -1,12 +1,14 @@
-import { CombatantProperties } from "../../../combatants/index.js";
+import { AbilityName, CombatantProperties } from "../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import { EquipmentProperties, EquipmentSlot, EquipmentType } from "../../../items/index.js";
 import { CombatAction, CombatActionType } from "../../combat-actions/index.js";
 import { ActionResult } from "../action-result.js";
 import { ActionResultCalculationArguments } from "../action-result-calculator.js";
-import calculateActionResult from "../calculate-action-result.js";
 import allTargetsWereKilled from "./all-targets-were-killed.js";
-import getAttackAbilityName from "./get-attack-ability-name.js";
+import calculateActionResult from "../index.js";
+import { iterateNumericEnum } from "../../../utils/index.js";
+import { HoldableSlotType } from "../../../items/equipment/slots.js";
+import { Equipment, EquipmentType } from "../../../items/equipment/index.js";
+import { CombatantEquipment } from "../../../combatants/combatant-equipment/index.js";
 
 export default function calculateAttackActionResult(
   game: SpeedDungeonGame,
@@ -19,73 +21,73 @@ export default function calculateAttackActionResult(
 
   const actionResults: ActionResult[] = [];
 
-  let mhEquipmentOption =
-    CombatantProperties.getEquipmentInSlot(userCombatantProperties, EquipmentSlot.MainHand) || null;
-  let ohEquipmentOption =
-    CombatantProperties.getEquipmentInSlot(userCombatantProperties, EquipmentSlot.MainHand) || null;
-
-  // shields can't be used to attack, if not holding a shield they can attack with offhand unarmed strike
   let mhAttackEndsTurn = false;
 
-  if (
-    (mhEquipmentOption !== null &&
-      EquipmentProperties.isTwoHanded(mhEquipmentOption.equipmentBaseItemProperties.type)) ||
-    (ohEquipmentOption !== null &&
-      ohEquipmentOption.equipmentBaseItemProperties.type === EquipmentType.Shield)
-  )
-    mhAttackEndsTurn = true;
+  const actionsToCalculate: CombatAction[] = [];
 
-  const mhAttackAbilityNameResult = getAttackAbilityName(
-    mhEquipmentOption?.equipmentBaseItemProperties.type ?? null,
-    false
-  );
+  for (const holdableSlotType of iterateNumericEnum(HoldableSlotType)) {
+    if (mhAttackEndsTurn) continue;
 
-  if (mhAttackAbilityNameResult instanceof Error) return mhAttackAbilityNameResult;
-  const mhAttackAction: CombatAction = {
-    type: CombatActionType.AbilityUsed,
-    abilityName: mhAttackAbilityNameResult,
-  };
+    const equipmentOption = CombatantEquipment.getEquippedHoldable(
+      userCombatantProperties,
+      holdableSlotType
+    );
+    mhAttackEndsTurn = !!(
+      equipmentOption && Equipment.isTwoHanded(equipmentOption.equipmentBaseItemProperties.type)
+    );
 
-  const mhActionResultArgs: ActionResultCalculationArguments = {
-    ...args,
-    combatAction: mhAttackAction,
-  };
+    const combatActionOption = getAttackCombatActionOption(
+      userCombatantProperties,
+      holdableSlotType
+    );
+    if (combatActionOption) actionsToCalculate.push(combatActionOption);
+  }
 
-  const mhAttackResultResult = calculateActionResult(game, mhActionResultArgs);
-  if (mhAttackResultResult instanceof Error) return mhAttackResultResult;
+  for (const action of actionsToCalculate) {
+    const actionResultArgs: ActionResultCalculationArguments = {
+      ...args,
+      combatAction: action,
+    };
+    const actionResult = calculateActionResult(game, actionResultArgs);
+    if (actionResult instanceof Error) return actionResult;
+    actionResults.push(actionResult);
+    const allTargetsDefeatedResult = allTargetsWereKilled(game, actionResult);
+    if (allTargetsDefeatedResult instanceof Error) return allTargetsDefeatedResult;
 
-  const mhAttackResult = mhAttackResultResult;
-
-  // if targets died, don't calculate the offhand swing
-  const allTargetsDefeatedResult = allTargetsWereKilled(game, mhAttackResult);
-  if (allTargetsDefeatedResult instanceof Error) return allTargetsDefeatedResult;
-  const allTargetsDefeated = allTargetsDefeatedResult;
-  if (allTargetsDefeated) mhAttackEndsTurn = true;
-
-  mhAttackResult.endsTurn = mhAttackEndsTurn;
-  actionResults.push(mhAttackResult);
-
-  if (mhAttackEndsTurn) return actionResults;
-
-  // OFFHAND
-  const ohAttackAbilityNameResult = getAttackAbilityName(
-    ohEquipmentOption?.equipmentBaseItemProperties.type ?? null,
-    true
-  );
-  if (ohAttackAbilityNameResult instanceof Error) return ohAttackAbilityNameResult;
-  const ohAttackAction: CombatAction = {
-    type: CombatActionType.AbilityUsed,
-    abilityName: ohAttackAbilityNameResult,
-  };
-
-  const ohActionResultArgs: ActionResultCalculationArguments = {
-    ...args,
-    combatAction: ohAttackAction,
-  };
-
-  const ohAttackResultResult = calculateActionResult(game, ohActionResultArgs);
-  if (ohAttackResultResult instanceof Error) return ohAttackResultResult;
-  actionResults.push(ohAttackResultResult);
+    if (allTargetsDefeatedResult) {
+      mhAttackEndsTurn = true;
+      actionResult.endsTurn = true;
+      break;
+    }
+  }
 
   return actionResults;
+}
+
+export function getAttackCombatActionOption(
+  combatantProperties: CombatantProperties,
+  holdableSlotType: HoldableSlotType
+): null | CombatAction {
+  const equipmentOption = CombatantEquipment.getEquippedHoldable(
+    combatantProperties,
+    holdableSlotType
+  );
+
+  if (
+    !equipmentOption || // unarmed
+    equipmentOption.equipmentBaseItemProperties.type === EquipmentType.OneHandedMeleeWeapon ||
+    equipmentOption.equipmentBaseItemProperties.type === EquipmentType.TwoHandedMeleeWeapon
+  ) {
+    const abilityName =
+      holdableSlotType === HoldableSlotType.MainHand
+        ? AbilityName.AttackMeleeMainhand
+        : AbilityName.AttackMeleeOffhand;
+
+    return { type: CombatActionType.AbilityUsed, abilityName };
+  }
+
+  if (equipmentOption.equipmentBaseItemProperties.type === EquipmentType.TwoHandedRangedWeapon)
+    return { type: CombatActionType.AbilityUsed, abilityName: AbilityName.AttackRangedMainhand };
+
+  return null;
 }

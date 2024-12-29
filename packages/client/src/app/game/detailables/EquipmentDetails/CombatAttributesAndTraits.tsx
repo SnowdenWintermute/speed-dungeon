@@ -1,19 +1,18 @@
 import {
+  COMBAT_ATTRIBUTE_STRINGS,
   CORE_ATTRIBUTES,
-  CombatAttribute,
-  EquipmentProperties,
+  Equipment,
   EquipmentTraitType,
-  formatCombatAttribute,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { Affix, AffixType, PrefixType, SuffixType } from "@speed-dungeon/common";
 import React from "react";
 
 interface Props {
-  equipmentProperties: EquipmentProperties;
+  equipment: Equipment;
 }
 
-export default function CombatAttributesAndTraits({ equipmentProperties }: Props) {
+export default function CombatAttributesAndTraits({ equipment }: Props) {
   let equipmentModDisplaysInPrefixSuffixOrder: string[] = [];
   const affixBonusText: Record<AffixType, { attributes: string[]; traits: string[] }> = {
     [AffixType.Prefix]: {
@@ -26,11 +25,8 @@ export default function CombatAttributesAndTraits({ equipmentProperties }: Props
     },
   };
 
-  for (const [affixCategory, affixes] of iterateNumericEnumKeyedRecord(
-    equipmentProperties.affixes
-  )) {
-    for (const [key, affix] of Object.entries(affixes)) {
-      const affixType = parseInt(key) as SuffixType | PrefixType;
+  for (const [affixCategory, affixes] of iterateNumericEnumKeyedRecord(equipment.affixes)) {
+    for (const [affixType, affix] of iterateNumericEnumKeyedRecord(affixes)) {
       const formattedAttributeBonusResult = formatAffixCombatAttributeBonuses(
         affix,
         affixCategory,
@@ -49,7 +45,7 @@ export default function CombatAttributesAndTraits({ equipmentProperties }: Props
   equipmentModDisplaysInPrefixSuffixOrder.push(...affixBonusText[AffixType.Suffix].traits);
 
   return (
-    <div>
+    <div className="text-blue-300">
       {equipmentModDisplaysInPrefixSuffixOrder.map((text, i) => (
         <div key={text + i}>{text}</div>
       ))}
@@ -78,7 +74,7 @@ function formatAffixCombatAttributeBonuses(
     toReturn.push(`+${lastCoreAttributeValue} to core attributes`);
   } else {
     for (const [attribute, value] of iterateNumericEnumKeyedRecord(affix.combatAttributes)) {
-      toReturn.push(`+${value} ${formatCombatAttribute(attribute)}`);
+      toReturn.push(`+${value} ${COMBAT_ATTRIBUTE_STRINGS[attribute]}`);
     }
   }
 
@@ -89,14 +85,17 @@ function formatAffixEquipmentTraits(affix: Affix): string[] {
   const toReturn = [];
   for (const equipmentTrait of Object.values(affix.equipmentTraits)) {
     switch (equipmentTrait.equipmentTraitType) {
+      case EquipmentTraitType.FlatDamageAdditive:
+        toReturn.push(`+${equipmentTrait.value} weapon damage`);
+        break;
       case EquipmentTraitType.ArmorClassPercentage:
-        toReturn.push(`+ ${equipmentTrait.percentage}% armor class`);
+        toReturn.push(`+${equipmentTrait.value}% armor class`);
         break;
       case EquipmentTraitType.LifeSteal:
-        toReturn.push(`Heal ${equipmentTrait.percentage}% of damage dealt on hit`);
+        toReturn.push(`Heal for ${equipmentTrait.value}% of damage dealt`);
         break;
       case EquipmentTraitType.DamagePercentage:
-        toReturn.push(`+ ${equipmentTrait.percentage}% weapon damage`);
+        toReturn.push(`+${equipmentTrait.value}% weapon damage`);
         break;
     }
   }

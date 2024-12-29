@@ -15,7 +15,7 @@ export default function selectItem(itemOption: null | Item) {
       return;
     }
 
-    gameState.detailedEntity = Item.fromObject(itemOption);
+    gameState.detailedEntity = itemOption;
     detailedItemIsNowNull = false;
   });
 

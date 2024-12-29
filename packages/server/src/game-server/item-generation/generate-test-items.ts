@@ -2,11 +2,12 @@ import {
   BASE_ITEMS_BY_EQUIPMENT_TYPE,
   CombatantProperties,
   DEEPEST_FLOOR,
+  Equipment,
   EquipmentBaseItem,
   EquipmentType,
+  Inventory,
   Item,
-  ItemPropertiesType,
-  Shield,
+  ItemType,
   iterateNumericEnum,
   randBetween,
 } from "@speed-dungeon/common";
@@ -16,7 +17,8 @@ export default function generateTestItems(combatantProperties: CombatantProperti
   for (let i = 0; i < num; i += 1) {
     const iLvl = randBetween(1, DEEPEST_FLOOR);
     const randomItem = getGameServer().generateRandomItem(1);
-    if (!(randomItem instanceof Error)) combatantProperties.inventory.items.push(randomItem);
+    if (randomItem instanceof Error) return console.error(randomItem);
+    Inventory.insertItem(combatantProperties.inventory, randomItem);
   }
 }
 
@@ -28,11 +30,14 @@ export function generateSpecificEquipmentType(
     getGameServer().itemGenerationDirectors[equipmentBaseItem.equipmentType];
   const item = itemGenerationDirector?.createItem(1, idGenerator, {
     forcedBaseItemOption: {
-      type: ItemPropertiesType.Equipment,
+      type: ItemType.Equipment,
       baseItem: equipmentBaseItem,
     },
     noAffixes,
   });
+
+  if (!(item instanceof Equipment)) return new Error("invalid item type created");
+
   return item;
 }
 
@@ -45,8 +50,8 @@ export function generateOneOfEachItem() {
     const equipmentType = parseInt(equipmentTypeString) as EquipmentType;
     if (
       ![
-        EquipmentType.OneHandedMeleeWeapon,
-        EquipmentType.TwoHandedMeleeWeapon,
+        // EquipmentType.OneHandedMeleeWeapon,
+        // EquipmentType.TwoHandedMeleeWeapon,
         EquipmentType.TwoHandedRangedWeapon,
         EquipmentType.Shield,
       ].includes(equipmentType)

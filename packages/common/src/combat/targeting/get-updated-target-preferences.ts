@@ -1,7 +1,11 @@
 import cloneDeep from "lodash.clonedeep";
-import { CombatActionProperties, FriendOrFoe, TargetingScheme } from "../index.js";
+import { CombatActionProperties } from "../index.js";
 import { CombatActionTargetPreferences } from "../../game/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
+import {
+  FriendOrFoe,
+  TargetingScheme,
+} from "../combat-actions/targeting-schemes-and-categories.js";
 
 export default function getUpdatedTargetPreferences(
   currentPreferences: CombatActionTargetPreferences,

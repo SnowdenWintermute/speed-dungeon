@@ -1,21 +1,23 @@
 import {
   BattleConclusion,
   BattleResultActionCommandPayload,
+  Consumable,
   ERROR_MESSAGES,
-  ItemPropertiesType,
+  Equipment,
+  InputLock,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { ClientActionCommandReceiver } from ".";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { ActionCommandManager } from "@speed-dungeon/common";
 import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
-import { useGameStore } from "@/stores/game-store";
+import { itemsOnGroundMenuState, useGameStore } from "@/stores/game-store";
 import { gameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
+import { MenuStateType } from "../game/ActionMenu/menu-state";
+import { plainToInstance } from "class-transformer";
 
-export default function battleResultActionCommandHandler(
+export default async function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
-  actionCommandManager: ActionCommandManager,
   _gameName: string,
   _combatantId: string,
   payload: BattleResultActionCommandPayload
@@ -23,15 +25,23 @@ export default function battleResultActionCommandHandler(
   const { timestamp } = payload;
 
   if (payload.loot) {
-    for (const item of payload.loot) {
-      console.log("enqueueing screenshot creation for ", item.entityProperties.name);
-      if (item.itemProperties.type === ItemPropertiesType.Consumable) continue;
+    payload.loot.equipment = payload.loot.equipment.map((item) => plainToInstance(Equipment, item));
+    payload.loot.consumables = payload.loot.consumables.map((item) =>
+      plainToInstance(Consumable, item)
+    );
 
+    for (const item of payload.loot.equipment) {
       gameWorld.current?.imageManager.enqueueMessage({
         type: ImageManagerRequestType.ItemCreation,
         item,
       });
     }
+
+    const currentMenu = useGameStore.getState().getCurrentMenu();
+    if (currentMenu.type === MenuStateType.Base)
+      useGameStore.getState().mutateState((state) => {
+        state.stackedMenuStates.push(itemsOnGroundMenuState);
+      });
   }
 
   useGameStore.getState().mutateState((state) => {
@@ -40,6 +50,7 @@ export default function battleResultActionCommandHandler(
     if (state.username === null) return console.error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
     const partyOption = getCurrentParty(state, state.username);
     if (partyOption === undefined) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+    InputLock.unlockInput(partyOption.inputLock);
     switch (payload.conclusion) {
       case BattleConclusion.Defeat:
         partyOption.timeOfWipe = timestamp;
@@ -75,5 +86,4 @@ export default function battleResultActionCommandHandler(
 
     state.baseMenuState.inCombat = false;
   });
-  actionCommandManager.processNextCommand();
 }

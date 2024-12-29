@@ -105,6 +105,7 @@ export const ERROR_MESSAGES = {
     CANT_USE_ON_DEAD_TARGET: "That action may only be used on living targets",
     ALREADY_FULL_HP: "The target already has full hit points",
     ALREADY_FULL_MP: "The target already has full mana",
+    NOT_USABLE_IN_COMBAT: "That action can not be performed in combat",
   },
   ITEM: {
     NOT_FOUND: "No item was found with the provided ID",
@@ -118,17 +119,23 @@ export const ERROR_MESSAGES = {
     INVALID_TYPE: "Invalid equipment type was provided",
     NO_ITEM_EQUIPPED: "No item is equipped in that slot",
     REQUIREMENTS_NOT_MET: "You don't meet the requirements to equip that item",
+    EXPECTED_TRAIT_MISSING: "Expected to find an equipment trait but didn't",
+    NO_SELECTED_HOTSWAP_SLOT: "The combatant has no slots to equip holdable items",
+    SELECTED_SLOT_OUT_OF_BOUNDS:
+      "Combatant tried to equip a holdable equipment set that doesn't exist",
   },
   BATTLE: {
     COMBATANT_NOT_IN_BATTLE: "The provided ID did not match any combatant in this battle",
     TURN_TRACKERS_EMPTY: "Battle has no combatant turn trackers",
   },
   GAME_WORLD: {
+    NOT_FOUND: "Expected game world not found",
     NO_COMBATANT_MODEL: "No combatant model exists with the provided entity ID",
     INCOMPLETE_SKELETON_FILE: "The loaded skeleton asset is missing something",
     MISSING_ROTATION_QUATERNION: "Expected rotation data was missing",
     MISSING_ANIMATION: "No animation found",
     INCORRECT_MODEL_ACTION: "The wrong type of model action was passed to this function",
+    NO_EQUIPMENT_MODEL: "Equipment model not found",
   },
   CHECKED_EXPECTATION_FAILED:
     "Code was reached that should have been impossible due to prior value checks",

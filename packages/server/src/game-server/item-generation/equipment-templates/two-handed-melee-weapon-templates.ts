@@ -2,20 +2,18 @@ import {
   CombatAttribute,
   EquipmentBaseItem,
   EquipmentType,
-  Evadable,
   HpChangeSource,
-  HpChangeSourceCategoryType,
+  HpChangeSourceCategory,
+  KineticDamageType,
   MagicalElement,
   MeleeOrRanged,
   NumberRange,
-  PhysicalDamageType,
   PrefixType,
   SuffixType,
   TwoHandedMeleeWeapon,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 import { WeaponGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
-import { query } from "express";
 
 export class TwoHandedMeleeWeaponGenerationTemplate extends WeaponGenerationTemplate {
   constructor(
@@ -70,13 +68,14 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
     {};
 
   for (const weapon of iterateNumericEnum(TwoHandedMeleeWeapon)) {
-    let template = new TwoHandedMeleeWeaponGenerationTemplate(new NumberRange(1, 3), [], {
+    const template = new TwoHandedMeleeWeaponGenerationTemplate(new NumberRange(1, 3), [], {
       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
       baseItemType: weapon,
     });
     let mainDamageClassification: null | HpChangeSource = new HpChangeSource(
-      { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
-      PhysicalDamageType.Blunt
+      HpChangeSourceCategory.Physical,
+      MeleeOrRanged.Melee,
+      KineticDamageType.Blunt
     );
 
     switch (weapon) {
@@ -92,14 +91,14 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case TwoHandedMeleeWeapon.Spear:
         template.levelRange = new NumberRange(2, 5);
         template.damage = new NumberRange(3, 9);
-        mainDamageClassification.physicalDamageTypeOption = PhysicalDamageType.Piercing;
+        mainDamageClassification.kineticDamageTypeOption = KineticDamageType.Piercing;
         template.requirements[CombatAttribute.Dexterity] = 5;
         template.requirements[CombatAttribute.Strength] = 2;
         break;
       case TwoHandedMeleeWeapon.Bardiche:
         template.levelRange = new NumberRange(2, 5);
         template.damage = new NumberRange(1, 11);
-        mainDamageClassification.physicalDamageTypeOption = PhysicalDamageType.Slashing;
+        mainDamageClassification.kineticDamageTypeOption = KineticDamageType.Slashing;
         template.requirements[CombatAttribute.Strength] = 9;
         break;
       case TwoHandedMeleeWeapon.SplittingMaul:
@@ -109,12 +108,14 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.numDamageClassifications = 2;
         template.possibleDamageClassifications = [
           new HpChangeSource(
-            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
-            PhysicalDamageType.Slashing
+            HpChangeSourceCategory.Physical,
+            MeleeOrRanged.Melee,
+            KineticDamageType.Slashing
           ),
           new HpChangeSource(
-            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
-            PhysicalDamageType.Blunt
+            HpChangeSourceCategory.Physical,
+            MeleeOrRanged.Melee,
+            KineticDamageType.Blunt
           ),
         ];
         template.requirements[CombatAttribute.Strength] = 11;
@@ -128,7 +129,7 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case TwoHandedMeleeWeapon.BattleAxe:
         template.levelRange = new NumberRange(5, 7);
         template.damage = new NumberRange(6, 15);
-        mainDamageClassification.physicalDamageTypeOption = PhysicalDamageType.Slashing;
+        mainDamageClassification.kineticDamageTypeOption = KineticDamageType.Slashing;
         template.requirements[CombatAttribute.Strength] = 13;
         template.requirements[CombatAttribute.Dexterity] = 7;
         break;
@@ -139,12 +140,14 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.numDamageClassifications = 2;
         template.possibleDamageClassifications = [
           new HpChangeSource(
-            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
-            PhysicalDamageType.Slashing
+            HpChangeSourceCategory.Physical,
+            MeleeOrRanged.Melee,
+            KineticDamageType.Slashing
           ),
           new HpChangeSource(
-            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
-            PhysicalDamageType.Piercing
+            HpChangeSourceCategory.Physical,
+            MeleeOrRanged.Melee,
+            KineticDamageType.Piercing
           ),
         ];
         template.requirements[CombatAttribute.Dexterity] = 15;
@@ -155,33 +158,17 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.damage = new NumberRange(10, 18);
         mainDamageClassification = null;
         template.numDamageClassifications = 2;
-        template.possibleDamageClassifications = [
-          new HpChangeSource(
-            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
-            PhysicalDamageType.Blunt,
-            MagicalElement.Fire
-          ),
-          new HpChangeSource(
-            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
-            PhysicalDamageType.Blunt,
-            MagicalElement.Ice
-          ),
-          new HpChangeSource(
-            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
-            PhysicalDamageType.Blunt,
-            MagicalElement.Lightning
-          ),
-          new HpChangeSource(
-            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
-            PhysicalDamageType.Blunt,
-            MagicalElement.Wind
-          ),
-          new HpChangeSource(
-            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
-            PhysicalDamageType.Blunt,
-            MagicalElement.Earth
-          ),
-        ];
+        template.possibleDamageClassifications = iterateNumericEnum(MagicalElement)
+          .filter((element) => element !== MagicalElement.Dark && element !== MagicalElement.Light)
+          .map(
+            (element) =>
+              new HpChangeSource(
+                HpChangeSourceCategory.Physical,
+                MeleeOrRanged.Melee,
+                KineticDamageType.Blunt,
+                element
+              )
+          );
         template.requirements[CombatAttribute.Intelligence] = 7;
         template.requirements[CombatAttribute.Strength] = 7;
         break;
@@ -192,13 +179,15 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.numDamageClassifications = 2;
         template.possibleDamageClassifications = [
           new HpChangeSource(
-            { type: HpChangeSourceCategoryType.MagicalDamage, evadable: Evadable.False },
-            null,
+            HpChangeSourceCategory.Magical,
+            MeleeOrRanged.Melee,
+            undefined,
             MagicalElement.Water
           ),
           new HpChangeSource(
-            { type: HpChangeSourceCategoryType.PhysicalDamage, meleeOrRanged: MeleeOrRanged.Melee },
-            PhysicalDamageType.Piercing
+            HpChangeSourceCategory.Physical,
+            MeleeOrRanged.Melee,
+            KineticDamageType.Piercing
           ),
         ];
         template.requirements[CombatAttribute.Intelligence] = 7;
@@ -207,7 +196,7 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case TwoHandedMeleeWeapon.GreatAxe:
         template.levelRange = new NumberRange(9, 10);
         template.damage = new NumberRange(15, 35);
-        mainDamageClassification.physicalDamageTypeOption = PhysicalDamageType.Slashing;
+        mainDamageClassification.kineticDamageTypeOption = KineticDamageType.Slashing;
         template.requirements[CombatAttribute.Strength] = 23;
         template.requirements[CombatAttribute.Dexterity] = 11;
         break;
@@ -243,6 +232,7 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         delete template.possibleAffixes.suffix[SuffixType.Damage];
         delete template.possibleAffixes.suffix[SuffixType.Dexterity];
         delete template.possibleAffixes.suffix[SuffixType.Strength];
+        template.possibleAffixes.prefix[PrefixType.Mp] = 5;
         break;
       default:
     }

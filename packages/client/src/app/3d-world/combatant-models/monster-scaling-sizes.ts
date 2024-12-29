@@ -1,4 +1,4 @@
-import { MonsterType } from "@speed-dungeon/common/dist/monsters/monster-types";
+import { MonsterType } from "@speed-dungeon/common";
 
 // since there is an issue with drawing the bounding box for models
 // scaled in blender and we want to be able to control the size

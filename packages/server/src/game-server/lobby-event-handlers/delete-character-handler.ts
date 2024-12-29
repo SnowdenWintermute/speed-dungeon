@@ -22,7 +22,12 @@ export default function deleteCharacterHandler(
   if (!player.characterIds.includes(characterId.toString()))
     return errorHandler(socket, ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
 
-  const removeCharacterResult = AdventuringParty.removeCharacter(party, characterId, player);
+  const removeCharacterResult = AdventuringParty.removeCharacter(
+    party,
+    characterId,
+    player,
+    undefined
+  );
   if (removeCharacterResult instanceof Error)
     return errorHandler(socket, removeCharacterResult.message);
 

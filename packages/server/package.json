@@ -6,7 +6,7 @@
   "scripts": {
     "migrate": "node-pg-migrate -f pg-migrate-config.json",
     "serve": "tsc-watch -b --onSuccess \"node dist/index.js\"",
-    "test": "node --experimental-vm-modules $(yarn bin jest) --no-cache --setupFiles dotenv/config --watchAll"
+    "test": "node --experimental-vm-modules --trace-warnings --inspect $(yarn bin jest) --no-cache --setupFiles dotenv/config --watchAll"
   },
   "type": "module",
   "keywords": [],
@@ -24,7 +24,7 @@
     "pg-format": "1.0.4",
     "redis": "4.7.0",
     "socket.io": "4.7.5",
-    "socket.io-client": "^4.8.1",
+    "socket.io-client": "4.8.1",
     "uuid": "10.0.0",
     "zod": "3.23.8",
     "node-pg-migrate": "7.7.1"

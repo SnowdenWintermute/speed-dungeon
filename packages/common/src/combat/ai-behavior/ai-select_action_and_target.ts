@@ -1,16 +1,13 @@
-import { CombatActionTargetType, FriendOrFoe } from "../index.js";
+import { CombatActionTargetType } from "../index.js";
 import { BattleGroup } from "../../battle/index.js";
-import {
-  CombatantAbilityName,
-  Combatant,
-  CombatantProperties,
-} from "../../combatants/index.js";
+import { AbilityName, Combatant, CombatantProperties } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { chooseRandomFromArray } from "../../utils/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
+import { FriendOrFoe } from "../combat-actions/targeting-schemes-and-categories.js";
 
 export interface AbilityAndTarget {
-  abilityName: CombatantAbilityName;
+  abilityName: AbilityName;
   target: CombatActionTarget;
 }
 
@@ -28,50 +25,55 @@ export function AISelectActionAndTarget(
   if (userCombatantResult instanceof Error) return userCombatantResult;
   const { combatantProperties: userCombatantProperties } = userCombatantResult;
 
-  if (userCombatantProperties.abilities[CombatantAbilityName.Fire]) {
+  const attackAbility: AbilityAndTarget = {
+    abilityName: AbilityName.Attack,
+    target: {
+      type: CombatActionTargetType.Single,
+      targetId: randomEnemyTarget.entityProperties.id,
+    },
+  };
+
+  if (userCombatantProperties.abilities[AbilityName.Fire]) {
     const manaCostResult = CombatantProperties.getAbilityCostIfOwned(
       userCombatantProperties,
-      CombatantAbilityName.Fire
+      AbilityName.Fire
     );
     if (manaCostResult instanceof Error) return manaCostResult;
+    if (userCombatantProperties.mana < manaCostResult) return attackAbility;
     return {
-      abilityName: CombatantAbilityName.Fire,
+      abilityName: AbilityName.Fire,
       target: { type: CombatActionTargetType.Group, friendOrFoe: FriendOrFoe.Hostile },
     };
   }
-  if (userCombatantProperties.abilities[CombatantAbilityName.Ice]) {
+  if (userCombatantProperties.abilities[AbilityName.Ice]) {
     const manaCostResult = CombatantProperties.getAbilityCostIfOwned(
       userCombatantProperties,
-      CombatantAbilityName.Ice
+      AbilityName.Ice
     );
     if (manaCostResult instanceof Error) return manaCostResult;
+    if (userCombatantProperties.mana < manaCostResult) return attackAbility;
     return {
-      abilityName: CombatantAbilityName.Ice,
+      abilityName: AbilityName.Ice,
       target: {
         type: CombatActionTargetType.Single,
         targetId: randomEnemyTarget.entityProperties.id,
       },
     };
   }
-  if (userCombatantProperties.abilities[CombatantAbilityName.Healing]) {
+  if (userCombatantProperties.abilities[AbilityName.Healing]) {
     const manaCostResult = CombatantProperties.getAbilityCostIfOwned(
       userCombatantProperties,
-      CombatantAbilityName.Healing
+      AbilityName.Healing
     );
     if (manaCostResult instanceof Error) return manaCostResult;
+    if (userCombatantProperties.mana < manaCostResult) return attackAbility;
     return {
-      abilityName: CombatantAbilityName.Healing,
+      abilityName: AbilityName.Healing,
       target: { type: CombatActionTargetType.Group, friendOrFoe: FriendOrFoe.Friendly },
     };
   }
 
-  return {
-    abilityName: CombatantAbilityName.Attack,
-    target: {
-      type: CombatActionTargetType.Single,
-      targetId: randomEnemyTarget.entityProperties.id,
-    },
-  };
+  return attackAbility;
 }
 
 function getRandomAliveEnemy(

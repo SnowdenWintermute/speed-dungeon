@@ -8,9 +8,9 @@ import {
 import { useGameStore } from "@/stores/game-store";
 import { createImageCreatorScene } from "./create-image-creator-scene";
 import { SavedMaterials, createDefaultMaterials } from "../materials/create-default-materials";
-import { Item, ItemPropertiesType } from "@speed-dungeon/common";
+import { Equipment, Item } from "@speed-dungeon/common";
 import { calculateCompositeBoundingBox, disposeAsyncLoadedScene } from "../../utils";
-import { spawnItemModel } from "../../combatant-models/spawn-item-models";
+import { spawnItemModel } from "../../item-models/spawn-item-model";
 
 export enum ImageManagerRequestType {
   ItemCreation,
@@ -54,6 +54,8 @@ export class ImageManager {
     this.camera = new UniversalCamera("camera", new Vector3(0, 0, 3), this.scene);
     this.camera.minZ = 0;
     this.materials = createDefaultMaterials(this.scene);
+
+    // pixelate(this.camera, this.scene, 2);
   }
 
   processNextMessage() {
@@ -107,8 +109,11 @@ export class ImageManager {
   }
 
   async createItemImage(item: Item) {
-    const equipmentModelResult = await spawnItemModel(item, this.scene, this.materials);
-    if (equipmentModelResult instanceof Error) return console.error(equipmentModelResult);
+    const equipmentModelResult = await spawnItemModel(item, this.scene, this.materials, false);
+    if (equipmentModelResult instanceof Error) {
+      this.processNextMessage();
+      return console.error("no equipment model");
+    }
     const parentMesh = equipmentModelResult.meshes[0];
     if (!parentMesh) return console.error("no parent mesh");
 
@@ -128,10 +133,7 @@ export class ImageManager {
     camera.position = center.add(new Vector3(0, 0, distance));
     camera.setTarget(center);
 
-    const canvasHeight =
-      item.itemProperties.type === ItemPropertiesType.Equipment
-        ? itemHeight * 120
-        : itemHeight * 420;
+    const canvasHeight = item instanceof Equipment ? itemHeight * 120 : itemHeight * 420;
     const canvasWidth = (size.x / size.y) * canvasHeight;
     this.canvas.width = canvasWidth;
     this.canvas.height = canvasHeight;

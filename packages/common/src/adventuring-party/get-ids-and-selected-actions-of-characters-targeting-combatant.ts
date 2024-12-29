@@ -1,7 +1,8 @@
 import { AdventuringParty } from "./index.js";
-import { CombatAction, CombatActionTargetType, FriendOrFoe } from "../combat/index.js";
+import { CombatAction, CombatActionTargetType } from "../combat/index.js";
 import { filterPossibleTargetIdsByProhibitedCombatantStates } from "../combat/targeting/filtering.js";
 import { CombatantProperties } from "../combatants/index.js";
+import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 
 export default function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
   party: AdventuringParty,

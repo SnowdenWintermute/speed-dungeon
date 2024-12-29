@@ -11,6 +11,21 @@ export class Battle {
     public turnTrackers: CombatantTurnTracker[]
   ) {}
 
+  static removeCombatantTurnTrackers(battle: Battle, combatantId: string) {
+    let indexToRemoveOption = null;
+    battle.turnTrackers.forEach((turnTracker, i) => {
+      if (turnTracker.entityId === combatantId) {
+        indexToRemoveOption = i;
+      }
+    });
+    if (indexToRemoveOption !== null) battle.turnTrackers.splice(indexToRemoveOption, 1);
+  }
+  static removeCombatant(battle: Battle, combatantId: string) {
+    Battle.removeCombatantTurnTrackers(battle, combatantId);
+    battle.groupA.combatantIds = battle.groupA.combatantIds.filter((id) => id !== combatantId);
+    battle.groupB.combatantIds = battle.groupB.combatantIds.filter((id) => id !== combatantId);
+  }
+
   static combatantIsFirstInTurnOrder(battle: Battle, combatantId: string) {
     if (battle.turnTrackers.length < 1) return false;
 

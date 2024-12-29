@@ -1,8 +1,14 @@
 import { useGameStore } from "@/stores/game-store";
-import { getItemInAdventuringParty } from "@speed-dungeon/common";
+import {
+  CombatantEquipment,
+  EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
+  Equipment,
+  EquipmentSlotType,
+  getItemInAdventuringParty,
+} from "@speed-dungeon/common";
 import { getPlayerPartyOption } from "@speed-dungeon/common";
 import getFocusedCharacter from "./getFocusedCharacter";
-import { EquipableSlots, ItemPropertiesType, getEquipableSlots } from "@speed-dungeon/common";
+import { EquipableSlots } from "@speed-dungeon/common";
 
 export default function setComparedItem(itemId: string, compareAltSlot: boolean) {
   useGameStore.getState().mutateState((gameState) => {
@@ -18,9 +24,8 @@ export default function setComparedItem(itemId: string, compareAltSlot: boolean)
     const item = itemResult;
 
     let slotsOption: null | EquipableSlots = null;
-    if (item.itemProperties.type === ItemPropertiesType.Equipment) {
-      slotsOption = getEquipableSlots(item.itemProperties.equipmentProperties);
-    }
+    if (item instanceof Equipment)
+      slotsOption = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[item.equipmentBaseItemProperties.type];
 
     if (slotsOption === null) {
       gameState.comparedItem = null;
@@ -30,7 +35,11 @@ export default function setComparedItem(itemId: string, compareAltSlot: boolean)
     if (slotsOption.alternate !== null && compareAltSlot) slotToCompare = slotsOption.alternate;
     gameState.comparedSlot = slotToCompare;
 
-    const equippedItemOption = focusedCharacter.combatantProperties.equipment[slotToCompare];
+    const equippedItemOption = CombatantEquipment.getEquipmentInSlot(
+      focusedCharacter.combatantProperties,
+      slotToCompare
+    );
+
     if (!equippedItemOption || equippedItemOption.entityProperties.id === itemId)
       gameState.comparedItem = null;
     else gameState.comparedItem = equippedItemOption;

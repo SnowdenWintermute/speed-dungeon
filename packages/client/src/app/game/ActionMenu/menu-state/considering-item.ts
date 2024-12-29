@@ -10,8 +10,10 @@ import {
   ClientToServerEvent,
   CombatActionType,
   CombatantProperties,
+  Consumable,
+  Equipment,
+  EquipmentType,
   Item,
-  ItemPropertiesType,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -19,6 +21,13 @@ import { useUIStore } from "@/stores/ui-store";
 import selectItem from "@/utils/selectItem";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
+
+const equipAltSlotHotkey = HOTKEYS.ALT_1;
+const useItemHotkey = HOTKEYS.MAIN_1;
+const useItemLetter = letterFromKeyCode(useItemHotkey);
+const dropItemHotkey = HOTKEYS.MAIN_2;
+export const USE_CONSUMABLE_BUTTON_TEXT = `Use (${useItemLetter})`;
+export const EQUIP_ITEM_BUTTON_TEXT = `Equip (${useItemLetter})`;
 
 export class ConsideringItemMenuState implements ActionMenuState {
   page = 1;
@@ -54,46 +63,68 @@ export class ConsideringItemMenuState implements ActionMenuState {
 
     const useItemHotkey = HOTKEYS.MAIN_1;
     const useItemLetter = letterFromKeyCode(useItemHotkey);
+    const slotItemIsEquippedTo = CombatantProperties.getSlotItemIsEquippedTo(
+      focusedCharacterResult.combatantProperties,
+      itemId
+    );
+
+    if (
+      !useUIStore.getState().modKeyHeld &&
+      this.item instanceof Equipment &&
+      (this.item.equipmentBaseItemProperties.type === EquipmentType.OneHandedMeleeWeapon ||
+        this.item.equipmentBaseItemProperties.type === EquipmentType.Ring) &&
+      slotItemIsEquippedTo === null
+    ) {
+      const equipToAltSlotButton = new ActionMenuButtonProperties(
+        `Equip Alt. (${letterFromKeyCode(equipAltSlotHotkey)})`,
+        () => {
+          websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
+            characterId,
+            itemId,
+            equipToAltSlot: true,
+          });
+        }
+      );
+      equipToAltSlotButton.dedicatedKeys = [equipAltSlotHotkey];
+      toReturn[ActionButtonCategory.Top].push(equipToAltSlotButton);
+    }
+
     const useItemButton = (() => {
-      switch (this.item.itemProperties.type) {
-        case ItemPropertiesType.Equipment:
-          const slotItemIsEquippedTo = CombatantProperties.getSlotItemIsEquippedTo(
-            focusedCharacterResult.combatantProperties,
-            itemId
-          );
-          if (slotItemIsEquippedTo !== null)
-            return new ActionMenuButtonProperties(`Unequip (${useItemLetter})`, () => {
-              websocketConnection.emit(ClientToServerEvent.UnequipSlot, {
-                characterId,
-                slot: slotItemIsEquippedTo,
-              });
-            });
-          else
-            return new ActionMenuButtonProperties(`Equip (${useItemLetter})`, () => {
-              websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
-                characterId,
-                itemId,
-                equipToAltSlot: useUIStore.getState().modKeyHeld,
-              });
-            });
-        case ItemPropertiesType.Consumable:
-          return new ActionMenuButtonProperties(`Use (${useItemLetter})`, () => {
-            websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+      if (this.item instanceof Equipment) {
+        if (slotItemIsEquippedTo !== null)
+          return new ActionMenuButtonProperties(`Unequip (${useItemLetter})`, () => {
+            websocketConnection.emit(ClientToServerEvent.UnequipSlot, {
               characterId,
-              combatActionOption: {
-                type: CombatActionType.ConsumableUsed,
-                itemId,
-              },
+              slot: slotItemIsEquippedTo,
             });
           });
+        else
+          return new ActionMenuButtonProperties(EQUIP_ITEM_BUTTON_TEXT, () => {
+            websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
+              characterId,
+              itemId,
+              equipToAltSlot: useUIStore.getState().modKeyHeld,
+            });
+          });
+      } else if (this.item instanceof Consumable) {
+        return new ActionMenuButtonProperties(USE_CONSUMABLE_BUTTON_TEXT, () => {
+          websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+            characterId,
+            combatActionOption: {
+              type: CombatActionType.ConsumableUsed,
+              itemId,
+            },
+          });
+        });
+      } else {
+        setAlert(new Error("unknown item type"));
+        throw new Error("unknown item type");
       }
     })();
 
     useItemButton.dedicatedKeys = ["Enter", useItemHotkey];
     useItemButton.shouldBeDisabled = !userControlsThisCharacter;
     toReturn[ActionButtonCategory.Top].push(useItemButton);
-
-    const dropItemHotkey = HOTKEYS.MAIN_2;
 
     const dropItemButton = new ActionMenuButtonProperties(
       `Drop (${letterFromKeyCode(dropItemHotkey)})`,

@@ -1,5 +1,6 @@
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { setAlert } from "@/app/components/alerts";
 import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
@@ -10,13 +11,15 @@ export default function newDungeonRoomHandler(room: DungeonRoom) {
 
   useGameStore.getState().mutateState((gameState) => {
     const party = getCurrentParty(gameState, gameState.username || "");
-    if (party === undefined) return setAlert(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+    if (party === undefined) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY));
 
     itemIdsOnGround.push(...party.currentRoom.items.map((item) => item.entityProperties.id));
 
     party.playersReadyToDescend = [];
     party.playersReadyToExplore = [];
     party.currentRoom = room;
+
+    gameState.hoveredEntity = null;
 
     for (const monster of Object.values(party.currentRoom.monsters))
       updateCombatantHomePosition(monster.entityProperties.id, monster.combatantProperties, party);
@@ -26,6 +29,10 @@ export default function newDungeonRoomHandler(room: DungeonRoom) {
     party.clientCurrentFloorRoomsList[indexOfRoomTypeToReveal] = room.roomType;
 
     if (room.monsterPositions.length) gameState.baseMenuState.inCombat = true;
+  });
+
+  gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+    type: ModelActionType.SynchronizeCombatantModels,
   });
 
   // clean up unused screenshots for items left behind

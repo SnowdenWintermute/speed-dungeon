@@ -2,7 +2,7 @@ import { CharacterAssociatedData, ERROR_MESSAGES, InputLock } from "@speed-dunge
 import validateCombatActionUse from "../combat-action-results-processing/validate-combat-action-use.js";
 import { getGameServer } from "../../../singletons.js";
 
-export default function useSelectedCombatActionHandler(
+export default async function useSelectedCombatActionHandler(
   _eventData: { characterId: string },
   characterAssociatedData: CharacterAssociatedData
 ) {
@@ -22,7 +22,7 @@ export default function useSelectedCombatActionHandler(
   if (targetsAndBattleResult instanceof Error) return targetsAndBattleResult;
   const { targets, battleOption } = targetsAndBattleResult;
 
-  return gameServer.processSelectedCombatAction(
+  const maybeError = await gameServer.processSelectedCombatAction(
     game,
     party,
     character.entityProperties.id,
@@ -31,4 +31,6 @@ export default function useSelectedCombatActionHandler(
     battleOption,
     party.characterPositions
   );
+
+  if (maybeError instanceof Error) return maybeError;
 }

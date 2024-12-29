@@ -2,6 +2,7 @@ import { GameState, getCurrentMenu } from "@/stores/game-store";
 import {
   AdventuringParty,
   CharacterAssociatedData,
+  CombatantEquipment,
   CombatantProperties,
   ERROR_MESSAGES,
   Item,
@@ -10,7 +11,7 @@ import { characterAssociatedDataProvider } from "../combatant-associated-details
 import { ConsideringItemMenuState } from "@/app/game/ActionMenu/menu-state/considering-item";
 import cloneDeep from "lodash.clonedeep";
 import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ModelManagerMessageType } from "@/app/3d-world/game-world/model-manager";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 export default function characterEquippedItemHandler(packet: {
   itemId: string;
@@ -31,19 +32,20 @@ export default function characterEquippedItemHandler(packet: {
         equipToAlternateSlot
       );
       if (unequippedResult instanceof Error) return unequippedResult;
-      const { unequippedSlots, idsOfUnequippedItems } = unequippedResult;
+      const { idsOfUnequippedItems } = unequippedResult;
 
       const slot = CombatantProperties.getSlotItemIsEquippedTo(
         character.combatantProperties,
         itemId
       );
       if (slot !== null) {
-        const item = character.combatantProperties.equipment[slot];
+        const item = CombatantEquipment.getEquipmentInSlot(character.combatantProperties, slot);
         if (item !== undefined)
-          gameWorld.current?.modelManager.enqueueMessage(character.entityProperties.id, {
-            type: ModelManagerMessageType.ChangeEquipment,
-            toEquip: { item: cloneDeep(item), slot }, // must clone since sending from within a zustand mutateState
-            unequippedSlots,
+          gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+            type: ModelActionType.ChangeEquipment,
+            entityId: character.entityProperties.id,
+            unequippedIds: unequippedResult.idsOfUnequippedItems,
+            toEquip: { item, slot },
           });
       }
 
@@ -58,7 +60,7 @@ export default function characterEquippedItemHandler(packet: {
       if (!playerOwnsCharacter) return;
 
       // we want the user to be now selecting the item they just unequipped
-      for (const item of character.combatantProperties.inventory.items) {
+      for (const item of character.combatantProperties.inventory.equipment) {
         if (item.entityProperties.id === idsOfUnequippedItems[0]) {
           itemToSelectOption = item;
           break;
@@ -71,8 +73,8 @@ export default function characterEquippedItemHandler(packet: {
       const currentMenu = getCurrentMenu(gameState);
       if (currentMenu instanceof ConsideringItemMenuState) {
         // not cloning here leads to zustand revoked proxy error
-        currentMenu.item = Item.fromObject(cloneDeep(itemToSelectOption));
-        gameState.detailedEntity = Item.fromObject(cloneDeep(itemToSelectOption));
+        currentMenu.item = cloneDeep(itemToSelectOption);
+        gameState.detailedEntity = cloneDeep(itemToSelectOption);
       }
     }
   );

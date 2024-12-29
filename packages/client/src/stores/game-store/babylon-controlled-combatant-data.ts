@@ -1,12 +1,12 @@
 import { immerable } from "immer";
 import { GameState, useGameStore } from ".";
-import { FloatingText } from "./floating-text";
 import { CombatantModelActionType } from "@/app/3d-world/combatant-models/model-action-manager/model-actions";
+import { FloatingMessage } from "./floating-messages";
 
 export class BabylonControlledCombatantData {
   [immerable] = true;
   debugMessages: CombatantModelDebugMessage[] = [];
-  floatingText: FloatingText[] = [];
+  floatingMessages: FloatingMessage[] = [];
   activeModelAction: null | CombatantModelActionType = null;
   constructor() {}
 }

@@ -1,19 +1,19 @@
 import {
-  EquipmentSlot,
-  Item,
+  HoldableSlotType,
   MonsterType,
   PreDeterminedItemType,
   generatePreDeterminedItem,
 } from "@speed-dungeon/common";
 import { idGenerator } from "../../singletons.js";
+import { CombatantEquipment, HoldableHotswapSlot } from "@speed-dungeon/common";
 
-export default function getMonsterEquipment(
-  monsterType: MonsterType
-): Partial<Record<EquipmentSlot, Item>> {
-  const equipment: Partial<Record<EquipmentSlot, Item>> = {};
+export default function getMonsterEquipment(monsterType: MonsterType): CombatantEquipment {
+  const equipment = new CombatantEquipment();
+  const mainHoldableHotswapSlot = new HoldableHotswapSlot();
+
   switch (monsterType) {
     case MonsterType.SkeletonArcher:
-      equipment[EquipmentSlot.MainHand] = generatePreDeterminedItem(
+      mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = generatePreDeterminedItem(
         PreDeterminedItemType.SkeletonArcherShortBow,
         idGenerator.generate()
       );
@@ -23,41 +23,51 @@ export default function getMonsterEquipment(
       //   PreDeterminedItemType.SkeletonArcherShortBow,
       //   idGenerator
       // );
-      equipment[EquipmentSlot.MainHand] = generatePreDeterminedItem(
+      mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = generatePreDeterminedItem(
         PreDeterminedItemType.AnimalClaw,
         idGenerator.generate()
       );
-      equipment[EquipmentSlot.OffHand] = generatePreDeterminedItem(
+      mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = generatePreDeterminedItem(
         PreDeterminedItemType.AnimalClaw,
         idGenerator.generate()
       );
       break;
     case MonsterType.Zombie:
-      equipment[EquipmentSlot.MainHand] = generatePreDeterminedItem(
+      mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = generatePreDeterminedItem(
         PreDeterminedItemType.Fist,
         idGenerator.generate()
       );
-      equipment[EquipmentSlot.OffHand] = generatePreDeterminedItem(
+      mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = generatePreDeterminedItem(
         PreDeterminedItemType.Fist,
         idGenerator.generate()
       );
       break;
     case MonsterType.MetallicGolem:
-      equipment[EquipmentSlot.MainHand] = generatePreDeterminedItem(
+      mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = generatePreDeterminedItem(
         PreDeterminedItemType.Spike,
         idGenerator.generate()
       );
-      equipment[EquipmentSlot.OffHand] = generatePreDeterminedItem(
+      mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = generatePreDeterminedItem(
         PreDeterminedItemType.Fist,
         idGenerator.generate()
       );
       break;
     case MonsterType.Vulture:
+      mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = generatePreDeterminedItem(
+        PreDeterminedItemType.AnimalClaw,
+        idGenerator.generate()
+      );
+      mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = generatePreDeterminedItem(
+        PreDeterminedItemType.AnimalClaw,
+        idGenerator.generate()
+      );
+      break;
     case MonsterType.FireMage:
     case MonsterType.Cultist:
     case MonsterType.FireElemental:
     case MonsterType.IceElemental:
   }
 
+  equipment.inherentHoldableHotswapSlots = [mainHoldableHotswapSlot];
   return equipment;
 }

@@ -6,20 +6,20 @@ import {
   Combatant,
   CombatantTrait,
   CombatantTraitType,
+  KINETIC_DAMAGE_TYPE_STRINGS,
+  MAGICAL_ELEMENT_STRINGS,
   TRAIT_DESCRIPTIONS,
-  formatMagicalElement,
-  formatPhysicalDamageType,
 } from "@speed-dungeon/common";
 import React from "react";
 import CharacterAttributes from "../character-sheet/CharacterAttributes";
 
 interface Props {
-  combatantDetails: Combatant;
+  combatant: Combatant;
 }
 
-export default function CombatantDisplay({ combatantDetails }: Props) {
+export default function CombatantDisplay({ combatant }: Props) {
   const mutateGameState = useGameStore().mutateState;
-  const { entityProperties, combatantProperties } = combatantDetails;
+  const { combatantProperties } = combatant;
 
   function closeDisplay() {
     mutateGameState((store) => {
@@ -30,11 +30,7 @@ export default function CombatantDisplay({ combatantDetails }: Props) {
 
   return (
     <div className="flex justify-between ">
-      <CharacterAttributes
-        combatantProperties={combatantProperties}
-        entityProperties={entityProperties}
-        showAttributeAssignmentButtons={false}
-      />
+      <CharacterAttributes combatant={combatant} showAttributeAssignmentButtons={false} />
       <div className="h-full pl-4 w-1/2">
         <div className="w-full flex justify-end">
           <ButtonBasic onClick={closeDisplay}>{"Close"}</ButtonBasic>
@@ -75,7 +71,7 @@ export function formatCombatantTrait(trait: CombatantTrait) {
     case CombatantTraitType.HpBioavailability:
     case CombatantTraitType.MpBioavailability:
     case CombatantTraitType.ElementalAffinity:
-    case CombatantTraitType.PhysicalDamageTypeResistance:
+    case CombatantTraitType.KineticDamageTypeResistance:
       if (trait.percent > 100) numberStyle = "text-green-600";
       if (trait.percent < 0) numberStyle = "text-red-400";
       break;
@@ -101,20 +97,22 @@ export function formatCombatantTrait(trait: CombatantTrait) {
       percentToShow = trait.percent > 100 ? trait.percent - 100 : trait.percent;
       return (
         <span>
-          {formatMagicalElement(trait.element)} {affinityOrResistance}{" "}
+          {MAGICAL_ELEMENT_STRINGS[trait.element]} {affinityOrResistance}{" "}
           <span className={numberStyle}>{percentToShow}%</span>
         </span>
       );
     case CombatantTraitType.Undead:
       return "Undead";
-    case CombatantTraitType.PhysicalDamageTypeResistance:
+    case CombatantTraitType.KineticDamageTypeResistance:
       affinityOrResistance = trait.percent > 100 ? "affinity" : "resistance";
       percentToShow = trait.percent > 100 ? trait.percent - 100 : trait.percent;
       return (
         <span>
-          {formatPhysicalDamageType(trait.damageType)} {affinityOrResistance}{" "}
+          {KINETIC_DAMAGE_TYPE_STRINGS[trait.damageType]} {affinityOrResistance}{" "}
           <span className={numberStyle}>{percentToShow}%</span>
         </span>
       );
+    case CombatantTraitType.ExtraHotswapSlot:
+      return "Stay strapped";
   }
 }

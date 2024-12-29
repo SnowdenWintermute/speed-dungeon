@@ -56,16 +56,15 @@ export enum PlasticColor {
   Orange,
   Yellow,
   White,
-  Blue
+  Blue,
 }
 
 export const PLASTIC_COLORS: Record<PlasticColor, Color3> = {
-    [PlasticColor.Orange]: new Color3(0.973, 0.608, 0.204),
-    [PlasticColor.Yellow]: new Color3(0.969, 0.773, 0.196),
-    [PlasticColor.White]: new Color3(0.859, 0.855, 0.839),
-    [PlasticColor.Blue]: new Color3(0.004, 0.435, 0.729)
+  [PlasticColor.Orange]: new Color3(0.973, 0.608, 0.204),
+  [PlasticColor.Yellow]: new Color3(0.969, 0.773, 0.196),
+  [PlasticColor.White]: new Color3(0.859, 0.855, 0.839),
+  [PlasticColor.Blue]: new Color3(0.004, 0.435, 0.729),
 };
-
 
 export enum AccentColor {
   Rose,
@@ -76,19 +75,19 @@ export enum AccentColor {
   CobaltBlue,
   DarkBlue,
   HPGreen,
-  MPBlue
+  MPBlue,
 }
 
 export const ACCENT_COLORS: Record<AccentColor, Color3> = {
-    [AccentColor.Rose]: new Color3(0.557, 0.365, 0.318),
-    [AccentColor.Brass]: new Color3(0.518, 0.369, 0.227),
-    [AccentColor.Cherry]: new Color3(0.643, 0.278, 0.298),
-    [AccentColor.BurntOrange]: new Color3(0.616, 0.404, 0.247),
-    [AccentColor.KellyGreen]: new Color3(0.361, 0.608, 0.494),
-    [AccentColor.CobaltBlue]: new Color3(0.165, 0.392, 0.58),
-    [AccentColor.DarkBlue]: new Color3(0.071, 0.208, 0.322),
-    [AccentColor.HPGreen]: new Color3(0.082, 0.502, 0.239),
-    [AccentColor.MPBlue]: new Color3(0.114, 0.306, 0.847)
+  [AccentColor.Rose]: new Color3(0.557, 0.365, 0.318),
+  [AccentColor.Brass]: new Color3(0.518, 0.369, 0.227),
+  [AccentColor.Cherry]: new Color3(0.643, 0.278, 0.298),
+  [AccentColor.BurntOrange]: new Color3(0.616, 0.404, 0.247),
+  [AccentColor.KellyGreen]: new Color3(0.361, 0.608, 0.494),
+  [AccentColor.CobaltBlue]: new Color3(0.165, 0.392, 0.58),
+  [AccentColor.DarkBlue]: new Color3(0.071, 0.208, 0.322),
+  [AccentColor.HPGreen]: new Color3(0.082, 0.502, 0.239),
+  [AccentColor.MPBlue]: new Color3(0.114, 0.306, 0.847),
 };
 
 export const ELEMENT_COLORS: Record<MagicalElement, Color3> = {

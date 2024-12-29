@@ -3,7 +3,7 @@
 **/dist
 **/yarn-error.log
 
-*.css
+# *.css
 !main.css
 *.css.map
 

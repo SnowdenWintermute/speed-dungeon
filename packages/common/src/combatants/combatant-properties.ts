@@ -1,62 +1,70 @@
 import { Vector3 } from "@babylonjs/core";
 import { CombatAction } from "../combat/combat-actions/index.js";
-import { PhysicalDamageType } from "../combat/hp-change-source-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
-import { Item } from "../items/index.js";
-import { EquipmentSlot } from "../items/equipment/slots.js";
-import { CombatantAbility, CombatantAbilityName } from "./abilities/index.js";
+import { CombatantAbility, AbilityName } from "./abilities/index.js";
 import { getAbilityCostIfOwned } from "./abilities/ability-mana-cost-getters.js";
 import getAbilityIfOwned from "./abilities/get-ability-if-owned.js";
 import combatantCanUseItem from "./can-use-item.js";
 import changeCombatantMana from "./change-combatant-mana.js";
 import changeCombatantHitPoints from "./change-hit-points.js";
 import clampHpAndMpToMax from "./clamp-hp-and-mp-to-max.js";
-import { CombatAttribute } from "./combat-attributes.js";
 import { CombatantClass } from "./combatant-class/index.js";
 import { CombatantSpecies } from "./combatant-species.js";
-import { CombatantTrait } from "./combatant-traits.js";
+import { CombatantTrait, CombatantTraitType } from "./combatant-traits.js";
 import dropEquippedItem from "./drop-equipped-item.js";
 import dropItem from "./drop-item.js";
-import equipItem from "./equip-item.js";
 import getAbilityNamesFilteredByUseableContext from "./get-ability-names-filtered-by-usable-context.js";
 import { getCombatActionPropertiesIfOwned } from "./get-combat-action-properties.js";
 import getCombatantTotalAttributes from "./get-combatant-total-attributes.js";
 import getCombatantTotalElementalAffinities from "./get-combatant-total-elemental-affinities.js";
-import getCombatantTotalPhysicalDamageTypeAffinities from "./get-combatant-total-physical-damage-type-affinities.js";
-import getEquipmentInSlot from "./get-equipment-in-slot.js";
-import getEquippedWeapon from "./get-equipped-weapon.js";
-import getSlotItemIsEquippedTo from "./get-slot-item-is-equipped-to.js";
 import { Inventory } from "./inventory.js";
 import setHpAndMpToMax from "./set-hp-and-mp-to-max.js";
-import unequipSlots from "./unequip-slots.js";
 import { immerable } from "immer";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app-consts.js";
 import { cloneVector3 } from "../utils/index.js";
-import awardLevelups from "./award-levelups.js";
+import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./award-levelups.js";
 import { incrementAttributePoint } from "./increment-attribute-point.js";
 import { MonsterType } from "../monsters/monster-types.js";
+import { KineticDamageType } from "../combat/kinetic-damage-types.js";
+import getCombatantTotalKineticDamageTypeAffinities from "./get-combatant-total-kinetic-damage-type-affinities.js";
+import {
+  CombatantEquipment,
+  equipItem,
+  getEquippedWeapon,
+  getSlotItemIsEquippedTo,
+  getUsableWeaponsInSlots,
+  unequipSlots,
+} from "./combatant-equipment/index.js";
+import { CombatAttribute } from "../attributes/index.js";
 
 export class CombatantProperties {
   [immerable] = true;
   inherentAttributes: CombatantAttributeRecord = {};
   inherentElementalAffinities: Partial<Record<MagicalElement, number>> = {};
-  inherentPhysicalDamageTypeAffinities: Partial<Record<PhysicalDamageType, number>> = {};
+  inherentKineticDamageTypeAffinities: Partial<Record<KineticDamageType, number>> = {};
   level: number = 1;
   unspentAttributePoints: number = 0;
   unspentAbilityPoints: number = 0;
   hitPoints: number = 0;
   mana: number = 0;
   speccedAttributes: CombatantAttributeRecord = {};
-  experiencePoints: ExperiencePoints = { current: 0, requiredForNextLevel: 100 };
-  abilities: Partial<Record<CombatantAbilityName, CombatantAbility>> = {};
+  experiencePoints: ExperiencePoints = {
+    current: 0,
+    requiredForNextLevel: XP_REQUIRED_TO_REACH_LEVEL_2,
+  };
+  abilities: Partial<Record<AbilityName, CombatantAbility>> = {};
   traits: CombatantTrait[] = [];
-  equipment: Partial<Record<EquipmentSlot, Item>> = {};
+  equipment: CombatantEquipment = new CombatantEquipment();
+  // holdable equipment hotswap slots
+  // - should hold the item separately of the inventory bags
+  // - should be consistently accessible by their number (same items each time)
+  // - should be limitable by the type of equipment they can hold (shield only, swords only etc)
   inventory: Inventory = new Inventory();
-  //
   selectedCombatAction: null | CombatAction = null;
   combatActionTarget: null | CombatActionTarget = null;
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
+  deepestFloorReached: number = 1;
   constructor(
     public combatantClass: CombatantClass,
     public combatantSpecies: CombatantSpecies,
@@ -69,27 +77,25 @@ export class CombatantProperties {
     public controllingPlayer: null | string,
     public homeLocation: Vector3
   ) {
-    this.abilities[CombatantAbilityName.Attack] = CombatantAbility.createByName(
-      CombatantAbilityName.Attack
+    this.abilities[AbilityName.Attack] = CombatantAbility.createByName(AbilityName.Attack);
+    this.abilities[AbilityName.AttackMeleeMainhand] = CombatantAbility.createByName(
+      AbilityName.AttackMeleeMainhand
     );
-    this.abilities[CombatantAbilityName.AttackMeleeMainhand] = CombatantAbility.createByName(
-      CombatantAbilityName.AttackMeleeMainhand
+    this.abilities[AbilityName.AttackMeleeOffhand] = CombatantAbility.createByName(
+      AbilityName.AttackMeleeOffhand
     );
-    this.abilities[CombatantAbilityName.AttackMeleeOffhand] = CombatantAbility.createByName(
-      CombatantAbilityName.AttackMeleeOffhand
-    );
-    this.abilities[CombatantAbilityName.AttackRangedMainhand] = CombatantAbility.createByName(
-      CombatantAbilityName.AttackRangedMainhand
+    this.abilities[AbilityName.AttackRangedMainhand] = CombatantAbility.createByName(
+      AbilityName.AttackRangedMainhand
     );
   }
 
   static getCombatActionPropertiesIfOwned = getCombatActionPropertiesIfOwned;
   static getTotalAttributes = getCombatantTotalAttributes;
   static getCombatantTotalElementalAffinities = getCombatantTotalElementalAffinities;
-  static getCombatantTotalPhysicalDamageTypeAffinities =
-    getCombatantTotalPhysicalDamageTypeAffinities;
-  static getEquipmentInSlot = getEquipmentInSlot;
+  static getCombatantTotalKineticDamageTypeAffinities =
+    getCombatantTotalKineticDamageTypeAffinities;
   static getEquippedWeapon = getEquippedWeapon;
+  static getUsableWeaponsInSlots = getUsableWeaponsInSlots;
   static setHpAndMpToMax = setHpAndMpToMax;
   static getAbilityNamesFilteredByUseableContext = getAbilityNamesFilteredByUseableContext;
   static getSlotItemIsEquippedTo = getSlotItemIsEquippedTo;
@@ -105,6 +111,17 @@ export class CombatantProperties {
   static equipItem = equipItem;
   static awardLevelups = awardLevelups;
   static incrementAttributePoint = incrementAttributePoint;
+  static hasTraitType(combatantProperties: CombatantProperties, traitType: CombatantTraitType) {
+    let hasTrait = false;
+    for (const trait of combatantProperties.traits) {
+      if (trait.type === traitType) {
+        hasTrait = true;
+        break;
+      }
+    }
+    return hasTrait;
+  }
+
   static getPositionForActionUse(
     user: CombatantProperties,
     target: CombatantProperties,

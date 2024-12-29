@@ -17,6 +17,13 @@ export default async function WinLossRecord({ username }: { username: string }) 
   const wins = parseInt(data.wins);
   const losses = parseInt(data.losses);
 
+  const winPercentage =
+    wins === 0 && losses === 0
+      ? "not enough data"
+      : losses === 0
+        ? "100%"
+        : ((wins / (wins + losses)) * 100).toFixed(2) + "%";
+
   return (
     <div className="">
       <div>
@@ -24,7 +31,7 @@ export default async function WinLossRecord({ username }: { username: string }) 
           Win/Loss {wins}/{losses}
         </span>
       </div>
-      <div>Win Percentage {((wins / losses) * 100).toFixed(2)}%</div>
+      <div>Win Percentage {winPercentage}</div>
     </div>
   );
 }

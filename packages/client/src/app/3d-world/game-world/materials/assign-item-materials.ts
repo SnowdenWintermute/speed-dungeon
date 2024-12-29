@@ -1,15 +1,16 @@
 import {
+  Consumable,
   ConsumableType,
+  Equipment,
   EquipmentType,
   HpChangeSource,
   Item,
-  ItemPropertiesType,
+  MAGICAL_ELEMENT_STRINGS,
   MagicalElement,
   OneHandedMeleeWeapon,
   Shield,
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
-  formatMagicalElement,
 } from "@speed-dungeon/common";
 import { ISceneLoaderAsyncResult, Scene, StandardMaterial } from "@babylonjs/core";
 import {
@@ -25,16 +26,14 @@ import { desaturate } from "./utils";
 import { DYNAMIC_MATERIAL_TAG, SavedMaterials } from "./create-default-materials";
 
 export function assignConsumableMaterials(
-  item: Item,
+  item: Consumable,
   itemModel: ISceneLoaderAsyncResult,
   savedMaterials: SavedMaterials,
   _scene: Scene
 ) {
   let materials: { [name: string]: StandardMaterial } = {};
 
-  if (item.itemProperties.type !== ItemPropertiesType.Consumable)
-    return console.error("passed equipment to consumable materials function");
-  switch (item.itemProperties.consumableProperties.consumableType) {
+  switch (item.consumableType) {
     case ConsumableType.HpAutoinjector:
       materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.accent[AccentColor.HPGreen];
       materials[MATERIAL_NAMES.ACCENT_2] = savedMaterials.plastic[PlasticColor.Blue];
@@ -51,20 +50,19 @@ export function assignConsumableMaterials(
       break;
   }
 
-  applyMaterialsToModelMeshes(itemModel, materials);
+  applyMaterialsToModelMeshes(itemModel, materials, false);
 }
 
 export function assignEquipmentMaterials(
-  item: Item,
+  item: Equipment,
   itemModel: ISceneLoaderAsyncResult,
   savedMaterials: SavedMaterials,
-  scene: Scene
+  scene: Scene,
+  createUniqueInstances: boolean
 ) {
   let materials: { [name: string]: StandardMaterial } = {};
-  if (item.itemProperties.type === ItemPropertiesType.Consumable)
-    return console.error("passed consumable to equipment materials function");
 
-  const { equipmentBaseItemProperties } = item.itemProperties.equipmentProperties;
+  const { equipmentBaseItemProperties } = item;
 
   materials[MATERIAL_NAMES.BLADE] = savedMaterials.metal[LightestToDarkest.Lighter];
   materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.metal[LightestToDarkest.Lightest];
@@ -126,9 +124,9 @@ export function assignEquipmentMaterials(
         case OneHandedMeleeWeapon.RuneSword:
           let i = 1;
           for (const classification of equipmentBaseItemProperties.damageClassification) {
-            if (classification.elementOption !== null) {
+            if (classification.elementOption !== undefined) {
               const material = new StandardMaterial(
-                DYNAMIC_MATERIAL_TAG + formatMagicalElement(classification.elementOption),
+                DYNAMIC_MATERIAL_TAG + MAGICAL_ELEMENT_STRINGS[classification.elementOption],
                 scene
               );
 
@@ -366,7 +364,8 @@ export function assignEquipmentMaterials(
           break;
       }
   }
-  applyMaterialsToModelMeshes(itemModel, materials);
+
+  applyMaterialsToModelMeshes(itemModel, materials, createUniqueInstances);
 }
 
 function assignElementalMaterials(
@@ -376,7 +375,7 @@ function assignElementalMaterials(
 ) {
   let i = 1;
   for (const classification of damageClassification) {
-    if (classification.elementOption !== null) {
+    if (classification.elementOption !== undefined) {
       const material = savedMaterials.elements[classification.elementOption];
       materials["Accent" + i] = material;
     }

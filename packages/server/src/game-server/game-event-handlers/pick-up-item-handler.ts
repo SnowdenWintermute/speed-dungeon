@@ -1,8 +1,11 @@
 import {
-  CharacterAndItem,
+  CharacterAndItems,
   CharacterAssociatedData,
+  Consumable,
   ERROR_MESSAGES,
+  Equipment,
   INVENTORY_DEFAULT_CAPACITY,
+  Inventory,
   Item,
   ServerToClientEvent,
   getPartyChannelName,
@@ -10,27 +13,45 @@ import {
 import { getGameServer } from "../../singletons.js";
 
 export default function pickUpItemHandler(
-  eventData: CharacterAndItem,
+  eventData: CharacterAndItems,
   characterAssociatedData: CharacterAssociatedData
 ) {
   const { game, party, character } = characterAssociatedData;
-  if (character.combatantProperties.inventory.items.length >= INVENTORY_DEFAULT_CAPACITY)
+  if (
+    Inventory.getTotalNumberOfItems(character.combatantProperties.inventory) >=
+    INVENTORY_DEFAULT_CAPACITY
+  )
     return new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);
+
   const gameServer = getGameServer();
-  const { itemId } = eventData;
+  let idsPickedUp: string[] = [];
 
-  // make sure all players know about the item or else desync will occur
-  if (party.itemsOnGroundNotYetReceivedByAllClients[itemId] !== undefined)
-    return new Error(ERROR_MESSAGES.ITEM.NOT_YET_AVAILABLE);
+  for (const itemId of eventData.itemIds) {
+    // make sure all players know about the item or else desync will occur
+    if (party.itemsOnGroundNotYetReceivedByAllClients[itemId] !== undefined)
+      return new Error(ERROR_MESSAGES.ITEM.NOT_YET_AVAILABLE);
 
-  const itemOption = Item.removeFromArray(party.currentRoom.items, itemId);
-  if (itemOption === undefined) return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
+    // let them pick up to capacity
+    if (
+      Inventory.getTotalNumberOfItems(character.combatantProperties.inventory) >=
+      INVENTORY_DEFAULT_CAPACITY
+    )
+      break;
 
-  character.combatantProperties.inventory.items.push(itemOption);
+    const itemOption = Item.removeFromArray(party.currentRoom.items, itemId);
+    if (itemOption === undefined) return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
+
+    if (itemOption instanceof Consumable)
+      character.combatantProperties.inventory.consumables.push(itemOption);
+    else if (itemOption instanceof Equipment)
+      character.combatantProperties.inventory.equipment.push(itemOption);
+
+    idsPickedUp.push(itemOption.entityProperties.id);
+  }
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
-  gameServer.io.to(partyChannelName).emit(ServerToClientEvent.CharacterPickedUpItem, {
+  gameServer.io.to(partyChannelName).emit(ServerToClientEvent.CharacterPickedUpItems, {
     characterId: character.entityProperties.id,
-    itemId,
+    itemIds: idsPickedUp,
   });
 }
