@@ -21,7 +21,9 @@ export const GROUND_TEXTURE_WIDTH = 8000;
 export const GROUND_TEXTURE_HEIGHT = 10000;
 
 export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTexture] {
-  this.scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
+  // this.scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
+
+  this.scene.clearColor = new Color4(0, 0, 0, 0);
 
   // this.scene.fogMode = 3;
   // this.scene.fogStart = 5;

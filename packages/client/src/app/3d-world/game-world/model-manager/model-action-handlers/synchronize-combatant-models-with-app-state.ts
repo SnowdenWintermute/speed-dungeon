@@ -14,6 +14,7 @@ import { Combatant, cloneVector3 } from "@speed-dungeon/common";
 import { despawnModularCharacter } from "./despawn-modular-character";
 import { spawnModularCharacter } from "./spawn-modular-character";
 import { ModularCharacter } from "@/app/3d-world/combatant-models/modular-character";
+import { setAlert } from "@/app/components/alerts";
 
 export async function synchronizeCombatantModelsWithAppState() {
   if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
@@ -67,6 +68,14 @@ export async function synchronizeCombatantModelsWithAppState() {
       resultsIncludedError = true;
     } else {
       modelManager.combatantModels[result.entityId] = result;
+      modelManager.world.imageManager
+        .createCombatantPortrait(result.entityId)
+        .then(() => {
+          console.log("created portrait");
+        })
+        .catch((err) => {
+          setAlert(err);
+        });
       useGameStore.getState().mutateState((state) => {
         state.combatantModelLoadingStates[result.entityId] = false;
       });

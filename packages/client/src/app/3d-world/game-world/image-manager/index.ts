@@ -8,10 +8,9 @@ import {
 import { useGameStore } from "@/stores/game-store";
 import { createImageCreatorScene } from "./create-image-creator-scene";
 import { SavedMaterials, createDefaultMaterials } from "../materials/create-default-materials";
-import { Combatant, Equipment, Item } from "@speed-dungeon/common";
+import { ERROR_MESSAGES, Equipment, Item } from "@speed-dungeon/common";
 import { calculateCompositeBoundingBox, disposeAsyncLoadedScene } from "../../utils";
 import { spawnItemModel } from "../../item-models/spawn-item-model";
-import { spawnModularCharacter } from "../model-manager/model-action-handlers/spawn-modular-character";
 import { gameWorld } from "../../SceneManager";
 
 export enum ImageManagerRequestType {
@@ -157,7 +156,51 @@ export class ImageManager {
     );
   }
 
-  async createCombatantPortrait() {
+  async createCombatantPortrait(combatantId: string) {
     if (!gameWorld.current) return;
+    const world = gameWorld.current;
+    const combatantModelOption = gameWorld.current.modelManager.combatantModels[combatantId];
+    if (!combatantModelOption) return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+
+    combatantModelOption.updateBoundingBox();
+    const boundingInfo = combatantModelOption.rootMesh.getBoundingInfo();
+    const min = boundingInfo.boundingBox.minimumWorld;
+    const max = boundingInfo.boundingBox.maximumWorld;
+
+    // Dimensions of the bounding box
+    const width = max.x - min.x;
+    const height = max.y - min.y;
+    const depth = max.z - min.z;
+
+    const engineCanvasClientRect = world.engine.getRenderingCanvasClientRect();
+    if (engineCanvasClientRect === null) return new Error("No canvas client rect");
+
+    const aspectRatio = engineCanvasClientRect.width / engineCanvasClientRect.height;
+    const verticalFOV = world.portraitCamera.fov; // Radians
+    const halfVerticalFOV = verticalFOV / 2;
+    const horizontalFOV = 2 * Math.atan(Math.tan(halfVerticalFOV) * aspectRatio);
+    const requiredDistance = width / 2 / Math.tan(horizontalFOV / 2);
+
+    world.portraitCamera.position = new Vector3(
+      (min.x + max.x) / 2, // Center the camera horizontally
+      max.y - height / 2 + height / 2, // Align the top of the bounding box with the viewport's top
+      max.z + requiredDistance // Position the camera at the required distance
+    );
+
+    world.portraitCamera.setTarget(
+      new Vector3((min.x + max.x) / 2, (min.y + max.y) / 2, (min.z + max.z) / 2)
+    );
+
+    CreateScreenshotUsingRenderTarget(
+      world.engine,
+      world.portraitCamera,
+      { width: 100, height: 100 },
+      (image) => {
+        useGameStore.getState().mutateState((state) => {
+          state.combatantPortraits[combatantId] = image;
+        });
+      },
+      "image/png"
+    );
   }
 }

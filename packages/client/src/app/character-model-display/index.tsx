@@ -14,6 +14,8 @@ export default function CharacterModelDisplay({
   const entityId = entityProperties.id;
   const modelLoadingState = useGameStore.getState().combatantModelLoadingStates[entityId];
 
+  // @TODO - this is symantec coupling. instead of directly passing the modelDomPositionElement to babylon
+  // we could make a singleton registry of dom elements by entity id and have babylon query for them
   useEffect(() => {
     // modelDomPositionElement's position and dimensions are set by babylonjs each frame
     const modelDomPositionElement = document.getElementById(
