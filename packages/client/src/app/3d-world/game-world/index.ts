@@ -9,6 +9,7 @@ import {
   Constants,
   InputBlock,
   Camera,
+  UniversalCamera,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
@@ -24,10 +25,14 @@ import { SavedMaterials, createDefaultMaterials } from "./materials/create-defau
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
 
+export const LAYER_MASK_1 = 0b0001;
+export const LAYER_MASK_ALL = 0xffffffff;
+
 export class GameWorld {
   engine: Engine;
   scene: Scene;
   camera: ArcRotateCamera | null = null;
+  portraitCamera: UniversalCamera;
   sun: Mesh;
   // shadowGenerator: null | ShadowGenerator = null;
   messages: NextToBabylonMessage[] = [];
@@ -55,7 +60,12 @@ export class GameWorld {
 
     this.debug.debugRef = debugRef;
     [this.camera, this.sun, this.groundTexture] = this.initScene();
+    this.camera.layerMask = LAYER_MASK_ALL;
     this.defaultMaterials = createDefaultMaterials(this.scene);
+
+    this.portraitCamera = new UniversalCamera("portrait camera", new Vector3(0, 0, 3), this.scene);
+    this.portraitCamera.minZ = 0;
+    this.portraitCamera.layerMask = LAYER_MASK_1;
 
     // PIXELATION FILTER
     // pixelate(this.camera, this.scene);

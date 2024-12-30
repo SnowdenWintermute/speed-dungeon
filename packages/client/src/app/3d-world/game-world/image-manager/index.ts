@@ -8,9 +8,11 @@ import {
 import { useGameStore } from "@/stores/game-store";
 import { createImageCreatorScene } from "./create-image-creator-scene";
 import { SavedMaterials, createDefaultMaterials } from "../materials/create-default-materials";
-import { Equipment, Item } from "@speed-dungeon/common";
+import { Combatant, Equipment, Item } from "@speed-dungeon/common";
 import { calculateCompositeBoundingBox, disposeAsyncLoadedScene } from "../../utils";
 import { spawnItemModel } from "../../item-models/spawn-item-model";
+import { spawnModularCharacter } from "../model-manager/model-action-handlers/spawn-modular-character";
+import { gameWorld } from "../../SceneManager";
 
 export enum ImageManagerRequestType {
   ItemCreation,
@@ -153,5 +155,9 @@ export class ImageManager {
       },
       "image/png"
     );
+  }
+
+  async createCombatantPortrait() {
+    if (!gameWorld.current) return;
   }
 }

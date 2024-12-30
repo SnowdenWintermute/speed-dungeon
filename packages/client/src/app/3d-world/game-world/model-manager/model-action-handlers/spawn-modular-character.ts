@@ -14,7 +14,7 @@ import {
   SKELETONS,
 } from "../../../combatant-models/modular-character/modular-character-parts";
 import { importMesh } from "../../../utils";
-import { GameWorld } from "../../";
+import { GameWorld, LAYER_MASK_1 } from "../../";
 import { Color3, ISceneLoaderAsyncResult, StandardMaterial } from "@babylonjs/core";
 
 export async function spawnModularCharacter(
@@ -118,6 +118,7 @@ export async function spawnModularCharacter(
             }
           }
         }
+        for (const mesh of partResult.meshes) mesh.layerMask = LAYER_MASK_1;
         resolve(partResult);
       })
     );
