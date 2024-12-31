@@ -9,6 +9,10 @@ export function despawnModularCharacter(
 ): Error | void {
   if (!toRemove) return new Error("tried to remove a combatant model that doesn't exist");
   toRemove.rootTransformNode.dispose();
+  if (toRemove.debugMeshes)
+    for (const mesh of Object.values(toRemove.debugMeshes)) {
+      mesh.dispose();
+    }
   disposeAsyncLoadedScene(toRemove.skeleton, world.scene);
   for (const part of Object.values(toRemove.parts)) {
     disposeAsyncLoadedScene(part, world.scene);

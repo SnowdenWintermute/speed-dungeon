@@ -17,8 +17,9 @@ import { GameWorld } from ".";
 
 export const GROUND_WIDTH = 50;
 export const GROUND_HEIGHT = 50;
-export const GROUND_TEXTURE_WIDTH = 8000;
-export const GROUND_TEXTURE_HEIGHT = 10000;
+export const RESOLUTION_PER_BABYLON_UNIT = 100;
+export const GROUND_TEXTURE_WIDTH = GROUND_WIDTH * RESOLUTION_PER_BABYLON_UNIT;
+export const GROUND_TEXTURE_HEIGHT = GROUND_HEIGHT * RESOLUTION_PER_BABYLON_UNIT;
 
 export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTexture] {
   // this.scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);

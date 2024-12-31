@@ -10,6 +10,7 @@ import {
   InputBlock,
   Camera,
   UniversalCamera,
+  Quaternion,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
@@ -24,8 +25,9 @@ import drawCharacterSlots from "./draw-character-slots";
 import { SavedMaterials, createDefaultMaterials } from "./materials/create-default-materials";
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
+import { createTextPlane } from "./create-text-plane";
 
-export const LAYER_MASK_1 = 0x1;
+export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;
 
 export class GameWorld {
@@ -60,11 +62,16 @@ export class GameWorld {
 
     this.debug.debugRef = debugRef;
     [this.camera, this.sun, this.groundTexture] = this.initScene();
+    this.camera.layerMask = LAYER_MASK_ALL;
     this.defaultMaterials = createDefaultMaterials(this.scene);
 
     this.portraitCamera = new UniversalCamera("portrait camera", new Vector3(0, 0, 3), this.scene);
     this.portraitCamera.minZ = 0;
-    this.portraitCamera.layerMask = 0x1;
+    this.portraitCamera.layerMask = LAYER_MASK_1;
+
+    const plane = createTextPlane("TEST", this.scene);
+    plane.position = Vector3.Left();
+    plane.position.y = 1;
 
     // PIXELATION FILTER
     // pixelate(this.camera, this.scene);

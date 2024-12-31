@@ -1,4 +1,5 @@
 import { GameWorld } from ".";
+import { drawCompass } from "./clear-floor-texture";
 import { GROUND_TEXTURE_HEIGHT, GROUND_TEXTURE_WIDTH, GROUND_WIDTH } from "./init-scene";
 
 export default function drawCharacterSlots(this: GameWorld) {
@@ -12,15 +13,17 @@ export default function drawCharacterSlots(this: GameWorld) {
     const centerX =
       -spacingInResolutionUnits + GROUND_TEXTURE_WIDTH / 2 + spacingInResolutionUnits * i;
     const centerY = GROUND_TEXTURE_WIDTH / 2;
-    const radius = 70;
+    const radius = 45;
 
     context.beginPath();
 
     context.arc(centerX, centerY, radius, 0, Math.PI * 2);
     context.strokeStyle = "grey";
-    context.lineWidth = 10;
+    context.lineWidth = 7;
     context.stroke();
   }
+
+  drawCompass(this);
 
   this.groundTexture.update();
 }

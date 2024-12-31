@@ -29,5 +29,5 @@ export function updateCombatantHomePosition(
   let positionSpacing = -COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2;
   if (!isPlayer) positionSpacing *= -1;
 
-  combatantProperties.homeLocation = new Vector3(positionSpacing, 0, rowPositionOffset);
+  combatantProperties.homeLocation = new Vector3(rowPositionOffset, 0, positionSpacing);
 }

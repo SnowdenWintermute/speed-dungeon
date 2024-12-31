@@ -55,8 +55,8 @@ export async function synchronizeCombatantModelsWithAppState() {
       );
     } else {
       // move models to correct positions
-      modelOption.setHomeLocation(position.startPosition);
       modelOption.setHomeRotation(position.startRotation);
+      modelOption.setHomeLocation(position.startPosition);
     }
   }
 
@@ -155,14 +155,15 @@ function getModelsAndPositions() {
 function getCombatantModelStartPosition(combatant: Combatant) {
   const { combatantProperties } = combatant;
 
-  let startRotation = Math.PI / 2;
-  let modelCorrectionRotation = 0;
-
   const isPlayer = combatantProperties.controllingPlayer !== null;
 
+  // player
+  let startRotation = 0;
+  let modelCorrectionRotation = 0;
+  // not
   if (!isPlayer) {
-    startRotation = -Math.PI / 2;
-    modelCorrectionRotation = Math.PI;
+    startRotation = Math.PI / 2;
+    modelCorrectionRotation = -Math.PI / 2;
   }
 
   return {

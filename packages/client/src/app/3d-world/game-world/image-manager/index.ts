@@ -1,6 +1,7 @@
 import {
   CreateScreenshotUsingRenderTarget,
   Engine,
+  Quaternion,
   Scene,
   UniversalCamera,
   Vector3,
@@ -172,23 +173,15 @@ export class ImageManager {
     const height = max.y - min.y;
     const depth = max.z - min.z;
 
-    const engineCanvasClientRect = world.engine.getRenderingCanvasClientRect();
-    if (engineCanvasClientRect === null) return new Error("No canvas client rect");
+    // world.portraitCamera.position = new Vector3(
+    //   (min.x + max.x) / 2, // Center the camera horizontally
+    //   max.y - height / 2 + height / 2, // Align the top of the bounding box with the viewport's top
+    //   max.z + requiredDistance // Position the camera at the required distance
+    // );
 
-    const aspectRatio = engineCanvasClientRect.width / engineCanvasClientRect.height;
-    const verticalFOV = world.portraitCamera.fov; // Radians
-    const halfVerticalFOV = verticalFOV / 2;
-    const horizontalFOV = 2 * Math.atan(Math.tan(halfVerticalFOV) * aspectRatio);
-    const requiredDistance = width / 2 / Math.tan(horizontalFOV / 2);
-
-    world.portraitCamera.position = new Vector3(
-      (min.x + max.x) / 2, // Center the camera horizontally
-      max.y - height / 2 + height / 2, // Align the top of the bounding box with the viewport's top
-      max.z + requiredDistance // Position the camera at the required distance
-    );
-
+    // world.portraitCamera.rotation = Vector3.Zero();
     world.portraitCamera.setTarget(
-      new Vector3((min.x + max.x) / 2, (min.y + max.y) / 2, (min.z + max.z) / 2)
+      new Vector3((min.x + max.x) / 2, min.y + max.y - 0.2, (min.z + max.z) / 2)
     );
 
     CreateScreenshotUsingRenderTarget(

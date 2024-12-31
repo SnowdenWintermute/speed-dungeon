@@ -106,32 +106,33 @@ export class ModularCharacter {
     }
     this.rootTransformNode = new TransformNode(`${this.entityId}-root-transform-node`);
     this.rootMesh = rootMesh;
+    this.rootMesh.setParent(this.rootTransformNode);
     this.rootMesh.rotate(Vector3.Up(), modelCorrectionRotation); // fix inconsistent blender export rotation
 
     this.rootMesh.position.x = 0;
     this.rootMesh.position.y = 0;
     this.rootMesh.position.z = 0;
 
-    this.rootMesh.setParent(this.rootTransformNode);
+    this.rootTransformNode.rotationQuaternion = Quaternion.Identity();
+    this.rootTransformNode.rotate(Vector3.Up(), startRotation);
+    console.log(this.rootTransformNode.rotationQuaternion);
 
-    this.rootTransformNode.rotationQuaternion = Quaternion.RotationAxis(
-      Vector3.Up(),
-      startRotation
-    );
-    this.rootTransformNode.position = startPosition;
+    this.rootTransformNode.position = cloneDeep(startPosition);
 
     const rotation = this.rootTransformNode.rotationQuaternion;
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
+    console.log("set home location on model creation", this.rootTransformNode.position);
     this.homeLocation = {
       position: cloneDeep(this.rootTransformNode.position),
       rotation: cloneDeep(rotation),
     };
 
-    // this.setUpDebugMeshes();
+    this.setUpDebugMeshes();
     // this.setShowBones();
   }
 
   setHomeRotation(rotation: number) {
+    console.log("called setHomeRotation", this.entityId.slice(0, 5));
     this.rootTransformNode.rotationQuaternion = Quaternion.RotationAxis(Vector3.Up(), rotation);
     this.homeLocation.rotation = cloneDeep(this.rootTransformNode.rotationQuaternion);
   }

@@ -45,11 +45,9 @@ export function attachHoldableModelToSkeleton(
     } else {
       parentMesh.position.y = 0.1;
       parentMesh.position.z = -0.05;
-      // parentMesh.rotation.y = Math.PI;
       parentMesh.rotation.z = -Math.PI / 2;
     }
 
-    // parentMesh.rotate(Vector3.Backward(), -Math.PI / 2);
     const equipmentBone = combatantModel.skeleton.meshes[0]
       ? getChildMeshByName(combatantModel.skeleton.meshes[0], "Wrist.L")
       : undefined;
