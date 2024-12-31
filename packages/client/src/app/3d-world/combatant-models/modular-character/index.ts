@@ -90,8 +90,7 @@ export class ModularCharacter {
     public skeleton: ISceneLoaderAsyncResult,
     public modelDomPositionElement: HTMLDivElement | null,
     startPosition: Vector3 = Vector3.Zero(),
-    startRotation: number = 0,
-    modelCorrectionRotation: number = 0
+    startRotation: number = 0
   ) {
     this.animationManager = new AnimationManager(this);
     this.startIdleAnimation(0);
@@ -105,23 +104,17 @@ export class ModularCharacter {
       rootMesh.scaling = Vector3.One().scale(MONSTER_SCALING_SIZES[this.monsterType]);
     }
     this.rootTransformNode = new TransformNode(`${this.entityId}-root-transform-node`);
-    this.rootMesh = rootMesh;
-    this.rootMesh.setParent(this.rootTransformNode);
-    this.rootMesh.rotate(Vector3.Up(), modelCorrectionRotation); // fix inconsistent blender export rotation
-
-    this.rootMesh.position.x = 0;
-    this.rootMesh.position.y = 0;
-    this.rootMesh.position.z = 0;
-
     this.rootTransformNode.rotationQuaternion = Quaternion.Identity();
     this.rootTransformNode.rotate(Vector3.Up(), startRotation);
-    console.log(this.rootTransformNode.rotationQuaternion);
-
     this.rootTransformNode.position = cloneDeep(startPosition);
+    console.log("POSITION", this.rootTransformNode.position.x, this.rootTransformNode.position.z);
+
+    this.rootMesh = rootMesh;
+    this.rootMesh.setParent(this.rootTransformNode);
+    this.rootMesh.position = Vector3.Zero();
 
     const rotation = this.rootTransformNode.rotationQuaternion;
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
-    console.log("set home location on model creation", this.rootTransformNode.position);
     this.homeLocation = {
       position: cloneDeep(this.rootTransformNode.position),
       rotation: cloneDeep(rotation),
@@ -138,6 +131,7 @@ export class ModularCharacter {
   }
 
   setHomeLocation(position: Vector3) {
+    console.log("called setHomeLocation", position.x, position.z, this.entityId.slice(0, 5));
     this.rootTransformNode.position = position;
 
     const rotation = this.rootTransformNode.rotationQuaternion;

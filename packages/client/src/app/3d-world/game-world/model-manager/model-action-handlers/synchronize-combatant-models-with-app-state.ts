@@ -15,6 +15,7 @@ import { despawnModularCharacter } from "./despawn-modular-character";
 import { spawnModularCharacter } from "./spawn-modular-character";
 import { ModularCharacter } from "@/app/3d-world/combatant-models/modular-character";
 import { setAlert } from "@/app/components/alerts";
+import cloneDeep from "lodash.clonedeep";
 
 export async function synchronizeCombatantModelsWithAppState() {
   if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
@@ -49,14 +50,13 @@ export async function synchronizeCombatantModelsWithAppState() {
           combatant,
           startPosition: position.startPosition,
           startRotation: position.startRotation,
-          modelCorrectionRotation: position.modelCorrectionRotation,
           modelDomPositionElement: null, // vestigial from when we used to spawn directly from next.js
         })
       );
     } else {
       // move models to correct positions
-      modelOption.setHomeRotation(position.startRotation);
-      modelOption.setHomeLocation(position.startPosition);
+      modelOption.setHomeRotation(cloneDeep(position.startRotation));
+      modelOption.setHomeLocation(cloneDeep(position.startPosition));
     }
   }
 
@@ -93,7 +93,6 @@ function getModelsAndPositions() {
       combatant: Combatant;
       position: {
         startRotation: number;
-        modelCorrectionRotation: number;
         startPosition: Vector3;
       };
     };
@@ -110,7 +109,6 @@ function getModelsAndPositions() {
           combatant: partyOption.characters[characterId]!,
           position: {
             startPosition: new Vector3(-CHARACTER_SLOT_SPACING + i * CHARACTER_SLOT_SPACING, 0, 0),
-            modelCorrectionRotation: 0,
             startRotation: 0,
           },
         })
@@ -142,7 +140,6 @@ function getModelsAndPositions() {
         combatant: character,
         position: {
           startRotation: 0,
-          modelCorrectionRotation: 0,
           startPosition: new Vector3(-CHARACTER_SLOT_SPACING + slot * CHARACTER_SLOT_SPACING, 0, 0),
         },
       };
@@ -159,16 +156,13 @@ function getCombatantModelStartPosition(combatant: Combatant) {
 
   // player
   let startRotation = 0;
-  let modelCorrectionRotation = 0;
   // not
   if (!isPlayer) {
     startRotation = Math.PI / 2;
-    modelCorrectionRotation = -Math.PI / 2;
   }
 
   return {
     startRotation,
-    modelCorrectionRotation,
     startPosition: cloneVector3(combatantProperties.homeLocation),
   };
 }

@@ -32,12 +32,10 @@ export default async function startMovingIntoCombatActionUsePosition(
       if (partyResult === undefined)
         return resolve(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY));
       const party = partyResult;
-      console.log("primary target id: ", primaryTargetId);
       const primaryTargetResult = AdventuringParty.getCombatant(party, primaryTargetId);
       if (primaryTargetResult instanceof Error) return resolve(primaryTargetResult);
       const primaryTarget = primaryTargetResult;
 
-      console.log("action user id: ", actionUserId);
       const actionUserResult = AdventuringParty.getCombatant(party, actionUserId);
       if (actionUserResult instanceof Error) return resolve(actionUserResult);
       const actionUser = actionUserResult;
@@ -65,6 +63,7 @@ export default async function startMovingIntoCombatActionUsePosition(
       const userModelCurrentRotation = userCombatantModel.rootTransformNode.rotationQuaternion;
       if (userModelCurrentRotation === null)
         return console.error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
+
       let destinationQuaternion = userCombatantModel.homeLocation.rotation;
       let timeToRotate = 0;
 

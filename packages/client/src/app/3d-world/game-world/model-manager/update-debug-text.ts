@@ -7,6 +7,13 @@ export default function updateDebugText(this: GameWorld) {
   if (this.debug.debugRef?.current) {
     const fps = `<div>${this.engine.getFps().toFixed()}</div>`;
 
+    const rootTransformPositions = Object.values(this.modelManager.combatantModels)
+      .map(
+        (model) =>
+          `<li>${model.entityId.slice(0, 3)}: x:${model.rootTransformNode.position.x}, z: ${model.rootTransformNode.position.z}</li>`
+      )
+      .join("");
+
     if (!this.camera) return;
     const cameraAlpha = `<div>camera alpha: ${this.camera.alpha.toFixed(2)}</div>`;
     const cameraBeta = `<div>camera beta: ${this.camera.beta.toFixed(2)}</div>`;
@@ -40,6 +47,7 @@ export default function updateDebugText(this: GameWorld) {
       `modelManagerMessages: ${modelManagerMessages}`,
       `isProcessing: ${this.modelManager.modelActionQueue.isProcessing}`,
       // `combatants processing actions: ${actionCommandQueue.entitiesPerformingActions}`,
+      `<ul>${rootTransformPositions}</ul>`,
       numMaterials,
       cameraAlpha,
       cameraBeta,

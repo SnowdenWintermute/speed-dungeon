@@ -44,7 +44,6 @@ export function resetWebsocketConnection() {
 // });
 
 websocketConnection.on("connect", () => {
-  console.log("all listeners set up");
   console.log("connected");
   useGameStore.getState().mutateState((state) => {
     state.game = null;

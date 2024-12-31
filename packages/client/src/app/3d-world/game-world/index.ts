@@ -14,7 +14,7 @@ import {
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
-import { CombatTurnResult } from "@speed-dungeon/common";
+import { CombatTurnResult, CombatantClass, MonsterType } from "@speed-dungeon/common";
 import { NextToBabylonMessage } from "@/singletons/next-to-babylon-message-queue";
 import updateDebugText from "./model-manager/update-debug-text";
 import processMessagesFromNext from "./process-messages-from-next";
@@ -26,6 +26,9 @@ import { SavedMaterials, createDefaultMaterials } from "./materials/create-defau
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
 import { createTextPlane } from "./create-text-plane";
+import { spawnModularCharacter } from "./model-manager/model-action-handlers/spawn-modular-character";
+import { ModularCharacter } from "../combatant-models/modular-character";
+import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;

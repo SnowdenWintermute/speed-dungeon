@@ -154,7 +154,7 @@ export class CombatantProperties {
 
   static getForward(combatantProperties: CombatantProperties) {
     const { x, y, z } = combatantProperties.homeLocation;
-    return cloneVector3(new Vector3(0, 0, z)).subtract(combatantProperties.homeLocation);
+    return cloneVector3(new Vector3(x, 0, 0)).subtract(combatantProperties.homeLocation);
   }
 }
 
