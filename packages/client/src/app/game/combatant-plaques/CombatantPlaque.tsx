@@ -112,7 +112,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
         </div>
       </CharacterModelDisplay>
       <div
-        className={`w-[23rem] h-fit border bg-slate-700 flex p-2.5 relative box-border ${conditionalBorder} ${lockedUiState}`}
+        className={`w-[23rem] h-fit bg-slate-700 flex p-2.5 relative box-border ${conditionalBorder} ${lockedUiState}`}
         ref={combatantPlaqueRef}
       >
         {isPartyMember && (
@@ -133,7 +133,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
         )}
         <TargetingIndicators party={party} entityId={entityId} />
         <DetailedCombatantInfoCard combatantId={entityId} combatantPlaqueRef={combatantPlaqueRef} />
-        <div className="relative">
+        <div className="relative rounded-full">
           <div
             className="h-full aspect-square mr-2 border border-slate-400 bg-slate-600 rounded-full overflow-hidden"
             style={{ height: `${portraitHeight}px` }}
@@ -185,10 +185,10 @@ function getConditionalBorder(
   combatantIsDetailed: boolean
 ) {
   return infoButtonIsHovered
-    ? "border-white"
+    ? "outline outline-1 outline-white"
     : isFocused
-      ? "border-lime-500"
+      ? "outline outline-2 outline-lime-500"
       : combatantIsDetailed
-        ? "border-yellow-400"
-        : "border-slate-400";
+        ? "outline outline-2 outline-yellow-400"
+        : "outline outline-1 outline-slate-400";
 }

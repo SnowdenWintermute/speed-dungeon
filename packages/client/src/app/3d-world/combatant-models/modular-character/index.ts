@@ -76,11 +76,7 @@ export class ModularCharacter {
   modelActionManager: ModelActionManager = new ModelActionManager(this);
   animationManager: AnimationManager;
   highlightManager: HighlightManager = new HighlightManager(this);
-  debugMeshes: {
-    // directionLine: Mesh;
-    homeLocationMesh: Mesh;
-    // homeLocationDirectionLine: Mesh;
-  } | null = null;
+  debugMeshes: Mesh[] | null = null;
 
   constructor(
     public entityId: string,
@@ -107,7 +103,6 @@ export class ModularCharacter {
     this.rootTransformNode.rotationQuaternion = Quaternion.Identity();
     this.rootTransformNode.rotate(Vector3.Up(), startRotation);
     this.rootTransformNode.position = cloneDeep(startPosition);
-    console.log("POSITION", this.rootTransformNode.position.x, this.rootTransformNode.position.z);
 
     this.rootMesh = rootMesh;
     this.rootMesh.setParent(this.rootTransformNode);
@@ -125,13 +120,11 @@ export class ModularCharacter {
   }
 
   setHomeRotation(rotation: number) {
-    console.log("called setHomeRotation", this.entityId.slice(0, 5));
     this.rootTransformNode.rotationQuaternion = Quaternion.RotationAxis(Vector3.Up(), rotation);
     this.homeLocation.rotation = cloneDeep(this.rootTransformNode.rotationQuaternion);
   }
 
   setHomeLocation(position: Vector3) {
-    console.log("called setHomeLocation", position.x, position.z, this.entityId.slice(0, 5));
     this.rootTransformNode.position = position;
 
     const rotation = this.rootTransformNode.rotationQuaternion;

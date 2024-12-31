@@ -5,14 +5,17 @@ import { FFIX_COLORS } from "@speed-dungeon/common";
 
 export default function setUpDebugMeshes(this: ModularCharacter) {
   // createMeleeRangeDisc(this)
-  createForwardDirectionMarkerSphere(this);
-  createRootTransformNodeLocationMarker(this);
-  // const homeLocationMesh = createHomeLocationMarker(this);
+  this.debugMeshes = [
+    createHomeLocationMarker(this),
+    createForwardDirectionMarkerSphere(this),
+    createRootTransformNodeLocationMarker(this),
+  ];
 }
 
 function createHomeLocationMarker(modularCharacter: ModularCharacter) {
   const box = MeshBuilder.CreateBox(`${modularCharacter.entityId}-home-location-box`, {
-    size: 0.25,
+    size: 0.1,
+    height: 0.4,
   });
   const material = new StandardMaterial("marker box material");
   material.diffuseColor = Color3.FromHexString(FFIX_COLORS.iceblue);
@@ -37,6 +40,7 @@ function createRootTransformNodeLocationMarker(modularCharacter: ModularCharacte
   );
   box.setParent(modularCharacter.rootTransformNode);
   box.position = Vector3.Zero();
+  return box;
 }
 
 function createForwardDirectionMarkerSphere(modularCharacter: ModularCharacter) {
@@ -44,6 +48,7 @@ function createForwardDirectionMarkerSphere(modularCharacter: ModularCharacter) 
   sphere.setParent(modularCharacter.rootTransformNode);
   const forward = modularCharacter.rootTransformNode.forward;
   sphere.position = forward.scale(1.5);
+  return sphere;
 }
 
 function createMeleeRangeDisc(modularCharacter: ModularCharacter) {

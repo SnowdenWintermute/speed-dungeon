@@ -38,7 +38,7 @@ export default function InventoryIconButton({
         });
       }}
     >
-      <BackpackIcon className="fill-slate-400 h-full w-full" />
+      <BackpackIcon className="fill-slate-400 h-full w-full pointer-events-none" />
       <div
         className={`text-sm min-w-[24px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2`}
         style={{ lineHeight: "14px" }}
@@ -64,7 +64,7 @@ function NumItemsDisplay({ numItems, opacityClass }: { numItems: number; opacity
       key={numItems}
       className={`
         border p-1 rounded-full bg-slate-800 ${fullInventoryClass}
-        animate-slide-appear-from-top-then-disappear ${opacityClass}`}
+        animate-slide-appear-from-top-then-disappear ${opacityClass} pointer-events-none`}
     >
       {numItems}
     </div>
