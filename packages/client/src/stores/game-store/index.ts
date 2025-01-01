@@ -57,6 +57,7 @@ export class GameState {
   combatantFloatingMessages: { [combatantId: string]: FloatingMessage[] } = {};
   testText: string = "test";
   itemThumbnails: { [itemId: string]: string } = {};
+  combatantPortraits: { [combatantId: EntityId]: string } = {};
   consideredItemUnmetRequirements: null | CombatAttribute[] = null;
   showItemsOnGround: boolean = true;
   viewingLeaveGameModal: boolean = false;

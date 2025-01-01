@@ -12,12 +12,12 @@ export class ValkeyManager {
     });
 
     this.client.on("connect", () => {
-      if (this.keyPrefix) console.log(`valkey client with prefix ${this.keyPrefix} connected`);
-      else console.log(`valkey client connected`);
+      if (this.keyPrefix) console.info(`valkey client with prefix ${this.keyPrefix} connected`);
+      else console.info(`valkey client connected`);
       this.connected = true;
     });
     this.client.on("disconnect", () => {
-      console.log("valkey client disconnected");
+      console.info("valkey client disconnected");
       this.connected = false;
     });
 

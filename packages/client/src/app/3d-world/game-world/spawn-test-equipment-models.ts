@@ -79,7 +79,7 @@ async function spawnBaseItemModels(
       const equipmentModel = await importMesh(modelPath, world.scene);
       const parentMesh = equipmentModel.meshes[0];
       if (!parentMesh) {
-        console.log("NO PARENT MESH");
+        console.error("NO PARENT MESH");
         continue;
       }
       setDefaultMaterials(equipmentModel, world.defaultMaterials);

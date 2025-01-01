@@ -13,10 +13,7 @@ export class ActionCommandQueue {
   }
 
   async processCommands(): Promise<Error | ActionCommandPayload[]> {
-    if (this.isProcessing) {
-      console.log("tried to start processing action command queue when it wasn't empty");
-      return [];
-    }
+    if (this.isProcessing) return [];
     const errors: Error[] = [];
     const newPayloads: ActionCommandPayload[] = [];
     this.isProcessing = true;

@@ -40,7 +40,6 @@ class PlayerCharacterRepo extends DatabaseRepository<PlayerCharacter> {
 
   async update(playerCharacter: PlayerCharacter) {
     const { id, ownerId, name, combatantProperties } = playerCharacter;
-    console.log("new combatant properties to save:", combatantProperties.deepestFloorReached);
     const { rows } = await this.pgPool.query(
       format(
         `UPDATE ${tableName} SET owner_id = %L, name = %L, game_version = %L, combatant_properties = %L WHERE id = %L RETURNING *;`,

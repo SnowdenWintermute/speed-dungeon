@@ -54,7 +54,7 @@ export default function ValueBarsAndFocusButton({
       <div className="h-5 mb-1">{hpBar}</div>
       <div className="h-5">{mpBar}</div>
       {showExperience && (
-        <div className="h-5 mt-1 flex text-sm">
+        <div className="h-5 mt-[6px] flex text-sm">
           <FocusCharacterButton combatantId={combatantId} isFocused={isFocused} />
           {experienceBar}
         </div>

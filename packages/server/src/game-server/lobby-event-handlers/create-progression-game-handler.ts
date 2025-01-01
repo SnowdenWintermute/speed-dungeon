@@ -38,12 +38,6 @@ export default async function createProgressionGameHandler(
   game.lowestStartingFloorOptionsBySavedCharacter[defaultSavedCharacterResult.entityProperties.id] =
     defaultSavedCharacterResult.combatantProperties.deepestFloorReached;
 
-  console.log(
-    "character",
-    defaultSavedCharacterResult.entityProperties.name,
-    "deepest floor",
-    defaultSavedCharacterResult.combatantProperties.deepestFloorReached
-  );
   game.selectedStartingFloor = defaultSavedCharacterResult.combatantProperties.deepestFloorReached;
 
   const defaultPartyName = getProgressionGamePartyName(game.name);

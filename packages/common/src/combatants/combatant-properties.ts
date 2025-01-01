@@ -22,7 +22,7 @@ import { Inventory } from "./inventory.js";
 import setHpAndMpToMax from "./set-hp-and-mp-to-max.js";
 import { immerable } from "immer";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app-consts.js";
-import { cloneVector3 } from "../utils/index.js";
+import { cloneVector3, formatVector3 } from "../utils/index.js";
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./award-levelups.js";
 import { incrementAttributePoint } from "./increment-attribute-point.js";
 import { MonsterType } from "../monsters/monster-types.js";
@@ -154,7 +154,7 @@ export class CombatantProperties {
 
   static getForward(combatantProperties: CombatantProperties) {
     const { x, y, z } = combatantProperties.homeLocation;
-    return cloneVector3(new Vector3(0, 0, z)).subtract(combatantProperties.homeLocation);
+    return cloneVector3(new Vector3(x, 0, 0)).subtract(combatantProperties.homeLocation);
   }
 }
 

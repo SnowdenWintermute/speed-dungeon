@@ -50,7 +50,7 @@ export const useHttpRequestStore = create<HttpRequestState>()(
           else tracker.data = data;
         } catch {
           // no json in response
-          console.log("No response from game server");
+          console.error("No response from game server");
         }
 
         set((state) => ({

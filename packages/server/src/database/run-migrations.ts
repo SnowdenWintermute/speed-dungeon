@@ -5,7 +5,6 @@ import { pgPool } from "../singletons/pg-pool.js";
 export default async function runMigrations() {
   try {
     await pgPool.connect(pgOptions);
-    console.log(process.cwd());
     // Run migrations using node-pg-migrate
     await migrate({
       databaseUrl: `postgresql://${pgOptions.user}:${pgOptions.password}@${pgOptions.host}:${pgOptions.port}/${pgOptions.database}`,

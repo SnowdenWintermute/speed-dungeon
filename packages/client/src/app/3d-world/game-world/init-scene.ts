@@ -14,14 +14,18 @@ import {
   Scene,
 } from "@babylonjs/core";
 import { GameWorld } from ".";
+import { GROUND_COLOR } from "./clear-floor-texture";
 
 export const GROUND_WIDTH = 50;
 export const GROUND_HEIGHT = 50;
-export const GROUND_TEXTURE_WIDTH = 8000;
-export const GROUND_TEXTURE_HEIGHT = 10000;
+export const RESOLUTION_PER_BABYLON_UNIT = 100;
+export const GROUND_TEXTURE_WIDTH = GROUND_WIDTH * RESOLUTION_PER_BABYLON_UNIT;
+export const GROUND_TEXTURE_HEIGHT = GROUND_HEIGHT * RESOLUTION_PER_BABYLON_UNIT;
 
 export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTexture] {
-  this.scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
+  // this.scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
+
+  this.scene.clearColor = new Color4(0, 0, 0, 0);
 
   // this.scene.fogMode = 3;
   // this.scene.fogStart = 5;
@@ -50,6 +54,7 @@ export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTextu
 
   // LIGHTS
   const hemiLight = new HemisphericLight("hemi-light", new Vector3(0, 1, 0), this.scene);
+  hemiLight.specular = Color3.FromHexString(GROUND_COLOR);
   hemiLight.intensity = 0.85;
   // hemiLight.intensity = 0.0;
   const lightPosition = new Vector3(4.0, 20.0, 8.0);

@@ -25,7 +25,6 @@ import CombatantFloatingMessagesDisplay from "./combatant-floating-messages-disp
 import InventoryIconButton from "./InventoryIconButton";
 import HotswapSlotButtons from "./HotswapSlotButtons";
 import CharacterModelDisplay from "@/app/character-model-display";
-import getCombatantModelStartPosition from "./get-combatant-model-start-position";
 import { useUIStore } from "@/stores/ui-store";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
@@ -38,6 +37,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
   const gameOption = useGameStore().game;
   const showDebug = useUIStore().showDebug;
   const mutateGameState = useGameStore().mutateState;
+  const portrait = useGameStore((state) => state.combatantPortraits[combatant.entityProperties.id]);
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
       detailedEntity: state.detailedEntity,
@@ -72,7 +72,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
 
   function isHovered() {
     if (!hoveredEntity) return false;
-    if (hoveredEntity instanceof Combatant) return false;
+    if (!(hoveredEntity instanceof Combatant)) return false;
     if (hoveredEntity.entityProperties.id === entityId) return true;
     return false;
   }
@@ -112,7 +112,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
         </div>
       </CharacterModelDisplay>
       <div
-        className={`w-[23rem] h-fit border bg-slate-700 flex p-2.5 relative box-border ${conditionalBorder} ${lockedUiState}`}
+        className={`w-[23rem] h-fit bg-slate-700 flex p-2.5 relative box-border outline ${conditionalBorder} ${lockedUiState}`}
         ref={combatantPlaqueRef}
       >
         {isPartyMember && (
@@ -133,10 +133,13 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
         )}
         <TargetingIndicators party={party} entityId={entityId} />
         <DetailedCombatantInfoCard combatantId={entityId} combatantPlaqueRef={combatantPlaqueRef} />
-        <div
-          className="h-full aspect-square mr-2 border border-slate-400 bg-slate-600 rounded-full relative"
-          style={{ height: `${portraitHeight}px` }}
-        >
+        <div className="relative rounded-full">
+          <div
+            className="h-full aspect-square mr-2 border border-slate-400 bg-slate-600 rounded-full overflow-hidden"
+            style={{ height: `${portraitHeight}px` }}
+          >
+            {portrait && <img src={portrait} alt="portrait" />}
+          </div>
           <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-5 border border-slate-400 bg-slate-700 pr-2 pl-2 text-sm flex items-center justify-center">
             {combatantProperties.level}
           </div>
@@ -182,10 +185,10 @@ function getConditionalBorder(
   combatantIsDetailed: boolean
 ) {
   return infoButtonIsHovered
-    ? "border-white"
+    ? "outline-1 outline-white"
     : isFocused
-      ? "border-lime-500"
+      ? "outline-3 outline-slate-400"
       : combatantIsDetailed
-        ? "border-yellow-400"
-        : "border-slate-400";
+        ? "outline-1 outline-yellow-400"
+        : "outline-1 outline-slate-400";
 }

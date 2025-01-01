@@ -9,7 +9,6 @@ export default class WrappedPool {
       console.error("Connection with Postgres failed!");
       console.error(error);
     });
-    // console.log("pg pool created: ");
   }
 
   close() {

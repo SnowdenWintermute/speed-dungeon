@@ -1,12 +1,14 @@
 import {
   COMBATANT_TIME_TO_MOVE_ONE_METER,
+  CombatantProperties,
   ERROR_MESSAGES,
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
   combatActionRequiresMeleeRange,
+  formatVector3,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
-import { Vector3 } from "@babylonjs/core";
+import { MeshBuilder, Vector3 } from "@babylonjs/core";
 import getCombatActionAnimationName from "../../combatant-models/animation-manager/animation-names";
 import {
   CombatantModelAction,
@@ -78,14 +80,18 @@ export default async function startPerformingCombatAction(
     const isMelee = combatActionRequiresMeleeRange(combatAction);
 
     if (!isMelee || (isMelee && userCombatantModel.isInMeleeRangeOfTarget)) return;
-    // QUEUE/START THE MODEL ACTION (FOR MOVEMENT) IF MELEE
-    // AND DIDN'T ALREADY MOVE FORWARD
+    // Follow through melee swing step movement
+
+    const previousLocation = cloneDeep(userCombatantModel.rootTransformNode.position);
+
+    userCombatantModel.rootTransformNode.computeWorldMatrix(true);
 
     const direction = userCombatantModel.rootTransformNode.forward;
-    const previousLocation = cloneDeep(userCombatantModel.rootTransformNode.position);
+
     const destinationLocation = userCombatantModel.rootTransformNode.position.add(
       direction.scale(1.5)
     );
+
     const distance = Vector3.Distance(previousLocation, destinationLocation);
     const speedMultiplier = 1;
     const timeToTranslate = COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;

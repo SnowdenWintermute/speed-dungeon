@@ -67,5 +67,4 @@ export default function setUpGameEventHandlers(
     ServerToClientEvent.CharacterSelectedHoldableHotswapSlot,
     characterSelectedHoldableHotswapSlotHandler
   );
-  console.log("game listeners set up");
 }

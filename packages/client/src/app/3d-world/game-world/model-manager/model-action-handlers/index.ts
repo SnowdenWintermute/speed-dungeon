@@ -106,10 +106,8 @@ export function createModelActionHandlers(modelManager: ModelManager) {
           )
       );
       actionCommandQueue.enqueueNewCommands(actionCommands);
-      const errors = await actionCommandQueue.processCommands();
-      if (errors.length) {
-        console.error(errors);
-      }
+      const result = await actionCommandQueue.processCommands();
+      if (result instanceof Error) console.error(result);
 
       return;
     },

@@ -18,35 +18,13 @@ await valkeyManager.context.connect();
 
 await loadLadderIntoKvStore();
 
-// await createTestCharacters();
-// const rows = await raceGameRecordsRepo.findAllGamesByUserId(3);
-// console.log(JSON.stringify(rows, null, 2));
-
 const expressApp = createExpressApp();
 const listening = expressApp.listen(PORT, async () => {
   const io = new Server<ClientToServerEventTypes, ServerToClientEventTypes>(listening, {
     cors: { origin: env.FRONT_END_URL, credentials: true },
   });
 
-  console.log(`speed dungeon server on port ${PORT}`);
+  console.info(`speed dungeon server on port ${PORT}`);
 
   gameServer.current = new GameServer(io);
 });
-
-// async function createTestCharacters() {
-//   for (let i = 0; i < 45; i++) {
-//     const newCharacter = createCharacter(generateRandomCharacterName(), CombatantClass.Rogue);
-//     newCharacter.combatantProperties.level = Math.floor(Math.random() * 10);
-//     await playerCharactersRepo.insert(newCharacter, 3);
-//   }
-
-//   console.log("created test chracaters");
-// }
-
-// async function deleteTestCharacters() {
-//   for (let i = 0; i < 45; i++) {
-//     await playerCharactersRepo.delete(newCharacter, 1);
-//   }
-
-//   console.log("created test chracaters");
-// }

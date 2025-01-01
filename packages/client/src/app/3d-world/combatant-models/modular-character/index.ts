@@ -32,7 +32,7 @@ import { MONSTER_SCALING_SIZES } from "../monster-scaling-sizes";
 import cloneDeep from "lodash.clonedeep";
 import { AnimationManager } from "../animation-manager";
 import { ModelActionManager } from "../model-action-manager";
-import setUpDebugMeshes from "./set-up-debug-meshes";
+import { setUpDebugMeshes, despawnDebugMeshes } from "./set-up-debug-meshes";
 import { ANIMATION_NAMES } from "../animation-manager/animation-names";
 import {
   attachHoldableModelToHolsteredPosition,
@@ -76,22 +76,18 @@ export class ModularCharacter {
   modelActionManager: ModelActionManager = new ModelActionManager(this);
   animationManager: AnimationManager;
   highlightManager: HighlightManager = new HighlightManager(this);
-  debugMeshes: {
-    // directionLine: Mesh;
-    homeLocationMesh: Mesh;
-    // homeLocationDirectionLine: Mesh;
-  } | null = null;
+  debugMeshes: Mesh[] | null = null;
 
   constructor(
     public entityId: string,
     public world: GameWorld,
     public monsterType: null | MonsterType,
+    public isPlayerControlled: boolean,
     public combatantClass: CombatantClass,
     public skeleton: ISceneLoaderAsyncResult,
     public modelDomPositionElement: HTMLDivElement | null,
     startPosition: Vector3 = Vector3.Zero(),
-    startRotation: number = 0,
-    modelCorrectionRotation: number = 0
+    startRotation: number = 0
   ) {
     this.animationManager = new AnimationManager(this);
     this.startIdleAnimation(0);
@@ -105,20 +101,13 @@ export class ModularCharacter {
       rootMesh.scaling = Vector3.One().scale(MONSTER_SCALING_SIZES[this.monsterType]);
     }
     this.rootTransformNode = new TransformNode(`${this.entityId}-root-transform-node`);
+    this.rootTransformNode.rotationQuaternion = Quaternion.Identity();
+    this.rootTransformNode.rotate(Vector3.Up(), startRotation);
+    this.rootTransformNode.position.copyFrom(startPosition);
+
     this.rootMesh = rootMesh;
-    this.rootMesh.rotate(Vector3.Up(), modelCorrectionRotation); // fix inconsistent blender export rotation
-
-    this.rootMesh.position.x = 0;
-    this.rootMesh.position.y = 0;
-    this.rootMesh.position.z = 0;
-
     this.rootMesh.setParent(this.rootTransformNode);
-
-    this.rootTransformNode.rotationQuaternion = Quaternion.RotationAxis(
-      Vector3.Up(),
-      startRotation
-    );
-    this.rootTransformNode.position = startPosition;
+    this.rootMesh.position.copyFrom(Vector3.Zero());
 
     const rotation = this.rootTransformNode.rotationQuaternion;
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
@@ -133,11 +122,11 @@ export class ModularCharacter {
 
   setHomeRotation(rotation: number) {
     this.rootTransformNode.rotationQuaternion = Quaternion.RotationAxis(Vector3.Up(), rotation);
-    this.homeLocation.rotation = cloneDeep(this.rootTransformNode.rotationQuaternion);
+    this.homeLocation.rotation.copyFrom(this.rootTransformNode.rotationQuaternion);
   }
 
   setHomeLocation(position: Vector3) {
-    this.rootTransformNode.position = position;
+    this.rootTransformNode.position.copyFrom(position);
 
     const rotation = this.rootTransformNode.rotationQuaternion;
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
@@ -158,6 +147,7 @@ export class ModularCharacter {
   }
 
   setUpDebugMeshes = setUpDebugMeshes;
+  despawnDebugMeshes = despawnDebugMeshes;
 
   updateDomRefPosition() {
     const boundingBox = getClientRectFromMesh(this.world.scene, this.world.canvas, this.rootMesh);
@@ -191,7 +181,7 @@ export class ModularCharacter {
       }
     }
 
-    if (minimum === null || maximum === null) return console.log("no mesh bounding info found");
+    if (minimum === null || maximum === null) return console.error("no mesh bounding info found");
     this.rootMesh.setBoundingInfo(
       new BoundingInfo(minimum, maximum, this.rootMesh.getWorldMatrix())
     );

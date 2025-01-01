@@ -8,7 +8,6 @@ import {
   getPartyChannelName,
   SpeedDungeonPlayer,
   SpeedDungeonGame,
-  DUNGEON_ROOM_TYPE_STRINGS,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../../singletons.js";
 import { ServerPlayerAssociatedData } from "../../event-middleware/index.js";
@@ -22,8 +21,6 @@ export function toggleReadyToDescendHandler(
   const { player, game, partyOption } = playerAssociatedData;
   if (partyOption === undefined) throw new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
   const party = partyOption;
-
-  console.log("toggled ready to dsecend: ", DUNGEON_ROOM_TYPE_STRINGS[party.currentRoom.roomType]);
 
   const maybeForbidden = checkIfAllowedToDescend(party);
   if (maybeForbidden instanceof Error) return maybeForbidden;
@@ -90,8 +87,6 @@ export async function descendParty(
 
     const timeOfEscape = Date.now();
     party.timeOfEscape = timeOfEscape;
-
-    console.log("anotherPartyAlreadyEscaped: ", anotherPartyAlreadyEscaped);
 
     let hasBeenMarkedAsWinnerMessageOption = "";
     if (!anotherPartyAlreadyEscaped)

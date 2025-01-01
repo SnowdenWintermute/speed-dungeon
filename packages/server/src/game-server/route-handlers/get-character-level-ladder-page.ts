@@ -39,21 +39,19 @@ export default async function getCharacterLevelLadderPageHandler(
       }
     );
 
-    console.log("inValkey: ", inValkey);
-
     const ranksByCharacterId: { [characterId: string]: number } = {};
     inValkey.forEach((item, i) => {
       ranksByCharacterId[item.value] = i + pageNumber * LADDER_PAGE_SIZE + 1;
     });
 
     if (!inValkey) {
-      console.log("no ladder entries in valkey");
+      console.error("no ladder entries in valkey");
       return next([new CustomError(`${ERROR_MESSAGES.LADDER.NO_ENTRIES_FOUND}`, 404)]);
     }
 
     const characterIds = inValkey.map((item) => item.value);
     if (!characterIds.length) {
-      console.log("redis entries didn't contain ids");
+      console.error("redis entries didn't contain ids");
       return next([new CustomError(`${ERROR_MESSAGES.LADDER.NO_ENTRIES_FOUND} on this page`, 404)]);
     }
 

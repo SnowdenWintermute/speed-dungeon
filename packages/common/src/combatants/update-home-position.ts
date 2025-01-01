@@ -19,15 +19,15 @@ export function updateCombatantHomePosition(
   const numberOfCombatantsInRow = combatantIdsInRow.length;
 
   const rowLength = COMBATANT_POSITION_SPACING_SIDE * (numberOfCombatantsInRow - 1);
-  const rowStart = rowLength / 2;
+  const rowStart = -rowLength / 2;
 
   const combatantRowIndex = combatantIdsInRow.indexOf(entityId);
   if (combatantRowIndex === -1) return console.error("Expected combatant id not found in row");
 
-  const rowPositionOffset = rowStart - combatantRowIndex * COMBATANT_POSITION_SPACING_SIDE;
+  const rowPositionOffset = rowStart + combatantRowIndex * COMBATANT_POSITION_SPACING_SIDE;
 
   let positionSpacing = -COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2;
   if (!isPlayer) positionSpacing *= -1;
 
-  combatantProperties.homeLocation = new Vector3(positionSpacing, 0, rowPositionOffset);
+  combatantProperties.homeLocation = new Vector3(rowPositionOffset, 0, positionSpacing);
 }

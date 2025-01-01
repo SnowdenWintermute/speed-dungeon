@@ -33,18 +33,7 @@ export function resetWebsocketConnection() {
   console.log("reconnecting");
 }
 
-// TESTING
-// export const TEST_ITEMS: Item[] = [];
-// websocketConnection.on(ServerToClientEvent.TestItems, (items) => {
-//   console.log("got items: ", items);
-//   TEST_ITEMS.length = 0;
-//   TEST_ITEMS.push(...items);
-//   const currGameWorld = gameWorld.current;
-//   if (currGameWorld) spawnEquipmentModelsFromItemList(currGameWorld, TEST_ITEMS);
-// });
-
 websocketConnection.on("connect", () => {
-  console.log("all listeners set up");
   console.log("connected");
   useGameStore.getState().mutateState((state) => {
     state.game = null;
@@ -70,7 +59,6 @@ websocketConnection.on(ServerToClientEvent.ActionCommandPayloads, (payloads) => 
   if (!gameWorld.current)
     return console.error("Got action command payloads but no game world was found");
 
-  console.log("enqueing message to process action commands: ", payloads);
   gameWorld.current.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.ProcessActionCommands,
     actionCommandPayloads: payloads,

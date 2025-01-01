@@ -33,12 +33,10 @@ export default function HotswapSlotButtons({
   const [waitingForIndexChange, setWaitingForIndexChange] = useState(false);
 
   function selectNextOrPrevious(nextOrPrevious: NextOrPrevious) {
-    if (waitingForIndexChange)
-      return console.log("still waiting for result of last input to slot change");
+    if (waitingForIndexChange) return;
     const newIndex = getNextOrPreviousNumber(selectedSlotIndex, numSlots - 1, nextOrPrevious, {
       minNumber: 0,
     });
-    console.log("new index to select: ", newIndex);
 
     websocketConnection.emit(ClientToServerEvent.SelectHoldableHotswapSlot, {
       characterId: focusedCharacterId,
@@ -70,7 +68,7 @@ export default function HotswapSlotButtons({
 
   return (
     <div className={className}>
-      <HoverableTooltipWrapper tooltipText={"Select weapon swap slot"}>
+      <HoverableTooltipWrapper tooltipText={"Select weapon swap slot (X, C)"}>
         <div
           className={`bg-slate-700 h-6 w-6 p-1 ${vertical ? "border-b" : "border-r"} border-slate-400`}
         >
