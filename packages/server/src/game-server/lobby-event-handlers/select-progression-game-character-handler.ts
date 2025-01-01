@@ -59,11 +59,6 @@ export default async function selectProgressionGameCharacterHandler(
 
   addCharacterToParty(game, player, savedCharacterOption);
 
-  console.log(
-    "savedCharacterOption: ",
-    JSON.stringify(savedCharacterOption.combatantProperties.deepestFloorReached, null, 2)
-  );
-
   game.lowestStartingFloorOptionsBySavedCharacter[savedCharacterOption.entityProperties.id] =
     savedCharacterOption.combatantProperties.deepestFloorReached;
   const maxStartingFloor = getProgressionGameMaxStartingFloor(

@@ -39,16 +39,8 @@ export default async function joinPlayerToProgressionGame(
   const maxStartingFloor = getProgressionGameMaxStartingFloor(
     game.lowestStartingFloorOptionsBySavedCharacter
   );
-  console.log(
-    "joined prog game, selectedStartingFloor:",
-    game.selectedStartingFloor,
-    "max:",
-    maxStartingFloor
-  );
-  if (game.selectedStartingFloor > maxStartingFloor) {
-    console.log("setting selected to max");
-    game.selectedStartingFloor = maxStartingFloor;
-  }
+
+  if (game.selectedStartingFloor > maxStartingFloor) game.selectedStartingFloor = maxStartingFloor;
 
   gameServer.io
     .of("/")

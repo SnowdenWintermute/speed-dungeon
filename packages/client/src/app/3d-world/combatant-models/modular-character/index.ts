@@ -180,7 +180,7 @@ export class ModularCharacter {
       }
     }
 
-    if (minimum === null || maximum === null) return console.log("no mesh bounding info found");
+    if (minimum === null || maximum === null) return console.error("no mesh bounding info found");
     this.rootMesh.setBoundingInfo(
       new BoundingInfo(minimum, maximum, this.rootMesh.getWorldMatrix())
     );

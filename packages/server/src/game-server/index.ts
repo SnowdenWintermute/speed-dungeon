@@ -55,7 +55,6 @@ export class GameServer implements ActionCommandReceiver {
     [GameMode.Progression]: new GameModeContext(GameMode.Progression),
   };
   constructor(public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>) {
-    console.log("constructed game server");
     this.connectionHandler();
     this.itemGenerationDirectors = this.createItemGenerationDirectors();
   }
@@ -78,7 +77,6 @@ export class GameServer implements ActionCommandReceiver {
   battleResultActionCommandHandler = battleResultActionCommandHandler;
   removePlayerFromGameCommandHandler: (username: string) => Promise<void> = async () => {}; // we only use it on the client
   async gameMessageCommandHandler(payload: GameMessagesPayload) {
-    console.log("processing game messages", payload);
     for (const message of payload.messages) {
       this.io.except(payload.partyChannelToExclude || "").emit(ServerToClientEvent.GameMessage, {
         type: message.type,
@@ -86,7 +84,6 @@ export class GameServer implements ActionCommandReceiver {
         showAfterActionQueueResolution: false,
       });
     }
-    console.log(...payload.messages);
   }
   // UTILS
   getSocketCurrentGame = getSocketCurrentGame;

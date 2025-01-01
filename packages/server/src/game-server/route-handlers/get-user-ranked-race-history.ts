@@ -38,8 +38,6 @@ export default async function getUserRankedRaceHistoryHandler(
       return next([new CustomError(ERROR_MESSAGES.SERVER_GENERIC, 500)]);
     }
 
-    console.log("sending game history: ", sanitizedGamesResult);
-
     res.json(sanitizedGamesResult);
   } catch (error) {
     console.error(error);

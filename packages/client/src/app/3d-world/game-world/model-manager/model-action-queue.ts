@@ -1,6 +1,6 @@
 import { ModelManager } from ".";
 import { setAlert } from "@/app/components/alerts";
-import { MODEL_ACTION_TYPE_STRINGS, ModelAction } from "./model-actions";
+import { ModelAction } from "./model-actions";
 
 export class ModelActionQueue {
   isProcessing: boolean = false;
@@ -19,7 +19,7 @@ export class ModelActionQueue {
 
     let currentAction = this.messages.shift();
     while (currentAction) {
-      console.log(MODEL_ACTION_TYPE_STRINGS[currentAction.type]);
+      // console.log(MODEL_ACTION_TYPE_STRINGS[currentAction.type]);
       const handler = this.modelManager.modelActionHandlers[currentAction.type];
       const maybeError = await handler(currentAction);
 

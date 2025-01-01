@@ -16,8 +16,6 @@ export async function getCharacterAssociatedData<T extends { characterId: string
   _middlewareProvidedData: CharacterAssociatedData | undefined,
   next: SocketEventNextFunction<T, CharacterAssociatedData>
 ) {
-  console.log("tried get data for ", eventData);
-
   const gameServer = getGameServer();
   const [_socket, socketMeta] = gameServer.getConnection<
     ClientToServerEventTypes,

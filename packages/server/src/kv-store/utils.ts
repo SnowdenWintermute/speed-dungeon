@@ -32,11 +32,9 @@ export async function loadLadderIntoKvStore() {
   console.log("loading kv ladder");
   const rows = await playerCharactersRepo.getAllByLevel();
   if (!rows) return console.error("Couldn't load character levels");
-  console.log("rows: ", rows);
   const forValkey: { value: string; score: number }[] = [];
   for (const item of rows) {
     if (item.hitPoints <= 0) continue; // only allow living characters in the ladder
-    console.log("current exp: ", item.experiencePoints);
     forValkey.push({
       value: item.id,
       score: calculateTotalExperience(item.level) + item.experiencePoints,

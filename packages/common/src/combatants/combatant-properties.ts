@@ -137,7 +137,6 @@ export class CombatantProperties {
       // we're recreating this vec3 because when
       // combatants are copied to the client they don't keep their Vector3 methods
       const direction = cloneVector3(target.homeLocation).subtract(user.homeLocation).normalize();
-      console.log("target  home location: ", formatVector3(target.homeLocation));
 
       destinationLocation = cloneVector3(target.homeLocation).subtract(
         direction.scale(target.hitboxRadius + user.hitboxRadius)

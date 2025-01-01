@@ -63,7 +63,7 @@ export class ImageManager {
   processNextMessage() {
     if (this.queue.length === 0) {
       this.isProcessing = false;
-      console.log("image manager queue emptied");
+      console.info("image manager queue emptied");
       return;
     }
 
@@ -173,7 +173,14 @@ export class ImageManager {
     const height = max.y - min.y;
     const depth = max.z - min.z;
 
-    // world.portraitCamera.position = new Vector3(
+    const newX = (min.x + max.x) / 2;
+    const newY = max.y;
+    const newZ = combatantModelOption.rootTransformNode.forward.z;
+
+    const newPosition = new Vector3(newX, newY, newZ);
+
+    world.portraitCamera.position.copyFrom(newPosition);
+    // new Vector3(
     //   (min.x + max.x) / 2, // Center the camera horizontally
     //   max.y - height / 2 + height / 2, // Align the top of the bounding box with the viewport's top
     //   max.z + requiredDistance // Position the camera at the required distance

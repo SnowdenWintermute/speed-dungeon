@@ -33,12 +33,10 @@ export default function HotswapSlotButtons({
   const [waitingForIndexChange, setWaitingForIndexChange] = useState(false);
 
   function selectNextOrPrevious(nextOrPrevious: NextOrPrevious) {
-    if (waitingForIndexChange)
-      return console.log("still waiting for result of last input to slot change");
+    if (waitingForIndexChange) return;
     const newIndex = getNextOrPreviousNumber(selectedSlotIndex, numSlots - 1, nextOrPrevious, {
       minNumber: 0,
     });
-    console.log("new index to select: ", newIndex);
 
     websocketConnection.emit(ClientToServerEvent.SelectHoldableHotswapSlot, {
       characterId: focusedCharacterId,

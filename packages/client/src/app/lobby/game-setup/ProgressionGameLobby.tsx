@@ -46,7 +46,6 @@ export default function ProgressionGameLobby() {
 
   useEffect(() => {
     if (game.selectedStartingFloor > maxStartingFloor) {
-      console.log("selected: ", game.selectedStartingFloor, "max: ", maxStartingFloor);
       mutateGameState((state) => {
         if (state.game) state.game.selectedStartingFloor = maxStartingFloor;
       });

@@ -24,16 +24,15 @@ export default function HoverableTooltipWrapper(props: Props) {
     let tooltipX = x + width / 2.0;
     let tooltipY = -9999; // send it off screen for measuring before showing it
 
-    // Temporarily show the tooltip to measure it
     mutateUIState((store) => {
       store.tooltipText = text;
       store.tooltipPosition = { x: tooltipX, y: tooltipY };
     });
 
-    // Measure tooltip after render
+    // measure tooltip after render
     requestAnimationFrame(() => {
-      const tooltipElement = document.getElementById("hoverable-tooltip"); // Adjust selector to your tooltip's class
-      if (!tooltipElement) return console.log("no tooltip found");
+      const tooltipElement = document.getElementById("hoverable-tooltip");
+      if (!tooltipElement) return console.error("no tooltip found");
 
       const tooltipRect = tooltipElement.getBoundingClientRect();
       // const viewportWidth = window.innerWidth;

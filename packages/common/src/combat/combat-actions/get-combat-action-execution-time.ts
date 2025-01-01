@@ -4,7 +4,6 @@ import { AbilityName, CombatantProperties } from "../../combatants/index.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { CombatantEquipment } from "../../combatants/combatant-equipment/index.js";
-import { CombatAttribute } from "../../attributes/index.js";
 
 export function getCombatActionExecutionTime(
   combatantProperties: CombatantProperties,
@@ -20,10 +19,8 @@ export function getCombatActionExecutionTime(
           const equippedHoldableHotswapSlot =
             CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
           const mhWeaponOption = equippedHoldableHotswapSlot?.holdables[HoldableSlotType.MainHand];
-          if (!mhWeaponOption) {
-            console.log("no equipment in main hand slot");
-            return 1000;
-          }
+          if (!mhWeaponOption) return 1000;
+
           const isTwoHanded = Equipment.isTwoHanded(
             mhWeaponOption.equipmentBaseItemProperties.type
           );
