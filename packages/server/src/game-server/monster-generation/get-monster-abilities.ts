@@ -5,9 +5,7 @@ export default function getMonsterAbilities(
 ): Partial<Record<AbilityName, CombatantAbility>> {
   const abilities: Partial<Record<AbilityName, CombatantAbility>> = {};
 
-  abilities[AbilityName.Attack] = CombatantAbility.createByName(
-    AbilityName.Attack
-  );
+  abilities[AbilityName.Attack] = CombatantAbility.createByName(AbilityName.Attack);
   abilities[AbilityName.AttackMeleeMainhand] = CombatantAbility.createByName(
     AbilityName.AttackMeleeMainhand
   );
@@ -21,14 +19,10 @@ export default function getMonsterAbilities(
   switch (monsterType) {
     case MonsterType.FireMage:
     case MonsterType.FireElemental:
-      abilities[AbilityName.Fire] = CombatantAbility.createByName(
-        AbilityName.Fire
-      );
+      abilities[AbilityName.Fire] = CombatantAbility.createByName(AbilityName.Fire);
       break;
     case MonsterType.Cultist:
-      abilities[AbilityName.Healing] = CombatantAbility.createByName(
-        AbilityName.Healing
-      );
+      abilities[AbilityName.Healing] = CombatantAbility.createByName(AbilityName.Healing);
       break;
     case MonsterType.IceElemental:
       abilities[AbilityName.Ice] = CombatantAbility.createByName(AbilityName.Ice);

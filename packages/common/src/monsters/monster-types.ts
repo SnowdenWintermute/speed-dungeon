@@ -7,9 +7,9 @@ export enum MonsterType {
   Scavenger, // medium hp, .5 blunt, 1.25 slashing, 1 piercing
   Vulture, // medium hp, .5 blunt, 1.0 slashing, 1.25 piercing
   FireMage, // low AC and HP, casts fire
-  Cultist, // Low AC and HP, casts cure
   FireElemental, // .25 damage from physical, casts fire, weak to ice
   IceElemental, // .25 damage from physical, casts ice, weak to fire
+  Cultist, // Low AC and HP, casts cure
 }
 
 export const MONSTER_TYPE_STRINGS: Record<MonsterType, string> = {

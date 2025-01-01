@@ -5,10 +5,10 @@ import {
   CombatAttribute,
   Combatant,
   CombatantProperties,
+  MONSTER_SPECIES,
   MONSTER_TYPE_STRINGS,
   MonsterType,
   getMonsterCombatantClass,
-  getMonsterCombatantSpecies,
   iterateNumericEnumKeyedRecord,
   randomNormal,
 } from "@speed-dungeon/common";
@@ -26,7 +26,7 @@ export default function generateMonster(level: number, forcedType?: MonsterType)
   const randomIndex = Math.floor(Math.floor(Math.random() * spawnableTypes.length));
   const monsterType = forcedType !== undefined ? forcedType : spawnableTypes[randomIndex]!;
   const combatantClass = getMonsterCombatantClass(monsterType);
-  const combatantSpecies = getMonsterCombatantSpecies(monsterType);
+  const combatantSpecies = MONSTER_SPECIES[monsterType];
 
   const entityProperties = {
     id: idGenerator.generate(),

@@ -79,6 +79,11 @@ class ArcRotateParams {
   ) {}
 }
 
+const elementals = {
+  arcRotate: new ArcRotateParams(-0.3, -0.45, 0.8),
+  position: new Vector3(0, 1, 0),
+};
+
 const modelPortraitCameraPositionModifiers: Record<
   MonsterType,
   { arcRotate: ArcRotateParams; position: Vector3 }
@@ -96,12 +101,6 @@ const modelPortraitCameraPositionModifiers: Record<
   [MonsterType.Vulture]: { arcRotate: new ArcRotateParams(-0.2, 0, -0.2), position: new Vector3() },
   [MonsterType.FireMage]: { arcRotate: new ArcRotateParams(), position: Vector3.Zero() },
   [MonsterType.Cultist]: { arcRotate: new ArcRotateParams(), position: Vector3.Zero() },
-  [MonsterType.FireElemental]: {
-    arcRotate: new ArcRotateParams(-0.3, -0.45, 0.8),
-    position: new Vector3(0, 1, 0),
-  },
-  [MonsterType.IceElemental]: {
-    arcRotate: new ArcRotateParams(-0.3, -0.45, 0.8),
-    position: new Vector3(0, 1, 0),
-  },
+  [MonsterType.FireElemental]: elementals,
+  [MonsterType.IceElemental]: elementals,
 };

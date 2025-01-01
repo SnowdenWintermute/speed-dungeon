@@ -3,6 +3,7 @@ import { ModularCharacter } from "../../../combatant-models/modular-character";
 import {
   CombatantEquipment,
   CombatantSpecies,
+  MonsterType,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { SKELETONS } from "../../../combatant-models/modular-character/modular-character-parts";
@@ -50,7 +51,7 @@ export async function spawnModularCharacter(
         const partResult = await modularCharacter.attachPart(part.category, assetPath);
         if (partResult instanceof Error) return partResult;
 
-        // setModularCharacterPartDefaultMaterials(partResult, combatantProperties);
+        setModularCharacterPartDefaultMaterials(partResult, combatantProperties);
         resolve(partResult);
       })
     );

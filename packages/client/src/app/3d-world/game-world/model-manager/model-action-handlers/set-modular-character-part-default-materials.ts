@@ -9,9 +9,9 @@ export function setModularCharacterPartDefaultMaterials(
   if (combatantProperties.monsterType === MonsterType.FireElemental)
     for (const mesh of partResult.meshes) {
       if (mesh.material?.name === "cube-material") {
-        // redMaterial.diffuseColor = new Color3(0.7, 0.2, 0.2);
         const material = gameWorld.current?.defaultMaterials.elements[MagicalElement.Fire];
         if (!material) return;
+        mesh.material.dispose();
         mesh.material = material;
       }
     }
