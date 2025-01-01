@@ -5,8 +5,10 @@ import {
 } from "@/app/3d-world/combatant-models/modular-character/modular-character-parts";
 import { CombatantClass, CombatantProperties, MonsterType } from "@speed-dungeon/common";
 
-export function getModularCharacterParts(combatantProperties: CombatantProperties) {
-  const parts = [];
+export function getModularCharacterPartCategoriesAndAssetPaths(
+  combatantProperties: CombatantProperties
+) {
+  const parts: { category: ModularCharacterPartCategory; assetPath: string | undefined }[] = [];
 
   if (combatantProperties.monsterType !== null) {
     if (

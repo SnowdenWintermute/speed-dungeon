@@ -16,6 +16,7 @@ import { spawnModularCharacter } from "./spawn-modular-character";
 import { ModularCharacter } from "@/app/3d-world/combatant-models/modular-character";
 import { setAlert } from "@/app/components/alerts";
 import cloneDeep from "lodash.clonedeep";
+import { createCombatantPortrait } from "../../image-manager/create-combatant-portrait";
 
 export async function synchronizeCombatantModelsWithAppState() {
   if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
@@ -68,9 +69,7 @@ export async function synchronizeCombatantModelsWithAppState() {
       resultsIncludedError = true;
     } else {
       modelManager.combatantModels[result.entityId] = result;
-      const portraitResult = await modelManager.world.imageManager.createCombatantPortrait(
-        result.entityId
-      );
+      const portraitResult = await createCombatantPortrait(result.entityId);
       if (portraitResult instanceof Error) setAlert(portraitResult);
 
       useGameStore.getState().mutateState((state) => {

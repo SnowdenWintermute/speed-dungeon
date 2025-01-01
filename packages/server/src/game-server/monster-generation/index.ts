@@ -5,8 +5,8 @@ import {
   CombatAttribute,
   Combatant,
   CombatantProperties,
+  MONSTER_TYPE_STRINGS,
   MonsterType,
-  formatMonsterType,
   getMonsterCombatantClass,
   getMonsterCombatantSpecies,
   iterateNumericEnumKeyedRecord,
@@ -30,7 +30,7 @@ export default function generateMonster(level: number, forcedType?: MonsterType)
 
   const entityProperties = {
     id: idGenerator.generate(),
-    name: formatMonsterType(monsterType),
+    name: MONSTER_TYPE_STRINGS[monsterType],
   };
   const combatantProperties = new CombatantProperties(
     combatantClass,

@@ -12,28 +12,17 @@ export enum MonsterType {
   IceElemental, // .25 damage from physical, casts ice, weak to fire
 }
 
-export function formatMonsterType(monsterType: MonsterType) {
-  switch (monsterType) {
-    case MonsterType.MetallicGolem:
-      return "Metallic Golem";
-    case MonsterType.Zombie:
-      return "Zombie";
-    case MonsterType.SkeletonArcher:
-      return "Skeleton Archer";
-    case MonsterType.Scavenger:
-      return "Scavenger";
-    case MonsterType.Vulture:
-      return "Vulture";
-    case MonsterType.FireMage:
-      return "Fire Mage";
-    case MonsterType.Cultist:
-      return "Cultist";
-    case MonsterType.FireElemental:
-      return "Fire Elemental";
-    case MonsterType.IceElemental:
-      return "Ice Elemental";
-  }
-}
+export const MONSTER_TYPE_STRINGS: Record<MonsterType, string> = {
+  [MonsterType.MetallicGolem]: "Metallic Golem",
+  [MonsterType.Zombie]: "Zombie",
+  [MonsterType.SkeletonArcher]: "Skeleton Archer",
+  [MonsterType.Scavenger]: "Scavenger",
+  [MonsterType.Vulture]: "Vulture",
+  [MonsterType.FireMage]: "Fire Mage",
+  [MonsterType.Cultist]: "Cultist",
+  [MonsterType.FireElemental]: "Fire Elemental",
+  [MonsterType.IceElemental]: "Ice Elemental",
+};
 
 // export function selectRandomMonsterType(): MonsterType {
 //   const r = Math.floor(Math.random() * 100 + 1);

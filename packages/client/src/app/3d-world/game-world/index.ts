@@ -47,6 +47,7 @@ export class GameWorld {
   // imageCreationDefaultMaterials: SavedMaterials;
   numImagesBeingCreated: number = 0;
   imageManager: ImageManager = new ImageManager();
+  portraitRenderTarget: RenderTargetTexture;
 
   constructor(
     public canvas: HTMLCanvasElement,
@@ -76,13 +77,13 @@ export class GameWorld {
 
     this.portraitCamera.minZ = 0;
     this.portraitCamera.layerMask = LAYER_MASK_1;
-    const portraitRenderTarget = new RenderTargetTexture(
+    this.portraitRenderTarget = new RenderTargetTexture(
       "portraitTexture",
       { width: 100, height: 100 },
       this.scene,
       false
     );
-    this.portraitCamera.outputRenderTarget = portraitRenderTarget;
+    this.portraitCamera.outputRenderTarget = this.portraitRenderTarget;
 
     // PIXELATION FILTER
     // pixelate(this.camera, this.scene);
@@ -95,7 +96,7 @@ export class GameWorld {
       this.scene.render();
     });
 
-    // this.startLimitedFramerateRenderLoop(3, 3000);
+    // this.startLimitedFramerateRenderLoop(10, 3000);
   }
 
   updateGameWorld() {

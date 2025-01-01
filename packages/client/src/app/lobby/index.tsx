@@ -22,6 +22,8 @@ import AuthFormContainer from "./auth-forms";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import SavedCharacterManager from "./saved-character-manager";
 import { ZIndexLayers } from "../z-index-layers";
+import HotkeyButton from "../components/atoms/HotkeyButton";
+import { HOTKEYS } from "@/hotkeys";
 
 export default function Lobby() {
   const socketOption = websocketConnection;
@@ -101,17 +103,18 @@ export default function Lobby() {
         {!showGameCreationForm && !showSavedCharacterManager && websocketConnected && (
           <HoverableTooltipWrapper
             offsetTop={8}
-            tooltipText="Start a single player game where you control one of each character type"
+            tooltipText="Start a single player game where you control one of each character type (G)"
           >
-            <button
+            <HotkeyButton
               onClick={() => quickStartGame(socketOption)}
+              hotkeys={[HOTKEYS.SIDE_1]}
               className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
                           flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
                           text-xl bg-slate-950 text-slate-400 animate-slide-appear-from-top 
             `}
             >
               PLAY NOW
-            </button>
+            </HotkeyButton>
           </HoverableTooltipWrapper>
         )}
         <div

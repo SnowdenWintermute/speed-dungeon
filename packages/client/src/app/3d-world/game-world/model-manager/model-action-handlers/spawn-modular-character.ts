@@ -7,9 +7,9 @@ import {
 } from "@speed-dungeon/common";
 import { SKELETONS } from "../../../combatant-models/modular-character/modular-character-parts";
 import { importMesh } from "../../../utils";
-import { GameWorld, LAYER_MASK_1 } from "../../";
+import { GameWorld } from "../../";
 import { ISceneLoaderAsyncResult } from "@babylonjs/core";
-import { getModularCharacterParts } from "./get-modular-character-parts";
+import { getModularCharacterPartCategoriesAndAssetPaths } from "./get-modular-character-parts";
 import { setModularCharacterPartDefaultMaterials } from "./set-modular-character-part-default-materials";
 
 export async function spawnModularCharacter(
@@ -22,7 +22,7 @@ export async function spawnModularCharacter(
 
   const skeleton = await importMesh(skeletonPath, world.scene);
 
-  const parts = getModularCharacterParts(combatantProperties);
+  const parts = getModularCharacterPartCategoriesAndAssetPaths(combatantProperties);
 
   const modularCharacter = new ModularCharacter(
     entityProperties.id,
