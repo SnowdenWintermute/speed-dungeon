@@ -3,7 +3,7 @@ import { MonsterType, iterateNumericEnum } from "@speed-dungeon/common";
 export default function getSpawnableMonsterTypesByFloor(floor: number) {
   // if (floor === 1) return [MonsterType.SkeletonArcher, MonsterType.Vulture];
   // if (floor === 1) return [MonsterType.SkeletonArcher, MonsterType.Zombie];
-  if (floor === 1) return [MonsterType.MetallicGolem];
+  if (floor === 1) return [MonsterType.MetallicGolem, MonsterType.Scavenger, MonsterType.Zombie];
   // if (floor === 1) return [MonsterType.MetallicGolem];
   // return [MonsterType.Cultist];
   // if (floor === 1) return [MonsterType.MetallicGolem, MonsterType.FireElemental];

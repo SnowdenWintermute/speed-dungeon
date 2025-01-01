@@ -9,14 +9,11 @@ import {
   Constants,
   InputBlock,
   Camera,
-  UniversalCamera,
-  Quaternion,
-  MeshBuilder,
-  StandardMaterial,
+  RenderTargetTexture,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
-import { CombatTurnResult, CombatantClass, MonsterType } from "@speed-dungeon/common";
+import { CombatTurnResult } from "@speed-dungeon/common";
 import { NextToBabylonMessage } from "@/singletons/next-to-babylon-message-queue";
 import updateDebugText from "./model-manager/update-debug-text";
 import processMessagesFromNext from "./process-messages-from-next";
@@ -27,10 +24,6 @@ import drawCharacterSlots from "./draw-character-slots";
 import { SavedMaterials, createDefaultMaterials } from "./materials/create-default-materials";
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
-import { createTextPlane } from "./create-text-plane";
-import { spawnModularCharacter } from "./model-manager/model-action-handlers/spawn-modular-character";
-import { ModularCharacter } from "../combatant-models/modular-character";
-import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;
@@ -40,7 +33,7 @@ export class GameWorld {
   engine: Engine;
   scene: Scene;
   camera: ArcRotateCamera | null = null;
-  portraitCamera: UniversalCamera;
+  portraitCamera: ArcRotateCamera;
   sun: Mesh;
   // shadowGenerator: null | ShadowGenerator = null;
   messages: NextToBabylonMessage[] = [];
@@ -70,10 +63,26 @@ export class GameWorld {
     [this.camera, this.sun, this.groundTexture] = this.initScene();
     this.camera.layerMask = LAYER_MASK_ALL;
     this.defaultMaterials = createDefaultMaterials(this.scene);
+    this.scene.activeCamera = this.camera;
 
-    this.portraitCamera = new UniversalCamera("portrait camera", new Vector3(0, 0, 3), this.scene);
+    this.portraitCamera = new ArcRotateCamera(
+      "portrait camera",
+      0,
+      0,
+      0,
+      Vector3.Zero(),
+      this.scene
+    );
+
     this.portraitCamera.minZ = 0;
     this.portraitCamera.layerMask = LAYER_MASK_1;
+    const portraitRenderTarget = new RenderTargetTexture(
+      "portraitTexture",
+      { width: 100, height: 100 },
+      this.scene,
+      false
+    );
+    this.portraitCamera.outputRenderTarget = portraitRenderTarget;
 
     // PIXELATION FILTER
     // pixelate(this.camera, this.scene);

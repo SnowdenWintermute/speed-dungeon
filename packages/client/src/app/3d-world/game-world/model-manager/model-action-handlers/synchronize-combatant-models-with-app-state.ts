@@ -68,14 +68,11 @@ export async function synchronizeCombatantModelsWithAppState() {
       resultsIncludedError = true;
     } else {
       modelManager.combatantModels[result.entityId] = result;
-      modelManager.world.imageManager
-        .createCombatantPortrait(result.entityId)
-        .then(() => {
-          console.log("created portrait");
-        })
-        .catch((err) => {
-          setAlert(err);
-        });
+      const portraitResult = await modelManager.world.imageManager.createCombatantPortrait(
+        result.entityId
+      );
+      if (portraitResult instanceof Error) setAlert(portraitResult);
+
       useGameStore.getState().mutateState((state) => {
         state.combatantModelLoadingStates[result.entityId] = false;
       });

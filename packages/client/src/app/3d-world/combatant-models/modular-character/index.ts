@@ -82,6 +82,7 @@ export class ModularCharacter {
     public entityId: string,
     public world: GameWorld,
     public monsterType: null | MonsterType,
+    public isPlayerControlled: boolean,
     public combatantClass: CombatantClass,
     public skeleton: ISceneLoaderAsyncResult,
     public modelDomPositionElement: HTMLDivElement | null,

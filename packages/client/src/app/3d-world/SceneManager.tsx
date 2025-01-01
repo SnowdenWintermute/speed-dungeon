@@ -10,6 +10,8 @@ export default function SceneManager() {
   const debugRef = useRef<HTMLUListElement>(null);
   const resizeHandlerRef = useRef<(e: UIEvent) => void | null>();
 
+  useEffect(() => {}, []);
+
   useEffect(() => {
     if (canvasRef.current) {
       gameWorld.current = new GameWorld(canvasRef.current, debugRef);

@@ -81,40 +81,16 @@ export default async function startPerformingCombatAction(
 
     if (!isMelee || (isMelee && userCombatantModel.isInMeleeRangeOfTarget)) return;
     // Follow through melee swing step movement
-    // QUEUE/START THE MODEL ACTION (FOR MOVEMENT) IF MELEE
-    // AND DIDN'T ALREADY MOVE FORWARD
-
-    // figure out their direction toward the target home location
-    // make them go more forward a bit more
-    //
 
     const previousLocation = cloneDeep(userCombatantModel.rootTransformNode.position);
 
-    ///
     userCombatantModel.rootTransformNode.computeWorldMatrix(true);
 
-    // Calculate forward direction explicitly
-    const direction = Vector3.TransformNormal(
-      Vector3.Forward(),
-      userCombatantModel.rootTransformNode.getWorldMatrix()
-    ).normalize();
+    const direction = userCombatantModel.rootTransformNode.forward;
 
-    // Debugging: Spawn a sphere in the forward direction
-    const debugSphere = MeshBuilder.CreateIcoSphere("debugSphere", { radius: 0.2 });
-    debugSphere.position = userCombatantModel.rootTransformNode.position.add(direction.scale(1.5));
-
-    // Set the destination location
     const destinationLocation = userCombatantModel.rootTransformNode.position.add(
       direction.scale(1.5)
     );
-    ///
-
-    // const direction = userCombatantModel.rootTransformNode.forward;
-    const worldMatrix = userCombatantModel.rootTransformNode.getWorldMatrix();
-    // const direction = Vector3.TransformNormal(Vector3.Forward(), worldMatrix).normalize();
-    // const destinationLocation = userCombatantModel.rootTransformNode.position.add(
-    //   direction.scale(1.5)
-    // );
 
     const distance = Vector3.Distance(previousLocation, destinationLocation);
     const speedMultiplier = 1;

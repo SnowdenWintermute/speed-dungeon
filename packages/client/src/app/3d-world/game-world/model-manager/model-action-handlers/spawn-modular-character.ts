@@ -28,6 +28,7 @@ export async function spawnModularCharacter(
     entityProperties.id,
     world,
     combatantProperties.monsterType,
+    !!combatantProperties.controllingPlayer,
     combatantProperties.combatantClass,
     skeleton,
     blueprint.modelDomPositionElement,
@@ -50,7 +51,6 @@ export async function spawnModularCharacter(
         if (partResult instanceof Error) return partResult;
 
         setModularCharacterPartDefaultMaterials(partResult, combatantProperties);
-        for (const mesh of partResult.meshes) mesh.layerMask = LAYER_MASK_1;
         resolve(partResult);
       })
     );
