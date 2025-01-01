@@ -50,7 +50,7 @@ export async function spawnModularCharacter(
         const partResult = await modularCharacter.attachPart(part.category, assetPath);
         if (partResult instanceof Error) return partResult;
 
-        setModularCharacterPartDefaultMaterials(partResult, combatantProperties);
+        // setModularCharacterPartDefaultMaterials(partResult, combatantProperties);
         resolve(partResult);
       })
     );

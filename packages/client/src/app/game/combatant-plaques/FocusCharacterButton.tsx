@@ -1,5 +1,7 @@
 import setFocusedCharacter from "@/utils/set-focused-character";
 import React from "react";
+import EyeIcon from "../../../../public/img/game-ui-icons/eye-open.svg";
+import ClosedEyeIcon from "../../../../public/img/game-ui-icons/eye-closed.svg";
 
 interface Props {
   combatantId: string;
@@ -13,13 +15,19 @@ export default function FocusCharacterButton({ combatantId, isFocused }: Props) 
     setFocusedCharacter(combatantId);
   }
 
+  const conditionalIconClassname = isFocused ? "stroke-slate-700" : "stroke-slate-400";
+
   return (
     <button
-      className={`flex items-center justify-center h-full mr-2 w-20
+      className={`flex items-center justify-center h-full mr-2 w-12
                    text-sm border border-slate-400 ${conditionalStyles}`}
       onClick={handleClick}
     >
-      {isFocused ? "Focused" : "Focus"}
+      {isFocused ? (
+        <EyeIcon className={"max-h-full " + conditionalIconClassname} />
+      ) : (
+        <ClosedEyeIcon className={"max-h-full -translate-y-[2px] " + conditionalIconClassname} />
+      )}
     </button>
   );
 }

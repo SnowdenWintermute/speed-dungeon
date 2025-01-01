@@ -187,7 +187,7 @@ function getConditionalBorder(
   return infoButtonIsHovered
     ? "outline-1 outline-white"
     : isFocused
-      ? "outline-2 outline-lime-500"
+      ? "outline-3 outline-slate-400"
       : combatantIsDetailed
         ? "outline-1 outline-yellow-400"
         : "outline-1 outline-slate-400";
