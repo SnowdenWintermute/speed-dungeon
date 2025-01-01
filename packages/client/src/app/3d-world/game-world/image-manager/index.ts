@@ -132,7 +132,7 @@ export class ImageManager {
     const fov = camera.fov;
     const maxDimension = Math.max(size.x, size.y);
     const distance = maxDimension / (2 * Math.tan(fov / 2));
-    camera.position = center.add(new Vector3(0, 0, distance));
+    camera.position.copyFrom(center.add(new Vector3(0, 0, distance)));
     camera.setTarget(center);
 
     const canvasHeight = item instanceof Equipment ? itemHeight * 120 : itemHeight * 420;

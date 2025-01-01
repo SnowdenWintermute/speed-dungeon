@@ -102,11 +102,11 @@ export class ModularCharacter {
     this.rootTransformNode = new TransformNode(`${this.entityId}-root-transform-node`);
     this.rootTransformNode.rotationQuaternion = Quaternion.Identity();
     this.rootTransformNode.rotate(Vector3.Up(), startRotation);
-    this.rootTransformNode.position = cloneDeep(startPosition);
+    this.rootTransformNode.position.copyFrom(startPosition);
 
     this.rootMesh = rootMesh;
     this.rootMesh.setParent(this.rootTransformNode);
-    this.rootMesh.position = Vector3.Zero();
+    this.rootMesh.position.copyFrom(Vector3.Zero());
 
     const rotation = this.rootTransformNode.rotationQuaternion;
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
@@ -121,11 +121,11 @@ export class ModularCharacter {
 
   setHomeRotation(rotation: number) {
     this.rootTransformNode.rotationQuaternion = Quaternion.RotationAxis(Vector3.Up(), rotation);
-    this.homeLocation.rotation = cloneDeep(this.rootTransformNode.rotationQuaternion);
+    this.homeLocation.rotation.copyFrom(this.rootTransformNode.rotationQuaternion);
   }
 
   setHomeLocation(position: Vector3) {
-    this.rootTransformNode.position = position;
+    this.rootTransformNode.position.copyFrom(position);
 
     const rotation = this.rootTransformNode.rotationQuaternion;
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);

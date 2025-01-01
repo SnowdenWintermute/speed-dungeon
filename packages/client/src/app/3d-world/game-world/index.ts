@@ -11,6 +11,8 @@ import {
   Camera,
   UniversalCamera,
   Quaternion,
+  MeshBuilder,
+  StandardMaterial,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
@@ -32,6 +34,7 @@ import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatan
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;
+let frame = 0;
 
 export class GameWorld {
   engine: Engine;
@@ -99,6 +102,7 @@ export class GameWorld {
       this.modelManager.modelActionQueue.messages.length
     )
       this.modelManager.modelActionQueue.processMessages();
+    frame += 1;
 
     for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
       combatantModel.highlightManager.updateHighlight();

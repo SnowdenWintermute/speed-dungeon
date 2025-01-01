@@ -1,4 +1,12 @@
-import { Color3, Mesh, MeshBuilder, PBRMaterial, Scene, StandardMaterial } from "@babylonjs/core";
+import {
+  Color3,
+  Mesh,
+  MeshBuilder,
+  PBRMaterial,
+  Scene,
+  StandardMaterial,
+  Vector3,
+} from "@babylonjs/core";
 import { useGameStore } from "@/stores/game-store";
 import { ModularCharacter } from ".";
 import { AdventuringParty, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
@@ -51,7 +59,8 @@ export class HighlightManager {
 
     this.targetingIndicator = create3dTargetingIndicator(this.modularCharacter.world.scene);
 
-    this.targetingIndicator.position.copyFrom(this.modularCharacter.rootTransformNode.position);
+    this.targetingIndicator.setParent(this.modularCharacter.rootTransformNode);
+    this.targetingIndicator.position.copyFrom(Vector3.Zero());
 
     const offsetTop = 0.2;
     this.targetingIndicator.position.y =

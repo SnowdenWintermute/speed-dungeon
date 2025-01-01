@@ -5,9 +5,10 @@ import {
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
   combatActionRequiresMeleeRange,
+  formatVector3,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
-import { Vector3 } from "@babylonjs/core";
+import { MeshBuilder, Vector3 } from "@babylonjs/core";
 import getCombatActionAnimationName from "../../combatant-models/animation-manager/animation-names";
 import {
   CombatantModelAction,
@@ -85,11 +86,36 @@ export default async function startPerformingCombatAction(
 
     // figure out their direction toward the target home location
     // make them go more forward a bit more
+    //
 
     const previousLocation = cloneDeep(userCombatantModel.rootTransformNode.position);
-    targetCombatant;
-    const direction = userCombatantModel.rootTransformNode.forward;
-    const destinationLocation = destinationLocation.add(direction.scale(1.5));
+
+    ///
+    userCombatantModel.rootTransformNode.computeWorldMatrix(true);
+
+    // Calculate forward direction explicitly
+    const direction = Vector3.TransformNormal(
+      Vector3.Forward(),
+      userCombatantModel.rootTransformNode.getWorldMatrix()
+    ).normalize();
+
+    // Debugging: Spawn a sphere in the forward direction
+    const debugSphere = MeshBuilder.CreateIcoSphere("debugSphere", { radius: 0.2 });
+    debugSphere.position = userCombatantModel.rootTransformNode.position.add(direction.scale(1.5));
+
+    // Set the destination location
+    const destinationLocation = userCombatantModel.rootTransformNode.position.add(
+      direction.scale(1.5)
+    );
+    ///
+
+    // const direction = userCombatantModel.rootTransformNode.forward;
+    const worldMatrix = userCombatantModel.rootTransformNode.getWorldMatrix();
+    // const direction = Vector3.TransformNormal(Vector3.Forward(), worldMatrix).normalize();
+    // const destinationLocation = userCombatantModel.rootTransformNode.position.add(
+    //   direction.scale(1.5)
+    // );
+
     const distance = Vector3.Distance(previousLocation, destinationLocation);
     const speedMultiplier = 1;
     const timeToTranslate = COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;

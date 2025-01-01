@@ -158,7 +158,7 @@ function getCombatantModelStartPosition(combatant: Combatant) {
   let startRotation = 0;
   // not
   if (!isPlayer) {
-    startRotation = Math.PI / 2;
+    startRotation = Math.PI;
   }
 
   return {

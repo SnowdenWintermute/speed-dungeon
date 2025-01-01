@@ -14,6 +14,7 @@ import {
   Scene,
 } from "@babylonjs/core";
 import { GameWorld } from ".";
+import { GROUND_COLOR } from "./clear-floor-texture";
 
 export const GROUND_WIDTH = 50;
 export const GROUND_HEIGHT = 50;
@@ -53,6 +54,7 @@ export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTextu
 
   // LIGHTS
   const hemiLight = new HemisphericLight("hemi-light", new Vector3(0, 1, 0), this.scene);
+  hemiLight.specular = Color3.FromHexString(GROUND_COLOR);
   hemiLight.intensity = 0.85;
   // hemiLight.intensity = 0.0;
   const lightPosition = new Vector3(4.0, 20.0, 8.0);

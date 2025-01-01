@@ -4,12 +4,11 @@ import { ModularCharacter } from "./index.js";
 import { FFIX_COLORS } from "@speed-dungeon/common";
 
 export default function setUpDebugMeshes(this: ModularCharacter) {
-  // createMeleeRangeDisc(this)
   this.debugMeshes = [
     createHomeLocationMarker(this),
     createForwardDirectionMarkerSphere(this),
     createRootTransformNodeLocationMarker(this),
-    createMeleeRangeDisc(this),
+    // createMeleeRangeDisc(this),
   ];
 }
 
@@ -40,10 +39,16 @@ function createRootTransformNodeLocationMarker(modularCharacter: ModularCharacte
 }
 
 function createForwardDirectionMarkerSphere(modularCharacter: ModularCharacter) {
+  modularCharacter.rootTransformNode.computeWorldMatrix(true);
+  const direction = Vector3.TransformNormal(
+    Vector3.Forward(),
+    modularCharacter.rootTransformNode.getWorldMatrix()
+  ).normalize();
+
   const sphere = MeshBuilder.CreateIcoSphere("sphere", { subdivisions: 10, radius: 0.2 });
+  sphere.position = modularCharacter.rootTransformNode.position.add(direction.scale(1.5));
+
   sphere.setParent(modularCharacter.rootTransformNode);
-  const forward = modularCharacter.rootTransformNode.forward;
-  sphere.position = forward.scale(1.5);
   return sphere;
 }
 

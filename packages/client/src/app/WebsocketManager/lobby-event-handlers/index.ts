@@ -19,10 +19,6 @@ import savedCharacterSelectionInProgressGameHandler from "./saved-character-sele
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
-import {
-  enqueueCharacterItemsForThumbnails,
-  enqueueConsumableGenericThumbnailCreation,
-} from "@/utils/enqueue-character-items-for-thumbnails";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 export default function setUpGameLobbyEventHandlers(
