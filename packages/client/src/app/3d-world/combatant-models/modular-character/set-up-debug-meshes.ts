@@ -3,13 +3,20 @@ import cloneDeep from "lodash.clonedeep";
 import { ModularCharacter } from "./index.js";
 import { FFIX_COLORS } from "@speed-dungeon/common";
 
-export default function setUpDebugMeshes(this: ModularCharacter) {
+export function setUpDebugMeshes(this: ModularCharacter) {
   this.debugMeshes = [
     createHomeLocationMarker(this),
     createForwardDirectionMarkerSphere(this),
     createRootTransformNodeLocationMarker(this),
     // createMeleeRangeDisc(this),
   ];
+}
+
+export function despawnDebugMeshes(this: ModularCharacter) {
+  if (this.debugMeshes)
+    for (const mesh of this.debugMeshes) {
+      mesh.dispose(false, true);
+    }
 }
 
 function createHomeLocationMarker(modularCharacter: ModularCharacter) {

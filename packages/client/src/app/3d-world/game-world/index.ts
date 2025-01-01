@@ -75,10 +75,6 @@ export class GameWorld {
     this.portraitCamera.minZ = 0;
     this.portraitCamera.layerMask = LAYER_MASK_1;
 
-    const plane = createTextPlane("TEST", this.scene);
-    plane.position = Vector3.Left();
-    plane.position.y = 1;
-
     // PIXELATION FILTER
     // pixelate(this.camera, this.scene);
     //

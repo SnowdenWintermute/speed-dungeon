@@ -1,5 +1,4 @@
 import { GameWorld } from ".";
-import { drawCompass } from "./clear-floor-texture";
 import { GROUND_TEXTURE_HEIGHT, GROUND_TEXTURE_WIDTH, GROUND_WIDTH } from "./init-scene";
 
 export default function drawCharacterSlots(this: GameWorld) {
@@ -22,8 +21,6 @@ export default function drawCharacterSlots(this: GameWorld) {
     context.lineWidth = 7;
     context.stroke();
   }
-
-  drawCompass(this);
 
   this.groundTexture.update();
 }

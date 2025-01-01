@@ -10,8 +10,6 @@ export function clearFloorTexture(this: GameWorld) {
   context.fillStyle = GROUND_COLOR;
   context.fillRect(0, 0, GROUND_TEXTURE_WIDTH, GROUND_TEXTURE_HEIGHT);
 
-  drawCompass(this);
-
   this.groundTexture.update();
 }
 
@@ -69,4 +67,6 @@ export function drawCompass(gameWorld: GameWorld) {
   context.arc(centerX, centerY, 10, 0, Math.PI * 2);
   context.fillStyle = "#000";
   context.fill();
+
+  gameWorld.groundTexture.update();
 }

@@ -4,6 +4,7 @@ import { useGameStore } from "@/stores/game-store";
 import { ZIndexLayers } from "../z-index-layers";
 import { gameWorld } from "./SceneManager";
 import { InputLock } from "@speed-dungeon/common";
+import { clearFloorTexture, drawCompass } from "./game-world/clear-floor-texture";
 
 export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTMLUListElement> }) {
   const thumbnails = useGameStore((state) => state.itemThumbnails);
@@ -26,15 +27,24 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
         state.showDebug = !state.showDebug;
       });
 
-      if (gameWorld.current)
+      if (gameWorld.current) {
+        const { showDebug } = useUIStore.getState();
+        if (showDebug) {
+          drawCompass(gameWorld.current);
+        } else {
+          gameWorld.current.clearFloorTexture();
+        }
+
         for (const modularCharacter of Object.values(
           gameWorld.current.modelManager.combatantModels
         )) {
-          modularCharacter.rootMesh.showBoundingBox = useUIStore.getState().showDebug;
+          if (showDebug) modularCharacter.setUpDebugMeshes();
+          else modularCharacter.despawnDebugMeshes();
+          modularCharacter.rootMesh.showBoundingBox = showDebug;
           if (modularCharacter.highlightManager.targetingIndicator)
-            modularCharacter.highlightManager.targetingIndicator.showBoundingBox =
-              useUIStore.getState().showDebug;
+            modularCharacter.highlightManager.targetingIndicator.showBoundingBox = showDebug;
         }
+      }
     };
 
     mouseDownListenerRef.current = function (e: MouseEvent) {

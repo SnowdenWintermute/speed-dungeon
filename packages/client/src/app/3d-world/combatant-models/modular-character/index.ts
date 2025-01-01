@@ -32,7 +32,7 @@ import { MONSTER_SCALING_SIZES } from "../monster-scaling-sizes";
 import cloneDeep from "lodash.clonedeep";
 import { AnimationManager } from "../animation-manager";
 import { ModelActionManager } from "../model-action-manager";
-import setUpDebugMeshes from "./set-up-debug-meshes";
+import { setUpDebugMeshes, despawnDebugMeshes } from "./set-up-debug-meshes";
 import { ANIMATION_NAMES } from "../animation-manager/animation-names";
 import {
   attachHoldableModelToHolsteredPosition,
@@ -115,7 +115,7 @@ export class ModularCharacter {
       rotation: cloneDeep(rotation),
     };
 
-    this.setUpDebugMeshes();
+    // this.setUpDebugMeshes();
     // this.setShowBones();
   }
 
@@ -146,6 +146,7 @@ export class ModularCharacter {
   }
 
   setUpDebugMeshes = setUpDebugMeshes;
+  despawnDebugMeshes = despawnDebugMeshes;
 
   updateDomRefPosition() {
     const boundingBox = getClientRectFromMesh(this.world.scene, this.world.canvas, this.rootMesh);
