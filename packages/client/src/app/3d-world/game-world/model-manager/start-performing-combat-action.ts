@@ -1,5 +1,6 @@
 import {
   COMBATANT_TIME_TO_MOVE_ONE_METER,
+  CombatantProperties,
   ERROR_MESSAGES,
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
@@ -78,14 +79,17 @@ export default async function startPerformingCombatAction(
     const isMelee = combatActionRequiresMeleeRange(combatAction);
 
     if (!isMelee || (isMelee && userCombatantModel.isInMeleeRangeOfTarget)) return;
+    // Follow through melee swing step movement
     // QUEUE/START THE MODEL ACTION (FOR MOVEMENT) IF MELEE
     // AND DIDN'T ALREADY MOVE FORWARD
 
-    const direction = userCombatantModel.rootTransformNode.forward;
+    // figure out their direction toward the target home location
+    // make them go more forward a bit more
+
     const previousLocation = cloneDeep(userCombatantModel.rootTransformNode.position);
-    const destinationLocation = userCombatantModel.rootTransformNode.position.add(
-      direction.scale(1.5)
-    );
+    targetCombatant;
+    const direction = userCombatantModel.rootTransformNode.forward;
+    const destinationLocation = destinationLocation.add(direction.scale(1.5));
     const distance = Vector3.Distance(previousLocation, destinationLocation);
     const speedMultiplier = 1;
     const timeToTranslate = COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;

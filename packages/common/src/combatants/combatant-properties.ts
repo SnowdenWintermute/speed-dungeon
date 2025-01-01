@@ -22,7 +22,7 @@ import { Inventory } from "./inventory.js";
 import setHpAndMpToMax from "./set-hp-and-mp-to-max.js";
 import { immerable } from "immer";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app-consts.js";
-import { cloneVector3 } from "../utils/index.js";
+import { cloneVector3, formatVector3 } from "../utils/index.js";
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./award-levelups.js";
 import { incrementAttributePoint } from "./increment-attribute-point.js";
 import { MonsterType } from "../monsters/monster-types.js";
@@ -137,6 +137,7 @@ export class CombatantProperties {
       // we're recreating this vec3 because when
       // combatants are copied to the client they don't keep their Vector3 methods
       const direction = cloneVector3(target.homeLocation).subtract(user.homeLocation).normalize();
+      console.log("target  home location: ", formatVector3(target.homeLocation));
 
       destinationLocation = cloneVector3(target.homeLocation).subtract(
         direction.scale(target.hitboxRadius + user.hitboxRadius)

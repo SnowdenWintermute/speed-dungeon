@@ -9,6 +9,7 @@ export default function setUpDebugMeshes(this: ModularCharacter) {
     createHomeLocationMarker(this),
     createForwardDirectionMarkerSphere(this),
     createRootTransformNodeLocationMarker(this),
+    createMeleeRangeDisc(this),
   ];
 }
 
@@ -33,11 +34,6 @@ function createRootTransformNodeLocationMarker(modularCharacter: ModularCharacte
   material.diffuseColor = Color3.FromHexString(FFIX_COLORS.lightningpurple);
   material.alpha = 0.5;
   box.material = material;
-  console.log(
-    "TRANSFORM NODE BEFORE BOX PARENTING",
-    modularCharacter.rootTransformNode.position.x,
-    modularCharacter.rootTransformNode.position.z
-  );
   box.setParent(modularCharacter.rootTransformNode);
   box.position = Vector3.Zero();
   return box;
@@ -67,4 +63,5 @@ function createMeleeRangeDisc(modularCharacter: ModularCharacter) {
   circle.translate(Vector3.Up(), 0.1);
   circle.rotate(Vector3.Left(), Math.PI / 2);
   circle.setParent(modularCharacter.rootMesh);
+  return circle;
 }

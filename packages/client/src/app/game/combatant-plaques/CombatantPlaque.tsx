@@ -72,7 +72,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
 
   function isHovered() {
     if (!hoveredEntity) return false;
-    if (hoveredEntity instanceof Combatant) return false;
+    if (!(hoveredEntity instanceof Combatant)) return false;
     if (hoveredEntity.entityProperties.id === entityId) return true;
     return false;
   }
@@ -112,7 +112,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
         </div>
       </CharacterModelDisplay>
       <div
-        className={`w-[23rem] h-fit bg-slate-700 flex p-2.5 relative box-border ${conditionalBorder} ${lockedUiState}`}
+        className={`w-[23rem] h-fit bg-slate-700 flex p-2.5 relative box-border outline ${conditionalBorder} ${lockedUiState}`}
         ref={combatantPlaqueRef}
       >
         {isPartyMember && (
@@ -185,10 +185,10 @@ function getConditionalBorder(
   combatantIsDetailed: boolean
 ) {
   return infoButtonIsHovered
-    ? "outline outline-1 outline-white"
+    ? "outline-1 outline-white"
     : isFocused
-      ? "outline outline-2 outline-lime-500"
+      ? "outline-2 outline-lime-500"
       : combatantIsDetailed
-        ? "outline outline-2 outline-yellow-400"
-        : "outline outline-1 outline-slate-400";
+        ? "outline-1 outline-yellow-400"
+        : "outline-1 outline-slate-400";
 }

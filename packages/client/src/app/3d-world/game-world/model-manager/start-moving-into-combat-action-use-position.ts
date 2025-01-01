@@ -74,7 +74,18 @@ export default async function startMovingIntoCombatActionUsePosition(
           Vector3.Up()
         ).invert();
 
-        destinationQuaternion = Quaternion.FromRotationMatrix(lookingAtMatrix);
+        // // Step 1: Calculate the direction vector from Mesh A to Mesh B
+        // const direction = userCombatantModel.rootTransformNode.position
+        //   .subtract(targetHomeLocation)
+        //   .normalize();
+        // // Step 2: Create the target rotation (look at Mesh B)
+        // const destinationQuaternion = Quaternion.FromEulerAngles(
+        //   0,
+        //   Math.atan2(direction.x, direction.z),
+        //   0
+        // );
+
+        // destinationQuaternion = Quaternion.FromRotationMatrix(lookingAtMatrix);
 
         const rotationDistance = Quaternion.Distance(
           userModelCurrentRotation,
