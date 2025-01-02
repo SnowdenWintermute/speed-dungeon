@@ -17,7 +17,7 @@ export async function createCombatantPortrait(combatantId: string) {
 
     const headPosition = headBoneOption.getWorldMatrix().getTranslation();
 
-    combatantModelOption.updateBoundingBox();
+    // combatantModelOption.updateBoundingBox();
     const boundingInfo = combatantModelOption.rootMesh.getBoundingInfo();
     const min = boundingInfo.boundingBox.minimumWorld;
     const max = boundingInfo.boundingBox.maximumWorld;
@@ -48,6 +48,11 @@ export async function createCombatantPortrait(combatantId: string) {
       world.portraitCamera.beta += beta;
       world.portraitCamera.radius += radius;
       world.portraitCamera.target.copyFrom(world.portraitCamera.target.add(position));
+    } else {
+      // humanoid
+      world.portraitCamera.target.copyFrom(
+        world.portraitCamera.target.add(new Vector3(0, 0.05, 0))
+      );
     }
 
     for (const mesh of combatantModelOption.rootMesh.getChildMeshes())
@@ -58,13 +63,13 @@ export async function createCombatantPortrait(combatantId: string) {
       world.portraitCamera,
       { width: 100, height: 100 },
       (image) => {
+        for (const mesh of combatantModelOption.rootMesh.getChildMeshes())
+          mesh.layerMask = LAYER_MASK_ALL;
+
         useGameStore.getState().mutateState((state) => {
           state.combatantPortraits[combatantId] = image;
         });
-
         resolve();
-        for (const mesh of combatantModelOption.rootMesh.getChildMeshes())
-          mesh.layerMask = LAYER_MASK_ALL;
       },
       "image/png"
     );

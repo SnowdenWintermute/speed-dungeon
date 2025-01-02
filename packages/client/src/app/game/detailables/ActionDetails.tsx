@@ -59,7 +59,7 @@ export default function ActionDetails({ combatAction, hideTitle }: Props) {
   });
 
   return (
-    <div className="flex flex-col" style={{ flex: `1 1 1px` }}>
+    <div className="flex flex-col pointer-events-auto" style={{ flex: `1 1 1px` }}>
       {!hideTitle && (
         <>
           <span>{getCombatActionName(party, combatAction)}</span>

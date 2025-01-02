@@ -36,6 +36,7 @@ export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTextu
     "camera",
     // alpha
     1.57,
+    // 1.57,
     // beta
     1.26,
     // radius

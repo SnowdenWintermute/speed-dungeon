@@ -1,9 +1,6 @@
 import { MonsterType } from "@speed-dungeon/common";
 
-// since there is an issue with drawing the bounding box for models
-// scaled in blender and we want to be able to control the size
-// of different monsters anyway, we can just adjust their size
-// in babylon with this chart
+// this way some monsters that share the same model (species) can be different sizes
 
 export const MONSTER_SCALING_SIZES: Record<MonsterType, number> = {
   [MonsterType.MetallicGolem]: 0.5,

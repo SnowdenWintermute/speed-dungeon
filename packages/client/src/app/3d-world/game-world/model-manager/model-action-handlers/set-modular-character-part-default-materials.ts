@@ -1,18 +1,41 @@
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { Color3, ISceneLoaderAsyncResult, StandardMaterial } from "@babylonjs/core";
 import { CombatantProperties, MagicalElement, MonsterType } from "@speed-dungeon/common";
+import cloneDeep from "lodash.clonedeep";
 
 export function setModularCharacterPartDefaultMaterials(
   partResult: ISceneLoaderAsyncResult,
   combatantProperties: CombatantProperties
 ) {
+  if (combatantProperties.controllingPlayer) {
+    for (const mesh of partResult.meshes) {
+      // if (mesh.material?.name === "Purple") {
+      //   mesh.material.dispose();
+      //   const newMaterial = new StandardMaterial("test");
+      //   newMaterial.diffuseColor = new Color3(0.3, 0.4, 0.6);
+      //   mesh.material = newMaterial;
+      // }
+    }
+  }
+  if (combatantProperties.monsterType === MonsterType.Scavenger)
+    for (const mesh of partResult.meshes) {
+      if (mesh.material?.name === "LightBrown") {
+        // mesh.material.dispose();
+        // const newMaterial = gameWorld.current?.defaultMaterials.elements[MagicalElement.Fire];
+        // if (!newMaterial) return;
+        // const newMaterial = new StandardMaterial("test");
+        // newMaterial.diffuseColor = new Color3(0.3, 0.4, 0.6);
+        // mesh.material = newMaterial;
+      }
+    }
+
   if (combatantProperties.monsterType === MonsterType.FireElemental)
     for (const mesh of partResult.meshes) {
       if (mesh.material?.name === "cube-material") {
         const material = gameWorld.current?.defaultMaterials.elements[MagicalElement.Fire];
         if (!material) return;
         mesh.material.dispose();
-        mesh.material = material;
+        mesh.material = cloneDeep(material);
       }
     }
 
@@ -21,6 +44,7 @@ export function setModularCharacterPartDefaultMaterials(
       if (mesh.material?.name === "Purple") {
         const redMaterial = new StandardMaterial("red");
         redMaterial.diffuseColor = new Color3(0.7, 0.2, 0.2);
+        mesh.material.dispose();
         mesh.material = redMaterial;
       }
     }
@@ -31,6 +55,7 @@ export function setModularCharacterPartDefaultMaterials(
       if (mesh.material?.name === "Purple") {
         const whiteMaterial = new StandardMaterial("white");
         whiteMaterial.diffuseColor = new Color3(0.85, 0.75, 0.75);
+        mesh.material.dispose();
         mesh.material = whiteMaterial;
       }
     }

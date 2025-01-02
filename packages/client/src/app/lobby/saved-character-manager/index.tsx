@@ -12,8 +12,6 @@ import ArrowShape from "../../../../public/img/menu-icons/arrow-button-icon.svg"
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import CreateCharacterForm from "./CreateCharacterForm";
-import { useHttpRequestStore } from "@/stores/http-request-store";
-import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import DeleteCharacterForm from "./DeleteCharacterForm";
 import CharacterModelDisplay from "@/app/character-model-display";
 import { gameWorld } from "@/app/3d-world/SceneManager";
