@@ -155,7 +155,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         })}
       </ul>
       <div
-        className={`mb-2 flex`}
+        className={`mb-3 flex`}
         style={{
           height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem`,
         }}
@@ -194,12 +194,14 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         {hoveredActionDisplay}
         {hoveredItemDisplay}
       </div>
-      <BottomButtons
-        numPages={currentMenu.numPages}
-        currentPageNumber={currentMenu.page}
-        left={buttonProperties[ActionButtonCategory.Bottom][0]}
-        right={buttonProperties[ActionButtonCategory.Bottom][1]}
-      />
+      <div className="min-w-[25rem] max-w-[25rem]">
+        <BottomButtons
+          numPages={currentMenu.numPages}
+          currentPageNumber={currentMenu.page}
+          left={buttonProperties[ActionButtonCategory.Bottom][0]}
+          right={buttonProperties[ActionButtonCategory.Bottom][1]}
+        />
+      </div>
     </section>
   );
 }

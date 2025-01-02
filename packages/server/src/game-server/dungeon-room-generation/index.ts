@@ -12,19 +12,19 @@ export default function generateDungeonRoom(floor: number, roomType: DungeonRoom
   const monsters: { [entityId: string]: Combatant } = {};
   const monsterPositions: string[] = [];
   if (roomType === DungeonRoomType.MonsterLair) {
-    // for (let i = 0; i < NUM_MONSTERS_PER_ROOM; i += 1) {
-    //   const newMonster = generateMonster(floor);
-    for (const monsterType of [
-      MonsterType.FireElemental,
-      // MonsterType.IceElemental,
-      // MonsterType.Scavenger,
-      // MonsterType.Cultist,
-      // MonsterType.Zombie,
-      // MonsterType.FireMage,
-      // MonsterType.MetallicGolem,
-      // MonsterType.Vulture,
-    ]) {
-      const newMonster = generateMonster(floor, monsterType);
+    for (let i = 0; i < NUM_MONSTERS_PER_ROOM; i += 1) {
+      const newMonster = generateMonster(floor);
+      // for (const monsterType of [
+      //   MonsterType.FireElemental,
+      //   // MonsterType.IceElemental,
+      //   // MonsterType.Scavenger,
+      //   // MonsterType.Cultist,
+      //   // MonsterType.Zombie,
+      //   // MonsterType.FireMage,
+      //   // MonsterType.MetallicGolem,
+      //   // MonsterType.Vulture,
+      // ]) {
+      //   const newMonster = generateMonster(floor, monsterType);
       const monsterId = newMonster.entityProperties.id;
       monsters[monsterId] = newMonster;
       monsterPositions.push(monsterId);
