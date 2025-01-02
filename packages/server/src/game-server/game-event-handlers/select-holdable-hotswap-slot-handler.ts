@@ -19,7 +19,6 @@ export default function selectHoldableHotswapSlotHandler(
   const { game, party, character } = characterAssociatedData;
   const gameServer = getGameServer();
   const { slotIndex } = eventData;
-  console.log("character ", character.entityProperties.name, "selecting index: ", slotIndex);
 
   if (slotIndex >= CombatantEquipment.getHoldableHotswapSlots(character.combatantProperties).length)
     return new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);

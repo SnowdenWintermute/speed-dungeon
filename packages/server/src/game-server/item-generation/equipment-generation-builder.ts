@@ -1,6 +1,9 @@
 import {
   AffixType,
   Affixes,
+  BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL,
+  CHANCE_TO_HAVE_PREFIX,
+  CHANCE_TO_HAVE_SUFFIX,
   CombatAttribute,
   ERROR_MESSAGES,
   EquipmentBaseItem,
@@ -91,7 +94,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     if (template === undefined) return new Error("missing template");
 
     const isMagical =
-      Math.random() < 0.75 ||
+      Math.random() < BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL ||
       baseEquipmentItem.equipmentType === EquipmentType.Amulet ||
       baseEquipmentItem.equipmentType === EquipmentType.Ring;
     if (!isMagical) return affixes;
@@ -100,8 +103,8 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     let hasSuffix = false;
 
     while (isMagical && !hasSuffix && !hasPrefix) {
-      hasPrefix = Math.random() < 0.208;
-      hasSuffix = Math.random() < 0.625;
+      hasPrefix = Math.random() < CHANCE_TO_HAVE_PREFIX;
+      hasSuffix = Math.random() < CHANCE_TO_HAVE_SUFFIX;
     }
 
     const numAffixesToRoll = { prefixes: hasPrefix ? 1 : 0, suffixes: hasSuffix ? 1 : 0 };

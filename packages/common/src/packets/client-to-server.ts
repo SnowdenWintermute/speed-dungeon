@@ -39,6 +39,7 @@ export enum ClientToServerEvent {
   SelectSavedCharacterForProgressGame = "29",
   SelectProgressionGameStartingFloor = "30",
   SelectHoldableHotswapSlot = "31",
+  ConvertItemsToShards = "32",
 }
 
 export interface ClientToServerEventTypes {
@@ -106,4 +107,5 @@ export interface ClientToServerEventTypes {
     characterId: string;
     slotIndex: number;
   }) => void;
+  [ClientToServerEvent.ConvertItemsToShards]: (characterAndItems: CharacterAndItems) => void;
 }
