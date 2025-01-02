@@ -9,7 +9,6 @@ import {
   SceneLoader,
   Vector3,
 } from "@babylonjs/core";
-import { disposeMeshMaterials } from "./game-world/materials/utils";
 import { BASE_FILE_PATH } from "./combatant-models/modular-character/modular-character-parts";
 
 export async function importMesh(path: string, scene: Scene) {
@@ -35,8 +34,7 @@ export function disposeAsyncLoadedScene(sceneResult: ISceneLoaderAsyncResult | n
   if (sceneResult === null) return;
   while (sceneResult.meshes.length) {
     const mesh = sceneResult.meshes.pop()!;
-    disposeMeshMaterials(mesh, "");
-    mesh.dispose();
+    mesh.dispose(false, true);
   }
   while (sceneResult.skeletons.length) sceneResult.skeletons.pop()!.dispose();
   while (sceneResult.transformNodes.length) sceneResult.transformNodes.pop()!.dispose();

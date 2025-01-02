@@ -1,7 +1,6 @@
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { Color3, ISceneLoaderAsyncResult, StandardMaterial } from "@babylonjs/core";
 import { CombatantProperties, MagicalElement, MonsterType } from "@speed-dungeon/common";
-import cloneDeep from "lodash.clonedeep";
 
 export function setModularCharacterPartDefaultMaterials(
   partResult: ISceneLoaderAsyncResult,
@@ -9,33 +8,32 @@ export function setModularCharacterPartDefaultMaterials(
 ) {
   if (combatantProperties.controllingPlayer) {
     for (const mesh of partResult.meshes) {
-      // if (mesh.material?.name === "Purple") {
-      //   mesh.material.dispose();
-      //   const newMaterial = new StandardMaterial("test");
-      //   newMaterial.diffuseColor = new Color3(0.3, 0.4, 0.6);
-      //   mesh.material = newMaterial;
-      // }
-    }
-  }
-  if (combatantProperties.monsterType === MonsterType.Scavenger)
-    for (const mesh of partResult.meshes) {
-      if (mesh.material?.name === "LightBrown") {
+      if (mesh.material?.name === "Purple") {
         // mesh.material.dispose();
-        // const newMaterial = gameWorld.current?.defaultMaterials.elements[MagicalElement.Fire];
-        // if (!newMaterial) return;
         // const newMaterial = new StandardMaterial("test");
         // newMaterial.diffuseColor = new Color3(0.3, 0.4, 0.6);
         // mesh.material = newMaterial;
       }
     }
+  }
+  if (combatantProperties.monsterType === MonsterType.Scavenger)
+    for (const mesh of partResult.meshes) {
+      if (mesh.material?.name === "Brown") {
+        mesh.material.dispose();
+        const newMaterial = gameWorld.current?.defaultMaterials.elements[MagicalElement.Dark];
+        if (!newMaterial) return;
+        mesh.material = newMaterial.clone("material");
+      }
+    }
 
   if (combatantProperties.monsterType === MonsterType.FireElemental)
     for (const mesh of partResult.meshes) {
+      console.log("material: ", mesh.material?.name);
       if (mesh.material?.name === "cube-material") {
+        mesh.material.dispose();
         const material = gameWorld.current?.defaultMaterials.elements[MagicalElement.Fire];
         if (!material) return;
-        mesh.material.dispose();
-        mesh.material = cloneDeep(material);
+        mesh.material = material.clone("material");
       }
     }
 

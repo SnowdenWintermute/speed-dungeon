@@ -109,7 +109,9 @@ export class HighlightManager {
 
     this.isHighlighted = false;
 
-    this.targetingIndicator?.dispose();
+    if (this.targetingIndicator) {
+      this.targetingIndicator.dispose(false, true);
+    }
   }
 
   updateHighlight() {

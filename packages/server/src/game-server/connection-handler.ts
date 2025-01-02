@@ -35,8 +35,5 @@ export function connectionHandler(this: GameServer) {
     if (!(loggedInUserResult instanceof Error)) {
       fetchSavedCharactersHandler(undefined, loggedInUserResult, socket);
     }
-
-    // const items = generateOneOfEachItem();
-    // socket.emit(ServerToClientEvent.TestItems, items);
   });
 }

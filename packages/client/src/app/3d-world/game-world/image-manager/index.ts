@@ -39,6 +39,7 @@ export type ImageManagerRequest =
 export class ImageManager {
   canvas: OffscreenCanvas;
   engine: Engine;
+  portraitEngine: Engine;
   scene: Scene;
   materials: SavedMaterials;
   queue: ImageManagerRequest[] = [];
@@ -50,6 +51,7 @@ export class ImageManager {
     if (!gl) throw new Error("Failed to create WebGL context.");
 
     this.engine = new Engine(gl, true, { preserveDrawingBuffer: true, stencil: true });
+    this.portraitEngine = new Engine(gl, true, { preserveDrawingBuffer: true, stencil: true });
     this.scene = createImageCreatorScene(this.engine);
     this.camera = new UniversalCamera("camera", new Vector3(0, 0, 3), this.scene);
     this.camera.minZ = 0;

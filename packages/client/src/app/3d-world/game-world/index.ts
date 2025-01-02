@@ -27,7 +27,6 @@ import pixelationShader from "./pixelationNodeMaterial.json";
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;
-let frame = 0;
 
 export class GameWorld {
   engine: Engine;
@@ -77,12 +76,13 @@ export class GameWorld {
 
     this.portraitCamera.minZ = 0;
     this.portraitCamera.layerMask = LAYER_MASK_1;
+
     this.portraitRenderTarget = new RenderTargetTexture(
       "portraitTexture",
       { width: 100, height: 100 },
-      this.scene,
-      false
+      this.scene
     );
+
     this.portraitCamera.outputRenderTarget = this.portraitRenderTarget;
 
     // PIXELATION FILTER
@@ -108,7 +108,6 @@ export class GameWorld {
       this.modelManager.modelActionQueue.messages.length
     )
       this.modelManager.modelActionQueue.processMessages();
-    frame += 1;
 
     for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
       combatantModel.highlightManager.updateHighlight();

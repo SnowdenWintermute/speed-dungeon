@@ -92,7 +92,9 @@ export class ModularCharacter {
     this.animationManager = new AnimationManager(this);
     this.startIdleAnimation(0);
 
-    while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose();
+    // get rid of the placeholder mesh (usually a simple quad or tri) which
+    // must be included in order for babylon to recognize the loaded asset as a skeleton
+    while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose(false, true);
 
     const rootMesh = this.skeleton.meshes[0];
     if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);

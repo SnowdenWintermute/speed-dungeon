@@ -15,9 +15,9 @@ export default function generateDungeonRoom(floor: number, roomType: DungeonRoom
     // for (let i = 0; i < NUM_MONSTERS_PER_ROOM; i += 1) {
     //   const newMonster = generateMonster(floor);
     for (const monsterType of [
-      // MonsterType.FireElemental,
+      MonsterType.FireElemental,
       // MonsterType.IceElemental,
-      MonsterType.Scavenger,
+      // MonsterType.Scavenger,
       // MonsterType.Cultist,
       // MonsterType.Zombie,
       // MonsterType.FireMage,

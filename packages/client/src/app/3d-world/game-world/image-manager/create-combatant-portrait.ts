@@ -2,77 +2,74 @@ import { ERROR_MESSAGES, MonsterType } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
 import { gameWorld } from "../../SceneManager";
 import { getChildMeshByName } from "../../utils";
-import { CreateScreenshotUsingRenderTarget, Vector3 } from "@babylonjs/core";
+import { CreateScreenshotUsingRenderTargetAsync, Vector3 } from "@babylonjs/core";
 import { LAYER_MASK_1, LAYER_MASK_ALL } from "..";
 
 export async function createCombatantPortrait(combatantId: string) {
-  return new Promise<Error | void>((resolve, reject) => {
-    if (!gameWorld.current) return resolve();
-    const world = gameWorld.current;
-    const combatantModelOption = gameWorld.current.modelManager.combatantModels[combatantId];
-    if (!combatantModelOption) return resolve(new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND));
+  if (!gameWorld.current) return;
+  const world = gameWorld.current;
+  const combatantModelOption = gameWorld.current.modelManager.combatantModels[combatantId];
+  if (!combatantModelOption) return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
 
-    let headBoneOption = getChildMeshByName(combatantModelOption.rootMesh, "Head");
-    if (!headBoneOption) headBoneOption = combatantModelOption.rootMesh;
+  let headBoneOption = getChildMeshByName(combatantModelOption.rootMesh, "Head");
+  if (!headBoneOption) headBoneOption = combatantModelOption.rootMesh;
 
-    const headPosition = headBoneOption.getWorldMatrix().getTranslation();
+  const headPosition = headBoneOption.getWorldMatrix().getTranslation();
 
-    // combatantModelOption.updateBoundingBox();
-    const boundingInfo = combatantModelOption.rootMesh.getBoundingInfo();
-    const min = boundingInfo.boundingBox.minimumWorld;
-    const max = boundingInfo.boundingBox.maximumWorld;
-    const width = max.x - min.x;
+  const boundingInfo = combatantModelOption.rootMesh.getBoundingInfo();
+  const min = boundingInfo.boundingBox.minimumWorld;
+  const max = boundingInfo.boundingBox.maximumWorld;
+  const width = max.x - min.x;
 
-    // Camera parameters
-    const fov = world.portraitCamera.fov;
+  // Camera parameters
+  const fov = world.portraitCamera.fov;
 
-    // Calculate the distance needed to align the top of the viewport with the top of the bounding box
-    const distance = width / (2 * Math.tan(fov / 2)); // Vertical frustum size
+  // Calculate the distance needed to align the top of the viewport with the top of the bounding box
+  const distance = width / (2 * Math.tan(fov / 2)); // Vertical frustum size
 
-    const inFrontOf = combatantModelOption.rootTransformNode.forward.scale(distance);
-    let cameraPosition = headPosition.add(new Vector3(0, 0, inFrontOf.z));
-    const alphaOffset = -0.2;
+  const inFrontOf = combatantModelOption.rootTransformNode.forward.scale(distance);
+  let cameraPosition = headPosition.add(new Vector3(0, 0, inFrontOf.z));
+  const alphaOffset = -0.2;
 
-    world.portraitCamera.position.copyFrom(cameraPosition);
+  world.portraitCamera.position.copyFrom(cameraPosition);
 
-    world.portraitCamera.setTarget(headPosition);
+  world.portraitCamera.setTarget(headPosition);
 
-    world.portraitCamera.alpha += alphaOffset;
-    world.portraitCamera.beta -= 0.2;
+  world.portraitCamera.alpha += alphaOffset;
+  world.portraitCamera.beta -= 0.2;
 
-    if (combatantModelOption.monsterType !== null) {
-      const { arcRotate, position } =
-        modelPortraitCameraPositionModifiers[combatantModelOption.monsterType];
-      const { alpha, beta, radius } = arcRotate;
-      world.portraitCamera.alpha += alpha;
-      world.portraitCamera.beta += beta;
-      world.portraitCamera.radius += radius;
-      world.portraitCamera.target.copyFrom(world.portraitCamera.target.add(position));
-    } else {
-      // humanoid
-      world.portraitCamera.target.copyFrom(
-        world.portraitCamera.target.add(new Vector3(0, 0.05, 0))
-      );
-    }
+  if (combatantModelOption.monsterType !== null) {
+    const { arcRotate, position } =
+      modelPortraitCameraPositionModifiers[combatantModelOption.monsterType];
+    const { alpha, beta, radius } = arcRotate;
+    world.portraitCamera.alpha += alpha;
+    world.portraitCamera.beta += beta;
+    world.portraitCamera.radius += radius;
+    world.portraitCamera.target.copyFrom(world.portraitCamera.target.add(position));
+  } else {
+    // humanoid
+    world.portraitCamera.target.copyFrom(world.portraitCamera.target.add(new Vector3(0, 0.05, 0)));
+  }
 
-    for (const mesh of combatantModelOption.rootMesh.getChildMeshes())
-      mesh.layerMask = LAYER_MASK_1;
+  for (const mesh of combatantModelOption.rootMesh.getChildMeshes()) mesh.layerMask = LAYER_MASK_1;
 
-    CreateScreenshotUsingRenderTarget(
-      world.engine,
-      world.portraitCamera,
-      { width: 100, height: 100 },
-      (image) => {
-        for (const mesh of combatantModelOption.rootMesh.getChildMeshes())
-          mesh.layerMask = LAYER_MASK_ALL;
+  world.imageManager.portraitEngine.runRenderLoop(() => {});
+  const image = await CreateScreenshotUsingRenderTargetAsync(
+    // using this engine instead of the main engine somehow works
+    // and avoids the flash of low resolution rendering to the main canvas
+    world.imageManager.portraitEngine,
+    world.portraitCamera,
+    { width: 100, height: 100 },
+    "image/png"
+  );
+  // @TODO - stopping this affects item screenshot creation, fix it
+  world.imageManager.portraitEngine.stopRenderLoop();
 
-        useGameStore.getState().mutateState((state) => {
-          state.combatantPortraits[combatantId] = image;
-        });
-        resolve();
-      },
-      "image/png"
-    );
+  for (const mesh of combatantModelOption.rootMesh.getChildMeshes())
+    mesh.layerMask = LAYER_MASK_ALL;
+
+  useGameStore.getState().mutateState((state) => {
+    state.combatantPortraits[combatantId] = image;
   });
 }
 
