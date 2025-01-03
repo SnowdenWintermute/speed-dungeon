@@ -7,35 +7,29 @@ import {
 } from "../../app-consts";
 import { Combatant, CombatantEquipment, Inventory } from "../../combatants";
 import { EntityId } from "../../primatives";
+import { removeFromArray } from "../../utils";
 import { AffixType, Equipment } from "../equipment";
 
 export function convertItemsToShards(itemIds: EntityId[], combatant: Combatant) {
   const { combatantProperties } = combatant;
-  // COMMON
-  // find the owned item
-  // get the item to shard ratio
-  // remove the item from combatant inventory
-  // add the correct number of shards to their inventory
   const itemsInInventory = Inventory.getItems(combatantProperties.inventory);
   const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties);
 
-  if (itemIds.length > 0)
-    for (const item of itemsInInventory) {
-      if (itemIds.includes(item.entityProperties.id)) {
-        // shard this
-        // remove from itemIds list
-        // break out of loop if itemIds is empty
-      }
-    }
+  if (itemIds.length === 0) return;
+  for (const item of itemsInInventory.concat(equippedItems)) {
+    if (!itemIds.includes(item.entityProperties.id)) continue;
+    const shardsResult = convertItemToShards(item, combatantProperties.inventory);
+    if (shardsResult instanceof Error) return shardsResult;
+    combatantProperties.inventory.shards += shardsResult;
+    removeFromArray(itemIds, item.entityProperties.id);
+    if (itemIds.length === 0) break;
+  }
+}
 
-  if (itemIds.length > 0)
-    for (const item of equippedItems) {
-      if (itemIds.includes(item.entityProperties.id)) {
-        // shard this
-        // remove from itemIds list
-        // break out of loop if itemIds is empty
-      }
-    }
+export function convertItemToShards(item: Item, inventory: Inventory) {
+  const removedItemResult = Inventory.removeItem(inventory, item.entityProperties.id);
+  if (removedItemResult instanceof Error) return removedItemResult;
+  return getShardRewardNumberFromItem(removedItemResult);
 }
 
 export function getShardRewardNumberFromItem(item: Item) {
