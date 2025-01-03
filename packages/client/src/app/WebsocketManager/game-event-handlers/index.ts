@@ -22,6 +22,7 @@ import characterIncrementedAttributePointHandler from "./character-incremented-a
 import gameProgressMessageHandler from "./game-progress-message-handler";
 import characterPickedUpItemsHandler from "./character-picked-up-items-handler";
 import characterSelectedHoldableHotswapSlotHandler from "./character-selected-holdable-hotswap-slot-handler";
+import { characterConvertedItemsToShardsHandler } from "./character-converted-items-to-shards-handler";
 
 export default function setUpGameEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -66,5 +67,9 @@ export default function setUpGameEventHandlers(
   socket.on(
     ServerToClientEvent.CharacterSelectedHoldableHotswapSlot,
     characterSelectedHoldableHotswapSlotHandler
+  );
+  socket.on(
+    ServerToClientEvent.CharacterConvertedItemsToShards,
+    characterConvertedItemsToShardsHandler
   );
 }

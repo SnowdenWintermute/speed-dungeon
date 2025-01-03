@@ -16,3 +16,4 @@ export * from "./adventuring-party/index.js";
 export * from "./packets/index.js";
 export * from "./primatives/index.js";
 export * from "./action-processing/index.js";
+export * from "./items/crafting/index.js";

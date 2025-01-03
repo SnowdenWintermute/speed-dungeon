@@ -16,7 +16,13 @@ import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicated
 import NumberedButton from "./action-menu-buttons/NumberedButton";
 import setFocusedCharacter from "@/utils/set-focused-character";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { Consumable, Item, NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
+import {
+  Consumable,
+  Item,
+  NextOrPrevious,
+  getNextOrPreviousNumber,
+  getShardRewardNumberFromItem,
+} from "@speed-dungeon/common";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { VIEW_LOOT_BUTTON_TEXT } from "./menu-state/base";
@@ -28,9 +34,23 @@ import {
 import ItemDetailsWithComparison from "../ItemDetailsWithComparison";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
 import Divider from "@/app/components/atoms/Divider";
+import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import {
+  CONFIRM_SHARD_TEXT,
+  ConfirmConvertToShardsMenuState,
+} from "./menu-state/confirm-convert-to-shards";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
+export const SHARD_ITEM_HOTKEY = HOTKEYS.SIDE_2;
+
+const buttonTitlesToAccent = [
+  VIEW_LOOT_BUTTON_TEXT,
+  EXECUTE_BUTTON_TEXT,
+  USE_CONSUMABLE_BUTTON_TEXT,
+  EQUIP_ITEM_BUTTON_TEXT,
+  CONFIRM_SHARD_TEXT,
+];
 
 export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   const hoveredAction = useGameStore((state) => state.hoveredAction);
@@ -83,6 +103,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
 
   let detailedItemDisplay = <></>;
   if (currentMenu instanceof ConsideringItemMenuState) {
+    const shardReward = getShardRewardNumberFromItem(currentMenu.item);
     detailedItemDisplay = (
       <div
         className="min-w-[25rem] max-w-[25rem]"
@@ -96,6 +117,42 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
           ) : (
             <div>Equipping this item will swap it with any currently equipped item</div>
           )}
+          <div className="mt-4">
+            <HotkeyButton
+              className="border border-slate-400 w-full p-2 pl-3 pr-3 hover:bg-slate-950"
+              hotkeys={[SHARD_ITEM_HOTKEY]}
+              onClick={() =>
+                mutateGameState((state) => {
+                  state.stackedMenuStates.push(
+                    new ConfirmConvertToShardsMenuState(currentMenu.item)
+                  );
+                })
+              }
+            >
+              <span>
+                CONVERT TO {shardReward} SHARD{shardReward > 1 ? "S" : ""} (
+                {letterFromKeyCode(SHARD_ITEM_HOTKEY)})
+              </span>
+            </HotkeyButton>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (currentMenu instanceof ConfirmConvertToShardsMenuState) {
+    detailedItemDisplay = (
+      <div
+        className="min-w-[25rem] max-w-[25rem]"
+        style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
+      >
+        <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex flex-col items-center pointer-events-auto">
+          <div className="">{currentMenu.item.entityProperties.name}</div>
+          <Divider extraStyles="w-full" />
+          <span className="text-yellow-400">
+            Converting this item to shards will PERMANENTLY DESTROY it! Make sure this is what you
+            want.
+          </span>
         </div>
       </div>
     );
@@ -132,13 +189,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
       >
         {buttonProperties[ActionButtonCategory.Top].map((button, i) => {
           const conditionalStyles = (() => {
-            if (
-              button.text === VIEW_LOOT_BUTTON_TEXT ||
-              button.text === EXECUTE_BUTTON_TEXT ||
-              button.text === USE_CONSUMABLE_BUTTON_TEXT ||
-              button.text === EQUIP_ITEM_BUTTON_TEXT
-            )
-              return "bg-slate-800 border-white";
+            if (buttonTitlesToAccent.includes(button.text)) return "bg-slate-800 border-white";
             return "border-slate-400 bg-slate-700";
           })();
           const thisButtonProperties = buttonProperties[ActionButtonCategory.Top][i]!;

@@ -57,6 +57,7 @@ export enum ServerToClientEvent {
   TestItems = "39",
   //
   CharacterSelectedHoldableHotswapSlot = "40",
+  CharacterConvertedItemsToShards = "41",
 }
 
 export interface ServerToClientEventTypes {
@@ -149,6 +150,9 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.CharacterSelectedHoldableHotswapSlot]: (
     characterId: string,
     slotIndex: number
+  ) => void;
+  [ServerToClientEvent.CharacterConvertedItemsToShards]: (
+    characterAndItems: CharacterAndItems
   ) => void;
 }
 

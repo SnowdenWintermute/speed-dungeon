@@ -2,6 +2,7 @@ import {
   AffixType,
   Affixes,
   BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL,
+  CHANCE_TO_HAVE_DOUBLE_AFFIX,
   CHANCE_TO_HAVE_PREFIX,
   CHANCE_TO_HAVE_SUFFIX,
   CombatAttribute,
@@ -101,13 +102,17 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
 
     let hasPrefix = false;
     let hasSuffix = false;
+    let hasBothAffixes = false;
 
-    while (isMagical && !hasSuffix && !hasPrefix) {
-      hasPrefix = Math.random() < CHANCE_TO_HAVE_PREFIX;
-      hasSuffix = Math.random() < CHANCE_TO_HAVE_SUFFIX;
-    }
+    const roll = Math.random();
+    if (roll < CHANCE_TO_HAVE_DOUBLE_AFFIX) hasBothAffixes = true;
+    else if (roll >= CHANCE_TO_HAVE_DOUBLE_AFFIX && roll < CHANCE_TO_HAVE_PREFIX) hasPrefix = true;
+    else hasSuffix = true;
 
-    const numAffixesToRoll = { prefixes: hasPrefix ? 1 : 0, suffixes: hasSuffix ? 1 : 0 };
+    const numAffixesToRoll = {
+      prefixes: hasPrefix || hasBothAffixes ? 1 : 0,
+      suffixes: hasSuffix || hasBothAffixes ? 1 : 0,
+    };
 
     const affixTypes: { prefix: PrefixType[]; suffix: SuffixType[] } = {
       prefix: [],

@@ -56,14 +56,15 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
         className={`border border-slate-400 bg-slate-700 overflow-y-auto flex ${showCharacterSheet && "pointer-events-auto"}`}
         style={{ padding: `${SPACING_REM}rem` }}
       >
-        <div className="flex flex-col justify-between">
+        <div className="flex flex-col justify-between mr-5">
           <PaperDoll combatant={focusedCharacterOption} />
-          <div
-            className={
-              numItemsInInventory > INVENTORY_DEFAULT_CAPACITY ? UNMET_REQUIREMENT_TEXT_COLOR : ""
-            }
-          >
-            Inventory Capacity: {numItemsInInventory}/{INVENTORY_DEFAULT_CAPACITY}
+          <div className={"flex justify-between"}>
+            <div
+              className={`${numItemsInInventory > INVENTORY_DEFAULT_CAPACITY ? UNMET_REQUIREMENT_TEXT_COLOR : ""}`}
+            >
+              Inventory Capacity: {numItemsInInventory}/{INVENTORY_DEFAULT_CAPACITY}
+            </div>
+            <div>{focusedCharacterOption.combatantProperties.inventory.shards} Shards</div>
           </div>
         </div>
         <CharacterAttributes

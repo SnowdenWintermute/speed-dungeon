@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import PaperDollSlot from "./PaperDollSlot";
 import {
-  ClientToServerEvent,
   Combatant,
   CombatantEquipment,
   CombatantProperties,
@@ -10,7 +9,6 @@ import {
   WearableSlotType,
   equipmentIsTwoHandedWeapon,
 } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import HotswapSlotButtons from "../combatant-plaques/HotswapSlotButtons";
 
 interface Props {
@@ -35,7 +33,7 @@ export default function PaperDoll({ combatant }: Props) {
       : false;
 
   return (
-    <div id="paper-doll" className="relative flex w-[23.75rem] mr-5">
+    <div id="paper-doll" className="relative flex w-[23.75rem]">
       <HotswapSlotButtons
         vertical={false}
         className={"absolute h-fit flex border border-slate-400"}
