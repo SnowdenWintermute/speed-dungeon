@@ -1,10 +1,10 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import {
+  CONSUMABLE_TYPE_STRINGS,
   CombatActionType,
   Consumable,
   Equipment,
   Item,
-  formatConsumableType,
 } from "@speed-dungeon/common";
 import React, { useRef } from "react";
 import ActionDetails from "./ActionDetails";
@@ -56,7 +56,7 @@ export default function ItemDetails({
       thumbnailIdOption = item.entityProperties.id;
     } else if (item instanceof Consumable) {
       BG_COLOR = "bg-slate-700";
-      thumbnailIdOption = formatConsumableType(item.consumableType);
+      thumbnailIdOption = CONSUMABLE_TYPE_STRINGS[item.consumableType];
       itemDetailsDisplay = (
         <ActionDetails
           combatAction={{

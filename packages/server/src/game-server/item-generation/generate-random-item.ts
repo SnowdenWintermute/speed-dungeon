@@ -1,8 +1,8 @@
 import {
+  CONSUMABLE_TYPE_STRINGS,
   Consumable,
   ConsumableType,
   Item,
-  formatConsumableType,
   randBetween,
 } from "@speed-dungeon/common";
 import { GameServer } from "../index.js";
@@ -45,7 +45,7 @@ export function generateRandomItem(this: GameServer, itemLevel: number): Error |
     return new Consumable(
       {
         id: idGenerator.generate(),
-        name: formatConsumableType(autoinjectorType),
+        name: CONSUMABLE_TYPE_STRINGS[autoinjectorType],
       },
       1,
       {},

@@ -12,6 +12,7 @@ import { UserChannelDisplayData } from "../users/index.js";
 import { GameMode } from "../types.js";
 import { CombatAttribute } from "../attributes/index.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
+import { Consumable } from "../items/consumables/index.js";
 
 export enum ServerToClientEvent {
   GameList = "0",
@@ -58,6 +59,7 @@ export enum ServerToClientEvent {
   //
   CharacterSelectedHoldableHotswapSlot = "40",
   CharacterConvertedItemsToShards = "41",
+  CharacterDroppedShards = "42",
 }
 
 export interface ServerToClientEventTypes {
@@ -154,6 +156,10 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.CharacterConvertedItemsToShards]: (
     characterAndItems: CharacterAndItems
   ) => void;
+  [ServerToClientEvent.CharacterDroppedShards]: (eventData: {
+    characterId: string;
+    shardStack: Consumable;
+  }) => void;
 }
 
 export interface CharacterAndItem {

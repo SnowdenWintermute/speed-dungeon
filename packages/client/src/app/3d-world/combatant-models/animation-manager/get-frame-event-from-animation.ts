@@ -6,8 +6,8 @@ import {
   Inventory,
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
-  formatConsumableType,
   ABILITY_NAME_STRINGS,
+  CONSUMABLE_TYPE_STRINGS,
 } from "@speed-dungeon/common";
 import { GameWorld } from "../../game-world";
 import {
@@ -81,7 +81,7 @@ export default function getFrameEventFromAnimation(
         );
         if (itemResult instanceof Error) return console.error(itemResult);
         new CombatLogMessage(
-          `${actionUserResult.entityProperties.name} uses ${formatConsumableType(itemResult.consumableType)}`,
+          `${actionUserResult.entityProperties.name} uses ${CONSUMABLE_TYPE_STRINGS[itemResult.consumableType]}`,
           CombatLogMessageStyle.Basic
         );
       }

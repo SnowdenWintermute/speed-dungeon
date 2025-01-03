@@ -7,13 +7,13 @@ import {
   MenuStateType,
 } from ".";
 import {
+  CONSUMABLE_TYPE_STRINGS,
   CombatantEquipment,
   Consumable,
   ConsumableType,
   Equipment,
   Inventory,
   Item,
-  formatConsumableType,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
@@ -44,6 +44,7 @@ export class ItemsMenuState implements ActionMenuState {
         state.stackedMenuStates.pop();
         state.hoveredEntity = null;
         state.consideredItemUnmetRequirements = null;
+        state.viewingDropShardsModal = false;
       });
     });
     closeInventory.dedicatedKeys = [...this.closeMenuTextAndHotkeys.hotkeys, "Escape"];
@@ -104,10 +105,10 @@ export class ItemsMenuState implements ActionMenuState {
       }
     })();
 
-    for (const [consumableTypeKey, consumables] of Object.entries(consumablesByType)) {
+    for (const [consumableType, consumables] of iterateNumericEnumKeyedRecord(consumablesByType)) {
       const firstConsumableOfThisType = consumables[0];
       if (!firstConsumableOfThisType) continue;
-      let consumableName = buttonTextPrefix + formatConsumableType(parseInt(consumableTypeKey));
+      let consumableName = buttonTextPrefix + CONSUMABLE_TYPE_STRINGS[consumableType];
       if (consumables.length > 1) consumableName += ` (${consumables.length})`;
 
       const button = new ActionMenuButtonProperties(consumableName, () => {

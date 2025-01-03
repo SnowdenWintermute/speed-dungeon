@@ -73,3 +73,7 @@ export function getProgressionGamePartyName(gameName: string) {
 export function isBrowser() {
   return typeof window !== "undefined" && typeof window.document !== "undefined";
 }
+
+export function stringIsValidNumber(str: string) {
+  return !isNaN(parseInt(str)) && str.trim() !== "";
+}

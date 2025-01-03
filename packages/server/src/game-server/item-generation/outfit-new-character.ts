@@ -10,7 +10,6 @@ import {
   Combatant,
   iterateNumericEnum,
   Consumable,
-  formatConsumableType,
   ERROR_MESSAGES,
   iterateNumericEnumKeyedRecord,
   EquipmentType,
@@ -23,16 +22,14 @@ import {
   HoldableSlotType,
   CombatantTrait,
   Shield,
+  CONSUMABLE_TYPE_STRINGS,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { idGenerator } from "../../singletons.js";
-import { HP_ARMOR_TEST_ITEM, WEAPON_TEST_ITEM } from "./test-items.js";
+import { HP_ARMOR_TEST_ITEM } from "./test-items.js";
 import { CombatantEquipment } from "@speed-dungeon/common";
-import generateTestItems, {
-  generateOneOfEachItem,
-  generateSpecificEquipmentType,
-} from "./generate-test-items.js";
+import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -79,7 +76,10 @@ export default function outfitNewCharacter(character: Combatant) {
     .map(
       () =>
         new Consumable(
-          { name: formatConsumableType(ConsumableType.HpAutoinjector), id: idGenerator.generate() },
+          {
+            name: CONSUMABLE_TYPE_STRINGS[ConsumableType.HpAutoinjector],
+            id: idGenerator.generate(),
+          },
           1,
           {},
           ConsumableType.HpAutoinjector,
@@ -90,7 +90,7 @@ export default function outfitNewCharacter(character: Combatant) {
   combatantProperties.inventory.consumables.push(...hpInjectors);
   combatantProperties.inventory.consumables.push(
     new Consumable(
-      { name: formatConsumableType(ConsumableType.MpAutoinjector), id: idGenerator.generate() },
+      { name: CONSUMABLE_TYPE_STRINGS[ConsumableType.MpAutoinjector], id: idGenerator.generate() },
       1,
       {},
       ConsumableType.HpAutoinjector,

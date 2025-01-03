@@ -55,6 +55,8 @@ export class ConfirmConvertToShardsMenuState implements ActionMenuState {
         useGameStore.getState().mutateState((state) => {
           state.stackedMenuStates.pop();
           state.stackedMenuStates.pop();
+          state.comparedItem = null;
+          state.detailedEntity = null;
         });
       }
     );

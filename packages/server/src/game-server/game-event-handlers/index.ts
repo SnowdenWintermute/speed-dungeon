@@ -14,7 +14,7 @@ import dropItemHandler from "./drop-item-handler.js";
 import dropEquippedItemHandler from "./drop-equipped-item-handler.js";
 import unequipSlotHandler from "./unequip-slot-handler.js";
 import equipItemHandler from "./equip-item-handler.js";
-import pickUpItemHandler from "./pick-up-item-handler.js";
+import { pickUpItemsHandler } from "./pick-up-items-handler.js";
 import acknowledgeReceiptOfItemOnGroundHandler from "./acknowledge-receipt-of-item-on-ground-handler.js";
 import selectCombatActionHandler from "./select-combat-action-handler.js";
 import cycleTargetsHandler from "./cycle-targets-handler.js";
@@ -66,7 +66,7 @@ export default function initiateGameEventListeners(
   );
   socket.on(
     ClientToServerEvent.PickUpItems,
-    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, pickUpItemHandler)
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, pickUpItemsHandler)
   );
   socket.on(
     ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate,

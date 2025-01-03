@@ -12,7 +12,7 @@ import {
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons.js";
 
-export default function pickUpItemHandler(
+export function pickUpItemsHandler(
   eventData: CharacterAndItems,
   characterAssociatedData: CharacterAssociatedData
 ) {

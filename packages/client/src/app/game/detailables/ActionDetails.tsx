@@ -3,13 +3,13 @@ import {
   ActionUsableContext,
   AdventuringParty,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
+  CONSUMABLE_TYPE_STRINGS,
   CombatAction,
   CombatActionType,
   CombatantAbility,
   Consumable,
   ERROR_MESSAGES,
   TARGET_CATEGORY_STRINGS,
-  formatConsumableType,
   formatTargetingScheme,
 } from "@speed-dungeon/common";
 import React from "react";
@@ -105,7 +105,7 @@ function getCombatActionName(party: AdventuringParty, combatAction: CombatAction
       }
       if (!(itemResult instanceof Consumable))
         actionName = "Why is an equipment being used as an action";
-      else actionName = formatConsumableType(itemResult.consumableType);
+      else actionName = CONSUMABLE_TYPE_STRINGS[itemResult.consumableType];
   }
   return actionName;
 }

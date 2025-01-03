@@ -1,13 +1,11 @@
 import {
   AffixType,
   Affixes,
+  CONSUMABLE_TYPE_STRINGS,
   EquipmentType,
   ItemType,
   ONE_HANDED_MELEE_WEAPON_NAMES,
-  PrefixType,
-  SuffixType,
   formatBodyArmor,
-  formatConsumableType,
   formatHeadGear,
   formatJewelry,
   formatShield,
@@ -52,7 +50,7 @@ export abstract class ItemNamer {
         }
         break;
       case ItemType.Consumable:
-        baseItemName = formatConsumableType(baseItem.baseItem);
+        baseItemName = CONSUMABLE_TYPE_STRINGS[baseItem.baseItem];
     }
 
     if (affixes !== null) {

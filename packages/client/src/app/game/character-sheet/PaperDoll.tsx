@@ -10,6 +10,7 @@ import {
   equipmentIsTwoHandedWeapon,
 } from "@speed-dungeon/common";
 import HotswapSlotButtons from "../combatant-plaques/HotswapSlotButtons";
+import { useGameStore } from "@/stores/game-store";
 
 interface Props {
   combatant: Combatant;
@@ -18,6 +19,7 @@ interface Props {
 export default function PaperDoll({ combatant }: Props) {
   const { combatantProperties, entityProperties } = combatant;
   const equippedHoldables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+  const viewingDropShardsModal = useGameStore((state) => state.viewingDropShardsModal);
   const { equipment } = combatantProperties;
 
   const totalAttributes = useMemo(
@@ -33,7 +35,10 @@ export default function PaperDoll({ combatant }: Props) {
       : false;
 
   return (
-    <div id="paper-doll" className="relative flex w-[23.75rem]">
+    <div
+      id="paper-doll"
+      className={`relative flex w-[23.75rem] ${viewingDropShardsModal && "pointer-events-none opacity-50"}`}
+    >
       <HotswapSlotButtons
         vertical={false}
         className={"absolute h-fit flex border border-slate-400"}

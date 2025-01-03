@@ -11,10 +11,18 @@ import CharacterSheetCharacterSelectionButton from "./CharacterSheetCharacterSel
 import CharacterAttributes from "./CharacterAttributes";
 import PaperDoll from "./PaperDoll";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
+import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
+import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HOTKEYS } from "@/hotkeys";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import { MenuStateType } from "../ActionMenu/menu-state";
+import DropShardsModal from "./DropShardsModal";
 
 export default function CharacterSheet({ showCharacterSheet }: { showCharacterSheet: boolean }) {
   const partyResult = useGameStore().getParty();
   const mutateGameState = useGameStore().mutateState;
+  const viewingDropShardsModal = useGameStore((state) => state.viewingDropShardsModal);
+  const currentMenu = useGameStore().getCurrentMenu();
   if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
   const focusedCharacterResult = useGameStore().getFocusedCharacter();
   const focusedCharacterOption =
@@ -58,13 +66,37 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
       >
         <div className="flex flex-col justify-between mr-5">
           <PaperDoll combatant={focusedCharacterOption} />
-          <div className={"flex justify-between"}>
+          <div className={"flex justify-between items-center"}>
             <div
               className={`${numItemsInInventory > INVENTORY_DEFAULT_CAPACITY ? UNMET_REQUIREMENT_TEXT_COLOR : ""}`}
             >
               Inventory Capacity: {numItemsInInventory}/{INVENTORY_DEFAULT_CAPACITY}
             </div>
-            <div>{focusedCharacterOption.combatantProperties.inventory.shards} Shards</div>
+            <div className="relative">
+              <HoverableTooltipWrapper tooltipText="Drop shards (A)">
+                <HotkeyButton
+                  className="border border-slate-400 p-2 pr-4 pl-4 hover:bg-slate-950 flex items-center disabled:opacity-50"
+                  hotkeys={[HOTKEYS.MAIN_2]}
+                  disabled={currentMenu.type !== MenuStateType.InventoryItems}
+                  onClick={() => {
+                    mutateGameState((state) => {
+                      state.viewingDropShardsModal = true;
+                    });
+                  }}
+                >
+                  <span className="mr-2">
+                    {focusedCharacterOption.combatantProperties.inventory.shards}
+                  </span>{" "}
+                  <div className="h-5">
+                    <ShardsIcon className="fill-slate-400 h-full" />
+                  </div>
+                </HotkeyButton>
+              </HoverableTooltipWrapper>
+              <DropShardsModal
+                min={0}
+                max={focusedCharacterOption.combatantProperties.inventory.shards}
+              />
+            </div>
           </div>
         </div>
         <CharacterAttributes

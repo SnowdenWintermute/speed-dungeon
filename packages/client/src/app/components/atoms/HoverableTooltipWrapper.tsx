@@ -76,7 +76,7 @@ export default function HoverableTooltipWrapper(props: Props) {
 
   return (
     <div
-      className={`h-fit w-fit cursor-help ${props.extraStyles}`}
+      className={`h-fit w-fit ${props.extraStyles} p-0 block`}
       ref={elementRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

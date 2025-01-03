@@ -9,7 +9,6 @@ import { Combatant, CombatantEquipment, Inventory } from "../../combatants/index
 import { EntityId } from "../../primatives/index.js";
 import { removeFromArray } from "../../utils/index.js";
 import { AffixType, Equipment } from "../equipment/index.js";
-import cloneDeep from "lodash.clonedeep";
 
 export function convertItemsToShards(itemIds: EntityId[], combatant: Combatant) {
   const { combatantProperties } = combatant;
@@ -35,7 +34,7 @@ function convertItemToShards(item: Item, inventory: Inventory) {
 
 export function getShardRewardNumberFromItem(item: Item) {
   const afterItemLevel = 1 * ITEM_LEVEL_SHARD_REWARD_MULTIPLIER;
-  if (!(item instanceof Equipment)) return cloneDeep(afterItemLevel);
+  if (!(item instanceof Equipment)) return Math.floor(afterItemLevel);
   const hasPrefix = Object.values(item.affixes[AffixType.Prefix]).length;
   const hasSuffix = Object.values(item.affixes[AffixType.Suffix]).length;
   if (hasPrefix && hasSuffix)
