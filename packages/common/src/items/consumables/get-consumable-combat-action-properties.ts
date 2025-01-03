@@ -20,6 +20,12 @@ export default function getConsumableCombatActionProperties(consumable: Consumab
       cap.requiresCombatTurn = false;
       cap.description = "Restore MP to a friendly target";
       break;
+    case ConsumableType.StackOfShards:
+      cap.validTargetCategories = TargetCategories.User;
+      cap.usabilityContext = ActionUsableContext.All;
+      cap.requiresCombatTurn = false;
+      cap.description = "Could be useful...";
+      break;
   }
 
   return cap;

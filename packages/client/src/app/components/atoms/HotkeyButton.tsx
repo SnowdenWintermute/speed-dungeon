@@ -10,6 +10,7 @@ interface Props {
   style?: React.CSSProperties;
   buttonType?: "button" | "submit" | "reset";
   disabled?: boolean;
+  alwaysEnabled?: boolean;
   onClick?: MouseEventHandler<HTMLButtonElement>;
   onFocus?: FocusEventHandler<HTMLButtonElement>;
   onBlur?: FocusEventHandler<HTMLButtonElement>;
@@ -20,12 +21,13 @@ interface Props {
 export default function HotkeyButton(props: Props) {
   const hotkeysDisabled = useUIStore().hotkeysDisabled;
   const keydownListenerRef = useRef<(e: KeyboardEvent) => void | null>();
+  const disabled = props.alwaysEnabled === true ? false : props.disabled || hotkeysDisabled;
 
   useEffect(() => {
     if (props.hotkeys === undefined) return;
     keydownListenerRef.current = (e: KeyboardEvent) => {
       for (const hotkey of props.hotkeys!) {
-        if (e.code === hotkey && !hotkeysDisabled && !props.disabled) {
+        if (e.code === hotkey && !disabled) {
           //@ts-ignore
           props.onClick(new MouseEvent("mouseup"));
         }
@@ -43,7 +45,7 @@ export default function HotkeyButton(props: Props) {
   return (
     <button
       type={props.buttonType || "button"}
-      disabled={props.disabled || false}
+      disabled={disabled}
       className={`${props.className}`}
       onClick={props.onClick}
       onFocus={props.onFocus}

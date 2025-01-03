@@ -23,6 +23,17 @@ export default function TextInput(props: Props) {
   const mutateUIState = useUIStore().mutateState;
 
   useEffect(() => {
+    // trying to make it so we trigger the onfocus event, which didn't seem to be triggered
+    // by just setting the autofocus property directly on the element. we need the onfocus to trigger
+    // so we can disable hotkeys
+    if (inputRef.current && props.autofocus) {
+      inputRef.current.focus();
+      inputRef.current.dispatchEvent(new Event("focus", { bubbles: true })); // Trigger the focus event manually
+      mutateUIState((state) => {
+        state.hotkeysDisabled = true;
+      });
+      console.log("set hotkeys disabled", useUIStore.getState().hotkeysDisabled);
+    }
     return () => {
       console.log("bluring on unmount");
       handleBlur();
@@ -44,16 +55,6 @@ export default function TextInput(props: Props) {
   useEffect(() => {
     window.addEventListener("keydown", handleKeydown);
     return () => window.removeEventListener("keydown", handleKeydown);
-  }, []);
-
-  // trying to make it so we trigger the onfocus event, which didn't seem to be triggered
-  // by just setting the autofocus property directly on the element. we need the onfocus to trigger
-  // so we can disable hotkeys
-  useEffect(() => {
-    if (inputRef.current && props.autofocus) {
-      inputRef.current.focus();
-      console.log("hotkeys disabled", useUIStore.getState().hotkeysDisabled);
-    }
   }, []);
 
   return (

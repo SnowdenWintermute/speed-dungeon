@@ -2,7 +2,6 @@
 import { ChangeEvent, useState } from "react";
 import ButtonBasic from "../atoms/ButtonBasic";
 import TextInput from "../atoms/TextInput";
-import { stringIsValidNumber } from "@speed-dungeon/common";
 
 interface Props {
   inputPlaceholder: string;
@@ -20,13 +19,6 @@ interface Props {
 export default function TextSubmit(props: Props) {
   const [value, setValue] = useState("");
   function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
-    console.log("props.type:", props.type);
-    console.log("string:", e.target.value);
-    console.log("is valid number: ", stringIsValidNumber(e.target.value));
-    if (props.type === "number" && !stringIsValidNumber(e.target.value) && e.target.value !== "") {
-      console.log("tried to type a non number in a number input");
-      return;
-    }
     setValue(e.target.value);
   }
 

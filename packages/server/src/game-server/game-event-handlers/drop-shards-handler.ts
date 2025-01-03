@@ -24,6 +24,7 @@ export async function dropShardsHandler(
   const { characterId, numShards } = eventData;
   const { inventory } = character.combatantProperties;
 
+  if (typeof numShards !== "number") return new Error("Wrong data type");
   // check if have enough shards
   if (inventory.shards < numShards) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ENOUGH_SHARDS);
   // deduct shards from inventory
@@ -31,6 +32,7 @@ export async function dropShardsHandler(
   // create a "shard stack" consumable item
   const shardStack = createShardStack(numShards);
   party.currentRoom.items.push(shardStack);
+  party.itemsOnGroundNotYetReceivedByAllClients[shardStack.entityProperties.id] = [];
 
   // SERVER
   // save the character if in progression game
@@ -45,9 +47,11 @@ export async function dropShardsHandler(
 }
 
 function createShardStack(numShards: number) {
+  const stackName = `${CONSUMABLE_TYPE_STRINGS[ConsumableType.StackOfShards]} (${numShards})`;
+  console.log("creating shard stack of ", numShards, "stackname: ", stackName);
   return new Consumable(
     {
-      name: CONSUMABLE_TYPE_STRINGS[ConsumableType.StackOfShards],
+      name: `${CONSUMABLE_TYPE_STRINGS[ConsumableType.StackOfShards]} (${numShards})`,
       id: idGenerator.generate(),
     },
     0,

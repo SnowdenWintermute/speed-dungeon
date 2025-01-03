@@ -31,6 +31,8 @@ export function pickUpItemsHandler(
     if (party.itemsOnGroundNotYetReceivedByAllClients[itemId] !== undefined)
       return new Error(ERROR_MESSAGES.ITEM.NOT_YET_AVAILABLE);
 
+    // handle shard stacks uniquely
+
     // let them pick up to capacity
     if (
       Inventory.getTotalNumberOfItems(character.combatantProperties.inventory) >=

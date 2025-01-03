@@ -24,6 +24,7 @@ import characterSpentAttributePointHandler from "./character-spent-attribute-poi
 import selectHoldableHotswapSlotHandler from "./select-holdable-hotswap-slot-handler.js";
 import { prohibitInCombat } from "../event-middleware/prohibit-in-combat.js";
 import { convertItemsToShardsHandler } from "./convert-items-to-shards-handler.js";
+import { dropShardsHandler } from "./drop-shards-handler.js";
 
 export default function initiateGameEventListeners(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
@@ -114,5 +115,9 @@ export default function initiateGameEventListeners(
       socket,
       convertItemsToShardsHandler
     )
+  );
+  socket.on(
+    ClientToServerEvent.DropShards,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, dropShardsHandler)
   );
 }

@@ -71,21 +71,19 @@ export default function outfitNewCharacter(character: Combatant) {
     combatantProperties.traits.push(extraSlotTrait);
   }
 
-  const hpInjectors = new Array(1)
-    .fill(null)
-    .map(
-      () =>
-        new Consumable(
-          {
-            name: CONSUMABLE_TYPE_STRINGS[ConsumableType.HpAutoinjector],
-            id: idGenerator.generate(),
-          },
-          1,
-          {},
-          ConsumableType.HpAutoinjector,
-          1
-        )
-    );
+  const hpInjectors = new Array(1).fill(null).map(
+    () =>
+      new Consumable(
+        {
+          name: CONSUMABLE_TYPE_STRINGS[ConsumableType.HpAutoinjector],
+          id: idGenerator.generate(),
+        },
+        1,
+        {},
+        ConsumableType.HpAutoinjector,
+        1
+      )
+  );
   // const mpInjector = Item.createConsumable(idGenerator.generate(), ConsumableType.MpAutoinjector);
   combatantProperties.inventory.consumables.push(...hpInjectors);
   combatantProperties.inventory.consumables.push(
@@ -134,6 +132,7 @@ export default function outfitNewCharacter(character: Combatant) {
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
 
+  combatantProperties.inventory.shards = 5;
   combatantProperties.inventory.equipment.push(HP_ARMOR_TEST_ITEM);
   const equippedHoldableHotswapSlot =
     CombatantEquipment.getEquippedHoldableSlots(combatantProperties);

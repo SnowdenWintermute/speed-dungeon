@@ -66,7 +66,7 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
       >
         <div className="flex flex-col justify-between mr-5">
           <PaperDoll combatant={focusedCharacterOption} />
-          <div className={"flex justify-between items-center"}>
+          <div className={"flex justify-between items-end"}>
             <div
               className={`${numItemsInInventory > INVENTORY_DEFAULT_CAPACITY ? UNMET_REQUIREMENT_TEXT_COLOR : ""}`}
             >
@@ -92,10 +92,12 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
                   </div>
                 </HotkeyButton>
               </HoverableTooltipWrapper>
-              <DropShardsModal
-                min={0}
-                max={focusedCharacterOption.combatantProperties.inventory.shards}
-              />
+              {viewingDropShardsModal === true && (
+                <DropShardsModal
+                  min={0}
+                  max={focusedCharacterOption.combatantProperties.inventory.shards}
+                />
+              )}
             </div>
           </div>
         </div>
