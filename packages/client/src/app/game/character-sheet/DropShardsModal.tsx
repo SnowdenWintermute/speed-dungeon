@@ -9,10 +9,12 @@ import { useUIStore } from "@/stores/ui-store";
 import { ClientToServerEvent, stringIsValidNumber } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
+import ClickOutsideHandlerWrapper from "@/app/components/atoms/ClickOutsideHandlerWrapper";
 
 export default function DropShardsModal({ max, min }: { max: number; min: number }) {
   const mutateGameState = useGameStore().mutateState;
   const mutateUIState = useUIStore().mutateState;
+  const viewingDropShardsModal = useGameStore((state) => state.viewingDropShardsModal);
   const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState<number>(0);
   const focusedCharacterResult = useGameStore().getFocusedCharacter();
@@ -56,43 +58,54 @@ export default function DropShardsModal({ max, min }: { max: number; min: number
   }
 
   return (
-    <div className="absolute bottom-0 right-0 border border-slate-400 p-4 bg-slate-800 z-50 pointer-events-auto w-72">
-      <HotkeyButton
-        className="absolute top-0 right-0 p-2 border border-t-0 border-r-0 border-slate-400 cursor-pointer bg-slate-700"
-        style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}
-        aria-label="close drop shards modal"
-        hotkeys={[HOTKEYS.MAIN_2, HOTKEYS.CANCEL]}
-        alwaysEnabled={true}
-        onClick={() => {
+    <div className="absolute bottom-0 right-0 border border-slate-400">
+      <ClickOutsideHandlerWrapper
+        isActive={viewingDropShardsModal}
+        onClickOutside={() => {
           mutateGameState((state) => {
             state.viewingDropShardsModal = false;
           });
         }}
       >
-        <XShape className="h-full w-full fill-zinc-300" />
-      </HotkeyButton>
-      <h3 className="">Drop how many shards?</h3>
-      <Divider />
-      <form className="w-full flex" onSubmit={handleSubmit}>
-        <input
-          ref={inputRef}
-          className="bg-slate-700 border border-slate-400 h-10 p-4 min-w-0 flex-1"
-          type="number"
-          autoFocus={true}
-          placeholder="Enter a number"
-          name="drop shards"
-          min={min}
-          max={max}
-          onChange={onInputChange}
-          value={value}
-        />
-        <button
-          type="submit"
-          className="bg-slate-700 h-10 pr-2 pl-2 border-l-0 border border-slate-400"
-        >
-          DROP
-        </button>
-      </form>
+        <div className="p-4 bg-slate-800 z-50 pointer-events-auto w-72">
+          <HotkeyButton
+            className="absolute top-0 right-0 p-2 border border-t-0 border-r-0 border-slate-400 cursor-pointer bg-slate-700"
+            style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}
+            aria-label="close drop shards modal"
+            hotkeys={[HOTKEYS.MAIN_2, HOTKEYS.CANCEL]}
+            alwaysEnabled={true}
+            onClick={() => {
+              mutateGameState((state) => {
+                state.viewingDropShardsModal = false;
+              });
+            }}
+          >
+            <XShape className="h-full w-full fill-zinc-300" />
+          </HotkeyButton>
+          <h3 className="">Drop how many shards?</h3>
+          <Divider />
+          <form className="w-full flex" onSubmit={handleSubmit}>
+            <input
+              ref={inputRef}
+              className="bg-slate-700 border border-slate-400 h-10 p-4 min-w-0 flex-1"
+              type="number"
+              autoFocus={true}
+              placeholder="Enter a number"
+              name="drop shards"
+              min={min}
+              max={max}
+              onChange={onInputChange}
+              value={value}
+            />
+            <button
+              type="submit"
+              className="bg-slate-700 h-10 pr-2 pl-2 border-l-0 border border-slate-400"
+            >
+              DROP
+            </button>
+          </form>
+        </div>
+      </ClickOutsideHandlerWrapper>
     </div>
   );
 }

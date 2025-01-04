@@ -31,7 +31,7 @@ import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { ABILITY_ATTRIBUTES } from "@speed-dungeon/common";
 
 export const toggleInventoryHotkey = HOTKEYS.MAIN_1;
-export const toggleAssignAttributesHotkey = HOTKEYS.MAIN_2;
+
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
 export const VIEW_LOOT_BUTTON_TEXT = `Loot (${letterFromKeyCode(viewItemsOnGroundHotkey)})`;
@@ -68,19 +68,6 @@ export class BaseMenuState implements ActionMenuState {
     if (partyResult instanceof Error) {
       setAlert(partyResult);
       return toReturn;
-    }
-
-    if (focusedCharacterResult.combatantProperties.unspentAttributePoints) {
-      const assignAttributesButton = new ActionMenuButtonProperties(
-        `Attributes (${letterFromKeyCode(toggleAssignAttributesHotkey)})`,
-        () => {
-          useGameStore.getState().mutateState((state) => {
-            state.stackedMenuStates.push(assignAttributesMenuState);
-          });
-        }
-      );
-      assignAttributesButton.dedicatedKeys = ["KeyI", toggleAssignAttributesHotkey];
-      toReturn[ActionButtonCategory.Top].push(assignAttributesButton);
     }
 
     if (Inventory.getItems(partyResult.currentRoom.inventory).length) {
