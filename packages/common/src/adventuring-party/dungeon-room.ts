@@ -1,8 +1,7 @@
-import { Combatant } from "../combatants/index.js";
-import { Item } from "../items/index.js";
+import { Combatant, Inventory } from "../combatants/index.js";
 
 export class DungeonRoom {
-  items: Item[] = [];
+  inventory: Inventory = new Inventory();
 
   constructor(
     public roomType: DungeonRoomType,

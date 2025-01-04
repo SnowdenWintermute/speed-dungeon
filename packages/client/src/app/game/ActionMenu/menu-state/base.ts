@@ -19,6 +19,7 @@ import {
   AbilityName,
   CombatantProperties,
   ABILITY_NAME_STRINGS,
+  Inventory,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -82,7 +83,7 @@ export class BaseMenuState implements ActionMenuState {
       toReturn[ActionButtonCategory.Top].push(assignAttributesButton);
     }
 
-    if (partyResult.currentRoom.items.length) {
+    if (Inventory.getItems(partyResult.currentRoom.inventory).length) {
       const viewItemsOnGroundButton = new ActionMenuButtonProperties(VIEW_LOOT_BUTTON_TEXT, () => {
         useGameStore.getState().mutateState((state) => {
           state.hoveredAction = null;

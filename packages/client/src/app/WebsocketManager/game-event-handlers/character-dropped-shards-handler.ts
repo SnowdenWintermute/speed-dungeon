@@ -3,6 +3,7 @@ import {
   ClientToServerEvent,
   Consumable,
   EntityId,
+  Inventory,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { websocketConnection } from "@/singletons/websocket-connection";
@@ -21,6 +22,7 @@ export function characterDroppedShardsHandler(eventData: {
 
   characterAssociatedDataProvider(characterId, ({ party, character }: CharacterAssociatedData) => {
     character.combatantProperties.inventory.shards -= asClassInstance.usesRemaining;
-    party.currentRoom.items.push(asClassInstance);
+
+    Inventory.insertItem(party.currentRoom.inventory, asClassInstance);
   });
 }

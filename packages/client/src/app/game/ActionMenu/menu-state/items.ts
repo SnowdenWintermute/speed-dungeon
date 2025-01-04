@@ -71,7 +71,7 @@ export class ItemsMenuState implements ActionMenuState {
             CombatantEquipment.getAllEquippedItems(focusedCharacterResult.combatantProperties)
           );
         case MenuStateType.ItemsOnGround:
-          return partyResult.currentRoom.items;
+          return Inventory.getItems(partyResult.currentRoom.inventory);
       }
     })();
 

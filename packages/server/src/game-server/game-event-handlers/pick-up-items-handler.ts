@@ -40,15 +40,15 @@ export function pickUpItemsHandler(
     )
       break;
 
-    const itemOption = Item.removeFromArray(party.currentRoom.items, itemId);
-    if (itemOption === undefined) return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
+    const itemResult = Inventory.removeItem(party.currentRoom.inventory, itemId);
+    if (itemResult instanceof Error) return itemResult;
 
-    if (itemOption instanceof Consumable)
-      character.combatantProperties.inventory.consumables.push(itemOption);
-    else if (itemOption instanceof Equipment)
-      character.combatantProperties.inventory.equipment.push(itemOption);
+    if (itemResult instanceof Consumable)
+      character.combatantProperties.inventory.consumables.push(itemResult);
+    else if (itemResult instanceof Equipment)
+      character.combatantProperties.inventory.equipment.push(itemResult);
 
-    idsPickedUp.push(itemOption.entityProperties.id);
+    idsPickedUp.push(itemResult.entityProperties.id);
   }
 
   const partyChannelName = getPartyChannelName(game.name, party.name);

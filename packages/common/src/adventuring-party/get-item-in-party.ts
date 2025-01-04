@@ -28,9 +28,8 @@ export function getItemInAdventuringParty(party: AdventuringParty, itemId: strin
     if (toReturn) return toReturn;
   }
 
-  for (const item of Object.values(party.currentRoom.items)) {
-    if (item.entityProperties.id === itemId) return item;
-  }
+  const maybeItem = Inventory.getItem(party.currentRoom.inventory, itemId);
+  if (!(maybeItem instanceof Error)) return maybeItem;
 
   return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
 }

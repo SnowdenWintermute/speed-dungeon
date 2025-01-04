@@ -26,6 +26,13 @@ export class Inventory {
     else return new Error("Unhandled item type");
   }
 
+  static insertItems(inventory: Inventory, items: Item[]) {
+    for (const item of items) {
+      const result = Inventory.insertItem(inventory, item);
+      if (result instanceof Error) return result;
+    }
+  }
+
   static removeItem(inventory: Inventory, itemId: string) {
     let itemResult: Consumable | Equipment | Error = Inventory.removeConsumable(inventory, itemId);
     if (itemResult instanceof Error) itemResult = Inventory.removeEquipment(inventory, itemId);
