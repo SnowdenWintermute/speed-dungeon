@@ -75,14 +75,17 @@ export class ItemsMenuState implements ActionMenuState {
       }
     })();
 
-    const equipment: Equipment[] = [];
+    const equipmentAndShardStacks: Item[] = [];
     const consumablesByType: Partial<Record<ConsumableType, Consumable[]>> = {};
 
     const buttonTextPrefix = this.type === MenuStateType.ItemsOnGround ? "" : "";
 
     for (const item of itemsToShow) {
-      if (item instanceof Equipment) {
-        equipment.push(item);
+      if (
+        item instanceof Equipment ||
+        (item instanceof Consumable && item.consumableType === ConsumableType.StackOfShards)
+      ) {
+        equipmentAndShardStacks.push(item);
       } else if (item instanceof Consumable) {
         const { consumableType } = item;
         if (!consumablesByType[consumableType]) consumablesByType[consumableType] = [item];
@@ -121,7 +124,7 @@ export class ItemsMenuState implements ActionMenuState {
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
-    for (const item of equipment) {
+    for (const item of equipmentAndShardStacks) {
       const button = new ActionMenuButtonProperties(
         buttonTextPrefix + item.entityProperties.name,
         () => {

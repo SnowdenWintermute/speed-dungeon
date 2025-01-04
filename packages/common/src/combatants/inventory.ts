@@ -35,7 +35,9 @@ export class Inventory {
 
   static removeItem(inventory: Inventory, itemId: string) {
     let itemResult: Consumable | Equipment | Error = Inventory.removeConsumable(inventory, itemId);
-    if (itemResult instanceof Error) itemResult = Inventory.removeEquipment(inventory, itemId);
+    if (itemResult instanceof Error) {
+      itemResult = Inventory.removeEquipment(inventory, itemId);
+    }
     return itemResult;
   }
 

@@ -1,5 +1,11 @@
 import { GameState } from "@/stores/game-store";
-import { CharacterAndItems, CharacterAssociatedData, Inventory } from "@speed-dungeon/common";
+import {
+  CharacterAndItems,
+  CharacterAssociatedData,
+  Consumable,
+  ConsumableType,
+  Inventory,
+} from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 
 export default function characterPickedUpItemsHandler(characterAndItems: CharacterAndItems) {
@@ -9,6 +15,16 @@ export default function characterPickedUpItemsHandler(characterAndItems: Charact
       for (const itemId of characterAndItems.itemIds) {
         const itemResult = Inventory.removeItem(party.currentRoom.inventory, itemId);
         if (itemResult instanceof Error) return itemResult;
+
+        // handle shard stacks uniquely
+        if (
+          itemResult instanceof Consumable &&
+          itemResult.consumableType === ConsumableType.StackOfShards
+        ) {
+          character.combatantProperties.inventory.shards += itemResult.usesRemaining;
+          continue;
+        }
+
         Inventory.insertItem(character.combatantProperties.inventory, itemResult);
 
         // otherwise it is possible that one player is hovering this item, then it "disappears"

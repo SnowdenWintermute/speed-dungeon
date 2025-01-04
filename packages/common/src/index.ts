@@ -6,6 +6,7 @@ export * from "./errors/index.js";
 export * from "./items/index.js";
 export * from "./items/equipment/index.js";
 export * from "./items/consumables/index.js";
+export * from "./items/consumables/pick-up-shard-stack.js";
 export * from "./attributes/index.js";
 export * from "./game/index.js";
 export * from "./combat/index.js";

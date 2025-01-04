@@ -3,6 +3,7 @@ import {
   CONSUMABLE_TYPE_STRINGS,
   CombatActionType,
   Consumable,
+  ConsumableType,
   Equipment,
   Item,
 } from "@speed-dungeon/common";
@@ -16,6 +17,8 @@ import Model3DIcon from "../../../../public/img/menu-icons/3d-model-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { getModelAttribution } from "@/app/3d-world/item-models/get-model-attribution";
+import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
+import SwordIcon from "../../../../public/img/equipment-icons/1h-sword-a.svg";
 
 interface Props {
   shouldShowModKeyTooltip: boolean;
@@ -38,6 +41,7 @@ export default function ItemDetails({
   const imageRef = useRef<HTMLImageElement>(null);
   let hiddenClass = "pointer-events-auto";
   let thumbnailPath = "";
+  let svgThumbnailOption = undefined;
 
   const unmetRequirements = useGameStore().consideredItemUnmetRequirements;
   let BG_COLOR = "bg-slate-800";
@@ -57,22 +61,29 @@ export default function ItemDetails({
     } else if (item instanceof Consumable) {
       BG_COLOR = "bg-slate-700";
       thumbnailIdOption = CONSUMABLE_TYPE_STRINGS[item.consumableType];
-      itemDetailsDisplay = (
-        <ActionDetails
-          combatAction={{
-            type: CombatActionType.ConsumableUsed,
-            itemId: item.entityProperties.id,
-          }}
-          hideTitle={true}
-        />
-      );
+      if (item.consumableType === ConsumableType.StackOfShards) {
+        svgThumbnailOption = <ShardsIcon className="h-full fill-slate-400 m-2" />;
+        itemDetailsDisplay = <div>Could be useful...</div>;
+      } else {
+        itemDetailsDisplay = (
+          <ActionDetails
+            combatAction={{
+              type: CombatActionType.ConsumableUsed,
+              itemId: item.entityProperties.id,
+            }}
+            hideTitle={true}
+          />
+        );
+      }
     } else {
       itemDetailsDisplay = <div>unknown item type</div>;
     }
   }
 
-  thumbnailPath =
-    useGameStore().itemThumbnails[thumbnailIdOption] || "img/equipment-icons/1h-sword-a.svg";
+  const thumbnailOption = useGameStore().itemThumbnails[thumbnailIdOption];
+  if (!thumbnailPath && thumbnailOption) thumbnailPath = thumbnailOption;
+  if (!thumbnailPath && !svgThumbnailOption)
+    svgThumbnailOption = <SwordIcon className="h-full fill-slate-950" />;
 
   const attribution = itemOption && getModelAttribution(itemOption);
 
@@ -108,12 +119,18 @@ export default function ItemDetails({
           border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4 mb-1`}
           // className={`bg-slate-700 self-start border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4`}
         >
-          <img
-            src={thumbnailPath}
-            ref={imageRef}
-            className="max-h-full object-contain"
-            style={{ transform: `rotate(${0}deg)`, objectFit: "contain" }}
-          />
+          {thumbnailPath ? (
+            <img
+              src={thumbnailPath}
+              ref={imageRef}
+              className="max-h-full object-contain"
+              style={{ transform: `rotate(${0}deg)`, objectFit: "contain" }}
+            />
+          ) : svgThumbnailOption ? (
+            svgThumbnailOption
+          ) : (
+            <></>
+          )}
         </div>
 
         {attribution && (

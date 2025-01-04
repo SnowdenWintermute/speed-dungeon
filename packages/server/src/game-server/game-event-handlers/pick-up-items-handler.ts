@@ -2,6 +2,7 @@ import {
   CharacterAndItems,
   CharacterAssociatedData,
   Consumable,
+  ConsumableType,
   ERROR_MESSAGES,
   Equipment,
   INVENTORY_DEFAULT_CAPACITY,
@@ -9,6 +10,7 @@ import {
   Item,
   ServerToClientEvent,
   getPartyChannelName,
+  pickUpShardStack,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons.js";
 
@@ -32,13 +34,27 @@ export function pickUpItemsHandler(
       return new Error(ERROR_MESSAGES.ITEM.NOT_YET_AVAILABLE);
 
     // handle shard stacks uniquely
+    const maybeShardStack = Inventory.getItem(party.currentRoom.inventory, itemId);
+    if (
+      maybeShardStack instanceof Consumable &&
+      maybeShardStack.consumableType === ConsumableType.StackOfShards
+    ) {
+      const mabyeError = pickUpShardStack(
+        itemId,
+        party.currentRoom.inventory,
+        character.combatantProperties.inventory
+      );
+      if (mabyeError instanceof Error) return mabyeError;
+      idsPickedUp.push(maybeShardStack.entityProperties.id);
+      continue;
+    }
 
     // let them pick up to capacity
     if (
       Inventory.getTotalNumberOfItems(character.combatantProperties.inventory) >=
       INVENTORY_DEFAULT_CAPACITY
     )
-      break;
+      continue; // continue instead of break so they can still pick up shard stacks
 
     const itemResult = Inventory.removeItem(party.currentRoom.inventory, itemId);
     if (itemResult instanceof Error) return itemResult;
