@@ -7,7 +7,6 @@ import {
   Equipment,
   INVENTORY_DEFAULT_CAPACITY,
   Inventory,
-  Item,
   ServerToClientEvent,
   getPartyChannelName,
   pickUpShardStack,
@@ -19,6 +18,7 @@ export function pickUpItemsHandler(
   characterAssociatedData: CharacterAssociatedData
 ) {
   const { game, party, character } = characterAssociatedData;
+
   if (
     Inventory.getTotalNumberOfItems(character.combatantProperties.inventory) >=
     INVENTORY_DEFAULT_CAPACITY

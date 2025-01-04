@@ -32,16 +32,13 @@ export default function TextInput(props: Props) {
       mutateUIState((state) => {
         state.hotkeysDisabled = true;
       });
-      console.log("set hotkeys disabled", useUIStore.getState().hotkeysDisabled);
     }
     return () => {
-      console.log("bluring on unmount");
       handleBlur();
     };
   }, []);
 
   function handleBlur() {
-    console.log("input blur handler");
     mutateUIState((state) => {
       state.hotkeysDisabled = false;
     });
@@ -61,7 +58,6 @@ export default function TextInput(props: Props) {
     <input
       ref={inputRef}
       onFocus={() => {
-        console.log("on focus triggered");
         mutateUIState((state) => {
           state.hotkeysDisabled = true;
         });

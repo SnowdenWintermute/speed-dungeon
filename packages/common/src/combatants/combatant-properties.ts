@@ -111,6 +111,11 @@ export class CombatantProperties {
   static equipItem = equipItem;
   static awardLevelups = awardLevelups;
   static incrementAttributePoint = incrementAttributePoint;
+  static instantiateItemClasses(combatantProperties: CombatantProperties) {
+    Inventory.instantiateItemClasses(combatantProperties.inventory);
+    CombatantEquipment.instatiateItemClasses(combatantProperties);
+  }
+
   static hasTraitType(combatantProperties: CombatantProperties, traitType: CombatantTraitType) {
     let hasTrait = false;
     for (const trait of combatantProperties.traits) {

@@ -57,7 +57,7 @@ export default async function selectProgressionGameCharacterHandler(
 
   delete game.lowestStartingFloorOptionsBySavedCharacter[removeCharacterResult.entityProperties.id];
 
-  addCharacterToParty(game, player, savedCharacterOption);
+  addCharacterToParty(game, player, savedCharacterOption, true);
 
   game.lowestStartingFloorOptionsBySavedCharacter[savedCharacterOption.entityProperties.id] =
     savedCharacterOption.combatantProperties.deepestFloorReached;
