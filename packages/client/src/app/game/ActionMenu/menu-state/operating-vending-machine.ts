@@ -6,12 +6,6 @@ import {
   ActionMenuState,
   MenuStateType,
 } from ".";
-import {
-  ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
-  COMBAT_ATTRIBUTE_STRINGS,
-  ClientToServerEvent,
-} from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
@@ -19,11 +13,11 @@ import { HOTKEYS } from "@/hotkeys";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 
-export class AssigningAttributePointsMenuState implements ActionMenuState {
+export class OperatingVendingMachineMenuState implements ActionMenuState {
   [immerable] = true;
   page = 1;
   numPages: number = 1;
-  type = MenuStateType.AssignAttributePoints;
+  type = MenuStateType.OperatingVendingMachine;
   constructor() {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
@@ -44,19 +38,6 @@ export class AssigningAttributePointsMenuState implements ActionMenuState {
 
     cancelButton.dedicatedKeys = [HOTKEYS.CANCEL, toggleAssignAttributesHotkey];
     toReturn[ActionButtonCategory.Top].push(cancelButton);
-
-    for (const attribute of ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES) {
-      const button = new ActionMenuButtonProperties(COMBAT_ATTRIBUTE_STRINGS[attribute], () => {
-        websocketConnection.emit(ClientToServerEvent.IncrementAttribute, {
-          characterId,
-          attribute,
-        });
-      });
-      button.shouldBeDisabled =
-        focusedCharacterResult.combatantProperties.unspentAttributePoints === 0 ||
-        !userControlsThisCharacter;
-      toReturn[ActionButtonCategory.Numbered].push(button);
-    }
 
     createPageButtons(this, toReturn);
 

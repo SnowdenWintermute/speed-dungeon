@@ -10,29 +10,7 @@ export enum MenuStateType {
   ItemOnGroundSelected,
   ItemsOnGround,
   Staircase,
-}
-
-export function formatMenuStateType(menuStateType: MenuStateType) {
-  switch (menuStateType) {
-    case MenuStateType.Base:
-      return "Base";
-    case MenuStateType.CombatActionSelected:
-      return "CombatActionSelected";
-    case MenuStateType.AssignAttributePoints:
-      return "AssignAttributePoints";
-    case MenuStateType.InventoryItems:
-      return "InventoryItems";
-    case MenuStateType.ViewingEquipedItems:
-      return "ViewingEquipedItems";
-    case MenuStateType.ItemSelected:
-      return "ItemSelected";
-    case MenuStateType.ItemOnGroundSelected:
-      return "ItemOnGroundSelected";
-    case MenuStateType.ItemsOnGround:
-      return "ItemsOnGround";
-    case MenuStateType.Staircase:
-      return "Staircase";
-  }
+  OperatingVendingMachine,
 }
 
 export enum ActionButtonCategory {

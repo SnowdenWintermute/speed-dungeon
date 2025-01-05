@@ -1,11 +1,12 @@
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { useGameStore } from "@/stores/game-store";
+import { getCurrentMenu, operateVendingMachineMenuState, useGameStore } from "@/stores/game-store";
 import { AdventuringParty, ClientToServerEvent, DungeonRoomType } from "@speed-dungeon/common";
 import React, { MouseEventHandler } from "react";
 import HotkeyButton from "../components/atoms/HotkeyButton";
 import { BaseMenuState } from "./ActionMenu/menu-state/base";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
+import { MenuStateType } from "./ActionMenu/menu-state";
 
 interface Props {
   party: AdventuringParty;
@@ -14,6 +15,7 @@ interface Props {
 export default function ReadyUpDisplay({ party }: Props) {
   const username = useGameStore().username;
   if (username === null) return <div>no username</div>;
+  const mutateGameState = useGameStore().mutateState;
 
   function handleExploreClick() {
     websocketConnection.emit(ClientToServerEvent.ToggleReadyToExplore);
@@ -43,6 +45,7 @@ export default function ReadyUpDisplay({ party }: Props) {
   );
 
   const inStaircaseRoom = party.currentRoom.roomType === DungeonRoomType.Staircase;
+  const isVendingMachine = party.currentRoom.roomType === DungeonRoomType.VendingMachine;
   const currentMenu = useGameStore.getState().getCurrentMenu();
   const detailedEntity = useGameStore.getState().detailedEntity;
   const hoveredEntity = useGameStore.getState().hoveredEntity;
@@ -50,28 +53,51 @@ export default function ReadyUpDisplay({ party }: Props) {
   const shouldDim = detailedEntity || hoveredEntity || shouldShowCharacterSheet(currentMenu.type);
   const descendHotkey = HOTKEYS.SIDE_2;
   const exploreHotkey = HOTKEYS.SIDE_1;
+  const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
 
   return (
     <>
       {!inStaircaseRoom && party.currentRoom.monsterPositions.length === 0 && (
         <div
-          className="absolute top-1/5  left-1/2 -translate-x-1/2 border border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto"
+          className="absolute top-10 -translate-y-[1px]  left-1/2 -translate-x-1/2 border border-t-0 border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto"
           style={{ opacity: shouldDim ? "50%" : "100%" }}
         >
-          <h3 className="text-xl mb-2">The room is empty of monsters</h3>
-          <div className="flex justify-between">
+          {isVendingMachine ? (
+            <h3 className="text-xl mb-2">
+              The pleasant hum and glow of a strange device fills the room...
+            </h3>
+          ) : (
+            <h3 className="text-xl mb-2">The room is empty of monsters</h3>
+          )}
+          <div className="flex justify-between w-full">
             <HotkeyButton
-              className="h-10 pr-2 pl-2 bg-slate-800 border border-white w-full text-center hover:bg-slate-950"
+              className={`h-10 pr-2 pl-2 ${!isVendingMachine ? "bg-slate-800 w-full" : "w-1/2 mr-1 "} border border-white text-center hover:bg-slate-950`}
               hotkeys={["KeyG"]}
               onClick={handleExploreClick}
             >
               Explore next room (G)
             </HotkeyButton>
+            {party.currentRoom.roomType === DungeonRoomType.VendingMachine && (
+              <HotkeyButton
+                className={`h-10 pr-2 pl-2 bg-slate-800 ml-1 w-1/2 border border-white text-center hover:bg-slate-950`}
+                hotkeys={["KeyT"]}
+                onClick={() => {
+                  mutateGameState((state) => {
+                    const currentMenu = getCurrentMenu(state);
+                    if (currentMenu.type === MenuStateType.OperatingVendingMachine)
+                      state.stackedMenuStates.pop();
+                    else state.stackedMenuStates.push(operateVendingMachineMenuState);
+                  });
+                }}
+              >
+                Operate machine ({letterFromKeyCode(operateVendingMachineHotkey)})
+              </HotkeyButton>
+            )}
           </div>
         </div>
       )}
       {inStaircaseRoom && (
-        <div className="absolute top-1/3 -translate-y-1/2 left-1/2 -translate-x-1/2 border border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto">
+        <div className="absolute top-10 -translate-y-[1px] left-1/2 -translate-x-1/2 border border-t-0 border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto">
           <h3 className="text-xl mb-2">You have found the staircase to the next floor</h3>
           <div className="flex justify-between">
             <HotkeyButton
@@ -91,18 +117,21 @@ export default function ReadyUpDisplay({ party }: Props) {
           </div>
         </div>
       )}
-      <div className="max-w-fit" id="ready-to-explore-display">
-        <button
-          onClick={handleExploreClick}
-          className="border border-slate-400 bg-slate-700 h-10 
+
+      <div className="w-full flex justify-between" id="ready-to-explore-display">
+        <div className="flex flex-col">
+          <button
+            onClick={handleExploreClick}
+            className="border border-slate-400 bg-slate-700 h-10 
                             pr-2 pl-2 mr-4 mb-1 pointer-events-auto flex 
                             items-center max-w-fit"
-        >
-          {exploreButtonsText}
-        </button>
-        <ul className="flex mb-2">{readyToExploreButtons}</ul>
+          >
+            {exploreButtonsText}
+          </button>
+          <ul className="flex flex-col mb-2">{readyToExploreButtons}</ul>
+        </div>
         {inStaircaseRoom && (
-          <>
+          <div className="flex flex-col">
             <button
               onClick={handleDescendClick}
               className="border border-slate-400 bg-slate-700 h-10
@@ -112,7 +141,7 @@ export default function ReadyUpDisplay({ party }: Props) {
               Players voting to descend deeper into the dungeon:
             </button>
             <ul className="flex">{readyToDescendButtons}</ul>
-          </>
+          </div>
         )}
       </div>
     </>

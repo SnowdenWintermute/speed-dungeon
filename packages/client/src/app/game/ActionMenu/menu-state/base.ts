@@ -1,9 +1,4 @@
-import {
-  inventoryItemsMenuState,
-  assignAttributesMenuState,
-  useGameStore,
-  itemsOnGroundMenuState,
-} from "@/stores/game-store";
+import { inventoryItemsMenuState, useGameStore, itemsOnGroundMenuState } from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -20,6 +15,7 @@ import {
   CombatantProperties,
   ABILITY_NAME_STRINGS,
   Inventory,
+  DungeonRoomType,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";

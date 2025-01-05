@@ -48,6 +48,11 @@ export default function UnspentAttributesButton({
     }
   }
 
+  const currentMenu = useGameStore.getState().getCurrentMenu();
+  const disabled =
+    currentMenu.type !== MenuStateType.AssignAttributePoints &&
+    currentMenu.type !== MenuStateType.Base;
+
   function handleHotkey() {
     useGameStore.getState().mutateState((state) => {
       if (getCurrentMenu(state).type === MenuStateType.AssignAttributePoints)
@@ -55,11 +60,6 @@ export default function UnspentAttributesButton({
       else state.stackedMenuStates.push(assignAttributesMenuState);
     });
   }
-
-  const currentMenu = useGameStore.getState().getCurrentMenu();
-  const disabled =
-    currentMenu.type !== MenuStateType.AssignAttributePoints &&
-    currentMenu.type !== MenuStateType.Base;
 
   useEffect(() => {
     keydownListenerRef.current = (e: KeyboardEvent) => {
@@ -73,7 +73,7 @@ export default function UnspentAttributesButton({
       if (keydownListenerRef.current)
         window.removeEventListener("keydown", keydownListenerRef.current);
     };
-  }, []);
+  }, [disabled]);
 
   return (
     <HoverableTooltipWrapper tooltipText={buttonText}>
