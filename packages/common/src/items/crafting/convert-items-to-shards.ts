@@ -33,7 +33,7 @@ function convertItemToShards(item: Item, inventory: Inventory) {
 }
 
 export function getShardRewardNumberFromItem(item: Item) {
-  const afterItemLevel = 1 * ITEM_LEVEL_SHARD_REWARD_MULTIPLIER;
+  const afterItemLevel = item.itemLevel * ITEM_LEVEL_SHARD_REWARD_MULTIPLIER;
   if (!(item instanceof Equipment)) return Math.floor(afterItemLevel);
   const hasPrefix = Object.values(item.affixes[AffixType.Prefix]).length;
   const hasSuffix = Object.values(item.affixes[AffixType.Suffix]).length;
