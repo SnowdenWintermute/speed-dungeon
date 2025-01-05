@@ -27,6 +27,7 @@ import { AssigningAttributePointsMenuState } from "@/app/game/ActionMenu/menu-st
 import { FloatingMessage } from "./floating-messages";
 import { ItemsOnGroundMenuState } from "@/app/game/ActionMenu/menu-state/items-on-ground";
 import { OperatingVendingMachineMenuState } from "@/app/game/ActionMenu/menu-state/operating-vending-machine";
+import { PurchaseItemsMenuState } from "@/app/game/ActionMenu/menu-state/purchase-items";
 
 export enum MenuContext {
   InventoryItems,
@@ -132,6 +133,7 @@ export const inventoryItemsMenuState = new InventoryItemsMenuState();
 export const itemsOnGroundMenuState = new ItemsOnGroundMenuState();
 export const assignAttributesMenuState = new AssigningAttributePointsMenuState();
 export const operateVendingMachineMenuState = new OperatingVendingMachineMenuState();
+export const purchasingItemsMenuState = new PurchaseItemsMenuState();
 
 export function getCurrentMenu(state: GameState) {
   const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];

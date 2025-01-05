@@ -43,8 +43,8 @@ export default function DropShardsModal({ max, min }: { max: number; min: number
     }
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  function handleSubmit(e?: React.FormEvent<HTMLFormElement>) {
+    e?.preventDefault();
     if (value <= 0) return;
     console.log("trying to send shard drop ", value);
     if (focusedCharacterResult instanceof Error) return console.error(focusedCharacterResult);
@@ -97,12 +97,17 @@ export default function DropShardsModal({ max, min }: { max: number; min: number
               onChange={onInputChange}
               value={value}
             />
-            <button
-              type="submit"
+            <HotkeyButton
+              buttonType="submit"
+              hotkeys={[HOTKEYS.MAIN_1]}
+              alwaysEnabled={true}
+              onClick={() => {
+                handleSubmit();
+              }}
               className="bg-slate-700 h-10 pr-2 pl-2 border-l-0 border border-slate-400"
             >
               DROP
-            </button>
+            </HotkeyButton>
           </form>
         </div>
       </ClickOutsideHandlerWrapper>

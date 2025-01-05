@@ -1,4 +1,4 @@
-import { purchasingItemsMenuState, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -12,15 +12,26 @@ import { immerable } from "immer";
 import { HOTKEYS } from "@/hotkeys";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
+import {
+  CONSUMABLE_TYPE_STRINGS,
+  ConsumableType,
+  getConsumableShardPrice,
+} from "@speed-dungeon/common";
 
-export class OperatingVendingMachineMenuState implements ActionMenuState {
+export class PurchaseItemsMenuState implements ActionMenuState {
   [immerable] = true;
   page = 1;
   numPages: number = 1;
-  type = MenuStateType.OperatingVendingMachine;
+  type = MenuStateType.PurchasingItems;
   constructor() {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
+
+    const partyResult = useGameStore.getState().getParty();
+    if (partyResult instanceof Error) {
+      setAlert(partyResult);
+      return toReturn;
+    }
 
     const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {
@@ -39,16 +50,19 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
     cancelButton.dedicatedKeys = [HOTKEYS.CANCEL, toggleAssignAttributesHotkey];
     toReturn[ActionButtonCategory.Top].push(cancelButton);
 
-    const purchaseItemsButton = new ActionMenuButtonProperties("Purchase Items", () => {
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.push(purchasingItemsMenuState);
-      });
-    });
-    purchaseItemsButton.shouldBeDisabled = !userControlsThisCharacter;
-    const craftButton = new ActionMenuButtonProperties("Craft", () => {});
-
-    toReturn[ActionButtonCategory.Numbered].push(purchaseItemsButton);
-    toReturn[ActionButtonCategory.Numbered].push(craftButton);
+    const purchaseableItems = [ConsumableType.HpAutoinjector, ConsumableType.MpAutoinjector];
+    for (const consumableType of purchaseableItems) {
+      const price = getConsumableShardPrice(partyResult.currentFloor, consumableType);
+      // @TODO - get price, display it, disable if too expensive
+      const purchaseItemButton = new ActionMenuButtonProperties(
+        `${CONSUMABLE_TYPE_STRINGS[consumableType]} (${price} shards)`,
+        () => {}
+      );
+      purchaseItemButton.shouldBeDisabled =
+        !userControlsThisCharacter ||
+        focusedCharacterResult.combatantProperties.inventory.shards < price;
+      toReturn[ActionButtonCategory.Numbered].push(purchaseItemButton);
+    }
 
     createPageButtons(this, toReturn);
 

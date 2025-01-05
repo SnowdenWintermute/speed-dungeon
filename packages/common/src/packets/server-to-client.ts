@@ -4,7 +4,7 @@ import { CombatAction } from "../combat/index.js";
 import { ActionCommandPayload } from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Item } from "../items/index.js";
-import { NextOrPrevious } from "../primatives/index.js";
+import { EntityId, NextOrPrevious } from "../primatives/index.js";
 import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
 import { DescendOrExplore } from "../adventuring-party/update-player-readiness.js";
@@ -12,7 +12,7 @@ import { UserChannelDisplayData } from "../users/index.js";
 import { GameMode } from "../types.js";
 import { CombatAttribute } from "../attributes/index.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
-import { Consumable } from "../items/consumables/index.js";
+import { Consumable, ConsumableType } from "../items/consumables/index.js";
 
 export enum ServerToClientEvent {
   GameList = "0",
@@ -60,6 +60,7 @@ export enum ServerToClientEvent {
   CharacterSelectedHoldableHotswapSlot = "40",
   CharacterConvertedItemsToShards = "41",
   CharacterDroppedShards = "42",
+  CharacterPurchasedItem = "43",
 }
 
 export interface ServerToClientEventTypes {
@@ -159,6 +160,10 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.CharacterDroppedShards]: (eventData: {
     characterId: string;
     shardStack: Consumable;
+  }) => void;
+  [ServerToClientEvent.CharacterPurchasedItem]: (eventData: {
+    characterId: EntityId;
+    item: Consumable;
   }) => void;
 }
 

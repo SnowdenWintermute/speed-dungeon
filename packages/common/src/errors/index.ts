@@ -50,7 +50,7 @@ export const ERROR_MESSAGES = {
     CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT:
       "Can't explore while there are still monsters in the room",
     NOT_IN_BATTLE: "Party not in a battle",
-    NOT_AT_STAIRCASE: "Can't descend if no staircase",
+    INCORRECT_ROOM_TYPE: "That action is not permitted in this room",
     INPUT_IS_LOCKED: "Can't accept new inputs until current events are resolved",
   },
   LADDER: {

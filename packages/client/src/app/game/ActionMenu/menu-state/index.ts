@@ -11,6 +11,7 @@ export enum MenuStateType {
   ItemsOnGround,
   Staircase,
   OperatingVendingMachine,
+  PurchasingItems,
 }
 
 export enum ActionButtonCategory {

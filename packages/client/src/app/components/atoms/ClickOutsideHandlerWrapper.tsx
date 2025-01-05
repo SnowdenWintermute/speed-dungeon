@@ -20,7 +20,6 @@ export default function ClickOutsideHandlerWrapper({ children, onClickOutside, i
     if (elementRef.current && isActive) {
       const menuRect = elementRef.current.getBoundingClientRect();
       const { x, y, width, height } = menuRect;
-      console.log(width, height);
       const maxX = x + width;
       const maxY = y + height;
       if (e.x < x || e.x > maxX || e.y > maxY || e.y < y) onClickOutside();

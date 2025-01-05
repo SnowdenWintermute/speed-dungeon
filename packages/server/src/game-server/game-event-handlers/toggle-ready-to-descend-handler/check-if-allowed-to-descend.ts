@@ -6,7 +6,7 @@ export function checkIfAllowedToDescend(party: AdventuringParty): Error | undefi
     return new Error(ERROR_MESSAGES.PARTY.CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT);
 
   if (party.currentRoom.roomType !== DungeonRoomType.Staircase)
-    return new Error(ERROR_MESSAGES.PARTY.NOT_AT_STAIRCASE);
+    return new Error(ERROR_MESSAGES.PARTY.INCORRECT_ROOM_TYPE);
 
   return undefined;
 }

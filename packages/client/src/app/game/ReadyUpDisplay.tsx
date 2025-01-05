@@ -50,7 +50,11 @@ export default function ReadyUpDisplay({ party }: Props) {
   const detailedEntity = useGameStore.getState().detailedEntity;
   const hoveredEntity = useGameStore.getState().hoveredEntity;
 
-  const shouldDim = detailedEntity || hoveredEntity || shouldShowCharacterSheet(currentMenu.type);
+  const shouldDim =
+    detailedEntity ||
+    hoveredEntity ||
+    shouldShowCharacterSheet(currentMenu.type) ||
+    currentMenu.type !== MenuStateType.Base;
   const descendHotkey = HOTKEYS.SIDE_2;
   const exploreHotkey = HOTKEYS.SIDE_1;
   const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
@@ -81,6 +85,10 @@ export default function ReadyUpDisplay({ party }: Props) {
               <HotkeyButton
                 className={`h-10 pr-2 pl-2 bg-slate-800 ml-1 w-1/2 border border-white text-center hover:bg-slate-950`}
                 hotkeys={["KeyT"]}
+                disabled={
+                  currentMenu.type !== MenuStateType.Base &&
+                  currentMenu.type !== MenuStateType.OperatingVendingMachine
+                }
                 onClick={() => {
                   mutateGameState((state) => {
                     const currentMenu = getCurrentMenu(state);

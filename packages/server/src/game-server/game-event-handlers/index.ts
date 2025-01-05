@@ -25,6 +25,7 @@ import selectHoldableHotswapSlotHandler from "./select-holdable-hotswap-slot-han
 import { prohibitInCombat } from "../event-middleware/prohibit-in-combat.js";
 import { convertItemsToShardsHandler } from "./convert-items-to-shards-handler.js";
 import { dropShardsHandler } from "./drop-shards-handler.js";
+import { purchaseItemHandler } from "./purchase-item-handler.js";
 
 export default function initiateGameEventListeners(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
@@ -119,5 +120,9 @@ export default function initiateGameEventListeners(
   socket.on(
     ClientToServerEvent.DropShards,
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, dropShardsHandler)
+  );
+  socket.on(
+    ClientToServerEvent.PurchaseItem,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, purchaseItemHandler)
   );
 }

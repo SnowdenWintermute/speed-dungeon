@@ -30,6 +30,7 @@ import { idGenerator } from "../../singletons.js";
 import { HP_ARMOR_TEST_ITEM } from "./test-items.js";
 import { CombatantEquipment } from "@speed-dungeon/common";
 import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
+import { createConsumableByType } from "./create-consumable-by-type.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -71,29 +72,13 @@ export default function outfitNewCharacter(character: Combatant) {
     combatantProperties.traits.push(extraSlotTrait);
   }
 
-  const hpInjectors = new Array(1).fill(null).map(
-    () =>
-      new Consumable(
-        {
-          name: CONSUMABLE_TYPE_STRINGS[ConsumableType.HpAutoinjector],
-          id: idGenerator.generate(),
-        },
-        1,
-        {},
-        ConsumableType.HpAutoinjector,
-        1
-      )
-  );
+  const hpInjectors = new Array(1)
+    .fill(null)
+    .map(() => createConsumableByType(ConsumableType.HpAutoinjector));
   // const mpInjector = Item.createConsumable(idGenerator.generate(), ConsumableType.MpAutoinjector);
   combatantProperties.inventory.consumables.push(...hpInjectors);
   combatantProperties.inventory.consumables.push(
-    new Consumable(
-      { name: CONSUMABLE_TYPE_STRINGS[ConsumableType.MpAutoinjector], id: idGenerator.generate() },
-      1,
-      {},
-      ConsumableType.HpAutoinjector,
-      1
-    )
+    createConsumableByType(ConsumableType.MpAutoinjector)
   );
 
   const maybeError = createStartingEquipment(combatantProperties);
