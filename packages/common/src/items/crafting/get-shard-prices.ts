@@ -7,5 +7,5 @@ export const BASE_CONSUMABLE_PRICES: Record<ConsumableType, number> = {
 };
 
 export function getConsumableShardPrice(currentFloor: number, consumableType: ConsumableType) {
-  return currentFloor + BASE_CONSUMABLE_PRICES[consumableType];
+  return Math.max(0, currentFloor - 1) + BASE_CONSUMABLE_PRICES[consumableType];
 }

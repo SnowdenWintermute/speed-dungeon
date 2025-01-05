@@ -35,5 +35,5 @@ export function purchaseItemHandler(
 
   getGameServer()
     .io.to(getPartyChannelName(game.name, party.name))
-    .emit(ServerToClientEvent.CharacterPurchasedItem, { characterId, item: purchasedItem });
+    .emit(ServerToClientEvent.CharacterPurchasedItem, { characterId, item: purchasedItem, price });
 }

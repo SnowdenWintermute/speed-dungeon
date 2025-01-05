@@ -164,6 +164,7 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.CharacterPurchasedItem]: (eventData: {
     characterId: EntityId;
     item: Consumable;
+    price: number;
   }) => void;
 }
 

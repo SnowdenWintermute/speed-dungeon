@@ -1,4 +1,8 @@
-import { purchasingItemsMenuState, useGameStore } from "@/stores/game-store";
+import {
+  craftingItemSelectionMenuState,
+  purchasingItemsMenuState,
+  useGameStore,
+} from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -45,7 +49,12 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
       });
     });
     purchaseItemsButton.shouldBeDisabled = !userControlsThisCharacter;
-    const craftButton = new ActionMenuButtonProperties("Craft", () => {});
+
+    const craftButton = new ActionMenuButtonProperties("Craft or Repair", () => {
+      useGameStore.getState().mutateState((state) => {
+        state.stackedMenuStates.push(craftingItemSelectionMenuState);
+      });
+    });
 
     toReturn[ActionButtonCategory.Numbered].push(purchaseItemsButton);
     toReturn[ActionButtonCategory.Numbered].push(craftButton);

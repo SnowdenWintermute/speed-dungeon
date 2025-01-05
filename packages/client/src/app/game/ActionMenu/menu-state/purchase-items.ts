@@ -1,4 +1,4 @@
-import { useGameStore } from "@/stores/game-store";
+import { inventoryItemsMenuState, useGameStore } from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -14,9 +14,11 @@ import clientUserControlsCombatant from "@/utils/client-user-controls-combatant"
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 import {
   CONSUMABLE_TYPE_STRINGS,
+  ClientToServerEvent,
   ConsumableType,
   getConsumableShardPrice,
 } from "@speed-dungeon/common";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
 export class PurchaseItemsMenuState implements ActionMenuState {
   [immerable] = true;
@@ -50,13 +52,25 @@ export class PurchaseItemsMenuState implements ActionMenuState {
     cancelButton.dedicatedKeys = [HOTKEYS.CANCEL, toggleAssignAttributesHotkey];
     toReturn[ActionButtonCategory.Top].push(cancelButton);
 
+    const inventoryButton = new ActionMenuButtonProperties("Open Inventory (F)", () => {
+      useGameStore.getState().mutateState((state) => {
+        state.stackedMenuStates.push(inventoryItemsMenuState);
+      });
+    });
+    inventoryButton.dedicatedKeys = [HOTKEYS.MAIN_1];
+    toReturn[ActionButtonCategory.Top].push(inventoryButton);
+
     const purchaseableItems = [ConsumableType.HpAutoinjector, ConsumableType.MpAutoinjector];
     for (const consumableType of purchaseableItems) {
       const price = getConsumableShardPrice(partyResult.currentFloor, consumableType);
-      // @TODO - get price, display it, disable if too expensive
       const purchaseItemButton = new ActionMenuButtonProperties(
         `${CONSUMABLE_TYPE_STRINGS[consumableType]} (${price} shards)`,
-        () => {}
+        () => {
+          websocketConnection.emit(ClientToServerEvent.PurchaseItem, {
+            characterId: focusedCharacterResult.entityProperties.id,
+            consumableType,
+          });
+        }
       );
       purchaseItemButton.shouldBeDisabled =
         !userControlsThisCharacter ||

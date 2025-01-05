@@ -7,11 +7,13 @@ export enum MenuStateType {
   InventoryItems, //
   ViewingEquipedItems,
   ItemSelected, //
+  CraftingSelectedItem,
   ItemOnGroundSelected,
   ItemsOnGround,
   Staircase,
   OperatingVendingMachine,
   PurchasingItems,
+  CraftingItemSelection,
 }
 
 export enum ActionButtonCategory {

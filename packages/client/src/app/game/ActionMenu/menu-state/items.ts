@@ -23,6 +23,7 @@ import selectItem from "@/utils/selectItem";
 import setItemHovered from "@/utils/set-item-hovered";
 import createPageButtons from "./create-page-buttons";
 import { takeItem } from "../../ItemsOnGround/ItemOnGround";
+import { CraftingItemMenuState } from "./crafting-item";
 
 export class ItemsMenuState implements ActionMenuState {
   [immerable] = true;
@@ -32,7 +33,8 @@ export class ItemsMenuState implements ActionMenuState {
     public type:
       | MenuStateType.InventoryItems
       | MenuStateType.ViewingEquipedItems
-      | MenuStateType.ItemsOnGround,
+      | MenuStateType.ItemsOnGround
+      | MenuStateType.CraftingItemSelection,
     public closeMenuTextAndHotkeys: { text: string; hotkeys: string[] },
     public extraButtons?: Partial<Record<ActionButtonCategory, ActionMenuButtonProperties[]>>
   ) {}
@@ -64,6 +66,7 @@ export class ItemsMenuState implements ActionMenuState {
 
     const itemsToShow = (() => {
       switch (this.type) {
+        case MenuStateType.CraftingItemSelection:
         case MenuStateType.InventoryItems:
           return Inventory.getItems(focusedCharacterResult.combatantProperties.inventory);
         case MenuStateType.ViewingEquipedItems:
@@ -105,6 +108,13 @@ export class ItemsMenuState implements ActionMenuState {
           };
         case MenuStateType.ItemsOnGround:
           return takeItem;
+        case MenuStateType.CraftingItemSelection:
+          return (item: Item) => {
+            selectItem(item);
+            useGameStore.getState().mutateState((state) => {
+              state.stackedMenuStates.push(new CraftingItemMenuState(item));
+            });
+          };
       }
     })();
 
