@@ -50,4 +50,14 @@ export class Equipment extends Item {
         return new Error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
     }
   }
+
+  static hasPrefix(equipment: Equipment) {
+    return Object.values(equipment.affixes[AffixType.Prefix]).length > 0;
+  }
+  static hasSuffix(equipment: Equipment) {
+    return Object.values(equipment.affixes[AffixType.Suffix]).length > 0;
+  }
+  static isMagical(equipment: Equipment) {
+    return Equipment.hasPrefix(equipment) || Equipment.hasSuffix(equipment);
+  }
 }

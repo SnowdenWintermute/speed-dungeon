@@ -2,6 +2,7 @@ import { CombatAttribute } from "../attributes/index.js";
 import { CombatAction } from "../combat/index.js";
 import { CombatantClass } from "../combatants/index.js";
 import { ConsumableType } from "../items/consumables/index.js";
+import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { EntityId, NextOrPrevious } from "../primatives/index.js";
 import { GameMode } from "../types.js";
@@ -43,6 +44,7 @@ export enum ClientToServerEvent {
   ConvertItemsToShards = "32",
   DropShards = "33",
   PurchaseItem = "34",
+  PerformCraftingAction = "35",
 }
 
 export interface ClientToServerEventTypes {
@@ -116,5 +118,10 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.PurchaseItem]: (eventData: {
     characterId: EntityId;
     consumableType: ConsumableType;
+  }) => void;
+  [ClientToServerEvent.PerformCraftingAction]: (eventData: {
+    characterId: EntityId;
+    itemId: EntityId;
+    craftingAction: CraftingAction;
   }) => void;
 }

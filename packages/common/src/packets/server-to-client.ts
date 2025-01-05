@@ -12,7 +12,8 @@ import { UserChannelDisplayData } from "../users/index.js";
 import { GameMode } from "../types.js";
 import { CombatAttribute } from "../attributes/index.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
-import { Consumable, ConsumableType } from "../items/consumables/index.js";
+import { Consumable } from "../items/consumables/index.js";
+import { CraftingAction } from "../items/crafting/crafting-actions.js";
 
 export enum ServerToClientEvent {
   GameList = "0",
@@ -61,6 +62,7 @@ export enum ServerToClientEvent {
   CharacterConvertedItemsToShards = "41",
   CharacterDroppedShards = "42",
   CharacterPurchasedItem = "43",
+  CharacterPerformedCraftingAction = "44",
 }
 
 export interface ServerToClientEventTypes {
@@ -165,6 +167,12 @@ export interface ServerToClientEventTypes {
     characterId: EntityId;
     item: Consumable;
     price: number;
+  }) => void;
+  // @TODO - @PERF - can save bandwidth by just sending diffs
+  [ServerToClientEvent.CharacterPerformedCraftingAction]: (eventData: {
+    characterId: EntityId;
+    item: Item;
+    craftingAction: CraftingAction;
   }) => void;
 }
 

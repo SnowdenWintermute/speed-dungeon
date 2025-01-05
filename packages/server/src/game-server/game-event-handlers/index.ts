@@ -26,6 +26,7 @@ import { prohibitInCombat } from "../event-middleware/prohibit-in-combat.js";
 import { convertItemsToShardsHandler } from "./convert-items-to-shards-handler.js";
 import { dropShardsHandler } from "./drop-shards-handler.js";
 import { purchaseItemHandler } from "./purchase-item-handler.js";
+import { craftItemHandler } from "./craft-item-handler/index.js";
 
 export default function initiateGameEventListeners(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
@@ -124,5 +125,9 @@ export default function initiateGameEventListeners(
   socket.on(
     ClientToServerEvent.PurchaseItem,
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, purchaseItemHandler)
+  );
+  socket.on(
+    ClientToServerEvent.PerformCraftingAction,
+    applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, craftItemHandler)
   );
 }
