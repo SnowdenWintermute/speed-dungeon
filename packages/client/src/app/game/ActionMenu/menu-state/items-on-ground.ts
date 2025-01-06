@@ -6,6 +6,7 @@ import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { toggleInventoryHotkey } from "./base";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { ClientToServerEvent, Inventory } from "@speed-dungeon/common";
+import { takeItem } from "../../ItemsOnGround/ItemOnGround";
 
 const takeAllItemsHotkey = HOTKEYS.MAIN_2;
 
@@ -45,7 +46,15 @@ export class ItemsOnGroundMenuState extends ItemsMenuState {
     super(
       MenuStateType.ItemsOnGround,
       { text: "Go Back", hotkeys: [] },
-      { [ActionButtonCategory.Top]: [switchToInventoryButton, takeAllButton] }
+      takeItem,
+      () => {
+        const partyResult = useGameStore.getState().getParty();
+        if (partyResult instanceof Error) return [];
+        return Inventory.getItems(partyResult.currentRoom.inventory);
+      },
+      {
+        [ActionButtonCategory.Top]: [switchToInventoryButton, takeAllButton],
+      }
     );
   }
 }

@@ -26,7 +26,7 @@ export function getCombatActionPropertiesIfOwned(
         return toReturn;
       }
     case CombatActionType.ConsumableUsed:
-      const consumableProperties = Inventory.getConsumable(
+      const consumableProperties = Inventory.getConsumableById(
         combatantProperties.inventory,
         combatAction.itemId
       );
@@ -48,7 +48,7 @@ export function getCombatActionProperties(
       const combatantResult = getCombatantInParty(party, actionUserId);
       if (combatantResult instanceof Error) return combatantResult;
       const { entityProperties: _, combatantProperties: combatantProperties } = combatantResult;
-      const consumablePropertiesInInventoryResult = Inventory.getConsumable(
+      const consumablePropertiesInInventoryResult = Inventory.getConsumableById(
         combatantProperties.inventory,
         combatAction.itemId
       );

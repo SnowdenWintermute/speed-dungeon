@@ -34,7 +34,7 @@ export function pickUpItemsHandler(
       return new Error(ERROR_MESSAGES.ITEM.NOT_YET_AVAILABLE);
 
     // handle shard stacks uniquely
-    const maybeShardStack = Inventory.getItem(party.currentRoom.inventory, itemId);
+    const maybeShardStack = Inventory.getItemById(party.currentRoom.inventory, itemId);
     if (
       maybeShardStack instanceof Consumable &&
       maybeShardStack.consumableType === ConsumableType.StackOfShards

@@ -5,7 +5,7 @@ import { Inventory } from "@speed-dungeon/common";
 export default function getItemOwnedByFocusedCharacter(itemId: string): Error | Item {
   const focusedCharacterResult = getFocusedCharacter();
   if (focusedCharacterResult instanceof Error) return focusedCharacterResult;
-  const itemInInventoryResult = Inventory.getItem(
+  const itemInInventoryResult = Inventory.getItemById(
     focusedCharacterResult.combatantProperties.inventory,
     itemId
   );

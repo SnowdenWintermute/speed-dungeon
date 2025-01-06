@@ -5,7 +5,7 @@ import { Inventory } from "../combatants/inventory.js";
 import { Combatant, CombatantEquipment } from "../combatants/index.js";
 
 function getItemOnCombatant(combatant: Combatant, itemId: string) {
-  let itemOption = Inventory.getItem(combatant.combatantProperties.inventory, itemId);
+  let itemOption = Inventory.getItemById(combatant.combatantProperties.inventory, itemId);
   if (!(itemOption instanceof Error)) return itemOption;
   const equippedItems = CombatantEquipment.getAllEquippedItems(combatant.combatantProperties);
   for (const equippedItem of equippedItems) {
@@ -28,7 +28,7 @@ export function getItemInAdventuringParty(party: AdventuringParty, itemId: strin
     if (toReturn) return toReturn;
   }
 
-  const maybeItem = Inventory.getItem(party.currentRoom.inventory, itemId);
+  const maybeItem = Inventory.getItemById(party.currentRoom.inventory, itemId);
   if (!(maybeItem instanceof Error)) return maybeItem;
 
   return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);

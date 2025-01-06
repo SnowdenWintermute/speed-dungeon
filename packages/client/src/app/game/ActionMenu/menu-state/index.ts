@@ -7,7 +7,7 @@ export enum MenuStateType {
   InventoryItems, //
   ViewingEquipedItems,
   ItemSelected, //
-  CraftingSelectedItem,
+  CraftingActionSelection,
   ItemOnGroundSelected,
   ItemsOnGround,
   Staircase,

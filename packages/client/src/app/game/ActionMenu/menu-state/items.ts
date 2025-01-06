@@ -8,24 +8,18 @@ import {
 } from ".";
 import {
   CONSUMABLE_TYPE_STRINGS,
-  CombatantEquipment,
   Consumable,
   ConsumableType,
   Equipment,
-  Inventory,
   Item,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
-import { ConsideringItemMenuState } from "./considering-item";
 import { immerable } from "immer";
-import selectItem from "@/utils/selectItem";
 import setItemHovered from "@/utils/set-item-hovered";
 import createPageButtons from "./create-page-buttons";
-import { takeItem } from "../../ItemsOnGround/ItemOnGround";
-import { CraftingItemMenuState } from "./crafting-item";
 
-export class ItemsMenuState implements ActionMenuState {
+export abstract class ItemsMenuState implements ActionMenuState {
   [immerable] = true;
   page = 1;
   numPages: number = 1;
@@ -35,7 +29,9 @@ export class ItemsMenuState implements ActionMenuState {
       | MenuStateType.ViewingEquipedItems
       | MenuStateType.ItemsOnGround
       | MenuStateType.CraftingItemSelection,
-    public closeMenuTextAndHotkeys: { text: string; hotkeys: string[] },
+    private closeMenuTextAndHotkeys: { text: string; hotkeys: string[] },
+    private itemButtonClickHandler: (item: Item) => void,
+    private getItemsToShow: () => Item[],
     public extraButtons?: Partial<Record<ActionButtonCategory, ActionMenuButtonProperties[]>>
   ) {}
   getButtonProperties(): ActionButtonsByCategory {
@@ -64,24 +60,12 @@ export class ItemsMenuState implements ActionMenuState {
       return toReturn;
     }
 
-    const itemsToShow = (() => {
-      switch (this.type) {
-        case MenuStateType.CraftingItemSelection:
-        case MenuStateType.InventoryItems:
-          return Inventory.getItems(focusedCharacterResult.combatantProperties.inventory);
-        case MenuStateType.ViewingEquipedItems:
-          return Object.values(
-            CombatantEquipment.getAllEquippedItems(focusedCharacterResult.combatantProperties)
-          );
-        case MenuStateType.ItemsOnGround:
-          return Inventory.getItems(partyResult.currentRoom.inventory);
-      }
-    })();
-
     const equipmentAndShardStacks: Item[] = [];
     const consumablesByType: Partial<Record<ConsumableType, Consumable[]>> = {};
 
     const buttonTextPrefix = this.type === MenuStateType.ItemsOnGround ? "" : "";
+
+    const itemsToShow = this.getItemsToShow();
 
     for (const item of itemsToShow) {
       if (
@@ -96,28 +80,6 @@ export class ItemsMenuState implements ActionMenuState {
       }
     }
 
-    const itemButtonClickHandler = (() => {
-      switch (this.type) {
-        case MenuStateType.InventoryItems:
-        case MenuStateType.ViewingEquipedItems:
-          return (item: Item) => {
-            selectItem(item);
-            useGameStore.getState().mutateState((state) => {
-              state.stackedMenuStates.push(new ConsideringItemMenuState(item));
-            });
-          };
-        case MenuStateType.ItemsOnGround:
-          return takeItem;
-        case MenuStateType.CraftingItemSelection:
-          return (item: Item) => {
-            selectItem(item);
-            useGameStore.getState().mutateState((state) => {
-              state.stackedMenuStates.push(new CraftingItemMenuState(item));
-            });
-          };
-      }
-    })();
-
     for (const [consumableType, consumables] of iterateNumericEnumKeyedRecord(consumablesByType)) {
       const firstConsumableOfThisType = consumables[0];
       if (!firstConsumableOfThisType) continue;
@@ -125,7 +87,7 @@ export class ItemsMenuState implements ActionMenuState {
       if (consumables.length > 1) consumableName += ` (${consumables.length})`;
 
       const button = new ActionMenuButtonProperties(consumableName, () => {
-        itemButtonClickHandler(firstConsumableOfThisType);
+        this.itemButtonClickHandler(firstConsumableOfThisType);
       });
       button.mouseEnterHandler = () => itemButtonMouseEnterHandler(firstConsumableOfThisType);
       button.mouseLeaveHandler = () => itemButtonMouseLeaveHandler();
@@ -138,7 +100,7 @@ export class ItemsMenuState implements ActionMenuState {
       const button = new ActionMenuButtonProperties(
         buttonTextPrefix + item.entityProperties.name,
         () => {
-          itemButtonClickHandler(item);
+          this.itemButtonClickHandler(item);
         }
       );
 

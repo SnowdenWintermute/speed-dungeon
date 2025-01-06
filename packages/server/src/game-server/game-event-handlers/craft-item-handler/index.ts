@@ -29,7 +29,7 @@ export async function craftItemHandler(
   const { characterId, itemId, craftingAction } = eventData;
   const { inventory } = character.combatantProperties;
   // check if they own the item
-  const itemResult = Inventory.getItem(inventory, itemId);
+  const itemResult = Inventory.getItemById(inventory, itemId);
   if (itemResult instanceof Error) return itemResult;
   // make sure it is an equipment
   if (!(itemResult instanceof Equipment)) return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
@@ -42,7 +42,7 @@ export async function craftItemHandler(
   // modify the item in inventory
   const actionHandler = craftingActionHandlers[craftingAction];
   const actionResult = actionHandler(itemResult);
-  if (actionHandler instanceof Error) return actionResult;
+  if (actionResult instanceof Error) return actionResult;
 
   // deduct the price from their inventory (do this after in case of error, like trying to imbue an already magical item)
   inventory.shards -= price;
@@ -52,6 +52,9 @@ export async function craftItemHandler(
     const saveResult = await writePlayerCharactersInGameToDb(game, player);
     if (saveResult instanceof Error) return saveResult;
   }
+
+  console.log("modified item");
+
   // emit item
   gameServer.io
     .to(getPartyChannelName(game.name, party.name))

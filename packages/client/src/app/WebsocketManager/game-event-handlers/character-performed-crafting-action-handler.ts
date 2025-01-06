@@ -23,9 +23,10 @@ export function characterPerformedCraftingActionHandler(eventData: {
   craftingAction: CraftingAction;
 }) {
   const { characterId, item, craftingAction } = eventData;
+  let combatLogMessage: CombatLogMessage;
 
   characterAssociatedDataProvider(characterId, ({ party, character }: CharacterAssociatedData) => {
-    const itemResult = Inventory.getItem(
+    const itemResult = Inventory.getItemById(
       character.combatantProperties.inventory,
       item.entityProperties.id
     );
@@ -36,12 +37,10 @@ export function characterPerformedCraftingActionHandler(eventData: {
     if (itemResult instanceof Equipment) {
       const asInstance = plainToInstance(Equipment, item);
       itemResult.copyFrom(asInstance);
-    } else {
-      setAlert("Server sent crafting results of a consumable?");
-    }
 
-    // post combat log message about the crafted result with hoverable item inspection link
-    useGameStore.getState().mutateState((state) => {
+      console.log("after properties copied: ", itemResult);
+
+      // post combat log message about the crafted result with hoverable item inspection link
       const style = COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE[GameMessageType.CraftingAction];
       let craftingResultMessage = "";
 
@@ -58,12 +57,16 @@ export function characterPerformedCraftingActionHandler(eventData: {
           craftingResultMessage = ` and created ${item.entityProperties.name}`;
       }
 
-      state.combatLogMessages.push(
-        new CombatLogMessage(
-          `${character.entityProperties.name} ${CRAFTING_ACTION_PAST_TENSE_STRINGS[craftingAction]} ${itemNameBeforeModificaction}`,
-          style
-        )
+      combatLogMessage = new CombatLogMessage(
+        `${character.entityProperties.name} ${CRAFTING_ACTION_PAST_TENSE_STRINGS[craftingAction]} ${itemNameBeforeModificaction}${craftingResultMessage}`,
+        style
       );
-    });
+    } else {
+      setAlert("Server sent crafting results of a consumable?");
+    }
+  });
+
+  useGameStore.getState().mutateState((state) => {
+    state.combatLogMessages.push(combatLogMessage);
   });
 }

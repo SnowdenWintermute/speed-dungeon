@@ -10,7 +10,6 @@ import { CombatantProperties } from "../combatant-properties.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantTraitType } from "../combatant-traits.js";
-import { Consumable } from "../../items/consumables/index.js";
 
 export * from "./equip-item.js";
 export * from "./unequip-slots.js";
@@ -18,17 +17,9 @@ export * from "./get-equipped-weapon.js";
 export * from "./get-usable-weapons-in-slots.js";
 export * from "./get-slot-item-is-equipped-to.js";
 export * from "./change-selected-hotswap-slot.js";
-// equipment: Partial<Record<EquipmentSlot, Item>> = {};
 
-// holdable equipment hotswap slots
-// - should hold the item separately of the inventory bags
-// - should be consistently accessible by their number (same items each time)
-// - should be limitable by the type of equipment they can hold (shield only, swords only etc)
-// - body armor can have hotswap slots on a trait
-// - combatant getHotswapSlots searches through inherent slots, slots from combatantTraits and slots from equipped items
-// - unequipping an item with a hotswapSlot trait removes the items stored in the slots, and is only allowed if
-// there is room in the inventory
-//
+/// We take CombatantProperties as an argument instead of CombatantEquipment because we
+// may want to get hotswap slots derrived from traits
 export class HoldableHotswapSlot {
   holdables: Partial<Record<HoldableSlotType, Equipment>> = {};
   forbiddenBaseItems: EquipmentBaseItem[] = [];
@@ -135,5 +126,28 @@ export class CombatantEquipment {
       case EquipmentSlotType.Wearable:
         return combatantProperties.equipment.wearables[taggedSlot.slot];
     }
+  }
+
+  static removeItem(combatantProperties: CombatantProperties, itemId: string) {
+    const { equipment } = combatantProperties;
+
+    for (const [slot, item] of iterateNumericEnumKeyedRecord(equipment.wearables)) {
+      if (item.entityProperties.id === itemId) {
+        delete equipment.wearables[slot];
+        return item;
+      }
+    }
+
+    const allHotswapSlots = CombatantEquipment.getHoldableHotswapSlots(combatantProperties);
+    for (const hotswapSlot of allHotswapSlots) {
+      for (const [slot, item] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
+        if (item.entityProperties.id === itemId) {
+          delete hotswapSlot.holdables[slot];
+          return item;
+        }
+      }
+    }
+
+    return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 }

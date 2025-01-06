@@ -22,7 +22,7 @@ import { Inventory } from "./inventory.js";
 import setHpAndMpToMax from "./set-hp-and-mp-to-max.js";
 import { immerable } from "immer";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app-consts.js";
-import { cloneVector3, formatVector3 } from "../utils/index.js";
+import { cloneVector3 } from "../utils/index.js";
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./award-levelups.js";
 import { incrementAttributePoint } from "./increment-attribute-point.js";
 import { MonsterType } from "../monsters/monster-types.js";
@@ -37,6 +37,7 @@ import {
   unequipSlots,
 } from "./combatant-equipment/index.js";
 import { CombatAttribute } from "../attributes/index.js";
+import { getOwnedEquipment } from "./get-owned-items.js";
 
 export class CombatantProperties {
   [immerable] = true;
@@ -99,6 +100,7 @@ export class CombatantProperties {
   static setHpAndMpToMax = setHpAndMpToMax;
   static getAbilityNamesFilteredByUseableContext = getAbilityNamesFilteredByUseableContext;
   static getSlotItemIsEquippedTo = getSlotItemIsEquippedTo;
+  static getOwnedEquipment = getOwnedEquipment;
   static getAbilityCostIfOwned = getAbilityCostIfOwned;
   static getAbilityIfOwned = getAbilityIfOwned;
   static changeHitPoints = changeCombatantHitPoints;

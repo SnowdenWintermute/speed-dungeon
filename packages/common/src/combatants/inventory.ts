@@ -55,7 +55,7 @@ export class Inventory {
     else return itemOption;
   }
 
-  static getConsumable(inventory: Inventory, itemId: string) {
+  static getConsumableById(inventory: Inventory, itemId: string) {
     for (const item of Object.values(inventory.consumables)) {
       if (item.entityProperties.id === itemId) {
         return item;
@@ -64,7 +64,7 @@ export class Inventory {
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
-  static getEquipment(inventory: Inventory, itemId: string) {
+  static getEquipmentById(inventory: Inventory, itemId: string) {
     for (const item of Object.values(inventory.equipment)) {
       if (item.entityProperties.id === itemId) {
         return item;
@@ -73,9 +73,9 @@ export class Inventory {
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
-  static getItem(inventory: Inventory, itemId: string) {
-    let itemOption: Consumable | Equipment | Error = Inventory.getConsumable(inventory, itemId);
-    if (itemOption instanceof Error) itemOption = Inventory.getEquipment(inventory, itemId);
+  static getItemById(inventory: Inventory, itemId: string) {
+    let itemOption: Consumable | Equipment | Error = Inventory.getConsumableById(inventory, itemId);
+    if (itemOption instanceof Error) itemOption = Inventory.getEquipmentById(inventory, itemId);
     return itemOption;
   }
 

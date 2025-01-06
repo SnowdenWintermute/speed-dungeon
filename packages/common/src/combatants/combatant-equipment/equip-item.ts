@@ -22,7 +22,7 @@ export function equipItem(
   itemId: string,
   equipToAltSlot: boolean
 ): Error | { idsOfUnequippedItems: EntityId[]; unequippedSlots: TaggedEquipmentSlot[] } {
-  const equipmentResult = Inventory.getEquipment(combatantProperties.inventory, itemId);
+  const equipmentResult = Inventory.getEquipmentById(combatantProperties.inventory, itemId);
   if (equipmentResult instanceof Error) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   const equipment = equipmentResult;
 

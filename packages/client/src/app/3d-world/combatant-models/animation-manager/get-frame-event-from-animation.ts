@@ -75,7 +75,7 @@ export default function getFrameEventFromAnimation(
             );
         }
       } else if (combatAction.type === CombatActionType.ConsumableUsed) {
-        const itemResult = Inventory.getConsumable(
+        const itemResult = Inventory.getConsumableById(
           actionUserResult.combatantProperties.inventory,
           combatAction.itemId
         );

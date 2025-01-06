@@ -5,7 +5,12 @@ import {
   PREFIX_SHARD_REWARD_MULTIPLIER,
   SUFFIX_SHARD_REWARD_MULTIPLIER,
 } from "../../app-consts.js";
-import { Combatant, CombatantEquipment, Inventory } from "../../combatants/index.js";
+import {
+  Combatant,
+  CombatantEquipment,
+  CombatantProperties,
+  Inventory,
+} from "../../combatants/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { removeFromArray } from "../../utils/index.js";
 import { AffixType, Equipment } from "../equipment/index.js";
@@ -18,7 +23,7 @@ export function convertItemsToShards(itemIds: EntityId[], combatant: Combatant) 
   if (itemIds.length === 0) return;
   for (const item of itemsInInventory.concat(equippedItems)) {
     if (!itemIds.includes(item.entityProperties.id)) continue;
-    const shardsResult = convertItemToShards(item, combatantProperties.inventory);
+    const shardsResult = convertItemToShards(item, combatantProperties);
     if (shardsResult instanceof Error) return shardsResult;
     combatantProperties.inventory.shards += shardsResult;
     removeFromArray(itemIds, item.entityProperties.id);
@@ -26,10 +31,15 @@ export function convertItemsToShards(itemIds: EntityId[], combatant: Combatant) 
   }
 }
 
-function convertItemToShards(item: Item, inventory: Inventory) {
-  const removedItemResult = Inventory.removeItem(inventory, item.entityProperties.id);
-  if (removedItemResult instanceof Error) return removedItemResult;
-  return getShardRewardNumberFromItem(removedItemResult);
+function convertItemToShards(item: Item, combatantProperties: CombatantProperties) {
+  const itemId = item.entityProperties.id;
+  const removedItemResult = Inventory.removeItem(combatantProperties.inventory, itemId);
+  if (!(removedItemResult instanceof Error)) return getShardRewardNumberFromItem(removedItemResult);
+  const removedEquipmentResult = CombatantEquipment.removeItem(combatantProperties, itemId);
+  if (!(removedEquipmentResult instanceof Error))
+    return getShardRewardNumberFromItem(removedEquipmentResult);
+
+  return new Error("Error converting item to shards");
 }
 
 export function getShardRewardNumberFromItem(item: Item) {

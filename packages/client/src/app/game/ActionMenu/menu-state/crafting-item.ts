@@ -7,32 +7,27 @@ import {
   MenuStateType,
 } from ".";
 import {
+  CRAFTING_ACTION_STRINGS,
   ClientToServerEvent,
-  CombatActionType,
-  CombatantProperties,
-  Consumable,
-  Equipment,
-  EquipmentType,
+  CraftingAction,
   Item,
+  iterateNumericEnum,
 } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
-import { useUIStore } from "@/stores/ui-store";
 import selectItem from "@/utils/selectItem";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
+import { websocketConnection } from "@/singletons/websocket-connection";
 
-const equipAltSlotHotkey = HOTKEYS.ALT_1;
 const useItemHotkey = HOTKEYS.MAIN_1;
 const useItemLetter = letterFromKeyCode(useItemHotkey);
-const dropItemHotkey = HOTKEYS.MAIN_2;
 export const USE_CONSUMABLE_BUTTON_TEXT = `Use (${useItemLetter})`;
 export const EQUIP_ITEM_BUTTON_TEXT = `Equip (${useItemLetter})`;
 
 export class CraftingItemMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
-  type = MenuStateType.CraftingSelectedItem;
+  type = MenuStateType.CraftingActionSelection;
   constructor(public item: Item) {}
   setItem(item: Item) {
     this.item = item;
@@ -61,98 +56,17 @@ export class CraftingItemMenuState implements ActionMenuState {
     const userControlsThisCharacter = clientUserControlsCombatant(characterId);
     const itemId = this.item.entityProperties.id;
 
-    const useItemHotkey = HOTKEYS.MAIN_1;
-    const useItemLetter = letterFromKeyCode(useItemHotkey);
-    const slotItemIsEquippedTo = CombatantProperties.getSlotItemIsEquippedTo(
-      focusedCharacterResult.combatantProperties,
-      itemId
-    );
-
-    if (
-      !useUIStore.getState().modKeyHeld &&
-      this.item instanceof Equipment &&
-      (this.item.equipmentBaseItemProperties.type === EquipmentType.OneHandedMeleeWeapon ||
-        this.item.equipmentBaseItemProperties.type === EquipmentType.Ring) &&
-      slotItemIsEquippedTo === null
-    ) {
-      const equipToAltSlotButton = new ActionMenuButtonProperties(
-        `Equip Alt. (${letterFromKeyCode(equipAltSlotHotkey)})`,
-        () => {
-          websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
-            characterId,
-            itemId,
-            equipToAltSlot: true,
-          });
-        }
-      );
-      equipToAltSlotButton.dedicatedKeys = [equipAltSlotHotkey];
-      toReturn[ActionButtonCategory.Top].push(equipToAltSlotButton);
+    for (const craftingAction of iterateNumericEnum(CraftingAction)) {
+      const button = new ActionMenuButtonProperties(CRAFTING_ACTION_STRINGS[craftingAction], () => {
+        websocketConnection.emit(ClientToServerEvent.PerformCraftingAction, {
+          characterId: focusedCharacterResult.entityProperties.id,
+          itemId,
+          craftingAction,
+        });
+      });
+      button.shouldBeDisabled = !userControlsThisCharacter;
+      toReturn[ActionButtonCategory.Numbered].push(button);
     }
-
-    const useItemButton = (() => {
-      if (this.item instanceof Equipment) {
-        if (slotItemIsEquippedTo !== null)
-          return new ActionMenuButtonProperties(`Unequip (${useItemLetter})`, () => {
-            websocketConnection.emit(ClientToServerEvent.UnequipSlot, {
-              characterId,
-              slot: slotItemIsEquippedTo,
-            });
-          });
-        else
-          return new ActionMenuButtonProperties(EQUIP_ITEM_BUTTON_TEXT, () => {
-            websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
-              characterId,
-              itemId,
-              equipToAltSlot: useUIStore.getState().modKeyHeld,
-            });
-          });
-      } else if (this.item instanceof Consumable) {
-        return new ActionMenuButtonProperties(USE_CONSUMABLE_BUTTON_TEXT, () => {
-          websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-            characterId,
-            combatActionOption: {
-              type: CombatActionType.ConsumableUsed,
-              itemId,
-            },
-          });
-        });
-      } else {
-        setAlert(new Error("unknown item type"));
-        throw new Error("unknown item type");
-      }
-    })();
-
-    useItemButton.dedicatedKeys = ["Enter", useItemHotkey];
-    useItemButton.shouldBeDisabled = !userControlsThisCharacter;
-    toReturn[ActionButtonCategory.Top].push(useItemButton);
-
-    const dropItemButton = new ActionMenuButtonProperties(
-      `Drop (${letterFromKeyCode(dropItemHotkey)})`,
-      () => {
-        const slotEquipped = CombatantProperties.getSlotItemIsEquippedTo(
-          focusedCharacterResult.combatantProperties,
-          itemId
-        );
-
-        if (slotEquipped)
-          websocketConnection.emit(ClientToServerEvent.DropEquippedItem, {
-            characterId,
-            slot: slotEquipped,
-          });
-        else websocketConnection.emit(ClientToServerEvent.DropItem, { characterId, itemId });
-
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.pop();
-          state.hoveredEntity = null;
-          state.consideredItemUnmetRequirements = null;
-          state.detailedEntity = null;
-        });
-      }
-    );
-
-    dropItemButton.shouldBeDisabled = !userControlsThisCharacter;
-    dropItemButton.dedicatedKeys = [dropItemHotkey];
-    toReturn[ActionButtonCategory.Top].push(dropItemButton);
 
     return toReturn;
   }
