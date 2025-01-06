@@ -18,7 +18,9 @@ import { AffixType, Equipment } from "../equipment/index.js";
 export function convertItemsToShards(itemIds: EntityId[], combatant: Combatant) {
   const { combatantProperties } = combatant;
   const itemsInInventory = Inventory.getItems(combatantProperties.inventory);
-  const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties);
+  const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties, {
+    includeUnselectedHotswapSlots: true,
+  });
 
   if (itemIds.length === 0) return;
   for (const item of itemsInInventory.concat(equippedItems)) {

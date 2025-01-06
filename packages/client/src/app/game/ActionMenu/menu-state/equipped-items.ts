@@ -26,7 +26,9 @@ export class EquippedItemsMenuState extends ItemsMenuState {
         const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
         if (focusedCharacterResult instanceof Error) return [];
         return Object.values(
-          CombatantEquipment.getAllEquippedItems(focusedCharacterResult.combatantProperties)
+          CombatantEquipment.getAllEquippedItems(focusedCharacterResult.combatantProperties, {
+            includeUnselectedHotswapSlots: false,
+          })
         );
       }
     );

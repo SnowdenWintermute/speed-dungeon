@@ -7,7 +7,9 @@ import { Combatant, CombatantEquipment } from "../combatants/index.js";
 function getItemOnCombatant(combatant: Combatant, itemId: string) {
   let itemOption = Inventory.getItemById(combatant.combatantProperties.inventory, itemId);
   if (!(itemOption instanceof Error)) return itemOption;
-  const equippedItems = CombatantEquipment.getAllEquippedItems(combatant.combatantProperties);
+  const equippedItems = CombatantEquipment.getAllEquippedItems(combatant.combatantProperties, {
+    includeUnselectedHotswapSlots: true,
+  });
   for (const equippedItem of equippedItems) {
     if (equippedItem.entityProperties.id === itemId) {
       return equippedItem;

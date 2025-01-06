@@ -42,7 +42,9 @@ export default function getCombatantTotalAttributes(
   addAttributesToAccumulator(combatantProperties.inherentAttributes, totalAttributes);
   addAttributesToAccumulator(combatantProperties.speccedAttributes, totalAttributes);
 
-  const allEquippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties);
+  const allEquippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties, {
+    includeUnselectedHotswapSlots: false,
+  });
   // you have to add the attributes first, then subtract them later if item is unusable
   // because some of the equipped items may be giving enough attributes that they can
   // actually be used BECAUSE they are equipped

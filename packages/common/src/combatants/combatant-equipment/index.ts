@@ -100,14 +100,30 @@ export class CombatantEquipment {
     }
   }
 
-  static getAllEquippedItems(combatantProperties: CombatantProperties) {
+  static getAllEquippedItems(
+    combatantProperties: CombatantProperties,
+    options: { includeUnselectedHotswapSlots?: boolean }
+  ) {
     const toReturn: Equipment[] = [];
-    const equippedHoldableHotswapSlot =
-      CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
-    if (equippedHoldableHotswapSlot)
-      toReturn.push(
-        ...Object.values(equippedHoldableHotswapSlot.holdables).filter((item) => item !== undefined)
-      );
+
+    if (options.includeUnselectedHotswapSlots) {
+      for (const hotswapSlot of CombatantEquipment.getHoldableHotswapSlots(combatantProperties)) {
+        for (const [slot, item] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
+          toReturn.push(item);
+        }
+      }
+    } else {
+      // only want selected slot
+      const equippedHoldableHotswapSlot =
+        CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+
+      if (equippedHoldableHotswapSlot)
+        toReturn.push(
+          ...Object.values(equippedHoldableHotswapSlot.holdables).filter(
+            (item) => item !== undefined
+          )
+        );
+    }
 
     toReturn.push(
       ...Object.values(combatantProperties.equipment.wearables).filter((item) => item !== undefined)

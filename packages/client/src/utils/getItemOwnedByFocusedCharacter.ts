@@ -12,7 +12,9 @@ export default function getItemOwnedByFocusedCharacter(itemId: string): Error | 
   if (!(itemInInventoryResult instanceof Error)) return itemInInventoryResult;
 
   for (const item of Object.values(
-    CombatantEquipment.getAllEquippedItems(focusedCharacterResult.combatantProperties)
+    CombatantEquipment.getAllEquippedItems(focusedCharacterResult.combatantProperties, {
+      includeUnselectedHotswapSlots: true,
+    })
   )) {
     if (item.entityProperties.id === itemId) return item;
   }
