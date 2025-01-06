@@ -13,6 +13,8 @@ import {
 import { getGameServer } from "../../../singletons.js";
 import { CraftingAction } from "@speed-dungeon/common";
 import writePlayerCharactersInGameToDb from "../../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
+import { repairEquipment } from "./repair-equipment.js";
+import { makeNonMagicalItemMagical } from "./make-non-magical-item-magical.js";
 
 export async function craftItemHandler(
   eventData: { characterId: EntityId; itemId: EntityId; craftingAction: CraftingAction },
@@ -36,11 +38,11 @@ export async function craftItemHandler(
   const price = getCraftingActionPrice(craftingAction, itemResult);
   // deny if not enough shards
   if (inventory.shards < price) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ENOUGH_SHARDS);
-  // modify the item in inventory
 
-  //----------
-  // DO THE ACTION
-  //----------
+  // modify the item in inventory
+  const actionHandler = craftingActionHandlers[craftingAction];
+  const actionResult = actionHandler(itemResult);
+  if (actionHandler instanceof Error) return actionResult;
 
   // deduct the price from their inventory (do this after in case of error, like trying to imbue an already magical item)
   inventory.shards -= price;
@@ -59,3 +61,20 @@ export async function craftItemHandler(
       craftingAction,
     });
 }
+
+const craftingActionHandlers: Record<CraftingAction, (equipment: Equipment) => void | Error> = {
+  [CraftingAction.Repair]: repairEquipment,
+  [CraftingAction.Imbue]: makeNonMagicalItemMagical,
+  [CraftingAction.Augment]: function (): void | Error {
+    throw new Error("Function not implemented.");
+  },
+  [CraftingAction.Tumble]: function (): void | Error {
+    throw new Error("Function not implemented.");
+  },
+  [CraftingAction.Reform]: function (): void | Error {
+    throw new Error("Function not implemented.");
+  },
+  [CraftingAction.Shake]: function (): void | Error {
+    throw new Error("Function not implemented.");
+  },
+};

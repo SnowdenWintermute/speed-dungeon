@@ -3,6 +3,7 @@ import {
   EquipmentBaseItem,
   EquipmentBaseItemType,
   EquipmentType,
+  Jewelry,
 } from "@speed-dungeon/common";
 import { ItemGenerationBuilder } from "./item-generation-builder.js";
 import { EquipmentGenerationBuilder } from "./equipment-generation-builder.js";
@@ -22,7 +23,7 @@ export class JewelryGenerationBuilder<T extends JewelryGenerationTemplate>
   buildEquipmentBaseItemProperties(_baseEquipmentItem: EquipmentBaseItem) {
     const properties: JewelryProperties = {
       type: this.equipmentType,
-      baseItem: null,
+      baseItem: this.equipmentType === EquipmentType.Amulet ? Jewelry.Amulet : Jewelry.Ring,
     };
     return properties;
   }
