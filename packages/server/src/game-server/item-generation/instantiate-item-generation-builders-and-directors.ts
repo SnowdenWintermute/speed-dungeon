@@ -34,10 +34,12 @@ import {
   RING_GENERATION_TEMPLATES,
 } from "./equipment-templates/jewelry-generation-templates.js";
 import { JewelryGenerationBuilder } from "./jewelry-generation-builder.js";
+import { ItemGenerationBuilder } from "./item-generation-builder.js";
 
-export function createItemGenerationDirectors(
-  this: GameServer
-): Partial<Record<EquipmentType, ItemGenerationDirector>> {
+export function instantiateItemGenerationBuildersAndDirectors(this: GameServer): {
+  builders: Record<EquipmentType, ItemGenerationBuilder>;
+  directors: Record<EquipmentType, ItemGenerationDirector>;
+} {
   const oneHandedMeleeWeaponBuilder = new WeaponGenerationBuilder(
     ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES as Record<
       EquipmentBaseItemType,
@@ -94,7 +96,7 @@ export function createItemGenerationDirectors(
   const ringDirector = new ItemGenerationDirector(ringBuilder);
   const amuletDirector = new ItemGenerationDirector(amuletBuilder);
 
-  const equipmentGenerationDirectors: Partial<Record<EquipmentType, ItemGenerationDirector>> = {
+  const equipmentGenerationDirectors: Record<EquipmentType, ItemGenerationDirector> = {
     [EquipmentType.OneHandedMeleeWeapon]: oneHandedMeleeWeaponDirector,
     [EquipmentType.TwoHandedMeleeWeapon]: twoHandedMeleeWeaponDirector,
     [EquipmentType.TwoHandedRangedWeapon]: twoHandedRangedWeaponDirector,
@@ -105,5 +107,16 @@ export function createItemGenerationDirectors(
     [EquipmentType.Amulet]: amuletDirector,
   };
 
-  return equipmentGenerationDirectors;
+  const equipmentGenerationBuilders: Record<EquipmentType, ItemGenerationBuilder> = {
+    [EquipmentType.OneHandedMeleeWeapon]: oneHandedMeleeWeaponBuilder,
+    [EquipmentType.TwoHandedMeleeWeapon]: twoHandedMeleeWeaponBuilder,
+    [EquipmentType.TwoHandedRangedWeapon]: twoHandedRangedWeaponBuilder,
+    [EquipmentType.Shield]: shieldBuilder,
+    [EquipmentType.BodyArmor]: bodyArmorBuilder,
+    [EquipmentType.HeadGear]: headGearBuilder,
+    [EquipmentType.Ring]: ringBuilder,
+    [EquipmentType.Amulet]: amuletBuilder,
+  };
+
+  return { builders: equipmentGenerationBuilders, directors: equipmentGenerationDirectors };
 }

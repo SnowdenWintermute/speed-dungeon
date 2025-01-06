@@ -106,7 +106,11 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
 
     const roll = Math.random();
     if (roll < CHANCE_TO_HAVE_DOUBLE_AFFIX) hasBothAffixes = true;
-    else if (roll >= CHANCE_TO_HAVE_DOUBLE_AFFIX && roll < CHANCE_TO_HAVE_PREFIX) hasPrefix = true;
+    else if (
+      roll >= CHANCE_TO_HAVE_DOUBLE_AFFIX &&
+      roll < CHANCE_TO_HAVE_PREFIX + CHANCE_TO_HAVE_DOUBLE_AFFIX
+    )
+      hasPrefix = true;
     else hasSuffix = true;
 
     const numAffixesToRoll = {
