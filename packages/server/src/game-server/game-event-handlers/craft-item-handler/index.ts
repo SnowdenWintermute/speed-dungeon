@@ -6,7 +6,6 @@ import {
   EntityId,
   Equipment,
   GameMode,
-  Inventory,
   ServerToClientEvent,
   getCraftingActionPrice,
   getPartyChannelName,

@@ -9,6 +9,7 @@ import {
   GameMessageType,
   Inventory,
   Item,
+  getCraftingActionPrice,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { plainToInstance } from "class-transformer";
@@ -39,7 +40,8 @@ export function characterPerformedCraftingActionHandler(eventData: {
       const asInstance = plainToInstance(Equipment, item);
       itemResult.copyFrom(asInstance);
 
-      console.log("after properties copied: ", itemResult);
+      const actionPrice = getCraftingActionPrice(craftingAction, itemResult);
+      character.combatantProperties.inventory.shards -= actionPrice;
 
       // post combat log message about the crafted result with hoverable item inspection link
       const style = COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE[GameMessageType.CraftingAction];

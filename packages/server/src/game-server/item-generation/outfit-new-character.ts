@@ -98,6 +98,9 @@ export default function outfitNewCharacter(character: Combatant) {
     true
   );
   if (item1 instanceof Error || item2 instanceof Error) return item1;
+
+  item1.itemLevel = 5;
+  item2.itemLevel = 10;
   Inventory.insertItem(combatantProperties.inventory, item1);
   Inventory.insertItem(combatantProperties.inventory, item2);
 

@@ -116,6 +116,7 @@ export const ERROR_MESSAGES = {
     ACKNOWLEDGEMENT_SENT_BEFORE_ITEM_EXISTED:
       "How can you acknowledge receipt of an item if it isn't registered yet?",
     INVALID_PROPERTIES: "Item does not have the required properties to perform that action",
+    IS_FULLY_REPAIRED: "That item is already at full durability",
   },
   EQUIPMENT: {
     INVALID_TYPE: "Invalid equipment type was provided",

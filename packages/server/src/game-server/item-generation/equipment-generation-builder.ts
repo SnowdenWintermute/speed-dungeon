@@ -11,6 +11,7 @@ import {
   EquipmentBaseItemProperties,
   EquipmentBaseItemType,
   EquipmentType,
+  FOUND_ITEM_MAX_DURABILITY_MODIFIER,
   ItemType,
   MaxAndCurrent,
   PrefixType,
@@ -82,7 +83,10 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
       );
 
     if (template.maxDurability === null) return null;
-    const startingDurability = randBetween(1, template.maxDurability);
+    const startingDurability = randBetween(
+      1,
+      Math.floor(template.maxDurability * FOUND_ITEM_MAX_DURABILITY_MODIFIER)
+    );
     let durability = new MaxAndCurrent(template.maxDurability, startingDurability);
 
     return durability;

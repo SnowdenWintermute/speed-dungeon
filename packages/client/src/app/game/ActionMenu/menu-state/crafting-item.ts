@@ -10,7 +10,9 @@ import {
   CRAFTING_ACTION_STRINGS,
   ClientToServerEvent,
   CraftingAction,
+  Equipment,
   Item,
+  getCraftingActionPrice,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
@@ -28,11 +30,7 @@ export class CraftingItemMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.CraftingActionSelection;
-  constructor(public item: Item) {}
-  setItem(item: Item) {
-    this.item = item;
-    selectItem(item);
-  }
+  constructor(public item: Equipment) {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
@@ -57,14 +55,23 @@ export class CraftingItemMenuState implements ActionMenuState {
     const itemId = this.item.entityProperties.id;
 
     for (const craftingAction of iterateNumericEnum(CraftingAction)) {
-      const button = new ActionMenuButtonProperties(CRAFTING_ACTION_STRINGS[craftingAction], () => {
+      const actionPrice = getCraftingActionPrice(craftingAction, this.item);
+      const buttonName = `${CRAFTING_ACTION_STRINGS[craftingAction]} (${actionPrice} shards)`;
+      const button = new ActionMenuButtonProperties(buttonName, () => {
         websocketConnection.emit(ClientToServerEvent.PerformCraftingAction, {
           characterId: focusedCharacterResult.entityProperties.id,
           itemId,
           craftingAction,
         });
+
+        if (craftingAction === CraftingAction.Repair)
+          useGameStore.getState().mutateState((state) => {
+            state.stackedMenuStates.pop();
+          });
       });
-      button.shouldBeDisabled = !userControlsThisCharacter;
+      button.shouldBeDisabled =
+        !userControlsThisCharacter ||
+        actionPrice > focusedCharacterResult.combatantProperties.inventory.shards;
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 

@@ -11,7 +11,6 @@ import {
 import { ConsumableType } from "../consumables/index.js";
 import { Equipment } from "../equipment/index.js";
 import { CraftingAction } from "./crafting-actions.js";
-import { getShardRewardNumberFromItem } from "./index.js";
 
 export const BASE_CONSUMABLE_PRICES: Record<ConsumableType, number> = {
   [ConsumableType.HpAutoinjector]: 10,
@@ -28,17 +27,19 @@ const MAGICAL_ITEM_AVG_SHARD_REWARD =
   CHANCE_TO_HAVE_PREFIX * PREFIX_SHARD_REWARD_MULTIPLIER +
   CHANCE_TO_HAVE_DOUBLE_AFFIX * DOUBLE_AFFIX_SHARD_REWARD_MULTIPLIER;
 
+const BASE_TUMBLE_PRICE = MAGICAL_ITEM_AVG_SHARD_REWARD * 2;
+
 export const BASE_CRAFTING_ACTION_MULTIPLIERS: Record<CraftingAction, number> = {
   [CraftingAction.Repair]: ITEM_REPAIR_COST_MULTIPLIER,
   [CraftingAction.Imbue]: MAGICAL_ITEM_AVG_SHARD_REWARD,
-  [CraftingAction.Augment]: MAGICAL_ITEM_AVG_SHARD_REWARD * 3,
-  [CraftingAction.Tumble]: MAGICAL_ITEM_AVG_SHARD_REWARD * 2,
+  [CraftingAction.Augment]: BASE_TUMBLE_PRICE * 3,
+  [CraftingAction.Tumble]: BASE_TUMBLE_PRICE,
   [CraftingAction.Reform]: MAGICAL_ITEM_AVG_SHARD_REWARD,
-  [CraftingAction.Shake]: MAGICAL_ITEM_AVG_SHARD_REWARD * 5,
+  [CraftingAction.Shake]: BASE_TUMBLE_PRICE * 9,
 };
 
 export function getCraftingActionPrice(craftingAction: CraftingAction, equipment: Equipment) {
   const nonMagicalItemValue = equipment.itemLevel * ITEM_LEVEL_SHARD_REWARD_MULTIPLIER;
   const actionPrice = nonMagicalItemValue * BASE_CRAFTING_ACTION_MULTIPLIERS[craftingAction];
-  return actionPrice;
+  return Math.round(actionPrice);
 }
