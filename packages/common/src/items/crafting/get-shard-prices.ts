@@ -38,8 +38,11 @@ export const BASE_CRAFTING_ACTION_MULTIPLIERS: Record<CraftingAction, number> = 
   [CraftingAction.Shake]: BASE_TUMBLE_PRICE * 9,
 };
 
-export function getCraftingActionPrice(craftingAction: CraftingAction, equipment: Equipment) {
-  const nonMagicalItemValue = equipment.itemLevel * ITEM_LEVEL_SHARD_REWARD_MULTIPLIER;
+export function getCraftingActionPrice(craftingAction: CraftingAction, itemLevel: number) {
+  const nonMagicalItemValue = itemLevel * ITEM_LEVEL_SHARD_REWARD_MULTIPLIER;
   const actionPrice = nonMagicalItemValue * BASE_CRAFTING_ACTION_MULTIPLIERS[craftingAction];
+  if (craftingAction === CraftingAction.Repair) {
+    // @TODO - calculate the price based off of how much durability is missing
+  }
   return Math.round(actionPrice);
 }

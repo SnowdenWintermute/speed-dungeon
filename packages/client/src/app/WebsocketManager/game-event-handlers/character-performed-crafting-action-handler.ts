@@ -40,7 +40,10 @@ export function characterPerformedCraftingActionHandler(eventData: {
       const asInstance = plainToInstance(Equipment, item);
       itemResult.copyFrom(asInstance);
 
-      const actionPrice = getCraftingActionPrice(craftingAction, itemResult);
+      const actionPrice = getCraftingActionPrice(
+        craftingAction,
+        Math.min(itemResult.itemLevel, party.currentFloor)
+      );
       character.combatantProperties.inventory.shards -= actionPrice;
 
       // post combat log message about the crafted result with hoverable item inspection link

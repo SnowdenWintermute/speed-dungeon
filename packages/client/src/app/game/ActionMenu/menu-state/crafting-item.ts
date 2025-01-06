@@ -53,9 +53,17 @@ export class CraftingItemMenuState implements ActionMenuState {
     const characterId = focusedCharacterResult.entityProperties.id;
     const userControlsThisCharacter = clientUserControlsCombatant(characterId);
     const itemId = this.item.entityProperties.id;
+    const partyResult = useGameStore.getState().getParty();
+    if (partyResult instanceof Error) {
+      setAlert(partyResult);
+      return toReturn;
+    }
 
     for (const craftingAction of iterateNumericEnum(CraftingAction)) {
-      const actionPrice = getCraftingActionPrice(craftingAction, this.item);
+      const actionPrice = getCraftingActionPrice(
+        craftingAction,
+        Math.min(this.item.itemLevel, partyResult.currentFloor)
+      );
       const buttonName = `${CRAFTING_ACTION_STRINGS[craftingAction]} (${actionPrice} shards)`;
       const button = new ActionMenuButtonProperties(buttonName, () => {
         websocketConnection.emit(ClientToServerEvent.PerformCraftingAction, {
@@ -71,7 +79,10 @@ export class CraftingItemMenuState implements ActionMenuState {
       });
       button.shouldBeDisabled =
         !userControlsThisCharacter ||
-        actionPrice > focusedCharacterResult.combatantProperties.inventory.shards;
+        actionPrice > focusedCharacterResult.combatantProperties.inventory.shards ||
+        (craftingAction === CraftingAction.Repair &&
+          (this.item.durability === null ||
+            this.item.durability.current === this.item.durability.max));
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 

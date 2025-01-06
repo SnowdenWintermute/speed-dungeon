@@ -94,7 +94,11 @@ export default function ReadyUpDisplay({ party }: Props) {
                     const currentMenu = getCurrentMenu(state);
                     if (currentMenu.type === MenuStateType.OperatingVendingMachine)
                       state.stackedMenuStates.pop();
-                    else state.stackedMenuStates.push(operateVendingMachineMenuState);
+                    else {
+                      state.stackedMenuStates.push(operateVendingMachineMenuState);
+                      state.detailedEntity = null;
+                      state.hoveredAction = null;
+                    }
                   });
                 }}
               >

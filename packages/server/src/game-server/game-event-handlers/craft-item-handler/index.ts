@@ -15,6 +15,7 @@ import { CraftingAction } from "@speed-dungeon/common";
 import writePlayerCharactersInGameToDb from "../../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 import { repairEquipment } from "./repair-equipment.js";
 import { makeNonMagicalItemMagical } from "./make-non-magical-item-magical.js";
+import { replaceExistingWithNewRandomAffixes } from "./replace-existing-with-new-random-affixes.js";
 
 export async function craftItemHandler(
   eventData: { characterId: EntityId; itemId: EntityId; craftingAction: CraftingAction },
@@ -36,13 +37,16 @@ export async function craftItemHandler(
   if (!(itemResult instanceof Equipment)) return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
 
   // get price for crafting action
-  const price = getCraftingActionPrice(craftingAction, itemResult);
+  const price = getCraftingActionPrice(
+    craftingAction,
+    Math.min(itemResult.itemLevel, party.currentFloor)
+  );
   // deny if not enough shards
   if (inventory.shards < price) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ENOUGH_SHARDS);
 
   // modify the item in inventory
   const actionHandler = craftingActionHandlers[craftingAction];
-  const actionResult = actionHandler(itemResult);
+  const actionResult = actionHandler(itemResult, party.currentFloor);
   if (actionResult instanceof Error) return actionResult;
 
   // deduct the price from their inventory (do this after in case of error, like trying to imbue an already magical item)
@@ -54,8 +58,6 @@ export async function craftItemHandler(
     if (saveResult instanceof Error) return saveResult;
   }
 
-  console.log("modified item");
-
   // emit item
   gameServer.io
     .to(getPartyChannelName(game.name, party.name))
@@ -66,15 +68,16 @@ export async function craftItemHandler(
     });
 }
 
-const craftingActionHandlers: Record<CraftingAction, (equipment: Equipment) => void | Error> = {
+const craftingActionHandlers: Record<
+  CraftingAction,
+  (equipment: Equipment, itemLevelLimiter: number) => void | Error
+> = {
   [CraftingAction.Repair]: repairEquipment,
   [CraftingAction.Imbue]: makeNonMagicalItemMagical,
   [CraftingAction.Augment]: function (): void | Error {
     throw new Error("Function not implemented.");
   },
-  [CraftingAction.Tumble]: function (): void | Error {
-    throw new Error("Function not implemented.");
-  },
+  [CraftingAction.Tumble]: replaceExistingWithNewRandomAffixes,
   [CraftingAction.Reform]: function (): void | Error {
     throw new Error("Function not implemented.");
   },
