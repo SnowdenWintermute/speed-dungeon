@@ -65,12 +65,6 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
   if (mainhand instanceof Error) return mainhand;
   if (offhand instanceof Error) return offhand;
 
-  mainhand.affixes[AffixType.Prefix][PrefixType.Mp] = {
-    combatAttributes: { [CombatAttribute.Mp]: 10 },
-    equipmentTraits: {},
-    tier: 0,
-  };
-
   const mainHoldableHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
   if (!mainHoldableHotswapSlot) return new Error(ERROR_MESSAGES.EQUIPMENT.NO_SELECTED_HOTSWAP_SLOT);
 

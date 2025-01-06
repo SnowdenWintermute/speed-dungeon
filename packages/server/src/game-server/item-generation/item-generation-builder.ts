@@ -31,7 +31,11 @@ export abstract class ItemGenerationBuilder {
   abstract buildDurability: (equipmentBaseItem: EquipmentBaseItem) => Error | null | MaxAndCurrent;
   abstract buildAffixes: (
     itemLevel: number,
-    equipmentBaseItem: EquipmentBaseItem
+    equipmentBaseItem: EquipmentBaseItem,
+    options?: {
+      forcedIsMagical?: boolean;
+      forcedNumAffixes?: { prefixes: number; suffixes: number };
+    }
   ) => Error | Affixes;
   abstract buildRequirements: (
     baseItem: TaggedBaseItem,

@@ -38,6 +38,8 @@ import {
 } from "./combatant-equipment/index.js";
 import { CombatAttribute } from "../attributes/index.js";
 import { getOwnedEquipment } from "./get-owned-items.js";
+import { EntityId } from "../primatives/index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
 
 export class CombatantProperties {
   [immerable] = true;
@@ -101,6 +103,17 @@ export class CombatantProperties {
   static getAbilityNamesFilteredByUseableContext = getAbilityNamesFilteredByUseableContext;
   static getSlotItemIsEquippedTo = getSlotItemIsEquippedTo;
   static getOwnedEquipment = getOwnedEquipment;
+  static getOwnedItemById(combatantProperties: CombatantProperties, itemId: EntityId) {
+    const ownedEquipment = CombatantProperties.getOwnedEquipment(combatantProperties);
+    for (const equipment of ownedEquipment) {
+      if (equipment.entityProperties.id === itemId) return equipment;
+    }
+    const items = Inventory.getItems(combatantProperties.inventory);
+    for (const item of items) {
+      if (item.entityProperties.id === itemId) return item;
+    }
+    return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+  }
   static getAbilityCostIfOwned = getAbilityCostIfOwned;
   static getAbilityIfOwned = getAbilityIfOwned;
   static changeHitPoints = changeCombatantHitPoints;

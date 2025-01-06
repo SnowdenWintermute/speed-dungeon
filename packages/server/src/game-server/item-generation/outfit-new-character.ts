@@ -9,7 +9,6 @@ import {
   ConsumableType,
   Combatant,
   iterateNumericEnum,
-  Consumable,
   ERROR_MESSAGES,
   iterateNumericEnumKeyedRecord,
   EquipmentType,
@@ -22,11 +21,9 @@ import {
   HoldableSlotType,
   CombatantTrait,
   Shield,
-  CONSUMABLE_TYPE_STRINGS,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
-import { idGenerator } from "../../singletons.js";
 import { HP_ARMOR_TEST_ITEM } from "./test-items.js";
 import { CombatantEquipment } from "@speed-dungeon/common";
 import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
@@ -86,14 +83,20 @@ export default function outfitNewCharacter(character: Combatant) {
 
   // FOR TESTING INVENTORY
   // generateTestItems(combatantProperties, 6);
-  const item1 = generateSpecificEquipmentType({
-    equipmentType: EquipmentType.OneHandedMeleeWeapon,
-    baseItemType: OneHandedMeleeWeapon.Club,
-  });
-  const item2 = generateSpecificEquipmentType({
-    equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-    baseItemType: TwoHandedMeleeWeapon.RottingBranch,
-  });
+  const item1 = generateSpecificEquipmentType(
+    {
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.Club,
+    },
+    true
+  );
+  const item2 = generateSpecificEquipmentType(
+    {
+      equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+      baseItemType: TwoHandedMeleeWeapon.RottingBranch,
+    },
+    true
+  );
   if (item1 instanceof Error || item2 instanceof Error) return item1;
   Inventory.insertItem(combatantProperties.inventory, item1);
   Inventory.insertItem(combatantProperties.inventory, item2);

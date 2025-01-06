@@ -2,6 +2,7 @@ import { useGameStore } from "@/stores/game-store";
 import {
   CRAFTING_ACTION_PAST_TENSE_STRINGS,
   CharacterAssociatedData,
+  CombatantProperties,
   CraftingAction,
   EntityId,
   Equipment,
@@ -26,8 +27,8 @@ export function characterPerformedCraftingActionHandler(eventData: {
   let combatLogMessage: CombatLogMessage;
 
   characterAssociatedDataProvider(characterId, ({ party, character }: CharacterAssociatedData) => {
-    const itemResult = Inventory.getItemById(
-      character.combatantProperties.inventory,
+    const itemResult = CombatantProperties.getOwnedItemById(
+      character.combatantProperties,
       item.entityProperties.id
     );
     if (itemResult instanceof Error) return itemResult;

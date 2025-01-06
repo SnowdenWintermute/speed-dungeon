@@ -88,7 +88,14 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     return durability;
   }
 
-  buildAffixes(itemLevel: number, baseEquipmentItem: EquipmentBaseItem): Error | Affixes {
+  buildAffixes(
+    itemLevel: number,
+    baseEquipmentItem: EquipmentBaseItem,
+    options?: {
+      forcedIsMagical?: boolean;
+      forcedNumAffixes?: { prefixes: number; suffixes: number };
+    }
+  ): Error | Affixes {
     const affixes: Affixes = { [AffixType.Prefix]: {}, [AffixType.Suffix]: {} };
 
     const template = getEquipmentGenerationTemplate(baseEquipmentItem);
@@ -97,7 +104,8 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     const isMagical =
       Math.random() < BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL ||
       baseEquipmentItem.equipmentType === EquipmentType.Amulet ||
-      baseEquipmentItem.equipmentType === EquipmentType.Ring;
+      baseEquipmentItem.equipmentType === EquipmentType.Ring ||
+      options?.forcedIsMagical;
     if (!isMagical) return affixes;
 
     let hasPrefix = false;

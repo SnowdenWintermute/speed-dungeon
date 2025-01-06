@@ -10,7 +10,9 @@ export function makeNonMagicalItemMagical(equipment: Equipment) {
     equipmentType: equipment.equipmentBaseItemProperties.type,
     baseItemType: equipment.equipmentBaseItemProperties.baseItem,
   } as EquipmentBaseItem; // @TODO - this is error prone, refactor items code
-  const affixesResult = builder.buildAffixes(equipment.itemLevel, equipmentBaseItem);
+  const affixesResult = builder.buildAffixes(equipment.itemLevel, equipmentBaseItem, {
+    forcedIsMagical: true,
+  });
   if (affixesResult instanceof Error) return affixesResult;
 
   equipment.affixes = affixesResult;
@@ -19,4 +21,5 @@ export function makeNonMagicalItemMagical(equipment: Equipment) {
     affixesResult
   );
   equipment.entityProperties.name = newName;
+  console.log("new name: ", newName);
 }
