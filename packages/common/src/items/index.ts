@@ -1,3 +1,4 @@
+import cloneDeep from "lodash.clonedeep";
 import { CombatAttribute } from "../attributes/index.js";
 import { EntityProperties } from "../primatives/index.js";
 import itemRequirementsMet from "./requirements-met.js";
@@ -7,15 +8,15 @@ export enum ItemType {
   Equipment,
 }
 
-export class Item {
+export abstract class Item {
   constructor(
     public entityProperties: EntityProperties,
     public itemLevel: number,
     public requirements: Partial<Record<CombatAttribute, number>>
   ) {}
 
-  static fromObject(item: Item) {
-    return new Item(item.entityProperties, item.itemLevel, item.requirements);
+  copyFrom<T extends this>(source: T): void {
+    Object.assign(this, cloneDeep(source));
   }
 
   static removeFromArray(array: Item[], itemId: string) {

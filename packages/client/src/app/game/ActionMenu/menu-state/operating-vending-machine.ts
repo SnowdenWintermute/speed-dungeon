@@ -16,6 +16,7 @@ import { immerable } from "immer";
 import { HOTKEYS } from "@/hotkeys";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
+import { convertItemsToShards } from "@speed-dungeon/common";
 
 export class OperatingVendingMachineMenuState implements ActionMenuState {
   [immerable] = true;
@@ -50,14 +51,28 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
     });
     purchaseItemsButton.shouldBeDisabled = !userControlsThisCharacter;
 
-    const craftButton = new ActionMenuButtonProperties("Craft or Repair", () => {
+    const craftButton = new ActionMenuButtonProperties("Craft", () => {
       useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.push(craftingItemSelectionMenuState);
       });
     });
 
+    const repairButton = new ActionMenuButtonProperties("Repair", () => {
+      useGameStore.getState().mutateState((state) => {
+        // state.stackedMenuStates.push(craftingItemSelectionMenuState);
+      });
+    });
+
+    const convertButton = new ActionMenuButtonProperties("Convert to Shards", () => {
+      useGameStore.getState().mutateState((state) => {
+        // state.stackedMenuStates.push(craftingItemSelectionMenuState);
+      });
+    });
+
     toReturn[ActionButtonCategory.Numbered].push(purchaseItemsButton);
     toReturn[ActionButtonCategory.Numbered].push(craftButton);
+    toReturn[ActionButtonCategory.Numbered].push(repairButton);
+    toReturn[ActionButtonCategory.Numbered].push(convertButton);
 
     createPageButtons(this, toReturn);
 

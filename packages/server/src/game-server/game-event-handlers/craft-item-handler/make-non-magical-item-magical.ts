@@ -1,5 +1,5 @@
 import { ERROR_MESSAGES, Equipment, EquipmentBaseItem } from "@speed-dungeon/common";
-import { getGameServer } from "../../../singletons";
+import { getGameServer } from "../../../singletons.js";
 
 export function makeNonMagicalItemMagical(equipment: Equipment) {
   if (Equipment.isMagical(equipment)) return new Error(ERROR_MESSAGES.ITEM.INVALID_PROPERTIES);

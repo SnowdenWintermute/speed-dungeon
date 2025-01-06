@@ -25,6 +25,7 @@ import characterSelectedHoldableHotswapSlotHandler from "./character-selected-ho
 import { characterConvertedItemsToShardsHandler } from "./character-converted-items-to-shards-handler";
 import { characterDroppedShardsHandler } from "./character-dropped-shards-handler";
 import characterPurchasedItemHandler from "./character-purchased-item-handler";
+import { characterPerformedCraftingActionHandler } from "./character-performed-crafting-action-handler";
 
 export default function setUpGameEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -76,4 +77,8 @@ export default function setUpGameEventHandlers(
   );
   socket.on(ServerToClientEvent.CharacterDroppedShards, characterDroppedShardsHandler);
   socket.on(ServerToClientEvent.CharacterPurchasedItem, characterPurchasedItemHandler);
+  socket.on(
+    ServerToClientEvent.CharacterPerformedCraftingAction,
+    characterPerformedCraftingActionHandler
+  );
 }

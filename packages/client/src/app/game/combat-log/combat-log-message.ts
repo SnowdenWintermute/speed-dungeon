@@ -19,19 +19,15 @@ export enum CombatLogMessageStyle {
   Healing,
 }
 
-export function getCombatLogMessageStyleFromGameMessageType(messageType: GameMessageType) {
-  switch (messageType) {
-    case GameMessageType.PartyDescent:
-      return CombatLogMessageStyle.PartyProgress;
-    case GameMessageType.PartyEscape:
-      return CombatLogMessageStyle.PartyEscape;
-    case GameMessageType.PartyWipe:
-      return CombatLogMessageStyle.PartyWipe;
-    case GameMessageType.LadderProgress:
-      return CombatLogMessageStyle.LadderProgress;
-    case GameMessageType.LadderDeath:
-      return CombatLogMessageStyle.LadderProgress;
-    case GameMessageType.PartyDissolved:
-      return CombatLogMessageStyle.PartyWipe;
-  }
-}
+export const COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE: Record<
+  GameMessageType,
+  CombatLogMessageStyle
+> = {
+  [GameMessageType.PartyDescent]: CombatLogMessageStyle.PartyProgress,
+  [GameMessageType.PartyEscape]: CombatLogMessageStyle.PartyEscape,
+  [GameMessageType.PartyWipe]: CombatLogMessageStyle.PartyWipe,
+  [GameMessageType.LadderProgress]: CombatLogMessageStyle.LadderProgress,
+  [GameMessageType.LadderDeath]: CombatLogMessageStyle.LadderProgress,
+  [GameMessageType.PartyDissolved]: CombatLogMessageStyle.PartyWipe,
+  [GameMessageType.CraftingAction]: CombatLogMessageStyle.Basic,
+};
