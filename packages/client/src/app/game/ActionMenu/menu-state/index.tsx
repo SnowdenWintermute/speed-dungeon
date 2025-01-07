@@ -1,4 +1,4 @@
-import { FocusEventHandler, MouseEventHandler } from "react";
+import { FocusEventHandler, MouseEventHandler, ReactNode } from "react";
 
 export enum MenuStateType {
   Base, //
@@ -46,7 +46,7 @@ export class ActionMenuButtonProperties {
   shouldBeDisabled: boolean = false;
   dedicatedKeys: string[] = [];
   constructor(
-    public text: string,
+    public jsx: ReactNode,
     public clickHandler: MouseEventHandler<HTMLButtonElement>
   ) {}
 }

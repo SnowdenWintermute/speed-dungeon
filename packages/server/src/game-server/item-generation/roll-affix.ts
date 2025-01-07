@@ -47,13 +47,13 @@ export function rollAffix(
         case PrefixType.PercentDamage:
           affix.equipmentTraits[EquipmentTraitType.DamagePercentage] = {
             equipmentTraitType: EquipmentTraitType.DamagePercentage,
-            value: tier * 10,
+            value: randBetween((tier - 1) * 10 + 1, tier * 10),
           };
           break;
         case PrefixType.LifeSteal:
           affix.equipmentTraits[EquipmentTraitType.LifeSteal] = {
             equipmentTraitType: EquipmentTraitType.LifeSteal,
-            value: tier * 10,
+            value: randBetween((tier - 1) * 10 + 1, tier * 10),
           };
           break;
         case PrefixType.Resilience:

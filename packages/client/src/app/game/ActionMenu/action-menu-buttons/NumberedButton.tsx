@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { BUTTON_HEIGHT } from "@/client_consts";
 import { ActionMenuButtonProperties } from "../menu-state";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
@@ -17,15 +17,22 @@ export default function NumberedButton({ number, properties }: Props) {
       disabled={properties.shouldBeDisabled}
       hotkeys={[`Digit${number}`]}
     >
-      <span
+      <div
         className="h-full w-10 !min-w-[2.5rem] border-r border-slate-400
-            flex items-center justify-center mr-2 animate-slide-appear-from-left-fast"
+            flex items-center justify-center animate-slide-appear-from-left-fast"
       >
         {number}
-      </span>
-      <span className="flex-grow h-full flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis">
-        {properties.text}
-      </span>
+      </div>
+      {/* @TODO - these classnames were from when we only used text, transfer them to the appropriate menu state 
+      button properties constructor calls
+      */}
+      <div className="pl-2 w-full h-full flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis">
+        {properties.jsx}
+      </div>
     </HotkeyButton>
   );
+}
+
+export function NumberedButtonBody({ children }: { children: ReactNode }) {
+  <div className="h-full w-full">{children}</div>;
 }

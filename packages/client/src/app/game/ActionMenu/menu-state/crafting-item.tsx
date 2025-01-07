@@ -11,7 +11,6 @@ import {
   ClientToServerEvent,
   CraftingAction,
   Equipment,
-  Item,
   getCraftingActionPrice,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
@@ -21,6 +20,7 @@ import clientUserControlsCombatant from "@/utils/client-user-controls-combatant"
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { toggleInventoryHotkey } from "./base";
+import ShardsIcon from "../../../../../public/img/game-ui-icons/shards.svg";
 
 const useItemHotkey = HOTKEYS.MAIN_1;
 const useItemLetter = letterFromKeyCode(useItemHotkey);
@@ -78,18 +78,26 @@ export class CraftingItemMenuState implements ActionMenuState {
         Math.min(this.item.itemLevel, partyResult.currentFloor)
       );
       const buttonName = `${CRAFTING_ACTION_STRINGS[craftingAction]} (${actionPrice} shards)`;
-      const button = new ActionMenuButtonProperties(buttonName, () => {
-        websocketConnection.emit(ClientToServerEvent.PerformCraftingAction, {
-          characterId: focusedCharacterResult.entityProperties.id,
-          itemId,
-          craftingAction,
-        });
-
-        if (craftingAction === CraftingAction.Repair)
-          useGameStore.getState().mutateState((state) => {
-            state.stackedMenuStates.pop();
+      const button = new ActionMenuButtonProperties(
+        (
+          <div className="flex justify-between w-full pr-2">
+            <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
+              {buttonName}
+            </div>
+            <div className="w-fit flex h-full items-center">
+              <span className="mr-1">{actionPrice}</span>
+              <ShardsIcon className="h-[20px] fill-slate-400" />
+            </div>
+          </div>
+        ),
+        () => {
+          websocketConnection.emit(ClientToServerEvent.PerformCraftingAction, {
+            characterId: focusedCharacterResult.entityProperties.id,
+            itemId,
+            craftingAction,
           });
-      });
+        }
+      );
       button.shouldBeDisabled =
         !userControlsThisCharacter ||
         actionPrice > focusedCharacterResult.combatantProperties.inventory.shards ||

@@ -1,4 +1,12 @@
-import { Equipment, EquipmentType, HpChangeSource, WeaponProperties } from "@speed-dungeon/common";
+import {
+  AffixType,
+  Equipment,
+  EquipmentType,
+  HpChangeSource,
+  PrefixType,
+  SuffixType,
+  WeaponProperties,
+} from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
 import React from "react";
 import DamageTypeBadge from "../DamageTypeBadge";
@@ -13,7 +21,7 @@ export default function WeaponDamage({ equipment }: Props) {
 
   let weaponProperties: WeaponProperties;
 
-  switch (equipment.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType) {
+  switch (equipment.equipmentBaseItemProperties.equipmentType) {
     case EquipmentType.OneHandedMeleeWeapon:
     case EquipmentType.TwoHandedMeleeWeapon:
     case EquipmentType.TwoHandedRangedWeapon:
@@ -33,7 +41,10 @@ export default function WeaponDamage({ equipment }: Props) {
 
   let damageStyles = "";
 
-  if (modifiedWeaponDamage.min > damageOption.min || modifiedWeaponDamage.max > damageOption.max)
+  if (
+    equipment.affixes[AffixType.Prefix][PrefixType.PercentDamage] !== undefined ||
+    equipment.affixes[AffixType.Suffix][SuffixType.Damage]
+  )
     damageStyles = "text-blue-300";
 
   return (

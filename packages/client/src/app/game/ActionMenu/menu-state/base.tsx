@@ -15,7 +15,6 @@ import {
   CombatantProperties,
   ABILITY_NAME_STRINGS,
   Inventory,
-  DungeonRoomType,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
