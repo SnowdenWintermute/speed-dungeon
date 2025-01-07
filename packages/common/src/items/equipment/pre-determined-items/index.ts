@@ -27,8 +27,10 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
         1,
         {},
         {
-          type: EquipmentType.TwoHandedRangedWeapon,
-          baseItem: TwoHandedRangedWeapon.ShortBow,
+          baseItem: {
+            equipmentType: EquipmentType.TwoHandedRangedWeapon,
+            baseItemType: TwoHandedRangedWeapon.ShortBow,
+          },
           damage: { min: 1, max: 4 },
           damageClassification: [
             new HpChangeSource(
@@ -47,8 +49,10 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
         1,
         {},
         {
-          type: EquipmentType.OneHandedMeleeWeapon,
-          baseItem: OneHandedMeleeWeapon.ShortSword,
+          baseItem: {
+            equipmentType: EquipmentType.OneHandedMeleeWeapon,
+            baseItemType: OneHandedMeleeWeapon.ShortSword,
+          },
           damage: { min: 1, max: 4 },
           damageClassification: [
             new HpChangeSource(
@@ -67,8 +71,10 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
         1,
         {},
         {
-          type: EquipmentType.OneHandedMeleeWeapon,
-          baseItem: OneHandedMeleeWeapon.Stick,
+          baseItem: {
+            equipmentType: EquipmentType.OneHandedMeleeWeapon,
+            baseItemType: OneHandedMeleeWeapon.Stick,
+          },
           damage: { min: 1, max: 1 },
           damageClassification: [
             new HpChangeSource(
@@ -87,8 +93,10 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
         1,
         {},
         {
-          type: EquipmentType.OneHandedMeleeWeapon,
-          baseItem: OneHandedMeleeWeapon.Dagger,
+          baseItem: {
+            equipmentType: EquipmentType.OneHandedMeleeWeapon,
+            baseItemType: OneHandedMeleeWeapon.Dagger,
+          },
           damage: { min: 1, max: 4 },
           damageClassification: [
             new HpChangeSource(

@@ -1,10 +1,10 @@
 import {
   ArmorProperties,
+  EQUIPMENT_TYPE_STRINGS,
   ERROR_MESSAGES,
   EquipmentBaseItem,
   EquipmentBaseItemType,
   EquipmentType,
-  formatEquipmentType,
   randBetween,
 } from "@speed-dungeon/common";
 import { ItemGenerationBuilder } from "./item-generation-builder.js";
@@ -30,14 +30,13 @@ export class ArmorGenerationBuilder<T extends ArmorGenerationTemplate>
 
     if (template === undefined)
       return new Error(
-        `missing template for equipment type ${formatEquipmentType(baseEquipmentItem.equipmentType)}, specific item ${baseEquipmentItem.baseItemType}`
+        `missing template for equipment type ${EQUIPMENT_TYPE_STRINGS[baseEquipmentItem.equipmentType]}, specific item ${baseEquipmentItem.baseItemType}`
       );
 
     const armorClass = randBetween(template.acRange.min, template.acRange.max);
 
     const properties: ArmorProperties = {
-      type: this.equipmentType,
-      baseItem: baseEquipmentItem.baseItemType,
+      baseItem: baseEquipmentItem,
       armorClass,
       armorCategory: template.armorCategory,
     };

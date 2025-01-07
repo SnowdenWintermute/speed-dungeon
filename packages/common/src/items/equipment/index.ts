@@ -41,14 +41,8 @@ export class Equipment extends Item {
   static applyEquipmentTraitsToHpChangeSource = applyEquipmentTraitsToHpChangeSource;
 
   static getWeaponProperties(equipment: Equipment): Error | WeaponProperties {
-    switch (equipment.equipmentBaseItemProperties.type) {
-      case EquipmentType.OneHandedMeleeWeapon:
-      case EquipmentType.TwoHandedMeleeWeapon:
-      case EquipmentType.TwoHandedRangedWeapon:
-        return equipment.equipmentBaseItemProperties;
-      default:
-        return new Error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
-    }
+    if (!Equipment.isWeapon(equipment)) return new Error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
+    return equipment.equipmentBaseItemProperties as WeaponProperties;
   }
 
   static hasPrefix(equipment: Equipment) {
@@ -62,9 +56,16 @@ export class Equipment extends Item {
   }
 
   static isJewelry(equipment: Equipment) {
+    const { equipmentType } = equipment.equipmentBaseItemProperties.baseItem;
+    return equipmentType === EquipmentType.Ring || equipmentType === EquipmentType.Amulet;
+  }
+
+  static isWeapon(equipment: Equipment) {
+    const { equipmentType } = equipment.equipmentBaseItemProperties.baseItem;
     return (
-      equipment.equipmentBaseItemProperties.baseItem.equipmentType === EquipmentType.Ring ||
-      equipment.equipmentBaseItemProperties.baseItem.equipmentType === EquipmentType.Amulet
+      equipmentType === EquipmentType.OneHandedMeleeWeapon ||
+      equipmentType === EquipmentType.TwoHandedMeleeWeapon ||
+      equipmentType === EquipmentType.TwoHandedRangedWeapon
     );
   }
 }

@@ -1,5 +1,5 @@
 import {
-  EquipmentBaseItemType,
+  EquipmentBaseItem,
   EquipmentType,
   OneHandedMeleeWeapon,
   Shield,
@@ -8,29 +8,27 @@ import {
 } from "@speed-dungeon/common";
 import { Artist } from "./artists";
 
-export function equipmentBaseItemToModelPath(
-  equipmentType: EquipmentType,
-  baseItem: EquipmentBaseItemType | null
-): string | null {
+export function equipmentBaseItemToModelPath(baseItem: EquipmentBaseItem): string | null {
   let filePath;
-  const folderPath = MODEL_FOLDER_PATHS[equipmentType];
-  switch (equipmentType) {
+
+  const folderPath = MODEL_FOLDER_PATHS[baseItem.equipmentType];
+  switch (baseItem.equipmentType) {
     case EquipmentType.BodyArmor:
     case EquipmentType.HeadGear:
     case EquipmentType.Ring:
     case EquipmentType.Amulet:
       return null;
     case EquipmentType.OneHandedMeleeWeapon:
-      filePath = ONE_HANDED_MELEE_WEAPON_MODELS[baseItem as OneHandedMeleeWeapon].path;
+      filePath = ONE_HANDED_MELEE_WEAPON_MODELS[baseItem.baseItemType].path;
       break;
     case EquipmentType.TwoHandedMeleeWeapon:
-      filePath = TWO_HANDED_MELEE_WEAPON_MODELS[baseItem as TwoHandedMeleeWeapon].path;
+      filePath = TWO_HANDED_MELEE_WEAPON_MODELS[baseItem.baseItemType].path;
       break;
     case EquipmentType.TwoHandedRangedWeapon:
-      filePath = TWO_HANDED_RANGED_WEAPON_MODELS[baseItem as TwoHandedRangedWeapon].path;
+      filePath = TWO_HANDED_RANGED_WEAPON_MODELS[baseItem.baseItemType].path;
       break;
     case EquipmentType.Shield:
-      filePath = SHIELD_MODELS[baseItem as Shield].path;
+      filePath = SHIELD_MODELS[baseItem.baseItemType].path;
       break;
   }
 

@@ -3,7 +3,6 @@ import {
   CombatantEquipment,
   EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
   Equipment,
-  EquipmentSlotType,
   getItemInAdventuringParty,
 } from "@speed-dungeon/common";
 import { getPlayerPartyOption } from "@speed-dungeon/common";
@@ -25,7 +24,8 @@ export default function setComparedItem(itemId: string, compareAltSlot: boolean)
 
     let slotsOption: null | EquipableSlots = null;
     if (item instanceof Equipment)
-      slotsOption = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[item.equipmentBaseItemProperties.type];
+      slotsOption =
+        EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[item.equipmentBaseItemProperties.baseItem.equipmentType];
 
     if (slotsOption === null) {
       gameState.comparedItem = null;

@@ -21,10 +21,10 @@ export class JewelryGenerationBuilder<T extends JewelryGenerationTemplate>
   }
 
   buildEquipmentBaseItemProperties(_baseEquipmentItem: EquipmentBaseItem) {
-    const properties: JewelryProperties = {
-      type: this.equipmentType,
-      baseItem: this.equipmentType === EquipmentType.Amulet ? Jewelry.Amulet : Jewelry.Ring,
+    const properties = {
+      equipmentType: this.equipmentType,
+      baseItemType: this.equipmentType === EquipmentType.Amulet ? Jewelry.Amulet : Jewelry.Ring,
     };
-    return properties;
+    return properties as unknown as JewelryProperties;
   }
 }

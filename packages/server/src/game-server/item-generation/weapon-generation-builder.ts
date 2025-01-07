@@ -1,11 +1,11 @@
 import {
+  EQUIPMENT_TYPE_STRINGS,
   ERROR_MESSAGES,
   EquipmentBaseItem,
   EquipmentBaseItemType,
   EquipmentType,
   HpChangeSource,
   WeaponProperties,
-  formatEquipmentType,
   shuffleArray,
 } from "@speed-dungeon/common";
 import { ItemGenerationBuilder } from "./item-generation-builder.js";
@@ -36,7 +36,7 @@ export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
 
     if (template === undefined)
       return new Error(
-        `missing template for equipment type ${formatEquipmentType(baseEquipmentItem.equipmentType)}, specific item ${baseEquipmentItem.baseItemType}`
+        `missing template for equipment type ${EQUIPMENT_TYPE_STRINGS[baseEquipmentItem.equipmentType]}, specific item ${baseEquipmentItem.baseItemType}`
       );
     // roll damageClassifications from possible list
     let damageClassifications: HpChangeSource[] = [];
@@ -48,15 +48,14 @@ export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
       const someClassification = shuffledPossibleClassifications.pop();
       if (someClassification === undefined) {
         return new Error(
-          `tried to select more damage classifications than possible ${template.numDamageClassifications} for equipment type ${formatEquipmentType(baseEquipmentItem.equipmentType)} specific item ${baseEquipmentItem.baseItemType}`
+          `tried to select more damage classifications than possible ${template.numDamageClassifications} for equipment type ${EQUIPMENT_TYPE_STRINGS[baseEquipmentItem.equipmentType]} specific item ${baseEquipmentItem.baseItemType}`
         );
       }
       damageClassifications.push(someClassification);
     }
 
     const properties: WeaponProperties = {
-      type: this.equipmentType,
-      baseItem: baseEquipmentItem.baseItemType,
+      baseItem: baseEquipmentItem,
       damage: template.damage,
       damageClassification: damageClassifications,
     };

@@ -33,7 +33,8 @@ export default function calculateAttackActionResult(
       holdableSlotType
     );
     mhAttackEndsTurn = !!(
-      equipmentOption && Equipment.isTwoHanded(equipmentOption.equipmentBaseItemProperties.type)
+      equipmentOption &&
+      Equipment.isTwoHanded(equipmentOption.equipmentBaseItemProperties.baseItem.equipmentType)
     );
 
     const combatActionOption = getAttackCombatActionOption(

@@ -5,6 +5,7 @@ import {
   CHANCE_TO_HAVE_DOUBLE_AFFIX,
   CHANCE_TO_HAVE_PREFIX,
   CombatAttribute,
+  EQUIPMENT_TYPE_STRINGS,
   ERROR_MESSAGES,
   EquipmentBaseItem,
   EquipmentBaseItemProperties,
@@ -18,7 +19,6 @@ import {
   TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER,
   chooseRandomFromArray,
   equipmentIsTwoHandedWeapon,
-  formatEquipmentType,
   randBetween,
   shuffleArray,
 } from "@speed-dungeon/common";
@@ -79,7 +79,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     const template = getEquipmentGenerationTemplate(baseEquipmentItem);
     if (template === undefined)
       return new Error(
-        `missing template for ${JSON.stringify(baseEquipmentItem)} in equipment type ${formatEquipmentType(this.equipmentType)}`
+        `missing template for ${JSON.stringify(baseEquipmentItem)} in equipment type ${EQUIPMENT_TYPE_STRINGS[this.equipmentType]}`
       );
 
     if (template.maxDurability === null) return null;
@@ -197,7 +197,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
             "equipment generation template " +
               taggedBaseItem.baseItem.baseItemType +
               " missing in builder for " +
-              formatEquipmentType(taggedBaseItem.baseItem.equipmentType)
+              EQUIPMENT_TYPE_STRINGS[taggedBaseItem.baseItem.equipmentType]
           );
         return template.requirements;
       case ItemType.Consumable:

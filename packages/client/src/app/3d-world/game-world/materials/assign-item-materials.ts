@@ -67,9 +67,9 @@ export function assignEquipmentMaterials(
   materials[MATERIAL_NAMES.BLADE] = savedMaterials.metal[LightestToDarkest.Lighter];
   materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.metal[LightestToDarkest.Lightest];
 
-  switch (equipmentBaseItemProperties.type) {
+  switch (equipmentBaseItemProperties.baseItem.equipmentType) {
     case EquipmentType.OneHandedMeleeWeapon:
-      switch (equipmentBaseItemProperties.baseItem) {
+      switch (equipmentBaseItemProperties.baseItem.baseItemType) {
         case OneHandedMeleeWeapon.Stick:
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Lighter];
           break;

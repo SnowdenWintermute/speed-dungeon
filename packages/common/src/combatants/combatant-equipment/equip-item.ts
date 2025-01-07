@@ -36,9 +36,10 @@ export function equipItem(
   // (as with equiping a 2h weapon when wielding two 1h items) and
   // if so, check if there is space in the inventory to accomodate unequiping those
   // items. Reject if not.
+  //
+  const { equipmentType } = equipment.equipmentBaseItemProperties.baseItem;
 
-  const possibleSlots =
-    EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipment.equipmentBaseItemProperties.type];
+  const possibleSlots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
 
   const slot = (() => {
     if (equipToAltSlot && possibleSlots.alternate !== null) return possibleSlots.alternate;
@@ -50,7 +51,7 @@ export function equipItem(
       case EquipmentSlotType.Holdable:
         switch (slot.slot) {
           case HoldableSlotType.MainHand:
-            if (Equipment.isTwoHanded(equipment.equipmentBaseItemProperties.type))
+            if (Equipment.isTwoHanded(equipmentType))
               return [
                 { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
                 { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
@@ -62,7 +63,7 @@ export function equipItem(
             if (!equippedHotswapSlot) return [];
             const itemInMainHandOption = equippedHotswapSlot.holdables[HoldableSlotType.MainHand];
             if (itemInMainHandOption !== undefined) {
-              if (Equipment.isTwoHanded(itemInMainHandOption.equipmentBaseItemProperties.type))
+              if (Equipment.isTwoHanded(equipmentType))
                 return [
                   { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
                   { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },

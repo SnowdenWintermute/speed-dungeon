@@ -3,7 +3,7 @@ import { formatArmorCategory } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
 
 export function getArmorCategoryText(equipment: Equipment) {
-  switch (equipment.equipmentBaseItemProperties.type) {
+  switch (equipment.equipmentBaseItemProperties.baseItem.equipmentType) {
     case EquipmentType.BodyArmor:
     case EquipmentType.HeadGear:
       return ` (${formatArmorCategory(equipment.equipmentBaseItemProperties.armorCategory)})`;
@@ -14,7 +14,7 @@ export function getArmorCategoryText(equipment: Equipment) {
 
 export function ArmorClassText({ equipment }: { equipment: Equipment }) {
   let armorClassOption: null | number = null;
-  switch (equipment.equipmentBaseItemProperties.type) {
+  switch (equipment.equipmentBaseItemProperties.baseItem.equipmentType) {
     case EquipmentType.BodyArmor:
     case EquipmentType.HeadGear:
     case EquipmentType.Shield:

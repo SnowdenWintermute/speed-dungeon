@@ -30,8 +30,10 @@ export default function PaperDoll({ combatant }: Props) {
   const mainhandOption = equippedHoldables?.holdables[HoldableSlotType.MainHand];
 
   const mainHandIs2h =
-    mainhandOption?.equipmentBaseItemProperties.type !== undefined
-      ? equipmentIsTwoHandedWeapon(mainhandOption.equipmentBaseItemProperties.type)
+    mainhandOption !== undefined
+      ? equipmentIsTwoHandedWeapon(
+          mainhandOption.equipmentBaseItemProperties.baseItem.equipmentType
+        )
       : false;
 
   return (

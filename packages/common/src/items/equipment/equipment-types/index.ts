@@ -97,23 +97,13 @@ export type EquipmentBaseItem =
   | AmuletBaseItemType
   | RingBaseItemType;
 
-export function formatEquipmentType(equipmentType: EquipmentType) {
-  switch (equipmentType) {
-    case EquipmentType.BodyArmor:
-      return "Body Armor";
-    case EquipmentType.HeadGear:
-      return "Head Gear";
-    case EquipmentType.Ring:
-      return "Ring";
-    case EquipmentType.Amulet:
-      return "Amulet";
-    case EquipmentType.OneHandedMeleeWeapon:
-      return "One Handed Melee Weapon";
-    case EquipmentType.TwoHandedMeleeWeapon:
-      return "Two Handed Melee Weapon";
-    case EquipmentType.TwoHandedRangedWeapon:
-      return "Two Handed Ranged Weapon";
-    case EquipmentType.Shield:
-      return "Shield";
-  }
-}
+export const EQUIPMENT_TYPE_STRINGS: Record<EquipmentType, string> = {
+  [EquipmentType.BodyArmor]: "Body Armor",
+  [EquipmentType.HeadGear]: "Head Gear",
+  [EquipmentType.Ring]: "Ring",
+  [EquipmentType.Amulet]: "Amulet",
+  [EquipmentType.OneHandedMeleeWeapon]: "One Handed Melee Weapon",
+  [EquipmentType.TwoHandedMeleeWeapon]: "Two Handed Melee Weapon",
+  [EquipmentType.TwoHandedRangedWeapon]: "Two Handed Ranged Weapon",
+  [EquipmentType.Shield]: "Shield",
+};
