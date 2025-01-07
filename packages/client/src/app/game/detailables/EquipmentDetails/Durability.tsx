@@ -1,4 +1,4 @@
-import { Equipment, EquipmentType } from "@speed-dungeon/common";
+import { Equipment } from "@speed-dungeon/common";
 import React from "react";
 
 interface Props {
@@ -7,9 +7,7 @@ interface Props {
 
 export default function Durability({ equipment }: Props) {
   const { durability } = equipment;
-  const isJewelry =
-    equipment.equipmentBaseItemProperties.type === EquipmentType.Ring ||
-    equipment.equipmentBaseItemProperties.type === EquipmentType.Amulet;
+  const isJewelry = Equipment.isJewelry(equipment);
 
   if (isJewelry) return <></>;
   else if (durability === null) return <div>Indestructable</div>;

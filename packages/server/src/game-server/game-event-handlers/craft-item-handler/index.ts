@@ -32,7 +32,6 @@ export async function craftItemHandler(
   const { inventory } = character.combatantProperties;
   // check if they own the item
   const itemResult = CombatantProperties.getOwnedItemById(character.combatantProperties, itemId);
-  console.log("ITEM RESULT: ", itemResult);
   if (itemResult instanceof Error) return itemResult;
   // make sure it is an equipment
   if (!(itemResult instanceof Equipment)) return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);

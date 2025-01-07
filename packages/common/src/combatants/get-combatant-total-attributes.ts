@@ -4,7 +4,7 @@ import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { EquipmentType } from "../items/equipment/equipment-types/index.js";
 import { CombatantAttributeRecord, CombatantProperties } from "./combatant-properties.js";
 import { CombatAttribute } from "../attributes/index.js";
-import { Equipment, EquipmentSlotType, HoldableSlotType } from "../items/equipment/index.js";
+import { Equipment, HoldableSlotType } from "../items/equipment/index.js";
 import { CombatantEquipment } from "./combatant-equipment/index.js";
 
 // ATTRIBUTES
@@ -116,7 +116,7 @@ function getArmorPenDerivedBonus(
   let attributeToDeriveFrom = CombatAttribute.Strength;
   if (mhWeaponOption) {
     const weaponProperties = mhWeaponOption;
-    if (weaponProperties.type === EquipmentType.TwoHandedRangedWeapon) {
+    if (weaponProperties.baseItem.equipmentType === EquipmentType.TwoHandedRangedWeapon) {
       attributeToDeriveFrom = CombatAttribute.Dexterity;
     }
   }

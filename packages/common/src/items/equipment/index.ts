@@ -60,4 +60,11 @@ export class Equipment extends Item {
   static isMagical(equipment: Equipment) {
     return Equipment.hasPrefix(equipment) || Equipment.hasSuffix(equipment);
   }
+
+  static isJewelry(equipment: Equipment) {
+    return (
+      equipment.equipmentBaseItemProperties.baseItem.equipmentType === EquipmentType.Ring ||
+      equipment.equipmentBaseItemProperties.baseItem.equipmentType === EquipmentType.Amulet
+    );
+  }
 }

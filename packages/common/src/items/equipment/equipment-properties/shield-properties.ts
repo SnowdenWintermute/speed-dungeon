@@ -1,9 +1,7 @@
-import { EquipmentType } from "../equipment-types/index.js";
-import { Shield } from "../equipment-types/shield.js";
+import { ShieldBaseItemType } from "../equipment-types/index.js";
 
 export interface ShieldProperties {
-  type: EquipmentType.Shield;
-  baseItem: Shield;
+  baseItem: ShieldBaseItemType;
   size: ShieldSize;
   armorClass: number;
 }

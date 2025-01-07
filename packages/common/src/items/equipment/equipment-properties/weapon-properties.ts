@@ -2,17 +2,16 @@ import { HpChangeSource } from "../../../combat/hp-change-source-types.js";
 import { NumberRange } from "../../../primatives/number-range.js";
 import {
   EquipmentType,
-  OneHandedMeleeWeapon,
-  TwoHandedMeleeWeapon,
-  TwoHandedRangedWeapon,
+  OneHandedMeleeWeaponBaseItemType,
+  TwoHandedMeleeWeaponBaseItemType,
+  TwoHandedRangedWeaponBaseItemType,
 } from "../equipment-types/index.js";
 
 export interface WeaponProperties {
-  type:
-    | EquipmentType.OneHandedMeleeWeapon
-    | EquipmentType.TwoHandedMeleeWeapon
-    | EquipmentType.TwoHandedRangedWeapon;
-  baseItem: OneHandedMeleeWeapon | TwoHandedMeleeWeapon | TwoHandedRangedWeapon;
+  baseItem:
+    | OneHandedMeleeWeaponBaseItemType
+    | TwoHandedMeleeWeaponBaseItemType
+    | TwoHandedRangedWeaponBaseItemType;
   damage: NumberRange;
   damageClassification: HpChangeSource[];
 }

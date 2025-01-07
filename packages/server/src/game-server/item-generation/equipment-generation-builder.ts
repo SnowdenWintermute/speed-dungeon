@@ -103,7 +103,6 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     const affixes: Affixes = { [AffixType.Prefix]: {}, [AffixType.Suffix]: {} };
 
     const template = getEquipmentGenerationTemplate(baseEquipmentItem);
-    if (template === undefined) return new Error("missing template");
 
     const isMagical =
       Math.random() < BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL ||

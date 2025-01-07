@@ -6,8 +6,11 @@ import { TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES } from "./two-handed-r
 import { BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES } from "./body-armor-generation-templates.js";
 import { HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES } from "./head-gear-generation-templates.js";
 import { JewelryGenerationTemplate } from "./jewelry-generation-templates.js";
+import { EquipmentGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
 
-export function getEquipmentGenerationTemplate(equipmentBaseItem: EquipmentBaseItem) {
+export function getEquipmentGenerationTemplate(
+  equipmentBaseItem: EquipmentBaseItem
+): EquipmentGenerationTemplate {
   switch (equipmentBaseItem.equipmentType) {
     case EquipmentType.BodyArmor:
       return BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES[equipmentBaseItem.baseItemType];
