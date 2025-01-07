@@ -1,7 +1,12 @@
-import { BodyArmorBaseItemType, HeadGearBaseItemType } from "../equipment-types/index.js";
+import {
+  BodyArmorBaseItemType,
+  EquipmentType,
+  HeadGearBaseItemType,
+} from "../equipment-types/index.js";
 
 export interface ArmorProperties {
-  baseItem: BodyArmorBaseItemType | HeadGearBaseItemType;
+  taggedBaseEquipment: BodyArmorBaseItemType | HeadGearBaseItemType;
+  equipmentType: EquipmentType.HeadGear | EquipmentType.BodyArmor;
   armorCategory: ArmorCategory;
   armorClass: number;
 }

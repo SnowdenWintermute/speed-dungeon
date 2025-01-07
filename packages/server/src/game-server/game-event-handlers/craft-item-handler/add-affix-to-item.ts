@@ -1,4 +1,5 @@
 import { ERROR_MESSAGES, Equipment } from "@speed-dungeon/common";
+
 import { getEquipmentGenerationTemplate } from "../../item-generation/equipment-templates/index.js";
 
 export function addAffixToItem(equipment: Equipment, itemLevelLimiter: number) {
@@ -9,7 +10,9 @@ export function addAffixToItem(equipment: Equipment, itemLevelLimiter: number) {
   if (!Equipment.isMagical(equipment) || (!missingPrefix && !missingSuffix))
     return new Error(ERROR_MESSAGES.ITEM.INVALID_PROPERTIES);
 
-  const template = getEquipmentGenerationTemplate(equipment.equipmentBaseItemProperties.baseItem);
+  const template = getEquipmentGenerationTemplate(
+    equipment.equipmentBaseItemProperties.taggedBaseItem
+  );
   if (missingPrefix) {
     // const newPrefix =
   }

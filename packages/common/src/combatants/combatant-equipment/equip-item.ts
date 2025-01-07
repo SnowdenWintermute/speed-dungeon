@@ -37,7 +37,7 @@ export function equipItem(
   // if so, check if there is space in the inventory to accomodate unequiping those
   // items. Reject if not.
   //
-  const { equipmentType } = equipment.equipmentBaseItemProperties.baseItem;
+  const { equipmentType } = equipment.equipmentBaseItemProperties.taggedBaseItem;
 
   const possibleSlots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
 

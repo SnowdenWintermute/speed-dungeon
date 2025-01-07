@@ -67,9 +67,9 @@ export function assignEquipmentMaterials(
   materials[MATERIAL_NAMES.BLADE] = savedMaterials.metal[LightestToDarkest.Lighter];
   materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.metal[LightestToDarkest.Lightest];
 
-  switch (equipmentBaseItemProperties.baseItem.equipmentType) {
+  switch (equipmentBaseItemProperties.taggedBaseItem.equipmentType) {
     case EquipmentType.OneHandedMeleeWeapon:
-      switch (equipmentBaseItemProperties.baseItem.baseItemType) {
+      switch (equipmentBaseItemProperties.taggedBaseItem.baseItemType) {
         case OneHandedMeleeWeapon.Stick:
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Lighter];
           break;
@@ -175,7 +175,7 @@ export function assignEquipmentMaterials(
       }
       break;
     case EquipmentType.TwoHandedMeleeWeapon:
-      switch (equipmentBaseItemProperties.baseItem) {
+      switch (equipmentBaseItemProperties.taggedBaseItem.baseItemType) {
         case TwoHandedMeleeWeapon.RottingBranch:
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Medium];
           break;
@@ -257,7 +257,7 @@ export function assignEquipmentMaterials(
       }
       break;
     case EquipmentType.TwoHandedRangedWeapon:
-      switch (equipmentBaseItemProperties.baseItem) {
+      switch (equipmentBaseItemProperties.taggedBaseItem.baseItemType) {
         case TwoHandedRangedWeapon.ShortBow:
           materials[MATERIAL_NAMES.MAIN] = savedMaterials.wood[LightestToDarkest.Medium];
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Lighter];
@@ -287,7 +287,7 @@ export function assignEquipmentMaterials(
       }
       break;
     case EquipmentType.Shield:
-      switch (equipmentBaseItemProperties.baseItem) {
+      switch (equipmentBaseItemProperties.taggedBaseItem.baseItemType) {
         case Shield.MakeshiftBuckler:
           materials = {
             [MATERIAL_NAMES.MAIN]: savedMaterials.wood[LightestToDarkest.Darker],

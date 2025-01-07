@@ -10,7 +10,7 @@ export default function EquipmentType({ equipment }: Props) {
   return (
     <div>
       <div className="">
-        {EQUIPMENT_TYPE_STRINGS[equipment.equipmentBaseItemProperties.baseItem.equipmentType]}
+        {EQUIPMENT_TYPE_STRINGS[equipment.equipmentBaseItemProperties.taggedBaseItem.equipmentType]}
       </div>
       <ArmorClassText equipment={equipment} />
     </div>

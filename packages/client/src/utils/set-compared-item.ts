@@ -25,7 +25,9 @@ export default function setComparedItem(itemId: string, compareAltSlot: boolean)
     let slotsOption: null | EquipableSlots = null;
     if (item instanceof Equipment)
       slotsOption =
-        EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[item.equipmentBaseItemProperties.baseItem.equipmentType];
+        EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[
+          item.equipmentBaseItemProperties.taggedBaseItem.equipmentType
+        ];
 
     if (slotsOption === null) {
       gameState.comparedItem = null;

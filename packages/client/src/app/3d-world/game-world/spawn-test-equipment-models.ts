@@ -107,8 +107,8 @@ export async function spawnEquipmentModelsFromItemList(world: GameWorld, items: 
   items.sort((a, b) => {
     if (a instanceof Equipment && b instanceof Equipment) {
       return (
-        a.equipmentBaseItemProperties.baseItem.equipmentType -
-        b.equipmentBaseItemProperties.baseItem.equipmentType
+        a.equipmentBaseItemProperties.taggedBaseItem.equipmentType -
+        b.equipmentBaseItemProperties.taggedBaseItem.equipmentType
       );
     }
     return 0;

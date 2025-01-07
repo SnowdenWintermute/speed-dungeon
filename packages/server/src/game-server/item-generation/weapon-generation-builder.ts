@@ -55,7 +55,8 @@ export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
     }
 
     const properties: WeaponProperties = {
-      baseItem: baseEquipmentItem,
+      taggedBaseItem: baseEquipmentItem,
+      equipmentType: baseEquipmentItem.equipmentType,
       damage: template.damage,
       damageClassification: damageClassifications,
     };

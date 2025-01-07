@@ -22,7 +22,7 @@ export function getCombatActionExecutionTime(
           if (!mhWeaponOption) return 1000;
 
           const isTwoHanded = Equipment.isTwoHanded(
-            mhWeaponOption.equipmentBaseItemProperties.baseItem.equipmentType
+            mhWeaponOption.equipmentBaseItemProperties.taggedBaseItem.equipmentType
           );
           if (isTwoHanded) ms = 2000;
           else ms = 1000;

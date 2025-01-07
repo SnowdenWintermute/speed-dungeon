@@ -8,10 +8,14 @@ import {
 } from "../equipment-types/index.js";
 
 export interface WeaponProperties {
-  baseItem:
+  taggedBaseEquipment:
     | OneHandedMeleeWeaponBaseItemType
     | TwoHandedMeleeWeaponBaseItemType
     | TwoHandedRangedWeaponBaseItemType;
+  equipmentType:
+    | EquipmentType.OneHandedMeleeWeapon
+    | EquipmentType.TwoHandedMeleeWeapon
+    | EquipmentType.TwoHandedRangedWeapon;
   damage: NumberRange;
   damageClassification: HpChangeSource[];
 }

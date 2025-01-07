@@ -16,7 +16,7 @@ export type TaggedBaseItem =
       // item enum values from each other: ex: equipmentType: Shield, baseEquipmentItem: Shields.Aspis
       // otherwise whatever number Shields.Aspis evaluates to is indistinguishable from the same number from
       // another equipment enum
-      baseItem: EquipmentBaseItem;
+      taggedBaseEquipment: EquipmentBaseItem;
     };
 
 export abstract class ItemGenerationBuilder {
@@ -42,5 +42,5 @@ export abstract class ItemGenerationBuilder {
     affixes: null | Affixes
   ) => Error | Partial<Record<CombatAttribute, number>>;
 
-  abstract buildItemName: (baseItem: TaggedBaseItem, affixes: null | Affixes) => string;
+  abstract buildItemName: (taggedBaseItem: TaggedBaseItem, affixes: null | Affixes) => string;
 }

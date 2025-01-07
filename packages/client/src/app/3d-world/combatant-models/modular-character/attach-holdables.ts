@@ -36,7 +36,9 @@ export function attachHoldableModelToSkeleton(
   setMeshPositionAndRotationToZero(parentMesh);
 
   if (slot === HoldableSlotType.OffHand) {
-    if (equipment.equipmentBaseItemProperties.baseItem.equipmentType === EquipmentType.Shield) {
+    if (
+      equipment.equipmentBaseItemProperties.taggedBaseItem.equipmentType === EquipmentType.Shield
+    ) {
       parentMesh.position.y = -0.1;
       parentMesh.position.z = 0.08;
 
@@ -85,7 +87,9 @@ export function attachHoldableModelToHolsteredPosition(
   if (slot === HoldableSlotType.OffHand) {
     if (combatantModel.combatantClass === CombatantClass.Warrior) parentMesh.position.z = -0.22;
     else parentMesh.position.z = -0.15;
-    if (equipment.equipmentBaseItemProperties.baseItem.equipmentType === EquipmentType.Shield) {
+    if (
+      equipment.equipmentBaseItemProperties.taggedBaseItem.equipmentType === EquipmentType.Shield
+    ) {
       parentMesh.rotation.z = -Math.PI + 0.5;
       parentMesh.rotation.x = -Math.PI;
       parentMesh.rotation.y = -Math.PI;
@@ -98,7 +102,9 @@ export function attachHoldableModelToHolsteredPosition(
       parentMesh.rotation.y = 0;
     }
   } else if (slot === HoldableSlotType.MainHand) {
-    if (equipmentIsTwoHandedWeapon(equipment.equipmentBaseItemProperties.baseItem.equipmentType)) {
+    if (
+      equipmentIsTwoHandedWeapon(equipment.equipmentBaseItemProperties.taggedBaseItem.equipmentType)
+    ) {
       if (combatantModel.combatantClass === CombatantClass.Warrior) parentMesh.position.z = 0.25;
 
       parentMesh.position.z = 0.14;
@@ -107,11 +113,11 @@ export function attachHoldableModelToHolsteredPosition(
     parentMesh.position.x = 0.1;
 
     if (
-      equipment.equipmentBaseItemProperties.baseItem.equipmentType ===
+      equipment.equipmentBaseItemProperties.taggedBaseItem.equipmentType ===
       EquipmentType.TwoHandedMeleeWeapon
     ) {
       // parentMesh.position.z = 0.1;
-      switch (equipment.equipmentBaseItemProperties.baseItem.baseItemType) {
+      switch (equipment.equipmentBaseItemProperties.taggedBaseItem.baseItemType) {
         case TwoHandedMeleeWeapon.BoStaff:
         case TwoHandedMeleeWeapon.ElementalStaff:
         case TwoHandedMeleeWeapon.ElmStaff:
@@ -143,7 +149,7 @@ export function attachHoldableModelToHolsteredPosition(
       parentMesh.rotation.y = 0;
       parentMesh.rotateAround(Vector3.Zero(), Vector3.Up(), Math.PI);
     } else if (
-      equipment.equipmentBaseItemProperties.baseItem.equipmentType ===
+      equipment.equipmentBaseItemProperties.taggedBaseItem.equipmentType ===
       EquipmentType.TwoHandedRangedWeapon
     ) {
       // parentMesh.position.z = 0.1;

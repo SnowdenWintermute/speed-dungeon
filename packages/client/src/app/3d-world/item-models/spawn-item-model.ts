@@ -18,7 +18,7 @@ export async function spawnItemModel(
 ): Promise<Error | ISceneLoaderAsyncResult> {
   const modelPath = (() => {
     if (item instanceof Equipment) {
-      return equipmentBaseItemToModelPath(item.equipmentBaseItemProperties.baseItem);
+      return equipmentBaseItemToModelPath(item.equipmentBaseItemProperties.taggedBaseItem);
     } else if (item instanceof Consumable) {
       return consumableItemToModelPath(item.consumableType);
     }

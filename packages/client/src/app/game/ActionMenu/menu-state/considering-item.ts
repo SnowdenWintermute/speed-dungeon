@@ -71,9 +71,10 @@ export class ConsideringItemMenuState implements ActionMenuState {
     if (
       !useUIStore.getState().modKeyHeld &&
       this.item instanceof Equipment &&
-      (this.item.equipmentBaseItemProperties.baseItem.equipmentType ===
+      (this.item.equipmentBaseItemProperties.taggedBaseItem.equipmentType ===
         EquipmentType.OneHandedMeleeWeapon ||
-        this.item.equipmentBaseItemProperties.baseItem.equipmentType === EquipmentType.Ring) &&
+        this.item.equipmentBaseItemProperties.taggedBaseItem.equipmentType ===
+          EquipmentType.Ring) &&
       slotItemIsEquippedTo === null
     ) {
       const equipToAltSlotButton = new ActionMenuButtonProperties(
