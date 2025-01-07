@@ -4,7 +4,6 @@ import {
   BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL,
   CHANCE_TO_HAVE_DOUBLE_AFFIX,
   CHANCE_TO_HAVE_PREFIX,
-  CHANCE_TO_HAVE_SUFFIX,
   CombatAttribute,
   ERROR_MESSAGES,
   EquipmentBaseItem,
@@ -16,6 +15,7 @@ import {
   MaxAndCurrent,
   PrefixType,
   SuffixType,
+  TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER,
   chooseRandomFromArray,
   equipmentIsTwoHandedWeapon,
   formatEquipmentType,
@@ -161,9 +161,10 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
       if (maxTierOption === undefined)
         return new Error("invalid template - selected affix type that doesn't exist on template");
       const rolledTier = rollAffixTier(maxTierOption, itemLevel);
-      let multiplier = 1;
-      if (equipmentIsTwoHandedWeapon(this.equipmentType)) multiplier = 2;
 
+      let multiplier = 1;
+      if (equipmentIsTwoHandedWeapon(this.equipmentType))
+        multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
       const affix = rollAffix({ affixType: AffixType.Prefix, prefixType }, rolledTier, multiplier);
       affixes[AffixType.Prefix][prefixType] = affix;
     }
@@ -173,9 +174,10 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
       if (maxTierOption === undefined)
         return new Error("invalid template - selected affix type that doesn't exist on template");
       const rolledTier = rollAffixTier(maxTierOption, itemLevel);
-      let multiplier = 1;
-      if (equipmentIsTwoHandedWeapon(this.equipmentType)) multiplier = 2;
 
+      let multiplier = 1;
+      if (equipmentIsTwoHandedWeapon(this.equipmentType))
+        multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
       const affix = rollAffix({ affixType: AffixType.Suffix, suffixType }, rolledTier, multiplier);
       affixes[AffixType.Suffix][suffixType] = affix;
     }

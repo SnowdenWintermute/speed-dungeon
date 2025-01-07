@@ -1,4 +1,4 @@
-import { useGameStore } from "@/stores/game-store";
+import { inventoryItemsMenuState, useGameStore } from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -20,6 +20,7 @@ import selectItem from "@/utils/selectItem";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { websocketConnection } from "@/singletons/websocket-connection";
+import { toggleInventoryHotkey } from "./base";
 
 const useItemHotkey = HOTKEYS.MAIN_1;
 const useItemLetter = letterFromKeyCode(useItemHotkey);
@@ -43,6 +44,18 @@ export class CraftingItemMenuState implements ActionMenuState {
 
     cancelButton.dedicatedKeys = [HOTKEYS.CANCEL];
     toReturn[ActionButtonCategory.Top].push(cancelButton);
+
+    const setInventoryOpen = new ActionMenuButtonProperties(
+      `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
+      () => {
+        useGameStore.getState().mutateState((state) => {
+          state.stackedMenuStates.push(inventoryItemsMenuState);
+          state.hoveredAction = null;
+        });
+      }
+    );
+    setInventoryOpen.dedicatedKeys = ["KeyI", toggleInventoryHotkey];
+    toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
     const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {

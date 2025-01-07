@@ -16,6 +16,7 @@ import writePlayerCharactersInGameToDb from "../../saved-character-event-handler
 import { repairEquipment } from "./repair-equipment.js";
 import { makeNonMagicalItemMagical } from "./make-non-magical-item-magical.js";
 import { replaceExistingWithNewRandomAffixes } from "./replace-existing-with-new-random-affixes.js";
+import { randomizeExistingAffixRolls } from "./randomize-existing-affix-rolls.js";
 
 export async function craftItemHandler(
   eventData: { characterId: EntityId; itemId: EntityId; craftingAction: CraftingAction },
@@ -81,7 +82,5 @@ const craftingActionHandlers: Record<
   [CraftingAction.Reform]: function (): void | Error {
     throw new Error("Function not implemented.");
   },
-  [CraftingAction.Shake]: function (): void | Error {
-    throw new Error("Function not implemented.");
-  },
+  [CraftingAction.Shake]: randomizeExistingAffixRolls,
 };
