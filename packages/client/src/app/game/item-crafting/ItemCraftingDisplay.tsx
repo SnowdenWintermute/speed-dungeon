@@ -20,7 +20,7 @@ export default function ItemCraftDisplay() {
 
   return (
     <section className="flex-1 flex items-end">
-      <div className="border border-slate-400 p-4 bg-slate-700 h-full w-fit pointer-events-auto">
+      <div className="border border-slate-400 p-4 bg-slate-800 h-full w-fit pointer-events-auto">
         <ItemDetails
           itemOption={equipment}
           shouldShowModKeyTooltip={false}
@@ -29,14 +29,14 @@ export default function ItemCraftDisplay() {
           isComparedItem={false}
         />
         <Divider />
-        <div className="w-[500px]">
+        <div className="w-[500px] text-slate-400">
           <p>Item level: {equipment.itemLevel}</p>
           <p>Dungeon level: {partyResult.currentFloor}</p>
           <p className={ilvlLimited ? UNMET_REQUIREMENT_TEXT_COLOR : ""}>
             <HoverableTooltipWrapper
-              extraStyles="inline"
+              extraStyles="inline cursor-help"
               tooltipText={`
-          Note: A crafting action can not generate an affix of a tier which is higher than the
+            A crafting action can not generate an affix of a tier which is higher than the
             item's level or the current floor, whichever is lower. For this reason, the "Shake"
             action is not permitted unless the machine's level is at least as high as the item
             level. Take care - "Tumble" may replace higher tier affixes with affixes that are limited by this rule.

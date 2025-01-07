@@ -77,7 +77,7 @@ export class CraftingItemMenuState implements ActionMenuState {
         craftingAction,
         Math.min(this.item.itemLevel, partyResult.currentFloor)
       );
-      const buttonName = `${CRAFTING_ACTION_STRINGS[craftingAction]} (${actionPrice} shards)`;
+      const buttonName = `${CRAFTING_ACTION_STRINGS[craftingAction]}`;
       const button = new ActionMenuButtonProperties(
         (
           <div className="flex justify-between w-full pr-2">
