@@ -67,7 +67,7 @@ export function assignEquipmentMaterials(
   materials[MATERIAL_NAMES.BLADE] = savedMaterials.metal[LightestToDarkest.Lighter];
   materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.metal[LightestToDarkest.Lightest];
 
-  switch (equipmentBaseItemProperties.taggedBaseEquipment.equipmentType) {
+  switch (equipmentBaseItemProperties.equipmentType) {
     case EquipmentType.OneHandedMeleeWeapon:
       switch (equipmentBaseItemProperties.taggedBaseEquipment.baseItemType) {
         case OneHandedMeleeWeapon.Stick:
@@ -298,10 +298,10 @@ export function assignEquipmentMaterials(
           break;
         case Shield.Heater:
           materials = {
-            [MATERIAL_NAMES.MAIN]: savedMaterials.wood[LightestToDarkest.Lightest],
-            [MATERIAL_NAMES.ALTERNATE]: savedMaterials.wood[LightestToDarkest.Lighter],
-            [MATERIAL_NAMES.ACCENT_1]: savedMaterials.metal[LightestToDarkest.Medium],
-            [MATERIAL_NAMES.ACCENT_2]: savedMaterials.wood[LightestToDarkest.Medium],
+            [MATERIAL_NAMES.MAIN]: savedMaterials.metal[LightestToDarkest.Lighter],
+            [MATERIAL_NAMES.ALTERNATE]: savedMaterials.metal[LightestToDarkest.Darker],
+            [MATERIAL_NAMES.ACCENT_1]: savedMaterials.wood[LightestToDarkest.Medium],
+            [MATERIAL_NAMES.ACCENT_2]: savedMaterials.metal[LightestToDarkest.Medium],
           };
           break;
         case Shield.Buckler:

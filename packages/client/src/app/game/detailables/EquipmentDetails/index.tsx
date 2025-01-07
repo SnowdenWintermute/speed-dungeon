@@ -14,7 +14,11 @@ export default function EquipmentDetails({ equipment }: Props) {
   const armorCategoryTextOption = getArmorCategoryText(equipment);
   return (
     <div className="mr-2">
-      {EQUIPMENT_TYPE_STRINGS[equipment.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType]}
+      {
+        EQUIPMENT_TYPE_STRINGS[
+          equipment.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType
+        ]
+      }
       {armorCategoryTextOption && armorCategoryTextOption}
       <Durability equipment={equipment} />
       <ItemRequirements attributeRequirements={equipment.requirements} />

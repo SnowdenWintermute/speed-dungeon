@@ -90,16 +90,22 @@ export default function ItemDetails({
   return (
     <div
       className={`border border-slate-400 bg-slate-700 h-fit
-      max-w-1/2 ${extraStyles} ${hiddenClass}
+      w-full ${extraStyles} ${hiddenClass}
       flex relative 
       `}
       style={{
         [`margin${marginSide}`]: `${SPACING_REM_SMALL / 2.0}rem`,
-        width: "50%",
         padding: `${SPACING_REM}rem`,
         scrollbarGutter: "stable",
       }}
     >
+      {itemOption instanceof Equipment && (
+        <HoverableTooltipWrapper tooltipText="Item Level (determines the power of affixes)">
+          <div className="absolute -top-1 -left-1 z-10 bg-slate-800 h-6 w-6 border border-slate-400 leading-none flex justify-center items-center">
+            {itemOption.itemLevel}
+          </div>
+        </HoverableTooltipWrapper>
+      )}
       {shouldShowModKeyTooltip && isComparedItem && (
         <div
           style={{ zIndex: ZIndexLayers.ItemDetails }}

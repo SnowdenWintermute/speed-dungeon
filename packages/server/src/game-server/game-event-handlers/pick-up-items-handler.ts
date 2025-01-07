@@ -19,11 +19,7 @@ export function pickUpItemsHandler(
 ) {
   const { game, party, character } = characterAssociatedData;
 
-  if (
-    Inventory.getTotalNumberOfItems(character.combatantProperties.inventory) >=
-    INVENTORY_DEFAULT_CAPACITY
-  )
-    return new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);
+  let reachedMaxCapacity = false;
 
   const gameServer = getGameServer();
   let idsPickedUp: string[] = [];
@@ -53,8 +49,10 @@ export function pickUpItemsHandler(
     if (
       Inventory.getTotalNumberOfItems(character.combatantProperties.inventory) >=
       INVENTORY_DEFAULT_CAPACITY
-    )
-      continue; // continue instead of break so they can still pick up shard stacks
+    ) {
+      reachedMaxCapacity = true;
+      continue;
+    } // continue instead of break so they can still pick up shard stacks
 
     const itemResult = Inventory.removeItem(party.currentRoom.inventory, itemId);
     if (itemResult instanceof Error) return itemResult;
@@ -72,4 +70,6 @@ export function pickUpItemsHandler(
     characterId: character.entityProperties.id,
     itemIds: idsPickedUp,
   });
+
+  if (reachedMaxCapacity) return new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);
 }
