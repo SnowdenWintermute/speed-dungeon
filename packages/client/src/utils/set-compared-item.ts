@@ -26,7 +26,7 @@ export default function setComparedItem(itemId: string, compareAltSlot: boolean)
     if (item instanceof Equipment)
       slotsOption =
         EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[
-          item.equipmentBaseItemProperties.taggedBaseItem.equipmentType
+          item.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType
         ];
 
     if (slotsOption === null) {

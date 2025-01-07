@@ -15,10 +15,10 @@ export class ItemGenerationDirector {
     const { builder } = this;
     const baseItemResult = builder.buildBaseItem(itemLevel, options?.forcedBaseItemOption);
     if (baseItemResult instanceof Error) return baseItemResult;
-    const { type: itemType, baseItem } = baseItemResult;
+    const { type: itemType } = baseItemResult;
     const affixesResult =
       !options?.noAffixes && itemType === ItemType.Equipment
-        ? builder.buildAffixes(itemLevel, baseItem)
+        ? builder.buildAffixes(itemLevel, baseItemResult.taggedBaseEquipment)
         : null;
     if (affixesResult instanceof Error) return affixesResult;
     const affixes = affixesResult;
@@ -34,9 +34,11 @@ export class ItemGenerationDirector {
 
     switch (itemType) {
       case ItemType.Equipment:
-        const equipmentBaseItemProperties = builder.buildEquipmentBaseItemProperties(baseItem);
+        const equipmentBaseItemProperties = builder.buildEquipmentBaseItemProperties(
+          baseItemResult.taggedBaseEquipment
+        );
         if (equipmentBaseItemProperties instanceof Error) return equipmentBaseItemProperties;
-        const durabilityResult = builder.buildDurability(baseItem);
+        const durabilityResult = builder.buildDurability(baseItemResult.taggedBaseEquipment);
         if (durabilityResult instanceof Error) return durabilityResult;
 
         const item = new Equipment(
@@ -50,7 +52,13 @@ export class ItemGenerationDirector {
 
         return item;
       case ItemType.Consumable:
-        return new Consumable(entityProperties, itemLevel, requirements, baseItem, 1);
+        return new Consumable(
+          entityProperties,
+          itemLevel,
+          requirements,
+          baseItemResult.baseItem,
+          1
+        );
     }
   }
 }

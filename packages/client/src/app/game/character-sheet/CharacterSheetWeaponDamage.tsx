@@ -37,7 +37,7 @@ export default function CharacterSheetWeaponDamage({ combatant }: { combatant: C
     false
   );
   const isTwoHanded = mhWeaponOption
-    ? Equipment.isTwoHanded(mhWeaponOption.taggedBaseItem.equipmentType)
+    ? Equipment.isTwoHanded(mhWeaponOption.taggedBaseEquipment.equipmentType)
     : false;
 
   const ohEquipmentOption = CombatantEquipment.getEquippedHoldable(
@@ -50,7 +50,7 @@ export default function CharacterSheetWeaponDamage({ combatant }: { combatant: C
   let ohDamageAndAccuracyResult;
   if (
     !isTwoHanded &&
-    ohEquipmentOption?.equipmentBaseItemProperties.taggedBaseItem.equipmentType !==
+    ohEquipmentOption?.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType !==
       EquipmentType.Shield
   ) {
     let ohWeaponOption = CombatantProperties.getEquippedWeapon(

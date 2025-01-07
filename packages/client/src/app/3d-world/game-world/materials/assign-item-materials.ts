@@ -67,9 +67,9 @@ export function assignEquipmentMaterials(
   materials[MATERIAL_NAMES.BLADE] = savedMaterials.metal[LightestToDarkest.Lighter];
   materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.metal[LightestToDarkest.Lightest];
 
-  switch (equipmentBaseItemProperties.taggedBaseItem.equipmentType) {
+  switch (equipmentBaseItemProperties.taggedBaseEquipment.equipmentType) {
     case EquipmentType.OneHandedMeleeWeapon:
-      switch (equipmentBaseItemProperties.taggedBaseItem.baseItemType) {
+      switch (equipmentBaseItemProperties.taggedBaseEquipment.baseItemType) {
         case OneHandedMeleeWeapon.Stick:
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Lighter];
           break;
@@ -175,7 +175,7 @@ export function assignEquipmentMaterials(
       }
       break;
     case EquipmentType.TwoHandedMeleeWeapon:
-      switch (equipmentBaseItemProperties.taggedBaseItem.baseItemType) {
+      switch (equipmentBaseItemProperties.taggedBaseEquipment.baseItemType) {
         case TwoHandedMeleeWeapon.RottingBranch:
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Medium];
           break;
@@ -257,7 +257,7 @@ export function assignEquipmentMaterials(
       }
       break;
     case EquipmentType.TwoHandedRangedWeapon:
-      switch (equipmentBaseItemProperties.taggedBaseItem.baseItemType) {
+      switch (equipmentBaseItemProperties.taggedBaseEquipment.baseItemType) {
         case TwoHandedRangedWeapon.ShortBow:
           materials[MATERIAL_NAMES.MAIN] = savedMaterials.wood[LightestToDarkest.Medium];
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Lighter];
@@ -287,7 +287,7 @@ export function assignEquipmentMaterials(
       }
       break;
     case EquipmentType.Shield:
-      switch (equipmentBaseItemProperties.taggedBaseItem.baseItemType) {
+      switch (equipmentBaseItemProperties.taggedBaseEquipment.baseItemType) {
         case Shield.MakeshiftBuckler:
           materials = {
             [MATERIAL_NAMES.MAIN]: savedMaterials.wood[LightestToDarkest.Darker],

@@ -13,7 +13,7 @@ export default function WeaponDamage({ equipment }: Props) {
 
   let weaponProperties: WeaponProperties;
 
-  switch (equipment.equipmentBaseItemProperties.taggedBaseItem.equipmentType) {
+  switch (equipment.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType) {
     case EquipmentType.OneHandedMeleeWeapon:
     case EquipmentType.TwoHandedMeleeWeapon:
     case EquipmentType.TwoHandedRangedWeapon:

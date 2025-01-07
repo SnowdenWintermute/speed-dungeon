@@ -22,7 +22,7 @@ export const HP_ARMOR_TEST_ITEM = new Equipment(
   0,
   {},
   {
-    taggedBaseItem: {
+    taggedBaseEquipment: {
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.GothicPlate,
     },
@@ -59,7 +59,7 @@ export const WEAPON_TEST_ITEM = new Equipment(
   0,
   {},
   {
-    taggedBaseItem: {
+    taggedBaseEquipment: {
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
       baseItemType: OneHandedMeleeWeapon.ButterKnife,
     },

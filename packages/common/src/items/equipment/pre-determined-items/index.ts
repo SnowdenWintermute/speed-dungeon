@@ -27,7 +27,7 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
         1,
         {},
         {
-          taggedBaseItem: {
+          taggedBaseEquipment: {
             equipmentType: EquipmentType.TwoHandedRangedWeapon,
             baseItemType: TwoHandedRangedWeapon.ShortBow,
           },
@@ -50,7 +50,7 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
         1,
         {},
         {
-          taggedBaseItem: {
+          taggedBaseEquipment: {
             equipmentType: EquipmentType.OneHandedMeleeWeapon,
             baseItemType: OneHandedMeleeWeapon.ShortSword,
           },
@@ -73,7 +73,7 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
         1,
         {},
         {
-          taggedBaseItem: {
+          taggedBaseEquipment: {
             equipmentType: EquipmentType.OneHandedMeleeWeapon,
             baseItemType: OneHandedMeleeWeapon.Stick,
           },
@@ -96,7 +96,7 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
         1,
         {},
         {
-          taggedBaseItem: {
+          taggedBaseEquipment: {
             equipmentType: EquipmentType.OneHandedMeleeWeapon,
             baseItemType: OneHandedMeleeWeapon.Dagger,
           },

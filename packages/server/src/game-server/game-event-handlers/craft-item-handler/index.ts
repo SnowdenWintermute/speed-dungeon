@@ -17,6 +17,7 @@ import { repairEquipment } from "./repair-equipment.js";
 import { makeNonMagicalItemMagical } from "./make-non-magical-item-magical.js";
 import { replaceExistingWithNewRandomAffixes } from "./replace-existing-with-new-random-affixes.js";
 import { randomizeExistingAffixRolls } from "./randomize-existing-affix-rolls.js";
+import { addAffixToItem } from "./add-affix-to-item.js";
 
 export async function craftItemHandler(
   eventData: { characterId: EntityId; itemId: EntityId; craftingAction: CraftingAction },
@@ -74,9 +75,7 @@ const craftingActionHandlers: Record<
 > = {
   [CraftingAction.Repair]: repairEquipment,
   [CraftingAction.Imbue]: makeNonMagicalItemMagical,
-  [CraftingAction.Augment]: function (): void | Error {
-    throw new Error("Function not implemented.");
-  },
+  [CraftingAction.Augment]: addAffixToItem,
   [CraftingAction.Tumble]: replaceExistingWithNewRandomAffixes,
   [CraftingAction.Reform]: function (): void | Error {
     throw new Error("Function not implemented.");

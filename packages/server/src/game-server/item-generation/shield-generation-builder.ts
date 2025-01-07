@@ -29,7 +29,7 @@ export class ShieldGenerationBuilder<T extends ShieldGenerationTemplate>
     const armorClass = randBetween(template.acRange.min, template.acRange.max);
 
     const properties: ShieldProperties = {
-      taggedBaseItem: template.equipmentBaseItem,
+      taggedBaseEquipment: template.equipmentBaseItem,
       equipmentType: template.equipmentBaseItem.equipmentType,
       armorClass,
       size: template.size,

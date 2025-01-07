@@ -19,7 +19,7 @@ import { ARTISTS } from "./artists";
 export function getModelAttribution(item: Item) {
   if (item instanceof Equipment) {
     const { equipmentBaseItemProperties } = item;
-    switch (equipmentBaseItemProperties.taggedBaseItem.equipmentType) {
+    switch (equipmentBaseItemProperties.taggedBaseEquipment.equipmentType) {
       case EquipmentType.BodyArmor:
       case EquipmentType.HeadGear:
       case EquipmentType.Ring:
@@ -27,22 +27,22 @@ export function getModelAttribution(item: Item) {
         return undefined;
       case EquipmentType.OneHandedMeleeWeapon:
         const artist =
-          ONE_HANDED_MELEE_WEAPON_MODELS[equipmentBaseItemProperties.taggedBaseItem.baseItemType]
+          ONE_HANDED_MELEE_WEAPON_MODELS[equipmentBaseItemProperties.taggedBaseEquipment.baseItemType]
             .artist;
         return ARTISTS[artist];
       case EquipmentType.TwoHandedMeleeWeapon:
         return ARTISTS[
-          TWO_HANDED_MELEE_WEAPON_MODELS[equipmentBaseItemProperties.taggedBaseItem.baseItemType]
+          TWO_HANDED_MELEE_WEAPON_MODELS[equipmentBaseItemProperties.taggedBaseEquipment.baseItemType]
             .artist
         ];
       case EquipmentType.TwoHandedRangedWeapon:
         return ARTISTS[
-          TWO_HANDED_RANGED_WEAPON_MODELS[equipmentBaseItemProperties.taggedBaseItem.baseItemType]
+          TWO_HANDED_RANGED_WEAPON_MODELS[equipmentBaseItemProperties.taggedBaseEquipment.baseItemType]
             .artist
         ];
       case EquipmentType.Shield:
         return ARTISTS[
-          SHIELD_MODELS[equipmentBaseItemProperties.taggedBaseItem.baseItemType].artist
+          SHIELD_MODELS[equipmentBaseItemProperties.taggedBaseEquipment.baseItemType].artist
         ];
     }
   } else if (item instanceof Consumable) {

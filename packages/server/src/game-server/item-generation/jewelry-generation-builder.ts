@@ -23,7 +23,7 @@ export class JewelryGenerationBuilder<T extends JewelryGenerationTemplate>
   buildEquipmentBaseItemProperties(_baseEquipmentItem: EquipmentBaseItem) {
     const properties = {
       equipmentType: this.equipmentType,
-      taggedBaseItem: {
+      taggedBaseEquipment: {
         equipmentType: this.equipmentType,
         baseItemType: this.equipmentType === EquipmentType.Amulet ? Jewelry.Amulet : Jewelry.Ring,
       },

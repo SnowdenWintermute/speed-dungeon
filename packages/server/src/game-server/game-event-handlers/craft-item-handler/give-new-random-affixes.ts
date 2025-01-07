@@ -3,12 +3,12 @@ import { getGameServer } from "../../../singletons.js";
 
 export function giveNewRandomAffixes(equipment: Equipment, itemLevelLimiter: number) {
   const gameServer = getGameServer();
-  const { taggedBaseItem } = equipment.equipmentBaseItemProperties;
-  const builder = gameServer.itemGenerationBuilders[taggedBaseItem.equipmentType];
+  const { taggedBaseEquipment } = equipment.equipmentBaseItemProperties;
+  const builder = gameServer.itemGenerationBuilders[taggedBaseEquipment.equipmentType];
 
   const affixesResult = builder.buildAffixes(
     Math.min(equipment.itemLevel, itemLevelLimiter),
-    taggedBaseItem,
+    taggedBaseEquipment,
     {
       forcedIsMagical: true,
     }

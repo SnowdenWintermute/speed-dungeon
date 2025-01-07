@@ -31,7 +31,7 @@ export function generateSpecificEquipmentType(
   const item = itemGenerationDirector?.createItem(1, idGenerator, {
     forcedBaseItemOption: {
       type: ItemType.Equipment,
-      baseItem: equipmentBaseItem,
+      taggedBaseEquipment: equipmentBaseItem,
     },
     noAffixes,
   });

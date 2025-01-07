@@ -1,21 +1,57 @@
-import { ERROR_MESSAGES, Equipment } from "@speed-dungeon/common";
+import { AffixType, ERROR_MESSAGES, Equipment, ItemType } from "@speed-dungeon/common";
 
 import { getEquipmentGenerationTemplate } from "../../item-generation/equipment-templates/index.js";
+import {
+  getRandomValidPrefixTypes,
+  getRandomValidSuffixTypes,
+  rollAffixTierAndValue,
+} from "../../item-generation/equipment-generation-builder.js";
+import { getGameServer } from "../../../singletons.js";
 
 export function addAffixToItem(equipment: Equipment, itemLevelLimiter: number) {
-  // if not magical, reject
-  // if has already 2 affixes, reject
   const missingPrefix = Equipment.hasSuffix(equipment) && !Equipment.hasPrefix(equipment);
   const missingSuffix = !Equipment.hasSuffix(equipment) && Equipment.hasPrefix(equipment);
   if (!Equipment.isMagical(equipment) || (!missingPrefix && !missingSuffix))
     return new Error(ERROR_MESSAGES.ITEM.INVALID_PROPERTIES);
 
   const template = getEquipmentGenerationTemplate(
-    equipment.equipmentBaseItemProperties.taggedBaseItem
+    equipment.equipmentBaseItemProperties.taggedBaseEquipment
   );
+
   if (missingPrefix) {
-    // const newPrefix =
+    const prefixType = getRandomValidPrefixTypes(template, 1)[0];
+    if (prefixType === undefined) return new Error("Couldn't generate affix type");
+    const affixResult = rollAffixTierAndValue(
+      template,
+      { affixType: AffixType.Prefix, prefixType },
+      Math.min(equipment.itemLevel, itemLevelLimiter),
+      equipment.equipmentBaseItemProperties.equipmentType
+    );
+    if (affixResult instanceof Error) return affixResult;
+    equipment.affixes[AffixType.Prefix][prefixType] = affixResult;
   }
 
-  // create it within a rolled tier that is no higher than Math.min(itemLevel, currentFloor)
+  if (missingSuffix) {
+    const suffixType = getRandomValidSuffixTypes(template, 1)[0];
+    if (suffixType === undefined) return new Error("Couldn't generate affix type");
+    const affixResult = rollAffixTierAndValue(
+      template,
+      { affixType: AffixType.Suffix, suffixType },
+      Math.min(equipment.itemLevel, itemLevelLimiter),
+      equipment.equipmentBaseItemProperties.equipmentType
+    );
+    if (affixResult instanceof Error) return affixResult;
+    equipment.affixes[AffixType.Suffix][suffixType] = affixResult;
+  }
+
+  const { equipmentBaseItemProperties } = equipment;
+  const builder = getGameServer().itemGenerationBuilders[equipmentBaseItemProperties.equipmentType];
+  const newName = builder.buildItemName(
+    {
+      type: ItemType.Equipment,
+      taggedBaseEquipment: equipmentBaseItemProperties.taggedBaseEquipment,
+    },
+    equipment.affixes
+  );
+  equipment.entityProperties.name = newName;
 }

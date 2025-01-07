@@ -36,7 +36,7 @@ export class ArmorGenerationBuilder<T extends ArmorGenerationTemplate>
     const armorClass = randBetween(template.acRange.min, template.acRange.max);
 
     const properties: ArmorProperties = {
-      taggedBaseItem: baseEquipmentItem,
+      taggedBaseEquipment: baseEquipmentItem,
       equipmentType: baseEquipmentItem.equipmentType,
       armorClass,
       armorCategory: template.armorCategory,

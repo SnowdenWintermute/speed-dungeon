@@ -56,12 +56,12 @@ export class Equipment extends Item {
   }
 
   static isJewelry(equipment: Equipment) {
-    const { equipmentType } = equipment.equipmentBaseItemProperties.taggedBaseItem;
+    const { equipmentType } = equipment.equipmentBaseItemProperties.taggedBaseEquipment;
     return equipmentType === EquipmentType.Ring || equipmentType === EquipmentType.Amulet;
   }
 
   static isWeapon(equipment: Equipment) {
-    const { equipmentType } = equipment.equipmentBaseItemProperties.taggedBaseItem;
+    const { equipmentType } = equipment.equipmentBaseItemProperties.taggedBaseEquipment;
     return (
       equipmentType === EquipmentType.OneHandedMeleeWeapon ||
       equipmentType === EquipmentType.TwoHandedMeleeWeapon ||

@@ -71,9 +71,9 @@ export class ConsideringItemMenuState implements ActionMenuState {
     if (
       !useUIStore.getState().modKeyHeld &&
       this.item instanceof Equipment &&
-      (this.item.equipmentBaseItemProperties.taggedBaseItem.equipmentType ===
+      (this.item.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType ===
         EquipmentType.OneHandedMeleeWeapon ||
-        this.item.equipmentBaseItemProperties.taggedBaseItem.equipmentType ===
+        this.item.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType ===
           EquipmentType.Ring) &&
       slotItemIsEquippedTo === null
     ) {
