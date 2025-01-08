@@ -8,6 +8,7 @@ import {
 } from ".";
 import {
   CONSUMABLE_TYPE_STRINGS,
+  CombatantProperties,
   Consumable,
   ConsumableType,
   Equipment,
@@ -18,17 +19,22 @@ import { setAlert } from "@/app/components/alerts";
 import { immerable } from "immer";
 import setItemHovered from "@/utils/set-item-hovered";
 import createPageButtons from "./create-page-buttons";
-import { Color3, Color4 } from "@babylonjs/core";
+import { Color4 } from "@babylonjs/core";
 import cloneDeep from "lodash.clonedeep";
 import { createEaseGradient } from "@/utils/create-ease-gradient-style";
+import { useState } from "react";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 
 const hexGreen = "#0d6658";
+const hexRed = "#563D45"; // eye droppered from paper doll slot disabled with filter
 const GREEN = Color4.FromHexString(hexGreen).scale(255);
+const RED = Color4.FromHexString(hexRed).scale(255);
 const GRAY = new Color4(0.55, 0.55, 0.55, 1.0).scale(255);
 const TRANSPARENT = cloneDeep(GRAY);
 TRANSPARENT.a = 0;
 const gradientBg = createEaseGradient(TRANSPARENT, GRAY, 1, 25);
 const consumableGradientBg = createEaseGradient(TRANSPARENT, GREEN, 1, 25);
+const unmetRequirementsGradientBg = createEaseGradient(TRANSPARENT, RED, 1, 25);
 
 export abstract class ItemsMenuState implements ActionMenuState {
   [immerable] = true;
@@ -109,7 +115,8 @@ export abstract class ItemsMenuState implements ActionMenuState {
             buttonText={consumableName}
             thumbnailOption={thumbnailOption}
             gradientOverride={consumableGradientBg}
-            extraStyles="-translate-x-[1450%] scale-[300%]"
+            imageExtraStyles="scale-[300%]"
+            imageHoverStyles="-translate-x-[55px]"
           />
         ),
         consumableName,
@@ -127,16 +134,30 @@ export abstract class ItemsMenuState implements ActionMenuState {
     for (const item of equipmentAndShardStacks) {
       const thumbnailOption = useGameStore.getState().itemThumbnails[item.entityProperties.id];
       const buttonText = buttonTextPrefix + item.entityProperties.name;
-      const extraStyles =
+      let extraStyles =
         item instanceof Equipment && Equipment.isWeapon(item)
           ? "scale-[300%]"
           : "scale-[200%] -translate-x-1/2 p-[2px]";
+
+      const requirementsMet = Item.requirementsMet(
+        item,
+        CombatantProperties.getTotalAttributes(focusedCharacterResult.combatantProperties)
+      );
+
+      let containerExtraStyles = "";
+      if (!requirementsMet) {
+        containerExtraStyles += UNMET_REQUIREMENT_TEXT_COLOR;
+        extraStyles += " filter-red";
+      }
       const button = new ActionMenuButtonProperties(
         (
           <ItemButtonBody
             buttonText={buttonText}
-            extraStyles={extraStyles}
+            containerExtraStyles={containerExtraStyles}
+            imageExtraStyles={extraStyles}
+            gradientOverride={!requirementsMet ? unmetRequirementsGradientBg : ""}
             thumbnailOption={thumbnailOption}
+            imageHoverStyles="-translate-x-[55px]"
           />
         ),
         buttonText,
@@ -185,21 +206,32 @@ function ItemButtonBody({
   buttonText,
   thumbnailOption,
   gradientOverride,
-  extraStyles,
+  containerExtraStyles,
+  imageExtraStyles,
+  imageHoverStyles,
 }: {
   buttonText: string;
-  extraStyles?: string;
   gradientOverride?: string;
+  containerExtraStyles?: string;
   thumbnailOption?: string;
+  imageExtraStyles?: string;
+  imageHoverStyles?: string;
 }) {
+  const [isHovered, setIsHovered] = useState(false);
   return (
-    <div className="h-full w-full relative">
+    <div
+      className={`h-full w-full relative ${containerExtraStyles}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div
-        className="absolute right-0 w-7/12 h-full"
+        className={`absolute right-0 w-7/12 h-full`}
         style={{ background: gradientOverride || gradientBg }}
       />
       {thumbnailOption && (
-        <div className={`absolute right-0 h-full w-fit -rotate-90 ${extraStyles}`}>
+        <div
+          className={`absolute right-0 h-full w-fit -rotate-90 transition-transform ${imageExtraStyles} ${isHovered ? imageHoverStyles : ""}`}
+        >
           <img src={thumbnailOption} className="h-full object-fill " />
         </div>
       )}

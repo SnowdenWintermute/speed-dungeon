@@ -1,4 +1,4 @@
-import { inventoryItemsMenuState, useGameStore, itemsOnGroundMenuState } from "@/stores/game-store";
+import { useGameStore, itemsOnGroundMenuState } from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -15,6 +15,9 @@ import {
   CombatantProperties,
   ABILITY_NAME_STRINGS,
   Inventory,
+  CombatantEquipment,
+  HoldableSlotType,
+  EquipmentType,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -25,6 +28,13 @@ import clientUserControlsCombatant from "@/utils/client-user-controls-combatant"
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { ABILITY_ATTRIBUTES } from "@speed-dungeon/common";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
+import { ReactNode } from "react";
+
+import FireIcon from "../../../../../public/img/game-ui-icons/fire.svg";
+import RangedIcon from "../../../../../public/img/game-ui-icons/ranged.svg";
+import SwordSlashIcon from "../../../../../public/img/game-ui-icons/sword-slash.svg";
+import HealthCrossIcon from "../../../../../public/img/game-ui-icons/health-cross.svg";
+import IceIcon from "../../../../../public/img/game-ui-icons/ice.svg";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -86,7 +96,16 @@ export class BaseMenuState implements ActionMenuState {
     for (const ability of Object.values(combatantProperties.abilities)) {
       if (abilitiesNotToMakeButtonsFor.includes(ability.name)) continue;
       const button = new ActionMenuButtonProperties(
-        ABILITY_NAME_STRINGS[ability.name],
+        (
+          <div className="flex justify-between h-full w-full pr-2">
+            <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
+              {ABILITY_NAME_STRINGS[ability.name]}
+            </div>
+            <div className="h-full flex items-center">
+              {getAbilityIcon(ability.name, focusedCharacterResult.combatantProperties)}
+            </div>
+          </div>
+        ),
         ABILITY_NAME_STRINGS[ability.name],
         () => {
           websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
@@ -156,4 +175,36 @@ function disableButtonBecauseNotThisCombatantTurn(combatantId: string) {
   }
 
   return disableButtonBecauseNotThisCombatantTurn;
+}
+
+function getAbilityIcon(
+  abilityName: AbilityName,
+  combatantProperties: CombatantProperties
+): ReactNode {
+  switch (abilityName) {
+    case AbilityName.Attack:
+    case AbilityName.AttackMeleeMainhand:
+    case AbilityName.AttackMeleeOffhand:
+    case AbilityName.AttackRangedMainhand:
+      const mhOption = CombatantEquipment.getEquippedHoldable(
+        combatantProperties,
+        HoldableSlotType.MainHand
+      );
+      if (
+        mhOption &&
+        mhOption.equipmentBaseItemProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon
+      ) {
+        return <RangedIcon className="h-[20px] fill-slate-400 stroke-slate-400" />;
+      } else {
+        return <SwordSlashIcon className="h-[20px] fill-slate-400" />;
+      }
+    case AbilityName.Fire:
+      return <FireIcon className="h-[20px] fill-slate-400" />;
+    case AbilityName.Ice:
+      return <IceIcon className="h-[20px] fill-slate-400" />;
+    case AbilityName.Healing:
+      return <HealthCrossIcon className="h-[20px] fill-slate-400" />;
+    case AbilityName.Destruction:
+      return <FireIcon className="h-[20px] fill-slate-400" />;
+  }
 }

@@ -11,7 +11,7 @@ import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
 import { HOTKEYS } from "@/hotkeys";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
-import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
+import ShardsIcon from "../../../../../public/img/game-ui-icons/shards.svg";
 import {
   CONSUMABLE_TYPE_STRINGS,
   ClientToServerEvent,
@@ -62,7 +62,17 @@ export class PurchaseItemsMenuState implements ActionMenuState {
     for (const consumableType of purchaseableItems) {
       const price = getConsumableShardPrice(partyResult.currentFloor, consumableType);
       const purchaseItemButton = new ActionMenuButtonProperties(
-        `${CONSUMABLE_TYPE_STRINGS[consumableType]} (${price} shards)`,
+        (
+          <div className="flex justify-between w-full pr-2">
+            <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
+              {CONSUMABLE_TYPE_STRINGS[consumableType]}
+            </div>
+            <div className="w-fit flex h-full items-center">
+              <span className="mr-1">{price}</span>
+              <ShardsIcon className="h-[20px] fill-slate-400" />
+            </div>
+          </div>
+        ),
         `${CONSUMABLE_TYPE_STRINGS[consumableType]} (${price} shards)`,
         () => {
           websocketConnection.emit(ClientToServerEvent.PurchaseItem, {
