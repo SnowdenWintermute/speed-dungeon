@@ -39,7 +39,6 @@ import {
   CONFIRM_SHARD_TEXT,
   ConfirmConvertToShardsMenuState,
 } from "./menu-state/confirm-convert-to-shards";
-import ItemCraftDisplay from "../item-crafting/ItemCraftingDisplay";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
@@ -274,7 +273,7 @@ function BottomButtons({
       className="flex justify-between bg-slate-700 relative border border-slate-400 h-8"
       style={!left && !right ? { opacity: 0 } : {}}
     >
-      <div key={left?.text} className="flex-1 border-r border-slate-400 h-full">
+      <div key={left?.key} className="flex-1 border-r border-slate-400 h-full">
         {left && <ActionMenuDedicatedButton extraStyles="w-full h-full" properties={left} />}
       </div>
       <div
@@ -285,7 +284,7 @@ function BottomButtons({
           Page {currentPageNumber}/{numPages}
         </span>
       </div>
-      <div key={right?.text} className="flex-1 flex border-l border-slate-400 h-full">
+      <div key={right?.key} className="flex-1 flex border-l border-slate-400 h-full">
         {right && <ActionMenuDedicatedButton extraStyles="w-full justify-end" properties={right} />}
       </div>
     </div>
@@ -298,7 +297,7 @@ function CharacterFocusingButtons() {
     direction: NextOrPrevious,
     hotkeys: string[]
   ) {
-    const button = new ActionMenuButtonProperties(text, () => {
+    const button = new ActionMenuButtonProperties(text, text, () => {
       const currentFocusedCharacterId = useGameStore.getState().focusedCharacterId;
       const party = getCurrentParty(
         useGameStore.getState(),

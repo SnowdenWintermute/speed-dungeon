@@ -9,9 +9,9 @@ import {
 import { ClientToServerEvent, Item } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
-import selectItem from "@/utils/selectItem";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
+import { createCancelButton } from "./common-buttons/cancel";
 
 const confirmShardHotkey = HOTKEYS.MAIN_1;
 const confirmShardLetter = letterFromKeyCode(confirmShardHotkey);
@@ -25,15 +25,7 @@ export class ConfirmConvertToShardsMenuState implements ActionMenuState {
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    const cancelButton = new ActionMenuButtonProperties("Cancel", "Cancel", () => {
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.pop();
-      });
-      selectItem(null);
-    });
-
-    cancelButton.dedicatedKeys = [HOTKEYS.CANCEL];
-    toReturn[ActionButtonCategory.Top].push(cancelButton);
+    toReturn[ActionButtonCategory.Top].push(createCancelButton([]));
 
     const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {

@@ -4,10 +4,10 @@ import { immerable } from "immer";
 import { ItemsMenuState } from "./items";
 import { EquippedItemsMenuState, viewEquipmentHotkey } from "./equipped-items";
 import { letterFromKeyCode } from "@/hotkeys";
-import { toggleInventoryHotkey } from "./base";
 import selectItem from "@/utils/selectItem";
 import { ConsideringItemMenuState } from "./considering-item";
 import { Inventory, Item } from "@speed-dungeon/common";
+import { toggleInventoryHotkey } from "./common-buttons/open-inventory";
 
 export class InventoryItemsMenuState extends ItemsMenuState {
   [immerable] = true;

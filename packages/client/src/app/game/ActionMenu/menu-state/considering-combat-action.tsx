@@ -18,6 +18,7 @@ import { setAlert } from "@/app/components/alerts";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import getCurrentParty from "@/utils/getCurrentParty";
+import { createCancelButton } from "./common-buttons/cancel";
 
 export const executeHotkey = HOTKEYS.MAIN_1;
 export const EXECUTE_BUTTON_TEXT = `Execute (${letterFromKeyCode(executeHotkey)})`;
@@ -38,18 +39,12 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
     const { combatantProperties } = focusedCharacterResult;
     const characterId = focusedCharacterResult.entityProperties.id;
 
-    // CANCEL
-    const cancelButton = new ActionMenuButtonProperties("Cancel", "Cancel", () => {
+    const cancelButton = createCancelButton([], () => {
       websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
         characterId,
         combatActionOption: null,
       });
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.pop();
-      });
     });
-
-    cancelButton.dedicatedKeys = ["Escape"];
     toReturn[ActionButtonCategory.Top].push(cancelButton);
 
     // CYCLE BACK

@@ -15,7 +15,9 @@ import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
 import { HOTKEYS } from "@/hotkeys";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
-import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
+import { createCancelButton } from "./common-buttons/cancel";
+
+export const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
 
 export class OperatingVendingMachineMenuState implements ActionMenuState {
   [immerable] = true;
@@ -34,14 +36,7 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
     const characterId = focusedCharacterResult.entityProperties.id;
     const userControlsThisCharacter = clientUserControlsCombatant(characterId);
 
-    const cancelButton = new ActionMenuButtonProperties("Cancel", "Cancel", () => {
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.pop();
-      });
-    });
-
-    cancelButton.dedicatedKeys = [HOTKEYS.CANCEL, toggleAssignAttributesHotkey];
-    toReturn[ActionButtonCategory.Top].push(cancelButton);
+    toReturn[ActionButtonCategory.Top].push(createCancelButton([]));
 
     const purchaseItemsButton = new ActionMenuButtonProperties(
       "Purchase Items",

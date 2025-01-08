@@ -21,6 +21,7 @@ import { useUIStore } from "@/stores/ui-store";
 import selectItem from "@/utils/selectItem";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
+import { createCancelButton } from "./common-buttons/cancel";
 
 const equipAltSlotHotkey = HOTKEYS.ALT_1;
 const useItemHotkey = HOTKEYS.MAIN_1;
@@ -41,15 +42,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    const cancelButton = new ActionMenuButtonProperties("Cancel", "Cancel", () => {
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.pop();
-      });
-      selectItem(null);
-    });
-
-    cancelButton.dedicatedKeys = [HOTKEYS.CANCEL];
-    toReturn[ActionButtonCategory.Top].push(cancelButton);
+    toReturn[ActionButtonCategory.Top].push(createCancelButton([], () => selectItem(null)));
 
     const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
     if (focusedCharacterResult instanceof Error) {

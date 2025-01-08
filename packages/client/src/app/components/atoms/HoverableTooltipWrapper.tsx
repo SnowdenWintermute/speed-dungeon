@@ -39,10 +39,7 @@ export default function HoverableTooltipWrapper(props: Props) {
 
       if (y - tooltipRect.height - offsetTop < 0) {
         tooltipY = Math.max(tooltipY, y + height + offsetTop + tooltipRect.height);
-        console.log("modified y");
       } else {
-        console.log("offsetTop: ", offsetTop);
-        console.log("Y: ", y);
         tooltipY = y - offsetTop;
       }
 

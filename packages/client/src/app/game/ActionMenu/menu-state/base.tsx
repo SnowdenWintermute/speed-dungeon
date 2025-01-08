@@ -24,8 +24,7 @@ import cloneDeep from "lodash.clonedeep";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { ABILITY_ATTRIBUTES } from "@speed-dungeon/common";
-
-export const toggleInventoryHotkey = HOTKEYS.MAIN_1;
+import { setInventoryOpen } from "./common-buttons/open-inventory";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -39,17 +38,6 @@ export class BaseMenuState implements ActionMenuState {
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    const setInventoryOpen = new ActionMenuButtonProperties(
-      `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
-      `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
-      () => {
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(inventoryItemsMenuState);
-          state.hoveredAction = null;
-        });
-      }
-    );
-    setInventoryOpen.dedicatedKeys = ["KeyI", toggleInventoryHotkey];
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
     let focusedCharacterResult = useGameStore.getState().getFocusedCharacter();

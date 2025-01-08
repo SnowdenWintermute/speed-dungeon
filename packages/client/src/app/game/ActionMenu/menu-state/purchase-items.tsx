@@ -19,6 +19,7 @@ import {
   getConsumableShardPrice,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
+import { createCancelButton } from "./common-buttons/cancel";
 
 export class PurchaseItemsMenuState implements ActionMenuState {
   [immerable] = true;
@@ -43,14 +44,7 @@ export class PurchaseItemsMenuState implements ActionMenuState {
     const characterId = focusedCharacterResult.entityProperties.id;
     const userControlsThisCharacter = clientUserControlsCombatant(characterId);
 
-    const cancelButton = new ActionMenuButtonProperties("Cancel", "Cancel", () => {
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.pop();
-      });
-    });
-
-    cancelButton.dedicatedKeys = [HOTKEYS.CANCEL, toggleAssignAttributesHotkey];
-    toReturn[ActionButtonCategory.Top].push(cancelButton);
+    toReturn[ActionButtonCategory.Top].push(createCancelButton([]));
 
     const inventoryButton = new ActionMenuButtonProperties(
       "Open Inventory (F)",

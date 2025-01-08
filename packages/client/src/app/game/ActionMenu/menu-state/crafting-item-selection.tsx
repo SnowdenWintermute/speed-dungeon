@@ -6,6 +6,7 @@ import selectItem from "@/utils/selectItem";
 import { CraftingItemMenuState } from "./crafting-item";
 import { useGameStore } from "@/stores/game-store";
 import { setAlert } from "@/app/components/alerts";
+import { setInventoryOpen } from "./common-buttons/open-inventory";
 
 export class CraftingItemSelectionMenuState extends ItemsMenuState {
   [immerable] = true;
@@ -14,7 +15,7 @@ export class CraftingItemSelectionMenuState extends ItemsMenuState {
   constructor() {
     super(
       MenuStateType.CraftingItemSelection,
-      { text: "Go Back", hotkeys: [] },
+      { text: "Cancel", hotkeys: [] },
       (item: Item) => {
         selectItem(item);
         useGameStore.getState().mutateState((state) => {
@@ -28,7 +29,7 @@ export class CraftingItemSelectionMenuState extends ItemsMenuState {
         return CombatantProperties.getOwnedEquipment(focusedCharacterResult.combatantProperties);
       },
       {
-        [ActionButtonCategory.Top]: [],
+        [ActionButtonCategory.Top]: [setInventoryOpen],
       }
     );
   }

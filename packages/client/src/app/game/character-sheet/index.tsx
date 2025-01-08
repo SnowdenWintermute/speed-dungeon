@@ -34,7 +34,7 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
 
   let conditionalStyles = showCharacterSheet
     ? "overflow-auto pointer-events-auto w-fit "
-    : "opacity-0 w-0 overflow-hidden pointer-events-none";
+    : "opacity-0 overflow-hidden pointer-events-none";
 
   const numItemsInInventory = Inventory.getTotalNumberOfItems(combatantProperties.inventory);
 
