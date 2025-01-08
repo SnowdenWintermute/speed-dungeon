@@ -18,6 +18,17 @@ import { setAlert } from "@/app/components/alerts";
 import { immerable } from "immer";
 import setItemHovered from "@/utils/set-item-hovered";
 import createPageButtons from "./create-page-buttons";
+import { Color3, Color4 } from "@babylonjs/core";
+import cloneDeep from "lodash.clonedeep";
+import { createEaseGradient } from "@/utils/create-ease-gradient-style";
+
+const hexGreen = "#0d6658";
+const GREEN = Color4.FromHexString(hexGreen).scale(255);
+const GRAY = new Color4(0.55, 0.55, 0.55, 1.0).scale(255);
+const TRANSPARENT = cloneDeep(GRAY);
+TRANSPARENT.a = 0;
+const gradientBg = createEaseGradient(TRANSPARENT, GRAY, 1, 25);
+const consumableGradientBg = createEaseGradient(TRANSPARENT, GREEN, 1, 25);
 
 export abstract class ItemsMenuState implements ActionMenuState {
   [immerable] = true;
@@ -90,9 +101,22 @@ export abstract class ItemsMenuState implements ActionMenuState {
       let consumableName = buttonTextPrefix + CONSUMABLE_TYPE_STRINGS[consumableType];
       if (consumables.length > 1) consumableName += ` (${consumables.length})`;
 
-      const button = new ActionMenuButtonProperties(consumableName, consumableName, () => {
-        this.itemButtonClickHandler(firstConsumableOfThisType);
-      });
+      const thumbnailId = CONSUMABLE_TYPE_STRINGS[consumableType];
+      const thumbnailOption = useGameStore.getState().itemThumbnails[thumbnailId];
+      const button = new ActionMenuButtonProperties(
+        (
+          <ItemButtonBody
+            buttonText={consumableName}
+            thumbnailOption={thumbnailOption}
+            gradientOverride={consumableGradientBg}
+            extraStyles="-translate-x-[1450%] scale-[300%]"
+          />
+        ),
+        consumableName,
+        () => {
+          this.itemButtonClickHandler(firstConsumableOfThisType);
+        }
+      );
       button.mouseEnterHandler = () => itemButtonMouseEnterHandler(firstConsumableOfThisType);
       button.mouseLeaveHandler = () => itemButtonMouseLeaveHandler();
       button.focusHandler = () => itemButtonMouseEnterHandler(firstConsumableOfThisType);
@@ -101,9 +125,21 @@ export abstract class ItemsMenuState implements ActionMenuState {
     }
 
     for (const item of equipmentAndShardStacks) {
+      const thumbnailOption = useGameStore.getState().itemThumbnails[item.entityProperties.id];
+      const buttonText = buttonTextPrefix + item.entityProperties.name;
+      const extraStyles =
+        item instanceof Equipment && Equipment.isWeapon(item)
+          ? "scale-[300%]"
+          : "scale-[200%] -translate-x-1/2 p-[2px]";
       const button = new ActionMenuButtonProperties(
-        buttonTextPrefix + item.entityProperties.name,
-        buttonTextPrefix + item.entityProperties.name,
+        (
+          <ItemButtonBody
+            buttonText={buttonText}
+            extraStyles={extraStyles}
+            thumbnailOption={thumbnailOption}
+          />
+        ),
+        buttonText,
         () => {
           this.itemButtonClickHandler(item);
         }
@@ -143,4 +179,38 @@ function itemButtonMouseLeaveHandler() {
 
 function itemButtonMouseEnterHandler(item: Item) {
   setItemHovered(item);
+}
+
+function ItemButtonBody({
+  buttonText,
+  thumbnailOption,
+  gradientOverride,
+  extraStyles,
+}: {
+  buttonText: string;
+  extraStyles?: string;
+  gradientOverride?: string;
+  thumbnailOption?: string;
+}) {
+  return (
+    <div className="h-full w-full relative">
+      <div
+        className="absolute right-0 w-7/12 h-full"
+        style={{ background: gradientOverride || gradientBg }}
+      />
+      {thumbnailOption && (
+        <div className={`absolute right-0 h-full w-fit -rotate-90 ${extraStyles}`}>
+          <img src={thumbnailOption} className="h-full object-fill " />
+        </div>
+      )}
+      <div
+        className="absolute z-10 w-full h-full flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis"
+        style={{
+          textShadow: "2px 2px 0px #000000",
+        }}
+      >
+        {buttonText}
+      </div>
+    </div>
+  );
 }
