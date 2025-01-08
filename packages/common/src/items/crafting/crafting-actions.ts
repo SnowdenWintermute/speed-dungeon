@@ -6,13 +6,23 @@ import {
 } from "../equipment/index.js";
 
 export enum CraftingAction {
-  Repair, // restore item durability to maximum
+  Repair, // Restore item to full durability
   Imbue, // give a non magical item randomized affix(es) (POE Equivalent: Alchemy Orb / Transmutation Orb)
   Augment, // add an affix if the item has only 1 affix (POE Equivalent: Orb of Augmentation / Exalted Orb)
   Tumble, // give a magical item new random affixes and values (POE Equivalent: Orb of Alteration / Chaos Orb)
   Reform, // reroll implicit item values (example: base armor class) (POE Equivalent: Blessed Orb)
   Shake, // reroll existing affix values (but keep the same affixes) (POE Equivalent: Divine Orb)
 }
+
+export const CRAFTING_ACTION_DESCRIPTIONS: Record<CraftingAction, string> = {
+  [CraftingAction.Repair]: "Restore item to full durability",
+  [CraftingAction.Imbue]: "Give a non-magical item randomized affix(es)",
+  [CraftingAction.Augment]: "Add a second affix to an item which only has a single affix",
+  [CraftingAction.Tumble]: "Give a magical item new random affixes",
+  [CraftingAction.Reform]:
+    "Reroll an item's implicit properties (armor class, damage classification)",
+  [CraftingAction.Shake]: "Reroll the values of existing affixes",
+};
 
 export const CRAFTING_ACTION_STRINGS: Record<CraftingAction, string> = {
   [CraftingAction.Repair]: "Repair",

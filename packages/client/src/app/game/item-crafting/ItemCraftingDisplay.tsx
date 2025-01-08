@@ -32,7 +32,7 @@ export default function ItemCraftDisplay() {
         <div className="w-[500px] text-slate-400">
           <p>Item level: {equipment.itemLevel}</p>
           <p>Dungeon level: {partyResult.currentFloor}</p>
-          <p className={ilvlLimited ? UNMET_REQUIREMENT_TEXT_COLOR : ""}>
+          <div className={ilvlLimited ? UNMET_REQUIREMENT_TEXT_COLOR : ""}>
             <HoverableTooltipWrapper
               extraStyles="inline cursor-help"
               tooltipText={`
@@ -45,7 +45,7 @@ export default function ItemCraftDisplay() {
               {INFO_UNICODE_SYMBOL}
             </HoverableTooltipWrapper>{" "}
             Effective item level: {Math.min(equipment.itemLevel, partyResult.currentFloor)}
-          </p>
+          </div>
         </div>
       </div>
     </section>

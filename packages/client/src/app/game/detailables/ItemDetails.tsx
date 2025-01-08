@@ -100,14 +100,16 @@ export default function ItemDetails({
       }}
     >
       {itemOption instanceof Equipment && (
-        <HoverableTooltipWrapper
-          extraStyles="cursor-help"
-          tooltipText="Item Level (determines possible affix tiers)"
-        >
-          <div className="absolute -top-1 -left-1 z-10 bg-slate-800 h-6 w-6 border border-slate-400 leading-none flex justify-center items-center">
-            {itemOption.itemLevel}
-          </div>
-        </HoverableTooltipWrapper>
+        <div className="absolute -top-1 -left-1 z-10 ">
+          <HoverableTooltipWrapper
+            extraStyles="cursor-help"
+            tooltipText="Item Level (determines possible affix tiers) "
+          >
+            <span className="bg-slate-800 h-6 w-6 border border-slate-400 flex justify-center items-center">
+              {itemOption.itemLevel}
+            </span>
+          </HoverableTooltipWrapper>
+        </div>
       )}
       {shouldShowModKeyTooltip && isComparedItem && (
         <div

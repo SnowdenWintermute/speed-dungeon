@@ -7,11 +7,13 @@ import {
   MenuStateType,
 } from ".";
 import {
+  CRAFTING_ACTION_DESCRIPTIONS,
   CRAFTING_ACTION_DISABLED_CONDITIONS,
   CRAFTING_ACTION_STRINGS,
   ClientToServerEvent,
   CraftingAction,
   Equipment,
+  INFO_UNICODE_SYMBOL,
   getCraftingActionPrice,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
@@ -22,6 +24,7 @@ import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { toggleInventoryHotkey } from "./base";
 import ShardsIcon from "../../../../../public/img/game-ui-icons/shards.svg";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 const useItemHotkey = HOTKEYS.MAIN_1;
 const useItemLetter = letterFromKeyCode(useItemHotkey);
@@ -84,6 +87,12 @@ export class CraftingItemMenuState implements ActionMenuState {
         (
           <div className="flex justify-between w-full pr-2">
             <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
+              <HoverableTooltipWrapper
+                extraStyles="inline mr-2"
+                tooltipText={CRAFTING_ACTION_DESCRIPTIONS[craftingAction]}
+              >
+                {INFO_UNICODE_SYMBOL}
+              </HoverableTooltipWrapper>
               {buttonName}
             </div>
             <div className="w-fit flex h-full items-center">
