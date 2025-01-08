@@ -1,10 +1,18 @@
-import { Equipment } from "@speed-dungeon/common";
+import {
+  CRAFTING_ACTION_DISABLED_CONDITIONS,
+  CraftingAction,
+  ERROR_MESSAGES,
+  Equipment,
+} from "@speed-dungeon/common";
 import { getGameServer } from "../../../singletons.js";
 
 export function randomizeBaseItemRollableProperties(
   equipment: Equipment,
-  _itemLevelLimiter: number
+  itemLevelLimiter: number
 ) {
+  const shouldBeDisabled = CRAFTING_ACTION_DISABLED_CONDITIONS[CraftingAction.Reform];
+  if (shouldBeDisabled(equipment, itemLevelLimiter))
+    return new Error(ERROR_MESSAGES.ITEM.INVALID_PROPERTIES);
   const builder =
     getGameServer().itemGenerationBuilders[equipment.equipmentBaseItemProperties.equipmentType];
   const newBaseItemPropertiesResult = builder.buildEquipmentBaseItemProperties(

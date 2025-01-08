@@ -7,6 +7,7 @@ import {
   MenuStateType,
 } from ".";
 import {
+  CRAFTING_ACTION_DISABLED_CONDITIONS,
   CRAFTING_ACTION_STRINGS,
   ClientToServerEvent,
   CraftingAction,
@@ -101,9 +102,7 @@ export class CraftingItemMenuState implements ActionMenuState {
       button.shouldBeDisabled =
         !userControlsThisCharacter ||
         actionPrice > focusedCharacterResult.combatantProperties.inventory.shards ||
-        (craftingAction === CraftingAction.Repair &&
-          (this.item.durability === null ||
-            this.item.durability.current === this.item.durability.max));
+        CRAFTING_ACTION_DISABLED_CONDITIONS[craftingAction](this.item, partyResult.currentFloor);
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
