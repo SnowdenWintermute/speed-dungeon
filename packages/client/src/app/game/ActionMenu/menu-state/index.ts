@@ -47,6 +47,7 @@ export class ActionMenuButtonProperties {
   dedicatedKeys: string[] = [];
   constructor(
     public jsx: ReactNode,
+    public key: string,
     public clickHandler: MouseEventHandler<HTMLButtonElement>
   ) {}
 }

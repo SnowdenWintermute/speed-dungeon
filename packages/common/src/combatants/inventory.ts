@@ -18,6 +18,10 @@ export class Inventory {
     return inventory.consumables.length + inventory.equipment.length;
   }
 
+  static isAtCapacity(inventory: Inventory) {
+    return Inventory.getTotalNumberOfItems(inventory) >= inventory.capacity;
+  }
+
   static insertItem(inventory: Inventory, item: Item) {
     if (Inventory.getTotalNumberOfItems(inventory) > inventory.capacity)
       return new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);

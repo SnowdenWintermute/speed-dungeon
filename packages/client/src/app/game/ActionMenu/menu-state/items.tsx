@@ -37,14 +37,18 @@ export abstract class ItemsMenuState implements ActionMenuState {
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    const closeInventory = new ActionMenuButtonProperties(this.closeMenuTextAndHotkeys.text, () => {
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.pop();
-        state.hoveredEntity = null;
-        state.consideredItemUnmetRequirements = null;
-        state.viewingDropShardsModal = false;
-      });
-    });
+    const closeInventory = new ActionMenuButtonProperties(
+      this.closeMenuTextAndHotkeys.text,
+      this.closeMenuTextAndHotkeys.text,
+      () => {
+        useGameStore.getState().mutateState((state) => {
+          state.stackedMenuStates.pop();
+          state.hoveredEntity = null;
+          state.consideredItemUnmetRequirements = null;
+          state.viewingDropShardsModal = false;
+        });
+      }
+    );
     closeInventory.dedicatedKeys = [...this.closeMenuTextAndHotkeys.hotkeys, "Escape"];
     toReturn[ActionButtonCategory.Top].push(closeInventory);
 
@@ -86,7 +90,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
       let consumableName = buttonTextPrefix + CONSUMABLE_TYPE_STRINGS[consumableType];
       if (consumables.length > 1) consumableName += ` (${consumables.length})`;
 
-      const button = new ActionMenuButtonProperties(consumableName, () => {
+      const button = new ActionMenuButtonProperties(consumableName, consumableName, () => {
         this.itemButtonClickHandler(firstConsumableOfThisType);
       });
       button.mouseEnterHandler = () => itemButtonMouseEnterHandler(firstConsumableOfThisType);
@@ -98,6 +102,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
 
     for (const item of equipmentAndShardStacks) {
       const button = new ActionMenuButtonProperties(
+        buttonTextPrefix + item.entityProperties.name,
         buttonTextPrefix + item.entityProperties.name,
         () => {
           this.itemButtonClickHandler(item);

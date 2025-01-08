@@ -17,6 +17,7 @@ export class ItemsOnGroundMenuState extends ItemsMenuState {
   constructor() {
     const switchToInventoryButton = new ActionMenuButtonProperties(
       `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
+      `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
       () => {
         useGameStore.getState().mutateState((state) => {
           state.stackedMenuStates.push(inventoryItemsMenuState);
@@ -26,6 +27,7 @@ export class ItemsOnGroundMenuState extends ItemsMenuState {
     switchToInventoryButton.dedicatedKeys = [toggleInventoryHotkey];
 
     const takeAllButton = new ActionMenuButtonProperties(
+      `Take items (${letterFromKeyCode(takeAllItemsHotkey)})`,
       `Take items (${letterFromKeyCode(takeAllItemsHotkey)})`,
       () => {
         let itemIds: string[] = [];

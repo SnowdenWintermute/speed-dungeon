@@ -43,7 +43,7 @@ export class PurchaseItemsMenuState implements ActionMenuState {
     const characterId = focusedCharacterResult.entityProperties.id;
     const userControlsThisCharacter = clientUserControlsCombatant(characterId);
 
-    const cancelButton = new ActionMenuButtonProperties("Cancel", () => {
+    const cancelButton = new ActionMenuButtonProperties("Cancel", "Cancel", () => {
       useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.pop();
       });
@@ -52,11 +52,15 @@ export class PurchaseItemsMenuState implements ActionMenuState {
     cancelButton.dedicatedKeys = [HOTKEYS.CANCEL, toggleAssignAttributesHotkey];
     toReturn[ActionButtonCategory.Top].push(cancelButton);
 
-    const inventoryButton = new ActionMenuButtonProperties("Open Inventory (F)", () => {
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.push(inventoryItemsMenuState);
-      });
-    });
+    const inventoryButton = new ActionMenuButtonProperties(
+      "Open Inventory (F)",
+      "Open Inventory (F)",
+      () => {
+        useGameStore.getState().mutateState((state) => {
+          state.stackedMenuStates.push(inventoryItemsMenuState);
+        });
+      }
+    );
     inventoryButton.dedicatedKeys = [HOTKEYS.MAIN_1];
     toReturn[ActionButtonCategory.Top].push(inventoryButton);
 
@@ -64,6 +68,7 @@ export class PurchaseItemsMenuState implements ActionMenuState {
     for (const consumableType of purchaseableItems) {
       const price = getConsumableShardPrice(partyResult.currentFloor, consumableType);
       const purchaseItemButton = new ActionMenuButtonProperties(
+        `${CONSUMABLE_TYPE_STRINGS[consumableType]} (${price} shards)`,
         `${CONSUMABLE_TYPE_STRINGS[consumableType]} (${price} shards)`,
         () => {
           websocketConnection.emit(ClientToServerEvent.PurchaseItem, {

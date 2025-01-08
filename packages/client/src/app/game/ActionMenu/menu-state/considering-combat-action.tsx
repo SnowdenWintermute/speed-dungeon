@@ -18,8 +18,6 @@ import { setAlert } from "@/app/components/alerts";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ANIMATION_NAMES } from "@/app/3d-world/combatant-models/animation-manager/animation-names";
 
 export const executeHotkey = HOTKEYS.MAIN_1;
 export const EXECUTE_BUTTON_TEXT = `Execute (${letterFromKeyCode(executeHotkey)})`;
@@ -41,7 +39,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
     const characterId = focusedCharacterResult.entityProperties.id;
 
     // CANCEL
-    const cancelButton = new ActionMenuButtonProperties("Cancel", () => {
+    const cancelButton = new ActionMenuButtonProperties("Cancel", "Cancel", () => {
       websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
         characterId,
         combatActionOption: null,
@@ -58,6 +56,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
     const prevHotkey = HOTKEYS.LEFT_MAIN;
     const previousTargetButton = new ActionMenuButtonProperties(
       `Previous Target (${letterFromKeyCode(prevHotkey)})`,
+      `Previous Target (${letterFromKeyCode(prevHotkey)})`,
       () => {
         websocketConnection.emit(ClientToServerEvent.CycleCombatActionTargets, {
           characterId,
@@ -72,6 +71,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
     const nextHotkey = HOTKEYS.RIGHT_MAIN;
     const nextTargetButton = new ActionMenuButtonProperties(
       `Next Target (${letterFromKeyCode(nextHotkey)})`,
+      `Next Target (${letterFromKeyCode(nextHotkey)})`,
       () => {
         websocketConnection.emit(ClientToServerEvent.CycleCombatActionTargets, {
           characterId,
@@ -83,24 +83,28 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
     toReturn[ActionButtonCategory.Bottom].push(nextTargetButton);
 
     // EXECUTE
-    const executeActionButton = new ActionMenuButtonProperties(EXECUTE_BUTTON_TEXT, () => {
-      websocketConnection.emit(ClientToServerEvent.UseSelectedCombatAction, {
-        characterId,
-      });
-      useGameStore.getState().mutateState((state) => {
-        state.detailedEntity = null;
-        state.hoveredEntity = null;
+    const executeActionButton = new ActionMenuButtonProperties(
+      EXECUTE_BUTTON_TEXT,
+      EXECUTE_BUTTON_TEXT,
+      () => {
+        websocketConnection.emit(ClientToServerEvent.UseSelectedCombatAction, {
+          characterId,
+        });
+        useGameStore.getState().mutateState((state) => {
+          state.detailedEntity = null;
+          state.hoveredEntity = null;
 
-        const partyOption = getCurrentParty(state, state.username || "");
-        if (partyOption) InputLock.lockInput(partyOption.inputLock);
-        // it should theoretically be unlocked after their action resolves
-      });
-      // if (gameWorld.current && gameWorld.current.modelManager.combatantModels[characterId]) {
-      //   gameWorld.current.modelManager.combatantModels[
-      //     characterId
-      //   ]?.animationManager.startAnimationWithTransition(ANIMATION_NAMES.READY, 1500);
-      // }
-    });
+          const partyOption = getCurrentParty(state, state.username || "");
+          if (partyOption) InputLock.lockInput(partyOption.inputLock);
+          // it should theoretically be unlocked after their action resolves
+        });
+        // if (gameWorld.current && gameWorld.current.modelManager.combatantModels[characterId]) {
+        //   gameWorld.current.modelManager.combatantModels[
+        //     characterId
+        //   ]?.animationManager.startAnimationWithTransition(ANIMATION_NAMES.READY, 1500);
+        // }
+      }
+    );
     executeActionButton.dedicatedKeys = ["Enter", executeHotkey];
 
     const userControlsThisCharacter = clientUserControlsCombatant(characterId);
@@ -122,6 +126,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
 
     const targetingSchemeHotkey = HOTKEYS.MAIN_2;
     const cycleTargetingSchemesButton = new ActionMenuButtonProperties(
+      `Targeting Scheme (${letterFromKeyCode(targetingSchemeHotkey)})`,
       `Targeting Scheme (${letterFromKeyCode(targetingSchemeHotkey)})`,
       () => {
         websocketConnection.emit(ClientToServerEvent.CycleTargetingSchemes, { characterId });

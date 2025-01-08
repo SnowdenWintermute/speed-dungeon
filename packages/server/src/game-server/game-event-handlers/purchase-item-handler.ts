@@ -4,6 +4,7 @@ import {
   DungeonRoomType,
   ERROR_MESSAGES,
   EntityId,
+  Inventory,
   ServerToClientEvent,
   getConsumableShardPrice,
   getPartyChannelName,
@@ -19,6 +20,9 @@ export function purchaseItemHandler(
 
   if (party.currentRoom.roomType !== DungeonRoomType.VendingMachine)
     return new Error(ERROR_MESSAGES.PARTY.INCORRECT_ROOM_TYPE);
+
+  if (Inventory.isAtCapacity(character.combatantProperties.inventory))
+    return new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);
 
   const { characterId, consumableType } = eventData;
 

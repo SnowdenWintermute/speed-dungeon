@@ -61,9 +61,11 @@ export const CRAFTING_ACTION_DISABLED_CONDITIONS: Record<
       case EquipmentType.TwoHandedRangedWeapon:
         return true;
       case EquipmentType.OneHandedMeleeWeapon:
-        if (taggedBaseEquipment.baseItemType !== OneHandedMeleeWeapon.RuneSword) return false;
+        if (taggedBaseEquipment.baseItemType === OneHandedMeleeWeapon.RuneSword) return false;
+        else return true;
       case EquipmentType.TwoHandedMeleeWeapon:
-        if (taggedBaseEquipment.baseItemType !== TwoHandedMeleeWeapon.ElementalStaff) return false;
+        if (taggedBaseEquipment.baseItemType === TwoHandedMeleeWeapon.ElementalStaff) return false;
+        else return true;
       case EquipmentType.BodyArmor:
       case EquipmentType.HeadGear:
       case EquipmentType.Shield:

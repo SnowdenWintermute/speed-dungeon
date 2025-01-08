@@ -16,7 +16,6 @@ import { immerable } from "immer";
 import { HOTKEYS } from "@/hotkeys";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
-import { convertItemsToShards } from "@speed-dungeon/common";
 
 export class OperatingVendingMachineMenuState implements ActionMenuState {
   [immerable] = true;
@@ -35,7 +34,7 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
     const characterId = focusedCharacterResult.entityProperties.id;
     const userControlsThisCharacter = clientUserControlsCombatant(characterId);
 
-    const cancelButton = new ActionMenuButtonProperties("Cancel", () => {
+    const cancelButton = new ActionMenuButtonProperties("Cancel", "Cancel", () => {
       useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.pop();
       });
@@ -44,30 +43,38 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
     cancelButton.dedicatedKeys = [HOTKEYS.CANCEL, toggleAssignAttributesHotkey];
     toReturn[ActionButtonCategory.Top].push(cancelButton);
 
-    const purchaseItemsButton = new ActionMenuButtonProperties("Purchase Items", () => {
-      useGameStore.getState().mutateState((state) => {
-        state.stackedMenuStates.push(purchasingItemsMenuState);
-      });
-    });
+    const purchaseItemsButton = new ActionMenuButtonProperties(
+      "Purchase Items",
+      "Purchase Items",
+      () => {
+        useGameStore.getState().mutateState((state) => {
+          state.stackedMenuStates.push(purchasingItemsMenuState);
+        });
+      }
+    );
     purchaseItemsButton.shouldBeDisabled = !userControlsThisCharacter;
 
-    const craftButton = new ActionMenuButtonProperties("Craft", () => {
+    const craftButton = new ActionMenuButtonProperties("Craft", "Craft", () => {
       useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.push(craftingItemSelectionMenuState);
       });
     });
 
-    const repairButton = new ActionMenuButtonProperties("Repair", () => {
+    const repairButton = new ActionMenuButtonProperties("Repair", "Repair", () => {
       useGameStore.getState().mutateState((state) => {
         // state.stackedMenuStates.push(craftingItemSelectionMenuState);
       });
     });
 
-    const convertButton = new ActionMenuButtonProperties("Convert to Shards", () => {
-      useGameStore.getState().mutateState((state) => {
-        // state.stackedMenuStates.push(craftingItemSelectionMenuState);
-      });
-    });
+    const convertButton = new ActionMenuButtonProperties(
+      "Convert to Shards",
+      "Convert to Shards",
+      () => {
+        useGameStore.getState().mutateState((state) => {
+          // state.stackedMenuStates.push(craftingItemSelectionMenuState);
+        });
+      }
+    );
 
     toReturn[ActionButtonCategory.Numbered].push(purchaseItemsButton);
     toReturn[ActionButtonCategory.Numbered].push(craftButton);

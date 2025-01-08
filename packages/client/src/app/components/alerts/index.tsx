@@ -2,9 +2,10 @@ import { AlertState, useAlertStore } from "@/stores/alert-store";
 
 const ALERT_DISPLAY_TIME = 4000;
 
-enum AlertType {
+export enum AlertType {
   Error,
-  // Success,
+  Info,
+  Success,
 }
 
 export class Alert {
@@ -15,13 +16,16 @@ export class Alert {
   ) {}
 }
 
-export function setAlert(message: Error | string) {
+export function setAlert(message: Error | string, isSuccess?: boolean) {
   useAlertStore.getState().mutateState((alertState) => {
-    console.info("alert set: ", message);
     if (message instanceof Error) console.trace(message);
     const text = message instanceof Error ? message.message : message;
-    // console.trace();
-    let newAlert = new Alert(text, AlertType.Error, alertState.lastAlertId.toString());
+    let alertType;
+    if (message instanceof Error) alertType = AlertType.Error;
+    else if (isSuccess) alertType = AlertType.Success;
+    else alertType = AlertType.Info;
+
+    let newAlert = new Alert(text, alertType, alertState.lastAlertId.toString());
 
     alertState.alerts.push(newAlert);
     alertState.lastAlertId += 1;

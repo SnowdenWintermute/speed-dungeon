@@ -41,6 +41,7 @@ export class BaseMenuState implements ActionMenuState {
 
     const setInventoryOpen = new ActionMenuButtonProperties(
       `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
+      `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
       () => {
         useGameStore.getState().mutateState((state) => {
           state.stackedMenuStates.push(inventoryItemsMenuState);
@@ -66,12 +67,16 @@ export class BaseMenuState implements ActionMenuState {
     }
 
     if (Inventory.getItems(partyResult.currentRoom.inventory).length) {
-      const viewItemsOnGroundButton = new ActionMenuButtonProperties(VIEW_LOOT_BUTTON_TEXT, () => {
-        useGameStore.getState().mutateState((state) => {
-          state.hoveredAction = null;
-          state.stackedMenuStates.push(itemsOnGroundMenuState);
-        });
-      });
+      const viewItemsOnGroundButton = new ActionMenuButtonProperties(
+        VIEW_LOOT_BUTTON_TEXT,
+        VIEW_LOOT_BUTTON_TEXT,
+        () => {
+          useGameStore.getState().mutateState((state) => {
+            state.hoveredAction = null;
+            state.stackedMenuStates.push(itemsOnGroundMenuState);
+          });
+        }
+      );
       viewItemsOnGroundButton.dedicatedKeys = [viewItemsOnGroundHotkey];
       toReturn[ActionButtonCategory.Top].push(viewItemsOnGroundButton);
     }
@@ -92,15 +97,19 @@ export class BaseMenuState implements ActionMenuState {
 
     for (const ability of Object.values(combatantProperties.abilities)) {
       if (abilitiesNotToMakeButtonsFor.includes(ability.name)) continue;
-      const button = new ActionMenuButtonProperties(ABILITY_NAME_STRINGS[ability.name], () => {
-        websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-          characterId,
-          combatActionOption: { type: CombatActionType.AbilityUsed, abilityName: ability.name },
-        });
-        useGameStore.getState().mutateState((state) => {
-          state.hoveredAction = null;
-        });
-      });
+      const button = new ActionMenuButtonProperties(
+        ABILITY_NAME_STRINGS[ability.name],
+        ABILITY_NAME_STRINGS[ability.name],
+        () => {
+          websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+            characterId,
+            combatActionOption: { type: CombatActionType.AbilityUsed, abilityName: ability.name },
+          });
+          useGameStore.getState().mutateState((state) => {
+            state.hoveredAction = null;
+          });
+        }
+      );
 
       button.mouseEnterHandler = button.focusHandler = () =>
         useGameStore.getState().mutateState((state) => {

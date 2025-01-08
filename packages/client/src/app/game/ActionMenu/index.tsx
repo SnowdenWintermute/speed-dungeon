@@ -39,6 +39,7 @@ import {
   CONFIRM_SHARD_TEXT,
   ConfirmConvertToShardsMenuState,
 } from "./menu-state/confirm-convert-to-shards";
+import ItemCraftDisplay from "../item-crafting/ItemCraftingDisplay";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
@@ -189,14 +190,14 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
       >
         {buttonProperties[ActionButtonCategory.Top].map((button, i) => {
           const conditionalStyles = (() => {
-            if (buttonTitlesToAccent.includes(button.text)) return "bg-slate-800 border-white";
+            if (buttonTitlesToAccent.includes(button.key)) return "bg-slate-800 border-white";
             return "border-slate-400 bg-slate-700";
           })();
           const thisButtonProperties = buttonProperties[ActionButtonCategory.Top][i]!;
           // in the old method we used a more unique key so different cancel buttons would
           // actually update, but cancel buttons tend to do the same thing anyway now
           return (
-            <li key={thisButtonProperties.text} style={topButtonLiStyle}>
+            <li key={thisButtonProperties.key} style={topButtonLiStyle}>
               <ActionMenuDedicatedButton
                 extraStyles={`border mr-2 last:mr-0 h-10 ${conditionalStyles}`}
                 properties={button}
@@ -225,7 +226,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
 
               return (
                 <li
-                  key={button.text + i + currentMenu.page}
+                  key={button.key + i + currentMenu.page}
                   tabIndex={button.shouldBeDisabled ? 0 : undefined} // so you can tab over to get the popups
                   className={`
                    ${conditionalStyles} pointer-events-auto w-full border-b border-r border-l first:border-t flex hover:bg-slate-950

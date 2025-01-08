@@ -25,7 +25,7 @@ export class ConfirmConvertToShardsMenuState implements ActionMenuState {
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    const cancelButton = new ActionMenuButtonProperties("Cancel", () => {
+    const cancelButton = new ActionMenuButtonProperties("Cancel", "Cancel", () => {
       useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.pop();
       });
@@ -46,6 +46,7 @@ export class ConfirmConvertToShardsMenuState implements ActionMenuState {
     const itemId = this.item.entityProperties.id;
 
     const confirmShardButton = new ActionMenuButtonProperties(
+      `Convert (${confirmShardLetter})`,
       `Convert (${confirmShardLetter})`,
       () => {
         websocketConnection.emit(ClientToServerEvent.ConvertItemsToShards, {

@@ -22,6 +22,7 @@ export default function createPageButtons(
     const prevButtonHotkey = HOTKEYS.LEFT_MAIN;
     const previousPageButton = new ActionMenuButtonProperties(
       `Previous (${letterFromKeyCode(prevButtonHotkey)})`,
+      `Previous (${letterFromKeyCode(prevButtonHotkey)})`,
       () => {
         useGameStore.getState().mutateState((state) => {
           const newPage = getNextOrPreviousNumber(
@@ -38,6 +39,7 @@ export default function createPageButtons(
 
     const nextButtonHotkey = HOTKEYS.RIGHT_MAIN;
     const nextPageButton = new ActionMenuButtonProperties(
+      `Next (${letterFromKeyCode(nextButtonHotkey)})`,
       `Next (${letterFromKeyCode(nextButtonHotkey)})`,
       () => {
         useGameStore.getState().mutateState((state) => {

@@ -5,7 +5,6 @@ import {
   ConsumableType,
   ERROR_MESSAGES,
   Equipment,
-  INVENTORY_DEFAULT_CAPACITY,
   Inventory,
   ServerToClientEvent,
   getPartyChannelName,
@@ -46,10 +45,7 @@ export function pickUpItemsHandler(
     }
 
     // let them pick up to capacity
-    if (
-      Inventory.getTotalNumberOfItems(character.combatantProperties.inventory) >=
-      INVENTORY_DEFAULT_CAPACITY
-    ) {
+    if (Inventory.isAtCapacity(character.combatantProperties.inventory)) {
       reachedMaxCapacity = true;
       continue;
     } // continue instead of break so they can still pick up shard stacks

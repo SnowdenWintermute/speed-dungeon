@@ -54,7 +54,7 @@ websocketConnection.on("disconnect", () => {
   });
 });
 websocketConnection.on(ServerToClientEvent.ErrorMessage, (message) => {
-  setAlert(message);
+  setAlert(new Error(message));
 
   // this is a quick and dirty fix until we have a way to associate errors
   // with certain actions, which would also be good to associate responses with

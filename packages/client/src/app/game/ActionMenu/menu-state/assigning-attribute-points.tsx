@@ -36,7 +36,7 @@ export class AssigningAttributePointsMenuState implements ActionMenuState {
     const characterId = focusedCharacterResult.entityProperties.id;
     const userControlsThisCharacter = clientUserControlsCombatant(characterId);
 
-    const cancelButton = new ActionMenuButtonProperties("Cancel", () => {
+    const cancelButton = new ActionMenuButtonProperties("Cancel", "Cancel", () => {
       useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.pop();
       });
@@ -46,12 +46,16 @@ export class AssigningAttributePointsMenuState implements ActionMenuState {
     toReturn[ActionButtonCategory.Top].push(cancelButton);
 
     for (const attribute of ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES) {
-      const button = new ActionMenuButtonProperties(COMBAT_ATTRIBUTE_STRINGS[attribute], () => {
-        websocketConnection.emit(ClientToServerEvent.IncrementAttribute, {
-          characterId,
-          attribute,
-        });
-      });
+      const button = new ActionMenuButtonProperties(
+        COMBAT_ATTRIBUTE_STRINGS[attribute],
+        COMBAT_ATTRIBUTE_STRINGS[attribute],
+        () => {
+          websocketConnection.emit(ClientToServerEvent.IncrementAttribute, {
+            characterId,
+            attribute,
+          });
+        }
+      );
       button.shouldBeDisabled =
         focusedCharacterResult.combatantProperties.unspentAttributePoints === 0 ||
         !userControlsThisCharacter;

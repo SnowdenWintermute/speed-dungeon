@@ -36,7 +36,7 @@ export class CraftingItemMenuState implements ActionMenuState {
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    const cancelButton = new ActionMenuButtonProperties("Cancel", () => {
+    const cancelButton = new ActionMenuButtonProperties("Cancel", "Cancel", () => {
       useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.pop();
       });
@@ -47,6 +47,7 @@ export class CraftingItemMenuState implements ActionMenuState {
     toReturn[ActionButtonCategory.Top].push(cancelButton);
 
     const setInventoryOpen = new ActionMenuButtonProperties(
+      `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
       `Inventory (${letterFromKeyCode(toggleInventoryHotkey)})`,
       () => {
         useGameStore.getState().mutateState((state) => {
@@ -91,6 +92,7 @@ export class CraftingItemMenuState implements ActionMenuState {
             </div>
           </div>
         ),
+        buttonName,
         () => {
           websocketConnection.emit(ClientToServerEvent.PerformCraftingAction, {
             characterId: focusedCharacterResult.entityProperties.id,

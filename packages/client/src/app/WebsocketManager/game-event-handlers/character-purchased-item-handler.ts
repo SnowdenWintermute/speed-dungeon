@@ -2,6 +2,7 @@ import { GameState } from "@/stores/game-store";
 import { CharacterAssociatedData, Consumable, EntityId, Inventory } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { plainToInstance } from "class-transformer";
+import { setAlert } from "@/app/components/alerts";
 
 export default function characterPurchasedItemHandler(eventData: {
   characterId: EntityId;
@@ -16,6 +17,7 @@ export default function characterPurchasedItemHandler(eventData: {
       const { inventory } = character.combatantProperties;
       inventory.shards -= price;
       Inventory.insertItem(inventory, asClassInstance);
+      setAlert(`Purchased ${item.entityProperties.name}`, true);
     }
   );
 }

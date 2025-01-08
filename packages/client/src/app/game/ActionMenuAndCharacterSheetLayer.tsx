@@ -27,10 +27,12 @@ export default function ActionMenuAndCharacterSheetLayer({ party }: { party: Adv
           className={`flex items-end w-full h-fit`}
           style={{ marginBottom: `${SPACING_REM}rem` }}
         >
-          <div style={{ marginRight: `${SPACING_REM}rem` }}>
+          <div style={{ marginRight: `${SPACING_REM}rem` }} className="flex">
             <ActionMenu inputLocked={InputLock.isLocked(party.inputLock)} />
+            <div className="ml-3 h-1 w-fit">
+              <div className="fixed">{<ItemCraftDisplay />}</div>
+            </div>
           </div>
-          {<ItemCraftDisplay />}
           <CharacterSheet showCharacterSheet={viewingCharacterSheet} />
         </div>
         <div className="flex  w-full">

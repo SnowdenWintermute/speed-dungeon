@@ -41,7 +41,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
-    const cancelButton = new ActionMenuButtonProperties("Cancel", () => {
+    const cancelButton = new ActionMenuButtonProperties("Cancel", "Cancel", () => {
       useGameStore.getState().mutateState((state) => {
         state.stackedMenuStates.pop();
       });
@@ -79,6 +79,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
     ) {
       const equipToAltSlotButton = new ActionMenuButtonProperties(
         `Equip Alt. (${letterFromKeyCode(equipAltSlotHotkey)})`,
+        `Equip Alt. (${letterFromKeyCode(equipAltSlotHotkey)})`,
         () => {
           websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
             characterId,
@@ -94,30 +95,42 @@ export class ConsideringItemMenuState implements ActionMenuState {
     const useItemButton = (() => {
       if (this.item instanceof Equipment) {
         if (slotItemIsEquippedTo !== null)
-          return new ActionMenuButtonProperties(`Unequip (${useItemLetter})`, () => {
-            websocketConnection.emit(ClientToServerEvent.UnequipSlot, {
-              characterId,
-              slot: slotItemIsEquippedTo,
-            });
-          });
+          return new ActionMenuButtonProperties(
+            `Unequip (${useItemLetter})`,
+            `Unequip (${useItemLetter})`,
+            () => {
+              websocketConnection.emit(ClientToServerEvent.UnequipSlot, {
+                characterId,
+                slot: slotItemIsEquippedTo,
+              });
+            }
+          );
         else
-          return new ActionMenuButtonProperties(EQUIP_ITEM_BUTTON_TEXT, () => {
-            websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
-              characterId,
-              itemId,
-              equipToAltSlot: useUIStore.getState().modKeyHeld,
-            });
-          });
+          return new ActionMenuButtonProperties(
+            EQUIP_ITEM_BUTTON_TEXT,
+            EQUIP_ITEM_BUTTON_TEXT,
+            () => {
+              websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
+                characterId,
+                itemId,
+                equipToAltSlot: useUIStore.getState().modKeyHeld,
+              });
+            }
+          );
       } else if (this.item instanceof Consumable) {
-        return new ActionMenuButtonProperties(USE_CONSUMABLE_BUTTON_TEXT, () => {
-          websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-            characterId,
-            combatActionOption: {
-              type: CombatActionType.ConsumableUsed,
-              itemId,
-            },
-          });
-        });
+        return new ActionMenuButtonProperties(
+          USE_CONSUMABLE_BUTTON_TEXT,
+          USE_CONSUMABLE_BUTTON_TEXT,
+          () => {
+            websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
+              characterId,
+              combatActionOption: {
+                type: CombatActionType.ConsumableUsed,
+                itemId,
+              },
+            });
+          }
+        );
       } else {
         setAlert(new Error("unknown item type"));
         throw new Error("unknown item type");
@@ -129,6 +142,7 @@ export class ConsideringItemMenuState implements ActionMenuState {
     toReturn[ActionButtonCategory.Top].push(useItemButton);
 
     const dropItemButton = new ActionMenuButtonProperties(
+      `Drop (${letterFromKeyCode(dropItemHotkey)})`,
       `Drop (${letterFromKeyCode(dropItemHotkey)})`,
       () => {
         const slotEquipped = CombatantProperties.getSlotItemIsEquippedTo(

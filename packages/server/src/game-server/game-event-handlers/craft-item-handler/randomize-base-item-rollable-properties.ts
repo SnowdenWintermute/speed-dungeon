@@ -1,6 +1,7 @@
 import {
   CRAFTING_ACTION_DISABLED_CONDITIONS,
   CraftingAction,
+  EQUIPMENT_TYPE_STRINGS,
   ERROR_MESSAGES,
   Equipment,
 } from "@speed-dungeon/common";
@@ -11,6 +12,12 @@ export function randomizeBaseItemRollableProperties(
   itemLevelLimiter: number
 ) {
   const shouldBeDisabled = CRAFTING_ACTION_DISABLED_CONDITIONS[CraftingAction.Reform];
+
+  console.log(
+    EQUIPMENT_TYPE_STRINGS[equipment.equipmentBaseItemProperties.equipmentType],
+    "reform disabled: ",
+    shouldBeDisabled(equipment, itemLevelLimiter)
+  );
   if (shouldBeDisabled(equipment, itemLevelLimiter))
     return new Error(ERROR_MESSAGES.ITEM.INVALID_PROPERTIES);
   const builder =
