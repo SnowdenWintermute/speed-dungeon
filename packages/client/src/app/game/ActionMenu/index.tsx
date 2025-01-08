@@ -169,11 +169,22 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
     );
   }
 
-  let hoveredItemDisplay: ReactNode | null = null;
+  let hoveredItemDisplay: ReactNode | null = (
+    <div
+      style={{
+        height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem`,
+      }}
+    ></div>
+  );
   if (!viewingCharacterSheet && hoveredItem) {
     hoveredItemDisplay = (
-      <div className="pl-2">
-        <div className="min-w-[50rem] max-w-[50rem]">
+      <div className="ml-3 h-1 w-fit">
+        <div
+          className="fixed min-w-[50rem] max-w-[50rem]"
+          style={{
+            height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem`,
+          }}
+        >
           <ItemDetailsWithComparison />
         </div>
       </div>
@@ -181,7 +192,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   }
 
   return (
-    <section className={`max-h-fit flex flex-col justify-between`}>
+    <section className={`flex flex-col justify-between `}>
       <CharacterFocusingButtons />
       <ul
         className={`flex list-none min-w-[25rem] max-w-[25rem]`}
