@@ -37,15 +37,20 @@ export function characterPerformedCraftingActionHandler(eventData: {
     if (itemResult instanceof Error) return itemResult;
 
     const itemBeforeModification = cloneDeep(itemResult);
+    // distinguish between the crafted and pre-crafted item. used for selecting the item links in the
+    // combat log
+    itemBeforeModification.craftingIteration !== undefined
+      ? (itemBeforeModification.craftingIteration += 1)
+      : (itemBeforeModification.craftingIteration = 0);
+    console.log("before mod: ", itemBeforeModification.craftingIteration);
 
     if (itemResult instanceof Equipment) {
       const asInstance = plainToInstance(Equipment, item);
+
       itemResult.copyFrom(asInstance);
-      // distinguish between the crafted and pre-crafted item. used for selecting the item links in the
-      // combat log
-      asInstance.craftingIteration
-        ? (asInstance.craftingIteration += 1)
-        : (asInstance.craftingIteration = 0);
+
+      itemResult.craftingIteration = itemBeforeModification.craftingIteration + 1;
+      console.log("after mod: ", itemResult.craftingIteration);
 
       const actionPrice = getCraftingActionPrice(
         craftingAction,
@@ -57,7 +62,7 @@ export function characterPerformedCraftingActionHandler(eventData: {
       const style = COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE[GameMessageType.CraftingAction];
       let craftingResultMessage: ReactNode = "";
 
-      const craftedItemLink = <ItemLink item={cloneDeep(asInstance)} />;
+      const craftedItemLink = <ItemLink item={cloneDeep(itemResult)} />;
 
       switch (craftingAction) {
         case CraftingAction.Repair:

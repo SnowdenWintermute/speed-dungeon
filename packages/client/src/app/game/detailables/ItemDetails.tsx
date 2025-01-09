@@ -19,6 +19,10 @@ import { ZIndexLayers } from "@/app/z-index-layers";
 import { getModelAttribution } from "@/app/3d-world/item-models/get-model-attribution";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 import SwordIcon from "../../../../public/img/equipment-icons/1h-sword-a.svg";
+import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
+import { entityIsDetailed } from "@/stores/game-store/detailable-entities";
+import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { HOTKEYS } from "@/hotkeys";
 
 interface Props {
   shouldShowModKeyTooltip: boolean;
@@ -47,6 +51,11 @@ export default function ItemDetails({
   let BG_COLOR = "bg-slate-800";
 
   let thumbnailIdOption = "";
+
+  const isDetailedEntity =
+    useGameStore.getState().detailedEntity?.entityProperties.id === itemOption?.entityProperties.id;
+  const isHoveredEntity =
+    useGameStore.getState().hoveredEntity?.entityProperties.id === itemOption?.entityProperties.id;
 
   if (!itemOption) {
     itemDetailsDisplay = <></>;
@@ -89,7 +98,7 @@ export default function ItemDetails({
 
   return (
     <div
-      className={`border border-slate-400 bg-slate-700 h-fit
+      className={`border ${isDetailedEntity ? "border-yellow-400" : isHoveredEntity ? "border-white" : "border-slate-400"} bg-slate-700 h-fit
       w-full ${extraStyles} ${hiddenClass}
       flex relative 
       `}
@@ -99,6 +108,19 @@ export default function ItemDetails({
         scrollbarGutter: "stable",
       }}
     >
+      {isDetailedEntity && (
+        <HotkeyButton
+          className="absolute -right-1 -top-1 z-10 h-6 w-6 p-1 border border-slate-400 bg-slate-700"
+          hotkeys={[HOTKEYS.CANCEL]}
+          onClick={() => {
+            useGameStore.getState().mutateState((state) => {
+              state.detailedEntity = null;
+            });
+          }}
+        >
+          <XShape className="h-full fill-slate-400" />
+        </HotkeyButton>
+      )}
       {itemOption instanceof Equipment && (
         <div className="absolute -top-1 -left-1 z-10 ">
           <HoverableTooltipWrapper

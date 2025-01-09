@@ -57,6 +57,9 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   const hoveredItem = useGameStore((state) =>
     state.hoveredEntity instanceof Item ? state.hoveredEntity : null
   );
+  const detailedItem = useGameStore((state) =>
+    state.detailedEntity instanceof Item ? state.detailedEntity : null
+  );
   const currentMenu = useGameStore.getState().getCurrentMenu();
   const buttonProperties = currentMenu.getButtonProperties();
   const numberOfNumberedButtons = buttonProperties[ActionButtonCategory.Numbered].length;
@@ -176,7 +179,10 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
       }}
     ></div>
   );
-  if (!viewingCharacterSheet && hoveredItem) {
+  if (
+    !viewingCharacterSheet &&
+    (hoveredItem || (detailedItem && currentMenu.type !== MenuStateType.CraftingActionSelection))
+  ) {
     hoveredItemDisplay = (
       <div className="ml-3 h-0 w-0">
         <div
