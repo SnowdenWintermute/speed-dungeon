@@ -42,7 +42,6 @@ export function characterPerformedCraftingActionHandler(eventData: {
     itemBeforeModification.craftingIteration !== undefined
       ? (itemBeforeModification.craftingIteration += 1)
       : (itemBeforeModification.craftingIteration = 0);
-    console.log("before mod: ", itemBeforeModification.craftingIteration);
 
     if (itemResult instanceof Equipment) {
       const asInstance = plainToInstance(Equipment, item);
@@ -50,7 +49,6 @@ export function characterPerformedCraftingActionHandler(eventData: {
       itemResult.copyFrom(asInstance);
 
       itemResult.craftingIteration = itemBeforeModification.craftingIteration + 1;
-      console.log("after mod: ", itemResult.craftingIteration);
 
       const actionPrice = getCraftingActionPrice(
         craftingAction,

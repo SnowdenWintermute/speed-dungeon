@@ -2,6 +2,7 @@ export * from "./get-next-or-previous-number.js";
 export * from "./get-progression-game-max-starting-floor.js";
 
 import { Vector3 } from "@babylonjs/core";
+import { CONSUMABLE_TYPE_STRINGS, Consumable, ConsumableType } from "../items/consumables/index.js";
 
 export function removeFromArray<T>(array: T[], item: T): undefined | T {
   const indexToRemove = array.indexOf(item);
@@ -76,4 +77,14 @@ export function isBrowser() {
 
 export function stringIsValidNumber(str: string) {
   return !isNaN(parseInt(str)) && str.trim() !== "";
+}
+
+export function createDummyConsumable(consumableType: ConsumableType) {
+  return new Consumable(
+    { name: CONSUMABLE_TYPE_STRINGS[consumableType], id: "" },
+    0,
+    {},
+    consumableType,
+    1
+  );
 }

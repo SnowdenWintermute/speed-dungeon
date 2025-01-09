@@ -16,6 +16,7 @@ import { immerable } from "immer";
 import { HOTKEYS } from "@/hotkeys";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { createCancelButton } from "./common-buttons/cancel";
+import { setInventoryOpen } from "./common-buttons/open-inventory";
 
 export const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
 
@@ -36,7 +37,7 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
     const characterId = focusedCharacterResult.entityProperties.id;
     const userControlsThisCharacter = clientUserControlsCombatant(characterId);
 
-    toReturn[ActionButtonCategory.Top].push(createCancelButton([]));
+    toReturn[ActionButtonCategory.Top].push(createCancelButton([]), setInventoryOpen);
 
     const purchaseItemsButton = new ActionMenuButtonProperties(
       "Purchase Items",

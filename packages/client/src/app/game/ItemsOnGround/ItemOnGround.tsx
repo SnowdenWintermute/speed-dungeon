@@ -118,13 +118,14 @@ export default function ItemOnGround(props: Props) {
       </button>
       <button onClick={clickHandler} className="flex items-center h-full w-full ">
         <ItemButtonBody
-          buttonText={item.entityProperties.name}
           containerExtraStyles={containerExtraStyles}
           thumbnailOption={thumbnailOption}
           gradientOverride={gradientOverride}
           imageExtraStyles="scale-[300%]"
           imageHoverStyles="-translate-x-[55px]"
-        />
+        >
+          {item.entityProperties.name}
+        </ItemButtonBody>
       </button>
     </li>
   );

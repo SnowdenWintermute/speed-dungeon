@@ -15,18 +15,55 @@ import ShardsIcon from "../../../../../public/img/game-ui-icons/shards.svg";
 import {
   CONSUMABLE_TYPE_STRINGS,
   ClientToServerEvent,
+  Consumable,
   ConsumableType,
+  Item,
+  createDummyConsumable,
   getConsumableShardPrice,
+  iterateNumericEnum,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
+import { ItemButtonBody, ItemsMenuState, consumableGradientBg } from "./items";
+import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { createCancelButton } from "./common-buttons/cancel";
+import setItemHovered from "@/utils/set-item-hovered";
 
 export class PurchaseItemsMenuState implements ActionMenuState {
   [immerable] = true;
   page = 1;
   numPages: number = 1;
   type = MenuStateType.PurchasingItems;
-  constructor() {}
+  constructor() {
+    // super(
+    //   MenuStateType.PurchasingItems,
+    //   { text: "Cancel", hotkeys: [] },
+    //   (item: Item) => {
+    //     if (!(item instanceof Consumable)) return;
+    //     const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
+    //     if (focusedCharacterResult instanceof Error) return [];
+    //     websocketConnection.emit(ClientToServerEvent.PurchaseItem, {
+    //       characterId: focusedCharacterResult.entityProperties.id,
+    //       consumableType: item.consumableType,
+    //     });
+    //   },
+    //   () => {
+    //     return iterateNumericEnum(ConsumableType).map(
+    //       (consumableType) =>
+    //         new Consumable(
+    //           { name: CONSUMABLE_TYPE_STRINGS[consumableType], id: "" },
+    //           0,
+    //           {},
+    //           consumableType,
+    //           1
+    //         )
+    //     );
+    //   },
+    //   {
+    //     [ActionButtonCategory.Top]: [setInventoryOpen],
+    //   }
+    // );
+  }
+
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
@@ -45,33 +82,42 @@ export class PurchaseItemsMenuState implements ActionMenuState {
     const userControlsThisCharacter = clientUserControlsCombatant(characterId);
 
     toReturn[ActionButtonCategory.Top].push(createCancelButton([]));
-
-    const inventoryButton = new ActionMenuButtonProperties(
-      "Open Inventory (F)",
-      "Open Inventory (F)",
-      () => {
-        useGameStore.getState().mutateState((state) => {
-          state.stackedMenuStates.push(inventoryItemsMenuState);
-        });
-      }
-    );
-    inventoryButton.dedicatedKeys = [HOTKEYS.MAIN_1];
-    toReturn[ActionButtonCategory.Top].push(inventoryButton);
+    toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
     const purchaseableItems = [ConsumableType.HpAutoinjector, ConsumableType.MpAutoinjector];
     for (const consumableType of purchaseableItems) {
       const price = getConsumableShardPrice(partyResult.currentFloor, consumableType);
+
+      const thumbnailId = CONSUMABLE_TYPE_STRINGS[consumableType];
+      const thumbnailOption = useGameStore.getState().itemThumbnails[thumbnailId];
+
       const purchaseItemButton = new ActionMenuButtonProperties(
         (
-          <div className="flex justify-between w-full pr-2">
-            <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
-              {CONSUMABLE_TYPE_STRINGS[consumableType]}
+          <ItemButtonBody
+            gradientOverride={consumableGradientBg}
+            thumbnailOption={thumbnailOption}
+            containerExtraStyles="text-teal-400"
+            imageExtraStyles="scale-[300%]"
+            imageHoverStyles="-translate-x-[55px]"
+          >
+            <div
+              className="h-full flex justify-between items-center w-full pr-2"
+              onMouseEnter={() => {
+                setItemHovered(createDummyConsumable(consumableType));
+              }}
+              onMouseLeave={() => {
+                setItemHovered(null);
+              }}
+            >
+              <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
+                {CONSUMABLE_TYPE_STRINGS[consumableType]}
+              </div>
+              <div className="w-fit flex pr-2 pl-2 h-8 items-center bg-slate-700 border border-slate-400 text-zinc-300">
+                <span className="mr-1">{price}</span>
+                <ShardsIcon className="h-[20px] fill-slate-400" />
+              </div>
             </div>
-            <div className="w-fit flex h-full items-center">
-              <span className="mr-1">{price}</span>
-              <ShardsIcon className="h-[20px] fill-slate-400" />
-            </div>
-          </div>
+          </ItemButtonBody>
         ),
         `${CONSUMABLE_TYPE_STRINGS[consumableType]} (${price} shards)`,
         () => {

@@ -20,7 +20,6 @@ import { getModelAttribution } from "@/app/3d-world/item-models/get-model-attrib
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 import SwordIcon from "../../../../public/img/equipment-icons/1h-sword-a.svg";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
-import { entityIsDetailed } from "@/stores/game-store/detailable-entities";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { HOTKEYS } from "@/hotkeys";
 
@@ -79,6 +78,7 @@ export default function ItemDetails({
             combatAction={{
               type: CombatActionType.ConsumableUsed,
               itemId: item.entityProperties.id,
+              consumableType: item.consumableType,
             }}
             hideTitle={true}
           />

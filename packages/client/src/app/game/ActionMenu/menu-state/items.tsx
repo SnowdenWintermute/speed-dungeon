@@ -23,7 +23,7 @@ import createPageButtons from "./create-page-buttons";
 import { Color4 } from "@babylonjs/core";
 import cloneDeep from "lodash.clonedeep";
 import { createEaseGradient } from "@/utils/create-ease-gradient-style";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 
 const hexRed = "#563D45"; // eye droppered from paper doll slot disabled with filter
@@ -45,7 +45,8 @@ export abstract class ItemsMenuState implements ActionMenuState {
       | MenuStateType.InventoryItems
       | MenuStateType.ViewingEquipedItems
       | MenuStateType.ItemsOnGround
-      | MenuStateType.CraftingItemSelection,
+      | MenuStateType.CraftingItemSelection
+      | MenuStateType.PurchasingItems,
     private closeMenuTextAndHotkeys: { text: string; hotkeys: string[] },
     private itemButtonClickHandler: (item: Item) => void,
     private getItemsToShow: () => Item[],
@@ -112,13 +113,14 @@ export abstract class ItemsMenuState implements ActionMenuState {
       const button = new ActionMenuButtonProperties(
         (
           <ItemButtonBody
-            buttonText={consumableName}
-            containerExtraStyles="text-teal-400"
             thumbnailOption={thumbnailOption}
             gradientOverride={consumableGradientBg}
+            containerExtraStyles="text-teal-400"
             imageExtraStyles="scale-[300%]"
             imageHoverStyles="-translate-x-[55px]"
-          />
+          >
+            {consumableName}
+          </ItemButtonBody>
         ),
         consumableName,
         () => {
@@ -155,13 +157,14 @@ export abstract class ItemsMenuState implements ActionMenuState {
       const button = new ActionMenuButtonProperties(
         (
           <ItemButtonBody
-            buttonText={buttonText}
             containerExtraStyles={containerExtraStyles}
             imageExtraStyles={imageExtraStyles}
             gradientOverride={!requirementsMet ? unmetRequirementsGradientBg : ""}
             thumbnailOption={thumbnailOption}
             imageHoverStyles="-translate-x-[55px]"
-          />
+          >
+            {buttonText}
+          </ItemButtonBody>
         ),
         buttonText,
         () => {
@@ -206,14 +209,14 @@ function itemButtonMouseEnterHandler(item: Item) {
 }
 
 export function ItemButtonBody({
-  buttonText,
+  children,
   thumbnailOption,
   gradientOverride,
   containerExtraStyles,
   imageExtraStyles,
   imageHoverStyles,
 }: {
-  buttonText: string;
+  children: ReactNode;
   gradientOverride?: string;
   containerExtraStyles?: string;
   thumbnailOption?: string;
@@ -244,7 +247,7 @@ export function ItemButtonBody({
           textShadow: "2px 2px 0px #000000",
         }}
       >
-        {buttonText}
+        {children}
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import {
   Consumable,
   ERROR_MESSAGES,
   TARGET_CATEGORY_STRINGS,
+  createDummyConsumable,
   formatTargetingScheme,
 } from "@speed-dungeon/common";
 import React from "react";
@@ -66,7 +67,7 @@ export default function ActionDetails({ combatAction, hideTitle }: Props) {
           <div className="mb-1 mt-1 h-[1px] bg-slate-400" />
         </>
       )}
-      <div className="flex-grow overflow-auto">
+      <div className="flex-grow overflow-auto mr-2">
         {abilityOption && (
           <AbilityDetails
             ability={abilityOption}
@@ -100,6 +101,10 @@ function getCombatActionName(party: AdventuringParty, combatAction: CombatAction
     case CombatActionType.ConsumableUsed:
       const itemResult = AdventuringParty.getItem(party, combatAction.itemId);
       if (itemResult instanceof Error) {
+        if (combatAction.consumableType !== undefined) {
+          actionName = CONSUMABLE_TYPE_STRINGS[combatAction.consumableType];
+        }
+
         actionName = itemResult.message;
         break;
       }
