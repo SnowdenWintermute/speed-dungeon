@@ -126,7 +126,7 @@ export default function outfitNewCharacter(character: Combatant) {
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
 
-  combatantProperties.inventory.shards = Number.MAX_VALUE;
+  combatantProperties.inventory.shards = 9999;
   combatantProperties.inventory.equipment.push(HP_ARMOR_TEST_ITEM);
   const equippedHoldableHotswapSlot =
     CombatantEquipment.getEquippedHoldableSlots(combatantProperties);

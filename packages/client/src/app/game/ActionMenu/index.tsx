@@ -41,6 +41,9 @@ import {
   ConfirmConvertToShardsMenuState,
 } from "./menu-state/confirm-convert-to-shards";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
+import { playerIsOperatingVendingMachine } from "@/utils/player-is-operating-vending-machine";
+import ShardsDisplay from "../character-sheet/ShardsDisplay";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
@@ -231,6 +234,16 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
             </li>
           );
         })}
+        {playerIsOperatingVendingMachine(currentMenu.type) && (
+          <li className="ml-auto pointer-events-auto">
+            <HoverableTooltipWrapper tooltipText="The machine seems to want these...">
+              <ShardsDisplay
+                extraStyles="h-10"
+                numShards={focusedCharacterResult.combatantProperties.inventory.shards}
+              />
+            </HoverableTooltipWrapper>
+          </li>
+        )}
       </ul>
       <div
         className={`mb-3 flex`}

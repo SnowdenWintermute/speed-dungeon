@@ -11,12 +11,12 @@ import CharacterSheetCharacterSelectionButton from "./CharacterSheetCharacterSel
 import CharacterAttributes from "./CharacterAttributes";
 import PaperDoll from "./PaperDoll";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
-import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { HOTKEYS } from "@/hotkeys";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { MenuStateType } from "../ActionMenu/menu-state";
 import DropShardsModal from "./DropShardsModal";
+import ShardsDisplay from "./ShardsDisplay";
 
 export default function CharacterSheet({ showCharacterSheet }: { showCharacterSheet: boolean }) {
   const partyResult = useGameStore().getParty();
@@ -75,7 +75,7 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
             <div className="relative">
               <HoverableTooltipWrapper tooltipText="Drop shards (A)">
                 <HotkeyButton
-                  className="border border-slate-400 p-2 pr-4 pl-4 hover:bg-slate-950 flex items-center disabled:opacity-50"
+                  className="disabled:opacity-50"
                   hotkeys={[HOTKEYS.MAIN_2]}
                   disabled={currentMenu.type !== MenuStateType.InventoryItems}
                   onClick={() => {
@@ -84,12 +84,9 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
                     });
                   }}
                 >
-                  <span className="mr-2">
-                    {focusedCharacterOption.combatantProperties.inventory.shards}
-                  </span>{" "}
-                  <div className="h-5">
-                    <ShardsIcon className="fill-slate-400 h-full" />
-                  </div>
+                  <ShardsDisplay
+                    numShards={focusedCharacterOption.combatantProperties.inventory.shards}
+                  />
                 </HotkeyButton>
               </HoverableTooltipWrapper>
               {viewingDropShardsModal === true && (
