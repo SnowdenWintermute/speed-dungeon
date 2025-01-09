@@ -1,9 +1,10 @@
 import { GameMessageType } from "@speed-dungeon/common";
+import { ReactNode } from "react";
 
 export class CombatLogMessage {
   timestamp: number = new Date().getTime();
   constructor(
-    public message: string,
+    public message: ReactNode,
     public style: CombatLogMessageStyle
   ) {}
 }

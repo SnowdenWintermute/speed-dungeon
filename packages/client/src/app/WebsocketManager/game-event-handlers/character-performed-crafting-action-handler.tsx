@@ -7,7 +7,6 @@ import {
   EntityId,
   Equipment,
   GameMessageType,
-  Inventory,
   Item,
   getCraftingActionPrice,
 } from "@speed-dungeon/common";
@@ -18,6 +17,9 @@ import {
   COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE,
   CombatLogMessage,
 } from "@/app/game/combat-log/combat-log-message";
+import { ReactNode } from "react";
+import { ItemLink } from "@/app/game/combat-log/item-link";
+import cloneDeep from "lodash.clonedeep";
 
 export function characterPerformedCraftingActionHandler(eventData: {
   characterId: EntityId;
@@ -34,11 +36,16 @@ export function characterPerformedCraftingActionHandler(eventData: {
     );
     if (itemResult instanceof Error) return itemResult;
 
-    const itemNameBeforeModificaction = itemResult.entityProperties.name;
+    const itemBeforeModification = cloneDeep(itemResult);
 
     if (itemResult instanceof Equipment) {
       const asInstance = plainToInstance(Equipment, item);
       itemResult.copyFrom(asInstance);
+      // distinguish between the crafted and pre-crafted item. used for selecting the item links in the
+      // combat log
+      asInstance.craftingIteration
+        ? (asInstance.craftingIteration += 1)
+        : (asInstance.craftingIteration = 0);
 
       const actionPrice = getCraftingActionPrice(
         craftingAction,
@@ -48,23 +55,31 @@ export function characterPerformedCraftingActionHandler(eventData: {
 
       // post combat log message about the crafted result with hoverable item inspection link
       const style = COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE[GameMessageType.CraftingAction];
-      let craftingResultMessage = "";
+      let craftingResultMessage: ReactNode = "";
+
+      const craftedItemLink = <ItemLink item={cloneDeep(asInstance)} />;
 
       switch (craftingAction) {
         case CraftingAction.Repair:
           break;
         case CraftingAction.Reform:
         case CraftingAction.Shake:
-          craftingResultMessage = ` resulting in ${item.entityProperties.name}`;
+          craftingResultMessage = <div> resulting in {craftedItemLink}</div>;
           break;
         case CraftingAction.Imbue:
         case CraftingAction.Augment:
         case CraftingAction.Tumble:
-          craftingResultMessage = ` and created ${item.entityProperties.name}`;
+          craftingResultMessage = <div> and created {craftedItemLink}</div>;
       }
 
       combatLogMessage = new CombatLogMessage(
-        `${character.entityProperties.name} ${CRAFTING_ACTION_PAST_TENSE_STRINGS[craftingAction]} ${itemNameBeforeModificaction}${craftingResultMessage}`,
+        (
+          <div>
+            {character.entityProperties.name} {CRAFTING_ACTION_PAST_TENSE_STRINGS[craftingAction]}{" "}
+            <ItemLink item={itemBeforeModification} />
+            {craftingResultMessage}
+          </div>
+        ),
         style
       );
     } else {

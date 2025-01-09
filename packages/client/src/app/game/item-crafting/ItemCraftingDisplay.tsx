@@ -9,8 +9,13 @@ import { INFO_UNICODE_SYMBOL } from "@speed-dungeon/common";
 
 export default function ItemCraftDisplay() {
   const currentMenu = useGameStore.getState().getCurrentMenu();
+  const hoveredEntity = useGameStore.getState().hoveredEntity;
   const partyResult = useGameStore.getState().getParty();
-  if (!(currentMenu instanceof CraftingItemMenuState) || partyResult instanceof Error) {
+  if (
+    !(currentMenu instanceof CraftingItemMenuState) ||
+    partyResult instanceof Error ||
+    hoveredEntity
+  ) {
     return <></>;
   }
 

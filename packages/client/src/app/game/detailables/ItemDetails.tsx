@@ -120,7 +120,11 @@ export default function ItemDetails({
         </div>
       )}
       <div className="flex-1 justify-center items-center text-center ">
-        <span className="pr-2">{itemOption?.entityProperties.name}</span>
+        <span
+          className={`pr-2 ${itemOption instanceof Equipment && Equipment.isMagical(itemOption) && "text-blue-300"}`}
+        >
+          {itemOption?.entityProperties.name}
+        </span>
         <Divider extraStyles="mr-4" />
         {itemDetailsDisplay}
       </div>

@@ -43,7 +43,9 @@ export default function PaperDollSlot({
   const itemDisplay = thumbnailOption ? (
     <img src={thumbnailOption} className={"max-h-full"} />
   ) : (
-    itemNameDisplay
+    <div className={itemOption && Equipment.isMagical(itemOption) ? "text-blue-300" : ""}>
+      {itemNameDisplay}
+    </div>
   );
 
   const bgStyle = useMemo(() => {

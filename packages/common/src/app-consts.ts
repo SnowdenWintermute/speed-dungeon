@@ -84,3 +84,7 @@ export const FFIX_COLORS = {
   lightwhite: "#a7a08d",
   ffxipink: "#ff9b9b",
 };
+
+export const CONSUMABLE_TURQUOISE = "#0d6658";
+export const MAGICAL_PROPERTY_BLUE = "#93c5fd";
+export const BASE_TEXT = "#d4d4d8";

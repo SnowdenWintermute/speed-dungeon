@@ -7,6 +7,7 @@ import {
   MenuStateType,
 } from ".";
 import {
+  CONSUMABLE_TURQUOISE,
   CONSUMABLE_TYPE_STRINGS,
   CombatantProperties,
   Consumable,
@@ -25,16 +26,15 @@ import { createEaseGradient } from "@/utils/create-ease-gradient-style";
 import { useState } from "react";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 
-const hexGreen = "#0d6658";
 const hexRed = "#563D45"; // eye droppered from paper doll slot disabled with filter
-const GREEN = Color4.FromHexString(hexGreen).scale(255);
+const GREEN = Color4.FromHexString(CONSUMABLE_TURQUOISE).scale(255);
 const RED = Color4.FromHexString(hexRed).scale(255);
 const GRAY = new Color4(0.55, 0.55, 0.55, 1.0).scale(255);
 const TRANSPARENT = cloneDeep(GRAY);
 TRANSPARENT.a = 0;
 const gradientBg = createEaseGradient(TRANSPARENT, GRAY, 1, 25);
-const consumableGradientBg = createEaseGradient(TRANSPARENT, GREEN, 1, 25);
-const unmetRequirementsGradientBg = createEaseGradient(TRANSPARENT, RED, 1, 25);
+export const consumableGradientBg = createEaseGradient(TRANSPARENT, GREEN, 1, 25);
+export const unmetRequirementsGradientBg = createEaseGradient(TRANSPARENT, RED, 1, 25);
 
 export abstract class ItemsMenuState implements ActionMenuState {
   [immerable] = true;
@@ -113,6 +113,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
         (
           <ItemButtonBody
             buttonText={consumableName}
+            containerExtraStyles="text-teal-400"
             thumbnailOption={thumbnailOption}
             gradientOverride={consumableGradientBg}
             imageExtraStyles="scale-[300%]"
@@ -134,7 +135,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
     for (const item of equipmentAndShardStacks) {
       const thumbnailOption = useGameStore.getState().itemThumbnails[item.entityProperties.id];
       const buttonText = buttonTextPrefix + item.entityProperties.name;
-      let extraStyles =
+      let imageExtraStyles =
         item instanceof Equipment && Equipment.isWeapon(item)
           ? "scale-[300%]"
           : "scale-[200%] -translate-x-1/2 p-[2px]";
@@ -146,15 +147,17 @@ export abstract class ItemsMenuState implements ActionMenuState {
 
       let containerExtraStyles = "";
       if (!requirementsMet) {
-        containerExtraStyles += UNMET_REQUIREMENT_TEXT_COLOR;
-        extraStyles += " filter-red";
+        containerExtraStyles += ` ${UNMET_REQUIREMENT_TEXT_COLOR}`;
+        imageExtraStyles += " filter-red";
+      } else if (item instanceof Equipment && Equipment.isMagical(item)) {
+        containerExtraStyles += " text-blue-300";
       }
       const button = new ActionMenuButtonProperties(
         (
           <ItemButtonBody
             buttonText={buttonText}
             containerExtraStyles={containerExtraStyles}
-            imageExtraStyles={extraStyles}
+            imageExtraStyles={imageExtraStyles}
             gradientOverride={!requirementsMet ? unmetRequirementsGradientBg : ""}
             thumbnailOption={thumbnailOption}
             imageHoverStyles="-translate-x-[55px]"
@@ -202,7 +205,7 @@ function itemButtonMouseEnterHandler(item: Item) {
   setItemHovered(item);
 }
 
-function ItemButtonBody({
+export function ItemButtonBody({
   buttonText,
   thumbnailOption,
   gradientOverride,

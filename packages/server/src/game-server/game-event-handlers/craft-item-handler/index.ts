@@ -10,7 +10,7 @@ import {
   getCraftingActionPrice,
   getPartyChannelName,
 } from "@speed-dungeon/common";
-import { getGameServer } from "../../../singletons.js";
+import { getGameServer, idGenerator } from "../../../singletons.js";
 import { CraftingAction } from "@speed-dungeon/common";
 import writePlayerCharactersInGameToDb from "../../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 import { repairEquipment } from "./repair-equipment.js";

@@ -178,7 +178,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   );
   if (!viewingCharacterSheet && hoveredItem) {
     hoveredItemDisplay = (
-      <div className="ml-3 h-1 w-fit">
+      <div className="ml-3 h-0 w-0">
         <div
           className="fixed min-w-[50rem] max-w-[50rem]"
           style={{

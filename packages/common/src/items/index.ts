@@ -9,6 +9,9 @@ export enum ItemType {
 }
 
 export abstract class Item {
+  // used on client to distinguish crafting results on an item since we can't change the id as it is
+  // needed to match the crafting result with the item in the client combatant's inventory
+  craftingIteration?: number;
   constructor(
     public entityProperties: EntityProperties,
     public itemLevel: number,
