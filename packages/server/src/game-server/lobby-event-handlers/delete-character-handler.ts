@@ -16,11 +16,12 @@ export default function deleteCharacterHandler(
   socket: Socket
 ) {
   const { game, partyOption, player, session } = playerAssociatedData;
-  if (!partyOption) return errorHandler(socket, ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+  if (!partyOption)
+    return errorHandler(socket, new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST));
   const party = partyOption;
 
   if (!player.characterIds.includes(characterId.toString()))
-    return errorHandler(socket, ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
+    return errorHandler(socket, new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED));
 
   const removeCharacterResult = AdventuringParty.removeCharacter(
     party,
@@ -28,8 +29,7 @@ export default function deleteCharacterHandler(
     player,
     undefined
   );
-  if (removeCharacterResult instanceof Error)
-    return errorHandler(socket, removeCharacterResult.message);
+  if (removeCharacterResult instanceof Error) return errorHandler(socket, removeCharacterResult);
 
   for (const character of Object.values(party.characters))
     updateCombatantHomePosition(

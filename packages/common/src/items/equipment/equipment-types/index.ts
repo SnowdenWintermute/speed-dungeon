@@ -1,6 +1,6 @@
 import { BodyArmor } from "./body-armor.js";
 import { HeadGear } from "./head-gear.js";
-import { Amulet, Jewelry, Ring } from "./jewelry.js";
+import { Amulet, Ring } from "./jewelry.js";
 import { OneHandedMeleeWeapon } from "./one-handed-melee-weapon.js";
 import { Shield } from "./shield.js";
 import { TwoHandedMeleeWeapon } from "./two-handed-melee-weapon.js";
@@ -71,16 +71,17 @@ export interface ShieldBaseItemType {
 }
 export interface RingBaseItemType {
   equipmentType: EquipmentType.Ring;
-  baseItemType: Jewelry.Ring;
+  baseItemType: Ring;
 }
 export interface AmuletBaseItemType {
   equipmentType: EquipmentType.Amulet;
-  baseItemType: Jewelry.Amulet;
+  baseItemType: Amulet;
 }
 
 export type EquipmentBaseItemType =
   | Shield
-  | Jewelry
+  | Ring
+  | Amulet
   | TwoHandedMeleeWeapon
   | TwoHandedRangedWeapon
   | OneHandedMeleeWeapon

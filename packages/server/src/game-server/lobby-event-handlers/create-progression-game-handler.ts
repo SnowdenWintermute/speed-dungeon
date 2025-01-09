@@ -27,7 +27,7 @@ export default async function createProgressionGameHandler(
   );
 
   if (defaultSavedCharacterResult instanceof Error)
-    return errorHandler(socket, defaultSavedCharacterResult.message);
+    return errorHandler(socket, defaultSavedCharacterResult);
 
   const game = new SpeedDungeonGame(
     idGenerator.generate(),

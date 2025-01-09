@@ -194,7 +194,10 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   );
   if (
     !viewingCharacterSheet &&
-    (hoveredItem || (detailedItem && currentMenu.type !== MenuStateType.CraftingActionSelection))
+    (hoveredItem ||
+      (detailedItem &&
+        currentMenu.type !== MenuStateType.CraftingActionSelection &&
+        currentMenu.type !== MenuStateType.CombatActionSelected))
   ) {
     hoveredItemDisplay = (
       <div className="ml-3 h-0 w-0">

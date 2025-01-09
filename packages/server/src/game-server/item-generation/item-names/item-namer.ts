@@ -5,9 +5,10 @@ import {
   EquipmentType,
   ItemType,
   ONE_HANDED_MELEE_WEAPON_NAMES,
+  formatAmulet,
   formatBodyArmor,
   formatHeadGear,
-  formatJewelry,
+  formatRing,
   formatShield,
   formatTwoHandedMeleeWeapon,
   formatTwoHandedRangedWeapon,
@@ -32,8 +33,10 @@ export abstract class ItemNamer {
             baseItemName = formatHeadGear(baseItem.taggedBaseEquipment.baseItemType);
             break;
           case EquipmentType.Ring:
+            baseItemName = formatRing(baseItem.taggedBaseEquipment.baseItemType);
+            break;
           case EquipmentType.Amulet:
-            baseItemName = formatJewelry(baseItem.taggedBaseEquipment.baseItemType);
+            baseItemName = formatAmulet(baseItem.taggedBaseEquipment.baseItemType);
             break;
           case EquipmentType.OneHandedMeleeWeapon:
             baseItemName = ONE_HANDED_MELEE_WEAPON_NAMES[baseItem.taggedBaseEquipment.baseItemType];

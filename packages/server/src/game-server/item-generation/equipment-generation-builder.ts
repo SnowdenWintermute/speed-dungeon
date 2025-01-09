@@ -39,6 +39,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
   ) {
     super();
   }
+
   buildBaseItem(
     itemLevel: number,
     forcedBaseItemOption: TaggedBaseItem | undefined
@@ -59,7 +60,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     const toReturn: TaggedBaseItem = {
       type: ItemType.Equipment,
       // @ts-ignore
-      baseItem: {
+      taggedBaseEquipment: {
         equipmentType: this.equipmentType,
         baseItemType: baseEquipmentItem,
       },
@@ -101,6 +102,8 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
       forcedNumAffixes?: { prefixes: number; suffixes: number };
     }
   ): Error | Affixes {
+    console.log("BASE EQ ITEM: ", baseEquipmentItem);
+
     const affixes: Affixes = { [AffixType.Prefix]: {}, [AffixType.Suffix]: {} };
 
     const template = getEquipmentGenerationTemplate(baseEquipmentItem);

@@ -1,4 +1,4 @@
-import { Consumable, Equipment, ItemType } from "@speed-dungeon/common";
+import { Affixes, Consumable, Equipment, ItemType } from "@speed-dungeon/common";
 import { ItemGenerationBuilder, TaggedBaseItem } from "./item-generation-builder";
 import { IdGenerator } from "../../singletons";
 
@@ -15,11 +15,15 @@ export class ItemGenerationDirector {
     const { builder } = this;
     const baseItemResult = builder.buildBaseItem(itemLevel, options?.forcedBaseItemOption);
     if (baseItemResult instanceof Error) return baseItemResult;
+
     const { type: itemType } = baseItemResult;
-    const affixesResult =
-      !options?.noAffixes && itemType === ItemType.Equipment
-        ? builder.buildAffixes(itemLevel, baseItemResult.taggedBaseEquipment)
-        : null;
+    let affixesResult: Error | Affixes | null = null;
+    if (!options?.noAffixes && itemType === ItemType.Equipment) {
+      console.log("BASE ITEM: ", baseItemResult);
+
+      affixesResult = builder.buildAffixes(itemLevel, baseItemResult.taggedBaseEquipment);
+    }
+
     if (affixesResult instanceof Error) return affixesResult;
     const affixes = affixesResult;
     const requirementsResult = builder.buildRequirements(baseItemResult, affixes);

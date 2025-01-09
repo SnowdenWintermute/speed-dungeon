@@ -55,7 +55,7 @@ export const applyMiddlewares =
             // or the final handler
             await middleware(socket, eventData, middlewareProvidedDataOption, next);
           } catch (error) {
-            if (error instanceof Error) errorHandler(socket, error.message);
+            if (error instanceof Error) errorHandler(socket, error);
             else console.trace(error);
           }
         } else {
@@ -64,15 +64,15 @@ export const applyMiddlewares =
           // as an option because the initial call is from a socket.io event handler which only includes
           // eventData
           if (middlewareProvidedDataOption === undefined)
-            return errorHandler(socket, ERROR_MESSAGES.EVENT_MIDDLEWARE.MISSING_DATA);
+            return errorHandler(socket, new Error(ERROR_MESSAGES.EVENT_MIDDLEWARE.MISSING_DATA));
 
           try {
             // we should now have the middlewareProvidedDataOption because it was passed by a middleware
             // and we should be checking for it above
             const maybeError = await handler(eventData, middlewareProvidedDataOption, socket);
-            if (maybeError instanceof Error) return errorHandler(socket, maybeError.message);
+            if (maybeError instanceof Error) return errorHandler(socket, maybeError);
           } catch (error) {
-            if (error instanceof Error) errorHandler(socket, error.message);
+            if (error instanceof Error) errorHandler(socket, error);
             else console.trace(error);
           }
         }
