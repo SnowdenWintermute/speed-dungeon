@@ -11,7 +11,6 @@ import {
 export function createImageCreatorScene(engine: Engine): Scene {
   const scene = new Scene(engine);
   scene.clearColor = new Color4(0, 0, 0, 0);
-  // scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
 
   // LIGHTS
   const hemiLight = new HemisphericLight("hemi-light-2", new Vector3(0, 1, 0), scene);

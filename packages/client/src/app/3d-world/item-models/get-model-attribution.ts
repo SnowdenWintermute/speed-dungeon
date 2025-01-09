@@ -1,12 +1,4 @@
-import {
-  Consumable,
-  Equipment,
-  EquipmentType,
-  Item,
-  OneHandedMeleeWeapon,
-  TwoHandedMeleeWeapon,
-  TwoHandedRangedWeapon,
-} from "@speed-dungeon/common";
+import { Consumable, Equipment, EquipmentType, Item } from "@speed-dungeon/common";
 import {
   ONE_HANDED_MELEE_WEAPON_MODELS,
   SHIELD_MODELS,
@@ -27,18 +19,21 @@ export function getModelAttribution(item: Item) {
         return undefined;
       case EquipmentType.OneHandedMeleeWeapon:
         const artist =
-          ONE_HANDED_MELEE_WEAPON_MODELS[equipmentBaseItemProperties.taggedBaseEquipment.baseItemType]
-            .artist;
+          ONE_HANDED_MELEE_WEAPON_MODELS[
+            equipmentBaseItemProperties.taggedBaseEquipment.baseItemType
+          ].artist;
         return ARTISTS[artist];
       case EquipmentType.TwoHandedMeleeWeapon:
         return ARTISTS[
-          TWO_HANDED_MELEE_WEAPON_MODELS[equipmentBaseItemProperties.taggedBaseEquipment.baseItemType]
-            .artist
+          TWO_HANDED_MELEE_WEAPON_MODELS[
+            equipmentBaseItemProperties.taggedBaseEquipment.baseItemType
+          ].artist
         ];
       case EquipmentType.TwoHandedRangedWeapon:
         return ARTISTS[
-          TWO_HANDED_RANGED_WEAPON_MODELS[equipmentBaseItemProperties.taggedBaseEquipment.baseItemType]
-            .artist
+          TWO_HANDED_RANGED_WEAPON_MODELS[
+            equipmentBaseItemProperties.taggedBaseEquipment.baseItemType
+          ].artist
         ];
       case EquipmentType.Shield:
         return ARTISTS[

@@ -88,3 +88,4 @@ export const FFIX_COLORS = {
 export const CONSUMABLE_TURQUOISE = "#0d6658";
 export const MAGICAL_PROPERTY_BLUE = "#93c5fd";
 export const BASE_TEXT = "#d4d4d8";
+export const SKY_COLOR = "#1a1a26";
