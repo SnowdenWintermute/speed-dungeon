@@ -1,5 +1,6 @@
 import { Item } from "../index.js";
 import {
+  AFFIX_TIER_SHARD_REWARD_MULTIPLIER,
   DOUBLE_AFFIX_SHARD_REWARD_MULTIPLIER,
   ITEM_LEVEL_SHARD_REWARD_MULTIPLIER,
   PREFIX_SHARD_REWARD_MULTIPLIER,
@@ -9,11 +10,26 @@ import {
   Combatant,
   CombatantEquipment,
   CombatantProperties,
+  CombatantTraitType,
   Inventory,
 } from "../../combatants/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { removeFromArray } from "../../utils/index.js";
 import { AffixType, Equipment } from "../equipment/index.js";
+import { DungeonRoomType } from "../../adventuring-party/dungeon-room.js";
+
+export function combatantIsAllowedToConvertItemsToShards(
+  combatantProperties: CombatantProperties,
+  currentRoomType: DungeonRoomType
+) {
+  return (
+    currentRoomType === DungeonRoomType.VendingMachine ||
+    CombatantProperties.hasTraitType(
+      combatantProperties,
+      CombatantTraitType.CanConvertToShardsManually
+    )
+  );
+}
 
 export function convertItemsToShards(itemIds: EntityId[], combatant: Combatant) {
   const { combatantProperties } = combatant;
@@ -47,11 +63,19 @@ function convertItemToShards(item: Item, combatantProperties: CombatantPropertie
 export function getShardRewardNumberFromItem(item: Item) {
   const afterItemLevel = item.itemLevel * ITEM_LEVEL_SHARD_REWARD_MULTIPLIER;
   if (!(item instanceof Equipment)) return Math.floor(afterItemLevel);
-  const hasPrefix = Object.values(item.affixes[AffixType.Prefix]).length;
-  const hasSuffix = Object.values(item.affixes[AffixType.Suffix]).length;
-  if (hasPrefix && hasSuffix)
-    return Math.floor(afterItemLevel * DOUBLE_AFFIX_SHARD_REWARD_MULTIPLIER);
-  else if (hasSuffix) return Math.floor(afterItemLevel * SUFFIX_SHARD_REWARD_MULTIPLIER);
-  else if (hasPrefix) return Math.floor(afterItemLevel * PREFIX_SHARD_REWARD_MULTIPLIER);
-  else return Math.floor(afterItemLevel);
+  let suffixTier = 0;
+  const suffixOption = Object.values(item.affixes[AffixType.Suffix])[0];
+  if (suffixOption) suffixTier = suffixOption.tier;
+  let prefixTier = 0;
+  const prefixOption = Object.values(item.affixes[AffixType.Prefix])[0];
+  if (prefixOption) prefixTier = prefixOption.tier;
+
+  if (!suffixTier && !prefixTier) return Math.max(1, Math.floor(afterItemLevel));
+
+  const suffixBaseShardValue =
+    suffixTier * AFFIX_TIER_SHARD_REWARD_MULTIPLIER * SUFFIX_SHARD_REWARD_MULTIPLIER;
+  const prefixBaseShardValue =
+    suffixTier * AFFIX_TIER_SHARD_REWARD_MULTIPLIER * SUFFIX_SHARD_REWARD_MULTIPLIER;
+  const combinedValue = afterItemLevel + suffixBaseShardValue + prefixBaseShardValue;
+  return Math.max(1, Math.floor(combinedValue));
 }

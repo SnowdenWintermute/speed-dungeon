@@ -114,5 +114,7 @@ export function formatCombatantTrait(trait: CombatantTrait) {
       );
     case CombatantTraitType.ExtraHotswapSlot:
       return "Stay strapped";
+    case CombatantTraitType.CanConvertToShardsManually:
+      return "Disassembler";
   }
 }

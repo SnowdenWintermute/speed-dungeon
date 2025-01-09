@@ -49,6 +49,9 @@ export default function outfitNewCharacter(character: Combatant) {
   if (combatantProperties.combatantClass === CombatantClass.Mage)
     combatantProperties.abilities[AbilityName.Ice] = CombatantAbility.createByName(AbilityName.Ice);
 
+  if (combatantProperties.combatantClass === CombatantClass.Rogue)
+    combatantProperties.traits.push({ type: CombatantTraitType.CanConvertToShardsManually });
+
   if (combatantProperties.combatantClass === CombatantClass.Warrior) {
     const extraSlotTrait: CombatantTrait = {
       type: CombatantTraitType.ExtraHotswapSlot,

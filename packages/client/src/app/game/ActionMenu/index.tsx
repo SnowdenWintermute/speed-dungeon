@@ -20,6 +20,7 @@ import {
   Consumable,
   Item,
   NextOrPrevious,
+  combatantIsAllowedToConvertItemsToShards,
   getNextOrPreviousNumber,
   getShardRewardNumberFromItem,
 } from "@speed-dungeon/common";
@@ -39,6 +40,7 @@ import {
   CONFIRM_SHARD_TEXT,
   ConfirmConvertToShardsMenuState,
 } from "./menu-state/confirm-convert-to-shards";
+import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
@@ -65,6 +67,9 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   const numberOfNumberedButtons = buttonProperties[ActionButtonCategory.Numbered].length;
   const mutateGameState = useGameStore().mutateState;
   const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
+  const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
+  const partyResult = useGameStore.getState().getParty();
+  if (focusedCharacterResult instanceof Error || partyResult instanceof Error) return <></>;
 
   useEffect(() => {
     if (currentMenu.type === MenuStateType.ItemsOnGround && numberOfNumberedButtons === 0) {
@@ -120,24 +125,29 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
           ) : (
             <div>Equipping this item will swap it with any currently equipped item</div>
           )}
-          <div className="mt-4">
-            <HotkeyButton
-              className="border border-slate-400 w-full p-2 pl-3 pr-3 hover:bg-slate-950"
-              hotkeys={[SHARD_ITEM_HOTKEY]}
-              onClick={() =>
-                mutateGameState((state) => {
-                  state.stackedMenuStates.push(
-                    new ConfirmConvertToShardsMenuState(currentMenu.item)
-                  );
-                })
-              }
-            >
-              <span>
-                CONVERT TO {shardReward} SHARD{shardReward > 1 ? "S" : ""} (
-                {letterFromKeyCode(SHARD_ITEM_HOTKEY)})
-              </span>
-            </HotkeyButton>
-          </div>
+          {combatantIsAllowedToConvertItemsToShards(
+            focusedCharacterResult.combatantProperties,
+            partyResult.currentRoom.roomType
+          ) && (
+            <div className="mt-4">
+              <HotkeyButton
+                className="border border-slate-400 w-full p-2 pl-3 pr-3 hover:bg-slate-950"
+                hotkeys={[SHARD_ITEM_HOTKEY]}
+                onClick={() =>
+                  mutateGameState((state) => {
+                    state.stackedMenuStates.push(
+                      new ConfirmConvertToShardsMenuState(currentMenu.item)
+                    );
+                  })
+                }
+              >
+                <span>
+                  ({letterFromKeyCode(SHARD_ITEM_HOTKEY)}) Convert to {shardReward}{" "}
+                  <ShardsIcon className="fill-slate-400 h-6 inline" />
+                </span>
+              </HotkeyButton>
+            </div>
+          )}
         </div>
       </div>
     );

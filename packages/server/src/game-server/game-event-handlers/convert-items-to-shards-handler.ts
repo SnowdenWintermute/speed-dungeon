@@ -3,9 +3,15 @@ import {
   CharacterAndItems,
   CharacterAssociatedData,
   ClientToServerEventTypes,
+  Combatant,
+  CombatantProperties,
+  CombatantTraitType,
+  DungeonRoomType,
+  ERROR_MESSAGES,
   GameMode,
   ServerToClientEvent,
   ServerToClientEventTypes,
+  combatantIsAllowedToConvertItemsToShards,
   convertItemsToShards,
   getPartyChannelName,
 } from "@speed-dungeon/common";
@@ -21,6 +27,14 @@ export async function convertItemsToShardsHandler(
   const { game, party, character, player } = characterAssociatedData;
   const gameServer = getGameServer();
   const { itemIds } = characterAndItems;
+
+  if (
+    !combatantIsAllowedToConvertItemsToShards(
+      character.combatantProperties,
+      party.currentRoom.roomType
+    )
+  )
+    return new Error(ERROR_MESSAGES.NOT_PERMITTED);
 
   // find and convert it if owned (common code)
   // clone the itemIds so we can keep the unmodified original to send to the clients
