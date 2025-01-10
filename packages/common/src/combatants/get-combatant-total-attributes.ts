@@ -55,12 +55,10 @@ export default function getCombatantTotalAttributes(
         addAttributesToAccumulator(affix.combatAttributes, totalAttributes);
       }
     }
-    const baseArmorClass = Equipment.getBaseArmorClass(item);
+    const modifiedArmorClass = Equipment.getModifiedArmorClass(item);
     if (totalAttributes[CombatAttribute.ArmorClass])
-      totalAttributes[CombatAttribute.ArmorClass] += baseArmorClass;
-    else totalAttributes[CombatAttribute.ArmorClass] = baseArmorClass;
-    // @TODO - add the %armor class trait to item generation and calculate it here
-    // or on an equipment method and add it here
+      totalAttributes[CombatAttribute.ArmorClass] += modifiedArmorClass;
+    else totalAttributes[CombatAttribute.ArmorClass] = modifiedArmorClass;
   }
 
   // after adding up attributes, determine if any equipped item still doesn't meet attribute

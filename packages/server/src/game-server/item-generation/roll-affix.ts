@@ -104,6 +104,11 @@ export function rollAffix(
             value: rollAttributeValue(1, 2),
           };
           break;
+        case SuffixType.PercentArmorClass:
+          affix.equipmentTraits[EquipmentTraitType.ArmorClassPercentage] = {
+            equipmentTraitType: EquipmentTraitType.ArmorClassPercentage,
+            value: randBetween((tier - 1) * 10 + 1, tier * 10),
+          };
         case SuffixType.Durability:
           //
           break;

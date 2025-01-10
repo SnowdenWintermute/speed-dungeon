@@ -122,5 +122,20 @@ export function getSuffixName(suffixType: SuffixType, tier: number) {
         default:
           "hacked";
       }
+    case SuffixType.PercentArmorClass:
+      switch (tier) {
+        case 1:
+          return "Protection";
+        case 2:
+          return "Absorbtion";
+        case 3:
+          return "Osmosis";
+        case 4:
+          return "Deflection";
+        case 5:
+          return "Immortality";
+        default:
+          "hacked";
+      }
   }
 }

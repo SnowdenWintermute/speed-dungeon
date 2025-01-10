@@ -6,8 +6,11 @@ import {
   CraftingAction,
   EntityId,
   Equipment,
+  EquipmentType,
   GameMessageType,
   Item,
+  OneHandedMeleeWeapon,
+  TwoHandedMeleeWeapon,
   getCraftingActionPrice,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
@@ -20,6 +23,8 @@ import {
 import { ReactNode } from "react";
 import { ItemLink } from "@/app/game/combat-log/item-link";
 import cloneDeep from "lodash.clonedeep";
+import { gameWorld } from "@/app/3d-world/SceneManager";
+import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 
 export function characterPerformedCraftingActionHandler(eventData: {
   characterId: EntityId;
@@ -47,6 +52,13 @@ export function characterPerformedCraftingActionHandler(eventData: {
       const asInstance = plainToInstance(Equipment, item);
 
       itemResult.copyFrom(asInstance);
+
+      if (shouldUpdateThumbnailAfterCraft(itemResult)) {
+        gameWorld.current?.imageManager.enqueueMessage({
+          type: ImageManagerRequestType.ItemCreation,
+          item: itemResult,
+        });
+      }
 
       itemResult.craftingIteration = itemBeforeModification.craftingIteration + 1;
 
@@ -93,4 +105,29 @@ export function characterPerformedCraftingActionHandler(eventData: {
   useGameStore.getState().mutateState((state) => {
     state.combatLogMessages.push(combatLogMessage);
   });
+}
+
+function shouldUpdateThumbnailAfterCraft(equipment: Equipment) {
+  // @TODO - instead of checking specific types, we could share the generation template
+  // code from the server and check if the template allows for more damage classifications
+  // than can be rolled at one time
+  if (
+    equipment.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType ===
+      EquipmentType.TwoHandedMeleeWeapon &&
+    equipment.equipmentBaseItemProperties.taggedBaseEquipment.baseItemType ===
+      TwoHandedMeleeWeapon.ElementalStaff
+  ) {
+    return true;
+  }
+
+  if (
+    equipment.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType ===
+      EquipmentType.OneHandedMeleeWeapon &&
+    equipment.equipmentBaseItemProperties.taggedBaseEquipment.baseItemType ===
+      OneHandedMeleeWeapon.RuneSword
+  ) {
+    return true;
+  }
+
+  return false;
 }

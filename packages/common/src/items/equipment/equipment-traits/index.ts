@@ -1,4 +1,6 @@
-import { AffixType, Affixes } from "../affixes.js";
+import { CombatAttribute } from "../../../attributes/index.js";
+import { AffixType, Affixes, PrefixType, SuffixType } from "../affixes.js";
+import { Equipment, EquipmentType } from "../index.js";
 
 export enum EquipmentTraitType {
   ArmorClassPercentage,
@@ -32,16 +34,3 @@ export type EquipmentTrait =
   | LifeStealTrait
   | DamagePercentageTrait
   | FlatDamageAdditiveTrait;
-
-export function getArmorClassPercentageIncreaseTraitAcModifier(affixes: Affixes) {
-  for (const prefix of Object.values(affixes[AffixType.Prefix])) {
-    if (prefix.equipmentTraits[EquipmentTraitType.ArmorClassPercentage] !== undefined) {
-      return 1.0 + prefix.equipmentTraits[EquipmentTraitType.ArmorClassPercentage].value / 100.0;
-    }
-  }
-  return 1.0;
-}
-
-export function getTraitModifiedArmorClass(armorClass: number, affixes: Affixes) {
-  return armorClass * getArmorClassPercentageIncreaseTraitAcModifier(affixes);
-}

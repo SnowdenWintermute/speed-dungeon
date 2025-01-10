@@ -3,7 +3,6 @@ import {
   EQUIPMENT_TYPE_STRINGS,
   EquipmentBaseItem,
   EquipmentType,
-  Jewelry,
   Ring,
 } from "@speed-dungeon/common";
 import { ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "./one-handed-melee-weapon-templates.js";
@@ -18,11 +17,6 @@ import { EquipmentGenerationTemplate } from "./equipment-generation-template-abs
 export function getEquipmentGenerationTemplate(
   equipmentBaseItem: EquipmentBaseItem
 ): EquipmentGenerationTemplate {
-  console.log(
-    "base item to gen: ",
-    equipmentBaseItem.equipmentType,
-    EQUIPMENT_TYPE_STRINGS[equipmentBaseItem.equipmentType]
-  );
   switch (equipmentBaseItem.equipmentType) {
     case EquipmentType.BodyArmor:
       return BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES[equipmentBaseItem.baseItemType];

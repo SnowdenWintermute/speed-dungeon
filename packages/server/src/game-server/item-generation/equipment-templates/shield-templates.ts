@@ -52,6 +52,7 @@ export class ShieldGenerationTemplate extends EquipmentGenerationTemplate {
         case SuffixType.Intelligence:
         case SuffixType.Dexterity:
         case SuffixType.Durability:
+        case SuffixType.PercentArmorClass:
           this.possibleAffixes.suffix[suffix] = 5;
       }
     }

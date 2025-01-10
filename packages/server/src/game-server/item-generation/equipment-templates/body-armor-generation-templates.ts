@@ -100,6 +100,7 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         case SuffixType.Strength:
         case SuffixType.Vitality:
         case SuffixType.Durability:
+        case SuffixType.PercentArmorClass:
           template.possibleAffixes.suffix[suffix] = 5;
       }
     }
