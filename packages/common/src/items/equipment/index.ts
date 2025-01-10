@@ -37,6 +37,16 @@ export class Equipment extends Item {
   }
 
   static getBaseArmorClass = getBaseArmorClass;
+
+  static getNormalizedPercentRepaired(equipment: Equipment) {
+    let normalizedPercentRepaired = 1;
+    const { durability } = equipment;
+    if (durability) {
+      normalizedPercentRepaired = durability.current / durability.max;
+    }
+    return normalizedPercentRepaired;
+  }
+
   static hasArmorClass(equipment: Equipment) {
     return (
       equipment.equipmentBaseItemProperties.equipmentType === EquipmentType.BodyArmor ||

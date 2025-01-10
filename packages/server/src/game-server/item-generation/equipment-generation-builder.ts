@@ -12,6 +12,7 @@ import {
   EquipmentBaseItemType,
   EquipmentType,
   FOUND_ITEM_MAX_DURABILITY_MODIFIER,
+  FOUND_ITEM_MIN_DURABILITY_MODIFIER,
   ItemType,
   MaxAndCurrent,
   PrefixType,
@@ -86,7 +87,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
 
     if (template.maxDurability === null) return null;
     const startingDurability = randBetween(
-      1,
+      Math.floor(template.maxDurability * FOUND_ITEM_MIN_DURABILITY_MODIFIER),
       Math.floor(template.maxDurability * FOUND_ITEM_MAX_DURABILITY_MODIFIER)
     );
     let durability = new MaxAndCurrent(template.maxDurability, startingDurability);
@@ -102,8 +103,6 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
       forcedNumAffixes?: { prefixes: number; suffixes: number };
     }
   ): Error | Affixes {
-    console.log("BASE EQ ITEM: ", baseEquipmentItem);
-
     const affixes: Affixes = { [AffixType.Prefix]: {}, [AffixType.Suffix]: {} };
 
     const template = getEquipmentGenerationTemplate(baseEquipmentItem);

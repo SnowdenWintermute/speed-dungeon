@@ -59,10 +59,7 @@ export class CraftingItemMenuState implements ActionMenuState {
     }
 
     for (const craftingAction of iterateNumericEnum(CraftingAction)) {
-      const actionPrice = getCraftingActionPrice(
-        craftingAction,
-        Math.min(this.item.itemLevel, partyResult.currentFloor)
-      );
+      const actionPrice = getCraftingActionPrice(craftingAction, this.item);
       const buttonName = `${CRAFTING_ACTION_STRINGS[craftingAction]}`;
       const button = new ActionMenuButtonProperties(
         (

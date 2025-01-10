@@ -39,10 +39,7 @@ export async function craftItemHandler(
   if (!(itemResult instanceof Equipment)) return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
 
   // get price for crafting action
-  const price = getCraftingActionPrice(
-    craftingAction,
-    Math.min(itemResult.itemLevel, party.currentFloor)
-  );
+  const price = getCraftingActionPrice(craftingAction, itemResult);
   // deny if not enough shards
   if (inventory.shards < price) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ENOUGH_SHARDS);
 

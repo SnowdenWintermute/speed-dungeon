@@ -21,8 +21,8 @@ import {
   Item,
   NextOrPrevious,
   combatantIsAllowedToConvertItemsToShards,
+  getItemSellPrice,
   getNextOrPreviousNumber,
-  getShardRewardNumberFromItem,
 } from "@speed-dungeon/common";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
@@ -114,7 +114,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
 
   let detailedItemDisplay = <></>;
   if (currentMenu instanceof ConsideringItemMenuState) {
-    const shardReward = getShardRewardNumberFromItem(currentMenu.item);
+    const shardReward = getItemSellPrice(currentMenu.item);
     detailedItemDisplay = (
       <div
         className="min-w-[25rem] max-w-[25rem]"
