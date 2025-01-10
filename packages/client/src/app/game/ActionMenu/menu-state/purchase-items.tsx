@@ -1,4 +1,4 @@
-import { inventoryItemsMenuState, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -9,60 +9,29 @@ import {
 import { setAlert } from "@/app/components/alerts";
 import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
-import { HOTKEYS } from "@/hotkeys";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
-import ShardsIcon from "../../../../../public/img/game-ui-icons/shards.svg";
 import {
   CONSUMABLE_TYPE_STRINGS,
   ClientToServerEvent,
-  Consumable,
   ConsumableType,
-  Item,
   createDummyConsumable,
   getConsumableShardPrice,
-  iterateNumericEnum,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { ItemButtonBody, ItemsMenuState, consumableGradientBg } from "./items";
+import { ItemButtonBody, consumableGradientBg } from "./items";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { createCancelButton } from "./common-buttons/cancel";
 import setItemHovered from "@/utils/set-item-hovered";
+import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
 
+// @TODO - this is duplicating items menu, now that we added the extraChildren option we
+// should be able to just implement item state with a list of dummy consumables
 export class PurchaseItemsMenuState implements ActionMenuState {
   [immerable] = true;
   page = 1;
   numPages: number = 1;
   type = MenuStateType.PurchasingItems;
-  constructor() {
-    // super(
-    //   MenuStateType.PurchasingItems,
-    //   { text: "Cancel", hotkeys: [] },
-    //   (item: Item) => {
-    //     if (!(item instanceof Consumable)) return;
-    //     const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
-    //     if (focusedCharacterResult instanceof Error) return [];
-    //     websocketConnection.emit(ClientToServerEvent.PurchaseItem, {
-    //       characterId: focusedCharacterResult.entityProperties.id,
-    //       consumableType: item.consumableType,
-    //     });
-    //   },
-    //   () => {
-    //     return iterateNumericEnum(ConsumableType).map(
-    //       (consumableType) =>
-    //         new Consumable(
-    //           { name: CONSUMABLE_TYPE_STRINGS[consumableType], id: "" },
-    //           0,
-    //           {},
-    //           consumableType,
-    //           1
-    //         )
-    //     );
-    //   },
-    //   {
-    //     [ActionButtonCategory.Top]: [setInventoryOpen],
-    //   }
-    // );
-  }
+  constructor() {}
 
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
@@ -112,10 +81,7 @@ export class PurchaseItemsMenuState implements ActionMenuState {
               <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
                 {CONSUMABLE_TYPE_STRINGS[consumableType]}
               </div>
-              <div className="w-fit flex pr-2 pl-2 h-8 items-center bg-slate-700 border border-slate-400 text-zinc-300">
-                <span className="mr-1">{price}</span>
-                <ShardsIcon className="h-[20px] fill-slate-400" />
-              </div>
+              <PriceDisplay price={price} />
             </div>
           </ItemButtonBody>
         ),

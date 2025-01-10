@@ -29,7 +29,7 @@ export class CraftingItemSelectionMenuState extends ItemsMenuState {
         return CombatantProperties.getOwnedEquipment(focusedCharacterResult.combatantProperties);
       },
       {
-        [ActionButtonCategory.Top]: [setInventoryOpen],
+        extraButtons: { [ActionButtonCategory.Top]: [setInventoryOpen] },
       }
     );
   }

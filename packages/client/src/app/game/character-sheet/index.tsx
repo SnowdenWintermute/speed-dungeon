@@ -16,7 +16,7 @@ import { HOTKEYS } from "@/hotkeys";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { MenuStateType } from "../ActionMenu/menu-state";
 import DropShardsModal from "./DropShardsModal";
-import ShardsDisplay from "./ShardsDisplay";
+import { ShardsDisplay } from "./ShardsDisplay";
 
 export default function CharacterSheet({ showCharacterSheet }: { showCharacterSheet: boolean }) {
   const partyResult = useGameStore().getParty();

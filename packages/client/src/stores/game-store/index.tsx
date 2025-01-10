@@ -29,6 +29,8 @@ import { ItemsOnGroundMenuState } from "@/app/game/ActionMenu/menu-state/items-o
 import { OperatingVendingMachineMenuState } from "@/app/game/ActionMenu/menu-state/operating-vending-machine";
 import { PurchaseItemsMenuState } from "@/app/game/ActionMenu/menu-state/purchase-items";
 import { CraftingItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/crafting-item-selection";
+import { RepairItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/repair-item-selection";
+import { ConvertToShardItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/convert-to-shard-item-selection";
 
 export enum MenuContext {
   InventoryItems,
@@ -136,6 +138,8 @@ export const assignAttributesMenuState = new AssigningAttributePointsMenuState()
 export const operateVendingMachineMenuState = new OperatingVendingMachineMenuState();
 export const purchasingItemsMenuState = new PurchaseItemsMenuState();
 export const craftingItemSelectionMenuState = new CraftingItemSelectionMenuState();
+export const repairItemSelectionMenuState = new RepairItemSelectionMenuState();
+export const convertToShardItemSelectionMenuState = new ConvertToShardItemSelectionMenuState();
 
 export function getCurrentMenu(state: GameState) {
   const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];

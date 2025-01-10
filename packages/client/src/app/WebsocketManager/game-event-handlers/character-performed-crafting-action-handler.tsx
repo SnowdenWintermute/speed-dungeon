@@ -48,7 +48,7 @@ export function characterPerformedCraftingActionHandler(eventData: {
       ? (itemBeforeModification.craftingIteration += 1)
       : (itemBeforeModification.craftingIteration = 0);
 
-    if (itemResult instanceof Equipment) {
+    if (itemResult instanceof Equipment && itemBeforeModification instanceof Equipment) {
       const asInstance = plainToInstance(Equipment, item);
 
       itemResult.copyFrom(asInstance);
@@ -62,7 +62,7 @@ export function characterPerformedCraftingActionHandler(eventData: {
 
       itemResult.craftingIteration = itemBeforeModification.craftingIteration + 1;
 
-      const actionPrice = getCraftingActionPrice(craftingAction, itemResult);
+      const actionPrice = getCraftingActionPrice(craftingAction, itemBeforeModification);
       character.combatantProperties.inventory.shards -= actionPrice;
 
       // post combat log message about the crafted result with hoverable item inspection link

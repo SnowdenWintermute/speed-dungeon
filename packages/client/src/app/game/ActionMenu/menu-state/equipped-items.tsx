@@ -30,7 +30,8 @@ export class EquippedItemsMenuState extends ItemsMenuState {
             includeUnselectedHotswapSlots: false,
           })
         );
-      }
+      },
+      {}
     );
   }
 }

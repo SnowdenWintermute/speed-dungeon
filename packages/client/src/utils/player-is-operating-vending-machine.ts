@@ -6,6 +6,8 @@ export function playerIsOperatingVendingMachine(currentMenuType: MenuStateType) 
     MenuStateType.CraftingItemSelection,
     MenuStateType.OperatingVendingMachine,
     MenuStateType.CraftingActionSelection,
+    MenuStateType.RepairItemSelection,
+    MenuStateType.ShardItemSelection,
   ];
   return vendingMachineMenuTypes.includes(currentMenuType);
 }

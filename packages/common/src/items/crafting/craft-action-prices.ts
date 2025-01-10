@@ -69,5 +69,5 @@ export const CRAFTING_ACTION_PRICE_CALCULATORS: Record<
 };
 
 export function getCraftingActionPrice(craftingAction: CraftingAction, equipment: Equipment) {
-  return Math.floor(CRAFTING_ACTION_PRICE_CALCULATORS[craftingAction](equipment));
+  return Math.max(1, Math.floor(CRAFTING_ACTION_PRICE_CALCULATORS[craftingAction](equipment)));
 }

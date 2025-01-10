@@ -40,7 +40,7 @@ export class InventoryItemsMenuState extends ItemsMenuState {
         return Inventory.getItems(focusedCharacterResult.combatantProperties.inventory);
       },
       {
-        [ActionButtonCategory.Top]: [viewEquipmentButton],
+        extraButtons: { [ActionButtonCategory.Top]: [viewEquipmentButton] },
       }
     );
   }

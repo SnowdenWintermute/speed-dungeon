@@ -46,11 +46,16 @@ export abstract class ItemsMenuState implements ActionMenuState {
       | MenuStateType.ViewingEquipedItems
       | MenuStateType.ItemsOnGround
       | MenuStateType.CraftingItemSelection
-      | MenuStateType.PurchasingItems,
+      | MenuStateType.PurchasingItems
+      | MenuStateType.RepairItemSelection
+      | MenuStateType.ShardItemSelection,
     private closeMenuTextAndHotkeys: { text: string; hotkeys: string[] },
     private itemButtonClickHandler: (item: Item) => void,
     private getItemsToShow: () => Item[],
-    public extraButtons?: Partial<Record<ActionButtonCategory, ActionMenuButtonProperties[]>>
+    private options: {
+      getItemButtonCustomChildren?: (item: Item) => ReactNode;
+      extraButtons?: Partial<Record<ActionButtonCategory, ActionMenuButtonProperties[]>>;
+    }
   ) {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
@@ -120,6 +125,8 @@ export abstract class ItemsMenuState implements ActionMenuState {
             imageHoverStyles="-translate-x-[55px]"
           >
             {consumableName}
+            {this.options.getItemButtonCustomChildren &&
+              this.options.getItemButtonCustomChildren(firstConsumableOfThisType)}
           </ItemButtonBody>
         ),
         consumableName,
@@ -164,6 +171,8 @@ export abstract class ItemsMenuState implements ActionMenuState {
             imageHoverStyles="-translate-x-[55px]"
           >
             {buttonText}
+            {this.options.getItemButtonCustomChildren &&
+              this.options.getItemButtonCustomChildren(item)}
           </ItemButtonBody>
         ),
         buttonText,
@@ -181,9 +190,9 @@ export abstract class ItemsMenuState implements ActionMenuState {
 
     createPageButtons(this, toReturn);
 
-    if (!this.extraButtons) return toReturn;
+    if (!this.options.extraButtons) return toReturn;
 
-    for (const [category, buttons] of iterateNumericEnumKeyedRecord(this.extraButtons)) {
+    for (const [category, buttons] of iterateNumericEnumKeyedRecord(this.options.extraButtons)) {
       for (const button of buttons) toReturn[category].push(button);
     }
 

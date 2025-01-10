@@ -44,7 +44,9 @@ export class ItemsOnGroundMenuState extends ItemsMenuState {
         return Inventory.getItems(partyResult.currentRoom.inventory);
       },
       {
-        [ActionButtonCategory.Top]: [setInventoryOpen, takeAllButton],
+        extraButtons: {
+          [ActionButtonCategory.Top]: [setInventoryOpen, takeAllButton],
+        },
       }
     );
   }

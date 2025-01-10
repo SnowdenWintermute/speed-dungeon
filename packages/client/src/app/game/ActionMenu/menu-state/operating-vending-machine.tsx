@@ -1,6 +1,8 @@
 import {
+  convertToShardItemSelectionMenuState,
   craftingItemSelectionMenuState,
   purchasingItemsMenuState,
+  repairItemSelectionMenuState,
   useGameStore,
 } from "@/stores/game-store";
 import {
@@ -58,7 +60,7 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
 
     const repairButton = new ActionMenuButtonProperties("Repair", "Repair", () => {
       useGameStore.getState().mutateState((state) => {
-        // state.stackedMenuStates.push(craftingItemSelectionMenuState);
+        state.stackedMenuStates.push(repairItemSelectionMenuState);
       });
     });
 
@@ -67,7 +69,7 @@ export class OperatingVendingMachineMenuState implements ActionMenuState {
       "Convert to Shards",
       () => {
         useGameStore.getState().mutateState((state) => {
-          // state.stackedMenuStates.push(craftingItemSelectionMenuState);
+          state.stackedMenuStates.push(convertToShardItemSelectionMenuState);
         });
       }
     );

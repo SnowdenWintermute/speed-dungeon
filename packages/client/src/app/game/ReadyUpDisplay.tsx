@@ -3,7 +3,6 @@ import { getCurrentMenu, operateVendingMachineMenuState, useGameStore } from "@/
 import { AdventuringParty, ClientToServerEvent, DungeonRoomType } from "@speed-dungeon/common";
 import React, { MouseEventHandler } from "react";
 import HotkeyButton from "../components/atoms/HotkeyButton";
-import { BaseMenuState } from "./ActionMenu/menu-state/base";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
 import { MenuStateType } from "./ActionMenu/menu-state";
@@ -19,9 +18,15 @@ export default function ReadyUpDisplay({ party }: Props) {
 
   function handleExploreClick() {
     websocketConnection.emit(ClientToServerEvent.ToggleReadyToExplore);
+    useGameStore.getState().mutateState((state) => {
+      state.stackedMenuStates = [];
+    });
   }
   function handleDescendClick() {
     websocketConnection.emit(ClientToServerEvent.ToggleReadyToDescend);
+    useGameStore.getState().mutateState((state) => {
+      state.stackedMenuStates = [];
+    });
   }
 
   const exploreButtonsText =

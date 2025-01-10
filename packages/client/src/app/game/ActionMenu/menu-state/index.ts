@@ -14,6 +14,9 @@ export enum MenuStateType {
   OperatingVendingMachine,
   PurchasingItems,
   CraftingItemSelection,
+  RepairItemSelection,
+  ShardItemSelection,
+  ConfimConvertToShards,
 }
 
 export enum ActionButtonCategory {

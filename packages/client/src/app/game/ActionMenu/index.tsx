@@ -42,7 +42,7 @@ import {
 } from "./menu-state/confirm-convert-to-shards";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 import { playerIsOperatingVendingMachine } from "@/utils/player-is-operating-vending-machine";
-import ShardsDisplay from "../character-sheet/ShardsDisplay";
+import { ShardsDisplay } from "../character-sheet/ShardsDisplay";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
@@ -139,7 +139,10 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
                 onClick={() =>
                   mutateGameState((state) => {
                     state.stackedMenuStates.push(
-                      new ConfirmConvertToShardsMenuState(currentMenu.item)
+                      new ConfirmConvertToShardsMenuState(
+                        currentMenu.item,
+                        MenuStateType.ItemSelected
+                      )
                     );
                   })
                 }
