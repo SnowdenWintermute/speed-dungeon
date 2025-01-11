@@ -26,6 +26,7 @@ import { createEaseGradient } from "@/utils/create-ease-gradient-style";
 import { ReactNode, useState } from "react";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { useUIStore } from "@/stores/ui-store";
+import { postItemLink } from "@/utils/post-item-link";
 
 const hexRed = "#563D45"; // eye droppered from paper doll slot disabled with filter
 const GREEN = Color4.FromHexString(CONSUMABLE_TURQUOISE).scale(255);
@@ -116,14 +117,18 @@ export abstract class ItemsMenuState implements ActionMenuState {
 
       const thumbnailId = CONSUMABLE_TYPE_STRINGS[consumableType];
       const thumbnailOption = useGameStore.getState().itemThumbnails[thumbnailId];
+
+      let containerExtraStyles = "text-teal-400";
+
       const button = new ActionMenuButtonProperties(
         (
           <ItemButtonBody
             thumbnailOption={thumbnailOption}
             gradientOverride={consumableGradientBg}
-            containerExtraStyles="text-teal-400"
+            containerExtraStyles={containerExtraStyles}
             imageExtraStyles="scale-[300%]"
             imageHoverStyles="-translate-x-[55px]"
+            alternateClickStyle="cursor-alias"
           >
             {consumableName}
             {this.options.getItemButtonCustomChildren &&
@@ -139,6 +144,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
       button.mouseLeaveHandler = () => itemButtonMouseLeaveHandler();
       button.focusHandler = () => itemButtonMouseEnterHandler(firstConsumableOfThisType);
       button.blurHandler = () => itemButtonMouseLeaveHandler();
+      button.alternateClickHandler = () => postItemLink(firstConsumableOfThisType);
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
@@ -158,6 +164,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
       let containerExtraStyles = "";
       if (!requirementsMet) {
         containerExtraStyles += ` ${UNMET_REQUIREMENT_TEXT_COLOR}`;
+
         imageExtraStyles += " filter-red";
       } else if (item instanceof Equipment && Equipment.isMagical(item)) {
         containerExtraStyles += " text-blue-300";
@@ -170,6 +177,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
             gradientOverride={!requirementsMet ? unmetRequirementsGradientBg : ""}
             thumbnailOption={thumbnailOption}
             imageHoverStyles="-translate-x-[55px]"
+            alternateClickStyle="cursor-alias"
           >
             {buttonText}
             {this.options.getItemButtonCustomChildren &&
@@ -186,6 +194,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
       button.mouseLeaveHandler = () => itemButtonMouseLeaveHandler();
       button.focusHandler = () => itemButtonMouseEnterHandler(item);
       button.blurHandler = () => itemButtonMouseLeaveHandler();
+      button.alternateClickHandler = () => postItemLink(item);
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
@@ -225,6 +234,7 @@ export function ItemButtonBody({
   containerExtraStyles,
   imageExtraStyles,
   imageHoverStyles,
+  alternateClickStyle,
 }: {
   children: ReactNode;
   gradientOverride?: string;
@@ -232,13 +242,14 @@ export function ItemButtonBody({
   thumbnailOption?: string;
   imageExtraStyles?: string;
   imageHoverStyles?: string;
+  alternateClickStyle?: string;
 }) {
   const [isHovered, setIsHovered] = useState(false);
+  const alternateClickKeyHeld = useUIStore().alternateClickKeyHeld;
 
-  const alternateClickKeyHeld = useUIStore.getState().alternateClickKeyHeld;
   return (
     <div
-      className={`h-full w-full relative ${containerExtraStyles} ${alternateClickKeyHeld && "cursor-alias"}`}
+      className={`h-full w-full relative ${containerExtraStyles} ${alternateClickKeyHeld && alternateClickStyle}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

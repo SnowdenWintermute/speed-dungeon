@@ -63,6 +63,7 @@ export enum ServerToClientEvent {
   CharacterDroppedShards = "42",
   CharacterPurchasedItem = "43",
   CharacterPerformedCraftingAction = "44",
+  PlayerPostedItemLink = "45",
 }
 
 export interface ServerToClientEventTypes {
@@ -173,6 +174,10 @@ export interface ServerToClientEventTypes {
     characterId: EntityId;
     item: Item;
     craftingAction: CraftingAction;
+  }) => void;
+  [ServerToClientEvent.PlayerPostedItemLink]: (eventData: {
+    username: string;
+    itemId: EntityId;
   }) => void;
 }
 

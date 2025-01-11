@@ -10,11 +10,13 @@ interface Props {
 }
 
 export default function NumberedButton({ number, properties }: Props) {
+  const alternateClickKeyHeld = useUIStore().alternateClickKeyHeld;
+
   return (
     <HotkeyButton
       className={`${properties.shouldBeDisabled ? "opacity-50" : ""} w-full flex hover:bg-slate-950`}
       style={{ height: `${BUTTON_HEIGHT}rem` }}
-      onClick={properties.clickHandler}
+      onClick={alternateClickKeyHeld ? properties.alternateClickHandler : properties.clickHandler}
       disabled={properties.shouldBeDisabled}
       hotkeys={[`Digit${number}`]}
     >

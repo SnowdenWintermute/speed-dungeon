@@ -74,14 +74,7 @@ export default function ReadyUpDisplay({ party }: Props) {
           style={{ opacity: shouldDim ? "50%" : "100%" }}
         >
           {isVendingMachine ? (
-            <h3 className="text-xl mb-2">
-              There is a strange device here...
-              <div>
-                Alternate Click Function Key Held:{" "}
-                {JSON.stringify(useUIStore.getState().alternateClickKeyHeld)}
-              </div>
-              <div>Shift Held: {useUIStore.getState().modKeyHeld ? "true" : "false"}</div>
-            </h3>
+            <h3 className="text-xl mb-2">There is a strange device here...</h3>
           ) : (
             <h3 className="text-xl mb-2">The room is empty of monsters</h3>
           )}

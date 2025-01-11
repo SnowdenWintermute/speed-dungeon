@@ -6,7 +6,10 @@ import {
 import SocketIO from "socket.io";
 import { applyMiddlewares } from "../event-middleware/index.js";
 import toggleReadyToExploreHandler from "./toggle-ready-to-explore-handler.js";
-import { playerInGame } from "../event-middleware/get-player-associated-data.js";
+import {
+  getPlayerAssociatedData,
+  playerInGame,
+} from "../event-middleware/get-player-associated-data.js";
 import { toggleReadyToDescendHandler } from "./toggle-ready-to-descend-handler/index.js";
 import { getCharacterAssociatedData } from "../event-middleware/get-character-associated-data.js";
 import { prohibitIfDead } from "../event-middleware/prohibit-if-dead.js";
@@ -27,6 +30,7 @@ import { convertItemsToShardsHandler } from "./convert-items-to-shards-handler.j
 import { dropShardsHandler } from "./drop-shards-handler.js";
 import { purchaseItemHandler } from "./purchase-item-handler.js";
 import { craftItemHandler } from "./craft-item-handler/index.js";
+import { postItemLinkHandler } from "./post-item-link-handler.js";
 
 export default function initiateGameEventListeners(
   socket: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
@@ -129,5 +133,9 @@ export default function initiateGameEventListeners(
   socket.on(
     ClientToServerEvent.PerformCraftingAction,
     applyMiddlewares(getCharacterAssociatedData, prohibitIfDead)(socket, craftItemHandler)
+  );
+  socket.on(
+    ClientToServerEvent.PostItemLink,
+    applyMiddlewares(playerInGame)(socket, postItemLinkHandler)
   );
 }

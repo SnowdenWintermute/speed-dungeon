@@ -51,6 +51,7 @@ export class ActionMenuButtonProperties {
   constructor(
     public jsx: ReactNode,
     public key: string,
-    public clickHandler: MouseEventHandler<HTMLButtonElement>
+    public clickHandler: MouseEventHandler<HTMLButtonElement>,
+    public alternateClickHandler?: MouseEventHandler<HTMLButtonElement>
   ) {}
 }

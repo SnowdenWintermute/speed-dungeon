@@ -45,6 +45,7 @@ export enum ClientToServerEvent {
   DropShards = "33",
   PurchaseItem = "34",
   PerformCraftingAction = "35",
+  PostItemLink = "36",
 }
 
 export interface ClientToServerEventTypes {
@@ -124,4 +125,5 @@ export interface ClientToServerEventTypes {
     itemId: EntityId;
     craftingAction: CraftingAction;
   }) => void;
+  [ClientToServerEvent.PostItemLink]: (itemId: EntityId) => void;
 }

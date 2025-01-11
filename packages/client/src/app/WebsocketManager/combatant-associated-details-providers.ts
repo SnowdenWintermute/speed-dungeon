@@ -3,6 +3,7 @@ import {
   CharacterAssociatedData,
   CombatantAssociatedData,
   ERROR_MESSAGES,
+  PlayerAssociatedData,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { setAlert } from "../components/alerts";
@@ -44,6 +45,26 @@ export function combatantAssociatedDataProvider(
     if (combatantResult instanceof Error) return setAlert(combatantResult);
     const combatant = combatantResult;
     const result = fn({ game, combatant, party }, gameState);
+    if (result instanceof Error) return setAlert(result);
+  });
+}
+
+export function playerAssociatedDataProvider(
+  username: string,
+  fn: (characterAssociatedData: PlayerAssociatedData, gameState: GameState) => Error | void
+) {
+  const playerName = username;
+  useGameStore.getState().mutateState((gameState) => {
+    if (!gameState.game) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
+    const { game } = gameState;
+    const partyResult = getParty(game, playerName);
+    if (partyResult instanceof Error) return setAlert(partyResult);
+    const party = partyResult;
+    const username = gameState.username;
+    if (!username) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME));
+    const player = game.players[username];
+    if (!player) return setAlert(new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
+    const result = fn({ game, partyOption: party, player }, gameState);
     if (result instanceof Error) return setAlert(result);
   });
 }

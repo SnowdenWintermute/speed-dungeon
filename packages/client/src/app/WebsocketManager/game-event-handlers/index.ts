@@ -26,6 +26,7 @@ import { characterConvertedItemsToShardsHandler } from "./character-converted-it
 import { characterDroppedShardsHandler } from "./character-dropped-shards-handler";
 import characterPurchasedItemHandler from "./character-purchased-item-handler";
 import { characterPerformedCraftingActionHandler } from "./character-performed-crafting-action-handler";
+import { playerPostedItemLinkHandler } from "./player-posted-item-link-handler";
 
 export default function setUpGameEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -81,4 +82,5 @@ export default function setUpGameEventHandlers(
     ServerToClientEvent.CharacterPerformedCraftingAction,
     characterPerformedCraftingActionHandler
   );
+  socket.on(ServerToClientEvent.PlayerPostedItemLink, playerPostedItemLinkHandler);
 }
