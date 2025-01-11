@@ -15,12 +15,12 @@ import {
   OneHandedMeleeWeapon,
   TwoHandedMeleeWeapon,
   Inventory,
-  Equipment,
   CombatantTraitType,
   HoldableHotswapSlot,
   HoldableSlotType,
   CombatantTrait,
   Shield,
+  Equipment,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
@@ -52,6 +52,12 @@ export default function outfitNewCharacter(character: Combatant) {
   if (combatantProperties.combatantClass === CombatantClass.Rogue)
     combatantProperties.traits.push({ type: CombatantTraitType.CanConvertToShardsManually });
 
+  if (combatantProperties.combatantClass === CombatantClass.Mage)
+    combatantProperties.traits.push({
+      type: CombatantTraitType.ExtraConsumablesStorage,
+      capacity: 20,
+    });
+
   if (combatantProperties.combatantClass === CombatantClass.Warrior) {
     const extraSlotTrait: CombatantTrait = {
       type: CombatantTraitType.ExtraHotswapSlot,
@@ -72,7 +78,7 @@ export default function outfitNewCharacter(character: Combatant) {
     combatantProperties.traits.push(extraSlotTrait);
   }
 
-  const hpInjectors = new Array(1)
+  const hpInjectors = new Array(10)
     .fill(null)
     .map(() => createConsumableByType(ConsumableType.HpAutoinjector));
   // const mpInjector = Item.createConsumable(idGenerator.generate(), ConsumableType.MpAutoinjector);
@@ -114,8 +120,8 @@ export default function outfitNewCharacter(character: Combatant) {
     AbilityName.Destruction
   );
 
-  // const items = generateOneOfEachItem();
-  // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
+  const items = generateOneOfEachItem();
+  combatantProperties.inventory.equipment.push(...(items as Equipment[]));
   combatantProperties.unspentAttributePoints = 100;
   combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
   // combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 100;

@@ -45,7 +45,7 @@ export function pickUpItemsHandler(
     }
 
     // let them pick up to capacity
-    if (Inventory.isAtCapacity(character.combatantProperties.inventory)) {
+    if (Inventory.isAtCapacity(character.combatantProperties)) {
       reachedMaxCapacity = true;
       continue;
     } // continue instead of break so they can still pick up shard stacks

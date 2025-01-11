@@ -1,11 +1,6 @@
-import {
-  BUTTON_HEIGHT_SMALL,
-  SPACING_REM,
-  SPACING_REM_SMALL,
-  UNMET_REQUIREMENT_TEXT_COLOR,
-} from "@/client_consts";
+import { BUTTON_HEIGHT_SMALL, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import { useGameStore } from "@/stores/game-store";
-import { ERROR_MESSAGES, INVENTORY_DEFAULT_CAPACITY, Inventory } from "@speed-dungeon/common";
+import { ERROR_MESSAGES, Inventory } from "@speed-dungeon/common";
 import React from "react";
 import CharacterSheetCharacterSelectionButton from "./CharacterSheetCharacterSelectionButton";
 import CharacterAttributes from "./CharacterAttributes";
@@ -17,6 +12,7 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { MenuStateType } from "../ActionMenu/menu-state";
 import DropShardsModal from "./DropShardsModal";
 import { ShardsDisplay } from "./ShardsDisplay";
+import InventoryCapacityDisplay from "./InventoryCapacityDisplay";
 
 export default function CharacterSheet({ showCharacterSheet }: { showCharacterSheet: boolean }) {
   const partyResult = useGameStore().getParty();
@@ -35,8 +31,6 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
   let conditionalStyles = showCharacterSheet
     ? "overflow-auto pointer-events-auto w-fit "
     : "opacity-0 overflow-hidden pointer-events-none";
-
-  const numItemsInInventory = Inventory.getTotalNumberOfItems(combatantProperties.inventory);
 
   return (
     <section className={`${conditionalStyles}`}>
@@ -67,11 +61,7 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
         <div className="flex flex-col justify-between mr-5">
           <PaperDoll combatant={focusedCharacterOption} />
           <div className={"flex justify-between items-end"}>
-            <div
-              className={`${numItemsInInventory > INVENTORY_DEFAULT_CAPACITY ? UNMET_REQUIREMENT_TEXT_COLOR : ""}`}
-            >
-              Inventory Capacity: {numItemsInInventory}/{INVENTORY_DEFAULT_CAPACITY}
-            </div>
+            <InventoryCapacityDisplay combatantProperties={combatantProperties} />
             <div className="relative">
               <HoverableTooltipWrapper tooltipText="Drop shards (A)">
                 <HotkeyButton

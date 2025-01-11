@@ -5,6 +5,8 @@ import { Item } from "../items/index.js";
 import { Consumable } from "../items/consumables/index.js";
 import { Equipment } from "../items/equipment/index.js";
 import { plainToInstance } from "class-transformer";
+import { CombatantProperties } from "./combatant-properties.js";
+import { CombatantTraitType } from "./combatant-traits.js";
 
 export class Inventory {
   [immerable] = true;
@@ -18,8 +20,28 @@ export class Inventory {
     return inventory.consumables.length + inventory.equipment.length;
   }
 
-  static isAtCapacity(inventory: Inventory) {
-    return Inventory.getTotalNumberOfItems(inventory) >= inventory.capacity;
+  static isAtCapacity(combatantProperties: CombatantProperties) {
+    const extraConsumableStorageTraitOption = combatantProperties.traits.find(
+      (trait) => trait.type === CombatantTraitType.ExtraConsumablesStorage
+    );
+
+    let numItemsToCountTowardCapacity = Inventory.getTotalNumberOfItems(
+      combatantProperties.inventory
+    );
+
+    if (
+      extraConsumableStorageTraitOption &&
+      extraConsumableStorageTraitOption.type === CombatantTraitType.ExtraConsumablesStorage
+    ) {
+      const numConsumables = combatantProperties.inventory.consumables.length;
+      const numConsumablesToDeductFromCapacityCheck = Math.min(
+        numConsumables,
+        extraConsumableStorageTraitOption.capacity
+      );
+      numItemsToCountTowardCapacity -= numConsumablesToDeductFromCapacityCheck;
+    }
+
+    return numItemsToCountTowardCapacity >= combatantProperties.inventory.capacity;
   }
 
   static insertItem(inventory: Inventory, item: Item) {

@@ -21,7 +21,7 @@ export function purchaseItemHandler(
   if (party.currentRoom.roomType !== DungeonRoomType.VendingMachine)
     return new Error(ERROR_MESSAGES.PARTY.INCORRECT_ROOM_TYPE);
 
-  if (Inventory.isAtCapacity(character.combatantProperties.inventory))
+  if (Inventory.isAtCapacity(character.combatantProperties))
     return new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);
 
   const { characterId, consumableType } = eventData;

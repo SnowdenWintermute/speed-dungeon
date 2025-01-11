@@ -14,7 +14,6 @@ import { ItemLink } from "@/app/game/combat-log/item-link";
 import { setAlert } from "@/app/components/alerts";
 
 export function playerPostedItemLinkHandler(eventData: { username: string; itemId: EntityId }) {
-  console.log("received", eventData);
   const { username, itemId } = eventData;
 
   let combatLogMessage: CombatLogMessage;
