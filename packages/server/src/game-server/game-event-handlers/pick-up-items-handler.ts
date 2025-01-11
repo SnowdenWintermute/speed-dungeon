@@ -1,11 +1,13 @@
 import {
   CharacterAndItems,
   CharacterAssociatedData,
+  CombatantProperties,
   Consumable,
   ConsumableType,
   ERROR_MESSAGES,
   Equipment,
   Inventory,
+  ItemType,
   ServerToClientEvent,
   getPartyChannelName,
   pickUpShardStack,
@@ -29,10 +31,11 @@ export function pickUpItemsHandler(
       return new Error(ERROR_MESSAGES.ITEM.NOT_YET_AVAILABLE);
 
     // handle shard stacks uniquely
-    const maybeShardStack = Inventory.getItemById(party.currentRoom.inventory, itemId);
+    const itemInInventoryResult = Inventory.getItemById(party.currentRoom.inventory, itemId);
+    if (itemInInventoryResult instanceof Error) return itemInInventoryResult;
     if (
-      maybeShardStack instanceof Consumable &&
-      maybeShardStack.consumableType === ConsumableType.StackOfShards
+      itemInInventoryResult instanceof Consumable &&
+      itemInInventoryResult.consumableType === ConsumableType.StackOfShards
     ) {
       const mabyeError = pickUpShardStack(
         itemId,
@@ -40,12 +43,14 @@ export function pickUpItemsHandler(
         character.combatantProperties.inventory
       );
       if (mabyeError instanceof Error) return mabyeError;
-      idsPickedUp.push(maybeShardStack.entityProperties.id);
+      idsPickedUp.push(itemInInventoryResult.entityProperties.id);
       continue;
     }
 
     // let them pick up to capacity
-    if (Inventory.isAtCapacity(character.combatantProperties)) {
+    const itemType =
+      itemInInventoryResult instanceof Consumable ? ItemType.Consumable : ItemType.Equipment;
+    if (!CombatantProperties.canPickUpItem(character.combatantProperties, itemType)) {
       reachedMaxCapacity = true;
       continue;
     } // continue instead of break so they can still pick up shard stacks

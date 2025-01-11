@@ -50,7 +50,6 @@ export function getCombatActionProperties(
       // client side by the shop menu or otherwise based off an item that doesn't really exist,
       // we just want to show it's action details
       if (combatAction.consumableType !== undefined) {
-        console.log("create dummy consumable action result");
         const dummyConsumable = createDummyConsumable(combatAction.consumableType);
         return Consumable.getActionProperties(dummyConsumable);
       }

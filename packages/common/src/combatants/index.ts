@@ -13,6 +13,7 @@ export * from "./apply-experience-point-changes.js";
 export * from "./get-combatant-total-attributes.js";
 export * from "./calculate-total-experience.js";
 export * from "./combatant-equipment/index.js";
+export * from "./can-pick-up-item.js";
 
 export class Combatant {
   [immerable] = true;

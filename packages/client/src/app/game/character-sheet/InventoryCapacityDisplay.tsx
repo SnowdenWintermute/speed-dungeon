@@ -4,6 +4,7 @@ import {
   CombatantTraitType,
   INVENTORY_DEFAULT_CAPACITY,
   Inventory,
+  getCapacityByItemType,
 } from "@speed-dungeon/common";
 import React from "react";
 
@@ -12,44 +13,36 @@ export default function InventoryCapacityDisplay({
 }: {
   combatantProperties: CombatantProperties;
 }) {
-  const numItemsInInventory = Inventory.getTotalNumberOfItems(combatantProperties.inventory);
-  let consumableSpecificCapacity;
-
-  const extraConsumableStorageTraitOption = combatantProperties.traits.find(
-    (trait) => trait.type === CombatantTraitType.ExtraConsumablesStorage
-  );
-
-  let numItemsToCountTowardCapacity = Inventory.getTotalNumberOfItems(
-    combatantProperties.inventory
-  );
-
-  let numConsumablesToDeductFromCapacityCheck;
-
-  if (
-    extraConsumableStorageTraitOption &&
-    extraConsumableStorageTraitOption.type === CombatantTraitType.ExtraConsumablesStorage
-  ) {
-    const numConsumables = combatantProperties.inventory.consumables.length;
-    consumableSpecificCapacity = extraConsumableStorageTraitOption.capacity;
-
-    numConsumablesToDeductFromCapacityCheck = Math.min(
-      numConsumables,
-      extraConsumableStorageTraitOption.capacity
-    );
-    numItemsToCountTowardCapacity -= numConsumablesToDeductFromCapacityCheck;
-  }
+  const {
+    totalItemsInNormalStorage,
+    totalNumItemsInInventory,
+    availableConsumableCapacity,
+    numConsumablesInMinibag,
+    minibagCapacity,
+    availableCapacity,
+    normalStorageCapacity,
+  } = getCapacityByItemType(combatantProperties);
 
   return (
     <div className="flex flex-col">
-      {consumableSpecificCapacity && numConsumablesToDeductFromCapacityCheck !== undefined && (
+      {!!minibagCapacity && (
         <div>
-          Minibag Capacity: {numConsumablesToDeductFromCapacityCheck} / {consumableSpecificCapacity}
+          Minibag Capacity: {numConsumablesInMinibag} / {minibagCapacity}
         </div>
       )}
       <div
-        className={`${numItemsInInventory - numItemsToCountTowardCapacity > INVENTORY_DEFAULT_CAPACITY ? UNMET_REQUIREMENT_TEXT_COLOR : ""}`}
+        className={`${totalItemsInNormalStorage > normalStorageCapacity ? UNMET_REQUIREMENT_TEXT_COLOR : ""}`}
       >
-        Inventory Capacity: {numItemsToCountTowardCapacity}/{INVENTORY_DEFAULT_CAPACITY}
+        Inventory Capacity: {totalItemsInNormalStorage}/{normalStorageCapacity}
+        {JSON.stringify({
+          totalItemsInNormalStorage,
+          totalNumItemsInInventory,
+          availableConsumableCapacity,
+          numConsumablesInMinibag,
+          minibagCapacity,
+          availableCapacity,
+          normalStorageCapacity,
+        })}
       </div>
     </div>
   );

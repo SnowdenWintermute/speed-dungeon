@@ -40,6 +40,7 @@ import { CombatAttribute } from "../attributes/index.js";
 import { getOwnedEquipment } from "./get-owned-items.js";
 import { EntityId } from "../primatives/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
+import { canPickUpItem } from "./can-pick-up-item.js";
 
 export class CombatantProperties {
   [immerable] = true;
@@ -126,6 +127,7 @@ export class CombatantProperties {
   static equipItem = equipItem;
   static awardLevelups = awardLevelups;
   static incrementAttributePoint = incrementAttributePoint;
+  static canPickUpItem = canPickUpItem;
   static instantiateItemClasses(combatantProperties: CombatantProperties) {
     Inventory.instantiateItemClasses(combatantProperties.inventory);
     CombatantEquipment.instatiateItemClasses(combatantProperties);
