@@ -8,7 +8,7 @@ import {
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 
-export default function characterPickedUpItemsHandler(characterAndItems: CharacterAndItems) {
+export function characterPickedUpItemsHandler(characterAndItems: CharacterAndItems) {
   characterAssociatedDataProvider(
     characterAndItems.characterId,
     ({ party, character }: CharacterAssociatedData, gameState: GameState) => {

@@ -1,15 +1,15 @@
-import { ITEM_TYPE_STRINGS, ItemType } from "../items/index.js";
+import { ItemType } from "../items/index.js";
 import { INVENTORY_DEFAULT_CAPACITY } from "../app-consts.js";
 import { CombatantProperties } from "./combatant-properties.js";
 import { CombatantTraitType } from "./combatant-traits.js";
 import { Inventory } from "./inventory.js";
 
 export function canPickUpItem(combatantProperties: CombatantProperties, itemType: ItemType) {
-  const { totalNumItemsInInventory, availableConsumableCapacity, availableCapacity } =
+  const { totalItemsInNormalStorage, normalStorageCapacity, availableConsumableCapacity } =
     getCapacityByItemType(combatantProperties);
   if (itemType === ItemType.Consumable && availableConsumableCapacity > 0) {
     return true;
-  } else if (totalNumItemsInInventory < availableCapacity) return true;
+  } else if (totalItemsInNormalStorage < normalStorageCapacity) return true;
 
   return false;
 }

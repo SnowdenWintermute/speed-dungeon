@@ -20,7 +20,7 @@ import characterCycledTargetingSchemesHandler from "./character-cycled-targeting
 import getCurrentParty from "@/utils/getCurrentParty";
 import characterIncrementedAttributePointHandler from "./character-incremented-attribute-point-handler";
 import gameProgressMessageHandler from "./game-progress-message-handler";
-import characterPickedUpItemsHandler from "./character-picked-up-items-handler";
+import { characterPickedUpItemsHandler } from "./character-picked-up-items-handler";
 import characterSelectedHoldableHotswapSlotHandler from "./character-selected-holdable-hotswap-slot-handler";
 import { characterConvertedItemsToShardsHandler } from "./character-converted-items-to-shards-handler";
 import { characterDroppedShardsHandler } from "./character-dropped-shards-handler";

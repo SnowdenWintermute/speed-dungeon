@@ -61,7 +61,7 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
         <div className="flex flex-col justify-between mr-5">
           <PaperDoll combatant={focusedCharacterOption} />
           <div className={"flex justify-between items-end"}>
-            <InventoryCapacityDisplay combatantProperties={combatantProperties} />
+            <InventoryCapacityDisplay />
             <div className="relative">
               <HoverableTooltipWrapper tooltipText="Drop shards (A)">
                 <HotkeyButton

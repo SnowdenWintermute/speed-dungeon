@@ -45,8 +45,6 @@ export class Inventory {
   }
 
   static insertItem(inventory: Inventory, item: Item) {
-    if (Inventory.getTotalNumberOfItems(inventory) > inventory.capacity)
-      return new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);
     if (item instanceof Consumable) inventory.consumables.push(item);
     else if (item instanceof Equipment) inventory.equipment.push(item);
     else return new Error("Unhandled item type");

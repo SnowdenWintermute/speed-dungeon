@@ -8,23 +8,30 @@ import {
   DungeonRoom,
   ERROR_MESSAGES,
   Inventory,
+  Item,
   updateCombatantHomePosition,
 } from "@speed-dungeon/common";
 
 export default function newDungeonRoomHandler(room: DungeonRoom) {
-  const itemIdsOnGround: string[] = [];
+  const itemIdsOnGroundInPreviousRoom: string[] = [];
+  const newItemsOnGround: Item[] = [];
 
   useGameStore.getState().mutateState((gameState) => {
     const party = getCurrentParty(gameState, gameState.username || "");
     if (party === undefined) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY));
 
-    itemIdsOnGround.push(
+    itemIdsOnGroundInPreviousRoom.push(
       ...Inventory.getItems(party.currentRoom.inventory).map((item) => item.entityProperties.id)
     );
 
     party.playersReadyToDescend = [];
     party.playersReadyToExplore = [];
     party.currentRoom = room;
+
+    Inventory.instantiateItemClasses(party.currentRoom.inventory);
+    for (const item of Inventory.getItems(party.currentRoom.inventory)) {
+      newItemsOnGround.push(item);
+    }
 
     gameState.hoveredEntity = null;
 
@@ -45,6 +52,11 @@ export default function newDungeonRoomHandler(room: DungeonRoom) {
   // clean up unused screenshots for items left behind
   gameWorld.current?.imageManager.enqueueMessage({
     type: ImageManagerRequestType.ItemDeletion,
-    itemIds: itemIdsOnGround,
+    itemIds: itemIdsOnGroundInPreviousRoom,
   });
+  for (const item of newItemsOnGround)
+    gameWorld.current?.imageManager.enqueueMessage({
+      type: ImageManagerRequestType.ItemCreation,
+      item,
+    });
 }

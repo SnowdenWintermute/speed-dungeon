@@ -1,48 +1,33 @@
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
-import {
-  CombatantProperties,
-  CombatantTraitType,
-  INVENTORY_DEFAULT_CAPACITY,
-  Inventory,
-  getCapacityByItemType,
-} from "@speed-dungeon/common";
+import { useGameStore } from "@/stores/game-store";
+import { getCapacityByItemType } from "@speed-dungeon/common";
 import React from "react";
 
-export default function InventoryCapacityDisplay({
-  combatantProperties,
-}: {
-  combatantProperties: CombatantProperties;
-}) {
+export default function InventoryCapacityDisplay() {
+  const focusedCharacterResult = useGameStore().getFocusedCharacter();
+
+  if (focusedCharacterResult instanceof Error) return <></>;
+  const { combatantProperties } = focusedCharacterResult;
   const {
     totalItemsInNormalStorage,
-    totalNumItemsInInventory,
-    availableConsumableCapacity,
     numConsumablesInMinibag,
     minibagCapacity,
-    availableCapacity,
     normalStorageCapacity,
   } = getCapacityByItemType(combatantProperties);
 
   return (
     <div className="flex flex-col">
       {!!minibagCapacity && (
-        <div>
-          Minibag Capacity: {numConsumablesInMinibag} / {minibagCapacity}
+        <div
+          className={`${numConsumablesInMinibag > minibagCapacity ? UNMET_REQUIREMENT_TEXT_COLOR : numConsumablesInMinibag === minibagCapacity ? "text-yellow-400" : ""}`}
+        >
+          Minibag Capacity: {numConsumablesInMinibag}/{minibagCapacity}
         </div>
       )}
       <div
-        className={`${totalItemsInNormalStorage > normalStorageCapacity ? UNMET_REQUIREMENT_TEXT_COLOR : ""}`}
+        className={`${totalItemsInNormalStorage > normalStorageCapacity ? UNMET_REQUIREMENT_TEXT_COLOR : totalItemsInNormalStorage === normalStorageCapacity ? "text-yellow-400" : ""}`}
       >
         Inventory Capacity: {totalItemsInNormalStorage}/{normalStorageCapacity}
-        {JSON.stringify({
-          totalItemsInNormalStorage,
-          totalNumItemsInInventory,
-          availableConsumableCapacity,
-          numConsumablesInMinibag,
-          minibagCapacity,
-          availableCapacity,
-          normalStorageCapacity,
-        })}
       </div>
     </div>
   );
