@@ -14,6 +14,7 @@ export function postItemLinkHandler(
   playerAssociatedData: ServerPlayerAssociatedData,
   _socket: Socket
 ) {
+  console.log("heard");
   const gameServer = getGameServer();
   const { game, partyOption, session } = playerAssociatedData;
   if (!partyOption) return new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);

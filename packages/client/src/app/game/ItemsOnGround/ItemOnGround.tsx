@@ -2,6 +2,7 @@ import React from "react";
 import { useGameStore } from "@/stores/game-store";
 import selectItem from "@/utils/selectItem";
 import {
+  CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TYPE_STRINGS,
   ClientToServerEvent,
   CombatantProperties,
@@ -94,7 +95,7 @@ export default function ItemOnGround(props: Props) {
   } else if (item instanceof Equipment && Equipment.isMagical(item)) {
     containerExtraStyles += " text-blue-300";
   } else if (item instanceof Consumable) {
-    containerExtraStyles += " text-teal-400";
+    containerExtraStyles += ` ${CONSUMABLE_TEXT_COLOR}`;
   }
 
   return (

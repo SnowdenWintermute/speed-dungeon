@@ -11,6 +11,7 @@ import createPageButtons from "./create-page-buttons";
 import { immerable } from "immer";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import {
+  CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TYPE_STRINGS,
   ClientToServerEvent,
   ConsumableType,
@@ -65,7 +66,7 @@ export class PurchaseItemsMenuState implements ActionMenuState {
           <ItemButtonBody
             gradientOverride={consumableGradientBg}
             thumbnailOption={thumbnailOption}
-            containerExtraStyles="text-teal-400"
+            containerExtraStyles={CONSUMABLE_TEXT_COLOR}
             imageExtraStyles="scale-[300%]"
             imageHoverStyles="-translate-x-[55px]"
           >

@@ -1,20 +1,19 @@
 import React from "react";
 import {
-  BASE_TEXT,
-  CONSUMABLE_TURQUOISE,
+  CONSUMABLE_TEXT_COLOR,
   Consumable,
   Equipment,
   Item,
-  MAGICAL_PROPERTY_BLUE,
+  MAGICAL_PROPERTY_BLUE_TEXT,
 } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
 
 export function ItemLink({ item }: { item: Item }) {
   const mutateState = useGameStore().mutateState;
-  let textColor = BASE_TEXT;
-  if (item instanceof Consumable) textColor = CONSUMABLE_TURQUOISE;
+  let textColor = "text-zinc-300";
+  if (item instanceof Consumable) textColor = CONSUMABLE_TEXT_COLOR;
   else if (item instanceof Equipment && Equipment.isMagical(item))
-    textColor = MAGICAL_PROPERTY_BLUE;
+    textColor = MAGICAL_PROPERTY_BLUE_TEXT;
 
   function handleFocus() {
     mutateState((state) => {
@@ -36,9 +35,8 @@ export function ItemLink({ item }: { item: Item }) {
 
   return (
     <button
-      className={`underline cursor-pointer ${isDetailedEntity ? "outline outline-1 outline-yellow-500" : ""}`}
+      className={`underline cursor-pointer ${isDetailedEntity ? "outline outline-1 outline-yellow-500" : ""} ${textColor}`}
       aria-label={`Crafting result for item: ${item.entityProperties.name}`}
-      style={{ color: textColor }}
       onClick={() => {
         mutateState((state) => {
           if (isDetailedEntity) state.detailedEntity = null;

@@ -7,6 +7,7 @@ import {
   MenuStateType,
 } from ".";
 import {
+  CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TURQUOISE,
   CONSUMABLE_TYPE_STRINGS,
   CombatantProperties,
@@ -118,7 +119,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
       const thumbnailId = CONSUMABLE_TYPE_STRINGS[consumableType];
       const thumbnailOption = useGameStore.getState().itemThumbnails[thumbnailId];
 
-      let containerExtraStyles = "text-teal-400";
+      let containerExtraStyles = CONSUMABLE_TEXT_COLOR;
 
       const button = new ActionMenuButtonProperties(
         (

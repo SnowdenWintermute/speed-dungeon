@@ -14,24 +14,27 @@ import { ItemLink } from "@/app/game/combat-log/item-link";
 import { setAlert } from "@/app/components/alerts";
 
 export function playerPostedItemLinkHandler(eventData: { username: string; itemId: EntityId }) {
+  console.log("received", eventData);
   const { username, itemId } = eventData;
+
+  let combatLogMessage: CombatLogMessage;
 
   playerAssociatedDataProvider(username, ({ partyOption }: PlayerAssociatedData) => {
     if (!partyOption) return;
     const itemResult = AdventuringParty.getItem(partyOption, itemId);
     if (itemResult instanceof Error) return setAlert(itemResult);
 
-    const combatLogMessage = new CombatLogMessage(
+    combatLogMessage = new CombatLogMessage(
       (
         <div>
-          {username} calls attention to an item:
-          <ItemLink item={itemResult} />
+          {username} calls attention to <ItemLink item={itemResult} />
         </div>
       ),
       COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE[GameMessageType.CraftingAction]
     );
-    useGameStore.getState().mutateState((state) => {
-      state.combatLogMessages.push(combatLogMessage);
-    });
+  });
+
+  useGameStore.getState().mutateState((state) => {
+    state.combatLogMessages.push(combatLogMessage);
   });
 }

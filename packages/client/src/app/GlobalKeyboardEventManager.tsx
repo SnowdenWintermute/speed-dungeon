@@ -5,14 +5,12 @@ export default function GlobalKeyboardEventManager() {
   const mutateUiState = useUIStore().mutateState;
 
   function keydownEventHandler(e: KeyboardEvent) {
-    console.log("code: ", e.code);
     if (
       e.code === "MetaRight" ||
       e.code === "MetaLeft" ||
       e.code === "ControlLeft" ||
       e.code === "ControlRight"
     ) {
-      console.log("setting alternateClickKeyHeld true");
       useUIStore.getState().mutateState((state) => {
         state.alternateClickKeyHeld = true;
       });
@@ -24,14 +22,12 @@ export default function GlobalKeyboardEventManager() {
   }
 
   function keyupEventHandler(e: KeyboardEvent) {
-    console.log("code: ", e.code);
     if (
       e.code === "MetaRight" ||
       e.code === "MetaLeft" ||
       e.code === "ControlLeft" ||
       e.code === "ControlRight"
     ) {
-      console.log("setting alternateClickKeyHeld false");
       useUIStore.getState().mutateState((state) => {
         state.alternateClickKeyHeld = false;
       });
