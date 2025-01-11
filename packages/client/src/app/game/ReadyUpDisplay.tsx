@@ -6,6 +6,8 @@ import HotkeyButton from "../components/atoms/HotkeyButton";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
 import { MenuStateType } from "./ActionMenu/menu-state";
+import { playerIsOperatingVendingMachine } from "@/utils/player-is-operating-vending-machine";
+import { useUIStore } from "@/stores/ui-store";
 
 interface Props {
   party: AdventuringParty;
@@ -72,7 +74,14 @@ export default function ReadyUpDisplay({ party }: Props) {
           style={{ opacity: shouldDim ? "50%" : "100%" }}
         >
           {isVendingMachine ? (
-            <h3 className="text-xl mb-2">There is a strange device here...</h3>
+            <h3 className="text-xl mb-2">
+              There is a strange device here...
+              <div>
+                Alternate Click Function Key Held:{" "}
+                {JSON.stringify(useUIStore.getState().alternateClickKeyHeld)}
+              </div>
+              <div>Shift Held: {useUIStore.getState().modKeyHeld ? "true" : "false"}</div>
+            </h3>
           ) : (
             <h3 className="text-xl mb-2">The room is empty of monsters</h3>
           )}
@@ -80,6 +89,7 @@ export default function ReadyUpDisplay({ party }: Props) {
             <HotkeyButton
               className={`h-10 pr-2 pl-2 ${!isVendingMachine ? "bg-slate-800 w-full" : "w-1/2 mr-1 "} border border-white text-center hover:bg-slate-950`}
               hotkeys={["KeyG"]}
+              disabled={playerIsOperatingVendingMachine(currentMenu.type)}
               onClick={handleExploreClick}
             >
               Explore next room (G)

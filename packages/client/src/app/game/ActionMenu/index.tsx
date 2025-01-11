@@ -168,10 +168,14 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex flex-col items-center pointer-events-auto">
           <div className="">{currentMenu.item.entityProperties.name}</div>
           <Divider extraStyles="w-full" />
-          <span className="text-yellow-400">
-            Converting this item to shards will PERMANENTLY DESTROY it! Make sure this is what you
-            want.
+
+          <span className="text-lg bg-slate-700 mb-1">
+            Convert to {getItemSellPrice(currentMenu.item)} shards?
           </span>
+          <span className="text-yellow-400 mb-2">This will PERMANENTLY DESTROY the item! </span>
+          <div className="relative">
+            <ShardsIcon className="fill-yellow-400 h-10" />
+          </div>
         </div>
       </div>
     );

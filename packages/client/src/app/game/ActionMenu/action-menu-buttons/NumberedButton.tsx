@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import { BUTTON_HEIGHT } from "@/client_consts";
 import { ActionMenuButtonProperties } from "../menu-state";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import { useUIStore } from "@/stores/ui-store";
 
 interface Props {
   number: number;

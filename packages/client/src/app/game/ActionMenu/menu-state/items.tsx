@@ -25,6 +25,7 @@ import cloneDeep from "lodash.clonedeep";
 import { createEaseGradient } from "@/utils/create-ease-gradient-style";
 import { ReactNode, useState } from "react";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { useUIStore } from "@/stores/ui-store";
 
 const hexRed = "#563D45"; // eye droppered from paper doll slot disabled with filter
 const GREEN = Color4.FromHexString(CONSUMABLE_TURQUOISE).scale(255);
@@ -233,9 +234,11 @@ export function ItemButtonBody({
   imageHoverStyles?: string;
 }) {
   const [isHovered, setIsHovered] = useState(false);
+
+  const alternateClickKeyHeld = useUIStore.getState().alternateClickKeyHeld;
   return (
     <div
-      className={`h-full w-full relative ${containerExtraStyles}`}
+      className={`h-full w-full relative ${containerExtraStyles} ${alternateClickKeyHeld && "cursor-alias"}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

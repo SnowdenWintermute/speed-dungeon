@@ -6,6 +6,7 @@ import { Point } from "@speed-dungeon/common";
 
 export type UIState = {
   modKeyHeld: boolean;
+  alternateClickKeyHeld: boolean;
   tooltipPosition: null | Point;
   tooltipText: null | string;
   authFormEmailField: string;
@@ -21,6 +22,7 @@ export const useUIStore = create<UIState>()(
     devtools(
       (set, _get) => ({
         modKeyHeld: false,
+        alternateClickKeyHeld: false,
         tooltipPosition: null,
         tooltipText: null,
         authFormEmailField: "",

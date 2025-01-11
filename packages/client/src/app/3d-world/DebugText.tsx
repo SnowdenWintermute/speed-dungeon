@@ -4,7 +4,7 @@ import { useGameStore } from "@/stores/game-store";
 import { ZIndexLayers } from "../z-index-layers";
 import { gameWorld } from "./SceneManager";
 import { InputLock } from "@speed-dungeon/common";
-import { clearFloorTexture, drawCompass } from "./game-world/clear-floor-texture";
+import { drawCompass } from "./game-world/clear-floor-texture";
 
 export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTMLUListElement> }) {
   const thumbnails = useGameStore((state) => state.itemThumbnails);
