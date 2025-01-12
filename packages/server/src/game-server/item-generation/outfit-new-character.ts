@@ -90,6 +90,8 @@ export default function outfitNewCharacter(character: Combatant) {
   const maybeError = createStartingEquipment(combatantProperties);
   if (maybeError instanceof Error) return maybeError;
 
+  setExperimentalCombatantProperties(combatantProperties);
+
   CombatantProperties.setHpAndMpToMax(combatantProperties);
 }
 
@@ -99,7 +101,7 @@ function giveTestingCombatAttributes(combatantProperties: CombatantProperties) {
   }
 }
 
-function setExperimentalCombatantProperties() {
+function setExperimentalCombatantProperties(combatantProperties: CombatantProperties) {
   // FOR TESTING INVENTORY
   // generateTestItems(combatantProperties, 6);
   // const item1 = generateSpecificEquipmentType(
@@ -123,12 +125,12 @@ function setExperimentalCombatantProperties() {
   // Inventory.insertItem(combatantProperties.inventory, item2);
   // giveTestingCombatAttributes(combatantProperties);
   // combatantProperties.level = 5;
-  // combatantProperties.abilities[AbilityName.Destruction] = CombatantAbility.createByName(
-  //   AbilityName.Destruction
-  // );
+  combatantProperties.abilities[AbilityName.Destruction] = CombatantAbility.createByName(
+    AbilityName.Destruction
+  );
   // const items = generateOneOfEachItem();
   // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
-  // combatantProperties.unspentAttributePoints = 100;
+  combatantProperties.unspentAttributePoints = 100;
   // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
   // combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 100;
   // combatantProperties.inherentAttributes[CombatAttribute.Strength] = 100;

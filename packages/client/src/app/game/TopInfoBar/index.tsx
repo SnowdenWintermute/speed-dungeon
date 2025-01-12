@@ -8,6 +8,7 @@ import getGameAndParty from "@/utils/getGameAndParty";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { ZIndexLayers } from "@/app/z-index-layers";
+import { gameWorld } from "@/app/3d-world/SceneManager";
 
 export default function TopInfoBar() {
   const mutateGameState = useGameStore().mutateState;
@@ -43,12 +44,12 @@ export default function TopInfoBar() {
       )}
       <div className="absolute right-0 pr-4 pl-4 h-full w-fit border-l border-slate-400 flex items-center justify-center">
         <HotkeyButton
-          onClick={() =>
+          onClick={() => {
             mutateGameState((state) => {
               state.viewingLeaveGameModal = !state.viewingLeaveGameModal;
               state.stackedMenuStates = [];
-            })
-          }
+            });
+          }}
         >
           LEAVE GAME{" "}
         </HotkeyButton>

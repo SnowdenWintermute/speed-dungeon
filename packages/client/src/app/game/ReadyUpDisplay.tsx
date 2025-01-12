@@ -71,8 +71,8 @@ export default function ReadyUpDisplay({ party }: Props) {
     <>
       {!inStaircaseRoom && party.currentRoom.monsterPositions.length === 0 && (
         <div
-          className="absolute top-10 -translate-y-[1px] min-w-[500px] text-center left-1/2 -translate-x-1/2 border border-t-0 border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto"
-          style={{ opacity: shouldDim ? "50%" : "100%" }}
+          className="absolute top-12 -translate-y-[1px] min-w-[500px] text-center left-1/2 -translate-x-1/2 border border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto"
+          style={{ opacity: shouldDim ? "0%" : "100%" }}
         >
           {isVendingMachine ? (
             <h3 className="text-xl mb-2">There is a strange device here...</h3>

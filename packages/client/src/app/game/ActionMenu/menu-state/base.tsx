@@ -1,4 +1,8 @@
-import { useGameStore, itemsOnGroundMenuState } from "@/stores/game-store";
+import {
+  useGameStore,
+  itemsOnGroundMenuState,
+  assignAttributesMenuState,
+} from "@/stores/game-store";
 import {
   ActionButtonCategory,
   ActionButtonsByCategory,
@@ -27,7 +31,7 @@ import cloneDeep from "lodash.clonedeep";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { ABILITY_ATTRIBUTES } from "@speed-dungeon/common";
-import { setInventoryOpen } from "./common-buttons/open-inventory";
+import { setInventoryOpen, toggleInventoryHotkey } from "./common-buttons/open-inventory";
 import { ReactNode } from "react";
 
 import FireIcon from "../../../../../public/img/game-ui-icons/fire.svg";
@@ -35,6 +39,7 @@ import RangedIcon from "../../../../../public/img/game-ui-icons/ranged.svg";
 import SwordSlashIcon from "../../../../../public/img/game-ui-icons/sword-slash.svg";
 import HealthCrossIcon from "../../../../../public/img/game-ui-icons/health-cross.svg";
 import IceIcon from "../../../../../public/img/game-ui-icons/ice.svg";
+import { toggleAssignAttributesHotkey } from "../../UnspentAttributesButton";
 
 export const viewItemsOnGroundHotkey = HOTKEYS.ALT_1;
 
@@ -62,6 +67,21 @@ export class BaseMenuState implements ActionMenuState {
     if (partyResult instanceof Error) {
       setAlert(partyResult);
       return toReturn;
+    }
+
+    if (combatantProperties.unspentAttributePoints > 0) {
+      const hiddenButtonForUnspentAttributesHotkey = new ActionMenuButtonProperties(
+        "Unspent Attributes Hotkey Button",
+        "Unspent Attributes Hotkey Button",
+        () => {
+          useGameStore.getState().mutateState((state) => {
+            state.hoveredAction = null;
+            state.stackedMenuStates.push(assignAttributesMenuState);
+          });
+        }
+      );
+      hiddenButtonForUnspentAttributesHotkey.dedicatedKeys = [toggleAssignAttributesHotkey];
+      toReturn[ActionButtonCategory.Hidden].push(hiddenButtonForUnspentAttributesHotkey);
     }
 
     if (Inventory.getItems(partyResult.currentRoom.inventory).length) {

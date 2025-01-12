@@ -1,6 +1,6 @@
 import { BUTTON_HEIGHT_SMALL, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import { useGameStore } from "@/stores/game-store";
-import { ERROR_MESSAGES, Inventory } from "@speed-dungeon/common";
+import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import React from "react";
 import CharacterSheetCharacterSelectionButton from "./CharacterSheetCharacterSelectionButton";
 import CharacterAttributes from "./CharacterAttributes";
@@ -24,7 +24,6 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
   const focusedCharacterOption =
     focusedCharacterResult instanceof Error ? null : focusedCharacterResult;
   if (!focusedCharacterOption) return <div>{ERROR_MESSAGES.COMBATANT.NOT_FOUND}</div>;
-  const { combatantProperties } = focusedCharacterOption;
 
   const partyCharacterIds = partyResult.characterPositions;
 
@@ -55,7 +54,7 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
         </button>
       </div>
       <div
-        className={`border border-slate-400 bg-slate-700 overflow-y-auto flex ${showCharacterSheet && "pointer-events-auto"}`}
+        className={`border border-slate-400 bg-slate-700 overflow-y-auto flex h-[400px] ${showCharacterSheet && "pointer-events-auto"}`}
         style={{ padding: `${SPACING_REM}rem` }}
       >
         <div className="flex flex-col justify-between mr-5">

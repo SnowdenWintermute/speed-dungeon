@@ -9,6 +9,7 @@ import {
 import { EnvironmentModelTypes } from "../environment-models/environment-model-paths";
 
 export enum ModelActionType {
+  ClearAllModels,
   SpawnCombatantModel,
   DespawnCombatantModel,
   ChangeEquipment,
@@ -28,6 +29,7 @@ export const MODEL_ACTION_TYPE_STRINGS: Record<ModelActionType, string> = {
   [ModelActionType.SynchronizeCombatantModels]: "Synchronize Combatant Models",
   [ModelActionType.SpawnEnvironmentModel]: "Spawn Environment Model",
   [ModelActionType.DespawnEnvironmentModel]: "Despawn Environment Model",
+  [ModelActionType.ClearAllModels]: "Clear All Models",
 };
 
 export type SpawnCombatantModelAction = {
@@ -77,6 +79,10 @@ export type DespawnEnvironmentModelModelAction = {
   id: string;
 };
 
+export type ClearAllModelsModelAction = {
+  type: ModelActionType.ClearAllModels;
+};
+
 export type ModelAction =
   | SpawnCombatantModelAction
   | DespawnCombatantModelAction
@@ -85,4 +91,5 @@ export type ModelAction =
   | ProcessActionCommandsModelAction
   | SynchronizeCombatantModelsModelAction
   | SpawnEnvironmentalModelModelAction
-  | DespawnEnvironmentModelModelAction;
+  | DespawnEnvironmentModelModelAction
+  | ClearAllModelsModelAction;

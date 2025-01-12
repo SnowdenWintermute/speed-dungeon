@@ -1,7 +1,7 @@
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
-import { assignAttributesMenuState, getCurrentMenu, useGameStore } from "@/stores/game-store";
+import { useGameStore } from "@/stores/game-store";
 import { ClientToServerEvent, CombatantProperties, EntityId } from "@speed-dungeon/common";
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import setFocusedCharacter from "@/utils/set-focused-character";
@@ -22,7 +22,6 @@ export default function UnspentAttributesButton({
   const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
   if (focusedCharacterResult instanceof Error) return <></>;
   const mutateGameState = useGameStore().mutateState;
-  const keydownListenerRef = useRef<(e: KeyboardEvent) => void | null>();
 
   function handleUnspentAttributesButtonClick() {
     websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
@@ -47,33 +46,6 @@ export default function UnspentAttributesButton({
       });
     }
   }
-
-  const currentMenu = useGameStore.getState().getCurrentMenu();
-  const disabled =
-    currentMenu.type !== MenuStateType.AssignAttributePoints &&
-    currentMenu.type !== MenuStateType.Base;
-
-  function handleHotkey() {
-    useGameStore.getState().mutateState((state) => {
-      if (getCurrentMenu(state).type === MenuStateType.AssignAttributePoints)
-        state.stackedMenuStates.pop();
-      else state.stackedMenuStates.push(assignAttributesMenuState);
-    });
-  }
-
-  useEffect(() => {
-    keydownListenerRef.current = (e: KeyboardEvent) => {
-      if (e.code === toggleAssignAttributesHotkey && !disabled) {
-        handleHotkey();
-      }
-    };
-    window.addEventListener("keydown", keydownListenerRef.current);
-
-    return () => {
-      if (keydownListenerRef.current)
-        window.removeEventListener("keydown", keydownListenerRef.current);
-    };
-  }, [disabled]);
 
   return (
     <HoverableTooltipWrapper tooltipText={buttonText}>

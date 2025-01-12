@@ -1,5 +1,6 @@
-import { useGameStore } from "@/stores/game-store";
+import { getCurrentMenu, useGameStore } from "@/stores/game-store";
 import React, { useEffect, useState } from "react";
+import { MenuStateType } from "./ActionMenu/menu-state";
 
 /// Change the focused character under certain conditions like when their turn ends in combat while they are focused
 export default function CharacterAutofocusManager() {
@@ -44,7 +45,8 @@ export default function CharacterAutofocusManager() {
       const player = playerResult;
       previousBattleId = party.battleId;
       const clientIsViewingMenus = gameState.stackedMenuStates.length;
-      if (clientIsViewingMenus) return;
+      const currentMenu = getCurrentMenu(gameState);
+      if (clientIsViewingMenus && currentMenu.type !== MenuStateType.ItemsOnGround) return;
 
       if (previousActiveCombatantIdOption !== null && activeCombatantIdOption !== null) {
         const newActiveCombatantId = activeCombatantIdOption;

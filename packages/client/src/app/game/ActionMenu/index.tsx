@@ -227,6 +227,13 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         className={`flex list-none min-w-[25rem] max-w-[25rem]`}
         style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
       >
+        {buttonProperties[ActionButtonCategory.Hidden].map((button, i) => (
+          <div className="hidden" key={button.key}>
+            <HotkeyButton hotkeys={button.dedicatedKeys} onClick={button.clickHandler}>
+              <></>
+            </HotkeyButton>
+          </div>
+        ))}
         {buttonProperties[ActionButtonCategory.Top].map((button, i) => {
           const conditionalStyles = (() => {
             if (buttonTitlesToAccent.includes(button.key)) return "bg-slate-800 border-white";

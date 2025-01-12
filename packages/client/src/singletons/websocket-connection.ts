@@ -43,7 +43,7 @@ websocketConnection.on("connect", () => {
   useLobbyStore.getState().mutateState((state) => {
     state.websocketConnected = true;
   });
-  gameWorld.current?.modelManager.clearAllModels();
+  // gameWorld.current?.modelManager.clearAllModels();
   websocketConnection.emit(ClientToServerEvent.RequestsGameList);
   websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
 });

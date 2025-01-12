@@ -31,6 +31,10 @@ export default function setUpGameLobbyEventHandlers(
           CombatantProperties.instantiateItemClasses(character.combatantProperties);
         }
       }
+    } else {
+      gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+        type: ModelActionType.ClearAllModels,
+      });
     }
 
     gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({

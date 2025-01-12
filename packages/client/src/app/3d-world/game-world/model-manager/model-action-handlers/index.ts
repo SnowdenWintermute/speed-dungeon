@@ -8,6 +8,7 @@ import { spawnModularCharacter } from "./spawn-modular-character";
 import { ModelManager } from "..";
 import {
   ChangeEquipmentModelAction,
+  ClearAllModelsModelAction,
   DespawnCombatantModelAction,
   DespawnEnvironmentModelModelAction,
   ModelActionType,
@@ -31,11 +32,12 @@ export function createModelActionHandlers(
   modelManager: ModelManager
 ): Record<ModelActionType, ModelActionHandler> {
   return {
+    [ModelActionType.ClearAllModels]: (_action: ClearAllModelsModelAction) =>
+      modelManager.clearAllModels(),
     [ModelActionType.SpawnEnvironmentModel]: (action: SpawnEnvironmentalModelModelAction) =>
       spawnEnvironmentModel(action, modelManager),
     [ModelActionType.DespawnEnvironmentModel]: (action: DespawnEnvironmentModelModelAction) => {
       const modelOption = modelManager.environmentModels[action.id];
-      console.log("disposing model option: ", modelOption?.model);
       if (modelOption) {
         disposeAsyncLoadedScene(modelOption.model);
       }
