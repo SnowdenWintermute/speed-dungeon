@@ -1,10 +1,12 @@
 import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 import {
   ActionCommandPayload,
   Equipment,
   HoldableHotswapSlot,
   TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
+import { EnvironmentModelTypes } from "../environment-models/environment-model-paths";
 
 export enum ModelActionType {
   SpawnCombatantModel,
@@ -13,6 +15,8 @@ export enum ModelActionType {
   SelectHotswapSlot,
   ProcessActionCommands,
   SynchronizeCombatantModels,
+  SpawnEnvironmentModel,
+  DespawnEnvironmentModel,
 }
 
 export const MODEL_ACTION_TYPE_STRINGS: Record<ModelActionType, string> = {
@@ -22,6 +26,8 @@ export const MODEL_ACTION_TYPE_STRINGS: Record<ModelActionType, string> = {
   [ModelActionType.SelectHotswapSlot]: "Select Hotswap Slot",
   [ModelActionType.ProcessActionCommands]: "Process Action Commands",
   [ModelActionType.SynchronizeCombatantModels]: "Synchronize Combatant Models",
+  [ModelActionType.SpawnEnvironmentModel]: "Spawn Environment Model",
+  [ModelActionType.DespawnEnvironmentModel]: "Despawn Environment Model",
 };
 
 export type SpawnCombatantModelAction = {
@@ -57,10 +63,26 @@ export type SynchronizeCombatantModelsModelAction = {
   type: ModelActionType.SynchronizeCombatantModels;
 };
 
+export type SpawnEnvironmentalModelModelAction = {
+  type: ModelActionType.SpawnEnvironmentModel;
+  id: string;
+  path: string;
+  position: Vector3;
+  modelType: EnvironmentModelTypes;
+  rotationQuat?: Quaternion;
+};
+
+export type DespawnEnvironmentModelModelAction = {
+  type: ModelActionType.DespawnEnvironmentModel;
+  id: string;
+};
+
 export type ModelAction =
   | SpawnCombatantModelAction
   | DespawnCombatantModelAction
   | ChangeEquipmentModelAction
   | SelectHotswapSlotModelAction
   | ProcessActionCommandsModelAction
-  | SynchronizeCombatantModelsModelAction;
+  | SynchronizeCombatantModelsModelAction
+  | SpawnEnvironmentalModelModelAction
+  | DespawnEnvironmentModelModelAction;

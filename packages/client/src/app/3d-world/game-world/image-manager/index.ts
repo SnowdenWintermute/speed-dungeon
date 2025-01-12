@@ -149,7 +149,7 @@ export class ImageManager {
         useGameStore.getState().mutateState((state) => {
           state.itemThumbnails[item.entityProperties.id] = image;
         });
-        disposeAsyncLoadedScene(equipmentModelResult, this.scene);
+        disposeAsyncLoadedScene(equipmentModelResult);
 
         this.processNextMessage();
       },

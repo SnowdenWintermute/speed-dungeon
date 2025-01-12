@@ -51,7 +51,14 @@ export class PurchaseItemsMenuState implements ActionMenuState {
     const characterId = focusedCharacterResult.entityProperties.id;
     const userControlsThisCharacter = clientUserControlsCombatant(characterId);
 
-    toReturn[ActionButtonCategory.Top].push(createCancelButton([]));
+    toReturn[ActionButtonCategory.Top].push(
+      createCancelButton([], () => {
+        useGameStore.getState().mutateState((state) => {
+          state.hoveredEntity = null;
+          state.detailedEntity = null;
+        });
+      })
+    );
     toReturn[ActionButtonCategory.Top].push(setInventoryOpen);
 
     const purchaseableItems = [ConsumableType.HpAutoinjector, ConsumableType.MpAutoinjector];

@@ -1,11 +1,19 @@
 import { gameWorld } from "@/app/3d-world/SceneManager";
+import {
+  ENVIRONMENT_MODELS_FOLDER,
+  ENVIRONMENT_MODEL_PATHS,
+  EnvironmentModelTypes,
+} from "@/app/3d-world/game-world/environment-models/environment-model-paths";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { setAlert } from "@/app/components/alerts";
 import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
+import { Vector3 } from "@babylonjs/core";
 import {
+  Consumable,
   DungeonRoom,
+  DungeonRoomType,
   ERROR_MESSAGES,
   Inventory,
   Item,
@@ -15,6 +23,7 @@ import {
 export default function newDungeonRoomHandler(room: DungeonRoom) {
   const itemIdsOnGroundInPreviousRoom: string[] = [];
   const newItemsOnGround: Item[] = [];
+  let previousRoomType;
 
   useGameStore.getState().mutateState((gameState) => {
     const party = getCurrentParty(gameState, gameState.username || "");
@@ -26,6 +35,7 @@ export default function newDungeonRoomHandler(room: DungeonRoom) {
 
     party.playersReadyToDescend = [];
     party.playersReadyToExplore = [];
+    previousRoomType = party.currentRoom.roomType;
     party.currentRoom = room;
 
     Inventory.instantiateItemClasses(party.currentRoom.inventory);
@@ -45,6 +55,25 @@ export default function newDungeonRoomHandler(room: DungeonRoom) {
     if (room.monsterPositions.length) gameState.baseMenuState.inCombat = true;
   });
 
+  if (
+    room.roomType === DungeonRoomType.VendingMachine &&
+    !(previousRoomType === DungeonRoomType.VendingMachine)
+  )
+    gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.SpawnEnvironmentModel,
+      modelType: EnvironmentModelTypes.VendingMachine,
+      path:
+        ENVIRONMENT_MODELS_FOLDER + ENVIRONMENT_MODEL_PATHS[EnvironmentModelTypes.VendingMachine],
+      id: "vending-machine",
+      position: Vector3.Forward(),
+    });
+  else if (room.roomType !== DungeonRoomType.VendingMachine) {
+    gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.DespawnEnvironmentModel,
+      id: "vending-machine",
+    });
+  }
+
   gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,
   });
@@ -55,8 +84,9 @@ export default function newDungeonRoomHandler(room: DungeonRoom) {
     itemIds: itemIdsOnGroundInPreviousRoom,
   });
   for (const item of newItemsOnGround)
-    gameWorld.current?.imageManager.enqueueMessage({
-      type: ImageManagerRequestType.ItemCreation,
-      item,
-    });
+    if (!(item instanceof Consumable))
+      gameWorld.current?.imageManager.enqueueMessage({
+        type: ImageManagerRequestType.ItemCreation,
+        item,
+      });
 }

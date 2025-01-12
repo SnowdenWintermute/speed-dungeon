@@ -120,8 +120,8 @@ export default function outfitNewCharacter(character: Combatant) {
     AbilityName.Destruction
   );
 
-  const items = generateOneOfEachItem();
-  combatantProperties.inventory.equipment.push(...(items as Equipment[]));
+  // const items = generateOneOfEachItem();
+  // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
   combatantProperties.unspentAttributePoints = 100;
   combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
   // combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 100;

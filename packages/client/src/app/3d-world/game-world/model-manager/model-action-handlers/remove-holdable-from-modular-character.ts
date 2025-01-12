@@ -9,6 +9,6 @@ export function removeHoldableModelFromModularCharacter(
   const modularCharacter = modelManager.combatantModels[entityId];
   const modelOption = modularCharacter?.equipment.holdables[holdableId];
   if (!modelOption) return;
-  disposeAsyncLoadedScene(modelOption, modelManager.world.scene);
+  disposeAsyncLoadedScene(modelOption);
   delete modularCharacter.equipment.holdables[entityId];
 }

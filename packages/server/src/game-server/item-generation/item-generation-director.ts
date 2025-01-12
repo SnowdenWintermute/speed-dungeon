@@ -19,8 +19,6 @@ export class ItemGenerationDirector {
     const { type: itemType } = baseItemResult;
     let affixesResult: Error | Affixes | null = null;
     if (!options?.noAffixes && itemType === ItemType.Equipment) {
-      console.log("BASE ITEM: ", baseItemResult);
-
       affixesResult = builder.buildAffixes(itemLevel, baseItemResult.taggedBaseEquipment);
     }
 
