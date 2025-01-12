@@ -78,7 +78,7 @@ export default function outfitNewCharacter(character: Combatant) {
     combatantProperties.traits.push(extraSlotTrait);
   }
 
-  const hpInjectors = new Array(10)
+  const hpInjectors = new Array(1)
     .fill(null)
     .map(() => createConsumableByType(ConsumableType.HpAutoinjector));
   // const mpInjector = Item.createConsumable(idGenerator.generate(), ConsumableType.MpAutoinjector);
@@ -90,64 +90,59 @@ export default function outfitNewCharacter(character: Combatant) {
   const maybeError = createStartingEquipment(combatantProperties);
   if (maybeError instanceof Error) return maybeError;
 
-  // FOR TESTING INVENTORY
-  // generateTestItems(combatantProperties, 6);
-  const item1 = generateSpecificEquipmentType(
-    {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.Club,
-    },
-    true
-  );
-  const item2 = generateSpecificEquipmentType(
-    {
-      equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-      baseItemType: TwoHandedMeleeWeapon.RottingBranch,
-    },
-    true
-  );
-  if (item1 instanceof Error || item2 instanceof Error) return item1;
-
-  item1.itemLevel = 5;
-  item2.itemLevel = 10;
-  Inventory.insertItem(combatantProperties.inventory, item1);
-  Inventory.insertItem(combatantProperties.inventory, item2);
-
-  // giveTestingCombatAttributes(combatantProperties);
-  // combatantProperties.level = 5;
-
-  combatantProperties.abilities[AbilityName.Destruction] = CombatantAbility.createByName(
-    AbilityName.Destruction
-  );
-
-  // const items = generateOneOfEachItem();
-  // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
-  combatantProperties.unspentAttributePoints = 100;
-  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
-  // combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 100;
-  // combatantProperties.inherentAttributes[CombatAttribute.Strength] = 100;
-  // combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 100;
-  // combatantProperties.inherentAttributes[CombatAttribute.Hp] = 10;
-
-  // FOR TESTING ATTRIBUTE ASSIGNMENT
-  // combatantProperties.unspentAttributePoints = 3;
-
-  combatantProperties.inventory.shards = 9999;
-  combatantProperties.inventory.equipment.push(HP_ARMOR_TEST_ITEM);
-  const equippedHoldableHotswapSlot =
-    CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
-  if (!equippedHoldableHotswapSlot)
-    return new Error(ERROR_MESSAGES.EQUIPMENT.NO_SELECTED_HOTSWAP_SLOT);
-  // equippedHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = WEAPON_TEST_ITEM;
-
   CombatantProperties.setHpAndMpToMax(combatantProperties);
-
-  // TESTING
-  // combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
 }
 
 function giveTestingCombatAttributes(combatantProperties: CombatantProperties) {
   for (const attribute of iterateNumericEnum(CombatAttribute)) {
     combatantProperties.inherentAttributes[attribute] = 100;
   }
+}
+
+function setExperimentalCombatantProperties() {
+  // FOR TESTING INVENTORY
+  // generateTestItems(combatantProperties, 6);
+  // const item1 = generateSpecificEquipmentType(
+  //   {
+  //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+  //     baseItemType: OneHandedMeleeWeapon.Club,
+  //   },
+  //   true
+  // );
+  // const item2 = generateSpecificEquipmentType(
+  //   {
+  //     equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+  //     baseItemType: TwoHandedMeleeWeapon.RottingBranch,
+  //   },
+  //   true
+  // );
+  // if (item1 instanceof Error || item2 instanceof Error) return item1;
+  // item1.itemLevel = 5;
+  // item2.itemLevel = 10;
+  // Inventory.insertItem(combatantProperties.inventory, item1);
+  // Inventory.insertItem(combatantProperties.inventory, item2);
+  // giveTestingCombatAttributes(combatantProperties);
+  // combatantProperties.level = 5;
+  // combatantProperties.abilities[AbilityName.Destruction] = CombatantAbility.createByName(
+  //   AbilityName.Destruction
+  // );
+  // const items = generateOneOfEachItem();
+  // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
+  // combatantProperties.unspentAttributePoints = 100;
+  // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
+  // combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 100;
+  // combatantProperties.inherentAttributes[CombatAttribute.Strength] = 100;
+  // combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 100;
+  // combatantProperties.inherentAttributes[CombatAttribute.Hp] = 10;
+  // FOR TESTING ATTRIBUTE ASSIGNMENT
+  // combatantProperties.unspentAttributePoints = 3;
+  // combatantProperties.inventory.shards = 9999;
+  // combatantProperties.inventory.equipment.push(HP_ARMOR_TEST_ITEM);
+  // const equippedHoldableHotswapSlot =
+  //   CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+  // if (!equippedHoldableHotswapSlot)
+  //   return new Error(ERROR_MESSAGES.EQUIPMENT.NO_SELECTED_HOTSWAP_SLOT);
+  // equippedHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = WEAPON_TEST_ITEM;
+  // TESTING
+  // combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
 }

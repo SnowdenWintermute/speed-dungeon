@@ -7,7 +7,7 @@ import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
 import { MenuStateType } from "./ActionMenu/menu-state";
 import { playerIsOperatingVendingMachine } from "@/utils/player-is-operating-vending-machine";
-import { useUIStore } from "@/stores/ui-store";
+import playerOwnsCharacter from "@speed-dungeon/common/src/adventuring-party/player-owns-character";
 
 interface Props {
   party: AdventuringParty;
@@ -17,6 +17,7 @@ export default function ReadyUpDisplay({ party }: Props) {
   const username = useGameStore().username;
   if (username === null) return <div>no username</div>;
   const mutateGameState = useGameStore().mutateState;
+  const focusedCharacterId = useGameStore().focusedCharacterId;
 
   function handleExploreClick() {
     websocketConnection.emit(ClientToServerEvent.ToggleReadyToExplore);
@@ -89,11 +90,12 @@ export default function ReadyUpDisplay({ party }: Props) {
             </HotkeyButton>
             {party.currentRoom.roomType === DungeonRoomType.VendingMachine && (
               <HotkeyButton
-                className={`h-10 pr-2 pl-2 bg-slate-800 ml-1 w-1/2 border border-white text-center hover:bg-slate-950`}
+                className={`h-10 pr-2 pl-2 bg-slate-800 ml-1 w-1/2 border border-white text-center hover:bg-slate-950 disabled:opacity-50`}
                 hotkeys={["KeyT"]}
                 disabled={
-                  currentMenu.type !== MenuStateType.Base &&
-                  currentMenu.type !== MenuStateType.OperatingVendingMachine
+                  !playerOwnsCharacter(party, username, focusedCharacterId) ||
+                  (currentMenu.type !== MenuStateType.Base &&
+                    currentMenu.type !== MenuStateType.OperatingVendingMachine)
                 }
                 onClick={() => {
                   mutateGameState((state) => {

@@ -1,6 +1,4 @@
 import {
-  AffixType,
-  CombatAttribute,
   CombatantClass,
   CombatantProperties,
   ERROR_MESSAGES,
@@ -8,10 +6,8 @@ import {
   EquipmentType,
   HoldableSlotType,
   OneHandedMeleeWeapon,
-  PrefixType,
   Shield,
   TwoHandedMeleeWeapon,
-  TwoHandedRangedWeapon,
 } from "@speed-dungeon/common";
 import { generateSpecificEquipmentType } from "./generate-test-items.js";
 import { CombatantEquipment } from "@speed-dungeon/common";
@@ -25,7 +21,7 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       mainhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.Blade,
+          baseItemType: OneHandedMeleeWeapon.Stick,
         },
         true
       );
@@ -48,14 +44,14 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       mainhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.Club,
+          baseItemType: OneHandedMeleeWeapon.ButterKnife,
         },
         true
       );
       offhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.ShortSword,
+          baseItemType: OneHandedMeleeWeapon.ButterKnife,
         },
         true
       );
@@ -71,47 +67,49 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
   if (mainhand) mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = mainhand;
   if (offhand) mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = offhand;
 
-  const holsteredSlot = combatantProperties.equipment.inherentHoldableHotswapSlots[1];
-  let mh, oh;
-  if (holsteredSlot) {
-    switch (combatantProperties.combatantClass) {
-      case CombatantClass.Warrior:
-        mh = generateSpecificEquipmentType({
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.Stick,
-        });
-
-        oh = generateSpecificEquipmentType({
-          equipmentType: EquipmentType.Shield,
-          baseItemType: Shield.KiteShield,
-        });
-        break;
-      case CombatantClass.Mage:
-        mh = generateSpecificEquipmentType({
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.MapleWand,
-        });
-        oh = generateSpecificEquipmentType({
-          equipmentType: EquipmentType.Shield,
-          baseItemType: Shield.Heater,
-        });
-        break;
-      case CombatantClass.Rogue:
-      case CombatantClass.Mage:
-        mh = generateSpecificEquipmentType({
-          equipmentType: EquipmentType.TwoHandedRangedWeapon,
-          baseItemType: TwoHandedRangedWeapon.ShortBow,
-        });
-        break;
-    }
-    if (!(mh instanceof Error)) {
-      mh.entityProperties.name = "some long ass name that is really freakin long";
-      holsteredSlot.holdables[HoldableSlotType.MainHand] = mh;
-    }
-    if (oh) {
-      if (!(oh instanceof Error)) holsteredSlot.holdables[HoldableSlotType.OffHand] = oh;
-    }
-  }
-
   return startingEquipment;
 }
+
+// function giveTestHolsteredItems(){
+// const holsteredSlot = combatantProperties.equipment.inherentHoldableHotswapSlots[1];
+// let mh, oh;
+// if (holsteredSlot) {
+//   switch (combatantProperties.combatantClass) {
+//     case CombatantClass.Warrior:
+//       mh = generateSpecificEquipmentType({
+//         equipmentType: EquipmentType.OneHandedMeleeWeapon,
+//         baseItemType: OneHandedMeleeWeapon.Stick,
+//       });
+
+//       oh = generateSpecificEquipmentType({
+//         equipmentType: EquipmentType.Shield,
+//         baseItemType: Shield.KiteShield,
+//       });
+//       break;
+//     case CombatantClass.Mage:
+//       mh = generateSpecificEquipmentType({
+//         equipmentType: EquipmentType.OneHandedMeleeWeapon,
+//         baseItemType: OneHandedMeleeWeapon.MapleWand,
+//       });
+//       oh = generateSpecificEquipmentType({
+//         equipmentType: EquipmentType.Shield,
+//         baseItemType: Shield.Heater,
+//       });
+//       break;
+//     case CombatantClass.Rogue:
+//     case CombatantClass.Mage:
+//       mh = generateSpecificEquipmentType({
+//         equipmentType: EquipmentType.TwoHandedRangedWeapon,
+//         baseItemType: TwoHandedRangedWeapon.ShortBow,
+//       });
+//       break;
+//   }
+//   if (!(mh instanceof Error)) {
+//     mh.entityProperties.name = "some long ass name that is really freakin long";
+//     holsteredSlot.holdables[HoldableSlotType.MainHand] = mh;
+//   }
+//   if (oh) {
+//     if (!(oh instanceof Error)) holsteredSlot.holdables[HoldableSlotType.OffHand] = oh;
+//   }
+// }
+// }
