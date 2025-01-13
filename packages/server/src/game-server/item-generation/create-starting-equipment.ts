@@ -26,7 +26,7 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
         true
       );
       offhand = generateSpecificEquipmentType(
-        { equipmentType: EquipmentType.Shield, baseItemType: Shield.MakeshiftBuckler },
+        { equipmentType: EquipmentType.Shield, baseItemType: Shield.PotLid },
         true
       );
       // startingEquipment[EquipmentSlot.MainHand]

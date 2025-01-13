@@ -4,7 +4,7 @@ import { ActionButtonCategory, ActionMenuButtonProperties, MenuStateType } from 
 import { useGameStore } from "@/stores/game-store";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { ClientToServerEvent, Inventory } from "@speed-dungeon/common";
+import { ClientToServerEvent, Inventory, Item } from "@speed-dungeon/common";
 import { takeItem } from "../../ItemsOnGround/ItemOnGround";
 import { setInventoryOpen } from "./common-buttons/open-inventory";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
@@ -47,6 +47,10 @@ export class ItemsOnGroundMenuState extends ItemsMenuState {
       {
         extraButtons: {
           [ActionButtonCategory.Top]: [setInventoryOpen, takeAllButton],
+        },
+        shouldBeDisabled: (_item: Item) => {
+          const focusedCharacterId = useGameStore.getState().focusedCharacterId;
+          return !clientUserControlsCombatant(focusedCharacterId);
         },
       }
     );

@@ -23,6 +23,7 @@ export const DERIVED_ATTRIBUTE_RATIOS: Partial<
   },
   [CombatAttribute.Vitality]: {
     [CombatAttribute.Hp]: 2,
+    [CombatAttribute.ArmorClass]: 1.5,
   },
 };
 

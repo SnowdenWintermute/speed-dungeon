@@ -51,6 +51,7 @@ export class ActionMenuButtonProperties {
   mouseLeaveHandler?: MouseEventHandler<HTMLLIElement>;
   shouldBeDisabled: boolean = false;
   dedicatedKeys: string[] = [];
+  shouldDisableMainClickOnly: boolean = false;
   constructor(
     public jsx: ReactNode,
     public key: string,

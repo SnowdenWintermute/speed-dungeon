@@ -58,7 +58,7 @@ export abstract class ItemsMenuState implements ActionMenuState {
     private options: {
       getItemButtonCustomChildren?: (item: Item) => ReactNode;
       extraButtons?: Partial<Record<ActionButtonCategory, ActionMenuButtonProperties[]>>;
-      shouldBeDisabled?: boolean;
+      shouldBeDisabled?: (item: Item) => boolean;
     }
   ) {}
   getButtonProperties(): ActionButtonsByCategory {
@@ -147,7 +147,9 @@ export abstract class ItemsMenuState implements ActionMenuState {
       button.focusHandler = () => itemButtonMouseEnterHandler(firstConsumableOfThisType);
       button.blurHandler = () => itemButtonMouseLeaveHandler();
       button.alternateClickHandler = () => postItemLink(firstConsumableOfThisType);
-      button.shouldBeDisabled = !!this.options?.shouldBeDisabled;
+      button.shouldBeDisabled = this.options.shouldBeDisabled
+        ? this.options.shouldBeDisabled(firstConsumableOfThisType)
+        : false;
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 
@@ -198,7 +200,9 @@ export abstract class ItemsMenuState implements ActionMenuState {
       button.focusHandler = () => itemButtonMouseEnterHandler(item);
       button.blurHandler = () => itemButtonMouseLeaveHandler();
       button.alternateClickHandler = () => postItemLink(item);
-      button.shouldBeDisabled = !!this.options?.shouldBeDisabled;
+      button.shouldBeDisabled = this.options.shouldBeDisabled
+        ? this.options.shouldBeDisabled(item)
+        : false;
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 

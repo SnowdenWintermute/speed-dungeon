@@ -111,7 +111,7 @@ const FIRE = (() => {
   attributes.abilityLevelManaCostMultiplier = 1;
   attributes.combatantLevelManaCostMultiplier = 1;
   attributes.baseHpChangeValuesLevelMultiplier = 1.0;
-  hpChangeProperties.baseValues = new NumberRange(4, 8);
+  hpChangeProperties.baseValues = new NumberRange(3, 7);
   hpChangeProperties.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Intelligence, 200];
   hpChangeProperties.critChanceAttribute = CombatAttribute.Focus;
   hpChangeProperties.critMultiplierAttribute = CombatAttribute.Focus;

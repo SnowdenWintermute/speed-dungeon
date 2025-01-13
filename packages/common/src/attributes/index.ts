@@ -70,7 +70,7 @@ export const COMBAT_ATTRIBUTE_DESCRIPTIONS: Record<CombatAttribute, string> = {
   [CombatAttribute.Intelligence]: "Increases mana and spell damage",
   [CombatAttribute.Strength]:
     "Increases attack damage, crit multiplier and armor penetration for melee attacks",
-  [CombatAttribute.Vitality]: "Increases hit points",
+  [CombatAttribute.Vitality]: "Increases hit points and armor class",
   [CombatAttribute.Resilience]: `Reduces magical damage by ${RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO}%, increases healing received from magical sources by ${RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO}% and reduces the chance of unwanted critical strikes by 1% per point`,
   [CombatAttribute.Agility]: `Increases evasion and speed`,
 };

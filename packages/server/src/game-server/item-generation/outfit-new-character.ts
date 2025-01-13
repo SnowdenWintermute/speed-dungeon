@@ -121,7 +121,7 @@ function giveTestingCombatAttributes(combatantProperties: CombatantProperties) {
 }
 
 function setExperimentalCombatantProperties(combatantProperties: CombatantProperties) {
-  giveHotswapSlotEquipment(combatantProperties);
+  // giveHotswapSlotEquipment(combatantProperties);
   // FOR TESTING INVENTORY
   // generateTestItems(combatantProperties, 6);
   // const item1 = generateSpecificEquipmentType(
