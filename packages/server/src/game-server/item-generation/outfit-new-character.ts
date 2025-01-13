@@ -9,24 +9,13 @@ import {
   ConsumableType,
   Combatant,
   iterateNumericEnum,
-  ERROR_MESSAGES,
   iterateNumericEnumKeyedRecord,
-  EquipmentType,
-  OneHandedMeleeWeapon,
-  TwoHandedMeleeWeapon,
-  Inventory,
   CombatantTraitType,
   HoldableHotswapSlot,
-  HoldableSlotType,
   CombatantTrait,
-  Shield,
-  Equipment,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
-import { HP_ARMOR_TEST_ITEM } from "./test-items.js";
-import { CombatantEquipment } from "@speed-dungeon/common";
-import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
 import { createConsumableByType } from "./create-consumable-by-type.js";
 
 export default function outfitNewCharacter(character: Combatant) {
@@ -42,41 +31,15 @@ export default function outfitNewCharacter(character: Combatant) {
   const classTraitsOption = STARTING_COMBATANT_TRAITS[combatantProperties.combatantClass];
   if (classTraitsOption) combatantProperties.traits = cloneDeep(classTraitsOption);
 
+  if (combatantProperties.combatantClass === CombatantClass.Rogue) outfitRogue(combatantProperties);
+  if (combatantProperties.combatantClass === CombatantClass.Mage) outfitMage(combatantProperties);
+  if (combatantProperties.combatantClass === CombatantClass.Warrior)
+    outfitWarrior(combatantProperties);
+
   combatantProperties.abilities[AbilityName.Fire] = CombatantAbility.createByName(AbilityName.Fire);
   combatantProperties.abilities[AbilityName.Healing] = CombatantAbility.createByName(
     AbilityName.Healing
   );
-  if (combatantProperties.combatantClass === CombatantClass.Mage)
-    combatantProperties.abilities[AbilityName.Ice] = CombatantAbility.createByName(AbilityName.Ice);
-
-  if (combatantProperties.combatantClass === CombatantClass.Rogue)
-    combatantProperties.traits.push({ type: CombatantTraitType.CanConvertToShardsManually });
-
-  if (combatantProperties.combatantClass === CombatantClass.Mage)
-    combatantProperties.traits.push({
-      type: CombatantTraitType.ExtraConsumablesStorage,
-      capacity: 20,
-    });
-
-  if (combatantProperties.combatantClass === CombatantClass.Warrior) {
-    const extraSlotTrait: CombatantTrait = {
-      type: CombatantTraitType.ExtraHotswapSlot,
-      hotswapSlot: new HoldableHotswapSlot(),
-    };
-    const mh = generateSpecificEquipmentType({
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.BroadSword,
-    });
-    if (!(mh instanceof Error))
-      extraSlotTrait.hotswapSlot.holdables[HoldableSlotType.MainHand] = mh;
-    const oh = generateSpecificEquipmentType({
-      equipmentType: EquipmentType.Shield,
-      baseItemType: Shield.Pavise,
-    });
-    if (!(oh instanceof Error)) extraSlotTrait.hotswapSlot.holdables[HoldableSlotType.OffHand] = oh;
-
-    combatantProperties.traits.push(extraSlotTrait);
-  }
 
   const hpInjectors = new Array(1)
     .fill(null)
@@ -90,9 +53,48 @@ export default function outfitNewCharacter(character: Combatant) {
   const maybeError = createStartingEquipment(combatantProperties);
   if (maybeError instanceof Error) return maybeError;
 
-  setExperimentalCombatantProperties(combatantProperties);
+  // setExperimentalCombatantProperties(combatantProperties);
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
+}
+
+function outfitRogue(combatantProperties: CombatantProperties) {
+  combatantProperties.traits.push({ type: CombatantTraitType.CanConvertToShardsManually });
+
+  // const mh = generateSpecificEquipmentType({
+  //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
+  //   baseItemType: OneHandedMeleeWeapon.BroadSword,
+  // });
+}
+
+function outfitMage(combatantProperties: CombatantProperties) {
+  // SPELLS
+  combatantProperties.abilities[AbilityName.Ice] = CombatantAbility.createByName(AbilityName.Ice);
+  // TRAITS
+  combatantProperties.traits.push({
+    type: CombatantTraitType.ExtraConsumablesStorage,
+    capacity: 20,
+  });
+}
+
+function outfitWarrior(combatantProperties: CombatantProperties) {
+  const extraSlotTrait: CombatantTrait = {
+    type: CombatantTraitType.ExtraHotswapSlot,
+    hotswapSlot: new HoldableHotswapSlot(),
+  };
+  // const mh = generateSpecificEquipmentType({
+  //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
+  //   baseItemType: OneHandedMeleeWeapon.BroadSword,
+  // });
+  // if (!(mh instanceof Error))
+  //   extraSlotTrait.hotswapSlot.holdables[HoldableSlotType.MainHand] = mh;
+  // const oh = generateSpecificEquipmentType({
+  //   equipmentType: EquipmentType.Shield,
+  //   baseItemType: Shield.Pavise,
+  // });
+  // if (!(oh instanceof Error)) extraSlotTrait.hotswapSlot.holdables[HoldableSlotType.OffHand] = oh;
+
+  combatantProperties.traits.push(extraSlotTrait);
 }
 
 function giveTestingCombatAttributes(combatantProperties: CombatantProperties) {

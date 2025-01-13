@@ -51,7 +51,7 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       offhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.ButterKnife,
+          baseItemType: OneHandedMeleeWeapon.Dagger,
         },
         true
       );
