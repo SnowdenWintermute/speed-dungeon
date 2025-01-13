@@ -43,6 +43,7 @@ export default function SavedCharacterManager() {
     gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
     });
+    console.log("saved characters sync:", savedCharacters);
   }, [savedCharacters]);
 
   return (

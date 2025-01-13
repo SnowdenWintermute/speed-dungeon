@@ -27,9 +27,11 @@ export async function synchronizeCombatantModelsWithAppState() {
   // delete models which don't appear on the list
   for (const [entityId, model] of Object.entries(modelManager.combatantModels)) {
     if (!modelsAndPositions[entityId]) {
+      console.log("found that", entityId, "does not appear in list of should exist models");
       const maybeError = despawnModularCharacter(gameWorld.current, model);
       if (maybeError instanceof Error) return maybeError;
       delete modelManager.combatantModels[entityId];
+      console.log("removed", entityId, "model manager entry");
       useGameStore.getState().mutateState((state) => {
         delete state.combatantModelLoadingStates[entityId];
       });
@@ -42,6 +44,7 @@ export async function synchronizeCombatantModelsWithAppState() {
     const modelOption = modelManager.combatantModels[entityId];
     if (!modelOption) {
       // start spawning model which we need to
+      console.log("spawning model for", entityId);
 
       useGameStore.getState().mutateState((state) => {
         state.combatantModelLoadingStates[entityId] = true;
@@ -55,6 +58,13 @@ export async function synchronizeCombatantModelsWithAppState() {
         })
       );
     } else {
+      console.log(
+        "model for",
+        entityId,
+        "exists, setting positions",
+        position.startPosition,
+        position.startRotation
+      );
       // move models to correct positions
       modelOption.setHomeRotation(cloneDeep(position.startRotation));
       modelOption.setHomeLocation(cloneDeep(position.startPosition));
@@ -126,12 +136,14 @@ function getModelsAndPositions() {
       };
     }
   } else {
+    console.log("sync models saved chars:", lobbyState.savedCharacters);
     const savedCharacters = lobbyState.savedCharacters;
     // viewing saved characters
     for (const [slot, character] of iterateNumericEnumKeyedRecord(savedCharacters).filter(
       ([_slot, characterOption]) => characterOption !== null
     )) {
       if (!character) return new Error("Failed to meet checked expectation");
+      console.log("adding", character.entityProperties.id, "to models and positions");
       modelsAndPositions[character.entityProperties.id] = {
         combatant: character,
         position: {

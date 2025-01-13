@@ -20,6 +20,7 @@ export class ModelManager {
   }
 
   clearAllModels() {
+    console.log("clearing all models");
     for (const model of Object.values(this.combatantModels)) {
       despawnModularCharacter(this.world, model);
     }
