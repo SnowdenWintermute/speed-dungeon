@@ -14,6 +14,8 @@ import {
   Consumable,
   ConsumableType,
   Equipment,
+  EquipmentBaseItem,
+  EquipmentType,
   Item,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
@@ -183,6 +185,11 @@ export abstract class ItemsMenuState implements ActionMenuState {
             thumbnailOption={thumbnailOption}
             imageHoverStyles="-translate-x-[55px]"
             alternateClickStyle="cursor-alias"
+            equipmentBaseItem={
+              item instanceof Equipment
+                ? item.equipmentBaseItemProperties.taggedBaseEquipment
+                : undefined
+            }
           >
             {buttonText}
             {this.options.getItemButtonCustomChildren &&
@@ -235,6 +242,9 @@ function itemButtonMouseEnterHandler(item: Item) {
   setItemHovered(item);
 }
 
+import AmuletIcon from "../../../../../public/img/equipment-icons/amulet.svg";
+import RingIcon from "../../../../../public/img/equipment-icons/ring-flattened.svg";
+
 export function ItemButtonBody({
   children,
   thumbnailOption,
@@ -243,6 +253,7 @@ export function ItemButtonBody({
   imageExtraStyles,
   imageHoverStyles,
   alternateClickStyle,
+  equipmentBaseItem,
 }: {
   children: ReactNode;
   gradientOverride?: string;
@@ -251,9 +262,21 @@ export function ItemButtonBody({
   imageExtraStyles?: string;
   imageHoverStyles?: string;
   alternateClickStyle?: string;
+  equipmentBaseItem?: EquipmentBaseItem;
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const alternateClickKeyHeld = useUIStore().alternateClickKeyHeld;
+
+  let svgIconOption;
+
+  if (!thumbnailOption) {
+    if (equipmentBaseItem?.equipmentType === EquipmentType.Amulet) {
+      svgIconOption = <AmuletIcon className="h-full fill-slate-400" />;
+    }
+    if (equipmentBaseItem?.equipmentType === EquipmentType.Ring) {
+      svgIconOption = <RingIcon className="h-full fill-slate-400" />;
+    }
+  }
 
   return (
     <div
@@ -270,6 +293,13 @@ export function ItemButtonBody({
           className={`absolute right-0 h-full w-fit -rotate-90 transition-transform ${imageExtraStyles} ${isHovered ? imageHoverStyles : ""}`}
         >
           <img src={thumbnailOption} className="h-full object-fill " />
+        </div>
+      )}
+      {svgIconOption && (
+        <div
+          className={`absolute right-0 w-1 top-1/2 -translate-x-1/2 h-full flex justify-center  transition-transform ${isHovered ? "-translate-x-[50px]" : ""}`}
+        >
+          <div className="w-10 h-10 p-1 -translate-y-1/2 ">{svgIconOption}</div>
         </div>
       )}
       <div

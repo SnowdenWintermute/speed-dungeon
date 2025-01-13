@@ -172,10 +172,10 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   // combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 100;
   // combatantProperties.inherentAttributes[CombatAttribute.Strength] = 100;
   // combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 100;
-  // combatantProperties.inherentAttributes[CombatAttribute.Hp] = 10;
+  combatantProperties.inherentAttributes[CombatAttribute.Hp] = 1000;
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
-  // combatantProperties.inventory.shards = 9999;
+  combatantProperties.inventory.shards = 9999;
   // combatantProperties.inventory.equipment.push(HP_ARMOR_TEST_ITEM);
   // const equippedHoldableHotswapSlot =
   //   CombatantEquipment.getEquippedHoldableSlots(combatantProperties);

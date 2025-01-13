@@ -34,70 +34,77 @@ export function characterPerformedCraftingActionHandler(eventData: {
   const { characterId, item, craftingAction } = eventData;
   let combatLogMessage: CombatLogMessage;
 
-  characterAssociatedDataProvider(characterId, ({ party, character }: CharacterAssociatedData) => {
-    const itemResult = CombatantProperties.getOwnedItemById(
-      character.combatantProperties,
-      item.entityProperties.id
-    );
-    if (itemResult instanceof Error) return itemResult;
+  characterAssociatedDataProvider(
+    characterId,
+    ({ party, character }: CharacterAssociatedData, gameState) => {
+      // used to show loading state so players don't get confused when
+      // their craft action produces exact same item as already was
+      delete gameState.combatantsWithPendingCraftActions[character.entityProperties.id];
 
-    const itemBeforeModification = cloneDeep(itemResult);
-    // distinguish between the crafted and pre-crafted item. used for selecting the item links in the
-    // combat log
-    itemBeforeModification.craftingIteration !== undefined
-      ? (itemBeforeModification.craftingIteration += 1)
-      : (itemBeforeModification.craftingIteration = 0);
-
-    if (itemResult instanceof Equipment && itemBeforeModification instanceof Equipment) {
-      const asInstance = plainToInstance(Equipment, item);
-
-      itemResult.copyFrom(asInstance);
-
-      if (shouldUpdateThumbnailAfterCraft(itemResult)) {
-        gameWorld.current?.imageManager.enqueueMessage({
-          type: ImageManagerRequestType.ItemCreation,
-          item: itemResult,
-        });
-      }
-
-      itemResult.craftingIteration = itemBeforeModification.craftingIteration + 1;
-
-      const actionPrice = getCraftingActionPrice(craftingAction, itemBeforeModification);
-      character.combatantProperties.inventory.shards -= actionPrice;
-
-      // post combat log message about the crafted result with hoverable item inspection link
-      const style = COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE[GameMessageType.CraftingAction];
-      let craftingResultMessage: ReactNode = "";
-
-      const craftedItemLink = <ItemLink item={cloneDeep(itemResult)} />;
-
-      switch (craftingAction) {
-        case CraftingAction.Repair:
-          break;
-        case CraftingAction.Reform:
-        case CraftingAction.Shake:
-          craftingResultMessage = <div> resulting in {craftedItemLink}</div>;
-          break;
-        case CraftingAction.Imbue:
-        case CraftingAction.Augment:
-        case CraftingAction.Tumble:
-          craftingResultMessage = <div> and created {craftedItemLink}</div>;
-      }
-
-      combatLogMessage = new CombatLogMessage(
-        (
-          <div>
-            {character.entityProperties.name} {CRAFTING_ACTION_PAST_TENSE_STRINGS[craftingAction]}{" "}
-            <ItemLink item={itemBeforeModification} />
-            {craftingResultMessage}
-          </div>
-        ),
-        style
+      const itemResult = CombatantProperties.getOwnedItemById(
+        character.combatantProperties,
+        item.entityProperties.id
       );
-    } else {
-      setAlert("Server sent crafting results of a consumable?");
+      if (itemResult instanceof Error) return itemResult;
+
+      const itemBeforeModification = cloneDeep(itemResult);
+      // distinguish between the crafted and pre-crafted item. used for selecting the item links in the
+      // combat log
+      itemBeforeModification.craftingIteration !== undefined
+        ? (itemBeforeModification.craftingIteration += 1)
+        : (itemBeforeModification.craftingIteration = 0);
+
+      if (itemResult instanceof Equipment && itemBeforeModification instanceof Equipment) {
+        const asInstance = plainToInstance(Equipment, item);
+
+        itemResult.copyFrom(asInstance);
+
+        if (shouldUpdateThumbnailAfterCraft(itemResult)) {
+          gameWorld.current?.imageManager.enqueueMessage({
+            type: ImageManagerRequestType.ItemCreation,
+            item: itemResult,
+          });
+        }
+
+        itemResult.craftingIteration = itemBeforeModification.craftingIteration + 1;
+
+        const actionPrice = getCraftingActionPrice(craftingAction, itemBeforeModification);
+        character.combatantProperties.inventory.shards -= actionPrice;
+
+        // post combat log message about the crafted result with hoverable item inspection link
+        const style = COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE[GameMessageType.CraftingAction];
+        let craftingResultMessage: ReactNode = "";
+
+        const craftedItemLink = <ItemLink item={cloneDeep(itemResult)} />;
+
+        switch (craftingAction) {
+          case CraftingAction.Repair:
+            break;
+          case CraftingAction.Reform:
+          case CraftingAction.Shake:
+            craftingResultMessage = <div> resulting in {craftedItemLink}</div>;
+            break;
+          case CraftingAction.Imbue:
+          case CraftingAction.Augment:
+          case CraftingAction.Tumble:
+            craftingResultMessage = <div> and created {craftedItemLink}</div>;
+        }
+
+        combatLogMessage = new CombatLogMessage(
+          (
+            <div>
+              {character.entityProperties.name} {CRAFTING_ACTION_PAST_TENSE_STRINGS[craftingAction]}{" "}
+              <ItemLink item={itemBeforeModification} />
+              {craftingResultMessage}
+            </div>
+          ),
+          style
+        );
+      } else {
+        setAlert("Server sent crafting results of a consumable?");
+      }
     }
-  });
+  );
 
   useGameStore.getState().mutateState((state) => {
     state.combatLogMessages.push(combatLogMessage);

@@ -60,7 +60,18 @@ export default function getMonsterTraits(monsterType: MonsterType): CombatantTra
         },
       ];
     case MonsterType.Cultist:
-      return [];
+      return [
+        {
+          type: CombatantTraitType.ElementalAffinity,
+          element: MagicalElement.Light,
+          percent: 100,
+        },
+        {
+          type: CombatantTraitType.ElementalAffinity,
+          element: MagicalElement.Earth,
+          percent: -75,
+        },
+      ];
     case MonsterType.FireElemental:
       return [
         {
@@ -118,7 +129,18 @@ export default function getMonsterTraits(monsterType: MonsterType): CombatantTra
         },
       ];
     case MonsterType.FireMage:
-      return [];
+      return [
+        {
+          type: CombatantTraitType.ElementalAffinity,
+          element: MagicalElement.Fire,
+          percent: 75,
+        },
+        {
+          type: CombatantTraitType.ElementalAffinity,
+          element: MagicalElement.Water,
+          percent: -100,
+        },
+      ];
     case MonsterType.MetallicGolem:
       return [];
   }

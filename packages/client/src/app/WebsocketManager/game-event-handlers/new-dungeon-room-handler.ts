@@ -11,6 +11,7 @@ import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { Vector3 } from "@babylonjs/core";
 import {
+  CombatantProperties,
   Consumable,
   DungeonRoom,
   DungeonRoomType,
@@ -45,8 +46,11 @@ export default function newDungeonRoomHandler(room: DungeonRoom) {
 
     gameState.hoveredEntity = null;
 
-    for (const monster of Object.values(party.currentRoom.monsters))
+    for (const monster of Object.values(party.currentRoom.monsters)) {
       updateCombatantHomePosition(monster.entityProperties.id, monster.combatantProperties, party);
+      CombatantProperties.instantiateItemClasses(monster.combatantProperties);
+    }
+
     party.roomsExplored.onCurrentFloor += 1;
     party.roomsExplored.total += 1;
     const indexOfRoomTypeToReveal = party.roomsExplored.onCurrentFloor - 1;

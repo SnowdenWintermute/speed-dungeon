@@ -81,6 +81,10 @@ export class CraftingItemMenuState implements ActionMenuState {
         ),
         buttonName,
         () => {
+          useGameStore.getState().mutateState((state) => {
+            state.combatantsWithPendingCraftActions[focusedCharacterResult.entityProperties.id] =
+              true;
+          });
           websocketConnection.emit(ClientToServerEvent.PerformCraftingAction, {
             characterId: focusedCharacterResult.entityProperties.id,
             itemId,
@@ -91,7 +95,10 @@ export class CraftingItemMenuState implements ActionMenuState {
       button.shouldBeDisabled =
         !userControlsThisCharacter ||
         actionPrice > focusedCharacterResult.combatantProperties.inventory.shards ||
-        CRAFTING_ACTION_DISABLED_CONDITIONS[craftingAction](this.item, partyResult.currentFloor);
+        CRAFTING_ACTION_DISABLED_CONDITIONS[craftingAction](this.item, partyResult.currentFloor) ||
+        !!useGameStore.getState().combatantsWithPendingCraftActions[
+          focusedCharacterResult.entityProperties.id
+        ];
       toReturn[ActionButtonCategory.Numbered].push(button);
     }
 

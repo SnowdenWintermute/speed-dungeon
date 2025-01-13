@@ -42,6 +42,7 @@ export default function HotswapSlotButtons({
       characterId: focusedCharacterId,
       slotIndex: newIndex,
     });
+
     if (newIndex !== selectedSlotIndex) {
       prevSlotIndexRef.current = selectedSlotIndex;
       setWaitingForIndexChange(true);
@@ -49,7 +50,9 @@ export default function HotswapSlotButtons({
   }
 
   useEffect(() => {
-    if (selectedSlotIndex !== prevSlotIndexRef.current) setWaitingForIndexChange(false);
+    if (selectedSlotIndex !== prevSlotIndexRef.current) {
+      setWaitingForIndexChange(false);
+    }
   }, [selectedSlotIndex]);
 
   useEffect(() => {

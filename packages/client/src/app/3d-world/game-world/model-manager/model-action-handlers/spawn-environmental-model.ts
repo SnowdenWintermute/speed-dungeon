@@ -63,7 +63,6 @@ export async function spawnEnvironmentModel(
         }
       }
       for (const material of oldMaterials) {
-        console.log("disposing", material.name);
         material.dispose(true, true, false);
       }
     }
