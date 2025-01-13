@@ -13,10 +13,15 @@ import {
   CombatantTraitType,
   HoldableHotswapSlot,
   CombatantTrait,
+  EquipmentType,
+  OneHandedMeleeWeapon,
+  HoldableSlotType,
+  Shield,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { createConsumableByType } from "./create-consumable-by-type.js";
+import { generateSpecificEquipmentType } from "./generate-test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -82,19 +87,31 @@ function outfitWarrior(combatantProperties: CombatantProperties) {
     type: CombatantTraitType.ExtraHotswapSlot,
     hotswapSlot: new HoldableHotswapSlot(),
   };
-  // const mh = generateSpecificEquipmentType({
-  //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
-  //   baseItemType: OneHandedMeleeWeapon.BroadSword,
-  // });
-  // if (!(mh instanceof Error))
-  //   extraSlotTrait.hotswapSlot.holdables[HoldableSlotType.MainHand] = mh;
-  // const oh = generateSpecificEquipmentType({
-  //   equipmentType: EquipmentType.Shield,
-  //   baseItemType: Shield.Pavise,
-  // });
-  // if (!(oh instanceof Error)) extraSlotTrait.hotswapSlot.holdables[HoldableSlotType.OffHand] = oh;
-
   combatantProperties.traits.push(extraSlotTrait);
+
+  // if (!(oh instanceof Error)) extraSlotTrait.hotswapSlot.holdables[HoldableSlotType.OffHand] = oh;
+}
+
+function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
+  const mh = generateSpecificEquipmentType({
+    equipmentType: EquipmentType.OneHandedMeleeWeapon,
+    baseItemType: OneHandedMeleeWeapon.RoseWand,
+  });
+  if (!(mh instanceof Error)) {
+    if (combatantProperties.equipment.inherentHoldableHotswapSlots[1])
+      combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
+        HoldableSlotType.MainHand
+      ] = mh;
+    const oh = generateSpecificEquipmentType({
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.YewWand,
+    });
+    if (!(oh instanceof Error))
+      if (combatantProperties.equipment.inherentHoldableHotswapSlots[1])
+        combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
+          HoldableSlotType.OffHand
+        ] = oh;
+  }
 }
 
 function giveTestingCombatAttributes(combatantProperties: CombatantProperties) {
@@ -104,6 +121,7 @@ function giveTestingCombatAttributes(combatantProperties: CombatantProperties) {
 }
 
 function setExperimentalCombatantProperties(combatantProperties: CombatantProperties) {
+  giveHotswapSlotEquipment(combatantProperties);
   // FOR TESTING INVENTORY
   // generateTestItems(combatantProperties, 6);
   // const item1 = generateSpecificEquipmentType(

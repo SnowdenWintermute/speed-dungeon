@@ -114,7 +114,6 @@ function setHoldableToMainhandHolsteredPosition(
   const { equipmentType, baseItemType } = equipment.equipmentBaseItemProperties.taggedBaseEquipment;
   if (equipmentIsTwoHandedWeapon(equipmentType)) {
     if (combatantClass === CombatantClass.Warrior) parentMesh.position.z = 0.25;
-
     parentMesh.position.z = 0.14;
   } else parentMesh.position.z = -0.1;
 
@@ -166,7 +165,12 @@ function setHoldableToMainhandHolsteredPosition(
     equipmentType === EquipmentType.OneHandedMeleeWeapon &&
     shouldHolsterAtHip(equipment.equipmentBaseItemProperties.taggedBaseEquipment)
   ) {
-    setMeshToHipPostition(parentMesh, hipsBone, false);
+    setMeshToHipPostition(
+      parentMesh,
+      hipsBone,
+      false,
+      equipment.equipmentBaseItemProperties.taggedBaseEquipment
+    );
   } else {
     parentMesh.position.y = 0.3;
 
@@ -191,9 +195,13 @@ function setHoldableToOffhandHolsteredPosition(
     parentMesh.rotation.z = -Math.PI + 0.5;
     parentMesh.rotation.x = -Math.PI;
     parentMesh.rotation.y = -Math.PI;
-  }
-  if (shouldHolsterAtHip(equipment.equipmentBaseItemProperties.taggedBaseEquipment)) {
-    setMeshToHipPostition(parentMesh, hipsBone, true);
+  } else if (shouldHolsterAtHip(equipment.equipmentBaseItemProperties.taggedBaseEquipment)) {
+    setMeshToHipPostition(
+      parentMesh,
+      hipsBone,
+      true,
+      equipment.equipmentBaseItemProperties.taggedBaseEquipment
+    );
   } else {
     parentMesh.position.y = 0.3;
     parentMesh.position.x = -0.1;
@@ -204,9 +212,24 @@ function setHoldableToOffhandHolsteredPosition(
   }
 }
 
-function setMeshToHipPostition(parentMesh: AbstractMesh, hipsBone: Node, isOffhand: boolean) {
+function setMeshToHipPostition(
+  parentMesh: AbstractMesh,
+  hipsBone: Node,
+  isOffhand: boolean,
+  taggedBaseEquipment: EquipmentBaseItem
+) {
   // HIP POSITIONS
-  parentMesh.position.z = 0.2;
+  const { equipmentType, baseItemType } = taggedBaseEquipment;
+  if (equipmentType === EquipmentType.OneHandedMeleeWeapon) {
+    if (baseItemType === OneHandedMeleeWeapon.Dagger) {
+      parentMesh.position.z = 0.15;
+    } else if (baseItemType === OneHandedMeleeWeapon.ButterKnife) {
+      parentMesh.position.z = 0.05;
+    } else {
+      parentMesh.position.z = 0.2;
+    }
+  } else parentMesh.position.z = 0.2;
+
   parentMesh.position.y = 0.1;
 
   if (isOffhand) {
