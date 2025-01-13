@@ -76,7 +76,7 @@ export const SHIELD_EQUIPMENT_GENERATION_TEMPLATES: Record<Shield, ShieldGenerat
           template.size = ShieldSize.Small;
           template.maxDurability = 4;
           break;
-        case Shield.MakeshiftBuckler:
+        case Shield.CabinetDoor:
           template.levelRange = new NumberRange(1, 3);
           template.acRange = new NumberRange(2, 6);
           template.size = ShieldSize.Small;

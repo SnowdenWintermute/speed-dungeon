@@ -288,7 +288,7 @@ export function assignEquipmentMaterials(
       break;
     case EquipmentType.Shield:
       switch (equipmentBaseItemProperties.taggedBaseEquipment.baseItemType) {
-        case Shield.MakeshiftBuckler:
+        case Shield.CabinetDoor:
           materials = {
             [MATERIAL_NAMES.MAIN]: savedMaterials.wood[LightestToDarkest.Darker],
             [MATERIAL_NAMES.ALTERNATE]: savedMaterials.wood[LightestToDarkest.Medium],

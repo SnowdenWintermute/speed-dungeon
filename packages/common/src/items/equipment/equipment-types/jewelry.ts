@@ -16,5 +16,5 @@ export function formatRing(ring: Ring) {
 }
 
 export function formatAmulet(amulet: Amulet) {
-  return "Ring";
+  return "Amulet";
 }

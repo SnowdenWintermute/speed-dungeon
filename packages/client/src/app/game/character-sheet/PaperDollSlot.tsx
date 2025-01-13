@@ -4,6 +4,7 @@ import setItemHovered from "@/utils/set-item-hovered";
 import {
   CombatantAttributeRecord,
   Equipment,
+  EquipmentType,
   Item,
   TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
@@ -11,6 +12,8 @@ import React, { useMemo } from "react";
 import { ConsideringItemMenuState } from "../ActionMenu/menu-state/considering-item";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import isEqual from "lodash.isequal";
+import RingIcon from "../../../../public/img/equipment-icons/ring-flattened.svg";
+import AmuletIcon from "../../../../public/img/equipment-icons/amulet.svg";
 
 interface Props {
   itemOption: null | Equipment;
@@ -42,6 +45,10 @@ export default function PaperDollSlot({
 
   const itemDisplay = thumbnailOption ? (
     <img src={thumbnailOption} className={"max-h-full"} />
+  ) : itemOption?.equipmentBaseItemProperties.equipmentType === EquipmentType.Ring ? (
+    <RingIcon className="h-full fill-slate-400 " />
+  ) : itemOption?.equipmentBaseItemProperties.equipmentType === EquipmentType.Amulet ? (
+    <AmuletIcon className="max-w-10 object-contain fill-slate-400 " />
   ) : (
     <div className={itemOption && Equipment.isMagical(itemOption) ? "text-blue-300" : ""}>
       {itemNameDisplay}
@@ -97,7 +104,7 @@ export default function PaperDollSlot({
 
   return (
     <button
-      className={`overflow-ellipsis overflow-hidden border flex items-center justify-center p-4 ${tailwindClasses} ${highlightStyle} ${bgStyle} ${disabledStyle}`}
+      className={`overflow-ellipsis overflow-hidden border flex items-center justify-center p-1 ${tailwindClasses} ${highlightStyle} ${bgStyle} ${disabledStyle}`}
       onMouseEnter={handleFocus}
       onMouseLeave={handleBlur}
       onFocus={handleFocus}

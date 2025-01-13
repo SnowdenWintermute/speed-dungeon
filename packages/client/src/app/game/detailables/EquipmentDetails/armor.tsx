@@ -1,10 +1,4 @@
-import {
-  AffixType,
-  Equipment,
-  PrefixType,
-  SuffixType,
-  getModifiedArmorClass,
-} from "@speed-dungeon/common";
+import { AffixType, Equipment, PrefixType, SuffixType } from "@speed-dungeon/common";
 import { formatArmorCategory } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
 
@@ -36,6 +30,6 @@ export function ArmorClassText({ equipment }: { equipment: Equipment }) {
     );
     let modifiedAcStyle = acIsModified ? "text-blue-300" : "";
 
-    return <div className={modifiedAcStyle}>{modifiedArmorClass}</div>;
+    return <div className={modifiedAcStyle}>Armor Class: {modifiedArmorClass} </div>;
   } else return <></>;
 }

@@ -1,10 +1,12 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import {
+  Amulet,
   CONSUMABLE_TYPE_STRINGS,
   CombatActionType,
   Consumable,
   ConsumableType,
   Equipment,
+  EquipmentType,
   Item,
 } from "@speed-dungeon/common";
 import React, { useRef } from "react";
@@ -21,6 +23,8 @@ import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 import SwordIcon from "../../../../public/img/equipment-icons/1h-sword-a.svg";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import RingIcon from "../../../../public/img/equipment-icons/ring-flattened.svg";
+import AmuletIcon from "../../../../public/img/equipment-icons/amulet.svg";
 import { HOTKEYS } from "@/hotkeys";
 
 interface Props {
@@ -66,6 +70,12 @@ export default function ItemDetails({
     if (item instanceof Equipment) {
       itemDetailsDisplay = <EquipmentDetails equipment={item} />;
       thumbnailIdOption = item.entityProperties.id;
+      if (item.equipmentBaseItemProperties.equipmentType === EquipmentType.Ring) {
+        svgThumbnailOption = <RingIcon className="fill-slate-400" />;
+      }
+      if (item.equipmentBaseItemProperties.equipmentType === EquipmentType.Amulet) {
+        svgThumbnailOption = <AmuletIcon className="fill-slate-400" />;
+      }
     } else if (item instanceof Consumable) {
       BG_COLOR = "bg-slate-700";
       thumbnailIdOption = CONSUMABLE_TYPE_STRINGS[item.consumableType];

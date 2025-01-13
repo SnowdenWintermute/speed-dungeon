@@ -61,13 +61,21 @@ export function equipItem(
             const equippedHotswapSlot =
               CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
             if (!equippedHotswapSlot) return [];
+
             const itemInMainHandOption = equippedHotswapSlot.holdables[HoldableSlotType.MainHand];
+
             if (itemInMainHandOption !== undefined) {
-              if (Equipment.isTwoHanded(equipmentType))
+              if (
+                Equipment.isTwoHanded(equipmentType) ||
+                Equipment.isTwoHanded(
+                  itemInMainHandOption.equipmentBaseItemProperties.equipmentType
+                )
+              ) {
                 return [
                   { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
                   { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
                 ];
+              }
             }
             return [slot];
         }

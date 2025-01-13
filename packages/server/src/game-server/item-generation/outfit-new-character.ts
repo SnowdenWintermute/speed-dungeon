@@ -17,6 +17,9 @@ import {
   OneHandedMeleeWeapon,
   HoldableSlotType,
   Shield,
+  Ring,
+  WearableSlotType,
+  Amulet,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
@@ -58,7 +61,7 @@ export default function outfitNewCharacter(character: Combatant) {
   const maybeError = createStartingEquipment(combatantProperties);
   if (maybeError instanceof Error) return maybeError;
 
-  // setExperimentalCombatantProperties(combatantProperties);
+  setExperimentalCombatantProperties(combatantProperties);
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
 }
@@ -103,8 +106,8 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
         HoldableSlotType.MainHand
       ] = mh;
     const oh = generateSpecificEquipmentType({
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.YewWand,
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.CabinetDoor,
     });
     if (!(oh instanceof Error))
       if (combatantProperties.equipment.inherentHoldableHotswapSlots[1])
@@ -121,7 +124,21 @@ function giveTestingCombatAttributes(combatantProperties: CombatantProperties) {
 }
 
 function setExperimentalCombatantProperties(combatantProperties: CombatantProperties) {
-  // giveHotswapSlotEquipment(combatantProperties);
+  giveHotswapSlotEquipment(combatantProperties);
+  const ring = generateSpecificEquipmentType({
+    equipmentType: EquipmentType.Ring,
+    baseItemType: Ring.Ring,
+  });
+  if (ring instanceof Error) return;
+  combatantProperties.equipment.wearables[WearableSlotType.RingL] = ring;
+
+  const amulet = generateSpecificEquipmentType({
+    equipmentType: EquipmentType.Amulet,
+    baseItemType: Amulet.Amulet,
+  });
+  if (amulet instanceof Error) return;
+  combatantProperties.equipment.wearables[WearableSlotType.Amulet] = amulet;
+
   // FOR TESTING INVENTORY
   // generateTestItems(combatantProperties, 6);
   // const item1 = generateSpecificEquipmentType(
