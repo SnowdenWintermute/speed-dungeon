@@ -30,6 +30,7 @@ import { BottomButtons } from "./BottomButtons";
 import { ConfirmShardConversionDisplay } from "./ConfirmShardConversionDisplay";
 import ConsideringItemDisplay from "./ConsideringItemDisplay";
 import VendingMachineShardDisplay from "./VendingMachineShardDisplay";
+import StackedMenuStateDisplay from "./StackedMenuStateDisplay";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
@@ -147,6 +148,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   return (
     <section className={`flex flex-col justify-between `}>
       <CharacterFocusingButtons />
+      <StackedMenuStateDisplay />
       <ul
         className={`flex list-none min-w-[25rem] max-w-[25rem] relative`}
         style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
