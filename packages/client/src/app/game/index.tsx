@@ -81,7 +81,7 @@ export default function Game() {
                   <CombatantPlaqueGroup
                     party={party}
                     combatantIds={party.characterPositions}
-                    showExperience={true}
+                    isPlayerControlled={true}
                   />
                 </div>
               </div>

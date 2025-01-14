@@ -1,11 +1,12 @@
-import { AdventuringParty } from "@speed-dungeon/common";
+import { AdventuringParty, NextOrPrevious } from "@speed-dungeon/common";
 import React from "react";
 import CombatantPlaque from "./CombatantPlaque";
+import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 
 interface Props {
   party: AdventuringParty;
   combatantIds: string[];
-  showExperience: boolean;
+  isPlayerControlled: boolean;
 }
 
 export default function CombatantPlaqueGroup(props: Props) {
@@ -17,7 +18,10 @@ export default function CombatantPlaqueGroup(props: Props) {
         else
           return (
             <li key={`plaque-${id}`} className="mr-4 last:mr-0 box-border">
-              <CombatantPlaque combatant={combatantResult} showExperience={props.showExperience} />
+              <CombatantPlaque
+                combatant={combatantResult}
+                showExperience={props.isPlayerControlled}
+              />
             </li>
           );
       })}
