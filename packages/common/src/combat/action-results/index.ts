@@ -17,6 +17,7 @@ import applyConsumableUseToActionResult from "./apply-consumable-use-to-action-r
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import calculateActionHitPointChangesAndEvasions from "./hp-change-result-calculation/index.js";
 import { getCombatActionTargetIds } from "./get-action-target-ids.js";
+import { calculateActionDurabiliyChanges } from "./calculate-action-durability-changes.js";
 export * from "./get-action-target-ids.js";
 
 export default function calculateActionResult(

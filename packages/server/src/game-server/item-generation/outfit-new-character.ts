@@ -20,11 +20,12 @@ import {
   Ring,
   WearableSlotType,
   Amulet,
+  Equipment,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
 import { createConsumableByType } from "./create-consumable-by-type.js";
-import { generateSpecificEquipmentType } from "./generate-test-items.js";
+import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -61,7 +62,7 @@ export default function outfitNewCharacter(character: Combatant) {
   const maybeError = createStartingEquipment(combatantProperties);
   if (maybeError instanceof Error) return maybeError;
 
-  // setExperimentalCombatantProperties(combatantProperties);
+  setExperimentalCombatantProperties(combatantProperties);
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
 }
@@ -167,8 +168,8 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   combatantProperties.abilities[AbilityName.Destruction] = CombatantAbility.createByName(
     AbilityName.Destruction
   );
-  // const items = generateOneOfEachItem();
-  // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
+  const items = generateOneOfEachItem();
+  combatantProperties.inventory.equipment.push(...(items as Equipment[]));
   combatantProperties.unspentAttributePoints = 100;
   // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
   // combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 100;
