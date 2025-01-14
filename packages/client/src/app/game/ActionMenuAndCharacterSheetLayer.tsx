@@ -8,6 +8,8 @@ import { useGameStore } from "@/stores/game-store";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
 import { SPACING_REM } from "@/client_consts";
 import { ZIndexLayers } from "../z-index-layers";
+import ItemCraftDisplay from "./item-crafting/ItemCraftingDisplay";
+import { CraftingItemMenuState } from "./ActionMenu/menu-state/crafting-item";
 
 export default function ActionMenuAndCharacterSheetLayer({ party }: { party: AdventuringParty }) {
   const currentMenu = useGameStore.getState().getCurrentMenu();
@@ -21,10 +23,18 @@ export default function ActionMenuAndCharacterSheetLayer({ party }: { party: Adv
       ${viewingCharacterSheet && "justify-end"}
       `}
     >
-      <div className={`pl-4 pr-4 flex flex-col w-fit relative overflow-auto `}>
-        <div className={`flex items-end w-fit`} style={{ marginBottom: `${SPACING_REM}rem` }}>
-          <div style={{ marginRight: `${SPACING_REM}rem` }}>
+      <div className={`pl-4 pr-4 flex flex-col relative overflow-auto `}>
+        <div className={`flex items-end w-full`} style={{ marginBottom: `${SPACING_REM}rem` }}>
+          <div style={{ marginRight: `${SPACING_REM}rem` }} className="flex">
             <ActionMenu inputLocked={InputLock.isLocked(party.inputLock)} />
+
+            {currentMenu instanceof CraftingItemMenuState && (
+              <div className="ml-3 h-1 w-fit">
+                <div className="fixed">
+                  <ItemCraftDisplay />
+                </div>
+              </div>
+            )}
           </div>
           <CharacterSheet showCharacterSheet={viewingCharacterSheet} />
         </div>

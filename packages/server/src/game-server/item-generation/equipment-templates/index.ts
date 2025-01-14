@@ -1,4 +1,10 @@
-import { EquipmentBaseItem, EquipmentType, Jewelry } from "@speed-dungeon/common";
+import {
+  Amulet,
+  EQUIPMENT_TYPE_STRINGS,
+  EquipmentBaseItem,
+  EquipmentType,
+  Ring,
+} from "@speed-dungeon/common";
 import { ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "./one-handed-melee-weapon-templates.js";
 import { SHIELD_EQUIPMENT_GENERATION_TEMPLATES } from "./shield-templates.js";
 import { TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "./two-handed-melee-weapon-templates.js";
@@ -6,8 +12,11 @@ import { TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES } from "./two-handed-r
 import { BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES } from "./body-armor-generation-templates.js";
 import { HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES } from "./head-gear-generation-templates.js";
 import { JewelryGenerationTemplate } from "./jewelry-generation-templates.js";
+import { EquipmentGenerationTemplate } from "./equipment-generation-template-abstract-classes.js";
 
-export function getEquipmentGenerationTemplate(equipmentBaseItem: EquipmentBaseItem) {
+export function getEquipmentGenerationTemplate(
+  equipmentBaseItem: EquipmentBaseItem
+): EquipmentGenerationTemplate {
   switch (equipmentBaseItem.equipmentType) {
     case EquipmentType.BodyArmor:
       return BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES[equipmentBaseItem.baseItemType];
@@ -16,12 +25,12 @@ export function getEquipmentGenerationTemplate(equipmentBaseItem: EquipmentBaseI
     case EquipmentType.Ring:
       return new JewelryGenerationTemplate({
         equipmentType: EquipmentType.Ring,
-        baseItemType: Jewelry.Ring,
+        baseItemType: Ring.Ring,
       });
     case EquipmentType.Amulet:
       return new JewelryGenerationTemplate({
         equipmentType: EquipmentType.Amulet,
-        baseItemType: Jewelry.Amulet,
+        baseItemType: Amulet.Amulet,
       });
     case EquipmentType.OneHandedMeleeWeapon:
       return ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES[equipmentBaseItem.baseItemType];

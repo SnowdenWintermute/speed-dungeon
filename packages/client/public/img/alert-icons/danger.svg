@@ -6,26 +6,8 @@
    version="1.1"
    id="danger"
    xml:space="preserve"
-   inkscape:export-filename="alert icon inkscape.svg"
-   inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
-     id="namedview7"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:document-units="mm"
-     showgrid="false" /><defs
-     id="defs2" /><g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
+   xmlns:svg="http://www.w3.org/2000/svg">><g
      id="layer1"
      transform="translate(-106.59486,-166.02282)"><g
        id="g18"
@@ -34,6 +16,4 @@
          clip-rule="evenodd"
          d="M 7.90631,0 0,13.6941 3.49637,19.75 H 18.3161 L 21.864,13.605 14.0091,0 Z M 9.84504,4.72888 H 12.0704 V 12.5176 H 9.84504 Z M 12.0704,14.7429 H 9.84504 v 2.2254 h 2.22536 z"
          id="path9"
-         inkscape:export-filename="path9.svg"
-         inkscape:export-xdpi="96"
-         inkscape:export-ydpi="96" /></g></g></svg>
+         /></g></g></svg>

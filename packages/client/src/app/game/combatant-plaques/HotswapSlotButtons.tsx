@@ -42,6 +42,7 @@ export default function HotswapSlotButtons({
       characterId: focusedCharacterId,
       slotIndex: newIndex,
     });
+
     if (newIndex !== selectedSlotIndex) {
       prevSlotIndexRef.current = selectedSlotIndex;
       setWaitingForIndexChange(true);
@@ -49,7 +50,9 @@ export default function HotswapSlotButtons({
   }
 
   useEffect(() => {
-    if (selectedSlotIndex !== prevSlotIndexRef.current) setWaitingForIndexChange(false);
+    if (selectedSlotIndex !== prevSlotIndexRef.current) {
+      setWaitingForIndexChange(false);
+    }
   }, [selectedSlotIndex]);
 
   useEffect(() => {
@@ -68,7 +71,10 @@ export default function HotswapSlotButtons({
 
   return (
     <div className={className}>
-      <HoverableTooltipWrapper tooltipText={"Select weapon swap slot (X, C)"}>
+      <HoverableTooltipWrapper
+        extraStyles="cursor-help"
+        tooltipText={"Select weapon swap slot (X, C)"}
+      >
         <div
           className={`bg-slate-700 h-6 w-6 p-1 ${vertical ? "border-b" : "border-r"} border-slate-400`}
         >

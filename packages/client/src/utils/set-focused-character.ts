@@ -21,7 +21,11 @@ export default function setFocusedCharacter(id: string) {
     gameState.focusedCharacterId = id;
     let currentMenu = getCurrentMenu(gameState);
 
-    if (!shouldShowCharacterSheet(currentMenu.type)) gameState.stackedMenuStates = [];
+    if (
+      !shouldShowCharacterSheet(currentMenu.type) &&
+      currentMenu.type !== MenuStateType.ItemsOnGround
+    )
+      gameState.stackedMenuStates = [];
     if (currentMenu.type === MenuStateType.ItemSelected) {
       gameState.stackedMenuStates.pop();
     }

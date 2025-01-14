@@ -100,6 +100,7 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         case SuffixType.Strength:
         case SuffixType.Vitality:
         case SuffixType.Durability:
+        case SuffixType.PercentArmorClass:
           template.possibleAffixes.suffix[suffix] = 5;
       }
     }
@@ -116,7 +117,7 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.acRange = new NumberRange(2, 6);
         break;
       case BodyArmor.Cape:
-        template.levelRange = new NumberRange(1, 4);
+        template.levelRange = new NumberRange(2, 4);
         template.acRange = new NumberRange(5, 10);
         break;
       case BodyArmor.Cloak:
@@ -135,17 +136,17 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.requirements[CombatAttribute.Intelligence] = 19;
         break;
       case BodyArmor.LeatherArmor:
-        template.levelRange = new NumberRange(1, 5);
+        template.levelRange = new NumberRange(3, 5);
         template.acRange = new NumberRange(15, 22);
-        template.requirements[CombatAttribute.Dexterity] = 3;
+        template.requirements[CombatAttribute.Dexterity] = 5;
         break;
       case BodyArmor.HardLeatherArmor:
-        template.levelRange = new NumberRange(3, 7);
+        template.levelRange = new NumberRange(5, 7);
         template.acRange = new NumberRange(25, 35);
         template.requirements[CombatAttribute.Dexterity] = 7;
         break;
       case BodyArmor.StuddedLeatherArmor:
-        template.levelRange = new NumberRange(5, 8);
+        template.levelRange = new NumberRange(6, 8);
         template.acRange = new NumberRange(30, 45);
         template.requirements[CombatAttribute.Dexterity] = 11;
         break;

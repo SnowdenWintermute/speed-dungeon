@@ -16,7 +16,14 @@ import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicated
 import NumberedButton from "./action-menu-buttons/NumberedButton";
 import setFocusedCharacter from "@/utils/set-focused-character";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { Consumable, Item, NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
+import {
+  Consumable,
+  Item,
+  NextOrPrevious,
+  combatantIsAllowedToConvertItemsToShards,
+  getItemSellPrice,
+  getNextOrPreviousNumber,
+} from "@speed-dungeon/common";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { VIEW_LOOT_BUTTON_TEXT } from "./menu-state/base";
@@ -28,20 +35,46 @@ import {
 import ItemDetailsWithComparison from "../ItemDetailsWithComparison";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
 import Divider from "@/app/components/atoms/Divider";
+import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import {
+  CONFIRM_SHARD_TEXT,
+  ConfirmConvertToShardsMenuState,
+} from "./menu-state/confirm-convert-to-shards";
+import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
+import { playerIsOperatingVendingMachine } from "@/utils/player-is-operating-vending-machine";
+import { ShardsDisplay } from "../character-sheet/ShardsDisplay";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import DropShardsModal from "../character-sheet/DropShardsModal";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
+export const SHARD_ITEM_HOTKEY = HOTKEYS.SIDE_2;
+
+const buttonTitlesToAccent = [
+  VIEW_LOOT_BUTTON_TEXT,
+  EXECUTE_BUTTON_TEXT,
+  USE_CONSUMABLE_BUTTON_TEXT,
+  EQUIP_ITEM_BUTTON_TEXT,
+  CONFIRM_SHARD_TEXT,
+];
 
 export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   const hoveredAction = useGameStore((state) => state.hoveredAction);
   const hoveredItem = useGameStore((state) =>
     state.hoveredEntity instanceof Item ? state.hoveredEntity : null
   );
+  const detailedItem = useGameStore((state) =>
+    state.detailedEntity instanceof Item ? state.detailedEntity : null
+  );
   const currentMenu = useGameStore.getState().getCurrentMenu();
   const buttonProperties = currentMenu.getButtonProperties();
   const numberOfNumberedButtons = buttonProperties[ActionButtonCategory.Numbered].length;
   const mutateGameState = useGameStore().mutateState;
   const viewingCharacterSheet = shouldShowCharacterSheet(currentMenu.type);
+  const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
+  const partyResult = useGameStore.getState().getParty();
+  if (focusedCharacterResult instanceof Error || partyResult instanceof Error) return <></>;
+  const viewingDropShardsModal = useGameStore().viewingDropShardsModal;
 
   useEffect(() => {
     if (currentMenu.type === MenuStateType.ItemsOnGround && numberOfNumberedButtons === 0) {
@@ -83,6 +116,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
 
   let detailedItemDisplay = <></>;
   if (currentMenu instanceof ConsideringItemMenuState) {
+    const shardReward = getItemSellPrice(currentMenu.item);
     detailedItemDisplay = (
       <div
         className="min-w-[25rem] max-w-[25rem]"
@@ -96,6 +130,54 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
           ) : (
             <div>Equipping this item will swap it with any currently equipped item</div>
           )}
+          {combatantIsAllowedToConvertItemsToShards(
+            focusedCharacterResult.combatantProperties,
+            partyResult.currentRoom.roomType
+          ) && (
+            <div className="mt-4">
+              <HotkeyButton
+                className="border border-slate-400 w-full p-2 pl-3 pr-3 hover:bg-slate-950"
+                hotkeys={[SHARD_ITEM_HOTKEY]}
+                onClick={() =>
+                  mutateGameState((state) => {
+                    state.stackedMenuStates.push(
+                      new ConfirmConvertToShardsMenuState(
+                        currentMenu.item,
+                        MenuStateType.ItemSelected
+                      )
+                    );
+                  })
+                }
+              >
+                <span>
+                  ({letterFromKeyCode(SHARD_ITEM_HOTKEY)}) Convert to {shardReward}{" "}
+                  <ShardsIcon className="fill-slate-400 h-6 inline" />
+                </span>
+              </HotkeyButton>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (currentMenu instanceof ConfirmConvertToShardsMenuState) {
+    detailedItemDisplay = (
+      <div
+        className="min-w-[25rem] max-w-[25rem]"
+        style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
+      >
+        <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex flex-col items-center pointer-events-auto">
+          <div className="">{currentMenu.item.entityProperties.name}</div>
+          <Divider extraStyles="w-full" />
+
+          <span className="text-lg bg-slate-700 mb-1">
+            Convert to {getItemSellPrice(currentMenu.item)} shards?
+          </span>
+          <span className="text-yellow-400 mb-2">This will PERMANENTLY DESTROY the item! </span>
+          <div className="relative">
+            <ShardsIcon className="fill-yellow-400 h-10" />
+          </div>
         </div>
       </div>
     );
@@ -112,11 +194,28 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
     );
   }
 
-  let hoveredItemDisplay: ReactNode | null = null;
-  if (!viewingCharacterSheet && hoveredItem) {
+  let hoveredItemDisplay: ReactNode | null = (
+    <div
+      style={{
+        height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem`,
+      }}
+    ></div>
+  );
+  if (
+    !viewingCharacterSheet &&
+    (hoveredItem ||
+      (detailedItem &&
+        currentMenu.type !== MenuStateType.CraftingActionSelection &&
+        currentMenu.type !== MenuStateType.CombatActionSelected))
+  ) {
     hoveredItemDisplay = (
-      <div className="pl-2">
-        <div className="min-w-[50rem] max-w-[50rem]">
+      <div className="ml-3 h-0 w-0">
+        <div
+          className="fixed min-w-[50rem] max-w-[50rem]"
+          style={{
+            height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem`,
+          }}
+        >
           <ItemDetailsWithComparison />
         </div>
       </div>
@@ -124,28 +223,29 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   }
 
   return (
-    <section className={`max-h-fit flex flex-col justify-between`}>
+    <section className={`flex flex-col justify-between `}>
       <CharacterFocusingButtons />
       <ul
-        className={`flex list-none min-w-[25rem] max-w-[25rem]`}
+        className={`flex list-none min-w-[25rem] max-w-[25rem] relative`}
         style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
       >
+        {buttonProperties[ActionButtonCategory.Hidden].map((button, i) => (
+          <div className="hidden" key={button.key}>
+            <HotkeyButton hotkeys={button.dedicatedKeys} onClick={button.clickHandler}>
+              <></>
+            </HotkeyButton>
+          </div>
+        ))}
         {buttonProperties[ActionButtonCategory.Top].map((button, i) => {
           const conditionalStyles = (() => {
-            if (
-              button.text === VIEW_LOOT_BUTTON_TEXT ||
-              button.text === EXECUTE_BUTTON_TEXT ||
-              button.text === USE_CONSUMABLE_BUTTON_TEXT ||
-              button.text === EQUIP_ITEM_BUTTON_TEXT
-            )
-              return "bg-slate-800 border-white";
+            if (buttonTitlesToAccent.includes(button.key)) return "bg-slate-800 border-white";
             return "border-slate-400 bg-slate-700";
           })();
           const thisButtonProperties = buttonProperties[ActionButtonCategory.Top][i]!;
           // in the old method we used a more unique key so different cancel buttons would
           // actually update, but cancel buttons tend to do the same thing anyway now
           return (
-            <li key={thisButtonProperties.text} style={topButtonLiStyle}>
+            <li key={thisButtonProperties.key} style={topButtonLiStyle}>
               <ActionMenuDedicatedButton
                 extraStyles={`border mr-2 last:mr-0 h-10 ${conditionalStyles}`}
                 properties={button}
@@ -153,6 +253,34 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
             </li>
           );
         })}
+        {playerIsOperatingVendingMachine(currentMenu.type) && (
+          <li className="ml-auto pointer-events-auto">
+            <HoverableTooltipWrapper tooltipText="The machine seems to want these...">
+              <HotkeyButton
+                className="disabled:opacity-50"
+                hotkeys={[HOTKEYS.MAIN_2]}
+                onClick={() => {
+                  mutateGameState((state) => {
+                    state.viewingDropShardsModal = true;
+                  });
+                }}
+              >
+                <ShardsDisplay
+                  extraStyles="h-10"
+                  numShards={focusedCharacterResult.combatantProperties.inventory.shards}
+                />
+              </HotkeyButton>
+            </HoverableTooltipWrapper>
+            {/* for better tab indexing, character sheet has it's own placement of the modal */}
+            {viewingDropShardsModal === true && !viewingCharacterSheet && (
+              <DropShardsModal
+                className="absolute bottom-0 right-0 border border-slate-400"
+                min={0}
+                max={focusedCharacterResult.combatantProperties.inventory.shards}
+              />
+            )}
+          </li>
+        )}
       </ul>
       <div
         className={`mb-3 flex`}
@@ -174,7 +302,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
 
               return (
                 <li
-                  key={button.text + i + currentMenu.page}
+                  key={button.key + i + currentMenu.page}
                   tabIndex={button.shouldBeDisabled ? 0 : undefined} // so you can tab over to get the popups
                   className={`
                    ${conditionalStyles} pointer-events-auto w-full border-b border-r border-l first:border-t flex hover:bg-slate-950
@@ -222,7 +350,7 @@ function BottomButtons({
       className="flex justify-between bg-slate-700 relative border border-slate-400 h-8"
       style={!left && !right ? { opacity: 0 } : {}}
     >
-      <div key={left?.text} className="flex-1 border-r border-slate-400 h-full">
+      <div key={left?.key} className="flex-1 border-r border-slate-400 h-full">
         {left && <ActionMenuDedicatedButton extraStyles="w-full h-full" properties={left} />}
       </div>
       <div
@@ -233,7 +361,7 @@ function BottomButtons({
           Page {currentPageNumber}/{numPages}
         </span>
       </div>
-      <div key={right?.text} className="flex-1 flex border-l border-slate-400 h-full">
+      <div key={right?.key} className="flex-1 flex border-l border-slate-400 h-full">
         {right && <ActionMenuDedicatedButton extraStyles="w-full justify-end" properties={right} />}
       </div>
     </div>
@@ -246,7 +374,7 @@ function CharacterFocusingButtons() {
     direction: NextOrPrevious,
     hotkeys: string[]
   ) {
-    const button = new ActionMenuButtonProperties(text, () => {
+    const button = new ActionMenuButtonProperties(text, text, () => {
       const currentFocusedCharacterId = useGameStore.getState().focusedCharacterId;
       const party = getCurrentParty(
         useGameStore.getState(),

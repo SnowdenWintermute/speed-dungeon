@@ -27,7 +27,7 @@ export default async function selectProgressionGameCharacterHandler(
   if (loggedInUserResult instanceof Error) return loggedInUserResult;
   const charactersResult = await fetchSavedCharacters(loggedInUserResult.profile.id);
 
-  if (charactersResult instanceof Error) return new Error(charactersResult.message);
+  if (charactersResult instanceof Error) return charactersResult;
   if (Object.values(charactersResult).length === 0)
     return new Error(ERROR_MESSAGES.GAME.NO_SAVED_CHARACTERS);
 
@@ -36,17 +36,17 @@ export default async function selectProgressionGameCharacterHandler(
   for (const character of Object.values(charactersResult)) {
     if (character.entityProperties.id === entityId) {
       if (character.combatantProperties.hitPoints <= 0)
-        return errorHandler(socket, ERROR_MESSAGES.COMBATANT.IS_DEAD);
+        return errorHandler(socket, new Error(ERROR_MESSAGES.COMBATANT.IS_DEAD));
       savedCharacterOption = character;
       break;
     }
   }
   if (savedCharacterOption === undefined)
-    return errorHandler(socket, ERROR_MESSAGES.USER.SAVED_CHARACTER_NOT_OWNED);
+    return errorHandler(socket, new Error(ERROR_MESSAGES.USER.SAVED_CHARACTER_NOT_OWNED));
 
   const characterIdToRemoveOption = player.characterIds[0];
   if (characterIdToRemoveOption === undefined)
-    return errorHandler(socket, "Expected to have a selected character but didn't");
+    return errorHandler(socket, new Error("Expected to have a selected character but didn't"));
   const removeCharacterResult = AdventuringParty.removeCharacter(
     partyOption,
     characterIdToRemoveOption,
@@ -57,7 +57,7 @@ export default async function selectProgressionGameCharacterHandler(
 
   delete game.lowestStartingFloorOptionsBySavedCharacter[removeCharacterResult.entityProperties.id];
 
-  addCharacterToParty(game, player, savedCharacterOption);
+  addCharacterToParty(game, player, savedCharacterOption, true);
 
   game.lowestStartingFloorOptionsBySavedCharacter[savedCharacterOption.entityProperties.id] =
     savedCharacterOption.combatantProperties.deepestFloorReached;

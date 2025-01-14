@@ -64,6 +64,7 @@ export default function Game() {
         }
         <div className="w-full h-full max-h-[calc(0.5625 * 100vw)] text-zinc-300 flex flex-col">
           <TopInfoBar />
+
           <div className="p-4 flex-grow flex flex-col justify-between">
             <ReadyUpDisplay party={party} />
             <div className="flex justify-end">

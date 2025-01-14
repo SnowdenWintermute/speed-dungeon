@@ -11,6 +11,7 @@ export default function dropItem(
   const itemResult = Inventory.removeItem(combatantProperties.inventory, itemId);
   if (itemResult instanceof Error) return itemResult;
   const item = itemResult;
-  party.currentRoom.items.push(item);
+  const maybeError = Inventory.insertItem(party.currentRoom.inventory, item);
+  if (maybeError instanceof Error) return maybeError;
   return itemId;
 }

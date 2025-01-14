@@ -217,7 +217,7 @@ export class ModularCharacter {
   async unequipHoldableModel(entityId: string) {
     const toDispose = this.equipment.holdables[entityId];
     if (!toDispose) return;
-    disposeAsyncLoadedScene(toDispose, this.world.scene);
+    disposeAsyncLoadedScene(toDispose);
 
     if (
       this.animationManager.playing?.animationGroupOption?.name === ANIMATION_NAMES.IDLE ||
@@ -254,7 +254,7 @@ export class ModularCharacter {
   }
 
   removePart(partCategory: ModularCharacterPartCategory) {
-    disposeAsyncLoadedScene(this.parts[partCategory], this.world.scene);
+    disposeAsyncLoadedScene(this.parts[partCategory]);
     this.parts[partCategory] = null;
   }
 

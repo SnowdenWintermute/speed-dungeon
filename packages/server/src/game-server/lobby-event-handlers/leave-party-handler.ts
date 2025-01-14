@@ -26,7 +26,7 @@ export default async function leavePartyHandler(
 
   const removedPlayerDataResult = SpeedDungeonGame.removePlayerFromParty(game, username);
   if (removedPlayerDataResult instanceof Error)
-    return errorHandler(socket, removedPlayerDataResult.message);
+    return errorHandler(socket, removedPlayerDataResult);
   let { partyWasRemoved } = removedPlayerDataResult;
 
   // check if only dead players remain
@@ -41,7 +41,7 @@ export default async function leavePartyHandler(
   ) {
     partyOption.timeOfWipe = Date.now();
     const maybeError = await gameModeContext.onPartyWipe(game, partyOption);
-    if (maybeError instanceof Error) return errorHandler(socket, maybeError.message);
+    if (maybeError instanceof Error) return errorHandler(socket, maybeError);
 
     const remainingParties = Object.values(game.adventuringParties);
     if (remainingParties.length) {

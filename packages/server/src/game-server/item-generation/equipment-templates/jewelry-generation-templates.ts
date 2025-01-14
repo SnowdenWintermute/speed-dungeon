@@ -1,9 +1,11 @@
 import {
+  Amulet,
   EquipmentBaseItem,
   EquipmentType,
   Jewelry,
   NumberRange,
   PrefixType,
+  Ring,
   SuffixType,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
@@ -57,13 +59,13 @@ export class JewelryGenerationTemplate extends EquipmentGenerationTemplate {
 export const RING_GENERATION_TEMPLATES: Partial<Record<Jewelry, JewelryGenerationTemplate>> = {
   [Jewelry.Ring]: new JewelryGenerationTemplate({
     equipmentType: EquipmentType.Ring,
-    baseItemType: Jewelry.Ring,
+    baseItemType: Ring.Ring,
   }),
 };
 
 export const AMULET_GENERATION_TEMPLATES: Partial<Record<Jewelry, JewelryGenerationTemplate>> = {
   [Jewelry.Amulet]: new JewelryGenerationTemplate({
     equipmentType: EquipmentType.Amulet,
-    baseItemType: Jewelry.Amulet,
+    baseItemType: Amulet.Amulet,
   }),
 };

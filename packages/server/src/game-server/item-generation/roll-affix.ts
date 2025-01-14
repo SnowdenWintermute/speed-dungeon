@@ -18,6 +18,9 @@ export function rollAffixTier(maxTier: number, itemLevel: number) {
   return Math.max(1, Math.round(randBetween(minTierOnLevel, maxTierOnLevel)));
 }
 
+const MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER = 3;
+const MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER = 7;
+
 export function rollAffix(
   taggedAffixType: TaggedAffixType,
   tier: number,
@@ -36,34 +39,46 @@ export function rollAffix(
     case AffixType.Prefix:
       switch (taggedAffixType.prefixType) {
         case PrefixType.Mp:
-          affix.combatAttributes[CombatAttribute.Mp] = rollAttributeValue(2, 5);
+          affix.combatAttributes[CombatAttribute.Mp] = rollAttributeValue(
+            MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER,
+            MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
+          );
           break;
         case PrefixType.ArmorClass:
-          affix.combatAttributes[CombatAttribute.ArmorClass] = rollAttributeValue(1, 2);
+          affix.combatAttributes[CombatAttribute.ArmorClass] = rollAttributeValue(1, 3);
           break;
         case PrefixType.Accuracy:
-          affix.combatAttributes[CombatAttribute.Accuracy] = rollAttributeValue(2, 5);
+          affix.combatAttributes[CombatAttribute.Accuracy] = rollAttributeValue(
+            MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER,
+            MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
+          );
           break;
         case PrefixType.PercentDamage:
           affix.equipmentTraits[EquipmentTraitType.DamagePercentage] = {
             equipmentTraitType: EquipmentTraitType.DamagePercentage,
-            value: tier * 10,
+            value: randBetween((tier - 1) * 10 + 1, tier * 10),
           };
           break;
         case PrefixType.LifeSteal:
           affix.equipmentTraits[EquipmentTraitType.LifeSteal] = {
             equipmentTraitType: EquipmentTraitType.LifeSteal,
-            value: tier * 10,
+            value: randBetween((tier - 1) * 10 + 1, tier * 10),
           };
           break;
         case PrefixType.Resilience:
           affix.combatAttributes[CombatAttribute.Resilience] = rollAttributeValue(1, 2);
           break;
         case PrefixType.Evasion:
-          affix.combatAttributes[CombatAttribute.Evasion] = rollAttributeValue(2, 5);
+          affix.combatAttributes[CombatAttribute.Evasion] = rollAttributeValue(
+            MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER,
+            MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
+          );
           break;
         case PrefixType.ArmorPenetration:
-          affix.combatAttributes[CombatAttribute.ArmorPenetration] = rollAttributeValue(2, 5);
+          affix.combatAttributes[CombatAttribute.ArmorPenetration] = rollAttributeValue(
+            MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER,
+            MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
+          );
           break;
         case PrefixType.Agility:
           affix.combatAttributes[CombatAttribute.Agility] = rollAttributeValue(1, 2);
@@ -96,7 +111,10 @@ export function rollAffix(
           affix.combatAttributes[CombatAttribute.Intelligence] = rollAttributeValue(min, max);
           break;
         case SuffixType.Hp:
-          affix.combatAttributes[CombatAttribute.Hp] = rollAttributeValue(2, 5);
+          affix.combatAttributes[CombatAttribute.Hp] = rollAttributeValue(
+            MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER,
+            MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
+          );
           break;
         case SuffixType.Damage:
           affix.equipmentTraits[EquipmentTraitType.FlatDamageAdditive] = {
@@ -104,6 +122,11 @@ export function rollAffix(
             value: rollAttributeValue(1, 2),
           };
           break;
+        case SuffixType.PercentArmorClass:
+          affix.equipmentTraits[EquipmentTraitType.ArmorClassPercentage] = {
+            equipmentTraitType: EquipmentTraitType.ArmorClassPercentage,
+            value: randBetween((tier - 1) * 10 + 1, tier * 10),
+          };
         case SuffixType.Durability:
           //
           break;

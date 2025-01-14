@@ -39,7 +39,13 @@ export default function HoverableTooltipWrapper(props: Props) {
 
       if (y - tooltipRect.height - offsetTop < 0) {
         tooltipY = Math.max(tooltipY, y + height + offsetTop + tooltipRect.height);
-      } else tooltipY = y - offsetTop;
+      } else {
+        tooltipY = y - offsetTop;
+      }
+
+      if (tooltipRect.x < 0 || x + tooltipRect.x < 0) {
+        tooltipX = x + tooltipRect.width / 2;
+      }
 
       mutateUIState((store) => {
         store.tooltipPosition = { x: tooltipX, y: tooltipY };
@@ -76,7 +82,7 @@ export default function HoverableTooltipWrapper(props: Props) {
 
   return (
     <div
-      className={`h-fit w-fit cursor-help ${props.extraStyles}`}
+      className={`h-fit w-fit ${props.extraStyles} p-0`}
       ref={elementRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

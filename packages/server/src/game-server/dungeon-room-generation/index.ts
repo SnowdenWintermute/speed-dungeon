@@ -4,7 +4,6 @@ import {
   DungeonRoomType,
   MonsterType,
   NUM_MONSTERS_PER_ROOM,
-  iterateNumericEnum,
 } from "@speed-dungeon/common";
 import generateMonster from "../monster-generation/index.js";
 
@@ -14,22 +13,15 @@ export default function generateDungeonRoom(floor: number, roomType: DungeonRoom
   if (roomType === DungeonRoomType.MonsterLair) {
     for (let i = 0; i < NUM_MONSTERS_PER_ROOM; i += 1) {
       const newMonster = generateMonster(floor);
-      // for (const monsterType of [
-      //   MonsterType.FireElemental,
-      //   // MonsterType.IceElemental,
-      //   // MonsterType.Scavenger,
-      //   // MonsterType.Cultist,
-      //   // MonsterType.Zombie,
-      //   // MonsterType.FireMage,
-      //   // MonsterType.MetallicGolem,
-      //   // MonsterType.Vulture,
-      // ]) {
-      //   const newMonster = generateMonster(floor, monsterType);
+      // for (let i = 0; i < 3; i += 1) {
+      //   const newMonster = generateMonster(i + 1, MonsterType.FireMage);
       const monsterId = newMonster.entityProperties.id;
       monsters[monsterId] = newMonster;
       monsterPositions.push(monsterId);
     }
   }
 
-  return new DungeonRoom(roomType, monsters, monsterPositions);
+  const room = new DungeonRoom(roomType, monsters, monsterPositions);
+
+  return room;
 }

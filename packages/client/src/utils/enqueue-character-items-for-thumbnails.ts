@@ -1,11 +1,11 @@
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 import {
+  CONSUMABLE_TYPE_STRINGS,
   Combatant,
   CombatantEquipment,
   Consumable,
   ConsumableType,
-  formatConsumableType,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 
@@ -31,7 +31,7 @@ export function enqueueCharacterItemsForThumbnails(character: Combatant) {
 export function enqueueConsumableGenericThumbnailCreation() {
   for (const consumableType of iterateNumericEnum(ConsumableType)) {
     const item = new Consumable(
-      { id: formatConsumableType(consumableType), name: "" },
+      { id: CONSUMABLE_TYPE_STRINGS[consumableType], name: "" },
       0,
       {},
       consumableType,

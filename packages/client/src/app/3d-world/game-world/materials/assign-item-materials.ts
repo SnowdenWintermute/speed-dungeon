@@ -67,9 +67,9 @@ export function assignEquipmentMaterials(
   materials[MATERIAL_NAMES.BLADE] = savedMaterials.metal[LightestToDarkest.Lighter];
   materials[MATERIAL_NAMES.ACCENT_1] = savedMaterials.metal[LightestToDarkest.Lightest];
 
-  switch (equipmentBaseItemProperties.type) {
+  switch (equipmentBaseItemProperties.equipmentType) {
     case EquipmentType.OneHandedMeleeWeapon:
-      switch (equipmentBaseItemProperties.baseItem) {
+      switch (equipmentBaseItemProperties.taggedBaseEquipment.baseItemType) {
         case OneHandedMeleeWeapon.Stick:
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Lighter];
           break;
@@ -175,7 +175,7 @@ export function assignEquipmentMaterials(
       }
       break;
     case EquipmentType.TwoHandedMeleeWeapon:
-      switch (equipmentBaseItemProperties.baseItem) {
+      switch (equipmentBaseItemProperties.taggedBaseEquipment.baseItemType) {
         case TwoHandedMeleeWeapon.RottingBranch:
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Medium];
           break;
@@ -257,7 +257,7 @@ export function assignEquipmentMaterials(
       }
       break;
     case EquipmentType.TwoHandedRangedWeapon:
-      switch (equipmentBaseItemProperties.baseItem) {
+      switch (equipmentBaseItemProperties.taggedBaseEquipment.baseItemType) {
         case TwoHandedRangedWeapon.ShortBow:
           materials[MATERIAL_NAMES.MAIN] = savedMaterials.wood[LightestToDarkest.Medium];
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.wood[LightestToDarkest.Lighter];
@@ -287,8 +287,8 @@ export function assignEquipmentMaterials(
       }
       break;
     case EquipmentType.Shield:
-      switch (equipmentBaseItemProperties.baseItem) {
-        case Shield.MakeshiftBuckler:
+      switch (equipmentBaseItemProperties.taggedBaseEquipment.baseItemType) {
+        case Shield.CabinetDoor:
           materials = {
             [MATERIAL_NAMES.MAIN]: savedMaterials.wood[LightestToDarkest.Darker],
             [MATERIAL_NAMES.ALTERNATE]: savedMaterials.wood[LightestToDarkest.Medium],
@@ -298,10 +298,10 @@ export function assignEquipmentMaterials(
           break;
         case Shield.Heater:
           materials = {
-            [MATERIAL_NAMES.MAIN]: savedMaterials.wood[LightestToDarkest.Lightest],
-            [MATERIAL_NAMES.ALTERNATE]: savedMaterials.wood[LightestToDarkest.Lighter],
-            [MATERIAL_NAMES.ACCENT_1]: savedMaterials.metal[LightestToDarkest.Medium],
-            [MATERIAL_NAMES.ACCENT_2]: savedMaterials.wood[LightestToDarkest.Medium],
+            [MATERIAL_NAMES.MAIN]: savedMaterials.metal[LightestToDarkest.Lighter],
+            [MATERIAL_NAMES.ALTERNATE]: savedMaterials.metal[LightestToDarkest.Darker],
+            [MATERIAL_NAMES.ACCENT_1]: savedMaterials.wood[LightestToDarkest.Medium],
+            [MATERIAL_NAMES.ACCENT_2]: savedMaterials.metal[LightestToDarkest.Medium],
           };
           break;
         case Shield.Buckler:

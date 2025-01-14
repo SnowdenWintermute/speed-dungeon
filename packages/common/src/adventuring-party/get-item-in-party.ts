@@ -5,9 +5,11 @@ import { Inventory } from "../combatants/inventory.js";
 import { Combatant, CombatantEquipment } from "../combatants/index.js";
 
 function getItemOnCombatant(combatant: Combatant, itemId: string) {
-  let itemOption = Inventory.getItem(combatant.combatantProperties.inventory, itemId);
+  let itemOption = Inventory.getItemById(combatant.combatantProperties.inventory, itemId);
   if (!(itemOption instanceof Error)) return itemOption;
-  const equippedItems = CombatantEquipment.getAllEquippedItems(combatant.combatantProperties);
+  const equippedItems = CombatantEquipment.getAllEquippedItems(combatant.combatantProperties, {
+    includeUnselectedHotswapSlots: true,
+  });
   for (const equippedItem of equippedItems) {
     if (equippedItem.entityProperties.id === itemId) {
       return equippedItem;
@@ -28,9 +30,8 @@ export function getItemInAdventuringParty(party: AdventuringParty, itemId: strin
     if (toReturn) return toReturn;
   }
 
-  for (const item of Object.values(party.currentRoom.items)) {
-    if (item.entityProperties.id === itemId) return item;
-  }
+  const maybeItem = Inventory.getItemById(party.currentRoom.inventory, itemId);
+  if (!(maybeItem instanceof Error)) return maybeItem;
 
   return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
 }

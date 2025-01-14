@@ -1,9 +1,9 @@
-import { Equipment, getTraitModifiedArmorClass } from "@speed-dungeon/common";
+import { AffixType, Equipment, PrefixType, SuffixType } from "@speed-dungeon/common";
 import { formatArmorCategory } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
 
 export function getArmorCategoryText(equipment: Equipment) {
-  switch (equipment.equipmentBaseItemProperties.type) {
+  switch (equipment.equipmentBaseItemProperties.equipmentType) {
     case EquipmentType.BodyArmor:
     case EquipmentType.HeadGear:
       return ` (${formatArmorCategory(equipment.equipmentBaseItemProperties.armorCategory)})`;
@@ -14,7 +14,7 @@ export function getArmorCategoryText(equipment: Equipment) {
 
 export function ArmorClassText({ equipment }: { equipment: Equipment }) {
   let armorClassOption: null | number = null;
-  switch (equipment.equipmentBaseItemProperties.type) {
+  switch (equipment.equipmentBaseItemProperties.equipmentType) {
     case EquipmentType.BodyArmor:
     case EquipmentType.HeadGear:
     case EquipmentType.Shield:
@@ -22,15 +22,14 @@ export function ArmorClassText({ equipment }: { equipment: Equipment }) {
     default:
   }
 
-  let hasTraitModifiedAc = false;
-  let armorClassTextOption = null;
   if (typeof armorClassOption === "number") {
-    const modifiedAc = getTraitModifiedArmorClass(armorClassOption, equipment.affixes);
-    return <div>{`Armor Class: ${modifiedAc}`}</div>;
-  }
+    const modifiedArmorClass = Equipment.getModifiedArmorClass(equipment);
+    const acIsModified = !!(
+      equipment.affixes[AffixType.Prefix][PrefixType.ArmorClass] ||
+      equipment.affixes[AffixType.Suffix][SuffixType.PercentArmorClass]
+    );
+    let modifiedAcStyle = acIsModified ? "text-blue-300" : "";
 
-  let modifiedAcStyle = hasTraitModifiedAc ? "text-blue-600" : "";
-
-  if (armorClassTextOption) return <div className={modifiedAcStyle}>{armorClassTextOption}</div>;
-  else return <></>;
+    return <div className={modifiedAcStyle}>Armor Class: {modifiedArmorClass} </div>;
+  } else return <></>;
 }

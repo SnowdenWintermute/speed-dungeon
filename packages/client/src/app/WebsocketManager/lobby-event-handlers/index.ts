@@ -5,9 +5,7 @@ import {
   SpeedDungeonPlayer,
   AdventuringParty,
   SpeedDungeonGame,
-  ERROR_MESSAGES,
-  CombatantEquipment,
-  Inventory,
+  CombatantProperties,
 } from "@speed-dungeon/common";
 import { Socket } from "socket.io-client";
 import characterAddedToPartyHandler from "./character-added-to-party-handler";
@@ -25,14 +23,18 @@ export default function setUpGameLobbyEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
 ) {
   const mutateGameStore = useGameStore.getState().mutateState;
+
   socket.on(ServerToClientEvent.GameFullUpdate, (game) => {
     if (game) {
       for (const party of Object.values(game.adventuringParties)) {
         for (const character of Object.values(party.characters)) {
-          Inventory.instantiateItemClasses(character.combatantProperties.inventory);
-          CombatantEquipment.instatiateItemClasses(character.combatantProperties);
+          CombatantProperties.instantiateItemClasses(character.combatantProperties);
         }
       }
+    } else {
+      gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+        type: ModelActionType.ClearAllModels,
+      });
     }
 
     gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({

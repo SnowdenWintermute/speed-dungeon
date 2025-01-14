@@ -20,8 +20,13 @@ import characterCycledTargetingSchemesHandler from "./character-cycled-targeting
 import getCurrentParty from "@/utils/getCurrentParty";
 import characterIncrementedAttributePointHandler from "./character-incremented-attribute-point-handler";
 import gameProgressMessageHandler from "./game-progress-message-handler";
-import characterPickedUpItemsHandler from "./character-picked-up-items-handler";
+import { characterPickedUpItemsHandler } from "./character-picked-up-items-handler";
 import characterSelectedHoldableHotswapSlotHandler from "./character-selected-holdable-hotswap-slot-handler";
+import { characterConvertedItemsToShardsHandler } from "./character-converted-items-to-shards-handler";
+import { characterDroppedShardsHandler } from "./character-dropped-shards-handler";
+import characterPurchasedItemHandler from "./character-purchased-item-handler";
+import { characterPerformedCraftingActionHandler } from "./character-performed-crafting-action-handler";
+import { playerPostedItemLinkHandler } from "./player-posted-item-link-handler";
 
 export default function setUpGameEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -67,4 +72,15 @@ export default function setUpGameEventHandlers(
     ServerToClientEvent.CharacterSelectedHoldableHotswapSlot,
     characterSelectedHoldableHotswapSlotHandler
   );
+  socket.on(
+    ServerToClientEvent.CharacterConvertedItemsToShards,
+    characterConvertedItemsToShardsHandler
+  );
+  socket.on(ServerToClientEvent.CharacterDroppedShards, characterDroppedShardsHandler);
+  socket.on(ServerToClientEvent.CharacterPurchasedItem, characterPurchasedItemHandler);
+  socket.on(
+    ServerToClientEvent.CharacterPerformedCraftingAction,
+    characterPerformedCraftingActionHandler
+  );
+  socket.on(ServerToClientEvent.PlayerPostedItemLink, playerPostedItemLinkHandler);
 }

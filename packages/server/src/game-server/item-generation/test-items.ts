@@ -22,8 +22,11 @@ export const HP_ARMOR_TEST_ITEM = new Equipment(
   0,
   {},
   {
-    type: EquipmentType.BodyArmor,
-    baseItem: BodyArmor.GothicPlate,
+    taggedBaseEquipment: {
+      equipmentType: EquipmentType.BodyArmor,
+      baseItemType: BodyArmor.GothicPlate,
+    },
+    equipmentType: EquipmentType.BodyArmor,
     armorClass: 1,
     armorCategory: ArmorCategory.Plate,
   },
@@ -56,8 +59,11 @@ export const WEAPON_TEST_ITEM = new Equipment(
   0,
   {},
   {
-    type: EquipmentType.OneHandedMeleeWeapon,
-    baseItem: OneHandedMeleeWeapon.ButterKnife,
+    taggedBaseEquipment: {
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.ButterKnife,
+    },
+    equipmentType: EquipmentType.OneHandedMeleeWeapon,
     damageClassification: [
       new HpChangeSource(HpChangeSourceCategory.Physical, MeleeOrRanged.Melee),
     ],

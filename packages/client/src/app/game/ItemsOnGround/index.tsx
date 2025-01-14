@@ -1,6 +1,6 @@
 import Divider from "@/app/components/atoms/Divider";
 import { useGameStore } from "@/stores/game-store";
-import { AdventuringParty, ERROR_MESSAGES } from "@speed-dungeon/common";
+import { AdventuringParty, ERROR_MESSAGES, Inventory } from "@speed-dungeon/common";
 import React from "react";
 import ItemOnGround from "./ItemOnGround";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
@@ -16,7 +16,7 @@ export default function ItemsOnGround({ party, maxHeightRem }: Props) {
   const mutateGameState = useGameStore().mutateState;
   if (username === null) return <div>{ERROR_MESSAGES.CLIENT.NO_USERNAME}</div>;
   const focusedCharacterId = useGameStore().focusedCharacterId;
-  const itemsToDisplay = party.currentRoom.items;
+  const itemsToDisplay = Inventory.getItems(party.currentRoom.inventory);
   const showItemsOnGround = useGameStore().showItemsOnGround;
 
   const playerOwnsCharacter = clientUserControlsCombatant(focusedCharacterId);

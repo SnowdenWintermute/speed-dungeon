@@ -4,7 +4,7 @@ import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { EquipmentType } from "../items/equipment/equipment-types/index.js";
 import { CombatantAttributeRecord, CombatantProperties } from "./combatant-properties.js";
 import { CombatAttribute } from "../attributes/index.js";
-import { Equipment, EquipmentSlotType, HoldableSlotType } from "../items/equipment/index.js";
+import { Equipment, HoldableSlotType } from "../items/equipment/index.js";
 import { CombatantEquipment } from "./combatant-equipment/index.js";
 
 // ATTRIBUTES
@@ -23,6 +23,7 @@ export const DERIVED_ATTRIBUTE_RATIOS: Partial<
   },
   [CombatAttribute.Vitality]: {
     [CombatAttribute.Hp]: 2,
+    [CombatAttribute.ArmorClass]: 1.5,
   },
 };
 
@@ -42,7 +43,9 @@ export default function getCombatantTotalAttributes(
   addAttributesToAccumulator(combatantProperties.inherentAttributes, totalAttributes);
   addAttributesToAccumulator(combatantProperties.speccedAttributes, totalAttributes);
 
-  const allEquippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties);
+  const allEquippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties, {
+    includeUnselectedHotswapSlots: false,
+  });
   // you have to add the attributes first, then subtract them later if item is unusable
   // because some of the equipped items may be giving enough attributes that they can
   // actually be used BECAUSE they are equipped
@@ -53,12 +56,10 @@ export default function getCombatantTotalAttributes(
         addAttributesToAccumulator(affix.combatAttributes, totalAttributes);
       }
     }
-    const baseArmorClass = Equipment.getBaseArmorClass(item);
+    const modifiedArmorClass = Equipment.getModifiedArmorClass(item);
     if (totalAttributes[CombatAttribute.ArmorClass])
-      totalAttributes[CombatAttribute.ArmorClass] += baseArmorClass;
-    else totalAttributes[CombatAttribute.ArmorClass] = baseArmorClass;
-    // @TODO - add the %armor class trait to item generation and calculate it here
-    // or on an equipment method and add it here
+      totalAttributes[CombatAttribute.ArmorClass] += modifiedArmorClass;
+    else totalAttributes[CombatAttribute.ArmorClass] = modifiedArmorClass;
   }
 
   // after adding up attributes, determine if any equipped item still doesn't meet attribute
@@ -114,7 +115,9 @@ function getArmorPenDerivedBonus(
   let attributeToDeriveFrom = CombatAttribute.Strength;
   if (mhWeaponOption) {
     const weaponProperties = mhWeaponOption;
-    if (weaponProperties.type === EquipmentType.TwoHandedRangedWeapon) {
+    if (
+      weaponProperties.taggedBaseEquipment.equipmentType === EquipmentType.TwoHandedRangedWeapon
+    ) {
       attributeToDeriveFrom = CombatAttribute.Dexterity;
     }
   }

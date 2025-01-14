@@ -9,6 +9,8 @@ export enum CombatantTraitType {
   Undead,
   KineticDamageTypeResistance,
   ExtraHotswapSlot,
+  CanConvertToShardsManually,
+  ExtraConsumablesStorage,
 }
 
 export interface TraitHpBioavailability {
@@ -41,6 +43,13 @@ export interface TraitExtraHotswapSlot {
   type: CombatantTraitType.ExtraHotswapSlot;
   hotswapSlot: HoldableHotswapSlot;
 }
+export interface TraitConvertToShardsManually {
+  type: CombatantTraitType.CanConvertToShardsManually;
+}
+export interface TraitExtraConsumablesStorage {
+  type: CombatantTraitType.ExtraConsumablesStorage;
+  capacity: number;
+}
 
 export type CombatantTrait =
   | TraitHpBioavailability
@@ -48,7 +57,9 @@ export type CombatantTrait =
   | TraitElementalAffinity
   | TraitPhysicalDamageTypeResistance
   | TraitUndead
-  | TraitExtraHotswapSlot;
+  | TraitExtraHotswapSlot
+  | TraitConvertToShardsManually
+  | TraitExtraConsumablesStorage;
 
 export const TRAIT_DESCRIPTIONS: Record<CombatantTraitType, string> = {
   [CombatantTraitType.HpBioavailability]: "Effectiveness of HP Autoinjectors",
@@ -59,4 +70,7 @@ export const TRAIT_DESCRIPTIONS: Record<CombatantTraitType, string> = {
   [CombatantTraitType.KineticDamageTypeResistance]: "Resistance or weakness to this damage type",
   [CombatantTraitType.ExtraHotswapSlot]:
     "Adds an additional weapon swap slot - 'You know I keep that mf thang on me'",
+  [CombatantTraitType.CanConvertToShardsManually]:
+    "Allows converting items to shards without the use of machines",
+  [CombatantTraitType.ExtraConsumablesStorage]: "Provides extra storage for consumables",
 };

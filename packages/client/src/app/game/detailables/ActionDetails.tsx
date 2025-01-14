@@ -3,13 +3,14 @@ import {
   ActionUsableContext,
   AdventuringParty,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
+  CONSUMABLE_TYPE_STRINGS,
   CombatAction,
   CombatActionType,
   CombatantAbility,
   Consumable,
   ERROR_MESSAGES,
   TARGET_CATEGORY_STRINGS,
-  formatConsumableType,
+  createDummyConsumable,
   formatTargetingScheme,
 } from "@speed-dungeon/common";
 import React from "react";
@@ -66,7 +67,7 @@ export default function ActionDetails({ combatAction, hideTitle }: Props) {
           <div className="mb-1 mt-1 h-[1px] bg-slate-400" />
         </>
       )}
-      <div className="flex-grow overflow-auto">
+      <div className="flex-grow overflow-auto mr-2">
         {abilityOption && (
           <AbilityDetails
             ability={abilityOption}
@@ -100,12 +101,16 @@ function getCombatActionName(party: AdventuringParty, combatAction: CombatAction
     case CombatActionType.ConsumableUsed:
       const itemResult = AdventuringParty.getItem(party, combatAction.itemId);
       if (itemResult instanceof Error) {
+        if (combatAction.consumableType !== undefined) {
+          actionName = CONSUMABLE_TYPE_STRINGS[combatAction.consumableType];
+        }
+
         actionName = itemResult.message;
         break;
       }
       if (!(itemResult instanceof Consumable))
         actionName = "Why is an equipment being used as an action";
-      else actionName = formatConsumableType(itemResult.consumableType);
+      else actionName = CONSUMABLE_TYPE_STRINGS[itemResult.consumableType];
   }
   return actionName;
 }

@@ -30,7 +30,10 @@ export default function applyConsumableUseToActionResult(
       "Tried to calculate consumable use action but was passed a different type of action"
     );
   const { combatantProperties } = actionUser;
-  const itemResult = Inventory.getConsumable(combatantProperties.inventory, combatAction.itemId);
+  const itemResult = Inventory.getConsumableById(
+    combatantProperties.inventory,
+    combatAction.itemId
+  );
   if (itemResult instanceof Error) return itemResult;
 
   const targetOption = targetIds[0];

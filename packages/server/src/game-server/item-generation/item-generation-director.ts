@@ -1,4 +1,4 @@
-import { Consumable, Equipment, ItemType } from "@speed-dungeon/common";
+import { Affixes, Consumable, Equipment, ItemType } from "@speed-dungeon/common";
 import { ItemGenerationBuilder, TaggedBaseItem } from "./item-generation-builder";
 import { IdGenerator } from "../../singletons";
 
@@ -15,11 +15,13 @@ export class ItemGenerationDirector {
     const { builder } = this;
     const baseItemResult = builder.buildBaseItem(itemLevel, options?.forcedBaseItemOption);
     if (baseItemResult instanceof Error) return baseItemResult;
-    const { type: itemType, baseItem } = baseItemResult;
-    const affixesResult =
-      !options?.noAffixes && itemType === ItemType.Equipment
-        ? builder.buildAffixes(itemLevel, baseItem)
-        : null;
+
+    const { type: itemType } = baseItemResult;
+    let affixesResult: Error | Affixes | null = null;
+    if (!options?.noAffixes && itemType === ItemType.Equipment) {
+      affixesResult = builder.buildAffixes(itemLevel, baseItemResult.taggedBaseEquipment);
+    }
+
     if (affixesResult instanceof Error) return affixesResult;
     const affixes = affixesResult;
     const requirementsResult = builder.buildRequirements(baseItemResult, affixes);
@@ -34,9 +36,11 @@ export class ItemGenerationDirector {
 
     switch (itemType) {
       case ItemType.Equipment:
-        const equipmentBaseItemProperties = builder.buildEquipmentBaseItemProperties(baseItem);
+        const equipmentBaseItemProperties = builder.buildEquipmentBaseItemProperties(
+          baseItemResult.taggedBaseEquipment
+        );
         if (equipmentBaseItemProperties instanceof Error) return equipmentBaseItemProperties;
-        const durabilityResult = builder.buildDurability(baseItem);
+        const durabilityResult = builder.buildDurability(baseItemResult.taggedBaseEquipment);
         if (durabilityResult instanceof Error) return durabilityResult;
 
         const item = new Equipment(
@@ -50,7 +54,13 @@ export class ItemGenerationDirector {
 
         return item;
       case ItemType.Consumable:
-        return new Consumable(entityProperties, itemLevel, requirements, baseItem, 1);
+        return new Consumable(
+          entityProperties,
+          itemLevel,
+          requirements,
+          baseItemResult.baseItem,
+          1
+        );
     }
   }
 }

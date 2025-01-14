@@ -8,11 +8,14 @@ import { spawnModularCharacter } from "./spawn-modular-character";
 import { ModelManager } from "..";
 import {
   ChangeEquipmentModelAction,
+  ClearAllModelsModelAction,
   DespawnCombatantModelAction,
+  DespawnEnvironmentModelModelAction,
   ModelActionType,
   ProcessActionCommandsModelAction,
   SelectHotswapSlotModelAction,
   SpawnCombatantModelAction,
+  SpawnEnvironmentalModelModelAction,
 } from "../model-actions";
 import { despawnModularCharacter } from "./despawn-modular-character";
 import { removeHoldableModelFromModularCharacter } from "./remove-holdable-from-modular-character";
@@ -20,11 +23,25 @@ import { equipHoldableModelToModularCharacter } from "./equip-holdable-to-modula
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
 import { actionCommandQueue, actionCommandReceiver } from "@/singletons/action-command-manager";
 import { synchronizeCombatantModelsWithAppState } from "./synchronize-combatant-models-with-app-state";
+import { spawnEnvironmentModel } from "./spawn-environmental-model";
+import { disposeAsyncLoadedScene } from "@/app/3d-world/utils";
 
 export type ModelActionHandler = (...args: any[]) => Promise<Error | void> | (void | Error);
 
-export function createModelActionHandlers(modelManager: ModelManager) {
+export function createModelActionHandlers(
+  modelManager: ModelManager
+): Record<ModelActionType, ModelActionHandler> {
   return {
+    [ModelActionType.ClearAllModels]: (_action: ClearAllModelsModelAction) =>
+      modelManager.clearAllModels(),
+    [ModelActionType.SpawnEnvironmentModel]: (action: SpawnEnvironmentalModelModelAction) =>
+      spawnEnvironmentModel(action, modelManager),
+    [ModelActionType.DespawnEnvironmentModel]: (action: DespawnEnvironmentModelModelAction) => {
+      const modelOption = modelManager.environmentModels[action.id];
+      if (modelOption) {
+        disposeAsyncLoadedScene(modelOption.model);
+      }
+    },
     [ModelActionType.SynchronizeCombatantModels]: synchronizeCombatantModelsWithAppState,
     [ModelActionType.SpawnCombatantModel]: async function (
       action: SpawnCombatantModelAction
@@ -108,7 +125,6 @@ export function createModelActionHandlers(modelManager: ModelManager) {
       actionCommandQueue.enqueueNewCommands(actionCommands);
       const result = await actionCommandQueue.processCommands();
       if (result instanceof Error) console.error(result);
-
       return;
     },
   };

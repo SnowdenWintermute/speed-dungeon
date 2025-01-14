@@ -5,7 +5,7 @@ import { useGameStore } from "@/stores/game-store";
 import {
   AdventuringParty,
   Combatant,
-  CombatantEquipment,
+  CombatantProperties,
   ERROR_MESSAGES,
   addCharacterToParty,
   getProgressionGamePartyName,
@@ -20,7 +20,7 @@ export default function savedCharacterSelectionInProgressGameHandler(
     const game = gameState.game;
     if (!game) return setAlert(new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME));
 
-    CombatantEquipment.instatiateItemClasses(character.combatantProperties);
+    CombatantProperties.instantiateItemClasses(character.combatantProperties);
 
     game.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id] =
       character.combatantProperties.deepestFloorReached;
@@ -53,7 +53,7 @@ export default function savedCharacterSelectionInProgressGameHandler(
         );
     }
 
-    addCharacterToParty(game, player, character);
+    addCharacterToParty(game, player, character, true);
 
     gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,

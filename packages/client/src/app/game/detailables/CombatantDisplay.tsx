@@ -113,6 +113,10 @@ export function formatCombatantTrait(trait: CombatantTrait) {
         </span>
       );
     case CombatantTraitType.ExtraHotswapSlot:
-      return "Stay strapped";
+      return "Stay Strapped";
+    case CombatantTraitType.CanConvertToShardsManually:
+      return "Disassembler";
+    case CombatantTraitType.ExtraConsumablesStorage:
+      return "Magical Minibag";
   }
 }

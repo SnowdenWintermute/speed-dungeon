@@ -1,4 +1,4 @@
-import { Equipment, formatEquipmentType } from "@speed-dungeon/common";
+import { EQUIPMENT_TYPE_STRINGS, Equipment } from "@speed-dungeon/common";
 import React from "react";
 import { ArmorClassText } from "./armor";
 
@@ -9,7 +9,9 @@ interface Props {
 export default function EquipmentType({ equipment }: Props) {
   return (
     <div>
-      <div className="">{formatEquipmentType(equipment.equipmentBaseItemProperties.type)}</div>
+      <div className="">
+        {EQUIPMENT_TYPE_STRINGS[equipment.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType]}
+      </div>
       <ArmorClassText equipment={equipment} />
     </div>
   );

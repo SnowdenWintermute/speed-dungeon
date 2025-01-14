@@ -1,9 +1,23 @@
 import React from "react";
 import { useGameStore } from "@/stores/game-store";
 import selectItem from "@/utils/selectItem";
-import { ClientToServerEvent, Item } from "@speed-dungeon/common";
+import {
+  CONSUMABLE_TEXT_COLOR,
+  CONSUMABLE_TYPE_STRINGS,
+  ClientToServerEvent,
+  CombatantProperties,
+  Consumable,
+  Equipment,
+  Item,
+} from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import setItemHovered from "@/utils/set-item-hovered";
+import {
+  ItemButtonBody,
+  consumableGradientBg,
+  unmetRequirementsGradientBg,
+} from "../ActionMenu/menu-state/items";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 
 interface Props {
   item: Item;
@@ -52,6 +66,38 @@ export default function ItemOnGround(props: Props) {
     return "";
   })();
 
+  // @TODO - this is dulpicating Item Menu State code, refactor to combine it
+  let thumbnailId = "";
+  let gradientOverride = "";
+  if (item instanceof Consumable) {
+    thumbnailId = CONSUMABLE_TYPE_STRINGS[item.consumableType];
+    gradientOverride = consumableGradientBg;
+  } else {
+    thumbnailId = item.entityProperties.id;
+  }
+  const thumbnailOption = useGameStore.getState().itemThumbnails[thumbnailId];
+  const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
+  if (focusedCharacterResult instanceof Error) return <></>;
+  const requirementsMet = Item.requirementsMet(
+    item,
+    CombatantProperties.getTotalAttributes(focusedCharacterResult.combatantProperties)
+  );
+
+  if (!requirementsMet) {
+    gradientOverride = unmetRequirementsGradientBg;
+  }
+
+  let imageExtraStyles = "";
+  let containerExtraStyles = "pl-2";
+  if (!requirementsMet) {
+    containerExtraStyles += ` ${UNMET_REQUIREMENT_TEXT_COLOR}`;
+    imageExtraStyles += " filter-red";
+  } else if (item instanceof Equipment && Equipment.isMagical(item)) {
+    containerExtraStyles += " text-blue-300";
+  } else if (item instanceof Consumable) {
+    containerExtraStyles += ` ${CONSUMABLE_TEXT_COLOR}`;
+  }
+
   return (
     <li
       className={`h-10 w-full max-w-full flex border-r border-l border-b border-slate-400 first:border-t
@@ -72,9 +118,15 @@ export default function ItemOnGround(props: Props) {
         {"Take"}
       </button>
       <button onClick={clickHandler} className="flex items-center h-full w-full ">
-        <span className="pl-2 overflow-hidden whitespace-nowrap text-ellipsis ">
+        <ItemButtonBody
+          containerExtraStyles={containerExtraStyles}
+          thumbnailOption={thumbnailOption}
+          gradientOverride={gradientOverride}
+          imageExtraStyles="scale-[300%]"
+          imageHoverStyles="-translate-x-[55px]"
+        >
           {item.entityProperties.name}
-        </span>
+        </ItemButtonBody>
       </button>
     </li>
   );

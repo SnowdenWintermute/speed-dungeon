@@ -1,6 +1,6 @@
 export enum Shield {
   PotLid, // small
-  MakeshiftBuckler, // small
+  CabinetDoor, // small
   Heater, // med
   Buckler, // small
   Pavise, // large
@@ -16,8 +16,8 @@ export function formatShield(shield: Shield): string {
   switch (shield) {
     case Shield.PotLid:
       return "Pot Lid";
-    case Shield.MakeshiftBuckler:
-      return "Makeshift Buckler";
+    case Shield.CabinetDoor:
+      return "Cabinet Door";
     case Shield.Heater:
       return "Heater";
     case Shield.Buckler:

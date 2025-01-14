@@ -5,6 +5,7 @@ export enum GameMessageType {
   LadderProgress,
   LadderDeath,
   PartyDissolved,
+  CraftingAction,
 }
 
 export class GameMessage {

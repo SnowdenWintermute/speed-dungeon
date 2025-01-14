@@ -22,7 +22,7 @@ import { Inventory } from "./inventory.js";
 import setHpAndMpToMax from "./set-hp-and-mp-to-max.js";
 import { immerable } from "immer";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app-consts.js";
-import { cloneVector3, formatVector3 } from "../utils/index.js";
+import { cloneVector3 } from "../utils/index.js";
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./award-levelups.js";
 import { incrementAttributePoint } from "./increment-attribute-point.js";
 import { MonsterType } from "../monsters/monster-types.js";
@@ -37,6 +37,10 @@ import {
   unequipSlots,
 } from "./combatant-equipment/index.js";
 import { CombatAttribute } from "../attributes/index.js";
+import { getOwnedEquipment } from "./get-owned-items.js";
+import { EntityId } from "../primatives/index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
+import { canPickUpItem } from "./can-pick-up-item.js";
 
 export class CombatantProperties {
   [immerable] = true;
@@ -99,6 +103,18 @@ export class CombatantProperties {
   static setHpAndMpToMax = setHpAndMpToMax;
   static getAbilityNamesFilteredByUseableContext = getAbilityNamesFilteredByUseableContext;
   static getSlotItemIsEquippedTo = getSlotItemIsEquippedTo;
+  static getOwnedEquipment = getOwnedEquipment;
+  static getOwnedItemById(combatantProperties: CombatantProperties, itemId: EntityId) {
+    const ownedEquipment = CombatantProperties.getOwnedEquipment(combatantProperties);
+    for (const equipment of ownedEquipment) {
+      if (equipment.entityProperties.id === itemId) return equipment;
+    }
+    const items = Inventory.getItems(combatantProperties.inventory);
+    for (const item of items) {
+      if (item.entityProperties.id === itemId) return item;
+    }
+    return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+  }
   static getAbilityCostIfOwned = getAbilityCostIfOwned;
   static getAbilityIfOwned = getAbilityIfOwned;
   static changeHitPoints = changeCombatantHitPoints;
@@ -111,6 +127,12 @@ export class CombatantProperties {
   static equipItem = equipItem;
   static awardLevelups = awardLevelups;
   static incrementAttributePoint = incrementAttributePoint;
+  static canPickUpItem = canPickUpItem;
+  static instantiateItemClasses(combatantProperties: CombatantProperties) {
+    Inventory.instantiateItemClasses(combatantProperties.inventory);
+    CombatantEquipment.instatiateItemClasses(combatantProperties);
+  }
+
   static hasTraitType(combatantProperties: CombatantProperties, traitType: CombatantTraitType) {
     let hasTrait = false;
     for (const trait of combatantProperties.traits) {

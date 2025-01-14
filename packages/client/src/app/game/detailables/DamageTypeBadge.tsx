@@ -47,7 +47,7 @@ export default function DamageTypeBadge({ hpChangeSource }: Props) {
       </span>
       {physicalDamageTypeTextOption && (
         <span
-          className={`border-l-2 inline-block w-fit h-full pr-1 pl-1 bg-zinc-300 text-slate-700`}
+          className={`border-l-2 inline-block max-w-fit w-fit h-full pr-1 pl-1 bg-zinc-300 text-slate-700`}
         >
           {physicalDamageTypeTextOption}
         </span>

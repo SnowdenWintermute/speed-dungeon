@@ -1,11 +1,12 @@
 import React from "react";
-import { ZIndexLayers } from "./z-index-layers";
+import { CONSUMABLE_TEXT_COLOR } from "@speed-dungeon/common";
 
 export default function TailwindClassLoader() {
   return (
     <div id="tailwind-conditional-class-loader">
       <div className="outline-1 outline outline-2 outline-lime-500 outline-slate-400 outline-yellow-500 outline-zinc-300"></div>
       <div className="stroke-slate-700" />
+      <div className={CONSUMABLE_TEXT_COLOR} />
       <div className={`opacity-50  `} />
       <div className="pointer-events-none" />
       <div className="text-beigepaper" />

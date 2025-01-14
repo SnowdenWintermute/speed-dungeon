@@ -5,6 +5,7 @@ import { SpeedDungeonGame } from "../../game/index.js";
 import { chooseRandomFromArray } from "../../utils/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { FriendOrFoe } from "../combat-actions/targeting-schemes-and-categories.js";
+import { CombatAttribute } from "../../attributes/index.js";
 
 export interface AbilityAndTarget {
   abilityName: AbilityName;
@@ -14,7 +15,7 @@ export interface AbilityAndTarget {
 export function AISelectActionAndTarget(
   game: SpeedDungeonGame,
   userId: string,
-  _allyBattleGroup: BattleGroup,
+  allyBattleGroup: BattleGroup,
   enemyBattleGroup: BattleGroup
 ): Error | AbilityAndTarget {
   const randomEnemyTargetResult = getRandomAliveEnemy(game, enemyBattleGroup);
@@ -61,16 +62,40 @@ export function AISelectActionAndTarget(
     };
   }
   if (userCombatantProperties.abilities[AbilityName.Healing]) {
-    const manaCostResult = CombatantProperties.getAbilityCostIfOwned(
-      userCombatantProperties,
-      AbilityName.Healing
-    );
-    if (manaCostResult instanceof Error) return manaCostResult;
-    if (userCombatantProperties.mana < manaCostResult) return attackAbility;
-    return {
-      abilityName: AbilityName.Healing,
-      target: { type: CombatActionTargetType.Group, friendOrFoe: FriendOrFoe.Friendly },
-    };
+    let alliesDamaged = [];
+    for (const allyId of allyBattleGroup.combatantIds) {
+      const allyCombatantResult = SpeedDungeonGame.getCombatantById(game, allyId);
+      if (!(allyCombatantResult instanceof Error)) {
+        const allyHpMax = CombatantProperties.getTotalAttributes(
+          allyCombatantResult.combatantProperties
+        )[CombatAttribute.Hp];
+        if (
+          allyCombatantResult.combatantProperties.hitPoints < allyHpMax &&
+          allyCombatantResult.combatantProperties.hitPoints !== 0
+        ) {
+          alliesDamaged.push(allyCombatantResult.entityProperties.id);
+        }
+      }
+    }
+    if (alliesDamaged) {
+      const manaCostResult = CombatantProperties.getAbilityCostIfOwned(
+        userCombatantProperties,
+        AbilityName.Healing
+      );
+      if (manaCostResult instanceof Error) return manaCostResult;
+      if (userCombatantProperties.mana < manaCostResult) return attackAbility;
+
+      if (alliesDamaged.length > 1)
+        return {
+          abilityName: AbilityName.Healing,
+          target: { type: CombatActionTargetType.Group, friendOrFoe: FriendOrFoe.Friendly },
+        };
+      else if (alliesDamaged[0])
+        return {
+          abilityName: AbilityName.Healing,
+          target: { type: CombatActionTargetType.Single, targetId: alliesDamaged[0] },
+        };
+    } else return attackAbility;
   }
 
   return attackAbility;

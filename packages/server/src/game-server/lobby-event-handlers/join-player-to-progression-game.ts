@@ -30,8 +30,8 @@ export default async function joinPlayerToProgressionGame(
 
   const playerOption = game.players[session.username];
   if (playerOption === undefined)
-    return errorHandler(socket, ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
-  addCharacterToParty(game, playerOption, character);
+    return errorHandler(socket, new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
+  addCharacterToParty(game, playerOption, character, true);
 
   game.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id] =
     character.combatantProperties.deepestFloorReached;

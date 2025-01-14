@@ -3,6 +3,8 @@ import {
   EquipmentBaseItem,
   EquipmentBaseItemType,
   EquipmentType,
+  Amulet,
+  Ring,
 } from "@speed-dungeon/common";
 import { ItemGenerationBuilder } from "./item-generation-builder.js";
 import { EquipmentGenerationBuilder } from "./equipment-generation-builder.js";
@@ -20,10 +22,13 @@ export class JewelryGenerationBuilder<T extends JewelryGenerationTemplate>
   }
 
   buildEquipmentBaseItemProperties(_baseEquipmentItem: EquipmentBaseItem) {
-    const properties: JewelryProperties = {
-      type: this.equipmentType,
-      baseItem: null,
+    const properties = {
+      equipmentType: this.equipmentType,
+      taggedBaseEquipment: {
+        equipmentType: this.equipmentType,
+        baseItemType: this.equipmentType === EquipmentType.Amulet ? Amulet.Amulet : Ring.Ring,
+      },
     };
-    return properties;
+    return properties as unknown as JewelryProperties;
   }
 }

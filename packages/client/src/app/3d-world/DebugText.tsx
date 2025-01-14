@@ -4,7 +4,7 @@ import { useGameStore } from "@/stores/game-store";
 import { ZIndexLayers } from "../z-index-layers";
 import { gameWorld } from "./SceneManager";
 import { InputLock } from "@speed-dungeon/common";
-import { clearFloorTexture, drawCompass } from "./game-world/clear-floor-texture";
+import { drawCompass } from "./game-world/clear-floor-texture";
 
 export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTMLUListElement> }) {
   const thumbnails = useGameStore((state) => state.itemThumbnails);
@@ -92,6 +92,9 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
 
   const partyResult = useGameStore.getState().getParty();
 
+  const alternateClickKeyHeld = useUIStore().alternateClickKeyHeld;
+  const modKeyHeld = useUIStore().modKeyHeld;
+
   return (
     <div
       className={`absolute bottom-10 left-10 flex flex-col ${!showDebug && "hidden"} pointer-events-auto bg-black h-fit border border-white`}
@@ -111,12 +114,14 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
         </button>
       </div>
       <ul ref={debugRef} className="p-2"></ul>
+      {/* to be populated in the babylon render loop*/}
+
+      <div>Alternate Click Function Key Held: {JSON.stringify(alternateClickKeyHeld)}</div>
+      <div>Shift Held: {JSON.stringify(modKeyHeld)}</div>
       <div>Input Locked</div>
       <div>
         {!(partyResult instanceof Error)
-          ? InputLock.isLocked(partyResult.inputLock)
-            ? "true"
-            : "false"
+          ? JSON.stringify(InputLock.isLocked(partyResult.inputLock))
           : "error"}
       </div>
       <ul className="flex max-w-96 flex-wrap">

@@ -11,6 +11,7 @@ import { CombatantProperties } from "./combatant-properties.js";
 import { Inventory } from "./inventory.js";
 import { ABILITY_ATTRIBUTES } from "./abilities/get-ability-attributes.js";
 import { Consumable } from "../items/consumables/index.js";
+import { createDummyConsumable } from "../utils/index.js";
 
 export function getCombatActionPropertiesIfOwned(
   combatantProperties: CombatantProperties,
@@ -26,7 +27,7 @@ export function getCombatActionPropertiesIfOwned(
         return toReturn;
       }
     case CombatActionType.ConsumableUsed:
-      const consumableProperties = Inventory.getConsumable(
+      const consumableProperties = Inventory.getConsumableById(
         combatantProperties.inventory,
         combatAction.itemId
       );
@@ -45,10 +46,18 @@ export function getCombatActionProperties(
     case CombatActionType.AbilityUsed:
       return ABILITY_ATTRIBUTES[combatAction.abilityName].combatActionProperties;
     case CombatActionType.ConsumableUsed:
+      // if there is a consumableId on the action, that means it was generated
+      // client side by the shop menu or otherwise based off an item that doesn't really exist,
+      // we just want to show it's action details
+      if (combatAction.consumableType !== undefined) {
+        const dummyConsumable = createDummyConsumable(combatAction.consumableType);
+        return Consumable.getActionProperties(dummyConsumable);
+      }
+
       const combatantResult = getCombatantInParty(party, actionUserId);
       if (combatantResult instanceof Error) return combatantResult;
       const { entityProperties: _, combatantProperties: combatantProperties } = combatantResult;
-      const consumablePropertiesInInventoryResult = Inventory.getConsumable(
+      const consumablePropertiesInInventoryResult = Inventory.getConsumableById(
         combatantProperties.inventory,
         combatAction.itemId
       );

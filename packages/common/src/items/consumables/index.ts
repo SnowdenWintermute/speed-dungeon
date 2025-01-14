@@ -6,6 +6,7 @@ import { CombatAttribute } from "../../attributes/index.js";
 export enum ConsumableType {
   HpAutoinjector,
   MpAutoinjector,
+  StackOfShards,
 }
 
 export class Consumable extends Item {
@@ -21,11 +22,8 @@ export class Consumable extends Item {
   static getActionProperties = getConsumableCombatActionProperties;
 }
 
-export function formatConsumableType(consumableType: ConsumableType) {
-  switch (consumableType) {
-    case ConsumableType.HpAutoinjector:
-      return "Green Autoinjector";
-    case ConsumableType.MpAutoinjector:
-      return "Blue Autoinjector";
-  }
-}
+export const CONSUMABLE_TYPE_STRINGS: Record<ConsumableType, string> = {
+  [ConsumableType.HpAutoinjector]: "Green Autoinjector",
+  [ConsumableType.MpAutoinjector]: "Blue Autoinjector",
+  [ConsumableType.StackOfShards]: "Stack of Shards",
+};

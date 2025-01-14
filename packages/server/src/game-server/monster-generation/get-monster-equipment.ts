@@ -1,11 +1,17 @@
 import {
+  EquipmentType,
   HoldableSlotType,
   MonsterType,
+  OneHandedMeleeWeapon,
   PreDeterminedItemType,
+  Shield,
+  TwoHandedMeleeWeapon,
+  chooseRandomFromArray,
   generatePreDeterminedItem,
 } from "@speed-dungeon/common";
 import { idGenerator } from "../../singletons.js";
 import { CombatantEquipment, HoldableHotswapSlot } from "@speed-dungeon/common";
+import { generateSpecificEquipmentType } from "../item-generation/generate-test-items.js";
 
 export default function getMonsterEquipment(monsterType: MonsterType): CombatantEquipment {
   const equipment = new CombatantEquipment();
@@ -63,7 +69,48 @@ export default function getMonsterEquipment(monsterType: MonsterType): Combatant
       );
       break;
     case MonsterType.FireMage:
+      const staffOptions = [
+        TwoHandedMeleeWeapon.MahoganyStaff,
+        TwoHandedMeleeWeapon.ElmStaff,
+        TwoHandedMeleeWeapon.EbonyStaff,
+        TwoHandedMeleeWeapon.ElementalStaff,
+        TwoHandedMeleeWeapon.BoStaff,
+      ];
+      let staffType = chooseRandomFromArray(staffOptions);
+      if (staffType instanceof Error) staffType = TwoHandedMeleeWeapon.BoStaff;
+
+      const mhResult = generateSpecificEquipmentType({
+        equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+        baseItemType: staffType,
+      });
+      if (!(mhResult instanceof Error))
+        mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = mhResult;
+      break;
     case MonsterType.Cultist:
+      const wandOptions = [
+        OneHandedMeleeWeapon.RoseWand,
+        OneHandedMeleeWeapon.YewWand,
+        OneHandedMeleeWeapon.MapleWand,
+      ];
+      const shieldOptions = [Shield.Buckler, Shield.KiteShield, Shield.Heater, Shield.Aspis];
+      let wandType = chooseRandomFromArray(wandOptions);
+      if (wandType instanceof Error) wandType = OneHandedMeleeWeapon.IceBlade;
+      let shieldType = chooseRandomFromArray(shieldOptions);
+      if (shieldType instanceof Error) shieldType = Shield.TowerShield;
+      const wandResult = generateSpecificEquipmentType({
+        equipmentType: EquipmentType.OneHandedMeleeWeapon,
+        baseItemType: wandType,
+      });
+      if (!(wandResult instanceof Error))
+        mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = wandResult;
+      const shieldResult = generateSpecificEquipmentType({
+        equipmentType: EquipmentType.Shield,
+        baseItemType: shieldType,
+      });
+      if (!(shieldResult instanceof Error))
+        mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = shieldResult;
+      break;
+
     case MonsterType.FireElemental:
     case MonsterType.IceElemental:
   }

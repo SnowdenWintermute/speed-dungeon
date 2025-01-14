@@ -1,4 +1,4 @@
-import { FocusEventHandler, MouseEventHandler } from "react";
+import { FocusEventHandler, MouseEventHandler, ReactNode } from "react";
 
 export enum MenuStateType {
   Base, //
@@ -7,44 +7,31 @@ export enum MenuStateType {
   InventoryItems, //
   ViewingEquipedItems,
   ItemSelected, //
+  CraftingActionSelection,
   ItemOnGroundSelected,
   ItemsOnGround,
   Staircase,
-}
-
-export function formatMenuStateType(menuStateType: MenuStateType) {
-  switch (menuStateType) {
-    case MenuStateType.Base:
-      return "Base";
-    case MenuStateType.CombatActionSelected:
-      return "CombatActionSelected";
-    case MenuStateType.AssignAttributePoints:
-      return "AssignAttributePoints";
-    case MenuStateType.InventoryItems:
-      return "InventoryItems";
-    case MenuStateType.ViewingEquipedItems:
-      return "ViewingEquipedItems";
-    case MenuStateType.ItemSelected:
-      return "ItemSelected";
-    case MenuStateType.ItemOnGroundSelected:
-      return "ItemOnGroundSelected";
-    case MenuStateType.ItemsOnGround:
-      return "ItemsOnGround";
-    case MenuStateType.Staircase:
-      return "Staircase";
-  }
+  OperatingVendingMachine,
+  PurchasingItems,
+  CraftingItemSelection,
+  RepairItemSelection,
+  ShardItemSelection,
+  ConfimConvertToShards,
 }
 
 export enum ActionButtonCategory {
   Top,
   Numbered,
   Bottom,
+  Hidden,
 }
 
 export class ActionButtonsByCategory {
   [ActionButtonCategory.Top]: ActionMenuButtonProperties[] = [];
   [ActionButtonCategory.Numbered]: ActionMenuButtonProperties[] = [];
   [ActionButtonCategory.Bottom]: ActionMenuButtonProperties[] = [];
+  [ActionButtonCategory.Hidden]: ActionMenuButtonProperties[] = [];
+
   constructor() {}
 }
 
@@ -64,8 +51,11 @@ export class ActionMenuButtonProperties {
   mouseLeaveHandler?: MouseEventHandler<HTMLLIElement>;
   shouldBeDisabled: boolean = false;
   dedicatedKeys: string[] = [];
+  shouldDisableMainClickOnly: boolean = false;
   constructor(
-    public text: string,
-    public clickHandler: MouseEventHandler<HTMLButtonElement>
+    public jsx: ReactNode,
+    public key: string,
+    public clickHandler: MouseEventHandler<HTMLButtonElement>,
+    public alternateClickHandler?: MouseEventHandler<HTMLButtonElement>
   ) {}
 }

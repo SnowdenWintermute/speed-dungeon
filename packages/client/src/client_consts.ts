@@ -7,6 +7,10 @@ export const SPACING_REM_LARGE = 1.563;
 export const TOP_BAR_HEIGHT_REM = 3.75;
 
 export const UNMET_REQUIREMENT_TEXT_COLOR = "text-red-400";
+export const MAIN_TEXT_AND_BORDERS_COLOR = "#94a3b8";
+export const MAIN_BG_COLOR = "#334155";
+export const MAIN_ACCENT_COLOR = "#020617";
+export const HP_COLOR = "#15803d";
 
 export const HTTP_REQUEST_NAMES = {
   GET_SESSION: "get session",

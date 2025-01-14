@@ -17,7 +17,7 @@ export default async function characterAddedToPartyHandler(
     const player = game.players[username];
     if (!player) return setAlert(new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
     try {
-      addCharacterToParty(game, player, character);
+      addCharacterToParty(game, player, character, true);
     } catch (error) {
       if (error instanceof Error) setAlert(error.message);
       else console.error(error);

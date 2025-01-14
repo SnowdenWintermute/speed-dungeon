@@ -7,6 +7,7 @@ export const ERROR_MESSAGES = {
   SERVER_GENERIC: "Internal server error",
   NOT_IMPLEMENTED: "This feature is not yet implemented",
   GAME_DOESNT_EXIST: "No game by that name exists",
+  NOT_PERMITTED: "That action is not permitted",
   SERVER: {
     USERNAME_HAS_NO_SOCKET_IDS: "No socket IDs were found by that username",
     BROWSER_SESSION_NOT_FOUND: "No browser session was found associated with that socked ID",
@@ -50,7 +51,7 @@ export const ERROR_MESSAGES = {
     CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT:
       "Can't explore while there are still monsters in the room",
     NOT_IN_BATTLE: "Party not in a battle",
-    NOT_AT_STAIRCASE: "Can't descend if no staircase",
+    INCORRECT_ROOM_TYPE: "That action is not permitted in this room",
     INPUT_IS_LOCKED: "Can't accept new inputs until current events are resolved",
   },
   LADDER: {
@@ -83,6 +84,7 @@ export const ERROR_MESSAGES = {
     EXPECTED_OWNER_ID_MISSING: "Failed to find expected controlling player ID",
     MAX_NAME_LENGTH_EXCEEDED: `Character names must be no longer than ${MAX_CHARACTER_NAME_LENGTH} characters`,
     MAX_INVENTORY_CAPACITY: `Combatants may carry no more than ${INVENTORY_DEFAULT_CAPACITY} items`,
+    NOT_ENOUGH_SHARDS: "Not enough shards",
   },
   MONSTERS: {
     NO_MONSTERS_FOUND: "No monsters were found in the current room",
@@ -114,6 +116,8 @@ export const ERROR_MESSAGES = {
     NOT_YET_AVAILABLE: "The requested item is not yet available",
     ACKNOWLEDGEMENT_SENT_BEFORE_ITEM_EXISTED:
       "How can you acknowledge receipt of an item if it isn't registered yet?",
+    INVALID_PROPERTIES: "Item does not have the required properties to perform that action",
+    IS_FULLY_REPAIRED: "That item is already at full durability",
   },
   EQUIPMENT: {
     INVALID_TYPE: "Invalid equipment type was provided",

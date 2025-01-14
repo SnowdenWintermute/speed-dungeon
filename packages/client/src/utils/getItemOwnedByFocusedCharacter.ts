@@ -5,14 +5,16 @@ import { Inventory } from "@speed-dungeon/common";
 export default function getItemOwnedByFocusedCharacter(itemId: string): Error | Item {
   const focusedCharacterResult = getFocusedCharacter();
   if (focusedCharacterResult instanceof Error) return focusedCharacterResult;
-  const itemInInventoryResult = Inventory.getItem(
+  const itemInInventoryResult = Inventory.getItemById(
     focusedCharacterResult.combatantProperties.inventory,
     itemId
   );
   if (!(itemInInventoryResult instanceof Error)) return itemInInventoryResult;
 
   for (const item of Object.values(
-    CombatantEquipment.getAllEquippedItems(focusedCharacterResult.combatantProperties)
+    CombatantEquipment.getAllEquippedItems(focusedCharacterResult.combatantProperties, {
+      includeUnselectedHotswapSlots: true,
+    })
   )) {
     if (item.entityProperties.id === itemId) return item;
   }

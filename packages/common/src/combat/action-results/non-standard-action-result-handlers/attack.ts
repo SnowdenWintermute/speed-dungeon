@@ -33,7 +33,10 @@ export default function calculateAttackActionResult(
       holdableSlotType
     );
     mhAttackEndsTurn = !!(
-      equipmentOption && Equipment.isTwoHanded(equipmentOption.equipmentBaseItemProperties.type)
+      equipmentOption &&
+      Equipment.isTwoHanded(
+        equipmentOption.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType
+      )
     );
 
     const combatActionOption = getAttackCombatActionOption(
@@ -75,8 +78,10 @@ export function getAttackCombatActionOption(
 
   if (
     !equipmentOption || // unarmed
-    equipmentOption.equipmentBaseItemProperties.type === EquipmentType.OneHandedMeleeWeapon ||
-    equipmentOption.equipmentBaseItemProperties.type === EquipmentType.TwoHandedMeleeWeapon
+    equipmentOption.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType ===
+      EquipmentType.OneHandedMeleeWeapon ||
+    equipmentOption.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType ===
+      EquipmentType.TwoHandedMeleeWeapon
   ) {
     const abilityName =
       holdableSlotType === HoldableSlotType.MainHand
@@ -86,7 +91,10 @@ export function getAttackCombatActionOption(
     return { type: CombatActionType.AbilityUsed, abilityName };
   }
 
-  if (equipmentOption.equipmentBaseItemProperties.type === EquipmentType.TwoHandedRangedWeapon)
+  if (
+    equipmentOption.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType ===
+    EquipmentType.TwoHandedRangedWeapon
+  )
     return { type: CombatActionType.AbilityUsed, abilityName: AbilityName.AttackRangedMainhand };
 
   return null;

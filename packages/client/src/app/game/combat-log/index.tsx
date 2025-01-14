@@ -10,13 +10,10 @@ export default function CombatLog() {
     <div className="h-full flex flex-col pointer-events-auto">
       <h3 className="flex-grow-0 flex-shrink">Message Log</h3>
       <Divider />
-      <div className="list-none overflow-y-auto flex flex-col-reverse flex-1">
+      <div className="list-none overflow-y-auto flex flex-col-reverse flex-1 pb-[4px]">
         <ul>
           {combatLogMessages.map((message, i) => (
-            <CombatLogMessageElement
-              key={message.timestamp + message.message + i}
-              message={message}
-            />
+            <CombatLogMessageElement key={message.timestamp + i} message={message} />
           ))}
         </ul>
       </div>
@@ -28,6 +25,7 @@ function CombatLogMessageElement({ message }: { message: CombatLogMessage }) {
   let color = "";
   switch (message.style) {
     case CombatLogMessageStyle.Basic:
+      color = "text-slate-400";
       break;
     case CombatLogMessageStyle.Healing:
       color = "text-green-600";

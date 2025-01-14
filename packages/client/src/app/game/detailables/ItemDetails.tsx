@@ -1,10 +1,13 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import {
+  Amulet,
+  CONSUMABLE_TYPE_STRINGS,
   CombatActionType,
   Consumable,
+  ConsumableType,
   Equipment,
+  EquipmentType,
   Item,
-  formatConsumableType,
 } from "@speed-dungeon/common";
 import React, { useRef } from "react";
 import ActionDetails from "./ActionDetails";
@@ -16,6 +19,13 @@ import Model3DIcon from "../../../../public/img/menu-icons/3d-model-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { getModelAttribution } from "@/app/3d-world/item-models/get-model-attribution";
+import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
+import SwordIcon from "../../../../public/img/equipment-icons/1h-sword-a.svg";
+import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
+import HotkeyButton from "@/app/components/atoms/HotkeyButton";
+import RingIcon from "../../../../public/img/equipment-icons/ring-flattened.svg";
+import AmuletIcon from "../../../../public/img/equipment-icons/amulet.svg";
+import { HOTKEYS } from "@/hotkeys";
 
 interface Props {
   shouldShowModKeyTooltip: boolean;
@@ -38,11 +48,17 @@ export default function ItemDetails({
   const imageRef = useRef<HTMLImageElement>(null);
   let hiddenClass = "pointer-events-auto";
   let thumbnailPath = "";
+  let svgThumbnailOption = undefined;
 
   const unmetRequirements = useGameStore().consideredItemUnmetRequirements;
   let BG_COLOR = "bg-slate-800";
 
   let thumbnailIdOption = "";
+
+  const isDetailedEntity =
+    useGameStore.getState().detailedEntity?.entityProperties.id === itemOption?.entityProperties.id;
+  const isHoveredEntity =
+    useGameStore.getState().hoveredEntity?.entityProperties.id === itemOption?.entityProperties.id;
 
   if (!itemOption) {
     itemDetailsDisplay = <></>;
@@ -54,41 +70,79 @@ export default function ItemDetails({
     if (item instanceof Equipment) {
       itemDetailsDisplay = <EquipmentDetails equipment={item} />;
       thumbnailIdOption = item.entityProperties.id;
+      if (item.equipmentBaseItemProperties.equipmentType === EquipmentType.Ring) {
+        svgThumbnailOption = <RingIcon className="fill-slate-400" />;
+      }
+      if (item.equipmentBaseItemProperties.equipmentType === EquipmentType.Amulet) {
+        svgThumbnailOption = <AmuletIcon className="fill-slate-400" />;
+      }
     } else if (item instanceof Consumable) {
       BG_COLOR = "bg-slate-700";
-      thumbnailIdOption = formatConsumableType(item.consumableType);
-      itemDetailsDisplay = (
-        <ActionDetails
-          combatAction={{
-            type: CombatActionType.ConsumableUsed,
-            itemId: item.entityProperties.id,
-          }}
-          hideTitle={true}
-        />
-      );
+      thumbnailIdOption = CONSUMABLE_TYPE_STRINGS[item.consumableType];
+      if (item.consumableType === ConsumableType.StackOfShards) {
+        svgThumbnailOption = <ShardsIcon className="h-full fill-slate-400 m-2" />;
+        itemDetailsDisplay = <div>Could be useful...</div>;
+      } else {
+        itemDetailsDisplay = (
+          <ActionDetails
+            combatAction={{
+              type: CombatActionType.ConsumableUsed,
+              itemId: item.entityProperties.id,
+              consumableType: item.consumableType,
+            }}
+            hideTitle={true}
+          />
+        );
+      }
     } else {
       itemDetailsDisplay = <div>unknown item type</div>;
     }
   }
 
-  thumbnailPath =
-    useGameStore().itemThumbnails[thumbnailIdOption] || "img/equipment-icons/1h-sword-a.svg";
+  const thumbnailOption = useGameStore().itemThumbnails[thumbnailIdOption];
+  if (!thumbnailPath && thumbnailOption) thumbnailPath = thumbnailOption;
+  if (!thumbnailPath && !svgThumbnailOption)
+    svgThumbnailOption = <SwordIcon className="h-full fill-slate-950" />;
 
   const attribution = itemOption && getModelAttribution(itemOption);
 
   return (
     <div
-      className={`border border-slate-400 bg-slate-700 h-fit
-      max-w-1/2 ${extraStyles} ${hiddenClass}
+      className={`border ${isDetailedEntity ? "border-yellow-400" : isHoveredEntity ? "border-white" : "border-slate-400"} bg-slate-700 h-fit
+      w-full ${extraStyles} ${hiddenClass}
       flex relative 
       `}
       style={{
         [`margin${marginSide}`]: `${SPACING_REM_SMALL / 2.0}rem`,
-        width: "50%",
         padding: `${SPACING_REM}rem`,
         scrollbarGutter: "stable",
       }}
     >
+      {isDetailedEntity && (
+        <HotkeyButton
+          className="absolute -right-1 -top-1 z-10 h-6 w-6 p-1 border border-slate-400 bg-slate-700"
+          hotkeys={[HOTKEYS.CANCEL]}
+          onClick={() => {
+            useGameStore.getState().mutateState((state) => {
+              state.detailedEntity = null;
+            });
+          }}
+        >
+          <XShape className="h-full fill-slate-400" />
+        </HotkeyButton>
+      )}
+      {itemOption instanceof Equipment && (
+        <div className="absolute -top-1 -left-1 z-10 ">
+          <HoverableTooltipWrapper
+            extraStyles="cursor-help"
+            tooltipText="Item Level (determines possible affix tiers) "
+          >
+            <span className="bg-slate-800 h-6 w-6 border border-slate-400 flex justify-center items-center">
+              {itemOption.itemLevel}
+            </span>
+          </HoverableTooltipWrapper>
+        </div>
+      )}
       {shouldShowModKeyTooltip && isComparedItem && (
         <div
           style={{ zIndex: ZIndexLayers.ItemDetails }}
@@ -98,7 +152,11 @@ export default function ItemDetails({
         </div>
       )}
       <div className="flex-1 justify-center items-center text-center ">
-        <span className="pr-2">{itemOption?.entityProperties.name}</span>
+        <span
+          className={`pr-2 ${itemOption instanceof Equipment && Equipment.isMagical(itemOption) && "text-blue-300"}`}
+        >
+          {itemOption?.entityProperties.name}
+        </span>
         <Divider extraStyles="mr-4" />
         {itemDetailsDisplay}
       </div>
@@ -108,12 +166,18 @@ export default function ItemDetails({
           border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4 mb-1`}
           // className={`bg-slate-700 self-start border border-white w-[7.5rem] h-[12.125rem] max-h-[12.125rem] flex items-center justify-center p-4`}
         >
-          <img
-            src={thumbnailPath}
-            ref={imageRef}
-            className="max-h-full object-contain"
-            style={{ transform: `rotate(${0}deg)`, objectFit: "contain" }}
-          />
+          {thumbnailPath ? (
+            <img
+              src={thumbnailPath}
+              ref={imageRef}
+              className="max-h-full object-contain"
+              style={{ transform: `rotate(${0}deg)`, objectFit: "contain" }}
+            />
+          ) : svgThumbnailOption ? (
+            svgThumbnailOption
+          ) : (
+            <></>
+          )}
         </div>
 
         {attribution && (

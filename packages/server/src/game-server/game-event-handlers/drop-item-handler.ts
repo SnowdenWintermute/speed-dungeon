@@ -32,7 +32,7 @@ export default async function dropItemHandler(
   const playerOption = game.players[player.username];
   if (playerOption && playerOption.partyName && game.mode === GameMode.Progression) {
     const maybeError = await writePlayerCharactersInGameToDb(game, playerOption);
-    if (maybeError instanceof Error) return errorHandler(socket, maybeError.message);
+    if (maybeError instanceof Error) return errorHandler(socket, maybeError);
   }
 
   party.itemsOnGroundNotYetReceivedByAllClients[itemDroppedIdResult] = [];

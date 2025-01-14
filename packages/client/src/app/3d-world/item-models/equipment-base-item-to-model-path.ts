@@ -1,5 +1,5 @@
 import {
-  EquipmentBaseItemType,
+  EquipmentBaseItem,
   EquipmentType,
   OneHandedMeleeWeapon,
   Shield,
@@ -8,29 +8,27 @@ import {
 } from "@speed-dungeon/common";
 import { Artist } from "./artists";
 
-export function equipmentBaseItemToModelPath(
-  equipmentType: EquipmentType,
-  baseItem: EquipmentBaseItemType | null
-): string | null {
+export function equipmentBaseItemToModelPath(baseItem: EquipmentBaseItem): string | null {
   let filePath;
-  const folderPath = MODEL_FOLDER_PATHS[equipmentType];
-  switch (equipmentType) {
+
+  const folderPath = MODEL_FOLDER_PATHS[baseItem.equipmentType];
+  switch (baseItem.equipmentType) {
     case EquipmentType.BodyArmor:
     case EquipmentType.HeadGear:
     case EquipmentType.Ring:
     case EquipmentType.Amulet:
       return null;
     case EquipmentType.OneHandedMeleeWeapon:
-      filePath = ONE_HANDED_MELEE_WEAPON_MODELS[baseItem as OneHandedMeleeWeapon].path;
+      filePath = ONE_HANDED_MELEE_WEAPON_MODELS[baseItem.baseItemType].path;
       break;
     case EquipmentType.TwoHandedMeleeWeapon:
-      filePath = TWO_HANDED_MELEE_WEAPON_MODELS[baseItem as TwoHandedMeleeWeapon].path;
+      filePath = TWO_HANDED_MELEE_WEAPON_MODELS[baseItem.baseItemType].path;
       break;
     case EquipmentType.TwoHandedRangedWeapon:
-      filePath = TWO_HANDED_RANGED_WEAPON_MODELS[baseItem as TwoHandedRangedWeapon].path;
+      filePath = TWO_HANDED_RANGED_WEAPON_MODELS[baseItem.baseItemType].path;
       break;
     case EquipmentType.Shield:
-      filePath = SHIELD_MODELS[baseItem as Shield].path;
+      filePath = SHIELD_MODELS[baseItem.baseItemType].path;
       break;
   }
 
@@ -116,7 +114,7 @@ export const TWO_HANDED_RANGED_WEAPON_MODELS: Record<
 export const SHIELD_MODELS: Record<Shield, { path: null | string; artist: Artist }> = {
   // [Shield.MakeshiftBuckler]: "wooden-kite-shield.glb",
   [Shield.PotLid]: { path: "pot-lid.glb", artist: Artist.P0ss },
-  [Shield.MakeshiftBuckler]: { path: "makeshift-buckler.glb", artist: Artist.Djonvincent }, // https://opengameart.org/content/trap-door
+  [Shield.CabinetDoor]: { path: "makeshift-buckler.glb", artist: Artist.Djonvincent }, // https://opengameart.org/content/trap-door
   [Shield.Heater]: { path: "wooden-kite-shield.glb", artist: Artist.Quaternius }, // quaternius
   [Shield.Buckler]: { path: "buckler.glb", artist: Artist.RyanHetchler }, // https://opengameart.org/content/19-low-poly-fantasy-weapons
   [Shield.Pavise]: { path: "pavise.glb", artist: Artist.Snowden }, // self-made

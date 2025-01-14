@@ -9,6 +9,11 @@ interface Props {
   submitHandlerCallback: (data: string) => void;
   buttonTitle: string;
   submitDisabled: boolean;
+  inputStyles?: string;
+  type?: string;
+  min?: number;
+  max?: number;
+  autofocus?: boolean;
 }
 
 export default function TextSubmit(props: Props) {
@@ -25,10 +30,15 @@ export default function TextSubmit(props: Props) {
   return (
     <form className="flex" onSubmit={submitHandler}>
       <TextInput
+        autofocus={props.autofocus}
+        className={props.inputStyles}
         name={props.inputName}
         placeholder={props.inputPlaceholder}
         onChange={handleInputChange}
+        type={props.type}
         value={value}
+        min={props.min}
+        max={props.max}
       />
       <ButtonBasic
         disabled={props.submitDisabled}

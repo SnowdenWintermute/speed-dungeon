@@ -18,7 +18,7 @@ export default function shouldDisplayModTooltip(
   )
     return false;
 
-  const equipmentType = equippedItem.equipmentBaseItemProperties.type;
+  const equipmentType = equippedItem.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType;
   if (equipmentType === EquipmentType.Ring || equipmentType === EquipmentType.OneHandedMeleeWeapon)
     return true;
   return false;

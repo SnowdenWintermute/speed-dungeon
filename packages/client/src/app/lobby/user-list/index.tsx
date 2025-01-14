@@ -26,7 +26,7 @@ export default function UserList() {
       }}
     >
       <h2 className="text-slate-200 text-l mb-2 pointer-events-auto w-fit flex items-center">
-        {"In lobby"}
+        {websocketConnected ? "In lobby" : "Connecting"}
         {websocketConnected ? (
           ` - ${usersArray.length}`
         ) : (

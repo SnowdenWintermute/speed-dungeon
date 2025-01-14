@@ -10,17 +10,8 @@ import ValueBarsAndFocusButton from "./ValueBarsAndFocusButton";
 import ActiveCombatantIcon from "./ActiveCombatantIcon";
 import CombatantInfoButton from "./CombatantInfoButton";
 import DetailedCombatantInfoCard from "./DetailedCombatantInfoCard";
-import {
-  ClientToServerEvent,
-  Combatant,
-  CombatantEquipment,
-  InputLock,
-  Inventory,
-} from "@speed-dungeon/common";
+import { Combatant, CombatantEquipment, InputLock, Inventory } from "@speed-dungeon/common";
 import "./floating-text-animation.css";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import setFocusedCharacter from "@/utils/set-focused-character";
-import { AssigningAttributePointsMenuState } from "../ActionMenu/menu-state/assigning-attribute-points";
 import CombatantFloatingMessagesDisplay from "./combatant-floating-messages-display";
 import InventoryIconButton from "./InventoryIconButton";
 import HotswapSlotButtons from "./HotswapSlotButtons";
@@ -36,7 +27,6 @@ interface Props {
 export default function CombatantPlaque({ combatant, showExperience }: Props) {
   const gameOption = useGameStore().game;
   const showDebug = useUIStore().showDebug;
-  const mutateGameState = useGameStore().mutateState;
   const portrait = useGameStore((state) => state.combatantPortraits[combatant.entityProperties.id]);
   const { detailedEntity, focusedCharacterId, hoveredEntity } = useGameStore(
     useShallow((state) => ({
@@ -82,18 +72,6 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
   const isPartyMember = party.characterPositions.includes(entityId);
 
   const conditionalBorder = getConditionalBorder(isHovered(), isFocused, combatantIsDetailed);
-
-  function handleUnspentAttributesButtonClick() {
-    websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-      characterId: entityId,
-      combatActionOption: null,
-    });
-    setFocusedCharacter(entityId);
-
-    mutateGameState((store) => {
-      store.stackedMenuStates = [new AssigningAttributePointsMenuState()];
-    });
-  }
 
   const lockedUiState = InputLock.isLocked(party.inputLock)
     ? "opacity-50 pointer-events-none "
@@ -159,7 +137,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
               </span>
               <UnspentAttributesButton
                 combatantProperties={combatantProperties}
-                handleClick={handleUnspentAttributesButtonClick}
+                entityId={entityId}
               />
             </span>
             <span className="flex items-center">

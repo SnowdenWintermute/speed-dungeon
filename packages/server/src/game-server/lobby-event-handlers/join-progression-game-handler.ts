@@ -25,7 +25,7 @@ export default async function joinProgressionGameHandler(
     );
 
     if (defaultSavedCharacterResult instanceof Error)
-      return errorHandler(socket, defaultSavedCharacterResult.message);
+      return errorHandler(socket, new Error(defaultSavedCharacterResult.message));
 
     await joinPlayerToProgressionGame(
       gameServer,
@@ -36,6 +36,6 @@ export default async function joinProgressionGameHandler(
     );
   } catch (error) {
     console.error(error);
-    return errorHandler(socket, ERROR_MESSAGES.SERVER_GENERIC);
+    return errorHandler(socket, new Error(ERROR_MESSAGES.SERVER_GENERIC));
   }
 }

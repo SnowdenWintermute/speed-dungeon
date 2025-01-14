@@ -1,4 +1,4 @@
-import { Equipment, formatEquipmentType } from "@speed-dungeon/common";
+import { EQUIPMENT_TYPE_STRINGS, Equipment } from "@speed-dungeon/common";
 import React from "react";
 import { ArmorClassText, getArmorCategoryText } from "./armor";
 import WeaponDamage from "./WeaponDamage";
@@ -14,7 +14,11 @@ export default function EquipmentDetails({ equipment }: Props) {
   const armorCategoryTextOption = getArmorCategoryText(equipment);
   return (
     <div className="mr-2">
-      {formatEquipmentType(equipment.equipmentBaseItemProperties.type)}
+      {
+        EQUIPMENT_TYPE_STRINGS[
+          equipment.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType
+        ]
+      }
       {armorCategoryTextOption && armorCategoryTextOption}
       <Durability equipment={equipment} />
       <ItemRequirements attributeRequirements={equipment.requirements} />

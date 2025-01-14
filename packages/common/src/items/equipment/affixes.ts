@@ -28,6 +28,7 @@ export enum SuffixType {
   Hp,
   Damage,
   Durability,
+  PercentArmorClass,
 }
 
 export type TaggedAffixType =

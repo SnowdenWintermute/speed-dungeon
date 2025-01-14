@@ -5,6 +5,7 @@ import {
   ServerToClientEvent,
   SpeedDungeonGame,
   addCharacterToParty,
+  isBrowser,
 } from "@speed-dungeon/common";
 import { createCharacter } from "../character-creation/index.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
@@ -23,7 +24,7 @@ export default function createCharacterHandler(
     return new Error(ERROR_MESSAGES.COMBATANT.MAX_NAME_LENGTH_EXCEEDED);
   const newCharacter = createCharacter(name, combatantClass);
   if (newCharacter instanceof Error) return newCharacter;
-  addCharacterToParty(game, player, newCharacter);
+  addCharacterToParty(game, player, newCharacter, isBrowser());
 
   const newCharacterId = newCharacter.entityProperties.id;
 

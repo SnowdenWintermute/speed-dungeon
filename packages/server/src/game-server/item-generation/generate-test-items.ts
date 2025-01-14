@@ -31,7 +31,7 @@ export function generateSpecificEquipmentType(
   const item = itemGenerationDirector?.createItem(1, idGenerator, {
     forcedBaseItemOption: {
       type: ItemType.Equipment,
-      baseItem: equipmentBaseItem,
+      taggedBaseEquipment: equipmentBaseItem,
     },
     noAffixes,
   });
@@ -52,7 +52,7 @@ export function generateOneOfEachItem() {
       ![
         EquipmentType.OneHandedMeleeWeapon,
         // EquipmentType.TwoHandedMeleeWeapon,
-        EquipmentType.TwoHandedRangedWeapon,
+        // EquipmentType.TwoHandedRangedWeapon,
         // EquipmentType.Shield,
       ].includes(equipmentType)
     )

@@ -17,19 +17,22 @@ export default async function selectProgressionGameStartingFloorHandler(
   socket: Socket
 ) {
   const { game, session } = playerAssociatedData;
-  if (game.mode !== GameMode.Progression) return errorHandler(socket, ERROR_MESSAGES.GAME.MODE);
+  if (game.mode !== GameMode.Progression)
+    return errorHandler(socket, new Error(ERROR_MESSAGES.GAME.MODE));
   const maxStartingFloor = getProgressionGameMaxStartingFloor(
     game.lowestStartingFloorOptionsBySavedCharacter
   );
 
   if (floorNumber > maxStartingFloor)
-    return errorHandler(socket, ERROR_MESSAGES.GAME.STARTING_FLOOR_LIMIT);
+    return errorHandler(socket, new Error(ERROR_MESSAGES.GAME.STARTING_FLOOR_LIMIT));
 
   game.selectedStartingFloor = floorNumber;
 
   const player = game.players[session.username];
-  if (!player) return errorHandler(socket, `${ATTEMPT_TEXT} their player wasn't in the game`);
-  if (!player.partyName) return errorHandler(socket, ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+  if (!player)
+    return errorHandler(socket, new Error(`${ATTEMPT_TEXT} their player wasn't in the game`));
+  if (!player.partyName)
+    return errorHandler(socket, new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME));
 
   const gameServer = getGameServer();
   gameServer.io

@@ -5,6 +5,8 @@ import { Item } from "../items/index.js";
 import { Consumable } from "../items/consumables/index.js";
 import { Equipment } from "../items/equipment/index.js";
 import { plainToInstance } from "class-transformer";
+import { CombatantProperties } from "./combatant-properties.js";
+import { CombatantTraitType } from "./combatant-traits.js";
 
 export class Inventory {
   [immerable] = true;
@@ -18,17 +20,48 @@ export class Inventory {
     return inventory.consumables.length + inventory.equipment.length;
   }
 
+  static isAtCapacity(combatantProperties: CombatantProperties) {
+    const extraConsumableStorageTraitOption = combatantProperties.traits.find(
+      (trait) => trait.type === CombatantTraitType.ExtraConsumablesStorage
+    );
+
+    let numItemsToCountTowardCapacity = Inventory.getTotalNumberOfItems(
+      combatantProperties.inventory
+    );
+
+    if (
+      extraConsumableStorageTraitOption &&
+      extraConsumableStorageTraitOption.type === CombatantTraitType.ExtraConsumablesStorage
+    ) {
+      const numConsumables = combatantProperties.inventory.consumables.length;
+      const numConsumablesToDeductFromCapacityCheck = Math.min(
+        numConsumables,
+        extraConsumableStorageTraitOption.capacity
+      );
+      numItemsToCountTowardCapacity -= numConsumablesToDeductFromCapacityCheck;
+    }
+
+    return numItemsToCountTowardCapacity >= combatantProperties.inventory.capacity;
+  }
+
   static insertItem(inventory: Inventory, item: Item) {
-    if (Inventory.getTotalNumberOfItems(inventory) > inventory.capacity)
-      return new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);
     if (item instanceof Consumable) inventory.consumables.push(item);
     else if (item instanceof Equipment) inventory.equipment.push(item);
     else return new Error("Unhandled item type");
   }
 
+  static insertItems(inventory: Inventory, items: Item[]) {
+    for (const item of items) {
+      const result = Inventory.insertItem(inventory, item);
+      if (result instanceof Error) return result;
+    }
+  }
+
   static removeItem(inventory: Inventory, itemId: string) {
     let itemResult: Consumable | Equipment | Error = Inventory.removeConsumable(inventory, itemId);
-    if (itemResult instanceof Error) itemResult = Inventory.removeEquipment(inventory, itemId);
+    if (itemResult instanceof Error) {
+      itemResult = Inventory.removeEquipment(inventory, itemId);
+    }
     return itemResult;
   }
 
@@ -46,7 +79,7 @@ export class Inventory {
     else return itemOption;
   }
 
-  static getConsumable(inventory: Inventory, itemId: string) {
+  static getConsumableById(inventory: Inventory, itemId: string) {
     for (const item of Object.values(inventory.consumables)) {
       if (item.entityProperties.id === itemId) {
         return item;
@@ -55,7 +88,7 @@ export class Inventory {
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
-  static getEquipment(inventory: Inventory, itemId: string) {
+  static getEquipmentById(inventory: Inventory, itemId: string) {
     for (const item of Object.values(inventory.equipment)) {
       if (item.entityProperties.id === itemId) {
         return item;
@@ -64,9 +97,9 @@ export class Inventory {
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
-  static getItem(inventory: Inventory, itemId: string) {
-    let itemOption: Consumable | Equipment | Error = Inventory.getConsumable(inventory, itemId);
-    if (itemOption instanceof Error) itemOption = Inventory.getEquipment(inventory, itemId);
+  static getItemById(inventory: Inventory, itemId: string) {
+    let itemOption: Consumable | Equipment | Error = Inventory.getConsumableById(inventory, itemId);
+    if (itemOption instanceof Error) itemOption = Inventory.getEquipmentById(inventory, itemId);
     return itemOption;
   }
 

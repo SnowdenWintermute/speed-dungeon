@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import PaperDollSlot from "./PaperDollSlot";
 import {
-  ClientToServerEvent,
   Combatant,
   CombatantEquipment,
   CombatantProperties,
@@ -10,8 +9,8 @@ import {
   WearableSlotType,
   equipmentIsTwoHandedWeapon,
 } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import HotswapSlotButtons from "../combatant-plaques/HotswapSlotButtons";
+import { useGameStore } from "@/stores/game-store";
 
 interface Props {
   combatant: Combatant;
@@ -20,6 +19,7 @@ interface Props {
 export default function PaperDoll({ combatant }: Props) {
   const { combatantProperties, entityProperties } = combatant;
   const equippedHoldables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+  const viewingDropShardsModal = useGameStore((state) => state.viewingDropShardsModal);
   const { equipment } = combatantProperties;
 
   const totalAttributes = useMemo(
@@ -30,12 +30,17 @@ export default function PaperDoll({ combatant }: Props) {
   const mainhandOption = equippedHoldables?.holdables[HoldableSlotType.MainHand];
 
   const mainHandIs2h =
-    mainhandOption?.equipmentBaseItemProperties.type !== undefined
-      ? equipmentIsTwoHandedWeapon(mainhandOption.equipmentBaseItemProperties.type)
+    mainhandOption !== undefined
+      ? equipmentIsTwoHandedWeapon(
+          mainhandOption.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType
+        )
       : false;
 
   return (
-    <div id="paper-doll" className="relative flex w-[23.75rem] mr-5">
+    <div
+      id="paper-doll"
+      className={`relative flex w-[23.75rem] ${viewingDropShardsModal && "pointer-events-none opacity-50"}`}
+    >
       <HotswapSlotButtons
         vertical={false}
         className={"absolute h-fit flex border border-slate-400"}

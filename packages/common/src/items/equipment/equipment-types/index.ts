@@ -1,6 +1,6 @@
 import { BodyArmor } from "./body-armor.js";
 import { HeadGear } from "./head-gear.js";
-import { Amulet, Jewelry, Ring } from "./jewelry.js";
+import { Amulet, Ring } from "./jewelry.js";
 import { OneHandedMeleeWeapon } from "./one-handed-melee-weapon.js";
 import { Shield } from "./shield.js";
 import { TwoHandedMeleeWeapon } from "./two-handed-melee-weapon.js";
@@ -71,16 +71,17 @@ export interface ShieldBaseItemType {
 }
 export interface RingBaseItemType {
   equipmentType: EquipmentType.Ring;
-  baseItemType: Jewelry.Ring;
+  baseItemType: Ring;
 }
 export interface AmuletBaseItemType {
   equipmentType: EquipmentType.Amulet;
-  baseItemType: Jewelry.Amulet;
+  baseItemType: Amulet;
 }
 
 export type EquipmentBaseItemType =
   | Shield
-  | Jewelry
+  | Ring
+  | Amulet
   | TwoHandedMeleeWeapon
   | TwoHandedRangedWeapon
   | OneHandedMeleeWeapon
@@ -97,23 +98,13 @@ export type EquipmentBaseItem =
   | AmuletBaseItemType
   | RingBaseItemType;
 
-export function formatEquipmentType(equipmentType: EquipmentType) {
-  switch (equipmentType) {
-    case EquipmentType.BodyArmor:
-      return "Body Armor";
-    case EquipmentType.HeadGear:
-      return "Head Gear";
-    case EquipmentType.Ring:
-      return "Ring";
-    case EquipmentType.Amulet:
-      return "Amulet";
-    case EquipmentType.OneHandedMeleeWeapon:
-      return "One Handed Melee Weapon";
-    case EquipmentType.TwoHandedMeleeWeapon:
-      return "Two Handed Melee Weapon";
-    case EquipmentType.TwoHandedRangedWeapon:
-      return "Two Handed Ranged Weapon";
-    case EquipmentType.Shield:
-      return "Shield";
-  }
-}
+export const EQUIPMENT_TYPE_STRINGS: Record<EquipmentType, string> = {
+  [EquipmentType.BodyArmor]: "Body Armor",
+  [EquipmentType.HeadGear]: "Head Gear",
+  [EquipmentType.Ring]: "Ring",
+  [EquipmentType.Amulet]: "Amulet",
+  [EquipmentType.OneHandedMeleeWeapon]: "One Handed Melee Weapon",
+  [EquipmentType.TwoHandedMeleeWeapon]: "Two Handed Melee Weapon",
+  [EquipmentType.TwoHandedRangedWeapon]: "Two Handed Ranged Weapon",
+  [EquipmentType.Shield]: "Shield",
+};

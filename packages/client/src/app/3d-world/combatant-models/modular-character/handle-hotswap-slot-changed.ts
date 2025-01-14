@@ -34,7 +34,7 @@ export async function handleHotswapSlotChanged(
         }
       } else {
         const modelOption = this.equipment.holdables[equipment.entityProperties.id];
-        if (modelOption) disposeAsyncLoadedScene(modelOption, this.world.scene);
+        if (modelOption) disposeAsyncLoadedScene(modelOption);
         delete this.equipment.holdables[equipment.entityProperties.id];
       }
     }

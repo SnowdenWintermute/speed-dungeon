@@ -2,6 +2,7 @@ import { Vector3 } from "@babylonjs/core";
 import { idGenerator } from "../../singletons.js";
 import getSpawnableMonsterTypesByFloor from "./get-spawnable-monster-types-by-floor.js";
 import {
+  COMBAT_ATTRIBUTE_STRINGS,
   CombatAttribute,
   Combatant,
   CombatantProperties,
@@ -53,10 +54,10 @@ export default function generateMonster(level: number, forcedType?: MonsterType)
   const attributesPerLevel = getMonsterPerLevelAttributes(monsterType);
   for (const [attribute, value] of iterateNumericEnumKeyedRecord(attributesPerLevel)) {
     const levelAdjustedValue = value * (monster.combatantProperties.level - 1);
-    if (attribute === CombatAttribute.Strength)
-      if (!monster.combatantProperties.inherentAttributes[attribute])
-        monster.combatantProperties.inherentAttributes[attribute] = levelAdjustedValue;
-      else monster.combatantProperties.inherentAttributes[attribute]! += levelAdjustedValue;
+
+    if (!monster.combatantProperties.inherentAttributes[attribute])
+      monster.combatantProperties.inherentAttributes[attribute] = levelAdjustedValue;
+    else monster.combatantProperties.inherentAttributes[attribute]! += levelAdjustedValue;
   }
   // randomize their hp a little
   const baseHp = monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] || 1;
@@ -65,10 +66,10 @@ export default function generateMonster(level: number, forcedType?: MonsterType)
   monster.combatantProperties.inherentAttributes[CombatAttribute.Hp] = Math.floor(modifiedHp);
   // traits
   monster.combatantProperties.traits = getMonsterTraits(monsterType);
-  // set hp and mp to max
-  CombatantProperties.setHpAndMpToMax(monster.combatantProperties);
   // equip weapons
   monster.combatantProperties.equipment = getMonsterEquipment(monsterType);
+  // set hp and mp to max
+  CombatantProperties.setHpAndMpToMax(monster.combatantProperties);
   // assign abilities
   monster.combatantProperties.abilities = getMonsterAbilities(monsterType);
 

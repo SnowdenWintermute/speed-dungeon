@@ -1,19 +1,26 @@
 import {
   AffixType,
   Affixes,
+  BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL,
+  CHANCE_TO_HAVE_DOUBLE_AFFIX,
+  CHANCE_TO_HAVE_PREFIX,
   CombatAttribute,
+  EQUIPMENT_TYPE_STRINGS,
   ERROR_MESSAGES,
   EquipmentBaseItem,
   EquipmentBaseItemProperties,
   EquipmentBaseItemType,
   EquipmentType,
+  FOUND_ITEM_MAX_DURABILITY_MODIFIER,
+  FOUND_ITEM_MIN_DURABILITY_MODIFIER,
   ItemType,
   MaxAndCurrent,
   PrefixType,
   SuffixType,
+  TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER,
+  TaggedAffixType,
   chooseRandomFromArray,
   equipmentIsTwoHandedWeapon,
-  formatEquipmentType,
   randBetween,
   shuffleArray,
 } from "@speed-dungeon/common";
@@ -33,6 +40,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
   ) {
     super();
   }
+
   buildBaseItem(
     itemLevel: number,
     forcedBaseItemOption: TaggedBaseItem | undefined
@@ -53,7 +61,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     const toReturn: TaggedBaseItem = {
       type: ItemType.Equipment,
       // @ts-ignore
-      baseItem: {
+      taggedBaseEquipment: {
         equipmentType: this.equipmentType,
         baseItemType: baseEquipmentItem,
       },
@@ -74,37 +82,55 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     const template = getEquipmentGenerationTemplate(baseEquipmentItem);
     if (template === undefined)
       return new Error(
-        `missing template for ${JSON.stringify(baseEquipmentItem)} in equipment type ${formatEquipmentType(this.equipmentType)}`
+        `missing template for ${JSON.stringify(baseEquipmentItem)} in equipment type ${EQUIPMENT_TYPE_STRINGS[this.equipmentType]}`
       );
 
     if (template.maxDurability === null) return null;
-    const startingDurability = randBetween(1, template.maxDurability);
+    const startingDurability = randBetween(
+      Math.floor(template.maxDurability * FOUND_ITEM_MIN_DURABILITY_MODIFIER),
+      Math.floor(template.maxDurability * FOUND_ITEM_MAX_DURABILITY_MODIFIER)
+    );
     let durability = new MaxAndCurrent(template.maxDurability, startingDurability);
 
     return durability;
   }
 
-  buildAffixes(itemLevel: number, baseEquipmentItem: EquipmentBaseItem): Error | Affixes {
+  buildAffixes(
+    itemLevel: number,
+    baseEquipmentItem: EquipmentBaseItem,
+    options?: {
+      forcedIsMagical?: boolean;
+      forcedNumAffixes?: { prefixes: number; suffixes: number };
+    }
+  ): Error | Affixes {
     const affixes: Affixes = { [AffixType.Prefix]: {}, [AffixType.Suffix]: {} };
 
     const template = getEquipmentGenerationTemplate(baseEquipmentItem);
-    if (template === undefined) return new Error("missing template");
 
     const isMagical =
-      Math.random() < 0.75 ||
+      Math.random() < BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL ||
       baseEquipmentItem.equipmentType === EquipmentType.Amulet ||
-      baseEquipmentItem.equipmentType === EquipmentType.Ring;
+      baseEquipmentItem.equipmentType === EquipmentType.Ring ||
+      options?.forcedIsMagical;
     if (!isMagical) return affixes;
 
     let hasPrefix = false;
     let hasSuffix = false;
+    let hasBothAffixes = false;
 
-    while (isMagical && !hasSuffix && !hasPrefix) {
-      hasPrefix = Math.random() < 0.208;
-      hasSuffix = Math.random() < 0.625;
-    }
+    const roll = Math.random();
+    if (roll < CHANCE_TO_HAVE_DOUBLE_AFFIX) hasBothAffixes = true;
+    else if (
+      roll >= CHANCE_TO_HAVE_DOUBLE_AFFIX &&
+      roll < CHANCE_TO_HAVE_PREFIX + CHANCE_TO_HAVE_DOUBLE_AFFIX
+    )
+      hasPrefix = true;
+    else hasSuffix = true;
 
-    const numAffixesToRoll = { prefixes: hasPrefix ? 1 : 0, suffixes: hasSuffix ? 1 : 0 };
+    const numAffixesToRoll = {
+      prefixes: hasPrefix || hasBothAffixes ? 1 : 0,
+      suffixes: hasSuffix || hasBothAffixes ? 1 : 0,
+    };
 
     const affixTypes: { prefix: PrefixType[]; suffix: SuffixType[] } = {
       prefix: [],
@@ -112,48 +138,31 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     };
 
     // look up valid affixes and their tier levels for item type
-    const possiblePrefixes = Object.keys(template.possibleAffixes.prefix).map(
-      (item) => parseInt(item) as PrefixType
-    );
-    const shuffledPrefixes = shuffleArray(possiblePrefixes);
-    for (let i = 0; i < numAffixesToRoll.prefixes; i += 1) {
-      const randomPrefixOption = shuffledPrefixes.pop();
-      if (randomPrefixOption !== undefined) affixTypes.prefix.push(randomPrefixOption);
-    }
+    const prefixTypes = getRandomValidPrefixTypes(template, numAffixesToRoll.prefixes);
+    affixTypes.prefix.push(...prefixTypes);
+    const suffixTypes = getRandomValidSuffixTypes(template, numAffixesToRoll.suffixes);
+    affixTypes.suffix.push(...suffixTypes);
 
-    const possibleSuffixes = Object.keys(template.possibleAffixes.suffix).map(
-      (item) => parseInt(item) as SuffixType
-    );
-
-    const shuffledSuffixes = shuffleArray(possibleSuffixes);
-    for (let i = 0; i < numAffixesToRoll.suffixes; i += 1) {
-      const randomSuffixOption = shuffledSuffixes.pop();
-      if (randomSuffixOption !== undefined) affixTypes.suffix.push(randomSuffixOption);
-    }
-
-    // trying to combine these was too much trouble:
     for (const prefixType of Object.values(affixTypes.prefix)) {
-      const maxTierOption = template.possibleAffixes.prefix[prefixType];
-      if (maxTierOption === undefined)
-        return new Error("invalid template - selected affix type that doesn't exist on template");
-      const rolledTier = rollAffixTier(maxTierOption, itemLevel);
-      let multiplier = 1;
-      if (equipmentIsTwoHandedWeapon(this.equipmentType)) multiplier = 2;
-
-      const affix = rollAffix({ affixType: AffixType.Prefix, prefixType }, rolledTier, multiplier);
-      affixes[AffixType.Prefix][prefixType] = affix;
+      const affixResult = rollAffixTierAndValue(
+        template,
+        { affixType: AffixType.Prefix, prefixType },
+        itemLevel,
+        this.equipmentType
+      );
+      if (affixResult instanceof Error) return affixResult;
+      affixes[AffixType.Prefix][prefixType] = affixResult;
     }
 
     for (const suffixType of Object.values(affixTypes.suffix)) {
-      const maxTierOption = template.possibleAffixes.suffix[suffixType];
-      if (maxTierOption === undefined)
-        return new Error("invalid template - selected affix type that doesn't exist on template");
-      const rolledTier = rollAffixTier(maxTierOption, itemLevel);
-      let multiplier = 1;
-      if (equipmentIsTwoHandedWeapon(this.equipmentType)) multiplier = 2;
-
-      const affix = rollAffix({ affixType: AffixType.Suffix, suffixType }, rolledTier, multiplier);
-      affixes[AffixType.Suffix][suffixType] = affix;
+      const affixResult = rollAffixTierAndValue(
+        template,
+        { affixType: AffixType.Suffix, suffixType },
+        itemLevel,
+        this.equipmentType
+      );
+      if (affixResult instanceof Error) return affixResult;
+      affixes[AffixType.Suffix][suffixType] = affixResult;
     }
 
     return affixes;
@@ -166,13 +175,13 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     const toReturn: Partial<Record<CombatAttribute, number>> = {};
     switch (taggedBaseItem.type) {
       case ItemType.Equipment:
-        const template = getEquipmentGenerationTemplate(taggedBaseItem.baseItem);
+        const template = getEquipmentGenerationTemplate(taggedBaseItem.taggedBaseEquipment);
         if (template === undefined)
           return new Error(
             "equipment generation template " +
-              taggedBaseItem.baseItem.baseItemType +
+              taggedBaseItem.taggedBaseEquipment.baseItemType +
               " missing in builder for " +
-              formatEquipmentType(taggedBaseItem.baseItem.equipmentType)
+              EQUIPMENT_TYPE_STRINGS[taggedBaseItem.taggedBaseEquipment.equipmentType]
           );
         return template.requirements;
       case ItemType.Consumable:
@@ -183,4 +192,56 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
     // adjust requirements if any affix has an affect on them
     return toReturn;
   }
+}
+
+export function getRandomValidPrefixTypes(
+  template: EquipmentGenerationTemplate,
+  numToCreate: number
+) {
+  const toReturn = [];
+  const possiblePrefixes = Object.keys(template.possibleAffixes.prefix).map(
+    (item) => parseInt(item) as PrefixType
+  );
+  const shuffledPrefixes = shuffleArray(possiblePrefixes);
+  for (let i = 0; i < numToCreate; i += 1) {
+    const randomPrefixOption = shuffledPrefixes.pop();
+    if (randomPrefixOption !== undefined) toReturn.push(randomPrefixOption);
+  }
+  return toReturn;
+}
+
+export function getRandomValidSuffixTypes(
+  template: EquipmentGenerationTemplate,
+  numToCreate: number
+) {
+  const toReturn = [];
+  const possibleSuffixes = Object.keys(template.possibleAffixes.suffix).map(
+    (item) => parseInt(item) as SuffixType
+  );
+  const shuffledSuffixes = shuffleArray(possibleSuffixes);
+  for (let i = 0; i < numToCreate; i += 1) {
+    const randomSuffixOption = shuffledSuffixes.pop();
+    if (randomSuffixOption !== undefined) toReturn.push(randomSuffixOption);
+  }
+  return toReturn;
+}
+
+export function rollAffixTierAndValue(
+  template: EquipmentGenerationTemplate,
+  taggedAffixType: TaggedAffixType,
+  maxTierLimiter: number,
+  equipmentType: EquipmentType
+) {
+  const maxTierOption =
+    taggedAffixType.affixType === AffixType.Prefix
+      ? template.possibleAffixes.prefix[taggedAffixType.prefixType]
+      : template.possibleAffixes.suffix[taggedAffixType.suffixType];
+  if (maxTierOption === undefined)
+    return new Error("invalid template - selected affix type that doesn't exist on template");
+  const rolledTier = rollAffixTier(maxTierOption, maxTierLimiter);
+
+  let multiplier = 1;
+  if (equipmentIsTwoHandedWeapon(equipmentType))
+    multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
+  return rollAffix(taggedAffixType, rolledTier, multiplier);
 }
