@@ -8,8 +8,8 @@ export enum CombatAttribute {
   Dexterity, // ranged damage, accuracy, physical crit chance, armor ranged armor pen, shield block chance
   Intelligence, // mp, magic ability damage
   Vitality, // hp, and debuff duration, shield block damage reduction
-  Focus, // negates %magic reduction and increases spell crit chance and crit multiplier
   Resilience, // %magic damage reduction, healing received, debuff duration
+  Focus, // negates %magic reduction and increases spell crit chance and crit multiplier
   Agility, // movement speed, evasion, physical crit chance reduction
   Speed, // determines turn order
   ArmorClass, // compared with final damage of physical attack, reduces damage on a curve
@@ -28,9 +28,9 @@ export const CORE_ATTRIBUTES = [
 ];
 
 export const ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES = [
+  CombatAttribute.Strength,
   CombatAttribute.Dexterity,
   CombatAttribute.Intelligence,
-  CombatAttribute.Strength,
   CombatAttribute.Vitality,
   CombatAttribute.Resilience,
   CombatAttribute.Focus,

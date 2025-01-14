@@ -11,7 +11,15 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import ClickOutsideHandlerWrapper from "@/app/components/atoms/ClickOutsideHandlerWrapper";
 
-export default function DropShardsModal({ max, min }: { max: number; min: number }) {
+export default function DropShardsModal({
+  max,
+  min,
+  className,
+}: {
+  max: number;
+  min: number;
+  className: string;
+}) {
   const mutateGameState = useGameStore().mutateState;
   const mutateUIState = useUIStore().mutateState;
   const viewingDropShardsModal = useGameStore((state) => state.viewingDropShardsModal);
@@ -58,7 +66,7 @@ export default function DropShardsModal({ max, min }: { max: number; min: number
   }
 
   return (
-    <div className="absolute bottom-0 right-0 border border-slate-400">
+    <div className={className}>
       <ClickOutsideHandlerWrapper
         isActive={viewingDropShardsModal}
         onClickOutside={() => {

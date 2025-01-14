@@ -33,6 +33,7 @@ export default async function toggleReadyToStartGameHandler(
     if (party.characterPositions.length < 1)
       return new Error("Each party must have at least one character");
     party.currentFloor = game.selectedStartingFloor;
+    // party.currentFloor = 10; // testing
   }
 
   if (game.playersReadied.includes(username)) removeFromArray(game.playersReadied, username);

@@ -51,24 +51,25 @@ export default function SavedCharacterManager() {
         {Object.entries(savedCharacters)
           .filter(([_slot, characterOption]) => characterOption !== null)
           .map(([_slot, character]) => {
-            return (
-              <CharacterModelDisplay character={character!} key={character!.entityProperties.id}>
-                <div className="w-full h-full flex justify-center items-center">
-                  {character!.combatantProperties.hitPoints <= 0 && (
-                    <div className="relative text-2xl">
-                      <span
-                        className="text-red-600"
-                        style={{
-                          textShadow: "2px 2px 0px #000000",
-                        }}
-                      >
-                        DEAD
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </CharacterModelDisplay>
-            );
+            if (character)
+              return (
+                <CharacterModelDisplay character={character} key={character.entityProperties.id}>
+                  <div className="w-full h-full flex justify-center items-center">
+                    {character!.combatantProperties.hitPoints <= 0 && (
+                      <div className="relative text-2xl">
+                        <span
+                          className="text-red-600"
+                          style={{
+                            textShadow: "2px 2px 0px #000000",
+                          }}
+                        >
+                          DEAD
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </CharacterModelDisplay>
+              );
           })}
       </div>
 

@@ -44,6 +44,7 @@ import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 import { playerIsOperatingVendingMachine } from "@/utils/player-is-operating-vending-machine";
 import { ShardsDisplay } from "../character-sheet/ShardsDisplay";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import DropShardsModal from "../character-sheet/DropShardsModal";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
@@ -73,6 +74,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
   const partyResult = useGameStore.getState().getParty();
   if (focusedCharacterResult instanceof Error || partyResult instanceof Error) return <></>;
+  const viewingDropShardsModal = useGameStore().viewingDropShardsModal;
 
   useEffect(() => {
     if (currentMenu.type === MenuStateType.ItemsOnGround && numberOfNumberedButtons === 0) {
@@ -224,7 +226,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
     <section className={`flex flex-col justify-between `}>
       <CharacterFocusingButtons />
       <ul
-        className={`flex list-none min-w-[25rem] max-w-[25rem]`}
+        className={`flex list-none min-w-[25rem] max-w-[25rem] relative`}
         style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
       >
         {buttonProperties[ActionButtonCategory.Hidden].map((button, i) => (
@@ -254,11 +256,29 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         {playerIsOperatingVendingMachine(currentMenu.type) && (
           <li className="ml-auto pointer-events-auto">
             <HoverableTooltipWrapper tooltipText="The machine seems to want these...">
-              <ShardsDisplay
-                extraStyles="h-10"
-                numShards={focusedCharacterResult.combatantProperties.inventory.shards}
-              />
+              <HotkeyButton
+                className="disabled:opacity-50"
+                hotkeys={[HOTKEYS.MAIN_2]}
+                onClick={() => {
+                  mutateGameState((state) => {
+                    state.viewingDropShardsModal = true;
+                  });
+                }}
+              >
+                <ShardsDisplay
+                  extraStyles="h-10"
+                  numShards={focusedCharacterResult.combatantProperties.inventory.shards}
+                />
+              </HotkeyButton>
             </HoverableTooltipWrapper>
+            {/* for better tab indexing, character sheet has it's own placement of the modal */}
+            {viewingDropShardsModal === true && !viewingCharacterSheet && (
+              <DropShardsModal
+                className="absolute bottom-0 right-0 border border-slate-400"
+                min={0}
+                max={focusedCharacterResult.combatantProperties.inventory.shards}
+              />
+            )}
           </li>
         )}
       </ul>

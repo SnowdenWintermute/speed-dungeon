@@ -130,6 +130,7 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
     baseItemType: Ring.Ring,
   });
   if (ring instanceof Error) return;
+  ring.itemLevel = 10;
   combatantProperties.equipment.wearables[WearableSlotType.RingL] = ring;
 
   const amulet = generateSpecificEquipmentType({
@@ -137,6 +138,7 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
     baseItemType: Amulet.Amulet,
   });
   if (amulet instanceof Error) return;
+  amulet.itemLevel = 10;
   combatantProperties.equipment.wearables[WearableSlotType.Amulet] = amulet;
 
   // FOR TESTING INVENTORY
@@ -172,7 +174,7 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   // combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 100;
   // combatantProperties.inherentAttributes[CombatAttribute.Strength] = 100;
   // combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 100;
-  combatantProperties.inherentAttributes[CombatAttribute.Hp] = 1000;
+  // combatantProperties.inherentAttributes[CombatAttribute.Hp] = 1000;
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
   combatantProperties.inventory.shards = 9999;

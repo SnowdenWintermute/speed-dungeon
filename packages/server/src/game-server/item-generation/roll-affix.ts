@@ -18,6 +18,7 @@ export function rollAffixTier(maxTier: number, itemLevel: number) {
   return Math.max(1, Math.round(randBetween(minTierOnLevel, maxTierOnLevel)));
 }
 
+const MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER = 3;
 const MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER = 7;
 
 export function rollAffix(
@@ -39,7 +40,7 @@ export function rollAffix(
       switch (taggedAffixType.prefixType) {
         case PrefixType.Mp:
           affix.combatAttributes[CombatAttribute.Mp] = rollAttributeValue(
-            2,
+            MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER,
             MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
           );
           break;
@@ -48,7 +49,7 @@ export function rollAffix(
           break;
         case PrefixType.Accuracy:
           affix.combatAttributes[CombatAttribute.Accuracy] = rollAttributeValue(
-            2,
+            MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER,
             MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
           );
           break;
@@ -69,13 +70,13 @@ export function rollAffix(
           break;
         case PrefixType.Evasion:
           affix.combatAttributes[CombatAttribute.Evasion] = rollAttributeValue(
-            2,
+            MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER,
             MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
           );
           break;
         case PrefixType.ArmorPenetration:
           affix.combatAttributes[CombatAttribute.ArmorPenetration] = rollAttributeValue(
-            2,
+            MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER,
             MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
           );
           break;
@@ -111,7 +112,7 @@ export function rollAffix(
           break;
         case SuffixType.Hp:
           affix.combatAttributes[CombatAttribute.Hp] = rollAttributeValue(
-            2,
+            MIN_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER,
             MAX_DERRIVED_ATTRIBUTE_VALUE_PER_AFFIX_TIER
           );
           break;

@@ -13,6 +13,7 @@ import { MenuStateType } from "../ActionMenu/menu-state";
 import DropShardsModal from "./DropShardsModal";
 import { ShardsDisplay } from "./ShardsDisplay";
 import InventoryCapacityDisplay from "./InventoryCapacityDisplay";
+import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
 
 export default function CharacterSheet({ showCharacterSheet }: { showCharacterSheet: boolean }) {
   const partyResult = useGameStore().getParty();
@@ -78,8 +79,9 @@ export default function CharacterSheet({ showCharacterSheet }: { showCharacterSh
                   />
                 </HotkeyButton>
               </HoverableTooltipWrapper>
-              {viewingDropShardsModal === true && (
+              {viewingDropShardsModal === true && shouldShowCharacterSheet(currentMenu.type) && (
                 <DropShardsModal
+                  className="absolute bottom-0 right-0 border border-slate-400"
                   min={0}
                   max={focusedCharacterOption.combatantProperties.inventory.shards}
                 />
