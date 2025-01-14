@@ -1,15 +1,15 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import {
-  Amulet,
   CONSUMABLE_TYPE_STRINGS,
   CombatActionType,
   Consumable,
   ConsumableType,
+  EntityProperties,
   Equipment,
   EquipmentType,
   Item,
 } from "@speed-dungeon/common";
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ActionDetails from "./ActionDetails";
 import EquipmentDetails from "./EquipmentDetails";
 import ModKeyTooltip from "./ModKeyTooltip";
@@ -26,6 +26,8 @@ import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import RingIcon from "../../../../public/img/equipment-icons/ring-flattened.svg";
 import AmuletIcon from "../../../../public/img/equipment-icons/amulet.svg";
 import { HOTKEYS } from "@/hotkeys";
+import CameraIcon1 from "../../../../public/img/game-ui-icons/camera-1.svg";
+import domtoimage from "dom-to-image";
 
 interface Props {
   shouldShowModKeyTooltip: boolean;
@@ -49,6 +51,44 @@ export default function ItemDetails({
   let hiddenClass = "pointer-events-auto";
   let thumbnailPath = "";
   let svgThumbnailOption = undefined;
+
+  const [preppedForDownloadPhoto, setPreppedForDownloadPhot] = useState<{
+    entityProperties: EntityProperties;
+    ilvl: number;
+  } | null>(null);
+
+  async function handleDownload(entityProperties: EntityProperties, ilvl: number) {
+    await new Promise((resolve, reject) => {
+      const { id, name } = entityProperties;
+      const node = document.getElementById(id);
+      if (!node) return;
+
+      setTimeout(() => {
+        domtoimage.toBlob(node).then((blob) => {
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = `Speed Dungeon Item - ${name} ilvl ${ilvl}.png`;
+          link.click();
+          resolve(true);
+        });
+      }, 0);
+    });
+  }
+
+  async function downloadItemImage(entityProperties: EntityProperties, ilvl: number) {
+    setPreppedForDownloadPhot({ entityProperties, ilvl });
+  }
+
+  // idk if this is really required, but the idea was it needed to paint the frame with the updated state
+  // before taking the image, but now that we use a setTimeout in handleDownload it might not matter
+  useEffect(() => {
+    if (preppedForDownloadPhoto) {
+      const { entityProperties, ilvl } = preppedForDownloadPhoto;
+      handleDownload(entityProperties, ilvl).then(() => {
+        setPreppedForDownloadPhot(null);
+      });
+    }
+  }, [preppedForDownloadPhoto]);
 
   const unmetRequirements = useGameStore().consideredItemUnmetRequirements;
   let BG_COLOR = "bg-slate-800";
@@ -112,27 +152,42 @@ export default function ItemDetails({
       w-full ${extraStyles} ${hiddenClass}
       flex relative 
       `}
+      id={itemOption?.entityProperties.id}
       style={{
         [`margin${marginSide}`]: `${SPACING_REM_SMALL / 2.0}rem`,
         padding: `${SPACING_REM}rem`,
         scrollbarGutter: "stable",
       }}
     >
-      {isDetailedEntity && (
-        <HotkeyButton
-          className="absolute -right-1 -top-1 z-10 h-6 w-6 p-1 border border-slate-400 bg-slate-700"
-          hotkeys={[HOTKEYS.CANCEL]}
-          onClick={() => {
-            useGameStore.getState().mutateState((state) => {
-              state.detailedEntity = null;
-            });
-          }}
-        >
-          <XShape className="h-full fill-slate-400" />
-        </HotkeyButton>
+      {isDetailedEntity && !preppedForDownloadPhoto && (
+        <div className="absolute -right-1 -top-1 flex flex-col">
+          <HotkeyButton
+            className="z-10 h-6 w-6 p-1 border border-slate-400 bg-slate-700"
+            hotkeys={[HOTKEYS.CANCEL]}
+            onClick={() => {
+              useGameStore.getState().mutateState((state) => {
+                state.detailedEntity = null;
+              });
+            }}
+          >
+            <XShape className="h-full fill-slate-400" />
+          </HotkeyButton>
+          {itemOption && (
+            <HoverableTooltipWrapper tooltipText="Download image" extraStyles="mt-2">
+              <button
+                onClick={() => downloadItemImage(itemOption.entityProperties, itemOption.itemLevel)}
+                className="border border-slate-400 bg-slate-700 h-6 w-6 p-1"
+              >
+                <CameraIcon1 className="h-full max-w-full fill-slate-400" />
+              </button>
+            </HoverableTooltipWrapper>
+          )}
+        </div>
       )}
       {itemOption instanceof Equipment && (
-        <div className="absolute -top-1 -left-1 z-10 ">
+        <div
+          className={`absolute ${preppedForDownloadPhoto ? "top-3 left-3" : "-top-1 -left-1"} z-10 `}
+        >
           <HoverableTooltipWrapper
             extraStyles="cursor-help"
             tooltipText="Item Level (determines possible affix tiers) "

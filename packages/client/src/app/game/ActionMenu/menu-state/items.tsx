@@ -100,6 +100,16 @@ export abstract class ItemsMenuState implements ActionMenuState {
 
     const itemsToShow = this.getItemsToShow();
 
+    if (itemsToShow.length === 0 && this.type !== MenuStateType.ItemsOnGround) {
+      toReturn[ActionButtonCategory.Numbered].push(
+        new ActionMenuButtonProperties(
+          <div>The list of items is empty...</div>,
+          itemsToShow.length.toString(),
+          () => {}
+        )
+      );
+    }
+
     for (const item of itemsToShow) {
       if (
         item instanceof Equipment ||

@@ -1,6 +1,6 @@
 import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client_consts";
 import React from "react";
-import { ActionMenuState, MENU_STATE_TYPE_STRINGS, MenuStateType } from "./menu-state";
+import { ActionMenuState, MENU_STATE_TYPE_STRINGS } from "./menu-state";
 import { baseMenuState, useGameStore } from "@/stores/game-store";
 
 export default function StackedMenuStateDisplay() {
@@ -57,7 +57,12 @@ function MenuStateDisplay({
       }}
     >
       <span className={!isTop ? "opacity-0" : ""}>{MENU_STATE_TYPE_STRINGS[menuState.type]}</span>
-      <span>{focusedCharacteResult.entityProperties.name}</span>
+      <span
+        key={focusedCharacteResult.entityProperties.name}
+        className="animate-slide-appear-from-left-fast"
+      >
+        {focusedCharacteResult.entityProperties.name}
+      </span>
     </div>
   );
 }

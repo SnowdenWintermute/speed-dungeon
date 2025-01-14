@@ -29,6 +29,17 @@ export default function setFocusedCharacter(id: string) {
     if (currentMenu.type === MenuStateType.ItemSelected) {
       gameState.stackedMenuStates.pop();
     }
+    // otherwise you'll end up looking at crafting action selection on an unowned item
+    if (
+      shouldShowCharacterSheet(currentMenu.type) &&
+      gameState.stackedMenuStates
+        .map((menuState) => menuState.type)
+        .includes(MenuStateType.CraftingActionSelection)
+    ) {
+      gameState.stackedMenuStates = gameState.stackedMenuStates.filter(
+        (menuState) => menuState.type !== MenuStateType.CraftingActionSelection
+      );
+    }
 
     currentMenu = getCurrentMenu(gameState);
     currentMenu.page = 1;
