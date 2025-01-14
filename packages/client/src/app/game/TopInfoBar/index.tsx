@@ -41,8 +41,9 @@ export default function TopInfoBar() {
       ) : (
         <RoomExplorationTracker />
       )}
-      <div className="absolute right-0 pr-4 pl-4 h-full w-fit border-l border-slate-400 flex items-center justify-center">
+      <div className="absolute right-0 h-full w-fit border-l border-slate-400 flex items-center justify-center">
         <HotkeyButton
+          className="h-full w-full hover:bg-slate-950 pr-4 pl-4 "
           onClick={() => {
             mutateGameState((state) => {
               state.viewingLeaveGameModal = !state.viewingLeaveGameModal;

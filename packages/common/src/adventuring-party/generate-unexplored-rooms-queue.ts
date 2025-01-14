@@ -14,7 +14,7 @@ export default function generateUnexploredRoomsQueue(this: AdventuringParty) {
   shuffleArray(this.unexploredRooms);
 
   if (this.currentFloor === 1 && this.roomsExplored.total === 0) {
-    this.unexploredRooms.push(DungeonRoomType.VendingMachine);
+    // this.unexploredRooms.push(DungeonRoomType.VendingMachine);
     this.unexploredRooms.push(DungeonRoomType.Empty);
   }
 
