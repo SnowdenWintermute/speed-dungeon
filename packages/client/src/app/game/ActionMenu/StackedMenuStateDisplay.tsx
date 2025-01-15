@@ -47,7 +47,6 @@ function MenuStateDisplay({
 
   const filterStrengthNormalized = 1 - 0.2 * (stackSize - index);
   const filterStrength = filterStrengthNormalized * 100;
-  console.log("filterStrength: ", filterStrength);
 
   return (
     <div

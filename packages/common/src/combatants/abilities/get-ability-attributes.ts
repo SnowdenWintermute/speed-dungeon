@@ -24,7 +24,7 @@ import {
   TargetingScheme,
 } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
 import { CombatAttribute } from "../../attributes/index.js";
-import { HoldableSlotType } from "../../items/equipment/slots.js";
+import { EquipmentSlotType, HoldableSlotType } from "../../items/equipment/slots.js";
 
 const ATTACK = (() => {
   const combatActionProperties = new CombatActionProperties();
@@ -56,6 +56,11 @@ const ATTACK_MELEE_MAIN_HAND = (() => {
   hpChangeProperties.critMultiplierAttribute = CombatAttribute.Strength;
 
   combatActionProperties.hpChangeProperties = hpChangeProperties;
+
+  combatActionProperties.incursDurabilityLoss = {
+    [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: { onHit: true } },
+  };
+
   const attributes = new AbilityAttributes(combatActionProperties);
   return attributes;
 })();
@@ -76,6 +81,9 @@ const ATTACK_MELEE_OFF_HAND = (() => {
   hpChangeProperties.critMultiplierAttribute = CombatAttribute.Strength;
   hpChangeProperties.critChanceModifier = OFF_HAND_CRIT_CHANCE_MODIFIER;
   hpChangeProperties.finalDamagePercentMultiplier = OFF_HAND_DAMAGE_MODIFIER;
+  attributes.combatActionProperties.incursDurabilityLoss = {
+    [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: { onHit: true } },
+  };
   return attributes;
 })();
 
@@ -89,6 +97,11 @@ const ATTACK_RANGED_MAIN_HAND = (() => {
   hpChangeProperties.critMultiplierAttribute = CombatAttribute.Dexterity;
   hpChangeProperties.finalDamagePercentMultiplier = OFF_HAND_DAMAGE_MODIFIER;
   hpChangeProperties.hpChangeSource.meleeOrRanged = MeleeOrRanged.Ranged;
+
+  attributes.combatActionProperties.incursDurabilityLoss = {
+    [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: { onUse: true } },
+  };
+
   return attributes;
 })();
 

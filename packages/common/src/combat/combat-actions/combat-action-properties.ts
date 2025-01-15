@@ -3,7 +3,11 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "./targeting-schemes-and-categories.js";
-import { HoldableSlot, HoldableSlotType } from "../../items/equipment/slots.js";
+import {
+  EquipmentSlotType,
+  HoldableSlotType,
+  WearableSlotType,
+} from "../../items/equipment/slots.js";
 import { NumberRange } from "../../primatives/number-range.js";
 import { HpChangeSource, HpChangeSourceModifiers } from "../hp-change-source-types.js";
 import { CombatAttribute } from "../../attributes/index.js";
@@ -20,6 +24,14 @@ export class CombatActionProperties {
   description: string = "";
   isMelee: boolean = true;
   accuracyPercentModifier: number = 100;
+  incursDurabilityLoss?: {
+    [EquipmentSlotType.Wearable]?: Partial<
+      Record<WearableSlotType, { onHit?: boolean; onUse?: boolean }>
+    >;
+    [EquipmentSlotType.Holdable]?: Partial<
+      Record<HoldableSlotType, { onHit?: boolean; onUse?: boolean }>
+    >;
+  };
   constructor() {}
 }
 

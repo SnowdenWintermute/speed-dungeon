@@ -1,12 +1,12 @@
 import cloneDeep from "lodash.clonedeep";
-import { CombatantProperties } from "../../../combatants/index.js";
+import { CombatantEquipment, CombatantProperties } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatActionProperties } from "../../combat-actions/index.js";
-import { randBetween } from "../../../utils/index.js";
+import { iterateNumericEnumKeyedRecord, randBetween } from "../../../utils/index.js";
 import { ActionResultCalculationArguments } from "../action-result-calculator.js";
 import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
-import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app-consts.js";
+import { MULTI_TARGET_HP_CHANGE_BONUS, ONE_THIRD_OF_ONE } from "../../../app-consts.js";
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { HpChange, HpChangeSource, HpChangeSourceCategory } from "../../hp-change-source-types.js";
 import { checkIfTargetWantsToBeHit } from "./check-if-target-wants-to-be-hit.js";
@@ -21,7 +21,14 @@ import { getCombatActionHpChangeRange } from "./get-combat-action-hp-change-rang
 import { getActionCritChance } from "./get-action-crit-chance.js";
 import { convertHpChangeValueToFinalSign } from "./convert-hp-change-value-to-final-sign.js";
 import { CombatAttribute } from "../../../attributes/index.js";
-import { HoldableSlotType } from "../../../items/equipment/slots.js";
+import {
+  EquipmentSlotType,
+  HoldableSlotType,
+  WearableSlotType,
+} from "../../../items/equipment/slots.js";
+import { EntityId } from "../../../primatives/index.js";
+import { DurabilityChanges } from "../calculate-action-durability-changes.js";
+import { EquipmentType } from "../../../items/equipment/index.js";
 export * from "./get-combat-action-hp-change-range.js";
 export * from "./weapon-hp-change-modifiers/index.js";
 export * from "./get-action-hit-chance.js";
@@ -55,7 +62,10 @@ export default function calculateActionHitPointChangesAndEvasions(
   if (firstTargetCombatant instanceof Error) return firstTargetCombatant;
   const { combatantProperties: targetCombatantProperties } = firstTargetCombatant;
 
-  const hitPointChanges: { [entityId: string]: HpChange } = {};
+  const hitPointChanges: { [entityId: EntityId]: HpChange } = {};
+  const durabilityChanges: {
+    [entityId: EntityId]: DurabilityChanges;
+  } = {};
   let lifestealHpChange: null | HpChange = null;
 
   let evasions: string[] = [];
@@ -138,6 +148,58 @@ export default function calculateActionHitPointChangesAndEvasions(
     }
 
     hpChange.isCrit = randBetween(0, 100) < percentChanceToCrit;
+
+    // determine durability loss of target's armor and user's weapon
+    // separately calc weapon dura loss if is "on use" instead of "on hit"
+    if (hpChange.isCrit) {
+      durabilityChanges[id] = {
+        [EquipmentSlotType.Wearable]: { [WearableSlotType.Head]: 1, [WearableSlotType.Body]: 1 },
+      };
+    } else if (isHit) {
+      if (actionProperties.incursDurabilityLoss) {
+        if (actionProperties.incursDurabilityLoss[EquipmentSlotType.Wearable])
+          for (const [wearableSlot, durabilityLossConditions] of iterateNumericEnumKeyedRecord(
+            actionProperties.incursDurabilityLoss[EquipmentSlotType.Wearable]
+          )) {
+            //
+          }
+        if (actionProperties.incursDurabilityLoss[EquipmentSlotType.Holdable])
+          for (const [holdableSlot, durabilityLossConditions] of iterateNumericEnumKeyedRecord(
+            actionProperties.incursDurabilityLoss[EquipmentSlotType.Holdable]
+          )) {
+            //
+          }
+      }
+
+      const equippedHelmOption = CombatantEquipment.getEquipmentInSlot(targetCombatantProperties, {
+        type: EquipmentSlotType.Wearable,
+        slot: WearableSlotType.Head,
+      });
+      const equippedBodyOption = CombatantEquipment.getEquipmentInSlot(targetCombatantProperties, {
+        type: EquipmentSlotType.Wearable,
+        slot: WearableSlotType.Body,
+      });
+      if (equippedBodyOption && equippedHelmOption) {
+        const whichArmorToHitRoll = Math.random();
+        if (whichArmorToHitRoll < ONE_THIRD_OF_ONE) {
+          durabilityChanges[id] = {
+            [EquipmentSlotType.Wearable]: { [WearableSlotType.Head]: 1 },
+          };
+        } else {
+          durabilityChanges[id] = {
+            [EquipmentSlotType.Wearable]: { [WearableSlotType.Body]: 1 },
+          };
+        }
+      } else if (equippedBodyOption) {
+        durabilityChanges[id] = {
+          [EquipmentSlotType.Wearable]: { [WearableSlotType.Body]: 1 },
+        };
+      } else if (equippedHelmOption) {
+        durabilityChanges[id] = {
+          [EquipmentSlotType.Wearable]: { [WearableSlotType.Head]: 1 },
+        };
+      }
+    }
 
     applyCritMultiplier(
       hpChange,

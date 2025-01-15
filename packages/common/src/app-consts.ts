@@ -90,3 +90,5 @@ export const MAGICAL_PROPERTY_BLUE = "#93c5fd";
 export const MAGICAL_PROPERTY_BLUE_TEXT = "text-blue-300";
 export const BASE_TEXT = "#d4d4d8";
 export const SKY_COLOR = "#1a1a26";
+
+export const ONE_THIRD_OF_ONE = 1 / 3;
