@@ -1,7 +1,3 @@
-import { CombatAttribute } from "../../../attributes/index.js";
-import { AffixType, Affixes, PrefixType, SuffixType } from "../affixes.js";
-import { Equipment, EquipmentType } from "../index.js";
-
 export enum EquipmentTraitType {
   ArmorClassPercentage,
   LifeSteal,

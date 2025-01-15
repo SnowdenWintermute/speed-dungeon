@@ -173,10 +173,11 @@ export abstract class ItemsMenuState implements ActionMenuState {
           ? "scale-[300%]"
           : "scale-[200%] -translate-x-1/2 p-[2px]";
 
-      const requirementsMet = Item.requirementsMet(
-        item,
-        CombatantProperties.getTotalAttributes(focusedCharacterResult.combatantProperties)
-      );
+      const requirementsMet =
+        Item.requirementsMet(
+          item,
+          CombatantProperties.getTotalAttributes(focusedCharacterResult.combatantProperties)
+        ) && !(item instanceof Equipment && Equipment.isBroken(item));
 
       let containerExtraStyles = "";
       if (!requirementsMet) {

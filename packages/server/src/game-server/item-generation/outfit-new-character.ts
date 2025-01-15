@@ -14,9 +14,7 @@ import {
   HoldableHotswapSlot,
   CombatantTrait,
   EquipmentType,
-  OneHandedMeleeWeapon,
   HoldableSlotType,
-  Shield,
   Ring,
   WearableSlotType,
   Amulet,
@@ -25,7 +23,7 @@ import {
   MaxAndCurrent,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
-import createStartingEquipment from "./create-starting-equipment.js";
+import createStartingEquipment, { givePlaytestingItems } from "./create-starting-equipment.js";
 import { createConsumableByType } from "./create-consumable-by-type.js";
 import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
 
@@ -108,8 +106,9 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
       combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
         HoldableSlotType.MainHand
       ] = mh;
-    mh.durability = new MaxAndCurrent(4, 4);
+    mh.durability = new MaxAndCurrent(4, 1);
   }
+
   // const oh = generateSpecificEquipmentType({
   //   equipmentType: EquipmentType.Shield,
   //   baseItemType: Shield.CabinetDoor,
@@ -121,58 +120,17 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
   //     ] = oh;
 }
 
-function giveTestingCombatAttributes(combatantProperties: CombatantProperties) {
-  for (const attribute of iterateNumericEnum(CombatAttribute)) {
-    combatantProperties.inherentAttributes[attribute] = 100;
-  }
-}
-
 function setExperimentalCombatantProperties(combatantProperties: CombatantProperties) {
   giveHotswapSlotEquipment(combatantProperties);
-  const ring = generateSpecificEquipmentType({
-    equipmentType: EquipmentType.Ring,
-    baseItemType: Ring.Ring,
-  });
-  if (ring instanceof Error) return;
-  ring.itemLevel = 10;
-  combatantProperties.equipment.wearables[WearableSlotType.RingL] = ring;
+  givePlaytestingItems(combatantProperties.equipment);
+  // const items = generateOneOfEachItem();
+  // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
 
-  const amulet = generateSpecificEquipmentType({
-    equipmentType: EquipmentType.Amulet,
-    baseItemType: Amulet.Amulet,
-  });
-  if (amulet instanceof Error) return;
-  amulet.itemLevel = 10;
-  combatantProperties.equipment.wearables[WearableSlotType.Amulet] = amulet;
-
-  // FOR TESTING INVENTORY
-  // generateTestItems(combatantProperties, 6);
-  // const item1 = generateSpecificEquipmentType(
-  //   {
-  //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
-  //     baseItemType: OneHandedMeleeWeapon.Club,
-  //   },
-  //   true
-  // );
-  // const item2 = generateSpecificEquipmentType(
-  //   {
-  //     equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-  //     baseItemType: TwoHandedMeleeWeapon.RottingBranch,
-  //   },
-  //   true
-  // );
-  // if (item1 instanceof Error || item2 instanceof Error) return item1;
-  // item1.itemLevel = 5;
-  // item2.itemLevel = 10;
-  // Inventory.insertItem(combatantProperties.inventory, item1);
-  // Inventory.insertItem(combatantProperties.inventory, item2);
   // giveTestingCombatAttributes(combatantProperties);
   // combatantProperties.level = 5;
   combatantProperties.abilities[AbilityName.Destruction] = CombatantAbility.createByName(
     AbilityName.Destruction
   );
-  const items = generateOneOfEachItem();
-  combatantProperties.inventory.equipment.push(...(items as Equipment[]));
   combatantProperties.unspentAttributePoints = 100;
   combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
   combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 3;
