@@ -1,18 +1,59 @@
 import { ONE_THIRD_OF_ONE } from "../../app-consts.js";
 import { Combatant, CombatantEquipment } from "../../combatants/index.js";
-import { EquipmentType } from "../../items/equipment/index.js";
+import { EQUIPMENT_TYPE_STRINGS, EquipmentType } from "../../items/equipment/index.js";
 import {
   EquipmentSlotType,
   HoldableSlotType,
+  TaggedEquipmentSlot,
   WearableSlotType,
 } from "../../items/equipment/slots.js";
 import { EntityId } from "../../primatives/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
-import { CombatActionProperties } from "../combat-actions/combat-action-properties.js";
+import {
+  CombatActionProperties,
+  DurabilityLossCondition,
+} from "../combat-actions/combat-action-properties.js";
 
-export interface DurabilityChanges {
-  [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, number>>;
-  [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, number>>;
+const BASE_DURABILITY_LOSS = -1;
+
+export interface EquipmentDurabilityChange {
+  taggedSlot: TaggedEquipmentSlot;
+  value: number;
+}
+
+export class DurabilityChanges {
+  changes: EquipmentDurabilityChange[] = [];
+  constructor() {}
+
+  addOrUpdateEquipmentDurabilityChange(durabilityChange: EquipmentDurabilityChange) {
+    const { taggedSlot, value } = durabilityChange;
+
+    const existingRecord = this.changes.find(
+      (change) =>
+        change.taggedSlot.type === taggedSlot.type && change.taggedSlot.slot === taggedSlot.slot
+    );
+    if (existingRecord) {
+      console.log("adding to existing durability change:", value);
+      existingRecord.value += value;
+    } else {
+      console.log("creating new durability change:", value);
+      this.changes.push(durabilityChange);
+    }
+  }
+}
+
+export class DurabilityChangesByEntityId {
+  records: { [entityId: EntityId]: DurabilityChanges } = {};
+  constructor() {}
+
+  updateOrCreateDurabilityChangeRecord(
+    entityId: EntityId,
+    durabilityChange: EquipmentDurabilityChange
+  ) {
+    let existingChanges = this.records[entityId];
+    if (!existingChanges) existingChanges = this.records[entityId] = new DurabilityChanges();
+    existingChanges.addOrUpdateEquipmentDurabilityChange(durabilityChange);
+  }
 }
 
 export function calculateActionDurabilityChangesOnHit(
@@ -21,108 +62,139 @@ export function calculateActionDurabilityChangesOnHit(
   actionProperties: CombatActionProperties,
   isHit: boolean,
   isCrit: boolean,
-  durabilityChanges: { [entityId: EntityId]: DurabilityChanges }
+  durabilityChanges: DurabilityChangesByEntityId
 ): { [itemId: EntityId]: number } | undefined {
-  const {
-    entityProperties: targetEntityProperties,
-    combatantProperties: targetCombatantProperties,
-  } = targetCombatant;
-  const targetId = targetEntityProperties.id;
   // determine if ability should cause weapon durability loss on hit
   if (isCrit) {
-    // crits damage both wearables and shields if any
-    const changes: DurabilityChanges = {};
-    changes[EquipmentSlotType.Wearable] = {
-      [WearableSlotType.Head]: 1,
-      [WearableSlotType.Body]: 1,
-    };
-    if (
-      CombatantEquipment.getEquipmentInSlot(targetCombatantProperties, {
-        type: EquipmentSlotType.Holdable,
-        slot: HoldableSlotType.OffHand,
-      })?.equipmentBaseItemProperties.equipmentType === EquipmentType.Shield
-    ) {
-      changes[EquipmentSlotType.Holdable] = { [HoldableSlotType.OffHand]: 1 };
-    }
-    durabilityChanges[targetEntityProperties.id] = changes;
+    updateDurabilityChangesOnTargetForCrit(durabilityChanges, targetCombatant);
   } else if (isHit) {
-    // hits damage a random wearable
-    const equippedHelmOption = CombatantEquipment.getEquipmentInSlot(targetCombatantProperties, {
-      type: EquipmentSlotType.Wearable,
-      slot: WearableSlotType.Head,
-    });
-    const equippedBodyOption = CombatantEquipment.getEquipmentInSlot(targetCombatantProperties, {
-      type: EquipmentSlotType.Wearable,
-      slot: WearableSlotType.Body,
-    });
-    if (equippedBodyOption && equippedHelmOption) {
-      const whichArmorToHitRoll = Math.random();
-      if (whichArmorToHitRoll < ONE_THIRD_OF_ONE) {
-        durabilityChanges[targetId] = {
-          [EquipmentSlotType.Wearable]: { [WearableSlotType.Head]: 1 },
-        };
-      } else {
-        durabilityChanges[targetId] = {
-          [EquipmentSlotType.Wearable]: { [WearableSlotType.Body]: 1 },
-        };
-      }
-    } else if (equippedBodyOption) {
-      durabilityChanges[targetId] = {
-        [EquipmentSlotType.Wearable]: { [WearableSlotType.Body]: 1 },
-      };
-    } else if (equippedHelmOption) {
-      durabilityChanges[targetId] = {
-        [EquipmentSlotType.Wearable]: { [WearableSlotType.Head]: 1 },
-      };
-    }
+    updateDurabilityChangesOnTargetForHit(durabilityChanges, targetCombatant);
   }
 
+  console.log("is crit or hit", isCrit || isHit);
   if (isCrit || isHit) {
-    // take dura from user's equipment if should
-    if (actionProperties.incursDurabilityLoss) {
-      if (actionProperties.incursDurabilityLoss[EquipmentSlotType.Wearable])
-        for (const [wearableSlot, durabilityLossConditions] of iterateNumericEnumKeyedRecord(
-          actionProperties.incursDurabilityLoss[EquipmentSlotType.Wearable]
-        )) {
-          if (durabilityLossConditions.onHit)
-            durabilityChanges[actionUser.entityProperties.id][EquipmentSlotType.Wearable]![
-              wearableSlot
-            ] = 1;
-        }
-      if (actionProperties.incursDurabilityLoss[EquipmentSlotType.Holdable])
-        for (const [holdableSlot, durabilityLossConditions] of iterateNumericEnumKeyedRecord(
-          actionProperties.incursDurabilityLoss[EquipmentSlotType.Holdable]
-        )) {
-          durabilityChanges[actionUser.entityProperties.id][EquipmentSlotType.Holdable]![
-            holdableSlot
-          ] = 1;
-        }
-    }
+    updateConditionalDurabilityChangesOnUser(
+      actionUser.entityProperties.id,
+      actionProperties,
+      durabilityChanges,
+      DurabilityLossCondition.OnHit
+    );
   }
   return;
 }
 
-export function calculateActionDurabilityChangesOnUse() {
-  const actionUserDurabilityChanges: DurabilityChanges = {
-    [EquipmentSlotType.Wearable]: {},
-    [EquipmentSlotType.Holdable]: {},
-  };
-  if (actionProperties.incursDurabilityLoss) {
-    if (actionProperties.incursDurabilityLoss[EquipmentSlotType.Wearable])
-      for (const [wearableSlot, durabilityLossConditions] of iterateNumericEnumKeyedRecord(
-        actionProperties.incursDurabilityLoss[EquipmentSlotType.Wearable]
-      )) {
-        if (durabilityLossConditions.onUse) {
-          actionUserDurabilityChanges[EquipmentSlotType.Wearable]![wearableSlot] = 1;
-        }
-      }
-    if (actionProperties.incursDurabilityLoss[EquipmentSlotType.Holdable])
-      for (const [holdableSlot, durabilityLossConditions] of iterateNumericEnumKeyedRecord(
-        actionProperties.incursDurabilityLoss[EquipmentSlotType.Holdable]
-      )) {
-        if (durabilityLossConditions.onUse) {
-          actionUserDurabilityChanges[EquipmentSlotType.Holdable]![holdableSlot] = 1;
-        }
-      }
+function updateDurabilityChangesOnTargetForHit(
+  durabilityChanges: DurabilityChangesByEntityId,
+  targetCombatant: Combatant
+) {
+  const { combatantProperties: targetCombatantProperties } = targetCombatant;
+  const targetId = targetCombatant.entityProperties.id;
+
+  // hits damage a random wearable
+  const equippedHelmOption = CombatantEquipment.getEquipmentInSlot(targetCombatantProperties, {
+    type: EquipmentSlotType.Wearable,
+    slot: WearableSlotType.Head,
+  });
+  const equippedBodyOption = CombatantEquipment.getEquipmentInSlot(targetCombatantProperties, {
+    type: EquipmentSlotType.Wearable,
+    slot: WearableSlotType.Body,
+  });
+  if (equippedBodyOption && equippedHelmOption) {
+    const whichArmorToHitRoll = Math.random();
+    if (whichArmorToHitRoll < ONE_THIRD_OF_ONE) {
+      durabilityChanges.updateOrCreateDurabilityChangeRecord(targetId, {
+        taggedSlot: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.Head },
+        value: BASE_DURABILITY_LOSS,
+      });
+    } else {
+      durabilityChanges.updateOrCreateDurabilityChangeRecord(targetId, {
+        taggedSlot: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.Body },
+        value: BASE_DURABILITY_LOSS,
+      });
+    }
+  } else if (equippedBodyOption) {
+    durabilityChanges.updateOrCreateDurabilityChangeRecord(targetId, {
+      taggedSlot: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.Body },
+      value: BASE_DURABILITY_LOSS,
+    });
+  } else if (equippedHelmOption) {
+    durabilityChanges.updateOrCreateDurabilityChangeRecord(targetId, {
+      taggedSlot: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.Head },
+      value: BASE_DURABILITY_LOSS,
+    });
   }
+}
+
+function updateDurabilityChangesOnTargetForCrit(
+  durabilityChanges: DurabilityChangesByEntityId,
+  targetCombatant: Combatant
+) {
+  const { combatantProperties: targetCombatantProperties } = targetCombatant;
+  const targetId = targetCombatant.entityProperties.id;
+
+  // crits damage both wearables and shields if any
+  durabilityChanges.updateOrCreateDurabilityChangeRecord(targetId, {
+    taggedSlot: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.Head },
+    value: BASE_DURABILITY_LOSS,
+  });
+  durabilityChanges.updateOrCreateDurabilityChangeRecord(targetId, {
+    taggedSlot: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.Body },
+    value: BASE_DURABILITY_LOSS,
+  });
+  if (
+    CombatantEquipment.getEquipmentInSlot(targetCombatantProperties, {
+      type: EquipmentSlotType.Holdable,
+      slot: HoldableSlotType.OffHand,
+    })?.equipmentBaseItemProperties.equipmentType === EquipmentType.Shield
+  ) {
+    durabilityChanges.updateOrCreateDurabilityChangeRecord(targetId, {
+      taggedSlot: { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
+      value: BASE_DURABILITY_LOSS,
+    });
+  }
+}
+
+export function updateConditionalDurabilityChangesOnUser(
+  userId: EntityId,
+  actionProperties: CombatActionProperties,
+  durabilityChanges: DurabilityChangesByEntityId,
+  condition: DurabilityLossCondition
+) {
+  console.log("action properties incursDurabilityLoss: ", actionProperties.incursDurabilityLoss);
+  // take dura from user's equipment if should
+  if (actionProperties.incursDurabilityLoss === undefined) return;
+
+  if (actionProperties.incursDurabilityLoss[EquipmentSlotType.Wearable])
+    for (const [wearableSlot, durabilityLossCondition] of iterateNumericEnumKeyedRecord(
+      actionProperties.incursDurabilityLoss[EquipmentSlotType.Wearable]
+    )) {
+      console.log(
+        "should update wearable durability on ability use",
+        durabilityLossCondition === condition,
+        durabilityLossCondition,
+        condition
+      );
+      if (!(durabilityLossCondition === condition)) continue;
+      durabilityChanges.updateOrCreateDurabilityChangeRecord(userId, {
+        taggedSlot: { type: EquipmentSlotType.Wearable, slot: wearableSlot },
+        value: BASE_DURABILITY_LOSS,
+      });
+    }
+
+  if (actionProperties.incursDurabilityLoss[EquipmentSlotType.Holdable])
+    for (const [holdableSlot, durabilityLossCondition] of iterateNumericEnumKeyedRecord(
+      actionProperties.incursDurabilityLoss[EquipmentSlotType.Holdable]
+    )) {
+      console.log(
+        "should update holdable durability on ability use",
+        durabilityLossCondition === condition,
+        durabilityLossCondition,
+        condition
+      );
+      if (!(durabilityLossCondition === condition)) continue;
+      durabilityChanges.updateOrCreateDurabilityChangeRecord(userId, {
+        taggedSlot: { type: EquipmentSlotType.Holdable, slot: holdableSlot },
+        value: BASE_DURABILITY_LOSS,
+      });
+    }
 }

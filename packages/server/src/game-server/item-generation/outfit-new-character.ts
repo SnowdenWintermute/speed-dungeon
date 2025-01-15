@@ -21,6 +21,8 @@ import {
   WearableSlotType,
   Amulet,
   Equipment,
+  TwoHandedRangedWeapon,
+  MaxAndCurrent,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment from "./create-starting-equipment.js";
@@ -98,24 +100,25 @@ function outfitWarrior(combatantProperties: CombatantProperties) {
 
 function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
   const mh = generateSpecificEquipmentType({
-    equipmentType: EquipmentType.OneHandedMeleeWeapon,
-    baseItemType: OneHandedMeleeWeapon.RoseWand,
+    equipmentType: EquipmentType.TwoHandedRangedWeapon,
+    baseItemType: TwoHandedRangedWeapon.ShortBow,
   });
   if (!(mh instanceof Error)) {
     if (combatantProperties.equipment.inherentHoldableHotswapSlots[1])
       combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
         HoldableSlotType.MainHand
       ] = mh;
-    const oh = generateSpecificEquipmentType({
-      equipmentType: EquipmentType.Shield,
-      baseItemType: Shield.CabinetDoor,
-    });
-    if (!(oh instanceof Error))
-      if (combatantProperties.equipment.inherentHoldableHotswapSlots[1])
-        combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
-          HoldableSlotType.OffHand
-        ] = oh;
+    mh.durability = new MaxAndCurrent(4, 4);
   }
+  // const oh = generateSpecificEquipmentType({
+  //   equipmentType: EquipmentType.Shield,
+  //   baseItemType: Shield.CabinetDoor,
+  // });
+  // if (!(oh instanceof Error))
+  //   if (combatantProperties.equipment.inherentHoldableHotswapSlots[1])
+  //     combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
+  //       HoldableSlotType.OffHand
+  //     ] = oh;
 }
 
 function giveTestingCombatAttributes(combatantProperties: CombatantProperties) {
@@ -171,8 +174,8 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   const items = generateOneOfEachItem();
   combatantProperties.inventory.equipment.push(...(items as Equipment[]));
   combatantProperties.unspentAttributePoints = 100;
-  // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
-  // combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 100;
+  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
+  combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 3;
   // combatantProperties.inherentAttributes[CombatAttribute.Strength] = 100;
   // combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 100;
   // combatantProperties.inherentAttributes[CombatAttribute.Hp] = 1000;

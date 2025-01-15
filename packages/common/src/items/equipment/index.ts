@@ -107,4 +107,20 @@ export class Equipment extends Item {
       equipmentType === EquipmentType.TwoHandedRangedWeapon
     );
   }
+
+  static isIndestructable(equipment: Equipment) {
+    return equipment.durability === null;
+  }
+
+  static changeDurability(equipment: Equipment, value: number) {
+    if (Equipment.isIndestructable(equipment) || equipment.durability === null) return;
+    console.log(
+      "changing durability for",
+      equipment.entityProperties.name,
+      "from",
+      equipment.durability.current
+    );
+    equipment.durability.current = Math.max(0, equipment.durability.current + value);
+    console.log("to", equipment.durability.current, `(${value})`);
+  }
 }

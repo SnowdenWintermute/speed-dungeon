@@ -8,6 +8,8 @@ import {
   SpeedDungeonGame,
   ABILITY_NAME_STRINGS,
   CONSUMABLE_TYPE_STRINGS,
+  CombatantEquipment,
+  Equipment,
 } from "@speed-dungeon/common";
 import { GameWorld } from "../../game-world";
 import {
@@ -173,10 +175,42 @@ export default function getFrameEventFromAnimation(
 
         startFloatingMessage(
           targetId,
-          [{ type: FloatingMessageElementType.Text, text: "Evaded", classNames: "text-gray-500" }],
+          [
+            {
+              type: FloatingMessageElementType.Text,
+              text: "Evaded",
+              classNames: { mainText: "text-gray-500", shadowText: "text-black" },
+            },
+          ],
           2000
         );
       }
+
+    useGameStore.getState().mutateState((state) => {
+      if (actionPayload.durabilityChanges !== undefined) {
+        console.log(
+          "applying durability changes",
+          JSON.stringify(actionPayload.durabilityChanges, null, 2)
+        );
+        const gameOption = state.game;
+        if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+        const game = gameOption;
+        for (const [entityId, durabilitychanges] of Object.entries(
+          actionPayload.durabilityChanges.records
+        )) {
+          const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+          if (combatantResult instanceof Error) return combatantResult;
+          for (const change of durabilitychanges.changes) {
+            const { taggedSlot, value } = change;
+            const equipmentOption = CombatantEquipment.getEquipmentInSlot(
+              combatantResult.combatantProperties,
+              taggedSlot
+            );
+            if (equipmentOption) Equipment.changeDurability(equipmentOption, value);
+          }
+        }
+      }
+    });
   };
 
   return { fn: animationEventOption, frame: 22 };

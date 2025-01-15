@@ -2,6 +2,7 @@ export * from "./action-command.js";
 export * from "./action-command-receiver.js";
 export * from "./action-command-queue.js";
 import { BattleConclusion } from "../battle/index.js";
+import { DurabilityChangesByEntityId } from "../combat/action-results/calculate-action-durability-changes.js";
 import { CombatAction, HpChange } from "../combat/index.js";
 import { Consumable } from "../items/consumables/index.js";
 import { Equipment } from "../items/equipment/index.js";
@@ -51,6 +52,7 @@ export type PerformCombatActionActionCommandPayload = {
   // status effects added
   // status effects removed
   missesByEntityId: string[];
+  durabilityChanges?: DurabilityChangesByEntityId;
 };
 
 export type BattleResultActionCommandPayload = {

@@ -12,6 +12,11 @@ import { NumberRange } from "../../primatives/number-range.js";
 import { HpChangeSource, HpChangeSourceModifiers } from "../hp-change-source-types.js";
 import { CombatAttribute } from "../../attributes/index.js";
 
+export enum DurabilityLossCondition {
+  OnHit,
+  OnUse,
+}
+
 export class CombatActionProperties {
   targetingSchemes: TargetingScheme[] = [TargetingScheme.Single];
   validTargetCategories: TargetCategories = TargetCategories.Opponent;
@@ -25,12 +30,8 @@ export class CombatActionProperties {
   isMelee: boolean = true;
   accuracyPercentModifier: number = 100;
   incursDurabilityLoss?: {
-    [EquipmentSlotType.Wearable]?: Partial<
-      Record<WearableSlotType, { onHit?: boolean; onUse?: boolean }>
-    >;
-    [EquipmentSlotType.Holdable]?: Partial<
-      Record<HoldableSlotType, { onHit?: boolean; onUse?: boolean }>
-    >;
+    [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
+    [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
   };
   constructor() {}
 }

@@ -3,6 +3,7 @@ import {
   CombatActionProperties,
   CombatActionHpChangeProperties,
   ActionUsableContext,
+  DurabilityLossCondition,
 } from "../../combat/combat-actions/combat-action-properties.js";
 import {
   OFF_HAND_ACCURACY_MODIFIER,
@@ -58,7 +59,7 @@ const ATTACK_MELEE_MAIN_HAND = (() => {
   combatActionProperties.hpChangeProperties = hpChangeProperties;
 
   combatActionProperties.incursDurabilityLoss = {
-    [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: { onHit: true } },
+    [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnHit },
   };
 
   const attributes = new AbilityAttributes(combatActionProperties);
@@ -82,7 +83,7 @@ const ATTACK_MELEE_OFF_HAND = (() => {
   hpChangeProperties.critChanceModifier = OFF_HAND_CRIT_CHANCE_MODIFIER;
   hpChangeProperties.finalDamagePercentMultiplier = OFF_HAND_DAMAGE_MODIFIER;
   attributes.combatActionProperties.incursDurabilityLoss = {
-    [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: { onHit: true } },
+    [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: DurabilityLossCondition.OnHit },
   };
   return attributes;
 })();
@@ -99,7 +100,7 @@ const ATTACK_RANGED_MAIN_HAND = (() => {
   hpChangeProperties.hpChangeSource.meleeOrRanged = MeleeOrRanged.Ranged;
 
   attributes.combatActionProperties.incursDurabilityLoss = {
-    [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: { onUse: true } },
+    [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnUse },
   };
 
   return attributes;

@@ -1,6 +1,8 @@
 import {
   AdventuringParty,
+  CombatantEquipment,
   CombatantProperties,
+  Equipment,
   InputLock,
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
@@ -50,4 +52,21 @@ export default async function performCombatActionActionCommandHandler(
         // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
       }
     }
+
+  // durability changes
+  if (payload.durabilityChanges !== undefined) {
+    console.log("applying durability changes", JSON.stringify(payload.durabilityChanges, null, 2));
+    for (const [entityId, durabilitychanges] of Object.entries(payload.durabilityChanges.records)) {
+      const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+      if (combatantResult instanceof Error) return combatantResult;
+      for (const change of durabilitychanges.changes) {
+        const { taggedSlot, value } = change;
+        const equipmentOption = CombatantEquipment.getEquipmentInSlot(
+          combatantResult.combatantProperties,
+          taggedSlot
+        );
+        if (equipmentOption) Equipment.changeDurability(equipmentOption, value);
+      }
+    }
+  }
 }
