@@ -1,5 +1,6 @@
 import React from "react";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 
 export function ShardsDisplay({
   numShards,
@@ -20,10 +21,19 @@ export function ShardsDisplay({
   );
 }
 
-export function PriceDisplay({ price, extraStyles }: { price: number; extraStyles?: string }) {
+export function PriceDisplay({
+  price,
+  shardsOwned,
+  extraStyles,
+}: {
+  price: number;
+  shardsOwned: number;
+  extraStyles?: string;
+}) {
   return (
     <div
-      className={`w-fit flex pr-2 pl-2 h-8 items-center bg-slate-700 border border-slate-400 text-zinc-300 ${extraStyles}`}
+      className={`w-fit flex pr-2 pl-2 h-8 items-center bg-slate-700 border border-slate-400 
+      ${price > shardsOwned ? UNMET_REQUIREMENT_TEXT_COLOR : "text-zinc-300"} ${extraStyles}`}
     >
       <span className="mr-1">{price}</span>
       <ShardsIcon className="h-[20px] fill-slate-400" />

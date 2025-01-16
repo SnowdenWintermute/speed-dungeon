@@ -14,7 +14,6 @@ import {
   FOUND_ITEM_MAX_DURABILITY_MODIFIER,
   FOUND_ITEM_MIN_DURABILITY_MODIFIER,
   ItemType,
-  MaxAndCurrent,
   PrefixType,
   SuffixType,
   TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER,
@@ -90,7 +89,7 @@ export class EquipmentGenerationBuilder<T extends EquipmentGenerationTemplate>
       Math.floor(template.maxDurability * FOUND_ITEM_MIN_DURABILITY_MODIFIER),
       Math.floor(template.maxDurability * FOUND_ITEM_MAX_DURABILITY_MODIFIER)
     );
-    let durability = new MaxAndCurrent(template.maxDurability, startingDurability);
+    let durability = { inherentMax: template.maxDurability, current: startingDurability };
 
     return durability;
   }

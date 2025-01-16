@@ -1,10 +1,4 @@
-import {
-  Amulet,
-  EQUIPMENT_TYPE_STRINGS,
-  EquipmentBaseItem,
-  EquipmentType,
-  Ring,
-} from "@speed-dungeon/common";
+import { Amulet, EquipmentBaseItem, EquipmentType, Ring } from "@speed-dungeon/common";
 import { ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "./one-handed-melee-weapon-templates.js";
 import { SHIELD_EQUIPMENT_GENERATION_TEMPLATES } from "./shield-templates.js";
 import { TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "./two-handed-melee-weapon-templates.js";

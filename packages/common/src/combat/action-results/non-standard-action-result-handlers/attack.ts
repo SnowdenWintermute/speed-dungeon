@@ -34,6 +34,7 @@ export default function calculateAttackActionResult(
     );
     mhAttackEndsTurn = !!(
       equipmentOption &&
+      !Equipment.isBroken(equipmentOption) &&
       Equipment.isTwoHanded(
         equipmentOption.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType
       )
@@ -78,6 +79,7 @@ export function getAttackCombatActionOption(
 
   if (
     !equipmentOption || // unarmed
+    Equipment.isBroken(equipmentOption) || // basically unarmed then
     equipmentOption.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType ===
       EquipmentType.OneHandedMeleeWeapon ||
     equipmentOption.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType ===

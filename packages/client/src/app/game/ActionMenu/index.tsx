@@ -1,12 +1,7 @@
-import {
-  BUTTON_HEIGHT,
-  BUTTON_HEIGHT_SMALL,
-  SPACING_REM,
-  SPACING_REM_SMALL,
-} from "@/client_consts";
+import { BUTTON_HEIGHT, SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import React, { ReactNode, useEffect } from "react";
 import { getCurrentMenu, useGameStore } from "@/stores/game-store";
-import { ActionButtonCategory, ActionMenuButtonProperties, MenuStateType } from "./menu-state";
+import { ActionButtonCategory, MenuStateType } from "./menu-state";
 import ActionDetails from "../detailables/ActionDetails";
 import {
   ConsideringCombatActionMenuState,
@@ -14,18 +9,8 @@ import {
 } from "./menu-state/considering-combat-action";
 import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicatedButton";
 import NumberedButton from "./action-menu-buttons/NumberedButton";
-import setFocusedCharacter from "@/utils/set-focused-character";
-import getCurrentParty from "@/utils/getCurrentParty";
-import {
-  Consumable,
-  Item,
-  NextOrPrevious,
-  combatantIsAllowedToConvertItemsToShards,
-  getItemSellPrice,
-  getNextOrPreviousNumber,
-} from "@speed-dungeon/common";
-import getFocusedCharacter from "@/utils/getFocusedCharacter";
-import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
+import { Item } from "@speed-dungeon/common";
+import { HOTKEYS } from "@/hotkeys";
 import { VIEW_LOOT_BUTTON_TEXT } from "./menu-state/base";
 import {
   ConsideringItemMenuState,
@@ -34,17 +19,18 @@ import {
 } from "./menu-state/considering-item";
 import ItemDetailsWithComparison from "../ItemDetailsWithComparison";
 import shouldShowCharacterSheet from "@/utils/should-show-character-sheet";
-import Divider from "@/app/components/atoms/Divider";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import {
   CONFIRM_SHARD_TEXT,
   ConfirmConvertToShardsMenuState,
 } from "./menu-state/confirm-convert-to-shards";
-import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 import { playerIsOperatingVendingMachine } from "@/utils/player-is-operating-vending-machine";
-import { ShardsDisplay } from "../character-sheet/ShardsDisplay";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import DropShardsModal from "../character-sheet/DropShardsModal";
+import { CharacterFocusingButtons } from "./CycleCharacterFocusButtons";
+import { BottomButtons } from "./BottomButtons";
+import { ConfirmShardConversionDisplay } from "./ConfirmShardConversionDisplay";
+import ConsideringItemDisplay from "./ConsideringItemDisplay";
+import VendingMachineShardDisplay from "./VendingMachineShardDisplay";
+import StackedMenuStateDisplay from "./StackedMenuStateDisplay";
 
 export const ACTION_MENU_PAGE_SIZE = 6;
 const topButtonLiStyle = { marginRight: `${SPACING_REM}rem` };
@@ -74,7 +60,6 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
   const partyResult = useGameStore.getState().getParty();
   if (focusedCharacterResult instanceof Error || partyResult instanceof Error) return <></>;
-  const viewingDropShardsModal = useGameStore().viewingDropShardsModal;
 
   useEffect(() => {
     if (currentMenu.type === MenuStateType.ItemsOnGround && numberOfNumberedButtons === 0) {
@@ -115,73 +100,11 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   }
 
   let detailedItemDisplay = <></>;
-  if (currentMenu instanceof ConsideringItemMenuState) {
-    const shardReward = getItemSellPrice(currentMenu.item);
-    detailedItemDisplay = (
-      <div
-        className="min-w-[25rem] max-w-[25rem]"
-        style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
-      >
-        <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex flex-col items-center pointer-events-auto">
-          <div className="">{currentMenu.item.entityProperties.name}</div>
-          <Divider extraStyles="w-full" />
-          {currentMenu.item instanceof Consumable ? (
-            <div>Select "use" to choose a target for this consumable</div>
-          ) : (
-            <div>Equipping this item will swap it with any currently equipped item</div>
-          )}
-          {combatantIsAllowedToConvertItemsToShards(
-            focusedCharacterResult.combatantProperties,
-            partyResult.currentRoom.roomType
-          ) && (
-            <div className="mt-4">
-              <HotkeyButton
-                className="border border-slate-400 w-full p-2 pl-3 pr-3 hover:bg-slate-950"
-                hotkeys={[SHARD_ITEM_HOTKEY]}
-                onClick={() =>
-                  mutateGameState((state) => {
-                    state.stackedMenuStates.push(
-                      new ConfirmConvertToShardsMenuState(
-                        currentMenu.item,
-                        MenuStateType.ItemSelected
-                      )
-                    );
-                  })
-                }
-              >
-                <span>
-                  ({letterFromKeyCode(SHARD_ITEM_HOTKEY)}) Convert to {shardReward}{" "}
-                  <ShardsIcon className="fill-slate-400 h-6 inline" />
-                </span>
-              </HotkeyButton>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
+  if (currentMenu instanceof ConsideringItemMenuState)
+    detailedItemDisplay = <ConsideringItemDisplay />;
 
-  if (currentMenu instanceof ConfirmConvertToShardsMenuState) {
-    detailedItemDisplay = (
-      <div
-        className="min-w-[25rem] max-w-[25rem]"
-        style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
-      >
-        <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex flex-col items-center pointer-events-auto">
-          <div className="">{currentMenu.item.entityProperties.name}</div>
-          <Divider extraStyles="w-full" />
-
-          <span className="text-lg bg-slate-700 mb-1">
-            Convert to {getItemSellPrice(currentMenu.item)} shards?
-          </span>
-          <span className="text-yellow-400 mb-2">This will PERMANENTLY DESTROY the item! </span>
-          <div className="relative">
-            <ShardsIcon className="fill-yellow-400 h-10" />
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (currentMenu instanceof ConfirmConvertToShardsMenuState)
+    detailedItemDisplay = <ConfirmShardConversionDisplay />;
 
   let hoveredActionDisplay: ReactNode | null = null;
   if (hoveredAction) {
@@ -225,6 +148,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
   return (
     <section className={`flex flex-col justify-between `}>
       <CharacterFocusingButtons />
+      <StackedMenuStateDisplay />
       <ul
         className={`flex list-none min-w-[25rem] max-w-[25rem] relative`}
         style={{ marginBottom: `${SPACING_REM_SMALL}rem` }}
@@ -253,34 +177,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
             </li>
           );
         })}
-        {playerIsOperatingVendingMachine(currentMenu.type) && (
-          <li className="ml-auto pointer-events-auto">
-            <HoverableTooltipWrapper tooltipText="The machine seems to want these...">
-              <HotkeyButton
-                className="disabled:opacity-50"
-                hotkeys={[HOTKEYS.MAIN_2]}
-                onClick={() => {
-                  mutateGameState((state) => {
-                    state.viewingDropShardsModal = true;
-                  });
-                }}
-              >
-                <ShardsDisplay
-                  extraStyles="h-10"
-                  numShards={focusedCharacterResult.combatantProperties.inventory.shards}
-                />
-              </HotkeyButton>
-            </HoverableTooltipWrapper>
-            {/* for better tab indexing, character sheet has it's own placement of the modal */}
-            {viewingDropShardsModal === true && !viewingCharacterSheet && (
-              <DropShardsModal
-                className="absolute bottom-0 right-0 border border-slate-400"
-                min={0}
-                max={focusedCharacterResult.combatantProperties.inventory.shards}
-              />
-            )}
-          </li>
-        )}
+        {playerIsOperatingVendingMachine(currentMenu.type) && <VendingMachineShardDisplay />}
       </ul>
       <div
         className={`mb-3 flex`}
@@ -331,105 +228,5 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         />
       </div>
     </section>
-  );
-}
-
-function BottomButtons({
-  numPages,
-  currentPageNumber,
-  left,
-  right,
-}: {
-  numPages: number;
-  currentPageNumber: number;
-  left?: ActionMenuButtonProperties;
-  right?: ActionMenuButtonProperties;
-}) {
-  return (
-    <div
-      className="flex justify-between bg-slate-700 relative border border-slate-400 h-8"
-      style={!left && !right ? { opacity: 0 } : {}}
-    >
-      <div key={left?.key} className="flex-1 border-r border-slate-400 h-full">
-        {left && <ActionMenuDedicatedButton extraStyles="w-full h-full" properties={left} />}
-      </div>
-      <div
-        className="h-full flex items-center justify-center pr-2 pl-2"
-        style={numPages <= 1 ? { display: "none" } : {}}
-      >
-        <span>
-          Page {currentPageNumber}/{numPages}
-        </span>
-      </div>
-      <div key={right?.key} className="flex-1 flex border-l border-slate-400 h-full">
-        {right && <ActionMenuDedicatedButton extraStyles="w-full justify-end" properties={right} />}
-      </div>
-    </div>
-  );
-}
-
-function CharacterFocusingButtons() {
-  function createFocusCharacterButtonProperties(
-    text: string,
-    direction: NextOrPrevious,
-    hotkeys: string[]
-  ) {
-    const button = new ActionMenuButtonProperties(text, text, () => {
-      const currentFocusedCharacterId = useGameStore.getState().focusedCharacterId;
-      const party = getCurrentParty(
-        useGameStore.getState(),
-        useGameStore.getState().username || ""
-      );
-      if (!party) return;
-      const currCharIndex = party.characterPositions.indexOf(currentFocusedCharacterId);
-      if (currCharIndex === -1) return console.error("Character ID not in position list");
-      const nextIndex = getNextOrPreviousNumber(
-        currCharIndex,
-        party.characterPositions.length - 1,
-        direction,
-        { minNumber: 0 }
-      );
-      const newCharacterId = party.characterPositions[nextIndex];
-      if (newCharacterId === undefined) return console.error("Invalid character position index");
-      setFocusedCharacter(newCharacterId);
-    });
-
-    button.dedicatedKeys = hotkeys;
-    return button;
-  }
-
-  const previousCharacterHotkey = HOTKEYS.LEFT_ALT;
-  const previousCharacterButton = createFocusCharacterButtonProperties(
-    `Previous (${letterFromKeyCode(previousCharacterHotkey)})`,
-    NextOrPrevious.Previous,
-    [previousCharacterHotkey]
-  );
-  const nextCharacterHotkey = HOTKEYS.RIGHT_ALT;
-  const nextCharacterButton = createFocusCharacterButtonProperties(
-    `Next (${letterFromKeyCode(nextCharacterHotkey)})`,
-    NextOrPrevious.Next,
-    [nextCharacterHotkey]
-  );
-
-  const focusedCharacter = getFocusedCharacter();
-  if (focusedCharacter instanceof Error) return <div>Error: no focused character</div>;
-
-  return (
-    <ul
-      className={`flex list-none min-w-[25rem] max-w-[25rem] justify-between bg-slate-700 border border-slate-400 pointer-events-auto`}
-      style={{ marginBottom: `${SPACING_REM_SMALL}rem`, height: `${BUTTON_HEIGHT_SMALL}rem` }}
-    >
-      <ActionMenuDedicatedButton
-        extraStyles="flex-1 flex border-r border-slate-400 h-full"
-        properties={previousCharacterButton}
-      />
-      <span className="h-full flex items-center justify-center pr-2 pl-2 overflow-hidden w-1/3 text-nowrap overflow-ellipsis">
-        {focusedCharacter.entityProperties.name}
-      </span>
-      <ActionMenuDedicatedButton
-        extraStyles="flex-1 flex border-l border-slate-400 h-full"
-        properties={nextCharacterButton}
-      />
-    </ul>
   );
 }

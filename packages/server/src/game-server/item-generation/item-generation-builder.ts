@@ -28,7 +28,9 @@ export abstract class ItemGenerationBuilder {
   abstract buildEquipmentBaseItemProperties: (
     equipmentBaseItem: EquipmentBaseItem
   ) => Error | EquipmentBaseItemProperties;
-  abstract buildDurability: (equipmentBaseItem: EquipmentBaseItem) => Error | null | MaxAndCurrent;
+  abstract buildDurability: (
+    equipmentBaseItem: EquipmentBaseItem
+  ) => Error | null | { current: number; inherentMax: number };
   abstract buildAffixes: (
     itemLevel: number,
     equipmentBaseItem: EquipmentBaseItem,

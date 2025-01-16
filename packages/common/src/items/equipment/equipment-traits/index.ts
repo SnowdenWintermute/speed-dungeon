@@ -1,12 +1,9 @@
-import { CombatAttribute } from "../../../attributes/index.js";
-import { AffixType, Affixes, PrefixType, SuffixType } from "../affixes.js";
-import { Equipment, EquipmentType } from "../index.js";
-
 export enum EquipmentTraitType {
   ArmorClassPercentage,
   LifeSteal,
   DamagePercentage,
   FlatDamageAdditive,
+  FlatDurabilityAdditive,
 }
 
 export interface ArmorClassPercentageTrait {
@@ -29,8 +26,14 @@ export interface LifeStealTrait {
   value: number;
 }
 
+export interface FlatDurabilityAdditiveTrait {
+  equipmentTraitType: EquipmentTraitType.FlatDurabilityAdditive;
+  value: number;
+}
+
 export type EquipmentTrait =
   | ArmorClassPercentageTrait
   | LifeStealTrait
   | DamagePercentageTrait
-  | FlatDamageAdditiveTrait;
+  | FlatDamageAdditiveTrait
+  | FlatDurabilityAdditiveTrait;

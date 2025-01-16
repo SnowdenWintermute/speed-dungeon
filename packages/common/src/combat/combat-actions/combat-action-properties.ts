@@ -3,10 +3,19 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "./targeting-schemes-and-categories.js";
-import { HoldableSlot, HoldableSlotType } from "../../items/equipment/slots.js";
+import {
+  EquipmentSlotType,
+  HoldableSlotType,
+  WearableSlotType,
+} from "../../items/equipment/slots.js";
 import { NumberRange } from "../../primatives/number-range.js";
 import { HpChangeSource, HpChangeSourceModifiers } from "../hp-change-source-types.js";
 import { CombatAttribute } from "../../attributes/index.js";
+
+export enum DurabilityLossCondition {
+  OnHit,
+  OnUse,
+}
 
 export class CombatActionProperties {
   targetingSchemes: TargetingScheme[] = [TargetingScheme.Single];
@@ -20,6 +29,10 @@ export class CombatActionProperties {
   description: string = "";
   isMelee: boolean = true;
   accuracyPercentModifier: number = 100;
+  incursDurabilityLoss?: {
+    [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
+    [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
+  };
   constructor() {}
 }
 

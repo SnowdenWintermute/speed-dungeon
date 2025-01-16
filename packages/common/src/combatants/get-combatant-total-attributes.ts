@@ -65,7 +65,9 @@ export default function getCombatantTotalAttributes(
   // after adding up attributes, determine if any equipped item still doesn't meet attribute
   // requirements, if so, remove it's attributes from the total
   for (const item of allEquippedItems) {
-    const equippedItemIsUsable = Item.requirementsMet(item, totalAttributes);
+    const equippedItemIsUsable =
+      Item.requirementsMet(item, totalAttributes) &&
+      !(item instanceof Equipment && Equipment.isBroken(item));
     if (equippedItemIsUsable) continue;
     // otherwise subtract its stats
     removeAttributesFromAccumulator(item.attributes, totalAttributes);

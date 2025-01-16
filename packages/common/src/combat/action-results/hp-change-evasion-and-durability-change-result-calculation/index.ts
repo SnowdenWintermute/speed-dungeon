@@ -2,7 +2,7 @@ import cloneDeep from "lodash.clonedeep";
 import { CombatantProperties } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import { CombatActionProperties } from "../../combat-actions/index.js";
+import { CombatActionProperties, DurabilityLossCondition } from "../../combat-actions/index.js";
 import { randBetween } from "../../../utils/index.js";
 import { ActionResultCalculationArguments } from "../action-result-calculator.js";
 import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
@@ -22,6 +22,12 @@ import { getActionCritChance } from "./get-action-crit-chance.js";
 import { convertHpChangeValueToFinalSign } from "./convert-hp-change-value-to-final-sign.js";
 import { CombatAttribute } from "../../../attributes/index.js";
 import { HoldableSlotType } from "../../../items/equipment/slots.js";
+import { EntityId } from "../../../primatives/index.js";
+import {
+  DurabilityChangesByEntityId,
+  calculateActionDurabilityChangesOnHit,
+  updateConditionalDurabilityChangesOnUser,
+} from "../calculate-action-durability-changes.js";
 export * from "./get-combat-action-hp-change-range.js";
 export * from "./weapon-hp-change-modifiers/index.js";
 export * from "./get-action-hit-chance.js";
@@ -29,7 +35,7 @@ export * from "./get-action-crit-chance.js";
 export * from "./hp-change-calculation-strategies/index.js";
 export * from "./check-if-target-wants-to-be-hit.js";
 
-export default function calculateActionHitPointChangesAndEvasions(
+export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
   game: SpeedDungeonGame,
   args: ActionResultCalculationArguments,
   targetIds: string[],
@@ -39,6 +45,7 @@ export default function calculateActionHitPointChangesAndEvasions(
   | {
       hitPointChanges: { [entityId: string]: HpChange };
       evasions: string[];
+      durabilityChanges: DurabilityChangesByEntityId;
     } {
   const { userId, combatAction } = args;
   const combatantResult = SpeedDungeonGame.getCombatantById(game, userId);
@@ -55,12 +62,14 @@ export default function calculateActionHitPointChangesAndEvasions(
   if (firstTargetCombatant instanceof Error) return firstTargetCombatant;
   const { combatantProperties: targetCombatantProperties } = firstTargetCombatant;
 
-  const hitPointChanges: { [entityId: string]: HpChange } = {};
+  const hitPointChanges: { [entityId: EntityId]: HpChange } = {};
+  const durabilityChanges = new DurabilityChangesByEntityId();
   let lifestealHpChange: null | HpChange = null;
 
   let evasions: string[] = [];
 
-  if (actionProperties.hpChangeProperties === null) return { hitPointChanges, evasions };
+  if (actionProperties.hpChangeProperties === null)
+    return { hitPointChanges, evasions, durabilityChanges };
   const hpChangeProperties = cloneDeep(actionProperties.hpChangeProperties);
 
   const equippedUsableWeaponsResult = CombatantProperties.getUsableWeaponsInSlots(
@@ -129,6 +138,14 @@ export default function calculateActionHitPointChangesAndEvasions(
     );
 
     ///////////////////////////////////////////////////
+    // separately calc weapon dura loss if is "on use" instead of "on hit"
+    // such as with firing a bow
+    updateConditionalDurabilityChangesOnUser(
+      userId,
+      actionProperties,
+      durabilityChanges,
+      DurabilityLossCondition.OnUse
+    );
 
     const isHit = randBetween(0, 100) <= percentChanceToHit;
 
@@ -138,6 +155,16 @@ export default function calculateActionHitPointChangesAndEvasions(
     }
 
     hpChange.isCrit = randBetween(0, 100) < percentChanceToCrit;
+
+    // determine durability loss of target's armor and user's weapon
+    calculateActionDurabilityChangesOnHit(
+      combatantResult,
+      targetCombatantResult,
+      actionProperties,
+      isHit,
+      hpChange.isCrit,
+      durabilityChanges
+    );
 
     applyCritMultiplier(
       hpChange,
@@ -192,5 +219,7 @@ export default function calculateActionHitPointChangesAndEvasions(
     hitPointChanges[userId] = lifestealHpChange;
   }
 
-  return { hitPointChanges, evasions };
+  console.log("durability changes: ", durabilityChanges);
+
+  return { hitPointChanges, evasions, durabilityChanges };
 }

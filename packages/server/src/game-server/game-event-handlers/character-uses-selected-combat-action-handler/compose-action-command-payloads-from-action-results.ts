@@ -24,14 +24,16 @@ export function composeActionCommandPayloadsFromActionResults(
       itemIds: actionResult.itemIdsConsumed,
     });
 
-    payloads.push({
+    const payload: ActionCommandPayload = {
       type: ActionCommandType.PerformCombatAction,
       actionUserId,
       combatAction: actionResult.action,
       hpChangesByEntityId: actionResult.hitPointChangesByEntityId || {},
       mpChangesByEntityId: actionResult.manaChangesByEntityId,
       missesByEntityId: actionResult.missesByEntityId || [],
-    });
+    };
+    if (actionResult.durabilityChanges) payload.durabilityChanges = actionResult.durabilityChanges;
+    payloads.push(payload);
   }
 
   payloads.push({ type: ActionCommandType.ReturnHome, actionUserId, shouldEndTurn });

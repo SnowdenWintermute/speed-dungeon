@@ -8,6 +8,9 @@ import {
   SpeedDungeonGame,
   ABILITY_NAME_STRINGS,
   CONSUMABLE_TYPE_STRINGS,
+  CombatantEquipment,
+  Equipment,
+  applyEquipmentEffectWhileMaintainingResourcePercentages,
 } from "@speed-dungeon/common";
 import { GameWorld } from "../../game-world";
 import {
@@ -21,6 +24,7 @@ import getCurrentParty from "@/utils/getCurrentParty";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { useGameStore } from "@/stores/game-store";
 import { induceHitRecovery } from "./induce-hit-recovery";
+import { ModelActionType } from "../../game-world/model-manager/model-actions";
 
 export default function getFrameEventFromAnimation(
   gameWorld: GameWorld,
@@ -173,10 +177,61 @@ export default function getFrameEventFromAnimation(
 
         startFloatingMessage(
           targetId,
-          [{ type: FloatingMessageElementType.Text, text: "Evaded", classNames: "text-gray-500" }],
+          [
+            {
+              type: FloatingMessageElementType.Text,
+              text: "Evaded",
+              classNames: { mainText: "text-gray-500", shadowText: "text-black" },
+            },
+          ],
           2000
         );
       }
+
+    useGameStore.getState().mutateState((state) => {
+      if (actionPayload.durabilityChanges !== undefined) {
+        const gameOption = state.game;
+        if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+        const game = gameOption;
+        for (const [entityId, durabilitychanges] of Object.entries(
+          actionPayload.durabilityChanges.records
+        )) {
+          const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+          if (combatantResult instanceof Error) return combatantResult;
+
+          applyEquipmentEffectWhileMaintainingResourcePercentages(
+            combatantResult.combatantProperties,
+            () => {
+              for (const change of durabilitychanges.changes) {
+                const { taggedSlot, value } = change;
+                const equipmentOption = CombatantEquipment.getEquipmentInSlot(
+                  combatantResult.combatantProperties,
+                  taggedSlot
+                );
+                if (equipmentOption) {
+                  Equipment.changeDurability(equipmentOption, value);
+                  // remove the model if it broke
+                  // @TODO - if this causes bugs because it is jumping the queue, look into it
+                  // if we use the queue though, it doesn't remove their item model imediately
+                  // if (Equipment.isBroken(equipmentOption)) {
+                  //   gameWorld.modelManager.modelActionQueue.enqueueMessage({
+                  //     type: ModelActionType.ChangeEquipment,
+                  //     entityId: combatantResult.entityProperties.id,
+                  //     unequippedIds: [equipmentOption.entityProperties.id],
+                  //   });
+                  // }
+                  if (Equipment.isBroken(equipmentOption)) {
+                    gameWorld.modelManager.combatantModels[
+                      combatantResult.entityProperties.id
+                    ]?.unequipHoldableModel(equipmentOption.entityProperties.id);
+                  }
+                }
+              }
+            }
+          );
+        }
+      }
+    });
   };
 
   return { fn: animationEventOption, frame: 22 };

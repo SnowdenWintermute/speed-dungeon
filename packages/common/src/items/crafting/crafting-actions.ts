@@ -47,9 +47,8 @@ export const CRAFTING_ACTION_DISABLED_CONDITIONS: Record<
   (equipment: Equipment, itemLevelLimiter: number) => boolean
 > = {
   [CraftingAction.Repair]: function (equipment: Equipment): boolean {
-    return (
-      equipment.durability === null || equipment.durability.current === equipment.durability.max
-    );
+    const durability = Equipment.getDurability(equipment);
+    return durability === null || durability.current === durability.max;
   },
   [CraftingAction.Imbue]: function (equipment: Equipment): boolean {
     return Equipment.isMagical(equipment);

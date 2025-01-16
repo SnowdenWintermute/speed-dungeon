@@ -3,6 +3,7 @@ import {
   CombatActionProperties,
   CombatActionHpChangeProperties,
   ActionUsableContext,
+  DurabilityLossCondition,
 } from "../../combat/combat-actions/combat-action-properties.js";
 import {
   OFF_HAND_ACCURACY_MODIFIER,
@@ -24,7 +25,7 @@ import {
   TargetingScheme,
 } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
 import { CombatAttribute } from "../../attributes/index.js";
-import { HoldableSlotType } from "../../items/equipment/slots.js";
+import { EquipmentSlotType, HoldableSlotType } from "../../items/equipment/slots.js";
 
 const ATTACK = (() => {
   const combatActionProperties = new CombatActionProperties();
@@ -56,6 +57,11 @@ const ATTACK_MELEE_MAIN_HAND = (() => {
   hpChangeProperties.critMultiplierAttribute = CombatAttribute.Strength;
 
   combatActionProperties.hpChangeProperties = hpChangeProperties;
+
+  combatActionProperties.incursDurabilityLoss = {
+    [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnHit },
+  };
+
   const attributes = new AbilityAttributes(combatActionProperties);
   return attributes;
 })();
@@ -76,6 +82,9 @@ const ATTACK_MELEE_OFF_HAND = (() => {
   hpChangeProperties.critMultiplierAttribute = CombatAttribute.Strength;
   hpChangeProperties.critChanceModifier = OFF_HAND_CRIT_CHANCE_MODIFIER;
   hpChangeProperties.finalDamagePercentMultiplier = OFF_HAND_DAMAGE_MODIFIER;
+  attributes.combatActionProperties.incursDurabilityLoss = {
+    [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: DurabilityLossCondition.OnHit },
+  };
   return attributes;
 })();
 
@@ -89,6 +98,11 @@ const ATTACK_RANGED_MAIN_HAND = (() => {
   hpChangeProperties.critMultiplierAttribute = CombatAttribute.Dexterity;
   hpChangeProperties.finalDamagePercentMultiplier = OFF_HAND_DAMAGE_MODIFIER;
   hpChangeProperties.hpChangeSource.meleeOrRanged = MeleeOrRanged.Ranged;
+
+  attributes.combatActionProperties.incursDurabilityLoss = {
+    [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnUse },
+  };
+
   return attributes;
 })();
 

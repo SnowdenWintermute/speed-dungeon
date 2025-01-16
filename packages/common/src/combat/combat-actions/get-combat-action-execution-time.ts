@@ -24,7 +24,7 @@ export function getCombatActionExecutionTime(
           const isTwoHanded = Equipment.isTwoHanded(
             mhWeaponOption.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType
           );
-          if (isTwoHanded) ms = 2000;
+          if (isTwoHanded && !Equipment.isBroken(mhWeaponOption)) ms = 2000;
           else ms = 1000;
           break;
         case AbilityName.AttackRangedMainhand:

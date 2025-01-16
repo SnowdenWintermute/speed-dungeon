@@ -5,6 +5,7 @@ import {
   CombatantProperties,
   CombatantTraitType,
   Inventory,
+  applyEquipmentEffectWhileMaintainingResourcePercentages,
 } from "../../combatants/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { removeFromArray } from "../../utils/index.js";
@@ -47,8 +48,13 @@ function convertItemToShards(item: Item, combatantProperties: CombatantPropertie
   const itemId = item.entityProperties.id;
   const removedItemResult = Inventory.removeItem(combatantProperties.inventory, itemId);
   if (!(removedItemResult instanceof Error)) return getItemSellPrice(removedItemResult);
-  const removedEquipmentResult = CombatantEquipment.removeItem(combatantProperties, itemId);
-  if (!(removedEquipmentResult instanceof Error)) return getItemSellPrice(removedEquipmentResult);
 
-  return new Error("Error converting item to shards");
+  let itemSellPriceResult: Error | number = new Error("not assigned");
+  applyEquipmentEffectWhileMaintainingResourcePercentages(combatantProperties, () => {
+    const removedEquipmentResult = CombatantEquipment.removeItem(combatantProperties, itemId);
+    if (removedEquipmentResult instanceof Error) itemSellPriceResult = removedEquipmentResult;
+    else itemSellPriceResult = getItemSellPrice(removedEquipmentResult);
+  });
+
+  return itemSellPriceResult;
 }

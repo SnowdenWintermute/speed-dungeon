@@ -88,6 +88,9 @@ function formatAffixEquipmentTraits(affix: Affix): string[] {
       case EquipmentTraitType.FlatDamageAdditive:
         toReturn.push(`+${equipmentTrait.value} weapon damage`);
         break;
+      case EquipmentTraitType.FlatDurabilityAdditive:
+        toReturn.push(`+${equipmentTrait.value} durability`);
+        break;
       case EquipmentTraitType.ArmorClassPercentage:
         toReturn.push(`+${equipmentTrait.value}% armor class`);
         break;

@@ -2,7 +2,7 @@ export * from "./turn-result.js";
 export * from "./action-result.js";
 export * from "./get-action-results.js";
 export * from "./action-result-calculator.js";
-export * from "./hp-change-result-calculation/index.js";
+export * from "./hp-change-evasion-and-durability-change-result-calculation/index.js";
 
 import cloneDeep from "lodash.clonedeep/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
@@ -15,8 +15,8 @@ import {
 import { CombatActionType } from "../index.js";
 import applyConsumableUseToActionResult from "./apply-consumable-use-to-action-result.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import calculateActionHitPointChangesAndEvasions from "./hp-change-result-calculation/index.js";
 import { getCombatActionTargetIds } from "./get-action-target-ids.js";
+import { calculateActionHitPointChangesEvasionsAndDurabilityChanges } from "./hp-change-evasion-and-durability-change-result-calculation/index.js";
 export * from "./get-action-target-ids.js";
 
 export default function calculateActionResult(
@@ -74,18 +74,23 @@ export default function calculateActionResult(
   }
   // END CONSUMABLE
 
-  const hitPointChangesCritsAndEvasionsResult = calculateActionHitPointChangesAndEvasions(
-    game,
-    args,
-    targetIds,
-    combatActionProperties
-  );
-  if (hitPointChangesCritsAndEvasionsResult instanceof Error)
-    return hitPointChangesCritsAndEvasionsResult;
-  const { hitPointChanges, evasions } = hitPointChangesCritsAndEvasionsResult;
+  const hitPointChangesCritsEvasionsAndDurabilityChangesResult =
+    calculateActionHitPointChangesEvasionsAndDurabilityChanges(
+      game,
+      args,
+      targetIds,
+      combatActionProperties
+    );
+  if (hitPointChangesCritsEvasionsAndDurabilityChangesResult instanceof Error)
+    return hitPointChangesCritsEvasionsAndDurabilityChangesResult;
+  const { hitPointChanges, evasions, durabilityChanges } =
+    hitPointChangesCritsEvasionsAndDurabilityChangesResult;
 
   if (Object.keys(hitPointChanges).length) actionResult.hitPointChangesByEntityId = hitPointChanges;
   if (Object.keys(evasions).length) actionResult.missesByEntityId = evasions;
+  if (Object.keys(durabilityChanges).length) actionResult.durabilityChanges = durabilityChanges;
+
+  console.log("action result dura changes: ", actionResult.durabilityChanges);
 
   return actionResult;
 }

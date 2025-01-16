@@ -34,6 +34,8 @@ export const IMBUE_COST_MULTIPLIER = 0.5;
 export const AUGMENT_COST_MULTIPLIER = 3;
 export const SHAKE_COST_MULTIPLIER = 5;
 
+export const BROKEN_ITEM_REPAIR_COST_MULTIPLIER = 4;
+
 function getBaseCraftingCost(itemLevel: number) {
   return (
     LINEAR_STEP_CRAFT * itemLevel +
@@ -48,7 +50,10 @@ export const CRAFTING_ACTION_PRICE_CALCULATORS: Record<
   [CraftingAction.Repair]: (equipment: Equipment) => {
     const baseValue = getEquipmentBaseValue(equipment);
     const normalizedPercentRepaired = Equipment.getNormalizedPercentRepaired(equipment);
-    return baseValue - baseValue * normalizedPercentRepaired;
+    const baseRepairCost = baseValue - baseValue * normalizedPercentRepaired;
+    if (equipment.durability?.current === 0)
+      return baseRepairCost * BROKEN_ITEM_REPAIR_COST_MULTIPLIER;
+    return baseRepairCost;
   },
   [CraftingAction.Imbue]: (equipment: Equipment) =>
     getBaseCraftingCost(equipment.itemLevel) * IMBUE_COST_MULTIPLIER,

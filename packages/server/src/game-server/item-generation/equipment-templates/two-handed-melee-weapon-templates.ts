@@ -85,8 +85,9 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.maxDurability = 4;
         break;
       case TwoHandedMeleeWeapon.BoStaff:
-        template.levelRange = new NumberRange(1, 4);
+        template.levelRange = new NumberRange(1, 3);
         template.damage = new NumberRange(2, 8);
+        template.maxDurability = 6;
         break;
       case TwoHandedMeleeWeapon.Spear:
         template.levelRange = new NumberRange(2, 5);
@@ -94,12 +95,14 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         mainDamageClassification.kineticDamageTypeOption = KineticDamageType.Piercing;
         template.requirements[CombatAttribute.Dexterity] = 5;
         template.requirements[CombatAttribute.Strength] = 2;
+        template.maxDurability = 9;
         break;
       case TwoHandedMeleeWeapon.Bardiche:
         template.levelRange = new NumberRange(2, 5);
         template.damage = new NumberRange(1, 11);
         mainDamageClassification.kineticDamageTypeOption = KineticDamageType.Slashing;
         template.requirements[CombatAttribute.Strength] = 9;
+        template.maxDurability = 10;
         break;
       case TwoHandedMeleeWeapon.SplittingMaul:
         template.levelRange = new NumberRange(3, 6);
@@ -120,11 +123,13 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         ];
         template.requirements[CombatAttribute.Strength] = 11;
         template.requirements[CombatAttribute.Dexterity] = 5;
+        template.maxDurability = 11;
         break;
       case TwoHandedMeleeWeapon.Maul:
         template.levelRange = new NumberRange(5, 7);
         template.damage = new NumberRange(9, 14);
         template.requirements[CombatAttribute.Strength] = 16;
+        template.maxDurability = 18;
         break;
       case TwoHandedMeleeWeapon.BattleAxe:
         template.levelRange = new NumberRange(5, 7);
@@ -132,6 +137,7 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         mainDamageClassification.kineticDamageTypeOption = KineticDamageType.Slashing;
         template.requirements[CombatAttribute.Strength] = 13;
         template.requirements[CombatAttribute.Dexterity] = 7;
+        template.maxDurability = 19;
         break;
       case TwoHandedMeleeWeapon.Glaive:
         template.levelRange = new NumberRange(6, 8);
@@ -152,6 +158,7 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         ];
         template.requirements[CombatAttribute.Dexterity] = 15;
         template.requirements[CombatAttribute.Strength] = 9;
+        template.maxDurability = 15;
         break;
       case TwoHandedMeleeWeapon.ElementalStaff:
         template.levelRange = new NumberRange(7, 9);
@@ -171,6 +178,7 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
           );
         template.requirements[CombatAttribute.Intelligence] = 7;
         template.requirements[CombatAttribute.Strength] = 7;
+        template.maxDurability = 18;
         break;
       case TwoHandedMeleeWeapon.Trident:
         template.levelRange = new NumberRange(8, 10);
@@ -192,6 +200,7 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         ];
         template.requirements[CombatAttribute.Intelligence] = 7;
         template.requirements[CombatAttribute.Strength] = 7;
+        template.maxDurability = 20;
         break;
       case TwoHandedMeleeWeapon.GreatAxe:
         template.levelRange = new NumberRange(9, 10);
@@ -199,26 +208,31 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         mainDamageClassification.kineticDamageTypeOption = KineticDamageType.Slashing;
         template.requirements[CombatAttribute.Strength] = 23;
         template.requirements[CombatAttribute.Dexterity] = 11;
+        template.maxDurability = 28;
         break;
       case TwoHandedMeleeWeapon.GravityHammer:
         template.levelRange = new NumberRange(9, 10);
         template.damage = new NumberRange(20, 30);
         template.requirements[CombatAttribute.Strength] = 30;
+        template.maxDurability = 40;
         break;
       case TwoHandedMeleeWeapon.ElmStaff:
         template.levelRange = new NumberRange(3, 6);
         template.damage = new NumberRange(4, 12);
         template.requirements[CombatAttribute.Intelligence] = 10;
+        template.maxDurability = 12;
         break;
       case TwoHandedMeleeWeapon.MahoganyStaff:
         template.levelRange = new NumberRange(5, 8);
         template.damage = new NumberRange(8, 22);
         template.requirements[CombatAttribute.Intelligence] = 15;
+        template.maxDurability = 16;
         break;
       case TwoHandedMeleeWeapon.EbonyStaff:
         template.levelRange = new NumberRange(8, 10);
         template.damage = new NumberRange(10, 32);
         template.requirements[CombatAttribute.Intelligence] = 25;
+        template.maxDurability = 22;
         break;
     }
 

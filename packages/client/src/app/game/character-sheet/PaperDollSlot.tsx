@@ -60,7 +60,11 @@ export default function PaperDollSlot({
       if (consideredItemUnmetRequirements !== null) return UNUSABLE_ITEM_BG_STYLES;
       else return USABLE_ITEM_BG_STYLES;
     if (!itemOption) return "";
-    if (!Item.requirementsMet(itemOption, characterAttributes)) return UNUSABLE_ITEM_BG_STYLES;
+    if (
+      !Item.requirementsMet(itemOption, characterAttributes) ||
+      (itemOption instanceof Equipment && Equipment.isBroken(itemOption))
+    )
+      return UNUSABLE_ITEM_BG_STYLES;
   }, [itemOption, characterAttributes, consideredItemUnmetRequirements, comparedSlot]);
 
   const highlightStyle = useMemo(() => {

@@ -14,17 +14,18 @@ import {
   HoldableHotswapSlot,
   CombatantTrait,
   EquipmentType,
-  OneHandedMeleeWeapon,
   HoldableSlotType,
-  Shield,
   Ring,
   WearableSlotType,
   Amulet,
+  Equipment,
+  TwoHandedRangedWeapon,
+  MaxAndCurrent,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
-import createStartingEquipment from "./create-starting-equipment.js";
+import createStartingEquipment, { givePlaytestingItems } from "./create-starting-equipment.js";
 import { createConsumableByType } from "./create-consumable-by-type.js";
-import { generateSpecificEquipmentType } from "./generate-test-items.js";
+import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
 
 export default function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
@@ -61,7 +62,7 @@ export default function outfitNewCharacter(character: Combatant) {
   const maybeError = createStartingEquipment(combatantProperties);
   if (maybeError instanceof Error) return maybeError;
 
-  // setExperimentalCombatantProperties(combatantProperties);
+  setExperimentalCombatantProperties(combatantProperties);
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
 }
@@ -97,81 +98,42 @@ function outfitWarrior(combatantProperties: CombatantProperties) {
 
 function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
   const mh = generateSpecificEquipmentType({
-    equipmentType: EquipmentType.OneHandedMeleeWeapon,
-    baseItemType: OneHandedMeleeWeapon.RoseWand,
+    equipmentType: EquipmentType.TwoHandedRangedWeapon,
+    baseItemType: TwoHandedRangedWeapon.ShortBow,
   });
   if (!(mh instanceof Error)) {
     if (combatantProperties.equipment.inherentHoldableHotswapSlots[1])
       combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
         HoldableSlotType.MainHand
       ] = mh;
-    const oh = generateSpecificEquipmentType({
-      equipmentType: EquipmentType.Shield,
-      baseItemType: Shield.CabinetDoor,
-    });
-    if (!(oh instanceof Error))
-      if (combatantProperties.equipment.inherentHoldableHotswapSlots[1])
-        combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
-          HoldableSlotType.OffHand
-        ] = oh;
+    mh.durability = { inherentMax: 4, current: 1 };
   }
-}
 
-function giveTestingCombatAttributes(combatantProperties: CombatantProperties) {
-  for (const attribute of iterateNumericEnum(CombatAttribute)) {
-    combatantProperties.inherentAttributes[attribute] = 100;
-  }
+  // const oh = generateSpecificEquipmentType({
+  //   equipmentType: EquipmentType.Shield,
+  //   baseItemType: Shield.CabinetDoor,
+  // });
+  // if (!(oh instanceof Error))
+  //   if (combatantProperties.equipment.inherentHoldableHotswapSlots[1])
+  //     combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
+  //       HoldableSlotType.OffHand
+  //     ] = oh;
 }
 
 function setExperimentalCombatantProperties(combatantProperties: CombatantProperties) {
   giveHotswapSlotEquipment(combatantProperties);
-  const ring = generateSpecificEquipmentType({
-    equipmentType: EquipmentType.Ring,
-    baseItemType: Ring.Ring,
-  });
-  if (ring instanceof Error) return;
-  ring.itemLevel = 10;
-  combatantProperties.equipment.wearables[WearableSlotType.RingL] = ring;
+  givePlaytestingItems(combatantProperties.equipment);
+  // const items = generateOneOfEachItem();
+  // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
 
-  const amulet = generateSpecificEquipmentType({
-    equipmentType: EquipmentType.Amulet,
-    baseItemType: Amulet.Amulet,
-  });
-  if (amulet instanceof Error) return;
-  amulet.itemLevel = 10;
-  combatantProperties.equipment.wearables[WearableSlotType.Amulet] = amulet;
-
-  // FOR TESTING INVENTORY
-  // generateTestItems(combatantProperties, 6);
-  // const item1 = generateSpecificEquipmentType(
-  //   {
-  //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
-  //     baseItemType: OneHandedMeleeWeapon.Club,
-  //   },
-  //   true
-  // );
-  // const item2 = generateSpecificEquipmentType(
-  //   {
-  //     equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-  //     baseItemType: TwoHandedMeleeWeapon.RottingBranch,
-  //   },
-  //   true
-  // );
-  // if (item1 instanceof Error || item2 instanceof Error) return item1;
-  // item1.itemLevel = 5;
-  // item2.itemLevel = 10;
-  // Inventory.insertItem(combatantProperties.inventory, item1);
-  // Inventory.insertItem(combatantProperties.inventory, item2);
   // giveTestingCombatAttributes(combatantProperties);
   // combatantProperties.level = 5;
   combatantProperties.abilities[AbilityName.Destruction] = CombatantAbility.createByName(
     AbilityName.Destruction
   );
-  // const items = generateOneOfEachItem();
-  // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
   combatantProperties.unspentAttributePoints = 100;
-  // combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
-  // combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 100;
+  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
+  combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 3;
   // combatantProperties.inherentAttributes[CombatAttribute.Strength] = 100;
   // combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 100;
   // combatantProperties.inherentAttributes[CombatAttribute.Hp] = 1000;

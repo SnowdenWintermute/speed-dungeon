@@ -31,7 +31,7 @@ export class Equipment extends Item {
     public itemLevel: number,
     public requirements: Partial<Record<CombatAttribute, number>>,
     public equipmentBaseItemProperties: EquipmentBaseItemProperties,
-    public durability: null | MaxAndCurrent
+    public durability: null | { current: number; inherentMax: number }
   ) {
     super(entityProperties, itemLevel, requirements);
   }
@@ -40,7 +40,7 @@ export class Equipment extends Item {
 
   static getNormalizedPercentRepaired(equipment: Equipment) {
     let normalizedPercentRepaired = 1;
-    const { durability } = equipment;
+    const durability = Equipment.getDurability(equipment);
     if (durability) {
       normalizedPercentRepaired = durability.current / durability.max;
     }
@@ -75,6 +75,21 @@ export class Equipment extends Item {
 
     return Math.floor(withFlatAdditive * percentModifier);
   }
+
+  static getDurability(equipment: Equipment) {
+    const { durability } = equipment;
+    if (durability === null) return null;
+    const { inherentMax, current } = durability;
+    let additive = 0;
+    const durabilityTraitOption =
+      equipment.affixes[AffixType.Suffix][SuffixType.Durability]?.equipmentTraits[
+        EquipmentTraitType.FlatDurabilityAdditive
+      ];
+    if (durabilityTraitOption) additive = durabilityTraitOption.value;
+
+    return new MaxAndCurrent(inherentMax + additive, current);
+  }
+
   static getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
   static isTwoHanded = equipmentIsTwoHandedWeapon;
   static applyEquipmentTraitsToHpChangeSource = applyEquipmentTraitsToHpChangeSource;
@@ -106,5 +121,19 @@ export class Equipment extends Item {
       equipmentType === EquipmentType.TwoHandedMeleeWeapon ||
       equipmentType === EquipmentType.TwoHandedRangedWeapon
     );
+  }
+
+  static isIndestructable(equipment: Equipment) {
+    return equipment.durability === null;
+  }
+
+  static changeDurability(equipment: Equipment, value: number) {
+    if (Equipment.isIndestructable(equipment) || equipment.durability === null) return;
+    equipment.durability.current = Math.max(0, equipment.durability.current + value);
+  }
+
+  static isBroken(equipment: Equipment) {
+    if (Equipment.isIndestructable(equipment) || equipment.durability === null) return false;
+    return equipment.durability.current <= 0;
   }
 }
