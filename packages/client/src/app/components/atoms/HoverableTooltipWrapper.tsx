@@ -45,6 +45,8 @@ export default function HoverableTooltipWrapper(props: Props) {
 
       if (tooltipRect.x < 0 || x + tooltipRect.x < 0) {
         tooltipX = x + tooltipRect.width / 2;
+      } else if (tooltipRect.x + tooltipRect.width + 5 > window.innerWidth) {
+        tooltipX = x - tooltipRect.width / 2 - 10;
       }
 
       mutateUIState((store) => {

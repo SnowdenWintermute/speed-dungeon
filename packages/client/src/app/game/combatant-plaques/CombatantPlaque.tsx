@@ -18,6 +18,7 @@ import HotswapSlotButtons from "./HotswapSlotButtons";
 import CharacterModelDisplay from "@/app/character-model-display";
 import { useUIStore } from "@/stores/ui-store";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import LowDurabilityIndicators from "./LowDurabilityIndicators";
 
 interface Props {
   combatant: Combatant;
@@ -77,6 +78,8 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
     ? "opacity-50 pointer-events-none "
     : "pointer-events-auto ";
 
+  const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties, {});
+
   return (
     <div className="">
       <CharacterModelDisplay character={combatant}>
@@ -89,7 +92,14 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
           ))}
         </div>
       </CharacterModelDisplay>
-      <div className="w-full bg-slate-700">a</div>
+      {isPartyMember && (
+        <div className="w-full h-6 p-1 mb-1">
+          <LowDurabilityIndicators
+            isPlayerControlled={isPartyMember}
+            equippedItems={equippedItems}
+          />
+        </div>
+      )}
       <div
         className={`w-[23rem] h-fit bg-slate-700 flex p-2.5 relative box-border outline ${conditionalBorder} ${lockedUiState}`}
         ref={combatantPlaqueRef}
@@ -153,7 +163,18 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
           />
         </div>
       </div>
-      <ActiveCombatantIcon battleOption={battleOption} combatantId={entityId} />
+
+      <div className="flex">
+        <ActiveCombatantIcon battleOption={battleOption} combatantId={entityId} />
+        {!isPartyMember && (
+          <div className="flex-1 h-6 p-1 mt-1">
+            <LowDurabilityIndicators
+              isPlayerControlled={isPartyMember}
+              equippedItems={equippedItems}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

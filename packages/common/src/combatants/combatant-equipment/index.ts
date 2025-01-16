@@ -102,6 +102,7 @@ export class CombatantEquipment {
     }
   }
 
+  /**Optionally choose unselected hotswap slots*/
   static getAllEquippedItems(
     combatantProperties: CombatantProperties,
     options: { includeUnselectedHotswapSlots?: boolean }

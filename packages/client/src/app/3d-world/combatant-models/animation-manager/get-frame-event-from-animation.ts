@@ -197,20 +197,20 @@ export default function getFrameEventFromAnimation(
         )) {
           const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
           if (combatantResult instanceof Error) return combatantResult;
-          for (const change of durabilitychanges.changes) {
-            const { taggedSlot, value } = change;
-            const equipmentOption = CombatantEquipment.getEquipmentInSlot(
-              combatantResult.combatantProperties,
-              taggedSlot
-            );
 
-            applyEquipmentEffectWhileMaintainingResourcePercentages(
-              combatantResult.combatantProperties,
-              () => {
+          applyEquipmentEffectWhileMaintainingResourcePercentages(
+            combatantResult.combatantProperties,
+            () => {
+              for (const change of durabilitychanges.changes) {
+                const { taggedSlot, value } = change;
+                const equipmentOption = CombatantEquipment.getEquipmentInSlot(
+                  combatantResult.combatantProperties,
+                  taggedSlot
+                );
                 if (equipmentOption) Equipment.changeDurability(equipmentOption, value);
               }
-            );
-          }
+            }
+          );
         }
       }
     });
