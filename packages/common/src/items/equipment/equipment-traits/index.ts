@@ -3,6 +3,7 @@ export enum EquipmentTraitType {
   LifeSteal,
   DamagePercentage,
   FlatDamageAdditive,
+  FlatDurabilityAdditive,
 }
 
 export interface ArmorClassPercentageTrait {
@@ -25,8 +26,14 @@ export interface LifeStealTrait {
   value: number;
 }
 
+export interface FlatDurabilityAdditiveTrait {
+  equipmentTraitType: EquipmentTraitType.FlatDurabilityAdditive;
+  value: number;
+}
+
 export type EquipmentTrait =
   | ArmorClassPercentageTrait
   | LifeStealTrait
   | DamagePercentageTrait
-  | FlatDamageAdditiveTrait;
+  | FlatDamageAdditiveTrait
+  | FlatDurabilityAdditiveTrait;

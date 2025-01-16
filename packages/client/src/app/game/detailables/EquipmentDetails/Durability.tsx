@@ -1,3 +1,4 @@
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { Equipment } from "@speed-dungeon/common";
 import React from "react";
 
@@ -11,5 +12,10 @@ export default function Durability({ equipment }: Props) {
 
   if (isJewelry) return <></>;
   else if (durability === null) return <div>Indestructable</div>;
-  else return <div>{`Durability: ${durability.current}/${durability.max}`}</div>;
+  else
+    return (
+      <div
+        className={durability.current === 0 ? UNMET_REQUIREMENT_TEXT_COLOR : ""}
+      >{`Durability: ${durability.current}/${durability.max}`}</div>
+    );
 }

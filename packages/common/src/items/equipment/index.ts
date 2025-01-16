@@ -31,7 +31,7 @@ export class Equipment extends Item {
     public itemLevel: number,
     public requirements: Partial<Record<CombatAttribute, number>>,
     public equipmentBaseItemProperties: EquipmentBaseItemProperties,
-    public durability: null | MaxAndCurrent
+    public durability: null | { current: number; inherentMax: number }
   ) {
     super(entityProperties, itemLevel, requirements);
   }
@@ -75,6 +75,23 @@ export class Equipment extends Item {
 
     return Math.floor(withFlatAdditive * percentModifier);
   }
+
+  static getModifiedDurability(equipment: Equipment) {
+    const { durability } = equipment;
+    if (durability === null) return null;
+    const { max, current } = durability;
+    const durabilityTraitOption =
+      equipment.affixes[AffixType.Suffix][SuffixType.Durability]?.equipmentTraits[
+        EquipmentTraitType.FlatDurabilityAdditive
+      ];
+    if (durabilityTraitOption) {
+      const value = durabilityTraitOption.value;
+      return new MaxAndCurrent(max + value, current + value);
+    }
+
+    return durability;
+  }
+
   static getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
   static isTwoHanded = equipmentIsTwoHandedWeapon;
   static applyEquipmentTraitsToHpChangeSource = applyEquipmentTraitsToHpChangeSource;

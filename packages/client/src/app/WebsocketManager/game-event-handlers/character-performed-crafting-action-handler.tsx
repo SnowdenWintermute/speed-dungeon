@@ -11,6 +11,7 @@ import {
   Item,
   OneHandedMeleeWeapon,
   TwoHandedMeleeWeapon,
+  applyEquipmentEffectWhileMaintainingResourcePercentages,
   getCraftingActionPrice,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
@@ -57,7 +58,12 @@ export function characterPerformedCraftingActionHandler(eventData: {
       if (itemResult instanceof Equipment && itemBeforeModification instanceof Equipment) {
         const asInstance = plainToInstance(Equipment, item);
 
-        itemResult.copyFrom(asInstance);
+        applyEquipmentEffectWhileMaintainingResourcePercentages(
+          character.combatantProperties,
+          () => {
+            itemResult.copyFrom(asInstance);
+          }
+        );
 
         if (shouldUpdateThumbnailAfterCraft(itemResult)) {
           gameWorld.current?.imageManager.enqueueMessage({

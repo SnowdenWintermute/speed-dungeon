@@ -1,14 +1,8 @@
-import React, { ReactNode } from "react";
-import SwordIcon from "../../../../public/img/equipment-icons/sword.svg";
-import ShieldIcon from "../../../../public/img/equipment-icons/shield.svg";
-import BowIcon from "../../../../public/img/equipment-icons/bow.svg";
-import BodyIcon from "../../../../public/img/equipment-icons/body.svg";
-import HeadGearIcon from "../../../../public/img/equipment-icons/head-gear.svg";
-import AmuletIcon from "../../../../public/img/equipment-icons/amulet.svg";
-import RingIcon from "../../../../public/img/equipment-icons/ring-flattened.svg";
-import { Equipment, EquipmentType } from "@speed-dungeon/common";
-import { UNMET_REQUIREMENT_COLOR, WARNING_COLOR, WARNING_COLOR_DARK } from "@/client_consts";
+import React from "react";
+import { Equipment } from "@speed-dungeon/common";
+import { UNMET_REQUIREMENT_COLOR, WARNING_COLOR_DARK } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import { EQUIPMENT_ICONS } from "../detailables/EquipmentDetails/equipment-icons";
 
 const DURABILITY_WARNING_THRESHOLD_MODERATE = 0.3;
 const DURABILITY_WARNING_THRESHOLD_CRITICAL = 0.1;
@@ -23,8 +17,8 @@ export default function LowDurabilityIndicators({
   let indicators = [];
 
   for (const equipment of equippedItems) {
-    if (Equipment.isIndestructable(equipment) || equipment.durability === null) continue;
-    const { durability } = equipment;
+    const durability = Equipment.getModifiedDurability(equipment);
+    if (Equipment.isIndestructable(equipment) || durability === null) continue;
     const durabilityPercentage = durability.current / durability.max;
     if (durabilityPercentage === 0) continue;
     let iconColor;
@@ -36,7 +30,7 @@ export default function LowDurabilityIndicators({
 
     if (iconColor) {
       indicators.push({
-        durability: equipment.durability,
+        durability: durability,
         icon: EQUIPMENT_ICONS[equipment.equipmentBaseItemProperties.equipmentType]("h-full", {
           fill: iconColor,
         }),
@@ -59,33 +53,3 @@ export default function LowDurabilityIndicators({
     </ul>
   );
 }
-
-export const EQUIPMENT_ICONS: Record<
-  EquipmentType,
-  (className: string, style: { [key: string]: string }) => ReactNode
-> = {
-  [EquipmentType.BodyArmor]: (className: string, style: { [key: string]: string }) => (
-    <BodyIcon className={className} style={style} />
-  ),
-  [EquipmentType.HeadGear]: (className: string, style: { [key: string]: string }) => (
-    <HeadGearIcon className={className} style={style} />
-  ),
-  [EquipmentType.Ring]: (className: string, style: { [key: string]: string }) => (
-    <RingIcon className={className} style={style} />
-  ),
-  [EquipmentType.Amulet]: (className: string, style: { [key: string]: string }) => (
-    <AmuletIcon className={className} style={style} />
-  ),
-  [EquipmentType.OneHandedMeleeWeapon]: (className: string, style: { [key: string]: string }) => (
-    <SwordIcon className={className} style={style} />
-  ),
-  [EquipmentType.TwoHandedMeleeWeapon]: (className: string, style: { [key: string]: string }) => (
-    <SwordIcon className={className} style={style} />
-  ),
-  [EquipmentType.TwoHandedRangedWeapon]: (className: string, style: { [key: string]: string }) => (
-    <BowIcon className={className} style={style} />
-  ),
-  [EquipmentType.Shield]: (className: string, style: { [key: string]: string }) => (
-    <ShieldIcon className={className} style={style} />
-  ),
-};

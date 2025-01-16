@@ -14,6 +14,7 @@ import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 
 export class RepairItemSelectionMenuState extends ItemsMenuState {
   [immerable] = true;
@@ -47,14 +48,26 @@ export class RepairItemSelectionMenuState extends ItemsMenuState {
         getItemButtonCustomChildren: (item: Item) => {
           if (!(item instanceof Equipment) || Equipment.getNormalizedPercentRepaired(item) >= 1)
             return <></>;
+          const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
+          if (focusedCharacterResult instanceof Error) return <></>;
+
+          const price = getCraftingActionPrice(CraftingAction.Repair, item);
+          const durability = Equipment.getModifiedDurability(item);
           return (
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex">
-              {item.durability && (
-                <div className="mr-2 w-fit flex pr-2 pl-2 h-8 items-center bg-slate-700 border border-slate-400">
-                  {item.durability.current}/{item.durability.max}
+              {durability && (
+                <div
+                  className={`mr-2 w-fit flex pr-2 pl-2 h-8 items-center bg-slate-700 border border-slate-400 
+                ${durability.current === 0 ? UNMET_REQUIREMENT_TEXT_COLOR : "text-zinc-300"}
+                `}
+                >
+                  {durability.current}/{durability.max}
                 </div>
               )}
-              <PriceDisplay price={getCraftingActionPrice(CraftingAction.Repair, item)} />
+              <PriceDisplay
+                price={price}
+                shardsOwned={focusedCharacterResult.combatantProperties.inventory.shards}
+              />
             </div>
           );
         },

@@ -128,7 +128,10 @@ export function rollAffix(
             value: randBetween((tier - 1) * 10 + 1, tier * 10),
           };
         case SuffixType.Durability:
-          //
+          affix.equipmentTraits[EquipmentTraitType.FlatDurabilityAdditive] = {
+            equipmentTraitType: EquipmentTraitType.FlatDurabilityAdditive,
+            value: rollAttributeValue(5, 10),
+          };
           break;
       }
       break;

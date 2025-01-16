@@ -28,6 +28,7 @@ import AmuletIcon from "../../../../public/img/equipment-icons/amulet.svg";
 import { HOTKEYS } from "@/hotkeys";
 import CameraIcon1 from "../../../../public/img/game-ui-icons/camera-1.svg";
 import domtoimage from "dom-to-image";
+import { EQUIPMENT_ICONS } from "./EquipmentDetails/equipment-icons";
 
 interface Props {
   shouldShowModKeyTooltip: boolean;
@@ -110,12 +111,10 @@ export default function ItemDetails({
     if (item instanceof Equipment) {
       itemDetailsDisplay = <EquipmentDetails equipment={item} />;
       thumbnailIdOption = item.entityProperties.id;
-      if (item.equipmentBaseItemProperties.equipmentType === EquipmentType.Ring) {
-        svgThumbnailOption = <RingIcon className="fill-slate-400" />;
-      }
-      if (item.equipmentBaseItemProperties.equipmentType === EquipmentType.Amulet) {
-        svgThumbnailOption = <AmuletIcon className="fill-slate-400" />;
-      }
+      svgThumbnailOption = EQUIPMENT_ICONS[item.equipmentBaseItemProperties.equipmentType](
+        "fill-slate-400",
+        {}
+      );
     } else if (item instanceof Consumable) {
       BG_COLOR = "bg-slate-700";
       thumbnailIdOption = CONSUMABLE_TYPE_STRINGS[item.consumableType];

@@ -7,6 +7,7 @@ import {
   Equipment,
   GameMode,
   ServerToClientEvent,
+  applyEquipmentEffectWhileMaintainingResourcePercentages,
   getCraftingActionPrice,
   getPartyChannelName,
 } from "@speed-dungeon/common";
@@ -44,8 +45,11 @@ export async function craftItemHandler(
   if (inventory.shards < price) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ENOUGH_SHARDS);
 
   // modify the item in inventory
-  const actionHandler = craftingActionHandlers[craftingAction];
-  const actionResult = actionHandler(itemResult, party.currentFloor);
+  let actionResult: Error | void = new Error("Action callback never called");
+  applyEquipmentEffectWhileMaintainingResourcePercentages(character.combatantProperties, () => {
+    const actionHandler = craftingActionHandlers[craftingAction];
+    actionResult = actionHandler(itemResult, party.currentFloor);
+  });
   if (actionResult instanceof Error) return actionResult;
 
   // deduct the price from their inventory (do this after in case of error, like trying to imbue an already magical item)
