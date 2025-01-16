@@ -1,4 +1,4 @@
-import { ActionButtonCategory, MenuStateType } from ".";
+import { ActionButtonCategory, ActionMenuButtonProperties, MenuStateType } from ".";
 import { immerable } from "immer";
 import { ItemsMenuState } from "./items";
 import {
@@ -39,7 +39,12 @@ export class RepairItemSelectionMenuState extends ItemsMenuState {
       () => {
         const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();
         if (focusedCharacterResult instanceof Error) return [];
-        return CombatantProperties.getOwnedEquipment(focusedCharacterResult.combatantProperties);
+        return CombatantProperties.getOwnedEquipment(
+          focusedCharacterResult.combatantProperties
+        ).filter((equipment) => {
+          const durability = Equipment.getDurability(equipment);
+          return durability !== null && durability.current !== durability.max;
+        });
       },
       {
         extraButtons: {

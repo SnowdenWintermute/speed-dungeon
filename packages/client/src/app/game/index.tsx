@@ -54,7 +54,9 @@ export default function Game() {
     <>
       <main
         className={`h-screen w-screen flex justify-center relative overflow-hidden ${viewingCharacterSheet && "opacity-50"}`}
-        style={{ zIndex: viewingLeaveGameModal ? ZIndexLayers.GameModal : ZIndexLayers.MainUI }}
+        style={{
+          zIndex: viewingLeaveGameModal ? ZIndexLayers.GameModal : ZIndexLayers.MainUI,
+        }}
       >
         <CharacterAutofocusManager />
         <CurrentItemUnmetRequirementsUpdater />

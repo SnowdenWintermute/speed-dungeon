@@ -24,7 +24,10 @@ export default function LowDurabilityIndicators({
     let iconColor;
     if (durabilityPercentage < DURABILITY_WARNING_THRESHOLD_CRITICAL || durability.current === 1) {
       iconColor = UNMET_REQUIREMENT_COLOR;
-    } else if (durabilityPercentage < DURABILITY_WARNING_THRESHOLD_MODERATE) {
+    } else if (
+      durabilityPercentage < DURABILITY_WARNING_THRESHOLD_MODERATE ||
+      durability.current === 2
+    ) {
       iconColor = WARNING_COLOR_DARK;
     }
 

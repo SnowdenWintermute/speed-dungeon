@@ -23,7 +23,10 @@ export default function setFocusedCharacter(id: string) {
 
     if (
       !shouldShowCharacterSheet(currentMenu.type) &&
-      currentMenu.type !== MenuStateType.ItemsOnGround
+      currentMenu.type !== MenuStateType.ItemsOnGround &&
+      currentMenu.type !== MenuStateType.RepairItemSelection &&
+      currentMenu.type !== MenuStateType.CraftingItemSelection &&
+      currentMenu.type !== MenuStateType.PurchasingItems
     )
       gameState.stackedMenuStates = [];
     if (currentMenu.type === MenuStateType.ItemSelected) {

@@ -24,6 +24,7 @@ import getCurrentParty from "@/utils/getCurrentParty";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { useGameStore } from "@/stores/game-store";
 import { induceHitRecovery } from "./induce-hit-recovery";
+import { ModelActionType } from "../../game-world/model-manager/model-actions";
 
 export default function getFrameEventFromAnimation(
   gameWorld: GameWorld,
@@ -207,7 +208,24 @@ export default function getFrameEventFromAnimation(
                   combatantResult.combatantProperties,
                   taggedSlot
                 );
-                if (equipmentOption) Equipment.changeDurability(equipmentOption, value);
+                if (equipmentOption) {
+                  Equipment.changeDurability(equipmentOption, value);
+                  // remove the model if it broke
+                  // @TODO - if this causes bugs because it is jumping the queue, look into it
+                  // if we use the queue though, it doesn't remove their item model imediately
+                  // if (Equipment.isBroken(equipmentOption)) {
+                  //   gameWorld.modelManager.modelActionQueue.enqueueMessage({
+                  //     type: ModelActionType.ChangeEquipment,
+                  //     entityId: combatantResult.entityProperties.id,
+                  //     unequippedIds: [equipmentOption.entityProperties.id],
+                  //   });
+                  // }
+                  if (Equipment.isBroken(equipmentOption)) {
+                    gameWorld.modelManager.combatantModels[
+                      combatantResult.entityProperties.id
+                    ]?.unequipHoldableModel(equipmentOption.entityProperties.id);
+                  }
+                }
               }
             }
           );

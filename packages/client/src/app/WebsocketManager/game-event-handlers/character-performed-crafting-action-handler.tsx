@@ -26,6 +26,7 @@ import { ItemLink } from "@/app/game/combat-log/item-link";
 import cloneDeep from "lodash.clonedeep";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 export function characterPerformedCraftingActionHandler(eventData: {
   characterId: EntityId;
@@ -58,12 +59,30 @@ export function characterPerformedCraftingActionHandler(eventData: {
       if (itemResult instanceof Equipment && itemBeforeModification instanceof Equipment) {
         const asInstance = plainToInstance(Equipment, item);
 
+        const wasBrokenBefore = Equipment.isBroken(itemResult);
+
         applyEquipmentEffectWhileMaintainingResourcePercentages(
           character.combatantProperties,
           () => {
             itemResult.copyFrom(asInstance);
           }
         );
+
+        const wasRepaired = wasBrokenBefore && !Equipment.isBroken(itemResult);
+        const slotEquippedToOption = CombatantProperties.getSlotItemIsEquippedTo(
+          character.combatantProperties,
+          itemResult.entityProperties.id
+        );
+        const isEquipped = slotEquippedToOption !== null;
+        if (isEquipped && wasRepaired) {
+          // spawn the item model on the character
+          gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+            type: ModelActionType.ChangeEquipment,
+            entityId: character.entityProperties.id,
+            unequippedIds: [],
+            toEquip: { slot: slotEquippedToOption, item: itemResult },
+          });
+        }
 
         if (shouldUpdateThumbnailAfterCraft(itemResult)) {
           gameWorld.current?.imageManager.enqueueMessage({

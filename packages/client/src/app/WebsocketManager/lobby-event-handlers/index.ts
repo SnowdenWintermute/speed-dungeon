@@ -18,6 +18,9 @@ import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+import { useLobbyStore } from "@/stores/lobby-store";
+import { useHttpRequestStore } from "@/stores/http-request-store";
+import { HTTP_REQUEST_NAMES } from "@/client_consts";
 
 export default function setUpGameLobbyEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -43,11 +46,14 @@ export default function setUpGameLobbyEventHandlers(
     gameWorld.current?.imageManager.enqueueMessage({
       type: ImageManagerRequestType.ClearState,
     });
+    const currentSessionHttpResponseTracker =
+      useHttpRequestStore.getState().requests[HTTP_REQUEST_NAMES.GET_SESSION];
+    const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
     mutateGameStore((state) => {
       if (game === null) {
         state.game = null;
         state.gameName = null;
-        gameWorld.current?.drawCharacterSlots();
+        if (isLoggedIn) gameWorld.current?.drawCharacterSlots();
       } else {
         state.game = game;
         state.gameName = game.name;

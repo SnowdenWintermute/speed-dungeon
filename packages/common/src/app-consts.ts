@@ -89,6 +89,33 @@ export const CONSUMABLE_TEXT_COLOR = "text-teal-400";
 export const MAGICAL_PROPERTY_BLUE = "#93c5fd";
 export const MAGICAL_PROPERTY_BLUE_TEXT = "text-blue-300";
 export const BASE_TEXT = "#d4d4d8";
-export const SKY_COLOR = "#1a1a26";
+
+export enum DungeonFloor {
+  Zero,
+  One,
+  Two,
+  Three,
+  Four,
+  Five,
+  Six,
+  Seven,
+  Eight,
+  Nine,
+  Ten,
+}
+
+export const SKY_COLORS_BY_FLOOR: Record<DungeonFloor, string> = {
+  [DungeonFloor.Zero]: "#1a1a26",
+  [DungeonFloor.One]: "#1a1a26",
+  [DungeonFloor.Two]: "#1A3636",
+  [DungeonFloor.Three]: "#697565",
+  [DungeonFloor.Four]: "#393646",
+  [DungeonFloor.Five]: "#1A120B",
+  [DungeonFloor.Six]: "#3C2A21",
+  [DungeonFloor.Seven]: "#2D3250",
+  [DungeonFloor.Eight]: "#1B4242",
+  [DungeonFloor.Nine]: "#344955",
+  [DungeonFloor.Ten]: "#424769",
+};
 
 export const ONE_THIRD_OF_ONE = 1 / 3;

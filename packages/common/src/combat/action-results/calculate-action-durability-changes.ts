@@ -62,6 +62,9 @@ export function calculateActionDurabilityChangesOnHit(
   isCrit: boolean,
   durabilityChanges: DurabilityChangesByEntityId
 ): { [itemId: EntityId]: number } | undefined {
+  // healing magic shouldn't cause durability loss
+  if (actionProperties.hpChangeProperties?.hpChangeSource.isHealing) return;
+
   // determine if ability should cause weapon durability loss on hit
   if (isCrit) {
     updateDurabilityChangesOnTargetForCrit(durabilityChanges, targetCombatant);

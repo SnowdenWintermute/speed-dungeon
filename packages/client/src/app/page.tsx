@@ -11,6 +11,7 @@ import GlobalKeyboardEventManager from "./GlobalKeyboardEventManager";
 import TooltipManager from "./TooltipManager";
 import SceneManager from "./3d-world/SceneManager";
 import WebsocketManager from "./WebsocketManager";
+import SkyColorProvider from "./SkyColorProvider";
 // for immer to be able to use map and set
 enableMapSet();
 
@@ -33,7 +34,7 @@ export default function Home() {
       <GlobalKeyboardEventManager />
       <TooltipManager />
       <SceneManager />
-      {componentToRender}
+      <SkyColorProvider>{componentToRender}</SkyColorProvider>
     </>
   );
 }
