@@ -46,11 +46,27 @@ export async function craftItemHandler(
 
   // modify the item in inventory
   let actionResult: Error | void = new Error("Action callback never called");
+
+  let percentRepairedBeforeModification = 1;
+  const durabilityOption = Equipment.getDurability(itemResult);
+  if (durabilityOption) {
+    percentRepairedBeforeModification = durabilityOption.current / durabilityOption.max;
+  }
+
   applyEquipmentEffectWhileMaintainingResourcePercentages(character.combatantProperties, () => {
     const actionHandler = craftingActionHandlers[craftingAction];
     actionResult = actionHandler(itemResult, party.currentFloor);
   });
   if (actionResult instanceof Error) return actionResult;
+
+  if (craftingAction !== CraftingAction.Repair) {
+    const durabilityOptionAfter = Equipment.getDurability(itemResult);
+    if (durabilityOptionAfter && itemResult.durability) {
+      itemResult.durability.current = Math.round(
+        durabilityOptionAfter.max * percentRepairedBeforeModification
+      );
+    }
+  }
 
   // deduct the price from their inventory (do this after in case of error, like trying to imbue an already magical item)
   inventory.shards -= price;

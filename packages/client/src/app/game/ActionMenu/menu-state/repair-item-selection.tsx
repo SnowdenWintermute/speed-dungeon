@@ -52,7 +52,7 @@ export class RepairItemSelectionMenuState extends ItemsMenuState {
           if (focusedCharacterResult instanceof Error) return <></>;
 
           const price = getCraftingActionPrice(CraftingAction.Repair, item);
-          const durability = Equipment.getModifiedDurability(item);
+          const durability = Equipment.getDurability(item);
           return (
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex">
               {durability && (

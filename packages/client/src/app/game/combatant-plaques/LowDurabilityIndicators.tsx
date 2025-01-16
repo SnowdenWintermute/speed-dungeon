@@ -17,7 +17,7 @@ export default function LowDurabilityIndicators({
   let indicators = [];
 
   for (const equipment of equippedItems) {
-    const durability = Equipment.getModifiedDurability(equipment);
+    const durability = Equipment.getDurability(equipment);
     if (Equipment.isIndestructable(equipment) || durability === null) continue;
     const durabilityPercentage = durability.current / durability.max;
     if (durabilityPercentage === 0) continue;

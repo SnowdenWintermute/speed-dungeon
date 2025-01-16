@@ -106,7 +106,7 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
       combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
         HoldableSlotType.MainHand
       ] = mh;
-    mh.durability = new MaxAndCurrent(4, 1);
+    mh.durability = { inherentMax: 4, current: 1 };
   }
 
   // const oh = generateSpecificEquipmentType({

@@ -82,7 +82,7 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment) {
     baseItemType: BodyArmor.Rags,
   });
   if (bodyResult instanceof Error) return;
-  bodyResult.durability = new MaxAndCurrent(6, 1);
+  bodyResult.durability = { current: 1, inherentMax: 6 };
 
   combatantEquipment.wearables[WearableSlotType.Body] = bodyResult;
 
@@ -91,7 +91,7 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment) {
     baseItemType: HeadGear.Cap,
   });
   if (helmResult instanceof Error) return;
-  helmResult.durability = new MaxAndCurrent(3, 1);
+  helmResult.durability = { current: 1, inherentMax: 3 };
 
   combatantEquipment.wearables[WearableSlotType.Head] = helmResult;
 

@@ -40,7 +40,7 @@ export class Equipment extends Item {
 
   static getNormalizedPercentRepaired(equipment: Equipment) {
     let normalizedPercentRepaired = 1;
-    const { durability } = equipment;
+    const durability = Equipment.getDurability(equipment);
     if (durability) {
       normalizedPercentRepaired = durability.current / durability.max;
     }
@@ -76,20 +76,18 @@ export class Equipment extends Item {
     return Math.floor(withFlatAdditive * percentModifier);
   }
 
-  static getModifiedDurability(equipment: Equipment) {
+  static getDurability(equipment: Equipment) {
     const { durability } = equipment;
     if (durability === null) return null;
-    const { max, current } = durability;
+    const { inherentMax, current } = durability;
+    let additive = 0;
     const durabilityTraitOption =
       equipment.affixes[AffixType.Suffix][SuffixType.Durability]?.equipmentTraits[
         EquipmentTraitType.FlatDurabilityAdditive
       ];
-    if (durabilityTraitOption) {
-      const value = durabilityTraitOption.value;
-      return new MaxAndCurrent(max + value, current + value);
-    }
+    if (durabilityTraitOption) additive = durabilityTraitOption.value;
 
-    return durability;
+    return new MaxAndCurrent(inherentMax + additive, current);
   }
 
   static getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
