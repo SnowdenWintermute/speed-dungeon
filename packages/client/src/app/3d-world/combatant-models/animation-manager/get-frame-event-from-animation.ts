@@ -10,6 +10,7 @@ import {
   CONSUMABLE_TYPE_STRINGS,
   CombatantEquipment,
   Equipment,
+  applyEquipmentEffectWhileMaintainingResourcePercentages,
 } from "@speed-dungeon/common";
 import { GameWorld } from "../../game-world";
 import {
@@ -188,10 +189,6 @@ export default function getFrameEventFromAnimation(
 
     useGameStore.getState().mutateState((state) => {
       if (actionPayload.durabilityChanges !== undefined) {
-        console.log(
-          "applying durability changes",
-          JSON.stringify(actionPayload.durabilityChanges, null, 2)
-        );
         const gameOption = state.game;
         if (!gameOption) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
         const game = gameOption;
@@ -206,7 +203,13 @@ export default function getFrameEventFromAnimation(
               combatantResult.combatantProperties,
               taggedSlot
             );
-            if (equipmentOption) Equipment.changeDurability(equipmentOption, value);
+
+            applyEquipmentEffectWhileMaintainingResourcePercentages(
+              combatantResult.combatantProperties,
+              () => {
+                if (equipmentOption) Equipment.changeDurability(equipmentOption, value);
+              }
+            );
           }
         }
       }

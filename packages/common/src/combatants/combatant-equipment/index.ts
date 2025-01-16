@@ -17,6 +17,8 @@ export * from "./get-equipped-weapon.js";
 export * from "./get-usable-weapons-in-slots.js";
 export * from "./get-slot-item-is-equipped-to.js";
 export * from "./change-selected-hotswap-slot.js";
+export * from "./get-pre-equipment-change-hp-and-mana-percentage.js";
+export * from "./apply-equipment-affect-while-maintaining-resource-percentages.js";
 
 /// We take CombatantProperties as an argument instead of CombatantEquipment because we
 // may want to get hotswap slots derrived from traits

@@ -89,6 +89,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
           ))}
         </div>
       </CharacterModelDisplay>
+      <div className="w-full bg-slate-700">a</div>
       <div
         className={`w-[23rem] h-fit bg-slate-700 flex p-2.5 relative box-border outline ${conditionalBorder} ${lockedUiState}`}
         ref={combatantPlaqueRef}

@@ -1,5 +1,6 @@
 import {
   AdventuringParty,
+  CombatAttribute,
   CombatantEquipment,
   CombatantProperties,
   Equipment,
@@ -9,6 +10,8 @@ import {
   getCombatActionExecutionTime,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
+import { getPreEquipmentChangeHpAndManaPercentage } from "@speed-dungeon/common";
+import { applyEquipmentEffectWhileMaintainingResourcePercentages } from "@speed-dungeon/common";
 
 export default async function performCombatActionActionCommandHandler(
   this: GameServer,
@@ -55,7 +58,6 @@ export default async function performCombatActionActionCommandHandler(
 
   // durability changes
   if (payload.durabilityChanges !== undefined) {
-    console.log("applying durability changes", JSON.stringify(payload.durabilityChanges, null, 2));
     for (const [entityId, durabilitychanges] of Object.entries(payload.durabilityChanges.records)) {
       const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
       if (combatantResult instanceof Error) return combatantResult;
@@ -65,7 +67,13 @@ export default async function performCombatActionActionCommandHandler(
           combatantResult.combatantProperties,
           taggedSlot
         );
-        if (equipmentOption) Equipment.changeDurability(equipmentOption, value);
+
+        applyEquipmentEffectWhileMaintainingResourcePercentages(
+          combatantResult.combatantProperties,
+          () => {
+            if (equipmentOption) Equipment.changeDurability(equipmentOption, value);
+          }
+        );
       }
     }
   }

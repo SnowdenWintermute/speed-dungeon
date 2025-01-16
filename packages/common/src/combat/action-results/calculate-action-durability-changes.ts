@@ -1,6 +1,6 @@
 import { ONE_THIRD_OF_ONE } from "../../app-consts.js";
 import { Combatant, CombatantEquipment } from "../../combatants/index.js";
-import { EQUIPMENT_TYPE_STRINGS, EquipmentType } from "../../items/equipment/index.js";
+import { EQUIPMENT_TYPE_STRINGS, Equipment, EquipmentType } from "../../items/equipment/index.js";
 import {
   EquipmentSlotType,
   HoldableSlotType,
@@ -33,10 +33,8 @@ export class DurabilityChanges {
         change.taggedSlot.type === taggedSlot.type && change.taggedSlot.slot === taggedSlot.slot
     );
     if (existingRecord) {
-      console.log("adding to existing durability change:", value);
       existingRecord.value += value;
     } else {
-      console.log("creating new durability change:", value);
       this.changes.push(durabilityChange);
     }
   }
@@ -71,7 +69,6 @@ export function calculateActionDurabilityChangesOnHit(
     updateDurabilityChangesOnTargetForHit(durabilityChanges, targetCombatant);
   }
 
-  console.log("is crit or hit", isCrit || isHit);
   if (isCrit || isHit) {
     updateConditionalDurabilityChangesOnUser(
       actionUser.entityProperties.id,
@@ -99,7 +96,12 @@ function updateDurabilityChangesOnTargetForHit(
     type: EquipmentSlotType.Wearable,
     slot: WearableSlotType.Body,
   });
-  if (equippedBodyOption && equippedHelmOption) {
+  if (
+    equippedBodyOption &&
+    !Equipment.isBroken(equippedBodyOption) &&
+    equippedHelmOption &&
+    !Equipment.isBroken(equippedHelmOption)
+  ) {
     const whichArmorToHitRoll = Math.random();
     if (whichArmorToHitRoll < ONE_THIRD_OF_ONE) {
       durabilityChanges.updateOrCreateDurabilityChangeRecord(targetId, {
@@ -112,12 +114,12 @@ function updateDurabilityChangesOnTargetForHit(
         value: BASE_DURABILITY_LOSS,
       });
     }
-  } else if (equippedBodyOption) {
+  } else if (equippedBodyOption && !Equipment.isBroken(equippedBodyOption)) {
     durabilityChanges.updateOrCreateDurabilityChangeRecord(targetId, {
       taggedSlot: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.Body },
       value: BASE_DURABILITY_LOSS,
     });
-  } else if (equippedHelmOption) {
+  } else if (equippedHelmOption && !Equipment.isBroken(equippedHelmOption)) {
     durabilityChanges.updateOrCreateDurabilityChangeRecord(targetId, {
       taggedSlot: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.Head },
       value: BASE_DURABILITY_LOSS,
@@ -160,7 +162,6 @@ export function updateConditionalDurabilityChangesOnUser(
   durabilityChanges: DurabilityChangesByEntityId,
   condition: DurabilityLossCondition
 ) {
-  console.log("action properties incursDurabilityLoss: ", actionProperties.incursDurabilityLoss);
   // take dura from user's equipment if should
   if (actionProperties.incursDurabilityLoss === undefined) return;
 
@@ -168,12 +169,6 @@ export function updateConditionalDurabilityChangesOnUser(
     for (const [wearableSlot, durabilityLossCondition] of iterateNumericEnumKeyedRecord(
       actionProperties.incursDurabilityLoss[EquipmentSlotType.Wearable]
     )) {
-      console.log(
-        "should update wearable durability on ability use",
-        durabilityLossCondition === condition,
-        durabilityLossCondition,
-        condition
-      );
       if (!(durabilityLossCondition === condition)) continue;
       durabilityChanges.updateOrCreateDurabilityChangeRecord(userId, {
         taggedSlot: { type: EquipmentSlotType.Wearable, slot: wearableSlot },
@@ -185,12 +180,6 @@ export function updateConditionalDurabilityChangesOnUser(
     for (const [holdableSlot, durabilityLossCondition] of iterateNumericEnumKeyedRecord(
       actionProperties.incursDurabilityLoss[EquipmentSlotType.Holdable]
     )) {
-      console.log(
-        "should update holdable durability on ability use",
-        durabilityLossCondition === condition,
-        durabilityLossCondition,
-        condition
-      );
       if (!(durabilityLossCondition === condition)) continue;
       durabilityChanges.updateOrCreateDurabilityChangeRecord(userId, {
         taggedSlot: { type: EquipmentSlotType.Holdable, slot: holdableSlot },
