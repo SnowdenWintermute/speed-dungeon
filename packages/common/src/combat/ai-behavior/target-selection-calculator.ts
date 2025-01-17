@@ -1,3 +1,16 @@
+export enum AIActionSelectionScheme {
+  Basic,
+  Protective,
+}
+
+export enum AIHostileTargetSelectionScheme {
+  Random,
+  Enmity,
+  Opportinist,
+  SimpleExploiter,
+  IntelligentExploiter,
+  Strategist,
+}
 // how an ai will select it's target
 //
 // types of target selection

@@ -1,31 +1,33 @@
-// from chat-gpt
+import { SpeedDungeonGame } from "../../game";
+import { EntityId } from "../../primatives";
+import {
+  AIActionSelectionScheme,
+  AIHostileTargetSelectionScheme,
+} from "./target-selection-calculator";
 
-// Define the Node interface for all behavior tree nodes
 interface BehaviorNode {
-  execute(): boolean; // Returns true if the node succeeds, false if it fails
+  execute(): boolean;
 }
 
-// Composite node: Selector (tries child nodes until one succeeds)
 class Selector implements BehaviorNode {
   constructor(private children: BehaviorNode[]) {}
 
   execute(): boolean {
     for (const child of this.children) {
-      if (child.execute()) return true; // Stop on the first success
+      if (child.execute()) return true;
     }
-    return false; // No child succeeded
+    return false;
   }
 }
 
-// Composite node: Sequence (tries child nodes until one fails)
 class Sequence implements BehaviorNode {
   constructor(private children: BehaviorNode[]) {}
 
   execute(): boolean {
     for (const child of this.children) {
-      if (!child.execute()) return false; // Stop on the first failure
+      if (!child.execute()) return false;
     }
-    return true; // No child failed
+    return true;
   }
 }
 
@@ -43,77 +45,165 @@ class Condition implements BehaviorNode {
 }
 
 // Leaf node: Action (performs an action and returns success or failure)
-class Action implements BehaviorNode {
-  constructor(private action: () => boolean) {}
+class BehaviorLeaf implements BehaviorNode {
+  constructor(public execute: (...args: any[]) => boolean) {}
+}
+
+class Inverter implements BehaviorNode {
+  constructor(private child: BehaviorNode) {}
 
   execute(): boolean {
-    return this.action();
+    return !this.child.execute();
+  }
+}
+
+class RepeatUntilFail implements BehaviorNode {
+  constructor(private children: BehaviorNode[]) {}
+
+  execute(): boolean {
+    for (const child of this.children) {
+      if (!child.execute()) return false;
+    }
+    return this.execute();
   }
 }
 
 // Example AI context
-class AIContext {
-  public offensive: boolean = true;
-  public threatTargets: { id: number; threat: number }[] = [];
-  public lowHealthTargets: { id: number; health: number }[] = [];
-  public closestTarget: { id: number } | null = null;
-
-  // Simulates an attack action
-  attackTarget(targetId: number): boolean {
-    console.log(`Attacking target with ID: ${targetId}`);
-    return true;
-  }
+class AIBehaviorContext {
+  private actionSelectionScheme: AIActionSelectionScheme = AIActionSelectionScheme.Basic;
+  private hostileTargetSelectionScheme: AIHostileTargetSelectionScheme =
+    AIHostileTargetSelectionScheme.Enmity;
+  private enmityList: { combatantId: EntityId; enmity: number }[] = [];
+  constructor(
+    private entityId: EntityId,
+    private game: SpeedDungeonGame,
+    private battleId: EntityId
+  ) {}
 }
 
-// Example Behavior Tree for Target Selection
-class AITargetSelector {
+// on turn
+// allies are damaged
+// - determine most potential healing
+//  - iterate through healing options
+//  - set most potential average healing so far
+//  - after loop, select that action
+// allies are not damaged
+// - determine most hated target
+// - iterate options for most damaging move
+// - select the most damaging move
+// execute selected move
+// if no useable move, end turn
+// if only one set of combatants remain, end the battle
+
+class BasicAIActionSelector {
   private root: BehaviorNode;
 
-  constructor(context: AIContext) {
-    this.root = new Selector(
-      new Sequence(
-        new Condition(
-          () => context.offensive,
-          new Selector(
-            new Action(() => {
-              if (context.threatTargets.length > 0) {
-                const target = context.threatTargets[0]; // Example logic: pick the highest threat
-                return context.attackTarget(target.id);
-              }
-              return false;
+  constructor(private context: AIBehaviorContext) {
+    this.root = new Selector([
+      // do a combat action or end the battle if can't
+      new Sequence([
+        // select and perform a combat action if possible
+        new Selector([
+          // select and perform a healing action if appropriate, otherwise attack
+          new Sequence([
+            // select a healing action and targets if appropriate
+            new BehaviorLeaf((context: AIBehaviorContext) => {
+              // set list of allies below 50%
+              return true;
             }),
-            new Action(() => {
-              if (context.lowHealthTargets.length > 0) {
-                const target = context.lowHealthTargets[0]; // Example logic: pick the lowest health
-                return context.attackTarget(target.id);
-              }
-              return false;
+            new Selector([
+              new BehaviorLeaf((context: AIBehaviorContext) => {
+                // set healing consumable in inventory as selected action
+                return true;
+              }),
+              new BehaviorLeaf((context: AIBehaviorContext) => {
+                // set healing ability with an afforbale mp cost as selected action
+                return true;
+              }),
+            ]),
+            new BehaviorLeaf((context: AIBehaviorContext) => {
+              // select best valid target for selected action
+              return true;
             }),
-            new Action(() => {
-              if (context.closestTarget) {
-                return context.attackTarget(context.closestTarget.id);
-              }
-              return false;
-            })
-          )
-        )
-      )
-    );
+          ]),
+          new Sequence([
+            // select an offensive action and targets if able
+            new BehaviorLeaf((context: AIBehaviorContext) => {
+              // set list of valid enemy targets
+              return true;
+            }),
+            new Selector([
+              new BehaviorLeaf((context: AIBehaviorContext) => {
+                // set healing consumable in inventory as selected action
+                return true;
+              }),
+              new BehaviorLeaf((context: AIBehaviorContext) => {
+                // set healing ability with an afforbale mp cost as selected action
+                return true;
+              }),
+            ]),
+            new BehaviorLeaf((context: AIBehaviorContext) => {
+              // select best valid target for selected action
+              return true;
+            }),
+          ]),
+        ]),
+        new BehaviorLeaf((context: AIBehaviorContext) => {
+          // perform selected action on selected target
+          return true;
+        }),
+      ]),
+
+      new BehaviorLeaf(() => {
+        // end the battle
+        return true;
+      }),
+    ]);
   }
+  //   this.root = new Selector(
+  //     new Sequence(
+  //       new Condition(
+  //         () => context.offensive,
+  //         new Selector(
+  //           new Action(() => {
+  //             if (context.threatTargets.length > 0) {
+  //               const target = context.threatTargets[0]; // Example logic: pick the highest threat
+  //               return context.attackTarget(target.id);
+  //             }
+  //             return false;
+  //           }),
+  //           new Action(() => {
+  //             if (context.lowHealthTargets.length > 0) {
+  //               const target = context.lowHealthTargets[0]; // Example logic: pick the lowest health
+  //               return context.attackTarget(target.id);
+  //             }
+  //             return false;
+  //           }),
+  //           new Action(() => {
+  //             if (context.closestTarget) {
+  //               return context.attackTarget(context.closestTarget.id);
+  //             }
+  //             return false;
+  //           })
+  //         )
+  //       )
+  //     )
+  //   );
+  // }
 
   execute(): boolean {
     return this.root.execute();
   }
 }
 
-// Example Usage
-const context = new AIContext();
-context.threatTargets = [
-  { id: 1, threat: 100 },
-  { id: 2, threat: 80 },
-];
-context.lowHealthTargets = [{ id: 3, health: 20 }];
-context.closestTarget = { id: 4 };
+// // Example Usage
+// const context = new AIContext();
+// context.threatTargets = [
+//   { id: 1, threat: 100 },
+//   { id: 2, threat: 80 },
+// ];
+// context.lowHealthTargets = [{ id: 3, health: 20 }];
+// context.closestTarget = { id: 4 };
 
-const targetSelector = new AITargetSelector(context);
-targetSelector.execute();
+// const targetSelector = new AITargetSelector(context);
+// targetSelector.execute();
