@@ -81,6 +81,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
     switch (weapon) {
       case OneHandedMeleeWeapon.Stick:
         template.levelRange = new NumberRange(0, 0);
+        template.maxDurability = 6;
         break;
       case OneHandedMeleeWeapon.Club:
         template.levelRange = new NumberRange(1, 3);
@@ -109,6 +110,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(0, 0);
         template.damage = new NumberRange(1, 2);
         mainDamageClassification.kineticDamageTypeOption = KineticDamageType.Slashing;
+        template.maxDurability = 6;
         break;
       case OneHandedMeleeWeapon.ShortSword:
         template.levelRange = new NumberRange(2, 4);

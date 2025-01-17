@@ -108,7 +108,7 @@ export default function PaperDollSlot({
 
   return (
     <button
-      className={`overflow-ellipsis overflow-hidden border flex items-center justify-center p-1 ${tailwindClasses} ${highlightStyle} ${bgStyle} ${disabledStyle}`}
+      className={`overflow-ellipsis overflow-hidden border flex items-center justify-center p-2 ${tailwindClasses} ${highlightStyle} ${bgStyle} ${disabledStyle}`}
       onMouseEnter={handleFocus}
       onMouseLeave={handleBlur}
       onFocus={handleFocus}

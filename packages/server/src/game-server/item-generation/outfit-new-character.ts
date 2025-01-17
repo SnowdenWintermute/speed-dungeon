@@ -8,19 +8,16 @@ import {
   CombatantProperties,
   ConsumableType,
   Combatant,
-  iterateNumericEnum,
   iterateNumericEnumKeyedRecord,
   CombatantTraitType,
   HoldableHotswapSlot,
   CombatantTrait,
   EquipmentType,
   HoldableSlotType,
-  Ring,
-  WearableSlotType,
-  Amulet,
-  Equipment,
   TwoHandedRangedWeapon,
-  MaxAndCurrent,
+  OneHandedMeleeWeapon,
+  BodyArmor,
+  Inventory,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment, { givePlaytestingItems } from "./create-starting-equipment.js";
@@ -62,7 +59,7 @@ export default function outfitNewCharacter(character: Combatant) {
   const maybeError = createStartingEquipment(combatantProperties);
   if (maybeError instanceof Error) return maybeError;
 
-  setExperimentalCombatantProperties(combatantProperties);
+  // setExperimentalCombatantProperties(combatantProperties);
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
 }
@@ -121,8 +118,23 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
 }
 
 function setExperimentalCombatantProperties(combatantProperties: CombatantProperties) {
+  for (let i = 0; i < 18; i += 1) {
+    const eq = generateSpecificEquipmentType({
+      equipmentType: EquipmentType.BodyArmor,
+      baseItemType: BodyArmor.Rags,
+    });
+    if (!(eq instanceof Error)) combatantProperties.inventory.equipment.push(eq);
+  }
+
   giveHotswapSlotEquipment(combatantProperties);
   givePlaytestingItems(combatantProperties.equipment);
+
+  const runeSword = generateSpecificEquipmentType({
+    equipmentType: EquipmentType.OneHandedMeleeWeapon,
+    baseItemType: OneHandedMeleeWeapon.RuneSword,
+  });
+  if (runeSword instanceof Error) return;
+  combatantProperties.inventory.equipment.push(runeSword);
   // const items = generateOneOfEachItem();
   // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
 

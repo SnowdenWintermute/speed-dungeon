@@ -127,6 +127,7 @@ export function rollAffix(
             equipmentTraitType: EquipmentTraitType.ArmorClassPercentage,
             value: randBetween((tier - 1) * 10 + 1, tier * 10),
           };
+          break;
         case SuffixType.Durability:
           affix.equipmentTraits[EquipmentTraitType.FlatDurabilityAdditive] = {
             equipmentTraitType: EquipmentTraitType.FlatDurabilityAdditive,

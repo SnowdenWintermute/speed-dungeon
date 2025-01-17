@@ -17,6 +17,7 @@ import {
 } from "@speed-dungeon/common";
 import { generateSpecificEquipmentType } from "./generate-test-items.js";
 import { CombatantEquipment } from "@speed-dungeon/common";
+import { repairEquipment } from "../game-event-handlers/craft-item-handler/repair-equipment.js";
 
 export default function createStartingEquipment(combatantProperties: CombatantProperties) {
   const startingEquipment = new CombatantEquipment();
@@ -67,6 +68,9 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
   if (mainhand instanceof Error) return mainhand;
   if (offhand instanceof Error) return offhand;
 
+  repairEquipment(mainhand);
+  if (offhand) repairEquipment(offhand);
+
   const mainHoldableHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
   if (!mainHoldableHotswapSlot) return new Error(ERROR_MESSAGES.EQUIPMENT.NO_SELECTED_HOTSWAP_SLOT);
 
@@ -82,7 +86,7 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment) {
     baseItemType: BodyArmor.Rags,
   });
   if (bodyResult instanceof Error) return;
-  bodyResult.durability = { current: 1, inherentMax: 6 };
+  bodyResult.durability = { current: 2, inherentMax: 6 };
 
   combatantEquipment.wearables[WearableSlotType.Body] = bodyResult;
 
@@ -95,21 +99,21 @@ export function givePlaytestingItems(combatantEquipment: CombatantEquipment) {
 
   combatantEquipment.wearables[WearableSlotType.Head] = helmResult;
 
-  // const ring = generateSpecificEquipmentType({
-  //   equipmentType: EquipmentType.Ring,
-  //   baseItemType: Ring.Ring,
-  // });
-  // if (ring instanceof Error) return;
-  // ring.itemLevel = 10;
-  // combatantEquipment.wearables[WearableSlotType.RingL] = ring;
+  const ring = generateSpecificEquipmentType({
+    equipmentType: EquipmentType.Ring,
+    baseItemType: Ring.Ring,
+  });
+  if (ring instanceof Error) return;
+  ring.itemLevel = 10;
+  combatantEquipment.wearables[WearableSlotType.RingL] = ring;
 
-  // const amulet = generateSpecificEquipmentType({
-  //   equipmentType: EquipmentType.Amulet,
-  //   baseItemType: Amulet.Amulet,
-  // });
-  // if (amulet instanceof Error) return;
-  // amulet.itemLevel = 10;
-  // combatantEquipment.wearables[WearableSlotType.Amulet] = amulet;
+  const amulet = generateSpecificEquipmentType({
+    equipmentType: EquipmentType.Amulet,
+    baseItemType: Amulet.Amulet,
+  });
+  if (amulet instanceof Error) return;
+  amulet.itemLevel = 5;
+  combatantEquipment.wearables[WearableSlotType.Amulet] = amulet;
 }
 
 // function giveTestHolsteredItems(){
