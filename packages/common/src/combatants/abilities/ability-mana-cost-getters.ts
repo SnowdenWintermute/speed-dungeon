@@ -3,7 +3,7 @@ import { ERROR_MESSAGES } from "../../errors/index.js";
 import { CombatantProperties } from "../combatant-properties.js";
 import { ABILITY_ATTRIBUTES } from "./get-ability-attributes.js";
 
-export function getAbilityCostIfOwned(
+export function getAbilityManaCostIfOwned(
   combatantProperties: CombatantProperties,
   abilityName: AbilityName
 ): Error | number {

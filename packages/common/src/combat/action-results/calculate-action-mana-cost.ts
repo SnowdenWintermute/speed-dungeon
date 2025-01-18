@@ -1,4 +1,4 @@
-import { getAbilityCostIfOwned } from "../../combatants/abilities/ability-mana-cost-getters.js";
+import { CombatantProperties } from "../../combatants/combatant-properties.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { CombatActionType } from "../combat-actions/index.js";
 import { ActionResultCalculationArguments } from "./action-result-calculator.js";
@@ -14,7 +14,10 @@ export default function calculateActionManaCost(
   if (combatantResult instanceof Error) return combatantResult;
   const { combatantProperties } = combatantResult;
   const { abilityName } = combatAction;
-  const levelAdjustedMpCostResult = getAbilityCostIfOwned(combatantProperties, abilityName);
+  const levelAdjustedMpCostResult = CombatantProperties.getAbilityCostIfOwned(
+    combatantProperties,
+    abilityName
+  );
   if (levelAdjustedMpCostResult instanceof Error) return levelAdjustedMpCostResult;
   return levelAdjustedMpCostResult;
 }

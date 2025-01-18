@@ -2,8 +2,12 @@ import { Vector3 } from "@babylonjs/core";
 import { CombatAction } from "../combat/combat-actions/index.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
-import { CombatantAbility, AbilityName } from "./abilities/index.js";
-import { getAbilityCostIfOwned } from "./abilities/ability-mana-cost-getters.js";
+import {
+  CombatantAbility,
+  AbilityName,
+  getAbilityManaCostIfOwned,
+  getAbilityManaCostForCombatant,
+} from "./abilities/index.js";
 import getAbilityIfOwned from "./abilities/get-ability-if-owned.js";
 import combatantCanUseItem from "./can-use-item.js";
 import changeCombatantMana from "./change-combatant-mana.js";
@@ -41,6 +45,8 @@ import { getOwnedEquipment } from "./get-owned-items.js";
 import { EntityId } from "../primatives/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { canPickUpItem } from "./can-pick-up-item.js";
+import { getAllUsableActionsCombatantCanPerform } from "./get-all-usable-actions-combatant-can-perform.js";
+import { combatantCanUseOwnedAbility } from "./can-use-owned-ability.js";
 
 export class CombatantProperties {
   [immerable] = true;
@@ -115,7 +121,8 @@ export class CombatantProperties {
     }
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
-  static getAbilityCostIfOwned = getAbilityCostIfOwned;
+  static getAbilityManaCostIfOwned = getAbilityManaCostIfOwned;
+  static getAbilityManaCost = getAbilityManaCostForCombatant;
   static getAbilityIfOwned = getAbilityIfOwned;
   static changeHitPoints = changeCombatantHitPoints;
   static changeMana = changeCombatantMana;
@@ -132,6 +139,9 @@ export class CombatantProperties {
     Inventory.instantiateItemClasses(combatantProperties.inventory);
     CombatantEquipment.instatiateItemClasses(combatantProperties);
   }
+
+  static getAllUsableActions = getAllUsableActionsCombatantCanPerform;
+  static canUseOwnedAbility = combatantCanUseOwnedAbility;
 
   static hasTraitType(combatantProperties: CombatantProperties, traitType: CombatantTraitType) {
     let hasTrait = false;

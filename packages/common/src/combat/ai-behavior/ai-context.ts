@@ -1,3 +1,5 @@
+import { Battle } from "../../battle/index.js";
+import { Combatant } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { CombatAction, CombatActionTarget } from "../index.js";
@@ -35,6 +37,7 @@ export class AIBehaviorContext {
   private hostileTargetSelectionScheme: AIHostileTargetSelectionScheme =
     AIHostileTargetSelectionScheme.Enmity;
   private enmityList: { combatantId: EntityId; enmity: number }[] = [];
+  public usableActions: CombatAction[] = [];
   private usableActionsAndValidTargets: {
     actions: CombatAction[];
     targets: EntityId[];
@@ -44,8 +47,8 @@ export class AIBehaviorContext {
     targets: CombatActionTarget;
   } | null = null;
   constructor(
-    private entityId: EntityId,
-    private game: SpeedDungeonGame,
-    private battleId: EntityId
+    public combatant: Combatant,
+    public game: SpeedDungeonGame,
+    public battleOption: Battle | null // allow for ally AI controlled combatants doing things outside of combat
   ) {}
 }
