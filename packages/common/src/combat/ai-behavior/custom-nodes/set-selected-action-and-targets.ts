@@ -1,9 +1,10 @@
+import { Combatant } from "../../../combatants/index.js";
 import { CombatAction } from "../../index.js";
-import { EntityId } from "../../../primatives/index.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorLeaf, BehaviorNode, Selector, Sequence } from "../behavior-tree.js";
+import { SetAvailableTargetsAndUsableActions } from "./set-available-targets-and-usable-actions.js";
 
-export class BasicAIActionSelector {
+export class SetSelectedActionAndTargets {
   private root: BehaviorNode;
 
   constructor(private context: AIBehaviorContext) {
@@ -15,7 +16,7 @@ export class BasicAIActionSelector {
           // collect a list of valid healing targets
           new SetAvailableTargetsAndUsableActions(
             this.context,
-            () => {
+            (combatant: Combatant) => {
               throw new Error("Not implemented");
             },
             () => {
@@ -58,41 +59,5 @@ export class BasicAIActionSelector {
 
   execute(): boolean {
     return this.root.execute();
-  }
-}
-
-class SetAvailableTargetsAndUsableActions implements BehaviorNode {
-  constructor(
-    private context: AIBehaviorContext,
-    isValidTarget: (entityId: EntityId) => boolean,
-    isUsableAction: (entityId: EntityId) => boolean
-  ) {}
-  execute(): boolean {
-    return new Sequence([
-      // collect a list of valid targets
-      new BehaviorLeaf((context: AIBehaviorContext) => {
-        const listOfAlliesBelowHpThreshold: EntityId[] = [];
-        if (listOfAlliesBelowHpThreshold.length) {
-          // set list in context
-          return true;
-        } else return false;
-      }),
-      // collect a list of valid actions
-      new BehaviorLeaf((context: AIBehaviorContext) => {
-        const listOfValidActions: CombatAction[] = [];
-        if (listOfValidActions.length) {
-          // set list in context
-          return true;
-        } else return false;
-      }),
-      // collect a list of usable actions
-      new BehaviorLeaf((context: AIBehaviorContext) => {
-        const listOfUsableHealingActions: CombatAction[] = [];
-        if (listOfUsableHealingActions.length) {
-          // set list in context
-          return true;
-        } else return false;
-      }),
-    ]).execute();
   }
 }

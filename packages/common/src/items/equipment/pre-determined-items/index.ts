@@ -32,7 +32,7 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
             baseItemType: TwoHandedRangedWeapon.ShortBow,
           },
           equipmentType: EquipmentType.TwoHandedRangedWeapon,
-          damage: { min: 1, max: 4 },
+          damage: { min: 1, max: 2 },
           damageClassification: [
             new HpChangeSource(
               HpChangeSourceCategory.Physical,
@@ -55,7 +55,7 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
             baseItemType: OneHandedMeleeWeapon.ShortSword,
           },
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          damage: { min: 1, max: 4 },
+          damage: { min: 1, max: 2 },
           damageClassification: [
             new HpChangeSource(
               HpChangeSourceCategory.Physical,
@@ -78,7 +78,7 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
             baseItemType: OneHandedMeleeWeapon.Stick,
           },
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          damage: { min: 1, max: 1 },
+          damage: { min: 1, max: 2 },
           damageClassification: [
             new HpChangeSource(
               HpChangeSourceCategory.Physical,
@@ -101,7 +101,7 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
             baseItemType: OneHandedMeleeWeapon.Dagger,
           },
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          damage: { min: 1, max: 4 },
+          damage: { min: 1, max: 2 },
           damageClassification: [
             new HpChangeSource(
               HpChangeSourceCategory.Physical,

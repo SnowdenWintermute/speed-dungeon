@@ -27,7 +27,7 @@ export default function HpAndMp({
       </div>
       <div className="w-1/2 flex justify-between ml-1">
         <span>{"Mana"}</span>
-        {maxMpOption !== undefined ? (
+        {maxMpOption !== undefined && !isNaN(combatantProperties.mana) ? (
           <span>{`${combatantProperties.mana}/${maxMpOption}`}</span>
         ) : (
           <span />

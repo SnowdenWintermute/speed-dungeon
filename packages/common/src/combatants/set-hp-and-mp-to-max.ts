@@ -7,4 +7,5 @@ export default function setHpAndMpToMax(combatantProperties: CombatantProperties
   if (typeof maxHpOption === "number") combatantProperties.hitPoints = maxHpOption;
   const maxMpOption = totalAttributes[CombatAttribute.Mp];
   if (typeof maxMpOption === "number") combatantProperties.mana = maxMpOption;
+  else combatantProperties.mana = 0;
 }

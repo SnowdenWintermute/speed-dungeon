@@ -25,6 +25,11 @@ export default async function getAIControlledTurnActionCommandPayloads(
   if (battleGroupsResult instanceof Error) return battleGroupsResult;
   const { allyGroup, enemyGroup } = battleGroupsResult;
 
+  // create the ai context for this combatant
+  // run it through the behavior tree
+  // attempt to accesss their target and ability selection
+  // if is null, end their turn
+
   const aiSelectedActionAndTargetResult = AISelectActionAndTarget(
     game,
     combatantId,

@@ -1,8 +1,9 @@
-import { CombatAction } from "../index.js";
-import { EntityId } from "../../primatives/index.js";
-
 export interface BehaviorNode {
   execute(): boolean;
+}
+
+export class BehaviorLeaf implements BehaviorNode {
+  constructor(public execute: (...args: any[]) => boolean) {}
 }
 
 export class Selector implements BehaviorNode {
@@ -27,10 +28,6 @@ export class Sequence implements BehaviorNode {
   }
 }
 
-export class BehaviorLeaf implements BehaviorNode {
-  constructor(public execute: (...args: any[]) => boolean) {}
-}
-
 export class Inverter implements BehaviorNode {
   constructor(private child: BehaviorNode) {}
 
@@ -42,6 +39,7 @@ export class Inverter implements BehaviorNode {
 export class Succeeder implements BehaviorNode {
   constructor(private child: BehaviorNode) {}
   execute(): boolean {
+    this.child.execute();
     return true;
   }
 }
@@ -51,8 +49,8 @@ export class RepeatUntilFail implements BehaviorNode {
 
   execute(): boolean {
     for (const child of this.children) {
-      if (!child.execute()) return false;
+      if (!child.execute()) return true;
     }
-    return this.execute();
+    return true;
   }
 }

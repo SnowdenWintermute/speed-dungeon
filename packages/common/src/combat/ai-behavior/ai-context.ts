@@ -1,5 +1,6 @@
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
+import { CombatAction, CombatActionTarget } from "../index.js";
 
 export enum AIActionSelectionScheme {
   Basic,
@@ -34,6 +35,14 @@ export class AIBehaviorContext {
   private hostileTargetSelectionScheme: AIHostileTargetSelectionScheme =
     AIHostileTargetSelectionScheme.Enmity;
   private enmityList: { combatantId: EntityId; enmity: number }[] = [];
+  private usableActionsAndValidTargets: {
+    actions: CombatAction[];
+    targets: EntityId[];
+  } | null = null;
+  private selectedActionAndTargets: {
+    combatAction: CombatAction;
+    targets: CombatActionTarget;
+  } | null = null;
   constructor(
     private entityId: EntityId,
     private game: SpeedDungeonGame,
