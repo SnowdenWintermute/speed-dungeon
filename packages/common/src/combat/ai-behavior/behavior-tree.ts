@@ -22,7 +22,8 @@ export class Sequence implements BehaviorNode {
 
   execute(): boolean {
     for (const child of this.children) {
-      if (!child.execute()) return false;
+      const childResult = child.execute();
+      if (!childResult) return false;
     }
     return true;
   }

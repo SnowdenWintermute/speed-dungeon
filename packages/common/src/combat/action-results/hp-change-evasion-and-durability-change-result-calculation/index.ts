@@ -219,7 +219,5 @@ export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
     hitPointChanges[userId] = lifestealHpChange;
   }
 
-  console.log("durability changes: ", durabilityChanges);
-
   return { hitPointChanges, evasions, durabilityChanges };
 }

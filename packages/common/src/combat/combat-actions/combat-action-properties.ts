@@ -43,13 +43,18 @@ export class CombatActionProperties {
     battleOption: null | Battle
   ) {
     // check if in a valid target category for this action type
-    if (!this.combatantIsInValidTargetCategory(actionUser, potentialTarget, battleOption))
-      return false;
+    const combatantIsInValidCategory = this.combatantIsInValidTargetCategory(
+      actionUser,
+      potentialTarget,
+      battleOption
+    );
+    if (!combatantIsInValidCategory) return false;
 
     // valid targets must not be in a prohibited combatant state such as "dead" or "untargetable by spells"
-    if (this.combatantIsInProhibitedTargetState(potentialTarget)) return false;
+    const combatantIsInProhibitedState = this.combatantIsInProhibitedTargetState(potentialTarget);
+    if (combatantIsInProhibitedState) return false;
 
-    return false;
+    return true;
   }
 
   combatantIsInValidTargetCategory(

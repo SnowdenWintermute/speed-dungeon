@@ -1,14 +1,6 @@
 import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { Battle } from "../../../battle/index.js";
 import { Combatant, CombatantProperties } from "../../../combatants/index.js";
-import {
-  CombatAction,
-  CombatActionProperties,
-  CombatActionTarget,
-  CombatActionTargetType,
-  TargetCategories,
-  TargetingScheme,
-} from "../../index.js";
+import { CombatAction, CombatActionTarget, TargetingScheme } from "../../index.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorLeaf, BehaviorNode, Sequence } from "../behavior-tree.js";
 
@@ -17,11 +9,15 @@ import { BehaviorLeaf, BehaviorNode, Sequence } from "../behavior-tree.js";
 // - for each targeting scheme, iterate possibilities
 // - check if action can be used on the target (if single is dead || all in group are dead && can't use on dead, don't add to list)
 // set the action/targets pair as an option to consider
-
-export interface EvaluatedActionTargetPair {
+//
+export interface ActionTargetPair {
   action: CombatAction;
   targets: CombatActionTarget;
+}
+
+export interface EvaluatedActionTargetPair {
   effectiveness: number;
+  pair: ActionTargetPair;
 }
 
 export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
@@ -43,7 +39,7 @@ export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
     ) => Error | number
   ) {}
   execute(): boolean {
-    return new Sequence([
+    const sequence = new Sequence([
       // collect a list of usable actions
       new BehaviorLeaf(() => {
         let listOfUsableActions: CombatAction[] = [];
@@ -53,7 +49,11 @@ export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
           !!this.context.battleOption
         );
 
-        listOfUsableActions = listOfUsableActions.filter(this.isSuitableAction);
+        console.log("usable before filter: ", usableActions);
+
+        listOfUsableActions = usableActions.filter(this.isSuitableAction);
+
+        console.log("usable actions: ", listOfUsableActions);
 
         if (listOfUsableActions.length) {
           this.context.usableActions = usableActions;
@@ -73,17 +73,16 @@ export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
           this.shouldConsiderCombatantAsTarget(this.context, combatant)
         );
 
+        console.log("filtered targets: ", filteredTargets.length);
+
         if (filteredTargets.length) {
-          this.context.consideredTargets = filteredTargets;
+          this.context.consideredTargetCombatants = filteredTargets;
           return true;
         } else return false;
       }),
-
-      // determine the most effective action/target pair
-      // effectiveness may be determined by things such as "valid target with higest threat score",
-      // "most hp healed on lowest hp ally", "any enemy brought to lowest hp" or "most total damage done"
+      // collect all possible action/target pairs
       new BehaviorLeaf(() => {
-        if (!this.context.consideredTargets.length) return false;
+        if (!this.context.consideredTargetCombatants.length) return false;
 
         for (const action of this.context.usableActions) {
           const actionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
@@ -94,29 +93,26 @@ export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
             console.trace(actionPropertiesResult);
             return false;
           }
-          for (const targetingScheme of actionPropertiesResult.targetingSchemes) {
-            switch (targetingScheme) {
-              case TargetingScheme.Single:
-                const maybeError = this.context.evaluateActionOnPotentialSingleTargets(
-                  action,
-                  actionPropertiesResult,
-                  this.getActionPreferenceScoreOnTargets
-                );
-                if (maybeError instanceof Error) {
-                  console.trace(maybeError);
-                  return false;
-                }
-                break;
-              case TargetingScheme.Area:
-              case TargetingScheme.All:
-            }
+          const maybeError = this.context.setConsideredActionTargetPairs(
+            action,
+            actionPropertiesResult
+          );
+          if (maybeError instanceof Error) {
+            console.trace(maybeError);
+            return false;
           }
         }
-        // if (!potentialActionsAndTargets.length) return false;
-        // this.context.usableActionsAndValidTargets = potentialActionsAndTargets;
-        // set list in context
+
         return true;
       }),
-    ]).execute();
+      // determine the most effective action/target pair
+      // effectiveness may be determined by things such as "valid target with higest threat score",
+      // "most hp healed on lowest hp ally", "any enemy brought to lowest hp" or "most total damage done"
+      new BehaviorLeaf(() => {
+        return true;
+      }),
+    ]);
+
+    return sequence.execute();
   }
 }
