@@ -35,7 +35,7 @@ export function AISelectActionAndTarget(
   };
 
   if (userCombatantProperties.abilities[AbilityName.Fire]) {
-    const manaCostResult = CombatantProperties.getAbilityCostIfOwned(
+    const manaCostResult = CombatantProperties.getAbilityManaCostIfOwned(
       userCombatantProperties,
       AbilityName.Fire
     );
@@ -47,7 +47,7 @@ export function AISelectActionAndTarget(
     };
   }
   if (userCombatantProperties.abilities[AbilityName.Ice]) {
-    const manaCostResult = CombatantProperties.getAbilityCostIfOwned(
+    const manaCostResult = CombatantProperties.getAbilityManaCostIfOwned(
       userCombatantProperties,
       AbilityName.Ice
     );
@@ -78,7 +78,7 @@ export function AISelectActionAndTarget(
       }
     }
     if (alliesDamaged) {
-      const manaCostResult = CombatantProperties.getAbilityCostIfOwned(
+      const manaCostResult = CombatantProperties.getAbilityManaCostIfOwned(
         userCombatantProperties,
         AbilityName.Healing
       );

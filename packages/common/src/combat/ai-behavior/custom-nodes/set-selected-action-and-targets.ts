@@ -16,7 +16,10 @@ export class SetSelectedActionAndTargets {
           // collect a list of valid healing targets
           new SetAvailableTargetsAndUsableActions(
             this.context,
-            (combatant: Combatant) => {
+            (action: CombatAction) => {
+              throw new Error("Not implemented");
+            },
+            () => {
               throw new Error("Not implemented");
             },
             () => {
@@ -37,6 +40,9 @@ export class SetSelectedActionAndTargets {
           // collect a list of valid enemy targets
           new SetAvailableTargetsAndUsableActions(
             this.context,
+            (action: CombatAction) => {
+              throw new Error("Not implemented");
+            },
             () => {
               throw new Error("Not implemented");
             },

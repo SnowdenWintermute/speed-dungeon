@@ -18,6 +18,12 @@ import { BehaviorLeaf, BehaviorNode, Sequence } from "../behavior-tree.js";
 // - check if action can be used on the target (if single is dead || all in group are dead && can't use on dead, don't add to list)
 // set the action/targets pair as an option to consider
 
+export interface EvaluatedActionTargetPair {
+  action: CombatAction;
+  targets: CombatActionTarget;
+  effectiveness: number;
+}
+
 export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
   constructor(
     private context: AIBehaviorContext,
@@ -30,7 +36,7 @@ export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
     ) => boolean,
     // determine how effective this action/target pair would be based on intentions
     // (lowest hp target brought to highest hp, most positive hp change on allies, enemy target brought to lowest hp, most debuffs removed)
-    private getActionPreferenceScoreOnTarget: (
+    private getActionPreferenceScoreOnTargets: (
       context: AIBehaviorContext,
       action: CombatAction,
       target: CombatActionTarget
@@ -74,14 +80,10 @@ export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
       }),
 
       // determine the most effective action/target pair
+      // effectiveness may be determined by things such as "valid target with higest threat score",
+      // "most hp healed on lowest hp ally", "any enemy brought to lowest hp" or "most total damage done"
       new BehaviorLeaf(() => {
         if (!this.context.consideredTargets.length) return false;
-
-        const pairsAndEffectivenessScores: {
-          action: CombatAction;
-          targets: CombatActionTarget;
-          effectiveness: number;
-        }[] = [];
 
         for (const action of this.context.usableActions) {
           const actionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
@@ -95,36 +97,14 @@ export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
           for (const targetingScheme of actionPropertiesResult.targetingSchemes) {
             switch (targetingScheme) {
               case TargetingScheme.Single:
-                for (const potentialTarget of this.context.consideredTargets) {
-                  const shouldEvaluate = shouldEvaluateActionOnSingleTarget(
-                    this.context.combatant,
-                    actionPropertiesResult,
-                    potentialTarget,
-                    this.context.battleOption
-                  );
-
-                  if (!shouldEvaluate) continue;
-
-                  const targets: CombatActionTarget = {
-                    type: CombatActionTargetType.Single,
-                    targetId: potentialTarget.entityProperties.id,
-                  };
-
-                  const effectivenessResult = this.getActionPreferenceScoreOnTarget(
-                    this.context,
-                    action,
-                    targets
-                  );
-                  if (effectivenessResult instanceof Error) {
-                    console.trace(effectivenessResult);
-                    return false;
-                  }
-
-                  pairsAndEffectivenessScores.push({
-                    action,
-                    targets,
-                    effectiveness: effectivenessResult,
-                  });
+                const maybeError = this.context.evaluateActionOnPotentialSingleTargets(
+                  action,
+                  actionPropertiesResult,
+                  this.getActionPreferenceScoreOnTargets
+                );
+                if (maybeError instanceof Error) {
+                  console.trace(maybeError);
+                  return false;
                 }
                 break;
               case TargetingScheme.Area:
@@ -139,35 +119,4 @@ export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
       }),
     ]).execute();
   }
-}
-
-function shouldEvaluateActionOnSingleTarget(
-  actionUser: Combatant,
-  actionProperties: CombatActionProperties,
-  potentialTarget: Combatant,
-  battleOption: null | Battle
-) {
-  const targetId = potentialTarget.entityProperties.id;
-
-  if (
-    actionProperties.validTargetCategories === TargetCategories.Any ||
-    (actionProperties.validTargetCategories === TargetCategories.User &&
-      targetId === actionUser.entityProperties.id)
-  )
-    return true;
-  else {
-    const potentialTargetIsAlly =
-      !battleOption || Battle.combatantsAreAllies(actionUser, potentialTarget, battleOption);
-
-    if (
-      (actionProperties.validTargetCategories === TargetCategories.Opponent &&
-        !potentialTargetIsAlly) ||
-      (actionProperties.validTargetCategories === TargetCategories.Friendly &&
-        potentialTargetIsAlly)
-    ) {
-      return true;
-    }
-  }
-
-  return false;
 }

@@ -14,7 +14,7 @@ export default function calculateActionManaCost(
   if (combatantResult instanceof Error) return combatantResult;
   const { combatantProperties } = combatantResult;
   const { abilityName } = combatAction;
-  const levelAdjustedMpCostResult = CombatantProperties.getAbilityCostIfOwned(
+  const levelAdjustedMpCostResult = CombatantProperties.getAbilityManaCostIfOwned(
     combatantProperties,
     abilityName
   );

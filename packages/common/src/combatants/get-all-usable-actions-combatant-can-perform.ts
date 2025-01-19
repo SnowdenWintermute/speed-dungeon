@@ -1,7 +1,7 @@
-import { CombatantProperties } from ".";
-import { CombatAction, CombatActionType } from "../combat";
-import { ConsumableType } from "../items/consumables";
-import { iterateNumericEnumKeyedRecord } from "../utils";
+import { CombatAction, CombatActionType } from "../combat/index.js";
+import { ConsumableType } from "../items/consumables/index.js";
+import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import { CombatantProperties } from "./index.js";
 
 export function getAllUsableActionsCombatantCanPerform(
   combatantProperties: CombatantProperties,

@@ -11,6 +11,8 @@ import {
 import { NumberRange } from "../../primatives/number-range.js";
 import { HpChangeSource, HpChangeSourceModifiers } from "../hp-change-source-types.js";
 import { CombatAttribute } from "../../attributes/index.js";
+import { Combatant } from "../../combatants/index.js";
+import { Battle } from "../../battle/index.js";
 
 export enum DurabilityLossCondition {
   OnHit,
@@ -34,7 +36,82 @@ export class CombatActionProperties {
     [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
   };
   constructor() {}
+
+  combatantIsValidTarget(
+    actionUser: Combatant,
+    potentialTarget: Combatant,
+    battleOption: null | Battle
+  ) {
+    // check if in a valid target category for this action type
+    if (!this.combatantIsInValidTargetCategory(actionUser, potentialTarget, battleOption))
+      return false;
+
+    // valid targets must not be in a prohibited combatant state such as "dead" or "untargetable by spells"
+    if (this.combatantIsInProhibitedTargetState(potentialTarget)) return false;
+
+    return false;
+  }
+
+  combatantIsInValidTargetCategory(
+    actionUser: Combatant,
+    potentialTarget: Combatant,
+    battleOption: null | Battle
+  ) {
+    const { validTargetCategories } = this;
+    if (validTargetCategories === TargetCategories.Any) return true;
+
+    const targetId = potentialTarget.entityProperties.id;
+    const userId = actionUser.entityProperties.id;
+
+    if (validTargetCategories === TargetCategories.User && !(targetId === userId)) return false;
+
+    const targetIsAlly =
+      !battleOption || Battle.combatantsAreAllies(actionUser, potentialTarget, battleOption);
+
+    if (validTargetCategories === TargetCategories.Opponent && targetIsAlly) return false;
+    if (validTargetCategories === TargetCategories.Friendly && !targetIsAlly) return false;
+    return true;
+  }
+
+  combatantIsInProhibitedTargetState(potentialTarget: Combatant) {
+    if (this.prohibitedTargetCombatantStates === null) return false;
+    for (const prohibitedState of this.prohibitedTargetCombatantStates) {
+      if (PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS[prohibitedState](this, potentialTarget))
+        return true;
+    }
+    return false;
+  }
 }
+
+const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
+  ProhibitedTargetCombatantStates,
+  (actionProperties: CombatActionProperties, combatant: Combatant) => boolean
+> = {
+  [ProhibitedTargetCombatantStates.Dead]: function (
+    _actionProperties: CombatActionProperties,
+    combatant: Combatant
+  ): boolean {
+    return combatant.combatantProperties.hitPoints <= 0;
+  },
+  [ProhibitedTargetCombatantStates.Alive]: function (
+    _actionProperties: CombatActionProperties,
+    combatant: Combatant
+  ): boolean {
+    return combatant.combatantProperties.hitPoints > 0;
+  },
+  [ProhibitedTargetCombatantStates.UntargetableByMagic]: function (
+    actionProperties: CombatActionProperties,
+    combatant: Combatant
+  ): boolean {
+    return false;
+  },
+  [ProhibitedTargetCombatantStates.UntargetableByPhysical]: function (
+    actionProperties: CombatActionProperties,
+    combatant: Combatant
+  ): boolean {
+    return false;
+  },
+};
 
 export enum ActionUsableContext {
   All,
