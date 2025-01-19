@@ -1,6 +1,14 @@
+import { AdventuringParty } from "../../../adventuring-party/index.js";
+import { Battle } from "../../../battle/index.js";
 import { Combatant, CombatantProperties } from "../../../combatants/index.js";
-import { EntityId } from "../../../primatives/index.js";
-import { CombatAction } from "../../index.js";
+import {
+  CombatAction,
+  CombatActionProperties,
+  CombatActionTarget,
+  CombatActionTargetType,
+  TargetCategories,
+  TargetingScheme,
+} from "../../index.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorLeaf, BehaviorNode, Sequence } from "../behavior-tree.js";
 
@@ -13,8 +21,20 @@ import { BehaviorLeaf, BehaviorNode, Sequence } from "../behavior-tree.js";
 export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
   constructor(
     private context: AIBehaviorContext,
-    private isSuitableAction: (action: CombatAction) => boolean, // action would be desired for this type of behavior
-    public combatantIsValidTarget: (action: CombatAction, combatant: Combatant) => boolean // action can be used on this combatant
+    // action would be desired for this type of behavior (a healing spell for a healing behavior)
+    private isSuitableAction: (action: CombatAction) => boolean,
+    // target should be considered (ally with low hp for a healing behavior)
+    private shouldConsiderCombatantAsTarget: (
+      context: AIBehaviorContext,
+      target: Combatant
+    ) => boolean,
+    // determine how effective this action/target pair would be based on intentions
+    // (lowest hp target brought to highest hp, most positive hp change on allies, enemy target brought to lowest hp, most debuffs removed)
+    private getActionPreferenceScoreOnTarget: (
+      context: AIBehaviorContext,
+      action: CombatAction,
+      target: CombatActionTarget
+    ) => Error | number
   ) {}
   execute(): boolean {
     return new Sequence([
@@ -34,23 +54,120 @@ export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
           return true;
         } else return false;
       }),
-      // collect a list of valid targets
-      new BehaviorLeaf((context: AIBehaviorContext) => {
-        const listOfAlliesBelowHpThreshold: EntityId[] = [];
-        if (listOfAlliesBelowHpThreshold.length) {
-          // set list in context
+
+      // collect a list of considered targets based on the user's "intentions"
+      // (only low hp allies, allies with debuffs to remove, enemies with buffs to dispell)
+      new BehaviorLeaf(() => {
+        const party = this.context.party;
+        const combatantsInParty = AdventuringParty.getAllCombatants(party);
+        const { monsters, characters } = combatantsInParty;
+        const combatantsList = Object.values(monsters).concat(Object.values(characters));
+
+        const filteredTargets = combatantsList.filter((combatant) =>
+          this.shouldConsiderCombatantAsTarget(this.context, combatant)
+        );
+
+        if (filteredTargets.length) {
+          this.context.consideredTargets = filteredTargets;
           return true;
         } else return false;
       }),
-      // collect a list of valid action / target pairs
-      new BehaviorLeaf((context: AIBehaviorContext) => {
-        const listOfValidActions: CombatAction[] = [];
 
-        if (listOfValidActions.length) {
-          // set list in context
-          return true;
-        } else return false;
+      // determine the most effective action/target pair
+      new BehaviorLeaf(() => {
+        if (!this.context.consideredTargets.length) return false;
+
+        const pairsAndEffectivenessScores: {
+          action: CombatAction;
+          targets: CombatActionTarget;
+          effectiveness: number;
+        }[] = [];
+
+        for (const action of this.context.usableActions) {
+          const actionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
+            this.context.combatant.combatantProperties,
+            action
+          );
+          if (actionPropertiesResult instanceof Error) {
+            console.trace(actionPropertiesResult);
+            return false;
+          }
+          for (const targetingScheme of actionPropertiesResult.targetingSchemes) {
+            switch (targetingScheme) {
+              case TargetingScheme.Single:
+                for (const potentialTarget of this.context.consideredTargets) {
+                  const shouldEvaluate = shouldEvaluateActionOnSingleTarget(
+                    this.context.combatant,
+                    actionPropertiesResult,
+                    potentialTarget,
+                    this.context.battleOption
+                  );
+
+                  if (!shouldEvaluate) continue;
+
+                  const targets: CombatActionTarget = {
+                    type: CombatActionTargetType.Single,
+                    targetId: potentialTarget.entityProperties.id,
+                  };
+
+                  const effectivenessResult = this.getActionPreferenceScoreOnTarget(
+                    this.context,
+                    action,
+                    targets
+                  );
+                  if (effectivenessResult instanceof Error) {
+                    console.trace(effectivenessResult);
+                    return false;
+                  }
+
+                  pairsAndEffectivenessScores.push({
+                    action,
+                    targets,
+                    effectiveness: effectivenessResult,
+                  });
+                }
+                break;
+              case TargetingScheme.Area:
+              case TargetingScheme.All:
+            }
+          }
+        }
+        // if (!potentialActionsAndTargets.length) return false;
+        // this.context.usableActionsAndValidTargets = potentialActionsAndTargets;
+        // set list in context
+        return true;
       }),
     ]).execute();
   }
+}
+
+function shouldEvaluateActionOnSingleTarget(
+  actionUser: Combatant,
+  actionProperties: CombatActionProperties,
+  potentialTarget: Combatant,
+  battleOption: null | Battle
+) {
+  const targetId = potentialTarget.entityProperties.id;
+
+  if (
+    actionProperties.validTargetCategories === TargetCategories.Any ||
+    (actionProperties.validTargetCategories === TargetCategories.User &&
+      targetId === actionUser.entityProperties.id)
+  )
+    return true;
+  else {
+    const potentialTargetIsAlly =
+      !battleOption || Battle.combatantsAreAllies(actionUser, potentialTarget, battleOption);
+
+    if (
+      (actionProperties.validTargetCategories === TargetCategories.Opponent &&
+        !potentialTargetIsAlly) ||
+      (actionProperties.validTargetCategories === TargetCategories.Friendly &&
+        potentialTargetIsAlly)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
 }
