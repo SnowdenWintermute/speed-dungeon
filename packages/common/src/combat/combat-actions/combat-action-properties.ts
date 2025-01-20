@@ -11,13 +11,18 @@ import {
 import { NumberRange } from "../../primatives/number-range.js";
 import { HpChangeSource, HpChangeSourceModifiers } from "../hp-change-source-types.js";
 import { CombatAttribute } from "../../attributes/index.js";
-import { Combatant } from "../../combatants/index.js";
+import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import { Battle } from "../../battle/index.js";
+import { AdventuringParty } from "../../adventuring-party/index.js";
 
 export enum DurabilityLossCondition {
   OnHit,
   OnUse,
 }
+
+// CombatActionProperties
+// CombatActionPropertiesComposite
+// CombatActionPropertiesLeaf
 
 export class CombatActionProperties {
   targetingSchemes: TargetingScheme[] = [TargetingScheme.Single];
@@ -26,7 +31,9 @@ export class CombatActionProperties {
   prohibitedTargetCombatantStates: null | ProhibitedTargetCombatantStates[] = [
     ProhibitedTargetCombatantStates.Dead,
   ];
-  requiresCombatTurn: boolean = true;
+  requiresCombatTurn: (user: CombatantProperties) => boolean = () => true;
+  shouldExecuteNextLeaf: (party: AdventuringParty, user: CombatantProperties) => boolean = () =>
+    true;
   hpChangeProperties: null | CombatActionHpChangeProperties = null;
   description: string = "";
   isMelee: boolean = true;
