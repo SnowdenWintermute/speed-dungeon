@@ -1,3 +1,4 @@
+export * from "./combatant-ability.js";
 export * from "./get-ability-attributes.js";
 export * from "./get-ability-if-owned.js";
 export * from "./ability-attributes.js";

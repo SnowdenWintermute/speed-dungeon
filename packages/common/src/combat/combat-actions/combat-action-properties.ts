@@ -11,12 +11,8 @@ import {
 import { NumberRange } from "../../primatives/number-range.js";
 import { HpChangeSource, HpChangeSourceModifiers } from "../hp-change-source-types.js";
 import { CombatAttribute } from "../../attributes/index.js";
-import { Combatant, CombatantProperties } from "../../combatants/index.js";
+import { Combatant } from "../../combatants/index.js";
 import { Battle } from "../../battle/index.js";
-import { AdventuringParty } from "../../adventuring-party/index.js";
-import { CombatActionType } from "../index.js";
-import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../app-consts.js";
-import { ConsumableType } from "../../items/consumables/index.js";
 
 export enum DurabilityLossCondition {
   OnHit,

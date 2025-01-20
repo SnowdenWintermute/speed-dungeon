@@ -6,7 +6,7 @@ export * from "./targeting-schemes-and-categories.js";
 
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../app-consts.js";
-import { AbilityName, CombatantProperties } from "../../combatants/index.js";
+import { AbilityName, Combatant, CombatantProperties } from "../../combatants/index.js";
 import { ConsumableType } from "../../items/consumables/index.js";
 import {
   EquipmentSlotType,
@@ -16,7 +16,6 @@ import {
 import {
   ActionUsableContext,
   CombatActionHpChangeProperties,
-  CombatActionProperties,
   DurabilityLossCondition,
 } from "../index.js";
 import {
@@ -57,6 +56,41 @@ export type CombatAction = ConsumableUsed | AbilityUsed;
 // - evaluate the outcome
 // - unapply all results
 //
+// CHAIN LIGHTNING THOUGHT EXPERIMENT
+// - user selects chain lightning and targets
+// - server calls execute on chain lightning CombatActionComposite
+// - execute takes in the game, user, and targets
+//   .forms an ActionResult based on the parent CombatActionComposite's properties
+//   .creates ActionCommands from the result and stores them in an ActionCommandGroup for the client
+//   .executes the ActionCommands, updating the gameState
+//   .checks if shouldProcessNextChild for chain lightning (if any enemy targets remain and numArcsRemaining > 0)
+//   .forms an ActionResult based on the next child's CombatActionComposite or CombatActionLeaf's properties
+//   .creates ActionCommands from the result and stores them in an ActionCommandGroup for the client
+// - client gets the ActionCommandGroup with results of the chain lightning CombatActionComposite
+//   .checks what action it was
+//   .since it was chain lightning
+//      - animate a lightning bolt to the first target
+//      - apply the action command changes to game state in the frame event
+//      - check for next command
+//      - draw an arc from first target to next command's target
+//      - apply the action command changes
+//   .if it was split corpse
+//     - animate combatant into melee range
+//     - animate weapon swing
+//     - apply action command changes to game state
+//     - check for next action command
+//     - it should include the targets for the combatants on the side and hp changes
+//     - animate spears shooting out from original target toward those targets
+//     - apply the hp changes
+//  .if it was attack
+//    - attack itself has no hp change properties
+//    - client can get properties of children and display them
+//     - animate combatant into melee range if needed
+//     - animate weapon attack for each child
+//
+//
+//
+//
 // CombatActionProperties
 // CombatActionPropertiesComposite
 // CombatActionPropertiesLeaf
@@ -77,22 +111,33 @@ export abstract class CombatActionComponent {
   prohibitedTargetCombatantStates?: ProhibitedTargetCombatantStates[] = [
     ProhibitedTargetCombatantStates.Dead,
   ];
+  isMelee: boolean = true;
+  // take the user so we can for example check during attackMeleeMh if they have a shield equipped, therefore it should end turn
+  // also possible to check if they have a "tired" debuff which causes all actions to end turn
   requiresCombatTurn: (user: CombatantProperties) => boolean = () => true;
+  // could use the combatant's ability to hold state which may help determine, such as if using chain lightning and an enemy
+  // target exists that is not the last arced to target
   shouldExecuteNextLeaf: (party: AdventuringParty, user: CombatantProperties) => boolean = () =>
     false;
-  hpChangeProperties?: CombatActionHpChangeProperties;
+  getHpChangeProperties?: CombatActionHpChangeProperties;
   description: string = "";
-  isMelee: boolean = true;
   accuracyPercentModifier: number = 100;
   incursDurabilityLoss?: {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
     [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
   };
-  getChildren: () => null | CombatActionComponent[] = () => null;
+  // if we take in the combatant we can determine the children based on their equipped weapons (melee attack mh, melee attack oh etc)
+  // spell levels (level 1 chain lightning only gets 1 ChainLightningArc child) or other status
+  // (energetic swings could do multiple attacks based on user's current percent of max hp)
+  // could also create random children such as a chaining random elemental damage
+  getChildren: (combatant: Combatant) => null | CombatActionComponent[] = () => null;
   addChild: () => Error | void = () => new Error("Can't add a child to this component");
   execute: () => Error | void = () => {
     new Error("Execute was not implemented on this combat action");
-    //
+    // - if attack, call execute on children
+    // - client can call getChildren to get combat action properties for meleeMh, meleeOh, rangedMh and display them
+    // - if chain lightning, create action commands base on own properties,
+    // then check shouldExecuteNextLeaf, then call execute on first child
   };
   constructor(
     public type: CombatActionType,
