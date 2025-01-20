@@ -3,6 +3,7 @@ export * from "./action-result.js";
 export * from "./get-action-results.js";
 export * from "./action-result-calculator.js";
 export * from "./hp-change-evasion-and-durability-change-result-calculation/index.js";
+
 import cloneDeep from "lodash.clonedeep/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { ActionResult } from "./action-result.js";
@@ -35,7 +36,7 @@ export default function calculateActionResult(
   );
   if (actionPropertiesResult instanceof Error) return actionPropertiesResult;
   const combatActionProperties = actionPropertiesResult;
-  actionResult.endsTurn = combatActionProperties.requiresCombatTurn(combatantProperties);
+  actionResult.endsTurn = combatActionProperties.requiresCombatTurn;
 
   const partyResult = SpeedDungeonGame.getPartyOfCombatant(game, userId);
   if (partyResult instanceof Error) return partyResult;

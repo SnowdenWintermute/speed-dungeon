@@ -14,15 +14,14 @@ import { CombatAttribute } from "../../attributes/index.js";
 import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import { Battle } from "../../battle/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
+import { CombatActionType } from "../index.js";
+import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../app-consts.js";
+import { ConsumableType } from "../../items/consumables/index.js";
 
 export enum DurabilityLossCondition {
   OnHit,
   OnUse,
 }
-
-// CombatActionProperties
-// CombatActionPropertiesComposite
-// CombatActionPropertiesLeaf
 
 export class CombatActionProperties {
   targetingSchemes: TargetingScheme[] = [TargetingScheme.Single];
@@ -31,9 +30,7 @@ export class CombatActionProperties {
   prohibitedTargetCombatantStates: null | ProhibitedTargetCombatantStates[] = [
     ProhibitedTargetCombatantStates.Dead,
   ];
-  requiresCombatTurn: (user: CombatantProperties) => boolean = () => true;
-  shouldExecuteNextLeaf: (party: AdventuringParty, user: CombatantProperties) => boolean = () =>
-    true;
+  requiresCombatTurn: boolean = true;
   hpChangeProperties: null | CombatActionHpChangeProperties = null;
   description: string = "";
   isMelee: boolean = true;

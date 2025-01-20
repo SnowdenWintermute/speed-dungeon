@@ -10,15 +10,6 @@ import { HoldableSlotType } from "../../../items/equipment/slots.js";
 import { Equipment, EquipmentType } from "../../../items/equipment/index.js";
 import { CombatantEquipment } from "../../../combatants/combatant-equipment/index.js";
 
-// when calculating composite action results
-// traverse depth first and get child action results
-// compose action commands
-// apply action commands to game
-// check if should continue
-// once done
-// - evaluate the outcome
-// - unapply all results
-
 export default function calculateAttackActionResult(
   game: SpeedDungeonGame,
   args: ActionResultCalculationArguments
