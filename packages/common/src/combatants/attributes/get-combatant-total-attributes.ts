@@ -1,31 +1,13 @@
-import { DEX_TO_RANGED_ARMOR_PEN_RATIO, STR_TO_MELEE_ARMOR_PEN_RATIO } from "../app-consts.js";
-import { Item } from "../items/index.js";
-import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
-import { EquipmentType } from "../items/equipment/equipment-types/index.js";
-import { CombatantAttributeRecord, CombatantProperties } from "./combatant-properties.js";
+import { DEX_TO_RANGED_ARMOR_PEN_RATIO, STR_TO_MELEE_ARMOR_PEN_RATIO } from "../../app-consts.js";
+import { Item } from "../../items/index.js";
+import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
+import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
+import { CombatantAttributeRecord, CombatantProperties } from "../index.js";
 import { CombatAttribute } from "../attributes/index.js";
-import { Equipment, HoldableSlotType } from "../items/equipment/index.js";
-import { CombatantEquipment } from "./combatant-equipment/index.js";
-
-// ATTRIBUTES
-export const DERIVED_ATTRIBUTE_RATIOS: Partial<
-  Record<CombatAttribute, Partial<Record<CombatAttribute, number>>>
-> = {
-  [CombatAttribute.Dexterity]: {
-    [CombatAttribute.Accuracy]: 2,
-  },
-  [CombatAttribute.Intelligence]: {
-    [CombatAttribute.Mp]: 2,
-  },
-  [CombatAttribute.Agility]: {
-    [CombatAttribute.Evasion]: 2,
-    [CombatAttribute.Speed]: 1,
-  },
-  [CombatAttribute.Vitality]: {
-    [CombatAttribute.Hp]: 2,
-    [CombatAttribute.ArmorClass]: 1.5,
-  },
-};
+import { Equipment, HoldableSlotType } from "../../items/equipment/index.js";
+import { CombatantEquipment } from "../combatant-equipment/index.js";
+import { DERIVED_ATTRIBUTE_RATIOS } from "./derrived-attribute-ratios.js";
+import { addAttributesToAccumulator } from "./add-attributes-to-accumulator.js";
 
 function initializeCombatAttributeRecord() {
   const allAttributesAsZero: CombatantAttributeRecord = {};
@@ -146,16 +128,6 @@ function calculateAndAddDerivedAttribute(
   const derrivedToAdd = Math.floor(totalMainAttributeOption * ratio);
   const newTotalDerrived = totalDerrived + derrivedToAdd;
   totalAttributes[derivedAttribute] = newTotalDerrived;
-}
-
-export function addAttributesToAccumulator(
-  toAdd: CombatantAttributeRecord,
-  acc: CombatantAttributeRecord
-) {
-  for (const [attribute, value] of iterateNumericEnumKeyedRecord(toAdd)) {
-    if (!acc[attribute]) acc[attribute] = value;
-    else acc[attribute]! += value || 0; // use ! because ts complains it may be undefined even though checked above
-  }
 }
 
 function removeAttributesFromAccumulator(

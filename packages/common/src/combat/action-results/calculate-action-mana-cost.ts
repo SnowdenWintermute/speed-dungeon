@@ -1,4 +1,4 @@
-import { CombatantProperties } from "../../combatants/combatant-properties.js";
+import { CombatantProperties } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { CombatActionType } from "../combat-actions/index.js";
 import { ActionResultCalculationArguments } from "./action-result-calculator.js";

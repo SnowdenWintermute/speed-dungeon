@@ -1,5 +1,6 @@
-import { ABILITY_ATTRIBUTES, CombatantAbility, CombatantProperties } from "./index.js";
-import { ActionUsableContext } from "../combat/combat-actions/index.js";
+import { ABILITY_ATTRIBUTES, CombatantAbility } from "./index.js";
+import { ActionUsableContext } from "../../combat/combat-actions/index.js";
+import { CombatantProperties } from "../index.js";
 
 export function combatantCanUseOwnedAbility(
   combatantProperties: CombatantProperties,

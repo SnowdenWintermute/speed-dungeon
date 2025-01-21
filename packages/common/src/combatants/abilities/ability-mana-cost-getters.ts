@@ -1,7 +1,7 @@
 import { CombatantAbility, AbilityName } from "./index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { CombatantProperties } from "../combatant-properties.js";
 import { ABILITY_ATTRIBUTES } from "./get-ability-attributes.js";
+import { CombatantProperties } from "../index.js";
 
 export function getAbilityManaCostIfOwned(
   combatantProperties: CombatantProperties,

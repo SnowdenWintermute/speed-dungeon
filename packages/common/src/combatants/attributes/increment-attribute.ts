@@ -1,6 +1,6 @@
-import { CombatAttribute } from "../attributes/index.js";
-import { CombatantProperties } from "./combatant-properties.js";
-import { DERIVED_ATTRIBUTE_RATIOS } from "./get-combatant-total-attributes.js";
+import { CombatantProperties } from "../index.js";
+import { DERIVED_ATTRIBUTE_RATIOS } from "./derrived-attribute-ratios.js";
+import { CombatAttribute } from "./index.js";
 
 export function incrementAttributePoint(
   combatantProperties: CombatantProperties,

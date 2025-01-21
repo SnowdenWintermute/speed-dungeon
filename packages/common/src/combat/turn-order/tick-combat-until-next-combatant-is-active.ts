@@ -11,7 +11,7 @@ import {
   SPEED_RANGE,
 } from "./consts.js";
 import { Battle } from "../../battle/index.js";
-import { CombatAttribute } from "../../attributes/index.js";
+import { CombatAttribute } from "../../combatants/attributes/index.js";
 
 export function tickCombatUntilNextCombatantIsActive(game: SpeedDungeonGame, battleId: string) {
   const battleOption = game.battles[battleId];

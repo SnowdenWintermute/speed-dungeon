@@ -33,10 +33,3 @@ export const TARGET_CATEGORY_STRINGS: Record<TargetCategories, string> = {
   [TargetCategories.Friendly]: "Teammate",
   [TargetCategories.Any]: "Any",
 };
-
-export enum ProhibitedTargetCombatantStates {
-  Dead,
-  Alive,
-  UntargetableByMagic,
-  UntargetableByPhysical,
-}

@@ -5,9 +5,9 @@ import { SpeedDungeonGame } from "../../game/index.js";
 import { chooseRandomFromArray } from "../../utils/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { FriendOrFoe } from "../combat-actions/targeting-schemes-and-categories.js";
-import { CombatAttribute } from "../../attributes/index.js";
 import { AIBehaviorContext } from "./ai-context.js";
 import { SetAvailableTargetsAndUsableActions } from "./custom-nodes/set-available-targets-and-usable-actions.js";
+import { CombatAttribute } from "../../combatants/attributes/index.js";
 
 export interface AbilityAndTarget {
   abilityName: AbilityName;

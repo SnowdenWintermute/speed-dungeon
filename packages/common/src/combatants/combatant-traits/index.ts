@@ -1,6 +1,6 @@
-import { KineticDamageType } from "../combat/kinetic-damage-types.js";
-import { MagicalElement } from "../combat/magical-elements.js";
-import { HoldableHotswapSlot } from "./combatant-equipment/index.js";
+import { KineticDamageType } from "../../combat/kinetic-damage-types.js";
+import { MagicalElement } from "../../combat/magical-elements.js";
+import { HoldableHotswapSlot } from "..//combatant-equipment/index.js";
 
 export enum CombatantTraitType {
   HpBioavailability,

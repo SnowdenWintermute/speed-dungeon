@@ -1,8 +1,8 @@
-import { ItemType } from "../items/index.js";
-import { INVENTORY_DEFAULT_CAPACITY } from "../app-consts.js";
-import { CombatantProperties } from "./combatant-properties.js";
-import { CombatantTraitType } from "./combatant-traits.js";
-import { Inventory } from "./inventory.js";
+import { ItemType } from "../../items/index.js";
+import { INVENTORY_DEFAULT_CAPACITY } from "../../app-consts.js";
+import { CombatantProperties } from "../index.js";
+import { CombatantTraitType } from "../combatant-traits/index.js";
+import { Inventory } from "./index.js";
 
 export function canPickUpItem(combatantProperties: CombatantProperties, itemType: ItemType) {
   const { totalItemsInNormalStorage, normalStorageCapacity, availableConsumableCapacity } =

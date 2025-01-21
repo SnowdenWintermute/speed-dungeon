@@ -1,5 +1,5 @@
 import { RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO } from "../../../app-consts.js";
-import { CombatAttribute } from "../../../attributes/index.js";
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
 
 export default function getDamageAfterResilience(
   baseValue: number,

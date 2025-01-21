@@ -1,5 +1,5 @@
-import { CombatAttribute } from "../../attributes/index.js";
-import { CombatantProperties } from "../combatant-properties.js";
+import { CombatantProperties } from "../index.js";
+import { CombatAttribute } from "../attributes/index.js";
 
 export function getPreEquipmentChangeHpAndManaPercentage(combatantProperties: CombatantProperties) {
   const attributesBefore = CombatantProperties.getTotalAttributes(combatantProperties);

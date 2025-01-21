@@ -19,11 +19,8 @@ import {
   CombatActionHpChangeProperties,
   DurabilityLossCondition,
 } from "../index.js";
-import {
-  ProhibitedTargetCombatantStates,
-  TargetCategories,
-  TargetingScheme,
-} from "./targeting-schemes-and-categories.js";
+import { ProhibitedTargetCombatantStates } from "./prohibited-target-combatant-states.js";
+import { TargetCategories, TargetingScheme } from "./targeting-schemes-and-categories.js";
 
 export enum CombatActionType {
   AbilityUsed,
@@ -157,6 +154,7 @@ export abstract class CombatActionComponent {
   getHpChangeProperties?: CombatActionHpChangeProperties;
   description: string = "";
   accuracyPercentModifier: number = 100;
+  // appliesConditions:{}
   incursDurabilityLoss?: {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
     [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;

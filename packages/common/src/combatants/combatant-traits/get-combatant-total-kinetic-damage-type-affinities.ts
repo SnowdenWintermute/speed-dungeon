@@ -1,7 +1,7 @@
 import cloneDeep from "lodash.clonedeep";
-import { CombatantProperties } from "./combatant-properties.js";
-import { CombatantTraitType } from "./combatant-traits.js";
-import { KineticDamageType } from "../combat/kinetic-damage-types.js";
+import { CombatantTraitType } from "./index.js";
+import { KineticDamageType } from "../../combat/kinetic-damage-types.js";
+import { CombatantProperties } from "../index.js";
 
 export default function getCombatantTotalKineticDamageTypeAffinities(
   combatantProperties: CombatantProperties

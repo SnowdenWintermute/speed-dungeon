@@ -1,5 +1,5 @@
 import { ARMOR_CLASS_EQUATION_MODIFIER } from "../../../app-consts.js";
-import { CombatAttribute } from "../../../attributes/index.js";
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { MeleeOrRanged } from "../../hp-change-source-types.js";
 import getDerivedArmorPenAttributeBasedOnWeaponType from "./get-armor-pen-derived-attribute-based-on-weapon-type.js";
 

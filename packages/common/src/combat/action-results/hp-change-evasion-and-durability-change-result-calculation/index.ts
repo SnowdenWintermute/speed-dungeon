@@ -20,7 +20,6 @@ import { applyWeaponHpChangeModifiers } from "./weapon-hp-change-modifiers/index
 import { getCombatActionHpChangeRange } from "./get-combat-action-hp-change-range.js";
 import { getActionCritChance } from "./get-action-crit-chance.js";
 import { convertHpChangeValueToFinalSign } from "./convert-hp-change-value-to-final-sign.js";
-import { CombatAttribute } from "../../../attributes/index.js";
 import { HoldableSlotType } from "../../../items/equipment/slots.js";
 import { EntityId } from "../../../primatives/index.js";
 import {
@@ -28,6 +27,7 @@ import {
   calculateActionDurabilityChangesOnHit,
   updateConditionalDurabilityChangesOnUser,
 } from "../calculate-action-durability-changes.js";
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
 export * from "./get-combat-action-hp-change-range.js";
 export * from "./weapon-hp-change-modifiers/index.js";
 export * from "./get-action-hit-chance.js";

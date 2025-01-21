@@ -10,10 +10,10 @@ import { GameMessage } from "./game-message.js";
 import { DescendOrExplore } from "../adventuring-party/update-player-readiness.js";
 import { UserChannelDisplayData } from "../users/index.js";
 import { GameMode } from "../types.js";
-import { CombatAttribute } from "../attributes/index.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { Consumable } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
+import { CombatAttribute } from "../combatants/attributes/index.js";
 
 export enum ServerToClientEvent {
   GameList = "0",

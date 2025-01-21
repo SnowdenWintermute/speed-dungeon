@@ -1,8 +1,4 @@
-import {
-  ProhibitedTargetCombatantStates,
-  TargetCategories,
-  TargetingScheme,
-} from "./targeting-schemes-and-categories.js";
+import { TargetCategories, TargetingScheme } from "./targeting-schemes-and-categories.js";
 import {
   EquipmentSlotType,
   HoldableSlotType,
@@ -10,9 +6,13 @@ import {
 } from "../../items/equipment/slots.js";
 import { NumberRange } from "../../primatives/number-range.js";
 import { HpChangeSource, HpChangeSourceModifiers } from "../hp-change-source-types.js";
-import { CombatAttribute } from "../../attributes/index.js";
 import { Combatant } from "../../combatants/index.js";
 import { Battle } from "../../battle/index.js";
+import {
+  PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS,
+  ProhibitedTargetCombatantStates,
+} from "./prohibited-target-combatant-states.js";
+import { CombatAttribute } from "../../combatants/attributes/index.js";
 
 export enum DurabilityLossCondition {
   OnHit,
@@ -87,36 +87,6 @@ export class CombatActionProperties {
     return false;
   }
 }
-
-const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
-  ProhibitedTargetCombatantStates,
-  (actionProperties: CombatActionProperties, combatant: Combatant) => boolean
-> = {
-  [ProhibitedTargetCombatantStates.Dead]: function (
-    _actionProperties: CombatActionProperties,
-    combatant: Combatant
-  ): boolean {
-    return combatant.combatantProperties.hitPoints <= 0;
-  },
-  [ProhibitedTargetCombatantStates.Alive]: function (
-    _actionProperties: CombatActionProperties,
-    combatant: Combatant
-  ): boolean {
-    return combatant.combatantProperties.hitPoints > 0;
-  },
-  [ProhibitedTargetCombatantStates.UntargetableByMagic]: function (
-    actionProperties: CombatActionProperties,
-    combatant: Combatant
-  ): boolean {
-    return false;
-  },
-  [ProhibitedTargetCombatantStates.UntargetableByPhysical]: function (
-    actionProperties: CombatActionProperties,
-    combatant: Combatant
-  ): boolean {
-    return false;
-  },
-};
 
 export enum ActionUsableContext {
   All,
