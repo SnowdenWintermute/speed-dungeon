@@ -1,7 +1,7 @@
 import cloneDeep from "lodash.clonedeep";
-import { CombatAttribute } from "../attributes/index.js";
 import { EntityProperties } from "../primatives/index.js";
 import itemRequirementsMet from "./requirements-met.js";
+import { CombatAttribute } from "../combatants/attributes/index.js";
 
 export enum ItemType {
   Consumable,

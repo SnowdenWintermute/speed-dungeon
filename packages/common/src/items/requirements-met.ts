@@ -1,14 +1,13 @@
+import { CombatantAttributeRecord } from "../combatants/index.js";
+import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { Item } from "./index.js";
-import { CombatantAttributeRecord } from "../combatants/combatant-properties.js";
-import { CombatAttribute } from "../attributes/index.js";
 
 export default function itemRequirementsMet(
   item: Item,
   combatantAttributes: CombatantAttributeRecord
 ) {
-  for (const [key, requiredValue] of Object.entries(item.requirements)) {
-    const attribute = parseInt(key) as CombatAttribute;
-    const combatantAttributeValue = combatantAttributes[attribute];
+  for (const [key, requiredValue] of iterateNumericEnumKeyedRecord(item.requirements)) {
+    const combatantAttributeValue = combatantAttributes[key];
     if (!combatantAttributeValue) return false;
     if (combatantAttributeValue < requiredValue) return false;
   }

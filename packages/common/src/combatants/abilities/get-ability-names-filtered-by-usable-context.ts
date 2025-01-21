@@ -1,6 +1,6 @@
-import { AbilityName, CombatantProperties } from "./index.js";
-import { ActionUsableContext } from "../combat/combat-actions/combat-action-properties.js";
-import { ABILITY_ATTRIBUTES } from "./abilities/get-ability-attributes.js";
+import { AbilityName, CombatantProperties } from "../index.js";
+import { ActionUsableContext } from "../../combat/combat-actions/combat-action-properties.js";
+import { ABILITY_ATTRIBUTES } from "../abilities/get-ability-attributes.js";
 
 export default function getAbilityNamesFilteredByUseableContext(
   combatantProperties: CombatantProperties,

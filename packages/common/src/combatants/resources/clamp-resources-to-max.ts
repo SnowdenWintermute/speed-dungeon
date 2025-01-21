@@ -1,7 +1,7 @@
 import { CombatAttribute } from "../attributes/index.js";
-import { CombatantProperties } from "./combatant-properties.js";
+import { CombatantProperties } from "../index.js";
 
-export default function clampHpAndMpToMax(combatantProperties: CombatantProperties) {
+export default function clampResourcesToMax(combatantProperties: CombatantProperties) {
   const totalAttributes = CombatantProperties.getTotalAttributes(combatantProperties);
   const maxHp = totalAttributes[CombatAttribute.Hp];
   const maxMp = totalAttributes[CombatAttribute.Mp];

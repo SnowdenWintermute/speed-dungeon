@@ -1,12 +1,13 @@
 import { immerable } from "immer";
-import { INVENTORY_DEFAULT_CAPACITY } from "../app-consts.js";
-import { ERROR_MESSAGES } from "../errors/index.js";
-import { Item } from "../items/index.js";
-import { Consumable } from "../items/consumables/index.js";
-import { Equipment } from "../items/equipment/index.js";
+import { INVENTORY_DEFAULT_CAPACITY } from "../../app-consts.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { Item } from "../../items/index.js";
+import { Consumable } from "../../items/consumables/index.js";
+import { Equipment } from "../../items/equipment/index.js";
 import { plainToInstance } from "class-transformer";
-import { CombatantProperties } from "./combatant-properties.js";
-import { CombatantTraitType } from "./combatant-traits.js";
+import { CombatantProperties } from "../index.js";
+import { CombatantTraitType } from "../combatant-traits/index.js";
+import { getCapacityByItemType } from "./can-pick-up-item.js";
 
 export class Inventory {
   [immerable] = true;
@@ -19,6 +20,8 @@ export class Inventory {
   static getTotalNumberOfItems(inventory: Inventory) {
     return inventory.consumables.length + inventory.equipment.length;
   }
+
+  static getCapacityByItemType = getCapacityByItemType;
 
   static isAtCapacity(combatantProperties: CombatantProperties) {
     const extraConsumableStorageTraitOption = combatantProperties.traits.find(

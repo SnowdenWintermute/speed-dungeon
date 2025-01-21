@@ -5,7 +5,9 @@ import { SpeedDungeonGame } from "../../game/index.js";
 import { chooseRandomFromArray } from "../../utils/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { FriendOrFoe } from "../combat-actions/targeting-schemes-and-categories.js";
-import { CombatAttribute } from "../../attributes/index.js";
+import { AIBehaviorContext } from "./ai-context.js";
+import { SetAvailableTargetsAndUsableActions } from "./custom-nodes/set-available-targets-and-usable-actions.js";
+import { CombatAttribute } from "../../combatants/attributes/index.js";
 
 export interface AbilityAndTarget {
   abilityName: AbilityName;
@@ -26,6 +28,38 @@ export function AISelectActionAndTarget(
   if (userCombatantResult instanceof Error) return userCombatantResult;
   const { combatantProperties: userCombatantProperties } = userCombatantResult;
 
+  /// TESTING AI CONTEXT
+  const partyResult = SpeedDungeonGame.getPartyOfCombatant(
+    game,
+    userCombatantResult.entityProperties.id
+  );
+  if (partyResult instanceof Error) return partyResult;
+  const battleOption = SpeedDungeonGame.getBattleOption(game, partyResult.battleId) || null;
+  const aiContext = new AIBehaviorContext(userCombatantResult, game, partyResult, battleOption);
+  const targetSelector = new SetAvailableTargetsAndUsableActions(
+    aiContext,
+    () => true,
+    () => true,
+    () => 1
+  );
+  const targetSelectionTreeSuccess = targetSelector.execute();
+  console.log("targetSelectionTreeSuccess:", targetSelectionTreeSuccess);
+
+  console.log(
+    JSON.stringify(
+      {
+        consideredTargetCombatants: aiContext.consideredTargetCombatants.map(
+          (combatant) => combatant.entityProperties
+        ),
+        consideredPairs: aiContext.consideredActionTargetPairs,
+      },
+      null,
+      2
+    )
+  );
+
+  /// TESTING AI CONTEXT DONE
+
   const attackAbility: AbilityAndTarget = {
     abilityName: AbilityName.Attack,
     target: {
@@ -35,7 +69,7 @@ export function AISelectActionAndTarget(
   };
 
   if (userCombatantProperties.abilities[AbilityName.Fire]) {
-    const manaCostResult = CombatantProperties.getAbilityCostIfOwned(
+    const manaCostResult = CombatantProperties.getAbilityManaCostIfOwned(
       userCombatantProperties,
       AbilityName.Fire
     );
@@ -47,7 +81,7 @@ export function AISelectActionAndTarget(
     };
   }
   if (userCombatantProperties.abilities[AbilityName.Ice]) {
-    const manaCostResult = CombatantProperties.getAbilityCostIfOwned(
+    const manaCostResult = CombatantProperties.getAbilityManaCostIfOwned(
       userCombatantProperties,
       AbilityName.Ice
     );
@@ -78,7 +112,7 @@ export function AISelectActionAndTarget(
       }
     }
     if (alliesDamaged) {
-      const manaCostResult = CombatantProperties.getAbilityCostIfOwned(
+      const manaCostResult = CombatantProperties.getAbilityManaCostIfOwned(
         userCombatantProperties,
         AbilityName.Healing
       );

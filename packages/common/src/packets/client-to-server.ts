@@ -1,5 +1,5 @@
-import { CombatAttribute } from "../attributes/index.js";
 import { CombatAction } from "../combat/index.js";
+import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantClass } from "../combatants/index.js";
 import { ConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";

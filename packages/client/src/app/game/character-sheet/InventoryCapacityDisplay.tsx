@@ -1,6 +1,6 @@
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { useGameStore } from "@/stores/game-store";
-import { getCapacityByItemType } from "@speed-dungeon/common";
+import { Inventory } from "@speed-dungeon/common";
 import React from "react";
 
 export default function InventoryCapacityDisplay() {
@@ -13,7 +13,7 @@ export default function InventoryCapacityDisplay() {
     numConsumablesInMinibag,
     minibagCapacity,
     normalStorageCapacity,
-  } = getCapacityByItemType(combatantProperties);
+  } = Inventory.getCapacityByItemType(combatantProperties);
 
   return (
     <div className="flex flex-col">

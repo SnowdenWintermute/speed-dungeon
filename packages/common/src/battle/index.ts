@@ -1,4 +1,5 @@
 import { CombatantTurnTracker } from "../combat/turn-order/index.js";
+import { Combatant } from "../combatants/index.js";
 import { EntityId } from "../primatives/index.js";
 import { getAllyAndEnemyBattleGroups } from "./get-ally-and-enemy-battle-groups.js";
 import getAllyIdsAndOpponentIdsOption from "./get-ally-ids-and-opponent-ids-option.js";
@@ -34,6 +35,14 @@ export class Battle {
 
   static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
   static getAllyAndEnemyBattleGroups = getAllyAndEnemyBattleGroups;
+  static combatantsAreAllies(a: Combatant, b: Combatant, battle: Battle) {
+    return (
+      (battle.groupA.combatantIds.includes(a.entityProperties.id) &&
+        battle.groupA.combatantIds.includes(b.entityProperties.id)) ||
+      (battle.groupB.combatantIds.includes(a.entityProperties.id) &&
+        battle.groupB.combatantIds.includes(b.entityProperties.id))
+    );
+  }
   static sortTurnTrackers(battle: Battle) {
     battle.turnTrackers.sort((a, b) => {
       if (a.movement > b.movement) return -1;

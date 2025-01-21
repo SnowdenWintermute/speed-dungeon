@@ -1,8 +1,7 @@
 import { AdventuringParty } from "./index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { Item } from "../items/index.js";
-import { Inventory } from "../combatants/inventory.js";
-import { Combatant, CombatantEquipment } from "../combatants/index.js";
+import { Combatant, CombatantEquipment, Inventory } from "../combatants/index.js";
 
 function getItemOnCombatant(combatant: Combatant, itemId: string) {
   let itemOption = Inventory.getItemById(combatant.combatantProperties.inventory, itemId);

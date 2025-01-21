@@ -31,7 +31,7 @@ interface Props {
 export default function AbilityDetails({ ability, combatActionProperties, user }: Props) {
   const { combatantProperties: userCombatantProperties } = user;
   const abilityAttributes = ABILITY_ATTRIBUTES[ability.name];
-  const mpCostResult = CombatantProperties.getAbilityCostIfOwned(
+  const mpCostResult = CombatantProperties.getAbilityManaCostIfOwned(
     userCombatantProperties,
     ability.name
   );

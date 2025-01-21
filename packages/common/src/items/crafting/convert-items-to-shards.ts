@@ -9,7 +9,6 @@ import {
 } from "../../combatants/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { removeFromArray } from "../../utils/index.js";
-import { AffixType, Equipment } from "../equipment/index.js";
 import { DungeonRoomType } from "../../adventuring-party/dungeon-room.js";
 import { getItemSellPrice } from "./shard-sell-prices.js";
 

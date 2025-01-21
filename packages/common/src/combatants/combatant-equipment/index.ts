@@ -6,10 +6,10 @@ import {
   TaggedEquipmentSlot,
   WearableSlotType,
 } from "../../items/equipment/slots.js";
-import { CombatantProperties } from "../combatant-properties.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
-import { CombatantTraitType } from "../combatant-traits.js";
+import { CombatantTraitType } from "../combatant-traits/index.js";
+import { CombatantProperties } from "../index.js";
 
 export * from "./equip-item.js";
 export * from "./unequip-slots.js";

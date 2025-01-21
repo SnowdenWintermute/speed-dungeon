@@ -2,7 +2,6 @@ import { Vector3 } from "@babylonjs/core";
 import { idGenerator } from "../../singletons.js";
 import getSpawnableMonsterTypesByFloor from "./get-spawnable-monster-types-by-floor.js";
 import {
-  COMBAT_ATTRIBUTE_STRINGS,
   CombatAttribute,
   Combatant,
   CombatantProperties,

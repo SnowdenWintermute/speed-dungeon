@@ -1,6 +1,6 @@
 import { EquipmentSlotType, TaggedEquipmentSlot } from "../../items/equipment/slots.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
-import { CombatantProperties } from "./../combatant-properties.js";
+import { CombatantProperties } from "../index.js";
 import { CombatantEquipment } from "./index.js";
 
 export function getSlotItemIsEquippedTo(

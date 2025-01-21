@@ -153,7 +153,7 @@ export class BaseMenuState implements ActionMenuState {
       const abilityAttributes = ABILITY_ATTRIBUTES[ability.name];
       const { usabilityContext } = abilityAttributes.combatActionProperties;
 
-      const abilityCostIfOwned = CombatantProperties.getAbilityCostIfOwned(
+      const abilityCostIfOwned = CombatantProperties.getAbilityManaCostIfOwned(
         combatantProperties,
         ability.name
       );

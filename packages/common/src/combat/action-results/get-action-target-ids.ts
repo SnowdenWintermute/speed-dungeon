@@ -38,8 +38,7 @@ export function getCombatActionTargetIds(
   const targetEntityIdsResult = getActionTargetsIfSchemeIsValid(
     targets,
     filteredAllyIds,
-    filteredOpponentIdsOption,
-    []
+    filteredOpponentIdsOption
   );
 
   return targetEntityIdsResult;

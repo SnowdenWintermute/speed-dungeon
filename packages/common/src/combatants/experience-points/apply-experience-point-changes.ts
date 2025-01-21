@@ -1,5 +1,5 @@
-import { AdventuringParty } from "../adventuring-party/index.js";
-import { ERROR_MESSAGES } from "../errors/index.js";
+import { AdventuringParty } from "../../adventuring-party/index.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
 
 export function applyExperiencePointChanges(
   party: AdventuringParty,

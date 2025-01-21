@@ -1,8 +1,5 @@
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { EntityId } from "../../primatives/index.js";
-import { Inventory } from "./../inventory.js";
-import { CombatantProperties } from "./../combatant-properties.js";
-import { CombatAttribute } from "../../attributes/index.js";
 import {
   EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
   EquipmentSlotType,
@@ -12,6 +9,8 @@ import {
 import { Equipment } from "../../items/equipment/index.js";
 import { CombatantEquipment } from "./index.js";
 import { getPreEquipmentChangeHpAndManaPercentage } from "./get-pre-equipment-change-hp-and-mana-percentage.js";
+import { CombatantProperties, Inventory } from "../index.js";
+import { CombatAttribute } from "../attributes/index.js";
 
 /** 
   

@@ -4,7 +4,7 @@ import {
   STR_TO_MELEE_ARMOR_PEN_RATIO,
 } from "../../../app-consts.js";
 import { MeleeOrRanged } from "../../hp-change-source-types.js";
-import { CombatAttribute } from "../../../attributes/index.js";
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
 
 export default function getDerivedArmorPenAttributeBasedOnWeaponType(
   totalAttributes: CombatantAttributeRecord,

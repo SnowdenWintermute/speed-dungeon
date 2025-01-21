@@ -1,5 +1,5 @@
 import { RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO } from "../../../../app-consts.js";
-import { CombatAttribute } from "../../../../attributes/index.js";
+import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { HpChange } from "../../../hp-change-source-types.js";
 import getDamageAfterResilience from "../get-damage-after-resilience.js";

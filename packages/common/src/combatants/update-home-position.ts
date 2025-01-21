@@ -4,7 +4,7 @@ import {
   COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
   COMBATANT_POSITION_SPACING_SIDE,
 } from "../app-consts.js";
-import { CombatantProperties } from "./combatant-properties.js";
+import { CombatantProperties } from "./index.js";
 
 export function updateCombatantHomePosition(
   entityId: string,

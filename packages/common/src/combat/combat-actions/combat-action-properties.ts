@@ -1,8 +1,4 @@
-import {
-  ProhibitedTargetCombatantStates,
-  TargetCategories,
-  TargetingScheme,
-} from "./targeting-schemes-and-categories.js";
+import { TargetCategories, TargetingScheme } from "./targeting-schemes-and-categories.js";
 import {
   EquipmentSlotType,
   HoldableSlotType,
@@ -10,7 +6,13 @@ import {
 } from "../../items/equipment/slots.js";
 import { NumberRange } from "../../primatives/number-range.js";
 import { HpChangeSource, HpChangeSourceModifiers } from "../hp-change-source-types.js";
-import { CombatAttribute } from "../../attributes/index.js";
+import { Combatant } from "../../combatants/index.js";
+import { Battle } from "../../battle/index.js";
+import {
+  PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS,
+  ProhibitedTargetCombatantStates,
+} from "./prohibited-target-combatant-states.js";
+import { CombatAttribute } from "../../combatants/attributes/index.js";
 
 export enum DurabilityLossCondition {
   OnHit,
@@ -34,6 +36,56 @@ export class CombatActionProperties {
     [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
   };
   constructor() {}
+
+  combatantIsValidTarget(
+    actionUser: Combatant,
+    potentialTarget: Combatant,
+    battleOption: null | Battle
+  ) {
+    // check if in a valid target category for this action type
+    const combatantIsInValidCategory = this.combatantIsInValidTargetCategory(
+      actionUser,
+      potentialTarget,
+      battleOption
+    );
+    if (!combatantIsInValidCategory) return false;
+
+    // valid targets must not be in a prohibited combatant state such as "dead" or "untargetable by spells"
+    const combatantIsInProhibitedState = this.combatantIsInProhibitedTargetState(potentialTarget);
+    if (combatantIsInProhibitedState) return false;
+
+    return true;
+  }
+
+  combatantIsInValidTargetCategory(
+    actionUser: Combatant,
+    potentialTarget: Combatant,
+    battleOption: null | Battle
+  ) {
+    const { validTargetCategories } = this;
+    if (validTargetCategories === TargetCategories.Any) return true;
+
+    const targetId = potentialTarget.entityProperties.id;
+    const userId = actionUser.entityProperties.id;
+
+    if (validTargetCategories === TargetCategories.User && !(targetId === userId)) return false;
+
+    const targetIsAlly =
+      !battleOption || Battle.combatantsAreAllies(actionUser, potentialTarget, battleOption);
+
+    if (validTargetCategories === TargetCategories.Opponent && targetIsAlly) return false;
+    if (validTargetCategories === TargetCategories.Friendly && !targetIsAlly) return false;
+    return true;
+  }
+
+  combatantIsInProhibitedTargetState(potentialTarget: Combatant) {
+    if (this.prohibitedTargetCombatantStates === null) return false;
+    for (const prohibitedState of this.prohibitedTargetCombatantStates) {
+      if (PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS[prohibitedState](this, potentialTarget))
+        return true;
+    }
+    return false;
+  }
 }
 
 export enum ActionUsableContext {

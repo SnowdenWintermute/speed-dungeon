@@ -18,14 +18,14 @@ import {
 } from "../../combat/hp-change-source-types.js";
 import { MagicalElement } from "../../combat/magical-elements.js";
 import { NumberRange } from "../../primatives/number-range.js";
-import AbilityAttributes from "./ability-attributes.js";
 import { AbilityName } from "./ability-names.js";
 import {
   TargetCategories,
   TargetingScheme,
 } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
-import { CombatAttribute } from "../../attributes/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../items/equipment/slots.js";
+import { CombatAttribute } from "../attributes/index.js";
+import AbilityAttributes from "./ability-attributes.js";
 
 const ATTACK = (() => {
   const combatActionProperties = new CombatActionProperties();

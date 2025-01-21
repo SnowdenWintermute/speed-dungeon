@@ -7,8 +7,8 @@ import {
   CombatActionProperties,
   CombatActionType,
 } from "../combat/combat-actions/index.js";
-import { CombatantProperties } from "./combatant-properties.js";
-import { Inventory } from "./inventory.js";
+import { CombatantProperties } from "./index.js";
+import { Inventory } from "./inventory/index.js";
 import { ABILITY_ATTRIBUTES } from "./abilities/get-ability-attributes.js";
 import { Consumable } from "../items/consumables/index.js";
 import { createDummyConsumable } from "../utils/index.js";

@@ -1,12 +1,10 @@
 import { Item } from "../index.js";
-import { CombatantAttributeRecord } from "../../combatants/combatant-properties.js";
 import { EntityProperties } from "../../primatives/entity-properties.js";
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
 import { applyEquipmentTraitsToHpChangeSource } from "./equipment-properties/apply-equipment-traits-to-hp-change-source.js";
 import getBaseArmorClass from "./equipment-properties/get-base-armor-class.js";
 import getModifiedWeaponDamageRange from "./equipment-properties/get-modified-weapon-damage-range.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { CombatAttribute } from "../../attributes/index.js";
 import { AffixType, Affixes, PrefixType, SuffixType } from "./affixes.js";
 import {
   EquipmentBaseItemProperties,
@@ -15,6 +13,8 @@ import {
 } from "./equipment-properties/index.js";
 import { EquipmentType } from "./equipment-types/index.js";
 import { EquipmentTraitType } from "./equipment-traits/index.js";
+import { CombatantAttributeRecord } from "../../combatants/index.js";
+import { CombatAttribute } from "../../combatants/attributes/index.js";
 
 export * from "./equipment-properties/index.js";
 export * from "./pre-determined-items/index.js";

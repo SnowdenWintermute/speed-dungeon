@@ -90,7 +90,5 @@ export default function calculateActionResult(
   if (Object.keys(evasions).length) actionResult.missesByEntityId = evasions;
   if (Object.keys(durabilityChanges).length) actionResult.durabilityChanges = durabilityChanges;
 
-  console.log("action result dura changes: ", actionResult.durabilityChanges);
-
   return actionResult;
 }

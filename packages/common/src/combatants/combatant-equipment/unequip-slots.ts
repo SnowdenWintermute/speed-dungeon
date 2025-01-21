@@ -1,6 +1,6 @@
 import { Equipment } from "../../items/equipment/index.js";
 import { EquipmentSlotType, TaggedEquipmentSlot } from "../../items/equipment/slots.js";
-import { CombatantProperties } from "./../combatant-properties.js";
+import { CombatantProperties } from "../index.js";
 import { applyEquipmentEffectWhileMaintainingResourcePercentages } from "./apply-equipment-affect-while-maintaining-resource-percentages.js";
 import { CombatantEquipment } from "./index.js";
 

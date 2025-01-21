@@ -53,4 +53,7 @@ export class AdventuringParty {
   generateUnexploredRoomsQueue = generateUnexploredRoomsQueue;
   static updatePlayerReadiness = updatePlayerReadiness;
   static playerOwnsCharacter = playerOwnsCharacter;
+  static getAllCombatants(party: AdventuringParty) {
+    return { characters: party.characters, monsters: party.currentRoom.monsters };
+  }
 }

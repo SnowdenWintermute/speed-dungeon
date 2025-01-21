@@ -9,17 +9,6 @@ export enum AbilityName {
   Destruction,
 }
 
-export class CombatantAbility {
-  constructor(
-    public name: AbilityName = AbilityName.Attack,
-    public level = 0
-  ) {}
-
-  static createByName(abilityName: AbilityName) {
-    return new CombatantAbility(abilityName, 1);
-  }
-}
-
 export const ABILITY_NAME_STRINGS: Record<AbilityName, string> = {
   [AbilityName.Attack]: "Attack",
   [AbilityName.AttackMeleeMainhand]: "Attack Melee Mainhand",

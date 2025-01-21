@@ -43,6 +43,8 @@ export type PerformCombatActionActionCommandPayload = {
   type: ActionCommandType.PerformCombatAction;
   actionUserId: string;
   combatAction: CombatAction;
+  // targets: CombatActionTarget
+  // children?: PerformCombatActionActionCommandPayload[]
   hpChangesByEntityId: null | {
     [entityId: string]: HpChange;
   };

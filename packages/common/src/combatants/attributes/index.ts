@@ -1,7 +1,7 @@
 import {
   RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO,
   RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO,
-} from "../app-consts.js";
+} from "../../app-consts.js";
 
 export enum CombatAttribute {
   Strength, // damage with melee attacks, melee crit multiplier, melee armor pen, shield block chance
