@@ -2,7 +2,7 @@ import {
   ActionCommand,
   AdventuringParty,
   Battle,
-  CombatAction,
+  CombatActionComponent,
   CombatActionTarget,
   ServerToClientEvent,
   SpeedDungeonGame,
@@ -17,7 +17,7 @@ export default async function processSelectedCombatAction(
   game: SpeedDungeonGame,
   party: AdventuringParty,
   actionUserId: string,
-  selectedCombatAction: CombatAction,
+  selectedCombatAction: CombatActionComponent,
   targets: CombatActionTarget,
   battleOption: null | Battle,
   allyIds: string[]

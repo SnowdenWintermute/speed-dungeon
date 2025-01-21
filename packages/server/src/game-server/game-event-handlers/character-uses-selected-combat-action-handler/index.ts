@@ -1,4 +1,10 @@
-import { CharacterAssociatedData, ERROR_MESSAGES, InputLock } from "@speed-dungeon/common";
+import {
+  CharacterAssociatedData,
+  CombatActionComponent,
+  CombatActionName,
+  ERROR_MESSAGES,
+  InputLock,
+} from "@speed-dungeon/common";
 import validateCombatActionUse from "../combat-action-results-processing/validate-combat-action-use.js";
 import { getGameServer } from "../../../singletons.js";
 
@@ -19,8 +25,8 @@ export default async function useSelectedCombatActionHandler(
   // walk through combat action composite tree depth first, executing child nodes
   // for each child
   // - calculate result including
-  //   - resolve triggers for "on use"
   //   - action costs paid
+  //   - resolve triggers for "on use"
   //   - resource changes on targets
   //   - conditions applied
   //   - resolve triggers for "on hit"
@@ -29,6 +35,17 @@ export default async function useSelectedCombatActionHandler(
   // - check if next child should be executed
   // send the results to client
   // client build commands and applies them to game
+
+  // const results = []
+  const actionsToExecute: CombatActionComponent[] = [selectedCombatAction];
+  while (actionsToExecute.length > 0) {
+    // push paid costs to results
+    // process triggers for "on use" ex: counter spell (continue), deploy shield (process deploy shield result immediately)
+    // push resource changes and conditions applied to results
+    // process triggers for "on hit" ex: detonate explosive
+    // process triggers for "on evade" ex: evasion stacks increased
+    // get children and push them to actionsToExecute stack
+  }
 
   const targetsAndBattleResult = validateCombatActionUse(
     characterAssociatedData,
@@ -49,4 +66,20 @@ export default async function useSelectedCombatActionHandler(
   );
 
   if (maybeError instanceof Error) return maybeError;
+}
+
+function processActionExecutionStack(initialActions: CombatActionComponent[]) {
+  // const results = []
+  const actionsToExecute: CombatActionComponent[] = initialActions;
+  while (actionsToExecute.length > 0) {
+    // const currentAction = actionsToExecute.pop();
+    // push paid costs to results
+    // process triggers for "on use" ex: counter spell (continue), deploy shield (process deploy shield result immediately)
+    // push resource changes and conditions applied to results
+    // process triggers for "on hit" ex: detonate explosive
+    // process triggers for "on evade" ex: evasion stacks increased
+    // get children and push to stack
+    // if !( currentAction.shouldExecuteNextChild() ) break
+  }
+  // return results
 }

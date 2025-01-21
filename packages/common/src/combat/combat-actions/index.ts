@@ -33,6 +33,7 @@ export interface CombatActionCostMultipliers {
 }
 
 export abstract class CombatActionComponent {
+  description: string = "";
   targetingSchemes: TargetingScheme[] = [TargetingScheme.Single];
   validTargetCategories: TargetCategories = TargetCategories.Opponent;
   usabilityContext: CombatActionUsabilityContext = CombatActionUsabilityContext.InCombat;
@@ -50,44 +51,39 @@ export abstract class CombatActionComponent {
         return battleOption === null;
     }
   };
-  // take the user so we can for example check during attackMeleeMh if they have a shield equipped, therefore it should end turn
-  // also possible to check if they have a "tired" debuff which causes all actions to end turn
-  requiresCombatTurn: (user: CombatantProperties) => boolean = () => true;
-  // could use the combatant's ability to hold state which may help determine, such as if using chain lightning and an enemy
-  // target exists that is not the last arced to target
-  shouldExecuteNextChild: (party: AdventuringParty, user: CombatantProperties) => boolean = () =>
-    false;
-  // take the user becasue the hp change properties may be affected by equipment
-  getHpChangeProperties?: (user: CombatantProperties) => CombatActionHpChangeProperties;
+  requiresCombatTurn: (user: CombatantProperties) => boolean = () => {
+    // take the user so we can for example check during attackMeleeMh if they have a shield equipped, therefore it should end turn
+    // also possible to check if they have a "tired" debuff which causes all actions to end turn
+    return true;
+  };
+  shouldExecuteNextChild: (party: AdventuringParty, user: CombatantProperties) => boolean = () => {
+    // could use the combatant's ability to hold state which may help determine, such as if using chain lightning and an enemy
+    // target exists that is not the last arced to target
+    return false;
+  };
+  getHpChangeProperties: (user: CombatantProperties) => null | CombatActionHpChangeProperties =
+    () => {
+      // take the user becasue the hp change properties may be affected by equipment
+      return null;
+    };
   baseHpChangeValuesLevelMultiplier: number = 1.0;
   accuracyPercentModifier: number = 100;
-  description: string = "";
   appliesConditions: CombatantCondition[] = [];
   incursDurabilityLoss?: {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
     [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
   };
-  // if we take in the combatant we can determine the children based on their equipped weapons (melee attack mh, melee attack oh etc)
-  // spell levels (level 1 chain lightning only gets 1 ChainLightningArc child) or other status
-  // (energetic swings could do multiple attacks based on user's current percent of max hp)
-  // could also create random children such as a chaining random elemental damage
   protected children?: CombatActionComponent[];
   getChildren: (combatant: Combatant) => null | CombatActionComponent[] = () => {
+    // if we take in the combatant we can determine the children based on their equipped weapons (melee attack mh, melee attack oh etc)
+    // spell levels (level 1 chain lightning only gets 1 ChainLightningArc child) or other status
+    // (energetic swings could do multiple attacks based on user's current percent of max hp)
+    // could also create random children such as a chaining random elemental damage
     if (this.children) return this.children;
     else return null;
   };
   addChild: (childAction: CombatActionComponent) => Error | void = () =>
     new Error("Can't add a child to this component");
-  execute: () => Error | ActionCommandPayload[] = () => {
-    return new Error("Execute was not implemented on this combat action");
-    // example:
-    // - if attack, call execute on children
-    // - client can call getChildren to get combat action properties for meleeMh, meleeOh, rangedMh and display them
-    // - if chain lightning, create action commands base on own properties,
-    // then check shouldExecuteNextLeaf, then call execute on first child
-    // child ChainLightningArc should select a target which was not the last targeted enemy
-    // and create an action command payload from that
-  };
   costs?: {
     hp?: CombatActionCost;
     mp?: CombatActionCost;

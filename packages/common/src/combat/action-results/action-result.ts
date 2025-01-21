@@ -1,4 +1,4 @@
-import { CombatAction } from "../combat-actions/index.js";
+import { CombatActionName } from "../combat-actions/combat-action-names.js";
 import { HpChangeSource } from "../hp-change-source-types.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { DurabilityChangesByEntityId } from "./calculate-action-durability-changes.js";
@@ -18,7 +18,7 @@ export class ActionResult {
   durabilityChanges?: DurabilityChangesByEntityId;
   constructor(
     public userId: string,
-    public action: CombatAction,
+    public actionName: CombatActionName,
     public target: CombatActionTarget
   ) {}
 }
