@@ -1,23 +1,23 @@
 import {
   CharacterAssociatedData,
-  CombatAction,
-  CombatActionProperties,
+  CombatActionComponent,
   CombatantProperties,
   ServerToClientEvent,
   SpeedDungeonGame,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons.js";
+import { CombatActionName } from "@speed-dungeon/common";
 
 export default function selectCombatActionHandler(
-  eventData: { characterId: string; combatActionOption: null | CombatAction },
+  eventData: { characterId: string; combatActionOption: null | CombatActionName },
   characterAssociatedData: CharacterAssociatedData
 ) {
   const gameServer = getGameServer();
   const { combatActionOption } = eventData;
 
   const { character, game, party } = characterAssociatedData;
-  let combatActionPropertiesOption: null | CombatActionProperties = null;
+  let combatAction: null | CombatActionComponent = null;
   if (combatActionOption !== null) {
     const combatActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
       character.combatantProperties,

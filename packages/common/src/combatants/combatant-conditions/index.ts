@@ -1,8 +1,9 @@
-import { MaxAndCurrent } from "../../primatives";
+import { MaxAndCurrent } from "../../primatives/index.js";
 
 export class CombatantCondition {
   stacks?: MaxAndCurrent;
   ticks?: MaxAndCurrent;
+  level: number = 0;
   constructor() {}
 
   onTick() {

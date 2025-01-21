@@ -1,12 +1,8 @@
-import { AbilityName } from "./ability-names.js";
+import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 
 export class CombatantAbility {
   constructor(
-    public name: AbilityName = AbilityName.Attack,
+    public actionName: CombatActionName,
     public level = 0
   ) {}
-
-  static createByName(abilityName: AbilityName) {
-    return new CombatantAbility(abilityName, 1);
-  }
 }

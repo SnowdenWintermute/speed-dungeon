@@ -14,6 +14,22 @@ export default async function useSelectedCombatActionHandler(
   const { selectedCombatAction } = character.combatantProperties;
   if (selectedCombatAction === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
 
+  // on receipt
+  // validate use
+  // walk through combat action composite tree depth first, executing child nodes
+  // for each child
+  // - calculate result including
+  //   - resolve triggers for "on use"
+  //   - action costs paid
+  //   - resource changes on targets
+  //   - conditions applied
+  //   - resolve triggers for "on hit"
+  // - build command on server and apply to game
+  // - push the result to a list for the client
+  // - check if next child should be executed
+  // send the results to client
+  // client build commands and applies them to game
+
   const targetsAndBattleResult = validateCombatActionUse(
     characterAssociatedData,
     selectedCombatAction
