@@ -57,7 +57,7 @@ function processActionExecutionStack(
   initialActions: CombatActionComponent[]
 ): { successfulResults: ActionResult[]; maybeError: null | Error } {
   const { character } = characterAssociatedData;
-  const results: ActionResult[] = [];
+  const results: ActionResult[] = []; // GameUpdateCommand[]
   const actionsToExecute: CombatActionComponent[] = [...initialActions];
 
   let currentAction = actionsToExecute.pop();
@@ -66,8 +66,11 @@ function processActionExecutionStack(
       currentAction = actionsToExecute.pop();
       continue;
     }
+    // push pre-use animation effects to results and apply
     // push paid costs to results
     // process triggers for "on use" ex: counter spell (continue), deploy shield (process deploy shield result immediately)
+    // - should determine ("success" or "failure" state)
+    // push on-success or on-failure animation effects
     // push resource changes and conditions applied to results
     // process triggers for "on hit" ex: detonate explosive, interrupt channeling
     // process triggers for "on evade" ex: evasion stacks increased

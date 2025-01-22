@@ -4,7 +4,7 @@ import { Combatant } from "../../combatants";
 export enum ProhibitedTargetCombatantStates {
   Dead,
   Alive,
-  UntargetableByMagic,
+  UntargetableBySpells,
   UntargetableByPhysical,
 }
 
