@@ -22,6 +22,9 @@ import { DurabilityLossCondition } from "./combat-action-durability-loss-conditi
 import { CombatActionName } from "./combat-action-names.js";
 import { CombatActionHpChangeProperties } from "./combat-action-hp-change-properties.js";
 import { Battle } from "../../battle/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
+import { CombatActionTarget } from "../targeting/combat-action-targets.js";
+import { CharacterAssociatedData } from "../../types.js";
 
 export interface CombatActionCost {
   base: number;
@@ -56,7 +59,7 @@ export abstract class CombatActionComponent {
     // also possible to check if they have a "tired" debuff which causes all actions to end turn
     return true;
   };
-  shouldExecuteNextChild: (party: AdventuringParty, user: CombatantProperties) => boolean = () => {
+  shouldExecute: (characterAssociatedData: CharacterAssociatedData) => boolean = () => {
     // could use the combatant's ability to hold state which may help determine, such as if using chain lightning and an enemy
     // target exists that is not the last arced to target
     return false;
@@ -64,6 +67,15 @@ export abstract class CombatActionComponent {
   getHpChangeProperties: (user: CombatantProperties) => null | CombatActionHpChangeProperties =
     () => {
       // take the user becasue the hp change properties may be affected by equipment
+      return null;
+    };
+  getAutoTarget: (characterAssociatedData: CharacterAssociatedData) => null | CombatActionTarget =
+    () => {
+      // - from parent
+      // - random ally/enemy/all
+      // - random side (adjacent/any)
+      // - specific side(adjacent/any)
+      // - user (as in a life drain)
       return null;
     };
   baseHpChangeValuesLevelMultiplier: number = 1.0;

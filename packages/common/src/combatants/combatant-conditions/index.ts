@@ -1,10 +1,14 @@
 import { MaxAndCurrent } from "../../primatives/index.js";
 
+export enum CombatantConditionName {
+  Poison
+}
+
 export class CombatantCondition {
   stacks?: MaxAndCurrent;
   ticks?: MaxAndCurrent;
   level: number = 0;
-  constructor() {}
+  constructor(name: CombatantConditionName) {}
 
   onTick() {
     // if tracking ticks, increment current

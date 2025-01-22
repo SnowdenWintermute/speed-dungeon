@@ -1,4 +1,5 @@
 import {
+  ActionResult,
   CharacterAssociatedData,
   CombatActionComponent,
   CombatActionName,
@@ -20,66 +21,76 @@ export default async function useSelectedCombatActionHandler(
   const { selectedCombatAction } = character.combatantProperties;
   if (selectedCombatAction === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
 
-  // on receipt
+  // ON RECEIPT
   // validate use
-  // walk through combat action composite tree depth first, executing child nodes
-  // for each child
-  // - calculate result including
-  //   - action costs paid
-  //   - resolve triggers for "on use"
-  //   - resource changes on targets
-  //   - conditions applied
-  //   - resolve triggers for "on hit"
-  // - build command on server and apply to game
-  // - push the result to a list for the client
-  // - check if next child should be executed
-  // send the results to client
-  // client build commands and applies them to game
-
-  // const results = []
-  const actionsToExecute: CombatActionComponent[] = [selectedCombatAction];
-  while (actionsToExecute.length > 0) {
-    // push paid costs to results
-    // process triggers for "on use" ex: counter spell (continue), deploy shield (process deploy shield result immediately)
-    // push resource changes and conditions applied to results
-    // process triggers for "on hit" ex: detonate explosive
-    // process triggers for "on evade" ex: evasion stacks increased
-    // get children and push them to actionsToExecute stack
-  }
 
   const targetsAndBattleResult = validateCombatActionUse(
     characterAssociatedData,
     selectedCombatAction
   );
+  // walk through combat action composite tree depth first, executing child nodes
+  const { successfulResults, maybeError } = processActionExecutionStack(characterAssociatedData, [
+    selectedCombatAction,
+  ]);
+
+  // send the successfulResults to client for processing
+  // send the error as well
 
   if (targetsAndBattleResult instanceof Error) return targetsAndBattleResult;
   const { targets, battleOption } = targetsAndBattleResult;
 
-  const maybeError = await gameServer.processSelectedCombatAction(
-    game,
-    party,
-    character.entityProperties.id,
-    selectedCombatAction,
-    targets,
-    battleOption,
-    party.characterPositions
-  );
+  // const maybeError = await gameServer.processSelectedCombatAction(
+  //   game,
+  //   party,
+  //   character.entityProperties.id,
+  //   selectedCombatAction,
+  //   targets,
+  //   battleOption,
+  //   party.characterPositions
+  // );
 
-  if (maybeError instanceof Error) return maybeError;
+  // if (maybeError instanceof Error) return maybeError;
 }
 
-function processActionExecutionStack(initialActions: CombatActionComponent[]) {
-  // const results = []
-  const actionsToExecute: CombatActionComponent[] = initialActions;
-  while (actionsToExecute.length > 0) {
-    // const currentAction = actionsToExecute.pop();
+function processActionExecutionStack(
+  characterAssociatedData: CharacterAssociatedData,
+  initialActions: CombatActionComponent[]
+): { successfulResults: ActionResult[]; maybeError: null | Error } {
+  const { character } = characterAssociatedData;
+  const results: ActionResult[] = [];
+  const actionsToExecute: CombatActionComponent[] = [...initialActions];
+
+  let currentAction = actionsToExecute.pop();
+  while (currentAction) {
+    if (!currentAction.shouldExecute(characterAssociatedData)) {
+      currentAction = actionsToExecute.pop();
+      continue;
+    }
     // push paid costs to results
     // process triggers for "on use" ex: counter spell (continue), deploy shield (process deploy shield result immediately)
     // push resource changes and conditions applied to results
-    // process triggers for "on hit" ex: detonate explosive
+    // process triggers for "on hit" ex: detonate explosive, interrupt channeling
     // process triggers for "on evade" ex: evasion stacks increased
-    // get children and push to stack
-    // if !( currentAction.shouldExecuteNextChild() ) break
+    // build the action commands from the result on server and apply to game
+    // continue building the list of action results for the client to use
+
+    // process children recursively
+    const childrenOption = currentAction.getChildren(character);
+    if (childrenOption) {
+      // since we'll be popping them, reverse them into the correct order
+      const childrenReversed = childrenOption.reverse();
+      const childActionResults = processActionExecutionStack(
+        characterAssociatedData,
+        childrenReversed
+      );
+
+      results.push(...childActionResults.successfulResults);
+      if (childActionResults.maybeError instanceof Error)
+        return { successfulResults: results, maybeError: childActionResults.maybeError };
+    }
+
+    currentAction = actionsToExecute.pop();
   }
-  // return results
+
+  return { successfulResults: results, maybeError: null };
 }
