@@ -65,6 +65,10 @@ export interface CombatActionComponentConfig {
 }
 
 export abstract class CombatActionComponent {
+  // TO CONSIDER ADDING:
+  // shouldDisplayTargetingIndicator()
+  // could be useful to hide the indicator of a parent who's children indicate their parent as target as with attack
+  // or to hide indicators of bouncing child attacks which would baloon factorially
   public description: string;
   public targetingSchemes: TargetingScheme[];
   public validTargetCategories: TargetCategories;

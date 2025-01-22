@@ -9,7 +9,6 @@ import {
 } from "..";
 import { CombatantProperties, Combatant } from "../../../combatants";
 import { CombatantCondition } from "../../../combatants/combatant-conditions";
-import { CombatActionHpChangeProperties } from "../combat-action-hp-change-properties";
 import { ProhibitedTargetCombatantStates } from "../prohibited-target-combatant-states";
 
 const config: CombatActionComponentConfig = {
@@ -38,11 +37,7 @@ const config: CombatActionComponentConfig = {
     // rely on children for this
     throw new Error("Function not implemented.");
   },
-  getHpChangeProperties: function (
-    user: CombatantProperties
-  ): CombatActionHpChangeProperties | null {
-    throw new Error("Function not implemented.");
-  },
+  getHpChangeProperties: () => null, // client should display child hp change properties
   getAppliedConditions: function (): CombatantCondition[] | null {
     // @TODO - determine based on equipment
     throw new Error("Function not implemented.");
