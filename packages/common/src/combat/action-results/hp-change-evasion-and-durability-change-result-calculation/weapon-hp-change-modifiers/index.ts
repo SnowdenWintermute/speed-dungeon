@@ -1,6 +1,5 @@
 import cloneDeep from "lodash.clonedeep";
 import { CombatantProperties } from "../../../../combatants/index.js";
-import { CombatActionHpChangeProperties } from "../../../combat-actions/combat-action-properties.js";
 import {
   HpChange,
   HpChangeSource,
@@ -14,9 +13,11 @@ import {
 import { HP_CALCLULATION_CONTEXTS } from "../hp-change-calculation-strategies/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { Equipment, WeaponProperties } from "../../../../items/equipment/index.js";
+import { CombatActionHpChangeProperties } from "../../../combat-actions/combat-action-hp-change-properties.js";
 
 export function applyWeaponHpChangeModifiers(
   hpChangeProperties: CombatActionHpChangeProperties,
+  holdableSlotAndModifiers: { slot: HoldableSlotType; modifiers: Set<HpChangeSourceModifiers> },
   equippedUsableWeapons: Partial<
     Record<HoldableSlotType, { equipment: Equipment; weaponProperties: WeaponProperties }>
   >,
@@ -26,8 +27,7 @@ export function applyWeaponHpChangeModifiers(
 ) {
   const hpChange = new HpChange(expectedRolledValueAverage, hpChangeProperties.hpChangeSource);
 
-  if (!hpChangeProperties.addWeaponModifiersFromSlot) return;
-  const { slot, modifiers } = hpChangeProperties.addWeaponModifiersFromSlot;
+  const { slot, modifiers } = holdableSlotAndModifiers;
   const weaponOption = equippedUsableWeapons[slot];
   if (weaponOption === undefined) return;
 

@@ -14,7 +14,7 @@ export function getActionCritChance(
   targetWantsToBeHit: boolean
 ) {
   const critChanceAttribute = hpChangeProperties.critChanceAttribute;
-  if (critChanceAttribute === null) return 0;
+  if (critChanceAttribute === null) return BASE_CRIT_CHANCE;
 
   const userAttributes = CombatantProperties.getTotalAttributes(user);
   const userCritChanceAttributeValue =

@@ -10,16 +10,28 @@ export enum HpChangeSourceModifiers {
   Lifesteal,
 }
 
+export interface HpChangeSourceConfig {
+  category: HpChangeSourceCategory;
+  kineticDamageTypeOption: null | KineticDamageType;
+  elementOption: null | MagicalElement;
+  isHealing: null | boolean;
+  lifestealPercentage: null | number;
+}
+
+// for sending over the wire
 export class HpChangeSource {
-  constructor(
-    public category: HpChangeSourceCategory,
-    public meleeOrRanged: MeleeOrRanged,
-    public kineticDamageTypeOption?: KineticDamageType,
-    public elementOption?: MagicalElement,
-    public unavoidable?: boolean,
-    public isHealing?: boolean,
-    public lifestealPercentage?: number
-  ) {}
+  category: HpChangeSourceCategory;
+  kineticDamageTypeOption?: KineticDamageType;
+  elementOption?: MagicalElement;
+  isHealing?: boolean;
+  lifestealPercentage?: number;
+  constructor(config: HpChangeSourceConfig) {
+    this.category = config.category;
+    config.kineticDamageTypeOption !== null && this.kineticDamageTypeOption;
+    config.elementOption !== null && this.elementOption;
+    config.isHealing !== null && this.isHealing;
+    config.lifestealPercentage !== null && this.lifestealPercentage;
+  }
 }
 
 export enum HpChangeSourceCategory {
@@ -27,11 +39,6 @@ export enum HpChangeSourceCategory {
   Magical,
   Medical,
   Direct,
-}
-
-export enum MeleeOrRanged {
-  Melee,
-  Ranged,
 }
 
 export const HP_CHANGE_SOURCE_CATEGORY_STRINGS: Record<HpChangeSourceCategory, string> = {
