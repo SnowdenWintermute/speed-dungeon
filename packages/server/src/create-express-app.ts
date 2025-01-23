@@ -18,6 +18,7 @@ export default function appRoute(...args: string[]) {
 export function createExpressApp() {
   const app = express();
   app.use(express.json({ limit: "10kb" }));
+
   app.use(cookieParser());
   app.use(
     cors({

@@ -1,22 +1,21 @@
-import { CombatActionProperties } from "../index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { SpeedDungeonPlayer } from "../../game/index.js";
+import { CombatActionTargetPreferences } from "../../game/index.js";
 import { iterateNumericEnum } from "../../utils/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 import {
   FriendOrFoe,
   TargetingScheme,
 } from "../combat-actions/targeting-schemes-and-categories.js";
+import { CombatActionComponent } from "../combat-actions/index.js";
 
 export default function getActionTargetsBySavedPreferenceOrDefault(
-  player: SpeedDungeonPlayer,
-  combatActionProperties: CombatActionProperties,
+  targetPreferences: CombatActionTargetPreferences,
+  combatAction: CombatActionComponent,
   allyIdsOption: null | string[],
   opponentIdsOption: null | string[]
 ): Error | CombatActionTarget {
   let newTargets: null | CombatActionTarget = null;
 
-  const { targetPreferences } = player;
   const {
     targetingSchemePreference,
     category: preferredCategoryOption,
@@ -25,7 +24,7 @@ export default function getActionTargetsBySavedPreferenceOrDefault(
   } = targetPreferences;
 
   // IF SELECTED ACTION CONTAINS PREFERRED TARGETING SCHEME
-  if (combatActionProperties.targetingSchemes.includes(targetingSchemePreference)) {
+  if (combatAction.targetingSchemes.includes(targetingSchemePreference)) {
     switch (targetingSchemePreference) {
       case TargetingScheme.Single:
         // IF PREFERENCE EXISTS SELECT IT IF VALID
@@ -78,7 +77,7 @@ export default function getActionTargetsBySavedPreferenceOrDefault(
 
   if (newTargets) return newTargets;
   // IF NO VALID TARGET IN PREFERRED SCHEME OR PREFERRED SCHEME NOT VALID GET ANY VALID TARGET
-  for (const targetingSchemeKey of Object.keys(combatActionProperties.targetingSchemes).filter(
+  for (const targetingSchemeKey of Object.keys(combatAction.targetingSchemes).filter(
     (v) => !isNaN(Number(v))
   )) {
     const targetingScheme = parseInt(targetingSchemeKey) as TargetingScheme;

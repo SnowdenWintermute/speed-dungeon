@@ -1,17 +1,17 @@
-import { CombatActionProperties } from "../index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import getCharacterInGame from "../../game/get-character-in-game.js";
 import { CombatActionTarget } from "./combat-action-targets.js";
 import getActionTargetsBySavedPreferenceOrDefault from "./get-action-targets-by-saved-preference-or-default.js";
 import getFilteredPotentialTargetIds from "./get-filtered-potential-target-ids.js";
-import getUpdatedTargetPreferences from "./get-updated-target-preferences.js";
+import { CombatActionComponent } from "../combat-actions/index.js";
+import setAndReturnUpdatedTargetPreferences from "./set-and-return-updated-target-preferences.js";
 
-export default function assignCharacterActionTargets(
+export function assignCharacterActionTargets(
   game: SpeedDungeonGame,
   characterId: string,
   username: string,
-  combatActionPropertiesOption: null | CombatActionProperties
+  combatActionOption: null | CombatActionComponent
 ): Error | null | CombatActionTarget {
   const partyResult = SpeedDungeonGame.getPlayerPartyOption(game, username);
   if (partyResult instanceof Error) return partyResult;
@@ -21,12 +21,12 @@ export default function assignCharacterActionTargets(
   const party = partyResult;
   const character = characterResult;
 
-  if (combatActionPropertiesOption === null) {
+  if (combatActionOption === null) {
     character.combatantProperties.combatActionTarget = null;
     return null;
   }
 
-  const combatActionProperties = combatActionPropertiesOption;
+  const combatActionProperties = combatActionOption;
 
   const filteredTargetIdsResult = getFilteredPotentialTargetIds(
     game,
@@ -39,11 +39,10 @@ export default function assignCharacterActionTargets(
 
   const playerOption = game.players[username];
   if (playerOption === undefined) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
-  const player = playerOption;
   const targetPreferences = playerOption.targetPreferences;
 
   const newTargetsResult = getActionTargetsBySavedPreferenceOrDefault(
-    player,
+    targetPreferences,
     combatActionProperties,
     allyIdsOption,
     opponentIdsOption
@@ -51,15 +50,14 @@ export default function assignCharacterActionTargets(
 
   if (newTargetsResult instanceof Error) return newTargetsResult;
 
-  const newTargetPreferences = getUpdatedTargetPreferences(
-    targetPreferences,
+  const newTargetPreferences = setAndReturnUpdatedTargetPreferences(
+    playerOption,
     combatActionProperties,
     newTargetsResult,
     allyIdsOption,
     opponentIdsOption
   );
 
-  player.targetPreferences = newTargetPreferences;
   character.combatantProperties.combatActionTarget = newTargetsResult;
 
   return newTargetsResult;

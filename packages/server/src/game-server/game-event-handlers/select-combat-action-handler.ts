@@ -10,28 +10,28 @@ import { getGameServer } from "../../singletons.js";
 import { CombatActionName } from "@speed-dungeon/common";
 
 export default function selectCombatActionHandler(
-  eventData: { characterId: string; combatActionOption: null | CombatActionName },
+  eventData: { characterId: string; combatActionNameOption: null | CombatActionName },
   characterAssociatedData: CharacterAssociatedData
 ) {
   const gameServer = getGameServer();
-  const { combatActionOption } = eventData;
+  const { combatActionNameOption } = eventData;
 
   const { character, game, party } = characterAssociatedData;
-  let combatAction: null | CombatActionComponent = null;
-  if (combatActionOption !== null) {
+  let combatActionOption: null | CombatActionComponent = null;
+  if (combatActionNameOption !== null) {
     const combatActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
       character.combatantProperties,
-      combatActionOption
+      combatActionNameOption
     );
     if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
-    combatActionPropertiesOption = combatActionPropertiesResult;
+    combatActionOption = combatActionPropertiesResult;
   }
 
   const newTargetsResult = SpeedDungeonGame.assignCharacterActionTargets(
     game,
     character.entityProperties.id,
     characterAssociatedData.player.username,
-    combatActionPropertiesOption
+    combatActionOption
   );
 
   if (newTargetsResult instanceof Error) return newTargetsResult;

@@ -62,6 +62,7 @@ export interface CombatActionComponentConfig {
   getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
   getAutoTarget: (characterAssociatedData: CharacterAssociatedData) => null | CombatActionTarget;
   getChildren: (combatant: Combatant) => null | CombatActionComponent[];
+  getParent: () => CombatActionComponent | null;
 }
 
 export abstract class CombatActionComponent {
@@ -133,6 +134,7 @@ export abstract class CombatActionComponent {
   // (energetic swings could do multiple attacks based on user's current percent of max hp)
   // could also create random children such as a chaining random elemental damage
   getChildren: (combatant: Combatant) => null | CombatActionComponent[];
+  getParent: () => CombatActionComponent | null;
 
   addChild: (childAction: CombatActionComponent) => Error | void = () =>
     new Error("Can't add a child to this component");
@@ -161,6 +163,7 @@ export abstract class CombatActionComponent {
     this.getAppliedConditions = config.getAppliedConditions;
     this.getAutoTarget = config.getAutoTarget;
     this.getChildren = config.getChildren;
+    this.getParent = config.getParent;
   }
 }
 

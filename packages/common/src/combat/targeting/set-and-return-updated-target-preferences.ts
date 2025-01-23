@@ -1,20 +1,20 @@
 import cloneDeep from "lodash.clonedeep";
-import { CombatActionProperties } from "../index.js";
-import { CombatActionTargetPreferences } from "../../game/index.js";
+import { SpeedDungeonPlayer } from "../../game/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 import {
   FriendOrFoe,
   TargetingScheme,
 } from "../combat-actions/targeting-schemes-and-categories.js";
+import { CombatActionComponent } from "../combat-actions/index.js";
 
-export default function getUpdatedTargetPreferences(
-  currentPreferences: CombatActionTargetPreferences,
-  combatActionProperties: CombatActionProperties,
+export default function setAndReturnUpdatedTargetPreferences(
+  player: SpeedDungeonPlayer,
+  combatAction: CombatActionComponent,
   newTargets: CombatActionTarget,
   allyIdsOption: null | string[],
   opponentIdsOption: null | string[]
 ) {
-  const newPreferences = cloneDeep(currentPreferences);
+  const newPreferences = cloneDeep(player.targetPreferences);
   switch (newTargets.type) {
     case CombatActionTargetType.Single:
       const { targetId } = newTargets;
@@ -29,7 +29,7 @@ export default function getUpdatedTargetPreferences(
       break;
     case CombatActionTargetType.Group:
       const category = newTargets.friendOrFoe;
-      if (combatActionProperties.targetingSchemes.length > 1) {
+      if (combatAction.targetingSchemes.length > 1) {
         newPreferences.category = category;
         newPreferences.targetingSchemePreference = TargetingScheme.Area;
       } else {
@@ -37,9 +37,11 @@ export default function getUpdatedTargetPreferences(
       }
       break;
     case CombatActionTargetType.All:
-      if (combatActionProperties.targetingSchemes.length > 1)
+      if (combatAction.targetingSchemes.length > 1)
         newPreferences.targetingSchemePreference = TargetingScheme.All;
   }
+
+  player.targetPreferences = newPreferences;
 
   return newPreferences;
 }

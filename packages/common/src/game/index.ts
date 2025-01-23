@@ -6,7 +6,7 @@ import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
 import { EntityId } from "../primatives/index.js";
 import { SpeedDungeonPlayer } from "./player.js";
-import assignCharacterActionTargets from "../combat/targeting/assign-character-action-targets.js";
+import { assignCharacterActionTargets } from "../combat/targeting/assign-character-action-targets.js";
 import putPlayerInParty from "./put-player-in-party.js";
 import removePlayerFromParty from "./remove-player-from-party.js";
 import cycleCharacterTargets from "../combat/targeting/cycle-character-targets.js";
