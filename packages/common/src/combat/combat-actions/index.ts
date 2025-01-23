@@ -21,7 +21,7 @@ import { CombatActionHpChangeProperties } from "./combat-action-hp-change-proper
 import { Battle } from "../../battle/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { CharacterAssociatedData } from "../../types.js";
-import { AutoTargetingSelectionMethod } from "../targeting/auto-targeting.js";
+import { AutoTargetingSelectionMethod } from "../targeting/index.js";
 
 export interface CombatActionCost {
   base: number;
@@ -60,7 +60,10 @@ export interface CombatActionComponentConfig {
   getAnimationsAndEffects: () => void;
   getHpChangeProperties: (user: CombatantProperties) => null | CombatActionHpChangeProperties;
   getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
-  getAutoTarget: (characterAssociatedData: CharacterAssociatedData) => null | CombatActionTarget;
+  getAutoTarget: (
+    characterAssociatedData: CharacterAssociatedData,
+    combatAction: CombatActionComponent
+  ) => Error | null | CombatActionTarget;
   getChildren: (combatant: Combatant) => null | CombatActionComponent[];
   getParent: () => CombatActionComponent | null;
 }
@@ -127,7 +130,10 @@ export abstract class CombatActionComponent {
   getHpChangeProperties: (user: CombatantProperties) => null | CombatActionHpChangeProperties;
   // may be calculated based on combatant equipment or conditions
   getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
-  getAutoTarget: (characterAssociatedData: CharacterAssociatedData) => null | CombatActionTarget;
+  getAutoTarget: (
+    characterAssociatedData: CharacterAssociatedData,
+    combatAction: CombatActionComponent
+  ) => Error | null | CombatActionTarget;
   protected children?: CombatActionComponent[];
   // if we take in the combatant we can determine the children based on their equipped weapons (melee attack mh, melee attack oh etc)
   // spell levels (level 1 chain lightning only gets 1 ChainLightningArc child) or other status
@@ -161,7 +167,8 @@ export abstract class CombatActionComponent {
     this.getAnimationsAndEffects = config.getAnimationsAndEffects;
     this.getHpChangeProperties = config.getHpChangeProperties;
     this.getAppliedConditions = config.getAppliedConditions;
-    this.getAutoTarget = config.getAutoTarget;
+    this.getAutoTarget = (characterAssociatedData: CharacterAssociatedData) =>
+      config.getAutoTarget(characterAssociatedData, this);
     this.getChildren = config.getChildren;
     this.getParent = config.getParent;
   }

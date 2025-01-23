@@ -1,5 +1,6 @@
-import { CombatantConditionName } from "../../combatants/combatant-conditions";
-import { FriendOrFoe } from "../combat-actions";
+export * from "./copy-from-parent.js";
+import { CombatantConditionName } from "../../../combatants/combatant-conditions/index.js";
+import { FriendOrFoe } from "../../combat-actions/index.js";
 
 export enum AutoTargetingScheme {
   CopyParent, // attack, chaining multiple swings on a target

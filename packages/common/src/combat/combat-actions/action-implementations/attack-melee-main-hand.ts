@@ -1,17 +1,17 @@
 import {
   CombatActionComponent,
   CombatActionComponentConfig,
-  CombatActionComposite,
+  CombatActionLeaf,
   CombatActionName,
   CombatActionUsabilityContext,
   TargetCategories,
   TargetingScheme,
-} from "..";
+} from "../index.js";
 import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../../app-consts.js";
 import { CombatantProperties, Combatant } from "../../../combatants/index.js";
 import { CombatantCondition } from "../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../prohibited-target-combatant-states.js";
-import { AutoTargetingScheme } from "../../targeting";
+import { AutoTargetingScheme, copyTargetFromParent } from "../../targeting/index.js";
 import { ATTACK } from "./attack";
 
 const config: CombatActionComponentConfig = {
@@ -40,20 +40,18 @@ const config: CombatActionComponentConfig = {
   },
   getHpChangeProperties: (user) => {
     //
+    //ret
   },
   getAppliedConditions: function (): CombatantCondition[] | null {
     // ex: could make a "poison blade" item
     return null;
   },
-  getAutoTarget: () => {
-    //
-    return null;
+  getAutoTarget(characterAssociatedData, combatAction) {
+    // @TODO - change it to auto lookup the function based on this actions auto-targeting method
+    return copyTargetFromParent(characterAssociatedData, combatAction);
   },
-  getChildren: function (combatant: Combatant): CombatActionComponent[] | null {
-    // @TODO - determine based on equipment
-    throw new Error("Function not implemented.");
-  },
+  getChildren: () => null,
   getParent: () => ATTACK,
 };
 
-export const ATTACK_MELEE_MAIN_HAND = new CombatActionComposite(CombatActionName.Attack, config);
+export const ATTACK_MELEE_MAIN_HAND = new CombatActionLeaf(CombatActionName.Attack, config);

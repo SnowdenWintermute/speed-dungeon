@@ -1,4 +1,3 @@
 export * from "./combat-action-targets.js";
-export * from "./assign-character-action-targets.js";
 export * from "./cycle-character-targeting-schemes.js";
-export * from "./auto-targeting.js";
+export * from "./auto-targeting/index.js";

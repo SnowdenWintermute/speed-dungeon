@@ -10,7 +10,7 @@ import {
 import { CombatantProperties, Combatant } from "../../../combatants/index.js";
 import { CombatantCondition } from "../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../prohibited-target-combatant-states.js";
-import getActionTargetsBySavedPreferenceOrDefault from "../../targeting/get-action-targets-by-saved-preference-or-default";
+import { TargetingCalculator } from "../../targeting/targeting-calculator";
 
 const config: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
@@ -43,9 +43,10 @@ const config: CombatActionComponentConfig = {
     // @TODO - determine based on equipment
     throw new Error("Function not implemented.");
   },
-  getAutoTarget: (characterData) => {
-    getActionTargetsBySavedPreferenceOrDefault();
-    // get the target
+  getAutoTarget: (characterData, combatAction) => {
+    const { game, party, character, player } = characterData;
+    const targetingCalculator = new TargetingCalculator(game, party, character, player);
+    return targetingCalculator.getPreferredOrDefaultActionTargets(combatAction);
   },
   getChildren: function (combatant: Combatant): CombatActionComponent[] | null {
     // @TODO - determine based on equipment

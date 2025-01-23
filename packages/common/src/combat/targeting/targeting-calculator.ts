@@ -67,6 +67,19 @@ export class TargetingCalculator {
       opponentIdsOption
     );
 
+  getPreferredOrDefaultActionTargets(combatAction: CombatActionComponent) {
+    const filteredIdsResult = this.getFilteredPotentialTargetIdsForAction(combatAction);
+    if (filteredIdsResult instanceof Error) return filteredIdsResult;
+    const [allyIdsOption, opponentIdsOption] = filteredIdsResult;
+    const newTargetsResult = this.getValidPreferredOrDefaultActionTargets(
+      combatAction,
+      allyIdsOption,
+      opponentIdsOption
+    );
+
+    return newTargetsResult;
+  }
+
   getUpdatedTargetPreferences(
     combatAction: CombatActionComponent,
     newTargets: CombatActionTarget,

@@ -3,11 +3,11 @@ import {
   CombatActionComponent,
   CombatantProperties,
   ServerToClientEvent,
-  SpeedDungeonGame,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons.js";
 import { CombatActionName } from "@speed-dungeon/common";
+import { TargetingCalculator } from "@speed-dungeon/common/src/combat/targeting/targeting-calculator.js";
 
 export default function selectCombatActionHandler(
   eventData: { characterId: string; combatActionNameOption: null | CombatActionName },
@@ -16,7 +16,7 @@ export default function selectCombatActionHandler(
   const gameServer = getGameServer();
   const { combatActionNameOption } = eventData;
 
-  const { character, game, party } = characterAssociatedData;
+  const { character, game, party, player } = characterAssociatedData;
   let combatActionOption: null | CombatActionComponent = null;
   if (combatActionNameOption !== null) {
     const combatActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
@@ -27,16 +27,32 @@ export default function selectCombatActionHandler(
     combatActionOption = combatActionPropertiesResult;
   }
 
-  const newTargetsResult = SpeedDungeonGame.assignCharacterActionTargets(
-    game,
-    character.entityProperties.id,
-    characterAssociatedData.player.username,
-    combatActionOption
-  );
+  if (combatActionOption === null) {
+    character.combatantProperties.selectedCombatAction = null;
+    character.combatantProperties.combatActionTarget = null;
+  } else {
+    const targetingCalculator = new TargetingCalculator(game, party, character, player);
+    const filteredIdsResult =
+      targetingCalculator.getFilteredPotentialTargetIdsForAction(combatActionOption);
+    if (filteredIdsResult instanceof Error) return filteredIdsResult;
+    const [allyIdsOption, opponentIdsOption] = filteredIdsResult;
+    const newTargetsResult =
+      targetingCalculator.getPreferredOrDefaultActionTargets(combatActionOption);
 
-  if (newTargetsResult instanceof Error) return newTargetsResult;
+    if (newTargetsResult instanceof Error) return newTargetsResult;
 
-  character.combatantProperties.selectedCombatAction = combatActionOption;
+    const newTargetPreferencesResult = targetingCalculator.getUpdatedTargetPreferences(
+      combatActionOption,
+      newTargetsResult,
+      allyIdsOption,
+      opponentIdsOption
+    );
+    if (newTargetPreferencesResult instanceof Error) return newTargetPreferencesResult;
+
+    player.targetPreferences = newTargetPreferencesResult;
+    character.combatantProperties.selectedCombatAction = combatActionOption.name;
+    character.combatantProperties.combatActionTarget = newTargetsResult;
+  }
 
   gameServer.io
     .in(getPartyChannelName(game.name, party.name))
