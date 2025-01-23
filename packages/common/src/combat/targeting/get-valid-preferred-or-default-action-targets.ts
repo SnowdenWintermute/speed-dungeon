@@ -1,5 +1,5 @@
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { CombatActionTargetPreferences } from "../../game/index.js";
+import { SpeedDungeonPlayer } from "../../game/index.js";
 import { iterateNumericEnum } from "../../utils/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 import {
@@ -8,20 +8,22 @@ import {
 } from "../combat-actions/targeting-schemes-and-categories.js";
 import { CombatActionComponent } from "../combat-actions/index.js";
 
-export default function getActionTargetsBySavedPreferenceOrDefault(
-  targetPreferences: CombatActionTargetPreferences,
+export function getValidPreferredOrDefaultActionTargets(
+  playerOption: null | SpeedDungeonPlayer,
   combatAction: CombatActionComponent,
   allyIdsOption: null | string[],
   opponentIdsOption: null | string[]
 ): Error | CombatActionTarget {
   let newTargets: null | CombatActionTarget = null;
 
+  if (!playerOption) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+
   const {
     targetingSchemePreference,
     category: preferredCategoryOption,
     hostileSingle: preferredHostileOption,
     friendlySingle: preferredFriendlyOption,
-  } = targetPreferences;
+  } = playerOption.targetPreferences;
 
   // IF SELECTED ACTION CONTAINS PREFERRED TARGETING SCHEME
   if (combatAction.targetingSchemes.includes(targetingSchemePreference)) {

@@ -47,7 +47,7 @@ import { getAllUsableActionsCombatantCanPerform } from "./get-all-usable-actions
 import { combatantCanUseOwnedAbility } from "./abilities/can-use-owned-ability.js";
 import { EntityProperties } from "../primatives/index.js";
 import { Inventory } from "./inventory/index.js";
-import { CombatActionComponent } from "../combat/combat-actions/index.js";
+import { CombatActionComponent, CombatActionName } from "../combat/combat-actions/index.js";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -89,7 +89,7 @@ export class CombatantProperties {
   // - should be consistently accessible by their number (same items each time)
   // - should be limitable by the type of equipment they can hold (shield only, swords only etc)
   inventory: Inventory = new Inventory();
-  selectedCombatAction: null | CombatActionComponent = null;
+  selectedCombatAction: null | CombatActionName = null;
   combatActionTarget: null | CombatActionTarget = null;
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   deepestFloorReached: number = 1;

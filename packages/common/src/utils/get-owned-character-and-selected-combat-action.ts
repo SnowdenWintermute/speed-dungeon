@@ -1,5 +1,5 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { CombatActionProperties } from "../combat/index.js";
+import { CombatActionComponent } from "../combat/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonPlayer } from "../game/index.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
@@ -8,7 +8,7 @@ import { Combatant } from "../combatants/index.js";
 
 interface CharacterAndSelectedActionData {
   character: Combatant;
-  combatActionProperties: CombatActionProperties;
+  combatAction: CombatActionComponent;
   currentTarget: CombatActionTarget;
 }
 
@@ -33,16 +33,16 @@ export default function getOwnedCharacterAndSelectedCombatAction(
     return new Error(ERROR_MESSAGES.COMBATANT.NO_TARGET_SELECTED);
   const currentTarget = character.combatantProperties.combatActionTarget;
 
-  const combatActionPropertiesResult = getCombatActionPropertiesIfOwned(
+  const combatActionResult = getCombatActionPropertiesIfOwned(
     character.combatantProperties,
     selectedAction
   );
-  if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
-  const combatActionProperties = combatActionPropertiesResult;
+  if (combatActionResult instanceof Error) return combatActionResult;
+  const combatAction = combatActionResult;
 
   return {
     character,
-    combatActionProperties,
+    combatAction,
     currentTarget,
   };
 }

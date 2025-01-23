@@ -2,9 +2,8 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "../../game/index.js";
 import { NextOrPrevious } from "../../primatives/index.js";
 import getOwnedCharacterAndSelectedCombatAction from "../../utils/get-owned-character-and-selected-combat-action.js";
-import getFilteredPotentialTargetIds from "./get-filtered-potential-target-ids.js";
 import getNextOrPreviousTarget from "./get-next-or-previous-target.js";
-import getUpdatedTargetPreferences from "./get-updated-target-preferences.js";
+import { TargetingCalculator } from "./targeting-calculator.js";
 
 export default function cycleCharacterTargets(
   game: SpeedDungeonGame,
@@ -19,20 +18,17 @@ export default function cycleCharacterTargets(
     characterId
   );
   if (characterAndActionDataResult instanceof Error) return characterAndActionDataResult;
-  const { character, combatActionProperties, currentTarget } = characterAndActionDataResult;
+  const { character, combatAction, currentTarget } = characterAndActionDataResult;
 
-  const filteredTargetIdsResult = getFilteredPotentialTargetIds(
-    game,
-    party,
-    characterId,
-    combatActionProperties
-  );
+  const targetingCalculator = new TargetingCalculator(game, party, character, player);
+
+  const filteredTargetIdsResult =
+    targetingCalculator.getFilteredPotentialTargetIdsForAction(combatAction);
   if (filteredTargetIdsResult instanceof Error) return filteredTargetIdsResult;
-
   const [allyIdsOption, opponentIdsOption] = filteredTargetIdsResult;
 
   const newTargetsResult = getNextOrPreviousTarget(
-    combatActionProperties,
+    combatAction,
     currentTarget,
     direction,
     characterId,
@@ -41,13 +37,14 @@ export default function cycleCharacterTargets(
   );
   if (newTargetsResult instanceof Error) return newTargetsResult;
 
-  player.targetPreferences = getUpdatedTargetPreferences(
-    player.targetPreferences,
-    combatActionProperties,
+  const updatedTargetPreferenceResult = targetingCalculator.getUpdatedTargetPreferences(
+    combatAction,
     newTargetsResult,
     allyIdsOption,
     opponentIdsOption
   );
+  if (updatedTargetPreferenceResult instanceof Error) return updatedTargetPreferenceResult;
 
+  player.targetPreferences = updatedTargetPreferenceResult;
   character.combatantProperties.combatActionTarget = newTargetsResult;
 }

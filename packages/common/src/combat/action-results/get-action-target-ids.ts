@@ -1,13 +1,13 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Battle } from "../../battle/index.js";
-import { CombatActionProperties } from "../combat-actions/combat-action-properties.js";
+import { CombatActionComponent } from "../combat-actions/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { filterPossibleTargetIdsByProhibitedCombatantStates } from "../targeting/filtering.js";
 import getActionTargetsIfSchemeIsValid from "../targeting/get-targets-if-scheme-is-valid.js";
 
 export function getCombatActionTargetIds(
   party: AdventuringParty,
-  combatActionProperties: CombatActionProperties,
+  combatAction: CombatActionComponent,
   userId: string,
   allyIds: string[],
   battleOption: null | Battle,
@@ -27,7 +27,7 @@ export function getCombatActionTargetIds(
 
   const filteredTargetsResult = filterPossibleTargetIdsByProhibitedCombatantStates(
     party,
-    combatActionProperties.prohibitedTargetCombatantStates,
+    combatAction.prohibitedTargetCombatantStates,
     allyIds,
     opponentIdsOption
   );

@@ -2,7 +2,7 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "../../game/index.js";
 import getOwnedCharacterAndSelectedCombatAction from "../../utils/get-owned-character-and-selected-combat-action.js";
-import assignCharacterActionTargets from "./assign-character-action-targets.js";
+import { TargetingCalculator } from "./targeting-calculator.js";
 
 export default function cycleCharacterTargetingSchemes(
   game: SpeedDungeonGame,
@@ -16,13 +16,15 @@ export default function cycleCharacterTargetingSchemes(
     characterId
   );
   if (characterAndActionDataResult instanceof Error) return characterAndActionDataResult;
-  const { character, combatActionProperties } = characterAndActionDataResult;
+  const { character, combatAction } = characterAndActionDataResult;
 
-  if (combatActionProperties.targetingSchemes.length < 2)
+  if (combatAction.targetingSchemes.length < 2)
     return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.ONLY_ONE_TARGETING_SCHEME_AVAILABLE);
 
+  const targetingCalculator = new TargetingCalculator(game, party, character, player);
+
   const lastUsedTargetingScheme = player.targetPreferences.targetingSchemePreference;
-  const { targetingSchemes } = combatActionProperties;
+  const { targetingSchemes } = combatAction;
   let newTargetingScheme = lastUsedTargetingScheme;
 
   if (!targetingSchemes.includes(lastUsedTargetingScheme)) {
@@ -43,12 +45,25 @@ export default function cycleCharacterTargetingSchemes(
 
   player.targetPreferences.targetingSchemePreference = newTargetingScheme;
 
-  const assignNewTargetsResult = assignCharacterActionTargets(
-    game,
-    character.entityProperties.id,
-    player.username,
-    combatActionProperties
+  const filteredTargetIdsResult =
+    targetingCalculator.getFilteredPotentialTargetIdsForAction(combatAction);
+  if (filteredTargetIdsResult instanceof Error) return filteredTargetIdsResult;
+  const [allyIdsOption, opponentIdsOption] = filteredTargetIdsResult;
+  const newTargetsResult = targetingCalculator.getValidPreferredOrDefaultActionTargets(
+    combatAction,
+    allyIdsOption,
+    opponentIdsOption
   );
+  if (newTargetsResult instanceof Error) return newTargetsResult;
 
-  if (assignNewTargetsResult instanceof Error) return assignNewTargetsResult;
+  const updatedTargetPreferenceResult = targetingCalculator.getUpdatedTargetPreferences(
+    combatAction,
+    newTargetsResult,
+    allyIdsOption,
+    opponentIdsOption
+  );
+  if (updatedTargetPreferenceResult instanceof Error) return updatedTargetPreferenceResult;
+
+  player.targetPreferences = updatedTargetPreferenceResult;
+  character.combatantProperties.combatActionTarget = newTargetsResult;
 }

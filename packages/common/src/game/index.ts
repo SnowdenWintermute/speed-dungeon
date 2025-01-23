@@ -6,7 +6,6 @@ import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
 import { EntityId } from "../primatives/index.js";
 import { SpeedDungeonPlayer } from "./player.js";
-import { assignCharacterActionTargets } from "../combat/targeting/assign-character-action-targets.js";
 import putPlayerInParty from "./put-player-in-party.js";
 import removePlayerFromParty from "./remove-player-from-party.js";
 import cycleCharacterTargets from "../combat/targeting/cycle-character-targets.js";
@@ -25,6 +24,7 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import handleBattleVictory from "./handle-battle-victory.js";
 import { GameMode } from "../types.js";
 import { MAX_PARTY_SIZE } from "../app-consts.js";
+import { getValidPreferredOrDefaultActionTargets } from "../combat/targeting/get-valid-preferred-or-default-action-targets.js";
 
 export class SpeedDungeonGame {
   [immerable] = true;
@@ -51,7 +51,7 @@ export class SpeedDungeonGame {
   static putPlayerInParty = putPlayerInParty;
   static getCharacter = getCharacterInGame;
   static getCombatantById = getCombatantInGameById;
-  static assignCharacterActionTargets = assignCharacterActionTargets;
+  static getValidPreferredOrDefaultActionTargets = getValidPreferredOrDefaultActionTargets;
   static cycleCharacterTargets = cycleCharacterTargets;
   static cycleCharacterTargetingSchemes = cycleCharacterTargetingSchemes;
   static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
