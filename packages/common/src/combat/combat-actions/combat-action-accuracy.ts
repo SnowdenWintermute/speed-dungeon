@@ -1,10 +1,10 @@
 export enum ActionAccuracyType {
-  NormalizedPercentage,
+  Percentage,
   Unavoidable,
 }
 
 export type ActionAccuracyPercentage = {
-  type: ActionAccuracyType.NormalizedPercentage;
+  type: ActionAccuracyType.Percentage;
   value: number;
 };
 

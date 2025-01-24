@@ -6,7 +6,12 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../../../app-consts.js";
+import {
+  DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
+  OFF_HAND_ACCURACY_MODIFIER,
+  OFF_HAND_CRIT_CHANCE_MODIFIER,
+  OFF_HAND_DAMAGE_MODIFIER,
+} from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { AutoTargetingScheme } from "../../../targeting/index.js";
@@ -25,7 +30,7 @@ import {
 } from "../../action-calculation-utils/standard-action-calculations.js";
 
 const config: CombatActionComponentConfig = {
-  description: "Attack target using equipment in main hand",
+  description: "Attack target using equipment in off hand",
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.CopyParent },
@@ -35,9 +40,9 @@ const config: CombatActionComponentConfig = {
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
   ],
   baseHpChangeValuesLevelMultiplier: 1,
-  accuracyModifier: 1,
+  accuracyModifier: OFF_HAND_ACCURACY_MODIFIER,
   appliesConditions: [],
-  incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: 1 } },
+  incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: 1 } },
   costs: null,
   getExecutionTime: () => DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
   requiresCombatTurn: (user) => {
@@ -54,8 +59,6 @@ const config: CombatActionComponentConfig = {
   shouldExecute: () => true,
   getAnimationsAndEffects: function (): void {
     // @TODO
-    // combatant move self into melee range
-    // animate combatant (swing main hand) (later can animate specific swings based on equipped weapon)
     throw new Error("Function not implemented.");
   },
   getRequiredRange: () => CombatActionRequiredRange.Melee,
@@ -67,7 +70,9 @@ const config: CombatActionComponentConfig = {
     };
   },
   getCritChance: (user) => {
-    return getStandardActionCritChance(user, CombatAttribute.Dexterity);
+    return (
+      getStandardActionCritChance(user, CombatAttribute.Dexterity) * OFF_HAND_CRIT_CHANCE_MODIFIER
+    );
   },
   getCritMultiplier(user) {
     return getStandardActionCritMultiplier(user, CombatAttribute.Strength);
@@ -79,7 +84,9 @@ const config: CombatActionComponentConfig = {
       CombatAttribute.Strength,
       HoldableSlotType.MainHand
     );
-    // @TODO - if any final modifies like for offhand, do it here
+    if (hpChangeProperties instanceof Error) return hpChangeProperties;
+
+    hpChangeProperties.baseValues.mult(OFF_HAND_DAMAGE_MODIFIER);
     return hpChangeProperties;
   },
   getAppliedConditions: function (): CombatantCondition[] | null {
@@ -89,7 +96,7 @@ const config: CombatActionComponentConfig = {
   getParent: () => ATTACK,
 };
 
-export const ATTACK_MELEE_MAIN_HAND = new CombatActionLeaf(
-  CombatActionName.AttackMeleeMainhand,
+export const ATTACK_MELEE_OFF_HAND = new CombatActionLeaf(
+  CombatActionName.AttackMeleeOffhand,
   config
 );

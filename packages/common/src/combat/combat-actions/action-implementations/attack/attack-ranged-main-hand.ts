@@ -25,7 +25,7 @@ import {
 } from "../../action-calculation-utils/standard-action-calculations.js";
 
 const config: CombatActionComponentConfig = {
-  description: "Attack target using equipment in main hand",
+  description: "Attack target using ranged weapon",
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.CopyParent },
@@ -35,7 +35,7 @@ const config: CombatActionComponentConfig = {
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
   ],
   baseHpChangeValuesLevelMultiplier: 1,
-  accuracyModifier: 1,
+  accuracyModifier: 0.9,
   appliesConditions: [],
   incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: 1 } },
   costs: null,
@@ -54,11 +54,9 @@ const config: CombatActionComponentConfig = {
   shouldExecute: () => true,
   getAnimationsAndEffects: function (): void {
     // @TODO
-    // combatant move self into melee range
-    // animate combatant (swing main hand) (later can animate specific swings based on equipped weapon)
     throw new Error("Function not implemented.");
   },
-  getRequiredRange: () => CombatActionRequiredRange.Melee,
+  getRequiredRange: () => CombatActionRequiredRange.Ranged,
   getUnmodifiedAccuracy: (user) => {
     const userCombatAttributes = CombatantProperties.getTotalAttributes(user);
     return {
@@ -70,16 +68,15 @@ const config: CombatActionComponentConfig = {
     return getStandardActionCritChance(user, CombatAttribute.Dexterity);
   },
   getCritMultiplier(user) {
-    return getStandardActionCritMultiplier(user, CombatAttribute.Strength);
+    return getStandardActionCritMultiplier(user, CombatAttribute.Dexterity);
   },
   getHpChangeProperties: (user, primaryTarget) => {
     const hpChangeProperties = getAttackHpChangeProperties(
       user,
       primaryTarget,
-      CombatAttribute.Strength,
+      CombatAttribute.Dexterity,
       HoldableSlotType.MainHand
     );
-    // @TODO - if any final modifies like for offhand, do it here
     return hpChangeProperties;
   },
   getAppliedConditions: function (): CombatantCondition[] | null {
@@ -89,7 +86,7 @@ const config: CombatActionComponentConfig = {
   getParent: () => ATTACK,
 };
 
-export const ATTACK_MELEE_MAIN_HAND = new CombatActionLeaf(
-  CombatActionName.AttackMeleeMainhand,
+export const ATTACK_RANGED_MAIN_HAND = new CombatActionLeaf(
+  CombatActionName.AttackRangedMainhand,
   config
 );

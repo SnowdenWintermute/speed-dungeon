@@ -22,6 +22,8 @@ import {
   EquipmentSlotType,
   HoldableSlotType,
 } from "../../../../items/equipment/index.js";
+import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
+import { ATTACK_MELEE_OFF_HAND } from "./attack-melee-off-hand.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
@@ -34,7 +36,7 @@ const config: CombatActionComponentConfig = {
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
   ],
   baseHpChangeValuesLevelMultiplier: 1,
-  accuracyPercentModifier: 100,
+  accuracyModifier: 1,
   appliesConditions: [],
   incursDurabilityLoss: {},
   costs: null,
@@ -61,11 +63,11 @@ const config: CombatActionComponentConfig = {
       !Equipment.isBroken(mainHandEquipmentOption) &&
       Equipment.isRangedWeapon(mainHandEquipmentOption)
     ) {
-      // toReturn.push(ATTACK_RANGED_MAIN_HAND)
+      toReturn.push(ATTACK_RANGED_MAIN_HAND);
     } else {
       toReturn.push(ATTACK_MELEE_MAIN_HAND);
       if (!ATTACK_MELEE_MAIN_HAND.requiresCombatTurn(user.combatantProperties)) {
-        // toReturn.push(ATTACK_MELEE_OFF_HAND)
+        toReturn.push(ATTACK_MELEE_OFF_HAND);
       }
     }
     return toReturn;
@@ -75,7 +77,7 @@ const config: CombatActionComponentConfig = {
     // @TODO - determine based on equipment
     throw new Error("Function not implemented.");
   },
-  getAccuracy: function (user: CombatantProperties): ActionAccuracy {
+  getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
     throw new Error("Function not implemented.");
   },
   getCritChance: function (user: CombatantProperties): number {

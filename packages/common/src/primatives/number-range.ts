@@ -13,7 +13,7 @@ export class NumberRange {
     this.max = Math.max(1, Math.floor(this.max));
   }
 
-  mult(scalar: number, multiplier: number) {
+  mult(scalar: number) {
     this.min = this.min * scalar;
     this.max = this.max * scalar;
   }

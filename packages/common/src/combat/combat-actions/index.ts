@@ -22,7 +22,7 @@ import { Battle } from "../../battle/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { CharacterAssociatedData } from "../../types.js";
 import { AutoTargetingSelectionMethod } from "../targeting/index.js";
-import { ActionAccuracy } from "./combat-action-accuracy.js";
+import { ActionAccuracy, ActionAccuracyType } from "./combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "./combat-action-range.js";
 import { AUTO_TARGETING_FUNCTIONS } from "../targeting/auto-targeting/mapped-functions.js";
 
@@ -43,7 +43,7 @@ export interface CombatActionComponentConfig {
   usabilityContext: CombatActionUsabilityContext;
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
   baseHpChangeValuesLevelMultiplier: number;
-  accuracyPercentModifier: number;
+  accuracyModifier: number;
   appliesConditions: CombatantCondition[];
   incursDurabilityLoss: {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
@@ -62,7 +62,7 @@ export interface CombatActionComponentConfig {
   getAnimationsAndEffects: () => void;
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   /** A numeric percentage which will be used against the target's evasion */
-  getAccuracy: (user: CombatantProperties) => ActionAccuracy;
+  getUnmodifiedAccuracy: (user: CombatantProperties) => ActionAccuracy;
   /** A numeric percentage which will be used against the target's crit avoidance */
   getCritChance: (user: CombatantProperties) => number;
   getCritMultiplier: (user: CombatantProperties) => number;
@@ -87,7 +87,7 @@ export abstract class CombatActionComponent {
   private usabilityContext: CombatActionUsabilityContext;
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
   baseHpChangeValuesLevelMultiplier: number;
-  accuracyPercentModifier: number;
+  accuracyModifier: number;
   private appliesConditions: CombatantCondition[];
   incursDurabilityLoss: {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
@@ -155,7 +155,6 @@ export abstract class CombatActionComponent {
     new Error("Can't add a child to this component");
 
   // DEFAULT FUNCTIONS
-
   getAutoTarget: (
     characterAssociatedData: CharacterAssociatedData,
     combatAction: CombatActionComponent
@@ -176,7 +175,7 @@ export abstract class CombatActionComponent {
     this.usabilityContext = config.usabilityContext;
     this.prohibitedTargetCombatantStates = config.prohibitedTargetCombatantStates;
     this.baseHpChangeValuesLevelMultiplier = config.baseHpChangeValuesLevelMultiplier;
-    this.accuracyPercentModifier = config.accuracyPercentModifier;
+    this.accuracyModifier = config.accuracyModifier;
     this.appliesConditions = config.appliesConditions;
     this.incursDurabilityLoss = config.incursDurabilityLoss;
     this.costs = config.costs;
@@ -184,7 +183,12 @@ export abstract class CombatActionComponent {
     this.requiresCombatTurn = config.requiresCombatTurn;
     this.shouldExecute = config.shouldExecute;
     this.getAnimationsAndEffects = config.getAnimationsAndEffects;
-    this.getAccuracy = config.getAccuracy;
+    this.getAccuracy = (user: CombatantProperties) => {
+      const baseAccuracy = config.getUnmodifiedAccuracy(user);
+      if (baseAccuracy.type === ActionAccuracyType.Percentage)
+        baseAccuracy.value *= this.accuracyModifier;
+      return baseAccuracy;
+    };
     this.getCritChance = config.getCritChance;
     this.getCritMultiplier = config.getCritMultiplier;
     this.getRequiredRange = config.getRequiredRange;
