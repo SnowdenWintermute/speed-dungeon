@@ -36,7 +36,7 @@ export default function calculateActionResult(
   );
   if (actionPropertiesResult instanceof Error) return actionPropertiesResult;
   const combatActionProperties = actionPropertiesResult;
-  actionResult.endsTurn = combatActionProperties.requiresCombatTurn;
+  actionResult.endsTurn = combatActionProperties.requiresCombatTurn(combatantProperties);
 
   const partyResult = SpeedDungeonGame.getPartyOfCombatant(game, userId);
   if (partyResult instanceof Error) return partyResult;

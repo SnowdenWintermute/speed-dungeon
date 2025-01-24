@@ -3,7 +3,7 @@ import { Battle } from "../../battle/index.js";
 import { CombatActionComponent } from "../combat-actions/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { filterPossibleTargetIdsByProhibitedCombatantStates } from "../targeting/filtering.js";
-import getActionTargetsIfSchemeIsValid from "../targeting/get-targets-if-scheme-is-valid.js";
+import { getActionTargetsIfSchemeIsValid } from "../targeting/get-targets-if-scheme-is-valid.js";
 
 export function getCombatActionTargetIds(
   party: AdventuringParty,

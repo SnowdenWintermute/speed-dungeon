@@ -1,11 +1,11 @@
-import { CharacterAssociatedData } from "../../../types.js";
+import { CharacterAssociatedData, CombatantAssociatedData } from "../../../types.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
 
 export function copyTargetFromParent(
-  characterAssociatedData: CharacterAssociatedData,
+  combatantContext: CombatantAssociatedData,
   combatAction: CombatActionComponent
 ) {
   const parent = combatAction.getParent();
-  if (parent) return parent.getAutoTarget(characterAssociatedData, combatAction);
+  if (parent) return parent.getAutoTarget(combatantContext);
   return null;
 }

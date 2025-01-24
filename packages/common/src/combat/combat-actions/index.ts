@@ -20,11 +20,11 @@ import { CombatActionName } from "./combat-action-names.js";
 import { CombatActionHpChangeProperties } from "./combat-action-hp-change-properties.js";
 import { Battle } from "../../battle/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
-import { CharacterAssociatedData } from "../../types.js";
 import { AutoTargetingSelectionMethod } from "../targeting/index.js";
 import { ActionAccuracy, ActionAccuracyType } from "./combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "./combat-action-range.js";
 import { AUTO_TARGETING_FUNCTIONS } from "../targeting/auto-targeting/mapped-functions.js";
+import { CombatantAssociatedData } from "../../types.js";
 
 export interface CombatActionCost {
   base: number;
@@ -39,7 +39,7 @@ export interface CombatActionComponentConfig {
   description: string;
   targetingSchemes: TargetingScheme[];
   validTargetCategories: TargetCategories;
-  autoTargetSelectionMethod: null | AutoTargetingSelectionMethod;
+  autoTargetSelectionMethod: AutoTargetingSelectionMethod;
   usabilityContext: CombatActionUsabilityContext;
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
   baseHpChangeValuesLevelMultiplier: number;
@@ -58,9 +58,15 @@ export interface CombatActionComponentConfig {
   };
   getExecutionTime: () => number;
   requiresCombatTurn: (user: CombatantProperties) => boolean;
-  shouldExecute: (characterAssociatedData: CharacterAssociatedData) => boolean;
+  shouldExecute: (
+    combatantContext: CombatantAssociatedData,
+    self: CombatActionComponent
+  ) => boolean;
   getAnimationsAndEffects: () => void;
-  getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
+  getRequiredRange: (
+    user: CombatantProperties,
+    self: CombatActionComponent
+  ) => CombatActionRequiredRange;
   /** A numeric percentage which will be used against the target's evasion */
   getUnmodifiedAccuracy: (user: CombatantProperties) => ActionAccuracy;
   /** A numeric percentage which will be used against the target's crit avoidance */
@@ -83,7 +89,7 @@ export abstract class CombatActionComponent {
   public description: string;
   public targetingSchemes: TargetingScheme[];
   public validTargetCategories: TargetCategories;
-  public autoTargetSelectionMethod: null | AutoTargetingSelectionMethod;
+  public autoTargetSelectionMethod: AutoTargetingSelectionMethod;
   private usabilityContext: CombatActionUsabilityContext;
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
   baseHpChangeValuesLevelMultiplier: number;
@@ -118,7 +124,7 @@ export abstract class CombatActionComponent {
   requiresCombatTurn: (user: CombatantProperties) => boolean;
   // could use the combatant's ability to hold state which may help determine, such as if using chain lightning and an enemy
   // target exists that is not the last arced to target
-  shouldExecute: (characterAssociatedData: CharacterAssociatedData) => boolean;
+  shouldExecute: (combatantContext: CombatantAssociatedData) => boolean;
   // CATEGORIES
   // pre-use
   // on-success
@@ -155,14 +161,12 @@ export abstract class CombatActionComponent {
     new Error("Can't add a child to this component");
 
   // DEFAULT FUNCTIONS
-  getAutoTarget: (
-    characterAssociatedData: CharacterAssociatedData,
-    combatAction: CombatActionComponent
-  ) => Error | null | CombatActionTarget = (characterAssociatedData, combatAction) => {
-    const scheme = combatAction.autoTargetSelectionMethod?.scheme;
-    if (!scheme) return null;
-    return AUTO_TARGETING_FUNCTIONS[scheme](characterAssociatedData, combatAction);
-  };
+  getAutoTarget: (combatantContext: CombatantAssociatedData) => Error | null | CombatActionTarget =
+    (combatantContext) => {
+      const scheme = this.autoTargetSelectionMethod?.scheme;
+      if (!scheme) return null;
+      return AUTO_TARGETING_FUNCTIONS[scheme](combatantContext, this);
+    };
 
   constructor(
     public name: CombatActionName,
@@ -181,7 +185,8 @@ export abstract class CombatActionComponent {
     this.costs = config.costs;
     this.getExecutionTime = config.getExecutionTime;
     this.requiresCombatTurn = config.requiresCombatTurn;
-    this.shouldExecute = config.shouldExecute;
+    this.shouldExecute = (characterAssociatedData) =>
+      config.shouldExecute(characterAssociatedData, this);
     this.getAnimationsAndEffects = config.getAnimationsAndEffects;
     this.getAccuracy = (user: CombatantProperties) => {
       const baseAccuracy = config.getUnmodifiedAccuracy(user);
@@ -191,7 +196,7 @@ export abstract class CombatActionComponent {
     };
     this.getCritChance = config.getCritChance;
     this.getCritMultiplier = config.getCritMultiplier;
-    this.getRequiredRange = config.getRequiredRange;
+    this.getRequiredRange = (user) => config.getRequiredRange(user, this);
     this.getHpChangeProperties = config.getHpChangeProperties;
     this.getAppliedConditions = config.getAppliedConditions;
     this.getChildren = config.getChildren;

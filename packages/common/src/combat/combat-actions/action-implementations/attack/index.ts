@@ -24,12 +24,13 @@ import {
 } from "../../../../items/equipment/index.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
 import { ATTACK_MELEE_OFF_HAND } from "./attack-melee-off-hand.js";
+import { AutoTargetingScheme } from "../../../targeting/index.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
-  autoTargetSelectionMethod: null,
+  autoTargetSelectionMethod: { type: AutoTargetingScheme.UserSelected },
   usabilityContext: CombatActionUsabilityContext.InCombat,
   prohibitedTargetCombatantStates: [
     ProhibitedTargetCombatantStates.Dead,
@@ -73,8 +74,11 @@ const config: CombatActionComponentConfig = {
     return toReturn;
   },
   getParent: () => null,
-  getRequiredRange: function (user: CombatantProperties): CombatActionRequiredRange {
-    // @TODO - determine based on equipment
+  getRequiredRange: function (
+    user: CombatantProperties,
+    self: CombatActionComponent
+  ): CombatActionRequiredRange {
+    // @TODO - determine based on children
     throw new Error("Function not implemented.");
   },
   getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {

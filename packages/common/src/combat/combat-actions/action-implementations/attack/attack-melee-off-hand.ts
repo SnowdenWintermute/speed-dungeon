@@ -1,4 +1,5 @@
 import {
+  CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -28,6 +29,10 @@ import {
   getStandardActionCritChance,
   getStandardActionCritMultiplier,
 } from "../../action-calculation-utils/standard-action-calculations.js";
+import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { getActionTargetsIfSchemeIsValid } from "../../../targeting/get-targets-if-scheme-is-valid.js";
+import { getCombatActionTargetIds } from "../../../action-results/get-action-target-ids.js";
+import { SpeedDungeonGame } from "../../../../game/index.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack target using equipment in off hand",
@@ -56,7 +61,38 @@ const config: CombatActionComponentConfig = {
     }
     return false;
   },
-  shouldExecute: () => true,
+  shouldExecute: (combatantContext, self: CombatActionComponent) => {
+    const { game, party, combatant } = combatantContext;
+
+    const battleOption = (party.battleId ? game.battles[party.battleId] : null)!!;
+    const targetsOption = combatant.combatantProperties.combatActionTarget;
+    if (!targetsOption) return false;
+    const idsOfFriendAndFoeResult = SpeedDungeonGame.getAllyIdsAndOpponentIdsOption(
+      game,
+      party,
+      combatant.entityProperties.id
+    );
+
+    if (idsOfFriendAndFoeResult instanceof Error) {
+      console.trace(idsOfFriendAndFoeResult);
+      return false;
+    }
+
+    const targetIdsResult = getCombatActionTargetIds(
+      party,
+      self,
+      combatant.entityProperties.id,
+      idsOfFriendAndFoeResult.allyIds,
+      battleOption,
+      targetsOption
+    );
+    if (targetIdsResult instanceof Error) {
+      console.trace(targetIdsResult);
+      return false;
+    }
+
+    return !SpeedDungeonGame.allCombatantsInGroupAreDead(game, targetIdsResult);
+  },
   getAnimationsAndEffects: function (): void {
     // @TODO
     throw new Error("Function not implemented.");

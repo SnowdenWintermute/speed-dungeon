@@ -6,7 +6,7 @@ const INVALID_TARGETING_SCHEME_ERROR = new Error(
   ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TARGETS_SELECTED
 );
 
-export default function getActionTargetsIfSchemeIsValid(
+export function getActionTargetsIfSchemeIsValid(
   actionTarget: CombatActionTarget,
   allyIds: string[],
   opponentIdsOption: null | string[]

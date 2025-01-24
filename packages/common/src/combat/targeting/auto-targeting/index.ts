@@ -3,7 +3,7 @@ import { CombatantConditionName } from "../../../combatants/combatant-conditions
 import { FriendOrFoe } from "../../combat-actions/index.js";
 
 export enum AutoTargetingScheme {
-  UserPastPreferenceOrDefault,
+  UserSelected,
   CopyParent, // attack, chaining multiple swings on a target
   ActionUser, // life drain heal
   BattleGroup, // all allies, all enemies
@@ -33,8 +33,8 @@ export interface TargetableSide {
 }
 
 // SELECTION METHODS
-export type AutoTargetSelectionMethodUserPastPreferenceOrDefault = {
-  scheme: AutoTargetingScheme.UserPastPreferenceOrDefault;
+export type AutoTargetSelectionMethodUserSelected = {
+  scheme: AutoTargetingScheme.UserSelected;
 };
 
 export type AutoTargetSelectionMethodSpecificSide = {
@@ -88,7 +88,7 @@ export type AutoTargetSelectionMethodCombatantWithHighestLevelCondition = {
 };
 
 export type AutoTargetingSelectionMethod =
-  | AutoTargetSelectionMethodUserPastPreferenceOrDefault
+  | AutoTargetSelectionMethodUserSelected
   | AutoTargetSelectionMethodSpecificSide
   | AutoTargetSelectionMethodRandomSide
   | AutoTargetSelectionMethodCopyParent
