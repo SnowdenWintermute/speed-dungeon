@@ -30,7 +30,7 @@ const config: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
-  autoTargetSelectionMethod: { type: AutoTargetingScheme.UserSelected },
+  autoTargetSelectionMethod: { scheme: AutoTargetingScheme.UserSelected },
   usabilityContext: CombatActionUsabilityContext.InCombat,
   prohibitedTargetCombatantStates: [
     ProhibitedTargetCombatantStates.Dead,

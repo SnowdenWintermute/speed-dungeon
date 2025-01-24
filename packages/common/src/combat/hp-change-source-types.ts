@@ -12,10 +12,10 @@ export enum HpChangeSourceModifiers {
 
 export interface HpChangeSourceConfig {
   category: HpChangeSourceCategory;
-  kineticDamageTypeOption: null | KineticDamageType;
-  elementOption: null | MagicalElement;
-  isHealing: null | boolean;
-  lifestealPercentage: null | number;
+  kineticDamageTypeOption?: null | KineticDamageType;
+  elementOption?: null | MagicalElement;
+  isHealing?: null | boolean;
+  lifestealPercentage?: null | number;
 }
 
 // for sending over the wire

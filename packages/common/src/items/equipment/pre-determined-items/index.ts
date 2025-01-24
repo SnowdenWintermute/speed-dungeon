@@ -2,9 +2,8 @@ import {
   HpChangeSource,
   HpChangeSourceCategory,
   KineticDamageType,
-  MeleeOrRanged,
 } from "../../../combat/index.js";
-import { EntityProperties } from "../../../primatives/index.js";
+import { EntityProperties, NumberRange } from "../../../primatives/index.js";
 import { OneHandedMeleeWeapon } from "../equipment-types/one-handed-melee-weapon.js";
 import { TwoHandedRangedWeapon } from "../equipment-types/two-handed-ranged-weapon.js";
 import { Equipment, EquipmentType } from "../index.js";
@@ -32,13 +31,12 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
             baseItemType: TwoHandedRangedWeapon.ShortBow,
           },
           equipmentType: EquipmentType.TwoHandedRangedWeapon,
-          damage: { min: 1, max: 2 },
+          damage: new NumberRange(1, 2),
           damageClassification: [
-            new HpChangeSource(
-              HpChangeSourceCategory.Physical,
-              MeleeOrRanged.Ranged,
-              KineticDamageType.Piercing
-            ),
+            new HpChangeSource({
+              category: HpChangeSourceCategory.Physical,
+              kineticDamageTypeOption: KineticDamageType.Piercing,
+            }),
           ],
         },
         null
@@ -55,13 +53,12 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
             baseItemType: OneHandedMeleeWeapon.ShortSword,
           },
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          damage: { min: 1, max: 2 },
+          damage: new NumberRange(1, 2),
           damageClassification: [
-            new HpChangeSource(
-              HpChangeSourceCategory.Physical,
-              MeleeOrRanged.Melee,
-              KineticDamageType.Slashing
-            ),
+            new HpChangeSource({
+              category: HpChangeSourceCategory.Physical,
+              kineticDamageTypeOption: KineticDamageType.Slashing,
+            }),
           ],
         },
         null
@@ -78,13 +75,12 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
             baseItemType: OneHandedMeleeWeapon.Stick,
           },
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          damage: { min: 1, max: 2 },
+          damage: new NumberRange(1, 2),
           damageClassification: [
-            new HpChangeSource(
-              HpChangeSourceCategory.Physical,
-              MeleeOrRanged.Melee,
-              KineticDamageType.Blunt
-            ),
+            new HpChangeSource({
+              category: HpChangeSourceCategory.Physical,
+              kineticDamageTypeOption: KineticDamageType.Blunt,
+            }),
           ],
         },
         null
@@ -101,13 +97,12 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
             baseItemType: OneHandedMeleeWeapon.Dagger,
           },
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          damage: { min: 1, max: 2 },
+          damage: new NumberRange(1, 2),
           damageClassification: [
-            new HpChangeSource(
-              HpChangeSourceCategory.Physical,
-              MeleeOrRanged.Melee,
-              KineticDamageType.Piercing
-            ),
+            new HpChangeSource({
+              category: HpChangeSourceCategory.Physical,
+              kineticDamageTypeOption: KineticDamageType.Blunt,
+            }),
           ],
         },
         null
