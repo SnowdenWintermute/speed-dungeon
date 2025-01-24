@@ -23,7 +23,7 @@ import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { CharacterAssociatedData } from "../../types.js";
 import { AutoTargetingSelectionMethod } from "../targeting/index.js";
 import { ActionAccuracy } from "./combat-action-accuracy.js";
-import { MeleeOrRanged } from "./combat-action-range.js";
+import { CombatActionRequiredRange } from "./combat-action-range.js";
 
 export interface CombatActionCost {
   base: number;
@@ -56,17 +56,19 @@ export interface CombatActionComponentConfig {
     consumableType?: ConsumableType;
   };
   getExecutionTime: () => number;
-  isMelee: (user: CombatantProperties) => boolean;
   requiresCombatTurn: (user: CombatantProperties) => boolean;
   shouldExecute: (characterAssociatedData: CharacterAssociatedData) => boolean;
   getAnimationsAndEffects: () => void;
-  getRequiredRange: (user: CombatantProperties) => MeleeOrRanged;
+  getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   /** A numeric percentage which will be used against the target's evasion */
   getAccuracy: (user: CombatantProperties) => ActionAccuracy;
   /** A numeric percentage which will be used against the target's crit avoidance */
   getCritChance: (user: CombatantProperties) => number;
   getCritMultiplier: (user: CombatantProperties) => number;
-  getHpChangeProperties: (user: CombatantProperties) => null | CombatActionHpChangeProperties;
+  getHpChangeProperties: (
+    user: CombatantProperties,
+    primaryTarget: CombatantProperties
+  ) => Error | null | CombatActionHpChangeProperties;
   getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
   getAutoTarget: (
     characterAssociatedData: CharacterAssociatedData,
@@ -102,7 +104,6 @@ export abstract class CombatActionComponent {
     consumableType?: ConsumableType;
   };
   getExecutionTime: () => number;
-  isMelee: (user: CombatantProperties) => boolean;
   isUsableInThisContext: (battleOption: Battle | null) => boolean = (
     battleOption: Battle | null
   ) => {
@@ -134,12 +135,16 @@ export abstract class CombatActionComponent {
   // spawn stream effect (effectName (lightning arc, healing beam), origin, destination, duration, easingFn, getPercentCompleteToProceed(), onProceed())
   // spawn static effect (effectName (Protect, SpellSparkles), position, duration, getPercentCompleteToProceed(), onProceed())
   getAnimationsAndEffects: () => void;
-  getRequiredRange: (user: CombatantProperties) => MeleeOrRanged;
+  getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   getAccuracy: (user: CombatantProperties) => ActionAccuracy;
   getCritChance: (user: CombatantProperties) => number;
   getCritMultiplier: (user: CombatantProperties) => number;
   // take the user becasue the hp change properties may be affected by equipment
-  getHpChangeProperties: (user: CombatantProperties) => null | CombatActionHpChangeProperties;
+  // take the target because we may need to select the most effective hp change source properties on that target
+  getHpChangeProperties: (
+    user: CombatantProperties,
+    primaryTarget: CombatantProperties
+  ) => Error | null | CombatActionHpChangeProperties;
   // may be calculated based on combatant equipment or conditions
   getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
   getAutoTarget: (
@@ -173,7 +178,6 @@ export abstract class CombatActionComponent {
     this.incursDurabilityLoss = config.incursDurabilityLoss;
     this.costs = config.costs;
     this.getExecutionTime = config.getExecutionTime;
-    this.isMelee = config.isMelee;
     this.requiresCombatTurn = config.requiresCombatTurn;
     this.shouldExecute = config.shouldExecute;
     this.getAnimationsAndEffects = config.getAnimationsAndEffects;

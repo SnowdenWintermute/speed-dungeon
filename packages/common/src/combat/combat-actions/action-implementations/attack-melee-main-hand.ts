@@ -21,6 +21,7 @@ import {
   HpChangeSource,
   HpChangeSourceCategory,
   HpChangeSourceConfig,
+  HpChangeSourceModifiers,
 } from "../../hp-change-source-types.js";
 import { CombatActionRequiredRange } from "../combat-action-range.js";
 import { CombatantEquipment, CombatantProperties } from "../../../combatants/index.js";
@@ -32,6 +33,10 @@ import { Equipment, EquipmentType } from "../../../items/equipment/index.js";
 import { NumberRange } from "../../../primatives/number-range.js";
 import { scaleRangeToActionLevel } from "../../action-results/hp-change-evasion-and-durability-change-result-calculation/scale-hp-range-to-action-level.js";
 import { addCombatantLevelScaledAttributeToRange } from "../../action-results/hp-change-evasion-and-durability-change-result-calculation/add-combatant-level-scaled-attribute-to-range.js";
+import { selectMostEffectiveFromAvailableHpChangeSourceModifiers } from "../action-calculation-utils/select-most-effective-damage-classification-on-target.js";
+import { copySelectedModifiersFromHpChangeSource } from "../action-calculation-utils/copy-selected-modifiers-from-hp-change-source.js";
+import { addWeaponsDamageToRange } from "../action-calculation-utils/add-weapon-damage-to-range.js";
+import { scaleRange } from "../action-calculation-utils/scale-range.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack target using equipment in main hand",
@@ -90,7 +95,7 @@ const config: CombatActionComponentConfig = {
     const multiplierAttribute = userAttributes[critMultiplierAttribute] || 0;
     return critMultiplier + multiplierAttribute / 100;
   },
-  getHpChangeProperties: (user) => {
+  getHpChangeProperties: (user, primaryTarget) => {
     const hpChangeSourceConfig: HpChangeSourceConfig = {
       category: HpChangeSourceCategory.Physical,
       kineticDamageTypeOption: null,
@@ -101,10 +106,8 @@ const config: CombatActionComponentConfig = {
 
     const baseValues = new NumberRange(1, 1);
 
-    const actionLevel = user.level;
-    const actionLevelScalingFactor = 1;
-    // just get some extra damage for leveling up
-    scaleRangeToActionLevel(baseValues, actionLevel, actionLevelScalingFactor);
+    // just get some extra damage for leveling
+    scaleRange(baseValues, user.level, 1);
     // get greater benefits from a certain attribute the higher level a combatant is
     addCombatantLevelScaledAttributeToRange({
       range: baseValues,
@@ -112,27 +115,58 @@ const config: CombatActionComponentConfig = {
       attribute: CombatAttribute.Strength,
       normalizedAttributeScalingByCombatantLevel: 1,
     });
-    // @TODO - apply weapon damage and weapon hp change source modifiers
+
+    const hpChangeSource = new HpChangeSource(hpChangeSourceConfig);
+    const hpChangeProperties: CombatActionHpChangeProperties = {
+      hpChangeSource,
+      baseValues,
+    };
+
     const equippedUsableWeaponsResult = CombatantProperties.getUsableWeaponsInSlots(user, [
       HoldableSlotType.MainHand,
     ]);
     if (equippedUsableWeaponsResult instanceof Error) return equippedUsableWeaponsResult;
     const equippedUsableWeapons = equippedUsableWeaponsResult;
 
-    //
+    const weapon = equippedUsableWeapons[HoldableSlotType.MainHand];
+    if (weapon) {
+      addWeaponsDamageToRange([weapon], baseValues);
+      const weaponModifiersToCopy = new Set(iterateNumericEnum(HpChangeSourceModifiers));
 
-    const hpChangeSource = new HpChangeSource(hpChangeSourceConfig);
+      const averageRoll = baseValues.getAverage();
+      const mostEffectiveAvailableHpChangeSourceOnWeapon =
+        selectMostEffectiveFromAvailableHpChangeSourceModifiers(
+          hpChangeProperties,
+          weapon.weaponProperties.damageClassification,
+          weaponModifiersToCopy,
+          user,
+          primaryTarget,
+          averageRoll
+        );
 
-    const hpChangeProperties: CombatActionHpChangeProperties = {
-      hpChangeSource,
-      baseValues,
-    };
+      if (mostEffectiveAvailableHpChangeSourceOnWeapon) {
+        // if we ever add another trait besides lifesteal which might affect damage, put those traits
+        // before the testing for best hp change source modifiers
+        const maybeError = Equipment.applyEquipmentTraitsToHpChangeSource(
+          weapon.equipment,
+          mostEffectiveAvailableHpChangeSourceOnWeapon
+        );
+        if (maybeError instanceof Error) console.error(maybeError);
 
-    // @TODO - handle these
-    // finalDamagePercentMultiplier: 0,
-    // addWeaponDamageFromSlots: null,
-    // addWeaponModifiersFromSlot: null,
-    // additiveAttributeAndPercentScalingFactor: null,
+        copySelectedModifiersFromHpChangeSource(
+          hpChangeProperties.hpChangeSource,
+          mostEffectiveAvailableHpChangeSourceOnWeapon,
+          weaponModifiersToCopy
+        );
+      }
+    }
+
+    baseValues.min = Math.max(1, Math.floor(baseValues.min));
+    baseValues.max = Math.max(1, Math.floor(baseValues.max));
+
+    // @TODO - if any final modifies like for offhand, do it here
+
+    return hpChangeProperties;
   },
   getAppliedConditions: function (): CombatantCondition[] | null {
     // ex: could make a "poison blade" item
