@@ -25,6 +25,5 @@ export function addCombatantLevelScaledAttributeToRange(config: {
   const levelAdjustedValue =
     (scaledAttributeValue * combatantLevel) / COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER;
 
-  range.min += levelAdjustedValue;
-  range.max += levelAdjustedValue;
+  range.add(levelAdjustedValue);
 }

@@ -92,6 +92,11 @@ export class Equipment extends Item {
 
   static getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
   static isTwoHanded = equipmentIsTwoHandedWeapon;
+  static isRangedWeapon(equipment: Equipment) {
+    return (
+      equipment.equipmentBaseItemProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon
+    );
+  }
   static applyEquipmentTraitsToHpChangeSource = applyEquipmentTraitsToHpChangeSource;
 
   static getWeaponProperties(equipment: Equipment): Error | WeaponProperties {

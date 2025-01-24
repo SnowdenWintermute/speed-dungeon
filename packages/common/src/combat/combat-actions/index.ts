@@ -24,6 +24,7 @@ import { CharacterAssociatedData } from "../../types.js";
 import { AutoTargetingSelectionMethod } from "../targeting/index.js";
 import { ActionAccuracy } from "./combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "./combat-action-range.js";
+import { AUTO_TARGETING_FUNCTIONS } from "../targeting/auto-targeting/mapped-functions.js";
 
 export interface CombatActionCost {
   base: number;
@@ -70,10 +71,6 @@ export interface CombatActionComponentConfig {
     primaryTarget: CombatantProperties
   ) => Error | null | CombatActionHpChangeProperties;
   getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
-  getAutoTarget: (
-    characterAssociatedData: CharacterAssociatedData,
-    combatAction: CombatActionComponent
-  ) => Error | null | CombatActionTarget;
   getChildren: (combatant: Combatant) => null | CombatActionComponent[];
   getParent: () => CombatActionComponent | null;
 }
@@ -147,10 +144,6 @@ export abstract class CombatActionComponent {
   ) => Error | null | CombatActionHpChangeProperties;
   // may be calculated based on combatant equipment or conditions
   getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
-  getAutoTarget: (
-    characterAssociatedData: CharacterAssociatedData,
-    combatAction: CombatActionComponent
-  ) => Error | null | CombatActionTarget;
   protected children?: CombatActionComponent[];
   // if we take in the combatant we can determine the children based on their equipped weapons (melee attack mh, melee attack oh etc)
   // spell levels (level 1 chain lightning only gets 1 ChainLightningArc child) or other status
@@ -158,9 +151,19 @@ export abstract class CombatActionComponent {
   // could also create random children such as a chaining random elemental damage
   getChildren: (combatant: Combatant) => null | CombatActionComponent[];
   getParent: () => CombatActionComponent | null;
-
   addChild: (childAction: CombatActionComponent) => Error | void = () =>
     new Error("Can't add a child to this component");
+
+  // DEFAULT FUNCTIONS
+
+  getAutoTarget: (
+    characterAssociatedData: CharacterAssociatedData,
+    combatAction: CombatActionComponent
+  ) => Error | null | CombatActionTarget = (characterAssociatedData, combatAction) => {
+    const scheme = combatAction.autoTargetSelectionMethod?.scheme;
+    if (!scheme) return null;
+    return AUTO_TARGETING_FUNCTIONS[scheme](characterAssociatedData, combatAction);
+  };
 
   constructor(
     public name: CombatActionName,
@@ -187,8 +190,6 @@ export abstract class CombatActionComponent {
     this.getRequiredRange = config.getRequiredRange;
     this.getHpChangeProperties = config.getHpChangeProperties;
     this.getAppliedConditions = config.getAppliedConditions;
-    this.getAutoTarget = (characterAssociatedData: CharacterAssociatedData) =>
-      config.getAutoTarget(characterAssociatedData, this);
     this.getChildren = config.getChildren;
     this.getParent = config.getParent;
   }
