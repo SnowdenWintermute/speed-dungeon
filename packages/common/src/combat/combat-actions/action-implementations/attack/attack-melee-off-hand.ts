@@ -48,7 +48,8 @@ const config: CombatActionComponentConfig = {
   accuracyModifier: OFF_HAND_ACCURACY_MODIFIER,
   appliesConditions: [],
   incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: 1 } },
-  costs: null,
+  costBases: {},
+  getResourceCosts: () => null,
   getExecutionTime: () => DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
   requiresCombatTurn: (user) => {
     for (const holdableSlotType of iterateNumericEnum(HoldableSlotType)) {

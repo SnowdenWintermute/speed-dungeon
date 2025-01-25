@@ -1,6 +1,6 @@
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/index.js";
 import { Battle, BattleConclusion } from "../battle/index.js";
-import { CombatAction } from "../combat/index.js";
+import { CombatActionName } from "../combat/index.js";
 import { ActionCommandPayload } from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Item } from "../items/index.js";
@@ -124,7 +124,7 @@ export interface ServerToClientEventTypes {
   // [ServerToClientEvent.RawActionResults]: (actionResults: ActionResult[]) => void;
   [ServerToClientEvent.CharacterSelectedCombatAction]: (
     characterId: string,
-    combatActionOption: null | CombatAction
+    combatActionOption: null | CombatActionName
   ) => void;
   [ServerToClientEvent.CharacterCycledTargets]: (
     characterId: string,

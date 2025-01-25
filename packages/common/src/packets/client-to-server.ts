@@ -1,4 +1,4 @@
-import { CombatAction } from "../combat/index.js";
+import { CombatActionName } from "../combat/index.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantClass } from "../combatants/index.js";
 import { ConsumableType } from "../items/consumables/index.js";
@@ -69,7 +69,7 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.DeleteCharacter]: (characterId: string) => void;
   [ClientToServerEvent.SelectCombatAction]: (eventData: {
     characterId: string;
-    combatActionOption: null | CombatAction;
+    combatActionOption: null | CombatActionName;
   }) => void;
   [ClientToServerEvent.IncrementAttribute]: (eventData: {
     characterId: string;

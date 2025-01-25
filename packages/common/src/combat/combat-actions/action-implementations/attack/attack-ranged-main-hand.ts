@@ -38,7 +38,8 @@ const config: CombatActionComponentConfig = {
   accuracyModifier: 0.9,
   appliesConditions: [],
   incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: 1 } },
-  costs: null,
+  costBases: {},
+  getResourceCosts: () => null,
   getExecutionTime: () => DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
   requiresCombatTurn: (user) => {
     for (const holdableSlotType of iterateNumericEnum(HoldableSlotType)) {

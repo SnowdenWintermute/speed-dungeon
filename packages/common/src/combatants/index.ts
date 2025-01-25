@@ -1,13 +1,6 @@
 import { Vector3 } from "@babylonjs/core";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
-import {
-  CombatantAbility,
-  AbilityName,
-  getAbilityManaCostIfOwned,
-  getAbilityManaCostForCombatant,
-} from "./abilities/index.js";
-import getAbilityIfOwned from "./abilities/get-ability-if-owned.js";
 import combatantCanUseItem from "./can-use-item.js";
 import changeCombatantMana from "./resources/change-mana.js";
 import changeCombatantHitPoints from "./resources/change-hit-points.js";
@@ -17,7 +10,6 @@ import { CombatantSpecies } from "./combatant-species.js";
 import { CombatantTrait, CombatantTraitType } from "./combatant-traits/index.js";
 import dropEquippedItem from "./inventory/drop-equipped-item.js";
 import dropItem from "./inventory/drop-item.js";
-import getAbilityNamesFilteredByUseableContext from "./abilities/get-ability-names-filtered-by-usable-context.js";
 import { getCombatActionPropertiesIfOwned } from "./get-combat-action-properties.js";
 import getCombatantTotalAttributes from "./attributes/get-combatant-total-attributes.js";
 import getCombatantTotalElementalAffinities from "./combatant-traits/get-combatant-total-elemental-affinities.js";
@@ -43,16 +35,17 @@ import { getOwnedEquipment } from "./inventory/get-owned-items.js";
 import { EntityId } from "../primatives/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { canPickUpItem } from "./inventory/can-pick-up-item.js";
-import { getAllUsableActionsCombatantCanPerform } from "./get-all-usable-actions-combatant-can-perform.js";
-import { combatantCanUseOwnedAbility } from "./abilities/can-use-owned-ability.js";
 import { EntityProperties } from "../primatives/index.js";
 import { Inventory } from "./inventory/index.js";
-import { CombatActionComponent, CombatActionName } from "../combat/combat-actions/index.js";
+import { CombatActionName } from "../combat/combat-actions/index.js";
+import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
+import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
+import { getAllCurrentlyUsableActionNames } from "./owned-actions/get-all-currently-usable-action-names.js";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
 export * from "./combatant-traits/index.js";
-export * from "./abilities/index.js";
+export * from "./owned-actions/index.js";
 export * from "./get-combat-action-properties.js";
 export * from "./inventory/index.js";
 export * from "./update-home-position.js";
@@ -81,7 +74,7 @@ export class CombatantProperties {
     current: 0,
     requiredForNextLevel: XP_REQUIRED_TO_REACH_LEVEL_2,
   };
-  abilities: Partial<Record<AbilityName, CombatantAbility>> = {};
+  ownedActions: Partial<Record<CombatActionName, CombatantActionState>> = {};
   traits: CombatantTrait[] = [];
   equipment: CombatantEquipment = new CombatantEquipment();
   // holdable equipment hotswap slots
@@ -105,16 +98,7 @@ export class CombatantProperties {
     public controllingPlayer: null | string,
     public homeLocation: Vector3
   ) {
-    this.abilities[AbilityName.Attack] = CombatantAbility.createByName(AbilityName.Attack);
-    this.abilities[AbilityName.AttackMeleeMainhand] = CombatantAbility.createByName(
-      AbilityName.AttackMeleeMainhand
-    );
-    this.abilities[AbilityName.AttackMeleeOffhand] = CombatantAbility.createByName(
-      AbilityName.AttackMeleeOffhand
-    );
-    this.abilities[AbilityName.AttackRangedMainhand] = CombatantAbility.createByName(
-      AbilityName.AttackRangedMainhand
-    );
+    this.ownedActions[CombatActionName.Attack] = new CombatantActionState(CombatActionName.Attack);
   }
 
   static getCombatActionPropertiesIfOwned = getCombatActionPropertiesIfOwned;
@@ -124,7 +108,7 @@ export class CombatantProperties {
     getCombatantTotalKineticDamageTypeAffinities;
   static getEquippedWeapon = getEquippedWeapon;
   static getUsableWeaponsInSlots = getUsableWeaponsInSlots;
-  static getAbilityNamesFilteredByUseableContext = getAbilityNamesFilteredByUseableContext;
+  static getActionNamesFilteredByUseableContext = getActionNamesFilteredByUseableContext;
   static getSlotItemIsEquippedTo = getSlotItemIsEquippedTo;
   static getOwnedEquipment = getOwnedEquipment;
   static getOwnedItemById(combatantProperties: CombatantProperties, itemId: EntityId) {
@@ -138,9 +122,7 @@ export class CombatantProperties {
     }
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
-  static getAbilityManaCostIfOwned = getAbilityManaCostIfOwned;
-  static getAbilityManaCost = getAbilityManaCostForCombatant;
-  static getAbilityIfOwned = getAbilityIfOwned;
+  static getOwnedActionState = getOwnedActionState;
   static changeHitPoints = changeCombatantHitPoints;
   static changeMana = changeCombatantMana;
   static clampHpAndMpToMax = clampResourcesToMax;
@@ -157,9 +139,7 @@ export class CombatantProperties {
     Inventory.instantiateItemClasses(combatantProperties.inventory);
     CombatantEquipment.instatiateItemClasses(combatantProperties);
   }
-
-  static getAllUsableActions = getAllUsableActionsCombatantCanPerform;
-  static canUseOwnedAbility = combatantCanUseOwnedAbility;
+  static getAllCurrentlyUsableActionNames = getAllCurrentlyUsableActionNames;
 
   static hasTraitType(combatantProperties: CombatantProperties, traitType: CombatantTraitType) {
     let hasTrait = false;

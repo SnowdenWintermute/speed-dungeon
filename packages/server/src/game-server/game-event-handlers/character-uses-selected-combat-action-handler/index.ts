@@ -2,7 +2,7 @@ import {
   ActionResult,
   CharacterAssociatedData,
   CombatActionComponent,
-  CombatActionName,
+  CombatantAssociatedData,
   ERROR_MESSAGES,
   InputLock,
 } from "@speed-dungeon/common";
@@ -14,6 +14,7 @@ export default async function useSelectedCombatActionHandler(
   characterAssociatedData: CharacterAssociatedData
 ) {
   const { game, party, character } = characterAssociatedData;
+  const combatantContext: CombatantAssociatedData = { game, party, combatant: character };
   const gameServer = getGameServer();
 
   if (InputLock.isLocked(party.inputLock)) return new Error(ERROR_MESSAGES.PARTY.INPUT_IS_LOCKED);
@@ -29,7 +30,7 @@ export default async function useSelectedCombatActionHandler(
     selectedCombatAction
   );
   // walk through combat action composite tree depth first, executing child nodes
-  const { successfulResults, maybeError } = processActionExecutionStack(characterAssociatedData, [
+  const { successfulResults, maybeError } = processActionExecutionStack(combatantContext, [
     selectedCombatAction,
   ]);
 
@@ -53,16 +54,16 @@ export default async function useSelectedCombatActionHandler(
 }
 
 function processActionExecutionStack(
-  characterAssociatedData: CharacterAssociatedData,
+  combatantContext: CombatantAssociatedData,
   initialActions: CombatActionComponent[]
 ): { successfulResults: ActionResult[]; maybeError: null | Error } {
-  const { character } = characterAssociatedData;
+  const { combatant } = combatantContext;
   const results: ActionResult[] = []; // GameUpdateCommand[]
   const actionsToExecute: CombatActionComponent[] = [...initialActions];
 
   let currentAction = actionsToExecute.pop();
   while (currentAction) {
-    if (!currentAction.shouldExecute(characterAssociatedData)) {
+    if (!currentAction.shouldExecute(combatantContext)) {
       currentAction = actionsToExecute.pop();
       continue;
     }
@@ -73,19 +74,17 @@ function processActionExecutionStack(
     // push on-success or on-failure animation effects
     // push resource changes and conditions applied to results
     // process triggers for "on hit" ex: detonate explosive, interrupt channeling
+    // - push triggered actions to the stack
     // process triggers for "on evade" ex: evasion stacks increased
     // build the action commands from the result on server and apply to game
     // continue building the list of action results for the client to use
 
     // process children recursively
-    const childrenOption = currentAction.getChildren(character);
+    const childrenOption = currentAction.getChildren(combatant);
     if (childrenOption) {
       // since we'll be popping them, reverse them into the correct order
       const childrenReversed = childrenOption.reverse();
-      const childActionResults = processActionExecutionStack(
-        characterAssociatedData,
-        childrenReversed
-      );
+      const childActionResults = processActionExecutionStack(combatantContext, childrenReversed);
 
       results.push(...childActionResults.successfulResults);
       if (childActionResults.maybeError instanceof Error)

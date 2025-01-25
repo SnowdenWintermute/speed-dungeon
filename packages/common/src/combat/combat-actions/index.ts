@@ -5,7 +5,6 @@ export * from "./get-combat-action-execution-time.js";
 export * from "./targeting-schemes-and-categories.js";
 export * from "./combat-action-usable-cotexts.js";
 import { Combatant, CombatantProperties } from "../../combatants/index.js";
-import { ConsumableType } from "../../items/consumables/index.js";
 import {
   EquipmentSlotType,
   HoldableSlotType,
@@ -25,15 +24,11 @@ import { ActionAccuracy, ActionAccuracyType } from "./combat-action-accuracy.js"
 import { CombatActionRequiredRange } from "./combat-action-range.js";
 import { AUTO_TARGETING_FUNCTIONS } from "../targeting/auto-targeting/mapped-functions.js";
 import { CombatantAssociatedData } from "../../types.js";
-
-export interface CombatActionCost {
-  base: number;
-  multipliers?: CombatActionCostMultipliers;
-}
-export interface CombatActionCostMultipliers {
-  actionLevel?: number;
-  userCombatantLevel?: number;
-}
+import {
+  ActionResourceCostBases,
+  ActionResourceCosts,
+  getStandardActionResourceCosts,
+} from "./action-calculation-utils/action-costs.js";
 
 export interface CombatActionComponentConfig {
   description: string;
@@ -49,13 +44,11 @@ export interface CombatActionComponentConfig {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
     [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
   };
-  costs: null | {
-    hp?: CombatActionCost;
-    mp?: CombatActionCost;
-    shards?: CombatActionCost;
-    quickActions?: CombatActionCost;
-    consumableType?: ConsumableType;
-  };
+  costBases: ActionResourceCostBases;
+  getResourceCosts: (
+    user: CombatantProperties,
+    self: CombatActionComponent
+  ) => null | ActionResourceCosts;
   getExecutionTime: () => number;
   requiresCombatTurn: (user: CombatantProperties) => boolean;
   shouldExecute: (
@@ -99,25 +92,26 @@ export abstract class CombatActionComponent {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
     [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
   };
-  costs: null | {
-    hp?: CombatActionCost;
-    mp?: CombatActionCost;
-    shards?: CombatActionCost;
-    quickActions?: CombatActionCost;
-    consumableType?: ConsumableType;
-  };
+  costBases: ActionResourceCostBases;
+  getResourceCosts: (user: CombatantProperties) => null | ActionResourceCosts;
   getExecutionTime: () => number;
-  isUsableInThisContext: (battleOption: Battle | null) => boolean = (
-    battleOption: Battle | null
-  ) => {
-    switch (this.usabilityContext) {
+  isUsableInGivenContext(context: CombatActionUsabilityContext) {
+    switch (context) {
       case CombatActionUsabilityContext.All:
         return true;
       case CombatActionUsabilityContext.InCombat:
-        return battleOption !== null;
+        return this.usabilityContext !== CombatActionUsabilityContext.OutOfCombat;
       case CombatActionUsabilityContext.OutOfCombat:
-        return battleOption === null;
+        return this.usabilityContext !== CombatActionUsabilityContext.InCombat;
     }
+  }
+  isUsableInThisContext: (battleOption: Battle | null) => boolean = (
+    battleOption: Battle | null
+  ) => {
+    const context = battleOption
+      ? CombatActionUsabilityContext.InCombat
+      : CombatActionUsabilityContext.OutOfCombat;
+    return this.isUsableInGivenContext(context);
   };
   // take the user so we can for example check during attackMeleeMh if they have a shield equipped, therefore it should end turn
   // also possible to check if they have a "tired" debuff which causes all actions to end turn
@@ -182,7 +176,8 @@ export abstract class CombatActionComponent {
     this.accuracyModifier = config.accuracyModifier;
     this.appliesConditions = config.appliesConditions;
     this.incursDurabilityLoss = config.incursDurabilityLoss;
-    this.costs = config.costs;
+    this.costBases = config.costBases;
+    this.getResourceCosts = (user: CombatantProperties) => config.getResourceCosts(user, this);
     this.getExecutionTime = config.getExecutionTime;
     this.requiresCombatTurn = config.requiresCombatTurn;
     this.shouldExecute = (characterAssociatedData) =>
