@@ -11,17 +11,18 @@ import {
   MenuStateType,
 } from ".";
 import {
-  ActionUsableContext,
   Battle,
   ClientToServerEvent,
-  CombatActionType,
-  AbilityName,
   CombatantProperties,
-  ABILITY_NAME_STRINGS,
   Inventory,
+  CombatActionUsabilityContext,
   CombatantEquipment,
   HoldableSlotType,
   EquipmentType,
+  iterateNumericEnumKeyedRecord,
+  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionName,
+  COMBAT_ACTIONS,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -30,8 +31,7 @@ import getGameAndParty from "@/utils/getGameAndParty";
 import cloneDeep from "lodash.clonedeep";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
-import { ABILITY_ATTRIBUTES } from "@speed-dungeon/common";
-import { setInventoryOpen, toggleInventoryHotkey } from "./common-buttons/open-inventory";
+import { setInventoryOpen } from "./common-buttons/open-inventory";
 import { ReactNode } from "react";
 
 import FireIcon from "../../../../../public/img/game-ui-icons/fire.svg";
@@ -107,30 +107,26 @@ export class BaseMenuState implements ActionMenuState {
       return toReturn;
     }
 
-    const abilitiesNotToMakeButtonsFor = [
-      AbilityName.AttackMeleeOffhand,
-      AbilityName.AttackMeleeMainhand,
-      AbilityName.AttackRangedMainhand,
-    ];
-
-    for (const ability of Object.values(combatantProperties.abilities)) {
-      if (abilitiesNotToMakeButtonsFor.includes(ability.name)) continue;
+    for (const [actionName, _actionState] of iterateNumericEnumKeyedRecord(
+      combatantProperties.ownedActions
+    )) {
+      const nameAsString = COMBAT_ACTION_NAME_STRINGS[actionName];
       const button = new ActionMenuButtonProperties(
         (
           <div className="flex justify-between h-full w-full pr-2">
             <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
-              {ABILITY_NAME_STRINGS[ability.name]}
+              {nameAsString}
             </div>
             <div className="h-full flex items-center">
-              {getAbilityIcon(ability.name, focusedCharacterResult.combatantProperties)}
+              {getActionIcon(actionName, focusedCharacterResult.combatantProperties)}
             </div>
           </div>
         ),
-        ABILITY_NAME_STRINGS[ability.name],
+        nameAsString,
         () => {
           websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
             characterId,
-            combatActionOption: { type: CombatActionType.AbilityUsed, abilityName: ability.name },
+            combatActionNameOption: actionName,
           });
           useGameStore.getState().mutateState((state) => {
             state.hoveredAction = null;
@@ -140,32 +136,31 @@ export class BaseMenuState implements ActionMenuState {
 
       button.mouseEnterHandler = button.focusHandler = () =>
         useGameStore.getState().mutateState((state) => {
-          state.hoveredAction = cloneDeep({
-            type: CombatActionType.AbilityUsed,
-            abilityName: ability.name,
-          });
+          state.hoveredAction = actionName;
         });
       button.mouseLeaveHandler = button.blurHandler = () =>
         useGameStore.getState().mutateState((state) => {
           state.hoveredAction = null;
         });
 
-      const abilityAttributes = ABILITY_ATTRIBUTES[ability.name];
-      const { usabilityContext } = abilityAttributes.combatActionProperties;
+      const combatAction = COMBAT_ACTIONS[actionName];
+      const { usabilityContext } = combatAction;
 
-      const abilityCostIfOwned = CombatantProperties.getAbilityManaCostIfOwned(
-        combatantProperties,
-        ability.name
-      );
-      const notEnoughMana =
-        abilityCostIfOwned instanceof Error || combatantProperties.mana < abilityCostIfOwned;
+      // @TODO - determine all costs, not just mana
+      // const abilityCostIfOwned = CombatantProperties.getAbilityManaCostIfOwned(
+      //   combatantProperties,
+      //   ability.name
+      // );
+
+      // const notEnoughMana =
+      //   abilityCostIfOwned instanceof Error || combatantProperties.mana < abilityCostIfOwned;
 
       const userControlsThisCharacter = clientUserControlsCombatant(characterId);
 
       button.shouldBeDisabled =
-        (usabilityContext === ActionUsableContext.InCombat && !this.inCombat) ||
-        (usabilityContext === ActionUsableContext.OutOfCombat && this.inCombat) ||
-        notEnoughMana ||
+        (usabilityContext === CombatActionUsabilityContext.InCombat && !this.inCombat) ||
+        (usabilityContext === CombatActionUsabilityContext.OutOfCombat && this.inCombat) ||
+        // notEnoughMana ||
         disabledBecauseNotThisCombatantTurnResult ||
         !userControlsThisCharacter;
 
@@ -197,34 +192,35 @@ function disableButtonBecauseNotThisCombatantTurn(combatantId: string) {
   return disableButtonBecauseNotThisCombatantTurn;
 }
 
-function getAbilityIcon(
-  abilityName: AbilityName,
+function getActionIcon(
+  actionName: CombatActionName,
   combatantProperties: CombatantProperties
 ): ReactNode {
-  switch (abilityName) {
-    case AbilityName.Attack:
-    case AbilityName.AttackMeleeMainhand:
-    case AbilityName.AttackMeleeOffhand:
-    case AbilityName.AttackRangedMainhand:
-      const mhOption = CombatantEquipment.getEquippedHoldable(
-        combatantProperties,
-        HoldableSlotType.MainHand
-      );
-      if (
-        mhOption &&
-        mhOption.equipmentBaseItemProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon
-      ) {
-        return <RangedIcon className="h-[20px] fill-slate-400 stroke-slate-400" />;
-      } else {
-        return <SwordSlashIcon className="h-[20px] fill-slate-400" />;
-      }
-    case AbilityName.Fire:
-      return <FireIcon className="h-[20px] fill-slate-400" />;
-    case AbilityName.Ice:
-      return <IceIcon className="h-[20px] fill-slate-400" />;
-    case AbilityName.Healing:
-      return <HealthCrossIcon className="h-[20px] fill-slate-400" />;
-    case AbilityName.Destruction:
-      return <FireIcon className="h-[20px] fill-slate-400" />;
-  }
+  return <div>icon</div>;
+  // switch (abilityName) {
+  //   case AbilityName.Attack:
+  //   case AbilityName.AttackMeleeMainhand:
+  //   case AbilityName.AttackMeleeOffhand:
+  //   case AbilityName.AttackRangedMainhand:
+  //     const mhOption = CombatantEquipment.getEquippedHoldable(
+  //       combatantProperties,
+  //       HoldableSlotType.MainHand
+  //     );
+  //     if (
+  //       mhOption &&
+  //       mhOption.equipmentBaseItemProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon
+  //     ) {
+  //       return <RangedIcon className="h-[20px] fill-slate-400 stroke-slate-400" />;
+  //     } else {
+  //       return <SwordSlashIcon className="h-[20px] fill-slate-400" />;
+  //     }
+  //   case AbilityName.Fire:
+  //     return <FireIcon className="h-[20px] fill-slate-400" />;
+  //   case AbilityName.Ice:
+  //     return <IceIcon className="h-[20px] fill-slate-400" />;
+  //   case AbilityName.Healing:
+  //     return <HealthCrossIcon className="h-[20px] fill-slate-400" />;
+  //   case AbilityName.Destruction:
+  //     return <FireIcon className="h-[20px] fill-slate-400" />;
+  // }
 }

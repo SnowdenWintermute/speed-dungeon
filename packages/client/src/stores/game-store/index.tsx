@@ -4,7 +4,7 @@ import { immer } from "zustand/middleware/immer";
 import { immerable, produce } from "immer";
 import {
   AdventuringParty,
-  CombatAction,
+  CombatActionName,
   CombatAttribute,
   Combatant,
   ERROR_MESSAGES,
@@ -52,7 +52,7 @@ export class GameState {
   hoveredEntity: null | Combatant | Item = null;
   comparedItem: null | Item = null;
   comparedSlot: null | TaggedEquipmentSlot = null;
-  hoveredAction: null | CombatAction = null;
+  hoveredAction: null | CombatActionName = null;
   actionMenuCurrentPageNumber: number = 0;
   actionMenuParentPageNumbers: number[] = [];
   combatLogMessages: CombatLogMessage[] = [];

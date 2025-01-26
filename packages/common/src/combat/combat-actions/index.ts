@@ -79,12 +79,12 @@ export abstract class CombatActionComponent {
   // shouldDisplayTargetingIndicator()
   // could be useful to hide the indicator of a parent who's children indicate their parent as target as with attack
   // or to hide indicators of bouncing child attacks which would baloon factorially
-  public description: string;
-  public targetingSchemes: TargetingScheme[];
-  public validTargetCategories: TargetCategories;
-  public autoTargetSelectionMethod: AutoTargetingSelectionMethod;
-  public intent: CombatActionIntent;
-  private usabilityContext: CombatActionUsabilityContext;
+  public readonly description: string;
+  public readonly targetingSchemes: TargetingScheme[];
+  public readonly validTargetCategories: TargetCategories;
+  public readonly autoTargetSelectionMethod: AutoTargetingSelectionMethod;
+  public readonly intent: CombatActionIntent;
+  public readonly usabilityContext: CombatActionUsabilityContext;
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
   baseHpChangeValuesLevelMultiplier: number; // @TODO - actually use this for attack et al, or remove it
   accuracyModifier: number;

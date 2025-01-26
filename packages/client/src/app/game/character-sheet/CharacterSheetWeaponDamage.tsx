@@ -1,12 +1,8 @@
 import { useGameStore } from "@/stores/game-store";
 import { Vector3 } from "@babylonjs/core";
 import {
-  CombatAction,
-  CombatActionType,
-  AbilityName,
   CombatantProperties,
   ERROR_MESSAGES,
-  getCombatActionHpChangeRange,
   Combatant,
   CombatantClass,
   CombatantSpecies,
@@ -14,6 +10,8 @@ import {
   Equipment,
   HoldableSlotType,
   CombatantEquipment,
+  CombatActionName,
+  COMBAT_ACTIONS,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
@@ -31,7 +29,7 @@ export default function CharacterSheetWeaponDamage({ combatant }: { combatant: C
   );
 
   if (mhWeaponOption instanceof Error) return <div>{mhWeaponOption.message}</div>;
-  const mhDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(
+  const mhDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(
     combatant,
     mhWeaponOption,
     false
@@ -58,7 +56,7 @@ export default function CharacterSheetWeaponDamage({ combatant }: { combatant: C
       HoldableSlotType.OffHand
     );
     if (ohWeaponOption instanceof Error) ohWeaponOption = undefined; // might be a shield
-    ohDamageAndAccuracyResult = getAttackAbilityDamageAndAccuracy(combatant, ohWeaponOption, true);
+    ohDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(combatant, ohWeaponOption, true);
   }
 
   if (mhDamageAndAccuracyResult instanceof Error)
@@ -116,36 +114,33 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
   );
 }
 
-function getAttackAbilityDamageAndAccuracy(
+function getAttackActionDamageAndAccuracy(
   combatant: Combatant,
   weaponOption: undefined | WeaponProperties,
   isOffHand: boolean
 ) {
-  let abilityName = isOffHand ? AbilityName.AttackMeleeOffhand : AbilityName.AttackMeleeMainhand;
+  let actionName = isOffHand
+    ? CombatActionName.AttackMeleeOffhand
+    : CombatActionName.AttackMeleeMainhand;
   const { combatantProperties } = combatant;
 
   if (weaponOption) {
     const weaponProperties = weaponOption;
-    switch (weaponProperties.type) {
+    switch (weaponProperties.equipmentType) {
       case EquipmentType.TwoHandedRangedWeapon:
-        abilityName = AbilityName.AttackRangedMainhand;
+        actionName = CombatActionName.AttackRangedMainhand;
       case EquipmentType.TwoHandedMeleeWeapon:
         break;
       case EquipmentType.OneHandedMeleeWeapon:
     }
   }
 
-  const combatAction: CombatAction = {
-    type: CombatActionType.AbilityUsed,
-    abilityName: abilityName,
-  };
-
   const gameOption = useGameStore.getState().game;
 
-  const targetResult = getTargetOption(gameOption, combatant, combatAction);
-  if (targetResult instanceof Error) return targetResult;
+  const currentlyTargetedCombatantResult = getTargetOption(gameOption, combatant, actionName);
+  if (currentlyTargetedCombatantResult instanceof Error) return currentlyTargetedCombatantResult;
   const target =
-    targetResult ||
+    currentlyTargetedCombatantResult ||
     new CombatantProperties(
       CombatantClass.Warrior,
       CombatantSpecies.Humanoid,
@@ -154,42 +149,23 @@ function getAttackAbilityDamageAndAccuracy(
       Vector3.Zero()
     );
 
-  const attackActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
-    combatantProperties,
-    combatAction
-  );
-  if (attackActionPropertiesResult instanceof Error) return attackActionPropertiesResult;
-  if (attackActionPropertiesResult.hpChangeProperties === null)
-    return new Error(ERROR_MESSAGES.ABILITIES.INVALID_TYPE);
+  const combatAction = COMBAT_ACTIONS[actionName];
+  const hpChangeProperties = combatAction.getHpChangeProperties(combatantProperties, target);
+  if (hpChangeProperties === null) return new Error(ERROR_MESSAGES.ABILITIES.INVALID_TYPE);
 
-  const hpChangeProperties = attackActionPropertiesResult.hpChangeProperties;
+  const hpChangeRangeResult = hpChangeProperties.baseValues;
 
-  const equippedUsableWeaponsResult = CombatantProperties.getUsableWeaponsInSlots(
-    combatantProperties,
-    [HoldableSlotType.MainHand, HoldableSlotType.OffHand]
-  );
-  if (equippedUsableWeaponsResult instanceof Error) return equippedUsableWeaponsResult;
-  const equippedUsableWeapons = equippedUsableWeaponsResult;
-
-  const hpChangeRangeResult = getCombatActionHpChangeRange(
-    combatAction,
-    hpChangeProperties,
-    combatantProperties,
-    equippedUsableWeapons
-  );
   if (hpChangeRangeResult instanceof Error) return hpChangeRangeResult;
 
   const hpChangeRange = hpChangeRangeResult;
-
   const hitChance = getActionHitChance(
-    attackActionPropertiesResult,
+    combatAction,
     combatantProperties,
     CombatantProperties.getTotalAttributes(target)[CombatAttribute.Evasion],
-    !!attackActionPropertiesResult.hpChangeProperties.hpChangeSource.unavoidable,
     false
   );
 
-  const critChance = getActionCritChance(hpChangeProperties, combatantProperties, target, false);
+  const critChance = getActionCritChance(combatAction, combatantProperties, target, false);
 
   return { hpChangeRange, hitChance, critChance };
 }

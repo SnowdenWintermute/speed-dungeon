@@ -67,6 +67,7 @@ function processActionExecutionStack(
 
   let currentAction = actionsToExecute.pop();
   while (currentAction) {
+    console.log("processing");
     if (!currentAction.shouldExecute(combatantContext)) {
       currentAction = actionsToExecute.pop();
       continue;

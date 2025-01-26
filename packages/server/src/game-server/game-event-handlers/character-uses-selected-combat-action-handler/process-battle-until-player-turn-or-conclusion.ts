@@ -26,49 +26,49 @@ export async function processBattleUntilPlayerTurnOrConclusion(
   let newActiveCombatantTrackerOption: undefined | CombatantTurnTracker =
     battleOption?.turnTrackers[0];
 
-  while (!battleConcluded && newActiveCombatantTrackerOption) {
-    const activeCombatantResult = SpeedDungeonGame.getCombatantById(
-      game,
-      newActiveCombatantTrackerOption.entityId
-    );
-    if (activeCombatantResult instanceof Error) return activeCombatantResult;
-    let { combatantProperties } = activeCombatantResult;
-    const activeCombatantIsAiControlled = combatantProperties.controllingPlayer === null;
-    if (!activeCombatantIsAiControlled) break;
+  // while (!battleConcluded && newActiveCombatantTrackerOption) {
+  //   const activeCombatantResult = SpeedDungeonGame.getCombatantById(
+  //     game,
+  //     newActiveCombatantTrackerOption.entityId
+  //   );
+  //   if (activeCombatantResult instanceof Error) return activeCombatantResult;
+  //   let { combatantProperties } = activeCombatantResult;
+  //   const activeCombatantIsAiControlled = combatantProperties.controllingPlayer === null;
+  //   if (!activeCombatantIsAiControlled) break;
 
-    // @TODO - conform to the new ai behavior tree and action processing system
-    // const aiActionCommandPayloadsResult = await getAIControlledTurnActionCommandPayloads(
-    //   game,
-    //   party,
-    //   activeCombatantResult
-    // );
-    // if (aiActionCommandPayloadsResult instanceof Error) return aiActionCommandPayloadsResult;
-    // const aiActionCommands = aiActionCommandPayloadsResult.map(
-    //   (item) =>
-    //     new ActionCommand(game.name, activeCombatantResult.entityProperties.id, item, gameServer)
-    // );
+  // @TODO - conform to the new ai behavior tree and action processing system
+  // const aiActionCommandPayloadsResult = await getAIControlledTurnActionCommandPayloads(
+  //   game,
+  //   party,
+  //   activeCombatantResult
+  // );
+  // if (aiActionCommandPayloadsResult instanceof Error) return aiActionCommandPayloadsResult;
+  // const aiActionCommands = aiActionCommandPayloadsResult.map(
+  //   (item) =>
+  //     new ActionCommand(game.name, activeCombatantResult.entityProperties.id, item, gameServer)
+  // );
 
-    // party.actionCommandQueue.enqueueNewCommands(aiActionCommands);
-    // // we may generate more payloads from processing the current commands, such as game messages about wipes
-    // const newPayloadsResult = await party.actionCommandQueue.processCommands();
-    // if (newPayloadsResult instanceof Error) return newPayloadsResult;
-    // actionCommandPayloads.push(...aiActionCommandPayloadsResult);
+  // party.actionCommandQueue.enqueueNewCommands(aiActionCommands);
+  // // we may generate more payloads from processing the current commands, such as game messages about wipes
+  // const newPayloadsResult = await party.actionCommandQueue.processCommands();
+  // if (newPayloadsResult instanceof Error) return newPayloadsResult;
+  // actionCommandPayloads.push(...aiActionCommandPayloadsResult);
 
-    // const newPayloadsCommands = newPayloadsResult.map(
-    //   (item) =>
-    //     new ActionCommand(game.name, activeCombatantResult.entityProperties.id, item, gameServer)
-    // );
-    // party.actionCommandQueue.enqueueNewCommands(newPayloadsCommands);
+  // const newPayloadsCommands = newPayloadsResult.map(
+  //   (item) =>
+  //     new ActionCommand(game.name, activeCombatantResult.entityProperties.id, item, gameServer)
+  // );
+  // party.actionCommandQueue.enqueueNewCommands(newPayloadsCommands);
 
-    // actionCommandPayloads.push(...newPayloadsResult);
+  // actionCommandPayloads.push(...newPayloadsResult);
 
-    if (!party.characterPositions[0]) return new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
-    partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
-    if (partyWipesResult instanceof Error) return partyWipesResult;
-    battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
+  // if (!party.characterPositions[0]) return new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
+  // partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
+  // if (partyWipesResult instanceof Error) return partyWipesResult;
+  // battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
 
-    newActiveCombatantTrackerOption = battleOption?.turnTrackers[0];
-  }
+  // newActiveCombatantTrackerOption = battleOption?.turnTrackers[0];
+  // }
 
   if (battleConcluded) {
     const conclusionResult = await getBattleConclusionCommandAndPayload(

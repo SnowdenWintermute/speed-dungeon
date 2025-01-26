@@ -22,7 +22,7 @@ import { writeAllPlayerCharacterInGameToDb } from "../saved-character-event-hand
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { processBattleUntilPlayerTurnOrConclusion } from "./character-uses-selected-combat-action-handler/process-battle-until-player-turn-or-conclusion.js";
 
-export default async function toggleReadyToExploreHandler(
+export async function toggleReadyToExploreHandler(
   _eventData: undefined,
   data: ServerPlayerAssociatedData
 ): Promise<Error | void> {
@@ -98,6 +98,7 @@ export async function exploreNextRoom(
   }
   const roomTypeToGenerate: DungeonRoomType = roomTypeToGenerateOption;
   const newRoom = generateDungeonRoom(party.currentFloor, roomTypeToGenerate);
+  console.log("generated room");
   party.currentRoom = newRoom;
 
   for (const monster of Object.values(party.currentRoom.monsters))

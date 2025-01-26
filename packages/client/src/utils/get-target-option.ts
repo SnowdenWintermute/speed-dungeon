@@ -1,7 +1,7 @@
 import { useGameStore } from "@/stores/game-store";
 import {
   Battle,
-  CombatAction,
+  CombatActionName,
   Combatant,
   CombatantProperties,
   SpeedDungeonGame,
@@ -11,7 +11,7 @@ import {
 export function getTargetOption(
   gameOption: null | SpeedDungeonGame,
   user: Combatant,
-  combatAction: CombatAction
+  actionName: CombatActionName
 ) {
   const { combatActionTarget } = user.combatantProperties;
   const userId = user.entityProperties.id;
@@ -32,7 +32,7 @@ export function getTargetOption(
 
   const actionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
     user.combatantProperties,
-    combatAction
+    actionName
   );
   if (actionPropertiesResult instanceof Error) return actionPropertiesResult;
   const combatActionProperties = actionPropertiesResult;
