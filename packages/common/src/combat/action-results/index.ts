@@ -12,8 +12,6 @@ import {
   ActionResultCalculationArguments,
   ActionResultCalculator,
 } from "./action-result-calculator.js";
-import { CombatActionType } from "../index.js";
-import applyConsumableUseToActionResult from "./apply-consumable-use-to-action-result.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { getCombatActionTargetIds } from "./get-action-target-ids.js";
 import { calculateActionHitPointChangesEvasionsAndDurabilityChanges } from "./hp-change-evasion-and-durability-change-result-calculation/index.js";
@@ -24,7 +22,7 @@ export default function calculateActionResult(
   args: ActionResultCalculationArguments
 ): Error | ActionResult {
   const { userId, combatAction, targets } = args;
-  const actionResult = new ActionResult(userId, cloneDeep(combatAction), cloneDeep(targets));
+  const actionResult = new ActionResult(userId, combatAction.name, cloneDeep(targets));
 
   const combatantResult = SpeedDungeonGame.getCombatantById(game, userId);
   if (combatantResult instanceof Error) return combatantResult;
@@ -32,7 +30,7 @@ export default function calculateActionResult(
 
   const actionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
     combatantProperties,
-    combatAction
+    combatAction.name
   );
   if (actionPropertiesResult instanceof Error) return actionPropertiesResult;
   const combatActionProperties = actionPropertiesResult;
@@ -54,24 +52,25 @@ export default function calculateActionResult(
   const targetIds = targetIdsResult;
   actionResult.targetIds = targetIds;
 
-  const manaCostOptionResult = ActionResultCalculator.calculateActionManaCost(game, args);
-  if (manaCostOptionResult instanceof Error) return manaCostOptionResult;
-  if (manaCostOptionResult !== null) actionResult.manaCost = Math.floor(manaCostOptionResult);
+  // @TODO - get other resource costs besides mp
+
+  const manaCostOption = combatAction.getResourceCosts(combatantProperties);
+  if (manaCostOption?.mp !== undefined) actionResult.manaCost = Math.floor(manaCostOption.mp);
   if (combatantProperties.mana < actionResult.manaCost)
     return new Error(ERROR_MESSAGES.ABILITIES.INSUFFICIENT_MANA);
 
   // CONSUMABLE ONLY
-  if (combatAction.type === CombatActionType.ConsumableUsed) {
-    const maybeError = applyConsumableUseToActionResult(
-      game,
-      actionResult,
-      combatAction,
-      targetIds,
-      combatantResult
-    );
-    if (maybeError instanceof Error) console.error(maybeError);
-    if (maybeError instanceof Error) return maybeError;
-  }
+  // if (combatAction.type === CombatActionType.ConsumableUsed) {
+  //   const maybeError = applyConsumableUseToActionResult(
+  //     game,
+  //     actionResult,
+  //     combatAction,
+  //     targetIds,
+  //     combatantResult
+  //   );
+  //   if (maybeError instanceof Error) console.error(maybeError);
+  //   if (maybeError instanceof Error) return maybeError;
+  // }
   // END CONSUMABLE
 
   const hitPointChangesCritsEvasionsAndDurabilityChangesResult =

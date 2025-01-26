@@ -25,6 +25,7 @@ import {
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
 import { ATTACK_MELEE_OFF_HAND } from "./attack-melee-off-hand.js";
 import { AutoTargetingScheme } from "../../../targeting/index.js";
+import { CombatActionIntent } from "../../combat-action-intent.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
@@ -32,6 +33,7 @@ const config: CombatActionComponentConfig = {
   validTargetCategories: TargetCategories.Opponent,
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.UserSelected },
   usabilityContext: CombatActionUsabilityContext.InCombat,
+  intent: CombatActionIntent.Malicious,
   prohibitedTargetCombatantStates: [
     ProhibitedTargetCombatantStates.Dead,
     ProhibitedTargetCombatantStates.UntargetableByPhysical,

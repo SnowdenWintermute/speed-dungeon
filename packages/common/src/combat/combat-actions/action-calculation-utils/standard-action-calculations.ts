@@ -5,6 +5,7 @@ import {
 } from "../../../app-consts.js";
 import { CombatantProperties } from "../../../combatants/index.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
+import { CombatActionComponent } from "../index.js";
 
 export function getStandardActionCritChance(
   actionUser: CombatantProperties,
@@ -24,4 +25,19 @@ export function getStandardActionCritMultiplier(
   const userAttributes = CombatantProperties.getTotalAttributes(actionUser);
   const multiplierAttribute = userAttributes[critMultiplierAttribute] || 0;
   return critMultiplier + multiplierAttribute / 100;
+}
+
+export function getStandardActionManaCost(
+  action: CombatActionComponent,
+  user: CombatantProperties
+): number {
+  // const { manaCost, abilityLevelManaCostMultiplier, combatantLevelManaCostMultiplier } =
+  //   abilityAttributes;
+  // const adjustedForAbilityLevel = ability.level * (manaCost * abilityLevelManaCostMultiplier);
+
+  // const adjustedForCombatantLevel = adjustedForAbilityLevel * combatantProperties.level;
+
+  // return Math.floor(adjustedForCombatantLevel);
+  //
+  return 0;
 }

@@ -29,16 +29,16 @@ import {
   getStandardActionCritChance,
   getStandardActionCritMultiplier,
 } from "../../action-calculation-utils/standard-action-calculations.js";
-import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import { getActionTargetsIfSchemeIsValid } from "../../../targeting/get-targets-if-scheme-is-valid.js";
 import { getCombatActionTargetIds } from "../../../action-results/get-action-target-ids.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
+import { CombatActionIntent } from "../../combat-action-intent.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack target using equipment in off hand",
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.CopyParent },
+  intent: CombatActionIntent.Malicious,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   prohibitedTargetCombatantStates: [
     ProhibitedTargetCombatantStates.Dead,

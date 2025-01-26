@@ -1,8 +1,6 @@
 import cloneDeep from "lodash.clonedeep";
-import { CombatantProperties } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import { CombatActionProperties, DurabilityLossCondition } from "../../combat-actions/index.js";
 import { randBetween } from "../../../utils/index.js";
 import { ActionResultCalculationArguments } from "../action-result-calculator.js";
 import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
@@ -10,26 +8,24 @@ import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app-consts.js";
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { HpChange, HpChangeSource, HpChangeSourceCategory } from "../../hp-change-source-types.js";
 import { checkIfTargetWantsToBeHit } from "./check-if-target-wants-to-be-hit.js";
-import { getActionHitChance } from "./get-action-hit-chance.js";
 import { applyCritMultiplier } from "./apply-crit-multiplier-to-hp-change.js";
-import {
-  applyElementalAffinities,
-  applyKineticAffinities,
-} from "./apply-affinites-to-hp-change.js";
-import { applyWeaponHpChangeModifiers } from "./weapon-hp-change-modifiers/index.js";
-import { getCombatActionHpChangeRange } from "./get-combat-action-hp-change-range.js";
-import { getActionCritChance } from "./get-action-crit-chance.js";
-import { convertHpChangeValueToFinalSign } from "./convert-hp-change-value-to-final-sign.js";
-import { HoldableSlotType } from "../../../items/equipment/slots.js";
 import { EntityId } from "../../../primatives/index.js";
 import {
   DurabilityChangesByEntityId,
   calculateActionDurabilityChangesOnHit,
   updateConditionalDurabilityChangesOnUser,
 } from "../calculate-action-durability-changes.js";
+import { CombatActionComponent } from "../../combat-actions/index.js";
+import { convertHpChangeValueToFinalSign } from "../../combat-actions/action-calculation-utils/convert-hp-change-value-to-final-sign.js";
+import {
+  applyElementalAffinities,
+  applyKineticAffinities,
+} from "../../combat-actions/action-calculation-utils/apply-affinities-to-hp-change.js";
+import { DurabilityLossCondition } from "../../combat-actions/combat-action-durability-loss-condition.js";
+import { getActionHitChance } from "./get-action-hit-chance.js";
+import { CombatantProperties } from "../../../combatants/index.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
-export * from "./get-combat-action-hp-change-range.js";
-export * from "./weapon-hp-change-modifiers/index.js";
+import { getActionCritChance } from "./get-action-crit-chance.js";
 export * from "./get-action-hit-chance.js";
 export * from "./get-action-crit-chance.js";
 export * from "./hp-change-calculation-strategies/index.js";
@@ -39,7 +35,7 @@ export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
   game: SpeedDungeonGame,
   args: ActionResultCalculationArguments,
   targetIds: string[],
-  actionProperties: CombatActionProperties
+  action: CombatActionComponent
 ):
   | Error
   | {
@@ -68,36 +64,12 @@ export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
 
   let evasions: string[] = [];
 
-  if (actionProperties.hpChangeProperties === null)
-    return { hitPointChanges, evasions, durabilityChanges };
-  const hpChangeProperties = cloneDeep(actionProperties.hpChangeProperties);
-
-  const equippedUsableWeaponsResult = CombatantProperties.getUsableWeaponsInSlots(
-    userCombatantProperties,
-    [HoldableSlotType.MainHand, HoldableSlotType.OffHand]
+  const hpChangeProperties = cloneDeep(
+    action.getHpChangeProperties(userCombatantProperties, targetCombatantProperties)
   );
-  if (equippedUsableWeaponsResult instanceof Error) return equippedUsableWeaponsResult;
-  const equippedUsableWeapons = equippedUsableWeaponsResult;
+  if (hpChangeProperties === null) return { hitPointChanges, evasions, durabilityChanges };
 
-  const hpChangeRangeResult = getCombatActionHpChangeRange(
-    combatAction,
-    hpChangeProperties,
-    userCombatantProperties,
-    equippedUsableWeapons
-  );
-  if (hpChangeRangeResult instanceof Error) return hpChangeRangeResult;
-
-  const hpChangeRange = hpChangeRangeResult;
-
-  const averageRoll = Math.floor(hpChangeRange.min + hpChangeRange.max / 2);
-
-  applyWeaponHpChangeModifiers(
-    hpChangeProperties,
-    equippedUsableWeapons,
-    userCombatantProperties,
-    targetCombatantProperties,
-    averageRoll
-  );
+  const hpChangeRange = hpChangeProperties.baseValues;
 
   const { hpChangeSource } = hpChangeProperties;
 
@@ -118,31 +90,32 @@ export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
     const hpChangeCalculationContext = HP_CALCLULATION_CONTEXTS[hpChangeSource.category];
 
     const targetWantsToBeHit = checkIfTargetWantsToBeHit(
-      targetCombatantProperties,
-      hpChangeProperties
+      action,
+      userCombatantProperties,
+      targetCombatantProperties
     );
 
     const percentChanceToHit = getActionHitChance(
-      actionProperties,
+      action,
       userCombatantProperties,
       CombatantProperties.getTotalAttributes(targetCombatantProperties)[CombatAttribute.Evasion],
-      hpChangeSource.unavoidable || false,
       targetWantsToBeHit
     );
 
     const percentChanceToCrit = getActionCritChance(
-      hpChangeProperties,
+      action,
       userCombatantProperties,
       targetCombatantProperties,
       targetWantsToBeHit
     );
 
     ///////////////////////////////////////////////////
-    // separately calc weapon dura loss if is "on use" instead of "on hit"
+    // separately calculating weapon dura loss if is "on use" instead of "on hit"
     // such as with firing a bow
+
     updateConditionalDurabilityChangesOnUser(
       userId,
-      actionProperties,
+      action,
       durabilityChanges,
       DurabilityLossCondition.OnUse
     );
@@ -160,18 +133,13 @@ export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
     calculateActionDurabilityChangesOnHit(
       combatantResult,
       targetCombatantResult,
-      actionProperties,
+      action,
       isHit,
       hpChange.isCrit,
       durabilityChanges
     );
 
-    applyCritMultiplier(
-      hpChange,
-      hpChangeProperties,
-      userCombatantProperties,
-      targetCombatantProperties
-    );
+    applyCritMultiplier(hpChange, action, userCombatantProperties, targetCombatantProperties);
 
     applyKineticAffinities(hpChange, targetCombatantProperties);
     applyElementalAffinities(hpChange, targetCombatantProperties);
@@ -183,6 +151,9 @@ export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
       userCombatantProperties,
       targetCombatantProperties
     );
+
+    // @TODO - get the armor pen and pass it to applyArmorClass
+
     hpChangeCalculationContext.applyArmorClass(
       hpChange,
       userCombatantProperties,
@@ -202,7 +173,7 @@ export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
       if (!lifestealHpChange) {
         lifestealHpChange = new HpChange(
           lifestealValue,
-          new HpChangeSource(HpChangeSourceCategory.Magical, hpChange.source.meleeOrRanged)
+          new HpChangeSource({ category: HpChangeSourceCategory.Magical })
         );
         lifestealHpChange.isCrit = hpChange.isCrit;
         lifestealHpChange.value = lifestealValue;

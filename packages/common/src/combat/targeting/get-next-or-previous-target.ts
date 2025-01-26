@@ -1,6 +1,6 @@
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { NextOrPrevious } from "../../primatives/index.js";
-import { CombatActionProperties } from "../combat-actions/index.js";
+import { CombatActionComponent } from "../combat-actions/index.js";
 import {
   FriendOrFoe,
   TargetCategories,
@@ -8,7 +8,7 @@ import {
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 
 export default function getNextOrPreviousTarget(
-  combatActionProperties: CombatActionProperties,
+  combatAction: CombatActionComponent,
   currentTargets: CombatActionTarget,
   direction: NextOrPrevious,
   actionUserId: string,
@@ -18,7 +18,7 @@ export default function getNextOrPreviousTarget(
   let newTargetResult: Error | string = new Error("No target was calculated");
   switch (currentTargets.type) {
     case CombatActionTargetType.Single:
-      switch (combatActionProperties.validTargetCategories) {
+      switch (combatAction.validTargetCategories) {
         case TargetCategories.Opponent:
           if (!opponentIdsOption) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
           newTargetResult = getNextOrPrevIdFromOrderedList(
@@ -64,7 +64,7 @@ export default function getNextOrPreviousTarget(
           };
       }
     case CombatActionTargetType.Group:
-      switch (combatActionProperties.validTargetCategories) {
+      switch (combatAction.validTargetCategories) {
         case TargetCategories.Opponent:
           return {
             type: CombatActionTargetType.Group,

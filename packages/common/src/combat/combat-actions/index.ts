@@ -1,7 +1,4 @@
 export * from "./combat-action-names.js";
-export * from "./get-ability-mana-cost.js";
-export * from "./combat-action-requires-melee-range.js";
-export * from "./get-combat-action-execution-time.js";
 export * from "./targeting-schemes-and-categories.js";
 export * from "./combat-action-usable-cotexts.js";
 import { Combatant, CombatantProperties } from "../../combatants/index.js";
@@ -27,8 +24,8 @@ import { CombatantAssociatedData } from "../../types.js";
 import {
   ActionResourceCostBases,
   ActionResourceCosts,
-  getStandardActionResourceCosts,
 } from "./action-calculation-utils/action-costs.js";
+import { CombatActionIntent } from "./combat-action-intent.js";
 
 export interface CombatActionComponentConfig {
   description: string;
@@ -36,6 +33,7 @@ export interface CombatActionComponentConfig {
   validTargetCategories: TargetCategories;
   autoTargetSelectionMethod: AutoTargetingSelectionMethod;
   usabilityContext: CombatActionUsabilityContext;
+  intent: CombatActionIntent;
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
   baseHpChangeValuesLevelMultiplier: number;
   accuracyModifier: number;
@@ -68,7 +66,7 @@ export interface CombatActionComponentConfig {
   getHpChangeProperties: (
     user: CombatantProperties,
     primaryTarget: CombatantProperties
-  ) => Error | null | CombatActionHpChangeProperties;
+  ) => null | CombatActionHpChangeProperties;
   getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
   getChildren: (combatant: Combatant) => null | CombatActionComponent[];
   getParent: () => CombatActionComponent | null;
@@ -83,9 +81,10 @@ export abstract class CombatActionComponent {
   public targetingSchemes: TargetingScheme[];
   public validTargetCategories: TargetCategories;
   public autoTargetSelectionMethod: AutoTargetingSelectionMethod;
+  public intent: CombatActionIntent;
   private usabilityContext: CombatActionUsabilityContext;
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
-  baseHpChangeValuesLevelMultiplier: number;
+  baseHpChangeValuesLevelMultiplier: number; // @TODO - actually use this for attack et al, or remove it
   accuracyModifier: number;
   private appliesConditions: CombatantCondition[];
   incursDurabilityLoss: {
@@ -141,7 +140,7 @@ export abstract class CombatActionComponent {
   getHpChangeProperties: (
     user: CombatantProperties,
     primaryTarget: CombatantProperties
-  ) => Error | null | CombatActionHpChangeProperties;
+  ) => null | CombatActionHpChangeProperties;
   // may be calculated based on combatant equipment or conditions
   getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
   protected children?: CombatActionComponent[];
@@ -161,6 +160,17 @@ export abstract class CombatActionComponent {
       if (!scheme) return null;
       return AUTO_TARGETING_FUNCTIONS[scheme](combatantContext, this);
     };
+  combatantIsValidTarget(
+    user: Combatant, // to check who their allies are
+    combatant: Combatant, // to check their conditions, traits and other state like current hp
+    battleOption: null | Battle // finding out allies/enemies
+  ): boolean {
+    // @TODO
+    // - check targetable groups (friend or foe)
+    // - check prohibited combatant state
+    // - check traits and conditions
+    return true;
+  }
 
   constructor(
     public name: CombatActionName,
@@ -171,6 +181,7 @@ export abstract class CombatActionComponent {
     this.validTargetCategories = config.validTargetCategories;
     this.autoTargetSelectionMethod = config.autoTargetSelectionMethod;
     this.usabilityContext = config.usabilityContext;
+    this.intent = config.intent;
     this.prohibitedTargetCombatantStates = config.prohibitedTargetCombatantStates;
     this.baseHpChangeValuesLevelMultiplier = config.baseHpChangeValuesLevelMultiplier;
     this.accuracyModifier = config.accuracyModifier;

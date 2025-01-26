@@ -43,12 +43,9 @@ export function getAttackHpChangeProperties(
     baseValues,
   };
 
-  const equippedUsableWeaponsResult = CombatantProperties.getUsableWeaponsInSlots(user, [
+  const equippedUsableWeapons = CombatantProperties.getUsableWeaponsInSlots(user, [
     HoldableSlotType.MainHand,
   ]);
-  if (equippedUsableWeaponsResult instanceof Error)
-    return new Error(equippedUsableWeaponsResult.stack);
-  const equippedUsableWeapons = equippedUsableWeaponsResult;
 
   const weaponOption = equippedUsableWeapons[weaponSlot];
   if (weaponOption)

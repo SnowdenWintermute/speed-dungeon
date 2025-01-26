@@ -60,7 +60,7 @@ export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
         console.log("usable actions: ", listOfUsableActionNames);
 
         if (listOfUsableActionNames.length) {
-          this.context.usableActions = usableActions;
+          this.context.usableActionNames = usableActions;
           return true;
         } else return false;
       }),
@@ -88,19 +88,16 @@ export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
       new BehaviorLeaf(() => {
         if (!this.context.consideredTargetCombatants.length) return false;
 
-        for (const action of this.context.usableActions) {
+        for (const actionName of this.context.usableActionNames) {
           const actionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
             this.context.combatant.combatantProperties,
-            action
+            actionName
           );
           if (actionPropertiesResult instanceof Error) {
             console.trace(actionPropertiesResult);
             return false;
           }
-          const maybeError = this.context.setConsideredActionTargetPairs(
-            action,
-            actionPropertiesResult
-          );
+          const maybeError = this.context.setConsideredActionTargetPairs(actionName);
           if (maybeError instanceof Error) {
             console.trace(maybeError);
             return false;

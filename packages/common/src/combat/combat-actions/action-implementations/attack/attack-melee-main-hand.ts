@@ -23,6 +23,7 @@ import {
   getStandardActionCritChance,
   getStandardActionCritMultiplier,
 } from "../../action-calculation-utils/standard-action-calculations.js";
+import { CombatActionIntent } from "../../combat-action-intent.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack target using equipment in main hand",
@@ -30,6 +31,7 @@ const config: CombatActionComponentConfig = {
   validTargetCategories: TargetCategories.Opponent,
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.CopyParent },
   usabilityContext: CombatActionUsabilityContext.InCombat,
+  intent: CombatActionIntent.Malicious,
   prohibitedTargetCombatantStates: [
     ProhibitedTargetCombatantStates.Dead,
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
@@ -80,7 +82,6 @@ const config: CombatActionComponentConfig = {
       CombatAttribute.Strength,
       HoldableSlotType.MainHand
     );
-    // @TODO - if any final modifies like for offhand, do it here
     return hpChangeProperties;
   },
   getAppliedConditions: function (): CombatantCondition[] | null {

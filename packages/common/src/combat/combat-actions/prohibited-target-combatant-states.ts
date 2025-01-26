@@ -1,4 +1,4 @@
-import { CombatActionProperties } from "..";
+import { CombatActionComponent } from ".";
 import { Combatant } from "../../combatants";
 
 export enum ProhibitedTargetCombatantStates {
@@ -10,28 +10,28 @@ export enum ProhibitedTargetCombatantStates {
 
 export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
   ProhibitedTargetCombatantStates,
-  (actionProperties: CombatActionProperties, combatant: Combatant) => boolean
+  (action: CombatActionComponent, combatant: Combatant) => boolean
 > = {
   [ProhibitedTargetCombatantStates.Dead]: function (
-    _actionProperties: CombatActionProperties,
+    _action: CombatActionComponent,
     combatant: Combatant
   ): boolean {
     return combatant.combatantProperties.hitPoints <= 0;
   },
   [ProhibitedTargetCombatantStates.Alive]: function (
-    _actionProperties: CombatActionProperties,
+    _action: CombatActionComponent,
     combatant: Combatant
   ): boolean {
     return combatant.combatantProperties.hitPoints > 0;
   },
-  [ProhibitedTargetCombatantStates.UntargetableByMagic]: function (
-    actionProperties: CombatActionProperties,
+  [ProhibitedTargetCombatantStates.UntargetableBySpells]: function (
+    action: CombatActionComponent,
     combatant: Combatant
   ): boolean {
     return false;
   },
   [ProhibitedTargetCombatantStates.UntargetableByPhysical]: function (
-    actionProperties: CombatActionProperties,
+    actions: CombatActionComponent,
     combatant: Combatant
   ): boolean {
     return false;

@@ -1,6 +1,6 @@
 import { ONE_THIRD_OF_ONE } from "../../app-consts.js";
 import { Combatant, CombatantEquipment } from "../../combatants/index.js";
-import { EQUIPMENT_TYPE_STRINGS, Equipment, EquipmentType } from "../../items/equipment/index.js";
+import { Equipment, EquipmentType } from "../../items/equipment/index.js";
 import {
   EquipmentSlotType,
   HoldableSlotType,
@@ -9,10 +9,8 @@ import {
 } from "../../items/equipment/slots.js";
 import { EntityId } from "../../primatives/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
-import {
-  CombatActionProperties,
-  DurabilityLossCondition,
-} from "../combat-actions/combat-action-properties.js";
+import { DurabilityLossCondition } from "../combat-actions/combat-action-durability-loss-condition.js";
+import { CombatActionComponent } from "../combat-actions/index.js";
 
 const BASE_DURABILITY_LOSS = -1;
 
@@ -57,13 +55,17 @@ export class DurabilityChangesByEntityId {
 export function calculateActionDurabilityChangesOnHit(
   actionUser: Combatant,
   targetCombatant: Combatant,
-  actionProperties: CombatActionProperties,
+  action: CombatActionComponent,
   isHit: boolean,
   isCrit: boolean,
   durabilityChanges: DurabilityChangesByEntityId
-): { [itemId: EntityId]: number } | undefined {
+): Error | { [itemId: EntityId]: number } | undefined {
   // healing magic shouldn't cause durability loss
-  if (actionProperties.hpChangeProperties?.hpChangeSource.isHealing) return;
+  const hpChangeProperties = action.getHpChangeProperties(
+    actionUser.combatantProperties,
+    targetCombatant.combatantProperties
+  );
+  if (hpChangeProperties?.hpChangeSource.isHealing) return;
 
   // determine if ability should cause weapon durability loss on hit
   if (isCrit) {
@@ -72,15 +74,14 @@ export function calculateActionDurabilityChangesOnHit(
     updateDurabilityChangesOnTargetForHit(durabilityChanges, targetCombatant);
   }
 
-  if (isCrit || isHit) {
-    updateConditionalDurabilityChangesOnUser(
-      actionUser.entityProperties.id,
-      actionProperties,
-      durabilityChanges,
-      DurabilityLossCondition.OnHit
-    );
-  }
-  return;
+  if (!isCrit && !isHit) return;
+
+  updateConditionalDurabilityChangesOnUser(
+    actionUser.entityProperties.id,
+    action,
+    durabilityChanges,
+    DurabilityLossCondition.OnHit
+  );
 }
 
 function updateDurabilityChangesOnTargetForHit(
@@ -161,16 +162,16 @@ function updateDurabilityChangesOnTargetForCrit(
 
 export function updateConditionalDurabilityChangesOnUser(
   userId: EntityId,
-  actionProperties: CombatActionProperties,
+  action: CombatActionComponent,
   durabilityChanges: DurabilityChangesByEntityId,
   condition: DurabilityLossCondition
 ) {
   // take dura from user's equipment if should
-  if (actionProperties.incursDurabilityLoss === undefined) return;
+  if (action.incursDurabilityLoss === undefined) return;
 
-  if (actionProperties.incursDurabilityLoss[EquipmentSlotType.Wearable])
+  if (action.incursDurabilityLoss[EquipmentSlotType.Wearable])
     for (const [wearableSlot, durabilityLossCondition] of iterateNumericEnumKeyedRecord(
-      actionProperties.incursDurabilityLoss[EquipmentSlotType.Wearable]
+      action.incursDurabilityLoss[EquipmentSlotType.Wearable]
     )) {
       if (!(durabilityLossCondition === condition)) continue;
       durabilityChanges.updateOrCreateDurabilityChangeRecord(userId, {
@@ -179,9 +180,9 @@ export function updateConditionalDurabilityChangesOnUser(
       });
     }
 
-  if (actionProperties.incursDurabilityLoss[EquipmentSlotType.Holdable])
+  if (action.incursDurabilityLoss[EquipmentSlotType.Holdable])
     for (const [holdableSlot, durabilityLossCondition] of iterateNumericEnumKeyedRecord(
-      actionProperties.incursDurabilityLoss[EquipmentSlotType.Holdable]
+      action.incursDurabilityLoss[EquipmentSlotType.Holdable]
     )) {
       if (!(durabilityLossCondition === condition)) continue;
       durabilityChanges.updateOrCreateDurabilityChangeRecord(userId, {

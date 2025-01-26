@@ -1,5 +1,4 @@
 import { EntityProperties } from "../../primatives/entity-properties.js";
-import getConsumableCombatActionProperties from "./get-consumable-combat-action-properties.js";
 import { Item } from "../index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 
@@ -19,7 +18,6 @@ export class Consumable extends Item {
   ) {
     super(entityProperties, itemLevel, requirements);
   }
-  static getActionProperties = getConsumableCombatActionProperties;
 }
 
 export const CONSUMABLE_TYPE_STRINGS: Record<ConsumableType, string> = {

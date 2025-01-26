@@ -3,7 +3,7 @@ export * from "./action-command-receiver.js";
 export * from "./action-command-queue.js";
 import { BattleConclusion } from "../battle/index.js";
 import { DurabilityChangesByEntityId } from "../combat/action-results/calculate-action-durability-changes.js";
-import { CombatAction, HpChange } from "../combat/index.js";
+import { CombatActionName, HpChange } from "../combat/index.js";
 import { Consumable } from "../items/consumables/index.js";
 import { Equipment } from "../items/equipment/index.js";
 import { GameMessageType } from "../packets/game-message.js";
@@ -42,7 +42,7 @@ export type ReturnHomeActionCommandPayload = {
 export type PerformCombatActionActionCommandPayload = {
   type: ActionCommandType.PerformCombatAction;
   actionUserId: string;
-  combatAction: CombatAction;
+  actionName: CombatActionName;
   // targets: CombatActionTarget
   // children?: PerformCombatActionActionCommandPayload[]
   hpChangesByEntityId: null | {
@@ -51,8 +51,7 @@ export type PerformCombatActionActionCommandPayload = {
   mpChangesByEntityId: null | {
     [entityId: string]: number;
   };
-  // status effects added
-  // status effects removed
+  // condition changes
   missesByEntityId: string[];
   durabilityChanges?: DurabilityChangesByEntityId;
 };

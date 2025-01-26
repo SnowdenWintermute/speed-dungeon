@@ -1,25 +1,37 @@
 import { CombatantProperties, CombatantTraitType } from "../../../combatants/index.js";
-import { CombatActionHpChangeProperties } from "../../combat-actions/index.js";
+import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
+import { CombatActionComponent } from "../../combat-actions/index.js";
 
 export function checkIfTargetWantsToBeHit(
-  targetCombatantProperties: CombatantProperties,
-  hpChangeProperties?: CombatActionHpChangeProperties
+  action: CombatActionComponent,
+  user: CombatantProperties,
+  targetCombatantProperties: CombatantProperties
 ) {
-  if (!hpChangeProperties) return true;
-  const isUndead = CombatantProperties.hasTraitType(
-    targetCombatantProperties,
-    CombatantTraitType.Undead
-  );
-  if (hpChangeProperties.hpChangeSource.isHealing && isUndead) return false;
-  if (hpChangeProperties.hpChangeSource.isHealing) return true;
+  const hpChangePropertiesOption = action.getHpChangeProperties(user, targetCombatantProperties);
 
-  const { elementOption } = hpChangeProperties.hpChangeSource;
-  if (elementOption) {
-    const targetAffinities =
-      CombatantProperties.getCombatantTotalElementalAffinities(targetCombatantProperties);
-    const targetAffinity = targetAffinities[elementOption];
-    if (targetAffinity && targetAffinity > 100) return true;
+  // regardless of the action intent, don't try to evade if would be healed
+  if (hpChangePropertiesOption) {
+    const { hpChangeSource } = hpChangePropertiesOption;
+    const { isHealing } = hpChangeSource;
+
+    const isUndead = CombatantProperties.hasTraitType(
+      targetCombatantProperties,
+      CombatantTraitType.Undead
+    );
+
+    if (isHealing && isUndead) return false;
+    if (isHealing) return true;
+
+    const { elementOption } = hpChangeSource;
+    if (elementOption) {
+      const targetAffinities =
+        CombatantProperties.getCombatantTotalElementalAffinities(targetCombatantProperties);
+      const targetAffinity = targetAffinities[elementOption];
+      if (targetAffinity && targetAffinity > 100) return true;
+    }
   }
 
-  return false;
+  // finally resolve based on action intent
+  if (action.intent === CombatActionIntent.Malicious) return false;
+  else return true;
 }

@@ -1,5 +1,5 @@
 import { AdventuringParty } from "./index.js";
-import { CombatAction, CombatActionTargetType } from "../combat/index.js";
+import { CombatActionName, CombatActionTargetType } from "../combat/index.js";
 import { filterPossibleTargetIdsByProhibitedCombatantStates } from "../combat/targeting/filtering.js";
 import { CombatantProperties } from "../combatants/index.js";
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
@@ -9,7 +9,7 @@ export default function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
   combatantId: string
 ) {
   let error;
-  const idsAndActionsOfCharactersTargetingThisCombatant: [string, CombatAction][] = [];
+  const idsAndActionsOfCharactersTargetingThisCombatant: [string, CombatActionName][] = [];
   const characterPositions = party.characterPositions;
   const monsterPositions = party.currentRoom.monsterPositions;
 
