@@ -15,7 +15,6 @@ import {
 } from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
-import { AutoTargetingScheme } from "../../../targeting/index.js";
 import { ATTACK } from "./index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
@@ -33,6 +32,7 @@ import {
 import { getCombatActionTargetIds } from "../../../action-results/get-action-target-ids.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
+import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack target using equipment in off hand",

@@ -1,10 +1,8 @@
 import {
   COMBATANT_TIME_TO_MOVE_ONE_METER,
-  CombatantProperties,
   ERROR_MESSAGES,
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
-  combatActionRequiresMeleeRange,
   formatVector3,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
@@ -15,11 +13,10 @@ import {
   CombatantModelActionType,
 } from "../../combatant-models/model-action-manager/model-actions";
 import getFrameEventFromAnimation from "../../combatant-models/animation-manager/get-frame-event-from-animation";
-import { getCombatActionExecutionTime } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
 import { gameWorld } from "../../SceneManager";
 
-export default async function startPerformingCombatAction(
+export async function startPerformingCombatAction(
   actionUserId: string,
   actionCommandPayload: PerformCombatActionActionCommandPayload
 ) {

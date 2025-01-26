@@ -9,7 +9,6 @@ import {
 import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
-import { AutoTargetingScheme } from "../../../targeting/index.js";
 import { ATTACK } from "./index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
@@ -25,6 +24,7 @@ import {
   getStandardActionCritMultiplier,
 } from "../../action-calculation-utils/standard-action-calculations.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
+import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack target using equipment in main hand",

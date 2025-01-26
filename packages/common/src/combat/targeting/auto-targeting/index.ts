@@ -1,6 +1,6 @@
 export * from "./copy-from-parent.js";
 import { CombatantConditionName } from "../../../combatants/combatant-conditions/index.js";
-import { FriendOrFoe } from "../../combat-actions/index.js";
+import { FriendOrFoe } from "../../combat-actions/targeting-schemes-and-categories.js";
 
 export enum AutoTargetingScheme {
   UserSelected,
