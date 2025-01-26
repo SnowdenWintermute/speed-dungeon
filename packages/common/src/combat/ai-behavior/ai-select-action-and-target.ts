@@ -4,17 +4,15 @@ import { Combatant } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { chooseRandomFromArray } from "../../utils/index.js";
 import { AIBehaviorContext } from "./ai-context.js";
-import {
-  ActionTargetPair,
-  SetAvailableTargetsAndUsableActions,
-} from "./custom-nodes/set-available-targets-and-usable-actions.js";
+import { SetAvailableTargetsAndUsableActions } from "./custom-nodes/set-available-targets-and-usable-actions.js";
+import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
 
 export function AISelectActionAndTarget(
   game: SpeedDungeonGame,
   userId: string,
   allyBattleGroup: BattleGroup,
   enemyBattleGroup: BattleGroup
-): Error | ActionTargetPair {
+): Error | CombatActionExecutionIntent {
   const randomEnemyTargetResult = getRandomAliveEnemy(game, enemyBattleGroup);
   if (randomEnemyTargetResult instanceof Error) return randomEnemyTargetResult;
   const randomEnemyTarget = randomEnemyTargetResult;
@@ -56,7 +54,10 @@ export function AISelectActionAndTarget(
   /// TESTING AI CONTEXT DONE
 
   // @TODO - use a behavior tree instead of this !!!INVALID!!! return statement
-  return { actionName: CombatActionName.Attack, targets: { type: CombatActionTargetType.All } };
+  const actionExecutionIntent = new CombatActionExecutionIntent(CombatActionName.Attack, {
+    type: CombatActionTargetType.All,
+  });
+  return actionExecutionIntent;
 }
 
 function getRandomAliveEnemy(

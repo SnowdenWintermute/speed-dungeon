@@ -7,9 +7,9 @@ import {
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons.js";
 import { CombatActionName } from "@speed-dungeon/common";
-import { TargetingCalculator } from "@speed-dungeon/common/src/combat/targeting/targeting-calculator.js";
+import { TargetingCalculator } from "@speed-dungeon/common";
 
-export default function selectCombatActionHandler(
+export function selectCombatActionHandler(
   eventData: { characterId: string; combatActionNameOption: null | CombatActionName },
   characterAssociatedData: CharacterAssociatedData
 ) {
@@ -59,6 +59,6 @@ export default function selectCombatActionHandler(
     .emit(
       ServerToClientEvent.CharacterSelectedCombatAction,
       character.entityProperties.id,
-      combatActionOption
+      combatActionNameOption
     );
 }

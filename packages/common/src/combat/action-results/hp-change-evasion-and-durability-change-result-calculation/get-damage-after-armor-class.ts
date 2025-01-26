@@ -1,33 +1,30 @@
 import { ARMOR_CLASS_EQUATION_MODIFIER } from "../../../app-consts.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
-import getDerivedArmorPenAttributeBasedOnWeaponType from "./get-armor-pen-derived-attribute-based-on-weapon-type.js";
+import { CombatantProperties } from "../../../combatants/index.js";
+import { CombatActionComponent } from "../../combat-actions/index.js";
 
 /** Expects a negative hp change value */
 export default function getDamageAfterArmorClass(
-  baseValue: number,
-  userCombatAttributes: Record<CombatAttribute, number>,
-  targetCombatAttributes: Record<CombatAttribute, number>,
-  abilityRange: MeleeOrRanged
+  damageBefore: number,
+  user: CombatantProperties,
+  target: CombatantProperties,
+  action: CombatActionComponent
 ) {
   // since the formula is based on positive numbers and we have to calculate this
   // after converting to a negative hp change in order to check if the target even
   // wants to reduce this damage, we need to flip the sign just for this calulation
   // and flip it back at the end
-  baseValue *= -1;
-  const targetAc = targetCombatAttributes[CombatAttribute.ArmorClass];
-  let userArmorPen = userCombatAttributes[CombatAttribute.ArmorPenetration];
+  damageBefore *= -1;
 
-  const armorPenBonusBasedOnWeaponType = getDerivedArmorPenAttributeBasedOnWeaponType(
-    userCombatAttributes,
-    abilityRange
-  );
+  const targetAc = CombatantProperties.getTotalAttributes(target)[CombatAttribute.ArmorClass];
 
-  userArmorPen += armorPenBonusBasedOnWeaponType;
+  const userArmorPen = action.getArmorPenetration(user);
 
   const finalAc = Math.max(0, targetAc - userArmorPen);
   const damageAfterAc =
-    (ARMOR_CLASS_EQUATION_MODIFIER * Math.pow(baseValue, 2.0)) /
-    (finalAc + ARMOR_CLASS_EQUATION_MODIFIER * baseValue);
+    (ARMOR_CLASS_EQUATION_MODIFIER * Math.pow(damageBefore, 2.0)) /
+    (finalAc + ARMOR_CLASS_EQUATION_MODIFIER * damageBefore);
 
+  // why flip the sign? see comment above
   return damageAfterAc * -1;
 }

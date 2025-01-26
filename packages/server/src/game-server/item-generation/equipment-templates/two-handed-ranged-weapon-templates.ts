@@ -5,7 +5,6 @@ import {
   HpChangeSource,
   HpChangeSourceCategory,
   KineticDamageType,
-  MeleeOrRanged,
   NumberRange,
   PrefixType,
   SuffixType,
@@ -71,11 +70,10 @@ export const TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES: Record<
       equipmentType: EquipmentType.TwoHandedRangedWeapon,
       baseItemType: weapon,
     });
-    const mainDamageClassification: null | HpChangeSource = new HpChangeSource(
-      HpChangeSourceCategory.Physical,
-      MeleeOrRanged.Ranged,
-      KineticDamageType.Piercing
-    );
+    const mainDamageClassification: null | HpChangeSource = new HpChangeSource({
+      category: HpChangeSourceCategory.Physical,
+      kineticDamageTypeOption: KineticDamageType.Piercing,
+    });
 
     switch (weapon) {
       case TwoHandedRangedWeapon.ShortBow:

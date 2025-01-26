@@ -4,6 +4,7 @@ import { Combatant } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { COMBAT_ACTIONS } from "../combat-actions/action-implementations/index.js";
+import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
 import {
   CombatActionComponent,
   CombatActionName,
@@ -13,10 +14,7 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../index.js";
-import {
-  ActionTargetPair,
-  EvaluatedActionTargetPair,
-} from "./custom-nodes/set-available-targets-and-usable-actions.js";
+import { EvaluatedActionExecutionIntent } from "./custom-nodes/set-available-targets-and-usable-actions.js";
 
 export enum AIActionSelectionScheme {
   Basic,
@@ -53,9 +51,9 @@ export class AIBehaviorContext {
   private enmityList: { combatantId: EntityId; enmity: number }[] = [];
   public usableActionNames: CombatActionName[] = [];
   public consideredTargetCombatants: Combatant[] = [];
-  public consideredActionTargetPairs: ActionTargetPair[] = [];
-  public evaluatedActionTargetPairs: EvaluatedActionTargetPair[] = [];
-  private selectedActionAndTargets: ActionTargetPair | null = null;
+  public consideredActionTargetPairs: CombatActionExecutionIntent[] = [];
+  public evaluatedActionTargetPairs: EvaluatedActionExecutionIntent[] = [];
+  private selectedActionAndTargets: CombatActionExecutionIntent | null = null;
   constructor(
     public combatant: Combatant,
     public game: SpeedDungeonGame,
@@ -75,7 +73,9 @@ export class AIBehaviorContext {
           break;
         case TargetingScheme.All:
           const allTarget: CombatActionTarget = { type: CombatActionTargetType.All };
-          this.consideredActionTargetPairs.push({ actionName, targets: allTarget });
+          this.consideredActionTargetPairs.push(
+            new CombatActionExecutionIntent(actionName, allTarget)
+          );
       }
     }
   }
@@ -97,29 +97,20 @@ export class AIBehaviorContext {
         targetId: potentialTarget.entityProperties.id,
       };
 
-      this.consideredActionTargetPairs.push({
-        actionName: action.name,
-        targets,
-      });
+      this.consideredActionTargetPairs.push(new CombatActionExecutionIntent(action.name, targets));
     }
   }
 
   setConsideredGroupTargets(action: CombatActionComponent) {
     if (!action.targetingSchemes.includes(TargetingScheme.Area)) return;
-    const friendlyGroup: ActionTargetPair = {
-      actionName: action.name,
-      targets: {
-        type: CombatActionTargetType.Group,
-        friendOrFoe: FriendOrFoe.Hostile,
-      },
-    };
-    const hostileGroup: ActionTargetPair = {
-      actionName: action.name,
-      targets: {
-        type: CombatActionTargetType.Group,
-        friendOrFoe: FriendOrFoe.Hostile,
-      },
-    };
+    const friendlyGroup = new CombatActionExecutionIntent(action.name, {
+      type: CombatActionTargetType.Group,
+      friendOrFoe: FriendOrFoe.Friendly,
+    });
+    const hostileGroup = new CombatActionExecutionIntent(action.name, {
+      type: CombatActionTargetType.Group,
+      friendOrFoe: FriendOrFoe.Hostile,
+    });
 
     switch (action.validTargetCategories) {
       case TargetCategories.Opponent:

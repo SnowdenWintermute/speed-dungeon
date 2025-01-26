@@ -1,12 +1,18 @@
 import { RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO } from "../../../../app-consts.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
+import { CombatActionComponent } from "../../../combat-actions/index.js";
 import { HpChange } from "../../../hp-change-source-types.js";
 import getDamageAfterResilience from "../get-damage-after-resilience.js";
 import { HpChangeCalculationStrategy } from "./index.js";
 
 export class MagicalHpChangeCalculationStrategy implements HpChangeCalculationStrategy {
-  applyArmorClass(_hpChange: HpChange, _user: CombatantProperties, _target: CombatantProperties) {
+  applyArmorClass(
+    action: CombatActionComponent,
+    hpChange: HpChange,
+    user: CombatantProperties,
+    target: CombatantProperties
+  ) {
     return;
   }
   applyResilience(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties) {

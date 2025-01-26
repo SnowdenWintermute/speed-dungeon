@@ -1,34 +1,30 @@
 import {
   AdventuringParty,
-  CombatAttribute,
   CombatantEquipment,
   CombatantProperties,
   Equipment,
   InputLock,
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
-  getCombatActionExecutionTime,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
-import { getPreEquipmentChangeHpAndManaPercentage } from "@speed-dungeon/common";
 import { applyEquipmentEffectWhileMaintainingResourcePercentages } from "@speed-dungeon/common";
+import { COMBAT_ACTIONS } from "@speed-dungeon/common";
 
-export default async function performCombatActionActionCommandHandler(
+export async function performCombatActionActionCommandHandler(
   this: GameServer,
   gameName: string,
   combatantId: string,
   payload: PerformCombatActionActionCommandPayload
 ) {
-  const { combatAction, hpChangesByEntityId, mpChangesByEntityId, missesByEntityId } = payload;
+  const { actionName, hpChangesByEntityId, mpChangesByEntityId, missesByEntityId } = payload;
   const actionAssociatedDataResult = this.getGamePartyAndCombatant(gameName, combatantId);
   if (actionAssociatedDataResult instanceof Error) return actionAssociatedDataResult;
   const { game, party, combatant } = actionAssociatedDataResult;
+  const action = COMBAT_ACTIONS[actionName];
   // SERVER
   // - add the "action performance time" to the lockout time
-  const actionExecutionTime = getCombatActionExecutionTime(
-    combatant.combatantProperties,
-    combatAction
-  );
+  const actionExecutionTime = action.getExecutionTime();
 
   InputLock.increaseLockoutDuration(party.inputLock, actionExecutionTime);
 

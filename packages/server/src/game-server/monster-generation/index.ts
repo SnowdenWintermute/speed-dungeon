@@ -17,7 +17,6 @@ import { addAttributesToAccumulator } from "@speed-dungeon/common";
 import getMonsterPerLevelAttributes from "./get-monster-per-level-attributes.js";
 import getMonsterTraits from "./get-monster-traits.js";
 import getMonsterEquipment from "./get-monster-equipment.js";
-import getMonsterAbilities from "./get-monster-abilities.js";
 // import { STOCK_MONSTER } from "../../index.js";
 
 export default function generateMonster(level: number, forcedType?: MonsterType) {
@@ -69,8 +68,7 @@ export default function generateMonster(level: number, forcedType?: MonsterType)
   monster.combatantProperties.equipment = getMonsterEquipment(monsterType);
   // set hp and mp to max
   CombatantProperties.setHpAndMpToMax(monster.combatantProperties);
-  // assign abilities
-  monster.combatantProperties.abilities = getMonsterAbilities(monsterType);
+  // @TODO - assign abilities (realistically need to refactor monster creation)
 
   return monster;
 }

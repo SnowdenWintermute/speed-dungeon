@@ -9,8 +9,10 @@ import { CombatantProperties } from "../../../combatants";
 import { convertHpChangeValueToFinalSign } from "./convert-hp-change-value-to-final-sign.js";
 import { CombatActionHpChangeProperties } from "../combat-action-hp-change-properties";
 import { copySelectedModifiersFromHpChangeSource } from "./copy-selected-modifiers-from-hp-change-source.js";
+import { CombatActionComponent } from "../index.js";
 
 export function selectMostEffectiveFromAvailableHpChangeSourceModifiers(
+  action: CombatActionComponent,
   hpChangeProperties: CombatActionHpChangeProperties,
   toSelectFrom: HpChangeSource[],
   modifiers: Set<HpChangeSourceModifiers>,
@@ -46,6 +48,7 @@ export function selectMostEffectiveFromAvailableHpChangeSourceModifiers(
       targetCombatantProperties
     );
     hpChangeCalculationContext.applyArmorClass(
+      action,
       hpChangeToTest,
       userCombatantProperties,
       targetCombatantProperties

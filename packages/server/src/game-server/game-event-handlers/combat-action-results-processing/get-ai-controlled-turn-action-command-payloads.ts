@@ -2,15 +2,12 @@ import {
   AISelectActionAndTarget,
   AdventuringParty,
   Battle,
-  CombatAction,
-  CombatActionType,
   Combatant,
   ERROR_MESSAGES,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import { getActionCommandPayloadsFromCombatActionUse } from "../character-uses-selected-combat-action-handler/get-action-command-payloads-from-combat-action-use.js";
 
-export default async function getAIControlledTurnActionCommandPayloads(
+export async function getAIControlledTurnActionCommandPayloads(
   game: SpeedDungeonGame,
   party: AdventuringParty,
   combatant: Combatant
@@ -37,23 +34,19 @@ export default async function getAIControlledTurnActionCommandPayloads(
     enemyGroup
   );
   if (aiSelectedActionAndTargetResult instanceof Error) return aiSelectedActionAndTargetResult;
-  const { abilityName, target } = aiSelectedActionAndTargetResult;
+  // const { abilityName, target } = aiSelectedActionAndTargetResult;
 
-  const selectedCombatAction: CombatAction = {
-    type: CombatActionType.AbilityUsed,
-    abilityName,
-  };
+  // @TODO - this function was removed
+  // const payloadsResult = getActionCommandPayloadsFromCombatActionUse(
+  //   game,
+  //   combatantId,
+  //   selectedCombatAction,
+  //   target,
+  //   battleOption,
+  //   allyGroup.combatantIds
+  // );
+  // if (payloadsResult instanceof Error) return payloadsResult;
+  // const actionCommandPayloads = payloadsResult;
 
-  const payloadsResult = getActionCommandPayloadsFromCombatActionUse(
-    game,
-    combatantId,
-    selectedCombatAction,
-    target,
-    battleOption,
-    allyGroup.combatantIds
-  );
-  if (payloadsResult instanceof Error) return payloadsResult;
-  const actionCommandPayloads = payloadsResult;
-
-  return actionCommandPayloads;
+  return [];
 }

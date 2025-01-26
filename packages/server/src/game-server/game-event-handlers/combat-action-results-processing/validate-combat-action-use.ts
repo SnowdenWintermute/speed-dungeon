@@ -4,19 +4,20 @@ import {
   ERROR_MESSAGES,
   getCombatActionPropertiesIfOwned,
   CombatActionTarget,
-  CombatActionComponent,
+  CombatActionName,
+  COMBAT_ACTIONS,
 } from "@speed-dungeon/common";
 
-export default function validateCombatActionUse(
+export function validateCombatActionUse(
   characterAssociatedData: CharacterAssociatedData,
-  combatAction: CombatActionComponent
+  actionName: CombatActionName
 ): { targets: CombatActionTarget; battleOption: null | Battle } | Error {
   const { game, party, character } = characterAssociatedData;
 
   // ENSURE OWNERSHIP OF CONSUMABLE OR ABILITY
   const combatActionPropertiesResult = getCombatActionPropertiesIfOwned(
     character.combatantProperties,
-    combatAction
+    actionName
   );
   if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
 
@@ -36,12 +37,11 @@ export default function validateCombatActionUse(
     battleOption !== null &&
     !Battle.combatantIsFirstInTurnOrder(battleOption, character.entityProperties.id)
   ) {
-    return new Error(
-      ERROR_MESSAGES.COMBATANT.NOT_ACTIVE +
-        " first turn tracker " +
-        JSON.stringify(battleOption.turnTrackers[0])
-    );
+    const message = `${ERROR_MESSAGES.COMBATANT.NOT_ACTIVE} first turn tracker ${JSON.stringify(battleOption.turnTrackers[0])}`;
+    return new Error(message);
   }
+
+  const combatAction = COMBAT_ACTIONS[actionName];
 
   const isInUsableContext = combatAction.isUsableInThisContext(battleOption);
   if (!isInUsableContext) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_USABILITY_CONTEXT);

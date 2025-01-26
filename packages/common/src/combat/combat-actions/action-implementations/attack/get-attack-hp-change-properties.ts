@@ -10,8 +10,10 @@ import {
 } from "../../../hp-change-source-types.js";
 import { applyWeaponPropertiesToHpChangeProperties } from "../../action-calculation-utils/apply-weapon-properties-to-hp-change-properties.js";
 import { CombatActionHpChangeProperties } from "../../combat-action-hp-change-properties.js";
+import { CombatActionComponent } from "../../index.js";
 
 export function getAttackHpChangeProperties(
+  action: CombatActionComponent,
   user: CombatantProperties,
   primaryTarget: CombatantProperties,
   scalingAttribute: CombatAttribute,
@@ -50,6 +52,7 @@ export function getAttackHpChangeProperties(
   const weaponOption = equippedUsableWeapons[weaponSlot];
   if (weaponOption)
     applyWeaponPropertiesToHpChangeProperties(
+      action,
       weaponOption,
       hpChangeProperties,
       user,

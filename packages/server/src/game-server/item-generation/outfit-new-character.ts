@@ -2,8 +2,6 @@ import {
   BASE_STARTING_ATTRIBUTES,
   STARTING_COMBATANT_TRAITS,
   CombatAttribute,
-  CombatantAbility,
-  AbilityName,
   CombatantClass,
   CombatantProperties,
   ConsumableType,
@@ -17,7 +15,6 @@ import {
   TwoHandedRangedWeapon,
   OneHandedMeleeWeapon,
   BodyArmor,
-  Inventory,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment, { givePlaytestingItems } from "./create-starting-equipment.js";
@@ -41,11 +38,6 @@ export default function outfitNewCharacter(character: Combatant) {
   if (combatantProperties.combatantClass === CombatantClass.Mage) outfitMage(combatantProperties);
   if (combatantProperties.combatantClass === CombatantClass.Warrior)
     outfitWarrior(combatantProperties);
-
-  combatantProperties.abilities[AbilityName.Fire] = CombatantAbility.createByName(AbilityName.Fire);
-  combatantProperties.abilities[AbilityName.Healing] = CombatantAbility.createByName(
-    AbilityName.Healing
-  );
 
   const hpInjectors = new Array(1)
     .fill(null)
@@ -75,7 +67,6 @@ function outfitRogue(combatantProperties: CombatantProperties) {
 
 function outfitMage(combatantProperties: CombatantProperties) {
   // SPELLS
-  combatantProperties.abilities[AbilityName.Ice] = CombatantAbility.createByName(AbilityName.Ice);
   // TRAITS
   combatantProperties.traits.push({
     type: CombatantTraitType.ExtraConsumablesStorage,
@@ -140,9 +131,6 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
 
   // giveTestingCombatAttributes(combatantProperties);
   // combatantProperties.level = 5;
-  combatantProperties.abilities[AbilityName.Destruction] = CombatantAbility.createByName(
-    AbilityName.Destruction
-  );
   combatantProperties.unspentAttributePoints = 100;
   combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
   combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 3;

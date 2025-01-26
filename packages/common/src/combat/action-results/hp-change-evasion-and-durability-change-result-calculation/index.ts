@@ -152,9 +152,8 @@ export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
       targetCombatantProperties
     );
 
-    // @TODO - get the armor pen and pass it to applyArmorClass
-
     hpChangeCalculationContext.applyArmorClass(
+      action,
       hpChange,
       userCombatantProperties,
       targetCombatantProperties

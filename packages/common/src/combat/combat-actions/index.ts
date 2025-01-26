@@ -63,9 +63,11 @@ export interface CombatActionComponentConfig {
   /** A numeric percentage which will be used against the target's crit avoidance */
   getCritChance: (user: CombatantProperties) => number;
   getCritMultiplier: (user: CombatantProperties) => number;
+  getArmorPenetration: (user: CombatantProperties, self: CombatActionComponent) => number;
   getHpChangeProperties: (
     user: CombatantProperties,
-    primaryTarget: CombatantProperties
+    primaryTarget: CombatantProperties,
+    self: CombatActionComponent
   ) => null | CombatActionHpChangeProperties;
   getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
   getChildren: (combatant: Combatant) => null | CombatActionComponent[];
@@ -135,6 +137,7 @@ export abstract class CombatActionComponent {
   getAccuracy: (user: CombatantProperties) => ActionAccuracy;
   getCritChance: (user: CombatantProperties) => number;
   getCritMultiplier: (user: CombatantProperties) => number;
+  getArmorPenetration: (user: CombatantProperties) => number;
   // take the user becasue the hp change properties may be affected by equipment
   // take the target because we may need to select the most effective hp change source properties on that target
   getHpChangeProperties: (
@@ -202,8 +205,9 @@ export abstract class CombatActionComponent {
     };
     this.getCritChance = config.getCritChance;
     this.getCritMultiplier = config.getCritMultiplier;
+    this.getArmorPenetration = (user) => config.getArmorPenetration(user, this);
     this.getRequiredRange = (user) => config.getRequiredRange(user, this);
-    this.getHpChangeProperties = config.getHpChangeProperties;
+    this.getHpChangeProperties = (user, target) => config.getHpChangeProperties(user, target, this);
     this.getAppliedConditions = config.getAppliedConditions;
     this.getChildren = config.getChildren;
     this.getParent = config.getParent;

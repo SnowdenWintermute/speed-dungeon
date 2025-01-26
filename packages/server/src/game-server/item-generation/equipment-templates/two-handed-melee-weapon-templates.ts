@@ -6,7 +6,6 @@ import {
   HpChangeSourceCategory,
   KineticDamageType,
   MagicalElement,
-  MeleeOrRanged,
   NumberRange,
   PrefixType,
   SuffixType,
@@ -72,11 +71,10 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
       baseItemType: weapon,
     });
-    let mainDamageClassification: null | HpChangeSource = new HpChangeSource(
-      HpChangeSourceCategory.Physical,
-      MeleeOrRanged.Melee,
-      KineticDamageType.Blunt
-    );
+    let mainDamageClassification: null | HpChangeSource = new HpChangeSource({
+      category: HpChangeSourceCategory.Physical,
+      kineticDamageTypeOption: KineticDamageType.Blunt,
+    });
 
     switch (weapon) {
       case TwoHandedMeleeWeapon.RottingBranch:
@@ -110,16 +108,14 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         mainDamageClassification = null;
         template.numDamageClassifications = 2;
         template.possibleDamageClassifications = [
-          new HpChangeSource(
-            HpChangeSourceCategory.Physical,
-            MeleeOrRanged.Melee,
-            KineticDamageType.Slashing
-          ),
-          new HpChangeSource(
-            HpChangeSourceCategory.Physical,
-            MeleeOrRanged.Melee,
-            KineticDamageType.Blunt
-          ),
+          new HpChangeSource({
+            category: HpChangeSourceCategory.Physical,
+            kineticDamageTypeOption: KineticDamageType.Slashing,
+          }),
+          new HpChangeSource({
+            category: HpChangeSourceCategory.Physical,
+            kineticDamageTypeOption: KineticDamageType.Blunt,
+          }),
         ];
         template.requirements[CombatAttribute.Strength] = 11;
         template.requirements[CombatAttribute.Dexterity] = 5;
@@ -145,16 +141,14 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         mainDamageClassification = null;
         template.numDamageClassifications = 2;
         template.possibleDamageClassifications = [
-          new HpChangeSource(
-            HpChangeSourceCategory.Physical,
-            MeleeOrRanged.Melee,
-            KineticDamageType.Slashing
-          ),
-          new HpChangeSource(
-            HpChangeSourceCategory.Physical,
-            MeleeOrRanged.Melee,
-            KineticDamageType.Piercing
-          ),
+          new HpChangeSource({
+            category: HpChangeSourceCategory.Physical,
+            kineticDamageTypeOption: KineticDamageType.Slashing,
+          }),
+          new HpChangeSource({
+            category: HpChangeSourceCategory.Physical,
+            kineticDamageTypeOption: KineticDamageType.Piercing,
+          }),
         ];
         template.requirements[CombatAttribute.Dexterity] = 15;
         template.requirements[CombatAttribute.Strength] = 9;
@@ -169,12 +163,11 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
           .filter((element) => element !== MagicalElement.Dark && element !== MagicalElement.Light)
           .map(
             (element) =>
-              new HpChangeSource(
-                HpChangeSourceCategory.Physical,
-                MeleeOrRanged.Melee,
-                KineticDamageType.Blunt,
-                element
-              )
+              new HpChangeSource({
+                category: HpChangeSourceCategory.Physical,
+                kineticDamageTypeOption: KineticDamageType.Blunt,
+                elementOption: element,
+              })
           );
         template.requirements[CombatAttribute.Intelligence] = 7;
         template.requirements[CombatAttribute.Strength] = 7;
@@ -186,17 +179,14 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         mainDamageClassification = null;
         template.numDamageClassifications = 2;
         template.possibleDamageClassifications = [
-          new HpChangeSource(
-            HpChangeSourceCategory.Magical,
-            MeleeOrRanged.Melee,
-            undefined,
-            MagicalElement.Water
-          ),
-          new HpChangeSource(
-            HpChangeSourceCategory.Physical,
-            MeleeOrRanged.Melee,
-            KineticDamageType.Piercing
-          ),
+          new HpChangeSource({
+            category: HpChangeSourceCategory.Magical,
+            elementOption: MagicalElement.Water,
+          }),
+          new HpChangeSource({
+            category: HpChangeSourceCategory.Physical,
+            kineticDamageTypeOption: KineticDamageType.Piercing,
+          }),
         ];
         template.requirements[CombatAttribute.Intelligence] = 7;
         template.requirements[CombatAttribute.Strength] = 7;

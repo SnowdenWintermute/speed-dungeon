@@ -26,6 +26,7 @@ import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment
 import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
 import { getAttackHpChangeProperties } from "./get-attack-hp-change-properties.js";
 import {
+  getStandardActionArmorPenetration,
   getStandardActionCritChance,
   getStandardActionCritMultiplier,
 } from "../../action-calculation-utils/standard-action-calculations.js";
@@ -114,8 +115,12 @@ const config: CombatActionComponentConfig = {
   getCritMultiplier(user) {
     return getStandardActionCritMultiplier(user, CombatAttribute.Strength);
   },
-  getHpChangeProperties: (user, primaryTarget) => {
+  getArmorPenetration(user, self) {
+    return getStandardActionArmorPenetration(user, CombatAttribute.Strength);
+  },
+  getHpChangeProperties: (user, primaryTarget, self) => {
     const hpChangeProperties = getAttackHpChangeProperties(
+      self,
       user,
       primaryTarget,
       CombatAttribute.Strength,

@@ -1,5 +1,6 @@
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { Combatant, CombatantProperties } from "../../../combatants/index.js";
+import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { CombatActionName, CombatActionTarget, CombatActionUsabilityContext } from "../../index.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorLeaf, BehaviorNode, Sequence } from "../behavior-tree.js";
@@ -10,14 +11,10 @@ import { BehaviorLeaf, BehaviorNode, Sequence } from "../behavior-tree.js";
 // - check if action can be used on the target (if single is dead || all in group are dead && can't use on dead, don't add to list)
 // set the action/targets pair as an option to consider
 //
-export interface ActionTargetPair {
-  actionName: CombatActionName;
-  targets: CombatActionTarget;
-}
 
-export interface EvaluatedActionTargetPair {
+export interface EvaluatedActionExecutionIntent {
   effectiveness: number;
-  pair: ActionTargetPair;
+  actionIntent: CombatActionExecutionIntent;
 }
 
 export class SetAvailableTargetsAndUsableActions implements BehaviorNode {

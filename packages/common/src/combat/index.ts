@@ -6,3 +6,4 @@ export * from "./kinetic-damage-types.js";
 export * from "./action-results/index.js";
 export * from "./ai-behavior/index.js";
 export * from "./combat-actions/index.js";
+export * from "./combat-actions/action-implementations/index.js";

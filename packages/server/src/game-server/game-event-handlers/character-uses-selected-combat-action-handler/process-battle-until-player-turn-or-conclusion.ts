@@ -10,7 +10,6 @@ import {
 import { GameServer } from "../../index.js";
 import checkForWipes from "../combat-action-results-processing/check-for-wipes.js";
 import { getBattleConclusionCommandAndPayload } from "../action-command-handlers/get-battle-conclusion-command-and-payload.js";
-import getAIControlledTurnActionCommandPayloads from "../combat-action-results-processing/get-ai-controlled-turn-action-command-payloads.js";
 
 export async function processBattleUntilPlayerTurnOrConclusion(
   gameServer: GameServer,
@@ -36,30 +35,32 @@ export async function processBattleUntilPlayerTurnOrConclusion(
     let { combatantProperties } = activeCombatantResult;
     const activeCombatantIsAiControlled = combatantProperties.controllingPlayer === null;
     if (!activeCombatantIsAiControlled) break;
-    const aiActionCommandPayloadsResult = await getAIControlledTurnActionCommandPayloads(
-      game,
-      party,
-      activeCombatantResult
-    );
-    if (aiActionCommandPayloadsResult instanceof Error) return aiActionCommandPayloadsResult;
-    const aiActionCommands = aiActionCommandPayloadsResult.map(
-      (item) =>
-        new ActionCommand(game.name, activeCombatantResult.entityProperties.id, item, gameServer)
-    );
 
-    party.actionCommandQueue.enqueueNewCommands(aiActionCommands);
-    // we may generate more payloads from processing the current commands, such as game messages about wipes
-    const newPayloadsResult = await party.actionCommandQueue.processCommands();
-    if (newPayloadsResult instanceof Error) return newPayloadsResult;
-    actionCommandPayloads.push(...aiActionCommandPayloadsResult);
+    // @TODO - conform to the new ai behavior tree and action processing system
+    // const aiActionCommandPayloadsResult = await getAIControlledTurnActionCommandPayloads(
+    //   game,
+    //   party,
+    //   activeCombatantResult
+    // );
+    // if (aiActionCommandPayloadsResult instanceof Error) return aiActionCommandPayloadsResult;
+    // const aiActionCommands = aiActionCommandPayloadsResult.map(
+    //   (item) =>
+    //     new ActionCommand(game.name, activeCombatantResult.entityProperties.id, item, gameServer)
+    // );
 
-    const newPayloadsCommands = newPayloadsResult.map(
-      (item) =>
-        new ActionCommand(game.name, activeCombatantResult.entityProperties.id, item, gameServer)
-    );
-    party.actionCommandQueue.enqueueNewCommands(newPayloadsCommands);
+    // party.actionCommandQueue.enqueueNewCommands(aiActionCommands);
+    // // we may generate more payloads from processing the current commands, such as game messages about wipes
+    // const newPayloadsResult = await party.actionCommandQueue.processCommands();
+    // if (newPayloadsResult instanceof Error) return newPayloadsResult;
+    // actionCommandPayloads.push(...aiActionCommandPayloadsResult);
 
-    actionCommandPayloads.push(...newPayloadsResult);
+    // const newPayloadsCommands = newPayloadsResult.map(
+    //   (item) =>
+    //     new ActionCommand(game.name, activeCombatantResult.entityProperties.id, item, gameServer)
+    // );
+    // party.actionCommandQueue.enqueueNewCommands(newPayloadsCommands);
+
+    // actionCommandPayloads.push(...newPayloadsResult);
 
     if (!party.characterPositions[0]) return new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
     partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);

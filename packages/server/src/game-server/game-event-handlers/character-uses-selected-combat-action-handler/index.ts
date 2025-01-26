@@ -1,18 +1,22 @@
 import {
   ActionResult,
+  COMBAT_ACTIONS,
   CharacterAssociatedData,
   CombatActionComponent,
   CombatantAssociatedData,
   ERROR_MESSAGES,
   InputLock,
 } from "@speed-dungeon/common";
-import validateCombatActionUse from "../combat-action-results-processing/validate-combat-action-use.js";
+import { validateCombatActionUse } from "../combat-action-results-processing/validate-combat-action-use.js";
 import { getGameServer } from "../../../singletons.js";
 
 export default async function useSelectedCombatActionHandler(
   _eventData: { characterId: string },
   characterAssociatedData: CharacterAssociatedData
 ) {
+  // ON RECEIPT
+  // validate use
+
   const { game, party, character } = characterAssociatedData;
   const combatantContext: CombatantAssociatedData = { game, party, combatant: character };
   const gameServer = getGameServer();
@@ -22,17 +26,17 @@ export default async function useSelectedCombatActionHandler(
   const { selectedCombatAction } = character.combatantProperties;
   if (selectedCombatAction === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
 
-  // ON RECEIPT
-  // validate use
+  const action = COMBAT_ACTIONS[selectedCombatAction];
 
   const targetsAndBattleResult = validateCombatActionUse(
     characterAssociatedData,
     selectedCombatAction
   );
-  // walk through combat action composite tree depth first, executing child nodes
-  const { successfulResults, maybeError } = processActionExecutionStack(combatantContext, [
-    selectedCombatAction,
-  ]);
+  // walk through combat action composite tree depth first,
+  // executing child nodes and composing game update command payloads such as "combatant moves self"
+  // "combatant pays action costs", "animate combatant", "animate combatant equipment", "action execution"
+  // "combatant returns home"
+  const { successfulResults, maybeError } = processActionExecutionStack(combatantContext, [action]);
 
   // send the successfulResults to client for processing
   // send the error as well

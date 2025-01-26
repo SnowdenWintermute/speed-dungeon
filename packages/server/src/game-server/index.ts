@@ -24,11 +24,11 @@ import { ItemGenerationDirector } from "./item-generation/item-generation-direct
 import { generateRandomItem } from "./item-generation/generate-random-item.js";
 import { payAbilityCostsActionCommandHandler } from "./game-event-handlers/action-command-handlers/pay-ability-costs.js";
 import moveIntoCombatActionPositionActionCommandHandler from "./game-event-handlers/action-command-handlers/move-into-combat-action-position.js";
-import performCombatActionActionCommandHandler from "./game-event-handlers/action-command-handlers/perform-combat-action.js";
+import { performCombatActionActionCommandHandler } from "./game-event-handlers/action-command-handlers/perform-combat-action.js";
 import returnHomeActionCommandHandler from "./game-event-handlers/action-command-handlers/return-home.js";
 import battleResultActionCommandHandler from "./game-event-handlers/action-command-handlers/battle-results.js";
 import getGamePartyAndCombatant from "./utils/get-game-party-and-combatant.js";
-import processSelectedCombatAction from "./game-event-handlers/character-uses-selected-combat-action-handler/process-selected-combat-action.js";
+import { processSelectedCombatAction } from "./game-event-handlers/character-uses-selected-combat-action-handler/process-selected-combat-action.js";
 import generateLoot from "./game-event-handlers/action-command-handlers/generate-loot.js";
 import generateExperiencePoints from "./game-event-handlers/action-command-handlers/generate-experience-points.js";
 import initiateSavedCharacterListeners from "./saved-character-event-handlers/index.js";

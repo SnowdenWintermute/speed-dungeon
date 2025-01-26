@@ -93,6 +93,9 @@ const config: CombatActionComponentConfig = {
   getCritMultiplier: function (user: CombatantProperties): number {
     throw new Error("Function not implemented.");
   },
+  getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
+    throw new Error("Function not implemented.");
+  },
 };
 
 export const ATTACK = new CombatActionComposite(CombatActionName.Attack, config);

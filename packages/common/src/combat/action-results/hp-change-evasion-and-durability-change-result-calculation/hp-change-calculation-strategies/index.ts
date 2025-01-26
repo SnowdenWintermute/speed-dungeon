@@ -1,12 +1,18 @@
 export * from "./magical-hp-change-calulation-strategy.js";
 export * from "./physical-hp-change-calculation-strategy.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
+import { CombatActionComponent } from "../../../combat-actions/index.js";
 import { HpChange, HpChangeSourceCategory } from "../../../hp-change-source-types.js";
 import { MagicalHpChangeCalculationStrategy } from "./magical-hp-change-calulation-strategy.js";
 import { PhysicalHpChangeCalculationStrategy } from "./physical-hp-change-calculation-strategy.js";
 
 export interface HpChangeCalculationStrategy {
-  applyArmorClass(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties): void;
+  applyArmorClass(
+    action: CombatActionComponent,
+    hpChange: HpChange,
+    user: CombatantProperties,
+    target: CombatantProperties
+  ): void;
   applyResilience(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties): void;
 }
 
@@ -16,8 +22,13 @@ export class HpChangeCalulationContext implements HpChangeCalculationStrategy {
   constructor(hpChangeSourceCategory: HpChangeSourceCategory) {
     this.strategy = this.createStrategy(hpChangeSourceCategory);
   }
-  applyArmorClass(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties) {
-    return this.strategy.applyArmorClass(hpChange, user, target);
+  applyArmorClass(
+    action: CombatActionComponent,
+    hpChange: HpChange,
+    user: CombatantProperties,
+    target: CombatantProperties
+  ) {
+    return this.strategy.applyArmorClass(action, hpChange, user, target);
   }
   applyResilience(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties) {
     return this.strategy.applyResilience(hpChange, user, target);

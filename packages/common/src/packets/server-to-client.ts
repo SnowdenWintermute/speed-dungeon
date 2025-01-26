@@ -124,7 +124,7 @@ export interface ServerToClientEventTypes {
   // [ServerToClientEvent.RawActionResults]: (actionResults: ActionResult[]) => void;
   [ServerToClientEvent.CharacterSelectedCombatAction]: (
     characterId: string,
-    combatActionOption: null | CombatActionName
+    combatActionNameOption: null | CombatActionName
   ) => void;
   [ServerToClientEvent.CharacterCycledTargets]: (
     characterId: string,

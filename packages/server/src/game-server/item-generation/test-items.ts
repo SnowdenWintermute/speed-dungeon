@@ -9,7 +9,6 @@ import {
   HpChangeSource,
   HpChangeSourceCategory,
   MaxAndCurrent,
-  MeleeOrRanged,
   NumberRange,
   OneHandedMeleeWeapon,
   PrefixType,

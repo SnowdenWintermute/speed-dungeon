@@ -3,11 +3,13 @@ import { Equipment, WeaponProperties } from "../../../items/equipment/index.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
 import { HpChangeSourceModifiers } from "../../hp-change-source-types.js";
 import { CombatActionHpChangeProperties } from "../combat-action-hp-change-properties.js";
+import { CombatActionComponent } from "../index.js";
 import { addWeaponsDamageToRange } from "./add-weapon-damage-to-range.js";
 import { copySelectedModifiersFromHpChangeSource } from "./copy-selected-modifiers-from-hp-change-source.js";
 import { selectMostEffectiveFromAvailableHpChangeSourceModifiers } from "./select-most-effective-damage-classification-on-target.js";
 
 export function applyWeaponPropertiesToHpChangeProperties(
+  action: CombatActionComponent,
   weapon: {
     equipment: Equipment;
     weaponProperties: WeaponProperties;
@@ -24,6 +26,7 @@ export function applyWeaponPropertiesToHpChangeProperties(
   const averageRoll = baseValues.getAverage();
   const mostEffectiveAvailableHpChangeSourceOnWeapon =
     selectMostEffectiveFromAvailableHpChangeSourceModifiers(
+      action,
       hpChangeProperties,
       weapon.weaponProperties.damageClassification,
       weaponModifiersToCopy,
