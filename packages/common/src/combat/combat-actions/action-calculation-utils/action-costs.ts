@@ -1,6 +1,5 @@
 import { CombatantProperties } from "../../../combatants/index.js";
 import { ConsumableType } from "../../../items/consumables/index.js";
-import { EntityId } from "../../../primatives/index.js";
 import { CombatActionComponent } from "../index.js";
 
 export interface CombatActionCost {

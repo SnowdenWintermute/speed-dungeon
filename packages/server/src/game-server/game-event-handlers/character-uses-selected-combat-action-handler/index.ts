@@ -101,3 +101,27 @@ function processActionExecutionStack(
 
   return { successfulResults: results, maybeError: null };
 }
+
+// uses LMP Chain Arrow
+// deduct costs
+// filter through "on use" trigger gate
+// simultaneously animate three arrows on three targets
+// - for each SubAction
+//   . create a GameUpdateCommand sub-stack
+//   . push projectile effect vfx to sub-stack
+//   . roll for hits
+//   . filter through "on hit or evade" trigger gate (parries, blocks, counters, triggered actions)
+//   . accumulate hit triggered GameUpdateCommands
+//   . for each hit triggered action
+//     - recursively resolve them
+//   . apply value changes
+//
+// await Promise.all(GameUpdateCommand sub-stack) to simultaneously show the animations and value changes
+//
+// arrows 1, 2 and 3 start animating
+// arrow 1 effect reaches closest target
+// arrow 1 hits target, triggering an explosion
+// explosion 1 starts animating
+// explosion 1 finishes animation, killing farthest arrow's target
+// arrow 2 hits midrange target, target parries and animates parry, transitioning from it's hit recovery animation from the explosion
+// arrow 3 reaches farthest target, it is already dead

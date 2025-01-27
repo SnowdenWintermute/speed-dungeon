@@ -1,6 +1,7 @@
 export * from "./combat-action-names.js";
 export * from "./targeting-schemes-and-categories.js";
 export * from "./combat-action-usable-cotexts.js";
+export * from "./action-calculation-utils/action-costs.js";
 import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import {
   EquipmentSlotType,

@@ -1,23 +1,9 @@
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
-import {
-  CombatantProperties,
-  getActionCritChance,
-  CombatantClass,
-  CombatantSpecies,
-  CombatActionComponent,
-  Combatant,
-  iterateNumericEnumKeyedRecord,
-  iterateNumericEnum,
-} from "@speed-dungeon/common";
+import { CombatActionComponent, Combatant, iterateNumericEnum } from "@speed-dungeon/common";
 import React from "react";
-import CharacterSheetWeaponDamage from "../character-sheet/CharacterSheetWeaponDamage";
 import { NumberRange } from "@speed-dungeon/common";
 import DamageTypeBadge from "./DamageTypeBadge";
-import { checkIfTargetWantsToBeHit } from "@speed-dungeon/common";
-import { getTargetOption } from "@/utils/get-target-option";
-import { useGameStore } from "@/stores/game-store";
-import { Vector3 } from "@babylonjs/core";
-import { ActionPayableResource } from "@speed-dungeon/common/src/combat/combat-actions/action-calculation-utils/action-costs";
+import { ActionPayableResource } from "@speed-dungeon/common";
 
 interface Props {
   action: CombatActionComponent;
