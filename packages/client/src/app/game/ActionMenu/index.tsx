@@ -9,7 +9,7 @@ import {
 } from "./menu-state/considering-combat-action";
 import ActionMenuDedicatedButton from "./action-menu-buttons/ActionMenuDedicatedButton";
 import NumberedButton from "./action-menu-buttons/NumberedButton";
-import { Item } from "@speed-dungeon/common";
+import { COMBAT_ACTION_NAME_STRINGS, Item } from "@speed-dungeon/common";
 import { HOTKEYS } from "@/hotkeys";
 import { VIEW_LOOT_BUTTON_TEXT } from "./menu-state/base";
 import {
@@ -94,7 +94,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex"
         style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
       >
-        <ActionDetails combatAction={currentMenu.combatAction} hideTitle={false} />
+        <ActionDetails actionName={currentMenu.combatAction} />
       </div>
     );
   }
@@ -107,11 +107,11 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
     detailedItemDisplay = <ConfirmShardConversionDisplay />;
 
   let hoveredActionDisplay: ReactNode | null = null;
-  if (hoveredAction) {
+  if (hoveredAction !== null) {
     hoveredActionDisplay = (
       <div className="pl-2">
         <div className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2">
-          <ActionDetails combatAction={hoveredAction} hideTitle={false} />
+          <ActionDetails actionName={hoveredAction} />
         </div>
       </div>
     );

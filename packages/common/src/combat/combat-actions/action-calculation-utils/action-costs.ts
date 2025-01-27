@@ -1,7 +1,6 @@
 import { CombatantProperties } from "../../../combatants/index.js";
 import { ConsumableType } from "../../../items/consumables/index.js";
 import { EntityId } from "../../../primatives/index.js";
-import { COMBAT_ACTIONS } from "../action-implementations/index.js";
 import { CombatActionComponent } from "../index.js";
 
 export interface CombatActionCost {
@@ -13,20 +12,22 @@ export interface CombatActionCostMultipliers {
   userCombatantLevel?: number;
 }
 
-export interface ActionResourceCostBases {
-  hp?: CombatActionCost;
-  mp?: CombatActionCost;
-  shards?: CombatActionCost;
-  quickActions?: CombatActionCost;
-  consumableType?: ConsumableType;
+export enum ActionPayableResource {
+  HitPoints,
+  Mana,
+  Shards,
+  QuickActions,
+  ConsumableType,
 }
 
+export type ActionResourceCostBases = Partial<Record<ActionPayableResource, CombatActionCost>>;
+
 export interface ActionResourceCosts {
-  hp?: number;
-  mp?: number;
-  shards?: number;
-  quickActions?: number;
-  consumableId?: EntityId;
+  [ActionPayableResource.HitPoints]?: number;
+  [ActionPayableResource.Mana]?: number;
+  [ActionPayableResource.Shards]?: number;
+  [ActionPayableResource.QuickActions]?: number;
+  [ActionPayableResource.ConsumableType]?: ConsumableType;
 }
 
 export function getStandardActionResourceCosts(
@@ -34,6 +35,7 @@ export function getStandardActionResourceCosts(
   action: CombatActionComponent
 ): null | ActionResourceCosts {
   return null;
+
   //@TODO -
 
   // const { manaCost, abilityLevelManaCostMultiplier, combatantLevelManaCostMultiplier } =

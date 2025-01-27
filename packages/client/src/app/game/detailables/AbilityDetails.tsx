@@ -1,46 +1,48 @@
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import {
-  CombatActionProperties,
-  CombatantAbility,
-  AbilityName,
   CombatantProperties,
-  getCombatActionHpChangeRange,
-  CombatActionType,
-  Combatant,
-  CombatAction,
   getActionCritChance,
   CombatantClass,
   CombatantSpecies,
+  CombatActionComponent,
+  Combatant,
+  iterateNumericEnumKeyedRecord,
+  iterateNumericEnum,
 } from "@speed-dungeon/common";
 import React from "react";
 import CharacterSheetWeaponDamage from "../character-sheet/CharacterSheetWeaponDamage";
 import { NumberRange } from "@speed-dungeon/common";
 import DamageTypeBadge from "./DamageTypeBadge";
-import { ABILITY_ATTRIBUTES } from "@speed-dungeon/common";
 import { checkIfTargetWantsToBeHit } from "@speed-dungeon/common";
 import { getTargetOption } from "@/utils/get-target-option";
 import { useGameStore } from "@/stores/game-store";
 import { Vector3 } from "@babylonjs/core";
+import { ActionPayableResource } from "@speed-dungeon/common/src/combat/combat-actions/action-calculation-utils/action-costs";
 
 interface Props {
-  ability: CombatantAbility;
-  combatActionProperties: CombatActionProperties;
+  action: CombatActionComponent;
   user: Combatant;
 }
 
-export default function AbilityDetails({ ability, combatActionProperties, user }: Props) {
+export default function ActionCosts({ action, user }: Props) {
   const { combatantProperties: userCombatantProperties } = user;
-  const abilityAttributes = ABILITY_ATTRIBUTES[ability.name];
-  const mpCostResult = CombatantProperties.getAbilityManaCostIfOwned(
-    userCombatantProperties,
-    ability.name
-  );
-  if (mpCostResult instanceof Error) return <div>{mpCostResult.message}</div>;
+
+  const costsOption = action.getResourceCosts(userCombatantProperties);
+
+  if (!costsOption) return <></>;
+
+  for (const resource of iterateNumericEnum(ActionPayableResource)) {
+    if (resource !== ActionPayableResource.ConsumableType) {
+      const valueOption = costsOption[resource];
+      if (valueOption === undefined) continue;
+    } else {
+      const consumableTypeOption = costsOption[resource];
+      if (consumableTypeOption === undefined) continue;
+    }
+  }
+
   const mpCost = mpCostResult;
   const mpCostStyle = mpCost > userCombatantProperties.mana ? UNMET_REQUIREMENT_TEXT_COLOR : "";
-
-  const attackDamageDisplay =
-    ability.name === AbilityName.Attack ? <CharacterSheetWeaponDamage combatant={user} /> : <></>;
 
   let valueRangeOption: null | NumberRange = null;
   let critChanceOption: null | number = null;
@@ -48,43 +50,6 @@ export default function AbilityDetails({ ability, combatActionProperties, user }
     type: CombatActionType.AbilityUsed,
     abilityName: ability.name,
   };
-  if (combatActionProperties.hpChangeProperties) {
-    const gameOption = useGameStore.getState().game;
-
-    const targetResult = getTargetOption(gameOption, user, {
-      type: CombatActionType.AbilityUsed,
-      abilityName: ability.name,
-    });
-    if (targetResult instanceof Error) return <div>{targetResult.message}</div>;
-    const target =
-      targetResult ||
-      new CombatantProperties(
-        CombatantClass.Warrior,
-        CombatantSpecies.Humanoid,
-        null,
-        null,
-        Vector3.Zero()
-      );
-    const targetWantsToBeHit = checkIfTargetWantsToBeHit(
-      target,
-      abilityAttributes.combatActionProperties.hpChangeProperties || undefined
-    );
-
-    critChanceOption = getActionCritChance(
-      combatActionProperties.hpChangeProperties,
-      user.combatantProperties,
-      target,
-      targetWantsToBeHit
-    );
-    let valueRangeOptionResult = getCombatActionHpChangeRange(
-      combatAction,
-      combatActionProperties.hpChangeProperties,
-      userCombatantProperties,
-      {}
-    );
-    if (valueRangeOptionResult instanceof Error) return <div>{valueRangeOptionResult.message}</div>;
-    valueRangeOption = valueRangeOptionResult;
-  }
 
   return (
     <div className="flex flex-col justify-between overflow-y-auto">
@@ -104,3 +69,55 @@ export default function AbilityDetails({ ability, combatActionProperties, user }
     </div>
   );
 }
+
+// Main hand (melee)
+// costs [1 mp, 1 hp, 1 shard, 1 quick action]
+// 133 - 289 damage
+// 78% to hit
+// 4% critical
+//
+// Off hand (melee)
+// costs [1 mp, 1 hp, 1 shard, 1 quick action]
+// 133 - 289 damage
+// 78% to hit
+// 4% critical
+//
+// VALUE RANGE VS TARGET OR UNARMORED DUMMY
+//
+// if (combatActionProperties.hpChangeProperties) {
+//   const gameOption = useGameStore.getState().game;
+
+//   const targetResult = getTargetOption(gameOption, user, {
+//     type: CombatActionType.AbilityUsed,
+//     abilityName: ability.name,
+//   });
+//   if (targetResult instanceof Error) return <div>{targetResult.message}</div>;
+//   const target =
+//     targetResult ||
+//     new CombatantProperties(
+//       CombatantClass.Warrior,
+//       CombatantSpecies.Humanoid,
+//       null,
+//       null,
+//       Vector3.Zero()
+//     );
+//   const targetWantsToBeHit = checkIfTargetWantsToBeHit(
+//     target,
+//     abilityAttributes.combatActionProperties.hpChangeProperties || undefined
+//   );
+
+//   critChanceOption = getActionCritChance(
+//     combatActionProperties.hpChangeProperties,
+//     user.combatantProperties,
+//     target,
+//     targetWantsToBeHit
+//   );
+//   let valueRangeOptionResult = getCombatActionHpChangeRange(
+//     combatAction,
+//     combatActionProperties.hpChangeProperties,
+//     userCombatantProperties,
+//     {}
+//   );
+//   if (valueRangeOptionResult instanceof Error) return <div>{valueRangeOptionResult.message}</div>;
+//   valueRangeOption = valueRangeOptionResult;
+// }

@@ -15,6 +15,7 @@ import {
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { getCombatActionTargetIds } from "./get-action-target-ids.js";
 import { calculateActionHitPointChangesEvasionsAndDurabilityChanges } from "./hp-change-evasion-and-durability-change-result-calculation/index.js";
+import { ActionPayableResource } from "../combat-actions/action-calculation-utils/action-costs.js";
 export * from "./get-action-target-ids.js";
 
 export default function calculateActionResult(
@@ -54,8 +55,9 @@ export default function calculateActionResult(
 
   // @TODO - get other resource costs besides mp
 
-  const manaCostOption = combatAction.getResourceCosts(combatantProperties);
-  if (manaCostOption?.mp !== undefined) actionResult.manaCost = Math.floor(manaCostOption.mp);
+  const costsOption = combatAction.getResourceCosts(combatantProperties);
+  if (costsOption && costsOption[ActionPayableResource.Mana] !== undefined)
+    actionResult.manaCost = Math.floor(costsOption[ActionPayableResource.Mana]);
   if (combatantProperties.mana < actionResult.manaCost)
     return new Error(ERROR_MESSAGES.ABILITIES.INSUFFICIENT_MANA);
 

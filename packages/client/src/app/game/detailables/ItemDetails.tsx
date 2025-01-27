@@ -1,7 +1,7 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import {
   CONSUMABLE_TYPE_STRINGS,
-  CombatActionType,
+  CombatActionName,
   Consumable,
   ConsumableType,
   EntityProperties,
@@ -53,7 +53,7 @@ export default function ItemDetails({
   let thumbnailPath = "";
   let svgThumbnailOption = undefined;
 
-  const [preppedForDownloadPhoto, setPreppedForDownloadPhot] = useState<{
+  const [preppedForDownloadPhoto, setPreppedForDownloadPhoto] = useState<{
     entityProperties: EntityProperties;
     ilvl: number;
   } | null>(null);
@@ -77,7 +77,7 @@ export default function ItemDetails({
   }
 
   async function downloadItemImage(entityProperties: EntityProperties, ilvl: number) {
-    setPreppedForDownloadPhot({ entityProperties, ilvl });
+    setPreppedForDownloadPhoto({ entityProperties, ilvl });
   }
 
   // idk if this is really required, but the idea was it needed to paint the frame with the updated state
@@ -86,7 +86,7 @@ export default function ItemDetails({
     if (preppedForDownloadPhoto) {
       const { entityProperties, ilvl } = preppedForDownloadPhoto;
       handleDownload(entityProperties, ilvl).then(() => {
-        setPreppedForDownloadPhot(null);
+        setPreppedForDownloadPhoto(null);
       });
     }
   }, [preppedForDownloadPhoto]);
@@ -123,14 +123,9 @@ export default function ItemDetails({
         itemDetailsDisplay = <div>Could be useful...</div>;
       } else {
         itemDetailsDisplay = (
-          <ActionDetails
-            combatAction={{
-              type: CombatActionType.ConsumableUsed,
-              itemId: item.entityProperties.id,
-              consumableType: item.consumableType,
-            }}
-            hideTitle={true}
-          />
+          <div>
+            Consumable action not implemented {CONSUMABLE_TYPE_STRINGS[item.consumableType]}
+          </div>
         );
       }
     } else {

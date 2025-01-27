@@ -1,30 +1,22 @@
 import {
-  ABILITY_NAME_STRINGS,
-  ActionUsableContext,
-  AdventuringParty,
+  COMBAT_ACTIONS,
+  COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
-  CONSUMABLE_TYPE_STRINGS,
-  CombatAction,
-  CombatActionType,
-  CombatantAbility,
-  Consumable,
-  ERROR_MESSAGES,
+  CombatActionComponent,
+  CombatActionName,
+  CombatActionUsabilityContext,
+  TARGETING_SCHEME_STRINGS,
   TARGET_CATEGORY_STRINGS,
-  createDummyConsumable,
-  formatTargetingScheme,
 } from "@speed-dungeon/common";
 import React from "react";
-import AbilityDetails from "./AbilityDetails";
-import { getCombatActionProperties } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 
 interface Props {
-  combatAction: CombatAction;
-  hideTitle: boolean;
+  actionName: CombatActionName;
 }
 
-export default function ActionDetails({ combatAction, hideTitle }: Props) {
+export default function ActionDetails({ actionName }: Props) {
   const partyResult = useGameStore().getParty();
   if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
   const party = partyResult;
@@ -34,83 +26,42 @@ export default function ActionDetails({ combatAction, hideTitle }: Props) {
 
   const inCombat = Object.values(party.currentRoom.monsters).length;
 
-  const combatActionPropertiesResult = getCombatActionProperties(
-    party,
-    combatAction,
-    focusedCharacter.entityProperties.id
-  );
-  if (combatActionPropertiesResult instanceof Error)
-    return <div>{combatActionPropertiesResult.message}</div>;
-  const combatActionProperties = combatActionPropertiesResult;
+  const action = COMBAT_ACTIONS[actionName];
+  const { usabilityContext } = action;
 
-  let abilityOption: null | CombatantAbility = null;
-  if (combatAction.type === CombatActionType.AbilityUsed) {
-    const ownedAbilityOption =
-      focusedCharacter.combatantProperties.abilities[combatAction.abilityName] ?? null;
-    if (!ownedAbilityOption) return <div>{ERROR_MESSAGES.ABILITIES.NOT_OWNED}</div>;
-    abilityOption = ownedAbilityOption;
-  }
-
-  let targetingSchemesText = "";
-  combatActionProperties.targetingSchemes.forEach((targetingScheme, i) => {
-    targetingSchemesText += formatTargetingScheme(targetingScheme);
-    if (i < combatActionProperties.targetingSchemes.length - 1) {
-      targetingSchemesText += ", ";
-    }
-  });
+  const targetingSchemesText = formatTargetingSchemes(action);
 
   return (
     <div className="flex flex-col pointer-events-auto" style={{ flex: `1 1 1px` }}>
-      {!hideTitle && (
-        <>
-          <span>{getCombatActionName(party, combatAction)}</span>
-          <div className="mb-1 mt-1 h-[1px] bg-slate-400" />
-        </>
-      )}
+      <span>{COMBAT_ACTION_NAME_STRINGS[action.name]}</span>
+      <div className="mb-1 mt-1 h-[1px] bg-slate-400" />
       <div className="flex-grow overflow-auto mr-2">
-        {abilityOption && (
-          <AbilityDetails
-            ability={abilityOption}
-            user={focusedCharacter}
-            combatActionProperties={combatActionProperties}
-          />
-        )}
-        <div>{combatActionProperties.description}</div>
-        <div>
-          {`Valid targets: ${TARGET_CATEGORY_STRINGS[combatActionProperties.validTargetCategories]}`}
-        </div>
+        {
+          // abilityOption && (
+          // <AbilityDetails
+          //   ability={abilityOption}
+          //   user={focusedCharacter}
+          //   combatActionProperties={combatActionProperties}
+          // />
+          // )
+        }
+        <div>{action.description}</div>
+        <div>{`Valid targets: ${TARGET_CATEGORY_STRINGS[action.validTargetCategories]}`}</div>
         <div>{`Targeting schemes: ${targetingSchemesText}`}</div>
         <div
           className={
-            !inCombat && combatActionProperties.usabilityContext === ActionUsableContext.InCombat
+            !inCombat && usabilityContext === CombatActionUsabilityContext.InCombat
               ? UNMET_REQUIREMENT_TEXT_COLOR
               : ""
           }
-        >{`Usable ${COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[combatActionProperties.usabilityContext]}`}</div>
+        >{`Usable ${COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[usabilityContext]}`}</div>
       </div>
     </div>
   );
 }
 
-function getCombatActionName(party: AdventuringParty, combatAction: CombatAction) {
-  let actionName = "";
-  switch (combatAction.type) {
-    case CombatActionType.AbilityUsed:
-      actionName = ABILITY_NAME_STRINGS[combatAction.abilityName];
-      break;
-    case CombatActionType.ConsumableUsed:
-      const itemResult = AdventuringParty.getItem(party, combatAction.itemId);
-      if (itemResult instanceof Error) {
-        if (combatAction.consumableType !== undefined) {
-          actionName = CONSUMABLE_TYPE_STRINGS[combatAction.consumableType];
-        }
-
-        actionName = itemResult.message;
-        break;
-      }
-      if (!(itemResult instanceof Consumable))
-        actionName = "Why is an equipment being used as an action";
-      else actionName = CONSUMABLE_TYPE_STRINGS[itemResult.consumableType];
-  }
-  return actionName;
+function formatTargetingSchemes(action: CombatActionComponent) {
+  return action.targetingSchemes
+    .map((targetingScheme, i) => TARGETING_SCHEME_STRINGS[targetingScheme])
+    .join(", ");
 }
