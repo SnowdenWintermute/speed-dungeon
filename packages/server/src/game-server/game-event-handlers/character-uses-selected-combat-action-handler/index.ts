@@ -73,10 +73,26 @@ export default async function useSelectedCombatActionHandler(
     for (const action of actionsExecuting) {
       // keep track of the step
       // - pre-use-positioning
-      // - mid-use-animating - (combatant animations until percentToConsiderAsComplete)
+      //   - push command to ReplayEventNode
+      //   - check if time elapsed is enough to be considered completed and transition to next step if so
+      // - pay action costs
+      //   - update game state and add a PayActionCosts ReplayEventNode
+      //   - push triggered "on use" actions with new child ReplayEventNode
+      //   - transition to next step
+      // - start-use-animating - (combatant animations until percentToConsiderAsComplete)
+      //   - get start-use animation if not already playing
+      //   - check if time elapsed is enough and transition to next step if so
       // - actionUse - (update values in game state)
+      //   - for each target
+      //     - roll hit/crit/parry/block or triggered counterspell
+      //     - start triggered events with new child ReplayEventNodes (hit recovery, dodge, block, parry animations, triggered explosions)
+      //     - transition to next step
       // - post-use-animating - (combatant animation, combatant equipment animation)
+      //   - based on if blocked, parried, countered or missed, transition to an animation or continue current one
+      //   - if elapsed time is enough, transition to next step
       // - post-use-positioning (might die in transit to returning home)
+      //   - check if elapsed time is enough to have reached destination
+      //   - if reached destination or dead, transition to next step
       // tick whatever step it is on
       // get next step or remove from actionsExecuting, and update replayNode
     }
