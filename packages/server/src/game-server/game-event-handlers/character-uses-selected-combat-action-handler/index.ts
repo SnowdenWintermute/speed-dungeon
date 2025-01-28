@@ -125,3 +125,97 @@ function processActionExecutionStack(
 // explosion 1 finishes animation, killing farthest arrow's target
 // arrow 2 hits midrange target, target parries and animates parry, transitioning from it's hit recovery animation from the explosion
 // arrow 3 reaches farthest target, it is already dead
+//
+// const eventTree = new EventNode();
+// let mostRecentlyCompletedEventId = 0;
+// async function createEventTreeFromActionUse(action: CombatActionComponent, parentNode: EventNode){
+//   const eventNode = new EventNode()
+//   parentNode.addChild(eventNode)
+//
+//   if(action.subActions) {
+//     const subActionPromises = []
+//     for(const subAction of action.subActions){
+//       subActionPromises.push(createEventTreeFromActionUse(subAction, eventNode))
+//     }
+//     await Promise.all(subActionPromises)
+//   }
+//
+//
+//   const preExecutionAnimations = action.getPreExecutionAnimations();
+//   for(const animation of preExecutionAnimations){
+//     const event = new AnimationEvent(animation)
+//     eventNode.events.push(event)
+//     await animation.play()
+//     event.completionOrderId = mostRecentlyCompletedEventId++;
+//   }
+//
+//
+//   const executionAnimations = action.getExecutionAnimations();
+//   for(const animation of executionAnimations) {
+//     const event = new AnimationEvent(animation)
+//     eventNode.events.push(event)
+//     await () => new Promise((resolve) => {
+//       animation.playWithPercentCompleteEvent(
+//         { onPercentPlayed: () => resolve(), percent: action.getExecutionAnimationPercentToProceed() }
+//         ));
+//     event.completionOrderId = mostRecentlyCompletedEventId++;
+//   }
+//
+//   for(const targetId of action.targets) {
+//      const node = new EventNode()
+//      eventNode.addChild(node)
+//
+//      const target = game.getCombatantById(targetId)
+//      const isAboutToHitTarget = action.isAboutToHitTarget(action, target)
+//
+//      if (isAboutToHitTarget) {
+//          const isParried = target.rollParry(action)
+//          const arbitraryAnimationPercentageToProcessNextEvents = .7 // look up in dict later
+//
+//          if(!target.isValidTarget(action)) {
+//            const targetNoLongerValidEvent = new TargetNoLongerValidEvent(action, target)
+//            node.events.push(targetNoLongerValidEvent)
+//            targetNoLongerValidEvent.completionOrderId = mostRecentlyCompletedEventId ++
+//            continue;
+//          }
+//
+//          if(isParried) {
+//            const parryAnimation = target.getParryAnimation()
+//            const parryAnimationEvent = new AnimationEventWithPercentCompleteEvents(parryAnimation, [{
+//              percentComplete: arbitraryAnimationPercentageToProcessNextEvents,
+//              event: (self: AnimationEventWithPercentCompleteEvents) => done(self)
+//            }])
+//
+//            node.events.push(event)
+//
+//            await () => new Promise((resolve) => parryAnimation.playWithPercentCompleteEvents({ percent: arbitraryAnimationPercentageToProcessNextEvents, event: () => {resolve()} }))
+//            parryAnimationEvent.completionOrderId = mostRecentlyCompletedEventId++
+//            const parryEvent = new GameStateUpdate(GameStateUpdateType.Parried)
+//            node.events.push(parryEvent)
+//            parryEvent.completionOrderId = mostRecentlyCompletedEventId++
+//          } else {
+//            const hitRecoveryAnimation = target.getHitRecoveryAnimation()
+//            const hitRecoveryAnimationEvent = new AnimationEventWithPercentCompleteEvents(hitRecoveryAnimation, [{
+//              percentComplete: arbitraryAnimationPercentageToProcessNextEvents,
+//              event: (self: AnimationEventWithPercentCompleteEvents) => done(self)
+//            }])
+//
+//            node.events.push(event)
+//
+//            await () => new Promise((resolve) => hitRecoveryAnimation.playWithPercentCompleteEvents({ percent: arbitraryAnimationPercentageToProcessNextEvents, event: () => {resolve()} }))
+//            hitRecoveryAnimationEvent.completionOrderId = mostRecentlyCompletedEventId++
+//            const hpChangeEvent = new GameStateUpdate(GameStateUpdateType.HpChange)
+//            node.events.push(hpChangeEvent)
+//            hpChangeEvent.completionOrderId = mostRecentlyCompletedEventId++
+//            const triggeredActionsOption = target.getTriggeredActions(action ,Trigger.OnHit);
+//            if(triggeredActionsOption) {
+//              const triggeredActionPromises = []
+//              for(const triggeredAction of triggeredActionsOption){
+//                triggeredActionPromises.push(createEventTreeFromActionUse(triggeredAction, node))
+//              }
+//              Promise.all(triggeredActionPromises)
+//            }
+//          }
+//      }
+//   }
+// }
