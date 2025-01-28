@@ -9,10 +9,6 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.AttackMeleeMainhand]: ATTACK_MELEE_MAIN_HAND,
   [CombatActionName.AttackMeleeOffhand]: ATTACK_MELEE_OFF_HAND,
   [CombatActionName.AttackRangedMainhand]: ATTACK_RANGED_MAIN_HAND,
-  // [CombatActionName.Fire]: undefined,
-  // [CombatActionName.Ice]: undefined,
-  // [CombatActionName.Healing]: undefined,
-  // [CombatActionName.Destruction]: undefined,
-  // [CombatActionName.UseGreenAutoinjector]: undefined,
-  // [CombatActionName.UseBlueAutoinjector]: undefined,
+  [CombatActionName.UseGreenAutoinjector]: ATTACK, // @TODO - implement
+  [CombatActionName.UseBlueAutoinjector]: ATTACK, // @TODO - implement
 };

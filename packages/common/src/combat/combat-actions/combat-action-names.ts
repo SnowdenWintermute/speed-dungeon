@@ -7,8 +7,8 @@ export enum CombatActionName {
   // Ice,
   // Healing,
   // Destruction,
-  // UseGreenAutoinjector,
-  // UseBlueAutoinjector,
+  UseGreenAutoinjector,
+  UseBlueAutoinjector,
 }
 
 export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
@@ -16,10 +16,6 @@ export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.AttackMeleeMainhand]: "Attack Melee Mainhand",
   [CombatActionName.AttackMeleeOffhand]: "Attack Melee Offhand",
   [CombatActionName.AttackRangedMainhand]: "Attack Ranged Mainhand",
-  // [CombatActionName.Fire]: "Fire",
-  // [CombatActionName.Ice]: "Ice",
-  // [CombatActionName.Healing]: "Healing",
-  // [CombatActionName.Destruction]: "Destruction",
-  // [CombatActionName.UseGreenAutoinjector]: "Use Green Autoinjector",
-  // [CombatActionName.UseBlueAutoinjector]: "Use Blue Autoinjector",
+  [CombatActionName.UseGreenAutoinjector]: "Green Autoinjector",
+  [CombatActionName.UseBlueAutoinjector]: "Blue Autoinjector",
 };

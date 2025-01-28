@@ -71,7 +71,8 @@ export interface CombatActionComponentConfig {
     self: CombatActionComponent
   ) => null | CombatActionHpChangeProperties;
   getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
-  getChildren: (combatant: Combatant) => null | CombatActionComponent[];
+  getChildren: (combatant: Combatant) => CombatActionComponent[];
+  getConcurrentSubActions?: () => CombatActionComponent[];
   getParent: () => CombatActionComponent | null;
 }
 
@@ -152,7 +153,15 @@ export abstract class CombatActionComponent {
   // spell levels (level 1 chain lightning only gets 1 ChainLightningArc child) or other status
   // (energetic swings could do multiple attacks based on user's current percent of max hp)
   // could also create random children such as a chaining random elemental damage
-  getChildren: (combatant: Combatant) => null | CombatActionComponent[];
+  getChildren: (combatant: Combatant) => CombatActionComponent[];
+  getChildrenRecursive(combatant: Combatant) {
+    const toReturn: CombatActionComponent[] = [];
+    for (const child of this.getChildren(combatant)) {
+      toReturn.push(...child.getChildrenRecursive(combatant));
+    }
+    return toReturn;
+  }
+  getConcurrentSubActions: () => CombatActionComponent[] = () => [];
   getParent: () => CombatActionComponent | null;
   addChild: (childAction: CombatActionComponent) => Error | void = () =>
     new Error("Can't add a child to this component");
@@ -211,6 +220,8 @@ export abstract class CombatActionComponent {
     this.getHpChangeProperties = (user, target) => config.getHpChangeProperties(user, target, this);
     this.getAppliedConditions = config.getAppliedConditions;
     this.getChildren = config.getChildren;
+    if (config.getConcurrentSubActions)
+      this.getConcurrentSubActions = config.getConcurrentSubActions;
     this.getParent = config.getParent;
   }
 }

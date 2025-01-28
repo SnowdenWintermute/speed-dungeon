@@ -8,7 +8,6 @@ import {
 } from ".";
 import {
   ClientToServerEvent,
-  CombatActionType,
   CombatantProperties,
   Consumable,
   Equipment,
@@ -111,16 +110,14 @@ export class ConsideringItemMenuState implements ActionMenuState {
             }
           );
       } else if (this.item instanceof Consumable) {
+        const combatActionNameOption = this.item.getActionName();
         return new ActionMenuButtonProperties(
           USE_CONSUMABLE_BUTTON_TEXT,
           USE_CONSUMABLE_BUTTON_TEXT,
           () => {
             websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
               characterId,
-              combatActionOption: {
-                type: CombatActionType.ConsumableUsed,
-                itemId,
-              },
+              combatActionNameOption,
             });
           }
         );

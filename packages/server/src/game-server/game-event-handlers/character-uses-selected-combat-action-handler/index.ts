@@ -1,14 +1,16 @@
 import {
-  ActionResult,
   COMBAT_ACTIONS,
   CharacterAssociatedData,
   CombatActionComponent,
   CombatantAssociatedData,
   ERROR_MESSAGES,
   InputLock,
+  ReplayEventNode,
 } from "@speed-dungeon/common";
 import { validateCombatActionUse } from "../combat-action-results-processing/validate-combat-action-use.js";
 import { getGameServer } from "../../../singletons.js";
+import { Milliseconds } from "@speed-dungeon/common";
+import { GameUpdateCommand } from "@speed-dungeon/common/src/action-processing/game-update-commands.js";
 
 export default async function useSelectedCombatActionHandler(
   _eventData: { characterId: string },
@@ -32,75 +34,113 @@ export default async function useSelectedCombatActionHandler(
     characterAssociatedData,
     selectedCombatAction
   );
-  // walk through combat action composite tree depth first,
-  // executing child nodes and composing game update command payloads such as "combatant moves self"
-  // "combatant pays action costs", "animate combatant", "animate combatant equipment", "action execution"
-  // "combatant returns home"
-  const { successfulResults, maybeError } = processActionExecutionStack(combatantContext, [action]);
 
-  // send the successfulResults to client for processing
-  // send the error as well
+  const actionsExecuting: {
+    timeStarted: Milliseconds;
+    action: CombatActionComponent;
+    replayNode: ReplayEventNode;
+  }[] = [];
+  const reactionsExecuting: {
+    // for parries/hit recovery/evade animations
+    timeStarted: Milliseconds;
+    animationSequence: GameUpdateCommand[];
+    replayNode: ReplayEventNode;
+  }[] = [];
+  const time: { ms: Milliseconds } = { ms: 0 };
 
-  if (targetsAndBattleResult instanceof Error) return targetsAndBattleResult;
-  const { targets, battleOption } = targetsAndBattleResult;
+  const depthFirstChildrenInExecutionOrder = action
+    .getChildrenRecursive(combatantContext.combatant)
+    .reverse();
 
-  // const maybeError = await gameServer.processSelectedCombatAction(
-  //   game,
-  //   party,
-  //   character.entityProperties.id,
-  //   selectedCombatAction,
-  //   targets,
-  //   battleOption,
-  //   party.characterPositions
-  // );
+  const TICK_LENGTH: Milliseconds = 10;
 
-  // if (maybeError instanceof Error) return maybeError;
+  const replayEventTree = new ReplayEventNode();
+
+  while (depthFirstChildrenInExecutionOrder.length && actionsExecuting.length) {
+    if (actionsExecuting.length === 0) {
+      const nextActionToAttemptExecution = depthFirstChildrenInExecutionOrder.pop();
+      if (!nextActionToAttemptExecution) break;
+      const replayNode = new ReplayEventNode();
+      replayEventTree.children.push(replayNode);
+
+      actionsExecuting.push({
+        timeStarted: time.ms,
+        action: nextActionToAttemptExecution,
+        replayNode,
+      });
+    }
+
+    for (const action of actionsExecuting) {
+      // keep track of the step
+      // - pre-use-positioning
+      // - mid-use-animating - (combatant animations until percentToConsiderAsComplete)
+      // - actionUse - (update values in game state)
+      // - post-use-animating - (combatant animation, combatant equipment animation)
+      // - post-use-positioning (might die in transit to returning home)
+      // tick whatever step it is on
+      // get next step or remove from actionsExecuting, and update replayNode
+    }
+
+    time.ms += TICK_LENGTH;
+  }
 }
+
+// - get initial action / sub actions and put them in an actionsExecuting object
+// - tick and process any executing actions
+//   - update the ticked ms
+//   for each executing action
+//     - if just started, add it's replayEventNode to the tree
+//     - if(!currentActionExecutionEvent) executingAction.getNextEvent()
+//     - process currentActionExecutionEvent by increasing its ms, checking if done, updating game state, and updating the replayEventTree node
+//     - if it is done, get the next event
+//     - if executing.getNextEvent() === undefined, remove it from executing actions and fetch the next action in the child list
 
 function processActionExecutionStack(
   combatantContext: CombatantAssociatedData,
-  initialActions: CombatActionComponent[]
-): { successfulResults: ActionResult[]; maybeError: null | Error } {
+  replayEventTree: ReplayEventNode,
+  actions: CombatActionComponent[],
+  actionsExecuting: {
+    timeStarted: Milliseconds;
+    action: CombatActionComponent;
+    replayNode: ReplayEventNode;
+  }[],
+  time: { ms: Milliseconds }
+): void | Error {
   const { combatant } = combatantContext;
-  const results: ActionResult[] = []; // GameUpdateCommand[]
-  const actionsToExecute: CombatActionComponent[] = [...initialActions];
+  const actionsToExecute: CombatActionComponent[] = [...actions];
 
   let currentAction = actionsToExecute.pop();
   while (currentAction) {
-    console.log("processing");
     if (!currentAction.shouldExecute(combatantContext)) {
       currentAction = actionsToExecute.pop();
       continue;
     }
-    // push pre-use animation effects to results and apply
-    // push paid costs to results
-    // process triggers for "on use" ex: counter spell (continue), deploy shield (process deploy shield result immediately)
-    // - should determine ("success" or "failure" state)
-    // push on-success or on-failure animation effects
-    // push resource changes and conditions applied to results
-    // process triggers for "on hit" ex: detonate explosive, interrupt channeling
-    // - push triggered actions to the stack
-    // process triggers for "on evade" ex: evasion stacks increased
-    // build the action commands from the result on server and apply to game
-    // continue building the list of action results for the client to use
 
     // process children recursively
     const childrenOption = currentAction.getChildren(combatant);
     if (childrenOption) {
       // since we'll be popping them, reverse them into the correct order
       const childrenReversed = childrenOption.reverse();
-      const childActionResults = processActionExecutionStack(combatantContext, childrenReversed);
-
-      results.push(...childActionResults.successfulResults);
-      if (childActionResults.maybeError instanceof Error)
-        return { successfulResults: results, maybeError: childActionResults.maybeError };
     }
 
+    // build the replay event tree
+
+    // finally, get the next action
     currentAction = actionsToExecute.pop();
   }
-
-  return { successfulResults: results, maybeError: null };
 }
+
+// push pre-use animation effects to results and apply
+// push paid costs to results
+// process triggers for "on use" ex: counter spell (continue), deploy shield (process deploy shield result immediately)
+// - should determine ("success" or "failure" state)
+// push on-success or on-failure animation effects
+// push resource changes and conditions applied to results
+// process triggers for "on hit" ex: detonate explosive, interrupt channeling
+// - push triggered actions to the stack
+// process triggers for "on evade" ex: evasion stacks increased
+// build the action commands from the result on server and apply to game
+// continue building the list of action results for the client to use
 
 // uses LMP Chain Arrow
 // deduct costs
@@ -219,3 +259,5 @@ function processActionExecutionStack(
 //      }
 //   }
 // }
+//
+//

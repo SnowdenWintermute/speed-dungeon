@@ -90,7 +90,7 @@ const config: CombatActionComponentConfig = {
   getAppliedConditions: function (): CombatantCondition[] | null {
     return null; // ex: could make a "poison blade" item
   },
-  getChildren: () => null,
+  getChildren: () => [],
   getParent: () => ATTACK,
 };
 

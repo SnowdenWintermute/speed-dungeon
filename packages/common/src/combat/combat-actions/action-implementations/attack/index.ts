@@ -56,7 +56,7 @@ const config: CombatActionComponentConfig = {
     // @TODO - determine based on equipment
     throw new Error("Function not implemented.");
   },
-  getChildren: function (user: Combatant): CombatActionComponent[] | null {
+  getChildren: function (user: Combatant): CombatActionComponent[] {
     const toReturn: CombatActionComponent[] = [];
     const mainHandEquipmentOption = CombatantEquipment.getEquipmentInSlot(
       user.combatantProperties,

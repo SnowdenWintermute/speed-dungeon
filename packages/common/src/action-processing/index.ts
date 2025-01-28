@@ -1,6 +1,7 @@
 export * from "./action-command.js";
 export * from "./action-command-receiver.js";
 export * from "./action-command-queue.js";
+export * from "./replay-events.js";
 import { BattleConclusion } from "../battle/index.js";
 import { DurabilityChangesByEntityId } from "../combat/action-results/calculate-action-durability-changes.js";
 import { CombatActionName, HpChange } from "../combat/index.js";
