@@ -87,6 +87,7 @@ export class CombatantProperties {
   combatActionTarget: null | CombatActionTarget = null;
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   deepestFloorReached: number = 1;
+  position: Vector3;
   constructor(
     public combatantClass: CombatantClass,
     public combatantSpecies: CombatantSpecies,
@@ -99,6 +100,7 @@ export class CombatantProperties {
     public controllingPlayer: null | string,
     public homeLocation: Vector3
   ) {
+    this.position = homeLocation;
     this.ownedActions[CombatActionName.Attack] = new CombatantActionState(CombatActionName.Attack);
   }
 

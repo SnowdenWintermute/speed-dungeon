@@ -1,4 +1,5 @@
 import {
+  ActionResolutionStep,
   COMBAT_ACTIONS,
   CharacterAssociatedData,
   CombatActionComponent,
@@ -6,6 +7,7 @@ import {
   ERROR_MESSAGES,
   InputLock,
   ReplayEventNode,
+  TICK_LENGTH,
 } from "@speed-dungeon/common";
 import { validateCombatActionUse } from "../combat-action-results-processing/validate-combat-action-use.js";
 import { getGameServer } from "../../../singletons.js";
@@ -38,6 +40,7 @@ export default async function useSelectedCombatActionHandler(
   const actionsExecuting: {
     timeStarted: Milliseconds;
     action: CombatActionComponent;
+    step: ActionResolutionStep;
     replayNode: ReplayEventNode;
   }[] = [];
   const reactionsExecuting: {
@@ -51,8 +54,6 @@ export default async function useSelectedCombatActionHandler(
   const depthFirstChildrenInExecutionOrder = action
     .getChildrenRecursive(combatantContext.combatant)
     .reverse();
-
-  const TICK_LENGTH: Milliseconds = 10;
 
   const replayEventTree = new ReplayEventNode();
 
@@ -71,17 +72,20 @@ export default async function useSelectedCombatActionHandler(
     }
 
     for (const action of actionsExecuting) {
+      // tickCurrentStep()
+      // if complete, getNextStep()
       // keep track of the step
       // - pre-use-positioning
       //   - push command to ReplayEventNode
       //   - check if time elapsed is enough to be considered completed and transition to next step if so
-      // - pay action costs
-      //   - update game state and add a PayActionCosts ReplayEventNode
-      //   - push triggered "on use" actions with new child ReplayEventNode
-      //   - transition to next step
       // - start-use-animating - (combatant animations until percentToConsiderAsComplete)
       //   - get start-use animation if not already playing
       //   - check if time elapsed is enough and transition to next step if so
+      // - pay action costs
+      //   - update game state and add a PayActionCosts ReplayEventNode
+      //   - push triggered "on use" actions with new child ReplayEventNode
+      //     - ex: apply counterNextSpell condition, animateCounterSpellApplication
+      //   - transition to next step
       // - actionUse - (update values in game state)
       //   - for each target
       //     - roll hit/crit/parry/block or triggered counterspell

@@ -1,4 +1,10 @@
+import { Milliseconds } from "./primatives";
+
 export const INFO_UNICODE_SYMBOL = "ⓘ";
+
+export const ONE_SECOND: Milliseconds = 1000;
+export const SIMULATION_FPS: Milliseconds = 15;
+export const TICK_LENGTH: Milliseconds = ONE_SECOND / SIMULATION_FPS;
 
 export const BASE_SCREEN_SIZE = 1920;
 export const GOLDEN_RATIO = 657 / 1063;

@@ -1,4 +1,5 @@
 export * from "./action-command.js";
+export * from "./action-steps.js";
 export * from "./action-command-receiver.js";
 export * from "./action-command-queue.js";
 export * from "./replay-events.js";
