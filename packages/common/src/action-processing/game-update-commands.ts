@@ -1,12 +1,13 @@
 import { Vector3 } from "@babylonjs/core";
 import { EntityId } from "../primatives/index.js";
-import { CombatActionName, HpChange } from "../combat/index.js";
+import { ActionResourceCosts, CombatActionName, HpChange } from "../combat/index.js";
 import { DurabilityChangesByEntityId } from "../combat/action-results/calculate-action-durability-changes.js";
 
 export enum GameUpdateCommandType {
   CombatantAnimation,
   CombatantMovement,
   CombatantEquipmentAnimation,
+  ResourcesPaid,
   ActionResult,
   StaticVfx,
   MobileVfx,
@@ -23,6 +24,7 @@ export type CombatantMovementGameUpdateCommand = {
 export type CombatantAnimationGameUpdateCommand = {
   type: GameUpdateCommandType.CombatantAnimation;
   combatantId: EntityId;
+  destination: Vector3;
   animationName: string; // @TODO -enum
   duration: number;
   percentToConsiderAsCompleted: number;
@@ -35,6 +37,12 @@ export type CombatantEquipmentAnimationGameUpdateCommand = {
   animationName: string; // @TODO -enum
   duration: number;
   percentToConsiderAsCompleted: number;
+};
+
+export type ResourcesPaidGameUpdateCommand = {
+  type: GameUpdateCommandType.ResourcesPaid;
+  combatantId: EntityId;
+  costsPaid: ActionResourceCosts;
 };
 
 export type ActionResultGameUpdateCommand = {
@@ -74,6 +82,7 @@ export type GameUpdateCommand =
   | CombatantMovementGameUpdateCommand
   | CombatantAnimationGameUpdateCommand
   | CombatantEquipmentAnimationGameUpdateCommand
+  | ResourcesPaidGameUpdateCommand
   | ActionResultGameUpdateCommand
   | StaticVfxGameUpdateCommand
   | MobileVfxGameUpdateCommand;

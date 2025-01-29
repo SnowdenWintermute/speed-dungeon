@@ -11,6 +11,7 @@ import {
 import { validateCombatActionUse } from "../combat-action-results-processing/validate-combat-action-use.js";
 import { getGameServer } from "../../../singletons.js";
 import { Milliseconds } from "@speed-dungeon/common";
+import { CombatActionExecutionIntent } from "@speed-dungeon/common/src/combat/combat-actions/combat-action-execution-intent.js";
 
 export default async function useSelectedCombatActionHandler(
   _eventData: { characterId: string },
@@ -37,7 +38,7 @@ export default async function useSelectedCombatActionHandler(
 
   let sequenceStarted = false;
   let nextResolutionOrderId = 0;
-  let nextActionExecutionTrackerId = 0;
+  const nextActionExecutionTrackerIdGenerator = new SequentialIdGenerator();
   const actionsExecuting: { [id: string]: ActionExecutionTracker } = {};
   const time: { ms: Milliseconds } = { ms: 0 };
 
@@ -56,14 +57,26 @@ export default async function useSelectedCombatActionHandler(
     if (depthFirstChildrenInExecutionOrder.length && currentParentActionTracker === null) {
       const nextActionToAttemptExecution = depthFirstChildrenInExecutionOrder.pop()!;
 
+      if (!nextActionToAttemptExecution.shouldExecute(combatantContext)) continue;
+
       const replayNode = new ReplayEventNode();
       replayEventTree.children.push(replayNode);
 
-      const actionExecutionTrackerId = nextActionExecutionTrackerId++;
+      const actionExecutionTrackerId = nextActionExecutionTrackerIdGenerator.getNextId();
+
+      const targetsOptionResult = action.getAutoTarget(combatantContext);
+      if (targetsOptionResult instanceof Error) return targetsOptionResult;
+      else if (targetsOptionResult === null) continue;
+
+      const actionExecutionIntent: CombatActionExecutionIntent = {
+        actionName: nextActionToAttemptExecution.name,
+        targets: targetsOptionResult,
+        getConsumableType: () => null,
+      };
 
       currentParentActionTracker = new ActionExecutionTracker(
         String(actionExecutionTrackerId),
-        nextActionToAttemptExecution,
+        actionExecutionIntent,
         time.ms,
         combatantContext,
         replayNode
@@ -72,8 +85,7 @@ export default async function useSelectedCombatActionHandler(
       actionsExecuting[actionExecutionTrackerId] = currentParentActionTracker;
     }
 
-    // @TODO - get ms of the tracker with step nearest to completion
-    const tickMs = 10;
+    const tickMs = getMsOfNextToCompleteTracker(actionsExecuting);
 
     // process active trackers
     for (const [trackerId, tracker] of Object.entries(actionsExecuting)) {
@@ -86,15 +98,40 @@ export default async function useSelectedCombatActionHandler(
         resolutionOrderId: nextResolutionOrderId++,
       });
 
-      for (const action of results.branchingActions) {
+      for (const { actionExecutionIntent, user } of results.branchingActions) {
+        const nestedReplayNode = new ReplayEventNode();
         // create a new replay node as a child of this one
+        tracker.replayNode.children.push(nestedReplayNode);
         // push the actions to the currently executing actions
+        const nestedActionId = nextActionExecutionTrackerIdGenerator.getNextId();
+
+        actionsExecuting[nestedActionId] = new ActionExecutionTracker(
+          nestedActionId,
+          actionExecutionIntent,
+          time.ms,
+          combatantContext,
+          nestedReplayNode
+        );
       }
 
-      const nextStep = tracker.getNextStep();
-      if (nextStep === null) delete actionsExecuting[trackerId];
+      const { nextStepOption } = results;
+      if (nextStepOption === null) delete actionsExecuting[trackerId];
+      else tracker.currentStep = nextStepOption;
     }
 
     time.ms += TICK_LENGTH;
+  }
+}
+
+function getMsOfNextToCompleteTracker(trackers: { [id: string]: ActionExecutionTracker }) {
+  // @TODO - get ms of the tracker with step nearest to completion
+  return 10;
+}
+
+class SequentialIdGenerator {
+  private nextId: number = 0;
+  constructor() {}
+  getNextId() {
+    return String(this.nextId++);
   }
 }

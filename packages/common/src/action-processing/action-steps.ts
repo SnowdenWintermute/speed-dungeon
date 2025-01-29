@@ -1,11 +1,11 @@
 import { Vector3 } from "@babylonjs/core";
-import { Milliseconds } from "../primatives";
-import { Combatant } from "../combatants";
-import { CombatActionComponent } from "../combat";
-import { ReplayEventNode } from "./replay-events";
-import { GameUpdateCommand, GameUpdateCommandType } from "./game-update-commands";
-import { CombatantAssociatedData } from "../types";
-import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent";
+import { Milliseconds } from "../primatives/index.js";
+import { Combatant } from "../combatants/index.js";
+import { COMBAT_ACTIONS, CombatActionComponent } from "../combat/index.js";
+import { ReplayEventNode } from "./replay-events.js";
+import { GameUpdateCommand, GameUpdateCommandType } from "./game-update-commands.js";
+import { CombatantAssociatedData } from "../types.js";
+import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
 
 export interface ActionExecuting {
   timeStarted: Milliseconds;
@@ -29,7 +29,7 @@ export enum ActionResolutionStepType {
 
 export type ActionResolutionStepResult = {
   gameUpdateCommand: GameUpdateCommand;
-  branchingActions: { user: Combatant; action: CombatActionComponent }[];
+  branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
   nextStepOption: ActionResolutionStep | null;
 };
 
@@ -60,23 +60,27 @@ export abstract class ActionResolutionStep {
 }
 
 export class PreUsePositioningActionResolutionStep extends ActionResolutionStep {
+  private destination: Vector3;
   constructor(
     private combatantContext: CombatantAssociatedData,
-    private destination: Vector3
+    private actionExecutionIntent: CombatActionExecutionIntent
   ) {
     super(ActionResolutionStepType.preUsePositioning);
+
+    // @TODO - calculate destination based on action
+    this.destination = Vector3.Zero();
   }
 
   protected onTick(): void {
-    // lerp toward destination
+    // @TODO -lerp combatant toward destination
   }
 
   isComplete() {
     return this.combatantContext.combatant.combatantProperties.position === this.destination;
   }
 
-  onComplete() {
-    const toReturn: ActionResolutionStepResult = {
+  onComplete(): ActionResolutionStepResult {
+    return {
       gameUpdateCommand: {
         type: GameUpdateCommandType.CombatantMovement,
         animationName: "Run Forward", // run forward, run backward, run forward injured @TODO -enum
@@ -85,60 +89,85 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
         percentToConsiderAsCompleted: 100,
       },
       branchingActions: [],
-      nextStepOption: 
+      nextStepOption: new StartUseAnimationActionResolutionStep(
+        this.combatantContext,
+        this.actionExecutionIntent,
+        Vector3.Zero()
+      ),
     };
-    return toReturn;
   }
 }
 
 export class StartUseAnimationActionResolutionStep extends ActionResolutionStep {
+  duration: Milliseconds;
   constructor(
     private combatantContext: CombatantAssociatedData,
     private actionExecutionIntent: CombatActionExecutionIntent,
-    private destinationOption: null | Vector3,
+    private destinationOption: null | Vector3
   ) {
     super(ActionResolutionStepType.startUseAnimation);
+
+    // @TODO -calculate duration based distance to destination dictated by action and target
+    this.duration = 1000;
+  }
+
+  protected onTick(): void {
+    // @TODO -lerp combatant toward destination
   }
 
   isComplete() {
     return this.elapsed >= this.duration;
   }
 
-  onComplete() {
-    const toReturn: ActionResolutionStepResult = {
+  onComplete(): ActionResolutionStepResult {
+    return {
       gameUpdateCommand: {
-        type: GameUpdateCommandType.CombatantMovement,
-        animationName: "Run Forward", // run forward, run backward, run forward injured @TODO -enum
+        type: GameUpdateCommandType.CombatantAnimation,
+        animationName: "Swing Main Hand",
         combatantId: this.combatantContext.combatant.entityProperties.id,
         destination: Vector3.Zero(),
+        duration: 1000,
         percentToConsiderAsCompleted: 100,
       },
       branchingActions: [],
-      nextStepOption: 
+      nextStepOption: new PayResourceCostsActionResolutionStep(
+        this.combatantContext,
+        this.actionExecutionIntent
+      ),
     };
-    return toReturn;
   }
 }
 
-// export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
-//   constructor(
-//     private combatant: Combatant,
-//     private action: CombatActionComponent
-//   ) {
-//     super(ActionResolutionStepType.payResourceCosts);
-//   }
+export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
+  constructor(
+    private combatantContext: CombatantAssociatedData,
+    private actionExecutionIntent: CombatActionExecutionIntent
+  ) {
+    super(ActionResolutionStepType.payResourceCosts);
+  }
 
-//   isComplete(): boolean {
-//     return true;
-//   }
+  isComplete(): boolean {
+    return true;
+  }
 
-//   onComplete(): void {
-//     const costs = this.action.getResourceCosts(this.combatant.combatantProperties);
-//     // get costs from this.action
-//     // deduct costs from combatant resources
-//     // return GameUpdateCommands
-//   }
-// }
+  onComplete(): ActionResolutionStepResult {
+    const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
+    const costs = action.getResourceCosts(this.combatantContext.combatant.combatantProperties);
+
+    // @TODO - calculate the actual costs paid
+    // @TODO - deduct costs from combatant resources
+
+    return {
+      gameUpdateCommand: {
+        type: GameUpdateCommandType.ResourcesPaid,
+        combatantId: this.combatantContext.combatant.entityProperties.id,
+        costsPaid: {},
+      },
+      branchingActions: [],
+      nextStepOption: null,
+    };
+  }
+}
 
 // export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
 //   constructor(
@@ -156,3 +185,10 @@ export class StartUseAnimationActionResolutionStep extends ActionResolutionStep 
 //     // collect all triggered actions
 //   }
 // }
+
+// rollIncomingHitOutcomes,
+// evalOnHitOutcomeTriggers,
+// postUseAnimation,
+// postUsePositioning,
+// playMobileVfx,
+// playStaticVfx,

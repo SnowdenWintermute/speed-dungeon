@@ -169,8 +169,7 @@ export abstract class CombatActionComponent {
   // DEFAULT FUNCTIONS
   getAutoTarget: (combatantContext: CombatantAssociatedData) => Error | null | CombatActionTarget =
     (combatantContext) => {
-      const scheme = this.autoTargetSelectionMethod?.scheme;
-      if (!scheme) return null;
+      const scheme = this.autoTargetSelectionMethod.scheme;
       return AUTO_TARGETING_FUNCTIONS[scheme](combatantContext, this);
     };
   combatantIsValidTarget(
