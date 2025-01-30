@@ -8,7 +8,7 @@ export enum GameUpdateCommandType {
   CombatantMovement,
   CombatantEquipmentAnimation,
   ResourcesPaid,
-  ActionResult,
+  HitOutcomes,
   StaticVfx,
   MobileVfx,
 }
@@ -18,7 +18,6 @@ export type CombatantMovementGameUpdateCommand = {
   animationName: string; // run forward, run backward @TODO -enum
   combatantId: EntityId;
   destination: Vector3;
-  percentToConsiderAsCompleted: number;
 };
 
 export type CombatantAnimationGameUpdateCommand = {
@@ -27,7 +26,6 @@ export type CombatantAnimationGameUpdateCommand = {
   destination: Vector3;
   animationName: string; // @TODO -enum
   duration: number;
-  percentToConsiderAsCompleted: number;
 };
 
 export type CombatantEquipmentAnimationGameUpdateCommand = {
@@ -36,7 +34,6 @@ export type CombatantEquipmentAnimationGameUpdateCommand = {
   equipmentId: EntityId;
   animationName: string; // @TODO -enum
   duration: number;
-  percentToConsiderAsCompleted: number;
 };
 
 export type ResourcesPaidGameUpdateCommand = {
@@ -45,19 +42,18 @@ export type ResourcesPaidGameUpdateCommand = {
   costsPaid: ActionResourceCosts;
 };
 
-export type ActionResultGameUpdateCommand = {
-  type: GameUpdateCommandType.ActionResult;
+export type HitOutcomesGameUpdateCommand = {
+  type: GameUpdateCommandType.HitOutcomes;
   actionName: CombatActionName;
-  // targets: CombatActionTarget
-  // children?: PerformCombatActionActionCommandPayload[]
-  hpChangesByEntityId: null | {
+  hpChangesByEntityId?: null | {
     [entityId: string]: HpChange;
   };
-  mpChangesByEntityId: null | {
+  mpChangesByEntityId?: null | {
     [entityId: string]: number;
   };
   // condition changes
-  missesByEntityId: string[];
+  missesByEntityId?: string[];
+  evadesByEntityId?: string[];
   durabilityChanges?: DurabilityChangesByEntityId;
 };
 
@@ -65,17 +61,17 @@ export type StaticVfxGameUpdateCommand = {
   type: GameUpdateCommandType.StaticVfx;
   name: string; // @TODO -enum;
   position: Vector3;
-  duration: number;
-  percentToConsiderAsCompleted: number;
+  animationDuration: number;
+  triggerNextStepDuration: number;
 };
 
 export type MobileVfxGameUpdateCommand = {
   type: GameUpdateCommandType.MobileVfx;
   name: string; // @TODO -enum;
-  duration: number;
   startPosition: Vector3;
   destination: Vector3;
-  percentToConsiderAsCompleted: number;
+  translationDuration: number;
+  triggerNextStepDuration: number;
 };
 
 export type GameUpdateCommand =
@@ -83,6 +79,6 @@ export type GameUpdateCommand =
   | CombatantAnimationGameUpdateCommand
   | CombatantEquipmentAnimationGameUpdateCommand
   | ResourcesPaidGameUpdateCommand
-  | ActionResultGameUpdateCommand
+  | HitOutcomesGameUpdateCommand
   | StaticVfxGameUpdateCommand
   | MobileVfxGameUpdateCommand;

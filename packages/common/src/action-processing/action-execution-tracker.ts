@@ -13,6 +13,8 @@ export class ActionExecutionTracker {
     private combatantContext: CombatantAssociatedData,
     public replayNode: ReplayEventNode
   ) {
+    // in the case of sub-actions, we'll start with spawning the projectiles or vfx
+    // otherwise start with the combatant moving
     // this.currentStep = action.getFirstResolutionStep();
     this.currentStep = new PreUsePositioningActionResolutionStep(
       this.combatantContext,

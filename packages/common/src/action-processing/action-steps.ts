@@ -28,7 +28,7 @@ export enum ActionResolutionStepType {
 }
 
 export type ActionResolutionStepResult = {
-  gameUpdateCommand: GameUpdateCommand;
+  gameUpdateCommands: GameUpdateCommand[];
   branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
   nextStepOption: ActionResolutionStep | null;
 };
@@ -81,13 +81,14 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
 
   onComplete(): ActionResolutionStepResult {
     return {
-      gameUpdateCommand: {
-        type: GameUpdateCommandType.CombatantMovement,
-        animationName: "Run Forward", // run forward, run backward, run forward injured @TODO -enum
-        combatantId: this.combatantContext.combatant.entityProperties.id,
-        destination: Vector3.Zero(),
-        percentToConsiderAsCompleted: 100,
-      },
+      gameUpdateCommands: [
+        {
+          type: GameUpdateCommandType.CombatantMovement,
+          animationName: "Run Forward", // run forward, run backward, run forward injured @TODO -enum
+          combatantId: this.combatantContext.combatant.entityProperties.id,
+          destination: Vector3.Zero(),
+        },
+      ],
       branchingActions: [],
       nextStepOption: new StartUseAnimationActionResolutionStep(
         this.combatantContext,
@@ -121,14 +122,22 @@ export class StartUseAnimationActionResolutionStep extends ActionResolutionStep 
 
   onComplete(): ActionResolutionStepResult {
     return {
-      gameUpdateCommand: {
-        type: GameUpdateCommandType.CombatantAnimation,
-        animationName: "Swing Main Hand",
-        combatantId: this.combatantContext.combatant.entityProperties.id,
-        destination: Vector3.Zero(),
-        duration: 1000,
-        percentToConsiderAsCompleted: 100,
-      },
+      gameUpdateCommands: [
+        {
+          type: GameUpdateCommandType.CombatantAnimation,
+          animationName: "Raise and Draw Bow",
+          combatantId: this.combatantContext.combatant.entityProperties.id,
+          destination: Vector3.Zero(),
+          duration: 1000,
+        },
+        {
+          type: GameUpdateCommandType.CombatantEquipmentAnimation,
+          animationName: "Bend Bow as Drawn",
+          combatantId: this.combatantContext.combatant.entityProperties.id,
+          equipmentId: "",
+          duration: 1000,
+        },
+      ],
       branchingActions: [],
       nextStepOption: new PayResourceCostsActionResolutionStep(
         this.combatantContext,
@@ -155,40 +164,98 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
     const costs = action.getResourceCosts(this.combatantContext.combatant.combatantProperties);
 
     // @TODO - calculate the actual costs paid
-    // @TODO - deduct costs from combatant resources
+    // @TODO - apply the deducted costs to server game state combatant resources
+    // @TODO - add the costs to the replayNode's gameUpdateCommands
 
     return {
-      gameUpdateCommand: {
-        type: GameUpdateCommandType.ResourcesPaid,
-        combatantId: this.combatantContext.combatant.entityProperties.id,
-        costsPaid: {},
-      },
+      gameUpdateCommands: [
+        {
+          type: GameUpdateCommandType.ResourcesPaid,
+          combatantId: this.combatantContext.combatant.entityProperties.id,
+          costsPaid: {},
+        },
+      ],
+      branchingActions: [],
+      nextStepOption: new EvalOnUseTriggersActionResolutionStep(
+        this.combatantContext,
+        this.actionExecutionIntent
+      ),
+    };
+  }
+}
+
+export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
+  constructor(
+    private combatantContext: CombatantAssociatedData,
+    private actionExecutionIntent: CombatActionExecutionIntent
+  ) {
+    super(ActionResolutionStepType.payResourceCosts);
+  }
+
+  isComplete(): boolean {
+    return true;
+  }
+
+  onComplete(): ActionResolutionStepResult {
+    // @TODO - collect all triggered actions and add to branchingActions list
+    // @TODO - set any sub actions to the branchingActions list
+    // @TODO - determine next step based on action type:
+    // ex: if countered, skip the rollIncomingHitOutcomes step and go to postUseAnimation with a countered animation
+    // and push a GameUpdateCommand with the counter animation for the countering combatant
+    return {
+      gameUpdateCommands: [
+        {
+          type: GameUpdateCommandType.ResourcesPaid,
+          combatantId: this.combatantContext.combatant.entityProperties.id,
+          costsPaid: {},
+        },
+      ],
+      branchingActions: [], // split arrow, split arrow, split arrow
+      // in case of subActions, skip to post use animation
+      nextStepOption: new RollIncomingHitOutcomesActionResolutionStep(
+        this.combatantContext,
+        this.actionExecutionIntent
+      ),
+    };
+  }
+}
+
+export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutionStep {
+  constructor(
+    private combatantContext: CombatantAssociatedData,
+    private actionExecutionIntent: CombatActionExecutionIntent
+  ) {
+    super(ActionResolutionStepType.payResourceCosts);
+  }
+
+  // @TODO - calculate hits, evades, parries, blocks, hp/mp/shard/durability changes to apply
+  // and pass them to the next step for triggers and filtering
+
+  isComplete(): boolean {
+    return true;
+  }
+
+  onComplete(): ActionResolutionStepResult {
+    return {
+      gameUpdateCommands: [
+        {
+          type: GameUpdateCommandType.HitOutcomes,
+          actionName: this.actionExecutionIntent.actionName,
+          // hits, misses, evades, parries, blocks
+        },
+      ],
       branchingActions: [],
       nextStepOption: null,
     };
   }
 }
 
-// export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
-//   constructor(
-//     private combatantContext: CombatantAssociatedData,
-//     private action: CombatActionComponent
-//   ) {
-//     super(ActionResolutionStepType.payResourceCosts);
-//   }
-
-//   isComplete(): boolean {
-//     return true;
-//   }
-
-//   onComplete(): void {
-//     // collect all triggered actions
-//   }
-// }
-
+// in case of projectile - playMobileVfx,
+// in case of spell effect - playStaticVfx,
 // rollIncomingHitOutcomes,
 // evalOnHitOutcomeTriggers,
 // postUseAnimation,
 // postUsePositioning,
-// playMobileVfx,
-// playStaticVfx,
+//
+//
+// , blocked, parried, should spawn projectile, should spawn spell effect

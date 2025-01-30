@@ -2,6 +2,7 @@ import {
   ActionExecutionTracker,
   COMBAT_ACTIONS,
   CharacterAssociatedData,
+  CombatActionComponent,
   CombatantAssociatedData,
   ERROR_MESSAGES,
   InputLock,
@@ -12,6 +13,7 @@ import { validateCombatActionUse } from "../combat-action-results-processing/val
 import { getGameServer } from "../../../singletons.js";
 import { Milliseconds } from "@speed-dungeon/common";
 import { CombatActionExecutionIntent } from "@speed-dungeon/common/src/combat/combat-actions/combat-action-execution-intent.js";
+import { config } from "dotenv";
 
 export default async function useSelectedCombatActionHandler(
   _eventData: { characterId: string },
@@ -37,7 +39,7 @@ export default async function useSelectedCombatActionHandler(
   );
 
   let sequenceStarted = false;
-  let nextResolutionOrderId = 0;
+  const resolutionOrderIdGenerator = new SequentialIdGenerator();
   const nextActionExecutionTrackerIdGenerator = new SequentialIdGenerator();
   const actionsExecuting: { [id: string]: ActionExecutionTracker } = {};
   const time: { ms: Milliseconds } = { ms: 0 };
@@ -46,7 +48,7 @@ export default async function useSelectedCombatActionHandler(
     .getChildrenRecursive(combatantContext.combatant)
     .reverse();
 
-  const replayEventTree = new ReplayEventNode();
+  const rootReplayTreeNode = new ReplayEventNode();
 
   let currentParentActionTracker: null | ActionExecutionTracker = null;
 
@@ -54,35 +56,23 @@ export default async function useSelectedCombatActionHandler(
     if (!sequenceStarted) sequenceStarted = true;
 
     // get the next parent action in sequence if haven't yet or one remains to be processed
-    if (depthFirstChildrenInExecutionOrder.length && currentParentActionTracker === null) {
-      const nextActionToAttemptExecution = depthFirstChildrenInExecutionOrder.pop()!;
-
-      if (!nextActionToAttemptExecution.shouldExecute(combatantContext)) continue;
-
-      const replayNode = new ReplayEventNode();
-      replayEventTree.children.push(replayNode);
-
-      const actionExecutionTrackerId = nextActionExecutionTrackerIdGenerator.getNextId();
-
-      const targetsOptionResult = action.getAutoTarget(combatantContext);
-      if (targetsOptionResult instanceof Error) return targetsOptionResult;
-      else if (targetsOptionResult === null) continue;
-
-      const actionExecutionIntent: CombatActionExecutionIntent = {
-        actionName: nextActionToAttemptExecution.name,
-        targets: targetsOptionResult,
-        getConsumableType: () => null,
-      };
-
-      currentParentActionTracker = new ActionExecutionTracker(
-        String(actionExecutionTrackerId),
-        actionExecutionIntent,
-        time.ms,
+    while (depthFirstChildrenInExecutionOrder.length && currentParentActionTracker === null) {
+      const nextParentActionTrackerOptionResult = getNextParentActionExecutionTracker(
+        depthFirstChildrenInExecutionOrder,
         combatantContext,
-        replayNode
+        rootReplayTreeNode,
+        nextActionExecutionTrackerIdGenerator,
+        time
       );
+      if (nextParentActionTrackerOptionResult instanceof Error) {
+        console.error(nextParentActionTrackerOptionResult);
+        break;
+      }
+      if (!nextParentActionTrackerOptionResult) break;
+      const nextParentActionTracker = nextParentActionTrackerOptionResult;
 
-      actionsExecuting[actionExecutionTrackerId] = currentParentActionTracker;
+      actionsExecuting[nextParentActionTracker.id] = nextParentActionTracker;
+      currentParentActionTracker = nextParentActionTracker;
     }
 
     const tickMs = getMsOfNextToCompleteTracker(actionsExecuting);
@@ -92,11 +82,18 @@ export default async function useSelectedCombatActionHandler(
       tracker.currentStep.tick(tickMs);
       if (!tracker.currentStep.isComplete()) continue;
 
+      // allow the next parent action in the original action sequence to be started in the next iteration
+      if (tracker.id === currentParentActionTracker?.id) currentParentActionTracker = null;
+
       const results = tracker.currentStep.onComplete();
-      tracker.replayNode.events.push({
-        command: results.gameUpdateCommand,
-        resolutionOrderId: nextResolutionOrderId++,
-      });
+      tracker.replayNode.events.push(
+        ...results.gameUpdateCommands.map((command) => {
+          return {
+            command,
+            resolutionOrderId: resolutionOrderIdGenerator.getNextIdNumeric(),
+          };
+        })
+      );
 
       for (const { actionExecutionIntent, user } of results.branchingActions) {
         const nestedReplayNode = new ReplayEventNode();
@@ -133,5 +130,47 @@ class SequentialIdGenerator {
   constructor() {}
   getNextId() {
     return String(this.nextId++);
+  }
+  getNextIdNumeric() {
+    return this.nextId++;
+  }
+}
+
+function getNextParentActionExecutionTracker(
+  depthFirstChildrenInExecutionOrder: CombatActionComponent[],
+  combatantContext: CombatantAssociatedData,
+  rootReplayTreeNode: ReplayEventNode,
+  nextActionExecutionTrackerIdGenerator: SequentialIdGenerator,
+  time: { ms: Milliseconds }
+) {
+  while (depthFirstChildrenInExecutionOrder.length) {
+    const nextAction = depthFirstChildrenInExecutionOrder.pop();
+    if (!nextAction) break;
+    if (!nextAction.shouldExecute(combatantContext)) continue;
+
+    const actionExecutionTrackerId = nextActionExecutionTrackerIdGenerator.getNextId();
+    const targetsOptionResult = nextAction.getAutoTarget(combatantContext);
+
+    if (targetsOptionResult instanceof Error) return targetsOptionResult;
+    else if (targetsOptionResult === null)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
+
+    const actionExecutionIntent = new CombatActionExecutionIntent(
+      nextAction.name,
+      targetsOptionResult
+    );
+
+    const replayNode = new ReplayEventNode();
+    rootReplayTreeNode.children.push(replayNode);
+
+    const tracker = new ActionExecutionTracker(
+      actionExecutionTrackerId,
+      actionExecutionIntent,
+      time.ms,
+      combatantContext,
+      rootReplayTreeNode
+    );
+
+    return tracker;
   }
 }
