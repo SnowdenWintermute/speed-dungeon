@@ -55,20 +55,19 @@ export type HitOutcomesGameUpdateCommand = {
 export type StaticVfxGameUpdateCommand = {
   type: GameUpdateCommandType.StaticVfx;
   completionOrderId: null | number;
-  name: string; // @TODO -enum;
+  vfxName: string; // @TODO -enum;
   position: Vector3;
-  animationDuration: number;
+  effectDuration: number;
   triggerNextStepDuration: number;
 };
 
 export type MobileVfxGameUpdateCommand = {
   type: GameUpdateCommandType.MobileVfx;
   completionOrderId: null | number;
-  name: string; // @TODO -enum;
+  vfxName: string;
   startPosition: Vector3;
   destination: Vector3;
   translationDuration: number;
-  triggerNextStepDuration: number;
 };
 
 export type GameUpdateCommand =

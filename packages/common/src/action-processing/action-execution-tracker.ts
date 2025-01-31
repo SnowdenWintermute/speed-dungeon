@@ -1,11 +1,9 @@
 import { Milliseconds } from "../primatives/index.js";
 import { CombatantAssociatedData } from "../types.js";
-import {
-  ActionResolutionStep,
-  PreUsePositioningActionResolutionStep,
-} from "./action-steps/index.js";
+import { ActionResolutionStep } from "./action-steps/index.js";
 import { ReplayEventNode } from "./replay-events.js";
 import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
+import { PreUsePositioningActionResolutionStep } from "./action-steps/pre-use-positioning.js";
 
 export class ActionExecutionTracker {
   currentStep: ActionResolutionStep;
