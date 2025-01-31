@@ -163,3 +163,19 @@
 // }
 //
 //
+//
+//
+//
+// CombatantMovesForward 1,
+// CombatantBowNode 2,
+// - CombatantDrawsBow 10ms 3
+// - CombatantBowBends 10ms 4
+// SpawnProjectilesNode 5
+// - Projectile1
+//   .Spawn Projectile
+//   .Move projectile
+//   .Trigger hits
+// - Projectile2
+// CombatantPostBowAnimation,
+// CombatantMovesBack
+//

@@ -88,3 +88,14 @@ export function createDummyConsumable(consumableType: ConsumableType) {
     1
   );
 }
+
+export class SequentialIdGenerator {
+  private nextId: number = 0;
+  constructor() {}
+  getNextId() {
+    return String(this.nextId++);
+  }
+  getNextIdNumeric() {
+    return this.nextId++;
+  }
+}

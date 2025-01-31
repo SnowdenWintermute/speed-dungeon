@@ -28,14 +28,16 @@ export enum ActionResolutionStepType {
 }
 
 export type ActionResolutionStepResult = {
-  gameUpdateCommands: GameUpdateCommand[];
   branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
   nextStepOption: ActionResolutionStep | null;
 };
 
 export abstract class ActionResolutionStep {
   protected elapsed: Milliseconds = 0;
-  constructor(public readonly type: ActionResolutionStepType) {}
+  protected gameUpdateCommand: GameUpdateCommand;
+  constructor(public readonly type: ActionResolutionStepType) {
+    this.gameUpdateCommand = this.initialize();
+  }
 
   tick(ms: Milliseconds) {
     this.elapsed += ms;
@@ -44,13 +46,30 @@ export abstract class ActionResolutionStep {
 
   protected onTick() {}
 
+  getTimeToCompletion(): Milliseconds {
+    throw new Error("not implemented");
+  }
+
   isComplete(): boolean {
     throw new Error("not implemented");
   }
 
-  onComplete(): ActionResolutionStepResult {
-    // return new GameUpdateCommands
-    // return a list of new branching actions
+  /** Used to create and set the internal reference to the associated game update command */
+  protected initialize(): GameUpdateCommand {
+    throw new Error("not implemented");
+  }
+
+  getGameUpdateCommand(): GameUpdateCommand {
+    return this.gameUpdateCommand;
+  }
+
+  markGameUpdateAsCompleted(completionOrderId: number): void {
+    this.gameUpdateCommand.completionOrderId = completionOrderId;
+  }
+
+  /** Assign the completionOrderId to our held reference of associated game update,
+   * and return branching actions and next step */
+  onComplete(completionOrderId: number): ActionResolutionStepResult {
     throw new Error("not implemented");
   }
 
@@ -71,6 +90,16 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
     this.destination = Vector3.Zero();
   }
 
+  protected initialize(): GameUpdateCommand {
+    return {
+      type: GameUpdateCommandType.CombatantMovement,
+      completionOrderId: null,
+      animationName: "Run Forward", // run forward, run backward, run forward injured @TODO -enum
+      combatantId: this.combatantContext.combatant.entityProperties.id,
+      destination: Vector3.Zero(),
+    };
+  }
+
   protected onTick(): void {
     // @TODO -lerp combatant toward destination
   }
@@ -79,16 +108,14 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
     return this.combatantContext.combatant.combatantProperties.position === this.destination;
   }
 
-  onComplete(): ActionResolutionStepResult {
+  getGameUpdateCommand(): GameUpdateCommand {
+    return this.gameUpdateCommand;
+  }
+
+  onComplete(completionOrderId: number): ActionResolutionStepResult {
+    super.markGameUpdateAsCompleted(completionOrderId);
+
     return {
-      gameUpdateCommands: [
-        {
-          type: GameUpdateCommandType.CombatantMovement,
-          animationName: "Run Forward", // run forward, run backward, run forward injured @TODO -enum
-          combatantId: this.combatantContext.combatant.entityProperties.id,
-          destination: Vector3.Zero(),
-        },
-      ],
       branchingActions: [],
       nextStepOption: new StartUseAnimationActionResolutionStep(
         this.combatantContext,
@@ -116,28 +143,25 @@ export class StartUseAnimationActionResolutionStep extends ActionResolutionStep 
     // @TODO -lerp combatant toward destination
   }
 
+  protected initialize(): GameUpdateCommand {
+    return {
+      type: GameUpdateCommandType.CombatantAnimation,
+      completionOrderId: null,
+      animationName: "Raise and Draw Bow",
+      combatantId: this.combatantContext.combatant.entityProperties.id,
+      destination: Vector3.Zero(),
+      duration: 1000,
+    };
+  }
+
   isComplete() {
     return this.elapsed >= this.duration;
   }
 
-  onComplete(): ActionResolutionStepResult {
+  onComplete(completionOrderId: number): ActionResolutionStepResult {
+    this.markGameUpdateAsCompleted(completionOrderId);
+
     return {
-      gameUpdateCommands: [
-        {
-          type: GameUpdateCommandType.CombatantAnimation,
-          animationName: "Raise and Draw Bow",
-          combatantId: this.combatantContext.combatant.entityProperties.id,
-          destination: Vector3.Zero(),
-          duration: 1000,
-        },
-        {
-          type: GameUpdateCommandType.CombatantEquipmentAnimation,
-          animationName: "Bend Bow as Drawn",
-          combatantId: this.combatantContext.combatant.entityProperties.id,
-          equipmentId: "",
-          duration: 1000,
-        },
-      ],
       branchingActions: [],
       nextStepOption: new PayResourceCostsActionResolutionStep(
         this.combatantContext,
@@ -155,6 +179,18 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
     super(ActionResolutionStepType.payResourceCosts);
   }
 
+  protected initialize(): GameUpdateCommand {
+    // @TODO - calculate the actual costs paid
+    // @TODO - apply the deducted costs to server game state combatant resources
+    //
+    return {
+      type: GameUpdateCommandType.ResourcesPaid,
+      completionOrderId: null,
+      combatantId: this.combatantContext.combatant.entityProperties.id,
+      costsPaid: {},
+    };
+  }
+
   isComplete(): boolean {
     return true;
   }
@@ -163,18 +199,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
     const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
     const costs = action.getResourceCosts(this.combatantContext.combatant.combatantProperties);
 
-    // @TODO - calculate the actual costs paid
-    // @TODO - apply the deducted costs to server game state combatant resources
-    // @TODO - add the costs to the replayNode's gameUpdateCommands
-
     return {
-      gameUpdateCommands: [
-        {
-          type: GameUpdateCommandType.ResourcesPaid,
-          combatantId: this.combatantContext.combatant.entityProperties.id,
-          costsPaid: {},
-        },
-      ],
       branchingActions: [],
       nextStepOption: new EvalOnUseTriggersActionResolutionStep(
         this.combatantContext,

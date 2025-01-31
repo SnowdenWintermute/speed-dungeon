@@ -7,13 +7,13 @@ import {
   ERROR_MESSAGES,
   InputLock,
   ReplayEventNode,
+  SequentialIdGenerator,
   TICK_LENGTH,
 } from "@speed-dungeon/common";
 import { validateCombatActionUse } from "../combat-action-results-processing/validate-combat-action-use.js";
 import { getGameServer } from "../../../singletons.js";
 import { Milliseconds } from "@speed-dungeon/common";
-import { CombatActionExecutionIntent } from "@speed-dungeon/common/src/combat/combat-actions/combat-action-execution-intent.js";
-import { config } from "dotenv";
+import { CombatActionExecutionIntent } from "@speed-dungeon/common";
 
 export default async function useSelectedCombatActionHandler(
   _eventData: { characterId: string },
@@ -38,11 +38,41 @@ export default async function useSelectedCombatActionHandler(
     selectedCombatAction
   );
 
-  let sequenceStarted = false;
   const resolutionOrderIdGenerator = new SequentialIdGenerator();
   const nextActionExecutionTrackerIdGenerator = new SequentialIdGenerator();
   const actionsExecuting: { [id: string]: ActionExecutionTracker } = {};
   const time: { ms: Milliseconds } = { ms: 0 };
+
+  // start with some action composite
+  //
+  // startExecutingActionComposite(replayNode: ReplayEventNode)
+  // - have a ReplayEventNode passed from either the root, or if it is a branched action, the branch's node
+  // - create a SequentialActionManager to manage execution of this action's sequential child actions
+  // - propagate the SequentialActionManager's queue of actions to execute from the breadth first traversal of the action composite's tree
+  // - add the SequentialActionManager to a register
+  //
+  // while(sequentialActionManagerRegistry.isNotEmpty())
+  // - for any SequentialActionManager that is done processing, remove it from the registry
+  // - for any SequentialActionManager not currently processing and still with actions left to process
+  // - start executing the next action in its queue
+  //   - initialize the ActionExecutionTracker
+  //   - get the any initial replayEvent for its first ActionExecutionStep and push it to the ReplayEventNode
+  //   - if composed of subActions, call startExecutingActionComposite() with new ReplayEventNodes
+  //     and push those nodes to this SequentialActionManager node's list of events
+  //
+  // tick active ActionExecutionTrackers
+  // - get the msToComplete of the ActionExecutionTracker with the time closest to completion
+  // - tick all ActionExecutionTrackers by the msToComplete
+  // - for each ActionExecutionTracker that is complete
+  //   - mark any matching replayEvents on its ReplayEventNode with the next sequential resolutionOrderId
+  //   - get any replayEvents returned from its .onComplete() method and push them to the ReplayEventNode with the next sequential resolutionOrderId
+  //   - get any branchingActions returned from .onComplete() and call
+  //     startExecutingActionComposite() with a new ReplayEventNode, and push
+  //     that node to the node of this ActionExecutionTracker's SequentialActionManager
+  //   - get the next ActionExecutionStep from the ActionExecutionTracker
+  //   - add any initial replayEvent from the next step to the ReplayEventNode
+
+  let sequenceStarted = false;
 
   const depthFirstChildrenInExecutionOrder = action
     .getChildrenRecursive(combatantContext.combatant)
@@ -125,17 +155,6 @@ function getMsOfNextToCompleteTracker(trackers: { [id: string]: ActionExecutionT
   return 10;
 }
 
-class SequentialIdGenerator {
-  private nextId: number = 0;
-  constructor() {}
-  getNextId() {
-    return String(this.nextId++);
-  }
-  getNextIdNumeric() {
-    return this.nextId++;
-  }
-}
-
 function getNextParentActionExecutionTracker(
   depthFirstChildrenInExecutionOrder: CombatActionComponent[],
   combatantContext: CombatantAssociatedData,
@@ -161,7 +180,7 @@ function getNextParentActionExecutionTracker(
     );
 
     const replayNode = new ReplayEventNode();
-    rootReplayTreeNode.children.push(replayNode);
+    rootReplayTreeNode.events.push(replayNode);
 
     const tracker = new ActionExecutionTracker(
       actionExecutionTrackerId,

@@ -6,7 +6,6 @@ import { DurabilityChangesByEntityId } from "../combat/action-results/calculate-
 export enum GameUpdateCommandType {
   CombatantAnimation,
   CombatantMovement,
-  CombatantEquipmentAnimation,
   ResourcesPaid,
   HitOutcomes,
   StaticVfx,
@@ -15,6 +14,7 @@ export enum GameUpdateCommandType {
 
 export type CombatantMovementGameUpdateCommand = {
   type: GameUpdateCommandType.CombatantMovement;
+  completionOrderId: null | number;
   animationName: string; // run forward, run backward @TODO -enum
   combatantId: EntityId;
   destination: Vector3;
@@ -22,28 +22,23 @@ export type CombatantMovementGameUpdateCommand = {
 
 export type CombatantAnimationGameUpdateCommand = {
   type: GameUpdateCommandType.CombatantAnimation;
+  completionOrderId: null | number;
   combatantId: EntityId;
   destination: Vector3;
   animationName: string; // @TODO -enum
   duration: number;
 };
 
-export type CombatantEquipmentAnimationGameUpdateCommand = {
-  type: GameUpdateCommandType.CombatantEquipmentAnimation;
-  combatantId: EntityId;
-  equipmentId: EntityId;
-  animationName: string; // @TODO -enum
-  duration: number;
-};
-
 export type ResourcesPaidGameUpdateCommand = {
   type: GameUpdateCommandType.ResourcesPaid;
+  completionOrderId: null | number;
   combatantId: EntityId;
   costsPaid: ActionResourceCosts;
 };
 
 export type HitOutcomesGameUpdateCommand = {
   type: GameUpdateCommandType.HitOutcomes;
+  completionOrderId: null | number;
   actionName: CombatActionName;
   hpChangesByEntityId?: null | {
     [entityId: string]: HpChange;
@@ -59,6 +54,7 @@ export type HitOutcomesGameUpdateCommand = {
 
 export type StaticVfxGameUpdateCommand = {
   type: GameUpdateCommandType.StaticVfx;
+  completionOrderId: null | number;
   name: string; // @TODO -enum;
   position: Vector3;
   animationDuration: number;
@@ -67,6 +63,7 @@ export type StaticVfxGameUpdateCommand = {
 
 export type MobileVfxGameUpdateCommand = {
   type: GameUpdateCommandType.MobileVfx;
+  completionOrderId: null | number;
   name: string; // @TODO -enum;
   startPosition: Vector3;
   destination: Vector3;
@@ -77,7 +74,6 @@ export type MobileVfxGameUpdateCommand = {
 export type GameUpdateCommand =
   | CombatantMovementGameUpdateCommand
   | CombatantAnimationGameUpdateCommand
-  | CombatantEquipmentAnimationGameUpdateCommand
   | ResourcesPaidGameUpdateCommand
   | HitOutcomesGameUpdateCommand
   | StaticVfxGameUpdateCommand
