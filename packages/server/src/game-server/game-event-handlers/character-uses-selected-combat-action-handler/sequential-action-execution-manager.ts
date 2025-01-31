@@ -8,7 +8,7 @@ import {
   ReplayEventNode,
   SequentialIdGenerator,
 } from "@speed-dungeon/common";
-import { idGenerator } from "../../../singletons";
+import { idGenerator } from "../../../singletons.js";
 
 class SequentialActionExecutionManagerRegistry {
   private actionManagers: { [id: string]: SequentialActionExecutionManager } = {};
@@ -68,15 +68,14 @@ export class SequentialActionExecutionManager {
   startProcessingNext(
     idGenerator: SequentialIdGenerator,
     time: { ms: Milliseconds }
-  ): ActionExecutionTracker | CombatActionComponent[] {
+  ): ActionExecutionTracker {
     const nextActionOption = this.remainingActionsToExecute.pop();
     if (!nextActionOption) throw new Error("Tried to process next action but there wasn't one");
+
+    this.actionInProgress = nextActionOption;
     const targets = nextActionOption.getAutoTarget(this.combatantContext);
     if (targets instanceof Error) throw targets;
     if (!targets) throw new Error("Auto target returned null");
-
-    const subActions = nextActionOption.getConcurrentSubActions();
-    if (subActions.length) return subActions;
 
     const tracker = new ActionExecutionTracker(
       idGenerator.getNextId(),
@@ -103,11 +102,12 @@ class ActionExecutionTrackerRegistry {
     delete this.trackers[id];
   }
   getTrackers() {
-    return Object.entries(this.trackers);
+    return Object.values(this.trackers);
   }
   getShortestTimeToCompletion(): number {
+    // @TODO @PERF - check if a minHeap has better performance
     let msToTick;
-    for (const [id, tracker] of this.getTrackers()) {
+    for (const tracker of this.getTrackers()) {
       const timeToCompletion = tracker.currentStep.getTimeToCompletion();
       if (msToTick === undefined) msToTick = timeToCompletion;
       else if (msToTick > timeToCompletion) {
@@ -118,7 +118,7 @@ class ActionExecutionTrackerRegistry {
   }
 }
 
-function processCombatAction(
+export function processCombatAction(
   action: CombatActionComponent,
   combatantContext: CombatantAssociatedData
 ) {
@@ -131,41 +131,30 @@ function processCombatAction(
   const actionStepIdGenerator = new SequentialIdGenerator();
   const completionOrderIdGenerator = new SequentialIdGenerator();
 
-  while (sequentialActionManagerRegistry.isNotEmpty()) {
+  while (
+    sequentialActionManagerRegistry.isNotEmpty() &&
+    actionExecutionTrackerRegistry.isNotEmpty()
+  ) {
     for (const [id, manager] of sequentialActionManagerRegistry.getManagers()) {
       if (manager.isDoneProcessing()) sequentialActionManagerRegistry.unRegisterAction(id);
-      if (manager.isCurrentlyProcessing()) continue;
+      if (manager.isDoneProcessing() || manager.isCurrentlyProcessing()) continue;
 
-      const trackerOrSubActions = manager.startProcessingNext(actionStepIdGenerator, time);
+      const tracker = manager.startProcessingNext(actionStepIdGenerator, time);
 
-      if (trackerOrSubActions instanceof ActionExecutionTracker) {
-        const gameUpdateCommandStarted = trackerOrSubActions.currentStep.getGameUpdateCommand();
-        manager.replayNode.events.push(gameUpdateCommandStarted);
-        actionExecutionTrackerRegistry.registerTracker(trackerOrSubActions);
-      } else {
-        for (const action of trackerOrSubActions) {
-          const nestedReplayNode = new ReplayEventNode();
-
-          manager.replayNode.events.push(nestedReplayNode);
-
-          sequentialActionManagerRegistry.registerAction(
-            action,
-            nestedReplayNode,
-            combatantContext // we can assume subActions are being used by the user of the parent action
-          );
-        }
-      }
+      const gameUpdateCommandStarted = tracker.currentStep.getGameUpdateCommand();
+      manager.replayNode.events.push(gameUpdateCommandStarted);
+      actionExecutionTrackerRegistry.registerTracker(tracker);
     }
 
     // tick active ActionExecutionTrackers
+    const timeToTick = actionExecutionTrackerRegistry.getShortestTimeToCompletion();
+    for (const tracker of actionExecutionTrackerRegistry.getTrackers()) {
+      tracker.currentStep.tick(timeToTick);
+      if (!tracker.currentStep.isComplete()) continue;
 
-    while (actionExecutionTrackerRegistry.isNotEmpty()) {
-      const timeToTick = actionExecutionTrackerRegistry.getShortestTimeToCompletion();
-      for (const [id, tracker] of actionExecutionTrackerRegistry.getTrackers()) {
-        tracker.currentStep.tick(timeToTick);
-        if (!tracker.currentStep.isComplete()) continue;
-
-        const { nextStepOption, branchingActions } = tracker.currentStep.onComplete(
+      // process all instantly processable steps
+      while (tracker.currentStep.isComplete()) {
+        const { nextStepOption, branchingActions } = tracker.currentStep.finalize(
           completionOrderIdGenerator.getNextIdNumeric()
         );
 
@@ -184,8 +173,11 @@ function processCombatAction(
         }
 
         if (nextStepOption === null) actionExecutionTrackerRegistry.unRegisterTracker(tracker.id);
-        //   - get the next ActionExecutionStep from the ActionExecutionTracker
-        //   - add any initial replayEvent from the next step to the ReplayEventNode
+        else {
+          tracker.currentStep = nextStepOption;
+          const gameUpdateCommandStarted = tracker.currentStep.getGameUpdateCommand();
+          tracker.replayNode.events.push(gameUpdateCommandStarted);
+        }
       }
     }
   }
