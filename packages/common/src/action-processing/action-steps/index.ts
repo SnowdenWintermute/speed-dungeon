@@ -1,10 +1,8 @@
-import { Vector3 } from "@babylonjs/core";
 import { Milliseconds } from "../../primatives/index.js";
 import { Combatant } from "../../combatants/index.js";
 import { CombatActionComponent } from "../../combat/index.js";
 import { ReplayEventNode } from "../replay-events.js";
-import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
-import { CombatantAssociatedData } from "../../types.js";
+import { GameUpdateCommand } from "../game-update-commands.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 
 export interface ActionExecuting {
@@ -50,10 +48,10 @@ export abstract class ActionResolutionStep {
   /**Used to create and set the internal reference to the associated game update command, as well as
    * apply updates to game state for instantly processed steps*/
   protected abstract initialize(): GameUpdateCommand;
-  /** Assign the completionOrderId to our held reference of associated game update,
-   * and return branching actions and next step */
+  /**Return branching actions and next step */
   protected abstract onComplete(): ActionResolutionStepResult;
 
+  /**Mark the gameUpdateCommand's completionOrderId and get branching actions and next step*/
   finalize(completionOrderId: number): ActionResolutionStepResult {
     this.gameUpdateCommand.completionOrderId = completionOrderId;
     return this.onComplete();

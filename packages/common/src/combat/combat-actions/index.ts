@@ -73,7 +73,7 @@ export interface CombatActionComponentConfig {
   ) => null | CombatActionHpChangeProperties;
   getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
   getChildren: (combatant: Combatant) => CombatActionComponent[];
-  getConcurrentSubActions?: () => CombatActionComponent[];
+  getConcurrentSubActions?: (combatantContext: CombatantAssociatedData) => CombatActionComponent[];
   getParent: () => CombatActionComponent | null;
 }
 
@@ -162,7 +162,8 @@ export abstract class CombatActionComponent {
     }
     return toReturn;
   }
-  getConcurrentSubActions: () => CombatActionComponent[] = () => [];
+  getConcurrentSubActions: (combatantContext: CombatantAssociatedData) => CombatActionComponent[] =
+    () => [];
   getParent: () => CombatActionComponent | null;
   addChild: (childAction: CombatActionComponent) => Error | void = () =>
     new Error("Can't add a child to this component");

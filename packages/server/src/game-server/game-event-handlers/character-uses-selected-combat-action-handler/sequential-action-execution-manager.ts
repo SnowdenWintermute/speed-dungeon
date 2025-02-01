@@ -148,8 +148,14 @@ export function processCombatAction(
 
     // tick active ActionExecutionTrackers
     const timeToTick = actionExecutionTrackerRegistry.getShortestTimeToCompletion();
-    for (const tracker of actionExecutionTrackerRegistry.getTrackers()) {
-      tracker.currentStep.tick(timeToTick);
+
+    const trackers = actionExecutionTrackerRegistry.getTrackers();
+    for (const tracker of trackers) tracker.currentStep.tick(timeToTick);
+    time.ms += timeToTick;
+    // we must either sort and process by shortest time to complete, or loop twice
+    // so we can be assured that all trackers who's completion may have been triggered
+    // by the effects of the shortestTimeToCompletion tracker are taken into account
+    for (const tracker of trackers) {
       if (!tracker.currentStep.isComplete()) continue;
 
       // process all instantly processable steps
