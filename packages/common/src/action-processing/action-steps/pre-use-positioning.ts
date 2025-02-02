@@ -16,21 +16,21 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
     private combatantContext: CombatantContext,
     private actionExecutionIntent: CombatActionExecutionIntent
   ) {
-    super(ActionResolutionStepType.preUsePositioning);
+    /**Here we create and set the internal reference to the associated game update command, as well as
+     * apply updates to game state for instantly processed steps*/
+    const gameUpdateCommand: GameUpdateCommand = {
+      type: GameUpdateCommandType.CombatantMovement,
+      completionOrderId: null,
+      animationName: "Run Forward", // run forward, run backward, run forward injured @TODO -enum
+      combatantId: combatantContext.combatant.entityProperties.id,
+      destination: Vector3.Zero(),
+    };
+
+    super(ActionResolutionStepType.preUsePositioning, gameUpdateCommand);
 
     this.originalPosition = combatantContext.combatant.combatantProperties.position.clone();
     // @TODO - calculate destination based on action
     this.destination = Vector3.Zero();
-  }
-
-  protected initialize(): GameUpdateCommand {
-    return {
-      type: GameUpdateCommandType.CombatantMovement,
-      completionOrderId: null,
-      animationName: "Run Forward", // run forward, run backward, run forward injured @TODO -enum
-      combatantId: this.combatantContext.combatant.entityProperties.id,
-      destination: Vector3.Zero(),
-    };
   }
 
   protected onTick(): void {

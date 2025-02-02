@@ -13,19 +13,16 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
     private combatantContext: CombatantAssociatedData,
     private actionExecutionIntent: CombatActionExecutionIntent
   ) {
-    super(ActionResolutionStepType.payResourceCosts);
-  }
-
-  protected initialize(): GameUpdateCommand {
     // @TODO - calculate the actual costs paid
     // @TODO - apply the deducted costs to server game state combatant resources
     //
-    return {
+    const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.ResourcesPaid,
       completionOrderId: null,
-      combatantId: this.combatantContext.combatant.entityProperties.id,
+      combatantId: combatantContext.combatant.entityProperties.id,
       costsPaid: {},
     };
+    super(ActionResolutionStepType.payResourceCosts, gameUpdateCommand);
   }
 
   protected onTick = () => {};

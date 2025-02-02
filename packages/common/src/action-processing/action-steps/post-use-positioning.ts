@@ -14,21 +14,19 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
     private combatantContext: CombatantAssociatedData,
     public animationName: string
   ) {
-    super(ActionResolutionStepType.postUsePositioning);
+    const gameUpdateCommand: GameUpdateCommand = {
+      type: GameUpdateCommandType.CombatantMovement,
+      completionOrderId: null,
+      animationName: "Run Forward", // run forward, run backward, run forward injured @TODO -enum
+      combatantId: combatantContext.combatant.entityProperties.id,
+      destination: Vector3.Zero(),
+    };
+
+    super(ActionResolutionStepType.postUsePositioning, gameUpdateCommand);
 
     this.originalPosition = combatantContext.combatant.combatantProperties.position.clone();
     // @TODO - calculate destination based on action
     this.destination = Vector3.Zero();
-  }
-
-  protected initialize(): GameUpdateCommand {
-    return {
-      type: GameUpdateCommandType.CombatantMovement,
-      completionOrderId: null,
-      animationName: "Run Forward", // run forward, run backward, run forward injured @TODO -enum
-      combatantId: this.combatantContext.combatant.entityProperties.id,
-      destination: Vector3.Zero(),
-    };
   }
 
   protected onTick(): void {

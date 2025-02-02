@@ -28,10 +28,13 @@ export default async function joinPlayerToProgressionGame(
   const partyName = getProgressionGamePartyName(game.name);
   joinPartyHandler(partyName, { game, partyOption: undefined, session, player }, socket);
 
+  const partyOption = game.adventuringParties[partyName];
+  if (!partyOption) return new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+
   const playerOption = game.players[session.username];
   if (playerOption === undefined)
     return errorHandler(socket, new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
-  addCharacterToParty(game, playerOption, character, true);
+  addCharacterToParty(game, partyOption, playerOption, character, true);
 
   game.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id] =
     character.combatantProperties.deepestFloorReached;

@@ -53,7 +53,7 @@ export default function savedCharacterSelectionInProgressGameHandler(
         );
     }
 
-    addCharacterToParty(game, player, character, true);
+    addCharacterToParty(game, party, player, character, true);
 
     gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,

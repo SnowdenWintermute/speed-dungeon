@@ -19,19 +19,17 @@ export class StaticVfxActionResolutionStep extends ActionResolutionStep {
     private triggerNextStepDuration: number,
     private vfxName: string
   ) {
-    super(ActionResolutionStepType.playMobileVfx);
-    this.vfxPosition = startPosition.clone();
-  }
-
-  protected initialize(): GameUpdateCommand {
-    return {
+    const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.StaticVfx,
       completionOrderId: null,
-      vfxName: this.vfxName,
-      position: this.startPosition,
-      effectDuration: this.effectDuration,
-      triggerNextStepDuration: this.triggerNextStepDuration,
+      vfxName: vfxName,
+      position: startPosition,
+      effectDuration: effectDuration,
+      triggerNextStepDuration: triggerNextStepDuration,
     };
+
+    super(ActionResolutionStepType.playMobileVfx, gameUpdateCommand);
+    this.vfxPosition = startPosition.clone();
   }
 
   protected onTick(): void {

@@ -12,6 +12,7 @@ import playerOwnsCharacter from "./player-owns-character.js";
 import { InputLock } from "./input-lock.js";
 import { Combatant } from "../combatants/index.js";
 import { ActionCommandQueue } from "../action-processing/action-command-queue.js";
+import { addCharacterToParty } from "./add-character-to-party.js";
 export * from "./get-item-in-party.js";
 export * from "./dungeon-room.js";
 export * from "./update-player-readiness.js";

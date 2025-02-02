@@ -59,12 +59,13 @@ const config: CombatActionComponentConfig = {
     // @TODO - determine based on equipment
     throw new Error("Function not implemented.");
   },
-  getChildren: function (user: Combatant): CombatActionComponent[] {
+  getChildren: function (combatantContext: CombatantContext): CombatActionComponent[] {
     const toReturn: CombatActionComponent[] = [];
-    const mainHandEquipmentOption = CombatantEquipment.getEquipmentInSlot(
-      user.combatantProperties,
-      { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand }
-    );
+    const user = combatantContext.combatant.combatantProperties;
+    const mainHandEquipmentOption = CombatantEquipment.getEquipmentInSlot(user, {
+      type: EquipmentSlotType.Holdable,
+      slot: HoldableSlotType.MainHand,
+    });
     if (
       mainHandEquipmentOption &&
       !Equipment.isBroken(mainHandEquipmentOption) &&
@@ -73,9 +74,7 @@ const config: CombatActionComponentConfig = {
       toReturn.push(ATTACK_RANGED_MAIN_HAND);
     } else {
       toReturn.push(ATTACK_MELEE_MAIN_HAND);
-      if (!ATTACK_MELEE_MAIN_HAND.requiresCombatTurn(user.combatantProperties)) {
-        toReturn.push(ATTACK_MELEE_OFF_HAND);
-      }
+      if (!ATTACK_MELEE_MAIN_HAND.requiresCombatTurn(user)) toReturn.push(ATTACK_MELEE_OFF_HAND);
     }
     return toReturn;
   },

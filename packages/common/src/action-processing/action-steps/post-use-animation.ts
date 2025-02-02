@@ -16,21 +16,19 @@ export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
     private destinationOption: null | Vector3,
     private animationName: string
   ) {
-    super(ActionResolutionStepType.postUseAnimation);
-
-    // @TODO -calculate duration based distance to destination dictated by action and target
-    this.duration = 1000;
-  }
-
-  protected initialize(): GameUpdateCommand {
-    return {
+    const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantAnimation,
       completionOrderId: null,
       animationName: "Raise and Draw Bow",
-      combatantId: this.combatantContext.combatant.entityProperties.id,
+      combatantId: combatantContext.combatant.entityProperties.id,
       destination: Vector3.Zero(),
       duration: 1000,
     };
+
+    super(ActionResolutionStepType.postUseAnimation, gameUpdateCommand);
+
+    // @TODO -calculate duration based distance to destination dictated by action and target
+    this.duration = 1000;
   }
 
   protected onTick(): void {

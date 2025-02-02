@@ -13,13 +13,13 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     private combatantContext: CombatantAssociatedData,
     private actionExecutionIntent: CombatActionExecutionIntent
   ) {
-    super(ActionResolutionStepType.evalOnUseTriggers);
+    // counterspells
+    const gameUpdateCommand: GameUpdateCommand = {} as GameUpdateCommand;
+    throw new Error("not implemented");
+
+    super(ActionResolutionStepType.evalOnUseTriggers, gameUpdateCommand);
   }
 
-  protected initialize(): GameUpdateCommand {
-    // counterspells
-    throw new Error("Method not implemented.");
-  }
   protected onTick = () => {};
   getTimeToCompletion = () => 0;
   isComplete = () => true;

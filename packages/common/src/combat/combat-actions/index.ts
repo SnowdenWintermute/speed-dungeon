@@ -72,14 +72,17 @@ export interface CombatActionComponentConfig {
     self: CombatActionComponent
   ) => null | CombatActionHpChangeProperties;
   getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
-  getChildren: (combatant: Combatant, tracker: ActionExecutionTracker) => CombatActionComponent[];
+  getChildren: (
+    combatantContext: CombatantContext,
+    tracker: ActionExecutionTracker
+  ) => CombatActionComponent[];
   getConcurrentSubActions?: (combatantContext: CombatantContext) => CombatActionComponent[];
   getParent: () => CombatActionComponent | null;
   getFirstResolutionStep: (
     combatantContext: CombatantContext,
     actionExecutionTracker: ActionExecutionTracker,
     self: CombatActionComponent
-  ) => ActionResolutionStep;
+  ) => Error | ActionResolutionStep;
 }
 
 export abstract class CombatActionComponent {
@@ -159,13 +162,16 @@ export abstract class CombatActionComponent {
   // spell levels (level 1 chain lightning only gets 1 ChainLightningArc child) or other status
   // (energetic swings could do multiple attacks based on user's current percent of max hp)
   // could also create random children such as a chaining random elemental damage
-  getChildren: (combatant: Combatant, tracker: ActionExecutionTracker) => CombatActionComponent[];
+  getChildren: (
+    combatantContext: CombatantContext,
+    tracker: ActionExecutionTracker
+  ) => CombatActionComponent[];
   getConcurrentSubActions: (combatantContext: CombatantContext) => CombatActionComponent[] =
     () => [];
   getFirstResolutionStep: (
     combatantContext: CombatantContext,
     actionExecutionTracker: ActionExecutionTracker
-  ) => ActionResolutionStep;
+  ) => Error | ActionResolutionStep;
   getParent: () => CombatActionComponent | null;
   addChild: (childAction: CombatActionComponent) => Error | void = () =>
     new Error("Can't add a child to this component");

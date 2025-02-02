@@ -2,6 +2,7 @@ import {
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
+  CombatActionExecutionIntent,
   CombatActionName,
   CombatActionUsabilityContext,
   TargetCategories,
@@ -17,6 +18,12 @@ import { CombatActionIntent } from "../../combat-action-intent.js";
 import { MobileVfxActionResolutionStep } from "../../../../action-processing/action-steps/mobile-vfx.js";
 import { CHAINING_SPLIT_ARROW_PARENT } from "./index.js";
 import { COMBAT_ACTIONS } from "../index.js";
+import { ERROR_MESSAGES } from "../../../../errors/index.js";
+import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
+import { CombatantContext } from "../../../../combatant-context/index.js";
+import { ActionExecutionTracker } from "../../../../action-processing/action-execution-tracker.js";
+import { chooseRandomFromArray } from "../../../../utils/index.js";
+import { AdventuringParty } from "../../../../adventuring-party/index.js";
 
 const MAX_BOUNCES = 2;
 
@@ -49,7 +56,7 @@ const config: CombatActionComponentConfig = {
     // @TODO - determine based on equipment
     throw new Error("Function not implemented.");
   },
-  getChildren: (_user, tracker) => {
+  getChildren: (combatantContext, tracker) => {
     let cursor = tracker.previousTrackerInSequenceOption;
     let numBouncesSoFar = 0;
     while (cursor) {
@@ -58,7 +65,16 @@ const config: CombatActionComponentConfig = {
       cursor = cursor.previousTrackerInSequenceOption;
     }
 
-    if (numBouncesSoFar < MAX_BOUNCES)
+    const { previousTrackerInSequenceOption } = tracker;
+    if (!previousTrackerInSequenceOption) return [];
+
+    const filteredPossibleTargetIdsResult = getBouncableTargets(
+      combatantContext,
+      previousTrackerInSequenceOption
+    );
+    if (filteredPossibleTargetIdsResult instanceof Error) return [];
+
+    if (numBouncesSoFar < MAX_BOUNCES && filteredPossibleTargetIdsResult.possibleTargetIds.length)
       return [COMBAT_ACTIONS[CombatActionName.ChainingSplitArrowProjectile]];
 
     return [];
@@ -82,10 +98,48 @@ const config: CombatActionComponentConfig = {
   },
   getFirstResolutionStep(combatantContext, tracker, self) {
     const { previousTrackerInSequenceOption } = tracker;
-    const previousTargetInChain = previousTrackerInSequenceOption?.actionExecutionIntent.targets;
+    if (!previousTrackerInSequenceOption)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.MISSING_EXPECTED_ACTION_IN_CHAIN);
 
-    // const step = new MobileVfxActionResolutionStep();
-    // return step;
+    const filteredPossibleTargetIds = getBouncableTargets(
+      combatantContext,
+      previousTrackerInSequenceOption
+    );
+    if (filteredPossibleTargetIds instanceof Error) return filteredPossibleTargetIds;
+    const { possibleTargetIds, previousTargetId } = filteredPossibleTargetIds;
+
+    if (possibleTargetIds.length === 0)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
+
+    const randomTargetIdResult = chooseRandomFromArray(possibleTargetIds);
+    if (randomTargetIdResult instanceof Error) return randomTargetIdResult;
+
+    const actionExecutionIntent = new CombatActionExecutionIntent(self.name, {
+      type: CombatActionTargetType.Single,
+      targetId: randomTargetIdResult,
+    });
+
+    const previousTargetResult = AdventuringParty.getCombatant(
+      combatantContext.party,
+      previousTargetId
+    );
+    if (previousTargetResult instanceof Error) return previousTargetResult;
+
+    const targetCombatantResult = AdventuringParty.getCombatant(
+      combatantContext.party,
+      randomTargetIdResult
+    );
+    if (targetCombatantResult instanceof Error) return targetCombatantResult;
+
+    const step = new MobileVfxActionResolutionStep(
+      combatantContext,
+      actionExecutionIntent,
+      previousTargetResult.combatantProperties.position.clone(),
+      targetCombatantResult.combatantProperties.position.clone(),
+      1000,
+      "Arrow"
+    );
+    return step;
   },
 };
 
@@ -93,3 +147,24 @@ export const CHAINING_SPLIT_ARROW_PROJECTILE = new CombatActionComposite(
   CombatActionName.ChainingSplitArrowProjectile,
   config
 );
+
+function getBouncableTargets(
+  combatantContext: CombatantContext,
+  previousTrackerInSequenceOption: ActionExecutionTracker
+) {
+  const previousTargetInChain = previousTrackerInSequenceOption.actionExecutionIntent.targets;
+  const previousTargetIdResult = (() => {
+    if (previousTargetInChain.type !== CombatActionTargetType.Single)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_ACTION_IN_CHAIN);
+    else return previousTargetInChain.targetId;
+  })();
+  if (previousTargetIdResult instanceof Error) return previousTargetIdResult;
+
+  const opponents = combatantContext.getOpponents();
+  return {
+    possibleTargetIds: opponents
+      .map((combatant) => combatant.entityProperties.id)
+      .filter((id) => id !== previousTargetIdResult),
+    previousTargetId: previousTargetIdResult,
+  };
+}

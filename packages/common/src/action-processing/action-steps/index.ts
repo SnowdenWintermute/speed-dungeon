@@ -32,10 +32,10 @@ export type ActionResolutionStepResult = {
 
 export abstract class ActionResolutionStep {
   protected elapsed: Milliseconds = 0;
-  protected gameUpdateCommand: GameUpdateCommand;
-  constructor(public readonly type: ActionResolutionStepType) {
-    this.gameUpdateCommand = this.initialize();
-  }
+  constructor(
+    public readonly type: ActionResolutionStepType,
+    protected gameUpdateCommand: GameUpdateCommand
+  ) {}
 
   tick(ms: Milliseconds) {
     this.elapsed += ms;
@@ -45,9 +45,6 @@ export abstract class ActionResolutionStep {
   protected abstract onTick(): void;
   abstract getTimeToCompletion(): Milliseconds;
   abstract isComplete(): boolean;
-  /**Used to create and set the internal reference to the associated game update command, as well as
-   * apply updates to game state for instantly processed steps*/
-  protected abstract initialize(): GameUpdateCommand;
   /**Return branching actions and next step */
   protected abstract onComplete(): ActionResolutionStepResult;
 

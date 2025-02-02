@@ -30,4 +30,5 @@ export function updateCombatantHomePosition(
   if (!isPlayer) positionSpacing *= -1;
 
   combatantProperties.homeLocation = new Vector3(rowPositionOffset, 0, positionSpacing);
+  combatantProperties.position = combatantProperties.homeLocation.clone();
 }

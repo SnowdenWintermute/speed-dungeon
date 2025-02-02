@@ -64,6 +64,7 @@ export const ERROR_MESSAGES = {
     CHARACTER_NOT_OWNED:
       "The provided character is not in the list of that player's owned characters",
     MISSING_PARTY_NAME: "Player doesn't have a party name or party does not exist",
+    NOT_IN_PARTY: "Player must be in a party",
   },
   USER: {
     NO_CURRENT_GAME: "This user has no current game",
@@ -108,6 +109,10 @@ export const ERROR_MESSAGES = {
     ALREADY_FULL_HP: "The target already has full hit points",
     ALREADY_FULL_MP: "The target already has full mana",
     NOT_USABLE_IN_COMBAT: "That action can not be performed in combat",
+    MISSING_EXPECTED_ACTION_IN_CHAIN:
+      "Action failed to activate because it depends on a missing expected previous action in the chain",
+    INVALID_ACTION_IN_CHAIN:
+      "Action failed to activate because the previous action in the chain was invalid",
   },
   ITEM: {
     NOT_FOUND: "No item was found with the provided ID",

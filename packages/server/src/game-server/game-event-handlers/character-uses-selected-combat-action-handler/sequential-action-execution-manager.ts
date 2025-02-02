@@ -6,9 +6,10 @@ import {
   Milliseconds,
   ReplayEventNode,
   SequentialIdGenerator,
+  CombatantContext,
+  COMBAT_ACTION_NAME_STRINGS,
 } from "@speed-dungeon/common";
 import { idGenerator } from "../../../singletons.js";
-import { CombatantContext } from "@speed-dungeon/common/src/combatant-context/index.js";
 
 class SequentialActionExecutionManagerRegistry {
   private actionManagers: { [id: string]: SequentialActionExecutionManager } = {};
@@ -68,7 +69,9 @@ export class SequentialActionExecutionManager {
   }
   // action children may depend on the outcome of their parent so we must process their parent first
   populateSelfWithCurrentActionChildren() {
-    const children = this.actionInProgress?.getChildren(this.combatantContext, this.currentTracker);
+    const currentAction = this.actionInProgress;
+    if (!currentAction || !this.currentTracker) return;
+    const children = currentAction.getChildren(this.combatantContext, this.currentTracker);
     this.remainingActionsToExecute.push(...children);
   }
 
@@ -77,6 +80,10 @@ export class SequentialActionExecutionManager {
     time: { ms: Milliseconds }
   ): ActionExecutionTracker {
     const nextActionOption = this.remainingActionsToExecute.pop();
+    console.log(
+      "next action option: ",
+      nextActionOption?.name ? COMBAT_ACTION_NAME_STRINGS[nextActionOption.name] : "null"
+    );
     if (!nextActionOption) throw new Error("Tried to process next action but there wasn't one");
 
     this.actionInProgress = nextActionOption;
@@ -141,15 +148,19 @@ export function processCombatAction(
   sequentialActionManagerRegistry.registerAction(action, rootReplayNode, combatantContext);
   const actionExecutionTrackerRegistry = new ActionExecutionTrackerRegistry();
 
+  console.log(sequentialActionManagerRegistry.getManagers());
+
   const time = { ms: 0 };
   const actionStepIdGenerator = new SequentialIdGenerator();
   const completionOrderIdGenerator = new SequentialIdGenerator();
 
   while (
-    sequentialActionManagerRegistry.isNotEmpty() &&
+    sequentialActionManagerRegistry.isNotEmpty() ||
     actionExecutionTrackerRegistry.isNotEmpty()
   ) {
+    console.log("sequenial action manager registry loop");
     for (const [id, manager] of sequentialActionManagerRegistry.getManagers()) {
+      console.log("action manager isDoneProcessing", manager.isDoneProcessing());
       if (manager.isDoneProcessing()) {
         manager.populateSelfWithCurrentActionChildren();
         if (manager.hasExhaustedActionTree()) {

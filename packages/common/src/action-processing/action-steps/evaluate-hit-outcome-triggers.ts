@@ -14,18 +14,15 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     private actionExecutionIntent: CombatActionExecutionIntent
     // hits, misses, evades, parries, blocks (used for determining triggers as well as user followthrough animation)
   ) {
-    super(ActionResolutionStepType.evalOnHitOutcomeTriggers);
+    const gameUpdateCommand: GameUpdateCommand = {} as GameUpdateCommand;
+    throw new Error("not implemented");
+    super(ActionResolutionStepType.evalOnHitOutcomeTriggers, gameUpdateCommand);
   }
 
   protected onTick = () => {};
   getTimeToCompletion = () => 0;
   isComplete = () => true;
 
-  protected initialize(): GameUpdateCommand {
-    // @TODO - collect all triggered actions and add to branchingActions list
-    // @TODO - determine next step based on action type:
-    throw new Error("Method not implemented.");
-  }
   protected onComplete(): ActionResolutionStepResult {
     return {
       branchingActions: [],

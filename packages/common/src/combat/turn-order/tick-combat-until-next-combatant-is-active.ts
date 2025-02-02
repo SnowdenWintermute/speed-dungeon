@@ -64,10 +64,8 @@ export function recoverMovement(
   const { combatantProperties } = combatantResult;
   const entitySpeed =
     CombatantProperties.getTotalAttributes(combatantProperties)[CombatAttribute.Speed] || 0;
-  console.log("entity speed: ", entitySpeed);
   const adjustedSpeed = entitySpeed * SPEED_MODIFIER;
   const movementToAdd =
     ((adjustedSpeed - MIN_SPEED) * MOVEMENT_RANGE) / SPEED_RANGE + MIN_MOVEMENT_PER_TICK;
   tracker.movement += movementToAdd;
-  console.log("tracker movement: ", tracker.movement);
 }

@@ -23,3 +23,5 @@ export * from "./combatants/attributes/add-attributes-to-accumulator.js";
 export * from "./combatants/inventory/index.js";
 export * from "./combat/combat-actions/index.js";
 export * from "./combat/targeting/targeting-calculator.js";
+export * from "./combatant-context/index.js";
+export * from "./utility-classes/index.js";

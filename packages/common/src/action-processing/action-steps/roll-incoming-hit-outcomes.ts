@@ -13,18 +13,15 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
     private combatantContext: CombatantAssociatedData,
     private actionExecutionIntent: CombatActionExecutionIntent
   ) {
-    super(ActionResolutionStepType.payResourceCosts);
-  }
-
-  protected initialize(): GameUpdateCommand {
     // @TODO - calculate hits, evades, parries, blocks, hp/mp/shard/durability changes to apply
     // and pass them to the next step for triggers and filtering
-    return {
+    const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.HitOutcomes,
       completionOrderId: null,
-      actionName: this.actionExecutionIntent.actionName,
+      actionName: actionExecutionIntent.actionName,
       // hits, misses, evades, parries, blocks
     };
+    super(ActionResolutionStepType.payResourceCosts, gameUpdateCommand);
   }
 
   protected onTick = () => {};

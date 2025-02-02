@@ -68,6 +68,7 @@ const config: CombatActionComponentConfig = {
     throw new Error("Function not implemented.");
   },
   getFirstResolutionStep(combatantContext, tracker, self) {
+    console.log("getting first step w context: ", combatantContext);
     const step = new PreUsePositioningActionResolutionStep(
       combatantContext,
       tracker.actionExecutionIntent
