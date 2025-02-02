@@ -8,6 +8,7 @@ import {
   SequentialIdGenerator,
   CombatantContext,
   COMBAT_ACTION_NAME_STRINGS,
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
 } from "@speed-dungeon/common";
 import { idGenerator } from "../../../singletons.js";
 
@@ -126,15 +127,23 @@ class ActionExecutionTrackerRegistry {
     return Object.values(this.trackers);
   }
   getShortestTimeToCompletion(): number {
+    console.log("getting shortest");
     // @TODO @PERF - check if a minHeap has better performance
     let msToTick;
     for (const tracker of this.getTrackers()) {
       const timeToCompletion = tracker.currentStep.getTimeToCompletion();
+      console.log(
+        "tracker for",
+        COMBAT_ACTION_NAME_STRINGS[tracker.actionExecutionIntent.actionName],
+        ACTION_RESOLUTION_STEP_TYPE_STRINGS[tracker.currentStep.type],
+        timeToCompletion
+      );
       if (msToTick === undefined) msToTick = timeToCompletion;
       else if (msToTick > timeToCompletion) {
         msToTick = timeToCompletion;
       }
     }
+    console.log("msToTick", msToTick);
     return msToTick || 0;
   }
 }
@@ -148,11 +157,11 @@ export function processCombatAction(
   sequentialActionManagerRegistry.registerAction(action, rootReplayNode, combatantContext);
   const actionExecutionTrackerRegistry = new ActionExecutionTrackerRegistry();
 
-  console.log(sequentialActionManagerRegistry.getManagers());
-
   const time = { ms: 0 };
   const actionStepIdGenerator = new SequentialIdGenerator();
   const completionOrderIdGenerator = new SequentialIdGenerator();
+
+  console.log(sequentialActionManagerRegistry.getManagers());
 
   while (
     sequentialActionManagerRegistry.isNotEmpty() ||

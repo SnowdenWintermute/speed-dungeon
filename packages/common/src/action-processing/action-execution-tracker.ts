@@ -21,7 +21,6 @@ export class ActionExecutionTracker {
     // otherwise start with the combatant moving
     // this.currentStep = action.getFirstResolutionStep();
     const firstStepResult = action.getFirstResolutionStep(combatantContext, this);
-    console.log("first step: ", firstStepResult);
     if (firstStepResult instanceof Error) throw firstStepResult;
     this.currentStep = firstStepResult;
   }

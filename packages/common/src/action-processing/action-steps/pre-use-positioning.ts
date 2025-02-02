@@ -8,10 +8,13 @@ import { CombatActionExecutionIntent } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { StartUseAnimationActionResolutionStep } from "./start-use-animation.js";
 import { CombatantContext } from "../../combatant-context/index.js";
+import { Milliseconds } from "../../primatives/index.js";
+import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 
 export class PreUsePositioningActionResolutionStep extends ActionResolutionStep {
   private destination: Vector3;
   private originalPosition: Vector3;
+  private timeToTranslate: Milliseconds;
   constructor(
     private combatantContext: CombatantContext,
     private actionExecutionIntent: CombatActionExecutionIntent
@@ -31,10 +34,32 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
     this.originalPosition = combatantContext.combatant.combatantProperties.position.clone();
     // @TODO - calculate destination based on action
     this.destination = Vector3.Zero();
+
+    const distance = Vector3.Distance(this.originalPosition, this.destination);
+    const speedMultiplier = 1;
+    this.timeToTranslate = COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;
   }
 
   protected onTick(): void {
-    // @TODO -lerp combatant toward destination
+    const normalizedPercentTravelled = this.elapsed / this.timeToTranslate;
+
+    const newPosition = Vector3.Lerp(
+      this.originalPosition,
+      this.destination,
+      normalizedPercentTravelled
+    );
+    console.log(
+      "new position",
+      newPosition,
+      "percenttraveled",
+      normalizedPercentTravelled,
+      "elapsed",
+      this.elapsed,
+      "time timeToTranslate: ",
+      this.timeToTranslate
+    );
+
+    this.combatantContext.combatant.combatantProperties.position.copyFrom(newPosition);
   }
 
   setDestination(destination: Vector3) {
@@ -42,11 +67,11 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
   }
 
   getTimeToCompletion(): number {
-    throw new Error("Method not implemented.");
+    return Math.max(0, this.timeToTranslate - this.elapsed);
   }
 
   isComplete() {
-    return this.combatantContext.combatant.combatantProperties.position === this.destination;
+    return this.elapsed >= this.timeToTranslate;
   }
 
   getGameUpdateCommand(): GameUpdateCommand {

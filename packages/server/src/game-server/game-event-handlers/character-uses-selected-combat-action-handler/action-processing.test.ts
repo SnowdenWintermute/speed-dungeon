@@ -28,6 +28,8 @@ describe("action processing", () => {
   });
 
   it("correctly records a game record when both players disconnect at the start of a game", (done) => {
+    setTimeout(() => done(), 2000);
+
     const combatantContext = setUpTestGameWithPartyInBattle(idGenerator);
     const { game, party, combatant } = combatantContext;
     const combatants = Object.values(party.characters).concat(
@@ -52,7 +54,5 @@ describe("action processing", () => {
       COMBAT_ACTIONS[CombatActionName.ChainingSplitArrowParent],
       combatantContext
     );
-
-    done();
   });
 });

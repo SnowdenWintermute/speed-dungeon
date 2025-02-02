@@ -25,6 +25,19 @@ export enum ActionResolutionStepType {
   playStaticVfx,
 }
 
+export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepType, string> = {
+  [ActionResolutionStepType.preUsePositioning]: "preUsePositioning",
+  [ActionResolutionStepType.startUseAnimation]: "startUseAnimation",
+  [ActionResolutionStepType.payResourceCosts]: "payResourceCosts",
+  [ActionResolutionStepType.evalOnUseTriggers]: "evalOnUseTriggers",
+  [ActionResolutionStepType.rollIncomingHitOutcomes]: "rollIncomingHitOutcomes",
+  [ActionResolutionStepType.evalOnHitOutcomeTriggers]: "evalOnHitOutcomeTriggers",
+  [ActionResolutionStepType.postUseAnimation]: "postUseAnimation",
+  [ActionResolutionStepType.postUsePositioning]: "postUsePositioning",
+  [ActionResolutionStepType.playMobileVfx]: "playMobileVfx",
+  [ActionResolutionStepType.playStaticVfx]: "playStaticVfx",
+};
+
 export type ActionResolutionStepResult = {
   branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
   nextStepOption: ActionResolutionStep | null;
@@ -38,6 +51,7 @@ export abstract class ActionResolutionStep {
   ) {}
 
   tick(ms: Milliseconds) {
+    console.log("ticked ", ms);
     this.elapsed += ms;
     this.onTick();
   }
