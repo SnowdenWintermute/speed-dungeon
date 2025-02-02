@@ -2,6 +2,7 @@ import {
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
+  CombatActionExecutionIntent,
   CombatActionName,
   CombatActionUsabilityContext,
   TargetCategories,
@@ -14,6 +15,10 @@ import { ActionAccuracy } from "../../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
+import { CHAINING_SPLIT_ARROW_PROJECTILE } from "./chaining-split-arrow-projectile.js";
+import { PreUsePositioningActionResolutionStep } from "../../../../action-processing/action-steps/pre-use-positioning.js";
+import { ERROR_MESSAGES } from "../../../../errors/index.js";
+import { Vector3 } from "@babylonjs/core";
 
 const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
@@ -47,9 +52,8 @@ const config: CombatActionComponentConfig = {
   getChildren: (_user) => [],
   getParent: () => null,
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
-  getConcurrentSubActions() {
-    // @TODO - get number of split arrows from combatantContext
-    return [];
+  getConcurrentSubActions(combatantContext) {
+    return combatantContext.getOpponents().map(() => CHAINING_SPLIT_ARROW_PROJECTILE);
   },
   getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
     throw new Error("Function not implemented.");
@@ -62,6 +66,15 @@ const config: CombatActionComponentConfig = {
   },
   getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
     throw new Error("Function not implemented.");
+  },
+  getFirstResolutionStep(combatantContext, tracker, self) {
+    const step = new PreUsePositioningActionResolutionStep(
+      combatantContext,
+      tracker.actionExecutionIntent
+    );
+    const destination = Vector3.Zero();
+    step.setDestination(destination);
+    return step;
   },
 };
 

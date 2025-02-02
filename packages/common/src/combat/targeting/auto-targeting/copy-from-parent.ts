@@ -1,8 +1,8 @@
-import { CharacterAssociatedData, CombatantAssociatedData } from "../../../types.js";
+import { CombatantContext } from "../../../combatant-context/index.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
 
 export function copyTargetFromParent(
-  combatantContext: CombatantAssociatedData,
+  combatantContext: CombatantContext,
   combatAction: CombatActionComponent
 ) {
   const parent = combatAction.getParent();

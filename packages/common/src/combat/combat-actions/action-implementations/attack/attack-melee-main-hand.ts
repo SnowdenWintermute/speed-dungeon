@@ -1,4 +1,5 @@
 import {
+  CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -10,23 +11,21 @@ import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../../../app-consts.j
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
+import { CombatantEquipment } from "../../../../combatants/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
-import { ActionAccuracyType } from "../../combat-action-accuracy.js";
 import { iterateNumericEnum } from "../../../../utils/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
 import { getAttackHpChangeProperties } from "./get-attack-hp-change-properties.js";
-import {
-  getStandardActionArmorPenetration,
-  getStandardActionCritChance,
-  getStandardActionCritMultiplier,
-} from "../../action-calculation-utils/standard-action-calculations.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
+import { MELEE_ATTACK_COMMON_CONFIG } from "./melee-attack-common-config.js";
+import { CombatantContext } from "../../../../combatant-context/index.js";
+import { ActionExecutionTracker } from "../../../../action-processing/action-execution-tracker.js";
+import { ActionResolutionStep } from "../../../../action-processing/index.js";
 
 const config: CombatActionComponentConfig = {
+  ...MELEE_ATTACK_COMMON_CONFIG,
   description: "Attack target using equipment in main hand",
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
@@ -62,24 +61,6 @@ const config: CombatActionComponentConfig = {
     // animate combatant (swing main hand) (later can animate specific swings based on equipped weapon)
     throw new Error("Function not implemented.");
   },
-  getRequiredRange: () => CombatActionRequiredRange.Melee,
-  getUnmodifiedAccuracy: (user) => {
-    const userCombatAttributes = CombatantProperties.getTotalAttributes(user);
-    return {
-      type: ActionAccuracyType.Percentage,
-      value: userCombatAttributes[CombatAttribute.Accuracy],
-    };
-  },
-  getCritChance: (user) => {
-    return getStandardActionCritChance(user, CombatAttribute.Dexterity);
-  },
-  getCritMultiplier(user) {
-    return getStandardActionCritMultiplier(user, CombatAttribute.Strength);
-  },
-  // could use self to get the armor pen attribute from the action, then can display the armor pen attribute on client
-  getArmorPenetration(user, self) {
-    return getStandardActionArmorPenetration(user, CombatAttribute.Strength);
-  },
   getHpChangeProperties: (user, primaryTarget, self) => {
     const hpChangeProperties = getAttackHpChangeProperties(
       self,
@@ -95,6 +76,13 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => ATTACK,
+  getFirstResolutionStep: function (
+    combatantContext: CombatantContext,
+    actionExecutionTracker: ActionExecutionTracker,
+    self: CombatActionComponent
+  ): ActionResolutionStep {
+    throw new Error("Function not implemented.");
+  },
 };
 
 export const ATTACK_MELEE_MAIN_HAND = new CombatActionLeaf(

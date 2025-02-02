@@ -4,16 +4,16 @@ import {
   ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
-import { CombatantAssociatedData } from "../../types.js";
 import { CombatActionExecutionIntent } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { StartUseAnimationActionResolutionStep } from "./start-use-animation.js";
+import { CombatantContext } from "../../combatant-context/index.js";
 
 export class PreUsePositioningActionResolutionStep extends ActionResolutionStep {
   private destination: Vector3;
   private originalPosition: Vector3;
   constructor(
-    private combatantContext: CombatantAssociatedData,
+    private combatantContext: CombatantContext,
     private actionExecutionIntent: CombatActionExecutionIntent
   ) {
     super(ActionResolutionStepType.preUsePositioning);
@@ -35,6 +35,10 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
 
   protected onTick(): void {
     // @TODO -lerp combatant toward destination
+  }
+
+  setDestination(destination: Vector3) {
+    this.destination = destination.clone();
   }
 
   getTimeToCompletion(): number {

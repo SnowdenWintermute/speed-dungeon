@@ -22,12 +22,15 @@ import { AutoTargetingSelectionMethod } from "../targeting/index.js";
 import { ActionAccuracy, ActionAccuracyType } from "./combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "./combat-action-range.js";
 import { AUTO_TARGETING_FUNCTIONS } from "../targeting/auto-targeting/mapped-functions.js";
-import { CombatantAssociatedData } from "../../types.js";
 import {
   ActionResourceCostBases,
   ActionResourceCosts,
 } from "./action-calculation-utils/action-costs.js";
 import { CombatActionIntent } from "./combat-action-intent.js";
+import { CombatantContext } from "../../combatant-context/index.js";
+import { ActionExecutionTracker } from "../../action-processing/action-execution-tracker.js";
+import { ActionResolutionStep } from "../../action-processing/index.js";
+import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 
 export interface CombatActionComponentConfig {
   description: string;
@@ -51,10 +54,7 @@ export interface CombatActionComponentConfig {
   ) => null | ActionResourceCosts;
   getExecutionTime: () => number;
   requiresCombatTurn: (user: CombatantProperties) => boolean;
-  shouldExecute: (
-    combatantContext: CombatantAssociatedData,
-    self: CombatActionComponent
-  ) => boolean;
+  shouldExecute: (combatantContext: CombatantContext, self: CombatActionComponent) => boolean;
   getAnimationsAndEffects: () => void;
   getRequiredRange: (
     user: CombatantProperties,
@@ -72,9 +72,14 @@ export interface CombatActionComponentConfig {
     self: CombatActionComponent
   ) => null | CombatActionHpChangeProperties;
   getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
-  getChildren: (combatant: Combatant) => CombatActionComponent[];
-  getConcurrentSubActions?: (combatantContext: CombatantAssociatedData) => CombatActionComponent[];
+  getChildren: (combatant: Combatant, tracker: ActionExecutionTracker) => CombatActionComponent[];
+  getConcurrentSubActions?: (combatantContext: CombatantContext) => CombatActionComponent[];
   getParent: () => CombatActionComponent | null;
+  getFirstResolutionStep: (
+    combatantContext: CombatantContext,
+    actionExecutionTracker: ActionExecutionTracker,
+    self: CombatActionComponent
+  ) => ActionResolutionStep;
 }
 
 export abstract class CombatActionComponent {
@@ -122,7 +127,7 @@ export abstract class CombatActionComponent {
   requiresCombatTurn: (user: CombatantProperties) => boolean;
   // could use the combatant's ability to hold state which may help determine, such as if using chain lightning and an enemy
   // target exists that is not the last arced to target
-  shouldExecute: (combatantContext: CombatantAssociatedData) => boolean;
+  shouldExecute: (combatantContext: CombatantContext) => boolean;
   // CATEGORIES
   // pre-use
   // on-success
@@ -154,26 +159,24 @@ export abstract class CombatActionComponent {
   // spell levels (level 1 chain lightning only gets 1 ChainLightningArc child) or other status
   // (energetic swings could do multiple attacks based on user's current percent of max hp)
   // could also create random children such as a chaining random elemental damage
-  getChildren: (combatant: Combatant) => CombatActionComponent[];
-  getChildrenRecursive(combatant: Combatant) {
-    const toReturn: CombatActionComponent[] = [];
-    for (const child of this.getChildren(combatant)) {
-      toReturn.push(...child.getChildrenRecursive(combatant));
-    }
-    return toReturn;
-  }
-  getConcurrentSubActions: (combatantContext: CombatantAssociatedData) => CombatActionComponent[] =
+  getChildren: (combatant: Combatant, tracker: ActionExecutionTracker) => CombatActionComponent[];
+  getConcurrentSubActions: (combatantContext: CombatantContext) => CombatActionComponent[] =
     () => [];
+  getFirstResolutionStep: (
+    combatantContext: CombatantContext,
+    actionExecutionTracker: ActionExecutionTracker
+  ) => ActionResolutionStep;
   getParent: () => CombatActionComponent | null;
   addChild: (childAction: CombatActionComponent) => Error | void = () =>
     new Error("Can't add a child to this component");
 
   // DEFAULT FUNCTIONS
-  getAutoTarget: (combatantContext: CombatantAssociatedData) => Error | null | CombatActionTarget =
-    (combatantContext) => {
-      const scheme = this.autoTargetSelectionMethod.scheme;
-      return AUTO_TARGETING_FUNCTIONS[scheme](combatantContext, this);
-    };
+  getAutoTarget: (combatantContext: CombatantContext) => Error | null | CombatActionTarget = (
+    combatantContext
+  ) => {
+    const scheme = this.autoTargetSelectionMethod.scheme;
+    return AUTO_TARGETING_FUNCTIONS[scheme](combatantContext, this);
+  };
   combatantIsValidTarget(
     user: Combatant, // to check who their allies are
     combatant: Combatant, // to check their conditions, traits and other state like current hp
@@ -224,6 +227,8 @@ export abstract class CombatActionComponent {
     if (config.getConcurrentSubActions)
       this.getConcurrentSubActions = config.getConcurrentSubActions;
     this.getParent = config.getParent;
+    this.getFirstResolutionStep = (combatantContext, tracker) =>
+      config.getFirstResolutionStep(combatantContext, tracker, this);
   }
 }
 

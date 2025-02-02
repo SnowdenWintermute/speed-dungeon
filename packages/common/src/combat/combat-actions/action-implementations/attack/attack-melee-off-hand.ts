@@ -16,25 +16,24 @@ import {
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
-import { ActionAccuracyType } from "../../combat-action-accuracy.js";
 import { iterateNumericEnum } from "../../../../utils/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
 import { getAttackHpChangeProperties } from "./get-attack-hp-change-properties.js";
-import {
-  getStandardActionArmorPenetration,
-  getStandardActionCritChance,
-  getStandardActionCritMultiplier,
-} from "../../action-calculation-utils/standard-action-calculations.js";
 import { getCombatActionTargetIds } from "../../../action-results/get-action-target-ids.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
+import { CombatantContext } from "../../../../combatant-context/index.js";
+import { ActionExecutionTracker } from "../../../../action-processing/action-execution-tracker.js";
+import { ActionResolutionStep } from "../../../../action-processing/index.js";
+import { MELEE_ATTACK_COMMON_CONFIG } from "./melee-attack-common-config.js";
+import { getStandardActionCritChance } from "../../action-calculation-utils/standard-action-calculations.js";
 
 const config: CombatActionComponentConfig = {
+  ...MELEE_ATTACK_COMMON_CONFIG,
   description: "Attack target using equipment in off hand",
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
@@ -99,24 +98,10 @@ const config: CombatActionComponentConfig = {
     // @TODO
     throw new Error("Function not implemented.");
   },
-  getRequiredRange: () => CombatActionRequiredRange.Melee,
-  getUnmodifiedAccuracy: (user) => {
-    const userCombatAttributes = CombatantProperties.getTotalAttributes(user);
-    return {
-      type: ActionAccuracyType.Percentage,
-      value: userCombatAttributes[CombatAttribute.Accuracy],
-    };
-  },
-  getCritChance: (user) => {
+  getCritChance: function (user: CombatantProperties): number {
     return (
       getStandardActionCritChance(user, CombatAttribute.Dexterity) * OFF_HAND_CRIT_CHANCE_MODIFIER
     );
-  },
-  getCritMultiplier(user) {
-    return getStandardActionCritMultiplier(user, CombatAttribute.Strength);
-  },
-  getArmorPenetration(user, self) {
-    return getStandardActionArmorPenetration(user, CombatAttribute.Strength);
   },
   getHpChangeProperties: (user, primaryTarget, self) => {
     const hpChangeProperties = getAttackHpChangeProperties(
@@ -136,6 +121,13 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => ATTACK,
+  getFirstResolutionStep: function (
+    combatantContext: CombatantContext,
+    actionExecutionTracker: ActionExecutionTracker,
+    self: CombatActionComponent
+  ): ActionResolutionStep {
+    throw new Error("Function not implemented.");
+  },
 };
 
 export const ATTACK_MELEE_OFF_HAND = new CombatActionLeaf(

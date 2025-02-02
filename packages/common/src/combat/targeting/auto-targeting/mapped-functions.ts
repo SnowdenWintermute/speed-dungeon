@@ -3,9 +3,10 @@ import { copyTargetFromParent } from "./copy-from-parent.js";
 import { CombatantAssociatedData } from "../../../types.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "../combat-action-targets.js";
+import { CombatantContext } from "../../../combatant-context/index.js";
 
 type AutoTargetingFunction = (
-  combatantContext: CombatantAssociatedData,
+  combatantContext: CombatantContext,
   combatAction: CombatActionComponent
 ) => Error | null | CombatActionTarget;
 

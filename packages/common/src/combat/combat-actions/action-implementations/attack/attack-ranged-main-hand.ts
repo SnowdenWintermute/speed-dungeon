@@ -1,4 +1,5 @@
 import {
+  CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -25,6 +26,9 @@ import {
 } from "../../action-calculation-utils/standard-action-calculations.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
+import { ActionExecutionTracker } from "../../../../action-processing/action-execution-tracker.js";
+import { ActionResolutionStep } from "../../../../action-processing/index.js";
+import { CombatantContext } from "../../../../combatant-context/index.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack target using ranged weapon",
@@ -92,6 +96,13 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => ATTACK,
+  getFirstResolutionStep: function (
+    combatantContext: CombatantContext,
+    actionExecutionTracker: ActionExecutionTracker,
+    self: CombatActionComponent
+  ): ActionResolutionStep {
+    throw new Error("Function not implemented.");
+  },
 };
 
 export const ATTACK_RANGED_MAIN_HAND = new CombatActionLeaf(

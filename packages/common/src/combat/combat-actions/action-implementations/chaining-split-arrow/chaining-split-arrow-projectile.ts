@@ -14,6 +14,11 @@ import { ActionAccuracy } from "../../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
+import { MobileVfxActionResolutionStep } from "../../../../action-processing/action-steps/mobile-vfx.js";
+import { CHAINING_SPLIT_ARROW_PARENT } from "./index.js";
+import { COMBAT_ACTIONS } from "../index.js";
+
+const MAX_BOUNCES = 2;
 
 const config: CombatActionComponentConfig = {
   description: "An arrow that bounces to up to two additional targets after the first",
@@ -44,12 +49,23 @@ const config: CombatActionComponentConfig = {
     // @TODO - determine based on equipment
     throw new Error("Function not implemented.");
   },
-  getChildren: (_user) => [],
-  getParent: () => null,
-  getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
-  getConcurrentSubActions(combatantContext) {
-    // get all opponent targets
+  getChildren: (_user, tracker) => {
+    let cursor = tracker.previousTrackerInSequenceOption;
+    let numBouncesSoFar = 0;
+    while (cursor) {
+      if (cursor.actionExecutionIntent.actionName === CombatActionName.ChainingSplitArrowProjectile)
+        numBouncesSoFar += 1;
+      cursor = cursor.previousTrackerInSequenceOption;
+    }
 
+    if (numBouncesSoFar < MAX_BOUNCES)
+      return [COMBAT_ACTIONS[CombatActionName.ChainingSplitArrowProjectile]];
+
+    return [];
+  },
+  getParent: () => CHAINING_SPLIT_ARROW_PARENT,
+  getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
+  getConcurrentSubActions() {
     return [];
   },
   getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
@@ -63,6 +79,13 @@ const config: CombatActionComponentConfig = {
   },
   getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
     throw new Error("Function not implemented.");
+  },
+  getFirstResolutionStep(combatantContext, tracker, self) {
+    const { previousTrackerInSequenceOption } = tracker;
+    const previousTargetInChain = previousTrackerInSequenceOption?.actionExecutionIntent.targets;
+
+    // const step = new MobileVfxActionResolutionStep();
+    // return step;
   },
 };
 

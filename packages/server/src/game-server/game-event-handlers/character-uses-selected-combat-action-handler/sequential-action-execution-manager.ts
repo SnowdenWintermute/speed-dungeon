@@ -3,12 +3,12 @@ import {
   COMBAT_ACTIONS,
   CombatActionComponent,
   CombatActionExecutionIntent,
-  CombatantAssociatedData,
   Milliseconds,
   ReplayEventNode,
   SequentialIdGenerator,
 } from "@speed-dungeon/common";
 import { idGenerator } from "../../../singletons.js";
+import { CombatantContext } from "@speed-dungeon/common/src/combatant-context/index.js";
 
 class SequentialActionExecutionManagerRegistry {
   private actionManagers: { [id: string]: SequentialActionExecutionManager } = {};
@@ -22,7 +22,7 @@ class SequentialActionExecutionManagerRegistry {
   registerAction(
     action: CombatActionComponent,
     replayNode: ReplayEventNode,
-    combatantContext: CombatantAssociatedData
+    combatantContext: CombatantContext
   ) {
     const id = idGenerator.generate();
     const manager = new SequentialActionExecutionManager(
@@ -33,6 +33,7 @@ class SequentialActionExecutionManagerRegistry {
       this
     );
     this.actionManagers[id] = manager;
+    return manager;
   }
   unRegisterAction(id: string) {
     delete this.actionManagers[id];
@@ -45,17 +46,15 @@ class SequentialActionExecutionManagerRegistry {
 export class SequentialActionExecutionManager {
   private remainingActionsToExecute: CombatActionComponent[];
   private actionInProgress: null | CombatActionComponent = null;
+  private currentTracker: null | ActionExecutionTracker = null;
   constructor(
     public id: string,
     action: CombatActionComponent,
     public replayNode: ReplayEventNode,
-    public combatantContext: CombatantAssociatedData,
+    public combatantContext: CombatantContext,
     private sequentialActionManagerRegistry: SequentialActionExecutionManagerRegistry
   ) {
-    this.remainingActionsToExecute = [
-      action,
-      ...action.getChildrenRecursive(combatantContext.combatant),
-    ].reverse();
+    this.remainingActionsToExecute = [action];
   }
 
   isCurrentlyProcessing() {
@@ -63,6 +62,14 @@ export class SequentialActionExecutionManager {
   }
   isDoneProcessing() {
     return !this.isCurrentlyProcessing() && this.remainingActionsToExecute.length === 0;
+  }
+  hasExhaustedActionTree() {
+    return true;
+  }
+  // action children may depend on the outcome of their parent so we must process their parent first
+  populateSelfWithCurrentActionChildren() {
+    const children = this.actionInProgress?.getChildren(this.combatantContext, this.currentTracker);
+    this.remainingActionsToExecute.push(...children);
   }
 
   startProcessingNext(
@@ -80,10 +87,13 @@ export class SequentialActionExecutionManager {
     const tracker = new ActionExecutionTracker(
       idGenerator.getNextId(),
       new CombatActionExecutionIntent(nextActionOption.name, targets),
+      this.currentTracker,
       time.ms,
       this.combatantContext,
       this.replayNode
     );
+
+    this.currentTracker = tracker;
 
     return tracker;
   }
@@ -91,6 +101,7 @@ export class SequentialActionExecutionManager {
 
 class ActionExecutionTrackerRegistry {
   trackers: { [id: string]: ActionExecutionTracker } = {};
+  completed: { [id: string]: ActionExecutionTracker } = {};
   constructor() {}
   isNotEmpty() {
     return !!this.getTrackers().length;
@@ -99,6 +110,9 @@ class ActionExecutionTrackerRegistry {
     this.trackers[tracker.id] = tracker;
   }
   unRegisterTracker(id: string) {
+    const tracker = this.trackers[id];
+    if (!tracker) return;
+    this.completed[id] = tracker;
     delete this.trackers[id];
   }
   getTrackers() {
@@ -120,7 +134,7 @@ class ActionExecutionTrackerRegistry {
 
 export function processCombatAction(
   action: CombatActionComponent,
-  combatantContext: CombatantAssociatedData
+  combatantContext: CombatantContext
 ) {
   const sequentialActionManagerRegistry = new SequentialActionExecutionManagerRegistry();
   const rootReplayNode = new ReplayEventNode();
@@ -136,7 +150,13 @@ export function processCombatAction(
     actionExecutionTrackerRegistry.isNotEmpty()
   ) {
     for (const [id, manager] of sequentialActionManagerRegistry.getManagers()) {
-      if (manager.isDoneProcessing()) sequentialActionManagerRegistry.unRegisterAction(id);
+      if (manager.isDoneProcessing()) {
+        manager.populateSelfWithCurrentActionChildren();
+        if (manager.hasExhaustedActionTree()) {
+          sequentialActionManagerRegistry.unRegisterAction(id);
+          continue;
+        }
+      }
       if (manager.isDoneProcessing() || manager.isCurrentlyProcessing()) continue;
 
       const tracker = manager.startProcessingNext(actionStepIdGenerator, time);
@@ -164,13 +184,19 @@ export function processCombatAction(
           completionOrderIdGenerator.getNextIdNumeric()
         );
 
+        tracker.storeCompletedStep();
+
         for (const { user, actionExecutionIntent } of branchingActions) {
           const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
           const nestedReplayNode = new ReplayEventNode();
           tracker.replayNode.events.push(nestedReplayNode);
 
           // branching actions may have a different user than the triggering action
-          const nestedCombatantContext = { ...combatantContext, combatant: user };
+          const nestedCombatantContext = new CombatantContext(
+            combatantContext.game,
+            combatantContext.party,
+            user
+          );
           sequentialActionManagerRegistry.registerAction(
             action,
             nestedReplayNode,
