@@ -19,7 +19,7 @@ export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantAnimation,
       completionOrderId: null,
-      animationName: "Raise and Draw Bow",
+      animationName: "Bow shot recovery",
       combatantId: combatantContext.combatant.entityProperties.id,
       destination: Vector3.Zero(),
       duration: 1000,
@@ -39,7 +39,7 @@ export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
     // @TODO - determine based on how long we want the animation to take
     // - action type
     // - combatant speed
-    throw new Error("Method not implemented.");
+    return 500;
   }
 
   isComplete() {

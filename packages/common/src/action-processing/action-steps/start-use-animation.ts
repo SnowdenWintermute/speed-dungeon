@@ -5,7 +5,7 @@ import {
   ActionResolutionStepType,
 } from "./index.js";
 import { CombatantAssociatedData } from "../../types.js";
-import { CombatActionExecutionIntent } from "../../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Milliseconds } from "../../primatives/index.js";
 import { PayResourceCostsActionResolutionStep } from "./pay-resource-costs.js";
@@ -33,14 +33,11 @@ export class StartUseAnimationActionResolutionStep extends ActionResolutionStep 
   }
 
   protected onTick(): void {
-    // @TODO -lerp combatant toward destination
+    // @TODO -lerp combatant toward destination if there is one, such as for attack on approach
   }
 
   getTimeToCompletion(): number {
-    // @TODO - determine based on how long we want the animation to take
-    // - action type
-    // - combatant speed
-    throw new Error("Method not implemented.");
+    return COMBAT_ACTIONS[this.actionExecutionIntent.actionName].getExecutionTime();
   }
 
   isComplete() {

@@ -6,10 +6,13 @@ import {
 } from "./index.js";
 import { CombatantAssociatedData } from "../../types.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
+import { Milliseconds } from "../../primatives/index.js";
+import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 
 export class PostUsePositioningActionResolutionStep extends ActionResolutionStep {
   private destination: Vector3;
   private originalPosition: Vector3;
+  private timeToTranslate: Milliseconds;
   constructor(
     private combatantContext: CombatantAssociatedData,
     public animationName: string
@@ -17,28 +20,41 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantMovement,
       completionOrderId: null,
-      animationName: "Run Forward", // run forward, run backward, run forward injured @TODO -enum
+      animationName: "Run Back", // run forward, run backward, run forward injured @TODO -enum
       combatantId: combatantContext.combatant.entityProperties.id,
       destination: Vector3.Zero(),
     };
 
     super(ActionResolutionStepType.postUsePositioning, gameUpdateCommand);
 
-    this.originalPosition = combatantContext.combatant.combatantProperties.position.clone();
+    const { combatantProperties } = combatantContext.combatant;
+    this.originalPosition = combatantProperties.position.clone();
     // @TODO - calculate destination based on action
-    this.destination = Vector3.Zero();
+    this.destination = combatantProperties.homeLocation.clone();
+
+    const distance = Vector3.Distance(this.originalPosition, this.destination);
+    const speedMultiplier = 1;
+    this.timeToTranslate = COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;
   }
 
   protected onTick(): void {
-    // @TODO -lerp combatant toward destination
+    const normalizedPercentTravelled = this.elapsed / this.timeToTranslate;
+
+    const newPosition = Vector3.Lerp(
+      this.originalPosition,
+      this.destination,
+      normalizedPercentTravelled
+    );
+
+    this.combatantContext.combatant.combatantProperties.position.copyFrom(newPosition);
   }
 
   getTimeToCompletion(): number {
-    throw new Error("Method not implemented.");
+    return Math.max(0, this.timeToTranslate - this.elapsed);
   }
 
   isComplete() {
-    return this.combatantContext.combatant.combatantProperties.position === this.destination;
+    return this.elapsed >= this.timeToTranslate;
   }
 
   getGameUpdateCommand(): GameUpdateCommand {

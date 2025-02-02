@@ -7,6 +7,7 @@ export enum GameUpdateCommandType {
   CombatantAnimation,
   CombatantMovement,
   ResourcesPaid,
+  ActivatedTriggers,
   HitOutcomes,
   StaticVfx,
   MobileVfx,
@@ -34,6 +35,11 @@ export type ResourcesPaidGameUpdateCommand = {
   completionOrderId: null | number;
   combatantId: EntityId;
   costsPaid: ActionResourceCosts;
+};
+
+export type ActivatedTriggersGameUpdateCommand = {
+  type: GameUpdateCommandType.ActivatedTriggers;
+  completionOrderId: null | number;
 };
 
 export type HitOutcomesGameUpdateCommand = {
@@ -74,6 +80,7 @@ export type GameUpdateCommand =
   | CombatantMovementGameUpdateCommand
   | CombatantAnimationGameUpdateCommand
   | ResourcesPaidGameUpdateCommand
+  | ActivatedTriggersGameUpdateCommand
   | HitOutcomesGameUpdateCommand
   | StaticVfxGameUpdateCommand
   | MobileVfxGameUpdateCommand;

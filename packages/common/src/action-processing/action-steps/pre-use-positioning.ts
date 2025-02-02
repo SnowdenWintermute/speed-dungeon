@@ -48,16 +48,6 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
       this.destination,
       normalizedPercentTravelled
     );
-    console.log(
-      "new position",
-      newPosition,
-      "percenttraveled",
-      normalizedPercentTravelled,
-      "elapsed",
-      this.elapsed,
-      "time timeToTranslate: ",
-      this.timeToTranslate
-    );
 
     this.combatantContext.combatant.combatantProperties.position.copyFrom(newPosition);
   }

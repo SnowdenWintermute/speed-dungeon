@@ -59,6 +59,10 @@ export class SequentialActionExecutionManager {
     this.remainingActionsToExecute = [action];
   }
 
+  getCurrentAction() {
+    return this.actionInProgress;
+  }
+
   isCurrentlyProcessing() {
     return !!this.actionInProgress;
   }
@@ -163,11 +167,27 @@ export function processCombatAction(
 
   console.log(sequentialActionManagerRegistry.getManagers());
 
+  let looplimit = 10;
+  let currloop = 0;
+
   while (
-    sequentialActionManagerRegistry.isNotEmpty() ||
-    actionExecutionTrackerRegistry.isNotEmpty()
+    (sequentialActionManagerRegistry.isNotEmpty() || actionExecutionTrackerRegistry.isNotEmpty()) &&
+    currloop < looplimit
   ) {
-    console.log("sequenial action manager registry loop");
+    currloop++;
+    console.log("curr loop outer: ", currloop);
+    console.log(
+      "sequential action managers ",
+      sequentialActionManagerRegistry.getManagers().map(([id, manager]) => {
+        const actionOption = manager.getCurrentAction();
+        if (actionOption) return COMBAT_ACTION_NAME_STRINGS[actionOption.name];
+        else return null;
+      })
+    );
+    console.log(
+      "action execution trackers ",
+      actionExecutionTrackerRegistry.getTrackers().map((i) => i)
+    );
     for (const [id, manager] of sequentialActionManagerRegistry.getManagers()) {
       console.log("action manager isDoneProcessing", manager.isDoneProcessing());
       if (manager.isDoneProcessing()) {
@@ -199,10 +219,15 @@ export function processCombatAction(
       if (!tracker.currentStep.isComplete()) continue;
 
       // process all instantly processable steps
-      while (tracker.currentStep.isComplete()) {
+
+      let looplimit = 10;
+      let currloop = 0;
+      while (tracker.currentStep.isComplete() && currloop < looplimit) {
         const { nextStepOption, branchingActions } = tracker.currentStep.finalize(
           completionOrderIdGenerator.getNextIdNumeric()
         );
+        currloop += 1;
+        console.log("currloop: ", currloop);
 
         tracker.storeCompletedStep();
 
@@ -224,11 +249,14 @@ export function processCombatAction(
           );
         }
 
-        if (nextStepOption === null) actionExecutionTrackerRegistry.unRegisterTracker(tracker.id);
-        else {
-          tracker.currentStep = nextStepOption;
+        if (nextStepOption === null) {
+          actionExecutionTrackerRegistry.unRegisterTracker(tracker.id);
+          console.log("UNREGISTERED");
+          break;
+        } else {
           const gameUpdateCommandStarted = tracker.currentStep.getGameUpdateCommand();
           tracker.replayNode.events.push(gameUpdateCommandStarted);
+          tracker.currentStep = nextStepOption;
         }
       }
     }

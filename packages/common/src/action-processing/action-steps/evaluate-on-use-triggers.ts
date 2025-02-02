@@ -5,7 +5,7 @@ import {
 } from "./index.js";
 import { CombatantAssociatedData } from "../../types.js";
 import { CombatActionExecutionIntent } from "../../combat/index.js";
-import { GameUpdateCommand } from "../game-update-commands.js";
+import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
 
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
@@ -14,8 +14,10 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     private actionExecutionIntent: CombatActionExecutionIntent
   ) {
     // counterspells
-    const gameUpdateCommand: GameUpdateCommand = {} as GameUpdateCommand;
-    throw new Error("not implemented");
+    const gameUpdateCommand: GameUpdateCommand = {
+      type: GameUpdateCommandType.ActivatedTriggers,
+      completionOrderId: null,
+    };
 
     super(ActionResolutionStepType.evalOnUseTriggers, gameUpdateCommand);
   }

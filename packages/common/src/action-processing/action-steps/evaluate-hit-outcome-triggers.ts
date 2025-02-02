@@ -5,7 +5,7 @@ import {
 } from "./index.js";
 import { CombatantAssociatedData } from "../../types.js";
 import { CombatActionExecutionIntent } from "../../combat/index.js";
-import { GameUpdateCommand } from "../game-update-commands.js";
+import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { PostUseAnimationActionResolutionStep } from "./post-use-animation.js";
 
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
@@ -14,8 +14,10 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     private actionExecutionIntent: CombatActionExecutionIntent
     // hits, misses, evades, parries, blocks (used for determining triggers as well as user followthrough animation)
   ) {
-    const gameUpdateCommand: GameUpdateCommand = {} as GameUpdateCommand;
-    throw new Error("not implemented");
+    const gameUpdateCommand: GameUpdateCommand = {
+      type: GameUpdateCommandType.ActivatedTriggers,
+      completionOrderId: null,
+    };
     super(ActionResolutionStepType.evalOnHitOutcomeTriggers, gameUpdateCommand);
   }
 
