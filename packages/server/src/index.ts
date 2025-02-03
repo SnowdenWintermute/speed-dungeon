@@ -1,7 +1,6 @@
 import { createExpressApp } from "./create-express-app.js";
 import { Server } from "socket.io";
 import {
-  COMBAT_ACTIONS,
   ClientToServerEventTypes,
   CombatActionExecutionIntent,
   CombatActionName,
@@ -18,8 +17,8 @@ import { pgOptions } from "./database/config.js";
 import { valkeyManager } from "./kv-store/index.js";
 import { loadLadderIntoKvStore } from "./kv-store/utils.js";
 import runMigrations from "./database/run-migrations.js";
-import { processCombatAction } from "./game-server/game-event-handlers/character-uses-selected-combat-action-handler/sequential-action-execution-manager.js";
 import { setUpTestGameWithPartyInBattle } from "./game-server/utils/testing/index.js";
+import { processCombatAction } from "./game-server/game-event-handlers/character-uses-selected-combat-action-handler/process-combat-action.js";
 
 const PORT = 8080;
 

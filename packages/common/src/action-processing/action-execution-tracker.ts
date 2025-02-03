@@ -20,7 +20,6 @@ export class ActionExecutionTracker {
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
     // in the case of sub-actions, we'll start with spawning the projectiles or vfx
     // otherwise start with the combatant moving
-    // this.currentStep = action.getFirstResolutionStep();
     const firstStepResult = action.getFirstResolutionStep(combatantContext, this);
     if (firstStepResult instanceof Error) throw firstStepResult;
     this.currentStep = firstStepResult;

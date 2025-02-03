@@ -51,7 +51,6 @@ export abstract class ActionResolutionStep {
   ) {}
 
   tick(ms: Milliseconds) {
-    console.log("ticked ", ms);
     this.elapsed += ms;
     this.onTick();
   }

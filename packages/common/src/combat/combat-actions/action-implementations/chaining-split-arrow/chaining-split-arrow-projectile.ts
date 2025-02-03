@@ -19,7 +19,10 @@ import { MobileVfxActionResolutionStep } from "../../../../action-processing/act
 import { CHAINING_SPLIT_ARROW_PARENT } from "./index.js";
 import { COMBAT_ACTIONS } from "../index.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
-import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
+import {
+  CombatActionTarget,
+  CombatActionTargetType,
+} from "../../../targeting/combat-action-targets.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
 import { ActionExecutionTracker } from "../../../../action-processing/action-execution-tracker.js";
 import { chooseRandomFromArray } from "../../../../utils/index.js";
@@ -96,8 +99,8 @@ const config: CombatActionComponentConfig = {
   getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
     throw new Error("Function not implemented.");
   },
-  getFirstResolutionStep(combatantContext, tracker, self) {
-    const previousTrackerInSequenceOption = tracker.getPreviousTrackerInSequenceOption();
+  getAutoTarget(combatantContext, trackerOption, self) {
+    const previousTrackerInSequenceOption = trackerOption?.getPreviousTrackerInSequenceOption();
     if (!previousTrackerInSequenceOption)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.MISSING_EXPECTED_ACTION_IN_CHAIN);
 
@@ -114,10 +117,30 @@ const config: CombatActionComponentConfig = {
     const randomTargetIdResult = chooseRandomFromArray(possibleTargetIds);
     if (randomTargetIdResult instanceof Error) return randomTargetIdResult;
 
-    const actionExecutionIntent = new CombatActionExecutionIntent(self.name, {
+    const target: CombatActionTarget = {
       type: CombatActionTargetType.Single,
       targetId: randomTargetIdResult,
-    });
+    };
+    return target;
+  },
+  getFirstResolutionStep(combatantContext, tracker, self) {
+    const targetResult = self.getAutoTarget(combatantContext, tracker);
+    if (targetResult instanceof Error) return targetResult;
+    if (targetResult === null)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TARGETS_SELECTED);
+
+    const actionExecutionIntent = new CombatActionExecutionIntent(self.name, targetResult);
+
+    const previousTrackerInSequenceOption = tracker.getPreviousTrackerInSequenceOption();
+    if (!previousTrackerInSequenceOption)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.MISSING_EXPECTED_ACTION_IN_CHAIN);
+
+    const filteredPossibleTargetIds = getBouncableTargets(
+      combatantContext,
+      previousTrackerInSequenceOption
+    );
+    if (filteredPossibleTargetIds instanceof Error) return filteredPossibleTargetIds;
+    const { possibleTargetIds, previousTargetId } = filteredPossibleTargetIds;
 
     const previousTargetResult = AdventuringParty.getCombatant(
       combatantContext.party,
@@ -125,10 +148,11 @@ const config: CombatActionComponentConfig = {
     );
     if (previousTargetResult instanceof Error) return previousTargetResult;
 
-    const targetCombatantResult = AdventuringParty.getCombatant(
-      combatantContext.party,
-      randomTargetIdResult
-    );
+    const { targets } = actionExecutionIntent;
+    if (targets.type !== CombatActionTargetType.Single) return new Error("unexpected target type");
+    const targetId = targets.targetId;
+
+    const targetCombatantResult = AdventuringParty.getCombatant(combatantContext.party, targetId);
     if (targetCombatantResult instanceof Error) return targetCombatantResult;
 
     const step = new MobileVfxActionResolutionStep(

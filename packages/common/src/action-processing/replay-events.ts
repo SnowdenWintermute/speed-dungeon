@@ -1,5 +1,9 @@
 import { SequentialIdGenerator } from "../utils/index.js";
-import { GameUpdateCommand } from "./game-update-commands.js";
+import {
+  GAME_UPDATE_COMMAND_TYPE_STRINGS,
+  GameUpdateCommand,
+  GameUpdateCommandType,
+} from "./game-update-commands.js";
 
 export class ReplayEventNode {
   events: (GameUpdateCommand | ReplayEventNode)[] = [];
@@ -41,7 +45,7 @@ export class Replayer {
         console.log("BRANCH");
         this.printReplayTree(node);
       } else {
-        console.log(node);
+        console.log(GAME_UPDATE_COMMAND_TYPE_STRINGS[node.type], node.completionOrderId);
       }
     }
   }

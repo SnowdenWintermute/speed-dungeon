@@ -15,9 +15,7 @@ import { ActionAccuracy } from "../../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
-import { CHAINING_SPLIT_ARROW_PROJECTILE } from "./chaining-split-arrow-projectile.js";
 import { PreUsePositioningActionResolutionStep } from "../../../../action-processing/action-steps/pre-use-positioning.js";
-import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { Vector3 } from "@babylonjs/core";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 
@@ -54,15 +52,13 @@ const config: CombatActionComponentConfig = {
   getParent: () => null,
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
   getConcurrentSubActions(combatantContext) {
-    return combatantContext
-      .getOpponents()
-      .map(
-        (opponent) =>
-          new CombatActionExecutionIntent(CombatActionName.ChainingSplitArrowProjectile, {
-            type: CombatActionTargetType.Single,
-            targetId: opponent.entityProperties.id,
-          })
-      );
+    return combatantContext.getOpponents().map(
+      (opponent) =>
+        new CombatActionExecutionIntent(CombatActionName.ChainingSplitArrowProjectile, {
+          type: CombatActionTargetType.Single,
+          targetId: opponent.entityProperties.id,
+        })
+    );
   },
   getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
     throw new Error("Function not implemented.");

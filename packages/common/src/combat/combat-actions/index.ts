@@ -83,6 +83,11 @@ export interface CombatActionComponentConfig {
     actionExecutionTracker: ActionExecutionTracker,
     self: CombatActionComponent
   ) => Error | ActionResolutionStep;
+  getAutoTarget?: (
+    combatantContext: CombatantContext,
+    actionTrackerOption: null | ActionExecutionTracker,
+    self: CombatActionComponent
+  ) => Error | null | CombatActionTarget;
 }
 
 export abstract class CombatActionComponent {
@@ -177,9 +182,10 @@ export abstract class CombatActionComponent {
     new Error("Can't add a child to this component");
 
   // DEFAULT FUNCTIONS
-  getAutoTarget: (combatantContext: CombatantContext) => Error | null | CombatActionTarget = (
-    combatantContext
-  ) => {
+  getAutoTarget: (
+    combatantContext: CombatantContext,
+    actionTrackerOption: null | ActionExecutionTracker
+  ) => Error | null | CombatActionTarget = (combatantContext) => {
     const scheme = this.autoTargetSelectionMethod.scheme;
     return AUTO_TARGETING_FUNCTIONS[scheme](combatantContext, this);
   };
@@ -235,6 +241,11 @@ export abstract class CombatActionComponent {
     this.getParent = config.getParent;
     this.getFirstResolutionStep = (combatantContext, tracker) =>
       config.getFirstResolutionStep(combatantContext, tracker, this);
+    const { getAutoTarget } = config;
+    if (getAutoTarget) {
+      this.getAutoTarget = (combatantContext, trackerOption) =>
+        getAutoTarget(combatantContext, trackerOption, this);
+    }
   }
 }
 

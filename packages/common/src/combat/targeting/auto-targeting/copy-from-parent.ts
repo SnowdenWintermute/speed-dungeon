@@ -6,6 +6,6 @@ export function copyTargetFromParent(
   combatAction: CombatActionComponent
 ) {
   const parent = combatAction.getParent();
-  if (parent) return parent.getAutoTarget(combatantContext);
+  if (parent) return parent.getAutoTarget(combatantContext, null);
   return null;
 }

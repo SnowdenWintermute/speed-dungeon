@@ -13,6 +13,16 @@ export enum GameUpdateCommandType {
   MobileVfx,
 }
 
+export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, string> = {
+  [GameUpdateCommandType.CombatantAnimation]: "CombatantAnimation",
+  [GameUpdateCommandType.CombatantMovement]: "CombatantMovement",
+  [GameUpdateCommandType.ResourcesPaid]: "ResourcesPaid",
+  [GameUpdateCommandType.ActivatedTriggers]: "ActivatedTriggers",
+  [GameUpdateCommandType.HitOutcomes]: "HitOutcomes",
+  [GameUpdateCommandType.StaticVfx]: "StaticVfx",
+  [GameUpdateCommandType.MobileVfx]: "MobileVfx",
+};
+
 export type CombatantMovementGameUpdateCommand = {
   type: GameUpdateCommandType.CombatantMovement;
   completionOrderId: null | number;

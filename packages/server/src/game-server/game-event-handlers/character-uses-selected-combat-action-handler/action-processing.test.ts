@@ -1,6 +1,5 @@
 import { jest } from "@jest/globals";
 import {
-  COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatActionName,
   CombatActionTarget,
@@ -8,8 +7,8 @@ import {
   IdGenerator,
   Replayer,
 } from "@speed-dungeon/common";
-import { processCombatAction } from "./sequential-action-execution-manager";
-import { setUpTestGameWithPartyInBattle } from "../../utils/testing";
+import { processCombatAction } from "./process-combat-action.js";
+import { setUpTestGameWithPartyInBattle } from "../../utils/testing/index.js";
 
 describe("action processing", () => {
   const testId = Date.now().toString();
