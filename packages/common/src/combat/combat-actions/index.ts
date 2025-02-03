@@ -80,9 +80,10 @@ export interface CombatActionComponentConfig {
   getParent: () => CombatActionComponent | null;
   getFirstResolutionStep: (
     combatantContext: CombatantContext,
-    actionExecutionTracker: ActionExecutionTracker,
+    actionExecutionIntent: CombatActionExecutionIntent,
+    previousTrackerOption: null | ActionExecutionTracker,
     self: CombatActionComponent
-  ) => Error | ActionResolutionStep;
+  ) => Error | null | ActionResolutionStep;
   getAutoTarget?: (
     combatantContext: CombatantContext,
     actionTrackerOption: null | ActionExecutionTracker,
@@ -175,8 +176,9 @@ export abstract class CombatActionComponent {
     () => [];
   getFirstResolutionStep: (
     combatantContext: CombatantContext,
-    actionExecutionTracker: ActionExecutionTracker
-  ) => Error | ActionResolutionStep;
+    actionExecutionIntent: CombatActionExecutionIntent,
+    previousTrackerOption: null | ActionExecutionTracker
+  ) => Error | null | ActionResolutionStep;
   getParent: () => CombatActionComponent | null;
   addChild: (childAction: CombatActionComponent) => Error | void = () =>
     new Error("Can't add a child to this component");
@@ -239,8 +241,8 @@ export abstract class CombatActionComponent {
     if (config.getConcurrentSubActions)
       this.getConcurrentSubActions = config.getConcurrentSubActions;
     this.getParent = config.getParent;
-    this.getFirstResolutionStep = (combatantContext, tracker) =>
-      config.getFirstResolutionStep(combatantContext, tracker, this);
+    this.getFirstResolutionStep = (combatantContext, actionExecutionIntent, tracker) =>
+      config.getFirstResolutionStep(combatantContext, actionExecutionIntent, tracker, this);
     const { getAutoTarget } = config;
     if (getAutoTarget) {
       this.getAutoTarget = (combatantContext, trackerOption) =>

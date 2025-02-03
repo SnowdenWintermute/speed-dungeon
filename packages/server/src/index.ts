@@ -60,7 +60,7 @@ const listening = expressApp.listen(PORT, async () => {
   // console.log(JSON.stringify(combatantPositions, null, 2));
 
   const result = processCombatAction(
-    new CombatActionExecutionIntent(CombatActionName.ChainingSplitArrowParent, targets),
+    new CombatActionExecutionIntent(CombatActionName.Attack, targets),
     combatantContext
   );
   Replayer.printReplayTree(result);

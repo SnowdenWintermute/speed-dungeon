@@ -15,14 +15,10 @@ export class ActionExecutionTracker {
     private timeStarted: Milliseconds,
     combatantContext: CombatantContext,
     public replayNode: ReplayEventNode,
-    public sequentialActionManagerId: EntityId
+    public sequentialActionManagerId: EntityId,
+    firstStep: ActionResolutionStep
   ) {
-    const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
-    // in the case of sub-actions, we'll start with spawning the projectiles or vfx
-    // otherwise start with the combatant moving
-    const firstStepResult = action.getFirstResolutionStep(combatantContext, this);
-    if (firstStepResult instanceof Error) throw firstStepResult;
-    this.currentStep = firstStepResult;
+    this.currentStep = firstStep;
   }
 
   setPreviousTrackerInSequence(tracker: ActionExecutionTracker) {
@@ -33,7 +29,7 @@ export class ActionExecutionTracker {
   }
 
   storeCompletedStep() {
-    this.completedSteps.push(this.currentStep);
+    if (this.currentStep) this.completedSteps.push(this.currentStep);
   }
   getCompletedSteps() {
     return this.completedSteps;

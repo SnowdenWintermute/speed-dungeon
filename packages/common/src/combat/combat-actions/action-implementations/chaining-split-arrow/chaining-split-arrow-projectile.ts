@@ -123,17 +123,18 @@ const config: CombatActionComponentConfig = {
     };
     return target;
   },
-  getFirstResolutionStep(combatantContext, tracker, self) {
-    const targetResult = self.getAutoTarget(combatantContext, tracker);
+  getFirstResolutionStep(
+    combatantContext,
+    actionExecutionIntent,
+    previousTrackerInSequenceOption,
+    self
+  ) {
+    if (!previousTrackerInSequenceOption)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.MISSING_EXPECTED_ACTION_IN_CHAIN);
+    const targetResult = self.getAutoTarget(combatantContext, previousTrackerInSequenceOption);
     if (targetResult instanceof Error) return targetResult;
     if (targetResult === null)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TARGETS_SELECTED);
-
-    const actionExecutionIntent = new CombatActionExecutionIntent(self.name, targetResult);
-
-    const previousTrackerInSequenceOption = tracker.getPreviousTrackerInSequenceOption();
-    if (!previousTrackerInSequenceOption)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.MISSING_EXPECTED_ACTION_IN_CHAIN);
 
     const filteredPossibleTargetIds = getBouncableTargets(
       combatantContext,

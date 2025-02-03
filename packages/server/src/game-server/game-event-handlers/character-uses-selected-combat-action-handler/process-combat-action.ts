@@ -39,7 +39,8 @@ export function processCombatAction(
 
       if (manager.isDoneProcessing() || manager.isCurrentlyProcessing()) continue;
 
-      const tracker = manager.startProcessingNext(actionStepIdGenerator, time);
+      const trackerResult = manager.startProcessingNext(actionStepIdGenerator, time);
+      // if(trackerResult instanceof Error)
 
       actionExecutionTrackerRegistry.registerTracker(tracker);
     }

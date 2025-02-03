@@ -26,9 +26,6 @@ import { getCombatActionTargetIds } from "../../../action-results/get-action-tar
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
-import { CombatantContext } from "../../../../combatant-context/index.js";
-import { ActionExecutionTracker } from "../../../../action-processing/action-execution-tracker.js";
-import { ActionResolutionStep } from "../../../../action-processing/index.js";
 import { MELEE_ATTACK_COMMON_CONFIG } from "./melee-attack-common-config.js";
 import { getStandardActionCritChance } from "../../action-calculation-utils/standard-action-calculations.js";
 
@@ -121,11 +118,7 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => ATTACK,
-  getFirstResolutionStep: function (
-    combatantContext: CombatantContext,
-    actionExecutionTracker: ActionExecutionTracker,
-    self: CombatActionComponent
-  ): ActionResolutionStep {
+  getFirstResolutionStep() {
     throw new Error("Function not implemented.");
   },
 };

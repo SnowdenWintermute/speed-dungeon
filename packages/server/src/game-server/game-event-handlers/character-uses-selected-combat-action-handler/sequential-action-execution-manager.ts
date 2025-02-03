@@ -1,6 +1,5 @@
 import {
   ActionExecutionTracker,
-  COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   Milliseconds,
   ReplayEventNode,
@@ -8,6 +7,7 @@ import {
   CombatantContext,
   COMBAT_ACTION_NAME_STRINGS,
   ERROR_MESSAGES,
+  COMBAT_ACTIONS,
 } from "@speed-dungeon/common";
 import { SequentialActionExecutionManagerRegistry } from "./sequential-action-manager-registry.js";
 
@@ -89,10 +89,10 @@ export class SequentialActionExecutionManager {
   startProcessingNext(
     idGenerator: SequentialIdGenerator,
     time: { ms: Milliseconds }
-  ): ActionExecutionTracker {
+  ): Error | null | ActionExecutionTracker {
     const nextActionExecutionIntentOption = this.remainingActionsToExecute.pop();
     if (!nextActionExecutionIntentOption)
-      throw new Error("Tried to process next action but there wasn't one");
+      return new Error("Tried to process next action but there wasn't one");
     const { actionName, targets } = nextActionExecutionIntentOption;
 
     console.log(
@@ -108,6 +108,17 @@ export class SequentialActionExecutionManager {
       previousTrackerOption = this.completedTrackers[this.completedTrackers.length - 1];
     }
 
+    const action = COMBAT_ACTIONS[actionName];
+    // in the case of sub-actions, we'll start with spawning the projectiles or vfx
+    // otherwise start with the combatant moving
+    const firstStepResult = action.getFirstResolutionStep(
+      this.combatantContext,
+      nextActionExecutionIntentOption,
+      previousTrackerOption || null
+    );
+    if (firstStepResult instanceof Error) return firstStepResult;
+    if (firstStepResult === null) return null;
+
     const tracker = new ActionExecutionTracker(
       idGenerator.getNextId(),
       nextActionExecutionIntentOption,
@@ -115,7 +126,8 @@ export class SequentialActionExecutionManager {
       time.ms,
       this.combatantContext,
       this.replayNode,
-      this.id
+      this.id,
+      firstStepResult
     );
 
     if (previousTrackerOption) tracker.setPreviousTrackerInSequence(previousTrackerOption);

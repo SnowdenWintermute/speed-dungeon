@@ -72,11 +72,13 @@ const config: CombatActionComponentConfig = {
   getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
     throw new Error("Function not implemented.");
   },
-  getFirstResolutionStep(combatantContext, tracker, self) {
-    const step = new PreUsePositioningActionResolutionStep(
-      combatantContext,
-      tracker.actionExecutionIntent
-    );
+  getFirstResolutionStep(
+    combatantContext,
+    actionExecutionIntent,
+    previousTrackerInSequenceOption,
+    self
+  ) {
+    const step = new PreUsePositioningActionResolutionStep(combatantContext, actionExecutionIntent);
     const destination = Vector3.Zero();
     step.setDestination(destination);
     return step;
