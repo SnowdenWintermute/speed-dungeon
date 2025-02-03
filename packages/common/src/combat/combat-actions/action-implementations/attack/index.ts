@@ -7,11 +7,7 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import {
-  Combatant,
-  CombatantEquipment,
-  CombatantProperties,
-} from "../../../../combatants/index.js";
+import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ActionAccuracy } from "../../combat-action-accuracy.js";

@@ -4,16 +4,16 @@ import {
   ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
-import { CombatantAssociatedData } from "../../types.js";
 import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Milliseconds } from "../../primatives/index.js";
 import { PayResourceCostsActionResolutionStep } from "./pay-resource-costs.js";
+import { CombatantContext } from "../../combatant-context/index.js";
 
 export class StartUseAnimationActionResolutionStep extends ActionResolutionStep {
   duration: Milliseconds;
   constructor(
-    private combatantContext: CombatantAssociatedData,
+    private combatantContext: CombatantContext,
     private actionExecutionIntent: CombatActionExecutionIntent,
     private destinationOption: null | Vector3
   ) {

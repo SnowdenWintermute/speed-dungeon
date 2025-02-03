@@ -1,9 +1,12 @@
 import { jest } from "@jest/globals";
 import {
   COMBAT_ACTIONS,
+  CombatActionExecutionIntent,
   CombatActionName,
+  CombatActionTarget,
   CombatActionTargetType,
   IdGenerator,
+  Replayer,
 } from "@speed-dungeon/common";
 import { processCombatAction } from "./sequential-action-execution-manager";
 import { setUpTestGameWithPartyInBattle } from "../../utils/testing";
@@ -44,15 +47,17 @@ describe("action processing", () => {
     const firstOpponentOption = opponents[0];
     if (!firstOpponentOption) throw new Error("no targets");
 
-    combatant.combatantProperties.combatActionTarget = {
+    const targets: CombatActionTarget = {
       type: CombatActionTargetType.Single,
       targetId: firstOpponentOption.entityProperties.id,
     };
+    combatant.combatantProperties.combatActionTarget = targets;
     // console.log(JSON.stringify(combatantPositions, null, 2));
 
     const result = processCombatAction(
-      COMBAT_ACTIONS[CombatActionName.ChainingSplitArrowParent],
+      new CombatActionExecutionIntent(CombatActionName.ChainingSplitArrowParent, targets),
       combatantContext
     );
+    Replayer.printReplayTree(result);
   });
 });

@@ -57,15 +57,15 @@ const config: CombatActionComponentConfig = {
     throw new Error("Function not implemented.");
   },
   getChildren: (combatantContext, tracker) => {
-    let cursor = tracker.previousTrackerInSequenceOption;
+    let cursor = tracker.getPreviousTrackerInSequenceOption();
     let numBouncesSoFar = 0;
     while (cursor) {
       if (cursor.actionExecutionIntent.actionName === CombatActionName.ChainingSplitArrowProjectile)
         numBouncesSoFar += 1;
-      cursor = cursor.previousTrackerInSequenceOption;
+      cursor = cursor.getPreviousTrackerInSequenceOption();
     }
 
-    const { previousTrackerInSequenceOption } = tracker;
+    const previousTrackerInSequenceOption = tracker.getPreviousTrackerInSequenceOption();
     if (!previousTrackerInSequenceOption) return [];
 
     const filteredPossibleTargetIdsResult = getBouncableTargets(
@@ -97,7 +97,7 @@ const config: CombatActionComponentConfig = {
     throw new Error("Function not implemented.");
   },
   getFirstResolutionStep(combatantContext, tracker, self) {
-    const { previousTrackerInSequenceOption } = tracker;
+    const previousTrackerInSequenceOption = tracker.getPreviousTrackerInSequenceOption();
     if (!previousTrackerInSequenceOption)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.MISSING_EXPECTED_ACTION_IN_CHAIN);
 

@@ -76,7 +76,7 @@ export interface CombatActionComponentConfig {
     combatantContext: CombatantContext,
     tracker: ActionExecutionTracker
   ) => CombatActionComponent[];
-  getConcurrentSubActions?: (combatantContext: CombatantContext) => CombatActionComponent[];
+  getConcurrentSubActions?: (combatantContext: CombatantContext) => CombatActionExecutionIntent[];
   getParent: () => CombatActionComponent | null;
   getFirstResolutionStep: (
     combatantContext: CombatantContext,
@@ -166,7 +166,7 @@ export abstract class CombatActionComponent {
     combatantContext: CombatantContext,
     tracker: ActionExecutionTracker
   ) => CombatActionComponent[];
-  getConcurrentSubActions: (combatantContext: CombatantContext) => CombatActionComponent[] =
+  getConcurrentSubActions: (combatantContext: CombatantContext) => CombatActionExecutionIntent[] =
     () => [];
   getFirstResolutionStep: (
     combatantContext: CombatantContext,

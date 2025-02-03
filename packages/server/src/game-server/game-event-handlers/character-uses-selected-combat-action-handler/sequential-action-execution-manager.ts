@@ -9,8 +9,12 @@ import {
   CombatantContext,
   COMBAT_ACTION_NAME_STRINGS,
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  EntityId,
+  ERROR_MESSAGES,
+  CombatActionTarget,
 } from "@speed-dungeon/common";
 import { idGenerator } from "../../../singletons.js";
+import { number } from "zod";
 
 class SequentialActionExecutionManagerRegistry {
   private actionManagers: { [id: string]: SequentialActionExecutionManager } = {};
@@ -22,20 +26,23 @@ class SequentialActionExecutionManagerRegistry {
     return !this.isEmpty();
   }
   registerAction(
-    action: CombatActionComponent,
+    actionExecutionIntent: CombatActionExecutionIntent,
     replayNode: ReplayEventNode,
     combatantContext: CombatantContext
   ) {
     const id = idGenerator.generate();
     const manager = new SequentialActionExecutionManager(
       id,
-      action,
+      actionExecutionIntent,
       replayNode,
       combatantContext,
       this
     );
     this.actionManagers[id] = manager;
     return manager;
+  }
+  getManager(id: EntityId) {
+    return this.actionManagers[id];
   }
   unRegisterAction(id: string) {
     delete this.actionManagers[id];
@@ -46,21 +53,27 @@ class SequentialActionExecutionManagerRegistry {
 }
 
 export class SequentialActionExecutionManager {
-  private remainingActionsToExecute: CombatActionComponent[];
-  private actionInProgress: null | CombatActionComponent = null;
+  private remainingActionsToExecute: CombatActionExecutionIntent[];
+  private actionInProgress: null | CombatActionExecutionIntent = null;
   private currentTracker: null | ActionExecutionTracker = null;
+  private completedTrackers: ActionExecutionTracker[] = [];
   constructor(
     public id: string,
-    action: CombatActionComponent,
+    actionExecutionIntent: CombatActionExecutionIntent,
     public replayNode: ReplayEventNode,
     public combatantContext: CombatantContext,
     private sequentialActionManagerRegistry: SequentialActionExecutionManagerRegistry
   ) {
-    this.remainingActionsToExecute = [action];
+    this.remainingActionsToExecute = [actionExecutionIntent];
   }
 
   getCurrentAction() {
     return this.actionInProgress;
+  }
+  clearCurrentAction() {
+    if (this.currentTracker) this.completedTrackers.push(this.currentTracker);
+    console.log("ACTION CLEARED, COMPLETED TRACKERS", this.completedTrackers);
+    this.actionInProgress = null;
   }
 
   isCurrentlyProcessing() {
@@ -74,36 +87,62 @@ export class SequentialActionExecutionManager {
   }
   // action children may depend on the outcome of their parent so we must process their parent first
   populateSelfWithCurrentActionChildren() {
-    const currentAction = this.actionInProgress;
-    if (!currentAction || !this.currentTracker) return;
-    const children = currentAction.getChildren(this.combatantContext, this.currentTracker);
-    this.remainingActionsToExecute.push(...children);
+    const currentActionExecutionIntent = this.actionInProgress;
+    if (!currentActionExecutionIntent || !this.currentTracker) return;
+    const currentAction = COMBAT_ACTIONS[currentActionExecutionIntent.actionName];
+    const childActionIntentResults = currentAction
+      .getChildren(this.combatantContext, this.currentTracker)
+      .map((action) => {
+        return { actionName: action.name, targets: action.getAutoTarget(this.combatantContext) };
+      });
+
+    const childActionIntents: CombatActionExecutionIntent[] = [];
+    for (const intentResult of childActionIntentResults) {
+      const targetsResult = intentResult.targets;
+      if (targetsResult instanceof Error) {
+        console.error(intentResult.targets);
+        continue;
+      }
+      if (targetsResult === null) {
+        console.error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TARGETS_SELECTED);
+        continue;
+      }
+
+      childActionIntents.push(
+        new CombatActionExecutionIntent(intentResult.actionName, targetsResult)
+      );
+    }
+
+    this.remainingActionsToExecute.push(...childActionIntents);
   }
 
   startProcessingNext(
     idGenerator: SequentialIdGenerator,
     time: { ms: Milliseconds }
   ): ActionExecutionTracker {
-    const nextActionOption = this.remainingActionsToExecute.pop();
+    const nextActionExecutionIntentOption = this.remainingActionsToExecute.pop();
+    if (!nextActionExecutionIntentOption)
+      throw new Error("Tried to process next action but there wasn't one");
+    const { actionName, targets } = nextActionExecutionIntentOption;
     console.log(
-      "next action option: ",
-      nextActionOption?.name ? COMBAT_ACTION_NAME_STRINGS[nextActionOption.name] : "null"
+      `next action option: ${actionName ? COMBAT_ACTION_NAME_STRINGS[actionName] : "null"}`
     );
-    if (!nextActionOption) throw new Error("Tried to process next action but there wasn't one");
 
-    this.actionInProgress = nextActionOption;
-    const targets = nextActionOption.getAutoTarget(this.combatantContext);
-    if (targets instanceof Error) throw targets;
-    if (!targets) throw new Error("Auto target returned null");
+    this.actionInProgress = nextActionExecutionIntentOption;
+    console.log("COMPLETED TRACKERS: ", this.completedTrackers);
+    const previousTrackerOption = this.completedTrackers[this.completedTrackers.length - 1];
 
     const tracker = new ActionExecutionTracker(
       idGenerator.getNextId(),
-      new CombatActionExecutionIntent(nextActionOption.name, targets),
+      nextActionExecutionIntentOption,
       this.currentTracker,
       time.ms,
       this.combatantContext,
-      this.replayNode
+      this.replayNode,
+      this.id
     );
+
+    if (previousTrackerOption) tracker.setPreviousTrackerInSequence(previousTrackerOption);
 
     this.currentTracker = tracker;
 
@@ -153,12 +192,16 @@ class ActionExecutionTrackerRegistry {
 }
 
 export function processCombatAction(
-  action: CombatActionComponent,
+  actionExecutionIntent: CombatActionExecutionIntent,
   combatantContext: CombatantContext
 ) {
   const sequentialActionManagerRegistry = new SequentialActionExecutionManagerRegistry();
   const rootReplayNode = new ReplayEventNode();
-  sequentialActionManagerRegistry.registerAction(action, rootReplayNode, combatantContext);
+  sequentialActionManagerRegistry.registerAction(
+    actionExecutionIntent,
+    rootReplayNode,
+    combatantContext
+  );
   const actionExecutionTrackerRegistry = new ActionExecutionTrackerRegistry();
 
   const time = { ms: 0 };
@@ -167,7 +210,7 @@ export function processCombatAction(
 
   console.log(sequentialActionManagerRegistry.getManagers());
 
-  let looplimit = 10;
+  let looplimit = 30;
   let currloop = 0;
 
   while (
@@ -175,12 +218,12 @@ export function processCombatAction(
     currloop < looplimit
   ) {
     currloop++;
-    console.log("curr loop outer: ", currloop);
+    console.log("curr loop outer: ", currloop, looplimit);
     console.log(
       "sequential action managers ",
       sequentialActionManagerRegistry.getManagers().map(([id, manager]) => {
         const actionOption = manager.getCurrentAction();
-        if (actionOption) return COMBAT_ACTION_NAME_STRINGS[actionOption.name];
+        if (actionOption) return COMBAT_ACTION_NAME_STRINGS[actionOption.actionName];
         else return null;
       })
     );
@@ -220,19 +263,18 @@ export function processCombatAction(
 
       // process all instantly processable steps
 
-      let looplimit = 10;
+      let looplimit = 30;
       let currloop = 0;
       while (tracker.currentStep.isComplete() && currloop < looplimit) {
         const { nextStepOption, branchingActions } = tracker.currentStep.finalize(
           completionOrderIdGenerator.getNextIdNumeric()
         );
         currloop += 1;
-        console.log("currloop: ", currloop);
+        console.log("currloop: ", currloop, looplimit);
 
         tracker.storeCompletedStep();
 
         for (const { user, actionExecutionIntent } of branchingActions) {
-          const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
           const nestedReplayNode = new ReplayEventNode();
           tracker.replayNode.events.push(nestedReplayNode);
 
@@ -243,7 +285,7 @@ export function processCombatAction(
             user
           );
           sequentialActionManagerRegistry.registerAction(
-            action,
+            actionExecutionIntent,
             nestedReplayNode,
             nestedCombatantContext
           );
@@ -251,6 +293,10 @@ export function processCombatAction(
 
         if (nextStepOption === null) {
           actionExecutionTrackerRegistry.unRegisterTracker(tracker.id);
+          const actionManagerOption = sequentialActionManagerRegistry.getManager(
+            tracker.sequentialActionManagerId
+          );
+          if (actionManagerOption) actionManagerOption.clearCurrentAction();
           console.log("UNREGISTERED");
           break;
         } else {
@@ -261,4 +307,6 @@ export function processCombatAction(
       }
     }
   }
+
+  return rootReplayNode;
 }

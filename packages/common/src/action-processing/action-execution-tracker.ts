@@ -1,4 +1,4 @@
-import { Milliseconds } from "../primatives/index.js";
+import { EntityId, Milliseconds } from "../primatives/index.js";
 import { ActionResolutionStep } from "./action-steps/index.js";
 import { ReplayEventNode } from "./replay-events.js";
 import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
@@ -11,10 +11,11 @@ export class ActionExecutionTracker {
   constructor(
     public id: string,
     public readonly actionExecutionIntent: CombatActionExecutionIntent,
-    public readonly previousTrackerInSequenceOption: null | ActionExecutionTracker,
+    private previousTrackerInSequenceOption: null | ActionExecutionTracker,
     private timeStarted: Milliseconds,
     combatantContext: CombatantContext,
-    public replayNode: ReplayEventNode
+    public replayNode: ReplayEventNode,
+    public sequentialActionManagerId: EntityId
   ) {
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
     // in the case of sub-actions, we'll start with spawning the projectiles or vfx
@@ -23,6 +24,13 @@ export class ActionExecutionTracker {
     const firstStepResult = action.getFirstResolutionStep(combatantContext, this);
     if (firstStepResult instanceof Error) throw firstStepResult;
     this.currentStep = firstStepResult;
+  }
+
+  setPreviousTrackerInSequence(tracker: ActionExecutionTracker) {
+    this.previousTrackerInSequenceOption = tracker;
+  }
+  getPreviousTrackerInSequenceOption() {
+    return this.previousTrackerInSequenceOption;
   }
 
   storeCompletedStep() {

@@ -3,14 +3,14 @@ import {
   ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
-import { CombatantAssociatedData } from "../../types.js";
 import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { EvalOnUseTriggersActionResolutionStep } from "./evaluate-on-use-triggers.js";
+import { CombatantContext } from "../../combatant-context/index.js";
 
 export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
   constructor(
-    private combatantContext: CombatantAssociatedData,
+    private combatantContext: CombatantContext,
     private actionExecutionIntent: CombatActionExecutionIntent
   ) {
     // @TODO - calculate the actual costs paid

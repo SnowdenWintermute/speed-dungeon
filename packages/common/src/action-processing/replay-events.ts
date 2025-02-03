@@ -34,4 +34,15 @@ export class Replayer {
 
     this.nodesExecuting = this.nodesExecuting.filter(({ id, node }) => node.events.length === 0);
   }
+
+  static printReplayTree(root: ReplayEventNode) {
+    for (const node of root.events) {
+      if (node instanceof ReplayEventNode) {
+        console.log("BRANCH");
+        this.printReplayTree(node);
+      } else {
+        console.log(node);
+      }
+    }
+  }
 }

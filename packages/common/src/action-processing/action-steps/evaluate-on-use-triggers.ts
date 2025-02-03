@@ -3,14 +3,14 @@ import {
   ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
-import { CombatantAssociatedData } from "../../types.js";
-import { CombatActionExecutionIntent } from "../../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
+import { CombatantContext } from "../../combatant-context/index.js";
 
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
   constructor(
-    private combatantContext: CombatantAssociatedData,
+    private combatantContext: CombatantContext,
     private actionExecutionIntent: CombatActionExecutionIntent
   ) {
     // counterspells
@@ -27,13 +27,21 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
   isComplete = () => true;
 
   onComplete(): ActionResolutionStepResult {
-    // @TODO - set any sub actions to the branchingActions list
+    // set any sub actions to the branchingActions list
+    const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
+    const subActions = action.getConcurrentSubActions(this.combatantContext);
+    const branchingActions = subActions.map((actionExecutionIntent) => {
+      return {
+        user: this.combatantContext.combatant,
+        actionExecutionIntent,
+      };
+    });
     // @TODO - collect all triggered actions and add to branchingActions list
     // @TODO - determine next step based on action type:
     // ex: if countered, skip the rollIncomingHitOutcomes step and go to postUseAnimation with a countered animation
     // and push a GameUpdateCommand with the counter animation for the countering combatant
     return {
-      branchingActions: [], // split arrow, split arrow, split arrow
+      branchingActions, // split arrow, split arrow, split arrow
       // in case of subActions, skip to post use animation
       nextStepOption: new RollIncomingHitOutcomesActionResolutionStep(
         this.combatantContext,
