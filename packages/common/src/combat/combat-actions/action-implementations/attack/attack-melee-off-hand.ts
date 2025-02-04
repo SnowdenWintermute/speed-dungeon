@@ -26,8 +26,8 @@ import { getCombatActionTargetIds } from "../../../action-results/get-action-tar
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
-import { MELEE_ATTACK_COMMON_CONFIG } from "./melee-attack-common-config.js";
 import { getStandardActionCritChance } from "../../action-calculation-utils/standard-action-calculations.js";
+import { MELEE_ATTACK_COMMON_CONFIG } from "./melee-attack-common-config.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -118,9 +118,6 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => ATTACK,
-  getFirstResolutionStep() {
-    throw new Error("Function not implemented.");
-  },
 };
 
 export const ATTACK_MELEE_OFF_HAND = new CombatActionLeaf(

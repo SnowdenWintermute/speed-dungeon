@@ -9,6 +9,7 @@ import { CombatActionExecutionIntent } from "../../combat/index.js";
 import { EvalOnHitOutcomeTriggersActionResolutionStep } from "./evaluate-hit-outcome-triggers.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
+import { ActionExecutionTracker } from "../action-execution-tracker.js";
 
 export class MobileVfxActionResolutionStep extends ActionResolutionStep {
   private vfxPosition: Vector3;
@@ -18,7 +19,8 @@ export class MobileVfxActionResolutionStep extends ActionResolutionStep {
     private startPosition: Vector3,
     private destination: Vector3,
     private translationDuration: number,
-    vfxName: string
+    vfxName: string,
+    tracker: ActionExecutionTracker
   ) {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.MobileVfx,
@@ -29,7 +31,8 @@ export class MobileVfxActionResolutionStep extends ActionResolutionStep {
       translationDuration,
     };
 
-    super(ActionResolutionStepType.playMobileVfx, gameUpdateCommand);
+    super(ActionResolutionStepType.playMobileVfx, gameUpdateCommand, tracker);
+
     this.vfxPosition = startPosition.clone();
   }
 
@@ -53,16 +56,13 @@ export class MobileVfxActionResolutionStep extends ActionResolutionStep {
     return this.elapsed >= this.translationDuration;
   }
 
-  getGameUpdateCommand(): GameUpdateCommand {
-    return this.gameUpdateCommand;
-  }
-
   onComplete(): ActionResolutionStepResult {
     return {
       branchingActions: [],
       nextStepOption: new RollIncomingHitOutcomesActionResolutionStep(
         this.combatantContext,
-        this.actionExecutionIntent
+        this.actionExecutionIntent,
+        this.tracker
       ),
     };
   }

@@ -1,16 +1,16 @@
-import {
-  ActionExecutionTracker,
-  CombatActionExecutionIntent,
-  CombatantContext,
-  EntityId,
-  ReplayEventNode,
-} from "@speed-dungeon/common";
+import { CombatActionExecutionIntent } from "../combat/index.js";
+import { CombatantContext } from "../combatant-context/index.js";
+import { EntityId } from "../primatives/index.js";
+import { IdGenerator } from "../utility-classes/index.js";
+import { SequentialIdGenerator } from "../utils/index.js";
+import { ActionExecutionTracker } from "./action-execution-tracker.js";
+import { ReplayEventNode } from "./replay-events.js";
 import { SequentialActionExecutionManager } from "./sequential-action-execution-manager.js";
-import { idGenerator } from "../../../singletons.js";
 
 export class SequentialActionExecutionManagerRegistry {
   private actionManagers: { [id: string]: SequentialActionExecutionManager } = {};
-  constructor() {}
+  actionStepIdGenerator = new SequentialIdGenerator();
+  constructor(private idGenerator: IdGenerator) {}
   isEmpty() {
     return !Object.values(this.actionManagers).length;
   }
@@ -23,7 +23,7 @@ export class SequentialActionExecutionManagerRegistry {
     combatantContext: CombatantContext,
     previousTrackerInSequenceOption: null | ActionExecutionTracker
   ) {
-    const id = idGenerator.generate();
+    const id = this.idGenerator.generate();
     const manager = new SequentialActionExecutionManager(
       id,
       actionExecutionIntent,

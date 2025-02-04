@@ -1,29 +1,22 @@
-import { EntityId, Milliseconds } from "../primatives/index.js";
+import { CombatActionExecutionIntent } from "../combat/index.js";
+import { Milliseconds } from "../primatives/index.js";
 import { ActionResolutionStep } from "./action-steps/index.js";
-import { ReplayEventNode } from "./replay-events.js";
-import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
-import { CombatantContext } from "../combatant-context/index.js";
-import { COMBAT_ACTIONS } from "../combat/index.js";
+import { SequentialActionExecutionManager } from "./sequential-action-execution-manager.js";
 
 export class ActionExecutionTracker {
   currentStep: ActionResolutionStep;
   completedSteps: ActionResolutionStep[] = [];
   constructor(
+    public parentActionManager: SequentialActionExecutionManager,
     public id: string,
     public readonly actionExecutionIntent: CombatActionExecutionIntent,
     private previousTrackerInSequenceOption: null | ActionExecutionTracker,
     private timeStarted: Milliseconds,
-    combatantContext: CombatantContext,
-    public replayNode: ReplayEventNode,
-    public sequentialActionManagerId: EntityId,
     firstStep: ActionResolutionStep
   ) {
     this.currentStep = firstStep;
   }
 
-  setPreviousTrackerInSequence(tracker: ActionExecutionTracker) {
-    this.previousTrackerInSequenceOption = tracker;
-  }
   getPreviousTrackerInSequenceOption() {
     return this.previousTrackerInSequenceOption;
   }
@@ -33,5 +26,11 @@ export class ActionExecutionTracker {
   }
   getCompletedSteps() {
     return this.completedSteps;
+  }
+
+  addCurrentStepGameUpdateCommandToReplayNode() {
+    const gameUpdateCommandOptionStarted = this.currentStep.getGameUpdateCommandOption();
+    if (gameUpdateCommandOptionStarted)
+      this.parentActionManager.replayNode.events.push(gameUpdateCommandOptionStarted);
   }
 }

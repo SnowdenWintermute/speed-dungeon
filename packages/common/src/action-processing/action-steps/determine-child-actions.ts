@@ -5,22 +5,16 @@ import {
 } from "./index.js";
 import { CombatantAssociatedData } from "../../types.js";
 import { CombatActionExecutionIntent } from "../../combat/index.js";
-import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
-import { PostUseAnimationActionResolutionStep } from "./post-use-animation.js";
 import { ActionExecutionTracker } from "../action-execution-tracker.js";
 
-export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
+export class DetermineChildActionsActionResolutionStep extends ActionResolutionStep {
   constructor(
     private combatantContext: CombatantAssociatedData,
     private actionExecutionIntent: CombatActionExecutionIntent,
     tracker: ActionExecutionTracker
     // hits, misses, evades, parries, blocks (used for determining triggers as well as user followthrough animation)
   ) {
-    const gameUpdateCommand: GameUpdateCommand = {
-      type: GameUpdateCommandType.ActivatedTriggers,
-      completionOrderId: null,
-    };
-    super(ActionResolutionStepType.evalOnHitOutcomeTriggers, gameUpdateCommand, tracker);
+    super(ActionResolutionStepType.determineChildActions, null, tracker);
   }
 
   protected onTick = () => {};
@@ -30,12 +24,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
   protected onComplete(): ActionResolutionStepResult {
     return {
       branchingActions: [],
-      nextStepOption: new PostUseAnimationActionResolutionStep(
-        this.combatantContext,
-        null,
-        "Sword strike rebound | Sword strike followthrough",
-        this.tracker
-      ),
+      nextStepOption: null,
     };
   }
 }

@@ -7,11 +7,13 @@ import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
 import { CombatantContext } from "../../combatant-context/index.js";
+import { ActionExecutionTracker } from "../action-execution-tracker.js";
 
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
   constructor(
     private combatantContext: CombatantContext,
-    private actionExecutionIntent: CombatActionExecutionIntent
+    private actionExecutionIntent: CombatActionExecutionIntent,
+    tracker: ActionExecutionTracker
   ) {
     // counterspells
     const gameUpdateCommand: GameUpdateCommand = {
@@ -19,7 +21,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
       completionOrderId: null,
     };
 
-    super(ActionResolutionStepType.evalOnUseTriggers, gameUpdateCommand);
+    super(ActionResolutionStepType.evalOnUseTriggers, gameUpdateCommand, tracker);
   }
 
   protected onTick = () => {};
@@ -45,7 +47,8 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
       // in case of subActions, skip to post use animation
       nextStepOption: new RollIncomingHitOutcomesActionResolutionStep(
         this.combatantContext,
-        this.actionExecutionIntent
+        this.actionExecutionIntent,
+        this.tracker
       ),
     };
   }

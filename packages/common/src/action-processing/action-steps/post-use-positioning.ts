@@ -8,6 +8,7 @@ import { CombatantAssociatedData } from "../../types.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Milliseconds } from "../../primatives/index.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
+import { ActionExecutionTracker } from "../action-execution-tracker.js";
 
 export class PostUsePositioningActionResolutionStep extends ActionResolutionStep {
   private destination: Vector3;
@@ -15,7 +16,8 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
   private timeToTranslate: Milliseconds;
   constructor(
     private combatantContext: CombatantAssociatedData,
-    public animationName: string
+    public animationName: string,
+    tracker: ActionExecutionTracker
   ) {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantMovement,
@@ -25,7 +27,7 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
       destination: Vector3.Zero(),
     };
 
-    super(ActionResolutionStepType.postUsePositioning, gameUpdateCommand);
+    super(ActionResolutionStepType.postUsePositioning, gameUpdateCommand, tracker);
 
     const { combatantProperties } = combatantContext.combatant;
     this.originalPosition = combatantProperties.position.clone();
@@ -55,10 +57,6 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
 
   isComplete() {
     return this.elapsed >= this.timeToTranslate;
-  }
-
-  getGameUpdateCommand(): GameUpdateCommand {
-    return this.gameUpdateCommand;
   }
 
   onComplete(): ActionResolutionStepResult {

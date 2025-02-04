@@ -28,8 +28,7 @@ import {
 } from "./action-calculation-utils/action-costs.js";
 import { CombatActionIntent } from "./combat-action-intent.js";
 import { CombatantContext } from "../../combatant-context/index.js";
-import { ActionExecutionTracker } from "../../action-processing/action-execution-tracker.js";
-import { ActionResolutionStep } from "../../action-processing/index.js";
+import { ActionExecutionTracker, ActionResolutionStep } from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 
 export interface CombatActionComponentConfig {
@@ -83,7 +82,7 @@ export interface CombatActionComponentConfig {
     actionExecutionIntent: CombatActionExecutionIntent,
     previousTrackerOption: null | ActionExecutionTracker,
     self: CombatActionComponent
-  ) => Error | null | ActionResolutionStep;
+  ) => Error | ActionResolutionStep;
   getAutoTarget?: (
     combatantContext: CombatantContext,
     actionTrackerOption: null | ActionExecutionTracker,
@@ -178,7 +177,7 @@ export abstract class CombatActionComponent {
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
     previousTrackerOption: null | ActionExecutionTracker
-  ) => Error | null | ActionResolutionStep;
+  ) => Error | ActionResolutionStep;
   getParent: () => CombatActionComponent | null;
   addChild: (childAction: CombatActionComponent) => Error | void = () =>
     new Error("Can't add a child to this component");

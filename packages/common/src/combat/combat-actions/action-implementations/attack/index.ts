@@ -23,7 +23,7 @@ import { ATTACK_MELEE_OFF_HAND } from "./attack-melee-off-hand.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
-import { ActionExecutionTracker } from "../../../../action-processing/action-execution-tracker.js";
+import { DetermineChildActionsActionResolutionStep } from "../../../../action-processing/action-steps/determine-child-actions.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
@@ -93,8 +93,8 @@ const config: CombatActionComponentConfig = {
   getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
     throw new Error("Function not implemented.");
   },
-  getFirstResolutionStep() {
-    return null;
+  getFirstResolutionStep(combatantContext, intent) {
+    return new DetermineChildActionsActionResolutionStep(combatantContext, intent);
   },
 };
 

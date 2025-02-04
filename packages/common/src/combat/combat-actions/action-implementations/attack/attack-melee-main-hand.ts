@@ -1,5 +1,4 @@
 import {
-  CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -73,9 +72,6 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => ATTACK,
-  getFirstResolutionStep() {
-    throw new Error("Function not implemented.");
-  },
 };
 
 export const ATTACK_MELEE_MAIN_HAND = new CombatActionLeaf(

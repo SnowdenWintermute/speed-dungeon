@@ -6,6 +6,7 @@ import {
   CombatActionName,
   CombatActionTarget,
   CombatActionTargetType,
+  FriendOrFoe,
   Replayer,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
@@ -56,6 +57,10 @@ const listening = expressApp.listen(PORT, async () => {
     type: CombatActionTargetType.Single,
     targetId: firstOpponentOption.entityProperties.id,
   };
+  // const targets: CombatActionTarget = {
+  //   type: CombatActionTargetType.Group,
+  //   friendOrFoe: FriendOrFoe.Hostile
+  // };
   combatant.combatantProperties.combatActionTarget = targets;
   // console.log(JSON.stringify(combatantPositions, null, 2));
 
@@ -63,5 +68,9 @@ const listening = expressApp.listen(PORT, async () => {
     new CombatActionExecutionIntent(CombatActionName.Attack, targets),
     combatantContext
   );
-  Replayer.printReplayTree(result);
+  if (result instanceof Error) console.error(result);
+  else {
+    console.log("REPLAY TREE: ");
+    Replayer.printReplayTree(result);
+  }
 });

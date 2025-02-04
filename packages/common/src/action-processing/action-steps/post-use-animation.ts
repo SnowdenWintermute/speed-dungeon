@@ -8,24 +8,28 @@ import { CombatantAssociatedData } from "../../types.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Milliseconds } from "../../primatives/index.js";
 import { PostUsePositioningActionResolutionStep } from "./post-use-positioning.js";
+import { CombatActionName } from "../../combat/index.js";
+import { ActionExecutionTracker } from "../action-execution-tracker.js";
 
 export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
   duration: Milliseconds;
   constructor(
     private combatantContext: CombatantAssociatedData,
     private destinationOption: null | Vector3,
-    private animationName: string
+    private animationName: string,
+    tracker: ActionExecutionTracker
   ) {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantAnimation,
       completionOrderId: null,
-      animationName: "Bow shot recovery",
+      animationName:
+        "Bow shot recovery | Holdable swing recovery | Holdable swing bounced recovery",
       combatantId: combatantContext.combatant.entityProperties.id,
       destination: Vector3.Zero(),
       duration: 1000,
     };
 
-    super(ActionResolutionStepType.postUseAnimation, gameUpdateCommand);
+    super(ActionResolutionStepType.postUseAnimation, gameUpdateCommand, tracker);
 
     // @TODO -calculate duration based distance to destination dictated by action and target
     this.duration = 1000;
@@ -47,9 +51,15 @@ export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
   }
 
   onComplete(): ActionResolutionStepResult {
+    // @TODO - check if should run back otherwise return null for the next step
+    // need to know the next action in the sequence
     return {
       branchingActions: [],
-      nextStepOption: new PostUsePositioningActionResolutionStep(this.combatantContext, "Run back"),
+      nextStepOption: new PostUsePositioningActionResolutionStep(
+        this.combatantContext,
+        "Run back",
+        this.tracker
+      ),
     };
   }
 }

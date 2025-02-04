@@ -7,11 +7,13 @@ import { CombatantAssociatedData } from "../../types.js";
 import { CombatActionExecutionIntent } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { EvalOnHitOutcomeTriggersActionResolutionStep } from "./evaluate-hit-outcome-triggers.js";
+import { ActionExecutionTracker } from "../action-execution-tracker.js";
 
 export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutionStep {
   constructor(
     private combatantContext: CombatantAssociatedData,
-    private actionExecutionIntent: CombatActionExecutionIntent
+    private actionExecutionIntent: CombatActionExecutionIntent,
+    tracker: ActionExecutionTracker
   ) {
     // @TODO - calculate hits, evades, parries, blocks, hp/mp/shard/durability changes to apply
     // and pass them to the next step for triggers and filtering
@@ -21,7 +23,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
       actionName: actionExecutionIntent.actionName,
       // hits, misses, evades, parries, blocks
     };
-    super(ActionResolutionStepType.payResourceCosts, gameUpdateCommand);
+    super(ActionResolutionStepType.payResourceCosts, gameUpdateCommand, tracker);
   }
 
   protected onTick = () => {};
@@ -33,7 +35,8 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
       branchingActions: [],
       nextStepOption: new EvalOnHitOutcomeTriggersActionResolutionStep(
         this.combatantContext,
-        this.actionExecutionIntent
+        this.actionExecutionIntent,
+        this.tracker
       ),
     };
   }

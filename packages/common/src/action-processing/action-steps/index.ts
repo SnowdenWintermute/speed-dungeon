@@ -4,6 +4,7 @@ import { CombatActionComponent } from "../../combat/index.js";
 import { ReplayEventNode } from "../replay-events.js";
 import { GameUpdateCommand } from "../game-update-commands.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
+import { ActionExecutionTracker } from "../action-execution-tracker.js";
 
 export interface ActionExecuting {
   timeStarted: Milliseconds;
@@ -13,6 +14,7 @@ export interface ActionExecuting {
 }
 
 export enum ActionResolutionStepType {
+  determineChildActions,
   preUsePositioning,
   startUseAnimation,
   payResourceCosts,
@@ -26,6 +28,7 @@ export enum ActionResolutionStepType {
 }
 
 export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepType, string> = {
+  [ActionResolutionStepType.determineChildActions]: "determineChildActions",
   [ActionResolutionStepType.preUsePositioning]: "preUsePositioning",
   [ActionResolutionStepType.startUseAnimation]: "startUseAnimation",
   [ActionResolutionStepType.payResourceCosts]: "payResourceCosts",
@@ -47,7 +50,8 @@ export abstract class ActionResolutionStep {
   protected elapsed: Milliseconds = 0;
   constructor(
     public readonly type: ActionResolutionStepType,
-    protected gameUpdateCommand: GameUpdateCommand
+    protected gameUpdateCommandOption: null | GameUpdateCommand,
+    protected tracker: ActionExecutionTracker
   ) {}
 
   tick(ms: Milliseconds) {
@@ -63,11 +67,12 @@ export abstract class ActionResolutionStep {
 
   /**Mark the gameUpdateCommand's completionOrderId and get branching actions and next step*/
   finalize(completionOrderId: number): ActionResolutionStepResult {
-    this.gameUpdateCommand.completionOrderId = completionOrderId;
+    if (this.gameUpdateCommandOption)
+      this.gameUpdateCommandOption.completionOrderId = completionOrderId;
     return this.onComplete();
   }
 
-  getGameUpdateCommand(): GameUpdateCommand {
-    return this.gameUpdateCommand;
+  getGameUpdateCommandOption(): null | GameUpdateCommand {
+    return this.gameUpdateCommandOption;
   }
 }

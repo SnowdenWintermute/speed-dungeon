@@ -10,6 +10,7 @@ import { StartUseAnimationActionResolutionStep } from "./start-use-animation.js"
 import { CombatantContext } from "../../combatant-context/index.js";
 import { Milliseconds } from "../../primatives/index.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
+import { ActionExecutionTracker } from "../action-execution-tracker.js";
 
 export class PreUsePositioningActionResolutionStep extends ActionResolutionStep {
   private destination: Vector3;
@@ -17,7 +18,8 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
   private timeToTranslate: Milliseconds;
   constructor(
     private combatantContext: CombatantContext,
-    private actionExecutionIntent: CombatActionExecutionIntent
+    private actionExecutionIntent: CombatActionExecutionIntent,
+    tracker: ActionExecutionTracker
   ) {
     /**Here we create and set the internal reference to the associated game update command, as well as
      * apply updates to game state for instantly processed steps*/
@@ -29,7 +31,7 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
       destination: Vector3.Zero(),
     };
 
-    super(ActionResolutionStepType.preUsePositioning, gameUpdateCommand);
+    super(ActionResolutionStepType.preUsePositioning, gameUpdateCommand, tracker);
 
     this.originalPosition = combatantContext.combatant.combatantProperties.position.clone();
     // @TODO - calculate destination based on action
@@ -64,17 +66,14 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
     return this.elapsed >= this.timeToTranslate;
   }
 
-  getGameUpdateCommand(): GameUpdateCommand {
-    return this.gameUpdateCommand;
-  }
-
   onComplete(): ActionResolutionStepResult {
     return {
       branchingActions: [],
       nextStepOption: new StartUseAnimationActionResolutionStep(
         this.combatantContext,
         this.actionExecutionIntent,
-        Vector3.Zero()
+        Vector3.Zero(),
+        this.tracker
       ),
     };
   }

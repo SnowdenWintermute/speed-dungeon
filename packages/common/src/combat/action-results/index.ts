@@ -8,10 +8,7 @@ import cloneDeep from "lodash.clonedeep/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { ActionResult } from "./action-result.js";
 import { CombatantProperties } from "../../combatants/index.js";
-import {
-  ActionResultCalculationArguments,
-  ActionResultCalculator,
-} from "./action-result-calculator.js";
+import { ActionResultCalculationArguments } from "./action-result-calculator.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { getCombatActionTargetIds } from "./get-action-target-ids.js";
 import { calculateActionHitPointChangesEvasionsAndDurabilityChanges } from "./hp-change-evasion-and-durability-change-result-calculation/index.js";

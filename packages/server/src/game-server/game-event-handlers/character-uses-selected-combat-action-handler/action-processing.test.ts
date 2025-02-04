@@ -57,6 +57,6 @@ describe("action processing", () => {
       new CombatActionExecutionIntent(CombatActionName.ChainingSplitArrowParent, targets),
       combatantContext
     );
-    Replayer.printReplayTree(result);
+    // Replayer.printReplayTree(result);
   });
 });

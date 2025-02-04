@@ -45,6 +45,11 @@ export class Replayer {
         console.log("BRANCH");
         this.printReplayTree(node);
       } else {
+        if (
+          node.type === GameUpdateCommandType.CombatantMovement ||
+          node.type === GameUpdateCommandType.CombatantAnimation
+        )
+          console.log(node.animationName);
         console.log(GAME_UPDATE_COMMAND_TYPE_STRINGS[node.type], node.completionOrderId);
       }
     }
