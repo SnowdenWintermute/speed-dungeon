@@ -18,6 +18,9 @@ import { CombatActionIntent } from "../../combat-action-intent.js";
 import { PreUsePositioningActionResolutionStep } from "../../../../action-processing/action-steps/pre-use-positioning.js";
 import { Vector3 } from "@babylonjs/core";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
+import { CombatantContext } from "../../../../combatant-context/index.js";
+import { ActionExecutionTracker } from "../../../../action-processing/action-execution-tracker.js";
+import { SequentialActionExecutionManager } from "../../../../action-processing/sequential-action-execution-manager.js";
 
 const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
@@ -73,12 +76,18 @@ const config: CombatActionComponentConfig = {
     throw new Error("Function not implemented.");
   },
   getFirstResolutionStep(
-    combatantContext,
-    actionExecutionIntent,
-    previousTrackerInSequenceOption,
+    combatantContext: CombatantContext,
+    actionExecutionIntent: CombatActionExecutionIntent,
+    previousTrackerOption: null | ActionExecutionTracker,
+    manager: SequentialActionExecutionManager,
     self
   ) {
-    const step = new PreUsePositioningActionResolutionStep(combatantContext, actionExecutionIntent);
+    const step = new PreUsePositioningActionResolutionStep({
+      combatantContext,
+      actionExecutionIntent,
+      previousStepOption: null,
+      manager,
+    });
     const destination = Vector3.Zero();
     step.setDestination(destination);
     return step;

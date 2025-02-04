@@ -2,6 +2,7 @@ import {
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
+  CombatActionExecutionIntent,
   CombatActionName,
   CombatActionUsabilityContext,
   TargetCategories,
@@ -24,6 +25,8 @@ import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js"
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
 import { DetermineChildActionsActionResolutionStep } from "../../../../action-processing/action-steps/determine-child-actions.js";
+import { ActionExecutionTracker } from "../../../../action-processing/action-execution-tracker.js";
+import { SequentialActionExecutionManager } from "../../../../action-processing/sequential-action-execution-manager.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
@@ -93,8 +96,18 @@ const config: CombatActionComponentConfig = {
   getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
     throw new Error("Function not implemented.");
   },
-  getFirstResolutionStep(combatantContext, intent) {
-    return new DetermineChildActionsActionResolutionStep(combatantContext, intent);
+  getFirstResolutionStep(
+    combatantContext: CombatantContext,
+    actionExecutionIntent: CombatActionExecutionIntent,
+    previousTrackerOption: null | ActionExecutionTracker,
+    manager: SequentialActionExecutionManager
+  ) {
+    return new DetermineChildActionsActionResolutionStep({
+      combatantContext,
+      actionExecutionIntent,
+      previousStepOption: null,
+      manager,
+    });
   },
 };
 

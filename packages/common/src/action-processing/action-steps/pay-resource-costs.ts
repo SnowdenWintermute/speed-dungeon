@@ -1,5 +1,6 @@
 import {
   ActionResolutionStep,
+  ActionResolutionStepContext,
   ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
@@ -10,21 +11,17 @@ import { CombatantContext } from "../../combatant-context/index.js";
 import { ActionExecutionTracker } from "../action-execution-tracker.js";
 
 export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
-  constructor(
-    private combatantContext: CombatantContext,
-    private actionExecutionIntent: CombatActionExecutionIntent,
-    tracker: ActionExecutionTracker
-  ) {
+  constructor(private context: ActionResolutionStepContext) {
     // @TODO - calculate the actual costs paid
     // @TODO - apply the deducted costs to server game state combatant resources
     //
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.ResourcesPaid,
       completionOrderId: null,
-      combatantId: combatantContext.combatant.entityProperties.id,
+      combatantId: context.combatantContext.combatant.entityProperties.id,
       costsPaid: {},
     };
-    super(ActionResolutionStepType.payResourceCosts, gameUpdateCommand, tracker);
+    super(ActionResolutionStepType.payResourceCosts, gameUpdateCommand, context);
   }
 
   protected onTick = () => {};
@@ -32,16 +29,14 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
   isComplete = () => true;
 
   onComplete(): ActionResolutionStepResult {
-    const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
-    const costs = action.getResourceCosts(this.combatantContext.combatant.combatantProperties);
+    const action = COMBAT_ACTIONS[this.context.actionExecutionIntent.actionName];
+    const costs = action.getResourceCosts(
+      this.context.combatantContext.combatant.combatantProperties
+    );
 
     return {
       branchingActions: [],
-      nextStepOption: new EvalOnUseTriggersActionResolutionStep(
-        this.combatantContext,
-        this.actionExecutionIntent,
-        this.tracker
-      ),
+      nextStepOption: new EvalOnUseTriggersActionResolutionStep(this.context),
     };
   }
 }

@@ -28,7 +28,11 @@ import {
 } from "./action-calculation-utils/action-costs.js";
 import { CombatActionIntent } from "./combat-action-intent.js";
 import { CombatantContext } from "../../combatant-context/index.js";
-import { ActionExecutionTracker, ActionResolutionStep } from "../../action-processing/index.js";
+import {
+  ActionExecutionTracker,
+  ActionResolutionStep,
+  SequentialActionExecutionManager,
+} from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 
 export interface CombatActionComponentConfig {
@@ -81,6 +85,7 @@ export interface CombatActionComponentConfig {
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
     previousTrackerOption: null | ActionExecutionTracker,
+    manager: SequentialActionExecutionManager,
     self: CombatActionComponent
   ) => Error | ActionResolutionStep;
   getAutoTarget?: (
@@ -176,7 +181,8 @@ export abstract class CombatActionComponent {
   getFirstResolutionStep: (
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
-    previousTrackerOption: null | ActionExecutionTracker
+    previousTrackerOption: null | ActionExecutionTracker,
+    manager: SequentialActionExecutionManager
   ) => Error | ActionResolutionStep;
   getParent: () => CombatActionComponent | null;
   addChild: (childAction: CombatActionComponent) => Error | void = () =>
@@ -240,8 +246,19 @@ export abstract class CombatActionComponent {
     if (config.getConcurrentSubActions)
       this.getConcurrentSubActions = config.getConcurrentSubActions;
     this.getParent = config.getParent;
-    this.getFirstResolutionStep = (combatantContext, actionExecutionIntent, tracker) =>
-      config.getFirstResolutionStep(combatantContext, actionExecutionIntent, tracker, this);
+    this.getFirstResolutionStep = (
+      combatantContext,
+      actionExecutionIntent,
+      previousTrackerOption,
+      manager
+    ) =>
+      config.getFirstResolutionStep(
+        combatantContext,
+        actionExecutionIntent,
+        previousTrackerOption,
+        manager,
+        this
+      );
     const { getAutoTarget } = config;
     if (getAutoTarget) {
       this.getAutoTarget = (combatantContext, trackerOption) =>

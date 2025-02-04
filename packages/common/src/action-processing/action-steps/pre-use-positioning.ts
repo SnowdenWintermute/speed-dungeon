@@ -1,39 +1,33 @@
 import { Vector3 } from "@babylonjs/core";
 import {
   ActionResolutionStep,
+  ActionResolutionStepContext,
   ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
-import { CombatActionExecutionIntent } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { StartUseAnimationActionResolutionStep } from "./start-use-animation.js";
-import { CombatantContext } from "../../combatant-context/index.js";
 import { Milliseconds } from "../../primatives/index.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
-import { ActionExecutionTracker } from "../action-execution-tracker.js";
 
 export class PreUsePositioningActionResolutionStep extends ActionResolutionStep {
   private destination: Vector3;
   private originalPosition: Vector3;
   private timeToTranslate: Milliseconds;
-  constructor(
-    private combatantContext: CombatantContext,
-    private actionExecutionIntent: CombatActionExecutionIntent,
-    tracker: ActionExecutionTracker
-  ) {
+  constructor(private context: ActionResolutionStepContext) {
     /**Here we create and set the internal reference to the associated game update command, as well as
      * apply updates to game state for instantly processed steps*/
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantMovement,
       completionOrderId: null,
       animationName: "Run Forward", // run forward, run backward, run forward injured @TODO -enum
-      combatantId: combatantContext.combatant.entityProperties.id,
+      combatantId: context.combatantContext.combatant.entityProperties.id,
       destination: Vector3.Zero(),
     };
 
-    super(ActionResolutionStepType.preUsePositioning, gameUpdateCommand, tracker);
+    super(ActionResolutionStepType.preUsePositioning, gameUpdateCommand, context);
 
-    this.originalPosition = combatantContext.combatant.combatantProperties.position.clone();
+    this.originalPosition = context.combatantContext.combatant.combatantProperties.position.clone();
     // @TODO - calculate destination based on action
     this.destination = Vector3.Zero();
 
@@ -51,7 +45,7 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
       normalizedPercentTravelled
     );
 
-    this.combatantContext.combatant.combatantProperties.position.copyFrom(newPosition);
+    this.context.combatantContext.combatant.combatantProperties.position.copyFrom(newPosition);
   }
 
   setDestination(destination: Vector3) {
@@ -69,12 +63,7 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
   onComplete(): ActionResolutionStepResult {
     return {
       branchingActions: [],
-      nextStepOption: new StartUseAnimationActionResolutionStep(
-        this.combatantContext,
-        this.actionExecutionIntent,
-        Vector3.Zero(),
-        this.tracker
-      ),
+      nextStepOption: new StartUseAnimationActionResolutionStep(this.context, Vector3.Zero()),
     };
   }
 }

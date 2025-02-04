@@ -1,26 +1,21 @@
 import { Vector3 } from "@babylonjs/core";
 import {
   ActionResolutionStep,
+  ActionResolutionStepContext,
   ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
-import { CombatantAssociatedData } from "../../types.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
-import { CombatActionExecutionIntent } from "../../combat/index.js";
 import { EvalOnHitOutcomeTriggersActionResolutionStep } from "./evaluate-hit-outcome-triggers.js";
-import { ActionExecutionTracker } from "../action-execution-tracker.js";
 
 export class StaticVfxActionResolutionStep extends ActionResolutionStep {
   private vfxPosition: Vector3;
   constructor(
-    private combatantContext: CombatantAssociatedData,
-    private actionExecutionIntent: CombatActionExecutionIntent,
+    private context: ActionResolutionStepContext,
     private startPosition: Vector3,
     private effectDuration: number,
     private triggerNextStepDuration: number,
-    private vfxName: string,
-
-    tracker: ActionExecutionTracker
+    private vfxName: string
   ) {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.StaticVfx,
@@ -31,7 +26,7 @@ export class StaticVfxActionResolutionStep extends ActionResolutionStep {
       triggerNextStepDuration: triggerNextStepDuration,
     };
 
-    super(ActionResolutionStepType.playMobileVfx, gameUpdateCommand, tracker);
+    super(ActionResolutionStepType.playMobileVfx, gameUpdateCommand, context);
     this.vfxPosition = startPosition.clone();
   }
 
@@ -50,11 +45,7 @@ export class StaticVfxActionResolutionStep extends ActionResolutionStep {
   onComplete(): ActionResolutionStepResult {
     return {
       branchingActions: [],
-      nextStepOption: new EvalOnHitOutcomeTriggersActionResolutionStep(
-        this.combatantContext,
-        this.actionExecutionIntent,
-        this.tracker
-      ),
+      nextStepOption: new EvalOnHitOutcomeTriggersActionResolutionStep(this.context),
     };
   }
 }

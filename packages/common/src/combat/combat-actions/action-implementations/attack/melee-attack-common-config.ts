@@ -1,6 +1,10 @@
 import { Vector3 } from "@babylonjs/core";
 import { ActionExecutionTracker } from "../../../../action-processing/action-execution-tracker.js";
-import { ActionResolutionStep } from "../../../../action-processing/index.js";
+import {
+  ActionResolutionStep,
+  ActionResolutionStepContext,
+  SequentialActionExecutionManager,
+} from "../../../../action-processing/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
@@ -41,7 +45,8 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
   getFirstResolutionStep: function (
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
-    previousTrackerOption: null | ActionExecutionTracker
+    previousTrackerOption: null | ActionExecutionTracker,
+    manager: SequentialActionExecutionManager
   ): Error | ActionResolutionStep {
     const { targets } = actionExecutionIntent;
     if (targets.type !== CombatActionTargetType.Single)
@@ -55,16 +60,19 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
       combatantContext.combatant.combatantProperties.position
     );
 
+    const actionResolutionStepContext: ActionResolutionStepContext = {
+      combatantContext,
+      actionExecutionIntent,
+      manager,
+      previousStepOption: null,
+    };
+
     if (distance > MELEE_START_ATTACK_RANGE)
-      return new PreUsePositioningActionResolutionStep(combatantContext, actionExecutionIntent);
+      return new PreUsePositioningActionResolutionStep(actionResolutionStepContext);
     else {
       // @TODO - calculate a forward path toward target
       const destination = Vector3.Zero();
-      return new StartUseAnimationActionResolutionStep(
-        combatantContext,
-        actionExecutionIntent,
-        destination
-      );
+      return new StartUseAnimationActionResolutionStep(actionResolutionStepContext, destination);
     }
   },
 };

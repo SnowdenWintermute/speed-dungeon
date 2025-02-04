@@ -1,35 +1,33 @@
 import { Vector3 } from "@babylonjs/core";
 import {
   ActionResolutionStep,
+  ActionResolutionStepContext,
   ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
-import { CombatantAssociatedData } from "../../types.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Milliseconds } from "../../primatives/index.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
-import { ActionExecutionTracker } from "../action-execution-tracker.js";
 
 export class PostUsePositioningActionResolutionStep extends ActionResolutionStep {
   private destination: Vector3;
   private originalPosition: Vector3;
   private timeToTranslate: Milliseconds;
   constructor(
-    private combatantContext: CombatantAssociatedData,
-    public animationName: string,
-    tracker: ActionExecutionTracker
+    private context: ActionResolutionStepContext,
+    public animationName: string
   ) {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantMovement,
       completionOrderId: null,
       animationName: "Run Back", // run forward, run backward, run forward injured @TODO -enum
-      combatantId: combatantContext.combatant.entityProperties.id,
+      combatantId: context.combatantContext.combatant.entityProperties.id,
       destination: Vector3.Zero(),
     };
 
-    super(ActionResolutionStepType.postUsePositioning, gameUpdateCommand, tracker);
+    super(ActionResolutionStepType.postUsePositioning, gameUpdateCommand, context);
 
-    const { combatantProperties } = combatantContext.combatant;
+    const { combatantProperties } = this.context.combatantContext.combatant;
     this.originalPosition = combatantProperties.position.clone();
     // @TODO - calculate destination based on action
     this.destination = combatantProperties.homeLocation.clone();
@@ -48,7 +46,7 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
       normalizedPercentTravelled
     );
 
-    this.combatantContext.combatant.combatantProperties.position.copyFrom(newPosition);
+    this.context.combatantContext.combatant.combatantProperties.position.copyFrom(newPosition);
   }
 
   getTimeToCompletion(): number {

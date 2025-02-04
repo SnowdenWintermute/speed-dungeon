@@ -1,27 +1,22 @@
 import {
   ActionResolutionStep,
+  ActionResolutionStepContext,
   ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
+import { COMBAT_ACTIONS } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
-import { CombatantContext } from "../../combatant-context/index.js";
-import { ActionExecutionTracker } from "../action-execution-tracker.js";
 
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
-  constructor(
-    private combatantContext: CombatantContext,
-    private actionExecutionIntent: CombatActionExecutionIntent,
-    tracker: ActionExecutionTracker
-  ) {
+  constructor(private context: ActionResolutionStepContext) {
     // counterspells
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
       completionOrderId: null,
     };
 
-    super(ActionResolutionStepType.evalOnUseTriggers, gameUpdateCommand, tracker);
+    super(ActionResolutionStepType.evalOnUseTriggers, gameUpdateCommand, context);
   }
 
   protected onTick = () => {};
@@ -30,11 +25,11 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
 
   onComplete(): ActionResolutionStepResult {
     // set any sub actions to the branchingActions list
-    const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
-    const subActions = action.getConcurrentSubActions(this.combatantContext);
+    const action = COMBAT_ACTIONS[this.context.actionExecutionIntent.actionName];
+    const subActions = action.getConcurrentSubActions(this.context.combatantContext);
     const branchingActions = subActions.map((actionExecutionIntent) => {
       return {
-        user: this.combatantContext.combatant,
+        user: this.context.combatantContext.combatant,
         actionExecutionIntent,
       };
     });
@@ -45,11 +40,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     return {
       branchingActions, // split arrow, split arrow, split arrow
       // in case of subActions, skip to post use animation
-      nextStepOption: new RollIncomingHitOutcomesActionResolutionStep(
-        this.combatantContext,
-        this.actionExecutionIntent,
-        this.tracker
-      ),
+      nextStepOption: new RollIncomingHitOutcomesActionResolutionStep(this.context),
     };
   }
 }

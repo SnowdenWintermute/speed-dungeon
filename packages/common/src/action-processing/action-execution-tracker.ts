@@ -1,4 +1,4 @@
-import { CombatActionExecutionIntent } from "../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../combat/index.js";
 import { Milliseconds } from "../primatives/index.js";
 import { ActionResolutionStep } from "./action-steps/index.js";
 import { SequentialActionExecutionManager } from "./sequential-action-execution-manager.js";
@@ -11,10 +11,20 @@ export class ActionExecutionTracker {
     public id: string,
     public readonly actionExecutionIntent: CombatActionExecutionIntent,
     private previousTrackerInSequenceOption: null | ActionExecutionTracker,
-    private timeStarted: Milliseconds,
-    firstStep: ActionResolutionStep
+    private timeStarted: Milliseconds
   ) {
-    this.currentStep = firstStep;
+    // in the case of sub-actions, we'll start with spawning the projectiles or vfx
+    // otherwise start with the combatant moving
+    const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+    const firstStepResult = action.getFirstResolutionStep(
+      this.parentActionManager.combatantContext,
+      this.actionExecutionIntent,
+      this.previousTrackerInSequenceOption,
+      this.parentActionManager
+    );
+    if (firstStepResult instanceof Error) throw firstStepResult;
+
+    this.currentStep = firstStepResult;
   }
 
   getPreviousTrackerInSequenceOption() {

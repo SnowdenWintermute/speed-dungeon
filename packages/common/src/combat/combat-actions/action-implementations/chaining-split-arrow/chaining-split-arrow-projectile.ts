@@ -27,6 +27,7 @@ import { CombatantContext } from "../../../../combatant-context/index.js";
 import { ActionExecutionTracker } from "../../../../action-processing/action-execution-tracker.js";
 import { chooseRandomFromArray } from "../../../../utils/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
+import { SequentialActionExecutionManager } from "../../../../action-processing/sequential-action-execution-manager.js";
 
 const MAX_BOUNCES = 2;
 
@@ -124,22 +125,20 @@ const config: CombatActionComponentConfig = {
     return target;
   },
   getFirstResolutionStep(
-    combatantContext,
-    actionExecutionIntent,
-    previousTrackerInSequenceOption,
+    combatantContext: CombatantContext,
+    actionExecutionIntent: CombatActionExecutionIntent,
+    previousTrackerOption: null | ActionExecutionTracker,
+    manager: SequentialActionExecutionManager,
     self
   ) {
-    if (!previousTrackerInSequenceOption)
+    if (!previousTrackerOption)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.MISSING_EXPECTED_ACTION_IN_CHAIN);
-    const targetResult = self.getAutoTarget(combatantContext, previousTrackerInSequenceOption);
+    const targetResult = self.getAutoTarget(combatantContext, previousTrackerOption);
     if (targetResult instanceof Error) return targetResult;
     if (targetResult === null)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TARGETS_SELECTED);
 
-    const filteredPossibleTargetIds = getBouncableTargets(
-      combatantContext,
-      previousTrackerInSequenceOption
-    );
+    const filteredPossibleTargetIds = getBouncableTargets(combatantContext, previousTrackerOption);
     if (filteredPossibleTargetIds instanceof Error) return filteredPossibleTargetIds;
     const { possibleTargetIds, previousTargetId } = filteredPossibleTargetIds;
 
@@ -157,8 +156,12 @@ const config: CombatActionComponentConfig = {
     if (targetCombatantResult instanceof Error) return targetCombatantResult;
 
     const step = new MobileVfxActionResolutionStep(
-      combatantContext,
-      actionExecutionIntent,
+      {
+        combatantContext,
+        actionExecutionIntent,
+        previousStepOption: null,
+        manager,
+      },
       previousTargetResult.combatantProperties.position.clone(),
       targetCombatantResult.combatantProperties.position.clone(),
       1000,

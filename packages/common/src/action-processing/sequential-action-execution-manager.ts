@@ -24,7 +24,9 @@ export class SequentialActionExecutionManager {
   ) {
     this.remainingActionsToExecute = [actionExecutionIntent];
   }
-
+  getNextActionInQueue() {
+    return this.remainingActionsToExecute[this.remainingActionsToExecute.length - 1];
+  }
   getCurrentTracker() {
     return this.currentTracker;
   }
@@ -89,27 +91,20 @@ export class SequentialActionExecutionManager {
       previousTrackerOption = this.completedTrackers[this.completedTrackers.length - 1];
     }
 
-    const action = COMBAT_ACTIONS[actionName];
-    // in the case of sub-actions, we'll start with spawning the projectiles or vfx
-    // otherwise start with the combatant moving
-    const firstStepResult = action.getFirstResolutionStep(
-      this.combatantContext,
-      nextActionExecutionIntentOption,
-      previousTrackerOption || null
-    );
-    if (firstStepResult instanceof Error) return firstStepResult;
+    try {
+      const tracker = new ActionExecutionTracker(
+        this,
+        this.sequentialActionManagerRegistry.actionStepIdGenerator.getNextId(),
+        nextActionExecutionIntentOption,
+        previousTrackerOption || null,
+        time.ms
+      );
 
-    const tracker = new ActionExecutionTracker(
-      this,
-      this.sequentialActionManagerRegistry.actionStepIdGenerator.getNextId(),
-      nextActionExecutionIntentOption,
-      previousTrackerOption || null,
-      time.ms,
-      firstStepResult
-    );
+      this.currentTracker = tracker;
 
-    this.currentTracker = tracker;
-
-    return tracker;
+      return tracker;
+    } catch (err) {
+      return err as unknown as Error;
+    }
   }
 }

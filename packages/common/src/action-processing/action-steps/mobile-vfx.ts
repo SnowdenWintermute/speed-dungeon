@@ -1,26 +1,21 @@
 import { Vector3 } from "@babylonjs/core";
 import {
   ActionResolutionStep,
+  ActionResolutionStepContext,
   ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
-import { CombatActionExecutionIntent } from "../../combat/index.js";
-import { EvalOnHitOutcomeTriggersActionResolutionStep } from "./evaluate-hit-outcome-triggers.js";
-import { CombatantContext } from "../../combatant-context/index.js";
 import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
-import { ActionExecutionTracker } from "../action-execution-tracker.js";
 
 export class MobileVfxActionResolutionStep extends ActionResolutionStep {
   private vfxPosition: Vector3;
   constructor(
-    private combatantContext: CombatantContext,
-    private actionExecutionIntent: CombatActionExecutionIntent,
+    private context: ActionResolutionStepContext,
     private startPosition: Vector3,
     private destination: Vector3,
     private translationDuration: number,
-    vfxName: string,
-    tracker: ActionExecutionTracker
+    vfxName: string
   ) {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.MobileVfx,
@@ -31,7 +26,7 @@ export class MobileVfxActionResolutionStep extends ActionResolutionStep {
       translationDuration,
     };
 
-    super(ActionResolutionStepType.playMobileVfx, gameUpdateCommand, tracker);
+    super(ActionResolutionStepType.playMobileVfx, gameUpdateCommand, context);
 
     this.vfxPosition = startPosition.clone();
   }
@@ -45,7 +40,7 @@ export class MobileVfxActionResolutionStep extends ActionResolutionStep {
       normalizedPercentTravelled
     );
 
-    this.combatantContext.combatant.combatantProperties.position.copyFrom(newPosition);
+    this.context.combatantContext.combatant.combatantProperties.position.copyFrom(newPosition);
   }
 
   getTimeToCompletion(): number {
@@ -59,11 +54,7 @@ export class MobileVfxActionResolutionStep extends ActionResolutionStep {
   onComplete(): ActionResolutionStepResult {
     return {
       branchingActions: [],
-      nextStepOption: new RollIncomingHitOutcomesActionResolutionStep(
-        this.combatantContext,
-        this.actionExecutionIntent,
-        this.tracker
-      ),
+      nextStepOption: new RollIncomingHitOutcomesActionResolutionStep(this.context),
     };
   }
 }
