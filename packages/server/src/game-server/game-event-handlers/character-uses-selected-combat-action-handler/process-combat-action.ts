@@ -2,8 +2,6 @@ import {
   ActionSequenceManagerRegistry,
   ActionStepTracker,
   CombatActionExecutionIntent,
-  CombatActionName,
-  CombatActionTargetType,
   CombatantContext,
   ReplayEventNode,
   SequentialIdGenerator,
@@ -129,45 +127,39 @@ function processActionTrackerSteps(
 }
 
 // get user input actionExecutionIntent and create a actionSequenceManager
+//   - pop the next action
+//   - get it's first step
+//   - set the tracker's current step
+//   - add the step to replay node
+//
+//   - make an actionStepTracker and make it this sequence's step tracker
+//
 // hold the actionSequenceManager in a registry
-// iterate all actionSequenceManager
-// - if no current step tracker
-//   - pop the next action get it's first step
-//   - make an actionStepTracker and add it to a registry
-// - if current tracker and tracker.isDoneProcessing()
-//   - calculate any upcoming actions
-//   - if no upcoming actions,
-//     - set the tracker's currentStep to returnHome
-//     - set the tracker as "finalized"
+//
+// iterate all actionSequenceManagers
+//
+// whlie current tracker and tracker.currentStep.isDone()
+//   - if(manager.isFinalized)
+//     - remove the actionSequenceManager
+//
+//   - finalize the step, applying its completionOrderId and storing it in a completed list on the tracker
+//   - get next step and branchingActions
+//   - register branchingActions with their own actionSequenceManagers
+//
+//   - if next step === null
+//     - calculate any upcoming actions
+//     - if no upcoming actions,
+//       - set the tracker's currentStep to returnHome
+//       - set the tracker's manager as "finalized"
+//     - else
+//       - pop the next action
+//       - get it's first step
+//       - set the tracker's current step
+//       - add the step to replay node
 //   - else
-//     - pop the next action
-//     - get it's first step
-//     - set the tracker's current step
-//     - add the step to replay node
-// - if no currentTracker
-//   - calculate any upcoming actions
-//   - if no upcoming actions
-//     - remove the tracker
-//     - remove the action
-//   - else
-//     - pop the next action
-//     - get it's first step
-//     - set the tracker's current step
+//     - set the next step as the current step
 //     - add the step to replay node
 //
 // sort actionStepTrackers by shortestTimeToCompletion
 // iterate all actionStepTrackers
 // - tick them by the shortestTimeToCompletion
-// - while any step is done
-//   - finalize the step, applying its completionOrderId and storing it in a completed list on the tracker
-//   - get next step and branchingActions
-//   - register branchingActions with their own actionSequenceManagers
-//   - if tracker is "finalized"
-//     - unregister the tracker
-//   - if next step === null
-//     - mark the tracker as DoneProcessing
-//   - else
-//     - set the next step as the current step
-//     - add the step to replay node
-//
-//
