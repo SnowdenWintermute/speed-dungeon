@@ -10,6 +10,8 @@ import { Milliseconds } from "../../primatives/index.js";
 import { PostUsePositioningActionResolutionStep } from "./post-use-positioning.js";
 import { COMBAT_ACTIONS } from "../../combat/index.js";
 
+const placeholderDuration = 1000;
+
 export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
   duration: Milliseconds;
   constructor(
@@ -23,13 +25,13 @@ export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
       animationName: "Weapon Recovery",
       combatantId: context.combatantContext.combatant.entityProperties.id,
       destination: Vector3.Zero(),
-      duration: 1000,
+      duration: placeholderDuration,
     };
 
     super(ActionResolutionStepType.postUseAnimation, context, gameUpdateCommand);
 
     // @TODO -calculate duration based distance to destination dictated by action and target
-    this.duration = 1000;
+    this.duration = placeholderDuration;
   }
 
   protected onTick(): void {
@@ -40,7 +42,7 @@ export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
     // @TODO - determine based on how long we want the animation to take
     // - action type
     // - combatant speed
-    return 500;
+    return this.duration - this.elapsed;
   }
 
   isComplete() {

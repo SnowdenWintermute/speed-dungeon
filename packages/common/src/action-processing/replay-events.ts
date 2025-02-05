@@ -1,3 +1,4 @@
+import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "../combat/index.js";
 import { SequentialIdGenerator } from "../utils/index.js";
 import {
   GAME_UPDATE_COMMAND_TYPE_STRINGS,
@@ -7,7 +8,7 @@ import {
 
 export class ReplayEventNode {
   events: (GameUpdateCommand | ReplayEventNode)[] = [];
-  constructor() {}
+  constructor(public parentActionName: CombatActionName) {}
 }
 
 export class Replayer {
@@ -40,8 +41,10 @@ export class Replayer {
   }
 
   static printReplayTree(root: ReplayEventNode) {
+    console.log("ROOT:", COMBAT_ACTION_NAME_STRINGS[root.parentActionName]);
     for (const node of root.events) {
       if (node instanceof ReplayEventNode) {
+        console.log(COMBAT_ACTION_NAME_STRINGS[node.parentActionName]);
         console.log("BRANCH");
         this.printReplayTree(node);
       } else {

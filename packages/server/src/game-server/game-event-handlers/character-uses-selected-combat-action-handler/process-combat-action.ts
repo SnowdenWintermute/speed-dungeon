@@ -19,7 +19,7 @@ export function processCombatAction(
   combatantContext: CombatantContext
 ) {
   const registry = new ActionSequenceManagerRegistry(idGenerator);
-  const rootReplayNode = new ReplayEventNode();
+  const rootReplayNode = new ReplayEventNode(actionExecutionIntent.actionName);
   const time = new TimeKeeper();
   const completionOrderIdGenerator = new SequentialIdGenerator();
 
@@ -51,7 +51,7 @@ export function processCombatAction(
         }
 
         for (const action of branchingActions) {
-          const nestedReplayNode = new ReplayEventNode();
+          const nestedReplayNode = new ReplayEventNode(action.actionExecutionIntent.actionName);
           manager.replayNode.events.push(nestedReplayNode);
           const initialGameUpdateOptionResult = registry.registerAction(
             action.actionExecutionIntent,

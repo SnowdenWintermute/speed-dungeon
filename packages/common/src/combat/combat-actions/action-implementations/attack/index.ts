@@ -73,6 +73,8 @@ const config: CombatActionComponentConfig = {
     } else {
       toReturn.push(ATTACK_MELEE_MAIN_HAND);
       if (!ATTACK_MELEE_MAIN_HAND.requiresCombatTurn(user)) toReturn.push(ATTACK_MELEE_OFF_HAND);
+      const specialExtra = ATTACK_MELEE_MAIN_HAND;
+      if (specialExtra) toReturn.push(specialExtra);
     }
     return toReturn;
   },

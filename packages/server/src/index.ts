@@ -65,7 +65,7 @@ const listening = expressApp.listen(PORT, async () => {
   // console.log(JSON.stringify(combatantPositions, null, 2));
 
   const result = processCombatAction(
-    new CombatActionExecutionIntent(CombatActionName.Attack, targets),
+    new CombatActionExecutionIntent(CombatActionName.ChainingSplitArrowParent, targets),
     combatantContext
   );
   if (result instanceof Error) console.error(result);
