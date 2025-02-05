@@ -47,6 +47,7 @@ const config: CombatActionComponentConfig = {
   appliesConditions: [],
   incursDurabilityLoss: {},
   costBases: {},
+  userShouldMoveHomeOnComplete: false,
   getResourceCosts: () => null,
   getExecutionTime: () => 700,
   requiresCombatTurn: () => true,
@@ -100,15 +101,12 @@ const config: CombatActionComponentConfig = {
   getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
     throw new Error("Function not implemented.");
   },
-  getAutoTarget(combatantContext, trackerOption, self) {
-    const previousTrackerInSequenceOption = trackerOption?.getPreviousTrackerInSequenceOption();
-    if (!previousTrackerInSequenceOption)
+  getAutoTarget(combatantContext, previousTrackerOption, self) {
+    // const previousTrackerInSequenceOption = trackerOption?.getPreviousTrackerInSequenceOption();
+    if (!previousTrackerOption)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.MISSING_EXPECTED_ACTION_IN_CHAIN);
 
-    const filteredPossibleTargetIds = getBouncableTargets(
-      combatantContext,
-      previousTrackerInSequenceOption
-    );
+    const filteredPossibleTargetIds = getBouncableTargets(combatantContext, previousTrackerOption);
     if (filteredPossibleTargetIds instanceof Error) return filteredPossibleTargetIds;
     const { possibleTargetIds, previousTargetId } = filteredPossibleTargetIds;
 

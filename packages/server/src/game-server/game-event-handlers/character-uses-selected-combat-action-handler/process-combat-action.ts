@@ -1,6 +1,8 @@
 import {
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionSequenceManagerRegistry,
+  COMBAT_ACTIONS,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
   CombatantContext,
   ReplayEventNode,
@@ -51,6 +53,7 @@ export function processCombatAction(
         }
 
         for (const action of branchingActions) {
+          console.log("branch");
           const nestedReplayNode = new ReplayEventNode(action.actionExecutionIntent.actionName);
           manager.replayNode.events.push(nestedReplayNode);
           const initialGameUpdateOptionResult = registry.registerAction(
@@ -71,14 +74,17 @@ export function processCombatAction(
           if (manager.getNextActionInQueue() === undefined) {
             const currentTrackerOption = manager.getCurrentTracker();
             if (currentTrackerOption) {
-              const returnHomeStep = new PostUsePositioningActionResolutionStep(
-                currentTrackerOption.currentStep.getContext(),
-                "Run Back"
-              );
+              const action = COMBAT_ACTIONS[currentTrackerOption.actionExecutionIntent.actionName];
+              if (action.userShouldMoveHomeOnComplete) {
+                const returnHomeStep = new PostUsePositioningActionResolutionStep(
+                  currentTrackerOption.currentStep.getContext(),
+                  "Run Back"
+                );
 
-              currentTrackerOption.currentStep = returnHomeStep;
-              const returnHomeUpdate = returnHomeStep.getGameUpdateCommandOption();
-              if (returnHomeUpdate) manager.replayNode.events.push(returnHomeUpdate);
+                currentTrackerOption.currentStep = returnHomeStep;
+                const returnHomeUpdate = returnHomeStep.getGameUpdateCommandOption();
+                if (returnHomeUpdate) manager.replayNode.events.push(returnHomeUpdate);
+              }
             }
             manager.markAsFinalized();
           } else {

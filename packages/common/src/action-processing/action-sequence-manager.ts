@@ -37,10 +37,6 @@ export class ActionSequenceManager {
   getCurrentTracker() {
     return this.currentTracker;
   }
-  clearCurrentAction() {
-    if (this.currentTracker) this.completedTrackers.push(this.currentTracker);
-    this.currentTracker = null;
-  }
 
   isCurrentlyProcessing() {
     return !!this.getCurrentTracker();
@@ -83,6 +79,7 @@ export class ActionSequenceManager {
   }
 
   startProcessingNext(time: { ms: Milliseconds }): Error | ActionStepTracker {
+    if (this.currentTracker) this.completedTrackers.push(this.currentTracker);
     const nextActionExecutionIntentOption = this.remainingActionsToExecute.pop();
     if (!nextActionExecutionIntentOption)
       return new Error("Tried to process next action but there wasn't one");

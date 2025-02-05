@@ -43,6 +43,7 @@ const config: CombatActionComponentConfig = {
   appliesConditions: [],
   incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: 1 } },
   costBases: {},
+  userShouldMoveHomeOnComplete: true,
   getResourceCosts: () => null,
   getExecutionTime: () => DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
   requiresCombatTurn: (user) => {

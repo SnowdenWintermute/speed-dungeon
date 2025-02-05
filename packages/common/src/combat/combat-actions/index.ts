@@ -54,6 +54,8 @@ export interface CombatActionComponentConfig {
     [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
   };
   costBases: ActionResourceCostBases;
+
+  userShouldMoveHomeOnComplete: boolean;
   getResourceCosts: (
     user: CombatantProperties,
     self: CombatActionComponent
@@ -109,15 +111,16 @@ export abstract class CombatActionComponent {
   public readonly autoTargetSelectionMethod: AutoTargetingSelectionMethod;
   public readonly intent: CombatActionIntent;
   public readonly usabilityContext: CombatActionUsabilityContext;
-  prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
-  baseHpChangeValuesLevelMultiplier: number; // @TODO - actually use this for attack et al, or remove it
-  accuracyModifier: number;
+  public readonly prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
+  public readonly baseHpChangeValuesLevelMultiplier: number; // @TODO - actually use this for attack et al, or remove it
+  public readonly accuracyModifier: number;
   private appliesConditions: CombatantCondition[];
   incursDurabilityLoss: {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
     [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
   };
-  costBases: ActionResourceCostBases;
+  readonly costBases: ActionResourceCostBases;
+  readonly userShouldMoveHomeOnComplete: boolean;
   getResourceCosts: (user: CombatantProperties) => null | ActionResourceCosts;
   getExecutionTime: () => number;
   isUsableInGivenContext(context: CombatActionUsabilityContext) {
@@ -227,6 +230,7 @@ export abstract class CombatActionComponent {
     this.appliesConditions = config.appliesConditions;
     this.incursDurabilityLoss = config.incursDurabilityLoss;
     this.costBases = config.costBases;
+    this.userShouldMoveHomeOnComplete = config.userShouldMoveHomeOnComplete;
     this.getResourceCosts = (user: CombatantProperties) => config.getResourceCosts(user, this);
     this.getExecutionTime = config.getExecutionTime;
     this.requiresCombatTurn = config.requiresCombatTurn;

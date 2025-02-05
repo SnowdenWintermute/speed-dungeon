@@ -24,6 +24,7 @@ import { PreUsePositioningActionResolutionStep } from "../../../../action-proces
 import { StartUseAnimationActionResolutionStep } from "../../../../action-processing/action-steps/start-use-animation.js";
 
 export const MELEE_ATTACK_COMMON_CONFIG = {
+  userShouldMoveHomeOnComplete: true,
   getRequiredRange: () => CombatActionRequiredRange.Melee,
   getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
     const userCombatAttributes = CombatantProperties.getTotalAttributes(user);

@@ -22,7 +22,7 @@ export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantAnimation,
       completionOrderId: null,
-      animationName: "Weapon Recovery",
+      animationName: "post use animation",
       combatantId: context.combatantContext.combatant.entityProperties.id,
       destination: Vector3.Zero(),
       duration: placeholderDuration,
