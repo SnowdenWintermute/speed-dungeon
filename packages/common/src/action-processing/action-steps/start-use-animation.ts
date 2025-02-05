@@ -5,7 +5,7 @@ import {
   ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
+import { COMBAT_ACTIONS } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Milliseconds } from "../../primatives/index.js";
 import { PayResourceCostsActionResolutionStep } from "./pay-resource-costs.js";
@@ -13,19 +13,19 @@ import { PayResourceCostsActionResolutionStep } from "./pay-resource-costs.js";
 export class StartUseAnimationActionResolutionStep extends ActionResolutionStep {
   duration: Milliseconds;
   constructor(
-    private context: ActionResolutionStepContext,
+    context: ActionResolutionStepContext,
     private destinationOption: null | Vector3
   ) {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantAnimation,
       completionOrderId: null,
-      animationName: "Raise and Draw Bow | Swing holdable to hit",
+      animationName: "Animate Weapon To Hit",
       combatantId: context.combatantContext.combatant.entityProperties.id,
       destination: Vector3.Zero(),
       duration: 1000,
     };
 
-    super(ActionResolutionStepType.startUseAnimation, gameUpdateCommand, context);
+    super(ActionResolutionStepType.startUseAnimation, context, gameUpdateCommand);
 
     // @TODO -calculate duration based distance to destination dictated by action and target
     this.duration = 1000;

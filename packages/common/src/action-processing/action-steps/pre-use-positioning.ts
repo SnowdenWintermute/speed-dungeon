@@ -14,7 +14,7 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
   private destination: Vector3;
   private originalPosition: Vector3;
   private timeToTranslate: Milliseconds;
-  constructor(private context: ActionResolutionStepContext) {
+  constructor(context: ActionResolutionStepContext) {
     /**Here we create and set the internal reference to the associated game update command, as well as
      * apply updates to game state for instantly processed steps*/
     const gameUpdateCommand: GameUpdateCommand = {
@@ -25,13 +25,14 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
       destination: Vector3.Zero(),
     };
 
-    super(ActionResolutionStepType.preUsePositioning, gameUpdateCommand, context);
+    super(ActionResolutionStepType.preUsePositioning, context, gameUpdateCommand);
 
     this.originalPosition = context.combatantContext.combatant.combatantProperties.position.clone();
     // @TODO - calculate destination based on action
     this.destination = Vector3.Zero();
 
     const distance = Vector3.Distance(this.originalPosition, this.destination);
+    console.log("distance", distance);
     const speedMultiplier = 1;
     this.timeToTranslate = COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;
   }

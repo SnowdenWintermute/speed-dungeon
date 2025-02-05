@@ -14,6 +14,7 @@ export class ActionSequenceManager {
   private remainingActionsToExecute: CombatActionExecutionIntent[];
   private currentTracker: null | ActionStepTracker = null;
   private completedTrackers: ActionStepTracker[] = [];
+  private isFinalized: boolean = false;
   constructor(
     public id: string,
     actionExecutionIntent: CombatActionExecutionIntent,
@@ -23,6 +24,12 @@ export class ActionSequenceManager {
     private trackerThatSpawnedThisActionOption: null | ActionStepTracker
   ) {
     this.remainingActionsToExecute = [actionExecutionIntent];
+  }
+  getIsFinalized() {
+    return this.isFinalized;
+  }
+  markAsFinalized() {
+    this.isFinalized = true;
   }
   getNextActionInQueue() {
     return this.remainingActionsToExecute[this.remainingActionsToExecute.length - 1];
@@ -79,9 +86,6 @@ export class ActionSequenceManager {
     const nextActionExecutionIntentOption = this.remainingActionsToExecute.pop();
     if (!nextActionExecutionIntentOption)
       return new Error("Tried to process next action but there wasn't one");
-
-    const { actionName, targets } = nextActionExecutionIntentOption;
-    console.log(`next action option: ${COMBAT_ACTION_NAME_STRINGS[actionName]}`);
 
     let previousTrackerOption = null;
     if (this.trackerThatSpawnedThisActionOption) {

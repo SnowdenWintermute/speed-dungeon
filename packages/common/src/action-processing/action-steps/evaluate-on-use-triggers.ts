@@ -9,14 +9,14 @@ import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-command
 import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
 
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
-  constructor(private context: ActionResolutionStepContext) {
+  constructor(context: ActionResolutionStepContext) {
     // counterspells
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
       completionOrderId: null,
     };
 
-    super(ActionResolutionStepType.evalOnUseTriggers, gameUpdateCommand, context);
+    super(ActionResolutionStepType.evalOnUseTriggers, context, gameUpdateCommand);
   }
 
   protected onTick = () => {};

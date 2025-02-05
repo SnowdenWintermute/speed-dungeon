@@ -29,9 +29,9 @@ import {
 import { CombatActionIntent } from "./combat-action-intent.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import {
-  ActionExecutionTracker,
   ActionResolutionStep,
-  SequentialActionExecutionManager,
+  ActionSequenceManager,
+  ActionStepTracker,
 } from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 
@@ -80,20 +80,20 @@ export interface CombatActionComponentConfig {
   getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
   getChildren: (
     combatantContext: CombatantContext,
-    tracker: ActionExecutionTracker
+    tracker: ActionStepTracker
   ) => CombatActionComponent[];
   getConcurrentSubActions?: (combatantContext: CombatantContext) => CombatActionExecutionIntent[];
   getParent: () => CombatActionComponent | null;
   getFirstResolutionStep: (
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
-    previousTrackerOption: null | ActionExecutionTracker,
-    manager: SequentialActionExecutionManager,
+    previousTrackerOption: null | ActionStepTracker,
+    manager: ActionSequenceManager,
     self: CombatActionComponent
   ) => Error | ActionResolutionStep;
   getAutoTarget?: (
     combatantContext: CombatantContext,
-    actionTrackerOption: null | ActionExecutionTracker,
+    actionTrackerOption: null | ActionStepTracker,
     self: CombatActionComponent
   ) => Error | null | CombatActionTarget;
 }
@@ -177,15 +177,15 @@ export abstract class CombatActionComponent {
   // could also create random children such as a chaining random elemental damage
   getChildren: (
     combatantContext: CombatantContext,
-    tracker: ActionExecutionTracker
+    tracker: ActionStepTracker
   ) => CombatActionComponent[];
   getConcurrentSubActions: (combatantContext: CombatantContext) => CombatActionExecutionIntent[] =
     () => [];
   getFirstResolutionStep: (
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
-    previousTrackerOption: null | ActionExecutionTracker,
-    manager: SequentialActionExecutionManager
+    previousTrackerOption: null | ActionStepTracker,
+    manager: ActionSequenceManager
   ) => Error | ActionResolutionStep;
   getParent: () => CombatActionComponent | null;
   addChild: (childAction: CombatActionComponent) => Error | void = () =>
@@ -194,7 +194,7 @@ export abstract class CombatActionComponent {
   // DEFAULT FUNCTIONS
   getAutoTarget: (
     combatantContext: CombatantContext,
-    actionTrackerOption: null | ActionExecutionTracker
+    actionTrackerOption: null | ActionStepTracker
   ) => Error | null | CombatActionTarget = (combatantContext) => {
     const scheme = this.autoTargetSelectionMethod.scheme;
     return AUTO_TARGETING_FUNCTIONS[scheme](combatantContext, this);

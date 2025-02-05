@@ -1,10 +1,11 @@
 import { CombatActionExecutionIntent } from "../combat/index.js";
 import { CombatantContext } from "../combatant-context/index.js";
-import { EntityId } from "../primatives/index.js";
+import { EntityId, Milliseconds } from "../primatives/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { SequentialIdGenerator } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
 import { ActionStepTracker } from "./action-step-tracker.js";
+import { ACTION_RESOLUTION_STEP_TYPE_STRINGS } from "./action-steps/index.js";
 import { ReplayEventNode } from "./replay-events.js";
 
 export class ActionSequenceManagerRegistry {
@@ -21,7 +22,8 @@ export class ActionSequenceManagerRegistry {
     actionExecutionIntent: CombatActionExecutionIntent,
     replayNode: ReplayEventNode,
     combatantContext: CombatantContext,
-    previousTrackerInSequenceOption: null | ActionStepTracker
+    previousTrackerInSequenceOption: null | ActionStepTracker,
+    time: { ms: Milliseconds }
   ) {
     const id = this.idGenerator.generate();
     const manager = new ActionSequenceManager(
@@ -33,7 +35,11 @@ export class ActionSequenceManagerRegistry {
       previousTrackerInSequenceOption
     );
     this.actionManagers[id] = manager;
-    return manager;
+
+    const stepTrackerResult = manager.startProcessingNext(time);
+    if (stepTrackerResult instanceof Error) return stepTrackerResult;
+    const initialGameUpdate = stepTrackerResult.currentStep.getGameUpdateCommandOption();
+    return initialGameUpdate;
   }
   getManager(id: EntityId) {
     return this.actionManagers[id];
@@ -42,6 +48,23 @@ export class ActionSequenceManagerRegistry {
     delete this.actionManagers[id];
   }
   getManagers() {
-    return Object.entries(this.actionManagers);
+    return Object.values(this.actionManagers);
+  }
+  getShortestTimeToCompletion(): number {
+    // @TODO @PERF - check if a minHeap has better performance
+    let msToTick;
+    let stepName;
+    for (const manager of this.getManagers()) {
+      const trackerOption = manager.getCurrentTracker();
+      if (!trackerOption) return 0;
+      const timeToCompletion = trackerOption.currentStep.getTimeToCompletion() || 0;
+      if (msToTick === undefined) msToTick = timeToCompletion;
+      else if (msToTick > timeToCompletion) {
+        msToTick = timeToCompletion;
+      }
+      stepName = ACTION_RESOLUTION_STEP_TYPE_STRINGS[trackerOption.currentStep.type];
+    }
+    console.log("msToTick", stepName, msToTick);
+    return msToTick || 0;
   }
 }

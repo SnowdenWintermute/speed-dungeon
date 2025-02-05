@@ -11,7 +11,7 @@ import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit
 export class MobileVfxActionResolutionStep extends ActionResolutionStep {
   private vfxPosition: Vector3;
   constructor(
-    private context: ActionResolutionStepContext,
+    context: ActionResolutionStepContext,
     private startPosition: Vector3,
     private destination: Vector3,
     private translationDuration: number,
@@ -26,7 +26,7 @@ export class MobileVfxActionResolutionStep extends ActionResolutionStep {
       translationDuration,
     };
 
-    super(ActionResolutionStepType.playMobileVfx, gameUpdateCommand, context);
+    super(ActionResolutionStepType.playMobileVfx, context, gameUpdateCommand);
 
     this.vfxPosition = startPosition.clone();
   }

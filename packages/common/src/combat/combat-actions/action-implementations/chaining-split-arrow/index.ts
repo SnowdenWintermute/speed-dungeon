@@ -19,8 +19,8 @@ import { PreUsePositioningActionResolutionStep } from "../../../../action-proces
 import { Vector3 } from "@babylonjs/core";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
-import { ActionExecutionTracker } from "../../../../action-processing/action-execution-tracker.js";
-import { SequentialActionExecutionManager } from "../../../../action-processing/sequential-action-execution-manager.js";
+import { ActionStepTracker } from "../../../../action-processing/action-step-tracker.js";
+import { ActionSequenceManager } from "../../../../action-processing/action-sequence-manager.js";
 
 const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
@@ -78,8 +78,8 @@ const config: CombatActionComponentConfig = {
   getFirstResolutionStep(
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
-    previousTrackerOption: null | ActionExecutionTracker,
-    manager: SequentialActionExecutionManager,
+    previousTrackerOption: null | ActionStepTracker,
+    manager: ActionSequenceManager,
     self
   ) {
     const step = new PreUsePositioningActionResolutionStep({

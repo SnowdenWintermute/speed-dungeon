@@ -4,9 +4,8 @@ import { CombatActionComponent } from "../../combat/index.js";
 import { ReplayEventNode } from "../replay-events.js";
 import { GameUpdateCommand } from "../game-update-commands.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
-import { ActionExecutionTracker } from "../action-execution-tracker.js";
 import { CombatantContext } from "../../combatant-context/index.js";
-import { SequentialActionExecutionManager } from "../sequential-action-execution-manager.js";
+import { ActionSequenceManager } from "../action-sequence-manager.js";
 
 export interface ActionExecuting {
   timeStarted: Milliseconds;
@@ -51,7 +50,7 @@ export type ActionResolutionStepResult = {
 export interface ActionResolutionStepContext {
   combatantContext: CombatantContext;
   actionExecutionIntent: CombatActionExecutionIntent;
-  manager: SequentialActionExecutionManager;
+  manager: ActionSequenceManager;
   previousStepOption: null | ActionResolutionStep;
 }
 
@@ -59,9 +58,13 @@ export abstract class ActionResolutionStep {
   protected elapsed: Milliseconds = 0;
   constructor(
     public readonly type: ActionResolutionStepType,
-    protected gameUpdateCommandOption: null | GameUpdateCommand,
-    context: ActionResolutionStepContext
+    protected context: ActionResolutionStepContext,
+    protected gameUpdateCommandOption: null | GameUpdateCommand
   ) {}
+
+  getContext() {
+    return this.context;
+  }
 
   tick(ms: Milliseconds) {
     this.elapsed += ms;

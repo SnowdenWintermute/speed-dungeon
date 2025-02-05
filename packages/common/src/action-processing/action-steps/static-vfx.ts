@@ -11,7 +11,7 @@ import { EvalOnHitOutcomeTriggersActionResolutionStep } from "./evaluate-hit-out
 export class StaticVfxActionResolutionStep extends ActionResolutionStep {
   private vfxPosition: Vector3;
   constructor(
-    private context: ActionResolutionStepContext,
+    context: ActionResolutionStepContext,
     private startPosition: Vector3,
     private effectDuration: number,
     private triggerNextStepDuration: number,
@@ -26,7 +26,7 @@ export class StaticVfxActionResolutionStep extends ActionResolutionStep {
       triggerNextStepDuration: triggerNextStepDuration,
     };
 
-    super(ActionResolutionStepType.playMobileVfx, gameUpdateCommand, context);
+    super(ActionResolutionStepType.playMobileVfx, context, gameUpdateCommand);
     this.vfxPosition = startPosition.clone();
   }
 

@@ -14,7 +14,7 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
   private originalPosition: Vector3;
   private timeToTranslate: Milliseconds;
   constructor(
-    private context: ActionResolutionStepContext,
+    context: ActionResolutionStepContext,
     public animationName: string
   ) {
     const gameUpdateCommand: GameUpdateCommand = {
@@ -25,7 +25,7 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
       destination: Vector3.Zero(),
     };
 
-    super(ActionResolutionStepType.postUsePositioning, gameUpdateCommand, context);
+    super(ActionResolutionStepType.postUsePositioning, context, gameUpdateCommand);
 
     const { combatantProperties } = this.context.combatantContext.combatant;
     this.originalPosition = combatantProperties.position.clone();

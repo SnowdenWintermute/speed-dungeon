@@ -1,9 +1,9 @@
 import { Vector3 } from "@babylonjs/core";
-import { ActionExecutionTracker } from "../../../../action-processing/action-execution-tracker.js";
 import {
   ActionResolutionStep,
   ActionResolutionStepContext,
-  SequentialActionExecutionManager,
+  ActionSequenceManager,
+  ActionStepTracker,
 } from "../../../../action-processing/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
@@ -45,8 +45,8 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
   getFirstResolutionStep: function (
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
-    previousTrackerOption: null | ActionExecutionTracker,
-    manager: SequentialActionExecutionManager
+    previousTrackerOption: null | ActionStepTracker,
+    manager: ActionSequenceManager
   ): Error | ActionResolutionStep {
     const { targets } = actionExecutionIntent;
     if (targets.type !== CombatActionTargetType.Single)

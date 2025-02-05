@@ -4,22 +4,19 @@ import {
   ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
-import { CombatantAssociatedData } from "../../types.js";
-import { CombatActionExecutionIntent } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { PostUseAnimationActionResolutionStep } from "./post-use-animation.js";
-import { ActionExecutionTracker } from "../action-execution-tracker.js";
 
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
   constructor(
-    private context: ActionResolutionStepContext
+    context: ActionResolutionStepContext
     // hits, misses, evades, parries, blocks (used for determining triggers as well as user followthrough animation)
   ) {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
       completionOrderId: null,
     };
-    super(ActionResolutionStepType.evalOnHitOutcomeTriggers, gameUpdateCommand, context);
+    super(ActionResolutionStepType.evalOnHitOutcomeTriggers, context, gameUpdateCommand);
   }
 
   protected onTick = () => {};

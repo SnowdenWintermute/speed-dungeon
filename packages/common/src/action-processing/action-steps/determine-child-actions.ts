@@ -6,8 +6,8 @@ import {
 } from "./index.js";
 
 export class DetermineChildActionsActionResolutionStep extends ActionResolutionStep {
-  constructor(private context: ActionResolutionStepContext) {
-    super(ActionResolutionStepType.determineChildActions, null, context);
+  constructor(context: ActionResolutionStepContext) {
+    super(ActionResolutionStepType.determineChildActions, context, null);
   }
 
   protected onTick = () => {};

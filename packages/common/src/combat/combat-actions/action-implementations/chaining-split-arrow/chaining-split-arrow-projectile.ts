@@ -24,10 +24,10 @@ import {
   CombatActionTargetType,
 } from "../../../targeting/combat-action-targets.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
-import { ActionExecutionTracker } from "../../../../action-processing/action-execution-tracker.js";
 import { chooseRandomFromArray } from "../../../../utils/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
-import { SequentialActionExecutionManager } from "../../../../action-processing/sequential-action-execution-manager.js";
+import { ActionSequenceManager } from "../../../../action-processing/action-sequence-manager.js";
+import { ActionStepTracker } from "../../../../action-processing/action-step-tracker.js";
 
 const MAX_BOUNCES = 2;
 
@@ -127,8 +127,8 @@ const config: CombatActionComponentConfig = {
   getFirstResolutionStep(
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
-    previousTrackerOption: null | ActionExecutionTracker,
-    manager: SequentialActionExecutionManager,
+    previousTrackerOption: null | ActionStepTracker,
+    manager: ActionSequenceManager,
     self
   ) {
     if (!previousTrackerOption)
@@ -178,7 +178,7 @@ export const CHAINING_SPLIT_ARROW_PROJECTILE = new CombatActionComposite(
 
 function getBouncableTargets(
   combatantContext: CombatantContext,
-  previousTrackerInSequenceOption: ActionExecutionTracker
+  previousTrackerInSequenceOption: ActionStepTracker
 ) {
   const previousTargetInChain = previousTrackerInSequenceOption.actionExecutionIntent.targets;
   const previousTargetIdResult = (() => {

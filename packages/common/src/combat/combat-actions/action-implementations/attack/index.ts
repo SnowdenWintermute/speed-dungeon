@@ -25,8 +25,8 @@ import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js"
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
 import { DetermineChildActionsActionResolutionStep } from "../../../../action-processing/action-steps/determine-child-actions.js";
-import { ActionExecutionTracker } from "../../../../action-processing/action-execution-tracker.js";
-import { SequentialActionExecutionManager } from "../../../../action-processing/sequential-action-execution-manager.js";
+import { ActionStepTracker } from "../../../../action-processing/action-step-tracker.js";
+import { ActionSequenceManager } from "../../../../action-processing/action-sequence-manager.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
@@ -99,8 +99,8 @@ const config: CombatActionComponentConfig = {
   getFirstResolutionStep(
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
-    previousTrackerOption: null | ActionExecutionTracker,
-    manager: SequentialActionExecutionManager
+    previousTrackerOption: null | ActionStepTracker,
+    manager: ActionSequenceManager
   ) {
     return new DetermineChildActionsActionResolutionStep({
       combatantContext,

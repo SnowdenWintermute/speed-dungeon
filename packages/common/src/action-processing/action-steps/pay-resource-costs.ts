@@ -4,14 +4,12 @@ import {
   ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
+import { COMBAT_ACTIONS } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { EvalOnUseTriggersActionResolutionStep } from "./evaluate-on-use-triggers.js";
-import { CombatantContext } from "../../combatant-context/index.js";
-import { ActionExecutionTracker } from "../action-execution-tracker.js";
 
 export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
-  constructor(private context: ActionResolutionStepContext) {
+  constructor(context: ActionResolutionStepContext) {
     // @TODO - calculate the actual costs paid
     // @TODO - apply the deducted costs to server game state combatant resources
     //
@@ -21,7 +19,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
       combatantId: context.combatantContext.combatant.entityProperties.id,
       costsPaid: {},
     };
-    super(ActionResolutionStepType.payResourceCosts, gameUpdateCommand, context);
+    super(ActionResolutionStepType.payResourceCosts, context, gameUpdateCommand);
   }
 
   protected onTick = () => {};

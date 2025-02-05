@@ -7,6 +7,7 @@ export * from "./replay-events.js";
 export * from "./action-step-tracker.js";
 export * from "./action-sequence-manager.js";
 export * from "./action-sequence-manager-registry.js";
+export * from "./action-steps/post-use-positioning.js";
 import { BattleConclusion } from "../battle/index.js";
 import { DurabilityChangesByEntityId } from "../combat/action-results/calculate-action-durability-changes.js";
 import { CombatActionName, HpChange } from "../combat/index.js";
