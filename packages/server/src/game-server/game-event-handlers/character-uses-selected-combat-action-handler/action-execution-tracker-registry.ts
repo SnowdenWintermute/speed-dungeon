@@ -1,17 +1,17 @@
 import {
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
-  ActionExecutionTracker,
+  ActionStepTracker,
   COMBAT_ACTION_NAME_STRINGS,
 } from "@speed-dungeon/common";
 
 export class ActionExecutionTrackerRegistry {
-  trackers: { [id: string]: ActionExecutionTracker } = {};
-  completed: { [id: string]: ActionExecutionTracker } = {};
+  trackers: { [id: string]: ActionStepTracker } = {};
+  completed: { [id: string]: ActionStepTracker } = {};
   constructor() {}
   isNotEmpty() {
     return !!this.getTrackers().length;
   }
-  registerTracker(tracker: ActionExecutionTracker) {
+  registerTracker(tracker: ActionStepTracker) {
     this.trackers[tracker.id] = tracker;
   }
   unRegisterTracker(id: string) {

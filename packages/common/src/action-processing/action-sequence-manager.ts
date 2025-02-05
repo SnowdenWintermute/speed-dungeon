@@ -1,5 +1,3 @@
-import { SequentialActionExecutionManagerRegistry } from "./sequential-action-manager-registry.js";
-import { ActionExecutionTracker } from "./action-execution-tracker.js";
 import {
   COMBAT_ACTIONS,
   COMBAT_ACTION_NAME_STRINGS,
@@ -9,18 +7,20 @@ import { ReplayEventNode } from "./replay-events.js";
 import { CombatantContext } from "../combatant-context/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { Milliseconds } from "../primatives/index.js";
+import { ActionStepTracker } from "./action-step-tracker.js";
+import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registry.js";
 
-export class SequentialActionExecutionManager {
+export class ActionSequenceManager {
   private remainingActionsToExecute: CombatActionExecutionIntent[];
-  private currentTracker: null | ActionExecutionTracker = null;
-  private completedTrackers: ActionExecutionTracker[] = [];
+  private currentTracker: null | ActionStepTracker = null;
+  private completedTrackers: ActionStepTracker[] = [];
   constructor(
     public id: string,
     actionExecutionIntent: CombatActionExecutionIntent,
     public replayNode: ReplayEventNode,
     public combatantContext: CombatantContext,
-    public sequentialActionManagerRegistry: SequentialActionExecutionManagerRegistry,
-    private trackerThatSpawnedThisActionOption: null | ActionExecutionTracker
+    public sequentialActionManagerRegistry: ActionSequenceManagerRegistry,
+    private trackerThatSpawnedThisActionOption: null | ActionStepTracker
   ) {
     this.remainingActionsToExecute = [actionExecutionIntent];
   }
@@ -75,7 +75,7 @@ export class SequentialActionExecutionManager {
     this.remainingActionsToExecute.push(...childActionIntents.reverse());
   }
 
-  startProcessingNext(time: { ms: Milliseconds }): Error | ActionExecutionTracker {
+  startProcessingNext(time: { ms: Milliseconds }): Error | ActionStepTracker {
     const nextActionExecutionIntentOption = this.remainingActionsToExecute.pop();
     if (!nextActionExecutionIntentOption)
       return new Error("Tried to process next action but there wasn't one");
@@ -92,7 +92,7 @@ export class SequentialActionExecutionManager {
     }
 
     try {
-      const tracker = new ActionExecutionTracker(
+      const tracker = new ActionStepTracker(
         this,
         this.sequentialActionManagerRegistry.actionStepIdGenerator.getNextId(),
         nextActionExecutionIntentOption,

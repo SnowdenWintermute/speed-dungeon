@@ -37,14 +37,17 @@ import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js
 
 export interface CombatActionComponentConfig {
   description: string;
+  intent: CombatActionIntent;
+
   targetingSchemes: TargetingScheme[];
   validTargetCategories: TargetCategories;
   autoTargetSelectionMethod: AutoTargetingSelectionMethod;
   usabilityContext: CombatActionUsabilityContext;
-  intent: CombatActionIntent;
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
+
   baseHpChangeValuesLevelMultiplier: number;
   accuracyModifier: number;
+
   appliesConditions: CombatantCondition[];
   incursDurabilityLoss: {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;

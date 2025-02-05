@@ -1,16 +1,16 @@
 import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../combat/index.js";
 import { Milliseconds } from "../primatives/index.js";
+import { ActionSequenceManager } from "./action-sequence-manager.js";
 import { ActionResolutionStep } from "./action-steps/index.js";
-import { SequentialActionExecutionManager } from "./sequential-action-execution-manager.js";
 
-export class ActionExecutionTracker {
+export class ActionStepTracker {
   currentStep: ActionResolutionStep;
   completedSteps: ActionResolutionStep[] = [];
   constructor(
-    public parentActionManager: SequentialActionExecutionManager,
+    public parentActionManager: ActionSequenceManager,
     public id: string,
     public readonly actionExecutionIntent: CombatActionExecutionIntent,
-    private previousTrackerInSequenceOption: null | ActionExecutionTracker,
+    private previousTrackerInSequenceOption: null | ActionStepTracker,
     private timeStarted: Milliseconds
   ) {
     // in the case of sub-actions, we'll start with spawning the projectiles or vfx

@@ -1,9 +1,11 @@
 import {
-  ActionExecutionTracker,
+  ActionSequenceManagerRegistry,
+  ActionStepTracker,
   CombatActionExecutionIntent,
+  CombatActionName,
+  CombatActionTargetType,
   CombatantContext,
   ReplayEventNode,
-  SequentialActionExecutionManagerRegistry,
   SequentialIdGenerator,
 } from "@speed-dungeon/common";
 import { ActionExecutionTrackerRegistry } from "./action-execution-tracker-registry.js";
@@ -18,9 +20,9 @@ export function processCombatAction(
   actionExecutionIntent: CombatActionExecutionIntent,
   combatantContext: CombatantContext
 ) {
-  const sequentialActionManagerRegistry = new SequentialActionExecutionManagerRegistry(idGenerator);
+  const actionSequenceManagerRegistry = new ActionSequenceManagerRegistry(idGenerator);
   const rootReplayNode = new ReplayEventNode();
-  sequentialActionManagerRegistry.registerAction(
+  actionSequenceManagerRegistry.registerAction(
     actionExecutionIntent,
     rootReplayNode,
     combatantContext,
@@ -32,17 +34,17 @@ export function processCombatAction(
   const completionOrderIdGenerator = new SequentialIdGenerator();
 
   while (
-    sequentialActionManagerRegistry.isNotEmpty() ||
+    actionSequenceManagerRegistry.isNotEmpty() ||
     actionExecutionTrackerRegistry.isNotEmpty()
   ) {
     // check if any sequentialActionManager is done processing and determine its next actions
-    for (const [id, manager] of sequentialActionManagerRegistry.getManagers()) {
+    for (const [id, manager] of actionSequenceManagerRegistry.getManagers()) {
       if (manager.isCurrentlyProcessing()) continue;
 
       manager.populateSelfWithCurrentActionChildren();
 
       if (manager.isDoneProcessing()) {
-        sequentialActionManagerRegistry.unRegisterAction(id);
+        actionSequenceManagerRegistry.unRegisterActionManager(id);
         continue;
       }
 
@@ -69,7 +71,7 @@ export function processCombatAction(
         tracker,
         combatantContext,
         completionOrderIdGenerator,
-        sequentialActionManagerRegistry,
+        actionSequenceManagerRegistry,
         actionExecutionTrackerRegistry
       );
     }
@@ -79,10 +81,10 @@ export function processCombatAction(
 }
 
 function processActionTrackerSteps(
-  tracker: ActionExecutionTracker,
+  tracker: ActionStepTracker,
   combatantContext: CombatantContext,
   completionOrderIdGenerator: SequentialIdGenerator,
-  sequentialActionManagerRegistry: SequentialActionExecutionManagerRegistry,
+  sequentialActionManagerRegistry: ActionSequenceManagerRegistry,
   actionExecutionTrackerRegistry: ActionExecutionTrackerRegistry
 ) {
   while (tracker.currentStep.isComplete()) {
@@ -125,3 +127,47 @@ function processActionTrackerSteps(
     tracker.addCurrentStepGameUpdateCommandToReplayNode();
   }
 }
+
+// get user input actionExecutionIntent and create a actionSequenceManager
+// hold the actionSequenceManager in a registry
+// iterate all actionSequenceManager
+// - if no current step tracker
+//   - pop the next action get it's first step
+//   - make an actionStepTracker and add it to a registry
+// - if current tracker and tracker.isDoneProcessing()
+//   - calculate any upcoming actions
+//   - if no upcoming actions,
+//     - set the tracker's currentStep to returnHome
+//     - set the tracker as "finalized"
+//   - else
+//     - pop the next action
+//     - get it's first step
+//     - set the tracker's current step
+//     - add the step to replay node
+// - if no currentTracker
+//   - calculate any upcoming actions
+//   - if no upcoming actions
+//     - remove the tracker
+//     - remove the action
+//   - else
+//     - pop the next action
+//     - get it's first step
+//     - set the tracker's current step
+//     - add the step to replay node
+//
+// sort actionStepTrackers by shortestTimeToCompletion
+// iterate all actionStepTrackers
+// - tick them by the shortestTimeToCompletion
+// - while any step is done
+//   - finalize the step, applying its completionOrderId and storing it in a completed list on the tracker
+//   - get next step and branchingActions
+//   - register branchingActions with their own actionSequenceManagers
+//   - if tracker is "finalized"
+//     - unregister the tracker
+//   - if next step === null
+//     - mark the tracker as DoneProcessing
+//   - else
+//     - set the next step as the current step
+//     - add the step to replay node
+//
+//

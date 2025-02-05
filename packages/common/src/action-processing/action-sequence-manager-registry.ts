@@ -3,12 +3,12 @@ import { CombatantContext } from "../combatant-context/index.js";
 import { EntityId } from "../primatives/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { SequentialIdGenerator } from "../utils/index.js";
-import { ActionExecutionTracker } from "./action-execution-tracker.js";
+import { ActionSequenceManager } from "./action-sequence-manager.js";
+import { ActionStepTracker } from "./action-step-tracker.js";
 import { ReplayEventNode } from "./replay-events.js";
-import { SequentialActionExecutionManager } from "./sequential-action-execution-manager.js";
 
-export class SequentialActionExecutionManagerRegistry {
-  private actionManagers: { [id: string]: SequentialActionExecutionManager } = {};
+export class ActionSequenceManagerRegistry {
+  private actionManagers: { [id: string]: ActionSequenceManager } = {};
   actionStepIdGenerator = new SequentialIdGenerator();
   constructor(private idGenerator: IdGenerator) {}
   isEmpty() {
@@ -21,10 +21,10 @@ export class SequentialActionExecutionManagerRegistry {
     actionExecutionIntent: CombatActionExecutionIntent,
     replayNode: ReplayEventNode,
     combatantContext: CombatantContext,
-    previousTrackerInSequenceOption: null | ActionExecutionTracker
+    previousTrackerInSequenceOption: null | ActionStepTracker
   ) {
     const id = this.idGenerator.generate();
-    const manager = new SequentialActionExecutionManager(
+    const manager = new ActionSequenceManager(
       id,
       actionExecutionIntent,
       replayNode,
@@ -38,7 +38,7 @@ export class SequentialActionExecutionManagerRegistry {
   getManager(id: EntityId) {
     return this.actionManagers[id];
   }
-  unRegisterAction(id: string) {
+  unRegisterActionManager(id: string) {
     delete this.actionManagers[id];
   }
   getManagers() {
