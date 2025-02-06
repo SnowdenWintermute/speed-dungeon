@@ -75,10 +75,10 @@ export abstract class ActionResolutionStep {
   abstract getTimeToCompletion(): Milliseconds;
   abstract isComplete(): boolean;
   /**Return branching actions and next step */
-  protected abstract onComplete(): ActionResolutionStepResult;
+  protected abstract onComplete(): Error | ActionResolutionStepResult;
 
   /**Mark the gameUpdateCommand's completionOrderId and get branching actions and next step*/
-  finalize(completionOrderId: number): ActionResolutionStepResult {
+  finalize(completionOrderId: number): Error | ActionResolutionStepResult {
     if (this.gameUpdateCommandOption)
       this.gameUpdateCommandOption.completionOrderId = completionOrderId;
     return this.onComplete();

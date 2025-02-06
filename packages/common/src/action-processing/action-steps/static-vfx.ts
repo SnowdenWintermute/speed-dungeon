@@ -6,7 +6,7 @@ import {
   ActionResolutionStepType,
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
-import { EvalOnHitOutcomeTriggersActionResolutionStep } from "./evaluate-hit-outcome-triggers.js";
+import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
 
 export class StaticVfxActionResolutionStep extends ActionResolutionStep {
   private vfxPosition: Vector3;
@@ -45,7 +45,7 @@ export class StaticVfxActionResolutionStep extends ActionResolutionStep {
   onComplete(): ActionResolutionStepResult {
     return {
       branchingActions: [],
-      nextStepOption: new EvalOnHitOutcomeTriggersActionResolutionStep(this.context),
+      nextStepOption: new RollIncomingHitOutcomesActionResolutionStep(this.context),
     };
   }
 }

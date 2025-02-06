@@ -27,7 +27,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
   onComplete(): ActionResolutionStepResult {
     return {
       branchingActions: [],
-      nextStepOption: new EvalOnHitOutcomeTriggersActionResolutionStep(this.context),
+      nextStepOption: new EvalOnHitOutcomeTriggersActionResolutionStep(this.context, []), // send hits here
     };
   }
 }

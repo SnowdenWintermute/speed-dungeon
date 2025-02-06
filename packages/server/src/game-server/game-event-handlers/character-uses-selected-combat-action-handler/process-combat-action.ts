@@ -41,9 +41,9 @@ export function processCombatAction(
         if (trackerOption === null) break;
 
         const completionOrderId = completionOrderIdGenerator.getNextIdNumeric();
-        const { branchingActions, nextStepOption } =
-          trackerOption.currentStep.finalize(completionOrderId);
-
+        const actionResult = trackerOption.currentStep.finalize(completionOrderId);
+        if (actionResult instanceof Error) return actionResult;
+        const { branchingActions, nextStepOption } = actionResult;
         if (manager.getIsFinalized()) {
           registry.unRegisterActionManager(manager.id);
           break;
