@@ -83,4 +83,14 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
   ): CombatActionTarget | Error | null {
     throw new Error("Function not implemented.");
   },
+  [AutoTargetingScheme.SelfAndSides]: function (
+    combatantContext: CombatantContext,
+    combatAction: CombatActionComponent
+  ): CombatActionTarget | Error | null {
+    const target: CombatActionTarget = {
+      type: CombatActionTargetType.SingleAndSides,
+      targetId: combatantContext.combatant.entityProperties.id,
+    };
+    return target;
+  },
 };

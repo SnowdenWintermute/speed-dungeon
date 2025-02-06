@@ -42,6 +42,7 @@ import { CombatantActionState } from "./owned-actions/combatant-action-state.js"
 import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
 import { getAllCurrentlyUsableActionNames } from "./owned-actions/get-all-currently-usable-action-names.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
+import { CombatantCondition } from "./combatant-conditions/index.js";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -88,6 +89,7 @@ export class CombatantProperties {
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   deepestFloorReached: number = 1;
   position: Vector3;
+  conditions: CombatantCondition[] = [];
   constructor(
     public combatantClass: CombatantClass,
     public combatantSpecies: CombatantSpecies,

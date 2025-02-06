@@ -37,6 +37,8 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     // @TODO - determine next step based on action type:
     // ex: if countered, skip the rollIncomingHitOutcomes step and go to postUseAnimation with a countered animation
     // and push a GameUpdateCommand with the counter animation for the countering combatant
+    //
+
     return {
       branchingActions, // split arrow, split arrow, split arrow
       // in case of subActions, skip to post use animation

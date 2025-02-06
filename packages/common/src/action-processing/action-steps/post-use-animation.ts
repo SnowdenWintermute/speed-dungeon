@@ -7,8 +7,6 @@ import {
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Milliseconds } from "../../primatives/index.js";
-import { PostUsePositioningActionResolutionStep } from "./post-use-positioning.js";
-import { COMBAT_ACTIONS } from "../../combat/index.js";
 
 const placeholderDuration = 1000;
 

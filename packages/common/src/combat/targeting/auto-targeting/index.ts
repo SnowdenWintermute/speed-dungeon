@@ -12,6 +12,7 @@ export enum AutoTargetingScheme {
   RandomCombatant, //
   SpecificSide, // main hand / offhand slash
   RandomSide,
+  SelfAndSides, // explosion
   AllCombatantsWithCondition, //
   ClosestCombatantWithCondition, // lightning rod causes arcs from nearby targets to hit them
   CombatantWithHighestLevelCondition, // shrapnel explosion hitting combatant with highest level "magnet" condition
@@ -44,6 +45,10 @@ export type AutoTargetSelectionMethodSpecificSide = {
 
 export type AutoTargetSelectionMethodRandomSide = {
   scheme: AutoTargetingScheme.RandomSide;
+};
+
+export type SelfAndSides = {
+  scheme: AutoTargetingScheme.SelfAndSides;
 };
 
 export type AutoTargetSelectionMethodCopyParent = {

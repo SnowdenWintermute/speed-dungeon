@@ -17,6 +17,7 @@ export default function getNextOrPreviousTarget(
 ): Error | CombatActionTarget {
   let newTargetResult: Error | string = new Error("No target was calculated");
   switch (currentTargets.type) {
+    case CombatActionTargetType.SingleAndSides:
     case CombatActionTargetType.Single:
       switch (combatAction.validTargetCategories) {
         case TargetCategories.Opponent:
@@ -28,12 +29,12 @@ export default function getNextOrPreviousTarget(
           );
           if (newTargetResult instanceof Error) return newTargetResult;
           return {
-            type: CombatActionTargetType.Single,
+            type: currentTargets.type,
             targetId: newTargetResult,
           };
         case TargetCategories.User:
           return {
-            type: CombatActionTargetType.Single,
+            type: currentTargets.type,
             targetId: actionUserId,
           };
         case TargetCategories.Friendly:
@@ -45,7 +46,7 @@ export default function getNextOrPreviousTarget(
           );
           if (newTargetResult instanceof Error) return newTargetResult;
           return {
-            type: CombatActionTargetType.Single,
+            type: currentTargets.type,
             targetId: newTargetResult,
           };
         case TargetCategories.Any:
@@ -59,7 +60,7 @@ export default function getNextOrPreviousTarget(
           );
           if (newTargetResult instanceof Error) return newTargetResult;
           return {
-            type: CombatActionTargetType.Single,
+            type: currentTargets.type,
             targetId: newTargetResult,
           };
       }

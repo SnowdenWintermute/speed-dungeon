@@ -1,8 +1,6 @@
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionSequenceManagerRegistry,
   COMBAT_ACTIONS,
-  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
   CombatantContext,
   ReplayEventNode,
@@ -37,7 +35,6 @@ export function processCombatAction(
   if (initialGameUpdateOptionResult) rootReplayNode.events.push(initialGameUpdateOptionResult);
 
   while (registry.isNotEmpty()) {
-    // iterate the managers
     for (const manager of registry.getManagers()) {
       while (manager.getCurrentTracker()?.currentStep.isComplete()) {
         const trackerOption = manager.getCurrentTracker();
@@ -68,43 +65,45 @@ export function processCombatAction(
             nestedReplayNode.events.push(initialGameUpdateOptionResult);
         }
 
-        if (nextStepOption === null) {
-          manager.populateSelfWithCurrentActionChildren();
-
-          if (manager.getNextActionInQueue() === undefined) {
-            const currentTrackerOption = manager.getCurrentTracker();
-            if (currentTrackerOption) {
-              const action = COMBAT_ACTIONS[currentTrackerOption.actionExecutionIntent.actionName];
-              if (action.userShouldMoveHomeOnComplete) {
-                const returnHomeStep = new PostUsePositioningActionResolutionStep(
-                  currentTrackerOption.currentStep.getContext(),
-                  "Run Back"
-                );
-
-                currentTrackerOption.currentStep = returnHomeStep;
-                const returnHomeUpdate = returnHomeStep.getGameUpdateCommandOption();
-                if (returnHomeUpdate) manager.replayNode.events.push(returnHomeUpdate);
-              }
-            }
-            manager.markAsFinalized();
-          } else {
-            const stepTrackerResult = manager.startProcessingNext(time);
-            if (stepTrackerResult instanceof Error) return stepTrackerResult;
-
-            const initialGameUpdateOptionResult =
-              stepTrackerResult.currentStep.getGameUpdateCommandOption();
-            if (initialGameUpdateOptionResult instanceof Error)
-              return initialGameUpdateOptionResult;
-
-            if (initialGameUpdateOptionResult)
-              manager.replayNode.events.push(initialGameUpdateOptionResult);
-          }
-        } else {
+        if (nextStepOption) {
           trackerOption.storeCompletedStep();
           trackerOption.currentStep = nextStepOption;
           const gameUpdateCommandOption = nextStepOption.getGameUpdateCommandOption();
           if (gameUpdateCommandOption) manager.replayNode.events.push(gameUpdateCommandOption);
+          continue;
         }
+
+        manager.populateSelfWithCurrentActionChildren();
+
+        if (manager.getNextActionInQueue()) {
+          const stepTrackerResult = manager.startProcessingNext(time);
+          if (stepTrackerResult instanceof Error) return stepTrackerResult;
+
+          const initialGameUpdateOptionResult =
+            stepTrackerResult.currentStep.getGameUpdateCommandOption();
+          if (initialGameUpdateOptionResult instanceof Error) return initialGameUpdateOptionResult;
+
+          if (initialGameUpdateOptionResult)
+            manager.replayNode.events.push(initialGameUpdateOptionResult);
+          continue;
+        }
+
+        // this action sequence is done, send the user home if the action type necessitates it
+        const currentTrackerOption = manager.getCurrentTracker();
+        if (currentTrackerOption) {
+          const action = COMBAT_ACTIONS[currentTrackerOption.actionExecutionIntent.actionName];
+          if (action.userShouldMoveHomeOnComplete) {
+            const returnHomeStep = new PostUsePositioningActionResolutionStep(
+              currentTrackerOption.currentStep.getContext(),
+              "Run Back"
+            );
+
+            currentTrackerOption.currentStep = returnHomeStep;
+            const returnHomeUpdate = returnHomeStep.getGameUpdateCommandOption();
+            if (returnHomeUpdate) manager.replayNode.events.push(returnHomeUpdate);
+          }
+        }
+        manager.markAsFinalized();
       }
     }
 
