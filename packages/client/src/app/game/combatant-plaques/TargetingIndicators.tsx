@@ -6,19 +6,16 @@ interface Props {
 }
 
 export default function TargetingIndicators({ party, entityId }: Props) {
-  const targetedBy = AdventuringParty.getIdsAndSelectedActionsOfCharactersTargetingCombatant(
-    party,
-    entityId
-  );
-  if (targetedBy instanceof Error) return <div>targeting error: {targetedBy.message}</div>;
+  const indicators = useGameStore().targetingIndicators;
+  const targetedBy = indicators.filter((indicator) => indicator.targetId === entityId);
 
   return targetedBy.length ? (
     <div
       className="absolute top-[-1.5rem] left-1/2 -translate-x-1/2 flex"
       style={{ zIndex: ZIndexLayers.TargetingIndicators }}
     >
-      {targetedBy.map(([_, combatActionName], i) => (
-        <TargetingIndicator key={i} combatActionName={combatActionName} />
+      {targetedBy.map((indicator, i) => (
+        <TargetingIndicator key={i} combatActionName={indicator.actionName} />
       ))}
     </div>
   ) : (
@@ -29,6 +26,7 @@ export default function TargetingIndicators({ party, entityId }: Props) {
 import React from "react";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { CombatActionIntent } from "@speed-dungeon/common/src/combat/combat-actions/combat-action-intent";
+import { useGameStore } from "@/stores/game-store";
 
 interface TargetingIndicatorProps {
   combatActionName: CombatActionName;

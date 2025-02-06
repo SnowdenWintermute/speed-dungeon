@@ -2,6 +2,7 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "../../game/index.js";
 import { NextOrPrevious } from "../../primatives/index.js";
 import getOwnedCharacterAndSelectedCombatAction from "../../utils/get-owned-character-and-selected-combat-action.js";
+import { CombatActionTarget } from "./combat-action-targets.js";
 import getNextOrPreviousTarget from "./get-next-or-previous-target.js";
 import { TargetingCalculator } from "./targeting-calculator.js";
 
@@ -11,7 +12,7 @@ export default function cycleCharacterTargets(
   player: SpeedDungeonPlayer,
   characterId: string,
   direction: NextOrPrevious
-): Error | void {
+): Error | CombatActionTarget {
   const characterAndActionDataResult = getOwnedCharacterAndSelectedCombatAction(
     party,
     player,
@@ -47,4 +48,6 @@ export default function cycleCharacterTargets(
 
   player.targetPreferences = updatedTargetPreferenceResult;
   character.combatantProperties.combatActionTarget = newTargetsResult;
+
+  return newTargetsResult;
 }

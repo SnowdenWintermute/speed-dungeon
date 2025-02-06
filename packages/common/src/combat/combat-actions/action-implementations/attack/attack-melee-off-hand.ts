@@ -22,12 +22,12 @@ import { iterateNumericEnum } from "../../../../utils/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
 import { getAttackHpChangeProperties } from "./get-attack-hp-change-properties.js";
-import { getCombatActionTargetIds } from "../../../action-results/get-action-target-ids.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { getStandardActionCritChance } from "../../action-calculation-utils/standard-action-calculations.js";
 import { MELEE_ATTACK_COMMON_CONFIG } from "./melee-attack-common-config.js";
+import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -76,11 +76,10 @@ const config: CombatActionComponentConfig = {
       return false;
     }
 
-    const targetIdsResult = getCombatActionTargetIds(
-      party,
+    const targetingCalculator = new TargetingCalculator(game, party, combatant, null);
+
+    const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
       self,
-      combatant.entityProperties.id,
-      idsOfFriendAndFoeResult.allyIds,
       battleOption,
       targetsOption
     );

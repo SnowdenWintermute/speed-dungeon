@@ -16,6 +16,8 @@ import {
 } from "./filtering.js";
 import { getValidPreferredOrDefaultActionTargets } from "./get-valid-preferred-or-default-action-targets.js";
 import { EntityId } from "../../primatives/index.js";
+import { Battle } from "../../battle/index.js";
+import { getActionTargetsIfSchemeIsValid } from "./get-targets-if-scheme-is-valid.js";
 
 export class TargetingCalculator {
   constructor(
@@ -25,10 +27,51 @@ export class TargetingCalculator {
     private playerOption: null | SpeedDungeonPlayer
   ) {}
 
+  getCombatActionTargetIds(
+    combatAction: CombatActionComponent,
+    battleOption: null | Battle,
+    targets: CombatActionTarget
+  ): Error | EntityId[] {
+    let opponentIdsOption: null | EntityId[] = null;
+    let allyIdsOption: null | EntityId[] = null;
+
+    if (battleOption !== null) {
+      const allyIdsAndOpponentIdsOptionResult = Battle.getAllyIdsAndOpponentIdsOption(
+        battleOption,
+        this.combatant.entityProperties.id
+      );
+      if (allyIdsAndOpponentIdsOptionResult instanceof Error)
+        return allyIdsAndOpponentIdsOptionResult;
+      opponentIdsOption = allyIdsAndOpponentIdsOptionResult.opponentIdsOption;
+      allyIdsOption = allyIdsAndOpponentIdsOptionResult.allyIds;
+    }
+
+    const allyIds = allyIdsOption || this.party.characterPositions;
+
+    const filteredTargetsResult = filterPossibleTargetIdsByProhibitedCombatantStates(
+      this.party,
+      combatAction.prohibitedTargetCombatantStates,
+      allyIds,
+      opponentIdsOption
+    );
+
+    if (filteredTargetsResult instanceof Error) return filteredTargetsResult;
+    const [filteredAllyIds, filteredOpponentIdsOption] = filteredTargetsResult;
+
+    const targetEntityIdsResult = getActionTargetsIfSchemeIsValid(
+      targets,
+      filteredAllyIds,
+      filteredOpponentIdsOption
+    );
+
+    return targetEntityIdsResult;
+  }
+
   assignInitialCombatantActionTargets(combatActionOption: null | CombatActionComponent) {
     if (combatActionOption === null) {
       this.combatant.combatantProperties.selectedCombatAction = null;
       this.combatant.combatantProperties.combatActionTarget = null;
+      return null;
     } else {
       const filteredIdsResult = this.getFilteredPotentialTargetIdsForAction(combatActionOption);
       if (filteredIdsResult instanceof Error) return filteredIdsResult;
@@ -36,7 +79,6 @@ export class TargetingCalculator {
       const newTargetsResult = this.getPreferredOrDefaultActionTargets(combatActionOption);
 
       if (newTargetsResult instanceof Error) return newTargetsResult;
-      console.log("new targets: ", newTargetsResult);
 
       const newTargetPreferencesResult = this.getUpdatedTargetPreferences(
         combatActionOption,
@@ -49,6 +91,7 @@ export class TargetingCalculator {
       if (this.playerOption) this.playerOption.targetPreferences = newTargetPreferencesResult;
       this.combatant.combatantProperties.selectedCombatAction = combatActionOption.name;
       this.combatant.combatantProperties.combatActionTarget = newTargetsResult;
+      return newTargetsResult;
     }
   }
 

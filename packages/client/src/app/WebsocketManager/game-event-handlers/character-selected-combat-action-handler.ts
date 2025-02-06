@@ -5,10 +5,12 @@ import {
   CharacterAssociatedData,
   CombatActionName,
   ERROR_MESSAGES,
+  EntityId,
   TargetingCalculator,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { ConsideringCombatActionMenuState } from "@/app/game/ActionMenu/menu-state/considering-combat-action";
+import { synchronizeTargetingIndicators } from "./synchronize-targeting-indicators";
 
 export function characterSelectedCombatActionHandler(
   characterId: string,
@@ -28,9 +30,32 @@ export function characterSelectedCombatActionHandler(
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
 
       const targetingCalculator = new TargetingCalculator(game, party, character, playerOption);
-      const maybeError =
+      const newTargetsResult =
         targetingCalculator.assignInitialCombatantActionTargets(combatActionOption);
-      if (maybeError instanceof Error) return maybeError;
+      if (newTargetsResult instanceof Error) return newTargetsResult;
+
+      const battleOption = (() => {
+        if (!party.battleId) return null;
+        return game.battles[party.battleId] || null;
+      })();
+
+      let targetIds: null | EntityId[] = null;
+      if (combatActionOption !== null && newTargetsResult) {
+        const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
+          combatActionOption,
+          battleOption,
+          newTargetsResult
+        );
+        if (targetIdsResult instanceof Error) return targetIdsResult;
+        targetIds = targetIdsResult;
+      }
+
+      synchronizeTargetingIndicators(
+        gameState,
+        combatActionNameOption,
+        character.entityProperties.id,
+        targetIds || []
+      );
 
       const playerOwnsCharacter = AdventuringParty.playerOwnsCharacter(
         party,
