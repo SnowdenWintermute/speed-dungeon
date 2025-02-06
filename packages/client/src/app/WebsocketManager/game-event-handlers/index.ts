@@ -14,7 +14,7 @@ import characterDroppedItemHandler from "./character-dropped-item-handler";
 import characterDroppedEquippedItemHandler from "./character-dropped-equipped-item-handler";
 import characterUnequippedSlotHandler from "./character-unequipped-slot-handler";
 import characterEquippedItemHandler from "./character-equipped-item-handler";
-import characterSelectedCombatActionHandler from "./character-selected-combat-action-handler";
+import { characterSelectedCombatActionHandler } from "./character-selected-combat-action-handler";
 import characterCycledTargetsHandler from "./character-cycled-targets-handler";
 import characterCycledTargetingSchemesHandler from "./character-cycled-targeting-schemes-handler";
 import getCurrentParty from "@/utils/getCurrentParty";
@@ -27,6 +27,7 @@ import { characterDroppedShardsHandler } from "./character-dropped-shards-handle
 import characterPurchasedItemHandler from "./character-purchased-item-handler";
 import { characterPerformedCraftingActionHandler } from "./character-performed-crafting-action-handler";
 import { playerPostedItemLinkHandler } from "./player-posted-item-link-handler";
+import { newActionReplayTreeHandler } from "./new-action-replay-tree-handler";
 
 export default function setUpGameEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -83,4 +84,5 @@ export default function setUpGameEventHandlers(
     characterPerformedCraftingActionHandler
   );
   socket.on(ServerToClientEvent.PlayerPostedItemLink, playerPostedItemLinkHandler);
+  socket.on(ServerToClientEvent.ActionResultReplayTree, newActionReplayTreeHandler)
 }

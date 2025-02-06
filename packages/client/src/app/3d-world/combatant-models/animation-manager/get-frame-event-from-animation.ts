@@ -1,12 +1,9 @@
 import {
-  CombatActionType,
-  AbilityName,
   CombatantProperties,
   ERROR_MESSAGES,
   Inventory,
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
-  ABILITY_NAME_STRINGS,
   CONSUMABLE_TYPE_STRINGS,
   CombatantEquipment,
   Equipment,
@@ -26,13 +23,12 @@ import { useGameStore } from "@/stores/game-store";
 import { induceHitRecovery } from "./induce-hit-recovery";
 import { ModelActionType } from "../../game-world/model-manager/model-actions";
 
-export default function getFrameEventFromAnimation(
+export function getFrameEventFromAnimation(
   gameWorld: GameWorld,
   actionPayload: PerformCombatActionActionCommandPayload,
   actionUserId: string
 ): { fn: () => void; frame: number } {
-  const { combatAction, hpChangesByEntityId, mpChangesByEntityId, missesByEntityId } =
-    actionPayload;
+  const { hpChangesByEntityId, mpChangesByEntityId, missesByEntityId } = actionPayload;
 
   let animationEventOption: null | (() => void) = null;
 

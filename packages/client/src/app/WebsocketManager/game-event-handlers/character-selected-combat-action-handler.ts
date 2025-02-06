@@ -1,40 +1,36 @@
 import { GameState } from "@/stores/game-store";
 import {
   AdventuringParty,
+  COMBAT_ACTIONS,
   CharacterAssociatedData,
-  CombatAction,
+  CombatActionName,
   ERROR_MESSAGES,
-  SpeedDungeonGame,
-  getCombatActionProperties,
+  TargetingCalculator,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { ConsideringCombatActionMenuState } from "@/app/game/ActionMenu/menu-state/considering-combat-action";
 
-export default function characterSelectedCombatActionHandler(
+export function characterSelectedCombatActionHandler(
   characterId: string,
-  combatActionOption: null | CombatAction
+  combatActionNameOption: null | CombatActionName
 ) {
   characterAssociatedDataProvider(
     characterId,
     ({ character, game, party }: CharacterAssociatedData, gameState: GameState) => {
-      character.combatantProperties.selectedCombatAction = combatActionOption;
+      character.combatantProperties.selectedCombatAction = combatActionNameOption;
       if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
-
-      const combatActionPropertiesOption = combatActionOption
-        ? getCombatActionProperties(party, combatActionOption, characterId)
-        : null;
-      if (combatActionPropertiesOption instanceof Error) return combatActionPropertiesOption;
+      const combatActionOption =
+        combatActionNameOption !== null ? COMBAT_ACTIONS[combatActionNameOption] : null;
       if (character.combatantProperties.controllingPlayer === null)
         return new Error(ERROR_MESSAGES.COMBATANT.EXPECTED_OWNER_ID_MISSING);
 
-      const newTargetsResult = SpeedDungeonGame.assignCharacterActionTargets(
-        game,
-        characterId,
-        character.combatantProperties.controllingPlayer,
-        combatActionPropertiesOption
-      );
+      const playerOption = game.players[character.combatantProperties.controllingPlayer];
+      if (playerOption === undefined) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
 
-      if (newTargetsResult instanceof Error) return newTargetsResult;
+      const targetingCalculator = new TargetingCalculator(game, party, character, playerOption);
+      const maybeError =
+        targetingCalculator.assignInitialCombatantActionTargets(combatActionOption);
+      if (maybeError instanceof Error) return maybeError;
 
       const playerOwnsCharacter = AdventuringParty.playerOwnsCharacter(
         party,
@@ -42,9 +38,11 @@ export default function characterSelectedCombatActionHandler(
         characterId
       );
 
-      if (!playerOwnsCharacter || !combatActionOption) return;
+      if (!playerOwnsCharacter || combatActionNameOption === null) return;
 
-      gameState.stackedMenuStates.push(new ConsideringCombatActionMenuState(combatActionOption));
+      gameState.stackedMenuStates.push(
+        new ConsideringCombatActionMenuState(combatActionNameOption)
+      );
     }
   );
 }

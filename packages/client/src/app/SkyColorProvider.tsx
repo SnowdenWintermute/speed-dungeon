@@ -11,6 +11,5 @@ export default function SkyColorProvider({ children }: { children: ReactNode }) 
   });
   const skyColor = SKY_COLORS_BY_FLOOR[currentFloor as DungeonFloor];
 
-  console.log("SKY COLOR: ", skyColor);
   return <div style={{ background: skyColor }}>{children}</div>;
 }

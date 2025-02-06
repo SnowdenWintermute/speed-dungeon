@@ -16,18 +16,11 @@ export enum ActionPayableResource {
   Mana,
   Shards,
   QuickActions,
-  ConsumableType,
 }
 
 export type ActionResourceCostBases = Partial<Record<ActionPayableResource, CombatActionCost>>;
 
-export interface ActionResourceCosts {
-  [ActionPayableResource.HitPoints]?: number;
-  [ActionPayableResource.Mana]?: number;
-  [ActionPayableResource.Shards]?: number;
-  [ActionPayableResource.QuickActions]?: number;
-  [ActionPayableResource.ConsumableType]?: ConsumableType;
-}
+export type ActionResourceCosts = Partial<Record<ActionPayableResource, number>>;
 
 export function getStandardActionResourceCosts(
   user: CombatantProperties,

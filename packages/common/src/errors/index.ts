@@ -90,12 +90,10 @@ export const ERROR_MESSAGES = {
   MONSTERS: {
     NO_MONSTERS_FOUND: "No monsters were found in the current room",
   },
-  ABILITIES: {
+  COMBAT_ACTIONS: {
     NOT_OWNED: "That ability is not owned by that combatant",
     INVALID_TYPE: "Invalid ability type",
     INSUFFICIENT_MANA: "Not enough mana",
-  },
-  COMBAT_ACTIONS: {
     NO_VALID_TARGETS: "No valid targets were found for the selected action",
     ONLY_ONE_TARGETING_SCHEME_AVAILABLE:
       "There is only one targeting scheme available for that action",

@@ -12,7 +12,7 @@ import {
   iterateNumericEnumKeyedRecord,
   randomNormal,
 } from "@speed-dungeon/common";
-import getMonsterStartingAttributes from "./get-monster-starting-attributes.js";
+import { getMonsterStartingAttributes } from "./get-monster-starting-attributes.js";
 import { addAttributesToAccumulator } from "@speed-dungeon/common";
 import getMonsterPerLevelAttributes from "./get-monster-per-level-attributes.js";
 import getMonsterTraits from "./get-monster-traits.js";

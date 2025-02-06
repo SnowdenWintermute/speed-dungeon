@@ -8,7 +8,7 @@ import {
 } from ".";
 import {
   ClientToServerEvent,
-  CombatAction,
+  CombatActionName,
   CombatantProperties,
   InputLock,
   NextOrPrevious,
@@ -27,7 +27,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.CombatActionSelected;
-  constructor(public combatAction: CombatAction) {}
+  constructor(public combatActionName: CombatActionName) {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
@@ -42,7 +42,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
     const cancelButton = createCancelButton([], () => {
       websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
         characterId,
-        combatActionOption: null,
+        combatActionNameOption: null,
       });
     });
     toReturn[ActionButtonCategory.Top].push(cancelButton);
@@ -111,7 +111,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
 
     const combatActionProperties = CombatantProperties.getCombatActionPropertiesIfOwned(
       combatantProperties,
-      this.combatAction
+      this.combatActionName
     );
     if (combatActionProperties instanceof Error) {
       setAlert(combatActionProperties);

@@ -1,8 +1,6 @@
 import { CombatAttribute, CombatantAttributeRecord, MonsterType } from "@speed-dungeon/common";
 
-export default function getMonsterStartingAttributes(
-  monsterType: MonsterType
-): CombatantAttributeRecord {
+export function getMonsterStartingAttributes(monsterType: MonsterType): CombatantAttributeRecord {
   const attributes: CombatantAttributeRecord = {};
   switch (monsterType) {
     case MonsterType.MetallicGolem:

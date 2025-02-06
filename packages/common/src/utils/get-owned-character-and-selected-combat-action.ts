@@ -25,7 +25,7 @@ export default function getOwnedCharacterAndSelectedCombatAction(
   if (characterResult instanceof Error) return characterResult;
   const character = characterResult;
 
-  if (!character.combatantProperties.selectedCombatAction)
+  if (character.combatantProperties.selectedCombatAction === null)
     return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
   const selectedAction = character.combatantProperties.selectedCombatAction;
 

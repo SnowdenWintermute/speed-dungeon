@@ -8,6 +8,6 @@ export function getOwnedActionState(
   actionName: CombatActionName
 ): Error | CombatantActionState {
   const ownedActionStateOption = combatantProperties.ownedActions[actionName];
-  if (!ownedActionStateOption) return new Error(ERROR_MESSAGES.ABILITIES.NOT_OWNED);
+  if (!ownedActionStateOption) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
   return ownedActionStateOption;
 }

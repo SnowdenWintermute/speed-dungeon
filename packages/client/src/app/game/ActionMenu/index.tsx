@@ -94,7 +94,7 @@ export default function ActionMenu({ inputLocked }: { inputLocked: boolean }) {
         className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex"
         style={{ height: `${BUTTON_HEIGHT * ACTION_MENU_PAGE_SIZE}rem` }}
       >
-        <ActionDetails actionName={currentMenu.combatAction} />
+        <ActionDetails actionName={currentMenu.combatActionName} />
       </div>
     );
   }

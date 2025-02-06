@@ -56,7 +56,7 @@ export default function calculateActionResult(
   if (costsOption && costsOption[ActionPayableResource.Mana] !== undefined)
     actionResult.manaCost = Math.floor(costsOption[ActionPayableResource.Mana]);
   if (combatantProperties.mana < actionResult.manaCost)
-    return new Error(ERROR_MESSAGES.ABILITIES.INSUFFICIENT_MANA);
+    return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_MANA);
 
   // CONSUMABLE ONLY
   // if (combatAction.type === CombatActionType.ConsumableUsed) {

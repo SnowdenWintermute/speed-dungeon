@@ -3,7 +3,12 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Combatant } from "../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame, SpeedDungeonPlayer } from "../../game/index.js";
-import { CombatActionComponent, FriendOrFoe, TargetingScheme } from "../combat-actions/index.js";
+import {
+  CombatActionComponent,
+  CombatActionName,
+  FriendOrFoe,
+  TargetingScheme,
+} from "../combat-actions/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 import {
   filterPossibleTargetIdsByActionTargetCategories,
@@ -19,6 +24,33 @@ export class TargetingCalculator {
     private combatant: Combatant,
     private playerOption: null | SpeedDungeonPlayer
   ) {}
+
+  assignInitialCombatantActionTargets(combatActionOption: null | CombatActionComponent) {
+    if (combatActionOption === null) {
+      this.combatant.combatantProperties.selectedCombatAction = null;
+      this.combatant.combatantProperties.combatActionTarget = null;
+    } else {
+      const filteredIdsResult = this.getFilteredPotentialTargetIdsForAction(combatActionOption);
+      if (filteredIdsResult instanceof Error) return filteredIdsResult;
+      const [allyIdsOption, opponentIdsOption] = filteredIdsResult;
+      const newTargetsResult = this.getPreferredOrDefaultActionTargets(combatActionOption);
+
+      if (newTargetsResult instanceof Error) return newTargetsResult;
+      console.log("new targets: ", newTargetsResult);
+
+      const newTargetPreferencesResult = this.getUpdatedTargetPreferences(
+        combatActionOption,
+        newTargetsResult,
+        allyIdsOption,
+        opponentIdsOption
+      );
+      if (newTargetPreferencesResult instanceof Error) return newTargetPreferencesResult;
+
+      if (this.playerOption) this.playerOption.targetPreferences = newTargetPreferencesResult;
+      this.combatant.combatantProperties.selectedCombatAction = combatActionOption.name;
+      this.combatant.combatantProperties.combatActionTarget = newTargetsResult;
+    }
+  }
 
   getFilteredPotentialTargetIdsForAction(
     combatAction: CombatActionComponent

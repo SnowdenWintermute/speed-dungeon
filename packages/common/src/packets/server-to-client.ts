@@ -1,7 +1,7 @@
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/index.js";
 import { Battle, BattleConclusion } from "../battle/index.js";
 import { CombatActionName } from "../combat/index.js";
-import { ActionCommandPayload } from "../action-processing/index.js";
+import { ActionCommandPayload, ReplayEventNode } from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Item } from "../items/index.js";
 import { EntityId, NextOrPrevious } from "../primatives/index.js";
@@ -36,7 +36,7 @@ export enum ServerToClientEvent {
   DungeonRoomTypesOnCurrentFloor = "17",
   DungeonRoomUpdate = "18",
   BattleFullUpdate = "19",
-  ActionCommandPayloads = "20",
+  // ActionCommandPayloads = "20",
   GameMessage = "21",
   // BattleReport = "22",
   CharacterDroppedItem = "23",
@@ -64,6 +64,7 @@ export enum ServerToClientEvent {
   CharacterPurchasedItem = "43",
   CharacterPerformedCraftingAction = "44",
   PlayerPostedItemLink = "45",
+  ActionResultReplayTree = "46",
 }
 
 export interface ServerToClientEventTypes {
@@ -109,7 +110,7 @@ export interface ServerToClientEventTypes {
   ) => void;
   [ServerToClientEvent.DungeonRoomUpdate]: (dungeonRoom: DungeonRoom) => void;
   [ServerToClientEvent.BattleFullUpdate]: (battleOption: null | Battle) => void;
-  [ServerToClientEvent.ActionCommandPayloads]: (payloads: ActionCommandPayload[]) => void;
+  // [ServerToClientEvent.ActionCommandPayloads]: (payloads: ActionCommandPayload[]) => void;
   [ServerToClientEvent.GameMessage]: (message: GameMessage) => void;
   // [ServerToClientEvent.BattleReport]: (report: BattleReport) => void;
   [ServerToClientEvent.CharacterDroppedItem]: (characterAndItem: CharacterAndItem) => void;
@@ -178,6 +179,9 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.PlayerPostedItemLink]: (eventData: {
     username: string;
     itemId: EntityId;
+  }) => void;
+  [ServerToClientEvent.ActionResultReplayTree]: (eventData: {
+    replayTree: ReplayEventNode;
   }) => void;
 }
 

@@ -4,7 +4,7 @@ import { filterPossibleTargetIdsByProhibitedCombatantStates } from "../combat/ta
 import { CombatantProperties } from "../combatants/index.js";
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 
-export default function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
+export function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
   party: AdventuringParty,
   combatantId: string
 ) {
@@ -40,6 +40,10 @@ export default function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
     let combatantIsTargetedByThisCharacter = false;
 
     switch (currentTarget.type) {
+      case CombatActionTargetType.SingleAndSides:
+        throw new Error(
+          "not implemented SingleAndSides targeting, get the implementatino from the other place it already exists"
+        );
       case CombatActionTargetType.Single:
         combatantIsTargetedByThisCharacter = currentTarget.targetId === combatantId;
         break;

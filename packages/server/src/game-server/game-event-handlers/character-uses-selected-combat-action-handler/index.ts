@@ -1,10 +1,14 @@
 import {
   CharacterAssociatedData,
-  CombatantAssociatedData,
+  CombatActionExecutionIntent,
+  CombatantContext,
   ERROR_MESSAGES,
   InputLock,
+  ServerToClientEvent,
+  getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../../singletons.js";
+import { processCombatAction } from "./process-combat-action.js";
 
 export default async function useSelectedCombatActionHandler(
   _eventData: { characterId: string },
@@ -14,7 +18,7 @@ export default async function useSelectedCombatActionHandler(
   // validate use
 
   const { game, party, character } = characterAssociatedData;
-  const combatantContext: CombatantAssociatedData = { game, party, combatant: character };
+  const combatantContext = new CombatantContext(game, party, character );
   const gameServer = getGameServer();
 
   if (InputLock.isLocked(party.inputLock)) return new Error(ERROR_MESSAGES.PARTY.INPUT_IS_LOCKED);
@@ -22,5 +26,18 @@ export default async function useSelectedCombatActionHandler(
   const { selectedCombatAction } = character.combatantProperties;
   if (selectedCombatAction === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
 
-  // @TODO - plug in the new processCombatAction()
+  const targets = character.combatantProperties.combatActionTarget;
+  if(targets === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED)
+
+  const replayTreeResult = processCombatAction(
+    new CombatActionExecutionIntent(selectedCombatAction, targets),
+    combatantContext
+  );
+  if (replayTreeResult instanceof Error) return replayTreeResult;
+
+  // @TODO - process battle until next player turn or completion
+
+  gameServer.io
+    .in(getPartyChannelName(game.name, party.name))
+    .emit(ServerToClientEvent.ActionResultReplayTree, { replayTree: replayTreeResult });
 }

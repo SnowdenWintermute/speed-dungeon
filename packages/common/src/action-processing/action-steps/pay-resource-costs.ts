@@ -4,22 +4,45 @@ import {
   ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTIONS } from "../../combat/index.js";
+import { ActionPayableResource, COMBAT_ACTIONS } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { EvalOnUseTriggersActionResolutionStep } from "./evaluate-on-use-triggers.js";
+import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
+import { CombatantProperties } from "../../combatants/index.js";
 
 export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
-    // @TODO - calculate the actual costs paid
-    // @TODO - apply the deducted costs to server game state combatant resources
-    //
-    const gameUpdateCommand: GameUpdateCommand = {
-      type: GameUpdateCommandType.ResourcesPaid,
-      completionOrderId: null,
-      combatantId: context.combatantContext.combatant.entityProperties.id,
-      costsPaid: {},
-    };
-    super(ActionResolutionStepType.payResourceCosts, context, gameUpdateCommand);
+    const action = COMBAT_ACTIONS[context.actionExecutionIntent.actionName];
+    const costsOption = action.getResourceCosts(
+      context.combatantContext.combatant.combatantProperties
+    );
+
+    let gameUpdateCommandOption: null | GameUpdateCommand = null;
+    if (costsOption) {
+      gameUpdateCommandOption = {
+        type: GameUpdateCommandType.ResourcesPaid,
+        completionOrderId: null,
+        combatantId: context.combatantContext.combatant.entityProperties.id,
+        costsPaid: costsOption,
+      };
+
+      const { combatantProperties } = context.combatantContext.combatant;
+
+      for (const [resource, cost] of iterateNumericEnumKeyedRecord(costsOption)) {
+        switch (resource) {
+          case ActionPayableResource.HitPoints:
+            CombatantProperties.changeHitPoints(combatantProperties, cost);
+            break;
+          case ActionPayableResource.Mana:
+            CombatantProperties.changeMana(combatantProperties, cost);
+            break;
+          case ActionPayableResource.Shards:
+          case ActionPayableResource.QuickActions:
+        }
+      }
+    }
+
+    super(ActionResolutionStepType.payResourceCosts, context, gameUpdateCommandOption);
   }
 
   protected onTick = () => {};
@@ -27,11 +50,6 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
   isComplete = () => true;
 
   onComplete(): ActionResolutionStepResult {
-    const action = COMBAT_ACTIONS[this.context.actionExecutionIntent.actionName];
-    const costs = action.getResourceCosts(
-      this.context.combatantContext.combatant.combatantProperties
-    );
-
     return {
       branchingActions: [],
       nextStepOption: new EvalOnUseTriggersActionResolutionStep(this.context),

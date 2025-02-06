@@ -16,9 +16,6 @@ import {
   CombatantProperties,
   Inventory,
   CombatActionUsabilityContext,
-  CombatantEquipment,
-  HoldableSlotType,
-  EquipmentType,
   iterateNumericEnumKeyedRecord,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionName,
@@ -28,7 +25,6 @@ import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import getGameAndParty from "@/utils/getGameAndParty";
-import cloneDeep from "lodash.clonedeep";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { setInventoryOpen } from "./common-buttons/open-inventory";

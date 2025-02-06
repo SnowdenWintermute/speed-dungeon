@@ -1,4 +1,5 @@
 import {
+  COMBAT_ACTION_NAME_STRINGS,
   CharacterAssociatedData,
   CombatActionComponent,
   CombatantProperties,
@@ -27,31 +28,16 @@ export function selectCombatActionHandler(
     combatActionOption = combatActionPropertiesResult;
   }
 
-  if (combatActionOption === null) {
-    character.combatantProperties.selectedCombatAction = null;
-    character.combatantProperties.combatActionTarget = null;
-  } else {
-    const targetingCalculator = new TargetingCalculator(game, party, character, player);
-    const filteredIdsResult =
-      targetingCalculator.getFilteredPotentialTargetIdsForAction(combatActionOption);
-    if (filteredIdsResult instanceof Error) return filteredIdsResult;
-    const [allyIdsOption, opponentIdsOption] = filteredIdsResult;
-    const newTargetsResult =
-      targetingCalculator.getPreferredOrDefaultActionTargets(combatActionOption);
+  const targetingCalculator = new TargetingCalculator(game, party, character, player);
+  const maybeError = targetingCalculator.assignInitialCombatantActionTargets(combatActionOption);
+  if (maybeError instanceof Error) return maybeError;
 
-    if (newTargetsResult instanceof Error) return newTargetsResult;
+  character.combatantProperties.selectedCombatAction = combatActionNameOption;
 
-    const newTargetPreferencesResult = targetingCalculator.getUpdatedTargetPreferences(
-      combatActionOption,
-      newTargetsResult,
-      allyIdsOption,
-      opponentIdsOption
-    );
-    if (newTargetPreferencesResult instanceof Error) return newTargetPreferencesResult;
-
-    player.targetPreferences = newTargetPreferencesResult;
-    character.combatantProperties.selectedCombatAction = combatActionOption.name;
-    character.combatantProperties.combatActionTarget = newTargetsResult;
+  if (combatActionNameOption !== null)
+    console.log("selected combat action: ", COMBAT_ACTION_NAME_STRINGS[combatActionNameOption]);
+  else {
+    console.log("deselected combat action");
   }
 
   gameServer.io

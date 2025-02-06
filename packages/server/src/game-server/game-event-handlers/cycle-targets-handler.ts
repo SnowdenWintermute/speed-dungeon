@@ -8,7 +8,7 @@ import {
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons.js";
 
-export default function cycleTargetsHandler(
+export function cycleTargetsHandler(
   eventData: { characterId: string; direction: NextOrPrevious },
   characterAssociatedData: CharacterAssociatedData
 ): Error | void {

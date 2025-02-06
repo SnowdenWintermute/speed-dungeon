@@ -68,6 +68,8 @@ export class GameState {
   viewingLeaveGameModal: boolean = false;
   viewingDropShardsModal: boolean = false;
   combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};
+  targetingIndicators: { entityId: EntityId; actionName: CombatActionName }[] = [];
+
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
     if (party instanceof Error) return null;

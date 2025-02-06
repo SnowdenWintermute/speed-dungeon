@@ -26,6 +26,8 @@ import { getActionHitChance } from "./get-action-hit-chance.js";
 import { CombatantProperties } from "../../../combatants/index.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { getActionCritChance } from "./get-action-crit-chance.js";
+import { CombatActionTarget } from "../../targeting/combat-action-targets.js";
+import { Battle } from "../../../battle/index.js";
 export * from "./get-action-hit-chance.js";
 export * from "./get-action-crit-chance.js";
 export * from "./hp-change-calculation-strategies/index.js";
@@ -33,7 +35,13 @@ export * from "./check-if-target-wants-to-be-hit.js";
 
 export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
   game: SpeedDungeonGame,
-  args: ActionResultCalculationArguments,
+  args: {
+    combatAction: CombatActionComponent;
+    userId: string;
+    targets: CombatActionTarget;
+    battleOption: null | Battle;
+    allyIds: string[];
+  },
   targetIds: string[],
   action: CombatActionComponent
 ):

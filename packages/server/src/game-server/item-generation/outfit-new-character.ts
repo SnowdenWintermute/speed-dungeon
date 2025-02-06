@@ -15,14 +15,19 @@ import {
   TwoHandedRangedWeapon,
   OneHandedMeleeWeapon,
   BodyArmor,
+  CombatActionName,
+  CombatantActionState,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment, { givePlaytestingItems } from "./create-starting-equipment.js";
 import { createConsumableByType } from "./create-consumable-by-type.js";
 import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
 
-export default function outfitNewCharacter(character: Combatant) {
+export function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
+  combatantProperties.ownedActions[CombatActionName.Attack] = new CombatantActionState(
+    CombatActionName.Attack
+  );
 
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
   if (baseStartingAttributesOption) {

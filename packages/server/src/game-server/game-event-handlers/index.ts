@@ -17,7 +17,7 @@ import equipItemHandler from "./equip-item-handler.js";
 import { pickUpItemsHandler } from "./pick-up-items-handler.js";
 import acknowledgeReceiptOfItemOnGroundHandler from "./acknowledge-receipt-of-item-on-ground-handler.js";
 import { selectCombatActionHandler } from "./select-combat-action-handler.js";
-import cycleTargetsHandler from "./cycle-targets-handler.js";
+import { cycleTargetsHandler } from "./cycle-targets-handler.js";
 import cycleTargetingSchemesHandler from "./cycle-targeting-schemes-handler.js";
 import useSelectedCombatActionHandler from "./character-uses-selected-combat-action-handler/index.js";
 import characterSpentAttributePointHandler from "./character-spent-attribute-point-handler.js";

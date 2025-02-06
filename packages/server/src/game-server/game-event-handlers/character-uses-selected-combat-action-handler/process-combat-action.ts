@@ -113,5 +113,6 @@ export function processCombatAction(
     for (const manager of registry.getManagers())
       manager.getCurrentTracker()?.currentStep.tick(timeToTick);
   }
+
   return rootReplayNode;
 }

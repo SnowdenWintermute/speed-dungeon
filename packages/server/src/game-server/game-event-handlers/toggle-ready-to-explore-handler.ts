@@ -114,19 +114,20 @@ export async function exploreNextRoom(
 
   if (battle.turnTrackers[0] === undefined)
     return new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
+  // @TODO - implement new replayEventNode system
   // if the ai was first to go, then send the result of their turn/potential battle conclusion
-  const battleProcessingPayloadsResult = await processBattleUntilPlayerTurnOrConclusion(
-    this,
-    game,
-    party,
-    battleOption
-  );
-  if (battleProcessingPayloadsResult instanceof Error) return battleProcessingPayloadsResult;
-  if (battleProcessingPayloadsResult.length) {
-    this.io
-      .in(getPartyChannelName(game.name, party.name))
-      .emit(ServerToClientEvent.ActionCommandPayloads, battleProcessingPayloadsResult);
-  }
+  // const battleProcessingPayloadsResult = await processBattleUntilPlayerTurnOrConclusion(
+  //   this,
+  //   game,
+  //   party,
+  //   battleOption
+  // );
+  // if (battleProcessingPayloadsResult instanceof Error) return battleProcessingPayloadsResult;
+  // if (battleProcessingPayloadsResult.length) {
+  //   this.io
+  //     .in(getPartyChannelName(game.name, party.name))
+  //     .emit(ServerToClientEvent.ActionCommandPayloads, battleProcessingPayloadsResult);
+  // }
 }
 
 export function putPartyInNextRoom(

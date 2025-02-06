@@ -1,4 +1,6 @@
 import {
+  ActionPayableResource,
+  ActionResourceCosts,
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
@@ -39,7 +41,12 @@ const config: CombatActionComponentConfig = {
   incursDurabilityLoss: {},
   costBases: {},
   userShouldMoveHomeOnComplete: true,
-  getResourceCosts: () => null,
+  getResourceCosts: () => {
+    const costs: ActionResourceCosts = {
+      [ActionPayableResource.Mana]: 1,
+    };
+    return costs;
+  },
   getExecutionTime: () => 1000,
   requiresCombatTurn: () => true,
   shouldExecute: () => true,
