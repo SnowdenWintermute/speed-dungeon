@@ -19,7 +19,7 @@ import {
 import { useGameStore } from "@/stores/game-store";
 import { gameWorld } from "../../SceneManager";
 
-export default async function startMovingIntoCombatActionUsePosition(
+export async function startMovingIntoCombatActionUsePosition(
   actionUserId: EntityId,
   actionCommandPayload: MoveIntoCombatActionPositionActionCommandPayload
 ) {

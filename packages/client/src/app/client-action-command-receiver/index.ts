@@ -9,8 +9,8 @@ import battleResultActionCommandHandler from "./process-battle-result";
 import gameMessageActionCommandHandler from "./game-message";
 import { removeClientPlayerFromGame } from "./remove-client-player-from-game";
 import startReturningHome from "../3d-world/game-world/model-manager/start-returning-home";
-import startPerformingCombatAction from "../3d-world/game-world/model-manager/start-performing-combat-action";
-import startMovingIntoCombatActionUsePosition from "../3d-world/game-world/model-manager/start-moving-into-combat-action-use-position";
+import { startPerformingCombatAction } from "../3d-world/game-world/model-manager/start-performing-combat-action";
+import { startMovingIntoCombatActionUsePosition } from "../3d-world/game-world/model-manager/start-moving-into-combat-action-use-position";
 
 export class ClientActionCommandReceiver implements ActionCommandReceiver {
   constructor() {}

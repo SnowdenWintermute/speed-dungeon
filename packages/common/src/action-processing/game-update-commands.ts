@@ -4,8 +4,8 @@ import { ActionResourceCosts, CombatActionName, HpChange } from "../combat/index
 import { DurabilityChangesByEntityId } from "../combat/action-results/calculate-action-durability-changes.js";
 
 export enum GameUpdateCommandType {
-  CombatantAnimation,
   CombatantMovement,
+  CombatantAnimation,
   ResourcesPaid,
   ActivatedTriggers,
   HitOutcomes,
