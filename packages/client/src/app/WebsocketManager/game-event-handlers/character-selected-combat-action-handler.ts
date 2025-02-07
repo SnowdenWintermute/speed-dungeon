@@ -4,6 +4,7 @@ import {
   COMBAT_ACTIONS,
   CharacterAssociatedData,
   CombatActionName,
+  CombatantContext,
   ERROR_MESSAGES,
   EntityId,
   TargetingCalculator,
@@ -29,21 +30,18 @@ export function characterSelectedCombatActionHandler(
       const playerOption = game.players[character.combatantProperties.controllingPlayer];
       if (playerOption === undefined) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
 
-      const targetingCalculator = new TargetingCalculator(game, party, character, playerOption);
+      const targetingCalculator = new TargetingCalculator(
+        new CombatantContext(game, party, character),
+        playerOption
+      );
       const newTargetsResult =
         targetingCalculator.assignInitialCombatantActionTargets(combatActionOption);
       if (newTargetsResult instanceof Error) return newTargetsResult;
-
-      const battleOption = (() => {
-        if (!party.battleId) return null;
-        return game.battles[party.battleId] || null;
-      })();
 
       let targetIds: null | EntityId[] = null;
       if (combatActionOption !== null && newTargetsResult) {
         const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
           combatActionOption,
-          battleOption,
           newTargetsResult
         );
         if (targetIdsResult instanceof Error) return targetIdsResult;

@@ -2,6 +2,7 @@ import { useGameStore } from "@/stores/game-store";
 import {
   CombatActionName,
   Combatant,
+  CombatantContext,
   CombatantProperties,
   SpeedDungeonGame,
   TargetingCalculator,
@@ -26,7 +27,10 @@ export function getTargetOption(
   if (actionPropertiesResult instanceof Error) return actionPropertiesResult;
   const combatActionProperties = actionPropertiesResult;
 
-  const targetingCalculator = new TargetingCalculator(game, partyResult, user, null);
+  const targetingCalculator = new TargetingCalculator(
+    new CombatantContext(game, partyResult, user),
+    null
+  );
 
   const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
     combatActionProperties,

@@ -8,8 +8,6 @@ import { EntityId } from "../primatives/index.js";
 import { SpeedDungeonPlayer } from "./player.js";
 import putPlayerInParty from "./put-player-in-party.js";
 import removePlayerFromParty from "./remove-player-from-party.js";
-import cycleCharacterTargets from "../combat/targeting/cycle-character-targets.js";
-import getAllyIdsAndOpponentIdsOption from "./get-ally-ids-and-opponent-ids-option.js";
 import removePlayerFromGame from "./remove-player-from-game.js";
 import getCharacterInGame from "./get-character-in-game.js";
 import getCombatantInGameById from "./get-combatant-in-game-by-id.js";
@@ -18,13 +16,11 @@ import { tickCombatUntilNextCombatantIsActive } from "../combat/turn-order/tick-
 import endActiveCombatantTurn from "../combat/turn-order/end-active-combatant-turn.js";
 import allCombatantsInGroupAreDead from "../combat/all-combatants-in-group-are-dead.js";
 import { getPlayerPartyOption } from "./get-player-party.js";
-import cycleCharacterTargetingSchemes from "../combat/targeting/cycle-character-targeting-schemes.js";
 import getActionResults from "../combat/action-results/get-action-results.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import handleBattleVictory from "./handle-battle-victory.js";
 import { GameMode } from "../types.js";
 import { MAX_PARTY_SIZE } from "../app-consts.js";
-import { getValidPreferredOrDefaultActionTargets } from "../combat/targeting/get-valid-preferred-or-default-action-targets.js";
 
 export class SpeedDungeonGame {
   [immerable] = true;
@@ -51,10 +47,6 @@ export class SpeedDungeonGame {
   static putPlayerInParty = putPlayerInParty;
   static getCharacter = getCharacterInGame;
   static getCombatantById = getCombatantInGameById;
-  static getValidPreferredOrDefaultActionTargets = getValidPreferredOrDefaultActionTargets;
-  static cycleCharacterTargets = cycleCharacterTargets;
-  static cycleCharacterTargetingSchemes = cycleCharacterTargetingSchemes;
-  static getAllyIdsAndOpponentIdsOption = getAllyIdsAndOpponentIdsOption;
   static getPartyOfCombatant = getPartyOfCombatant;
   static getPlayerPartyOption = getPlayerPartyOption;
   static getActionResults = getActionResults;

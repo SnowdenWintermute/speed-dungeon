@@ -22,10 +22,14 @@ export default function MonsterPlaques({ party, game }: Props) {
   if (allyAndOpponentIdsResult instanceof Error)
     return <div>{allyAndOpponentIdsResult.message}</div>;
 
-  const monsterIdsOption = allyAndOpponentIdsResult.opponentIdsOption;
+  const monsterIdsOption = allyAndOpponentIdsResult.opponentIds;
   if (monsterIdsOption) {
     monsterPlaques = (
-      <CombatantPlaqueGroup party={party} combatantIds={monsterIdsOption} showExperience={false} />
+      <CombatantPlaqueGroup
+        party={party}
+        combatantIds={monsterIdsOption}
+        isPlayerControlled={false}
+      />
     );
   }
 

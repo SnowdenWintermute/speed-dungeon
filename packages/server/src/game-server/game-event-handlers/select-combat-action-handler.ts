@@ -2,6 +2,7 @@ import {
   COMBAT_ACTION_NAME_STRINGS,
   CharacterAssociatedData,
   CombatActionComponent,
+  CombatantContext,
   CombatantProperties,
   ServerToClientEvent,
   getPartyChannelName,
@@ -28,7 +29,10 @@ export function selectCombatActionHandler(
     combatActionOption = combatActionPropertiesResult;
   }
 
-  const targetingCalculator = new TargetingCalculator(game, party, character, player);
+  const targetingCalculator = new TargetingCalculator(
+    new CombatantContext(game, party, character),
+    player
+  );
   const maybeError = targetingCalculator.assignInitialCombatantActionTargets(combatActionOption);
   if (maybeError instanceof Error) return maybeError;
 

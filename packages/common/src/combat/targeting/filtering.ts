@@ -2,13 +2,14 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 import getCombatantInParty from "../../adventuring-party/get-combatant-in-party.js";
 import { TargetCategories } from "../combat-actions/targeting-schemes-and-categories.js";
 import { ProhibitedTargetCombatantStates } from "../combat-actions/prohibited-target-combatant-states.js";
+import { EntityId } from "../../primatives/index.js";
 
 export function filterPossibleTargetIdsByProhibitedCombatantStates(
   party: AdventuringParty,
   prohibitedStates: null | ProhibitedTargetCombatantStates[],
   allyIds: string[],
-  opponentIdsOption: null | string[]
-): Error | [string[], null | string[]] {
+  opponentIdsOption: string[]
+): Error | [string[], string[]] {
   if (prohibitedStates === null) return [allyIds, opponentIdsOption];
   const filteredAllyIdsResult = filterTargetIdGroupByProhibitedCombatantStates(
     party,
@@ -17,9 +18,9 @@ export function filterPossibleTargetIdsByProhibitedCombatantStates(
   );
   if (filteredAllyIdsResult instanceof Error) return filteredAllyIdsResult;
 
-  let filteredOpponentIdsOption = null;
+  let filteredOpponentIdsOption: EntityId[] = [];
 
-  if (opponentIdsOption) {
+  if (opponentIdsOption.length) {
     const filteredOpponentIdsResult = filterTargetIdGroupByProhibitedCombatantStates(
       party,
       opponentIdsOption,
@@ -67,15 +68,15 @@ export function filterPossibleTargetIdsByActionTargetCategories(
   targetCategories: TargetCategories,
   actionUserId: string,
   allyIds: string[],
-  opponentIdsOption: null | string[]
-): [null | string[], null | string[]] {
+  opponentIdsOption: string[]
+): [string[], string[]] {
   switch (targetCategories) {
     case TargetCategories.Opponent:
-      return [null, opponentIdsOption];
+      return [[], opponentIdsOption];
     case TargetCategories.User:
-      return [[actionUserId], null];
+      return [[actionUserId], []];
     case TargetCategories.Friendly:
-      return [allyIds, null];
+      return [allyIds, []];
     case TargetCategories.Any:
       return [allyIds, opponentIdsOption];
   }

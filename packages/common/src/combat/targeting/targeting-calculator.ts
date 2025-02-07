@@ -1,58 +1,135 @@
 import cloneDeep from "lodash.clonedeep";
-import { AdventuringParty } from "../../adventuring-party/index.js";
-import { Combatant } from "../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { SpeedDungeonGame, SpeedDungeonPlayer } from "../../game/index.js";
-import {
-  CombatActionComponent,
-  CombatActionName,
-  FriendOrFoe,
-  TargetingScheme,
-} from "../combat-actions/index.js";
+import { SpeedDungeonPlayer } from "../../game/index.js";
+import { CombatActionComponent, FriendOrFoe, TargetingScheme } from "../combat-actions/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 import {
   filterPossibleTargetIdsByActionTargetCategories,
   filterPossibleTargetIdsByProhibitedCombatantStates,
 } from "./filtering.js";
 import { getValidPreferredOrDefaultActionTargets } from "./get-valid-preferred-or-default-action-targets.js";
-import { EntityId } from "../../primatives/index.js";
-import { Battle } from "../../battle/index.js";
+import { EntityId, NextOrPrevious } from "../../primatives/index.js";
 import { getActionTargetsIfSchemeIsValid } from "./get-targets-if-scheme-is-valid.js";
+import { getOwnedCharacterAndSelectedCombatAction } from "../../utils/get-owned-character-and-selected-combat-action.js";
+import getNextOrPreviousTarget from "./get-next-or-previous-target.js";
+import { CombatantContext } from "../../combatant-context/index.js";
 
 export class TargetingCalculator {
   constructor(
-    private game: SpeedDungeonGame,
-    private party: AdventuringParty,
-    private combatant: Combatant,
+    private context: CombatantContext,
     private playerOption: null | SpeedDungeonPlayer
   ) {}
 
-  getCombatActionTargetIds(
-    combatAction: CombatActionComponent,
-    battleOption: null | Battle,
-    targets: CombatActionTarget
-  ): Error | EntityId[] {
-    let opponentIdsOption: null | EntityId[] = null;
-    let allyIdsOption: null | EntityId[] = null;
+  cycleCharacterTargets(
+    characterId: string,
+    direction: NextOrPrevious
+  ): Error | CombatActionTarget {
+    if (this.playerOption === null) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
+    const characterAndActionDataResult = getOwnedCharacterAndSelectedCombatAction(
+      this.context.party,
+      this.playerOption,
+      characterId
+    );
 
-    if (battleOption !== null) {
-      const allyIdsAndOpponentIdsOptionResult = Battle.getAllyIdsAndOpponentIdsOption(
-        battleOption,
-        this.combatant.entityProperties.id
-      );
-      if (allyIdsAndOpponentIdsOptionResult instanceof Error)
-        return allyIdsAndOpponentIdsOptionResult;
-      opponentIdsOption = allyIdsAndOpponentIdsOptionResult.opponentIdsOption;
-      allyIdsOption = allyIdsAndOpponentIdsOptionResult.allyIds;
+    if (characterAndActionDataResult instanceof Error) return characterAndActionDataResult;
+    const { character, combatAction, currentTarget } = characterAndActionDataResult;
+
+    const filteredTargetIdsResult = this.getFilteredPotentialTargetIdsForAction(combatAction);
+    if (filteredTargetIdsResult instanceof Error) return filteredTargetIdsResult;
+    const [allyIdsOption, opponentIdsOption] = filteredTargetIdsResult;
+
+    const newTargetsResult = getNextOrPreviousTarget(
+      combatAction,
+      currentTarget,
+      direction,
+      characterId,
+      allyIdsOption,
+      opponentIdsOption
+    );
+    if (newTargetsResult instanceof Error) return newTargetsResult;
+
+    const updatedTargetPreferenceResult = this.getUpdatedTargetPreferences(
+      combatAction,
+      newTargetsResult,
+      allyIdsOption,
+      opponentIdsOption
+    );
+    if (updatedTargetPreferenceResult instanceof Error) return updatedTargetPreferenceResult;
+
+    this.playerOption.targetPreferences = updatedTargetPreferenceResult;
+    character.combatantProperties.combatActionTarget = newTargetsResult;
+
+    return newTargetsResult;
+  }
+
+  cycleCharacterTargetingSchemes(characterId: string): Error | void {
+    if (this.playerOption === null) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
+    const characterAndActionDataResult = getOwnedCharacterAndSelectedCombatAction(
+      this.context.party,
+      this.playerOption,
+      characterId
+    );
+    if (characterAndActionDataResult instanceof Error) return characterAndActionDataResult;
+    const { character, combatAction } = characterAndActionDataResult;
+
+    if (combatAction.targetingSchemes.length < 2)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.ONLY_ONE_TARGETING_SCHEME_AVAILABLE);
+
+    const lastUsedTargetingScheme = this.playerOption.targetPreferences.targetingSchemePreference;
+    const { targetingSchemes } = combatAction;
+    let newTargetingScheme = lastUsedTargetingScheme;
+
+    if (!targetingSchemes.includes(lastUsedTargetingScheme)) {
+      const defaultScheme = targetingSchemes[0];
+      if (typeof defaultScheme === "undefined")
+        return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGETING_SCHEMES);
+      newTargetingScheme = defaultScheme;
+    } else {
+      const lastUsedTargetingSchemeIndex = targetingSchemes.indexOf(lastUsedTargetingScheme);
+      if (lastUsedTargetingSchemeIndex < 0)
+        return new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED);
+      const newSchemeIndex =
+        lastUsedTargetingSchemeIndex === targetingSchemes.length - 1
+          ? 0
+          : lastUsedTargetingSchemeIndex + 1;
+      newTargetingScheme = targetingSchemes[newSchemeIndex]!;
     }
 
-    const allyIds = allyIdsOption || this.party.characterPositions;
+    this.playerOption.targetPreferences.targetingSchemePreference = newTargetingScheme;
+
+    const filteredTargetIdsResult = this.getFilteredPotentialTargetIdsForAction(combatAction);
+    if (filteredTargetIdsResult instanceof Error) return filteredTargetIdsResult;
+    const [allyIdsOption, opponentIdsOption] = filteredTargetIdsResult;
+    const newTargetsResult = this.getValidPreferredOrDefaultActionTargets(
+      combatAction,
+      allyIdsOption,
+      opponentIdsOption
+    );
+    if (newTargetsResult instanceof Error) return newTargetsResult;
+
+    const updatedTargetPreferenceResult = this.getUpdatedTargetPreferences(
+      combatAction,
+      newTargetsResult,
+      allyIdsOption,
+      opponentIdsOption
+    );
+    if (updatedTargetPreferenceResult instanceof Error) return updatedTargetPreferenceResult;
+
+    this.playerOption.targetPreferences = updatedTargetPreferenceResult;
+    character.combatantProperties.combatActionTarget = newTargetsResult;
+  }
+
+  getCombatActionTargetIds(
+    combatAction: CombatActionComponent,
+    targets: CombatActionTarget
+  ): Error | EntityId[] {
+    const { allyIds, opponentIds } = this.context.getAllyAndOpponentIds();
 
     const filteredTargetsResult = filterPossibleTargetIdsByProhibitedCombatantStates(
-      this.party,
+      this.context.party,
       combatAction.prohibitedTargetCombatantStates,
       allyIds,
-      opponentIdsOption
+      opponentIds
     );
 
     if (filteredTargetsResult instanceof Error) return filteredTargetsResult;
@@ -68,9 +145,10 @@ export class TargetingCalculator {
   }
 
   assignInitialCombatantActionTargets(combatActionOption: null | CombatActionComponent) {
+    const { combatant } = this.context;
     if (combatActionOption === null) {
-      this.combatant.combatantProperties.selectedCombatAction = null;
-      this.combatant.combatantProperties.combatActionTarget = null;
+      combatant.combatantProperties.selectedCombatAction = null;
+      combatant.combatantProperties.combatActionTarget = null;
       return null;
     } else {
       const filteredIdsResult = this.getFilteredPotentialTargetIdsForAction(combatActionOption);
@@ -89,8 +167,8 @@ export class TargetingCalculator {
       if (newTargetPreferencesResult instanceof Error) return newTargetPreferencesResult;
 
       if (this.playerOption) this.playerOption.targetPreferences = newTargetPreferencesResult;
-      this.combatant.combatantProperties.selectedCombatAction = combatActionOption.name;
-      this.combatant.combatantProperties.combatActionTarget = newTargetsResult;
+      combatant.combatantProperties.selectedCombatAction = combatActionOption.name;
+      combatant.combatantProperties.combatActionTarget = newTargetsResult;
       return newTargetsResult;
     }
   }
@@ -98,36 +176,31 @@ export class TargetingCalculator {
   getFilteredPotentialTargetIdsForAction(
     combatAction: CombatActionComponent
   ): Error | [null | string[], null | string[]] {
-    const actionUserId = this.combatant.entityProperties.id;
-    const allyAndOpponetIdsResult = SpeedDungeonGame.getAllyIdsAndOpponentIdsOption(
-      this.game,
-      this.party,
-      actionUserId
-    );
-    if (allyAndOpponetIdsResult instanceof Error) return allyAndOpponetIdsResult;
-    let allyIdsOption: null | string[] = allyAndOpponetIdsResult.allyIds;
-    let opponentIdsOption: null | string[] = allyAndOpponetIdsResult.opponentIdsOption;
+    const { party, combatant } = this.context;
+    const actionUserId = combatant.entityProperties.id;
+    const allyAndOpponentIds = this.context.getAllyAndOpponentIds();
+    let { allyIds, opponentIds } = allyAndOpponentIds;
 
     const prohibitedTargetCombatantStates = combatAction.prohibitedTargetCombatantStates;
 
     const filteredTargetsResult = filterPossibleTargetIdsByProhibitedCombatantStates(
-      this.party,
+      party,
       prohibitedTargetCombatantStates,
-      allyIdsOption,
-      opponentIdsOption
+      allyIds,
+      opponentIds
     );
     if (filteredTargetsResult instanceof Error) return filteredTargetsResult;
 
-    [allyIdsOption, opponentIdsOption] = filteredTargetsResult;
+    [allyIds, opponentIds] = filteredTargetsResult;
 
-    [allyIdsOption, opponentIdsOption] = filterPossibleTargetIdsByActionTargetCategories(
+    [allyIds, opponentIds] = filterPossibleTargetIdsByActionTargetCategories(
       combatAction.validTargetCategories,
       actionUserId,
-      allyIdsOption,
-      opponentIdsOption
+      allyIds,
+      opponentIds
     );
 
-    return [allyIdsOption, opponentIdsOption];
+    return [allyIds, opponentIds];
   }
 
   getValidPreferredOrDefaultActionTargets = (

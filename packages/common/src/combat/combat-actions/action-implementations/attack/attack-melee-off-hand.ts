@@ -28,6 +28,7 @@ import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js"
 import { getStandardActionCritChance } from "../../action-calculation-utils/standard-action-calculations.js";
 import { MELEE_ATTACK_COMMON_CONFIG } from "./melee-attack-common-config.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { CombatantContext } from "../../../../combatant-context/index.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -62,27 +63,15 @@ const config: CombatActionComponentConfig = {
   shouldExecute: (combatantContext, self: CombatActionComponent) => {
     const { game, party, combatant } = combatantContext;
 
-    const battleOption = (party.battleId ? game.battles[party.battleId] : null)!!;
     const targetsOption = combatant.combatantProperties.combatActionTarget;
     if (!targetsOption) return false;
-    const idsOfFriendAndFoeResult = SpeedDungeonGame.getAllyIdsAndOpponentIdsOption(
-      game,
-      party,
-      combatant.entityProperties.id
+
+    const targetingCalculator = new TargetingCalculator(
+      new CombatantContext(game, party, combatant),
+      null
     );
 
-    if (idsOfFriendAndFoeResult instanceof Error) {
-      console.trace(idsOfFriendAndFoeResult);
-      return false;
-    }
-
-    const targetingCalculator = new TargetingCalculator(game, party, combatant, null);
-
-    const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
-      self,
-      battleOption,
-      targetsOption
-    );
+    const targetIdsResult = targetingCalculator.getCombatActionTargetIds(self, targetsOption);
     if (targetIdsResult instanceof Error) {
       console.trace(targetIdsResult);
       return false;

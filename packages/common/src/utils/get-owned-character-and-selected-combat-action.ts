@@ -12,7 +12,7 @@ interface CharacterAndSelectedActionData {
   currentTarget: CombatActionTarget;
 }
 
-export default function getOwnedCharacterAndSelectedCombatAction(
+export function getOwnedCharacterAndSelectedCombatAction(
   party: AdventuringParty,
   player: SpeedDungeonPlayer,
   characterId: string
@@ -25,13 +25,11 @@ export default function getOwnedCharacterAndSelectedCombatAction(
   if (characterResult instanceof Error) return characterResult;
   const character = characterResult;
 
-  if (character.combatantProperties.selectedCombatAction === null)
-    return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
   const selectedAction = character.combatantProperties.selectedCombatAction;
+  if (selectedAction === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
 
-  if (!character.combatantProperties.combatActionTarget)
-    return new Error(ERROR_MESSAGES.COMBATANT.NO_TARGET_SELECTED);
   const currentTarget = character.combatantProperties.combatActionTarget;
+  if (!currentTarget) return new Error(ERROR_MESSAGES.COMBATANT.NO_TARGET_SELECTED);
 
   const combatActionResult = getCombatActionPropertiesIfOwned(
     character.combatantProperties,

@@ -7,6 +7,7 @@ export function synchronizeTargetingIndicators(
   actionUserId: EntityId,
   targetIds: EntityId[]
 ) {
+  console.log("traget ids: ", targetIds);
   const newIndicators = [];
   for (const indicator of gameState.targetingIndicators) {
     if (actionNameOption === null && indicator.targetedBy === actionUserId) continue;

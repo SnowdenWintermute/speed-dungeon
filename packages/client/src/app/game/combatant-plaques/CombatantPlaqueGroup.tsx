@@ -1,7 +1,6 @@
-import { AdventuringParty, NextOrPrevious } from "@speed-dungeon/common";
+import { AdventuringParty } from "@speed-dungeon/common";
 import React from "react";
 import CombatantPlaque from "./CombatantPlaque";
-import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 
 interface Props {
   party: AdventuringParty;

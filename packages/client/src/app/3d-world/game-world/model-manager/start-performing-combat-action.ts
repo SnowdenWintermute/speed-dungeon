@@ -3,16 +3,15 @@ import {
   ERROR_MESSAGES,
   PerformCombatActionActionCommandPayload,
   SpeedDungeonGame,
-  formatVector3,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
-import { MeshBuilder, Vector3 } from "@babylonjs/core";
+import { Vector3 } from "@babylonjs/core";
 import getCombatActionAnimationName from "../../combatant-models/animation-manager/animation-names";
 import {
   CombatantModelAction,
   CombatantModelActionType,
 } from "../../combatant-models/model-action-manager/model-actions";
-import getFrameEventFromAnimation from "../../combatant-models/animation-manager/get-frame-event-from-animation";
+import { getFrameEventFromAnimation } from "../../combatant-models/animation-manager/get-frame-event-from-animation";
 import { useGameStore } from "@/stores/game-store";
 import { gameWorld } from "../../SceneManager";
 
