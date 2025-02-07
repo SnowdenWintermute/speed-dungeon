@@ -3,7 +3,7 @@ import { CombatantModelActionProgressTracker, CombatantModelActionType } from ".
 import { ModularCharacter } from "../modular-character";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 
-export default function approachDestinationModelActionProcessor(
+export function approachDestinationModelActionProcessor(
   combatantModel: ModularCharacter,
   modelActionTracker: CombatantModelActionProgressTracker
 ) {

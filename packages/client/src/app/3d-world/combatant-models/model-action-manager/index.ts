@@ -4,7 +4,7 @@ import {
   CombatantModelActionType,
 } from "./model-actions";
 import { ModularCharacter } from "../modular-character";
-import approachDestinationModelActionProcessor from "./approach-destination-model-action-processor";
+import { approachDestinationModelActionProcessor } from "./approach-destination-model-action-processor";
 
 export class ModelActionManager {
   activeModelActionTracker: null | CombatantModelActionProgressTracker = null;

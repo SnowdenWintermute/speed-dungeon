@@ -1,10 +1,6 @@
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
-import {
-  nextToBabylonMessageQueue,
-  NextToBabylonMessageTypes,
-} from "@/singletons/next-to-babylon-message-queue";
 import { useGameStore } from "@/stores/game-store";
 import {
   enqueueCharacterItemsForThumbnails,
@@ -20,18 +16,13 @@ export default function gameStartedHandler(timeStarted: number) {
     gameState.combatLogMessages = [
       new CombatLogMessage("A new game has begun!", CombatLogMessageStyle.Basic),
     ];
-    nextToBabylonMessageQueue.messages.push({
-      type: NextToBabylonMessageTypes.MoveCamera,
-      instant: true,
-      alpha: 4.66,
-      // alpha: 2.94,
-      beta: 1.02,
-      // beta: 1.27,
-      radius: 7.15,
-      // radius: 2.38,
-      target: new Vector3(-1, 0.2, 0.15),
-      // target: new Vector3(-2.92, 2.08, 1.03),
-    });
+
+    const camera = gameWorld.current?.camera;
+    if (!camera) return;
+    camera.target.copyFrom(new Vector3(-1, 0.2, 0.15));
+    camera.alpha = 4.66;
+    camera.beta = 1.02;
+    camera.radius = 7.15;
 
     const partyOption = getParty(gameState.game, gameState.username || "");
     if (partyOption instanceof Error) return console.error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);

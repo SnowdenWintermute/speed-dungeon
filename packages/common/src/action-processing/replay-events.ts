@@ -41,18 +41,19 @@ export class Replayer {
     //
   }
 
-  static printReplayTree(root: NestedNodeReplayEvent) {
-    for (const node of root.events) {
-      if (node.type === ReplayEventType.GameUpdate) {
-        console.log(
-          //@ts-ignore
-          node.gameUpdate.animationName || "",
-          GAME_UPDATE_COMMAND_TYPE_STRINGS[node.gameUpdate.type],
-          node.gameUpdate.completionOrderId
-        );
-      } else {
-        this.printReplayTree(node);
+  static printReplayTree(root: ReplayEventNode) {
+    if (root.type === ReplayEventType.NestedNode)
+      for (const node of root.events) {
+        if (node.type === ReplayEventType.GameUpdate) {
+          console.log(
+            //@ts-ignore
+            node.gameUpdate.animationName || "",
+            GAME_UPDATE_COMMAND_TYPE_STRINGS[node.gameUpdate.type],
+            node.gameUpdate.completionOrderId
+          );
+        } else {
+          this.printReplayTree(node);
+        }
       }
-    }
   }
 }

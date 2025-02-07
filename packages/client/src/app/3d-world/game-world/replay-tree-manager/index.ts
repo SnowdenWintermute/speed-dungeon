@@ -5,6 +5,7 @@ import {
   ReplayEventNode,
   ReplayEventType,
 } from "@speed-dungeon/common";
+import { GAME_UPDATE_COMMAND_HANDLERS } from "./game-update-command-handlers";
 
 export class ReplayTreeManager {
   activeBranches: ReplayBranchProcessor[] = [];
@@ -20,6 +21,15 @@ export class ReplayTreeManager {
   }
 
   isComplete() {}
+
+  unregisterBranch() {}
+
+  processBranches() {
+    for (const branch of this.activeBranches) {
+      if (branch.isDoneProcessing()) this.unregisterBranch();
+      if (branch.currentStepIsComplete()) branch.startProcessingNext();
+    }
+  }
 }
 
 export class ReplayBranchProcessor {
@@ -31,7 +41,9 @@ export class ReplayBranchProcessor {
     private branchProcessors: ReplayBranchProcessor[]
   ) {}
 
-  currentStepIsComplete() {}
+  currentStepIsComplete(): boolean {
+    return false;
+  }
   isDoneProcessing() {
     return this.isComplete;
   }
@@ -47,5 +59,7 @@ export class ReplayBranchProcessor {
     }
 
     this.currentGameUpdateOption = { update: node.gameUpdate, isComplete: false };
+
+    GAME_UPDATE_COMMAND_HANDLERS[node.gameUpdate.type](node.gameUpdate);
   }
 }

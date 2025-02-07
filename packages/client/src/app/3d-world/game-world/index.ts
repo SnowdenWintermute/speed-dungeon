@@ -14,9 +14,7 @@ import {
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
 import { CombatTurnResult } from "@speed-dungeon/common";
-import { NextToBabylonMessage } from "@/singletons/next-to-babylon-message-queue";
 import updateDebugText from "./model-manager/update-debug-text";
-import processMessagesFromNext from "./process-messages-from-next";
 import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
 import { clearFloorTexture } from "./clear-floor-texture";
@@ -35,7 +33,6 @@ export class GameWorld {
   portraitCamera: ArcRotateCamera;
   sun: Mesh;
   // shadowGenerator: null | ShadowGenerator = null;
-  messages: NextToBabylonMessage[] = [];
   mouse: Vector3 = new Vector3(0, 1, 0);
   debug: { debugRef: React.RefObject<HTMLUListElement> | null } = { debugRef: null };
   useShadows: boolean = false;
@@ -87,9 +84,6 @@ export class GameWorld {
 
     // PIXELATION FILTER
     // pixelate(this.camera, this.scene);
-    //
-
-    // spawnTestEquipmentModels(this);
 
     this.engine.runRenderLoop(() => {
       this.updateGameWorld();
@@ -101,7 +95,6 @@ export class GameWorld {
 
   updateGameWorld() {
     this.updateDebugText();
-    this.processMessagesFromNext();
 
     if (
       !this.modelManager.modelActionQueue.isProcessing &&
@@ -123,7 +116,6 @@ export class GameWorld {
   clearFloorTexture = clearFloorTexture;
   drawCharacterSlots = drawCharacterSlots;
   updateDebugText = updateDebugText;
-  processMessagesFromNext = processMessagesFromNext;
 
   startLimitedFramerateRenderLoop(fps: number, timeout: number) {
     window.setTimeout(() => {
