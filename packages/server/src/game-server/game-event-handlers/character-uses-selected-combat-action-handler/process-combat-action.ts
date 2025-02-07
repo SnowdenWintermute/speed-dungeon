@@ -3,7 +3,9 @@ import {
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatantContext,
+  NestedNodeReplayEvent,
   ReplayEventNode,
+  ReplayEventType,
   SequentialIdGenerator,
 } from "@speed-dungeon/common";
 import { idGenerator } from "../../../singletons.js";
@@ -19,7 +21,7 @@ export function processCombatAction(
   combatantContext: CombatantContext
 ) {
   const registry = new ActionSequenceManagerRegistry(idGenerator);
-  const rootReplayNode = new ReplayEventNode(actionExecutionIntent.actionName);
+  const rootReplayNode: NestedNodeReplayEvent = { type: ReplayEventType.NestedNode, events: [] };
   const time = new TimeKeeper();
   const completionOrderIdGenerator = new SequentialIdGenerator();
 
@@ -32,7 +34,12 @@ export function processCombatAction(
   );
 
   if (initialGameUpdateOptionResult instanceof Error) return initialGameUpdateOptionResult;
-  if (initialGameUpdateOptionResult) rootReplayNode.events.push(initialGameUpdateOptionResult);
+  if (initialGameUpdateOptionResult)
+    rootReplayNode.events.push({
+      type: ReplayEventType.GameUpdate,
+      events: [],
+      gameUpdate: initialGameUpdateOptionResult,
+    });
 
   while (registry.isNotEmpty()) {
     for (const manager of registry.getManagers()) {
@@ -51,7 +58,10 @@ export function processCombatAction(
 
         for (const action of branchingActions) {
           console.log("branch");
-          const nestedReplayNode = new ReplayEventNode(action.actionExecutionIntent.actionName);
+          const nestedReplayNode: NestedNodeReplayEvent = {
+            type: ReplayEventType.NestedNode,
+            events: [],
+          };
           manager.replayNode.events.push(nestedReplayNode);
           const initialGameUpdateOptionResult = registry.registerAction(
             action.actionExecutionIntent,
@@ -62,14 +72,23 @@ export function processCombatAction(
           );
           if (initialGameUpdateOptionResult instanceof Error) return initialGameUpdateOptionResult;
           if (initialGameUpdateOptionResult)
-            nestedReplayNode.events.push(initialGameUpdateOptionResult);
+            nestedReplayNode.events.push({
+              type: ReplayEventType.GameUpdate,
+              events: [],
+              gameUpdate: initialGameUpdateOptionResult,
+            });
         }
 
         if (nextStepOption) {
           trackerOption.storeCompletedStep();
           trackerOption.currentStep = nextStepOption;
           const gameUpdateCommandOption = nextStepOption.getGameUpdateCommandOption();
-          if (gameUpdateCommandOption) manager.replayNode.events.push(gameUpdateCommandOption);
+          if (gameUpdateCommandOption)
+            manager.replayNode.events.push({
+              type: ReplayEventType.GameUpdate,
+              events: [],
+              gameUpdate: gameUpdateCommandOption,
+            });
           continue;
         }
 
@@ -84,7 +103,11 @@ export function processCombatAction(
           if (initialGameUpdateOptionResult instanceof Error) return initialGameUpdateOptionResult;
 
           if (initialGameUpdateOptionResult)
-            manager.replayNode.events.push(initialGameUpdateOptionResult);
+            manager.replayNode.events.push({
+              type: ReplayEventType.GameUpdate,
+              events: [],
+              gameUpdate: initialGameUpdateOptionResult,
+            });
           continue;
         }
 
@@ -100,7 +123,12 @@ export function processCombatAction(
 
             currentTrackerOption.currentStep = returnHomeStep;
             const returnHomeUpdate = returnHomeStep.getGameUpdateCommandOption();
-            if (returnHomeUpdate) manager.replayNode.events.push(returnHomeUpdate);
+            if (returnHomeUpdate)
+              manager.replayNode.events.push({
+                type: ReplayEventType.GameUpdate,
+                events: [],
+                gameUpdate: returnHomeUpdate,
+              });
           }
         }
         manager.markAsFinalized();

@@ -6,10 +6,28 @@ import {
   GameUpdateCommandType,
 } from "./game-update-commands.js";
 
-export class ReplayEventNode {
-  events: (GameUpdateCommand | ReplayEventNode)[] = [];
-  constructor(public parentActionName: CombatActionName) {}
+// export class ReplayEventNode {
+//   events: (GameUpdateCommand | ReplayEventNode)[] = [];
+//   constructor(public parentActionName: CombatActionName) {}
+// }
+
+export enum ReplayEventType {
+  GameUpdate,
+  NestedNode,
 }
+
+export type GameUpdateReplayEvent = {
+  type: ReplayEventType.GameUpdate;
+  events: ReplayEventNode[];
+  gameUpdate: GameUpdateCommand;
+};
+
+export type NestedNodeReplayEvent = {
+  type: ReplayEventType.NestedNode;
+  events: ReplayEventNode[];
+};
+
+export type ReplayEventNode = GameUpdateReplayEvent | NestedNodeReplayEvent;
 
 export class Replayer {
   nodesExecuting: { id: string; node: ReplayEventNode }[] = [];
@@ -21,44 +39,20 @@ export class Replayer {
   }
 
   tick() {
-    for (const { id, node } of this.nodesExecuting) {
-      const currentEventOption = node.events[0];
-      if (!currentEventOption) continue;
-
-      if (currentEventOption instanceof ReplayEventNode) {
-        const newNode = currentEventOption.events.shift() as ReplayEventNode;
-        this.nodesExecuting.push({ id: this.idGenerator.getNextId(), node: newNode });
-      } else {
-        // update current event status (apply to game state, check animation status)
-        // if(currentEventOption.isDone()) {
-        //   const completedEvent = node.events.shift()
-        //   this.lastResolutionIdCompleted = completedEvent.resolutionOrderId
-        // }
-      }
-    }
-
-    this.nodesExecuting = this.nodesExecuting.filter(({ id, node }) => node.events.length === 0);
+    //
   }
 
   static printReplayTree(root: ReplayEventNode) {
-    console.log("ROOT:", COMBAT_ACTION_NAME_STRINGS[root.parentActionName]);
     for (const node of root.events) {
-      if (node instanceof ReplayEventNode) {
-        console.log(COMBAT_ACTION_NAME_STRINGS[node.parentActionName]);
-        console.log("BRANCH");
-        this.printReplayTree(node);
-      } else {
-        let animationName = "";
-        if (
-          node.type === GameUpdateCommandType.CombatantMovement ||
-          node.type === GameUpdateCommandType.CombatantAnimation
-        )
-          animationName = node.animationName;
+      if (node.type === ReplayEventType.GameUpdate) {
         console.log(
-          animationName,
-          GAME_UPDATE_COMMAND_TYPE_STRINGS[node.type],
-          node.completionOrderId
+          //@ts-ignore
+          node.gameUpdate.animationName || "",
+          GAME_UPDATE_COMMAND_TYPE_STRINGS[node.gameUpdate.type],
+          node.gameUpdate.completionOrderId
         );
+      } else {
+        this.printReplayTree(node);
       }
     }
   }

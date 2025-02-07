@@ -7,11 +7,12 @@ export function synchronizeTargetingIndicators(
   actionUserId: EntityId,
   targetIds: EntityId[]
 ) {
-  console.log("traget ids: ", targetIds);
   const newIndicators = [];
   for (const indicator of gameState.targetingIndicators) {
     if (actionNameOption === null && indicator.targetedBy === actionUserId) continue;
     if (indicator.targetedBy === actionUserId && indicator.actionName !== actionNameOption)
+      continue;
+    if (indicator.actionName === actionNameOption && !targetIds.includes(indicator.targetId))
       continue;
     newIndicators.push(indicator);
   }
@@ -20,6 +21,4 @@ export function synchronizeTargetingIndicators(
     newIndicators.push({ targetedBy: actionUserId, actionName: actionNameOption, targetId: id });
 
   gameState.targetingIndicators = newIndicators;
-
-  console.log("synchronized indicators", newIndicators);
 }

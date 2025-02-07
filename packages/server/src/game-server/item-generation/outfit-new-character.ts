@@ -28,6 +28,8 @@ export function outfitNewCharacter(character: Combatant) {
   combatantProperties.ownedActions[CombatActionName.Attack] = new CombatantActionState(
     CombatActionName.Attack
   );
+  combatantProperties.ownedActions[CombatActionName.ChainingSplitArrowParent] =
+    new CombatantActionState(CombatActionName.ChainingSplitArrowParent);
 
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
   if (baseStartingAttributesOption) {

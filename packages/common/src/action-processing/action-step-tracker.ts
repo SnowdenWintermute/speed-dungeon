@@ -48,10 +48,4 @@ export class ActionStepTracker {
   getCompletedSteps() {
     return this.completedSteps;
   }
-
-  addCurrentStepGameUpdateCommandToReplayNode() {
-    const gameUpdateCommandOptionStarted = this.currentStep.getGameUpdateCommandOption();
-    if (gameUpdateCommandOptionStarted)
-      this.parentActionManager.replayNode.events.push(gameUpdateCommandOptionStarted);
-  }
 }
