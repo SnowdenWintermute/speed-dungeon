@@ -18,7 +18,6 @@ export enum ReplayEventType {
 
 export type GameUpdateReplayEvent = {
   type: ReplayEventType.GameUpdate;
-  events: ReplayEventNode[];
   gameUpdate: GameUpdateCommand;
 };
 
@@ -42,7 +41,7 @@ export class Replayer {
     //
   }
 
-  static printReplayTree(root: ReplayEventNode) {
+  static printReplayTree(root: NestedNodeReplayEvent) {
     for (const node of root.events) {
       if (node.type === ReplayEventType.GameUpdate) {
         console.log(

@@ -6,7 +6,7 @@ import { SequentialIdGenerator } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
 import { ActionStepTracker } from "./action-step-tracker.js";
 import { ACTION_RESOLUTION_STEP_TYPE_STRINGS } from "./action-steps/index.js";
-import { ReplayEventNode } from "./replay-events.js";
+import { NestedNodeReplayEvent } from "./replay-events.js";
 
 export class ActionSequenceManagerRegistry {
   private actionManagers: { [id: string]: ActionSequenceManager } = {};
@@ -20,7 +20,7 @@ export class ActionSequenceManagerRegistry {
   }
   registerAction(
     actionExecutionIntent: CombatActionExecutionIntent,
-    replayNode: ReplayEventNode,
+    replayNode: NestedNodeReplayEvent,
     combatantContext: CombatantContext,
     previousTrackerInSequenceOption: null | ActionStepTracker,
     time: { ms: Milliseconds }

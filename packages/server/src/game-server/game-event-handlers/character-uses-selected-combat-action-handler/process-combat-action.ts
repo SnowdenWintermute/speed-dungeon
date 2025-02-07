@@ -4,7 +4,6 @@ import {
   CombatActionExecutionIntent,
   CombatantContext,
   NestedNodeReplayEvent,
-  ReplayEventNode,
   ReplayEventType,
   SequentialIdGenerator,
 } from "@speed-dungeon/common";
@@ -37,7 +36,6 @@ export function processCombatAction(
   if (initialGameUpdateOptionResult)
     rootReplayNode.events.push({
       type: ReplayEventType.GameUpdate,
-      events: [],
       gameUpdate: initialGameUpdateOptionResult,
     });
 
@@ -74,7 +72,6 @@ export function processCombatAction(
           if (initialGameUpdateOptionResult)
             nestedReplayNode.events.push({
               type: ReplayEventType.GameUpdate,
-              events: [],
               gameUpdate: initialGameUpdateOptionResult,
             });
         }
@@ -86,7 +83,6 @@ export function processCombatAction(
           if (gameUpdateCommandOption)
             manager.replayNode.events.push({
               type: ReplayEventType.GameUpdate,
-              events: [],
               gameUpdate: gameUpdateCommandOption,
             });
           continue;
@@ -105,7 +101,6 @@ export function processCombatAction(
           if (initialGameUpdateOptionResult)
             manager.replayNode.events.push({
               type: ReplayEventType.GameUpdate,
-              events: [],
               gameUpdate: initialGameUpdateOptionResult,
             });
           continue;
@@ -126,7 +121,6 @@ export function processCombatAction(
             if (returnHomeUpdate)
               manager.replayNode.events.push({
                 type: ReplayEventType.GameUpdate,
-                events: [],
                 gameUpdate: returnHomeUpdate,
               });
           }
