@@ -2,8 +2,8 @@ import { Quaternion, TransformNode, Vector3 } from "@babylonjs/core";
 import { ERROR_MESSAGES } from "@speed-dungeon/common";
 
 export enum ModelMovementType {
-  Translation,
   Rotation,
+  Transaltion,
 }
 
 export abstract class ModelMovementTracker {
@@ -13,9 +13,9 @@ export abstract class ModelMovementTracker {
     protected duration: number
   ) {}
 
-  protected abstract isComplete: () => void;
-  protected abstract onStart: () => void;
-  protected abstract onComplete: () => void;
+  abstract isComplete: () => boolean;
+  abstract onStart: () => void;
+  abstract onComplete: () => void;
 
   percentComplete() {
     const elapsed = Date.now() - this.timeStarted;
@@ -32,12 +32,12 @@ export abstract class ModelMovementTracker {
 export class TranslationTracker extends ModelMovementTracker {
   constructor(
     movable: TransformNode,
-    protected isComplete: () => boolean,
-    protected onStart: () => void,
-    protected onComplete: () => void,
+    duration: number,
     private previous: Vector3,
     private destination: Vector3,
-    duration: number
+    public isComplete: () => boolean,
+    public onStart: () => void,
+    public onComplete: () => void
   ) {
     super(movable, duration);
   }
@@ -50,9 +50,9 @@ export class TranslationTracker extends ModelMovementTracker {
 export class RotationTracker extends ModelMovementTracker {
   constructor(
     movable: TransformNode,
-    protected isComplete: () => boolean,
-    protected onStart: () => void,
-    protected onComplete: () => void,
+    public isComplete: () => boolean,
+    public onStart: () => void,
+    public onComplete: () => void,
     private previous: Quaternion,
     private destination: Quaternion,
     duration: number
@@ -67,25 +67,3 @@ export class RotationTracker extends ModelMovementTracker {
     this.movable.rotationQuaternion.copyFrom(newPosition);
   }
 }
-
-export type TranslationModelMovement = {
-  type: ModelMovementType.Translation;
-  previous: Vector3;
-  destination: Vector3;
-  duration: number;
-  isComplete: () => boolean;
-  onStart: () => void;
-  onComplete: () => void;
-};
-
-export type RotationModelMovement = {
-  type: ModelMovementType.Rotation;
-  previous: Quaternion;
-  destination: Quaternion;
-  duration: number;
-  isComplete: () => boolean;
-  onStart: () => void;
-  onComplete: () => void;
-};
-
-export type ModelMovementAction = TranslationModelMovement | RotationModelMovement;
