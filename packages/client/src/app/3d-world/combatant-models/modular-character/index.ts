@@ -31,7 +31,6 @@ import { MonsterType } from "@speed-dungeon/common";
 import { MONSTER_SCALING_SIZES } from "../monster-scaling-sizes";
 import cloneDeep from "lodash.clonedeep";
 import { AnimationManager } from "../animation-manager";
-import { ModelActionManager } from "../model-action-manager";
 import { setUpDebugMeshes, despawnDebugMeshes } from "./set-up-debug-meshes";
 import { ANIMATION_NAMES } from "../animation-manager/animation-names";
 import {
@@ -41,6 +40,7 @@ import {
 import { handleHotswapSlotChanged } from "./handle-hotswap-slot-changed";
 import { spawnItemModel } from "../../item-models/spawn-item-model";
 import { HighlightManager } from "./highlight-manager";
+import { ModelMovementManager } from "../../model-movement-manager";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -73,7 +73,7 @@ export class ModularCharacter {
     rotation: Quaternion;
   };
   isInMeleeRangeOfTarget: boolean = false;
-  modelActionManager: ModelActionManager = new ModelActionManager(this);
+  movementManager: ModelMovementManager;
   animationManager: AnimationManager;
   highlightManager: HighlightManager = new HighlightManager(this);
   debugMeshes: Mesh[] | null = null;
@@ -106,6 +106,7 @@ export class ModularCharacter {
     this.rootTransformNode.rotationQuaternion = Quaternion.Identity();
     this.rootTransformNode.rotate(Vector3.Up(), startRotation);
     this.rootTransformNode.position.copyFrom(startPosition);
+    this.movementManager = new ModelMovementManager(this.rootTransformNode);
 
     this.rootMesh = rootMesh;
     this.rootMesh.setParent(this.rootTransformNode);

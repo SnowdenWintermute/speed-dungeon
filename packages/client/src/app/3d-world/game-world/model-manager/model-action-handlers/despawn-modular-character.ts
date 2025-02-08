@@ -26,6 +26,4 @@ export function despawnModularCharacter(
   for (const model of Object.values(toRemove.equipment.holdables)) {
     disposeAsyncLoadedScene(model);
   }
-
-  toRemove.modelActionManager.removeActiveModelAction();
 }

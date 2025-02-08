@@ -2,7 +2,6 @@ import { AnimationGroup, AnimationEvent } from "@babylonjs/core";
 import { ModularCharacter } from "../modular-character";
 import { MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME } from "@speed-dungeon/common";
 import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
-import { CombatantModelActionType } from "../model-action-manager/model-actions";
 import { ANIMATION_NAMES } from "./animation-names";
 
 export type ManagedAnimationOptions = {
@@ -164,13 +163,13 @@ export class AnimationManager {
     }
   }
 
-  isRepeatingAnimation(actionType: CombatantModelActionType) {
-    switch (actionType) {
-      case CombatantModelActionType.ApproachDestination:
-        return true;
-      default:
-        return false;
-    }
+  isRepeatingAnimation() {
+    // switch (actionType) {
+    //   case CombatantModelActionType.ApproachDestination:
+    //     return true;
+    //   default:
+    //     return false;
+    // }
   }
 
   getFallbackAnimationName(animationName: string) {

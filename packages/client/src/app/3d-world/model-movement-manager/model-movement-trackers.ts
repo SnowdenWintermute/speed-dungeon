@@ -1,5 +1,5 @@
 import { Quaternion, TransformNode, Vector3 } from "@babylonjs/core";
-import { ERROR_MESSAGES } from "@speed-dungeon/common";
+import { ERROR_MESSAGES, Milliseconds } from "@speed-dungeon/common";
 
 export enum ModelMovementType {
   Rotation,
@@ -13,7 +13,6 @@ export abstract class ModelMovementTracker {
     protected duration: number
   ) {}
 
-  abstract isComplete: () => boolean;
   abstract onStart: () => void;
   abstract onComplete: () => void;
 
@@ -24,6 +23,10 @@ export abstract class ModelMovementTracker {
     return percent;
   }
 
+  isComplete(): boolean {
+    return this.percentComplete() >= 1;
+  }
+
   updateMovable() {
     throw new Error("not implemented");
   }
@@ -32,10 +35,9 @@ export abstract class ModelMovementTracker {
 export class TranslationTracker extends ModelMovementTracker {
   constructor(
     movable: TransformNode,
-    duration: number,
+    duration: Milliseconds,
     private previous: Vector3,
     private destination: Vector3,
-    public isComplete: () => boolean,
     public onStart: () => void,
     public onComplete: () => void
   ) {
@@ -50,12 +52,11 @@ export class TranslationTracker extends ModelMovementTracker {
 export class RotationTracker extends ModelMovementTracker {
   constructor(
     movable: TransformNode,
-    public isComplete: () => boolean,
+    duration: Milliseconds,
     public onStart: () => void,
     public onComplete: () => void,
     private previous: Quaternion,
-    private destination: Quaternion,
-    duration: number
+    private destination: Quaternion
   ) {
     super(movable, duration);
   }

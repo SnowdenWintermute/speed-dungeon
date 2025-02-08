@@ -13,7 +13,11 @@ import {
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
-import { CombatTurnResult } from "@speed-dungeon/common";
+import {
+  COMBATANT_TIME_TO_MOVE_ONE_METER,
+  CombatTurnResult,
+  randBetween,
+} from "@speed-dungeon/common";
 import updateDebugText from "./model-manager/update-debug-text";
 import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
@@ -22,6 +26,7 @@ import drawCharacterSlots from "./draw-character-slots";
 import { SavedMaterials, createDefaultMaterials } from "./materials/create-default-materials";
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
+import { TranslationTracker } from "../model-movement-manager/model-movement-trackers";
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;
@@ -104,7 +109,7 @@ export class GameWorld {
 
     for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
       combatantModel.highlightManager.updateHighlight();
-      combatantModel.modelActionManager.processActiveModelAction();
+      combatantModel.movementManager.processActiveActions();
       combatantModel.animationManager.handleCompletedAnimations();
       combatantModel.animationManager.stepAnimationTransitionWeights();
       combatantModel.updateDomRefPosition();

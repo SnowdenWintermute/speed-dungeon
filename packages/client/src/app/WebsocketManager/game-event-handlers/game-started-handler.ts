@@ -10,7 +10,7 @@ import getParty from "@/utils/getParty";
 import { Vector3 } from "@babylonjs/core";
 import { ERROR_MESSAGES, updateCombatantHomePosition } from "@speed-dungeon/common";
 
-export default function gameStartedHandler(timeStarted: number) {
+export function gameStartedHandler(timeStarted: number) {
   useGameStore.getState().mutateState((gameState) => {
     if (gameState.game) gameState.game.timeStarted = timeStarted;
     gameState.combatLogMessages = [

@@ -11,7 +11,7 @@ import {
 } from "@speed-dungeon/common";
 import { Socket, io } from "socket.io-client";
 import setUpBasicLobbyEventHandlers from "@/app/WebsocketManager/basic-lobby-event-handlers";
-import setUpGameLobbyEventHandlers from "@/app/WebsocketManager/lobby-event-handlers";
+import { setUpGameLobbyEventHandlers } from "@/app/WebsocketManager/lobby-event-handlers";
 import setUpGameEventHandlers from "@/app/WebsocketManager/game-event-handlers";
 import setUpSavedCharacterEventListeners from "@/app/WebsocketManager/saved-character-event-handlers";
 import { gameWorld } from "@/app/3d-world/SceneManager";

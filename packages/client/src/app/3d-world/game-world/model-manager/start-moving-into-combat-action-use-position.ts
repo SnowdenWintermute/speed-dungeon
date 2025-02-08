@@ -12,10 +12,6 @@ import {
 } from "@speed-dungeon/common";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { ANIMATION_NAMES } from "../../combatant-models/animation-manager/animation-names";
-import {
-  CombatantModelAction,
-  CombatantModelActionType,
-} from "../../combatant-models/model-action-manager/model-actions";
 import { useGameStore } from "@/stores/game-store";
 import { gameWorld } from "../../SceneManager";
 
@@ -88,21 +84,21 @@ export async function startMovingIntoCombatActionUsePosition(
         500
       );
 
-      const modelAction: CombatantModelAction = {
-        type: CombatantModelActionType.ApproachDestination,
-        previousLocation: cloneDeep(userHomeLocation),
-        destinationLocation: cloneDeep(destinationLocation),
-        timeToTranslate: totalTimeToReachDestination,
-        previousRotation: cloneDeep(userModelCurrentRotation),
-        destinationRotation: cloneDeep(destinationQuaternion),
-        percentTranslationToTriggerCompletionEvent: 1,
-        timeToRotate,
-        onComplete: () => {
-          resolve();
-        },
-      };
+      // const modelAction: CombatantModelAction = {
+      //   type: CombatantModelActionType.ApproachDestination,
+      //   previousLocation: cloneDeep(userHomeLocation),
+      //   destinationLocation: cloneDeep(destinationLocation),
+      //   timeToTranslate: totalTimeToReachDestination,
+      //   previousRotation: cloneDeep(userModelCurrentRotation),
+      //   destinationRotation: cloneDeep(destinationQuaternion),
+      //   percentTranslationToTriggerCompletionEvent: 1,
+      //   timeToRotate,
+      //   onComplete: () => {
+      //     resolve();
+      //   },
+      // };
 
-      userCombatantModel.modelActionManager.startNewModelAction(modelAction);
+      // userCombatantModel.modelActionManager.startNewModelAction(modelAction);
     });
   });
   if (maybeError instanceof Error) return maybeError;
