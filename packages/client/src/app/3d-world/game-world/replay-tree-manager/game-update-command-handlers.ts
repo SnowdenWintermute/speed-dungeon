@@ -1,20 +1,30 @@
 import {
   CombatantAnimationGameUpdateCommand,
   CombatantMovementGameUpdateCommand,
+  ERROR_MESSAGES,
   GameUpdateCommandType,
 } from "@speed-dungeon/common";
+import { gameWorld } from "../../SceneManager";
+import { TranslationTracker } from "../../model-movement-manager/model-movement-trackers";
+import { ReplayBranchProcessor } from ".";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
   (arg: any) => Error | void
 > = {
-  [GameUpdateCommandType.CombatantMovement]: function (
-    command: CombatantMovementGameUpdateCommand
-  ): void | Error {
+  [GameUpdateCommandType.CombatantMovement]: function (update: {
+    command: CombatantMovementGameUpdateCommand;
+    isComplete: boolean;
+  }): void | Error {
+    const combatantModelOption =
+      gameWorld.current?.modelManager.combatantModels[update.command.combatantId];
+    if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+    const { movementManager, animationManager } = combatantModelOption;
+    movementManager.startTranslating(update.command.destination, () => {
+      update.isComplete = true;
+    });
     // get the combatant model's movement manager and issue it a move command with the original position and destination
-    //
     // get the combatant's animation manager and tell it to start transitioning to this movement animation repeating
-    //
     // to check if complete, check if the position is equal within a certain threshold
     throw new Error("Function not implemented.");
   },

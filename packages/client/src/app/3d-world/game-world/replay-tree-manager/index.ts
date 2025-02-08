@@ -1,10 +1,4 @@
-import {
-  GameUpdateCommand,
-  GameUpdateCommandType,
-  NestedNodeReplayEvent,
-  ReplayEventNode,
-  ReplayEventType,
-} from "@speed-dungeon/common";
+import { GameUpdateCommand, NestedNodeReplayEvent, ReplayEventType } from "@speed-dungeon/common";
 import { GAME_UPDATE_COMMAND_HANDLERS } from "./game-update-command-handlers";
 
 export class ReplayTreeManager {
@@ -32,17 +26,23 @@ export class ReplayTreeManager {
   }
 }
 
+export interface GameUpdate {
+  command: GameUpdateCommand;
+  isComplete: boolean;
+}
+
 export class ReplayBranchProcessor {
   private currentIndex = -1;
   private isComplete = false;
-  private currentGameUpdateOption: null | { update: GameUpdateCommand; isComplete: boolean } = null;
+  private currentGameUpdateOption: null | GameUpdate = null;
   constructor(
     private node: NestedNodeReplayEvent,
     private branchProcessors: ReplayBranchProcessor[]
   ) {}
 
   currentStepIsComplete(): boolean {
-    return false;
+    if (this.currentGameUpdateOption === null) return true;
+    else return this.currentGameUpdateOption.isComplete;
   }
   isDoneProcessing() {
     return this.isComplete;
@@ -58,8 +58,8 @@ export class ReplayBranchProcessor {
       return;
     }
 
-    this.currentGameUpdateOption = { update: node.gameUpdate, isComplete: false };
+    this.currentGameUpdateOption = { command: node.gameUpdate, isComplete: false };
 
-    GAME_UPDATE_COMMAND_HANDLERS[node.gameUpdate.type](node.gameUpdate);
+    GAME_UPDATE_COMMAND_HANDLERS[node.gameUpdate.type](this.currentGameUpdateOption);
   }
 }

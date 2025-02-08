@@ -3,7 +3,7 @@ import { ERROR_MESSAGES, Milliseconds } from "@speed-dungeon/common";
 
 export enum ModelMovementType {
   Rotation,
-  Transaltion,
+  Translation,
 }
 
 export abstract class ModelMovementTracker {
@@ -13,7 +13,6 @@ export abstract class ModelMovementTracker {
     protected duration: number
   ) {}
 
-  abstract onStart: () => void;
   abstract onComplete: () => void;
 
   percentComplete() {
@@ -38,7 +37,6 @@ export class TranslationTracker extends ModelMovementTracker {
     duration: Milliseconds,
     private previous: Vector3,
     private destination: Vector3,
-    public onStart: () => void,
     public onComplete: () => void
   ) {
     super(movable, duration);
@@ -53,7 +51,6 @@ export class RotationTracker extends ModelMovementTracker {
   constructor(
     movable: TransformNode,
     duration: Milliseconds,
-    public onStart: () => void,
     public onComplete: () => void,
     private previous: Quaternion,
     private destination: Quaternion

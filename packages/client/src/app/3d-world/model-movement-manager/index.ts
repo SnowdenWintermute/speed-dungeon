@@ -1,11 +1,13 @@
-import { TransformNode } from "@babylonjs/core";
+import { TransformNode, Vector3 } from "@babylonjs/core";
 import {
   ModelMovementTracker,
   ModelMovementType,
-  RotationTracker,
   TranslationTracker,
 } from "./model-movement-trackers";
-import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
+import {
+  COMBATANT_TIME_TO_MOVE_ONE_METER,
+  iterateNumericEnumKeyedRecord,
+} from "@speed-dungeon/common";
 
 export class ModelMovementManager {
   private activeTrackers: Partial<Record<ModelMovementType, ModelMovementTracker>> = {};
@@ -18,13 +20,17 @@ export class ModelMovementManager {
     return false;
   }
 
-  startNewMovement(tracker: ModelMovementTracker) {
-    tracker.onStart();
-    if (tracker instanceof TranslationTracker)
-      this.activeTrackers[ModelMovementType.Transaltion] = tracker;
-    else if (tracker instanceof RotationTracker)
-      this.activeTrackers[ModelMovementType.Rotation] = tracker;
-    else return console.error("Invalid tracker");
+  startTranslating(destination: Vector3, onComplete: () => void) {
+    const previous = this.transformNode.position.clone();
+    const duration = Vector3.Distance(previous, destination) * COMBATANT_TIME_TO_MOVE_ONE_METER;
+    const tracker = new TranslationTracker(
+      this.transformNode,
+      duration,
+      previous,
+      destination,
+      onComplete
+    );
+    this.activeTrackers[ModelMovementType.Translation] = tracker;
   }
 
   getTrackers() {
