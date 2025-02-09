@@ -1,4 +1,5 @@
 import {
+  AnimationName,
   CombatantAnimationGameUpdateCommand,
   CombatantMovementGameUpdateCommand,
   ERROR_MESSAGES,
@@ -20,8 +21,19 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       gameWorld.current?.modelManager.combatantModels[update.command.combatantId];
     if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     const { movementManager, animationManager } = combatantModelOption;
+
+    console.log("SENDING TO DESTINATION: ", command.destination);
+
     movementManager.startTranslating(command.destination, () => {
       update.isComplete = true;
+      if (command.endsTurnOnCompletion) {
+        animationManager.startAnimationWithTransition(AnimationName.Idle, 500, {
+          shouldLoop: true,
+          animationEventOption: null,
+          animationDurationOverrideOption: null,
+          onComplete: () => {},
+        });
+      }
     });
 
     const options: ManagedAnimationOptions = {

@@ -119,7 +119,8 @@ export function processCombatAction(
           if (action.userShouldMoveHomeOnComplete) {
             const returnHomeStep = new PostUsePositioningActionResolutionStep(
               currentTrackerOption.currentStep.getContext(),
-              AnimationName.MoveBack
+              AnimationName.MoveBack,
+              true
             );
 
             currentTrackerOption.currentStep = returnHomeStep;

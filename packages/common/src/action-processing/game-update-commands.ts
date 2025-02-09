@@ -30,6 +30,7 @@ export type CombatantMovementGameUpdateCommand = {
   animationName: AnimationName;
   combatantId: EntityId;
   destination: Vector3;
+  endsTurnOnCompletion: boolean;
 };
 
 export type CombatantAnimationGameUpdateCommand = {

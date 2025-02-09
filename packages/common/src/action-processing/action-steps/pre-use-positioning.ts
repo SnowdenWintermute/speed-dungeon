@@ -24,6 +24,7 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
       animationName: AnimationName.MoveForward,
       combatantId: context.combatantContext.combatant.entityProperties.id,
       destination: Vector3.Zero(),
+      endsTurnOnCompletion: false,
     };
 
     super(ActionResolutionStepType.preUsePositioning, context, gameUpdateCommand);
@@ -37,12 +38,12 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
       context.actionExecutionIntent
     );
     if (destinationResult instanceof Error) throw destinationResult;
-    gameUpdateCommand.destination = destinationResult;
-    this.destination = destinationResult;
+    this.destination = gameUpdateCommand.destination = destinationResult;
 
     const distance = Vector3.Distance(this.originalPosition, this.destination);
     const speedMultiplier = 1;
     this.timeToTranslate = COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;
+    console.log("TIME TO TRANSLATE: ", this.timeToTranslate);
   }
 
   protected onTick(): void {

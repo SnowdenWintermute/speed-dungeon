@@ -6,6 +6,10 @@ export class ReplayTreeManager {
   private current: null | ReplayTreeProcessor = null;
   constructor() {}
 
+  getCurrent() {
+    return this.current;
+  }
+
   enqueueTree(tree: NestedNodeReplayEvent) {
     this.queue.push(tree);
   }
@@ -35,8 +39,8 @@ export class ReplayTreeProcessor {
     this.activeBranches.push(new ReplayBranchProcessor(root, this.activeBranches));
   }
 
-  getIsProcessing() {
-    //
+  getActiveBranches() {
+    return this.activeBranches;
   }
 
   isComplete() {
@@ -67,6 +71,10 @@ export class ReplayBranchProcessor {
     private node: NestedNodeReplayEvent,
     private branchProcessors: ReplayBranchProcessor[]
   ) {}
+
+  getCurrentGameUpdate() {
+    return this.currentGameUpdateOption;
+  }
 
   currentStepIsComplete(): boolean {
     if (this.currentGameUpdateOption === null) return true;

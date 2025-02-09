@@ -15,7 +15,8 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
   private timeToTranslate: Milliseconds;
   constructor(
     context: ActionResolutionStepContext,
-    public animationName: AnimationName
+    public animationName: AnimationName,
+    endsTurnOnCompletion: boolean
   ) {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantMovement,
@@ -23,6 +24,7 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
       animationName: AnimationName.MoveBack,
       combatantId: context.combatantContext.combatant.entityProperties.id,
       destination: Vector3.Zero(),
+      endsTurnOnCompletion,
     };
 
     super(ActionResolutionStepType.postUsePositioning, context, gameUpdateCommand);
@@ -30,7 +32,7 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
     const { combatantProperties } = this.context.combatantContext.combatant;
     this.originalPosition = combatantProperties.position.clone();
     // @TODO - calculate destination based on action
-    this.destination = combatantProperties.homeLocation.clone();
+    this.destination = gameUpdateCommand.destination = combatantProperties.homeLocation.clone();
 
     let distance = Vector3.Distance(this.originalPosition, this.destination);
     if (isNaN(distance)) distance = 0;

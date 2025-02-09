@@ -13,6 +13,7 @@ import {
 } from "../../combat/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
+import { AnimationName } from "../../app-consts.js";
 
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
   constructor(
@@ -50,7 +51,8 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
       nextStepOption: new PostUseAnimationActionResolutionStep(
         this.context,
         null,
-        "Sword strike rebound | Sword strike followthrough"
+        // "Sword strike rebound | Sword strike followthrough"
+        AnimationName.Idle
       ),
     };
   }

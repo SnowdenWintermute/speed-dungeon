@@ -9,28 +9,30 @@ import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-command
 import { Milliseconds } from "../../primatives/index.js";
 import { AnimationName } from "../../app-consts.js";
 
-const placeholderDuration = 1000;
+const placeholderDuration = 0;
 
 export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
   duration: Milliseconds;
   constructor(
     context: ActionResolutionStepContext,
     private destinationOption: null | Vector3,
-    private animationName: string
+    private animationName: AnimationName
   ) {
+    const { combatant } = context.combatantContext;
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantAnimation,
       completionOrderId: null,
-      animationName: AnimationName.MoveBack,
-      combatantId: context.combatantContext.combatant.entityProperties.id,
-      destination: Vector3.Zero(),
+      animationName,
+      combatantId: combatant.entityProperties.id,
+      destination: combatant.combatantProperties.position.clone(),
       duration: placeholderDuration,
     };
 
     super(ActionResolutionStepType.postUseAnimation, context, gameUpdateCommand);
 
     // @TODO -calculate duration based distance to destination dictated by action and target
-    this.duration = placeholderDuration;
+    this.duration = gameUpdateCommand.duration = placeholderDuration;
+    if (this.destinationOption) gameUpdateCommand.destination = this.destinationOption;
   }
 
   protected onTick(): void {
@@ -45,7 +47,7 @@ export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
   }
 
   isComplete() {
-    return this.elapsed >= this.duration;
+    return this.getTimeToCompletion() <= 0;
   }
 
   onComplete(): ActionResolutionStepResult {

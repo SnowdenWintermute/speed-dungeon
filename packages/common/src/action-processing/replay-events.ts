@@ -1,3 +1,4 @@
+import { ANIMATION_NAME_STRINGS } from "../app-consts.js";
 import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "../combat/index.js";
 import { SequentialIdGenerator } from "../utils/index.js";
 import {
@@ -47,7 +48,10 @@ export class Replayer {
         if (node.type === ReplayEventType.GameUpdate) {
           console.log(
             //@ts-ignore
-            node.gameUpdate.animationName || "",
+            node.gameUpdate.animationName
+              ? //@ts-ignore
+                ANIMATION_NAME_STRINGS[node.gameUpdate.animationName]
+              : "",
             GAME_UPDATE_COMMAND_TYPE_STRINGS[node.gameUpdate.type],
             node.gameUpdate.completionOrderId
           );

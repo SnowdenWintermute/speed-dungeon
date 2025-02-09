@@ -1,10 +1,28 @@
 import { GameWorld } from "..";
 import { actionCommandQueue } from "@/singletons/action-command-manager";
-import { ACTION_COMMAND_TYPE_STRINGS } from "@speed-dungeon/common";
+import {
+  ACTION_COMMAND_TYPE_STRINGS,
+  GAME_UPDATE_COMMAND_TYPE_STRINGS,
+} from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 
-export default function updateDebugText(this: GameWorld) {
+export function updateDebugText(this: GameWorld) {
   if (this.debug.debugRef?.current) {
+    const branches = this.replayTreeManager.getCurrent()?.getActiveBranches();
+    let mapped = "";
+    if (branches) {
+      mapped = branches
+        .map((branch) => {
+          const currUpdateOption = branch.getCurrentGameUpdate();
+          if (currUpdateOption)
+            return GAME_UPDATE_COMMAND_TYPE_STRINGS[currUpdateOption.command.type];
+          else return "no update";
+        })
+        .join(", ");
+    }
+
+    const processingUpdateBranches = `<div>${mapped}</div>`;
+
     const fps = `<div>${this.engine.getFps().toFixed()}</div>`;
 
     const rootTransformPositions = Object.values(this.modelManager.combatantModels)
@@ -41,6 +59,7 @@ export default function updateDebugText(this: GameWorld) {
     }
 
     this.debug.debugRef.current.innerHTML = [
+      `branches: ${processingUpdateBranches}`,
       `fps: ${fps}`,
       `action command queue: ${actionCommandQueueMessages}`,
       `isProcessing: ${actionCommandQueue.isProcessing}`,
