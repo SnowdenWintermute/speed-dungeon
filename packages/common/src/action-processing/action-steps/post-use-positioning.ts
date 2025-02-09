@@ -7,7 +7,7 @@ import {
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Milliseconds } from "../../primatives/index.js";
-import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
+import { AnimationName, COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 
 export class PostUsePositioningActionResolutionStep extends ActionResolutionStep {
   private destination: Vector3;
@@ -15,12 +15,12 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
   private timeToTranslate: Milliseconds;
   constructor(
     context: ActionResolutionStepContext,
-    public animationName: string
+    public animationName: AnimationName
   ) {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantMovement,
       completionOrderId: null,
-      animationName: "Run Back", // run forward, run backward, run forward injured @TODO -enum
+      animationName: AnimationName.MoveBack,
       combatantId: context.combatantContext.combatant.entityProperties.id,
       destination: Vector3.Zero(),
     };
@@ -32,13 +32,16 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
     // @TODO - calculate destination based on action
     this.destination = combatantProperties.homeLocation.clone();
 
-    const distance = Vector3.Distance(this.originalPosition, this.destination);
+    let distance = Vector3.Distance(this.originalPosition, this.destination);
+    if (isNaN(distance)) distance = 0;
     const speedMultiplier = 1;
     this.timeToTranslate = COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;
+    console.log("TIME TO TRANSLATE: ", this.timeToTranslate);
   }
 
   protected onTick(): void {
-    const normalizedPercentTravelled = this.elapsed / this.timeToTranslate;
+    const normalizedPercentTravelled =
+      this.timeToTranslate === 0 ? 1 : this.elapsed / this.timeToTranslate;
 
     const newPosition = Vector3.Lerp(
       this.originalPosition,
@@ -54,7 +57,9 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
   }
 
   isComplete() {
-    return this.elapsed >= this.timeToTranslate;
+    const isComplete = this.getTimeToCompletion() <= 0;
+    console.log("time to completion: ", this.getTimeToCompletion(), isComplete);
+    return isComplete;
   }
 
   onComplete(): ActionResolutionStepResult {

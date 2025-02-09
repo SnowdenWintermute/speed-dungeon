@@ -1,5 +1,6 @@
 import {
   ActionSequenceManagerRegistry,
+  AnimationName,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatantContext,
@@ -39,7 +40,12 @@ export function processCombatAction(
       gameUpdate: initialGameUpdateOptionResult,
     });
 
-  while (registry.isNotEmpty()) {
+  let loopLimiter = 0;
+
+  while (
+    registry.isNotEmpty()
+    // && loop < 10 // for testing
+  ) {
     for (const manager of registry.getManagers()) {
       while (manager.getCurrentTracker()?.currentStep.isComplete()) {
         const trackerOption = manager.getCurrentTracker();
@@ -113,7 +119,7 @@ export function processCombatAction(
           if (action.userShouldMoveHomeOnComplete) {
             const returnHomeStep = new PostUsePositioningActionResolutionStep(
               currentTrackerOption.currentStep.getContext(),
-              "Run Back"
+              AnimationName.MoveBack
             );
 
             currentTrackerOption.currentStep = returnHomeStep;
@@ -134,6 +140,8 @@ export function processCombatAction(
 
     for (const manager of registry.getManagers())
       manager.getCurrentTracker()?.currentStep.tick(timeToTick);
+
+    // loopLimiter += 1;
   }
 
   return rootReplayNode;

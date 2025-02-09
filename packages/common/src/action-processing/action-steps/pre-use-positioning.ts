@@ -8,9 +8,8 @@ import {
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { StartUseAnimationActionResolutionStep } from "./start-use-animation.js";
 import { Milliseconds } from "../../primatives/index.js";
-import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
+import { AnimationName, COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 import { COMBAT_ACTIONS } from "../../combat/index.js";
-import { CombatActionRequiredRange } from "../../combat/combat-actions/combat-action-range.js";
 
 export class PreUsePositioningActionResolutionStep extends ActionResolutionStep {
   private destination: Vector3;
@@ -22,32 +21,33 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantMovement,
       completionOrderId: null,
-      animationName: "Run Forward", // run forward, run backward, run forward injured @TODO -enum
+      animationName: AnimationName.MoveForward,
       combatantId: context.combatantContext.combatant.entityProperties.id,
       destination: Vector3.Zero(),
     };
 
     super(ActionResolutionStepType.preUsePositioning, context, gameUpdateCommand);
+
     const { combatantProperties } = context.combatantContext.combatant;
 
     this.originalPosition = combatantProperties.position.clone();
-    // @TODO - calculate destination based on action
     const action = COMBAT_ACTIONS[this.context.actionExecutionIntent.actionName];
-    const actionRange = action.getRequiredRange(combatantProperties);
-    switch (actionRange) {
-      case CombatActionRequiredRange.Melee:
-      case CombatActionRequiredRange.Ranged:
-    }
-    this.destination = Vector3.Zero();
+    const destinationResult = action.getPositionToStartUse(
+      context.combatantContext,
+      context.actionExecutionIntent
+    );
+    if (destinationResult instanceof Error) throw destinationResult;
+    gameUpdateCommand.destination = destinationResult;
+    this.destination = destinationResult;
 
     const distance = Vector3.Distance(this.originalPosition, this.destination);
-    console.log("distance", distance);
     const speedMultiplier = 1;
     this.timeToTranslate = COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;
   }
 
   protected onTick(): void {
-    const normalizedPercentTravelled = this.elapsed / this.timeToTranslate;
+    const normalizedPercentTravelled =
+      this.timeToTranslate === 0 ? 1 : this.elapsed / this.timeToTranslate;
 
     const newPosition = Vector3.Lerp(
       this.originalPosition,

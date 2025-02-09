@@ -103,7 +103,7 @@ export class GameWorld {
   updateGameWorld() {
     this.updateDebugText();
     if (this.replayTreeManager.currentTreeCompleted()) this.replayTreeManager.startNext();
-    this.replayTreeManager.processCurrent();
+    this.replayTreeManager.process();
 
     if (
       !this.modelManager.modelActionQueue.isProcessing &&

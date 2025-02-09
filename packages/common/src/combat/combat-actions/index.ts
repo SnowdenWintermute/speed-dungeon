@@ -34,6 +34,8 @@ import {
   ActionStepTracker,
 } from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
+import { Vector3 } from "@babylonjs/core";
+import { CombatActionCombatantAnimations } from "./combat-action-animations.js";
 
 export interface CombatActionComponentConfig {
   description: string;
@@ -63,11 +65,23 @@ export interface CombatActionComponentConfig {
   getExecutionTime: () => number;
   requiresCombatTurn: (user: CombatantProperties) => boolean;
   shouldExecute: (combatantContext: CombatantContext, self: CombatActionComponent) => boolean;
-  getAnimationsAndEffects: () => void;
+  getCombatantUseAnimations: (
+    combatantContex: CombatantContext
+  ) => null | CombatActionCombatantAnimations;
   getRequiredRange: (
     user: CombatantProperties,
     self: CombatActionComponent
   ) => CombatActionRequiredRange;
+  getPositionToStartUse: (
+    combatantContext: CombatantContext,
+    actionExecutionIntent: CombatActionExecutionIntent,
+    self: CombatActionComponent
+  ) => Error | Vector3;
+  getDestinationDuringUse: (
+    combatantContext: CombatantContext,
+    actionExecutionIntent: CombatActionExecutionIntent,
+    self: CombatActionComponent
+  ) => Error | Vector3;
   /** A numeric percentage which will be used against the target's evasion */
   getUnmodifiedAccuracy: (user: CombatantProperties) => ActionAccuracy;
   /** A numeric percentage which will be used against the target's crit avoidance */
@@ -159,8 +173,16 @@ export abstract class CombatActionComponent {
   // spawn mobile effect (effectName (Arrow, Firebolt), origin, destination, speed, easingFn, getPercentCompleteToProceed(), onProceed())
   // spawn stream effect (effectName (lightning arc, healing beam), origin, destination, duration, easingFn, getPercentCompleteToProceed(), onProceed())
   // spawn static effect (effectName (Protect, SpellSparkles), position, duration, getPercentCompleteToProceed(), onProceed())
-  getAnimationsAndEffects: () => void;
+  getCombatantUseAnimations: (context: CombatantContext) => null | CombatActionCombatantAnimations;
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
+  getPositionToStartUse: (
+    combatantContext: CombatantContext,
+    actionExecutionIntent: CombatActionExecutionIntent
+  ) => Error | Vector3;
+  getDestinationDuringUse: (
+    combatantContext: CombatantContext,
+    actionExecutionIntent: CombatActionExecutionIntent
+  ) => Error | Vector3;
   getAccuracy: (user: CombatantProperties) => ActionAccuracy;
   getCritChance: (user: CombatantProperties) => number;
   getCritMultiplier: (user: CombatantProperties) => number;
@@ -236,7 +258,7 @@ export abstract class CombatActionComponent {
     this.requiresCombatTurn = config.requiresCombatTurn;
     this.shouldExecute = (characterAssociatedData) =>
       config.shouldExecute(characterAssociatedData, this);
-    this.getAnimationsAndEffects = config.getAnimationsAndEffects;
+    this.getCombatantUseAnimations = config.getCombatantUseAnimations;
     this.getAccuracy = (user: CombatantProperties) => {
       const baseAccuracy = config.getUnmodifiedAccuracy(user);
       if (baseAccuracy.type === ActionAccuracyType.Percentage)
@@ -247,6 +269,10 @@ export abstract class CombatActionComponent {
     this.getCritMultiplier = config.getCritMultiplier;
     this.getArmorPenetration = (user) => config.getArmorPenetration(user, this);
     this.getRequiredRange = (user) => config.getRequiredRange(user, this);
+    this.getPositionToStartUse = (context, actionIntent) =>
+      config.getPositionToStartUse(context, actionIntent, this);
+    this.getDestinationDuringUse = (context, actionIntent) =>
+      config.getDestinationDuringUse(context, actionIntent, this);
     this.getHpChangeProperties = (user, target) => config.getHpChangeProperties(user, target, this);
     this.getAppliedConditions = config.getAppliedConditions;
     this.getChildren = config.getChildren;

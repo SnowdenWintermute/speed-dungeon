@@ -23,8 +23,15 @@ import { CombatActionTargetType } from "../../../targeting/combat-action-targets
 import { CombatantContext } from "../../../../combatant-context/index.js";
 import { ActionStepTracker } from "../../../../action-processing/action-step-tracker.js";
 import { ActionSequenceManager } from "../../../../action-processing/action-sequence-manager.js";
+import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
+import {
+  CombatActionAnimationCategory,
+  CombatActionCombatantAnimations,
+} from "../../combat-action-animations.js";
+import { AnimationName } from "../../../../app-consts.js";
 
 const config: CombatActionComponentConfig = {
+  ...RANGED_ACTIONS_COMMON_CONFIG,
   description: "Fire arrows which each bounce to up to two additional targets",
   targetingSchemes: [TargetingScheme.Area],
   validTargetCategories: TargetCategories.Opponent,
@@ -50,9 +57,13 @@ const config: CombatActionComponentConfig = {
   getExecutionTime: () => 1000,
   requiresCombatTurn: () => true,
   shouldExecute: () => true,
-  getAnimationsAndEffects: function (): void {
-    // rely on concurrent subactions for this
-    throw new Error("Function not implemented.");
+  getCombatantUseAnimations: (combatantContext: CombatantContext) => {
+    const animations: CombatActionCombatantAnimations = {
+      [CombatActionAnimationCategory.StartUse]: AnimationName.RangedAttack,
+      [CombatActionAnimationCategory.SuccessRecovery]: AnimationName.RangedAttack,
+      [CombatActionAnimationCategory.InterruptedRecovery]: AnimationName.RangedAttack,
+    };
+    return animations;
   },
   getHpChangeProperties: () => null,
   getAppliedConditions: function (): CombatantCondition[] | null {

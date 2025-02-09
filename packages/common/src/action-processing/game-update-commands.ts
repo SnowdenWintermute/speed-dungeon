@@ -2,6 +2,7 @@ import { Vector3 } from "@babylonjs/core";
 import { EntityId } from "../primatives/index.js";
 import { ActionResourceCosts, CombatActionName, HpChange } from "../combat/index.js";
 import { DurabilityChangesByEntityId } from "../combat/action-results/calculate-action-durability-changes.js";
+import { AnimationName } from "../app-consts.js";
 
 export enum GameUpdateCommandType {
   CombatantMovement,
@@ -26,7 +27,7 @@ export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, str
 export type CombatantMovementGameUpdateCommand = {
   type: GameUpdateCommandType.CombatantMovement;
   completionOrderId: null | number;
-  animationName: string; // run forward, run backward @TODO -enum
+  animationName: AnimationName;
   combatantId: EntityId;
   destination: Vector3;
 };
@@ -36,7 +37,7 @@ export type CombatantAnimationGameUpdateCommand = {
   completionOrderId: null | number;
   combatantId: EntityId;
   destination: Vector3;
-  animationName: string; // @TODO -enum
+  animationName: AnimationName;
   duration: number;
 };
 

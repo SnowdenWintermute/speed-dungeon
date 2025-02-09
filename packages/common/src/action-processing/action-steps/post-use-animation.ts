@@ -7,6 +7,7 @@ import {
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Milliseconds } from "../../primatives/index.js";
+import { AnimationName } from "../../app-consts.js";
 
 const placeholderDuration = 1000;
 
@@ -20,7 +21,7 @@ export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantAnimation,
       completionOrderId: null,
-      animationName: "post use animation",
+      animationName: AnimationName.MoveBack,
       combatantId: context.combatantContext.combatant.entityProperties.id,
       destination: Vector3.Zero(),
       duration: placeholderDuration,

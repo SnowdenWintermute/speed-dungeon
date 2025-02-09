@@ -2,6 +2,7 @@ import { Matrix, Quaternion, Vector3 } from "@babylonjs/core";
 import cloneDeep from "lodash.clonedeep";
 import {
   AdventuringParty,
+  AnimationName,
   COMBATANT_TIME_TO_ROTATE_360,
   CombatantProperties,
   ERROR_MESSAGES,
@@ -11,7 +12,6 @@ import {
   cloneVector3,
 } from "@speed-dungeon/common";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { ANIMATION_NAMES } from "../../combatant-models/animation-manager/animation-names";
 import { useGameStore } from "@/stores/game-store";
 import { gameWorld } from "../../SceneManager";
 
@@ -80,7 +80,7 @@ export async function startMovingIntoCombatActionUsePosition(
       }
       // start their running forward animation
       userCombatantModel.animationManager.startAnimationWithTransition(
-        ANIMATION_NAMES.MOVE_FORWARD,
+        AnimationName.MoveForward,
         500
       );
 

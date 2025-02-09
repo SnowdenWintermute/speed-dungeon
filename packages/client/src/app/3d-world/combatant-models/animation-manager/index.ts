@@ -1,8 +1,11 @@
 import { AnimationGroup, AnimationEvent } from "@babylonjs/core";
 import { ModularCharacter } from "../modular-character";
-import { MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME } from "@speed-dungeon/common";
+import {
+  ANIMATION_NAME_STRINGS,
+  AnimationName,
+  MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
+} from "@speed-dungeon/common";
 import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
-import { ANIMATION_NAMES } from "./animation-names";
 
 export type ManagedAnimationOptions = {
   shouldLoop: boolean;
@@ -63,7 +66,7 @@ export class AnimationManager {
   }
 
   startAnimationWithTransition(
-    newAnimationName: string,
+    newAnimationName: AnimationName,
     transitionDuration: number,
     options: ManagedAnimationOptions = {
       shouldLoop: true,
@@ -76,7 +79,7 @@ export class AnimationManager {
     // alternatives to some missing animations
     if (newAnimationGroupOption === undefined) {
       const fallbackName = this.getFallbackAnimationName(newAnimationName);
-      newAnimationGroupOption = this.getAnimationGroupByName(fallbackName || "");
+      newAnimationGroupOption = this.getAnimationGroupByName(fallbackName || AnimationName.Idle);
     }
 
     const clonedAnimationOption = this.cloneAnimationOption(newAnimationGroupOption);
@@ -153,11 +156,12 @@ export class AnimationManager {
     }
   }
 
-  getAnimationGroupByName(name: string) {
+  getAnimationGroupByName(animationName: AnimationName) {
+    const asString = ANIMATION_NAME_STRINGS[animationName];
     const { skeleton } = this.characterModel;
     for (let index = 0; index < skeleton.animationGroups.length; index++) {
       if (!skeleton.animationGroups[index]) continue;
-      if (skeleton.animationGroups[index]!.name === name) {
+      if (skeleton.animationGroups[index]!.name === asString) {
         return skeleton.animationGroups[index];
       }
     }
@@ -172,10 +176,10 @@ export class AnimationManager {
     // }
   }
 
-  getFallbackAnimationName(animationName: string) {
-    if (animationName === "melee-attack-offhand") return "melee-attack";
-    if (animationName === "move-back") return "move-forward";
-    if (animationName === "idle") return "move-forward";
+  getFallbackAnimationName(animationName: AnimationName) {
+    if (animationName === AnimationName.MeleeOffHand) return AnimationName.MeleeMainHand;
+    if (animationName === AnimationName.MoveBack) return AnimationName.MoveForward;
+    if (animationName === AnimationName.Idle) return AnimationName.MoveForward;
   }
 
   static setAnimationEndCallback(animationGroup: AnimationGroup, callback: () => void) {

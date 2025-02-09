@@ -127,3 +127,37 @@ export const SKY_COLORS_BY_FLOOR: Record<DungeonFloor, string> = {
 };
 
 export const ONE_THIRD_OF_ONE = 1 / 3;
+
+export enum AnimationName {
+  MoveForward,
+  MoveBack,
+  Idle,
+  IdleGripping,
+  Death,
+  HitRecovery,
+  CritRecovery,
+  Ready,
+  Evade,
+  MeleeMainHand,
+  MeleeOffHand,
+  RangedAttack,
+  CastSpell,
+  UseItem,
+}
+
+export const ANIMATION_NAME_STRINGS: Record<AnimationName, string> = {
+  [AnimationName.MoveForward]: "move-forward",
+  [AnimationName.MoveBack]: "move-back",
+  [AnimationName.Idle]: "idle",
+  [AnimationName.IdleGripping]: "idle-sword",
+  [AnimationName.Death]: "death",
+  [AnimationName.HitRecovery]: "hit-recovery",
+  [AnimationName.CritRecovery]: "crit-recovery",
+  [AnimationName.Ready]: "ready",
+  [AnimationName.Evade]: "evade",
+  [AnimationName.MeleeMainHand]: "melee-attack",
+  [AnimationName.MeleeOffHand]: "melee-attack-offhand",
+  [AnimationName.RangedAttack]: "ranged-attack",
+  [AnimationName.CastSpell]: "cast-spell",
+  [AnimationName.UseItem]: "use-item",
+};

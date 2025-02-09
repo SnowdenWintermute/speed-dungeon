@@ -19,7 +19,7 @@ export class ReplayTreeManager {
     this.current = nextOption ? new ReplayTreeProcessor(nextOption) : null;
   }
 
-  processCurrent() {
+  process() {
     if (this.current) this.current.processBranches();
     if (this.currentTreeCompleted()) {
       this.current = null;

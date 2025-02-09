@@ -1,6 +1,7 @@
 import {
   CombatActionComponent,
   CombatActionComponentConfig,
+  CombatActionExecutionIntent,
   CombatActionLeaf,
   CombatActionName,
   CombatActionUsabilityContext,
@@ -8,6 +9,7 @@ import {
   TargetingScheme,
 } from "../../index.js";
 import {
+  AnimationName,
   DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
   OFF_HAND_ACCURACY_MODIFIER,
   OFF_HAND_CRIT_CHANCE_MODIFIER,
@@ -26,9 +28,13 @@ import { SpeedDungeonGame } from "../../../../game/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { getStandardActionCritChance } from "../../action-calculation-utils/standard-action-calculations.js";
-import { MELEE_ATTACK_COMMON_CONFIG } from "./melee-attack-common-config.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
+import { MELEE_ATTACK_COMMON_CONFIG } from "../melee-actions-common-config.js";
+import {
+  CombatActionAnimationCategory,
+  CombatActionCombatantAnimations,
+} from "../../combat-action-animations.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -47,6 +53,13 @@ const config: CombatActionComponentConfig = {
   appliesConditions: [],
   incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: 1 } },
   costBases: {},
+  getDestinationDuringUse: (
+    combatantContext: CombatantContext,
+    actionExecutionIntent: CombatActionExecutionIntent,
+    self: CombatActionComponent
+  ) => {
+    return combatantContext.combatant.combatantProperties.position;
+  },
   getResourceCosts: () => null,
   getExecutionTime: () => DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
   requiresCombatTurn: (user) => {
@@ -79,9 +92,13 @@ const config: CombatActionComponentConfig = {
 
     return !SpeedDungeonGame.allCombatantsInGroupAreDead(game, targetIdsResult);
   },
-  getAnimationsAndEffects: function (): void {
-    // @TODO
-    throw new Error("Function not implemented.");
+  getCombatantUseAnimations: (combatantContext: CombatantContext) => {
+    const animations: CombatActionCombatantAnimations = {
+      [CombatActionAnimationCategory.StartUse]: AnimationName.MeleeOffHand,
+      [CombatActionAnimationCategory.SuccessRecovery]: AnimationName.MeleeOffHand,
+      [CombatActionAnimationCategory.InterruptedRecovery]: AnimationName.MeleeOffHand,
+    };
+    return animations;
   },
   getCritChance: function (user: CombatantProperties): number {
     return (

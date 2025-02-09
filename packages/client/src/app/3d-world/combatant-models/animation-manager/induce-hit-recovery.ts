@@ -1,4 +1,5 @@
 import {
+  AnimationName,
   CombatantProperties,
   ERROR_MESSAGES,
   HP_CHANGE_SOURCE_CATEGORY_STRINGS,
@@ -12,7 +13,6 @@ import { GameWorld } from "../../game-world";
 import startHpChangeFloatingMessage from "./start-hp-change-floating-message";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
-import { ANIMATION_NAMES } from "./animation-names";
 
 export function induceHitRecovery(
   gameWorld: GameWorld,
@@ -97,7 +97,7 @@ export function induceHitRecovery(
         )
       );
 
-      targetModel.animationManager.startAnimationWithTransition(ANIMATION_NAMES.DEATH, 0, {
+      targetModel.animationManager.startAnimationWithTransition(AnimationName.Death, 0, {
         shouldLoop: false,
         animationDurationOverrideOption: null,
         animationEventOption: null,
@@ -107,12 +107,12 @@ export function induceHitRecovery(
       });
     } else if (hpChange.value < 0) {
       const hasCritRecoveryAnimation = targetModel.animationManager.getAnimationGroupByName(
-        ANIMATION_NAMES.CRIT_RECOVERY
+        AnimationName.HitRecovery
       );
       const animationName =
         hpChange.isCrit && hasCritRecoveryAnimation
-          ? ANIMATION_NAMES.HIT_RECOVERY
-          : ANIMATION_NAMES.CRIT_RECOVERY;
+          ? AnimationName.HitRecovery
+          : AnimationName.CritRecovery;
 
       targetModel.animationManager.startAnimationWithTransition(animationName, 0, {
         shouldLoop: false,

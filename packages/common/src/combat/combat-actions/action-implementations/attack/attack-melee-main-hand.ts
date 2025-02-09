@@ -1,12 +1,14 @@
 import {
+  CombatActionComponent,
   CombatActionComponentConfig,
+  CombatActionExecutionIntent,
   CombatActionLeaf,
   CombatActionName,
   CombatActionUsabilityContext,
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../../../app-consts.js";
+import { AnimationName, DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
@@ -18,7 +20,12 @@ import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
 import { getAttackHpChangeProperties } from "./get-attack-hp-change-properties.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
-import { MELEE_ATTACK_COMMON_CONFIG } from "./melee-attack-common-config.js";
+import { MELEE_ATTACK_COMMON_CONFIG } from "../melee-actions-common-config.js";
+import { CombatantContext } from "../../../../combatant-context/index.js";
+import {
+  CombatActionAnimationCategory,
+  CombatActionCombatantAnimations,
+} from "../../combat-action-animations.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -51,11 +58,13 @@ const config: CombatActionComponentConfig = {
     return false;
   },
   shouldExecute: () => true,
-  getAnimationsAndEffects: function (): void {
-    // @TODO
-    // combatant move self into melee range
-    // animate combatant (swing main hand) (later can animate specific swings based on equipped weapon)
-    throw new Error("Function not implemented.");
+  getCombatantUseAnimations: (combatantContext: CombatantContext) => {
+    const animations: CombatActionCombatantAnimations = {
+      [CombatActionAnimationCategory.StartUse]: AnimationName.MeleeMainHand,
+      [CombatActionAnimationCategory.SuccessRecovery]: AnimationName.MeleeMainHand,
+      [CombatActionAnimationCategory.InterruptedRecovery]: AnimationName.MeleeMainHand,
+    };
+    return animations;
   },
   getHpChangeProperties: (user, primaryTarget, self) => {
     const hpChangeProperties = getAttackHpChangeProperties(

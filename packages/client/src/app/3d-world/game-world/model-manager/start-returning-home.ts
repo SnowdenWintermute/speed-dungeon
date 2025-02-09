@@ -9,7 +9,6 @@ import {
   ReturnHomeActionCommandPayload,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
-import { ANIMATION_NAMES } from "../../combatant-models/animation-manager/animation-names";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { useGameStore } from "@/stores/game-store";
 import { gameWorld } from "../../SceneManager";

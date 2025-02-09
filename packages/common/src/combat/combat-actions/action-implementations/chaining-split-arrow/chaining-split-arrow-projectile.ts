@@ -28,10 +28,12 @@ import { chooseRandomFromArray } from "../../../../utils/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { ActionSequenceManager } from "../../../../action-processing/action-sequence-manager.js";
 import { ActionStepTracker } from "../../../../action-processing/action-step-tracker.js";
+import { NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG } from "../non-combatant-initiated-actions-common-config.js";
 
 const MAX_BOUNCES = 2;
 
 const config: CombatActionComponentConfig = {
+  ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
   description: "An arrow that bounces to up to two additional targets after the first",
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
@@ -52,10 +54,7 @@ const config: CombatActionComponentConfig = {
   getExecutionTime: () => 700,
   requiresCombatTurn: () => true,
   shouldExecute: () => true,
-  getAnimationsAndEffects: function (): void {
-    // rely on concurrent subactions for this
-    throw new Error("Function not implemented.");
-  },
+  getCombatantUseAnimations: (combatantContext: CombatantContext) => null,
   getHpChangeProperties: () => null,
   getAppliedConditions: function (): CombatantCondition[] | null {
     // @TODO - determine based on equipment

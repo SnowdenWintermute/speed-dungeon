@@ -5,8 +5,7 @@ import {
   GameUpdateCommandType,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
-import { TranslationTracker } from "../../model-movement-manager/model-movement-trackers";
-import { ReplayBranchProcessor } from ".";
+import { ManagedAnimationOptions } from "../../combatant-models/animation-manager";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
@@ -16,26 +15,48 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     command: CombatantMovementGameUpdateCommand;
     isComplete: boolean;
   }): void | Error {
+    const { command } = update;
     const combatantModelOption =
       gameWorld.current?.modelManager.combatantModels[update.command.combatantId];
     if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     const { movementManager, animationManager } = combatantModelOption;
-    movementManager.startTranslating(update.command.destination, () => {
+    movementManager.startTranslating(command.destination, () => {
       update.isComplete = true;
     });
-    // get the combatant model's movement manager and issue it a move command with the original position and destination
-    // get the combatant's animation manager and tell it to start transitioning to this movement animation repeating
-    // to check if complete, check if the position is equal within a certain threshold
+
+    const options: ManagedAnimationOptions = {
+      shouldLoop: true,
+      animationEventOption: null,
+      animationDurationOverrideOption: null,
+      onComplete: function (): void {},
+    };
+    animationManager.startAnimationWithTransition(command.animationName, 500, options);
   },
-  [GameUpdateCommandType.CombatantAnimation]: function (
-    command: CombatantAnimationGameUpdateCommand
-  ): void | Error {
+  [GameUpdateCommandType.CombatantAnimation]: function (update: {
+    command: CombatantAnimationGameUpdateCommand;
+    isComplete: boolean;
+  }): void | Error {
+    const { command } = update;
+    const combatantModelOption =
+      gameWorld.current?.modelManager.combatantModels[update.command.combatantId];
+    if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+    const { movementManager, animationManager } = combatantModelOption;
+    movementManager.startTranslating(command.destination, () => {});
+
+    const options: ManagedAnimationOptions = {
+      shouldLoop: false,
+      animationEventOption: null,
+      animationDurationOverrideOption: null,
+      onComplete: function (): void {
+        update.isComplete = true;
+      },
+    };
+    animationManager.startAnimationWithTransition(command.animationName, 500, options);
     // get the combatant model's movement manager and issue it a move command with the original position and destination
     //
     // get the combatant's animation manager and tell it to start transitioning to this animation
     //
     // check if complete by reading the combatantModel.animationManager.isComplete()
-    throw new Error("Function not implemented.");
   },
   [GameUpdateCommandType.ResourcesPaid]: function (): void | Error {
     // deduct the resources

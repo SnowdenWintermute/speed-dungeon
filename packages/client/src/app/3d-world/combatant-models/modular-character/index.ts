@@ -19,6 +19,8 @@ import {
 import { ModularCharacterPartCategory } from "./modular-character-parts";
 import { GameWorld } from "../../game-world";
 import {
+  ANIMATION_NAME_STRINGS,
+  AnimationName,
   CombatantClass,
   DEFAULT_HITBOX_RADIUS_FALLBACK,
   ERROR_MESSAGES,
@@ -32,7 +34,6 @@ import { MONSTER_SCALING_SIZES } from "../monster-scaling-sizes";
 import cloneDeep from "lodash.clonedeep";
 import { AnimationManager } from "../animation-manager";
 import { setUpDebugMeshes, despawnDebugMeshes } from "./set-up-debug-meshes";
-import { ANIMATION_NAMES } from "../animation-manager/animation-names";
 import {
   attachHoldableModelToHolsteredPosition,
   attachHoldableModelToSkeleton,
@@ -146,7 +147,7 @@ export class ModularCharacter {
     //     transitionMs
     //   );
     // } else
-    this.animationManager.startAnimationWithTransition(ANIMATION_NAMES.IDLE, transitionMs);
+    this.animationManager.startAnimationWithTransition(AnimationName.Idle, transitionMs);
   }
 
   setUpDebugMeshes = setUpDebugMeshes;
@@ -221,8 +222,10 @@ export class ModularCharacter {
     disposeAsyncLoadedScene(toDispose);
 
     if (
-      this.animationManager.playing?.animationGroupOption?.name === ANIMATION_NAMES.IDLE ||
-      this.animationManager.playing?.animationGroupOption?.name === ANIMATION_NAMES.IDLE_GRIPPING
+      this.animationManager.playing?.animationGroupOption?.name ===
+        ANIMATION_NAME_STRINGS[AnimationName.Idle] ||
+      this.animationManager.playing?.animationGroupOption?.name ===
+        ANIMATION_NAME_STRINGS[AnimationName.IdleGripping]
     ) {
       this.startIdleAnimation(500);
     }
@@ -247,8 +250,10 @@ export class ModularCharacter {
     else attachHoldableModelToSkeleton(this, equipmentModelResult, slot, equipment);
 
     if (
-      this.animationManager.playing?.animationGroupOption?.name === ANIMATION_NAMES.IDLE ||
-      this.animationManager.playing?.animationGroupOption?.name === ANIMATION_NAMES.IDLE_GRIPPING
+      this.animationManager.playing?.animationGroupOption?.name ===
+        ANIMATION_NAME_STRINGS[AnimationName.Idle] ||
+      this.animationManager.playing?.animationGroupOption?.name ===
+        ANIMATION_NAME_STRINGS[AnimationName.IdleGripping]
     ) {
       this.startIdleAnimation(500);
     }

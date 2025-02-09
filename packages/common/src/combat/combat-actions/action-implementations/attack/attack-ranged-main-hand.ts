@@ -6,7 +6,7 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../../../app-consts.js";
+import { AnimationName, DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
@@ -26,8 +26,15 @@ import {
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { ActionResolutionStep } from "../../../../action-processing/index.js";
+import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
+import { CombatantContext } from "../../../../combatant-context/index.js";
+import {
+  CombatActionAnimationCategory,
+  CombatActionCombatantAnimations,
+} from "../../combat-action-animations.js";
 
 const config: CombatActionComponentConfig = {
+  ...RANGED_ACTIONS_COMMON_CONFIG,
   description: "Attack target using ranged weapon",
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
@@ -58,9 +65,13 @@ const config: CombatActionComponentConfig = {
     return false;
   },
   shouldExecute: () => true,
-  getAnimationsAndEffects: function (): void {
-    // @TODO
-    throw new Error("Function not implemented.");
+  getCombatantUseAnimations: (combatantContext: CombatantContext) => {
+    const animations: CombatActionCombatantAnimations = {
+      [CombatActionAnimationCategory.StartUse]: AnimationName.RangedAttack,
+      [CombatActionAnimationCategory.SuccessRecovery]: AnimationName.RangedAttack,
+      [CombatActionAnimationCategory.InterruptedRecovery]: AnimationName.RangedAttack,
+    };
+    return animations;
   },
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
   getUnmodifiedAccuracy: (user) => {

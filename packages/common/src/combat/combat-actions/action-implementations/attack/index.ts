@@ -27,6 +27,7 @@ import { CombatantContext } from "../../../../combatant-context/index.js";
 import { DetermineChildActionsActionResolutionStep } from "../../../../action-processing/action-steps/determine-child-actions.js";
 import { ActionStepTracker } from "../../../../action-processing/action-step-tracker.js";
 import { ActionSequenceManager } from "../../../../action-processing/action-sequence-manager.js";
+import { Vector3 } from "@babylonjs/core";
 
 const config: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
@@ -49,10 +50,7 @@ const config: CombatActionComponentConfig = {
   getExecutionTime: () => 0,
   requiresCombatTurn: () => true,
   shouldExecute: () => true,
-  getAnimationsAndEffects: function (): void {
-    // rely on children for this
-    throw new Error("Function not implemented.");
-  },
+  getCombatantUseAnimations: (combatantContext: CombatantContext) => null,
   getHpChangeProperties: () => null, // client should display child hp change properties
   getAppliedConditions: function (): CombatantCondition[] | null {
     // @TODO - determine based on equipment
@@ -87,6 +85,18 @@ const config: CombatActionComponentConfig = {
     // @TODO - determine based on children
     throw new Error("Function not implemented.");
   },
+
+  getPositionToStartUse: (
+    combatantContext: CombatantContext,
+    actionExecutionIntent: CombatActionExecutionIntent,
+    self: CombatActionComponent
+  ) => Vector3.Zero(),
+  getDestinationDuringUse: (
+    combatantContext: CombatantContext,
+    actionExecutionIntent: CombatActionExecutionIntent,
+    self: CombatActionComponent
+  ) => Vector3.Zero(),
+
   getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
     throw new Error("Function not implemented.");
   },

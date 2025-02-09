@@ -21,8 +21,10 @@ import { ActionSequenceManager } from "../../../../action-processing/action-sequ
 import { StaticVfxActionResolutionStep } from "../../../../action-processing/action-steps/static-vfx.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
+import { NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG } from "../non-combatant-initiated-actions-common-config.js";
 
 const config: CombatActionComponentConfig = {
+  ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
   description: "Deals kinetic fire damage in an area around the target",
   targetingSchemes: [TargetingScheme.Area],
   validTargetCategories: TargetCategories.Opponent,
@@ -43,10 +45,7 @@ const config: CombatActionComponentConfig = {
   getExecutionTime: () => 300,
   requiresCombatTurn: () => true,
   shouldExecute: () => true,
-  getAnimationsAndEffects: function (): void {
-    // rely on concurrent subactions for this
-    throw new Error("Function not implemented.");
-  },
+  getCombatantUseAnimations: (combatantContext: CombatantContext) => null,
   getHpChangeProperties: () => null,
   getAppliedConditions: function (): CombatantCondition[] | null {
     // @TODO - determine based on equipment
