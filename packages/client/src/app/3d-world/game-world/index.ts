@@ -27,6 +27,7 @@ import { SavedMaterials, createDefaultMaterials } from "./materials/create-defau
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
 import { TranslationTracker } from "../model-movement-manager/model-movement-trackers";
+import { ReplayTreeManager, ReplayTreeProcessor } from "./replay-tree-manager";
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;
@@ -49,6 +50,7 @@ export class GameWorld {
   numImagesBeingCreated: number = 0;
   imageManager: ImageManager = new ImageManager();
   portraitRenderTarget: RenderTargetTexture;
+  replayTreeManager = new ReplayTreeManager();
 
   constructor(
     public canvas: HTMLCanvasElement,
@@ -100,6 +102,8 @@ export class GameWorld {
 
   updateGameWorld() {
     this.updateDebugText();
+    if (this.replayTreeManager.currentTreeCompleted()) this.replayTreeManager.startNext();
+    this.replayTreeManager.processCurrent();
 
     if (
       !this.modelManager.modelActionQueue.isProcessing &&

@@ -1,12 +1,7 @@
-import { ReplayTreeManager } from "@/app/3d-world/game-world/replay-tree-manager";
-import { NestedNodeReplayEvent, ReplayEventNode, Replayer } from "@speed-dungeon/common";
+import { gameWorld } from "@/app/3d-world/SceneManager";
+import { NestedNodeReplayEvent, Replayer } from "@speed-dungeon/common";
 
 export function newActionReplayTreeHandler(eventData: { replayTree: NestedNodeReplayEvent }) {
   Replayer.printReplayTree(eventData.replayTree);
-
-  const replayManager = new ReplayTreeManager(eventData.replayTree);
-  replayManager.startProcessing();
+  gameWorld.current?.replayTreeManager.enqueueTree(eventData.replayTree);
 }
-
-// walk the tree until first gameUpdateCommand
-// start a gameUpdateCommand execution tracker

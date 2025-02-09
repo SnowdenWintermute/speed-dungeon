@@ -9,6 +9,8 @@ import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-command
 import { StartUseAnimationActionResolutionStep } from "./start-use-animation.js";
 import { Milliseconds } from "../../primatives/index.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
+import { COMBAT_ACTIONS } from "../../combat/index.js";
+import { CombatActionRequiredRange } from "../../combat/combat-actions/combat-action-range.js";
 
 export class PreUsePositioningActionResolutionStep extends ActionResolutionStep {
   private destination: Vector3;
@@ -26,9 +28,16 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
     };
 
     super(ActionResolutionStepType.preUsePositioning, context, gameUpdateCommand);
+    const { combatantProperties } = context.combatantContext.combatant;
 
-    this.originalPosition = context.combatantContext.combatant.combatantProperties.position.clone();
+    this.originalPosition = combatantProperties.position.clone();
     // @TODO - calculate destination based on action
+    const action = COMBAT_ACTIONS[this.context.actionExecutionIntent.actionName];
+    const actionRange = action.getRequiredRange(combatantProperties);
+    switch (actionRange) {
+      case CombatActionRequiredRange.Melee:
+      case CombatActionRequiredRange.Ranged:
+    }
     this.destination = Vector3.Zero();
 
     const distance = Vector3.Distance(this.originalPosition, this.destination);

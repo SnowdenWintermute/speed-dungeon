@@ -26,7 +26,6 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     // get the combatant model's movement manager and issue it a move command with the original position and destination
     // get the combatant's animation manager and tell it to start transitioning to this movement animation repeating
     // to check if complete, check if the position is equal within a certain threshold
-    throw new Error("Function not implemented.");
   },
   [GameUpdateCommandType.CombatantAnimation]: function (
     command: CombatantAnimationGameUpdateCommand
