@@ -36,7 +36,7 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
     if (isNaN(distance)) distance = 0;
     const speedMultiplier = 1;
     this.timeToTranslate = COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;
-    console.log("TIME TO TRANSLATE: ", this.timeToTranslate);
+    console.log("RETURN HOME DESTINATION: ", this.destination);
   }
 
   protected onTick(): void {

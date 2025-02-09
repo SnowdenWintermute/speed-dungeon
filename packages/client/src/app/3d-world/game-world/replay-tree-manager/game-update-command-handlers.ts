@@ -52,42 +52,57 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       },
     };
     animationManager.startAnimationWithTransition(command.animationName, 500, options);
-    // get the combatant model's movement manager and issue it a move command with the original position and destination
-    //
-    // get the combatant's animation manager and tell it to start transitioning to this animation
-    //
-    // check if complete by reading the combatantModel.animationManager.isComplete()
   },
-  [GameUpdateCommandType.ResourcesPaid]: function (): void | Error {
+  [GameUpdateCommandType.ResourcesPaid]: function (update: {
+    command: CombatantAnimationGameUpdateCommand;
+    isComplete: boolean;
+  }): void | Error {
+    update.isComplete = true;
     // deduct the resources
     // enqueue the floating text messages
     //
     // completes instantly
-    throw new Error("Function not implemented.");
+    // throw new Error("Function not implemented.");
   },
-  [GameUpdateCommandType.ActivatedTriggers]: function (): void | Error {
-    // no op????
+  [GameUpdateCommandType.ActivatedTriggers]: function (update: {
+    command: CombatantAnimationGameUpdateCommand;
+    isComplete: boolean;
+  }): void | Error {
+    update.isComplete = true;
+    // no-op????
     // or show floating text for counterspell, "triggered tech burst" "psionic explosion"
-    throw new Error("Function not implemented.");
+    // throw new Error("Function not implemented.");
   },
-  [GameUpdateCommandType.HitOutcomes]: function (): void | Error {
+  [GameUpdateCommandType.HitOutcomes]: function (update: {
+    command: CombatantAnimationGameUpdateCommand;
+    isComplete: boolean;
+  }): void | Error {
+    update.isComplete = true;
     // apply the damage
     // enqueue the floating text messages
-    throw new Error("Function not implemented.");
+    // throw new Error("Function not implemented.");
   },
-  [GameUpdateCommandType.StaticVfx]: function (): void | Error {
+  [GameUpdateCommandType.StaticVfx]: function (update: {
+    command: CombatantAnimationGameUpdateCommand;
+    isComplete: boolean;
+  }): void | Error {
+    update.isComplete = true;
     // spawn the vfx model
     // start the animation
     //
     // isComplete = the animation frame percentage complete = update percent time to complete of total time to show
-    throw new Error("Function not implemented.");
+    // throw new Error("Function not implemented.");
   },
-  [GameUpdateCommandType.MobileVfx]: function (): void | Error {
+  [GameUpdateCommandType.MobileVfx]: function (update: {
+    command: CombatantAnimationGameUpdateCommand;
+    isComplete: boolean;
+  }): void | Error {
+    update.isComplete = true;
     // spawn the vfx model
     // start the animation
     // start movement
     //
     // isComplete = reached destination
-    throw new Error("Function not implemented.");
+    // throw new Error("Function not implemented.");
   },
 };

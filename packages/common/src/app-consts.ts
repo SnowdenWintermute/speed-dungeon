@@ -113,7 +113,7 @@ export enum DungeonFloor {
 }
 
 export const SKY_COLORS_BY_FLOOR: Record<DungeonFloor, string> = {
-  [DungeonFloor.Zero]: "#1a1a26",
+  [DungeonFloor.Zero]: "#1e293b",
   [DungeonFloor.One]: "#1a1a26",
   [DungeonFloor.Two]: "#1A3636",
   [DungeonFloor.Three]: "#697565",
