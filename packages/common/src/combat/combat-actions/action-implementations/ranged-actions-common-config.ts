@@ -18,6 +18,6 @@ export const RANGED_ACTIONS_COMMON_CONFIG = {
     actionExecutionIntent: CombatActionExecutionIntent,
     self: CombatActionComponent
   ) => {
-    return combatantContext.combatant.combatantProperties.position;
+    return combatantContext.combatant.combatantProperties.position.clone();
   },
 };
