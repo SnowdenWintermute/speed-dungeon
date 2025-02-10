@@ -1,22 +1,30 @@
 import {
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  ActivatedTriggersGameUpdateCommand,
   AnimationName,
   CombatantAnimationGameUpdateCommand,
   CombatantMovementGameUpdateCommand,
   ERROR_MESSAGES,
   GameUpdateCommandType,
+  HitOutcomesGameUpdateCommand,
+  MobileVfxGameUpdateCommand,
+  ResourcesPaidGameUpdateCommand,
+  StaticVfxGameUpdateCommand,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 import { ManagedAnimationOptions } from "../../combatant-models/animation-manager";
+import { MobileVfxName } from "../../vfx/vfx-names";
+import { MobileVfx, spawnMobileVfxModel } from "../../vfx";
+import { Vector3 } from "@babylonjs/core";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
-  (arg: any) => Error | void
+  (arg: any) => Promise<Error | void>
 > = {
-  [GameUpdateCommandType.CombatantMovement]: function (update: {
+  [GameUpdateCommandType.CombatantMovement]: async function (update: {
     command: CombatantMovementGameUpdateCommand;
     isComplete: boolean;
-  }): void | Error {
+  }) {
     const { command } = update;
     const combatantModelOption =
       gameWorld.current?.modelManager.combatantModels[update.command.combatantId];
@@ -45,10 +53,10 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     };
     animationManager.startAnimationWithTransition(command.animationName, 500, options);
   },
-  [GameUpdateCommandType.CombatantAnimation]: function (update: {
+  [GameUpdateCommandType.CombatantAnimation]: async function (update: {
     command: CombatantAnimationGameUpdateCommand;
     isComplete: boolean;
-  }): void | Error {
+  }) {
     const { command } = update;
     const combatantModelOption =
       gameWorld.current?.modelManager.combatantModels[update.command.combatantId];
@@ -67,10 +75,10 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     };
     animationManager.startAnimationWithTransition(command.animationName, 500, options);
   },
-  [GameUpdateCommandType.ResourcesPaid]: function (update: {
-    command: CombatantAnimationGameUpdateCommand;
+  [GameUpdateCommandType.ResourcesPaid]: async function (update: {
+    command: ResourcesPaidGameUpdateCommand;
     isComplete: boolean;
-  }): void | Error {
+  }) {
     update.isComplete = true;
     // deduct the resources
     // enqueue the floating text messages
@@ -78,28 +86,28 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     // completes instantly
     // throw new Error("Function not implemented.");
   },
-  [GameUpdateCommandType.ActivatedTriggers]: function (update: {
-    command: CombatantAnimationGameUpdateCommand;
+  [GameUpdateCommandType.ActivatedTriggers]: async function (update: {
+    command: ActivatedTriggersGameUpdateCommand;
     isComplete: boolean;
-  }): void | Error {
+  }) {
     update.isComplete = true;
     // no-op????
     // or show floating text for counterspell, "triggered tech burst" "psionic explosion"
     // throw new Error("Function not implemented.");
   },
-  [GameUpdateCommandType.HitOutcomes]: function (update: {
-    command: CombatantAnimationGameUpdateCommand;
+  [GameUpdateCommandType.HitOutcomes]: async function (update: {
+    command: HitOutcomesGameUpdateCommand;
     isComplete: boolean;
-  }): void | Error {
+  }) {
     update.isComplete = true;
     // apply the damage
     // enqueue the floating text messages
     // throw new Error("Function not implemented.");
   },
-  [GameUpdateCommandType.StaticVfx]: function (update: {
-    command: CombatantAnimationGameUpdateCommand;
+  [GameUpdateCommandType.StaticVfx]: async function (update: {
+    command: StaticVfxGameUpdateCommand;
     isComplete: boolean;
-  }): void | Error {
+  }) {
     update.isComplete = true;
     // spawn the vfx model
     // start the animation
@@ -107,11 +115,31 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     // isComplete = the animation frame percentage complete = update percent time to complete of total time to show
     // throw new Error("Function not implemented.");
   },
-  [GameUpdateCommandType.MobileVfx]: function (update: {
-    command: CombatantAnimationGameUpdateCommand;
+  [GameUpdateCommandType.MobileVfx]: async function (update: {
+    command: MobileVfxGameUpdateCommand;
     isComplete: boolean;
-  }): void | Error {
-    update.isComplete = true;
+  }) {
+    const vfxName = MobileVfxName.Arrow;
+    if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
+    const id = gameWorld.current.idGenerator.generate();
+    const scene = await spawnMobileVfxModel(vfxName);
+    const { command } = update;
+    const { startPosition, destination } = command;
+    const vfx = new MobileVfx(id, scene, startPosition);
+    console.log(
+      "START: ",
+      startPosition,
+      "DEST: ",
+      destination,
+      "DISTANCE: ",
+      Vector3.Distance(startPosition, destination)
+    );
+    vfx.movementManager.startTranslating(destination, () => {
+      update.isComplete = true;
+    });
+
+    gameWorld.current.vfxManager.register(vfx);
+
     // spawn the vfx model
     // start the animation
     // start movement

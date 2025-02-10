@@ -13,7 +13,7 @@ import {
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
-import { CombatTurnResult } from "@speed-dungeon/common";
+import { CombatTurnResult, IdGenerator } from "@speed-dungeon/common";
 import { updateDebugText } from "./model-manager/update-debug-text";
 import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
@@ -23,6 +23,7 @@ import { SavedMaterials, createDefaultMaterials } from "./materials/create-defau
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
 import { ReplayTreeManager } from "./replay-tree-manager";
+import { VfxManager } from "../vfx";
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;
@@ -46,6 +47,8 @@ export class GameWorld {
   imageManager: ImageManager = new ImageManager();
   portraitRenderTarget: RenderTargetTexture;
   replayTreeManager = new ReplayTreeManager();
+  idGenerator = new IdGenerator();
+  vfxManager = new VfxManager();
 
   constructor(
     public canvas: HTMLCanvasElement,
@@ -106,6 +109,9 @@ export class GameWorld {
     )
       this.modelManager.modelActionQueue.processMessages();
 
+    for (const vfx of this.vfxManager.getMobile()) {
+      vfx.movementManager.processActiveActions();
+    }
     for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
       combatantModel.highlightManager.updateHighlight();
       combatantModel.movementManager.processActiveActions();

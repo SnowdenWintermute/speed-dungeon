@@ -20,6 +20,10 @@ export class ModelMovementManager {
     return false;
   }
 
+  instantlyMove(newPosition: Vector3) {
+    this.transformNode.position.copyFrom(newPosition);
+  }
+
   startTranslating(destination: Vector3, onComplete: () => void) {
     const previous = this.transformNode.position.clone();
     const duration = Vector3.Distance(previous, destination) * COMBATANT_TIME_TO_MOVE_ONE_METER;

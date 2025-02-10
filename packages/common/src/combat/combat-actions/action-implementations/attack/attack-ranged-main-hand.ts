@@ -7,11 +7,10 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import { AnimationName, DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../../../app-consts.js";
+import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { ActionAccuracyType } from "../../combat-action-accuracy.js";
@@ -97,9 +96,16 @@ const config: CombatActionComponentConfig = {
   getAppliedConditions: function (): CombatantCondition[] | null {
     return null; // ex: could make a "poison blade" item
   },
-  //getConcurrentSubActions(){
-  //  //
-  //}
+  getConcurrentSubActions(context) {
+    const { combatActionTarget } = context.combatant.combatantProperties;
+    if (!combatActionTarget) throw new Error("expected combatant target not found");
+    return [
+      new CombatActionExecutionIntent(
+        CombatActionName.AttackRangedMainhandProjectile,
+        combatActionTarget
+      ),
+    ];
+  },
   getChildren: () => [],
   getParent: () => ATTACK,
   getFirstResolutionStep(
