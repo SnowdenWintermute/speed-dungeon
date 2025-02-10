@@ -52,7 +52,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         this.context,
         null,
         // "Sword strike rebound | Sword strike followthrough"
-        AnimationName.Idle
+        AnimationName.Death
       ),
     };
   }

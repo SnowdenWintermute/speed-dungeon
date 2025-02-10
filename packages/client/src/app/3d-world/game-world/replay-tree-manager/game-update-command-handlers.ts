@@ -22,8 +22,6 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     const { movementManager, animationManager } = combatantModelOption;
 
-    console.log("SENDING TO DESTINATION: ", command.destination);
-
     movementManager.startTranslating(command.destination, () => {
       update.isComplete = true;
       if (command.endsTurnOnCompletion) {
@@ -53,12 +51,13 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       gameWorld.current?.modelManager.combatantModels[update.command.combatantId];
     if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     const { movementManager, animationManager } = combatantModelOption;
+
     movementManager.startTranslating(command.destination, () => {});
 
     const options: ManagedAnimationOptions = {
       shouldLoop: false,
       animationEventOption: null,
-      animationDurationOverrideOption: null,
+      animationDurationOverrideOption: command.duration,
       onComplete: function (): void {
         update.isComplete = true;
       },

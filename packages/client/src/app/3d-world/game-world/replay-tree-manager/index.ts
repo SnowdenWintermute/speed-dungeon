@@ -1,4 +1,10 @@
-import { GameUpdateCommand, NestedNodeReplayEvent, ReplayEventType } from "@speed-dungeon/common";
+import {
+  GAME_UPDATE_COMMAND_TYPE_STRINGS,
+  GameUpdateCommand,
+  GameUpdateCommandType,
+  NestedNodeReplayEvent,
+  ReplayEventType,
+} from "@speed-dungeon/common";
 import { GAME_UPDATE_COMMAND_HANDLERS } from "./game-update-command-handlers";
 
 export class ReplayTreeManager {
@@ -53,7 +59,16 @@ export class ReplayTreeProcessor {
       const branch = this.activeBranches[i];
       if (!branch) continue;
       if (branch.isDoneProcessing()) this.activeBranches.splice(i, 1);
-      if (branch.currentStepIsComplete()) branch.startProcessingNext();
+      if (branch.currentStepIsComplete()) {
+        const completedUpdateOption = branch.getCurrentGameUpdate();
+        if (completedUpdateOption)
+          console.log(
+            "finished processing ",
+            GAME_UPDATE_COMMAND_TYPE_STRINGS[completedUpdateOption.command.type]
+          );
+
+        branch.startProcessingNext();
+      }
     }
   }
 }

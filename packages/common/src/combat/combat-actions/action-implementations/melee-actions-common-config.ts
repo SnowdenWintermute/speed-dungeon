@@ -49,6 +49,13 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
     const target = primaryTargetResult.combatantProperties;
     const user = combatantContext.combatant.combatantProperties;
 
+    const meleeRange = 1.5;
+    const threshold = 0.01;
+    const distance = Vector3.Distance(target.position, user.position);
+    if (distance <= meleeRange || isNaN(distance) || Math.abs(meleeRange - distance) < threshold) {
+      return user.position.clone();
+    }
+
     const direction = target.homeLocation
       .subtract(combatantContext.combatant.combatantProperties.homeLocation)
       .normalize();
@@ -79,10 +86,11 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
 
     const meleeRange = 1.5;
     const distance = Vector3.Distance(target.position, user.position);
-    if (distance <= meleeRange || isNaN(distance)) return user.position;
+    if (distance <= meleeRange || isNaN(distance)) {
+      return user.position.clone();
+    }
 
     const toTravel = distance - meleeRange;
-    console.log("TO TRAVEL: ", toTravel);
 
     const direction = target.position
       .subtract(combatantContext.combatant.combatantProperties.position)

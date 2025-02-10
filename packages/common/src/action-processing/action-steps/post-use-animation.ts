@@ -43,7 +43,7 @@ export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
     // @TODO - determine based on how long we want the animation to take
     // - action type
     // - combatant speed
-    return this.duration - this.elapsed;
+    return Math.max(0, this.duration - this.elapsed);
   }
 
   isComplete() {

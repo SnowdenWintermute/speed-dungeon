@@ -53,13 +53,13 @@ const config: CombatActionComponentConfig = {
   appliesConditions: [],
   incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: 1 } },
   costBases: {},
-  getDestinationDuringUse: (
-    combatantContext: CombatantContext,
-    actionExecutionIntent: CombatActionExecutionIntent,
-    self: CombatActionComponent
-  ) => {
-    return combatantContext.combatant.combatantProperties.position;
-  },
+  // getDestinationDuringUse: (
+  //   combatantContext: CombatantContext,
+  //   actionExecutionIntent: CombatActionExecutionIntent,
+  //   self: CombatActionComponent
+  // ) => {
+  //   return combatantContext.combatant.combatantProperties.position.clone();
+  // },
   getResourceCosts: () => null,
   getExecutionTime: () => DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
   requiresCombatTurn: (user) => {

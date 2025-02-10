@@ -5,7 +5,7 @@ import {
   ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTIONS } from "../../combat/index.js";
+import { COMBAT_ACTIONS, COMBAT_ACTION_NAME_STRINGS } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Milliseconds } from "../../primatives/index.js";
 import { PayResourceCostsActionResolutionStep } from "./pay-resource-costs.js";
@@ -42,20 +42,21 @@ export class StartUseAnimationActionResolutionStep extends ActionResolutionStep 
     if (destinationResult instanceof Error) throw destinationResult;
     this.originalPosition = context.combatantContext.combatant.combatantProperties.position.clone();
 
-    gameUpdateCommand.duration = this.duration = action.getExecutionTime();
+    this.duration = gameUpdateCommand.duration = action.getExecutionTime();
     gameUpdateCommand.destination = this.destination = destinationResult;
     let distance = Vector3.Distance(this.originalPosition, this.destination);
     if (isNaN(distance)) distance = 0;
 
-    console.log("distance: ", distance);
+    console.log(COMBAT_ACTION_NAME_STRINGS[this.context.actionExecutionIntent.actionName]);
 
     const speedMultiplier = 1;
     this.timeToTranslate = COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;
-    console.log("time to translate: ", this.timeToTranslate);
   }
 
   protected onTick(): void {
-    const normalizedPercentTravelled = this.elapsed / this.timeToTranslate;
+    if (this.originalPosition.equals(this.destination)) return;
+
+    const normalizedPercentTravelled = Math.min(1, this.elapsed / this.timeToTranslate);
 
     const newPosition = Vector3.Lerp(
       this.originalPosition,
@@ -67,10 +68,7 @@ export class StartUseAnimationActionResolutionStep extends ActionResolutionStep 
   }
 
   getTimeToCompletion(): number {
-    return (
-      COMBAT_ACTIONS[this.context.actionExecutionIntent.actionName].getExecutionTime() -
-      this.elapsed
-    );
+    return this.duration - this.elapsed;
   }
 
   isComplete() {
