@@ -8,11 +8,11 @@ import {
   EquipmentType,
   HeadGear,
   HoldableSlotType,
-  MaxAndCurrent,
   OneHandedMeleeWeapon,
   Ring,
   Shield,
   TwoHandedMeleeWeapon,
+  TwoHandedRangedWeapon,
   WearableSlotType,
 } from "@speed-dungeon/common";
 import { generateSpecificEquipmentType } from "./generate-test-items.js";
@@ -48,20 +48,34 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       );
       break;
     case CombatantClass.Rogue:
+      // mainhand = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      //     baseItemType: OneHandedMeleeWeapon.ButterKnife,
+      //   },
+      //   true
+      // );
+      // offhand = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      //     baseItemType: OneHandedMeleeWeapon.ButterKnife,
+      //   },
+      //   true
+      // );
       mainhand = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.ButterKnife,
+          equipmentType: EquipmentType.TwoHandedRangedWeapon,
+          baseItemType: TwoHandedRangedWeapon.ShortBow,
         },
         true
       );
-      offhand = generateSpecificEquipmentType(
-        {
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.ButterKnife,
-        },
-        true
-      );
+      // offhand = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      //     baseItemType: OneHandedMeleeWeapon.ButterKnife,
+      //   },
+      //   true
+      // );
       break;
   }
 

@@ -1,7 +1,5 @@
 import {
-  CombatActionComponent,
   CombatActionComponentConfig,
-  CombatActionExecutionIntent,
   CombatActionLeaf,
   CombatActionName,
   CombatActionUsabilityContext,

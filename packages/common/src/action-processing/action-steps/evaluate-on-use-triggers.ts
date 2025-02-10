@@ -8,15 +8,17 @@ import { COMBAT_ACTIONS } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
 
+const stepType = ActionResolutionStepType.evalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
     // counterspells
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
+      step: stepType,
       completionOrderId: null,
     };
 
-    super(ActionResolutionStepType.evalOnUseTriggers, context, gameUpdateCommand);
+    super(stepType, context, gameUpdateCommand);
   }
 
   protected onTick = () => {};

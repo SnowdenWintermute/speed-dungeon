@@ -18,17 +18,15 @@ import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { PreUsePositioningActionResolutionStep } from "../../../../action-processing/action-steps/pre-use-positioning.js";
-import { Vector3 } from "@babylonjs/core";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
 import { ActionStepTracker } from "../../../../action-processing/action-step-tracker.js";
 import { ActionSequenceManager } from "../../../../action-processing/action-sequence-manager.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import {
-  CombatActionAnimationCategory,
-  CombatActionCombatantAnimations,
-} from "../../combat-action-animations.js";
-import { AnimationName } from "../../../../app-consts.js";
+  ActionResolutionStep,
+  ActionResolutionStepContext,
+} from "../../../../action-processing/index.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -57,14 +55,6 @@ const config: CombatActionComponentConfig = {
   getExecutionTime: () => 1000,
   requiresCombatTurn: () => true,
   shouldExecute: () => true,
-  getCombatantUseAnimations: (combatantContext: CombatantContext) => {
-    const animations: CombatActionCombatantAnimations = {
-      [CombatActionAnimationCategory.StartUse]: AnimationName.RangedAttack,
-      [CombatActionAnimationCategory.SuccessRecovery]: AnimationName.RangedAttack,
-      [CombatActionAnimationCategory.InterruptedRecovery]: AnimationName.RangedAttack,
-    };
-    return animations;
-  },
   getHpChangeProperties: () => null,
   getAppliedConditions: function (): CombatantCondition[] | null {
     // @TODO - determine based on equipment
@@ -98,18 +88,16 @@ const config: CombatActionComponentConfig = {
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
     previousTrackerOption: null | ActionStepTracker,
-    manager: ActionSequenceManager,
-    self
-  ) {
-    const step = new PreUsePositioningActionResolutionStep({
+    manager: ActionSequenceManager
+  ): Error | ActionResolutionStep {
+    const actionResolutionStepContext: ActionResolutionStepContext = {
       combatantContext,
       actionExecutionIntent,
-      previousStepOption: null,
       manager,
-    });
-    const destination = Vector3.Zero();
-    step.setDestination(destination);
-    return step;
+      previousStepOption: null,
+    };
+
+    return new PreUsePositioningActionResolutionStep(actionResolutionStepContext);
   },
 };
 

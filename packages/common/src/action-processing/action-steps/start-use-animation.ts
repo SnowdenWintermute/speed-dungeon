@@ -12,6 +12,7 @@ import { PayResourceCostsActionResolutionStep } from "./pay-resource-costs.js";
 import { AnimationName, COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 import { CombatActionAnimationCategory } from "../../combat/combat-actions/combat-action-animations.js";
 
+const stepType = ActionResolutionStepType.startUseAnimation;
 export class StartUseAnimationActionResolutionStep extends ActionResolutionStep {
   duration: Milliseconds;
   originalPosition: Vector3;
@@ -23,6 +24,7 @@ export class StartUseAnimationActionResolutionStep extends ActionResolutionStep 
   ) {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantAnimation,
+      step: stepType,
       completionOrderId: null,
       animationName: AnimationName.Idle,
       combatantId: context.combatantContext.combatant.entityProperties.id,
@@ -30,7 +32,7 @@ export class StartUseAnimationActionResolutionStep extends ActionResolutionStep 
       duration: 1000,
     };
 
-    super(ActionResolutionStepType.startUseAnimation, context, gameUpdateCommand);
+    super(stepType, context, gameUpdateCommand);
     const action = COMBAT_ACTIONS[this.context.actionExecutionIntent.actionName];
     const animationsOption = action.getCombatantUseAnimations(this.context.combatantContext);
     if (animationsOption)
@@ -40,10 +42,15 @@ export class StartUseAnimationActionResolutionStep extends ActionResolutionStep 
       this.context.actionExecutionIntent
     );
     if (destinationResult instanceof Error) throw destinationResult;
+    if (destinationResult === null) throw new Error("Expected destinationResult");
+
     this.originalPosition = context.combatantContext.combatant.combatantProperties.position.clone();
 
     this.duration = gameUpdateCommand.duration = action.getExecutionTime();
     gameUpdateCommand.destination = this.destination = destinationResult;
+
+    console.log("START USE ANIMATION", this.destination);
+
     let distance = Vector3.Distance(this.originalPosition, this.destination);
     if (isNaN(distance)) distance = 0;
 

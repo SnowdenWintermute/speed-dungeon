@@ -11,6 +11,7 @@ import { AnimationName } from "../../app-consts.js";
 
 const placeholderDuration = 0;
 
+const stepType = ActionResolutionStepType.postUseAnimation;
 export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
   duration: Milliseconds;
   constructor(
@@ -21,6 +22,7 @@ export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
     const { combatant } = context.combatantContext;
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantAnimation,
+      step: stepType,
       completionOrderId: null,
       animationName,
       combatantId: combatant.entityProperties.id,
@@ -28,11 +30,13 @@ export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
       duration: placeholderDuration,
     };
 
-    super(ActionResolutionStepType.postUseAnimation, context, gameUpdateCommand);
+    super(stepType, context, gameUpdateCommand);
 
     // @TODO -calculate duration based distance to destination dictated by action and target
     this.duration = gameUpdateCommand.duration = placeholderDuration;
+
     if (this.destinationOption) gameUpdateCommand.destination = this.destinationOption;
+    console.log("POST USE ANIMATION", this.destinationOption);
   }
 
   protected onTick(): void {

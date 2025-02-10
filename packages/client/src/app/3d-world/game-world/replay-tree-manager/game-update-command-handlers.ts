@@ -1,4 +1,5 @@
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   AnimationName,
   CombatantAnimationGameUpdateCommand,
   CombatantMovementGameUpdateCommand,
@@ -21,6 +22,8 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       gameWorld.current?.modelManager.combatantModels[update.command.combatantId];
     if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     const { movementManager, animationManager } = combatantModelOption;
+
+    console.log("HANDLING STEP: ", ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step]);
 
     movementManager.startTranslating(command.destination, () => {
       update.isComplete = true;

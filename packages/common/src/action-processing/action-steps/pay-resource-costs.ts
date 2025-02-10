@@ -10,6 +10,7 @@ import { EvalOnUseTriggersActionResolutionStep } from "./evaluate-on-use-trigger
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantProperties } from "../../combatants/index.js";
 
+const stepType = ActionResolutionStepType.payResourceCosts;
 export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
     const action = COMBAT_ACTIONS[context.actionExecutionIntent.actionName];
@@ -21,6 +22,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
     if (costsOption) {
       gameUpdateCommandOption = {
         type: GameUpdateCommandType.ResourcesPaid,
+        step: stepType,
         completionOrderId: null,
         combatantId: context.combatantContext.combatant.entityProperties.id,
         costsPaid: costsOption,
@@ -42,7 +44,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
       }
     }
 
-    super(ActionResolutionStepType.payResourceCosts, context, gameUpdateCommandOption);
+    super(stepType, context, gameUpdateCommandOption);
   }
 
   protected onTick = () => {};

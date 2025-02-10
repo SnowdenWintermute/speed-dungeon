@@ -76,12 +76,12 @@ export interface CombatActionComponentConfig {
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
     self: CombatActionComponent
-  ) => Error | Vector3;
+  ) => Error | null | Vector3;
   getDestinationDuringUse: (
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
     self: CombatActionComponent
-  ) => Error | Vector3;
+  ) => Error | null | Vector3;
   /** A numeric percentage which will be used against the target's evasion */
   getUnmodifiedAccuracy: (user: CombatantProperties) => ActionAccuracy;
   /** A numeric percentage which will be used against the target's crit avoidance */
@@ -178,11 +178,11 @@ export abstract class CombatActionComponent {
   getPositionToStartUse: (
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent
-  ) => Error | Vector3;
+  ) => Error | null | Vector3;
   getDestinationDuringUse: (
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent
-  ) => Error | Vector3;
+  ) => Error | null | Vector3;
   getAccuracy: (user: CombatantProperties) => ActionAccuracy;
   getCritChance: (user: CombatantProperties) => number;
   getCritMultiplier: (user: CombatantProperties) => number;

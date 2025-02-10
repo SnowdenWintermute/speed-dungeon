@@ -116,32 +116,36 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
       <ul ref={debugRef} className="p-2"></ul>
       {/* to be populated in the babylon render loop*/}
 
-      <div>Alternate Click Function Key Held: {JSON.stringify(alternateClickKeyHeld)}</div>
-      <div>Shift Held: {JSON.stringify(modKeyHeld)}</div>
-      <div>Input Locked</div>
-      <div>
-        {!(partyResult instanceof Error)
-          ? JSON.stringify(InputLock.isLocked(partyResult.inputLock))
-          : "error"}
-      </div>
-      <ul className="flex max-w-96 flex-wrap">
-        <li key="ayy" className="border p-5 bg-slate-700">
+      <ul className="p-2">
+        <li>Alternate Click Function Key Held: {JSON.stringify(alternateClickKeyHeld)}</li>
+        <li>Shift Held: {JSON.stringify(modKeyHeld)}</li>
+        <li>Input Locked</li>
+        <li>
+          {!(partyResult instanceof Error)
+            ? JSON.stringify(InputLock.isLocked(partyResult.inputLock))
+            : "error"}
+        </li>
+      </ul>
+      <ul className="flex flex-wrap bg-slate-700 w-full">
+        <li key="ayy" className="border p-2 w-full mb-2">
           Num thumbnails: {Object.keys(thumbnails).length}
         </li>
-        {Object.entries(thumbnails).map(([id, data], i) => (
-          <div className="relative" key={id}>
-            <div className="absolute top-0 left-0 border bg-slate-800">{i}</div>
-            <button
-              onClick={() => {
-                useGameStore.getState().mutateState((state) => {
-                  state.itemThumbnails[id];
-                });
-              }}
-            >
-              <img alt={id} src={data} className="object-contain h-16" />
-            </button>
-          </div>
-        ))}
+        <li className="p-2 flex">
+          {Object.entries(thumbnails).map(([id, data], i) => (
+            <div className="relative w-fit" key={id}>
+              <div className="absolute top-0 left-0 border bg-slate-800">{i}</div>
+              <button
+                onClick={() => {
+                  useGameStore.getState().mutateState((state) => {
+                    state.itemThumbnails[id];
+                  });
+                }}
+              >
+                <img alt={id} src={data} className="object-contain h-16" />
+              </button>
+            </div>
+          ))}
+        </li>
       </ul>
     </div>
   );

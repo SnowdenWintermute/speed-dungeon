@@ -70,7 +70,7 @@ const listening = expressApp.listen(PORT, async () => {
   );
   if (result instanceof Error) console.error(result);
   else {
-    console.log("REPLAY TREE: ");
-    Replayer.printReplayTree(result);
+    // console.log("REPLAY TREE: ");
+    // Replayer.printReplayTree(result);
   }
 });

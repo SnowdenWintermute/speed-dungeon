@@ -3,6 +3,7 @@ import { EntityId } from "../primatives/index.js";
 import { ActionResourceCosts, CombatActionName, HpChange } from "../combat/index.js";
 import { DurabilityChangesByEntityId } from "../combat/action-results/calculate-action-durability-changes.js";
 import { AnimationName } from "../app-consts.js";
+import { ActionResolutionStepType } from "./action-steps/index.js";
 
 export enum GameUpdateCommandType {
   CombatantMovement,
@@ -27,6 +28,7 @@ export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, str
 export type CombatantMovementGameUpdateCommand = {
   type: GameUpdateCommandType.CombatantMovement;
   completionOrderId: null | number;
+  step: ActionResolutionStepType;
   animationName: AnimationName;
   combatantId: EntityId;
   destination: Vector3;
@@ -35,6 +37,7 @@ export type CombatantMovementGameUpdateCommand = {
 
 export type CombatantAnimationGameUpdateCommand = {
   type: GameUpdateCommandType.CombatantAnimation;
+  step: ActionResolutionStepType;
   completionOrderId: null | number;
   combatantId: EntityId;
   destination: Vector3;
@@ -44,6 +47,7 @@ export type CombatantAnimationGameUpdateCommand = {
 
 export type ResourcesPaidGameUpdateCommand = {
   type: GameUpdateCommandType.ResourcesPaid;
+  step: ActionResolutionStepType;
   completionOrderId: null | number;
   combatantId: EntityId;
   costsPaid: ActionResourceCosts;
@@ -51,11 +55,13 @@ export type ResourcesPaidGameUpdateCommand = {
 
 export type ActivatedTriggersGameUpdateCommand = {
   type: GameUpdateCommandType.ActivatedTriggers;
+  step: ActionResolutionStepType;
   completionOrderId: null | number;
 };
 
 export type HitOutcomesGameUpdateCommand = {
   type: GameUpdateCommandType.HitOutcomes;
+  step: ActionResolutionStepType;
   completionOrderId: null | number;
   actionName: CombatActionName;
   hpChangesByEntityId?: null | {
@@ -72,6 +78,7 @@ export type HitOutcomesGameUpdateCommand = {
 
 export type StaticVfxGameUpdateCommand = {
   type: GameUpdateCommandType.StaticVfx;
+  step: ActionResolutionStepType;
   completionOrderId: null | number;
   vfxName: string; // @TODO -enum;
   position: Vector3;
@@ -81,6 +88,7 @@ export type StaticVfxGameUpdateCommand = {
 
 export type MobileVfxGameUpdateCommand = {
   type: GameUpdateCommandType.MobileVfx;
+  step: ActionResolutionStepType;
   completionOrderId: null | number;
   vfxName: string;
   startPosition: Vector3;

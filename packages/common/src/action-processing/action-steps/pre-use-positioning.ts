@@ -11,6 +11,7 @@ import { Milliseconds } from "../../primatives/index.js";
 import { AnimationName, COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 import { COMBAT_ACTIONS } from "../../combat/index.js";
 
+const stepType = ActionResolutionStepType.preUsePositioning;
 export class PreUsePositioningActionResolutionStep extends ActionResolutionStep {
   private destination: Vector3;
   private originalPosition: Vector3;
@@ -20,6 +21,7 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
      * apply updates to game state for instantly processed steps*/
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantMovement,
+      step: stepType,
       completionOrderId: null,
       animationName: AnimationName.MoveForward,
       combatantId: context.combatantContext.combatant.entityProperties.id,
@@ -27,7 +29,7 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
       endsTurnOnCompletion: false,
     };
 
-    super(ActionResolutionStepType.preUsePositioning, context, gameUpdateCommand);
+    super(stepType, context, gameUpdateCommand);
 
     const { combatantProperties } = context.combatantContext.combatant;
 
@@ -38,7 +40,10 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
       context.actionExecutionIntent
     );
     if (destinationResult instanceof Error) throw destinationResult;
+    if (destinationResult === null) throw new Error("Expected destinationResult");
     this.destination = gameUpdateCommand.destination = destinationResult;
+
+    console.log("PRE USE POSITIONING: ", this.destination);
 
     const distance = Vector3.Distance(this.originalPosition, this.destination);
     const speedMultiplier = 1;

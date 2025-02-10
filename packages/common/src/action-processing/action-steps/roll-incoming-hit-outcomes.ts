@@ -19,17 +19,19 @@ export interface HitOutcomes {
   durabilityChanges: DurabilityChangesByEntityId;
 }
 
+const stepType = ActionResolutionStepType.rollIncomingHitOutcomes;
 export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
     // @TODO - calculate hits, evades, parries, blocks, hp/mp/shard/durability changes to apply
     // and pass them to the next step for triggers and filtering
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.HitOutcomes,
+      step: stepType,
       completionOrderId: null,
       actionName: context.actionExecutionIntent.actionName,
       // hits, misses, evades, parries, blocks
     };
-    super(ActionResolutionStepType.payResourceCosts, context, gameUpdateCommand);
+    super(stepType, context, gameUpdateCommand);
   }
 
   protected onTick = () => {};

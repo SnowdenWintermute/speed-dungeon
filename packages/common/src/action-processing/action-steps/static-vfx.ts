@@ -8,6 +8,7 @@ import {
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
 
+const stepType = ActionResolutionStepType.playStaticVfx;
 export class StaticVfxActionResolutionStep extends ActionResolutionStep {
   private vfxPosition: Vector3;
   constructor(
@@ -19,6 +20,7 @@ export class StaticVfxActionResolutionStep extends ActionResolutionStep {
   ) {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.StaticVfx,
+      step: stepType,
       completionOrderId: null,
       vfxName: vfxName,
       position: startPosition,
@@ -26,7 +28,7 @@ export class StaticVfxActionResolutionStep extends ActionResolutionStep {
       triggerNextStepDuration: triggerNextStepDuration,
     };
 
-    super(ActionResolutionStepType.playMobileVfx, context, gameUpdateCommand);
+    super(stepType, context, gameUpdateCommand);
     this.vfxPosition = startPosition.clone();
   }
 

@@ -6,15 +6,12 @@ import {
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { PostUseAnimationActionResolutionStep } from "./post-use-animation.js";
-import {
-  CombatActionExecutionIntent,
-  CombatActionName,
-  CombatActionTargetType,
-} from "../../combat/index.js";
+import { CombatActionName } from "../../combat/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { AnimationName } from "../../app-consts.js";
 
+const stepType = ActionResolutionStepType.evalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
   constructor(
     context: ActionResolutionStepContext,
@@ -23,9 +20,10 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
   ) {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
+      step: stepType,
       completionOrderId: null,
     };
-    super(ActionResolutionStepType.evalOnHitOutcomeTriggers, context, gameUpdateCommand);
+    super(stepType, context, gameUpdateCommand);
   }
 
   protected onTick = () => {};
@@ -47,6 +45,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     }
 
     return {
+      // could return no next step conditionally
       branchingActions: [],
       nextStepOption: new PostUseAnimationActionResolutionStep(
         this.context,

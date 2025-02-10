@@ -1,5 +1,6 @@
 import {
   CombatActionComponentConfig,
+  CombatActionExecutionIntent,
   CombatActionLeaf,
   CombatActionName,
   CombatActionUsabilityContext,
@@ -25,20 +26,22 @@ import {
 } from "../../action-calculation-utils/standard-action-calculations.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
-import { ActionResolutionStep } from "../../../../action-processing/index.js";
+import {
+  ActionResolutionStep,
+  ActionResolutionStepContext,
+  ActionSequenceManager,
+  ActionStepTracker,
+} from "../../../../action-processing/index.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
-import {
-  CombatActionAnimationCategory,
-  CombatActionCombatantAnimations,
-} from "../../combat-action-animations.js";
+import { PreUsePositioningActionResolutionStep } from "../../../../action-processing/action-steps/pre-use-positioning.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
   description: "Attack target using ranged weapon",
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
-  autoTargetSelectionMethod: { scheme: AutoTargetingScheme.CopyParent },
+  autoTargetSelectionMethod: { scheme: AutoTargetingScheme.UserSelected },
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
   prohibitedTargetCombatantStates: [
@@ -65,15 +68,6 @@ const config: CombatActionComponentConfig = {
     return false;
   },
   shouldExecute: () => true,
-  getCombatantUseAnimations: (combatantContext: CombatantContext) => {
-    const animations: CombatActionCombatantAnimations = {
-      [CombatActionAnimationCategory.StartUse]: AnimationName.RangedAttack,
-      [CombatActionAnimationCategory.SuccessRecovery]: AnimationName.RangedAttack,
-      [CombatActionAnimationCategory.InterruptedRecovery]: AnimationName.RangedAttack,
-    };
-    return animations;
-  },
-  getRequiredRange: () => CombatActionRequiredRange.Ranged,
   getUnmodifiedAccuracy: (user) => {
     const userCombatAttributes = CombatantProperties.getTotalAttributes(user);
     return {
@@ -103,10 +97,25 @@ const config: CombatActionComponentConfig = {
   getAppliedConditions: function (): CombatantCondition[] | null {
     return null; // ex: could make a "poison blade" item
   },
+  //getConcurrentSubActions(){
+  //  //
+  //}
   getChildren: () => [],
   getParent: () => ATTACK,
-  getFirstResolutionStep(): ActionResolutionStep {
-    throw new Error("Function not implemented.");
+  getFirstResolutionStep(
+    combatantContext: CombatantContext,
+    actionExecutionIntent: CombatActionExecutionIntent,
+    previousTrackerOption: null | ActionStepTracker,
+    manager: ActionSequenceManager
+  ): Error | ActionResolutionStep {
+    const actionResolutionStepContext: ActionResolutionStepContext = {
+      combatantContext,
+      actionExecutionIntent,
+      manager,
+      previousStepOption: null,
+    };
+
+    return new PreUsePositioningActionResolutionStep(actionResolutionStepContext);
   },
 };
 

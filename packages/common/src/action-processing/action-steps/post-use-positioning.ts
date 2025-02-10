@@ -9,6 +9,7 @@ import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-command
 import { Milliseconds } from "../../primatives/index.js";
 import { AnimationName, COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 
+const stepType = ActionResolutionStepType.postUsePositioning;
 export class PostUsePositioningActionResolutionStep extends ActionResolutionStep {
   private destination: Vector3;
   private originalPosition: Vector3;
@@ -20,6 +21,7 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
   ) {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.CombatantMovement,
+      step: stepType,
       completionOrderId: null,
       animationName: AnimationName.MoveBack,
       combatantId: context.combatantContext.combatant.entityProperties.id,
@@ -27,12 +29,13 @@ export class PostUsePositioningActionResolutionStep extends ActionResolutionStep
       endsTurnOnCompletion,
     };
 
-    super(ActionResolutionStepType.postUsePositioning, context, gameUpdateCommand);
+    super(stepType, context, gameUpdateCommand);
 
     const { combatantProperties } = this.context.combatantContext.combatant;
     this.originalPosition = combatantProperties.position.clone();
-    // @TODO - calculate destination based on action
+
     this.destination = gameUpdateCommand.destination = combatantProperties.homeLocation.clone();
+    console.log("POST USE POSITIONING", this.destination);
 
     let distance = Vector3.Distance(this.originalPosition, this.destination);
     if (isNaN(distance)) distance = 0;

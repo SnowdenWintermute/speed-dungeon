@@ -2,7 +2,9 @@ import { GameWorld } from "..";
 import { actionCommandQueue } from "@/singletons/action-command-manager";
 import {
   ACTION_COMMAND_TYPE_STRINGS,
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   GAME_UPDATE_COMMAND_TYPE_STRINGS,
+  GameUpdateCommandType,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 
@@ -14,12 +16,31 @@ export function updateDebugText(this: GameWorld) {
       mapped = branches
         .map((branch) => {
           const currUpdateOption = branch.getCurrentGameUpdate();
+          if (
+            currUpdateOption &&
+            currUpdateOption.command.type === GameUpdateCommandType.CombatantMovement
+          )
+            return (
+              GAME_UPDATE_COMMAND_TYPE_STRINGS[currUpdateOption.command.type] +
+              JSON.stringify(currUpdateOption.command.destination) +
+              ACTION_RESOLUTION_STEP_TYPE_STRINGS[currUpdateOption.command.step]
+            );
           if (currUpdateOption)
             return GAME_UPDATE_COMMAND_TYPE_STRINGS[currUpdateOption.command.type];
           else return "no update";
         })
         .join(", ");
     }
+
+    let activeMovementTrackers = "";
+    for (const model of Object.values(this.modelManager.combatantModels)) {
+      const { movementManager } = model;
+      for (const [type, activeTracker] of movementManager.getTrackers()) {
+        activeMovementTrackers += model.entityId + " " + activeTracker.percentComplete();
+      }
+    }
+
+    activeMovementTrackers = `<div>${activeMovementTrackers}</div>`;
 
     const processingUpdateBranches = `<div>${mapped}</div>`;
 
@@ -59,6 +80,7 @@ export function updateDebugText(this: GameWorld) {
     }
 
     this.debug.debugRef.current.innerHTML = [
+      `movementTrackers: ${activeMovementTrackers}`,
       `branches: ${processingUpdateBranches}`,
       `fps: ${fps}`,
       `action command queue: ${actionCommandQueueMessages}`,
