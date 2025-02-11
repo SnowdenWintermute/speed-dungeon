@@ -7,7 +7,7 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../../../app-consts.js";
+import { AnimationName, DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
@@ -28,12 +28,13 @@ import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js"
 import {
   ActionResolutionStep,
   ActionResolutionStepContext,
+  ActionResolutionStepType,
   ActionSequenceManager,
   ActionStepTracker,
+  CombatantPositioningActionResolutionStep,
 } from "../../../../action-processing/index.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
-import { PreUsePositioningActionResolutionStep } from "../../../../action-processing/action-steps/pre-use-positioning.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -121,7 +122,11 @@ const config: CombatActionComponentConfig = {
       previousStepOption: null,
     };
 
-    return new PreUsePositioningActionResolutionStep(actionResolutionStepContext);
+    return new CombatantPositioningActionResolutionStep(
+      actionResolutionStepContext,
+      AnimationName.MoveForward,
+      ActionResolutionStepType.preUsePositioning
+    );
   },
 };
 

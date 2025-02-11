@@ -8,6 +8,7 @@ import {
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Milliseconds } from "../../primatives/index.js";
 import { AnimationName } from "../../app-consts.js";
+import { COMBAT_ACTION_NAME_STRINGS } from "../../combat/index.js";
 
 const placeholderDuration = 0;
 
@@ -36,7 +37,11 @@ export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
     this.duration = gameUpdateCommand.duration = placeholderDuration;
 
     if (this.destinationOption) gameUpdateCommand.destination = this.destinationOption;
-    console.log("POST USE ANIMATION", this.destinationOption);
+    console.log(
+      "POST USE ANIMATION",
+      this.gameUpdateCommandOption,
+      COMBAT_ACTION_NAME_STRINGS[this.context.actionExecutionIntent.actionName]
+    );
   }
 
   protected onTick(): void {

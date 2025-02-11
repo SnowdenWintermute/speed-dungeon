@@ -15,6 +15,17 @@ export enum GameUpdateCommandType {
   MobileVfx,
 }
 
+// UPDATE TYPES
+// hit outcomes
+// resources paid
+// activated triggers
+// spawn vfx
+// entity motion (vfx or combatant)
+// - animation
+// - animation is repeating
+// - destinationOption
+// - translation duration
+
 export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, string> = {
   [GameUpdateCommandType.CombatantAnimation]: "CombatantAnimation",
   [GameUpdateCommandType.CombatantMovement]: "CombatantMovement",
@@ -32,6 +43,7 @@ export type CombatantMovementGameUpdateCommand = {
   animationName: AnimationName;
   combatantId: EntityId;
   destination: Vector3;
+  duration: number;
   endsTurnOnCompletion: boolean;
 };
 

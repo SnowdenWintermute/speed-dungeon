@@ -31,9 +31,14 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     const { movementManager, animationManager } = combatantModelOption;
 
-    console.log("HANDLING STEP: ", ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step]);
+    console.log(
+      "HANDLING STEP: ",
+      ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
+      command.destination,
+      command.duration
+    );
 
-    movementManager.startTranslating(command.destination, () => {
+    movementManager.startTranslating(command.destination, command.duration, () => {
       update.isComplete = true;
       if (command.endsTurnOnCompletion) {
         animationManager.startAnimationWithTransition(AnimationName.Idle, 500, {
@@ -63,7 +68,8 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     const { movementManager, animationManager } = combatantModelOption;
 
-    movementManager.startTranslating(command.destination, () => {});
+    movementManager.startTranslating(command.destination, command.duration, () => {});
+    console.log("ANIMATION DESTINATION: ", command.destination);
 
     const options: ManagedAnimationOptions = {
       shouldLoop: false,
@@ -134,8 +140,9 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       "DISTANCE: ",
       Vector3.Distance(startPosition, destination)
     );
-    vfx.movementManager.startTranslating(destination, () => {
+    vfx.movementManager.startTranslating(destination, command.translationDuration, () => {
       update.isComplete = true;
+      gameWorld.current?.vfxManager.unregister(vfx.id);
     });
 
     gameWorld.current.vfxManager.register(vfx);

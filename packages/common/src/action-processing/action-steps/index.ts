@@ -68,13 +68,13 @@ export abstract class ActionResolutionStep {
 
   tick(ms: Milliseconds) {
     this.elapsed += ms;
-    console.log(
-      "TICKED ",
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type],
-      ms,
-      this.elapsed,
-      this.getTimeToCompletion()
-    );
+    // console.log(
+    //   "TICKED ",
+    //   ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type],
+    //   ms,
+    //   this.elapsed,
+    //   this.getTimeToCompletion()
+    // );
 
     this.onTick();
   }
@@ -89,14 +89,6 @@ export abstract class ActionResolutionStep {
   finalize(completionOrderId: number): Error | ActionResolutionStepResult {
     if (this.gameUpdateCommandOption)
       this.gameUpdateCommandOption.completionOrderId = completionOrderId;
-    console.log(
-      "FINALIZED ",
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type],
-      "ELAPSED: ",
-      this.elapsed,
-      //@ts-ignore
-      this.duration
-    );
     return this.onComplete();
   }
 

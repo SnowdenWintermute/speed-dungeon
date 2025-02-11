@@ -17,7 +17,6 @@ import { ActionAccuracy } from "../../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
-import { PreUsePositioningActionResolutionStep } from "../../../../action-processing/action-steps/pre-use-positioning.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
 import { ActionStepTracker } from "../../../../action-processing/action-step-tracker.js";
@@ -26,7 +25,10 @@ import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js
 import {
   ActionResolutionStep,
   ActionResolutionStepContext,
+  ActionResolutionStepType,
+  CombatantPositioningActionResolutionStep,
 } from "../../../../action-processing/index.js";
+import { AnimationName } from "../../../../app-consts.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -97,7 +99,11 @@ const config: CombatActionComponentConfig = {
       previousStepOption: null,
     };
 
-    return new PreUsePositioningActionResolutionStep(actionResolutionStepContext);
+    return new CombatantPositioningActionResolutionStep(
+      actionResolutionStepContext,
+      AnimationName.MoveForward,
+      ActionResolutionStepType.preUsePositioning
+    );
   },
 };
 

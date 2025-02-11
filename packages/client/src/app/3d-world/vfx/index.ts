@@ -13,6 +13,7 @@ export class VfxManager {
   }
 
   unregister(id: EntityId) {
+    this.mobile[id]?.dispose();
     delete this.mobile[id];
   }
 

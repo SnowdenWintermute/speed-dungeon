@@ -2,8 +2,10 @@ import { Vector3 } from "@babylonjs/core";
 import {
   ActionResolutionStep,
   ActionResolutionStepContext,
+  ActionResolutionStepType,
   ActionSequenceManager,
   ActionStepTracker,
+  CombatantPositioningActionResolutionStep,
 } from "../../../action-processing/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CombatantContext } from "../../../combatant-context/index.js";
@@ -19,8 +21,7 @@ import {
 import { ActionAccuracy, ActionAccuracyType } from "../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../combat-action-range.js";
 import { CombatActionComponent, CombatActionExecutionIntent } from "../../index.js";
-import { MELEE_START_ATTACK_RANGE } from "../../../app-consts.js";
-import { PreUsePositioningActionResolutionStep } from "../../../action-processing/action-steps/pre-use-positioning.js";
+import { AnimationName, MELEE_START_ATTACK_RANGE } from "../../../app-consts.js";
 import { StartUseAnimationActionResolutionStep } from "../../../action-processing/action-steps/start-use-animation.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 
@@ -141,7 +142,11 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
     };
 
     if (distance > MELEE_START_ATTACK_RANGE)
-      return new PreUsePositioningActionResolutionStep(actionResolutionStepContext);
+      return new CombatantPositioningActionResolutionStep(
+        actionResolutionStepContext,
+        AnimationName.MoveForward,
+        ActionResolutionStepType.preUsePositioning
+      );
     else {
       // @TODO - calculate a forward path toward target
       const destination = Vector3.Zero();

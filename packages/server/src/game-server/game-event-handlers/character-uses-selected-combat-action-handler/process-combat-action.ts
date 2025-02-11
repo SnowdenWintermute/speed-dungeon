@@ -1,15 +1,16 @@
 import {
+  ActionResolutionStepType,
   ActionSequenceManagerRegistry,
   AnimationName,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatantContext,
+  CombatantPositioningActionResolutionStep,
   NestedNodeReplayEvent,
   ReplayEventType,
   SequentialIdGenerator,
 } from "@speed-dungeon/common";
 import { idGenerator } from "../../../singletons.js";
-import { PostUsePositioningActionResolutionStep } from "@speed-dungeon/common";
 
 class TimeKeeper {
   ms: number = 0;
@@ -117,9 +118,10 @@ export function processCombatAction(
         if (currentTrackerOption) {
           const action = COMBAT_ACTIONS[currentTrackerOption.actionExecutionIntent.actionName];
           if (action.userShouldMoveHomeOnComplete) {
-            const returnHomeStep = new PostUsePositioningActionResolutionStep(
+            const returnHomeStep = new CombatantPositioningActionResolutionStep(
               currentTrackerOption.currentStep.getContext(),
               AnimationName.MoveBack,
+              ActionResolutionStepType.postUsePositioning,
               true
             );
 

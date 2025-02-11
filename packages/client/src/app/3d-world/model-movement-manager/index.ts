@@ -4,10 +4,7 @@ import {
   ModelMovementType,
   TranslationTracker,
 } from "./model-movement-trackers";
-import {
-  COMBATANT_TIME_TO_MOVE_ONE_METER,
-  iterateNumericEnumKeyedRecord,
-} from "@speed-dungeon/common";
+import { cloneVector3, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 
 export class ModelMovementManager {
   private activeTrackers: Partial<Record<ModelMovementType, ModelMovementTracker>> = {};
@@ -24,14 +21,15 @@ export class ModelMovementManager {
     this.transformNode.position.copyFrom(newPosition);
   }
 
-  startTranslating(destination: Vector3, onComplete: () => void) {
+  startTranslating(destination: Vector3, duration: number, onComplete: () => void) {
     const previous = this.transformNode.position.clone();
-    const duration = Vector3.Distance(previous, destination) * COMBATANT_TIME_TO_MOVE_ONE_METER;
+    const destinationVec3 = cloneVector3(destination);
+    // const duration = Vector3.Distance(previous, destination) * COMBATANT_TIME_TO_MOVE_ONE_METER;
     const tracker = new TranslationTracker(
       this.transformNode,
       duration,
       previous,
-      destination,
+      destinationVec3,
       onComplete
     );
     this.activeTrackers[ModelMovementType.Translation] = tracker;
