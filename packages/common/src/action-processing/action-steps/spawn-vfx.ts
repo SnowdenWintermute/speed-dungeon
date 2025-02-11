@@ -7,30 +7,32 @@ import {
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
+import { MobileVfxName, VfxProperties, VfxType } from "../../vfx/index.js";
+import { IdGenerator } from "../../utility-classes/index.js";
 
-const stepType = ActionResolutionStepType.playMobileVfx;
-export class MobileVfxActionResolutionStep extends ActionResolutionStep {
-  private vfxPosition: Vector3;
+const stepType = ActionResolutionStepType.spawnVfx;
+
+export class SpawnVfxActionResolutionStep extends ActionResolutionStep {
   constructor(
     context: ActionResolutionStepContext,
     private startPosition: Vector3,
     private destination: Vector3,
     private translationDuration: number,
-    vfxName: string
+    idGenerator: IdGenerator,
+    vfxProperties: VfxProperties
   ) {
+    const entityProperties = { id: idGenerator.generate(), name: "" };
     const gameUpdateCommand: GameUpdateCommand = {
-      type: GameUpdateCommandType.MobileVfx,
+      type: GameUpdateCommandType.SpawnEntity,
       step: stepType,
       completionOrderId: null,
-      vfxName: vfxName,
-      startPosition,
-      destination,
-      translationDuration,
+      entity: {
+        entityProperties,
+        vfxProperties,
+      },
     };
 
     super(stepType, context, gameUpdateCommand);
-
-    this.vfxPosition = startPosition.clone();
   }
 
   protected onTick(): void {

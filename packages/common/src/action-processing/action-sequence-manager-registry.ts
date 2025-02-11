@@ -64,7 +64,7 @@ export class ActionSequenceManagerRegistry {
       }
       stepName = ACTION_RESOLUTION_STEP_TYPE_STRINGS[trackerOption.currentStep.type];
     }
-    console.log("msToTick", stepName, msToTick);
+    // console.log("msToTick", stepName, msToTick);
     return msToTick || 0;
   }
 }

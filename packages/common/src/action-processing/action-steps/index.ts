@@ -24,8 +24,8 @@ export enum ActionResolutionStepType {
   evalOnHitOutcomeTriggers,
   postUseAnimation,
   postUsePositioning,
-  playMobileVfx,
-  playStaticVfx,
+  spawnVfx,
+  vfxMotion,
 }
 
 export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepType, string> = {
@@ -38,8 +38,8 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.evalOnHitOutcomeTriggers]: "evalOnHitOutcomeTriggers",
   [ActionResolutionStepType.postUseAnimation]: "postUseAnimation",
   [ActionResolutionStepType.postUsePositioning]: "postUsePositioning",
-  [ActionResolutionStepType.playMobileVfx]: "playMobileVfx",
-  [ActionResolutionStepType.playStaticVfx]: "playStaticVfx",
+  [ActionResolutionStepType.spawnVfx]: "spawn vfx",
+  [ActionResolutionStepType.vfxMotion]: "vfx motion",
 };
 
 export type ActionResolutionStepResult = {

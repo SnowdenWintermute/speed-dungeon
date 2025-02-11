@@ -20,23 +20,18 @@ export class PostUseAnimationActionResolutionStep extends ActionResolutionStep {
     private destinationOption: null | Vector3,
     private animationName: AnimationName
   ) {
-    const { combatant } = context.combatantContext;
     const gameUpdateCommand: GameUpdateCommand = {
-      type: GameUpdateCommandType.CombatantAnimation,
+      type: GameUpdateCommandType.EntityMotion,
       step: stepType,
       completionOrderId: null,
-      animationName,
-      combatantId: combatant.entityProperties.id,
-      destination: combatant.combatantProperties.position.clone(),
-      duration: placeholderDuration,
+      entityId: context.combatantContext.combatant.entityProperties.id,
     };
 
     super(stepType, context, gameUpdateCommand);
 
     // @TODO -calculate duration based distance to destination dictated by action and target
-    this.duration = gameUpdateCommand.duration = placeholderDuration;
+    this.duration = placeholderDuration;
 
-    if (this.destinationOption) gameUpdateCommand.destination = this.destinationOption;
     console.log(
       "POST USE ANIMATION",
       this.gameUpdateCommandOption,

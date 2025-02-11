@@ -1,15 +1,15 @@
 import { ISceneLoaderAsyncResult, TransformNode, Vector3 } from "@babylonjs/core";
-import { ERROR_MESSAGES, EntityId } from "@speed-dungeon/common";
+import { ERROR_MESSAGES, EntityId, MobileVfxName } from "@speed-dungeon/common";
 import { disposeAsyncLoadedScene, importMesh } from "../utils";
 import { ModelMovementManager } from "../model-movement-manager";
-import { MOBILE_VFX_NAME_TO_MODEL_PATH, MobileVfxName } from "./vfx-names";
 import { gameWorld } from "../SceneManager";
+import { MOBILE_VFX_NAME_TO_MODEL_PATH } from "./vfx-model-paths";
 
 export class VfxManager {
-  mobile: { [id: EntityId]: MobileVfx } = {};
+  mobile: { [id: EntityId]: MobileVfxModel } = {};
   constructor() {}
-  register(vfx: Vfx) {
-    if (vfx instanceof MobileVfx) this.mobile[vfx.id] = vfx;
+  register(vfx: MobileVfxModel) {
+    if (vfx instanceof MobileVfxModel) this.mobile[vfx.id] = vfx;
   }
 
   unregister(id: EntityId) {
@@ -22,7 +22,7 @@ export class VfxManager {
   }
 }
 
-export class Vfx {
+export class VfxModel {
   constructor(
     public readonly id: EntityId,
     protected scene: ISceneLoaderAsyncResult,
@@ -34,7 +34,7 @@ export class Vfx {
   }
 }
 
-export class MobileVfx extends Vfx {
+export class MobileVfxModel extends VfxModel {
   public movementManager: ModelMovementManager;
   constructor(id: EntityId, scene: ISceneLoaderAsyncResult, startPosition: Vector3) {
     const transformNode = scene.transformNodes[0];

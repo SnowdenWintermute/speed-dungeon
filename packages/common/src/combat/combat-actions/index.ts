@@ -173,7 +173,7 @@ export abstract class CombatActionComponent {
   // spawn mobile effect (effectName (Arrow, Firebolt), origin, destination, speed, easingFn, getPercentCompleteToProceed(), onProceed())
   // spawn stream effect (effectName (lightning arc, healing beam), origin, destination, duration, easingFn, getPercentCompleteToProceed(), onProceed())
   // spawn static effect (effectName (Protect, SpellSparkles), position, duration, getPercentCompleteToProceed(), onProceed())
-  getCombatantUseAnimations: (context: CombatantContext) => null | CombatActionCombatantAnimations;
+  getCombatantUseAnimations: (context: CombatantContext) => CombatActionCombatantAnimations;
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   getPositionToStartUse: (
     combatantContext: CombatantContext,

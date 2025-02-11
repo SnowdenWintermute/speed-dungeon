@@ -1,60 +1,69 @@
 import { Vector3 } from "@babylonjs/core";
-import { EntityId } from "../primatives/index.js";
+import { EntityId, Milliseconds } from "../primatives/index.js";
 import { ActionResourceCosts, CombatActionName, HpChange } from "../combat/index.js";
 import { DurabilityChangesByEntityId } from "../combat/action-results/calculate-action-durability-changes.js";
 import { AnimationName } from "../app-consts.js";
 import { ActionResolutionStepType } from "./action-steps/index.js";
+import { Combatant } from "../combatants/index.js";
+import { Vfx } from "../vfx/index.js";
 
 export enum GameUpdateCommandType {
-  CombatantMovement,
-  CombatantAnimation,
+  SpawnEntity,
+  EntityMotion,
   ResourcesPaid,
   ActivatedTriggers,
   HitOutcomes,
-  StaticVfx,
-  MobileVfx,
+  EndTurn,
 }
 
 // UPDATE TYPES
 // hit outcomes
 // resources paid
 // activated triggers
-// spawn vfx
+// spawn vfx entity
 // entity motion (vfx or combatant)
 // - animation
 // - animation is repeating
 // - destinationOption
 // - translation duration
+//
+//
+// RANGED ATTACK
+// - entity motion: user, move forward, Vec3(in front of user)
+// - resources paid
+// - activated triggers
+// - spawn vfx: arrow, Vec3(knocked)
+// - entity motion: user, bow pull to release, NULL
+//   - entity motion: arrow, NULL, Vec3(target location)
+//   - hit outcomes
+//   - activated triggers
+// - entity motion: user, move back, Vec3(home location)
 
 export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, string> = {
-  [GameUpdateCommandType.CombatantAnimation]: "CombatantAnimation",
-  [GameUpdateCommandType.CombatantMovement]: "CombatantMovement",
-  [GameUpdateCommandType.ResourcesPaid]: "ResourcesPaid",
-  [GameUpdateCommandType.ActivatedTriggers]: "ActivatedTriggers",
-  [GameUpdateCommandType.HitOutcomes]: "HitOutcomes",
-  [GameUpdateCommandType.StaticVfx]: "StaticVfx",
-  [GameUpdateCommandType.MobileVfx]: "MobileVfx",
+  [GameUpdateCommandType.SpawnEntity]: "Spawn Entity",
+  [GameUpdateCommandType.EntityMotion]: "Entity Motion",
+  [GameUpdateCommandType.ResourcesPaid]: "Resources Paid",
+  [GameUpdateCommandType.ActivatedTriggers]: "Activated Triggers",
+  [GameUpdateCommandType.HitOutcomes]: "Hit Outcomes",
+  [GameUpdateCommandType.EndTurn]: "End Turn",
 };
 
-export type CombatantMovementGameUpdateCommand = {
-  type: GameUpdateCommandType.CombatantMovement;
-  completionOrderId: null | number;
+export type GameEntity = Combatant | Vfx;
+
+export type SpawnEntityGameUpdateCommand = {
+  type: GameUpdateCommandType.SpawnEntity;
   step: ActionResolutionStepType;
-  animationName: AnimationName;
-  combatantId: EntityId;
-  destination: Vector3;
-  duration: number;
-  endsTurnOnCompletion: boolean;
+  completionOrderId: null | number;
+  entity: Vfx | Combatant;
 };
 
-export type CombatantAnimationGameUpdateCommand = {
-  type: GameUpdateCommandType.CombatantAnimation;
-  step: ActionResolutionStepType;
+export type EntityMotionGameUpdateCommand = {
+  type: GameUpdateCommandType.EntityMotion;
   completionOrderId: null | number;
-  combatantId: EntityId;
-  destination: Vector3;
-  animationName: AnimationName;
-  duration: number;
+  step: ActionResolutionStepType;
+  entityId: EntityId;
+  animationOption?: { name: AnimationName; durationOption?: Milliseconds; shouldRepeat: boolean };
+  translationOption?: { duration: Milliseconds; destination: Vector3 };
 };
 
 export type ResourcesPaidGameUpdateCommand = {
@@ -88,31 +97,9 @@ export type HitOutcomesGameUpdateCommand = {
   durabilityChanges?: DurabilityChangesByEntityId;
 };
 
-export type StaticVfxGameUpdateCommand = {
-  type: GameUpdateCommandType.StaticVfx;
-  step: ActionResolutionStepType;
-  completionOrderId: null | number;
-  vfxName: string; // @TODO -enum;
-  position: Vector3;
-  effectDuration: number;
-  triggerNextStepDuration: number;
-};
-
-export type MobileVfxGameUpdateCommand = {
-  type: GameUpdateCommandType.MobileVfx;
-  step: ActionResolutionStepType;
-  completionOrderId: null | number;
-  vfxName: string;
-  startPosition: Vector3;
-  destination: Vector3;
-  translationDuration: number;
-};
-
 export type GameUpdateCommand =
-  | CombatantMovementGameUpdateCommand
-  | CombatantAnimationGameUpdateCommand
+  | SpawnEntityGameUpdateCommand
+  | EntityMotionGameUpdateCommand
   | ResourcesPaidGameUpdateCommand
   | ActivatedTriggersGameUpdateCommand
-  | HitOutcomesGameUpdateCommand
-  | StaticVfxGameUpdateCommand
-  | MobileVfxGameUpdateCommand;
+  | HitOutcomesGameUpdateCommand;

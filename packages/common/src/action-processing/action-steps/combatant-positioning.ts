@@ -6,43 +6,44 @@ import {
   ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
-import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
+import { EntityMotionGameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Milliseconds } from "../../primatives/index.js";
 import { AnimationName, COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 import { StartUseAnimationActionResolutionStep } from "./start-use-animation.js";
 import { COMBAT_ACTIONS } from "../../combat/index.js";
 
 export class CombatantPositioningActionResolutionStep extends ActionResolutionStep {
-  private destination: Vector3;
   private originalPosition: Vector3;
+  private destination: Vector3;
   private timeToTranslate: Milliseconds;
   constructor(
     context: ActionResolutionStepContext,
     public animationName: AnimationName,
     private stepType:
       | ActionResolutionStepType.postUsePositioning
-      | ActionResolutionStepType.preUsePositioning,
-    endsTurnOnCompletion?: boolean
+      | ActionResolutionStepType.preUsePositioning
   ) {
-    const gameUpdateCommand: GameUpdateCommand = {
-      type: GameUpdateCommandType.CombatantMovement,
+    const gameUpdateCommand: EntityMotionGameUpdateCommand = {
+      type: GameUpdateCommandType.EntityMotion,
       step: stepType,
       completionOrderId: null,
-      animationName,
-      combatantId: context.combatantContext.combatant.entityProperties.id,
-      destination: Vector3.Zero(),
-      duration: 0,
-      endsTurnOnCompletion: !!endsTurnOnCompletion,
+      entityId: context.combatantContext.combatant.entityProperties.id,
     };
 
     super(stepType, context, gameUpdateCommand);
+    this.gameUpdateCommandOption = gameUpdateCommand;
 
     const { combatantProperties } = this.context.combatantContext.combatant;
     this.originalPosition = combatantProperties.position.clone();
 
-    if (this.stepType === ActionResolutionStepType.postUsePositioning)
-      this.destination = gameUpdateCommand.destination = combatantProperties.homeLocation.clone();
-    else {
+    if (this.stepType === ActionResolutionStepType.postUsePositioning) {
+      this.destination = combatantProperties.homeLocation.clone();
+
+      this.gameUpdateCommandOption.animationOption = {
+        name: AnimationName.MoveBack,
+        shouldRepeat: true,
+      };
+    } else {
       const action = COMBAT_ACTIONS[this.context.actionExecutionIntent.actionName];
       const destinationResult = action.getPositionToStartUse(
         context.combatantContext,
@@ -50,16 +51,28 @@ export class CombatantPositioningActionResolutionStep extends ActionResolutionSt
       );
       if (destinationResult instanceof Error) throw destinationResult;
       if (destinationResult === null) throw new Error("Expected destinationResult");
-      this.destination = gameUpdateCommand.destination = destinationResult;
+      this.destination = destinationResult;
+
+      this.gameUpdateCommandOption.animationOption = {
+        name: AnimationName.MoveForward,
+        shouldRepeat: true,
+      };
     }
 
     let distance = Vector3.Distance(this.originalPosition, this.destination);
     if (isNaN(distance)) distance = 0;
     const speedMultiplier = 1;
-    this.timeToTranslate = gameUpdateCommand.duration =
-      COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;
+    this.timeToTranslate = COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;
 
-    console.log(ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.stepType].toUpperCase(), this.destination);
+    this.gameUpdateCommandOption.translationOption = {
+      destination: this.destination.clone(),
+      duration: this.timeToTranslate,
+    };
+
+    console.log(
+      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.stepType].toUpperCase(),
+      this.gameUpdateCommandOption.translationOption
+    );
   }
 
   protected onTick(): void {
