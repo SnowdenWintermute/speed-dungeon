@@ -14,6 +14,46 @@ export interface ActionExecuting {
   replayNode: ReplayEventNode;
 }
 
+// MAIN BRANCH - ranged attack
+// - move user into position
+// - spawn arrow vfx attached to combatant hand
+// - start user use animation
+// - pay costs
+// - check on use triggers
+// - BRANCH - arrow fired
+//   - move knocked arrow vfx toward target
+//   - roll hit outcomes
+//   - check hit triggers
+//   BRANCH
+//     - animate target  hit recovery, block or parry
+// - start user post use animation
+// - start user move home
+// - end turn
+//
+// MAIN BRANCH - firebolt
+// - move user into position
+// - spawn fire spellcast chargeup effect vfx attached to combatant weapon or hand
+// - BRANCH
+//   - start animating fire spellcast effect
+// - start user animation
+// - pay costs
+// - check on use triggers
+// - BRANCH
+//   - IF COUNTERED
+//     - spawn spellcast countered effect
+//     - start animating spellcast countered effect
+//   - IF SUCCESS
+//     - spawn firebolt vfx
+//     - start animating/translating firebolt vfx toward target
+//     - roll hit outcomes
+//     - check triggers
+//     BRANCH
+//       - animate target hit recovery or parry
+//     - animate firebolt explosion or dissipation
+// - start user post use animation
+// - start user move home
+// - end turn
+
 export enum ActionResolutionStepType {
   determineChildActions,
   preUsePositioning,

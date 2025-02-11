@@ -7,7 +7,7 @@ import {
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
-import { MobileVfxName, VfxProperties, VfxType } from "../../vfx/index.js";
+import { VfxProperties } from "../../vfx/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 
 const stepType = ActionResolutionStepType.spawnVfx;
@@ -56,6 +56,7 @@ export class SpawnVfxActionResolutionStep extends ActionResolutionStep {
   }
 
   onComplete(): ActionResolutionStepResult {
+    // could determine next step dynamically here
     return {
       branchingActions: [],
       nextStepOption: new RollIncomingHitOutcomesActionResolutionStep(this.context),

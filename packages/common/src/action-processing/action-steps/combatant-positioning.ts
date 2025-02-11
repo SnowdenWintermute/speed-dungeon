@@ -100,7 +100,7 @@ export class CombatantPositioningActionResolutionStep extends ActionResolutionSt
   onComplete(): ActionResolutionStepResult {
     let nextStepOption = null;
     if (this.stepType === ActionResolutionStepType.preUsePositioning) {
-      nextStepOption = new StartUseAnimationActionResolutionStep(this.context, Vector3.Zero());
+      nextStepOption = new StartUseAnimationActionResolutionStep(this.context, null);
     }
     return {
       branchingActions: [],
