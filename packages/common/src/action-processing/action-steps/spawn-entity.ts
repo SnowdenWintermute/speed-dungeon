@@ -10,9 +10,9 @@ import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit
 import { VfxProperties } from "../../vfx/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 
-const stepType = ActionResolutionStepType.spawnVfx;
+const stepType = ActionResolutionStepType.spawnEntity;
 
-export class SpawnVfxActionResolutionStep extends ActionResolutionStep {
+export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
   constructor(
     context: ActionResolutionStepContext,
     private startPosition: Vector3,
