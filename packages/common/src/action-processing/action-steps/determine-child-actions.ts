@@ -1,3 +1,5 @@
+import { CombatActionExecutionIntent } from "../../combat/index.js";
+import { Combatant } from "../../combatants/index.js";
 import {
   ActionResolutionStep,
   ActionResolutionStepContext,
@@ -6,6 +8,12 @@ import {
 } from "./index.js";
 
 export class DetermineChildActionsActionResolutionStep extends ActionResolutionStep {
+  getNextStepOption(): ActionResolutionStep | null {
+    return null;
+  }
+  getBranchingActions(): { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+    return [];
+  }
   constructor(context: ActionResolutionStepContext) {
     super(ActionResolutionStepType.determineChildActions, context, null);
   }
@@ -16,8 +24,8 @@ export class DetermineChildActionsActionResolutionStep extends ActionResolutionS
 
   protected onComplete(): ActionResolutionStepResult {
     return {
-      branchingActions: [],
-      nextStepOption: null,
+      branchingActions: this.getBranchingActions(),
+      nextStepOption: this.getNextStepOption(),
     };
   }
 }

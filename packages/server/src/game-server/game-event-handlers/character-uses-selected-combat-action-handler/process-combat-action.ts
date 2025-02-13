@@ -54,6 +54,7 @@ export function processCombatAction(
 
         const completionOrderId = completionOrderIdGenerator.getNextIdNumeric();
         const actionResult = trackerOption.currentStep.finalize(completionOrderId);
+
         if (actionResult instanceof Error) return actionResult;
         const { branchingActions, nextStepOption } = actionResult;
         if (manager.getIsFinalized()) {

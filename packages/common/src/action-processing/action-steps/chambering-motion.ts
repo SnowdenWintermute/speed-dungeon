@@ -2,17 +2,15 @@ import { Vector3 } from "@babylonjs/core";
 import {
   ActionResolutionStep,
   ActionResolutionStepContext,
-  ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
-import { StartUseAnimationActionResolutionStep } from "./start-use-animation.js";
 import { Milliseconds } from "../../primatives/index.js";
 import { AnimationName, COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 import { COMBAT_ACTIONS } from "../../combat/index.js";
 
-const stepType = ActionResolutionStepType.preUsePositioning;
-export class PreUsePositioningActionResolutionStep extends ActionResolutionStep {
+const stepType = ActionResolutionStepType.chamberingMotion;
+export class ChamberingMotionActionResolutionStep extends ActionResolutionStep {
   private destination: Vector3;
   private originalPosition: Vector3;
   private timeToTranslate: Milliseconds;
@@ -23,9 +21,7 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
       type: GameUpdateCommandType.EntityMotion,
       step: stepType,
       completionOrderId: null,
-      animationOption: { name: AnimationName.MoveForward, shouldRepeat: true },
       entityId: context.combatantContext.combatant.entityProperties.id,
-      translationOption: { destination: Vector3.Zero(), duration: 0 },
     };
 
     super(stepType, context, gameUpdateCommand);
@@ -40,15 +36,15 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
     );
     if (destinationResult instanceof Error) throw destinationResult;
     if (destinationResult === null) throw new Error("Expected destinationResult");
-    this.destination = gameUpdateCommand.destination = destinationResult;
+    this.destination = destinationResult;
 
     const speedMultiplier = 1;
     let distance = Vector3.Distance(this.originalPosition, this.destination);
     if (isNaN(distance)) distance = 0;
-    this.timeToTranslate = gameUpdateCommand.duration =
-      distance * COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier;
+    this.timeToTranslate = distance * COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier;
 
-    console.log("PRE USE POSITIONING: ", this.destination);
+    const translation = { destination: this.destination, duration: this.timeToTranslate };
+    gameUpdateCommand.translationOption = translation;
   }
 
   protected onTick(): void {
@@ -76,10 +72,8 @@ export class PreUsePositioningActionResolutionStep extends ActionResolutionStep 
     return this.elapsed >= this.timeToTranslate;
   }
 
-  onComplete(): ActionResolutionStepResult {
-    return {
-      branchingActions: [],
-      nextStepOption: new StartUseAnimationActionResolutionStep(this.context, Vector3.Zero()),
-    };
+  protected getNextStepOption(): ActionResolutionStep | null {
+    // return new ChamberingMotion
   }
+  protected getBranchingActions = () => [];
 }

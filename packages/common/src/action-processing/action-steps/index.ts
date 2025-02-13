@@ -21,8 +21,16 @@ export interface ActionExecuting {
 
 // PRE USE POSITIONING (entityMotion)
 //  - get destination from action and targets
-// PRE USE SPAWN ENTITY
-// START-USE MOTION (entityMotion)
+//  - move toward a melee target or in case of ranged move a little forward from home position
+// PRE-USE MOTION (entityMotion)
+//  - ex: raise hand to draw arrow from quiver
+//  - ex: bring wand back to where we want to start "magical particles" around the wand
+// PRE USE SPAWN ENTITY (spawnEntity)
+//  - ex: spawn an arrow parented to the user's hand
+//  - ex: spawn a magical particles vfx entity on the user's wand
+// CHARGE-UP-TO-ACTIVATE MOTION (entityMotion)
+//  - ex: draw bowstring back and animate bow bending
+//  - ex: start animating magical particles around the wand
 // PAY ACTION COSTS (costsPaid)
 //  - get costs from action context
 // ON-USE TRIGGERS (activatedTriggers)
@@ -30,10 +38,11 @@ export interface ActionExecuting {
 //  - post results to action billboard
 //  - skip to post-use positioning step if countered
 //  - if success, get next step based on action
-// ON USE SPAWN ENTITY (spawnEntity)
-//  - if action spawns an entity, write it to the billboard
+// ON-USE SPAWN ENTITY (spawnEntity)
+//  - ex: spawn a firebolt in front of the wand
 // ON USE VFX MOTION (entityMotion)
-//  - check for expected entity on the billboard
+//  - ex: translate associated projectile toward its target
+//  - ex: animate non-projectile spellcasting effect around targets
 // ROLL HIT OUTCOMES (hitOutcomes)
 // HIT OUTCOME TRIGGERS (activatedTriggers)
 //  - may cause branching actions
@@ -46,32 +55,34 @@ export interface ActionExecuting {
 
 export enum ActionResolutionStepType {
   determineChildActions,
-  preUsePositioning,
-  startUseMotion,
+  initialPositioning,
+  chamberingMotion,
+  chamberingSpawnEntity,
+  deliveryMotion,
   payResourceCosts,
   evalOnUseTriggers,
-  preUseSpawnEntity,
-  onUseSpawnEntity,
-  vfxMotion,
+  onActivationSpawnEntity,
+  onActivationVfxMotion,
   rollIncomingHitOutcomes,
   evalOnHitOutcomeTriggers,
-  postUseMotion,
-  postUsePositioning,
+  recoveryMotion,
+  finalPositioning,
 }
 
 export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepType, string> = {
   [ActionResolutionStepType.determineChildActions]: "determineChildActions",
-  [ActionResolutionStepType.preUsePositioning]: "preUsePositioning",
-  [ActionResolutionStepType.startUseMotion]: "startUseMotion",
+  [ActionResolutionStepType.initialPositioning]: "initialPositioning",
+  [ActionResolutionStepType.chamberingMotion]: "chamberingMotion",
+  [ActionResolutionStepType.chamberingSpawnEntity]: "chamberingSpawnEntity",
+  [ActionResolutionStepType.deliveryMotion]: "deliveryMotion",
   [ActionResolutionStepType.payResourceCosts]: "payResourceCosts",
   [ActionResolutionStepType.evalOnUseTriggers]: "evalOnUseTriggers",
+  [ActionResolutionStepType.onActivationSpawnEntity]: "onActivationSpawnEntity",
+  [ActionResolutionStepType.onActivationVfxMotion]: "onActivationVfxMotion",
   [ActionResolutionStepType.rollIncomingHitOutcomes]: "rollIncomingHitOutcomes",
   [ActionResolutionStepType.evalOnHitOutcomeTriggers]: "evalOnHitOutcomeTriggers",
-  [ActionResolutionStepType.postUseMotion]: "postUseMotion",
-  [ActionResolutionStepType.postUsePositioning]: "postUsePositioning",
-  [ActionResolutionStepType.vfxMotion]: "vfxMotion",
-  [ActionResolutionStepType.preUseSpawnEntity]: "preUsespawnEntity",
-  [ActionResolutionStepType.onUseSpawnEntity]: "onUseSpawnEntity",
+  [ActionResolutionStepType.recoveryMotion]: "recoveryMotion",
+  [ActionResolutionStepType.finalPositioning]: "finalPositioning",
 };
 
 export type ActionResolutionStepResult = {
@@ -100,14 +111,6 @@ export abstract class ActionResolutionStep {
 
   tick(ms: Milliseconds) {
     this.elapsed += ms;
-    // console.log(
-    //   "TICKED ",
-    //   ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type],
-    //   ms,
-    //   this.elapsed,
-    //   this.getTimeToCompletion()
-    // );
-
     this.onTick();
   }
 
@@ -115,7 +118,13 @@ export abstract class ActionResolutionStep {
   abstract getTimeToCompletion(): Milliseconds;
   abstract isComplete(): boolean;
   /**Return branching actions and next step */
-  protected abstract onComplete(): Error | ActionResolutionStepResult;
+  protected abstract getNextStepOption(): Error | null | ActionResolutionStep;
+  protected abstract getBranchingActions():
+    | Error
+    | {
+        user: Combatant;
+        actionExecutionIntent: CombatActionExecutionIntent;
+      }[];
 
   /**Mark the gameUpdateCommand's completionOrderId and get branching actions and next step*/
   finalize(completionOrderId: number): Error | ActionResolutionStepResult {
@@ -126,5 +135,13 @@ export abstract class ActionResolutionStep {
 
   getGameUpdateCommandOption(): null | GameUpdateCommand {
     return this.gameUpdateCommandOption;
+  }
+
+  onComplete(): Error | ActionResolutionStepResult {
+    const branchingActionsResult = this.getBranchingActions();
+    if (branchingActionsResult instanceof Error) return branchingActionsResult;
+    const nextStepOptionResult = this.getNextStepOption();
+    if (nextStepOptionResult instanceof Error) return nextStepOptionResult;
+    return { branchingActions: branchingActionsResult, nextStepOption: nextStepOptionResult };
   }
 }
