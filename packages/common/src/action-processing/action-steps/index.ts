@@ -19,6 +19,30 @@ export interface ActionExecuting {
 // - determine any branching sequences
 // - determine the next step
 
+// Behavior tree for action with post-chambering projectile
+// succeeder
+// SEQUENCE
+// INITIAL POSITIONING (entityMotion)
+// CHAMBERING MOTION (entityMotion)
+// POST-CHAMBERING SPAWN ENTITY (spawnEntity)
+// DELIVERY MOTION (entityMotion)
+// PAY ACTION COSTS (costsPaid)
+// ON-ACTIVATION TRIGGERS (activatedTriggers)
+// Selector
+// - if not countered
+//   - create new projectile action branch
+// - if countered
+//   - do nothing
+// POST-USE MOTION (entityMotion)
+// POST-USE POSITIONING (entityMotion)
+//
+// Behavior tree for projectile action
+// Sequence
+// ON-ACTIVATION SPAWN ENTITY (spawnEntity)
+// ON-ACTIVATION VFX MOTION (entityMotion)
+// ROLL HIT OUTCOMES (hitOutcomes)
+// HIT OUTCOME TRIGGERS (activatedTriggers)
+
 // PRE USE POSITIONING (entityMotion)
 //  - get destination from action and targets
 //  - move toward a melee target or in case of ranged move a little forward from home position
@@ -57,7 +81,7 @@ export enum ActionResolutionStepType {
   determineChildActions,
   initialPositioning,
   chamberingMotion,
-  chamberingSpawnEntity,
+  postChamberingSpawnEntity,
   deliveryMotion,
   payResourceCosts,
   evalOnUseTriggers,
@@ -73,7 +97,7 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.determineChildActions]: "determineChildActions",
   [ActionResolutionStepType.initialPositioning]: "initialPositioning",
   [ActionResolutionStepType.chamberingMotion]: "chamberingMotion",
-  [ActionResolutionStepType.chamberingSpawnEntity]: "chamberingSpawnEntity",
+  [ActionResolutionStepType.postChamberingSpawnEntity]: "postChamberingSpawnEntity",
   [ActionResolutionStepType.deliveryMotion]: "deliveryMotion",
   [ActionResolutionStepType.payResourceCosts]: "payResourceCosts",
   [ActionResolutionStepType.evalOnUseTriggers]: "evalOnUseTriggers",
@@ -116,9 +140,10 @@ export abstract class ActionResolutionStep {
 
   protected abstract onTick(): void;
   abstract getTimeToCompletion(): Milliseconds;
-  abstract isComplete(): boolean;
+  isComplete() {
+    this.getTimeToCompletion() <= 0;
+  }
   /**Return branching actions and next step */
-  protected abstract getNextStepOption(): Error | null | ActionResolutionStep;
   protected abstract getBranchingActions():
     | Error
     | {
@@ -127,7 +152,9 @@ export abstract class ActionResolutionStep {
       }[];
 
   /**Mark the gameUpdateCommand's completionOrderId and get branching actions and next step*/
-  finalize(completionOrderId: number): Error | ActionResolutionStepResult {
+  finalize(
+    completionOrderId: number
+  ): Error | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
     if (this.gameUpdateCommandOption)
       this.gameUpdateCommandOption.completionOrderId = completionOrderId;
     return this.onComplete();
@@ -137,11 +164,9 @@ export abstract class ActionResolutionStep {
     return this.gameUpdateCommandOption;
   }
 
-  onComplete(): Error | ActionResolutionStepResult {
+  onComplete(): Error | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
     const branchingActionsResult = this.getBranchingActions();
     if (branchingActionsResult instanceof Error) return branchingActionsResult;
-    const nextStepOptionResult = this.getNextStepOption();
-    if (nextStepOptionResult instanceof Error) return nextStepOptionResult;
-    return { branchingActions: branchingActionsResult, nextStepOption: nextStepOptionResult };
+    return branchingActionsResult;
   }
 }

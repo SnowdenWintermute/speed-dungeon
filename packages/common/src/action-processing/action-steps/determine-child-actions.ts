@@ -3,17 +3,10 @@ import { Combatant } from "../../combatants/index.js";
 import {
   ActionResolutionStep,
   ActionResolutionStepContext,
-  ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
 
 export class DetermineChildActionsActionResolutionStep extends ActionResolutionStep {
-  getNextStepOption(): ActionResolutionStep | null {
-    return null;
-  }
-  getBranchingActions(): { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
-    return [];
-  }
   constructor(context: ActionResolutionStepContext) {
     super(ActionResolutionStepType.determineChildActions, context, null);
   }
@@ -21,11 +14,10 @@ export class DetermineChildActionsActionResolutionStep extends ActionResolutionS
   protected onTick = () => {};
   getTimeToCompletion = () => 0;
   isComplete = () => true;
-
-  protected onComplete(): ActionResolutionStepResult {
-    return {
-      branchingActions: this.getBranchingActions(),
-      nextStepOption: this.getNextStepOption(),
-    };
+  getBranchingActions(): { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+    // this step really does nothing, which allows the step tracker to use that loop to get the action's children
+    // as determined by the action in that moment, which is the default behavior of the loop, we just needed
+    // a "null step" to do this
+    return [];
   }
 }

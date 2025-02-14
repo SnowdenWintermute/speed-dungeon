@@ -9,6 +9,8 @@ import { EvalOnHitOutcomeTriggersActionResolutionStep } from "./evaluate-hit-out
 import { HpChange } from "../../combat/hp-change-source-types.js";
 import { DurabilityChangesByEntityId } from "../../combat/action-results/calculate-action-durability-changes.js";
 import { EntityId } from "../../primatives/index.js";
+import { CombatActionExecutionIntent } from "../../combat/index.js";
+import { Combatant } from "../../combatants/index.js";
 
 export interface HitOutcomes {
   hitPointChanges: { [entityId: EntityId]: HpChange };
@@ -23,7 +25,7 @@ const stepType = ActionResolutionStepType.rollIncomingHitOutcomes;
 export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
     // @TODO - calculate hits, evades, parries, blocks, hp/mp/shard/durability changes to apply
-    // and pass them to the next step for triggers and filtering
+    // and write them to the billboard so post-activation triggers can read them
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.HitOutcomes,
       step: stepType,
@@ -38,10 +40,9 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
   getTimeToCompletion = () => 0;
   isComplete = () => true;
 
-  onComplete(): ActionResolutionStepResult {
-    return {
-      branchingActions: [],
-      nextStepOption: new EvalOnHitOutcomeTriggersActionResolutionStep(this.context, []), // send hits here
-    };
+  protected getBranchingActions():
+    | Error
+    | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
+    return [];
   }
 }

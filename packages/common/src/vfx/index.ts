@@ -19,7 +19,7 @@ export type MobileVfxProperties = {
 };
 
 export type StaticVfxProperties = {
-  vfxType: VfxType.Mobile;
+  vfxType: VfxType.Static;
   name: StaticVfxName;
 };
 

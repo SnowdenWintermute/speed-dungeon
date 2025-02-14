@@ -53,7 +53,7 @@ const config: CombatActionComponentConfig = {
   appliesConditions: [],
   incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: 1 } },
   costBases: {},
-  // getDestinationDuringUse: (
+  // getDestinationDuringDelivery: (
   //   combatantContext: CombatantContext,
   //   actionExecutionIntent: CombatActionExecutionIntent,
   //   self: CombatActionComponent

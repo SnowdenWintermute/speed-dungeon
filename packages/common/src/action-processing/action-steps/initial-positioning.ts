@@ -8,6 +8,7 @@ import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-command
 import { Milliseconds } from "../../primatives/index.js";
 import { AnimationName, COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 import { COMBAT_ACTIONS } from "../../combat/index.js";
+import { ChamberingMotionActionResolutionStep } from "./chambering-motion.js";
 
 const stepType = ActionResolutionStepType.initialPositioning;
 export class InitialPositioningActionResolutionStep extends ActionResolutionStep {
@@ -70,12 +71,8 @@ export class InitialPositioningActionResolutionStep extends ActionResolutionStep
     return Math.max(0, this.timeToTranslate - this.elapsed);
   }
 
-  isComplete() {
-    return this.elapsed >= this.timeToTranslate;
-  }
-
   protected getNextStepOption(): ActionResolutionStep | null {
-    // return new ChamberingMotion
+    return new ChamberingMotionActionResolutionStep(this.context);
   }
   protected getBranchingActions = () => [];
 }

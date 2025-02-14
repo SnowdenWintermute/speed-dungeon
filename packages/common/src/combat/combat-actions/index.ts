@@ -77,7 +77,7 @@ export interface CombatActionComponentConfig {
     actionExecutionIntent: CombatActionExecutionIntent,
     self: CombatActionComponent
   ) => Error | null | Vector3;
-  getDestinationDuringUse: (
+  getDestinationDuringDelivery: (
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
     self: CombatActionComponent
@@ -179,7 +179,7 @@ export abstract class CombatActionComponent {
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent
   ) => Error | null | Vector3;
-  getDestinationDuringUse: (
+  getDestinationDuringDelivery: (
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent
   ) => Error | null | Vector3;
@@ -271,8 +271,8 @@ export abstract class CombatActionComponent {
     this.getRequiredRange = (user) => config.getRequiredRange(user, this);
     this.getPositionToStartUse = (context, actionIntent) =>
       config.getPositionToStartUse(context, actionIntent, this);
-    this.getDestinationDuringUse = (context, actionIntent) =>
-      config.getDestinationDuringUse(context, actionIntent, this);
+    this.getDestinationDuringDelivery = (context, actionIntent) =>
+      config.getDestinationDuringDelivery(context, actionIntent, this);
     this.getHpChangeProperties = (user, target) => config.getHpChangeProperties(user, target, this);
     this.getAppliedConditions = config.getAppliedConditions;
     this.getChildren = config.getChildren;

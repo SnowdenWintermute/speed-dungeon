@@ -1,9 +1,10 @@
 import { AnimationName } from "../../app-consts.js";
 
 export enum CombatActionAnimationCategory {
-  StartUse,
-  SuccessRecovery,
-  InterruptedRecovery,
+  Chambering,
+  Delivery,
+  RecoveryAfterSuccess,
+  RecoveryAfterInterrupt,
 }
 
 export type CombatActionCombatantAnimations = Record<CombatActionAnimationCategory, AnimationName>;

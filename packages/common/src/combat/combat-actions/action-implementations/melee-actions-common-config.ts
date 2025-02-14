@@ -63,7 +63,7 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
 
     return target.homeLocation.subtract(direction.scale(target.hitboxRadius + user.hitboxRadius));
   },
-  getDestinationDuringUse: (
+  getDestinationDuringDelivery: (
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
     self: CombatActionComponent

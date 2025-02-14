@@ -1,12 +1,10 @@
 import {
   ActionResolutionStep,
   ActionResolutionStepContext,
-  ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
 import { ActionPayableResource, COMBAT_ACTIONS } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
-import { EvalOnUseTriggersActionResolutionStep } from "./evaluate-on-use-triggers.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantProperties } from "../../combatants/index.js";
 
@@ -49,12 +47,5 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
 
   protected onTick = () => {};
   getTimeToCompletion = () => 0;
-  isComplete = () => true;
-
-  onComplete(): ActionResolutionStepResult {
-    return {
-      branchingActions: [],
-      nextStepOption: new EvalOnUseTriggersActionResolutionStep(this.context),
-    };
-  }
+  getBranchingActions = () => [];
 }

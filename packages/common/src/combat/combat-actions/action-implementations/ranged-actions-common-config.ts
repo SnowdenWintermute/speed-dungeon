@@ -20,7 +20,7 @@ export const RANGED_ACTIONS_COMMON_CONFIG = {
     const direction = CombatantProperties.getForward(user);
     return user.homeLocation.add(direction.scale(0.5));
   },
-  getDestinationDuringUse: (
+  getDestinationDuringDelivery: (
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
     self: CombatActionComponent

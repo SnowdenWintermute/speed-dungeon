@@ -10,7 +10,7 @@ export const NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG = {
   ) => {
     return null;
   },
-  getDestinationDuringUse: (
+  getDestinationDuringDelivery: (
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
     self: CombatActionComponent

@@ -91,7 +91,7 @@ const config: CombatActionComponentConfig = {
     actionExecutionIntent: CombatActionExecutionIntent,
     self: CombatActionComponent
   ) => Vector3.Zero(),
-  getDestinationDuringUse: (
+  getDestinationDuringDelivery: (
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
     self: CombatActionComponent
