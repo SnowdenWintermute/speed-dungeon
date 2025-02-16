@@ -1,4 +1,5 @@
 import {
+  CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionExecutionIntent,
   CombatActionLeaf,
@@ -7,7 +8,11 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import { AnimationName, DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../../../app-consts.js";
+import {
+  AnimationName,
+  COMBATANT_TIME_TO_MOVE_ONE_METER,
+  DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
+} from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
@@ -31,10 +36,13 @@ import {
   ActionResolutionStepType,
   ActionSequenceManager,
   ActionStepTracker,
-  CombatantPositioningActionResolutionStep,
+  AnimationTimingType,
 } from "../../../../action-processing/index.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
+import { CombatantMotionActionResolutionStep } from "../../../../action-processing/action-steps/initial-positioning.js";
+import { Vector3 } from "@babylonjs/core";
+import { getTranslationTime } from "../get-translation-time.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -113,7 +121,8 @@ const config: CombatActionComponentConfig = {
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
     previousTrackerOption: null | ActionStepTracker,
-    manager: ActionSequenceManager
+    manager: ActionSequenceManager,
+    self: CombatActionComponent
   ): Error | ActionResolutionStep {
     const actionResolutionStepContext: ActionResolutionStepContext = {
       combatantContext,
@@ -122,11 +131,28 @@ const config: CombatActionComponentConfig = {
       previousStepOption: null,
     };
 
-    return new CombatantPositioningActionResolutionStep(
-      actionResolutionStepContext,
-      AnimationName.MoveForward,
-      ActionResolutionStepType.preUsePositioning
-    );
+    const stepCreators = [
+      () => {
+        const destinationResult = self.getPositionToStartUse(
+          combatantContext,
+          actionExecutionIntent
+        );
+        if (destinationResult instanceof Error) throw destinationResult;
+        if (destinationResult === null) throw new Error("Expected destinationResult");
+        const duration = getTranslationTime(combatantContext.combatant, destinationResult);
+        return new CombatantMotionActionResolutionStep(
+          actionResolutionStepContext,
+          ActionResolutionStepType.InitialPositioning,
+          {
+            destination: destinationResult,
+            duration,
+          },
+          { name: AnimationName.MoveForward, timing: { type: AnimationTimingType.Looping } }
+        );
+      },
+    ];
+
+    return new InitialPositioningActionResolutionStep(actionResolutionStepContext);
   },
 };
 

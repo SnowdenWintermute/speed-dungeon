@@ -11,7 +11,7 @@ import {
 } from "../game-update-commands.js";
 import { COMBAT_ACTIONS } from "../../combat/index.js";
 
-const stepType = ActionResolutionStepType.onActivationVfxMotion;
+const stepType = ActionResolutionStepType.OnActivationVfxMotion;
 export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
   private originalPosition: Vector3;

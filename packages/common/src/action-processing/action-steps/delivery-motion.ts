@@ -13,7 +13,7 @@ import {
 import { CombatActionAnimationCategory } from "../../combat/combat-actions/combat-action-animations.js";
 import { Milliseconds } from "../../primatives/index.js";
 
-const stepType = ActionResolutionStepType.deliveryMotion;
+const stepType = ActionResolutionStepType.DeliveryMotion;
 export class DeliveryMotionActionResolutionStep extends ActionResolutionStep {
   translationOption: null | EntityTranslation = null;
   duration: Milliseconds;

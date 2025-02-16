@@ -4,75 +4,65 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
-import { Milliseconds } from "../../primatives/index.js";
-import { AnimationName, COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
-import { COMBAT_ACTIONS } from "../../combat/index.js";
-import { ChamberingMotionActionResolutionStep } from "./chambering-motion.js";
+import {
+  AnimationTimingType,
+  EntityAnimation,
+  EntityTranslation,
+  GameUpdateCommand,
+  GameUpdateCommandType,
+} from "../game-update-commands.js";
 
-const stepType = ActionResolutionStepType.initialPositioning;
-export class InitialPositioningActionResolutionStep extends ActionResolutionStep {
-  private destination: Vector3;
+export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
   private originalPosition: Vector3;
-  private timeToTranslate: Milliseconds;
-  constructor(context: ActionResolutionStepContext) {
+  constructor(
+    context: ActionResolutionStepContext,
+    step: ActionResolutionStepType,
+    private translationOption: null | EntityTranslation = null,
+    private animationOption: null | EntityAnimation = null
+  ) {
     /**Here we create and set the internal reference to the associated game update command, as well as
      * apply updates to game state for instantly processed steps*/
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.EntityMotion,
-      step: stepType,
+      step,
       completionOrderId: null,
-      animationOption: { name: AnimationName.MoveForward, shouldRepeat: true },
       entityId: context.combatantContext.combatant.entityProperties.id,
-      translationOption: { destination: Vector3.Zero(), duration: 0 },
     };
+    if (animationOption) gameUpdateCommand.animationOption = animationOption;
 
-    super(stepType, context, gameUpdateCommand);
+    super(step, context, gameUpdateCommand);
 
-    const { combatantProperties } = context.combatantContext.combatant;
+    this.originalPosition = context.combatantContext.combatant.combatantProperties.position.clone();
 
-    this.originalPosition = combatantProperties.position.clone();
-    const action = COMBAT_ACTIONS[this.context.actionExecutionIntent.actionName];
-    const destinationResult = action.getPositionToStartUse(
-      context.combatantContext,
-      context.actionExecutionIntent
-    );
-    if (destinationResult instanceof Error) throw destinationResult;
-    if (destinationResult === null) throw new Error("Expected destinationResult");
-    this.destination = destinationResult;
-
-    const speedMultiplier = 1;
-    let distance = Vector3.Distance(this.originalPosition, this.destination);
-    if (isNaN(distance)) distance = 0;
-    this.timeToTranslate = distance * COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier;
-
-    const translation = { destination: this.destination, duration: this.timeToTranslate };
-    gameUpdateCommand.translationOption = translation;
+    if (!translationOption) return;
+    gameUpdateCommand.translationOption = translationOption;
   }
 
   protected onTick(): void {
+    if (!this.translationOption) return;
+
     const normalizedPercentTravelled =
-      this.timeToTranslate === 0 ? 1 : this.elapsed / this.timeToTranslate;
+      this.translationOption.duration === 0 ? 1 : this.elapsed / this.translationOption.duration;
 
     const newPosition = Vector3.Lerp(
       this.originalPosition,
-      this.destination,
+      this.translationOption.destination,
       normalizedPercentTravelled
     );
 
     this.context.combatantContext.combatant.combatantProperties.position.copyFrom(newPosition);
   }
 
-  setDestination(destination: Vector3) {
-    this.destination = destination.clone();
-  }
-
   getTimeToCompletion(): number {
-    return Math.max(0, this.timeToTranslate - this.elapsed);
+    const remainingTimeToTranslate = this.translationOption
+      ? Math.max(0, this.translationOption.duration - this.elapsed)
+      : 0;
+
+    if (!this.animationOption || this.animationOption?.type === AnimationTimingType.Looping)
+      return remainingTimeToTranslate;
+    const remainingTimeToAnimate = Math.max(0, this.animationOption.duration - this.elapsed);
+    return Math.max(remainingTimeToTranslate, remainingTimeToAnimate);
   }
 
-  protected getNextStepOption(): ActionResolutionStep | null {
-    return new ChamberingMotionActionResolutionStep(this.context);
-  }
   protected getBranchingActions = () => [];
 }

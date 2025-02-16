@@ -12,7 +12,7 @@ import {
 } from "../game-update-commands.js";
 import { COMBAT_ACTIONS } from "../../combat/index.js";
 
-const stepType = ActionResolutionStepType.recoveryMotion;
+const stepType = ActionResolutionStepType.RecoveryMotion;
 export class RecoveryMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
   private animationOption: null | EntityAnimation = null;

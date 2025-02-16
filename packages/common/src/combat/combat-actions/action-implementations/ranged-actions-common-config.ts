@@ -29,9 +29,10 @@ export const RANGED_ACTIONS_COMMON_CONFIG = {
   },
   getCombatantUseAnimations: (combatantContext: CombatantContext) => {
     const animations: CombatActionCombatantAnimations = {
-      [CombatActionAnimationCategory.StartUse]: AnimationName.RangedAttack,
-      [CombatActionAnimationCategory.SuccessRecovery]: AnimationName.RangedAttack,
-      [CombatActionAnimationCategory.InterruptedRecovery]: AnimationName.RangedAttack,
+      [CombatActionAnimationCategory.Chambering]: AnimationName.RangedAttack,
+      [CombatActionAnimationCategory.Delivery]: AnimationName.RangedAttack,
+      [CombatActionAnimationCategory.RecoveryAfterSuccess]: AnimationName.RangedAttack,
+      [CombatActionAnimationCategory.RecoveryAfterInterrupt]: AnimationName.RangedAttack,
     };
     return animations;
   },

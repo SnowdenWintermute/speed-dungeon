@@ -49,8 +49,18 @@ export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, str
 };
 
 export type GameEntity = Combatant | Vfx;
-export type EntityTranslation = { duration: Milliseconds; destination: Vector3 };
-export type EntityAnimation = { duration: Milliseconds; animationName: AnimationName };
+export interface EntityTranslation {
+  duration: Milliseconds;
+  destination: Vector3;
+}
+export enum AnimationTimingType {
+  Timed,
+  Looping,
+}
+export type LoopingAnimation = { type: AnimationTimingType.Looping };
+export type TimedAnimation = { type: AnimationTimingType.Timed; duration: Milliseconds };
+export type AnimationTiming = LoopingAnimation | TimedAnimation;
+export type EntityAnimation = { name: AnimationName; timing: AnimationTiming };
 
 export type SpawnEntityGameUpdateCommand = {
   type: GameUpdateCommandType.SpawnEntity;
@@ -64,7 +74,7 @@ export type EntityMotionGameUpdateCommand = {
   completionOrderId: null | number;
   step: ActionResolutionStepType;
   entityId: EntityId;
-  animationOption?: { name: AnimationName; durationOption?: Milliseconds; shouldRepeat: boolean };
+  animationOption?: EntityAnimation;
   translationOption?: EntityTranslation;
 };
 
