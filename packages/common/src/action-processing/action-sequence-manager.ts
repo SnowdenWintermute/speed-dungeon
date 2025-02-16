@@ -5,6 +5,7 @@ import { Milliseconds } from "../primatives/index.js";
 import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registry.js";
 import { NestedNodeReplayEvent } from "./replay-events.js";
 import { ActionTracker } from "./action-tracker.js";
+import { IdGenerator } from "../utility-classes/index.js";
 
 export class ActionSequenceManager {
   private remainingActionsToExecute: CombatActionExecutionIntent[];
@@ -17,6 +18,7 @@ export class ActionSequenceManager {
     public replayNode: NestedNodeReplayEvent,
     public combatantContext: CombatantContext,
     public sequentialActionManagerRegistry: ActionSequenceManagerRegistry,
+    private idGenerator: IdGenerator,
     private trackerThatSpawnedThisActionOption: null | ActionTracker
   ) {
     this.remainingActionsToExecute = [actionExecutionIntent];
@@ -74,27 +76,29 @@ export class ActionSequenceManager {
     this.remainingActionsToExecute.push(...childActionIntents.reverse());
   }
 
-  startProcessingNext(time: { ms: Milliseconds }): Error | ActionStepTracker {
+  startProcessingNext(time: { ms: Milliseconds }): Error | ActionTracker {
     if (this.currentTracker) this.completedTrackers.push(this.currentTracker);
     const nextActionExecutionIntentOption = this.remainingActionsToExecute.pop();
     if (!nextActionExecutionIntentOption)
       return new Error("Tried to process next action but there wasn't one");
 
-    let previousTrackerOption = null;
+    let previousTrackerOption: null | ActionTracker = null;
     if (this.trackerThatSpawnedThisActionOption) {
       previousTrackerOption = this.trackerThatSpawnedThisActionOption;
       this.trackerThatSpawnedThisActionOption = null;
     } else {
-      previousTrackerOption = this.completedTrackers[this.completedTrackers.length - 1];
+      previousTrackerOption = this.completedTrackers[this.completedTrackers.length - 1] || null;
     }
 
     try {
-      const tracker = new ActionStepTracker(
+      const tracker = new ActionTracker(
         this,
         this.sequentialActionManagerRegistry.actionStepIdGenerator.getNextId(),
         nextActionExecutionIntentOption,
         previousTrackerOption || null,
-        time.ms
+        time.ms,
+        this.idGenerator,
+        previousTrackerOption?.spawnedEntityOption || null
       );
 
       this.currentTracker = tracker;

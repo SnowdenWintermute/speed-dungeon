@@ -18,23 +18,8 @@ import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
-import { CombatantContext } from "../../../../combatant-context/index.js";
-import { ActionSequenceManager } from "../../../../action-processing/action-sequence-manager.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
-import {
-  ActionMotionPhase,
-  ActionResolutionStep,
-  ActionResolutionStepContext,
-  ActionResolutionStepType,
-} from "../../../../action-processing/index.js";
-import { AnimationName } from "../../../../app-consts.js";
-import { CombatantMotionActionResolutionStep } from "../../../../action-processing/action-steps/combatant-motion.js";
-import { PayResourceCostsActionResolutionStep } from "../../../../action-processing/action-steps/pay-resource-costs.js";
-import { EvalOnUseTriggersActionResolutionStep } from "../../../../action-processing/action-steps/evaluate-on-use-triggers.js";
-import { StartConcurrentSubActionsActionResolutionStep } from "../../../../action-processing/action-steps/start-concurrent-sub-actions.js";
-import { CombatActionAnimationPhase } from "../../combat-action-animations.js";
-import { ActionTracker } from "../../../../action-processing/action-tracker.js";
-import { IdGenerator } from "../../../../utility-classes/index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -92,63 +77,16 @@ const config: CombatActionComponentConfig = {
   getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
     throw new Error("Function not implemented.");
   },
-  getResolutionSteps(
-    combatantContext: CombatantContext,
-    actionExecutionIntent: CombatActionExecutionIntent,
-    tracker: ActionTracker,
-    previousTrackerOption: null | ActionTracker,
-    manager: ActionSequenceManager,
-    idGenerator: IdGenerator
-  ): Error | (() => ActionResolutionStep)[] {
-    const actionResolutionStepContext: ActionResolutionStepContext = {
-      combatantContext,
-      actionExecutionIntent,
-      manager,
-      previousStepOption: null,
-    };
-
+  getResolutionSteps() {
     return [
-      () =>
-        new CombatantMotionActionResolutionStep(
-          actionResolutionStepContext,
-          ActionResolutionStepType.InitialPositioning,
-          ActionMotionPhase.Initial,
-          CombatActionAnimationPhase.Initial
-        ),
-      () =>
-        new CombatantMotionActionResolutionStep(
-          actionResolutionStepContext,
-          ActionResolutionStepType.ChamberingMotion,
-          ActionMotionPhase.Chambering,
-          CombatActionAnimationPhase.Chambering
-        ),
-      () =>
-        new CombatantMotionActionResolutionStep(
-          actionResolutionStepContext,
-          ActionResolutionStepType.DeliveryMotion,
-          ActionMotionPhase.Delivery,
-          CombatActionAnimationPhase.Delivery
-        ),
-      () => new PayResourceCostsActionResolutionStep(actionResolutionStepContext),
-      () => new EvalOnUseTriggersActionResolutionStep(actionResolutionStepContext, tracker),
-      () => new StartConcurrentSubActionsActionResolutionStep(actionResolutionStepContext, tracker),
-      () => {
-        let animationPhase = CombatActionAnimationPhase.RecoverySuccess;
-        if (tracker.wasInterrupted) animationPhase = CombatActionAnimationPhase.RecoveryInterrupted;
-        return new CombatantMotionActionResolutionStep(
-          actionResolutionStepContext,
-          ActionResolutionStepType.RecoveryMotion,
-          ActionMotionPhase.Recovery,
-          animationPhase
-        );
-      },
-      () =>
-        new CombatantMotionActionResolutionStep(
-          actionResolutionStepContext,
-          ActionResolutionStepType.FinalPositioning,
-          ActionMotionPhase.Final,
-          CombatActionAnimationPhase.Final
-        ),
+      ActionResolutionStepType.InitialPositioning,
+      ActionResolutionStepType.ChamberingMotion,
+      ActionResolutionStepType.DeliveryMotion,
+      ActionResolutionStepType.PayResourceCosts,
+      ActionResolutionStepType.EvalOnUseTriggers,
+      ActionResolutionStepType.StartConcurrentSubActions,
+      ActionResolutionStepType.RecoveryMotion,
+      ActionResolutionStepType.FinalPositioning,
     ];
   },
   motionPhasePositionGetters: {},

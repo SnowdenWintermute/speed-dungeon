@@ -25,23 +25,8 @@ import {
 } from "../../action-calculation-utils/standard-action-calculations.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
-import {
-  ActionMotionPhase,
-  ActionResolutionStep,
-  ActionResolutionStepContext,
-  ActionResolutionStepType,
-  ActionSequenceManager,
-} from "../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
-import { CombatantContext } from "../../../../combatant-context/index.js";
-import { CombatantMotionActionResolutionStep } from "../../../../action-processing/action-steps/combatant-motion.js";
-import { CombatActionAnimationPhase } from "../../combat-action-animations.js";
-import { SpawnEntityActionResolutionStep } from "../../../../action-processing/action-steps/spawn-entity.js";
-import { IdGenerator } from "../../../../utility-classes/index.js";
-import { PayResourceCostsActionResolutionStep } from "../../../../action-processing/action-steps/pay-resource-costs.js";
-import { EvalOnUseTriggersActionResolutionStep } from "../../../../action-processing/action-steps/evaluate-on-use-triggers.js";
-import { ActionTracker } from "../../../../action-processing/action-tracker.js";
-import { StartConcurrentSubActionsActionResolutionStep } from "../../../../action-processing/action-steps/start-concurrent-sub-actions.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -116,70 +101,17 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => ATTACK,
-  getResolutionSteps(
-    combatantContext: CombatantContext,
-    actionExecutionIntent: CombatActionExecutionIntent,
-    tracker: ActionTracker,
-    previousTrackerOption: null | ActionTracker,
-    manager: ActionSequenceManager,
-    idGenerator: IdGenerator
-  ): Error | (() => ActionResolutionStep)[] {
-    const actionResolutionStepContext: ActionResolutionStepContext = {
-      combatantContext,
-      actionExecutionIntent,
-      manager,
-      previousStepOption: null,
-    };
-
+  getResolutionSteps() {
     return [
-      () =>
-        new CombatantMotionActionResolutionStep(
-          actionResolutionStepContext,
-          ActionResolutionStepType.InitialPositioning,
-          ActionMotionPhase.Initial,
-          CombatActionAnimationPhase.Initial
-        ),
-      () =>
-        new CombatantMotionActionResolutionStep(
-          actionResolutionStepContext,
-          ActionResolutionStepType.ChamberingMotion,
-          ActionMotionPhase.Chambering,
-          CombatActionAnimationPhase.Chambering
-        ),
-      () =>
-        new SpawnEntityActionResolutionStep(
-          actionResolutionStepContext,
-          ActionResolutionStepType.PostChamberingSpawnEntity,
-          tracker,
-          idGenerator
-        ),
-      () =>
-        new CombatantMotionActionResolutionStep(
-          actionResolutionStepContext,
-          ActionResolutionStepType.DeliveryMotion,
-          ActionMotionPhase.Delivery,
-          CombatActionAnimationPhase.Delivery
-        ),
-      () => new PayResourceCostsActionResolutionStep(actionResolutionStepContext),
-      () => new EvalOnUseTriggersActionResolutionStep(actionResolutionStepContext, tracker),
-      () => new StartConcurrentSubActionsActionResolutionStep(actionResolutionStepContext, tracker),
-      () => {
-        let animationPhase = CombatActionAnimationPhase.RecoverySuccess;
-        if (tracker.wasInterrupted) animationPhase = CombatActionAnimationPhase.RecoveryInterrupted;
-        return new CombatantMotionActionResolutionStep(
-          actionResolutionStepContext,
-          ActionResolutionStepType.RecoveryMotion,
-          ActionMotionPhase.Recovery,
-          animationPhase
-        );
-      },
-      () =>
-        new CombatantMotionActionResolutionStep(
-          actionResolutionStepContext,
-          ActionResolutionStepType.FinalPositioning,
-          ActionMotionPhase.Final,
-          CombatActionAnimationPhase.Final
-        ),
+      ActionResolutionStepType.InitialPositioning,
+      ActionResolutionStepType.ChamberingMotion,
+      ActionResolutionStepType.PostChamberingSpawnEntity,
+      ActionResolutionStepType.DeliveryMotion,
+      ActionResolutionStepType.PayResourceCosts,
+      ActionResolutionStepType.EvalOnUseTriggers,
+      ActionResolutionStepType.StartConcurrentSubActions,
+      ActionResolutionStepType.RecoveryMotion,
+      ActionResolutionStepType.FinalPositioning,
     ];
   },
   motionPhasePositionGetters: {},

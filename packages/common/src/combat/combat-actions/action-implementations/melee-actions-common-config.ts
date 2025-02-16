@@ -1,18 +1,10 @@
 import { Vector3 } from "@babylonjs/core";
-import {
-  ActionResolutionStep,
-  ActionResolutionStepContext,
-  ActionResolutionStepType,
-  ActionSequenceManager,
-  ActionStepTracker,
-  CombatantPositioningActionResolutionStep,
-} from "../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../action-processing/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CombatantContext } from "../../../combatant-context/index.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { CombatantProperties } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
-import { CombatActionTargetType } from "../../targeting/combat-action-targets.js";
 import {
   getStandardActionArmorPenetration,
   getStandardActionCritChance,
@@ -21,8 +13,6 @@ import {
 import { ActionAccuracy, ActionAccuracyType } from "../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../combat-action-range.js";
 import { CombatActionComponent, CombatActionExecutionIntent } from "../../index.js";
-import { AnimationName, MELEE_START_ATTACK_RANGE } from "../../../app-consts.js";
-import { StartUseAnimationActionResolutionStep } from "../../../action-processing/action-steps/start-use-animation.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 
 export const MELEE_ATTACK_COMMON_CONFIG = {
@@ -116,41 +106,16 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
   getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
     return getStandardActionArmorPenetration(user, CombatAttribute.Strength);
   },
-  getFirstResolutionStep: function (
-    combatantContext: CombatantContext,
-    actionExecutionIntent: CombatActionExecutionIntent,
-    previousTrackerOption: null | ActionStepTracker,
-    manager: ActionSequenceManager
-  ): Error | ActionResolutionStep {
-    const { targets } = actionExecutionIntent;
-    if (targets.type !== CombatActionTargetType.Single)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TARGETS_SELECTED);
-    const { targetId } = targets;
-    const targetResult = AdventuringParty.getCombatant(combatantContext.party, targetId);
-    if (targetResult instanceof Error) return targetResult;
-
-    const distance = Vector3.Distance(
-      targetResult.combatantProperties.position,
-      combatantContext.combatant.combatantProperties.position
-    );
-
-    const actionResolutionStepContext: ActionResolutionStepContext = {
-      combatantContext,
-      actionExecutionIntent,
-      manager,
-      previousStepOption: null,
-    };
-
-    if (distance > MELEE_START_ATTACK_RANGE)
-      return new CombatantPositioningActionResolutionStep(
-        actionResolutionStepContext,
-        AnimationName.MoveForward,
-        ActionResolutionStepType.preUsePositioning
-      );
-    else {
-      // @TODO - calculate a forward path toward target
-      const destination = Vector3.Zero();
-      return new StartUseAnimationActionResolutionStep(actionResolutionStepContext, destination);
-    }
+  getResolutionSteps() {
+    return [
+      ActionResolutionStepType.InitialPositioning,
+      ActionResolutionStepType.DeliveryMotion,
+      ActionResolutionStepType.PayResourceCosts,
+      ActionResolutionStepType.EvalOnUseTriggers,
+      ActionResolutionStepType.RollIncomingHitOutcomes,
+      ActionResolutionStepType.EvalOnUseTriggers,
+      ActionResolutionStepType.RecoveryMotion,
+      ActionResolutionStepType.FinalPositioning,
+    ];
   },
 };

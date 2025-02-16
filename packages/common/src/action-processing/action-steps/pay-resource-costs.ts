@@ -11,7 +11,7 @@ import { CombatantProperties } from "../../combatants/index.js";
 const stepType = ActionResolutionStepType.PayResourceCosts;
 export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
-    const action = COMBAT_ACTIONS[context.actionExecutionIntent.actionName];
+    const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
     const costsOption = action.getResourceCosts(
       context.combatantContext.combatant.combatantProperties
     );

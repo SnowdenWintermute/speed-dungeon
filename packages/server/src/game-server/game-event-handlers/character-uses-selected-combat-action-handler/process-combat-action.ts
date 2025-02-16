@@ -1,16 +1,17 @@
 import {
+  ActionMotionPhase,
   ActionResolutionStepType,
   ActionSequenceManagerRegistry,
-  AnimationName,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatantContext,
-  CombatantPositioningActionResolutionStep,
+  CombatantMotionActionResolutionStep,
   NestedNodeReplayEvent,
   ReplayEventType,
   SequentialIdGenerator,
 } from "@speed-dungeon/common";
 import { idGenerator } from "../../../singletons.js";
+import { CombatActionAnimationPhase } from "@speed-dungeon/common";
 
 class TimeKeeper {
   ms: number = 0;
@@ -56,7 +57,7 @@ export function processCombatAction(
         const actionResult = trackerOption.currentStep.finalize(completionOrderId);
 
         if (actionResult instanceof Error) return actionResult;
-        const { branchingActions, nextStepOption } = actionResult;
+        const branchingActions = actionResult;
         if (manager.getIsFinalized()) {
           registry.unRegisterActionManager(manager.id);
           break;
@@ -119,11 +120,11 @@ export function processCombatAction(
         if (currentTrackerOption) {
           const action = COMBAT_ACTIONS[currentTrackerOption.actionExecutionIntent.actionName];
           if (action.userShouldMoveHomeOnComplete) {
-            const returnHomeStep = new CombatantPositioningActionResolutionStep(
+            const returnHomeStep = new CombatantMotionActionResolutionStep(
               currentTrackerOption.currentStep.getContext(),
-              AnimationName.MoveBack,
-              ActionResolutionStepType.postUsePositioning,
-              true
+              ActionResolutionStepType.FinalPositioning,
+              ActionMotionPhase.Final,
+              CombatActionAnimationPhase.Final
             );
 
             currentTrackerOption.currentStep = returnHomeStep;

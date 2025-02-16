@@ -37,7 +37,8 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
 
     super(step, context, gameUpdateCommand);
     this.originalPosition = context.combatantContext.combatant.combatantProperties.position.clone();
-    const { combatantContext, actionExecutionIntent } = context;
+    const { combatantContext } = context;
+    const { actionExecutionIntent } = context.tracker;
 
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
 

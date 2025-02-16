@@ -6,6 +6,8 @@ import { GameUpdateCommand } from "../game-update-commands.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { ActionSequenceManager } from "../action-sequence-manager.js";
+import { ActionTracker } from "../action-tracker.js";
+import { IdGenerator } from "../../utility-classes/index.js";
 
 export interface ActionExecuting {
   timeStarted: Milliseconds;
@@ -125,9 +127,9 @@ export type ActionResolutionStepResult = {
 
 export interface ActionResolutionStepContext {
   combatantContext: CombatantContext;
-  actionExecutionIntent: CombatActionExecutionIntent;
+  tracker: ActionTracker;
   manager: ActionSequenceManager;
-  previousStepOption: null | ActionResolutionStep;
+  idGenerator: IdGenerator;
 }
 
 export abstract class ActionResolutionStep {

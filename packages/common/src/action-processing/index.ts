@@ -4,10 +4,10 @@ export * from "./game-update-commands.js";
 export * from "./action-command-receiver.js";
 export * from "./action-command-queue.js";
 export * from "./replay-events.js";
-export * from "./action-step-tracker.js";
+export * from "./action-tracker.js";
 export * from "./action-sequence-manager.js";
 export * from "./action-sequence-manager-registry.js";
-export * from "./action-steps/combatant-positioning.js";
+export * from "./action-steps/combatant-motion.js";
 
 import { BattleConclusion } from "../battle/index.js";
 import { DurabilityChangesByEntityId } from "../combat/action-results/calculate-action-durability-changes.js";

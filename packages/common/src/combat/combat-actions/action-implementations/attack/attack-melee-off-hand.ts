@@ -1,7 +1,6 @@
 import {
   CombatActionComponent,
   CombatActionComponentConfig,
-  CombatActionExecutionIntent,
   CombatActionLeaf,
   CombatActionName,
   CombatActionUsabilityContext,
@@ -32,9 +31,11 @@ import { TargetingCalculator } from "../../../targeting/targeting-calculator.js"
 import { CombatantContext } from "../../../../combatant-context/index.js";
 import { MELEE_ATTACK_COMMON_CONFIG } from "../melee-actions-common-config.js";
 import {
-  CombatActionAnimationCategory,
+  CombatActionAnimationPhase,
   CombatActionCombatantAnimations,
 } from "../../combat-action-animations.js";
+import { AnimationTimingType } from "../../../../action-processing/game-update-commands.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -94,9 +95,27 @@ const config: CombatActionComponentConfig = {
   },
   getCombatantUseAnimations: (combatantContext: CombatantContext) => {
     const animations: CombatActionCombatantAnimations = {
-      [CombatActionAnimationCategory.StartUse]: AnimationName.MeleeOffHand,
-      [CombatActionAnimationCategory.SuccessRecovery]: AnimationName.MeleeOffHand,
-      [CombatActionAnimationCategory.InterruptedRecovery]: AnimationName.MeleeOffHand,
+      [CombatActionAnimationPhase.Initial]: {
+        name: AnimationName.MoveForward,
+        timing: { type: AnimationTimingType.Looping },
+      },
+      [CombatActionAnimationPhase.Chambering]: null,
+      [CombatActionAnimationPhase.Delivery]: {
+        name: AnimationName.MeleeOffHandDelivery,
+        timing: { type: AnimationTimingType.Timed, duration: 1200 },
+      },
+      [CombatActionAnimationPhase.RecoverySuccess]: {
+        name: AnimationName.MeleeOffHandRecoverySuccess,
+        timing: { type: AnimationTimingType.Timed, duration: 700 },
+      },
+      [CombatActionAnimationPhase.RecoveryInterrupted]: {
+        name: AnimationName.MeleeOffHandRecoveryInterrupted,
+        timing: { type: AnimationTimingType.Timed, duration: 700 },
+      },
+      [CombatActionAnimationPhase.Final]: {
+        name: AnimationName.MoveBack,
+        timing: { type: AnimationTimingType.Looping },
+      },
     };
     return animations;
   },
@@ -123,6 +142,7 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => ATTACK,
+  motionPhasePositionGetters: {},
 };
 
 export const ATTACK_MELEE_OFF_HAND = new CombatActionLeaf(

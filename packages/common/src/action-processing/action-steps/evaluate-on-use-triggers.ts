@@ -6,11 +6,10 @@ import {
 import { CombatActionExecutionIntent } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Combatant } from "../../combatants/index.js";
-import { ActionTracker } from "../action-tracker.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
-  constructor(context: ActionResolutionStepContext, tracker: ActionTracker) {
+  constructor(context: ActionResolutionStepContext) {
     // counterspells
     // if countered, set the tracker "wasInterrupted" to true
     const gameUpdateCommand: GameUpdateCommand = {

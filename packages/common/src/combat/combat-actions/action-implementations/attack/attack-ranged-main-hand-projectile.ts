@@ -25,6 +25,7 @@ import { IdGenerator } from "../../../../utility-classes/index.js";
 import {
   ActionResolutionStep,
   ActionResolutionStepContext,
+  ActionResolutionStepType,
 } from "../../../../action-processing/index.js";
 import { OnActivationVfxMotionActionResolutionStep } from "../../../../action-processing/action-steps/on-activation-vfx-motion.js";
 import { RollIncomingHitOutcomesActionResolutionStep } from "../../../../action-processing/action-steps/roll-incoming-hit-outcomes.js";
@@ -82,34 +83,11 @@ const config: CombatActionComponentConfig = {
 
     return previousTrackerOption.actionExecutionIntent.targets;
   },
-  getResolutionSteps(
-    combatantContext: CombatantContext,
-    actionExecutionIntent: CombatActionExecutionIntent,
-    tracker: ActionTracker,
-    previousTrackerOption: null | ActionTracker,
-    manager: ActionSequenceManager,
-    idGenerator: IdGenerator
-  ): Error | (() => ActionResolutionStep)[] {
-    const actionResolutionStepContext: ActionResolutionStepContext = {
-      combatantContext,
-      actionExecutionIntent,
-      manager,
-      previousStepOption: null,
-    };
-
+  getResolutionSteps() {
     return [
-      () => {
-        const expectedProjectileEntityOption = previousTrackerOption?.spawnedEntityOption;
-        if (!expectedProjectileEntityOption) throw new Error("expected projectile was missing");
-        if (expectedProjectileEntityOption instanceof Combatant)
-          throw new Error("expected entity was of invalid type");
-        return new OnActivationVfxMotionActionResolutionStep(
-          actionResolutionStepContext,
-          expectedProjectileEntityOption
-        );
-      },
-      () => new RollIncomingHitOutcomesActionResolutionStep(actionResolutionStepContext),
-      () => new EvalOnHitOutcomeTriggersActionResolutionStep(actionResolutionStepContext),
+      ActionResolutionStepType.OnActivationVfxMotion,
+      ActionResolutionStepType.RollIncomingHitOutcomes,
+      ActionResolutionStepType.EvalOnHitOutcomeTriggers,
     ];
   },
   motionPhasePositionGetters: {},

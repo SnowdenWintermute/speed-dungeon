@@ -2,7 +2,6 @@ import {
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
-  CombatActionExecutionIntent,
   CombatActionName,
   CombatActionUsabilityContext,
   TargetCategories,
@@ -24,10 +23,7 @@ import { ATTACK_MELEE_OFF_HAND } from "./attack-melee-off-hand.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
-import { DetermineChildActionsActionResolutionStep } from "../../../../action-processing/action-steps/determine-child-actions.js";
-import { ActionStepTracker } from "../../../../action-processing/action-step-tracker.js";
-import { ActionSequenceManager } from "../../../../action-processing/action-sequence-manager.js";
-import { Vector3 } from "@babylonjs/core";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
@@ -86,17 +82,6 @@ const config: CombatActionComponentConfig = {
     throw new Error("Function not implemented.");
   },
 
-  getPositionToStartUse: (
-    combatantContext: CombatantContext,
-    actionExecutionIntent: CombatActionExecutionIntent,
-    self: CombatActionComponent
-  ) => Vector3.Zero(),
-  getDestinationDuringDelivery: (
-    combatantContext: CombatantContext,
-    actionExecutionIntent: CombatActionExecutionIntent,
-    self: CombatActionComponent
-  ) => Vector3.Zero(),
-
   getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
     throw new Error("Function not implemented.");
   },
@@ -109,19 +94,8 @@ const config: CombatActionComponentConfig = {
   getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
     throw new Error("Function not implemented.");
   },
-  getFirstResolutionStep(
-    combatantContext: CombatantContext,
-    actionExecutionIntent: CombatActionExecutionIntent,
-    previousTrackerOption: null | ActionStepTracker,
-    manager: ActionSequenceManager
-  ) {
-    return new DetermineChildActionsActionResolutionStep({
-      combatantContext,
-      actionExecutionIntent,
-      previousStepOption: null,
-      manager,
-    });
-  },
+  getResolutionSteps: () => [ActionResolutionStepType.DetermineChildActions],
+  motionPhasePositionGetters: {},
 };
 
 export const ATTACK = new CombatActionComposite(CombatActionName.Attack, config);

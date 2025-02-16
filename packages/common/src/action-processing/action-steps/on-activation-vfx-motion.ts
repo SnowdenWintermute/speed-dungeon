@@ -27,9 +27,11 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
     super(stepType, context, gameUpdateCommand);
 
     const { combatantProperties } = context.combatantContext.combatant;
+    const { actionExecutionIntent } = context.tracker;
 
     this.originalPosition = combatantProperties.position.clone();
-    const action = COMBAT_ACTIONS[this.context.actionExecutionIntent.actionName];
+
+    const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
   }
 
   protected onTick(): void {

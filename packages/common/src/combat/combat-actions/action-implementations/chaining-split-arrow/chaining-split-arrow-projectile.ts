@@ -2,7 +2,6 @@ import {
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
-  CombatActionExecutionIntent,
   CombatActionName,
   CombatActionUsabilityContext,
   TargetCategories,
@@ -15,7 +14,6 @@ import { ActionAccuracy } from "../../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
-import { MobileVfxActionResolutionStep } from "../../../../action-processing/action-steps/mobile-vfx.js";
 import { CHAINING_SPLIT_ARROW_PARENT } from "./index.js";
 import { COMBAT_ACTIONS } from "../index.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
@@ -25,10 +23,9 @@ import {
 } from "../../../targeting/combat-action-targets.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
 import { chooseRandomFromArray } from "../../../../utils/index.js";
-import { AdventuringParty } from "../../../../adventuring-party/index.js";
-import { ActionSequenceManager } from "../../../../action-processing/action-sequence-manager.js";
-import { ActionStepTracker } from "../../../../action-processing/action-step-tracker.js";
 import { NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG } from "../non-combatant-initiated-actions-common-config.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import { ActionTracker } from "../../../../action-processing/action-tracker.js";
 
 const MAX_BOUNCES = 2;
 
@@ -121,51 +118,15 @@ const config: CombatActionComponentConfig = {
     };
     return target;
   },
-  getFirstResolutionStep(
-    combatantContext: CombatantContext,
-    actionExecutionIntent: CombatActionExecutionIntent,
-    previousTrackerOption: null | ActionStepTracker,
-    manager: ActionSequenceManager,
-    self
-  ) {
-    if (!previousTrackerOption)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.MISSING_EXPECTED_ACTION_IN_CHAIN);
-    const targetResult = self.getAutoTarget(combatantContext, previousTrackerOption);
-    if (targetResult instanceof Error) return targetResult;
-    if (targetResult === null)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TARGETS_SELECTED);
-
-    const filteredPossibleTargetIds = getBouncableTargets(combatantContext, previousTrackerOption);
-    if (filteredPossibleTargetIds instanceof Error) return filteredPossibleTargetIds;
-    const { possibleTargetIds, previousTargetId } = filteredPossibleTargetIds;
-
-    const previousTargetResult = AdventuringParty.getCombatant(
-      combatantContext.party,
-      previousTargetId
-    );
-    if (previousTargetResult instanceof Error) return previousTargetResult;
-
-    const { targets } = actionExecutionIntent;
-    if (targets.type !== CombatActionTargetType.Single) return new Error("unexpected target type");
-    const targetId = targets.targetId;
-
-    const targetCombatantResult = AdventuringParty.getCombatant(combatantContext.party, targetId);
-    if (targetCombatantResult instanceof Error) return targetCombatantResult;
-
-    const step = new MobileVfxActionResolutionStep(
-      {
-        combatantContext,
-        actionExecutionIntent,
-        previousStepOption: null,
-        manager,
-      },
-      previousTargetResult.combatantProperties.position.clone(),
-      targetCombatantResult.combatantProperties.position.clone(),
-      1000,
-      "Arrow"
-    );
-    return step;
+  getResolutionSteps() {
+    return [
+      ActionResolutionStepType.OnActivationSpawnEntity,
+      ActionResolutionStepType.OnActivationVfxMotion,
+      ActionResolutionStepType.RollIncomingHitOutcomes,
+      ActionResolutionStepType.EvalOnHitOutcomeTriggers,
+    ];
   },
+  motionPhasePositionGetters: {},
 };
 
 export const CHAINING_SPLIT_ARROW_PROJECTILE = new CombatActionComposite(
@@ -175,7 +136,7 @@ export const CHAINING_SPLIT_ARROW_PROJECTILE = new CombatActionComposite(
 
 function getBouncableTargets(
   combatantContext: CombatantContext,
-  previousTrackerInSequenceOption: ActionStepTracker
+  previousTrackerInSequenceOption: ActionTracker
 ) {
   const previousTargetInChain = previousTrackerInSequenceOption.actionExecutionIntent.targets;
   const previousTargetIdResult = (() => {

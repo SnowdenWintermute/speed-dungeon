@@ -4,8 +4,8 @@ import { EntityId, Milliseconds } from "../primatives/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { SequentialIdGenerator } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
-import { ActionStepTracker } from "./action-step-tracker.js";
 import { ACTION_RESOLUTION_STEP_TYPE_STRINGS } from "./action-steps/index.js";
+import { ActionTracker } from "./action-tracker.js";
 import { NestedNodeReplayEvent } from "./replay-events.js";
 
 export class ActionSequenceManagerRegistry {
@@ -22,7 +22,7 @@ export class ActionSequenceManagerRegistry {
     actionExecutionIntent: CombatActionExecutionIntent,
     replayNode: NestedNodeReplayEvent,
     combatantContext: CombatantContext,
-    previousTrackerInSequenceOption: null | ActionStepTracker,
+    previousTrackerInSequenceOption: null | ActionTracker,
     time: { ms: Milliseconds }
   ) {
     const id = this.idGenerator.generate();
@@ -32,6 +32,7 @@ export class ActionSequenceManagerRegistry {
       replayNode,
       combatantContext,
       this,
+      this.idGenerator,
       previousTrackerInSequenceOption
     );
     this.actionManagers[id] = manager;

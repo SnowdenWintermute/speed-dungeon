@@ -3,6 +3,7 @@ export * from "./targeting-schemes-and-categories.js";
 export * from "./combat-action-usable-cotexts.js";
 export * from "./action-calculation-utils/action-costs.js";
 export * from "./combat-action-execution-intent.js";
+export * from "./combat-action-animations.js";
 import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import {
   EquipmentSlotType,
@@ -30,14 +31,13 @@ import { CombatActionIntent } from "./combat-action-intent.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import {
   ActionMotionPhase,
-  ActionResolutionStep,
-  ActionSequenceManager,
+  ActionResolutionStepContext,
+  ActionResolutionStepType,
 } from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 import { Vector3 } from "@babylonjs/core";
 import { CombatActionCombatantAnimations } from "./combat-action-animations.js";
 import { ActionTracker } from "../../action-processing/action-tracker.js";
-import { IdGenerator } from "../../utility-classes/index.js";
 
 export interface CombatActionComponentConfig {
   description: string;
@@ -101,14 +101,7 @@ export interface CombatActionComponentConfig {
   ) => CombatActionComponent[];
   getConcurrentSubActions?: (combatantContext: CombatantContext) => CombatActionExecutionIntent[];
   getParent: () => CombatActionComponent | null;
-  getResolutionSteps: (
-    combatantContext: CombatantContext,
-    actionExecutionIntent: CombatActionExecutionIntent,
-    actionTracker: ActionTracker,
-    previousTrackerOption: null | ActionTracker,
-    manager: ActionSequenceManager,
-    idGenerator: IdGenerator
-  ) => Error | (() => ActionResolutionStep)[];
+  getResolutionSteps: () => ActionResolutionStepType[];
   getAutoTarget?: (
     combatantContext: CombatantContext,
     actionTrackerOption: null | ActionTracker,
@@ -209,14 +202,7 @@ export abstract class CombatActionComponent {
   ) => CombatActionComponent[];
   getConcurrentSubActions: (combatantContext: CombatantContext) => CombatActionExecutionIntent[] =
     () => [];
-  getResolutionSteps: (
-    combatantContext: CombatantContext,
-    actionExecutionIntent: CombatActionExecutionIntent,
-    actionTracker: ActionTracker,
-    previousTrackerOption: null | ActionTracker,
-    manager: ActionSequenceManager,
-    idGenerator: IdGenerator
-  ) => Error | (() => ActionResolutionStep)[];
+  getResolutionSteps: () => ActionResolutionStepType[];
   getParent: () => CombatActionComponent | null;
   addChild: (childAction: CombatActionComponent) => Error | void = () =>
     new Error("Can't add a child to this component");
@@ -281,22 +267,7 @@ export abstract class CombatActionComponent {
     if (config.getConcurrentSubActions)
       this.getConcurrentSubActions = config.getConcurrentSubActions;
     this.getParent = config.getParent;
-    this.getResolutionSteps = (
-      combatantContext,
-      actionExecutionIntent,
-      tracker,
-      previousTrackerOption,
-      manager,
-      idGenerator
-    ) =>
-      config.getResolutionSteps(
-        combatantContext,
-        actionExecutionIntent,
-        tracker,
-        previousTrackerOption,
-        manager,
-        idGenerator
-      );
+    this.getResolutionSteps = config.getResolutionSteps;
     const { getAutoTarget } = config;
     if (getAutoTarget) {
       this.getAutoTarget = (combatantContext, trackerOption) =>

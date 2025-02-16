@@ -21,9 +21,13 @@ import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js"
 import { MELEE_ATTACK_COMMON_CONFIG } from "../melee-actions-common-config.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
 import {
-  CombatActionAnimationCategory,
+  CombatActionAnimationPhase,
   CombatActionCombatantAnimations,
 } from "../../combat-action-animations.js";
+import {
+  ActionResolutionStepType,
+  AnimationTimingType,
+} from "../../../../action-processing/index.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -58,9 +62,27 @@ const config: CombatActionComponentConfig = {
   shouldExecute: () => true,
   getCombatantUseAnimations: (combatantContext: CombatantContext) => {
     const animations: CombatActionCombatantAnimations = {
-      [CombatActionAnimationCategory.StartUse]: AnimationName.MeleeMainHand,
-      [CombatActionAnimationCategory.SuccessRecovery]: AnimationName.MeleeMainHand,
-      [CombatActionAnimationCategory.InterruptedRecovery]: AnimationName.MeleeMainHand,
+      [CombatActionAnimationPhase.Initial]: {
+        name: AnimationName.MoveForward,
+        timing: { type: AnimationTimingType.Looping },
+      },
+      [CombatActionAnimationPhase.Chambering]: null,
+      [CombatActionAnimationPhase.Delivery]: {
+        name: AnimationName.MeleeMainHandDelivery,
+        timing: { type: AnimationTimingType.Timed, duration: 1200 },
+      },
+      [CombatActionAnimationPhase.RecoverySuccess]: {
+        name: AnimationName.MeleeMainHandRecoverySuccess,
+        timing: { type: AnimationTimingType.Timed, duration: 700 },
+      },
+      [CombatActionAnimationPhase.RecoveryInterrupted]: {
+        name: AnimationName.MeleeMainHandRecoveryInterrupted,
+        timing: { type: AnimationTimingType.Timed, duration: 700 },
+      },
+      [CombatActionAnimationPhase.Final]: {
+        name: AnimationName.MoveBack,
+        timing: { type: AnimationTimingType.Looping },
+      },
     };
     return animations;
   },
@@ -79,6 +101,15 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => ATTACK,
+  getResolutionSteps() {
+    return [
+      ActionResolutionStepType.DeliveryMotion,
+      ActionResolutionStepType.PayResourceCosts,
+      ActionResolutionStepType.EvalOnUseTriggers,
+      ActionResolutionStepType.RecoveryMotion,
+    ];
+  },
+  motionPhasePositionGetters: {},
 };
 
 export const ATTACK_MELEE_MAIN_HAND = new CombatActionLeaf(

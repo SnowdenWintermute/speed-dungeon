@@ -28,7 +28,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
       type: GameUpdateCommandType.HitOutcomes,
       step: stepType,
       completionOrderId: null,
-      actionName: context.actionExecutionIntent.actionName,
+      actionName: context.tracker.actionExecutionIntent.actionName,
       // hits, misses, evades, parries, blocks
     };
     super(stepType, context, gameUpdateCommand);

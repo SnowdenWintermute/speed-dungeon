@@ -5,11 +5,10 @@ import {
 } from "./index.js";
 import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
 import { Combatant } from "../../combatants/index.js";
-import { ActionTracker } from "../action-tracker.js";
 
 const stepType = ActionResolutionStepType.StartConcurrentSubActions;
 export class StartConcurrentSubActionsActionResolutionStep extends ActionResolutionStep {
-  constructor(context: ActionResolutionStepContext, tracker: ActionTracker) {
+  constructor(context: ActionResolutionStepContext) {
     super(stepType, context, null);
   }
 
@@ -20,7 +19,7 @@ export class StartConcurrentSubActionsActionResolutionStep extends ActionResolut
   protected getBranchingActions():
     | Error
     | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
-    const action = COMBAT_ACTIONS[this.context.actionExecutionIntent.actionName];
+    const action = COMBAT_ACTIONS[this.context.tracker.actionExecutionIntent.actionName];
     const subActions = action.getConcurrentSubActions(this.context.combatantContext);
     const branchingActions = subActions.map((actionExecutionIntent) => {
       return {
