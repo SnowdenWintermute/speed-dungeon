@@ -12,8 +12,8 @@ import { ActionTracker } from "../action-tracker.js";
 export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
   constructor(
     context: ActionResolutionStepContext,
-    tracker: ActionTracker,
     step: ActionResolutionStepType,
+    tracker: ActionTracker,
     idGenerator: IdGenerator
   ) {
     const action = COMBAT_ACTIONS[context.actionExecutionIntent.actionName];

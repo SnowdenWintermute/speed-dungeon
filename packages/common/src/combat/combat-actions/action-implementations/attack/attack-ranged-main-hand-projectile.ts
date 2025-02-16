@@ -8,22 +8,27 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
+import { Combatant, CombatantProperties } from "../../../../combatants/index.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ActionAccuracy } from "../../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
-import { MobileVfxActionResolutionStep } from "../../../../action-processing/action-steps/mobile-vfx.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
-import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
-import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { ActionSequenceManager } from "../../../../action-processing/action-sequence-manager.js";
-import { ActionStepTracker } from "../../../../action-processing/action-step-tracker.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
+import { ActionTracker } from "../../../../action-processing/action-tracker.js";
+import { IdGenerator } from "../../../../utility-classes/index.js";
+import {
+  ActionResolutionStep,
+  ActionResolutionStepContext,
+} from "../../../../action-processing/index.js";
+import { OnActivationVfxMotionActionResolutionStep } from "../../../../action-processing/action-steps/on-activation-vfx-motion.js";
+import { RollIncomingHitOutcomesActionResolutionStep } from "../../../../action-processing/action-steps/roll-incoming-hit-outcomes.js";
+import { EvalOnHitOutcomeTriggersActionResolutionStep } from "../../../../action-processing/action-steps/evaluate-hit-outcome-triggers.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -77,41 +82,37 @@ const config: CombatActionComponentConfig = {
 
     return previousTrackerOption.actionExecutionIntent.targets;
   },
-  getFirstResolutionStep(
+  getResolutionSteps(
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
-    previousTrackerOption: null | ActionStepTracker,
+    tracker: ActionTracker,
+    previousTrackerOption: null | ActionTracker,
     manager: ActionSequenceManager,
-    self
-  ) {
-    if (!previousTrackerOption)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.MISSING_EXPECTED_ACTION_IN_CHAIN);
-    const targetResult = self.getAutoTarget(combatantContext, previousTrackerOption);
-    if (targetResult instanceof Error) return targetResult;
-    if (targetResult === null)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TARGETS_SELECTED);
+    idGenerator: IdGenerator
+  ): Error | (() => ActionResolutionStep)[] {
+    const actionResolutionStepContext: ActionResolutionStepContext = {
+      combatantContext,
+      actionExecutionIntent,
+      manager,
+      previousStepOption: null,
+    };
 
-    const { targets } = actionExecutionIntent;
-    if (targets.type !== CombatActionTargetType.Single) return new Error("unexpected target type");
-    const targetId = targets.targetId;
-
-    const targetCombatantResult = AdventuringParty.getCombatant(combatantContext.party, targetId);
-    if (targetCombatantResult instanceof Error) return targetCombatantResult;
-
-    const step = new MobileVfxActionResolutionStep(
-      {
-        combatantContext,
-        actionExecutionIntent,
-        previousStepOption: null,
-        manager,
+    return [
+      () => {
+        const expectedProjectileEntityOption = previousTrackerOption?.spawnedEntityOption;
+        if (!expectedProjectileEntityOption) throw new Error("expected projectile was missing");
+        if (expectedProjectileEntityOption instanceof Combatant)
+          throw new Error("expected entity was of invalid type");
+        return new OnActivationVfxMotionActionResolutionStep(
+          actionResolutionStepContext,
+          expectedProjectileEntityOption
+        );
       },
-      combatantContext.combatant.combatantProperties.position.clone(),
-      targetCombatantResult.combatantProperties.position.clone(),
-      1000,
-      "Arrow"
-    );
-    return step;
+      () => new RollIncomingHitOutcomesActionResolutionStep(actionResolutionStepContext),
+      () => new EvalOnHitOutcomeTriggersActionResolutionStep(actionResolutionStepContext),
+    ];
   },
+  motionPhasePositionGetters: {},
 };
 
 export const ATTACK_RANGED_MAIN_HAND_PROJECTILE = new CombatActionComposite(

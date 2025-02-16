@@ -11,11 +11,7 @@ import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../../../app-consts.j
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
-import {
-  Combatant,
-  CombatantEquipment,
-  CombatantProperties,
-} from "../../../../combatants/index.js";
+import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { ActionAccuracyType } from "../../combat-action-accuracy.js";
 import { iterateNumericEnum } from "../../../../utils/index.js";
@@ -45,7 +41,6 @@ import { IdGenerator } from "../../../../utility-classes/index.js";
 import { PayResourceCostsActionResolutionStep } from "../../../../action-processing/action-steps/pay-resource-costs.js";
 import { EvalOnUseTriggersActionResolutionStep } from "../../../../action-processing/action-steps/evaluate-on-use-triggers.js";
 import { ActionTracker } from "../../../../action-processing/action-tracker.js";
-import { OnActivationVfxMotionActionResolutionStep } from "../../../../action-processing/action-steps/on-activation-vfx-motion.js";
 import { StartConcurrentSubActionsActionResolutionStep } from "../../../../action-processing/action-steps/start-concurrent-sub-actions.js";
 
 const config: CombatActionComponentConfig = {
@@ -154,8 +149,8 @@ const config: CombatActionComponentConfig = {
       () =>
         new SpawnEntityActionResolutionStep(
           actionResolutionStepContext,
-          tracker,
           ActionResolutionStepType.PostChamberingSpawnEntity,
+          tracker,
           idGenerator
         ),
       () =>
