@@ -29,13 +29,15 @@ import {
 import { CombatActionIntent } from "./combat-action-intent.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import {
+  ActionMotionPhase,
   ActionResolutionStep,
   ActionSequenceManager,
-  ActionStepTracker,
 } from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 import { Vector3 } from "@babylonjs/core";
 import { CombatActionCombatantAnimations } from "./combat-action-animations.js";
+import { ActionTracker } from "../../action-processing/action-tracker.js";
+import { IdGenerator } from "../../utility-classes/index.js";
 
 export interface CombatActionComponentConfig {
   description: string;
@@ -72,16 +74,15 @@ export interface CombatActionComponentConfig {
     user: CombatantProperties,
     self: CombatActionComponent
   ) => CombatActionRequiredRange;
-  getPositionToStartUse: (
-    combatantContext: CombatantContext,
-    actionExecutionIntent: CombatActionExecutionIntent,
-    self: CombatActionComponent
-  ) => Error | null | Vector3;
-  getDestinationDuringDelivery: (
-    combatantContext: CombatantContext,
-    actionExecutionIntent: CombatActionExecutionIntent,
-    self: CombatActionComponent
-  ) => Error | null | Vector3;
+  motionPhasePositionGetters: Partial<
+    Record<
+      ActionMotionPhase,
+      (
+        combatantContext: CombatantContext,
+        actionExecutionIntent: CombatActionExecutionIntent
+      ) => Error | null | Vector3
+    >
+  >;
   /** A numeric percentage which will be used against the target's evasion */
   getUnmodifiedAccuracy: (user: CombatantProperties) => ActionAccuracy;
   /** A numeric percentage which will be used against the target's crit avoidance */
@@ -96,20 +97,21 @@ export interface CombatActionComponentConfig {
   getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
   getChildren: (
     combatantContext: CombatantContext,
-    tracker: ActionStepTracker
+    tracker: ActionTracker
   ) => CombatActionComponent[];
   getConcurrentSubActions?: (combatantContext: CombatantContext) => CombatActionExecutionIntent[];
   getParent: () => CombatActionComponent | null;
-  getFirstResolutionStep: (
+  getResolutionSteps: (
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
-    previousTrackerOption: null | ActionStepTracker,
+    actionTracker: ActionTracker,
+    previousTrackerOption: null | ActionTracker,
     manager: ActionSequenceManager,
-    self: CombatActionComponent
-  ) => Error | ActionResolutionStep;
+    idGenerator: IdGenerator
+  ) => Error | (() => ActionResolutionStep)[];
   getAutoTarget?: (
     combatantContext: CombatantContext,
-    actionTrackerOption: null | ActionStepTracker,
+    actionTrackerOption: null | ActionTracker,
     self: CombatActionComponent
   ) => Error | null | CombatActionTarget;
 }
@@ -173,16 +175,17 @@ export abstract class CombatActionComponent {
   // spawn mobile effect (effectName (Arrow, Firebolt), origin, destination, speed, easingFn, getPercentCompleteToProceed(), onProceed())
   // spawn stream effect (effectName (lightning arc, healing beam), origin, destination, duration, easingFn, getPercentCompleteToProceed(), onProceed())
   // spawn static effect (effectName (Protect, SpellSparkles), position, duration, getPercentCompleteToProceed(), onProceed())
-  getCombatantUseAnimations: (context: CombatantContext) => CombatActionCombatantAnimations;
+  getCombatantUseAnimations: (context: CombatantContext) => null | CombatActionCombatantAnimations;
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
-  getPositionToStartUse: (
-    combatantContext: CombatantContext,
-    actionExecutionIntent: CombatActionExecutionIntent
-  ) => Error | null | Vector3;
-  getDestinationDuringDelivery: (
-    combatantContext: CombatantContext,
-    actionExecutionIntent: CombatActionExecutionIntent
-  ) => Error | null | Vector3;
+  motionPhasePositionGetters: Partial<
+    Record<
+      ActionMotionPhase,
+      (
+        combatantContext: CombatantContext,
+        actionExecutionIntent: CombatActionExecutionIntent
+      ) => Error | null | Vector3
+    >
+  >;
   getAccuracy: (user: CombatantProperties) => ActionAccuracy;
   getCritChance: (user: CombatantProperties) => number;
   getCritMultiplier: (user: CombatantProperties) => number;
@@ -202,16 +205,18 @@ export abstract class CombatActionComponent {
   // could also create random children such as a chaining random elemental damage
   getChildren: (
     combatantContext: CombatantContext,
-    tracker: ActionStepTracker
+    tracker: ActionTracker
   ) => CombatActionComponent[];
   getConcurrentSubActions: (combatantContext: CombatantContext) => CombatActionExecutionIntent[] =
     () => [];
-  getFirstResolutionStep: (
+  getResolutionSteps: (
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
-    previousTrackerOption: null | ActionStepTracker,
-    manager: ActionSequenceManager
-  ) => Error | ActionResolutionStep;
+    actionTracker: ActionTracker,
+    previousTrackerOption: null | ActionTracker,
+    manager: ActionSequenceManager,
+    idGenerator: IdGenerator
+  ) => Error | (() => ActionResolutionStep)[];
   getParent: () => CombatActionComponent | null;
   addChild: (childAction: CombatActionComponent) => Error | void = () =>
     new Error("Can't add a child to this component");
@@ -219,7 +224,7 @@ export abstract class CombatActionComponent {
   // DEFAULT FUNCTIONS
   getAutoTarget: (
     combatantContext: CombatantContext,
-    actionTrackerOption: null | ActionStepTracker
+    actionTrackerOption: null | ActionTracker
   ) => Error | null | CombatActionTarget = (combatantContext) => {
     const scheme = this.autoTargetSelectionMethod.scheme;
     return AUTO_TARGETING_FUNCTIONS[scheme](combatantContext, this);
@@ -269,28 +274,28 @@ export abstract class CombatActionComponent {
     this.getCritMultiplier = config.getCritMultiplier;
     this.getArmorPenetration = (user) => config.getArmorPenetration(user, this);
     this.getRequiredRange = (user) => config.getRequiredRange(user, this);
-    this.getPositionToStartUse = (context, actionIntent) =>
-      config.getPositionToStartUse(context, actionIntent, this);
-    this.getDestinationDuringDelivery = (context, actionIntent) =>
-      config.getDestinationDuringDelivery(context, actionIntent, this);
+    this.motionPhasePositionGetters = config.motionPhasePositionGetters;
     this.getHpChangeProperties = (user, target) => config.getHpChangeProperties(user, target, this);
     this.getAppliedConditions = config.getAppliedConditions;
     this.getChildren = config.getChildren;
     if (config.getConcurrentSubActions)
       this.getConcurrentSubActions = config.getConcurrentSubActions;
     this.getParent = config.getParent;
-    this.getFirstResolutionStep = (
+    this.getResolutionSteps = (
       combatantContext,
       actionExecutionIntent,
+      tracker,
       previousTrackerOption,
-      manager
+      manager,
+      idGenerator
     ) =>
-      config.getFirstResolutionStep(
+      config.getResolutionSteps(
         combatantContext,
         actionExecutionIntent,
+        tracker,
         previousTrackerOption,
         manager,
-        this
+        idGenerator
       );
     const { getAutoTarget } = config;
     if (getAutoTarget) {

@@ -1,10 +1,15 @@
-import { AnimationName } from "../../app-consts.js";
+import { EntityAnimation } from "../../action-processing/game-update-commands.js";
 
-export enum CombatActionAnimationCategory {
+export enum CombatActionAnimationPhase {
+  Initial,
   Chambering,
   Delivery,
-  RecoveryAfterSuccess,
-  RecoveryAfterInterrupt,
+  RecoverySuccess,
+  RecoveryInterrupted,
+  Final,
 }
 
-export type CombatActionCombatantAnimations = Record<CombatActionAnimationCategory, AnimationName>;
+export type CombatActionCombatantAnimations = Record<
+  CombatActionAnimationPhase,
+  EntityAnimation | null
+>;

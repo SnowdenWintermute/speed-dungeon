@@ -7,12 +7,17 @@ import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-command
 import { COMBAT_ACTIONS } from "../../combat/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { MobileVfxName, Vfx, VfxType } from "../../vfx/index.js";
+import { ActionTracker } from "../action-tracker.js";
 
-const stepType = ActionResolutionStepType.postChamberingSpawnEntity;
-export class PostChamberingSpawnEntityActionResolutionStep extends ActionResolutionStep {
-  constructor(context: ActionResolutionStepContext, idGenerator: IdGenerator) {
+export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
+  constructor(
+    context: ActionResolutionStepContext,
+    tracker: ActionTracker,
+    step: ActionResolutionStepType,
+    idGenerator: IdGenerator
+  ) {
     const action = COMBAT_ACTIONS[context.actionExecutionIntent.actionName];
-    // @TODO - determine based on action getPostChamberingEntityToSpawn method
+    // @TODO - determine based on action step entity to spawn method method
     const entity: Vfx = {
       entityProperties: { id: idGenerator.generate(), name: "" },
       vfxProperties: {
@@ -23,12 +28,12 @@ export class PostChamberingSpawnEntityActionResolutionStep extends ActionResolut
 
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.SpawnEntity,
-      step: stepType,
+      step,
       completionOrderId: null,
       entity,
     };
 
-    super(stepType, context, gameUpdateCommand);
+    super(step, context, gameUpdateCommand);
   }
 
   protected onTick(): void {}

@@ -8,7 +8,7 @@ import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-command
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantProperties } from "../../combatants/index.js";
 
-const stepType = ActionResolutionStepType.payResourceCosts;
+const stepType = ActionResolutionStepType.PayResourceCosts;
 export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
     const action = COMBAT_ACTIONS[context.actionExecutionIntent.actionName];

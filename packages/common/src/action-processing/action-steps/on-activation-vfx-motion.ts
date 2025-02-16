@@ -10,12 +10,14 @@ import {
   GameUpdateCommandType,
 } from "../game-update-commands.js";
 import { COMBAT_ACTIONS } from "../../combat/index.js";
+import { ActionTracker } from "../action-tracker.js";
+import { Vfx } from "../../vfx/index.js";
 
 const stepType = ActionResolutionStepType.OnActivationVfxMotion;
 export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
   private originalPosition: Vector3;
-  constructor(context: ActionResolutionStepContext) {
+  constructor(context: ActionResolutionStepContext, vfx: Vfx) {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.EntityMotion,
       step: stepType,

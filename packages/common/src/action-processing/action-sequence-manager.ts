@@ -2,14 +2,14 @@ import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../combat/index.js"
 import { CombatantContext } from "../combatant-context/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { Milliseconds } from "../primatives/index.js";
-import { ActionStepTracker } from "./action-step-tracker.js";
 import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registry.js";
 import { NestedNodeReplayEvent } from "./replay-events.js";
+import { ActionTracker } from "./action-tracker.js";
 
 export class ActionSequenceManager {
   private remainingActionsToExecute: CombatActionExecutionIntent[];
-  private currentTracker: null | ActionStepTracker = null;
-  private completedTrackers: ActionStepTracker[] = [];
+  private currentTracker: null | ActionTracker = null;
+  private completedTrackers: ActionTracker[] = [];
   private isFinalized: boolean = false;
   constructor(
     public id: string,
@@ -17,7 +17,7 @@ export class ActionSequenceManager {
     public replayNode: NestedNodeReplayEvent,
     public combatantContext: CombatantContext,
     public sequentialActionManagerRegistry: ActionSequenceManagerRegistry,
-    private trackerThatSpawnedThisActionOption: null | ActionStepTracker
+    private trackerThatSpawnedThisActionOption: null | ActionTracker
   ) {
     this.remainingActionsToExecute = [actionExecutionIntent];
   }

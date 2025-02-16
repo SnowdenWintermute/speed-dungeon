@@ -76,21 +76,28 @@ export interface ActionExecuting {
 //  - if success, get next step based on action
 //  - if there is a counterattack on the billboard
 // POST-USE POSITIONING (entityMotion)
+export enum ActionMotionPhase {
+  Initial,
+  Chambering,
+  Delivery,
+  Recovery,
+  Final,
+}
 
 export enum ActionResolutionStepType {
   DetermineChildActions,
-  InitialPositioning,
-  ChamberingMotion,
+  InitialPositioning, // motion
+  ChamberingMotion, // motion
   PostChamberingSpawnEntity,
-  DeliveryMotion,
+  DeliveryMotion, // motion
   PayResourceCosts,
   EvalOnUseTriggers,
   OnActivationSpawnEntity,
   OnActivationVfxMotion,
   RollIncomingHitOutcomes,
   EvalOnHitOutcomeTriggers,
-  RecoveryMotion,
-  FinalPositioning,
+  RecoveryMotion, // motion
+  FinalPositioning, // motion
 }
 
 export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepType, string> = {

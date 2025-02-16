@@ -1,11 +1,9 @@
 import {
   ActionResolutionStep,
   ActionResolutionStepContext,
-  ActionResolutionStepResult,
   ActionResolutionStepType,
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
-import { EvalOnHitOutcomeTriggersActionResolutionStep } from "./evaluate-hit-outcome-triggers.js";
 import { HpChange } from "../../combat/hp-change-source-types.js";
 import { DurabilityChangesByEntityId } from "../../combat/action-results/calculate-action-durability-changes.js";
 import { EntityId } from "../../primatives/index.js";
@@ -21,7 +19,7 @@ export interface HitOutcomes {
   durabilityChanges: DurabilityChangesByEntityId;
 }
 
-const stepType = ActionResolutionStepType.rollIncomingHitOutcomes;
+const stepType = ActionResolutionStepType.RollIncomingHitOutcomes;
 export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
     // @TODO - calculate hits, evades, parries, blocks, hp/mp/shard/durability changes to apply

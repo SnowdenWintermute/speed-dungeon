@@ -7,7 +7,7 @@ import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-command
 import { CombatActionExecutionIntent } from "../../combat/index.js";
 import { Combatant } from "../../combatants/index.js";
 
-const stepType = ActionResolutionStepType.evalOnHitOutcomeTriggers;
+const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
   branchingActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] = [];
   constructor(context: ActionResolutionStepContext) {

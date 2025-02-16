@@ -1,5 +1,4 @@
 import {
-  CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionExecutionIntent,
   CombatActionLeaf,
@@ -8,15 +7,15 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import {
-  AnimationName,
-  COMBATANT_TIME_TO_MOVE_ONE_METER,
-  DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
-} from "../../../../app-consts.js";
+import { DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
-import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
+import {
+  Combatant,
+  CombatantEquipment,
+  CombatantProperties,
+} from "../../../../combatants/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { ActionAccuracyType } from "../../combat-action-accuracy.js";
 import { iterateNumericEnum } from "../../../../utils/index.js";
@@ -31,18 +30,22 @@ import {
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import {
+  ActionMotionPhase,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
   ActionSequenceManager,
-  ActionStepTracker,
-  AnimationTimingType,
 } from "../../../../action-processing/index.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
-import { CombatantMotionActionResolutionStep } from "../../../../action-processing/action-steps/initial-positioning.js";
-import { Vector3 } from "@babylonjs/core";
-import { getTranslationTime } from "../get-translation-time.js";
+import { CombatantMotionActionResolutionStep } from "../../../../action-processing/action-steps/combatant-motion.js";
+import { CombatActionAnimationPhase } from "../../combat-action-animations.js";
+import { SpawnEntityActionResolutionStep } from "../../../../action-processing/action-steps/spawn-entity.js";
+import { IdGenerator } from "../../../../utility-classes/index.js";
+import { PayResourceCostsActionResolutionStep } from "../../../../action-processing/action-steps/pay-resource-costs.js";
+import { EvalOnUseTriggersActionResolutionStep } from "../../../../action-processing/action-steps/evaluate-on-use-triggers.js";
+import { ActionTracker } from "../../../../action-processing/action-tracker.js";
+import { OnActivationVfxMotionActionResolutionStep } from "../../../../action-processing/action-steps/on-activation-vfx-motion.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -117,13 +120,14 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => ATTACK,
-  getFirstResolutionStep(
+  getResolutionSteps(
     combatantContext: CombatantContext,
     actionExecutionIntent: CombatActionExecutionIntent,
-    previousTrackerOption: null | ActionStepTracker,
+    tracker: ActionTracker,
+    previousTrackerOption: null | ActionTracker,
     manager: ActionSequenceManager,
-    self: CombatActionComponent
-  ): Error | ActionResolutionStep {
+    idGenerator: IdGenerator
+  ): Error | (() => ActionResolutionStep)[] {
     const actionResolutionStepContext: ActionResolutionStepContext = {
       combatantContext,
       actionExecutionIntent,
@@ -131,29 +135,66 @@ const config: CombatActionComponentConfig = {
       previousStepOption: null,
     };
 
-    const stepCreators = [
-      () => {
-        const destinationResult = self.getPositionToStartUse(
-          combatantContext,
-          actionExecutionIntent
-        );
-        if (destinationResult instanceof Error) throw destinationResult;
-        if (destinationResult === null) throw new Error("Expected destinationResult");
-        const duration = getTranslationTime(combatantContext.combatant, destinationResult);
-        return new CombatantMotionActionResolutionStep(
+    return [
+      () =>
+        new CombatantMotionActionResolutionStep(
           actionResolutionStepContext,
           ActionResolutionStepType.InitialPositioning,
-          {
-            destination: destinationResult,
-            duration,
-          },
-          { name: AnimationName.MoveForward, timing: { type: AnimationTimingType.Looping } }
+          ActionMotionPhase.Initial,
+          CombatActionAnimationPhase.Initial
+        ),
+      () =>
+        new CombatantMotionActionResolutionStep(
+          actionResolutionStepContext,
+          ActionResolutionStepType.ChamberingMotion,
+          ActionMotionPhase.Chambering,
+          CombatActionAnimationPhase.Chambering
+        ),
+      () =>
+        new SpawnEntityActionResolutionStep(
+          actionResolutionStepContext,
+          tracker,
+          ActionResolutionStepType.PostChamberingSpawnEntity,
+          idGenerator
+        ),
+      () =>
+        new CombatantMotionActionResolutionStep(
+          actionResolutionStepContext,
+          ActionResolutionStepType.DeliveryMotion,
+          ActionMotionPhase.Delivery,
+          CombatActionAnimationPhase.Delivery
+        ),
+      () => new PayResourceCostsActionResolutionStep(actionResolutionStepContext),
+      () => new EvalOnUseTriggersActionResolutionStep(actionResolutionStepContext, tracker),
+      () => {
+        const { spawnedEntityOption } = tracker;
+        if (!spawnedEntityOption || spawnedEntityOption instanceof Combatant)
+          throw new Error("expected spawned vfx missing");
+        return new OnActivationVfxMotionActionResolutionStep(
+          actionResolutionStepContext,
+          spawnedEntityOption
         );
       },
+      () => {
+        let animationPhase = CombatActionAnimationPhase.RecoverySuccess;
+        if (tracker.wasInterrupted) animationPhase = CombatActionAnimationPhase.RecoveryInterrupted;
+        return new CombatantMotionActionResolutionStep(
+          actionResolutionStepContext,
+          ActionResolutionStepType.RecoveryMotion,
+          ActionMotionPhase.Recovery,
+          animationPhase
+        );
+      },
+      () =>
+        new CombatantMotionActionResolutionStep(
+          actionResolutionStepContext,
+          ActionResolutionStepType.FinalPositioning,
+          ActionMotionPhase.Final,
+          CombatActionAnimationPhase.Final
+        ),
     ];
-
-    return new InitialPositioningActionResolutionStep(actionResolutionStepContext);
   },
+  motionPhasePositionGetters: {},
 };
 
 export const ATTACK_RANGED_MAIN_HAND = new CombatActionLeaf(
