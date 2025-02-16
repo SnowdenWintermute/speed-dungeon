@@ -92,6 +92,7 @@ export enum ActionResolutionStepType {
   DeliveryMotion, // motion
   PayResourceCosts,
   EvalOnUseTriggers,
+  StartConcurrentSubActions,
   OnActivationSpawnEntity,
   OnActivationVfxMotion,
   RollIncomingHitOutcomes,
@@ -108,6 +109,7 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.DeliveryMotion]: "deliveryMotion",
   [ActionResolutionStepType.PayResourceCosts]: "payResourceCosts",
   [ActionResolutionStepType.EvalOnUseTriggers]: "evalOnUseTriggers",
+  [ActionResolutionStepType.StartConcurrentSubActions]: "StartConcurrentSubActions",
   [ActionResolutionStepType.OnActivationSpawnEntity]: "onActivationSpawnEntity",
   [ActionResolutionStepType.OnActivationVfxMotion]: "onActivationVfxMotion",
   [ActionResolutionStepType.RollIncomingHitOutcomes]: "rollIncomingHitOutcomes",

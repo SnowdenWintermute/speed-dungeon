@@ -8,7 +8,7 @@ import {
 
 export class DetermineChildActionsActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
-    super(ActionResolutionStepType.determineChildActions, context, null);
+    super(ActionResolutionStepType.DetermineChildActions, context, null);
   }
 
   protected onTick = () => {};

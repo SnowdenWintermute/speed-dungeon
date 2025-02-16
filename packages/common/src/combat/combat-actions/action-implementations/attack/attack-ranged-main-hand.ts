@@ -46,6 +46,7 @@ import { PayResourceCostsActionResolutionStep } from "../../../../action-process
 import { EvalOnUseTriggersActionResolutionStep } from "../../../../action-processing/action-steps/evaluate-on-use-triggers.js";
 import { ActionTracker } from "../../../../action-processing/action-tracker.js";
 import { OnActivationVfxMotionActionResolutionStep } from "../../../../action-processing/action-steps/on-activation-vfx-motion.js";
+import { StartConcurrentSubActionsActionResolutionStep } from "../../../../action-processing/action-steps/start-concurrent-sub-actions.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -166,15 +167,7 @@ const config: CombatActionComponentConfig = {
         ),
       () => new PayResourceCostsActionResolutionStep(actionResolutionStepContext),
       () => new EvalOnUseTriggersActionResolutionStep(actionResolutionStepContext, tracker),
-      () => {
-        const { spawnedEntityOption } = tracker;
-        if (!spawnedEntityOption || spawnedEntityOption instanceof Combatant)
-          throw new Error("expected spawned vfx missing");
-        return new OnActivationVfxMotionActionResolutionStep(
-          actionResolutionStepContext,
-          spawnedEntityOption
-        );
-      },
+      () => new StartConcurrentSubActionsActionResolutionStep(actionResolutionStepContext, tracker),
       () => {
         let animationPhase = CombatActionAnimationPhase.RecoverySuccess;
         if (tracker.wasInterrupted) animationPhase = CombatActionAnimationPhase.RecoveryInterrupted;

@@ -3,7 +3,7 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
+import { CombatActionExecutionIntent } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Combatant } from "../../combatants/index.js";
 import { ActionTracker } from "../action-tracker.js";
@@ -31,14 +31,10 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
     // @TODO - collect all triggered actions and add to branchingActions list
     // if not "countered", set any concurrent sub actions to the branchingActions list
-    const action = COMBAT_ACTIONS[this.context.actionExecutionIntent.actionName];
-    const subActions = action.getConcurrentSubActions(this.context.combatantContext);
-    const branchingActions = subActions.map((actionExecutionIntent) => {
-      return {
-        user: this.context.combatantContext.combatant,
-        actionExecutionIntent,
-      };
-    });
+    const branchingActions: {
+      user: Combatant;
+      actionExecutionIntent: CombatActionExecutionIntent;
+    }[] = [];
     return branchingActions;
   }
 }

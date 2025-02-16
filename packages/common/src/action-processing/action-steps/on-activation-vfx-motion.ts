@@ -10,7 +10,6 @@ import {
   GameUpdateCommandType,
 } from "../game-update-commands.js";
 import { COMBAT_ACTIONS } from "../../combat/index.js";
-import { ActionTracker } from "../action-tracker.js";
 import { Vfx } from "../../vfx/index.js";
 
 const stepType = ActionResolutionStepType.OnActivationVfxMotion;
