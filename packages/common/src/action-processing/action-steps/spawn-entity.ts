@@ -19,6 +19,8 @@ export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
       },
     };
 
+    context.tracker.spawnedEntityOption = entity;
+
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.SpawnEntity,
       step,

@@ -43,8 +43,9 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
 
     const destinationGetterOption = action.motionPhasePositionGetters[actionMotionPhase];
-    if (!destinationGetterOption) throw new Error("Expected destination getter was missing");
-    const destinationResult = destinationGetterOption(combatantContext, actionExecutionIntent);
+    let destinationResult = null;
+    if (destinationGetterOption)
+      destinationResult = destinationGetterOption(combatantContext, actionExecutionIntent);
     if (destinationResult instanceof Error) throw destinationResult;
     if (destinationResult) {
       const translation = {
@@ -82,9 +83,12 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
       ? Math.max(0, this.translationOption.duration - this.elapsed)
       : 0;
 
+    console.log("time to translate: ", remainingTimeToTranslate);
+
     if (!this.animationOption || this.animationOption?.timing.type === AnimationTimingType.Looping)
       return remainingTimeToTranslate;
     const remainingTimeToAnimate = Math.max(0, this.animationOption.timing.duration - this.elapsed);
+    console.log("time to animate: ", remainingTimeToAnimate);
     return Math.max(remainingTimeToTranslate, remainingTimeToAnimate);
   }
 

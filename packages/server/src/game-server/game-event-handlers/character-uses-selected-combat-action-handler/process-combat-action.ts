@@ -1,11 +1,14 @@
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionMotionPhase,
   ActionResolutionStepType,
   ActionSequenceManagerRegistry,
   COMBAT_ACTIONS,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
   CombatantContext,
   CombatantMotionActionResolutionStep,
+  GAME_UPDATE_COMMAND_TYPE_STRINGS,
   NestedNodeReplayEvent,
   ReplayEventType,
   SequentialIdGenerator,
@@ -46,11 +49,20 @@ export function processCombatAction(
 
   while (
     registry.isNotEmpty()
-    // && loop < 10 // for testing
+    // &&   loopLimiter < 10 // for testing
   ) {
     for (const manager of registry.getManagers()) {
-      while (manager.getCurrentTracker()?.currentStep.isComplete()) {
+      const currentTrackerOption = manager.getCurrentTracker();
+      if (!currentTrackerOption) break;
+      console.log(
+        "PROCESSING ACTION",
+        COMBAT_ACTION_NAME_STRINGS[currentTrackerOption.actionExecutionIntent.actionName]
+      );
+      let currentStep = currentTrackerOption.currentStep;
+
+      while (currentStep.isComplete()) {
         const trackerOption = manager.getCurrentTracker();
+        console.log("completed:", ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type]);
         if (trackerOption === null) break;
 
         const completionOrderId = completionOrderIdGenerator.getNextIdNumeric();
@@ -64,7 +76,9 @@ export function processCombatAction(
         }
 
         for (const action of branchingActions) {
-          console.log("branch");
+          console.log("-----------");
+          console.log("BRANCH");
+          console.log("-----------");
           const nestedReplayNode: NestedNodeReplayEvent = {
             type: ReplayEventType.NestedNode,
             events: [],
@@ -85,15 +99,23 @@ export function processCombatAction(
             });
         }
 
+        trackerOption.storeCompletedStep();
+        const nextStepOption = trackerOption.initializeNextStep();
+
         if (nextStepOption) {
-          trackerOption.storeCompletedStep();
-          trackerOption.currentStep = nextStepOption;
+          currentStep = nextStepOption;
           const gameUpdateCommandOption = nextStepOption.getGameUpdateCommandOption();
-          if (gameUpdateCommandOption)
+          console.log("game update option: ", gameUpdateCommandOption);
+          if (gameUpdateCommandOption !== null) {
+            console.log(
+              "pushed update for",
+              ACTION_RESOLUTION_STEP_TYPE_STRINGS[nextStepOption.type]
+            );
             manager.replayNode.events.push({
               type: ReplayEventType.GameUpdate,
               gameUpdate: gameUpdateCommandOption,
             });
+          }
           continue;
         }
 
@@ -128,6 +150,7 @@ export function processCombatAction(
             );
 
             currentTrackerOption.currentStep = returnHomeStep;
+            currentStep = returnHomeStep;
             const returnHomeUpdate = returnHomeStep.getGameUpdateCommandOption();
             if (returnHomeUpdate)
               manager.replayNode.events.push({
@@ -146,7 +169,7 @@ export function processCombatAction(
     for (const manager of registry.getManagers())
       manager.getCurrentTracker()?.currentStep.tick(timeToTick);
 
-    // loopLimiter += 1;
+    loopLimiter += 1;
   }
 
   return rootReplayNode;

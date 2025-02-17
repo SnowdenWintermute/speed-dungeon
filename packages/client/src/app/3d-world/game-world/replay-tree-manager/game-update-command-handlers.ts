@@ -2,14 +2,11 @@ import {
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActivatedTriggersGameUpdateCommand,
   AnimationName,
-  CombatantAnimationGameUpdateCommand,
-  CombatantMovementGameUpdateCommand,
   ERROR_MESSAGES,
+  EntityMotionGameUpdateCommand,
   GameUpdateCommandType,
   HitOutcomesGameUpdateCommand,
-  MobileVfxGameUpdateCommand,
   ResourcesPaidGameUpdateCommand,
-  StaticVfxGameUpdateCommand,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 import { ManagedAnimationOptions } from "../../combatant-models/animation-manager";
@@ -21,8 +18,8 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
   (arg: any) => Promise<Error | void>
 > = {
-  [GameUpdateCommandType.CombatantMovement]: async function (update: {
-    command: CombatantMovementGameUpdateCommand;
+  [GameUpdateCommandType.EntityMotion]: async function (update: {
+    command: EntityMotionGameUpdateCommand;
     isComplete: boolean;
   }) {
     const { command } = update;
@@ -31,12 +28,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     const { movementManager, animationManager } = combatantModelOption;
 
-    console.log(
-      "HANDLING STEP: ",
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
-      command.destination,
-      command.duration
-    );
+    console.log("HANDLING STEP: ", ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step]);
 
     movementManager.startTranslating(command.destination, command.duration, () => {
       update.isComplete = true;
@@ -108,17 +100,6 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     update.isComplete = true;
     // apply the damage
     // enqueue the floating text messages
-    // throw new Error("Function not implemented.");
-  },
-  [GameUpdateCommandType.StaticVfx]: async function (update: {
-    command: StaticVfxGameUpdateCommand;
-    isComplete: boolean;
-  }) {
-    update.isComplete = true;
-    // spawn the vfx model
-    // start the animation
-    //
-    // isComplete = the animation frame percentage complete = update percent time to complete of total time to show
     // throw new Error("Function not implemented.");
   },
   [GameUpdateCommandType.MobileVfx]: async function (update: {

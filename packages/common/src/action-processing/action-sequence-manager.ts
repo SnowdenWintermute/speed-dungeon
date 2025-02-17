@@ -98,7 +98,7 @@ export class ActionSequenceManager {
         previousTrackerOption || null,
         time.ms,
         this.idGenerator,
-        previousTrackerOption?.spawnedEntityOption || null
+        previousTrackerOption?.spawnedEntityOption
       );
 
       this.currentTracker = tracker;

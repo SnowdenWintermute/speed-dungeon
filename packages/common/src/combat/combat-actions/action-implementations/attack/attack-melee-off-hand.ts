@@ -35,6 +35,7 @@ import {
   CombatActionCombatantAnimations,
 } from "../../combat-action-animations.js";
 import { AnimationTimingType } from "../../../../action-processing/game-update-commands.js";
+import { COMMON_DESTINATION_GETTERS } from "../common-destination-getters.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 
 const config: CombatActionComponentConfig = {
@@ -142,7 +143,6 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => ATTACK,
-  motionPhasePositionGetters: {},
 };
 
 export const ATTACK_MELEE_OFF_HAND = new CombatActionLeaf(

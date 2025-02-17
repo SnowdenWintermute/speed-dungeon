@@ -23,7 +23,7 @@ import { SavedMaterials, createDefaultMaterials } from "./materials/create-defau
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
 import { ReplayTreeManager } from "./replay-tree-manager";
-import { VfxManager } from "../vfx";
+import { VfxManager } from "../vfx-models";
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;

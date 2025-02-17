@@ -25,7 +25,10 @@ import {
 } from "../../action-calculation-utils/standard-action-calculations.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import {
+  ActionMotionPhase,
+  ActionResolutionStepType,
+} from "../../../../action-processing/index.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 
 const config: CombatActionComponentConfig = {
@@ -111,10 +114,15 @@ const config: CombatActionComponentConfig = {
       ActionResolutionStepType.EvalOnUseTriggers,
       ActionResolutionStepType.StartConcurrentSubActions,
       ActionResolutionStepType.RecoveryMotion,
-      ActionResolutionStepType.FinalPositioning,
     ];
   },
-  motionPhasePositionGetters: {},
+  motionPhasePositionGetters: {
+    [ActionMotionPhase.Initial]: (combatantContext, actionExecutionIntent) => {
+      const user = combatantContext.combatant.combatantProperties;
+      const direction = CombatantProperties.getForward(user);
+      return user.homeLocation.add(direction.scale(0.5));
+    },
+  },
 };
 
 export const ATTACK_RANGED_MAIN_HAND = new CombatActionLeaf(

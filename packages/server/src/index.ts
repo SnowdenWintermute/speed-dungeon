@@ -65,12 +65,12 @@ const listening = expressApp.listen(PORT, async () => {
   // console.log(JSON.stringify(combatantPositions, null, 2));
 
   const result = processCombatAction(
-    new CombatActionExecutionIntent(CombatActionName.AttackRangedMainhand, targets),
+    new CombatActionExecutionIntent(CombatActionName.Attack, targets),
     combatantContext
   );
   if (result instanceof Error) console.error(result);
   else {
-    // console.log("REPLAY TREE: ");
-    // Replayer.printReplayTree(result);
+    console.log("REPLAY TREE: ");
+    Replayer.printReplayTree(result);
   }
 });

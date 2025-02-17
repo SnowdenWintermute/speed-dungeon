@@ -28,6 +28,7 @@ import {
   ActionResolutionStepType,
   AnimationTimingType,
 } from "../../../../action-processing/index.js";
+import { COMMON_DESTINATION_GETTERS } from "../common-destination-getters.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -101,15 +102,6 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => ATTACK,
-  getResolutionSteps() {
-    return [
-      ActionResolutionStepType.DeliveryMotion,
-      ActionResolutionStepType.PayResourceCosts,
-      ActionResolutionStepType.EvalOnUseTriggers,
-      ActionResolutionStepType.RecoveryMotion,
-    ];
-  },
-  motionPhasePositionGetters: {},
 };
 
 export const ATTACK_MELEE_MAIN_HAND = new CombatActionLeaf(

@@ -1,6 +1,6 @@
 import { Vector3 } from "@babylonjs/core";
 import { Combatant } from "../../../combatants/index.js";
-import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../../app-consts";
+import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../../app-consts.js";
 
 export function getTranslationTime(combatant: Combatant, destination: Vector3) {
   const { combatantProperties } = combatant;

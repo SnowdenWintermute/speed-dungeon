@@ -1,6 +1,7 @@
 import { ANIMATION_NAME_STRINGS } from "../app-consts.js";
 import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "../combat/index.js";
 import { SequentialIdGenerator } from "../utils/index.js";
+import { ACTION_RESOLUTION_STEP_TYPE_STRINGS } from "./action-steps/index.js";
 import {
   GAME_UPDATE_COMMAND_TYPE_STRINGS,
   GameUpdateCommand,
@@ -43,21 +44,18 @@ export class Replayer {
   }
 
   static printReplayTree(root: ReplayEventNode) {
-    if (root.type === ReplayEventType.NestedNode)
+    if (root.type === ReplayEventType.NestedNode) {
       for (const node of root.events) {
         if (node.type === ReplayEventType.GameUpdate) {
           console.log(
-            //@ts-ignore
-            node.gameUpdate.animationName
-              ? //@ts-ignore
-                ANIMATION_NAME_STRINGS[node.gameUpdate.animationName]
-              : "",
             GAME_UPDATE_COMMAND_TYPE_STRINGS[node.gameUpdate.type],
+            ACTION_RESOLUTION_STEP_TYPE_STRINGS[node.gameUpdate.step],
             node.gameUpdate.completionOrderId
           );
         } else {
           this.printReplayTree(node);
         }
       }
+    }
   }
 }
