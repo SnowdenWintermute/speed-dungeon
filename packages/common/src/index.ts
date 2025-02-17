@@ -26,3 +26,4 @@ export * from "./combat/targeting/targeting-calculator.js";
 export * from "./combatant-context/index.js";
 export * from "./utility-classes/index.js";
 export * from "./vfx/index.js";
+export * from "./spawnables/index.js";

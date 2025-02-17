@@ -43,17 +43,19 @@ export class Replayer {
     //
   }
 
-  static printReplayTree(root: ReplayEventNode) {
+  static printReplayTree(root: ReplayEventNode, depthOption?: number) {
+    let depth = depthOption !== undefined ? depthOption : 1;
     if (root.type === ReplayEventType.NestedNode) {
       for (const node of root.events) {
         if (node.type === ReplayEventType.GameUpdate) {
           console.log(
+            new Array(depth).fill("-").join(""),
             GAME_UPDATE_COMMAND_TYPE_STRINGS[node.gameUpdate.type],
             ACTION_RESOLUTION_STEP_TYPE_STRINGS[node.gameUpdate.step],
             node.gameUpdate.completionOrderId
           );
         } else {
-          this.printReplayTree(node);
+          this.printReplayTree(node, depth + 1);
         }
       }
     }

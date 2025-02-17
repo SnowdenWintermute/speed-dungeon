@@ -115,6 +115,11 @@ export function processCombatAction(
               type: ReplayEventType.GameUpdate,
               gameUpdate: gameUpdateCommandOption,
             });
+          } else {
+            console.log(
+              "NO GAME UPDATE FOR STEP",
+              ACTION_RESOLUTION_STEP_TYPE_STRINGS[nextStepOption.type]
+            );
           }
           continue;
         }

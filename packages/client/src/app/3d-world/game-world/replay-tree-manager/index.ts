@@ -1,7 +1,7 @@
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   GAME_UPDATE_COMMAND_TYPE_STRINGS,
   GameUpdateCommand,
-  GameUpdateCommandType,
   NestedNodeReplayEvent,
   ReplayEventType,
 } from "@speed-dungeon/common";
@@ -108,6 +108,7 @@ export class ReplayBranchProcessor {
       this.branchProcessors.push(newBranch);
       return;
     }
+    console.log("started processing", ACTION_RESOLUTION_STEP_TYPE_STRINGS[node.gameUpdate.step]);
 
     this.currentGameUpdateOption = { command: node.gameUpdate, isComplete: false };
 

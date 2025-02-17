@@ -6,6 +6,7 @@ import { AnimationName } from "../app-consts.js";
 import { ActionResolutionStepType } from "./action-steps/index.js";
 import { Combatant } from "../combatants/index.js";
 import { Vfx } from "../vfx/index.js";
+import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 
 export enum GameUpdateCommandType {
   SpawnEntity,
@@ -66,13 +67,14 @@ export type SpawnEntityGameUpdateCommand = {
   type: GameUpdateCommandType.SpawnEntity;
   step: ActionResolutionStepType;
   completionOrderId: null | number;
-  entity: Vfx | Combatant;
+  entity: SpawnableEntity;
 };
 
 export type EntityMotionGameUpdateCommand = {
   type: GameUpdateCommandType.EntityMotion;
   completionOrderId: null | number;
   step: ActionResolutionStepType;
+  entityType: SpawnableEntityType;
   entityId: EntityId;
   animationOption?: EntityAnimation;
   translationOption?: EntityTranslation;

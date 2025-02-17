@@ -1,3 +1,4 @@
+import { Vector3 } from "@babylonjs/core";
 import { EntityProperties } from "../primatives/index.js";
 
 export enum MobileVfxName {
@@ -15,11 +16,13 @@ export enum VfxType {
 
 export type MobileVfxProperties = {
   vfxType: VfxType.Mobile;
+  position: Vector3;
   name: MobileVfxName;
 };
 
 export type StaticVfxProperties = {
   vfxType: VfxType.Static;
+  position: Vector3;
   name: StaticVfxName;
 };
 

@@ -11,6 +11,7 @@ import {
 } from "../game-update-commands.js";
 import { COMBAT_ACTIONS } from "../../combat/index.js";
 import { Vfx } from "../../vfx/index.js";
+import { SpawnableEntityType } from "../../spawnables/index.js";
 
 const stepType = ActionResolutionStepType.OnActivationVfxMotion;
 export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionStep {
@@ -21,7 +22,8 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
       type: GameUpdateCommandType.EntityMotion,
       step: stepType,
       completionOrderId: null,
-      entityId: context.combatantContext.combatant.entityProperties.id,
+      entityType: SpawnableEntityType.Vfx,
+      entityId: vfx.entityProperties.id,
     };
 
     super(stepType, context, gameUpdateCommand);

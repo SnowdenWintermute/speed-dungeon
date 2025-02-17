@@ -6,6 +6,8 @@ import {
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { COMBAT_ACTIONS } from "../../combat/index.js";
 import { MobileVfxName, Vfx, VfxType } from "../../vfx/index.js";
+import { SpawnableEntityType } from "../../spawnables/index.js";
+import { Vector3 } from "@babylonjs/core";
 
 export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {
@@ -15,6 +17,7 @@ export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
       entityProperties: { id: context.idGenerator.generate(), name: "" },
       vfxProperties: {
         vfxType: VfxType.Mobile,
+        position: context.combatantContext.combatant.combatantProperties.position.clone(),
         name: MobileVfxName.Arrow,
       },
     };
@@ -25,7 +28,7 @@ export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
       type: GameUpdateCommandType.SpawnEntity,
       step,
       completionOrderId: null,
-      entity,
+      entity: { type: SpawnableEntityType.Vfx, vfx: entity },
     };
 
     super(step, context, gameUpdateCommand);
@@ -33,13 +36,7 @@ export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
 
   protected onTick(): void {}
 
-  getTimeToCompletion(): number {
-    return 0;
-  }
-
-  isComplete() {
-    return this.getTimeToCompletion() <= 0;
-  }
+  getTimeToCompletion = () => 0;
 
   protected getBranchingActions = () => [];
 }

@@ -143,6 +143,7 @@ export const ERROR_MESSAGES = {
     MISSING_ANIMATION: "No animation found",
     INCORRECT_MODEL_ACTION: "The wrong type of model action was passed to this function",
     NO_EQUIPMENT_MODEL: "Equipment model not found",
+    NO_VFX: "Expected vfx was missing",
   },
   CHECKED_EXPECTATION_FAILED:
     "Code was reached that should have been impossible due to prior value checks",

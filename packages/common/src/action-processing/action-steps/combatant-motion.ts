@@ -15,6 +15,7 @@ import {
 import { COMBAT_ACTIONS } from "../../combat/index.js";
 import { CombatActionAnimationPhase } from "../../combat/combat-actions/combat-action-animations.js";
 import { getTranslationTime } from "../../combat/combat-actions/action-implementations/get-translation-time.js";
+import { SpawnableEntityType } from "../../spawnables/index.js";
 
 export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
   private originalPosition: Vector3;
@@ -32,6 +33,7 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
       type: GameUpdateCommandType.EntityMotion,
       step,
       completionOrderId: null,
+      entityType: SpawnableEntityType.Combatant,
       entityId: context.combatantContext.combatant.entityProperties.id,
     };
 
