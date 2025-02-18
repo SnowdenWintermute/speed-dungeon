@@ -111,10 +111,7 @@ export function processCombatAction(
               gameUpdate: gameUpdateCommandOption,
             });
           } else {
-            console.log(
-              "NO GAME UPDATE FOR STEP",
-              ACTION_RESOLUTION_STEP_TYPE_STRINGS[nextStepOption.type]
-            );
+            /* no update for this step */
           }
           continue;
         }

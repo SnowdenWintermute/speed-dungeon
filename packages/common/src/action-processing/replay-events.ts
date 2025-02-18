@@ -8,6 +8,7 @@ import {
   GameUpdateCommand,
   GameUpdateCommandType,
 } from "./game-update-commands.js";
+import { SpawnableEntityType } from "../spawnables/index.js";
 
 // export class ReplayEventNode {
 //   events: (GameUpdateCommand | ReplayEventNode)[] = [];
@@ -59,7 +60,12 @@ export class Replayer {
             GAME_UPDATE_COMMAND_TYPE_STRINGS[gameUpdate.type],
             ACTION_RESOLUTION_STEP_TYPE_STRINGS[gameUpdate.step],
             gameUpdate.completionOrderId,
-            destinationOption || ""
+            gameUpdate.type === GameUpdateCommandType.SpawnEntity
+              ? gameUpdate.entity.type === SpawnableEntityType.Vfx
+                ? "ENTITY POSTIION PACKET: " + gameUpdate.entity.vfx.vfxProperties.position
+                : ""
+              : ""
+            // destinationOption || ""
           );
         } else {
           this.printReplayTree(node, depth + 1);

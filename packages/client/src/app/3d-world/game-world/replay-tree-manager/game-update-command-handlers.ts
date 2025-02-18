@@ -1,7 +1,6 @@
 import {
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActivatedTriggersGameUpdateCommand,
-  AnimationName,
   AnimationTimingType,
   ERROR_MESSAGES,
   EntityMotionGameUpdateCommand,
@@ -19,7 +18,6 @@ import {
 } from "../../combatant-models/animation-manager";
 import { ModelMovementManager } from "../../model-movement-manager";
 import { MobileVfxModel, spawnMobileVfxModel } from "../../vfx-models";
-import { Vector3 } from "@babylonjs/core";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
@@ -39,7 +37,11 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       movementManager = combatantModelOption.movementManager;
       animationManager = combatantModelOption.animationManager;
     } else {
-      console.log("attempting to apply motion to vfx", translationOption?.destination);
+      console.log("ATTEMPTING TO APPLY MOTION TO VFX", translationOption?.destination);
+      console.log("ATTEMPTING TO APPLY MOTION TO VFX", translationOption?.destination);
+      console.log("ATTEMPTING TO APPLY MOTION TO VFX", translationOption?.destination);
+      console.log("ATTEMPTING TO APPLY MOTION TO VFX", translationOption?.destination);
+      console.log("ATTEMPTING TO APPLY MOTION TO VFX", translationOption?.destination);
       const vfxOption = gameWorld.current?.vfxManager.mobile[entityId];
       if (!vfxOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_VFX);
       movementManager = vfxOption.movementManager;
@@ -146,6 +148,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
 
     const { vfx } = command.entity;
+    console.log("SPAWNED VFX: ", vfx.vfxProperties.position);
     const { vfxProperties } = vfx;
     if (vfxProperties.vfxType !== VfxType.Mobile) {
       return new Error("non-mobile vfx not implemented");

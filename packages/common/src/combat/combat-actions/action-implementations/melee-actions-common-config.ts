@@ -57,21 +57,12 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
       actionExecutionIntent: CombatActionExecutionIntent
     ) => {
       const targetingCalculator = new TargetingCalculator(combatantContext, null);
-      const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
-      const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
-        action,
-        actionExecutionIntent.targets
-      );
-      if (targetIdsResult instanceof Error) return targetIdsResult;
-      const primaryTargetIdOption = targetIdsResult[0];
-      if (primaryTargetIdOption === undefined)
-        return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
-      const primaryTargetResult = AdventuringParty.getCombatant(
+      const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
         combatantContext.party,
-        primaryTargetIdOption
+        actionExecutionIntent
       );
       if (primaryTargetResult instanceof Error) return primaryTargetResult;
-      const target = primaryTargetResult.combatantProperties;
+      const target = primaryTargetResult;
       const user = combatantContext.combatant.combatantProperties;
 
       const distance = Vector3.Distance(target.position, user.position);
@@ -80,7 +71,6 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
         isNaN(distance) ||
         Math.abs(meleeRange - distance) < threshold
       ) {
-        console.log("INITIAL: distance is within threshold, ", user.position);
         return user.position.clone();
       }
 
@@ -88,42 +78,27 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
         .subtract(combatantContext.combatant.combatantProperties.homeLocation)
         .normalize();
 
-      console.log(
-        "INITIAL DEST: ",
-        target.homeLocation.subtract(direction.scale(target.hitboxRadius + user.hitboxRadius))
-      );
       return target.homeLocation.subtract(direction.scale(target.hitboxRadius + user.hitboxRadius));
     },
     [ActionMotionPhase.Delivery]: (
       combatantContext: CombatantContext,
       actionExecutionIntent: CombatActionExecutionIntent
     ) => {
-      const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
       const targetingCalculator = new TargetingCalculator(combatantContext, null);
-      const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
-        action,
-        actionExecutionIntent.targets
-      );
-      if (targetIdsResult instanceof Error) return targetIdsResult;
-      const primaryTargetIdOption = targetIdsResult[0];
-      if (primaryTargetIdOption === undefined)
-        return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
-      const primaryTargetResult = AdventuringParty.getCombatant(
+      const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
         combatantContext.party,
-        primaryTargetIdOption
+        actionExecutionIntent
       );
       if (primaryTargetResult instanceof Error) return primaryTargetResult;
-      const target = primaryTargetResult.combatantProperties;
+      const target = primaryTargetResult;
       const user = combatantContext.combatant.combatantProperties;
 
       const distance = Vector3.Distance(target.position, user.position);
-      console.log("DELIVERY DISTANCE: ", distance);
       if (
         distance <= meleeRange ||
         isNaN(distance) ||
         Math.abs(meleeRange - distance) < threshold
       ) {
-        console.log("DELIVERY: distance is within threshold, ", user.position);
         return user.position.clone();
       }
 
@@ -133,7 +108,6 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
         .subtract(combatantContext.combatant.combatantProperties.position)
         .normalize();
 
-      console.log("DELIVERY DEST: ", user.position.add(direction.scale(toTravel)));
       return user.position.add(direction.scale(toTravel));
     },
   },

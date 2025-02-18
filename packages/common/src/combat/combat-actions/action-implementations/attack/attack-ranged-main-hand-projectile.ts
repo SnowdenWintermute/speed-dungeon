@@ -2,6 +2,7 @@ import {
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
+  CombatActionExecutionIntent,
   CombatActionName,
   CombatActionUsabilityContext,
   TargetCategories,
@@ -18,7 +19,13 @@ import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import {
+  ActionMotionPhase,
+  ActionResolutionStepType,
+} from "../../../../action-processing/index.js";
+import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { COMBAT_ACTIONS } from "../index.js";
+import { AdventuringParty } from "../../../../adventuring-party/index.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -79,7 +86,19 @@ const config: CombatActionComponentConfig = {
       ActionResolutionStepType.EvalOnHitOutcomeTriggers,
     ];
   },
-  motionPhasePositionGetters: {},
+  motionPhasePositionGetters: {
+    [ActionMotionPhase.Delivery]: (combatantContext, actionExecutionIntent) => {
+      const targetingCalculator = new TargetingCalculator(combatantContext, null);
+      const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+        combatantContext.party,
+        actionExecutionIntent
+      );
+      if (primaryTargetResult instanceof Error) return primaryTargetResult;
+      const target = primaryTargetResult;
+
+      return target.homeLocation.clone();
+    },
+  },
 };
 
 export const ATTACK_RANGED_MAIN_HAND_PROJECTILE = new CombatActionComposite(

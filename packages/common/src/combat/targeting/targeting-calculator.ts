@@ -1,7 +1,12 @@
 import cloneDeep from "lodash.clonedeep";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonPlayer } from "../../game/index.js";
-import { CombatActionComponent, FriendOrFoe, TargetingScheme } from "../combat-actions/index.js";
+import {
+  CombatActionComponent,
+  CombatActionExecutionIntent,
+  FriendOrFoe,
+  TargetingScheme,
+} from "../combat-actions/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 import {
   filterPossibleTargetIdsByActionTargetCategories,
@@ -13,6 +18,8 @@ import { getActionTargetsIfSchemeIsValid } from "./get-targets-if-scheme-is-vali
 import { getOwnedCharacterAndSelectedCombatAction } from "../../utils/get-owned-character-and-selected-combat-action.js";
 import getNextOrPreviousTarget from "./get-next-or-previous-target.js";
 import { CombatantContext } from "../../combatant-context/index.js";
+import { COMBAT_ACTIONS } from "../combat-actions/action-implementations/index.js";
+import { AdventuringParty } from "../../adventuring-party/index.js";
 
 export class TargetingCalculator {
   constructor(
@@ -264,5 +271,20 @@ export class TargetingCalculator {
     }
 
     return newPreferences;
+  }
+
+  getPrimaryTargetCombatant(
+    party: AdventuringParty,
+    actionExecutionIntent: CombatActionExecutionIntent
+  ) {
+    const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+    const targetIdsResult = this.getCombatActionTargetIds(action, actionExecutionIntent.targets);
+    if (targetIdsResult instanceof Error) return targetIdsResult;
+    const primaryTargetIdOption = targetIdsResult[0];
+    if (primaryTargetIdOption === undefined)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
+    const primaryTargetResult = AdventuringParty.getCombatant(party, primaryTargetIdOption);
+    if (primaryTargetResult instanceof Error) return primaryTargetResult;
+    return primaryTargetResult.combatantProperties;
   }
 }

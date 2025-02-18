@@ -74,16 +74,11 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
         ? 1
         : Math.min(1, this.elapsed / this.translationOption.duration);
 
-    console.log("PERCENT:", normalizedPercentTravelled);
-    console.log("DEST: ", this.translationOption.destination);
-
     const newPosition = Vector3.Lerp(
       this.originalPosition,
       this.translationOption.destination,
       normalizedPercentTravelled
     );
-
-    console.log(ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type], "lerped: ", newPosition);
 
     this.context.combatantContext.combatant.combatantProperties.position.copyFrom(newPosition);
   }

@@ -30,7 +30,7 @@ export function setUpTestGameWithPartyInBattle(idGenerator: IdGenerator) {
   const character = new Combatant(
     { id: idGenerator.generate(), name: "R. Chambers" },
     new CombatantProperties(
-      CombatantClass.Warrior,
+      CombatantClass.Rogue,
       CombatantSpecies.Humanoid,
       null,
       player.username,
