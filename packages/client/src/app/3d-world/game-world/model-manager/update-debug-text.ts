@@ -7,9 +7,10 @@ import {
   GameUpdateCommandType,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
-import { useGameStore } from "@/stores/game-store";
+import { useUIStore } from "@/stores/ui-store";
 
 export function updateDebugText(this: GameWorld) {
+  if (!useUIStore.getState().showDebug) return;
   if (this.debug.debugRef?.current) {
     const branches = this.replayTreeManager.getCurrent()?.getActiveBranches();
     let mapped = "";

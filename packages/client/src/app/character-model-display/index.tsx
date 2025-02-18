@@ -3,6 +3,7 @@ import { ReactNode, useEffect } from "react";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
 import { doc } from "prettier";
+import { useUIStore } from "@/stores/ui-store";
 
 export default function CharacterModelDisplay({
   character,
@@ -14,6 +15,7 @@ export default function CharacterModelDisplay({
   const { entityProperties } = character;
   const entityId = entityProperties.id;
   const modelLoadingState = useGameStore.getState().combatantModelLoadingStates[entityId];
+  const showDebug = useUIStore().showDebug;
 
   // @TODO - this is symantec coupling. instead of directly passing the modelDomPositionElement to babylon
   // we could make a singleton registry of dom elements by entity id and have babylon query for them
@@ -36,7 +38,7 @@ export default function CharacterModelDisplay({
       id={`${entityId}-position-div`}
       className={`absolute ${(modelLoadingState === undefined || modelLoadingState === true) && "opacity-0"}`}
     >
-      <div id={`${entityId}-debug-div`}></div>
+      <div id={`${entityId}-debug-div`} className={showDebug ? "" : "hidden"}></div>
       {children}
     </div>
   );

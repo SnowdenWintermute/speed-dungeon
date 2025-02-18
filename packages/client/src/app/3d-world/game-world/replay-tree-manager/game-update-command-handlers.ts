@@ -55,6 +55,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
         translationOption.destination,
         translationOption.duration,
         () => {
+          translationIsComplete = true;
           console.log(
             "animationIsComplete after translation: ",
             ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
@@ -85,6 +86,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
         onComplete: function (): void {
           // otherwise looping animation will finish at an arbitrary time and could set an unintended action to complete
           if (animationOption.timing.type === AnimationTimingType.Looping) return;
+          animationIsComplete = true;
           console.log(
             "translation is complete after animation: ",
             ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
