@@ -27,6 +27,7 @@ export class ActionSequenceManager {
     return this.isFinalized;
   }
   markAsFinalized() {
+    console.log("FINALIZED");
     this.isFinalized = true;
   }
   getNextActionInQueue() {

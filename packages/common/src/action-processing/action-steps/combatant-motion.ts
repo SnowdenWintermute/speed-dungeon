@@ -1,5 +1,6 @@
 import { Vector3 } from "@babylonjs/core";
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionMotionPhase,
   ActionResolutionStep,
   ActionResolutionStepContext,
@@ -69,13 +70,20 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
     if (!this.translationOption) return;
 
     const normalizedPercentTravelled =
-      this.translationOption.duration === 0 ? 1 : this.elapsed / this.translationOption.duration;
+      this.translationOption.duration === 0
+        ? 1
+        : Math.min(1, this.elapsed / this.translationOption.duration);
+
+    console.log("PERCENT:", normalizedPercentTravelled);
+    console.log("DEST: ", this.translationOption.destination);
 
     const newPosition = Vector3.Lerp(
       this.originalPosition,
       this.translationOption.destination,
       normalizedPercentTravelled
     );
+
+    console.log(ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type], "lerped: ", newPosition);
 
     this.context.combatantContext.combatant.combatantProperties.position.copyFrom(newPosition);
   }
@@ -85,12 +93,9 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
       ? Math.max(0, this.translationOption.duration - this.elapsed)
       : 0;
 
-    console.log("time to translate: ", remainingTimeToTranslate);
-
     if (!this.animationOption || this.animationOption?.timing.type === AnimationTimingType.Looping)
       return remainingTimeToTranslate;
     const remainingTimeToAnimate = Math.max(0, this.animationOption.timing.duration - this.elapsed);
-    console.log("time to animate: ", remainingTimeToAnimate);
     return Math.max(remainingTimeToTranslate, remainingTimeToAnimate);
   }
 

@@ -2,13 +2,12 @@ import {
   CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
-  CombatActionExecutionIntent,
   CombatActionName,
   CombatActionUsabilityContext,
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import { Combatant, CombatantProperties } from "../../../../combatants/index.js";
+import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ActionAccuracy } from "../../combat-action-accuracy.js";
@@ -17,19 +16,9 @@ import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js"
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
-import { ActionSequenceManager } from "../../../../action-processing/action-sequence-manager.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
-import { ActionTracker } from "../../../../action-processing/action-tracker.js";
-import { IdGenerator } from "../../../../utility-classes/index.js";
-import {
-  ActionResolutionStep,
-  ActionResolutionStepContext,
-  ActionResolutionStepType,
-} from "../../../../action-processing/index.js";
-import { OnActivationVfxMotionActionResolutionStep } from "../../../../action-processing/action-steps/on-activation-vfx-motion.js";
-import { RollIncomingHitOutcomesActionResolutionStep } from "../../../../action-processing/action-steps/roll-incoming-hit-outcomes.js";
-import { EvalOnHitOutcomeTriggersActionResolutionStep } from "../../../../action-processing/action-steps/evaluate-hit-outcome-triggers.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,

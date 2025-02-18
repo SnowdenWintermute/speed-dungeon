@@ -24,11 +24,7 @@ import {
   CombatActionAnimationPhase,
   CombatActionCombatantAnimations,
 } from "../../combat-action-animations.js";
-import {
-  ActionResolutionStepType,
-  AnimationTimingType,
-} from "../../../../action-processing/index.js";
-import { COMMON_DESTINATION_GETTERS } from "../common-destination-getters.js";
+import { AnimationTimingType } from "../../../../action-processing/index.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,

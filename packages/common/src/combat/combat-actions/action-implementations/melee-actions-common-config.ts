@@ -17,6 +17,7 @@ import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { COMMON_DESTINATION_GETTERS } from "./common-destination-getters.js";
 
 const meleeRange = 1.5;
+const threshold = 0.01;
 
 export const MELEE_ATTACK_COMMON_CONFIG = {
   userShouldMoveHomeOnComplete: true,
@@ -45,7 +46,7 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
       ActionResolutionStepType.PayResourceCosts,
       ActionResolutionStepType.EvalOnUseTriggers,
       ActionResolutionStepType.RollIncomingHitOutcomes,
-      ActionResolutionStepType.EvalOnUseTriggers,
+      ActionResolutionStepType.EvalOnHitOutcomeTriggers,
       ActionResolutionStepType.RecoveryMotion,
     ];
   },
@@ -73,13 +74,13 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
       const target = primaryTargetResult.combatantProperties;
       const user = combatantContext.combatant.combatantProperties;
 
-      const threshold = 0.01;
       const distance = Vector3.Distance(target.position, user.position);
       if (
         distance <= meleeRange ||
         isNaN(distance) ||
         Math.abs(meleeRange - distance) < threshold
       ) {
+        console.log("INITIAL: distance is within threshold, ", user.position);
         return user.position.clone();
       }
 
@@ -87,6 +88,10 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
         .subtract(combatantContext.combatant.combatantProperties.homeLocation)
         .normalize();
 
+      console.log(
+        "INITIAL DEST: ",
+        target.homeLocation.subtract(direction.scale(target.hitboxRadius + user.hitboxRadius))
+      );
       return target.homeLocation.subtract(direction.scale(target.hitboxRadius + user.hitboxRadius));
     },
     [ActionMotionPhase.Delivery]: (
@@ -112,7 +117,13 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
       const user = combatantContext.combatant.combatantProperties;
 
       const distance = Vector3.Distance(target.position, user.position);
-      if (distance <= meleeRange || isNaN(distance)) {
+      console.log("DELIVERY DISTANCE: ", distance);
+      if (
+        distance <= meleeRange ||
+        isNaN(distance) ||
+        Math.abs(meleeRange - distance) < threshold
+      ) {
+        console.log("DELIVERY: distance is within threshold, ", user.position);
         return user.position.clone();
       }
 
@@ -122,6 +133,7 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
         .subtract(combatantContext.combatant.combatantProperties.position)
         .normalize();
 
+      console.log("DELIVERY DEST: ", user.position.add(direction.scale(toTravel)));
       return user.position.add(direction.scale(toTravel));
     },
   },

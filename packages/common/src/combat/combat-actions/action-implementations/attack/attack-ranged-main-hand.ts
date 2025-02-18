@@ -30,6 +30,7 @@ import {
   ActionResolutionStepType,
 } from "../../../../action-processing/index.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
+import { COMMON_DESTINATION_GETTERS } from "../common-destination-getters.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -117,6 +118,7 @@ const config: CombatActionComponentConfig = {
     ];
   },
   motionPhasePositionGetters: {
+    ...COMMON_DESTINATION_GETTERS,
     [ActionMotionPhase.Initial]: (combatantContext, actionExecutionIntent) => {
       const user = combatantContext.combatant.combatantProperties;
       const direction = CombatantProperties.getForward(user);

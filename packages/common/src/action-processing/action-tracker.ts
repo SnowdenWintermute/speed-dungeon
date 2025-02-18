@@ -47,11 +47,6 @@ export class ActionTracker {
     const stepCreator = ACTION_STEP_CREATORS[stepOption];
     const newStep = stepCreator(context);
     this.currentStep = newStep;
-    console.log(
-      "initialized next step index",
-      this.stepIndex,
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[newStep.type]
-    );
     return newStep;
   }
 

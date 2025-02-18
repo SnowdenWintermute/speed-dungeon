@@ -4,11 +4,9 @@ import {
   ActionResolutionStepType,
   ActionSequenceManagerRegistry,
   COMBAT_ACTIONS,
-  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
   CombatantContext,
   CombatantMotionActionResolutionStep,
-  GAME_UPDATE_COMMAND_TYPE_STRINGS,
   NestedNodeReplayEvent,
   ReplayEventType,
   SequentialIdGenerator,
@@ -51,39 +49,35 @@ export function processCombatAction(
     registry.isNotEmpty()
     // &&   loopLimiter < 10 // for testing
   ) {
-    for (const manager of registry.getManagers()) {
-      const currentTrackerOption = manager.getCurrentTracker();
-      if (!currentTrackerOption) break;
-      console.log(
-        "PROCESSING ACTION",
-        COMBAT_ACTION_NAME_STRINGS[currentTrackerOption.actionExecutionIntent.actionName]
-      );
-      let currentStep = currentTrackerOption.currentStep;
+    for (const sequenceManager of registry.getManagers()) {
+      let trackerOption = sequenceManager.getCurrentTracker();
+      if (!trackerOption) break;
+
+      let currentStep = trackerOption.currentStep;
 
       while (currentStep.isComplete()) {
-        const trackerOption = manager.getCurrentTracker();
-        console.log("completed:", ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type]);
-        if (trackerOption === null) break;
+        trackerOption = sequenceManager.getCurrentTracker();
+        if (trackerOption === null) throw new Error("expected action tracker was missing");
+
+        console.log(
+          "completed step:",
+          ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type],
+          trackerOption.actionExecutionIntent.actionName
+        );
 
         const completionOrderId = completionOrderIdGenerator.getNextIdNumeric();
-        const actionResult = trackerOption.currentStep.finalize(completionOrderId);
+        const branchingActionsResult = trackerOption.currentStep.finalize(completionOrderId);
+        if (branchingActionsResult instanceof Error) return branchingActionsResult;
+        const branchingActions = branchingActionsResult;
 
-        if (actionResult instanceof Error) return actionResult;
-        const branchingActions = actionResult;
-        if (manager.getIsFinalized()) {
-          registry.unRegisterActionManager(manager.id);
-          break;
-        }
-
+        // REGISTER BRANCHING ACTIONS
         for (const action of branchingActions) {
-          console.log("-----------");
           console.log("BRANCH");
-          console.log("-----------");
           const nestedReplayNode: NestedNodeReplayEvent = {
             type: ReplayEventType.NestedNode,
             events: [],
           };
-          manager.replayNode.events.push(nestedReplayNode);
+          sequenceManager.replayNode.events.push(nestedReplayNode);
           const initialGameUpdateOptionResult = registry.registerAction(
             action.actionExecutionIntent,
             nestedReplayNode,
@@ -102,16 +96,17 @@ export function processCombatAction(
         trackerOption.storeCompletedStep();
         const nextStepOption = trackerOption.initializeNextStep();
 
-        if (nextStepOption) {
+        // START NEXT STEPS
+        if (nextStepOption !== null) {
+          trackerOption.currentStep = nextStepOption;
           currentStep = nextStepOption;
+          console.log(
+            "started next step:",
+            ACTION_RESOLUTION_STEP_TYPE_STRINGS[nextStepOption.type]
+          );
           const gameUpdateCommandOption = nextStepOption.getGameUpdateCommandOption();
-          console.log("game update option: ", gameUpdateCommandOption);
           if (gameUpdateCommandOption !== null) {
-            console.log(
-              "pushed update for",
-              ACTION_RESOLUTION_STEP_TYPE_STRINGS[nextStepOption.type]
-            );
-            manager.replayNode.events.push({
+            sequenceManager.replayNode.events.push({
               type: ReplayEventType.GameUpdate,
               gameUpdate: gameUpdateCommandOption,
             });
@@ -124,10 +119,11 @@ export function processCombatAction(
           continue;
         }
 
-        manager.populateSelfWithCurrentActionChildren();
+        // DETERMINE NEXT ACTION IN SEQUENCE IF ANY
+        sequenceManager.populateSelfWithCurrentActionChildren();
 
-        if (manager.getNextActionInQueue()) {
-          const stepTrackerResult = manager.startProcessingNext(time);
+        if (sequenceManager.getNextActionInQueue()) {
+          const stepTrackerResult = sequenceManager.startProcessingNext(time);
           if (stepTrackerResult instanceof Error) return stepTrackerResult;
 
           const initialGameUpdateOptionResult =
@@ -135,44 +131,53 @@ export function processCombatAction(
           if (initialGameUpdateOptionResult instanceof Error) return initialGameUpdateOptionResult;
 
           if (initialGameUpdateOptionResult)
-            manager.replayNode.events.push({
+            sequenceManager.replayNode.events.push({
               type: ReplayEventType.GameUpdate,
               gameUpdate: initialGameUpdateOptionResult,
             });
+          currentStep = stepTrackerResult.currentStep;
           continue;
         }
 
-        // this action sequence is done, send the user home if the action type necessitates it
-        const currentTrackerOption = manager.getCurrentTracker();
-        if (currentTrackerOption) {
-          const action = COMBAT_ACTIONS[currentTrackerOption.actionExecutionIntent.actionName];
-          if (action.userShouldMoveHomeOnComplete) {
-            const returnHomeStep = new CombatantMotionActionResolutionStep(
-              currentTrackerOption.currentStep.getContext(),
-              ActionResolutionStepType.FinalPositioning,
-              ActionMotionPhase.Final,
-              CombatActionAnimationPhase.Final
-            );
-
-            currentTrackerOption.currentStep = returnHomeStep;
-            currentStep = returnHomeStep;
-            const returnHomeUpdate = returnHomeStep.getGameUpdateCommandOption();
-            if (returnHomeUpdate)
-              manager.replayNode.events.push({
-                type: ReplayEventType.GameUpdate,
-                gameUpdate: returnHomeUpdate,
-              });
-          }
+        if (sequenceManager.getIsFinalized()) {
+          registry.unRegisterActionManager(sequenceManager.id);
+          break;
         }
-        manager.markAsFinalized();
+
+        // if we got this far, this action sequence is done,
+        sequenceManager.markAsFinalized();
+        // send the user home if the action type necessitates it
+        const action = COMBAT_ACTIONS[trackerOption.actionExecutionIntent.actionName];
+
+        if (action.userShouldMoveHomeOnComplete) {
+          const returnHomeStep = new CombatantMotionActionResolutionStep(
+            trackerOption.currentStep.getContext(),
+            ActionResolutionStepType.FinalPositioning,
+            ActionMotionPhase.Final,
+            CombatActionAnimationPhase.Final
+          );
+
+          trackerOption.currentStep = returnHomeStep;
+          currentStep = returnHomeStep;
+
+          const returnHomeUpdate = returnHomeStep.getGameUpdateCommandOption();
+          if (returnHomeUpdate)
+            sequenceManager.replayNode.events.push({
+              type: ReplayEventType.GameUpdate,
+              gameUpdate: returnHomeUpdate,
+            });
+        } else {
+          console.log("BREAK: ", ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type]);
+          break;
+        }
       }
     }
 
     const timeToTick = registry.getShortestTimeToCompletion();
     time.ms += timeToTick;
 
-    for (const manager of registry.getManagers())
-      manager.getCurrentTracker()?.currentStep.tick(timeToTick);
+    for (const sequenceManager of registry.getManagers())
+      sequenceManager.getCurrentTracker()?.currentStep.tick(timeToTick);
 
     loopLimiter += 1;
   }

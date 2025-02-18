@@ -151,14 +151,8 @@ export abstract class ActionResolutionStep {
 
   protected abstract onTick(): void;
   abstract getTimeToCompletion(): Milliseconds;
-  isComplete() {
-    console.log(
-      "checking time to completion: ",
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type],
-      this.getTimeToCompletion()
-    );
-    return this.getTimeToCompletion() <= 0;
-  }
+  isComplete = () => this.getTimeToCompletion() <= 0;
+
   /**Return branching actions and next step */
   protected abstract getBranchingActions():
     | Error
@@ -167,7 +161,7 @@ export abstract class ActionResolutionStep {
         actionExecutionIntent: CombatActionExecutionIntent;
       }[];
 
-  /**Mark the gameUpdateCommand's completionOrderId and get branching actions and next step*/
+  /**Mark the gameUpdateCommand's completionOrderId and get branching actions*/
   finalize(
     completionOrderId: number
   ): Error | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
