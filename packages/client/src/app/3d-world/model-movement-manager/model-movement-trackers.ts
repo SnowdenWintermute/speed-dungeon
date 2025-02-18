@@ -14,6 +14,7 @@ export abstract class ModelMovementTracker {
   ) {}
 
   abstract onComplete: () => void;
+  abstract getDestination(): Vector3 | Quaternion;
 
   percentComplete() {
     const elapsed = Date.now() - this.timeStarted;
@@ -45,6 +46,9 @@ export class TranslationTracker extends ModelMovementTracker {
     const newPosition = Vector3.Lerp(this.previous, this.destination, this.percentComplete());
     this.movable.position.copyFrom(newPosition);
   }
+  getDestination(): Vector3 {
+    return this.destination;
+  }
 }
 
 export class RotationTracker extends ModelMovementTracker {
@@ -56,6 +60,10 @@ export class RotationTracker extends ModelMovementTracker {
     private destination: Quaternion
   ) {
     super(movable, duration);
+  }
+
+  getDestination(): Quaternion {
+    return this.destination;
   }
 
   updateMovable() {

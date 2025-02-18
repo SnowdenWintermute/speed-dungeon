@@ -7,7 +7,7 @@ import {
 import { cloneVector3, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 
 export class ModelMovementManager {
-  private activeTrackers: Partial<Record<ModelMovementType, ModelMovementTracker>> = {};
+  public activeTrackers: Partial<Record<ModelMovementType, ModelMovementTracker>> = {};
   constructor(public transformNode: TransformNode) {}
 
   isProcessing() {
@@ -23,13 +23,11 @@ export class ModelMovementManager {
 
   startTranslating(destination: Vector3, duration: number, onComplete: () => void) {
     const previous = this.transformNode.position.clone();
-    const destinationVec3 = cloneVector3(destination);
-    // const duration = Vector3.Distance(previous, destination) * COMBATANT_TIME_TO_MOVE_ONE_METER;
     const tracker = new TranslationTracker(
       this.transformNode,
       duration,
       previous,
-      destinationVec3,
+      destination,
       onComplete
     );
     this.activeTrackers[ModelMovementType.Translation] = tracker;
@@ -42,10 +40,11 @@ export class ModelMovementManager {
   processActiveActions() {
     for (const [movementType, tracker] of this.getTrackers()) {
       tracker.updateMovable();
-      if (tracker.isComplete()) {
-        tracker.onComplete();
-        delete this.activeTrackers[movementType];
-      }
+
+      if (!tracker.isComplete()) continue;
+
+      tracker.onComplete();
+      delete this.activeTrackers[movementType];
     }
   }
 

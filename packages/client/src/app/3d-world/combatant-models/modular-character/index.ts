@@ -87,6 +87,7 @@ export class ModularCharacter {
     public combatantClass: CombatantClass,
     public skeleton: ISceneLoaderAsyncResult,
     public modelDomPositionElement: HTMLDivElement | null,
+    public debugElement: HTMLDivElement | null,
     startPosition: Vector3 = Vector3.Zero(),
     startRotation: number = 0
   ) {

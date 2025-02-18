@@ -7,6 +7,7 @@ import {
   GameUpdateCommandType,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
+import { useGameStore } from "@/stores/game-store";
 
 export function updateDebugText(this: GameWorld) {
   if (this.debug.debugRef?.current) {
@@ -18,11 +19,11 @@ export function updateDebugText(this: GameWorld) {
           const currUpdateOption = branch.getCurrentGameUpdate();
           if (
             currUpdateOption &&
-            currUpdateOption.command.type === GameUpdateCommandType.CombatantMovement
+            currUpdateOption.command.type === GameUpdateCommandType.EntityMotion
           )
             return (
               GAME_UPDATE_COMMAND_TYPE_STRINGS[currUpdateOption.command.type] +
-              JSON.stringify(currUpdateOption.command.destination) +
+              JSON.stringify(currUpdateOption.command.translationOption?.destination) +
               ACTION_RESOLUTION_STEP_TYPE_STRINGS[currUpdateOption.command.step]
             );
           if (currUpdateOption)
@@ -34,9 +35,12 @@ export function updateDebugText(this: GameWorld) {
 
     let activeMovementTrackers = "";
     for (const model of Object.values(this.modelManager.combatantModels)) {
+      const { position } = model.rootTransformNode;
+      if (model.debugElement && position)
+        model.debugElement.innerHTML = `<div>x:${position.x?.toFixed(2)} z${position.z?.toFixed(2)}</div>`;
       const { movementManager } = model;
       for (const [type, activeTracker] of movementManager.getTrackers()) {
-        activeMovementTrackers += model.entityId + " " + activeTracker.percentComplete();
+        activeMovementTrackers += model.entityId + " " + activeTracker.percentComplete().toFixed(2);
       }
     }
 

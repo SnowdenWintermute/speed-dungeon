@@ -1,3 +1,4 @@
+import { Vector3 } from "@babylonjs/core";
 import { ANIMATION_NAME_STRINGS } from "../app-consts.js";
 import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "../combat/index.js";
 import { SequentialIdGenerator } from "../utils/index.js";
@@ -48,11 +49,17 @@ export class Replayer {
     if (root.type === ReplayEventType.NestedNode) {
       for (const node of root.events) {
         if (node.type === ReplayEventType.GameUpdate) {
+          const { gameUpdate } = node;
+          let destinationOption: null | Vector3 = null;
+          if (gameUpdate.type === GameUpdateCommandType.EntityMotion) {
+            destinationOption = gameUpdate.translationOption?.destination || null;
+          }
           console.log(
             new Array(depth).fill("-").join(""),
-            GAME_UPDATE_COMMAND_TYPE_STRINGS[node.gameUpdate.type],
-            ACTION_RESOLUTION_STEP_TYPE_STRINGS[node.gameUpdate.step],
-            node.gameUpdate.completionOrderId
+            GAME_UPDATE_COMMAND_TYPE_STRINGS[gameUpdate.type],
+            ACTION_RESOLUTION_STEP_TYPE_STRINGS[gameUpdate.step],
+            gameUpdate.completionOrderId,
+            destinationOption || ""
           );
         } else {
           this.printReplayTree(node, depth + 1);

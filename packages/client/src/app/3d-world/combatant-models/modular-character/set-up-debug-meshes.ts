@@ -1,13 +1,17 @@
 import { Color3, Mesh, MeshBuilder, StandardMaterial, Vector3 } from "@babylonjs/core";
 import cloneDeep from "lodash.clonedeep";
-import { ModularCharacter } from "./index.js";
+import { ModularCharacter } from "./index";
 import { FFIX_COLORS } from "@speed-dungeon/common";
+import { ModelMovementType } from "../../model-movement-manager/model-movement-trackers";
+import { gameWorld } from "../../SceneManager";
+import { CustomMaterial } from "../../game-world/materials/material-colors";
 
 export function setUpDebugMeshes(this: ModularCharacter) {
   this.debugMeshes = [
     createHomeLocationMarker(this),
     createForwardDirectionMarkerSphere(this),
     createRootTransformNodeLocationMarker(this),
+    // createDestinationMarkerSphere(this),
     // createMeleeRangeDisc(this),
   ];
 }
@@ -56,6 +60,19 @@ function createForwardDirectionMarkerSphere(modularCharacter: ModularCharacter) 
   sphere.position = modularCharacter.rootTransformNode.position.add(direction.scale(1.5));
 
   sphere.setParent(modularCharacter.rootTransformNode);
+  return sphere;
+}
+
+function createDestinationMarkerSphere(modularCharacter: ModularCharacter) {
+  const translationTrackerOption =
+    modularCharacter.movementManager.activeTrackers[ModelMovementType.Translation];
+  let destination = modularCharacter.rootTransformNode.position;
+
+  if (translationTrackerOption) destination = translationTrackerOption.getDestination() as Vector3;
+  const sphere = MeshBuilder.CreateIcoSphere("sphere", { subdivisions: 10, radius: 0.2 });
+  sphere.position = destination;
+  sphere.material = gameWorld.current!.defaultMaterials.custom[CustomMaterial.AncientMetal];
+
   return sphere;
 }
 

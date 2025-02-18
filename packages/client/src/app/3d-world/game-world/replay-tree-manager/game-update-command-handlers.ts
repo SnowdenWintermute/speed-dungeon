@@ -19,6 +19,7 @@ import {
 } from "../../combatant-models/animation-manager";
 import { ModelMovementManager } from "../../model-movement-manager";
 import { MobileVfxModel, spawnMobileVfxModel } from "../../vfx-models";
+import { Vector3 } from "@babylonjs/core";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
@@ -54,7 +55,17 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
         translationOption.destination,
         translationOption.duration,
         () => {
-          if (animationIsComplete) update.isComplete = true;
+          console.log(
+            "animationIsComplete after translation: ",
+            ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
+            animationIsComplete
+          );
+          if (
+            animationIsComplete ||
+            !animationOption ||
+            animationOption.timing.type === AnimationTimingType.Looping
+          )
+            update.isComplete = true;
         }
       );
     } else {
@@ -72,7 +83,14 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
             ? animationOption.timing.duration
             : null,
         onComplete: function (): void {
-          if (translationIsComplete) update.isComplete = true;
+          // otherwise looping animation will finish at an arbitrary time and could set an unintended action to complete
+          if (animationOption.timing.type === AnimationTimingType.Looping) return;
+          console.log(
+            "translation is complete after animation: ",
+            ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
+            animationIsComplete
+          );
+          if (translationIsComplete || !translationOption) update.isComplete = true;
         },
       };
       animationManager.startAnimationWithTransition(animationOption.name, 500, options);

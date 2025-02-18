@@ -32,6 +32,7 @@ export async function spawnModularCharacter(
     combatantProperties.combatantClass,
     skeleton,
     blueprint.modelDomPositionElement,
+    null,
     blueprint.startPosition,
     blueprint.startRotation
   );

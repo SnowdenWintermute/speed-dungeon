@@ -37,8 +37,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
     }))
   );
   const entityId = combatant.entityProperties.id;
-  const babylonDebugMessages =
-    useGameStore().babylonControlledCombatantDOMData[entityId]?.debugMessages;
+  const babylonDataOption = useGameStore().babylonControlledCombatantDOMData[entityId];
 
   const usernameOption = useGameStore().username;
   const result = getGameAndParty(gameOption, usernameOption);
@@ -85,11 +84,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
       <CharacterModelDisplay character={combatant}>
         <CombatantFloatingMessagesDisplay entityId={entityId} />
         <div className="absolute flex flex-col justify-center items-center text-center top-1/2 left-1/2 -translate-x-1/2 w-[400px]">
-          {babylonDebugMessages?.map((message) => (
-            <div className="text-xl relative w-[400px] text-center" key={message.id}>
-              <div className="">{message.text}</div>
-            </div>
-          ))}
+          {babylonDataOption && babylonDataOption.debugHtml}
         </div>
       </CharacterModelDisplay>
       {isPartyMember && (

@@ -2,6 +2,7 @@ import { Combatant } from "@speed-dungeon/common";
 import { ReactNode, useEffect } from "react";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
+import { doc } from "prettier";
 
 export default function CharacterModelDisplay({
   character,
@@ -25,6 +26,9 @@ export default function CharacterModelDisplay({
     const modelOption = gameWorld.current?.modelManager.combatantModels[entityId];
     if (!modelOption) return;
     modelOption.modelDomPositionElement = modelDomPositionElement;
+
+    const debugElement = document.getElementById(`${entityId}-debug-div`);
+    modelOption.debugElement = debugElement as HTMLDivElement;
   }, [modelLoadingState]);
 
   return (
@@ -32,6 +36,7 @@ export default function CharacterModelDisplay({
       id={`${entityId}-position-div`}
       className={`absolute ${(modelLoadingState === undefined || modelLoadingState === true) && "opacity-0"}`}
     >
+      <div id={`${entityId}-debug-div`}></div>
       {children}
     </div>
   );
