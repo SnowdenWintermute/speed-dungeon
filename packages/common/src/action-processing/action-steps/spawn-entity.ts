@@ -13,7 +13,11 @@ export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
     // @TODO - determine based on action step entity to spawn method method
-    const position = context.combatantContext.combatant.combatantProperties.position.clone();
+    const defaultPosition = context.combatantContext.combatant.combatantProperties.position.clone();
+    const position = action.projectileSpawnLocation
+      ? action.projectileSpawnLocation(context)
+      : defaultPosition;
+
     console.log("SPAWNED VFX AT: ", position);
     const entity: Vfx = {
       entityProperties: { id: context.idGenerator.generate(), name: "" },

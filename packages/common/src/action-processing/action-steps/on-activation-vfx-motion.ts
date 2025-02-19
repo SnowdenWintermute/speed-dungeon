@@ -14,6 +14,10 @@ import { COMBAT_ACTIONS } from "../../combat/index.js";
 import { Vfx } from "../../vfx/index.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
 import { getTranslationTime } from "../../combat/combat-actions/action-implementations/get-translation-time.js";
+import {
+  ARROW_TIME_TO_MOVE_ONE_METER,
+  COMBATANT_TIME_TO_MOVE_ONE_METER,
+} from "../../app-consts.js";
 
 const stepType = ActionResolutionStepType.OnActivationVfxMotion;
 export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionStep {
@@ -45,9 +49,11 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
     if (destinationGetterOption) destinationResult = destinationGetterOption(context);
     if (destinationResult instanceof Error) throw destinationResult;
     if (destinationResult) {
+      const distance = Vector3.Distance(this.originalPosition, destinationResult);
+      const timeToTranslate = distance * ARROW_TIME_TO_MOVE_ONE_METER;
       const translation = {
         destination: destinationResult.clone(),
-        duration: 2000,
+        duration: timeToTranslate,
       };
       this.translationOption = translation;
       console.log("VFX DEST: ", this.translationOption.destination);

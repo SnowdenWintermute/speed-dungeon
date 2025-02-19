@@ -7,7 +7,7 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
+import { Combatant, CombatantProperties } from "../../../../combatants/index.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ActionAccuracy } from "../../combat-action-accuracy.js";
@@ -129,6 +129,17 @@ const config: CombatActionComponentConfig = {
       ActionResolutionStepType.RollIncomingHitOutcomes,
       ActionResolutionStepType.EvalOnHitOutcomeTriggers,
     ];
+  },
+  projectileSpawnLocation: (context) => {
+    const { combatantContext, tracker } = context;
+    const previousTrackerOption = tracker.getPreviousTrackerInSequenceOption();
+    if (!previousTrackerOption)
+      return combatantContext.combatant.combatantProperties.position.clone();
+    const { spawnedEntityOption } = previousTrackerOption;
+    if (spawnedEntityOption && !(spawnedEntityOption instanceof Combatant)) {
+      return spawnedEntityOption.vfxProperties.position.clone();
+    }
+    return combatantContext.combatant.combatantProperties.position.clone();
   },
   motionPhasePositionGetters: {
     [ActionMotionPhase.Delivery]: (context) => {

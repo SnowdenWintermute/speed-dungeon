@@ -77,6 +77,7 @@ export interface CombatActionComponentConfig {
   motionPhasePositionGetters: Partial<
     Record<ActionMotionPhase, (context: ActionResolutionStepContext) => Error | null | Vector3>
   >;
+  projectileSpawnLocation?: (context: ActionResolutionStepContext) => Vector3;
   /** A numeric percentage which will be used against the target's evasion */
   getUnmodifiedAccuracy: (user: CombatantProperties) => ActionAccuracy;
   /** A numeric percentage which will be used against the target's crit avoidance */
@@ -167,6 +168,7 @@ export abstract class CombatActionComponent {
   motionPhasePositionGetters: Partial<
     Record<ActionMotionPhase, (context: ActionResolutionStepContext) => Error | null | Vector3>
   >;
+  projectileSpawnLocation?: (context: ActionResolutionStepContext) => Vector3;
   getAccuracy: (user: CombatantProperties) => ActionAccuracy;
   getCritChance: (user: CombatantProperties) => number;
   getCritMultiplier: (user: CombatantProperties) => number;
@@ -249,6 +251,7 @@ export abstract class CombatActionComponent {
     this.getArmorPenetration = (user) => config.getArmorPenetration(user, this);
     this.getRequiredRange = (user) => config.getRequiredRange(user, this);
     this.motionPhasePositionGetters = config.motionPhasePositionGetters;
+    this.projectileSpawnLocation = config.projectileSpawnLocation;
     this.getHpChangeProperties = (user, target) => config.getHpChangeProperties(user, target, this);
     this.getAppliedConditions = config.getAppliedConditions;
     this.getChildren = config.getChildren;

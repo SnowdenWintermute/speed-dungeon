@@ -113,6 +113,10 @@ const config: CombatActionComponentConfig = {
       ActionResolutionStepType.RecoveryMotion,
     ];
   },
+  projectileSpawnLocation: (context) => {
+    const { combatantContext } = context;
+    return combatantContext.combatant.combatantProperties.position.clone();
+  },
 };
 
 export const ATTACK_RANGED_MAIN_HAND = new CombatActionLeaf(
