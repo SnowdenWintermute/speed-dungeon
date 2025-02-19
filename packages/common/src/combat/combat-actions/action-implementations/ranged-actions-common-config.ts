@@ -6,6 +6,13 @@ import {
 import { AnimationName } from "../../../app-consts.js";
 import { CombatActionRequiredRange } from "../combat-action-range.js";
 import { AnimationTimingType } from "../../../action-processing/game-update-commands.js";
+import { COMMON_DESTINATION_GETTERS } from "./common-destination-getters.js";
+import {
+  ActionMotionPhase,
+  ActionResolutionStepContext,
+} from "../../../action-processing/index.js";
+import { CombatantProperties } from "../../../combatants/index.js";
+import { CombatActionExecutionIntent } from "../combat-action-execution-intent.js";
 
 export const RANGED_ACTIONS_COMMON_CONFIG = {
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
@@ -37,5 +44,14 @@ export const RANGED_ACTIONS_COMMON_CONFIG = {
       },
     };
     return animations;
+  },
+  motionPhasePositionGetters: {
+    ...COMMON_DESTINATION_GETTERS,
+    [ActionMotionPhase.Initial]: (context: ActionResolutionStepContext) => {
+      const { combatantContext } = context;
+      const user = combatantContext.combatant.combatantProperties;
+      const direction = CombatantProperties.getForward(user);
+      return user.homeLocation.add(direction.scale(0.5));
+    },
   },
 };

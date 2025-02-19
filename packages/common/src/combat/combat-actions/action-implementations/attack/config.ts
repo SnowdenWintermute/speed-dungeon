@@ -1,7 +1,6 @@
 import {
   CombatActionComponentConfig,
   CombatActionExecutionIntent,
-  CombatActionLeaf,
   CombatActionName,
   CombatActionUsabilityContext,
   TargetCategories,
@@ -28,7 +27,7 @@ import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js"
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 
-const config: CombatActionComponentConfig = {
+export const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
   description: "Attack target using ranged weapon",
   targetingSchemes: [TargetingScheme.Single],
@@ -101,21 +100,6 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => ATTACK,
-  getResolutionSteps() {
-    return [
-      ActionResolutionStepType.InitialPositioning,
-      ActionResolutionStepType.ChamberingMotion,
-      ActionResolutionStepType.PostChamberingSpawnEntity,
-      ActionResolutionStepType.DeliveryMotion,
-      ActionResolutionStepType.PayResourceCosts,
-      ActionResolutionStepType.EvalOnUseTriggers,
-      ActionResolutionStepType.StartConcurrentSubActions,
-      ActionResolutionStepType.RecoveryMotion,
-    ];
-  },
+  getResolutionSteps: () => [ActionResolutionStepType.DetermineChildActions],
+  motionPhasePositionGetters: {},
 };
-
-export const ATTACK_RANGED_MAIN_HAND = new CombatActionLeaf(
-  CombatActionName.AttackRangedMainhand,
-  config
-);

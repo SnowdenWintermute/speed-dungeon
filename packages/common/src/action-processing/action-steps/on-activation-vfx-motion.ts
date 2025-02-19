@@ -33,7 +33,6 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
 
     super(stepType, context, gameUpdateCommand);
 
-    const { combatantProperties } = context.combatantContext.combatant;
     const { actionExecutionIntent } = context.tracker;
 
     this.originalPosition = vfx.vfxProperties.position.clone();
@@ -43,13 +42,12 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
 
     const destinationGetterOption = action.motionPhasePositionGetters[ActionMotionPhase.Delivery];
     let destinationResult = null;
-    if (destinationGetterOption)
-      destinationResult = destinationGetterOption(context.combatantContext, actionExecutionIntent);
+    if (destinationGetterOption) destinationResult = destinationGetterOption(context);
     if (destinationResult instanceof Error) throw destinationResult;
     if (destinationResult) {
       const translation = {
         destination: destinationResult.clone(),
-        duration: 5000,
+        duration: 2000,
       };
       this.translationOption = translation;
       console.log("VFX DEST: ", this.translationOption.destination);

@@ -89,7 +89,6 @@ const config: CombatActionComponentConfig = {
       ActionResolutionStepType.FinalPositioning,
     ];
   },
-  motionPhasePositionGetters: {},
 };
 
 export const CHAINING_SPLIT_ARROW_PARENT = new CombatActionComposite(

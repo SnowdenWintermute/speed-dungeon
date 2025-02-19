@@ -1,6 +1,5 @@
 import { Vector3 } from "@babylonjs/core";
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionMotionPhase,
   ActionResolutionStep,
   ActionResolutionStepContext,
@@ -47,8 +46,7 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
 
     const destinationGetterOption = action.motionPhasePositionGetters[actionMotionPhase];
     let destinationResult = null;
-    if (destinationGetterOption)
-      destinationResult = destinationGetterOption(combatantContext, actionExecutionIntent);
+    if (destinationGetterOption) destinationResult = destinationGetterOption(context);
     if (destinationResult instanceof Error) throw destinationResult;
     if (destinationResult) {
       const translation = {

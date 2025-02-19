@@ -1,5 +1,9 @@
 import { Vector3 } from "@babylonjs/core";
-import { ActionMotionPhase, ActionResolutionStepType } from "../../../action-processing/index.js";
+import {
+  ActionMotionPhase,
+  ActionResolutionStepContext,
+  ActionResolutionStepType,
+} from "../../../action-processing/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CombatantContext } from "../../../combatant-context/index.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
@@ -52,10 +56,9 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
   },
   motionPhasePositionGetters: {
     ...COMMON_DESTINATION_GETTERS,
-    [ActionMotionPhase.Initial]: (
-      combatantContext: CombatantContext,
-      actionExecutionIntent: CombatActionExecutionIntent
-    ) => {
+    [ActionMotionPhase.Initial]: (context: ActionResolutionStepContext) => {
+      const { combatantContext, tracker } = context;
+      const { actionExecutionIntent } = tracker;
       const targetingCalculator = new TargetingCalculator(combatantContext, null);
       const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
         combatantContext.party,
@@ -80,10 +83,9 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
 
       return target.homeLocation.subtract(direction.scale(target.hitboxRadius + user.hitboxRadius));
     },
-    [ActionMotionPhase.Delivery]: (
-      combatantContext: CombatantContext,
-      actionExecutionIntent: CombatActionExecutionIntent
-    ) => {
+    [ActionMotionPhase.Delivery]: (context: ActionResolutionStepContext) => {
+      const { combatantContext, tracker } = context;
+      const { actionExecutionIntent } = tracker;
       const targetingCalculator = new TargetingCalculator(combatantContext, null);
       const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
         combatantContext.party,

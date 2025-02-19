@@ -24,8 +24,12 @@ import {
 import { CombatantContext } from "../../../../combatant-context/index.js";
 import { chooseRandomFromArray } from "../../../../utils/index.js";
 import { NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG } from "../non-combatant-initiated-actions-common-config.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import {
+  ActionMotionPhase,
+  ActionResolutionStepType,
+} from "../../../../action-processing/index.js";
 import { ActionTracker } from "../../../../action-processing/action-tracker.js";
+import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 
 const MAX_BOUNCES = 2;
 
@@ -126,7 +130,23 @@ const config: CombatActionComponentConfig = {
       ActionResolutionStepType.EvalOnHitOutcomeTriggers,
     ];
   },
-  motionPhasePositionGetters: {},
+  motionPhasePositionGetters: {
+    [ActionMotionPhase.Delivery]: (context) => {
+      const { combatantContext, tracker } = context;
+      const { actionExecutionIntent } = tracker;
+      const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+      const targetingCalculator = new TargetingCalculator(combatantContext, null);
+      action.getAutoTarget(combatantContext, context.tracker.getPreviousTrackerInSequenceOption());
+      const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+        combatantContext.party,
+        actionExecutionIntent
+      );
+      if (primaryTargetResult instanceof Error) return primaryTargetResult;
+      const target = primaryTargetResult;
+
+      return target.homeLocation.clone();
+    },
+  },
 };
 
 export const CHAINING_SPLIT_ARROW_PROJECTILE = new CombatActionComposite(

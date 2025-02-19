@@ -87,7 +87,10 @@ const config: CombatActionComponentConfig = {
     ];
   },
   motionPhasePositionGetters: {
-    [ActionMotionPhase.Delivery]: (combatantContext, actionExecutionIntent) => {
+    [ActionMotionPhase.Delivery]: (context) => {
+      const { combatantContext, tracker } = context;
+      const { actionExecutionIntent } = tracker;
+
       const targetingCalculator = new TargetingCalculator(combatantContext, null);
       const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
         combatantContext.party,
