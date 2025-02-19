@@ -7,6 +7,7 @@ import {
   CombatActionExecutionIntent,
   CombatantContext,
   CombatantMotionActionResolutionStep,
+  GameUpdateCommandType,
   NestedNodeReplayEvent,
   ReplayEventType,
   SequentialIdGenerator,
@@ -37,11 +38,12 @@ export function processCombatAction(
   );
 
   if (initialGameUpdateOptionResult instanceof Error) return initialGameUpdateOptionResult;
-  if (initialGameUpdateOptionResult)
+  if (initialGameUpdateOptionResult) {
     rootReplayNode.events.push({
       type: ReplayEventType.GameUpdate,
       gameUpdate: initialGameUpdateOptionResult,
     });
+  }
 
   let loopLimiter = 0;
 
@@ -86,11 +88,13 @@ export function processCombatAction(
             time
           );
           if (initialGameUpdateOptionResult instanceof Error) return initialGameUpdateOptionResult;
-          if (initialGameUpdateOptionResult)
+
+          if (initialGameUpdateOptionResult) {
             nestedReplayNode.events.push({
               type: ReplayEventType.GameUpdate,
               gameUpdate: initialGameUpdateOptionResult,
             });
+          }
         }
 
         trackerOption.storeCompletedStep();
@@ -106,6 +110,10 @@ export function processCombatAction(
           );
           const gameUpdateCommandOption = nextStepOption.getGameUpdateCommandOption();
           if (gameUpdateCommandOption !== null) {
+            console.log(gameUpdateCommandOption.type);
+            if (gameUpdateCommandOption.type === GameUpdateCommandType.SpawnEntity) {
+              console.log(JSON.stringify(gameUpdateCommandOption));
+            }
             sequenceManager.replayNode.events.push({
               type: ReplayEventType.GameUpdate,
               gameUpdate: gameUpdateCommandOption,

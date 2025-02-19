@@ -48,10 +48,11 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
     if (destinationResult instanceof Error) throw destinationResult;
     if (destinationResult) {
       const translation = {
-        destination: destinationResult,
+        destination: destinationResult.clone(),
         duration: 5000,
       };
       this.translationOption = translation;
+      console.log("VFX DEST: ", this.translationOption.destination);
       gameUpdateCommand.translationOption = translation;
     }
   }

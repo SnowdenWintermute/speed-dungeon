@@ -38,10 +38,6 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       animationManager = combatantModelOption.animationManager;
     } else {
       console.log("ATTEMPTING TO APPLY MOTION TO VFX", translationOption?.destination);
-      console.log("ATTEMPTING TO APPLY MOTION TO VFX", translationOption?.destination);
-      console.log("ATTEMPTING TO APPLY MOTION TO VFX", translationOption?.destination);
-      console.log("ATTEMPTING TO APPLY MOTION TO VFX", translationOption?.destination);
-      console.log("ATTEMPTING TO APPLY MOTION TO VFX", translationOption?.destination);
       const vfxOption = gameWorld.current?.vfxManager.mobile[entityId];
       if (!vfxOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_VFX);
       movementManager = vfxOption.movementManager;

@@ -7,7 +7,7 @@ import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-command
 import { COMBAT_ACTIONS } from "../../combat/index.js";
 import { MobileVfxName, Vfx, VfxType } from "../../vfx/index.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
-import { Vector3 } from "@babylonjs/core";
+import cloneDeep from "lodash.clonedeep";
 
 export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {
@@ -30,7 +30,7 @@ export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
       type: GameUpdateCommandType.SpawnEntity,
       step,
       completionOrderId: null,
-      entity: { type: SpawnableEntityType.Vfx, vfx: entity },
+      entity: { type: SpawnableEntityType.Vfx, vfx: cloneDeep(entity) },
     };
 
     super(step, context, gameUpdateCommand);
