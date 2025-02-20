@@ -166,6 +166,10 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     const scene = await spawnMobileVfxModel(vfxProperties.name);
     const vfxModel = new MobileVfxModel(vfx.entityProperties.id, scene, vfxProperties.position);
     gameWorld.current.vfxManager.register(vfxModel);
+    // spawnMobileVfxModel(vfxProperties.name).then((scene) => {
+    //   const vfxModel = new MobileVfxModel(vfx.entityProperties.id, scene, vfxProperties.position);
+    //   gameWorld.current!.vfxManager.register(vfxModel);
+    // });
     update.isComplete = true;
   },
   [GameUpdateCommandType.EndTurn]: function (arg: any): Promise<void | Error> {

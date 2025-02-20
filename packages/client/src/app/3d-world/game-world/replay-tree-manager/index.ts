@@ -1,24 +1,38 @@
 import {
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  ERROR_MESSAGES,
+  EntityId,
   GAME_UPDATE_COMMAND_TYPE_STRINGS,
   GameUpdateCommand,
+  GameUpdateCommandType,
   NestedNodeReplayEvent,
   ReplayEventType,
+  SpawnableEntityType,
+  VfxType,
 } from "@speed-dungeon/common";
 import { GAME_UPDATE_COMMAND_HANDLERS } from "./game-update-command-handlers";
 import { gameWorld } from "../../SceneManager";
+import { MobileVfxModel, VfxModel, spawnMobileVfxModel } from "../../vfx-models";
 
 export class ReplayTreeManager {
   private queue: NestedNodeReplayEvent[] = [];
   private current: null | ReplayTreeProcessor = null;
+  private preSpawnedVfx: { [id: EntityId]: VfxModel } = {};
   constructor() {}
 
   getCurrent() {
     return this.current;
   }
 
-  enqueueTree(tree: NestedNodeReplayEvent) {
+  async enqueueTree(tree: NestedNodeReplayEvent) {
     this.queue.push(tree);
+  }
+  /**
+  So we don't have to wait for a model to spawn midway through the animation chain, 
+  which would cause a moment where the animation freezes
+   **/
+  preSpawnAllVfx() {
+    // @TODO
   }
 
   currentTreeCompleted() {

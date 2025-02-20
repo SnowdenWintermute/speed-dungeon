@@ -14,6 +14,18 @@ export enum VfxType {
   Static,
 }
 
+export enum VfxParentType {
+  MainHand,
+  // OffHand,
+  // MainHandWeapon,
+  // OffHandWeapon
+}
+
+export interface VfxParent {
+  type: VfxParentType;
+  offset?: Vector3;
+}
+
 export type MobileVfxProperties = {
   vfxType: VfxType.Mobile;
   position: Vector3;

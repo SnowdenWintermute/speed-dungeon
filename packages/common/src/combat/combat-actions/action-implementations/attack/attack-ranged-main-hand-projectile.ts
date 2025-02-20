@@ -24,8 +24,6 @@ import {
   ActionResolutionStepType,
 } from "../../../../action-processing/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import { COMBAT_ACTIONS } from "../index.js";
-import { AdventuringParty } from "../../../../adventuring-party/index.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
