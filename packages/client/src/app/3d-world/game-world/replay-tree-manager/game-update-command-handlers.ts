@@ -93,7 +93,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
           if (translationIsComplete || !translationOption) update.isComplete = true;
         },
       };
-      animationManager.startAnimationWithTransition(animationOption.name, 500, options);
+      animationManager.startAnimationWithTransition(animationOption.name, 0, options);
     } else {
       animationIsComplete = true;
     }

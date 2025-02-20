@@ -24,15 +24,18 @@ export const RANGED_ACTIONS_COMMON_CONFIG = {
       },
       [CombatActionAnimationPhase.Chambering]: {
         name: AnimationName.DrawArrow,
-        timing: { type: AnimationTimingType.Timed, duration: 700 },
+        // timing: { type: AnimationTimingType.Timed, duration: 700 },
+        timing: { type: AnimationTimingType.Timed, duration: 3000 },
       },
       [CombatActionAnimationPhase.Delivery]: {
         name: AnimationName.KnockPullReleaseArrow,
-        timing: { type: AnimationTimingType.Timed, duration: 1200 },
+        // timing: { type: AnimationTimingType.Timed, duration: 1200 },
+        timing: { type: AnimationTimingType.Timed, duration: 3200 },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
         name: AnimationName.FiredArrowRecovery,
-        timing: { type: AnimationTimingType.Timed, duration: 700 },
+        // timing: { type: AnimationTimingType.Timed, duration: 700 },
+        timing: { type: AnimationTimingType.Timed, duration: 3000 },
       },
       [CombatActionAnimationPhase.RecoveryInterrupted]: {
         name: AnimationName.FiredArrowRecovery,

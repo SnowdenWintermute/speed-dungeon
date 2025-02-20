@@ -64,7 +64,7 @@ export const MELEE_START_ATTACK_RANGE = 0.5;
 export const COMBATANT_POSITION_SPACING_SIDE = 1.4;
 export const COMBATANT_POSITION_SPACING_BETWEEN_ROWS = 5.0;
 export const COMBATANT_TIME_TO_MOVE_ONE_METER = 300;
-export const ARROW_TIME_TO_MOVE_ONE_METER = 1000;
+export const ARROW_TIME_TO_MOVE_ONE_METER = 200;
 export const COMBATANT_TIME_TO_ROTATE_360 = 1000;
 export const MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME = 1000;
 export const DEFAULT_HITBOX_RADIUS_FALLBACK = 1.5;
@@ -155,6 +155,7 @@ export enum AnimationName {
 export const ANIMATION_NAME_STRINGS: Record<AnimationName, string> = {
   [AnimationName.MoveForward]: "move-forward",
   [AnimationName.MoveBack]: "move-back",
+  // [AnimationName.Idle]: "idle-bow",
   [AnimationName.Idle]: "idle",
   [AnimationName.IdleGripping]: "idle-sword",
   [AnimationName.Death]: "death",
@@ -170,7 +171,7 @@ export const ANIMATION_NAME_STRINGS: Record<AnimationName, string> = {
   [AnimationName.MeleeOffHandRecoveryInterrupted]: "death",
   [AnimationName.CastSpell]: "cast-spell",
   [AnimationName.UseItem]: "use-item",
-  [AnimationName.DrawArrow]: "draw-arrow",
-  [AnimationName.KnockPullReleaseArrow]: "ranged-attack",
-  [AnimationName.FiredArrowRecovery]: "fired-arrow-recovery",
+  [AnimationName.DrawArrow]: "shoot-arrow-chambering",
+  [AnimationName.KnockPullReleaseArrow]: "shoot-arrow-delivery",
+  [AnimationName.FiredArrowRecovery]: "shoot-arrow-recovery",
 };
