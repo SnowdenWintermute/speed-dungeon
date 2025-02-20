@@ -113,6 +113,9 @@ export class AnimationManager {
   }
 
   stepAnimationTransitionWeights(): Error | void {
+    if (!this.playing) console.log("no animation played this frame");
+    else if (this.characterModel.monsterType === null)
+      console.log("TICKED ANIMATION: ", this.playing.animationGroupOption?.name);
     if (!this.playing || this.playing.weight >= 1) return;
 
     const timeSinceStarted = Date.now() - this.playing.timeStarted;
@@ -150,10 +153,10 @@ export class AnimationManager {
       this.playing = null;
     }
 
-    // @TODO - if playing and previous are both null, try to play idle
     if (this.playing === null && this.previous === null && !this.locked) {
-      console.log("tried to start idle");
-      this.characterModel.startIdleAnimation(500); // circular ref
+      console.log("no playing or previous animation");
+      // console.log("tried to start idle");
+      // this.characterModel.startIdleAnimation(500); // circular ref
     }
   }
 

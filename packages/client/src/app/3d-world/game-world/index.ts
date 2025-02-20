@@ -95,7 +95,7 @@ export class GameWorld {
       this.scene.render();
     });
 
-    // this.startLimitedFramerateRenderLoop(2, 3000);
+    this.startLimitedFramerateRenderLoop(2, 3000);
   }
 
   updateGameWorld() {

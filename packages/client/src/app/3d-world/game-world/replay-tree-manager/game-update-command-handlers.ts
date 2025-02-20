@@ -37,13 +37,13 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       movementManager = combatantModelOption.movementManager;
       animationManager = combatantModelOption.animationManager;
     } else {
-      console.log("ATTEMPTING TO APPLY MOTION TO VFX", translationOption?.destination);
+      // console.log("ATTEMPTING TO APPLY MOTION TO VFX", translationOption?.destination);
       const vfxOption = gameWorld.current?.vfxManager.mobile[entityId];
       if (!vfxOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_VFX);
       movementManager = vfxOption.movementManager;
     }
 
-    console.log("destinationOption: ", translationOption?.destination);
+    // console.log("destinationOption: ", translationOption?.destination);
 
     let translationIsComplete = false;
     let animationIsComplete = false;
@@ -54,11 +54,11 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
         translationOption.duration,
         () => {
           translationIsComplete = true;
-          console.log(
-            "animationIsComplete after translation: ",
-            ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
-            animationIsComplete
-          );
+          // console.log(
+          //   "animationIsComplete after translation: ",
+          //   ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
+          //   animationIsComplete
+          // );
           if (
             animationIsComplete ||
             !animationOption ||
@@ -85,11 +85,11 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
           // otherwise looping animation will finish at an arbitrary time and could set an unintended action to complete
           if (animationOption.timing.type === AnimationTimingType.Looping) return;
           animationIsComplete = true;
-          console.log(
-            "translation is complete after animation: ",
-            ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
-            animationIsComplete
-          );
+          // console.log(
+          //   "translation is complete after animation: ",
+          //   ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
+          //   animationIsComplete
+          // );
           if (translationIsComplete || !translationOption) update.isComplete = true;
         },
       };
@@ -100,7 +100,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
 
     if (!translationOption && !animationOption) {
       update.isComplete = true;
-      console.log("marked motion as complete due to no translationOption and no animationOption");
+      // console.log("marked motion as complete due to no translationOption and no animationOption");
     }
   },
   [GameUpdateCommandType.ResourcesPaid]: async function (update: {
@@ -144,7 +144,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
 
     const { vfx } = command.entity;
-    console.log("SPAWNED VFX: ", vfx.vfxProperties.position);
+    // console.log("SPAWNED VFX: ", vfx.vfxProperties.position);
     const { vfxProperties } = vfx;
     if (vfxProperties.vfxType !== VfxType.Mobile) {
       return new Error("non-mobile vfx not implemented");

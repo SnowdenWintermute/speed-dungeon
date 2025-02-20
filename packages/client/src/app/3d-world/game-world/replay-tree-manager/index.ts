@@ -61,11 +61,11 @@ export class ReplayTreeProcessor {
       if (branch.isDoneProcessing()) this.activeBranches.splice(i, 1);
       if (branch.currentStepIsComplete()) {
         const completedUpdateOption = branch.getCurrentGameUpdate();
-        if (completedUpdateOption)
-          console.log(
-            "finished processing ",
-            GAME_UPDATE_COMMAND_TYPE_STRINGS[completedUpdateOption.command.type]
-          );
+        // if (completedUpdateOption)
+        // console.log(
+        //   "finished processing ",
+        //   GAME_UPDATE_COMMAND_TYPE_STRINGS[completedUpdateOption.command.type]
+        // );
 
         branch.startProcessingNext();
       }
@@ -108,7 +108,7 @@ export class ReplayBranchProcessor {
       this.branchProcessors.push(newBranch);
       return;
     }
-    console.log("started processing", ACTION_RESOLUTION_STEP_TYPE_STRINGS[node.gameUpdate.step]);
+    // console.log("started processing", ACTION_RESOLUTION_STEP_TYPE_STRINGS[node.gameUpdate.step]);
 
     this.currentGameUpdateOption = { command: node.gameUpdate, isComplete: false };
 
