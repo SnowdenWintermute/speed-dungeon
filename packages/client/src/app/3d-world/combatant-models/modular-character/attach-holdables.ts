@@ -3,7 +3,6 @@ import {
   CombatantClass,
   Equipment,
   EquipmentBaseItem,
-  EquipmentBaseItemType,
   EquipmentType,
   HoldableSlotType,
   OneHandedMeleeWeapon,
@@ -12,6 +11,13 @@ import {
 } from "@speed-dungeon/common";
 import { ModularCharacter } from "./index";
 import { getChildMeshByName } from "../../utils";
+import {
+  SKELETON_HIPS_NAMES,
+  SKELETON_MAIN_HAND_NAMES,
+  SKELETON_OFF_HAND_NAMES,
+  SKELETON_STRUCTURE_TYPE,
+  SKELETON_TORSO_NAMES,
+} from "./skeleton-structure-variables";
 
 function setMeshPositionAndRotationToZero(mesh: AbstractMesh) {
   setMeshRotationToZero(mesh);
@@ -55,7 +61,10 @@ export function attachHoldableModelToSkeleton(
     }
 
     const equipmentBone = combatantModel.skeleton.meshes[0]
-      ? getChildMeshByName(combatantModel.skeleton.meshes[0], "Wrist.L")
+      ? getChildMeshByName(
+          combatantModel.skeleton.meshes[0],
+          SKELETON_OFF_HAND_NAMES[SKELETON_STRUCTURE_TYPE]
+        )
       : undefined;
     if (equipmentBone && equipmentModel.meshes[0]) equipmentModel.meshes[0].parent = equipmentBone;
   } else if (slot === HoldableSlotType.MainHand) {
@@ -65,9 +74,23 @@ export function attachHoldableModelToSkeleton(
     parentMesh.rotation.z = Math.PI / 2;
     parentMesh.rotation.x = Math.PI;
 
-    const equipmentBone = combatantModel.skeleton.meshes[0]
-      ? getChildMeshByName(combatantModel.skeleton.meshes[0], "Wrist.R")
-      : undefined;
+    const isBow =
+      equipment.equipmentBaseItemProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon;
+    let equipmentBone;
+    const skeletonRoot = combatantModel.skeleton.meshes[0];
+    if (!skeletonRoot) equipmentBone = undefined;
+    else if (isBow) {
+      equipmentBone = getChildMeshByName(
+        skeletonRoot,
+        SKELETON_OFF_HAND_NAMES[SKELETON_STRUCTURE_TYPE]
+      );
+    } else {
+      equipmentBone = getChildMeshByName(
+        skeletonRoot,
+        SKELETON_MAIN_HAND_NAMES[SKELETON_STRUCTURE_TYPE]
+      );
+    }
+
     if (equipmentBone && parentMesh) parentMesh.parent = equipmentBone;
   }
 }
@@ -82,8 +105,14 @@ export function attachHoldableModelToHolsteredPosition(
   if (!parentMesh) return console.error("no parent mesh");
   const skeletonParentMesh = combatantModel.skeleton.meshes[0];
   if (!skeletonParentMesh) return console.error("no skeleton mesh");
-  const torsoBone = getChildMeshByName(skeletonParentMesh, "Torso");
-  const hipsBone = getChildMeshByName(skeletonParentMesh, "Hips");
+  const torsoBone = getChildMeshByName(
+    skeletonParentMesh,
+    SKELETON_TORSO_NAMES[SKELETON_STRUCTURE_TYPE]
+  );
+  const hipsBone = getChildMeshByName(
+    skeletonParentMesh,
+    SKELETON_HIPS_NAMES[SKELETON_STRUCTURE_TYPE]
+  );
   if (!torsoBone || !hipsBone) return console.error("missing expected bones");
   setMeshPositionAndRotationToZero(parentMesh);
 

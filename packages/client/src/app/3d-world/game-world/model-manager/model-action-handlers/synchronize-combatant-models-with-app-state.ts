@@ -39,7 +39,6 @@ export async function synchronizeCombatantModelsWithAppState() {
   const modelSpawnPromises: Promise<Error | ModularCharacter>[] = [];
 
   for (const [entityId, { combatant, position }] of Object.entries(modelsAndPositions)) {
-    console.log("position: ", position);
     const modelOption = modelManager.combatantModels[entityId];
     if (!modelOption) {
       // start spawning model which we need to

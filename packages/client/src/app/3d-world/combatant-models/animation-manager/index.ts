@@ -152,6 +152,7 @@ export class AnimationManager {
 
     // @TODO - if playing and previous are both null, try to play idle
     if (this.playing === null && this.previous === null && !this.locked) {
+      console.log("tried to start idle");
       this.characterModel.startIdleAnimation(500); // circular ref
     }
   }

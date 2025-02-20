@@ -1,5 +1,6 @@
 import {
   AbstractMesh,
+  Bone,
   BoundingInfo,
   Color4,
   ISceneLoaderAsyncResult,
@@ -42,6 +43,7 @@ import { handleHotswapSlotChanged } from "./handle-hotswap-slot-changed";
 import { spawnItemModel } from "../../item-models/spawn-item-model";
 import { HighlightManager } from "./highlight-manager";
 import { ModelMovementManager } from "../../model-movement-manager";
+import { SKELETON_ARMATURE_NAMES, SKELETON_STRUCTURE_TYPE } from "./skeleton-structure-variables";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -96,7 +98,9 @@ export class ModularCharacter {
 
     // get rid of the placeholder mesh (usually a simple quad or tri) which
     // must be included in order for babylon to recognize the loaded asset as a skeleton
-    while (skeleton.meshes.length > 1) skeleton.meshes.pop()!.dispose(false, true);
+    while (skeleton.meshes.length > 1) {
+      skeleton.meshes.pop()!.dispose(false, true);
+    }
 
     const rootMesh = this.skeleton.meshes[0];
     if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
@@ -194,7 +198,10 @@ export class ModularCharacter {
 
   async attachPart(partCategory: ModularCharacterPartCategory, partPath: string) {
     const part = await importMesh(partPath, this.world.scene);
-    const parent = getTransformNodeByName(this.skeleton, "CharacterArmature");
+    const parent = getTransformNodeByName(
+      this.skeleton,
+      SKELETON_ARMATURE_NAMES[SKELETON_STRUCTURE_TYPE]
+    );
     if (!this.skeleton.skeletons[0])
       return new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
 

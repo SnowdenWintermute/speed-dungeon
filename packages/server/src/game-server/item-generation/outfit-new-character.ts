@@ -93,17 +93,40 @@ function outfitWarrior(combatantProperties: CombatantProperties) {
 }
 
 function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
-  const mh = generateSpecificEquipmentType({
-    equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-    baseItemType: TwoHandedMeleeWeapon.BoStaff,
-  });
-  if (!(mh instanceof Error)) {
-    if (combatantProperties.equipment.inherentHoldableHotswapSlots[1])
-      combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
-        HoldableSlotType.MainHand
-      ] = mh;
-    mh.durability = { inherentMax: 4, current: 1 };
-  }
+  // const mh = generateSpecificEquipmentType({
+  //   equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+  //   baseItemType: TwoHandedMeleeWeapon.BoStaff,
+  // });
+  // if (!(mh instanceof Error)) {
+  //   if (combatantProperties.equipment.inherentHoldableHotswapSlots[1])
+  //     combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
+  //       HoldableSlotType.MainHand
+  //     ] = mh;
+  //   mh.durability = { inherentMax: 4, current: 1 };
+  // }
+
+  const mh = generateSpecificEquipmentType(
+    {
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.ButterKnife,
+    },
+    true
+  );
+  if (!(mh instanceof Error) && combatantProperties.equipment.inherentHoldableHotswapSlots[1])
+    combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
+      HoldableSlotType.MainHand
+    ] = mh;
+  const oh = generateSpecificEquipmentType(
+    {
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.ButterKnife,
+    },
+    true
+  );
+  if (!(oh instanceof Error) && combatantProperties.equipment.inherentHoldableHotswapSlots[1])
+    combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
+      HoldableSlotType.OffHand
+    ] = oh;
 
   // const oh = generateSpecificEquipmentType({
   //   equipmentType: EquipmentType.Shield,
