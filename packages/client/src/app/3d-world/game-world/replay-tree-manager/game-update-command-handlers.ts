@@ -1,6 +1,7 @@
 import {
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActivatedTriggersGameUpdateCommand,
+  AnimationName,
   AnimationTimingType,
   ERROR_MESSAGES,
   EntityMotionGameUpdateCommand,
@@ -65,6 +66,9 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
             animationOption.timing.type === AnimationTimingType.Looping
           )
             update.isComplete = true;
+
+          if (animationManager && command.idleOnComplete)
+            animationManager.startAnimationWithTransition(AnimationName.Idle, 500);
         }
       );
     } else {
@@ -90,10 +94,19 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
           //   ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
           //   animationIsComplete
           // );
-          if (translationIsComplete || !translationOption) update.isComplete = true;
+          if (translationIsComplete || !translationOption) {
+            update.isComplete = true;
+
+            if (command.idleOnComplete)
+              animationManager.startAnimationWithTransition(AnimationName.Idle, 500);
+          }
         },
       };
-      animationManager.startAnimationWithTransition(animationOption.name, 0, options);
+      animationManager.startAnimationWithTransition(
+        animationOption.name,
+        command.instantTransition ? 0 : 500,
+        options
+      );
     } else {
       animationIsComplete = true;
     }

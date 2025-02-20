@@ -181,7 +181,7 @@ export class AnimationManager {
   }
 
   getFallbackAnimationName(animationName: AnimationName) {
-    if (animationName === AnimationName.MeleeOffHand) return AnimationName.MeleeMainHand;
+    // if (animationName === AnimationName.MeleeOffHand) return AnimationName.MeleeMainHand;
     if (animationName === AnimationName.MoveBack) return AnimationName.MoveForward;
     if (animationName === AnimationName.Idle) return AnimationName.MoveForward;
   }

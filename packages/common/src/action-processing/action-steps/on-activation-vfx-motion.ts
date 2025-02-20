@@ -13,11 +13,7 @@ import {
 import { COMBAT_ACTIONS } from "../../combat/index.js";
 import { Vfx } from "../../vfx/index.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
-import { getTranslationTime } from "../../combat/combat-actions/action-implementations/get-translation-time.js";
-import {
-  ARROW_TIME_TO_MOVE_ONE_METER,
-  COMBATANT_TIME_TO_MOVE_ONE_METER,
-} from "../../app-consts.js";
+import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 
 const stepType = ActionResolutionStepType.OnActivationVfxMotion;
 export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionStep {
@@ -40,7 +36,6 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
     const { actionExecutionIntent } = context.tracker;
 
     this.originalPosition = vfx.vfxProperties.position.clone();
-    console.log("ORIGINAL VFX POSITION: ", this.originalPosition);
 
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
 
@@ -56,7 +51,6 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
         duration: timeToTranslate,
       };
       this.translationOption = translation;
-      console.log("VFX DEST: ", this.translationOption.destination);
       gameUpdateCommand.translationOption = translation;
     }
   }
@@ -68,12 +62,6 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
       this.translationOption.duration === 0
         ? 1
         : Math.min(1, this.elapsed / this.translationOption.duration);
-    console.log(
-      "PERCENT TRAVELLED: ",
-      normalizedPercentTravelled,
-      "DURATION: ",
-      this.translationOption.duration
-    );
 
     const newPosition = Vector3.Lerp(
       this.originalPosition,

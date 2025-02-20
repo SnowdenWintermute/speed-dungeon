@@ -49,6 +49,7 @@ export class GameWorld {
   replayTreeManager = new ReplayTreeManager();
   idGenerator = new IdGenerator();
   vfxManager = new VfxManager();
+  tickCounter: number = 0;
 
   constructor(
     public canvas: HTMLCanvasElement,
@@ -95,10 +96,11 @@ export class GameWorld {
       this.scene.render();
     });
 
-    this.startLimitedFramerateRenderLoop(2, 3000);
+    // this.startLimitedFramerateRenderLoop(5, 3000);
   }
 
   updateGameWorld() {
+    this.tickCounter += 1;
     this.updateDebugText();
     if (this.replayTreeManager.currentTreeCompleted()) this.replayTreeManager.startNext();
     this.replayTreeManager.process();

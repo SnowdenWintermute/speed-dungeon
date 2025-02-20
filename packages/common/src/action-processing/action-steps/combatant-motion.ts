@@ -35,6 +35,11 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
       completionOrderId: null,
       entityType: SpawnableEntityType.Combatant,
       entityId: context.combatantContext.combatant.entityProperties.id,
+      idleOnComplete: animationPhase === CombatActionAnimationPhase.Final,
+      instantTransition:
+        animationPhase !== CombatActionAnimationPhase.Initial &&
+        animationPhase !== CombatActionAnimationPhase.Chambering &&
+        animationPhase !== CombatActionAnimationPhase.Final,
     };
 
     super(step, context, gameUpdateCommand);

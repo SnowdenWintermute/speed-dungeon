@@ -78,6 +78,8 @@ export type EntityMotionGameUpdateCommand = {
   entityId: EntityId;
   animationOption?: EntityAnimation;
   translationOption?: EntityTranslation;
+  idleOnComplete?: boolean;
+  instantTransition?: boolean;
 };
 
 export type ResourcesPaidGameUpdateCommand = {

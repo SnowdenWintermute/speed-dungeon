@@ -6,6 +6,7 @@ import {
   ReplayEventType,
 } from "@speed-dungeon/common";
 import { GAME_UPDATE_COMMAND_HANDLERS } from "./game-update-command-handlers";
+import { gameWorld } from "../../SceneManager";
 
 export class ReplayTreeManager {
   private queue: NestedNodeReplayEvent[] = [];
@@ -59,15 +60,21 @@ export class ReplayTreeProcessor {
       const branch = this.activeBranches[i];
       if (!branch) continue;
       if (branch.isDoneProcessing()) this.activeBranches.splice(i, 1);
-      if (branch.currentStepIsComplete()) {
+      let branchComplete = branch.isDoneProcessing();
+      let currentStepComplete = branch.currentStepIsComplete();
+      while (currentStepComplete && !branchComplete) {
+        console.log(gameWorld.current?.tickCounter);
         const completedUpdateOption = branch.getCurrentGameUpdate();
-        // if (completedUpdateOption)
-        // console.log(
-        //   "finished processing ",
-        //   GAME_UPDATE_COMMAND_TYPE_STRINGS[completedUpdateOption.command.type]
-        // );
+        if (completedUpdateOption)
+          console.log(
+            "finished processing ",
+            GAME_UPDATE_COMMAND_TYPE_STRINGS[completedUpdateOption.command.type]
+          );
 
         branch.startProcessingNext();
+        if (branch.getCurrentGameUpdate() === null) break;
+        currentStepComplete = branch.currentStepIsComplete();
+        branchComplete = branch.isDoneProcessing();
       }
     }
   }
