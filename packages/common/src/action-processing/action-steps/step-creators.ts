@@ -1,5 +1,6 @@
 import { CombatActionAnimationPhase } from "../../combat/combat-actions/combat-action-animations.js";
 import { Combatant } from "../../combatants/index.js";
+import { SpawnableEntityType } from "../../spawnables/index.js";
 import { CombatantMotionActionResolutionStep } from "./combatant-motion.js";
 import { DetermineChildActionsActionResolutionStep } from "./determine-child-actions.js";
 import { EvalOnHitOutcomeTriggersActionResolutionStep } from "./evaluate-hit-outcome-triggers.js";
@@ -65,9 +66,12 @@ export const ACTION_STEP_CREATORS: Record<
   [ActionResolutionStepType.OnActivationVfxMotion]: (context) => {
     const expectedProjectileEntityOption = context.tracker.spawnedEntityOption;
     if (!expectedProjectileEntityOption) throw new Error("expected projectile was missing");
-    if (expectedProjectileEntityOption instanceof Combatant)
+    if (expectedProjectileEntityOption.type !== SpawnableEntityType.Vfx)
       throw new Error("expected entity was of invalid type");
-    return new OnActivationVfxMotionActionResolutionStep(context, expectedProjectileEntityOption);
+    return new OnActivationVfxMotionActionResolutionStep(
+      context,
+      expectedProjectileEntityOption.vfx
+    );
   },
   [ActionResolutionStepType.RollIncomingHitOutcomes]: (context) =>
     new RollIncomingHitOutcomesActionResolutionStep(context),

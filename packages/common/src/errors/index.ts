@@ -144,6 +144,7 @@ export const ERROR_MESSAGES = {
     INCORRECT_MODEL_ACTION: "The wrong type of model action was passed to this function",
     NO_EQUIPMENT_MODEL: "Equipment model not found",
     NO_VFX: "Expected vfx was missing",
+    MISSING_EXPECTED_BONE: "No bone was found by that name",
   },
   CHECKED_EXPECTATION_FAILED:
     "Code was reached that should have been impossible due to prior value checks",

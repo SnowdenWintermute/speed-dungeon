@@ -23,6 +23,7 @@ export class ModelMovementManager {
 
   startTranslating(destination: Vector3, duration: number, onComplete: () => void) {
     const previous = this.transformNode.position.clone();
+    console.log("got destinatino: ", destination.x, destination.y, destination.z);
     const tracker = new TranslationTracker(
       this.transformNode,
       duration,

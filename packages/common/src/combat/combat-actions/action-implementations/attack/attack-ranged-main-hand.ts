@@ -27,6 +27,8 @@ import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
+import { SpawnableEntityType } from "../../../../spawnables/index.js";
+import { MobileVfxName, VfxParentType, VfxType } from "../../../../vfx/index.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -113,9 +115,25 @@ const config: CombatActionComponentConfig = {
       ActionResolutionStepType.RecoveryMotion,
     ];
   },
-  projectileSpawnLocation: (context) => {
+  getSpawnableEntity: (context) => {
     const { combatantContext } = context;
-    return combatantContext.combatant.combatantProperties.position.clone();
+    const position = combatantContext.combatant.combatantProperties.position.clone();
+
+    return {
+      type: SpawnableEntityType.Vfx,
+      vfx: {
+        entityProperties: { id: context.idGenerator.generate(), name: "" },
+        vfxProperties: {
+          vfxType: VfxType.Mobile,
+          position,
+          name: MobileVfxName.Arrow,
+          parentOption: {
+            type: VfxParentType.UserMainHand,
+            parentEntityId: context.combatantContext.combatant.entityProperties.id,
+          },
+        },
+      },
+    };
   },
 };
 

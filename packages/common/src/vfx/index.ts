@@ -1,5 +1,5 @@
 import { Vector3 } from "@babylonjs/core";
-import { EntityProperties } from "../primatives/index.js";
+import { EntityId, EntityProperties } from "../primatives/index.js";
 
 export enum MobileVfxName {
   Arrow,
@@ -15,7 +15,7 @@ export enum VfxType {
 }
 
 export enum VfxParentType {
-  MainHand,
+  UserMainHand,
   // OffHand,
   // MainHandWeapon,
   // OffHandWeapon
@@ -23,6 +23,7 @@ export enum VfxParentType {
 
 export interface VfxParent {
   type: VfxParentType;
+  parentEntityId: EntityId;
   offset?: Vector3;
 }
 
@@ -30,12 +31,14 @@ export type MobileVfxProperties = {
   vfxType: VfxType.Mobile;
   position: Vector3;
   name: MobileVfxName;
+  parentOption?: VfxParent;
 };
 
 export type StaticVfxProperties = {
   vfxType: VfxType.Static;
   position: Vector3;
   name: StaticVfxName;
+  parentOption?: VfxParent;
 };
 
 export type VfxProperties = MobileVfxProperties | StaticVfxProperties;

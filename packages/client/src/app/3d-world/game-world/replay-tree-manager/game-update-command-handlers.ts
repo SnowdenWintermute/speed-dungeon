@@ -10,6 +10,7 @@ import {
   ResourcesPaidGameUpdateCommand,
   SpawnEntityGameUpdateCommand,
   SpawnableEntityType,
+  VfxParentType,
   VfxType,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
@@ -19,6 +20,13 @@ import {
 } from "../../combatant-models/animation-manager";
 import { ModelMovementManager } from "../../model-movement-manager";
 import { MobileVfxModel, spawnMobileVfxModel } from "../../vfx-models";
+import { getChildMeshByName } from "../../utils";
+import {
+  SKELETON_MAIN_HAND_NAMES,
+  SKELETON_STRUCTURE_TYPE,
+} from "../../combatant-models/modular-character/skeleton-structure-variables";
+import { Vector3 } from "@babylonjs/core";
+import { plainToInstance } from "class-transformer";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
@@ -42,6 +50,8 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       const vfxOption = gameWorld.current?.vfxManager.mobile[entityId];
       if (!vfxOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_VFX);
       movementManager = vfxOption.movementManager;
+
+      movementManager.transformNode.setParent(null);
     }
 
     // console.log("destinationOption: ", translationOption?.destination);
@@ -50,27 +60,27 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     let animationIsComplete = false;
 
     if (translationOption) {
-      movementManager.startTranslating(
-        translationOption.destination,
-        translationOption.duration,
-        () => {
-          translationIsComplete = true;
-          // console.log(
-          //   "animationIsComplete after translation: ",
-          //   ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
-          //   animationIsComplete
-          // );
-          if (
-            animationIsComplete ||
-            !animationOption ||
-            animationOption.timing.type === AnimationTimingType.Looping
-          )
-            update.isComplete = true;
+      console.log("before:", translationOption.destination);
+      const destination = plainToInstance(Vector3, translationOption.destination);
+      console.log("after:", destination);
+      // don't consider the y from the server since they don't know about height
+      if (command.entityType === SpawnableEntityType.Vfx) destination.y = 0.5;
+      // const destinationInstance = new Vector3(destination.x, modifiedY, destination.z);
+      // destination.set(destination.x, 0.5, destination.z);
+      console.log("destination at time of transaltion start", translationOption.destination);
 
-          if (animationManager && command.idleOnComplete)
-            animationManager.startAnimationWithTransition(AnimationName.Idle, 500);
-        }
-      );
+      movementManager.startTranslating(destination, translationOption.duration, () => {
+        translationIsComplete = true;
+        if (
+          animationIsComplete ||
+          !animationOption ||
+          animationOption.timing.type === AnimationTimingType.Looping
+        )
+          update.isComplete = true;
+
+        if (animationManager && command.idleOnComplete)
+          animationManager.startAnimationWithTransition(AnimationName.Idle, 500);
+      });
     } else {
       translationIsComplete = true;
     }
@@ -166,6 +176,20 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     const scene = await spawnMobileVfxModel(vfxProperties.name);
     const vfxModel = new MobileVfxModel(vfx.entityProperties.id, scene, vfxProperties.position);
     gameWorld.current.vfxManager.register(vfxModel);
+    if (vfxProperties.parentOption) {
+      if (vfxProperties.parentOption.type === VfxParentType.UserMainHand) {
+        const actionUserOption =
+          gameWorld.current.modelManager.combatantModels[vfxProperties.parentOption.parentEntityId];
+        if (!actionUserOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+        const userMainHandBone = getChildMeshByName(
+          actionUserOption.rootMesh,
+          SKELETON_MAIN_HAND_NAMES[SKELETON_STRUCTURE_TYPE]
+        );
+        if (!userMainHandBone) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_EXPECTED_BONE);
+        vfxModel.movementManager.transformNode.setParent(userMainHandBone);
+        vfxModel.movementManager.transformNode.setPositionWithLocalVector(Vector3.Zero());
+      }
+    }
     // spawnMobileVfxModel(vfxProperties.name).then((scene) => {
     //   const vfxModel = new MobileVfxModel(vfx.entityProperties.id, scene, vfxProperties.position);
     //   gameWorld.current!.vfxManager.register(vfxModel);

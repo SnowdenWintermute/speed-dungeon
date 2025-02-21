@@ -1,6 +1,7 @@
 import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../combat/index.js";
 import { Combatant } from "../combatants/index.js";
 import { Milliseconds } from "../primatives/index.js";
+import { SpawnableEntity } from "../spawnables/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { Vfx } from "../vfx/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
@@ -16,7 +17,7 @@ export class ActionTracker {
   stepIndex: number = -1;
   completedSteps: ActionResolutionStep[] = [];
   wasInterrupted: boolean = false;
-  spawnedEntityOption: null | Combatant | Vfx = null;
+  spawnedEntityOption: null | SpawnableEntity = null;
   constructor(
     public parentActionManager: ActionSequenceManager,
     public id: string,
@@ -24,7 +25,7 @@ export class ActionTracker {
     private previousTrackerInSequenceOption: null | ActionTracker,
     private timeStarted: Milliseconds,
     private idGenerator: IdGenerator,
-    private spawnedEntityFromParent?: null | Combatant | Vfx
+    private spawnedEntityFromParent?: null | SpawnableEntity
   ) {
     if (spawnedEntityFromParent) this.spawnedEntityOption = spawnedEntityFromParent;
     const firstStepOption = this.initializeNextStep();

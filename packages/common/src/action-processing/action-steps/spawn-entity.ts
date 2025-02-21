@@ -5,28 +5,14 @@ import {
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { COMBAT_ACTIONS } from "../../combat/index.js";
-import { MobileVfxName, Vfx, VfxType } from "../../vfx/index.js";
-import { SpawnableEntityType } from "../../spawnables/index.js";
 import cloneDeep from "lodash.clonedeep";
 
 export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
-    // @TODO - determine based on action step entity to spawn method method
-    const defaultPosition = context.combatantContext.combatant.combatantProperties.position.clone();
-    const position = action.projectileSpawnLocation
-      ? action.projectileSpawnLocation(context)
-      : defaultPosition;
+    if (!action.getSpawnableEntity) throw new Error("missing expected spawnable entity getter");
 
-    console.log("SPAWNED VFX AT: ", position);
-    const entity: Vfx = {
-      entityProperties: { id: context.idGenerator.generate(), name: "" },
-      vfxProperties: {
-        vfxType: VfxType.Mobile,
-        position,
-        name: MobileVfxName.Arrow,
-      },
-    };
+    const entity = action.getSpawnableEntity(context);
 
     context.tracker.spawnedEntityOption = entity;
 
@@ -34,7 +20,7 @@ export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
       type: GameUpdateCommandType.SpawnEntity,
       step,
       completionOrderId: null,
-      entity: { type: SpawnableEntityType.Vfx, vfx: cloneDeep(entity) },
+      entity: cloneDeep(entity),
     };
 
     super(step, context, gameUpdateCommand);

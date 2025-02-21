@@ -30,6 +30,8 @@ import {
 } from "../../../../action-processing/index.js";
 import { ActionTracker } from "../../../../action-processing/action-tracker.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { SpawnableEntityType } from "../../../../spawnables/index.js";
+import { MobileVfxName, VfxType } from "../../../../vfx/index.js";
 
 const MAX_BOUNCES = 2;
 
@@ -130,16 +132,28 @@ const config: CombatActionComponentConfig = {
       ActionResolutionStepType.EvalOnHitOutcomeTriggers,
     ];
   },
-  projectileSpawnLocation: (context) => {
+  getSpawnableEntity: (context) => {
     const { combatantContext, tracker } = context;
     const previousTrackerOption = tracker.getPreviousTrackerInSequenceOption();
-    if (!previousTrackerOption)
-      return combatantContext.combatant.combatantProperties.position.clone();
-    const { spawnedEntityOption } = previousTrackerOption;
-    if (spawnedEntityOption && !(spawnedEntityOption instanceof Combatant)) {
-      return spawnedEntityOption.vfxProperties.position.clone();
+    let position = combatantContext.combatant.combatantProperties.position.clone();
+    if (
+      previousTrackerOption &&
+      previousTrackerOption.spawnedEntityOption &&
+      previousTrackerOption.spawnedEntityOption.type === SpawnableEntityType.Vfx
+    ) {
+      position = previousTrackerOption.spawnedEntityOption.vfx.vfxProperties.position.clone();
     }
-    return combatantContext.combatant.combatantProperties.position.clone();
+    return {
+      type: SpawnableEntityType.Vfx,
+      vfx: {
+        entityProperties: { id: context.idGenerator.generate(), name: "" },
+        vfxProperties: {
+          vfxType: VfxType.Mobile,
+          position,
+          name: MobileVfxName.Arrow,
+        },
+      },
+    };
   },
   motionPhasePositionGetters: {
     [ActionMotionPhase.Delivery]: (context) => {
