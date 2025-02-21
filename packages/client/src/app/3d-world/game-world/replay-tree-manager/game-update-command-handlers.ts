@@ -60,14 +60,9 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     let animationIsComplete = false;
 
     if (translationOption) {
-      console.log("before:", translationOption.destination);
       const destination = plainToInstance(Vector3, translationOption.destination);
-      console.log("after:", destination);
-      // don't consider the y from the server since they don't know about height
+      // don't consider the y from the server since the server only calculates 2d positions
       if (command.entityType === SpawnableEntityType.Vfx) destination.y = 0.5;
-      // const destinationInstance = new Vector3(destination.x, modifiedY, destination.z);
-      // destination.set(destination.x, 0.5, destination.z);
-      console.log("destination at time of transaltion start", translationOption.destination);
 
       movementManager.startTranslating(destination, translationOption.duration, () => {
         translationIsComplete = true;
@@ -75,8 +70,14 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
           animationIsComplete ||
           !animationOption ||
           animationOption.timing.type === AnimationTimingType.Looping
-        )
+        ) {
           update.isComplete = true;
+          if (command.despawnOnComplete) {
+            if (command.entityType === SpawnableEntityType.Vfx) {
+              gameWorld.current?.vfxManager.unregister(command.entityId);
+            }
+          }
+        }
 
         if (animationManager && command.idleOnComplete)
           animationManager.startAnimationWithTransition(AnimationName.Idle, 500);
@@ -99,11 +100,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
           // otherwise looping animation will finish at an arbitrary time and could set an unintended action to complete
           if (animationOption.timing.type === AnimationTimingType.Looping) return;
           animationIsComplete = true;
-          // console.log(
-          //   "translation is complete after animation: ",
-          //   ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step],
-          //   animationIsComplete
-          // );
+
           if (translationIsComplete || !translationOption) {
             update.isComplete = true;
 
@@ -121,10 +118,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       animationIsComplete = true;
     }
 
-    if (!translationOption && !animationOption) {
-      update.isComplete = true;
-      // console.log("marked motion as complete due to no translationOption and no animationOption");
-    }
+    if (!translationOption && !animationOption) update.isComplete = true;
   },
   [GameUpdateCommandType.ResourcesPaid]: async function (update: {
     command: ResourcesPaidGameUpdateCommand;

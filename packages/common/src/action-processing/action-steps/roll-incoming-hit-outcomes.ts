@@ -23,13 +23,15 @@ const stepType = ActionResolutionStepType.RollIncomingHitOutcomes;
 export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
     // @TODO - calculate hits, evades, parries, blocks, hp/mp/shard/durability changes to apply
-    // and write them to the billboard so post-activation triggers can read them
+    // and write them to the blackboard so post-activation triggers can read them, and also
+    // apply them to the game state so subsequent action.shouldExecute calls can check if
+    // their target is dead, user is out of mana etc
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.HitOutcomes,
       step: stepType,
       completionOrderId: null,
       actionName: context.tracker.actionExecutionIntent.actionName,
-      // hits, misses, evades, parries, blocks
+      // hits, misses, evades, parries, blocks, counters
     };
     super(stepType, context, gameUpdateCommand);
   }

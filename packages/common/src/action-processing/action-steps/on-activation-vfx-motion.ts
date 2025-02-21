@@ -29,6 +29,7 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
       completionOrderId: null,
       entityType: SpawnableEntityType.Vfx,
       entityId: vfx.entityProperties.id,
+      despawnOnComplete: true,
     };
 
     super(stepType, context, gameUpdateCommand);

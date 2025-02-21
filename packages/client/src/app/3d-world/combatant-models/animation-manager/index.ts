@@ -114,8 +114,6 @@ export class AnimationManager {
 
   stepAnimationTransitionWeights(): Error | void {
     if (!this.playing) console.log("no animation played this frame");
-    else if (this.characterModel.monsterType === null)
-      console.log("TICKED ANIMATION: ", this.playing.animationGroupOption?.name);
     if (!this.playing || this.playing.weight >= 1) return;
 
     const timeSinceStarted = Date.now() - this.playing.timeStarted;

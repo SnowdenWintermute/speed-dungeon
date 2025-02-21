@@ -80,6 +80,7 @@ export type EntityMotionGameUpdateCommand = {
   translationOption?: EntityTranslation;
   idleOnComplete?: boolean;
   instantTransition?: boolean;
+  despawnOnComplete?: boolean;
 };
 
 export type ResourcesPaidGameUpdateCommand = {

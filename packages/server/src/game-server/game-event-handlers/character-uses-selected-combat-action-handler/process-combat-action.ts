@@ -104,10 +104,6 @@ export function processCombatAction(
         if (nextStepOption !== null) {
           trackerOption.currentStep = nextStepOption;
           currentStep = nextStepOption;
-          console.log(
-            "started next step:",
-            ACTION_RESOLUTION_STEP_TYPE_STRINGS[nextStepOption.type]
-          );
           const gameUpdateCommandOption = nextStepOption.getGameUpdateCommandOption();
           if (gameUpdateCommandOption !== null) {
             console.log(gameUpdateCommandOption.type);
