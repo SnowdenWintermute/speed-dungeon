@@ -31,7 +31,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
       step: stepType,
       completionOrderId: null,
       actionName: context.tracker.actionExecutionIntent.actionName,
-      // hits, misses, evades, parries, blocks, counters
+      // hp changes, mp changes, durability changes, shard changes, misses, evades, parries, blocks, counters
     };
     super(stepType, context, gameUpdateCommand);
   }

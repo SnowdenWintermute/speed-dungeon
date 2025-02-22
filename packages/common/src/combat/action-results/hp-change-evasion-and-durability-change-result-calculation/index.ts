@@ -32,6 +32,25 @@ export * from "./get-action-crit-chance.js";
 export * from "./hp-change-calculation-strategies/index.js";
 export * from "./check-if-target-wants-to-be-hit.js";
 
+export interface CombatActionHitOutcomes {
+  hitPointChanges?: Record<EntityId, HpChange>;
+  manaChanges?: Record<EntityId, number>;
+  durabilityChanges?: Record<EntityId, number>;
+  misses?: Set<EntityId>;
+  evades?: Set<EntityId>;
+  parries?: Set<EntityId>;
+  counters?: Set<EntityId>;
+  blocks?: Set<EntityId>;
+}
+// CALCULATE AND COLLECT THE FOLLOWING:
+// hp changes, mp changes, durability changes, misses, evades, parries, counters, blocks
+// CALCULATION ORDER
+// miss
+// evade
+// parry
+// counter
+// block
+
 export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
   game: SpeedDungeonGame,
   args: {

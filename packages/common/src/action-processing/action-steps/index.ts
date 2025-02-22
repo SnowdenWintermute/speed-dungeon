@@ -109,13 +109,13 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.ChamberingMotion]: "chamberingMotion",
   [ActionResolutionStepType.PostChamberingSpawnEntity]: "postChamberingSpawnEntity",
   [ActionResolutionStepType.DeliveryMotion]: "deliveryMotion",
-  [ActionResolutionStepType.PayResourceCosts]: "payResourceCosts",
-  [ActionResolutionStepType.EvalOnUseTriggers]: "evalOnUseTriggers",
+  [ActionResolutionStepType.PayResourceCosts]: "payResourceCosts", // bow durability loss
+  [ActionResolutionStepType.EvalOnUseTriggers]: "evalOnUseTriggers", // counterspells
   [ActionResolutionStepType.StartConcurrentSubActions]: "StartConcurrentSubActions",
   [ActionResolutionStepType.OnActivationSpawnEntity]: "onActivationSpawnEntity",
   [ActionResolutionStepType.OnActivationVfxMotion]: "onActivationVfxMotion",
   [ActionResolutionStepType.RollIncomingHitOutcomes]: "rollIncomingHitOutcomes",
-  [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: "evalOnHitOutcomeTriggers",
+  [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: "evalOnHitOutcomeTriggers", // lifesteal traits, apply conditions
   [ActionResolutionStepType.RecoveryMotion]: "recoveryMotion",
   [ActionResolutionStepType.FinalPositioning]: "finalPositioning",
 };
