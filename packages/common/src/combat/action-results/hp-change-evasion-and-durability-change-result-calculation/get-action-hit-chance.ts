@@ -8,12 +8,16 @@ export function getActionHitChance(
   userCombatantProperties: CombatantProperties,
   targetEvasion: number,
   targetWantsToBeHit: boolean
-): number {
+): { beforeEvasion: number; afterEvasion: number } {
   const actionBaseAccuracy = combatAction.getAccuracy(userCombatantProperties);
-  if (actionBaseAccuracy.type === ActionAccuracyType.Unavoidable) return 100;
+  if (actionBaseAccuracy.type === ActionAccuracyType.Unavoidable)
+    return { beforeEvasion: 100, afterEvasion: 100 };
 
   const finalTargetEvasion = targetWantsToBeHit ? 0 : targetEvasion;
   const accComparedToEva = actionBaseAccuracy.value - finalTargetEvasion;
 
-  return Math.max(MIN_HIT_CHANCE, accComparedToEva);
+  return {
+    beforeEvasion: actionBaseAccuracy.value,
+    afterEvasion: Math.max(MIN_HIT_CHANCE, accComparedToEva),
+  };
 }
