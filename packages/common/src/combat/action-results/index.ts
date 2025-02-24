@@ -2,7 +2,7 @@ export * from "./turn-result.js";
 export * from "./action-result.js";
 export * from "./get-action-results.js";
 export * from "./action-result-calculator.js";
-export * from "./hp-change-evasion-and-durability-change-result-calculation/index.js";
+export * from "./action-hit-outcome-calculation//index.js";
 
 import cloneDeep from "lodash.clonedeep/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
@@ -10,7 +10,6 @@ import { ActionResult } from "./action-result.js";
 import { CombatantProperties } from "../../combatants/index.js";
 import { ActionResultCalculationArguments } from "./action-result-calculator.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { calculateActionHitPointChangesEvasionsAndDurabilityChanges } from "./hp-change-evasion-and-durability-change-result-calculation/index.js";
 import { ActionPayableResource } from "../combat-actions/action-calculation-utils/action-costs.js";
 
 export default function calculateActionResult(

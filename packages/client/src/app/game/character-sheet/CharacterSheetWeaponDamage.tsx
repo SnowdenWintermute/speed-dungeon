@@ -85,7 +85,10 @@ interface WeaponDamageEntryProps {
     | undefined
     | {
         hpChangeRange: NumberRange;
-        hitChance: number;
+        hitChance: {
+          beforeEvasion: number;
+          afterEvasion: number;
+        };
         critChance: number;
       };
   label: string;
@@ -104,7 +107,7 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
       </div>
       <div className="w-full flex justify-between items-center">
         <span>{"Accuracy "}</span>
-        <span>{hitChance.toFixed(0)}%</span>
+        <span>{hitChance.afterEvasion.toFixed(0)}%</span>
       </div>
       <div className="w-full flex justify-between items-center">
         <span>{"Crit chance "}</span>

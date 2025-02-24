@@ -64,13 +64,13 @@ export const COMBAT_ATTRIBUTE_DESCRIPTIONS: Record<CombatAttribute, string> = {
   [CombatAttribute.Speed]: "Determines turn order",
   [CombatAttribute.Mp]: "The primary resource for using abilities",
   [CombatAttribute.Focus]:
-    "Negates target magic defense and increases crit chance and crit multiplier for magical effects",
+    "Negates target magic defense and increases crit chance and crit multiplier for magical effects. Increases crit multiplier for ranged attacks.",
   [CombatAttribute.Dexterity]:
     "Increases accuracy, crit chance with physical attacks, ranged attack damage and ranged attack armor penetration",
   [CombatAttribute.Intelligence]: "Increases mana and spell damage",
   [CombatAttribute.Strength]:
     "Increases attack damage, crit multiplier and armor penetration for melee attacks",
   [CombatAttribute.Vitality]: "Increases hit points and armor class",
-  [CombatAttribute.Resilience]: `Reduces magical damage by ${RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO}%, increases healing received from magical sources by ${RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO}% and reduces the chance of unwanted critical strikes by 1% per point`,
+  [CombatAttribute.Resilience]: `Each point reduces magical damage by ${RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO}%, increases healing received from magical sources by ${RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO}% and reduces the chance of unwanted critical strikes by 1%`,
   [CombatAttribute.Agility]: `Increases evasion and speed`,
 };

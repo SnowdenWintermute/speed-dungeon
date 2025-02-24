@@ -42,7 +42,7 @@ export interface CombatActionHitOutcomes {
   blocks?: Set<EntityId>;
 }
 
-export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
+export function calculateActionHitOutcomes(
   context: ActionResolutionStepContext
 ): Error | CombatActionHitOutcomes {
   const targetingCalculator = new TargetingCalculator(context.combatantContext, null);

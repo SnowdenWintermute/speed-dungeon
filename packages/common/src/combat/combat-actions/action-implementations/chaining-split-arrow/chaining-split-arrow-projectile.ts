@@ -1,5 +1,4 @@
 import {
-  CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -10,7 +9,6 @@ import {
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
-import { ActionAccuracy } from "../../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
@@ -32,10 +30,15 @@ import { ActionTracker } from "../../../../action-processing/action-tracker.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { MobileVfxName, VfxType } from "../../../../vfx/index.js";
+import { getAttackHpChangeProperties } from "../attack/get-attack-hp-change-properties.js";
+import { CombatAttribute } from "../../../../combatants/attributes/index.js";
+import { HoldableSlotType } from "../../../../items/equipment/slots.js";
+import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 
 const MAX_BOUNCES = 2;
 
 const config: CombatActionComponentConfig = {
+  ...RANGED_ACTIONS_COMMON_CONFIG,
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
   description: "An arrow that bounces to up to two additional targets after the first",
   targetingSchemes: [TargetingScheme.Single],
@@ -58,12 +61,25 @@ const config: CombatActionComponentConfig = {
   requiresCombatTurn: () => true,
   shouldExecute: () => true,
   getCombatantUseAnimations: (combatantContext: CombatantContext) => null,
-  getHpChangeProperties: () => null,
+  getHpChangeProperties: (user, primaryTarget, self) => {
+    const hpChangeProperties = getAttackHpChangeProperties(
+      self,
+      user,
+      primaryTarget,
+      CombatAttribute.Dexterity,
+      HoldableSlotType.MainHand
+    );
+    if (hpChangeProperties instanceof Error) return hpChangeProperties;
+
+    return hpChangeProperties;
+  },
   getAppliedConditions: function (): CombatantCondition[] | null {
     // @TODO - determine based on equipment
     throw new Error("Function not implemented.");
   },
   getChildren: (combatantContext, tracker) => {
+    console.log("GETTING CHILDREN: ", tracker.hitOutcomes);
+
     let cursor = tracker.getPreviousTrackerInSequenceOption();
     let numBouncesSoFar = 0;
     while (cursor) {
@@ -91,21 +107,9 @@ const config: CombatActionComponentConfig = {
   getConcurrentSubActions() {
     return [];
   },
-  getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
-    throw new Error("Function not implemented.");
-  },
   getIsParryable: () => true,
   getCanTriggerCounterattack: (user: CombatantProperties) => false,
   getIsBlockable: (user: CombatantProperties) => true,
-  getCritChance: function (user: CombatantProperties): number {
-    throw new Error("Function not implemented.");
-  },
-  getCritMultiplier: function (user: CombatantProperties): number {
-    throw new Error("Function not implemented.");
-  },
-  getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
-    throw new Error("Function not implemented.");
-  },
   getAutoTarget(combatantContext, previousTrackerOption, self) {
     // const previousTrackerInSequenceOption = trackerOption?.getPreviousTrackerInSequenceOption();
     if (!previousTrackerOption)

@@ -1,15 +1,13 @@
-import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../combat/index.js";
-import { Combatant } from "../combatants/index.js";
+import {
+  COMBAT_ACTIONS,
+  CombatActionExecutionIntent,
+  CombatActionHitOutcomes,
+} from "../combat/index.js";
 import { Milliseconds } from "../primatives/index.js";
 import { SpawnableEntity } from "../spawnables/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
-import { Vfx } from "../vfx/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
-import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
-  ActionResolutionStep,
-  ActionResolutionStepContext,
-} from "./action-steps/index.js";
+import { ActionResolutionStep, ActionResolutionStepContext } from "./action-steps/index.js";
 import { ACTION_STEP_CREATORS } from "./action-steps/step-creators.js";
 
 export class ActionTracker {
@@ -18,6 +16,7 @@ export class ActionTracker {
   completedSteps: ActionResolutionStep[] = [];
   wasInterrupted: boolean = false;
   spawnedEntityOption: null | SpawnableEntity = null;
+  hitOutcomes: CombatActionHitOutcomes = {};
   constructor(
     public parentActionManager: ActionSequenceManager,
     public id: string,

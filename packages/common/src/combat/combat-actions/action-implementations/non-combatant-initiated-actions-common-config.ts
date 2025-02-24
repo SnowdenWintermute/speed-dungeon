@@ -1,4 +1,7 @@
 import { CombatantContext } from "../../../combatant-context/index.js";
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
+import { CombatantProperties } from "../../../combatants/index.js";
+import { ActionAccuracy, ActionAccuracyType } from "../combat-action-accuracy.js";
 import { CombatActionExecutionIntent } from "../combat-action-execution-intent.js";
 import { CombatActionComponent } from "../index.js";
 

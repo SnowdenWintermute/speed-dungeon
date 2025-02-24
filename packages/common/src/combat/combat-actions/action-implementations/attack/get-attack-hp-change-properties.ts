@@ -2,7 +2,7 @@ import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { NumberRange } from "../../../../primatives/index.js";
-import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/hp-change-evasion-and-durability-change-result-calculation/add-combatant-level-scaled-attribute-to-range.js";
+import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
 import {
   HpChangeSource,
   HpChangeSourceCategory,

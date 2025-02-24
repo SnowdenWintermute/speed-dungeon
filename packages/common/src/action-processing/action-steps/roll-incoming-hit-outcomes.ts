@@ -4,36 +4,27 @@ import {
   ActionResolutionStepType,
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
-import { HpChange } from "../../combat/hp-change-source-types.js";
-import { DurabilityChangesByEntityId } from "../../combat/action-results/calculate-action-durability-changes.js";
-import { EntityId } from "../../primatives/index.js";
-import { CombatActionExecutionIntent } from "../../combat/index.js";
+import { CombatActionExecutionIntent, calculateActionHitOutcomes } from "../../combat/index.js";
 import { Combatant } from "../../combatants/index.js";
-
-export interface HitOutcomes {
-  hitPointChanges: { [entityId: EntityId]: HpChange };
-  manaChanges: { [entityId: EntityId]: number };
-  evasions: EntityId[];
-  parries: EntityId[];
-  blocks: EntityId[];
-  durabilityChanges: DurabilityChangesByEntityId;
-}
 
 const stepType = ActionResolutionStepType.RollIncomingHitOutcomes;
 export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
-    // @TODO - calculate hits, evades, parries, blocks, hp/mp/shard/durability changes to apply
-    // and write them to the blackboard so post-activation triggers can read them, and also
-    // apply them to the game state so subsequent action.shouldExecute calls can check if
-    // their target is dead, user is out of mana etc
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.HitOutcomes,
       step: stepType,
       completionOrderId: null,
       actionName: context.tracker.actionExecutionIntent.actionName,
-      // hp changes, mp changes, durability changes, shard changes, misses, evades, parries, blocks, counters
     };
     super(stepType, context, gameUpdateCommand);
+
+    const hitOutcomesResult = calculateActionHitOutcomes(context);
+    if (hitOutcomesResult instanceof Error) throw hitOutcomesResult;
+    this.context.tracker.hitOutcomes = hitOutcomesResult;
+
+    // @TODO -
+    // apply hit outcomes to the game state so subsequent action.shouldExecute calls can check if
+    // their target is dead, user is out of mana etc
   }
 
   protected onTick = () => {};
