@@ -162,6 +162,21 @@ export class CombatantProperties {
     return false;
   }
 
+  static canCounterattack(combatantProperties: CombatantProperties): boolean {
+    return true;
+  }
+
+  static canBlock(combatantProperties: CombatantProperties): boolean {
+    const holdables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+    if (!holdables) return false;
+    for (const [slot, equipment] of iterateNumericEnumKeyedRecord(holdables.holdables)) {
+      if (slot === HoldableSlotType.MainHand) continue;
+      const { equipmentType } = equipment.equipmentBaseItemProperties;
+      if (equipmentType === EquipmentType.Shield) return true;
+    }
+    return false;
+  }
+
   static hasTraitType(combatantProperties: CombatantProperties, traitType: CombatantTraitType) {
     let hasTrait = false;
     for (const trait of combatantProperties.traits) {

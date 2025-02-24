@@ -12,11 +12,12 @@ import {
   ActionResolutionStepContext,
 } from "../../../action-processing/index.js";
 import { CombatantProperties } from "../../../combatants/index.js";
-import { CombatActionExecutionIntent } from "../combat-action-execution-intent.js";
 
 export const RANGED_ACTIONS_COMMON_CONFIG = {
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
   getIsParryable: (user: CombatantProperties) => true,
+  getCanTriggerCounterattack: (user: CombatantProperties) => false,
+  getIsBlockable: (user: CombatantProperties) => true,
   getCombatantUseAnimations: (combatantContext: CombatantContext) => {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {

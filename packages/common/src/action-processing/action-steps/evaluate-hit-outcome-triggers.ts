@@ -19,6 +19,26 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     super(stepType, context, gameUpdateCommand);
     // read expected hits, misses, evades, parries, blocks (used for determining triggers as well as user followthrough animation)
     // from blackboard
+    // CALCULATE AND COLLECT THE FOLLOWING:
+    // hp changes, mp changes, durability changes, misses, evades, parries, counters, blocks
+    // CALCULATION ORDER
+    // miss
+    // - client shows miss text
+    // evade
+    // - client plays evade animation on target entity
+    // parry
+    // - client plays parry animation on target entity
+    // - notify next step of the parry so if the ability calls for it,
+    //   server sends instruction in recoveryMotion that user should play a hit-interrupted animation for the followthrough
+    // counter
+    // - start a branching "counterattack" action on the target entity
+    // - notify next step of the counter so if the ability calls for it,
+    //   server sends instruction in recoveryMotion that user should play a hit-interrupted animation for the followthrough
+    //   and also remain in place long enough to be hit by the counter attack
+    // block
+    // - client plays block animation on target entity
+    // - notify next step of the block so if the ability calls for it,
+    // server sends instruction in recoveryMotion that user should play a hit-interrupted animation for the followthrough
     //
     // for (const { combatantId, actionName } of this.hits) {
     //   const combatantResult = AdventuringParty.getCombatant(
@@ -31,6 +51,45 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     //     // const triggeredActions = condition.onTriggered();
     //     // figure out the "user" for actions that originate from no combatant in particular
     //   }
+    // }
+    //
+    //
+    // const durabilityChanges = new DurabilityChangesByEntityId();
+    // determine durability loss of target's armor and user's weapon
+    // @TODO - move this to hit outcome triggers step
+    // calculateActionDurabilityChangesOnHit(
+    //   combatant,
+    //   targetCombatantResult,
+    //   action,
+    //   true,
+    //   hpChange.isCrit,
+    //   durabilityChanges
+    // );
+    //
+    //
+    // apply lifesteal trait
+    // determine if hp change source has lifesteal
+    // get the percent
+    // add it to the lifesteal hp change of the action user
+    // if (hpChange.source.lifestealPercentage) {
+    //   const lifestealValue = hpChange.value * (hpChange.source.lifestealPercentage / 100) * -1;
+    //   if (!lifestealHpChange) {
+    //     lifestealHpChange = new HpChange(
+    //       lifestealValue,
+    //       new HpChangeSource({ category: HpChangeSourceCategory.Magical })
+    //     );
+    //     lifestealHpChange.isCrit = hpChange.isCrit;
+    //     lifestealHpChange.value = lifestealValue;
+    //   } else {
+    //     // if aggregating lifesteal from multiple hits, call it a crit if any of the hits were crits
+    //     if (hpChange.isCrit) lifestealHpChange.isCrit = true;
+    //     lifestealHpChange.value += lifestealValue;
+    //   }
+    // }
+
+    // if (lifestealHpChange) {
+    // lifestealHpChange.value = Math.floor(lifestealHpChange.value);
+    // hitPointChanges[combatant.entityProperties.id] = lifestealHpChange;
     // }
   }
 

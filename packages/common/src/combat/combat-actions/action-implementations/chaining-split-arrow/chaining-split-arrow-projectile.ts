@@ -7,7 +7,7 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import { Combatant, CombatantProperties } from "../../../../combatants/index.js";
+import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ActionAccuracy } from "../../combat-action-accuracy.js";
@@ -94,6 +94,9 @@ const config: CombatActionComponentConfig = {
   getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
     throw new Error("Function not implemented.");
   },
+  getIsParryable: () => true,
+  getCanTriggerCounterattack: (user: CombatantProperties) => false,
+  getIsBlockable: (user: CombatantProperties) => true,
   getCritChance: function (user: CombatantProperties): number {
     throw new Error("Function not implemented.");
   },

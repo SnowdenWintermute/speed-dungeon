@@ -104,6 +104,8 @@ export interface CombatActionComponentConfig {
     self: CombatActionComponent
   ) => Error | null | CombatActionTarget;
   getIsParryable: (user: CombatantProperties) => boolean;
+  getIsBlockable: (user: CombatantProperties) => boolean;
+  getCanTriggerCounterattack: (user: CombatantProperties) => boolean;
 }
 
 export abstract class CombatActionComponent {
@@ -173,6 +175,8 @@ export abstract class CombatActionComponent {
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
   getAccuracy: (user: CombatantProperties) => ActionAccuracy;
   getIsParryable: (user: CombatantProperties) => boolean;
+  getIsBlockable: (user: CombatantProperties) => boolean;
+  getCanTriggerCounterattack: (user: CombatantProperties) => boolean;
   getCritChance: (user: CombatantProperties) => number;
   getCritMultiplier: (user: CombatantProperties) => number;
   getArmorPenetration: (user: CombatantProperties) => number;
@@ -250,6 +254,8 @@ export abstract class CombatActionComponent {
       return baseAccuracy;
     };
     this.getIsParryable = config.getIsParryable;
+    this.getCanTriggerCounterattack = config.getCanTriggerCounterattack;
+    this.getIsBlockable = config.getIsBlockable;
     this.getCritChance = config.getCritChance;
     this.getCritMultiplier = config.getCritMultiplier;
     this.getArmorPenetration = (user) => config.getArmorPenetration(user, this);

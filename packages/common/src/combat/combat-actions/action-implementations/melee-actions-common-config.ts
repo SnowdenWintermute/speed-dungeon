@@ -31,6 +31,8 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
     };
   },
   getIsParryable: (user: CombatantProperties) => true,
+  getCanTriggerCounterattack: (user: CombatantProperties) => true,
+  getIsBlockable: (user: CombatantProperties) => true,
   getCritChance: function (user: CombatantProperties): number {
     return getStandardActionCritChance(user, CombatAttribute.Dexterity);
   },

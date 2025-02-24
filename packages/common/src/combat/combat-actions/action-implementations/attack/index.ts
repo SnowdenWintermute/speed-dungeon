@@ -81,9 +81,17 @@ const config: CombatActionComponentConfig = {
     // @TODO - determine based on children
     throw new Error("Function not implemented.");
   },
-
   getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
     throw new Error("Function not implemented.");
+  },
+  getIsParryable() {
+    throw new Error("Function not implemented.");
+  },
+  getCanTriggerCounterattack: (user: CombatantProperties) => {
+    throw new Error("Function not implemented");
+  },
+  getIsBlockable: (user: CombatantProperties) => {
+    throw new Error("Function not implemented");
   },
   getCritChance: function (user: CombatantProperties): number {
     throw new Error("Function not implemented.");

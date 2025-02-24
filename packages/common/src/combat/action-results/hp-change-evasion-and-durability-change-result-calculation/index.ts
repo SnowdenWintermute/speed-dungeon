@@ -4,21 +4,16 @@ import { randBetween } from "../../../utils/index.js";
 import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
 import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app-consts.js";
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
-import { HpChange, HpChangeSource, HpChangeSourceCategory } from "../../hp-change-source-types.js";
+import { HpChange, HpChangeSource } from "../../hp-change-source-types.js";
 import { checkIfTargetWantsToBeHit } from "./check-if-target-wants-to-be-hit.js";
 import { applyCritMultiplier } from "./apply-crit-multiplier-to-hp-change.js";
 import { EntityId } from "../../../primatives/index.js";
-import {
-  DurabilityChangesByEntityId,
-  calculateActionDurabilityChangesOnHit,
-  updateConditionalDurabilityChangesOnUser,
-} from "../calculate-action-durability-changes.js";
+import { DurabilityChangesByEntityId } from "../calculate-action-durability-changes.js";
 import { convertHpChangeValueToFinalSign } from "../../combat-actions/action-calculation-utils/convert-hp-change-value-to-final-sign.js";
 import {
   applyElementalAffinities,
   applyKineticAffinities,
 } from "../../combat-actions/action-calculation-utils/apply-affinities-to-hp-change.js";
-import { DurabilityLossCondition } from "../../combat-actions/combat-action-durability-loss-condition.js";
 import { getActionHitChance } from "./get-action-hit-chance.js";
 import { CombatantProperties } from "../../../combatants/index.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
@@ -27,6 +22,7 @@ import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { ActionResolutionStepContext } from "../../../action-processing/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
+import { getShieldBlockDamageReduction } from "./get-shield-block-damage-reduction.js";
 export * from "./get-action-hit-chance.js";
 export * from "./get-action-crit-chance.js";
 export * from "./hp-change-calculation-strategies/index.js";
@@ -45,26 +41,6 @@ export interface CombatActionHitOutcomes {
   counters?: Set<EntityId>;
   blocks?: Set<EntityId>;
 }
-// CALCULATE AND COLLECT THE FOLLOWING:
-// hp changes, mp changes, durability changes, misses, evades, parries, counters, blocks
-// CALCULATION ORDER
-// miss
-// - client shows miss text
-// evade
-// - client plays evade animation on target entity
-// parry
-// - client plays parry animation on target entity
-// - notify next step of the parry so if the ability calls for it,
-//   server sends instruction in recoveryMotion that user should play a hit-interrupted animation for the followthrough
-// counter
-// - start a branching "counterattack" action on the target entity
-// - notify next step of the counter so if the ability calls for it,
-//   server sends instruction in recoveryMotion that user should play a hit-interrupted animation for the followthrough
-//   and also remain in place long enough to be hit by the counter attack
-// block
-// - client plays block animation on target entity
-// - notify next step of the block so if the ability calls for it,
-// server sends instruction in recoveryMotion that user should play a hit-interrupted animation for the followthrough
 
 export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
   context: ActionResolutionStepContext
@@ -73,7 +49,7 @@ export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
   const { actionExecutionIntent } = context.tracker;
   const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
   const { game, party, combatant } = context.combatantContext;
-  const { combatantProperties: userCombatantProperties } = combatant;
+  const { combatantProperties: user } = combatant;
 
   // we need a target to check against to find the best affinity to choose
   // so we'll use the first target for now, until a better system comes to light
@@ -82,7 +58,7 @@ export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
     actionExecutionIntent
   );
   if (primaryTargetResult instanceof Error) return primaryTargetResult;
-  const targetCombatantProperties = primaryTargetResult;
+  const target = primaryTargetResult;
 
   const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
     action,
@@ -92,32 +68,26 @@ export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
   const targetIds = targetIdsResult;
 
   const hitOutcomes: CombatActionHitOutcomes = {};
-  const durabilityChanges = new DurabilityChangesByEntityId();
-  let lifestealHpChange: null | HpChange = null;
 
   const incomingHpChangePerTargetOption = getIncomingHpChangePerTarget(
     action,
-    userCombatantProperties,
-    targetCombatantProperties,
+    user,
+    target,
     targetIds
   );
 
   for (const id of targetIds) {
     const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, id);
     if (targetCombatantResult instanceof Error) return targetCombatantResult;
-    const { combatantProperties: targetCombatantProperties } = targetCombatantResult;
+    const { combatantProperties: target } = targetCombatantResult;
 
     // HITS
-    const targetWantsToBeHit = checkIfTargetWantsToBeHit(
-      action,
-      userCombatantProperties,
-      targetCombatantProperties
-    );
+    const targetWantsToBeHit = checkIfTargetWantsToBeHit(action, user, target);
 
     const percentChanceToHit = getActionHitChance(
       action,
-      userCombatantProperties,
-      CombatantProperties.getTotalAttributes(targetCombatantProperties)[CombatAttribute.Evasion],
+      user,
+      CombatantProperties.getTotalAttributes(target)[CombatAttribute.Evasion],
       targetWantsToBeHit
     );
 
@@ -128,124 +98,98 @@ export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
     if (isMiss) {
       if (!hitOutcomes.misses) hitOutcomes.misses = new Set();
       hitOutcomes.misses.add(id);
+      continue;
     }
     if (isEvaded) {
       if (!hitOutcomes.evades) hitOutcomes.evades = new Set();
       hitOutcomes.evades.add(id);
+      continue;
     }
 
     // PARRIES
     if (
-      action.getIsParryable(userCombatantProperties) &&
-      CombatantProperties.canParry(targetCombatantProperties) &&
+      action.getIsParryable(user) &&
+      CombatantProperties.canParry(target) &&
       !targetWantsToBeHit
     ) {
-      const percentChanceToParry = 5;
+      const percentChanceToParry = 5; // @TODO - derrive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
       const parryRoll = randBetween(0, 100);
       const isParried = parryRoll < percentChanceToParry;
       if (isParried) {
         if (!hitOutcomes.parries) hitOutcomes.parries = new Set();
         hitOutcomes.parries.add(id);
+        continue;
       }
     }
-    //
-    // counter
 
-    if (isMiss || isEvaded) continue;
+    // COUNTERATTACKS
+    if (action.getCanTriggerCounterattack(user) && !targetWantsToBeHit) {
+      const percentChanceToCounterAttack = 5; // @TODO - derrive this from various combatant properties
+      const counterAttackRoll = randBetween(0, 100);
+      const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
+      if (isCounterAttacked) {
+        if (!hitOutcomes.counters) hitOutcomes.counters = new Set();
+        hitOutcomes.counters.add(id);
+        continue;
+      }
+    }
 
+    // it is possible that an ability hits, but does not change HP, ex: a spell that only induces a condition
     if (!hitOutcomes.hits) hitOutcomes.hits = new Set();
     hitOutcomes.hits.add(id);
-
-    // block
 
     if (!incomingHpChangePerTargetOption) continue;
     const { value: incomingHpChangeValue, hpChangeSource } = incomingHpChangePerTargetOption;
     let hpChange = new HpChange(incomingHpChangeValue, cloneDeep(hpChangeSource));
 
-    const percentChanceToCrit = getActionCritChance(
-      action,
-      userCombatantProperties,
-      targetCombatantProperties,
-      targetWantsToBeHit
-    );
+    const percentChanceToCrit = getActionCritChance(action, user, target, targetWantsToBeHit);
 
     hpChange.isCrit = randBetween(0, 100) < percentChanceToCrit;
+    applyCritMultiplier(hpChange, action, user, target);
+    applyKineticAffinities(hpChange, target);
+    applyElementalAffinities(hpChange, target);
 
-    // determine durability loss of target's armor and user's weapon
-    // @TODO - move this to hit outcome triggers step
-    calculateActionDurabilityChangesOnHit(
-      combatant,
-      targetCombatantResult,
-      action,
-      true,
-      hpChange.isCrit,
-      durabilityChanges
-    );
+    // BLOCK
+    if (
+      action.getIsBlockable(user) &&
+      CombatantProperties.canBlock(target) &&
+      !targetWantsToBeHit // this should be checking if actions with malicious intent are in fact healing the target
+    ) {
+      const percentChanceToBlock = 5; // @TODO - do something like ffxi: BlockRate = SizeBaseBlockRate + ((ShieldSkill - AttackerCombatSkill) × 0.2325)
+      const blockRoll = randBetween(0, 100);
+      const isBlocked = blockRoll < percentChanceToBlock;
+      if (isBlocked) {
+        if (!hitOutcomes.blocks) hitOutcomes.blocks = new Set();
+        hitOutcomes.blocks.add(id);
 
-    applyCritMultiplier(hpChange, action, userCombatantProperties, targetCombatantProperties);
+        const damageReduction = getShieldBlockDamageReduction(target);
+        hpChange.value = hpChange.value - hpChange.value * damageReduction;
+      }
+    }
 
-    applyKineticAffinities(hpChange, targetCombatantProperties);
-    applyElementalAffinities(hpChange, targetCombatantProperties);
-
-    convertHpChangeValueToFinalSign(hpChange, targetCombatantProperties);
+    convertHpChangeValueToFinalSign(hpChange, target);
 
     const hpChangeCalculationContext = HP_CALCLULATION_CONTEXTS[hpChangeSource.category];
-
-    hpChangeCalculationContext.applyResilience(
-      hpChange,
-      userCombatantProperties,
-      targetCombatantProperties
-    );
-
-    hpChangeCalculationContext.applyArmorClass(
-      action,
-      hpChange,
-      userCombatantProperties,
-      targetCombatantProperties
-    );
+    hpChangeCalculationContext.applyResilience(hpChange, user, target);
+    hpChangeCalculationContext.applyArmorClass(action, hpChange, user, target);
 
     hpChange.value = Math.floor(hpChange.value);
 
     if (!hitOutcomes.hitPointChanges) hitOutcomes.hitPointChanges = {};
     hitOutcomes.hitPointChanges[id] = hpChange;
-
-    // apply lifesteal trait
-    // determine if hp change source has lifesteal
-    // get the percent
-    // add it to the lifesteal hp change of the action user
-    // if (hpChange.source.lifestealPercentage) {
-    //   const lifestealValue = hpChange.value * (hpChange.source.lifestealPercentage / 100) * -1;
-    //   if (!lifestealHpChange) {
-    //     lifestealHpChange = new HpChange(
-    //       lifestealValue,
-    //       new HpChangeSource({ category: HpChangeSourceCategory.Magical })
-    //     );
-    //     lifestealHpChange.isCrit = hpChange.isCrit;
-    //     lifestealHpChange.value = lifestealValue;
-    //   } else {
-    //     // if aggregating lifesteal from multiple hits, call it a crit if any of the hits were crits
-    //     if (hpChange.isCrit) lifestealHpChange.isCrit = true;
-    //     lifestealHpChange.value += lifestealValue;
-    //   }
-    // }
   }
-
-  // if (lifestealHpChange) {
-  // lifestealHpChange.value = Math.floor(lifestealHpChange.value);
-  // hitPointChanges[combatant.entityProperties.id] = lifestealHpChange;
-  // }
 
   return hitOutcomes;
 }
 
 function getIncomingHpChangePerTarget(
   action: CombatActionComponent,
-  userCombatantProperties: CombatantProperties,
+  user: CombatantProperties,
   primaryTargetCombatantProperties: CombatantProperties,
   targetIds: EntityId[]
 ): null | { value: number; hpChangeSource: HpChangeSource } {
   const hpChangePropertiesOption = cloneDeep(
-    action.getHpChangeProperties(userCombatantProperties, primaryTargetCombatantProperties)
+    action.getHpChangeProperties(user, primaryTargetCombatantProperties)
   );
 
   if (!hpChangePropertiesOption) return null;
