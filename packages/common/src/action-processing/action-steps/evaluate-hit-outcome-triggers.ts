@@ -18,7 +18,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     };
     super(stepType, context, gameUpdateCommand);
     // read expected hits, misses, evades, parries, blocks (used for determining triggers as well as user followthrough animation)
-    // from billboard
+    // from blackboard
     //
     // for (const { combatantId, actionName } of this.hits) {
     //   const combatantResult = AdventuringParty.getCombatant(

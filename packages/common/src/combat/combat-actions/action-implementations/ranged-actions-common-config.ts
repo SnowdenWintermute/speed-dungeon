@@ -16,6 +16,7 @@ import { CombatActionExecutionIntent } from "../combat-action-execution-intent.j
 
 export const RANGED_ACTIONS_COMMON_CONFIG = {
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
+  getIsParryable: (user: CombatantProperties) => true,
   getCombatantUseAnimations: (combatantContext: CombatantContext) => {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {

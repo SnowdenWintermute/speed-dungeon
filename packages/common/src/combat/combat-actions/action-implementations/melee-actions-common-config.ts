@@ -30,6 +30,7 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
       value: userCombatAttributes[CombatAttribute.Accuracy],
     };
   },
+  getIsParryable: (user: CombatantProperties) => true,
   getCritChance: function (user: CombatantProperties): number {
     return getStandardActionCritChance(user, CombatAttribute.Dexterity);
   },

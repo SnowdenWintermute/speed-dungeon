@@ -103,6 +103,7 @@ export interface CombatActionComponentConfig {
     actionTrackerOption: null | ActionTracker,
     self: CombatActionComponent
   ) => Error | null | CombatActionTarget;
+  getIsParryable: (user: CombatantProperties) => boolean;
 }
 
 export abstract class CombatActionComponent {
@@ -171,6 +172,7 @@ export abstract class CombatActionComponent {
   >;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
   getAccuracy: (user: CombatantProperties) => ActionAccuracy;
+  getIsParryable: (user: CombatantProperties) => boolean;
   getCritChance: (user: CombatantProperties) => number;
   getCritMultiplier: (user: CombatantProperties) => number;
   getArmorPenetration: (user: CombatantProperties) => number;
@@ -247,6 +249,7 @@ export abstract class CombatActionComponent {
         baseAccuracy.value *= this.accuracyModifier;
       return baseAccuracy;
     };
+    this.getIsParryable = config.getIsParryable;
     this.getCritChance = config.getCritChance;
     this.getCritMultiplier = config.getCritMultiplier;
     this.getArmorPenetration = (user) => config.getArmorPenetration(user, this);

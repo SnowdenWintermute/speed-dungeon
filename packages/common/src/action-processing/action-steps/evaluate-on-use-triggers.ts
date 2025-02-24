@@ -19,6 +19,18 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     };
 
     super(stepType, context, gameUpdateCommand);
+
+    ///////////////////////////////////////////////////
+    // separately calculating weapon dura loss if is "on use" instead of "on hit"
+    // such as with firing a bow
+
+    // @TODO - move this to "on use" triggers
+    // updateConditionalDurabilityChangesOnUser(
+    //   combatant.entityProperties.id,
+    //   action,
+    //   durabilityChanges,
+    //   DurabilityLossCondition.OnUse
+    // );
   }
 
   protected onTick = () => {};

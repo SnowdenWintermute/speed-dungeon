@@ -55,11 +55,11 @@ export interface CombatActionHitOutcomes {
 // parry
 // - client plays parry animation on target entity
 // - notify next step of the parry so if the ability calls for it,
-// server sends instruction in recoveryMotion that user should play a hit-interrupted animation for the followthrough
+//   server sends instruction in recoveryMotion that user should play a hit-interrupted animation for the followthrough
 // counter
 // - start a branching "counterattack" action on the target entity
 // - notify next step of the counter so if the ability calls for it,
-// server sends instruction in recoveryMotion that user should play a hit-interrupted animation for the followthrough
+//   server sends instruction in recoveryMotion that user should play a hit-interrupted animation for the followthrough
 //   and also remain in place long enough to be hit by the counter attack
 // block
 // - client plays block animation on target entity
@@ -107,6 +107,7 @@ export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
     if (targetCombatantResult instanceof Error) return targetCombatantResult;
     const { combatantProperties: targetCombatantProperties } = targetCombatantResult;
 
+    // HITS
     const targetWantsToBeHit = checkIfTargetWantsToBeHit(
       action,
       userCombatantProperties,
@@ -118,24 +119,6 @@ export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
       userCombatantProperties,
       CombatantProperties.getTotalAttributes(targetCombatantProperties)[CombatAttribute.Evasion],
       targetWantsToBeHit
-    );
-
-    const percentChanceToCrit = getActionCritChance(
-      action,
-      userCombatantProperties,
-      targetCombatantProperties,
-      targetWantsToBeHit
-    );
-
-    ///////////////////////////////////////////////////
-    // separately calculating weapon dura loss if is "on use" instead of "on hit"
-    // such as with firing a bow
-
-    updateConditionalDurabilityChangesOnUser(
-      combatant.entityProperties.id,
-      action,
-      durabilityChanges,
-      DurabilityLossCondition.OnUse
     );
 
     const hitRoll = randBetween(0, 100);
@@ -150,17 +133,46 @@ export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
       if (!hitOutcomes.evades) hitOutcomes.evades = new Set();
       hitOutcomes.evades.add(id);
     }
+
+    // PARRIES
+    if (
+      action.getIsParryable(userCombatantProperties) &&
+      CombatantProperties.canParry(targetCombatantProperties) &&
+      !targetWantsToBeHit
+    ) {
+      const percentChanceToParry = 5;
+      const parryRoll = randBetween(0, 100);
+      const isParried = parryRoll < percentChanceToParry;
+      if (isParried) {
+        if (!hitOutcomes.parries) hitOutcomes.parries = new Set();
+        hitOutcomes.parries.add(id);
+      }
+    }
+    //
+    // counter
+
     if (isMiss || isEvaded) continue;
 
     if (!hitOutcomes.hits) hitOutcomes.hits = new Set();
     hitOutcomes.hits.add(id);
 
+    // block
+
     if (!incomingHpChangePerTargetOption) continue;
     const { value: incomingHpChangeValue, hpChangeSource } = incomingHpChangePerTargetOption;
     let hpChange = new HpChange(incomingHpChangeValue, cloneDeep(hpChangeSource));
+
+    const percentChanceToCrit = getActionCritChance(
+      action,
+      userCombatantProperties,
+      targetCombatantProperties,
+      targetWantsToBeHit
+    );
+
     hpChange.isCrit = randBetween(0, 100) < percentChanceToCrit;
 
     // determine durability loss of target's armor and user's weapon
+    // @TODO - move this to hit outcome triggers step
     calculateActionDurabilityChangesOnHit(
       combatant,
       targetCombatantResult,
@@ -201,27 +213,27 @@ export function calculateActionHitPointChangesEvasionsAndDurabilityChanges(
     // determine if hp change source has lifesteal
     // get the percent
     // add it to the lifesteal hp change of the action user
-    if (hpChange.source.lifestealPercentage) {
-      const lifestealValue = hpChange.value * (hpChange.source.lifestealPercentage / 100) * -1;
-      if (!lifestealHpChange) {
-        lifestealHpChange = new HpChange(
-          lifestealValue,
-          new HpChangeSource({ category: HpChangeSourceCategory.Magical })
-        );
-        lifestealHpChange.isCrit = hpChange.isCrit;
-        lifestealHpChange.value = lifestealValue;
-      } else {
-        // if aggregating lifesteal from multiple hits, call it a crit if any of the hits were crits
-        if (hpChange.isCrit) lifestealHpChange.isCrit = true;
-        lifestealHpChange.value += lifestealValue;
-      }
-    }
+    // if (hpChange.source.lifestealPercentage) {
+    //   const lifestealValue = hpChange.value * (hpChange.source.lifestealPercentage / 100) * -1;
+    //   if (!lifestealHpChange) {
+    //     lifestealHpChange = new HpChange(
+    //       lifestealValue,
+    //       new HpChangeSource({ category: HpChangeSourceCategory.Magical })
+    //     );
+    //     lifestealHpChange.isCrit = hpChange.isCrit;
+    //     lifestealHpChange.value = lifestealValue;
+    //   } else {
+    //     // if aggregating lifesteal from multiple hits, call it a crit if any of the hits were crits
+    //     if (hpChange.isCrit) lifestealHpChange.isCrit = true;
+    //     lifestealHpChange.value += lifestealValue;
+    //   }
+    // }
   }
 
-  if (lifestealHpChange) {
-    lifestealHpChange.value = Math.floor(lifestealHpChange.value);
-    hitPointChanges[userId] = lifestealHpChange;
-  }
+  // if (lifestealHpChange) {
+  // lifestealHpChange.value = Math.floor(lifestealHpChange.value);
+  // hitPointChanges[combatant.entityProperties.id] = lifestealHpChange;
+  // }
 
   return hitOutcomes;
 }

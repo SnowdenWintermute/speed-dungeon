@@ -17,7 +17,7 @@ import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get
 import setResourcesToMax from "./resources/set-resources-to-max.js";
 import { immerable } from "immer";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app-consts.js";
-import { cloneVector3 } from "../utils/index.js";
+import { cloneVector3, iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./experience-points/award-levelups.js";
 import { incrementAttributePoint } from "./attributes/increment-attribute.js";
 import { MonsterType } from "../monsters/monster-types.js";
@@ -43,6 +43,7 @@ import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
 import { getAllCurrentlyUsableActionNames } from "./owned-actions/get-all-currently-usable-action-names.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
 import { CombatantCondition } from "./combatant-conditions/index.js";
+import { EquipmentSlotType, EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -145,6 +146,21 @@ export class CombatantProperties {
     CombatantEquipment.instatiateItemClasses(combatantProperties);
   }
   static getAllCurrentlyUsableActionNames = getAllCurrentlyUsableActionNames;
+
+  static canParry(combatantProperties: CombatantProperties): boolean {
+    const holdables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+    if (!holdables) return false;
+    for (const [slot, equipment] of iterateNumericEnumKeyedRecord(holdables.holdables)) {
+      if (slot === HoldableSlotType.OffHand) continue;
+      const { equipmentType } = equipment.equipmentBaseItemProperties;
+      if (
+        equipmentType === EquipmentType.OneHandedMeleeWeapon ||
+        equipmentType === EquipmentType.TwoHandedMeleeWeapon
+      )
+        return true;
+    }
+    return false;
+  }
 
   static hasTraitType(combatantProperties: CombatantProperties, traitType: CombatantTraitType) {
     let hasTrait = false;
