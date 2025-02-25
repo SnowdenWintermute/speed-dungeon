@@ -30,7 +30,7 @@ export function getAttackHpChangeProperties(
   const baseValues = new NumberRange(1, 1);
 
   // just get some extra damage for combatant level
-  baseValues.add(user.level);
+  baseValues.add(user.level - 1);
   // get greater benefits from a certain attribute the higher level a combatant is
   addCombatantLevelScaledAttributeToRange({
     range: baseValues,

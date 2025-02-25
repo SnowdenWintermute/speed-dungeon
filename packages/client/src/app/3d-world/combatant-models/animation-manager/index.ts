@@ -79,7 +79,7 @@ export class AnimationManager {
     // alternatives to some missing animations
     if (newAnimationGroupOption === undefined) {
       const fallbackName = this.getFallbackAnimationName(newAnimationName);
-      newAnimationGroupOption = this.getAnimationGroupByName(fallbackName || AnimationName.Death);
+      newAnimationGroupOption = this.getAnimationGroupByName(fallbackName || AnimationName.Idle);
     }
 
     const clonedAnimationOption = this.cloneAnimationOption(newAnimationGroupOption);
@@ -113,7 +113,7 @@ export class AnimationManager {
   }
 
   stepAnimationTransitionWeights(): Error | void {
-    if (!this.playing) console.log("no animation played this frame");
+    // if (!this.playing) console.log("no animation played this frame");
     if (!this.playing || this.playing.weight >= 1) return;
 
     const timeSinceStarted = Date.now() - this.playing.timeStarted;
@@ -154,7 +154,7 @@ export class AnimationManager {
     if (this.playing === null && this.previous === null && !this.locked) {
       console.log("no playing or previous animation");
       // console.log("tried to start idle");
-      // this.characterModel.startIdleAnimation(500); // circular ref
+      this.characterModel.startIdleAnimation(500); // circular ref
     }
   }
 
