@@ -45,15 +45,18 @@ export class ActionSequenceManager {
   }
   // action children may depend on the outcome of their parent so we must process their parent first
   populateSelfWithCurrentActionChildren() {
+    console.log("GETTING CHILDREN");
     const currentActionExecutionIntent = this.currentTracker?.actionExecutionIntent;
     if (!currentActionExecutionIntent || !this.currentTracker) return;
     const currentAction = COMBAT_ACTIONS[currentActionExecutionIntent.actionName];
     const childActionIntentResults = currentAction
       .getChildren(this.combatantContext, this.currentTracker)
       .map((action) => {
+        const targets = action.getAutoTarget(this.combatantContext, this.currentTracker);
+        console.log("AUTO TARGETS: ", targets);
         return {
           actionName: action.name,
-          targets: action.getAutoTarget(this.combatantContext, this.currentTracker),
+          targets,
         };
       });
 

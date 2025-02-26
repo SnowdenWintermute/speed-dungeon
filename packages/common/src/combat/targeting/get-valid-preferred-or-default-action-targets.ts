@@ -29,6 +29,7 @@ export function getValidPreferredOrDefaultActionTargets(
   if (combatAction.targetingSchemes.includes(targetingSchemePreference)) {
     switch (targetingSchemePreference) {
       case TargetingScheme.Single:
+        console.log("SINGLE");
         // IF PREFERENCE EXISTS SELECT IT IF VALID
         if (preferredCategoryOption !== null) {
           switch (preferredCategoryOption) {
@@ -59,6 +60,7 @@ export function getValidPreferredOrDefaultActionTargets(
         }
         break;
       case TargetingScheme.Area:
+        console.log("AREA");
         if (preferredCategoryOption) {
           newTargets = getGroupTargetsOption(
             allyIdsOption,
@@ -73,33 +75,34 @@ export function getValidPreferredOrDefaultActionTargets(
         }
         break;
       case TargetingScheme.All:
+        console.log("ALL");
         return { type: CombatActionTargetType.All };
     }
   }
 
   if (newTargets) return newTargets;
   // IF NO VALID TARGET IN PREFERRED SCHEME OR PREFERRED SCHEME NOT VALID GET ANY VALID TARGET
-  for (const targetingSchemeKey of Object.keys(combatAction.targetingSchemes).filter(
-    (v) => !isNaN(Number(v))
-  )) {
-    const targetingScheme = parseInt(targetingSchemeKey) as TargetingScheme;
-    if (newTargets) return newTargets;
+  for (const targetingSchemeKey of combatAction.targetingSchemes) {
+    console.log(combatAction.name, combatAction.targetingSchemes, targetingSchemeKey);
+    const targetingScheme = targetingSchemeKey as TargetingScheme;
+
     switch (targetingScheme) {
       case TargetingScheme.Single:
+        console.log("SINGLE");
         for (const category of iterateNumericEnum(FriendOrFoe)) {
-          if (newTargets) return newTargets;
           const idsOption = category === FriendOrFoe.Friendly ? allyIdsOption : opponentIdsOption;
           if (idsOption)
             newTargets = getPreferredOrDefaultSingleTargetOption(idsOption[0] || null, idsOption);
         }
         break;
       case TargetingScheme.Area:
-        if (newTargets) return newTargets;
+        console.log("AREA");
         for (const category of iterateNumericEnum(FriendOrFoe)) {
-          if (newTargets) return newTargets;
           newTargets = getGroupTargetsOption(allyIdsOption, opponentIdsOption, category);
         }
+        break;
       case TargetingScheme.All:
+        console.log("ALL");
         return { type: CombatActionTargetType.All };
     }
   }

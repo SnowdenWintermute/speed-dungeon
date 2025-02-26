@@ -78,8 +78,6 @@ const config: CombatActionComponentConfig = {
     throw new Error("Function not implemented.");
   },
   getChildren: (combatantContext, tracker) => {
-    console.log("GETTING CHILDREN: ", tracker.hitOutcomes);
-
     let cursor = tracker.getPreviousTrackerInSequenceOption();
     let numBouncesSoFar = 0;
     while (cursor) {
@@ -91,10 +89,7 @@ const config: CombatActionComponentConfig = {
     const previousTrackerInSequenceOption = tracker.getPreviousTrackerInSequenceOption();
     if (!previousTrackerInSequenceOption) return [];
 
-    const filteredPossibleTargetIdsResult = getBouncableTargets(
-      combatantContext,
-      previousTrackerInSequenceOption
-    );
+    const filteredPossibleTargetIdsResult = getBouncableTargets(combatantContext, tracker);
     if (filteredPossibleTargetIdsResult instanceof Error) return [];
 
     if (numBouncesSoFar < MAX_BOUNCES && filteredPossibleTargetIdsResult.possibleTargetIds.length)
@@ -191,6 +186,7 @@ function getBouncableTargets(
   previousTrackerInSequenceOption: ActionTracker
 ) {
   const previousTargetInChain = previousTrackerInSequenceOption.actionExecutionIntent.targets;
+  console.log("previousTargetInChain: ", previousTargetInChain);
   const previousTargetIdResult = (() => {
     if (previousTargetInChain.type !== CombatActionTargetType.Single)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_ACTION_IN_CHAIN);

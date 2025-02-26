@@ -33,8 +33,11 @@ export function selectCombatActionHandler(
     new CombatantContext(game, party, character),
     player
   );
-  const maybeError = targetingCalculator.assignInitialCombatantActionTargets(combatActionOption);
-  if (maybeError instanceof Error) return maybeError;
+  const initialTargetsResult =
+    targetingCalculator.assignInitialCombatantActionTargets(combatActionOption);
+  if (initialTargetsResult instanceof Error) return initialTargetsResult;
+
+  console.log(initialTargetsResult);
 
   character.combatantProperties.selectedCombatAction = combatActionNameOption;
 

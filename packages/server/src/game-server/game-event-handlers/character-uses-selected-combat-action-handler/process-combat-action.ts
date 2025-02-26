@@ -61,11 +61,11 @@ export function processCombatAction(
         trackerOption = sequenceManager.getCurrentTracker();
         if (trackerOption === null) throw new Error("expected action tracker was missing");
 
-        console.log(
-          "completed step:",
-          ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type],
-          trackerOption.actionExecutionIntent.actionName
-        );
+        // console.log(
+        //   "completed step:",
+        //   ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type],
+        //   trackerOption.actionExecutionIntent.actionName
+        // );
 
         const completionOrderId = completionOrderIdGenerator.getNextIdNumeric();
         const branchingActionsResult = trackerOption.currentStep.finalize(completionOrderId);
@@ -106,10 +106,6 @@ export function processCombatAction(
           currentStep = nextStepOption;
           const gameUpdateCommandOption = nextStepOption.getGameUpdateCommandOption();
           if (gameUpdateCommandOption !== null) {
-            console.log(gameUpdateCommandOption.type);
-            if (gameUpdateCommandOption.type === GameUpdateCommandType.SpawnEntity) {
-              console.log(JSON.stringify(gameUpdateCommandOption));
-            }
             sequenceManager.replayNode.events.push({
               type: ReplayEventType.GameUpdate,
               gameUpdate: gameUpdateCommandOption,
@@ -168,7 +164,7 @@ export function processCombatAction(
               gameUpdate: returnHomeUpdate,
             });
         } else {
-          console.log("BREAK: ", ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type]);
+          // console.log("BREAK: ", ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type]);
           break;
         }
       }
