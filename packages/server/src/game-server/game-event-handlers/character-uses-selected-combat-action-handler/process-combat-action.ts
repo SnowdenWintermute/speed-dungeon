@@ -1,5 +1,4 @@
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionMotionPhase,
   ActionResolutionStepType,
   ActionSequenceManagerRegistry,
@@ -7,7 +6,6 @@ import {
   CombatActionExecutionIntent,
   CombatantContext,
   CombatantMotionActionResolutionStep,
-  GameUpdateCommandType,
   NestedNodeReplayEvent,
   ReplayEventType,
   SequentialIdGenerator,

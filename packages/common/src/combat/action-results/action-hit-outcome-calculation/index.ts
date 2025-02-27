@@ -34,12 +34,12 @@ export interface CombatActionHitOutcomes {
   durabilityChanges?: DurabilityChangesByEntityId;
   // distinct from hitPointChanges, "hits" is used to determine triggers for abilities that don't cause
   // hit point changes, but may apply a condition to their target or otherwise change something
-  hits?: Set<EntityId>;
-  misses?: Set<EntityId>;
-  evades?: Set<EntityId>;
-  parries?: Set<EntityId>;
-  counters?: Set<EntityId>;
-  blocks?: Set<EntityId>;
+  hits?: EntityId[];
+  misses?: EntityId[];
+  evades?: EntityId[];
+  parries?: EntityId[];
+  counters?: EntityId[];
+  blocks?: EntityId[];
 }
 
 export function calculateActionHitOutcomes(
@@ -96,13 +96,13 @@ export function calculateActionHitOutcomes(
     const isEvaded = !isMiss && hitRoll > percentChanceToHit.afterEvasion;
 
     if (isMiss) {
-      if (!hitOutcomes.misses) hitOutcomes.misses = new Set();
-      hitOutcomes.misses.add(id);
+      if (!hitOutcomes.misses) hitOutcomes.misses = [];
+      hitOutcomes.misses.push(id);
       continue;
     }
     if (isEvaded) {
-      if (!hitOutcomes.evades) hitOutcomes.evades = new Set();
-      hitOutcomes.evades.add(id);
+      if (!hitOutcomes.evades) hitOutcomes.evades = [];
+      hitOutcomes.evades.push(id);
       continue;
     }
 
@@ -116,8 +116,8 @@ export function calculateActionHitOutcomes(
       const parryRoll = randBetween(0, 100);
       const isParried = parryRoll < percentChanceToParry;
       if (isParried) {
-        if (!hitOutcomes.parries) hitOutcomes.parries = new Set();
-        hitOutcomes.parries.add(id);
+        if (!hitOutcomes.parries) hitOutcomes.parries = [];
+        hitOutcomes.parries.push(id);
         continue;
       }
     }
@@ -128,15 +128,15 @@ export function calculateActionHitOutcomes(
       const counterAttackRoll = randBetween(0, 100);
       const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
       if (isCounterAttacked) {
-        if (!hitOutcomes.counters) hitOutcomes.counters = new Set();
-        hitOutcomes.counters.add(id);
+        if (!hitOutcomes.counters) hitOutcomes.counters = [];
+        hitOutcomes.counters.push(id);
         continue;
       }
     }
 
     // it is possible that an ability hits, but does not change HP, ex: a spell that only induces a condition
-    if (!hitOutcomes.hits) hitOutcomes.hits = new Set();
-    hitOutcomes.hits.add(id);
+    if (!hitOutcomes.hits) hitOutcomes.hits = [];
+    hitOutcomes.hits.push(id);
 
     if (!incomingHpChangePerTargetOption) continue;
     const { value: incomingHpChangeValue, hpChangeSource } = incomingHpChangePerTargetOption;
@@ -159,8 +159,8 @@ export function calculateActionHitOutcomes(
       const blockRoll = randBetween(0, 100);
       const isBlocked = blockRoll < percentChanceToBlock;
       if (isBlocked) {
-        if (!hitOutcomes.blocks) hitOutcomes.blocks = new Set();
-        hitOutcomes.blocks.add(id);
+        if (!hitOutcomes.blocks) hitOutcomes.blocks = [];
+        hitOutcomes.blocks.push(id);
 
         const damageReduction = getShieldBlockDamageReduction(target);
         hpChange.value = hpChange.value - hpChange.value * damageReduction;

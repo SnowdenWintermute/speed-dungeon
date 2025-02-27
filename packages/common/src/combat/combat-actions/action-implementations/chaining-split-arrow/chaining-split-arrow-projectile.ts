@@ -34,6 +34,7 @@ import { getAttackHpChangeProperties } from "../attack/get-attack-hp-change-prop
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
+import { ActionAccuracyType } from "../../combat-action-accuracy.js";
 
 const MAX_BOUNCES = 2;
 
@@ -56,6 +57,12 @@ const config: CombatActionComponentConfig = {
   incursDurabilityLoss: {},
   costBases: {},
   userShouldMoveHomeOnComplete: false,
+  getUnmodifiedAccuracy: function (user) {
+    return {
+      type: ActionAccuracyType.Percentage,
+      value: 0,
+    };
+  },
   getResourceCosts: () => null,
   getExecutionTime: () => 700,
   requiresCombatTurn: () => true,

@@ -31,6 +31,7 @@ import { PurchaseItemsMenuState } from "@/app/game/ActionMenu/menu-state/purchas
 import { CraftingItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/crafting-item-selection";
 import { RepairItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/repair-item-selection";
 import { ConvertToShardItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/convert-to-shard-item-selection";
+import getCurrentParty from "@/utils/getCurrentParty";
 
 export enum MenuContext {
   InventoryItems,
@@ -106,6 +107,7 @@ export class GameState {
     public mutateState: MutateState<GameState>,
     public get: () => GameState,
     public getActiveCombatant: () => Error | null | Combatant,
+    public getCombatant: (entityId: EntityId) => Error | Combatant,
     public getParty: () => Error | AdventuringParty,
     public getCurrentMenu: () => ActionMenuState
   ) {
@@ -121,6 +123,16 @@ export const useGameStore = create<GameState>()(
           (fn: (state: GameState) => void) => set(produce(fn)),
           get,
           () => getActiveCombatant(get()),
+          (entityId: EntityId) => {
+            const state = get();
+            const gameOption = state.game;
+            if (!gameOption) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+            const game = gameOption;
+            if (!state.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+            const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+            if (combatantResult instanceof Error) return combatantResult;
+            return combatantResult;
+          },
           () => getParty(get().game, get().username),
           () => getCurrentMenu(get())
         ),
