@@ -14,15 +14,18 @@ export function getMonsterStartingAttributes(monsterType: MonsterType): Combatan
       break;
     case MonsterType.Zombie:
       attributes[CombatAttribute.Strength] = 35.0;
-      // attributes[CombatAttribute.Dexterity] = 1.0;
-      attributes[CombatAttribute.Dexterity] = 100.0;
-      // attributes[CombatAttribute.Vitality] = 2.0;
-      attributes[CombatAttribute.Vitality] = 6.0;
+      attributes[CombatAttribute.Dexterity] = 1.0;
+      attributes[CombatAttribute.Vitality] = 2.0;
       attributes[CombatAttribute.Resilience] = 4.0;
       attributes[CombatAttribute.Hp] = 2.0;
       attributes[CombatAttribute.Agility] = 0.5;
       attributes[CombatAttribute.Accuracy] = 60.0;
       attributes[CombatAttribute.Speed] = 1.0;
+
+      // testing
+      // attributes[CombatAttribute.Dexterity] = 100.0;
+      attributes[CombatAttribute.Vitality] = 6.0;
+      // attributes[CombatAttribute.Evasion] = 100;
       break;
     case MonsterType.SkeletonArcher:
       attributes[CombatAttribute.Dexterity] = 10.0;

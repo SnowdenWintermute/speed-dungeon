@@ -79,7 +79,7 @@ export class AnimationManager {
     // alternatives to some missing animations
     if (newAnimationGroupOption === undefined) {
       const fallbackName = this.getFallbackAnimationName(newAnimationName);
-      newAnimationGroupOption = this.getAnimationGroupByName(fallbackName || AnimationName.Idle);
+      if (fallbackName) newAnimationGroupOption = this.getAnimationGroupByName(fallbackName);
     }
 
     const clonedAnimationOption = this.cloneAnimationOption(newAnimationGroupOption);

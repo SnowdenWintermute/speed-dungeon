@@ -13,7 +13,6 @@ import { GameWorld } from "../../game-world";
 import {
   FloatingMessageElementType,
   FloatingMessageTextColor,
-  getTailwindClassFromFloatingTextColor,
   startFloatingMessage,
 } from "@/stores/game-store/floating-messages";
 import getCurrentParty from "@/utils/getCurrentParty";

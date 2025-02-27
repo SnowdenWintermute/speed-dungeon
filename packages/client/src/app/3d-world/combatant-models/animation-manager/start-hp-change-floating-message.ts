@@ -1,8 +1,8 @@
 import {
+  FLOATING_TEXT_COLORS,
   FloatingMessageElement,
   FloatingMessageElementType,
   FloatingMessageTextColor,
-  getTailwindClassFromFloatingTextColor,
   startFloatingMessage,
 } from "@/stores/game-store/floating-messages";
 import {
@@ -15,6 +15,7 @@ import { HpChange } from "@speed-dungeon/common";
 export default function startHpChangeFloatingMessage(
   targetId: string,
   hpChange: HpChange,
+  wasBlocked: boolean,
   displayTime: number
 ) {
   let color =
@@ -24,7 +25,7 @@ export default function startHpChangeFloatingMessage(
         ? FloatingMessageTextColor.MagicalDamage
         : FloatingMessageTextColor.Damage;
 
-  const colorClass = getTailwindClassFromFloatingTextColor(color);
+  const colorClass = FLOATING_TEXT_COLORS[color];
 
   const critClass = hpChange.isCrit ? " scale-[1.25] animate-crit-text" : "";
 
@@ -33,7 +34,7 @@ export default function startHpChangeFloatingMessage(
   const elements: FloatingMessageElement[] = [
     {
       type: FloatingMessageElementType.Text,
-      text: `${Math.abs(hpChange.value)}${kineticDamageTypeOption !== undefined ? " " + KINETIC_DAMAGE_TYPE_STRINGS[kineticDamageTypeOption].toLowerCase() : ""}${elementOption !== undefined ? " " + MAGICAL_ELEMENT_STRINGS[elementOption].toLowerCase() : ""}`,
+      text: `${wasBlocked ? "Block: " : ""} ${Math.abs(hpChange.value)}${kineticDamageTypeOption !== undefined ? " " + KINETIC_DAMAGE_TYPE_STRINGS[kineticDamageTypeOption].toLowerCase() : ""}${elementOption !== undefined ? " " + MAGICAL_ELEMENT_STRINGS[elementOption].toLowerCase() : ""}`,
       classNames: { mainText: colorClass + critClass, shadowText: critClass },
     },
   ];

@@ -57,12 +57,12 @@ const config: CombatActionComponentConfig = {
   incursDurabilityLoss: {},
   costBases: {},
   userShouldMoveHomeOnComplete: false,
-  getUnmodifiedAccuracy: function (user) {
-    return {
-      type: ActionAccuracyType.Percentage,
-      value: 0,
-    };
-  },
+  // getUnmodifiedAccuracy: function (user) {
+  //   return {
+  //     type: ActionAccuracyType.Percentage,
+  //     value: 0,
+  //   };
+  // },
   getResourceCosts: () => null,
   getExecutionTime: () => 700,
   requiresCombatTurn: () => true,

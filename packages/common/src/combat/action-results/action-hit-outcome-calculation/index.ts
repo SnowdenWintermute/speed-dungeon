@@ -155,7 +155,7 @@ export function calculateActionHitOutcomes(
       CombatantProperties.canBlock(target) &&
       !targetWantsToBeHit // this should be checking if actions with malicious intent are in fact healing the target
     ) {
-      const percentChanceToBlock = 5; // @TODO - do something like ffxi: BlockRate = SizeBaseBlockRate + ((ShieldSkill - AttackerCombatSkill) × 0.2325)
+      const percentChanceToBlock = 50; // @TODO - do something like ffxi: BlockRate = SizeBaseBlockRate + ((ShieldSkill - AttackerCombatSkill) × 0.2325)
       const blockRoll = randBetween(0, 100);
       const isBlocked = blockRoll < percentChanceToBlock;
       if (isBlocked) {
@@ -163,7 +163,8 @@ export function calculateActionHitOutcomes(
         hitOutcomes.blocks.push(id);
 
         const damageReduction = getShieldBlockDamageReduction(target);
-        hpChange.value = hpChange.value - hpChange.value * damageReduction;
+        console.log("SHIELD DAMAGE REDUCTION: ", damageReduction);
+        hpChange.value = Math.max(0, hpChange.value - hpChange.value * damageReduction);
       }
     }
 

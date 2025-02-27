@@ -19,14 +19,15 @@ export function induceHitRecovery(
   actionUserId: string,
   targetId: string,
   hpChange: HpChange,
-  wasSpell: boolean
+  wasSpell: boolean,
+  wasBlocked: boolean
 ) {
   const targetModel = gameWorld.modelManager.combatantModels[targetId];
   if (targetModel === undefined) return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
   // hpChange.isCrit = true;
 
-  startHpChangeFloatingMessage(targetId, hpChange, 2000);
+  startHpChangeFloatingMessage(targetId, hpChange, wasBlocked, 2000);
 
   useGameStore.getState().mutateState((gameState) => {
     // - change their hp
@@ -83,6 +84,7 @@ export function induceHitRecovery(
     }
 
     if (hpChange.isCrit) messageText = "Critical! " + messageText;
+    if (wasBlocked) messageText = "Shield block: " + messageText;
 
     gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
 
@@ -109,10 +111,9 @@ export function induceHitRecovery(
       const hasCritRecoveryAnimation = targetModel.animationManager.getAnimationGroupByName(
         AnimationName.HitRecovery
       );
-      const animationName =
-        hpChange.isCrit && hasCritRecoveryAnimation
-          ? AnimationName.HitRecovery
-          : AnimationName.CritRecovery;
+      let animationName = AnimationName.HitRecovery;
+      if (hpChange.isCrit && hasCritRecoveryAnimation) animationName = AnimationName.CritRecovery;
+      if (wasBlocked) animationName = AnimationName.Block;
 
       targetModel.animationManager.startAnimationWithTransition(animationName, 0, {
         shouldLoop: false,

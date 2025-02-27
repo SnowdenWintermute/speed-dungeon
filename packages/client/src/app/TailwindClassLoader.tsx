@@ -10,6 +10,7 @@ export default function TailwindClassLoader() {
       <div className={`opacity-50  `} />
       <div className="pointer-events-none" />
       <div className="text-beigepaper" />
+      <div className="text-zinc-400" />
       <div className="text-green-600" />
       <div className="text-blue-700" />
       <div className="text-blue-600" />

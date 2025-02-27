@@ -7,6 +7,7 @@ export enum FloatingMessageTextColor {
   Healing,
   ManaGained,
   MagicalDamage,
+  Parried,
 }
 
 export enum FloatingMessageElementType {
@@ -17,7 +18,7 @@ export enum FloatingMessageElementType {
 export type FloatingMessageTextElement = {
   type: FloatingMessageElementType.Text;
   text: string | number;
-  classNames?: {mainText: string, shadowText: string};
+  classNames?: { mainText: string; shadowText: string };
 };
 
 export enum FloatingMessageIconType {
@@ -54,18 +55,13 @@ export class FloatingMessage {
   ) {}
 }
 
-export function getTailwindClassFromFloatingTextColor(color: FloatingMessageTextColor) {
-  switch (color) {
-    case FloatingMessageTextColor.Damage:
-      return "text-zinc-300";
-    case FloatingMessageTextColor.Healing:
-      return "text-green-600";
-    case FloatingMessageTextColor.ManaGained:
-      return "text-blue-600";
-    case FloatingMessageTextColor.MagicalDamage:
-      return "text-sky-300";
-  }
-}
+export const FLOATING_TEXT_COLORS: Record<FloatingMessageTextColor, string> = {
+  [FloatingMessageTextColor.Damage]: "text-zinc-300",
+  [FloatingMessageTextColor.Healing]: "text-green-600",
+  [FloatingMessageTextColor.ManaGained]: "text-blue-600",
+  [FloatingMessageTextColor.MagicalDamage]: "text-sky-300",
+  [FloatingMessageTextColor.Parried]: "text-zinc-300",
+};
 
 export function startFloatingMessage(
   combatantId: string,

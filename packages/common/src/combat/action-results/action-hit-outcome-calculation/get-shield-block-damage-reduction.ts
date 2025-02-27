@@ -13,7 +13,7 @@ export function getShieldBlockDamageReduction(combatantProperties: CombatantProp
   const shieldProperties = offhandOption.equipmentBaseItemProperties;
   const baseDamageReduction = SHIELD_SIZE_DAMAGE_REDUCTION[shieldProperties.size];
 
-  return baseDamageReduction + shieldProperties.armorClass / 10;
+  return baseDamageReduction + shieldProperties.armorClass / 200;
 
   // FFXI formula:
   // PercentDamageBlocked = SizeDamageReduction + (ShieldDEF / ((max(ShieldItemLevel, 99) - 99) / 10 + 2))

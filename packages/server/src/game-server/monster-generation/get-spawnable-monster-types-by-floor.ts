@@ -4,7 +4,7 @@ export default function getSpawnableMonsterTypesByFloor(floor: number): MonsterT
   // if (floor === 1) return [MonsterType.SkeletonArcher, MonsterType.Vulture];
   // if (floor === 1) return [MonsterType.SkeletonArcher, MonsterType.Zombie];
   // if (floor === 1) return [MonsterType.Scavenger, MonsterType.Zombie];
-  if (floor === 1) return [MonsterType.Zombie];
+  if (floor === 1) return [MonsterType.Cultist];
   // return [MonsterType.Cultist];
   // if (floor === 1) return [MonsterType.MetallicGolem, MonsterType.FireElemental];
   if (floor === 2)
