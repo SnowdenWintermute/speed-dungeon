@@ -7,14 +7,14 @@ import { EQUIPMENT_ICONS } from "../detailables/EquipmentDetails/equipment-icons
 const DURABILITY_WARNING_THRESHOLD_MODERATE = 0.3;
 const DURABILITY_WARNING_THRESHOLD_CRITICAL = 0.1;
 
-export default function LowDurabilityIndicators({
-  isPlayerControlled,
-  equippedItems,
-}: {
+interface Props {
   isPlayerControlled: boolean;
   equippedItems: Equipment[];
-}) {
+}
+
+export default function LowDurabilityIndicators({ isPlayerControlled, equippedItems }: Props) {
   let indicators = [];
+  console.log("rerendering indicators");
 
   for (const equipment of equippedItems) {
     const durability = Equipment.getDurability(equipment);

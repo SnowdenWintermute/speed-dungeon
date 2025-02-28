@@ -3,15 +3,19 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { CombatActionExecutionIntent } from "../../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Combatant } from "../../combatants/index.js";
+import {
+  DurabilityChangesByEntityId,
+  applyDurabilityChanges,
+  updateConditionalDurabilityChangesOnUser,
+} from "../../combat/action-results/calculate-action-durability-changes.js";
+import { DurabilityLossCondition } from "../../combat/combat-actions/combat-action-durability-loss-condition.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
-    // counterspells
-    // if countered, set the tracker "wasInterrupted" to true
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
       step: stepType,
@@ -19,18 +23,26 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     };
 
     super(stepType, context, gameUpdateCommand);
+    // @TODO - counterspells
+    // if countered, set the tracker "wasInterrupted" to true
 
-    ///////////////////////////////////////////////////
-    // separately calculating weapon dura loss if is "on use" instead of "on hit"
-    // such as with firing a bow
+    const { tracker, combatantContext } = context;
+    const { game, combatant } = combatantContext;
 
-    // @TODO - move this to "on use" triggers
-    // updateConditionalDurabilityChangesOnUser(
-    //   combatant.entityProperties.id,
-    //   action,
-    //   durabilityChanges,
-    //   DurabilityLossCondition.OnUse
-    // );
+    const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
+
+    const durabilityChanges = new DurabilityChangesByEntityId();
+    updateConditionalDurabilityChangesOnUser(
+      combatant.entityProperties.id,
+      action,
+      durabilityChanges,
+      DurabilityLossCondition.OnUse
+    );
+
+    if (!durabilityChanges.isEmpty()) {
+      gameUpdateCommand.durabilityChanges = durabilityChanges;
+      applyDurabilityChanges(game, durabilityChanges);
+    }
   }
 
   protected onTick = () => {};

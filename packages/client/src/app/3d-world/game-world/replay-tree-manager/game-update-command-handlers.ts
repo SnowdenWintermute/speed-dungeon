@@ -9,6 +9,7 @@ import {
   SpawnableEntityType,
   VfxParentType,
   VfxType,
+  applyDurabilityChanges,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 import { MobileVfxModel, spawnMobileVfxModel } from "../../vfx-models";
@@ -20,6 +21,8 @@ import {
 import { Vector3 } from "@babylonjs/core";
 import { entityMotionGameUpdateHandler } from "./entity-motion";
 import { hitOutcomesGameUpdateHandler } from "./hit-outcomes";
+import { useGameStore } from "@/stores/game-store";
+import { playBeep } from "@/app/sound";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
@@ -46,10 +49,19 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     command: ActivatedTriggersGameUpdateCommand;
     isComplete: boolean;
   }) {
+    const { command } = update;
+    useGameStore.getState().mutateState((gameState) => {
+      const game = gameState.game;
+      if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+      if (command.durabilityChanges) {
+        gameState.rerenderForcer += 1; // for some reason it delays updating the durability indicators without this
+        playBeep();
+        applyDurabilityChanges(game, command.durabilityChanges);
+      }
+    });
+
     update.isComplete = true;
-    // no-op????
     // or show floating text for counterspell, "triggered tech burst" "psionic explosion"
-    // throw new Error("Function not implemented.");
   },
   [GameUpdateCommandType.HitOutcomes]: async function (update: {
     command: HitOutcomesGameUpdateCommand;
@@ -79,6 +91,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     const scene = await spawnMobileVfxModel(vfxProperties.name);
     const vfxModel = new MobileVfxModel(vfx.entityProperties.id, scene, vfxProperties.position);
     gameWorld.current.vfxManager.register(vfxModel);
+
     if (vfxProperties.parentOption) {
       if (vfxProperties.parentOption.type === VfxParentType.UserMainHand) {
         const actionUserOption =
@@ -93,47 +106,10 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
         vfxModel.movementManager.transformNode.setPositionWithLocalVector(Vector3.Zero());
       }
     }
-    // spawnMobileVfxModel(vfxProperties.name).then((scene) => {
-    //   const vfxModel = new MobileVfxModel(vfx.entityProperties.id, scene, vfxProperties.position);
-    //   gameWorld.current!.vfxManager.register(vfxModel);
-    // });
+
     update.isComplete = true;
   },
   [GameUpdateCommandType.EndTurn]: function (arg: any): Promise<void | Error> {
     throw new Error("Function not implemented.");
   },
 };
-
-//[GameUpdateCommandType.MobileVfx]: async function (update: {
-//  command: MobileVfxGameUpdateCommand;
-//  isComplete: boolean;
-//}) {
-//  const vfxName = MobileVfxName.Arrow;
-//  if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
-//  const id = gameWorld.current.idGenerator.generate();
-//  const scene = await spawnMobileVfxModel(vfxName);
-//  const { command } = update;
-//  const { startPosition, destination } = command;
-//  const vfx = new MobileVfx(id, scene, startPosition);
-//  console.log(
-//    "START: ",
-//    startPosition,
-//    "DEST: ",
-//    destination,
-//    "DISTANCE: ",
-//    Vector3.Distance(startPosition, destination)
-//  );
-//  vfx.movementManager.startTranslating(destination, command.translationDuration, () => {
-//    update.isComplete = true;
-//    gameWorld.current?.vfxManager.unregister(vfx.id);
-//  });
-
-//  gameWorld.current.vfxManager.register(vfx);
-
-//  // spawn the vfx model
-//  // start the animation
-//  // start movement
-//  //
-//  // isComplete = reached destination
-//  // throw new Error("Function not implemented.");
-//},

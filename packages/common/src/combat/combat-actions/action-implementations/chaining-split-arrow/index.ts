@@ -20,6 +20,7 @@ import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -36,7 +37,7 @@ const config: CombatActionComponentConfig = {
   baseHpChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
   appliesConditions: [],
-  incursDurabilityLoss: {},
+  incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: 1 } },
   costBases: {},
   userShouldMoveHomeOnComplete: true,
   getResourceCosts: () => {

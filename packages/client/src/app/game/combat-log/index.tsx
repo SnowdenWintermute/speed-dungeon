@@ -12,7 +12,7 @@ export default function CombatLog() {
     ? "absolute bg-slate-700 p-2 top-0 right-0 h-screen w-screen"
     : "h-full";
 
-  const expandButtonText = expanded ? "Minimize" : "Maximize";
+  const expandButtonText = expanded ? "Restore (L)" : "Maximize (L)";
 
   return (
     <div className={`flex flex-col pointer-events-auto ${expandedStyle}`}>

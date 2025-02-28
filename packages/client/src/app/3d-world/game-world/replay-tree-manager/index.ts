@@ -1,4 +1,5 @@
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   EntityId,
   GAME_UPDATE_COMMAND_TYPE_STRINGS,
   GameUpdateCommand,
@@ -72,12 +73,12 @@ export class ReplayTreeProcessor {
       let branchComplete = branch.isDoneProcessing();
       let currentStepComplete = branch.currentStepIsComplete();
       while (currentStepComplete && !branchComplete) {
-        console.log(gameWorld.current?.tickCounter);
         const completedUpdateOption = branch.getCurrentGameUpdate();
         if (completedUpdateOption)
           console.log(
             "finished processing ",
-            GAME_UPDATE_COMMAND_TYPE_STRINGS[completedUpdateOption.command.type]
+            GAME_UPDATE_COMMAND_TYPE_STRINGS[completedUpdateOption.command.type],
+            gameWorld.current?.tickCounter
           );
 
         branch.startProcessingNext();
@@ -124,7 +125,12 @@ export class ReplayBranchProcessor {
       this.branchProcessors.push(newBranch);
       return;
     }
-    // console.log("started processing", ACTION_RESOLUTION_STEP_TYPE_STRINGS[node.gameUpdate.step]);
+    // console.log(
+    //   "started processing",
+    //   ACTION_RESOLUTION_STEP_TYPE_STRINGS[node.gameUpdate.step],
+
+    //   gameWorld.current?.tickCounter
+    // );
 
     this.currentGameUpdateOption = { command: node.gameUpdate, isComplete: false };
 

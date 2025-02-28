@@ -3,6 +3,7 @@ export * from "./action-result.js";
 export * from "./get-action-results.js";
 export * from "./action-result-calculator.js";
 export * from "./action-hit-outcome-calculation//index.js";
+export * from "./calculate-action-durability-changes.js";
 
 import cloneDeep from "lodash.clonedeep/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";

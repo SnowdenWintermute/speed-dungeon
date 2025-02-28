@@ -1,5 +1,10 @@
 import { ONE_THIRD_OF_ONE } from "../../app-consts.js";
-import { Combatant, CombatantEquipment } from "../../combatants/index.js";
+import {
+  Combatant,
+  CombatantEquipment,
+  applyEquipmentEffectWhileMaintainingResourcePercentages,
+} from "../../combatants/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
 import { Equipment, EquipmentType } from "../../items/equipment/index.js";
 import {
   EquipmentSlotType,
@@ -8,7 +13,7 @@ import {
   WearableSlotType,
 } from "../../items/equipment/slots.js";
 import { EntityId } from "../../primatives/index.js";
-import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
+import { iterateNumericEnum, iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { DurabilityLossCondition } from "../combat-actions/combat-action-durability-loss-condition.js";
 import { CombatActionComponent } from "../combat-actions/index.js";
 
@@ -49,6 +54,10 @@ export class DurabilityChangesByEntityId {
     let existingChanges = this.records[entityId];
     if (!existingChanges) existingChanges = this.records[entityId] = new DurabilityChanges();
     existingChanges.addOrUpdateEquipmentDurabilityChange(durabilityChange);
+  }
+
+  isEmpty() {
+    return Object.keys(this.records).length === 0;
   }
 }
 
@@ -169,18 +178,20 @@ export function updateConditionalDurabilityChangesOnUser(
   // take dura from user's equipment if should
   if (action.incursDurabilityLoss === undefined) return;
 
-  if (action.incursDurabilityLoss[EquipmentSlotType.Wearable])
+  if (action.incursDurabilityLoss[EquipmentSlotType.Wearable]) {
     for (const [wearableSlot, durabilityLossCondition] of iterateNumericEnumKeyedRecord(
       action.incursDurabilityLoss[EquipmentSlotType.Wearable]
     )) {
       if (!(durabilityLossCondition === condition)) continue;
+
       durabilityChanges.updateOrCreateDurabilityChangeRecord(userId, {
         taggedSlot: { type: EquipmentSlotType.Wearable, slot: wearableSlot },
         value: BASE_DURABILITY_LOSS,
       });
     }
+  }
 
-  if (action.incursDurabilityLoss[EquipmentSlotType.Holdable])
+  if (action.incursDurabilityLoss[EquipmentSlotType.Holdable]) {
     for (const [holdableSlot, durabilityLossCondition] of iterateNumericEnumKeyedRecord(
       action.incursDurabilityLoss[EquipmentSlotType.Holdable]
     )) {
@@ -190,4 +201,29 @@ export function updateConditionalDurabilityChangesOnUser(
         value: BASE_DURABILITY_LOSS,
       });
     }
+  }
+}
+
+export function applyDurabilityChanges(
+  game: SpeedDungeonGame,
+  durabilityChanges: DurabilityChangesByEntityId
+) {
+  for (const [entityId, durabilitychanges] of Object.entries(durabilityChanges.records)) {
+    const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+    if (combatantResult instanceof Error) return combatantResult;
+    for (const change of durabilitychanges.changes) {
+      const { taggedSlot, value } = change;
+      const equipmentOption = CombatantEquipment.getEquipmentInSlot(
+        combatantResult.combatantProperties,
+        taggedSlot
+      );
+
+      applyEquipmentEffectWhileMaintainingResourcePercentages(
+        combatantResult.combatantProperties,
+        () => {
+          if (equipmentOption) Equipment.changeDurability(equipmentOption, value);
+        }
+      );
+    }
+  }
 }

@@ -61,7 +61,7 @@ export class GameState {
   combatantModelLoadingStates: { [combantatId: EntityId]: boolean } = {};
   babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
   combatantFloatingMessages: { [combatantId: string]: FloatingMessage[] } = {};
-  testText: string = "test";
+  testVar: boolean = false;
   itemThumbnails: { [itemId: string]: string } = {};
   combatantPortraits: { [combatantId: EntityId]: string } = {};
   consideredItemUnmetRequirements: null | CombatAttribute[] = null;
@@ -69,6 +69,7 @@ export class GameState {
   viewingLeaveGameModal: boolean = false;
   viewingDropShardsModal: boolean = false;
   combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};
+  rerenderForcer: number = 0;
   targetingIndicators: {
     targetedBy: EntityId;
     targetId: EntityId;
