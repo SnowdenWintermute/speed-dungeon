@@ -8,7 +8,6 @@ import { HpChange, HpChangeSource } from "../../hp-change-source-types.js";
 import { checkIfTargetWantsToBeHit } from "./check-if-target-wants-to-be-hit.js";
 import { applyCritMultiplier } from "./apply-crit-multiplier-to-hp-change.js";
 import { EntityId } from "../../../primatives/index.js";
-import { DurabilityChangesByEntityId } from "../calculate-action-durability-changes.js";
 import { convertHpChangeValueToFinalSign } from "../../combat-actions/action-calculation-utils/convert-hp-change-value-to-final-sign.js";
 import {
   applyElementalAffinities,
@@ -23,23 +22,34 @@ import { ActionResolutionStepContext } from "../../../action-processing/index.js
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
 import { getShieldBlockDamageReduction } from "./get-shield-block-damage-reduction.js";
+import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 export * from "./get-action-hit-chance.js";
 export * from "./get-action-crit-chance.js";
 export * from "./hp-change-calculation-strategies/index.js";
 export * from "./check-if-target-wants-to-be-hit.js";
 
-export interface CombatActionHitOutcomes {
+export enum HitOutcome {
+  Miss,
+  Evade,
+  Parry,
+  Counterattack,
+  ShieldBlock,
+  Hit,
+}
+
+export class CombatActionHitOutcomes {
   hitPointChanges?: Record<EntityId, HpChange>;
   manaChanges?: Record<EntityId, number>;
   durabilityChanges?: DurabilityChangesByEntityId;
   // distinct from hitPointChanges, "hits" is used to determine triggers for abilities that don't cause
   // hit point changes, but may apply a condition to their target or otherwise change something
-  hits?: EntityId[];
-  misses?: EntityId[];
-  evades?: EntityId[];
-  parries?: EntityId[];
-  counters?: EntityId[];
-  blocks?: EntityId[];
+  outcomeFlags: Partial<Record<HitOutcome, EntityId[]>> = {};
+  constructor() {}
+  insertOutcomeFlag(flag: HitOutcome, entityId: EntityId) {
+    const idsFlagged = this.outcomeFlags[flag];
+    if (!idsFlagged) this.outcomeFlags[flag] = [entityId];
+    else idsFlagged.push(entityId);
+  }
 }
 
 export function calculateActionHitOutcomes(
@@ -67,7 +77,7 @@ export function calculateActionHitOutcomes(
   if (targetIdsResult instanceof Error) return targetIdsResult;
   const targetIds = targetIdsResult;
 
-  const hitOutcomes: CombatActionHitOutcomes = {};
+  const hitOutcomes = new CombatActionHitOutcomes();
 
   const incomingHpChangePerTargetOption = getIncomingHpChangePerTarget(
     action,
@@ -96,13 +106,11 @@ export function calculateActionHitOutcomes(
     const isEvaded = !isMiss && hitRoll > percentChanceToHit.afterEvasion;
 
     if (isMiss) {
-      if (!hitOutcomes.misses) hitOutcomes.misses = [];
-      hitOutcomes.misses.push(id);
+      hitOutcomes.insertOutcomeFlag(HitOutcome.Miss, id);
       continue;
     }
     if (isEvaded) {
-      if (!hitOutcomes.evades) hitOutcomes.evades = [];
-      hitOutcomes.evades.push(id);
+      hitOutcomes.insertOutcomeFlag(HitOutcome.Evade, id);
       continue;
     }
 
@@ -116,8 +124,7 @@ export function calculateActionHitOutcomes(
       const parryRoll = randBetween(0, 100);
       const isParried = parryRoll < percentChanceToParry;
       if (isParried) {
-        if (!hitOutcomes.parries) hitOutcomes.parries = [];
-        hitOutcomes.parries.push(id);
+        hitOutcomes.insertOutcomeFlag(HitOutcome.Parry, id);
         continue;
       }
     }
@@ -128,15 +135,13 @@ export function calculateActionHitOutcomes(
       const counterAttackRoll = randBetween(0, 100);
       const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
       if (isCounterAttacked) {
-        if (!hitOutcomes.counters) hitOutcomes.counters = [];
-        hitOutcomes.counters.push(id);
+        hitOutcomes.insertOutcomeFlag(HitOutcome.Counterattack, id);
         continue;
       }
     }
 
     // it is possible that an ability hits, but does not change HP, ex: a spell that only induces a condition
-    if (!hitOutcomes.hits) hitOutcomes.hits = [];
-    hitOutcomes.hits.push(id);
+    hitOutcomes.insertOutcomeFlag(HitOutcome.Hit, id);
 
     if (!incomingHpChangePerTargetOption) continue;
     const { value: incomingHpChangeValue, hpChangeSource } = incomingHpChangePerTargetOption;
@@ -159,8 +164,7 @@ export function calculateActionHitOutcomes(
       const blockRoll = randBetween(0, 100);
       const isBlocked = blockRoll < percentChanceToBlock;
       if (isBlocked) {
-        if (!hitOutcomes.blocks) hitOutcomes.blocks = [];
-        hitOutcomes.blocks.push(id);
+        hitOutcomes.insertOutcomeFlag(HitOutcome.ShieldBlock, id);
 
         const damageReduction = getShieldBlockDamageReduction(target);
         hpChange.value = Math.max(0, hpChange.value - hpChange.value * damageReduction);

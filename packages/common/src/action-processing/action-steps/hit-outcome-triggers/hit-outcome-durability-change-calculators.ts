@@ -1,20 +1,21 @@
-import { ONE_THIRD_OF_ONE } from "../../app-consts.js";
-import { Combatant, CombatantEquipment } from "../../combatants/index.js";
-import { DurabilityChangesByEntityId } from "../../durability/index.js";
-import { Equipment, EquipmentType } from "../../items/equipment/index.js";
+import { ONE_THIRD_OF_ONE } from "../../../app-consts.js";
+import { DurabilityLossCondition } from "../../../combat/combat-actions/combat-action-durability-loss-condition.js";
+import { CombatActionComponent } from "../../../combat/index.js";
+import { Combatant, CombatantEquipment } from "../../../combatants/index.js";
+import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import {
+  Equipment,
   EquipmentSlotType,
+  EquipmentType,
   HoldableSlotType,
   WearableSlotType,
-} from "../../items/equipment/slots.js";
-import { EntityId } from "../../primatives/index.js";
-import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
-import { DurabilityLossCondition } from "../combat-actions/combat-action-durability-loss-condition.js";
-import { CombatActionComponent } from "../combat-actions/index.js";
+} from "../../../items/equipment/index.js";
+import { EntityId } from "../../../primatives/index.js";
+import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 
 const BASE_DURABILITY_LOSS = -1;
 
-export function calculateActionDurabilityChangesOnHit(
+export function calculateHitOutcomeDurabilityChanges(
   actionUser: Combatant,
   targetCombatant: Combatant,
   action: CombatActionComponent,

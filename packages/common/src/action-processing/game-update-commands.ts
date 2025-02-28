@@ -6,7 +6,7 @@ import { ActionResolutionStepType } from "./action-steps/index.js";
 import { Combatant } from "../combatants/index.js";
 import { Vfx } from "../vfx/index.js";
 import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
-import { DurabilityChangesByEntityId } from "../combat/action-results/calculate-action-durability-changes.js";
+import { DurabilityChangesByEntityId } from "../durability/index.js";
 
 export enum GameUpdateCommandType {
   SpawnEntity,

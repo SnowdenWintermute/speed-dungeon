@@ -10,8 +10,8 @@ export * from "./action-sequence-manager-registry.js";
 export * from "./action-steps/combatant-motion.js";
 
 import { BattleConclusion } from "../battle/index.js";
-import { DurabilityChangesByEntityId } from "../combat/action-results/calculate-action-durability-changes.js";
 import { CombatActionName, HpChange } from "../combat/index.js";
+import { DurabilityChangesByEntityId } from "../durability/index.js";
 import { Consumable } from "../items/consumables/index.js";
 import { Equipment } from "../items/equipment/index.js";
 import { GameMessageType } from "../packets/game-message.js";

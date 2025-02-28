@@ -1,4 +1,9 @@
-import { AnimationName, ERROR_MESSAGES, HitOutcomesGameUpdateCommand } from "@speed-dungeon/common";
+import {
+  AnimationName,
+  ERROR_MESSAGES,
+  HitOutcome,
+  HitOutcomesGameUpdateCommand,
+} from "@speed-dungeon/common";
 import { induceHitRecovery } from "../../combatant-models/animation-manager/induce-hit-recovery";
 import { gameWorld } from "../../SceneManager";
 import { useGameStore } from "@/stores/game-store";
@@ -17,17 +22,17 @@ export function hitOutcomesGameUpdateHandler(update: {
 }) {
   const { command } = update;
   const { outcomes, actionUserId } = command;
-  const { hitPointChanges, misses, evades, parries, counters, blocks } = outcomes;
+  const { hitPointChanges, outcomeFlags } = outcomes;
   if (!gameWorld.current) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
   if (hitPointChanges) {
     for (const [entityId, hpChange] of Object.entries(hitPointChanges)) {
-      const wasBlocked = !!blocks?.includes(entityId);
+      const wasBlocked = !!outcomeFlags[HitOutcome.ShieldBlock]?.includes(entityId);
       const wasSpell = false;
       induceHitRecovery(gameWorld.current, actionUserId, entityId, hpChange, wasSpell, wasBlocked);
     }
   }
 
-  misses?.forEach((entityId) => {
+  outcomeFlags[HitOutcome.Miss]?.forEach((entityId) => {
     const elements: FloatingMessageElement[] = [
       {
         type: FloatingMessageElementType.Text,
@@ -51,7 +56,7 @@ export function hitOutcomesGameUpdateHandler(update: {
     });
   });
 
-  evades?.forEach((entityId) => {
+  outcomeFlags[HitOutcome.Evade]?.forEach((entityId) => {
     const elements: FloatingMessageElement[] = [
       {
         type: FloatingMessageElementType.Text,
@@ -86,7 +91,7 @@ export function hitOutcomesGameUpdateHandler(update: {
     });
   });
 
-  parries?.forEach((entityId) => {
+  outcomeFlags[HitOutcome.Parry]?.forEach((entityId) => {
     const elements: FloatingMessageElement[] = [
       {
         type: FloatingMessageElementType.Text,

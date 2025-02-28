@@ -16,7 +16,6 @@ import { tickCombatUntilNextCombatantIsActive } from "../combat/turn-order/tick-
 import endActiveCombatantTurn from "../combat/turn-order/end-active-combatant-turn.js";
 import allCombatantsInGroupAreDead from "../combat/all-combatants-in-group-are-dead.js";
 import { getPlayerPartyOption } from "./get-player-party.js";
-import getActionResults from "../combat/action-results/get-action-results.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import handleBattleVictory from "./handle-battle-victory.js";
 import { GameMode } from "../types.js";
@@ -49,7 +48,6 @@ export class SpeedDungeonGame {
   static getCombatantById = getCombatantInGameById;
   static getPartyOfCombatant = getPartyOfCombatant;
   static getPlayerPartyOption = getPlayerPartyOption;
-  static getActionResults = getActionResults;
   static tickCombatUntilNextCombatantIsActive = tickCombatUntilNextCombatantIsActive;
   static endActiveCombatantTurn = endActiveCombatantTurn;
   static allCombatantsInGroupAreDead = allCombatantsInGroupAreDead;

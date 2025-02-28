@@ -16,7 +16,7 @@ export class ActionTracker {
   completedSteps: ActionResolutionStep[] = [];
   wasInterrupted: boolean = false;
   spawnedEntityOption: null | SpawnableEntity = null;
-  hitOutcomes: CombatActionHitOutcomes = {};
+  hitOutcomes = new CombatActionHitOutcomes();
   constructor(
     public parentActionManager: ActionSequenceManager,
     public id: string,

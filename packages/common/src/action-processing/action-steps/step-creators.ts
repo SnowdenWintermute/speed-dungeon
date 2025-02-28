@@ -1,9 +1,8 @@
 import { CombatActionAnimationPhase } from "../../combat/combat-actions/combat-action-animations.js";
-import { Combatant } from "../../combatants/index.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
 import { CombatantMotionActionResolutionStep } from "./combatant-motion.js";
 import { DetermineChildActionsActionResolutionStep } from "./determine-child-actions.js";
-import { EvalOnHitOutcomeTriggersActionResolutionStep } from "./evaluate-hit-outcome-triggers.js";
+import { EvalOnHitOutcomeTriggersActionResolutionStep } from "./hit-outcome-triggers/index.js";
 import { EvalOnUseTriggersActionResolutionStep } from "./evaluate-on-use-triggers.js";
 import {
   ActionMotionPhase,

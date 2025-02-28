@@ -1,5 +1,6 @@
 import {
   ActivatedTriggersGameUpdateCommand,
+  DurabilityChangesByEntityId,
   ERROR_MESSAGES,
   EntityMotionGameUpdateCommand,
   GameUpdateCommandType,
@@ -9,7 +10,6 @@ import {
   SpawnableEntityType,
   VfxParentType,
   VfxType,
-  applyDurabilityChanges,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 import { MobileVfxModel, spawnMobileVfxModel } from "../../vfx-models";
@@ -55,8 +55,8 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
       if (command.durabilityChanges) {
         gameState.rerenderForcer += 1; // for some reason it delays updating the durability indicators without this
-        playBeep();
-        applyDurabilityChanges(game, command.durabilityChanges);
+        // playBeep();
+        DurabilityChangesByEntityId.ApplyToGame(game, command.durabilityChanges);
       }
     });
 

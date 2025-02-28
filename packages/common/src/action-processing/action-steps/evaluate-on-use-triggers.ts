@@ -6,12 +6,9 @@ import {
 import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Combatant } from "../../combatants/index.js";
-import {
-  DurabilityChangesByEntityId,
-  applyDurabilityChanges,
-  updateConditionalDurabilityChangesOnUser,
-} from "../../combat/action-results/calculate-action-durability-changes.js";
+import { updateConditionalDurabilityChangesOnUser } from "../../combat/action-results/calculate-action-durability-changes.js";
 import { DurabilityLossCondition } from "../../combat/combat-actions/combat-action-durability-loss-condition.js";
+import { DurabilityChangesByEntityId } from "../../durability/index.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
@@ -41,7 +38,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
 
     if (!durabilityChanges.isEmpty()) {
       gameUpdateCommand.durabilityChanges = durabilityChanges;
-      applyDurabilityChanges(game, durabilityChanges);
+      DurabilityChangesByEntityId.ApplyToGame(game, durabilityChanges);
     }
   }
 
