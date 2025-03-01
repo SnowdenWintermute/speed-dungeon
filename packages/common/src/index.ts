@@ -26,5 +26,6 @@ export * from "./combatant-context/index.js";
 export * from "./utility-classes/index.js";
 export * from "./vfx/index.js";
 export * from "./spawnables/index.js";
-export * from "./durability/index.js";
 export * from "./action-processing/index.js";
+export * from "./durability/index.js";
+export * from "./hit-outcome.js";

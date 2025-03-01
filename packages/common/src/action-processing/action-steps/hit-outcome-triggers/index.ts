@@ -4,15 +4,12 @@ import {
   ActionResolutionStepType,
 } from "../index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../../game-update-commands.js";
-import {
-  COMBAT_ACTIONS,
-  CombatActionExecutionIntent,
-  HitOutcome,
-  calculateActionDurabilityChangesOnHit,
-} from "../../../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../../combat/index.js";
 import { Combatant } from "../../../combatants/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
+import { addHitOutcomeDurabilityChanges } from "./hit-outcome-durability-change-calculators.js";
+import { HitOutcome } from "../../../hit-outcome.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
@@ -42,13 +39,13 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         return !!hitPointChanges[combatantId]?.isCrit;
       })();
 
-      calculateActionDurabilityChangesOnHit(
+      addHitOutcomeDurabilityChanges(
+        durabilityChanges,
         combatant,
         targetCombatant,
         action,
-        true,
-        hpChangeIsCrit,
-        durabilityChanges
+        HitOutcome.Hit,
+        hpChangeIsCrit
       );
 
       // @TODO -trigger on-hit conditions

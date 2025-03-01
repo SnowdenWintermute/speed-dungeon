@@ -22,7 +22,6 @@ import { Vector3 } from "@babylonjs/core";
 import { entityMotionGameUpdateHandler } from "./entity-motion";
 import { hitOutcomesGameUpdateHandler } from "./hit-outcomes";
 import { useGameStore } from "@/stores/game-store";
-import { playBeep } from "@/app/sound";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,

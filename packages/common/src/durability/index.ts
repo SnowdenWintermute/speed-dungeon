@@ -1,15 +1,28 @@
+import { DurabilityLossCondition } from "../combat/combat-actions/combat-action-durability-loss-condition.js";
+import { CombatActionComponent } from "../combat/combat-actions/index.js";
 import {
+  Combatant,
   CombatantEquipment,
   applyEquipmentEffectWhileMaintainingResourcePercentages,
 } from "../combatants/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
-import { Equipment, TaggedEquipmentSlot } from "../items/equipment/index.js";
+import { HitOutcome } from "../hit-outcome.js";
+import { Equipment, EquipmentSlotType, TaggedEquipmentSlot } from "../items/equipment/index.js";
 import { EntityId } from "../primatives/index.js";
+import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 
 export interface EquipmentDurabilityChange {
   taggedSlot: TaggedEquipmentSlot;
   value: number;
 }
+
+export const BASE_DURABILITY_LOSS = -1;
+export const HIT_OUTCOMES_THAT_CONTACT_TARGET = [
+  HitOutcome.Parry,
+  HitOutcome.Hit,
+  HitOutcome.ShieldBlock,
+  HitOutcome.Counterattack,
+];
 
 export class DurabilityChanges {
   changes: EquipmentDurabilityChange[] = [];
@@ -65,6 +78,58 @@ export class DurabilityChangesByEntityId {
           }
         );
       }
+    }
+  }
+
+  updateConditionalChangesOnUser(
+    userId: EntityId,
+    action: CombatActionComponent,
+    condition: DurabilityLossCondition
+  ) {
+    // take dura from user's equipment if should
+    if (action.incursDurabilityLoss === undefined) return;
+
+    if (action.incursDurabilityLoss[EquipmentSlotType.Wearable]) {
+      for (const [wearableSlot, durabilityLossCondition] of iterateNumericEnumKeyedRecord(
+        action.incursDurabilityLoss[EquipmentSlotType.Wearable]
+      )) {
+        if (!(durabilityLossCondition === condition)) continue;
+
+        this.updateOrCreateDurabilityChangeRecord(userId, {
+          taggedSlot: { type: EquipmentSlotType.Wearable, slot: wearableSlot },
+          value: BASE_DURABILITY_LOSS,
+        });
+      }
+    }
+
+    if (action.incursDurabilityLoss[EquipmentSlotType.Holdable]) {
+      for (const [holdableSlot, durabilityLossCondition] of iterateNumericEnumKeyedRecord(
+        action.incursDurabilityLoss[EquipmentSlotType.Holdable]
+      )) {
+        if (!(durabilityLossCondition === condition)) continue;
+        this.updateOrCreateDurabilityChangeRecord(userId, {
+          taggedSlot: { type: EquipmentSlotType.Holdable, slot: holdableSlot },
+          value: BASE_DURABILITY_LOSS,
+        });
+      }
+    }
+  }
+
+  updateEquipmentRecord(
+    combatant: Combatant,
+    taggedSlot: TaggedEquipmentSlot,
+    extraDurabilityLoss: number = 0
+  ) {
+    const equipmentOption = CombatantEquipment.getEquipmentInSlot(
+      combatant.combatantProperties,
+      taggedSlot
+    );
+
+    if (equipmentOption) {
+      this.updateOrCreateDurabilityChangeRecord(combatant.entityProperties.id, {
+        taggedSlot,
+        value: BASE_DURABILITY_LOSS + extraDurabilityLoss,
+      });
     }
   }
 }

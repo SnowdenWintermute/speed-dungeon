@@ -6,7 +6,6 @@ import {
 import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Combatant } from "../../combatants/index.js";
-import { updateConditionalDurabilityChangesOnUser } from "../../combat/action-results/calculate-action-durability-changes.js";
 import { DurabilityLossCondition } from "../../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { DurabilityChangesByEntityId } from "../../durability/index.js";
 
@@ -29,10 +28,9 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
 
     const durabilityChanges = new DurabilityChangesByEntityId();
-    updateConditionalDurabilityChangesOnUser(
+    durabilityChanges.updateConditionalChangesOnUser(
       combatant.entityProperties.id,
       action,
-      durabilityChanges,
       DurabilityLossCondition.OnUse
     );
 

@@ -22,20 +22,13 @@ import { ActionResolutionStepContext } from "../../../action-processing/index.js
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
 import { getShieldBlockDamageReduction } from "./get-shield-block-damage-reduction.js";
-import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 export * from "./get-action-hit-chance.js";
 export * from "./get-action-crit-chance.js";
 export * from "./hp-change-calculation-strategies/index.js";
 export * from "./check-if-target-wants-to-be-hit.js";
 
-export enum HitOutcome {
-  Miss,
-  Evade,
-  Parry,
-  Counterattack,
-  ShieldBlock,
-  Hit,
-}
+import { DurabilityChangesByEntityId } from "../../../durability/index.js";
+import { HitOutcome } from "../../../hit-outcome.js";
 
 export class CombatActionHitOutcomes {
   hitPointChanges?: Record<EntityId, HpChange>;
