@@ -10,6 +10,7 @@ import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { addHitOutcomeDurabilityChanges } from "./hit-outcome-durability-change-calculators.js";
 import { HitOutcome } from "../../../hit-outcome.js";
+import { iterateNumericEnum } from "../../../utils/index.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
@@ -29,32 +30,37 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
     const durabilityChanges = new DurabilityChangesByEntityId();
 
-    for (const combatantId of outcomeFlags[HitOutcome.Hit] || []) {
-      const combatantResult = AdventuringParty.getCombatant(party, combatantId);
-      if (combatantResult instanceof Error) throw combatantResult;
-      const targetCombatant = combatantResult;
+    for (const flag of iterateNumericEnum(HitOutcome)) {
+      for (const combatantId of outcomeFlags[flag] || []) {
+        const combatantResult = AdventuringParty.getCombatant(party, combatantId);
+        if (combatantResult instanceof Error) throw combatantResult;
+        const targetCombatant = combatantResult;
 
-      const hpChangeIsCrit = (() => {
-        if (!hitPointChanges) return false;
-        return !!hitPointChanges[combatantId]?.isCrit;
-      })();
+        const hpChangeIsCrit = (() => {
+          if (!hitPointChanges) return false;
+          return !!hitPointChanges[combatantId]?.isCrit;
+        })();
 
-      addHitOutcomeDurabilityChanges(
-        durabilityChanges,
-        combatant,
-        targetCombatant,
-        action,
-        HitOutcome.Hit,
-        hpChangeIsCrit
-      );
-
-      // @TODO -trigger on-hit conditions
-      for (const condition of combatantResult.combatantProperties.conditions) {
-        if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
-        // const triggeredActions = condition.onTriggered();
-        // figure out the "user" for actions that originate from no combatant in particular
+        addHitOutcomeDurabilityChanges(
+          durabilityChanges,
+          combatant,
+          targetCombatant,
+          action,
+          flag,
+          hpChangeIsCrit
+        );
       }
     }
+
+    gameUpdateCommand.durabilityChanges = durabilityChanges;
+
+    // // @TODO -trigger on-hit conditions
+    // for (const condition of combatantResult.combatantProperties.conditions) {
+    //   if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
+    //   // const triggeredActions = condition.onTriggered();
+    //   // figure out the "user" for actions that originate from no combatant in particular
+    // }
+    //
     //
     //
     // determine durability loss of target's armor and user's weapon

@@ -53,6 +53,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       const game = gameState.game;
       if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
       if (command.durabilityChanges) {
+        console.log("got durability changes: ", command.durabilityChanges);
         gameState.rerenderForcer += 1; // for some reason it delays updating the durability indicators without this
         // playBeep();
         DurabilityChangesByEntityId.ApplyToGame(game, command.durabilityChanges);

@@ -4,7 +4,7 @@ import {
   DungeonRoomType,
   NUM_MONSTERS_PER_ROOM,
 } from "@speed-dungeon/common";
-import generateMonster from "../monster-generation/index.js";
+import { generateMonster } from "../monster-generation/index.js";
 
 export function generateDungeonRoom(floor: number, roomType: DungeonRoomType): DungeonRoom {
   const monsters: { [entityId: string]: Combatant } = {};

@@ -4,7 +4,9 @@ import getSpawnableMonsterTypesByFloor from "./get-spawnable-monster-types-by-fl
 import {
   CombatAttribute,
   Combatant,
+  CombatantEquipment,
   CombatantProperties,
+  Equipment,
   MONSTER_SPECIES,
   MONSTER_TYPE_STRINGS,
   MonsterType,
@@ -19,7 +21,7 @@ import getMonsterTraits from "./get-monster-traits.js";
 import getMonsterEquipment from "./get-monster-equipment.js";
 // import { STOCK_MONSTER } from "../../index.js";
 
-export default function generateMonster(level: number, forcedType?: MonsterType) {
+export function generateMonster(level: number, forcedType?: MonsterType) {
   // roll a random monster type from list of pre determined types
   const spawnableTypes = getSpawnableMonsterTypesByFloor(level);
   const randomIndex = Math.floor(Math.floor(Math.random() * spawnableTypes.length));
@@ -66,9 +68,19 @@ export default function generateMonster(level: number, forcedType?: MonsterType)
   monster.combatantProperties.traits = getMonsterTraits(monsterType);
   // equip weapons
   monster.combatantProperties.equipment = getMonsterEquipment(monsterType);
+
+  //@TODO - remove this testing durability
+  for (const equipment of CombatantEquipment.getAllEquippedItems(monster.combatantProperties, {})) {
+    setEquipmentDurability(equipment, 1);
+  }
   // set hp and mp to max
   CombatantProperties.setHpAndMpToMax(monster.combatantProperties);
   // @TODO - assign abilities (realistically need to refactor monster creation)
 
   return monster;
+}
+
+function setEquipmentDurability(equipment: Equipment, durability: number) {
+  if (!equipment.durability) return;
+  equipment.durability.current = durability;
 }

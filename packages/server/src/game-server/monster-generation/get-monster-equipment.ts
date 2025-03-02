@@ -1,11 +1,14 @@
 import {
+  BodyArmor,
   EquipmentType,
+  HeadGear,
   HoldableSlotType,
   MonsterType,
   OneHandedMeleeWeapon,
   PreDeterminedItemType,
   Shield,
   TwoHandedMeleeWeapon,
+  WearableSlotType,
   chooseRandomFromArray,
   generatePreDeterminedItem,
 } from "@speed-dungeon/common";
@@ -87,6 +90,19 @@ export default function getMonsterEquipment(monsterType: MonsterType): Combatant
         mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = mhResult;
       break;
     case MonsterType.Cultist:
+      const head = generateSpecificEquipmentType({
+        equipmentType: EquipmentType.HeadGear,
+        baseItemType: HeadGear.Cap,
+      });
+      const chest = generateSpecificEquipmentType({
+        equipmentType: EquipmentType.BodyArmor,
+        baseItemType: BodyArmor.Robe,
+      });
+      if (!(chest instanceof Error) && !(head instanceof Error)) {
+        equipment.wearables[WearableSlotType.Head] = head;
+        equipment.wearables[WearableSlotType.Body] = chest;
+      }
+
       const wandOptions = [
         OneHandedMeleeWeapon.RoseWand,
         OneHandedMeleeWeapon.YewWand,
