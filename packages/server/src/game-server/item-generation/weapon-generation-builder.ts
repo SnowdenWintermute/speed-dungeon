@@ -60,6 +60,7 @@ export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
       damage: template.damage,
       damageClassification: damageClassifications,
     };
+
     return properties;
   }
 }

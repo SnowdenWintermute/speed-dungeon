@@ -35,7 +35,7 @@ export function applyWeaponPropertiesToHpChangeProperties(
       averageRoll
     );
 
-  if (!mostEffectiveAvailableHpChangeSourceOnWeapon) return hpChangeProperties;
+  if (mostEffectiveAvailableHpChangeSourceOnWeapon === undefined) return hpChangeProperties;
 
   // if we ever add another trait besides lifesteal which might affect damage, put those traits
   // before the testing for best hp change source modifiers

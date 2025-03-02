@@ -1,14 +1,17 @@
 import {
+  AffixType,
   Amulet,
   BodyArmor,
   CombatantClass,
   CombatantProperties,
   ERROR_MESSAGES,
   Equipment,
+  EquipmentTraitType,
   EquipmentType,
   HeadGear,
   HoldableSlotType,
   OneHandedMeleeWeapon,
+  PrefixType,
   Ring,
   Shield,
   TwoHandedMeleeWeapon,
@@ -80,6 +83,20 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
   }
 
   if (mainhand instanceof Error) return mainhand;
+  //@ts-ignore
+  console.log("created bow: ", mainhand.equipmentBaseItemProperties.damageClassification);
+  mainhand.affixes[AffixType.Prefix][PrefixType.LifeSteal] = {
+    combatAttributes: {},
+    tier: 1,
+    equipmentTraits: {
+      [EquipmentTraitType.LifeSteal]: {
+        equipmentTraitType: EquipmentTraitType.LifeSteal,
+        value: 10,
+      },
+    },
+  };
+  // if(mainhand.tra)
+  // mainhand.equipmentBaseItemProperties
 
   // @TODO - remove this testing line and put back the repair all one
   if (mainhand.durability) mainhand.durability.current = 1;

@@ -48,8 +48,11 @@ export function getAttackHpChangeProperties(
   const equippedUsableWeapons = CombatantProperties.getUsableWeaponsInSlots(user, [
     HoldableSlotType.MainHand,
   ]);
+  console.log("EQUIPPEDUSABLE: ", equippedUsableWeapons);
 
   const weaponOption = equippedUsableWeapons[weaponSlot];
+  console.log("WEAPON SLOT: ", weaponSlot);
+  console.log("CHECKING WEAPON OPTION: ", weaponOption);
   if (weaponOption)
     applyWeaponPropertiesToHpChangeProperties(
       action,

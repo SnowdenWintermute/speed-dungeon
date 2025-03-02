@@ -9,6 +9,8 @@ export function applyEquipmentTraitsToHpChangeSource(
 ) {
   const lifestealAffixOption = equipment.affixes[AffixType.Prefix][PrefixType.LifeSteal];
 
+  console.log("adding lifesteal trait to action hp change: ", lifestealAffixOption);
+
   if (lifestealAffixOption) {
     const lifestealPercentageTrait =
       lifestealAffixOption.equipmentTraits[EquipmentTraitType.LifeSteal];

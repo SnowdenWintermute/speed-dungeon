@@ -103,7 +103,7 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
     <div className={`w-1/2 min-w-1/2 ${props.paddingClass}`}>
       <div className="w-full flex justify-between">
         <span>{props.label}</span>
-        <span>{`${hpChangeRange.min}-${hpChangeRange.max}`}</span>
+        <span>{`${hpChangeRange.min.toFixed(0)}-${hpChangeRange.max.toFixed(0)}`}</span>
       </div>
       <div className="w-full flex justify-between items-center">
         <span>{"Accuracy "}</span>
@@ -154,7 +154,7 @@ function getAttackActionDamageAndAccuracy(
 
   const combatAction = COMBAT_ACTIONS[actionName];
   const hpChangeProperties = combatAction.getHpChangeProperties(combatantProperties, target);
-  if (hpChangeProperties === null) return new Error(ERROR_MESSAGES.ABILITIES.INVALID_TYPE);
+  if (hpChangeProperties === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TYPE);
 
   const hpChangeRangeResult = hpChangeProperties.baseValues;
 

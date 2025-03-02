@@ -27,7 +27,6 @@ export class ActionSequenceManager {
     return this.isFinalized;
   }
   markAsFinalized() {
-    console.log("FINALIZED");
     this.isFinalized = true;
   }
   getNextActionInQueue() {
@@ -45,7 +44,6 @@ export class ActionSequenceManager {
   }
   // action children may depend on the outcome of their parent so we must process their parent first
   populateSelfWithCurrentActionChildren() {
-    console.log("GETTING CHILDREN");
     const currentActionExecutionIntent = this.currentTracker?.actionExecutionIntent;
     if (!currentActionExecutionIntent || !this.currentTracker) return;
     const currentAction = COMBAT_ACTIONS[currentActionExecutionIntent.actionName];
@@ -53,7 +51,6 @@ export class ActionSequenceManager {
       .getChildren(this.combatantContext, this.currentTracker)
       .map((action) => {
         const targets = action.getAutoTarget(this.combatantContext, this.currentTracker);
-        console.log("AUTO TARGETS: ", targets);
         return {
           actionName: action.name,
           targets,

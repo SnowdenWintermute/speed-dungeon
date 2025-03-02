@@ -193,7 +193,6 @@ function getBouncableTargets(
   previousTrackerInSequenceOption: ActionTracker
 ) {
   const previousTargetInChain = previousTrackerInSequenceOption.actionExecutionIntent.targets;
-  console.log("previousTargetInChain: ", previousTargetInChain);
   const previousTargetIdResult = (() => {
     if (previousTargetInChain.type !== CombatActionTargetType.Single)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_ACTION_IN_CHAIN);

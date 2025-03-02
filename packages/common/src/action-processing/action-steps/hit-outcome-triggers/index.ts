@@ -54,6 +54,14 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
     gameUpdateCommand.durabilityChanges = durabilityChanges;
 
+    if (tracker.hitOutcomes.hitPointChanges) {
+      for (const hpChange of Object.values(tracker.hitOutcomes.hitPointChanges)) {
+        if (hpChange.source.lifestealPercentage !== undefined) {
+          console.log("HAS LIFESTEAL: ", hpChange.source.lifestealPercentage);
+        }
+      }
+    }
+
     // // @TODO -trigger on-hit conditions
     // for (const condition of combatantResult.combatantProperties.conditions) {
     //   if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
