@@ -60,7 +60,11 @@ export class DurabilityChangesByEntityId {
     return Object.keys(this.records).length === 0;
   }
 
-  static ApplyToGame(game: SpeedDungeonGame, durabilityChanges: DurabilityChangesByEntityId) {
+  static ApplyToGame(
+    game: SpeedDungeonGame,
+    durabilityChanges: DurabilityChangesByEntityId,
+    onApply?: (combatant: Combatant, equipment: Equipment) => void
+  ) {
     for (const [entityId, durabilitychanges] of Object.entries(durabilityChanges.records)) {
       const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
       if (combatantResult instanceof Error) return combatantResult;
@@ -75,6 +79,7 @@ export class DurabilityChangesByEntityId {
           combatantResult.combatantProperties,
           () => {
             if (equipmentOption) Equipment.changeDurability(equipmentOption, value);
+            if (onApply && equipmentOption) onApply(combatantResult, equipmentOption);
           }
         );
       }

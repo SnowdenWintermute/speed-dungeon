@@ -3,6 +3,7 @@ import {
   DurabilityChangesByEntityId,
   ERROR_MESSAGES,
   EntityMotionGameUpdateCommand,
+  Equipment,
   GameUpdateCommandType,
   HitOutcomesGameUpdateCommand,
   ResourcesPaidGameUpdateCommand,
@@ -56,7 +57,20 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
         console.log("got durability changes: ", command.durabilityChanges);
         gameState.rerenderForcer += 1; // for some reason it delays updating the durability indicators without this
         // playBeep();
-        DurabilityChangesByEntityId.ApplyToGame(game, command.durabilityChanges);
+        DurabilityChangesByEntityId.ApplyToGame(
+          game,
+          command.durabilityChanges,
+          (combatant, equipment) => {
+            // remove the model if it broke
+            // @TODO - if this causes bugs because it is jumping the queue, look into it
+            // if we use the queue though, it doesn't remove their item model imediately
+            if (Equipment.isBroken(equipment)) {
+              gameWorld.current?.modelManager.combatantModels[
+                combatant.entityProperties.id
+              ]?.unequipHoldableModel(equipment.entityProperties.id);
+            }
+          }
+        );
       }
     });
 
