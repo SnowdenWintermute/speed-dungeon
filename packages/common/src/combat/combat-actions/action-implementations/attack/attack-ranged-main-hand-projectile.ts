@@ -24,6 +24,9 @@ import {
   ActionResolutionStepType,
 } from "../../../../action-processing/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { getAttackHpChangeProperties } from "./get-attack-hp-change-properties.js";
+import { CombatAttribute } from "../../../../combatants/attributes/index.js";
+import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -48,7 +51,24 @@ const config: CombatActionComponentConfig = {
   requiresCombatTurn: () => true,
   shouldExecute: () => true,
   getCombatantUseAnimations: (combatantContext: CombatantContext) => null,
-  getHpChangeProperties: () => null,
+  getHpChangeProperties: (user, primaryTarget, self) => {
+    const hpChangeProperties = getAttackHpChangeProperties(
+      self,
+      user,
+      primaryTarget,
+      CombatAttribute.Dexterity,
+      HoldableSlotType.MainHand,
+      // allow unusable weapons because it may be the case that the bow breaks
+      // but the projectile has yet to caluclate it's hit, and it should still consider
+      // the bow it was fired from
+      // it should never add weapon properties from an initially broken weapon because the projectile would not
+      // be allowed to be fired from a broken weapon
+      { usableWeaponsOnly: false }
+    );
+    if (hpChangeProperties instanceof Error) return hpChangeProperties;
+
+    return hpChangeProperties;
+  },
   getAppliedConditions: function (): CombatantCondition[] | null {
     // @TODO - determine based on equipment
     throw new Error("Function not implemented.");

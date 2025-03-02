@@ -17,7 +17,8 @@ export function getAttackHpChangeProperties(
   user: CombatantProperties,
   primaryTarget: CombatantProperties,
   scalingAttribute: CombatAttribute,
-  weaponSlot: HoldableSlotType
+  weaponSlot: HoldableSlotType,
+  options = { usableWeaponsOnly: true }
 ) {
   const hpChangeSourceConfig: HpChangeSourceConfig = {
     category: HpChangeSourceCategory.Physical,
@@ -45,14 +46,14 @@ export function getAttackHpChangeProperties(
     baseValues,
   };
 
-  const equippedUsableWeapons = CombatantProperties.getUsableWeaponsInSlots(user, [
-    HoldableSlotType.MainHand,
-  ]);
-  console.log("EQUIPPEDUSABLE: ", equippedUsableWeapons);
+  const equippedUsableWeapons = CombatantProperties.getWeaponsInSlots(
+    user,
+    [HoldableSlotType.MainHand],
+    { usableWeaponsOnly: options.usableWeaponsOnly }
+  );
 
   const weaponOption = equippedUsableWeapons[weaponSlot];
-  console.log("WEAPON SLOT: ", weaponSlot);
-  console.log("CHECKING WEAPON OPTION: ", weaponOption);
+
   if (weaponOption)
     applyWeaponPropertiesToHpChangeProperties(
       action,

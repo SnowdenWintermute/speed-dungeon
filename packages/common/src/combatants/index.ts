@@ -27,7 +27,7 @@ import {
   equipItem,
   getEquippedWeapon,
   getSlotItemIsEquippedTo,
-  getUsableWeaponsInSlots,
+  getWeaponsInSlots,
   unequipSlots,
 } from "./combatant-equipment/index.js";
 import { CombatAttribute } from "./attributes/index.js";
@@ -113,7 +113,7 @@ export class CombatantProperties {
   static getCombatantTotalKineticDamageTypeAffinities =
     getCombatantTotalKineticDamageTypeAffinities;
   static getEquippedWeapon = getEquippedWeapon;
-  static getUsableWeaponsInSlots = getUsableWeaponsInSlots;
+  static getWeaponsInSlots = getWeaponsInSlots;
   static getActionNamesFilteredByUseableContext = getActionNamesFilteredByUseableContext;
   static getSlotItemIsEquippedTo = getSlotItemIsEquippedTo;
   static getOwnedEquipment = getOwnedEquipment;

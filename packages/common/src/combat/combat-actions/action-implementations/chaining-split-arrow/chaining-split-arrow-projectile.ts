@@ -74,7 +74,13 @@ const config: CombatActionComponentConfig = {
       user,
       primaryTarget,
       CombatAttribute.Dexterity,
-      HoldableSlotType.MainHand
+      HoldableSlotType.MainHand,
+      // allow unusable weapons because it may be the case that the bow breaks
+      // but the projectile has yet to caluclate it's hit, and it should still consider
+      // the bow it was fired from
+      // it should never add weapon properties from an initially broken weapon because the projectile would not
+      // be allowed to be fired from a broken weapon
+      { usableWeaponsOnly: false }
     );
     if (hpChangeProperties instanceof Error) return hpChangeProperties;
 

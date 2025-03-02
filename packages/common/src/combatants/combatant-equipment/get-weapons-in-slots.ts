@@ -3,9 +3,10 @@ import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { CombatantProperties } from "../index.js";
 import { CombatantEquipment } from "./index.js";
 
-export function getUsableWeaponsInSlots(
+export function getWeaponsInSlots(
   combatantProperties: CombatantProperties,
-  weaponSlots: HoldableSlotType[]
+  weaponSlots: HoldableSlotType[],
+  options: { usableWeaponsOnly: boolean }
 ) {
   const toReturn: Partial<
     Record<HoldableSlotType, { equipment: Equipment; weaponProperties: WeaponProperties }>
@@ -23,7 +24,8 @@ export function getUsableWeaponsInSlots(
 
     const holdable = equippedSelectedHotswapSlot.holdables[equipmentSlot];
     if (!holdable) continue;
-    if (!CombatantProperties.canUseItem(combatantProperties, holdable)) continue;
+    if (options.usableWeaponsOnly && !CombatantProperties.canUseItem(combatantProperties, holdable))
+      continue;
 
     const weaponPropertiesResult = Equipment.getWeaponProperties(holdable);
     if (weaponPropertiesResult instanceof Error) continue; // could be a shield so just skip it
