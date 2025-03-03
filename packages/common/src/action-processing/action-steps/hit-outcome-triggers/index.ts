@@ -4,13 +4,21 @@ import {
   ActionResolutionStepType,
 } from "../index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../../game-update-commands.js";
-import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../../combat/index.js";
+import {
+  COMBAT_ACTIONS,
+  CombatActionExecutionIntent,
+  HitPointChanges,
+  HpChange,
+  HpChangeSource,
+  HpChangeSourceCategory,
+} from "../../../combat/index.js";
 import { Combatant } from "../../../combatants/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { addHitOutcomeDurabilityChanges } from "./hit-outcome-durability-change-calculators.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
+import { EntityId } from "../../../primatives/index.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
@@ -38,7 +46,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
         const hpChangeIsCrit = (() => {
           if (!hitPointChanges) return false;
-          return !!hitPointChanges[combatantId]?.isCrit;
+          return !!hitPointChanges.getRecord(combatantId)?.isCrit;
         })();
 
         addHitOutcomeDurabilityChanges(
@@ -54,13 +62,51 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
     gameUpdateCommand.durabilityChanges = durabilityChanges;
 
+    const triggeredHitPointChanges = new HitPointChanges();
+    let accumulatedLifeStolenHpChange: null | HpChange = null;
     if (tracker.hitOutcomes.hitPointChanges) {
-      for (const hpChange of Object.values(tracker.hitOutcomes.hitPointChanges)) {
+      for (const [entityId, hpChange] of tracker.hitOutcomes.hitPointChanges.getRecords()) {
         if (hpChange.source.lifestealPercentage !== undefined) {
-          console.log("HAS LIFESTEAL: ", hpChange.source.lifestealPercentage);
+          const lifestealValue = Math.max(
+            1,
+            hpChange.value * (hpChange.source.lifestealPercentage / 100) * -1
+          );
+
+          if (!accumulatedLifeStolenHpChange) {
+            accumulatedLifeStolenHpChange = new HpChange(
+              lifestealValue,
+              new HpChangeSource({ category: HpChangeSourceCategory.Magical })
+            );
+            accumulatedLifeStolenHpChange.isCrit = hpChange.isCrit;
+            accumulatedLifeStolenHpChange.value = lifestealValue;
+          } else {
+            // if aggregating lifesteal from multiple hits, call it a crit if any of the hits were crits
+            if (hpChange.isCrit) accumulatedLifeStolenHpChange.isCrit = true;
+            accumulatedLifeStolenHpChange.value += lifestealValue;
+          }
         }
       }
     }
+
+    // @TODO - change triggered hp changes to an array since the same action might damage the user
+    // but also result in a separate lifesteal on the user
+    if (accumulatedLifeStolenHpChange) {
+      accumulatedLifeStolenHpChange.value = Math.floor(accumulatedLifeStolenHpChange.value);
+      const existingHitPointChangeOption = triggeredHitPointChanges.getRecord(
+        combatant.entityProperties.id
+      );
+      if (existingHitPointChangeOption)
+        existingHitPointChangeOption.value += accumulatedLifeStolenHpChange.value;
+      else
+        triggeredHitPointChanges.addRecord(
+          combatant.entityProperties.id,
+          accumulatedLifeStolenHpChange
+        );
+    }
+
+    triggeredHitPointChanges.applyToGame(this.context.combatantContext);
+    if (triggeredHitPointChanges.getRecords().length > 0)
+      gameUpdateCommand.hitPointChanges = triggeredHitPointChanges;
 
     // // @TODO -trigger on-hit conditions
     // for (const condition of combatantResult.combatantProperties.conditions) {
@@ -68,54 +114,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     //   // const triggeredActions = condition.onTriggered();
     //   // figure out the "user" for actions that originate from no combatant in particular
     // }
-    //
-    //
-    //
-    // determine durability loss of target's armor and user's weapon
-    // @TODO - move this to hit outcome triggers step
-    // calculateActionDurabilityChangesOnHit(
-    //   combatant,
-    //   targetCombatantResult,
-    //   action,
-    //   true,
-    //   hpChange.isCrit,
-    //   durabilityChanges
-    // );
-    //
-    //
-    // apply lifesteal trait
-    // determine if hp change source has lifesteal
-    // get the percent
-    // add it to the lifesteal hp change of the action user
-    // if (hpChange.source.lifestealPercentage) {
-    //   const lifestealValue = hpChange.value * (hpChange.source.lifestealPercentage / 100) * -1;
-    //   if (!lifestealHpChange) {
-    //     lifestealHpChange = new HpChange(
-    //       lifestealValue,
-    //       new HpChangeSource({ category: HpChangeSourceCategory.Magical })
-    //     );
-    //     lifestealHpChange.isCrit = hpChange.isCrit;
-    //     lifestealHpChange.value = lifestealValue;
-    //   } else {
-    //     // if aggregating lifesteal from multiple hits, call it a crit if any of the hits were crits
-    //     if (hpChange.isCrit) lifestealHpChange.isCrit = true;
-    //     lifestealHpChange.value += lifestealValue;
-    //   }
-    // }
 
-    // if (lifestealHpChange) {
-    // lifestealHpChange.value = Math.floor(lifestealHpChange.value);
-    // hitPointChanges[combatant.entityProperties.id] = lifestealHpChange;
-    // }
-    // read expected hits, misses, evades, parries, blocks (used for determining triggers as well as user followthrough animation)
-    // from blackboard
-    // CALCULATE AND COLLECT THE FOLLOWING:
-    // hp changes, mp changes, durability changes, misses, evades, parries, counters, blocks
-    // CALCULATION ORDER
-    // miss
-    // - client shows miss text
-    // evade
-    // - client plays evade animation on target entity
     // parry
     // - client plays parry animation on target entity
     // - notify next step of the parry so if the ability calls for it,

@@ -79,18 +79,6 @@ const config: CombatActionComponentConfig = {
   getConcurrentSubActions() {
     return [];
   },
-  getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
-    throw new Error("Function not implemented.");
-  },
-  getCritChance: function (user: CombatantProperties): number {
-    throw new Error("Function not implemented.");
-  },
-  getCritMultiplier: function (user: CombatantProperties): number {
-    throw new Error("Function not implemented.");
-  },
-  getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
-    throw new Error("Function not implemented.");
-  },
   getAutoTarget(combatantContext, previousTrackerOption, self) {
     if (!previousTrackerOption)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.MISSING_EXPECTED_ACTION_IN_CHAIN);

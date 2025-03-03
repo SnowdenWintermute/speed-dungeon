@@ -15,6 +15,8 @@ import {
   FloatingMessageTextColor,
   startFloatingMessage,
 } from "@/stores/game-store/floating-messages";
+import { plainToInstance } from "class-transformer";
+import { HitPointChanges } from "@speed-dungeon/common";
 
 export function hitOutcomesGameUpdateHandler(update: {
   command: HitOutcomesGameUpdateCommand;
@@ -22,10 +24,12 @@ export function hitOutcomesGameUpdateHandler(update: {
 }) {
   const { command } = update;
   const { outcomes, actionUserId } = command;
-  const { hitPointChanges, outcomeFlags } = outcomes;
+  const { outcomeFlags } = outcomes;
+  const hitPointChanges = plainToInstance(HitPointChanges, outcomes.hitPointChanges);
+
   if (!gameWorld.current) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
   if (hitPointChanges) {
-    for (const [entityId, hpChange] of Object.entries(hitPointChanges)) {
+    for (const [entityId, hpChange] of hitPointChanges.getRecords()) {
       const wasBlocked = !!outcomeFlags[HitOutcome.ShieldBlock]?.includes(entityId);
       const wasSpell = false;
       induceHitRecovery(gameWorld.current, actionUserId, entityId, hpChange, wasSpell, wasBlocked);

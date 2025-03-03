@@ -1,6 +1,11 @@
 import { Vector3 } from "@babylonjs/core";
 import { EntityId, Milliseconds } from "../primatives/index.js";
-import { ActionResourceCosts, CombatActionHitOutcomes, CombatActionName } from "../combat/index.js";
+import {
+  ActionResourceCosts,
+  CombatActionHitOutcomes,
+  CombatActionName,
+  HitPointChanges,
+} from "../combat/index.js";
 import { AnimationName } from "../app-consts.js";
 import { ActionResolutionStepType } from "./action-steps/index.js";
 import { Combatant } from "../combatants/index.js";
@@ -96,6 +101,7 @@ export type ActivatedTriggersGameUpdateCommand = {
   step: ActionResolutionStepType;
   completionOrderId: null | number;
   durabilityChanges?: DurabilityChangesByEntityId;
+  hitPointChanges?: HitPointChanges;
 };
 
 export type HitOutcomesGameUpdateCommand = {

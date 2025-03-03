@@ -43,22 +43,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
         CombatantProperties.changeMana(targetResult.combatantProperties, mpChange);
       }
 
-    if (hitPointChanges)
-      for (const [targetId, hpChange] of Object.entries(hitPointChanges)) {
-        const targetResult = AdventuringParty.getCombatant(party, targetId);
-        if (targetResult instanceof Error) throw targetResult;
-        const { combatantProperties: targetCombatantProperties } = targetResult;
-        const combatantWasAliveBeforeHpChange = targetCombatantProperties.hitPoints > 0;
-        CombatantProperties.changeHitPoints(targetCombatantProperties, hpChange.value);
-
-        if (targetCombatantProperties.hitPoints <= 0) {
-          SpeedDungeonGame.handleCombatantDeath(game, party.battleId, targetId);
-        }
-
-        // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
-        if (!combatantWasAliveBeforeHpChange && targetCombatantProperties.hitPoints > 0) {
-        }
-      }
+    hitOutcomesResult.hitPointChanges?.applyToGame(this.context.combatantContext);
   }
 
   protected onTick = () => {};

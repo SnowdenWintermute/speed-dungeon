@@ -6,6 +6,7 @@ import {
   Equipment,
   GameUpdateCommandType,
   HitOutcomesGameUpdateCommand,
+  HitPointChanges,
   ResourcesPaidGameUpdateCommand,
   SpawnEntityGameUpdateCommand,
   SpawnableEntityType,
@@ -23,6 +24,8 @@ import { Vector3 } from "@babylonjs/core";
 import { entityMotionGameUpdateHandler } from "./entity-motion";
 import { hitOutcomesGameUpdateHandler } from "./hit-outcomes";
 import { useGameStore } from "@/stores/game-store";
+import { plainToInstance } from "class-transformer";
+import { induceHitRecovery } from "../../combatant-models/animation-manager/induce-hit-recovery";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
@@ -72,6 +75,18 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
         );
       }
     });
+
+    if (command.hitPointChanges) {
+      const hitPointChanges = plainToInstance(HitPointChanges, command.hitPointChanges);
+
+      if (!gameWorld.current) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
+      if (hitPointChanges) {
+        for (const [entityId, hpChange] of hitPointChanges.getRecords()) {
+          const wasSpell = false;
+          induceHitRecovery(gameWorld.current, entityId, entityId, hpChange, wasSpell, false);
+        }
+      }
+    }
 
     update.isComplete = true;
     // or show floating text for counterspell, "triggered tech burst" "psionic explosion"

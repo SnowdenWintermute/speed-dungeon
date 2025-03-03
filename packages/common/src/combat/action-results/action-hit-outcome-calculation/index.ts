@@ -26,12 +26,14 @@ export * from "./get-action-hit-chance.js";
 export * from "./get-action-crit-chance.js";
 export * from "./hp-change-calculation-strategies/index.js";
 export * from "./check-if-target-wants-to-be-hit.js";
+export * from "./hit-point-changes.js";
 
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
+import { HitPointChanges } from "./hit-point-changes.js";
 
 export class CombatActionHitOutcomes {
-  hitPointChanges?: Record<EntityId, HpChange>;
+  hitPointChanges?: HitPointChanges;
   manaChanges?: Record<EntityId, number>;
   durabilityChanges?: DurabilityChangesByEntityId;
   // distinct from hitPointChanges, "hits" is used to determine triggers for abilities that don't cause
@@ -172,8 +174,8 @@ export function calculateActionHitOutcomes(
 
     hpChange.value = Math.floor(hpChange.value);
 
-    if (!hitOutcomes.hitPointChanges) hitOutcomes.hitPointChanges = {};
-    hitOutcomes.hitPointChanges[id] = hpChange;
+    if (!hitOutcomes.hitPointChanges) hitOutcomes.hitPointChanges = new HitPointChanges();
+    hitOutcomes.hitPointChanges.addRecord(id, hpChange);
   }
 
   return hitOutcomes;
