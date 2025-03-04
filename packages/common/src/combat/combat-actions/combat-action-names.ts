@@ -6,7 +6,7 @@ export enum CombatActionName {
   AttackRangedMainhandProjectile,
   ChainingSplitArrowParent,
   ChainingSplitArrowProjectile,
-  // Explosion,
+  Explosion,
   // Fire,
   // Ice,
   // Healing,
@@ -23,7 +23,7 @@ export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.AttackRangedMainhandProjectile]: "Attack Ranged Mainhand Projectile",
   [CombatActionName.ChainingSplitArrowParent]: "Chaining Split Arrow",
   [CombatActionName.ChainingSplitArrowProjectile]: "Chaining Split Arrow Projectile",
-  // [CombatActionName.Explosion]: "Explosion",
+  [CombatActionName.Explosion]: "Explosion",
   [CombatActionName.UseGreenAutoinjector]: "Green Autoinjector",
   [CombatActionName.UseBlueAutoinjector]: "Blue Autoinjector",
 };
