@@ -1,7 +1,7 @@
-import { CombatantCondition, CombatantConditionName } from ".";
-import { Combatant } from "..";
-import { CombatActionName } from "../../combat/combat-actions";
-import { EntityId, MaxAndCurrent } from "../../primatives";
+import { CombatantCondition, CombatantConditionName } from "./index.js";
+import { Combatant } from "../index.js";
+import { CombatActionName } from "../../combat/combat-actions/index.js";
+import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 
 export class PrimedForExplosionCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.PrimedForExplosion;
@@ -26,11 +26,3 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
     return [];
   }
 }
-
-//PRIMED_FOR_EXPLOSION_CONDITION.triggeredWhenHitBy = (actionName) => {
-//  ;
-//  //
-//};
-
-//PRIMED_FOR_EXPLOSION_CONDITION.onTriggered = (combatant) => {
-//};

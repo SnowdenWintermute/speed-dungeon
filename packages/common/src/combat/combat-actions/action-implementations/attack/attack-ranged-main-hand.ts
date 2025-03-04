@@ -44,7 +44,6 @@ const config: CombatActionComponentConfig = {
   ],
   baseHpChangeValuesLevelMultiplier: 1,
   accuracyModifier: 0.9,
-  appliesConditions: [],
   incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: 1 } },
   costBases: {},
   userShouldMoveHomeOnComplete: true,

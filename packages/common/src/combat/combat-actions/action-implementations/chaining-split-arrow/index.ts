@@ -36,7 +36,6 @@ const config: CombatActionComponentConfig = {
   ],
   baseHpChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
-  appliesConditions: [],
   incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: 1 } },
   costBases: {},
   userShouldMoveHomeOnComplete: true,
@@ -52,7 +51,7 @@ const config: CombatActionComponentConfig = {
   getHpChangeProperties: () => null,
   getAppliedConditions: function (): CombatantCondition[] | null {
     // @TODO - determine based on equipment
-    throw new Error("Function not implemented.");
+    return [];
   },
   getChildren: (_user) => [],
   getParent: () => null,

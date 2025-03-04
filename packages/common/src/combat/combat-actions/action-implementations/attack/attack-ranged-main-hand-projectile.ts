@@ -27,6 +27,7 @@ import { TargetingCalculator } from "../../../targeting/targeting-calculator.js"
 import { getAttackHpChangeProperties } from "./get-attack-hp-change-properties.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
+import { PrimedForExplosionCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-explosion.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -42,7 +43,6 @@ const config: CombatActionComponentConfig = {
   ],
   baseHpChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
-  appliesConditions: [],
   incursDurabilityLoss: {},
   costBases: {},
   userShouldMoveHomeOnComplete: false,
@@ -69,9 +69,16 @@ const config: CombatActionComponentConfig = {
 
     return hpChangeProperties;
   },
-  getAppliedConditions: function (): CombatantCondition[] | null {
-    // @TODO - determine based on equipment
-    throw new Error("Function not implemented.");
+  getAppliedConditions: (context) => {
+    const { idGenerator, combatantContext } = context;
+    const { combatant } = combatantContext;
+    // @TODO - determine based on equipment, ex: ice sword applies "cold" condition
+
+    const primedForExplosionCondition = new PrimedForExplosionCombatantCondition(
+      idGenerator.generate(),
+      combatant.combatantProperties.level
+    );
+    return [primedForExplosionCondition];
   },
   getChildren: (combatantContext, tracker) => [],
   getParent: () => ATTACK_RANGED_MAIN_HAND,

@@ -35,8 +35,6 @@ import {
   CombatActionCombatantAnimations,
 } from "../../combat-action-animations.js";
 import { AnimationTimingType } from "../../../../action-processing/game-update-commands.js";
-import { COMMON_DESTINATION_GETTERS } from "../common-destination-getters.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -52,7 +50,6 @@ const config: CombatActionComponentConfig = {
   ],
   baseHpChangeValuesLevelMultiplier: 1,
   accuracyModifier: OFF_HAND_ACCURACY_MODIFIER,
-  appliesConditions: [],
   incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: 1 } },
   costBases: {},
   // getDestinationDuringDelivery: (

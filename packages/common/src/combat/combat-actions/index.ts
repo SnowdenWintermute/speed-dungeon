@@ -12,7 +12,10 @@ import {
 } from "../../items/equipment/slots.js";
 import { ProhibitedTargetCombatantStates } from "./prohibited-target-combatant-states.js";
 import { TargetCategories, TargetingScheme } from "./targeting-schemes-and-categories.js";
-import { CombatantCondition } from "../../combatants/combatant-conditions/index.js";
+import {
+  CombatantCondition,
+  CombatantConditionName,
+} from "../../combatants/combatant-conditions/index.js";
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { DurabilityLossCondition } from "./combat-action-durability-loss-condition.js";
 import { CombatActionName } from "./combat-action-names.js";
@@ -53,7 +56,6 @@ export interface CombatActionComponentConfig {
   baseHpChangeValuesLevelMultiplier: number;
   accuracyModifier: number;
 
-  appliesConditions: CombatantCondition[];
   incursDurabilityLoss: {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
     [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
@@ -90,7 +92,7 @@ export interface CombatActionComponentConfig {
     primaryTarget: CombatantProperties,
     self: CombatActionComponent
   ) => null | CombatActionHpChangeProperties;
-  getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
+  getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
   getChildren: (
     combatantContext: CombatantContext,
     tracker: ActionTracker
@@ -122,7 +124,6 @@ export abstract class CombatActionComponent {
   public readonly prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
   public readonly baseHpChangeValuesLevelMultiplier: number; // @TODO - actually use this for attack et al, or remove it
   public readonly accuracyModifier: number;
-  private appliesConditions: CombatantCondition[];
   incursDurabilityLoss: {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
     [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
@@ -187,7 +188,7 @@ export abstract class CombatActionComponent {
     primaryTarget: CombatantProperties
   ) => null | CombatActionHpChangeProperties;
   // may be calculated based on combatant equipment or conditions
-  getAppliedConditions: (user: CombatantProperties) => null | CombatantCondition[];
+  getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
   protected children?: CombatActionComponent[];
   // if we take in the combatant we can determine the children based on their equipped weapons (melee attack mh, melee attack oh etc)
   // spell levels (level 1 chain lightning only gets 1 ChainLightningArc child) or other status
@@ -237,7 +238,6 @@ export abstract class CombatActionComponent {
     this.prohibitedTargetCombatantStates = config.prohibitedTargetCombatantStates;
     this.baseHpChangeValuesLevelMultiplier = config.baseHpChangeValuesLevelMultiplier;
     this.accuracyModifier = config.accuracyModifier;
-    this.appliesConditions = config.appliesConditions;
     this.incursDurabilityLoss = config.incursDurabilityLoss;
     this.costBases = config.costBases;
     this.userShouldMoveHomeOnComplete = config.userShouldMoveHomeOnComplete;

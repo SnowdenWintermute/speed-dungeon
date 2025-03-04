@@ -38,7 +38,6 @@ const config: CombatActionComponentConfig = {
   ],
   baseHpChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
-  appliesConditions: [],
   incursDurabilityLoss: {},
   costBases: {},
   userShouldMoveHomeOnComplete: false,

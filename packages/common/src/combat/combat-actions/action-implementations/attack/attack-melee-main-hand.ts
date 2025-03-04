@@ -40,7 +40,6 @@ const config: CombatActionComponentConfig = {
   ],
   baseHpChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
-  appliesConditions: [],
   incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: 1 } },
   costBases: {},
   getResourceCosts: () => null,

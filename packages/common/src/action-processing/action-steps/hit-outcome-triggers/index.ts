@@ -18,7 +18,6 @@ import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { addHitOutcomeDurabilityChanges } from "./hit-outcome-durability-change-calculators.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
-import { EntityId } from "../../../primatives/index.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
@@ -107,6 +106,9 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     triggeredHitPointChanges.applyToGame(this.context.combatantContext);
     if (triggeredHitPointChanges.getRecords().length > 0)
       gameUpdateCommand.hitPointChanges = triggeredHitPointChanges;
+
+    // @TODO - apply new conditions
+    const conditionsToApply = action.getAppliedConditions(context);
 
     // // @TODO -trigger on-hit conditions
     // for (const condition of combatantResult.combatantProperties.conditions) {

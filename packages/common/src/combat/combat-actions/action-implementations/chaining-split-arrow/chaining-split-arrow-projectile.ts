@@ -34,7 +34,6 @@ import { getAttackHpChangeProperties } from "../attack/get-attack-hp-change-prop
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
-import { ActionAccuracyType } from "../../combat-action-accuracy.js";
 
 const MAX_BOUNCES = 2;
 
@@ -53,7 +52,6 @@ const config: CombatActionComponentConfig = {
   ],
   baseHpChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
-  appliesConditions: [],
   incursDurabilityLoss: {},
   costBases: {},
   userShouldMoveHomeOnComplete: false,
@@ -88,7 +86,7 @@ const config: CombatActionComponentConfig = {
   },
   getAppliedConditions: function (): CombatantCondition[] | null {
     // @TODO - determine based on equipment
-    throw new Error("Function not implemented.");
+    return [];
   },
   getChildren: (combatantContext, tracker) => {
     let cursor = tracker.getPreviousTrackerInSequenceOption();

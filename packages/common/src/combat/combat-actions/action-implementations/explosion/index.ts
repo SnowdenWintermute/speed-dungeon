@@ -45,7 +45,6 @@ const config: CombatActionComponentConfig = {
   ],
   baseHpChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
-  appliesConditions: [],
   incursDurabilityLoss: {},
   costBases: {},
   userShouldMoveHomeOnComplete: true,
@@ -73,7 +72,7 @@ const config: CombatActionComponentConfig = {
 
     return hpChangeProperties;
   },
-  getAppliedConditions: function (): CombatantCondition[] | null {
+  getAppliedConditions: (context) => {
     // @TODO - apply a "burning" condition
     return null;
   },
