@@ -3,15 +3,11 @@ import { EntityId, EntityProperties } from "../primatives/index.js";
 
 export enum MobileVfxName {
   Arrow,
-}
-
-export enum StaticVfxName {
   Explosion,
 }
 
 export enum VfxType {
   Mobile,
-  Static,
 }
 
 export enum VfxParentType {
@@ -34,14 +30,7 @@ export type MobileVfxProperties = {
   parentOption?: VfxParent;
 };
 
-export type StaticVfxProperties = {
-  vfxType: VfxType.Static;
-  position: Vector3;
-  name: StaticVfxName;
-  parentOption?: VfxParent;
-};
-
-export type VfxProperties = MobileVfxProperties | StaticVfxProperties;
+export type VfxProperties = MobileVfxProperties;
 
 export interface Vfx {
   entityProperties: EntityProperties;

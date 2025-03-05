@@ -65,19 +65,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           if (!conditionsToApply) return;
           for (const condition of conditionsToApply)
             CombatantCondition.applyToCombatant(condition, targetCombatant.combatantProperties);
-          for (const condition of conditionsToApply)
-            CombatantCondition.applyToCombatant(condition, targetCombatant.combatantProperties);
-
-          console.log("CONDITIONS APPLIED", targetCombatant.combatantProperties.conditions);
-
-          // // @TODO -trigger on-hit conditions
-          for (const condition of combatantResult.combatantProperties.conditions) {
-            if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
-            // ENVIRONMENT_COMBATANT is the "user" for actions that originate from no combatant in particular
-            const triggeredActions = condition.onTriggered(targetCombatant);
-            console.log("TRIGGERED: ", triggeredActions);
-            this.branchingActions.push(...triggeredActions);
-          }
         }
       }
     }
@@ -160,8 +147,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
   getBranchingActions():
     | Error
     | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
-    console.log("BRANCHING");
-    console.log(this.branchingActions);
+    //
     return this.branchingActions;
   }
 }

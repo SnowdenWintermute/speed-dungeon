@@ -1,11 +1,15 @@
 import { CombatantCondition, CombatantConditionName } from "./index.js";
-import { Combatant } from "../index.js";
-import { CombatActionName } from "../../combat/combat-actions/index.js";
+import { Combatant, ENVIRONMENT_COMBATANT } from "../index.js";
+import {
+  CombatActionExecutionIntent,
+  CombatActionName,
+} from "../../combat/combat-actions/index.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
+import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
 
 export class PrimedForExplosionCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.PrimedForExplosion;
-  stacks?: MaxAndCurrent | undefined;
+  stacksOption = new MaxAndCurrent(10, 1);
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,
@@ -13,7 +17,7 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
   ) {}
   onTick() {}
   triggeredWhenHitBy(actionName: CombatActionName) {
-    return actionName === CombatActionName.ChainingSplitArrowProjectile;
+    return true;
   }
   triggeredWhenActionUsed() {
     return false;
@@ -23,6 +27,11 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
       (condition) => condition.id !== this.id
     );
 
-    return [];
+    const explosionActionIntent = new CombatActionExecutionIntent(CombatActionName.Explosion, {
+      type: CombatActionTargetType.SingleAndSides,
+      targetId: combatant.entityProperties.id,
+    });
+
+    return [{ user: ENVIRONMENT_COMBATANT, actionExecutionIntent: explosionActionIntent }];
   }
 }

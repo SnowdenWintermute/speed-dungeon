@@ -8,7 +8,6 @@ import {
   TargetingScheme,
 } from "../../index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
-import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ActionAccuracy, ActionAccuracyType } from "../../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
@@ -26,6 +25,8 @@ import { MagicalElement } from "../../../magical-elements.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
 import { CombatActionHpChangeProperties } from "../../combat-action-hp-change-properties.js";
 import { BASE_CRIT_CHANCE, BASE_CRIT_MULTIPLIER } from "../../../../app-consts.js";
+import { SpawnableEntityType } from "../../../../spawnables/index.js";
+import { MobileVfxName, VfxType } from "../../../../vfx/index.js";
 
 const config: CombatActionComponentConfig = {
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
@@ -107,6 +108,30 @@ const config: CombatActionComponentConfig = {
   getIsParryable: (user) => false,
   getIsBlockable: (user) => true,
   getCanTriggerCounterattack: (user) => false,
+
+  getSpawnableEntity: (context) => {
+    const { combatantContext, tracker } = context;
+    const previousTrackerOption = tracker.getPreviousTrackerInSequenceOption();
+    let position = combatantContext.combatant.combatantProperties.position.clone();
+    if (
+      previousTrackerOption &&
+      previousTrackerOption.spawnedEntityOption &&
+      previousTrackerOption.spawnedEntityOption.type === SpawnableEntityType.Vfx
+    ) {
+      position = previousTrackerOption.spawnedEntityOption.vfx.vfxProperties.position.clone();
+    }
+    return {
+      type: SpawnableEntityType.Vfx,
+      vfx: {
+        entityProperties: { id: context.idGenerator.generate(), name: "explosion" },
+        vfxProperties: {
+          vfxType: VfxType.Mobile,
+          position,
+          name: MobileVfxName.Explosion,
+        },
+      },
+    };
+  },
 };
 
 export const EXPLOSION = new CombatActionComposite(CombatActionName.Explosion, config);

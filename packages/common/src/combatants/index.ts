@@ -43,7 +43,7 @@ import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
 import { getAllCurrentlyUsableActionNames } from "./owned-actions/get-all-currently-usable-action-names.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
 import { CombatantCondition } from "./combatant-conditions/index.js";
-import { EquipmentSlotType, EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
+import { EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -230,3 +230,8 @@ export type ExperiencePoints = {
 };
 
 export type CombatantAttributeRecord = Partial<Record<CombatAttribute, number>>;
+
+export const ENVIRONMENT_COMBATANT = new Combatant(
+  { id: "1", name: "the environment" },
+  new CombatantProperties(CombatantClass.Mage, CombatantSpecies.Dragon, null, null, Vector3.Zero())
+);

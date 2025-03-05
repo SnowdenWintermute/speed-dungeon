@@ -28,6 +28,7 @@ import { getAttackHpChangeProperties } from "./get-attack-hp-change-properties.j
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { PrimedForExplosionCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-explosion.js";
+import { MaxAndCurrent } from "../../../../primatives/max-and-current.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
