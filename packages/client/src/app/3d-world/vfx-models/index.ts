@@ -1,4 +1,4 @@
-import { ISceneLoaderAsyncResult, TransformNode, Vector3 } from "@babylonjs/core";
+import { ISceneLoaderAsyncResult, MeshBuilder, TransformNode, Vector3 } from "@babylonjs/core";
 import { ERROR_MESSAGES, EntityId, MobileVfxName } from "@speed-dungeon/common";
 import { disposeAsyncLoadedScene, importMesh } from "../utils";
 import { ModelMovementManager } from "../model-movement-manager";
@@ -47,6 +47,21 @@ export class MobileVfxModel extends VfxModel {
 
 export async function spawnMobileVfxModel(vfxName: MobileVfxName) {
   const modelPath = MOBILE_VFX_NAME_TO_MODEL_PATH[vfxName];
+
+  if (!modelPath) {
+    const scene: ISceneLoaderAsyncResult = {
+      meshes: [MeshBuilder.CreateIcoSphere("", { radius: 0.5 })],
+      particleSystems: [],
+      skeletons: [],
+      animationGroups: [],
+      transformNodes: [new TransformNode("")],
+      geometries: [],
+      lights: [],
+      spriteManagers: [],
+    };
+    return scene;
+  }
+
   const scene = gameWorld.current?.scene;
   if (!scene) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
   const model = await importMesh(modelPath, scene);

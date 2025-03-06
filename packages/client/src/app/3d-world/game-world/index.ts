@@ -13,7 +13,7 @@ import {
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
-import { CombatTurnResult, IdGenerator } from "@speed-dungeon/common";
+import { IdGenerator } from "@speed-dungeon/common";
 import { updateDebugText } from "./model-manager/update-debug-text";
 import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
@@ -39,7 +39,6 @@ export class GameWorld {
   debug: { debugRef: React.RefObject<HTMLUListElement> | null } = { debugRef: null };
   useShadows: boolean = false;
   modelManager: ModelManager = new ModelManager(this);
-  turnResultsQueue: CombatTurnResult[] = [];
   groundTexture: DynamicTexture;
   defaultMaterials: SavedMaterials;
   // imageCreationDefaultMaterials: SavedMaterials;

@@ -73,6 +73,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           // // @TODO -trigger on-hit conditions
           for (const condition of combatantResult.combatantProperties.conditions) {
             if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
+
             // ENVIRONMENT_COMBATANT is the "user" for actions that originate from no combatant in particular
             const triggeredActions = condition.onTriggered(targetCombatant);
             console.log("TRIGGERED: ", triggeredActions);

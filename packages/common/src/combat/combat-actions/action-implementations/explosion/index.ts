@@ -15,7 +15,10 @@ import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js"
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
 import { NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG } from "../non-combatant-initiated-actions-common-config.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import {
+  ActionMotionPhase,
+  ActionResolutionStepType,
+} from "../../../../action-processing/index.js";
 import {
   HpChangeSource,
   HpChangeSourceCategory,
@@ -27,6 +30,7 @@ import { CombatActionHpChangeProperties } from "../../combat-action-hp-change-pr
 import { BASE_CRIT_CHANCE, BASE_CRIT_MULTIPLIER } from "../../../../app-consts.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { MobileVfxName, VfxType } from "../../../../vfx/index.js";
+import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 
 const config: CombatActionComponentConfig = {
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
@@ -85,6 +89,7 @@ const config: CombatActionComponentConfig = {
   },
   getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
     // @TODO - base off of activating condition spell level
+    return { type: ActionAccuracyType.Unavoidable };
     return {
       type: ActionAccuracyType.Percentage,
       value: 100,
@@ -96,14 +101,28 @@ const config: CombatActionComponentConfig = {
   getResolutionSteps() {
     return [
       ActionResolutionStepType.OnActivationSpawnEntity,
-      ActionResolutionStepType.DeliveryMotion,
-      ActionResolutionStepType.EvalOnUseTriggers,
+      ActionResolutionStepType.OnActivationVfxMotion,
       ActionResolutionStepType.RollIncomingHitOutcomes,
       ActionResolutionStepType.EvalOnHitOutcomeTriggers,
       ActionResolutionStepType.RecoveryMotion,
     ];
   },
-  motionPhasePositionGetters: {},
+  motionPhasePositionGetters: {
+    [ActionMotionPhase.Delivery]: (context) => {
+      const { combatantContext, tracker } = context;
+      const { actionExecutionIntent } = tracker;
+
+      const targetingCalculator = new TargetingCalculator(combatantContext, null);
+      const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+        combatantContext.party,
+        actionExecutionIntent
+      );
+      if (primaryTargetResult instanceof Error) return primaryTargetResult;
+      const target = primaryTargetResult;
+
+      return target.homeLocation.clone();
+    },
+  },
 
   getIsParryable: (user) => false,
   getIsBlockable: (user) => true,

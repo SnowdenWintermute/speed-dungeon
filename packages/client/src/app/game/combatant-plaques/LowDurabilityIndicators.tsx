@@ -14,7 +14,6 @@ interface Props {
 
 export default function LowDurabilityIndicators({ isPlayerControlled, equippedItems }: Props) {
   let indicators = [];
-  console.log("rerendering indicators");
 
   for (const equipment of equippedItems) {
     const durability = Equipment.getDurability(equipment);

@@ -13,6 +13,7 @@ import { GameWorld } from "../../game-world";
 import startHpChangeFloatingMessage from "./start-hp-change-floating-message";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
+import { useUIStore } from "@/stores/ui-store";
 
 export function induceHitRecovery(
   gameWorld: GameWorld,
@@ -28,6 +29,8 @@ export function induceHitRecovery(
   // hpChange.isCrit = true;
 
   startHpChangeFloatingMessage(targetId, hpChange, wasBlocked, 2000);
+
+  const showDebug = useUIStore.getState().showDebug;
 
   useGameStore.getState().mutateState((gameState) => {
     // - change their hp
@@ -80,7 +83,9 @@ export function induceHitRecovery(
       const isTargetingSelf =
         actionUserResult.entityProperties.id === combatantResult.entityProperties.id;
       const targetNameText = isTargetingSelf ? "themselves" : combatantResult.entityProperties.name;
-      messageText = `${actionUserResult.entityProperties.name} ${damagedOrHealed} ${targetNameText} for ${Math.abs(hpChange.value)} ${hpOrDamage}`;
+
+      const debugTargetId = showDebug ? targetId : "";
+      messageText = `${actionUserResult.entityProperties.name} ${damagedOrHealed} ${targetNameText} ${debugTargetId} for ${Math.abs(hpChange.value)} ${hpOrDamage}`;
     }
 
     if (hpChange.isCrit) messageText = "Critical! " + messageText;

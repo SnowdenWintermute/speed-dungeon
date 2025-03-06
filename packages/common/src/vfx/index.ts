@@ -6,6 +6,11 @@ export enum MobileVfxName {
   Explosion,
 }
 
+export const MOBILE_VFX_NAME_STRINGS: Record<MobileVfxName, string> = {
+  [MobileVfxName.Arrow]: "Arrow",
+  [MobileVfxName.Explosion]: "Explosion",
+};
+
 export enum VfxType {
   Mobile,
 }

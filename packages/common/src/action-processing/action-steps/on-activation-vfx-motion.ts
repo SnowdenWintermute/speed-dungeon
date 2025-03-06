@@ -11,7 +11,7 @@ import {
   GameUpdateCommandType,
 } from "../game-update-commands.js";
 import { COMBAT_ACTIONS } from "../../combat/index.js";
-import { Vfx } from "../../vfx/index.js";
+import { MobileVfxName, Vfx } from "../../vfx/index.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 
@@ -23,13 +23,16 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
     context: ActionResolutionStepContext,
     private vfx: Vfx
   ) {
+    // @TODO - some should not despawn such as explosion which needs to do a recovery animation
+    const despawnOnComplete = vfx.vfxProperties.name === MobileVfxName.Arrow;
+
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.EntityMotion,
       step: stepType,
       completionOrderId: null,
       entityType: SpawnableEntityType.Vfx,
       entityId: vfx.entityProperties.id,
-      despawnOnComplete: true,
+      despawnOnComplete,
     };
 
     super(stepType, context, gameUpdateCommand);

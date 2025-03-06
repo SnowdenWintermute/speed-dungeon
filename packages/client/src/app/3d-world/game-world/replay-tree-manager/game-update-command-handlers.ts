@@ -7,6 +7,7 @@ import {
   GameUpdateCommandType,
   HitOutcomesGameUpdateCommand,
   HitPointChanges,
+  MOBILE_VFX_NAME_STRINGS,
   ResourcesPaidGameUpdateCommand,
   SpawnEntityGameUpdateCommand,
   SpawnableEntityType,
@@ -110,8 +111,14 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
 
     const { vfx } = command.entity;
-    // console.log("SPAWNED VFX: ", vfx.vfxProperties.position);
     const { vfxProperties } = vfx;
+
+    console.log(
+      "SPAWNED VFX: ",
+      vfxProperties.position,
+      MOBILE_VFX_NAME_STRINGS[vfxProperties.name]
+    );
+
     if (vfxProperties.vfxType !== VfxType.Mobile) {
       return new Error("non-mobile vfx not implemented");
     }
