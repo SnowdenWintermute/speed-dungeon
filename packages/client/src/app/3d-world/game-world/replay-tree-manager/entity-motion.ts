@@ -3,6 +3,7 @@ import {
   AnimationTimingType,
   ERROR_MESSAGES,
   EntityMotionGameUpdateCommand,
+  MobileVfxName,
   SpawnableEntityType,
 } from "@speed-dungeon/common";
 import { ModelMovementManager } from "../../model-movement-manager";
@@ -22,6 +23,9 @@ export function entityMotionGameUpdateHandler(update: {
   let movementManager: ModelMovementManager;
   let animationManager: AnimationManager | undefined;
   const { entityId, translationOption, animationOption } = command;
+
+  let destinationYOption: undefined | number;
+
   if (command.entityType === SpawnableEntityType.Combatant) {
     const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
     if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
@@ -34,6 +38,8 @@ export function entityMotionGameUpdateHandler(update: {
     movementManager = vfxOption.movementManager;
 
     movementManager.transformNode.setParent(null);
+
+    if (vfxOption.name === MobileVfxName.Arrow) destinationYOption = 0.5;
   }
 
   // console.log("destinationOption: ", translationOption?.destination);
@@ -44,7 +50,7 @@ export function entityMotionGameUpdateHandler(update: {
   if (translationOption) {
     const destination = plainToInstance(Vector3, translationOption.destination);
     // don't consider the y from the server since the server only calculates 2d positions
-    if (command.entityType === SpawnableEntityType.Vfx) destination.y = 0.5;
+    if (destinationYOption) destination.y = destinationYOption;
 
     movementManager.startTranslating(destination, translationOption.duration, () => {
       translationIsComplete = true;

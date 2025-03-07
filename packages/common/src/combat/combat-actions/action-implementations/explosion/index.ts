@@ -31,6 +31,9 @@ import { BASE_CRIT_CHANCE, BASE_CRIT_MULTIPLIER } from "../../../../app-consts.j
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { MobileVfxName, VfxType } from "../../../../vfx/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { SpeedDungeonGame } from "../../../../game/index.js";
+import { COMBAT_ACTIONS } from "../index.js";
+import { Vector3 } from "@babylonjs/core";
 
 const config: CombatActionComponentConfig = {
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
@@ -108,6 +111,7 @@ const config: CombatActionComponentConfig = {
     ];
   },
   motionPhasePositionGetters: {
+    // [ActionMotionPhase.]
     [ActionMotionPhase.Delivery]: (context) => {
       const { combatantContext, tracker } = context;
       const { actionExecutionIntent } = tracker;
@@ -129,16 +133,17 @@ const config: CombatActionComponentConfig = {
   getCanTriggerCounterattack: (user) => false,
 
   getSpawnableEntity: (context) => {
-    const { combatantContext, tracker } = context;
-    const previousTrackerOption = tracker.getPreviousTrackerInSequenceOption();
-    let position = combatantContext.combatant.combatantProperties.position.clone();
-    if (
-      previousTrackerOption &&
-      previousTrackerOption.spawnedEntityOption &&
-      previousTrackerOption.spawnedEntityOption.type === SpawnableEntityType.Vfx
-    ) {
-      position = previousTrackerOption.spawnedEntityOption.vfx.vfxProperties.position.clone();
-    }
+    const { actionExecutionIntent } = context.tracker;
+    const { party } = context.combatantContext;
+    const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+    const primaryTargetIdResult = targetingCalculator.getPrimaryTargetCombatant(
+      party,
+      actionExecutionIntent
+    );
+    if (primaryTargetIdResult instanceof Error) throw primaryTargetIdResult;
+
+    const position = primaryTargetIdResult.position;
+
     return {
       type: SpawnableEntityType.Vfx,
       vfx: {

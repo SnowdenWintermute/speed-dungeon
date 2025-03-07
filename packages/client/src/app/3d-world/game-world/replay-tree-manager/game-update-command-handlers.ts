@@ -113,18 +113,25 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     const { vfx } = command.entity;
     const { vfxProperties } = vfx;
 
-    console.log(
-      "SPAWNED VFX: ",
-      vfxProperties.position,
-      MOBILE_VFX_NAME_STRINGS[vfxProperties.name]
-    );
-
     if (vfxProperties.vfxType !== VfxType.Mobile) {
       return new Error("non-mobile vfx not implemented");
     }
 
-    const scene = await spawnMobileVfxModel(vfxProperties.name);
-    const vfxModel = new MobileVfxModel(vfx.entityProperties.id, scene, vfxProperties.position);
+    const position = new Vector3(
+      vfxProperties.position._x,
+      vfxProperties.position._y,
+      vfxProperties.position._z
+    );
+
+    const scene = await spawnMobileVfxModel(vfxProperties.name, position);
+
+    const vfxModel = new MobileVfxModel(
+      vfx.entityProperties.id,
+      scene,
+      position,
+      vfxProperties.name
+    );
+
     gameWorld.current.vfxManager.register(vfxModel);
 
     if (vfxProperties.parentOption) {
