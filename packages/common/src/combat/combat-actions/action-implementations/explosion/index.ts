@@ -47,7 +47,6 @@ const config: CombatActionComponentConfig = {
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
   prohibitedTargetCombatantStates: [
-    ProhibitedTargetCombatantStates.Dead,
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
     ProhibitedTargetCombatantStates.UntargetableBySpells,
   ],

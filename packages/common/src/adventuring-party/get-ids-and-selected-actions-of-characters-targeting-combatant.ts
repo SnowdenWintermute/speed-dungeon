@@ -41,9 +41,6 @@ export function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
 
     switch (currentTarget.type) {
       case CombatActionTargetType.SingleAndSides:
-        throw new Error(
-          "not implemented SingleAndSides targeting, get the implementatino from the other place it already exists"
-        );
       case CombatActionTargetType.Single:
         combatantIsTargetedByThisCharacter = currentTarget.targetId === combatantId;
         break;

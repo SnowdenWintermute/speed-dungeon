@@ -17,6 +17,8 @@ export function getActionTargetsIfSchemeIsValid(
       return [actionTarget.targetId as EntityId];
     case CombatActionTargetType.SingleAndSides:
       const targetIds = [actionTarget.targetId as EntityId];
+      console.log("ally ids: ", allyIds);
+      console.log("opponent ids: ", opponentIdsOption);
       allyIds.forEach((id, i) => {
         if (id === actionTarget.targetId) {
           const prevOption = allyIds[i - 1];
@@ -34,6 +36,7 @@ export function getActionTargetsIfSchemeIsValid(
             if (nextOption !== undefined) targetIds.push(nextOption as EntityId);
           }
         });
+      console.log("single and side ids: ", targetIds);
       return targetIds as EntityId[];
 
     case CombatActionTargetType.Group:

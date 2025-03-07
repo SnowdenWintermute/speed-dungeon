@@ -70,6 +70,7 @@ export function calculateActionHitOutcomes(
     actionExecutionIntent.targets
   );
   if (targetIdsResult instanceof Error) return targetIdsResult;
+  console.log("TARGET IDS: ", targetIdsResult);
   const targetIds = targetIdsResult;
 
   const hitOutcomes = new CombatActionHitOutcomes();
