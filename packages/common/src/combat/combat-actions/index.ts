@@ -12,10 +12,7 @@ import {
 } from "../../items/equipment/slots.js";
 import { ProhibitedTargetCombatantStates } from "./prohibited-target-combatant-states.js";
 import { TargetCategories, TargetingScheme } from "./targeting-schemes-and-categories.js";
-import {
-  CombatantCondition,
-  CombatantConditionName,
-} from "../../combatants/combatant-conditions/index.js";
+import { CombatantCondition } from "../../combatants/combatant-conditions/index.js";
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { DurabilityLossCondition } from "./combat-action-durability-loss-condition.js";
 import { CombatActionName } from "./combat-action-names.js";
@@ -36,6 +33,7 @@ import {
   ActionMotionPhase,
   ActionResolutionStepContext,
   ActionResolutionStepType,
+  EntityAnimation,
 } from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 import { Vector3 } from "@babylonjs/core";
@@ -70,7 +68,7 @@ export interface CombatActionComponentConfig {
   getExecutionTime: () => number;
   requiresCombatTurn: (user: CombatantProperties) => boolean;
   shouldExecute: (combatantContext: CombatantContext, self: CombatActionComponent) => boolean;
-  getCombatantUseAnimations: (
+  getActionStepAnimations: (
     combatantContex: CombatantContext
   ) => null | CombatActionCombatantAnimations;
   getRequiredRange: (
@@ -168,11 +166,12 @@ export abstract class CombatActionComponent {
   // spawn mobile effect (effectName (Arrow, Firebolt), origin, destination, speed, easingFn, getPercentCompleteToProceed(), onProceed())
   // spawn stream effect (effectName (lightning arc, healing beam), origin, destination, duration, easingFn, getPercentCompleteToProceed(), onProceed())
   // spawn static effect (effectName (Protect, SpellSparkles), position, duration, getPercentCompleteToProceed(), onProceed())
-  getCombatantUseAnimations: (context: CombatantContext) => null | CombatActionCombatantAnimations;
+  getActionStepAnimations: (context: CombatantContext) => null | CombatActionCombatantAnimations;
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   motionPhasePositionGetters: Partial<
     Record<ActionMotionPhase, (context: ActionResolutionStepContext) => Error | null | Vector3>
   >;
+
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
   getAccuracy: (user: CombatantProperties) => ActionAccuracy;
   getIsParryable: (user: CombatantProperties) => boolean;
@@ -246,7 +245,7 @@ export abstract class CombatActionComponent {
     this.requiresCombatTurn = config.requiresCombatTurn;
     this.shouldExecute = (characterAssociatedData) =>
       config.shouldExecute(characterAssociatedData, this);
-    this.getCombatantUseAnimations = config.getCombatantUseAnimations;
+    this.getActionStepAnimations = config.getActionStepAnimations;
     this.getAccuracy = (user: CombatantProperties) => {
       const baseAccuracy = config.getUnmodifiedAccuracy(user);
       if (baseAccuracy.type === ActionAccuracyType.Percentage)

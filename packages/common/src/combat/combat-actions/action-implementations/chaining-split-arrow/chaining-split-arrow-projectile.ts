@@ -65,7 +65,7 @@ const config: CombatActionComponentConfig = {
   getExecutionTime: () => 700,
   requiresCombatTurn: () => true,
   shouldExecute: () => true,
-  getCombatantUseAnimations: (combatantContext: CombatantContext) => null,
+  getActionStepAnimations: (combatantContext: CombatantContext) => null,
   getHpChangeProperties: (user, primaryTarget, self) => {
     const hpChangeProperties = getAttackHpChangeProperties(
       self,

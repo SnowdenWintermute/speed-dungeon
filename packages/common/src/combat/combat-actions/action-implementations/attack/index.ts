@@ -45,7 +45,7 @@ const config: CombatActionComponentConfig = {
   getExecutionTime: () => 0,
   requiresCombatTurn: () => true,
   shouldExecute: () => true,
-  getCombatantUseAnimations: (combatantContext: CombatantContext) => null,
+  getActionStepAnimations: (combatantContext: CombatantContext) => null,
   getHpChangeProperties: () => null, // client should display child hp change properties
   getAppliedConditions: function (): CombatantCondition[] | null {
     // @TODO - determine based on equipment

@@ -62,9 +62,10 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
       gameUpdateCommand.translationOption = translation;
     }
 
-    const animationsOption = action.getCombatantUseAnimations(combatantContext);
+    const animationsOption = action.getActionStepAnimations(combatantContext);
     if (animationsOption) {
-      this.animationOption = animationsOption[animationPhase];
+      const animationOption = animationsOption[animationPhase];
+      if (animationOption) this.animationOption = animationOption;
       if (this.animationOption) gameUpdateCommand.animationOption = this.animationOption;
     }
   }

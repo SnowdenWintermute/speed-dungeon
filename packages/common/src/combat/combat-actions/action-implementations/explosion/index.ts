@@ -1,4 +1,6 @@
 import {
+  CombatActionAnimationPhase,
+  CombatActionCombatantAnimations,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -18,6 +20,7 @@ import { NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG } from "../non-combatant-
 import {
   ActionMotionPhase,
   ActionResolutionStepType,
+  AnimationTimingType,
 } from "../../../../action-processing/index.js";
 import {
   HpChangeSource,
@@ -27,13 +30,10 @@ import {
 import { MagicalElement } from "../../../magical-elements.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
 import { CombatActionHpChangeProperties } from "../../combat-action-hp-change-properties.js";
-import { BASE_CRIT_CHANCE, BASE_CRIT_MULTIPLIER } from "../../../../app-consts.js";
+import { AnimationName, BASE_CRIT_CHANCE, BASE_CRIT_MULTIPLIER } from "../../../../app-consts.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { MobileVfxName, VfxType } from "../../../../vfx/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import { SpeedDungeonGame } from "../../../../game/index.js";
-import { COMBAT_ACTIONS } from "../index.js";
-import { Vector3 } from "@babylonjs/core";
 
 const config: CombatActionComponentConfig = {
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
@@ -59,7 +59,20 @@ const config: CombatActionComponentConfig = {
   getExecutionTime: () => 300,
   requiresCombatTurn: () => true,
   shouldExecute: () => true,
-  getCombatantUseAnimations: (combatantContext: CombatantContext) => null,
+  getActionStepAnimations: (combatantContext: CombatantContext) => {
+    const animations: CombatActionCombatantAnimations = {
+      [CombatActionAnimationPhase.Delivery]: {
+        name: AnimationName.Explosion,
+        timing: { type: AnimationTimingType.Timed, duration: 1200 },
+      },
+      [CombatActionAnimationPhase.RecoverySuccess]: {
+        name: AnimationName.FiredArrowRecovery,
+        timing: { type: AnimationTimingType.Timed, duration: 700 },
+        // timing: { type: AnimationTimingType.Timed, duration: 3000 },
+      },
+    };
+    return animations;
+  },
   getHpChangeProperties: () => {
     const hpChangeSourceConfig: HpChangeSourceConfig = {
       category: HpChangeSourceCategory.Physical,

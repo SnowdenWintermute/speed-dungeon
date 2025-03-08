@@ -1,4 +1,11 @@
-import { ISceneLoaderAsyncResult, MeshBuilder, TransformNode, Vector3 } from "@babylonjs/core";
+import {
+  Color3,
+  ISceneLoaderAsyncResult,
+  MeshBuilder,
+  StandardMaterial,
+  TransformNode,
+  Vector3,
+} from "@babylonjs/core";
 import {
   ERROR_MESSAGES,
   EntityId,
@@ -64,6 +71,11 @@ export async function spawnMobileVfxModel(vfxName: MobileVfxName, position: Vect
   if (!modelPath) {
     // @TODO - organize custom mesh creators for self-made vfx
     const mesh = MeshBuilder.CreateIcoSphere("", { radius: 0.5 });
+    const material = new StandardMaterial("");
+    material.diffuseColor = new Color3(0.7, 0.3, 0.2);
+    material.alpha = 0.5;
+
+    mesh.material = material;
     mesh.position.copyFrom(position);
     model = {
       meshes: [mesh],

@@ -9,7 +9,6 @@ export enum CombatActionAnimationPhase {
   Final,
 }
 
-export type CombatActionCombatantAnimations = Record<
-  CombatActionAnimationPhase,
-  EntityAnimation | null
+export type CombatActionCombatantAnimations = Partial<
+  Record<CombatActionAnimationPhase, EntityAnimation | null>
 >;

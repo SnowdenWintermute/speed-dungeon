@@ -56,7 +56,7 @@ const config: CombatActionComponentConfig = {
     return false;
   },
   shouldExecute: () => true,
-  getCombatantUseAnimations: (combatantContext: CombatantContext) => {
+  getActionStepAnimations: (combatantContext: CombatantContext) => {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {
         name: AnimationName.MoveForward,

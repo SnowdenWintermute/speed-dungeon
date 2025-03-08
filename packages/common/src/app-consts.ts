@@ -152,6 +152,8 @@ export enum AnimationName {
   FiredArrowRecovery,
   CastSpell,
   UseItem,
+  ExplosionDelivery,
+  ExplosionDissipation,
 }
 
 export const ANIMATION_NAME_STRINGS: Record<AnimationName, string> = {
@@ -178,4 +180,6 @@ export const ANIMATION_NAME_STRINGS: Record<AnimationName, string> = {
   [AnimationName.DrawArrow]: "shoot-arrow-chambering",
   [AnimationName.KnockPullReleaseArrow]: "shoot-arrow-delivery",
   [AnimationName.FiredArrowRecovery]: "shoot-arrow-recovery",
+  [AnimationName.ExplosionDelivery]: "explosion-delivery",
+  [AnimationName.ExplosionDissipation]: "explosion-dissipation",
 };

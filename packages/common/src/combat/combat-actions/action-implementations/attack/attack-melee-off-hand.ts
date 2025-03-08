@@ -91,7 +91,7 @@ const config: CombatActionComponentConfig = {
 
     return !SpeedDungeonGame.allCombatantsInGroupAreDead(game, targetIdsResult);
   },
-  getCombatantUseAnimations: (combatantContext: CombatantContext) => {
+  getActionStepAnimations: (combatantContext: CombatantContext) => {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {
         name: AnimationName.MoveForward,
