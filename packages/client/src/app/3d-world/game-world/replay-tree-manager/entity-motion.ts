@@ -55,12 +55,14 @@ export function entityMotionGameUpdateHandler(update: {
 
     movementManager.startTranslating(destination, translationOption.duration, () => {
       translationIsComplete = true;
+
       if (
         animationIsComplete ||
         !animationOption ||
         animationOption.timing.type === AnimationTimingType.Looping
       ) {
         update.isComplete = true;
+
         if (command.despawnOnComplete) {
           if (command.entityType === SpawnableEntityType.Vfx) {
             gameWorld.current?.vfxManager.unregister(command.entityId);

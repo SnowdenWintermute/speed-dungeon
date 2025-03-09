@@ -116,6 +116,7 @@ export class AnimationManager {
       }
     } else {
       // handle dynamic animation
+      setTimeout(options.onComplete, options.animationDurationOverrideOption || 500);
       console.log("dynamic animation ");
     }
   }

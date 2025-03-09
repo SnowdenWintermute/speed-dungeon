@@ -89,8 +89,6 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
           state.detailedEntity = null;
           state.hoveredEntity = null;
 
-          const partyOption = getCurrentParty(state, state.username || "");
-          if (partyOption) InputLock.lockInput(partyOption.inputLock);
           // it should theoretically be unlocked after their action resolves
         });
         // if (gameWorld.current && gameWorld.current.modelManager.combatantModels[characterId]) {

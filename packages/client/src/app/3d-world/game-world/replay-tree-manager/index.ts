@@ -3,12 +3,16 @@ import {
   EntityId,
   GAME_UPDATE_COMMAND_TYPE_STRINGS,
   GameUpdateCommand,
+  InputLock,
   NestedNodeReplayEvent,
   ReplayEventType,
 } from "@speed-dungeon/common";
 import { GAME_UPDATE_COMMAND_HANDLERS } from "./game-update-command-handlers";
 import { gameWorld } from "../../SceneManager";
 import { VfxModel } from "../../vfx-models";
+import { useGameStore } from "@/stores/game-store";
+import getCurrentParty from "@/utils/getCurrentParty";
+import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
 
 export class ReplayTreeManager {
   private queue: NestedNodeReplayEvent[] = [];
@@ -22,6 +26,17 @@ export class ReplayTreeManager {
 
   async enqueueTree(tree: NestedNodeReplayEvent) {
     this.queue.push(tree);
+
+    useGameStore.getState().mutateState((state) => {
+      const partyOption = getCurrentParty(state, state.username || "");
+      if (partyOption) InputLock.lockInput(partyOption.inputLock);
+      if (
+        state.stackedMenuStates[0] &&
+        state.stackedMenuStates[0].type === MenuStateType.CombatActionSelected
+      ) {
+        state.stackedMenuStates.pop();
+      }
+    });
   }
   /**
   So we don't have to wait for a model to spawn midway through the animation chain, 
@@ -43,6 +58,13 @@ export class ReplayTreeManager {
   process() {
     if (this.current) this.current.processBranches();
     if (this.currentTreeCompleted()) {
+      if (this.current !== null) {
+        console.log("current tree completed");
+        useGameStore.getState().mutateState((state) => {
+          const partyOption = getCurrentParty(state, state.username || "");
+          if (partyOption) InputLock.unlockInput(partyOption.inputLock);
+        });
+      }
       this.current = null;
       this.startNext();
     }

@@ -99,11 +99,11 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
   // mainhand.equipmentBaseItemProperties
 
   // @TODO - remove this testing line and put back the repair all one
-  if (mainhand.durability) mainhand.durability.current = 1;
+  // if (mainhand.durability) mainhand.durability.current = 1;
 
   if (offhand instanceof Error) return offhand;
 
-  // repairEquipment(mainhand);
+  repairEquipment(mainhand);
   if (offhand) repairEquipment(offhand);
 
   const mainHoldableHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);

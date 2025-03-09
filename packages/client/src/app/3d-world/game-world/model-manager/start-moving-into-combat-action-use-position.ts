@@ -3,6 +3,7 @@ import cloneDeep from "lodash.clonedeep";
 import {
   AdventuringParty,
   AnimationName,
+  BakedAnimationName,
   COMBATANT_TIME_TO_ROTATE_360,
   CombatantProperties,
   ERROR_MESSAGES,
@@ -38,8 +39,6 @@ export async function startMovingIntoCombatActionUsePosition(
 
       actionUser.combatantProperties.selectedCombatAction = null;
       actionUser.combatantProperties.combatActionTarget = null;
-
-      InputLock.lockInput(party.inputLock);
 
       const { destinationLocation, totalTimeToReachDestination } =
         CombatantProperties.getPositionForActionUse(
@@ -80,7 +79,7 @@ export async function startMovingIntoCombatActionUsePosition(
       }
       // start their running forward animation
       userCombatantModel.animationManager.startAnimationWithTransition(
-        AnimationName.MoveForward,
+        BakedAnimationName.MoveForward,
         500
       );
 

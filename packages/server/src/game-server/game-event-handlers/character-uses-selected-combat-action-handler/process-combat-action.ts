@@ -43,12 +43,7 @@ export function processCombatAction(
     });
   }
 
-  let loopLimiter = 0;
-
-  while (
-    registry.isNotEmpty()
-    // &&   loopLimiter < 10 // for testing
-  ) {
+  while (registry.isNotEmpty()) {
     for (const sequenceManager of registry.getManagers()) {
       let trackerOption = sequenceManager.getCurrentTracker();
       if (!trackerOption) break;
@@ -58,12 +53,6 @@ export function processCombatAction(
       while (currentStep.isComplete()) {
         trackerOption = sequenceManager.getCurrentTracker();
         if (trackerOption === null) throw new Error("expected action tracker was missing");
-
-        // console.log(
-        //   "completed step:",
-        //   ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type],
-        //   trackerOption.actionExecutionIntent.actionName
-        // );
 
         const completionOrderId = completionOrderIdGenerator.getNextIdNumeric();
         const branchingActionsResult = trackerOption.currentStep.finalize(completionOrderId);
@@ -173,8 +162,6 @@ export function processCombatAction(
 
     for (const sequenceManager of registry.getManagers())
       sequenceManager.getCurrentTracker()?.currentStep.tick(timeToTick);
-
-    loopLimiter += 1;
   }
 
   return rootReplayNode;

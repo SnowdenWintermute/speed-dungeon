@@ -79,6 +79,7 @@ const config: CombatActionComponentConfig = {
       idGenerator.generate(),
       combatant.combatantProperties.level
     );
+    // return [];
     return [primedForExplosionCondition];
   },
   getChildren: (combatantContext, tracker) => [],
