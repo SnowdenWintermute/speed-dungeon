@@ -6,8 +6,6 @@ import {
   CombatActionName,
   CombatActionTarget,
   CombatActionTargetType,
-  FriendOrFoe,
-  Replayer,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 import { GameServer } from "./game-server/index.js";

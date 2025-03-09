@@ -6,11 +6,17 @@ import {
   ActionResolutionStepType,
 } from "./index.js";
 import {
+  AnimationTimingType,
+  EntityAnimation,
   EntityTranslation,
   GameUpdateCommand,
   GameUpdateCommandType,
 } from "../game-update-commands.js";
-import { COMBAT_ACTIONS } from "../../combat/index.js";
+import {
+  COMBAT_ACTIONS,
+  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionAnimationPhase,
+} from "../../combat/index.js";
 import { MobileVfxName, Vfx } from "../../vfx/index.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
@@ -18,6 +24,7 @@ import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 const stepType = ActionResolutionStepType.OnActivationVfxMotion;
 export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
+  private animationOption: null | EntityAnimation = null;
   private originalPosition: Vector3;
   constructor(
     context: ActionResolutionStepContext,
@@ -43,6 +50,16 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
 
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
 
+    // GET ANIMATION
+    const animationsOption = action.getActionStepAnimations(this.context.combatantContext);
+    if (animationsOption) {
+      const animationOption = animationsOption[CombatActionAnimationPhase.Delivery];
+      if (animationOption) {
+        this.animationOption = animationOption;
+      }
+    }
+
+    // GET TRANSLATION
     const destinationGetterOption = action.motionPhasePositionGetters[ActionMotionPhase.Delivery];
     let destinationResult = null;
     if (destinationGetterOption) destinationResult = destinationGetterOption(context);
@@ -79,8 +96,21 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
   setDestination(destination: Vector3) {}
 
   getTimeToCompletion(): number {
-    if (this.translationOption) return Math.max(0, this.translationOption.duration - this.elapsed);
-    else return 0;
+    let translationTimeRemaining = 0;
+    let animationTimeRemaining = 0;
+    if (this.translationOption)
+      translationTimeRemaining = Math.max(0, this.translationOption.duration - this.elapsed);
+
+    if (this.animationOption && this.animationOption.timing.type === AnimationTimingType.Timed)
+      animationTimeRemaining = Math.max(0, this.animationOption.timing.duration - this.elapsed);
+
+    console.log(
+      COMBAT_ACTION_NAME_STRINGS[this.context.tracker.actionExecutionIntent.actionName],
+      "ANIMATION TIME REMAINING: ",
+      animationTimeRemaining
+    );
+
+    return Math.max(animationTimeRemaining, translationTimeRemaining);
   }
 
   protected getBranchingActions = () => [];

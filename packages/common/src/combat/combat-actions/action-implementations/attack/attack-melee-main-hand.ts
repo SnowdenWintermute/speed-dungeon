@@ -6,7 +6,11 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import { AnimationName, DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME } from "../../../../app-consts.js";
+import {
+  AnimationType,
+  BakedAnimationName,
+  DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
+} from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
@@ -59,24 +63,27 @@ const config: CombatActionComponentConfig = {
   getActionStepAnimations: (combatantContext: CombatantContext) => {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {
-        name: AnimationName.MoveForward,
+        name: { type: AnimationType.Baked, name: BakedAnimationName.MoveForward },
         timing: { type: AnimationTimingType.Looping },
       },
       [CombatActionAnimationPhase.Chambering]: null,
       [CombatActionAnimationPhase.Delivery]: {
-        name: AnimationName.MeleeMainHandDelivery,
+        name: { type: AnimationType.Baked, name: BakedAnimationName.MeleeMainHandDelivery },
         timing: { type: AnimationTimingType.Timed, duration: 1200 },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
-        name: AnimationName.MeleeMainHandRecoverySuccess,
+        name: { type: AnimationType.Baked, name: BakedAnimationName.MeleeMainHandRecoverySuccess },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },
       [CombatActionAnimationPhase.RecoveryInterrupted]: {
-        name: AnimationName.MeleeMainHandRecoveryInterrupted,
+        name: {
+          type: AnimationType.Baked,
+          name: BakedAnimationName.MeleeMainHandRecoveryInterrupted,
+        },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },
       [CombatActionAnimationPhase.Final]: {
-        name: AnimationName.MoveBack,
+        name: { type: AnimationType.Baked, name: BakedAnimationName.MoveBack },
         timing: { type: AnimationTimingType.Looping },
       },
     };

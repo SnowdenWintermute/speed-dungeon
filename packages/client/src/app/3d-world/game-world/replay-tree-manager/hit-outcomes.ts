@@ -1,5 +1,6 @@
 import {
-  AnimationName,
+  AnimationType,
+  BakedAnimationName,
   ERROR_MESSAGES,
   HitOutcome,
   HitOutcomesGameUpdateCommand,
@@ -75,12 +76,16 @@ export function hitOutcomesGameUpdateHandler(update: {
     if (targetModel === undefined)
       return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
-    targetModel.animationManager.startAnimationWithTransition(AnimationName.Evade, 0, {
-      shouldLoop: false,
-      animationDurationOverrideOption: null,
-      animationEventOption: null,
-      onComplete: () => {},
-    });
+    targetModel.animationManager.startAnimationWithTransition(
+      { type: AnimationType.Baked, name: BakedAnimationName.Evade },
+      0,
+      {
+        shouldLoop: false,
+        animationDurationOverrideOption: null,
+        animationEventOption: null,
+        onComplete: () => {},
+      }
+    );
 
     useGameStore.getState().mutateState((gameState) => {
       const actionUserResult = gameState.getCombatant(actionUserId);
@@ -113,12 +118,16 @@ export function hitOutcomesGameUpdateHandler(update: {
     if (targetModel === undefined)
       return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
-    targetModel.animationManager.startAnimationWithTransition(AnimationName.Parry, 0, {
-      shouldLoop: false,
-      animationDurationOverrideOption: null,
-      animationEventOption: null,
-      onComplete: () => {},
-    });
+    targetModel.animationManager.startAnimationWithTransition(
+      { type: AnimationType.Baked, name: BakedAnimationName.Parry },
+      0,
+      {
+        shouldLoop: false,
+        animationDurationOverrideOption: null,
+        animationEventOption: null,
+        onComplete: () => {},
+      }
+    );
 
     useGameStore.getState().mutateState((gameState) => {
       const actionUserResult = gameState.getCombatant(actionUserId);

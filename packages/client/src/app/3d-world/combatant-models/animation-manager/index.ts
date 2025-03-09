@@ -1,9 +1,11 @@
 import { AnimationGroup, AnimationEvent } from "@babylonjs/core";
 import { ModularCharacter } from "../modular-character";
 import {
-  ANIMATION_NAME_STRINGS,
-  AnimationName,
+  AnimationType,
+  BAKED_ANIMATION_NAME_STRINGS,
+  BakedAnimationName,
   MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
+  TaggedAnimationName,
 } from "@speed-dungeon/common";
 import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
 
@@ -66,7 +68,7 @@ export class AnimationManager {
   }
 
   startAnimationWithTransition(
-    newAnimationName: AnimationName,
+    newAnimationName: TaggedAnimationName,
     transitionDuration: number,
     options: ManagedAnimationOptions = {
       shouldLoop: true,
@@ -75,40 +77,46 @@ export class AnimationManager {
       onComplete: () => {},
     }
   ): Error | void {
-    let newAnimationGroupOption = this.getAnimationGroupByName(newAnimationName);
-    // alternatives to some missing animations
-    if (newAnimationGroupOption === undefined) {
-      const fallbackName = this.getFallbackAnimationName(newAnimationName);
-      if (fallbackName) newAnimationGroupOption = this.getAnimationGroupByName(fallbackName);
-    }
-
-    const clonedAnimationOption = this.cloneAnimationOption(newAnimationGroupOption);
-
-    if (clonedAnimationOption === null) {
-      // send message to client with timout duration to remove itself
-      setDebugMessage(
-        this.characterModel.entityId,
-        `Missing animation: ${newAnimationName}`,
-        MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME
-      );
-    }
-
     if (this.playing !== null) {
       if (this.previous !== null) this.cleanUpFinishedAnimation(this.previous);
       this.previous = this.playing;
       this.playing = null;
     }
 
-    this.playing = new ManagedAnimation(clonedAnimationOption, transitionDuration, options);
+    if (newAnimationName.type === AnimationType.Baked) {
+      let newAnimationGroupOption = this.getBakedAnimationGroupByName(newAnimationName.name);
+      // alternatives to some missing animations
+      if (newAnimationGroupOption === undefined) {
+        const fallbackName = this.getFallbackBakedAnimationName(newAnimationName.name);
+        console.log("fallbackName: ", fallbackName);
+        if (fallbackName) newAnimationGroupOption = this.getBakedAnimationGroupByName(fallbackName);
+      }
 
-    if (clonedAnimationOption) {
-      if (options.animationDurationOverrideOption) {
-        const animationStockDuration = clonedAnimationOption.getLength() * 1000;
-        const speedModifier =
-          animationStockDuration / (options.animationDurationOverrideOption ?? 1);
+      const clonedAnimationOption = this.cloneAnimationOption(newAnimationGroupOption);
 
-        clonedAnimationOption.start(options.shouldLoop, speedModifier);
-      } else clonedAnimationOption.start(options.shouldLoop);
+      if (clonedAnimationOption === null) {
+        // send message to client with timout duration to remove itself
+        setDebugMessage(
+          this.characterModel.entityId,
+          `Missing animation: ${newAnimationName}`,
+          MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME
+        );
+      }
+
+      this.playing = new ManagedAnimation(clonedAnimationOption, transitionDuration, options);
+
+      if (clonedAnimationOption) {
+        if (options.animationDurationOverrideOption) {
+          const animationStockDuration = clonedAnimationOption.getLength() * 1000;
+          const speedModifier =
+            animationStockDuration / (options.animationDurationOverrideOption ?? 1);
+
+          clonedAnimationOption.start(options.shouldLoop, speedModifier);
+        } else clonedAnimationOption.start(options.shouldLoop);
+      }
+    } else {
+      // handle dynamic animation
+      console.log("dynamic animation ");
     }
   }
 
@@ -158,8 +166,8 @@ export class AnimationManager {
     }
   }
 
-  getAnimationGroupByName(animationName: AnimationName) {
-    const asString = ANIMATION_NAME_STRINGS[animationName];
+  getBakedAnimationGroupByName(bakedAnimationName: BakedAnimationName) {
+    const asString = BAKED_ANIMATION_NAME_STRINGS[bakedAnimationName];
     const { skeleton } = this.characterModel;
     for (let index = 0; index < skeleton.animationGroups.length; index++) {
       if (!skeleton.animationGroups[index]) continue;
@@ -178,10 +186,10 @@ export class AnimationManager {
     // }
   }
 
-  getFallbackAnimationName(animationName: AnimationName) {
+  getFallbackBakedAnimationName(animationName: BakedAnimationName) {
     // if (animationName === AnimationName.MeleeOffHand) return AnimationName.MeleeMainHand;
-    if (animationName === AnimationName.MoveBack) return AnimationName.MoveForward;
-    if (animationName === AnimationName.Idle) return AnimationName.MoveForward;
+    if (animationName === BakedAnimationName.MoveBack) return BakedAnimationName.MoveForward;
+    if (animationName === BakedAnimationName.Idle) return BakedAnimationName.MoveForward;
   }
 
   static setAnimationEndCallback(animationGroup: AnimationGroup, callback: () => void) {

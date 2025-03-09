@@ -1,5 +1,6 @@
 import {
-  AnimationName,
+  AnimationType,
+  BakedAnimationName,
   CombatantProperties,
   ERROR_MESSAGES,
   HP_CHANGE_SOURCE_CATEGORY_STRINGS,
@@ -104,28 +105,37 @@ export function induceHitRecovery(
         )
       );
 
-      targetModel.animationManager.startAnimationWithTransition(AnimationName.Death, 0, {
-        shouldLoop: false,
-        animationDurationOverrideOption: null,
-        animationEventOption: null,
-        onComplete: () => {
-          targetModel.animationManager.locked = true;
-        },
-      });
-    } else if (hpChange.value < 0) {
-      const hasCritRecoveryAnimation = targetModel.animationManager.getAnimationGroupByName(
-        AnimationName.HitRecovery
+      targetModel.animationManager.startAnimationWithTransition(
+        { type: AnimationType.Baked, name: BakedAnimationName.Death },
+        0,
+        {
+          shouldLoop: false,
+          animationDurationOverrideOption: null,
+          animationEventOption: null,
+          onComplete: () => {
+            targetModel.animationManager.locked = true;
+          },
+        }
       );
-      let animationName = AnimationName.HitRecovery;
-      if (hpChange.isCrit && hasCritRecoveryAnimation) animationName = AnimationName.CritRecovery;
-      if (wasBlocked) animationName = AnimationName.Block;
+    } else if (hpChange.value < 0) {
+      const hasCritRecoveryAnimation = targetModel.animationManager.getBakedAnimationGroupByName(
+        BakedAnimationName.HitRecovery
+      );
+      let animationName = BakedAnimationName.HitRecovery;
+      if (hpChange.isCrit && hasCritRecoveryAnimation)
+        animationName = BakedAnimationName.CritRecovery;
+      if (wasBlocked) animationName = BakedAnimationName.Block;
 
-      targetModel.animationManager.startAnimationWithTransition(animationName, 0, {
-        shouldLoop: false,
-        animationDurationOverrideOption: null,
-        animationEventOption: null,
-        onComplete: () => {},
-      });
+      targetModel.animationManager.startAnimationWithTransition(
+        { type: AnimationType.Baked, name: animationName },
+        0,
+        {
+          shouldLoop: false,
+          animationDurationOverrideOption: null,
+          animationEventOption: null,
+          onComplete: () => {},
+        }
+      );
     }
 
     if (!combatantWasAliveBeforeHpChange && combatantProperties.hitPoints > 0) {

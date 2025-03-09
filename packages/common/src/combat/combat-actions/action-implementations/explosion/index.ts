@@ -30,7 +30,12 @@ import {
 import { MagicalElement } from "../../../magical-elements.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
 import { CombatActionHpChangeProperties } from "../../combat-action-hp-change-properties.js";
-import { AnimationName, BASE_CRIT_CHANCE, BASE_CRIT_MULTIPLIER } from "../../../../app-consts.js";
+import {
+  AnimationType,
+  BASE_CRIT_CHANCE,
+  BASE_CRIT_MULTIPLIER,
+  DynamicAnimationName,
+} from "../../../../app-consts.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { MobileVfxName, VfxType } from "../../../../vfx/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
@@ -62,11 +67,11 @@ const config: CombatActionComponentConfig = {
   getActionStepAnimations: (combatantContext: CombatantContext) => {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Delivery]: {
-        name: AnimationName.Explosion,
+        name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDelivery },
         timing: { type: AnimationTimingType.Timed, duration: 1200 },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
-        name: AnimationName.FiredArrowRecovery,
+        name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDissipation },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
         // timing: { type: AnimationTimingType.Timed, duration: 3000 },
       },

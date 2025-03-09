@@ -8,7 +8,8 @@ import {
   TargetingScheme,
 } from "../../index.js";
 import {
-  AnimationName,
+  AnimationType,
+  BakedAnimationName,
   DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
   OFF_HAND_ACCURACY_MODIFIER,
   OFF_HAND_CRIT_CHANCE_MODIFIER,
@@ -94,24 +95,27 @@ const config: CombatActionComponentConfig = {
   getActionStepAnimations: (combatantContext: CombatantContext) => {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {
-        name: AnimationName.MoveForward,
+        name: { type: AnimationType.Baked, name: BakedAnimationName.MoveForward },
         timing: { type: AnimationTimingType.Looping },
       },
       [CombatActionAnimationPhase.Chambering]: null,
       [CombatActionAnimationPhase.Delivery]: {
-        name: AnimationName.MeleeOffHandDelivery,
+        name: { type: AnimationType.Baked, name: BakedAnimationName.MeleeOffHandDelivery },
         timing: { type: AnimationTimingType.Timed, duration: 1200 },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
-        name: AnimationName.MeleeOffHandRecoverySuccess,
+        name: { type: AnimationType.Baked, name: BakedAnimationName.MeleeOffHandRecoverySuccess },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },
       [CombatActionAnimationPhase.RecoveryInterrupted]: {
-        name: AnimationName.MeleeOffHandRecoveryInterrupted,
+        name: {
+          type: AnimationType.Baked,
+          name: BakedAnimationName.MeleeOffHandRecoveryInterrupted,
+        },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },
       [CombatActionAnimationPhase.Final]: {
-        name: AnimationName.MoveBack,
+        name: { type: AnimationType.Baked, name: BakedAnimationName.MoveBack },
         timing: { type: AnimationTimingType.Looping },
       },
     };

@@ -6,7 +6,7 @@ import {
   CombatActionName,
   HitPointChanges,
 } from "../combat/index.js";
-import { AnimationName } from "../app-consts.js";
+import { TaggedAnimationName } from "../app-consts.js";
 import { ActionResolutionStepType } from "./action-steps/index.js";
 import { Combatant } from "../combatants/index.js";
 import { Vfx } from "../vfx/index.js";
@@ -66,7 +66,7 @@ export enum AnimationTimingType {
 export type LoopingAnimation = { type: AnimationTimingType.Looping };
 export type TimedAnimation = { type: AnimationTimingType.Timed; duration: Milliseconds };
 export type AnimationTiming = LoopingAnimation | TimedAnimation;
-export type EntityAnimation = { name: AnimationName; timing: AnimationTiming };
+export type EntityAnimation = { name: TaggedAnimationName; timing: AnimationTiming };
 
 export type SpawnEntityGameUpdateCommand = {
   type: GameUpdateCommandType.SpawnEntity;

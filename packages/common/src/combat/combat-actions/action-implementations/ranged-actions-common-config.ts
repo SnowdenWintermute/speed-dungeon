@@ -3,7 +3,6 @@ import {
   CombatActionAnimationPhase,
   CombatActionCombatantAnimations,
 } from "../combat-action-animations.js";
-import { AnimationName } from "../../../app-consts.js";
 import { CombatActionRequiredRange } from "../combat-action-range.js";
 import { AnimationTimingType } from "../../../action-processing/game-update-commands.js";
 import { COMMON_DESTINATION_GETTERS } from "./common-destination-getters.js";
@@ -20,6 +19,7 @@ import {
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { CombatActionComponent } from "../index.js";
 import { ActionAccuracy, ActionAccuracyType } from "../combat-action-accuracy.js";
+import { AnimationType, BakedAnimationName } from "../../../app-consts.js";
 
 export const RANGED_ACTIONS_COMMON_CONFIG = {
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
@@ -45,30 +45,30 @@ export const RANGED_ACTIONS_COMMON_CONFIG = {
   getActionStepAnimations: (combatantContext: CombatantContext) => {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {
-        name: AnimationName.MoveForward,
+        name: { type: AnimationType.Baked, name: BakedAnimationName.MoveForward },
         timing: { type: AnimationTimingType.Looping },
       },
       [CombatActionAnimationPhase.Chambering]: {
-        name: AnimationName.DrawArrow,
+        name: { type: AnimationType.Baked, name: BakedAnimationName.DrawArrow },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
         // timing: { type: AnimationTimingType.Timed, duration: 3000 },
       },
       [CombatActionAnimationPhase.Delivery]: {
-        name: AnimationName.KnockPullReleaseArrow,
+        name: { type: AnimationType.Baked, name: BakedAnimationName.KnockPullReleaseArrow },
         timing: { type: AnimationTimingType.Timed, duration: 1200 },
         // timing: { type: AnimationTimingType.Timed, duration: 3200 },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
-        name: AnimationName.FiredArrowRecovery,
+        name: { type: AnimationType.Baked, name: BakedAnimationName.FiredArrowRecovery },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
         // timing: { type: AnimationTimingType.Timed, duration: 3000 },
       },
       [CombatActionAnimationPhase.RecoveryInterrupted]: {
-        name: AnimationName.FiredArrowRecovery,
+        name: { type: AnimationType.Baked, name: BakedAnimationName.FiredArrowRecovery },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },
       [CombatActionAnimationPhase.Final]: {
-        name: AnimationName.MoveBack,
+        name: { type: AnimationType.Baked, name: BakedAnimationName.MoveBack },
         timing: { type: AnimationTimingType.Looping },
       },
     };

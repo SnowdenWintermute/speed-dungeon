@@ -1,6 +1,4 @@
 import { Vector3 } from "@babylonjs/core";
-import { ANIMATION_NAME_STRINGS } from "../app-consts.js";
-import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "../combat/index.js";
 import { SequentialIdGenerator } from "../utils/index.js";
 import { ACTION_RESOLUTION_STEP_TYPE_STRINGS } from "./action-steps/index.js";
 import {

@@ -1,6 +1,5 @@
 import {
   AbstractMesh,
-  Bone,
   BoundingInfo,
   Color4,
   ISceneLoaderAsyncResult,
@@ -20,8 +19,9 @@ import {
 import { ModularCharacterPartCategory } from "./modular-character-parts";
 import { GameWorld } from "../../game-world";
 import {
-  ANIMATION_NAME_STRINGS,
-  AnimationName,
+  AnimationType,
+  BAKED_ANIMATION_NAME_STRINGS,
+  BakedAnimationName,
   CombatantClass,
   DEFAULT_HITBOX_RADIUS_FALLBACK,
   ERROR_MESSAGES,
@@ -152,7 +152,10 @@ export class ModularCharacter {
     //     transitionMs
     //   );
     // } else
-    this.animationManager.startAnimationWithTransition(AnimationName.Idle, transitionMs);
+    this.animationManager.startAnimationWithTransition(
+      { type: AnimationType.Baked, name: BakedAnimationName.Idle },
+      transitionMs
+    );
   }
 
   setUpDebugMeshes = setUpDebugMeshes;
@@ -231,9 +234,9 @@ export class ModularCharacter {
 
     if (
       this.animationManager.playing?.animationGroupOption?.name ===
-        ANIMATION_NAME_STRINGS[AnimationName.Idle] ||
+        BAKED_ANIMATION_NAME_STRINGS[BakedAnimationName.Idle] ||
       this.animationManager.playing?.animationGroupOption?.name ===
-        ANIMATION_NAME_STRINGS[AnimationName.IdleGripping]
+        BAKED_ANIMATION_NAME_STRINGS[BakedAnimationName.IdleGripping]
     ) {
       this.startIdleAnimation(500);
     }
@@ -259,9 +262,9 @@ export class ModularCharacter {
 
     if (
       this.animationManager.playing?.animationGroupOption?.name ===
-        ANIMATION_NAME_STRINGS[AnimationName.Idle] ||
+        BAKED_ANIMATION_NAME_STRINGS[BakedAnimationName.Idle] ||
       this.animationManager.playing?.animationGroupOption?.name ===
-        ANIMATION_NAME_STRINGS[AnimationName.IdleGripping]
+        BAKED_ANIMATION_NAME_STRINGS[BakedAnimationName.IdleGripping]
     ) {
       this.startIdleAnimation(500);
     }

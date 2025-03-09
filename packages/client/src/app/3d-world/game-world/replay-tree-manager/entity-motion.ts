@@ -1,6 +1,7 @@
 import {
-  AnimationName,
   AnimationTimingType,
+  AnimationType,
+  BakedAnimationName,
   ERROR_MESSAGES,
   EntityMotionGameUpdateCommand,
   MobileVfxName,
@@ -68,7 +69,10 @@ export function entityMotionGameUpdateHandler(update: {
       }
 
       if (animationManager && command.idleOnComplete)
-        animationManager.startAnimationWithTransition(AnimationName.Idle, 500);
+        animationManager.startAnimationWithTransition(
+          { type: AnimationType.Baked, name: BakedAnimationName.Idle },
+          500
+        );
     });
   } else {
     translationIsComplete = true;
@@ -93,7 +97,10 @@ export function entityMotionGameUpdateHandler(update: {
           update.isComplete = true;
 
           if (command.idleOnComplete)
-            animationManager.startAnimationWithTransition(AnimationName.Idle, 500);
+            animationManager.startAnimationWithTransition(
+              { type: AnimationType.Baked, name: BakedAnimationName.Idle },
+              500
+            );
         }
       },
     };
