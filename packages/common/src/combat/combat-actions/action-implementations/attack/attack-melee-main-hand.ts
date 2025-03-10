@@ -8,7 +8,7 @@ import {
 } from "../../index.js";
 import {
   AnimationType,
-  BakedAnimationName,
+  SkeletalAnimationName,
   DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
 } from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
@@ -63,27 +63,30 @@ const config: CombatActionComponentConfig = {
   getActionStepAnimations: (combatantContext: CombatantContext) => {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {
-        name: { type: AnimationType.Baked, name: BakedAnimationName.MoveForward },
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForward },
         timing: { type: AnimationTimingType.Looping },
       },
       [CombatActionAnimationPhase.Chambering]: null,
       [CombatActionAnimationPhase.Delivery]: {
-        name: { type: AnimationType.Baked, name: BakedAnimationName.MeleeMainHandDelivery },
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MeleeMainHandDelivery },
         timing: { type: AnimationTimingType.Timed, duration: 1200 },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
-        name: { type: AnimationType.Baked, name: BakedAnimationName.MeleeMainHandRecoverySuccess },
+        name: {
+          type: AnimationType.Skeletal,
+          name: SkeletalAnimationName.MeleeMainHandRecoverySuccess,
+        },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },
       [CombatActionAnimationPhase.RecoveryInterrupted]: {
         name: {
-          type: AnimationType.Baked,
-          name: BakedAnimationName.MeleeMainHandRecoveryInterrupted,
+          type: AnimationType.Skeletal,
+          name: SkeletalAnimationName.MeleeMainHandRecoveryInterrupted,
         },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },
       [CombatActionAnimationPhase.Final]: {
-        name: { type: AnimationType.Baked, name: BakedAnimationName.MoveBack },
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveBack },
         timing: { type: AnimationTimingType.Looping },
       },
     };

@@ -17,6 +17,7 @@ import { disposeAsyncLoadedScene, importMesh } from "../utils";
 import { ModelMovementManager } from "../model-movement-manager";
 import { gameWorld } from "../SceneManager";
 import { MOBILE_VFX_NAME_TO_MODEL_PATH } from "./vfx-model-paths";
+import { AnimationManager } from "../combatant-models/animation-manager";
 
 export class VfxManager {
   mobile: { [id: EntityId]: MobileVfxModel } = {};
@@ -49,6 +50,7 @@ export class VfxModel {
 
 export class MobileVfxModel extends VfxModel {
   public movementManager: ModelMovementManager;
+  // public animationManager: AnimationManager
   constructor(
     id: EntityId,
     scene: ISceneLoaderAsyncResult,
@@ -59,6 +61,7 @@ export class MobileVfxModel extends VfxModel {
     if (!transformNode) throw new Error("Expected transform node was missing in scene");
     super(id, scene, transformNode);
     this.movementManager = new ModelMovementManager(this.transformNode);
+    // this.animationManager = new AnimationManager()
     console.log("INSTANTLY MOVING TO ", startPosition, MOBILE_VFX_NAME_STRINGS[name]);
     this.movementManager.instantlyMove(startPosition);
   }

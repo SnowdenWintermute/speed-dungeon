@@ -1,6 +1,5 @@
 import {
-  AnimationType,
-  BakedAnimationName,
+  SkeletalAnimationName,
   CombatantProperties,
   ERROR_MESSAGES,
   HP_CHANGE_SOURCE_CATEGORY_STRINGS,
@@ -105,37 +104,29 @@ export function induceHitRecovery(
         )
       );
 
-      targetModel.animationManager.startAnimationWithTransition(
-        { type: AnimationType.Baked, name: BakedAnimationName.Death },
-        0,
-        {
-          shouldLoop: false,
-          animationDurationOverrideOption: null,
-          animationEventOption: null,
-          onComplete: () => {
-            targetModel.animationManager.locked = true;
-          },
-        }
-      );
+      targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Death, 0, {
+        shouldLoop: false,
+        animationDurationOverrideOption: null,
+        animationEventOption: null,
+        onComplete: () => {
+          targetModel.animationManager.locked = true;
+        },
+      });
     } else if (hpChange.value < 0) {
-      const hasCritRecoveryAnimation = targetModel.animationManager.getBakedAnimationGroupByName(
-        BakedAnimationName.HitRecovery
+      const hasCritRecoveryAnimation = targetModel.animationManager.getAnimationGroupByName(
+        SkeletalAnimationName.HitRecovery
       );
-      let animationName = BakedAnimationName.HitRecovery;
+      let animationName = SkeletalAnimationName.HitRecovery;
       if (hpChange.isCrit && hasCritRecoveryAnimation)
-        animationName = BakedAnimationName.CritRecovery;
-      if (wasBlocked) animationName = BakedAnimationName.Block;
+        animationName = SkeletalAnimationName.CritRecovery;
+      if (wasBlocked) animationName = SkeletalAnimationName.Block;
 
-      targetModel.animationManager.startAnimationWithTransition(
-        { type: AnimationType.Baked, name: animationName },
-        0,
-        {
-          shouldLoop: false,
-          animationDurationOverrideOption: null,
-          animationEventOption: null,
-          onComplete: () => {},
-        }
-      );
+      targetModel.animationManager.startAnimationWithTransition(animationName, 0, {
+        shouldLoop: false,
+        animationDurationOverrideOption: null,
+        animationEventOption: null,
+        onComplete: () => {},
+      });
     }
 
     if (!combatantWasAliveBeforeHpChange && combatantProperties.hitPoints > 0) {

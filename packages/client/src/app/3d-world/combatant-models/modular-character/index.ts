@@ -20,8 +20,8 @@ import { ModularCharacterPartCategory } from "./modular-character-parts";
 import { GameWorld } from "../../game-world";
 import {
   AnimationType,
-  BAKED_ANIMATION_NAME_STRINGS,
-  BakedAnimationName,
+  SKELETAL_ANIMATION_NAME_STRINGS,
+  SkeletalAnimationName,
   CombatantClass,
   DEFAULT_HITBOX_RADIUS_FALLBACK,
   ERROR_MESSAGES,
@@ -44,6 +44,7 @@ import { spawnItemModel } from "../../item-models/spawn-item-model";
 import { HighlightManager } from "./highlight-manager";
 import { ModelMovementManager } from "../../model-movement-manager";
 import { SKELETON_ARMATURE_NAMES, SKELETON_STRUCTURE_TYPE } from "./skeleton-structure-variables";
+import { SkeletalAnimationManager } from "../animation-manager/skeletal-animation-manager";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -77,7 +78,7 @@ export class ModularCharacter {
   };
   isInMeleeRangeOfTarget: boolean = false;
   movementManager: ModelMovementManager;
-  animationManager: AnimationManager;
+  animationManager: SkeletalAnimationManager;
   highlightManager: HighlightManager = new HighlightManager(this);
   debugMeshes: Mesh[] | null = null;
 
@@ -93,7 +94,7 @@ export class ModularCharacter {
     startPosition: Vector3 = Vector3.Zero(),
     startRotation: number = 0
   ) {
-    this.animationManager = new AnimationManager(this);
+    this.animationManager = new SkeletalAnimationManager(this);
     this.startIdleAnimation(0);
 
     // get rid of the placeholder mesh (usually a simple quad or tri) which
@@ -146,16 +147,7 @@ export class ModularCharacter {
   }
 
   startIdleAnimation(transitionMs: number) {
-    // if (Object.keys(this.equipment.holdables).length && ANIMATION_NAMES.IDLE_GRIPPING) {
-    //   this.animationManager.startAnimationWithTransition(
-    //     ANIMATION_NAMES.IDLE_GRIPPING,
-    //     transitionMs
-    //   );
-    // } else
-    this.animationManager.startAnimationWithTransition(
-      { type: AnimationType.Baked, name: BakedAnimationName.Idle },
-      transitionMs
-    );
+    this.animationManager.startAnimationWithTransition(SkeletalAnimationName.Idle, transitionMs);
   }
 
   setUpDebugMeshes = setUpDebugMeshes;
@@ -234,9 +226,9 @@ export class ModularCharacter {
 
     if (
       this.animationManager.playing?.animationGroupOption?.name ===
-        BAKED_ANIMATION_NAME_STRINGS[BakedAnimationName.Idle] ||
+        SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.Idle] ||
       this.animationManager.playing?.animationGroupOption?.name ===
-        BAKED_ANIMATION_NAME_STRINGS[BakedAnimationName.IdleGripping]
+        SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleGripping]
     ) {
       this.startIdleAnimation(500);
     }
@@ -262,9 +254,9 @@ export class ModularCharacter {
 
     if (
       this.animationManager.playing?.animationGroupOption?.name ===
-        BAKED_ANIMATION_NAME_STRINGS[BakedAnimationName.Idle] ||
+        SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.Idle] ||
       this.animationManager.playing?.animationGroupOption?.name ===
-        BAKED_ANIMATION_NAME_STRINGS[BakedAnimationName.IdleGripping]
+        SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleGripping]
     ) {
       this.startIdleAnimation(500);
     }

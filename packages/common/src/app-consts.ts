@@ -129,7 +129,7 @@ export const SKY_COLORS_BY_FLOOR: Record<DungeonFloor, string> = {
 
 export const ONE_THIRD_OF_ONE = 1 / 3;
 
-export enum BakedAnimationName {
+export enum SkeletalAnimationName {
   MoveForward,
   MoveBack,
   Idle,
@@ -159,29 +159,29 @@ export enum DynamicAnimationName {
   ExplosionDissipation,
 }
 
-export const BAKED_ANIMATION_NAME_STRINGS: Record<BakedAnimationName, string> = {
-  [BakedAnimationName.MoveForward]: "move-forward",
-  [BakedAnimationName.MoveBack]: "move-back",
-  [BakedAnimationName.Idle]: "idle",
-  [BakedAnimationName.IdleGripping]: "idle-sword",
-  [BakedAnimationName.Death]: "death",
-  [BakedAnimationName.HitRecovery]: "hit-recovery",
-  [BakedAnimationName.CritRecovery]: "crit-recovery",
-  [BakedAnimationName.Ready]: "ready",
-  [BakedAnimationName.Evade]: "evade",
-  [BakedAnimationName.Parry]: "Parry",
-  [BakedAnimationName.Block]: "Block",
-  [BakedAnimationName.MeleeMainHandDelivery]: "melee-attack",
-  [BakedAnimationName.MeleeMainHandRecoverySuccess]: "cast-spell",
-  [BakedAnimationName.MeleeMainHandRecoveryInterrupted]: "death",
-  [BakedAnimationName.MeleeOffHandDelivery]: "melee-attack-offhand",
-  [BakedAnimationName.MeleeOffHandRecoverySuccess]: "cast-spell",
-  [BakedAnimationName.MeleeOffHandRecoveryInterrupted]: "death",
-  [BakedAnimationName.CastSpell]: "cast-spell",
-  [BakedAnimationName.UseItem]: "use-item",
-  [BakedAnimationName.DrawArrow]: "shoot-arrow-chambering",
-  [BakedAnimationName.KnockPullReleaseArrow]: "shoot-arrow-delivery",
-  [BakedAnimationName.FiredArrowRecovery]: "shoot-arrow-recovery",
+export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, string> = {
+  [SkeletalAnimationName.MoveForward]: "move-forward",
+  [SkeletalAnimationName.MoveBack]: "move-back",
+  [SkeletalAnimationName.Idle]: "idle",
+  [SkeletalAnimationName.IdleGripping]: "idle-sword",
+  [SkeletalAnimationName.Death]: "death",
+  [SkeletalAnimationName.HitRecovery]: "hit-recovery",
+  [SkeletalAnimationName.CritRecovery]: "crit-recovery",
+  [SkeletalAnimationName.Ready]: "ready",
+  [SkeletalAnimationName.Evade]: "evade",
+  [SkeletalAnimationName.Parry]: "Parry",
+  [SkeletalAnimationName.Block]: "Block",
+  [SkeletalAnimationName.MeleeMainHandDelivery]: "melee-attack",
+  [SkeletalAnimationName.MeleeMainHandRecoverySuccess]: "cast-spell",
+  [SkeletalAnimationName.MeleeMainHandRecoveryInterrupted]: "death",
+  [SkeletalAnimationName.MeleeOffHandDelivery]: "melee-attack-offhand",
+  [SkeletalAnimationName.MeleeOffHandRecoverySuccess]: "cast-spell",
+  [SkeletalAnimationName.MeleeOffHandRecoveryInterrupted]: "death",
+  [SkeletalAnimationName.CastSpell]: "cast-spell",
+  [SkeletalAnimationName.UseItem]: "use-item",
+  [SkeletalAnimationName.DrawArrow]: "shoot-arrow-chambering",
+  [SkeletalAnimationName.KnockPullReleaseArrow]: "shoot-arrow-delivery",
+  [SkeletalAnimationName.FiredArrowRecovery]: "shoot-arrow-recovery",
 };
 
 export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string> = {
@@ -190,14 +190,17 @@ export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string
 };
 
 export enum AnimationType {
-  Baked,
+  Skeletal,
   Dynamic,
 }
 
-export type BakedAnimationIdentifier = { type: AnimationType.Baked; name: BakedAnimationName };
+export type SkeletalAnimationIdentifier = {
+  type: AnimationType.Skeletal;
+  name: SkeletalAnimationName;
+};
 export type DynamicAnimationIdentifier = {
   type: AnimationType.Dynamic;
   name: DynamicAnimationName;
 };
 
-export type TaggedAnimationName = BakedAnimationIdentifier | DynamicAnimationIdentifier;
+export type TaggedAnimationName = SkeletalAnimationIdentifier | DynamicAnimationIdentifier;

@@ -9,7 +9,7 @@ import {
 } from "../../index.js";
 import {
   AnimationType,
-  BakedAnimationName,
+  SkeletalAnimationName,
   DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
   OFF_HAND_ACCURACY_MODIFIER,
   OFF_HAND_CRIT_CHANCE_MODIFIER,
@@ -95,27 +95,30 @@ const config: CombatActionComponentConfig = {
   getActionStepAnimations: (combatantContext: CombatantContext) => {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {
-        name: { type: AnimationType.Baked, name: BakedAnimationName.MoveForward },
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForward },
         timing: { type: AnimationTimingType.Looping },
       },
       [CombatActionAnimationPhase.Chambering]: null,
       [CombatActionAnimationPhase.Delivery]: {
-        name: { type: AnimationType.Baked, name: BakedAnimationName.MeleeOffHandDelivery },
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MeleeOffHandDelivery },
         timing: { type: AnimationTimingType.Timed, duration: 1200 },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
-        name: { type: AnimationType.Baked, name: BakedAnimationName.MeleeOffHandRecoverySuccess },
+        name: {
+          type: AnimationType.Skeletal,
+          name: SkeletalAnimationName.MeleeOffHandRecoverySuccess,
+        },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },
       [CombatActionAnimationPhase.RecoveryInterrupted]: {
         name: {
-          type: AnimationType.Baked,
-          name: BakedAnimationName.MeleeOffHandRecoveryInterrupted,
+          type: AnimationType.Skeletal,
+          name: SkeletalAnimationName.MeleeOffHandRecoveryInterrupted,
         },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },
       [CombatActionAnimationPhase.Final]: {
-        name: { type: AnimationType.Baked, name: BakedAnimationName.MoveBack },
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveBack },
         timing: { type: AnimationTimingType.Looping },
       },
     };
