@@ -1,6 +1,5 @@
 import {
   AnimationTimingType,
-  AnimationType,
   SkeletalAnimationName,
   ERROR_MESSAGES,
   EntityMotionGameUpdateCommand,
@@ -8,13 +7,12 @@ import {
   SpawnableEntityType,
 } from "@speed-dungeon/common";
 import { ModelMovementManager } from "../../model-movement-manager";
-import {
-  AnimationManager,
-  ManagedAnimationOptions,
-} from "../../combatant-models/animation-manager";
+import { ManagedAnimationOptions } from "../../combatant-models/animation-manager";
 import { gameWorld } from "../../SceneManager";
 import { Vector3 } from "@babylonjs/core";
 import { plainToInstance } from "class-transformer";
+import { DynamicAnimationManager } from "../../combatant-models/animation-manager/dynamic-animation-manager";
+import { SkeletalAnimationManager } from "../../combatant-models/animation-manager/skeletal-animation-manager";
 
 export function entityMotionGameUpdateHandler(update: {
   command: EntityMotionGameUpdateCommand;
@@ -22,7 +20,7 @@ export function entityMotionGameUpdateHandler(update: {
 }) {
   const { command } = update;
   let movementManager: ModelMovementManager;
-  let animationManager: AnimationManager | undefined;
+  let animationManager: DynamicAnimationManager | SkeletalAnimationManager | undefined;
   const { entityId, translationOption, animationOption } = command;
 
   let destinationYOption: undefined | number;
@@ -70,7 +68,11 @@ export function entityMotionGameUpdateHandler(update: {
         }
       }
 
-      if (animationManager && command.idleOnComplete)
+      if (
+        animationManager &&
+        command.idleOnComplete &&
+        animationManager instanceof SkeletalAnimationManager
+      )
         animationManager.startAnimationWithTransition(SkeletalAnimationName.Idle, 500);
     });
   } else {
@@ -78,6 +80,7 @@ export function entityMotionGameUpdateHandler(update: {
   }
 
   if (animationOption && animationManager) {
+    if (!(animationManager instanceof SkeletalAnimationManager)) return;
     if (animationOption.timing.type === AnimationTimingType.Looping) animationIsComplete = true;
 
     const options: ManagedAnimationOptions = {
@@ -101,7 +104,7 @@ export function entityMotionGameUpdateHandler(update: {
       },
     };
     animationManager.startAnimationWithTransition(
-      animationOption.name.name,
+      animationOption.name.name as SkeletalAnimationName,
       command.instantTransition ? 0 : 500,
       options
     );

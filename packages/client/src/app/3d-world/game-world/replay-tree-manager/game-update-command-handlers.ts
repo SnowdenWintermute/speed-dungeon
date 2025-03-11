@@ -1,6 +1,7 @@
 import {
   ActivatedTriggersGameUpdateCommand,
   DurabilityChangesByEntityId,
+  DynamicAnimationName,
   ERROR_MESSAGES,
   EntityMotionGameUpdateCommand,
   Equipment,
@@ -8,6 +9,7 @@ import {
   HitOutcomesGameUpdateCommand,
   HitPointChanges,
   MOBILE_VFX_NAME_STRINGS,
+  MobileVfxName,
   ResourcesPaidGameUpdateCommand,
   SpawnEntityGameUpdateCommand,
   SpawnableEntityType,
@@ -132,6 +134,21 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       vfxProperties.name
     );
 
+    if (vfxProperties.name === MobileVfxName.Explosion)
+      vfxModel.animationManager.startAnimationWithTransition(
+        DynamicAnimationName.ExplosionDelivery,
+        0,
+        {
+          shouldLoop: false,
+          animationEventOption: null,
+          animationDurationOverrideOption: null,
+          onComplete: () => {
+            update.isComplete = true;
+          },
+        }
+      );
+    else update.isComplete = true;
+
     gameWorld.current.vfxManager.register(vfxModel);
 
     if (vfxProperties.parentOption) {
@@ -148,8 +165,6 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
         vfxModel.movementManager.transformNode.setPositionWithLocalVector(Vector3.Zero());
       }
     }
-
-    update.isComplete = true;
   },
   [GameUpdateCommandType.EndTurn]: function (arg: any): Promise<void | Error> {
     throw new Error("Function not implemented.");

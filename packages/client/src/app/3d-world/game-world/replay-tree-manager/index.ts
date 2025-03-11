@@ -1,5 +1,4 @@
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   EntityId,
   GAME_UPDATE_COMMAND_TYPE_STRINGS,
   GameUpdateCommand,

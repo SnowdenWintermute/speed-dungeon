@@ -8,9 +8,37 @@ import {
 } from "@speed-dungeon/common";
 import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
 
+export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
+  timeStarted: number = Date.now();
+  weight: number = 0;
+  eventCompleted: boolean = false;
+  constructor(
+    public animationGroupOption: null | AnimationGroup,
+    public transitionDuration: number = 0,
+    public options: ManagedAnimationOptions
+  ) {
+    super(animationGroupOption, transitionDuration, options);
+  }
+
+  setWeight(newWeight: number) {
+    this.weight = newWeight;
+    this.animationGroupOption?.setWeightForAllAnimatables(newWeight);
+  }
+
+  isCompleted() {
+    if (this.options.shouldLoop) return false;
+    const timeSinceStarted = Date.now() - this.timeStarted;
+    if (this.animationGroupOption) {
+      return timeSinceStarted >= Math.floor(this.animationGroupOption.getLength() * 1000);
+    } else {
+      return timeSinceStarted >= MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME;
+    }
+  }
+}
+
 export class SkeletalAnimationManager implements AnimationManager<AnimationGroup> {
-  playing: null | ManagedAnimation = null;
-  previous: null | ManagedAnimation = null;
+  playing: null | ManagedSkeletalAnimation = null;
+  previous: null | ManagedSkeletalAnimation = null;
   locked: boolean = false;
   constructor(public characterModel: ModularCharacter) {
     // stop default animation
@@ -56,7 +84,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       );
     }
 
-    this.playing = new ManagedAnimation(clonedAnimationOption, transitionDuration, options);
+    this.playing = new ManagedSkeletalAnimation(clonedAnimationOption, transitionDuration, options);
 
     if (clonedAnimationOption) {
       if (options.animationDurationOverrideOption) {
@@ -81,7 +109,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     if (this.previous) this.previous.setWeight(1 - this.playing.weight);
   }
 
-  cleanUpFinishedAnimation(managedAnimation: ManagedAnimation) {
+  cleanUpFinishedAnimation(managedAnimation: ManagedSkeletalAnimation) {
     const { animationEventOption, onComplete } = managedAnimation.options;
 
     managedAnimation.animationGroupOption?.stop();

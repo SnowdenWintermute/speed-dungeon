@@ -1,27 +1,74 @@
-import { AnimationGroup, ISceneLoaderAsyncResult } from "@babylonjs/core";
+import { ISceneLoaderAsyncResult } from "@babylonjs/core";
 import { AnimationManager, ManagedAnimation, ManagedAnimationOptions } from ".";
 import {
-  SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
-  MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
   DynamicAnimationName,
+  MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
 } from "@speed-dungeon/common";
-import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
+import cloneDeep from "lodash.clonedeep";
 
-export class DynamicAnimation {
+export abstract class DynamicAnimation {
+  protected timeStarted = Date.now();
+  public abstract name: string;
+  protected abstract duration: number;
   constructor() {}
+
+  getLength() {
+    return this.duration;
+  }
+
+  clone() {
+    console.log("cloning dynamic animation");
+    return cloneDeep(this);
+  }
+
+  start(shouldLoop: boolean, speedModifier?: number) {}
+
+  abstract animateScene(scene: ISceneLoaderAsyncResult): void;
+}
+
+export class ManagedDynamicAnimation extends ManagedAnimation<DynamicAnimation> {
+  timeStarted: number = Date.now();
+  weight: number = 0;
+  eventCompleted: boolean = false;
+  constructor(
+    public animationGroupOption: null | DynamicAnimation,
+    public transitionDuration: number = 0,
+    public options: ManagedAnimationOptions
+  ) {
+    super(animationGroupOption, transitionDuration, options);
+  }
+
+  setWeight(newWeight: number) {}
+
+  isCompleted() {
+    if (this.options.shouldLoop) return false;
+    const timeSinceStarted = Date.now() - this.timeStarted;
+    console.log(
+      "elapsed: ",
+      timeSinceStarted,
+      this.animationGroupOption?.getLength() || MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME
+    );
+
+    if (!this.animationGroupOption)
+      return timeSinceStarted >= MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME;
+
+    return timeSinceStarted >= Math.floor(this.animationGroupOption.getLength());
+  }
 }
 
 export class DynamicAnimationManager implements AnimationManager<DynamicAnimation> {
-  playing: null | ManagedAnimation = null;
-  previous: null | ManagedAnimation = null;
+  playing: null | ManagedDynamicAnimation = null;
+  previous: null | ManagedDynamicAnimation = null;
   locked: boolean = false;
   constructor(public scene: ISceneLoaderAsyncResult) {
     // stop default animation
   }
 
-  cloneAnimationOption(animationGroupOption: undefined | AnimationGroup): null | AnimationGroup {
-    return animationGroupOption?.clone(animationGroupOption.name, undefined, true) ?? null;
+  cloneAnimationOption(
+    animationGroupOption: undefined | DynamicAnimation
+  ): null | DynamicAnimation {
+    return animationGroupOption?.clone() ?? null;
   }
 
   startAnimationWithTransition(
@@ -41,25 +88,10 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
     }
 
     let newAnimationGroupOption = this.getAnimationGroupByName(newAnimationName);
-    // alternatives to some missing animations
-    if (newAnimationGroupOption === undefined) {
-      const fallbackName = this.getFallbackAnimationName(newAnimationName);
-      console.log("fallbackName: ", fallbackName);
-      if (fallbackName) newAnimationGroupOption = this.getAnimationGroupByName(fallbackName);
-    }
 
     const clonedAnimationOption = this.cloneAnimationOption(newAnimationGroupOption);
 
-    if (clonedAnimationOption === null) {
-      // send message to client with timout duration to remove itself
-      setDebugMessage(
-        this.characterModel.entityId,
-        `Missing animation: ${newAnimationName}`,
-        MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME
-      );
-    }
-
-    this.playing = new ManagedAnimation(clonedAnimationOption, transitionDuration, options);
+    this.playing = new ManagedDynamicAnimation(clonedAnimationOption, transitionDuration, options);
 
     if (clonedAnimationOption) {
       if (options.animationDurationOverrideOption) {
@@ -84,20 +116,9 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
     if (this.previous) this.previous.setWeight(1 - this.playing.weight);
   }
 
-  cleanUpFinishedAnimation(managedAnimation: ManagedAnimation) {
-    const { animationEventOption, onComplete } = managedAnimation.options;
-
-    managedAnimation.animationGroupOption?.stop();
-
-    if (animationEventOption && !managedAnimation.eventCompleted) {
-      animationEventOption.fn();
-    }
-
+  cleanUpFinishedAnimation(managedAnimation: ManagedDynamicAnimation) {
+    const { onComplete } = managedAnimation.options;
     onComplete();
-
-    if (managedAnimation.animationGroupOption)
-      // else causes memory leaks
-      managedAnimation.animationGroupOption?.dispose();
   }
 
   handleCompletedAnimations() {
@@ -110,28 +131,52 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
       this.cleanUpFinishedAnimation(this.playing);
       this.playing = null;
     }
-
-    if (this.playing === null && this.previous === null && !this.locked) {
-      console.log("no playing or previous animation");
-      // console.log("tried to start idle");
-      this.characterModel.startIdleAnimation(500); // circular ref
-    }
   }
 
-  getAnimationGroupByName(animationName: SkeletalAnimationName) {
-    const asString = SKELETAL_ANIMATION_NAME_STRINGS[animationName];
-    const { skeleton } = this.characterModel;
-    for (let index = 0; index < skeleton.animationGroups.length; index++) {
-      if (!skeleton.animationGroups[index]) continue;
-      if (skeleton.animationGroups[index]!.name === asString) {
-        return skeleton.animationGroups[index];
-      }
-    }
+  getAnimationGroupByName(animationName: DynamicAnimationName) {
+    return DYNAMIC_ANIMATION_CREATORS[animationName]();
   }
 
   getFallbackAnimationName(animationName: SkeletalAnimationName) {
-    // if (animationName === AnimationName.MeleeOffHand) return AnimationName.MeleeMainHand;
-    if (animationName === SkeletalAnimationName.MoveBack) return SkeletalAnimationName.MoveForward;
-    if (animationName === SkeletalAnimationName.Idle) return SkeletalAnimationName.MoveForward;
+    return undefined;
   }
 }
+
+export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string> = {
+  [DynamicAnimationName.ExplosionDelivery]: "explosion delivery",
+  [DynamicAnimationName.ExplosionDissipation]: "explosion delivery",
+};
+
+export class ExplosionDeliveryAnimation extends DynamicAnimation {
+  name = DYNAMIC_ANIMATION_NAME_STRINGS[DynamicAnimationName.ExplosionDelivery];
+  duration = 2000;
+  constructor() {
+    super();
+  }
+  animateScene(scene: ISceneLoaderAsyncResult) {
+    const parentMesh = scene.meshes[0];
+    if (!parentMesh) {
+      return console.error("expected mesh not found in dynamic animation");
+    }
+    const elapsed = Date.now() - this.timeStarted;
+    const percentCompleted = elapsed / this.duration;
+    console.log("percentCompleted: ", percentCompleted);
+    parentMesh.scaling = parentMesh.scaling.scale(1 + percentCompleted);
+  }
+}
+
+export class ExplosionDissipationAnimation extends DynamicAnimation {
+  name = DYNAMIC_ANIMATION_NAME_STRINGS[DynamicAnimationName.ExplosionDelivery];
+  duration = 2000;
+  constructor() {
+    super();
+  }
+  animateScene(scene: ISceneLoaderAsyncResult) {
+    //
+  }
+}
+
+export const DYNAMIC_ANIMATION_CREATORS: Record<DynamicAnimationName, () => DynamicAnimation> = {
+  [DynamicAnimationName.ExplosionDelivery]: () => new ExplosionDeliveryAnimation(),
+  [DynamicAnimationName.ExplosionDissipation]: () => new ExplosionDissipationAnimation(),
+};

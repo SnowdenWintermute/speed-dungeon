@@ -1,5 +1,4 @@
-import { AnimationGroup, AnimationEvent } from "@babylonjs/core";
-import { MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME } from "@speed-dungeon/common";
+import { AnimationEvent } from "@babylonjs/core";
 
 export type ManagedAnimationOptions = {
   shouldLoop: boolean;
@@ -8,47 +7,25 @@ export type ManagedAnimationOptions = {
   onComplete: () => void;
 };
 
-export class ManagedAnimation {
+export abstract class ManagedAnimation<T> {
   timeStarted: number = Date.now();
   weight: number = 0;
   animationEventOption: null | AnimationEvent = null;
   eventCompleted: boolean = false;
   constructor(
-    public animationGroupOption: null | AnimationGroup,
+    public animationGroupOption: null | T,
     public transitionDuration: number = 0,
     public options: ManagedAnimationOptions
-  ) {
-    const { animationEventOption } = options;
-    const animation = this.animationGroupOption?.targetedAnimations[0]?.animation;
-    if (animation && animationEventOption) {
-      const animationEvent = new AnimationEvent(animationEventOption.frame, () => {
-        animationEventOption.fn();
-        this.eventCompleted = true;
-      });
-      animationEvent.onlyOnce = true;
-      animation.addEvent(animationEvent);
-    }
-  }
+  ) {}
 
-  setWeight(newWeight: number) {
-    this.weight = newWeight;
-    this.animationGroupOption?.setWeightForAllAnimatables(newWeight);
-  }
+  abstract setWeight(newWeight: number): void;
 
-  isCompleted() {
-    if (this.options.shouldLoop) return false;
-    const timeSinceStarted = Date.now() - this.timeStarted;
-    if (this.animationGroupOption) {
-      return timeSinceStarted >= Math.floor(this.animationGroupOption.getLength() * 1000);
-    } else {
-      return timeSinceStarted >= MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME;
-    }
-  }
+  abstract isCompleted(): boolean;
 }
 
 export abstract class AnimationManager<T> {
-  playing: null | ManagedAnimation = null;
-  previous: null | ManagedAnimation = null;
+  playing: null | ManagedAnimation<T> = null;
+  previous: null | ManagedAnimation<T> = null;
   locked: boolean = false;
   constructor() {}
 
@@ -62,7 +39,7 @@ export abstract class AnimationManager<T> {
 
   abstract stepAnimationTransitionWeights(): Error | void;
 
-  abstract cleanUpFinishedAnimation(managedAnimation: ManagedAnimation): void;
+  abstract cleanUpFinishedAnimation(managedAnimation: ManagedAnimation<T>): void;
 
   abstract handleCompletedAnimations(): void;
 
