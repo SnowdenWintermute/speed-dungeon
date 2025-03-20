@@ -104,12 +104,6 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
     if (this.animationOption && this.animationOption.timing.type === AnimationTimingType.Timed)
       animationTimeRemaining = Math.max(0, this.animationOption.timing.duration - this.elapsed);
 
-    console.log(
-      COMBAT_ACTION_NAME_STRINGS[this.context.tracker.actionExecutionIntent.actionName],
-      "ANIMATION TIME REMAINING: ",
-      animationTimeRemaining
-    );
-
     return Math.max(animationTimeRemaining, translationTimeRemaining);
   }
 

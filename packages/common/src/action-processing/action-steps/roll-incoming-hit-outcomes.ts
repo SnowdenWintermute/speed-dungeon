@@ -26,7 +26,6 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
     super(stepType, context, gameUpdateCommand);
 
     this.context.tracker.hitOutcomes = hitOutcomesResult;
-    console.log("HITOUTCOMESRESULT", hitOutcomesResult);
 
     const { game, party } = this.context.combatantContext;
 

@@ -6,6 +6,7 @@ import {
 import { GameUpdateCommand, GameUpdateCommandType } from "../../game-update-commands.js";
 import {
   COMBAT_ACTIONS,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
   HitPointChanges,
   HpChange,
@@ -16,9 +17,14 @@ import { Combatant } from "../../../combatants/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { addHitOutcomeDurabilityChanges } from "./hit-outcome-durability-change-calculators.js";
-import { HitOutcome } from "../../../hit-outcome.js";
+import { HIT_OUTCOME_NAME_STRINGS, HitOutcome } from "../../../hit-outcome.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
-import { CombatantCondition } from "../../../combatants/combatant-conditions/index.js";
+import {
+  COMBATANT_CONDITION_NAME_STRINGS,
+  CombatantCondition,
+} from "../../../combatants/combatant-conditions/index.js";
+import { addConditionToUpdate } from "./add-condition-to-update.js";
+import { addRemovedConditionToUpdate } from "./add-triggered-condition-to-update.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
@@ -36,10 +42,13 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     const { party, combatant } = combatantContext;
     const { outcomeFlags, hitPointChanges } = tracker.hitOutcomes;
 
+    console.log("EvalOnHitOutcomeTriggers step for", COMBAT_ACTION_NAME_STRINGS[action.name]);
+
     const durabilityChanges = new DurabilityChangesByEntityId();
 
     for (const flag of iterateNumericEnum(HitOutcome)) {
       for (const combatantId of outcomeFlags[flag] || []) {
+        console.log("combatant flagged by outcome:", combatantId, HIT_OUTCOME_NAME_STRINGS[flag]);
         const combatantResult = AdventuringParty.getCombatant(party, combatantId);
         if (combatantResult instanceof Error) throw combatantResult;
         const targetCombatant = combatantResult;
@@ -59,25 +68,41 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         );
 
         if (flag === HitOutcome.Hit) {
-          // @TODO - apply new conditions
           const conditionsToApply = action.getAppliedConditions(context);
           console.log("conditionsToApply: ", conditionsToApply);
-          if (!conditionsToApply) return;
-          for (const condition of conditionsToApply)
-            CombatantCondition.applyToCombatant(condition, targetCombatant.combatantProperties);
-          for (const condition of conditionsToApply)
-            CombatantCondition.applyToCombatant(condition, targetCombatant.combatantProperties);
-
-          console.log("CONDITIONS APPLIED", targetCombatant.combatantProperties.conditions);
+          if (conditionsToApply)
+            for (const condition of conditionsToApply) {
+              CombatantCondition.applyToCombatant(condition, targetCombatant.combatantProperties);
+              addConditionToUpdate(
+                condition,
+                gameUpdateCommand,
+                targetCombatant.entityProperties.id,
+                HitOutcome.Hit
+              );
+            }
 
           // // @TODO -trigger on-hit conditions
           for (const condition of combatantResult.combatantProperties.conditions) {
+            console.log("has condition", COMBATANT_CONDITION_NAME_STRINGS[condition.name]);
             if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
 
             // ENVIRONMENT_COMBATANT is the "user" for actions that originate from no combatant in particular
-            const triggeredActions = condition.onTriggered(targetCombatant);
-            console.log("TRIGGERED: ", triggeredActions);
+            const { removedSelf, triggeredActions } = condition.onTriggered(targetCombatant);
             this.branchingActions.push(...triggeredActions);
+            console.log(
+              "triggered actions: ",
+              triggeredActions.map(
+                (action) => COMBAT_ACTION_NAME_STRINGS[action.actionExecutionIntent.actionName]
+              )
+            );
+
+            // add it to the update so the client can remove the triggered conditions if required
+            if (removedSelf)
+              addRemovedConditionToUpdate(
+                condition.id,
+                gameUpdateCommand,
+                targetCombatant.entityProperties.id
+              );
           }
         }
       }
@@ -161,8 +186,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
   getBranchingActions():
     | Error
     | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
-    console.log("BRANCHING");
-    console.log(this.branchingActions);
     return this.branchingActions;
   }
 }

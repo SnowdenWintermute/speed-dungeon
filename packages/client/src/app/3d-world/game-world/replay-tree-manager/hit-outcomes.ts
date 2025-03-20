@@ -28,6 +28,7 @@ export function hitOutcomesGameUpdateHandler(update: {
   const hitPointChanges = plainToInstance(HitPointChanges, outcomes.hitPointChanges);
 
   if (!gameWorld.current) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
+
   if (hitPointChanges) {
     for (const [entityId, hpChange] of hitPointChanges.getRecords()) {
       const wasBlocked = !!outcomeFlags[HitOutcome.ShieldBlock]?.includes(entityId);

@@ -1,17 +1,12 @@
 import {
-  CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
-  CombatActionExecutionIntent,
   CombatActionName,
   CombatActionUsabilityContext,
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
-import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
-import { ActionAccuracy } from "../../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
@@ -28,11 +23,10 @@ import { getAttackHpChangeProperties } from "./get-attack-hp-change-properties.j
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { PrimedForExplosionCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-explosion.js";
-import { MaxAndCurrent } from "../../../../primatives/max-and-current.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
-  description: "An arrow that bounces to up to two additional targets after the first",
+  description: "An arrow",
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.RandomCombatant },
@@ -71,16 +65,16 @@ const config: CombatActionComponentConfig = {
     return hpChangeProperties;
   },
   getAppliedConditions: (context) => {
-    const { idGenerator, combatantContext } = context;
-    const { combatant } = combatantContext;
-    // @TODO - determine based on equipment, ex: ice sword applies "cold" condition
+    // const { idGenerator, combatantContext } = context;
+    // const { combatant } = combatantContext;
+    // // @TODO - determine based on equipment, ex: ice sword applies "cold" condition
 
-    const primedForExplosionCondition = new PrimedForExplosionCombatantCondition(
-      idGenerator.generate(),
-      combatant.combatantProperties.level
-    );
-    // return [];
-    return [primedForExplosionCondition];
+    // const primedForExplosionCondition = new PrimedForExplosionCombatantCondition(
+    //   idGenerator.generate(),
+    //   combatant.combatantProperties.level
+    // );
+    return [];
+    // return [primedForExplosionCondition];
   },
   getChildren: (combatantContext, tracker) => [],
   getParent: () => ATTACK_RANGED_MAIN_HAND,

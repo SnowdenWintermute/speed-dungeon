@@ -1,6 +1,7 @@
 import { CombatantCondition, CombatantConditionName } from "./index.js";
 import { Combatant, ENVIRONMENT_COMBATANT } from "../index.js";
 import {
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
   CombatActionName,
 } from "../../combat/combat-actions/index.js";
@@ -17,7 +18,8 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
   ) {}
   onTick() {}
   triggeredWhenHitBy(actionName: CombatActionName) {
-    return true;
+    console.log("CHECKING FOR TRIGGER:", COMBAT_ACTION_NAME_STRINGS[actionName]);
+    return actionName !== CombatActionName.ExplodingArrowProjectile;
   }
   triggeredWhenActionUsed() {
     return false;
@@ -32,6 +34,11 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
       targetId: combatant.entityProperties.id,
     });
 
-    return [{ user: ENVIRONMENT_COMBATANT, actionExecutionIntent: explosionActionIntent }];
+    return {
+      removedSelf: true,
+      triggeredActions: [
+        { user: ENVIRONMENT_COMBATANT, actionExecutionIntent: explosionActionIntent },
+      ],
+    };
   }
 }

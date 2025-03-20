@@ -133,7 +133,6 @@ export class Equipment extends Item {
   }
 
   static changeDurability(equipment: Equipment, value: number) {
-    console.log("CHANGING ", equipment.entityProperties.name, "DURABILITY BY", value);
     if (Equipment.isIndestructable(equipment) || equipment.durability === null) return;
     equipment.durability.current = Math.max(0, equipment.durability.current + value);
   }

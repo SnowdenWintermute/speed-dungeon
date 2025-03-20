@@ -31,6 +31,8 @@ export function outfitNewCharacter(character: Combatant) {
   );
   combatantProperties.ownedActions[CombatActionName.ChainingSplitArrowParent] =
     new CombatantActionState(CombatActionName.ChainingSplitArrowParent);
+  combatantProperties.ownedActions[CombatActionName.ExplodingArrowParent] =
+    new CombatantActionState(CombatActionName.ExplodingArrowParent);
 
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
   if (baseStartingAttributesOption) {
@@ -164,7 +166,7 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   // combatantProperties.level = 5;
   // combatantProperties.unspentAttributePoints = 100;
   combatantProperties.inherentAttributes[CombatAttribute.Speed] = 5;
-  combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 100;
+  combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 10;
   // combatantProperties.inherentAttributes[CombatAttribute.Strength] = 100;
   // combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 100;
   // combatantProperties.inherentAttributes[CombatAttribute.Hp] = 1000;

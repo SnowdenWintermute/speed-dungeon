@@ -8,10 +8,11 @@ import {
 } from "../combat/index.js";
 import { TaggedAnimationName } from "../app-consts.js";
 import { ActionResolutionStepType } from "./action-steps/index.js";
-import { Combatant } from "../combatants/index.js";
+import { Combatant, CombatantCondition } from "../combatants/index.js";
 import { Vfx } from "../vfx/index.js";
 import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { DurabilityChangesByEntityId } from "../durability/index.js";
+import { HitOutcome } from "../hit-outcome.js";
 
 export enum GameUpdateCommandType {
   SpawnEntity,
@@ -102,6 +103,8 @@ export type ActivatedTriggersGameUpdateCommand = {
   completionOrderId: null | number;
   durabilityChanges?: DurabilityChangesByEntityId;
   hitPointChanges?: HitPointChanges;
+  appliedConditions?: Partial<Record<HitOutcome, Record<EntityId, CombatantCondition[]>>>;
+  removedConditionIds?: Record<EntityId, EntityId[]>;
 };
 
 export type HitOutcomesGameUpdateCommand = {

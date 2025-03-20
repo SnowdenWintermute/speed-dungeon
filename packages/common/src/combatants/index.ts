@@ -53,6 +53,7 @@ export * from "./get-combat-action-properties.js";
 export * from "./inventory/index.js";
 export * from "./update-home-position.js";
 export * from "./combatant-equipment/index.js";
+export * from "./combatant-conditions/index.js";
 
 export class Combatant {
   [immerable] = true;

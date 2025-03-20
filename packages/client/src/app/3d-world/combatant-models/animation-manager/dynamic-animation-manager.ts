@@ -1,9 +1,10 @@
-import { ISceneLoaderAsyncResult } from "@babylonjs/core";
+import { ISceneLoaderAsyncResult, Vector3 } from "@babylonjs/core";
 import { AnimationManager, ManagedAnimation, ManagedAnimationOptions } from ".";
 import {
   SkeletalAnimationName,
   DynamicAnimationName,
   MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
+  easeOut,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 
@@ -134,7 +135,7 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
   }
 
   getAnimationGroupByName(animationName: DynamicAnimationName) {
-    return DYNAMIC_ANIMATION_CREATORS[animationName]();
+    return DYNAMIC_ANIMATION_CREATORS[animationName](this.scene);
   }
 
   getFallbackAnimationName(animationName: SkeletalAnimationName) {
@@ -149,9 +150,15 @@ export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string
 
 export class ExplosionDeliveryAnimation extends DynamicAnimation {
   name = DYNAMIC_ANIMATION_NAME_STRINGS[DynamicAnimationName.ExplosionDelivery];
-  duration = 2000;
-  constructor() {
+  duration = 100;
+  originalScale: Vector3 = Vector3.One();
+  constructor(scene: ISceneLoaderAsyncResult) {
     super();
+    const parentMesh = scene.meshes[0];
+    if (parentMesh) {
+      this.originalScale = parentMesh.scaling;
+      console.log("set original scale: ", this.originalScale);
+    }
   }
   animateScene(scene: ISceneLoaderAsyncResult) {
     const parentMesh = scene.meshes[0];
@@ -160,23 +167,40 @@ export class ExplosionDeliveryAnimation extends DynamicAnimation {
     }
     const elapsed = Date.now() - this.timeStarted;
     const percentCompleted = elapsed / this.duration;
-    console.log("percentCompleted: ", percentCompleted);
-    parentMesh.scaling = parentMesh.scaling.scale(1 + percentCompleted);
+    parentMesh.scaling = parentMesh.scaling = this.originalScale.scale(1 + percentCompleted * 1.5);
   }
 }
 
 export class ExplosionDissipationAnimation extends DynamicAnimation {
   name = DYNAMIC_ANIMATION_NAME_STRINGS[DynamicAnimationName.ExplosionDelivery];
-  duration = 2000;
-  constructor() {
+  duration = 300;
+  originalScale: Vector3 = Vector3.One();
+  constructor(scene: ISceneLoaderAsyncResult) {
     super();
+    const parentMesh = scene.meshes[0];
+    if (parentMesh) {
+      this.originalScale = parentMesh.scaling;
+      console.log("set original scale: ", this.originalScale);
+    }
   }
   animateScene(scene: ISceneLoaderAsyncResult) {
-    //
+    const parentMesh = scene.meshes[0];
+    if (!parentMesh) {
+      return console.error("expected mesh not found in dynamic animation");
+    }
+    const elapsed = Date.now() - this.timeStarted;
+    const percentCompleted = elapsed / this.duration;
+    parentMesh.scaling = parentMesh.scaling = this.originalScale.scale(
+      1 + easeOut(percentCompleted) * 1.5
+    );
+    if (parentMesh.material) parentMesh.material.alpha = 1 - percentCompleted;
   }
 }
 
-export const DYNAMIC_ANIMATION_CREATORS: Record<DynamicAnimationName, () => DynamicAnimation> = {
-  [DynamicAnimationName.ExplosionDelivery]: () => new ExplosionDeliveryAnimation(),
-  [DynamicAnimationName.ExplosionDissipation]: () => new ExplosionDissipationAnimation(),
+export const DYNAMIC_ANIMATION_CREATORS: Record<
+  DynamicAnimationName,
+  (scene: ISceneLoaderAsyncResult) => DynamicAnimation
+> = {
+  [DynamicAnimationName.ExplosionDelivery]: (scene) => new ExplosionDeliveryAnimation(scene),
+  [DynamicAnimationName.ExplosionDissipation]: (scene) => new ExplosionDissipationAnimation(scene),
 };

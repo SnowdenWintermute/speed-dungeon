@@ -8,6 +8,11 @@ export enum CombatantConditionName {
   PrimedForExplosion,
 }
 
+export const COMBATANT_CONDITION_NAME_STRINGS: Record<CombatantConditionName, string> = {
+  [CombatantConditionName.Poison]: "Poison",
+  [CombatantConditionName.PrimedForExplosion]: "Detonatable",
+};
+
 export abstract class CombatantCondition {
   ticks?: MaxAndCurrent;
   level: number = 0;
@@ -34,9 +39,10 @@ export abstract class CombatantCondition {
   abstract triggeredWhenActionUsed(): boolean;
   //
 
-  abstract onTriggered(
-    combatant: Combatant
-  ): { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
+  abstract onTriggered(combatant: Combatant): {
+    removedSelf: boolean;
+    triggeredActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
+  };
   // examples:
   // - perform a composite combat action
   // - remove self - examples:

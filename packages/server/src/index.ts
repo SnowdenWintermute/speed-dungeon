@@ -51,8 +51,14 @@ const listening = expressApp.listen(PORT, async () => {
   const opponents = combatantContext.getOpponents();
   const firstOpponentOption = opponents[0];
   if (!firstOpponentOption) throw new Error("no targets");
+  const secondOpponentOption = opponents[0];
+  if (!firstOpponentOption) throw new Error("no targets");
 
   const targets: CombatActionTarget = {
+    type: CombatActionTargetType.Single,
+    targetId: firstOpponentOption.entityProperties.id,
+  };
+  const otherTargets: CombatActionTarget = {
     type: CombatActionTargetType.Single,
     targetId: firstOpponentOption.entityProperties.id,
   };
@@ -64,9 +70,19 @@ const listening = expressApp.listen(PORT, async () => {
   // console.log(JSON.stringify(combatantPositions, null, 2));
 
   const result = processCombatAction(
-    new CombatActionExecutionIntent(CombatActionName.AttackRangedMainhand, targets),
+    new CombatActionExecutionIntent(CombatActionName.ExplodingArrowParent, targets),
     combatantContext
   );
+  processCombatAction(
+    new CombatActionExecutionIntent(CombatActionName.ExplodingArrowParent, otherTargets),
+    combatantContext
+  );
+  console.log("ATTEMPTING TO SET OFF EXPLOSION CHAIN");
+  processCombatAction(
+    new CombatActionExecutionIntent(CombatActionName.AttackRangedMainhand, otherTargets),
+    combatantContext
+  );
+
   if (result instanceof Error) console.error(result);
   else {
     // console.log("REPLAY TREE: ");

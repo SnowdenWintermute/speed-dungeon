@@ -13,8 +13,10 @@ import {
   ResourcesPaidGameUpdateCommand,
   SpawnEntityGameUpdateCommand,
   SpawnableEntityType,
+  SpeedDungeonGame,
   VfxParentType,
   VfxType,
+  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 import { MobileVfxModel, spawnMobileVfxModel } from "../../vfx-models";
@@ -76,6 +78,36 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
             }
           }
         );
+      }
+
+      if (command.appliedConditions) {
+        for (const [hitOutcome, entityAppliedConditions] of iterateNumericEnumKeyedRecord(
+          command.appliedConditions
+        )) {
+          for (const [entityId, conditions] of Object.entries(entityAppliedConditions)) {
+            useGameStore.getState().mutateState((state) => {
+              const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+              if (combatantResult instanceof Error) return combatantResult;
+              combatantResult.combatantProperties.conditions.push(...conditions);
+            });
+          }
+        }
+      }
+
+      if (command.removedConditionIds) {
+        for (const [entityId, conditionIds] of Object.entries(command.removedConditionIds)) {
+          for (const conditionId of conditionIds) {
+            useGameStore.getState().mutateState((state) => {
+              const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+              if (combatantResult instanceof Error) return combatantResult;
+              console.log("removing condition with id", conditionId);
+              combatantResult.combatantProperties.conditions =
+                combatantResult.combatantProperties.conditions.filter(
+                  (condition) => condition.id !== conditionId
+                );
+            });
+          }
+        }
       }
     });
 
@@ -144,6 +176,10 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
           animationDurationOverrideOption: null,
           onComplete: () => {
             update.isComplete = true;
+            vfxModel.animationManager.startAnimationWithTransition(
+              DynamicAnimationName.ExplosionDissipation,
+              0
+            );
           },
         }
       );

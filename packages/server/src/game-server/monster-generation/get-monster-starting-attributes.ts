@@ -18,6 +18,9 @@ export function getMonsterStartingAttributes(monsterType: MonsterType): Combatan
       attributes[CombatAttribute.Vitality] = 2.0;
       attributes[CombatAttribute.Resilience] = 4.0;
       attributes[CombatAttribute.Hp] = 2.0;
+      // TESTING
+      attributes[CombatAttribute.Hp] = 150.0;
+      //
       attributes[CombatAttribute.Agility] = 0.5;
       attributes[CombatAttribute.Accuracy] = 60.0;
       attributes[CombatAttribute.Speed] = 1.0;
@@ -41,6 +44,8 @@ export function getMonsterStartingAttributes(monsterType: MonsterType): Combatan
       attributes[CombatAttribute.Strength] = 2.0;
       attributes[CombatAttribute.Vitality] = 1.5;
       attributes[CombatAttribute.Hp] = 1.0;
+      // TESTING
+      attributes[CombatAttribute.Hp] = 150.0;
       // attributes[CombatAttribute.Agility] = 1.0;
       attributes[CombatAttribute.Agility] = 2.0;
       attributes[CombatAttribute.Accuracy] = 80.0;

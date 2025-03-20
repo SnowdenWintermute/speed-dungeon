@@ -95,6 +95,7 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       },
     },
   };
+  mainhand.durability = { current: 10000, inherentMax: 10000 };
   // if(mainhand.tra)
   // mainhand.equipmentBaseItemProperties
 
