@@ -3,7 +3,11 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
+import {
+  COMBAT_ACTIONS,
+  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionExecutionIntent,
+} from "../../combat/index.js";
 import { Combatant } from "../../combatants/index.js";
 
 const stepType = ActionResolutionStepType.StartConcurrentSubActions;

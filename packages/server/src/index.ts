@@ -74,12 +74,7 @@ const listening = expressApp.listen(PORT, async () => {
     combatantContext
   );
   processCombatAction(
-    new CombatActionExecutionIntent(CombatActionName.ExplodingArrowParent, otherTargets),
-    combatantContext
-  );
-  console.log("ATTEMPTING TO SET OFF EXPLOSION CHAIN");
-  processCombatAction(
-    new CombatActionExecutionIntent(CombatActionName.AttackRangedMainhand, otherTargets),
+    new CombatActionExecutionIntent(CombatActionName.AttackRangedMainhand, targets),
     combatantContext
   );
 

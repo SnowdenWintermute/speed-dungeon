@@ -19,7 +19,7 @@ import CharacterModelDisplay from "@/app/character-model-display";
 import { useUIStore } from "@/stores/ui-store";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import LowDurabilityIndicators from "./LowDurabilityIndicators";
-import ConditionIndicators from "./ConditionIndicators";
+import ConditionIndicators from "./condition-indicators/";
 
 interface Props {
   combatant: Combatant;
@@ -81,7 +81,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
   const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties, {});
 
   const conditionIndicators = (styles: string) => (
-    <div className={`w-full h-6 p-1 ${styles}`}>
+    <div className={`w-full h-6 py-0.5 ${styles}`}>
       <ConditionIndicators conditions={combatant.combatantProperties.conditions} />
       <LowDurabilityIndicators isPlayerControlled={isPartyMember} equippedItems={equippedItems} />
     </div>

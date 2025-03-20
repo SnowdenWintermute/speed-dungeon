@@ -3,6 +3,7 @@ import {
   ActionResolutionStepType,
   ActionSequenceManagerRegistry,
   COMBAT_ACTIONS,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
   CombatantContext,
   CombatantMotionActionResolutionStep,
@@ -42,11 +43,19 @@ export function processCombatAction(
       gameUpdate: initialGameUpdateOptionResult,
     });
   }
+  let iteration = 0;
 
   while (registry.isNotEmpty()) {
+    iteration += 1;
     for (const sequenceManager of registry.getManagers()) {
       let trackerOption = sequenceManager.getCurrentTracker();
       if (!trackerOption) break;
+      console.log(
+        iteration,
+        "trackerOption: ",
+        COMBAT_ACTION_NAME_STRINGS[trackerOption.actionExecutionIntent.actionName],
+        sequenceManager.id
+      );
 
       let currentStep = trackerOption.currentStep;
 

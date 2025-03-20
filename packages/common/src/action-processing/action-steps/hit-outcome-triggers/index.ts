@@ -36,6 +36,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
       completionOrderId: null,
     };
     super(stepType, context, gameUpdateCommand);
+    console.log("creating new step, branchingactions: ", this.branchingActions);
     const { tracker, combatantContext } = this.context;
     const { actionExecutionIntent } = tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
@@ -88,13 +89,17 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
             // ENVIRONMENT_COMBATANT is the "user" for actions that originate from no combatant in particular
             const { removedSelf, triggeredActions } = condition.onTriggered(targetCombatant);
-            this.branchingActions.push(...triggeredActions);
             console.log(
               "triggered actions: ",
               triggeredActions.map(
                 (action) => COMBAT_ACTION_NAME_STRINGS[action.actionExecutionIntent.actionName]
-              )
+              ),
+              triggeredActions,
+              "triggered by: ",
+              COMBAT_ACTION_NAME_STRINGS[action.name]
             );
+
+            this.branchingActions.push(...triggeredActions);
 
             // add it to the update so the client can remove the triggered conditions if required
             if (removedSelf)
@@ -186,6 +191,17 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
   getBranchingActions():
     | Error
     | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
-    return this.branchingActions;
+    console.log(
+      "returning: ",
+      this.branchingActions.map(
+        (action) => COMBAT_ACTION_NAME_STRINGS[action.actionExecutionIntent.actionName]
+      )
+    );
+    const toReturn = this.branchingActions;
+    // @TODO - the fact that we have to set this to empty indicates a bug that we're not properly
+    // initializing this step somewhere. When it wasn't set to empty, this would still contain the previous
+    // triggered explosion
+    this.branchingActions = [];
+    return toReturn;
   }
 }

@@ -7,7 +7,6 @@ import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-command
 import { CombatActionExecutionIntent, calculateActionHitOutcomes } from "../../combat/index.js";
 import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { SpeedDungeonGame } from "../../game/index.js";
 
 const stepType = ActionResolutionStepType.RollIncomingHitOutcomes;
 export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutionStep {

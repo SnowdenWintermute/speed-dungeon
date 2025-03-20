@@ -13,6 +13,11 @@ export const COMBATANT_CONDITION_NAME_STRINGS: Record<CombatantConditionName, st
   [CombatantConditionName.PrimedForExplosion]: "Detonatable",
 };
 
+export const COMBATANT_CONDITION_DESCRIPTIONS: Record<CombatantConditionName, string> = {
+  [CombatantConditionName.Poison]: "Periodically takes damage",
+  [CombatantConditionName.PrimedForExplosion]: "Causes an explosion when hit by certain actions",
+};
+
 export abstract class CombatantCondition {
   ticks?: MaxAndCurrent;
   level: number = 0;
