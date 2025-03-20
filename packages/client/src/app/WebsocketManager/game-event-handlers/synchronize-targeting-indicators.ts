@@ -7,7 +7,12 @@ export function synchronizeTargetingIndicators(
   actionUserId: EntityId,
   targetIds: EntityId[]
 ) {
+  if (actionNameOption === null) {
+    gameState.targetingIndicators = [];
+    return [];
+  }
   const newIndicators = [];
+
   for (const indicator of gameState.targetingIndicators) {
     if (actionNameOption === null && indicator.targetedBy === actionUserId) continue;
     if (indicator.targetedBy === actionUserId && indicator.actionName !== actionNameOption)
@@ -16,7 +21,7 @@ export function synchronizeTargetingIndicators(
       continue;
     newIndicators.push(indicator);
   }
-  if (actionNameOption === null) return;
+
   for (const id of targetIds)
     newIndicators.push({ targetedBy: actionUserId, actionName: actionNameOption, targetId: id });
 

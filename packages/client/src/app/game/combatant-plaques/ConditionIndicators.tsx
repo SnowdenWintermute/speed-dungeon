@@ -8,10 +8,10 @@ interface Props {
 export default function ConditionIndicators(props: Props) {
   const { conditions } = props;
   return (
-    <div>
+    <ul>
       {conditions.map((condition, i) => (
         <li key={i}>"a"</li>
       ))}
-    </div>
+    </ul>
   );
 }

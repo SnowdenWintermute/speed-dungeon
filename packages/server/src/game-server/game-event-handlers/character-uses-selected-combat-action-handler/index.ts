@@ -44,5 +44,8 @@ export default async function useSelectedCombatActionHandler(
 
   gameServer.io
     .in(getPartyChannelName(game.name, party.name))
-    .emit(ServerToClientEvent.ActionResultReplayTree, { replayTree: replayTreeResult });
+    .emit(ServerToClientEvent.ActionResultReplayTree, {
+      actionUserId: character.entityProperties.id,
+      replayTree: replayTreeResult,
+    });
 }

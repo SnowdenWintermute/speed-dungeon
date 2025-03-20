@@ -181,6 +181,7 @@ export interface ServerToClientEventTypes {
     itemId: EntityId;
   }) => void;
   [ServerToClientEvent.ActionResultReplayTree]: (eventData: {
+    actionUserId: EntityId;
     replayTree: NestedNodeReplayEvent;
   }) => void;
 }

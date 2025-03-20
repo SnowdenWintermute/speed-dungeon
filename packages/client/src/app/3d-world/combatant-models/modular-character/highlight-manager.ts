@@ -117,14 +117,14 @@ export class HighlightManager {
   updateHighlight() {
     const partyResult = useGameStore.getState().getParty();
     if (!(partyResult instanceof Error)) {
-      const targetedBy = AdventuringParty.getIdsAndSelectedActionsOfCharactersTargetingCombatant(
-        partyResult,
-        this.modularCharacter.entityId
-      );
-      if (targetedBy instanceof Error) return;
-      if (targetedBy.length && !this.isHighlighted) {
+      const indicators = useGameStore
+        .getState()
+        .targetingIndicators.filter(
+          (indicator) => indicator.targetId === this.modularCharacter.entityId
+        );
+      if (indicators.length && !this.isHighlighted) {
         this.setHighlighted();
-      } else if (this.isHighlighted && !targetedBy.length) {
+      } else if (this.isHighlighted && !indicators.length) {
         this.removeHighlight();
       }
     }
