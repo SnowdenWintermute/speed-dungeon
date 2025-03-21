@@ -59,7 +59,7 @@ const config: CombatActionComponentConfig = {
   accuracyModifier: 1,
   incursDurabilityLoss: {},
   costBases: {},
-  userShouldMoveHomeOnComplete: true,
+  userShouldMoveHomeOnComplete: false,
   getResourceCosts: () => null,
   getExecutionTime: () => 300,
   requiresCombatTurn: () => true,
@@ -78,7 +78,7 @@ const config: CombatActionComponentConfig = {
     };
     return animations;
   },
-  getHpChangeProperties: () => {
+  getHpChangeProperties: (user) => {
     const hpChangeSourceConfig: HpChangeSourceConfig = {
       category: HpChangeSourceCategory.Physical,
       kineticDamageTypeOption: null,
@@ -87,13 +87,17 @@ const config: CombatActionComponentConfig = {
       lifestealPercentage: null,
     };
 
-    const baseValues = new NumberRange(1, 1);
+    const stacks = user.asTheEnvironment?.stacks || 1;
+
+    const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 2);
 
     const hpChangeSource = new HpChangeSource(hpChangeSourceConfig);
     const hpChangeProperties: CombatActionHpChangeProperties = {
       hpChangeSource,
       baseValues,
     };
+
+    console.log("explosion hp change range: ", baseValues);
 
     return hpChangeProperties;
   },

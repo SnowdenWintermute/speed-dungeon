@@ -1,6 +1,8 @@
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
+import { IdGenerator } from "../../utility-classes/index.js";
+import { removeFromArray } from "../../utils/index.js";
 import { Combatant, CombatantProperties } from "../index.js";
 
 export enum CombatantConditionName {
@@ -44,7 +46,10 @@ export abstract class CombatantCondition {
   abstract triggeredWhenActionUsed(): boolean;
   //
 
-  abstract onTriggered(combatant: Combatant): {
+  abstract onTriggered(
+    combatant: Combatant,
+    idGenerator: IdGenerator
+  ): {
     removedSelf: boolean;
     triggeredActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
   };
@@ -84,6 +89,7 @@ export abstract class CombatantCondition {
     CombatantCondition.removeByNameFromCombatant(condition.name, combatantProperties);
     combatantProperties.conditions.push(condition);
   }
+
   static applyToCombatant(condition: CombatantCondition, combatantProperties: CombatantProperties) {
     let wasExisting = false;
     combatantProperties.conditions.forEach((existingCondition) => {
@@ -101,5 +107,36 @@ export abstract class CombatantCondition {
     });
 
     if (!wasExisting) combatantProperties.conditions.push(condition);
+  }
+
+  static removeById(
+    conditionId: EntityId,
+    combatantProperties: CombatantProperties
+  ): CombatantCondition | undefined {
+    let removed: CombatantCondition | undefined = undefined;
+    combatantProperties.conditions = combatantProperties.conditions.filter((condition) => {
+      if (condition.id === conditionId) removed = condition;
+      return condition.id !== conditionId;
+    });
+
+    return removed;
+  }
+
+  static removeStacks(
+    conditionId: EntityId,
+    combatantProperties: CombatantProperties,
+    numberToRemove: number
+  ) {
+    for (const condition of Object.values(combatantProperties.conditions)) {
+      if (condition.id !== conditionId) return;
+      if (condition.stacksOption)
+        condition.stacksOption.current = Math.max(
+          0,
+          condition.stacksOption.current - numberToRemove
+        );
+      if (condition.stacksOption === null || condition.stacksOption.current === 0) {
+        removeFromArray(combatantProperties.conditions, condition);
+      }
+    }
   }
 }

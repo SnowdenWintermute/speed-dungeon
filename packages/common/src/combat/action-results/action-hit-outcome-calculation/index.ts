@@ -55,6 +55,7 @@ export function calculateActionHitOutcomes(
   const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
   const { game, party, combatant } = context.combatantContext;
   const { combatantProperties: user } = combatant;
+  console.log("user: ", combatant.entityProperties.name);
 
   // we need a target to check against to find the best affinity to choose
   // so we'll use the first target for now, until a better system comes to light

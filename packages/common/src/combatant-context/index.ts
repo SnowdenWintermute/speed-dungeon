@@ -22,6 +22,19 @@ export class CombatantContext {
     const battleOption = this.getBattleOption();
     if (battleOption === null) return { allyIds: this.party.characterPositions, opponentIds: [] };
 
+    const { asTheEnvironment } = this.combatant.combatantProperties;
+
+    if (asTheEnvironment) {
+      if (asTheEnvironment.causedBy) {
+        return Battle.getAllyIdsAndOpponentIdsOption(battleOption, asTheEnvironment.causedBy);
+      } else {
+        return {
+          allyIds: this.party.characterPositions,
+          opponentIds: this.party.currentRoom.monsterPositions,
+        };
+      }
+    }
+
     const allyAndOponnentIds = Battle.getAllyIdsAndOpponentIdsOption(
       battleOption,
       this.combatant.entityProperties.id

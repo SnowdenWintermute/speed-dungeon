@@ -43,19 +43,11 @@ export function processCombatAction(
       gameUpdate: initialGameUpdateOptionResult,
     });
   }
-  let iteration = 0;
 
   while (registry.isNotEmpty()) {
-    iteration += 1;
     for (const sequenceManager of registry.getManagers()) {
       let trackerOption = sequenceManager.getCurrentTracker();
       if (!trackerOption) break;
-      console.log(
-        iteration,
-        "trackerOption: ",
-        COMBAT_ACTION_NAME_STRINGS[trackerOption.actionExecutionIntent.actionName],
-        sequenceManager.id
-      );
 
       let currentStep = trackerOption.currentStep;
 
@@ -70,16 +62,22 @@ export function processCombatAction(
 
         // REGISTER BRANCHING ACTIONS
         for (const action of branchingActions) {
-          console.log("BRANCH");
           const nestedReplayNode: NestedNodeReplayEvent = {
             type: ReplayEventType.NestedNode,
             events: [],
           };
           sequenceManager.replayNode.events.push(nestedReplayNode);
+
+          const modifiedContextWithActionUser = new CombatantContext(
+            combatantContext.game,
+            combatantContext.party,
+            action.user
+          );
+
           const initialGameUpdateOptionResult = registry.registerAction(
             action.actionExecutionIntent,
             nestedReplayNode,
-            combatantContext,
+            modifiedContextWithActionUser,
             trackerOption,
             time
           );
@@ -160,7 +158,7 @@ export function processCombatAction(
               gameUpdate: returnHomeUpdate,
             });
         } else {
-          // console.log("BREAK: ", ACTION_RESOLUTION_STEP_TYPE_STRINGS[currentStep.type]);
+          registry.unRegisterActionManager(sequenceManager.id);
           break;
         }
       }

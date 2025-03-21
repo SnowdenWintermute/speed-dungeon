@@ -1,5 +1,5 @@
 import { CombatantCondition, CombatantConditionName } from "./index.js";
-import { Combatant, ENVIRONMENT_COMBATANT } from "../index.js";
+import { Combatant, createTriggeredActionUserCombatant } from "../index.js";
 import {
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
@@ -7,6 +7,7 @@ import {
 } from "../../combat/combat-actions/index.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
+import { IdGenerator } from "../../utility-classes/index.js";
 
 export class PrimedForExplosionCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.PrimedForExplosion;
@@ -24,21 +25,28 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
   triggeredWhenActionUsed() {
     return false;
   }
-  onTriggered(combatant: Combatant) {
-    combatant.combatantProperties.conditions = combatant.combatantProperties.conditions.filter(
-      (condition) => condition.id !== this.id
-    );
+  onTriggered(combatant: Combatant, idGenerator: IdGenerator) {
+    console.log("remaining conditions before removal: ", combatant.combatantProperties.conditions);
+
+    const removed = CombatantCondition.removeById(this.id, combatant.combatantProperties);
+    console.log("REMOVED: ", removed?.level, removed?.stacksOption?.current);
+
+    console.log("remaining conditions after removval: ", combatant.combatantProperties.conditions);
 
     const explosionActionIntent = new CombatActionExecutionIntent(CombatActionName.Explosion, {
       type: CombatActionTargetType.SingleAndSides,
       targetId: combatant.entityProperties.id,
     });
 
+    const user = createTriggeredActionUserCombatant(
+      idGenerator.generate(),
+      this.level,
+      this.stacksOption.current
+    );
+
     return {
       removedSelf: true,
-      triggeredActions: [
-        { user: ENVIRONMENT_COMBATANT, actionExecutionIntent: explosionActionIntent },
-      ],
+      triggeredActions: [{ user, actionExecutionIntent: explosionActionIntent }],
     };
   }
 }

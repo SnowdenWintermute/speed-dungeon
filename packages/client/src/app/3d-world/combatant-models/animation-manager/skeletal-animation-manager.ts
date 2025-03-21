@@ -69,7 +69,6 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     // alternatives to some missing animations
     if (newAnimationGroupOption === undefined) {
       const fallbackName = this.getFallbackAnimationName(newAnimationName);
-      console.log("fallbackName: ", fallbackName);
       if (fallbackName) newAnimationGroupOption = this.getAnimationGroupByName(fallbackName);
     }
 

@@ -5,6 +5,7 @@ import {
   EntityMotionGameUpdateCommand,
   MobileVfxName,
   SpawnableEntityType,
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
 } from "@speed-dungeon/common";
 import { ModelMovementManager } from "../../model-movement-manager";
 import { ManagedAnimationOptions } from "../../combatant-models/animation-manager";
@@ -24,6 +25,8 @@ export function entityMotionGameUpdateHandler(update: {
   const { entityId, translationOption, animationOption } = command;
 
   let destinationYOption: undefined | number;
+
+  console.log("entity: ", entityId, ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step]);
 
   if (command.entityType === SpawnableEntityType.Combatant) {
     const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];

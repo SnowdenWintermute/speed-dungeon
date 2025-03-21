@@ -69,7 +69,15 @@ const listening = expressApp.listen(PORT, async () => {
   combatant.combatantProperties.combatActionTarget = targets;
   // console.log(JSON.stringify(combatantPositions, null, 2));
 
-  const result = processCombatAction(
+  processCombatAction(
+    new CombatActionExecutionIntent(CombatActionName.ExplodingArrowParent, targets),
+    combatantContext
+  );
+  processCombatAction(
+    new CombatActionExecutionIntent(CombatActionName.ExplodingArrowParent, targets),
+    combatantContext
+  );
+  processCombatAction(
     new CombatActionExecutionIntent(CombatActionName.ExplodingArrowParent, targets),
     combatantContext
   );
@@ -77,10 +85,8 @@ const listening = expressApp.listen(PORT, async () => {
     new CombatActionExecutionIntent(CombatActionName.AttackRangedMainhand, targets),
     combatantContext
   );
-
-  if (result instanceof Error) console.error(result);
-  else {
-    // console.log("REPLAY TREE: ");
-    // Replayer.printReplayTree(result);
-  }
+  // processCombatAction(
+  //   new CombatActionExecutionIntent(CombatActionName.AttackRangedMainhand, targets),
+  //   combatantContext
+  // );
 });

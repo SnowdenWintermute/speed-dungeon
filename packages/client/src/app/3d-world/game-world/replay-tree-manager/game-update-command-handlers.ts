@@ -100,7 +100,6 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
             useGameStore.getState().mutateState((state) => {
               const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
               if (combatantResult instanceof Error) return combatantResult;
-              console.log("removing condition with id", conditionId);
               combatantResult.combatantProperties.conditions =
                 combatantResult.combatantProperties.conditions.filter(
                   (condition) => condition.id !== conditionId
@@ -176,10 +175,6 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
           animationDurationOverrideOption: null,
           onComplete: () => {
             update.isComplete = true;
-            vfxModel.animationManager.startAnimationWithTransition(
-              DynamicAnimationName.ExplosionDissipation,
-              0
-            );
           },
         }
       );

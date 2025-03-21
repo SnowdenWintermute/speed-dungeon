@@ -36,20 +36,16 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
       completionOrderId: null,
     };
     super(stepType, context, gameUpdateCommand);
-    console.log("creating new step, branchingactions: ", this.branchingActions);
     const { tracker, combatantContext } = this.context;
     const { actionExecutionIntent } = tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
     const { party, combatant } = combatantContext;
     const { outcomeFlags, hitPointChanges } = tracker.hitOutcomes;
 
-    console.log("EvalOnHitOutcomeTriggers step for", COMBAT_ACTION_NAME_STRINGS[action.name]);
-
     const durabilityChanges = new DurabilityChangesByEntityId();
 
     for (const flag of iterateNumericEnum(HitOutcome)) {
       for (const combatantId of outcomeFlags[flag] || []) {
-        console.log("combatant flagged by outcome:", combatantId, HIT_OUTCOME_NAME_STRINGS[flag]);
         const combatantResult = AdventuringParty.getCombatant(party, combatantId);
         if (combatantResult instanceof Error) throw combatantResult;
         const targetCombatant = combatantResult;
@@ -70,7 +66,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
         if (flag === HitOutcome.Hit) {
           const conditionsToApply = action.getAppliedConditions(context);
-          console.log("conditionsToApply: ", conditionsToApply);
           if (conditionsToApply)
             for (const condition of conditionsToApply) {
               CombatantCondition.applyToCombatant(condition, targetCombatant.combatantProperties);
@@ -84,19 +79,12 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
           // // @TODO -trigger on-hit conditions
           for (const condition of combatantResult.combatantProperties.conditions) {
-            console.log("has condition", COMBATANT_CONDITION_NAME_STRINGS[condition.name]);
             if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
 
             // ENVIRONMENT_COMBATANT is the "user" for actions that originate from no combatant in particular
-            const { removedSelf, triggeredActions } = condition.onTriggered(targetCombatant);
-            console.log(
-              "triggered actions: ",
-              triggeredActions.map(
-                (action) => COMBAT_ACTION_NAME_STRINGS[action.actionExecutionIntent.actionName]
-              ),
-              triggeredActions,
-              "triggered by: ",
-              COMBAT_ACTION_NAME_STRINGS[action.name]
+            const { removedSelf, triggeredActions } = condition.onTriggered(
+              targetCombatant,
+              context.idGenerator
             );
 
             this.branchingActions.push(...triggeredActions);
@@ -191,17 +179,11 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
   getBranchingActions():
     | Error
     | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
-    console.log(
-      "returning: ",
-      this.branchingActions.map(
-        (action) => COMBAT_ACTION_NAME_STRINGS[action.actionExecutionIntent.actionName]
-      )
-    );
     const toReturn = this.branchingActions;
     // @TODO - the fact that we have to set this to empty indicates a bug that we're not properly
     // initializing this step somewhere. When it wasn't set to empty, this would still contain the previous
     // triggered explosion
-    this.branchingActions = [];
+    // this.branchingActions = [];
     return toReturn;
   }
 }

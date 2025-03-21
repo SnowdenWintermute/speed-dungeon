@@ -45,11 +45,6 @@ export class ManagedDynamicAnimation extends ManagedAnimation<DynamicAnimation> 
   isCompleted() {
     if (this.options.shouldLoop) return false;
     const timeSinceStarted = Date.now() - this.timeStarted;
-    console.log(
-      "elapsed: ",
-      timeSinceStarted,
-      this.animationGroupOption?.getLength() || MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME
-    );
 
     if (!this.animationGroupOption)
       return timeSinceStarted >= MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME;
@@ -145,7 +140,7 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
 
 export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string> = {
   [DynamicAnimationName.ExplosionDelivery]: "explosion delivery",
-  [DynamicAnimationName.ExplosionDissipation]: "explosion delivery",
+  [DynamicAnimationName.ExplosionDissipation]: "explosion dissipation",
 };
 
 export class ExplosionDeliveryAnimation extends DynamicAnimation {
@@ -157,7 +152,6 @@ export class ExplosionDeliveryAnimation extends DynamicAnimation {
     const parentMesh = scene.meshes[0];
     if (parentMesh) {
       this.originalScale = parentMesh.scaling;
-      console.log("set original scale: ", this.originalScale);
     }
   }
   animateScene(scene: ISceneLoaderAsyncResult) {
@@ -180,14 +174,12 @@ export class ExplosionDissipationAnimation extends DynamicAnimation {
     const parentMesh = scene.meshes[0];
     if (parentMesh) {
       this.originalScale = parentMesh.scaling;
-      console.log("set original scale: ", this.originalScale);
     }
   }
   animateScene(scene: ISceneLoaderAsyncResult) {
     const parentMesh = scene.meshes[0];
-    if (!parentMesh) {
-      return console.error("expected mesh not found in dynamic animation");
-    }
+    if (!parentMesh) return console.error("expected mesh not found in dynamic animation");
+
     const elapsed = Date.now() - this.timeStarted;
     const percentCompleted = elapsed / this.duration;
     parentMesh.scaling = parentMesh.scaling = this.originalScale.scale(
