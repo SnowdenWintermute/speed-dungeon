@@ -162,7 +162,7 @@ export enum DynamicAnimationName {
 export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, string> = {
   [SkeletalAnimationName.MoveForward]: "move-forward",
   [SkeletalAnimationName.MoveBack]: "move-back",
-  [SkeletalAnimationName.Idle]: "idle",
+  [SkeletalAnimationName.Idle]: "bow-shoot-delivery",
   [SkeletalAnimationName.IdleGripping]: "idle-sword",
   [SkeletalAnimationName.Death]: "death",
   [SkeletalAnimationName.HitRecovery]: "hit-recovery",
