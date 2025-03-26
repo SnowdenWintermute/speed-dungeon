@@ -93,27 +93,31 @@ const config: CombatActionComponentConfig = {
     return !SpeedDungeonGame.allCombatantsInGroupAreDead(game, targetIdsResult);
   },
   getActionStepAnimations: (combatantContext: CombatantContext) => {
+    // @TODO - get damage type
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForward },
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
         timing: { type: AnimationTimingType.Looping },
       },
-      [CombatActionAnimationPhase.Chambering]: null,
+      [CombatActionAnimationPhase.Chambering]: {
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.OffHandSwingDelivery },
+        timing: { type: AnimationTimingType.Timed, duration: 300 },
+      },
       [CombatActionAnimationPhase.Delivery]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MeleeOffHandDelivery },
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.OffHandSwingDelivery },
         timing: { type: AnimationTimingType.Timed, duration: 1200 },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
         name: {
           type: AnimationType.Skeletal,
-          name: SkeletalAnimationName.MeleeOffHandRecoverySuccess,
+          name: SkeletalAnimationName.OffHandSwingRecovery,
         },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },
       [CombatActionAnimationPhase.RecoveryInterrupted]: {
         name: {
           type: AnimationType.Skeletal,
-          name: SkeletalAnimationName.MeleeOffHandRecoveryInterrupted,
+          name: SkeletalAnimationName.OffHandSwingRecovery,
         },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },

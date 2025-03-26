@@ -63,25 +63,28 @@ const config: CombatActionComponentConfig = {
   getActionStepAnimations: (combatantContext: CombatantContext) => {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForward },
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
         timing: { type: AnimationTimingType.Looping },
       },
-      [CombatActionAnimationPhase.Chambering]: null,
+      [CombatActionAnimationPhase.Chambering]: {
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MainHandSwingDelivery },
+        timing: { type: AnimationTimingType.Timed, duration: 300 },
+      },
       [CombatActionAnimationPhase.Delivery]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MeleeMainHandDelivery },
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MainHandSwingDelivery },
         timing: { type: AnimationTimingType.Timed, duration: 1200 },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
         name: {
           type: AnimationType.Skeletal,
-          name: SkeletalAnimationName.MeleeMainHandRecoverySuccess,
+          name: SkeletalAnimationName.MainHandSwingRecovery,
         },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },
       [CombatActionAnimationPhase.RecoveryInterrupted]: {
         name: {
           type: AnimationType.Skeletal,
-          name: SkeletalAnimationName.MeleeMainHandRecoveryInterrupted,
+          name: SkeletalAnimationName.MainHandSwingRecovery,
         },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },

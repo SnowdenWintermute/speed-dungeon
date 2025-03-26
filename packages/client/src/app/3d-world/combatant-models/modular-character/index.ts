@@ -19,7 +19,6 @@ import {
 import { ModularCharacterPartCategory } from "./modular-character-parts";
 import { GameWorld } from "../../game-world";
 import {
-  AnimationType,
   SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
   CombatantClass,
@@ -29,11 +28,12 @@ import {
   HoldableSlotType,
   WearableSlotType,
   iterateNumericEnumKeyedRecord,
+  CombatantEquipment,
+  EquipmentType,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import { MONSTER_SCALING_SIZES } from "../monster-scaling-sizes";
 import cloneDeep from "lodash.clonedeep";
-import { AnimationManager } from "../animation-manager";
 import { setUpDebugMeshes, despawnDebugMeshes } from "./set-up-debug-meshes";
 import {
   attachHoldableModelToHolsteredPosition,
@@ -45,6 +45,7 @@ import { HighlightManager } from "./highlight-manager";
 import { ModelMovementManager } from "../../model-movement-manager";
 import { SKELETON_ARMATURE_NAMES, SKELETON_STRUCTURE_TYPE } from "./skeleton-structure-variables";
 import { SkeletalAnimationManager } from "../animation-manager/skeletal-animation-manager";
+import { useGameStore } from "@/stores/game-store";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -147,7 +148,29 @@ export class ModularCharacter {
   }
 
   startIdleAnimation(transitionMs: number) {
-    this.animationManager.startAnimationWithTransition(SkeletalAnimationName.Idle, transitionMs);
+    this.animationManager.startAnimationWithTransition(this.getIdleAnimationName(), transitionMs);
+  }
+
+  getIdleAnimationName() {
+    if (this.monsterType !== null) return SkeletalAnimationName.IdleUnarmed;
+    const combatantResult = useGameStore.getState().getCombatant(this.entityId);
+    if (combatantResult instanceof Error) throw combatantResult;
+    const { combatantProperties } = combatantResult;
+    const offhandType = CombatantEquipment.getEquippedHoldable(
+      combatantProperties,
+      HoldableSlotType.OffHand
+    )?.equipmentBaseItemProperties.equipmentType;
+    const mainHandType = CombatantEquipment.getEquippedHoldable(
+      combatantProperties,
+      HoldableSlotType.MainHand
+    )?.equipmentBaseItemProperties.equipmentType;
+    if (mainHandType === EquipmentType.TwoHandedRangedWeapon) return SkeletalAnimationName.IdleBow;
+    if (mainHandType === EquipmentType.TwoHandedMeleeWeapon)
+      return SkeletalAnimationName.IdleTwoHand;
+    if (offhandType !== undefined && offhandType !== EquipmentType.Shield)
+      return SkeletalAnimationName.IdleDualWield;
+    if (mainHandType !== undefined) return SkeletalAnimationName.IdleMainHand;
+    return SkeletalAnimationName.IdleUnarmed;
   }
 
   setUpDebugMeshes = setUpDebugMeshes;
@@ -197,6 +220,7 @@ export class ModularCharacter {
       this.skeleton,
       SKELETON_ARMATURE_NAMES[SKELETON_STRUCTURE_TYPE]
     );
+    console.log("parent: ", parent);
     if (!this.skeleton.skeletons[0])
       return new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
 
@@ -224,14 +248,21 @@ export class ModularCharacter {
     if (!toDispose) return;
     disposeAsyncLoadedScene(toDispose);
 
-    if (
-      this.animationManager.playing?.animationGroupOption?.name ===
-        SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.Idle] ||
-      this.animationManager.playing?.animationGroupOption?.name ===
-        SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleGripping]
-    ) {
-      this.startIdleAnimation(500);
-    }
+    if (this.isIdling()) this.startIdleAnimation(500);
+  }
+
+  isIdling() {
+    const currentAnimationName = this.animationManager.playing?.animationGroupOption?.name;
+
+    return (
+      currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleUnarmed] ||
+      currentAnimationName ===
+        SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleMainHand] ||
+      currentAnimationName ===
+        SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleDualWield] ||
+      currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleBow] ||
+      currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleTwoHand]
+    );
   }
 
   async equipHoldableModel(equipment: Equipment, slot: HoldableSlotType, holstered?: boolean) {
@@ -252,14 +283,7 @@ export class ModularCharacter {
       attachHoldableModelToHolsteredPosition(this, equipmentModelResult, slot, equipment);
     else attachHoldableModelToSkeleton(this, equipmentModelResult, slot, equipment);
 
-    if (
-      this.animationManager.playing?.animationGroupOption?.name ===
-        SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.Idle] ||
-      this.animationManager.playing?.animationGroupOption?.name ===
-        SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleGripping]
-    ) {
-      this.startIdleAnimation(500);
-    }
+    if (this.isIdling()) this.startIdleAnimation(500);
   }
 
   removePart(partCategory: ModularCharacterPartCategory) {

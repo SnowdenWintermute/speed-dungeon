@@ -45,26 +45,26 @@ export const RANGED_ACTIONS_COMMON_CONFIG = {
   getActionStepAnimations: (combatantContext: CombatantContext) => {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForward },
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
         timing: { type: AnimationTimingType.Looping },
       },
       [CombatActionAnimationPhase.Chambering]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.DrawArrow },
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.BowChambering },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
         // timing: { type: AnimationTimingType.Timed, duration: 3000 },
       },
       [CombatActionAnimationPhase.Delivery]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.KnockPullReleaseArrow },
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.BowDelivery },
         timing: { type: AnimationTimingType.Timed, duration: 1200 },
         // timing: { type: AnimationTimingType.Timed, duration: 3200 },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.FiredArrowRecovery },
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.BowRecovery },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
         // timing: { type: AnimationTimingType.Timed, duration: 3000 },
       },
       [CombatActionAnimationPhase.RecoveryInterrupted]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.FiredArrowRecovery },
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.BowRecovery },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },
       [CombatActionAnimationPhase.Final]: {
