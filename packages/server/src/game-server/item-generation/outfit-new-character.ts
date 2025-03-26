@@ -18,6 +18,7 @@ import {
   CombatActionName,
   CombatantActionState,
   TwoHandedMeleeWeapon,
+  Equipment,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment, { givePlaytestingItems } from "./create-starting-equipment.js";
@@ -159,16 +160,16 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   // });
   // if (runeSword instanceof Error) return;
   // combatantProperties.inventory.equipment.push(runeSword);
-  // const items = generateOneOfEachItem();
-  // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
+  const items = generateOneOfEachItem();
+  combatantProperties.inventory.equipment.push(...(items as Equipment[]));
 
   // giveTestingCombatAttributes(combatantProperties);
   // combatantProperties.level = 5;
   // combatantProperties.unspentAttributePoints = 100;
   combatantProperties.inherentAttributes[CombatAttribute.Speed] = 5;
-  combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 10;
-  // combatantProperties.inherentAttributes[CombatAttribute.Strength] = 100;
-  // combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 100;
+  combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 15;
+  combatantProperties.inherentAttributes[CombatAttribute.Strength] = 26;
+  combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 26;
   // combatantProperties.inherentAttributes[CombatAttribute.Hp] = 1000;
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;

@@ -27,13 +27,12 @@ export async function handleHotswapSlotChanged(
         const modelResult = await spawnItemModelIfNotAlready(this, equipment);
         if (modelResult instanceof Error) return modelResult;
 
-        if (modelResult && i === selectedIndex)
-          attachHoldableModelToSkeleton(this, modelResult, slot, equipment);
-        else if (modelResult && i === holsteredSlotIndex) {
+        if (i === selectedIndex) attachHoldableModelToSkeleton(this, modelResult, slot, equipment);
+        else if (i === holsteredSlotIndex)
           attachHoldableModelToHolsteredPosition(this, modelResult, slot, equipment);
-        }
       } else {
         const modelOption = this.equipment.holdables[equipment.entityProperties.id];
+        console.log("disposing undisplayed hotswap models", modelOption);
         if (modelOption) disposeAsyncLoadedScene(modelOption);
         delete this.equipment.holdables[equipment.entityProperties.id];
       }
@@ -41,6 +40,8 @@ export async function handleHotswapSlotChanged(
 
     i += 1;
   }
+
+  if (this.isIdling()) this.startIdleAnimation(500);
 }
 
 async function spawnItemModelIfNotAlready(

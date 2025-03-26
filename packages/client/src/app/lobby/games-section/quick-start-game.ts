@@ -10,7 +10,7 @@ export default function quickStartGame(socketOption: Socket | undefined) {
   // });
   socketOption?.emit(ClientToServerEvent.CreateCharacter, {
     name: "",
-    combatantClass: CombatantClass.Rogue,
+    combatantClass: CombatantClass.Warrior,
   });
   // socketOption?.emit(ClientToServerEvent.CreateCharacter, {
   //   name: "",

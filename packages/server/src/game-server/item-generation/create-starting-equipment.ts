@@ -31,12 +31,12 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       mainhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.Stick,
+          baseItemType: OneHandedMeleeWeapon.WarHammer,
         },
         true
       );
       offhand = generateSpecificEquipmentType(
-        { equipmentType: EquipmentType.Shield, baseItemType: Shield.PotLid },
+        { equipmentType: EquipmentType.Shield, baseItemType: Shield.KiteShield },
         true
       );
       // startingEquipment[EquipmentSlot.MainHand]

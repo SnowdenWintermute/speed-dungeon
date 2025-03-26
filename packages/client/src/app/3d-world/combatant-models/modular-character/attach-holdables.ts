@@ -1,22 +1,18 @@
-import { AbstractMesh, ISceneLoaderAsyncResult, Node, Vector3 } from "@babylonjs/core";
+import { AbstractMesh, ISceneLoaderAsyncResult } from "@babylonjs/core";
 import {
-  CombatantClass,
   Equipment,
   EquipmentBaseItem,
   EquipmentType,
   HoldableSlotType,
+  ONE_HANDED_MELEE_WEAPON_NAMES,
   OneHandedMeleeWeapon,
-  TwoHandedMeleeWeapon,
-  equipmentIsTwoHandedWeapon,
 } from "@speed-dungeon/common";
 import { ModularCharacter } from "./index";
 import { getChildMeshByName } from "../../utils";
 import {
-  SKELETON_HIPS_NAMES,
   SKELETON_MAIN_HAND_NAMES,
   SKELETON_OFF_HAND_NAMES,
   SKELETON_STRUCTURE_TYPE,
-  SKELETON_TORSO_NAMES,
 } from "./skeleton-structure-variables";
 
 function setMeshPositionAndRotationToZero(mesh: AbstractMesh) {
@@ -40,59 +36,36 @@ export function attachHoldableModelToSkeleton(
   equipment: Equipment
 ) {
   const parentMesh = equipmentModel.meshes[0];
-  if (!parentMesh) return console.error("no parent mesh");
-  // setMeshPositionAndRotationToZero(parentMesh);
-  setMeshPositionAndRotationToZero(parentMesh);
+  if (!parentMesh) return console.error("no equipment parent mesh");
+  const skeletonRoot = combatantModel.skeleton.meshes[0];
+  if (!skeletonRoot) return console.error("no skeleton root");
 
-  if (slot === HoldableSlotType.OffHand) {
-    if (
-      equipment.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType ===
-      EquipmentType.Shield
-    ) {
-      parentMesh.position.y = -0.1;
-      parentMesh.position.z = 0.08;
+  let equipmentBoneName: string = "";
 
-      parentMesh.rotation.y = Math.PI;
-      parentMesh.rotation.z = Math.PI / 2;
-    } else {
-      parentMesh.position.y = 0.1;
-      parentMesh.position.z = -0.05;
-      parentMesh.rotation.z = -Math.PI / 2;
-    }
+  const { equipmentType } = equipment.equipmentBaseItemProperties;
 
-    const equipmentBone = combatantModel.skeleton.meshes[0]
-      ? getChildMeshByName(
-          combatantModel.skeleton.meshes[0],
-          SKELETON_OFF_HAND_NAMES[SKELETON_STRUCTURE_TYPE]
-        )
-      : undefined;
-    if (equipmentBone && equipmentModel.meshes[0]) equipmentModel.meshes[0].parent = equipmentBone;
+  if (slot === HoldableSlotType.OffHand && equipmentType === EquipmentType.Shield) {
+    equipmentBoneName = SKELETON_OFF_HAND_NAMES[SKELETON_STRUCTURE_TYPE];
+  } else if (slot === HoldableSlotType.OffHand) {
+    equipmentBoneName = SKELETON_OFF_HAND_NAMES[SKELETON_STRUCTURE_TYPE];
   } else if (slot === HoldableSlotType.MainHand) {
-    parentMesh.position.y = 0.1;
-    parentMesh.position.z = -0.05;
-
-    parentMesh.rotation.z = Math.PI / 2;
-    parentMesh.rotation.x = Math.PI;
-
     const isBow =
       equipment.equipmentBaseItemProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon;
-    let equipmentBone;
-    const skeletonRoot = combatantModel.skeleton.meshes[0];
-    if (!skeletonRoot) equipmentBone = undefined;
-    else if (isBow) {
-      equipmentBone = getChildMeshByName(
-        skeletonRoot,
-        SKELETON_OFF_HAND_NAMES[SKELETON_STRUCTURE_TYPE]
-      );
-    } else {
-      equipmentBone = getChildMeshByName(
-        skeletonRoot,
-        SKELETON_MAIN_HAND_NAMES[SKELETON_STRUCTURE_TYPE]
-      );
-    }
-
-    if (equipmentBone && parentMesh) parentMesh.parent = equipmentBone;
+    if (isBow) equipmentBoneName = SKELETON_OFF_HAND_NAMES[SKELETON_STRUCTURE_TYPE];
+    else equipmentBoneName = SKELETON_MAIN_HAND_NAMES[SKELETON_STRUCTURE_TYPE];
   }
+
+  const equipmentBone = getChildMeshByName(skeletonRoot, equipmentBoneName);
+  if (equipmentBone) {
+    parentMesh.setParent(equipmentBone);
+    setMeshPositionAndRotationToZero(parentMesh);
+
+    if (slot === HoldableSlotType.OffHand && equipmentType === EquipmentType.Shield) {
+      parentMesh.position.z = -0.08;
+      parentMesh.position.x = -0.15;
+      parentMesh.rotation.y = Math.PI;
+    }
+  } else console.log("no equipment bone found");
 }
 
 export function attachHoldableModelToHolsteredPosition(
@@ -101,189 +74,43 @@ export function attachHoldableModelToHolsteredPosition(
   slot: HoldableSlotType,
   equipment: Equipment
 ) {
-  const parentMesh = equipmentModel.meshes[0];
-  if (!parentMesh) return console.error("no parent mesh");
-  const skeletonParentMesh = combatantModel.skeleton.meshes[0];
-  if (!skeletonParentMesh) return console.error("no skeleton mesh");
-  const torsoBone = getChildMeshByName(
-    skeletonParentMesh,
-    SKELETON_TORSO_NAMES[SKELETON_STRUCTURE_TYPE]
-  );
-  const hipsBone = getChildMeshByName(
-    skeletonParentMesh,
-    SKELETON_HIPS_NAMES[SKELETON_STRUCTURE_TYPE]
-  );
-  if (!torsoBone || !hipsBone) return console.error("missing expected bones");
-  setMeshPositionAndRotationToZero(parentMesh);
+  const equipmentParentMesh = equipmentModel.meshes[0];
+  if (!equipmentParentMesh) return console.error("no parent mesh");
+  const skeletonRoot = combatantModel.skeleton.meshes[0];
+  if (!skeletonRoot) return console.error("no skeleton mesh");
 
-  parentMesh.parent = torsoBone;
-  if (slot === HoldableSlotType.OffHand) {
-    setHoldableToOffhandHolsteredPosition(
-      parentMesh,
-      equipment,
-      combatantModel.combatantClass,
-      hipsBone
-    );
-  } else if (slot === HoldableSlotType.MainHand) {
-    setHoldableToMainhandHolsteredPosition(
-      parentMesh,
-      equipment,
-      combatantModel.combatantClass,
-      hipsBone
-    );
-  }
-}
-
-function setHoldableToMainhandHolsteredPosition(
-  parentMesh: AbstractMesh,
-  equipment: Equipment,
-  combatantClass: CombatantClass,
-  hipsBone: Node
-) {
-  const { equipmentType, baseItemType } = equipment.equipmentBaseItemProperties.taggedBaseEquipment;
-  if (equipmentIsTwoHandedWeapon(equipmentType)) {
-    if (combatantClass === CombatantClass.Warrior) parentMesh.position.z = 0.25;
-    parentMesh.position.z = 0.14;
-  } else parentMesh.position.z = -0.1;
-
-  parentMesh.position.x = 0.1;
-
-  if (equipmentType === EquipmentType.TwoHandedMeleeWeapon) {
-    // parentMesh.position.z = 0.1;
-    switch (baseItemType) {
-      case TwoHandedMeleeWeapon.BoStaff:
-      case TwoHandedMeleeWeapon.ElementalStaff:
-      case TwoHandedMeleeWeapon.ElmStaff:
-        parentMesh.position.y = 0;
-        parentMesh.position.x = 0;
-        break;
-      case TwoHandedMeleeWeapon.RottingBranch:
-      case TwoHandedMeleeWeapon.Spear:
-      case TwoHandedMeleeWeapon.Bardiche:
-      case TwoHandedMeleeWeapon.SplittingMaul:
-      case TwoHandedMeleeWeapon.Maul:
-      case TwoHandedMeleeWeapon.BattleAxe:
-      case TwoHandedMeleeWeapon.Glaive:
-      case TwoHandedMeleeWeapon.Trident:
-      case TwoHandedMeleeWeapon.MahoganyStaff:
-      case TwoHandedMeleeWeapon.EbonyStaff:
-        parentMesh.position.y = -0.2;
-        parentMesh.position.x = 0.15;
-        break;
-      case TwoHandedMeleeWeapon.GreatAxe:
-      case TwoHandedMeleeWeapon.GravityHammer:
-        parentMesh.position.y = -0.4;
-        parentMesh.position.x = 0.35;
-        break;
-    }
-
-    parentMesh.rotation.z = 0.6;
-    parentMesh.rotation.x = 0;
-    parentMesh.rotation.y = 0;
-    parentMesh.rotateAround(Vector3.Zero(), Vector3.Up(), Math.PI);
-  } else if (equipmentType === EquipmentType.TwoHandedRangedWeapon) {
-    // parentMesh.position.z = 0.1;
-    parentMesh.position.y = 0;
-    parentMesh.position.x = 0;
-
-    parentMesh.rotation.z = 0.6;
-    parentMesh.rotation.x = 0;
-    parentMesh.rotation.y = 0;
-    parentMesh.rotateAround(Vector3.Zero(), Vector3.Up(), Math.PI);
-  } else if (
-    equipmentType === EquipmentType.OneHandedMeleeWeapon &&
-    shouldHolsterAtHip(equipment.equipmentBaseItemProperties.taggedBaseEquipment)
-  ) {
-    setMeshToHipPostition(
-      parentMesh,
-      hipsBone,
-      false,
-      equipment.equipmentBaseItemProperties.taggedBaseEquipment
-    );
-  } else {
-    parentMesh.position.y = 0.3;
-
-    parentMesh.rotation.z = Math.PI + 0.5;
-    parentMesh.rotation.x = 0;
-    parentMesh.rotation.y = Math.PI;
-  }
-}
-
-function setHoldableToOffhandHolsteredPosition(
-  parentMesh: AbstractMesh,
-  equipment: Equipment,
-  combatantClass: CombatantClass,
-  hipsBone: Node
-) {
-  if (combatantClass === CombatantClass.Warrior) parentMesh.position.z = -0.22;
-  else parentMesh.position.z = -0.15;
-
-  const { equipmentType } = equipment.equipmentBaseItemProperties.taggedBaseEquipment;
-
-  if (equipmentType === EquipmentType.Shield) {
-    parentMesh.rotation.z = -Math.PI + 0.5;
-    parentMesh.rotation.x = -Math.PI;
-    parentMesh.rotation.y = -Math.PI;
-  } else if (shouldHolsterAtHip(equipment.equipmentBaseItemProperties.taggedBaseEquipment)) {
-    setMeshToHipPostition(
-      parentMesh,
-      hipsBone,
-      true,
-      equipment.equipmentBaseItemProperties.taggedBaseEquipment
-    );
-  } else {
-    parentMesh.position.y = 0.3;
-    parentMesh.position.x = -0.1;
-
-    parentMesh.rotation.z = Math.PI + 0.5;
-    parentMesh.rotation.x = 0;
-    parentMesh.rotation.y = 0;
-  }
-}
-
-function setMeshToHipPostition(
-  parentMesh: AbstractMesh,
-  hipsBone: Node,
-  isOffhand: boolean,
-  taggedBaseEquipment: EquipmentBaseItem
-) {
-  // HIP POSITIONS
+  const backHolsterBoneName = slot === HoldableSlotType.OffHand ? "BackHolster.L" : "BackHolster.R";
+  const hipHolsterBoneName = slot === HoldableSlotType.OffHand ? "HipHolster.L" : "HipHolster.R";
+  const holsterBackBone = getChildMeshByName(skeletonRoot, backHolsterBoneName);
+  const holsterHipBone = getChildMeshByName(skeletonRoot, hipHolsterBoneName);
+  if (!holsterBackBone || !holsterHipBone) throw new Error("expected holster bones missing");
+  const { taggedBaseEquipment } = equipment.equipmentBaseItemProperties;
   const { equipmentType, baseItemType } = taggedBaseEquipment;
-  if (equipmentType === EquipmentType.OneHandedMeleeWeapon) {
-    if (baseItemType === OneHandedMeleeWeapon.Dagger) {
-      parentMesh.position.z = 0.15;
-    } else if (baseItemType === OneHandedMeleeWeapon.ButterKnife) {
-      parentMesh.position.z = 0.05;
+  const holsterAtHip = shouldHolsterAtHip(taggedBaseEquipment);
+  if (taggedBaseEquipment.equipmentType === EquipmentType.OneHandedMeleeWeapon)
+    if (holsterAtHip) {
+      equipmentParentMesh.setParent(holsterHipBone);
+      setMeshPositionAndRotationToZero(equipmentParentMesh);
+      equipmentParentMesh.rotation.y = -Math.PI / 2;
     } else {
-      parentMesh.position.z = 0.2;
+      equipmentParentMesh.setParent(holsterBackBone);
+      setMeshPositionAndRotationToZero(equipmentParentMesh);
+      if (equipmentType === EquipmentType.Shield) {
+        equipmentParentMesh.rotation.y = Math.PI;
+      }
     }
-  } else parentMesh.position.z = 0.2;
-
-  parentMesh.position.y = 0.1;
-
-  if (isOffhand) {
-    parentMesh.parent = hipsBone;
-    parentMesh.position.x = 0.15;
-
-    parentMesh.rotation.z = -Math.PI / 2 - 0.25;
-    parentMesh.rotation.x = -0.3;
-    parentMesh.rotation.y = Math.PI / 2;
-  } else {
-    parentMesh.parent = hipsBone;
-    parentMesh.position.x = -0.15;
-
-    parentMesh.rotation.z = Math.PI / 2 + 0.25;
-    parentMesh.rotation.x = -0.3;
-    parentMesh.rotation.y = -Math.PI / 2;
-  }
 }
+
+const HIP_HOLSTERED_WEAPONS: OneHandedMeleeWeapon[] = [
+  OneHandedMeleeWeapon.ButterKnife,
+  OneHandedMeleeWeapon.Dagger,
+];
 
 function shouldHolsterAtHip(taggedBaseEquipment: EquipmentBaseItem) {
   const { equipmentType, baseItemType } = taggedBaseEquipment;
 
   return (
     equipmentType === EquipmentType.OneHandedMeleeWeapon &&
-    (baseItemType === OneHandedMeleeWeapon.ButterKnife ||
-      baseItemType === OneHandedMeleeWeapon.Dagger)
+    HIP_HOLSTERED_WEAPONS.includes(baseItemType)
   );
 }

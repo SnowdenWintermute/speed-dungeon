@@ -21,7 +21,7 @@ import { despawnModularCharacter } from "./despawn-modular-character";
 import { removeHoldableModelFromModularCharacter } from "./remove-holdable-from-modular-character";
 import { equipHoldableModelToModularCharacter } from "./equip-holdable-to-modular-character";
 import getFocusedCharacter from "@/utils/getFocusedCharacter";
-import { actionCommandQueue, actionCommandReceiver } from "@/singletons/action-command-manager";
+import { actionCommandQueue } from "@/singletons/action-command-manager";
 import { synchronizeCombatantModelsWithAppState } from "./synchronize-combatant-models-with-app-state";
 import { spawnEnvironmentModel } from "./spawn-environmental-model";
 import { disposeAsyncLoadedScene } from "@/app/3d-world/utils";
@@ -67,17 +67,21 @@ export function createModelActionHandlers(
       action: ChangeEquipmentModelAction
     ): Promise<void | Error> {
       let errors: Error[] = [];
+      const modularCharacter = modelManager.combatantModels[action.entityId];
+      if (!modularCharacter) return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
       for (const id of action.unequippedIds)
-        removeHoldableModelFromModularCharacter(modelManager, action.entityId, id);
+        removeHoldableModelFromModularCharacter(modularCharacter, action.entityId, id);
       if (action.toEquip) {
-        const maybeError = await equipHoldableModelToModularCharacter(
-          modelManager,
-          action.entityId,
+        await equipHoldableModelToModularCharacter(
+          modularCharacter,
           action.toEquip.slot,
           action.toEquip.item
         );
-        if (maybeError instanceof Error) errors.push(maybeError);
       }
+
+      if (modularCharacter.isIdling()) modularCharacter.startIdleAnimation(500);
+      else console.log("wasn't idling");
+
       if (errors.length)
         return new Error(
           "Errors equipping holdables: " + errors.map((error) => error.message).join(", ")

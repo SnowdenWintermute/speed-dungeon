@@ -18,14 +18,21 @@ export const SKELETON_MAIN_HAND_NAMES: Record<SkeletonStructure, string> = {
   [SkeletonStructure.Quaternius]: "Wrist.R",
   [SkeletonStructure.Mixamo]: "mixamorig:RightHand",
   [SkeletonStructure.FreeMoCap]: "",
-  [SkeletonStructure.MixamoEdited]: "",
+  [SkeletonStructure.MixamoEdited]: "Equipment.R",
 };
 
 export const SKELETON_OFF_HAND_NAMES: Record<SkeletonStructure, string> = {
   [SkeletonStructure.Quaternius]: "Wrist.L",
   [SkeletonStructure.Mixamo]: "mixamorig:LeftHand",
   [SkeletonStructure.FreeMoCap]: "",
-  [SkeletonStructure.MixamoEdited]: "",
+  [SkeletonStructure.MixamoEdited]: "Equipment.L",
+};
+
+export const SKELETON_SHIELD_BONE_NAMES: Record<SkeletonStructure, string> = {
+  [SkeletonStructure.Quaternius]: "Wrist.L",
+  [SkeletonStructure.Mixamo]: "mixamorig:LeftHand",
+  [SkeletonStructure.FreeMoCap]: "",
+  [SkeletonStructure.MixamoEdited]: "DEF-forearm.L",
 };
 
 export const SKELETON_TORSO_NAMES: Record<SkeletonStructure, string> = {

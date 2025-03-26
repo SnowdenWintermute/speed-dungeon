@@ -148,6 +148,7 @@ export class ModularCharacter {
   }
 
   startIdleAnimation(transitionMs: number) {
+    console.log("getting idle name: ", this.getIdleAnimationName());
     this.animationManager.startAnimationWithTransition(this.getIdleAnimationName(), transitionMs);
   }
 
@@ -244,11 +245,15 @@ export class ModularCharacter {
   }
 
   async unequipHoldableModel(entityId: string) {
+    console.log("unequip holdable model");
     const toDispose = this.equipment.holdables[entityId];
     if (!toDispose) return;
     disposeAsyncLoadedScene(toDispose);
 
-    if (this.isIdling()) this.startIdleAnimation(500);
+    if (this.isIdling()) {
+      console.log("unequipped and idling");
+      this.startIdleAnimation(500);
+    } else console.log("wasn't idling");
   }
 
   isIdling() {
@@ -282,8 +287,6 @@ export class ModularCharacter {
     if (holstered)
       attachHoldableModelToHolsteredPosition(this, equipmentModelResult, slot, equipment);
     else attachHoldableModelToSkeleton(this, equipmentModelResult, slot, equipment);
-
-    if (this.isIdling()) this.startIdleAnimation(500);
   }
 
   removePart(partCategory: ModularCharacterPartCategory) {
@@ -295,7 +298,10 @@ export class ModularCharacter {
     const cubeSize = 0.02;
     const red = new Color4(255, 0, 0, 1.0);
     if (!this.skeleton.meshes[0]) return;
-    const skeletonRootBone = getChildMeshByName(this.skeleton.meshes[0], "Root");
+    const skeletonRootBone = getChildMeshByName(
+      this.skeleton.meshes[0],
+      SKELETON_ARMATURE_NAMES[SKELETON_STRUCTURE_TYPE]
+    );
     if (skeletonRootBone !== undefined)
       paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.world.scene);
   }
