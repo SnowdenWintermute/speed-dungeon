@@ -59,6 +59,11 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       onComplete: () => {},
     }
   ): Error | void {
+    console.log(
+      this.characterModel.entityId.slice(0, 4),
+      "starting animation",
+      SKELETAL_ANIMATION_NAME_STRINGS[newAnimationName]
+    );
     if (this.playing !== null) {
       if (this.previous !== null) this.cleanUpFinishedAnimation(this.previous);
       this.previous = this.playing;
@@ -69,7 +74,9 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     // alternatives to some missing animations
     if (newAnimationGroupOption === undefined) {
       const fallbackName = this.getFallbackAnimationName(newAnimationName);
-      if (fallbackName) newAnimationGroupOption = this.getAnimationGroupByName(fallbackName);
+      console.log("getting fallback animation", fallbackName);
+      if (fallbackName !== undefined)
+        newAnimationGroupOption = this.getAnimationGroupByName(fallbackName);
     }
 
     const clonedAnimationOption = this.cloneAnimationOption(newAnimationGroupOption);

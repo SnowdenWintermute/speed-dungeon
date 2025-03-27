@@ -91,11 +91,6 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
 
           // it should theoretically be unlocked after their action resolves
         });
-        // if (gameWorld.current && gameWorld.current.modelManager.combatantModels[characterId]) {
-        //   gameWorld.current.modelManager.combatantModels[
-        //     characterId
-        //   ]?.animationManager.startAnimationWithTransition(ANIMATION_NAMES.READY, 1500);
-        // }
       }
     );
     executeActionButton.dedicatedKeys = ["Enter", executeHotkey];

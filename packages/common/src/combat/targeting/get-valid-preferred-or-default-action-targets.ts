@@ -29,7 +29,6 @@ export function getValidPreferredOrDefaultActionTargets(
   if (combatAction.targetingSchemes.includes(targetingSchemePreference)) {
     switch (targetingSchemePreference) {
       case TargetingScheme.Single:
-        console.log("SINGLE");
         // IF PREFERENCE EXISTS SELECT IT IF VALID
         if (preferredCategoryOption !== null) {
           switch (preferredCategoryOption) {
@@ -88,7 +87,6 @@ export function getValidPreferredOrDefaultActionTargets(
 
     switch (targetingScheme) {
       case TargetingScheme.Single:
-        console.log("SINGLE");
         for (const category of iterateNumericEnum(FriendOrFoe)) {
           const idsOption = category === FriendOrFoe.Friendly ? allyIdsOption : opponentIdsOption;
           if (idsOption)
@@ -96,13 +94,11 @@ export function getValidPreferredOrDefaultActionTargets(
         }
         break;
       case TargetingScheme.Area:
-        console.log("AREA");
         for (const category of iterateNumericEnum(FriendOrFoe)) {
           newTargets = getGroupTargetsOption(allyIdsOption, opponentIdsOption, category);
         }
         break;
       case TargetingScheme.All:
-        console.log("ALL");
         return { type: CombatActionTargetType.All };
     }
   }

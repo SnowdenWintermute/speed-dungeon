@@ -160,7 +160,6 @@ export class TargetingCalculator {
     } else {
       const filteredIdsResult = this.getFilteredPotentialTargetIdsForAction(combatActionOption);
       if (filteredIdsResult instanceof Error) return filteredIdsResult;
-      console.log("FILTERED IDS: ", filteredIdsResult);
       const [allyIdsOption, opponentIdsOption] = filteredIdsResult;
       const newTargetsResult = this.getPreferredOrDefaultActionTargets(combatActionOption);
 

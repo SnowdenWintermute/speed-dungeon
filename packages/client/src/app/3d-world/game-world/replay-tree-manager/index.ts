@@ -58,7 +58,6 @@ export class ReplayTreeManager {
     if (this.current) this.current.processBranches();
     if (this.currentTreeCompleted()) {
       if (this.current !== null) {
-        console.log("current tree completed");
         useGameStore.getState().mutateState((state) => {
           const partyOption = getCurrentParty(state, state.username || "");
           if (partyOption) InputLock.unlockInput(partyOption.inputLock);

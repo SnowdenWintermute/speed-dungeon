@@ -75,8 +75,11 @@ export function entityMotionGameUpdateHandler(update: {
         animationManager &&
         command.idleOnComplete &&
         animationManager instanceof SkeletalAnimationManager
-      )
-        animationManager.startAnimationWithTransition(SkeletalAnimationName.Idle, 500);
+      ) {
+        const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
+        if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+        combatantModelOption.startIdleAnimation(500);
+      }
     });
   } else {
     translationIsComplete = true;
@@ -101,8 +104,12 @@ export function entityMotionGameUpdateHandler(update: {
         if (translationIsComplete || !translationOption) {
           update.isComplete = true;
 
-          if (command.idleOnComplete)
-            animationManager.startAnimationWithTransition(SkeletalAnimationName.Idle, 500);
+          if (command.idleOnComplete) {
+            const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
+            if (!combatantModelOption)
+              throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+            combatantModelOption.startIdleAnimation(500);
+          }
         }
       },
     };

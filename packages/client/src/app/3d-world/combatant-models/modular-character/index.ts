@@ -148,8 +148,9 @@ export class ModularCharacter {
   }
 
   startIdleAnimation(transitionMs: number) {
-    console.log("getting idle name: ", this.getIdleAnimationName());
-    this.animationManager.startAnimationWithTransition(this.getIdleAnimationName(), transitionMs);
+    const idleName = this.getIdleAnimationName();
+    console.log("starting idle name: ", idleName, "for entity", this.entityId.slice(0, 4));
+    this.animationManager.startAnimationWithTransition(idleName, transitionMs);
   }
 
   getIdleAnimationName() {
@@ -221,7 +222,6 @@ export class ModularCharacter {
       this.skeleton,
       SKELETON_ARMATURE_NAMES[SKELETON_STRUCTURE_TYPE]
     );
-    console.log("parent: ", parent);
     if (!this.skeleton.skeletons[0])
       return new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
 
