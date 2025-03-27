@@ -91,7 +91,6 @@ export function entityMotionGameUpdateHandler(update: {
 
     const options: ManagedAnimationOptions = {
       shouldLoop: animationOption.timing.type === AnimationTimingType.Looping,
-      animationEventOption: null,
       animationDurationOverrideOption:
         animationOption.timing.type === AnimationTimingType.Timed
           ? animationOption.timing.duration

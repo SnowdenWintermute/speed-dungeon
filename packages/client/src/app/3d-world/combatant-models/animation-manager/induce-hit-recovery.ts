@@ -110,7 +110,6 @@ export function induceHitRecovery(
         {
           shouldLoop: false,
           animationDurationOverrideOption: null,
-          animationEventOption: null,
           onComplete: () => {
             targetModel.animationManager.locked = true;
           },
@@ -128,7 +127,6 @@ export function induceHitRecovery(
       targetModel.animationManager.startAnimationWithTransition(animationName, 0, {
         shouldLoop: false,
         animationDurationOverrideOption: null,
-        animationEventOption: null,
         onComplete: () => {},
       });
     }

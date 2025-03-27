@@ -1,8 +1,5 @@
-import { AnimationEvent } from "@babylonjs/core";
-
 export type ManagedAnimationOptions = {
   shouldLoop: boolean;
-  animationEventOption: null | { fn: () => void; frame: number };
   animationDurationOverrideOption: null | number;
   onComplete: () => void;
 };
@@ -10,8 +7,6 @@ export type ManagedAnimationOptions = {
 export abstract class ManagedAnimation<T> {
   timeStarted: number = Date.now();
   weight: number = 0;
-  animationEventOption: null | AnimationEvent = null;
-  eventCompleted: boolean = false;
   constructor(
     public animationGroupOption: null | T,
     public transitionDuration: number = 0,

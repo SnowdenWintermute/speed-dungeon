@@ -11,7 +11,6 @@ import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatan
 export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   timeStarted: number = Date.now();
   weight: number = 0;
-  eventCompleted: boolean = false;
   constructor(
     public animationGroupOption: null | AnimationGroup,
     public transitionDuration: number = 0,
@@ -54,7 +53,6 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     transitionDuration: number,
     options: ManagedAnimationOptions = {
       shouldLoop: true,
-      animationEventOption: null,
       animationDurationOverrideOption: null,
       onComplete: () => {},
     }
@@ -98,7 +96,8 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
         const speedModifier =
           animationStockDuration / (options.animationDurationOverrideOption ?? 1);
 
-        clonedAnimationOption.start(options.shouldLoop, speedModifier);
+        // clonedAnimationOption.start(options.shouldLoop, speedModifier);
+        clonedAnimationOption.start(options.shouldLoop, 0.25);
       } else clonedAnimationOption.start(options.shouldLoop);
     }
   }
@@ -116,13 +115,9 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
   }
 
   cleanUpFinishedAnimation(managedAnimation: ManagedSkeletalAnimation) {
-    const { animationEventOption, onComplete } = managedAnimation.options;
+    const { onComplete } = managedAnimation.options;
 
     managedAnimation.animationGroupOption?.stop();
-
-    if (animationEventOption && !managedAnimation.eventCompleted) {
-      animationEventOption.fn();
-    }
 
     onComplete();
 

@@ -79,7 +79,6 @@ export function hitOutcomesGameUpdateHandler(update: {
     targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Evade, 0, {
       shouldLoop: false,
       animationDurationOverrideOption: null,
-      animationEventOption: null,
       onComplete: () => {},
     });
 
@@ -117,7 +116,6 @@ export function hitOutcomesGameUpdateHandler(update: {
     targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Parry, 0, {
       shouldLoop: false,
       animationDurationOverrideOption: null,
-      animationEventOption: null,
       onComplete: () => {},
     });
 

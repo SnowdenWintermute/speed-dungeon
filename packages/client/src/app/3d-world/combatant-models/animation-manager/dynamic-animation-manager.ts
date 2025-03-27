@@ -31,7 +31,6 @@ export abstract class DynamicAnimation {
 export class ManagedDynamicAnimation extends ManagedAnimation<DynamicAnimation> {
   timeStarted: number = Date.now();
   weight: number = 0;
-  eventCompleted: boolean = false;
   constructor(
     public animationGroupOption: null | DynamicAnimation,
     public transitionDuration: number = 0,
@@ -72,7 +71,6 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
     transitionDuration: number,
     options: ManagedAnimationOptions = {
       shouldLoop: true,
-      animationEventOption: null,
       animationDurationOverrideOption: null,
       onComplete: () => {},
     }

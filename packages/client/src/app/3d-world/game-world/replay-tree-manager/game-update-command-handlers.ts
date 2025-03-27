@@ -8,7 +8,6 @@ import {
   GameUpdateCommandType,
   HitOutcomesGameUpdateCommand,
   HitPointChanges,
-  MOBILE_VFX_NAME_STRINGS,
   MobileVfxName,
   ResourcesPaidGameUpdateCommand,
   SpawnEntityGameUpdateCommand,
@@ -171,7 +170,6 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
         0,
         {
           shouldLoop: false,
-          animationEventOption: null,
           animationDurationOverrideOption: null,
           onComplete: () => {
             update.isComplete = true;
