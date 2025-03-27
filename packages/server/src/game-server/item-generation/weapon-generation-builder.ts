@@ -52,6 +52,7 @@ export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
         );
       }
       damageClassifications.push(someClassification);
+      console.log(someClassification);
     }
 
     const properties: WeaponProperties = {

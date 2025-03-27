@@ -4,7 +4,6 @@ import {
   EquipmentBaseItem,
   EquipmentType,
   HoldableSlotType,
-  ONE_HANDED_MELEE_WEAPON_NAMES,
   OneHandedMeleeWeapon,
 } from "@speed-dungeon/common";
 import { ModularCharacter } from "./index";
@@ -60,9 +59,14 @@ export function attachHoldableModelToSkeleton(
     parentMesh.setParent(equipmentBone);
     setMeshPositionAndRotationToZero(parentMesh);
 
-    if (slot === HoldableSlotType.OffHand && equipmentType === EquipmentType.Shield) {
-      parentMesh.position.z = -0.08;
-      parentMesh.position.x = -0.15;
+    if (slot === HoldableSlotType.OffHand) {
+      parentMesh.rotation.y = Math.PI;
+      if (equipmentType === EquipmentType.Shield) {
+        parentMesh.position.z = -0.08;
+        parentMesh.position.x = -0.15;
+      }
+    }
+    if (equipmentType === EquipmentType.TwoHandedRangedWeapon) {
       parentMesh.rotation.y = Math.PI;
     }
   } else console.log("no equipment bone found");
@@ -86,19 +90,30 @@ export function attachHoldableModelToHolsteredPosition(
   if (!holsterBackBone || !holsterHipBone) throw new Error("expected holster bones missing");
   const { taggedBaseEquipment } = equipment.equipmentBaseItemProperties;
   const { equipmentType, baseItemType } = taggedBaseEquipment;
+
   const holsterAtHip = shouldHolsterAtHip(taggedBaseEquipment);
-  if (taggedBaseEquipment.equipmentType === EquipmentType.OneHandedMeleeWeapon)
-    if (holsterAtHip) {
-      equipmentParentMesh.setParent(holsterHipBone);
-      setMeshPositionAndRotationToZero(equipmentParentMesh);
-      equipmentParentMesh.rotation.y = -Math.PI / 2;
+
+  if (holsterAtHip) {
+    equipmentParentMesh.setParent(holsterHipBone);
+    setMeshPositionAndRotationToZero(equipmentParentMesh);
+    equipmentParentMesh.rotation.y = -Math.PI / 2;
+  } else {
+    equipmentParentMesh.setParent(holsterBackBone);
+    setMeshPositionAndRotationToZero(equipmentParentMesh);
+    if (equipmentType === EquipmentType.Shield) {
+      console.log("set parent to back");
+      equipmentParentMesh.rotation.y = Math.PI;
+      equipmentParentMesh.rotation.z = Math.PI;
+      equipmentParentMesh.position.y = 0.15;
+    } else if (equipmentType === EquipmentType.TwoHandedRangedWeapon) {
+      equipmentParentMesh.position.y = 0.18;
+      equipmentParentMesh.position.x = 0.07;
+      equipmentParentMesh.rotation.y = Math.PI;
     } else {
-      equipmentParentMesh.setParent(holsterBackBone);
-      setMeshPositionAndRotationToZero(equipmentParentMesh);
-      if (equipmentType === EquipmentType.Shield) {
-        equipmentParentMesh.rotation.y = Math.PI;
-      }
+      // move most weapons up a little
+      equipmentParentMesh.position.y = 0.15;
     }
+  }
 }
 
 const HIP_HOLSTERED_WEAPONS: OneHandedMeleeWeapon[] = [

@@ -30,15 +30,15 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
     case CombatantClass.Warrior:
       mainhand = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.WarHammer,
+          equipmentType: EquipmentType.TwoHandedRangedWeapon,
+          baseItemType: TwoHandedRangedWeapon.EtherBow,
         },
         true
       );
-      offhand = generateSpecificEquipmentType(
-        { equipmentType: EquipmentType.Shield, baseItemType: Shield.KiteShield },
-        true
-      );
+      // offhand = generateSpecificEquipmentType(
+      //   { equipmentType: EquipmentType.Shield, baseItemType: Shield.KiteShield },
+      //   true
+      // );
       // startingEquipment[EquipmentSlot.MainHand]
       break;
     case CombatantClass.Mage:

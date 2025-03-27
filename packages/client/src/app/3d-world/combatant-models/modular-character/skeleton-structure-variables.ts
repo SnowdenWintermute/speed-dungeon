@@ -28,13 +28,6 @@ export const SKELETON_OFF_HAND_NAMES: Record<SkeletonStructure, string> = {
   [SkeletonStructure.MixamoEdited]: "Equipment.L",
 };
 
-export const SKELETON_SHIELD_BONE_NAMES: Record<SkeletonStructure, string> = {
-  [SkeletonStructure.Quaternius]: "Wrist.L",
-  [SkeletonStructure.Mixamo]: "mixamorig:LeftHand",
-  [SkeletonStructure.FreeMoCap]: "",
-  [SkeletonStructure.MixamoEdited]: "DEF-forearm.L",
-};
-
 export const SKELETON_TORSO_NAMES: Record<SkeletonStructure, string> = {
   [SkeletonStructure.Quaternius]: "Torso",
   [SkeletonStructure.Mixamo]: "mixamorig:Spine2",

@@ -167,9 +167,9 @@ function setExperimentalCombatantProperties(combatantProperties: CombatantProper
   // combatantProperties.level = 5;
   // combatantProperties.unspentAttributePoints = 100;
   combatantProperties.inherentAttributes[CombatAttribute.Speed] = 5;
-  combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 15;
-  combatantProperties.inherentAttributes[CombatAttribute.Strength] = 26;
-  combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 26;
+  combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 45;
+  combatantProperties.inherentAttributes[CombatAttribute.Strength] = 40;
+  combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 40;
   // combatantProperties.inherentAttributes[CombatAttribute.Hp] = 1000;
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;

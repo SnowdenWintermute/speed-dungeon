@@ -155,7 +155,15 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
 
   getFallbackAnimationName(animationName: SkeletalAnimationName) {
     // if (animationName === AnimationName.MeleeOffHand) return AnimationName.MeleeMainHand;
-    if (animationName === SkeletalAnimationName.MoveBack) return SkeletalAnimationName.MoveForward;
-    if (animationName === SkeletalAnimationName.Idle) return SkeletalAnimationName.MoveForward;
+    if (animationName === SkeletalAnimationName.MoveBack)
+      return SkeletalAnimationName.MoveForwardLoop;
+    const idleAnimationNames = [
+      SkeletalAnimationName.IdleUnarmed,
+      SkeletalAnimationName.IdleBow,
+      SkeletalAnimationName.IdleTwoHand,
+      SkeletalAnimationName.IdleDualWield,
+      SkeletalAnimationName.IdleMainHand,
+    ];
+    if (idleAnimationNames.includes(animationName)) return SkeletalAnimationName.IdleUnarmed;
   }
 }
