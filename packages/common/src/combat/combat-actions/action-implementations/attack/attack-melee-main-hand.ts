@@ -89,15 +89,35 @@ const config: CombatActionComponentConfig = {
       if (hitPointChanges) {
         for (const [_, hpChange] of hitPointChanges.getRecords()) {
           const { kineticDamageTypeOption } = hpChange.source;
+          console.log("KINETIC OPTION: ", kineticDamageTypeOption);
+
           if (kineticDamageTypeOption !== undefined)
             switch (kineticDamageTypeOption) {
               case KineticDamageType.Blunt:
               case KineticDamageType.Slashing:
+                if (
+                  mainhandEquipmentOption.equipmentBaseItemProperties.equipmentType ===
+                  EquipmentType.TwoHandedMeleeWeapon
+                ) {
+                  console.log("selecting 2h swangin");
+                  chamberingAnimation = SkeletalAnimationName.TwoHandSwingChambering;
+                  deliveryAnimation = SkeletalAnimationName.TwoHandSwingDelivery;
+                  recoveryAnimation = SkeletalAnimationName.TwoHandSwingRecovery;
+                }
                 break;
               case KineticDamageType.Piercing:
-                chamberingAnimation = SkeletalAnimationName.MainHandStabChambering;
-                deliveryAnimation = SkeletalAnimationName.MainHandStabDelivery;
-                recoveryAnimation = SkeletalAnimationName.MainHandStabRecovery;
+                if (
+                  mainhandEquipmentOption.equipmentBaseItemProperties.equipmentType ===
+                  EquipmentType.TwoHandedMeleeWeapon
+                ) {
+                  chamberingAnimation = SkeletalAnimationName.TwoHandStabChambering;
+                  deliveryAnimation = SkeletalAnimationName.TwoHandStabDelivery;
+                  recoveryAnimation = SkeletalAnimationName.TwoHandStabRecovery;
+                } else {
+                  chamberingAnimation = SkeletalAnimationName.MainHandStabChambering;
+                  deliveryAnimation = SkeletalAnimationName.MainHandStabDelivery;
+                  recoveryAnimation = SkeletalAnimationName.MainHandStabRecovery;
+                }
             }
         }
       }

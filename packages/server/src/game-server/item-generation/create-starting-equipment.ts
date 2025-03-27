@@ -30,15 +30,15 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
     case CombatantClass.Warrior:
       mainhand = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.ShortSword,
+          equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+          baseItemType: TwoHandedMeleeWeapon.SplittingMaul,
         },
         true
       );
-      offhand = generateSpecificEquipmentType(
-        { equipmentType: EquipmentType.Shield, baseItemType: Shield.KiteShield },
-        true
-      );
+      // offhand = generateSpecificEquipmentType(
+      //   { equipmentType: EquipmentType.Shield, baseItemType: Shield.KiteShield },
+      //   true
+      // );
       // startingEquipment[EquipmentSlot.MainHand]
       break;
     case CombatantClass.Mage:
@@ -84,7 +84,6 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
 
   if (mainhand instanceof Error) return mainhand;
   //@ts-ignore
-  console.log("created bow: ", mainhand.equipmentBaseItemProperties.damageClassification);
   mainhand.affixes[AffixType.Prefix][PrefixType.LifeSteal] = {
     combatAttributes: {},
     tier: 1,

@@ -69,22 +69,22 @@ const listening = expressApp.listen(PORT, async () => {
   combatant.combatantProperties.combatActionTarget = targets;
   // console.log(JSON.stringify(combatantPositions, null, 2));
 
-  processCombatAction(
-    new CombatActionExecutionIntent(CombatActionName.ExplodingArrowParent, targets),
-    combatantContext
-  );
-  processCombatAction(
-    new CombatActionExecutionIntent(CombatActionName.ExplodingArrowParent, targets),
-    combatantContext
-  );
-  processCombatAction(
-    new CombatActionExecutionIntent(CombatActionName.ExplodingArrowParent, targets),
-    combatantContext
-  );
-  processCombatAction(
-    new CombatActionExecutionIntent(CombatActionName.AttackRangedMainhand, targets),
-    combatantContext
-  );
+  // processCombatAction(
+  //   new CombatActionExecutionIntent(CombatActionName.ExplodingArrowParent, targets),
+  //   combatantContext
+  // );
+  // processCombatAction(
+  //   new CombatActionExecutionIntent(CombatActionName.ExplodingArrowParent, targets),
+  //   combatantContext
+  // );
+  // processCombatAction(
+  //   new CombatActionExecutionIntent(CombatActionName.ExplodingArrowParent, targets),
+  //   combatantContext
+  // );
+  // processCombatAction(
+  //   new CombatActionExecutionIntent(CombatActionName.AttackRangedMainhand, targets),
+  //   combatantContext
+  // );
   // processCombatAction(
   //   new CombatActionExecutionIntent(CombatActionName.AttackRangedMainhand, targets),
   //   combatantContext

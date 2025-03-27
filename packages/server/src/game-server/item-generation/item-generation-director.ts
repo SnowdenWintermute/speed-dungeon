@@ -39,6 +39,7 @@ export class ItemGenerationDirector {
           baseItemResult.taggedBaseEquipment
         );
         if (equipmentBaseItemProperties instanceof Error) return equipmentBaseItemProperties;
+
         const durabilityResult = builder.buildDurability(baseItemResult.taggedBaseEquipment);
         if (durabilityResult instanceof Error) return durabilityResult;
 

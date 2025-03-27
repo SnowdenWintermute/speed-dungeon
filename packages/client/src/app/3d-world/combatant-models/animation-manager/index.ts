@@ -5,17 +5,21 @@ export type ManagedAnimationOptions = {
 };
 
 export abstract class ManagedAnimation<T> {
-  timeStarted: number = Date.now();
+  protected timeStarted: number = Date.now();
   weight: number = 0;
   constructor(
-    public animationGroupOption: null | T,
-    public transitionDuration: number = 0,
-    public options: ManagedAnimationOptions
+    protected animationGroup: T,
+    public readonly transitionDuration: number,
+    protected options: ManagedAnimationOptions
   ) {}
 
   abstract setWeight(newWeight: number): void;
 
   abstract isCompleted(): boolean;
+
+  elapsed() {
+    return Date.now() - this.timeStarted;
+  }
 }
 
 export abstract class AnimationManager<T> {
@@ -24,7 +28,7 @@ export abstract class AnimationManager<T> {
   locked: boolean = false;
   constructor() {}
 
-  abstract cloneAnimationOption(animationGroupOption: undefined | T): null | T;
+  abstract cloneAnimation(animationGroup: T): T;
 
   abstract startAnimationWithTransition(
     newAnimationName: number,
@@ -33,8 +37,6 @@ export abstract class AnimationManager<T> {
   ): void;
 
   abstract stepAnimationTransitionWeights(): Error | void;
-
-  abstract cleanUpFinishedAnimation(managedAnimation: ManagedAnimation<T>): void;
 
   abstract handleCompletedAnimations(): void;
 

@@ -27,10 +27,11 @@ export class HpChangeSource {
   lifestealPercentage?: number;
   constructor(config: HpChangeSourceConfig) {
     this.category = config.category;
-    config.kineticDamageTypeOption !== null && this.kineticDamageTypeOption;
-    config.elementOption !== null && this.elementOption;
-    config.isHealing !== null && this.isHealing;
-    config.lifestealPercentage !== null && this.lifestealPercentage;
+    if (config.kineticDamageTypeOption !== null)
+      this.kineticDamageTypeOption = config.kineticDamageTypeOption;
+    if (config.elementOption !== null) this.elementOption = config.elementOption;
+    if (config.isHealing !== null) this.isHealing = config.isHealing;
+    if (config.lifestealPercentage !== null) this.lifestealPercentage = config.lifestealPercentage;
   }
 }
 

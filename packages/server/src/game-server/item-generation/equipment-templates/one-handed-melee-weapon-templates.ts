@@ -7,6 +7,7 @@ import {
   KineticDamageType,
   MagicalElement,
   NumberRange,
+  ONE_HANDED_MELEE_WEAPON_NAMES,
   OneHandedMeleeWeapon,
   PrefixType,
   SuffixType,
@@ -71,6 +72,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
       baseItemType: weapon,
     });
+
     let mainDamageClassification: null | HpChangeSource = new HpChangeSource({
       category: HpChangeSourceCategory.Physical,
       kineticDamageTypeOption: KineticDamageType.Blunt,
@@ -138,6 +140,8 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.damage = new NumberRange(6, 15);
         template.numDamageClassifications = 2;
         mainDamageClassification = null;
+        console.log("set main damage classification null", mainDamageClassification);
+
         template.possibleDamageClassifications = [
           new HpChangeSource({
             category: HpChangeSourceCategory.Physical,
@@ -189,19 +193,16 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.damage = new NumberRange(2, 12);
         template.numDamageClassifications = 2;
         mainDamageClassification = null;
-        template.possibleDamageClassifications = template.possibleDamageClassifications =
-          iterateNumericEnum(MagicalElement)
-            .filter(
-              (element) => element !== MagicalElement.Dark && element !== MagicalElement.Light
-            )
-            .map(
-              (element) =>
-                new HpChangeSource({
-                  category: HpChangeSourceCategory.Physical,
-                  kineticDamageTypeOption: KineticDamageType.Slashing,
-                  elementOption: element,
-                })
-            );
+        template.possibleDamageClassifications = iterateNumericEnum(MagicalElement)
+          .filter((element) => element !== MagicalElement.Dark && element !== MagicalElement.Light)
+          .map(
+            (element) =>
+              new HpChangeSource({
+                category: HpChangeSourceCategory.Physical,
+                kineticDamageTypeOption: KineticDamageType.Slashing,
+                elementOption: element,
+              })
+          );
         template.requirements[CombatAttribute.Strength] = 18;
         template.requirements[CombatAttribute.Dexterity] = 7;
         template.requirements[CombatAttribute.Intelligence] = 3;
@@ -259,8 +260,12 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         break;
     }
 
-    if (mainDamageClassification !== null)
+    if (mainDamageClassification !== null) {
+      console.log(ONE_HANDED_MELEE_WEAPON_NAMES[weapon], "main damage classification not null");
       template.possibleDamageClassifications = [mainDamageClassification];
+    }
+
+    console.log(ONE_HANDED_MELEE_WEAPON_NAMES[weapon], template.possibleDamageClassifications);
 
     toReturn[weapon] = template;
   }
