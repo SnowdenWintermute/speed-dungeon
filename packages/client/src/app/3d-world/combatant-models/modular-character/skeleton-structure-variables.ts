@@ -11,7 +11,7 @@ export const SKELETON_ARMATURE_NAMES: Record<SkeletonStructure, string> = {
   [SkeletonStructure.Quaternius]: "CharacterArmature",
   [SkeletonStructure.Mixamo]: "CharacterArmature",
   [SkeletonStructure.FreeMoCap]: "",
-  [SkeletonStructure.MixamoEdited]: "Rig",
+  [SkeletonStructure.MixamoEdited]: "CharacterArmature",
 };
 
 export const SKELETON_MAIN_HAND_NAMES: Record<SkeletonStructure, string> = {

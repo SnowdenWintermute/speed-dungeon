@@ -104,14 +104,18 @@ export function induceHitRecovery(
         )
       );
 
-      targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Death, 0, {
-        shouldLoop: false,
-        animationDurationOverrideOption: null,
-        animationEventOption: null,
-        onComplete: () => {
-          targetModel.animationManager.locked = true;
-        },
-      });
+      targetModel.animationManager.startAnimationWithTransition(
+        SkeletalAnimationName.DeathBack,
+        0,
+        {
+          shouldLoop: false,
+          animationDurationOverrideOption: null,
+          animationEventOption: null,
+          onComplete: () => {
+            targetModel.animationManager.locked = true;
+          },
+        }
+      );
     } else if (hpChange.value < 0) {
       const hasCritRecoveryAnimation = targetModel.animationManager.getAnimationGroupByName(
         SkeletalAnimationName.HitRecovery
