@@ -95,12 +95,6 @@ export class ReplayTreeProcessor {
       let currentStepComplete = branch.currentStepIsComplete();
       while (currentStepComplete && !branchComplete) {
         const completedUpdateOption = branch.getCurrentGameUpdate();
-        if (completedUpdateOption)
-          console.log(
-            "finished processing ",
-            GAME_UPDATE_COMMAND_TYPE_STRINGS[completedUpdateOption.command.type],
-            gameWorld.current?.tickCounter
-          );
 
         branch.startProcessingNext();
         if (branch.getCurrentGameUpdate() === null) break;

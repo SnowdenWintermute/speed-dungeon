@@ -36,6 +36,9 @@ import {
   CombatActionCombatantAnimations,
 } from "../../combat-action-animations.js";
 import { AnimationTimingType } from "../../../../action-processing/game-update-commands.js";
+import { ActionResolutionStepContext } from "../../../../action-processing/index.js";
+import { HpChangeSourceCategory } from "../../../hp-change-source-types.js";
+import { KineticDamageType } from "../../../kinetic-damage-types.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -92,32 +95,70 @@ const config: CombatActionComponentConfig = {
 
     return !SpeedDungeonGame.allCombatantsInGroupAreDead(game, targetIdsResult);
   },
-  getActionStepAnimations: (combatantContext: CombatantContext) => {
-    // @TODO - get damage type
+  getActionStepAnimations: (context) => {
+    let chamberingAnimation = SkeletalAnimationName.OffHandSwingChambering;
+    let deliveryAnimation = SkeletalAnimationName.OffHandSwingDelivery;
+    let recoveryAnimation = SkeletalAnimationName.OffHandSwingRecovery;
+
+    const { combatantProperties } = context.combatantContext.combatant;
+
+    const offhandEquipmentOption = CombatantEquipment.getEquippedHoldable(
+      combatantProperties,
+      HoldableSlotType.OffHand
+    );
+
+    if (
+      !offhandEquipmentOption ||
+      offhandEquipmentOption.equipmentBaseItemProperties.equipmentType === EquipmentType.Shield
+    ) {
+      chamberingAnimation = SkeletalAnimationName.OffHandUnarmedChambering;
+      deliveryAnimation = SkeletalAnimationName.OffHandUnarmedDelivery;
+      recoveryAnimation = SkeletalAnimationName.OffHandUnarmedRecovery;
+      console.log("set animations for unarmed offhand");
+    } else {
+      const { tracker } = context;
+      const { hitPointChanges } = tracker.hitOutcomes;
+      if (hitPointChanges) {
+        for (const [_, hpChange] of hitPointChanges.getRecords()) {
+          const { kineticDamageTypeOption } = hpChange.source;
+          if (kineticDamageTypeOption !== undefined)
+            switch (kineticDamageTypeOption) {
+              case KineticDamageType.Blunt:
+              case KineticDamageType.Slashing:
+                break;
+              case KineticDamageType.Piercing:
+                chamberingAnimation = SkeletalAnimationName.OffHandStabChambering;
+                deliveryAnimation = SkeletalAnimationName.OffHandStabDelivery;
+                recoveryAnimation = SkeletalAnimationName.OffHandStabRecovery;
+            }
+        }
+      }
+    }
+
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {
         name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
         timing: { type: AnimationTimingType.Looping },
       },
       [CombatActionAnimationPhase.Chambering]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.OffHandSwingDelivery },
+        name: { type: AnimationType.Skeletal, name: chamberingAnimation },
         timing: { type: AnimationTimingType.Timed, duration: 300 },
       },
       [CombatActionAnimationPhase.Delivery]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.OffHandSwingDelivery },
+        name: { type: AnimationType.Skeletal, name: deliveryAnimation },
         timing: { type: AnimationTimingType.Timed, duration: 1200 },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
         name: {
           type: AnimationType.Skeletal,
-          name: SkeletalAnimationName.OffHandSwingRecovery,
+          name: recoveryAnimation,
         },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },
       [CombatActionAnimationPhase.RecoveryInterrupted]: {
         name: {
           type: AnimationType.Skeletal,
-          name: SkeletalAnimationName.OffHandSwingRecovery,
+          name: recoveryAnimation,
         },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },

@@ -64,7 +64,7 @@ const config: CombatActionComponentConfig = {
   getExecutionTime: () => 300,
   requiresCombatTurn: () => true,
   shouldExecute: () => true,
-  getActionStepAnimations: (combatantContext: CombatantContext) => {
+  getActionStepAnimations: (context) => {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Delivery]: {
         name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDelivery },

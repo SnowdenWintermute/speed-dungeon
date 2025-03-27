@@ -42,7 +42,7 @@ export const RANGED_ACTIONS_COMMON_CONFIG = {
   getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
     return getStandardActionArmorPenetration(user, CombatAttribute.Dexterity);
   },
-  getActionStepAnimations: (combatantContext: CombatantContext) => {
+  getActionStepAnimations: (context: ActionResolutionStepContext) => {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {
         name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },

@@ -69,7 +69,7 @@ export interface CombatActionComponentConfig {
   requiresCombatTurn: (user: CombatantProperties) => boolean;
   shouldExecute: (combatantContext: CombatantContext, self: CombatActionComponent) => boolean;
   getActionStepAnimations: (
-    combatantContex: CombatantContext
+    context: ActionResolutionStepContext
   ) => null | CombatActionCombatantAnimations;
   getRequiredRange: (
     user: CombatantProperties,
@@ -166,7 +166,9 @@ export abstract class CombatActionComponent {
   // spawn mobile effect (effectName (Arrow, Firebolt), origin, destination, speed, easingFn, getPercentCompleteToProceed(), onProceed())
   // spawn stream effect (effectName (lightning arc, healing beam), origin, destination, duration, easingFn, getPercentCompleteToProceed(), onProceed())
   // spawn static effect (effectName (Protect, SpellSparkles), position, duration, getPercentCompleteToProceed(), onProceed())
-  getActionStepAnimations: (context: CombatantContext) => null | CombatActionCombatantAnimations;
+  getActionStepAnimations: (
+    context: ActionResolutionStepContext
+  ) => null | CombatActionCombatantAnimations;
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   motionPhasePositionGetters: Partial<
     Record<ActionMotionPhase, (context: ActionResolutionStepContext) => Error | null | Vector3>

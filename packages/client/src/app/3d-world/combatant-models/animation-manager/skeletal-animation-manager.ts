@@ -136,8 +136,6 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     }
 
     if (this.playing === null && this.previous === null && !this.locked) {
-      console.log("no playing or previous animation");
-      // console.log("tried to start idle");
       this.characterModel.startIdleAnimation(500); // circular ref
     }
   }

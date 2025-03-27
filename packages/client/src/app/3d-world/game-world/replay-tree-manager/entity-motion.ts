@@ -26,7 +26,7 @@ export function entityMotionGameUpdateHandler(update: {
 
   let destinationYOption: undefined | number;
 
-  console.log("entity: ", entityId, ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step]);
+  // console.log("entity: ", entityId, ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step]);
 
   if (command.entityType === SpawnableEntityType.Combatant) {
     const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];

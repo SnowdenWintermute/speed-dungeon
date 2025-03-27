@@ -46,6 +46,7 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
   getResolutionSteps() {
     return [
       ActionResolutionStepType.InitialPositioning,
+      ActionResolutionStepType.ChamberingMotion,
       ActionResolutionStepType.DeliveryMotion,
       ActionResolutionStepType.PayResourceCosts,
       ActionResolutionStepType.EvalOnUseTriggers,

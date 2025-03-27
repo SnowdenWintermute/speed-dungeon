@@ -28,7 +28,11 @@ import {
   CombatActionAnimationPhase,
   CombatActionCombatantAnimations,
 } from "../../combat-action-animations.js";
-import { AnimationTimingType } from "../../../../action-processing/index.js";
+import {
+  ActionResolutionStepContext,
+  AnimationTimingType,
+} from "../../../../action-processing/index.js";
+import { KineticDamageType } from "../../../kinetic-damage-types.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -60,31 +64,69 @@ const config: CombatActionComponentConfig = {
     return false;
   },
   shouldExecute: () => true,
-  getActionStepAnimations: (combatantContext: CombatantContext) => {
+  getActionStepAnimations: (context) => {
+    let chamberingAnimation = SkeletalAnimationName.MainHandSwingChambering;
+    let deliveryAnimation = SkeletalAnimationName.MainHandSwingDelivery;
+    let recoveryAnimation = SkeletalAnimationName.MainHandSwingRecovery;
+
+    const { combatantProperties } = context.combatantContext.combatant;
+
+    const mainhandEquipmentOption = CombatantEquipment.getEquippedHoldable(
+      combatantProperties,
+      HoldableSlotType.MainHand
+    );
+
+    if (
+      !mainhandEquipmentOption ||
+      mainhandEquipmentOption.equipmentBaseItemProperties.equipmentType === EquipmentType.Shield
+    ) {
+      chamberingAnimation = SkeletalAnimationName.MainHandUnarmedChambering;
+      deliveryAnimation = SkeletalAnimationName.MainHandUnarmedDelivery;
+      recoveryAnimation = SkeletalAnimationName.MainHandUnarmedRecovery;
+    } else {
+      const { tracker } = context;
+      const { hitPointChanges } = tracker.hitOutcomes;
+      if (hitPointChanges) {
+        for (const [_, hpChange] of hitPointChanges.getRecords()) {
+          const { kineticDamageTypeOption } = hpChange.source;
+          if (kineticDamageTypeOption !== undefined)
+            switch (kineticDamageTypeOption) {
+              case KineticDamageType.Blunt:
+              case KineticDamageType.Slashing:
+                break;
+              case KineticDamageType.Piercing:
+                chamberingAnimation = SkeletalAnimationName.MainHandStabChambering;
+                deliveryAnimation = SkeletalAnimationName.MainHandStabDelivery;
+                recoveryAnimation = SkeletalAnimationName.MainHandStabRecovery;
+            }
+        }
+      }
+    }
+
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {
         name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
         timing: { type: AnimationTimingType.Looping },
       },
       [CombatActionAnimationPhase.Chambering]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MainHandSwingDelivery },
+        name: { type: AnimationType.Skeletal, name: chamberingAnimation },
         timing: { type: AnimationTimingType.Timed, duration: 300 },
       },
       [CombatActionAnimationPhase.Delivery]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MainHandSwingDelivery },
+        name: { type: AnimationType.Skeletal, name: deliveryAnimation },
         timing: { type: AnimationTimingType.Timed, duration: 1200 },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
         name: {
           type: AnimationType.Skeletal,
-          name: SkeletalAnimationName.MainHandSwingRecovery,
+          name: recoveryAnimation,
         },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },
       [CombatActionAnimationPhase.RecoveryInterrupted]: {
         name: {
           type: AnimationType.Skeletal,
-          name: SkeletalAnimationName.MainHandSwingRecovery,
+          name: recoveryAnimation,
         },
         timing: { type: AnimationTimingType.Timed, duration: 700 },
       },
