@@ -104,6 +104,7 @@ const config: CombatActionComponentConfig = {
   getParent: () => ATTACK,
   getResolutionSteps() {
     return [
+      ActionResolutionStepType.DetermineActionAnimations,
       ActionResolutionStepType.InitialPositioning,
       ActionResolutionStepType.ChamberingMotion,
       ActionResolutionStepType.PostChamberingSpawnEntity,

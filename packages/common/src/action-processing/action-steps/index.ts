@@ -88,6 +88,7 @@ export enum ActionMotionPhase {
 
 export enum ActionResolutionStepType {
   DetermineChildActions,
+  DetermineActionAnimations,
   InitialPositioning, // motion
   ChamberingMotion, // motion
   PostChamberingSpawnEntity,
@@ -105,6 +106,7 @@ export enum ActionResolutionStepType {
 
 export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepType, string> = {
   [ActionResolutionStepType.DetermineChildActions]: "determineChildActions",
+  [ActionResolutionStepType.DetermineActionAnimations]: "determineActionAnimations",
   [ActionResolutionStepType.InitialPositioning]: "initialPositioning",
   [ActionResolutionStepType.ChamberingMotion]: "chamberingMotion",
   [ActionResolutionStepType.PostChamberingSpawnEntity]: "postChamberingSpawnEntity",

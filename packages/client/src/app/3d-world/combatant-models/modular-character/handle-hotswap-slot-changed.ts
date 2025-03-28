@@ -42,6 +42,7 @@ export async function handleHotswapSlotChanged(
   }
 
   if (this.isIdling()) this.startIdleAnimation(500);
+  else console.log("wasn't idling on hotswap change");
 }
 
 async function spawnItemModelIfNotAlready(

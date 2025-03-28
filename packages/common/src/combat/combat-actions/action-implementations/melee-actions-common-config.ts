@@ -45,6 +45,7 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
   },
   getResolutionSteps() {
     return [
+      ActionResolutionStepType.DetermineActionAnimations,
       ActionResolutionStepType.InitialPositioning,
       ActionResolutionStepType.ChamberingMotion,
       ActionResolutionStepType.DeliveryMotion,
@@ -68,6 +69,8 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
       if (primaryTargetResult instanceof Error) return primaryTargetResult;
       const target = primaryTargetResult;
       const user = combatantContext.combatant.combatantProperties;
+
+      return user.position.clone();
 
       const distance = Vector3.Distance(target.position, user.position);
       if (
@@ -95,6 +98,8 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
       if (primaryTargetResult instanceof Error) return primaryTargetResult;
       const target = primaryTargetResult;
       const user = combatantContext.combatant.combatantProperties;
+
+      return user.position.clone();
 
       const distance = Vector3.Distance(target.position, user.position);
       if (

@@ -89,7 +89,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       const speedModifier = animationStockDuration / (options.animationDurationOverrideOption ?? 1);
 
       // clonedAnimationOption.start(options.shouldLoop, speedModifier);
-      clonedAnimation.start(options.shouldLoop, 0.25);
+      clonedAnimation.start(options.shouldLoop, 1);
     } else clonedAnimation.start(options.shouldLoop);
   }
 

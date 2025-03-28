@@ -257,7 +257,7 @@ export class ModularCharacter {
   }
 
   isIdling() {
-    const currentAnimationName = this.animationManager.playing?.animationGroupOption?.name;
+    const currentAnimationName = this.animationManager.playing?.getName();
 
     return (
       currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleUnarmed] ||

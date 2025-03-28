@@ -182,7 +182,7 @@ export function calculateActionHitOutcomes(
   return hitOutcomes;
 }
 
-function getIncomingHpChangePerTarget(
+export function getIncomingHpChangePerTarget(
   action: CombatActionComponent,
   user: CombatantProperties,
   primaryTargetCombatantProperties: CombatantProperties,

@@ -51,9 +51,10 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
 
     // GET ANIMATION
-    const animationsOption = action.getActionStepAnimations(this.context);
-    if (animationsOption) {
-      const animationOption = animationsOption[CombatActionAnimationPhase.Delivery];
+    const animationsOptionResult = action.getActionStepAnimations(this.context);
+    if (animationsOptionResult instanceof Error) throw animationsOptionResult;
+    if (animationsOptionResult) {
+      const animationOption = animationsOptionResult[CombatActionAnimationPhase.Delivery];
       if (animationOption) {
         this.animationOption = animationOption;
       }

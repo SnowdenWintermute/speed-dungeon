@@ -36,9 +36,10 @@ import {
   CombatActionCombatantAnimations,
 } from "../../combat-action-animations.js";
 import { AnimationTimingType } from "../../../../action-processing/game-update-commands.js";
-import { ActionResolutionStepContext } from "../../../../action-processing/index.js";
-import { HpChangeSourceCategory } from "../../../hp-change-source-types.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
+import { COMBAT_ACTIONS } from "../index.js";
+import { getIncomingHpChangePerTarget } from "../../../action-results/index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -95,7 +96,48 @@ const config: CombatActionComponentConfig = {
 
     return !SpeedDungeonGame.allCombatantsInGroupAreDead(game, targetIdsResult);
   },
+
+  getResolutionSteps() {
+    return [
+      ActionResolutionStepType.DetermineActionAnimations,
+      ActionResolutionStepType.ChamberingMotion,
+      ActionResolutionStepType.DeliveryMotion,
+      ActionResolutionStepType.PayResourceCosts,
+      ActionResolutionStepType.EvalOnUseTriggers,
+      ActionResolutionStepType.RollIncomingHitOutcomes,
+      ActionResolutionStepType.EvalOnHitOutcomeTriggers,
+      ActionResolutionStepType.RecoveryMotion,
+    ];
+  },
   getActionStepAnimations: (context) => {
+    // we need to see what type of damage we want to do to determine the correct animation
+    const { party } = context.combatantContext;
+    const { actionExecutionIntent } = context.tracker;
+
+    const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+    const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+
+    const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+      party,
+      actionExecutionIntent
+    );
+    if (primaryTargetResult instanceof Error) return primaryTargetResult;
+    const target = primaryTargetResult;
+
+    const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
+      action,
+      actionExecutionIntent.targets
+    );
+    if (targetIdsResult instanceof Error) return targetIdsResult;
+    const targetIds = targetIdsResult;
+
+    const incomingHpChangePerTargetOption = getIncomingHpChangePerTarget(
+      action,
+      context.combatantContext.combatant.combatantProperties,
+      target,
+      targetIds
+    );
+
     let chamberingAnimation = SkeletalAnimationName.OffHandSwingChambering;
     let deliveryAnimation = SkeletalAnimationName.OffHandSwingDelivery;
     let recoveryAnimation = SkeletalAnimationName.OffHandSwingRecovery;
@@ -109,6 +151,7 @@ const config: CombatActionComponentConfig = {
 
     if (
       !offhandEquipmentOption ||
+      Equipment.isBroken(offhandEquipmentOption) ||
       offhandEquipmentOption.equipmentBaseItemProperties.equipmentType === EquipmentType.Shield
     ) {
       chamberingAnimation = SkeletalAnimationName.OffHandUnarmedChambering;
@@ -116,30 +159,22 @@ const config: CombatActionComponentConfig = {
       recoveryAnimation = SkeletalAnimationName.OffHandUnarmedRecovery;
       console.log("set animations for unarmed offhand");
     } else {
-      const { tracker } = context;
-      const { hitPointChanges } = tracker.hitOutcomes;
-      if (hitPointChanges) {
-        for (const [_, hpChange] of hitPointChanges.getRecords()) {
-          const { kineticDamageTypeOption } = hpChange.source;
-          if (kineticDamageTypeOption !== undefined)
-            switch (kineticDamageTypeOption) {
-              case KineticDamageType.Blunt:
-              case KineticDamageType.Slashing:
-                break;
-              case KineticDamageType.Piercing:
-                chamberingAnimation = SkeletalAnimationName.OffHandStabChambering;
-                deliveryAnimation = SkeletalAnimationName.OffHandStabDelivery;
-                recoveryAnimation = SkeletalAnimationName.OffHandStabRecovery;
-            }
-        }
+      if (incomingHpChangePerTargetOption) {
+        const { kineticDamageTypeOption } = incomingHpChangePerTargetOption.hpChangeSource;
+        if (kineticDamageTypeOption !== undefined)
+          switch (kineticDamageTypeOption) {
+            case KineticDamageType.Blunt:
+            case KineticDamageType.Slashing:
+              break;
+            case KineticDamageType.Piercing:
+              chamberingAnimation = SkeletalAnimationName.OffHandStabChambering;
+              deliveryAnimation = SkeletalAnimationName.OffHandStabDelivery;
+              recoveryAnimation = SkeletalAnimationName.OffHandStabRecovery;
+          }
       }
     }
 
     const animations: CombatActionCombatantAnimations = {
-      [CombatActionAnimationPhase.Initial]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
-        timing: { type: AnimationTimingType.Looping },
-      },
       [CombatActionAnimationPhase.Chambering]: {
         name: { type: AnimationType.Skeletal, name: chamberingAnimation },
         timing: { type: AnimationTimingType.Timed, duration: 300 },
@@ -180,7 +215,7 @@ const config: CombatActionComponentConfig = {
       user,
       primaryTarget,
       CombatAttribute.Strength,
-      HoldableSlotType.MainHand
+      HoldableSlotType.OffHand
     );
     if (hpChangeProperties instanceof Error) return hpChangeProperties;
 

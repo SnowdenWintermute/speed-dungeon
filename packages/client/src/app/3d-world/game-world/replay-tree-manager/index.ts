@@ -24,6 +24,7 @@ export class ReplayTreeManager {
   }
 
   async enqueueTree(tree: NestedNodeReplayEvent) {
+    console.log("new tree:", tree.events);
     this.queue.push(tree);
 
     useGameStore.getState().mutateState((state) => {

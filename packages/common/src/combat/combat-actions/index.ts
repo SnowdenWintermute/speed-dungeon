@@ -33,7 +33,6 @@ import {
   ActionMotionPhase,
   ActionResolutionStepContext,
   ActionResolutionStepType,
-  EntityAnimation,
 } from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 import { Vector3 } from "@babylonjs/core";
@@ -70,7 +69,7 @@ export interface CombatActionComponentConfig {
   shouldExecute: (combatantContext: CombatantContext, self: CombatActionComponent) => boolean;
   getActionStepAnimations: (
     context: ActionResolutionStepContext
-  ) => null | CombatActionCombatantAnimations;
+  ) => null | Error | CombatActionCombatantAnimations;
   getRequiredRange: (
     user: CombatantProperties,
     self: CombatActionComponent
@@ -168,7 +167,7 @@ export abstract class CombatActionComponent {
   // spawn static effect (effectName (Protect, SpellSparkles), position, duration, getPercentCompleteToProceed(), onProceed())
   getActionStepAnimations: (
     context: ActionResolutionStepContext
-  ) => null | CombatActionCombatantAnimations;
+  ) => null | Error | CombatActionCombatantAnimations;
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   motionPhasePositionGetters: Partial<
     Record<ActionMotionPhase, (context: ActionResolutionStepContext) => Error | null | Vector3>

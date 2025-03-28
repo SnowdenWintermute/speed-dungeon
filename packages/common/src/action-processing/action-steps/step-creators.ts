@@ -15,6 +15,7 @@ import { PayResourceCostsActionResolutionStep } from "./pay-resource-costs.js";
 import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
 import { SpawnEntityActionResolutionStep } from "./spawn-entity.js";
 import { StartConcurrentSubActionsActionResolutionStep } from "./start-concurrent-sub-actions.js";
+import { DetermineActionAnimationsActionResolutionStep } from "./determine-action-animations.js";
 
 // right now the idea is to have the action tracker call these creators, which in turn call
 // step class constructors. We don't call the constructors directly because this allows us
@@ -28,6 +29,8 @@ export const ACTION_STEP_CREATORS: Record<
 > = {
   [ActionResolutionStepType.DetermineChildActions]: (context) =>
     new DetermineChildActionsActionResolutionStep(context),
+  [ActionResolutionStepType.DetermineActionAnimations]: (context) =>
+    new DetermineActionAnimationsActionResolutionStep(context),
   [ActionResolutionStepType.InitialPositioning]: (context) =>
     new CombatantMotionActionResolutionStep(
       context,

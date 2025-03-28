@@ -79,6 +79,7 @@ const config: CombatActionComponentConfig = {
   },
   getResolutionSteps() {
     return [
+      ActionResolutionStepType.DetermineActionAnimations,
       ActionResolutionStepType.InitialPositioning,
       ActionResolutionStepType.ChamberingMotion,
       ActionResolutionStepType.DeliveryMotion,

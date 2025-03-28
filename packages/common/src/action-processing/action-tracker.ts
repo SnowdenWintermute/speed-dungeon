@@ -1,5 +1,6 @@
 import {
   COMBAT_ACTIONS,
+  CombatActionAnimationPhase,
   CombatActionExecutionIntent,
   CombatActionHitOutcomes,
 } from "../combat/index.js";
@@ -9,6 +10,7 @@ import { IdGenerator } from "../utility-classes/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
 import { ActionResolutionStep, ActionResolutionStepContext } from "./action-steps/index.js";
 import { ACTION_STEP_CREATORS } from "./action-steps/step-creators.js";
+import { EntityAnimation } from "./game-update-commands.js";
 
 export class ActionTracker {
   currentStep: ActionResolutionStep;
@@ -17,6 +19,9 @@ export class ActionTracker {
   wasInterrupted: boolean = false;
   spawnedEntityOption: null | SpawnableEntity = null;
   hitOutcomes = new CombatActionHitOutcomes();
+  actionAnimations: Partial<Record<CombatActionAnimationPhase, EntityAnimation | null>> | null =
+    null;
+
   constructor(
     public parentActionManager: ActionSequenceManager,
     public id: string,

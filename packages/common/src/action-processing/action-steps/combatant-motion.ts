@@ -72,7 +72,8 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
       gameUpdateCommand.translationOption = translation;
     }
 
-    const animationsOption = action.getActionStepAnimations(context);
+    const animationsOption = this.context.tracker.actionAnimations;
+
     if (animationsOption) {
       const animationOption = animationsOption[animationPhase];
       if (animationOption) {

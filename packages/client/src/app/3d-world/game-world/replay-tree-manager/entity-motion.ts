@@ -5,7 +5,6 @@ import {
   EntityMotionGameUpdateCommand,
   MobileVfxName,
   SpawnableEntityType,
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
 } from "@speed-dungeon/common";
 import { ModelMovementManager } from "../../model-movement-manager";
 import { ManagedAnimationOptions } from "../../combatant-models/animation-manager";
@@ -114,7 +113,7 @@ export function entityMotionGameUpdateHandler(update: {
     };
     animationManager.startAnimationWithTransition(
       animationOption.name.name as SkeletalAnimationName,
-      command.instantTransition ? 0 : 500,
+      command.instantTransition ? 200 : 500,
       options
     );
   } else {

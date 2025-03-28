@@ -124,6 +124,7 @@ const config: CombatActionComponentConfig = {
   getArmorPenetration: (user, self) => 15,
   getResolutionSteps() {
     return [
+      ActionResolutionStepType.DetermineActionAnimations,
       ActionResolutionStepType.OnActivationSpawnEntity,
       ActionResolutionStepType.OnActivationVfxMotion,
       ActionResolutionStepType.RollIncomingHitOutcomes,

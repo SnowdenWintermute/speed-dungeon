@@ -111,7 +111,7 @@ export function attachHoldableModelToHolsteredPosition(
       equipmentParentMesh.rotation.y = Math.PI;
     } else {
       // move most weapons up a little
-      equipmentParentMesh.position.y = 0.15;
+      // equipmentParentMesh.position.y = 0.15;
     }
   }
 }

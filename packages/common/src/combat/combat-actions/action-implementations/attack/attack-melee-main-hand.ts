@@ -33,6 +33,9 @@ import {
   AnimationTimingType,
 } from "../../../../action-processing/index.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
+import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { COMBAT_ACTIONS } from "../index.js";
+import { getIncomingHpChangePerTarget } from "../../../action-results/index.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -78,48 +81,71 @@ const config: CombatActionComponentConfig = {
 
     if (
       !mainhandEquipmentOption ||
+      Equipment.isBroken(mainhandEquipmentOption) ||
       mainhandEquipmentOption.equipmentBaseItemProperties.equipmentType === EquipmentType.Shield
     ) {
       chamberingAnimation = SkeletalAnimationName.MainHandUnarmedChambering;
       deliveryAnimation = SkeletalAnimationName.MainHandUnarmedDelivery;
       recoveryAnimation = SkeletalAnimationName.MainHandUnarmedRecovery;
     } else {
-      const { tracker } = context;
-      const { hitPointChanges } = tracker.hitOutcomes;
-      if (hitPointChanges) {
-        for (const [_, hpChange] of hitPointChanges.getRecords()) {
-          const { kineticDamageTypeOption } = hpChange.source;
-          console.log("KINETIC OPTION: ", kineticDamageTypeOption);
+      // we need to see what type of damage we want to do to determine the correct animation
+      const { party } = context.combatantContext;
+      const { actionExecutionIntent } = context.tracker;
 
-          if (kineticDamageTypeOption !== undefined)
-            switch (kineticDamageTypeOption) {
-              case KineticDamageType.Blunt:
-              case KineticDamageType.Slashing:
-                if (
-                  mainhandEquipmentOption.equipmentBaseItemProperties.equipmentType ===
-                  EquipmentType.TwoHandedMeleeWeapon
-                ) {
-                  console.log("selecting 2h swangin");
-                  chamberingAnimation = SkeletalAnimationName.TwoHandSwingChambering;
-                  deliveryAnimation = SkeletalAnimationName.TwoHandSwingDelivery;
-                  recoveryAnimation = SkeletalAnimationName.TwoHandSwingRecovery;
-                }
-                break;
-              case KineticDamageType.Piercing:
-                if (
-                  mainhandEquipmentOption.equipmentBaseItemProperties.equipmentType ===
-                  EquipmentType.TwoHandedMeleeWeapon
-                ) {
-                  chamberingAnimation = SkeletalAnimationName.TwoHandStabChambering;
-                  deliveryAnimation = SkeletalAnimationName.TwoHandStabDelivery;
-                  recoveryAnimation = SkeletalAnimationName.TwoHandStabRecovery;
-                } else {
-                  chamberingAnimation = SkeletalAnimationName.MainHandStabChambering;
-                  deliveryAnimation = SkeletalAnimationName.MainHandStabDelivery;
-                  recoveryAnimation = SkeletalAnimationName.MainHandStabRecovery;
-                }
-            }
-        }
+      const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+      const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+
+      const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+        party,
+        actionExecutionIntent
+      );
+      if (primaryTargetResult instanceof Error) return primaryTargetResult;
+      const target = primaryTargetResult;
+
+      const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
+        action,
+        actionExecutionIntent.targets
+      );
+      if (targetIdsResult instanceof Error) return targetIdsResult;
+      const targetIds = targetIdsResult;
+
+      const incomingHpChangePerTargetOption = getIncomingHpChangePerTarget(
+        action,
+        context.combatantContext.combatant.combatantProperties,
+        target,
+        targetIds
+      );
+
+      if (incomingHpChangePerTargetOption) {
+        const { kineticDamageTypeOption } = incomingHpChangePerTargetOption.hpChangeSource;
+
+        if (kineticDamageTypeOption !== undefined)
+          switch (kineticDamageTypeOption) {
+            case KineticDamageType.Blunt:
+            case KineticDamageType.Slashing:
+              if (
+                mainhandEquipmentOption.equipmentBaseItemProperties.equipmentType ===
+                EquipmentType.TwoHandedMeleeWeapon
+              ) {
+                chamberingAnimation = SkeletalAnimationName.TwoHandSwingChambering;
+                deliveryAnimation = SkeletalAnimationName.TwoHandSwingDelivery;
+                recoveryAnimation = SkeletalAnimationName.TwoHandSwingRecovery;
+              }
+              break;
+            case KineticDamageType.Piercing:
+              if (
+                mainhandEquipmentOption.equipmentBaseItemProperties.equipmentType ===
+                EquipmentType.TwoHandedMeleeWeapon
+              ) {
+                chamberingAnimation = SkeletalAnimationName.TwoHandStabChambering;
+                deliveryAnimation = SkeletalAnimationName.TwoHandStabDelivery;
+                recoveryAnimation = SkeletalAnimationName.TwoHandStabRecovery;
+              } else {
+                chamberingAnimation = SkeletalAnimationName.MainHandStabChambering;
+                deliveryAnimation = SkeletalAnimationName.MainHandStabDelivery;
+                recoveryAnimation = SkeletalAnimationName.MainHandStabRecovery;
+              }
+          }
       }
     }
 

@@ -1,7 +1,12 @@
 import { CombatantProperties } from "../../../combatants/index.js";
-import { Equipment, WeaponProperties } from "../../../items/equipment/index.js";
+import {
+  Equipment,
+  ONE_HANDED_MELEE_WEAPON_NAMES,
+  WeaponProperties,
+} from "../../../items/equipment/index.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
 import { HpChangeSourceModifiers } from "../../hp-change-source-types.js";
+import { KINETIC_DAMAGE_TYPE_STRINGS } from "../../kinetic-damage-types.js";
 import { CombatActionHpChangeProperties } from "../combat-action-hp-change-properties.js";
 import { CombatActionComponent } from "../index.js";
 import { addWeaponsDamageToRange } from "./add-weapon-damage-to-range.js";
