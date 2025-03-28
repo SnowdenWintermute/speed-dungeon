@@ -30,6 +30,8 @@ import {
   iterateNumericEnumKeyedRecord,
   CombatantEquipment,
   EquipmentType,
+  iterateNumericEnum,
+  chooseRandomFromArray,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import { MONSTER_SCALING_SIZES } from "../monster-scaling-sizes";
@@ -46,6 +48,7 @@ import { ModelMovementManager } from "../../model-movement-manager";
 import { SKELETON_ARMATURE_NAMES, SKELETON_STRUCTURE_TYPE } from "./skeleton-structure-variables";
 import { SkeletalAnimationManager } from "../animation-manager/skeletal-animation-manager";
 import { useGameStore } from "@/stores/game-store";
+import { clear } from "console";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -83,6 +86,8 @@ export class ModularCharacter {
   highlightManager: HighlightManager = new HighlightManager(this);
   debugMeshes: Mesh[] | null = null;
 
+  testAnimationSwitcherAnimationName: SkeletalAnimationName = SkeletalAnimationName.IdleTwoHand;
+
   constructor(
     public entityId: string,
     public world: GameWorld,
@@ -96,7 +101,19 @@ export class ModularCharacter {
     startRotation: number = 0
   ) {
     this.animationManager = new SkeletalAnimationManager(this);
-    this.startIdleAnimation(0);
+    // this.startIdleAnimation(0);
+
+    this.testAnimationSwitcherAnimationName = SkeletalAnimationName.IdleTwoHand;
+    this.testAnimationSwitcher();
+    setTimeout(() => {
+      this.testAnimationSwitcherAnimationName = SkeletalAnimationName.TwoHandStabChambering;
+      this.testAnimationSwitcher();
+
+      // const newAnimationName = chooseRandomFromArray(iterateNumericEnum(SkeletalAnimationName));
+      // if (newAnimationName instanceof Error) {
+      //   throw newAnimationName;
+      // }
+    }, 700);
 
     // get rid of the placeholder mesh (usually a simple quad or tri) which
     // must be included in order for babylon to recognize the loaded asset as a skeleton
@@ -131,6 +148,13 @@ export class ModularCharacter {
     // this.setShowBones();
   }
 
+  testAnimationSwitcher() {
+    this.animationManager.startAnimationWithTransition(
+      this.testAnimationSwitcherAnimationName,
+      500
+    );
+  }
+
   setHomeRotation(rotation: number) {
     this.rootTransformNode.rotationQuaternion = Quaternion.RotationAxis(Vector3.Up(), rotation);
     this.homeLocation.rotation.copyFrom(this.rootTransformNode.rotationQuaternion);
@@ -150,7 +174,9 @@ export class ModularCharacter {
   startIdleAnimation(transitionMs: number) {
     const idleName = this.getIdleAnimationName();
     console.log("starting idle name: ", idleName, "for entity", this.entityId.slice(0, 4));
-    this.animationManager.startAnimationWithTransition(idleName, transitionMs);
+    this.animationManager.startAnimationWithTransition(idleName, transitionMs, {
+      shouldLoop: false,
+    });
   }
 
   getIdleAnimationName() {

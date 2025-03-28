@@ -115,7 +115,6 @@ export function hitOutcomesGameUpdateHandler(update: {
 
     targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Parry, 0, {
       shouldLoop: false,
-      animationDurationOverrideOption: null,
       onComplete: () => {},
     });
 

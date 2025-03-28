@@ -1,7 +1,7 @@
 export type ManagedAnimationOptions = {
-  shouldLoop: boolean;
-  animationDurationOverrideOption: null | number;
-  onComplete: () => void;
+  shouldLoop?: boolean;
+  animationDurationOverrideOption?: number;
+  onComplete?: () => void;
 };
 
 export abstract class ManagedAnimation<T> {

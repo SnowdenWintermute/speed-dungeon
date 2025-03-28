@@ -18,6 +18,12 @@ export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
     return this.animationGroup.name;
   }
 
+  getLength() {
+    if (this.options.animationDurationOverrideOption !== undefined)
+      return this.options.animationDurationOverrideOption;
+    return this.animationGroup.getLength() * 1000;
+  }
+
   setWeight(newWeight: number) {
     this.weight = newWeight;
     this.animationGroup.setWeightForAllAnimatables(newWeight);
@@ -30,7 +36,7 @@ export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   }
 
   cleanup() {
-    this.options.onComplete();
+    if (this.options.onComplete) this.options.onComplete();
     this.animationGroup.stop();
     this.animationGroup.dispose(); // else causes memory leaks
   }
@@ -52,68 +58,67 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     newAnimationName: SkeletalAnimationName,
     transitionDuration: number,
     options: ManagedAnimationOptions = {
-      shouldLoop: true,
-      animationDurationOverrideOption: null,
+      shouldLoop: false,
+      animationDurationOverrideOption: undefined,
       onComplete: () => {},
     }
   ): Error | void {
     console.log(
       this.characterModel.entityId.slice(0, 4),
       "starting animation",
-      SKELETAL_ANIMATION_NAME_STRINGS[newAnimationName]
+      SKELETAL_ANIMATION_NAME_STRINGS[newAnimationName],
+      "curr: ",
+      this.playing?.getName(),
+      "prev: ",
+      this.previous?.getName()
     );
-    if (this.playing !== null) {
-      if (this.previous !== null) this.previous.cleanup();
-      this.previous = this.playing;
-      this.playing = null;
-    }
 
-    let newAnimationGroup = this.getAnimationGroupByName(newAnimationName);
-    // alternatives to some missing animations
-    if (newAnimationGroup === undefined) {
-      const fallbackName = this.getFallbackAnimationName(newAnimationName);
-      console.log("getting fallback animation", fallbackName);
-      if (fallbackName !== undefined)
-        newAnimationGroup = this.getAnimationGroupByName(fallbackName);
+    this.previous?.cleanup();
+    this.previous = this.playing;
+    this.playing = null;
 
-      if (newAnimationGroup === undefined)
-        throw new Error(`no animation found ${SKELETAL_ANIMATION_NAME_STRINGS[newAnimationName]}`);
-    }
+    const clonedAnimation = this.getClonedAnimation(newAnimationName);
 
-    const clonedAnimation = this.cloneAnimation(newAnimationGroup);
-
+    options.animationDurationOverrideOption = undefined;
     this.playing = new ManagedSkeletalAnimation(clonedAnimation, transitionDuration, options);
 
-    if (options.animationDurationOverrideOption) {
-      const animationStockDuration = clonedAnimation.getLength() * 1000;
-      const speedModifier = animationStockDuration / (options.animationDurationOverrideOption ?? 1);
+    clonedAnimation.start(options.shouldLoop);
 
-      // clonedAnimationOption.start(options.shouldLoop, speedModifier);
-      clonedAnimation.start(options.shouldLoop, 1);
-    } else clonedAnimation.start(options.shouldLoop);
+    // if (options.animationDurationOverrideOption) {
+    //   const animationStockDuration = clonedAnimation.getLength() * 1000;
+    //   const speedModifier = animationStockDuration / (options.animationDurationOverrideOption ?? 1);
+
+    //   // clonedAnimationOption.start(options.shouldLoop, speedModifier);
+    //   clonedAnimation.start(options.shouldLoop, 1);
+    // } else clonedAnimation.start(options.shouldLoop);
   }
 
   stepAnimationTransitionWeights(): Error | void {
     // if (!this.playing) console.log("no animation played this frame");
-    if (!this.playing || this.playing.weight >= 1) return;
+    if (!this.playing) return;
 
-    const timeSinceStarted = this.playing.elapsed();
-    let percentTransitionCompleted = timeSinceStarted / this.playing.transitionDuration;
+    const elapsed = this.playing.elapsed();
+    if (elapsed >= this.playing.getLength()) {
+      this.playing.setWeight(1);
+      this.previous?.setWeight(0);
+    }
+
+    let percentTransitionCompleted = elapsed / this.playing.transitionDuration;
     percentTransitionCompleted = Math.min(1, percentTransitionCompleted);
 
     this.playing.setWeight(percentTransitionCompleted);
-    if (this.previous) this.previous.setWeight(1 - this.playing.weight);
+    this.previous?.setWeight(1 - percentTransitionCompleted);
   }
 
   handleCompletedAnimations() {
     if (this.previous?.weight === 0) {
-      console.log("removing previous", this.previous.getName());
+      // console.log("removing previous", this.previous.getName());
       this.previous.cleanup();
       this.previous = null;
     }
 
     if (this.playing && this.playing.isCompleted()) {
-      console.log("removing current", this.playing.getName());
+      // console.log("removing current", this.playing.getName());
       this.playing.cleanup();
       this.playing = null;
     }
@@ -122,6 +127,22 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     //   console.log("starting idle since nothing else to do");
     //   this.characterModel.startIdleAnimation(500); // circular ref
     // }
+  }
+
+  getClonedAnimation(name: SkeletalAnimationName) {
+    let newAnimationGroup = this.getAnimationGroupByName(name);
+    // alternatives to some missing animations
+    if (newAnimationGroup === undefined) {
+      const fallbackName = this.getFallbackAnimationName(name);
+      console.log("getting fallback animation", fallbackName);
+      if (fallbackName !== undefined)
+        newAnimationGroup = this.getAnimationGroupByName(fallbackName);
+
+      if (newAnimationGroup === undefined)
+        throw new Error(`no animation found ${SKELETAL_ANIMATION_NAME_STRINGS[name]}`);
+    }
+
+    return this.cloneAnimation(newAnimationGroup);
   }
 
   getAnimationGroupByName(animationName: SkeletalAnimationName) {

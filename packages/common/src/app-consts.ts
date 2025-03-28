@@ -199,7 +199,7 @@ export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, stri
   [SkeletalAnimationName.DeathBack]: "death-1",
   [SkeletalAnimationName.HitRecovery]: "hit-recovery",
   [SkeletalAnimationName.CritRecovery]: "crit-recovery",
-  [SkeletalAnimationName.Evade]: "evade",
+  [SkeletalAnimationName.Evade]: "evade-full",
   [SkeletalAnimationName.Parry]: "1h-parry-full",
   [SkeletalAnimationName.Block]: "shield-block-delivery",
   [SkeletalAnimationName.MainHandSwingChambering]: "mh-swing-chambering",

@@ -150,10 +150,10 @@ const config: CombatActionComponentConfig = {
     }
 
     const animations: CombatActionCombatantAnimations = {
-      [CombatActionAnimationPhase.Initial]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
-        timing: { type: AnimationTimingType.Looping },
-      },
+      // [CombatActionAnimationPhase.Initial]: {
+      //   name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
+      //   timing: { type: AnimationTimingType.Looping },
+      // },
       [CombatActionAnimationPhase.Chambering]: {
         name: { type: AnimationType.Skeletal, name: chamberingAnimation },
         timing: { type: AnimationTimingType.Timed, duration: 300 },
