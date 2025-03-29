@@ -101,19 +101,19 @@ export class ModularCharacter {
     startRotation: number = 0
   ) {
     this.animationManager = new SkeletalAnimationManager(this);
-    // this.startIdleAnimation(0);
+    this.startIdleAnimation(0);
 
-    this.testAnimationSwitcherAnimationName = SkeletalAnimationName.IdleTwoHand;
-    this.testAnimationSwitcher();
-    setTimeout(() => {
-      this.testAnimationSwitcherAnimationName = SkeletalAnimationName.TwoHandStabChambering;
-      this.testAnimationSwitcher();
+    // this.testAnimationSwitcherAnimationName = SkeletalAnimationName.IdleTwoHand;
+    // this.testAnimationSwitcher();
+    // setTimeout(() => {
+    //   this.testAnimationSwitcherAnimationName = SkeletalAnimationName.TwoHandStabChambering;
+    //   this.testAnimationSwitcher();
 
-      // const newAnimationName = chooseRandomFromArray(iterateNumericEnum(SkeletalAnimationName));
-      // if (newAnimationName instanceof Error) {
-      //   throw newAnimationName;
-      // }
-    }, 700);
+    // const newAnimationName = chooseRandomFromArray(iterateNumericEnum(SkeletalAnimationName));
+    // if (newAnimationName instanceof Error) {
+    //   throw newAnimationName;
+    // }
+    // }, 700);
 
     // get rid of the placeholder mesh (usually a simple quad or tri) which
     // must be included in order for babylon to recognize the loaded asset as a skeleton
@@ -148,6 +148,7 @@ export class ModularCharacter {
     // this.setShowBones();
   }
 
+  // @TODO - remove
   testAnimationSwitcher() {
     this.animationManager.startAnimationWithTransition(
       this.testAnimationSwitcherAnimationName,
@@ -175,7 +176,7 @@ export class ModularCharacter {
     const idleName = this.getIdleAnimationName();
     console.log("starting idle name: ", idleName, "for entity", this.entityId.slice(0, 4));
     this.animationManager.startAnimationWithTransition(idleName, transitionMs, {
-      shouldLoop: false,
+      shouldLoop: true,
     });
   }
 

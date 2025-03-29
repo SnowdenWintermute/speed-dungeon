@@ -108,8 +108,6 @@ export function induceHitRecovery(
         SkeletalAnimationName.DeathBack,
         0,
         {
-          shouldLoop: false,
-          animationDurationOverrideOption: null,
           onComplete: () => {
             targetModel.animationManager.locked = true;
           },
@@ -125,15 +123,13 @@ export function induceHitRecovery(
       if (wasBlocked) animationName = SkeletalAnimationName.Block;
 
       targetModel.animationManager.startAnimationWithTransition(animationName, 0, {
-        shouldLoop: false,
-        animationDurationOverrideOption: null,
-        onComplete: () => {},
+        onComplete: () => {
+          if (!combatantWasAliveBeforeHpChange && combatantProperties.hitPoints > 0) {
+            targetModel.startIdleAnimation(500);
+            // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
+          }
+        },
       });
-    }
-
-    if (!combatantWasAliveBeforeHpChange && combatantProperties.hitPoints > 0) {
-      targetModel.startIdleAnimation(500);
-      // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
     }
   });
 }

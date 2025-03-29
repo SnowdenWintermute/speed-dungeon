@@ -70,15 +70,14 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       "curr: ",
       this.playing?.getName(),
       "prev: ",
-      this.previous?.getName()
+      this.previous?.getName(),
+      this.previous?.weight
     );
 
     this.previous?.cleanup();
     this.previous = this.playing;
-    this.playing = null;
 
     const clonedAnimation = this.getClonedAnimation(newAnimationName);
-
     options.animationDurationOverrideOption = undefined;
     this.playing = new ManagedSkeletalAnimation(clonedAnimation, transitionDuration, options);
 
@@ -101,6 +100,11 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     if (elapsed >= this.playing.getLength()) {
       this.playing.setWeight(1);
       this.previous?.setWeight(0);
+      // otherwise it is possible that a short animation would finish
+      // before the weight transition, leaving a mismatch in weights for one frame
+      // when a subsequent animation is added and the previous animation is still there
+      this.previous?.cleanup();
+      this.previous = null;
     }
 
     let percentTransitionCompleted = elapsed / this.playing.transitionDuration;

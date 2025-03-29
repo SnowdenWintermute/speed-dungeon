@@ -23,15 +23,11 @@ import { getAttackHpChangeProperties } from "./get-attack-hp-change-properties.j
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { MELEE_ATTACK_COMMON_CONFIG } from "../melee-actions-common-config.js";
-import { CombatantContext } from "../../../../combatant-context/index.js";
 import {
   CombatActionAnimationPhase,
   CombatActionCombatantAnimations,
 } from "../../combat-action-animations.js";
-import {
-  ActionResolutionStepContext,
-  AnimationTimingType,
-} from "../../../../action-processing/index.js";
+import { AnimationTimingType } from "../../../../action-processing/index.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { COMBAT_ACTIONS } from "../index.js";
@@ -150,10 +146,10 @@ const config: CombatActionComponentConfig = {
     }
 
     const animations: CombatActionCombatantAnimations = {
-      // [CombatActionAnimationPhase.Initial]: {
-      //   name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
-      //   timing: { type: AnimationTimingType.Looping },
-      // },
+      [CombatActionAnimationPhase.Initial]: {
+        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
+        timing: { type: AnimationTimingType.Looping },
+      },
       [CombatActionAnimationPhase.Chambering]: {
         name: { type: AnimationType.Skeletal, name: chamberingAnimation },
         timing: { type: AnimationTimingType.Timed, duration: 300 },

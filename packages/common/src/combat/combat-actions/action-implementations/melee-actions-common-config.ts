@@ -70,8 +70,6 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
       const target = primaryTargetResult;
       const user = combatantContext.combatant.combatantProperties;
 
-      return user.position.clone();
-
       const distance = Vector3.Distance(target.position, user.position);
       if (
         distance <= meleeRange ||
