@@ -6,7 +6,6 @@ import {
 import { GameUpdateCommand, GameUpdateCommandType } from "../../game-update-commands.js";
 import {
   COMBAT_ACTIONS,
-  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
   HitPointChanges,
   HpChange,
@@ -17,12 +16,9 @@ import { Combatant } from "../../../combatants/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { addHitOutcomeDurabilityChanges } from "./hit-outcome-durability-change-calculators.js";
-import { HIT_OUTCOME_NAME_STRINGS, HitOutcome } from "../../../hit-outcome.js";
+import { HitOutcome } from "../../../hit-outcome.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
-import {
-  COMBATANT_CONDITION_NAME_STRINGS,
-  CombatantCondition,
-} from "../../../combatants/combatant-conditions/index.js";
+import { CombatantCondition } from "../../../combatants/combatant-conditions/index.js";
 import { addConditionToUpdate } from "./add-condition-to-update.js";
 import { addRemovedConditionToUpdate } from "./add-triggered-condition-to-update.js";
 

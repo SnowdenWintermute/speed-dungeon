@@ -187,6 +187,7 @@ const config: CombatActionComponentConfig = {
       CombatAttribute.Strength,
       HoldableSlotType.MainHand
     );
+
     return hpChangeProperties;
   },
   getAppliedConditions: function (): CombatantCondition[] | null {

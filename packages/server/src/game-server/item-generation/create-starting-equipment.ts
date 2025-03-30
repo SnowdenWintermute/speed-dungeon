@@ -31,16 +31,20 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       mainhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.ShortSpear,
-          // baseItemType: OneHandedMeleeWeapon.IceBlade,
+          // baseItemType: OneHandedMeleeWeapon.ShortSpear,
+          baseItemType: OneHandedMeleeWeapon.IceBlade,
           // equipmentType: EquipmentType.TwoHandedMeleeWeapon,
         },
         true
       );
       offhand = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.Shield,
-          baseItemType: Shield.GothicShield,
+          // equipmentType: EquipmentType.Shield,
+          // baseItemType: Shield.GothicShield,
+
+          equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          // baseItemType: OneHandedMeleeWeapon.ShortSpear,
+          baseItemType: OneHandedMeleeWeapon.BroadSword,
         },
         true
       );

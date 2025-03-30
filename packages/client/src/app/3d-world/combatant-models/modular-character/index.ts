@@ -150,6 +150,7 @@ export class ModularCharacter {
     console.log("starting idle name: ", idleName, "for entity", this.entityId.slice(0, 4));
     this.animationManager.startAnimationWithTransition(idleName, transitionMs, {
       shouldLoop: true,
+      onComplete: () => {},
     });
   }
 

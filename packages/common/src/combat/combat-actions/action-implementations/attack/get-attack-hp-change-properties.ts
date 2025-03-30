@@ -8,6 +8,7 @@ import {
   HpChangeSourceCategory,
   HpChangeSourceConfig,
 } from "../../../hp-change-source-types.js";
+import { KineticDamageType } from "../../../kinetic-damage-types.js";
 import { applyWeaponPropertiesToHpChangeProperties } from "../../action-calculation-utils/apply-weapon-properties-to-hp-change-properties.js";
 import { CombatActionHpChangeProperties } from "../../combat-action-hp-change-properties.js";
 import { CombatActionComponent } from "../../index.js";
@@ -48,13 +49,13 @@ export function getAttackHpChangeProperties(
 
   const equippedUsableWeapons = CombatantProperties.getWeaponsInSlots(
     user,
-    [HoldableSlotType.MainHand],
+    [HoldableSlotType.MainHand, HoldableSlotType.OffHand],
     { usableWeaponsOnly: options.usableWeaponsOnly }
   );
 
   const weaponOption = equippedUsableWeapons[weaponSlot];
 
-  if (weaponOption)
+  if (weaponOption) {
     applyWeaponPropertiesToHpChangeProperties(
       action,
       weaponOption,
@@ -62,6 +63,10 @@ export function getAttackHpChangeProperties(
       user,
       primaryTarget
     );
+  } else {
+    // unarmed
+    hpChangeProperties.hpChangeSource.kineticDamageTypeOption = KineticDamageType.Blunt;
+  }
 
   baseValues.floor();
 
