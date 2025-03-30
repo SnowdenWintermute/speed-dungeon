@@ -170,7 +170,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
         0,
         {
           shouldLoop: false,
-          animationDurationOverrideOption: null,
+          animationDurationOverrideOption: undefined,
           onComplete: () => {
             update.isComplete = true;
           },

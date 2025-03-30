@@ -78,8 +78,10 @@ export function hitOutcomesGameUpdateHandler(update: {
 
     targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Evade, 0, {
       shouldLoop: false,
-      animationDurationOverrideOption: null,
-      onComplete: () => {},
+      animationDurationOverrideOption: undefined,
+      onComplete: () => {
+        targetModel.startIdleAnimation(500);
+      },
     });
 
     useGameStore.getState().mutateState((gameState) => {
@@ -115,7 +117,9 @@ export function hitOutcomesGameUpdateHandler(update: {
 
     targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Parry, 0, {
       shouldLoop: false,
-      onComplete: () => {},
+      onComplete: () => {
+        targetModel.startIdleAnimation(500);
+      },
     });
 
     useGameStore.getState().mutateState((gameState) => {

@@ -185,20 +185,26 @@ export class ModularCharacter {
     const combatantResult = useGameStore.getState().getCombatant(this.entityId);
     if (combatantResult instanceof Error) throw combatantResult;
     const { combatantProperties } = combatantResult;
-    const offhandType = CombatantEquipment.getEquippedHoldable(
+    const offHandOption = CombatantEquipment.getEquippedHoldable(
       combatantProperties,
       HoldableSlotType.OffHand
-    )?.equipmentBaseItemProperties.equipmentType;
-    const mainHandType = CombatantEquipment.getEquippedHoldable(
+    );
+    const offhandType = offHandOption?.equipmentBaseItemProperties.equipmentType;
+    const mainHandOption = CombatantEquipment.getEquippedHoldable(
       combatantProperties,
       HoldableSlotType.MainHand
-    )?.equipmentBaseItemProperties.equipmentType;
-    if (mainHandType === EquipmentType.TwoHandedRangedWeapon) return SkeletalAnimationName.IdleBow;
-    if (mainHandType === EquipmentType.TwoHandedMeleeWeapon)
+    );
+    const mainHandType = mainHandOption?.equipmentBaseItemProperties.equipmentType;
+    const mhIsBroken = mainHandOption && Equipment.isBroken(mainHandOption);
+    const ohIsBroken = offHandOption && Equipment.isBroken(offHandOption);
+
+    if (mainHandType === EquipmentType.TwoHandedRangedWeapon && !mhIsBroken)
+      return SkeletalAnimationName.IdleBow;
+    if (mainHandType === EquipmentType.TwoHandedMeleeWeapon && !mhIsBroken)
       return SkeletalAnimationName.IdleTwoHand;
-    if (offhandType !== undefined && offhandType !== EquipmentType.Shield)
+    if (offhandType !== undefined && offhandType !== EquipmentType.Shield && !ohIsBroken)
       return SkeletalAnimationName.IdleDualWield;
-    if (mainHandType !== undefined) return SkeletalAnimationName.IdleMainHand;
+    if (mainHandType !== undefined && !mhIsBroken) return SkeletalAnimationName.IdleMainHand;
     return SkeletalAnimationName.IdleUnarmed;
   }
 

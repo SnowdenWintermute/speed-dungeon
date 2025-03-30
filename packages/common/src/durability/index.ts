@@ -75,6 +75,12 @@ export class DurabilityChangesByEntityId {
           taggedSlot
         );
 
+        // console.log(
+        //   "checking dura: ",
+        //   equipmentOption?.entityProperties.name,
+        //   equipmentOption?.durability
+        // );
+
         applyEquipmentEffectWhileMaintainingResourcePercentages(
           combatantResult.combatantProperties,
           () => {

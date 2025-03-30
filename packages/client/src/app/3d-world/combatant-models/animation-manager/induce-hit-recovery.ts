@@ -125,7 +125,6 @@ export function induceHitRecovery(
       targetModel.animationManager.startAnimationWithTransition(animationName, 0, {
         onComplete: () => {
           if (!combatantWasAliveBeforeHpChange && combatantProperties.hitPoints > 0) {
-            targetModel.startIdleAnimation(500);
             // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
           }
         },

@@ -93,7 +93,7 @@ export function entityMotionGameUpdateHandler(update: {
       animationDurationOverrideOption:
         animationOption.timing.type === AnimationTimingType.Timed
           ? animationOption.timing.duration
-          : null,
+          : undefined,
       onComplete: function (): void {
         // otherwise looping animation will finish at an arbitrary time and could set an unintended action to complete
         if (animationOption.timing.type === AnimationTimingType.Looping) return;
@@ -111,6 +111,7 @@ export function entityMotionGameUpdateHandler(update: {
         }
       },
     };
+
     animationManager.startAnimationWithTransition(
       animationOption.name.name as SkeletalAnimationName,
       command.instantTransition ? 200 : 500,
