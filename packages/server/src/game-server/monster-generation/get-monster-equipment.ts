@@ -103,28 +103,32 @@ export default function getMonsterEquipment(monsterType: MonsterType): Combatant
         equipment.wearables[WearableSlotType.Body] = chest;
       }
 
-      // const wandOptions = [
-      //   OneHandedMeleeWeapon.RoseWand,
-      //   OneHandedMeleeWeapon.YewWand,
-      //   OneHandedMeleeWeapon.MapleWand,
-      // ];
-      // const shieldOptions = [Shield.Buckler, Shield.KiteShield, Shield.Heater, Shield.Aspis];
-      // let wandType = chooseRandomFromArray(wandOptions);
-      // if (wandType instanceof Error) wandType = OneHandedMeleeWeapon.IceBlade;
-      // let shieldType = chooseRandomFromArray(shieldOptions);
-      // if (shieldType instanceof Error) shieldType = Shield.TowerShield;
+      const wandOptions = [
+        OneHandedMeleeWeapon.RoseWand,
+        OneHandedMeleeWeapon.YewWand,
+        OneHandedMeleeWeapon.MapleWand,
+      ];
+      const shieldOptions = [Shield.KiteShield, Shield.Heater];
+      let wandType = chooseRandomFromArray(wandOptions);
+      if (wandType instanceof Error) wandType = OneHandedMeleeWeapon.IceBlade;
+      let shieldType = chooseRandomFromArray(shieldOptions);
+      if (shieldType instanceof Error) shieldType = Shield.TowerShield;
+      const wandResult = generateSpecificEquipmentType({
+        equipmentType: EquipmentType.OneHandedMeleeWeapon,
+        baseItemType: wandType,
+      });
       // const wandResult = generateSpecificEquipmentType({
-      //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      //   baseItemType: wandType,
+      //   equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+      //   baseItemType: TwoHandedMeleeWeapon.Spear,
       // });
-      // if (!(wandResult instanceof Error))
-      //   mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = wandResult;
-      // const shieldResult = generateSpecificEquipmentType({
-      //   equipmentType: EquipmentType.Shield,
-      //   baseItemType: shieldType,
-      // });
-      // if (!(shieldResult instanceof Error))
-      //   mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = shieldResult;
+      if (!(wandResult instanceof Error))
+        mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = wandResult;
+      const shieldResult = generateSpecificEquipmentType({
+        equipmentType: EquipmentType.Shield,
+        baseItemType: shieldType,
+      });
+      if (!(shieldResult instanceof Error))
+        mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = shieldResult;
       break;
 
     case MonsterType.FireElemental:

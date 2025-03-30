@@ -8,6 +8,7 @@ import {
   ERROR_MESSAGES,
   EntityId,
   GameMode,
+  SpeedDungeonGame,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { Combatant, cloneVector3 } from "@speed-dungeon/common";
@@ -21,9 +22,11 @@ import { createCombatantPortrait } from "../../image-manager/create-combatant-po
 export async function synchronizeCombatantModelsWithAppState() {
   if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
   const { modelManager } = gameWorld.current;
+
   // determine which models should exist and their positions based on game state
   const modelsAndPositions = getModelsAndPositions();
   if (modelsAndPositions instanceof Error) return modelsAndPositions;
+
   // delete models which don't appear on the list
   for (const [entityId, model] of Object.entries(modelManager.combatantModels)) {
     if (!modelsAndPositions[entityId]) {
@@ -40,6 +43,7 @@ export async function synchronizeCombatantModelsWithAppState() {
 
   for (const [entityId, { combatant, position }] of Object.entries(modelsAndPositions)) {
     const modelOption = modelManager.combatantModels[entityId];
+
     if (!modelOption) {
       // start spawning model which we need to
 
@@ -80,35 +84,23 @@ export async function synchronizeCombatantModelsWithAppState() {
   if (resultsIncludedError) return new Error("Error with spawning combatant models");
 }
 
+interface ModelsAndPositions {
+  [entityId: EntityId]: {
+    combatant: Combatant;
+    position: {
+      startRotation: number;
+      startPosition: Vector3;
+    };
+  };
+}
 function getModelsAndPositions() {
   const state = useGameStore.getState();
   const lobbyState = useLobbyStore.getState();
   const { game } = state;
-  const modelsAndPositions: {
-    [entityId: EntityId]: {
-      combatant: Combatant;
-      position: {
-        startRotation: number;
-        startPosition: Vector3;
-      };
-    };
-  } = {};
+  let modelsAndPositions: ModelsAndPositions = {};
 
   if (game && game.mode === GameMode.Progression && !game.timeStarted) {
-    // in progression game lobby
-    const partyOption = Object.values(game.adventuringParties)[0];
-    if (!partyOption) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
-
-    partyOption.characterPositions.forEach(
-      (characterId, i) =>
-        (modelsAndPositions[characterId] = {
-          combatant: partyOption.characters[characterId]!,
-          position: {
-            startPosition: new Vector3(-CHARACTER_SLOT_SPACING + i * CHARACTER_SLOT_SPACING, 0, 0),
-            startRotation: 0,
-          },
-        })
-    );
+    modelsAndPositions = getProgressionGameLobbyCombatantModelPositions(game);
   } else if (state.game && state.game.timeStarted) {
     // in game
     const partyResult = getParty(game, state.username || "");
@@ -119,6 +111,7 @@ function getModelsAndPositions() {
         position: getCombatantModelStartPosition(character),
       };
     }
+
     for (const monster of Object.values(partyResult.currentRoom.monsters)) {
       modelsAndPositions[monster.entityProperties.id] = {
         combatant: monster,
@@ -161,4 +154,25 @@ function getCombatantModelStartPosition(combatant: Combatant) {
     startRotation,
     startPosition: cloneVector3(combatantProperties.homeLocation),
   };
+}
+
+function getProgressionGameLobbyCombatantModelPositions(game: SpeedDungeonGame) {
+  // in progression game lobby
+  const partyOption = Object.values(game.adventuringParties)[0];
+  if (!partyOption) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+
+  const modelsAndPositions: ModelsAndPositions = {};
+
+  partyOption.characterPositions.forEach(
+    (characterId, i) =>
+      (modelsAndPositions[characterId] = {
+        combatant: partyOption.characters[characterId]!,
+        position: {
+          startPosition: new Vector3(-CHARACTER_SLOT_SPACING + i * CHARACTER_SLOT_SPACING, 0, 0),
+          startRotation: 0,
+        },
+      })
+  );
+
+  return modelsAndPositions;
 }

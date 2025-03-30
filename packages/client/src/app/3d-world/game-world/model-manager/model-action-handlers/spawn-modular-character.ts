@@ -85,5 +85,7 @@ export async function spawnModularCharacter(
 
   modularCharacter.updateBoundingBox();
 
+  modularCharacter.startIdleAnimation(500);
+
   return modularCharacter;
 }

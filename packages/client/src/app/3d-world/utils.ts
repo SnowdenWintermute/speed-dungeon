@@ -31,7 +31,7 @@ export function getChildMeshByName(mesh: Mesh | AbstractMesh, name: string) {
 }
 
 export function disposeAsyncLoadedScene(sceneResult: ISceneLoaderAsyncResult | null) {
-  if (sceneResult === null) return console.error("no scene to dispose");
+  if (sceneResult === null) return;
   while (sceneResult.meshes.length) {
     const mesh = sceneResult.meshes.pop()!;
     mesh.dispose(false, true);

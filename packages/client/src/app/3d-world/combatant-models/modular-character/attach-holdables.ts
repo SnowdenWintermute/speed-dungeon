@@ -1,4 +1,4 @@
-import { AbstractMesh, ISceneLoaderAsyncResult } from "@babylonjs/core";
+import { AbstractMesh, ISceneLoaderAsyncResult, Vector3 } from "@babylonjs/core";
 import {
   Equipment,
   EquipmentBaseItem,
@@ -16,16 +16,12 @@ import {
 
 function setMeshPositionAndRotationToZero(mesh: AbstractMesh) {
   setMeshRotationToZero(mesh);
-  mesh.position.x = 0;
-  mesh.position.y = 0;
-  mesh.position.z = 0;
+  mesh.setPositionWithLocalVector(Vector3.Zero());
 }
 
 function setMeshRotationToZero(mesh: AbstractMesh) {
   mesh.rotationQuaternion = null;
-  mesh.rotation.x = 0;
-  mesh.rotation.y = 0;
-  mesh.rotation.z = 0;
+  mesh.rotation = Vector3.Zero();
 }
 
 export function attachHoldableModelToSkeleton(
@@ -34,6 +30,12 @@ export function attachHoldableModelToSkeleton(
   slot: HoldableSlotType,
   equipment: Equipment
 ) {
+  console.log(
+    "attaching",
+    equipment.entityProperties.name,
+    "to",
+    combatantModel.entityId.slice(0, 4)
+  );
   const parentMesh = equipmentModel.meshes[0];
   if (!parentMesh) return console.error("no equipment parent mesh");
   const skeletonRoot = combatantModel.skeleton.meshes[0];
@@ -52,24 +54,39 @@ export function attachHoldableModelToSkeleton(
       equipment.equipmentBaseItemProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon;
     if (isBow) equipmentBoneName = SKELETON_OFF_HAND_NAMES[SKELETON_STRUCTURE_TYPE];
     else equipmentBoneName = SKELETON_MAIN_HAND_NAMES[SKELETON_STRUCTURE_TYPE];
+  } else {
+    console.log("no equipment bone name condition met");
   }
 
-  const equipmentBone = getChildMeshByName(skeletonRoot, equipmentBoneName);
-  if (equipmentBone) {
-    parentMesh.setParent(equipmentBone);
-    setMeshPositionAndRotationToZero(parentMesh);
+  const equipmentBone = getChildMeshByName(skeletonRoot, equipmentBoneName) as AbstractMesh;
 
-    if (slot === HoldableSlotType.OffHand) {
-      parentMesh.rotation.y = Math.PI;
-      if (equipmentType === EquipmentType.Shield) {
-        parentMesh.position.z = -0.08;
-        parentMesh.position.x = -0.15;
-      }
+  if (!equipmentBone) return console.log("no equipment bone found");
+
+  parentMesh.setParent(equipmentBone);
+  setMeshPositionAndRotationToZero(parentMesh);
+
+  if (slot === HoldableSlotType.OffHand) {
+    parentMesh.rotation.y = Math.PI;
+
+    // why do we have to do this? no idea
+    if (combatantModel.monsterType !== null) {
+      parentMesh.rotation.y += Math.PI;
     }
-    if (equipmentType === EquipmentType.TwoHandedRangedWeapon) {
-      parentMesh.rotation.y = Math.PI;
+
+    if (equipmentType === EquipmentType.Shield) {
+      parentMesh.position.z = -0.08;
+      parentMesh.position.x = -0.15;
     }
-  } else console.log("no equipment bone found");
+  }
+
+  if (equipmentType === EquipmentType.TwoHandedRangedWeapon) {
+    parentMesh.rotate(Vector3.Up(), Math.PI);
+  }
+
+  if (combatantModel.monsterType !== null) {
+    // why do we have to do this? no idea
+    parentMesh.rotation.x += Math.PI;
+  }
 }
 
 export function attachHoldableModelToHolsteredPosition(
@@ -111,7 +128,7 @@ export function attachHoldableModelToHolsteredPosition(
       equipmentParentMesh.rotation.y = Math.PI;
     } else {
       // move most weapons up a little
-      // equipmentParentMesh.position.y = 0.15;
+      equipmentParentMesh.position.y = 0.15;
     }
   }
 }

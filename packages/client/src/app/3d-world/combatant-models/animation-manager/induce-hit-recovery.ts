@@ -126,6 +126,8 @@ export function induceHitRecovery(
         onComplete: () => {
           if (!combatantWasAliveBeforeHpChange && combatantProperties.hitPoints > 0) {
             // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
+          } else {
+            // if (!targetModel.isIdling()) targetModel.startIdleAnimation(500);
           }
         },
       });

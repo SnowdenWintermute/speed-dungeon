@@ -48,7 +48,6 @@ import { ModelMovementManager } from "../../model-movement-manager";
 import { SKELETON_ARMATURE_NAMES, SKELETON_STRUCTURE_TYPE } from "./skeleton-structure-variables";
 import { SkeletalAnimationManager } from "../animation-manager/skeletal-animation-manager";
 import { useGameStore } from "@/stores/game-store";
-import { clear } from "console";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -103,18 +102,6 @@ export class ModularCharacter {
     this.animationManager = new SkeletalAnimationManager(this);
     this.startIdleAnimation(0);
 
-    // this.testAnimationSwitcherAnimationName = SkeletalAnimationName.IdleTwoHand;
-    // this.testAnimationSwitcher();
-    // setTimeout(() => {
-    //   this.testAnimationSwitcherAnimationName = SkeletalAnimationName.TwoHandStabChambering;
-    //   this.testAnimationSwitcher();
-
-    // const newAnimationName = chooseRandomFromArray(iterateNumericEnum(SkeletalAnimationName));
-    // if (newAnimationName instanceof Error) {
-    //   throw newAnimationName;
-    // }
-    // }, 700);
-
     // get rid of the placeholder mesh (usually a simple quad or tri) which
     // must be included in order for babylon to recognize the loaded asset as a skeleton
     while (skeleton.meshes.length > 1) {
@@ -148,14 +135,6 @@ export class ModularCharacter {
     // this.setShowBones();
   }
 
-  // @TODO - remove
-  testAnimationSwitcher() {
-    this.animationManager.startAnimationWithTransition(
-      this.testAnimationSwitcherAnimationName,
-      500
-    );
-  }
-
   setHomeRotation(rotation: number) {
     this.rootTransformNode.rotationQuaternion = Quaternion.RotationAxis(Vector3.Up(), rotation);
     this.homeLocation.rotation.copyFrom(this.rootTransformNode.rotationQuaternion);
@@ -163,13 +142,7 @@ export class ModularCharacter {
 
   setHomeLocation(position: Vector3) {
     this.rootTransformNode.position.copyFrom(position);
-
-    const rotation = this.rootTransformNode.rotationQuaternion;
-    if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
-    this.homeLocation = {
-      position: cloneDeep(this.rootTransformNode.position),
-      rotation: cloneDeep(rotation),
-    };
+    this.homeLocation.position = cloneDeep(this.rootTransformNode.position);
   }
 
   startIdleAnimation(transitionMs: number) {
@@ -181,7 +154,12 @@ export class ModularCharacter {
   }
 
   getIdleAnimationName() {
-    if (this.monsterType !== null) return SkeletalAnimationName.IdleUnarmed;
+    if (
+      this.monsterType !== null &&
+      this.monsterType !== MonsterType.Cultist &&
+      this.monsterType !== MonsterType.FireMage
+    )
+      return SkeletalAnimationName.IdleUnarmed;
     const combatantResult = useGameStore.getState().getCombatant(this.entityId);
     if (combatantResult instanceof Error) throw combatantResult;
     const { combatantProperties } = combatantResult;
@@ -286,7 +264,7 @@ export class ModularCharacter {
     if (this.isIdling()) {
       console.log("unequipped and idling");
       this.startIdleAnimation(500);
-    } else console.log("wasn't idling");
+    } else console.log("wasn't idling when unequipping");
   }
 
   isIdling() {

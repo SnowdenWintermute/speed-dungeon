@@ -76,13 +76,7 @@ export function hitOutcomesGameUpdateHandler(update: {
     if (targetModel === undefined)
       return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
-    targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Evade, 0, {
-      shouldLoop: false,
-      animationDurationOverrideOption: undefined,
-      onComplete: () => {
-        targetModel.startIdleAnimation(500);
-      },
-    });
+    targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Evade, 0, {});
 
     useGameStore.getState().mutateState((gameState) => {
       const actionUserResult = gameState.getCombatant(actionUserId);
@@ -115,12 +109,7 @@ export function hitOutcomesGameUpdateHandler(update: {
     if (targetModel === undefined)
       return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
-    targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Parry, 0, {
-      shouldLoop: false,
-      onComplete: () => {
-        targetModel.startIdleAnimation(500);
-      },
-    });
+    targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Parry, 0, {});
 
     useGameStore.getState().mutateState((gameState) => {
       const actionUserResult = gameState.getCombatant(actionUserId);

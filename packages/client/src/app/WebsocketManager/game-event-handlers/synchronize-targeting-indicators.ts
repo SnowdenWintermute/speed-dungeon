@@ -13,12 +13,10 @@ export function synchronizeTargetingIndicators(
   }
   const newIndicators = [];
 
+  // don't remove indicators from other combatants who may also be targeting something
   for (const indicator of gameState.targetingIndicators) {
     if (actionNameOption === null && indicator.targetedBy === actionUserId) continue;
-    if (indicator.targetedBy === actionUserId && indicator.actionName !== actionNameOption)
-      continue;
-    if (indicator.actionName === actionNameOption && !targetIds.includes(indicator.targetId))
-      continue;
+    if (indicator.targetedBy === actionUserId) continue;
     newIndicators.push(indicator);
   }
 

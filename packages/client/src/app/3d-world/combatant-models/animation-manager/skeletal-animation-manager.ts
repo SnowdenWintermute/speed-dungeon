@@ -57,11 +57,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
   startAnimationWithTransition(
     newAnimationName: SkeletalAnimationName,
     transitionDuration: number,
-    options: ManagedAnimationOptions = {
-      shouldLoop: false,
-      animationDurationOverrideOption: undefined,
-      onComplete: () => {},
-    }
+    options: ManagedAnimationOptions
   ): Error | void {
     console.log(
       this.characterModel.entityId.slice(0, 4),
