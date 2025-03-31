@@ -114,6 +114,7 @@ export function induceHitRecovery(
         }
       );
     }
+
     if (hpChange.value < 0) {
       const hasCritRecoveryAnimation = targetModel.animationManager.getAnimationGroupByName(
         SkeletalAnimationName.HitRecovery
@@ -128,11 +129,14 @@ export function induceHitRecovery(
           if (!combatantWasAliveBeforeHpChange && combatantProperties.hitPoints > 0) {
             // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
           } else {
-            // console.log("trying to starrt idle");
-            // if (!targetModel.isIdling()) targetModel.startIdleAnimation(500);
+            if (!targetModel.isIdling()) targetModel.startIdleAnimation(1000);
           }
         },
       });
+
+      // setTimeout(() => {
+      //   console.log("trying to starrt idle");
+      // }, 200);
     }
   });
 }

@@ -116,7 +116,7 @@ export function calculateActionHitOutcomes(
       CombatantProperties.canParry(target) &&
       !targetWantsToBeHit
     ) {
-      const percentChanceToParry = 5; // @TODO - derrive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
+      const percentChanceToParry = 100; // @TODO - derrive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
       const parryRoll = randBetween(0, 100);
       const isParried = parryRoll < percentChanceToParry;
       if (isParried) {

@@ -88,3 +88,68 @@
 // - start user post use animation
 // - start user move home
 // - end turn
+//
+//
+// steps must
+// - create an initial gameUpdateCommand
+// - write to the gameUpdateCommand when ticked
+// - determine any branching sequences
+// - determine the next step
+
+// Behavior tree for action with post-chambering projectile
+// succeeder
+// SEQUENCE
+// INITIAL POSITIONING (entityMotion)
+// CHAMBERING MOTION (entityMotion)
+// POST-CHAMBERING SPAWN ENTITY (spawnEntity)
+// DELIVERY MOTION (entityMotion)
+// PAY ACTION COSTS (costsPaid)
+// ON-ACTIVATION TRIGGERS (activatedTriggers)
+// Selector
+// - if not countered
+//   - create new projectile action branch
+// - if countered
+//   - do nothing
+// POST-USE MOTION (entityMotion)
+// POST-USE POSITIONING (entityMotion)
+//
+// Behavior tree for projectile action
+// Sequence
+// ON-ACTIVATION SPAWN ENTITY (spawnEntity)
+// ON-ACTIVATION VFX MOTION (entityMotion)
+// ROLL HIT OUTCOMES (hitOutcomes)
+// HIT OUTCOME TRIGGERS (activatedTriggers)
+
+// PRE USE POSITIONING (entityMotion)
+//  - get destination from action and targets
+//  - move toward a melee target or in case of ranged move a little forward from home position
+// PRE-USE MOTION (entityMotion)
+//  - ex: raise hand to draw arrow from quiver
+//  - ex: bring wand back to where we want to start "magical particles" around the wand
+// PRE USE SPAWN ENTITY (spawnEntity)
+//  - ex: spawn an arrow parented to the user's hand
+//  - ex: spawn a magical particles vfx entity on the user's wand
+// CHARGE-UP-TO-ACTIVATE MOTION (entityMotion)
+//  - ex: draw bowstring back and animate bow bending
+//  - ex: start animating magical particles around the wand
+// PAY ACTION COSTS (costsPaid)
+//  - get costs from action context
+// ON-USE TRIGGERS (activatedTriggers)
+//  - roll
+//  - post results to action billboard
+//  - skip to post-use positioning step if countered
+//  - if success, get next step based on action
+// ON-USE SPAWN ENTITY (spawnEntity)
+//  - ex: spawn a firebolt in front of the wand
+// ON USE VFX MOTION (entityMotion)
+//  - ex: translate associated projectile toward its target
+//  - ex: animate non-projectile spellcasting effect around targets
+// ROLL HIT OUTCOMES (hitOutcomes)
+// HIT OUTCOME TRIGGERS (activatedTriggers)
+//  - may cause branching actions
+// POST-USE MOTION (entityMotion)
+//  - check billboard - may be affected by on-use triggers
+//  - skip to post-use positioning step if countered
+//  - if success, get next step based on action
+//  - if there is a counterattack on the billboard
+// POST-USE POSITIONING (entityMotion)

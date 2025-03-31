@@ -220,7 +220,6 @@ const config: CombatActionComponentConfig = {
     if (hpChangeProperties instanceof Error) return hpChangeProperties;
 
     hpChangeProperties.baseValues.mult(OFF_HAND_DAMAGE_MODIFIER);
-    console.log("offhand hp chang eproperties: ", JSON.stringify(hpChangeProperties, null, 2));
     return hpChangeProperties;
   },
   getAppliedConditions: function (): CombatantCondition[] | null {

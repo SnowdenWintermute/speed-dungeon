@@ -70,9 +70,9 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   monster.combatantProperties.equipment = getMonsterEquipment(monsterType);
 
   //@TODO - remove this testing durability
-  for (const equipment of CombatantEquipment.getAllEquippedItems(monster.combatantProperties, {})) {
-    setEquipmentDurability(equipment, 1);
-  }
+  // for (const equipment of CombatantEquipment.getAllEquippedItems(monster.combatantProperties, {})) {
+  //   setEquipmentDurability(equipment, 1);
+  // }
   // set hp and mp to max
   CombatantProperties.setHpAndMpToMax(monster.combatantProperties);
   // @TODO - assign abilities (realistically need to refactor monster creation)

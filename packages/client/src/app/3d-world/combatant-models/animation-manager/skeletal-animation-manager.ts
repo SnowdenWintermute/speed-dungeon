@@ -32,11 +32,14 @@ export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   isCompleted() {
     if (this.options.shouldLoop) return false;
     const timeSinceStarted = Date.now() - this.timeStarted;
-    return timeSinceStarted >= Math.floor(this.animationGroup.getLength() * 1000);
+    return timeSinceStarted >= this.animationGroup.getLength() * 1000;
   }
 
   cleanup() {
-    if (this.options.onComplete) this.options.onComplete();
+    if (this.options.onComplete) {
+      console.log("onComplete running in cleanup for", this.getName());
+      this.options.onComplete();
+    }
     this.animationGroup.stop();
     this.animationGroup.dispose(); // else causes memory leaks
   }
@@ -122,12 +125,6 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       this.playing.cleanup();
       this.playing = null;
     }
-
-    // if (!this.locked && this.tryIdleNextFrame) {
-    //   this.characterModel.startIdleAnimation(500);
-    // }
-    // if (this.playing === null && this.previous === null && !this.locked && this.tryIdleNextFrame) {
-    // }
   }
 
   getClonedAnimation(name: SkeletalAnimationName) {
