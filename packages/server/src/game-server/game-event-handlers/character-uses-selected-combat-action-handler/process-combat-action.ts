@@ -35,6 +35,7 @@ export function processCombatAction(
     null,
     time
   );
+  //
 
   if (initialGameUpdateOptionResult instanceof Error) return initialGameUpdateOptionResult;
   if (initialGameUpdateOptionResult) {
