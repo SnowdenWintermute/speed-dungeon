@@ -32,7 +32,9 @@ export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   isCompleted() {
     if (this.options.shouldLoop) return false;
     const timeSinceStarted = Date.now() - this.timeStarted;
-    return timeSinceStarted >= this.animationGroup.getLength() * 1000;
+    const animationLength =
+      this.options.animationDurationOverrideOption || this.animationGroup.getLength() * 1000;
+    return timeSinceStarted >= animationLength;
   }
 
   cleanup() {
@@ -77,18 +79,14 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     this.previous = this.playing;
 
     const clonedAnimation = this.getClonedAnimation(newAnimationName);
-    options.animationDurationOverrideOption = undefined;
     this.playing = new ManagedSkeletalAnimation(clonedAnimation, transitionDuration, options);
 
-    clonedAnimation.start(options.shouldLoop);
+    const animationStockDuration = clonedAnimation.getLength() * 1000;
+    const speedModifier =
+      animationStockDuration / (options.animationDurationOverrideOption || animationStockDuration);
+    console.log("speed modifier:", speedModifier);
 
-    // if (options.animationDurationOverrideOption) {
-    //   const animationStockDuration = clonedAnimation.getLength() * 1000;
-    //   const speedModifier = animationStockDuration / (options.animationDurationOverrideOption ?? 1);
-
-    //   // clonedAnimationOption.start(options.shouldLoop, speedModifier);
-    //   clonedAnimation.start(options.shouldLoop, 1);
-    // } else clonedAnimation.start(options.shouldLoop);
+    clonedAnimation.start(options.shouldLoop, speedModifier);
   }
 
   stepAnimationTransitionWeights(): Error | void {

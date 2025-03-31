@@ -50,9 +50,9 @@ export function hitOutcomesGameUpdateHandler(update: {
 
     useGameStore.getState().mutateState((gameState) => {
       const actionUserResult = gameState.getCombatant(actionUserId);
-      if (actionUserResult instanceof Error) return actionUserResult;
+      if (actionUserResult instanceof Error) throw actionUserResult;
       const targetCombatantResult = gameState.getCombatant(entityId);
-      if (targetCombatantResult instanceof Error) return targetCombatantResult;
+      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
 
       const style = CombatLogMessageStyle.Basic;
       let messageText = `${actionUserResult.entityProperties.name} failed to hit ${targetCombatantResult.entityProperties.name}`;
@@ -74,15 +74,15 @@ export function hitOutcomesGameUpdateHandler(update: {
 
     const targetModel = gameWorld.current?.modelManager.combatantModels[entityId];
     if (targetModel === undefined)
-      return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+      throw console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
     targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Evade, 0, {});
 
     useGameStore.getState().mutateState((gameState) => {
       const actionUserResult = gameState.getCombatant(actionUserId);
-      if (actionUserResult instanceof Error) return actionUserResult;
+      if (actionUserResult instanceof Error) throw actionUserResult;
       const targetCombatantResult = gameState.getCombatant(entityId);
-      if (targetCombatantResult instanceof Error) return targetCombatantResult;
+      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
 
       const style = CombatLogMessageStyle.Basic;
       let messageText = `${targetCombatantResult.entityProperties.name} evaded an attack from ${actionUserResult.entityProperties.name}`;
@@ -107,15 +107,17 @@ export function hitOutcomesGameUpdateHandler(update: {
 
     const targetModel = gameWorld.current?.modelManager.combatantModels[entityId];
     if (targetModel === undefined)
-      return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+      throw console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
-    targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Parry, 0, {});
+    targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Parry, 0, {
+      animationDurationOverrideOption: 500,
+    });
 
     useGameStore.getState().mutateState((gameState) => {
       const actionUserResult = gameState.getCombatant(actionUserId);
-      if (actionUserResult instanceof Error) return actionUserResult;
+      if (actionUserResult instanceof Error) throw actionUserResult;
       const targetCombatantResult = gameState.getCombatant(entityId);
-      if (targetCombatantResult instanceof Error) return targetCombatantResult;
+      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
 
       const style = CombatLogMessageStyle.Basic;
       let messageText = `${targetCombatantResult.entityProperties.name} parried an attack from ${actionUserResult.entityProperties.name}`;
