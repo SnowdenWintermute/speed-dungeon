@@ -31,4 +31,5 @@ export async function getAssetHandler(req: Request, res: Response, next: NextFun
     }
     res.sendFile(fullPath);
   });
+
 }

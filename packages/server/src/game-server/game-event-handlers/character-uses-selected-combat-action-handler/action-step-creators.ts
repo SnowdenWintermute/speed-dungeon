@@ -1,0 +1,83 @@
+// right now the idea is to have the action tracker call these creators, which in turn call
+// step class constructors. We don't call the constructors directly because this allows us
+// to configure them with parameters so we can reuse certain step types like CombatantMotion
+// and we don't construct them all at once becasue when they are constructed is when we
+// want to add their game update command to the replay list
+
+import { ActionResolutionStepType } from "@speed-dungeon/common";
+
+export const ACTION_STEP_CREATORS: Record<
+  ActionResolutionStepType,
+  (context: ActionResolutionStepContext) => ActionResolutionStep
+> = {
+  [ActionResolutionStepType.DetermineChildActions]: (context) =>
+    new DetermineChildActionsActionResolutionStep(context),
+  [ActionResolutionStepType.DetermineActionAnimations]: (context) =>
+    new DetermineActionAnimationsActionResolutionStep(context),
+  [ActionResolutionStepType.InitialPositioning]: (context) =>
+    new CombatantMotionActionResolutionStep(
+      context,
+      ActionResolutionStepType.InitialPositioning,
+      ActionMotionPhase.Initial,
+      CombatActionAnimationPhase.Initial
+    ),
+  [ActionResolutionStepType.ChamberingMotion]: (context) =>
+    new CombatantMotionActionResolutionStep(
+      context,
+      ActionResolutionStepType.ChamberingMotion,
+      ActionMotionPhase.Chambering,
+      CombatActionAnimationPhase.Chambering
+    ),
+  [ActionResolutionStepType.PostChamberingSpawnEntity]: (context) =>
+    new SpawnEntityActionResolutionStep(
+      context,
+      ActionResolutionStepType.PostChamberingSpawnEntity
+    ),
+  [ActionResolutionStepType.DeliveryMotion]: (context) =>
+    new CombatantMotionActionResolutionStep(
+      context,
+      ActionResolutionStepType.DeliveryMotion,
+      ActionMotionPhase.Delivery,
+      CombatActionAnimationPhase.Delivery
+    ),
+  [ActionResolutionStepType.PayResourceCosts]: (context) =>
+    new PayResourceCostsActionResolutionStep(context),
+  [ActionResolutionStepType.EvalOnUseTriggers]: (context) =>
+    new EvalOnUseTriggersActionResolutionStep(context),
+  [ActionResolutionStepType.StartConcurrentSubActions]: (context) =>
+    new StartConcurrentSubActionsActionResolutionStep(context),
+  [ActionResolutionStepType.OnActivationSpawnEntity]: (context) =>
+    new SpawnEntityActionResolutionStep(context, ActionResolutionStepType.OnActivationSpawnEntity),
+  [ActionResolutionStepType.OnActivationVfxMotion]: (context) => {
+    const expectedProjectileEntityOption = context.tracker.spawnedEntityOption;
+    if (!expectedProjectileEntityOption) throw new Error("expected projectile was missing");
+    if (expectedProjectileEntityOption.type !== SpawnableEntityType.Vfx)
+      throw new Error("expected entity was of invalid type");
+    return new OnActivationVfxMotionActionResolutionStep(
+      context,
+      expectedProjectileEntityOption.vfx
+    );
+  },
+  [ActionResolutionStepType.RollIncomingHitOutcomes]: (context) =>
+    new RollIncomingHitOutcomesActionResolutionStep(context),
+  [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: (context) =>
+    new EvalOnHitOutcomeTriggersActionResolutionStep(context),
+  [ActionResolutionStepType.RecoveryMotion]: (context) => {
+    let animationPhase = CombatActionAnimationPhase.RecoverySuccess;
+    if (context.tracker.wasInterrupted)
+      animationPhase = CombatActionAnimationPhase.RecoveryInterrupted;
+    return new CombatantMotionActionResolutionStep(
+      context,
+      ActionResolutionStepType.RecoveryMotion,
+      ActionMotionPhase.Recovery,
+      animationPhase
+    );
+  },
+  [ActionResolutionStepType.FinalPositioning]: (context) =>
+    new CombatantMotionActionResolutionStep(
+      context,
+      ActionResolutionStepType.FinalPositioning,
+      ActionMotionPhase.Final,
+      CombatActionAnimationPhase.Final
+    ),
+};
