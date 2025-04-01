@@ -9,18 +9,26 @@ const __dirname = dirname(__filename);
 import { NextFunction, Request, Response } from "express";
 
 export async function getAssetHandler(req: Request, res: Response, next: NextFunction) {
-  console.log("asset handler");
-  const filePath = req.params["filepath"];
-  const folderPath = req.params["folderpath"];
-  if (!filePath) return res.status(404).send("No file path provided");
+  const filePath = req.params[0]; // Capture everything after '/files/'
+  if (filePath === undefined) return res.status(404).send("No file path provided");
 
-  const fullPath = __dirname;
-  const modelPath = path.resolve(fullPath, "../../assets/", folderPath + "/" + filePath);
+  // Define the base directory where files are stored
+  const baseDir = path.join(__dirname, "../../assets/");
 
-  if (fs.existsSync(modelPath)) {
-    res.sendFile(modelPath);
-  } else {
-    console.log("failed to get file at ", modelPath);
-    res.status(404).send("Model not found");
+  // Resolve the full file path
+  const fullPath = path.join(baseDir, filePath);
+  console.log("asset handler:", fullPath);
+
+  // Security check to prevent directory traversal
+  if (!fullPath.startsWith(baseDir)) {
+    return res.status(403).send("Access denied");
   }
+
+  // Check if the file exists
+  fs.access(fullPath, fs.constants.F_OK, (err) => {
+    if (err) {
+      return res.status(404).send("File not found");
+    }
+    res.sendFile(fullPath);
+  });
 }

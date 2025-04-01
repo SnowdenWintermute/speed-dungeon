@@ -29,7 +29,7 @@ export function createExpressApp() {
   );
 
   app.get(appRoute("/"), (_: Request, res: Response) => res.send("this is the api server"));
-  app.get(appRoute("/assets/:folderpath/:filepath"), getAssetHandler);
+  app.get(appRoute("/assets/*"), getAssetHandler);
   app.get(appRoute("/profiles/:username"), getUserIdFromUsernameInPath, getUserProfileHandler);
   app.get(appRoute("/ladders/level/:page"), getCharacterLevelLadderPageHandler);
   app.get(

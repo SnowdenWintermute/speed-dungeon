@@ -1210,6 +1210,13 @@
   resolved "https://registry.yarnpkg.com/@eslint/object-schema/-/object-schema-2.1.6.tgz#58369ab5b5b3ca117880c0f6c0b0f32f6950f24f"
   integrity sha512-RBMg5FRL0I0gs51M/guSAj5/e14VQ4tpZnQNWwuDT66P14I43ItmPfIZRhO9fUVIPOAQXU47atlywZ/czoqFPA==
 
+"@gltf-transform/core@^4.1.3":
+  version "4.1.3"
+  resolved "https://registry.yarnpkg.com/@gltf-transform/core/-/core-4.1.3.tgz#905b9a04f515d1444ce41a62a4990080edc8cee0"
+  integrity sha512-N+73Vo9DTXV2QmsnetLRY4q3z0Q0oyH0i/ymvzEkgpgNEAq+RP73ZLY0HK+Ia0rTUMgFwQHFNyHDyFiENToBZA==
+  dependencies:
+    property-graph "^3.0.0"
+
 "@humanwhocodes/config-array@^0.13.0":
   version "0.13.0"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.13.0.tgz#fb907624df3256d04b9aa2df50d7aa97ec648748"
@@ -6718,6 +6725,11 @@ prop-types@^15.8.1:
     loose-envify "^1.4.0"
     object-assign "^4.1.1"
     react-is "^16.13.1"
+
+property-graph@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/property-graph/-/property-graph-3.0.0.tgz#c3187a0389a7ec56b8c9207fe3867b2ba3d1e6df"
+  integrity sha512-TnzxUsttmGtw+OiU0LDw+0FlMbJ8vV8pOjyDI7+Kdni4Tj0hW5BFh7TatQu7Y68hcvvFmiFOHilKShsA4R82fA==
 
 proxy-addr@~2.0.7:
   version "2.0.7"

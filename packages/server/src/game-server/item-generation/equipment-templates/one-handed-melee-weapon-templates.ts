@@ -140,7 +140,6 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.damage = new NumberRange(6, 15);
         template.numDamageClassifications = 2;
         mainDamageClassification = null;
-        console.log("set main damage classification null", mainDamageClassification);
 
         template.possibleDamageClassifications = [
           new HpChangeSource({
@@ -261,11 +260,8 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
     }
 
     if (mainDamageClassification !== null) {
-      console.log(ONE_HANDED_MELEE_WEAPON_NAMES[weapon], "main damage classification not null");
       template.possibleDamageClassifications = [mainDamageClassification];
     }
-
-    console.log(ONE_HANDED_MELEE_WEAPON_NAMES[weapon], template.possibleDamageClassifications);
 
     toReturn[weapon] = template;
   }
