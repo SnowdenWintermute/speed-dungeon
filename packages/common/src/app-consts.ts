@@ -201,7 +201,7 @@ export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, stri
   [SkeletalAnimationName.CritRecovery]: "crit-recovery",
   [SkeletalAnimationName.Evade]: "evade-full",
   [SkeletalAnimationName.Parry]: "1h-parry-full",
-  [SkeletalAnimationName.Block]: "shield-block-delivery",
+  [SkeletalAnimationName.Block]: "shield-block-recovery",
   [SkeletalAnimationName.MainHandSwingChambering]: "mh-swing-chambering",
   [SkeletalAnimationName.MainHandSwingDelivery]: "mh-swing-delivery",
   [SkeletalAnimationName.MainHandSwingRecovery]: "mh-swing-recovery",

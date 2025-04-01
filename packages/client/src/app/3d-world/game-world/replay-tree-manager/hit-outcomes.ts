@@ -111,6 +111,9 @@ export function hitOutcomesGameUpdateHandler(update: {
 
     targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Parry, 0, {
       animationDurationOverrideOption: 500,
+      onComplete: () => {
+        targetModel.startIdleAnimation(500);
+      },
     });
 
     useGameStore.getState().mutateState((gameState) => {

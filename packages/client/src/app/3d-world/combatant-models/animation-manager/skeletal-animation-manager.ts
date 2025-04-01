@@ -9,7 +9,7 @@ export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   constructor(
     protected animationGroup: AnimationGroup,
     public readonly transitionDuration: number,
-    protected options: ManagedAnimationOptions
+    options: ManagedAnimationOptions
   ) {
     super(animationGroup, transitionDuration, options);
   }
@@ -19,9 +19,11 @@ export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   }
 
   getLength() {
+    let length = this.animationGroup.getLength() * 1000;
     if (this.options.animationDurationOverrideOption !== undefined)
-      return this.options.animationDurationOverrideOption;
-    return this.animationGroup.getLength() * 1000;
+      length = this.options.animationDurationOverrideOption;
+
+    return length;
   }
 
   setWeight(newWeight: number) {
@@ -32,16 +34,12 @@ export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   isCompleted() {
     if (this.options.shouldLoop) return false;
     const timeSinceStarted = Date.now() - this.timeStarted;
-    const animationLength =
-      this.options.animationDurationOverrideOption || this.animationGroup.getLength() * 1000;
+    const animationLength = this.getLength();
     return timeSinceStarted >= animationLength;
   }
 
   cleanup() {
-    if (this.options.onComplete) {
-      console.log("onComplete running in cleanup for", this.getName());
-      this.options.onComplete();
-    }
+    console.log("cleaned up", this.getName());
     this.animationGroup.stop();
     this.animationGroup.dispose(); // else causes memory leaks
   }
@@ -68,6 +66,8 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       this.characterModel.entityId.slice(0, 4),
       "starting animation",
       SKELETAL_ANIMATION_NAME_STRINGS[newAnimationName],
+      "shouldloop:",
+      options.shouldLoop,
       "curr: ",
       this.playing?.getName(),
       "prev: ",
@@ -84,7 +84,6 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     const animationStockDuration = clonedAnimation.getLength() * 1000;
     const speedModifier =
       animationStockDuration / (options.animationDurationOverrideOption || animationStockDuration);
-    console.log("speed modifier:", speedModifier);
 
     clonedAnimation.start(options.shouldLoop, speedModifier);
   }
@@ -102,6 +101,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       // when a subsequent animation is added and the previous animation is still there
       this.previous?.cleanup();
       this.previous = null;
+      return;
     }
 
     let percentTransitionCompleted = elapsed / this.playing.transitionDuration;
@@ -113,15 +113,16 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
 
   handleCompletedAnimations() {
     if (this.previous?.weight === 0) {
-      // console.log("removing previous", this.previous.getName());
       this.previous.cleanup();
       this.previous = null;
     }
 
-    if (this.playing && this.playing.isCompleted()) {
-      // console.log("removing current", this.playing.getName());
-      this.playing.cleanup();
-      this.playing = null;
+    if (this.playing && this.playing.isCompleted() && !this.playing.onCompleteRan) {
+      if (this.playing.options.onComplete && !this.playing.options.shouldLoop) {
+        this.playing.options.onComplete();
+        this.playing.onCompleteRan = true;
+        console.log("ran onComplete for", this.playing.getName());
+      }
     }
   }
 
@@ -130,7 +131,6 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     // alternatives to some missing animations
     if (newAnimationGroup === undefined) {
       const fallbackName = this.getFallbackAnimationName(name);
-      console.log("getting fallback animation", fallbackName);
       if (fallbackName !== undefined)
         newAnimationGroup = this.getAnimationGroupByName(fallbackName);
 

@@ -7,10 +7,11 @@ export type ManagedAnimationOptions = {
 export abstract class ManagedAnimation<T> {
   protected timeStarted: number = Date.now();
   weight: number = 0;
+  onCompleteRan: boolean = false;
   constructor(
     protected animationGroup: T,
     public readonly transitionDuration: number,
-    protected options: ManagedAnimationOptions
+    public options: ManagedAnimationOptions
   ) {}
 
   abstract setWeight(newWeight: number): void;

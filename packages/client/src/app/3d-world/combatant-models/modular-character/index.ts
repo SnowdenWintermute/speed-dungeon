@@ -147,14 +147,6 @@ export class ModularCharacter {
 
   startIdleAnimation(transitionMs: number) {
     const idleName = this.getIdleAnimationName();
-    console.log(
-      "starting idle name: ",
-      idleName,
-      "for entity",
-      this.entityId.slice(0, 4),
-      this.animationManager.playing?.getName(),
-      this.animationManager.previous?.getName()
-    );
 
     this.animationManager.startAnimationWithTransition(idleName, transitionMs, {
       shouldLoop: true,
