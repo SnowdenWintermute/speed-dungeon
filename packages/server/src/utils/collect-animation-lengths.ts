@@ -1,6 +1,7 @@
 import { NodeIO } from "@gltf-transform/core";
 import {
   CombatantSpecies,
+  Milliseconds,
   SKELETON_FILE_PATHS,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
@@ -29,14 +30,14 @@ export async function getAnimationLengths(filePath: string) {
         }
       }
 
-      toReturn[anim.getName()] = maxTime; // Duration in seconds
+      toReturn[anim.getName()] = Math.floor(maxTime * 1000); // convert from seconds to milliseconds and truncate
     });
   return toReturn;
 }
 
 export async function collectAnimationLengths() {
   const assetsFolderPath = "./assets/";
-  const toReturn: Record<CombatantSpecies, Record<string, number>> = {
+  const toReturn: Record<CombatantSpecies, Record<string, Milliseconds>> = {
     [CombatantSpecies.Humanoid]: {},
     [CombatantSpecies.Dragon]: {},
     [CombatantSpecies.Skeleton]: {},

@@ -13,3 +13,4 @@ export interface Point {
   y: number;
 }
 export type Milliseconds = number;
+export type Seconds = number;

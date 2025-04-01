@@ -1,5 +1,6 @@
 import { CombatActionExecutionIntent } from "../combat/index.js";
 import { CombatantContext } from "../combatant-context/index.js";
+import { CombatantSpecies } from "../combatants/combatant-species.js";
 import { EntityId, Milliseconds } from "../primatives/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { SequentialIdGenerator } from "../utils/index.js";
@@ -11,7 +12,10 @@ import { NestedNodeReplayEvent } from "./replay-events.js";
 export class ActionSequenceManagerRegistry {
   private actionManagers: { [id: string]: ActionSequenceManager } = {};
   actionStepIdGenerator = new SequentialIdGenerator();
-  constructor(private idGenerator: IdGenerator) {}
+  constructor(
+    private idGenerator: IdGenerator,
+    public readonly animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
+  ) {}
   isEmpty() {
     return !Object.values(this.actionManagers).length;
   }

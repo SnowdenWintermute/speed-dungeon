@@ -14,6 +14,7 @@ import {
   OFF_HAND_ACCURACY_MODIFIER,
   OFF_HAND_CRIT_CHANCE_MODIFIER,
   OFF_HAND_DAMAGE_MODIFIER,
+  SKELETAL_ANIMATION_NAME_STRINGS,
 } from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
@@ -174,28 +175,44 @@ const config: CombatActionComponentConfig = {
       }
     }
 
+    const { animationLengths } = context.manager.sequentialActionManagerRegistry;
+    const speciesLengths =
+      animationLengths[context.combatantContext.combatant.combatantProperties.combatantSpecies];
+
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Chambering]: {
         name: { type: AnimationType.Skeletal, name: chamberingAnimation },
-        timing: { type: AnimationTimingType.Timed, duration: 300 },
+        timing: {
+          type: AnimationTimingType.Timed,
+          duration: speciesLengths[SKELETAL_ANIMATION_NAME_STRINGS[chamberingAnimation]] || 0,
+        },
       },
       [CombatActionAnimationPhase.Delivery]: {
         name: { type: AnimationType.Skeletal, name: deliveryAnimation },
-        timing: { type: AnimationTimingType.Timed, duration: 1200 },
+        timing: {
+          type: AnimationTimingType.Timed,
+          duration: speciesLengths[SKELETAL_ANIMATION_NAME_STRINGS[deliveryAnimation]] || 0,
+        },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
         name: {
           type: AnimationType.Skeletal,
           name: recoveryAnimation,
         },
-        timing: { type: AnimationTimingType.Timed, duration: 700 },
+        timing: {
+          type: AnimationTimingType.Timed,
+          duration: speciesLengths[SKELETAL_ANIMATION_NAME_STRINGS[recoveryAnimation]] || 0,
+        },
       },
       [CombatActionAnimationPhase.RecoveryInterrupted]: {
         name: {
           type: AnimationType.Skeletal,
           name: recoveryAnimation,
         },
-        timing: { type: AnimationTimingType.Timed, duration: 700 },
+        timing: {
+          type: AnimationTimingType.Timed,
+          duration: speciesLengths[SKELETAL_ANIMATION_NAME_STRINGS[recoveryAnimation]] || 0,
+        },
       },
       [CombatActionAnimationPhase.Final]: {
         name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveBack },
