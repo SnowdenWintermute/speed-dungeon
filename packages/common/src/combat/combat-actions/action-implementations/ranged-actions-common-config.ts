@@ -19,7 +19,11 @@ import {
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { CombatActionComponent } from "../index.js";
 import { ActionAccuracy, ActionAccuracyType } from "../combat-action-accuracy.js";
-import { AnimationType, SkeletalAnimationName } from "../../../app-consts.js";
+import {
+  AnimationType,
+  SKELETAL_ANIMATION_NAME_STRINGS,
+  SkeletalAnimationName,
+} from "../../../app-consts.js";
 
 export const RANGED_ACTIONS_COMMON_CONFIG = {
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
@@ -43,6 +47,10 @@ export const RANGED_ACTIONS_COMMON_CONFIG = {
     return getStandardActionArmorPenetration(user, CombatAttribute.Dexterity);
   },
   getActionStepAnimations: (context: ActionResolutionStepContext) => {
+    const { animationLengths } = context.manager.sequentialActionManagerRegistry;
+    const speciesLengths =
+      animationLengths[context.combatantContext.combatant.combatantProperties.combatantSpecies];
+
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {
         name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
@@ -50,28 +58,49 @@ export const RANGED_ACTIONS_COMMON_CONFIG = {
       },
       [CombatActionAnimationPhase.Chambering]: {
         name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.BowChambering },
-        timing: { type: AnimationTimingType.Timed, duration: 700 },
-        // timing: { type: AnimationTimingType.Timed, duration: 3000 },
+        timing: {
+          type: AnimationTimingType.Timed,
+          duration:
+            speciesLengths[SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.BowChambering]] ||
+            0,
+        },
       },
       [CombatActionAnimationPhase.Delivery]: {
         name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.BowDelivery },
-        timing: { type: AnimationTimingType.Timed, duration: 1200 },
-        // timing: { type: AnimationTimingType.Timed, duration: 3200 },
+        timing: {
+          type: AnimationTimingType.Timed,
+          duration:
+            speciesLengths[SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.BowDelivery]] || 0,
+        },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.BowRecovery },
-        timing: { type: AnimationTimingType.Timed, duration: 700 },
-        // timing: { type: AnimationTimingType.Timed, duration: 3000 },
+        name: {
+          type: AnimationType.Skeletal,
+          name: SkeletalAnimationName.BowRecovery,
+        },
+        timing: {
+          type: AnimationTimingType.Timed,
+          duration:
+            speciesLengths[SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.BowRecovery]] || 0,
+        },
       },
       [CombatActionAnimationPhase.RecoveryInterrupted]: {
-        name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.BowRecovery },
-        timing: { type: AnimationTimingType.Timed, duration: 700 },
+        name: {
+          type: AnimationType.Skeletal,
+          name: SkeletalAnimationName.BowRecovery,
+        },
+        timing: {
+          type: AnimationTimingType.Timed,
+          duration:
+            speciesLengths[SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.BowRecovery]] || 0,
+        },
       },
       [CombatActionAnimationPhase.Final]: {
         name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveBack },
         timing: { type: AnimationTimingType.Looping },
       },
     };
+
     return animations;
   },
   motionPhasePositionGetters: {

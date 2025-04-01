@@ -11,7 +11,7 @@ import {
   ReplayEventType,
   SequentialIdGenerator,
 } from "@speed-dungeon/common";
-import { idGenerator } from "../../../singletons.js";
+import { ANIMATION_LENGTHS, idGenerator } from "../../../singletons.js";
 import { CombatActionAnimationPhase } from "@speed-dungeon/common";
 
 class TimeKeeper {
@@ -23,7 +23,7 @@ export function processCombatAction(
   actionExecutionIntent: CombatActionExecutionIntent,
   combatantContext: CombatantContext
 ) {
-  const registry = new ActionSequenceManagerRegistry(idGenerator);
+  const registry = new ActionSequenceManagerRegistry(idGenerator, ANIMATION_LENGTHS);
   const rootReplayNode: NestedNodeReplayEvent = { type: ReplayEventType.NestedNode, events: [] };
   const time = new TimeKeeper();
   const completionOrderIdGenerator = new SequentialIdGenerator();
@@ -35,6 +35,7 @@ export function processCombatAction(
     null,
     time
   );
+  //
 
   if (initialGameUpdateOptionResult instanceof Error) return initialGameUpdateOptionResult;
   if (initialGameUpdateOptionResult) {

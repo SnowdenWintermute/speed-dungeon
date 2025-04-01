@@ -10,11 +10,12 @@ import {
   AnimationType,
   SkeletalAnimationName,
   DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
+  SKELETAL_ANIMATION_NAME_STRINGS,
 } from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
-import { CombatantEquipment } from "../../../../combatants/index.js";
+import { CombatantEquipment, CombatantSpecies } from "../../../../combatants/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { iterateNumericEnum } from "../../../../utils/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
@@ -24,6 +25,7 @@ import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { MELEE_ATTACK_COMMON_CONFIG } from "../melee-actions-common-config.js";
 import {
+  ANIMATION_PHASE_NAME_STRINGS,
   CombatActionAnimationPhase,
   CombatActionCombatantAnimations,
 } from "../../combat-action-animations.js";
@@ -145,6 +147,10 @@ const config: CombatActionComponentConfig = {
       }
     }
 
+    const { animationLengths } = context.manager.sequentialActionManagerRegistry;
+    const speciesLengths =
+      animationLengths[context.combatantContext.combatant.combatantProperties.combatantSpecies];
+
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Initial]: {
         name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
@@ -152,25 +158,37 @@ const config: CombatActionComponentConfig = {
       },
       [CombatActionAnimationPhase.Chambering]: {
         name: { type: AnimationType.Skeletal, name: chamberingAnimation },
-        timing: { type: AnimationTimingType.Timed, duration: 300 },
+        timing: {
+          type: AnimationTimingType.Timed,
+          duration: speciesLengths[SKELETAL_ANIMATION_NAME_STRINGS[chamberingAnimation]] || 0,
+        },
       },
       [CombatActionAnimationPhase.Delivery]: {
         name: { type: AnimationType.Skeletal, name: deliveryAnimation },
-        timing: { type: AnimationTimingType.Timed, duration: 1200 },
+        timing: {
+          type: AnimationTimingType.Timed,
+          duration: speciesLengths[SKELETAL_ANIMATION_NAME_STRINGS[deliveryAnimation]] || 0,
+        },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
         name: {
           type: AnimationType.Skeletal,
           name: recoveryAnimation,
         },
-        timing: { type: AnimationTimingType.Timed, duration: 700 },
+        timing: {
+          type: AnimationTimingType.Timed,
+          duration: speciesLengths[SKELETAL_ANIMATION_NAME_STRINGS[recoveryAnimation]] || 0,
+        },
       },
       [CombatActionAnimationPhase.RecoveryInterrupted]: {
         name: {
           type: AnimationType.Skeletal,
           name: recoveryAnimation,
         },
-        timing: { type: AnimationTimingType.Timed, duration: 700 },
+        timing: {
+          type: AnimationTimingType.Timed,
+          duration: speciesLengths[SKELETAL_ANIMATION_NAME_STRINGS[recoveryAnimation]] || 0,
+        },
       },
       [CombatActionAnimationPhase.Final]: {
         name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveBack },

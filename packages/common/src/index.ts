@@ -29,3 +29,4 @@ export * from "./spawnables/index.js";
 export * from "./action-processing/index.js";
 export * from "./durability/index.js";
 export * from "./hit-outcome.js";
+export * from "./assets/skeleton-file-paths.js";

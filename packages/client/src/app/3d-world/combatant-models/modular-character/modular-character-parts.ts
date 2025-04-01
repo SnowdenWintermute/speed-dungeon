@@ -41,17 +41,6 @@ export const CHARACTER_PARTS: Record<
   },
 };
 
-export const SKELETONS: Record<CombatantSpecies, string> = {
-  [CombatantSpecies.Humanoid]: "humanoid/humanoid-skeleton.glb",
-  [CombatantSpecies.Wasp]: "monsters/wasp-main-skeleton.glb",
-  [CombatantSpecies.Frog]: "monsters/frog-main-skeleton.glb",
-  [CombatantSpecies.Dragon]: "monsters/dragon-main-skeleton.glb",
-  [CombatantSpecies.Skeleton]: "monsters/skeleton-main-skeleton.glb",
-  [CombatantSpecies.Velociraptor]: "monsters/velociraptor-main-skeleton.glb",
-  [CombatantSpecies.Elemental]: "monsters/cube-main-skeleton.glb",
-  [CombatantSpecies.Golem]: "monsters/wolf-main-skeleton.glb",
-};
-
 export const MONSTER_FULL_SKINS: Partial<Record<MonsterType, string>> = {
   [MonsterType.MetallicGolem]: "monsters/wolf-full.glb",
   [MonsterType.Zombie]: "monsters/skeleton-full.glb",

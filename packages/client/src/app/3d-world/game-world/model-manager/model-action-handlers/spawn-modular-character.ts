@@ -3,9 +3,9 @@ import { ModularCharacter } from "../../../combatant-models/modular-character";
 import {
   CombatantEquipment,
   CombatantSpecies,
+  SKELETON_FILE_PATHS,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { SKELETONS } from "../../../combatant-models/modular-character/modular-character-parts";
 import { importMesh } from "../../../utils";
 import { GameWorld } from "../../";
 import { ISceneLoaderAsyncResult } from "@babylonjs/core";
@@ -18,7 +18,7 @@ export async function spawnModularCharacter(
 ): Promise<Error | ModularCharacter> {
   const { combatantProperties, entityProperties } = blueprint.combatant;
 
-  const skeletonPath = SKELETONS[combatantProperties.combatantSpecies];
+  const skeletonPath = SKELETON_FILE_PATHS[combatantProperties.combatantSpecies];
 
   const skeleton = await importMesh(skeletonPath, world.scene);
 
