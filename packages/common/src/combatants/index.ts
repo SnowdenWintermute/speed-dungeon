@@ -1,4 +1,4 @@
-import { Vector3 } from "@babylonjs/core";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
 import combatantCanUseItem from "./can-use-item.js";
@@ -96,6 +96,7 @@ export class CombatantProperties {
     stacks: number;
     causedBy?: EntityId;
   };
+  public homeRotation: Quaternion = Quaternion.Zero();
   constructor(
     public combatantClass: CombatantClass,
     public combatantSpecies: CombatantSpecies,

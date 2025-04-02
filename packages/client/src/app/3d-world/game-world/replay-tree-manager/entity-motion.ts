@@ -21,7 +21,7 @@ export function entityMotionGameUpdateHandler(update: {
   const { command } = update;
   let movementManager: ModelMovementManager;
   let animationManager: DynamicAnimationManager | SkeletalAnimationManager | undefined;
-  const { entityId, translationOption, animationOption } = command;
+  const { entityId, translationOption, rotationOption, animationOption } = command;
 
   let destinationYOption: undefined | number;
 
@@ -52,6 +52,13 @@ export function entityMotionGameUpdateHandler(update: {
     const destination = plainToInstance(Vector3, translationOption.destination);
     // don't consider the y from the server since the server only calculates 2d positions
     if (destinationYOption) destination.y = destinationYOption;
+
+    if (rotationOption)
+      movementManager.startRotatingTowards(
+        plainToInstance(Vector3, rotationOption.rotateToFace),
+        rotationOption.duration,
+        () => {}
+      );
 
     movementManager.startTranslating(destination, translationOption.duration, () => {
       translationIsComplete = true;

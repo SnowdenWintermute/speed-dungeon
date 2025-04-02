@@ -63,6 +63,7 @@ export async function synchronizeCombatantModelsWithAppState() {
       modelOption.setHomeRotation(cloneDeep(position.startRotation));
       modelOption.setHomeLocation(cloneDeep(position.startPosition));
     }
+    console.log("synchronize needs to spawn this many:", modelSpawnPromises.length);
   }
 
   const spawnResults = await Promise.all(modelSpawnPromises);

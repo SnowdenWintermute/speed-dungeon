@@ -8,7 +8,7 @@ import {
 } from "@speed-dungeon/common";
 import { importMesh } from "../../../utils";
 import { GameWorld } from "../../";
-import { ISceneLoaderAsyncResult } from "@babylonjs/core";
+import { ISceneLoaderAsyncResult, Vector3 } from "@babylonjs/core";
 import { getModularCharacterPartCategoriesAndAssetPaths } from "./get-modular-character-parts";
 import { setModularCharacterPartDefaultMaterials } from "./set-modular-character-part-default-materials";
 
@@ -85,7 +85,9 @@ export async function spawnModularCharacter(
 
   modularCharacter.updateBoundingBox();
 
-  modularCharacter.startIdleAnimation(500);
+  modularCharacter.startIdleAnimation(0, {});
+
+  modularCharacter.setVisibility(1);
 
   return modularCharacter;
 }

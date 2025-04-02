@@ -50,7 +50,9 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
   previous: null | ManagedSkeletalAnimation = null;
   locked: boolean = false;
   constructor(public characterModel: ModularCharacter) {
-    this.characterModel.skeleton.animationGroups[0]?.stop(); // stop default animation
+    // stop default animation
+    this.characterModel.skeleton.animationGroups[0]?.setWeightForAllAnimatables(0);
+    this.characterModel.skeleton.animationGroups[0]?.stop();
   }
 
   cloneAnimation(animationGroup: AnimationGroup): AnimationGroup {

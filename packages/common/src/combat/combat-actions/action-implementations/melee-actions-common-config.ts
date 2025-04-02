@@ -13,7 +13,7 @@ import {
 } from "../action-calculation-utils/standard-action-calculations.js";
 import { ActionAccuracy, ActionAccuracyType } from "../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../combat-action-range.js";
-import { CombatActionComponent } from "../../index.js";
+import { CombatActionComponent, CombatActionComponentConfig } from "../../index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { COMMON_DESTINATION_GETTERS } from "./common-destination-getters.js";
 
@@ -76,16 +76,25 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
         isNaN(distance) ||
         Math.abs(meleeRange - distance) < threshold
       ) {
-        return user.position.clone();
+        return { destination: user.position.clone(), rotateToFace: undefined };
       }
 
       const direction = target.homeLocation
         .subtract(combatantContext.combatant.combatantProperties.homeLocation)
         .normalize();
 
-      return target.homeLocation.subtract(direction.scale(target.hitboxRadius + user.hitboxRadius));
+      const destination = target.homeLocation.subtract(
+        direction.scale(target.hitboxRadius + user.hitboxRadius)
+      );
+
+      return {
+        destination,
+        rotateToFace: destination,
+      };
     },
-    [ActionMotionPhase.Delivery]: (context: ActionResolutionStepContext) => {
+    [ActionMotionPhase.Delivery]: (
+      context: ActionResolutionStepContext
+    ): Error | null | { destination: Vector3; rotateToFace?: Vector3 } => {
       const { combatantContext, tracker } = context;
       const { actionExecutionIntent } = tracker;
       const targetingCalculator = new TargetingCalculator(combatantContext, null);
@@ -97,24 +106,24 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
       const target = primaryTargetResult;
       const user = combatantContext.combatant.combatantProperties;
 
-      return user.position.clone();
+      return { destination: user.position.clone(), rotateToFace: undefined };
 
-      const distance = Vector3.Distance(target.position, user.position);
-      if (
-        distance <= meleeRange ||
-        isNaN(distance) ||
-        Math.abs(meleeRange - distance) < threshold
-      ) {
-        return user.position.clone();
-      }
+      // const distance = Vector3.Distance(target.position, user.position);
+      // if (
+      //   distance <= meleeRange ||
+      //   isNaN(distance) ||
+      //   Math.abs(meleeRange - distance) < threshold
+      // ) {
+      //   return user.position.clone();
+      // }
 
-      const toTravel = distance - meleeRange;
+      // const toTravel = distance - meleeRange;
 
-      const direction = target.position
-        .subtract(combatantContext.combatant.combatantProperties.position)
-        .normalize();
+      // const direction = target.position
+      //   .subtract(combatantContext.combatant.combatantProperties.position)
+      //   .normalize();
 
-      return user.position.add(direction.scale(toTravel));
+      // return user.position.add(direction.scale(toTravel));
     },
   },
 };

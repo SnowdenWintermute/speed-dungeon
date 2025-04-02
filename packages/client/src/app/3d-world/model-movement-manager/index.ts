@@ -1,7 +1,8 @@
-import { TransformNode, Vector3 } from "@babylonjs/core";
+import { Quaternion, TransformNode, Vector3 } from "@babylonjs/core";
 import {
   ModelMovementTracker,
   ModelMovementType,
+  RotationTracker,
   TranslationTracker,
 } from "./model-movement-trackers";
 import { cloneVector3, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
@@ -31,6 +32,27 @@ export class ModelMovementManager {
       onComplete
     );
     this.activeTrackers[ModelMovementType.Translation] = tracker;
+  }
+
+  startRotatingTowards(target: Vector3, duration: number, onComplete: () => void) {
+    const forward = this.transformNode.forward;
+    const targetDirection = target.subtract(this.transformNode.position).normalize();
+    const destination = Quaternion.FromUnitVectorsToRef(forward, targetDirection, new Quaternion());
+    const previous =
+      this.transformNode.rotationQuaternion?.clone() ||
+      Quaternion.RotationYawPitchRoll(
+        this.transformNode.rotation.y,
+        this.transformNode.rotation.x,
+        this.transformNode.rotation.z
+      );
+    const tracker = new RotationTracker(
+      this.transformNode,
+      duration,
+      previous,
+      destination,
+      onComplete
+    );
+    this.activeTrackers[ModelMovementType.Rotation] = tracker;
   }
 
   getTrackers() {

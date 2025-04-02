@@ -109,7 +109,7 @@ export const RANGED_ACTIONS_COMMON_CONFIG = {
       const { combatantContext } = context;
       const user = combatantContext.combatant.combatantProperties;
       const direction = CombatantProperties.getForward(user);
-      return user.homeLocation.add(direction.scale(0.5));
+      return { destination: user.homeLocation.add(direction.scale(0.5)) };
     },
   },
 };

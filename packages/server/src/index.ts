@@ -10,7 +10,7 @@ import {
 } from "@speed-dungeon/common";
 import { GameServer } from "./game-server/index.js";
 import { env } from "./validate-env.js";
-import { ANIMATION_LENGTHS, gameServer, idGenerator } from "./singletons.js";
+import { gameServer, idGenerator } from "./singletons.js";
 import { pgPool } from "./singletons/pg-pool.js";
 import { pgOptions } from "./database/config.js";
 import { valkeyManager } from "./kv-store/index.js";
@@ -26,7 +26,6 @@ pgPool.connect(pgOptions);
 await valkeyManager.context.connect();
 
 await loadLadderIntoKvStore();
-console.log(ANIMATION_LENGTHS);
 
 const expressApp = createExpressApp();
 const listening = expressApp.listen(PORT, async () => {

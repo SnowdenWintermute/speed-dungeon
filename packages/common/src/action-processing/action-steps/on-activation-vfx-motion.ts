@@ -66,10 +66,10 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
     if (destinationGetterOption) destinationResult = destinationGetterOption(context);
     if (destinationResult instanceof Error) throw destinationResult;
     if (destinationResult) {
-      const distance = Vector3.Distance(this.originalPosition, destinationResult);
+      const distance = Vector3.Distance(this.originalPosition, destinationResult.destination);
       const timeToTranslate = distance * ARROW_TIME_TO_MOVE_ONE_METER;
       const translation = {
-        destination: destinationResult.clone(),
+        destination: destinationResult.destination.clone(),
         duration: timeToTranslate,
       };
       this.translationOption = translation;

@@ -75,7 +75,12 @@ export interface CombatActionComponentConfig {
     self: CombatActionComponent
   ) => CombatActionRequiredRange;
   motionPhasePositionGetters: Partial<
-    Record<ActionMotionPhase, (context: ActionResolutionStepContext) => Error | null | Vector3>
+    Record<
+      ActionMotionPhase,
+      (
+        context: ActionResolutionStepContext
+      ) => Error | null | { destination: Vector3; rotateToFace?: Vector3 }
+    >
   >;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
   /** A numeric percentage which will be used against the target's evasion */
@@ -170,7 +175,12 @@ export abstract class CombatActionComponent {
   ) => null | Error | CombatActionCombatantAnimations;
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   motionPhasePositionGetters: Partial<
-    Record<ActionMotionPhase, (context: ActionResolutionStepContext) => Error | null | Vector3>
+    Record<
+      ActionMotionPhase,
+      (
+        context: ActionResolutionStepContext
+      ) => Error | null | { destination: Vector3; rotateToFace?: Vector3 }
+    >
   >;
 
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;

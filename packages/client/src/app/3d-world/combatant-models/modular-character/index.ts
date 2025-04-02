@@ -48,6 +48,7 @@ import { ModelMovementManager } from "../../model-movement-manager";
 import { SKELETON_ARMATURE_NAMES, SKELETON_STRUCTURE_TYPE } from "./skeleton-structure-variables";
 import { SkeletalAnimationManager } from "../animation-manager/skeletal-animation-manager";
 import { useGameStore } from "@/stores/game-store";
+import { ManagedAnimationOptions } from "../animation-manager";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -84,6 +85,7 @@ export class ModularCharacter {
   animationManager: SkeletalAnimationManager;
   highlightManager: HighlightManager = new HighlightManager(this);
   debugMeshes: Mesh[] | null = null;
+  public visibility: number = 0;
 
   testAnimationSwitcherAnimationName: SkeletalAnimationName = SkeletalAnimationName.IdleTwoHand;
 
@@ -100,7 +102,6 @@ export class ModularCharacter {
     startRotation: number = 0
   ) {
     this.animationManager = new SkeletalAnimationManager(this);
-    this.startIdleAnimation(0);
 
     // get rid of the placeholder mesh (usually a simple quad or tri) which
     // must be included in order for babylon to recognize the loaded asset as a skeleton
@@ -135,6 +136,22 @@ export class ModularCharacter {
     // this.setShowBones();
   }
 
+  setVisibility(value: number) {
+    this.visibility = value;
+
+    for (const [partCategory, scene] of iterateNumericEnumKeyedRecord(this.parts)) {
+      scene?.meshes.forEach((mesh) => {
+        mesh.visibility = this.visibility;
+      });
+    }
+    for (const holdable of Object.values(this.equipment.holdables)) {
+      holdable.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
+    }
+    for (const wearable of Object.values(this.equipment.wearables)) {
+      wearable?.scene.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
+    }
+  }
+
   setHomeRotation(rotation: number) {
     this.rootTransformNode.rotationQuaternion = Quaternion.RotationAxis(Vector3.Up(), rotation);
     this.homeLocation.rotation.copyFrom(this.rootTransformNode.rotationQuaternion);
@@ -145,10 +162,11 @@ export class ModularCharacter {
     this.homeLocation.position = cloneDeep(this.rootTransformNode.position);
   }
 
-  startIdleAnimation(transitionMs: number) {
+  startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {
     const idleName = this.getIdleAnimationName();
 
     this.animationManager.startAnimationWithTransition(idleName, transitionMs, {
+      ...options,
       shouldLoop: true,
     });
   }
@@ -239,6 +257,7 @@ export class ModularCharacter {
     for (const mesh of part.meshes) {
       // attach part
       if (mesh.skeleton) mesh.skeleton = this.skeleton.skeletons[0];
+      mesh.visibility = this.visibility;
 
       mesh.parent = parent!;
     }
@@ -288,10 +307,13 @@ export class ModularCharacter {
       this.world.defaultMaterials,
       true
     );
+
     if (equipmentModelResult instanceof Error) {
       console.log("equipment model error: ", equipmentModelResult.message);
       return;
     }
+
+    equipmentModelResult.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
 
     this.equipment.holdables[equipment.entityProperties.id] = equipmentModelResult;
 

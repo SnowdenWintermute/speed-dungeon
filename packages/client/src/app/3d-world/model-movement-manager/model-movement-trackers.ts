@@ -55,9 +55,9 @@ export class RotationTracker extends ModelMovementTracker {
   constructor(
     movable: TransformNode,
     duration: Milliseconds,
-    public onComplete: () => void,
     private previous: Quaternion,
-    private destination: Quaternion
+    private destination: Quaternion,
+    public onComplete: () => void
   ) {
     super(movable, duration);
   }

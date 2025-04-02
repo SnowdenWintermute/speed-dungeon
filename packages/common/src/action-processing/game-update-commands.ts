@@ -60,6 +60,10 @@ export interface EntityTranslation {
   duration: Milliseconds;
   destination: Vector3;
 }
+export interface EntityRotation {
+  duration: Milliseconds;
+  rotateToFace: Vector3;
+}
 export enum AnimationTimingType {
   Timed,
   Looping,
@@ -84,6 +88,7 @@ export type EntityMotionGameUpdateCommand = {
   entityId: EntityId;
   animationOption?: EntityAnimation;
   translationOption?: EntityTranslation;
+  rotationOption?: EntityRotation;
   idleOnComplete?: boolean;
   instantTransition?: boolean;
   despawnOnComplete?: boolean;

@@ -30,12 +30,6 @@ export function attachHoldableModelToSkeleton(
   slot: HoldableSlotType,
   equipment: Equipment
 ) {
-  console.log(
-    "attaching",
-    equipment.entityProperties.name,
-    "to",
-    combatantModel.entityId.slice(0, 4)
-  );
   const parentMesh = equipmentModel.meshes[0];
   if (!parentMesh) return console.error("no equipment parent mesh");
   const skeletonRoot = combatantModel.skeleton.meshes[0];
@@ -128,7 +122,7 @@ export function attachHoldableModelToHolsteredPosition(
       equipmentParentMesh.rotation.y = Math.PI;
     } else {
       // move most weapons up a little
-      equipmentParentMesh.position.y = 0.15;
+      equipmentParentMesh.position.y = -0.15;
     }
   }
 }

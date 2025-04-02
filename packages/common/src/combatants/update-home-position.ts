@@ -1,4 +1,4 @@
-import { Vector3 } from "@babylonjs/core";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import {
   COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
@@ -29,6 +29,20 @@ export function updateCombatantHomePosition(
   let positionSpacing = -COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2;
   if (!isPlayer) positionSpacing *= -1;
 
-  combatantProperties.homeLocation = new Vector3(rowPositionOffset, 0, positionSpacing);
+  const homeLocation = new Vector3(rowPositionOffset, 0, positionSpacing);
+  combatantProperties.homeLocation = homeLocation;
+
+  //
+  const forwardPosition = new Vector3(rowPositionOffset, 0, 0);
+
+  const forwardDirection = homeLocation.subtract(forwardPosition).normalize();
+  const homeRotation = Quaternion.FromUnitVectorsToRef(
+    forwardDirection,
+    homeLocation,
+    new Quaternion()
+  );
+  combatantProperties.homeRotation = homeRotation;
+  //
+
   combatantProperties.position = combatantProperties.homeLocation.clone();
 }
