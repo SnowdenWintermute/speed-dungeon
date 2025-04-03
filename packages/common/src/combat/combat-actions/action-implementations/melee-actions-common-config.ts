@@ -84,7 +84,8 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
         .normalize();
 
       const destination = target.homeLocation.subtract(
-        direction.scale(target.hitboxRadius + user.hitboxRadius)
+        // direction.scale(target.hitboxRadius + user.hitboxRadius)
+        direction.scale(meleeRange)
       );
 
       const destinationRotation = Quaternion.FromUnitVectorsToRef(

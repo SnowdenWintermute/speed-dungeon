@@ -35,7 +35,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     const { tracker, combatantContext } = this.context;
     const { actionExecutionIntent } = tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
-    const { party, combatant } = combatantContext;
+    const { game, party, combatant } = combatantContext;
     const { outcomeFlags, hitPointChanges } = tracker.hitOutcomes;
 
     const durabilityChanges = new DurabilityChangesByEntityId();
@@ -59,6 +59,11 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           flag,
           hpChangeIsCrit
         );
+
+        if (!durabilityChanges.isEmpty()) {
+          gameUpdateCommand.durabilityChanges = durabilityChanges;
+          DurabilityChangesByEntityId.ApplyToGame(game, durabilityChanges);
+        }
 
         if (flag === HitOutcome.Hit) {
           const conditionsToApply = action.getAppliedConditions(context);

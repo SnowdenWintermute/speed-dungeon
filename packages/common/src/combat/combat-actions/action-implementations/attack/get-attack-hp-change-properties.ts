@@ -1,5 +1,6 @@
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
+import { Equipment } from "../../../../items/equipment/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { NumberRange } from "../../../../primatives/index.js";
 import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
@@ -55,18 +56,19 @@ export function getAttackHpChangeProperties(
 
   const weaponOption = equippedUsableWeapons[weaponSlot];
 
-  if (weaponOption) {
-    applyWeaponPropertiesToHpChangeProperties(
-      action,
-      weaponOption,
-      hpChangeProperties,
-      user,
-      primaryTarget
-    );
-  } else {
-    // unarmed
-    hpChangeProperties.hpChangeSource.kineticDamageTypeOption = KineticDamageType.Blunt;
-  }
+  if (weaponOption?.equipment)
+    if (weaponOption) {
+      applyWeaponPropertiesToHpChangeProperties(
+        action,
+        weaponOption,
+        hpChangeProperties,
+        user,
+        primaryTarget
+      );
+    } else {
+      // unarmed
+      hpChangeProperties.hpChangeSource.kineticDamageTypeOption = KineticDamageType.Blunt;
+    }
 
   baseValues.floor();
 

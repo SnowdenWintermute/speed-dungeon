@@ -15,7 +15,7 @@ import {
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
-import { CombatantEquipment, CombatantSpecies } from "../../../../combatants/index.js";
+import { CombatantEquipment } from "../../../../combatants/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { iterateNumericEnum } from "../../../../utils/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
@@ -25,7 +25,6 @@ import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { MELEE_ATTACK_COMMON_CONFIG } from "../melee-actions-common-config.js";
 import {
-  ANIMATION_PHASE_NAME_STRINGS,
   CombatActionAnimationPhase,
   CombatActionCombatantAnimations,
 } from "../../combat-action-animations.js";
@@ -34,6 +33,7 @@ import { KineticDamageType } from "../../../kinetic-damage-types.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { COMBAT_ACTIONS } from "../index.js";
 import { getIncomingHpChangePerTarget } from "../../../action-results/index.js";
+import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -49,7 +49,9 @@ const config: CombatActionComponentConfig = {
   ],
   baseHpChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
-  incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: 1 } },
+  incursDurabilityLoss: {
+    [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnHit },
+  },
   costBases: {},
   getResourceCosts: () => null,
   getExecutionTime: () => DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,

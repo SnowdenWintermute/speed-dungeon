@@ -19,7 +19,6 @@ import {
 } from "../../combat/combat-actions/combat-action-animations.js";
 import { getTranslationTime } from "../../combat/combat-actions/action-implementations/get-translation-time.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
-import { SKELETAL_ANIMATION_NAME_STRINGS } from "../../app-consts.js";
 
 export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
   private originalPosition: Vector3;
@@ -74,7 +73,6 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
     }
 
     if (destinationResult?.rotation) {
-      console.log("rotation set");
       gameUpdateCommand.rotationOption = {
         rotation: destinationResult.rotation,
         duration: 600,
@@ -85,18 +83,9 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
 
     if (animationsOption) {
       const animationOption = animationsOption[animationPhase];
-      if (animationOption) {
-        this.animationOption = animationOption;
+      if (animationOption) this.animationOption = animationOption;
 
-        console.log(
-          "animation option: ",
-          animationOption.name.type,
-          SKELETAL_ANIMATION_NAME_STRINGS[animationOption.name.name]
-        );
-      }
       if (this.animationOption) gameUpdateCommand.animationOption = this.animationOption;
-    } else {
-      console.log("NO ANIMATION OPTION");
     }
   }
 

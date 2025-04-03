@@ -114,10 +114,6 @@ const config: CombatActionComponentConfig = {
   getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
     // @TODO - base off of activating condition spell level
     return { type: ActionAccuracyType.Unavoidable };
-    return {
-      type: ActionAccuracyType.Percentage,
-      value: 100,
-    };
   },
   getCritChance: (user) => BASE_CRIT_CHANCE,
   getCritMultiplier: (user) => BASE_CRIT_MULTIPLIER,
@@ -133,7 +129,6 @@ const config: CombatActionComponentConfig = {
     ];
   },
   motionPhasePositionGetters: {
-    // [ActionMotionPhase.]
     [ActionMotionPhase.Delivery]: (context) => {
       const { combatantContext, tracker } = context;
       const { actionExecutionIntent } = tracker;

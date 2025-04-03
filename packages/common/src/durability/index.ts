@@ -118,6 +118,7 @@ export class DurabilityChangesByEntityId {
         action.incursDurabilityLoss[EquipmentSlotType.Holdable]
       )) {
         if (!(durabilityLossCondition === condition)) continue;
+        console.log("updating durability loss for condition: ", durabilityLossCondition);
         this.updateOrCreateDurabilityChangeRecord(userId, {
           taggedSlot: { type: EquipmentSlotType.Holdable, slot: holdableSlot },
           value: BASE_DURABILITY_LOSS,

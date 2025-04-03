@@ -26,11 +26,7 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
 
     this.context.tracker.hitOutcomes = hitOutcomesResult;
 
-    const { game, party } = this.context.combatantContext;
-
-    // @TODO -
-    // apply hit outcomes to the game state so subsequent action.shouldExecute calls can check if
-    // their target is dead, user is out of mana etc
+    const { party } = this.context.combatantContext;
 
     const { hitPointChanges, manaChanges } = hitOutcomesResult;
 
@@ -41,7 +37,9 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
         CombatantProperties.changeMana(targetResult.combatantProperties, mpChange);
       }
 
-    hitOutcomesResult.hitPointChanges?.applyToGame(this.context.combatantContext);
+    // apply hit outcomes to the game state so subsequent action.shouldExecute calls can check if
+    // their target is dead, user is out of mana etc
+    hitPointChanges?.applyToGame(this.context.combatantContext);
   }
 
   protected onTick = () => {};

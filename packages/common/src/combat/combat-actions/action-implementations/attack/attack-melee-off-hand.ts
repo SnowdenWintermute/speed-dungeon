@@ -41,6 +41,7 @@ import { KineticDamageType } from "../../../kinetic-damage-types.js";
 import { COMBAT_ACTIONS } from "../index.js";
 import { getIncomingHpChangePerTarget } from "../../../action-results/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -56,7 +57,9 @@ const config: CombatActionComponentConfig = {
   ],
   baseHpChangeValuesLevelMultiplier: 1,
   accuracyModifier: OFF_HAND_ACCURACY_MODIFIER,
-  incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: 1 } },
+  incursDurabilityLoss: {
+    [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: DurabilityLossCondition.OnHit },
+  },
   costBases: {},
   // getDestinationDuringDelivery: (
   //   combatantContext: CombatantContext,

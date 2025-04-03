@@ -14,7 +14,7 @@ import {
   applyKineticAffinities,
 } from "../../combat-actions/action-calculation-utils/apply-affinities-to-hp-change.js";
 import { getActionHitChance } from "./get-action-hit-chance.js";
-import { CombatantProperties } from "../../../combatants/index.js";
+import { CombatantEquipment, CombatantProperties } from "../../../combatants/index.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { getActionCritChance } from "./get-action-crit-chance.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
@@ -127,7 +127,7 @@ export function calculateActionHitOutcomes(
 
     // COUNTERATTACKS
     if (action.getCanTriggerCounterattack(user) && !targetWantsToBeHit) {
-      const percentChanceToCounterAttack = 5; // @TODO - derrive this from various combatant properties
+      const percentChanceToCounterAttack = 0; // @TODO - derrive this from various combatant properties
       const counterAttackRoll = randBetween(0, 100);
       const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
       if (isCounterAttacked) {
