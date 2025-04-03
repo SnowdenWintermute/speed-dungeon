@@ -1,25 +1,25 @@
-import { Vector3 } from "@babylonjs/core";
 import {
   ActionMotionPhase,
   ActionResolutionStepContext,
+  EntityDestination,
 } from "../../../action-processing/index.js";
 
 export const COMMON_DESTINATION_GETTERS: Partial<
   Record<
     ActionMotionPhase,
-    (
-      context: ActionResolutionStepContext
-    ) => Error | null | { destination: Vector3; rotateToFace?: Vector3 }
+    (context: ActionResolutionStepContext) => Error | null | EntityDestination
   >
 > = {
   [ActionMotionPhase.Final]: (context) => {
-    const { combatantContext, tracker } = context;
+    const { combatantContext } = context;
 
     const { combatantProperties } = combatantContext.combatant;
 
-    return {
-      destination: combatantProperties.homeLocation.clone(),
-      rotateToFace: Vector3.Zero(),
+    const toReturn: EntityDestination = {
+      position: combatantProperties.homeLocation.clone(),
+      rotation: combatantProperties.homeRotation.clone(),
     };
+
+    return toReturn;
   },
 };

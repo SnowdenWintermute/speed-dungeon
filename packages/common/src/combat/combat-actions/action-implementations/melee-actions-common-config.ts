@@ -1,4 +1,4 @@
-import { Vector3 } from "@babylonjs/core";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 import {
   ActionMotionPhase,
   ActionResolutionStepContext,
@@ -13,7 +13,7 @@ import {
 } from "../action-calculation-utils/standard-action-calculations.js";
 import { ActionAccuracy, ActionAccuracyType } from "../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../combat-action-range.js";
-import { CombatActionComponent, CombatActionComponentConfig } from "../../index.js";
+import { CombatActionComponent } from "../../index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { COMMON_DESTINATION_GETTERS } from "./common-destination-getters.js";
 
@@ -76,7 +76,7 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
         isNaN(distance) ||
         Math.abs(meleeRange - distance) < threshold
       ) {
-        return { destination: user.position.clone(), rotateToFace: undefined };
+        return { position: user.position.clone() };
       }
 
       const direction = target.homeLocation
@@ -87,14 +87,18 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
         direction.scale(target.hitboxRadius + user.hitboxRadius)
       );
 
+      const destinationRotation = Quaternion.FromUnitVectorsToRef(
+        new Vector3(0, 0, 1),
+        direction,
+        new Quaternion()
+      );
+
       return {
-        destination,
-        rotateToFace: destination,
+        position: destination,
+        rotation: destinationRotation,
       };
     },
-    [ActionMotionPhase.Delivery]: (
-      context: ActionResolutionStepContext
-    ): Error | null | { destination: Vector3; rotateToFace?: Vector3 } => {
+    [ActionMotionPhase.Delivery]: (context: ActionResolutionStepContext) => {
       const { combatantContext, tracker } = context;
       const { actionExecutionIntent } = tracker;
       const targetingCalculator = new TargetingCalculator(combatantContext, null);
@@ -106,7 +110,7 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
       const target = primaryTargetResult;
       const user = combatantContext.combatant.combatantProperties;
 
-      return { destination: user.position.clone(), rotateToFace: undefined };
+      return { position: user.position.clone() };
 
       // const distance = Vector3.Distance(target.position, user.position);
       // if (

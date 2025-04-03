@@ -33,9 +33,9 @@ import {
   ActionMotionPhase,
   ActionResolutionStepContext,
   ActionResolutionStepType,
+  EntityDestination,
 } from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
-import { Vector3 } from "@babylonjs/core";
 import { CombatActionCombatantAnimations } from "./combat-action-animations.js";
 import { ActionTracker } from "../../action-processing/action-tracker.js";
 import { SpawnableEntity } from "../../spawnables/index.js";
@@ -77,9 +77,7 @@ export interface CombatActionComponentConfig {
   motionPhasePositionGetters: Partial<
     Record<
       ActionMotionPhase,
-      (
-        context: ActionResolutionStepContext
-      ) => Error | null | { destination: Vector3; rotateToFace?: Vector3 }
+      (context: ActionResolutionStepContext) => Error | null | EntityDestination
     >
   >;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
@@ -177,9 +175,7 @@ export abstract class CombatActionComponent {
   motionPhasePositionGetters: Partial<
     Record<
       ActionMotionPhase,
-      (
-        context: ActionResolutionStepContext
-      ) => Error | null | { destination: Vector3; rotateToFace?: Vector3 }
+      (context: ActionResolutionStepContext) => Error | null | EntityDestination
     >
   >;
 

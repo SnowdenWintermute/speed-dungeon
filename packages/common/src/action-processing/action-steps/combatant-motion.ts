@@ -63,18 +63,20 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
     let destinationResult = null;
     if (destinationGetterOption) destinationResult = destinationGetterOption(context);
     if (destinationResult instanceof Error) throw destinationResult;
-    if (destinationResult) {
+    if (destinationResult?.position) {
       const translation = {
-        destination: destinationResult.destination,
-        duration: getTranslationTime(combatantContext.combatant, destinationResult.destination),
+        destination: destinationResult.position,
+        duration: getTranslationTime(combatantContext.combatant, destinationResult.position),
       };
 
       this.translationOption = translation;
       gameUpdateCommand.translationOption = translation;
     }
-    if (destinationResult?.rotateToFace) {
+
+    if (destinationResult?.rotation) {
+      console.log("rotation set");
       gameUpdateCommand.rotationOption = {
-        rotateToFace: destinationResult.rotateToFace,
+        rotation: destinationResult.rotation,
         duration: 600,
       };
     }

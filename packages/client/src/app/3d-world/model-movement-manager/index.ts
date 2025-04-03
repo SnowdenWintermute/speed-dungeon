@@ -34,10 +34,10 @@ export class ModelMovementManager {
     this.activeTrackers[ModelMovementType.Translation] = tracker;
   }
 
-  startRotatingTowards(target: Vector3, duration: number, onComplete: () => void) {
-    const forward = this.transformNode.forward;
-    const targetDirection = target.subtract(this.transformNode.position).normalize();
-    const destination = Quaternion.FromUnitVectorsToRef(forward, targetDirection, new Quaternion());
+  startRotatingTowards(destination: Quaternion, duration: number, onComplete: () => void) {
+    // const forward = this.transformNode.forward;
+    // const targetDirection = target.subtract(this.transformNode.position).normalize();
+    // const destination = Quaternion.FromUnitVectorsToRef(forward, targetDirection, new Quaternion());
     const previous =
       this.transformNode.rotationQuaternion?.clone() ||
       Quaternion.RotationYawPitchRoll(

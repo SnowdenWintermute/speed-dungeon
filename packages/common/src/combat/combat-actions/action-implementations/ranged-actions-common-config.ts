@@ -24,6 +24,8 @@ import {
   SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
 } from "../../../app-consts.js";
+import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 
 export const RANGED_ACTIONS_COMMON_CONFIG = {
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
@@ -109,7 +111,33 @@ export const RANGED_ACTIONS_COMMON_CONFIG = {
       const { combatantContext } = context;
       const user = combatantContext.combatant.combatantProperties;
       const direction = CombatantProperties.getForward(user);
-      return { destination: user.homeLocation.add(direction.scale(0.5)) };
+      return { position: user.homeLocation.add(direction.scale(0.5)) };
+    },
+    [ActionMotionPhase.Chambering]: (context: ActionResolutionStepContext) => {
+      const { combatantContext, tracker } = context;
+      const { actionExecutionIntent } = tracker;
+      const targetingCalculator = new TargetingCalculator(combatantContext, null);
+      const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+        combatantContext.party,
+        actionExecutionIntent
+      );
+
+      if (primaryTargetResult instanceof Error) return primaryTargetResult;
+      const target = primaryTargetResult;
+
+      const direction = target.homeLocation
+        .subtract(combatantContext.combatant.combatantProperties.homeLocation)
+        .normalize();
+
+      const destinationRotation = Quaternion.FromUnitVectorsToRef(
+        new Vector3(0, 0, 1),
+        direction,
+        new Quaternion()
+      );
+
+      return {
+        rotation: destinationRotation,
+      };
     },
   },
 };

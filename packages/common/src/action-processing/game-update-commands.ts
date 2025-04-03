@@ -1,4 +1,4 @@
-import { Vector3 } from "@babylonjs/core";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 import { EntityId, Milliseconds } from "../primatives/index.js";
 import {
   ActionResourceCosts,
@@ -62,7 +62,11 @@ export interface EntityTranslation {
 }
 export interface EntityRotation {
   duration: Milliseconds;
-  rotateToFace: Vector3;
+  rotation: Quaternion;
+}
+export interface EntityDestination {
+  position?: Vector3;
+  rotation?: Quaternion;
 }
 export enum AnimationTimingType {
   Timed,

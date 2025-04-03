@@ -182,7 +182,7 @@ const config: CombatActionComponentConfig = {
       if (primaryTargetResult instanceof Error) return primaryTargetResult;
       const target = primaryTargetResult;
 
-      return { destination: target.homeLocation.clone() };
+      return { position: target.homeLocation.clone() };
     },
   },
 };

@@ -12,11 +12,7 @@ import {
   GameUpdateCommand,
   GameUpdateCommandType,
 } from "../game-update-commands.js";
-import {
-  COMBAT_ACTIONS,
-  COMBAT_ACTION_NAME_STRINGS,
-  CombatActionAnimationPhase,
-} from "../../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionAnimationPhase } from "../../combat/index.js";
 import { MobileVfxName, Vfx } from "../../vfx/index.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
@@ -65,11 +61,11 @@ export class OnActivationVfxMotionActionResolutionStep extends ActionResolutionS
     let destinationResult = null;
     if (destinationGetterOption) destinationResult = destinationGetterOption(context);
     if (destinationResult instanceof Error) throw destinationResult;
-    if (destinationResult) {
-      const distance = Vector3.Distance(this.originalPosition, destinationResult.destination);
+    if (destinationResult?.position) {
+      const distance = Vector3.Distance(this.originalPosition, destinationResult.position);
       const timeToTranslate = distance * ARROW_TIME_TO_MOVE_ONE_METER;
       const translation = {
-        destination: destinationResult.destination.clone(),
+        destination: destinationResult.position.clone(),
         duration: timeToTranslate,
       };
       this.translationOption = translation;

@@ -30,24 +30,31 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
     case CombatantClass.Warrior:
       mainhand = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          // baseItemType: OneHandedMeleeWeapon.ShortSpear,
-          baseItemType: OneHandedMeleeWeapon.IceBlade,
-          // equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+          equipmentType: EquipmentType.TwoHandedRangedWeapon,
+          baseItemType: TwoHandedRangedWeapon.ShortBow,
         },
         true
       );
-      offhand = generateSpecificEquipmentType(
-        {
-          // equipmentType: EquipmentType.Shield,
-          // baseItemType: Shield.GothicShield,
+      // mainhand = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      //     // baseItemType: OneHandedMeleeWeapon.ShortSpear,
+      //     baseItemType: OneHandedMeleeWeapon.IceBlade,
+      //     // equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+      //   },
+      //   true
+      // );
+      // offhand = generateSpecificEquipmentType(
+      //   {
+      //     // equipmentType: EquipmentType.Shield,
+      //     // baseItemType: Shield.GothicShield,
 
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          // baseItemType: OneHandedMeleeWeapon.ShortSpear,
-          baseItemType: OneHandedMeleeWeapon.BroadSword,
-        },
-        true
-      );
+      //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      //     // baseItemType: OneHandedMeleeWeapon.ShortSpear,
+      //     baseItemType: OneHandedMeleeWeapon.BroadSword,
+      //   },
+      //   true
+      // );
       break;
     case CombatantClass.Mage:
       mainhand = generateSpecificEquipmentType(

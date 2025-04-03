@@ -9,7 +9,7 @@ import {
 import { ModelMovementManager } from "../../model-movement-manager";
 import { ManagedAnimationOptions } from "../../combatant-models/animation-manager";
 import { gameWorld } from "../../SceneManager";
-import { Vector3 } from "@babylonjs/core";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 import { plainToInstance } from "class-transformer";
 import { DynamicAnimationManager } from "../../combatant-models/animation-manager/dynamic-animation-manager";
 import { SkeletalAnimationManager } from "../../combatant-models/animation-manager/skeletal-animation-manager";
@@ -53,13 +53,6 @@ export function entityMotionGameUpdateHandler(update: {
     // don't consider the y from the server since the server only calculates 2d positions
     if (destinationYOption) destination.y = destinationYOption;
 
-    if (rotationOption)
-      movementManager.startRotatingTowards(
-        plainToInstance(Vector3, rotationOption.rotateToFace),
-        rotationOption.duration,
-        () => {}
-      );
-
     movementManager.startTranslating(destination, translationOption.duration, () => {
       translationIsComplete = true;
 
@@ -90,6 +83,13 @@ export function entityMotionGameUpdateHandler(update: {
   } else {
     translationIsComplete = true;
   }
+
+  if (rotationOption)
+    movementManager.startRotatingTowards(
+      plainToInstance(Quaternion, rotationOption.rotation),
+      rotationOption.duration,
+      () => {}
+    );
 
   if (animationOption && animationManager) {
     if (!(animationManager instanceof SkeletalAnimationManager)) return;
