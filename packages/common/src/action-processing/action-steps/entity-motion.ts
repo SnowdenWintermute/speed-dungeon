@@ -1,5 +1,6 @@
 import { Vector3 } from "@babylonjs/core";
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionMotionPhase,
   ActionResolutionStep,
   ActionResolutionStepContext,
@@ -8,39 +9,33 @@ import {
 import {
   AnimationTimingType,
   EntityAnimation,
+  EntityMotionGameUpdateCommand,
   EntityTranslation,
-  GameUpdateCommand,
-  GameUpdateCommandType,
 } from "../game-update-commands.js";
-import { COMBAT_ACTIONS, CombatActionComponent } from "../../combat/index.js";
-import { Vfx } from "../../vfx/index.js";
-import { SpawnableEntityType } from "../../spawnables/index.js";
-import { Combatant } from "../../combatants/index.js";
+import {
+  COMBAT_ACTIONS,
+  CombatActionAnimationPhase,
+  CombatActionComponent,
+} from "../../combat/index.js";
 import { getTranslationTime } from "../../combat/combat-actions/action-implementations/get-translation-time.js";
+import {
+  AnimationType,
+  DYNAMIC_ANIMATION_NAME_STRINGS,
+  SKELETAL_ANIMATION_NAME_STRINGS,
+} from "../../app-consts.js";
 
 export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
   private animationOption: null | EntityAnimation = null;
   constructor(
-    context: ActionResolutionStepContext,
     stepType: ActionResolutionStepType,
+    context: ActionResolutionStepContext,
     private actionMotionPhase: ActionMotionPhase,
-    entity: Vfx | Combatant,
+    private animationPhase: CombatActionAnimationPhase,
+    private gameUpdateCommand: EntityMotionGameUpdateCommand,
     private entityPosition: Vector3,
-    private entitySpeed: number,
-    private originalPosition: Vector3
+    private entitySpeed: number
   ) {
-    const entityType =
-      entity instanceof Combatant ? SpawnableEntityType.Combatant : SpawnableEntityType.Vfx;
-
-    const gameUpdateCommand: GameUpdateCommand = {
-      type: GameUpdateCommandType.EntityMotion,
-      step: stepType,
-      completionOrderId: null,
-      entityType,
-      entityId: entity.entityProperties.id,
-    };
-
     super(stepType, context, gameUpdateCommand);
 
     const { actionExecutionIntent } = context.tracker;
@@ -48,9 +43,20 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
 
     const animationOption = this.getAnimation();
+    console.log("step:", ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType], animationOption);
+    if (animationOption) {
+      switch (animationOption.name.type) {
+        case AnimationType.Skeletal:
+          console.log(SKELETAL_ANIMATION_NAME_STRINGS[animationOption.name.name]);
+          break;
+        case AnimationType.Dynamic:
+          console.log(DYNAMIC_ANIMATION_NAME_STRINGS[animationOption.name.name]);
+          break;
+      }
+    }
     if (animationOption) {
       this.animationOption = animationOption;
-      gameUpdateCommand.animationOption = animationOption;
+      this.gameUpdateCommand.animationOption = animationOption;
     }
 
     const { translationOption, rotationOption } = this.getDestinations(action);
@@ -71,7 +77,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
       const translation = {
         destination: destinationResult.position,
         duration: getTranslationTime(
-          this.originalPosition,
+          this.entityPosition,
           destinationResult.position,
           this.entitySpeed
         ),
@@ -91,12 +97,15 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   }
 
   protected getAnimation() {
+    if (this.context.tracker.actionAnimations)
+      return this.context.tracker.actionAnimations[this.animationPhase];
+
     const { actionExecutionIntent } = this.context.tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
     const animationsOptionResult = action.getActionStepAnimations(this.context);
     if (animationsOptionResult instanceof Error) throw animationsOptionResult;
     if (animationsOptionResult) {
-      return animationsOptionResult[this.actionMotionPhase];
+      return animationsOptionResult[this.animationPhase];
     }
   }
 
@@ -109,7 +118,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
         : Math.min(1, this.elapsed / this.translationOption.duration);
 
     const newPosition = Vector3.Lerp(
-      this.originalPosition,
+      this.entityPosition,
       this.translationOption.destination,
       normalizedPercentTravelled
     );
@@ -126,7 +135,11 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     if (this.animationOption && this.animationOption.timing.type === AnimationTimingType.Timed)
       animationTimeRemaining = Math.max(0, this.animationOption.timing.duration - this.elapsed);
 
-    return Math.max(animationTimeRemaining, translationTimeRemaining);
+    const timeToCompletion = Math.max(animationTimeRemaining, translationTimeRemaining);
+
+    console.log("time to completion: ", timeToCompletion);
+
+    return timeToCompletion;
   }
 
   protected getBranchingActions = () => [];
