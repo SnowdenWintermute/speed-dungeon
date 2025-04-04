@@ -62,6 +62,7 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
     let destinationResult = null;
     if (destinationGetterOption) destinationResult = destinationGetterOption(context);
     if (destinationResult instanceof Error) throw destinationResult;
+
     if (destinationResult?.position) {
       const translation = {
         destination: destinationResult.position,
@@ -103,6 +104,7 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
       normalizedPercentTravelled
     );
 
+    // @TODO - generalize to include vfx entities
     this.context.combatantContext.combatant.combatantProperties.position.copyFrom(newPosition);
   }
 

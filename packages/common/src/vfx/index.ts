@@ -37,7 +37,9 @@ export type MobileVfxProperties = {
 
 export type VfxProperties = MobileVfxProperties;
 
-export interface Vfx {
-  entityProperties: EntityProperties;
-  vfxProperties: VfxProperties;
+export class Vfx {
+  constructor(
+    public entityProperties: EntityProperties,
+    public vfxProperties: VfxProperties
+  ) {}
 }
