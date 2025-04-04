@@ -17,7 +17,7 @@ import {
   ANIMATION_PHASE_NAME_STRINGS,
   CombatActionAnimationPhase,
 } from "../../combat/combat-actions/combat-action-animations.js";
-import { getTranslationTime } from "../../combat/combat-actions/action-implementations/get-translation-time.js";
+import { getCombatantTranslationTime } from "../../combat/combat-actions/action-implementations/get-translation-time.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
 
 export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
@@ -66,7 +66,10 @@ export class CombatantMotionActionResolutionStep extends ActionResolutionStep {
     if (destinationResult?.position) {
       const translation = {
         destination: destinationResult.position,
-        duration: getTranslationTime(combatantContext.combatant, destinationResult.position),
+        duration: getCombatantTranslationTime(
+          combatantContext.combatant,
+          destinationResult.position
+        ),
       };
 
       this.translationOption = translation;
