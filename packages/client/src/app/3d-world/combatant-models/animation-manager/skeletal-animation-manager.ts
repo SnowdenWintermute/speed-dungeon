@@ -1,7 +1,11 @@
 import { AnimationGroup } from "@babylonjs/core";
 import { AnimationManager, ManagedAnimation, ManagedAnimationOptions } from ".";
 import { ModularCharacter } from "../modular-character";
-import { SKELETAL_ANIMATION_NAME_STRINGS, SkeletalAnimationName } from "@speed-dungeon/common";
+import {
+  DEBUG_ANIMATION_SPEED_MULTIPLIER,
+  SKELETAL_ANIMATION_NAME_STRINGS,
+  SkeletalAnimationName,
+} from "@speed-dungeon/common";
 
 export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   protected timeStarted: number = Date.now();
@@ -23,6 +27,8 @@ export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
     if (this.options.animationDurationOverrideOption !== undefined)
       length = this.options.animationDurationOverrideOption;
 
+    length *= DEBUG_ANIMATION_SPEED_MULTIPLIER;
+
     return length;
   }
 
@@ -39,7 +45,6 @@ export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   }
 
   cleanup() {
-    console.log("cleaned up", this.getName());
     this.animationGroup.stop();
     this.animationGroup.dispose(); // else causes memory leaks
   }
@@ -84,8 +89,10 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     this.playing = new ManagedSkeletalAnimation(clonedAnimation, transitionDuration, options);
 
     const animationStockDuration = clonedAnimation.getLength() * 1000;
-    const speedModifier =
+    let speedModifier =
       animationStockDuration / (options.animationDurationOverrideOption || animationStockDuration);
+
+    speedModifier *= DEBUG_ANIMATION_SPEED_MULTIPLIER;
 
     clonedAnimation.start(options.shouldLoop, speedModifier);
   }

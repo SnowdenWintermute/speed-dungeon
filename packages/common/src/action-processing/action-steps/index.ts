@@ -34,9 +34,10 @@ export enum ActionResolutionStepType {
   EvalOnUseTriggers,
   StartConcurrentSubActions,
   OnActivationSpawnEntity,
-  OnActivationVfxMotion,
+  OnActivationVfxMotion, // motion
   RollIncomingHitOutcomes,
   EvalOnHitOutcomeTriggers,
+  VfxDisspationMotion, // motion
   RecoveryMotion, // motion
   FinalPositioning, // motion
 }
@@ -55,6 +56,7 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.OnActivationVfxMotion]: "onActivationVfxMotion",
   [ActionResolutionStepType.RollIncomingHitOutcomes]: "rollIncomingHitOutcomes",
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: "evalOnHitOutcomeTriggers", // lifesteal traits, apply conditions
+  [ActionResolutionStepType.VfxDisspationMotion]: "VfxDisspationMotion",
   [ActionResolutionStepType.RecoveryMotion]: "recoveryMotion",
   [ActionResolutionStepType.FinalPositioning]: "finalPositioning",
 };

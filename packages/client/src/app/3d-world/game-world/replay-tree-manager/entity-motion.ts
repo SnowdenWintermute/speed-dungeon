@@ -5,6 +5,9 @@ import {
   EntityMotionGameUpdateCommand,
   MobileVfxName,
   SpawnableEntityType,
+  DynamicAnimationName,
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  SPAWNABLE_ENTITY_TYPE_STRINGS,
 } from "@speed-dungeon/common";
 import { ModelMovementManager } from "../../model-movement-manager";
 import { ManagedAnimationOptions } from "../../combatant-models/animation-manager";
@@ -25,7 +28,12 @@ export function entityMotionGameUpdateHandler(update: {
 
   let destinationYOption: undefined | number;
 
-  // console.log("entity: ", entityId, ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step]);
+  console.log(
+    "entity: ",
+    entityId,
+    SPAWNABLE_ENTITY_TYPE_STRINGS[command.entityType],
+    ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step]
+  );
 
   if (command.entityType === SpawnableEntityType.Combatant) {
     const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
@@ -33,10 +41,10 @@ export function entityMotionGameUpdateHandler(update: {
     movementManager = combatantModelOption.movementManager;
     animationManager = combatantModelOption.animationManager;
   } else {
-    // console.log("ATTEMPTING TO APPLY MOTION TO VFX", translationOption?.destination);
     const vfxOption = gameWorld.current?.vfxManager.mobile[entityId];
     if (!vfxOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_VFX);
     movementManager = vfxOption.movementManager;
+    animationManager = vfxOption.animationManager;
 
     movementManager.transformNode.setParent(null);
 
@@ -92,7 +100,6 @@ export function entityMotionGameUpdateHandler(update: {
     );
 
   if (animationOption && animationManager) {
-    if (!(animationManager instanceof SkeletalAnimationManager)) return;
     if (animationOption.timing.type === AnimationTimingType.Looping) animationIsComplete = true;
 
     const options: ManagedAnimationOptions = {
@@ -115,15 +122,28 @@ export function entityMotionGameUpdateHandler(update: {
               throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
             combatantModelOption.startIdleAnimation(500);
           }
+          if (command.despawnOnComplete) {
+            // @TODO - figure this out
+          }
         }
       },
     };
 
-    animationManager.startAnimationWithTransition(
-      animationOption.name.name as SkeletalAnimationName,
-      command.instantTransition ? 200 : 500,
-      options
-    );
+    if (animationManager instanceof SkeletalAnimationManager) {
+      animationManager.startAnimationWithTransition(
+        animationOption.name.name as SkeletalAnimationName,
+        command.instantTransition ? 200 : 500,
+        options
+      );
+    } else {
+      animationManager.startAnimationWithTransition(
+        animationOption.name.name as DynamicAnimationName,
+        command.instantTransition ? 0 : 500,
+        {
+          ...options,
+        }
+      );
+    }
   } else {
     animationIsComplete = true;
   }

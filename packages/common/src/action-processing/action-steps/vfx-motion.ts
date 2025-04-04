@@ -1,4 +1,5 @@
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionMotionPhase,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -10,11 +11,21 @@ import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { CombatActionAnimationPhase } from "../../combat/index.js";
 
-const stepType = ActionResolutionStepType.OnActivationVfxMotion;
-export class OnActivationVfxMotionActionResolutionStep extends EntityMotionActionResolutionStep {
-  constructor(context: ActionResolutionStepContext, vfx: Vfx) {
+export class VfxMotionActionResolutionStep extends EntityMotionActionResolutionStep {
+  constructor(
+    context: ActionResolutionStepContext,
+    stepType: ActionResolutionStepType,
+    actionMotionPhase: ActionMotionPhase,
+    animationPhase: CombatActionAnimationPhase,
+    vfx: Vfx
+  ) {
     // @TODO - some should not despawn such as explosion which needs to do a recovery animation
-    const despawnOnComplete = vfx.vfxProperties.name === MobileVfxName.Arrow;
+    const despawnOnComplete =
+      vfx.vfxProperties.name === MobileVfxName.Arrow ||
+      animationPhase === CombatActionAnimationPhase.RecoverySuccess ||
+      animationPhase === CombatActionAnimationPhase.RecoveryInterrupted;
+
+    console.log("vfx motion for step", ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType]);
 
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.EntityMotion,
@@ -28,8 +39,8 @@ export class OnActivationVfxMotionActionResolutionStep extends EntityMotionActio
     super(
       stepType,
       context,
-      ActionMotionPhase.Delivery,
-      CombatActionAnimationPhase.Delivery,
+      actionMotionPhase,
+      animationPhase,
       gameUpdateCommand,
       vfx.vfxProperties.position,
       ARROW_TIME_TO_MOVE_ONE_METER

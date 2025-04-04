@@ -164,19 +164,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       vfxProperties.name
     );
 
-    if (vfxProperties.name === MobileVfxName.Explosion)
-      vfxModel.animationManager.startAnimationWithTransition(
-        DynamicAnimationName.ExplosionDelivery,
-        0,
-        {
-          shouldLoop: false,
-          animationDurationOverrideOption: undefined,
-          onComplete: () => {
-            update.isComplete = true;
-          },
-        }
-      );
-    else update.isComplete = true;
+    update.isComplete = true;
 
     gameWorld.current.vfxManager.register(vfxModel);
 

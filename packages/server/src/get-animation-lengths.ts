@@ -1,6 +1,7 @@
 import { NodeIO } from "@gltf-transform/core";
 import {
   CombatantSpecies,
+  DEBUG_ANIMATION_SPEED_MULTIPLIER,
   SKELETON_FILE_PATHS,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
@@ -29,7 +30,7 @@ export async function getAnimationLengths(filePath: string) {
         }
       }
 
-      toReturn[anim.getName()] = maxTime; // Duration in seconds
+      toReturn[anim.getName()] = maxTime * DEBUG_ANIMATION_SPEED_MULTIPLIER; // Duration in seconds
     });
   return toReturn;
 }

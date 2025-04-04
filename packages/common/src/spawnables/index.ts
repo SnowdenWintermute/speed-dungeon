@@ -6,6 +6,11 @@ export enum SpawnableEntityType {
   Vfx,
 }
 
+export const SPAWNABLE_ENTITY_TYPE_STRINGS: Record<SpawnableEntityType, string> = {
+  [SpawnableEntityType.Combatant]: "Combatant",
+  [SpawnableEntityType.Vfx]: "Vfx",
+};
+
 export type SpawnedCombatant = {
   type: SpawnableEntityType.Combatant;
   combatant: Combatant;

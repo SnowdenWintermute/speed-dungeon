@@ -10,7 +10,7 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { OnActivationVfxMotionActionResolutionStep } from "./on-activation-vfx-motion.js";
+import { VfxMotionActionResolutionStep } from "./vfx-motion.js";
 import { PayResourceCostsActionResolutionStep } from "./pay-resource-costs.js";
 import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
 import { SpawnEntityActionResolutionStep } from "./spawn-entity.js";
@@ -70,8 +70,11 @@ export const ACTION_STEP_CREATORS: Record<
     if (!expectedProjectileEntityOption) throw new Error("expected projectile was missing");
     if (expectedProjectileEntityOption.type !== SpawnableEntityType.Vfx)
       throw new Error("expected entity was of invalid type");
-    return new OnActivationVfxMotionActionResolutionStep(
+    return new VfxMotionActionResolutionStep(
       context,
+      ActionResolutionStepType.OnActivationVfxMotion,
+      ActionMotionPhase.Delivery,
+      CombatActionAnimationPhase.Delivery,
       expectedProjectileEntityOption.vfx
     );
   },
@@ -79,6 +82,20 @@ export const ACTION_STEP_CREATORS: Record<
     new RollIncomingHitOutcomesActionResolutionStep(context),
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: (context) =>
     new EvalOnHitOutcomeTriggersActionResolutionStep(context),
+
+  [ActionResolutionStepType.VfxDisspationMotion]: (context) => {
+    const expectedProjectileEntityOption = context.tracker.spawnedEntityOption;
+    if (!expectedProjectileEntityOption) throw new Error("expected projectile was missing");
+    if (expectedProjectileEntityOption.type !== SpawnableEntityType.Vfx)
+      throw new Error("expected entity was of invalid type");
+    return new VfxMotionActionResolutionStep(
+      context,
+      ActionResolutionStepType.VfxDisspationMotion,
+      ActionMotionPhase.Recovery,
+      CombatActionAnimationPhase.RecoverySuccess,
+      expectedProjectileEntityOption.vfx
+    );
+  },
   [ActionResolutionStepType.RecoveryMotion]: (context) => {
     let animationPhase = CombatActionAnimationPhase.RecoverySuccess;
     if (context.tracker.wasInterrupted)

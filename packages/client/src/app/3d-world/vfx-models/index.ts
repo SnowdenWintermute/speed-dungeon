@@ -65,7 +65,6 @@ export class MobileVfxModel extends VfxModel {
     this.movementManager = new ModelMovementManager(this.transformNode);
     this.animationManager = new DynamicAnimationManager(this.scene);
     // this.animationManager = new AnimationManager()
-    console.log("INSTANTLY MOVING TO ", startPosition, MOBILE_VFX_NAME_STRINGS[name]);
     this.movementManager.instantlyMove(startPosition);
   }
 }
