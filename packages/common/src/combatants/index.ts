@@ -246,7 +246,7 @@ export function createTriggeredActionUserCombatant(
   causedByCombatantId?: EntityId
 ) {
   const combatant = new Combatant(
-    { id, name: "the environment" },
+    { id: "0", name: "the environment" },
     new CombatantProperties(
       CombatantClass.Mage,
       CombatantSpecies.Dragon,

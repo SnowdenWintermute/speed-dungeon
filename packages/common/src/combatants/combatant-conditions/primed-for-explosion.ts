@@ -15,6 +15,7 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,
+    public appliedBy: EntityId,
     public level: number
   ) {}
   onTick() {}

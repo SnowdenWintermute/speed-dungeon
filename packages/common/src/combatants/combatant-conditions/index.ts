@@ -25,6 +25,7 @@ export abstract class CombatantCondition {
   level: number = 0;
   constructor(
     public id: EntityId,
+    public appliedBy: EntityId,
     public name: CombatantConditionName,
     public stacksOption: null | MaxAndCurrent
   ) {}

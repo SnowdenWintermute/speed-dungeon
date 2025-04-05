@@ -18,9 +18,9 @@ const config: CombatActionComponentConfig = {
 
     const primedForExplosionCondition = new PrimedForExplosionCombatantCondition(
       idGenerator.generate(),
+      combatant.entityProperties.id,
       combatant.combatantProperties.level
     );
-    // return [];
     return [primedForExplosionCondition];
   },
 };
