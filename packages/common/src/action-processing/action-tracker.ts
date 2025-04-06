@@ -4,6 +4,7 @@ import {
   CombatActionExecutionIntent,
   CombatActionHitOutcomes,
 } from "../combat/index.js";
+import { CombatantCondition } from "../combatants/index.js";
 import { Milliseconds } from "../primatives/index.js";
 import { SpawnableEntity } from "../spawnables/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
@@ -18,6 +19,7 @@ export class ActionTracker {
   completedSteps: ActionResolutionStep[] = [];
   wasInterrupted: boolean = false;
   spawnedEntityOption: null | SpawnableEntity = null;
+  // initiatedByTriggeredCondition: null | CombatantCondition = null;
   hitOutcomes = new CombatActionHitOutcomes();
   actionAnimations: Partial<Record<CombatActionAnimationPhase, EntityAnimation | null>> | null =
     null;

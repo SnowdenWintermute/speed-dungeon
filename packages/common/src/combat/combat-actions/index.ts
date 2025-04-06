@@ -39,6 +39,7 @@ import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js
 import { CombatActionCombatantAnimations } from "./combat-action-animations.js";
 import { ActionTracker } from "../../action-processing/action-tracker.js";
 import { SpawnableEntity } from "../../spawnables/index.js";
+import { CombatActionUser } from "./combat-action-users.js";
 
 export interface CombatActionComponentConfig {
   description: string;
@@ -60,12 +61,6 @@ export interface CombatActionComponentConfig {
   costBases: ActionResourceCostBases;
 
   userShouldMoveHomeOnComplete: boolean;
-  getResourceCosts: (
-    user: CombatantProperties,
-    self: CombatActionComponent
-  ) => null | ActionResourceCosts;
-  getExecutionTime: () => number;
-  requiresCombatTurn: (user: CombatantProperties) => boolean;
   shouldExecute: (combatantContext: CombatantContext, self: CombatActionComponent) => boolean;
   getActionStepAnimations: (
     context: ActionResolutionStepContext
@@ -81,6 +76,13 @@ export interface CombatActionComponentConfig {
     >
   >;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
+
+  getResourceCosts: (
+    user: CombatantProperties,
+    self: CombatActionComponent
+  ) => null | ActionResourceCosts;
+  getExecutionTime: () => number;
+  requiresCombatTurn: (user: CombatantProperties) => boolean;
   /** A numeric percentage which will be used against the target's evasion */
   getUnmodifiedAccuracy: (user: CombatantProperties) => ActionAccuracy;
   /** A numeric percentage which will be used against the target's crit avoidance */
@@ -92,6 +94,16 @@ export interface CombatActionComponentConfig {
     primaryTarget: CombatantProperties,
     self: CombatActionComponent
   ) => null | CombatActionHpChangeProperties;
+  getIsParryable: (user: CombatantProperties) => boolean;
+  getIsBlockable: (user: CombatantProperties) => boolean;
+  getCanTriggerCounterattack: (user: CombatantProperties) => boolean;
+
+  // take CombatActionUser for all user arguments
+  // enables action to be used by either combatants or conditions
+  // action tracker stores who initiated the action
+  // - if it was a condition, pass the condition to user dependant functions
+  // send a tagged union usertype/id in the update so the client can find the correct user entity to put in the combat log
+
   getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
   getChildren: (
     combatantContext: CombatantContext,
@@ -105,9 +117,6 @@ export interface CombatActionComponentConfig {
     actionTrackerOption: null | ActionTracker,
     self: CombatActionComponent
   ) => Error | null | CombatActionTarget;
-  getIsParryable: (user: CombatantProperties) => boolean;
-  getIsBlockable: (user: CombatantProperties) => boolean;
-  getCanTriggerCounterattack: (user: CombatantProperties) => boolean;
 }
 
 export abstract class CombatActionComponent {
@@ -130,7 +139,6 @@ export abstract class CombatActionComponent {
   };
   readonly costBases: ActionResourceCostBases;
   readonly userShouldMoveHomeOnComplete: boolean;
-  getResourceCosts: (user: CombatantProperties) => null | ActionResourceCosts;
   getExecutionTime: () => number;
   isUsableInGivenContext(context: CombatActionUsabilityContext) {
     switch (context) {
@@ -150,27 +158,12 @@ export abstract class CombatActionComponent {
       : CombatActionUsabilityContext.OutOfCombat;
     return this.isUsableInGivenContext(context);
   };
-  // take the user so we can for example check during attackMeleeMh if they have a shield equipped, therefore it should end turn
-  // also possible to check if they have a "tired" debuff which causes all actions to end turn
-  requiresCombatTurn: (user: CombatantProperties) => boolean;
-  // could use the combatant's ability to hold state which may help determine, such as if using chain lightning and an enemy
-  // target exists that is not the last arced to target
   shouldExecute: (combatantContext: CombatantContext) => boolean;
-  // CATEGORIES
-  // pre-use
-  // on-success
-  // on-failure
-  //
-  // TYPES
-  // combatant moves self to position (combatantId, destination, getPercentCompleteToProceed(), onProceed())
-  // animate combatant (combatantId, animationName, getPercentCompleteToProceed(), onProceed())
-  // animate combatantEquipment (combatantId,equipmentId, animationName, getPercentCompleteToProceed(), onProceed())
-  // spawn mobile effect (effectName (Arrow, Firebolt), origin, destination, speed, easingFn, getPercentCompleteToProceed(), onProceed())
-  // spawn stream effect (effectName (lightning arc, healing beam), origin, destination, duration, easingFn, getPercentCompleteToProceed(), onProceed())
-  // spawn static effect (effectName (Protect, SpellSparkles), position, duration, getPercentCompleteToProceed(), onProceed())
   getActionStepAnimations: (
     context: ActionResolutionStepContext
   ) => null | Error | CombatActionCombatantAnimations;
+  getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
+
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   motionPhasePositionGetters: Partial<
     Record<
@@ -178,8 +171,8 @@ export abstract class CombatActionComponent {
       (context: ActionResolutionStepContext) => Error | null | EntityDestination
     >
   >;
-
-  getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
+  requiresCombatTurn: (user: CombatantProperties) => boolean;
+  getResourceCosts: (user: CombatantProperties) => null | ActionResourceCosts;
   getAccuracy: (user: CombatantProperties) => ActionAccuracy;
   getIsParryable: (user: CombatantProperties) => boolean;
   getIsBlockable: (user: CombatantProperties) => boolean;
@@ -187,12 +180,11 @@ export abstract class CombatActionComponent {
   getCritChance: (user: CombatantProperties) => number;
   getCritMultiplier: (user: CombatantProperties) => number;
   getArmorPenetration: (user: CombatantProperties) => number;
-  // take the user becasue the hp change properties may be affected by equipment
-  // take the target because we may need to select the most effective hp change source properties on that target
   getHpChangeProperties: (
-    user: CombatantProperties,
-    primaryTarget: CombatantProperties
+    user: CombatantProperties, // take the user becasue the hp change properties may be affected by equipment
+    primaryTarget: CombatantProperties // to select the most effective hp change source properties on target
   ) => null | CombatActionHpChangeProperties;
+
   // may be calculated based on combatant equipment or conditions
   getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
   protected children?: CombatActionComponent[];

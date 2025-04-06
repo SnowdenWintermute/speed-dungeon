@@ -17,3 +17,5 @@ export type ActionUserCondition = {
   type: ActionUserType.Condition;
   condition: CombatantCondition;
 };
+
+export type CombatActionUser = ActionUserCondition | ActionUserCombatant;
