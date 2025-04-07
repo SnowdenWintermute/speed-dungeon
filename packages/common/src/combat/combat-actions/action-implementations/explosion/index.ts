@@ -88,7 +88,8 @@ const config: CombatActionComponentConfig = {
 
     const stacks = user.asUserOfTriggeredCondition?.stacksOption?.current || 1;
 
-    const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 2);
+    console.log("stacks for exploison: ", stacks, "user level: ", user.level);
+    const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
 
     const hpChangeSource = new HpChangeSource(hpChangeSourceConfig);
     const hpChangeProperties: CombatActionHpChangeProperties = {

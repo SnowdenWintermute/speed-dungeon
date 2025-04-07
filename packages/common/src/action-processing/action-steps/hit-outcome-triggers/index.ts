@@ -20,7 +20,7 @@ import { HitOutcome } from "../../../hit-outcome.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
 import { CombatantCondition } from "../../../combatants/combatant-conditions/index.js";
 import { addConditionToUpdate } from "./add-condition-to-update.js";
-import { addRemovedConditionToUpdate } from "./add-triggered-condition-to-update.js";
+import { addRemovedConditionStacksToUpdate } from "./add-triggered-condition-to-update.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
@@ -83,7 +83,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
 
             // ENVIRONMENT_COMBATANT is the "user" for actions that originate from no combatant in particular
-            const { removedSelf, triggeredActions } = condition.onTriggered(
+            const { numStacksRemoved, triggeredActions } = condition.onTriggered(
               targetCombatant,
               context.idGenerator
             );
@@ -91,9 +91,10 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             this.branchingActions.push(...triggeredActions);
 
             // add it to the update so the client can remove the triggered conditions if required
-            if (removedSelf)
-              addRemovedConditionToUpdate(
+            if (numStacksRemoved)
+              addRemovedConditionStacksToUpdate(
                 condition.id,
+                numStacksRemoved,
                 gameUpdateCommand,
                 targetCombatant.entityProperties.id
               );

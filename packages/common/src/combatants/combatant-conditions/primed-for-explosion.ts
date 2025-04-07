@@ -49,7 +49,7 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
     );
 
     return {
-      removedSelf: true,
+      numStacksRemoved: this.stacksOption.current,
       triggeredActions: [{ user, actionExecutionIntent: explosionActionIntent }],
     };
   }

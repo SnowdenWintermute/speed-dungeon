@@ -51,7 +51,7 @@ export abstract class CombatantCondition {
     combatant: Combatant,
     idGenerator: IdGenerator
   ): {
-    removedSelf: boolean;
+    numStacksRemoved: number;
     triggeredActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
   };
   // examples:

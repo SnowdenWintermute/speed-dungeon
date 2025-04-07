@@ -1,5 +1,7 @@
 import {
   ActivatedTriggersGameUpdateCommand,
+  CombatantCondition,
+  CombatantProperties,
   DurabilityChangesByEntityId,
   DynamicAnimationName,
   ERROR_MESSAGES,
@@ -87,22 +89,27 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
             useGameStore.getState().mutateState((state) => {
               const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
               if (combatantResult instanceof Error) return combatantResult;
-              combatantResult.combatantProperties.conditions.push(...conditions);
+              for (const condition of conditions)
+                CombatantCondition.applyToCombatant(condition, combatantResult.combatantProperties);
             });
           }
         }
       }
 
-      if (command.removedConditionIds) {
-        for (const [entityId, conditionIds] of Object.entries(command.removedConditionIds)) {
-          for (const conditionId of conditionIds) {
+      if (command.removedConditionStacks) {
+        for (const [entityId, conditionIdAndStacks] of Object.entries(
+          command.removedConditionStacks
+        )) {
+          for (const { conditionId, numStacks } of conditionIdAndStacks) {
             useGameStore.getState().mutateState((state) => {
               const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
               if (combatantResult instanceof Error) return combatantResult;
-              combatantResult.combatantProperties.conditions =
-                combatantResult.combatantProperties.conditions.filter(
-                  (condition) => condition.id !== conditionId
-                );
+
+              CombatantCondition.removeStacks(
+                conditionId,
+                combatantResult.combatantProperties,
+                numStacks
+              );
             });
           }
         }

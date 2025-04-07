@@ -18,7 +18,7 @@ export default function ConditionIndicators(props: Props) {
       {conditions.map((condition, i) => (
         <li
           key={i}
-          className="h-6 mr-1 border border-slate-400 bg-slate-700 pointer-events-auto cursor-help"
+          className="h-6 mr-1 border border-slate-400 bg-slate-700 pointer-events-auto cursor-help relative"
         >
           <HoverableTooltipWrapper
             extraStyles="h-full w-full p-0.5"
@@ -26,6 +26,11 @@ export default function ConditionIndicators(props: Props) {
           >
             {CONDITION_INDICATOR_ICONS[condition.name]}
           </HoverableTooltipWrapper>
+          {condition.stacksOption && condition.stacksOption.current > 1 && (
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+              {condition.stacksOption.current}
+            </div>
+          )}
         </li>
       ))}
     </ul>
