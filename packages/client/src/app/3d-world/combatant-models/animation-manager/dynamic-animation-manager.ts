@@ -7,12 +7,13 @@ import {
   easeOut,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
+import { disposeAsyncLoadedScene } from "../../utils";
 
 export abstract class DynamicAnimation {
   protected timeStarted = Date.now();
   public abstract name: string;
   protected abstract duration: number;
-  constructor() {}
+  constructor(public despawnOnComplete: boolean) {}
 
   getLength() {
     return this.duration;
@@ -32,11 +33,11 @@ export class ManagedDynamicAnimation extends ManagedAnimation<DynamicAnimation> 
   timeStarted: number = Date.now();
   weight: number = 0;
   constructor(
-    public animationGroupOption: null | DynamicAnimation,
+    public animationGroup: DynamicAnimation,
     public transitionDuration: number = 0,
     public options: ManagedAnimationOptions
   ) {
-    super(animationGroupOption, transitionDuration, options);
+    super(animationGroup, transitionDuration, options);
   }
 
   setWeight(newWeight: number) {}
@@ -45,10 +46,10 @@ export class ManagedDynamicAnimation extends ManagedAnimation<DynamicAnimation> 
     if (this.options.shouldLoop) return false;
     const timeSinceStarted = Date.now() - this.timeStarted;
 
-    if (!this.animationGroupOption)
+    if (!this.animationGroup)
       return timeSinceStarted >= MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME;
 
-    return timeSinceStarted >= Math.floor(this.animationGroupOption.getLength());
+    return timeSinceStarted >= Math.floor(this.animationGroup.getLength());
   }
 }
 
@@ -59,11 +60,8 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
   constructor(public scene: ISceneLoaderAsyncResult) {
     // stop default animation
   }
-
-  cloneAnimationOption(
-    animationGroupOption: undefined | DynamicAnimation
-  ): null | DynamicAnimation {
-    return animationGroupOption?.clone() ?? null;
+  cloneAnimation(animationGroup: DynamicAnimation): DynamicAnimation {
+    return animationGroup.clone();
   }
 
   startAnimationWithTransition(
@@ -71,7 +69,6 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
     transitionDuration: number,
     options: ManagedAnimationOptions = {
       shouldLoop: true,
-      animationDurationOverrideOption: null,
       onComplete: () => {},
     }
   ): Error | void {
@@ -81,9 +78,9 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
       this.playing = null;
     }
 
-    let newAnimationGroupOption = this.getAnimationGroupByName(newAnimationName);
+    let newAnimationGroup = this.getAnimationGroupByName(newAnimationName);
 
-    const clonedAnimationOption = this.cloneAnimationOption(newAnimationGroupOption);
+    const clonedAnimationOption = this.cloneAnimation(newAnimationGroup);
 
     this.playing = new ManagedDynamicAnimation(clonedAnimationOption, transitionDuration, options);
 
@@ -93,8 +90,8 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
         const speedModifier =
           animationStockDuration / (options.animationDurationOverrideOption ?? 1);
 
-        clonedAnimationOption.start(options.shouldLoop, speedModifier);
-      } else clonedAnimationOption.start(options.shouldLoop);
+        clonedAnimationOption.start(!!options.shouldLoop, speedModifier);
+      } else clonedAnimationOption.start(!!options.shouldLoop);
     }
   }
 
@@ -112,7 +109,8 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
 
   cleanUpFinishedAnimation(managedAnimation: ManagedDynamicAnimation) {
     const { onComplete } = managedAnimation.options;
-    onComplete();
+    if (onComplete) onComplete();
+    if (managedAnimation.animationGroup.despawnOnComplete) disposeAsyncLoadedScene(this.scene);
   }
 
   handleCompletedAnimations() {
@@ -147,7 +145,7 @@ export class ExplosionDeliveryAnimation extends DynamicAnimation {
   originalScale: Vector3 = Vector3.One();
   constructor(scene: ISceneLoaderAsyncResult) {
     console.log("ExplosionDeliveryAnimation created");
-    super();
+    super(false);
     const parentMesh = scene.meshes[0];
     if (parentMesh) {
       this.originalScale = parentMesh.scaling;
@@ -170,7 +168,7 @@ export class ExplosionDissipationAnimation extends DynamicAnimation {
   originalScale: Vector3 = Vector3.One();
   constructor(scene: ISceneLoaderAsyncResult) {
     console.log("ExplosionDissipationAnimation created");
-    super();
+    super(true);
     const parentMesh = scene.meshes[0];
     if (parentMesh) {
       this.originalScale = parentMesh.scaling;

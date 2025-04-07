@@ -92,10 +92,7 @@ export class CombatantProperties {
   deepestFloorReached: number = 1;
   position: Vector3;
   conditions: CombatantCondition[] = [];
-  asTheEnvironment?: {
-    stacks: number;
-    causedBy?: EntityId;
-  };
+  asUserOfTriggeredCondition?: CombatantCondition;
   public homeRotation: Quaternion = Quaternion.Zero();
   constructor(
     public combatantClass: CombatantClass,
@@ -239,14 +236,9 @@ export type CombatantAttributeRecord = Partial<Record<CombatAttribute, number>>;
 
 /* Since combat actions must have a user, and the user of an action triggered by
  * a condition is not well defined, we'll create a placeholder */
-export function createTriggeredActionUserCombatant(
-  id: EntityId,
-  triggeredActionLevel: number,
-  triggeredActionStacks: number,
-  causedByCombatantId?: EntityId
-) {
+export function createTriggeredActionUserCombatant(name: string, condition: CombatantCondition) {
   const combatant = new Combatant(
-    { id: "0", name: "the environment" },
+    { id: "0", name },
     new CombatantProperties(
       CombatantClass.Mage,
       CombatantSpecies.Dragon,
@@ -255,10 +247,6 @@ export function createTriggeredActionUserCombatant(
       Vector3.Zero()
     )
   );
-  combatant.combatantProperties.level = triggeredActionLevel;
-  combatant.combatantProperties.asTheEnvironment = {
-    stacks: triggeredActionStacks,
-    causedBy: causedByCombatantId,
-  };
+  combatant.combatantProperties.asUserOfTriggeredCondition = condition;
   return combatant;
 }

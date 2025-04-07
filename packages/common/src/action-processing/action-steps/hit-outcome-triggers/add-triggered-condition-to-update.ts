@@ -1,17 +1,18 @@
 import { EntityId } from "../../../primatives";
 import { ActivatedTriggersGameUpdateCommand } from "../../game-update-commands.js";
 
-export function addRemovedConditionToUpdate(
+export function addRemovedConditionStacksToUpdate(
   conditionId: EntityId,
+  numStacks: number,
   update: ActivatedTriggersGameUpdateCommand,
   targetCombatantId: EntityId
 ) {
-  if (!update.removedConditionIds) update.removedConditionIds = {};
+  if (!update.removedConditionStacks) update.removedConditionStacks = {};
 
-  let thisCombatantConditionsRemoved = update.removedConditionIds[targetCombatantId];
+  let thisCombatantConditionsRemoved = update.removedConditionStacks[targetCombatantId];
 
   if (!thisCombatantConditionsRemoved) thisCombatantConditionsRemoved = [];
-  thisCombatantConditionsRemoved.push(conditionId);
+  thisCombatantConditionsRemoved.push({ conditionId, numStacks: numStacks });
 
-  update.removedConditionIds[targetCombatantId] = thisCombatantConditionsRemoved;
+  update.removedConditionStacks[targetCombatantId] = thisCombatantConditionsRemoved;
 }

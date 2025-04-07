@@ -1,4 +1,8 @@
-import { CombatantCondition, CombatantConditionName } from "./index.js";
+import {
+  COMBATANT_CONDITION_NAME_STRINGS,
+  CombatantCondition,
+  CombatantConditionName,
+} from "./index.js";
 import { Combatant, createTriggeredActionUserCombatant } from "../index.js";
 import {
   COMBAT_ACTION_NAME_STRINGS,
@@ -40,9 +44,8 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
     });
 
     const user = createTriggeredActionUserCombatant(
-      idGenerator.generate(),
-      this.level,
-      this.stacksOption.current
+      COMBATANT_CONDITION_NAME_STRINGS[this.name],
+      this
     );
 
     return {

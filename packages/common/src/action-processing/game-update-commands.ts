@@ -113,7 +113,7 @@ export type ActivatedTriggersGameUpdateCommand = {
   durabilityChanges?: DurabilityChangesByEntityId;
   hitPointChanges?: HitPointChanges;
   appliedConditions?: Partial<Record<HitOutcome, Record<EntityId, CombatantCondition[]>>>;
-  removedConditionIds?: Record<EntityId, EntityId[]>;
+  removedConditionStacks?: Record<EntityId, { conditionId: EntityId; numStacks: number }[]>;
 };
 
 export type HitOutcomesGameUpdateCommand = {
@@ -121,7 +121,8 @@ export type HitOutcomesGameUpdateCommand = {
   step: ActionResolutionStepType;
   completionOrderId: null | number;
   actionName: CombatActionName;
-  actionUserId: EntityId;
+  actionUserName: string;
+  actionUserId: string;
   outcomes: CombatActionHitOutcomes;
 };
 

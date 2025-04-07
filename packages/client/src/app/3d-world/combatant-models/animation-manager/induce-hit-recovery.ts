@@ -17,14 +17,13 @@ import { useUIStore } from "@/stores/ui-store";
 
 export function induceHitRecovery(
   gameWorld: GameWorld,
+  actionUserName: string,
   actionUserId: string,
   targetId: string,
   hpChange: HpChange,
   wasSpell: boolean,
   wasBlocked: boolean
 ) {
-  console.log("induceHitRecovery for", targetId);
-
   const targetModel = gameWorld.modelManager.combatantModels[targetId];
   if (targetModel === undefined) return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
@@ -56,11 +55,6 @@ export function induceHitRecovery(
     const combatantWasAliveBeforeHpChange = combatantProperties.hitPoints > 0;
     CombatantProperties.changeHitPoints(combatantProperties, hpChange.value);
 
-    // @TODO - this is causing an error because the action user is not a combatant
-    // in the case of explosions and other "environmental" effects
-    const actionUserResult = SpeedDungeonGame.getCombatantById(game, actionUserId);
-    if (actionUserResult instanceof Error) return console.error(actionUserResult);
-
     const elementOption =
       hpChange.source.elementOption !== undefined
         ? MAGICAL_ELEMENT_STRINGS[hpChange.source.elementOption]
@@ -84,12 +78,11 @@ export function induceHitRecovery(
     } else {
       const damagedOrHealed = hpChange.value > 0 ? "healed" : "hit";
 
-      const isTargetingSelf =
-        actionUserResult.entityProperties.id === combatantResult.entityProperties.id;
+      const isTargetingSelf = actionUserId === targetId;
       const targetNameText = isTargetingSelf ? "themselves" : combatantResult.entityProperties.name;
 
       const debugTargetId = showDebug ? targetId : "";
-      messageText = `${actionUserResult.entityProperties.name} ${damagedOrHealed} ${targetNameText} ${debugTargetId} for ${Math.abs(hpChange.value)} ${hpOrDamage}`;
+      messageText = `${actionUserName} ${damagedOrHealed} ${targetNameText} ${debugTargetId} for ${Math.abs(hpChange.value)} ${hpOrDamage}`;
     }
 
     if (hpChange.isCrit) messageText = "Critical! " + messageText;

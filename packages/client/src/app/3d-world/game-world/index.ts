@@ -112,7 +112,7 @@ export class GameWorld {
 
     for (const vfx of this.vfxManager.getMobile()) {
       vfx.movementManager.processActiveActions();
-      vfx.animationManager.playing?.animationGroupOption?.animateScene(vfx.animationManager.scene);
+      vfx.animationManager.playing?.animationGroup?.animateScene(vfx.animationManager.scene);
       vfx.animationManager.handleCompletedAnimations();
       vfx.animationManager.stepAnimationTransitionWeights();
     }

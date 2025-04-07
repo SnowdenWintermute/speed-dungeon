@@ -22,11 +22,15 @@ export class CombatantContext {
     const battleOption = this.getBattleOption();
     if (battleOption === null) return { allyIds: this.party.characterPositions, opponentIds: [] };
 
-    const { asTheEnvironment } = this.combatant.combatantProperties;
+    const { asUserOfTriggeredCondition } = this.combatant.combatantProperties;
 
-    if (asTheEnvironment) {
-      if (asTheEnvironment.causedBy) {
-        return Battle.getAllyIdsAndOpponentIdsOption(battleOption, asTheEnvironment.causedBy);
+    // @TODO - store ally and opponent ids of condition and traits when they are acting as action users
+    if (asUserOfTriggeredCondition) {
+      if (asUserOfTriggeredCondition.appliedBy) {
+        return Battle.getAllyIdsAndOpponentIdsOption(
+          battleOption,
+          asUserOfTriggeredCondition.appliedBy
+        );
       } else {
         return {
           allyIds: this.party.characterPositions,

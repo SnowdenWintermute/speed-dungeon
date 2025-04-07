@@ -16,10 +16,11 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
 
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.HitOutcomes,
-      actionUserId: context.combatantContext.combatant.entityProperties.id,
+      actionUserName: context.combatantContext.combatant.entityProperties.name,
       step: stepType,
       completionOrderId: null,
       actionName: context.tracker.actionExecutionIntent.actionName,
+      actionUserId: context.combatantContext.combatant.entityProperties.name,
       outcomes: hitOutcomesResult,
     };
     super(stepType, context, gameUpdateCommand);

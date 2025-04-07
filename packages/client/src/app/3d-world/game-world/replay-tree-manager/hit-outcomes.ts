@@ -23,7 +23,7 @@ export function hitOutcomesGameUpdateHandler(update: {
   isComplete: boolean;
 }) {
   const { command } = update;
-  const { outcomes, actionUserId } = command;
+  const { outcomes, actionUserName, actionUserId } = command;
   const { outcomeFlags } = outcomes;
   const hitPointChanges = plainToInstance(HitPointChanges, outcomes.hitPointChanges);
 
@@ -33,7 +33,15 @@ export function hitOutcomesGameUpdateHandler(update: {
     for (const [entityId, hpChange] of hitPointChanges.getRecords()) {
       const wasBlocked = !!outcomeFlags[HitOutcome.ShieldBlock]?.includes(entityId);
       const wasSpell = false;
-      induceHitRecovery(gameWorld.current, actionUserId, entityId, hpChange, wasSpell, wasBlocked);
+      induceHitRecovery(
+        gameWorld.current,
+        actionUserName,
+        actionUserId,
+        entityId,
+        hpChange,
+        wasSpell,
+        wasBlocked
+      );
     }
   }
 
@@ -49,13 +57,11 @@ export function hitOutcomesGameUpdateHandler(update: {
     startFloatingMessage(entityId, elements, 2000);
 
     useGameStore.getState().mutateState((gameState) => {
-      const actionUserResult = gameState.getCombatant(actionUserId);
-      if (actionUserResult instanceof Error) throw actionUserResult;
       const targetCombatantResult = gameState.getCombatant(entityId);
       if (targetCombatantResult instanceof Error) throw targetCombatantResult;
 
       const style = CombatLogMessageStyle.Basic;
-      let messageText = `${actionUserResult.entityProperties.name} failed to hit ${targetCombatantResult.entityProperties.name}`;
+      let messageText = `${actionUserName} failed to hit ${targetCombatantResult.entityProperties.name}`;
 
       gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
     });
@@ -79,13 +85,11 @@ export function hitOutcomesGameUpdateHandler(update: {
     targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Evade, 0, {});
 
     useGameStore.getState().mutateState((gameState) => {
-      const actionUserResult = gameState.getCombatant(actionUserId);
-      if (actionUserResult instanceof Error) throw actionUserResult;
       const targetCombatantResult = gameState.getCombatant(entityId);
       if (targetCombatantResult instanceof Error) throw targetCombatantResult;
 
       const style = CombatLogMessageStyle.Basic;
-      let messageText = `${targetCombatantResult.entityProperties.name} evaded an attack from ${actionUserResult.entityProperties.name}`;
+      let messageText = `${targetCombatantResult.entityProperties.name} evaded an attack from ${actionUserName}`;
 
       gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
     });
@@ -117,13 +121,11 @@ export function hitOutcomesGameUpdateHandler(update: {
     });
 
     useGameStore.getState().mutateState((gameState) => {
-      const actionUserResult = gameState.getCombatant(actionUserId);
-      if (actionUserResult instanceof Error) throw actionUserResult;
       const targetCombatantResult = gameState.getCombatant(entityId);
       if (targetCombatantResult instanceof Error) throw targetCombatantResult;
 
       const style = CombatLogMessageStyle.Basic;
-      let messageText = `${targetCombatantResult.entityProperties.name} parried an attack from ${actionUserResult.entityProperties.name}`;
+      let messageText = `${targetCombatantResult.entityProperties.name} parried an attack from ${actionUserName}`;
 
       gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
     });

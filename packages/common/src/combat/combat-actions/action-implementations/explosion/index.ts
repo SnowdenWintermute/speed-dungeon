@@ -15,7 +15,6 @@ import { ActionAccuracy, ActionAccuracyType } from "../../combat-action-accuracy
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
-import { CombatantContext } from "../../../../combatant-context/index.js";
 import { NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG } from "../non-combatant-initiated-actions-common-config.js";
 import {
   ActionMotionPhase,
@@ -87,7 +86,7 @@ const config: CombatActionComponentConfig = {
       lifestealPercentage: null,
     };
 
-    const stacks = user.asTheEnvironment?.stacks || 1;
+    const stacks = user.asUserOfTriggeredCondition?.stacksOption?.current || 1;
 
     const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 2);
 

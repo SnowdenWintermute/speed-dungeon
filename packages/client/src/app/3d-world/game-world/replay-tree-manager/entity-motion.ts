@@ -28,13 +28,6 @@ export function entityMotionGameUpdateHandler(update: {
 
   let destinationYOption: undefined | number;
 
-  console.log(
-    "entity: ",
-    entityId,
-    SPAWNABLE_ENTITY_TYPE_STRINGS[command.entityType],
-    ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step]
-  );
-
   if (command.entityType === SpawnableEntityType.Combatant) {
     const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
     if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
@@ -121,9 +114,6 @@ export function entityMotionGameUpdateHandler(update: {
             if (!combatantModelOption)
               throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
             combatantModelOption.startIdleAnimation(500);
-          }
-          if (command.despawnOnComplete) {
-            // @TODO - figure this out
           }
         }
       },

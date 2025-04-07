@@ -98,12 +98,6 @@ export interface CombatActionComponentConfig {
   getIsBlockable: (user: CombatantProperties) => boolean;
   getCanTriggerCounterattack: (user: CombatantProperties) => boolean;
 
-  // take CombatActionUser for all user arguments
-  // enables action to be used by either combatants or conditions
-  // action tracker stores who initiated the action
-  // - if it was a condition, pass the condition to user dependant functions
-  // send a tagged union usertype/id in the update so the client can find the correct user entity to put in the combat log
-
   getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
   getChildren: (
     combatantContext: CombatantContext,

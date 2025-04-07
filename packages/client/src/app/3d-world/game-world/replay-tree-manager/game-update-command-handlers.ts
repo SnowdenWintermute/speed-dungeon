@@ -116,7 +116,17 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       if (hitPointChanges) {
         for (const [entityId, hpChange] of hitPointChanges.getRecords()) {
           const wasSpell = false;
-          induceHitRecovery(gameWorld.current, entityId, entityId, hpChange, wasSpell, false);
+          const combatantResult = useGameStore.getState().getCombatant(entityId);
+          if (combatantResult instanceof Error) throw combatantResult;
+          induceHitRecovery(
+            gameWorld.current,
+            combatantResult.entityProperties.name,
+            entityId,
+            entityId,
+            hpChange,
+            wasSpell,
+            false
+          );
         }
       }
     }
