@@ -47,10 +47,10 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.DetermineActionAnimations]: "determineActionAnimations",
   [ActionResolutionStepType.InitialPositioning]: "initialPositioning",
   [ActionResolutionStepType.ChamberingMotion]: "chamberingMotion",
-  [ActionResolutionStepType.EvalOnUseTriggers]: "evalOnUseTriggers", // counterspells, branch block/parry/counterattacks
+  [ActionResolutionStepType.EvalOnUseTriggers]: "evalOnUseTriggers", // counterspells, branch block/parry/counterattacks, bow durability loss
   [ActionResolutionStepType.PostChamberingSpawnEntity]: "postChamberingSpawnEntity",
   [ActionResolutionStepType.DeliveryMotion]: "deliveryMotion",
-  [ActionResolutionStepType.PayResourceCosts]: "payResourceCosts", // bow durability loss
+  [ActionResolutionStepType.PayResourceCosts]: "payResourceCosts",
   [ActionResolutionStepType.StartConcurrentSubActions]: "StartConcurrentSubActions",
   [ActionResolutionStepType.OnActivationSpawnEntity]: "onActivationSpawnEntity",
   [ActionResolutionStepType.OnActivationVfxMotion]: "onActivationVfxMotion",

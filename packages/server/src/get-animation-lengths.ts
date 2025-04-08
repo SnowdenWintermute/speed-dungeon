@@ -30,7 +30,9 @@ export async function getAnimationLengths(filePath: string) {
         }
       }
 
-      toReturn[anim.getName()] = maxTime * DEBUG_ANIMATION_SPEED_MULTIPLIER; // Duration in seconds
+      maxTime *= DEBUG_ANIMATION_SPEED_MULTIPLIER;
+
+      toReturn[anim.getName()] = maxTime; // Duration in seconds
     });
   return toReturn;
 }

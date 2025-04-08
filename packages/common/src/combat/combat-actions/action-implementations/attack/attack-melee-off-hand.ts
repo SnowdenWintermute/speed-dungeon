@@ -25,12 +25,10 @@ import { iterateNumericEnum } from "../../../../utils/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
 import { getAttackHpChangeProperties } from "./get-attack-hp-change-properties.js";
-import { SpeedDungeonGame } from "../../../../game/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { getStandardActionCritChance } from "../../action-calculation-utils/standard-action-calculations.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import { CombatantContext } from "../../../../combatant-context/index.js";
 import { MELEE_ATTACK_COMMON_CONFIG } from "../melee-actions-common-config.js";
 import {
   CombatActionAnimationPhase,
@@ -42,9 +40,11 @@ import { COMBAT_ACTIONS } from "../index.js";
 import { getIncomingHpChangePerTarget } from "../../../action-results/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
+import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
+  ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "Attack target using equipment in off hand",
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
@@ -80,25 +80,6 @@ const config: CombatActionComponentConfig = {
       if (equipmentType === EquipmentType.Shield) return true;
     }
     return false;
-  },
-  shouldExecute: (combatantContext, self: CombatActionComponent) => {
-    const { game, party, combatant } = combatantContext;
-
-    const targetsOption = combatant.combatantProperties.combatActionTarget;
-    if (!targetsOption) return false;
-
-    const targetingCalculator = new TargetingCalculator(
-      new CombatantContext(game, party, combatant),
-      null
-    );
-
-    const targetIdsResult = targetingCalculator.getCombatActionTargetIds(self, targetsOption);
-    if (targetIdsResult instanceof Error) {
-      console.trace(targetIdsResult);
-      return false;
-    }
-
-    return !SpeedDungeonGame.allCombatantsInGroupAreDead(game, targetIdsResult);
   },
 
   getResolutionSteps() {

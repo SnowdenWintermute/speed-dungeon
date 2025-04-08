@@ -57,13 +57,16 @@ const config: CombatActionComponentConfig = {
   getParent: () => null,
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
   getConcurrentSubActions(combatantContext) {
-    return combatantContext.getOpponents().map(
-      (opponent) =>
-        new CombatActionExecutionIntent(CombatActionName.ChainingSplitArrowProjectile, {
-          type: CombatActionTargetType.Single,
-          targetId: opponent.entityProperties.id,
-        })
-    );
+    return combatantContext
+      .getOpponents()
+      .filter((opponent) => opponent.combatantProperties.hitPoints > 0)
+      .map(
+        (opponent) =>
+          new CombatActionExecutionIntent(CombatActionName.ChainingSplitArrowProjectile, {
+            type: CombatActionTargetType.Single,
+            targetId: opponent.entityProperties.id,
+          })
+      );
   },
   getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
     throw new Error("Function not implemented.");

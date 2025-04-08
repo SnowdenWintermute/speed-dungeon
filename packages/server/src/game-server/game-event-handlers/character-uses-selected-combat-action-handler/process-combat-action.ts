@@ -114,7 +114,11 @@ export function processCombatAction(
         // DETERMINE NEXT ACTION IN SEQUENCE IF ANY
         sequenceManager.populateSelfWithCurrentActionChildren();
 
-        if (sequenceManager.getNextActionInQueue()) {
+        const nextActionIntentInQueueOption = sequenceManager.getNextActionInQueue();
+        const nextActionOption = nextActionIntentInQueueOption
+          ? COMBAT_ACTIONS[nextActionIntentInQueueOption.actionName]
+          : null;
+        if (nextActionOption && nextActionOption.shouldExecute(combatantContext)) {
           const stepTrackerResult = sequenceManager.startProcessingNext(time);
           if (stepTrackerResult instanceof Error) return stepTrackerResult;
 

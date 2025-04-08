@@ -88,6 +88,12 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
               context.idGenerator
             );
 
+            CombatantCondition.removeStacks(
+              condition.id,
+              combatantResult.combatantProperties,
+              numStacksRemoved
+            );
+
             this.branchingActions.push(...triggeredActions);
 
             // add it to the update so the client can remove the triggered conditions if required

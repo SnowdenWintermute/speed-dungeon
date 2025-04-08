@@ -31,13 +31,6 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
     return false;
   }
   onTriggered(combatant: Combatant, idGenerator: IdGenerator) {
-    console.log("remaining conditions before removal: ", combatant.combatantProperties.conditions);
-
-    const removed = CombatantCondition.removeById(this.id, combatant.combatantProperties);
-    console.log("REMOVED: ", removed?.level, removed?.stacksOption?.current);
-
-    console.log("remaining conditions after removval: ", combatant.combatantProperties.conditions);
-
     const explosionActionIntent = new CombatActionExecutionIntent(CombatActionName.Explosion, {
       type: CombatActionTargetType.SingleAndSides,
       targetId: combatant.entityProperties.id,
@@ -49,7 +42,8 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
     );
 
     return {
-      numStacksRemoved: this.stacksOption.current,
+      // numStacksRemoved: this.stacksOption.current,
+      numStacksRemoved: 1,
       triggeredActions: [{ user, actionExecutionIntent: explosionActionIntent }],
     };
   }

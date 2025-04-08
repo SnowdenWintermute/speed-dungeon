@@ -67,12 +67,13 @@ const config: CombatActionComponentConfig = {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Delivery]: {
         name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDelivery },
-        timing: { type: AnimationTimingType.Timed, duration: 1200 },
+        // timing: { type: AnimationTimingType.Timed, duration: 1200 },
+        timing: { type: AnimationTimingType.Timed, duration: 10200 },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
         name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDissipation },
-        timing: { type: AnimationTimingType.Timed, duration: 700 },
-        // timing: { type: AnimationTimingType.Timed, duration: 3000 },
+        // timing: { type: AnimationTimingType.Timed, duration: 700 },
+        timing: { type: AnimationTimingType.Timed, duration: 7000 },
       },
     };
     return animations;

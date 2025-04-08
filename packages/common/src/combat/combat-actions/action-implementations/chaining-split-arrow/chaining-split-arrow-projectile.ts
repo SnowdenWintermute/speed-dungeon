@@ -34,12 +34,14 @@ import { getAttackHpChangeProperties } from "../attack/get-attack-hp-change-prop
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
+import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 
 const MAX_BOUNCES = 2;
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
+  ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "An arrow that bounces to up to two additional targets after the first",
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
@@ -64,7 +66,6 @@ const config: CombatActionComponentConfig = {
   getResourceCosts: () => null,
   getExecutionTime: () => 700,
   requiresCombatTurn: () => true,
-  shouldExecute: () => true,
   getActionStepAnimations: (context) => null,
   getHpChangeProperties: (user, primaryTarget, self) => {
     const hpChangeProperties = getAttackHpChangeProperties(
@@ -207,6 +208,7 @@ function getBouncableTargets(
   const opponents = combatantContext.getOpponents();
   return {
     possibleTargetIds: opponents
+      .filter((combatant) => combatant.combatantProperties.hitPoints > 0)
       .map((combatant) => combatant.entityProperties.id)
       .filter((id) => id !== previousTargetIdResult),
     previousTargetId: previousTargetIdResult,
