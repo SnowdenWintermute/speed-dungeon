@@ -55,5 +55,6 @@ export default async function useSelectedCombatActionHandler(
       actionUserId: character.entityProperties.id,
       replayTree: replayTreeResult,
     });
-  processBattleUntilPlayerTurnOrConclusion(gameServer, game, party, battleOption, replayTreeResult);
+
+  processBattleUntilPlayerTurnOrConclusion(gameServer, game, party, battleOption);
 }

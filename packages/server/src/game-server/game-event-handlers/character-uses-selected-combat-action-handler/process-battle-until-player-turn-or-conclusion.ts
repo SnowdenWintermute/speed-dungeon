@@ -5,31 +5,50 @@ import {
   CombatantContext,
   CombatantTurnTracker,
   ERROR_MESSAGES,
-  NestedNodeReplayEvent,
-  ReplayEventType,
   ServerToClientEvent,
   SpeedDungeonGame,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
-import checkForWipes from "../combat-action-results-processing/check-for-wipes.js";
+import { checkForWipes } from "../combat-action-results-processing/check-for-wipes.js";
 import { processCombatAction } from "./process-combat-action.js";
 
 export async function processBattleUntilPlayerTurnOrConclusion(
   gameServer: GameServer,
   game: SpeedDungeonGame,
   party: AdventuringParty,
-  battleOption: Battle | null,
-  replayTree: NestedNodeReplayEvent
+  battleOption: Battle | null
 ) {
   if (!party.characterPositions[0]) return new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
   let partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
   if (partyWipesResult instanceof Error) return partyWipesResult;
-  let battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
+  let battleConcluded = false;
   let newActiveCombatantTrackerOption: undefined | CombatantTurnTracker =
     battleOption?.turnTrackers[0];
 
   while (battleOption && !battleConcluded && newActiveCombatantTrackerOption) {
+    partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
+    battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
+
+    if (battleConcluded) {
+      // const conclusionResult = await getBattleConclusionCommandAndPayload(
+      //   game,
+      //   party,
+      //   partyWipesResult
+      // );
+      // if (conclusionResult instanceof Error) return conclusionResult;
+      // party.actionCommandQueue.enqueueNewCommands([conclusionResult.command]);
+      // const payloadsResult = await party.actionCommandQueue.processCommands();
+      // if (payloadsResult instanceof Error) return payloadsResult;
+      // actionCommandPayloads.push(conclusionResult.payload);
+      // const payloadsCommands = payloadsResult.map(
+      //   (item) => new ActionCommand(game.name, "", item, gameServer)
+      // );
+      // party.actionCommandQueue.enqueueNewCommands(payloadsCommands);
+      // await party.actionCommandQueue.processCommands();
+      // actionCommandPayloads.push(...payloadsResult);
+    }
+
     const activeCombatantResult = SpeedDungeonGame.getCombatantById(
       game,
       newActiveCombatantTrackerOption.entityId

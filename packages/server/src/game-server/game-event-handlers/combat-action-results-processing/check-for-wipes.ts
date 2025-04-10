@@ -1,25 +1,23 @@
 import { Battle, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
 import checkForDefeatedCombatantGroups from "./check-for-defeated-combatant-groups.js";
 
-export default function checkForWipes(
+export function checkForWipes(
   game: SpeedDungeonGame,
   combatantId: string,
   battleIdOption: null | string
-):
-  | Error
-  | {
-      alliesDefeated: boolean;
-      opponentsDefeated: boolean;
-    } {
+): {
+  alliesDefeated: boolean;
+  opponentsDefeated: boolean;
+} {
   // IF NOT IN BATTLE AND SOMEHOW WIPED OWN PARTY
   if (battleIdOption === null) {
     const partyResult = SpeedDungeonGame.getPartyOfCombatant(game, combatantId);
-    if (partyResult instanceof Error) return partyResult;
+    if (partyResult instanceof Error) throw partyResult;
     const alliesDefeatedResult = SpeedDungeonGame.allCombatantsInGroupAreDead(
       game,
       partyResult.characterPositions
     );
-    if (alliesDefeatedResult instanceof Error) return alliesDefeatedResult;
+    if (alliesDefeatedResult instanceof Error) throw alliesDefeatedResult;
     return {
       alliesDefeated: alliesDefeatedResult,
       opponentsDefeated: false,
@@ -28,16 +26,17 @@ export default function checkForWipes(
 
   // MORE LIKELY, IN BATTLE
   const battleOption = game.battles[battleIdOption];
-  if (battleOption === undefined) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
+  if (battleOption === undefined) throw new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
 
   const battleGroupResult = Battle.getAllyAndEnemyBattleGroups(battleOption, combatantId);
-  if (battleGroupResult instanceof Error) return battleGroupResult;
+  if (battleGroupResult instanceof Error) throw battleGroupResult;
   const { allyGroup, enemyGroup } = battleGroupResult;
   const partyWipesResult = checkForDefeatedCombatantGroups(
     game,
     allyGroup.combatantIds,
     enemyGroup.combatantIds
   );
+  if (partyWipesResult instanceof Error) throw partyWipesResult;
 
   return partyWipesResult;
 }
