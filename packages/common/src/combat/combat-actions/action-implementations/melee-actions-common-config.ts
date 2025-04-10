@@ -89,7 +89,8 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
       );
 
       const destinationRotation = Quaternion.FromUnitVectorsToRef(
-        new Vector3(0, 0, 1),
+        CombatantProperties.getForward(user),
+        // user.homeLocation,
         direction,
         new Quaternion()
       );

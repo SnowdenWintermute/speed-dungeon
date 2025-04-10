@@ -1,9 +1,9 @@
 import { Combatant } from "@speed-dungeon/common";
-import { Vector3 } from "@babylonjs/core";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 
 export interface CombatantModelBlueprint {
   combatant: Combatant;
-  startPosition: Vector3;
-  startRotation: number;
+  homePosition: Vector3;
+  homeRotation: Quaternion;
   modelDomPositionElement: HTMLDivElement | null;
 }

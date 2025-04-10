@@ -3,7 +3,7 @@ import { CHARACTER_SLOT_SPACING } from "@/app/lobby/saved-character-manager";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import getParty from "@/utils/getParty";
-import { Vector3 } from "@babylonjs/core";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 import {
   ERROR_MESSAGES,
   EntityId,
@@ -41,7 +41,9 @@ export async function synchronizeCombatantModelsWithAppState() {
 
   const modelSpawnPromises: Promise<Error | ModularCharacter>[] = [];
 
-  for (const [entityId, { combatant, position }] of Object.entries(modelsAndPositions)) {
+  for (const [entityId, { combatant, homeLocation, homeRotation }] of Object.entries(
+    modelsAndPositions
+  )) {
     const modelOption = modelManager.combatantModels[entityId];
 
     if (!modelOption) {
@@ -53,15 +55,15 @@ export async function synchronizeCombatantModelsWithAppState() {
       modelSpawnPromises.push(
         spawnModularCharacter(gameWorld.current, {
           combatant,
-          startPosition: position.startPosition,
-          startRotation: position.startRotation,
+          homeRotation,
+          homePosition: homeLocation,
           modelDomPositionElement: null, // vestigial from when we used to spawn directly from next.js
         })
       );
     } else {
       // move models to correct positions
-      modelOption.setHomeRotation(cloneDeep(position.startRotation));
-      modelOption.setHomeLocation(cloneDeep(position.startPosition));
+      modelOption.setHomeRotation(cloneDeep(homeRotation));
+      modelOption.setHomeLocation(cloneDeep(homeLocation));
     }
     console.log("synchronize needs to spawn this many:", modelSpawnPromises.length);
   }
@@ -88,12 +90,11 @@ export async function synchronizeCombatantModelsWithAppState() {
 interface ModelsAndPositions {
   [entityId: EntityId]: {
     combatant: Combatant;
-    position: {
-      startRotation: number;
-      startPosition: Vector3;
-    };
+    homeLocation: Vector3;
+    homeRotation: Quaternion;
   };
 }
+
 function getModelsAndPositions() {
   const state = useGameStore.getState();
   const lobbyState = useLobbyStore.getState();
@@ -109,14 +110,16 @@ function getModelsAndPositions() {
     for (const character of Object.values(partyResult.characters)) {
       modelsAndPositions[character.entityProperties.id] = {
         combatant: character,
-        position: getCombatantModelStartPosition(character),
+        homeRotation: character.combatantProperties.homeRotation,
+        homeLocation: character.combatantProperties.homeLocation,
       };
     }
 
     for (const monster of Object.values(partyResult.currentRoom.monsters)) {
       modelsAndPositions[monster.entityProperties.id] = {
         combatant: monster,
-        position: getCombatantModelStartPosition(monster),
+        homeRotation: monster.combatantProperties.homeRotation,
+        homeLocation: monster.combatantProperties.homeLocation,
       };
     }
   } else {
@@ -128,10 +131,8 @@ function getModelsAndPositions() {
       if (!character) return new Error("Failed to meet checked expectation");
       modelsAndPositions[character.entityProperties.id] = {
         combatant: character,
-        position: {
-          startRotation: 0,
-          startPosition: new Vector3(-CHARACTER_SLOT_SPACING + slot * CHARACTER_SLOT_SPACING, 0, 0),
-        },
+        homeRotation: Quaternion.Identity(),
+        homeLocation: new Vector3(-CHARACTER_SLOT_SPACING + slot * CHARACTER_SLOT_SPACING, 0, 0),
       };
     }
   }
@@ -168,10 +169,8 @@ function getProgressionGameLobbyCombatantModelPositions(game: SpeedDungeonGame) 
     (characterId, i) =>
       (modelsAndPositions[characterId] = {
         combatant: partyOption.characters[characterId]!,
-        position: {
-          startPosition: new Vector3(-CHARACTER_SLOT_SPACING + i * CHARACTER_SLOT_SPACING, 0, 0),
-          startRotation: 0,
-        },
+        homeLocation: new Vector3(-CHARACTER_SLOT_SPACING + i * CHARACTER_SLOT_SPACING, 0, 0),
+        homeRotation: Quaternion.Identity(),
       })
   );
 

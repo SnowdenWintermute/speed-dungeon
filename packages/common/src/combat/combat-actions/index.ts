@@ -203,7 +203,6 @@ export abstract class CombatActionComponent {
     actionTrackerOption: null | ActionTracker
   ) => Error | null | CombatActionTarget = (combatantContext) => {
     const scheme = this.autoTargetSelectionMethod.scheme;
-    console.log("auto targeting scheme for", COMBAT_ACTION_NAME_STRINGS[this.name], scheme);
     return AUTO_TARGETING_FUNCTIONS[scheme](combatantContext, this);
   };
   combatantIsValidTarget(

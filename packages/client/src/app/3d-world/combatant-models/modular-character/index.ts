@@ -49,6 +49,7 @@ import { SKELETON_ARMATURE_NAMES, SKELETON_STRUCTURE_TYPE } from "./skeleton-str
 import { SkeletalAnimationManager } from "../animation-manager/skeletal-animation-manager";
 import { useGameStore } from "@/stores/game-store";
 import { ManagedAnimationOptions } from "../animation-manager";
+import { plainToInstance } from "class-transformer";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -98,8 +99,8 @@ export class ModularCharacter {
     public skeleton: ISceneLoaderAsyncResult,
     public modelDomPositionElement: HTMLDivElement | null,
     public debugElement: HTMLDivElement | null,
-    startPosition: Vector3 = Vector3.Zero(),
-    startRotation: number = 0
+    homePosition: Vector3,
+    homeRotation: Quaternion
   ) {
     this.animationManager = new SkeletalAnimationManager(this);
 
@@ -116,9 +117,9 @@ export class ModularCharacter {
       rootMesh.scaling = Vector3.One().scale(MONSTER_SCALING_SIZES[this.monsterType]);
     }
     this.rootTransformNode = new TransformNode(`${this.entityId}-root-transform-node`);
-    this.rootTransformNode.rotationQuaternion = Quaternion.Identity();
-    this.rootTransformNode.rotate(Vector3.Up(), startRotation);
-    this.rootTransformNode.position.copyFrom(startPosition);
+    this.rootTransformNode.rotationQuaternion = plainToInstance(Quaternion, homeRotation);
+    this.rootTransformNode.position = plainToInstance(Vector3, homePosition);
+
     this.movementManager = new ModelMovementManager(this.rootTransformNode);
 
     this.rootMesh = rootMesh;
@@ -152,9 +153,8 @@ export class ModularCharacter {
     }
   }
 
-  setHomeRotation(rotation: number) {
-    this.rootTransformNode.rotationQuaternion = Quaternion.RotationAxis(Vector3.Up(), rotation);
-    this.homeLocation.rotation.copyFrom(this.rootTransformNode.rotationQuaternion);
+  setHomeRotation(rotation: Quaternion) {
+    this.homeLocation.rotation.copyFrom(plainToInstance(Quaternion, rotation));
   }
 
   setHomeLocation(position: Vector3) {

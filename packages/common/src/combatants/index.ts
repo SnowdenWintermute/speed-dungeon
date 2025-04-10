@@ -191,36 +191,6 @@ export class CombatantProperties {
     return hasTrait;
   }
 
-  static getPositionForActionUse(
-    user: CombatantProperties,
-    target: CombatantProperties,
-    isMelee: boolean
-  ) {
-    let destinationLocation = user.homeLocation;
-    if (!isMelee) {
-      // assign destination to move a little forward (default ranged attack/spell casting position)
-      const direction = CombatantProperties.getForward(user);
-      destinationLocation = cloneVector3(user.homeLocation).add(direction.scale(0.5));
-    } else {
-      // assign destination based on target location and their hitbox radii
-      // we're recreating this vec3 because when
-      // combatants are copied to the client they don't keep their Vector3 methods
-      const direction = cloneVector3(target.homeLocation).subtract(user.homeLocation).normalize();
-
-      destinationLocation = cloneVector3(target.homeLocation).subtract(
-        direction.scale(target.hitboxRadius + user.hitboxRadius)
-      );
-    }
-
-    const distance = Vector3.Distance(destinationLocation, user.homeLocation);
-
-    const speedMultiplier = 1;
-    const totalTimeToReachDestination =
-      COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;
-
-    return { destinationLocation, distance, totalTimeToReachDestination };
-  }
-
   static getForward(combatantProperties: CombatantProperties) {
     const { x, y, z } = combatantProperties.homeLocation;
     return cloneVector3(new Vector3(x, 0, 0)).subtract(combatantProperties.homeLocation);

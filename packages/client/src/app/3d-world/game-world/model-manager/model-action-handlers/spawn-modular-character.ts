@@ -33,8 +33,8 @@ export async function spawnModularCharacter(
     skeleton,
     blueprint.modelDomPositionElement,
     null,
-    blueprint.startPosition,
-    blueprint.startRotation
+    blueprint.homePosition,
+    blueprint.homeRotation
   );
 
   const partPromises: Promise<ISceneLoaderAsyncResult | Error>[] = [];

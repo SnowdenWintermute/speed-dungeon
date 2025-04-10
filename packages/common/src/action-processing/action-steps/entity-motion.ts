@@ -137,8 +137,6 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
 
     const timeToCompletion = Math.max(animationTimeRemaining, translationTimeRemaining);
 
-    console.log("time to completion: ", timeToCompletion);
-
     return timeToCompletion;
   }
 

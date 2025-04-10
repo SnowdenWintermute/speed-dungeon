@@ -43,26 +43,6 @@ export function createModelActionHandlers(
       }
     },
     [ModelActionType.SynchronizeCombatantModels]: synchronizeCombatantModelsWithAppState,
-    [ModelActionType.SpawnCombatantModel]: async function (
-      action: SpawnCombatantModelAction
-    ): Promise<void | Error> {
-      const combatantModelResult = await spawnModularCharacter(
-        modelManager.world,
-        action.blueprint
-      );
-      if (combatantModelResult instanceof Error) return combatantModelResult;
-      modelManager.combatantModels[action.blueprint.combatant.entityProperties.id] =
-        combatantModelResult;
-    },
-    [ModelActionType.DespawnCombatantModel]: function (
-      action: DespawnCombatantModelAction
-    ): void | Error {
-      const toRemove = modelManager.combatantModels[action.entityId];
-      if (!toRemove) return new Error("Tried to despawn a combatant model that didn't exist");
-      const maybeError = despawnModularCharacter(modelManager.world, toRemove);
-      if (maybeError instanceof Error) return maybeError;
-      delete modelManager.combatantModels[action.entityId];
-    },
     [ModelActionType.ChangeEquipment]: async function (
       action: ChangeEquipmentModelAction
     ): Promise<void | Error> {

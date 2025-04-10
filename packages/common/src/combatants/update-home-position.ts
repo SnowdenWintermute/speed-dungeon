@@ -33,9 +33,10 @@ export function updateCombatantHomePosition(
   combatantProperties.homeLocation = homeLocation;
 
   //
-  const forwardPosition = new Vector3(rowPositionOffset, 0, 0);
+  const forwardPosition = new Vector3(rowPositionOffset, 0, Math.abs(positionSpacing));
 
   const forwardDirection = homeLocation.subtract(forwardPosition).normalize();
+
   const homeRotation = Quaternion.FromUnitVectorsToRef(
     forwardDirection,
     homeLocation,

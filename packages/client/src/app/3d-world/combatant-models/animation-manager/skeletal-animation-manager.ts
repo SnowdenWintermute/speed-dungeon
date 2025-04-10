@@ -69,19 +69,6 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     transitionDuration: number,
     options: ManagedAnimationOptions
   ): Error | void {
-    console.log(
-      this.characterModel.entityId.slice(0, 4),
-      "starting animation",
-      SKELETAL_ANIMATION_NAME_STRINGS[newAnimationName],
-      "shouldloop:",
-      options.shouldLoop,
-      "curr: ",
-      this.playing?.getName(),
-      "prev: ",
-      this.previous?.getName(),
-      this.previous?.weight
-    );
-
     this.previous?.cleanup();
     this.previous = this.playing;
 

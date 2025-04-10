@@ -51,23 +51,11 @@ export class ActionSequenceManager {
     const currentActionExecutionIntent = this.currentTracker?.actionExecutionIntent;
     if (!currentActionExecutionIntent || !this.currentTracker) return;
     const currentAction = COMBAT_ACTIONS[currentActionExecutionIntent.actionName];
-    console.log("current action: ", COMBAT_ACTION_NAME_STRINGS[currentAction.name]);
 
     const children = currentAction.getChildren(this.combatantContext, this.currentTracker);
 
-    console.log(
-      "CHILDREN: ",
-      children.map((child) => COMBAT_ACTION_NAME_STRINGS[child.name])
-    );
-
     const childActionIntentResults = children.map((action) => {
       const targets = action.getAutoTarget(this.combatantContext, this.currentTracker);
-      console.log(
-        "GET AUTO: ",
-        COMBAT_ACTION_NAME_STRINGS[action.name],
-        action.getAutoTarget,
-        targets
-      );
 
       return {
         actionName: action.name,
@@ -83,10 +71,6 @@ export class ActionSequenceManager {
         continue;
       }
       if (targetsResult === null) {
-        console.log(
-          "targets result was null for child action",
-          COMBAT_ACTION_NAME_STRINGS[intentResult.actionName]
-        );
         console.error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TARGETS_SELECTED);
         continue;
       }

@@ -55,19 +55,18 @@ export function getAttackHpChangeProperties(
 
   const weaponOption = equippedUsableWeapons[weaponSlot];
 
-  if (weaponOption?.equipment)
-    if (weaponOption) {
-      applyWeaponPropertiesToHpChangeProperties(
-        action,
-        weaponOption,
-        hpChangeProperties,
-        user,
-        primaryTarget
-      );
-    } else {
-      // unarmed
-      hpChangeProperties.hpChangeSource.kineticDamageTypeOption = KineticDamageType.Blunt;
-    }
+  if (weaponOption?.equipment && weaponOption) {
+    applyWeaponPropertiesToHpChangeProperties(
+      action,
+      weaponOption,
+      hpChangeProperties,
+      user,
+      primaryTarget
+    );
+  } else {
+    // unarmed
+    hpChangeProperties.hpChangeSource.kineticDamageTypeOption = KineticDamageType.Blunt;
+  }
 
   baseValues.floor();
 

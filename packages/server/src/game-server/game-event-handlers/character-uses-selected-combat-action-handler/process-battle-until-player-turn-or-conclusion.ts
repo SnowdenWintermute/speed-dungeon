@@ -22,21 +22,12 @@ export async function processBattleUntilPlayerTurnOrConclusion(
   battleOption: Battle | null,
   replayTree: NestedNodeReplayEvent
 ) {
-  console.log("processBattleUntilPlayerTurnOrConclusion");
   if (!party.characterPositions[0]) return new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
   let partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
   if (partyWipesResult instanceof Error) return partyWipesResult;
   let battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
   let newActiveCombatantTrackerOption: undefined | CombatantTurnTracker =
     battleOption?.turnTrackers[0];
-  console.log(
-    "battleOption",
-    battleOption,
-    "!battleConcluded",
-    !battleConcluded,
-    "newActiveCombatantTrackerOption",
-    newActiveCombatantTrackerOption
-  );
 
   while (battleOption && !battleConcluded && newActiveCombatantTrackerOption) {
     const activeCombatantResult = SpeedDungeonGame.getCombatantById(
@@ -64,9 +55,9 @@ export async function processBattleUntilPlayerTurnOrConclusion(
       console.log("ai skipped turn");
       const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, battleOption);
       if (maybeError instanceof Error) return maybeError;
+      newActiveCombatantTrackerOption = battleOption?.turnTrackers[0];
       continue;
     }
-    console.log("action selected: ", actionIntent);
 
     const replayTreeResult = processCombatAction(
       actionIntent,

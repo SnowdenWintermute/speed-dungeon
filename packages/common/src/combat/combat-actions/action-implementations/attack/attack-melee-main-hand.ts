@@ -214,10 +214,7 @@ const config: CombatActionComponentConfig = {
     return null; // ex: could make a "poison blade" item
   },
   getChildren: () => [],
-  getParent: () => {
-    console.log("GOT PARENT FOR ATTACK MELEE  MAIN HAND");
-    return ATTACK;
-  },
+  getParent: () => ATTACK,
 };
 
 export const ATTACK_MELEE_MAIN_HAND = new CombatActionLeaf(

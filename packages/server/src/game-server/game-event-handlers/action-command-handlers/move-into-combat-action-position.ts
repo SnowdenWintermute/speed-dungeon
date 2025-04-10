@@ -18,20 +18,18 @@ export default async function moveIntoCombatActionPositionActionCommandHandler(
   combatantId: string,
   payload: MoveIntoCombatActionPositionActionCommandPayload
 ) {
-  const actionAssociatedDataResult = this.getGamePartyAndCombatant(gameName, combatantId);
-  if (actionAssociatedDataResult instanceof Error) return actionAssociatedDataResult;
-  const { party, combatant } = actionAssociatedDataResult;
-  InputLock.lockInput(party.inputLock);
-  const { primaryTargetId, isMelee } = payload;
-  const primaryTargetResult = AdventuringParty.getCombatant(party, primaryTargetId);
-  if (primaryTargetResult instanceof Error) return primaryTargetResult;
-  const primaryTarget = primaryTargetResult;
-
-  const { totalTimeToReachDestination } = CombatantProperties.getPositionForActionUse(
-    combatant.combatantProperties,
-    primaryTarget.combatantProperties,
-    isMelee
-  );
-
-  InputLock.increaseLockoutDuration(party.inputLock, totalTimeToReachDestination);
+  // const actionAssociatedDataResult = this.getGamePartyAndCombatant(gameName, combatantId);
+  // if (actionAssociatedDataResult instanceof Error) return actionAssociatedDataResult;
+  // const { party, combatant } = actionAssociatedDataResult;
+  // InputLock.lockInput(party.inputLock);
+  // const { primaryTargetId, isMelee } = payload;
+  // const primaryTargetResult = AdventuringParty.getCombatant(party, primaryTargetId);
+  // if (primaryTargetResult instanceof Error) return primaryTargetResult;
+  // const primaryTarget = primaryTargetResult;
+  // const { totalTimeToReachDestination } = CombatantProperties.getPositionForActionUse(
+  //   combatant.combatantProperties,
+  //   primaryTarget.combatantProperties,
+  //   isMelee
+  // );
+  // InputLock.increaseLockoutDuration(party.inputLock, totalTimeToReachDestination);
 }
