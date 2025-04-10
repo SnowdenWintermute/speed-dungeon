@@ -72,7 +72,10 @@ const config: CombatActionComponentConfig = {
     }
     return toReturn;
   },
-  getParent: () => null,
+  getParent: () => {
+    console.log("tried to get parent for attack");
+    return null;
+  },
   getRequiredRange: function (
     user: CombatantProperties,
     self: CombatActionComponent

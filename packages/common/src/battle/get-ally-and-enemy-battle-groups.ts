@@ -1,7 +1,7 @@
 import { Battle, BattleGroup } from "./index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 
-export interface AllAndEnemyBattleGroups {
+export interface AllyAndEnemyBattleGroups {
   allyGroup: BattleGroup;
   enemyGroup: BattleGroup;
 }
@@ -9,7 +9,7 @@ export interface AllAndEnemyBattleGroups {
 export function getAllyAndEnemyBattleGroups(
   battle: Battle,
   combatantId: string
-): Error | AllAndEnemyBattleGroups {
+): Error | AllyAndEnemyBattleGroups {
   for (const id of battle.groupA.combatantIds) {
     if (id === combatantId) return { allyGroup: battle.groupA, enemyGroup: battle.groupB };
   }

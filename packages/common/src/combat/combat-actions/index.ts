@@ -15,7 +15,7 @@ import { TargetCategories, TargetingScheme } from "./targeting-schemes-and-categ
 import { CombatantCondition } from "../../combatants/combatant-conditions/index.js";
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { DurabilityLossCondition } from "./combat-action-durability-loss-condition.js";
-import { CombatActionName } from "./combat-action-names.js";
+import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "./combat-action-names.js";
 import { CombatActionHpChangeProperties } from "./combat-action-hp-change-properties.js";
 import { Battle } from "../../battle/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
@@ -203,6 +203,7 @@ export abstract class CombatActionComponent {
     actionTrackerOption: null | ActionTracker
   ) => Error | null | CombatActionTarget = (combatantContext) => {
     const scheme = this.autoTargetSelectionMethod.scheme;
+    console.log("auto targeting scheme for", COMBAT_ACTION_NAME_STRINGS[this.name], scheme);
     return AUTO_TARGETING_FUNCTIONS[scheme](combatantContext, this);
   };
   combatantIsValidTarget(

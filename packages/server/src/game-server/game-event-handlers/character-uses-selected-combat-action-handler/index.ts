@@ -1,4 +1,5 @@
 import {
+  AISelectActionAndTarget,
   COMBAT_ACTION_NAME_STRINGS,
   CharacterAssociatedData,
   CombatActionExecutionIntent,
@@ -7,10 +8,12 @@ import {
   InputLock,
   Replayer,
   ServerToClientEvent,
+  SpeedDungeonGame,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../../singletons.js";
 import { processCombatAction } from "./process-combat-action.js";
+import { processBattleUntilPlayerTurnOrConclusion } from "./process-battle-until-player-turn-or-conclusion.js";
 
 export default async function useSelectedCombatActionHandler(
   _eventData: { characterId: string },
@@ -38,9 +41,13 @@ export default async function useSelectedCombatActionHandler(
 
   if (replayTreeResult instanceof Error) return replayTreeResult;
   console.log("processed ", COMBAT_ACTION_NAME_STRINGS[selectedCombatAction]);
-  Replayer.printReplayTree(replayTreeResult);
 
   // @TODO - process battle until next player turn or completion
+  const battleOption = party.battleId ? game.battles[party.battleId] || null : null;
+  if (battleOption) {
+    const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, battleOption);
+    if (maybeError instanceof Error) return maybeError;
+  }
 
   gameServer.io
     .in(getPartyChannelName(game.name, party.name))
@@ -48,4 +55,5 @@ export default async function useSelectedCombatActionHandler(
       actionUserId: character.entityProperties.id,
       replayTree: replayTreeResult,
     });
+  processBattleUntilPlayerTurnOrConclusion(gameServer, game, party, battleOption, replayTreeResult);
 }
