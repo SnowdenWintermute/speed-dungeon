@@ -1,40 +1,15 @@
-import {
-  ActionCommandReceiver,
-  MoveIntoCombatActionPositionActionCommandPayload,
-  PerformCombatActionActionCommandPayload,
-  ReturnHomeActionCommandPayload,
-} from "@speed-dungeon/common";
-import payAbilityCostsActionCommandHandler from "./pay-ability-costs";
+import { ActionCommandReceiver, CombatActionReplayTreePayload } from "@speed-dungeon/common";
 import battleResultActionCommandHandler from "./process-battle-result";
 import gameMessageActionCommandHandler from "./game-message";
 import { removeClientPlayerFromGame } from "./remove-client-player-from-game";
 
-// export class ClientActionCommandReceiver implements ActionCommandReceiver {
-// constructor() {}
-// removePlayerFromGameCommandHandler = removeClientPlayerFromGame;
-// payAbilityCostsActionCommandHandler = payAbilityCostsActionCommandHandler;
-// async moveIntoCombatActionPositionActionCommandHandler(
-//   _gameName: string,
-//   combatantId: string,
-//   payload: MoveIntoCombatActionPositionActionCommandPayload
-// ) {
-//   return startMovingIntoCombatActionUsePosition(combatantId, payload);
-// }
-// async performCombatActionActionCommandHandler(
-//   _gameName: string,
-//   combatantId: string,
-//   payload: PerformCombatActionActionCommandPayload
-// ) {
-//   return startPerformingCombatAction(combatantId, payload);
-// }
-// async returnHomeActionCommandHandler(
-//   _gameName: string,
-//   combatantId: string,
-//   payload: ReturnHomeActionCommandPayload
-// ) {
-//   return startReturningHome(combatantId, payload);
-// }
-// battleResultActionCommandHandler = battleResultActionCommandHandler;
-
-// gameMessageCommandHandler = gameMessageActionCommandHandler;
-// }
+export class ClientActionCommandReceiver implements ActionCommandReceiver {
+  constructor() {}
+  combatActionReplayTreeHandler: (payload: CombatActionReplayTreePayload) => Promise<void | Error> =
+    async () => {
+      //
+    };
+  removePlayerFromGameCommandHandler = removeClientPlayerFromGame;
+  battleResultActionCommandHandler = battleResultActionCommandHandler;
+  gameMessageCommandHandler = gameMessageActionCommandHandler;
+}
