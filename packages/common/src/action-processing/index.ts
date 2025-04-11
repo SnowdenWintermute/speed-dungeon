@@ -30,6 +30,7 @@ export type CombatActionReplayTreePayload = {
 export type BattleResultActionCommandPayload = {
   type: ActionCommandType.BattleResult;
   conclusion: BattleConclusion;
+  partyName: string;
   experiencePointChanges: { [combatantId: string]: number };
   timestamp: number;
   loot?: undefined | { equipment: Equipment[]; consumables: Consumable[] };

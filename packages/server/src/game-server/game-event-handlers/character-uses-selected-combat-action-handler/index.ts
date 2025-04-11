@@ -40,7 +40,6 @@ export default async function useSelectedCombatActionHandler(
   );
 
   if (replayTreeResult instanceof Error) return replayTreeResult;
-  console.log("processed ", COMBAT_ACTION_NAME_STRINGS[selectedCombatAction]);
 
   // @TODO - process battle until next player turn or completion
   const battleOption = party.battleId ? game.battles[party.battleId] || null : null;

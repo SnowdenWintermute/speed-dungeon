@@ -1,5 +1,7 @@
 import {
   AISelectActionAndTarget,
+  ActionCommand,
+  ActionCommandPayload,
   AdventuringParty,
   Battle,
   CombatantContext,
@@ -12,6 +14,7 @@ import {
 import { GameServer } from "../../index.js";
 import { checkForWipes } from "../combat-action-results-processing/check-for-wipes.js";
 import { processCombatAction } from "./process-combat-action.js";
+import { getBattleConclusionCommandAndPayload } from "../action-command-handlers/get-battle-conclusion-command-and-payload.js";
 
 export async function processBattleUntilPlayerTurnOrConclusion(
   gameServer: GameServer,
@@ -31,22 +34,24 @@ export async function processBattleUntilPlayerTurnOrConclusion(
     battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
 
     if (battleConcluded) {
-      // const conclusionResult = await getBattleConclusionCommandAndPayload(
-      //   game,
-      //   party,
-      //   partyWipesResult
-      // );
-      // if (conclusionResult instanceof Error) return conclusionResult;
-      // party.actionCommandQueue.enqueueNewCommands([conclusionResult.command]);
-      // const payloadsResult = await party.actionCommandQueue.processCommands();
-      // if (payloadsResult instanceof Error) return payloadsResult;
-      // actionCommandPayloads.push(conclusionResult.payload);
-      // const payloadsCommands = payloadsResult.map(
-      //   (item) => new ActionCommand(game.name, "", item, gameServer)
-      // );
-      // party.actionCommandQueue.enqueueNewCommands(payloadsCommands);
-      // await party.actionCommandQueue.processCommands();
-      // actionCommandPayloads.push(...payloadsResult);
+      let actionCommandPayloads: ActionCommandPayload[] = [];
+      const conclusion = await getBattleConclusionCommandAndPayload(game, party, partyWipesResult);
+      actionCommandPayloads.push(conclusion.payload);
+      party.actionCommandQueue.enqueueNewCommands([conclusion.command]);
+      const payloadsResult = await party.actionCommandQueue.processCommands();
+      if (payloadsResult instanceof Error) return payloadsResult;
+      actionCommandPayloads.push(...payloadsResult);
+      const payloadsCommands = payloadsResult.map(
+        (item) => new ActionCommand(game.name, item, gameServer)
+      );
+      party.actionCommandQueue.enqueueNewCommands(payloadsCommands);
+      await party.actionCommandQueue.processCommands();
+      actionCommandPayloads.push(...payloadsResult);
+
+      gameServer.io
+        .in(getPartyChannelName(game.name, party.name))
+        .emit(ServerToClientEvent.ActionCommandPayloads, actionCommandPayloads);
+      break;
     }
 
     const activeCombatantResult = SpeedDungeonGame.getCombatantById(

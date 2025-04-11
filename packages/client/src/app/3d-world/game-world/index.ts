@@ -116,6 +116,7 @@ export class GameWorld {
       vfx.animationManager.handleCompletedAnimations();
       vfx.animationManager.stepAnimationTransitionWeights();
     }
+
     for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
       combatantModel.highlightManager.updateHighlight();
       combatantModel.movementManager.processActiveActions();

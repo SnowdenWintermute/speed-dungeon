@@ -117,7 +117,6 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       if (this.playing.options.onComplete && !this.playing.options.shouldLoop) {
         this.playing.options.onComplete();
         this.playing.onCompleteRan = true;
-        console.log("ran onComplete for", this.playing.getName());
       }
     }
   }
