@@ -19,7 +19,7 @@ import acknowledgeReceiptOfItemOnGroundHandler from "./acknowledge-receipt-of-it
 import { selectCombatActionHandler } from "./select-combat-action-handler.js";
 import { cycleTargetsHandler } from "./cycle-targets-handler.js";
 import { cycleTargetingSchemesHandler } from "./cycle-targeting-schemes-handler.js";
-import useSelectedCombatActionHandler from "./character-uses-selected-combat-action-handler/index.js";
+import { useSelectedCombatActionHandler } from "./character-uses-selected-combat-action-handler/index.js";
 import characterSpentAttributePointHandler from "./character-spent-attribute-point-handler.js";
 import selectHoldableHotswapSlotHandler from "./select-holdable-hotswap-slot-handler.js";
 import { prohibitInCombat } from "../event-middleware/prohibit-in-combat.js";

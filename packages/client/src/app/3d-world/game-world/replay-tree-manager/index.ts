@@ -1,4 +1,5 @@
 import {
+  CombatActionReplayTreePayload,
   EntityId,
   GameUpdateCommand,
   InputLock,
@@ -12,7 +13,7 @@ import getCurrentParty from "@/utils/getCurrentParty";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
 
 export class ReplayTreeManager {
-  private queue: NestedNodeReplayEvent[] = [];
+  private queue: { root: NestedNodeReplayEvent; onComplete: () => void }[] = [];
   private current: null | ReplayTreeProcessor = null;
   private preSpawnedVfx: { [id: EntityId]: VfxModel } = {};
   constructor() {}
@@ -21,9 +22,9 @@ export class ReplayTreeManager {
     return this.current;
   }
 
-  async enqueueTree(tree: NestedNodeReplayEvent) {
-    console.log("new tree:", tree.events);
-    this.queue.push(tree);
+  async enqueueTree(payload: CombatActionReplayTreePayload, onComplete: () => void) {
+    console.log("new tree:", payload);
+    this.queue.push({ root: payload.root, onComplete });
 
     useGameStore.getState().mutateState((state) => {
       const partyOption = getCurrentParty(state, state.username || "");
@@ -50,13 +51,17 @@ export class ReplayTreeManager {
 
   startNext() {
     const nextOption = this.queue.shift();
-    this.current = nextOption ? new ReplayTreeProcessor(nextOption) : null;
+    this.current = nextOption
+      ? new ReplayTreeProcessor(nextOption.root, nextOption.onComplete)
+      : null;
   }
 
   process() {
     if (this.current) this.current.processBranches();
     if (this.currentTreeCompleted()) {
       if (this.current !== null) {
+        this.current.onComplete();
+
         useGameStore.getState().mutateState((state) => {
           const partyOption = getCurrentParty(state, state.username || "");
           if (partyOption) InputLock.unlockInput(partyOption.inputLock);
@@ -71,7 +76,10 @@ export class ReplayTreeManager {
 export class ReplayTreeProcessor {
   activeBranches: ReplayBranchProcessor[] = [];
 
-  constructor(private root: NestedNodeReplayEvent) {
+  constructor(
+    root: NestedNodeReplayEvent,
+    public onComplete: () => void
+  ) {
     this.activeBranches.push(new ReplayBranchProcessor(root, this.activeBranches));
   }
 

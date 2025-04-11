@@ -70,17 +70,7 @@ const config: CombatActionComponentConfig = {
   // },
   getResourceCosts: () => null,
   getExecutionTime: () => DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
-  requiresCombatTurn: (user) => {
-    for (const holdableSlotType of iterateNumericEnum(HoldableSlotType)) {
-      const equipmentOption = CombatantEquipment.getEquippedHoldable(user, holdableSlotType);
-      if (!equipmentOption) continue;
-      const { equipmentType } = equipmentOption.equipmentBaseItemProperties.taggedBaseEquipment;
-      if (Equipment.isBroken(equipmentOption)) continue;
-      if (Equipment.isTwoHanded(equipmentType)) return true;
-      if (equipmentType === EquipmentType.Shield) return true;
-    }
-    return false;
-  },
+  requiresCombatTurn: () => true,
 
   getResolutionSteps() {
     return [

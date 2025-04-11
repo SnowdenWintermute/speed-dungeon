@@ -62,7 +62,7 @@ export default function setFocusedCharacter(id: string) {
     ) {
       websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
         characterId: characterSwitchingFocusAwayFromId,
-        combatActionOption: null,
+        combatActionNameOption: null,
       });
     }
   });

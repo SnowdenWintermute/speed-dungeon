@@ -78,6 +78,9 @@ export class GameServer implements ActionCommandReceiver {
       });
     }
   }
+  endActiveCombatantTurn: () => Promise<void | Error> = async () => {
+    // only used by client
+  };
   // UTILS
   getSocketCurrentGame = getSocketCurrentGame;
   getSocketIdOfPlayer = getSocketIdOfPlayer;

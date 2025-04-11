@@ -49,9 +49,13 @@ const config: CombatActionComponentConfig = {
   userShouldMoveHomeOnComplete: true,
   getResourceCosts: () => null,
   getExecutionTime: () => DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
-  requiresCombatTurn: (user) => {
+  requiresCombatTurn: (context) => {
+    console.log("checkin if attack ranged main hand requiresCombatTurn");
     for (const holdableSlotType of iterateNumericEnum(HoldableSlotType)) {
-      const equipmentOption = CombatantEquipment.getEquippedHoldable(user, holdableSlotType);
+      const equipmentOption = CombatantEquipment.getEquippedHoldable(
+        context.combatantContext.combatant.combatantProperties,
+        holdableSlotType
+      );
       if (!equipmentOption) continue;
       const { equipmentType } = equipmentOption.equipmentBaseItemProperties.taggedBaseEquipment;
       if (Equipment.isBroken(equipmentOption)) continue;

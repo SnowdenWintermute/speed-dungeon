@@ -2,8 +2,10 @@ import {
   AISelectActionAndTarget,
   ActionCommand,
   ActionCommandPayload,
+  ActionCommandType,
   AdventuringParty,
   Battle,
+  CombatActionReplayTreePayload,
   CombatantContext,
   CombatantTurnTracker,
   ERROR_MESSAGES,
@@ -46,7 +48,6 @@ export async function processBattleUntilPlayerTurnOrConclusion(
       );
       party.actionCommandQueue.enqueueNewCommands(payloadsCommands);
       await party.actionCommandQueue.processCommands();
-      actionCommandPayloads.push(...payloadsResult);
 
       gameServer.io
         .in(getPartyChannelName(game.name, party.name))
@@ -74,10 +75,12 @@ export async function processBattleUntilPlayerTurnOrConclusion(
 
     const actionIntent = AISelectActionAndTarget(game, activeCombatantResult, battleGroupsResult);
     if (actionIntent instanceof Error) throw actionIntent;
+    let skippedTurn = false;
     if (actionIntent === null) {
       // they skipped their turn due to no valid action
       console.log("ai skipped turn");
       const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, battleOption);
+      skippedTurn = true;
       if (maybeError instanceof Error) return maybeError;
       newActiveCombatantTrackerOption = battleOption?.turnTrackers[0];
       continue;
@@ -89,70 +92,23 @@ export async function processBattleUntilPlayerTurnOrConclusion(
     );
 
     if (replayTreeResult instanceof Error) return replayTreeResult;
-    // replayTree.events.push(replayTreeResult);
-
-    const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, battleOption);
-    if (maybeError instanceof Error) return maybeError;
+    const { rootReplayNode, endedTurn } = replayTreeResult;
 
     newActiveCombatantTrackerOption = battleOption?.turnTrackers[0];
 
+    const payload: CombatActionReplayTreePayload = {
+      type: ActionCommandType.CombatActionReplayTree,
+      actionUserId: activeCombatantResult.entityProperties.id,
+      root: rootReplayNode,
+    };
+    const payloads: ActionCommandPayload[] = [payload];
+    if (endedTurn || skippedTurn) {
+      console.log("sending ended turn payload");
+      payloads.push({ type: ActionCommandType.EndActiveCombatantTurn });
+    }
+
     gameServer.io
       .in(getPartyChannelName(game.name, party.name))
-      .emit(ServerToClientEvent.ActionResultReplayTree, {
-        actionUserId: activeCombatantResult.entityProperties.id,
-        replayTree: replayTreeResult,
-      });
-
-    // @TODO - conform to the new ai behavior tree and action processing system
-    // const aiActionCommandPayloadsResult = await getAIControlledTurnActionCommandPayloads(
-    //   game,
-    //   party,
-    //   activeCombatantResult
-    // );
-    // if (aiActionCommandPayloadsResult instanceof Error) return aiActionCommandPayloadsResult;
-    // const aiActionCommands = aiActionCommandPayloadsResult.map(
-    //   (item) =>
-    //     new ActionCommand(game.name, activeCombatantResult.entityProperties.id, item, gameServer)
-    // );
-
-    // party.actionCommandQueue.enqueueNewCommands(aiActionCommands);
-    // // we may generate more payloads from processing the current commands, such as game messages about wipes
-    // const newPayloadsResult = await party.actionCommandQueue.processCommands();
-    // if (newPayloadsResult instanceof Error) return newPayloadsResult;
-    // actionCommandPayloads.push(...aiActionCommandPayloadsResult);
-
-    // const newPayloadsCommands = newPayloadsResult.map(
-    //   (item) =>
-    //     new ActionCommand(game.name, activeCombatantResult.entityProperties.id, item, gameServer)
-    // );
-    // party.actionCommandQueue.enqueueNewCommands(newPayloadsCommands);
-
-    // actionCommandPayloads.push(...newPayloadsResult);
-
-    // if (!party.characterPositions[0]) return new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
-    // partyWipesResult = checkForWipes(game, party.characterPositions[0], party.battleId);
-    // if (partyWipesResult instanceof Error) return partyWipesResult;
-    // battleConcluded = partyWipesResult.alliesDefeated || partyWipesResult.opponentsDefeated;
+      .emit(ServerToClientEvent.ActionCommandPayloads, payloads);
   }
-
-  // if (battleConcluded) {
-  //   const conclusionResult = await getBattleConclusionCommandAndPayload(
-  //     game,
-  //     party,
-  //     partyWipesResult
-  //   );
-  //   if (conclusionResult instanceof Error) return conclusionResult;
-  //   party.actionCommandQueue.enqueueNewCommands([conclusionResult.command]);
-  //   const payloadsResult = await party.actionCommandQueue.processCommands();
-  //   if (payloadsResult instanceof Error) return payloadsResult;
-  //   actionCommandPayloads.push(conclusionResult.payload);
-
-  //   const payloadsCommands = payloadsResult.map(
-  //     (item) => new ActionCommand(game.name, "", item, gameServer)
-  //   );
-  //   party.actionCommandQueue.enqueueNewCommands(payloadsCommands);
-  //   await party.actionCommandQueue.processCommands();
-
-  //   actionCommandPayloads.push(...payloadsResult);
-  // }
 }

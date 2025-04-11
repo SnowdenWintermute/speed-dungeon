@@ -3,13 +3,14 @@ import {
   ActionResolutionStepType,
   ActionSequenceManagerRegistry,
   COMBAT_ACTIONS,
-  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
   CombatantContext,
   CombatantMotionActionResolutionStep,
+  InputLock,
   NestedNodeReplayEvent,
   ReplayEventType,
   SequentialIdGenerator,
+  SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { ANIMATION_LENGTHS, idGenerator } from "../../../singletons.js";
 import { CombatActionAnimationPhase } from "@speed-dungeon/common";
@@ -45,6 +46,9 @@ export function processCombatAction(
     });
   }
 
+  InputLock.lockInput(combatantContext.party.inputLock);
+
+  let endedTurn = false;
   while (registry.isNotEmpty()) {
     for (const sequenceManager of registry.getManagers()) {
       let trackerOption = sequenceManager.getCurrentTracker();
@@ -145,6 +149,8 @@ export function processCombatAction(
         // send the user home if the action type necessitates it
         const action = COMBAT_ACTIONS[trackerOption.actionExecutionIntent.actionName];
 
+        if (action.requiresCombatTurn(trackerOption.currentStep.getContext())) endedTurn = true;
+
         if (action.userShouldMoveHomeOnComplete) {
           const returnHomeStep = new CombatantMotionActionResolutionStep(
             trackerOption.currentStep.getContext(),
@@ -176,5 +182,13 @@ export function processCombatAction(
       sequenceManager.getCurrentTracker()?.currentStep.tick(timeToTick);
   }
 
-  return rootReplayNode;
+  InputLock.unlockInput(combatantContext.party.inputLock);
+  const { game, party } = combatantContext;
+  const battleOption = party.battleId ? game.battles[party.battleId] || null : null;
+  if (battleOption && endedTurn) {
+    const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, battleOption);
+    if (maybeError instanceof Error) return maybeError;
+  }
+
+  return { rootReplayNode, endedTurn };
 }

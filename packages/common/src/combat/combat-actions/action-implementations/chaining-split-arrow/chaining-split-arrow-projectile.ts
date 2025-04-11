@@ -89,8 +89,8 @@ const config: CombatActionComponentConfig = {
     // @TODO - determine based on equipment
     return [];
   },
-  getChildren: (combatantContext, tracker) => {
-    let cursor = tracker.getPreviousTrackerInSequenceOption();
+  getChildren: (context) => {
+    let cursor = context.tracker.getPreviousTrackerInSequenceOption();
     let numBouncesSoFar = 0;
     while (cursor) {
       if (cursor.actionExecutionIntent.actionName === CombatActionName.ChainingSplitArrowProjectile)
@@ -98,10 +98,13 @@ const config: CombatActionComponentConfig = {
       cursor = cursor.getPreviousTrackerInSequenceOption();
     }
 
-    const previousTrackerInSequenceOption = tracker.getPreviousTrackerInSequenceOption();
+    const previousTrackerInSequenceOption = context.tracker.getPreviousTrackerInSequenceOption();
     if (!previousTrackerInSequenceOption) return [];
 
-    const filteredPossibleTargetIdsResult = getBouncableTargets(combatantContext, tracker);
+    const filteredPossibleTargetIdsResult = getBouncableTargets(
+      context.combatantContext,
+      context.tracker
+    );
     if (filteredPossibleTargetIdsResult instanceof Error) return [];
 
     if (numBouncesSoFar < MAX_BOUNCES && filteredPossibleTargetIdsResult.possibleTargetIds.length)

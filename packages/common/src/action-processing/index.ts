@@ -13,10 +13,12 @@ import { BattleConclusion } from "../battle/index.js";
 import { Consumable } from "../items/consumables/index.js";
 import { Equipment } from "../items/equipment/index.js";
 import { GameMessageType } from "../packets/game-message.js";
+import { EntityId } from "../primatives/index.js";
 import { NestedNodeReplayEvent } from "./replay-events.js";
 
 export enum ActionCommandType {
   CombatActionReplayTree,
+  EndActiveCombatantTurn,
   BattleResult,
   GameMessages,
   RemovePlayerFromGame,
@@ -24,6 +26,7 @@ export enum ActionCommandType {
 
 export type CombatActionReplayTreePayload = {
   type: ActionCommandType.CombatActionReplayTree;
+  actionUserId: EntityId;
   root: NestedNodeReplayEvent;
 };
 
@@ -51,15 +54,21 @@ export type RemovePlayerFromGamePayload = {
   username: string;
 };
 
+export type EndActiveCombatantTurnPayload = {
+  type: ActionCommandType.EndActiveCombatantTurn;
+};
+
 export type ActionCommandPayload =
   | CombatActionReplayTreePayload
   | BattleResultActionCommandPayload
   | GameMessagesPayload
-  | RemovePlayerFromGamePayload;
+  | RemovePlayerFromGamePayload
+  | EndActiveCombatantTurnPayload;
 
 export const ACTION_COMMAND_TYPE_STRINGS: Record<ActionCommandType, string> = {
   [ActionCommandType.CombatActionReplayTree]: "Combat Action Replay Tree",
   [ActionCommandType.BattleResult]: "Battle result",
   [ActionCommandType.GameMessages]: "Game messages",
   [ActionCommandType.RemovePlayerFromGame]: "Remove player from game",
+  [ActionCommandType.EndActiveCombatantTurn]: "EndActiveCombatantTurn",
 };

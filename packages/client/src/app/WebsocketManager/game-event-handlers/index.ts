@@ -27,7 +27,8 @@ import { characterDroppedShardsHandler } from "./character-dropped-shards-handle
 import characterPurchasedItemHandler from "./character-purchased-item-handler";
 import { characterPerformedCraftingActionHandler } from "./character-performed-crafting-action-handler";
 import { playerPostedItemLinkHandler } from "./player-posted-item-link-handler";
-import { newActionReplayTreeHandler } from "./new-action-replay-tree-handler";
+import { gameWorld } from "@/app/3d-world/SceneManager";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 export default function setUpGameEventHandlers(
   socket: Socket<ServerToClientEventTypes, ClientToServerEventTypes>
@@ -84,5 +85,16 @@ export default function setUpGameEventHandlers(
     characterPerformedCraftingActionHandler
   );
   socket.on(ServerToClientEvent.PlayerPostedItemLink, playerPostedItemLinkHandler);
-  socket.on(ServerToClientEvent.ActionResultReplayTree, newActionReplayTreeHandler);
+
+  socket.on(ServerToClientEvent.ActionCommandPayloads, (payloads) => {
+    if (!gameWorld.current)
+      return console.error("Got action command payloads but no game world was found");
+
+    console.log("got payloads: ", payloads);
+
+    gameWorld.current.modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.ProcessActionCommands,
+      actionCommandPayloads: payloads,
+    });
+  });
 }

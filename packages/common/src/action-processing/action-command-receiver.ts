@@ -16,4 +16,5 @@ export interface ActionCommandReceiver {
     partyChannelToExcludeOption?: string
   ) => Promise<Error | void>;
   removePlayerFromGameCommandHandler: (username: string) => Promise<Error | void>;
+  endActiveCombatantTurn: () => Promise<Error | void>;
 }

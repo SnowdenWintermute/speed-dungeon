@@ -20,7 +20,6 @@ export enum GameUpdateCommandType {
   ResourcesPaid,
   ActivatedTriggers,
   HitOutcomes,
-  EndTurn,
 }
 
 // UPDATE TYPES
@@ -52,7 +51,6 @@ export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, str
   [GameUpdateCommandType.ResourcesPaid]: "Resources Paid",
   [GameUpdateCommandType.ActivatedTriggers]: "Activated Triggers",
   [GameUpdateCommandType.HitOutcomes]: "Hit Outcomes",
-  [GameUpdateCommandType.EndTurn]: "End Turn",
 };
 
 export type GameEntity = Combatant | Vfx;

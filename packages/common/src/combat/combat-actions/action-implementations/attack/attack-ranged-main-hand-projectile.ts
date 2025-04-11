@@ -11,7 +11,6 @@ import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
-import { CombatantContext } from "../../../../combatant-context/index.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import {
@@ -22,7 +21,6 @@ import { TargetingCalculator } from "../../../targeting/targeting-calculator.js"
 import { getAttackHpChangeProperties } from "./get-attack-hp-change-properties.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { PrimedForExplosionCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-explosion.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -76,7 +74,7 @@ const config: CombatActionComponentConfig = {
     return [];
     // return [primedForExplosionCondition];
   },
-  getChildren: (combatantContext, tracker) => [],
+  getChildren: (context) => [],
   getParent: () => ATTACK_RANGED_MAIN_HAND,
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
   getConcurrentSubActions() {

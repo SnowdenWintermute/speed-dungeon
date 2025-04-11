@@ -82,7 +82,7 @@ export interface CombatActionComponentConfig {
     self: CombatActionComponent
   ) => null | ActionResourceCosts;
   getExecutionTime: () => number;
-  requiresCombatTurn: (user: CombatantProperties) => boolean;
+  requiresCombatTurn: (context: ActionResolutionStepContext) => boolean;
   /** A numeric percentage which will be used against the target's evasion */
   getUnmodifiedAccuracy: (user: CombatantProperties) => ActionAccuracy;
   /** A numeric percentage which will be used against the target's crit avoidance */
@@ -99,10 +99,7 @@ export interface CombatActionComponentConfig {
   getCanTriggerCounterattack: (user: CombatantProperties) => boolean;
 
   getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
-  getChildren: (
-    combatantContext: CombatantContext,
-    tracker: ActionTracker
-  ) => CombatActionComponent[];
+  getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
   getConcurrentSubActions?: (combatantContext: CombatantContext) => CombatActionExecutionIntent[];
   getParent: () => CombatActionComponent | null;
   getResolutionSteps: () => ActionResolutionStepType[];
@@ -165,7 +162,7 @@ export abstract class CombatActionComponent {
       (context: ActionResolutionStepContext) => Error | null | EntityDestination
     >
   >;
-  requiresCombatTurn: (user: CombatantProperties) => boolean;
+  requiresCombatTurn: (context: ActionResolutionStepContext) => boolean;
   getResourceCosts: (user: CombatantProperties) => null | ActionResourceCosts;
   getAccuracy: (user: CombatantProperties) => ActionAccuracy;
   getIsParryable: (user: CombatantProperties) => boolean;
@@ -186,10 +183,7 @@ export abstract class CombatActionComponent {
   // spell levels (level 1 chain lightning only gets 1 ChainLightningArc child) or other status
   // (energetic swings could do multiple attacks based on user's current percent of max hp)
   // could also create random children such as a chaining random elemental damage
-  getChildren: (
-    combatantContext: CombatantContext,
-    tracker: ActionTracker
-  ) => CombatActionComponent[];
+  getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
   getConcurrentSubActions: (combatantContext: CombatantContext) => CombatActionExecutionIntent[] =
     () => [];
   getResolutionSteps: () => ActionResolutionStepType[];

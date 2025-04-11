@@ -1,8 +1,4 @@
-import {
-  COMBAT_ACTIONS,
-  COMBAT_ACTION_NAME_STRINGS,
-  CombatActionExecutionIntent,
-} from "../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../combat/index.js";
 import { CombatantContext } from "../combatant-context/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { Milliseconds } from "../primatives/index.js";
@@ -52,7 +48,12 @@ export class ActionSequenceManager {
     if (!currentActionExecutionIntent || !this.currentTracker) return;
     const currentAction = COMBAT_ACTIONS[currentActionExecutionIntent.actionName];
 
-    const children = currentAction.getChildren(this.combatantContext, this.currentTracker);
+    const children = currentAction.getChildren({
+      combatantContext: this.combatantContext,
+      tracker: this.currentTracker,
+      manager: this,
+      idGenerator: this.idGenerator,
+    });
 
     const childActionIntentResults = children.map((action) => {
       const targets = action.getAutoTarget(this.combatantContext, this.currentTracker);

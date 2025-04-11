@@ -68,7 +68,7 @@ export enum ServerToClientEvent {
   CharacterPurchasedItem = "43",
   CharacterPerformedCraftingAction = "44",
   PlayerPostedItemLink = "45",
-  ActionResultReplayTree = "46",
+  // ActionResultReplayTree = "46",
 }
 
 export interface ServerToClientEventTypes {
@@ -184,10 +184,10 @@ export interface ServerToClientEventTypes {
     username: string;
     itemId: EntityId;
   }) => void;
-  [ServerToClientEvent.ActionResultReplayTree]: (eventData: {
-    actionUserId: EntityId;
-    replayTree: NestedNodeReplayEvent;
-  }) => void;
+  // [ServerToClientEvent.ActionResultReplayTree]: (eventData: {
+  //   actionUserId: EntityId;
+  //   replayTree: NestedNodeReplayEvent;
+  // }) => void;
 }
 
 export interface CharacterAndItem {

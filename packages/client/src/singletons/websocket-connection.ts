@@ -66,18 +66,6 @@ websocketConnection.on(ServerToClientEvent.ErrorMessage, (message) => {
   });
 });
 
-websocketConnection.on(ServerToClientEvent.ActionCommandPayloads, (payloads) => {
-  if (!gameWorld.current)
-    return console.error("Got action command payloads but no game world was found");
-
-  console.log("got payloads: ", payloads);
-
-  gameWorld.current.modelManager.modelActionQueue.enqueueMessage({
-    type: ModelActionType.ProcessActionCommands,
-    actionCommandPayloads: payloads,
-  });
-});
-
 setUpBasicLobbyEventHandlers(websocketConnection);
 setUpGameLobbyEventHandlers(websocketConnection);
 setUpGameEventHandlers(websocketConnection);

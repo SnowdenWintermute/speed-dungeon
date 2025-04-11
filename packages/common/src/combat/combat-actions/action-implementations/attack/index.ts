@@ -23,7 +23,10 @@ import { ATTACK_MELEE_OFF_HAND } from "./attack-melee-off-hand.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import {
+  ActionResolutionStepContext,
+  ActionResolutionStepType,
+} from "../../../../action-processing/index.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
@@ -51,9 +54,9 @@ const config: CombatActionComponentConfig = {
     // @TODO - determine based on equipment
     throw new Error("Function not implemented.");
   },
-  getChildren: function (combatantContext: CombatantContext): CombatActionComponent[] {
+  getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
     const toReturn: CombatActionComponent[] = [];
-    const user = combatantContext.combatant.combatantProperties;
+    const user = context.combatantContext.combatant.combatantProperties;
     const mainHandEquipmentOption = CombatantEquipment.getEquipmentInSlot(user, {
       type: EquipmentSlotType.Holdable,
       slot: HoldableSlotType.MainHand,
@@ -66,7 +69,7 @@ const config: CombatActionComponentConfig = {
       toReturn.push(ATTACK_RANGED_MAIN_HAND);
     } else {
       toReturn.push(ATTACK_MELEE_MAIN_HAND);
-      if (!ATTACK_MELEE_MAIN_HAND.requiresCombatTurn(user)) toReturn.push(ATTACK_MELEE_OFF_HAND);
+      if (!ATTACK_MELEE_MAIN_HAND.requiresCombatTurn(context)) toReturn.push(ATTACK_MELEE_OFF_HAND);
       // const specialExtra = ATTACK_MELEE_MAIN_HAND;
       // if (specialExtra) toReturn.push(specialExtra);
     }
