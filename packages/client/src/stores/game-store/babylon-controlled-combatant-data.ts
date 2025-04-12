@@ -18,7 +18,12 @@ export class CombatantModelDebugMessage {
   ) {}
 }
 
-export function setDebugMessage(combatantId: string, message: string, displayTime: number) {
+export function setDebugMessage(
+  combatantId: string,
+  message: string,
+  displayTime: number,
+  onComplete?: () => void
+) {
   let id: string;
   useGameStore.getState().mutateState((gameState) => {
     id = gameState.lastDebugMessageId.toString();
@@ -32,6 +37,7 @@ export function setDebugMessage(combatantId: string, message: string, displayTim
     gameState.lastDebugMessageId += 1;
   });
   setTimeout(() => {
+    if (onComplete) onComplete();
     useGameStore.getState().mutateState((gameState) => {
       removeDebugMessage(gameState, combatantId, id);
     });

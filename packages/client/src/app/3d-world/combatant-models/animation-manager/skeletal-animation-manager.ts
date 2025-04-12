@@ -3,9 +3,11 @@ import { AnimationManager, ManagedAnimation, ManagedAnimationOptions } from ".";
 import { ModularCharacter } from "../modular-character";
 import {
   DEBUG_ANIMATION_SPEED_MULTIPLIER,
+  MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
   SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
 } from "@speed-dungeon/common";
+import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
 
 export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   protected timeStarted: number = Date.now();
@@ -61,6 +63,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
   }
 
   cloneAnimation(animationGroup: AnimationGroup): AnimationGroup {
+    console.log("trying to clone:", animationGroup);
     return animationGroup.clone(animationGroup.name, undefined, true);
   }
 
@@ -69,10 +72,25 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     transitionDuration: number,
     options: ManagedAnimationOptions
   ): Error | void {
+    const clonedAnimation = this.getClonedAnimation(newAnimationName);
+
+    if (clonedAnimation === undefined) {
+      console.log("cloned animatino was undefined", newAnimationName);
+      // send message to client with timout duration to remove itself
+      setDebugMessage(
+        this.characterModel.entityId,
+        `Missing animation: ${newAnimationName}`,
+        MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
+        options.onComplete
+      );
+      return;
+    }
+
     this.previous?.cleanup();
     this.previous = this.playing;
 
-    const clonedAnimation = this.getClonedAnimation(newAnimationName);
+    console.log("got here", clonedAnimation);
+
     this.playing = new ManagedSkeletalAnimation(clonedAnimation, transitionDuration, options);
 
     const animationStockDuration = clonedAnimation.getLength() * 1000;
@@ -126,14 +144,13 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     // alternatives to some missing animations
     if (newAnimationGroup === undefined) {
       const fallbackName = this.getFallbackAnimationName(name);
+
       if (fallbackName !== undefined)
         newAnimationGroup = this.getAnimationGroupByName(fallbackName);
-
-      if (newAnimationGroup === undefined)
-        throw new Error(`no animation found ${SKELETAL_ANIMATION_NAME_STRINGS[name]}`);
     }
 
-    return this.cloneAnimation(newAnimationGroup);
+    if (newAnimationGroup === undefined) return undefined;
+    else return this.cloneAnimation(newAnimationGroup);
   }
 
   getAnimationGroupByName(animationName: SkeletalAnimationName) {
@@ -149,6 +166,36 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
 
   getFallbackAnimationName(animationName: SkeletalAnimationName) {
     // if (animationName === AnimationName.MeleeOffHand) return AnimationName.MeleeMainHand;
+    const chamberingNames = [
+      SkeletalAnimationName.MainHandStabChambering,
+      SkeletalAnimationName.MainHandSwingChambering,
+      SkeletalAnimationName.OffHandStabChambering,
+      SkeletalAnimationName.OffHandSwingChambering,
+      SkeletalAnimationName.CastSpellChambering,
+      SkeletalAnimationName.BowChambering,
+    ];
+    if (chamberingNames.includes(animationName))
+      return SkeletalAnimationName.MainHandUnarmedChambering;
+    const deliveryNames = [
+      SkeletalAnimationName.MainHandStabDelivery,
+      SkeletalAnimationName.MainHandSwingDelivery,
+      SkeletalAnimationName.OffHandStabDelivery,
+      SkeletalAnimationName.OffHandSwingDelivery,
+      SkeletalAnimationName.CastSpellDelivery,
+      SkeletalAnimationName.BowDelivery,
+    ];
+
+    if (deliveryNames.includes(animationName)) return SkeletalAnimationName.MainHandUnarmedDelivery;
+    const recoveryNames = [
+      SkeletalAnimationName.MainHandStabRecovery,
+      SkeletalAnimationName.MainHandSwingRecovery,
+      SkeletalAnimationName.OffHandStabRecovery,
+      SkeletalAnimationName.OffHandSwingRecovery,
+      SkeletalAnimationName.CastSpellRecovery,
+      SkeletalAnimationName.BowRecovery,
+    ];
+    if (recoveryNames.includes(animationName)) return SkeletalAnimationName.MainHandUnarmedRecovery;
+
     if (animationName === SkeletalAnimationName.MoveBack)
       return SkeletalAnimationName.MoveForwardLoop;
     const idleAnimationNames = [
