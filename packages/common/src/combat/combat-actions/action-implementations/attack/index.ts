@@ -22,7 +22,6 @@ import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
 import { ATTACK_MELEE_OFF_HAND } from "./attack-melee-off-hand.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
-import { CombatantContext } from "../../../../combatant-context/index.js";
 import {
   ActionResolutionStepContext,
   ActionResolutionStepType,

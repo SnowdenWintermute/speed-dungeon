@@ -18,11 +18,6 @@ import {
   CombatActionComponent,
 } from "../../combat/index.js";
 import { getTranslationTime } from "../../combat/combat-actions/action-implementations/get-translation-time.js";
-import {
-  AnimationType,
-  DYNAMIC_ANIMATION_NAME_STRINGS,
-  SKELETAL_ANIMATION_NAME_STRINGS,
-} from "../../app-consts.js";
 
 export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   private translationOption: null | EntityTranslation = null;
@@ -43,17 +38,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
 
     const animationOption = this.getAnimation();
-    // console.log("step:", ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType], animationOption);
-    // if (animationOption) {
-    //   switch (animationOption.name.type) {
-    //     case AnimationType.Skeletal:
-    //       console.log(SKELETAL_ANIMATION_NAME_STRINGS[animationOption.name.name]);
-    //       break;
-    //     case AnimationType.Dynamic:
-    //       console.log(DYNAMIC_ANIMATION_NAME_STRINGS[animationOption.name.name]);
-    //       break;
-    //   }
-    // }
+
     if (animationOption) {
       this.animationOption = animationOption;
       this.gameUpdateCommand.animationOption = animationOption;
