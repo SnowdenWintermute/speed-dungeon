@@ -30,8 +30,6 @@ import {
   iterateNumericEnumKeyedRecord,
   CombatantEquipment,
   EquipmentType,
-  iterateNumericEnum,
-  chooseRandomFromArray,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import { MONSTER_SCALING_SIZES } from "../monster-scaling-sizes";
@@ -50,6 +48,7 @@ import { SkeletalAnimationManager } from "../animation-manager/skeletal-animatio
 import { useGameStore } from "@/stores/game-store";
 import { ManagedAnimationOptions } from "../animation-manager";
 import { plainToInstance } from "class-transformer";
+import { useLobbyStore } from "@/stores/lobby-store";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -171,6 +170,20 @@ export class ModularCharacter {
     });
   }
 
+  getCombatant() {
+    let combatantResult = useGameStore.getState().getCombatant(this.entityId);
+    if (combatantResult instanceof Error) {
+      for (const [slotNumberString, combatantOption] of Object.entries(
+        useLobbyStore.getState().savedCharacters
+      )) {
+        if (combatantOption?.entityProperties.id === this.entityId)
+          combatantResult = combatantOption;
+      }
+    }
+    if (combatantResult instanceof Error) throw combatantResult;
+    return combatantResult;
+  }
+
   getIdleAnimationName() {
     if (
       this.monsterType !== null &&
@@ -178,9 +191,9 @@ export class ModularCharacter {
       this.monsterType !== MonsterType.FireMage
     )
       return SkeletalAnimationName.IdleUnarmed;
-    const combatantResult = useGameStore.getState().getCombatant(this.entityId);
-    if (combatantResult instanceof Error) throw combatantResult;
-    const { combatantProperties } = combatantResult;
+    const combatant = this.getCombatant();
+
+    const { combatantProperties } = combatant;
     const offHandOption = CombatantEquipment.getEquippedHoldable(
       combatantProperties,
       HoldableSlotType.OffHand

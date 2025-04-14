@@ -1,7 +1,5 @@
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
-import { nextToBabylonMessageQueue } from "@/singletons/next-to-babylon-message-queue";
 import { useLobbyStore } from "@/stores/lobby-store";
-import { NextToBabylonMessageTypes } from "@/singletons/next-to-babylon-message-queue";
 import { Vector3 } from "@babylonjs/core";
 import {
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,

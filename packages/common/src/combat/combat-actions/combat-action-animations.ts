@@ -38,7 +38,7 @@ export function getFallbackAnimationWithLength(
   const animationNameString = SKELETAL_ANIMATION_NAME_STRINGS[animationName];
   const animationLengthOption = speciesAnimations[animationNameString];
 
-  const toReturn: EntityAnimation = {
+  let toReturn: EntityAnimation = {
     name: { type: AnimationType.Skeletal, name: animationName },
     timing: {
       type: AnimationTimingType.Timed,
@@ -47,6 +47,7 @@ export function getFallbackAnimationWithLength(
   };
 
   if (animationLengthOption !== undefined || lastTry) {
+    console.log("animation length: ", animationLengthOption);
     if (toReturn.timing.type === AnimationTimingType.Timed)
       toReturn.timing.duration = animationLengthOption || 0;
     return toReturn;
@@ -61,7 +62,7 @@ export function getFallbackAnimationWithLength(
     SkeletalAnimationName.BowChambering,
   ];
   if (chamberingNames.includes(animationName))
-    return getFallbackAnimationWithLength(
+    toReturn = getFallbackAnimationWithLength(
       SkeletalAnimationName.MainHandUnarmedChambering,
       speciesAnimations,
       true
@@ -76,7 +77,7 @@ export function getFallbackAnimationWithLength(
   ];
 
   if (deliveryNames.includes(animationName))
-    return getFallbackAnimationWithLength(
+    toReturn = getFallbackAnimationWithLength(
       SkeletalAnimationName.MainHandUnarmedDelivery,
       speciesAnimations,
       true
@@ -90,11 +91,13 @@ export function getFallbackAnimationWithLength(
     SkeletalAnimationName.BowRecovery,
   ];
   if (recoveryNames.includes(animationName))
-    return getFallbackAnimationWithLength(
+    toReturn = getFallbackAnimationWithLength(
       SkeletalAnimationName.MainHandUnarmedRecovery,
       speciesAnimations,
       true
     );
+
+  console.log("selected alternative: ", SKELETAL_ANIMATION_NAME_STRINGS[toReturn.name.name]);
 
   return toReturn;
 }

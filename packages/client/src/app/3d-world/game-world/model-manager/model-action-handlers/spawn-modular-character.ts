@@ -8,7 +8,7 @@ import {
 } from "@speed-dungeon/common";
 import { importMesh } from "../../../utils";
 import { GameWorld } from "../../";
-import { ISceneLoaderAsyncResult, Vector3 } from "@babylonjs/core";
+import { ISceneLoaderAsyncResult } from "@babylonjs/core";
 import { getModularCharacterPartCategoriesAndAssetPaths } from "./get-modular-character-parts";
 import { setModularCharacterPartDefaultMaterials } from "./set-modular-character-part-default-materials";
 
