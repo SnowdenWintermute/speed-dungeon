@@ -28,20 +28,16 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
       };
 
       if (consumableTypeToConsumeOption !== undefined) {
-        console.log("trying to pay consumable item cost");
         const { inventory } = combatant.combatantProperties;
         const consumableOption = Inventory.getConsumableByType(
           inventory,
           consumableTypeToConsumeOption
         );
-        console.log("consumableOption:", consumableOption);
         if (consumableOption) {
           const removed = Inventory.removeConsumable(
             inventory,
             consumableOption.entityProperties.id
           );
-          console.log("removed consumable", removed);
-
           gameUpdateCommandOption.itemsConsumed = [consumableOption.entityProperties.id];
         }
       }

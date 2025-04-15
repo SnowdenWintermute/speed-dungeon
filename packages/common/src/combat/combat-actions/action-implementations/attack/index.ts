@@ -48,6 +48,7 @@ const config: CombatActionComponentConfig = {
   shouldExecute: () => true,
   getActionStepAnimations: (context) => null,
   getHpChangeProperties: () => null, // client should display child hp change properties
+  getManaChanges: () => null,
   getAppliedConditions: function (): CombatantCondition[] | null {
     // @TODO - determine based on equipment
     throw new Error("Function not implemented.");

@@ -47,6 +47,12 @@ export const RANGED_ACTIONS_COMMON_CONFIG = {
   getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
     return getStandardActionArmorPenetration(user, CombatAttribute.Dexterity);
   },
+
+  getManaChanges: (
+    user: CombatantProperties,
+    primaryTarget: CombatantProperties,
+    self: CombatActionComponent
+  ) => null,
   getActionStepAnimations: (context: ActionResolutionStepContext) => {
     const { animationLengths } = context.manager.sequentialActionManagerRegistry;
     const speciesLengths =

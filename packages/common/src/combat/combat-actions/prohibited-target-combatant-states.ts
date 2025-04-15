@@ -4,6 +4,7 @@ import { CombatAttribute } from "../../combatants/attributes/index.js";
 
 export enum ProhibitedTargetCombatantStates {
   FullHp,
+  FullMana,
   Dead,
   Alive,
   UntargetableBySpells,
@@ -19,6 +20,12 @@ export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
       CombatAttribute.Hp
     ];
     return combatant.combatantProperties.hitPoints >= maxHp;
+  },
+  [ProhibitedTargetCombatantStates.FullMana]: function (combatant: Combatant): boolean {
+    const maxMp = CombatantProperties.getTotalAttributes(combatant.combatantProperties)[
+      CombatAttribute.Mp
+    ];
+    return combatant.combatantProperties.mana >= maxMp;
   },
   [ProhibitedTargetCombatantStates.Dead]: function (combatant: Combatant): boolean {
     return combatant.combatantProperties.hitPoints <= 0;

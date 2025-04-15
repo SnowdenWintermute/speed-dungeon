@@ -14,7 +14,7 @@ import {
   applyKineticAffinities,
 } from "../../combat-actions/action-calculation-utils/apply-affinities-to-hp-change.js";
 import { getActionHitChance } from "./get-action-hit-chance.js";
-import { CombatantEquipment, CombatantProperties } from "../../../combatants/index.js";
+import { CombatantProperties } from "../../../combatants/index.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { getActionCritChance } from "./get-action-crit-chance.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
@@ -26,11 +26,11 @@ export * from "./get-action-hit-chance.js";
 export * from "./get-action-crit-chance.js";
 export * from "./hp-change-calculation-strategies/index.js";
 export * from "./check-if-target-wants-to-be-hit.js";
-export * from "./hit-point-changes.js";
+export * from "./resource-changes.js";
 
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
-import { HitPointChanges } from "./hit-point-changes.js";
+import { HitPointChanges } from "./resource-changes.js";
 
 export class CombatActionHitOutcomes {
   hitPointChanges?: HitPointChanges;
@@ -55,7 +55,6 @@ export function calculateActionHitOutcomes(
   const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
   const { game, party, combatant } = context.combatantContext;
   const { combatantProperties: user } = combatant;
-  console.log("user: ", combatant.entityProperties.name);
 
   // we need a target to check against to find the best affinity to choose
   // so we'll use the first target for now, until a better system comes to light

@@ -15,7 +15,7 @@ import { TargetCategories, TargetingScheme } from "./targeting-schemes-and-categ
 import { CombatantCondition } from "../../combatants/combatant-conditions/index.js";
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { DurabilityLossCondition } from "./combat-action-durability-loss-condition.js";
-import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "./combat-action-names.js";
+import { CombatActionName } from "./combat-action-names.js";
 import { CombatActionHpChangeProperties } from "./combat-action-hp-change-properties.js";
 import { Battle } from "../../battle/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
@@ -40,6 +40,7 @@ import { CombatActionCombatantAnimations } from "./combat-action-animations.js";
 import { ActionTracker } from "../../action-processing/action-tracker.js";
 import { SpawnableEntity } from "../../spawnables/index.js";
 import { ConsumableType } from "../../items/consumables/index.js";
+import { ManaChanges } from "../action-results/index.js";
 
 export interface CombatActionComponentConfig {
   description: string;
@@ -94,6 +95,12 @@ export interface CombatActionComponentConfig {
     primaryTarget: CombatantProperties,
     self: CombatActionComponent
   ) => null | CombatActionHpChangeProperties;
+
+  getManaChanges: (
+    user: CombatantProperties,
+    primaryTarget: CombatantProperties,
+    self: CombatActionComponent
+  ) => null | ManaChanges;
   getIsParryable: (user: CombatantProperties) => boolean;
   getIsBlockable: (user: CombatantProperties) => boolean;
   getCanTriggerCounterattack: (user: CombatantProperties) => boolean;
@@ -175,6 +182,10 @@ export abstract class CombatActionComponent {
     user: CombatantProperties, // take the user becasue the hp change properties may be affected by equipment
     primaryTarget: CombatantProperties // to select the most effective hp change source properties on target
   ) => null | CombatActionHpChangeProperties;
+  getManaChanges: (
+    user: CombatantProperties,
+    primaryTarget: CombatantProperties
+  ) => null | ManaChanges;
 
   // may be calculated based on combatant equipment or conditions
   getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
@@ -249,6 +260,7 @@ export abstract class CombatActionComponent {
     this.motionPhasePositionGetters = config.motionPhasePositionGetters;
     this.getSpawnableEntity = config.getSpawnableEntity;
     this.getHpChangeProperties = (user, target) => config.getHpChangeProperties(user, target, this);
+    this.getManaChanges = (user, target) => config.getManaChanges(user, target, this);
     this.getAppliedConditions = config.getAppliedConditions;
     this.getChildren = config.getChildren;
     if (config.getConcurrentSubActions)

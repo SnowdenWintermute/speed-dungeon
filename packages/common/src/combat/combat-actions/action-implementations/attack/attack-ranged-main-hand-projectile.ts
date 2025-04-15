@@ -1,4 +1,5 @@
 import {
+  CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -21,6 +22,7 @@ import { TargetingCalculator } from "../../../targeting/targeting-calculator.js"
 import { getAttackHpChangeProperties } from "./get-attack-hp-change-properties.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
+import { CombatantProperties } from "../../../../combatants/index.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -92,6 +94,7 @@ const config: CombatActionComponentConfig = {
       ActionResolutionStepType.EvalOnHitOutcomeTriggers,
     ];
   },
+
   motionPhasePositionGetters: {
     [ActionMotionPhase.Delivery]: (context) => {
       const { combatantContext, tracker } = context;

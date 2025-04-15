@@ -101,6 +101,8 @@ const config: CombatActionComponentConfig = {
 
     return hpChangeProperties;
   },
+
+  getManaChanges: () => null,
   getAppliedConditions: (context) => {
     // @TODO - apply a "burning" condition
     return null;

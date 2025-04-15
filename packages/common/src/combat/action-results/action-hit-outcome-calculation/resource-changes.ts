@@ -5,10 +5,10 @@ import { SpeedDungeonGame } from "../../../game/index.js";
 import { EntityId } from "../../../primatives/index.js";
 import { HpChange } from "../../hp-change-source-types.js";
 
-export class HitPointChanges {
-  private changes: Record<EntityId, HpChange> = {};
+export abstract class ResourceChanges<T> {
+  protected changes: Record<EntityId, T> = {};
   constructor() {}
-  addRecord(entityId: string, change: HpChange) {
+  addRecord(entityId: string, change: T) {
     this.changes[entityId] = change;
   }
 
@@ -19,6 +19,13 @@ export class HitPointChanges {
     return Object.entries(this.changes);
   }
 
+  abstract applyToGame(combatantContext: CombatantContext): void;
+}
+
+export class HitPointChanges extends ResourceChanges<HpChange> {
+  constructor() {
+    super();
+  }
   applyToGame(combatantContext: CombatantContext) {
     const { game, party } = combatantContext;
 
@@ -36,6 +43,30 @@ export class HitPointChanges {
       // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
       if (!combatantWasAliveBeforeHpChange && targetCombatantProperties.hitPoints > 0) {
       }
+    }
+  }
+}
+
+export class ManaChange {
+  constructor(
+    public value: number,
+    public isCrit?: boolean
+  ) {}
+}
+
+export class ManaChanges extends ResourceChanges<ManaChange> {
+  constructor() {
+    super();
+  }
+
+  applyToGame(combatantContext: CombatantContext) {
+    const { party } = combatantContext;
+
+    for (const [targetId, change] of Object.entries(this.changes)) {
+      const targetResult = AdventuringParty.getCombatant(party, targetId);
+      if (targetResult instanceof Error) throw targetResult;
+      const { combatantProperties: targetCombatantProperties } = targetResult;
+      CombatantProperties.changeMana(targetCombatantProperties, change.value);
     }
   }
 }

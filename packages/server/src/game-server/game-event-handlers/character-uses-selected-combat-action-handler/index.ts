@@ -36,7 +36,7 @@ export async function useSelectedCombatActionHandler(
   // validate use
   const action = COMBAT_ACTIONS[selectedCombatAction];
   const actionUseProhibitedMessage = actionUseIsValid(action, targets, combatantContext);
-  console.log("actionUseProhibitedMessage", actionUseProhibitedMessage);
+
   if (actionUseProhibitedMessage instanceof Error) {
     const playerSocketIdResult = gameServer.getSocketIdOfPlayer(game, player.username);
     if (playerSocketIdResult instanceof Error) return console.error(playerSocketIdResult);
