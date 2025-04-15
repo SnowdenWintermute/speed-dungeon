@@ -1,7 +1,10 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import getCombatantInParty from "../../adventuring-party/get-combatant-in-party.js";
 import { TargetCategories } from "../combat-actions/targeting-schemes-and-categories.js";
-import { ProhibitedTargetCombatantStates } from "../combat-actions/prohibited-target-combatant-states.js";
+import {
+  PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS,
+  ProhibitedTargetCombatantStates,
+} from "../combat-actions/prohibited-target-combatant-states.js";
 import { EntityId } from "../../primatives/index.js";
 
 export function filterPossibleTargetIdsByProhibitedCombatantStates(
@@ -47,14 +50,8 @@ function filterTargetIdGroupByProhibitedCombatantStates(
     let targetIsInProhibitedState = false;
 
     for (const combatantState of prohibitedStates) {
-      switch (combatantState) {
-        case ProhibitedTargetCombatantStates.Dead:
-          if (combatantProperties.hitPoints <= 0) targetIsInProhibitedState = true;
-          break;
-        case ProhibitedTargetCombatantStates.Alive:
-          if (combatantProperties.hitPoints > 0) targetIsInProhibitedState = true;
-          break;
-      }
+      targetIsInProhibitedState =
+        PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS[combatantState](combatantResult);
     }
 
     if (targetIsInProhibitedState) continue;

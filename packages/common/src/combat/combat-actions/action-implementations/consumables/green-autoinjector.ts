@@ -58,8 +58,8 @@ const config: CombatActionComponentConfig = {
   shouldExecute: () => true,
   getActionStepAnimations: (context) => {
     const chamberingAnimation = SkeletalAnimationName.UseConsumableChambering;
-    const deliveryAnimation = SkeletalAnimationName.MainHandSwingDelivery;
-    const recoveryAnimation = SkeletalAnimationName.MainHandSwingRecovery;
+    const deliveryAnimation = SkeletalAnimationName.UseConsumableDelivery;
+    const recoveryAnimation = SkeletalAnimationName.UseConsumableRecovery;
 
     const { animationLengths } = context.manager.sequentialActionManagerRegistry;
     const speciesLengths =

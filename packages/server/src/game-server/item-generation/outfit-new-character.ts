@@ -34,6 +34,8 @@ export function outfitNewCharacter(character: Combatant) {
     new CombatantActionState(CombatActionName.ChainingSplitArrowParent);
   combatantProperties.ownedActions[CombatActionName.ExplodingArrowParent] =
     new CombatantActionState(CombatActionName.ExplodingArrowParent);
+  combatantProperties.ownedActions[CombatActionName.UseGreenAutoinjector] =
+    new CombatantActionState(CombatActionName.UseGreenAutoinjector);
 
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
   if (baseStartingAttributesOption) {
@@ -65,6 +67,8 @@ export function outfitNewCharacter(character: Combatant) {
   setExperimentalCombatantProperties(combatantProperties);
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
+
+  combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
 }
 
 function outfitRogue(combatantProperties: CombatantProperties) {

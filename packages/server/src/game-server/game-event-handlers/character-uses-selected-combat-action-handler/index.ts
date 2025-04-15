@@ -1,6 +1,7 @@
 import {
   ActionCommandPayload,
   ActionCommandType,
+  COMBAT_ACTIONS,
   CharacterAssociatedData,
   CombatActionExecutionIntent,
   CombatActionReplayTreePayload,
@@ -13,15 +14,13 @@ import {
 import { getGameServer } from "../../../singletons.js";
 import { processCombatAction } from "./process-combat-action.js";
 import { processBattleUntilPlayerTurnOrConclusion } from "./process-battle-until-player-turn-or-conclusion.js";
+import { actionUseIsValid } from "./action-use-is-valid.js";
 
 export async function useSelectedCombatActionHandler(
   _eventData: { characterId: string },
   characterAssociatedData: CharacterAssociatedData
 ) {
-  // ON RECEIPT
-  // validate use
-
-  const { game, party, character } = characterAssociatedData;
+  const { game, party, character, player } = characterAssociatedData;
   const combatantContext = new CombatantContext(game, party, character);
   const gameServer = getGameServer();
 
@@ -32,6 +31,19 @@ export async function useSelectedCombatActionHandler(
 
   const targets = character.combatantProperties.combatActionTarget;
   if (targets === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
+
+  // ON RECEIPT
+  // validate use
+  const action = COMBAT_ACTIONS[selectedCombatAction];
+  const actionUseProhibitedMessage = actionUseIsValid(action, targets, combatantContext);
+  if (actionUseProhibitedMessage instanceof Error) {
+    const playerSocketIdResult = gameServer.getSocketIdOfPlayer(game, player.username);
+    if (playerSocketIdResult instanceof Error) return console.error(playerSocketIdResult);
+    const playerSocketOption = gameServer.io.sockets.sockets.get(playerSocketIdResult);
+    if (!playerSocketOption) return console.error("player socket not found");
+    playerSocketOption.emit(ServerToClientEvent.ErrorMessage, actionUseProhibitedMessage.message);
+    return;
+  }
 
   const replayTreeResult = processCombatAction(
     new CombatActionExecutionIntent(selectedCombatAction, targets),
