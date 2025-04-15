@@ -42,6 +42,7 @@ import { getIncomingHpChangePerTarget } from "../../../action-results/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
+import { COMMON_CHILD_ACTION_STEPS_SEQUENCE } from "../common-action-steps-sequence.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -70,21 +71,8 @@ const config: CombatActionComponentConfig = {
   //   return combatantContext.combatant.combatantProperties.position.clone();
   // },
   getResourceCosts: () => null,
-  getExecutionTime: () => DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
   requiresCombatTurn: () => true,
-
-  getResolutionSteps() {
-    return [
-      ActionResolutionStepType.DetermineActionAnimations,
-      ActionResolutionStepType.ChamberingMotion,
-      ActionResolutionStepType.DeliveryMotion,
-      ActionResolutionStepType.PayResourceCosts,
-      ActionResolutionStepType.EvalOnUseTriggers,
-      ActionResolutionStepType.RollIncomingHitOutcomes,
-      ActionResolutionStepType.EvalOnHitOutcomeTriggers,
-      ActionResolutionStepType.RecoveryMotion,
-    ];
-  },
+  getResolutionSteps: () => COMMON_CHILD_ACTION_STEPS_SEQUENCE,
   getActionStepAnimations: (context) => {
     // we need to see what type of damage we want to do to determine the correct animation
     const { party } = context.combatantContext;

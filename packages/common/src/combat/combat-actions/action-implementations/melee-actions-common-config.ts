@@ -16,6 +16,7 @@ import { CombatActionRequiredRange } from "../combat-action-range.js";
 import { CombatActionComponent } from "../../index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { COMMON_DESTINATION_GETTERS } from "./common-destination-getters.js";
+import { COMMON_CHILD_ACTION_STEPS_SEQUENCE } from "./common-action-steps-sequence.js";
 
 const meleeRange = 1.5;
 const threshold = 0.01;
@@ -43,19 +44,7 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
   getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
     return getStandardActionArmorPenetration(user, CombatAttribute.Strength);
   },
-  getResolutionSteps() {
-    return [
-      ActionResolutionStepType.DetermineActionAnimations,
-      ActionResolutionStepType.InitialPositioning,
-      ActionResolutionStepType.ChamberingMotion,
-      ActionResolutionStepType.DeliveryMotion,
-      ActionResolutionStepType.PayResourceCosts,
-      ActionResolutionStepType.EvalOnUseTriggers,
-      ActionResolutionStepType.RollIncomingHitOutcomes,
-      ActionResolutionStepType.EvalOnHitOutcomeTriggers,
-      ActionResolutionStepType.RecoveryMotion,
-    ];
-  },
+  getResolutionSteps: () => COMMON_CHILD_ACTION_STEPS_SEQUENCE,
   motionPhasePositionGetters: {
     ...COMMON_DESTINATION_GETTERS,
     [ActionMotionPhase.Initial]: (context: ActionResolutionStepContext) => {

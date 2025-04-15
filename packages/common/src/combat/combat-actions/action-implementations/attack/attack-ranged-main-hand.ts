@@ -48,7 +48,6 @@ const config: CombatActionComponentConfig = {
   costBases: {},
   userShouldMoveHomeOnComplete: true,
   getResourceCosts: () => null,
-  getExecutionTime: () => DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
   requiresCombatTurn: (context) => {
     console.log("checkin if attack ranged main hand requiresCombatTurn");
     for (const holdableSlotType of iterateNumericEnum(HoldableSlotType)) {

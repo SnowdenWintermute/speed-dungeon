@@ -55,7 +55,6 @@ const config: CombatActionComponentConfig = {
   },
   costBases: {},
   getResourceCosts: () => null,
-  getExecutionTime: () => DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
   requiresCombatTurn: (context) => {
     for (const holdableSlotType of iterateNumericEnum(HoldableSlotType)) {
       const equipmentOption = CombatantEquipment.getEquippedHoldable(

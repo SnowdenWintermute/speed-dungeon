@@ -60,7 +60,6 @@ const config: CombatActionComponentConfig = {
   costBases: {},
   userShouldMoveHomeOnComplete: false,
   getResourceCosts: () => null,
-  getExecutionTime: () => 300,
   requiresCombatTurn: () => true,
   shouldExecute: () => true,
   getActionStepAnimations: (context) => {

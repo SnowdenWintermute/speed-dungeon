@@ -64,7 +64,6 @@ const config: CombatActionComponentConfig = {
   //   };
   // },
   getResourceCosts: () => null,
-  getExecutionTime: () => 700,
   requiresCombatTurn: () => true,
   getActionStepAnimations: (context) => null,
   getHpChangeProperties: (user, primaryTarget, self) => {

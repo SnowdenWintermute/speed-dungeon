@@ -19,8 +19,8 @@ import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js"
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
+import { COMMON_ROOT_ACTION_STEPS_SEQUENCE } from "../common-action-steps-sequence.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -45,7 +45,6 @@ const config: CombatActionComponentConfig = {
     };
     return costs;
   },
-  getExecutionTime: () => 1000,
   requiresCombatTurn: () => true,
   shouldExecute: () => true,
   getHpChangeProperties: () => null,
@@ -80,19 +79,7 @@ const config: CombatActionComponentConfig = {
   getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
     throw new Error("Function not implemented.");
   },
-  getResolutionSteps() {
-    return [
-      ActionResolutionStepType.DetermineActionAnimations,
-      ActionResolutionStepType.InitialPositioning,
-      ActionResolutionStepType.ChamberingMotion,
-      ActionResolutionStepType.DeliveryMotion,
-      ActionResolutionStepType.PayResourceCosts,
-      ActionResolutionStepType.EvalOnUseTriggers,
-      ActionResolutionStepType.StartConcurrentSubActions,
-      ActionResolutionStepType.RecoveryMotion,
-      ActionResolutionStepType.FinalPositioning,
-    ];
-  },
+  getResolutionSteps: () => COMMON_ROOT_ACTION_STEPS_SEQUENCE,
 };
 
 export const CHAINING_SPLIT_ARROW_PARENT = new CombatActionComposite(
