@@ -39,6 +39,7 @@ import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js
 import { CombatActionCombatantAnimations } from "./combat-action-animations.js";
 import { ActionTracker } from "../../action-processing/action-tracker.js";
 import { SpawnableEntity } from "../../spawnables/index.js";
+import { ConsumableType } from "../../items/consumables/index.js";
 
 export interface CombatActionComponentConfig {
   description: string;
@@ -80,6 +81,7 @@ export interface CombatActionComponentConfig {
     user: CombatantProperties,
     self: CombatActionComponent
   ) => null | ActionResourceCosts;
+  getConsumableCost?: () => ConsumableType;
   requiresCombatTurn: (context: ActionResolutionStepContext) => boolean;
   /** A numeric percentage which will be used against the target's evasion */
   getUnmodifiedAccuracy: (user: CombatantProperties) => ActionAccuracy;
@@ -161,6 +163,7 @@ export abstract class CombatActionComponent {
   >;
   requiresCombatTurn: (context: ActionResolutionStepContext) => boolean;
   getResourceCosts: (user: CombatantProperties) => null | ActionResourceCosts;
+  getConsumableCost?: () => ConsumableType;
   getAccuracy: (user: CombatantProperties) => ActionAccuracy;
   getIsParryable: (user: CombatantProperties) => boolean;
   getIsBlockable: (user: CombatantProperties) => boolean;
@@ -225,6 +228,7 @@ export abstract class CombatActionComponent {
     this.costBases = config.costBases;
     this.userShouldMoveHomeOnComplete = config.userShouldMoveHomeOnComplete;
     this.getResourceCosts = (user: CombatantProperties) => config.getResourceCosts(user, this);
+    this.getConsumableCost = config.getConsumableCost;
     this.requiresCombatTurn = config.requiresCombatTurn;
     this.shouldExecute = (characterAssociatedData) =>
       config.shouldExecute(characterAssociatedData, this);

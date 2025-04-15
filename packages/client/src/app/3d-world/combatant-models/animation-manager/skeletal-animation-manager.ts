@@ -63,7 +63,6 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
   }
 
   cloneAnimation(animationGroup: AnimationGroup): AnimationGroup {
-    console.log("trying to clone:", animationGroup);
     return animationGroup.clone(animationGroup.name, undefined, true);
   }
 
@@ -88,8 +87,6 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
 
     this.previous?.cleanup();
     this.previous = this.playing;
-
-    console.log("got here", clonedAnimation);
 
     this.playing = new ManagedSkeletalAnimation(clonedAnimation, transitionDuration, options);
 
@@ -198,6 +195,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
 
     if (animationName === SkeletalAnimationName.MoveBack)
       return SkeletalAnimationName.MoveForwardLoop;
+
     const idleAnimationNames = [
       SkeletalAnimationName.IdleUnarmed,
       SkeletalAnimationName.IdleBow,

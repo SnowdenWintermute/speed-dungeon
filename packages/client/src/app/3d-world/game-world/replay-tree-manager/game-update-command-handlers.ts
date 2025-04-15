@@ -8,6 +8,7 @@ import {
   GameUpdateCommandType,
   HitOutcomesGameUpdateCommand,
   HitPointChanges,
+  Inventory,
   ResourcesPaidGameUpdateCommand,
   SpawnEntityGameUpdateCommand,
   SpawnableEntityType,
@@ -44,12 +45,27 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     command: ResourcesPaidGameUpdateCommand;
     isComplete: boolean;
   }) {
-    update.isComplete = true;
     // deduct the resources
     // enqueue the floating text messages
-    //
-    // completes instantly
-    // throw new Error("Function not implemented.");
+    const { command } = update;
+    console.log("command:", command);
+    useGameStore.getState().mutateState((gameState) => {
+      if (command.itemsConsumed !== undefined) {
+        const game = gameState.game;
+        if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+        const combatantResult = SpeedDungeonGame.getCombatantById(game, command.combatantId);
+        if (combatantResult instanceof Error) return combatantResult;
+        for (const itemId of command.itemsConsumed) {
+          const removedItem = Inventory.removeItem(
+            combatantResult.combatantProperties.inventory,
+            itemId
+          );
+          console.log("removed item: ", removedItem);
+        }
+      }
+    });
+
+    update.isComplete = true;
   },
   [GameUpdateCommandType.ActivatedTriggers]: async function (update: {
     command: ActivatedTriggersGameUpdateCommand;
@@ -196,8 +212,5 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
         vfxModel.movementManager.transformNode.setPositionWithLocalVector(Vector3.Zero());
       }
     }
-  },
-  [GameUpdateCommandType.EndTurn]: function (arg: any): Promise<void | Error> {
-    throw new Error("Function not implemented.");
   },
 };

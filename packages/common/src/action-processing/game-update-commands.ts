@@ -101,7 +101,8 @@ export type ResourcesPaidGameUpdateCommand = {
   step: ActionResolutionStepType;
   completionOrderId: null | number;
   combatantId: EntityId;
-  costsPaid: ActionResourceCosts;
+  costsPaid?: ActionResourceCosts;
+  itemsConsumed?: [EntityId];
 };
 
 export type ActivatedTriggersGameUpdateCommand = {

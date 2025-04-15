@@ -36,7 +36,9 @@ export default function ActionMenuAndCharacterSheetLayer({ party }: { party: Adv
               </div>
             )}
           </div>
-          <CharacterSheet showCharacterSheet={viewingCharacterSheet} />
+          <CharacterSheet
+            showCharacterSheet={viewingCharacterSheet && !InputLock.isLocked(party.inputLock)}
+          />
         </div>
         <div className="flex  w-full">
           <div className="min-w-[25rem] max-w-[25rem]" style={{ marginRight: `${SPACING_REM}rem` }}>

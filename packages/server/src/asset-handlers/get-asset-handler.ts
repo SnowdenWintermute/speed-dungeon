@@ -17,7 +17,7 @@ export async function getAssetHandler(req: Request, res: Response, next: NextFun
 
   // Resolve the full file path
   const fullPath = path.join(baseDir, filePath);
-  console.log("asset handler:", fullPath);
+  // console.log("asset handler:", fullPath);
 
   // Security check to prevent directory traversal
   if (!fullPath.startsWith(baseDir)) {
@@ -31,5 +31,4 @@ export async function getAssetHandler(req: Request, res: Response, next: NextFun
     }
     res.sendFile(fullPath);
   });
-
 }

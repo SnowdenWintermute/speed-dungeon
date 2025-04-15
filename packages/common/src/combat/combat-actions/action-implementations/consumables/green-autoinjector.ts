@@ -33,6 +33,7 @@ import { CombatActionHpChangeProperties } from "../../combat-action-hp-change-pr
 import { COMMON_CHILD_ACTION_STEPS_SEQUENCE } from "../common-action-steps-sequence.js";
 import { randBetween } from "../../../../utils/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
+import { ConsumableType } from "../../../../items/consumables/index.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack target using equipment in main hand",
@@ -54,6 +55,7 @@ const config: CombatActionComponentConfig = {
     },
   },
   getResourceCosts: () => null,
+  getConsumableCost: () => ConsumableType.HpAutoinjector,
   requiresCombatTurn: (context) => false,
   shouldExecute: () => true,
   getActionStepAnimations: (context) => {
