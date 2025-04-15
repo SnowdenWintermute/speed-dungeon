@@ -1,9 +1,9 @@
-import { HpChangeSource, HpChangeSourceModifiers } from "../../hp-change-source-types.js";
+import { ResourceChangeSource, ResourceChangeSourceModifiers } from "../../hp-change-source-types.js";
 
-export function copySelectedModifiersFromHpChangeSource(
-  to: HpChangeSource,
-  from: HpChangeSource,
-  modifiers: Set<HpChangeSourceModifiers>
+export function copySelectedModifiersFromResourceChangeSource(
+  to: ResourceChangeSource,
+  from: ResourceChangeSource,
+  modifiers: Set<ResourceChangeSourceModifiers>
 ) {
   for (const modifier of modifiers) {
     MODIFIER_COPYING_FUNCTIONS[modifier](to, from);
@@ -11,25 +11,25 @@ export function copySelectedModifiersFromHpChangeSource(
 }
 
 const MODIFIER_COPYING_FUNCTIONS: Record<
-  HpChangeSourceModifiers,
-  (to: HpChangeSource, from: HpChangeSource) => void
+  ResourceChangeSourceModifiers,
+  (to: ResourceChangeSource, from: ResourceChangeSource) => void
 > = {
-  [HpChangeSourceModifiers.KineticType]: function (to: HpChangeSource, from: HpChangeSource): void {
+  [ResourceChangeSourceModifiers.KineticType]: function (to: ResourceChangeSource, from: ResourceChangeSource): void {
     to.kineticDamageTypeOption = from.kineticDamageTypeOption;
   },
-  [HpChangeSourceModifiers.MagicalElement]: function (
-    to: HpChangeSource,
-    from: HpChangeSource
+  [ResourceChangeSourceModifiers.MagicalElement]: function (
+    to: ResourceChangeSource,
+    from: ResourceChangeSource
   ): void {
     to.elementOption = from.elementOption;
   },
-  [HpChangeSourceModifiers.SourceCategory]: function (
-    to: HpChangeSource,
-    from: HpChangeSource
+  [ResourceChangeSourceModifiers.SourceCategory]: function (
+    to: ResourceChangeSource,
+    from: ResourceChangeSource
   ): void {
     to.category = from.category;
   },
-  [HpChangeSourceModifiers.Lifesteal]: function (to: HpChangeSource, from: HpChangeSource): void {
+  [ResourceChangeSourceModifiers.Lifesteal]: function (to: ResourceChangeSource, from: ResourceChangeSource): void {
     if (from.lifestealPercentage)
       to.lifestealPercentage
         ? (to.lifestealPercentage += from.lifestealPercentage)

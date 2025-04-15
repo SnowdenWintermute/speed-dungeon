@@ -6,12 +6,7 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import {
-  AnimationType,
-  SkeletalAnimationName,
-  DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
-  SKELETAL_ANIMATION_NAME_STRINGS,
-} from "../../../../app-consts.js";
+import { AnimationType, SkeletalAnimationName } from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
@@ -20,7 +15,7 @@ import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { iterateNumericEnum } from "../../../../utils/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
-import { getAttackHpChangeProperties } from "./get-attack-hp-change-properties.js";
+import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { MELEE_ATTACK_COMMON_CONFIG } from "../melee-actions-common-config.js";
@@ -33,8 +28,8 @@ import { AnimationTimingType } from "../../../../action-processing/index.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { COMBAT_ACTIONS } from "../index.js";
-import { getIncomingHpChangePerTarget } from "../../../action-results/index.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
+import { getIncomingHpChangePerTarget } from "../../../action-results/index.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -48,7 +43,7 @@ const config: CombatActionComponentConfig = {
     ProhibitedTargetCombatantStates.Dead,
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
   ],
-  baseHpChangeValuesLevelMultiplier: 1,
+  baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
   incursDurabilityLoss: {
     [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnHit },
@@ -116,15 +111,16 @@ const config: CombatActionComponentConfig = {
       if (targetIdsResult instanceof Error) return targetIdsResult;
       const targetIds = targetIdsResult;
 
-      const incomingHpChangePerTargetOption = getIncomingHpChangePerTarget(
+      const incomingResourceChangePerTargetOption = getIncomingHpChangePerTarget(
         action,
         context.combatantContext.combatant.combatantProperties,
         target,
         targetIds
       );
 
-      if (incomingHpChangePerTargetOption) {
-        const { kineticDamageTypeOption } = incomingHpChangePerTargetOption.hpChangeSource;
+      if (incomingResourceChangePerTargetOption) {
+        const { kineticDamageTypeOption } =
+          incomingResourceChangePerTargetOption.resourceChangeSource;
 
         if (kineticDamageTypeOption !== undefined)
           switch (kineticDamageTypeOption) {
@@ -185,7 +181,7 @@ const config: CombatActionComponentConfig = {
     return animations;
   },
   getHpChangeProperties: (user, primaryTarget, self) => {
-    const hpChangeProperties = getAttackHpChangeProperties(
+    const hpChangeProperties = getAttackResourceChangeProperties(
       self,
       user,
       primaryTarget,

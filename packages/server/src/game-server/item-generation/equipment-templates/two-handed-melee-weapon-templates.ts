@@ -2,8 +2,8 @@ import {
   CombatAttribute,
   EquipmentBaseItem,
   EquipmentType,
-  HpChangeSource,
-  HpChangeSourceCategory,
+  ResourceChangeSource,
+  ResourceChangeSourceCategory,
   KineticDamageType,
   MagicalElement,
   NumberRange,
@@ -17,7 +17,7 @@ import { WeaponGenerationTemplate } from "./equipment-generation-template-abstra
 export class TwoHandedMeleeWeaponGenerationTemplate extends WeaponGenerationTemplate {
   constructor(
     public damage: NumberRange,
-    public possibleDamageClassifications: HpChangeSource[],
+    public possibleDamageClassifications: ResourceChangeSource[],
     public equipmentBaseItem: EquipmentBaseItem
   ) {
     if (equipmentBaseItem.equipmentType !== EquipmentType.TwoHandedMeleeWeapon)
@@ -71,8 +71,8 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
       baseItemType: weapon,
     });
-    let mainDamageClassification: null | HpChangeSource = new HpChangeSource({
-      category: HpChangeSourceCategory.Physical,
+    let mainDamageClassification: null | ResourceChangeSource = new ResourceChangeSource({
+      category: ResourceChangeSourceCategory.Physical,
       kineticDamageTypeOption: KineticDamageType.Blunt,
     });
 
@@ -108,12 +108,12 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         mainDamageClassification = null;
         template.numDamageClassifications = 2;
         template.possibleDamageClassifications = [
-          new HpChangeSource({
-            category: HpChangeSourceCategory.Physical,
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
             kineticDamageTypeOption: KineticDamageType.Slashing,
           }),
-          new HpChangeSource({
-            category: HpChangeSourceCategory.Physical,
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
             kineticDamageTypeOption: KineticDamageType.Blunt,
           }),
         ];
@@ -141,12 +141,12 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         mainDamageClassification = null;
         template.numDamageClassifications = 2;
         template.possibleDamageClassifications = [
-          new HpChangeSource({
-            category: HpChangeSourceCategory.Physical,
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
             kineticDamageTypeOption: KineticDamageType.Slashing,
           }),
-          new HpChangeSource({
-            category: HpChangeSourceCategory.Physical,
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
             kineticDamageTypeOption: KineticDamageType.Piercing,
           }),
         ];
@@ -163,8 +163,8 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
           .filter((element) => element !== MagicalElement.Dark && element !== MagicalElement.Light)
           .map(
             (element) =>
-              new HpChangeSource({
-                category: HpChangeSourceCategory.Physical,
+              new ResourceChangeSource({
+                category: ResourceChangeSourceCategory.Physical,
                 kineticDamageTypeOption: KineticDamageType.Blunt,
                 elementOption: element,
               })
@@ -179,12 +179,12 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         mainDamageClassification = null;
         template.numDamageClassifications = 2;
         template.possibleDamageClassifications = [
-          new HpChangeSource({
-            category: HpChangeSourceCategory.Magical,
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Magical,
             elementOption: MagicalElement.Water,
           }),
-          new HpChangeSource({
-            category: HpChangeSourceCategory.Physical,
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
             kineticDamageTypeOption: KineticDamageType.Piercing,
           }),
         ];

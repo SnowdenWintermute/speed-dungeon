@@ -36,6 +36,9 @@ export function outfitNewCharacter(character: Combatant) {
     new CombatantActionState(CombatActionName.ExplodingArrowParent);
   combatantProperties.ownedActions[CombatActionName.UseGreenAutoinjector] =
     new CombatantActionState(CombatActionName.UseGreenAutoinjector);
+  combatantProperties.ownedActions[CombatActionName.UseBlueAutoinjector] = new CombatantActionState(
+    CombatActionName.UseBlueAutoinjector
+  );
 
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
   if (baseStartingAttributesOption) {

@@ -30,7 +30,7 @@ import { ActionTracker } from "../../../../action-processing/action-tracker.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { MobileVfxName, VfxType } from "../../../../vfx/index.js";
-import { getAttackHpChangeProperties } from "../attack/get-attack-hp-change-properties.js";
+import { getAttackResourceChangeProperties } from "../attack/get-attack-hp-change-properties.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
@@ -52,7 +52,7 @@ const config: CombatActionComponentConfig = {
     ProhibitedTargetCombatantStates.Dead,
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
   ],
-  baseHpChangeValuesLevelMultiplier: 1,
+  baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
   incursDurabilityLoss: {},
   costBases: {},
@@ -67,7 +67,7 @@ const config: CombatActionComponentConfig = {
   requiresCombatTurn: () => true,
   getActionStepAnimations: (context) => null,
   getHpChangeProperties: (user, primaryTarget, self) => {
-    const hpChangeProperties = getAttackHpChangeProperties(
+    const hpChangeProperties = getAttackResourceChangeProperties(
       self,
       user,
       primaryTarget,

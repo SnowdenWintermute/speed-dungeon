@@ -3,7 +3,7 @@ import {
   CombatAttribute,
   DEEPEST_FLOOR,
   EquipmentBaseItem,
-  HpChangeSource,
+  ResourceChangeSource,
   NumberRange,
   PrefixType,
   SuffixType,
@@ -27,7 +27,7 @@ export abstract class WeaponGenerationTemplate extends EquipmentGenerationTempla
   numDamageClassifications: number = 1;
   constructor(
     public damage: NumberRange,
-    public possibleDamageClassifications: HpChangeSource[],
+    public possibleDamageClassifications: ResourceChangeSource[],
     public equipmentBaseItem: EquipmentBaseItem
   ) {
     super(equipmentBaseItem);

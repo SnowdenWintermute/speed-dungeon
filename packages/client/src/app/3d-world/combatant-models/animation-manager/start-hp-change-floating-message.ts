@@ -6,22 +6,22 @@ import {
   startFloatingMessage,
 } from "@/stores/game-store/floating-messages";
 import {
-  HpChangeSourceCategory,
+  ResourceChangeSourceCategory,
   KINETIC_DAMAGE_TYPE_STRINGS,
   MAGICAL_ELEMENT_STRINGS,
 } from "@speed-dungeon/common";
-import { HpChange } from "@speed-dungeon/common";
+import { ResourceChange } from "@speed-dungeon/common";
 
-export default function startHpChangeFloatingMessage(
+export default function startResourceChangeFloatingMessage(
   targetId: string,
-  hpChange: HpChange,
+  hpChange: ResourceChange,
   wasBlocked: boolean,
   displayTime: number
 ) {
   let color =
     hpChange.value > 0
       ? FloatingMessageTextColor.Healing
-      : hpChange.source.category === HpChangeSourceCategory.Magical
+      : hpChange.source.category === ResourceChangeSourceCategory.Magical
         ? FloatingMessageTextColor.MagicalDamage
         : FloatingMessageTextColor.Damage;
 

@@ -1,6 +1,6 @@
 import {
-  HpChangeSource,
-  HpChangeSourceCategory,
+  ResourceChangeSource,
+  ResourceChangeSourceCategory,
   KineticDamageType,
 } from "../../../combat/index.js";
 import { EntityProperties, NumberRange } from "../../../primatives/index.js";
@@ -33,8 +33,8 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
           equipmentType: EquipmentType.TwoHandedRangedWeapon,
           damage: new NumberRange(1, 2),
           damageClassification: [
-            new HpChangeSource({
-              category: HpChangeSourceCategory.Physical,
+            new ResourceChangeSource({
+              category: ResourceChangeSourceCategory.Physical,
               kineticDamageTypeOption: KineticDamageType.Piercing,
             }),
           ],
@@ -55,8 +55,8 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
           damage: new NumberRange(1, 2),
           damageClassification: [
-            new HpChangeSource({
-              category: HpChangeSourceCategory.Physical,
+            new ResourceChangeSource({
+              category: ResourceChangeSourceCategory.Physical,
               kineticDamageTypeOption: KineticDamageType.Slashing,
             }),
           ],
@@ -77,8 +77,8 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
           damage: new NumberRange(1, 2),
           damageClassification: [
-            new HpChangeSource({
-              category: HpChangeSourceCategory.Physical,
+            new ResourceChangeSource({
+              category: ResourceChangeSourceCategory.Physical,
               kineticDamageTypeOption: KineticDamageType.Blunt,
             }),
           ],
@@ -99,8 +99,8 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
           damage: new NumberRange(1, 2),
           damageClassification: [
-            new HpChangeSource({
-              category: HpChangeSourceCategory.Physical,
+            new ResourceChangeSource({
+              category: ResourceChangeSourceCategory.Physical,
               kineticDamageTypeOption: KineticDamageType.Blunt,
             }),
           ],

@@ -1,14 +1,14 @@
 import cloneDeep from "lodash.clonedeep";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { randBetween } from "../../../utils/index.js";
-import splitHpChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
+import splitResourceChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
 import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app-consts.js";
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
-import { HpChange, HpChangeSource } from "../../hp-change-source-types.js";
+import { ResourceChange, ResourceChangeSource } from "../../hp-change-source-types.js";
 import { checkIfTargetWantsToBeHit } from "./check-if-target-wants-to-be-hit.js";
 import { applyCritMultiplier } from "./apply-crit-multiplier-to-hp-change.js";
 import { EntityId } from "../../../primatives/index.js";
-import { convertHpChangeValueToFinalSign } from "../../combat-actions/action-calculation-utils/convert-hp-change-value-to-final-sign.js";
+import { convertResourceChangeValueToFinalSign } from "../../combat-actions/action-calculation-utils/convert-hp-change-value-to-final-sign.js";
 import {
   applyElementalAffinities,
   applyKineticAffinities,
@@ -74,7 +74,7 @@ export function calculateActionHitOutcomes(
 
   const hitOutcomes = new CombatActionHitOutcomes();
 
-  const incomingHpChangePerTargetOption = getIncomingHpChangePerTarget(
+  const incomingResourceChangePerTargetOption = getIncomingHpChangePerTarget(
     action,
     user,
     target,
@@ -138,9 +138,10 @@ export function calculateActionHitOutcomes(
     // it is possible that an ability hits, but does not change HP, ex: a spell that only induces a condition
     hitOutcomes.insertOutcomeFlag(HitOutcome.Hit, id);
 
-    if (!incomingHpChangePerTargetOption) continue;
-    const { value: incomingHpChangeValue, hpChangeSource } = incomingHpChangePerTargetOption;
-    let hpChange = new HpChange(incomingHpChangeValue, cloneDeep(hpChangeSource));
+    if (!incomingResourceChangePerTargetOption) continue;
+    const { value: incomingResourceChangeValue, resourceChangeSource } =
+      incomingResourceChangePerTargetOption;
+    let hpChange = new ResourceChange(incomingResourceChangeValue, cloneDeep(resourceChangeSource));
 
     const percentChanceToCrit = getActionCritChance(action, user, target, targetWantsToBeHit);
 
@@ -166,9 +167,9 @@ export function calculateActionHitOutcomes(
       }
     }
 
-    convertHpChangeValueToFinalSign(hpChange, target);
+    convertResourceChangeValueToFinalSign(hpChange, target);
 
-    const hpChangeCalculationContext = HP_CALCLULATION_CONTEXTS[hpChangeSource.category];
+    const hpChangeCalculationContext = HP_CALCLULATION_CONTEXTS[resourceChangeSource.category];
     hpChangeCalculationContext.applyResilience(hpChange, user, target);
     hpChangeCalculationContext.applyArmorClass(action, hpChange, user, target);
 
@@ -186,21 +187,21 @@ export function getIncomingHpChangePerTarget(
   user: CombatantProperties,
   primaryTargetCombatantProperties: CombatantProperties,
   targetIds: EntityId[]
-): null | { value: number; hpChangeSource: HpChangeSource } {
+): null | { value: number; resourceChangeSource: ResourceChangeSource } {
   const hpChangePropertiesOption = cloneDeep(
     action.getHpChangeProperties(user, primaryTargetCombatantProperties)
   );
 
   if (!hpChangePropertiesOption) return null;
   const hpChangeRange = hpChangePropertiesOption.baseValues;
-  const { hpChangeSource } = hpChangePropertiesOption;
-  const rolledHpChangeValue = randBetween(hpChangeRange.min, hpChangeRange.max);
+  const { resourceChangeSource } = hpChangePropertiesOption;
+  const rolledResourceChangeValue = randBetween(hpChangeRange.min, hpChangeRange.max);
   return {
-    value: splitHpChangeWithMultiTargetBonus(
-      rolledHpChangeValue,
+    value: splitResourceChangeWithMultiTargetBonus(
+      rolledResourceChangeValue,
       targetIds.length,
       MULTI_TARGET_HP_CHANGE_BONUS
     ),
-    hpChangeSource,
+    resourceChangeSource,
   };
 }

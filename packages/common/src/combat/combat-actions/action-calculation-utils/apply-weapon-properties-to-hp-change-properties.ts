@@ -1,36 +1,31 @@
 import { CombatantProperties } from "../../../combatants/index.js";
-import {
-  Equipment,
-  ONE_HANDED_MELEE_WEAPON_NAMES,
-  WeaponProperties,
-} from "../../../items/equipment/index.js";
+import { Equipment, WeaponProperties } from "../../../items/equipment/index.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
-import { HpChangeSourceModifiers } from "../../hp-change-source-types.js";
-import { KINETIC_DAMAGE_TYPE_STRINGS } from "../../kinetic-damage-types.js";
-import { CombatActionHpChangeProperties } from "../combat-action-hp-change-properties.js";
+import { ResourceChangeSourceModifiers } from "../../hp-change-source-types.js";
+import { CombatActionResourceChangeProperties } from "../combat-action-resource-change-properties.js";
 import { CombatActionComponent } from "../index.js";
 import { addWeaponsDamageToRange } from "./add-weapon-damage-to-range.js";
-import { copySelectedModifiersFromHpChangeSource } from "./copy-selected-modifiers-from-hp-change-source.js";
-import { selectMostEffectiveFromAvailableHpChangeSourceModifiers } from "./select-most-effective-damage-classification-on-target.js";
+import { copySelectedModifiersFromResourceChangeSource } from "./copy-selected-modifiers-from-hp-change-source.js";
+import { selectMostEffectiveFromAvailableResourceChangeSourceModifiers } from "./select-most-effective-damage-classification-on-target.js";
 
-export function applyWeaponPropertiesToHpChangeProperties(
+export function applyWeaponPropertiesToResourceChangeProperties(
   action: CombatActionComponent,
   weapon: {
     equipment: Equipment;
     weaponProperties: WeaponProperties;
   },
-  hpChangeProperties: CombatActionHpChangeProperties,
+  hpChangeProperties: CombatActionResourceChangeProperties,
   user: CombatantProperties,
   primaryTarget: CombatantProperties
 ) {
   const { baseValues } = hpChangeProperties;
 
   addWeaponsDamageToRange([weapon], baseValues);
-  const weaponModifiersToCopy = new Set(iterateNumericEnum(HpChangeSourceModifiers));
+  const weaponModifiersToCopy = new Set(iterateNumericEnum(ResourceChangeSourceModifiers));
 
   const averageRoll = baseValues.getAverage();
-  const mostEffectiveAvailableHpChangeSourceOnWeapon =
-    selectMostEffectiveFromAvailableHpChangeSourceModifiers(
+  const mostEffectiveAvailableResourceChangeSourceOnWeapon =
+    selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
       action,
       hpChangeProperties,
       weapon.weaponProperties.damageClassification,
@@ -40,19 +35,19 @@ export function applyWeaponPropertiesToHpChangeProperties(
       averageRoll
     );
 
-  if (mostEffectiveAvailableHpChangeSourceOnWeapon === undefined) return hpChangeProperties;
+  if (mostEffectiveAvailableResourceChangeSourceOnWeapon === undefined) return hpChangeProperties;
 
   // if we ever add another trait besides lifesteal which might affect damage, put those traits
   // before the testing for best hp change source modifiers
-  const maybeError = Equipment.applyEquipmentTraitsToHpChangeSource(
+  const maybeError = Equipment.applyEquipmentTraitsToResourceChangeSource(
     weapon.equipment,
-    mostEffectiveAvailableHpChangeSourceOnWeapon
+    mostEffectiveAvailableResourceChangeSourceOnWeapon
   );
   if (maybeError instanceof Error) console.error(maybeError);
 
-  copySelectedModifiersFromHpChangeSource(
-    hpChangeProperties.hpChangeSource,
-    mostEffectiveAvailableHpChangeSourceOnWeapon,
+  copySelectedModifiersFromResourceChangeSource(
+    hpChangeProperties.resourceChangeSource,
+    mostEffectiveAvailableResourceChangeSourceOnWeapon,
     weaponModifiersToCopy
   );
 }

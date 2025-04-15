@@ -1,9 +1,9 @@
 import { CombatantProperties } from "../../../combatants/index.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
-import { HpChange } from "../../hp-change-source-types.js";
+import { ResourceChange } from "../../hp-change-source-types.js";
 
 export function applyCritMultiplier(
-  hpChange: HpChange,
+  hpChange: ResourceChange,
   action: CombatActionComponent,
   user: CombatantProperties,
   _target: CombatantProperties

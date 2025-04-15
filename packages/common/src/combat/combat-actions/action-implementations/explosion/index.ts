@@ -22,13 +22,12 @@ import {
   AnimationTimingType,
 } from "../../../../action-processing/index.js";
 import {
-  HpChangeSource,
-  HpChangeSourceCategory,
-  HpChangeSourceConfig,
+  ResourceChangeSource,
+  ResourceChangeSourceCategory,
+  ResourceChangeSourceConfig,
 } from "../../../hp-change-source-types.js";
 import { MagicalElement } from "../../../magical-elements.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
-import { CombatActionHpChangeProperties } from "../../combat-action-hp-change-properties.js";
 import {
   AnimationType,
   BASE_CRIT_CHANCE,
@@ -38,6 +37,7 @@ import {
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { MobileVfxName, VfxType } from "../../../../vfx/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 
 const config: CombatActionComponentConfig = {
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
@@ -54,7 +54,7 @@ const config: CombatActionComponentConfig = {
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
     ProhibitedTargetCombatantStates.UntargetableBySpells,
   ],
-  baseHpChangeValuesLevelMultiplier: 1,
+  baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
   incursDurabilityLoss: {},
   costBases: {},
@@ -78,8 +78,8 @@ const config: CombatActionComponentConfig = {
     return animations;
   },
   getHpChangeProperties: (user) => {
-    const hpChangeSourceConfig: HpChangeSourceConfig = {
-      category: HpChangeSourceCategory.Physical,
+    const hpChangeSourceConfig: ResourceChangeSourceConfig = {
+      category: ResourceChangeSourceCategory.Physical,
       kineticDamageTypeOption: null,
       elementOption: MagicalElement.Fire,
       isHealing: false,
@@ -91,9 +91,9 @@ const config: CombatActionComponentConfig = {
     console.log("stacks for exploison: ", stacks, "user level: ", user.level);
     const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
 
-    const hpChangeSource = new HpChangeSource(hpChangeSourceConfig);
-    const hpChangeProperties: CombatActionHpChangeProperties = {
-      hpChangeSource,
+    const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
+    const hpChangeProperties: CombatActionResourceChangeProperties = {
+      resourceChangeSource,
       baseValues,
     };
 
@@ -102,7 +102,7 @@ const config: CombatActionComponentConfig = {
     return hpChangeProperties;
   },
 
-  getManaChanges: () => null,
+  getManaChangeProperties: () => null,
   getAppliedConditions: (context) => {
     // @TODO - apply a "burning" condition
     return null;

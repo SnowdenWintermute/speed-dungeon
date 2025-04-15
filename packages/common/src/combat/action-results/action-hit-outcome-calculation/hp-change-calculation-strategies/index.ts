@@ -2,57 +2,57 @@ export * from "./magical-hp-change-calulation-strategy.js";
 export * from "./physical-hp-change-calculation-strategy.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatActionComponent } from "../../../combat-actions/index.js";
-import { HpChange, HpChangeSourceCategory } from "../../../hp-change-source-types.js";
-import { MagicalHpChangeCalculationStrategy } from "./magical-hp-change-calulation-strategy.js";
-import { PhysicalHpChangeCalculationStrategy } from "./physical-hp-change-calculation-strategy.js";
+import { ResourceChange, ResourceChangeSourceCategory } from "../../../hp-change-source-types.js";
+import { MagicalResourceChangeCalculationStrategy } from "./magical-hp-change-calulation-strategy.js";
+import { PhysicalResourceChangeCalculationStrategy } from "./physical-hp-change-calculation-strategy.js";
 
-export interface HpChangeCalculationStrategy {
+export interface ResourceChangeCalculationStrategy {
   applyArmorClass(
     action: CombatActionComponent,
-    hpChange: HpChange,
+    hpChange: ResourceChange,
     user: CombatantProperties,
     target: CombatantProperties
   ): void;
-  applyResilience(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties): void;
+  applyResilience(hpChange: ResourceChange, user: CombatantProperties, target: CombatantProperties): void;
 }
 
-export class HpChangeCalulationContext implements HpChangeCalculationStrategy {
-  private strategy: HpChangeCalculationStrategy;
+export class ResourceChangeCalulationContext implements ResourceChangeCalculationStrategy {
+  private strategy: ResourceChangeCalculationStrategy;
 
-  constructor(hpChangeSourceCategory: HpChangeSourceCategory) {
+  constructor(hpChangeSourceCategory: ResourceChangeSourceCategory) {
     this.strategy = this.createStrategy(hpChangeSourceCategory);
   }
   applyArmorClass(
     action: CombatActionComponent,
-    hpChange: HpChange,
+    hpChange: ResourceChange,
     user: CombatantProperties,
     target: CombatantProperties
   ) {
     return this.strategy.applyArmorClass(action, hpChange, user, target);
   }
-  applyResilience(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties) {
+  applyResilience(hpChange: ResourceChange, user: CombatantProperties, target: CombatantProperties) {
     return this.strategy.applyResilience(hpChange, user, target);
   }
 
   private createStrategy(
-    hpChangeSourceCategory: HpChangeSourceCategory
-  ): HpChangeCalculationStrategy {
+    hpChangeSourceCategory: ResourceChangeSourceCategory
+  ): ResourceChangeCalculationStrategy {
     switch (hpChangeSourceCategory) {
-      case HpChangeSourceCategory.Physical:
-        return new PhysicalHpChangeCalculationStrategy();
-      case HpChangeSourceCategory.Magical:
-        return new MagicalHpChangeCalculationStrategy();
-      case HpChangeSourceCategory.Medical:
-        return new MagicalHpChangeCalculationStrategy();
-      case HpChangeSourceCategory.Direct:
-        return new MagicalHpChangeCalculationStrategy();
+      case ResourceChangeSourceCategory.Physical:
+        return new PhysicalResourceChangeCalculationStrategy();
+      case ResourceChangeSourceCategory.Magical:
+        return new MagicalResourceChangeCalculationStrategy();
+      case ResourceChangeSourceCategory.Medical:
+        return new MagicalResourceChangeCalculationStrategy();
+      case ResourceChangeSourceCategory.Direct:
+        return new MagicalResourceChangeCalculationStrategy();
     }
   }
 }
 
-export const HP_CALCLULATION_CONTEXTS: Record<HpChangeSourceCategory, HpChangeCalulationContext> = {
-  [HpChangeSourceCategory.Physical]: new HpChangeCalulationContext(HpChangeSourceCategory.Physical),
-  [HpChangeSourceCategory.Magical]: new HpChangeCalulationContext(HpChangeSourceCategory.Magical),
-  [HpChangeSourceCategory.Medical]: new HpChangeCalulationContext(HpChangeSourceCategory.Medical),
-  [HpChangeSourceCategory.Direct]: new HpChangeCalulationContext(HpChangeSourceCategory.Direct),
+export const HP_CALCLULATION_CONTEXTS: Record<ResourceChangeSourceCategory, ResourceChangeCalulationContext> = {
+  [ResourceChangeSourceCategory.Physical]: new ResourceChangeCalulationContext(ResourceChangeSourceCategory.Physical),
+  [ResourceChangeSourceCategory.Magical]: new ResourceChangeCalulationContext(ResourceChangeSourceCategory.Magical),
+  [ResourceChangeSourceCategory.Medical]: new ResourceChangeCalulationContext(ResourceChangeSourceCategory.Medical),
+  [ResourceChangeSourceCategory.Direct]: new ResourceChangeCalulationContext(ResourceChangeSourceCategory.Direct),
 };

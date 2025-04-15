@@ -16,7 +16,7 @@ import { CombatantCondition } from "../../combatants/combatant-conditions/index.
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { DurabilityLossCondition } from "./combat-action-durability-loss-condition.js";
 import { CombatActionName } from "./combat-action-names.js";
-import { CombatActionHpChangeProperties } from "./combat-action-hp-change-properties.js";
+import { CombatActionResourceChangeProperties } from "./combat-action-resource-change-properties.js";
 import { Battle } from "../../battle/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { AutoTargetingSelectionMethod } from "../targeting/index.js";
@@ -40,7 +40,6 @@ import { CombatActionCombatantAnimations } from "./combat-action-animations.js";
 import { ActionTracker } from "../../action-processing/action-tracker.js";
 import { SpawnableEntity } from "../../spawnables/index.js";
 import { ConsumableType } from "../../items/consumables/index.js";
-import { ManaChanges } from "../action-results/index.js";
 
 export interface CombatActionComponentConfig {
   description: string;
@@ -52,7 +51,7 @@ export interface CombatActionComponentConfig {
   usabilityContext: CombatActionUsabilityContext;
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
 
-  baseHpChangeValuesLevelMultiplier: number;
+  baseResourceChangeValuesLevelMultiplier: number;
   accuracyModifier: number;
 
   incursDurabilityLoss: {
@@ -94,13 +93,12 @@ export interface CombatActionComponentConfig {
     user: CombatantProperties,
     primaryTarget: CombatantProperties,
     self: CombatActionComponent
-  ) => null | CombatActionHpChangeProperties;
-
-  getManaChanges: (
+  ) => null | CombatActionResourceChangeProperties;
+  getManaChangeProperties: (
     user: CombatantProperties,
     primaryTarget: CombatantProperties,
     self: CombatActionComponent
-  ) => null | ManaChanges;
+  ) => null | CombatActionResourceChangeProperties;
   getIsParryable: (user: CombatantProperties) => boolean;
   getIsBlockable: (user: CombatantProperties) => boolean;
   getCanTriggerCounterattack: (user: CombatantProperties) => boolean;
@@ -129,7 +127,7 @@ export abstract class CombatActionComponent {
   public readonly intent: CombatActionIntent;
   public readonly usabilityContext: CombatActionUsabilityContext;
   public readonly prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
-  public readonly baseHpChangeValuesLevelMultiplier: number; // @TODO - actually use this for attack et al, or remove it
+  public readonly baseResourceChangeValuesLevelMultiplier: number; // @TODO - actually use this for attack et al, or remove it
   public readonly accuracyModifier: number;
   incursDurabilityLoss: {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
@@ -179,13 +177,13 @@ export abstract class CombatActionComponent {
   getCritMultiplier: (user: CombatantProperties) => number;
   getArmorPenetration: (user: CombatantProperties) => number;
   getHpChangeProperties: (
-    user: CombatantProperties, // take the user becasue the hp change properties may be affected by equipment
-    primaryTarget: CombatantProperties // to select the most effective hp change source properties on target
-  ) => null | CombatActionHpChangeProperties;
-  getManaChanges: (
     user: CombatantProperties,
     primaryTarget: CombatantProperties
-  ) => null | ManaChanges;
+  ) => null | CombatActionResourceChangeProperties;
+  getManaChangeProperties: (
+    user: CombatantProperties,
+    primaryTarget: CombatantProperties
+  ) => null | CombatActionResourceChangeProperties;
 
   // may be calculated based on combatant equipment or conditions
   getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
@@ -233,7 +231,7 @@ export abstract class CombatActionComponent {
     this.usabilityContext = config.usabilityContext;
     this.intent = config.intent;
     this.prohibitedTargetCombatantStates = config.prohibitedTargetCombatantStates;
-    this.baseHpChangeValuesLevelMultiplier = config.baseHpChangeValuesLevelMultiplier;
+    this.baseResourceChangeValuesLevelMultiplier = config.baseResourceChangeValuesLevelMultiplier;
     this.accuracyModifier = config.accuracyModifier;
     this.incursDurabilityLoss = config.incursDurabilityLoss;
     this.costBases = config.costBases;
@@ -260,7 +258,8 @@ export abstract class CombatActionComponent {
     this.motionPhasePositionGetters = config.motionPhasePositionGetters;
     this.getSpawnableEntity = config.getSpawnableEntity;
     this.getHpChangeProperties = (user, target) => config.getHpChangeProperties(user, target, this);
-    this.getManaChanges = (user, target) => config.getManaChanges(user, target, this);
+    this.getManaChangeProperties = (user, target) =>
+      config.getManaChangeProperties(user, target, this);
     this.getAppliedConditions = config.getAppliedConditions;
     this.getChildren = config.getChildren;
     if (config.getConcurrentSubActions)

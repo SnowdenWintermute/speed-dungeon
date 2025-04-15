@@ -2,20 +2,20 @@ import { RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO } from "../../../.
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatActionComponent } from "../../../combat-actions/index.js";
-import { HpChange } from "../../../hp-change-source-types.js";
+import { ResourceChange } from "../../../hp-change-source-types.js";
 import getDamageAfterResilience from "../get-damage-after-resilience.js";
-import { HpChangeCalculationStrategy } from "./index.js";
+import { ResourceChangeCalculationStrategy } from "./index.js";
 
-export class MagicalHpChangeCalculationStrategy implements HpChangeCalculationStrategy {
+export class MagicalResourceChangeCalculationStrategy implements ResourceChangeCalculationStrategy {
   applyArmorClass(
     action: CombatActionComponent,
-    hpChange: HpChange,
+    hpChange: ResourceChange,
     user: CombatantProperties,
     target: CombatantProperties
   ) {
     return;
   }
-  applyResilience(hpChange: HpChange, user: CombatantProperties, target: CombatantProperties) {
+  applyResilience(hpChange: ResourceChange, user: CombatantProperties, target: CombatantProperties) {
     if (hpChange.value > 0) {
       // don't apply resilience if being healed
       // instead increase the healing done

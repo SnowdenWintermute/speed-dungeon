@@ -2,8 +2,8 @@ import {
   CombatAttribute,
   EquipmentBaseItem,
   EquipmentType,
-  HpChangeSource,
-  HpChangeSourceCategory,
+  ResourceChangeSource,
+  ResourceChangeSourceCategory,
   KineticDamageType,
   MagicalElement,
   NumberRange,
@@ -18,7 +18,7 @@ import { WeaponGenerationTemplate } from "./equipment-generation-template-abstra
 export class OneHandedMeleeWeaponGenerationTemplate extends WeaponGenerationTemplate {
   constructor(
     public damage: NumberRange,
-    public possibleDamageClassifications: HpChangeSource[],
+    public possibleDamageClassifications: ResourceChangeSource[],
     public equipmentBaseItem: EquipmentBaseItem
   ) {
     if (equipmentBaseItem.equipmentType !== EquipmentType.OneHandedMeleeWeapon)
@@ -73,8 +73,8 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       baseItemType: weapon,
     });
 
-    let mainDamageClassification: null | HpChangeSource = new HpChangeSource({
-      category: HpChangeSourceCategory.Physical,
+    let mainDamageClassification: null | ResourceChangeSource = new ResourceChangeSource({
+      category: ResourceChangeSourceCategory.Physical,
       kineticDamageTypeOption: KineticDamageType.Blunt,
     });
 
@@ -142,12 +142,12 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         mainDamageClassification = null;
 
         template.possibleDamageClassifications = [
-          new HpChangeSource({
-            category: HpChangeSourceCategory.Physical,
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
             kineticDamageTypeOption: KineticDamageType.Slashing,
           }),
-          new HpChangeSource({
-            category: HpChangeSourceCategory.Physical,
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
             kineticDamageTypeOption: KineticDamageType.Piercing,
           }),
         ];
@@ -161,12 +161,12 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         mainDamageClassification = null;
         template.numDamageClassifications = 2;
         template.possibleDamageClassifications = [
-          new HpChangeSource({
-            category: HpChangeSourceCategory.Physical,
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
             kineticDamageTypeOption: KineticDamageType.Slashing,
           }),
-          new HpChangeSource({
-            category: HpChangeSourceCategory.Physical,
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
             kineticDamageTypeOption: KineticDamageType.Piercing,
           }),
         ];
@@ -196,8 +196,8 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
           .filter((element) => element !== MagicalElement.Dark && element !== MagicalElement.Light)
           .map(
             (element) =>
-              new HpChangeSource({
-                category: HpChangeSourceCategory.Physical,
+              new ResourceChangeSource({
+                category: ResourceChangeSourceCategory.Physical,
                 kineticDamageTypeOption: KineticDamageType.Slashing,
                 elementOption: element,
               })
@@ -211,7 +211,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(5, 8);
         template.damage = new NumberRange(6, 10);
         mainDamageClassification.kineticDamageTypeOption = KineticDamageType.Slashing;
-        mainDamageClassification.category = HpChangeSourceCategory.Magical;
+        mainDamageClassification.category = ResourceChangeSourceCategory.Magical;
         template.requirements[CombatAttribute.Intelligence] = 5;
         template.requirements[CombatAttribute.Strength] = 13;
         template.maxDurability = 5;
@@ -229,7 +229,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(2, 4);
         template.damage = new NumberRange(1, 8);
         mainDamageClassification.kineticDamageTypeOption = undefined;
-        mainDamageClassification.category = HpChangeSourceCategory.Magical;
+        mainDamageClassification.category = ResourceChangeSourceCategory.Magical;
         template.requirements[CombatAttribute.Intelligence] = 2;
         template.maxDurability = 7;
         break;
@@ -237,7 +237,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(3, 6);
         template.damage = new NumberRange(2, 10);
         mainDamageClassification.kineticDamageTypeOption = undefined;
-        mainDamageClassification.category = HpChangeSourceCategory.Magical;
+        mainDamageClassification.category = ResourceChangeSourceCategory.Magical;
         template.requirements[CombatAttribute.Intelligence] = 10;
         template.maxDurability = 9;
         break;
@@ -245,7 +245,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(5, 7);
         template.damage = new NumberRange(3, 13);
         mainDamageClassification.kineticDamageTypeOption = undefined;
-        mainDamageClassification.category = HpChangeSourceCategory.Magical;
+        mainDamageClassification.category = ResourceChangeSourceCategory.Magical;
         template.requirements[CombatAttribute.Intelligence] = 15;
         template.maxDurability = 12;
         break;
@@ -253,7 +253,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(8, 10);
         template.damage = new NumberRange(6, 16);
         mainDamageClassification.kineticDamageTypeOption = undefined;
-        mainDamageClassification.category = HpChangeSourceCategory.Magical;
+        mainDamageClassification.category = ResourceChangeSourceCategory.Magical;
         template.requirements[CombatAttribute.Intelligence] = 20;
         template.maxDurability = 18;
         break;

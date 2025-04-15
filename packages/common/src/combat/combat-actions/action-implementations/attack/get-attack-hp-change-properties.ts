@@ -4,16 +4,16 @@ import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { NumberRange } from "../../../../primatives/index.js";
 import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
 import {
-  HpChangeSource,
-  HpChangeSourceCategory,
-  HpChangeSourceConfig,
+  ResourceChangeSource,
+  ResourceChangeSourceCategory,
+  ResourceChangeSourceConfig,
 } from "../../../hp-change-source-types.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
-import { applyWeaponPropertiesToHpChangeProperties } from "../../action-calculation-utils/apply-weapon-properties-to-hp-change-properties.js";
-import { CombatActionHpChangeProperties } from "../../combat-action-hp-change-properties.js";
+import { applyWeaponPropertiesToResourceChangeProperties } from "../../action-calculation-utils/apply-weapon-properties-to-hp-change-properties.js";
+import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { CombatActionComponent } from "../../index.js";
 
-export function getAttackHpChangeProperties(
+export function getAttackResourceChangeProperties(
   action: CombatActionComponent,
   user: CombatantProperties,
   primaryTarget: CombatantProperties,
@@ -21,8 +21,8 @@ export function getAttackHpChangeProperties(
   weaponSlot: HoldableSlotType,
   options = { usableWeaponsOnly: true }
 ) {
-  const hpChangeSourceConfig: HpChangeSourceConfig = {
-    category: HpChangeSourceCategory.Physical,
+  const hpChangeSourceConfig: ResourceChangeSourceConfig = {
+    category: ResourceChangeSourceCategory.Physical,
     kineticDamageTypeOption: null,
     elementOption: null,
     isHealing: false,
@@ -41,9 +41,9 @@ export function getAttackHpChangeProperties(
     normalizedAttributeScalingByCombatantLevel: 1,
   });
 
-  const hpChangeSource = new HpChangeSource(hpChangeSourceConfig);
-  const hpChangeProperties: CombatActionHpChangeProperties = {
-    hpChangeSource,
+  const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
+  const hpChangeProperties: CombatActionResourceChangeProperties = {
+    resourceChangeSource,
     baseValues,
   };
 
@@ -56,7 +56,7 @@ export function getAttackHpChangeProperties(
   const weaponOption = equippedUsableWeapons[weaponSlot];
 
   if (weaponOption?.equipment && weaponOption) {
-    applyWeaponPropertiesToHpChangeProperties(
+    applyWeaponPropertiesToResourceChangeProperties(
       action,
       weaponOption,
       hpChangeProperties,
@@ -65,7 +65,7 @@ export function getAttackHpChangeProperties(
     );
   } else {
     // unarmed
-    hpChangeProperties.hpChangeSource.kineticDamageTypeOption = KineticDamageType.Blunt;
+    hpChangeProperties.resourceChangeSource.kineticDamageTypeOption = KineticDamageType.Blunt;
   }
 
   baseValues.floor();

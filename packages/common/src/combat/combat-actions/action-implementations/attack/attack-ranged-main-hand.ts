@@ -17,7 +17,7 @@ import { ActionAccuracyType } from "../../combat-action-accuracy.js";
 import { iterateNumericEnum } from "../../../../utils/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
-import { getAttackHpChangeProperties } from "./get-attack-hp-change-properties.js";
+import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
 import {
   getStandardActionArmorPenetration,
   getStandardActionCritChance,
@@ -42,7 +42,7 @@ const config: CombatActionComponentConfig = {
     ProhibitedTargetCombatantStates.Dead,
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
   ],
-  baseHpChangeValuesLevelMultiplier: 1,
+  baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: 0.9,
   incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: 1 } },
   costBases: {},
@@ -81,7 +81,7 @@ const config: CombatActionComponentConfig = {
     return getStandardActionArmorPenetration(user, CombatAttribute.Dexterity);
   },
   getHpChangeProperties: (user, primaryTarget, self) => {
-    const hpChangeProperties = getAttackHpChangeProperties(
+    const hpChangeProperties = getAttackResourceChangeProperties(
       self,
       user,
       primaryTarget,

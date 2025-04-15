@@ -3,15 +3,15 @@ import { MagicalElement } from "./magical-elements.js";
 
 // used to designate what properties of a weapon
 // should be applied to an ability
-export enum HpChangeSourceModifiers {
+export enum ResourceChangeSourceModifiers {
   KineticType,
   MagicalElement,
   SourceCategory,
   Lifesteal,
 }
 
-export interface HpChangeSourceConfig {
-  category: HpChangeSourceCategory;
+export interface ResourceChangeSourceConfig {
+  category: ResourceChangeSourceCategory;
   kineticDamageTypeOption?: null | KineticDamageType;
   elementOption?: null | MagicalElement;
   isHealing?: null | boolean;
@@ -19,13 +19,13 @@ export interface HpChangeSourceConfig {
 }
 
 // for sending over the wire
-export class HpChangeSource {
-  category: HpChangeSourceCategory;
+export class ResourceChangeSource {
+  category: ResourceChangeSourceCategory;
   kineticDamageTypeOption?: KineticDamageType;
   elementOption?: MagicalElement;
   isHealing?: boolean;
   lifestealPercentage?: number;
-  constructor(config: HpChangeSourceConfig) {
+  constructor(config: ResourceChangeSourceConfig) {
     this.category = config.category;
     if (config.kineticDamageTypeOption !== null)
       this.kineticDamageTypeOption = config.kineticDamageTypeOption;
@@ -35,24 +35,24 @@ export class HpChangeSource {
   }
 }
 
-export enum HpChangeSourceCategory {
+export enum ResourceChangeSourceCategory {
   Physical,
   Magical,
   Medical,
   Direct,
 }
 
-export const HP_CHANGE_SOURCE_CATEGORY_STRINGS: Record<HpChangeSourceCategory, string> = {
-  [HpChangeSourceCategory.Physical]: "Physical",
-  [HpChangeSourceCategory.Magical]: "Magical",
-  [HpChangeSourceCategory.Medical]: "Medical",
-  [HpChangeSourceCategory.Direct]: "Direct",
+export const HP_CHANGE_SOURCE_CATEGORY_STRINGS: Record<ResourceChangeSourceCategory, string> = {
+  [ResourceChangeSourceCategory.Physical]: "Physical",
+  [ResourceChangeSourceCategory.Magical]: "Magical",
+  [ResourceChangeSourceCategory.Medical]: "Medical",
+  [ResourceChangeSourceCategory.Direct]: "Direct",
 };
 
-export class HpChange {
+export class ResourceChange {
   constructor(
     public value: number,
-    public source: HpChangeSource,
+    public source: ResourceChangeSource,
     public isCrit?: boolean
   ) {}
 }

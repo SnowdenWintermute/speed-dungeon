@@ -1,4 +1,4 @@
-export default function splitHpChangeWithMultiTargetBonus(
+export default function splitResourceChangeWithMultiTargetBonus(
   hpChangeValue: number,
   numTargets: number,
   bonus: number

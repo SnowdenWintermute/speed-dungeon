@@ -98,7 +98,7 @@ export default function ActionCosts({ action, user }: Props) {
 //     target,
 //     targetWantsToBeHit
 //   );
-//   let valueRangeOptionResult = getCombatActionHpChangeRange(
+//   let valueRangeOptionResult = getCombatActionResourceChangeRange(
 //     combatAction,
 //     combatActionProperties.hpChangeProperties,
 //     userCombatantProperties,

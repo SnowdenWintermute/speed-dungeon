@@ -76,12 +76,12 @@ describe("placeholder", () => {
 //   GAME_CONFIG,
 //   GameMessageType,
 //   GameMode,
-//   HpChangeSource,
+//   ResourceChangeSource,
 //   PartyFate,
 //   ServerToClientEvent,
 //   ServerToClientEventTypes,
-//   HpChangeSourceCategory,
-//   HpChange,
+//   ResourceChangeSourceCategory,
+//   ResourceChange,
 // } from "@speed-dungeon/common";
 // import { env } from "../../validate-env.js";
 // import {
@@ -417,10 +417,10 @@ describe("placeholder", () => {
 //             abilityName: AbilityName.Attack,
 //           },
 //           hpChangesByEntityId: {
-//             [character1.entityProperties.id]: new HpChange(
+//             [character1.entityProperties.id]: new ResourceChange(
 //               -9999,
-//               new HpChangeSource(
-//                 HpChangeSourceCategory.Physical,
+//               new ResourceChangeSource(
+//                 ResourceChangeSourceCategory.Physical,
 //                 MeleeOrRanged.Melee,
 //                 undefined,
 //                 undefined,

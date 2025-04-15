@@ -30,7 +30,7 @@ export function addHitOutcomeDurabilityChanges(
     actionUser.combatantProperties,
     targetCombatant.combatantProperties
   );
-  if (hpChangeProperties?.hpChangeSource.isHealing) return;
+  if (hpChangeProperties?.resourceChangeSource.isHealing) return;
 
   hitOutcomeDurabilityChangeOnTargetCalculators[hitOutcomeType](
     durabilityChanges,

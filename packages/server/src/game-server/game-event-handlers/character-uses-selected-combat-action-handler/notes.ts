@@ -146,7 +146,7 @@
 //
 //            await () => new Promise((resolve) => hitRecoveryAnimation.playWithPercentCompleteEvents({ percent: arbitraryAnimationPercentageToProcessNextEvents, event: () => {resolve()} }))
 //            hitRecoveryAnimationEvent.completionOrderId = mostRecentlyCompletedEventId++
-//            const hpChangeEvent = new GameStateUpdate(GameStateUpdateType.HpChange)
+//            const hpChangeEvent = new GameStateUpdate(GameStateUpdateType.ResourceChange)
 //            node.events.push(hpChangeEvent)
 //            hpChangeEvent.completionOrderId = mostRecentlyCompletedEventId++
 //            const triggeredActionsOption = target.getTriggeredActions(action ,Trigger.OnHit);

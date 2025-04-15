@@ -1,32 +1,36 @@
 import cloneDeep from "lodash.clonedeep";
-import { HpChange, HpChangeSource, HpChangeSourceModifiers } from "../../hp-change-source-types.js";
+import {
+  ResourceChange,
+  ResourceChangeSource,
+  ResourceChangeSourceModifiers,
+} from "../../hp-change-source-types.js";
 import { HP_CALCLULATION_CONTEXTS } from "../../action-results/index.js";
 import {
   applyElementalAffinities,
   applyKineticAffinities,
 } from "./apply-affinities-to-hp-change.js";
 import { CombatantProperties } from "../../../combatants";
-import { convertHpChangeValueToFinalSign } from "./convert-hp-change-value-to-final-sign.js";
-import { CombatActionHpChangeProperties } from "../combat-action-hp-change-properties";
-import { copySelectedModifiersFromHpChangeSource } from "./copy-selected-modifiers-from-hp-change-source.js";
+import { convertResourceChangeValueToFinalSign } from "./convert-hp-change-value-to-final-sign.js";
+import { CombatActionResourceChangeProperties } from "../combat-action-resource-change-properties";
+import { copySelectedModifiersFromResourceChangeSource } from "./copy-selected-modifiers-from-hp-change-source.js";
 import { CombatActionComponent } from "../index.js";
 
-export function selectMostEffectiveFromAvailableHpChangeSourceModifiers(
+export function selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
   action: CombatActionComponent,
-  hpChangeProperties: CombatActionHpChangeProperties,
-  toSelectFrom: HpChangeSource[],
-  modifiers: Set<HpChangeSourceModifiers>,
+  hpChangeProperties: CombatActionResourceChangeProperties,
+  toSelectFrom: ResourceChangeSource[],
+  modifiers: Set<ResourceChangeSourceModifiers>,
   userCombatantProperties: CombatantProperties,
   targetCombatantProperties: CombatantProperties,
   expectedRolledValueAverage: number
 ) {
-  const hpChangeToModify = new HpChange(
+  const hpChangeToModify = new ResourceChange(
     expectedRolledValueAverage,
-    hpChangeProperties.hpChangeSource
+    hpChangeProperties.resourceChangeSource
   );
 
   let mostEffective: null | {
-    source: HpChangeSource;
+    source: ResourceChangeSource;
     value: number;
   } = null;
 
@@ -34,14 +38,14 @@ export function selectMostEffectiveFromAvailableHpChangeSourceModifiers(
     const hpChangeToTest = cloneDeep(hpChangeToModify);
     const source = hpChangeToTest.source;
 
-    copySelectedModifiersFromHpChangeSource(source, hpChangeSource, modifiers);
+    copySelectedModifiersFromResourceChangeSource(source, hpChangeSource, modifiers);
 
     const hpChangeCalculationContext = HP_CALCLULATION_CONTEXTS[source.category];
 
     applyKineticAffinities(hpChangeToTest, targetCombatantProperties);
     applyElementalAffinities(hpChangeToTest, targetCombatantProperties);
 
-    convertHpChangeValueToFinalSign(hpChangeToTest, targetCombatantProperties);
+    convertResourceChangeValueToFinalSign(hpChangeToTest, targetCombatantProperties);
     hpChangeCalculationContext.applyResilience(
       hpChangeToTest,
       userCombatantProperties,

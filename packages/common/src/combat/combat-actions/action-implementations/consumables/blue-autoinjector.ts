@@ -9,11 +9,7 @@ import {
   TargetingScheme,
 } from "../../index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
-import {
-  CombatantProperties,
-  CombatantProperties,
-  CombatantTraitType,
-} from "../../../../combatants/index.js";
+import { CombatantProperties, CombatantTraitType } from "../../../../combatants/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
@@ -23,8 +19,14 @@ import { COMMON_CHILD_ACTION_STEPS_SEQUENCE } from "../common-action-steps-seque
 import { ConsumableType } from "../../../../items/consumables/index.js";
 import { CONSUMABLE_COMMON_CONFIG } from "./consumable-common-config.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
-import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { randBetween } from "../../../../utils/index.js";
+import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
+import {
+  ResourceChangeSource,
+  ResourceChangeSourceCategory,
+  ResourceChangeSourceConfig,
+} from "../../../hp-change-source-types.js";
+import { NumberRange } from "../../../../primatives/number-range.js";
 
 const config: CombatActionComponentConfig = {
   ...CONSUMABLE_COMMON_CONFIG,
@@ -38,7 +40,7 @@ const config: CombatActionComponentConfig = {
     ProhibitedTargetCombatantStates.Dead,
     ProhibitedTargetCombatantStates.FullMana,
   ],
-  baseHpChangeValuesLevelMultiplier: 1,
+  baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
   incursDurabilityLoss: {},
   costBases: {
@@ -52,7 +54,7 @@ const config: CombatActionComponentConfig = {
   shouldExecute: () => true,
   getHpChangeProperties: (user, primaryTarget, self) => null,
 
-  getManaChanges: (
+  getManaChangeProperties: (
     user: CombatantProperties,
     primaryTarget: CombatantProperties,
     self: CombatActionComponent
@@ -63,11 +65,20 @@ const config: CombatActionComponentConfig = {
         mpBioavailability = trait.percent / 100;
     }
     const maxMp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Mp];
-    if (primaryTarget.mana === maxMp)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.ALREADY_FULL_MP);
     const minRestored = (mpBioavailability * maxMp) / 8;
     const maxRestored = (mpBioavailability * 3 * maxMp) / 8;
-    const manaChange = Math.max(1, randBetween(minRestored, maxRestored));
+
+    const resourceChangeSourceConfig: ResourceChangeSourceConfig = {
+      category: ResourceChangeSourceCategory.Medical,
+      isHealing: true,
+    };
+
+    const resourceChangeSource = new ResourceChangeSource(resourceChangeSourceConfig);
+    const manaChangeProperties: CombatActionResourceChangeProperties = {
+      resourceChangeSource,
+      baseValues: new NumberRange(1, randBetween(minRestored, maxRestored)),
+    };
+    return manaChangeProperties;
   },
   getAppliedConditions: (context) => null,
   getChildren: () => [],

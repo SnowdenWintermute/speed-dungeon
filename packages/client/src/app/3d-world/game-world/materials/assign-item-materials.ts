@@ -3,7 +3,7 @@ import {
   ConsumableType,
   Equipment,
   EquipmentType,
-  HpChangeSource,
+  ResourceChangeSource,
   Item,
   MAGICAL_ELEMENT_STRINGS,
   MagicalElement,
@@ -371,7 +371,7 @@ export function assignEquipmentMaterials(
 function assignElementalMaterials(
   materials: { [name: string]: StandardMaterial },
   savedMaterials: SavedMaterials,
-  damageClassification: HpChangeSource[]
+  damageClassification: ResourceChangeSource[]
 ) {
   let i = 1;
   for (const classification of damageClassification) {

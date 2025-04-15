@@ -1,23 +1,23 @@
 import { CombatantProperties } from "../../../combatants/index.js";
-import { HpChange } from "../../hp-change-source-types.js";
+import { ResourceChange } from "../../hp-change-source-types.js";
 
-export function applyElementalAffinities(hpChange: HpChange, target: CombatantProperties) {
+export function applyElementalAffinities(hpChange: ResourceChange, target: CombatantProperties) {
   const hpChangeElement = hpChange.source.elementOption;
   if (hpChangeElement === undefined) return;
   const targetAffinities = CombatantProperties.getCombatantTotalElementalAffinities(target);
   const affinityValue = targetAffinities[hpChangeElement] || 0;
-  hpChange.value = applyAffinityToHpChange(affinityValue, hpChange.value);
+  hpChange.value = applyAffinityToResourceChange(affinityValue, hpChange.value);
 }
 
-export function applyKineticAffinities(hpChange: HpChange, target: CombatantProperties) {
+export function applyKineticAffinities(hpChange: ResourceChange, target: CombatantProperties) {
   const kineticDamageType = hpChange.source.kineticDamageTypeOption;
   if (kineticDamageType === undefined) return;
   const targetAffinities = CombatantProperties.getCombatantTotalKineticDamageTypeAffinities(target);
   const affinityValue = targetAffinities[kineticDamageType] || 0;
-  hpChange.value = applyAffinityToHpChange(affinityValue, hpChange.value);
+  hpChange.value = applyAffinityToResourceChange(affinityValue, hpChange.value);
 }
 
-export function applyAffinityToHpChange(
+export function applyAffinityToResourceChange(
   affinityPercentage: number,
   hpChange: number // 10
 ): number {

@@ -1,4 +1,4 @@
-// import { HpChangeSource, HpChangeSourceCategory } from "../index.js";
+// import { ResourceChangeSource, ResourceChangeSourceCategory } from "../index.js";
 // import {
 //   Combatant,
 //   CombatantProperties,
@@ -52,8 +52,8 @@
 //    const minHealing = (hpBioavailability * maxHp) / 8;
 //    const maxHealing = (hpBioavailability * 3 * maxHp) / 8;
 //    if (!actionResult.hitPointChangesByEntityId) actionResult.hitPointChangesByEntityId = {};
-//    const hpChangeSource = new HpChangeSource(
-//      HpChangeSourceCategory.Medical,
+//    const hpChangeSource = new ResourceChangeSource(
+//      ResourceChangeSourceCategory.Medical,
 //      MeleeOrRanged.Ranged
 //    );
 //    hpChangeSource.isHealing = true;

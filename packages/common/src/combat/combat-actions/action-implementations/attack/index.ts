@@ -38,7 +38,7 @@ const config: CombatActionComponentConfig = {
     ProhibitedTargetCombatantStates.Dead,
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
   ],
-  baseHpChangeValuesLevelMultiplier: 1,
+  baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
   incursDurabilityLoss: {},
   costBases: {},
@@ -48,7 +48,7 @@ const config: CombatActionComponentConfig = {
   shouldExecute: () => true,
   getActionStepAnimations: (context) => null,
   getHpChangeProperties: () => null, // client should display child hp change properties
-  getManaChanges: () => null,
+  getManaChangeProperties: () => null,
   getAppliedConditions: function (): CombatantCondition[] | null {
     // @TODO - determine based on equipment
     throw new Error("Function not implemented.");

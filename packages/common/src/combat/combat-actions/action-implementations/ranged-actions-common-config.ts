@@ -48,7 +48,7 @@ export const RANGED_ACTIONS_COMMON_CONFIG = {
     return getStandardActionArmorPenetration(user, CombatAttribute.Dexterity);
   },
 
-  getManaChanges: (
+  getManaChangeProperties: (
     user: CombatantProperties,
     primaryTarget: CombatantProperties,
     self: CombatActionComponent

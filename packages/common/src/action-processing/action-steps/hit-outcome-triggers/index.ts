@@ -8,9 +8,9 @@ import {
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   HitPointChanges,
-  HpChange,
-  HpChangeSource,
-  HpChangeSourceCategory,
+  ResourceChange,
+  ResourceChangeSource,
+  ResourceChangeSourceCategory,
 } from "../../../combat/index.js";
 import { Combatant } from "../../../combatants/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
@@ -112,7 +112,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     gameUpdateCommand.durabilityChanges = durabilityChanges;
 
     const triggeredHitPointChanges = new HitPointChanges();
-    let accumulatedLifeStolenHpChange: null | HpChange = null;
+    let accumulatedLifeStolenResourceChange: null | ResourceChange = null;
     if (tracker.hitOutcomes.hitPointChanges) {
       for (const [entityId, hpChange] of tracker.hitOutcomes.hitPointChanges.getRecords()) {
         if (hpChange.source.lifestealPercentage !== undefined) {
@@ -121,17 +121,17 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             hpChange.value * (hpChange.source.lifestealPercentage / 100) * -1
           );
 
-          if (!accumulatedLifeStolenHpChange) {
-            accumulatedLifeStolenHpChange = new HpChange(
+          if (!accumulatedLifeStolenResourceChange) {
+            accumulatedLifeStolenResourceChange = new ResourceChange(
               lifestealValue,
-              new HpChangeSource({ category: HpChangeSourceCategory.Magical })
+              new ResourceChangeSource({ category: ResourceChangeSourceCategory.Magical })
             );
-            accumulatedLifeStolenHpChange.isCrit = hpChange.isCrit;
-            accumulatedLifeStolenHpChange.value = lifestealValue;
+            accumulatedLifeStolenResourceChange.isCrit = hpChange.isCrit;
+            accumulatedLifeStolenResourceChange.value = lifestealValue;
           } else {
             // if aggregating lifesteal from multiple hits, call it a crit if any of the hits were crits
-            if (hpChange.isCrit) accumulatedLifeStolenHpChange.isCrit = true;
-            accumulatedLifeStolenHpChange.value += lifestealValue;
+            if (hpChange.isCrit) accumulatedLifeStolenResourceChange.isCrit = true;
+            accumulatedLifeStolenResourceChange.value += lifestealValue;
           }
         }
       }
@@ -139,17 +139,17 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
     // @TODO - change triggered hp changes to an array since the same action might damage the user
     // but also result in a separate lifesteal on the user
-    if (accumulatedLifeStolenHpChange) {
-      accumulatedLifeStolenHpChange.value = Math.floor(accumulatedLifeStolenHpChange.value);
+    if (accumulatedLifeStolenResourceChange) {
+      accumulatedLifeStolenResourceChange.value = Math.floor(accumulatedLifeStolenResourceChange.value);
       const existingHitPointChangeOption = triggeredHitPointChanges.getRecord(
         combatant.entityProperties.id
       );
       if (existingHitPointChangeOption)
-        existingHitPointChangeOption.value += accumulatedLifeStolenHpChange.value;
+        existingHitPointChangeOption.value += accumulatedLifeStolenResourceChange.value;
       else
         triggeredHitPointChanges.addRecord(
           combatant.entityProperties.id,
-          accumulatedLifeStolenHpChange
+          accumulatedLifeStolenResourceChange
         );
     }
 

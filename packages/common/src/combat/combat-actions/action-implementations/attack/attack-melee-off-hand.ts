@@ -10,21 +10,18 @@ import {
 import {
   AnimationType,
   SkeletalAnimationName,
-  DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME,
   OFF_HAND_ACCURACY_MODIFIER,
   OFF_HAND_CRIT_CHANCE_MODIFIER,
   OFF_HAND_DAMAGE_MODIFIER,
-  SKELETAL_ANIMATION_NAME_STRINGS,
 } from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
 import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
-import { iterateNumericEnum } from "../../../../utils/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
-import { getAttackHpChangeProperties } from "./get-attack-hp-change-properties.js";
+import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { getStandardActionCritChance } from "../../action-calculation-utils/standard-action-calculations.js";
@@ -38,11 +35,10 @@ import {
 import { AnimationTimingType } from "../../../../action-processing/game-update-commands.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
 import { COMBAT_ACTIONS } from "../index.js";
-import { getIncomingHpChangePerTarget } from "../../../action-results/index.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 import { COMMON_CHILD_ACTION_STEPS_SEQUENCE } from "../common-action-steps-sequence.js";
+import { getIncomingHpChangePerTarget } from "../../../action-results/index.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -57,7 +53,7 @@ const config: CombatActionComponentConfig = {
     ProhibitedTargetCombatantStates.Dead,
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
   ],
-  baseHpChangeValuesLevelMultiplier: 1,
+  baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: OFF_HAND_ACCURACY_MODIFIER,
   incursDurabilityLoss: {
     [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: DurabilityLossCondition.OnHit },
@@ -95,7 +91,7 @@ const config: CombatActionComponentConfig = {
     if (targetIdsResult instanceof Error) return targetIdsResult;
     const targetIds = targetIdsResult;
 
-    const incomingHpChangePerTargetOption = getIncomingHpChangePerTarget(
+    const incomingResourceChangePerTargetOption = getIncomingHpChangePerTarget(
       action,
       context.combatantContext.combatant.combatantProperties,
       target,
@@ -123,8 +119,9 @@ const config: CombatActionComponentConfig = {
       recoveryAnimation = SkeletalAnimationName.OffHandUnarmedRecovery;
       console.log("set animations for unarmed offhand");
     } else {
-      if (incomingHpChangePerTargetOption) {
-        const { kineticDamageTypeOption } = incomingHpChangePerTargetOption.hpChangeSource;
+      if (incomingResourceChangePerTargetOption) {
+        const { kineticDamageTypeOption } =
+          incomingResourceChangePerTargetOption.resourceChangeSource;
         if (kineticDamageTypeOption !== undefined)
           switch (kineticDamageTypeOption) {
             case KineticDamageType.Blunt:
@@ -172,7 +169,7 @@ const config: CombatActionComponentConfig = {
     );
   },
   getHpChangeProperties: (user, primaryTarget, self) => {
-    const hpChangeProperties = getAttackHpChangeProperties(
+    const hpChangeProperties = getAttackResourceChangeProperties(
       self,
       user,
       primaryTarget,

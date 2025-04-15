@@ -1,11 +1,11 @@
 import { ERROR_MESSAGES } from "../../../errors/index.js";
-import { HpChangeSource } from "../../../combat/index.js";
+import { ResourceChangeSource } from "../../../combat/index.js";
 import { AffixType, PrefixType } from "../affixes.js";
 import { Equipment, EquipmentTraitType } from "../index.js";
 
-export function applyEquipmentTraitsToHpChangeSource(
+export function applyEquipmentTraitsToResourceChangeSource(
   equipment: Equipment,
-  hpChangeSource: HpChangeSource
+  hpChangeSource: ResourceChangeSource
 ) {
   const lifestealAffixOption = equipment.affixes[AffixType.Prefix][PrefixType.LifeSteal];
 

@@ -17,12 +17,12 @@ import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { ActionAccuracy, ActionAccuracyType } from "../../combat-action-accuracy.js";
 import { RANGED_ACTION_DESTINATION_GETTERS } from "../ranged-action-destination-getters.js";
 import {
-  HpChangeSource,
-  HpChangeSourceCategory,
-  HpChangeSourceConfig,
+  ResourceChangeSource,
+  ResourceChangeSourceCategory,
+  ResourceChangeSourceConfig,
 } from "../../../hp-change-source-types.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
-import { CombatActionHpChangeProperties } from "../../combat-action-hp-change-properties.js";
+import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { COMMON_CHILD_ACTION_STEPS_SEQUENCE } from "../common-action-steps-sequence.js";
 import { randBetween } from "../../../../utils/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
@@ -41,7 +41,7 @@ const config: CombatActionComponentConfig = {
     ProhibitedTargetCombatantStates.Dead,
     ProhibitedTargetCombatantStates.FullHp,
   ],
-  baseHpChangeValuesLevelMultiplier: 1,
+  baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
   incursDurabilityLoss: {},
   costBases: {
@@ -54,8 +54,8 @@ const config: CombatActionComponentConfig = {
   requiresCombatTurn: (context) => false,
   shouldExecute: () => true,
   getHpChangeProperties: (user, primaryTarget, self) => {
-    const hpChangeSourceConfig: HpChangeSourceConfig = {
-      category: HpChangeSourceCategory.Magical,
+    const hpChangeSourceConfig: ResourceChangeSourceConfig = {
+      category: ResourceChangeSourceCategory.Medical,
       isHealing: true,
     };
 
@@ -68,15 +68,15 @@ const config: CombatActionComponentConfig = {
     const minHealing = (hpBioavailability * maxHp) / 8;
     const maxHealing = (hpBioavailability * 3 * maxHp) / 8;
 
-    const hpChangeSource = new HpChangeSource(hpChangeSourceConfig);
-    const hpChangeProperties: CombatActionHpChangeProperties = {
-      hpChangeSource,
+    const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
+    const hpChangeProperties: CombatActionResourceChangeProperties = {
+      resourceChangeSource,
       baseValues: new NumberRange(1, randBetween(minHealing, maxHealing)),
     };
 
     return hpChangeProperties;
   },
-  getManaChanges: () => null,
+  getManaChangeProperties: () => null,
   getAppliedConditions: function (context): CombatantCondition[] | null {
     return null;
   },

@@ -13,7 +13,7 @@ import {
 } from "../action-calculation-utils/standard-action-calculations.js";
 import { ActionAccuracy, ActionAccuracyType } from "../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../combat-action-range.js";
-import { CombatActionComponent, ManaChanges } from "../../index.js";
+import { CombatActionComponent } from "../../index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { COMMON_DESTINATION_GETTERS } from "./common-destination-getters.js";
 import { COMMON_CHILD_ACTION_STEPS_SEQUENCE } from "./common-action-steps-sequence.js";
@@ -45,7 +45,7 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
     return getStandardActionArmorPenetration(user, CombatAttribute.Strength);
   },
   getResolutionSteps: () => COMMON_CHILD_ACTION_STEPS_SEQUENCE,
-  getManaChanges: (
+  getManaChangeProperties: (
     user: CombatantProperties,
     primaryTarget: CombatantProperties,
     self: CombatActionComponent

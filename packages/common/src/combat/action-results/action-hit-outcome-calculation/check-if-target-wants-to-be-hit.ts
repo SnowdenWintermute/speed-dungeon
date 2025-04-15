@@ -11,8 +11,8 @@ export function checkIfTargetWantsToBeHit(
 
   // regardless of the action intent, don't try to evade if would be healed
   if (hpChangePropertiesOption) {
-    const { hpChangeSource } = hpChangePropertiesOption;
-    const { isHealing } = hpChangeSource;
+    const { resourceChangeSource } = hpChangePropertiesOption;
+    const { isHealing } = resourceChangeSource;
 
     const isUndead = CombatantProperties.hasTraitType(
       targetCombatantProperties,
@@ -22,7 +22,7 @@ export function checkIfTargetWantsToBeHit(
     if (isHealing && isUndead) return false;
     if (isHealing) return true;
 
-    const { elementOption } = hpChangeSource;
+    const { elementOption } = resourceChangeSource;
     if (elementOption) {
       const targetAffinities =
         CombatantProperties.getCombatantTotalElementalAffinities(targetCombatantProperties);

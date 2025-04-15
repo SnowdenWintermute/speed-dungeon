@@ -1,7 +1,7 @@
 // import cloneDeep from "lodash.clonedeep";
 // import {
 //   CombatActionProperties,
-//   CombatActionHpChangeProperties,
+//   CombatActionResourceChangeProperties,
 //   ActionUsableContext,
 //   DurabilityLossCondition,
 // } from "../../combat/combat-actions/combat-action-properties.js";
@@ -11,9 +11,9 @@
 //   OFF_HAND_DAMAGE_MODIFIER,
 // } from "../../app-consts.js";
 // import {
-//   HpChangeSource,
-//   HpChangeSourceCategory,
-//   HpChangeSourceModifiers,
+//   ResourceChangeSource,
+//   ResourceChangeSourceCategory,
+//   ResourceChangeSourceModifiers,
 // } from "../../combat/hp-change-source-types.js";
 // import { MagicalElement } from "../../combat/magical-elements.js";
 // import { NumberRange } from "../../primatives/number-range.js";
@@ -32,17 +32,17 @@
 //   return attributes;
 // })();
 
-// const allWeaponModifiers = new Set<HpChangeSourceModifiers>([
-//   HpChangeSourceModifiers.KineticType,
-//   HpChangeSourceModifiers.MagicalElement,
-//   HpChangeSourceModifiers.SourceCategory,
-//   HpChangeSourceModifiers.Lifesteal,
+// const allWeaponModifiers = new Set<ResourceChangeSourceModifiers>([
+//   ResourceChangeSourceModifiers.KineticType,
+//   ResourceChangeSourceModifiers.MagicalElement,
+//   ResourceChangeSourceModifiers.SourceCategory,
+//   ResourceChangeSourceModifiers.Lifesteal,
 // ]);
 
 // const ATTACK_MELEE_MAIN_HAND = (() => {
 //   const combatActionProperties = new CombatActionProperties();
-//   const hpChangeProperties = new CombatActionHpChangeProperties(
-//     new HpChangeSource(HpChangeSourceCategory.Physical, MeleeOrRanged.Melee)
+//   const hpChangeProperties = new CombatActionResourceChangeProperties(
+//     new ResourceChangeSource(ResourceChangeSourceCategory.Physical, MeleeOrRanged.Melee)
 //   );
 //   hpChangeProperties.baseValues = new NumberRange(1, 1);
 //   hpChangeProperties.addWeaponDamageFromSlots = [HoldableSlotType.MainHand];
@@ -110,8 +110,8 @@
 //   combatActionProperties.isMelee = false;
 //   combatActionProperties.targetingSchemes = [TargetingScheme.Single, TargetingScheme.Area];
 
-//   const hpChangeProperties = new CombatActionHpChangeProperties(
-//     new HpChangeSource(HpChangeSourceCategory.Magical, MeleeOrRanged.Ranged)
+//   const hpChangeProperties = new CombatActionResourceChangeProperties(
+//     new ResourceChangeSource(ResourceChangeSourceCategory.Magical, MeleeOrRanged.Ranged)
 //   );
 //   hpChangeProperties.hpChangeSource.elementOption = MagicalElement.Fire;
 //   hpChangeProperties.hpChangeSource.unavoidable = true;
@@ -122,7 +122,7 @@
 //   attributes.manaCost = 2;
 //   attributes.abilityLevelManaCostMultiplier = 1;
 //   attributes.combatantLevelManaCostMultiplier = 1;
-//   attributes.baseHpChangeValuesLevelMultiplier = 1.0;
+//   attributes.baseResourceChangeValuesLevelMultiplier = 1.0;
 //   hpChangeProperties.baseValues = new NumberRange(3, 7);
 //   hpChangeProperties.additiveAttributeAndPercentScalingFactor = [CombatAttribute.Intelligence, 200];
 //   hpChangeProperties.critChanceAttribute = CombatAttribute.Focus;

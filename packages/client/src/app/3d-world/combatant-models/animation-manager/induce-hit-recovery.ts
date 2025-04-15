@@ -3,14 +3,14 @@ import {
   CombatantProperties,
   ERROR_MESSAGES,
   HP_CHANGE_SOURCE_CATEGORY_STRINGS,
-  HpChange,
+  ResourceChange,
   KINETIC_DAMAGE_TYPE_STRINGS,
   MAGICAL_ELEMENT_STRINGS,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
 import { GameWorld } from "../../game-world";
-import startHpChangeFloatingMessage from "./start-hp-change-floating-message";
+import startResourceChangeFloatingMessage from "./start-hp-change-floating-message";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { useUIStore } from "@/stores/ui-store";
@@ -20,7 +20,7 @@ export function induceHitRecovery(
   actionUserName: string,
   actionUserId: string,
   targetId: string,
-  hpChange: HpChange,
+  hpChange: ResourceChange,
   wasSpell: boolean,
   wasBlocked: boolean
 ) {
@@ -29,7 +29,7 @@ export function induceHitRecovery(
 
   // hpChange.isCrit = true;
 
-  startHpChangeFloatingMessage(targetId, hpChange, wasBlocked, 2000);
+  startResourceChangeFloatingMessage(targetId, hpChange, wasBlocked, 2000);
 
   const showDebug = useUIStore.getState().showDebug;
 
@@ -52,7 +52,7 @@ export function induceHitRecovery(
     if (combatantResult instanceof Error) return console.error(combatantResult);
     const { combatantProperties } = combatantResult;
 
-    const combatantWasAliveBeforeHpChange = combatantProperties.hitPoints > 0;
+    const combatantWasAliveBeforeResourceChange = combatantProperties.hitPoints > 0;
     CombatantProperties.changeHitPoints(combatantProperties, hpChange.value);
 
     const elementOption =
@@ -121,7 +121,7 @@ export function induceHitRecovery(
 
       targetModel.animationManager.startAnimationWithTransition(animationName, 0, {
         onComplete: () => {
-          if (!combatantWasAliveBeforeHpChange && combatantProperties.hitPoints > 0) {
+          if (!combatantWasAliveBeforeResourceChange && combatantProperties.hitPoints > 0) {
             // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
           } else {
             targetModel.startIdleAnimation(500);
