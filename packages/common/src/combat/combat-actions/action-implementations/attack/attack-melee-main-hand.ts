@@ -29,7 +29,8 @@ import { KineticDamageType } from "../../../kinetic-damage-types.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { COMBAT_ACTIONS } from "../index.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
-import { getIncomingHpChangePerTarget } from "../../../action-results/index.js";
+import { getIncomingResourceChangePerTarget } from "../../../action-results/index.js";
+import cloneDeep from "lodash.clonedeep";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -111,11 +112,12 @@ const config: CombatActionComponentConfig = {
       if (targetIdsResult instanceof Error) return targetIdsResult;
       const targetIds = targetIdsResult;
 
-      const incomingResourceChangePerTargetOption = getIncomingHpChangePerTarget(
-        action,
-        context.combatantContext.combatant.combatantProperties,
-        target,
-        targetIds
+      const actionHpChangePropertiesOption = cloneDeep(
+        action.getHpChangeProperties(context.combatantContext.combatant.combatantProperties, target)
+      );
+      const incomingResourceChangePerTargetOption = getIncomingResourceChangePerTarget(
+        targetIds,
+        actionHpChangePropertiesOption
       );
 
       if (incomingResourceChangePerTargetOption) {

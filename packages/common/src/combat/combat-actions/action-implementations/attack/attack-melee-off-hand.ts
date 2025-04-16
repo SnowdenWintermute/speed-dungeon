@@ -38,7 +38,8 @@ import { COMBAT_ACTIONS } from "../index.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 import { COMMON_CHILD_ACTION_STEPS_SEQUENCE } from "../common-action-steps-sequence.js";
-import { getIncomingHpChangePerTarget } from "../../../action-results/index.js";
+import { getIncomingResourceChangePerTarget } from "../../../action-results/index.js";
+import cloneDeep from "lodash.clonedeep";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -91,11 +92,12 @@ const config: CombatActionComponentConfig = {
     if (targetIdsResult instanceof Error) return targetIdsResult;
     const targetIds = targetIdsResult;
 
-    const incomingResourceChangePerTargetOption = getIncomingHpChangePerTarget(
-      action,
-      context.combatantContext.combatant.combatantProperties,
-      target,
-      targetIds
+    const actionHpChangePropertiesOption = cloneDeep(
+      action.getHpChangeProperties(context.combatantContext.combatant.combatantProperties, target)
+    );
+    const incomingResourceChangePerTargetOption = getIncomingResourceChangePerTarget(
+      targetIds,
+      actionHpChangePropertiesOption
     );
 
     let chamberingAnimation = SkeletalAnimationName.OffHandSwingChambering;

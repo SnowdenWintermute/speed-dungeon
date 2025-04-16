@@ -26,6 +26,7 @@ export function hitOutcomesGameUpdateHandler(update: {
   const { outcomes, actionUserName, actionUserId } = command;
   const { outcomeFlags } = outcomes;
   const hitPointChanges = plainToInstance(HitPointChanges, outcomes.hitPointChanges);
+  const manaChanges = plainToInstance(HitPointChanges, outcomes.manaChanges);
 
   if (!gameWorld.current) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
 

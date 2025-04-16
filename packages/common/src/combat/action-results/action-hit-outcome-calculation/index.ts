@@ -2,7 +2,7 @@ import cloneDeep from "lodash.clonedeep";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { randBetween } from "../../../utils/index.js";
 import splitResourceChangeWithMultiTargetBonus from "./split-hp-change-with-multi-target-bonus.js";
-import { MULTI_TARGET_HP_CHANGE_BONUS } from "../../../app-consts.js";
+import { MULTI_TARGET_RESOURCE_CHANGE_BONUS } from "../../../app-consts.js";
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { ResourceChange, ResourceChangeSource } from "../../hp-change-source-types.js";
 import { checkIfTargetWantsToBeHit } from "./check-if-target-wants-to-be-hit.js";
@@ -20,7 +20,6 @@ import { getActionCritChance } from "./get-action-crit-chance.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { ActionResolutionStepContext } from "../../../action-processing/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
-import { CombatActionComponent } from "../../combat-actions/index.js";
 import { getShieldBlockDamageReduction } from "./get-shield-block-damage-reduction.js";
 export * from "./get-action-hit-chance.js";
 export * from "./get-action-crit-chance.js";
@@ -30,11 +29,12 @@ export * from "./resource-changes.js";
 
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
-import { HitPointChanges } from "./resource-changes.js";
+import { HitPointChanges, ManaChanges, ResourceChanges } from "./resource-changes.js";
+import { CombatActionResourceChangeProperties } from "../../combat-actions/combat-action-resource-change-properties.js";
 
 export class CombatActionHitOutcomes {
   hitPointChanges?: HitPointChanges;
-  manaChanges?: Record<EntityId, number>;
+  manaChanges?: ManaChanges;
   durabilityChanges?: DurabilityChangesByEntityId;
   // distinct from hitPointChanges, "hits" is used to determine triggers for abilities that don't cause
   // hit point changes, but may apply a condition to their target or otherwise change something
@@ -74,11 +74,16 @@ export function calculateActionHitOutcomes(
 
   const hitOutcomes = new CombatActionHitOutcomes();
 
-  const incomingResourceChangePerTargetOption = getIncomingHpChangePerTarget(
-    action,
-    user,
-    target,
-    targetIds
+  const actionHpChangePropertiesOption = cloneDeep(action.getHpChangeProperties(user, target));
+  const actionManaChangePropertiesOption = cloneDeep(action.getManaChangeProperties(user, target));
+
+  const incomingHpChangePerTargetOption = getIncomingResourceChangePerTarget(
+    targetIds,
+    actionHpChangePropertiesOption
+  );
+  const incomingManaChangePerTargetOption = getIncomingResourceChangePerTarget(
+    targetIds,
+    actionManaChangePropertiesOption
   );
 
   for (const id of targetIds) {
@@ -138,69 +143,99 @@ export function calculateActionHitOutcomes(
     // it is possible that an ability hits, but does not change HP, ex: a spell that only induces a condition
     hitOutcomes.insertOutcomeFlag(HitOutcome.Hit, id);
 
-    if (!incomingResourceChangePerTargetOption) continue;
-    const { value: incomingResourceChangeValue, resourceChangeSource } =
-      incomingResourceChangePerTargetOption;
-    let hpChange = new ResourceChange(incomingResourceChangeValue, cloneDeep(resourceChangeSource));
-
-    const percentChanceToCrit = getActionCritChance(action, user, target, targetWantsToBeHit);
-
-    hpChange.isCrit = randBetween(0, 100) < percentChanceToCrit;
-    applyCritMultiplier(hpChange, action, user, target);
-    applyKineticAffinities(hpChange, target);
-    applyElementalAffinities(hpChange, target);
-
     // BLOCK
-    if (
-      action.getIsBlockable(user) &&
-      CombatantProperties.canBlock(target) &&
-      !targetWantsToBeHit // this should be checking if actions with malicious intent are in fact healing the target
-    ) {
-      const percentChanceToBlock = 5; // @TODO - do something like ffxi: BlockRate = SizeBaseBlockRate + ((ShieldSkill - AttackerCombatSkill) × 0.2325)
-      const blockRoll = randBetween(0, 100);
-      const isBlocked = blockRoll < percentChanceToBlock;
-      if (isBlocked) {
-        hitOutcomes.insertOutcomeFlag(HitOutcome.ShieldBlock, id);
+    let blockDamageReductionNormalizedPercentage = 1;
+    if (incomingHpChangePerTargetOption || incomingManaChangePerTargetOption) {
+      if (
+        action.getIsBlockable(user) &&
+        CombatantProperties.canBlock(target) &&
+        !targetWantsToBeHit // this should be checking if actions with malicious intent are in fact healing the target
+      ) {
+        const percentChanceToBlock = 5; // @TODO - do something like ffxi: BlockRate = SizeBaseBlockRate + ((ShieldSkill - AttackerCombatSkill) × 0.2325)
+        const blockRoll = randBetween(0, 100);
+        const isBlocked = blockRoll < percentChanceToBlock;
+        if (isBlocked) {
+          hitOutcomes.insertOutcomeFlag(HitOutcome.ShieldBlock, id);
 
-        const damageReduction = getShieldBlockDamageReduction(target);
-        hpChange.value = Math.max(0, hpChange.value - hpChange.value * damageReduction);
+          blockDamageReductionNormalizedPercentage = getShieldBlockDamageReduction(target);
+        }
       }
     }
 
-    convertResourceChangeValueToFinalSign(hpChange, target);
+    const resourceChanges: {
+      incomingChange: { value: number; resourceChangeSource: ResourceChangeSource } | null;
+      record: HitPointChanges | ManaChanges;
+    }[] = [];
 
-    const hpChangeCalculationContext = HP_CALCLULATION_CONTEXTS[resourceChangeSource.category];
-    hpChangeCalculationContext.applyResilience(hpChange, user, target);
-    hpChangeCalculationContext.applyArmorClass(action, hpChange, user, target);
+    if (incomingHpChangePerTargetOption) {
+      const record = new HitPointChanges();
+      hitOutcomes.hitPointChanges = record;
+      resourceChanges.push({
+        incomingChange: incomingHpChangePerTargetOption,
+        record,
+      });
+    }
 
-    hpChange.value = Math.floor(hpChange.value);
+    if (incomingManaChangePerTargetOption) {
+      const record = new ManaChanges();
+      hitOutcomes.manaChanges = record;
+      resourceChanges.push({
+        incomingChange: incomingManaChangePerTargetOption,
+        record,
+      });
+    }
 
-    if (!hitOutcomes.hitPointChanges) hitOutcomes.hitPointChanges = new HitPointChanges();
-    hitOutcomes.hitPointChanges.addRecord(id, hpChange);
+    for (const incomingResourceChangeOption of resourceChanges) {
+      if (!incomingResourceChangeOption.incomingChange) continue;
+      const { value: incomingResourceChangeValue, resourceChangeSource } =
+        incomingResourceChangeOption.incomingChange;
+      let resourceChange = new ResourceChange(
+        incomingResourceChangeValue,
+        cloneDeep(resourceChangeSource)
+      );
+
+      const percentChanceToCrit = getActionCritChance(action, user, target, targetWantsToBeHit);
+
+      resourceChange.isCrit = randBetween(0, 100) < percentChanceToCrit;
+      applyCritMultiplier(resourceChange, action, user, target);
+      applyKineticAffinities(resourceChange, target);
+      applyElementalAffinities(resourceChange, target);
+
+      resourceChange.value = Math.max(
+        0,
+        resourceChange.value - resourceChange.value * blockDamageReductionNormalizedPercentage
+      );
+
+      convertResourceChangeValueToFinalSign(resourceChange, target);
+
+      const hpChangeCalculationContext = HP_CALCLULATION_CONTEXTS[resourceChangeSource.category];
+
+      hpChangeCalculationContext.applyArmorClass(action, resourceChange, user, target);
+      hpChangeCalculationContext.applyResilience(resourceChange, user, target);
+
+      resourceChange.value = Math.floor(resourceChange.value);
+
+      incomingResourceChangeOption.record.addRecord(id, resourceChange);
+    }
   }
 
   return hitOutcomes;
 }
 
-export function getIncomingHpChangePerTarget(
-  action: CombatActionComponent,
-  user: CombatantProperties,
-  primaryTargetCombatantProperties: CombatantProperties,
-  targetIds: EntityId[]
+export function getIncomingResourceChangePerTarget(
+  targetIds: EntityId[],
+  resourceChangeProperties: CombatActionResourceChangeProperties | null
 ): null | { value: number; resourceChangeSource: ResourceChangeSource } {
-  const hpChangePropertiesOption = cloneDeep(
-    action.getHpChangeProperties(user, primaryTargetCombatantProperties)
-  );
+  if (resourceChangeProperties === null) return null;
+  const resourceChangeRange = resourceChangeProperties.baseValues;
+  const { resourceChangeSource } = resourceChangeProperties;
+  const rolledResourceChangeValue = randBetween(resourceChangeRange.min, resourceChangeRange.max);
 
-  if (!hpChangePropertiesOption) return null;
-  const hpChangeRange = hpChangePropertiesOption.baseValues;
-  const { resourceChangeSource } = hpChangePropertiesOption;
-  const rolledResourceChangeValue = randBetween(hpChangeRange.min, hpChangeRange.max);
   return {
     value: splitResourceChangeWithMultiTargetBonus(
       rolledResourceChangeValue,
       targetIds.length,
-      MULTI_TARGET_HP_CHANGE_BONUS
+      MULTI_TARGET_RESOURCE_CHANGE_BONUS
     ),
     resourceChangeSource,
   };
