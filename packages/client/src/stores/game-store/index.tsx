@@ -7,6 +7,7 @@ import {
   CombatActionName,
   CombatAttribute,
   Combatant,
+  CombatantAssociatedData,
   ERROR_MESSAGES,
   EntityId,
   Item,
@@ -165,4 +166,22 @@ export function getCurrentMenu(state: GameState) {
   const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];
   if (topStackedMenu) return topStackedMenu;
   else return state.baseMenuState;
+}
+
+export function getCombatantContext(
+  gameState: GameState,
+  combatantId: EntityId
+): Error | CombatantAssociatedData {
+  const gameOption = gameState.game;
+
+  if (!gameOption) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+  const game = gameOption;
+  if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+  const partyOptionResult = getCurrentParty(gameState, gameState.username);
+  if (partyOptionResult instanceof Error) return partyOptionResult;
+  if (partyOptionResult === undefined) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+  const party = partyOptionResult;
+  const combatantResult = SpeedDungeonGame.getCombatantById(game, combatantId);
+  if (combatantResult instanceof Error) return combatantResult;
+  return { game, party, combatant: combatantResult };
 }

@@ -140,7 +140,9 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     // @TODO - change triggered hp changes to an array since the same action might damage the user
     // but also result in a separate lifesteal on the user
     if (accumulatedLifeStolenResourceChange) {
-      accumulatedLifeStolenResourceChange.value = Math.floor(accumulatedLifeStolenResourceChange.value);
+      accumulatedLifeStolenResourceChange.value = Math.floor(
+        accumulatedLifeStolenResourceChange.value
+      );
       const existingHitPointChangeOption = triggeredHitPointChanges.getRecord(
         combatant.entityProperties.id
       );
@@ -163,21 +165,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     //   // const triggeredActions = condition.onTriggered();
     //   // figure out the "user" for actions that originate from no combatant in particular
     // }
-
-    // parry
-    // - client plays parry animation on target entity
-    // - notify next step of the parry so if the ability calls for it,
-    //   server sends instruction in recoveryMotion that user should play a hit-interrupted animation for the followthrough
-    // counter
-    // - start a branching "counterattack" action on the target entity
-    // - notify next step of the counter so if the ability calls for it,
-    //   server sends instruction in recoveryMotion that user should play a hit-interrupted animation for the followthrough
-    //   and also remain in place long enough to be hit by the counter attack
-    // block
-    // - client plays block animation on target entity
-    // - notify next step of the block so if the ability calls for it,
-    // server sends instruction in recoveryMotion that user should play a hit-interrupted animation for the followthrough
-    //
   }
 
   protected onTick = () => {};
@@ -188,10 +175,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     | Error
     | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
     const toReturn = this.branchingActions;
-    // @TODO - the fact that we have to set this to empty indicates a bug that we're not properly
-    // initializing this step somewhere. When it wasn't set to empty, this would still contain the previous
-    // triggered explosion
-    // this.branchingActions = [];
     return toReturn;
   }
 }

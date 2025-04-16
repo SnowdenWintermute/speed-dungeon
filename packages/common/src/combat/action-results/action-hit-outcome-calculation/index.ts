@@ -208,10 +208,11 @@ export function calculateActionHitOutcomes(
 
       convertResourceChangeValueToFinalSign(resourceChange, target);
 
-      const hpChangeCalculationContext = HP_CALCLULATION_CONTEXTS[resourceChangeSource.category];
+      const resourceChangeCalculationContext =
+        HP_CALCLULATION_CONTEXTS[resourceChangeSource.category];
 
-      hpChangeCalculationContext.applyArmorClass(action, resourceChange, user, target);
-      hpChangeCalculationContext.applyResilience(resourceChange, user, target);
+      resourceChangeCalculationContext.applyArmorClass(action, resourceChange, user, target);
+      resourceChangeCalculationContext.applyResilience(resourceChange, user, target);
 
       resourceChange.value = Math.floor(resourceChange.value);
 

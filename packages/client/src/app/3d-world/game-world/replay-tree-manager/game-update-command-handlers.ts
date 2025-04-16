@@ -142,8 +142,8 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
             gameWorld.current,
             combatantResult.entityProperties.name,
             entityId,
-            entityId,
             hpChange,
+            entityId,
             wasSpell,
             false
           );

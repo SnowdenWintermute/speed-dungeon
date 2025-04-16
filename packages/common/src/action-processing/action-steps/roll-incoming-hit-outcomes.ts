@@ -5,8 +5,7 @@ import {
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { CombatActionExecutionIntent, calculateActionHitOutcomes } from "../../combat/index.js";
-import { Combatant, CombatantProperties } from "../../combatants/index.js";
-import { AdventuringParty } from "../../adventuring-party/index.js";
+import { Combatant } from "../../combatants/index.js";
 
 const stepType = ActionResolutionStepType.RollIncomingHitOutcomes;
 export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutionStep {
@@ -20,27 +19,19 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
       step: stepType,
       completionOrderId: null,
       actionName: context.tracker.actionExecutionIntent.actionName,
-      actionUserId: context.combatantContext.combatant.entityProperties.name,
+      actionUserId: context.combatantContext.combatant.entityProperties.id,
       outcomes: hitOutcomesResult,
     };
     super(stepType, context, gameUpdateCommand);
 
     this.context.tracker.hitOutcomes = hitOutcomesResult;
 
-    const { party } = this.context.combatantContext;
-
     const { hitPointChanges, manaChanges } = hitOutcomesResult;
-
-    if (manaChanges)
-      for (const [targetId, mpChange] of Object.entries(manaChanges)) {
-        const targetResult = AdventuringParty.getCombatant(party, targetId);
-        if (targetResult instanceof Error) throw targetResult;
-        CombatantProperties.changeMana(targetResult.combatantProperties, mpChange);
-      }
 
     // apply hit outcomes to the game state so subsequent action.shouldExecute calls can check if
     // their target is dead, user is out of mana etc
     hitPointChanges?.applyToGame(this.context.combatantContext);
+    manaChanges?.applyToGame(this.context.combatantContext);
   }
 
   protected onTick = () => {};

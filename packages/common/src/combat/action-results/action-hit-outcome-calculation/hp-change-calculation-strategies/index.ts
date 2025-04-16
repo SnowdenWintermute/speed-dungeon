@@ -13,7 +13,11 @@ export interface ResourceChangeCalculationStrategy {
     user: CombatantProperties,
     target: CombatantProperties
   ): void;
-  applyResilience(hpChange: ResourceChange, user: CombatantProperties, target: CombatantProperties): void;
+  applyResilience(
+    hpChange: ResourceChange,
+    user: CombatantProperties,
+    target: CombatantProperties
+  ): void;
 }
 
 export class ResourceChangeCalulationContext implements ResourceChangeCalculationStrategy {
@@ -30,7 +34,11 @@ export class ResourceChangeCalulationContext implements ResourceChangeCalculatio
   ) {
     return this.strategy.applyArmorClass(action, hpChange, user, target);
   }
-  applyResilience(hpChange: ResourceChange, user: CombatantProperties, target: CombatantProperties) {
+  applyResilience(
+    hpChange: ResourceChange,
+    user: CombatantProperties,
+    target: CombatantProperties
+  ) {
     return this.strategy.applyResilience(hpChange, user, target);
   }
 
@@ -39,10 +47,9 @@ export class ResourceChangeCalulationContext implements ResourceChangeCalculatio
   ): ResourceChangeCalculationStrategy {
     switch (hpChangeSourceCategory) {
       case ResourceChangeSourceCategory.Physical:
+      case ResourceChangeSourceCategory.Medical:
         return new PhysicalResourceChangeCalculationStrategy();
       case ResourceChangeSourceCategory.Magical:
-        return new MagicalResourceChangeCalculationStrategy();
-      case ResourceChangeSourceCategory.Medical:
         return new MagicalResourceChangeCalculationStrategy();
       case ResourceChangeSourceCategory.Direct:
         return new MagicalResourceChangeCalculationStrategy();
@@ -50,9 +57,20 @@ export class ResourceChangeCalulationContext implements ResourceChangeCalculatio
   }
 }
 
-export const HP_CALCLULATION_CONTEXTS: Record<ResourceChangeSourceCategory, ResourceChangeCalulationContext> = {
-  [ResourceChangeSourceCategory.Physical]: new ResourceChangeCalulationContext(ResourceChangeSourceCategory.Physical),
-  [ResourceChangeSourceCategory.Magical]: new ResourceChangeCalulationContext(ResourceChangeSourceCategory.Magical),
-  [ResourceChangeSourceCategory.Medical]: new ResourceChangeCalulationContext(ResourceChangeSourceCategory.Medical),
-  [ResourceChangeSourceCategory.Direct]: new ResourceChangeCalulationContext(ResourceChangeSourceCategory.Direct),
+export const HP_CALCLULATION_CONTEXTS: Record<
+  ResourceChangeSourceCategory,
+  ResourceChangeCalulationContext
+> = {
+  [ResourceChangeSourceCategory.Physical]: new ResourceChangeCalulationContext(
+    ResourceChangeSourceCategory.Physical
+  ),
+  [ResourceChangeSourceCategory.Magical]: new ResourceChangeCalulationContext(
+    ResourceChangeSourceCategory.Magical
+  ),
+  [ResourceChangeSourceCategory.Medical]: new ResourceChangeCalulationContext(
+    ResourceChangeSourceCategory.Medical
+  ),
+  [ResourceChangeSourceCategory.Direct]: new ResourceChangeCalulationContext(
+    ResourceChangeSourceCategory.Direct
+  ),
 };

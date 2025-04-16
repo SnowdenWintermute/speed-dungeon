@@ -24,6 +24,7 @@ export function hitOutcomesGameUpdateHandler(update: {
 }) {
   const { command } = update;
   const { outcomes, actionUserName, actionUserId } = command;
+  console.log("action user name: ", actionUserName, "action user id: ", actionUserId);
   const { outcomeFlags } = outcomes;
   const hitPointChanges = plainToInstance(HitPointChanges, outcomes.hitPointChanges);
   const manaChanges = plainToInstance(HitPointChanges, outcomes.manaChanges);
@@ -38,8 +39,8 @@ export function hitOutcomesGameUpdateHandler(update: {
         gameWorld.current,
         actionUserName,
         actionUserId,
-        entityId,
         hpChange,
+        entityId,
         wasSpell,
         wasBlocked
       );
@@ -80,8 +81,7 @@ export function hitOutcomesGameUpdateHandler(update: {
     startFloatingMessage(entityId, elements, 2000);
 
     const targetModel = gameWorld.current?.modelManager.combatantModels[entityId];
-    if (targetModel === undefined)
-      throw console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+    if (targetModel === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
     targetModel.animationManager.startAnimationWithTransition(SkeletalAnimationName.Evade, 0, {});
 
