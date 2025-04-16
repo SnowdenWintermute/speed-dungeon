@@ -81,6 +81,8 @@ export function calculateActionHitOutcomes(
     targetIds,
     actionHpChangePropertiesOption
   );
+  console.log("incomingHpChangePerTargetOption", incomingHpChangePerTargetOption);
+
   const incomingManaChangePerTargetOption = getIncomingResourceChangePerTarget(
     targetIds,
     actionManaChangePropertiesOption
@@ -144,7 +146,7 @@ export function calculateActionHitOutcomes(
     hitOutcomes.insertOutcomeFlag(HitOutcome.Hit, id);
 
     // BLOCK
-    let blockDamageReductionNormalizedPercentage = 1;
+    let blockDamageReductionNormalizedPercentage = 0;
     if (incomingHpChangePerTargetOption || incomingManaChangePerTargetOption) {
       if (
         action.getIsBlockable(user) &&
@@ -187,12 +189,9 @@ export function calculateActionHitOutcomes(
 
     for (const incomingResourceChangeOption of resourceChanges) {
       if (!incomingResourceChangeOption.incomingChange) continue;
-      const { value: incomingResourceChangeValue, resourceChangeSource } =
-        incomingResourceChangeOption.incomingChange;
-      let resourceChange = new ResourceChange(
-        incomingResourceChangeValue,
-        cloneDeep(resourceChangeSource)
-      );
+      const { value, resourceChangeSource } = incomingResourceChangeOption.incomingChange;
+
+      const resourceChange = new ResourceChange(value, cloneDeep(resourceChangeSource));
 
       const percentChanceToCrit = getActionCritChance(action, user, target, targetWantsToBeHit);
 
@@ -201,10 +200,11 @@ export function calculateActionHitOutcomes(
       applyKineticAffinities(resourceChange, target);
       applyElementalAffinities(resourceChange, target);
 
-      resourceChange.value = Math.max(
-        0,
-        resourceChange.value - resourceChange.value * blockDamageReductionNormalizedPercentage
-      );
+      if (blockDamageReductionNormalizedPercentage)
+        resourceChange.value = Math.max(
+          0,
+          resourceChange.value - resourceChange.value * blockDamageReductionNormalizedPercentage
+        );
 
       convertResourceChangeValueToFinalSign(resourceChange, target);
 
@@ -226,6 +226,7 @@ export function getIncomingResourceChangePerTarget(
   targetIds: EntityId[],
   resourceChangeProperties: CombatActionResourceChangeProperties | null
 ): null | { value: number; resourceChangeSource: ResourceChangeSource } {
+  console.log("resourceChangeProperties", resourceChangeProperties);
   if (resourceChangeProperties === null) return null;
   const resourceChangeRange = resourceChangeProperties.baseValues;
   const { resourceChangeSource } = resourceChangeProperties;
