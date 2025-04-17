@@ -1,5 +1,8 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import {
+  COMBAT_ACTIONS,
+  COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
+  CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE,
   CONSUMABLE_TYPE_STRINGS,
   CombatActionName,
   Consumable,
@@ -122,11 +125,16 @@ export default function ItemDetails({
         svgThumbnailOption = <ShardsIcon className="h-full fill-slate-400 m-2" />;
         itemDetailsDisplay = <div>Could be useful...</div>;
       } else {
-        itemDetailsDisplay = (
-          <div>
-            Consumable action not implemented {CONSUMABLE_TYPE_STRINGS[item.consumableType]}
-          </div>
-        );
+        const actionNameOption = CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE[item.consumableType];
+        if (actionNameOption === null)
+          itemDetailsDisplay = (
+            <div>
+              Consumable action not implemented {CONSUMABLE_TYPE_STRINGS[item.consumableType]}
+            </div>
+          );
+        else {
+          itemDetailsDisplay = <ActionDetails actionName={actionNameOption} hideTitle={true} />;
+        }
       }
     } else {
       itemDetailsDisplay = <div>unknown item type</div>;

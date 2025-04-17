@@ -1,6 +1,8 @@
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { GameState } from "@/stores/game-store";
 import {
+  ACTION_PAYABLE_RESOURCE_STRINGS,
+  ActionPayableResource,
   Combatant,
   EntityId,
   HP_CHANGE_SOURCE_CATEGORY_STRINGS,
@@ -12,6 +14,7 @@ import {
 export function postResourceChangeToCombatLog(
   gameState: GameState,
   resourceChange: ResourceChange,
+  resourceType: ActionPayableResource,
   wasSpell: boolean,
   wasBlocked: boolean,
   target: Combatant,
@@ -32,25 +35,38 @@ export function postResourceChangeToCombatLog(
   const resourceChangeSourceCategoryText =
     HP_CHANGE_SOURCE_CATEGORY_STRINGS[resourceChange.source.category];
 
-  const damageText = `points of ${resourceChangeSourceCategoryText + kineticOptionString + elementOptionString} damage`;
-  const hpOrDamage = resourceChange.value > 0 ? "hit points" : damageText;
+  let manaDamage = "";
+  if (resourceType === ActionPayableResource.Mana) manaDamage = " mana";
 
-  const style =
-    resourceChange.value > 0 ? CombatLogMessageStyle.Healing : CombatLogMessageStyle.Basic;
+  const resourceTypeString = ACTION_PAYABLE_RESOURCE_STRINGS[resourceType].toLowerCase();
+
+  const damageText = `points of ${resourceChangeSourceCategoryText + kineticOptionString + elementOptionString}${manaDamage} damage`;
+
+  const resourceTypeOrDamageText = resourceChange.value > 0 ? resourceTypeString : damageText;
+
+  let style = CombatLogMessageStyle.Basic;
+  if (resourceType === ActionPayableResource.HitPoints && resourceChange.value > 0)
+    style = CombatLogMessageStyle.Healing;
+
+  if (resourceType === ActionPayableResource.Mana && resourceChange.value > 0)
+    style = CombatLogMessageStyle.Mana;
+
   let messageText = "";
 
   if (wasSpell) {
     const damagedOrHealed = resourceChange.value > 0 ? "recovers" : "takes";
-    messageText = `${target.entityProperties.name} ${damagedOrHealed} ${Math.abs(resourceChange.value)} ${hpOrDamage}`;
+    messageText = `${target.entityProperties.name} ${damagedOrHealed} ${Math.abs(resourceChange.value)} ${resourceTypeOrDamageText}`;
   } else {
-    const damagedOrHealed = resourceChange.value > 0 ? "healed" : "hit";
+    let recoveryWord = "healed";
+    if (resourceType === ActionPayableResource.Mana) recoveryWord = "refreshed";
+    const damagedOrHealed = resourceChange.value > 0 ? recoveryWord : "hit";
 
     const isTargetingSelf = actionUserId === target.entityProperties.id;
     console.log("action user id: ", actionUserId, target.entityProperties.id);
     const targetNameText = isTargetingSelf ? "themselves" : target.entityProperties.name;
 
     const debugTargetId = showDebug ? target.entityProperties : "";
-    messageText = `${actionUserName} ${damagedOrHealed} ${targetNameText} ${debugTargetId} for ${Math.abs(resourceChange.value)} ${hpOrDamage}`;
+    messageText = `${actionUserName} ${damagedOrHealed} ${targetNameText} ${debugTargetId} for ${Math.abs(resourceChange.value)} ${resourceTypeOrDamageText}`;
   }
 
   if (resourceChange.isCrit) messageText = "Critical! " + messageText;

@@ -76,7 +76,7 @@ const config: CombatActionComponentConfig = {
     const resourceChangeSource = new ResourceChangeSource(resourceChangeSourceConfig);
     const manaChangeProperties: CombatActionResourceChangeProperties = {
       resourceChangeSource,
-      baseValues: new NumberRange(1, randBetween(minRestored, maxRestored)),
+      baseValues: new NumberRange(minRestored, randBetween(minRestored, maxRestored)),
     };
     return manaChangeProperties;
   },

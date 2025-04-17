@@ -1,4 +1,3 @@
-import { CombatActionComponent } from ".";
 import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 
@@ -10,6 +9,18 @@ export enum ProhibitedTargetCombatantStates {
   UntargetableBySpells,
   UntargetableByPhysical,
 }
+
+export const PROHIBITED_TARGET_COMBATANT_STATE_STRINGS: Record<
+  ProhibitedTargetCombatantStates,
+  string
+> = {
+  [ProhibitedTargetCombatantStates.FullHp]: "FullHp",
+  [ProhibitedTargetCombatantStates.FullMana]: "FullMana",
+  [ProhibitedTargetCombatantStates.Dead]: "Dead",
+  [ProhibitedTargetCombatantStates.Alive]: "Alive",
+  [ProhibitedTargetCombatantStates.UntargetableBySpells]: "UntargetableBySpells",
+  [ProhibitedTargetCombatantStates.UntargetableByPhysical]: "UntargetableByPhysical",
+};
 
 export const PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS: Record<
   ProhibitedTargetCombatantStates,

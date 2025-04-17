@@ -3,6 +3,7 @@ import {
   ERROR_MESSAGES,
   HitOutcome,
   HitOutcomesGameUpdateCommand,
+  ActionPayableResource,
 } from "@speed-dungeon/common";
 import { induceHitRecovery } from "../../combatant-models/animation-manager/induce-hit-recovery";
 import { gameWorld } from "../../SceneManager";
@@ -31,6 +32,8 @@ export function hitOutcomesGameUpdateHandler(update: {
 
   if (!gameWorld.current) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
 
+  const entitiesAlreadyAnimatingHitRecovery: string[] = [];
+
   if (hitPointChanges) {
     for (const [entityId, hpChange] of hitPointChanges.getRecords()) {
       const wasBlocked = !!outcomeFlags[HitOutcome.ShieldBlock]?.includes(entityId);
@@ -40,9 +43,31 @@ export function hitOutcomesGameUpdateHandler(update: {
         actionUserName,
         actionUserId,
         hpChange,
+        ActionPayableResource.HitPoints,
         entityId,
         wasSpell,
-        wasBlocked
+        wasBlocked,
+        true
+      );
+
+      entitiesAlreadyAnimatingHitRecovery.push(entityId);
+    }
+  }
+
+  if (manaChanges) {
+    for (const [entityId, change] of manaChanges.getRecords()) {
+      const wasBlocked = !!outcomeFlags[HitOutcome.ShieldBlock]?.includes(entityId);
+      const wasSpell = false;
+      induceHitRecovery(
+        gameWorld.current,
+        actionUserName,
+        actionUserId,
+        change,
+        ActionPayableResource.Mana,
+        entityId,
+        wasSpell,
+        wasBlocked,
+        !entitiesAlreadyAnimatingHitRecovery.includes(entityId)
       );
     }
   }

@@ -1,3 +1,4 @@
+import { ActionPayableResource } from "./combat-actions/index.js";
 import { KineticDamageType } from "./kinetic-damage-types.js";
 import { MagicalElement } from "./magical-elements.js";
 

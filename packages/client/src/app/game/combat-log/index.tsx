@@ -48,6 +48,9 @@ function CombatLogMessageElement({ message }: { message: CombatLogMessage }) {
     case CombatLogMessageStyle.Healing:
       color = "text-green-600";
       break;
+    case CombatLogMessageStyle.Mana:
+      color = "text-blue-600";
+      break;
     case CombatLogMessageStyle.PartyProgress:
       color = "text-yellow-400";
       break;

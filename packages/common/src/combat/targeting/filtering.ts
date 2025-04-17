@@ -3,6 +3,7 @@ import getCombatantInParty from "../../adventuring-party/get-combatant-in-party.
 import { TargetCategories } from "../combat-actions/targeting-schemes-and-categories.js";
 import {
   PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS,
+  PROHIBITED_TARGET_COMBATANT_STATE_STRINGS,
   ProhibitedTargetCombatantStates,
 } from "../combat-actions/prohibited-target-combatant-states.js";
 import { EntityId } from "../../primatives/index.js";
@@ -13,7 +14,10 @@ export function filterPossibleTargetIdsByProhibitedCombatantStates(
   allyIds: string[],
   opponentIdsOption: string[]
 ): Error | [string[], string[]] {
-  if (prohibitedStates === null) return [allyIds, opponentIdsOption];
+  if (prohibitedStates === null) {
+    console.log("no prohibitedStates");
+    return [allyIds, opponentIdsOption];
+  }
   const filteredAllyIdsResult = filterTargetIdGroupByProhibitedCombatantStates(
     party,
     allyIds,
@@ -50,8 +54,10 @@ function filterTargetIdGroupByProhibitedCombatantStates(
     let targetIsInProhibitedState = false;
 
     for (const combatantState of prohibitedStates) {
+      console.log("filtering: ", PROHIBITED_TARGET_COMBATANT_STATE_STRINGS[combatantState]);
       targetIsInProhibitedState =
         PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS[combatantState](combatantResult);
+      if (targetIsInProhibitedState) break;
     }
 
     if (targetIsInProhibitedState) continue;

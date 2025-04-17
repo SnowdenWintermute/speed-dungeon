@@ -7,25 +7,24 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
-import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
-import { CombatActionIntent } from "../../combat-action-intent.js";
-import { ERROR_MESSAGES } from "../../../../errors/index.js";
-import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
+import { AutoTargetingScheme } from "../../../targeting/index.js";
+import { CombatActionIntent } from "../../combat-action-intent.js";
+import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
+import { ICE_BOLT_PARENT } from "./index.js";
+import { CombatActionRequiredRange } from "../../combat-action-range.js";
+import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import {
   ActionMotionPhase,
   ActionResolutionStepType,
 } from "../../../../action-processing/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
-import { CombatAttribute } from "../../../../combatants/attributes/index.js";
-import { HoldableSlotType } from "../../../../items/equipment/slots.js";
+import { CombatantProperties } from "../../../../combatants/index.js";
+import { getStandardActionCritChance } from "../../action-calculation-utils/standard-action-calculations.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
-  description: "An arrow",
+  description: "An icy projectile",
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.CopyParent },
@@ -34,6 +33,7 @@ const config: CombatActionComponentConfig = {
   prohibitedTargetCombatantStates: [
     ProhibitedTargetCombatantStates.Dead,
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
+    ProhibitedTargetCombatantStates.UntargetableBySpells,
   ],
   baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: 0.9,
@@ -44,29 +44,10 @@ const config: CombatActionComponentConfig = {
   requiresCombatTurn: () => true,
   shouldExecute: () => true,
   getActionStepAnimations: (context) => null,
-  getHpChangeProperties: (user, primaryTarget, self) => {
-    const hpChangeProperties = getAttackResourceChangeProperties(
-      self,
-      user,
-      primaryTarget,
-      CombatAttribute.Dexterity,
-      HoldableSlotType.MainHand,
-      // allow unusable weapons because it may be the case that the bow breaks
-      // but the projectile has yet to caluclate it's hit, and it should still consider
-      // the bow it was fired from
-      // it should never add weapon properties from an initially broken weapon because the projectile would not
-      // be allowed to be fired from a broken weapon
-      { usableWeaponsOnly: false }
-    );
-    if (hpChangeProperties instanceof Error) return hpChangeProperties;
-
-    return hpChangeProperties;
-  },
-  getAppliedConditions: (context) => {
-    return [];
-  },
+  getHpChangeProperties: (user, primaryTarget, self) =>
+    ICE_BOLT_PARENT.getHpChangeProperties(user, primaryTarget),
   getChildren: (context) => [],
-  getParent: () => ATTACK_RANGED_MAIN_HAND,
+  getParent: () => ICE_BOLT_PARENT,
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
   getConcurrentSubActions() {
     return [];
@@ -101,9 +82,25 @@ const config: CombatActionComponentConfig = {
       return { position: target.homeLocation.clone() };
     },
   },
+
+  getAppliedConditions: (context) => {
+    return [];
+
+    // const { idGenerator, combatantContext } = context;
+    // const { combatant } = combatantContext;
+    // // @TODO - determine based on equipment, ex: ice sword applies "cold" condition
+    // const primedForExplosionCondition = new PrimedForExplosionCombatantCondition(
+    //   idGenerator.generate(),
+    //   combatant.entityProperties.id,
+    //   combatant.combatantProperties.level
+    // );
+    // return [primedForExplosionCondition];
+  },
+
+  getCritChance: (user) => ICE_BOLT_PARENT.getCritChance(user),
 };
 
-export const ATTACK_RANGED_MAIN_HAND_PROJECTILE = new CombatActionComposite(
-  CombatActionName.AttackRangedMainhandProjectile,
+export const ICE_BOLT_PROJECTILE = new CombatActionComposite(
+  CombatActionName.IceBoltProjectile,
   config
 );

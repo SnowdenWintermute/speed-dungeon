@@ -10,12 +10,18 @@ export enum CombatActionName {
   ExplodingArrowProjectile,
   Explosion,
   // Fire,
-  // Ice,
+  IceBoltParent,
+  IceBoltProjectile,
   // Healing,
   // Destruction,
   UseGreenAutoinjector,
   UseBlueAutoinjector,
 }
+
+export const ACTION_NAMES_TO_HIDE_IN_MENU = [
+  CombatActionName.UseGreenAutoinjector,
+  CombatActionName.UseBlueAutoinjector,
+];
 
 export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.Attack]: "Attack",
@@ -28,6 +34,8 @@ export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.ExplodingArrowParent]: "Exploding Arrow",
   [CombatActionName.ExplodingArrowProjectile]: "Exploding Arrow Projectile",
   [CombatActionName.Explosion]: "Explosion",
+  [CombatActionName.IceBoltParent]: "Ice Bolt",
+  [CombatActionName.IceBoltProjectile]: "Ice Bolt Projectile",
   [CombatActionName.UseGreenAutoinjector]: "Green Autoinjector",
   [CombatActionName.UseBlueAutoinjector]: "Blue Autoinjector",
 };

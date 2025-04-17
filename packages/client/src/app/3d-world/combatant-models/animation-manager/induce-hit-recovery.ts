@@ -4,6 +4,7 @@ import {
   ERROR_MESSAGES,
   ResourceChange,
   SpeedDungeonGame,
+  ActionPayableResource,
 } from "@speed-dungeon/common";
 import { getCombatantContext, useGameStore } from "@/stores/game-store";
 import { GameWorld } from "../../game-world";
@@ -16,10 +17,12 @@ export function induceHitRecovery(
   gameWorld: GameWorld,
   actionUserName: string,
   actionUserId: string,
-  hpChange: ResourceChange,
+  resourceChange: ResourceChange,
+  resourceType: ActionPayableResource,
   targetId: string,
   wasSpell: boolean,
-  wasBlocked: boolean
+  wasBlocked: boolean,
+  shouldAnimate: boolean
 ) {
   const targetModel = gameWorld.modelManager.combatantModels[targetId];
   if (targetModel === undefined) return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
@@ -35,7 +38,7 @@ export function induceHitRecovery(
   // - handle any ressurection by adding the affected combatant's turn tracker
   // MANA ONLY:
   // - show mana shield breaking if reduced to zero
-  startResourceChangeFloatingMessage(targetId, hpChange, wasBlocked, 2000);
+  startResourceChangeFloatingMessage(targetId, resourceChange, resourceType, wasBlocked, 2000);
 
   const showDebug = useUIStore.getState().showDebug;
 
@@ -47,11 +50,15 @@ export function induceHitRecovery(
     const { combatantProperties } = combatant;
 
     const combatantWasAliveBeforeResourceChange = combatantProperties.hitPoints > 0;
-    CombatantProperties.changeHitPoints(combatantProperties, hpChange.value);
+    if (resourceType === ActionPayableResource.HitPoints)
+      CombatantProperties.changeHitPoints(combatantProperties, resourceChange.value);
+    if (resourceType === ActionPayableResource.Mana)
+      CombatantProperties.changeMana(combatantProperties, resourceChange.value);
 
     postResourceChangeToCombatLog(
       gameState,
-      hpChange,
+      resourceChange,
+      resourceType,
       wasSpell,
       wasBlocked,
       combatant,
@@ -59,6 +66,8 @@ export function induceHitRecovery(
       actionUserId,
       showDebug
     );
+
+    if (!shouldAnimate) return;
 
     if (combatantProperties.hitPoints <= 0) {
       const maybeError = SpeedDungeonGame.handleCombatantDeath(game, party.battleId, targetId);
@@ -80,12 +89,12 @@ export function induceHitRecovery(
           },
         }
       );
-    } else if (hpChange.value < 0) {
+    } else if (resourceChange.value < 0) {
       const hasCritRecoveryAnimation = targetModel.animationManager.getAnimationGroupByName(
         SkeletalAnimationName.HitRecovery
       );
       let animationName = SkeletalAnimationName.HitRecovery;
-      if (hpChange.isCrit && hasCritRecoveryAnimation)
+      if (resourceChange.isCrit && hasCritRecoveryAnimation)
         animationName = SkeletalAnimationName.CritRecovery;
       if (wasBlocked) animationName = SkeletalAnimationName.Block;
 

@@ -14,9 +14,10 @@ import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 
 interface Props {
   actionName: CombatActionName;
+  hideTitle?: boolean;
 }
 
-export default function ActionDetails({ actionName }: Props) {
+export default function ActionDetails({ actionName, hideTitle }: Props) {
   const partyResult = useGameStore().getParty();
   if (partyResult instanceof Error) return <div>{partyResult.message}</div>;
   const party = partyResult;
@@ -33,18 +34,13 @@ export default function ActionDetails({ actionName }: Props) {
 
   return (
     <div className="flex flex-col pointer-events-auto" style={{ flex: `1 1 1px` }}>
-      <span>{COMBAT_ACTION_NAME_STRINGS[action.name]}</span>
-      <div className="mb-1 mt-1 h-[1px] bg-slate-400" />
+      {!hideTitle && (
+        <>
+          <span>{COMBAT_ACTION_NAME_STRINGS[action.name]}</span>
+          <div className="mb-1 mt-1 h-[1px] bg-slate-400" />
+        </>
+      )}
       <div className="flex-grow overflow-auto mr-2">
-        {
-          // abilityOption && (
-          // <AbilityDetails
-          //   ability={abilityOption}
-          //   user={focusedCharacter}
-          //   combatActionProperties={combatActionProperties}
-          // />
-          // )
-        }
         <div>{action.description}</div>
         <div>{`Valid targets: ${TARGET_CATEGORY_STRINGS[action.validTargetCategories]}`}</div>
         <div>{`Targeting schemes: ${targetingSchemesText}`}</div>

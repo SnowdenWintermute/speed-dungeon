@@ -9,12 +9,12 @@ import {
 } from "../../index.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
-import { ATTACK } from "./index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
+import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { ActionAccuracyType } from "../../combat-action-accuracy.js";
+import { iterateNumericEnum } from "../../../../utils/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
+import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
 import {
   getStandardActionArmorPenetration,
   getStandardActionCritChance,
@@ -26,10 +26,19 @@ import { ActionResolutionStepType } from "../../../../action-processing/index.js
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { MobileVfxName, VfxParentType, VfxType } from "../../../../vfx/index.js";
+import {
+  ResourceChangeSource,
+  ResourceChangeSourceCategory,
+  ResourceChangeSourceConfig,
+} from "../../../hp-change-source-types.js";
+import { MagicalElement } from "../../../magical-elements.js";
+import { NumberRange } from "../../../../primatives/number-range.js";
+import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
+import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
-  description: "Attack target using ranged weapon",
+  description: "Summon an icy projectile",
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.UserSelected },
@@ -38,6 +47,7 @@ const config: CombatActionComponentConfig = {
   prohibitedTargetCombatantStates: [
     ProhibitedTargetCombatantStates.Dead,
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
+    ProhibitedTargetCombatantStates.UntargetableBySpells,
   ],
   baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: 0.9,
@@ -55,22 +65,43 @@ const config: CombatActionComponentConfig = {
     };
   },
   getCritChance: (user) => {
-    return getStandardActionCritChance(user, CombatAttribute.Dexterity);
+    return getStandardActionCritChance(user, CombatAttribute.Focus);
   },
   getCritMultiplier(user) {
-    return getStandardActionCritMultiplier(user, CombatAttribute.Dexterity);
+    return getStandardActionCritMultiplier(user, CombatAttribute.Focus);
   },
   getArmorPenetration(user, self) {
-    return getStandardActionArmorPenetration(user, CombatAttribute.Dexterity);
+    return 0;
   },
   getHpChangeProperties: (user, primaryTarget, self) => {
-    const hpChangeProperties = getAttackResourceChangeProperties(
-      self,
-      user,
-      primaryTarget,
-      CombatAttribute.Dexterity,
-      HoldableSlotType.MainHand
-    );
+    const hpChangeSourceConfig: ResourceChangeSourceConfig = {
+      category: ResourceChangeSourceCategory.Magical,
+      kineticDamageTypeOption: null,
+      elementOption: MagicalElement.Ice,
+      isHealing: false,
+      lifestealPercentage: null,
+    };
+
+    const baseValues = new NumberRange(4, 8);
+
+    // just get some extra damage for combatant level
+    baseValues.add(user.level - 1);
+    // get greater benefits from a certain attribute the higher level a combatant is
+    addCombatantLevelScaledAttributeToRange({
+      range: baseValues,
+      combatantProperties: user,
+      attribute: CombatAttribute.Intelligence,
+      normalizedAttributeScalingByCombatantLevel: 1,
+    });
+
+    const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
+    const hpChangeProperties: CombatActionResourceChangeProperties = {
+      resourceChangeSource,
+      baseValues,
+    };
+
+    baseValues.floor();
+
     return hpChangeProperties;
   },
   getAppliedConditions: function (): CombatantCondition[] | null {
@@ -80,14 +111,11 @@ const config: CombatActionComponentConfig = {
     const { combatActionTarget } = context.combatant.combatantProperties;
     if (!combatActionTarget) throw new Error("expected combatant target not found");
     return [
-      new CombatActionExecutionIntent(
-        CombatActionName.AttackRangedMainhandProjectile,
-        combatActionTarget
-      ),
+      new CombatActionExecutionIntent(CombatActionName.IceBoltProjectile, combatActionTarget),
     ];
   },
   getChildren: () => [],
-  getParent: () => ATTACK,
+  getParent: () => null,
   getResolutionSteps() {
     return [
       ActionResolutionStepType.DetermineActionAnimations,
@@ -95,6 +123,7 @@ const config: CombatActionComponentConfig = {
       ActionResolutionStepType.ChamberingMotion,
       ActionResolutionStepType.PostChamberingSpawnEntity,
       ActionResolutionStepType.DeliveryMotion,
+      ActionResolutionStepType.OnActivationSpawnEntity,
       ActionResolutionStepType.PayResourceCosts,
       ActionResolutionStepType.EvalOnUseTriggers,
       ActionResolutionStepType.StartConcurrentSubActions,
@@ -112,9 +141,9 @@ const config: CombatActionComponentConfig = {
         vfxProperties: {
           vfxType: VfxType.Mobile,
           position,
-          name: MobileVfxName.Arrow,
+          name: MobileVfxName.IceBolt,
           parentOption: {
-            type: VfxParentType.UserMainHand,
+            type: VfxParentType.UserOffHand,
             parentEntityId: context.combatantContext.combatant.entityProperties.id,
           },
         },
@@ -123,7 +152,4 @@ const config: CombatActionComponentConfig = {
   },
 };
 
-export const ATTACK_RANGED_MAIN_HAND = new CombatActionLeaf(
-  CombatActionName.AttackRangedMainhand,
-  config
-);
+export const ICE_BOLT_PARENT = new CombatActionLeaf(CombatActionName.IceBoltParent, config);

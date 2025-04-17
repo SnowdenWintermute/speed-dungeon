@@ -20,6 +20,7 @@ import {
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionName,
   COMBAT_ACTIONS,
+  ACTION_NAMES_TO_HIDE_IN_MENU,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -106,6 +107,7 @@ export class BaseMenuState implements ActionMenuState {
     for (const [actionName, _actionState] of iterateNumericEnumKeyedRecord(
       combatantProperties.ownedActions
     )) {
+      if (ACTION_NAMES_TO_HIDE_IN_MENU.includes(actionName)) continue;
       const nameAsString = COMBAT_ACTION_NAME_STRINGS[actionName];
       const button = new ActionMenuButtonProperties(
         (

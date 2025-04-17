@@ -1,4 +1,5 @@
 import {
+  ActionPayableResource,
   ActivatedTriggersGameUpdateCommand,
   CombatantCondition,
   DurabilityChangesByEntityId,
@@ -143,9 +144,11 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
             combatantResult.entityProperties.name,
             entityId,
             hpChange,
+            ActionPayableResource.HitPoints,
             entityId,
             wasSpell,
-            false
+            false,
+            true
           );
         }
       }

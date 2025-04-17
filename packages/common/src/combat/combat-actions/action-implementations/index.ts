@@ -1,3 +1,4 @@
+import { imageProcessingPixelShaderWGSL } from "@babylonjs/core";
 import { CombatActionComponent, CombatActionName } from "../index.js";
 import { ATTACK_MELEE_MAIN_HAND } from "./attack/attack-melee-main-hand.js";
 import { ATTACK_MELEE_OFF_HAND } from "./attack/attack-melee-off-hand.js";
@@ -11,6 +12,8 @@ import { USE_GREEN_AUTOINJECTOR } from "./consumables/green-autoinjector.js";
 import { EXPLODING_ARROW_PROJECTILE } from "./exploding-arrow/exploding-arrow-projectile.js";
 import { EXPLODING_ARROW_PARENT } from "./exploding-arrow/index.js";
 import { EXPLOSION } from "./explosion/index.js";
+import { ICE_BOLT_PARENT } from "./ice-bolt/index.js";
+import { ICE_BOLT_PROJECTILE } from "./ice-bolt/ice-bolt-projectile.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -25,4 +28,6 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.ExplodingArrowParent]: EXPLODING_ARROW_PARENT,
   [CombatActionName.ExplodingArrowProjectile]: EXPLODING_ARROW_PROJECTILE,
   [CombatActionName.Explosion]: EXPLOSION,
+  [CombatActionName.IceBoltParent]: ICE_BOLT_PARENT,
+  [CombatActionName.IceBoltProjectile]: ICE_BOLT_PROJECTILE,
 };

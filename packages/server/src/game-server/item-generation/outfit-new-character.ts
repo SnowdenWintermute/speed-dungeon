@@ -24,21 +24,22 @@ import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment, { givePlaytestingItems } from "./create-starting-equipment.js";
 import { createConsumableByType } from "./create-consumable-by-type.js";
 import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
+import combatantCanUseItem from "@speed-dungeon/common/src/combatants/can-use-item.js";
 
 export function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
-  combatantProperties.ownedActions[CombatActionName.Attack] = new CombatantActionState(
-    CombatActionName.Attack
-  );
-  combatantProperties.ownedActions[CombatActionName.ChainingSplitArrowParent] =
-    new CombatantActionState(CombatActionName.ChainingSplitArrowParent);
-  combatantProperties.ownedActions[CombatActionName.ExplodingArrowParent] =
-    new CombatantActionState(CombatActionName.ExplodingArrowParent);
-  combatantProperties.ownedActions[CombatActionName.UseGreenAutoinjector] =
-    new CombatantActionState(CombatActionName.UseGreenAutoinjector);
-  combatantProperties.ownedActions[CombatActionName.UseBlueAutoinjector] = new CombatantActionState(
-    CombatActionName.UseBlueAutoinjector
-  );
+
+  const ownedActions = [
+    CombatActionName.Attack,
+    CombatActionName.ChainingSplitArrowParent,
+    CombatActionName.ExplodingArrowParent,
+    CombatActionName.UseGreenAutoinjector,
+    CombatActionName.UseBlueAutoinjector,
+    CombatActionName.IceBoltParent,
+  ];
+
+  for (const actionName of ownedActions)
+    combatantProperties.ownedActions[actionName] = new CombatantActionState(actionName);
 
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
   if (baseStartingAttributesOption) {

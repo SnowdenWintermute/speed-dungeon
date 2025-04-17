@@ -64,6 +64,9 @@ const config: CombatActionComponentConfig = {
       if (trait.type === CombatantTraitType.HpBioavailability)
         hpBioavailability = trait.percent / 100;
     }
+
+    console.log("HpBioavailability", hpBioavailability);
+
     const maxHp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Hp];
     const minHealing = (hpBioavailability * maxHp) / 8;
     const maxHealing = (hpBioavailability * 3 * maxHp) / 8;
@@ -71,7 +74,7 @@ const config: CombatActionComponentConfig = {
     const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
     const hpChangeProperties: CombatActionResourceChangeProperties = {
       resourceChangeSource,
-      baseValues: new NumberRange(1, randBetween(minHealing, maxHealing)),
+      baseValues: new NumberRange(minHealing, randBetween(minHealing, maxHealing)),
     };
 
     return hpChangeProperties;

@@ -3,11 +3,13 @@ import { EntityId, EntityProperties } from "../primatives/index.js";
 
 export enum MobileVfxName {
   Arrow,
+  IceBolt,
   Explosion,
 }
 
 export const MOBILE_VFX_NAME_STRINGS: Record<MobileVfxName, string> = {
   [MobileVfxName.Arrow]: "Arrow",
+  [MobileVfxName.IceBolt]: "Ice Bolt",
   [MobileVfxName.Explosion]: "Explosion",
 };
 
@@ -17,6 +19,7 @@ export enum VfxType {
 
 export enum VfxParentType {
   UserMainHand,
+  UserOffHand,
   // OffHand,
   // MainHandWeapon,
   // OffHandWeapon

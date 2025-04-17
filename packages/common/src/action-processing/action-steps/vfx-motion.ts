@@ -22,6 +22,7 @@ export class VfxMotionActionResolutionStep extends EntityMotionActionResolutionS
     // @TODO - some should not despawn such as explosion which needs to do a recovery animation
     const despawnOnComplete =
       vfx.vfxProperties.name === MobileVfxName.Arrow ||
+      vfx.vfxProperties.name === MobileVfxName.IceBolt ||
       animationPhase === CombatActionAnimationPhase.RecoverySuccess ||
       animationPhase === CombatActionAnimationPhase.RecoveryInterrupted;
 
