@@ -54,7 +54,6 @@ function filterTargetIdGroupByProhibitedCombatantStates(
     let targetIsInProhibitedState = false;
 
     for (const combatantState of prohibitedStates) {
-      console.log("filtering: ", PROHIBITED_TARGET_COMBATANT_STATE_STRINGS[combatantState]);
       targetIsInProhibitedState =
         PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS[combatantState](combatantResult);
       if (targetIsInProhibitedState) break;

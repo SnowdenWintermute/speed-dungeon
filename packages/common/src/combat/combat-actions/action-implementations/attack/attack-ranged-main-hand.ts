@@ -26,6 +26,7 @@ import { ActionResolutionStepType } from "../../../../action-processing/index.js
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { MobileVfxName, VfxParentType, VfxType } from "../../../../vfx/index.js";
+import { getBowShootActionStepAnimations } from "../bow-shoot-action-step-animations.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -101,6 +102,7 @@ const config: CombatActionComponentConfig = {
       ActionResolutionStepType.RecoveryMotion,
     ];
   },
+  getActionStepAnimations: getBowShootActionStepAnimations,
   getSpawnableEntity: (context) => {
     const { combatantContext } = context;
     const position = combatantContext.combatant.combatantProperties.position.clone();

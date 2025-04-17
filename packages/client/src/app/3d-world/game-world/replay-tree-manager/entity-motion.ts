@@ -6,8 +6,6 @@ import {
   MobileVfxName,
   SpawnableEntityType,
   DynamicAnimationName,
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
-  SPAWNABLE_ENTITY_TYPE_STRINGS,
 } from "@speed-dungeon/common";
 import { ModelMovementManager } from "../../model-movement-manager";
 import { ManagedAnimationOptions } from "../../combatant-models/animation-manager";
@@ -41,7 +39,8 @@ export function entityMotionGameUpdateHandler(update: {
 
     movementManager.transformNode.setParent(null);
 
-    if (vfxOption.name === MobileVfxName.Arrow) destinationYOption = 0.5;
+    if (vfxOption.name === MobileVfxName.Arrow || vfxOption.name === MobileVfxName.IceBolt)
+      destinationYOption = 0.5;
   }
 
   // console.log("destinationOption: ", translationOption?.destination);

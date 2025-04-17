@@ -21,6 +21,7 @@ import { CombatActionTargetType } from "../../../targeting/combat-action-targets
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { COMMON_ROOT_ACTION_STEPS_SEQUENCE } from "../common-action-steps-sequence.js";
+import { getBowShootActionStepAnimations } from "../bow-shoot-action-step-animations.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -80,6 +81,8 @@ const config: CombatActionComponentConfig = {
     throw new Error("Function not implemented.");
   },
   getResolutionSteps: () => COMMON_ROOT_ACTION_STEPS_SEQUENCE,
+
+  getActionStepAnimations: getBowShootActionStepAnimations,
 };
 
 export const CHAINING_SPLIT_ARROW_PARENT = new CombatActionComposite(

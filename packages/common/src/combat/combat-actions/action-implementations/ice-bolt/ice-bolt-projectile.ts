@@ -19,8 +19,8 @@ import {
   ActionResolutionStepType,
 } from "../../../../action-processing/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
-import { getStandardActionCritChance } from "../../action-calculation-utils/standard-action-calculations.js";
+import { SpawnableEntityType } from "../../../../spawnables/index.js";
+import { MobileVfxName, VfxParentType, VfxType } from "../../../../vfx/index.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -58,8 +58,30 @@ const config: CombatActionComponentConfig = {
 
     return previousTrackerOption.actionExecutionIntent.targets;
   },
+
+  getSpawnableEntity: (context) => {
+    const { combatantContext } = context;
+    const position = combatantContext.combatant.combatantProperties.position.clone();
+
+    return {
+      type: SpawnableEntityType.Vfx,
+      vfx: {
+        entityProperties: { id: context.idGenerator.generate(), name: "" },
+        vfxProperties: {
+          vfxType: VfxType.Mobile,
+          position,
+          name: MobileVfxName.IceBolt,
+          parentOption: {
+            type: VfxParentType.UserOffHand,
+            parentEntityId: context.combatantContext.combatant.entityProperties.id,
+          },
+        },
+      },
+    };
+  },
   getResolutionSteps() {
     return [
+      ActionResolutionStepType.OnActivationSpawnEntity,
       ActionResolutionStepType.OnActivationVfxMotion,
       ActionResolutionStepType.RollIncomingHitOutcomes,
       ActionResolutionStepType.EvalOnHitOutcomeTriggers,

@@ -9,14 +9,11 @@ import {
 } from "../../index.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
-import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
+import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { ActionAccuracyType } from "../../combat-action-accuracy.js";
-import { iterateNumericEnum } from "../../../../utils/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
 import {
-  getStandardActionArmorPenetration,
   getStandardActionCritChance,
   getStandardActionCritMultiplier,
 } from "../../action-calculation-utils/standard-action-calculations.js";
@@ -35,6 +32,7 @@ import { MagicalElement } from "../../../magical-elements.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
 import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
+import { getSpellCastActionStepAnimations } from "../spell-cast-action-step-animations.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -121,35 +119,14 @@ const config: CombatActionComponentConfig = {
       ActionResolutionStepType.DetermineActionAnimations,
       ActionResolutionStepType.InitialPositioning,
       ActionResolutionStepType.ChamberingMotion,
-      ActionResolutionStepType.PostChamberingSpawnEntity,
       ActionResolutionStepType.DeliveryMotion,
-      ActionResolutionStepType.OnActivationSpawnEntity,
       ActionResolutionStepType.PayResourceCosts,
       ActionResolutionStepType.EvalOnUseTriggers,
       ActionResolutionStepType.StartConcurrentSubActions,
       ActionResolutionStepType.RecoveryMotion,
     ];
   },
-  getSpawnableEntity: (context) => {
-    const { combatantContext } = context;
-    const position = combatantContext.combatant.combatantProperties.position.clone();
-
-    return {
-      type: SpawnableEntityType.Vfx,
-      vfx: {
-        entityProperties: { id: context.idGenerator.generate(), name: "" },
-        vfxProperties: {
-          vfxType: VfxType.Mobile,
-          position,
-          name: MobileVfxName.IceBolt,
-          parentOption: {
-            type: VfxParentType.UserOffHand,
-            parentEntityId: context.combatantContext.combatant.entityProperties.id,
-          },
-        },
-      },
-    };
-  },
+  getActionStepAnimations: getSpellCastActionStepAnimations,
 };
 
 export const ICE_BOLT_PARENT = new CombatActionLeaf(CombatActionName.IceBoltParent, config);

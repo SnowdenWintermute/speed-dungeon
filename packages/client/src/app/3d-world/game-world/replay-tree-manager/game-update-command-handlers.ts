@@ -23,6 +23,7 @@ import { MobileVfxModel, spawnMobileVfxModel } from "../../vfx-models";
 import { getChildMeshByName } from "../../utils";
 import {
   SKELETON_MAIN_HAND_NAMES,
+  SKELETON_OFF_HAND_NAMES,
   SKELETON_STRUCTURE_TYPE,
 } from "../../combatant-models/modular-character/skeleton-structure-variables";
 import { Vector3 } from "@babylonjs/core";
@@ -202,18 +203,27 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     gameWorld.current.vfxManager.register(vfxModel);
 
     if (vfxProperties.parentOption) {
-      if (vfxProperties.parentOption.type === VfxParentType.UserMainHand) {
-        const actionUserOption =
-          gameWorld.current.modelManager.combatantModels[vfxProperties.parentOption.parentEntityId];
-        if (!actionUserOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-        const userMainHandBone = getChildMeshByName(
-          actionUserOption.rootMesh,
-          SKELETON_MAIN_HAND_NAMES[SKELETON_STRUCTURE_TYPE]
-        );
-        if (!userMainHandBone) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_EXPECTED_BONE);
-        vfxModel.movementManager.transformNode.setParent(userMainHandBone);
-        vfxModel.movementManager.transformNode.setPositionWithLocalVector(Vector3.Zero());
-      }
+      const actionUserOption =
+        gameWorld.current.modelManager.combatantModels[vfxProperties.parentOption.parentEntityId];
+      if (!actionUserOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+
+      const boneNameList = (() => {
+        switch (vfxProperties.parentOption.type) {
+          case VfxParentType.UserMainHand:
+            return SKELETON_MAIN_HAND_NAMES;
+          case VfxParentType.UserOffHand:
+            return SKELETON_OFF_HAND_NAMES;
+        }
+      })();
+
+      const boneToParent = getChildMeshByName(
+        actionUserOption.rootMesh,
+        boneNameList[SKELETON_STRUCTURE_TYPE]
+      );
+
+      if (!boneToParent) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_EXPECTED_BONE);
+      vfxModel.movementManager.transformNode.setParent(boneToParent);
+      vfxModel.movementManager.transformNode.setPositionWithLocalVector(Vector3.Zero());
     }
   },
 };
