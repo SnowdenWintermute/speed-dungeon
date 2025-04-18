@@ -26,10 +26,10 @@ export enum ActionMotionPhase {
 export enum ActionResolutionStepType {
   DetermineChildActions,
   DetermineActionAnimations,
-  InitialPositioning, // motion
-  ChamberingMotion, // motion
+  InitialPositioning, // motion - start magical glyph ClientOnlyVfx
+  ChamberingMotion, // motion - start frost particle accumulation ClientOnlyVfx
   PostChamberingSpawnEntity,
-  DeliveryMotion, // motion
+  DeliveryMotion, // motion - start frost particle burst ClientOnlyVfx
   PayResourceCosts,
   EvalOnUseTriggers,
   StartConcurrentSubActions,

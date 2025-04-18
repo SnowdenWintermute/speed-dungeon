@@ -33,6 +33,7 @@ import { NumberRange } from "../../../../primatives/number-range.js";
 import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { getSpellCastActionStepAnimations } from "../spell-cast-action-step-animations.js";
+import { ClientOnlyVfxNames } from "../../../../vfx/client-only-vfx.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -114,12 +115,17 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => null,
+  getClientOnlyVfxToStartByStep(context) {
+    return {
+      [ActionResolutionStepType.ChamberingMotion]: [ClientOnlyVfxNames.FrostParticleAccumulation],
+    };
+  },
   getResolutionSteps() {
     return [
       ActionResolutionStepType.DetermineActionAnimations,
+      // spawn spellcasting glyph at feet
       ActionResolutionStepType.InitialPositioning,
       // spawn particle effect on hand
-      // spawn spellcasting glyph at feet
       ActionResolutionStepType.ChamberingMotion,
       ActionResolutionStepType.DeliveryMotion,
       // despawn original particle effect

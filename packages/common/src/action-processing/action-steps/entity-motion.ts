@@ -37,6 +37,13 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
 
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
 
+    if (action.getClientOnlyVfxToStartByStep) {
+      const clientOnlyVfxNamesToStart = action.getClientOnlyVfxToStartByStep(context);
+      const clientOnlyVfxNamesForThisStep = clientOnlyVfxNamesToStart[stepType];
+      if (clientOnlyVfxNamesForThisStep)
+        this.gameUpdateCommand.clientOnlyVfxNamesToStart = clientOnlyVfxNamesForThisStep;
+    }
+
     const animationOption = this.getAnimation();
 
     if (animationOption) {

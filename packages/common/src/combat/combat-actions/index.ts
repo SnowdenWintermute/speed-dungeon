@@ -40,6 +40,7 @@ import { CombatActionCombatantAnimations } from "./combat-action-animations.js";
 import { ActionTracker } from "../../action-processing/action-tracker.js";
 import { SpawnableEntity } from "../../spawnables/index.js";
 import { ConsumableType } from "../../items/consumables/index.js";
+import { ClientOnlyVfxNames } from "../../vfx/client-only-vfx.js";
 
 export interface CombatActionComponentConfig {
   description: string;
@@ -76,6 +77,9 @@ export interface CombatActionComponentConfig {
     >
   >;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
+  getClientOnlyVfxToStartByStep?: (
+    context: ActionResolutionStepContext
+  ) => Partial<Record<ActionResolutionStepType, ClientOnlyVfxNames[]>>;
 
   getResourceCosts: (
     user: CombatantProperties,
@@ -158,6 +162,9 @@ export abstract class CombatActionComponent {
     context: ActionResolutionStepContext
   ) => null | Error | CombatActionCombatantAnimations;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
+  getClientOnlyVfxToStartByStep?: (
+    context: ActionResolutionStepContext
+  ) => Partial<Record<ActionResolutionStepType, ClientOnlyVfxNames[]>>;
 
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   motionPhasePositionGetters: Partial<
@@ -257,6 +264,7 @@ export abstract class CombatActionComponent {
     this.getRequiredRange = (user) => config.getRequiredRange(user, this);
     this.motionPhasePositionGetters = config.motionPhasePositionGetters;
     this.getSpawnableEntity = config.getSpawnableEntity;
+    this.getClientOnlyVfxToStartByStep = config.getClientOnlyVfxToStartByStep;
     this.getHpChangeProperties = (user, target) => config.getHpChangeProperties(user, target, this);
     this.getManaChangeProperties = (user, target) =>
       config.getManaChangeProperties(user, target, this);

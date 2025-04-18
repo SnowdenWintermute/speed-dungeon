@@ -13,6 +13,7 @@ import { Vfx } from "../vfx/index.js";
 import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { DurabilityChangesByEntityId } from "../durability/index.js";
 import { HitOutcome } from "../hit-outcome.js";
+import { ClientOnlyVfxNames } from "../vfx/client-only-vfx.js";
 
 export enum GameUpdateCommandType {
   SpawnEntity,
@@ -90,6 +91,7 @@ export type EntityMotionGameUpdateCommand = {
   entityId: EntityId;
   animationOption?: EntityAnimation;
   translationOption?: EntityTranslation;
+  clientOnlyVfxNamesToStart?: ClientOnlyVfxNames[];
   rotationOption?: EntityRotation;
   idleOnComplete?: boolean;
   instantTransition?: boolean;

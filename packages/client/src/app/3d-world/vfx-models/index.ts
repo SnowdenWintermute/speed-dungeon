@@ -6,19 +6,13 @@ import {
   TransformNode,
   Vector3,
 } from "@babylonjs/core";
-import {
-  ERROR_MESSAGES,
-  EntityId,
-  MOBILE_VFX_NAME_STRINGS,
-  MobileVfxName,
-  formatVector3,
-} from "@speed-dungeon/common";
+import { ERROR_MESSAGES, EntityId, MobileVfxName } from "@speed-dungeon/common";
 import { disposeAsyncLoadedScene, importMesh } from "../utils";
 import { ModelMovementManager } from "../model-movement-manager";
 import { gameWorld } from "../SceneManager";
 import { MOBILE_VFX_NAME_TO_MODEL_PATH } from "./vfx-model-paths";
-import { AnimationManager } from "../combatant-models/animation-manager";
 import { DynamicAnimationManager } from "../combatant-models/animation-manager/dynamic-animation-manager";
+import { ClientOnlyVfxManager } from "../client-only-vfx-manager";
 
 export class VfxManager {
   mobile: { [id: EntityId]: MobileVfxModel } = {};
@@ -52,6 +46,7 @@ export class VfxModel {
 export class MobileVfxModel extends VfxModel {
   public movementManager: ModelMovementManager;
   public animationManager: DynamicAnimationManager;
+  public clientOnlyVfxManager = new ClientOnlyVfxManager();
   // public animationManager: AnimationManager
   constructor(
     id: EntityId,

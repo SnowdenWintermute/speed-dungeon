@@ -1,3 +1,4 @@
+export * from "./client-only-vfx.js";
 import { Vector3 } from "@babylonjs/core";
 import { EntityId, EntityProperties } from "../primatives/index.js";
 

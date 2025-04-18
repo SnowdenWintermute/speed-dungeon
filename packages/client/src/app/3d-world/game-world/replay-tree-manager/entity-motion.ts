@@ -3,7 +3,6 @@ import {
   SkeletalAnimationName,
   ERROR_MESSAGES,
   EntityMotionGameUpdateCommand,
-  MobileVfxName,
   SpawnableEntityType,
   DynamicAnimationName,
 } from "@speed-dungeon/common";
@@ -14,6 +13,7 @@ import { Quaternion, Vector3 } from "@babylonjs/core";
 import { plainToInstance } from "class-transformer";
 import { DynamicAnimationManager } from "../../combatant-models/animation-manager/dynamic-animation-manager";
 import { SkeletalAnimationManager } from "../../combatant-models/animation-manager/skeletal-animation-manager";
+import { ClientOnlyVfxManager } from "../../client-only-vfx-manager";
 
 export function entityMotionGameUpdateHandler(update: {
   command: EntityMotionGameUpdateCommand;
@@ -22,6 +22,7 @@ export function entityMotionGameUpdateHandler(update: {
   const { command } = update;
   let movementManager: ModelMovementManager;
   let animationManager: DynamicAnimationManager | SkeletalAnimationManager | undefined;
+  let clientOnlyVfxManager: ClientOnlyVfxManager;
   const { entityId, translationOption, rotationOption, animationOption } = command;
 
   let destinationYOption: undefined | number;
@@ -31,11 +32,13 @@ export function entityMotionGameUpdateHandler(update: {
     if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     movementManager = combatantModelOption.movementManager;
     animationManager = combatantModelOption.animationManager;
+    clientOnlyVfxManager = combatantModelOption.clientOnlyVfxManager;
   } else {
     const vfxOption = gameWorld.current?.vfxManager.mobile[entityId];
     if (!vfxOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_VFX);
     movementManager = vfxOption.movementManager;
     animationManager = vfxOption.animationManager;
+    clientOnlyVfxManager = vfxOption.clientOnlyVfxManager;
 
     movementManager.transformNode.setParent(null);
 
