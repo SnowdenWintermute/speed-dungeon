@@ -49,9 +49,9 @@ export function testParticleSystem(scene: Scene) {
 
   particleSystem.minSize = 0.1;
   particleSystem.maxSize = 0.5;
-  particleSystem.addSizeGradient(0, 0.1, 0.5); //size range at start of particle lifetime
-  particleSystem.addSizeGradient(0.5, 0.5, 0.9); //size range at 2/5 of duration of particle system
-  particleSystem.addSizeGradient(1.0, 0, 0.3); //size range at end of particle lifetime
+  // particleSystem.addSizeGradient(0, 0.1, 0.5); //size range at start of particle lifetime
+  // particleSystem.addSizeGradient(0.5, 0.5, 0.9); //size range at 2/5 of duration of particle system
+  // particleSystem.addSizeGradient(1.0, 0, 0.3); //size range at end of particle lifetime
 
   particleSystem.color1 = new Color4(0.7, 0.8, 1.0, 1.0);
   particleSystem.color2 = new Color4(0.2, 0.5, 1.0, 1.0);
@@ -61,8 +61,8 @@ export function testParticleSystem(scene: Scene) {
   // particleSystem.addColorGradient(0.4, new Color4(1, 1, 1, 0.5), new Color4(1, 0, 1, 0.5));
   // particleSystem.addColorGradient(1.0, new Color4(1, 1, 1, 1), new Color4(1, 0, 1, 1));
 
-  particleSystem.minEmitPower = 1;
-  particleSystem.maxEmitPower = 3;
+  particleSystem.minEmitPower = 0.3;
+  particleSystem.maxEmitPower = 0.3;
 
   // particleSystem.addVelocityGradient(0, 0.5, 0.8); //applied power range at start of particle lifetime
   // particleSystem.addVelocityGradient(0.4, 1, 2); //applied power range at 2/5 of duration of particle system
@@ -70,8 +70,8 @@ export function testParticleSystem(scene: Scene) {
 
   particleSystem.emitRate = 10;
 
-  // particleSystem.minLifeTime = 0.3;
-  // particleSystem.maxLifeTime = 1.5;
+  particleSystem.minLifeTime = 1;
+  particleSystem.maxLifeTime = 1;
 
   // particleSystem.direction1 = new Vector3(0, 0, 0);
 

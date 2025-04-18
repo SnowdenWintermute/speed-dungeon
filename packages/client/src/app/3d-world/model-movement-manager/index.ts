@@ -9,7 +9,9 @@ import { cloneVector3, iterateNumericEnumKeyedRecord } from "@speed-dungeon/comm
 
 export class ModelMovementManager {
   public activeTrackers: Partial<Record<ModelMovementType, ModelMovementTracker>> = {};
-  constructor(public transformNode: TransformNode) {}
+  constructor(public transformNode: TransformNode) {
+    transformNode.rotationQuaternion = Quaternion.FromEulerVector(transformNode.rotation);
+  }
 
   isProcessing() {
     for (const [_, trackerOption] of this.getTrackers()) {

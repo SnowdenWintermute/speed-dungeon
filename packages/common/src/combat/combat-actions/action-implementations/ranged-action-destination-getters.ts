@@ -33,7 +33,7 @@ export const RANGED_ACTION_DESTINATION_GETTERS: Partial<
     if (primaryTargetResult instanceof Error) return primaryTargetResult;
     const target = primaryTargetResult;
 
-    const direction = target.homeLocation
+    const direction = target.combatantProperties.homeLocation
       .subtract(combatantContext.combatant.combatantProperties.homeLocation)
       .normalize();
 

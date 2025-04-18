@@ -74,8 +74,12 @@ export function calculateActionHitOutcomes(
 
   const hitOutcomes = new CombatActionHitOutcomes();
 
-  const actionHpChangePropertiesOption = cloneDeep(action.getHpChangeProperties(user, target));
-  const actionManaChangePropertiesOption = cloneDeep(action.getManaChangeProperties(user, target));
+  const actionHpChangePropertiesOption = cloneDeep(
+    action.getHpChangeProperties(user, target.combatantProperties)
+  );
+  const actionManaChangePropertiesOption = cloneDeep(
+    action.getManaChangeProperties(user, target.combatantProperties)
+  );
 
   console.log("hp change properties", actionHpChangePropertiesOption);
   const incomingHpChangePerTargetOption = getIncomingResourceChangePerTarget(

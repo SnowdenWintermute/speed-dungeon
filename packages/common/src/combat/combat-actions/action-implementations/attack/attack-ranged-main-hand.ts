@@ -27,6 +27,7 @@ import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { MobileVfxName, VfxParentType, VfxType } from "../../../../vfx/index.js";
 import { getBowShootActionStepAnimations } from "../bow-shoot-action-step-animations.js";
+import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -106,6 +107,17 @@ const config: CombatActionComponentConfig = {
   getSpawnableEntity: (context) => {
     const { combatantContext } = context;
     const position = combatantContext.combatant.combatantProperties.position.clone();
+    const { actionExecutionIntent } = context.tracker;
+    const { party } = combatantContext;
+
+    const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+
+    const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+      party,
+      actionExecutionIntent
+    );
+    if (primaryTargetResult instanceof Error) throw primaryTargetResult;
+    const target = primaryTargetResult;
 
     return {
       type: SpawnableEntityType.Vfx,
@@ -119,6 +131,7 @@ const config: CombatActionComponentConfig = {
             type: VfxParentType.UserMainHand,
             parentEntityId: context.combatantContext.combatant.entityProperties.id,
           },
+          pointTowardEntityOption: target.entityProperties.id,
         },
       },
     };

@@ -39,8 +39,24 @@ export function entityMotionGameUpdateHandler(update: {
 
     movementManager.transformNode.setParent(null);
 
-    if (vfxOption.name === MobileVfxName.Arrow || vfxOption.name === MobileVfxName.IceBolt)
-      destinationYOption = 0.5;
+    if (vfxOption.pointTowardEntity) {
+      const combatantModelOption =
+        gameWorld.current?.modelManager.combatantModels[vfxOption.pointTowardEntity];
+      if (!combatantModelOption) throw new Error("Tried to point at an entity with no model");
+
+      const targetBoundingBoxCenter =
+        combatantModelOption.getBoundingInfo().boundingBox.centerWorld;
+      const forward = targetBoundingBoxCenter
+        .subtract(vfxOption.movementManager.transformNode.getAbsolutePosition())
+        .normalize();
+
+      const up = Vector3.Up();
+
+      const lookRotation: Quaternion = Quaternion.FromLookDirectionLH(forward, up);
+      vfxOption.movementManager.startRotatingTowards(lookRotation, 400, () => {});
+
+      destinationYOption = targetBoundingBoxCenter.y;
+    }
   }
 
   // console.log("destinationOption: ", translationOption?.destination);

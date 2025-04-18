@@ -220,6 +220,11 @@ export class ModularCharacter {
   setUpDebugMeshes = setUpDebugMeshes;
   despawnDebugMeshes = despawnDebugMeshes;
 
+  getBoundingInfo() {
+    const boundingInfo = this.rootMesh.getBoundingInfo();
+    return boundingInfo;
+  }
+
   updateDomRefPosition() {
     const boundingBox = getClientRectFromMesh(this.world.scene, this.world.canvas, this.rootMesh);
     if (!this.modelDomPositionElement) return;

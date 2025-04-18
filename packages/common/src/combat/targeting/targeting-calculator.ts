@@ -285,6 +285,6 @@ export class TargetingCalculator {
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
     const primaryTargetResult = AdventuringParty.getCombatant(party, primaryTargetIdOption);
     if (primaryTargetResult instanceof Error) return primaryTargetResult;
-    return primaryTargetResult.combatantProperties;
+    return primaryTargetResult;
   }
 }

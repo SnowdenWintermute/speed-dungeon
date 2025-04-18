@@ -64,7 +64,7 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
       const target = primaryTargetResult;
       const user = combatantContext.combatant.combatantProperties;
 
-      const distance = Vector3.Distance(target.position, user.position);
+      const distance = Vector3.Distance(target.combatantProperties.position, user.position);
       if (
         distance <= meleeRange ||
         isNaN(distance) ||
@@ -73,11 +73,11 @@ export const MELEE_ATTACK_COMMON_CONFIG = {
         return { position: user.position.clone() };
       }
 
-      const direction = target.homeLocation
+      const direction = target.combatantProperties.homeLocation
         .subtract(combatantContext.combatant.combatantProperties.homeLocation)
         .normalize();
 
-      const destination = target.homeLocation.subtract(
+      const destination = target.combatantProperties.homeLocation.subtract(
         // direction.scale(target.hitboxRadius + user.hitboxRadius)
         direction.scale(meleeRange)
       );

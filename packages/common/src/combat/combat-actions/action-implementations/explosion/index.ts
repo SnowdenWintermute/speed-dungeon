@@ -142,7 +142,7 @@ const config: CombatActionComponentConfig = {
       if (primaryTargetResult instanceof Error) return primaryTargetResult;
       const target = primaryTargetResult;
 
-      return { position: target.homeLocation.clone() };
+      return { position: target.combatantProperties.homeLocation.clone() };
     },
   },
 
@@ -160,7 +160,7 @@ const config: CombatActionComponentConfig = {
     );
     if (primaryTargetIdResult instanceof Error) throw primaryTargetIdResult;
 
-    const position = primaryTargetIdResult.position;
+    const position = primaryTargetIdResult.combatantProperties.position;
 
     return {
       type: SpawnableEntityType.Vfx,

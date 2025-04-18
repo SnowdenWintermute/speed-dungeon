@@ -26,7 +26,7 @@ import {
   SKELETON_OFF_HAND_NAMES,
   SKELETON_STRUCTURE_TYPE,
 } from "../../combatant-models/modular-character/skeleton-structure-variables";
-import { Vector3 } from "@babylonjs/core";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 import { entityMotionGameUpdateHandler } from "./entity-motion";
 import { hitOutcomesGameUpdateHandler } from "./hit-outcomes";
 import { useGameStore } from "@/stores/game-store";
@@ -191,11 +191,13 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
 
     const scene = await spawnMobileVfxModel(vfxProperties.name, position);
 
+    console.log("spawned vfx with pointTowardEntityOption", vfxProperties.pointTowardEntityOption);
     const vfxModel = new MobileVfxModel(
       vfx.entityProperties.id,
       scene,
       position,
-      vfxProperties.name
+      vfxProperties.name,
+      vfxProperties.pointTowardEntityOption
     );
 
     update.isComplete = true;
@@ -224,6 +226,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       if (!boneToParent) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_EXPECTED_BONE);
       vfxModel.movementManager.transformNode.setParent(boneToParent);
       vfxModel.movementManager.transformNode.setPositionWithLocalVector(Vector3.Zero());
+      vfxModel.movementManager.transformNode.rotationQuaternion = Quaternion.Identity();
     }
   },
 };

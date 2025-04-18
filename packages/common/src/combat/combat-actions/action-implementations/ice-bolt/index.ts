@@ -118,8 +118,13 @@ const config: CombatActionComponentConfig = {
     return [
       ActionResolutionStepType.DetermineActionAnimations,
       ActionResolutionStepType.InitialPositioning,
+      // spawn particle effect on hand
+      // spawn spellcasting glyph at feet
       ActionResolutionStepType.ChamberingMotion,
       ActionResolutionStepType.DeliveryMotion,
+      // despawn original particle effect
+      // spawn particle effect burst
+      // despawn spellcasting glyph
       ActionResolutionStepType.PayResourceCosts,
       ActionResolutionStepType.EvalOnUseTriggers,
       ActionResolutionStepType.StartConcurrentSubActions,

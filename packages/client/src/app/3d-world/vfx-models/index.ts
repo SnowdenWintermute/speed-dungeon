@@ -57,7 +57,8 @@ export class MobileVfxModel extends VfxModel {
     id: EntityId,
     scene: ISceneLoaderAsyncResult,
     startPosition: Vector3,
-    public name: MobileVfxName
+    public name: MobileVfxName,
+    public pointTowardEntity?: EntityId
   ) {
     const transformNode = scene.transformNodes[0];
     if (!transformNode) throw new Error("Expected transform node was missing in scene");

@@ -21,6 +21,7 @@ import {
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { MobileVfxName, VfxParentType, VfxType } from "../../../../vfx/index.js";
+import { COMBAT_ACTIONS } from "../index.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -61,7 +62,18 @@ const config: CombatActionComponentConfig = {
 
   getSpawnableEntity: (context) => {
     const { combatantContext } = context;
+    const { actionExecutionIntent } = context.tracker;
+    const { party } = combatantContext;
     const position = combatantContext.combatant.combatantProperties.position.clone();
+
+    const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+
+    const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+      party,
+      actionExecutionIntent
+    );
+    if (primaryTargetResult instanceof Error) throw primaryTargetResult;
+    const target = primaryTargetResult;
 
     return {
       type: SpawnableEntityType.Vfx,
@@ -75,6 +87,7 @@ const config: CombatActionComponentConfig = {
             type: VfxParentType.UserOffHand,
             parentEntityId: context.combatantContext.combatant.entityProperties.id,
           },
+          pointTowardEntityOption: target.entityProperties.id,
         },
       },
     };
@@ -101,7 +114,7 @@ const config: CombatActionComponentConfig = {
       if (primaryTargetResult instanceof Error) return primaryTargetResult;
       const target = primaryTargetResult;
 
-      return { position: target.homeLocation.clone() };
+      return { position: target.combatantProperties.homeLocation.clone() };
     },
   },
 

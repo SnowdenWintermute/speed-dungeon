@@ -1,5 +1,4 @@
 import {
-  CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -93,7 +92,10 @@ const config: CombatActionComponentConfig = {
     const targetIds = targetIdsResult;
 
     const actionHpChangePropertiesOption = cloneDeep(
-      action.getHpChangeProperties(context.combatantContext.combatant.combatantProperties, target)
+      action.getHpChangeProperties(
+        context.combatantContext.combatant.combatantProperties,
+        target.combatantProperties
+      )
     );
     const incomingResourceChangePerTargetOption = getIncomingResourceChangePerTarget(
       targetIds,

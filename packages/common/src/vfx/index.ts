@@ -35,6 +35,7 @@ export type MobileVfxProperties = {
   vfxType: VfxType.Mobile;
   position: Vector3;
   name: MobileVfxName;
+  pointTowardEntityOption?: EntityId;
   parentOption?: VfxParent;
 };
 
