@@ -215,6 +215,8 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
             return SKELETON_MAIN_HAND_NAMES;
           case VfxParentType.UserOffHand:
             return SKELETON_OFF_HAND_NAMES;
+          case VfxParentType.EntityRoot:
+            return "root";
         }
       })();
 

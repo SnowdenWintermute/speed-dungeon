@@ -96,7 +96,7 @@ export class GameWorld {
       this.scene.render();
     });
 
-    testParticleSystem(this.scene);
+    // testParticleSystem(this.scene);
 
     // this.startLimitedFramerateRenderLoop(5, 3000);
   }

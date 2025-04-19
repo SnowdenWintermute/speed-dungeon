@@ -21,6 +21,7 @@ export enum VfxType {
 export enum VfxParentType {
   UserMainHand,
   UserOffHand,
+  EntityRoot,
   // OffHand,
   // MainHandWeapon,
   // OffHandWeapon

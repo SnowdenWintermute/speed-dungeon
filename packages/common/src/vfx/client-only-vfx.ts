@@ -1,14 +1,13 @@
 import {
   AbstractMesh,
   Color4,
-  Matrix,
+  GPUParticleSystem,
   Mesh,
-  Particle,
-  ParticleSystem,
+  Nullable,
+  Quaternion,
   Scene,
   Texture,
   TransformNode,
-  Vector3,
 } from "@babylonjs/core";
 
 export enum ClientOnlyVfxNames {
@@ -17,10 +16,12 @@ export enum ClientOnlyVfxNames {
 }
 
 export abstract class ClientOnlyVfx {
-  particleSystems: { particleSystem: ParticleSystem; mesh: Mesh }[] = [];
-  transformNode = new TransformNode("");
-  constructor(public name: ClientOnlyVfxNames) {}
-  createParticleSystems?(scene: Scene): { particleSystem: ParticleSystem; mesh: Mesh }[];
+  particleSystems: { particleSystem: GPUParticleSystem; mesh: Mesh }[] = [];
+  public transformNode = new TransformNode("");
+  constructor(public scene: Scene) {
+    this.initialize(scene);
+  }
+  createParticleSystems?(scene: Scene): { particleSystem: GPUParticleSystem; mesh: Mesh }[];
   createAnimatedMeshes?(scene: Scene): AbstractMesh[];
   initialize(scene: Scene) {
     if (this.createParticleSystems) {
@@ -35,6 +36,11 @@ export abstract class ClientOnlyVfx {
 
   cleanup() {
     for (const { particleSystem, mesh } of this.particleSystems) {
+      particleSystem.emitRate = 0;
+
+      // @TODO - check for num remaining and wait for them all to finish before disposing
+      // if doing a "soft cleanup"
+
       particleSystem.stop();
       mesh.dispose();
       particleSystem.dispose();
@@ -47,38 +53,31 @@ export class FrostParticleAccumulation extends ClientOnlyVfx {
   createAnimatedMeshes(): AbstractMesh[] {
     throw new Error("Method not implemented.");
   }
-  createParticleSystems(scene: Scene): { particleSystem: ParticleSystem; mesh: Mesh }[] {
-    const particleSystem = new ParticleSystem("particles", 1000, scene);
+  createParticleSystems(scene: Scene): { particleSystem: GPUParticleSystem; mesh: Mesh }[] {
+    const particleSystem = new GPUParticleSystem("particles", { capacity: 15 }, scene); // scene is optional and defaults to the current scene
     particleSystem.particleTexture = new Texture("img/particle-textures/flare.png");
 
-    particleSystem.createSphereEmitter(1, 1);
+    particleSystem.createSphereEmitter(0.4, 0.3);
 
     const mesh = new Mesh("");
+    mesh.rotationQuaternion = Quaternion.FromEulerVector(mesh.rotation);
     particleSystem.emitter = mesh;
 
-    particleSystem.startDirectionFunction = (
-      worldMatrix: Matrix,
-      directionToUpdate: Vector3,
-      particle: Particle,
-      isLocal: boolean
-    ) => {
-      const particlePosition: Vector3 = particle.position;
-      const direction: Vector3 = mesh.position.subtract(particlePosition).normalize();
-      directionToUpdate.copyFrom(direction);
-    };
+    // particleSystem.preWarmStepOffset = ;
+    particleSystem.preWarmCycles = 3;
 
     particleSystem.minSize = 0.1;
-    particleSystem.maxSize = 0.5;
-    particleSystem.color1 = new Color4(0.7, 0.8, 1.0, 1.0);
-    particleSystem.color2 = new Color4(0.2, 0.5, 1.0, 1.0);
-    particleSystem.colorDead = new Color4(0, 0, 0.2, 0.0);
-    particleSystem.minEmitPower = 1;
-    particleSystem.maxEmitPower = 1;
-    particleSystem.emitRate = 20;
-    particleSystem.minLifeTime = 0.3;
-    particleSystem.maxLifeTime = 0.3;
+    particleSystem.maxSize = 0.2;
 
-    particleSystem.start();
+    particleSystem.addColorGradient(0, new Color4(0.7, 0.8, 1.0, 0));
+    particleSystem.addColorGradient(0.5, new Color4(0.2, 0.5, 1.0, 0.7));
+    particleSystem.addColorGradient(1, new Color4(0, 0, 0.2, 0.0));
+
+    particleSystem.minEmitPower = -0.7;
+    particleSystem.maxEmitPower = -0.5;
+    particleSystem.emitRate = 100;
+    particleSystem.minLifeTime = 0.5;
+    particleSystem.maxLifeTime = 1;
 
     return [{ particleSystem, mesh }];
   }
@@ -93,7 +92,7 @@ export class FrostParticleAccumulation extends ClientOnlyVfx {
 //   }
 // }
 
-type ClientOnlyVfxConstructor = new (name: ClientOnlyVfxNames) => ClientOnlyVfx;
+type ClientOnlyVfxConstructor = new (scene: Scene) => ClientOnlyVfx;
 
 export const CLIENT_ONLY_VFX_CONSTRUCTORS: Record<ClientOnlyVfxNames, ClientOnlyVfxConstructor> = {
   [ClientOnlyVfxNames.FrostParticleAccumulation]: FrostParticleAccumulation,

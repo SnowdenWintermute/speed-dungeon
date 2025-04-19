@@ -117,7 +117,17 @@ const config: CombatActionComponentConfig = {
   getParent: () => null,
   getClientOnlyVfxToStartByStep(context) {
     return {
-      [ActionResolutionStepType.ChamberingMotion]: [ClientOnlyVfxNames.FrostParticleAccumulation],
+      [ActionResolutionStepType.InitialPositioning]: [
+        {
+          name: ClientOnlyVfxNames.FrostParticleAccumulation,
+          parentType: VfxParentType.UserOffHand,
+        },
+      ],
+    };
+  },
+  getClientOnlyVfxToStopByStep(context) {
+    return {
+      [ActionResolutionStepType.FinalPositioning]: [ClientOnlyVfxNames.FrostParticleAccumulation],
     };
   },
   getResolutionSteps() {

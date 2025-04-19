@@ -9,7 +9,7 @@ import {
 import { TaggedAnimationName } from "../app-consts.js";
 import { ActionResolutionStepType } from "./action-steps/index.js";
 import { Combatant, CombatantCondition } from "../combatants/index.js";
-import { Vfx } from "../vfx/index.js";
+import { Vfx, VfxParentType } from "../vfx/index.js";
 import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { DurabilityChangesByEntityId } from "../durability/index.js";
 import { HitOutcome } from "../hit-outcome.js";
@@ -91,7 +91,8 @@ export type EntityMotionGameUpdateCommand = {
   entityId: EntityId;
   animationOption?: EntityAnimation;
   translationOption?: EntityTranslation;
-  clientOnlyVfxNamesToStart?: ClientOnlyVfxNames[];
+  clientOnlyVfxNamesToStart?: { name: ClientOnlyVfxNames; parentType: VfxParentType }[]; // @TODO - probably can just get this client side
+  clientOnlyVfxNamesToStop?: ClientOnlyVfxNames[]; // @TODO - probably can just get this client side
   rotationOption?: EntityRotation;
   idleOnComplete?: boolean;
   instantTransition?: boolean;

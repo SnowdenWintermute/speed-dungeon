@@ -41,6 +41,7 @@ import { ActionTracker } from "../../action-processing/action-tracker.js";
 import { SpawnableEntity } from "../../spawnables/index.js";
 import { ConsumableType } from "../../items/consumables/index.js";
 import { ClientOnlyVfxNames } from "../../vfx/client-only-vfx.js";
+import { VfxParentType } from "../../vfx/index.js";
 
 export interface CombatActionComponentConfig {
   description: string;
@@ -78,6 +79,11 @@ export interface CombatActionComponentConfig {
   >;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
   getClientOnlyVfxToStartByStep?: (
+    context: ActionResolutionStepContext
+  ) => Partial<
+    Record<ActionResolutionStepType, { name: ClientOnlyVfxNames; parentType: VfxParentType }[]>
+  >;
+  getClientOnlyVfxToStopByStep?: (
     context: ActionResolutionStepContext
   ) => Partial<Record<ActionResolutionStepType, ClientOnlyVfxNames[]>>;
 
@@ -163,6 +169,11 @@ export abstract class CombatActionComponent {
   ) => null | Error | CombatActionCombatantAnimations;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
   getClientOnlyVfxToStartByStep?: (
+    context: ActionResolutionStepContext
+  ) => Partial<
+    Record<ActionResolutionStepType, { name: ClientOnlyVfxNames; parentType: VfxParentType }[]>
+  >;
+  getClientOnlyVfxToStopByStep?: (
     context: ActionResolutionStepContext
   ) => Partial<Record<ActionResolutionStepType, ClientOnlyVfxNames[]>>;
 
@@ -265,6 +276,7 @@ export abstract class CombatActionComponent {
     this.motionPhasePositionGetters = config.motionPhasePositionGetters;
     this.getSpawnableEntity = config.getSpawnableEntity;
     this.getClientOnlyVfxToStartByStep = config.getClientOnlyVfxToStartByStep;
+    this.getClientOnlyVfxToStopByStep = config.getClientOnlyVfxToStopByStep;
     this.getHpChangeProperties = (user, target) => config.getHpChangeProperties(user, target, this);
     this.getManaChangeProperties = (user, target) =>
       config.getManaChangeProperties(user, target, this);

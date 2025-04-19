@@ -1,5 +1,6 @@
 import {
   Color4,
+  GPUParticleSystem,
   Matrix,
   Mesh,
   Particle,
@@ -11,36 +12,27 @@ import {
 } from "@babylonjs/core";
 
 export function testParticleSystem(scene: Scene) {
-  const particleSystem = new ParticleSystem("particles", 1000, scene); // scene is optional and defaults to the current scene
+  const particleSystem = new GPUParticleSystem("particles", { capacity: 30 }, scene); // scene is optional and defaults to the current scene
   particleSystem.particleTexture = new Texture("img/particle-textures/flare.png");
 
-  particleSystem.createSphereEmitter(1, 1);
+  particleSystem.createSphereEmitter(1, 0.3);
 
   const emitter = new Mesh("");
   emitter.rotationQuaternion = Quaternion.FromEulerVector(emitter.rotation);
   particleSystem.emitter = emitter;
 
-  particleSystem.startDirectionFunction = (
-    worldMatrix: Matrix,
-    directionToUpdate: Vector3,
-    particle: Particle,
-    isLocal: boolean
-  ) => {
-    const particlePosition: Vector3 = particle.position;
-    const direction: Vector3 = emitter.position.subtract(particlePosition).normalize();
-    directionToUpdate.copyFrom(direction);
-  };
-
   particleSystem.minSize = 0.1;
   particleSystem.maxSize = 0.5;
-  particleSystem.color1 = new Color4(0.7, 0.8, 1.0, 1.0);
-  particleSystem.color2 = new Color4(0.2, 0.5, 1.0, 1.0);
-  particleSystem.colorDead = new Color4(0, 0, 0.2, 0.0);
-  particleSystem.minEmitPower = 1;
-  particleSystem.maxEmitPower = 1;
-  particleSystem.emitRate = 20;
-  particleSystem.minLifeTime = 0.3;
-  particleSystem.maxLifeTime = 0.3;
+
+  particleSystem.addColorGradient(0, new Color4(0.7, 0.8, 1.0, 0));
+  particleSystem.addColorGradient(0.5, new Color4(0.2, 0.5, 1.0, 0.7));
+  particleSystem.addColorGradient(1, new Color4(0, 0, 0.2, 0.0));
+
+  particleSystem.minEmitPower = -0.8;
+  particleSystem.maxEmitPower = -0.6;
+  particleSystem.emitRate = 5;
+  particleSystem.minLifeTime = 1;
+  particleSystem.maxLifeTime = 1;
 
   particleSystem.start();
 
