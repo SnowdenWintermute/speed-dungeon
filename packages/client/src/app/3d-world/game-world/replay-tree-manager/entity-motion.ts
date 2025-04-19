@@ -78,7 +78,7 @@ export function entityMotionGameUpdateHandler(update: {
     for (const { name, parentType } of command.clientOnlyVfxNamesToStart) {
       const effect = new CLIENT_ONLY_VFX_CONSTRUCTORS[name](sceneOption);
 
-      clientOnlyVfxManager.clientOnlyVfx[name]?.cleanup();
+      clientOnlyVfxManager.clientOnlyVfx[name]?.softCleanup();
       clientOnlyVfxManager.clientOnlyVfx[name] = effect;
 
       switch (parentType) {
@@ -110,13 +110,20 @@ export function entityMotionGameUpdateHandler(update: {
           }
           break;
         case VfxParentType.EntityRoot:
+          {
+            const vfxOption = gameWorld.current?.vfxManager.mobile[entityId];
+            if (!vfxOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_VFX);
+            effect.transformNode.setParent(vfxOption.movementManager.transformNode);
+            effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
+          }
+          break;
       }
     }
   }
 
   if (command.clientOnlyVfxNamesToStop) {
     for (const name of command.clientOnlyVfxNamesToStop) {
-      clientOnlyVfxManager.clientOnlyVfx[name]?.cleanup();
+      clientOnlyVfxManager.clientOnlyVfx[name]?.softCleanup();
       delete clientOnlyVfxManager.clientOnlyVfx[name];
     }
   }

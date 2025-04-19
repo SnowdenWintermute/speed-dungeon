@@ -20,7 +20,12 @@ import {
 } from "../../../../action-processing/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { MobileVfxName, VfxParentType, VfxType } from "../../../../vfx/index.js";
+import {
+  ClientOnlyVfxNames,
+  MobileVfxName,
+  VfxParentType,
+  VfxType,
+} from "../../../../vfx/index.js";
 import { COMBAT_ACTIONS } from "../index.js";
 
 const config: CombatActionComponentConfig = {
@@ -92,6 +97,22 @@ const config: CombatActionComponentConfig = {
       },
     };
   },
+
+  getClientOnlyVfxToStartByStep(context) {
+    return {
+      [ActionResolutionStepType.OnActivationVfxMotion]: [
+        {
+          name: ClientOnlyVfxNames.FrostParticleStream,
+          parentType: VfxParentType.EntityRoot,
+        },
+      ],
+    };
+  },
+  // getClientOnlyVfxToStopByStep(context) {
+  //   return {
+  //     [ActionResolutionStepType.RollIncomingHitOutcomes]: [ClientOnlyVfxNames.FrostParticleStream],
+  //   };
+  // },
   getResolutionSteps() {
     return [
       ActionResolutionStepType.OnActivationSpawnEntity,
