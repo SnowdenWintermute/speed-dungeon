@@ -22,7 +22,7 @@ export class VfxManager {
   }
 
   unregister(id: EntityId) {
-    this.mobile[id]?.dispose();
+    this.mobile[id]?.softCleanup();
     delete this.mobile[id];
   }
 
@@ -31,37 +31,45 @@ export class VfxManager {
   }
 }
 
-export class VfxModel {
-  constructor(
-    public readonly id: EntityId,
-    protected scene: ISceneLoaderAsyncResult,
-    protected transformNode: TransformNode
-  ) {}
-
-  dispose() {
-    disposeAsyncLoadedScene(this.scene);
-  }
-}
-
-export class MobileVfxModel extends VfxModel {
+export class MobileVfxModel {
   public movementManager: ModelMovementManager;
   public animationManager: DynamicAnimationManager;
   public clientOnlyVfxManager = new ClientOnlyVfxManager();
+  private transformNode: TransformNode;
   // public animationManager: AnimationManager
   constructor(
-    id: EntityId,
-    scene: ISceneLoaderAsyncResult,
+    public id: EntityId,
+    public scene: ISceneLoaderAsyncResult,
     startPosition: Vector3,
     public name: MobileVfxName,
     public pointTowardEntity?: EntityId
   ) {
-    const transformNode = scene.transformNodes[0];
-    if (!transformNode) throw new Error("Expected transform node was missing in scene");
-    super(id, scene, transformNode);
+    const modelRootTransformNode = scene.transformNodes[0];
+    if (!modelRootTransformNode) throw new Error("Expected transform node was missing in scene");
+
+    this.transformNode = new TransformNode("");
+    this.transformNode.setAbsolutePosition(startPosition);
+    modelRootTransformNode.setParent(this.transformNode);
+    modelRootTransformNode.setPositionWithLocalVector(Vector3.Zero());
+
     this.movementManager = new ModelMovementManager(this.transformNode);
     this.animationManager = new DynamicAnimationManager(this.scene);
     // this.animationManager = new AnimationManager()
     this.movementManager.instantlyMove(startPosition);
+  }
+
+  softCleanup() {
+    disposeAsyncLoadedScene(this.scene);
+    this.clientOnlyVfxManager.softCleanup();
+  }
+
+  cleanup() {
+    this.dispose();
+  }
+
+  dispose() {
+    disposeAsyncLoadedScene(this.scene);
+    this.transformNode.dispose(false);
   }
 }
 

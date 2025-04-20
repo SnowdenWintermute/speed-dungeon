@@ -11,6 +11,7 @@ import {
   TransformNode,
   Vector3,
 } from "@babylonjs/core";
+import { ManagedParticleSystem } from "./managed-particle-system.js";
 
 export enum ClientOnlyVfxNames {
   FrostParticleAccumulation,
@@ -19,15 +20,12 @@ export enum ClientOnlyVfxNames {
 }
 
 export abstract class ClientOnlyVfx {
-  particleSystems: { particleSystem: GPUParticleSystem | ParticleSystem; mesh: Mesh }[] = [];
-  softCleanupLoopTimeout: null | NodeJS.Timeout = null;
+  particleSystems: ManagedParticleSystem[] = [];
   public transformNode = new TransformNode("");
   constructor(public scene: Scene) {
     this.initialize(scene);
   }
-  createParticleSystems?(
-    scene: Scene
-  ): { particleSystem: GPUParticleSystem | ParticleSystem; mesh: Mesh }[];
+  createParticleSystems?(scene: Scene): ManagedParticleSystem[];
   createAnimatedMeshes?(scene: Scene): AbstractMesh[];
   initialize(scene: Scene) {
     if (this.createParticleSystems) {
@@ -41,36 +39,15 @@ export abstract class ClientOnlyVfx {
   }
 
   softCleanup() {
-    for (const { particleSystem, mesh } of this.particleSystems) {
-      particleSystem.stop();
-      particleSystem.emitRate = 0;
-
-      const remainingParticles = particleSystem.getActiveCount();
-
-      console.log("remainingParticles", remainingParticles);
-
-      this.softCleanupLoopTimeout = setTimeout(() => {
-        this.cleanup();
-      }, particleSystem.maxLifeTime * 1000);
-      // if (remainingParticles > 0) {
-      //   this.softCleanupLoopTimeout = setTimeout(() => {
-      //     this.softCleanup();
-      //   }, 100);
-      //   return;
-      // }
+    for (const particleSystem of this.particleSystems) {
+      particleSystem.softCleanup();
     }
   }
 
   cleanup() {
     console.log("cleaning up ClientOnlyVfx");
-    for (const { particleSystem, mesh } of this.particleSystems) {
-      particleSystem.emitRate = 0;
-      particleSystem.manualEmitCount = 0;
-
-      particleSystem.stop();
-      mesh.dispose();
-      particleSystem.dispose();
-      this.transformNode.dispose();
+    for (const particleSystem of this.particleSystems) {
+      particleSystem.cleanup();
     }
   }
 }
@@ -79,18 +56,18 @@ export class FrostParticleAccumulation extends ClientOnlyVfx {
   createAnimatedMeshes(): AbstractMesh[] {
     throw new Error("Method not implemented.");
   }
-  createParticleSystems(scene: Scene): { particleSystem: GPUParticleSystem; mesh: Mesh }[] {
-    const particleSystem = new GPUParticleSystem("particles", { capacity: 15 }, scene); // scene is optional and defaults to the current scene
+  createParticleSystems(scene: Scene): ManagedParticleSystem[] {
+    const particleSystem = new ParticleSystem("particles", 150, scene); // scene is optional and defaults to the current scene
     particleSystem.particleTexture = new Texture("img/particle-textures/flare.png");
 
-    particleSystem.createSphereEmitter(0.4, 0.3);
+    particleSystem.createSphereEmitter(0.2, 0.3);
 
     const mesh = new Mesh("");
     mesh.rotationQuaternion = Quaternion.FromEulerVector(mesh.rotation);
     particleSystem.emitter = mesh;
 
-    particleSystem.preWarmStepOffset = 2;
-    particleSystem.preWarmCycles = 300;
+    // particleSystem.preWarmStepOffset = 2;
+    // particleSystem.preWarmCycles = 300;
 
     particleSystem.minSize = 0.1;
     particleSystem.maxSize = 0.2;
@@ -101,11 +78,11 @@ export class FrostParticleAccumulation extends ClientOnlyVfx {
 
     particleSystem.minEmitPower = -0.7;
     particleSystem.maxEmitPower = -0.5;
-    particleSystem.emitRate = 100;
+    particleSystem.emitRate = 10;
     particleSystem.minLifeTime = 0.5;
     particleSystem.maxLifeTime = 1;
 
-    return [{ particleSystem, mesh }];
+    return [new ManagedParticleSystem(particleSystem, mesh, scene)];
   }
 }
 
@@ -113,7 +90,7 @@ export class FrostParticleStream extends ClientOnlyVfx {
   createAnimatedMeshes(): AbstractMesh[] {
     throw new Error("Method not implemented.");
   }
-  createParticleSystems(scene: Scene): { particleSystem: GPUParticleSystem; mesh: Mesh }[] {
+  createParticleSystems(scene: Scene): ManagedParticleSystem[] {
     const particleSystem = new GPUParticleSystem("particles", { capacity: 30 }, scene); // scene is optional and defaults to the current scene
     particleSystem.particleTexture = new Texture("img/particle-textures/flare.png");
 
@@ -131,7 +108,7 @@ export class FrostParticleStream extends ClientOnlyVfx {
 
     particleSystem.addColorGradient(0, new Color4(0.7, 0.8, 1.0, 0));
     particleSystem.addColorGradient(0.5, new Color4(0.2, 0.5, 1.0, 0.7));
-    particleSystem.addColorGradient(1, new Color4(0, 0, 0.2, 0.0));
+    particleSystem.addColorGradient(1, new Color4(0, 0, 0, 0.0));
 
     particleSystem.minEmitPower = 1;
     particleSystem.maxEmitPower = 1;
@@ -139,7 +116,7 @@ export class FrostParticleStream extends ClientOnlyVfx {
     particleSystem.minLifeTime = 0.5;
     particleSystem.maxLifeTime = 1;
 
-    return [{ particleSystem, mesh }];
+    return [new ManagedParticleSystem(particleSystem, mesh, scene)];
   }
 }
 

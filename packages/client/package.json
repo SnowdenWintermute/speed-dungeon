@@ -13,8 +13,8 @@
     "cypress:two-users": "concurrently 'node ./cypress/support/multiCypressSyncServer.js' npm:cypress:first npm:cypress:second"
   },
   "dependencies": {
-    "@babylonjs/core": "7.35.1",
-    "@babylonjs/loaders": "7.35.1",
+    "@babylonjs/core": "8.3.1",
+    "@babylonjs/loaders": "8.3.1",
     "@redux-devtools/extension": "3.3.0",
     "@svgr/webpack": "8.1.0",
     "class-transformer": "0.5.1",

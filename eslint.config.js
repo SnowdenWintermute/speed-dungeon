@@ -1,16 +1,14 @@
-// @ts-check
-
 const eslint = require("@eslint/js");
-const tseslint = require("typescript-eslint");
+const plugin = require("@typescript-eslint/eslint-plugin");
 
-module.exports = tseslint.config(
+module.exports = [
   eslint.configs.recommended,
-  ...tseslint.configs.recommended,
-  ...tseslint.configs.strict,
-  ...tseslint.configs.stylistic,
+  plugin.configs.recommended,
+  plugin.configs.strict,
+  plugin.configs.stylistic,
   {
     rules: {
       "@typescript-eslint/switch-exhaustiveness-check": "error",
     },
-  }
-);
+  },
+];
