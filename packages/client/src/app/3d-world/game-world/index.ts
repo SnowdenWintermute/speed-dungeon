@@ -96,8 +96,8 @@ export class GameWorld {
       this.scene.render();
     });
 
-    const systemAndMeshOption = testParticleSystem(this.scene)[0];
-    if (systemAndMeshOption) systemAndMeshOption.particleSystem.start();
+    // const systemAndMeshOption = testParticleSystem(this.scene)[0];
+    // if (systemAndMeshOption) systemAndMeshOption.particleSystem.start();
 
     // this.startLimitedFramerateRenderLoop(5, 3000);
   }

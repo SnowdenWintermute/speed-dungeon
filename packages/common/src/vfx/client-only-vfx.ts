@@ -4,6 +4,7 @@ import {
   GPUParticleSystem,
   Mesh,
   Nullable,
+  ParticleSystem,
   Quaternion,
   Scene,
   Texture,
@@ -18,13 +19,15 @@ export enum ClientOnlyVfxNames {
 }
 
 export abstract class ClientOnlyVfx {
-  particleSystems: { particleSystem: GPUParticleSystem; mesh: Mesh }[] = [];
+  particleSystems: { particleSystem: GPUParticleSystem | ParticleSystem; mesh: Mesh }[] = [];
   softCleanupLoopTimeout: null | NodeJS.Timeout = null;
   public transformNode = new TransformNode("");
   constructor(public scene: Scene) {
     this.initialize(scene);
   }
-  createParticleSystems?(scene: Scene): { particleSystem: GPUParticleSystem; mesh: Mesh }[];
+  createParticleSystems?(
+    scene: Scene
+  ): { particleSystem: GPUParticleSystem | ParticleSystem; mesh: Mesh }[];
   createAnimatedMeshes?(scene: Scene): AbstractMesh[];
   initialize(scene: Scene) {
     if (this.createParticleSystems) {
@@ -38,21 +41,24 @@ export abstract class ClientOnlyVfx {
   }
 
   softCleanup() {
-    // for (const { particleSystem, mesh } of this.particleSystems) {
-    // particleSystem.stop();
-    // particleSystem.emitRate = 0;
+    for (const { particleSystem, mesh } of this.particleSystems) {
+      particleSystem.stop();
+      particleSystem.emitRate = 0;
 
-    // const remainingParticles = particleSystem.getActiveCount();
-    // console.log("remainingParticles", remainingParticles);
-    // if (remainingParticles > 0) {
-    //   this.softCleanupLoopTimeout = setTimeout(() => {
-    //     this.softCleanup();
-    //   }, 100);
-    //   return;
-    // }
-    // }
+      const remainingParticles = particleSystem.getActiveCount();
 
-    this.cleanup();
+      console.log("remainingParticles", remainingParticles);
+
+      this.softCleanupLoopTimeout = setTimeout(() => {
+        this.cleanup();
+      }, particleSystem.maxLifeTime * 1000);
+      // if (remainingParticles > 0) {
+      //   this.softCleanupLoopTimeout = setTimeout(() => {
+      //     this.softCleanup();
+      //   }, 100);
+      //   return;
+      // }
+    }
   }
 
   cleanup() {
