@@ -11,22 +11,14 @@ export class ManagedParticleSystem {
   softCleanup() {
     const { particleSystem } = this;
     particleSystem.stop();
-    particleSystem.emitRate = 0;
 
-    if (this.particleSystem instanceof GPUParticleSystem) {
+    if (particleSystem instanceof GPUParticleSystem) {
       // FOR GPU PARTICLE SYSTEMS
-      // this.softCleanupTimeout = setTimeout(() => {
-      //   this.cleanup();
-      // }, particleSystem.maxLifeTime * 1000);
-
-      particleSystem.stop();
-      console.log(this.particleSystem.isStopped());
       const obs = this.scene.onBeforeRenderObservable.add(() => {
-        if (!(this.particleSystem instanceof GPUParticleSystem)) return;
-        if (this.particleSystem.isStopped()) {
-          setTimeout(
+        if (particleSystem.isStopped()) {
+          this.softCleanupTimeout = setTimeout(
             () => {
-              particleSystem.dispose();
+              this.cleanup();
               this.scene.onBeforeRenderObservable.remove(obs);
             },
             particleSystem.maxLifeTime * 1000 + 1000
@@ -40,7 +32,8 @@ export class ManagedParticleSystem {
         this.softCleanupTimeout = setTimeout(() => {
           this.softCleanup();
         }, 100);
-        return;
+      } else {
+        this.cleanup();
       }
     }
   }

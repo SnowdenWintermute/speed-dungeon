@@ -67,6 +67,7 @@ export function updateDebugText(this: GameWorld) {
           y ${this.camera.target.y.toFixed(2)}, 
           z ${this.camera.target.z.toFixed(2)}</div>`;
     const numMaterials = `<div>num materials: ${this.scene.materials.length}</div>`;
+    const numParticleSystems = `<div>num particleSystems: ${this.scene.particleSystems.length}</div>`;
 
     const actionCommandQueueMessages = [];
     if (actionCommandQueue.commands[0])
@@ -95,6 +96,7 @@ export function updateDebugText(this: GameWorld) {
       // `combatants processing actions: ${actionCommandQueue.entitiesPerformingActions}`,
       `<ul>${rootTransformPositions}</ul>`,
       numMaterials,
+      numParticleSystems,
       cameraAlpha,
       cameraBeta,
       cameraRadius,
