@@ -137,17 +137,17 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       if (!gameWorld.current) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
       if (hitPointChanges) {
         for (const [entityId, hpChange] of hitPointChanges.getRecords()) {
-          const wasSpell = false;
           const combatantResult = useGameStore.getState().getCombatant(entityId);
           if (combatantResult instanceof Error) throw combatantResult;
           induceHitRecovery(
             gameWorld.current,
             combatantResult.entityProperties.name,
             entityId,
+            command.actionName,
+            command.step,
             hpChange,
             ActionPayableResource.HitPoints,
             entityId,
-            wasSpell,
             false,
             true
           );
@@ -215,7 +215,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
             return SKELETON_MAIN_HAND_NAMES;
           case VfxParentType.UserOffHand:
             return SKELETON_OFF_HAND_NAMES;
-          case VfxParentType.EntityRoot:
+          case VfxParentType.VfxEntityRoot:
             return "root";
         }
       })();

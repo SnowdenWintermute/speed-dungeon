@@ -22,6 +22,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
     if (costsOption || consumableTypeToConsumeOption !== undefined) {
       gameUpdateCommandOption = {
         type: GameUpdateCommandType.ResourcesPaid,
+        actionName: context.tracker.actionExecutionIntent.actionName,
         step: stepType,
         completionOrderId: null,
         combatantId: combatant.entityProperties.id,

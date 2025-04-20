@@ -20,6 +20,7 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
      * apply updates to game state for instantly processed steps*/
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.EntityMotion,
+      actionName: context.tracker.actionExecutionIntent.actionName,
       step,
       completionOrderId: null,
       entityType: SpawnableEntityType.Combatant,

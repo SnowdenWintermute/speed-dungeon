@@ -1,6 +1,5 @@
 import { Vector3 } from "@babylonjs/core";
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionMotionPhase,
   ActionResolutionStep,
   ActionResolutionStepContext,
@@ -36,19 +35,6 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     const { actionExecutionIntent } = context.tracker;
 
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
-
-    if (action.getClientOnlyVfxToStartByStep) {
-      const clientOnlyVfxNamesToStart = action.getClientOnlyVfxToStartByStep(context);
-      const clientOnlyVfxNamesForThisStep = clientOnlyVfxNamesToStart[stepType];
-      if (clientOnlyVfxNamesForThisStep)
-        this.gameUpdateCommand.clientOnlyVfxNamesToStart = clientOnlyVfxNamesForThisStep;
-    }
-    if (action.getClientOnlyVfxToStopByStep) {
-      const clientOnlyVfxNamesToStart = action.getClientOnlyVfxToStopByStep(context);
-      const clientOnlyVfxNamesForThisStep = clientOnlyVfxNamesToStart[stepType];
-      if (clientOnlyVfxNamesForThisStep)
-        this.gameUpdateCommand.clientOnlyVfxNamesToStop = clientOnlyVfxNamesForThisStep;
-    }
 
     const animationOption = this.getAnimation();
 

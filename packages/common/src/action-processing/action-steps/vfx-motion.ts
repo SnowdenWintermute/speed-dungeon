@@ -31,6 +31,7 @@ export class VfxMotionActionResolutionStep extends EntityMotionActionResolutionS
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.EntityMotion,
       step: stepType,
+      actionName: context.tracker.actionExecutionIntent.actionName,
       completionOrderId: null,
       entityType: SpawnableEntityType.Vfx,
       entityId: vfx.entityProperties.id,

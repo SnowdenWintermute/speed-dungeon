@@ -42,6 +42,7 @@ import { SpawnableEntity } from "../../spawnables/index.js";
 import { ConsumableType } from "../../items/consumables/index.js";
 import { ClientOnlyVfxNames } from "../../vfx/client-only-vfx.js";
 import { VfxParentType } from "../../vfx/index.js";
+import { Milliseconds } from "../../primatives/index.js";
 
 export interface CombatActionComponentConfig {
   description: string;
@@ -78,14 +79,15 @@ export interface CombatActionComponentConfig {
     >
   >;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
-  getClientOnlyVfxToStartByStep?: (
-    context: ActionResolutionStepContext
-  ) => Partial<
-    Record<ActionResolutionStepType, { name: ClientOnlyVfxNames; parentType: VfxParentType }[]>
+  getClientOnlyVfxToStartByStep?: () => Partial<
+    Record<
+      ActionResolutionStepType,
+      { name: ClientOnlyVfxNames; parentType: VfxParentType; lifetime?: Milliseconds }[]
+    >
   >;
-  getClientOnlyVfxToStopByStep?: (
-    context: ActionResolutionStepContext
-  ) => Partial<Record<ActionResolutionStepType, ClientOnlyVfxNames[]>>;
+  getClientOnlyVfxToStopByStep?: () => Partial<
+    Record<ActionResolutionStepType, ClientOnlyVfxNames[]>
+  >;
 
   getResourceCosts: (
     user: CombatantProperties,
@@ -168,14 +170,15 @@ export abstract class CombatActionComponent {
     context: ActionResolutionStepContext
   ) => null | Error | CombatActionCombatantAnimations;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
-  getClientOnlyVfxToStartByStep?: (
-    context: ActionResolutionStepContext
-  ) => Partial<
-    Record<ActionResolutionStepType, { name: ClientOnlyVfxNames; parentType: VfxParentType }[]>
+  getClientOnlyVfxToStartByStep?: () => Partial<
+    Record<
+      ActionResolutionStepType,
+      { name: ClientOnlyVfxNames; parentType: VfxParentType; lifetime?: Milliseconds }[]
+    >
   >;
-  getClientOnlyVfxToStopByStep?: (
-    context: ActionResolutionStepContext
-  ) => Partial<Record<ActionResolutionStepType, ClientOnlyVfxNames[]>>;
+  getClientOnlyVfxToStopByStep?: () => Partial<
+    Record<ActionResolutionStepType, ClientOnlyVfxNames[]>
+  >;
 
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   motionPhasePositionGetters: Partial<

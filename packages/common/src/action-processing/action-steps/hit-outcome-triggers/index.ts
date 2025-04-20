@@ -28,6 +28,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
   constructor(context: ActionResolutionStepContext) {
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
+      actionName: context.tracker.actionExecutionIntent.actionName,
       step: stepType,
       completionOrderId: null,
     };

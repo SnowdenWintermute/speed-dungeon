@@ -5,6 +5,9 @@ import {
   ResourceChange,
   SpeedDungeonGame,
   ActionPayableResource,
+  CombatActionName,
+  COMBAT_ACTIONS,
+  ActionResolutionStepType,
 } from "@speed-dungeon/common";
 import { getCombatantContext, useGameStore } from "@/stores/game-store";
 import { GameWorld } from "../../game-world";
@@ -12,20 +15,32 @@ import startResourceChangeFloatingMessage from "./start-hp-change-floating-messa
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { useUIStore } from "@/stores/ui-store";
 import { postResourceChangeToCombatLog } from "./post-resource-change-to-combat-log";
+import { startOrStopClientOnlyVfx } from "../../game-world/replay-tree-manager/start-or-stop-client-only-vfx";
 
 export function induceHitRecovery(
   gameWorld: GameWorld,
   actionUserName: string,
   actionUserId: string,
+  actionName: CombatActionName,
+  actionStep: ActionResolutionStepType,
   resourceChange: ResourceChange,
   resourceType: ActionPayableResource,
   targetId: string,
-  wasSpell: boolean,
   wasBlocked: boolean,
   shouldAnimate: boolean
 ) {
   const targetModel = gameWorld.modelManager.combatantModels[targetId];
   if (targetModel === undefined) return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+
+  const action = COMBAT_ACTIONS[actionName];
+  const wasSpell = false; // @TODO - get this from action properties
+
+  startOrStopClientOnlyVfx(
+    actionName,
+    actionStep,
+    targetModel.clientOnlyVfxManager,
+    targetModel.entityId
+  );
 
   // HANDLE RESOURCE CHANGES
   // - show a hit recovery or death animation (if mana, only animate if there wasn't an hp change animation already)

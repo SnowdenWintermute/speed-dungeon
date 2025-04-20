@@ -26,7 +26,6 @@ import {
   VfxParentType,
   VfxType,
 } from "../../../../vfx/index.js";
-import { COMBAT_ACTIONS } from "../index.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -98,12 +97,19 @@ const config: CombatActionComponentConfig = {
     };
   },
 
-  getClientOnlyVfxToStartByStep(context) {
+  getClientOnlyVfxToStartByStep() {
     return {
       [ActionResolutionStepType.OnActivationVfxMotion]: [
         {
           name: ClientOnlyVfxNames.FrostParticleStream,
-          parentType: VfxParentType.EntityRoot,
+          parentType: VfxParentType.VfxEntityRoot,
+        },
+      ],
+      [ActionResolutionStepType.RollIncomingHitOutcomes]: [
+        {
+          name: ClientOnlyVfxNames.FrostParticleBurst,
+          parentType: VfxParentType.CombatantHitboxCenter,
+          lifetime: 300,
         },
       ],
     };

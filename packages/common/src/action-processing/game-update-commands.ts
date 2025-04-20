@@ -87,12 +87,11 @@ export type EntityMotionGameUpdateCommand = {
   type: GameUpdateCommandType.EntityMotion;
   completionOrderId: null | number;
   step: ActionResolutionStepType;
+  actionName: CombatActionName;
   entityType: SpawnableEntityType;
   entityId: EntityId;
   animationOption?: EntityAnimation;
   translationOption?: EntityTranslation;
-  clientOnlyVfxNamesToStart?: { name: ClientOnlyVfxNames; parentType: VfxParentType }[]; // @TODO - probably can just get this client side
-  clientOnlyVfxNamesToStop?: ClientOnlyVfxNames[]; // @TODO - probably can just get this client side
   rotationOption?: EntityRotation;
   idleOnComplete?: boolean;
   instantTransition?: boolean;
@@ -102,6 +101,7 @@ export type EntityMotionGameUpdateCommand = {
 export type ResourcesPaidGameUpdateCommand = {
   type: GameUpdateCommandType.ResourcesPaid;
   step: ActionResolutionStepType;
+  actionName: CombatActionName;
   completionOrderId: null | number;
   combatantId: EntityId;
   costsPaid?: ActionResourceCosts;
@@ -111,6 +111,7 @@ export type ResourcesPaidGameUpdateCommand = {
 export type ActivatedTriggersGameUpdateCommand = {
   type: GameUpdateCommandType.ActivatedTriggers;
   step: ActionResolutionStepType;
+  actionName: CombatActionName;
   completionOrderId: null | number;
   durabilityChanges?: DurabilityChangesByEntityId;
   hitPointChanges?: HitPointChanges;
@@ -121,8 +122,8 @@ export type ActivatedTriggersGameUpdateCommand = {
 export type HitOutcomesGameUpdateCommand = {
   type: GameUpdateCommandType.HitOutcomes;
   step: ActionResolutionStepType;
-  completionOrderId: null | number;
   actionName: CombatActionName;
+  completionOrderId: null | number;
   actionUserName: string;
   actionUserId: string;
   outcomes: CombatActionHitOutcomes;

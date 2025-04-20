@@ -1,4 +1,5 @@
 export * from "./client-only-vfx.js";
+export * from "./client-only-vfx-constructors.js";
 import { Vector3 } from "@babylonjs/core";
 import { EntityId, EntityProperties } from "../primatives/index.js";
 
@@ -21,7 +22,8 @@ export enum VfxType {
 export enum VfxParentType {
   UserMainHand,
   UserOffHand,
-  EntityRoot,
+  VfxEntityRoot,
+  CombatantHitboxCenter,
   // OffHand,
   // MainHandWeapon,
   // OffHandWeapon

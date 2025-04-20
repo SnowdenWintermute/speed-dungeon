@@ -5,8 +5,6 @@ import {
   EntityMotionGameUpdateCommand,
   SpawnableEntityType,
   DynamicAnimationName,
-  CLIENT_ONLY_VFX_CONSTRUCTORS,
-  VfxParentType,
 } from "@speed-dungeon/common";
 import { ModelMovementManager } from "../../model-movement-manager";
 import { ManagedAnimationOptions } from "../../combatant-models/animation-manager";
@@ -16,13 +14,7 @@ import { plainToInstance } from "class-transformer";
 import { DynamicAnimationManager } from "../../combatant-models/animation-manager/dynamic-animation-manager";
 import { SkeletalAnimationManager } from "../../combatant-models/animation-manager/skeletal-animation-manager";
 import { ClientOnlyVfxManager } from "../../client-only-vfx-manager";
-import {
-  SKELETON_MAIN_HAND_NAMES,
-  SKELETON_OFF_HAND_NAMES,
-  SKELETON_STRUCTURE_TYPE,
-} from "../../combatant-models/modular-character/skeleton-structure-variables";
-import { ModularCharacter } from "../../combatant-models/modular-character";
-import { getChildMeshByName } from "../../utils";
+import { startOrStopClientOnlyVfx } from "./start-or-stop-client-only-vfx";
 
 export function entityMotionGameUpdateHandler(update: {
   command: EntityMotionGameUpdateCommand;
@@ -71,62 +63,7 @@ export function entityMotionGameUpdateHandler(update: {
     }
   }
 
-  if (command.clientOnlyVfxNamesToStart) {
-    const sceneOption = gameWorld.current?.scene;
-    if (!sceneOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
-    console.log("command.clientOnlyVfxNamesToStart", command.clientOnlyVfxNamesToStart);
-    for (const { name, parentType } of command.clientOnlyVfxNamesToStart) {
-      const effect = new CLIENT_ONLY_VFX_CONSTRUCTORS[name](sceneOption);
-
-      clientOnlyVfxManager.clientOnlyVfx[name]?.softCleanup();
-      clientOnlyVfxManager.clientOnlyVfx[name] = effect;
-
-      switch (parentType) {
-        case VfxParentType.UserMainHand:
-          {
-            const boneName = SKELETON_MAIN_HAND_NAMES[SKELETON_STRUCTURE_TYPE];
-
-            const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
-            if (!combatantModelOption)
-              throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-            const boneToParent = getChildMeshByName(combatantModelOption.rootMesh, boneName);
-            if (!boneToParent) throw new Error("bone not found");
-            effect.transformNode.setParent(boneToParent);
-            effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
-          }
-          break;
-        case VfxParentType.UserOffHand:
-          {
-            const boneName = SKELETON_OFF_HAND_NAMES[SKELETON_STRUCTURE_TYPE];
-
-            const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
-            if (!combatantModelOption)
-              throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-
-            const boneToParent = getChildMeshByName(combatantModelOption.rootMesh, boneName);
-            if (!boneToParent) throw new Error("bone not found");
-            effect.transformNode.setParent(boneToParent);
-            effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
-          }
-          break;
-        case VfxParentType.EntityRoot:
-          {
-            const vfxOption = gameWorld.current?.vfxManager.mobile[entityId];
-            if (!vfxOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_VFX);
-            effect.transformNode.setParent(vfxOption.movementManager.transformNode);
-            effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
-          }
-          break;
-      }
-    }
-  }
-
-  if (command.clientOnlyVfxNamesToStop) {
-    for (const name of command.clientOnlyVfxNamesToStop) {
-      clientOnlyVfxManager.clientOnlyVfx[name]?.softCleanup();
-      delete clientOnlyVfxManager.clientOnlyVfx[name];
-    }
-  }
+  startOrStopClientOnlyVfx(command.actionName, command.step, clientOnlyVfxManager, entityId);
 
   // console.log("destinationOption: ", translationOption?.destination);
 

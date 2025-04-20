@@ -37,15 +37,15 @@ export function hitOutcomesGameUpdateHandler(update: {
   if (hitPointChanges) {
     for (const [entityId, hpChange] of hitPointChanges.getRecords()) {
       const wasBlocked = !!outcomeFlags[HitOutcome.ShieldBlock]?.includes(entityId);
-      const wasSpell = false;
       induceHitRecovery(
         gameWorld.current,
         actionUserName,
         actionUserId,
+        command.actionName,
+        command.step,
         hpChange,
         ActionPayableResource.HitPoints,
         entityId,
-        wasSpell,
         wasBlocked,
         true
       );
