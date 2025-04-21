@@ -45,11 +45,13 @@ import { TargetingCalculator } from "../../../targeting/targeting-calculator.js"
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
 import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-ice-burst.js";
+import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
+import cloneDeep from "lodash.clonedeep";
 
 const config: CombatActionComponentConfig = {
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
   description: "Deals kinetic ice damage in an area around the target",
-  targetingSchemes: [TargetingScheme.Area],
+  targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
   autoTargetSelectionMethod: {
     scheme: AutoTargetingScheme.BattleGroup,
@@ -154,34 +156,18 @@ const config: CombatActionComponentConfig = {
     };
   },
 
-  motionPhasePositionGetters: {
-    [ActionMotionPhase.Delivery]: (context) => {
-      const { combatantContext, tracker } = context;
-      const { actionExecutionIntent } = tracker;
-
-      const targetingCalculator = new TargetingCalculator(combatantContext, null);
-      const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
-        combatantContext.party,
-        actionExecutionIntent
-      );
-      if (primaryTargetResult instanceof Error) return primaryTargetResult;
-      const target = primaryTargetResult;
-
-      return { position: target.combatantProperties.homeLocation.clone() };
-    },
-  },
+  motionPhasePositionGetters: {},
 
   getIsParryable: (user) => false,
   getIsBlockable: (user) => true,
   getCanTriggerCounterattack: (user) => false,
 
   getSpawnableEntity: (context) => {
-    console.log(
-      "getting spawnable entity",
-      context.combatantContext.combatant.entityProperties.name
-    );
+    // this action targets the sides, but we want to spawn the vfx on the center target
+    // so we'll clone and modify the action intent
+    const actionExecutionIntent = cloneDeep(context.tracker.actionExecutionIntent);
+    actionExecutionIntent.targets.type = CombatActionTargetType.Single;
 
-    const { actionExecutionIntent } = context.tracker;
     const { party } = context.combatantContext;
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
     const primaryTargetIdResult = targetingCalculator.getPrimaryTargetCombatant(

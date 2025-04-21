@@ -19,7 +19,6 @@ import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { getActionCritChance } from "./get-action-crit-chance.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { ActionResolutionStepContext } from "../../../action-processing/index.js";
-import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { getShieldBlockDamageReduction } from "./get-shield-block-damage-reduction.js";
 export * from "./get-action-hit-chance.js";
 export * from "./get-action-crit-chance.js";
@@ -31,6 +30,8 @@ import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import { HitPointChanges, ManaChanges, ResourceChanges } from "./resource-changes.js";
 import { CombatActionResourceChangeProperties } from "../../combat-actions/combat-action-resource-change-properties.js";
+import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
+import { CombatActionComponent } from "../../combat-actions/index.js";
 
 export class CombatActionHitOutcomes {
   hitPointChanges?: HitPointChanges;
@@ -70,6 +71,9 @@ export function calculateActionHitOutcomes(
     actionExecutionIntent.targets
   );
   if (targetIdsResult instanceof Error) return targetIdsResult;
+
+  console.log("targetIds", targetIdsResult);
+
   const targetIds = targetIdsResult;
 
   const hitOutcomes = new CombatActionHitOutcomes();
@@ -90,6 +94,29 @@ export function calculateActionHitOutcomes(
     targetIds,
     actionManaChangePropertiesOption
   );
+
+  const resourceChanges: {
+    incomingChange: { value: number; resourceChangeSource: ResourceChangeSource } | null;
+    record: HitPointChanges | ManaChanges;
+  }[] = [];
+
+  if (incomingHpChangePerTargetOption) {
+    const record = new HitPointChanges();
+    hitOutcomes.hitPointChanges = record;
+    resourceChanges.push({
+      incomingChange: incomingHpChangePerTargetOption,
+      record,
+    });
+  }
+
+  if (incomingManaChangePerTargetOption) {
+    const record = new ManaChanges();
+    hitOutcomes.manaChanges = record;
+    resourceChanges.push({
+      incomingChange: incomingManaChangePerTargetOption,
+      record,
+    });
+  }
 
   for (const id of targetIds) {
     const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, id);
@@ -167,29 +194,6 @@ export function calculateActionHitOutcomes(
       }
     }
 
-    const resourceChanges: {
-      incomingChange: { value: number; resourceChangeSource: ResourceChangeSource } | null;
-      record: HitPointChanges | ManaChanges;
-    }[] = [];
-
-    if (incomingHpChangePerTargetOption) {
-      const record = new HitPointChanges();
-      hitOutcomes.hitPointChanges = record;
-      resourceChanges.push({
-        incomingChange: incomingHpChangePerTargetOption,
-        record,
-      });
-    }
-
-    if (incomingManaChangePerTargetOption) {
-      const record = new ManaChanges();
-      hitOutcomes.manaChanges = record;
-      resourceChanges.push({
-        incomingChange: incomingManaChangePerTargetOption,
-        record,
-      });
-    }
-
     for (const incomingResourceChangeOption of resourceChanges) {
       if (!incomingResourceChangeOption.incomingChange) continue;
       const { value, resourceChangeSource } = incomingResourceChangeOption.incomingChange;
@@ -220,8 +224,11 @@ export function calculateActionHitOutcomes(
       resourceChange.value = Math.floor(resourceChange.value);
 
       incomingResourceChangeOption.record.addRecord(id, resourceChange);
+      console.log("added record: ", id, resourceChange);
     }
   }
+
+  console.log("hit outcomes: ", hitOutcomes);
 
   return hitOutcomes;
 }

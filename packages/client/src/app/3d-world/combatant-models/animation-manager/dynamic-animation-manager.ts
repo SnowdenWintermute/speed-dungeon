@@ -146,7 +146,6 @@ export class ExplosionDeliveryAnimation extends DynamicAnimation {
   duration = 100;
   originalScale: Vector3 = Vector3.One();
   constructor(scene: ISceneLoaderAsyncResult) {
-    console.log("ExplosionDeliveryAnimation created");
     super(false);
     const parentMesh = scene.meshes[0];
     if (parentMesh) {
@@ -169,7 +168,6 @@ export class ExplosionDissipationAnimation extends DynamicAnimation {
   duration = 300;
   originalScale: Vector3 = Vector3.One();
   constructor(scene: ISceneLoaderAsyncResult) {
-    console.log("ExplosionDissipationAnimation created");
     super(true);
     const parentMesh = scene.meshes[0];
     if (parentMesh) {

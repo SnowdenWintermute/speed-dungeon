@@ -9,7 +9,9 @@ export abstract class ResourceChanges<T> {
   protected changes: Record<EntityId, T> = {};
   constructor() {}
   addRecord(entityId: string, change: T) {
+    console.log("before record add:", this.changes);
     this.changes[entityId] = change;
+    console.log("after record: ", this.changes);
   }
 
   getRecord(entityId: EntityId) {

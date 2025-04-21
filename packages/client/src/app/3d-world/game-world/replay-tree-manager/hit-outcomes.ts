@@ -25,7 +25,6 @@ export function hitOutcomesGameUpdateHandler(update: {
 }) {
   const { command } = update;
   const { outcomes, actionUserName, actionUserId } = command;
-  console.log("action user name: ", actionUserName, "action user id: ", actionUserId);
   const { outcomeFlags } = outcomes;
   const hitPointChanges = plainToInstance(HitPointChanges, outcomes.hitPointChanges);
   const manaChanges = plainToInstance(HitPointChanges, outcomes.manaChanges);
@@ -33,6 +32,8 @@ export function hitOutcomesGameUpdateHandler(update: {
   if (!gameWorld.current) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
 
   const entitiesAlreadyAnimatingHitRecovery: string[] = [];
+
+  console.log("hitPointChanges: ", hitPointChanges);
 
   if (hitPointChanges) {
     for (const [entityId, hpChange] of hitPointChanges.getRecords()) {
@@ -57,15 +58,15 @@ export function hitOutcomesGameUpdateHandler(update: {
   if (manaChanges) {
     for (const [entityId, change] of manaChanges.getRecords()) {
       const wasBlocked = !!outcomeFlags[HitOutcome.ShieldBlock]?.includes(entityId);
-      const wasSpell = false;
       induceHitRecovery(
         gameWorld.current,
         actionUserName,
         actionUserId,
+        command.actionName,
+        command.step,
         change,
         ActionPayableResource.Mana,
         entityId,
-        wasSpell,
         wasBlocked,
         !entitiesAlreadyAnimatingHitRecovery.includes(entityId)
       );
