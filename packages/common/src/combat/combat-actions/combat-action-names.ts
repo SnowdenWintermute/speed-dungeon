@@ -12,6 +12,7 @@ export enum CombatActionName {
   // Fire,
   IceBoltParent,
   IceBoltProjectile,
+  IceBurst,
   // Healing,
   // Destruction,
   UseGreenAutoinjector,
@@ -36,6 +37,7 @@ export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.Explosion]: "Explosion",
   [CombatActionName.IceBoltParent]: "Ice Bolt",
   [CombatActionName.IceBoltProjectile]: "Ice Bolt Projectile",
+  [CombatActionName.IceBurst]: "Ice Burst",
   [CombatActionName.UseGreenAutoinjector]: "Green Autoinjector",
   [CombatActionName.UseBlueAutoinjector]: "Blue Autoinjector",
 };

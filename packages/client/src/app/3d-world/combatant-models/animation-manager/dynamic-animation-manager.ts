@@ -137,6 +137,8 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
 export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string> = {
   [DynamicAnimationName.ExplosionDelivery]: "explosion delivery",
   [DynamicAnimationName.ExplosionDissipation]: "explosion dissipation",
+  [DynamicAnimationName.IceBurstDelivery]: "ice burst delivery",
+  [DynamicAnimationName.IceBurstDissipation]: "ice burst dissipation",
 };
 
 export class ExplosionDeliveryAnimation extends DynamicAnimation {
@@ -193,4 +195,6 @@ export const DYNAMIC_ANIMATION_CREATORS: Record<
 > = {
   [DynamicAnimationName.ExplosionDelivery]: (scene) => new ExplosionDeliveryAnimation(scene),
   [DynamicAnimationName.ExplosionDissipation]: (scene) => new ExplosionDissipationAnimation(scene),
+  [DynamicAnimationName.IceBurstDelivery]: (scene) => new ExplosionDeliveryAnimation(scene),
+  [DynamicAnimationName.IceBurstDissipation]: (scene) => new ExplosionDissipationAnimation(scene),
 };

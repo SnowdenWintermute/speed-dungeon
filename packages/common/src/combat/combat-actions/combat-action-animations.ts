@@ -47,7 +47,6 @@ export function getFallbackAnimationWithLength(
   };
 
   if (animationLengthOption !== undefined || lastTry) {
-    console.log("animation length: ", animationLengthOption);
     if (toReturn.timing.type === AnimationTimingType.Timed)
       toReturn.timing.duration = animationLengthOption || 0;
     return toReturn;

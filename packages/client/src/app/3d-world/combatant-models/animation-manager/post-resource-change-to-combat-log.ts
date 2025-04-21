@@ -33,7 +33,7 @@ export function postResourceChangeToCombatLog(
     kineticOptionString = ` ${KINETIC_DAMAGE_TYPE_STRINGS[kineticDamageTypeOption].toLowerCase()}`;
 
   const resourceChangeSourceCategoryText =
-    HP_CHANGE_SOURCE_CATEGORY_STRINGS[resourceChange.source.category];
+    HP_CHANGE_SOURCE_CATEGORY_STRINGS[resourceChange.source.category].toLowerCase();
 
   let manaDamage = "";
   if (resourceType === ActionPayableResource.Mana) manaDamage = " mana";

@@ -187,6 +187,8 @@ export enum SkeletalAnimationName {
 export enum DynamicAnimationName {
   ExplosionDelivery,
   ExplosionDissipation,
+  IceBurstDelivery,
+  IceBurstDissipation,
 }
 
 export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, string> = {
@@ -243,6 +245,8 @@ export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, stri
 export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string> = {
   [DynamicAnimationName.ExplosionDelivery]: "explosion-delivery",
   [DynamicAnimationName.ExplosionDissipation]: "explosion-dissipation",
+  [DynamicAnimationName.IceBurstDelivery]: "ice-burst-delivery",
+  [DynamicAnimationName.IceBurstDissipation]: "ice-burst-dissipation",
 };
 
 export enum AnimationType {

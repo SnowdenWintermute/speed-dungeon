@@ -35,13 +35,20 @@ import {
   DynamicAnimationName,
 } from "../../../../app-consts.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { MobileVfxName, VfxType } from "../../../../vfx/index.js";
+import {
+  ClientOnlyVfxNames,
+  MobileVfxName,
+  VfxParentType,
+  VfxType,
+} from "../../../../vfx/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
+import { KineticDamageType } from "../../../kinetic-damage-types.js";
+import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-ice-burst.js";
 
 const config: CombatActionComponentConfig = {
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
-  description: "Deals kinetic fire damage in an area around the target",
+  description: "Deals kinetic ice damage in an area around the target",
   targetingSchemes: [TargetingScheme.Area],
   validTargetCategories: TargetCategories.Opponent,
   autoTargetSelectionMethod: {
@@ -65,12 +72,12 @@ const config: CombatActionComponentConfig = {
   getActionStepAnimations: (context) => {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Delivery]: {
-        name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDelivery },
+        name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDelivery },
         // timing: { type: AnimationTimingType.Timed, duration: 1200 },
         timing: { type: AnimationTimingType.Timed, duration: 10200 },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
-        name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDissipation },
+        name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDissipation },
         // timing: { type: AnimationTimingType.Timed, duration: 700 },
         timing: { type: AnimationTimingType.Timed, duration: 7000 },
       },
@@ -80,15 +87,14 @@ const config: CombatActionComponentConfig = {
   getHpChangeProperties: (user) => {
     const hpChangeSourceConfig: ResourceChangeSourceConfig = {
       category: ResourceChangeSourceCategory.Physical,
-      kineticDamageTypeOption: null,
-      elementOption: MagicalElement.Fire,
+      kineticDamageTypeOption: KineticDamageType.Piercing,
+      elementOption: MagicalElement.Ice,
       isHealing: false,
       lifestealPercentage: null,
     };
 
     const stacks = user.asUserOfTriggeredCondition?.stacksOption?.current || 1;
 
-    console.log("stacks for exploison: ", stacks, "user level: ", user.level);
     const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
 
     const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
@@ -97,15 +103,21 @@ const config: CombatActionComponentConfig = {
       baseValues,
     };
 
-    console.log("explosion hp change range: ", baseValues);
-
     return hpChangeProperties;
   },
 
   getManaChangeProperties: () => null,
   getAppliedConditions: (context) => {
-    // @TODO - apply a "burning" condition
-    return null;
+    const { idGenerator, combatantContext } = context;
+    const { combatant } = combatantContext;
+
+    const condition = new PrimedForIceBurstCombatantCondition(
+      idGenerator.generate(),
+      combatant.entityProperties.id,
+      combatant.combatantProperties.level
+    );
+
+    return [condition];
   },
   getChildren: (_user) => [],
   getParent: () => null,
@@ -129,6 +141,19 @@ const config: CombatActionComponentConfig = {
       ActionResolutionStepType.VfxDisspationMotion,
     ];
   },
+
+  getClientOnlyVfxToStartByStep() {
+    return {
+      [ActionResolutionStepType.OnActivationVfxMotion]: [
+        {
+          name: ClientOnlyVfxNames.FrostParticleBurst,
+          parentType: VfxParentType.VfxEntityRoot,
+          lifetime: 300,
+        },
+      ],
+    };
+  },
+
   motionPhasePositionGetters: {
     [ActionMotionPhase.Delivery]: (context) => {
       const { combatantContext, tracker } = context;
@@ -174,11 +199,11 @@ const config: CombatActionComponentConfig = {
         vfxProperties: {
           vfxType: VfxType.Mobile,
           position,
-          name: MobileVfxName.Explosion,
+          name: MobileVfxName.IceBurst,
         },
       },
     };
   },
 };
 
-export const EXPLOSION = new CombatActionComposite(CombatActionName.Explosion, config);
+export const ICE_BURST = new CombatActionComposite(CombatActionName.IceBurst, config);

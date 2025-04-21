@@ -25,6 +25,7 @@ import pixelationShader from "./pixelationNodeMaterial.json";
 import { ReplayTreeManager } from "./replay-tree-manager";
 import { VfxManager } from "../vfx-models";
 import { testParticleSystem } from "./testing-particle-systems";
+import { testingSounds } from "./testing-sounds";
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;
@@ -95,6 +96,8 @@ export class GameWorld {
       this.updateGameWorld();
       this.scene.render();
     });
+
+    // testingSounds();
 
     // const systemAndMeshOption = testParticleSystem(this.scene)[0];
     // if (systemAndMeshOption) systemAndMeshOption.particleSystem.start();

@@ -18,6 +18,7 @@ export default function getNextOrPreviousTarget(
   let newTargetResult: Error | string = new Error("No target was calculated");
   switch (currentTargets.type) {
     case CombatActionTargetType.SingleAndSides:
+    case CombatActionTargetType.Sides:
     case CombatActionTargetType.Single:
       switch (combatAction.validTargetCategories) {
         case TargetCategories.Opponent:

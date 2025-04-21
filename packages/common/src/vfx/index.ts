@@ -7,12 +7,14 @@ export enum MobileVfxName {
   Arrow,
   IceBolt,
   Explosion,
+  IceBurst,
 }
 
 export const MOBILE_VFX_NAME_STRINGS: Record<MobileVfxName, string> = {
   [MobileVfxName.Arrow]: "Arrow",
   [MobileVfxName.IceBolt]: "Ice Bolt",
   [MobileVfxName.Explosion]: "Explosion",
+  [MobileVfxName.IceBurst]: "IceBurst",
 };
 
 export enum VfxType {

@@ -15,6 +15,27 @@ export function getActionTargetsIfSchemeIsValid(
   switch (actionTarget.type) {
     case CombatActionTargetType.Single:
       return [actionTarget.targetId as EntityId];
+    case CombatActionTargetType.Sides: {
+      const targetIds: EntityId[] = [];
+      allyIds.forEach((id, i) => {
+        if (id === actionTarget.targetId) {
+          const prevOption = allyIds[i - 1];
+          const nextOption = allyIds[i + 1];
+          if (prevOption !== undefined) targetIds.push(prevOption);
+          if (nextOption !== undefined) targetIds.push(nextOption);
+        }
+      });
+      if (opponentIdsOption)
+        opponentIdsOption.forEach((id, i) => {
+          if (id === actionTarget.targetId) {
+            const prevOption: EntityId | undefined = opponentIdsOption[i - 1];
+            const nextOption: EntityId | undefined = opponentIdsOption[i + 1];
+            if (prevOption !== undefined) targetIds.push(prevOption as EntityId);
+            if (nextOption !== undefined) targetIds.push(nextOption as EntityId);
+          }
+        });
+      return targetIds as EntityId[];
+    }
     case CombatActionTargetType.SingleAndSides:
       const targetIds = [actionTarget.targetId as EntityId];
       allyIds.forEach((id, i) => {

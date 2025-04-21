@@ -78,24 +78,53 @@ export async function spawnMobileVfxModel(vfxName: MobileVfxName, position: Vect
 
   let model: ISceneLoaderAsyncResult;
   if (!modelPath) {
-    // @TODO - organize custom mesh creators for self-made vfx
-    const mesh = MeshBuilder.CreateIcoSphere("", { radius: 0.5 });
-    const material = new StandardMaterial("");
-    material.diffuseColor = new Color3(0.7, 0.3, 0.2);
-    material.alpha = 0.5;
+    switch (vfxName) {
+      case MobileVfxName.IceBurst:
+        {
+          const mesh = MeshBuilder.CreateGoldberg("", { size: 0.35 });
+          const material = new StandardMaterial("");
+          material.diffuseColor = new Color3(0.2, 0.3, 0.7);
+          material.alpha = 0.5;
 
-    mesh.material = material;
-    mesh.position.copyFrom(position);
-    model = {
-      meshes: [mesh],
-      particleSystems: [],
-      skeletons: [],
-      animationGroups: [],
-      transformNodes: [],
-      geometries: [],
-      lights: [],
-      spriteManagers: [],
-    };
+          mesh.material = material;
+          mesh.position.copyFrom(position);
+          model = {
+            meshes: [mesh],
+            particleSystems: [],
+            skeletons: [],
+            animationGroups: [],
+            transformNodes: [],
+            geometries: [],
+            lights: [],
+            spriteManagers: [],
+          };
+        }
+        break;
+      case MobileVfxName.Arrow:
+      case MobileVfxName.IceBolt:
+      case MobileVfxName.Explosion:
+        {
+          // @TODO - organize custom mesh creators for self-made vfx
+          const mesh = MeshBuilder.CreateIcoSphere("", { radius: 0.5 });
+          const material = new StandardMaterial("");
+          material.diffuseColor = new Color3(0.7, 0.3, 0.2);
+          material.alpha = 0.5;
+
+          mesh.material = material;
+          mesh.position.copyFrom(position);
+          model = {
+            meshes: [mesh],
+            particleSystems: [],
+            skeletons: [],
+            animationGroups: [],
+            transformNodes: [],
+            geometries: [],
+            lights: [],
+            spriteManagers: [],
+          };
+        }
+        break;
+    }
   } else {
     const scene = gameWorld.current?.scene;
     if (!scene) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);

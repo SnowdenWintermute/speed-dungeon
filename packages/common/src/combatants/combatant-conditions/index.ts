@@ -8,16 +8,19 @@ import { Combatant, CombatantProperties } from "../index.js";
 export enum CombatantConditionName {
   Poison,
   PrimedForExplosion,
+  PrimedForIceBurst,
 }
 
 export const COMBATANT_CONDITION_NAME_STRINGS: Record<CombatantConditionName, string> = {
   [CombatantConditionName.Poison]: "Poison",
   [CombatantConditionName.PrimedForExplosion]: "Detonatable",
+  [CombatantConditionName.PrimedForIceBurst]: "Shatterable",
 };
 
 export const COMBATANT_CONDITION_DESCRIPTIONS: Record<CombatantConditionName, string> = {
   [CombatantConditionName.Poison]: "Periodically takes damage",
   [CombatantConditionName.PrimedForExplosion]: "Causes an explosion when hit by certain actions",
+  [CombatantConditionName.PrimedForIceBurst]: "Causes an ice burst when hit by certain actions",
 };
 
 export abstract class CombatantCondition {

@@ -81,12 +81,10 @@ export function calculateActionHitOutcomes(
     action.getManaChangeProperties(user, target.combatantProperties)
   );
 
-  console.log("hp change properties", actionHpChangePropertiesOption);
   const incomingHpChangePerTargetOption = getIncomingResourceChangePerTarget(
     targetIds,
     actionHpChangePropertiesOption
   );
-  console.log("incomingHpChangePerTargetOption", incomingHpChangePerTargetOption);
 
   const incomingManaChangePerTargetOption = getIncomingResourceChangePerTarget(
     targetIds,
@@ -232,7 +230,6 @@ export function getIncomingResourceChangePerTarget(
   targetIds: EntityId[],
   resourceChangeProperties: CombatActionResourceChangeProperties | null
 ): null | { value: number; resourceChangeSource: ResourceChangeSource } {
-  console.log("resourceChangeProperties", resourceChangeProperties);
   if (resourceChangeProperties === null) return null;
   const resourceChangeRange = resourceChangeProperties.baseValues;
   const { resourceChangeSource } = resourceChangeProperties;

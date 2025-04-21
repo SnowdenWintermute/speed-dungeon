@@ -67,18 +67,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         }
 
         if (flag === HitOutcome.Hit) {
-          const conditionsToApply = action.getAppliedConditions(context);
-          if (conditionsToApply)
-            for (const condition of conditionsToApply) {
-              CombatantCondition.applyToCombatant(condition, targetCombatant.combatantProperties);
-              addConditionToUpdate(
-                condition,
-                gameUpdateCommand,
-                targetCombatant.entityProperties.id,
-                HitOutcome.Hit
-              );
-            }
-
           // // @TODO -trigger on-hit conditions
           for (const condition of combatantResult.combatantProperties.conditions) {
             if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
@@ -96,6 +84,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             );
 
             this.branchingActions.push(...triggeredActions);
+            console.log("triggeredActions: ", triggeredActions);
 
             // add it to the update so the client can remove the triggered conditions if required
             if (numStacksRemoved)
@@ -106,6 +95,18 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
                 targetCombatant.entityProperties.id
               );
           }
+
+          const conditionsToApply = action.getAppliedConditions(context);
+          if (conditionsToApply)
+            for (const condition of conditionsToApply) {
+              CombatantCondition.applyToCombatant(condition, targetCombatant.combatantProperties);
+              addConditionToUpdate(
+                condition,
+                gameUpdateCommand,
+                targetCombatant.entityProperties.id,
+                HitOutcome.Hit
+              );
+            }
         }
       }
     }
