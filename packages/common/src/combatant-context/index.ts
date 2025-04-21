@@ -23,6 +23,7 @@ export class CombatantContext {
     if (battleOption === null) return { allyIds: this.party.characterPositions, opponentIds: [] };
 
     const { asUserOfTriggeredCondition } = this.combatant.combatantProperties;
+    console.log("asUserOfTriggeredCondition", asUserOfTriggeredCondition);
 
     // @TODO - store ally and opponent ids of condition and traits when they are acting as action users
     if (asUserOfTriggeredCondition) {

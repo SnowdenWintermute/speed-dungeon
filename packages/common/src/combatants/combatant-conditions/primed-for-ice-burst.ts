@@ -5,7 +5,6 @@ import {
 } from "./index.js";
 import { Combatant, createTriggeredActionUserCombatant } from "../index.js";
 import {
-  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
   CombatActionName,
 } from "../../combat/combat-actions/index.js";
@@ -24,8 +23,8 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
   ) {}
   onTick() {}
   triggeredWhenHitBy(actionName: CombatActionName) {
-    console.log("CHECKING FOR TRIGGER:", COMBAT_ACTION_NAME_STRINGS[actionName]);
-    return actionName !== CombatActionName.IceBoltProjectile;
+    const actionsThatDontTrigger = [CombatActionName.IceBoltProjectile, CombatActionName.IceBurst];
+    return !actionsThatDontTrigger.includes(actionName);
   }
   triggeredWhenActionUsed() {
     return false;

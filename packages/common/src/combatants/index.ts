@@ -208,7 +208,7 @@ export type CombatantAttributeRecord = Partial<Record<CombatAttribute, number>>;
  * a condition is not well defined, we'll create a placeholder */
 export function createTriggeredActionUserCombatant(name: string, condition: CombatantCondition) {
   const combatant = new Combatant(
-    { id: "0", name },
+    { id: condition.appliedBy || "0", name },
     new CombatantProperties(
       CombatantClass.Mage,
       CombatantSpecies.Dragon,

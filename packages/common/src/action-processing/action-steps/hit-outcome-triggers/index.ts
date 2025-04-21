@@ -67,11 +67,9 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         }
 
         if (flag === HitOutcome.Hit) {
-          // // @TODO -trigger on-hit conditions
           for (const condition of combatantResult.combatantProperties.conditions) {
             if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
 
-            // ENVIRONMENT_COMBATANT is the "user" for actions that originate from no combatant in particular
             const { numStacksRemoved, triggeredActions } = condition.onTriggered(
               targetCombatant,
               context.idGenerator
@@ -160,13 +158,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     triggeredHitPointChanges.applyToGame(this.context.combatantContext);
     if (triggeredHitPointChanges.getRecords().length > 0)
       gameUpdateCommand.hitPointChanges = triggeredHitPointChanges;
-
-    // // @TODO -trigger on-hit conditions
-    // for (const condition of combatantResult.combatantProperties.conditions) {
-    //   if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
-    //   // const triggeredActions = condition.onTriggered();
-    //   // figure out the "user" for actions that originate from no combatant in particular
-    // }
   }
 
   protected onTick = () => {};
