@@ -5,6 +5,7 @@ import {
   DynamicAnimationName,
   MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
   easeOut,
+  Milliseconds,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { disposeAsyncLoadedScene } from "../../utils";
@@ -17,6 +18,10 @@ export abstract class DynamicAnimation {
 
   getLength() {
     return this.duration;
+  }
+
+  setDuration(ms: Milliseconds) {
+    this.duration = ms;
   }
 
   clone() {
@@ -79,6 +84,8 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
     }
 
     let newAnimationGroup = this.getAnimationGroupByName(newAnimationName);
+    if (options.animationDurationOverrideOption)
+      newAnimationGroup.setDuration(options.animationDurationOverrideOption);
 
     const clonedAnimationOption = this.cloneAnimation(newAnimationGroup);
 
@@ -86,7 +93,7 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
 
     if (clonedAnimationOption) {
       if (options.animationDurationOverrideOption) {
-        const animationStockDuration = clonedAnimationOption.getLength() * 1000;
+        const animationStockDuration = clonedAnimationOption.getLength();
         const speedModifier =
           animationStockDuration / (options.animationDurationOverrideOption ?? 1);
 
@@ -143,7 +150,7 @@ export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string
 
 export class ExplosionDeliveryAnimation extends DynamicAnimation {
   name = DYNAMIC_ANIMATION_NAME_STRINGS[DynamicAnimationName.ExplosionDelivery];
-  duration = 100;
+  duration = 200;
   originalScale: Vector3 = Vector3.One();
   constructor(scene: ISceneLoaderAsyncResult) {
     super(false);
@@ -165,7 +172,7 @@ export class ExplosionDeliveryAnimation extends DynamicAnimation {
 
 export class ExplosionDissipationAnimation extends DynamicAnimation {
   name = DYNAMIC_ANIMATION_NAME_STRINGS[DynamicAnimationName.ExplosionDelivery];
-  duration = 300;
+  duration = 200;
   originalScale: Vector3 = Vector3.One();
   constructor(scene: ISceneLoaderAsyncResult) {
     super(true);

@@ -53,6 +53,7 @@ const config: CombatActionComponentConfig = {
   prohibitedTargetCombatantStates: [
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
     ProhibitedTargetCombatantStates.UntargetableBySpells,
+    ProhibitedTargetCombatantStates.Dead,
   ],
   baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,

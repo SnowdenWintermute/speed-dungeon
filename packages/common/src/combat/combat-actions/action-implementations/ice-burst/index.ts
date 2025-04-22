@@ -62,6 +62,7 @@ const config: CombatActionComponentConfig = {
   prohibitedTargetCombatantStates: [
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
     ProhibitedTargetCombatantStates.UntargetableBySpells,
+    ProhibitedTargetCombatantStates.Dead,
   ],
   baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
@@ -75,13 +76,13 @@ const config: CombatActionComponentConfig = {
     const animations: CombatActionCombatantAnimations = {
       [CombatActionAnimationPhase.Delivery]: {
         name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDelivery },
-        // timing: { type: AnimationTimingType.Timed, duration: 1200 },
-        timing: { type: AnimationTimingType.Timed, duration: 10200 },
+        timing: { type: AnimationTimingType.Timed, duration: 200 },
+        // timing: { type: AnimationTimingType.Timed, duration: 10200 },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
         name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDissipation },
-        // timing: { type: AnimationTimingType.Timed, duration: 700 },
-        timing: { type: AnimationTimingType.Timed, duration: 7000 },
+        timing: { type: AnimationTimingType.Timed, duration: 200 },
+        // timing: { type: AnimationTimingType.Timed, duration: 7000 },
       },
     };
     return animations;
