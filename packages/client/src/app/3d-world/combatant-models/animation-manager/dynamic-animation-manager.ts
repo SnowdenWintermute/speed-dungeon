@@ -25,7 +25,6 @@ export abstract class DynamicAnimation {
   }
 
   clone() {
-    console.log("cloning dynamic animation");
     return cloneDeep(this);
   }
 

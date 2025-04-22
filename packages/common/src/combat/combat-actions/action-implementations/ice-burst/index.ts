@@ -17,7 +17,6 @@ import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js"
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG } from "../non-combatant-initiated-actions-common-config.js";
 import {
-  ActionMotionPhase,
   ActionResolutionStepType,
   AnimationTimingType,
 } from "../../../../action-processing/index.js";
@@ -59,10 +58,11 @@ const config: CombatActionComponentConfig = {
   },
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  prohibitedTargetCombatantStates: [
+  prohibitedTargetCombatantStates: [],
+  prohibitedHitCombatantStates: [
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
     ProhibitedTargetCombatantStates.UntargetableBySpells,
-    ProhibitedTargetCombatantStates.Dead
+    ProhibitedTargetCombatantStates.Dead,
   ],
   baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,

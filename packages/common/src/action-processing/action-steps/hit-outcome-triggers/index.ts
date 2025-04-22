@@ -67,6 +67,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         }
 
         if (flag === HitOutcome.Hit) {
+          console.log("checking for hit triggers");
           for (const condition of combatantResult.combatantProperties.conditions) {
             if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
 
@@ -88,7 +89,9 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
                 )
               )
             );
+
             console.log("triggeredActions: ", triggeredActions);
+            console.log("numStacksRemoved: ", numStacksRemoved);
 
             // add it to the update so the client can remove the triggered conditions if required
             if (numStacksRemoved)

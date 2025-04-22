@@ -295,13 +295,11 @@ export class ModularCharacter {
   }
 
   async unequipHoldableModel(entityId: string) {
-    console.log("unequip holdable model");
     const toDispose = this.equipment.holdables[entityId];
     if (!toDispose) return;
     disposeAsyncLoadedScene(toDispose);
 
     if (this.isIdling()) {
-      console.log("unequipped and idling");
       this.startIdleAnimation(500);
     } else console.log("wasn't idling when unequipping");
   }

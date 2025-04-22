@@ -12,7 +12,6 @@ import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combata
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { ActionAccuracyType } from "../../combat-action-accuracy.js";
-import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import {
   getStandardActionCritChance,
   getStandardActionCritMultiplier,
@@ -21,8 +20,7 @@ import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
-import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { MobileVfxName, VfxParentType, VfxType } from "../../../../vfx/index.js";
+import { VfxParentType } from "../../../../vfx/index.js";
 import {
   ResourceChangeSource,
   ResourceChangeSourceCategory,
@@ -48,6 +46,7 @@ const config: CombatActionComponentConfig = {
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
     ProhibitedTargetCombatantStates.UntargetableBySpells,
   ],
+  prohibitedHitCombatantStates: [],
   baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: 0.9,
   incursDurabilityLoss: {},

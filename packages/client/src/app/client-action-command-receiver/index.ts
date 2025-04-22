@@ -49,7 +49,6 @@ export class ClientActionCommandReceiver implements ActionCommandReceiver {
     };
 
   endActiveCombatantTurn: () => Promise<void | Error> = async () => {
-    console.log("trying to end turn");
     useGameStore.getState().mutateState((state) => {
       const battleId = state.getCurrentBattleId();
       if (!battleId) return console.error("no battle but tried to end turn");

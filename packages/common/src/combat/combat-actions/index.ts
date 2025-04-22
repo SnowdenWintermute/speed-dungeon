@@ -53,6 +53,7 @@ export interface CombatActionComponentConfig {
   autoTargetSelectionMethod: AutoTargetingSelectionMethod;
   usabilityContext: CombatActionUsabilityContext;
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
+  prohibitedHitCombatantStates: ProhibitedTargetCombatantStates[];
 
   baseResourceChangeValuesLevelMultiplier: number;
   accuracyModifier: number;
@@ -139,6 +140,7 @@ export abstract class CombatActionComponent {
   public readonly intent: CombatActionIntent;
   public readonly usabilityContext: CombatActionUsabilityContext;
   public readonly prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
+  public readonly prohibitedHitCombatantStates: ProhibitedTargetCombatantStates[];
   public readonly baseResourceChangeValuesLevelMultiplier: number; // @TODO - actually use this for attack et al, or remove it
   public readonly accuracyModifier: number;
   incursDurabilityLoss: {
@@ -252,6 +254,7 @@ export abstract class CombatActionComponent {
     this.usabilityContext = config.usabilityContext;
     this.intent = config.intent;
     this.prohibitedTargetCombatantStates = config.prohibitedTargetCombatantStates;
+    this.prohibitedHitCombatantStates = config.prohibitedHitCombatantStates;
     this.baseResourceChangeValuesLevelMultiplier = config.baseResourceChangeValuesLevelMultiplier;
     this.accuracyModifier = config.accuracyModifier;
     this.incursDurabilityLoss = config.incursDurabilityLoss;

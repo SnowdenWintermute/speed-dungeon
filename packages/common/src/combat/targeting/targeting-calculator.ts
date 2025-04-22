@@ -18,8 +18,8 @@ import { getActionTargetsIfSchemeIsValid } from "./get-targets-if-scheme-is-vali
 import { getOwnedCharacterAndSelectedCombatAction } from "../../utils/get-owned-character-and-selected-combat-action.js";
 import getNextOrPreviousTarget from "./get-next-or-previous-target.js";
 import { CombatantContext } from "../../combatant-context/index.js";
-import { COMBAT_ACTIONS } from "../combat-actions/action-implementations/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
+import { COMBAT_ACTIONS } from "../combat-actions/action-implementations/index.js";
 
 export class TargetingCalculator {
   constructor(

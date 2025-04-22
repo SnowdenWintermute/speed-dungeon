@@ -27,10 +27,10 @@ import {
 import { AnimationTimingType } from "../../../../action-processing/index.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import { COMBAT_ACTIONS } from "../index.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 import { getIncomingResourceChangePerTarget } from "../../../action-results/index.js";
 import cloneDeep from "lodash.clonedeep";
+import { COMBAT_ACTIONS } from "../index.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -44,6 +44,7 @@ const config: CombatActionComponentConfig = {
     ProhibitedTargetCombatantStates.Dead,
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
   ],
+  prohibitedHitCombatantStates:[],
   baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
   incursDurabilityLoss: {

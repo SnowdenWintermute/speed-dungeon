@@ -62,7 +62,6 @@ export function postResourceChangeToCombatLog(
     const damagedOrHealed = resourceChange.value > 0 ? recoveryWord : "hit";
 
     const isTargetingSelf = actionUserId === target.entityProperties.id;
-    console.log("action user id: ", actionUserId, target.entityProperties.id);
     const targetNameText = isTargetingSelf ? "themselves" : target.entityProperties.name;
 
     const debugTargetId = showDebug ? target.entityProperties.id : "";

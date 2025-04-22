@@ -33,8 +33,6 @@ export function hitOutcomesGameUpdateHandler(update: {
 
   const entitiesAlreadyAnimatingHitRecovery: string[] = [];
 
-  console.log("hitPointChanges: ", hitPointChanges);
-
   if (hitPointChanges) {
     for (const [entityId, hpChange] of hitPointChanges.getRecords()) {
       const wasBlocked = !!outcomeFlags[HitOutcome.ShieldBlock]?.includes(entityId);

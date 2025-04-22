@@ -105,7 +105,11 @@ export abstract class CombatantCondition {
       if (existingCondition.level < condition.level)
         return CombatantCondition.replaceExisting(condition, combatantProperties);
       // if stackable and of same level, add to stacks
-      if (existingCondition.stacksOption) return (existingCondition.stacksOption.current += 1);
+      if (existingCondition.stacksOption) {
+        if (existingCondition.stacksOption.max > existingCondition.stacksOption.current)
+          existingCondition.stacksOption.current += 1;
+        return;
+      }
       // not stackable, replace or just add it
       return CombatantCondition.replaceExisting(condition, combatantProperties);
     });

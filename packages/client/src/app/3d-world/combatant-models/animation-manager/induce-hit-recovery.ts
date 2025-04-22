@@ -59,7 +59,6 @@ export function induceHitRecovery(
 
   useGameStore.getState().mutateState((gameState) => {
     const combatantContextResult = getCombatantContext(gameState, targetId);
-    console.log("context result: ", combatantContextResult);
     if (combatantContextResult instanceof Error) throw combatantContextResult;
     const { game, party, combatant } = combatantContextResult;
     const { combatantProperties } = combatant;

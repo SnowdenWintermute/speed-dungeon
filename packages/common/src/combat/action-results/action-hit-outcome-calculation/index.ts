@@ -31,8 +31,11 @@ import { HitOutcome } from "../../../hit-outcome.js";
 import { HitPointChanges, ManaChanges, ResourceChanges } from "./resource-changes.js";
 import { CombatActionResourceChangeProperties } from "../../combat-actions/combat-action-resource-change-properties.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
-import { CombatActionComponent } from "../../combat-actions/index.js";
-import { filterPossibleTargetIdsByProhibitedCombatantStates, filterTargetIdGroupByProhibitedCombatantStates } from "../../targeting/filtering.js";
+import { COMBAT_ACTION_NAME_STRINGS, CombatActionComponent } from "../../combat-actions/index.js";
+import {
+  filterPossibleTargetIdsByProhibitedCombatantStates,
+  filterTargetIdGroupByProhibitedCombatantStates,
+} from "../../targeting/filtering.js";
 
 export class CombatActionHitOutcomes {
   hitPointChanges?: HitPointChanges;
@@ -125,11 +128,11 @@ export function calculateActionHitOutcomes(
   const filteredIdsResult = filterTargetIdGroupByProhibitedCombatantStates(
     party,
     targetIds,
-    action.prohibitedTargetCombatantStates
+    action.prohibitedHitCombatantStates
   );
 
-  if(filteredIdsResult instanceof Error) throw filteredIdsResult
-  targetIds = filteredIdsResult
+  if (filteredIdsResult instanceof Error) throw filteredIdsResult;
+  targetIds = filteredIdsResult;
 
   for (const id of targetIds) {
     const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, id);
@@ -237,11 +240,8 @@ export function calculateActionHitOutcomes(
       resourceChange.value = Math.floor(resourceChange.value);
 
       incomingResourceChangeOption.record.addRecord(id, resourceChange);
-      console.log("added record: ", id, resourceChange);
     }
   }
-
-  console.log("hit outcomes: ", hitOutcomes);
 
   return hitOutcomes;
 }

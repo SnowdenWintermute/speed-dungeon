@@ -51,7 +51,7 @@ export function startOrStopClientOnlyVfx(
   if (clientOnlyVfxNamesToStartThisStep.length) {
     const sceneOption = gameWorld.current?.scene;
     if (!sceneOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
-    console.log("command.clientOnlyVfxNamesToStart", clientOnlyVfxNamesToStartThisStep);
+
     for (const { name, parentType, lifetime } of clientOnlyVfxNamesToStartThisStep) {
       const effect = new CLIENT_ONLY_VFX_CONSTRUCTORS[name](sceneOption);
 

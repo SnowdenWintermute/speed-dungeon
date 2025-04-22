@@ -52,7 +52,8 @@ const config: CombatActionComponentConfig = {
   },
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  prohibitedTargetCombatantStates: [
+  prohibitedTargetCombatantStates: [],
+  prohibitedHitCombatantStates: [
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
     ProhibitedTargetCombatantStates.UntargetableBySpells,
     ProhibitedTargetCombatantStates.Dead,
@@ -91,7 +92,6 @@ const config: CombatActionComponentConfig = {
 
     const stacks = user.asUserOfTriggeredCondition?.stacksOption?.current || 1;
 
-    console.log("stacks for exploison: ", stacks, "user level: ", user.level);
     const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
 
     const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
@@ -99,8 +99,6 @@ const config: CombatActionComponentConfig = {
       resourceChangeSource,
       baseValues,
     };
-
-    console.log("explosion hp change range: ", baseValues);
 
     return hpChangeProperties;
   },

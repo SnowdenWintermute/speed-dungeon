@@ -42,7 +42,6 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
     );
 
     return {
-      // numStacksRemoved: this.stacksOption.current,
       numStacksRemoved: 1,
       triggeredActions: [{ user, actionExecutionIntent: explosionActionIntent }],
     };

@@ -23,7 +23,6 @@ export class ReplayTreeManager {
   }
 
   async enqueueTree(payload: CombatActionReplayTreePayload, onComplete: () => void) {
-    console.log("new tree:", payload);
     this.queue.push({ root: payload.root, onComplete });
 
     useGameStore.getState().mutateState((state) => {

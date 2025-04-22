@@ -37,15 +37,7 @@ export function selectCombatActionHandler(
     targetingCalculator.assignInitialCombatantActionTargets(combatActionOption);
   if (initialTargetsResult instanceof Error) return initialTargetsResult;
 
-  console.log(initialTargetsResult);
-
   character.combatantProperties.selectedCombatAction = combatActionNameOption;
-
-  if (combatActionNameOption !== null)
-    console.log("selected combat action: ", COMBAT_ACTION_NAME_STRINGS[combatActionNameOption]);
-  else {
-    console.log("deselected combat action");
-  }
 
   gameServer.io
     .in(getPartyChannelName(game.name, party.name))

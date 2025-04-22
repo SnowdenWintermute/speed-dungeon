@@ -3,9 +3,9 @@ import { Battle } from "../../battle/index.js";
 import { Combatant } from "../../combatants/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
-import { COMBAT_ACTIONS } from "../combat-actions/action-implementations/index.js";
 import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
 import {
+    COMBAT_ACTIONS,
   CombatActionComponent,
   CombatActionName,
   CombatActionTarget,

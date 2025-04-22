@@ -14,7 +14,7 @@ import { IdGenerator } from "../../utility-classes/index.js";
 
 export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.PrimedForIceBurst;
-  stacksOption = new MaxAndCurrent(10, 1);
+  stacksOption = new MaxAndCurrent(1, 1);
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,
@@ -42,7 +42,6 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
 
     return {
       numStacksRemoved: this.stacksOption.current,
-      // numStacksRemoved: 1,
       triggeredActions: [{ user, actionExecutionIntent }],
     };
   }

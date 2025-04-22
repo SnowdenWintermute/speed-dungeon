@@ -26,8 +26,6 @@ export class VfxMotionActionResolutionStep extends EntityMotionActionResolutionS
       animationPhase === CombatActionAnimationPhase.RecoverySuccess ||
       animationPhase === CombatActionAnimationPhase.RecoveryInterrupted;
 
-    console.log("vfx motion for step", ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType]);
-
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.EntityMotion,
       step: stepType,

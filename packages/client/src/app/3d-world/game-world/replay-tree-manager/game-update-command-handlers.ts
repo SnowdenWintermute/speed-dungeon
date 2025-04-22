@@ -111,6 +111,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
         }
       }
 
+      console.log("command.removedConditionStacks", command.removedConditionStacks);
       if (command.removedConditionStacks) {
         for (const [entityId, conditionIdAndStacks] of Object.entries(
           command.removedConditionStacks
@@ -191,7 +192,6 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
 
     const scene = await spawnMobileVfxModel(vfxProperties.name, position);
 
-    console.log("spawned vfx with pointTowardEntityOption", vfxProperties.pointTowardEntityOption);
     const vfxModel = new MobileVfxModel(
       vfx.entityProperties.id,
       scene,
