@@ -27,8 +27,10 @@ import {
   VfxType,
 } from "../../../../vfx/index.js";
 import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-ice-burst.js";
+import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 
 const config: CombatActionComponentConfig = {
+  ...DAMAGING_ACTIONS_COMMON_CONFIG,
   ...RANGED_ACTIONS_COMMON_CONFIG,
   description: "An icy projectile",
   targetingSchemes: [TargetingScheme.Single],
@@ -48,7 +50,6 @@ const config: CombatActionComponentConfig = {
   userShouldMoveHomeOnComplete: false,
   getResourceCosts: () => null,
   requiresCombatTurn: () => true,
-  shouldExecute: () => true,
   getActionStepAnimations: (context) => null,
   getHpChangeProperties: (user, primaryTarget, self) =>
     ICE_BOLT_PARENT.getHpChangeProperties(user, primaryTarget),

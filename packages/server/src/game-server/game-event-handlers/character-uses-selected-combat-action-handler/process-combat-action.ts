@@ -3,6 +3,7 @@ import {
   ActionResolutionStepType,
   ActionSequenceManagerRegistry,
   COMBAT_ACTIONS,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
   CombatantContext,
   CombatantMotionActionResolutionStep,
@@ -52,6 +53,7 @@ export function processCombatAction(
   while (registry.isNotEmpty()) {
     for (const sequenceManager of registry.getManagers()) {
       let trackerOption = sequenceManager.getCurrentTracker();
+
       if (!trackerOption) break;
 
       let currentStep = trackerOption.currentStep;

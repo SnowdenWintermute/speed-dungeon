@@ -33,12 +33,12 @@ import {
 } from "../../combat-action-animations.js";
 import { AnimationTimingType } from "../../../../action-processing/game-update-commands.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
-import { COMBAT_ACTIONS } from "../index.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 import { COMMON_CHILD_ACTION_STEPS_SEQUENCE } from "../common-action-steps-sequence.js";
 import { getIncomingResourceChangePerTarget } from "../../../action-results/index.js";
 import cloneDeep from "lodash.clonedeep";
+import { COMBAT_ACTIONS } from "../index.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,

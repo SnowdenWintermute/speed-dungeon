@@ -81,7 +81,13 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
               numStacksRemoved
             );
 
-            this.branchingActions.push(...triggeredActions);
+            this.branchingActions.push(
+              ...triggeredActions.filter((actionIntent) =>
+                COMBAT_ACTIONS[actionIntent.actionExecutionIntent.actionName].shouldExecute(
+                  combatantContext
+                )
+              )
+            );
             console.log("triggeredActions: ", triggeredActions);
 
             // add it to the update so the client can remove the triggered conditions if required

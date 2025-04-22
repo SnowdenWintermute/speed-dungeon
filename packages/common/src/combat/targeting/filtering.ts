@@ -40,7 +40,7 @@ export function filterPossibleTargetIdsByProhibitedCombatantStates(
   return [filteredAllyIdsResult, filteredOpponentIdsOption];
 }
 
-function filterTargetIdGroupByProhibitedCombatantStates(
+export function filterTargetIdGroupByProhibitedCombatantStates(
   party: AdventuringParty,
   potentialIds: string[],
   prohibitedStates: ProhibitedTargetCombatantStates[]

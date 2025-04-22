@@ -13,7 +13,6 @@ import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CHAINING_SPLIT_ARROW_PARENT } from "./index.js";
-import { COMBAT_ACTIONS } from "../index.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import {
   CombatActionTarget,
@@ -35,6 +34,7 @@ import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
+import { COMBAT_ACTIONS } from "../index.js";
 
 const MAX_BOUNCES = 2;
 

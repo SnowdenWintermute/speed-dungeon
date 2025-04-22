@@ -64,7 +64,7 @@ export interface CombatActionComponentConfig {
   costBases: ActionResourceCostBases;
 
   userShouldMoveHomeOnComplete: boolean;
-  shouldExecute: (combatantContext: CombatantContext, self: CombatActionComponent) => boolean;
+  shouldExecute: (context: CombatantContext, self: CombatActionComponent) => boolean;
   getActionStepAnimations: (
     context: ActionResolutionStepContext
   ) => null | Error | CombatActionCombatantAnimations;
@@ -165,7 +165,7 @@ export abstract class CombatActionComponent {
       : CombatActionUsabilityContext.OutOfCombat;
     return this.isUsableInGivenContext(context);
   };
-  shouldExecute: (combatantContext: CombatantContext) => boolean;
+  shouldExecute: (context: CombatantContext) => boolean;
   getActionStepAnimations: (
     context: ActionResolutionStepContext
   ) => null | Error | CombatActionCombatantAnimations;

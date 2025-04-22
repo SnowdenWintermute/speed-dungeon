@@ -32,6 +32,7 @@ import { HitPointChanges, ManaChanges, ResourceChanges } from "./resource-change
 import { CombatActionResourceChangeProperties } from "../../combat-actions/combat-action-resource-change-properties.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
+import { filterPossibleTargetIdsByProhibitedCombatantStates, filterTargetIdGroupByProhibitedCombatantStates } from "../../targeting/filtering.js";
 
 export class CombatActionHitOutcomes {
   hitPointChanges?: HitPointChanges;
@@ -63,7 +64,10 @@ export function calculateActionHitOutcomes(
     party,
     actionExecutionIntent
   );
-  if (primaryTargetResult instanceof Error) return primaryTargetResult;
+  if (primaryTargetResult instanceof Error) {
+    console.warn("no target combatant found", primaryTargetResult.message);
+    return new CombatActionHitOutcomes();
+  }
   const target = primaryTargetResult;
 
   const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
@@ -72,9 +76,7 @@ export function calculateActionHitOutcomes(
   );
   if (targetIdsResult instanceof Error) return targetIdsResult;
 
-  console.log("targetIds", targetIdsResult);
-
-  const targetIds = targetIdsResult;
+  let targetIds = targetIdsResult;
 
   const hitOutcomes = new CombatActionHitOutcomes();
 
@@ -117,6 +119,17 @@ export function calculateActionHitOutcomes(
       record,
     });
   }
+
+  // while we may have already filtered targets for user selected action while they are targeting,
+  // when doing ice burst we still want to target the side combatants, but actually not damage them
+  const filteredIdsResult = filterTargetIdGroupByProhibitedCombatantStates(
+    party,
+    targetIds,
+    action.prohibitedTargetCombatantStates
+  );
+
+  if(filteredIdsResult instanceof Error) throw filteredIdsResult
+  targetIds = filteredIdsResult
 
   for (const id of targetIds) {
     const targetCombatantResult = SpeedDungeonGame.getCombatantById(game, id);

@@ -38,8 +38,10 @@ import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { MobileVfxName, VfxType } from "../../../../vfx/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
+import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 
 const config: CombatActionComponentConfig = {
+  ...DAMAGING_ACTIONS_COMMON_CONFIG,
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
   description: "Deals kinetic fire damage in an area around the target",
   targetingSchemes: [TargetingScheme.Area],
@@ -68,12 +70,12 @@ const config: CombatActionComponentConfig = {
       [CombatActionAnimationPhase.Delivery]: {
         name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDelivery },
         // timing: { type: AnimationTimingType.Timed, duration: 1200 },
-        timing: { type: AnimationTimingType.Timed, duration: 10200 },
+        timing: { type: AnimationTimingType.Timed, duration: 200 },
       },
       [CombatActionAnimationPhase.RecoverySuccess]: {
         name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDissipation },
         // timing: { type: AnimationTimingType.Timed, duration: 700 },
-        timing: { type: AnimationTimingType.Timed, duration: 7000 },
+        timing: { type: AnimationTimingType.Timed, duration: 200 },
       },
     };
     return animations;
