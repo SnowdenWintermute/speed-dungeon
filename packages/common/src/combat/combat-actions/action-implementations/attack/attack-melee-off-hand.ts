@@ -55,7 +55,6 @@ const config: CombatActionComponentConfig = {
   ],
 
   prohibitedHitCombatantStates: [],
-  baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: OFF_HAND_ACCURACY_MODIFIER,
   incursDurabilityLoss: {
     [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: DurabilityLossCondition.OnHit },

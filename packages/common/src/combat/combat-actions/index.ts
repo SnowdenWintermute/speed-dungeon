@@ -47,28 +47,8 @@ import { Milliseconds } from "../../primatives/index.js";
 export interface CombatActionComponentConfig {
   description: string;
   intent: CombatActionIntent;
-
-  targetingSchemes: TargetingScheme[];
-  validTargetCategories: TargetCategories;
-  autoTargetSelectionMethod: AutoTargetingSelectionMethod;
   usabilityContext: CombatActionUsabilityContext;
-  prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
-  prohibitedHitCombatantStates: ProhibitedTargetCombatantStates[];
-
-  baseResourceChangeValuesLevelMultiplier: number;
-  accuracyModifier: number;
-
-  incursDurabilityLoss: {
-    [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
-    [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
-  };
-  costBases: ActionResourceCostBases;
-
-  userShouldMoveHomeOnComplete: boolean;
   shouldExecute: (context: CombatantContext, self: CombatActionComponent) => boolean;
-  getActionStepAnimations: (
-    context: ActionResolutionStepContext
-  ) => null | Error | CombatActionCombatantAnimations;
   getRequiredRange: (
     user: CombatantProperties,
     self: CombatActionComponent
@@ -79,7 +59,25 @@ export interface CombatActionComponentConfig {
       (context: ActionResolutionStepContext) => Error | null | EntityDestination
     >
   >;
-  getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
+
+  // TARGETING PROPERTIES
+  targetingSchemes: TargetingScheme[];
+  validTargetCategories: TargetCategories;
+  autoTargetSelectionMethod: AutoTargetingSelectionMethod;
+  prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
+  prohibitedHitCombatantStates: ProhibitedTargetCombatantStates[];
+  getAutoTarget?: (
+    combatantContext: CombatantContext,
+    actionTrackerOption: null | ActionTracker,
+    self: CombatActionComponent
+  ) => Error | null | CombatActionTarget;
+
+  // STEPS AND VFX
+  userShouldMoveHomeOnComplete: boolean;
+  getResolutionSteps: () => ActionResolutionStepType[];
+  getActionStepAnimations: (
+    context: ActionResolutionStepContext
+  ) => null | Error | CombatActionCombatantAnimations;
   getClientOnlyVfxToStartByStep?: () => Partial<
     Record<
       ActionResolutionStepType,
@@ -90,12 +88,21 @@ export interface CombatActionComponentConfig {
     Record<ActionResolutionStepType, ClientOnlyVfxNames[]>
   >;
 
+  // ACTION COST PROPERTIES
+  incursDurabilityLoss: {
+    [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
+    [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
+  };
+  costBases: ActionResourceCostBases;
   getResourceCosts: (
     user: CombatantProperties,
     self: CombatActionComponent
   ) => null | ActionResourceCosts;
   getConsumableCost?: () => ConsumableType;
   requiresCombatTurn: (context: ActionResolutionStepContext) => boolean;
+
+  // HIT OUTCOME PROPERTIES
+  accuracyModifier: number;
   /** A numeric percentage which will be used against the target's evasion */
   getUnmodifiedAccuracy: (user: CombatantProperties) => ActionAccuracy;
   /** A numeric percentage which will be used against the target's crit avoidance */
@@ -112,20 +119,18 @@ export interface CombatActionComponentConfig {
     primaryTarget: CombatantProperties,
     self: CombatActionComponent
   ) => null | CombatActionResourceChangeProperties;
+  getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
+
+  // REACTABLITITY CALCULATOR
   getIsParryable: (user: CombatantProperties) => boolean;
   getIsBlockable: (user: CombatantProperties) => boolean;
   getCanTriggerCounterattack: (user: CombatantProperties) => boolean;
 
-  getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
+  // ACTION FAMILY
   getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
   getConcurrentSubActions?: (combatantContext: CombatantContext) => CombatActionExecutionIntent[];
   getParent: () => CombatActionComponent | null;
-  getResolutionSteps: () => ActionResolutionStepType[];
-  getAutoTarget?: (
-    combatantContext: CombatantContext,
-    actionTrackerOption: null | ActionTracker,
-    self: CombatActionComponent
-  ) => Error | null | CombatActionTarget;
+  getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 }
 
 export abstract class CombatActionComponent {
@@ -141,7 +146,6 @@ export abstract class CombatActionComponent {
   public readonly usabilityContext: CombatActionUsabilityContext;
   public readonly prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
   public readonly prohibitedHitCombatantStates: ProhibitedTargetCombatantStates[];
-  public readonly baseResourceChangeValuesLevelMultiplier: number; // @TODO - actually use this for attack et al, or remove it
   public readonly accuracyModifier: number;
   incursDurabilityLoss: {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
@@ -255,7 +259,6 @@ export abstract class CombatActionComponent {
     this.intent = config.intent;
     this.prohibitedTargetCombatantStates = config.prohibitedTargetCombatantStates;
     this.prohibitedHitCombatantStates = config.prohibitedHitCombatantStates;
-    this.baseResourceChangeValuesLevelMultiplier = config.baseResourceChangeValuesLevelMultiplier;
     this.accuracyModifier = config.accuracyModifier;
     this.incursDurabilityLoss = config.incursDurabilityLoss;
     this.costBases = config.costBases;

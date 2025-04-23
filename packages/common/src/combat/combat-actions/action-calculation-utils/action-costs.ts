@@ -75,6 +75,7 @@ export function getUnmetCostResourceTypes(
 
   for (const [resourceType, cost] of iterateNumericEnumKeyedRecord(costs)) {
     const absoluteCost = Math.abs(cost); // costs are in negative values
+
     switch (resourceType) {
       case ActionPayableResource.HitPoints:
         if (absoluteCost > combatantProperties.hitPoints) unmet.push(resourceType);

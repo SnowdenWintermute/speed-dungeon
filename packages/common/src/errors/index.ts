@@ -93,7 +93,7 @@ export const ERROR_MESSAGES = {
   COMBAT_ACTIONS: {
     NOT_OWNED: "That ability is not owned by that combatant",
     INVALID_TYPE: "Invalid ability type",
-    INSUFFICIENT_RESOURCES: "Not enough hit points",
+    INSUFFICIENT_RESOURCES: "Insufficient resources",
     NO_VALID_TARGETS: "No valid targets were found for the selected action",
     ONLY_ONE_TARGETING_SCHEME_AVAILABLE:
       "There is only one targeting scheme available for that action",

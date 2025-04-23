@@ -44,8 +44,7 @@ const config: CombatActionComponentConfig = {
     ProhibitedTargetCombatantStates.Dead,
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
   ],
-  prohibitedHitCombatantStates:[],
-  baseResourceChangeValuesLevelMultiplier: 1,
+  prohibitedHitCombatantStates: [],
   accuracyModifier: 1,
   incursDurabilityLoss: {
     [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnHit },

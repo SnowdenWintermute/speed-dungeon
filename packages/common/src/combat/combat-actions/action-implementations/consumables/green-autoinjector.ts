@@ -42,7 +42,6 @@ const config: CombatActionComponentConfig = {
     ProhibitedTargetCombatantStates.FullHp,
   ],
   prohibitedHitCombatantStates: [],
-  baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: 1,
   incursDurabilityLoss: {},
   costBases: {
