@@ -5,6 +5,10 @@ import {
   EntityMotionGameUpdateCommand,
   SpawnableEntityType,
   DynamicAnimationName,
+  ClientOnlyVfxNames,
+  VfxParentType,
+  Milliseconds,
+  COMBAT_ACTIONS,
 } from "@speed-dungeon/common";
 import { ModelMovementManager } from "../../model-movement-manager";
 import { ManagedAnimationOptions } from "../../combatant-models/animation-manager";
@@ -63,7 +67,38 @@ export function entityMotionGameUpdateHandler(update: {
     }
   }
 
-  startOrStopClientOnlyVfx(command.actionName, command.step, clientOnlyVfxManager, entityId);
+  // @TODO -this can be refactored to somehow combine with other places
+  // where we start and stop clientonlyvfx
+
+  let clientOnlyVfxNamesToStartThisStep: {
+    name: ClientOnlyVfxNames;
+    parentType: VfxParentType;
+    lifetime?: Milliseconds;
+  }[] = [];
+
+  let clientOnlyVfxNamesToStopThisStep: ClientOnlyVfxNames[] = [];
+
+  const action = COMBAT_ACTIONS[command.actionName];
+
+  if (action.getClientOnlyVfxToStartByStep) {
+    const clientOnlyVfxNamesToStart = action.getClientOnlyVfxToStartByStep();
+    const clientOnlyVfxNamesForThisStep = clientOnlyVfxNamesToStart[command.step];
+    if (clientOnlyVfxNamesForThisStep)
+      clientOnlyVfxNamesToStartThisStep = clientOnlyVfxNamesForThisStep;
+  }
+  if (action.getClientOnlyVfxToStopByStep) {
+    const clientOnlyVfxNamesToStop = action.getClientOnlyVfxToStopByStep();
+    const clientOnlyVfxNamesForThisStep = clientOnlyVfxNamesToStop[command.step];
+    if (clientOnlyVfxNamesForThisStep)
+      clientOnlyVfxNamesToStopThisStep = clientOnlyVfxNamesForThisStep;
+  }
+
+  startOrStopClientOnlyVfx(
+    clientOnlyVfxNamesToStartThisStep,
+    clientOnlyVfxNamesToStopThisStep,
+    clientOnlyVfxManager,
+    entityId
+  );
 
   // console.log("destinationOption: ", translationOption?.destination);
 

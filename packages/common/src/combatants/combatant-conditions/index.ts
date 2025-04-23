@@ -1,26 +1,44 @@
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
-import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
+import { EntityId, MaxAndCurrent, Milliseconds } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { removeFromArray } from "../../utils/index.js";
+import { ClientOnlyVfxNames, VfxParentType } from "../../vfx/index.js";
 import { Combatant, CombatantProperties } from "../index.js";
+import { PrimedForExplosionCombatantCondition } from "./primed-for-explosion.js";
+import { PrimedForIceBurstCombatantCondition } from "./primed-for-ice-burst.js";
 
 export enum CombatantConditionName {
-  Poison,
+  // Poison,
   PrimedForExplosion,
   PrimedForIceBurst,
 }
 
 export const COMBATANT_CONDITION_NAME_STRINGS: Record<CombatantConditionName, string> = {
-  [CombatantConditionName.Poison]: "Poison",
+  // [CombatantConditionName.Poison]: "Poison",
   [CombatantConditionName.PrimedForExplosion]: "Detonatable",
   [CombatantConditionName.PrimedForIceBurst]: "Shatterable",
 };
 
 export const COMBATANT_CONDITION_DESCRIPTIONS: Record<CombatantConditionName, string> = {
-  [CombatantConditionName.Poison]: "Periodically takes damage",
+  // [CombatantConditionName.Poison]: "Periodically takes damage",
   [CombatantConditionName.PrimedForExplosion]: "Causes an explosion when hit by certain actions",
   [CombatantConditionName.PrimedForIceBurst]: "Causes an ice burst when hit by certain actions",
+};
+
+type CombatantConditionConstructor = new (
+  id: EntityId,
+  appliedBy: EntityId,
+  name: CombatantConditionName,
+  stacksOption: null | MaxAndCurrent
+) => CombatantCondition;
+
+export const COMBATANT_CONDITION_CONSTRUCTORS: Record<
+  CombatantConditionName,
+  CombatantConditionConstructor
+> = {
+  [CombatantConditionName.PrimedForExplosion]: PrimedForExplosionCombatantCondition,
+  [CombatantConditionName.PrimedForIceBurst]: PrimedForIceBurstCombatantCondition,
 };
 
 export abstract class CombatantCondition {
@@ -57,6 +75,12 @@ export abstract class CombatantCondition {
     numStacksRemoved: number;
     triggeredActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
   };
+
+  abstract getClientOnlyVfxWhileActive: () => {
+    name: ClientOnlyVfxNames;
+    parentType: VfxParentType;
+    lifetime?: Milliseconds;
+  }[];
   // examples:
   // - perform a composite combat action
   // - remove self - examples:
@@ -134,7 +158,7 @@ export abstract class CombatantCondition {
     conditionId: EntityId,
     combatantProperties: CombatantProperties,
     numberToRemove: number
-  ) {
+  ): CombatantCondition | undefined {
     for (const condition of Object.values(combatantProperties.conditions)) {
       if (condition.id !== conditionId) return;
       if (condition.stacksOption)
@@ -144,7 +168,9 @@ export abstract class CombatantCondition {
         );
       if (condition.stacksOption === null || condition.stacksOption.current === 0) {
         removeFromArray(combatantProperties.conditions, condition);
+        return condition;
       }
     }
+    return;
   }
 }

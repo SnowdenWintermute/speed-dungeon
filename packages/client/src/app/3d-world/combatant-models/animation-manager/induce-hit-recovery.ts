@@ -8,6 +8,10 @@ import {
   CombatActionName,
   COMBAT_ACTIONS,
   ActionResolutionStepType,
+  ClientOnlyVfxNames,
+  VfxParentType,
+  Milliseconds,
+  COMBAT_ACTION_NAME_STRINGS,
 } from "@speed-dungeon/common";
 import { getCombatantContext, useGameStore } from "@/stores/game-store";
 import { GameWorld } from "../../game-world";
@@ -35,9 +39,41 @@ export function induceHitRecovery(
   const action = COMBAT_ACTIONS[actionName];
   const wasSpell = false; // @TODO - get this from action properties
 
+  let clientOnlyVfxNamesToStartThisStep: {
+    name: ClientOnlyVfxNames;
+    parentType: VfxParentType;
+    lifetime?: Milliseconds;
+  }[] = [];
+
+  let clientOnlyVfxNamesToStopThisStep: ClientOnlyVfxNames[] = [];
+
+  if (action.getClientOnlyVfxToStartByStep) {
+    const clientOnlyVfxNamesToStart = action.getClientOnlyVfxToStartByStep();
+    console.log(
+      COMBAT_ACTION_NAME_STRINGS[action.name],
+      "to start: ",
+      clientOnlyVfxNamesToStartThisStep
+    );
+    const clientOnlyVfxNamesForThisStep = clientOnlyVfxNamesToStart[actionStep];
+    if (clientOnlyVfxNamesForThisStep)
+      clientOnlyVfxNamesToStartThisStep = clientOnlyVfxNamesForThisStep;
+  }
+  if (action.getClientOnlyVfxToStopByStep) {
+    const clientOnlyVfxNamesToStop = action.getClientOnlyVfxToStopByStep();
+    const clientOnlyVfxNamesForThisStep = clientOnlyVfxNamesToStop[actionStep];
+    if (clientOnlyVfxNamesForThisStep)
+      clientOnlyVfxNamesToStopThisStep = clientOnlyVfxNamesForThisStep;
+  }
+
+  console.log(
+    COMBAT_ACTION_NAME_STRINGS[action.name],
+    "to start: ",
+    clientOnlyVfxNamesToStartThisStep
+  );
+
   startOrStopClientOnlyVfx(
-    actionName,
-    actionStep,
+    clientOnlyVfxNamesToStartThisStep,
+    clientOnlyVfxNamesToStopThisStep,
     targetModel.clientOnlyVfxManager,
     targetModel.entityId
   );

@@ -20,39 +20,20 @@ import { Vector3 } from "@babylonjs/core";
 import { ClientOnlyVfxManager } from "../../client-only-vfx-manager";
 
 export function startOrStopClientOnlyVfx(
-  actionName: CombatActionName,
-  step: ActionResolutionStepType,
-  clientOnlyVfxManager: ClientOnlyVfxManager,
-  entityId: EntityId
-) {
-  const action = COMBAT_ACTIONS[actionName];
-
-  let clientOnlyVfxNamesToStartThisStep: {
+  clientOnlyVfxToStart: {
     name: ClientOnlyVfxNames;
     parentType: VfxParentType;
     lifetime?: Milliseconds;
-  }[] = [];
-
-  let clientOnlyVfxNamesToStopThisStep: ClientOnlyVfxNames[] = [];
-
-  if (action.getClientOnlyVfxToStartByStep) {
-    const clientOnlyVfxNamesToStart = action.getClientOnlyVfxToStartByStep();
-    const clientOnlyVfxNamesForThisStep = clientOnlyVfxNamesToStart[step];
-    if (clientOnlyVfxNamesForThisStep)
-      clientOnlyVfxNamesToStartThisStep = clientOnlyVfxNamesForThisStep;
-  }
-  if (action.getClientOnlyVfxToStopByStep) {
-    const clientOnlyVfxNamesToStop = action.getClientOnlyVfxToStopByStep();
-    const clientOnlyVfxNamesForThisStep = clientOnlyVfxNamesToStop[step];
-    if (clientOnlyVfxNamesForThisStep)
-      clientOnlyVfxNamesToStopThisStep = clientOnlyVfxNamesForThisStep;
-  }
-
-  if (clientOnlyVfxNamesToStartThisStep.length) {
+  }[],
+  clientOnlyVfxToStop: ClientOnlyVfxNames[],
+  clientOnlyVfxManager: ClientOnlyVfxManager,
+  entityId: EntityId
+) {
+  if (clientOnlyVfxToStart.length) {
     const sceneOption = gameWorld.current?.scene;
     if (!sceneOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
 
-    for (const { name, parentType, lifetime } of clientOnlyVfxNamesToStartThisStep) {
+    for (const { name, parentType, lifetime } of clientOnlyVfxToStart) {
       const effect = new CLIENT_ONLY_VFX_CONSTRUCTORS[name](sceneOption);
 
       if (lifetime !== undefined) {
@@ -116,10 +97,10 @@ export function startOrStopClientOnlyVfx(
     }
   }
 
-  if (clientOnlyVfxNamesToStopThisStep.length) {
-    for (const name of clientOnlyVfxNamesToStopThisStep) {
-      clientOnlyVfxManager.clientOnlyVfx[name]?.softCleanup();
-      delete clientOnlyVfxManager.clientOnlyVfx[name];
+  if (clientOnlyVfxToStop.length) {
+    for (const vfxName of clientOnlyVfxToStop) {
+      clientOnlyVfxManager.clientOnlyVfx[vfxName]?.softCleanup();
+      delete clientOnlyVfxManager.clientOnlyVfx[vfxName];
     }
   }
 }

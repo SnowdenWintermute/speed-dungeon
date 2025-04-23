@@ -1,6 +1,7 @@
 import {
   ActionPayableResource,
   ActivatedTriggersGameUpdateCommand,
+  COMBATANT_CONDITION_CONSTRUCTORS,
   CombatantCondition,
   DurabilityChangesByEntityId,
   ERROR_MESSAGES,
@@ -32,6 +33,7 @@ import { hitOutcomesGameUpdateHandler } from "./hit-outcomes";
 import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
 import { induceHitRecovery } from "../../combatant-models/animation-manager/induce-hit-recovery";
+import { startOrStopClientOnlyVfx } from "./start-or-stop-client-only-vfx";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
@@ -104,8 +106,25 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
             useGameStore.getState().mutateState((state) => {
               const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
               if (combatantResult instanceof Error) return combatantResult;
-              for (const condition of conditions)
+              for (let condition of conditions) {
+                condition = plainToInstance(
+                  COMBATANT_CONDITION_CONSTRUCTORS[condition.name],
+                  condition
+                );
+
                 CombatantCondition.applyToCombatant(condition, combatantResult.combatantProperties);
+
+                const targetModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
+                if (!targetModelOption)
+                  throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+
+                startOrStopClientOnlyVfx(
+                  condition.getClientOnlyVfxWhileActive(),
+                  [],
+                  targetModelOption.clientOnlyVfxManager,
+                  targetModelOption.entityId
+                );
+              }
             });
           }
         }
@@ -121,11 +140,25 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
               const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
               if (combatantResult instanceof Error) return combatantResult;
 
-              CombatantCondition.removeStacks(
+              const conditionRemovedOption = CombatantCondition.removeStacks(
                 conditionId,
                 combatantResult.combatantProperties,
                 numStacks
               );
+
+              if (conditionRemovedOption) {
+                const targetModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
+                if (!targetModelOption)
+                  throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+                startOrStopClientOnlyVfx(
+                  [],
+                  conditionRemovedOption
+                    .getClientOnlyVfxWhileActive()
+                    .map((clienOnlyVfx) => clienOnlyVfx.name),
+                  targetModelOption.clientOnlyVfxManager,
+                  targetModelOption.entityId
+                );
+              }
             });
           }
         }

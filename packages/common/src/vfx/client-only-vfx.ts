@@ -5,6 +5,7 @@ export enum ClientOnlyVfxNames {
   FrostParticleAccumulation,
   FrostParticleStream,
   FrostParticleBurst,
+  CombatantIsCold,
 }
 
 export abstract class ClientOnlyVfx {

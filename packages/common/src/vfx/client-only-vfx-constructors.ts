@@ -3,6 +3,7 @@ import { FrostParticleAccumulation } from "./frost-particle-accumulation.js";
 import { Scene } from "@babylonjs/core";
 import { ClientOnlyVfx, ClientOnlyVfxNames } from "./client-only-vfx.js";
 import { FrostParticleBurst } from "./frost-particle-burst.js";
+import { CombatantIsCold } from "./combatant-is-cold.js";
 
 type ClientOnlyVfxConstructor = new (scene: Scene) => ClientOnlyVfx;
 
@@ -10,4 +11,5 @@ export const CLIENT_ONLY_VFX_CONSTRUCTORS: Record<ClientOnlyVfxNames, ClientOnly
   [ClientOnlyVfxNames.FrostParticleAccumulation]: FrostParticleAccumulation,
   [ClientOnlyVfxNames.FrostParticleStream]: FrostParticleStream,
   [ClientOnlyVfxNames.FrostParticleBurst]: FrostParticleBurst,
+  [ClientOnlyVfxNames.CombatantIsCold]: CombatantIsCold,
 };
