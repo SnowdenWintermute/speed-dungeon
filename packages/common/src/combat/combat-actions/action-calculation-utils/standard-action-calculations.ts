@@ -7,7 +7,6 @@ import {
 } from "../../../app-consts.js";
 import { CombatantProperties } from "../../../combatants/index.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
-import { CombatActionComponent } from "../index.js";
 
 export function getStandardActionCritChance(
   actionUser: CombatantProperties,
@@ -41,19 +40,4 @@ export function getStandardActionArmorPenetration(
     userArmorPen += userAttributes[CombatAttribute.Dexterity] * DEX_TO_RANGED_ARMOR_PEN_RATIO;
 
   return userArmorPen;
-}
-
-export function getStandardActionManaCost(
-  action: CombatActionComponent,
-  user: CombatantProperties
-): number {
-  // const { manaCost, abilityLevelManaCostMultiplier, combatantLevelManaCostMultiplier } =
-  //   abilityAttributes;
-  // const adjustedForAbilityLevel = ability.level * (manaCost * abilityLevelManaCostMultiplier);
-
-  // const adjustedForCombatantLevel = adjustedForAbilityLevel * combatantProperties.level;
-
-  // return Math.floor(adjustedForCombatantLevel);
-  //
-  return 0;
 }

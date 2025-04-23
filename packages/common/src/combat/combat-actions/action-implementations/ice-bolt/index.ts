@@ -1,4 +1,5 @@
 import {
+  ActionPayableResource,
   CombatActionComponentConfig,
   CombatActionExecutionIntent,
   CombatActionLeaf,
@@ -6,6 +7,7 @@ import {
   CombatActionUsabilityContext,
   TargetCategories,
   TargetingScheme,
+  getStandardActionCost,
 } from "../../index.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
@@ -32,6 +34,8 @@ import { addCombatantLevelScaledAttributeToRange } from "../../../action-results
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { getSpellCastActionStepAnimations } from "../spell-cast-action-step-animations.js";
 import { ClientOnlyVfxNames } from "../../../../vfx/client-only-vfx.js";
+import { ERROR_MESSAGES } from "../../../../errors/index.js";
+import { iterateNumericEnumKeyedRecord } from "../../../../utils/index.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -50,9 +54,21 @@ const config: CombatActionComponentConfig = {
   baseResourceChangeValuesLevelMultiplier: 1,
   accuracyModifier: 0.9,
   incursDurabilityLoss: {},
-  costBases: {},
+  costBases: {
+    [ActionPayableResource.Mana]: {
+      base: 3,
+      multipliers: {
+        actionLevel: 1.2,
+        userCombatantLevel: 1.2,
+      },
+      additives: {
+        actionLevel: 1,
+        userCombatantLevel: 1,
+      },
+    },
+  },
   userShouldMoveHomeOnComplete: true,
-  getResourceCosts: () => null,
+  getResourceCosts: getStandardActionCost,
   requiresCombatTurn: (context) => true,
   shouldExecute: () => true,
   getUnmodifiedAccuracy: (user) => {

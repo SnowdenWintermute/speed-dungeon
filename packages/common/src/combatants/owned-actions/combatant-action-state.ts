@@ -3,6 +3,6 @@ import { CombatActionName } from "../../combat/combat-actions/combat-action-name
 export class CombatantActionState {
   constructor(
     public actionName: CombatActionName,
-    public level = 0
+    public level = 1
   ) {}
 }

@@ -19,7 +19,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
       : undefined;
 
     let gameUpdateCommandOption: null | GameUpdateCommand = null;
-    if (costsOption || consumableTypeToConsumeOption !== undefined) {
+    if (costsOption !== null || consumableTypeToConsumeOption !== undefined) {
       gameUpdateCommandOption = {
         type: GameUpdateCommandType.ResourcesPaid,
         actionName: context.tracker.actionExecutionIntent.actionName,
@@ -44,6 +44,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
       }
 
       if (costsOption) {
+        console.log("costs option: ", costsOption);
         gameUpdateCommandOption.costsPaid = costsOption;
         const { combatantProperties } = combatant;
 
@@ -61,6 +62,8 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
         }
       }
     }
+
+    console.log("costs update: ", gameUpdateCommandOption);
 
     super(stepType, context, gameUpdateCommandOption);
   }

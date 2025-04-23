@@ -3,6 +3,7 @@ import {
   ActivatedTriggersGameUpdateCommand,
   COMBATANT_CONDITION_CONSTRUCTORS,
   CombatantCondition,
+  CombatantProperties,
   DurabilityChangesByEntityId,
   ERROR_MESSAGES,
   EntityMotionGameUpdateCommand,
@@ -54,17 +55,31 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     const { command } = update;
     console.log("command:", command);
     useGameStore.getState().mutateState((gameState) => {
+      const game = gameState.game;
+      if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+      const combatantResult = SpeedDungeonGame.getCombatantById(game, command.combatantId);
+      if (combatantResult instanceof Error) return combatantResult;
+      const { combatantProperties } = combatantResult;
+
       if (command.itemsConsumed !== undefined) {
-        const game = gameState.game;
-        if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
-        const combatantResult = SpeedDungeonGame.getCombatantById(game, command.combatantId);
-        if (combatantResult instanceof Error) return combatantResult;
         for (const itemId of command.itemsConsumed) {
-          const removedItem = Inventory.removeItem(
-            combatantResult.combatantProperties.inventory,
-            itemId
-          );
-          console.log("removed item: ", removedItem);
+          const removedItem = Inventory.removeItem(combatantProperties.inventory, itemId);
+        }
+      }
+
+      if (command.costsPaid) {
+        console.log("costs paid: ", command.costsPaid);
+        for (const [resource, cost] of iterateNumericEnumKeyedRecord(command.costsPaid)) {
+          switch (resource) {
+            case ActionPayableResource.HitPoints:
+              CombatantProperties.changeHitPoints(combatantProperties, cost);
+              break;
+            case ActionPayableResource.Mana:
+              CombatantProperties.changeMana(combatantProperties, cost);
+              break;
+            case ActionPayableResource.Shards:
+            case ActionPayableResource.QuickActions:
+          }
         }
       }
     });

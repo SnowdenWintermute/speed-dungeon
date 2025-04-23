@@ -26,7 +26,6 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
   ) {}
   onTick() {}
   triggeredWhenHitBy(actionName: CombatActionName) {
-    console.log("CHECKING FOR TRIGGER:", COMBAT_ACTION_NAME_STRINGS[actionName]);
     return actionName !== CombatActionName.ExplodingArrowProjectile;
   }
   triggeredWhenActionUsed() {

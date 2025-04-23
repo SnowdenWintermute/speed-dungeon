@@ -1,12 +1,17 @@
 import {
+  ACTION_PAYABLE_RESOURCE_STRINGS,
+  ActionPayableResource,
   COMBAT_ACTIONS,
   COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   CombatActionComponent,
   CombatActionName,
   CombatActionUsabilityContext,
+  CombatantProperties,
   TARGETING_SCHEME_STRINGS,
   TARGET_CATEGORY_STRINGS,
+  getUnmetCostResourceTypes,
+  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import React from "react";
 import { useGameStore } from "@/stores/game-store";
@@ -28,6 +33,7 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
   const inCombat = Object.values(party.currentRoom.monsters).length;
 
   const action = COMBAT_ACTIONS[actionName];
+  const costs = action.getResourceCosts(focusedCharacter.combatantProperties);
   const { usabilityContext } = action;
 
   const targetingSchemesText = formatTargetingSchemes(action);
@@ -44,6 +50,7 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
         <div>{action.description}</div>
         <div>{`Valid targets: ${TARGET_CATEGORY_STRINGS[action.validTargetCategories]}`}</div>
         <div>{`Targeting schemes: ${targetingSchemesText}`}</div>
+        {costs && <ActionCostsDisplay costs={costs} user={focusedCharacter.combatantProperties} />}
         <div
           className={
             !inCombat && usabilityContext === CombatActionUsabilityContext.InCombat
@@ -53,6 +60,29 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
         >{`Usable ${COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[usabilityContext]}`}</div>
       </div>
     </div>
+  );
+}
+
+function ActionCostsDisplay(props: {
+  user: CombatantProperties;
+  costs: Partial<Record<ActionPayableResource, number>>;
+}) {
+  const { user, costs } = props;
+  const unmet = getUnmetCostResourceTypes(user, costs);
+
+  return (
+    <ul>
+      {iterateNumericEnumKeyedRecord(costs).map(([resource, cost]) => {
+        let unmetStyles = "";
+        if (unmet.includes(resource)) unmetStyles += UNMET_REQUIREMENT_TEXT_COLOR;
+        return (
+          <li key={resource} className={unmetStyles}>
+            <span>{ACTION_PAYABLE_RESOURCE_STRINGS[resource]}: </span>
+            <span>{Math.abs(cost)}</span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 

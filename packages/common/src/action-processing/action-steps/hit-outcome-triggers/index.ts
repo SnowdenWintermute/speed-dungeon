@@ -67,7 +67,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         }
 
         if (flag === HitOutcome.Hit) {
-          console.log("checking for hit triggers");
           for (const condition of combatantResult.combatantProperties.conditions) {
             if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
 

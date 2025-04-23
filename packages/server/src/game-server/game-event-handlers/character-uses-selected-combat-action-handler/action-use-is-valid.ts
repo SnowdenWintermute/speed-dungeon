@@ -1,9 +1,12 @@
 import {
+  ActionPayableResource,
   CombatActionComponent,
   CombatActionTarget,
   CombatantContext,
   ERROR_MESSAGES,
   Inventory,
+  getUnmetCostResourceTypes,
+  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 
 export function actionUseIsValid(
@@ -18,6 +21,16 @@ export function actionUseIsValid(
     const consumableOption = Inventory.getConsumableByType(inventory, action.getConsumableCost());
     if (consumableOption === undefined) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
+
+  const { combatantProperties } = combatant;
+
+  const costs = action.getResourceCosts(combatantProperties);
+
+  if (costs) {
+    const unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);
+    if (unmetCosts.length) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
+  }
+
   // targets are not in a prohibited state
   // this would only make sense if we didn't already check valid states when targeting... unless
   // target state could change while they are already targeted, like if someone healed themselves

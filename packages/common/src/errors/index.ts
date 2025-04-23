@@ -93,7 +93,7 @@ export const ERROR_MESSAGES = {
   COMBAT_ACTIONS: {
     NOT_OWNED: "That ability is not owned by that combatant",
     INVALID_TYPE: "Invalid ability type",
-    INSUFFICIENT_MANA: "Not enough mana",
+    INSUFFICIENT_RESOURCES: "Not enough hit points",
     NO_VALID_TARGETS: "No valid targets were found for the selected action",
     ONLY_ONE_TARGETING_SCHEME_AVAILABLE:
       "There is only one targeting scheme available for that action",
@@ -111,6 +111,7 @@ export const ERROR_MESSAGES = {
       "Action failed to activate because it depends on a missing expected previous action in the chain",
     INVALID_ACTION_IN_CHAIN:
       "Action failed to activate because the previous action in the chain was invalid",
+    MISSING_COST_BASES: "Expected action cost bases not found",
   },
   ITEM: {
     NOT_FOUND: "No item was found with the provided ID",
