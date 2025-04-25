@@ -9,9 +9,7 @@ import {
   TargetCategories,
   TargetingScheme,
 } from "../../index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
-import { ActionAccuracy, ActionAccuracyType } from "../../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
@@ -27,12 +25,7 @@ import {
 } from "../../../hp-change-source-types.js";
 import { MagicalElement } from "../../../magical-elements.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
-import {
-  AnimationType,
-  BASE_CRIT_CHANCE,
-  BASE_CRIT_MULTIPLIER,
-  DynamicAnimationName,
-} from "../../../../app-consts.js";
+import { AnimationType, DynamicAnimationName } from "../../../../app-consts.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
@@ -43,6 +36,11 @@ import cloneDeep from "lodash.clonedeep";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActionEntityName, AbstractParentType } from "../../../../action-entities/index.js";
 import { CombatActionTargetingProperties } from "../../combat-action-targeting-properties.js";
+import {
+  ActionHitOutcomePropertiesGenericTypes,
+  CombatActionHitOutcomeProperties,
+  GENERIC_HIT_OUTCOME_PROPERTIES,
+} from "../../combat-action-hit-outcome-properties.js";
 
 const targetingProperties: CombatActionTargetingProperties = {
   targetingSchemes: [TargetingScheme.Single],
@@ -59,10 +57,49 @@ const targetingProperties: CombatActionTargetingProperties = {
   },
 };
 
+const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
+  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesGenericTypes.Spell],
+  getArmorPenetration: (user, self) => 15,
+  getHpChangeProperties: (user) => {
+    const hpChangeSourceConfig: ResourceChangeSourceConfig = {
+      category: ResourceChangeSourceCategory.Physical,
+      kineticDamageTypeOption: KineticDamageType.Piercing,
+      elementOption: MagicalElement.Ice,
+      isHealing: false,
+      lifestealPercentage: null,
+    };
+
+    const stacks = user.asUserOfTriggeredCondition?.stacksOption?.current || 1;
+
+    const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
+
+    const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
+    const hpChangeProperties: CombatActionResourceChangeProperties = {
+      resourceChangeSource,
+      baseValues,
+    };
+
+    return hpChangeProperties;
+  },
+  getAppliedConditions: (context) => {
+    const { idGenerator, combatantContext } = context;
+    const { combatant } = combatantContext;
+
+    const condition = new PrimedForIceBurstCombatantCondition(
+      idGenerator.generate(),
+      combatant.entityProperties.id,
+      combatant.combatantProperties.level
+    );
+
+    return [condition];
+  },
+};
+
 const config: CombatActionComponentConfig = {
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
   description: "Deals kinetic ice damage in an area around the target",
   targetingProperties,
+  hitOutcomeProperties,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
   incursDurabilityLoss: {},

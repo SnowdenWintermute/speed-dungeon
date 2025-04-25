@@ -54,6 +54,7 @@ export function calculateActionHitOutcomes(
   const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
   const { actionExecutionIntent } = context.tracker;
   const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+  const { hitOutcomeProperties } = action;
   const { game, party, combatant } = context.combatantContext;
   const { combatantProperties: user } = combatant;
 
@@ -80,10 +81,10 @@ export function calculateActionHitOutcomes(
   const hitOutcomes = new CombatActionHitOutcomes();
 
   const actionHpChangePropertiesOption = cloneDeep(
-    action.getHpChangeProperties(user, target.combatantProperties)
+    hitOutcomeProperties.getHpChangeProperties(user, target.combatantProperties)
   );
   const actionManaChangePropertiesOption = cloneDeep(
-    action.getManaChangeProperties(user, target.combatantProperties)
+    hitOutcomeProperties.getManaChangeProperties(user, target.combatantProperties)
   );
 
   const incomingHpChangePerTargetOption = getIncomingResourceChangePerTarget(
@@ -160,7 +161,7 @@ export function calculateActionHitOutcomes(
 
     // PARRIES
     if (
-      action.getIsParryable(user) &&
+      hitOutcomeProperties.getIsParryable(user) &&
       CombatantProperties.canParry(target) &&
       !targetWantsToBeHit
     ) {
@@ -174,7 +175,7 @@ export function calculateActionHitOutcomes(
     }
 
     // COUNTERATTACKS
-    if (action.getCanTriggerCounterattack(user) && !targetWantsToBeHit) {
+    if (hitOutcomeProperties.getCanTriggerCounterattack(user) && !targetWantsToBeHit) {
       const percentChanceToCounterAttack = 0; // @TODO - derrive this from various combatant properties
       const counterAttackRoll = randBetween(0, 100);
       const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
@@ -191,7 +192,7 @@ export function calculateActionHitOutcomes(
     let blockDamageReductionNormalizedPercentage = 0;
     if (incomingHpChangePerTargetOption || incomingManaChangePerTargetOption) {
       if (
-        action.getIsBlockable(user) &&
+        hitOutcomeProperties.getIsBlockable(user) &&
         CombatantProperties.canBlock(target) &&
         !targetWantsToBeHit // this should be checking if actions with malicious intent are in fact healing the target
       ) {
@@ -230,7 +231,12 @@ export function calculateActionHitOutcomes(
       const resourceChangeCalculationContext =
         HP_CALCLULATION_CONTEXTS[resourceChangeSource.category];
 
-      resourceChangeCalculationContext.applyArmorClass(action, resourceChange, user, target);
+      resourceChangeCalculationContext.applyArmorClass(
+        hitOutcomeProperties,
+        resourceChange,
+        user,
+        target
+      );
       resourceChangeCalculationContext.applyResilience(resourceChange, user, target);
 
       resourceChange.value = Math.floor(resourceChange.value);

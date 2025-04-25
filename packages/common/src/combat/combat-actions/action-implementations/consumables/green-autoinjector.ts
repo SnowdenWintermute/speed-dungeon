@@ -1,16 +1,13 @@
 import {
   ActionPayableResource,
-  CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
   CombatActionUsabilityContext,
 } from "../../index.js";
-import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { CombatantProperties, CombatantTraitType } from "../../../../combatants/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { ActionAccuracy, ActionAccuracyType } from "../../combat-action-accuracy.js";
 import { RANGED_ACTION_DESTINATION_GETTERS } from "../ranged-action-destination-getters.js";
 import {
   ResourceChangeSource,
@@ -28,27 +25,17 @@ import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
+import {
+  GENERIC_HIT_OUTCOME_PROPERTIES,
+  ActionHitOutcomePropertiesGenericTypes,
+} from "../../combat-action-hit-outcome-properties.js";
+import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle];
 
-const config: CombatActionComponentConfig = {
-  ...CONSUMABLE_COMMON_CONFIG,
-  description: "Restore hit points to a target",
-  targetingProperties,
-  usabilityContext: CombatActionUsabilityContext.All,
-  intent: CombatActionIntent.Benevolent,
-  accuracyModifier: 1,
-  incursDurabilityLoss: {},
-  costBases: {
-    [ActionPayableResource.QuickActions]: {
-      base: 1,
-    },
-  },
-  getResourceCosts: () => null,
-  getConsumableCost: () => ConsumableType.HpAutoinjector,
-  requiresCombatTurn: (context) => false,
-  shouldExecute: () => true,
-  getHpChangeProperties: (user, primaryTarget, self) => {
+const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
+  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesGenericTypes.Medication],
+  getHpChangeProperties: (user, primaryTarget) => {
     const hpChangeSourceConfig: ResourceChangeSourceConfig = {
       category: ResourceChangeSourceCategory.Medical,
       isHealing: true,
@@ -59,8 +46,6 @@ const config: CombatActionComponentConfig = {
       if (trait.type === CombatantTraitType.HpBioavailability)
         hpBioavailability = trait.percent / 100;
     }
-
-    console.log("HpBioavailability", hpBioavailability);
 
     const maxHp = CombatantProperties.getTotalAttributes(primaryTarget)[CombatAttribute.Hp];
     const minHealing = (hpBioavailability * maxHp) / 8;
@@ -74,33 +59,30 @@ const config: CombatActionComponentConfig = {
 
     return hpChangeProperties;
   },
-  getManaChangeProperties: () => null,
-  getAppliedConditions: function (context): CombatantCondition[] | null {
-    return null;
+};
+
+const config: CombatActionComponentConfig = {
+  ...CONSUMABLE_COMMON_CONFIG,
+  description: "Restore hit points to a target",
+  targetingProperties,
+  hitOutcomeProperties,
+  usabilityContext: CombatActionUsabilityContext.All,
+  intent: CombatActionIntent.Benevolent,
+  incursDurabilityLoss: {},
+  costBases: {
+    [ActionPayableResource.QuickActions]: {
+      base: 1,
+    },
   },
+  getResourceCosts: () => null,
+  getConsumableCost: () => ConsumableType.HpAutoinjector,
+  requiresCombatTurn: (context) => false,
+  shouldExecute: () => true,
+
   getChildren: () => [],
   getParent: () => null,
   userShouldMoveHomeOnComplete: true,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
-  getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
-    return {
-      type: ActionAccuracyType.Unavoidable,
-    };
-  },
-
-  getIsParryable: (user: CombatantProperties) => false,
-  getCanTriggerCounterattack: (user: CombatantProperties) => false,
-  getIsBlockable: (user: CombatantProperties) => false,
-
-  getCritChance: function (user: CombatantProperties): number {
-    return 0;
-  },
-  getCritMultiplier: function (user: CombatantProperties): number {
-    return 0;
-  },
-  getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
-    return 0;
-  },
   getResolutionSteps: () => COMMON_CHILD_ACTION_STEPS_SEQUENCE,
   motionPhasePositionGetters: RANGED_ACTION_DESTINATION_GETTERS,
 };

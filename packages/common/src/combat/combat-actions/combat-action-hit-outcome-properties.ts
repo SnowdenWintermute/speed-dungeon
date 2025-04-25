@@ -12,6 +12,11 @@ import {
 } from "../hp-change-source-types.js";
 import { KineticDamageType } from "../kinetic-damage-types.js";
 import { MagicalElement } from "../magical-elements";
+import {
+  getStandardActionArmorPenetration,
+  getStandardActionCritChance,
+  getStandardActionCritMultiplier,
+} from "./action-calculation-utils/standard-action-calculations.js";
 import { getAttackResourceChangeProperties } from "./action-implementations/attack/get-attack-hp-change-properties.js";
 import { ActionAccuracy, ActionAccuracyType } from "./combat-action-accuracy.js";
 import { CombatActionResourceChangeProperties } from "./combat-action-resource-change-properties.js";
@@ -43,16 +48,17 @@ export enum ActionHitOutcomePropertiesGenericTypes {
   Spell,
   Melee,
   Ranged,
+  Medication,
 }
 
-const genericActionHitOutcomeProperties: CombatActionHitOutcomeProperties = {
+export const genericActionHitOutcomeProperties: CombatActionHitOutcomeProperties = {
   accuracyModifier: 1,
   getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
     return { type: ActionAccuracyType.Unavoidable };
   },
   getCritChance: (user) => BASE_CRIT_CHANCE,
   getCritMultiplier: (user) => BASE_CRIT_MULTIPLIER,
-  getArmorPenetration: (user, self) => 15,
+  getArmorPenetration: (user, self) => 0,
   getHpChangeProperties: (user, primaryTarget) => null,
   getManaChangeProperties: () => null,
   getAppliedConditions: (context) => [],
@@ -61,50 +67,49 @@ const genericActionHitOutcomeProperties: CombatActionHitOutcomeProperties = {
   getCanTriggerCounterattack: (user) => true,
 };
 
-// export const GENERIC_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
-//   accuracyModifier: 1,
-//   getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
-//     // @TODO - base off of activating condition spell level
-//     return { type: ActionAccuracyType.Unavoidable };
-//   },
-//   getCritChance: (user) => BASE_CRIT_CHANCE,
-//   getCritMultiplier: (user) => BASE_CRIT_MULTIPLIER,
-//   getArmorPenetration: (user, self) => 15,
-//   getHpChangeProperties: (user) => {
-//     const hpChangeSourceConfig: ResourceChangeSourceConfig = {
-//       category: ResourceChangeSourceCategory.Physical,
-//       kineticDamageTypeOption: KineticDamageType.Piercing,
-//       elementOption: MagicalElement.Ice,
-//       isHealing: false,
-//       lifestealPercentage: null,
-//     };
+const genericRangedHitOutcomeProperties: CombatActionHitOutcomeProperties = {
+  ...genericActionHitOutcomeProperties,
+  accuracyModifier: 0.9,
+  getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
+    const userCombatAttributes = CombatantProperties.getTotalAttributes(user);
+    return {
+      type: ActionAccuracyType.Percentage,
+      value: userCombatAttributes[CombatAttribute.Accuracy],
+    };
+  },
+  getCritChance: function (user: CombatantProperties): number {
+    return getStandardActionCritChance(user, CombatAttribute.Dexterity);
+  },
+  getCritMultiplier: function (user: CombatantProperties): number {
+    return getStandardActionCritMultiplier(user, CombatAttribute.Focus);
+  },
+  getArmorPenetration: function (user: CombatantProperties): number {
+    return getStandardActionArmorPenetration(user, CombatAttribute.Dexterity);
+  },
+  getCanTriggerCounterattack: (user: CombatantProperties) => false,
+};
 
-//     const stacks = user.asUserOfTriggeredCondition?.stacksOption?.current || 1;
+const genericMedicationConsumableHitOutcomeProperties: CombatActionHitOutcomeProperties = {
+  ...genericActionHitOutcomeProperties,
+  getIsParryable: (user: CombatantProperties) => false,
+  getCanTriggerCounterattack: (user: CombatantProperties) => false,
+  getIsBlockable: (user: CombatantProperties) => false,
+  getCritChance: () => 0,
+  getCritMultiplier: () => 0,
+  getArmorPenetration: () => 0,
+};
 
-//     const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
-
-//     const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
-//     const hpChangeProperties: CombatActionResourceChangeProperties = {
-//       resourceChangeSource,
-//       baseValues,
-//     };
-
-//     return hpChangeProperties;
-//   },
-//   getManaChangeProperties: () => null,
-//   getAppliedConditions: (context) => {
-//     const { idGenerator, combatantContext } = context;
-//     const { combatant } = combatantContext;
-
-//     const condition = new PrimedForIceBurstCombatantCondition(
-//       idGenerator.generate(),
-//       combatant.entityProperties.id,
-//       combatant.combatantProperties.level
-//     );
-
-//     return [condition];
-//   },
-//   getIsParryable: (user) => false,
-//   getIsBlockable: (user) => true,
-//   getCanTriggerCounterattack: (user) => false,
-// };
+export const GENERIC_HIT_OUTCOME_PROPERTIES: Record<
+  ActionHitOutcomePropertiesGenericTypes,
+  CombatActionHitOutcomeProperties
+> = {
+  [ActionHitOutcomePropertiesGenericTypes.Spell]: {
+    ...genericActionHitOutcomeProperties,
+    getIsParryable: () => false,
+    getCanTriggerCounterattack: () => false,
+  },
+  [ActionHitOutcomePropertiesGenericTypes.Melee]: { ...genericActionHitOutcomeProperties },
+  [ActionHitOutcomePropertiesGenericTypes.Ranged]: genericRangedHitOutcomeProperties,
+  [ActionHitOutcomePropertiesGenericTypes.Medication]:
+    genericMedicationConsumableHitOutcomeProperties,
+};

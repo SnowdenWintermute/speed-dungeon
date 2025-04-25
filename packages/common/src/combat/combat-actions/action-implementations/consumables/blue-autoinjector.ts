@@ -1,6 +1,5 @@
 import {
   ActionPayableResource,
-  CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -9,7 +8,6 @@ import {
 import { CombatantProperties, CombatantTraitType } from "../../../../combatants/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { ActionAccuracy, ActionAccuracyType } from "../../combat-action-accuracy.js";
 import { RANGED_ACTION_DESTINATION_GETTERS } from "../ranged-action-destination-getters.js";
 import { COMMON_CHILD_ACTION_STEPS_SEQUENCE } from "../common-action-steps-sequence.js";
 import { ConsumableType } from "../../../../items/consumables/index.js";
@@ -27,33 +25,17 @@ import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
+import {
+  ActionHitOutcomePropertiesGenericTypes,
+  CombatActionHitOutcomeProperties,
+  GENERIC_HIT_OUTCOME_PROPERTIES,
+} from "../../combat-action-hit-outcome-properties.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle];
 
-const config: CombatActionComponentConfig = {
-  ...CONSUMABLE_COMMON_CONFIG,
-  description: "Restore hit points to a target",
-  targetingProperties,
-  usabilityContext: CombatActionUsabilityContext.All,
-  intent: CombatActionIntent.Benevolent,
-  accuracyModifier: 1,
-  incursDurabilityLoss: {},
-  costBases: {
-    [ActionPayableResource.QuickActions]: {
-      base: 1,
-    },
-  },
-  getResourceCosts: () => null,
-  getConsumableCost: () => ConsumableType.MpAutoinjector,
-  requiresCombatTurn: (context) => false,
-  shouldExecute: () => true,
-  getHpChangeProperties: (user, primaryTarget, self) => null,
-
-  getManaChangeProperties: (
-    user: CombatantProperties,
-    primaryTarget: CombatantProperties,
-    self: CombatActionComponent
-  ) => {
+const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
+  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesGenericTypes.Medication],
+  getManaChangeProperties: (user: CombatantProperties, primaryTarget: CombatantProperties) => {
     let mpBioavailability = 1;
     for (const trait of primaryTarget.traits) {
       if (trait.type === CombatantTraitType.MpBioavailability)
@@ -75,29 +57,30 @@ const config: CombatActionComponentConfig = {
     };
     return manaChangeProperties;
   },
-  getAppliedConditions: (context) => null,
+};
+
+const config: CombatActionComponentConfig = {
+  ...CONSUMABLE_COMMON_CONFIG,
+  description: "Restore hit points to a target",
+  targetingProperties,
+  hitOutcomeProperties,
+  usabilityContext: CombatActionUsabilityContext.All,
+  intent: CombatActionIntent.Benevolent,
+  incursDurabilityLoss: {},
+  costBases: {
+    [ActionPayableResource.QuickActions]: {
+      base: 1,
+    },
+  },
+  getResourceCosts: () => null,
+  getConsumableCost: () => ConsumableType.MpAutoinjector,
+  requiresCombatTurn: (context) => false,
+  shouldExecute: () => true,
   getChildren: () => [],
   getParent: () => null,
   userShouldMoveHomeOnComplete: true,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
-  getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
-    return {
-      type: ActionAccuracyType.Unavoidable,
-    };
-  },
 
-  getIsParryable: (user: CombatantProperties) => false,
-  getCanTriggerCounterattack: (user: CombatantProperties) => false,
-  getIsBlockable: (user: CombatantProperties) => false,
-  getCritChance: function (user: CombatantProperties): number {
-    return 0;
-  },
-  getCritMultiplier: function (user: CombatantProperties): number {
-    return 0;
-  },
-  getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
-    return 0;
-  },
   getResolutionSteps: () => COMMON_CHILD_ACTION_STEPS_SEQUENCE,
   motionPhasePositionGetters: RANGED_ACTION_DESTINATION_GETTERS,
 };

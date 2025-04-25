@@ -6,8 +6,6 @@ import {
   CombatActionName,
   CombatActionUsabilityContext,
 } from "../../index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
-import { ActionAccuracy, ActionAccuracyType } from "../../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG } from "../non-combatant-initiated-actions-common-config.js";
@@ -16,28 +14,17 @@ import {
   ActionResolutionStepType,
   AnimationTimingType,
 } from "../../../../action-processing/index.js";
-import {
-  ResourceChangeSource,
-  ResourceChangeSourceCategory,
-  ResourceChangeSourceConfig,
-} from "../../../hp-change-source-types.js";
-import { MagicalElement } from "../../../magical-elements.js";
-import { NumberRange } from "../../../../primatives/number-range.js";
-import {
-  AnimationType,
-  BASE_CRIT_CHANCE,
-  BASE_CRIT_MULTIPLIER,
-  DynamicAnimationName,
-} from "../../../../app-consts.js";
+
+import { AnimationType, DynamicAnimationName } from "../../../../app-consts.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 import { ActionEntityName } from "../../../../action-entities/index.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
+import { explosionHitOutcomeProperties } from "./explosion-hit-outcome-properties.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 
@@ -46,9 +33,9 @@ const config: CombatActionComponentConfig = {
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
   description: "Deals kinetic fire damage in an area around the target",
   targetingProperties,
+  hitOutcomeProperties: explosionHitOutcomeProperties,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  accuracyModifier: 1,
   incursDurabilityLoss: {},
   costBases: {},
   userShouldMoveHomeOnComplete: false,
@@ -70,46 +57,13 @@ const config: CombatActionComponentConfig = {
     };
     return animations;
   },
-  getHpChangeProperties: (user) => {
-    const hpChangeSourceConfig: ResourceChangeSourceConfig = {
-      category: ResourceChangeSourceCategory.Physical,
-      kineticDamageTypeOption: null,
-      elementOption: MagicalElement.Fire,
-      isHealing: false,
-      lifestealPercentage: null,
-    };
-
-    const stacks = user.asUserOfTriggeredCondition?.stacksOption?.current || 1;
-
-    const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
-
-    const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
-    const hpChangeProperties: CombatActionResourceChangeProperties = {
-      resourceChangeSource,
-      baseValues,
-    };
-
-    return hpChangeProperties;
-  },
-
-  getManaChangeProperties: () => null,
-  getAppliedConditions: (context) => {
-    // @TODO - apply a "burning" condition
-    return null;
-  },
   getChildren: (_user) => [],
   getParent: () => null,
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
   getConcurrentSubActions(combatantContext) {
     return [];
   },
-  getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
-    // @TODO - base off of activating condition spell level
-    return { type: ActionAccuracyType.Unavoidable };
-  },
-  getCritChance: (user) => BASE_CRIT_CHANCE,
-  getCritMultiplier: (user) => BASE_CRIT_MULTIPLIER,
-  getArmorPenetration: (user, self) => 15,
+
   getResolutionSteps() {
     return [
       ActionResolutionStepType.OnActivationSpawnEntity,
@@ -135,10 +89,6 @@ const config: CombatActionComponentConfig = {
       return { position: target.combatantProperties.homeLocation.clone() };
     },
   },
-
-  getIsParryable: (user) => false,
-  getIsBlockable: (user) => true,
-  getCanTriggerCounterattack: (user) => false,
 
   getSpawnableEntity: (context) => {
     const { actionExecutionIntent } = context.tracker;
