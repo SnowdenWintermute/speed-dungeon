@@ -5,14 +5,10 @@ import {
   CombatActionLeaf,
   CombatActionName,
   CombatActionUsabilityContext,
-  TargetCategories,
-  TargetingScheme,
 } from "../../index.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
-import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { CombatantProperties, CombatantTraitType } from "../../../../combatants/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
-import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { ActionAccuracy, ActionAccuracyType } from "../../combat-action-accuracy.js";
 import { RANGED_ACTION_DESTINATION_GETTERS } from "../ranged-action-destination-getters.js";
@@ -28,20 +24,19 @@ import { randBetween } from "../../../../utils/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { ConsumableType } from "../../../../items/consumables/index.js";
 import { CONSUMABLE_COMMON_CONFIG } from "./consumable-common-config.js";
+import {
+  GENERIC_TARGETING_PROPERTIES,
+  TargetingPropertiesTypes,
+} from "../../combat-action-targeting-properties.js";
+
+const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle];
 
 const config: CombatActionComponentConfig = {
   ...CONSUMABLE_COMMON_CONFIG,
   description: "Restore hit points to a target",
-  targetingSchemes: [TargetingScheme.Single],
-  validTargetCategories: TargetCategories.Friendly,
-  autoTargetSelectionMethod: { scheme: AutoTargetingScheme.UserSelected },
+  targetingProperties,
   usabilityContext: CombatActionUsabilityContext.All,
   intent: CombatActionIntent.Benevolent,
-  prohibitedTargetCombatantStates: [
-    ProhibitedTargetCombatantStates.Dead,
-    ProhibitedTargetCombatantStates.FullHp,
-  ],
-  prohibitedHitCombatantStates: [],
   accuracyModifier: 1,
   incursDurabilityLoss: {},
   costBases: {

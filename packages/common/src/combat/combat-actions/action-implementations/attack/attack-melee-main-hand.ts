@@ -3,12 +3,9 @@ import {
   CombatActionLeaf,
   CombatActionName,
   CombatActionUsabilityContext,
-  TargetCategories,
-  TargetingScheme,
 } from "../../index.js";
 import { AnimationType, SkeletalAnimationName } from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
-import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
 import { CombatantEquipment } from "../../../../combatants/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
@@ -17,7 +14,6 @@ import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment
 import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
 import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
-import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { MELEE_ATTACK_COMMON_CONFIG } from "../melee-actions-common-config.js";
 import {
   CombatActionAnimationPhase,
@@ -31,20 +27,20 @@ import { DurabilityLossCondition } from "../../combat-action-durability-loss-con
 import { getIncomingResourceChangePerTarget } from "../../../action-results/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { COMBAT_ACTIONS } from "../index.js";
+import {
+  GENERIC_TARGETING_PROPERTIES,
+  TargetingPropertiesTypes,
+} from "../../combat-action-targeting-properties.js";
+
+const targetingProperties =
+  GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
   description: "Attack target using equipment in main hand",
-  targetingSchemes: [TargetingScheme.Single],
-  validTargetCategories: TargetCategories.Opponent,
-  autoTargetSelectionMethod: { scheme: AutoTargetingScheme.CopyParent },
+  targetingProperties,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  prohibitedTargetCombatantStates: [
-    ProhibitedTargetCombatantStates.Dead,
-    ProhibitedTargetCombatantStates.UntargetableByPhysical,
-  ],
-  prohibitedHitCombatantStates: [],
   accuracyModifier: 1,
   incursDurabilityLoss: {
     [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnHit },

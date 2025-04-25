@@ -3,12 +3,9 @@ import {
   CombatActionComposite,
   CombatActionName,
   CombatActionUsabilityContext,
-  TargetCategories,
-  TargetingScheme,
 } from "../../index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
-import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
@@ -35,6 +32,16 @@ import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 import { COMBAT_ACTIONS } from "../index.js";
 import { ActionEntityName } from "../../../../action-entities/index.js";
+import {
+  GENERIC_TARGETING_PROPERTIES,
+  TargetingPropertiesTypes,
+} from "../../combat-action-targeting-properties.js";
+import cloneDeep from "lodash.clonedeep";
+
+const targetingProperties = cloneDeep(
+  GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]
+);
+targetingProperties.autoTargetSelectionMethod = { scheme: AutoTargetingScheme.RandomCombatant };
 
 const MAX_BOUNCES = 2;
 
@@ -43,16 +50,9 @@ const config: CombatActionComponentConfig = {
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "An arrow that bounces to up to two additional targets after the first",
-  targetingSchemes: [TargetingScheme.Single],
-  validTargetCategories: TargetCategories.Opponent,
-  autoTargetSelectionMethod: { scheme: AutoTargetingScheme.RandomCombatant },
+  targetingProperties,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  prohibitedTargetCombatantStates: [
-    ProhibitedTargetCombatantStates.Dead,
-    ProhibitedTargetCombatantStates.UntargetableByPhysical,
-  ],
-  prohibitedHitCombatantStates: [],
   accuracyModifier: 1,
   incursDurabilityLoss: {},
   costBases: {},

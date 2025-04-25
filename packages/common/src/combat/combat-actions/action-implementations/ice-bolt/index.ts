@@ -34,21 +34,19 @@ import { CombatActionResourceChangeProperties } from "../../combat-action-resour
 import { getSpellCastActionStepAnimations } from "../spell-cast-action-step-animations.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { AbstractParentType } from "../../../../action-entities/index.js";
+import {
+  GENERIC_TARGETING_PROPERTIES,
+  TargetingPropertiesTypes,
+} from "../../combat-action-targeting-properties.js";
+
+const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
   description: "Summon an icy projectile",
-  targetingSchemes: [TargetingScheme.Single],
-  validTargetCategories: TargetCategories.Opponent,
-  autoTargetSelectionMethod: { scheme: AutoTargetingScheme.UserSelected },
+  targetingProperties,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  prohibitedTargetCombatantStates: [
-    ProhibitedTargetCombatantStates.Dead,
-    ProhibitedTargetCombatantStates.UntargetableByPhysical,
-    ProhibitedTargetCombatantStates.UntargetableBySpells,
-  ],
-  prohibitedHitCombatantStates: [],
   accuracyModifier: 0.9,
   incursDurabilityLoss: {},
   costBases: {

@@ -28,14 +28,10 @@ export * from "./resource-changes.js";
 
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
-import { HitPointChanges, ManaChanges, ResourceChanges } from "./resource-changes.js";
+import { HitPointChanges, ManaChanges } from "./resource-changes.js";
 import { CombatActionResourceChangeProperties } from "../../combat-actions/combat-action-resource-change-properties.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
-import { COMBAT_ACTION_NAME_STRINGS, CombatActionComponent } from "../../combat-actions/index.js";
-import {
-  filterPossibleTargetIdsByProhibitedCombatantStates,
-  filterTargetIdGroupByProhibitedCombatantStates,
-} from "../../targeting/filtering.js";
+import { filterTargetIdGroupByProhibitedCombatantStates } from "../../targeting/filtering.js";
 
 export class CombatActionHitOutcomes {
   hitPointChanges?: HitPointChanges;
@@ -128,7 +124,7 @@ export function calculateActionHitOutcomes(
   const filteredIdsResult = filterTargetIdGroupByProhibitedCombatantStates(
     party,
     targetIds,
-    action.prohibitedHitCombatantStates
+    action.targetingProperties.prohibitedHitCombatantStates
   );
 
   if (filteredIdsResult instanceof Error) throw filteredIdsResult;

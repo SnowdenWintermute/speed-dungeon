@@ -29,7 +29,7 @@ export function getIdsAndSelectedActionsOfCharactersTargetingCombatant(
 
     const filteredTargetsResult = filterPossibleTargetIdsByProhibitedCombatantStates(
       party,
-      actionPropertiesResult.prohibitedTargetCombatantStates,
+      actionPropertiesResult.targetingProperties.prohibitedTargetCombatantStates,
       characterPositions,
       monsterPositions
     );

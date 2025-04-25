@@ -42,24 +42,29 @@ import { CombatActionTargetType } from "../../../targeting/combat-action-targets
 import cloneDeep from "lodash.clonedeep";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActionEntityName, AbstractParentType } from "../../../../action-entities/index.js";
+import { CombatActionTargetingProperties } from "../../combat-action-targeting-properties.js";
 
-const config: CombatActionComponentConfig = {
-  ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
-  description: "Deals kinetic ice damage in an area around the target",
+const targetingProperties: CombatActionTargetingProperties = {
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
-  autoTargetSelectionMethod: {
-    scheme: AutoTargetingScheme.BattleGroup,
-    friendOrFoe: FriendOrFoe.Hostile,
-  },
-  usabilityContext: CombatActionUsabilityContext.InCombat,
-  intent: CombatActionIntent.Malicious,
   prohibitedTargetCombatantStates: [],
   prohibitedHitCombatantStates: [
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
     ProhibitedTargetCombatantStates.UntargetableBySpells,
     ProhibitedTargetCombatantStates.Dead,
   ],
+  autoTargetSelectionMethod: {
+    scheme: AutoTargetingScheme.BattleGroup,
+    friendOrFoe: FriendOrFoe.Hostile,
+  },
+};
+
+const config: CombatActionComponentConfig = {
+  ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
+  description: "Deals kinetic ice damage in an area around the target",
+  targetingProperties,
+  usabilityContext: CombatActionUsabilityContext.InCombat,
+  intent: CombatActionIntent.Malicious,
   accuracyModifier: 1,
   incursDurabilityLoss: {},
   costBases: {},

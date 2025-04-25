@@ -48,7 +48,7 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
       )}
       <div className="flex-grow overflow-auto mr-2">
         <div>{action.description}</div>
-        <div>{`Valid targets: ${TARGET_CATEGORY_STRINGS[action.validTargetCategories]}`}</div>
+        <div>{`Valid targets: ${TARGET_CATEGORY_STRINGS[action.targetingProperties.validTargetCategories]}`}</div>
         <div>{`Targeting schemes: ${targetingSchemesText}`}</div>
         {costs && <ActionCostsDisplay costs={costs} user={focusedCharacter.combatantProperties} />}
         <div
@@ -87,7 +87,7 @@ function ActionCostsDisplay(props: {
 }
 
 function formatTargetingSchemes(action: CombatActionComponent) {
-  return action.targetingSchemes
+  return action.targetingProperties.targetingSchemes
     .map((targetingScheme, i) => TARGETING_SCHEME_STRINGS[targetingScheme])
     .join(", ");
 }

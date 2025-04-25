@@ -4,11 +4,8 @@ import {
   CombatActionLeaf,
   CombatActionName,
   CombatActionUsabilityContext,
-  TargetCategories,
-  TargetingScheme,
 } from "../../index.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
-import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
@@ -21,27 +18,25 @@ import {
   getStandardActionCritMultiplier,
 } from "../../action-calculation-utils/standard-action-calculations.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
-import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { getBowShootActionStepAnimations } from "../bow-shoot-action-step-animations.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { ActionEntityName, AbstractParentType } from "../../../../action-entities/index.js";
+import {
+  GENERIC_TARGETING_PROPERTIES,
+  TargetingPropertiesTypes,
+} from "../../combat-action-targeting-properties.js";
+
+const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
   description: "Attack target using ranged weapon",
-  targetingSchemes: [TargetingScheme.Single],
-  validTargetCategories: TargetCategories.Opponent,
-  autoTargetSelectionMethod: { scheme: AutoTargetingScheme.UserSelected },
+  targetingProperties,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  prohibitedTargetCombatantStates: [
-    ProhibitedTargetCombatantStates.Dead,
-    ProhibitedTargetCombatantStates.UntargetableByPhysical,
-  ],
-  prohibitedHitCombatantStates: [],
   accuracyModifier: 0.9,
   incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: 1 } },
   costBases: {},

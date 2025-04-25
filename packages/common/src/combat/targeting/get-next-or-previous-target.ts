@@ -20,7 +20,7 @@ export default function getNextOrPreviousTarget(
     case CombatActionTargetType.SingleAndSides:
     case CombatActionTargetType.Sides:
     case CombatActionTargetType.Single:
-      switch (combatAction.validTargetCategories) {
+      switch (combatAction.targetingProperties.validTargetCategories) {
         case TargetCategories.Opponent:
           if (!opponentIdsOption) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
           newTargetResult = getNextOrPrevIdFromOrderedList(
@@ -66,7 +66,7 @@ export default function getNextOrPreviousTarget(
           };
       }
     case CombatActionTargetType.Group:
-      switch (combatAction.validTargetCategories) {
+      switch (combatAction.targetingProperties.validTargetCategories) {
         case TargetCategories.Opponent:
           return {
             type: CombatActionTargetType.Group,

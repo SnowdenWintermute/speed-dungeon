@@ -7,35 +7,30 @@ import {
   CombatActionExecutionIntent,
   CombatActionName,
   CombatActionUsabilityContext,
-  TargetCategories,
-  TargetingScheme,
 } from "../../index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
-import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ActionAccuracy } from "../../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { COMMON_ROOT_ACTION_STEPS_SEQUENCE } from "../common-action-steps-sequence.js";
 import { getBowShootActionStepAnimations } from "../bow-shoot-action-step-animations.js";
+import {
+  GENERIC_TARGETING_PROPERTIES,
+  TargetingPropertiesTypes,
+} from "../../combat-action-targeting-properties.js";
+
+const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea];
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
   description: "Fire arrows which each bounce to up to two additional targets",
-  targetingSchemes: [TargetingScheme.Area],
-  validTargetCategories: TargetCategories.Opponent,
-  autoTargetSelectionMethod: { scheme: AutoTargetingScheme.UserSelected },
+  targetingProperties,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  prohibitedTargetCombatantStates: [
-    ProhibitedTargetCombatantStates.Dead,
-    ProhibitedTargetCombatantStates.UntargetableByPhysical,
-  ],
-  prohibitedHitCombatantStates: [],
   accuracyModifier: 1,
   incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: 1 } },
   costBases: {},

@@ -43,6 +43,7 @@ import { ConsumableType } from "../../items/consumables/index.js";
 import { Milliseconds } from "../../primatives/index.js";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import { AbstractParentType } from "../../action-entities/index.js";
+import { CombatActionTargetingProperties } from "./combat-action-targeting-properties.js";
 
 export interface CombatActionComponentConfig {
   description: string;
@@ -61,11 +62,9 @@ export interface CombatActionComponentConfig {
   >;
 
   // TARGETING PROPERTIES
-  targetingSchemes: TargetingScheme[];
-  validTargetCategories: TargetCategories;
-  autoTargetSelectionMethod: AutoTargetingSelectionMethod;
-  prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
-  prohibitedHitCombatantStates: ProhibitedTargetCombatantStates[];
+
+  targetingProperties: CombatActionTargetingProperties;
+
   getAutoTarget?: (
     combatantContext: CombatantContext,
     actionTrackerOption: null | ActionTracker,
@@ -139,13 +138,11 @@ export abstract class CombatActionComponent {
   // could be useful to hide the indicator of a parent who's children indicate their parent as target as with attack
   // or to hide indicators of bouncing child attacks which would baloon factorially
   public readonly description: string;
-  public readonly targetingSchemes: TargetingScheme[];
-  public readonly validTargetCategories: TargetCategories;
-  public readonly autoTargetSelectionMethod: AutoTargetingSelectionMethod;
+
+  public readonly targetingProperties: CombatActionTargetingProperties;
+
   public readonly intent: CombatActionIntent;
   public readonly usabilityContext: CombatActionUsabilityContext;
-  public readonly prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
-  public readonly prohibitedHitCombatantStates: ProhibitedTargetCombatantStates[];
   public readonly accuracyModifier: number;
   incursDurabilityLoss: {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
@@ -232,7 +229,7 @@ export abstract class CombatActionComponent {
     combatantContext: CombatantContext,
     actionTrackerOption: null | ActionTracker
   ) => Error | null | CombatActionTarget = (combatantContext) => {
-    const scheme = this.autoTargetSelectionMethod.scheme;
+    const scheme = this.targetingProperties.autoTargetSelectionMethod.scheme;
     return AUTO_TARGETING_FUNCTIONS[scheme](combatantContext, this);
   };
   combatantIsValidTarget(
@@ -252,13 +249,9 @@ export abstract class CombatActionComponent {
     config: CombatActionComponentConfig
   ) {
     this.description = config.description;
-    this.targetingSchemes = config.targetingSchemes;
-    this.validTargetCategories = config.validTargetCategories;
-    this.autoTargetSelectionMethod = config.autoTargetSelectionMethod;
+    this.targetingProperties = config.targetingProperties;
     this.usabilityContext = config.usabilityContext;
     this.intent = config.intent;
-    this.prohibitedTargetCombatantStates = config.prohibitedTargetCombatantStates;
-    this.prohibitedHitCombatantStates = config.prohibitedHitCombatantStates;
     this.accuracyModifier = config.accuracyModifier;
     this.incursDurabilityLoss = config.incursDurabilityLoss;
     this.costBases = config.costBases;

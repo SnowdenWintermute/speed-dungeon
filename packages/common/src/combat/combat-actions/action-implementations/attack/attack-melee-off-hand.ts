@@ -3,8 +3,6 @@ import {
   CombatActionLeaf,
   CombatActionName,
   CombatActionUsabilityContext,
-  TargetCategories,
-  TargetingScheme,
 } from "../../index.js";
 import {
   AnimationType,
@@ -14,7 +12,6 @@ import {
   OFF_HAND_DAMAGE_MODIFIER,
 } from "../../../../app-consts.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
-import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ATTACK } from "./index.js";
 import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
@@ -22,7 +19,6 @@ import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment
 import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
 import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
-import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { getStandardActionCritChance } from "../../action-calculation-utils/standard-action-calculations.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { MELEE_ATTACK_COMMON_CONFIG } from "../melee-actions-common-config.js";
@@ -39,22 +35,21 @@ import { COMMON_CHILD_ACTION_STEPS_SEQUENCE } from "../common-action-steps-seque
 import { getIncomingResourceChangePerTarget } from "../../../action-results/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { COMBAT_ACTIONS } from "../index.js";
+import {
+  GENERIC_TARGETING_PROPERTIES,
+  TargetingPropertiesTypes,
+} from "../../combat-action-targeting-properties.js";
+
+const targetingProperties =
+  GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "Attack target using equipment in off hand",
-  targetingSchemes: [TargetingScheme.Single],
-  validTargetCategories: TargetCategories.Opponent,
-  autoTargetSelectionMethod: { scheme: AutoTargetingScheme.CopyParent },
+  targetingProperties,
   intent: CombatActionIntent.Malicious,
   usabilityContext: CombatActionUsabilityContext.InCombat,
-  prohibitedTargetCombatantStates: [
-    ProhibitedTargetCombatantStates.Dead,
-    ProhibitedTargetCombatantStates.UntargetableByPhysical,
-  ],
-
-  prohibitedHitCombatantStates: [],
   accuracyModifier: OFF_HAND_ACCURACY_MODIFIER,
   incursDurabilityLoss: {
     [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: DurabilityLossCondition.OnHit },

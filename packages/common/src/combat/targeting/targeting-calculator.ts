@@ -78,12 +78,13 @@ export class TargetingCalculator {
     );
     if (characterAndActionDataResult instanceof Error) return characterAndActionDataResult;
     const { character, combatAction } = characterAndActionDataResult;
+    const { targetingProperties } = combatAction;
 
-    if (combatAction.targetingSchemes.length < 2)
+    if (targetingProperties.targetingSchemes.length < 2)
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.ONLY_ONE_TARGETING_SCHEME_AVAILABLE);
 
     const lastUsedTargetingScheme = this.playerOption.targetPreferences.targetingSchemePreference;
-    const { targetingSchemes } = combatAction;
+    const { targetingSchemes } = targetingProperties;
     let newTargetingScheme = lastUsedTargetingScheme;
 
     if (!targetingSchemes.includes(lastUsedTargetingScheme)) {
@@ -131,10 +132,11 @@ export class TargetingCalculator {
     targets: CombatActionTarget
   ): Error | EntityId[] {
     const { allyIds, opponentIds } = this.context.getAllyAndOpponentIds();
+    const { targetingProperties } = combatAction;
 
     const filteredTargetsResult = filterPossibleTargetIdsByProhibitedCombatantStates(
       this.context.party,
-      combatAction.prohibitedTargetCombatantStates,
+      targetingProperties.prohibitedTargetCombatantStates,
       allyIds,
       opponentIds
     );
@@ -187,8 +189,9 @@ export class TargetingCalculator {
     const actionUserId = combatant.entityProperties.id;
     const allyAndOpponentIds = this.context.getAllyAndOpponentIds();
     let { allyIds, opponentIds } = allyAndOpponentIds;
+    const { targetingProperties } = combatAction;
 
-    const prohibitedTargetCombatantStates = combatAction.prohibitedTargetCombatantStates;
+    const prohibitedTargetCombatantStates = targetingProperties.prohibitedTargetCombatantStates;
 
     const filteredTargetsResult = filterPossibleTargetIdsByProhibitedCombatantStates(
       party,
@@ -201,7 +204,7 @@ export class TargetingCalculator {
     [allyIds, opponentIds] = filteredTargetsResult;
 
     [allyIds, opponentIds] = filterPossibleTargetIdsByActionTargetCategories(
-      combatAction.validTargetCategories,
+      targetingProperties.validTargetCategories,
       actionUserId,
       allyIds,
       opponentIds
@@ -243,6 +246,7 @@ export class TargetingCalculator {
   ) {
     if (!this.playerOption) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
     const newPreferences = cloneDeep(this.playerOption.targetPreferences);
+    const { targetingProperties } = combatAction;
 
     switch (newTargets.type) {
       case CombatActionTargetType.Single:
@@ -258,7 +262,7 @@ export class TargetingCalculator {
         break;
       case CombatActionTargetType.Group:
         const category = newTargets.friendOrFoe;
-        if (combatAction.targetingSchemes.length > 1) {
+        if (targetingProperties.targetingSchemes.length > 1) {
           newPreferences.category = category;
           newPreferences.targetingSchemePreference = TargetingScheme.Area;
         } else {
@@ -266,7 +270,7 @@ export class TargetingCalculator {
         }
         break;
       case CombatActionTargetType.All:
-        if (combatAction.targetingSchemes.length > 1)
+        if (targetingProperties.targetingSchemes.length > 1)
           newPreferences.targetingSchemePreference = TargetingScheme.All;
     }
 

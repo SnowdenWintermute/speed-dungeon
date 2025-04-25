@@ -5,7 +5,7 @@ import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../primatives/index.js";
 import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
 import {
-    COMBAT_ACTIONS,
+  COMBAT_ACTIONS,
   CombatActionComponent,
   CombatActionName,
   CombatActionTarget,
@@ -63,7 +63,7 @@ export class AIBehaviorContext {
 
   setConsideredActionTargetPairs(actionName: CombatActionName): Error | void {
     const action = COMBAT_ACTIONS[actionName];
-    for (const targetingScheme of action.targetingSchemes) {
+    for (const targetingScheme of action.targetingProperties.targetingSchemes) {
       switch (targetingScheme) {
         case TargetingScheme.Single:
           this.setConsideredSingleTargets(action);
@@ -102,7 +102,7 @@ export class AIBehaviorContext {
   }
 
   setConsideredGroupTargets(action: CombatActionComponent) {
-    if (!action.targetingSchemes.includes(TargetingScheme.Area)) return;
+    if (!action.targetingProperties.targetingSchemes.includes(TargetingScheme.Area)) return;
     const friendlyGroup = new CombatActionExecutionIntent(action.name, {
       type: CombatActionTargetType.Group,
       friendOrFoe: FriendOrFoe.Friendly,
@@ -112,7 +112,7 @@ export class AIBehaviorContext {
       friendOrFoe: FriendOrFoe.Hostile,
     });
 
-    switch (action.validTargetCategories) {
+    switch (action.targetingProperties.validTargetCategories) {
       case TargetCategories.Opponent:
         this.consideredActionTargetPairs.push(hostileGroup);
         break;

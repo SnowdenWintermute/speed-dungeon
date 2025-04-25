@@ -10,14 +10,12 @@ import {
   ClientToServerEvent,
   CombatActionName,
   CombatantProperties,
-  InputLock,
   NextOrPrevious,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
-import getCurrentParty from "@/utils/getCurrentParty";
 import { createCancelButton } from "./common-buttons/cancel";
 
 export const executeHotkey = HOTKEYS.MAIN_1;
@@ -110,7 +108,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
       setAlert(combatActionProperties);
       return toReturn;
     }
-    if (combatActionProperties.targetingSchemes.length <= 1) return toReturn;
+    if (combatActionProperties.targetingProperties.targetingSchemes.length <= 1) return toReturn;
 
     const targetingSchemeHotkey = HOTKEYS.MAIN_2;
     const cycleTargetingSchemesButton = new ActionMenuButtonProperties(

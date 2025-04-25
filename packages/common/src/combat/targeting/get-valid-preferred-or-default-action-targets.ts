@@ -26,7 +26,7 @@ export function getValidPreferredOrDefaultActionTargets(
   } = playerOption.targetPreferences;
 
   // IF SELECTED ACTION CONTAINS PREFERRED TARGETING SCHEME
-  if (combatAction.targetingSchemes.includes(targetingSchemePreference)) {
+  if (combatAction.targetingProperties.targetingSchemes.includes(targetingSchemePreference)) {
     switch (targetingSchemePreference) {
       case TargetingScheme.Single:
         // IF PREFERENCE EXISTS SELECT IT IF VALID
@@ -81,8 +81,12 @@ export function getValidPreferredOrDefaultActionTargets(
 
   if (newTargets) return newTargets;
   // IF NO VALID TARGET IN PREFERRED SCHEME OR PREFERRED SCHEME NOT VALID GET ANY VALID TARGET
-  for (const targetingSchemeKey of combatAction.targetingSchemes) {
-    console.log(combatAction.name, combatAction.targetingSchemes, targetingSchemeKey);
+  for (const targetingSchemeKey of combatAction.targetingProperties.targetingSchemes) {
+    console.log(
+      combatAction.name,
+      combatAction.targetingProperties.targetingSchemes,
+      targetingSchemeKey
+    );
     const targetingScheme = targetingSchemeKey as TargetingScheme;
 
     switch (targetingScheme) {

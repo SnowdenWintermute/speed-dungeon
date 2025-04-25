@@ -5,15 +5,10 @@ import {
   CombatActionComposite,
   CombatActionName,
   CombatActionUsabilityContext,
-  FriendOrFoe,
-  TargetCategories,
-  TargetingScheme,
 } from "../../index.js";
 import { CombatantProperties } from "../../../../combatants/index.js";
-import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ActionAccuracy, ActionAccuracyType } from "../../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG } from "../non-combatant-initiated-actions-common-config.js";
 import {
@@ -39,25 +34,20 @@ import { TargetingCalculator } from "../../../targeting/targeting-calculator.js"
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 import { ActionEntityName } from "../../../../action-entities/index.js";
+import {
+  GENERIC_TARGETING_PROPERTIES,
+  TargetingPropertiesTypes,
+} from "../../combat-action-targeting-properties.js";
+
+const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 
 const config: CombatActionComponentConfig = {
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
   description: "Deals kinetic fire damage in an area around the target",
-  targetingSchemes: [TargetingScheme.Area],
-  validTargetCategories: TargetCategories.Opponent,
-  autoTargetSelectionMethod: {
-    scheme: AutoTargetingScheme.BattleGroup,
-    friendOrFoe: FriendOrFoe.Hostile,
-  },
+  targetingProperties,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  prohibitedTargetCombatantStates: [],
-  prohibitedHitCombatantStates: [
-    ProhibitedTargetCombatantStates.UntargetableByPhysical,
-    ProhibitedTargetCombatantStates.UntargetableBySpells,
-    ProhibitedTargetCombatantStates.Dead,
-  ],
   accuracyModifier: 1,
   incursDurabilityLoss: {},
   costBases: {},

@@ -22,20 +22,20 @@ import { TargetingCalculator } from "../../../targeting/targeting-calculator.js"
 import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
+import {
+  GENERIC_TARGETING_PROPERTIES,
+  TargetingPropertiesTypes,
+} from "../../combat-action-targeting-properties.js";
+
+const targetingProperties =
+  GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
   description: "An arrow",
-  targetingSchemes: [TargetingScheme.Single],
-  validTargetCategories: TargetCategories.Opponent,
-  autoTargetSelectionMethod: { scheme: AutoTargetingScheme.CopyParent },
+  targetingProperties,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  prohibitedTargetCombatantStates: [
-    ProhibitedTargetCombatantStates.Dead,
-    ProhibitedTargetCombatantStates.UntargetableByPhysical,
-  ],
-  prohibitedHitCombatantStates: [],
   accuracyModifier: 0.9,
   incursDurabilityLoss: {},
   costBases: {},

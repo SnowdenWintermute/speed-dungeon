@@ -4,12 +4,9 @@ import {
   CombatActionComposite,
   CombatActionName,
   CombatActionUsabilityContext,
-  TargetCategories,
-  TargetingScheme,
 } from "../../index.js";
 import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
 import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
-import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ActionAccuracy } from "../../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { ATTACK_MELEE_MAIN_HAND } from "./attack-melee-main-hand.js";
@@ -20,25 +17,23 @@ import {
 } from "../../../../items/equipment/index.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
 import { ATTACK_MELEE_OFF_HAND } from "./attack-melee-off-hand.js";
-import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "../../../../action-processing/index.js";
+import {
+  GENERIC_TARGETING_PROPERTIES,
+  TargetingPropertiesTypes,
+} from "../../combat-action-targeting-properties.js";
+
+const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 
 const config: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
-  targetingSchemes: [TargetingScheme.Single],
-  validTargetCategories: TargetCategories.Opponent,
-  autoTargetSelectionMethod: { scheme: AutoTargetingScheme.UserSelected },
   usabilityContext: CombatActionUsabilityContext.InCombat,
+  targetingProperties,
   intent: CombatActionIntent.Malicious,
-  prohibitedTargetCombatantStates: [
-    ProhibitedTargetCombatantStates.Dead,
-    ProhibitedTargetCombatantStates.UntargetableByPhysical,
-  ],
-  prohibitedHitCombatantStates: [],
   accuracyModifier: 1,
   incursDurabilityLoss: {},
   costBases: {},

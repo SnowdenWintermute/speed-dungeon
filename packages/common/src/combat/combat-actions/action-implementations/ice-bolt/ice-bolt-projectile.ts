@@ -3,13 +3,9 @@ import {
   CombatActionComposite,
   CombatActionName,
   CombatActionUsabilityContext,
-  TargetCategories,
-  TargetingScheme,
 } from "../../index.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
-import { AutoTargetingScheme } from "../../../targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
-import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { ICE_BOLT_PARENT } from "./index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
@@ -26,22 +22,21 @@ import {
   CosmeticEffectNames,
   AbstractParentType,
 } from "../../../../action-entities/index.js";
+import {
+  GENERIC_TARGETING_PROPERTIES,
+  TargetingPropertiesTypes,
+} from "../../combat-action-targeting-properties.js";
+
+const targetingProperties =
+  GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
 
 const config: CombatActionComponentConfig = {
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
   ...RANGED_ACTIONS_COMMON_CONFIG,
   description: "An icy projectile",
-  targetingSchemes: [TargetingScheme.Single],
-  validTargetCategories: TargetCategories.Opponent,
-  autoTargetSelectionMethod: { scheme: AutoTargetingScheme.CopyParent },
+  targetingProperties,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  prohibitedTargetCombatantStates: [
-    ProhibitedTargetCombatantStates.Dead,
-    ProhibitedTargetCombatantStates.UntargetableByPhysical,
-    ProhibitedTargetCombatantStates.UntargetableBySpells,
-  ],
-  prohibitedHitCombatantStates: [],
   accuracyModifier: 0.9,
   incursDurabilityLoss: {},
   costBases: {},
