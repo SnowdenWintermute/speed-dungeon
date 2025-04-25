@@ -65,7 +65,6 @@ const config: CombatActionComponentConfig = {
   targetingProperties,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  accuracyModifier: 1,
   incursDurabilityLoss: {},
   costBases: {},
   userShouldMoveHomeOnComplete: false,
@@ -87,54 +86,13 @@ const config: CombatActionComponentConfig = {
     };
     return animations;
   },
-  getHpChangeProperties: (user) => {
-    const hpChangeSourceConfig: ResourceChangeSourceConfig = {
-      category: ResourceChangeSourceCategory.Physical,
-      kineticDamageTypeOption: KineticDamageType.Piercing,
-      elementOption: MagicalElement.Ice,
-      isHealing: false,
-      lifestealPercentage: null,
-    };
 
-    const stacks = user.asUserOfTriggeredCondition?.stacksOption?.current || 1;
-
-    const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
-
-    const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
-    const hpChangeProperties: CombatActionResourceChangeProperties = {
-      resourceChangeSource,
-      baseValues,
-    };
-
-    return hpChangeProperties;
-  },
-
-  getManaChangeProperties: () => null,
-  getAppliedConditions: (context) => {
-    const { idGenerator, combatantContext } = context;
-    const { combatant } = combatantContext;
-
-    const condition = new PrimedForIceBurstCombatantCondition(
-      idGenerator.generate(),
-      combatant.entityProperties.id,
-      combatant.combatantProperties.level
-    );
-
-    return [condition];
-  },
   getChildren: (_user) => [],
   getParent: () => null,
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
   getConcurrentSubActions(combatantContext) {
     return [];
   },
-  getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
-    // @TODO - base off of activating condition spell level
-    return { type: ActionAccuracyType.Unavoidable };
-  },
-  getCritChance: (user) => BASE_CRIT_CHANCE,
-  getCritMultiplier: (user) => BASE_CRIT_MULTIPLIER,
-  getArmorPenetration: (user, self) => 15,
   getResolutionSteps() {
     return [
       ActionResolutionStepType.OnActivationSpawnEntity,
@@ -158,10 +116,6 @@ const config: CombatActionComponentConfig = {
   },
 
   motionPhasePositionGetters: {},
-
-  getIsParryable: (user) => false,
-  getIsBlockable: (user) => true,
-  getCanTriggerCounterattack: (user) => false,
 
   getSpawnableEntity: (context) => {
     // this action targets the sides, but we want to spawn the vfx on the center target

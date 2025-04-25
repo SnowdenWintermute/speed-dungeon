@@ -10,17 +10,12 @@ import {
   HoldableSlotType,
   WearableSlotType,
 } from "../../items/equipment/slots.js";
-import { ProhibitedTargetCombatantStates } from "./prohibited-target-combatant-states.js";
-import { TargetCategories, TargetingScheme } from "./targeting-schemes-and-categories.js";
-import { CombatantCondition } from "../../combatants/combatant-conditions/index.js";
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { DurabilityLossCondition } from "./combat-action-durability-loss-condition.js";
 import { CombatActionName } from "./combat-action-names.js";
-import { CombatActionResourceChangeProperties } from "./combat-action-resource-change-properties.js";
 import { Battle } from "../../battle/index.js";
 import { CombatActionTarget } from "../targeting/combat-action-targets.js";
-import { AutoTargetingSelectionMethod } from "../targeting/index.js";
-import { ActionAccuracy, ActionAccuracyType } from "./combat-action-accuracy.js";
+import { ActionAccuracyType } from "./combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "./combat-action-range.js";
 import { AUTO_TARGETING_FUNCTIONS } from "../targeting/auto-targeting/mapped-functions.js";
 import {
@@ -44,9 +39,13 @@ import { Milliseconds } from "../../primatives/index.js";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import { AbstractParentType } from "../../action-entities/index.js";
 import { CombatActionTargetingProperties } from "./combat-action-targeting-properties.js";
+import { CombatActionHitOutcomeProperties } from "./combat-action-hit-outcome-properties.js";
 
 export interface CombatActionComponentConfig {
   description: string;
+  targetingProperties: CombatActionTargetingProperties;
+  hitOutcomeProperties: CombatActionHitOutcomeProperties;
+
   intent: CombatActionIntent;
   usabilityContext: CombatActionUsabilityContext;
   shouldExecute: (context: CombatantContext, self: CombatActionComponent) => boolean;
@@ -60,10 +59,6 @@ export interface CombatActionComponentConfig {
       (context: ActionResolutionStepContext) => Error | null | EntityDestination
     >
   >;
-
-  // TARGETING PROPERTIES
-
-  targetingProperties: CombatActionTargetingProperties;
 
   getAutoTarget?: (
     combatantContext: CombatantContext,
@@ -101,31 +96,6 @@ export interface CombatActionComponentConfig {
   getConsumableCost?: () => ConsumableType;
   requiresCombatTurn: (context: ActionResolutionStepContext) => boolean;
 
-  // ACTION HIT OUTCOME PROPERTIES
-  accuracyModifier: number;
-  /** A numeric percentage which will be used against the target's evasion */
-  getUnmodifiedAccuracy: (user: CombatantProperties) => ActionAccuracy;
-  /** A numeric percentage which will be used against the target's crit avoidance */
-  getCritChance: (user: CombatantProperties) => number;
-  getCritMultiplier: (user: CombatantProperties) => number;
-  getArmorPenetration: (user: CombatantProperties, self: CombatActionComponent) => number;
-  getHpChangeProperties: (
-    user: CombatantProperties,
-    primaryTarget: CombatantProperties,
-    self: CombatActionComponent
-  ) => null | CombatActionResourceChangeProperties;
-  getManaChangeProperties: (
-    user: CombatantProperties,
-    primaryTarget: CombatantProperties,
-    self: CombatActionComponent
-  ) => null | CombatActionResourceChangeProperties;
-  getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
-
-  // ACTION REACTABLITITY PROPERTIES
-  getIsParryable: (user: CombatantProperties) => boolean;
-  getIsBlockable: (user: CombatantProperties) => boolean;
-  getCanTriggerCounterattack: (user: CombatantProperties) => boolean;
-
   // ACTION HEIRARCHY PROPERTIES
   getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
   getConcurrentSubActions?: (combatantContext: CombatantContext) => CombatActionExecutionIntent[];
@@ -138,12 +108,11 @@ export abstract class CombatActionComponent {
   // could be useful to hide the indicator of a parent who's children indicate their parent as target as with attack
   // or to hide indicators of bouncing child attacks which would baloon factorially
   public readonly description: string;
-
   public readonly targetingProperties: CombatActionTargetingProperties;
+  public readonly hitOutcomeProperties: CombatActionHitOutcomeProperties;
 
   public readonly intent: CombatActionIntent;
   public readonly usabilityContext: CombatActionUsabilityContext;
-  public readonly accuracyModifier: number;
   incursDurabilityLoss: {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
     [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
@@ -193,24 +162,7 @@ export abstract class CombatActionComponent {
   requiresCombatTurn: (context: ActionResolutionStepContext) => boolean;
   getResourceCosts: (user: CombatantProperties) => null | ActionResourceCosts;
   getConsumableCost?: () => ConsumableType;
-  getAccuracy: (user: CombatantProperties) => ActionAccuracy;
-  getIsParryable: (user: CombatantProperties) => boolean;
-  getIsBlockable: (user: CombatantProperties) => boolean;
-  getCanTriggerCounterattack: (user: CombatantProperties) => boolean;
-  getCritChance: (user: CombatantProperties) => number;
-  getCritMultiplier: (user: CombatantProperties) => number;
-  getArmorPenetration: (user: CombatantProperties) => number;
-  getHpChangeProperties: (
-    user: CombatantProperties,
-    primaryTarget: CombatantProperties
-  ) => null | CombatActionResourceChangeProperties;
-  getManaChangeProperties: (
-    user: CombatantProperties,
-    primaryTarget: CombatantProperties
-  ) => null | CombatActionResourceChangeProperties;
 
-  // may be calculated based on combatant equipment or conditions
-  getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
   protected children?: CombatActionComponent[];
   // if we take in the combatant we can determine the children based on their equipped weapons (melee attack mh, melee attack oh etc)
   // spell levels (level 1 chain lightning only gets 1 ChainLightningArc child) or other status
@@ -250,9 +202,9 @@ export abstract class CombatActionComponent {
   ) {
     this.description = config.description;
     this.targetingProperties = config.targetingProperties;
+    this.hitOutcomeProperties = config.hitOutcomeProperties;
     this.usabilityContext = config.usabilityContext;
     this.intent = config.intent;
-    this.accuracyModifier = config.accuracyModifier;
     this.incursDurabilityLoss = config.incursDurabilityLoss;
     this.costBases = config.costBases;
     this.userShouldMoveHomeOnComplete = config.userShouldMoveHomeOnComplete;
@@ -262,27 +214,12 @@ export abstract class CombatActionComponent {
     this.shouldExecute = (characterAssociatedData) =>
       config.shouldExecute(characterAssociatedData, this);
     this.getActionStepAnimations = config.getActionStepAnimations;
-    this.getAccuracy = (user: CombatantProperties) => {
-      const baseAccuracy = config.getUnmodifiedAccuracy(user);
-      if (baseAccuracy.type === ActionAccuracyType.Percentage)
-        baseAccuracy.value *= this.accuracyModifier;
-      return baseAccuracy;
-    };
-    this.getIsParryable = config.getIsParryable;
-    this.getCanTriggerCounterattack = config.getCanTriggerCounterattack;
-    this.getIsBlockable = config.getIsBlockable;
-    this.getCritChance = config.getCritChance;
-    this.getCritMultiplier = config.getCritMultiplier;
-    this.getArmorPenetration = (user) => config.getArmorPenetration(user, this);
     this.getRequiredRange = (user) => config.getRequiredRange(user, this);
     this.motionPhasePositionGetters = config.motionPhasePositionGetters;
     this.getSpawnableEntity = config.getSpawnableEntity;
     this.getCosmeticEffectToStartByStep = config.getCosmeticEffectToStartByStep;
     this.getCosmeticEffectToStopByStep = config.getCosmeticEffectToStopByStep;
-    this.getHpChangeProperties = (user, target) => config.getHpChangeProperties(user, target, this);
-    this.getManaChangeProperties = (user, target) =>
-      config.getManaChangeProperties(user, target, this);
-    this.getAppliedConditions = config.getAppliedConditions;
+
     this.getChildren = config.getChildren;
     if (config.getConcurrentSubActions)
       this.getConcurrentSubActions = config.getConcurrentSubActions;
@@ -293,6 +230,13 @@ export abstract class CombatActionComponent {
       this.getAutoTarget = (combatantContext, trackerOption) =>
         getAutoTarget(combatantContext, trackerOption, this);
     }
+  }
+
+  getAccuracy(user: CombatantProperties) {
+    const baseAccuracy = this.hitOutcomeProperties.getUnmodifiedAccuracy(user);
+    if (baseAccuracy.type === ActionAccuracyType.Percentage)
+      baseAccuracy.value *= this.hitOutcomeProperties.accuracyModifier;
+    return baseAccuracy;
   }
 }
 

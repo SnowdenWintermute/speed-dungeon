@@ -10,11 +10,11 @@ import {
 } from "../../../hp-change-source-types.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
 import { applyWeaponPropertiesToResourceChangeProperties } from "../../action-calculation-utils/apply-weapon-properties-to-hp-change-properties.js";
+import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
-import { CombatActionComponent } from "../../index.js";
 
 export function getAttackResourceChangeProperties(
-  action: CombatActionComponent,
+  hitOutcomeProperties: CombatActionHitOutcomeProperties,
   user: CombatantProperties,
   primaryTarget: CombatantProperties,
   scalingAttribute: CombatAttribute,
@@ -57,7 +57,7 @@ export function getAttackResourceChangeProperties(
 
   if (weaponOption?.equipment && weaponOption) {
     applyWeaponPropertiesToResourceChangeProperties(
-      action,
+      hitOutcomeProperties,
       weaponOption,
       hpChangeProperties,
       user,

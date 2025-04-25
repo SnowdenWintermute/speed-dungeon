@@ -1,4 +1,3 @@
-import cloneDeep from "lodash.clonedeep";
 import { TargetCategories, TargetingScheme } from "./targeting-schemes-and-categories.js";
 import { AutoTargetingScheme, AutoTargetingSelectionMethod } from "../targeting/index.js";
 import { ProhibitedTargetCombatantStates } from "./prohibited-target-combatant-states.js";
@@ -26,21 +25,21 @@ const hostileSingle: CombatActionTargetingProperties = {
   prohibitedHitCombatantStates: [],
 };
 
-const hostileArea = cloneDeep(hostileSingle);
-hostileArea.targetingSchemes = [TargetingScheme.Area];
-
-const friendlySingle = cloneDeep(hostileSingle);
-friendlySingle.validTargetCategories = TargetCategories.Friendly;
-
-const hostileCopyParent = cloneDeep(hostileSingle);
-hostileCopyParent.autoTargetSelectionMethod = { scheme: AutoTargetingScheme.CopyParent };
-
 export const GENERIC_TARGETING_PROPERTIES: Record<
   TargetingPropertiesTypes,
   CombatActionTargetingProperties
 > = {
   [TargetingPropertiesTypes.HostileSingle]: hostileSingle,
-  [TargetingPropertiesTypes.HostileArea]: hostileArea,
-  [TargetingPropertiesTypes.HostileCopyParent]: hostileCopyParent,
-  [TargetingPropertiesTypes.FriendlySingle]: friendlySingle,
+  [TargetingPropertiesTypes.HostileArea]: {
+    ...hostileSingle,
+    targetingSchemes: [TargetingScheme.Area],
+  },
+  [TargetingPropertiesTypes.HostileCopyParent]: {
+    ...hostileSingle,
+    autoTargetSelectionMethod: { scheme: AutoTargetingScheme.CopyParent },
+  },
+  [TargetingPropertiesTypes.FriendlySingle]: {
+    ...hostileSingle,
+    validTargetCategories: TargetCategories.Friendly,
+  },
 };

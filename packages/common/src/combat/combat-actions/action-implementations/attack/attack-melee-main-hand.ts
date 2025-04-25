@@ -109,7 +109,7 @@ const config: CombatActionComponentConfig = {
       const targetIds = targetIdsResult;
 
       const actionHpChangePropertiesOption = cloneDeep(
-        action.getHpChangeProperties(
+        action.hitOutcomeProperties.getHpChangeProperties(
           context.combatantContext.combatant.combatantProperties,
           target.combatantProperties
         )

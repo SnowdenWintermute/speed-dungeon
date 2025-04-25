@@ -12,5 +12,9 @@ export interface Point {
   x: number;
   y: number;
 }
+
 export type Milliseconds = number;
 export type Seconds = number;
+
+export type Percentage = number;
+export type NormalizedPercentage = number;

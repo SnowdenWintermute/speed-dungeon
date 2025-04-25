@@ -1,14 +1,14 @@
 import { ARMOR_CLASS_EQUATION_MODIFIER } from "../../../app-consts.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { CombatantProperties } from "../../../combatants/index.js";
-import { CombatActionComponent } from "../../combat-actions/index.js";
+import { CombatActionHitOutcomeProperties } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 
 /** Expects a negative hp change value */
 export default function getDamageAfterArmorClass(
   damageBefore: number,
   user: CombatantProperties,
   target: CombatantProperties,
-  action: CombatActionComponent
+  hitOutcomeProperties: CombatActionHitOutcomeProperties
 ) {
   // since the formula is based on positive numbers and we have to calculate this
   // after converting to a negative hp change in order to check if the target even
@@ -18,7 +18,7 @@ export default function getDamageAfterArmorClass(
 
   const targetAc = CombatantProperties.getTotalAttributes(target)[CombatAttribute.ArmorClass];
 
-  const userArmorPen = action.getArmorPenetration(user);
+  const userArmorPen = hitOutcomeProperties.getArmorPenetration(user, hitOutcomeProperties);
 
   const finalAc = Math.max(0, targetAc - userArmorPen);
   const damageAfterAc =

@@ -1,3 +1,5 @@
+import { Percentage } from "../../primatives";
+
 export enum ActionAccuracyType {
   Percentage,
   Unavoidable,
@@ -5,7 +7,7 @@ export enum ActionAccuracyType {
 
 export type ActionAccuracyPercentage = {
   type: ActionAccuracyType.Percentage;
-  value: number;
+  value: Percentage;
 };
 
 export type ActionAccuracyUnavoidable = {

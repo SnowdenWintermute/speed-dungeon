@@ -13,10 +13,10 @@ import { CombatantProperties } from "../../../combatants";
 import { convertResourceChangeValueToFinalSign } from "./convert-hp-change-value-to-final-sign.js";
 import { CombatActionResourceChangeProperties } from "../combat-action-resource-change-properties";
 import { copySelectedModifiersFromResourceChangeSource } from "./copy-selected-modifiers-from-hp-change-source.js";
-import { CombatActionComponent } from "../index.js";
+import { CombatActionHitOutcomeProperties } from "../combat-action-hit-outcome-properties.js";
 
 export function selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
-  action: CombatActionComponent,
+  hitOutcomeProperties: CombatActionHitOutcomeProperties,
   hpChangeProperties: CombatActionResourceChangeProperties,
   toSelectFrom: ResourceChangeSource[],
   modifiers: Set<ResourceChangeSourceModifiers>,
@@ -52,7 +52,7 @@ export function selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
       targetCombatantProperties
     );
     hpChangeCalculationContext.applyArmorClass(
-      action,
+      hitOutcomeProperties,
       hpChangeToTest,
       userCombatantProperties,
       targetCombatantProperties

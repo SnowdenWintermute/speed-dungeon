@@ -2,14 +2,14 @@ import { CombatantProperties } from "../../../combatants/index.js";
 import { Equipment, WeaponProperties } from "../../../items/equipment/index.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
 import { ResourceChangeSourceModifiers } from "../../hp-change-source-types.js";
+import { CombatActionHitOutcomeProperties } from "../combat-action-hit-outcome-properties.js";
 import { CombatActionResourceChangeProperties } from "../combat-action-resource-change-properties.js";
-import { CombatActionComponent } from "../index.js";
 import { addWeaponsDamageToRange } from "./add-weapon-damage-to-range.js";
 import { copySelectedModifiersFromResourceChangeSource } from "./copy-selected-modifiers-from-hp-change-source.js";
 import { selectMostEffectiveFromAvailableResourceChangeSourceModifiers } from "./select-most-effective-damage-classification-on-target.js";
 
 export function applyWeaponPropertiesToResourceChangeProperties(
-  action: CombatActionComponent,
+  hitOutcomeProperties: CombatActionHitOutcomeProperties,
   weapon: {
     equipment: Equipment;
     weaponProperties: WeaponProperties;
@@ -26,7 +26,7 @@ export function applyWeaponPropertiesToResourceChangeProperties(
   const averageRoll = baseValues.getAverage();
   const mostEffectiveAvailableResourceChangeSourceOnWeapon =
     selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
-      action,
+      hitOutcomeProperties,
       hpChangeProperties,
       weapon.weaponProperties.damageClassification,
       weaponModifiersToCopy,
