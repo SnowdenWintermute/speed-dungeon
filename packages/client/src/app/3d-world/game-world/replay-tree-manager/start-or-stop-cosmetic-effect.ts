@@ -1,10 +1,10 @@
 import {
-  CLIENT_ONLY_VFX_CONSTRUCTORS,
   CosmeticEffectNames,
   ERROR_MESSAGES,
   EntityId,
   Milliseconds,
   AbstractParentType,
+  COSMETIC_EFFECT_CONSTRUCTORS,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 import {
@@ -31,7 +31,7 @@ export function startOrStopCosmeticEffect(
     if (!sceneOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
 
     for (const { name, parentType, lifetime } of cosmeticEffectToStart) {
-      const effect = new CLIENT_ONLY_VFX_CONSTRUCTORS[name](sceneOption);
+      const effect = new COSMETIC_EFFECT_CONSTRUCTORS[name](sceneOption);
 
       if (lifetime !== undefined) {
         effect.lifetimeTimeout = setTimeout(() => {
@@ -72,9 +72,10 @@ export function startOrStopCosmeticEffect(
           break;
         case AbstractParentType.VfxEntityRoot:
           {
-            const vfxOption = gameWorld.current?.vfxManager.mobile[entityId];
-            if (!vfxOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_VFX);
-            effect.transformNode.setParent(vfxOption.movementManager.transformNode);
+            const actionEntityModelOption = gameWorld.current?.actionEntityManager.models[entityId];
+            if (!actionEntityModelOption)
+              throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_ACTION_ENTITY_MODEL);
+            effect.transformNode.setParent(actionEntityModelOption.movementManager.transformNode);
             effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
           }
           break;

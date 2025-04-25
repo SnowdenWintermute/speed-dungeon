@@ -7,7 +7,7 @@ import {
   ReplayEventType,
 } from "@speed-dungeon/common";
 import { GAME_UPDATE_COMMAND_HANDLERS } from "./game-update-command-handlers";
-import { ActionEntityModel } from "../../vfx-models";
+import { ActionEntityModel } from "../../action-entity-models";
 import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state";

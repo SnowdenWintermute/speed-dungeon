@@ -10,7 +10,7 @@ export enum ActionEntityName {
   IceBurst,
 }
 
-export const MOBILE_VFX_NAME_STRINGS: Record<ActionEntityName, string> = {
+export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
   [ActionEntityName.Arrow]: "Arrow",
   [ActionEntityName.IceBolt]: "Ice Bolt",
   [ActionEntityName.Explosion]: "Explosion",

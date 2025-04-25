@@ -20,7 +20,7 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
-import { ActionEntityModel, spawnActionEntityModel } from "../../vfx-models";
+import { ActionEntityModel, spawnActionEntityModel } from "../../action-entity-models";
 import { getChildMeshByName } from "../../utils";
 import {
   SKELETON_MAIN_HAND_NAMES,
@@ -235,7 +235,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
 
     const scene = await spawnActionEntityModel(actionEntityProperties.name, position);
 
-    const vfxModel = new ActionEntityModel(
+    const model = new ActionEntityModel(
       actionEntity.entityProperties.id,
       scene,
       position,
@@ -245,7 +245,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
 
     update.isComplete = true;
 
-    gameWorld.current.vfxManager.register(vfxModel);
+    gameWorld.current.actionEntityManager.register(model);
 
     if (actionEntityProperties.parentOption) {
       const actionUserOption =
@@ -273,9 +273,9 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       );
 
       if (!boneToParent) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_EXPECTED_BONE);
-      vfxModel.movementManager.transformNode.setParent(boneToParent);
-      vfxModel.movementManager.transformNode.setPositionWithLocalVector(Vector3.Zero());
-      vfxModel.movementManager.transformNode.rotationQuaternion = Quaternion.Identity();
+      model.movementManager.transformNode.setParent(boneToParent);
+      model.movementManager.transformNode.setPositionWithLocalVector(Vector3.Zero());
+      model.movementManager.transformNode.rotationQuaternion = Quaternion.Identity();
     }
   },
 };

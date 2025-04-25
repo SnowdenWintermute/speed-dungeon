@@ -7,7 +7,7 @@ import { CombatantIsCold } from "./combatant-is-cold.js";
 
 type CosmeticEffectConstructor = new (scene: Scene) => CosmeticEffect;
 
-export const CLIENT_ONLY_VFX_CONSTRUCTORS: Record<CosmeticEffectNames, CosmeticEffectConstructor> =
+export const COSMETIC_EFFECT_CONSTRUCTORS: Record<CosmeticEffectNames, CosmeticEffectConstructor> =
   {
     [CosmeticEffectNames.FrostParticleAccumulation]: FrostParticleAccumulation,
     [CosmeticEffectNames.FrostParticleStream]: FrostParticleStream,

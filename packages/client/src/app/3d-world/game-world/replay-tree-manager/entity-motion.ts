@@ -39,35 +39,35 @@ export function entityMotionGameUpdateHandler(update: {
     animationManager = combatantModelOption.animationManager;
     cosmeticEffectManager = combatantModelOption.cosmeticEffectManager;
   } else {
-    const vfxOption = gameWorld.current?.vfxManager.mobile[entityId];
-    if (!vfxOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_VFX);
-    movementManager = vfxOption.movementManager;
-    animationManager = vfxOption.animationManager;
-    cosmeticEffectManager = vfxOption.cosmeticEffectManager;
+    const actionEntityModelOption = gameWorld.current?.actionEntityManager.models[entityId];
+    if (!actionEntityModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_ACTION_ENTITY_MODEL);
+    movementManager = actionEntityModelOption.movementManager;
+    animationManager = actionEntityModelOption.animationManager;
+    cosmeticEffectManager = actionEntityModelOption.cosmeticEffectManager;
 
     movementManager.transformNode.setParent(null);
 
-    if (vfxOption.pointTowardEntity) {
+    if (actionEntityModelOption.pointTowardEntity) {
       const combatantModelOption =
-        gameWorld.current?.modelManager.combatantModels[vfxOption.pointTowardEntity];
+        gameWorld.current?.modelManager.combatantModels[actionEntityModelOption.pointTowardEntity];
       if (!combatantModelOption) throw new Error("Tried to point at an entity with no model");
 
       const targetBoundingBoxCenter =
         combatantModelOption.getBoundingInfo().boundingBox.centerWorld;
       const forward = targetBoundingBoxCenter
-        .subtract(vfxOption.movementManager.transformNode.getAbsolutePosition())
+        .subtract(actionEntityModelOption.movementManager.transformNode.getAbsolutePosition())
         .normalize();
 
       const up = Vector3.Up();
 
       const lookRotation: Quaternion = Quaternion.FromLookDirectionLH(forward, up);
-      vfxOption.movementManager.startRotatingTowards(lookRotation, 400, () => {});
+      actionEntityModelOption.movementManager.startRotatingTowards(lookRotation, 400, () => {});
 
       destinationYOption = targetBoundingBoxCenter.y;
     }
   }
 
-  // @TODO -this can be refactored to somehow combine with other places
+  // @TODO - refactor this can be refactored to somehow combine with other places
   // where we start and stop clientonlyvfx
 
   let cosmeticEffectNamesToStartThisStep: {
@@ -122,7 +122,7 @@ export function entityMotionGameUpdateHandler(update: {
 
         if (command.despawnOnComplete) {
           if (command.entityType === SpawnableEntityType.ActionEntity) {
-            gameWorld.current?.vfxManager.unregister(command.entityId);
+            gameWorld.current?.actionEntityManager.unregister(command.entityId);
           }
         }
       }

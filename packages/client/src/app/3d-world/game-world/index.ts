@@ -23,7 +23,7 @@ import { SavedMaterials, createDefaultMaterials } from "./materials/create-defau
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
 import { ReplayTreeManager } from "./replay-tree-manager";
-import { VfxManager } from "../vfx-models";
+import { ActionEntityManager } from "../action-entity-models/";
 import { testParticleSystem } from "./testing-particle-systems";
 import { testingSounds } from "./testing-sounds";
 
@@ -49,7 +49,7 @@ export class GameWorld {
   portraitRenderTarget: RenderTargetTexture;
   replayTreeManager = new ReplayTreeManager();
   idGenerator = new IdGenerator();
-  vfxManager = new VfxManager();
+  actionEntityManager = new ActionEntityManager();
   tickCounter: number = 0;
 
   constructor(
@@ -117,11 +117,13 @@ export class GameWorld {
     )
       this.modelManager.modelActionQueue.processMessages();
 
-    for (const vfx of this.vfxManager.getMobile()) {
-      vfx.movementManager.processActiveActions();
-      vfx.animationManager.playing?.animationGroup?.animateScene(vfx.animationManager.scene);
-      vfx.animationManager.handleCompletedAnimations();
-      vfx.animationManager.stepAnimationTransitionWeights();
+    for (const actionEntityModel of this.actionEntityManager.get()) {
+      actionEntityModel.movementManager.processActiveActions();
+      actionEntityModel.animationManager.playing?.animationGroup?.animateScene(
+        actionEntityModel.animationManager.scene
+      );
+      actionEntityModel.animationManager.handleCompletedAnimations();
+      actionEntityModel.animationManager.stepAnimationTransitionWeights();
     }
 
     for (const combatantModel of Object.values(this.modelManager.combatantModels)) {

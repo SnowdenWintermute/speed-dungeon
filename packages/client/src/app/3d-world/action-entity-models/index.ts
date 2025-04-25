@@ -10,24 +10,24 @@ import { ActionEntityName, ERROR_MESSAGES, EntityId } from "@speed-dungeon/commo
 import { disposeAsyncLoadedScene, importMesh } from "../utils";
 import { ModelMovementManager } from "../model-movement-manager";
 import { gameWorld } from "../SceneManager";
-import { MOBILE_VFX_NAME_TO_MODEL_PATH } from "./vfx-model-paths";
+import { ACTION_ENTITY_NAME_TO_MODEL_PATH } from "./action-entity-model-paths";
 import { DynamicAnimationManager } from "../combatant-models/animation-manager/dynamic-animation-manager";
 import { CosmeticEffectManager } from "../cosmetic-effect-manager";
 
-export class VfxManager {
-  mobile: { [id: EntityId]: ActionEntityModel } = {};
+export class ActionEntityManager {
+  models: { [id: EntityId]: ActionEntityModel } = {};
   constructor() {}
-  register(vfx: ActionEntityModel) {
-    if (vfx instanceof ActionEntityModel) this.mobile[vfx.id] = vfx;
+  register(model: ActionEntityModel) {
+    if (model instanceof ActionEntityModel) this.models[model.id] = model;
   }
 
   unregister(id: EntityId) {
-    this.mobile[id]?.softCleanup();
-    delete this.mobile[id];
+    this.models[id]?.softCleanup();
+    delete this.models[id];
   }
 
-  getMobile() {
-    return Object.values(this.mobile);
+  get() {
+    return Object.values(this.models);
   }
 }
 
@@ -74,7 +74,7 @@ export class ActionEntityModel {
 }
 
 export async function spawnActionEntityModel(vfxName: ActionEntityName, position: Vector3) {
-  const modelPath = MOBILE_VFX_NAME_TO_MODEL_PATH[vfxName];
+  const modelPath = ACTION_ENTITY_NAME_TO_MODEL_PATH[vfxName];
 
   let model: ISceneLoaderAsyncResult;
   if (!modelPath) {
