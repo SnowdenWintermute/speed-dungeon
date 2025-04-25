@@ -33,7 +33,7 @@ export enum VfxParentType {
 
 export interface VfxParent {
   type: VfxParentType;
-  parentEntityId: EntityId;
+
   offset?: Vector3;
 }
 
@@ -45,11 +45,9 @@ export type MobileVfxProperties = {
   parentOption?: VfxParent;
 };
 
-export type VfxProperties = MobileVfxProperties;
-
 export class Vfx {
   constructor(
     public entityProperties: EntityProperties,
-    public vfxProperties: VfxProperties
+    public vfxProperties: MobileVfxProperties
   ) {}
 }
