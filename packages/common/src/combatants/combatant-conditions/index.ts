@@ -1,5 +1,5 @@
-import { ClientOnlyVfxNames } from "../../action-entities/client-only-vfx.js";
-import { VfxParentType } from "../../action-entities/index.js";
+import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
+import { AbstractParentType } from "../../action-entities/index.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { EntityId, MaxAndCurrent, Milliseconds } from "../../primatives/index.js";
@@ -77,9 +77,9 @@ export abstract class CombatantCondition {
     triggeredActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
   };
 
-  abstract getClientOnlyVfxWhileActive: () => {
-    name: ClientOnlyVfxNames;
-    parentType: VfxParentType;
+  abstract getCosmeticEffectWhileActive: () => {
+    name: CosmeticEffectNames;
+    parentType: AbstractParentType;
     lifetime?: Milliseconds;
   }[];
   // examples:

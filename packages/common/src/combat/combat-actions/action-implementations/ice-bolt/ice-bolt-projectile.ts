@@ -23,8 +23,8 @@ import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/comb
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 import {
   ActionEntityName,
-  ClientOnlyVfxNames,
-  VfxParentType,
+  CosmeticEffectNames,
+  AbstractParentType,
 } from "../../../../action-entities/index.js";
 
 const config: CombatActionComponentConfig = {
@@ -87,7 +87,7 @@ const config: CombatActionComponentConfig = {
           position,
           name: ActionEntityName.IceBolt,
           parentOption: {
-            type: VfxParentType.UserOffHand,
+            type: AbstractParentType.UserOffHand,
             parentEntityId: context.combatantContext.combatant.entityProperties.id,
           },
           pointTowardEntityOption: target.entityProperties.id,
@@ -96,18 +96,18 @@ const config: CombatActionComponentConfig = {
     };
   },
 
-  getClientOnlyVfxToStartByStep() {
+  getCosmeticEffectToStartByStep() {
     return {
       [ActionResolutionStepType.OnActivationActionEntityMotion]: [
         {
-          name: ClientOnlyVfxNames.FrostParticleStream,
-          parentType: VfxParentType.VfxEntityRoot,
+          name: CosmeticEffectNames.FrostParticleStream,
+          parentType: AbstractParentType.VfxEntityRoot,
         },
       ],
       [ActionResolutionStepType.RollIncomingHitOutcomes]: [
         {
-          name: ClientOnlyVfxNames.FrostParticleBurst,
-          parentType: VfxParentType.CombatantHitboxCenter,
+          name: CosmeticEffectNames.FrostParticleBurst,
+          parentType: AbstractParentType.CombatantHitboxCenter,
           lifetime: 300,
         },
       ],

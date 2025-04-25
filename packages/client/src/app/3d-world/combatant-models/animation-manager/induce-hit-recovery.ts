@@ -8,8 +8,8 @@ import {
   CombatActionName,
   COMBAT_ACTIONS,
   ActionResolutionStepType,
-  ClientOnlyVfxNames,
-  VfxParentType,
+  CosmeticEffectNames,
+  AbstractParentType,
   Milliseconds,
   COMBAT_ACTION_NAME_STRINGS,
 } from "@speed-dungeon/common";
@@ -19,7 +19,7 @@ import startResourceChangeFloatingMessage from "./start-hp-change-floating-messa
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { useUIStore } from "@/stores/ui-store";
 import { postResourceChangeToCombatLog } from "./post-resource-change-to-combat-log";
-import { startOrStopClientOnlyVfx } from "../../game-world/replay-tree-manager/start-or-stop-client-only-vfx";
+import { startOrStopCosmeticEffect } from "../../game-world/replay-tree-manager/start-or-stop-cosmetic-effect";
 
 export function induceHitRecovery(
   gameWorld: GameWorld,
@@ -39,42 +39,42 @@ export function induceHitRecovery(
   const action = COMBAT_ACTIONS[actionName];
   const wasSpell = false; // @TODO - get this from action properties
 
-  let clientOnlyVfxNamesToStartThisStep: {
-    name: ClientOnlyVfxNames;
-    parentType: VfxParentType;
+  let cosmeticEffectNamesToStartThisStep: {
+    name: CosmeticEffectNames;
+    parentType: AbstractParentType;
     lifetime?: Milliseconds;
   }[] = [];
 
-  let clientOnlyVfxNamesToStopThisStep: ClientOnlyVfxNames[] = [];
+  let cosmeticEffectNamesToStopThisStep: CosmeticEffectNames[] = [];
 
-  if (action.getClientOnlyVfxToStartByStep) {
-    const clientOnlyVfxNamesToStart = action.getClientOnlyVfxToStartByStep();
+  if (action.getCosmeticEffectToStartByStep) {
+    const cosmeticEffectNamesToStart = action.getCosmeticEffectToStartByStep();
     console.log(
       COMBAT_ACTION_NAME_STRINGS[action.name],
       "to start: ",
-      clientOnlyVfxNamesToStartThisStep
+      cosmeticEffectNamesToStartThisStep
     );
-    const clientOnlyVfxNamesForThisStep = clientOnlyVfxNamesToStart[actionStep];
-    if (clientOnlyVfxNamesForThisStep)
-      clientOnlyVfxNamesToStartThisStep = clientOnlyVfxNamesForThisStep;
+    const cosmeticEffectNamesForThisStep = cosmeticEffectNamesToStart[actionStep];
+    if (cosmeticEffectNamesForThisStep)
+      cosmeticEffectNamesToStartThisStep = cosmeticEffectNamesForThisStep;
   }
-  if (action.getClientOnlyVfxToStopByStep) {
-    const clientOnlyVfxNamesToStop = action.getClientOnlyVfxToStopByStep();
-    const clientOnlyVfxNamesForThisStep = clientOnlyVfxNamesToStop[actionStep];
-    if (clientOnlyVfxNamesForThisStep)
-      clientOnlyVfxNamesToStopThisStep = clientOnlyVfxNamesForThisStep;
+  if (action.getCosmeticEffectToStopByStep) {
+    const cosmeticEffectNamesToStop = action.getCosmeticEffectToStopByStep();
+    const cosmeticEffectNamesForThisStep = cosmeticEffectNamesToStop[actionStep];
+    if (cosmeticEffectNamesForThisStep)
+      cosmeticEffectNamesToStopThisStep = cosmeticEffectNamesForThisStep;
   }
 
   console.log(
     COMBAT_ACTION_NAME_STRINGS[action.name],
     "to start: ",
-    clientOnlyVfxNamesToStartThisStep
+    cosmeticEffectNamesToStartThisStep
   );
 
-  startOrStopClientOnlyVfx(
-    clientOnlyVfxNamesToStartThisStep,
-    clientOnlyVfxNamesToStopThisStep,
-    targetModel.clientOnlyVfxManager,
+  startOrStopCosmeticEffect(
+    cosmeticEffectNamesToStartThisStep,
+    cosmeticEffectNamesToStopThisStep,
+    targetModel.cosmeticEffectManager,
     targetModel.entityId
   );
 

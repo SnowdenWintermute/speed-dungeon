@@ -5,8 +5,8 @@ import {
   EntityMotionGameUpdateCommand,
   SpawnableEntityType,
   DynamicAnimationName,
-  ClientOnlyVfxNames,
-  VfxParentType,
+  CosmeticEffectNames,
+  AbstractParentType,
   Milliseconds,
   COMBAT_ACTIONS,
 } from "@speed-dungeon/common";
@@ -17,8 +17,8 @@ import { Quaternion, Vector3 } from "@babylonjs/core";
 import { plainToInstance } from "class-transformer";
 import { DynamicAnimationManager } from "../../combatant-models/animation-manager/dynamic-animation-manager";
 import { SkeletalAnimationManager } from "../../combatant-models/animation-manager/skeletal-animation-manager";
-import { ClientOnlyVfxManager } from "../../client-only-vfx-manager";
-import { startOrStopClientOnlyVfx } from "./start-or-stop-client-only-vfx";
+import { CosmeticEffectManager } from "../../cosmetic-effect-manager";
+import { startOrStopCosmeticEffect } from "./start-or-stop-cosmetic-effect";
 
 export function entityMotionGameUpdateHandler(update: {
   command: EntityMotionGameUpdateCommand;
@@ -27,7 +27,7 @@ export function entityMotionGameUpdateHandler(update: {
   const { command } = update;
   let movementManager: ModelMovementManager;
   let animationManager: DynamicAnimationManager | SkeletalAnimationManager | undefined;
-  let clientOnlyVfxManager: ClientOnlyVfxManager;
+  let cosmeticEffectManager: CosmeticEffectManager;
   const { entityId, translationOption, rotationOption, animationOption } = command;
 
   let destinationYOption: undefined | number;
@@ -37,13 +37,13 @@ export function entityMotionGameUpdateHandler(update: {
     if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
     movementManager = combatantModelOption.movementManager;
     animationManager = combatantModelOption.animationManager;
-    clientOnlyVfxManager = combatantModelOption.clientOnlyVfxManager;
+    cosmeticEffectManager = combatantModelOption.cosmeticEffectManager;
   } else {
     const vfxOption = gameWorld.current?.vfxManager.mobile[entityId];
     if (!vfxOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_VFX);
     movementManager = vfxOption.movementManager;
     animationManager = vfxOption.animationManager;
-    clientOnlyVfxManager = vfxOption.clientOnlyVfxManager;
+    cosmeticEffectManager = vfxOption.cosmeticEffectManager;
 
     movementManager.transformNode.setParent(null);
 
@@ -70,33 +70,33 @@ export function entityMotionGameUpdateHandler(update: {
   // @TODO -this can be refactored to somehow combine with other places
   // where we start and stop clientonlyvfx
 
-  let clientOnlyVfxNamesToStartThisStep: {
-    name: ClientOnlyVfxNames;
-    parentType: VfxParentType;
+  let cosmeticEffectNamesToStartThisStep: {
+    name: CosmeticEffectNames;
+    parentType: AbstractParentType;
     lifetime?: Milliseconds;
   }[] = [];
 
-  let clientOnlyVfxNamesToStopThisStep: ClientOnlyVfxNames[] = [];
+  let cosmeticEffectNamesToStopThisStep: CosmeticEffectNames[] = [];
 
   const action = COMBAT_ACTIONS[command.actionName];
 
-  if (action.getClientOnlyVfxToStartByStep) {
-    const clientOnlyVfxNamesToStart = action.getClientOnlyVfxToStartByStep();
-    const clientOnlyVfxNamesForThisStep = clientOnlyVfxNamesToStart[command.step];
-    if (clientOnlyVfxNamesForThisStep)
-      clientOnlyVfxNamesToStartThisStep = clientOnlyVfxNamesForThisStep;
+  if (action.getCosmeticEffectToStartByStep) {
+    const cosmeticEffectNamesToStart = action.getCosmeticEffectToStartByStep();
+    const cosmeticEffectNamesForThisStep = cosmeticEffectNamesToStart[command.step];
+    if (cosmeticEffectNamesForThisStep)
+      cosmeticEffectNamesToStartThisStep = cosmeticEffectNamesForThisStep;
   }
-  if (action.getClientOnlyVfxToStopByStep) {
-    const clientOnlyVfxNamesToStop = action.getClientOnlyVfxToStopByStep();
-    const clientOnlyVfxNamesForThisStep = clientOnlyVfxNamesToStop[command.step];
-    if (clientOnlyVfxNamesForThisStep)
-      clientOnlyVfxNamesToStopThisStep = clientOnlyVfxNamesForThisStep;
+  if (action.getCosmeticEffectToStopByStep) {
+    const cosmeticEffectNamesToStop = action.getCosmeticEffectToStopByStep();
+    const cosmeticEffectNamesForThisStep = cosmeticEffectNamesToStop[command.step];
+    if (cosmeticEffectNamesForThisStep)
+      cosmeticEffectNamesToStopThisStep = cosmeticEffectNamesForThisStep;
   }
 
-  startOrStopClientOnlyVfx(
-    clientOnlyVfxNamesToStartThisStep,
-    clientOnlyVfxNamesToStopThisStep,
-    clientOnlyVfxManager,
+  startOrStopCosmeticEffect(
+    cosmeticEffectNamesToStartThisStep,
+    cosmeticEffectNamesToStopThisStep,
+    cosmeticEffectManager,
     entityId
   );
 

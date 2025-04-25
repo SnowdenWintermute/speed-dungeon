@@ -1,14 +1,14 @@
 import { AbstractMesh, Scene, TransformNode } from "@babylonjs/core";
 import { ManagedParticleSystem } from "./managed-particle-system.js";
 
-export enum ClientOnlyVfxNames {
+export enum CosmeticEffectNames {
   FrostParticleAccumulation,
   FrostParticleStream,
   FrostParticleBurst,
   CombatantIsCold,
 }
 
-export abstract class ClientOnlyVfx {
+export abstract class CosmeticEffect {
   public lifetimeTimeout: null | NodeJS.Timeout = null;
   particleSystems: ManagedParticleSystem[] = [];
   public transformNode = new TransformNode("");
@@ -36,7 +36,7 @@ export abstract class ClientOnlyVfx {
   }
 
   cleanup() {
-    console.log("cleaning up ClientOnlyVfx");
+    console.log("cleaning up CosmeticEffect");
     for (const particleSystem of this.particleSystems) {
       particleSystem.cleanup();
     }

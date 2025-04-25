@@ -16,7 +16,7 @@ import {
   SpawnEntityGameUpdateCommand,
   SpawnableEntityType,
   SpeedDungeonGame,
-  VfxParentType,
+  AbstractParentType,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
@@ -33,7 +33,7 @@ import { hitOutcomesGameUpdateHandler } from "./hit-outcomes";
 import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
 import { induceHitRecovery } from "../../combatant-models/animation-manager/induce-hit-recovery";
-import { startOrStopClientOnlyVfx } from "./start-or-stop-client-only-vfx";
+import { startOrStopCosmeticEffect } from "./start-or-stop-cosmetic-effect";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
@@ -132,10 +132,10 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
                 if (!targetModelOption)
                   throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
-                startOrStopClientOnlyVfx(
-                  condition.getClientOnlyVfxWhileActive(),
+                startOrStopCosmeticEffect(
+                  condition.getCosmeticEffectWhileActive(),
                   [],
-                  targetModelOption.clientOnlyVfxManager,
+                  targetModelOption.cosmeticEffectManager,
                   targetModelOption.entityId
                 );
               }
@@ -164,12 +164,12 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
                 const targetModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
                 if (!targetModelOption)
                   throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-                startOrStopClientOnlyVfx(
+                startOrStopCosmeticEffect(
                   [],
                   conditionRemovedOption
-                    .getClientOnlyVfxWhileActive()
+                    .getCosmeticEffectWhileActive()
                     .map((clienOnlyVfx) => clienOnlyVfx.name),
-                  targetModelOption.clientOnlyVfxManager,
+                  targetModelOption.cosmeticEffectManager,
                   targetModelOption.entityId
                 );
               }
@@ -257,12 +257,12 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       // @TODO - refactor
       const boneNameList = (() => {
         switch (actionEntityProperties.parentOption.type) {
-          case VfxParentType.UserMainHand:
+          case AbstractParentType.UserMainHand:
             return SKELETON_MAIN_HAND_NAMES;
-          case VfxParentType.UserOffHand:
+          case AbstractParentType.UserOffHand:
             return SKELETON_OFF_HAND_NAMES;
-          case VfxParentType.VfxEntityRoot:
-          case VfxParentType.CombatantHitboxCenter:
+          case AbstractParentType.VfxEntityRoot:
+          case AbstractParentType.CombatantHitboxCenter:
             return "root";
         }
       })();

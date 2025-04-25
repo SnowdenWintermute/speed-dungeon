@@ -40,8 +40,8 @@ import { KineticDamageType } from "../../../kinetic-damage-types.js";
 import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-ice-burst.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import cloneDeep from "lodash.clonedeep";
-import { ClientOnlyVfxNames } from "../../../../action-entities/client-only-vfx.js";
-import { ActionEntityName, VfxParentType } from "../../../../action-entities/index.js";
+import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
+import { ActionEntityName, AbstractParentType } from "../../../../action-entities/index.js";
 
 const config: CombatActionComponentConfig = {
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
@@ -140,12 +140,12 @@ const config: CombatActionComponentConfig = {
     ];
   },
 
-  getClientOnlyVfxToStartByStep() {
+  getCosmeticEffectToStartByStep() {
     return {
       [ActionResolutionStepType.OnActivationActionEntityMotion]: [
         {
-          name: ClientOnlyVfxNames.FrostParticleBurst,
-          parentType: VfxParentType.VfxEntityRoot,
+          name: CosmeticEffectNames.FrostParticleBurst,
+          parentType: AbstractParentType.VfxEntityRoot,
           lifetime: 300,
         },
       ],

@@ -7,10 +7,10 @@ import {
   Scene,
   Texture,
 } from "@babylonjs/core";
-import { ClientOnlyVfx } from "./client-only-vfx.js";
+import { CosmeticEffect } from "./cosmetic-effect.js";
 import { ManagedParticleSystem } from "./managed-particle-system.js";
 
-export class FrostParticleAccumulation extends ClientOnlyVfx {
+export class FrostParticleAccumulation extends CosmeticEffect {
   createAnimatedMeshes(): AbstractMesh[] {
     throw new Error("Method not implemented.");
   }

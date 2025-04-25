@@ -27,7 +27,7 @@ import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { getBowShootActionStepAnimations } from "../bow-shoot-action-step-animations.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import { ActionEntityName, VfxParentType } from "../../../../action-entities/index.js";
+import { ActionEntityName, AbstractParentType } from "../../../../action-entities/index.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -127,7 +127,7 @@ const config: CombatActionComponentConfig = {
           position,
           name: ActionEntityName.Arrow,
           parentOption: {
-            type: VfxParentType.UserMainHand,
+            type: AbstractParentType.UserMainHand,
             parentEntityId: context.combatantContext.combatant.entityProperties.id,
           },
           pointTowardEntityOption: target.entityProperties.id,

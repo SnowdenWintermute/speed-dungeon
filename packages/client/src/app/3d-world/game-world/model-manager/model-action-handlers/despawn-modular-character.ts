@@ -9,7 +9,7 @@ export function despawnModularCharacter(
 ): Error | void {
   if (!toRemove) return new Error("tried to remove a combatant model that doesn't exist");
 
-  toRemove.clientOnlyVfxManager.cleanup();
+  toRemove.cosmeticEffectManager.cleanup();
 
   toRemove.rootTransformNode.dispose();
   if (toRemove.debugMeshes)

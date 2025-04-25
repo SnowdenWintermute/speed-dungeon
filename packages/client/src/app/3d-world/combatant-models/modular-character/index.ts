@@ -49,7 +49,7 @@ import { useGameStore } from "@/stores/game-store";
 import { ManagedAnimationOptions } from "../animation-manager";
 import { plainToInstance } from "class-transformer";
 import { useLobbyStore } from "@/stores/lobby-store";
-import { ClientOnlyVfxManager } from "../../client-only-vfx-manager";
+import { CosmeticEffectManager } from "../../cosmetic-effect-manager";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;
@@ -84,7 +84,7 @@ export class ModularCharacter {
   isInMeleeRangeOfTarget: boolean = false;
   movementManager: ModelMovementManager;
   animationManager: SkeletalAnimationManager;
-  clientOnlyVfxManager = new ClientOnlyVfxManager();
+  cosmeticEffectManager = new CosmeticEffectManager();
   highlightManager: HighlightManager = new HighlightManager(this);
   debugMeshes: Mesh[] | null = null;
   public visibility: number = 0;

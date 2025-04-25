@@ -1,13 +1,10 @@
 import {
-  ActionResolutionStepType,
   CLIENT_ONLY_VFX_CONSTRUCTORS,
-  COMBAT_ACTIONS,
-  ClientOnlyVfxNames,
-  CombatActionName,
+  CosmeticEffectNames,
   ERROR_MESSAGES,
   EntityId,
   Milliseconds,
-  VfxParentType,
+  AbstractParentType,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 import {
@@ -17,23 +14,23 @@ import {
 } from "../../combatant-models/modular-character/skeleton-structure-variables";
 import { getChildMeshByName } from "../../utils";
 import { Vector3 } from "@babylonjs/core";
-import { ClientOnlyVfxManager } from "../../client-only-vfx-manager";
+import { CosmeticEffectManager } from "../../cosmetic-effect-manager";
 
-export function startOrStopClientOnlyVfx(
-  clientOnlyVfxToStart: {
-    name: ClientOnlyVfxNames;
-    parentType: VfxParentType;
+export function startOrStopCosmeticEffect(
+  cosmeticEffectToStart: {
+    name: CosmeticEffectNames;
+    parentType: AbstractParentType;
     lifetime?: Milliseconds;
   }[],
-  clientOnlyVfxToStop: ClientOnlyVfxNames[],
-  clientOnlyVfxManager: ClientOnlyVfxManager,
+  cosmeticEffectToStop: CosmeticEffectNames[],
+  cosmeticEffectManager: CosmeticEffectManager,
   entityId: EntityId
 ) {
-  if (clientOnlyVfxToStart.length) {
+  if (cosmeticEffectToStart.length) {
     const sceneOption = gameWorld.current?.scene;
     if (!sceneOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
 
-    for (const { name, parentType, lifetime } of clientOnlyVfxToStart) {
+    for (const { name, parentType, lifetime } of cosmeticEffectToStart) {
       const effect = new CLIENT_ONLY_VFX_CONSTRUCTORS[name](sceneOption);
 
       if (lifetime !== undefined) {
@@ -42,11 +39,11 @@ export function startOrStopClientOnlyVfx(
         }, lifetime);
       }
 
-      clientOnlyVfxManager.clientOnlyVfx[name]?.softCleanup();
-      clientOnlyVfxManager.clientOnlyVfx[name] = effect;
+      cosmeticEffectManager.cosmeticEffect[name]?.softCleanup();
+      cosmeticEffectManager.cosmeticEffect[name] = effect;
 
       switch (parentType) {
-        case VfxParentType.UserMainHand:
+        case AbstractParentType.UserMainHand:
           {
             const boneName = SKELETON_MAIN_HAND_NAMES[SKELETON_STRUCTURE_TYPE];
 
@@ -59,7 +56,7 @@ export function startOrStopClientOnlyVfx(
             effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
           }
           break;
-        case VfxParentType.UserOffHand:
+        case AbstractParentType.UserOffHand:
           {
             const boneName = SKELETON_OFF_HAND_NAMES[SKELETON_STRUCTURE_TYPE];
 
@@ -73,7 +70,7 @@ export function startOrStopClientOnlyVfx(
             effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
           }
           break;
-        case VfxParentType.VfxEntityRoot:
+        case AbstractParentType.VfxEntityRoot:
           {
             const vfxOption = gameWorld.current?.vfxManager.mobile[entityId];
             if (!vfxOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_VFX);
@@ -81,7 +78,7 @@ export function startOrStopClientOnlyVfx(
             effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
           }
           break;
-        case VfxParentType.CombatantHitboxCenter:
+        case AbstractParentType.CombatantHitboxCenter:
           {
             const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
             if (!combatantModelOption)
@@ -97,10 +94,10 @@ export function startOrStopClientOnlyVfx(
     }
   }
 
-  if (clientOnlyVfxToStop.length) {
-    for (const vfxName of clientOnlyVfxToStop) {
-      clientOnlyVfxManager.clientOnlyVfx[vfxName]?.softCleanup();
-      delete clientOnlyVfxManager.clientOnlyVfx[vfxName];
+  if (cosmeticEffectToStop.length) {
+    for (const vfxName of cosmeticEffectToStop) {
+      cosmeticEffectManager.cosmeticEffect[vfxName]?.softCleanup();
+      delete cosmeticEffectManager.cosmeticEffect[vfxName];
     }
   }
 }

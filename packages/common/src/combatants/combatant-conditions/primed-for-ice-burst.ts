@@ -11,8 +11,8 @@ import {
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { ClientOnlyVfxNames } from "../../action-entities/client-only-vfx.js";
-import { VfxParentType } from "../../action-entities/index.js";
+import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
+import { AbstractParentType } from "../../action-entities/index.js";
 
 export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.PrimedForIceBurst;
@@ -48,10 +48,10 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
     };
   }
 
-  getClientOnlyVfxWhileActive = () => [
+  getCosmeticEffectWhileActive = () => [
     {
-      name: ClientOnlyVfxNames.CombatantIsCold,
-      parentType: VfxParentType.CombatantHitboxCenter,
+      name: CosmeticEffectNames.CombatantIsCold,
+      parentType: AbstractParentType.CombatantHitboxCenter,
     },
   ];
 }

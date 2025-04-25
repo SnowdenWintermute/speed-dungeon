@@ -12,7 +12,7 @@ import { ModelMovementManager } from "../model-movement-manager";
 import { gameWorld } from "../SceneManager";
 import { MOBILE_VFX_NAME_TO_MODEL_PATH } from "./vfx-model-paths";
 import { DynamicAnimationManager } from "../combatant-models/animation-manager/dynamic-animation-manager";
-import { ClientOnlyVfxManager } from "../client-only-vfx-manager";
+import { CosmeticEffectManager } from "../cosmetic-effect-manager";
 
 export class VfxManager {
   mobile: { [id: EntityId]: ActionEntityModel } = {};
@@ -34,7 +34,7 @@ export class VfxManager {
 export class ActionEntityModel {
   public movementManager: ModelMovementManager;
   public animationManager: DynamicAnimationManager;
-  public clientOnlyVfxManager = new ClientOnlyVfxManager();
+  public cosmeticEffectManager = new CosmeticEffectManager();
   private transformNode: TransformNode;
   // public animationManager: AnimationManager
   constructor(
@@ -60,7 +60,7 @@ export class ActionEntityModel {
 
   softCleanup() {
     disposeAsyncLoadedScene(this.scene);
-    this.clientOnlyVfxManager.softCleanup();
+    this.cosmeticEffectManager.softCleanup();
   }
 
   cleanup() {

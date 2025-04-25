@@ -1,5 +1,5 @@
-export * from "./client-only-vfx.js";
-export * from "./client-only-vfx-constructors.js";
+export * from "./cosmetic-effect.js";
+export * from "./cosmetic-effect-constructors.js";
 import { Vector3 } from "@babylonjs/core";
 import { EntityId, EntityProperties } from "../primatives/index.js";
 
@@ -17,7 +17,7 @@ export const MOBILE_VFX_NAME_STRINGS: Record<ActionEntityName, string> = {
   [ActionEntityName.IceBurst]: "IceBurst",
 };
 
-export enum VfxParentType {
+export enum AbstractParentType {
   UserMainHand,
   UserOffHand,
   VfxEntityRoot,
@@ -27,8 +27,8 @@ export enum VfxParentType {
   // OffHandWeapon
 }
 
-export interface VfxParent {
-  type: VfxParentType;
+export interface AbstractParent {
+  type: AbstractParentType;
   parentEntityId: EntityId;
   offset?: Vector3;
 }
@@ -37,7 +37,7 @@ export type ActionEntityProperties = {
   position: Vector3;
   name: ActionEntityName;
   pointTowardEntityOption?: EntityId;
-  parentOption?: VfxParent;
+  parentOption?: AbstractParent;
 };
 
 export class ActionEntity {

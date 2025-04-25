@@ -22,29 +22,6 @@ export enum GameUpdateCommandType {
   HitOutcomes,
 }
 
-// UPDATE TYPES
-// hit outcomes
-// resources paid
-// activated triggers
-// spawn vfx entity
-// entity motion (vfx or combatant)
-// - animation
-// - animation is repeating
-// - destinationOption
-// - translation duration
-//
-//
-// RANGED ATTACK
-// - entity motion: user, move forward, Vec3(in front of user)
-// - resources paid
-// - activated triggers
-// - spawn vfx: arrow, Vec3(knocked)
-// - entity motion: user, bow pull to release, NULL
-//   - entity motion: arrow, NULL, Vec3(target location)
-//   - hit outcomes
-//   - activated triggers
-// - entity motion: user, move back, Vec3(home location)
-
 export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, string> = {
   [GameUpdateCommandType.SpawnEntity]: "Spawn Entity",
   [GameUpdateCommandType.EntityMotion]: "Entity Motion",

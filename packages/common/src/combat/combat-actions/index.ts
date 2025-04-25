@@ -41,8 +41,8 @@ import { ActionTracker } from "../../action-processing/action-tracker.js";
 import { SpawnableEntity } from "../../spawnables/index.js";
 import { ConsumableType } from "../../items/consumables/index.js";
 import { Milliseconds } from "../../primatives/index.js";
-import { ClientOnlyVfxNames } from "../../action-entities/client-only-vfx.js";
-import { VfxParentType } from "../../action-entities/index.js";
+import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
+import { AbstractParentType } from "../../action-entities/index.js";
 
 export interface CombatActionComponentConfig {
   description: string;
@@ -72,20 +72,20 @@ export interface CombatActionComponentConfig {
     self: CombatActionComponent
   ) => Error | null | CombatActionTarget;
 
-  // STEPS AND VFX
+  // STEPS AND ENTITIES
   userShouldMoveHomeOnComplete: boolean;
   getResolutionSteps: () => ActionResolutionStepType[];
   getActionStepAnimations: (
     context: ActionResolutionStepContext
   ) => null | Error | CombatActionCombatantAnimations;
-  getClientOnlyVfxToStartByStep?: () => Partial<
+  getCosmeticEffectToStartByStep?: () => Partial<
     Record<
       ActionResolutionStepType,
-      { name: ClientOnlyVfxNames; parentType: VfxParentType; lifetime?: Milliseconds }[]
+      { name: CosmeticEffectNames; parentType: AbstractParentType; lifetime?: Milliseconds }[]
     >
   >;
-  getClientOnlyVfxToStopByStep?: () => Partial<
-    Record<ActionResolutionStepType, ClientOnlyVfxNames[]>
+  getCosmeticEffectToStopByStep?: () => Partial<
+    Record<ActionResolutionStepType, CosmeticEffectNames[]>
   >;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 
@@ -176,14 +176,14 @@ export abstract class CombatActionComponent {
     context: ActionResolutionStepContext
   ) => null | Error | CombatActionCombatantAnimations;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
-  getClientOnlyVfxToStartByStep?: () => Partial<
+  getCosmeticEffectToStartByStep?: () => Partial<
     Record<
       ActionResolutionStepType,
-      { name: ClientOnlyVfxNames; parentType: VfxParentType; lifetime?: Milliseconds }[]
+      { name: CosmeticEffectNames; parentType: AbstractParentType; lifetime?: Milliseconds }[]
     >
   >;
-  getClientOnlyVfxToStopByStep?: () => Partial<
-    Record<ActionResolutionStepType, ClientOnlyVfxNames[]>
+  getCosmeticEffectToStopByStep?: () => Partial<
+    Record<ActionResolutionStepType, CosmeticEffectNames[]>
   >;
 
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
@@ -284,8 +284,8 @@ export abstract class CombatActionComponent {
     this.getRequiredRange = (user) => config.getRequiredRange(user, this);
     this.motionPhasePositionGetters = config.motionPhasePositionGetters;
     this.getSpawnableEntity = config.getSpawnableEntity;
-    this.getClientOnlyVfxToStartByStep = config.getClientOnlyVfxToStartByStep;
-    this.getClientOnlyVfxToStopByStep = config.getClientOnlyVfxToStopByStep;
+    this.getCosmeticEffectToStartByStep = config.getCosmeticEffectToStartByStep;
+    this.getCosmeticEffectToStopByStep = config.getCosmeticEffectToStopByStep;
     this.getHpChangeProperties = (user, target) => config.getHpChangeProperties(user, target, this);
     this.getManaChangeProperties = (user, target) =>
       config.getManaChangeProperties(user, target, this);

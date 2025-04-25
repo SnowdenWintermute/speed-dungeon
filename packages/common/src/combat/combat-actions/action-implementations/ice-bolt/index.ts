@@ -32,8 +32,8 @@ import { NumberRange } from "../../../../primatives/number-range.js";
 import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { getSpellCastActionStepAnimations } from "../spell-cast-action-step-animations.js";
-import { ClientOnlyVfxNames } from "../../../../action-entities/client-only-vfx.js";
-import { VfxParentType } from "../../../../action-entities/index.js";
+import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
+import { AbstractParentType } from "../../../../action-entities/index.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -127,19 +127,19 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => null,
-  getClientOnlyVfxToStartByStep() {
+  getCosmeticEffectToStartByStep() {
     return {
       [ActionResolutionStepType.InitialPositioning]: [
         {
-          name: ClientOnlyVfxNames.FrostParticleAccumulation,
-          parentType: VfxParentType.UserOffHand,
+          name: CosmeticEffectNames.FrostParticleAccumulation,
+          parentType: AbstractParentType.UserOffHand,
         },
       ],
     };
   },
-  getClientOnlyVfxToStopByStep() {
+  getCosmeticEffectToStopByStep() {
     return {
-      [ActionResolutionStepType.FinalPositioning]: [ClientOnlyVfxNames.FrostParticleAccumulation],
+      [ActionResolutionStepType.FinalPositioning]: [CosmeticEffectNames.FrostParticleAccumulation],
     };
   },
   getResolutionSteps() {

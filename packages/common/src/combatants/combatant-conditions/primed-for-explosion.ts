@@ -45,5 +45,5 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
     };
   }
 
-  getClientOnlyVfxWhileActive = () => [];
+  getCosmeticEffectWhileActive = () => [];
 }
