@@ -34,18 +34,14 @@ import {
   DynamicAnimationName,
 } from "../../../../app-consts.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import {
-  ClientOnlyVfxNames,
-  MobileVfxName,
-  VfxParentType,
-  VfxType,
-} from "../../../../vfx/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
 import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-ice-burst.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import cloneDeep from "lodash.clonedeep";
+import { ClientOnlyVfxNames } from "../../../../action-entities/client-only-vfx.js";
+import { ActionEntityName, VfxParentType } from "../../../../action-entities/index.js";
 
 const config: CombatActionComponentConfig = {
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
@@ -137,16 +133,16 @@ const config: CombatActionComponentConfig = {
   getResolutionSteps() {
     return [
       ActionResolutionStepType.OnActivationSpawnEntity,
-      ActionResolutionStepType.OnActivationVfxMotion,
+      ActionResolutionStepType.OnActivationActionEntityMotion,
       ActionResolutionStepType.RollIncomingHitOutcomes,
       ActionResolutionStepType.EvalOnHitOutcomeTriggers,
-      ActionResolutionStepType.VfxDisspationMotion,
+      ActionResolutionStepType.ActionEntityDissipationMotion,
     ];
   },
 
   getClientOnlyVfxToStartByStep() {
     return {
-      [ActionResolutionStepType.OnActivationVfxMotion]: [
+      [ActionResolutionStepType.OnActivationActionEntityMotion]: [
         {
           name: ClientOnlyVfxNames.FrostParticleBurst,
           parentType: VfxParentType.VfxEntityRoot,
@@ -179,13 +175,12 @@ const config: CombatActionComponentConfig = {
     const position = primaryTargetIdResult.combatantProperties.position;
 
     return {
-      type: SpawnableEntityType.Vfx,
-      vfx: {
+      type: SpawnableEntityType.ActionEntity,
+      actionEntity: {
         entityProperties: { id: context.idGenerator.generate(), name: "explosion" },
-        vfxProperties: {
-          vfxType: VfxType.Mobile,
+        actionEntityProperties: {
           position,
-          name: MobileVfxName.IceBurst,
+          name: ActionEntityName.IceBurst,
         },
       },
     };

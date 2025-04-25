@@ -3,23 +3,19 @@ export * from "./client-only-vfx-constructors.js";
 import { Vector3 } from "@babylonjs/core";
 import { EntityId, EntityProperties } from "../primatives/index.js";
 
-export enum MobileVfxName {
+export enum ActionEntityName {
   Arrow,
   IceBolt,
   Explosion,
   IceBurst,
 }
 
-export const MOBILE_VFX_NAME_STRINGS: Record<MobileVfxName, string> = {
-  [MobileVfxName.Arrow]: "Arrow",
-  [MobileVfxName.IceBolt]: "Ice Bolt",
-  [MobileVfxName.Explosion]: "Explosion",
-  [MobileVfxName.IceBurst]: "IceBurst",
+export const MOBILE_VFX_NAME_STRINGS: Record<ActionEntityName, string> = {
+  [ActionEntityName.Arrow]: "Arrow",
+  [ActionEntityName.IceBolt]: "Ice Bolt",
+  [ActionEntityName.Explosion]: "Explosion",
+  [ActionEntityName.IceBurst]: "IceBurst",
 };
-
-export enum VfxType {
-  Mobile,
-}
 
 export enum VfxParentType {
   UserMainHand,
@@ -33,21 +29,20 @@ export enum VfxParentType {
 
 export interface VfxParent {
   type: VfxParentType;
-
+  parentEntityId: EntityId;
   offset?: Vector3;
 }
 
-export type MobileVfxProperties = {
-  vfxType: VfxType.Mobile;
+export type ActionEntityProperties = {
   position: Vector3;
-  name: MobileVfxName;
+  name: ActionEntityName;
   pointTowardEntityOption?: EntityId;
   parentOption?: VfxParent;
 };
 
-export class Vfx {
+export class ActionEntity {
   constructor(
     public entityProperties: EntityProperties,
-    public vfxProperties: MobileVfxProperties
+    public actionEntityProperties: ActionEntityProperties
   ) {}
 }

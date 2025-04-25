@@ -7,7 +7,7 @@ import {
   ReplayEventType,
 } from "@speed-dungeon/common";
 import { GAME_UPDATE_COMMAND_HANDLERS } from "./game-update-command-handlers";
-import { MobileVfxModel } from "../../vfx-models";
+import { ActionEntityModel } from "../../vfx-models";
 import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
@@ -15,7 +15,7 @@ import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
 export class ReplayTreeManager {
   private queue: { root: NestedNodeReplayEvent; onComplete: () => void }[] = [];
   private current: null | ReplayTreeProcessor = null;
-  private preSpawnedVfx: { [id: EntityId]: MobileVfxModel } = {};
+  private preSpawnedVfx: { [id: EntityId]: ActionEntityModel } = {};
   constructor() {}
 
   getCurrent() {

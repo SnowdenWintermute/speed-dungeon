@@ -5,15 +5,12 @@ import {
 } from "./index.js";
 import { Combatant, createTriggeredActionUserCombatant } from "../index.js";
 import {
-  COMBAT_ACTION_NAME_STRINGS,
   CombatActionExecutionIntent,
   CombatActionName,
 } from "../../combat/combat-actions/index.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { ClientOnlyVfxNames } from "../../vfx/client-only-vfx.js";
-import { VfxParentType } from "../../vfx/index.js";
 
 export class PrimedForExplosionCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.PrimedForExplosion;

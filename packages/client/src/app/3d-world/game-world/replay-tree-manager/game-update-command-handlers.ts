@@ -17,11 +17,10 @@ import {
   SpawnableEntityType,
   SpeedDungeonGame,
   VfxParentType,
-  VfxType,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
-import { MobileVfxModel, spawnMobileVfxModel } from "../../vfx-models";
+import { ActionEntityModel, spawnActionEntityModel } from "../../vfx-models";
 import { getChildMeshByName } from "../../utils";
 import {
   SKELETON_MAIN_HAND_NAMES,
@@ -219,51 +218,51 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     isComplete: boolean;
   }) {
     const { command } = update;
-    if (command.entity.type !== SpawnableEntityType.Vfx) {
+    if (command.entity.type !== SpawnableEntityType.ActionEntity) {
       update.isComplete = true;
       return;
     }
     if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
 
-    const { vfx } = command.entity;
-    const { vfxProperties } = vfx;
-
-    if (vfxProperties.vfxType !== VfxType.Mobile) {
-      return new Error("non-mobile vfx not implemented");
-    }
+    const { actionEntity } = command.entity;
+    const { actionEntityProperties } = actionEntity;
 
     const position = new Vector3(
-      vfxProperties.position._x,
-      vfxProperties.position._y,
-      vfxProperties.position._z
+      actionEntityProperties.position._x,
+      actionEntityProperties.position._y,
+      actionEntityProperties.position._z
     );
 
-    const scene = await spawnMobileVfxModel(vfxProperties.name, position);
+    const scene = await spawnActionEntityModel(actionEntityProperties.name, position);
 
-    const vfxModel = new MobileVfxModel(
-      vfx.entityProperties.id,
+    const vfxModel = new ActionEntityModel(
+      actionEntity.entityProperties.id,
       scene,
       position,
-      vfxProperties.name,
-      vfxProperties.pointTowardEntityOption
+      actionEntityProperties.name,
+      actionEntityProperties.pointTowardEntityOption
     );
 
     update.isComplete = true;
 
     gameWorld.current.vfxManager.register(vfxModel);
 
-    if (vfxProperties.parentOption) {
+    if (actionEntityProperties.parentOption) {
       const actionUserOption =
-        gameWorld.current.modelManager.combatantModels[vfxProperties.parentOption.parentEntityId];
+        gameWorld.current.modelManager.combatantModels[
+          actionEntityProperties.parentOption.parentEntityId
+        ];
       if (!actionUserOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
+      // @TODO - refactor
       const boneNameList = (() => {
-        switch (vfxProperties.parentOption.type) {
+        switch (actionEntityProperties.parentOption.type) {
           case VfxParentType.UserMainHand:
             return SKELETON_MAIN_HAND_NAMES;
           case VfxParentType.UserOffHand:
             return SKELETON_OFF_HAND_NAMES;
           case VfxParentType.VfxEntityRoot:
+          case VfxParentType.CombatantHitboxCenter:
             return "root";
         }
       })();

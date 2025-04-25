@@ -35,10 +35,10 @@ import {
   DynamicAnimationName,
 } from "../../../../app-consts.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { MobileVfxName, VfxType } from "../../../../vfx/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
+import { ActionEntityName } from "../../../../action-entities/index.js";
 
 const config: CombatActionComponentConfig = {
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
@@ -123,10 +123,10 @@ const config: CombatActionComponentConfig = {
   getResolutionSteps() {
     return [
       ActionResolutionStepType.OnActivationSpawnEntity,
-      ActionResolutionStepType.OnActivationVfxMotion,
+      ActionResolutionStepType.OnActivationActionEntityMotion,
       ActionResolutionStepType.RollIncomingHitOutcomes,
       ActionResolutionStepType.EvalOnHitOutcomeTriggers,
-      ActionResolutionStepType.VfxDisspationMotion,
+      ActionResolutionStepType.ActionEntityDissipationMotion,
     ];
   },
   motionPhasePositionGetters: {
@@ -151,11 +151,6 @@ const config: CombatActionComponentConfig = {
   getCanTriggerCounterattack: (user) => false,
 
   getSpawnableEntity: (context) => {
-    console.log(
-      "getting spawnable entity",
-      context.combatantContext.combatant.entityProperties.name
-    );
-
     const { actionExecutionIntent } = context.tracker;
     const { party } = context.combatantContext;
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
@@ -168,13 +163,12 @@ const config: CombatActionComponentConfig = {
     const position = primaryTargetIdResult.combatantProperties.position;
 
     return {
-      type: SpawnableEntityType.Vfx,
-      vfx: {
+      type: SpawnableEntityType.ActionEntity,
+      actionEntity: {
         entityProperties: { id: context.idGenerator.generate(), name: "explosion" },
-        vfxProperties: {
-          vfxType: VfxType.Mobile,
+        actionEntityProperties: {
           position,
-          name: MobileVfxName.Explosion,
+          name: ActionEntityName.Explosion,
         },
       },
     };

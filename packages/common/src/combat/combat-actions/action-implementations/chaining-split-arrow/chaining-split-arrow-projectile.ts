@@ -28,13 +28,13 @@ import {
 import { ActionTracker } from "../../../../action-processing/action-tracker.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { MobileVfxName, VfxType } from "../../../../vfx/index.js";
 import { getAttackResourceChangeProperties } from "../attack/get-attack-hp-change-properties.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 import { COMBAT_ACTIONS } from "../index.js";
+import { ActionEntityName } from "../../../../action-entities/index.js";
 
 const MAX_BOUNCES = 2;
 
@@ -143,7 +143,7 @@ const config: CombatActionComponentConfig = {
   getResolutionSteps() {
     return [
       ActionResolutionStepType.OnActivationSpawnEntity,
-      ActionResolutionStepType.OnActivationVfxMotion,
+      ActionResolutionStepType.OnActivationActionEntityMotion,
       ActionResolutionStepType.RollIncomingHitOutcomes,
       ActionResolutionStepType.EvalOnHitOutcomeTriggers,
     ];
@@ -155,18 +155,18 @@ const config: CombatActionComponentConfig = {
     if (
       previousTrackerOption &&
       previousTrackerOption.spawnedEntityOption &&
-      previousTrackerOption.spawnedEntityOption.type === SpawnableEntityType.Vfx
+      previousTrackerOption.spawnedEntityOption.type === SpawnableEntityType.ActionEntity
     ) {
-      position = previousTrackerOption.spawnedEntityOption.vfx.vfxProperties.position.clone();
+      position =
+        previousTrackerOption.spawnedEntityOption.actionEntity.actionEntityProperties.position.clone();
     }
     return {
-      type: SpawnableEntityType.Vfx,
-      vfx: {
+      type: SpawnableEntityType.ActionEntity,
+      actionEntity: {
         entityProperties: { id: context.idGenerator.generate(), name: "" },
-        vfxProperties: {
-          vfxType: VfxType.Mobile,
+        actionEntityProperties: {
           position,
-          name: MobileVfxName.Arrow,
+          name: ActionEntityName.Arrow,
         },
       },
     };

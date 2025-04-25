@@ -1,5 +1,4 @@
 import {
-  CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -20,14 +19,13 @@ import {
 } from "../../../../action-processing/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import {
-  ClientOnlyVfxNames,
-  MobileVfxName,
-  VfxParentType,
-  VfxType,
-} from "../../../../vfx/index.js";
 import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-ice-burst.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
+import {
+  ActionEntityName,
+  ClientOnlyVfxNames,
+  VfxParentType,
+} from "../../../../action-entities/index.js";
 
 const config: CombatActionComponentConfig = {
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
@@ -82,13 +80,12 @@ const config: CombatActionComponentConfig = {
     const target = primaryTargetResult;
 
     return {
-      type: SpawnableEntityType.Vfx,
-      vfx: {
+      type: SpawnableEntityType.ActionEntity,
+      actionEntity: {
         entityProperties: { id: context.idGenerator.generate(), name: "" },
-        vfxProperties: {
-          vfxType: VfxType.Mobile,
+        actionEntityProperties: {
           position,
-          name: MobileVfxName.IceBolt,
+          name: ActionEntityName.IceBolt,
           parentOption: {
             type: VfxParentType.UserOffHand,
             parentEntityId: context.combatantContext.combatant.entityProperties.id,
@@ -101,7 +98,7 @@ const config: CombatActionComponentConfig = {
 
   getClientOnlyVfxToStartByStep() {
     return {
-      [ActionResolutionStepType.OnActivationVfxMotion]: [
+      [ActionResolutionStepType.OnActivationActionEntityMotion]: [
         {
           name: ClientOnlyVfxNames.FrostParticleStream,
           parentType: VfxParentType.VfxEntityRoot,
@@ -116,15 +113,10 @@ const config: CombatActionComponentConfig = {
       ],
     };
   },
-  // getClientOnlyVfxToStopByStep(context) {
-  //   return {
-  //     [ActionResolutionStepType.RollIncomingHitOutcomes]: [ClientOnlyVfxNames.FrostParticleStream],
-  //   };
-  // },
   getResolutionSteps() {
     return [
       ActionResolutionStepType.OnActivationSpawnEntity,
-      ActionResolutionStepType.OnActivationVfxMotion,
+      ActionResolutionStepType.OnActivationActionEntityMotion,
       ActionResolutionStepType.RollIncomingHitOutcomes,
       ActionResolutionStepType.EvalOnHitOutcomeTriggers,
     ];

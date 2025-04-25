@@ -1,14 +1,14 @@
+import { ActionEntity } from "../action-entities/index.js";
 import { Combatant } from "../combatants/index.js";
-import { Vfx } from "../vfx/index.js";
 
 export enum SpawnableEntityType {
   Combatant,
-  Vfx,
+  ActionEntity,
 }
 
 export const SPAWNABLE_ENTITY_TYPE_STRINGS: Record<SpawnableEntityType, string> = {
   [SpawnableEntityType.Combatant]: "Combatant",
-  [SpawnableEntityType.Vfx]: "Vfx",
+  [SpawnableEntityType.ActionEntity]: "Action Entity",
 };
 
 export type SpawnedCombatant = {
@@ -16,9 +16,9 @@ export type SpawnedCombatant = {
   combatant: Combatant;
 };
 
-export type SpawnedVfx = {
-  type: SpawnableEntityType.Vfx;
-  vfx: Vfx;
+export type SpawnedActionEntity = {
+  type: SpawnableEntityType.ActionEntity;
+  actionEntity: ActionEntity;
 };
 
-export type SpawnableEntity = SpawnedCombatant | SpawnedVfx;
+export type SpawnableEntity = SpawnedCombatant | SpawnedActionEntity;

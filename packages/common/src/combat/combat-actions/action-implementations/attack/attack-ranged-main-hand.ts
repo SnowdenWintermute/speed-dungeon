@@ -25,9 +25,9 @@ import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js"
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { MobileVfxName, VfxParentType, VfxType } from "../../../../vfx/index.js";
 import { getBowShootActionStepAnimations } from "../bow-shoot-action-step-animations.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { ActionEntityName, VfxParentType } from "../../../../action-entities/index.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
@@ -120,13 +120,12 @@ const config: CombatActionComponentConfig = {
     const target = primaryTargetResult;
 
     return {
-      type: SpawnableEntityType.Vfx,
-      vfx: {
+      type: SpawnableEntityType.ActionEntity,
+      actionEntity: {
         entityProperties: { id: context.idGenerator.generate(), name: "" },
-        vfxProperties: {
-          vfxType: VfxType.Mobile,
+        actionEntityProperties: {
           position,
-          name: MobileVfxName.Arrow,
+          name: ActionEntityName.Arrow,
           parentOption: {
             type: VfxParentType.UserMainHand,
             parentEntityId: context.combatantContext.combatant.entityProperties.id,

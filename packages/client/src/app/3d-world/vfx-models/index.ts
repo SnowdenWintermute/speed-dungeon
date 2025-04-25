@@ -6,7 +6,7 @@ import {
   TransformNode,
   Vector3,
 } from "@babylonjs/core";
-import { ERROR_MESSAGES, EntityId, MobileVfxName } from "@speed-dungeon/common";
+import { ActionEntityName, ERROR_MESSAGES, EntityId } from "@speed-dungeon/common";
 import { disposeAsyncLoadedScene, importMesh } from "../utils";
 import { ModelMovementManager } from "../model-movement-manager";
 import { gameWorld } from "../SceneManager";
@@ -15,10 +15,10 @@ import { DynamicAnimationManager } from "../combatant-models/animation-manager/d
 import { ClientOnlyVfxManager } from "../client-only-vfx-manager";
 
 export class VfxManager {
-  mobile: { [id: EntityId]: MobileVfxModel } = {};
+  mobile: { [id: EntityId]: ActionEntityModel } = {};
   constructor() {}
-  register(vfx: MobileVfxModel) {
-    if (vfx instanceof MobileVfxModel) this.mobile[vfx.id] = vfx;
+  register(vfx: ActionEntityModel) {
+    if (vfx instanceof ActionEntityModel) this.mobile[vfx.id] = vfx;
   }
 
   unregister(id: EntityId) {
@@ -31,7 +31,7 @@ export class VfxManager {
   }
 }
 
-export class MobileVfxModel {
+export class ActionEntityModel {
   public movementManager: ModelMovementManager;
   public animationManager: DynamicAnimationManager;
   public clientOnlyVfxManager = new ClientOnlyVfxManager();
@@ -41,7 +41,7 @@ export class MobileVfxModel {
     public id: EntityId,
     public scene: ISceneLoaderAsyncResult,
     startPosition: Vector3,
-    public name: MobileVfxName,
+    public name: ActionEntityName,
     public pointTowardEntity?: EntityId
   ) {
     const modelRootTransformNode = scene.transformNodes[0];
@@ -73,13 +73,13 @@ export class MobileVfxModel {
   }
 }
 
-export async function spawnMobileVfxModel(vfxName: MobileVfxName, position: Vector3) {
+export async function spawnActionEntityModel(vfxName: ActionEntityName, position: Vector3) {
   const modelPath = MOBILE_VFX_NAME_TO_MODEL_PATH[vfxName];
 
   let model: ISceneLoaderAsyncResult;
   if (!modelPath) {
     switch (vfxName) {
-      case MobileVfxName.IceBurst:
+      case ActionEntityName.IceBurst:
         {
           const mesh = MeshBuilder.CreateGoldberg("", { size: 0.35 });
           const material = new StandardMaterial("");
@@ -100,9 +100,9 @@ export async function spawnMobileVfxModel(vfxName: MobileVfxName, position: Vect
           };
         }
         break;
-      case MobileVfxName.Arrow:
-      case MobileVfxName.IceBolt:
-      case MobileVfxName.Explosion:
+      case ActionEntityName.Arrow:
+      case ActionEntityName.IceBolt:
+      case ActionEntityName.Explosion:
         {
           // @TODO - organize custom mesh creators for self-made vfx
           const mesh = MeshBuilder.CreateIcoSphere("", { radius: 0.5 });

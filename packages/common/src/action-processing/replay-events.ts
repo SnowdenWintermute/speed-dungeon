@@ -59,8 +59,9 @@ export class Replayer {
             ACTION_RESOLUTION_STEP_TYPE_STRINGS[gameUpdate.step],
             gameUpdate.completionOrderId,
             gameUpdate.type === GameUpdateCommandType.SpawnEntity
-              ? gameUpdate.entity.type === SpawnableEntityType.Vfx
-                ? "ENTITY POSTIION PACKET: " + gameUpdate.entity.vfx.vfxProperties.position
+              ? gameUpdate.entity.type === SpawnableEntityType.ActionEntity
+                ? "ENTITY POSTIION PACKET: " +
+                  gameUpdate.entity.actionEntity.actionEntityProperties.position
                 : ""
               : ""
             // destinationOption || ""

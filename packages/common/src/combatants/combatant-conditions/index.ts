@@ -1,9 +1,10 @@
+import { ClientOnlyVfxNames } from "../../action-entities/client-only-vfx.js";
+import { VfxParentType } from "../../action-entities/index.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { EntityId, MaxAndCurrent, Milliseconds } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { removeFromArray } from "../../utils/index.js";
-import { ClientOnlyVfxNames, VfxParentType } from "../../vfx/index.js";
 import { Combatant, CombatantProperties } from "../index.js";
 import { PrimedForExplosionCombatantCondition } from "./primed-for-explosion.js";
 import { PrimedForIceBurstCombatantCondition } from "./primed-for-ice-burst.js";

@@ -1,28 +1,27 @@
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionMotionPhase,
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
-import { MobileVfxName, Vfx } from "../../vfx/index.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { CombatActionAnimationPhase } from "../../combat/index.js";
+import { ActionEntity, ActionEntityName } from "../../action-entities/index.js";
 
-export class VfxMotionActionResolutionStep extends EntityMotionActionResolutionStep {
+export class ActionEntityMotionActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(
     context: ActionResolutionStepContext,
     stepType: ActionResolutionStepType,
     actionMotionPhase: ActionMotionPhase,
     animationPhase: CombatActionAnimationPhase,
-    vfx: Vfx
+    actionEntity: ActionEntity
   ) {
     // @TODO - some should not despawn such as explosion which needs to do a recovery animation
     const despawnOnComplete =
-      vfx.vfxProperties.name === MobileVfxName.Arrow ||
-      vfx.vfxProperties.name === MobileVfxName.IceBolt ||
+      actionEntity.actionEntityProperties.name === ActionEntityName.Arrow ||
+      actionEntity.actionEntityProperties.name === ActionEntityName.IceBolt ||
       animationPhase === CombatActionAnimationPhase.RecoverySuccess ||
       animationPhase === CombatActionAnimationPhase.RecoveryInterrupted;
 
@@ -31,8 +30,8 @@ export class VfxMotionActionResolutionStep extends EntityMotionActionResolutionS
       step: stepType,
       actionName: context.tracker.actionExecutionIntent.actionName,
       completionOrderId: null,
-      entityType: SpawnableEntityType.Vfx,
-      entityId: vfx.entityProperties.id,
+      entityType: SpawnableEntityType.ActionEntity,
+      entityId: actionEntity.entityProperties.id,
       despawnOnComplete,
     };
 
@@ -42,7 +41,7 @@ export class VfxMotionActionResolutionStep extends EntityMotionActionResolutionS
       actionMotionPhase,
       animationPhase,
       gameUpdateCommand,
-      vfx.vfxProperties.position,
+      actionEntity.actionEntityProperties.position,
       ARROW_TIME_TO_MOVE_ONE_METER
     );
   }

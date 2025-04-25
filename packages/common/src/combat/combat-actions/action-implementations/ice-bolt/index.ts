@@ -22,7 +22,6 @@ import { CombatActionIntent } from "../../combat-action-intent.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
-import { VfxParentType } from "../../../../vfx/index.js";
 import {
   ResourceChangeSource,
   ResourceChangeSourceCategory,
@@ -33,9 +32,8 @@ import { NumberRange } from "../../../../primatives/number-range.js";
 import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { getSpellCastActionStepAnimations } from "../spell-cast-action-step-animations.js";
-import { ClientOnlyVfxNames } from "../../../../vfx/client-only-vfx.js";
-import { ERROR_MESSAGES } from "../../../../errors/index.js";
-import { iterateNumericEnumKeyedRecord } from "../../../../utils/index.js";
+import { ClientOnlyVfxNames } from "../../../../action-entities/client-only-vfx.js";
+import { VfxParentType } from "../../../../action-entities/index.js";
 
 const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,

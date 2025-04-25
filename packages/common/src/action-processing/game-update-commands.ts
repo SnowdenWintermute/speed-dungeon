@@ -9,10 +9,10 @@ import {
 import { TaggedAnimationName } from "../app-consts.js";
 import { ActionResolutionStepType } from "./action-steps/index.js";
 import { Combatant, CombatantCondition } from "../combatants/index.js";
-import { Vfx } from "../vfx/index.js";
 import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { DurabilityChangesByEntityId } from "../durability/index.js";
 import { HitOutcome } from "../hit-outcome.js";
+import { ActionEntity } from "../action-entities/index.js";
 
 export enum GameUpdateCommandType {
   SpawnEntity,
@@ -53,7 +53,7 @@ export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, str
   [GameUpdateCommandType.HitOutcomes]: "Hit Outcomes",
 };
 
-export type GameEntity = Combatant | Vfx;
+export type GameEntity = Combatant | ActionEntity;
 export interface EntityTranslation {
   duration: Milliseconds;
   destination: Vector3;

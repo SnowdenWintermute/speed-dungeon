@@ -10,7 +10,7 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { VfxMotionActionResolutionStep } from "./vfx-motion.js";
+import { ActionEntityMotionActionResolutionStep } from "./action-entity-motion.js";
 import { PayResourceCostsActionResolutionStep } from "./pay-resource-costs.js";
 import { RollIncomingHitOutcomesActionResolutionStep } from "./roll-incoming-hit-outcomes.js";
 import { SpawnEntityActionResolutionStep } from "./spawn-entity.js";
@@ -65,17 +65,17 @@ export const ACTION_STEP_CREATORS: Record<
     new StartConcurrentSubActionsActionResolutionStep(context),
   [ActionResolutionStepType.OnActivationSpawnEntity]: (context) =>
     new SpawnEntityActionResolutionStep(context, ActionResolutionStepType.OnActivationSpawnEntity),
-  [ActionResolutionStepType.OnActivationVfxMotion]: (context) => {
+  [ActionResolutionStepType.OnActivationActionEntityMotion]: (context) => {
     const expectedProjectileEntityOption = context.tracker.spawnedEntityOption;
     if (!expectedProjectileEntityOption) throw new Error("expected projectile was missing");
-    if (expectedProjectileEntityOption.type !== SpawnableEntityType.Vfx)
+    if (expectedProjectileEntityOption.type !== SpawnableEntityType.ActionEntity)
       throw new Error("expected entity was of invalid type");
-    return new VfxMotionActionResolutionStep(
+    return new ActionEntityMotionActionResolutionStep(
       context,
-      ActionResolutionStepType.OnActivationVfxMotion,
+      ActionResolutionStepType.OnActivationActionEntityMotion,
       ActionMotionPhase.Delivery,
       CombatActionAnimationPhase.Delivery,
-      expectedProjectileEntityOption.vfx
+      expectedProjectileEntityOption.actionEntity
     );
   },
   [ActionResolutionStepType.RollIncomingHitOutcomes]: (context) =>
@@ -83,17 +83,17 @@ export const ACTION_STEP_CREATORS: Record<
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: (context) =>
     new EvalOnHitOutcomeTriggersActionResolutionStep(context),
 
-  [ActionResolutionStepType.VfxDisspationMotion]: (context) => {
+  [ActionResolutionStepType.ActionEntityDissipationMotion]: (context) => {
     const expectedProjectileEntityOption = context.tracker.spawnedEntityOption;
     if (!expectedProjectileEntityOption) throw new Error("expected projectile was missing");
-    if (expectedProjectileEntityOption.type !== SpawnableEntityType.Vfx)
+    if (expectedProjectileEntityOption.type !== SpawnableEntityType.ActionEntity)
       throw new Error("expected entity was of invalid type");
-    return new VfxMotionActionResolutionStep(
+    return new ActionEntityMotionActionResolutionStep(
       context,
-      ActionResolutionStepType.VfxDisspationMotion,
+      ActionResolutionStepType.ActionEntityDissipationMotion,
       ActionMotionPhase.Recovery,
       CombatActionAnimationPhase.RecoverySuccess,
-      expectedProjectileEntityOption.vfx
+      expectedProjectileEntityOption.actionEntity
     );
   },
   [ActionResolutionStepType.RecoveryMotion]: (context) => {

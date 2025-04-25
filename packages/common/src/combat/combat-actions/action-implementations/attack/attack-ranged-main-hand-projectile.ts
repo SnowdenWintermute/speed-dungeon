@@ -79,7 +79,7 @@ const config: CombatActionComponentConfig = {
   },
   getResolutionSteps() {
     return [
-      ActionResolutionStepType.OnActivationVfxMotion,
+      ActionResolutionStepType.OnActivationActionEntityMotion,
       ActionResolutionStepType.RollIncomingHitOutcomes,
       ActionResolutionStepType.EvalOnHitOutcomeTriggers,
     ];

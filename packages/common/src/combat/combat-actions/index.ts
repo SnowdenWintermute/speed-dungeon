@@ -40,9 +40,9 @@ import { CombatActionCombatantAnimations } from "./combat-action-animations.js";
 import { ActionTracker } from "../../action-processing/action-tracker.js";
 import { SpawnableEntity } from "../../spawnables/index.js";
 import { ConsumableType } from "../../items/consumables/index.js";
-import { ClientOnlyVfxNames } from "../../vfx/client-only-vfx.js";
-import { VfxParentType } from "../../vfx/index.js";
 import { Milliseconds } from "../../primatives/index.js";
+import { ClientOnlyVfxNames } from "../../action-entities/client-only-vfx.js";
+import { VfxParentType } from "../../action-entities/index.js";
 
 export interface CombatActionComponentConfig {
   description: string;
@@ -87,6 +87,7 @@ export interface CombatActionComponentConfig {
   getClientOnlyVfxToStopByStep?: () => Partial<
     Record<ActionResolutionStepType, ClientOnlyVfxNames[]>
   >;
+  getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 
   // ACTION COST PROPERTIES
   incursDurabilityLoss: {
@@ -101,7 +102,7 @@ export interface CombatActionComponentConfig {
   getConsumableCost?: () => ConsumableType;
   requiresCombatTurn: (context: ActionResolutionStepContext) => boolean;
 
-  // HIT OUTCOME PROPERTIES
+  // ACTION HIT OUTCOME PROPERTIES
   accuracyModifier: number;
   /** A numeric percentage which will be used against the target's evasion */
   getUnmodifiedAccuracy: (user: CombatantProperties) => ActionAccuracy;
@@ -121,16 +122,15 @@ export interface CombatActionComponentConfig {
   ) => null | CombatActionResourceChangeProperties;
   getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
 
-  // REACTABLITITY CALCULATOR
+  // ACTION REACTABLITITY PROPERTIES
   getIsParryable: (user: CombatantProperties) => boolean;
   getIsBlockable: (user: CombatantProperties) => boolean;
   getCanTriggerCounterattack: (user: CombatantProperties) => boolean;
 
-  // ACTION FAMILY
+  // ACTION HEIRARCHY PROPERTIES
   getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
   getConcurrentSubActions?: (combatantContext: CombatantContext) => CombatActionExecutionIntent[];
   getParent: () => CombatActionComponent | null;
-  getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 }
 
 export abstract class CombatActionComponent {

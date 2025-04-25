@@ -121,7 +121,7 @@ export function entityMotionGameUpdateHandler(update: {
         update.isComplete = true;
 
         if (command.despawnOnComplete) {
-          if (command.entityType === SpawnableEntityType.Vfx) {
+          if (command.entityType === SpawnableEntityType.ActionEntity) {
             gameWorld.current?.vfxManager.unregister(command.entityId);
           }
         }
