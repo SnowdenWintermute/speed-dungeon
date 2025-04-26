@@ -102,7 +102,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
               );
           }
 
-          const conditionsToApply = action.getAppliedConditions(context);
+          const conditionsToApply = action.hitOutcomeProperties.getAppliedConditions(context);
           if (conditionsToApply)
             for (const condition of conditionsToApply) {
               CombatantCondition.applyToCombatant(condition, targetCombatant.combatantProperties);

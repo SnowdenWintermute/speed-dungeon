@@ -11,7 +11,6 @@ import {
   OFF_HAND_CRIT_CHANCE_MODIFIER,
   OFF_HAND_DAMAGE_MODIFIER,
 } from "../../../../app-consts.js";
-import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ATTACK } from "./index.js";
 import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
@@ -39,33 +38,55 @@ import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
+import {
+  ActionHitOutcomePropertiesGenericTypes,
+  CombatActionHitOutcomeProperties,
+  GENERIC_HIT_OUTCOME_PROPERTIES,
+} from "../../combat-action-hit-outcome-properties.js";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
+
+const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
+  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesGenericTypes.Melee],
+  accuracyModifier: OFF_HAND_ACCURACY_MODIFIER,
+  getCritChance: function (user: CombatantProperties): number {
+    return (
+      getStandardActionCritChance(user, CombatAttribute.Dexterity) * OFF_HAND_CRIT_CHANCE_MODIFIER
+    );
+  },
+  getHpChangeProperties: (user, primaryTarget) => {
+    const hpChangeProperties = getAttackResourceChangeProperties(
+      hitOutcomeProperties,
+      user,
+      primaryTarget,
+      CombatAttribute.Strength,
+      HoldableSlotType.OffHand
+    );
+    if (hpChangeProperties instanceof Error) return hpChangeProperties;
+
+    hpChangeProperties.baseValues.mult(OFF_HAND_DAMAGE_MODIFIER);
+    return hpChangeProperties;
+  },
+};
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "Attack target using equipment in off hand",
   targetingProperties,
+  hitOutcomeProperties,
   intent: CombatActionIntent.Malicious,
   usabilityContext: CombatActionUsabilityContext.InCombat,
-  accuracyModifier: OFF_HAND_ACCURACY_MODIFIER,
   incursDurabilityLoss: {
     [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: DurabilityLossCondition.OnHit },
   },
   costBases: {},
-  // getDestinationDuringDelivery: (
-  //   combatantContext: CombatantContext,
-  //   actionExecutionIntent: CombatActionExecutionIntent,
-  //   self: CombatActionComponent
-  // ) => {
-  //   return combatantContext.combatant.combatantProperties.position.clone();
-  // },
   getResourceCosts: () => null,
   requiresCombatTurn: () => true,
   getResolutionSteps: () => COMMON_CHILD_ACTION_STEPS_SEQUENCE,
   getActionStepAnimations: (context) => {
+    // @TODO - somehow combine with mainhand animation determinations
     // we need to see what type of damage we want to do to determine the correct animation
     const { party } = context.combatantContext;
     const { actionExecutionIntent } = context.tracker;
@@ -88,7 +109,7 @@ const config: CombatActionComponentConfig = {
     const targetIds = targetIdsResult;
 
     const actionHpChangePropertiesOption = cloneDeep(
-      action.getHpChangeProperties(
+      action.hitOutcomeProperties.getHpChangeProperties(
         context.combatantContext.combatant.combatantProperties,
         target.combatantProperties
       )
@@ -117,7 +138,6 @@ const config: CombatActionComponentConfig = {
       chamberingAnimation = SkeletalAnimationName.OffHandUnarmedChambering;
       deliveryAnimation = SkeletalAnimationName.OffHandUnarmedDelivery;
       recoveryAnimation = SkeletalAnimationName.OffHandUnarmedRecovery;
-      console.log("set animations for unarmed offhand");
     } else {
       if (incomingResourceChangePerTargetOption) {
         const { kineticDamageTypeOption } =
@@ -162,27 +182,6 @@ const config: CombatActionComponentConfig = {
       },
     };
     return animations;
-  },
-  getCritChance: function (user: CombatantProperties): number {
-    return (
-      getStandardActionCritChance(user, CombatAttribute.Dexterity) * OFF_HAND_CRIT_CHANCE_MODIFIER
-    );
-  },
-  getHpChangeProperties: (user, primaryTarget, self) => {
-    const hpChangeProperties = getAttackResourceChangeProperties(
-      self,
-      user,
-      primaryTarget,
-      CombatAttribute.Strength,
-      HoldableSlotType.OffHand
-    );
-    if (hpChangeProperties instanceof Error) return hpChangeProperties;
-
-    hpChangeProperties.baseValues.mult(OFF_HAND_DAMAGE_MODIFIER);
-    return hpChangeProperties;
-  },
-  getAppliedConditions: function (): CombatantCondition[] | null {
-    return null; // ex: could make a "poison blade" item
   },
   getChildren: () => [],
   getParent: () => ATTACK,

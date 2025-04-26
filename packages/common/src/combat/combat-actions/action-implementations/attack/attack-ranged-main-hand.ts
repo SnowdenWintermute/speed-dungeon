@@ -5,18 +5,8 @@ import {
   CombatActionName,
   CombatActionUsabilityContext,
 } from "../../index.js";
-import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ATTACK } from "./index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
-import { CombatAttribute } from "../../../../combatants/attributes/index.js";
-import { ActionAccuracyType } from "../../combat-action-accuracy.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
-import {
-  getStandardActionArmorPenetration,
-  getStandardActionCritChance,
-  getStandardActionCritMultiplier,
-} from "../../action-calculation-utils/standard-action-calculations.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
@@ -28,6 +18,7 @@ import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
+import { rangedAttackProjectileHitOutcomeProperties } from "./attack-ranged-main-hand-projectile.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 
@@ -35,44 +26,15 @@ const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
   description: "Attack target using ranged weapon",
   targetingProperties,
+  hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  accuracyModifier: 0.9,
   incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: 1 } },
   costBases: {},
   userShouldMoveHomeOnComplete: true,
   getResourceCosts: () => null,
   requiresCombatTurn: (context) => true,
   shouldExecute: () => true,
-  getUnmodifiedAccuracy: (user) => {
-    const userCombatAttributes = CombatantProperties.getTotalAttributes(user);
-    return {
-      type: ActionAccuracyType.Percentage,
-      value: userCombatAttributes[CombatAttribute.Accuracy],
-    };
-  },
-  getCritChance: (user) => {
-    return getStandardActionCritChance(user, CombatAttribute.Dexterity);
-  },
-  getCritMultiplier(user) {
-    return getStandardActionCritMultiplier(user, CombatAttribute.Dexterity);
-  },
-  getArmorPenetration(user, self) {
-    return getStandardActionArmorPenetration(user, CombatAttribute.Dexterity);
-  },
-  getHpChangeProperties: (user, primaryTarget, self) => {
-    const hpChangeProperties = getAttackResourceChangeProperties(
-      self,
-      user,
-      primaryTarget,
-      CombatAttribute.Dexterity,
-      HoldableSlotType.MainHand
-    );
-    return hpChangeProperties;
-  },
-  getAppliedConditions: function (): CombatantCondition[] | null {
-    return null; // ex: could make a "poison blade" item
-  },
   getConcurrentSubActions(context) {
     const { combatActionTarget } = context.combatant.combatantProperties;
     if (!combatActionTarget) throw new Error("expected combatant target not found");

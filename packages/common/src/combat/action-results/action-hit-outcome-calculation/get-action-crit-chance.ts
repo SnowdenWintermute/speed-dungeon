@@ -9,7 +9,7 @@ export function getActionCritChance(
   target: CombatantProperties,
   targetWantsToBeHit: boolean
 ) {
-  const actionBaseCritChance = action.getCritChance(user);
+  const actionBaseCritChance = action.hitOutcomeProperties.getCritChance(user);
 
   const targetAttributes = CombatantProperties.getTotalAttributes(target);
   const targetAvoidaceAttributeValue = targetAttributes[CombatAttribute.Resilience];

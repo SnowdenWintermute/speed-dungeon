@@ -4,8 +4,6 @@ import {
   CombatActionName,
   CombatActionUsabilityContext,
 } from "../../index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
-import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
@@ -25,10 +23,6 @@ import {
 import { ActionTracker } from "../../../../action-processing/action-tracker.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { getAttackResourceChangeProperties } from "../attack/get-attack-hp-change-properties.js";
-import { CombatAttribute } from "../../../../combatants/attributes/index.js";
-import { HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 import { COMBAT_ACTIONS } from "../index.js";
 import { ActionEntityName } from "../../../../action-entities/index.js";
@@ -37,6 +31,7 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import cloneDeep from "lodash.clonedeep";
+import { rangedAttackProjectileHitOutcomeProperties } from "../attack/attack-ranged-main-hand-projectile.js";
 
 const targetingProperties = cloneDeep(
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]
@@ -46,48 +41,19 @@ targetingProperties.autoTargetSelectionMethod = { scheme: AutoTargetingScheme.Ra
 const MAX_BOUNCES = 2;
 
 const config: CombatActionComponentConfig = {
-  ...RANGED_ACTIONS_COMMON_CONFIG,
   ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "An arrow that bounces to up to two additional targets after the first",
   targetingProperties,
+  hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  accuracyModifier: 1,
   incursDurabilityLoss: {},
   costBases: {},
   userShouldMoveHomeOnComplete: false,
-  // getUnmodifiedAccuracy: function (user) {
-  //   return {
-  //     type: ActionAccuracyType.Percentage,
-  //     value: 0,
-  //   };
-  // },
   getResourceCosts: () => null,
   requiresCombatTurn: () => true,
   getActionStepAnimations: (context) => null,
-  getHpChangeProperties: (user, primaryTarget, self) => {
-    const hpChangeProperties = getAttackResourceChangeProperties(
-      self,
-      user,
-      primaryTarget,
-      CombatAttribute.Dexterity,
-      HoldableSlotType.MainHand,
-      // allow unusable weapons because it may be the case that the bow breaks
-      // but the projectile has yet to caluclate it's hit, and it should still consider
-      // the bow it was fired from
-      // it should never add weapon properties from an initially broken weapon because the projectile would not
-      // be allowed to be fired from a broken weapon
-      { usableWeaponsOnly: false }
-    );
-    if (hpChangeProperties instanceof Error) return hpChangeProperties;
-
-    return hpChangeProperties;
-  },
-  getAppliedConditions: function (): CombatantCondition[] | null {
-    // @TODO - determine based on equipment
-    return [];
-  },
   getChildren: (context) => {
     let cursor = context.tracker.getPreviousTrackerInSequenceOption();
     let numBouncesSoFar = 0;
@@ -116,9 +82,6 @@ const config: CombatActionComponentConfig = {
   getConcurrentSubActions() {
     return [];
   },
-  getIsParryable: () => true,
-  getCanTriggerCounterattack: (user: CombatantProperties) => false,
-  getIsBlockable: (user: CombatantProperties) => true,
   getAutoTarget(combatantContext, previousTrackerOption, self) {
     // const previousTrackerInSequenceOption = trackerOption?.getPreviousTrackerInSequenceOption();
     if (!previousTrackerOption)

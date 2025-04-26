@@ -9,6 +9,6 @@ export function applyCritMultiplier(
   _target: CombatantProperties
 ) {
   if (!hpChange.isCrit) return;
-  const critMultiplier = action.getCritMultiplier(user);
+  const critMultiplier = action.hitOutcomeProperties.getCritMultiplier(user);
   hpChange.value *= critMultiplier;
 }

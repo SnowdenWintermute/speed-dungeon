@@ -26,7 +26,7 @@ export function addHitOutcomeDurabilityChanges(
   isCrit?: boolean
 ): Error | { [itemId: EntityId]: number } | undefined {
   // healing magic shouldn't cause durability loss
-  const hpChangeProperties = action.getHpChangeProperties(
+  const hpChangeProperties = action.hitOutcomeProperties.getHpChangeProperties(
     actionUser.combatantProperties,
     targetCombatant.combatantProperties
   );

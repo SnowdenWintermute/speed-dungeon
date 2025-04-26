@@ -1,15 +1,10 @@
 import {
-  CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
   CombatActionUsabilityContext,
-  TargetCategories,
-  TargetingScheme,
 } from "../../index.js";
-import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
@@ -26,27 +21,20 @@ import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
+import {
+  ActionHitOutcomePropertiesGenericTypes,
+  CombatActionHitOutcomeProperties,
+  GENERIC_HIT_OUTCOME_PROPERTIES,
+} from "../../combat-action-hit-outcome-properties.js";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
 
-const config: CombatActionComponentConfig = {
-  ...RANGED_ACTIONS_COMMON_CONFIG,
-  description: "An arrow",
-  targetingProperties,
-  usabilityContext: CombatActionUsabilityContext.InCombat,
-  intent: CombatActionIntent.Malicious,
-  accuracyModifier: 0.9,
-  incursDurabilityLoss: {},
-  costBases: {},
-  userShouldMoveHomeOnComplete: false,
-  getResourceCosts: () => null,
-  requiresCombatTurn: () => true,
-  shouldExecute: () => true,
-  getActionStepAnimations: (context) => null,
-  getHpChangeProperties: (user, primaryTarget, self) => {
+export const rangedAttackProjectileHitOutcomeProperties: CombatActionHitOutcomeProperties = {
+  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesGenericTypes.Ranged],
+  getHpChangeProperties: (user, primaryTarget) => {
     const hpChangeProperties = getAttackResourceChangeProperties(
-      self,
+      rangedAttackProjectileHitOutcomeProperties,
       user,
       primaryTarget,
       CombatAttribute.Dexterity,
@@ -62,9 +50,22 @@ const config: CombatActionComponentConfig = {
 
     return hpChangeProperties;
   },
-  getAppliedConditions: (context) => {
-    return [];
-  },
+};
+
+const config: CombatActionComponentConfig = {
+  ...RANGED_ACTIONS_COMMON_CONFIG,
+  description: "An arrow",
+  targetingProperties,
+  hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
+  usabilityContext: CombatActionUsabilityContext.InCombat,
+  intent: CombatActionIntent.Malicious,
+  incursDurabilityLoss: {},
+  costBases: {},
+  userShouldMoveHomeOnComplete: false,
+  getResourceCosts: () => null,
+  requiresCombatTurn: () => true,
+  shouldExecute: () => true,
+  getActionStepAnimations: (context) => null,
   getChildren: (context) => [],
   getParent: () => ATTACK_RANGED_MAIN_HAND,
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,

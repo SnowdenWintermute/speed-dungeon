@@ -31,17 +31,19 @@ import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
-
-const targetingProperties =
-  GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
+import {
+  ActionHitOutcomePropertiesGenericTypes,
+  GENERIC_HIT_OUTCOME_PROPERTIES,
+} from "../../combat-action-hit-outcome-properties.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
   description: "Attack target using equipment in main hand",
-  targetingProperties,
+  targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent],
+  hitOutcomeProperties:
+    GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesGenericTypes.Melee],
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  accuracyModifier: 1,
   incursDurabilityLoss: {
     [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnHit },
   },
@@ -180,20 +182,6 @@ const config: CombatActionComponentConfig = {
       },
     };
     return animations;
-  },
-  getHpChangeProperties: (user, primaryTarget, self) => {
-    const hpChangeProperties = getAttackResourceChangeProperties(
-      self,
-      user,
-      primaryTarget,
-      CombatAttribute.Strength,
-      HoldableSlotType.MainHand
-    );
-
-    return hpChangeProperties;
-  },
-  getAppliedConditions: function (): CombatantCondition[] | null {
-    return null; // ex: could make a "poison blade" item
   },
   getChildren: () => [],
   getParent: () => ATTACK,

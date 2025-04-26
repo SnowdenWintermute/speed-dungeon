@@ -1,17 +1,9 @@
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
-import { BASE_CRIT_CHANCE, BASE_CRIT_MULTIPLIER } from "../../app-consts";
+import { BASE_CRIT_CHANCE, BASE_CRIT_MULTIPLIER } from "../../app-consts.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
-import { PrimedForIceBurstCombatantCondition } from "../../combatants/combatant-conditions/primed-for-ice-burst";
 import { CombatantCondition, CombatantProperties } from "../../combatants/index.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { NormalizedPercentage, NumberRange, Percentage } from "../../primatives/index.js";
-import {
-  ResourceChangeSource,
-  ResourceChangeSourceCategory,
-  ResourceChangeSourceConfig,
-} from "../hp-change-source-types.js";
-import { KineticDamageType } from "../kinetic-damage-types.js";
-import { MagicalElement } from "../magical-elements";
 import {
   getStandardActionArmorPenetration,
   getStandardActionCritChance,
@@ -22,7 +14,7 @@ import { ActionAccuracy, ActionAccuracyType } from "./combat-action-accuracy.js"
 import { CombatActionResourceChangeProperties } from "./combat-action-resource-change-properties.js";
 
 export interface CombatActionHitOutcomeProperties {
-  accuracyModifier: number;
+  accuracyModifier: NormalizedPercentage;
   getUnmodifiedAccuracy: (user: CombatantProperties) => ActionAccuracy;
   getCritChance: (user: CombatantProperties) => Percentage;
   getCritMultiplier: (user: CombatantProperties) => NormalizedPercentage;
@@ -89,6 +81,43 @@ const genericRangedHitOutcomeProperties: CombatActionHitOutcomeProperties = {
   getCanTriggerCounterattack: (user: CombatantProperties) => false,
 };
 
+const genericMeleeHitOutcomeProperties: CombatActionHitOutcomeProperties = {
+  ...genericActionHitOutcomeProperties,
+  getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
+    const userCombatAttributes = CombatantProperties.getTotalAttributes(user);
+    return {
+      type: ActionAccuracyType.Percentage,
+      value: userCombatAttributes[CombatAttribute.Accuracy],
+    };
+  },
+  getCritChance: function (user: CombatantProperties): number {
+    return getStandardActionCritChance(user, CombatAttribute.Dexterity);
+  },
+  getCritMultiplier: function (user: CombatantProperties): number {
+    return getStandardActionCritMultiplier(user, CombatAttribute.Strength);
+  },
+  getArmorPenetration: function (user: CombatantProperties): number {
+    return getStandardActionArmorPenetration(user, CombatAttribute.Strength);
+  },
+  getManaChangeProperties: (user: CombatantProperties, primaryTarget: CombatantProperties) => null,
+  getHpChangeProperties: (user, primaryTarget) => {
+    const hpChangeProperties = getAttackResourceChangeProperties(
+      genericMeleeHitOutcomeProperties,
+      user,
+      primaryTarget,
+      CombatAttribute.Strength,
+      HoldableSlotType.MainHand
+    );
+
+    return hpChangeProperties;
+  },
+  getAppliedConditions: function (user): CombatantCondition[] | null {
+    // apply conditions from weapons
+    // ex: could make a "poison blade" item
+    return null;
+  },
+};
+
 const genericMedicationConsumableHitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...genericActionHitOutcomeProperties,
   getIsParryable: (user: CombatantProperties) => false,
@@ -108,7 +137,7 @@ export const GENERIC_HIT_OUTCOME_PROPERTIES: Record<
     getIsParryable: () => false,
     getCanTriggerCounterattack: () => false,
   },
-  [ActionHitOutcomePropertiesGenericTypes.Melee]: { ...genericActionHitOutcomeProperties },
+  [ActionHitOutcomePropertiesGenericTypes.Melee]: genericMeleeHitOutcomeProperties,
   [ActionHitOutcomePropertiesGenericTypes.Ranged]: genericRangedHitOutcomeProperties,
   [ActionHitOutcomePropertiesGenericTypes.Medication]:
     genericMedicationConsumableHitOutcomeProperties,

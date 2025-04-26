@@ -1,16 +1,12 @@
 import {
   ActionPayableResource,
   ActionResourceCosts,
-  CombatActionComponent,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionExecutionIntent,
   CombatActionName,
   CombatActionUsabilityContext,
 } from "../../index.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
-import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
-import { ActionAccuracy } from "../../combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
@@ -22,6 +18,7 @@ import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
+import { rangedAttackProjectileHitOutcomeProperties } from "../attack/attack-ranged-main-hand-projectile.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea];
 
@@ -29,9 +26,9 @@ const config: CombatActionComponentConfig = {
   ...RANGED_ACTIONS_COMMON_CONFIG,
   description: "Fire arrows which each bounce to up to two additional targets",
   targetingProperties,
+  hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  accuracyModifier: 1,
   incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: 1 } },
   costBases: {},
   userShouldMoveHomeOnComplete: true,
@@ -43,11 +40,6 @@ const config: CombatActionComponentConfig = {
   },
   requiresCombatTurn: () => true,
   shouldExecute: () => true,
-  getHpChangeProperties: () => null,
-  getAppliedConditions: function (): CombatantCondition[] | null {
-    // @TODO - determine based on equipment
-    return [];
-  },
   getChildren: (_user) => [],
   getParent: () => null,
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
@@ -63,20 +55,7 @@ const config: CombatActionComponentConfig = {
           })
       );
   },
-  getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
-    throw new Error("Function not implemented.");
-  },
-  getCritChance: function (user: CombatantProperties): number {
-    throw new Error("Function not implemented.");
-  },
-  getCritMultiplier: function (user: CombatantProperties): number {
-    throw new Error("Function not implemented.");
-  },
-  getArmorPenetration: function (user: CombatantProperties, self: CombatActionComponent): number {
-    throw new Error("Function not implemented.");
-  },
   getResolutionSteps: () => COMMON_ROOT_ACTION_STEPS_SEQUENCE,
-
   getActionStepAnimations: getBowShootActionStepAnimations,
 };
 

@@ -7,7 +7,10 @@ export function checkIfTargetWantsToBeHit(
   user: CombatantProperties,
   targetCombatantProperties: CombatantProperties
 ) {
-  const hpChangePropertiesOption = action.getHpChangeProperties(user, targetCombatantProperties);
+  const hpChangePropertiesOption = action.hitOutcomeProperties.getHpChangeProperties(
+    user,
+    targetCombatantProperties
+  );
 
   // regardless of the action intent, don't try to evade if would be healed
   if (hpChangePropertiesOption) {

@@ -153,7 +153,10 @@ function getAttackActionDamageAndAccuracy(
     );
 
   const combatAction = COMBAT_ACTIONS[actionName];
-  const hpChangeProperties = combatAction.getHpChangeProperties(combatantProperties, target);
+  const hpChangeProperties = combatAction.hitOutcomeProperties.getHpChangeProperties(
+    combatantProperties,
+    target
+  );
   if (hpChangeProperties === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TYPE);
 
   const hpChangeRangeResult = hpChangeProperties.baseValues;
