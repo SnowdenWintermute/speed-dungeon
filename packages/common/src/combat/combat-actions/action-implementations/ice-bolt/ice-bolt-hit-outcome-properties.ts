@@ -1,5 +1,5 @@
 import {
-  ActionHitOutcomePropertiesGenericTypes,
+  ActionHitOutcomePropertiesBaseTypes,
   CombatActionHitOutcomeProperties,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
@@ -16,7 +16,7 @@ import { CombatActionResourceChangeProperties } from "../../combat-action-resour
 import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-ice-burst.js";
 
 export const iceBoltProjectileHitOutcomeProperties: CombatActionHitOutcomeProperties = {
-  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesGenericTypes.Ranged],
+  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Ranged],
   getHpChangeProperties: (user, primaryTarget) => {
     const hpChangeSourceConfig: ResourceChangeSourceConfig = {
       category: ResourceChangeSourceCategory.Magical,

@@ -36,7 +36,7 @@ export interface CombatActionHitOutcomeProperties {
   getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
 }
 
-export enum ActionHitOutcomePropertiesGenericTypes {
+export enum ActionHitOutcomePropertiesBaseTypes {
   Spell,
   Melee,
   Ranged,
@@ -129,16 +129,15 @@ const genericMedicationConsumableHitOutcomeProperties: CombatActionHitOutcomePro
 };
 
 export const GENERIC_HIT_OUTCOME_PROPERTIES: Record<
-  ActionHitOutcomePropertiesGenericTypes,
+  ActionHitOutcomePropertiesBaseTypes,
   CombatActionHitOutcomeProperties
 > = {
-  [ActionHitOutcomePropertiesGenericTypes.Spell]: {
+  [ActionHitOutcomePropertiesBaseTypes.Spell]: {
     ...genericActionHitOutcomeProperties,
     getIsParryable: () => false,
     getCanTriggerCounterattack: () => false,
   },
-  [ActionHitOutcomePropertiesGenericTypes.Melee]: genericMeleeHitOutcomeProperties,
-  [ActionHitOutcomePropertiesGenericTypes.Ranged]: genericRangedHitOutcomeProperties,
-  [ActionHitOutcomePropertiesGenericTypes.Medication]:
-    genericMedicationConsumableHitOutcomeProperties,
+  [ActionHitOutcomePropertiesBaseTypes.Melee]: genericMeleeHitOutcomeProperties,
+  [ActionHitOutcomePropertiesBaseTypes.Ranged]: genericRangedHitOutcomeProperties,
+  [ActionHitOutcomePropertiesBaseTypes.Medication]: genericMedicationConsumableHitOutcomeProperties,
 };

@@ -26,6 +26,10 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import { iceBoltProjectileHitOutcomeProperties } from "./ice-bolt-hit-outcome-properties.js";
+import {
+  ActionCostPropertiesBaseTypes,
+  BASE_ACTION_COST_PROPERTIES,
+} from "../../combat-action-cost-properties.js";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
@@ -36,13 +40,10 @@ const config: CombatActionComponentConfig = {
   description: "An icy projectile",
   targetingProperties,
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
+  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  incursDurabilityLoss: {},
-  costBases: {},
   userShouldMoveHomeOnComplete: false,
-  getResourceCosts: () => null,
-  requiresCombatTurn: () => true,
   getActionStepAnimations: (context) => null,
   getChildren: (context) => [],
   getParent: () => ICE_BOLT_PARENT,

@@ -1,11 +1,9 @@
 import {
-  ActionPayableResource,
   CombatActionComponentConfig,
   CombatActionExecutionIntent,
   CombatActionLeaf,
   CombatActionName,
   CombatActionUsabilityContext,
-  getStandardActionCost,
 } from "../../index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
@@ -18,6 +16,10 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import { iceBoltProjectileHitOutcomeProperties } from "./ice-bolt-hit-outcome-properties.js";
+import {
+  ActionCostPropertiesBaseTypes,
+  BASE_ACTION_COST_PROPERTIES,
+} from "../../combat-action-cost-properties.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 
@@ -26,25 +28,12 @@ const config: CombatActionComponentConfig = {
   description: "Summon an icy projectile",
   targetingProperties,
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
+  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
+
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  incursDurabilityLoss: {},
-  costBases: {
-    [ActionPayableResource.Mana]: {
-      base: 3,
-      multipliers: {
-        actionLevel: 1.2,
-        userCombatantLevel: 1.2,
-      },
-      additives: {
-        actionLevel: 1,
-        userCombatantLevel: 1,
-      },
-    },
-  },
   userShouldMoveHomeOnComplete: true,
-  getResourceCosts: getStandardActionCost,
-  requiresCombatTurn: (context) => true,
+
   shouldExecute: () => true,
   getConcurrentSubActions(context) {
     const { combatActionTarget } = context.combatant.combatantProperties;

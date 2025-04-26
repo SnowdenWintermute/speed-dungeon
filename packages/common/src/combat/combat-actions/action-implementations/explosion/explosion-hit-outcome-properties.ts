@@ -7,13 +7,13 @@ import {
 import { MagicalElement } from "../../../magical-elements.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
 import {
-  ActionHitOutcomePropertiesGenericTypes,
+  ActionHitOutcomePropertiesBaseTypes,
   CombatActionHitOutcomeProperties,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 
 export const explosionHitOutcomeProperties: CombatActionHitOutcomeProperties = {
-  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesGenericTypes.Spell],
+  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Spell],
   getArmorPenetration: (user, self) => 15,
   getHpChangeProperties: (user) => {
     const hpChangeSourceConfig: ResourceChangeSourceConfig = {

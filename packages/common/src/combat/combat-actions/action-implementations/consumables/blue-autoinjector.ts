@@ -1,5 +1,4 @@
 import {
-  ActionPayableResource,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -26,15 +25,19 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import {
-  ActionHitOutcomePropertiesGenericTypes,
+  ActionHitOutcomePropertiesBaseTypes,
   CombatActionHitOutcomeProperties,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
+import {
+  ActionCostPropertiesBaseTypes,
+  BASE_ACTION_COST_PROPERTIES,
+} from "../../combat-action-cost-properties.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle];
 
 const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
-  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesGenericTypes.Medication],
+  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],
   getManaChangeProperties: (user: CombatantProperties, primaryTarget: CombatantProperties) => {
     let mpBioavailability = 1;
     for (const trait of primaryTarget.traits) {
@@ -61,20 +64,16 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 
 const config: CombatActionComponentConfig = {
   ...CONSUMABLE_COMMON_CONFIG,
-  description: "Restore hit points to a target",
+  description: "Refreshes a target's mana reserves",
   targetingProperties,
   hitOutcomeProperties,
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Medication],
+    getConsumableCost: () => ConsumableType.MpAutoinjector,
+  },
+
   usabilityContext: CombatActionUsabilityContext.All,
   intent: CombatActionIntent.Benevolent,
-  incursDurabilityLoss: {},
-  costBases: {
-    [ActionPayableResource.QuickActions]: {
-      base: 1,
-    },
-  },
-  getResourceCosts: () => null,
-  getConsumableCost: () => ConsumableType.MpAutoinjector,
-  requiresCombatTurn: (context) => false,
   shouldExecute: () => true,
   getChildren: () => [],
   getParent: () => null,

@@ -97,12 +97,13 @@ export class DurabilityChangesByEntityId {
     action: CombatActionComponent,
     condition: DurabilityLossCondition
   ) {
+    const { incursDurabilityLoss } = action.costProperties;
     // take dura from user's equipment if should
-    if (action.incursDurabilityLoss === undefined) return;
+    if (incursDurabilityLoss === undefined) return;
 
-    if (action.incursDurabilityLoss[EquipmentSlotType.Wearable]) {
+    if (incursDurabilityLoss[EquipmentSlotType.Wearable]) {
       for (const [wearableSlot, durabilityLossCondition] of iterateNumericEnumKeyedRecord(
-        action.incursDurabilityLoss[EquipmentSlotType.Wearable]
+        incursDurabilityLoss[EquipmentSlotType.Wearable]
       )) {
         if (!(durabilityLossCondition === condition)) continue;
 
@@ -113,12 +114,11 @@ export class DurabilityChangesByEntityId {
       }
     }
 
-    if (action.incursDurabilityLoss[EquipmentSlotType.Holdable]) {
+    if (incursDurabilityLoss[EquipmentSlotType.Holdable]) {
       for (const [holdableSlot, durabilityLossCondition] of iterateNumericEnumKeyedRecord(
-        action.incursDurabilityLoss[EquipmentSlotType.Holdable]
+        incursDurabilityLoss[EquipmentSlotType.Holdable]
       )) {
         if (!(durabilityLossCondition === condition)) continue;
-        console.log("updating durability loss for condition: ", durabilityLossCondition);
         this.updateOrCreateDurabilityChangeRecord(userId, {
           taggedSlot: { type: EquipmentSlotType.Holdable, slot: holdableSlot },
           value: BASE_DURABILITY_LOSS,

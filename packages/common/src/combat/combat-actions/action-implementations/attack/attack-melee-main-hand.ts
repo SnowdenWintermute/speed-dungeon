@@ -5,14 +5,11 @@ import {
   CombatActionUsabilityContext,
 } from "../../index.js";
 import { AnimationType, SkeletalAnimationName } from "../../../../app-consts.js";
-import { CombatantCondition } from "../../../../combatants/combatant-conditions/index.js";
 import { ATTACK } from "./index.js";
 import { CombatantEquipment } from "../../../../combatants/index.js";
-import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { iterateNumericEnum } from "../../../../utils/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
-import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { MELEE_ATTACK_COMMON_CONFIG } from "../melee-actions-common-config.js";
 import {
@@ -32,7 +29,7 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import {
-  ActionHitOutcomePropertiesGenericTypes,
+  ActionHitOutcomePropertiesBaseTypes,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 
@@ -41,7 +38,7 @@ const config: CombatActionComponentConfig = {
   description: "Attack target using equipment in main hand",
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent],
   hitOutcomeProperties:
-    GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesGenericTypes.Melee],
+    GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
   incursDurabilityLoss: {

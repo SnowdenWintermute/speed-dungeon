@@ -37,10 +37,14 @@ import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect
 import { ActionEntityName, AbstractParentType } from "../../../../action-entities/index.js";
 import { CombatActionTargetingProperties } from "../../combat-action-targeting-properties.js";
 import {
-  ActionHitOutcomePropertiesGenericTypes,
+  ActionHitOutcomePropertiesBaseTypes,
   CombatActionHitOutcomeProperties,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
+import {
+  ActionCostPropertiesBaseTypes,
+  BASE_ACTION_COST_PROPERTIES,
+} from "../../combat-action-cost-properties.js";
 
 const targetingProperties: CombatActionTargetingProperties = {
   targetingSchemes: [TargetingScheme.Single],
@@ -58,7 +62,7 @@ const targetingProperties: CombatActionTargetingProperties = {
 };
 
 const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
-  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesGenericTypes.Spell],
+  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Spell],
   getArmorPenetration: (user, self) => 15,
   getHpChangeProperties: (user) => {
     const hpChangeSourceConfig: ResourceChangeSourceConfig = {
@@ -100,13 +104,10 @@ const config: CombatActionComponentConfig = {
   description: "Deals kinetic ice damage in an area around the target",
   targetingProperties,
   hitOutcomeProperties,
+  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  incursDurabilityLoss: {},
-  costBases: {},
   userShouldMoveHomeOnComplete: false,
-  getResourceCosts: () => null,
-  requiresCombatTurn: () => true,
   shouldExecute: () => true,
   getActionStepAnimations: (context) => {
     const animations: CombatActionCombatantAnimations = {

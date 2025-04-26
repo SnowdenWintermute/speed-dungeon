@@ -25,6 +25,10 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import { explosionHitOutcomeProperties } from "./explosion-hit-outcome-properties.js";
+import {
+  ActionCostPropertiesBaseTypes,
+  BASE_ACTION_COST_PROPERTIES,
+} from "../../combat-action-cost-properties.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 
@@ -34,13 +38,11 @@ const config: CombatActionComponentConfig = {
   description: "Deals kinetic fire damage in an area around the target",
   targetingProperties,
   hitOutcomeProperties: explosionHitOutcomeProperties,
+  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  incursDurabilityLoss: {},
-  costBases: {},
   userShouldMoveHomeOnComplete: false,
-  getResourceCosts: () => null,
-  requiresCombatTurn: () => true,
   shouldExecute: () => true,
   getActionStepAnimations: (context) => {
     const animations: CombatActionCombatantAnimations = {

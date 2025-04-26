@@ -25,7 +25,7 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import {
-  ActionHitOutcomePropertiesGenericTypes,
+  ActionHitOutcomePropertiesBaseTypes,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
 
@@ -37,7 +37,7 @@ const config: CombatActionComponentConfig = {
   targetingProperties,
   // placeholder since all this action does is get children
   hitOutcomeProperties:
-    GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesGenericTypes.Melee],
+    GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
   intent: CombatActionIntent.Malicious,
   incursDurabilityLoss: {},
   costBases: {},

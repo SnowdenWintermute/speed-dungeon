@@ -32,13 +32,13 @@ export type ActionResourceCostBases = Partial<Record<ActionPayableResource, Comb
 export type ActionResourceCosts = Partial<Record<ActionPayableResource, number>>;
 
 export function getStandardActionCost(user: CombatantProperties, self: CombatActionComponent) {
-  console.log("getStandardActionCost");
   const actionInstanceOption = user.ownedActions[self.name];
   if (!actionInstanceOption) throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
 
   let toReturn: Partial<Record<ActionPayableResource, number>> | null = {};
+  const { costBases } = self.costProperties;
 
-  for (const [payableResourceType, costBase] of iterateNumericEnumKeyedRecord(self.costBases)) {
+  for (const [payableResourceType, costBase] of iterateNumericEnumKeyedRecord(costBases)) {
     let cost = costBase.base;
 
     if (costBase.additives) {

@@ -1,5 +1,4 @@
 import {
-  ActionPayableResource,
   CombatActionComponentConfig,
   CombatActionLeaf,
   CombatActionName,
@@ -27,14 +26,18 @@ import {
 } from "../../combat-action-targeting-properties.js";
 import {
   GENERIC_HIT_OUTCOME_PROPERTIES,
-  ActionHitOutcomePropertiesGenericTypes,
+  ActionHitOutcomePropertiesBaseTypes,
 } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
+import {
+  ActionCostPropertiesBaseTypes,
+  BASE_ACTION_COST_PROPERTIES,
+} from "../../combat-action-cost-properties.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle];
 
 const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
-  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesGenericTypes.Medication],
+  ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Medication],
   getHpChangeProperties: (user, primaryTarget) => {
     const hpChangeSourceConfig: ResourceChangeSourceConfig = {
       category: ResourceChangeSourceCategory.Medical,
@@ -66,17 +69,13 @@ const config: CombatActionComponentConfig = {
   description: "Restore hit points to a target",
   targetingProperties,
   hitOutcomeProperties,
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Medication],
+    getConsumableCost: () => ConsumableType.HpAutoinjector,
+  },
   usabilityContext: CombatActionUsabilityContext.All,
   intent: CombatActionIntent.Benevolent,
-  incursDurabilityLoss: {},
-  costBases: {
-    [ActionPayableResource.QuickActions]: {
-      base: 1,
-    },
-  },
-  getResourceCosts: () => null,
-  getConsumableCost: () => ConsumableType.HpAutoinjector,
-  requiresCombatTurn: (context) => false,
+
   shouldExecute: () => true,
 
   getChildren: () => [],

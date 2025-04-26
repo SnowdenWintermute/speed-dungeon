@@ -13,7 +13,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
     const { combatant } = context.combatantContext;
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
-    const costsOption = action.getResourceCosts(combatant.combatantProperties);
+    const costsOption = action.costProperties.getResourceCosts(combatant.combatantProperties);
     const consumableTypeToConsumeOption = action.getConsumableCost
       ? action.getConsumableCost()
       : undefined;
