@@ -15,7 +15,7 @@ import {
 } from "./action-calculation-utils/action-costs.js";
 import { DurabilityLossCondition } from "./combat-action-durability-loss-condition.js";
 
-export interface CombatActionCostProperties {
+export interface CombatActionCostPropertiesConfig {
   incursDurabilityLoss: {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
     [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
@@ -23,24 +23,27 @@ export interface CombatActionCostProperties {
   costBases: ActionResourceCostBases;
   getResourceCosts: (
     user: CombatantProperties,
-    // self is optional because the action class's cost properties shares a type
-    // with this config interface. the action will provide itself in its constructor to this function
-    // so we won't need to pass it when calling this function on the class
-    self?: CombatActionComponent
+    self: CombatActionComponent
   ) => null | ActionResourceCosts;
   getConsumableCost: () => null | ConsumableType;
   requiresCombatTurn: (context: ActionResolutionStepContext) => boolean;
 }
 
-const genericCombatActionCostProperties: CombatActionCostProperties = {
+// in the constructor of the action we pass "this" to the getResourceCosts function in the config
+// so we can then call .getResourceCosts without passing an action to it
+export interface CombatActionCostProperties extends CombatActionCostPropertiesConfig {
+  getResourceCosts: (user: CombatantProperties) => null | ActionResourceCosts;
+}
+
+const genericCombatActionCostProperties: CombatActionCostPropertiesConfig = {
   incursDurabilityLoss: {},
   costBases: {},
   getResourceCosts: () => null,
-  requiresCombatTurn: () => true,
   getConsumableCost: () => null,
+  requiresCombatTurn: () => true,
 };
 
-const genericSpellCostProperties: CombatActionCostProperties = {
+const genericSpellCostProperties: CombatActionCostPropertiesConfig = {
   ...genericCombatActionCostProperties,
   getResourceCosts: getStandardActionCost,
   costBases: {
@@ -58,7 +61,7 @@ const genericSpellCostProperties: CombatActionCostProperties = {
   },
 };
 
-const genericMedicationCostProperties: CombatActionCostProperties = {
+const genericMedicationCostProperties: CombatActionCostPropertiesConfig = {
   ...genericCombatActionCostProperties,
   costBases: {
     [ActionPayableResource.QuickActions]: {
@@ -76,7 +79,7 @@ export enum ActionCostPropertiesBaseTypes {
 
 export const BASE_ACTION_COST_PROPERTIES: Record<
   ActionCostPropertiesBaseTypes,
-  CombatActionCostProperties
+  CombatActionCostPropertiesConfig
 > = {
   [ActionCostPropertiesBaseTypes.Base]: genericCombatActionCostProperties,
   [ActionCostPropertiesBaseTypes.Spell]: genericSpellCostProperties,

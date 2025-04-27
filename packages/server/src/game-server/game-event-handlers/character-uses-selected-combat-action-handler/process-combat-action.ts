@@ -150,7 +150,8 @@ export function processCombatAction(
         // send the user home if the action type necessitates it
         const action = COMBAT_ACTIONS[trackerOption.actionExecutionIntent.actionName];
 
-        if (action.requiresCombatTurn(trackerOption.currentStep.getContext())) endedTurn = true;
+        if (action.costProperties.requiresCombatTurn(trackerOption.currentStep.getContext()))
+          endedTurn = true;
 
         if (action.userShouldMoveHomeOnComplete) {
           const returnHomeStep = new CombatantMotionActionResolutionStep(

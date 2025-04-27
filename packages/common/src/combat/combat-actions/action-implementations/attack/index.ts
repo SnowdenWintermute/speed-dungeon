@@ -28,6 +28,10 @@ import {
   ActionHitOutcomePropertiesBaseTypes,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
+import {
+  ActionCostPropertiesBaseTypes,
+  BASE_ACTION_COST_PROPERTIES,
+} from "../../combat-action-cost-properties.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 
@@ -36,14 +40,10 @@ const config: CombatActionComponentConfig = {
   usabilityContext: CombatActionUsabilityContext.InCombat,
   targetingProperties,
   // placeholder since all this action does is get children
-  hitOutcomeProperties:
-    GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
+  hitOutcomeProperties: GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
+  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
   intent: CombatActionIntent.Malicious,
-  incursDurabilityLoss: {},
-  costBases: {},
   userShouldMoveHomeOnComplete: false,
-  getResourceCosts: () => null,
-  requiresCombatTurn: () => true,
   shouldExecute: () => true,
   getActionStepAnimations: (context) => null,
   getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
@@ -61,7 +61,8 @@ const config: CombatActionComponentConfig = {
       toReturn.push(ATTACK_RANGED_MAIN_HAND);
     } else {
       toReturn.push(ATTACK_MELEE_MAIN_HAND);
-      if (!ATTACK_MELEE_MAIN_HAND.requiresCombatTurn(context)) toReturn.push(ATTACK_MELEE_OFF_HAND);
+      if (!ATTACK_MELEE_MAIN_HAND.costProperties.requiresCombatTurn(context))
+        toReturn.push(ATTACK_MELEE_OFF_HAND);
       // const specialExtra = ATTACK_MELEE_MAIN_HAND;
       // if (specialExtra) toReturn.push(specialExtra);
     }

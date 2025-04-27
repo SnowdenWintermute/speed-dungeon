@@ -30,13 +30,16 @@ import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import { AbstractParentType } from "../../action-entities/index.js";
 import { CombatActionTargetingProperties } from "./combat-action-targeting-properties.js";
 import { CombatActionHitOutcomeProperties } from "./combat-action-hit-outcome-properties.js";
-import { CombatActionCostProperties } from "./combat-action-cost-properties.js";
+import {
+  CombatActionCostProperties,
+  CombatActionCostPropertiesConfig,
+} from "./combat-action-cost-properties.js";
 
 export interface CombatActionComponentConfig {
   description: string;
   targetingProperties: CombatActionTargetingProperties;
   hitOutcomeProperties: CombatActionHitOutcomeProperties;
-  costProperties: CombatActionCostProperties;
+  costProperties: CombatActionCostPropertiesConfig;
 
   intent: CombatActionIntent;
   usabilityContext: CombatActionUsabilityContext;

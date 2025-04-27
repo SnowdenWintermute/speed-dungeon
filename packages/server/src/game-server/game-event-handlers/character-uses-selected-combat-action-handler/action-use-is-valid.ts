@@ -1,12 +1,10 @@
 import {
-  ActionPayableResource,
   CombatActionComponent,
   CombatActionTarget,
   CombatantContext,
   ERROR_MESSAGES,
   Inventory,
   getUnmetCostResourceTypes,
-  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 
 export function actionUseIsValid(
@@ -24,7 +22,7 @@ export function actionUseIsValid(
 
   const { combatantProperties } = combatant;
 
-  const costs = action.getResourceCosts(combatantProperties);
+  const costs = action.costProperties.getResourceCosts(combatantProperties);
 
   if (costs) {
     const unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);

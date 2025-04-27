@@ -19,6 +19,11 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import { rangedAttackProjectileHitOutcomeProperties } from "./attack-ranged-main-hand-projectile.js";
+import {
+  ActionCostPropertiesBaseTypes,
+  BASE_ACTION_COST_PROPERTIES,
+} from "../../combat-action-cost-properties.js";
+import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 
@@ -27,13 +32,15 @@ const config: CombatActionComponentConfig = {
   description: "Attack target using ranged weapon",
   targetingProperties,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+    incursDurabilityLoss: {
+      [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnUse },
+    },
+  },
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: 1 } },
-  costBases: {},
   userShouldMoveHomeOnComplete: true,
-  getResourceCosts: () => null,
-  requiresCombatTurn: (context) => true,
   shouldExecute: () => true,
   getConcurrentSubActions(context) {
     const { combatActionTarget } = context.combatant.combatantProperties;

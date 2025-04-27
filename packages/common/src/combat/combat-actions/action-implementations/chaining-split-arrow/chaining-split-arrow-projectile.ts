@@ -32,6 +32,10 @@ import {
 } from "../../combat-action-targeting-properties.js";
 import cloneDeep from "lodash.clonedeep";
 import { rangedAttackProjectileHitOutcomeProperties } from "../attack/attack-ranged-main-hand-projectile.js";
+import {
+  ActionCostPropertiesBaseTypes,
+  BASE_ACTION_COST_PROPERTIES,
+} from "../../combat-action-cost-properties.js";
 
 const targetingProperties = cloneDeep(
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]
@@ -46,13 +50,10 @@ const config: CombatActionComponentConfig = {
   description: "An arrow that bounces to up to two additional targets after the first",
   targetingProperties,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
+  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  incursDurabilityLoss: {},
-  costBases: {},
   userShouldMoveHomeOnComplete: false,
-  getResourceCosts: () => null,
-  requiresCombatTurn: () => true,
   getActionStepAnimations: (context) => null,
   getChildren: (context) => {
     let cursor = context.tracker.getPreviousTrackerInSequenceOption();

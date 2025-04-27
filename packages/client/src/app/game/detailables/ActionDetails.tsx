@@ -33,7 +33,7 @@ export default function ActionDetails({ actionName, hideTitle }: Props) {
   const inCombat = Object.values(party.currentRoom.monsters).length;
 
   const action = COMBAT_ACTIONS[actionName];
-  const costs = action.getResourceCosts(focusedCharacter.combatantProperties);
+  const costs = action.costProperties.getResourceCosts(focusedCharacter.combatantProperties);
   const { usabilityContext } = action;
 
   const targetingSchemesText = formatTargetingSchemes(action);

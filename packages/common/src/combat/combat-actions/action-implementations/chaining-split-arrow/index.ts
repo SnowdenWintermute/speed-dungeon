@@ -19,6 +19,11 @@ import {
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
 import { rangedAttackProjectileHitOutcomeProperties } from "../attack/attack-ranged-main-hand-projectile.js";
+import {
+  ActionCostPropertiesBaseTypes,
+  BASE_ACTION_COST_PROPERTIES,
+} from "../../combat-action-cost-properties.js";
+import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea];
 
@@ -27,18 +32,16 @@ const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
   targetingProperties,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+    incursDurabilityLoss: {
+      [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnUse },
+    },
+  },
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  incursDurabilityLoss: { [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: 1 } },
-  costBases: {},
+
   userShouldMoveHomeOnComplete: true,
-  getResourceCosts: () => {
-    const costs: ActionResourceCosts = {
-      [ActionPayableResource.Mana]: 1,
-    };
-    return costs;
-  },
-  requiresCombatTurn: () => true,
   shouldExecute: () => true,
   getChildren: (_user) => [],
   getParent: () => null,

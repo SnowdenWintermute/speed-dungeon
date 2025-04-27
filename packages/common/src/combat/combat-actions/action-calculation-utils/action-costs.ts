@@ -60,8 +60,6 @@ export function getStandardActionCost(user: CombatantProperties, self: CombatAct
     toReturn[payableResourceType] = cost;
   }
 
-  console.log("toReturn:", toReturn);
-
   if (Object.keys(toReturn).length === 0) toReturn = null;
 
   return toReturn;

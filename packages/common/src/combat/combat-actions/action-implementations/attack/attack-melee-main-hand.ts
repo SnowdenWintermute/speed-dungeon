@@ -32,34 +32,39 @@ import {
   ActionHitOutcomePropertiesBaseTypes,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
+import {
+  ActionCostPropertiesBaseTypes,
+  BASE_ACTION_COST_PROPERTIES,
+} from "../../combat-action-cost-properties.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
   description: "Attack target using equipment in main hand",
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent],
-  hitOutcomeProperties:
-    GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+    incursDurabilityLoss: {
+      [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnHit },
+    },
+    requiresCombatTurn: (context) => {
+      for (const holdableSlotType of iterateNumericEnum(HoldableSlotType)) {
+        const equipmentOption = CombatantEquipment.getEquippedHoldable(
+          context.combatantContext.combatant.combatantProperties,
+          holdableSlotType
+        );
+        if (!equipmentOption) continue;
+        const { equipmentType } = equipmentOption.equipmentBaseItemProperties.taggedBaseEquipment;
+        if (Equipment.isBroken(equipmentOption)) continue;
+        if (Equipment.isTwoHanded(equipmentType)) return true;
+        if (equipmentType === EquipmentType.Shield) return true;
+      }
+      return false;
+    },
+  },
+  hitOutcomeProperties: GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  incursDurabilityLoss: {
-    [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnHit },
-  },
-  costBases: {},
-  getResourceCosts: () => null,
-  requiresCombatTurn: (context) => {
-    for (const holdableSlotType of iterateNumericEnum(HoldableSlotType)) {
-      const equipmentOption = CombatantEquipment.getEquippedHoldable(
-        context.combatantContext.combatant.combatantProperties,
-        holdableSlotType
-      );
-      if (!equipmentOption) continue;
-      const { equipmentType } = equipmentOption.equipmentBaseItemProperties.taggedBaseEquipment;
-      if (Equipment.isBroken(equipmentOption)) continue;
-      if (Equipment.isTwoHanded(equipmentType)) return true;
-      if (equipmentType === EquipmentType.Shield) return true;
-    }
-    return false;
-  },
+
   shouldExecute: () => true,
   getActionStepAnimations: (context) => {
     let chamberingAnimation = SkeletalAnimationName.MainHandSwingChambering;

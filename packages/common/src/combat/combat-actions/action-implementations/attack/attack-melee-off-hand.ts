@@ -43,6 +43,10 @@ import {
   CombatActionHitOutcomeProperties,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
+import {
+  ActionCostPropertiesBaseTypes,
+  BASE_ACTION_COST_PROPERTIES,
+} from "../../combat-action-cost-properties.js";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
@@ -76,14 +80,14 @@ const config: CombatActionComponentConfig = {
   description: "Attack target using equipment in off hand",
   targetingProperties,
   hitOutcomeProperties,
+  costProperties: {
+    ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+    incursDurabilityLoss: {
+      [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: DurabilityLossCondition.OnHit },
+    },
+  },
   intent: CombatActionIntent.Malicious,
   usabilityContext: CombatActionUsabilityContext.InCombat,
-  incursDurabilityLoss: {
-    [EquipmentSlotType.Holdable]: { [HoldableSlotType.OffHand]: DurabilityLossCondition.OnHit },
-  },
-  costBases: {},
-  getResourceCosts: () => null,
-  requiresCombatTurn: () => true,
   getResolutionSteps: () => COMMON_CHILD_ACTION_STEPS_SEQUENCE,
   getActionStepAnimations: (context) => {
     // @TODO - somehow combine with mainhand animation determinations

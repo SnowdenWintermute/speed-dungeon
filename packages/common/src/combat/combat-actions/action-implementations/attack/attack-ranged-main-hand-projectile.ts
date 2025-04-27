@@ -26,6 +26,10 @@ import {
   CombatActionHitOutcomeProperties,
   GENERIC_HIT_OUTCOME_PROPERTIES,
 } from "../../combat-action-hit-outcome-properties.js";
+import {
+  ActionCostPropertiesBaseTypes,
+  BASE_ACTION_COST_PROPERTIES,
+} from "../../combat-action-cost-properties.js";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
@@ -57,13 +61,10 @@ const config: CombatActionComponentConfig = {
   description: "An arrow",
   targetingProperties,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
+  costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  incursDurabilityLoss: {},
-  costBases: {},
   userShouldMoveHomeOnComplete: false,
-  getResourceCosts: () => null,
-  requiresCombatTurn: () => true,
   shouldExecute: () => true,
   getActionStepAnimations: (context) => null,
   getChildren: (context) => [],

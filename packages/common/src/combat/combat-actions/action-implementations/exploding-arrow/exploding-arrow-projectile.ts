@@ -5,9 +5,10 @@ import {
 } from "../../index.js";
 import { ATTACK_RANGED_MAIN_HAND_PROJECTILE } from "../attack/attack-ranged-main-hand-projectile.js";
 import { PrimedForExplosionCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-explosion.js";
+import cloneDeep from "lodash.clonedeep";
 
 const config: CombatActionComponentConfig = {
-  ...ATTACK_RANGED_MAIN_HAND_PROJECTILE,
+  ...cloneDeep(ATTACK_RANGED_MAIN_HAND_PROJECTILE),
   description: "An arrow that applies a detonatable condition",
 };
 
