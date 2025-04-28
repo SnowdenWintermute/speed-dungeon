@@ -14,32 +14,24 @@ import { CombatActionRequiredRange } from "./combat-action-range.js";
 import { AUTO_TARGETING_FUNCTIONS } from "../targeting/auto-targeting/mapped-functions.js";
 import { CombatActionIntent } from "./combat-action-intent.js";
 import { CombatantContext } from "../../combatant-context/index.js";
-import {
-  ActionMotionPhase,
-  ActionResolutionStepContext,
-  ActionResolutionStepType,
-  EntityDestination,
-} from "../../action-processing/index.js";
+import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
-import { CombatActionCombatantAnimations } from "./combat-action-animations.js";
 import { ActionTracker } from "../../action-processing/action-tracker.js";
 import { SpawnableEntity } from "../../spawnables/index.js";
-import { ConsumableType } from "../../items/consumables/index.js";
-import { Milliseconds } from "../../primatives/index.js";
-import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
-import { AbstractParentType } from "../../action-entities/index.js";
 import { CombatActionTargetingProperties } from "./combat-action-targeting-properties.js";
 import { CombatActionHitOutcomeProperties } from "./combat-action-hit-outcome-properties.js";
 import {
   CombatActionCostProperties,
   CombatActionCostPropertiesConfig,
 } from "./combat-action-cost-properties.js";
+import { ActionResolutionStepsConfig } from "./combat-action-steps-config.js";
 
 export interface CombatActionComponentConfig {
   description: string;
   targetingProperties: CombatActionTargetingProperties;
   hitOutcomeProperties: CombatActionHitOutcomeProperties;
   costProperties: CombatActionCostPropertiesConfig;
+  stepsConfig: ActionResolutionStepsConfig;
 
   intent: CombatActionIntent;
   usabilityContext: CombatActionUsabilityContext;
@@ -48,12 +40,6 @@ export interface CombatActionComponentConfig {
     user: CombatantProperties,
     self: CombatActionComponent
   ) => CombatActionRequiredRange;
-  motionPhasePositionGetters: Partial<
-    Record<
-      ActionMotionPhase,
-      (context: ActionResolutionStepContext) => Error | null | EntityDestination
-    >
-  >;
 
   getAutoTarget?: (
     combatantContext: CombatantContext,
@@ -61,21 +47,6 @@ export interface CombatActionComponentConfig {
     self: CombatActionComponent
   ) => Error | null | CombatActionTarget;
 
-  // STEPS AND ENTITIES
-  userShouldMoveHomeOnComplete: boolean;
-  getResolutionSteps: () => ActionResolutionStepType[];
-  getActionStepAnimations: (
-    context: ActionResolutionStepContext
-  ) => null | Error | CombatActionCombatantAnimations;
-  getCosmeticEffectToStartByStep?: () => Partial<
-    Record<
-      ActionResolutionStepType,
-      { name: CosmeticEffectNames; parentType: AbstractParentType; lifetime?: Milliseconds }[]
-    >
-  >;
-  getCosmeticEffectToStopByStep?: () => Partial<
-    Record<ActionResolutionStepType, CosmeticEffectNames[]>
-  >;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 
   // ACTION HEIRARCHY PROPERTIES
@@ -93,11 +64,11 @@ export abstract class CombatActionComponent {
   public readonly targetingProperties: CombatActionTargetingProperties;
   public readonly hitOutcomeProperties: CombatActionHitOutcomeProperties;
   public readonly costProperties: CombatActionCostProperties;
+  public readonly stepsConfig: ActionResolutionStepsConfig;
 
   public readonly intent: CombatActionIntent;
   public readonly usabilityContext: CombatActionUsabilityContext;
 
-  readonly userShouldMoveHomeOnComplete: boolean;
   isUsableInGivenContext(context: CombatActionUsabilityContext) {
     switch (context) {
       case CombatActionUsabilityContext.All:
@@ -117,29 +88,10 @@ export abstract class CombatActionComponent {
     return this.isUsableInGivenContext(context);
   };
   shouldExecute: (context: CombatantContext) => boolean;
-  getActionStepAnimations: (
-    context: ActionResolutionStepContext
-  ) => null | Error | CombatActionCombatantAnimations;
+
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
-  getCosmeticEffectToStartByStep?: () => Partial<
-    Record<
-      ActionResolutionStepType,
-      { name: CosmeticEffectNames; parentType: AbstractParentType; lifetime?: Milliseconds }[]
-    >
-  >;
-  getCosmeticEffectToStopByStep?: () => Partial<
-    Record<ActionResolutionStepType, CosmeticEffectNames[]>
-  >;
 
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
-  motionPhasePositionGetters: Partial<
-    Record<
-      ActionMotionPhase,
-      (context: ActionResolutionStepContext) => Error | null | EntityDestination
-    >
-  >;
-
-  getConsumableCost?: () => ConsumableType;
 
   protected children?: CombatActionComponent[];
   // if we take in the combatant we can determine the children based on their equipped weapons (melee attack mh, melee attack oh etc)
@@ -149,7 +101,6 @@ export abstract class CombatActionComponent {
   getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
   getConcurrentSubActions: (combatantContext: CombatantContext) => CombatActionExecutionIntent[] =
     () => [];
-  getResolutionSteps: () => ActionResolutionStepType[];
   getParent: () => CombatActionComponent | null;
   addChild: (childAction: CombatActionComponent) => Error | void = () =>
     new Error("Can't add a child to this component");
@@ -169,21 +120,16 @@ export abstract class CombatActionComponent {
 
     this.usabilityContext = config.usabilityContext;
     this.intent = config.intent;
-    this.userShouldMoveHomeOnComplete = config.userShouldMoveHomeOnComplete;
     this.shouldExecute = (characterAssociatedData) =>
       config.shouldExecute(characterAssociatedData, this);
-    this.getActionStepAnimations = config.getActionStepAnimations;
     this.getRequiredRange = (user) => config.getRequiredRange(user, this);
-    this.motionPhasePositionGetters = config.motionPhasePositionGetters;
     this.getSpawnableEntity = config.getSpawnableEntity;
-    this.getCosmeticEffectToStartByStep = config.getCosmeticEffectToStartByStep;
-    this.getCosmeticEffectToStopByStep = config.getCosmeticEffectToStopByStep;
+    this.stepsConfig = config.stepsConfig;
 
     this.getChildren = config.getChildren;
     if (config.getConcurrentSubActions)
       this.getConcurrentSubActions = config.getConcurrentSubActions;
     this.getParent = config.getParent;
-    this.getResolutionSteps = config.getResolutionSteps;
     const { getAutoTarget } = config;
     if (getAutoTarget) {
       this.getAutoTarget = (combatantContext, trackerOption) =>
