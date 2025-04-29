@@ -58,18 +58,6 @@ export function calculateActionHitOutcomes(
   const { game, party, combatant } = context.combatantContext;
   const { combatantProperties: user } = combatant;
 
-  // we need a target to check against to find the best affinity to choose
-  // so we'll use the first target for now, until a better system comes to light
-  const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
-    party,
-    actionExecutionIntent
-  );
-  if (primaryTargetResult instanceof Error) {
-    console.warn("no target combatant found", primaryTargetResult.message);
-    return new CombatActionHitOutcomes();
-  }
-  const target = primaryTargetResult;
-
   const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
     action,
     actionExecutionIntent.targets
@@ -78,29 +66,17 @@ export function calculateActionHitOutcomes(
 
   let targetIds = targetIdsResult;
 
-  const hitOutcomes = new CombatActionHitOutcomes();
-
-  const actionHpChangePropertiesOption = cloneDeep(
-    hitOutcomeProperties.getHpChangeProperties(user, target.combatantProperties)
-  );
-  const actionManaChangePropertiesOption = cloneDeep(
-    hitOutcomeProperties.getManaChangeProperties(user, target.combatantProperties)
-  );
-
-  const incomingHpChangePerTargetOption = getIncomingResourceChangePerTarget(
-    targetIds,
-    actionHpChangePropertiesOption
-  );
-
-  const incomingManaChangePerTargetOption = getIncomingResourceChangePerTarget(
-    targetIds,
-    actionManaChangePropertiesOption
-  );
+  const incomingResourceChangesResult = getIncomingResourceChangesPerTarget(context);
+  if (incomingResourceChangesResult instanceof Error) return incomingResourceChangesResult;
+  const { incomingHpChangePerTargetOption, incomingManaChangePerTargetOption } =
+    incomingResourceChangesResult;
 
   const resourceChanges: {
     incomingChange: { value: number; resourceChangeSource: ResourceChangeSource } | null;
     record: HitPointChanges | ManaChanges;
   }[] = [];
+
+  const hitOutcomes = new CombatActionHitOutcomes();
 
   if (incomingHpChangePerTargetOption) {
     const record = new HitPointChanges();
@@ -248,10 +224,15 @@ export function calculateActionHitOutcomes(
   return hitOutcomes;
 }
 
+export interface ResourceChangesPerTarget {
+  value: number;
+  resourceChangeSource: ResourceChangeSource;
+}
+
 export function getIncomingResourceChangePerTarget(
   targetIds: EntityId[],
   resourceChangeProperties: CombatActionResourceChangeProperties | null
-): null | { value: number; resourceChangeSource: ResourceChangeSource } {
+): null | ResourceChangesPerTarget {
   if (resourceChangeProperties === null) return null;
   const resourceChangeRange = resourceChangeProperties.baseValues;
   const { resourceChangeSource } = resourceChangeProperties;
@@ -265,4 +246,56 @@ export function getIncomingResourceChangePerTarget(
     ),
     resourceChangeSource,
   };
+}
+
+export function getIncomingResourceChangesPerTarget(context: ActionResolutionStepContext):
+  | Error
+  | {
+      incomingHpChangePerTargetOption: ResourceChangesPerTarget | null;
+      incomingManaChangePerTargetOption: ResourceChangesPerTarget | null;
+    } {
+  const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+  const { actionExecutionIntent } = context.tracker;
+  const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+  const { hitOutcomeProperties } = action;
+  const { party, combatant } = context.combatantContext;
+  const { combatantProperties: user } = combatant;
+
+  // we need a target to check against to find the best affinity to choose
+  // so we'll use the first target for now, until a better system comes to light
+  const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+    party,
+    actionExecutionIntent
+  );
+  if (primaryTargetResult instanceof Error)
+    return new Error("no target combatant found" + primaryTargetResult.message);
+
+  const target = primaryTargetResult;
+
+  const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
+    action,
+    actionExecutionIntent.targets
+  );
+  if (targetIdsResult instanceof Error) return targetIdsResult;
+
+  let targetIds = targetIdsResult;
+
+  const actionHpChangePropertiesOption = cloneDeep(
+    hitOutcomeProperties.getHpChangeProperties(user, target.combatantProperties)
+  );
+  const actionManaChangePropertiesOption = cloneDeep(
+    hitOutcomeProperties.getManaChangeProperties(user, target.combatantProperties)
+  );
+
+  const incomingHpChangePerTargetOption = getIncomingResourceChangePerTarget(
+    targetIds,
+    actionHpChangePropertiesOption
+  );
+
+  const incomingManaChangePerTargetOption = getIncomingResourceChangePerTarget(
+    targetIds,
+    actionManaChangePropertiesOption
+  );
+
+  return { incomingHpChangePerTargetOption, incomingManaChangePerTargetOption };
 }

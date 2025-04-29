@@ -54,6 +54,7 @@ const targetingProperties =
 const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
   accuracyModifier: OFF_HAND_ACCURACY_MODIFIER,
+  addsPropertiesFromHoldableSlot: HoldableSlotType.OffHand,
   getCritChance: function (user: CombatantProperties): number {
     return (
       getStandardActionCritChance(user, CombatAttribute.Dexterity) * OFF_HAND_CRIT_CHANCE_MODIFIER

@@ -3,7 +3,7 @@ import { BASE_CRIT_CHANCE, BASE_CRIT_MULTIPLIER } from "../../app-consts.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { CombatantCondition, CombatantProperties } from "../../combatants/index.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
-import { NormalizedPercentage, NumberRange, Percentage } from "../../primatives/index.js";
+import { NormalizedPercentage, Percentage } from "../../primatives/index.js";
 import {
   getStandardActionArmorPenetration,
   getStandardActionCritChance,
@@ -15,6 +15,9 @@ import { CombatActionResourceChangeProperties } from "./combat-action-resource-c
 
 export interface CombatActionHitOutcomeProperties {
   accuracyModifier: NormalizedPercentage;
+  // used for determining melee attack animation types at start of action
+  // @TODO - could be used for generically adding weapon damage and kinetic types to hit outcomes
+  addsPropertiesFromHoldableSlot: null | HoldableSlotType;
   getUnmodifiedAccuracy: (user: CombatantProperties) => ActionAccuracy;
   getCritChance: (user: CombatantProperties) => Percentage;
   getCritMultiplier: (user: CombatantProperties) => NormalizedPercentage;
@@ -45,6 +48,7 @@ export enum ActionHitOutcomePropertiesBaseTypes {
 
 export const genericActionHitOutcomeProperties: CombatActionHitOutcomeProperties = {
   accuracyModifier: 1,
+  addsPropertiesFromHoldableSlot: null,
   getUnmodifiedAccuracy: function (user: CombatantProperties): ActionAccuracy {
     return { type: ActionAccuracyType.Unavoidable };
   },

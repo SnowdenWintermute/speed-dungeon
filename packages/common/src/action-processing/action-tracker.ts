@@ -1,17 +1,15 @@
+import { MeleeAttackAnimationType } from "../combat/combat-actions/action-implementations/attack/determine-melee-attack-animation-type.js";
 import {
   COMBAT_ACTIONS,
-  CombatActionAnimationPhase,
   CombatActionExecutionIntent,
   CombatActionHitOutcomes,
 } from "../combat/index.js";
-import { CombatantCondition } from "../combatants/index.js";
 import { Milliseconds } from "../primatives/index.js";
 import { SpawnableEntity } from "../spawnables/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
 import { ActionResolutionStep, ActionResolutionStepContext } from "./action-steps/index.js";
 import { ACTION_STEP_CREATORS } from "./action-steps/step-creators.js";
-import { EntityAnimation } from "./game-update-commands.js";
 
 export class ActionTracker {
   currentStep: ActionResolutionStep;
@@ -21,8 +19,7 @@ export class ActionTracker {
   spawnedEntityOption: null | SpawnableEntity = null;
   // initiatedByTriggeredCondition: null | CombatantCondition = null;
   hitOutcomes = new CombatActionHitOutcomes();
-  actionAnimations: Partial<Record<CombatActionAnimationPhase, EntityAnimation | null>> | null =
-    null;
+  meleeAttackAnimationType: MeleeAttackAnimationType | null = null;
 
   constructor(
     public parentActionManager: ActionSequenceManager,

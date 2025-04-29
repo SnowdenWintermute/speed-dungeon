@@ -56,7 +56,10 @@ const config: CombatActionComponentConfig = {
       return false;
     },
   },
-  hitOutcomeProperties: GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
+  hitOutcomeProperties: {
+    ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
+    addsPropertiesFromHoldableSlot: HoldableSlotType.MainHand,
+  },
   stepsConfig: new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.DetermineActionAnimations]: {},
@@ -71,7 +74,7 @@ const config: CombatActionComponentConfig = {
       },
       // ActionResolutionStepType.ChamberingMotion,
       [ActionResolutionStepType.ChamberingMotion]: {
-        getAnimation: () => {
+        getAnimation: (success, meleeAttackAnimationType) => {
           return {
             name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
             timing: { type: AnimationTimingType.Looping },

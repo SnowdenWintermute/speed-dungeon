@@ -8,7 +8,7 @@ import {
 } from "../../action-processing/index.js";
 import { Milliseconds } from "../../primatives/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
-import { KineticDamageType } from "../kinetic-damage-types.js";
+import { MeleeAttackAnimationType } from "./action-implementations/attack/determine-melee-attack-animation-type.js";
 
 export interface ActionResolutionStepConfig {
   cosmeticsEffectsToStart?: {
@@ -19,7 +19,7 @@ export interface ActionResolutionStepConfig {
   cosmeticsEffectsToStop?: CosmeticEffectNames[];
   getAnimation?(
     successOption?: boolean,
-    kineticDamageIntentOption?: KineticDamageType
+    meleeAttackAnimationType?: MeleeAttackAnimationType
   ): EntityAnimation;
   getDestination?(context: ActionResolutionStepContext): Error | EntityDestination;
 }
