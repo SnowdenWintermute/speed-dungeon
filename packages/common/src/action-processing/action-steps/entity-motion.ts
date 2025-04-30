@@ -43,16 +43,21 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
       this.gameUpdateCommand.animationOption = animationOption;
     }
 
-    const { translationOption, rotationOption } = this.getDestinations(action);
-    if (translationOption) {
-      this.translationOption = translationOption;
-      gameUpdateCommand.translationOption = translationOption;
+    const destinationsOption = this.getDestinations(action);
+    if (destinationsOption) {
+      const { translationOption, rotationOption } = destinationsOption;
+      if (translationOption) {
+        this.translationOption = translationOption;
+        gameUpdateCommand.translationOption = translationOption;
+      }
+      if (rotationOption) gameUpdateCommand.rotationOption = rotationOption;
     }
-    if (rotationOption) gameUpdateCommand.rotationOption = rotationOption;
   }
 
   protected getDestinations(action: CombatActionComponent) {
-    const destinationGetterOption = action.motionPhasePositionGetters[this.actionMotionPhase];
+    const destinationGetterOption = action.stepsConfig.steps[this.type]?.getDestination;
+    if (!destinationGetterOption) return null;
+
     let destinationResult = null;
     let translationOption;
     if (destinationGetterOption) destinationResult = destinationGetterOption(this.context);
@@ -81,16 +86,18 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   }
 
   protected getAnimation() {
-    if (this.context.tracker.actionAnimations)
-      return this.context.tracker.actionAnimations[this.animationPhase];
-
     const { actionExecutionIntent } = this.context.tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
-    const animationsOptionResult = action.getActionStepAnimations(this.context);
-    if (animationsOptionResult instanceof Error) throw animationsOptionResult;
-    if (animationsOptionResult) {
-      return animationsOptionResult[this.animationPhase];
-    }
+
+    const animationGetterOption = action.stepsConfig.steps[this.type]?.getAnimation;
+    if (!animationGetterOption) return null;
+
+    const animation = animationGetterOption(
+      this.context.combatantContext.combatant.combatantProperties,
+      this.context.manager.sequentialActionManagerRegistry.animationLengths,
+      this.context.tracker.meleeAttackAnimationType || undefined
+    );
+    return animation;
   }
 
   protected onTick(): void {

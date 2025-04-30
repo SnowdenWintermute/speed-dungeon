@@ -9,10 +9,7 @@ import { CombatActionIntent } from "../../combat-action-intent.js";
 import { ICE_BOLT_PARENT } from "./index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
-import {
-  ActionMotionPhase,
-  ActionResolutionStepType,
-} from "../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
@@ -30,6 +27,7 @@ import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
+import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
@@ -43,8 +41,6 @@ const config: CombatActionComponentConfig = {
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  userShouldMoveHomeOnComplete: false,
-  getActionStepAnimations: (context) => null,
   getChildren: (context) => [],
   getParent: () => ICE_BOLT_PARENT,
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
@@ -57,6 +53,45 @@ const config: CombatActionComponentConfig = {
 
     return previousTrackerOption.actionExecutionIntent.targets;
   },
+
+  stepsConfig: new ActionResolutionStepsConfig(
+    {
+      [ActionResolutionStepType.OnActivationSpawnEntity]: {},
+      [ActionResolutionStepType.OnActivationActionEntityMotion]: {
+        getDestination: (context) => {
+          const { combatantContext, tracker } = context;
+          const { actionExecutionIntent } = tracker;
+
+          const targetingCalculator = new TargetingCalculator(combatantContext, null);
+          const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+            combatantContext.party,
+            actionExecutionIntent
+          );
+          if (primaryTargetResult instanceof Error) return primaryTargetResult;
+          const target = primaryTargetResult;
+
+          return { position: target.combatantProperties.homeLocation.clone() };
+        },
+        cosmeticsEffectsToStart: [
+          {
+            name: CosmeticEffectNames.FrostParticleStream,
+            parentType: AbstractParentType.VfxEntityRoot,
+          },
+        ],
+      },
+      [ActionResolutionStepType.RollIncomingHitOutcomes]: {
+        cosmeticsEffectsToStart: [
+          {
+            name: CosmeticEffectNames.FrostParticleBurst,
+            parentType: AbstractParentType.CombatantHitboxCenter,
+            lifetime: 300,
+          },
+        ],
+      },
+      [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+    },
+    true
+  ),
 
   getSpawnableEntity: (context) => {
     const { combatantContext } = context;
@@ -88,49 +123,6 @@ const config: CombatActionComponentConfig = {
         },
       },
     };
-  },
-
-  getCosmeticEffectToStartByStep() {
-    return {
-      [ActionResolutionStepType.OnActivationActionEntityMotion]: [
-        {
-          name: CosmeticEffectNames.FrostParticleStream,
-          parentType: AbstractParentType.VfxEntityRoot,
-        },
-      ],
-      [ActionResolutionStepType.RollIncomingHitOutcomes]: [
-        {
-          name: CosmeticEffectNames.FrostParticleBurst,
-          parentType: AbstractParentType.CombatantHitboxCenter,
-          lifetime: 300,
-        },
-      ],
-    };
-  },
-  getResolutionSteps() {
-    return [
-      ActionResolutionStepType.OnActivationSpawnEntity,
-      ActionResolutionStepType.OnActivationActionEntityMotion,
-      ActionResolutionStepType.RollIncomingHitOutcomes,
-      ActionResolutionStepType.EvalOnHitOutcomeTriggers,
-    ];
-  },
-
-  motionPhasePositionGetters: {
-    [ActionMotionPhase.Delivery]: (context) => {
-      const { combatantContext, tracker } = context;
-      const { actionExecutionIntent } = tracker;
-
-      const targetingCalculator = new TargetingCalculator(combatantContext, null);
-      const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
-        combatantContext.party,
-        actionExecutionIntent
-      );
-      if (primaryTargetResult instanceof Error) return primaryTargetResult;
-      const target = primaryTargetResult;
-
-      return { position: target.combatantProperties.homeLocation.clone() };
-    },
   },
 };
 

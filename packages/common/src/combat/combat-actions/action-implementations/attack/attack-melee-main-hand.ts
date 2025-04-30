@@ -31,6 +31,9 @@ import {
 } from "../../../../action-processing/index.js";
 import { getMeleeAttackDestination } from "../../combat-action-destination-getters.js";
 import { AnimationType, SkeletalAnimationName } from "../../../../app-consts.js";
+import { getMeleeAttackAnimationFromType } from "./melee-attack-animation-names.js";
+import { ActionExecutionPhase } from "./determine-melee-attack-animation-type.js";
+import { getHomeDestination } from "../common-destination-getters.js";
 
 const config: CombatActionComponentConfig = {
   ...MELEE_ATTACK_COMMON_CONFIG,
@@ -72,21 +75,59 @@ const config: CombatActionComponentConfig = {
           };
         },
       },
-      // ActionResolutionStepType.ChamberingMotion,
       [ActionResolutionStepType.ChamberingMotion]: {
-        getAnimation: (success, meleeAttackAnimationType) => {
+        getAnimation: (user, animationLengths, meleeAttackAnimationType) => {
+          if (meleeAttackAnimationType === undefined)
+            throw new Error("Expected meleeAttackAnimationType was undefined");
+          return getMeleeAttackAnimationFromType(
+            user,
+            animationLengths,
+            meleeAttackAnimationType,
+            ActionExecutionPhase.Chambering,
+            HoldableSlotType.MainHand
+          );
+        },
+      },
+      [ActionResolutionStepType.DeliveryMotion]: {
+        getAnimation: (user, animationLengths, meleeAttackAnimationType) => {
+          if (meleeAttackAnimationType === undefined)
+            throw new Error("Expected meleeAttackAnimationType was undefined");
+          return getMeleeAttackAnimationFromType(
+            user,
+            animationLengths,
+            meleeAttackAnimationType,
+            ActionExecutionPhase.Delivery,
+            HoldableSlotType.MainHand
+          );
+        },
+      },
+      [ActionResolutionStepType.PayResourceCosts]: {},
+      [ActionResolutionStepType.EvalOnUseTriggers]: {},
+      [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
+      [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+      [ActionResolutionStepType.RecoveryMotion]: {
+        getAnimation: (user, animationLengths, meleeAttackAnimationType) => {
+          if (meleeAttackAnimationType === undefined)
+            throw new Error("Expected meleeAttackAnimationType was undefined");
+          return getMeleeAttackAnimationFromType(
+            user,
+            animationLengths,
+            meleeAttackAnimationType,
+            ActionExecutionPhase.Recovery,
+            HoldableSlotType.MainHand
+          );
+        },
+      },
+      [ActionResolutionStepType.FinalPositioning]: {
+        isConditionalStep: true,
+        getAnimation: () => {
           return {
-            name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
+            name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveBack },
             timing: { type: AnimationTimingType.Looping },
           };
         },
+        getDestination: getHomeDestination,
       },
-      // ActionResolutionStepType.DeliveryMotion,
-      // ActionResolutionStepType.PayResourceCosts,
-      // ActionResolutionStepType.EvalOnUseTriggers,
-      // ActionResolutionStepType.RollIncomingHitOutcomes,
-      // ActionResolutionStepType.EvalOnHitOutcomeTriggers,
-      // ActionResolutionStepType.RecoveryMotion,
     },
     true
   ),

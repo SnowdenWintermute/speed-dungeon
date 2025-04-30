@@ -14,8 +14,8 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
     const { combatant } = context.combatantContext;
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
     const costsOption = action.costProperties.getResourceCosts(combatant.combatantProperties);
-    const consumableTypeToConsumeOption = action.getConsumableCost
-      ? action.getConsumableCost()
+    const consumableTypeToConsumeOption = action.costProperties.getConsumableCost
+      ? action.costProperties.getConsumableCost()
       : undefined;
 
     let gameUpdateCommandOption: null | GameUpdateCommand = null;
@@ -28,7 +28,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
         combatantId: combatant.entityProperties.id,
       };
 
-      if (consumableTypeToConsumeOption !== undefined) {
+      if (consumableTypeToConsumeOption !== null && consumableTypeToConsumeOption !== undefined) {
         const { inventory } = combatant.combatantProperties;
         const consumableOption = Inventory.getConsumableByType(
           inventory,

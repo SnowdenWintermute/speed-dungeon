@@ -1,6 +1,4 @@
 import {
-  CombatActionAnimationPhase,
-  CombatActionCombatantAnimations,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -45,6 +43,7 @@ import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
+import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 
 const targetingProperties: CombatActionTargetingProperties = {
   targetingSchemes: [TargetingScheme.Single],
@@ -107,23 +106,41 @@ const config: CombatActionComponentConfig = {
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  userShouldMoveHomeOnComplete: false,
   shouldExecute: () => true,
-  getActionStepAnimations: (context) => {
-    const animations: CombatActionCombatantAnimations = {
-      [CombatActionAnimationPhase.Delivery]: {
-        name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDelivery },
-        timing: { type: AnimationTimingType.Timed, duration: 200 },
-        // timing: { type: AnimationTimingType.Timed, duration: 1000 },
+
+  stepsConfig: new ActionResolutionStepsConfig(
+    {
+      [ActionResolutionStepType.OnActivationSpawnEntity]: {},
+      [ActionResolutionStepType.OnActivationActionEntityMotion]: {
+        getAnimation: () => {
+          return {
+            name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDelivery },
+            timing: { type: AnimationTimingType.Timed, duration: 200 },
+            // timing: { type: AnimationTimingType.Timed, duration: 1000 },
+          };
+        },
+        cosmeticsEffectsToStart: [
+          {
+            name: CosmeticEffectNames.FrostParticleBurst,
+            parentType: AbstractParentType.VfxEntityRoot,
+            lifetime: 300,
+          },
+        ],
       },
-      [CombatActionAnimationPhase.RecoverySuccess]: {
-        name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDissipation },
-        timing: { type: AnimationTimingType.Timed, duration: 200 },
-        // timing: { type: AnimationTimingType.Timed, duration: 1000 },
+      [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
+      [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+      [ActionResolutionStepType.ActionEntityDissipationMotion]: {
+        getAnimation: () => {
+          return {
+            name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDissipation },
+            timing: { type: AnimationTimingType.Timed, duration: 200 },
+            // timing: { type: AnimationTimingType.Timed, duration: 1000 },
+          };
+        },
       },
-    };
-    return animations;
-  },
+    },
+    true
+  ),
 
   getChildren: (_user) => [],
   getParent: () => null,
@@ -131,29 +148,6 @@ const config: CombatActionComponentConfig = {
   getConcurrentSubActions(combatantContext) {
     return [];
   },
-  getResolutionSteps() {
-    return [
-      ActionResolutionStepType.OnActivationSpawnEntity,
-      ActionResolutionStepType.OnActivationActionEntityMotion,
-      ActionResolutionStepType.RollIncomingHitOutcomes,
-      ActionResolutionStepType.EvalOnHitOutcomeTriggers,
-      ActionResolutionStepType.ActionEntityDissipationMotion,
-    ];
-  },
-
-  getCosmeticEffectToStartByStep() {
-    return {
-      [ActionResolutionStepType.OnActivationActionEntityMotion]: [
-        {
-          name: CosmeticEffectNames.FrostParticleBurst,
-          parentType: AbstractParentType.VfxEntityRoot,
-          lifetime: 300,
-        },
-      ],
-    };
-  },
-
-  motionPhasePositionGetters: {},
 
   getSpawnableEntity: (context) => {
     // this action targets the sides, but we want to spawn the vfx on the center target

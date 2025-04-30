@@ -45,7 +45,7 @@ export class ActionTracker {
       manager: this.parentActionManager,
       idGenerator: this.idGenerator,
     };
-    const stepTypes = action.getResolutionSteps();
+    const stepTypes = action.stepsConfig.getStepTypes();
     const stepOption = stepTypes[this.stepIndex];
     if (stepOption === undefined) return null;
     const stepCreator = ACTION_STEP_CREATORS[stepOption];

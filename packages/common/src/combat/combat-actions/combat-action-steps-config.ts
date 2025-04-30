@@ -6,6 +6,8 @@ import {
   EntityAnimation,
   EntityDestination,
 } from "../../action-processing/index.js";
+import { CombatantSpecies } from "../../combatants/combatant-species.js";
+import { CombatantProperties } from "../../combatants/index.js";
 import { Milliseconds } from "../../primatives/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { MeleeAttackAnimationType } from "./action-implementations/attack/determine-melee-attack-animation-type.js";
@@ -18,10 +20,16 @@ export interface ActionResolutionStepConfig {
   }[];
   cosmeticsEffectsToStop?: CosmeticEffectNames[];
   getAnimation?(
-    successOption?: boolean,
-    meleeAttackAnimationType?: MeleeAttackAnimationType
+    user: CombatantProperties,
+    animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>,
+    meleeAttackAnimationType?: MeleeAttackAnimationType,
+    successOption?: boolean
   ): EntityAnimation;
   getDestination?(context: ActionResolutionStepContext): Error | EntityDestination;
+  // don't include this step in the initial list, it may be added later such as in the case
+  // of return home step for a melee main hand attack that killed its target, thus not needing
+  // to do the offhand attack
+  isConditionalStep?: boolean;
 }
 
 export class ActionResolutionStepsConfig {
@@ -35,7 +43,9 @@ export class ActionResolutionStepsConfig {
     public userShouldMoveHomeOnComplete: boolean
   ) {}
   getStepTypes() {
-    const stepTypes = iterateNumericEnumKeyedRecord(this.steps).map(([key, value]) => key);
+    const stepTypes = iterateNumericEnumKeyedRecord(this.steps)
+      .filter(([key, value]) => !value.isConditionalStep)
+      .map(([key, value]) => key);
     return stepTypes;
   }
 }

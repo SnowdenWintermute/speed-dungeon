@@ -6,9 +6,11 @@ import {
   CombatActionUsabilityContext,
 } from "../../index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import {
+  ActionResolutionStepType,
+  AnimationTimingType,
+} from "../../../../action-processing/index.js";
 import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
-import { getSpellCastActionStepAnimations } from "../spell-cast-action-step-animations.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { AbstractParentType } from "../../../../action-entities/index.js";
 import {
@@ -20,6 +22,9 @@ import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
+import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
+import { AnimationType, SkeletalAnimationName } from "../../../../app-consts.js";
+import { getSpeciesTimedAnimation } from "../get-species-timed-animation.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 
@@ -32,7 +37,55 @@ const config: CombatActionComponentConfig = {
 
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  userShouldMoveHomeOnComplete: true,
+  stepsConfig: new ActionResolutionStepsConfig(
+    {
+      [ActionResolutionStepType.DetermineActionAnimations]: {},
+      [ActionResolutionStepType.InitialPositioning]: {
+        getAnimation: () => {
+          return {
+            name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
+            timing: { type: AnimationTimingType.Looping },
+          };
+        },
+        cosmeticsEffectsToStart: [
+          {
+            name: CosmeticEffectNames.FrostParticleAccumulation,
+            parentType: AbstractParentType.UserOffHand,
+          },
+        ],
+      },
+      [ActionResolutionStepType.ChamberingMotion]: {
+        getAnimation: (user, animationLengths) =>
+          getSpeciesTimedAnimation(
+            user,
+            animationLengths,
+            SkeletalAnimationName.CastSpellChambering
+          ),
+      },
+      [ActionResolutionStepType.DeliveryMotion]: {
+        getAnimation: (user, animationLengths) =>
+          getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.CastSpellDelivery),
+      },
+      [ActionResolutionStepType.PayResourceCosts]: {},
+      [ActionResolutionStepType.EvalOnUseTriggers]: {},
+      [ActionResolutionStepType.StartConcurrentSubActions]: {},
+      [ActionResolutionStepType.RecoveryMotion]: {
+        getAnimation: (user, animationLengths) =>
+          getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.CastSpellDelivery),
+      },
+      [ActionResolutionStepType.FinalPositioning]: {
+        isConditionalStep: true,
+        cosmeticsEffectsToStop: [CosmeticEffectNames.FrostParticleAccumulation],
+        getAnimation: () => {
+          return {
+            name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveBack },
+            timing: { type: AnimationTimingType.Looping },
+          };
+        },
+      },
+    },
+    true
+  ),
 
   shouldExecute: () => true,
   getConcurrentSubActions(context) {
@@ -44,39 +97,6 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => null,
-  getCosmeticEffectToStartByStep() {
-    return {
-      [ActionResolutionStepType.InitialPositioning]: [
-        {
-          name: CosmeticEffectNames.FrostParticleAccumulation,
-          parentType: AbstractParentType.UserOffHand,
-        },
-      ],
-    };
-  },
-  getCosmeticEffectToStopByStep() {
-    return {
-      [ActionResolutionStepType.FinalPositioning]: [CosmeticEffectNames.FrostParticleAccumulation],
-    };
-  },
-  getResolutionSteps() {
-    return [
-      ActionResolutionStepType.DetermineActionAnimations,
-      // spawn spellcasting glyph at feet
-      ActionResolutionStepType.InitialPositioning,
-      // spawn particle effect on hand
-      ActionResolutionStepType.ChamberingMotion,
-      ActionResolutionStepType.DeliveryMotion,
-      // despawn original particle effect
-      // spawn particle effect burst
-      // despawn spellcasting glyph
-      ActionResolutionStepType.PayResourceCosts,
-      ActionResolutionStepType.EvalOnUseTriggers,
-      ActionResolutionStepType.StartConcurrentSubActions,
-      ActionResolutionStepType.RecoveryMotion,
-    ];
-  },
-  getActionStepAnimations: getSpellCastActionStepAnimations,
 };
 
 export const ICE_BOLT_PARENT = new CombatActionLeaf(CombatActionName.IceBoltParent, config);
