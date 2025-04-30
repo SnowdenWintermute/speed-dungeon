@@ -7,7 +7,6 @@ import {
 import { CombatantProperties, CombatantTraitType } from "../../../../combatants/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { RANGED_ACTION_DESTINATION_GETTERS } from "../ranged-action-destination-getters.js";
 import {
   ResourceChangeSource,
   ResourceChangeSourceCategory,
@@ -15,11 +14,9 @@ import {
 } from "../../../hp-change-source-types.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
-import { COMMON_CHILD_ACTION_STEPS_SEQUENCE } from "../common-action-steps-sequence.js";
 import { randBetween } from "../../../../utils/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { ConsumableType } from "../../../../items/consumables/index.js";
-import { CONSUMABLE_COMMON_CONFIG } from "./consumable-common-config.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
@@ -33,6 +30,7 @@ import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
+import { MEDICATION_ACTION_BASE_STEPS_CONFIG } from "./base-consumable-steps-config.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle];
 
@@ -65,7 +63,6 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 };
 
 const config: CombatActionComponentConfig = {
-  ...CONSUMABLE_COMMON_CONFIG,
   description: "Restore hit points to a target",
   targetingProperties,
   hitOutcomeProperties,
@@ -73,6 +70,8 @@ const config: CombatActionComponentConfig = {
     ...BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Medication],
     getConsumableCost: () => ConsumableType.HpAutoinjector,
   },
+  stepsConfig: MEDICATION_ACTION_BASE_STEPS_CONFIG,
+
   usabilityContext: CombatActionUsabilityContext.All,
   intent: CombatActionIntent.Benevolent,
 
@@ -80,10 +79,8 @@ const config: CombatActionComponentConfig = {
 
   getChildren: () => [],
   getParent: () => null,
-  userShouldMoveHomeOnComplete: true,
+
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
-  getResolutionSteps: () => COMMON_CHILD_ACTION_STEPS_SEQUENCE,
-  motionPhasePositionGetters: RANGED_ACTION_DESTINATION_GETTERS,
 };
 
 export const USE_GREEN_AUTOINJECTOR = new CombatActionLeaf(

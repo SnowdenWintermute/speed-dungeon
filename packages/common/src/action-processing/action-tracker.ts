@@ -8,7 +8,11 @@ import { Milliseconds } from "../primatives/index.js";
 import { SpawnableEntity } from "../spawnables/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
-import { ActionResolutionStep, ActionResolutionStepContext } from "./action-steps/index.js";
+import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  ActionResolutionStep,
+  ActionResolutionStepContext,
+} from "./action-steps/index.js";
 import { ACTION_STEP_CREATORS } from "./action-steps/step-creators.js";
 
 export class ActionTracker {
@@ -46,6 +50,10 @@ export class ActionTracker {
       idGenerator: this.idGenerator,
     };
     const stepTypes = action.stepsConfig.getStepTypes();
+    console.log(
+      "got sorted steps: ",
+      stepTypes.map((step) => ACTION_RESOLUTION_STEP_TYPE_STRINGS[step])
+    );
     const stepOption = stepTypes[this.stepIndex];
     if (stepOption === undefined) return null;
     const stepCreator = ACTION_STEP_CREATORS[stepOption];

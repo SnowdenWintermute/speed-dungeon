@@ -44,6 +44,7 @@ export class ActionResolutionStepsConfig {
   ) {}
   getStepTypes() {
     const stepTypes = iterateNumericEnumKeyedRecord(this.steps)
+      .sort(([aKey, aValue], [bKey, bValue]) => aKey - bKey)
       .filter(([key, value]) => !value.isConditionalStep)
       .map(([key, value]) => key);
     return stepTypes;

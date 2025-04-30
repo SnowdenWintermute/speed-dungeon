@@ -1,26 +1,7 @@
-import { EntityAnimation } from "../../../../action-processing/game-update-commands.js";
 import { SkeletalAnimationName } from "../../../../app-consts.js";
-import { CombatantSpecies } from "../../../../combatants/combatant-species.js";
-import { CombatantProperties } from "../../../../combatants/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { getFallbackAnimationWithLength } from "../../combat-action-animations.js";
-import {
-  ActionExecutionPhase,
-  MeleeAttackAnimationType,
-} from "./determine-melee-attack-animation-type.js";
-
-export function getMeleeAttackAnimationFromType(
-  user: CombatantProperties,
-  animationLengths: Record<CombatantSpecies, Record<string, number>>,
-  meleeAttackAnimationType: MeleeAttackAnimationType,
-  executionPhase: ActionExecutionPhase,
-  slotType: HoldableSlotType
-): EntityAnimation {
-  const speciesLengths = animationLengths[user.combatantSpecies];
-  const animationName =
-    MELEE_ATTACK_ANIMATION_NAMES[meleeAttackAnimationType][slotType][executionPhase];
-  return getFallbackAnimationWithLength(animationName, speciesLengths);
-}
+import { ActionExecutionPhase } from "../action-execution-phase.js";
+import { MeleeAttackAnimationType } from "./determine-melee-attack-animation-type.js";
 
 export const MELEE_ATTACK_ANIMATION_NAMES: Record<
   MeleeAttackAnimationType,

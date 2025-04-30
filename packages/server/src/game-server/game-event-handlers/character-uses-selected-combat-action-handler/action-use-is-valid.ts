@@ -14,9 +14,10 @@ export function actionUseIsValid(
 ): Error | void {
   const { combatant } = combatantContext;
   // has required resources
-  if (action.getConsumableCost) {
+  const consumableCost = action.costProperties.getConsumableCost();
+  if (consumableCost !== null) {
     const { inventory } = combatant.combatantProperties;
-    const consumableOption = Inventory.getConsumableByType(inventory, action.getConsumableCost());
+    const consumableOption = Inventory.getConsumableByType(inventory, consumableCost);
     if (consumableOption === undefined) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 

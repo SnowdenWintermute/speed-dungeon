@@ -1,6 +1,4 @@
 import {
-  CombatActionAnimationPhase,
-  CombatActionCombatantAnimations,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
@@ -8,9 +6,7 @@ import {
 } from "../../index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
-import { NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG } from "../non-combatant-initiated-actions-common-config.js";
 import {
-  ActionMotionPhase,
   ActionResolutionStepType,
   AnimationTimingType,
 } from "../../../../action-processing/index.js";
@@ -29,12 +25,12 @@ import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
+import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 
 const config: CombatActionComponentConfig = {
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
-  ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
   description: "Deals kinetic fire damage in an area around the target",
   targetingProperties,
   hitOutcomeProperties: explosionHitOutcomeProperties,
@@ -42,54 +38,54 @@ const config: CombatActionComponentConfig = {
 
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  userShouldMoveHomeOnComplete: false,
+
+  stepsConfig: new ActionResolutionStepsConfig(
+    {
+      [ActionResolutionStepType.OnActivationSpawnEntity]: {},
+      [ActionResolutionStepType.OnActivationActionEntityMotion]: {
+        // (I don't think we need this since we spawn in there anyway)
+        // getDestination: (context) => {
+        //   const { combatantContext, tracker } = context;
+        //   const { actionExecutionIntent } = tracker;
+
+        //   const targetingCalculator = new TargetingCalculator(combatantContext, null);
+        //   const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+        //     combatantContext.party,
+        //     actionExecutionIntent
+        //   );
+        //   if (primaryTargetResult instanceof Error) return primaryTargetResult;
+        //   const target = primaryTargetResult;
+
+        //   return { position: target.combatantProperties.homeLocation.clone() };
+        // },
+        getAnimation: () => {
+          return {
+            name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDelivery },
+            // timing: { type: AnimationTimingType.Timed, duration: 1200 },
+            timing: { type: AnimationTimingType.Timed, duration: 200 },
+          };
+        },
+      },
+      [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
+      [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+      [ActionResolutionStepType.ActionEntityDissipationMotion]: {
+        getAnimation: () => {
+          return {
+            name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDissipation },
+            // timing: { type: AnimationTimingType.Timed, duration: 700 },
+            timing: { type: AnimationTimingType.Timed, duration: 200 },
+          };
+        },
+      },
+    },
+    false
+  ),
   shouldExecute: () => true,
-  getActionStepAnimations: (context) => {
-    const animations: CombatActionCombatantAnimations = {
-      [CombatActionAnimationPhase.Delivery]: {
-        name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDelivery },
-        // timing: { type: AnimationTimingType.Timed, duration: 1200 },
-        timing: { type: AnimationTimingType.Timed, duration: 200 },
-      },
-      [CombatActionAnimationPhase.RecoverySuccess]: {
-        name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDissipation },
-        // timing: { type: AnimationTimingType.Timed, duration: 700 },
-        timing: { type: AnimationTimingType.Timed, duration: 200 },
-      },
-    };
-    return animations;
-  },
   getChildren: (_user) => [],
   getParent: () => null,
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
   getConcurrentSubActions(combatantContext) {
     return [];
-  },
-
-  getResolutionSteps() {
-    return [
-      ActionResolutionStepType.OnActivationSpawnEntity,
-      ActionResolutionStepType.OnActivationActionEntityMotion,
-      ActionResolutionStepType.RollIncomingHitOutcomes,
-      ActionResolutionStepType.EvalOnHitOutcomeTriggers,
-      ActionResolutionStepType.ActionEntityDissipationMotion,
-    ];
-  },
-  motionPhasePositionGetters: {
-    [ActionMotionPhase.Delivery]: (context) => {
-      const { combatantContext, tracker } = context;
-      const { actionExecutionIntent } = tracker;
-
-      const targetingCalculator = new TargetingCalculator(combatantContext, null);
-      const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
-        combatantContext.party,
-        actionExecutionIntent
-      );
-      if (primaryTargetResult instanceof Error) return primaryTargetResult;
-      const target = primaryTargetResult;
-
-      return { position: target.combatantProperties.homeLocation.clone() };
-    },
   },
 
   getSpawnableEntity: (context) => {

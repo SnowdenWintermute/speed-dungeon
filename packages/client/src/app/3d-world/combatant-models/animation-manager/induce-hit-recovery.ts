@@ -11,7 +11,6 @@ import {
   CosmeticEffectNames,
   AbstractParentType,
   Milliseconds,
-  COMBAT_ACTION_NAME_STRINGS,
 } from "@speed-dungeon/common";
 import { getCombatantContext, useGameStore } from "@/stores/game-store";
 import { GameWorld } from "../../game-world";
@@ -47,29 +46,12 @@ export function induceHitRecovery(
 
   let cosmeticEffectNamesToStopThisStep: CosmeticEffectNames[] = [];
 
-  if (action.getCosmeticEffectToStartByStep) {
-    const cosmeticEffectNamesToStart = action.getCosmeticEffectToStartByStep();
-    console.log(
-      COMBAT_ACTION_NAME_STRINGS[action.name],
-      "to start: ",
-      cosmeticEffectNamesToStartThisStep
-    );
-    const cosmeticEffectNamesForThisStep = cosmeticEffectNamesToStart[actionStep];
-    if (cosmeticEffectNamesForThisStep)
-      cosmeticEffectNamesToStartThisStep = cosmeticEffectNamesForThisStep;
-  }
-  if (action.getCosmeticEffectToStopByStep) {
-    const cosmeticEffectNamesToStop = action.getCosmeticEffectToStopByStep();
-    const cosmeticEffectNamesForThisStep = cosmeticEffectNamesToStop[actionStep];
-    if (cosmeticEffectNamesForThisStep)
-      cosmeticEffectNamesToStopThisStep = cosmeticEffectNamesForThisStep;
-  }
-
-  console.log(
-    COMBAT_ACTION_NAME_STRINGS[action.name],
-    "to start: ",
-    cosmeticEffectNamesToStartThisStep
-  );
+  const stepConfigOption = action.stepsConfig.steps[actionStep];
+  if (!stepConfigOption) throw new Error("unexpected missing step config");
+  if (stepConfigOption.cosmeticsEffectsToStart)
+    cosmeticEffectNamesToStartThisStep.push(...stepConfigOption.cosmeticsEffectsToStart);
+  if (stepConfigOption.cosmeticsEffectsToStop)
+    cosmeticEffectNamesToStopThisStep.push(...stepConfigOption.cosmeticsEffectsToStop);
 
   startOrStopCosmeticEffect(
     cosmeticEffectNamesToStartThisStep,

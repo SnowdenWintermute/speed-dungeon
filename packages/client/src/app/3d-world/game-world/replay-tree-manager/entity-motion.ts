@@ -9,6 +9,8 @@ import {
   AbstractParentType,
   Milliseconds,
   COMBAT_ACTIONS,
+  COMBAT_ACTION_NAME_STRINGS,
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
 } from "@speed-dungeon/common";
 import { ModelMovementManager } from "../../model-movement-manager";
 import { ManagedAnimationOptions } from "../../combatant-models/animation-manager";
@@ -80,18 +82,16 @@ export function entityMotionGameUpdateHandler(update: {
 
   const action = COMBAT_ACTIONS[command.actionName];
 
-  if (action.getCosmeticEffectToStartByStep) {
-    const cosmeticEffectNamesToStart = action.getCosmeticEffectToStartByStep();
-    const cosmeticEffectNamesForThisStep = cosmeticEffectNamesToStart[command.step];
-    if (cosmeticEffectNamesForThisStep)
-      cosmeticEffectNamesToStartThisStep = cosmeticEffectNamesForThisStep;
-  }
-  if (action.getCosmeticEffectToStopByStep) {
-    const cosmeticEffectNamesToStop = action.getCosmeticEffectToStopByStep();
-    const cosmeticEffectNamesForThisStep = cosmeticEffectNamesToStop[command.step];
-    if (cosmeticEffectNamesForThisStep)
-      cosmeticEffectNamesToStopThisStep = cosmeticEffectNamesForThisStep;
-  }
+  const stepConfigOption = action.stepsConfig.steps[command.step];
+
+  console.log("action:", COMBAT_ACTION_NAME_STRINGS[command.actionName]);
+  console.log(ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step], stepConfigOption);
+
+  if (!stepConfigOption) throw new Error("unexpected missing step config");
+  if (stepConfigOption.cosmeticsEffectsToStart)
+    cosmeticEffectNamesToStartThisStep.push(...stepConfigOption.cosmeticsEffectsToStart);
+  if (stepConfigOption.cosmeticsEffectsToStop)
+    cosmeticEffectNamesToStopThisStep.push(...stepConfigOption.cosmeticsEffectsToStop);
 
   startOrStopCosmeticEffect(
     cosmeticEffectNamesToStartThisStep,

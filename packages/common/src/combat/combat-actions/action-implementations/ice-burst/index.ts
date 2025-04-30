@@ -11,7 +11,6 @@ import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combata
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
-import { NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG } from "../non-combatant-initiated-actions-common-config.js";
 import {
   ActionResolutionStepType,
   AnimationTimingType,
@@ -99,7 +98,6 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 };
 
 const config: CombatActionComponentConfig = {
-  ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
   description: "Deals kinetic ice damage in an area around the target",
   targetingProperties,
   hitOutcomeProperties,
@@ -139,7 +137,7 @@ const config: CombatActionComponentConfig = {
         },
       },
     },
-    true
+    false
   ),
 
   getChildren: (_user) => [],

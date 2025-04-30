@@ -4,7 +4,6 @@ import {
   CombatActionName,
   CombatActionUsabilityContext,
 } from "../../index.js";
-import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { ICE_BOLT_PARENT } from "./index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
@@ -28,13 +27,13 @@ import {
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
+import { getPrimaryTargetPositionAsDestination } from "../common-destination-getters.js";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
 
 const config: CombatActionComponentConfig = {
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
-  ...RANGED_ACTIONS_COMMON_CONFIG,
   description: "An icy projectile",
   targetingProperties,
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
@@ -58,20 +57,7 @@ const config: CombatActionComponentConfig = {
     {
       [ActionResolutionStepType.OnActivationSpawnEntity]: {},
       [ActionResolutionStepType.OnActivationActionEntityMotion]: {
-        getDestination: (context) => {
-          const { combatantContext, tracker } = context;
-          const { actionExecutionIntent } = tracker;
-
-          const targetingCalculator = new TargetingCalculator(combatantContext, null);
-          const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
-            combatantContext.party,
-            actionExecutionIntent
-          );
-          if (primaryTargetResult instanceof Error) return primaryTargetResult;
-          const target = primaryTargetResult;
-
-          return { position: target.combatantProperties.homeLocation.clone() };
-        },
+        getDestination: getPrimaryTargetPositionAsDestination,
         cosmeticsEffectsToStart: [
           {
             name: CosmeticEffectNames.FrostParticleStream,
@@ -90,7 +76,7 @@ const config: CombatActionComponentConfig = {
       },
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
     },
-    true
+    false
   ),
 
   getSpawnableEntity: (context) => {

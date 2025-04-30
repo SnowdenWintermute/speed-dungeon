@@ -8,10 +8,7 @@ import {
 import { ATTACK } from "./index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { getBowShootActionStepAnimations } from "../bow-shoot-action-step-animations.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { ActionEntityName, AbstractParentType } from "../../../../action-entities/index.js";
 import {
@@ -24,12 +21,21 @@ import {
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
+import { CombatActionRequiredRange } from "../../combat-action-range.js";
+import { getProjectileShootingActionBaseStepsConfig } from "../projectile-shooting-action-base-steps-config.js";
+import { ProjectileShootingActionType } from "../projectile-shooting-action-animation-names.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
+const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Bow);
+stepsConfig.steps = {
+  ...stepsConfig.steps,
+  [ActionResolutionStepType.PostChamberingSpawnEntity]: {},
+};
 
 const config: CombatActionComponentConfig = {
-  ...RANGED_ACTIONS_COMMON_CONFIG,
   description: "Attack target using ranged weapon",
+  getRequiredRange: () => CombatActionRequiredRange.Ranged,
   targetingProperties,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: {
@@ -38,9 +44,10 @@ const config: CombatActionComponentConfig = {
       [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnUse },
     },
   },
+  stepsConfig,
+
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  userShouldMoveHomeOnComplete: true,
   shouldExecute: () => true,
   getConcurrentSubActions(context) {
     const { combatActionTarget } = context.combatant.combatantProperties;
@@ -54,20 +61,6 @@ const config: CombatActionComponentConfig = {
   },
   getChildren: () => [],
   getParent: () => ATTACK,
-  getResolutionSteps() {
-    return [
-      ActionResolutionStepType.DetermineActionAnimations,
-      ActionResolutionStepType.InitialPositioning,
-      ActionResolutionStepType.ChamberingMotion,
-      ActionResolutionStepType.PostChamberingSpawnEntity,
-      ActionResolutionStepType.DeliveryMotion,
-      ActionResolutionStepType.PayResourceCosts,
-      ActionResolutionStepType.EvalOnUseTriggers,
-      ActionResolutionStepType.StartConcurrentSubActions,
-      ActionResolutionStepType.RecoveryMotion,
-    ];
-  },
-  getActionStepAnimations: getBowShootActionStepAnimations,
   getSpawnableEntity: (context) => {
     const { combatantContext } = context;
     const position = combatantContext.combatant.combatantProperties.position.clone();

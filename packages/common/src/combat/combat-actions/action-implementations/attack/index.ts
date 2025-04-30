@@ -32,6 +32,7 @@ import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
+import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 
@@ -43,9 +44,7 @@ const config: CombatActionComponentConfig = {
   hitOutcomeProperties: GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
   intent: CombatActionIntent.Malicious,
-  userShouldMoveHomeOnComplete: false,
   shouldExecute: () => true,
-  getActionStepAnimations: (context) => null,
   getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
     const toReturn: CombatActionComponent[] = [];
     const user = context.combatantContext.combatant.combatantProperties;
@@ -79,8 +78,12 @@ const config: CombatActionComponentConfig = {
     // @TODO - determine based on children
     throw new Error("Function not implemented.");
   },
-  getResolutionSteps: () => [ActionResolutionStepType.DetermineChildActions],
-  motionPhasePositionGetters: {},
+  stepsConfig: new ActionResolutionStepsConfig(
+    {
+      [ActionResolutionStepType.DetermineChildActions]: {},
+    },
+    false
+  ),
 };
 
 export const ATTACK = new CombatActionComposite(CombatActionName.Attack, config);

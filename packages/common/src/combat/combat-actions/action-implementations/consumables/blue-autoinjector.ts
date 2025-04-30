@@ -7,10 +7,7 @@ import {
 import { CombatantProperties, CombatantTraitType } from "../../../../combatants/index.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { RANGED_ACTION_DESTINATION_GETTERS } from "../ranged-action-destination-getters.js";
-import { COMMON_CHILD_ACTION_STEPS_SEQUENCE } from "../common-action-steps-sequence.js";
 import { ConsumableType } from "../../../../items/consumables/index.js";
-import { CONSUMABLE_COMMON_CONFIG } from "./consumable-common-config.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { randBetween } from "../../../../utils/index.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
@@ -33,6 +30,7 @@ import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
+import { MEDICATION_ACTION_BASE_STEPS_CONFIG } from "./base-consumable-steps-config.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.FriendlySingle];
 
@@ -63,7 +61,6 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 };
 
 const config: CombatActionComponentConfig = {
-  ...CONSUMABLE_COMMON_CONFIG,
   description: "Refreshes a target's mana reserves",
   targetingProperties,
   hitOutcomeProperties,
@@ -72,16 +69,14 @@ const config: CombatActionComponentConfig = {
     getConsumableCost: () => ConsumableType.MpAutoinjector,
   },
 
+  stepsConfig: MEDICATION_ACTION_BASE_STEPS_CONFIG,
+
   usabilityContext: CombatActionUsabilityContext.All,
   intent: CombatActionIntent.Benevolent,
   shouldExecute: () => true,
   getChildren: () => [],
   getParent: () => null,
-  userShouldMoveHomeOnComplete: true,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
-
-  getResolutionSteps: () => COMMON_CHILD_ACTION_STEPS_SEQUENCE,
-  motionPhasePositionGetters: RANGED_ACTION_DESTINATION_GETTERS,
 };
 
 export const USE_BLUE_AUTOINJECTOR = new CombatActionLeaf(

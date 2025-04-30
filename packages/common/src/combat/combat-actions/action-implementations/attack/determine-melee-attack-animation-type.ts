@@ -59,9 +59,3 @@ export function determineMeleeAttackAnimationType(
       else return MeleeAttackAnimationType.OneHandStab;
   }
 }
-
-export enum ActionExecutionPhase {
-  Chambering,
-  Delivery,
-  Recovery,
-}

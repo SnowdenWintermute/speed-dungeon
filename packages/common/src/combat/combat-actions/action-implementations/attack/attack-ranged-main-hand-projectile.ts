@@ -8,12 +8,7 @@ import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { CombatActionIntent } from "../../combat-action-intent.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
-import { RANGED_ACTIONS_COMMON_CONFIG } from "../ranged-actions-common-config.js";
-import {
-  ActionMotionPhase,
-  ActionResolutionStepType,
-} from "../../../../action-processing/index.js";
-import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
@@ -30,6 +25,8 @@ import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
+import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
+import { getPrimaryTargetPositionAsDestination } from "../common-destination-getters.js";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
@@ -57,16 +54,24 @@ export const rangedAttackProjectileHitOutcomeProperties: CombatActionHitOutcomeP
 };
 
 const config: CombatActionComponentConfig = {
-  ...RANGED_ACTIONS_COMMON_CONFIG,
   description: "An arrow",
   targetingProperties,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
+  stepsConfig: new ActionResolutionStepsConfig(
+    {
+      [ActionResolutionStepType.OnActivationActionEntityMotion]: {
+        getDestination: getPrimaryTargetPositionAsDestination,
+      },
+      [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
+      [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+    },
+    false
+  ),
+
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  userShouldMoveHomeOnComplete: false,
   shouldExecute: () => true,
-  getActionStepAnimations: (context) => null,
   getChildren: (context) => [],
   getParent: () => ATTACK_RANGED_MAIN_HAND,
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
@@ -78,30 +83,6 @@ const config: CombatActionComponentConfig = {
       return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.MISSING_EXPECTED_ACTION_IN_CHAIN);
 
     return previousTrackerOption.actionExecutionIntent.targets;
-  },
-  getResolutionSteps() {
-    return [
-      ActionResolutionStepType.OnActivationActionEntityMotion,
-      ActionResolutionStepType.RollIncomingHitOutcomes,
-      ActionResolutionStepType.EvalOnHitOutcomeTriggers,
-    ];
-  },
-
-  motionPhasePositionGetters: {
-    [ActionMotionPhase.Delivery]: (context) => {
-      const { combatantContext, tracker } = context;
-      const { actionExecutionIntent } = tracker;
-
-      const targetingCalculator = new TargetingCalculator(combatantContext, null);
-      const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
-        combatantContext.party,
-        actionExecutionIntent
-      );
-      if (primaryTargetResult instanceof Error) return primaryTargetResult;
-      const target = primaryTargetResult;
-
-      return { position: target.combatantProperties.homeLocation.clone() };
-    },
   },
 };
 

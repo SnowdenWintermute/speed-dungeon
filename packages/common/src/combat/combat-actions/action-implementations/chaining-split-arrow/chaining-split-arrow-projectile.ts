@@ -15,11 +15,7 @@ import {
 } from "../../../targeting/combat-action-targets.js";
 import { CombatantContext } from "../../../../combatant-context/index.js";
 import { chooseRandomFromArray } from "../../../../utils/index.js";
-import { NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG } from "../non-combatant-initiated-actions-common-config.js";
-import {
-  ActionMotionPhase,
-  ActionResolutionStepType,
-} from "../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { ActionTracker } from "../../../../action-processing/action-tracker.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
@@ -36,6 +32,7 @@ import {
   ActionCostPropertiesBaseTypes,
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
+import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 
 const targetingProperties = cloneDeep(
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]
@@ -45,7 +42,6 @@ targetingProperties.autoTargetSelectionMethod = { scheme: AutoTargetingScheme.Ra
 const MAX_BOUNCES = 2;
 
 const config: CombatActionComponentConfig = {
-  ...NON_COMBATANT_INITIATED_ACTIONS_COMMON_CONFIG,
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "An arrow that bounces to up to two additional targets after the first",
   targetingProperties,
@@ -53,8 +49,36 @@ const config: CombatActionComponentConfig = {
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
   usabilityContext: CombatActionUsabilityContext.InCombat,
   intent: CombatActionIntent.Malicious,
-  userShouldMoveHomeOnComplete: false,
-  getActionStepAnimations: (context) => null,
+
+  stepsConfig: new ActionResolutionStepsConfig(
+    {
+      [ActionResolutionStepType.OnActivationSpawnEntity]: {},
+      [ActionResolutionStepType.OnActivationActionEntityMotion]: {
+        getDestination: (context) => {
+          const { combatantContext, tracker } = context;
+          const { actionExecutionIntent } = tracker;
+          const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+          const targetingCalculator = new TargetingCalculator(combatantContext, null);
+          action.getAutoTarget(
+            combatantContext,
+            context.tracker.getPreviousTrackerInSequenceOption()
+          );
+          const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
+            combatantContext.party,
+            actionExecutionIntent
+          );
+          if (primaryTargetResult instanceof Error) return primaryTargetResult;
+          const target = primaryTargetResult;
+
+          return { position: target.combatantProperties.homeLocation.clone() };
+        },
+      },
+      [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
+      [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
+    },
+    false
+  ),
+
   getChildren: (context) => {
     let cursor = context.tracker.getPreviousTrackerInSequenceOption();
     let numBouncesSoFar = 0;
@@ -104,14 +128,6 @@ const config: CombatActionComponentConfig = {
     };
     return target;
   },
-  getResolutionSteps() {
-    return [
-      ActionResolutionStepType.OnActivationSpawnEntity,
-      ActionResolutionStepType.OnActivationActionEntityMotion,
-      ActionResolutionStepType.RollIncomingHitOutcomes,
-      ActionResolutionStepType.EvalOnHitOutcomeTriggers,
-    ];
-  },
   getSpawnableEntity: (context) => {
     const { combatantContext, tracker } = context;
     const previousTrackerOption = tracker.getPreviousTrackerInSequenceOption();
@@ -134,23 +150,6 @@ const config: CombatActionComponentConfig = {
         },
       },
     };
-  },
-  motionPhasePositionGetters: {
-    [ActionMotionPhase.Delivery]: (context) => {
-      const { combatantContext, tracker } = context;
-      const { actionExecutionIntent } = tracker;
-      const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
-      const targetingCalculator = new TargetingCalculator(combatantContext, null);
-      action.getAutoTarget(combatantContext, context.tracker.getPreviousTrackerInSequenceOption());
-      const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
-        combatantContext.party,
-        actionExecutionIntent
-      );
-      if (primaryTargetResult instanceof Error) return primaryTargetResult;
-      const target = primaryTargetResult;
-
-      return { position: target.combatantProperties.homeLocation.clone() };
-    },
   },
 };
 
