@@ -2,11 +2,9 @@ import {
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
-  CombatActionUsabilityContext,
 } from "../../index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
-import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CHAINING_SPLIT_ARROW_PARENT } from "./index.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import {
@@ -70,8 +68,6 @@ const config: CombatActionComponentConfig = {
   targetingProperties,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
-  usabilityContext: CombatActionUsabilityContext.InCombat,
-  intent: CombatActionIntent.Malicious,
 
   stepsConfig: new ActionResolutionStepsConfig(
     {

@@ -1,11 +1,5 @@
-import {
-  CombatActionComponentConfig,
-  CombatActionLeaf,
-  CombatActionName,
-  CombatActionUsabilityContext,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionLeaf, CombatActionName } from "../../index.js";
 import { CombatantProperties, CombatantTraitType } from "../../../../combatants/index.js";
-import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import {
   ResourceChangeSource,
@@ -71,9 +65,6 @@ const config: CombatActionComponentConfig = {
     getConsumableCost: () => ConsumableType.HpAutoinjector,
   },
   stepsConfig: MEDICATION_ACTION_BASE_STEPS_CONFIG,
-
-  usabilityContext: CombatActionUsabilityContext.All,
-  intent: CombatActionIntent.Benevolent,
 
   shouldExecute: () => true,
 

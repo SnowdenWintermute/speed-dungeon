@@ -1,11 +1,5 @@
-import {
-  CombatActionComponentConfig,
-  CombatActionLeaf,
-  CombatActionName,
-  CombatActionUsabilityContext,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionLeaf, CombatActionName } from "../../index.js";
 import { CombatantProperties, CombatantTraitType } from "../../../../combatants/index.js";
-import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { ConsumableType } from "../../../../items/consumables/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
@@ -71,8 +65,6 @@ const config: CombatActionComponentConfig = {
 
   stepsConfig: MEDICATION_ACTION_BASE_STEPS_CONFIG,
 
-  usabilityContext: CombatActionUsabilityContext.All,
-  intent: CombatActionIntent.Benevolent,
   shouldExecute: () => true,
   getChildren: () => [],
   getParent: () => null,

@@ -25,7 +25,7 @@ export default function TargetingIndicators({ party, entityId }: Props) {
 
 import React from "react";
 import { ZIndexLayers } from "@/app/z-index-layers";
-import { CombatActionIntent } from "@speed-dungeon/common/src/combat/combat-actions/combat-action-intent";
+import { CombatActionIntent } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
 
 interface TargetingIndicatorProps {
@@ -35,7 +35,7 @@ interface TargetingIndicatorProps {
 function TargetingIndicator({ combatActionName }: TargetingIndicatorProps) {
   let color = "yellow-700";
   const action = COMBAT_ACTIONS[combatActionName];
-  if (action.intent === CombatActionIntent.Benevolent) color = "green-600";
+  if (action.targetingProperties.intent === CombatActionIntent.Benevolent) color = "green-600";
 
   return (
     <div

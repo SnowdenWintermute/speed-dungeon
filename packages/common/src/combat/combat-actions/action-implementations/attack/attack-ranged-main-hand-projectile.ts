@@ -2,11 +2,8 @@ import {
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
-  CombatActionUsabilityContext,
 } from "../../index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { CombatActionIntent } from "../../combat-action-intent.js";
-import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
@@ -69,8 +66,6 @@ const config: CombatActionComponentConfig = {
     { userShouldMoveHomeOnComplete: false }
   ),
 
-  usabilityContext: CombatActionUsabilityContext.InCombat,
-  intent: CombatActionIntent.Malicious,
   shouldExecute: () => true,
   getChildren: (context) => [],
   getParent: () => ATTACK_RANGED_MAIN_HAND,

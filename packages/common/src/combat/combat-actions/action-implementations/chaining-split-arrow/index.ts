@@ -3,10 +3,8 @@ import {
   CombatActionComposite,
   CombatActionExecutionIntent,
   CombatActionName,
-  CombatActionUsabilityContext,
 } from "../../index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { CombatActionIntent } from "../../combat-action-intent.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import {
@@ -35,9 +33,6 @@ const config: CombatActionComponentConfig = {
     },
   },
   stepsConfig: getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Bow),
-
-  usabilityContext: CombatActionUsabilityContext.InCombat,
-  intent: CombatActionIntent.Malicious,
 
   shouldExecute: () => true,
   getChildren: (_user) => [],

@@ -1,9 +1,4 @@
-import {
-  CombatActionComponentConfig,
-  CombatActionLeaf,
-  CombatActionName,
-  CombatActionUsabilityContext,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionLeaf, CombatActionName } from "../../index.js";
 import {
   OFF_HAND_ACCURACY_MODIFIER,
   OFF_HAND_CRIT_CHANCE_MODIFIER,
@@ -14,7 +9,6 @@ import { CombatantProperties } from "../../../../combatants/index.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { getAttackResourceChangeProperties } from "./get-attack-hp-change-properties.js";
-import { CombatActionIntent } from "../../combat-action-intent.js";
 import { getStandardActionCritChance } from "../../action-calculation-utils/standard-action-calculations.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
@@ -83,8 +77,6 @@ const config: CombatActionComponentConfig = {
   },
   stepsConfig,
 
-  intent: CombatActionIntent.Malicious,
-  usabilityContext: CombatActionUsabilityContext.InCombat,
   getChildren: () => [],
   getParent: () => ATTACK,
 };

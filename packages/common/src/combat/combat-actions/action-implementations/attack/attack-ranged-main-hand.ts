@@ -3,11 +3,9 @@ import {
   CombatActionExecutionIntent,
   CombatActionLeaf,
   CombatActionName,
-  CombatActionUsabilityContext,
 } from "../../index.js";
 import { ATTACK } from "./index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { CombatActionIntent } from "../../combat-action-intent.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { ActionEntityName, AbstractParentType } from "../../../../action-entities/index.js";
@@ -46,8 +44,6 @@ const config: CombatActionComponentConfig = {
   },
   stepsConfig,
 
-  usabilityContext: CombatActionUsabilityContext.InCombat,
-  intent: CombatActionIntent.Malicious,
   shouldExecute: () => true,
   getConcurrentSubActions(context) {
     const { combatActionTarget } = context.combatant.combatantProperties;

@@ -35,6 +35,6 @@ export function checkIfTargetWantsToBeHit(
   }
 
   // finally resolve based on action intent
-  if (action.intent === CombatActionIntent.Malicious) return false;
+  if (action.targetingProperties.intent === CombatActionIntent.Malicious) return false;
   else return true;
 }

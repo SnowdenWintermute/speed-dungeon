@@ -2,12 +2,9 @@ import {
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
-  CombatActionUsabilityContext,
 } from "../../index.js";
-import { CombatActionIntent } from "../../combat-action-intent.js";
 import { ICE_BOLT_PARENT } from "./index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
@@ -38,8 +35,6 @@ const config: CombatActionComponentConfig = {
   targetingProperties,
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],
-  usabilityContext: CombatActionUsabilityContext.InCombat,
-  intent: CombatActionIntent.Malicious,
   getChildren: (context) => [],
   getParent: () => ICE_BOLT_PARENT,
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,

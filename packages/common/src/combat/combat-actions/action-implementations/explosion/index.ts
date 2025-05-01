@@ -2,15 +2,12 @@ import {
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
-  CombatActionUsabilityContext,
 } from "../../index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { CombatActionIntent } from "../../combat-action-intent.js";
 import {
   ActionResolutionStepType,
   AnimationTimingType,
 } from "../../../../action-processing/index.js";
-
 import { AnimationType, DynamicAnimationName } from "../../../../app-consts.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
@@ -35,9 +32,6 @@ const config: CombatActionComponentConfig = {
   targetingProperties,
   hitOutcomeProperties: explosionHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
-
-  usabilityContext: CombatActionUsabilityContext.InCombat,
-  intent: CombatActionIntent.Malicious,
 
   stepsConfig: new ActionResolutionStepsConfig(
     {

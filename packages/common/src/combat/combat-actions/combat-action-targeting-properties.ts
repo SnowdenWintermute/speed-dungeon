@@ -7,9 +7,10 @@ import {
 import { ProhibitedTargetCombatantStates } from "./prohibited-target-combatant-states.js";
 import { ActionTracker } from "../../action-processing/action-tracker.js";
 import { CombatantContext } from "../../combatant-context/index.js";
-import { CombatActionComponent } from "./index.js";
+import { CombatActionComponent, CombatActionUsabilityContext } from "./index.js";
 import { AUTO_TARGETING_FUNCTIONS } from "../targeting/auto-targeting/mapped-functions.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
+import { CombatActionIntent } from "./combat-action-intent.js";
 
 export interface CombatActionTargetingPropertiesConfig {
   targetingSchemes: TargetingScheme[];
@@ -17,6 +18,8 @@ export interface CombatActionTargetingPropertiesConfig {
   autoTargetSelectionMethod: AutoTargetingSelectionMethod;
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
   prohibitedHitCombatantStates: ProhibitedTargetCombatantStates[];
+  intent: CombatActionIntent;
+  usabilityContext: CombatActionUsabilityContext;
   getAutoTarget: (
     combatantContext: CombatantContext,
     actionTrackerOption: null | ActionTracker,
@@ -44,6 +47,9 @@ const hostileSingle: CombatActionTargetingPropertiesConfig = {
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.UserSelected },
   prohibitedTargetCombatantStates: [ProhibitedTargetCombatantStates.Dead],
   prohibitedHitCombatantStates: [],
+  intent: CombatActionIntent.Malicious,
+  usabilityContext: CombatActionUsabilityContext.InCombat,
+
   getAutoTarget: (
     combatantContext: CombatantContext,
     actionTrackerOption: null | ActionTracker,
@@ -76,6 +82,8 @@ export const GENERIC_TARGETING_PROPERTIES: Record<
   },
   [TargetingPropertiesTypes.FriendlySingle]: {
     ...hostileSingle,
+    intent: CombatActionIntent.Benevolent,
+    usabilityContext: CombatActionUsabilityContext.All,
     validTargetCategories: TargetCategories.Friendly,
   },
 };

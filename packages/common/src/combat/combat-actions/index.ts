@@ -4,13 +4,13 @@ export * from "./combat-action-usable-cotexts.js";
 export * from "./action-calculation-utils/action-costs.js";
 export * from "./combat-action-execution-intent.js";
 export * from "./combat-action-animations.js";
+export * from "./combat-action-intent.js";
 import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { CombatActionName } from "./combat-action-names.js";
 import { Battle } from "../../battle/index.js";
 import { ActionAccuracyType } from "./combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "./combat-action-range.js";
-import { CombatActionIntent } from "./combat-action-intent.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
@@ -34,8 +34,6 @@ export interface CombatActionComponentConfig {
   costProperties: CombatActionCostPropertiesConfig;
   stepsConfig: ActionResolutionStepsConfig;
 
-  intent: CombatActionIntent;
-  usabilityContext: CombatActionUsabilityContext;
   shouldExecute: (context: CombatantContext, self: CombatActionComponent) => boolean;
 
   getRequiredRange: (
@@ -62,17 +60,16 @@ export abstract class CombatActionComponent {
   public readonly costProperties: CombatActionCostProperties;
   public readonly stepsConfig: ActionResolutionStepsConfig;
 
-  public readonly intent: CombatActionIntent;
-  public readonly usabilityContext: CombatActionUsabilityContext;
-
   isUsableInGivenContext(context: CombatActionUsabilityContext) {
     switch (context) {
       case CombatActionUsabilityContext.All:
         return true;
       case CombatActionUsabilityContext.InCombat:
-        return this.usabilityContext !== CombatActionUsabilityContext.OutOfCombat;
+        return (
+          this.targetingProperties.usabilityContext !== CombatActionUsabilityContext.OutOfCombat
+        );
       case CombatActionUsabilityContext.OutOfCombat:
-        return this.usabilityContext !== CombatActionUsabilityContext.InCombat;
+        return this.targetingProperties.usabilityContext !== CombatActionUsabilityContext.InCombat;
     }
   }
   isUsableInThisContext: (battleOption: Battle | null) => boolean = (
@@ -118,8 +115,6 @@ export abstract class CombatActionComponent {
         config.costProperties.getResourceCosts(user, this),
     };
 
-    this.usabilityContext = config.usabilityContext;
-    this.intent = config.intent;
     this.shouldExecute = (characterAssociatedData) =>
       config.shouldExecute(characterAssociatedData, this);
     this.getRequiredRange = (user) => config.getRequiredRange(user, this);

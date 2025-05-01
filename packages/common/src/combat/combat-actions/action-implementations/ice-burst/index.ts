@@ -2,12 +2,10 @@ import {
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
-  CombatActionUsabilityContext,
 } from "../../index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
-import { CombatActionIntent } from "../../combat-action-intent.js";
 import {
   ActionResolutionStepType,
   AnimationTimingType,
@@ -100,8 +98,6 @@ const config: CombatActionComponentConfig = {
   targetingProperties,
   hitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],
-  usabilityContext: CombatActionUsabilityContext.InCombat,
-  intent: CombatActionIntent.Malicious,
   shouldExecute: () => true,
 
   stepsConfig: new ActionResolutionStepsConfig(

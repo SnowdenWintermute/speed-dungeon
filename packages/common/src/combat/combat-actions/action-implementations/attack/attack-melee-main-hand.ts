@@ -1,15 +1,9 @@
-import {
-  CombatActionComponentConfig,
-  CombatActionLeaf,
-  CombatActionName,
-  CombatActionUsabilityContext,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionLeaf, CombatActionName } from "../../index.js";
 import { ATTACK } from "./index.js";
 import { CombatantEquipment } from "../../../../combatants/index.js";
 import { iterateNumericEnum } from "../../../../utils/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
-import { CombatActionIntent } from "../../combat-action-intent.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
@@ -55,8 +49,6 @@ const config: CombatActionComponentConfig = {
     addsPropertiesFromHoldableSlot: HoldableSlotType.MainHand,
   },
   stepsConfig: getMeleeAttackBaseStepsConfig(HoldableSlotType.MainHand),
-  usabilityContext: CombatActionUsabilityContext.InCombat,
-  intent: CombatActionIntent.Malicious,
 
   shouldExecute: () => true,
   getChildren: () => [],
