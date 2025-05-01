@@ -46,12 +46,6 @@ const config: CombatActionComponentConfig = {
   getConcurrentSubActions() {
     return [];
   },
-  getAutoTarget(combatantContext, previousTrackerOption, self) {
-    if (!previousTrackerOption)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.MISSING_EXPECTED_ACTION_IN_CHAIN);
-
-    return previousTrackerOption.actionExecutionIntent.targets;
-  },
 
   stepsConfig: new ActionResolutionStepsConfig(
     {

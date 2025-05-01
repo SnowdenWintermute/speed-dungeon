@@ -23,6 +23,7 @@ import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-confi
 import { COMBAT_ACTIONS } from "../index.js";
 import { ActionEntityName } from "../../../../action-entities/index.js";
 import {
+  CombatActionTargetingPropertiesConfig,
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
 } from "../../combat-action-targeting-properties.js";
@@ -33,12 +34,33 @@ import {
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
-import { getPrimaryTargetPositionAsDestination } from "../common-destination-getters.js";
 
-const targetingProperties = cloneDeep(
-  GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]
-);
-targetingProperties.autoTargetSelectionMethod = { scheme: AutoTargetingScheme.RandomCombatant };
+const targetingProperties: CombatActionTargetingPropertiesConfig = {
+  ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
+  autoTargetSelectionMethod: { scheme: AutoTargetingScheme.RandomCombatant },
+
+  getAutoTarget(combatantContext, previousTrackerOption, self) {
+    // const previousTrackerInSequenceOption = trackerOption?.getPreviousTrackerInSequenceOption();
+    if (!previousTrackerOption)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.MISSING_EXPECTED_ACTION_IN_CHAIN);
+
+    const filteredPossibleTargetIds = getBouncableTargets(combatantContext, previousTrackerOption);
+    if (filteredPossibleTargetIds instanceof Error) return filteredPossibleTargetIds;
+    const { possibleTargetIds, previousTargetId } = filteredPossibleTargetIds;
+
+    if (possibleTargetIds.length === 0)
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
+
+    const randomTargetIdResult = chooseRandomFromArray(possibleTargetIds);
+    if (randomTargetIdResult instanceof Error) return randomTargetIdResult;
+
+    const target: CombatActionTarget = {
+      type: CombatActionTargetType.Single,
+      targetId: randomTargetIdResult,
+    };
+    return target;
+  },
+};
 
 const MAX_BOUNCES = 2;
 
@@ -61,7 +83,7 @@ const config: CombatActionComponentConfig = {
           const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
           const targetingCalculator = new TargetingCalculator(combatantContext, null);
 
-          action.getAutoTarget(
+          action.targetingProperties.getAutoTarget(
             combatantContext,
             context.tracker.getPreviousTrackerInSequenceOption()
           );
@@ -109,27 +131,6 @@ const config: CombatActionComponentConfig = {
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
   getConcurrentSubActions() {
     return [];
-  },
-  getAutoTarget(combatantContext, previousTrackerOption, self) {
-    // const previousTrackerInSequenceOption = trackerOption?.getPreviousTrackerInSequenceOption();
-    if (!previousTrackerOption)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.MISSING_EXPECTED_ACTION_IN_CHAIN);
-
-    const filteredPossibleTargetIds = getBouncableTargets(combatantContext, previousTrackerOption);
-    if (filteredPossibleTargetIds instanceof Error) return filteredPossibleTargetIds;
-    const { possibleTargetIds, previousTargetId } = filteredPossibleTargetIds;
-
-    if (possibleTargetIds.length === 0)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
-
-    const randomTargetIdResult = chooseRandomFromArray(possibleTargetIds);
-    if (randomTargetIdResult instanceof Error) return randomTargetIdResult;
-
-    const target: CombatActionTarget = {
-      type: CombatActionTargetType.Single,
-      targetId: randomTargetIdResult,
-    };
-    return target;
   },
   getSpawnableEntity: (context) => {
     const { combatantContext, tracker } = context;

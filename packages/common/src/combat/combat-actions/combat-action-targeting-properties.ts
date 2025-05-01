@@ -1,13 +1,34 @@
 import { TargetCategories, TargetingScheme } from "./targeting-schemes-and-categories.js";
-import { AutoTargetingScheme, AutoTargetingSelectionMethod } from "../targeting/index.js";
+import {
+  AutoTargetingScheme,
+  AutoTargetingSelectionMethod,
+  CombatActionTarget,
+} from "../targeting/index.js";
 import { ProhibitedTargetCombatantStates } from "./prohibited-target-combatant-states.js";
+import { ActionTracker } from "../../action-processing/action-tracker.js";
+import { CombatantContext } from "../../combatant-context/index.js";
+import { CombatActionComponent } from "./index.js";
+import { AUTO_TARGETING_FUNCTIONS } from "../targeting/auto-targeting/mapped-functions.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
 
-export interface CombatActionTargetingProperties {
+export interface CombatActionTargetingPropertiesConfig {
   targetingSchemes: TargetingScheme[];
   validTargetCategories: TargetCategories;
   autoTargetSelectionMethod: AutoTargetingSelectionMethod;
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
   prohibitedHitCombatantStates: ProhibitedTargetCombatantStates[];
+  getAutoTarget: (
+    combatantContext: CombatantContext,
+    actionTrackerOption: null | ActionTracker,
+    self: CombatActionComponent
+  ) => Error | null | CombatActionTarget;
+}
+
+export interface CombatActionTargetingProperties extends CombatActionTargetingPropertiesConfig {
+  getAutoTarget: (
+    combatantContext: CombatantContext,
+    actionTrackerOption: null | ActionTracker
+  ) => Error | null | CombatActionTarget;
 }
 
 export enum TargetingPropertiesTypes {
@@ -17,17 +38,25 @@ export enum TargetingPropertiesTypes {
   FriendlySingle,
 }
 
-const hostileSingle: CombatActionTargetingProperties = {
+const hostileSingle: CombatActionTargetingPropertiesConfig = {
   targetingSchemes: [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.UserSelected },
   prohibitedTargetCombatantStates: [ProhibitedTargetCombatantStates.Dead],
   prohibitedHitCombatantStates: [],
+  getAutoTarget: (
+    combatantContext: CombatantContext,
+    actionTrackerOption: null | ActionTracker,
+    self: CombatActionComponent
+  ) => {
+    const scheme = self.targetingProperties.autoTargetSelectionMethod.scheme;
+    return AUTO_TARGETING_FUNCTIONS[scheme](combatantContext, self);
+  },
 };
 
 export const GENERIC_TARGETING_PROPERTIES: Record<
   TargetingPropertiesTypes,
-  CombatActionTargetingProperties
+  CombatActionTargetingPropertiesConfig
 > = {
   [TargetingPropertiesTypes.HostileSingle]: hostileSingle,
   [TargetingPropertiesTypes.HostileArea]: {
@@ -37,6 +66,13 @@ export const GENERIC_TARGETING_PROPERTIES: Record<
   [TargetingPropertiesTypes.HostileCopyParent]: {
     ...hostileSingle,
     autoTargetSelectionMethod: { scheme: AutoTargetingScheme.CopyParent },
+
+    getAutoTarget(combatantContext, previousTrackerOption, self) {
+      if (!previousTrackerOption)
+        return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.MISSING_EXPECTED_ACTION_IN_CHAIN);
+
+      return previousTrackerOption.actionExecutionIntent.targets;
+    },
   },
   [TargetingPropertiesTypes.FriendlySingle]: {
     ...hostileSingle,

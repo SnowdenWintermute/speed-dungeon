@@ -12,6 +12,7 @@ export enum AutoTargetingScheme {
   RandomCombatant, //
   SpecificSide, // main hand / offhand slash
   RandomSide,
+  Sides,
   SelfAndSides, // explosion
   AllCombatantsWithCondition, //
   ClosestCombatantWithCondition, // lightning rod causes arcs from nearby targets to hit them
@@ -41,6 +42,10 @@ export type AutoTargetSelectionMethodUserSelected = {
 export type AutoTargetSelectionMethodSpecificSide = {
   scheme: AutoTargetingScheme.SpecificSide;
   side: TargetableSide;
+};
+
+export type AutoTargetSelectionMethodSides = {
+  scheme: AutoTargetingScheme.Sides;
 };
 
 export type AutoTargetSelectionMethodRandomSide = {
@@ -96,6 +101,7 @@ export type AutoTargetingSelectionMethod =
   | AutoTargetSelectionMethodUserSelected
   | AutoTargetSelectionMethodSpecificSide
   | AutoTargetSelectionMethodRandomSide
+  | AutoTargetSelectionMethodSides
   | AutoTargetSelectionMethodCopyParent
   | AutoTargetSelectionMethodUser
   | AutoTargetSelectionMethodBattleGroup

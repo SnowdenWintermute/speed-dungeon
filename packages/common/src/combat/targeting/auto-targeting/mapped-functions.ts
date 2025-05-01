@@ -93,4 +93,10 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
     };
     return target;
   },
+  [AutoTargetingScheme.Sides]: function (
+    combatantContext: CombatantContext,
+    combatAction: CombatActionComponent
+  ): Error | CombatActionTarget | null {
+    throw new Error("Function not implemented.");
+  },
 };

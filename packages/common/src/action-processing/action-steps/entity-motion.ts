@@ -85,10 +85,14 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     const animationGetterOption = action.stepsConfig.steps[this.type]?.getAnimation;
     if (!animationGetterOption) return null;
 
+    let animationType;
+    animationType = this.context.tracker.meleeAttackAnimationType;
+    if (animationType === null) animationType = undefined;
+
     const animation = animationGetterOption(
       this.context.combatantContext.combatant.combatantProperties,
       this.context.manager.sequentialActionManagerRegistry.animationLengths,
-      this.context.tracker.meleeAttackAnimationType || undefined
+      animationType
     );
     return animation;
   }

@@ -56,7 +56,10 @@ export class ActionSequenceManager {
     });
 
     const childActionIntentResults = children.map((action) => {
-      const targets = action.getAutoTarget(this.combatantContext, this.currentTracker);
+      const targets = action.targetingProperties.getAutoTarget(
+        this.combatantContext,
+        this.currentTracker
+      );
 
       return {
         actionName: action.name,

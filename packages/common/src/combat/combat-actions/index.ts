@@ -8,17 +8,17 @@ import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { CombatActionName } from "./combat-action-names.js";
 import { Battle } from "../../battle/index.js";
-import { CombatActionTarget } from "../targeting/combat-action-targets.js";
 import { ActionAccuracyType } from "./combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "./combat-action-range.js";
-import { AUTO_TARGETING_FUNCTIONS } from "../targeting/auto-targeting/mapped-functions.js";
 import { CombatActionIntent } from "./combat-action-intent.js";
 import { CombatantContext } from "../../combatant-context/index.js";
 import { ActionResolutionStepContext } from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
-import { ActionTracker } from "../../action-processing/action-tracker.js";
 import { SpawnableEntity } from "../../spawnables/index.js";
-import { CombatActionTargetingProperties } from "./combat-action-targeting-properties.js";
+import {
+  CombatActionTargetingProperties,
+  CombatActionTargetingPropertiesConfig,
+} from "./combat-action-targeting-properties.js";
 import { CombatActionHitOutcomeProperties } from "./combat-action-hit-outcome-properties.js";
 import {
   CombatActionCostProperties,
@@ -28,7 +28,8 @@ import { ActionResolutionStepsConfig } from "./combat-action-steps-config.js";
 
 export interface CombatActionComponentConfig {
   description: string;
-  targetingProperties: CombatActionTargetingProperties;
+
+  targetingProperties: CombatActionTargetingPropertiesConfig;
   hitOutcomeProperties: CombatActionHitOutcomeProperties;
   costProperties: CombatActionCostPropertiesConfig;
   stepsConfig: ActionResolutionStepsConfig;
@@ -36,16 +37,11 @@ export interface CombatActionComponentConfig {
   intent: CombatActionIntent;
   usabilityContext: CombatActionUsabilityContext;
   shouldExecute: (context: CombatantContext, self: CombatActionComponent) => boolean;
+
   getRequiredRange: (
     user: CombatantProperties,
     self: CombatActionComponent
   ) => CombatActionRequiredRange;
-
-  getAutoTarget?: (
-    combatantContext: CombatantContext,
-    actionTrackerOption: null | ActionTracker,
-    self: CombatActionComponent
-  ) => Error | null | CombatActionTarget;
 
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 
@@ -110,7 +106,11 @@ export abstract class CombatActionComponent {
     config: CombatActionComponentConfig
   ) {
     this.description = config.description;
-    this.targetingProperties = config.targetingProperties;
+    this.targetingProperties = {
+      ...config.targetingProperties,
+      getAutoTarget: (combatantContext, trackerOption) =>
+        config.targetingProperties.getAutoTarget(combatantContext, trackerOption, this),
+    };
     this.hitOutcomeProperties = config.hitOutcomeProperties;
     this.costProperties = {
       ...config.costProperties,
@@ -130,20 +130,8 @@ export abstract class CombatActionComponent {
     if (config.getConcurrentSubActions)
       this.getConcurrentSubActions = config.getConcurrentSubActions;
     this.getParent = config.getParent;
-    const { getAutoTarget } = config;
-    if (getAutoTarget) {
-      this.getAutoTarget = (combatantContext, trackerOption) =>
-        getAutoTarget(combatantContext, trackerOption, this);
-    }
   }
 
-  getAutoTarget: (
-    combatantContext: CombatantContext,
-    actionTrackerOption: null | ActionTracker
-  ) => Error | null | CombatActionTarget = (combatantContext) => {
-    const scheme = this.targetingProperties.autoTargetSelectionMethod.scheme;
-    return AUTO_TARGETING_FUNCTIONS[scheme](combatantContext, this);
-  };
   combatantIsValidTarget(
     user: Combatant, // to check who their allies are
     combatant: Combatant, // to check their conditions, traits and other state like current hp

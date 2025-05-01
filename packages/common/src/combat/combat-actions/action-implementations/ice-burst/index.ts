@@ -3,9 +3,6 @@ import {
   CombatActionComposite,
   CombatActionName,
   CombatActionUsabilityContext,
-  FriendOrFoe,
-  TargetCategories,
-  TargetingScheme,
 } from "../../index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
@@ -32,7 +29,11 @@ import { CombatActionTargetType } from "../../../targeting/combat-action-targets
 import cloneDeep from "lodash.clonedeep";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActionEntityName, AbstractParentType } from "../../../../action-entities/index.js";
-import { CombatActionTargetingProperties } from "../../combat-action-targeting-properties.js";
+import {
+  CombatActionTargetingPropertiesConfig,
+  GENERIC_TARGETING_PROPERTIES,
+  TargetingPropertiesTypes,
+} from "../../combat-action-targeting-properties.js";
 import {
   ActionHitOutcomePropertiesBaseTypes,
   CombatActionHitOutcomeProperties,
@@ -44,18 +45,15 @@ import {
 } from "../../combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 
-const targetingProperties: CombatActionTargetingProperties = {
-  targetingSchemes: [TargetingScheme.Single],
-  validTargetCategories: TargetCategories.Opponent,
-  prohibitedTargetCombatantStates: [],
+const targetingProperties: CombatActionTargetingPropertiesConfig = {
+  ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
   prohibitedHitCombatantStates: [
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
     ProhibitedTargetCombatantStates.UntargetableBySpells,
     ProhibitedTargetCombatantStates.Dead,
   ],
   autoTargetSelectionMethod: {
-    scheme: AutoTargetingScheme.BattleGroup,
-    friendOrFoe: FriendOrFoe.Hostile,
+    scheme: AutoTargetingScheme.Sides,
   },
 };
 
