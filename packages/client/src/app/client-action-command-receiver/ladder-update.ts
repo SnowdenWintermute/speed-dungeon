@@ -1,11 +1,10 @@
-import { ActionCommandManager, GameMessagesPayload } from "@speed-dungeon/common";
+import { GameMessagesPayload } from "@speed-dungeon/common";
 import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
 import { ClientActionCommandReceiver } from ".";
 import { useGameStore } from "@/stores/game-store";
 
 export default function gameMessageActionCommandHandler(
   this: ClientActionCommandReceiver,
-  _actionCommandManager: ActionCommandManager,
   payload: GameMessagesPayload
 ) {
   payload.messages.forEach((message) => {

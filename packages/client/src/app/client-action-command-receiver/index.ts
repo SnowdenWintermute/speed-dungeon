@@ -9,7 +9,7 @@ import gameMessageActionCommandHandler from "./game-message";
 import { removeClientPlayerFromGame } from "./remove-client-player-from-game";
 import { gameWorld } from "../3d-world/SceneManager";
 import { baseMenuState, useGameStore } from "@/stores/game-store";
-import { synchronizeTargetingIndicators } from "../WebsocketManager/game-event-handlers/synchronize-targeting-indicators";
+import { synchronizeTargetingIndicators } from "../websocket-manager/game-event-handlers/synchronize-targeting-indicators";
 import { MenuStateType } from "../game/ActionMenu/menu-state";
 
 export class ClientActionCommandReceiver implements ActionCommandReceiver {

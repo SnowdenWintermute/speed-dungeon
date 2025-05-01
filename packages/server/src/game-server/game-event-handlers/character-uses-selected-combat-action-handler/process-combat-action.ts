@@ -121,6 +121,7 @@ export function processCombatAction(
         const nextActionOption = nextActionIntentInQueueOption
           ? COMBAT_ACTIONS[nextActionIntentInQueueOption.actionName]
           : null;
+        // ex: main hand attack killed target, off hand attack should not execute
         if (nextActionOption && nextActionOption.shouldExecute(combatantContext)) {
           const stepTrackerResult = sequenceManager.startProcessingNext(time);
           if (stepTrackerResult instanceof Error) return stepTrackerResult;

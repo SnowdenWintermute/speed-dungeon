@@ -50,15 +50,12 @@ export interface CombatActionComponentConfig {
 }
 
 export abstract class CombatActionComponent {
-  // TO CONSIDER ADDING:
-  // shouldDisplayTargetingIndicator()
-  // could be useful to hide the indicator of a parent who's children indicate their parent as target as with attack
-  // or to hide indicators of bouncing child attacks which would baloon factorially
   public readonly description: string;
   public readonly targetingProperties: CombatActionTargetingProperties;
   public readonly hitOutcomeProperties: CombatActionHitOutcomeProperties;
   public readonly costProperties: CombatActionCostProperties;
   public readonly stepsConfig: ActionResolutionStepsConfig;
+  protected children?: CombatActionComponent[];
 
   isUsableInGivenContext(context: CombatActionUsabilityContext) {
     switch (context) {
@@ -72,6 +69,7 @@ export abstract class CombatActionComponent {
         return this.targetingProperties.usabilityContext !== CombatActionUsabilityContext.InCombat;
     }
   }
+
   isUsableInThisContext: (battleOption: Battle | null) => boolean = (
     battleOption: Battle | null
   ) => {
@@ -80,13 +78,11 @@ export abstract class CombatActionComponent {
       : CombatActionUsabilityContext.OutOfCombat;
     return this.isUsableInGivenContext(context);
   };
-  shouldExecute: (context: CombatantContext) => boolean;
 
+  shouldExecute: (context: CombatantContext) => boolean;
+  getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 
-  getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
-
-  protected children?: CombatActionComponent[];
   // if we take in the combatant we can determine the children based on their equipped weapons (melee attack mh, melee attack oh etc)
   // spell levels (level 1 chain lightning only gets 1 ChainLightningArc child) or other status
   // (energetic swings could do multiple attacks based on user's current percent of max hp)

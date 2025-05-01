@@ -5,7 +5,7 @@ import {
   RotationTracker,
   TranslationTracker,
 } from "./model-movement-trackers";
-import { cloneVector3, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
+import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 
 export class ModelMovementManager {
   public activeTrackers: Partial<Record<ModelMovementType, ModelMovementTracker>> = {};

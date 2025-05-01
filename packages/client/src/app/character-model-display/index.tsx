@@ -2,7 +2,6 @@ import { Combatant } from "@speed-dungeon/common";
 import { ReactNode, useEffect } from "react";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
-import { doc } from "prettier";
 import { useUIStore } from "@/stores/ui-store";
 
 export default function CharacterModelDisplay({
