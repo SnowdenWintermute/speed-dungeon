@@ -153,7 +153,7 @@ export function processCombatAction(
         if (action.costProperties.requiresCombatTurn(trackerOption.currentStep.getContext()))
           endedTurn = true;
 
-        if (action.stepsConfig.userShouldMoveHomeOnComplete) {
+        if (action.stepsConfig.options.userShouldMoveHomeOnComplete) {
           const returnHomeStep = new CombatantMotionActionResolutionStep(
             trackerOption.currentStep.getContext(),
             ActionResolutionStepType.FinalPositioning,

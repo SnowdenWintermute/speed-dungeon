@@ -43,21 +43,6 @@ const config: CombatActionComponentConfig = {
     {
       [ActionResolutionStepType.OnActivationSpawnEntity]: {},
       [ActionResolutionStepType.OnActivationActionEntityMotion]: {
-        // (I don't think we need this since we spawn in there anyway)
-        // getDestination: (context) => {
-        //   const { combatantContext, tracker } = context;
-        //   const { actionExecutionIntent } = tracker;
-
-        //   const targetingCalculator = new TargetingCalculator(combatantContext, null);
-        //   const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
-        //     combatantContext.party,
-        //     actionExecutionIntent
-        //   );
-        //   if (primaryTargetResult instanceof Error) return primaryTargetResult;
-        //   const target = primaryTargetResult;
-
-        //   return { position: target.combatantProperties.homeLocation.clone() };
-        // },
         getAnimation: () => {
           return {
             name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDelivery },
@@ -78,7 +63,7 @@ const config: CombatActionComponentConfig = {
         },
       },
     },
-    false
+    { userShouldMoveHomeOnComplete: false }
   ),
   shouldExecute: () => true,
   getChildren: (_user) => [],

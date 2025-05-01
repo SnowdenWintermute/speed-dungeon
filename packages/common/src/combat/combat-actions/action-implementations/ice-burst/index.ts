@@ -137,7 +137,7 @@ const config: CombatActionComponentConfig = {
         },
       },
     },
-    false
+    { userShouldMoveHomeOnComplete: false }
   ),
 
   getChildren: (_user) => [],

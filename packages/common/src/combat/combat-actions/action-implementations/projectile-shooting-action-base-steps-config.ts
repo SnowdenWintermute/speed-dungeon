@@ -71,6 +71,6 @@ export function getProjectileShootingActionBaseStepsConfig(
         },
       },
     },
-    true
+    { userShouldMoveHomeOnComplete: true }
   );
 }

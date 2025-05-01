@@ -82,7 +82,7 @@ const config: CombatActionComponentConfig = {
     {
       [ActionResolutionStepType.DetermineChildActions]: {},
     },
-    false
+    { userShouldMoveHomeOnComplete: false }
   ),
 };
 

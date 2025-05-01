@@ -66,7 +66,7 @@ const config: CombatActionComponentConfig = {
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
     },
-    false
+    { userShouldMoveHomeOnComplete: false }
   ),
 
   usabilityContext: CombatActionUsabilityContext.InCombat,

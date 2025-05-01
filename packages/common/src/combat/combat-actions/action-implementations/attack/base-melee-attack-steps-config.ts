@@ -77,6 +77,6 @@ export function getMeleeAttackBaseStepsConfig(holdableSlotType: HoldableSlotType
         getDestination: getHomeDestination,
       },
     },
-    true
+    { userShouldMoveHomeOnComplete: true }
   );
 }

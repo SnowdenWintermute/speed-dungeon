@@ -76,7 +76,7 @@ const config: CombatActionComponentConfig = {
       },
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
     },
-    false
+    { userShouldMoveHomeOnComplete: false }
   ),
 
   getSpawnableEntity: (context) => {

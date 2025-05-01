@@ -33,6 +33,7 @@ import {
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
+import { getPrimaryTargetPositionAsDestination } from "../common-destination-getters.js";
 
 const targetingProperties = cloneDeep(
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]
@@ -59,10 +60,12 @@ const config: CombatActionComponentConfig = {
           const { actionExecutionIntent } = tracker;
           const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
           const targetingCalculator = new TargetingCalculator(combatantContext, null);
+
           action.getAutoTarget(
             combatantContext,
             context.tracker.getPreviousTrackerInSequenceOption()
           );
+
           const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
             combatantContext.party,
             actionExecutionIntent
@@ -76,7 +79,7 @@ const config: CombatActionComponentConfig = {
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
     },
-    false
+    { userShouldMoveHomeOnComplete: false }
   ),
 
   getChildren: (context) => {

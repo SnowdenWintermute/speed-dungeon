@@ -63,5 +63,5 @@ export const MEDICATION_ACTION_BASE_STEPS_CONFIG = new ActionResolutionStepsConf
       getDestination: getHomeDestination,
     },
   },
-  true
+  { userShouldMoveHomeOnComplete: true }
 );
