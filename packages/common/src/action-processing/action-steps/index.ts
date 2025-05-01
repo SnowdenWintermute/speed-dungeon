@@ -15,13 +15,6 @@ export interface ActionExecuting {
   step: ActionResolutionStep;
   replayNode: ReplayEventNode;
 }
-export enum ActionMotionPhase {
-  Initial,
-  Chambering,
-  Delivery,
-  Recovery,
-  Final,
-}
 
 export enum ActionResolutionStepType {
   DetermineChildActions,

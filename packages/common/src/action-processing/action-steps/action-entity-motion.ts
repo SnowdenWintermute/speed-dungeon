@@ -1,8 +1,4 @@
-import {
-  ActionMotionPhase,
-  ActionResolutionStepContext,
-  ActionResolutionStepType,
-} from "./index.js";
+import { ActionResolutionStepContext, ActionResolutionStepType } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
@@ -14,7 +10,6 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
   constructor(
     context: ActionResolutionStepContext,
     stepType: ActionResolutionStepType,
-    actionMotionPhase: ActionMotionPhase,
     animationPhase: CombatActionAnimationPhase,
     actionEntity: ActionEntity
   ) {
@@ -38,7 +33,6 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
     super(
       stepType,
       context,
-      actionMotionPhase,
       animationPhase,
       gameUpdateCommand,
       actionEntity.actionEntityProperties.position,

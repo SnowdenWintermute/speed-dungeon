@@ -5,7 +5,6 @@ import { DetermineChildActionsActionResolutionStep } from "./determine-child-act
 import { EvalOnHitOutcomeTriggersActionResolutionStep } from "./hit-outcome-triggers/index.js";
 import { EvalOnUseTriggersActionResolutionStep } from "./evaluate-on-use-triggers.js";
 import {
-  ActionMotionPhase,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -35,14 +34,12 @@ export const ACTION_STEP_CREATORS: Record<
     new CombatantMotionActionResolutionStep(
       context,
       ActionResolutionStepType.InitialPositioning,
-      ActionMotionPhase.Initial,
       CombatActionAnimationPhase.Initial
     ),
   [ActionResolutionStepType.ChamberingMotion]: (context) =>
     new CombatantMotionActionResolutionStep(
       context,
       ActionResolutionStepType.ChamberingMotion,
-      ActionMotionPhase.Chambering,
       CombatActionAnimationPhase.Chambering
     ),
   [ActionResolutionStepType.PostChamberingSpawnEntity]: (context) =>
@@ -54,7 +51,6 @@ export const ACTION_STEP_CREATORS: Record<
     new CombatantMotionActionResolutionStep(
       context,
       ActionResolutionStepType.DeliveryMotion,
-      ActionMotionPhase.Delivery,
       CombatActionAnimationPhase.Delivery
     ),
   [ActionResolutionStepType.PayResourceCosts]: (context) =>
@@ -73,7 +69,6 @@ export const ACTION_STEP_CREATORS: Record<
     return new ActionEntityMotionActionResolutionStep(
       context,
       ActionResolutionStepType.OnActivationActionEntityMotion,
-      ActionMotionPhase.Delivery,
       CombatActionAnimationPhase.Delivery,
       expectedProjectileEntityOption.actionEntity
     );
@@ -91,7 +86,6 @@ export const ACTION_STEP_CREATORS: Record<
     return new ActionEntityMotionActionResolutionStep(
       context,
       ActionResolutionStepType.ActionEntityDissipationMotion,
-      ActionMotionPhase.Recovery,
       CombatActionAnimationPhase.RecoverySuccess,
       expectedProjectileEntityOption.actionEntity
     );
@@ -103,7 +97,6 @@ export const ACTION_STEP_CREATORS: Record<
     return new CombatantMotionActionResolutionStep(
       context,
       ActionResolutionStepType.RecoveryMotion,
-      ActionMotionPhase.Recovery,
       animationPhase
     );
   },
@@ -111,7 +104,6 @@ export const ACTION_STEP_CREATORS: Record<
     new CombatantMotionActionResolutionStep(
       context,
       ActionResolutionStepType.FinalPositioning,
-      ActionMotionPhase.Final,
       CombatActionAnimationPhase.Final
     ),
 };

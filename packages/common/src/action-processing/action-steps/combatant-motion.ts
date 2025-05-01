@@ -1,8 +1,4 @@
-import {
-  ActionMotionPhase,
-  ActionResolutionStepContext,
-  ActionResolutionStepType,
-} from "./index.js";
+import { ActionResolutionStepContext, ActionResolutionStepType } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { CombatActionAnimationPhase } from "../../combat/combat-actions/combat-action-animations.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
@@ -13,7 +9,6 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
   constructor(
     context: ActionResolutionStepContext,
     step: ActionResolutionStepType,
-    actionMotionPhase: ActionMotionPhase,
     animationPhase: CombatActionAnimationPhase
   ) {
     /**Here we create and set the internal reference to the associated game update command, as well as
@@ -35,7 +30,6 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
     super(
       step,
       context,
-      actionMotionPhase,
       animationPhase,
       gameUpdateCommand,
       context.combatantContext.combatant.combatantProperties.position,

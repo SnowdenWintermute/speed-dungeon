@@ -1,5 +1,4 @@
 import {
-  ActionMotionPhase,
   ActionResolutionStepType,
   ActionSequenceManagerRegistry,
   COMBAT_ACTIONS,
@@ -157,7 +156,6 @@ export function processCombatAction(
           const returnHomeStep = new CombatantMotionActionResolutionStep(
             trackerOption.currentStep.getContext(),
             ActionResolutionStepType.FinalPositioning,
-            ActionMotionPhase.Final,
             CombatActionAnimationPhase.Final
           );
 

@@ -1,6 +1,5 @@
 import { Vector3 } from "@babylonjs/core";
 import {
-  ActionMotionPhase,
   ActionResolutionStep,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -24,7 +23,6 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   constructor(
     stepType: ActionResolutionStepType,
     context: ActionResolutionStepContext,
-    private actionMotionPhase: ActionMotionPhase,
     private animationPhase: CombatActionAnimationPhase,
     private gameUpdateCommand: EntityMotionGameUpdateCommand,
     private entityPosition: Vector3,
