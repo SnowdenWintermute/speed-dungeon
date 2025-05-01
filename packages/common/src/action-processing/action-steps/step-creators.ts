@@ -1,4 +1,3 @@
-import { CombatActionAnimationPhase } from "../../combat/combat-actions/combat-action-animations.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
 import { CombatantMotionActionResolutionStep } from "./combatant-motion.js";
 import { DetermineChildActionsActionResolutionStep } from "./determine-child-actions.js";
@@ -31,28 +30,16 @@ export const ACTION_STEP_CREATORS: Record<
   [ActionResolutionStepType.DetermineActionAnimations]: (context) =>
     new DetermineActionAnimationsActionResolutionStep(context),
   [ActionResolutionStepType.InitialPositioning]: (context) =>
-    new CombatantMotionActionResolutionStep(
-      context,
-      ActionResolutionStepType.InitialPositioning,
-      CombatActionAnimationPhase.Initial
-    ),
+    new CombatantMotionActionResolutionStep(context, ActionResolutionStepType.InitialPositioning),
   [ActionResolutionStepType.ChamberingMotion]: (context) =>
-    new CombatantMotionActionResolutionStep(
-      context,
-      ActionResolutionStepType.ChamberingMotion,
-      CombatActionAnimationPhase.Chambering
-    ),
+    new CombatantMotionActionResolutionStep(context, ActionResolutionStepType.ChamberingMotion),
   [ActionResolutionStepType.PostChamberingSpawnEntity]: (context) =>
     new SpawnEntityActionResolutionStep(
       context,
       ActionResolutionStepType.PostChamberingSpawnEntity
     ),
   [ActionResolutionStepType.DeliveryMotion]: (context) =>
-    new CombatantMotionActionResolutionStep(
-      context,
-      ActionResolutionStepType.DeliveryMotion,
-      CombatActionAnimationPhase.Delivery
-    ),
+    new CombatantMotionActionResolutionStep(context, ActionResolutionStepType.DeliveryMotion),
   [ActionResolutionStepType.PayResourceCosts]: (context) =>
     new PayResourceCostsActionResolutionStep(context),
   [ActionResolutionStepType.EvalOnUseTriggers]: (context) =>
@@ -69,7 +56,6 @@ export const ACTION_STEP_CREATORS: Record<
     return new ActionEntityMotionActionResolutionStep(
       context,
       ActionResolutionStepType.OnActivationActionEntityMotion,
-      CombatActionAnimationPhase.Delivery,
       expectedProjectileEntityOption.actionEntity
     );
   },
@@ -86,24 +72,15 @@ export const ACTION_STEP_CREATORS: Record<
     return new ActionEntityMotionActionResolutionStep(
       context,
       ActionResolutionStepType.ActionEntityDissipationMotion,
-      CombatActionAnimationPhase.RecoverySuccess,
       expectedProjectileEntityOption.actionEntity
     );
   },
   [ActionResolutionStepType.RecoveryMotion]: (context) => {
-    let animationPhase = CombatActionAnimationPhase.RecoverySuccess;
-    if (context.tracker.wasInterrupted)
-      animationPhase = CombatActionAnimationPhase.RecoveryInterrupted;
     return new CombatantMotionActionResolutionStep(
       context,
-      ActionResolutionStepType.RecoveryMotion,
-      animationPhase
+      ActionResolutionStepType.RecoveryMotion
     );
   },
   [ActionResolutionStepType.FinalPositioning]: (context) =>
-    new CombatantMotionActionResolutionStep(
-      context,
-      ActionResolutionStepType.FinalPositioning,
-      CombatActionAnimationPhase.Final
-    ),
+    new CombatantMotionActionResolutionStep(context, ActionResolutionStepType.FinalPositioning),
 };

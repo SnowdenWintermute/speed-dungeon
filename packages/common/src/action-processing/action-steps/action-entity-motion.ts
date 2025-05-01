@@ -3,22 +3,18 @@ import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-command
 import { SpawnableEntityType } from "../../spawnables/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
-import { CombatActionAnimationPhase } from "../../combat/index.js";
 import { ActionEntity, ActionEntityName } from "../../action-entities/index.js";
 
 export class ActionEntityMotionActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(
     context: ActionResolutionStepContext,
     stepType: ActionResolutionStepType,
-    animationPhase: CombatActionAnimationPhase,
     actionEntity: ActionEntity
   ) {
-    // @TODO - some should not despawn such as explosion which needs to do a recovery animation
     const despawnOnComplete =
       actionEntity.actionEntityProperties.name === ActionEntityName.Arrow ||
       actionEntity.actionEntityProperties.name === ActionEntityName.IceBolt ||
-      animationPhase === CombatActionAnimationPhase.RecoverySuccess ||
-      animationPhase === CombatActionAnimationPhase.RecoveryInterrupted;
+      stepType === ActionResolutionStepType.RecoveryMotion;
 
     const gameUpdateCommand: GameUpdateCommand = {
       type: GameUpdateCommandType.EntityMotion,
@@ -33,7 +29,6 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
     super(
       stepType,
       context,
-      animationPhase,
       gameUpdateCommand,
       actionEntity.actionEntityProperties.position,
       ARROW_TIME_TO_MOVE_ONE_METER

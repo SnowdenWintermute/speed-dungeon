@@ -10,11 +10,7 @@ import {
   EntityMotionGameUpdateCommand,
   EntityTranslation,
 } from "../game-update-commands.js";
-import {
-  COMBAT_ACTIONS,
-  CombatActionAnimationPhase,
-  CombatActionComponent,
-} from "../../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionComponent } from "../../combat/index.js";
 import { getTranslationTime } from "../../combat/combat-actions/action-implementations/get-translation-time.js";
 
 export class EntityMotionActionResolutionStep extends ActionResolutionStep {
@@ -23,7 +19,6 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   constructor(
     stepType: ActionResolutionStepType,
     context: ActionResolutionStepContext,
-    private animationPhase: CombatActionAnimationPhase,
     private gameUpdateCommand: EntityMotionGameUpdateCommand,
     private entityPosition: Vector3,
     private entitySpeed: number

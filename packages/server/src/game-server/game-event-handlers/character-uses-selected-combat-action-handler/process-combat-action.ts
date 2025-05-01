@@ -12,7 +12,6 @@ import {
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { ANIMATION_LENGTHS, idGenerator } from "../../../singletons.js";
-import { CombatActionAnimationPhase } from "@speed-dungeon/common";
 
 class TimeKeeper {
   ms: number = 0;
@@ -155,8 +154,7 @@ export function processCombatAction(
         if (action.stepsConfig.options.userShouldMoveHomeOnComplete) {
           const returnHomeStep = new CombatantMotionActionResolutionStep(
             trackerOption.currentStep.getContext(),
-            ActionResolutionStepType.FinalPositioning,
-            CombatActionAnimationPhase.Final
+            ActionResolutionStepType.FinalPositioning
           );
 
           trackerOption.currentStep = returnHomeStep;

@@ -8,28 +8,6 @@ import {
   SkeletalAnimationName,
 } from "../../app-consts.js";
 
-export enum CombatActionAnimationPhase {
-  Initial,
-  Chambering,
-  Delivery,
-  RecoverySuccess,
-  RecoveryInterrupted,
-  Final,
-}
-
-export const ANIMATION_PHASE_NAME_STRINGS: Record<CombatActionAnimationPhase, string> = {
-  [CombatActionAnimationPhase.Initial]: "Initial",
-  [CombatActionAnimationPhase.Chambering]: "Chambering",
-  [CombatActionAnimationPhase.Delivery]: "Delivery",
-  [CombatActionAnimationPhase.RecoverySuccess]: "RecoverySuccess",
-  [CombatActionAnimationPhase.RecoveryInterrupted]: "RecoveryInterrupted",
-  [CombatActionAnimationPhase.Final]: "Final",
-};
-
-export type CombatActionCombatantAnimations = Partial<
-  Record<CombatActionAnimationPhase, EntityAnimation | null>
->;
-
 export function getFallbackAnimationWithLength(
   animationName: SkeletalAnimationName,
   speciesAnimations: Record<string, number>,
