@@ -9,7 +9,7 @@ import {
 } from "@babylonjs/core";
 import { useGameStore } from "@/stores/game-store";
 import { ModularCharacter } from ".";
-import { AdventuringParty, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
+import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import { ModularCharacterPartCategory } from "./modular-character-parts";
 import cloneDeep from "lodash.clonedeep";
 

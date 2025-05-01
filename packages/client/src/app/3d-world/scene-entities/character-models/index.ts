@@ -32,7 +32,7 @@ import {
   EquipmentType,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
-import { MONSTER_SCALING_SIZES } from "../monster-scaling-sizes";
+import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
 import cloneDeep from "lodash.clonedeep";
 import { setUpDebugMeshes, despawnDebugMeshes } from "./set-up-debug-meshes";
 import {
@@ -42,14 +42,14 @@ import {
 import { handleHotswapSlotChanged } from "./handle-hotswap-slot-changed";
 import { spawnItemModel } from "../../item-models/spawn-item-model";
 import { HighlightManager } from "./highlight-manager";
-import { ModelMovementManager } from "../../model-movement-manager";
 import { SKELETON_ARMATURE_NAMES, SKELETON_STRUCTURE_TYPE } from "./skeleton-structure-variables";
-import { SkeletalAnimationManager } from "../animation-manager/skeletal-animation-manager";
 import { useGameStore } from "@/stores/game-store";
-import { ManagedAnimationOptions } from "../animation-manager";
 import { plainToInstance } from "class-transformer";
 import { useLobbyStore } from "@/stores/lobby-store";
-import { CosmeticEffectManager } from "../../cosmetic-effect-manager";
+import { ModelMovementManager } from "../model-movement-manager";
+import { SkeletalAnimationManager } from "../model-animation-managers/skeletal-animation-manager";
+import { CosmeticEffectManager } from "../cosmetic-effect-manager";
+import { ManagedAnimationOptions } from "../model-animation-managers";
 
 export class ModularCharacter {
   rootMesh: AbstractMesh;

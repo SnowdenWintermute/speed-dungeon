@@ -11,8 +11,8 @@ import { disposeAsyncLoadedScene, importMesh } from "../../utils";
 import { ModelMovementManager } from "../model-movement-manager";
 import { gameWorld } from "../../SceneManager";
 import { ACTION_ENTITY_NAME_TO_MODEL_PATH } from "./action-entity-model-paths";
-import { DynamicAnimationManager } from "../combatant-models/animation-manager/dynamic-animation-manager";
 import { CosmeticEffectManager } from "../cosmetic-effect-manager";
+import { DynamicAnimationManager } from "../model-animation-managers/dynamic-animation-manager";
 
 export class ActionEntityManager {
   models: { [id: EntityId]: ActionEntityModel } = {};

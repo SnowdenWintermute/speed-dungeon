@@ -8,7 +8,7 @@ import {
   assignConsumableMaterials,
   assignEquipmentMaterials,
 } from "../game-world/materials/assign-item-materials";
-import { BASE_FILE_PATH } from "../combatant-models/modular-character/modular-character-parts";
+import { BASE_FILE_PATH } from "../scene-entities/character-models/modular-character-parts";
 
 export async function spawnItemModel(
   item: Item,

@@ -12,15 +12,15 @@ import {
   COMBAT_ACTION_NAME_STRINGS,
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
 } from "@speed-dungeon/common";
-import { ModelMovementManager } from "../../model-movement-manager";
-import { ManagedAnimationOptions } from "../../combatant-models/animation-manager";
 import { gameWorld } from "../../SceneManager";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { plainToInstance } from "class-transformer";
-import { DynamicAnimationManager } from "../../combatant-models/animation-manager/dynamic-animation-manager";
-import { SkeletalAnimationManager } from "../../combatant-models/animation-manager/skeletal-animation-manager";
-import { CosmeticEffectManager } from "../../cosmetic-effect-manager";
 import { startOrStopCosmeticEffect } from "./start-or-stop-cosmetic-effect";
+import { ModelMovementManager } from "../../scene-entities/model-movement-manager";
+import { DynamicAnimationManager } from "../../scene-entities/model-animation-managers/dynamic-animation-manager";
+import { SkeletalAnimationManager } from "../../scene-entities/model-animation-managers/skeletal-animation-manager";
+import { CosmeticEffectManager } from "../../scene-entities/cosmetic-effect-manager";
+import { ManagedAnimationOptions } from "../../scene-entities/model-animation-managers";
 
 export function entityMotionGameUpdateHandler(update: {
   command: EntityMotionGameUpdateCommand;

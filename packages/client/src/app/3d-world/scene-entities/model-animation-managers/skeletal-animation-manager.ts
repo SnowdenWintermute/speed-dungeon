@@ -1,6 +1,5 @@
 import { AnimationGroup } from "@babylonjs/core";
 import { AnimationManager, ManagedAnimation, ManagedAnimationOptions } from ".";
-import { ModularCharacter } from "../modular-character";
 import {
   DEBUG_ANIMATION_SPEED_MULTIPLIER,
   MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
@@ -8,6 +7,7 @@ import {
   SkeletalAnimationName,
 } from "@speed-dungeon/common";
 import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
+import { ModularCharacter } from "../character-models";
 
 export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   protected timeStarted: number = Date.now();

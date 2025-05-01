@@ -14,10 +14,10 @@ import {
 import { Combatant, cloneVector3 } from "@speed-dungeon/common";
 import { despawnModularCharacter } from "./despawn-modular-character";
 import { spawnModularCharacter } from "./spawn-modular-character";
-import { ModularCharacter } from "@/app/3d-world/combatant-models/modular-character";
 import { setAlert } from "@/app/components/alerts";
 import cloneDeep from "lodash.clonedeep";
 import { createCombatantPortrait } from "../../image-manager/create-combatant-portrait";
+import { ModularCharacter } from "@/app/3d-world/scene-entities/character-models";
 
 export async function synchronizeCombatantModelsWithAppState() {
   if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);

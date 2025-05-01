@@ -7,14 +7,14 @@ import {
   COSMETIC_EFFECT_CONSTRUCTORS,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
+import { getChildMeshByName } from "../../utils";
+import { Vector3 } from "@babylonjs/core";
+import { CosmeticEffectManager } from "../../scene-entities/cosmetic-effect-manager";
 import {
   SKELETON_MAIN_HAND_NAMES,
   SKELETON_OFF_HAND_NAMES,
   SKELETON_STRUCTURE_TYPE,
-} from "../../combatant-models/modular-character/skeleton-structure-variables";
-import { getChildMeshByName } from "../../utils";
-import { Vector3 } from "@babylonjs/core";
-import { CosmeticEffectManager } from "../../cosmetic-effect-manager";
+} from "../../scene-entities/character-models/skeleton-structure-variables";
 
 export function startOrStopCosmeticEffect(
   cosmeticEffectToStart: {

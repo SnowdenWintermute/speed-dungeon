@@ -1,5 +1,4 @@
 import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
-import { ModularCharacter } from "../../../combatant-models/modular-character";
 import {
   CombatantEquipment,
   CombatantSpecies,
@@ -11,6 +10,7 @@ import { GameWorld } from "../../";
 import { ISceneLoaderAsyncResult } from "@babylonjs/core";
 import { getModularCharacterPartCategoriesAndAssetPaths } from "./get-modular-character-parts";
 import { setModularCharacterPartDefaultMaterials } from "./set-modular-character-part-default-materials";
+import { ModularCharacter } from "@/app/3d-world/scene-entities/character-models";
 
 export async function spawnModularCharacter(
   world: GameWorld,

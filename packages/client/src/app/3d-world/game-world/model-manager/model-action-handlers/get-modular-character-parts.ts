@@ -2,7 +2,7 @@ import {
   CHARACTER_PARTS,
   MONSTER_FULL_SKINS,
   ModularCharacterPartCategory,
-} from "@/app/3d-world/combatant-models/modular-character/modular-character-parts";
+} from "@/app/3d-world/scene-entities/character-models/modular-character-parts";
 import { CombatantClass, CombatantProperties, MonsterType } from "@speed-dungeon/common";
 
 export function getModularCharacterPartCategoriesAndAssetPaths(

@@ -1,7 +1,7 @@
 import { disposeAsyncLoadedScene } from "@/app/3d-world/utils";
 import { GameWorld } from "../..";
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
-import { ModularCharacter } from "@/app/3d-world/combatant-models/modular-character";
+import { ModularCharacter } from "@/app/3d-world/scene-entities/character-models";
 
 export function despawnModularCharacter(
   world: GameWorld,

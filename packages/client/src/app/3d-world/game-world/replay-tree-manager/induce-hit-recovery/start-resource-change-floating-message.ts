@@ -13,7 +13,7 @@ import {
 } from "@speed-dungeon/common";
 import { ResourceChange } from "@speed-dungeon/common";
 
-export default function startResourceChangeFloatingMessage(
+export function startResourceChangeFloatingMessage(
   targetId: string,
   resourceChange: ResourceChange,
   resourceType: ActionPayableResource,

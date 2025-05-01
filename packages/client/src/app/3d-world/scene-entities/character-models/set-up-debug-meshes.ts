@@ -2,9 +2,9 @@ import { Color3, Mesh, MeshBuilder, StandardMaterial, Vector3 } from "@babylonjs
 import cloneDeep from "lodash.clonedeep";
 import { ModularCharacter } from "./index";
 import { FFIX_COLORS } from "@speed-dungeon/common";
-import { ModelMovementType } from "../../model-movement-manager/model-movement-trackers";
 import { gameWorld } from "../../SceneManager";
 import { CustomMaterial } from "../../game-world/materials/material-colors";
+import { ModelMovementType } from "../model-movement-manager/model-movement-trackers";
 
 export function setUpDebugMeshes(this: ModularCharacter) {
   this.debugMeshes = [

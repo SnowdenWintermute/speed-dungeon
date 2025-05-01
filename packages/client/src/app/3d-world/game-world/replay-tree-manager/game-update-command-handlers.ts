@@ -20,20 +20,23 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
-import { ActionEntityModel, spawnActionEntityModel } from "../../action-entity-models";
 import { getChildMeshByName } from "../../utils";
-import {
-  SKELETON_MAIN_HAND_NAMES,
-  SKELETON_OFF_HAND_NAMES,
-  SKELETON_STRUCTURE_TYPE,
-} from "../../combatant-models/modular-character/skeleton-structure-variables";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { entityMotionGameUpdateHandler } from "./entity-motion";
 import { hitOutcomesGameUpdateHandler } from "./hit-outcomes";
 import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
-import { induceHitRecovery } from "../../combatant-models/animation-manager/induce-hit-recovery";
 import { startOrStopCosmeticEffect } from "./start-or-stop-cosmetic-effect";
+import { induceHitRecovery } from "./induce-hit-recovery";
+import {
+  ActionEntityModel,
+  spawnActionEntityModel,
+} from "../../scene-entities/action-entity-models";
+import {
+  SKELETON_MAIN_HAND_NAMES,
+  SKELETON_OFF_HAND_NAMES,
+  SKELETON_STRUCTURE_TYPE,
+} from "../../scene-entities/character-models/skeleton-structure-variables";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,

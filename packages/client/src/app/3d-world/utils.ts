@@ -9,10 +9,11 @@ import {
   SceneLoader,
   Vector3,
 } from "@babylonjs/core";
-import { BASE_FILE_PATH } from "./combatant-models/modular-character/modular-character-parts";
+import { BASE_FILE_PATH } from "./scene-entities/character-models/modular-character-parts";
 
 export async function importMesh(path: string, scene: Scene) {
   if (path === "") throw new Error("Empty file path");
+  // @TODO - check on this deprecated thing
   return SceneLoader.ImportMeshAsync("", BASE_FILE_PATH || "", path, scene);
 }
 

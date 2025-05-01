@@ -23,9 +23,9 @@ import { SavedMaterials, createDefaultMaterials } from "./materials/create-defau
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
 import { ReplayTreeManager } from "./replay-tree-manager";
-import { ActionEntityManager } from "../action-entity-models/";
 import { testParticleSystem } from "./testing-particle-systems";
 import { testingSounds } from "./testing-sounds";
+import { ActionEntityManager } from "../scene-entities/action-entity-models";
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;

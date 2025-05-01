@@ -1,4 +1,4 @@
-import { CombatantClass, CombatantSpecies, MonsterType } from "@speed-dungeon/common";
+import { CombatantClass, MonsterType } from "@speed-dungeon/common";
 
 export enum ModularCharacterPartCategory {
   Head,

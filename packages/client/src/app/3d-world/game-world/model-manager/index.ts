@@ -1,11 +1,11 @@
 import { GameWorld } from "../index";
-import { ModularCharacter } from "../../combatant-models/modular-character";
 import { ModelActionQueue } from "./model-action-queue";
 import { ModelActionHandler, createModelActionHandlers } from "./model-action-handlers";
 import { ModelActionType } from "./model-actions";
 import { EnvironmentModel } from "./model-action-handlers/spawn-environmental-model";
 import { despawnModularCharacter } from "./model-action-handlers/despawn-modular-character";
 import { disposeAsyncLoadedScene } from "../../utils";
+import { ModularCharacter } from "../../scene-entities/character-models";
 
 // things involving moving models around must be handled synchronously, even though spawning
 // models is async, so we'll use a queue to handle things in order

@@ -5,7 +5,6 @@ import {
   HitOutcomesGameUpdateCommand,
   ActionPayableResource,
 } from "@speed-dungeon/common";
-import { induceHitRecovery } from "../../combatant-models/animation-manager/induce-hit-recovery";
 import { gameWorld } from "../../SceneManager";
 import { useGameStore } from "@/stores/game-store";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
@@ -18,6 +17,7 @@ import {
 } from "@/stores/game-store/floating-messages";
 import { plainToInstance } from "class-transformer";
 import { HitPointChanges } from "@speed-dungeon/common";
+import { induceHitRecovery } from "./induce-hit-recovery";
 
 export function hitOutcomesGameUpdateHandler(update: {
   command: HitOutcomesGameUpdateCommand;

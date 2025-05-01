@@ -13,12 +13,12 @@ import {
   Milliseconds,
 } from "@speed-dungeon/common";
 import { getCombatantContext, useGameStore } from "@/stores/game-store";
-import { GameWorld } from "../../game-world";
-import startResourceChangeFloatingMessage from "./start-hp-change-floating-message";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { useUIStore } from "@/stores/ui-store";
 import { postResourceChangeToCombatLog } from "./post-resource-change-to-combat-log";
-import { startOrStopCosmeticEffect } from "../../game-world/replay-tree-manager/start-or-stop-cosmetic-effect";
+import { GameWorld } from "../..";
+import { startOrStopCosmeticEffect } from "../start-or-stop-cosmetic-effect";
+import { startResourceChangeFloatingMessage } from "./start-resource-change-floating-message";
 
 export function induceHitRecovery(
   gameWorld: GameWorld,
