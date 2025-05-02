@@ -7,7 +7,7 @@ import {
   SkeletalAnimationName,
 } from "@speed-dungeon/common";
 import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
-import { ModularCharacter } from "../character-models";
+import { CharacterModel } from "../character-models";
 
 export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   protected timeStarted: number = Date.now();
@@ -56,7 +56,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
   playing: null | ManagedSkeletalAnimation = null;
   previous: null | ManagedSkeletalAnimation = null;
   locked: boolean = false;
-  constructor(public characterModel: ModularCharacter) {
+  constructor(public characterModel: CharacterModel) {
     // stop default animation
     this.characterModel.skeleton.animationGroups[0]?.setWeightForAllAnimatables(0);
     this.characterModel.skeleton.animationGroups[0]?.stop();

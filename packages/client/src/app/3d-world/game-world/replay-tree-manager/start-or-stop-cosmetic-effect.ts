@@ -11,9 +11,8 @@ import { getChildMeshByName } from "../../utils";
 import { Vector3 } from "@babylonjs/core";
 import { CosmeticEffectManager } from "../../scene-entities/cosmetic-effect-manager";
 import {
-  SKELETON_MAIN_HAND_NAMES,
-  SKELETON_OFF_HAND_NAMES,
-  SKELETON_STRUCTURE_TYPE,
+  BONE_NAMES,
+  BoneName,
 } from "../../scene-entities/character-models/skeleton-structure-variables";
 
 export function startOrStopCosmeticEffect(
@@ -45,7 +44,7 @@ export function startOrStopCosmeticEffect(
       switch (parentType) {
         case AbstractParentType.UserMainHand:
           {
-            const boneName = SKELETON_MAIN_HAND_NAMES[SKELETON_STRUCTURE_TYPE];
+            const boneName = BONE_NAMES[BoneName.EquipmentR];
 
             const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
             if (!combatantModelOption)
@@ -58,7 +57,7 @@ export function startOrStopCosmeticEffect(
           break;
         case AbstractParentType.UserOffHand:
           {
-            const boneName = SKELETON_OFF_HAND_NAMES[SKELETON_STRUCTURE_TYPE];
+            const boneName = BONE_NAMES[BoneName.EquipmentL];
 
             const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
             if (!combatantModelOption)

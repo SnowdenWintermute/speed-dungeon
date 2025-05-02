@@ -3,7 +3,7 @@ import {
   ENVIRONMENT_MODELS_FOLDER,
   ENVIRONMENT_MODEL_PATHS,
   EnvironmentModelTypes,
-} from "@/app/3d-world/game-world/environment-models/environment-model-paths";
+} from "@/app/3d-world/scene-entities/environment-models/environment-model-paths";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 import { setAlert } from "@/app/components/alerts";

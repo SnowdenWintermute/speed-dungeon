@@ -1,12 +1,12 @@
 import { Color3, Mesh, MeshBuilder, StandardMaterial, Vector3 } from "@babylonjs/core";
 import cloneDeep from "lodash.clonedeep";
-import { ModularCharacter } from "./index";
+import { CharacterModel } from "./index";
 import { FFIX_COLORS } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 import { CustomMaterial } from "../../game-world/materials/material-colors";
 import { ModelMovementType } from "../model-movement-manager/model-movement-trackers";
 
-export function setUpDebugMeshes(this: ModularCharacter) {
+export function setUpDebugMeshes(this: CharacterModel) {
   this.debugMeshes = [
     createHomeLocationMarker(this),
     createForwardDirectionMarkerSphere(this),
@@ -16,14 +16,14 @@ export function setUpDebugMeshes(this: ModularCharacter) {
   ];
 }
 
-export function despawnDebugMeshes(this: ModularCharacter) {
+export function despawnDebugMeshes(this: CharacterModel) {
   if (this.debugMeshes)
     for (const mesh of this.debugMeshes) {
       mesh.dispose(false, true);
     }
 }
 
-function createHomeLocationMarker(modularCharacter: ModularCharacter) {
+function createHomeLocationMarker(modularCharacter: CharacterModel) {
   const box = MeshBuilder.CreateBox(`${modularCharacter.entityId}-home-location-box`, {
     size: 0.1,
     height: 0.4,
@@ -36,7 +36,7 @@ function createHomeLocationMarker(modularCharacter: ModularCharacter) {
   return box;
 }
 
-function createRootTransformNodeLocationMarker(modularCharacter: ModularCharacter) {
+function createRootTransformNodeLocationMarker(modularCharacter: CharacterModel) {
   const box = MeshBuilder.CreateBox(`${modularCharacter.entityId}-root-mesh-location-box`, {
     size: 0.25,
   });
@@ -49,7 +49,7 @@ function createRootTransformNodeLocationMarker(modularCharacter: ModularCharacte
   return box;
 }
 
-function createForwardDirectionMarkerSphere(modularCharacter: ModularCharacter) {
+function createForwardDirectionMarkerSphere(modularCharacter: CharacterModel) {
   modularCharacter.rootTransformNode.computeWorldMatrix(true);
   const direction = Vector3.TransformNormal(
     Vector3.Forward(),
@@ -63,7 +63,7 @@ function createForwardDirectionMarkerSphere(modularCharacter: ModularCharacter) 
   return sphere;
 }
 
-function createDestinationMarkerSphere(modularCharacter: ModularCharacter) {
+function createDestinationMarkerSphere(modularCharacter: CharacterModel) {
   const translationTrackerOption =
     modularCharacter.movementManager.activeTrackers[ModelMovementType.Translation];
   let destination = modularCharacter.rootTransformNode.position;
@@ -76,7 +76,7 @@ function createDestinationMarkerSphere(modularCharacter: ModularCharacter) {
   return sphere;
 }
 
-function createMeleeRangeDisc(modularCharacter: ModularCharacter) {
+function createMeleeRangeDisc(modularCharacter: CharacterModel) {
   const green = new Color3(0.1, 0.5, 0.3);
 
   const circle = MeshBuilder.CreateDisc(`${modularCharacter.entityId}-hitbox-radius`, {

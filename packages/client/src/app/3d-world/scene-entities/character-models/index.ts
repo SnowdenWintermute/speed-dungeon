@@ -16,7 +16,6 @@ import {
   importMesh,
   paintCubesOnNodes,
 } from "../../utils";
-import { ModularCharacterPartCategory } from "./modular-character-parts";
 import { GameWorld } from "../../game-world";
 import {
   SKELETAL_ANIMATION_NAME_STRINGS,
@@ -42,7 +41,6 @@ import {
 import { handleHotswapSlotChanged } from "./handle-hotswap-slot-changed";
 import { spawnItemModel } from "../../item-models/spawn-item-model";
 import { HighlightManager } from "./highlight-manager";
-import { SKELETON_ARMATURE_NAMES, SKELETON_STRUCTURE_TYPE } from "./skeleton-structure-variables";
 import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
 import { useLobbyStore } from "@/stores/lobby-store";
@@ -50,15 +48,17 @@ import { ModelMovementManager } from "../model-movement-manager";
 import { SkeletalAnimationManager } from "../model-animation-managers/skeletal-animation-manager";
 import { CosmeticEffectManager } from "../cosmetic-effect-manager";
 import { ManagedAnimationOptions } from "../model-animation-managers";
+import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
+import { CharacterModelPartCategory } from "./modular-character-parts";
 
-export class ModularCharacter {
+export class CharacterModel {
   rootMesh: AbstractMesh;
   rootTransformNode: TransformNode;
-  parts: Record<ModularCharacterPartCategory, null | ISceneLoaderAsyncResult> = {
-    [ModularCharacterPartCategory.Head]: null,
-    [ModularCharacterPartCategory.Torso]: null,
-    [ModularCharacterPartCategory.Legs]: null,
-    [ModularCharacterPartCategory.Full]: null,
+  parts: Record<CharacterModelPartCategory, null | ISceneLoaderAsyncResult> = {
+    [CharacterModelPartCategory.Head]: null,
+    [CharacterModelPartCategory.Torso]: null,
+    [CharacterModelPartCategory.Legs]: null,
+    [CharacterModelPartCategory.Full]: null,
   };
   equipment: {
     wearables: Record<
@@ -265,12 +265,9 @@ export class ModularCharacter {
     );
   }
 
-  async attachPart(partCategory: ModularCharacterPartCategory, partPath: string) {
+  async attachPart(partCategory: CharacterModelPartCategory, partPath: string) {
     const part = await importMesh(partPath, this.world.scene);
-    const parent = getTransformNodeByName(
-      this.skeleton,
-      SKELETON_ARMATURE_NAMES[SKELETON_STRUCTURE_TYPE]
-    );
+    const parent = getTransformNodeByName(this.skeleton, BONE_NAMES[BoneName.Armature]);
     if (!this.skeleton.skeletons[0])
       return new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
 
@@ -340,7 +337,7 @@ export class ModularCharacter {
     else attachHoldableModelToSkeleton(this, equipmentModelResult, slot, equipment);
   }
 
-  removePart(partCategory: ModularCharacterPartCategory) {
+  removePart(partCategory: CharacterModelPartCategory) {
     disposeAsyncLoadedScene(this.parts[partCategory]);
     this.parts[partCategory] = null;
   }
@@ -351,7 +348,7 @@ export class ModularCharacter {
     if (!this.skeleton.meshes[0]) return;
     const skeletonRootBone = getChildMeshByName(
       this.skeleton.meshes[0],
-      SKELETON_ARMATURE_NAMES[SKELETON_STRUCTURE_TYPE]
+      BONE_NAMES[BoneName.Armature]
     );
     if (skeletonRootBone !== undefined)
       paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.world.scene);

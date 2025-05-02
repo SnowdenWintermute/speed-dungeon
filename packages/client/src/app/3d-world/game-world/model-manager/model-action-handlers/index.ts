@@ -10,8 +10,8 @@ import {
   SelectHotswapSlotModelAction,
   SpawnEnvironmentalModelModelAction,
 } from "../model-actions";
-import { removeHoldableModelFromModularCharacter } from "./remove-holdable-from-modular-character";
-import { equipHoldableModelToModularCharacter } from "./equip-holdable-to-modular-character";
+import { removeHoldableModelFromCharacterModel } from "./remove-holdable-from-modular-character";
+import { equipHoldableModelToCharacterModel } from "./equip-holdable-to-modular-character";
 import { actionCommandQueue, actionCommandReceiver } from "@/singletons/action-command-manager";
 import { synchronizeCombatantModelsWithAppState } from "./synchronize-combatant-models-with-app-state";
 import { spawnEnvironmentModel } from "./spawn-environmental-model";
@@ -41,9 +41,9 @@ export function createModelActionHandlers(
       const modularCharacter = modelManager.combatantModels[action.entityId];
       if (!modularCharacter) return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
       for (const id of action.unequippedIds)
-        removeHoldableModelFromModularCharacter(modularCharacter, action.entityId, id);
+        removeHoldableModelFromCharacterModel(modularCharacter, action.entityId, id);
       if (action.toEquip) {
-        await equipHoldableModelToModularCharacter(
+        await equipHoldableModelToCharacterModel(
           modularCharacter,
           action.toEquip.slot,
           action.toEquip.item

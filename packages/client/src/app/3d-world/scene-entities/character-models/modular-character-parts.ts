@@ -1,14 +1,14 @@
 import { CombatantClass, MonsterType } from "@speed-dungeon/common";
 
-export enum ModularCharacterPartCategory {
+export enum CharacterModelPartCategory {
   Head,
   Torso,
   Legs,
   Full,
 }
 
-export type ModularCharacterPart = {
-  category: ModularCharacterPartCategory;
+export type CharacterModelPart = {
+  category: CharacterModelPartCategory;
   assetPath: string;
 };
 
@@ -16,28 +16,28 @@ export const BASE_FILE_PATH = process.env.NEXT_PUBLIC_ASSET_BASE_PATH_3D;
 
 export const CHARACTER_PARTS: Record<
   CombatantClass,
-  Partial<Record<ModularCharacterPartCategory, string>>
+  Partial<Record<CharacterModelPartCategory, string>>
 > = {
   [CombatantClass.Warrior]: {
-    [ModularCharacterPartCategory.Head]: "humanoid/adventurer/adventurer-head.glb",
-    [ModularCharacterPartCategory.Torso]: "humanoid/adventurer/adventurer-torso.glb",
-    [ModularCharacterPartCategory.Legs]: "humanoid/adventurer/adventurer-legs.glb",
+    [CharacterModelPartCategory.Head]: "humanoid/adventurer/adventurer-head.glb",
+    [CharacterModelPartCategory.Torso]: "humanoid/adventurer/adventurer-torso.glb",
+    [CharacterModelPartCategory.Legs]: "humanoid/adventurer/adventurer-legs.glb",
   },
   [CombatantClass.Rogue]: {
-    [ModularCharacterPartCategory.Head]: "humanoid/adventurer/adventurer-head.glb",
-    [ModularCharacterPartCategory.Torso]: "humanoid/adventurer/adventurer-torso.glb",
-    [ModularCharacterPartCategory.Legs]: "humanoid/adventurer/adventurer-legs.glb",
-    // [ModularCharacterPartCategory.Head]: "humanoid/midieval/midieval-head.glb",
-    // [ModularCharacterPartCategory.Torso]: "humanoid/midieval/midieval-torso.glb",
-    // [ModularCharacterPartCategory.Legs]: "humanoid/midieval/midieval-legs.glb",
+    [CharacterModelPartCategory.Head]: "humanoid/adventurer/adventurer-head.glb",
+    [CharacterModelPartCategory.Torso]: "humanoid/adventurer/adventurer-torso.glb",
+    [CharacterModelPartCategory.Legs]: "humanoid/adventurer/adventurer-legs.glb",
+    // [CharacterModelPartCategory.Head]: "humanoid/midieval/midieval-head.glb",
+    // [CharacterModelPartCategory.Torso]: "humanoid/midieval/midieval-torso.glb",
+    // [CharacterModelPartCategory.Legs]: "humanoid/midieval/midieval-legs.glb",
   },
   [CombatantClass.Mage]: {
-    [ModularCharacterPartCategory.Head]: "humanoid/adventurer/adventurer-head.glb",
-    [ModularCharacterPartCategory.Torso]: "humanoid/adventurer/adventurer-torso.glb",
-    [ModularCharacterPartCategory.Legs]: "humanoid/adventurer/adventurer-legs.glb",
-    // [ModularCharacterPartCategory.Head]: "humanoid/witch/witch-head.glb",
-    // [ModularCharacterPartCategory.Torso]: "humanoid/witch/witch-torso.glb",
-    // [ModularCharacterPartCategory.Legs]: "humanoid/witch/witch-legs.glb",
+    [CharacterModelPartCategory.Head]: "humanoid/adventurer/adventurer-head.glb",
+    [CharacterModelPartCategory.Torso]: "humanoid/adventurer/adventurer-torso.glb",
+    [CharacterModelPartCategory.Legs]: "humanoid/adventurer/adventurer-legs.glb",
+    // [CharacterModelPartCategory.Head]: "humanoid/witch/witch-head.glb",
+    // [CharacterModelPartCategory.Torso]: "humanoid/witch/witch-torso.glb",
+    // [CharacterModelPartCategory.Legs]: "humanoid/witch/witch-legs.glb",
   },
 };
 

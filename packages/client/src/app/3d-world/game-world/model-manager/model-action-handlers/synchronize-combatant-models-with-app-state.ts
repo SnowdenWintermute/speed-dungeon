@@ -12,12 +12,12 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { Combatant, cloneVector3 } from "@speed-dungeon/common";
-import { despawnModularCharacter } from "./despawn-modular-character";
-import { spawnModularCharacter } from "./spawn-modular-character";
+import { despawnCharacterModel } from "./despawn-modular-character";
+import { spawnCharacterModel } from "./spawn-modular-character";
 import { setAlert } from "@/app/components/alerts";
 import cloneDeep from "lodash.clonedeep";
 import { createCombatantPortrait } from "../../image-manager/create-combatant-portrait";
-import { ModularCharacter } from "@/app/3d-world/scene-entities/character-models";
+import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
 
 export async function synchronizeCombatantModelsWithAppState() {
   if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
@@ -30,7 +30,7 @@ export async function synchronizeCombatantModelsWithAppState() {
   // delete models which don't appear on the list
   for (const [entityId, model] of Object.entries(modelManager.combatantModels)) {
     if (!modelsAndPositions[entityId]) {
-      const maybeError = despawnModularCharacter(gameWorld.current, model);
+      const maybeError = despawnCharacterModel(gameWorld.current, model);
       if (maybeError instanceof Error) return maybeError;
       delete modelManager.combatantModels[entityId];
       useGameStore.getState().mutateState((state) => {
@@ -39,7 +39,7 @@ export async function synchronizeCombatantModelsWithAppState() {
     }
   }
 
-  const modelSpawnPromises: Promise<Error | ModularCharacter>[] = [];
+  const modelSpawnPromises: Promise<Error | CharacterModel>[] = [];
 
   for (const [entityId, { combatant, homeLocation, homeRotation }] of Object.entries(
     modelsAndPositions
@@ -53,7 +53,7 @@ export async function synchronizeCombatantModelsWithAppState() {
         state.combatantModelLoadingStates[entityId] = true;
       });
       modelSpawnPromises.push(
-        spawnModularCharacter(gameWorld.current, {
+        spawnCharacterModel(gameWorld.current, {
           combatant,
           homeRotation,
           homePosition: homeLocation,

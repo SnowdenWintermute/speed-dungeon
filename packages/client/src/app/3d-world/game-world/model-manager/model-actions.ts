@@ -5,7 +5,7 @@ import {
   HoldableHotswapSlot,
   TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
-import { EnvironmentModelTypes } from "../environment-models/environment-model-paths";
+import { EnvironmentModelTypes } from "../../scene-entities/environment-models/environment-model-paths";
 
 export enum ModelActionType {
   ClearAllModels,

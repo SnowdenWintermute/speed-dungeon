@@ -45,6 +45,7 @@ import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
+  prohibitedTargetCombatantStates: [],
   prohibitedHitCombatantStates: [
     ProhibitedTargetCombatantStates.UntargetableByPhysical,
     ProhibitedTargetCombatantStates.UntargetableBySpells,

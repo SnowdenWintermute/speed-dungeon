@@ -3,7 +3,7 @@ import {
   HoldableHotswapSlot,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { ModularCharacter } from "./index.js";
+import { CharacterModel } from "./index.js";
 import { spawnItemModel } from "../../item-models/spawn-item-model";
 import { ISceneLoaderAsyncResult } from "@babylonjs/core";
 import {
@@ -13,7 +13,7 @@ import {
 import { disposeAsyncLoadedScene } from "../../utils";
 
 export async function handleHotswapSlotChanged(
-  this: ModularCharacter,
+  this: CharacterModel,
   hotswapSlots: HoldableHotswapSlot[],
   selectedIndex: number
 ) {
@@ -46,7 +46,7 @@ export async function handleHotswapSlotChanged(
 }
 
 async function spawnItemModelIfNotAlready(
-  modularCharacter: ModularCharacter,
+  modularCharacter: CharacterModel,
   equipment: Equipment
 ) {
   const entityId = equipment.entityProperties.id;

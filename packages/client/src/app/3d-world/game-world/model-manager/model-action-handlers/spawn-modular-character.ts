@@ -8,23 +8,23 @@ import {
 import { importMesh } from "../../../utils";
 import { GameWorld } from "../../";
 import { ISceneLoaderAsyncResult } from "@babylonjs/core";
-import { getModularCharacterPartCategoriesAndAssetPaths } from "./get-modular-character-parts";
-import { setModularCharacterPartDefaultMaterials } from "./set-modular-character-part-default-materials";
-import { ModularCharacter } from "@/app/3d-world/scene-entities/character-models";
+import { getCharacterModelPartCategoriesAndAssetPaths } from "./get-modular-character-parts";
+import { setCharacterModelPartDefaultMaterials } from "./set-modular-character-part-default-materials";
+import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
 
-export async function spawnModularCharacter(
+export async function spawnCharacterModel(
   world: GameWorld,
   blueprint: CombatantModelBlueprint
-): Promise<Error | ModularCharacter> {
+): Promise<Error | CharacterModel> {
   const { combatantProperties, entityProperties } = blueprint.combatant;
 
   const skeletonPath = SKELETON_FILE_PATHS[combatantProperties.combatantSpecies];
 
   const skeleton = await importMesh(skeletonPath, world.scene);
 
-  const parts = getModularCharacterPartCategoriesAndAssetPaths(combatantProperties);
+  const parts = getCharacterModelPartCategoriesAndAssetPaths(combatantProperties);
 
-  const modularCharacter = new ModularCharacter(
+  const modularCharacter = new CharacterModel(
     entityProperties.id,
     world,
     combatantProperties.monsterType,
@@ -54,7 +54,7 @@ export async function spawnModularCharacter(
           return resolve(partResult);
         }
 
-        setModularCharacterPartDefaultMaterials(partResult, combatantProperties);
+        setCharacterModelPartDefaultMaterials(partResult, combatantProperties);
         resolve(partResult);
       })
     );

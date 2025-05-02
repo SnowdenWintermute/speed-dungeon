@@ -66,6 +66,8 @@ export function calculateActionHitOutcomes(
 
   let targetIds = targetIdsResult;
 
+  if (targetIds.length === 0) return new CombatActionHitOutcomes();
+
   const incomingResourceChangesResult = getIncomingResourceChangesPerTarget(context);
   if (incomingResourceChangesResult instanceof Error) return incomingResourceChangesResult;
   const { incomingHpChangePerTargetOption, incomingManaChangePerTargetOption } =

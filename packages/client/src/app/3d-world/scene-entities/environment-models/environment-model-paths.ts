@@ -1,3 +1,4 @@
+
 export const ENVIRONMENT_MODELS_FOLDER = "environment/";
 
 export enum EnvironmentModelTypes {

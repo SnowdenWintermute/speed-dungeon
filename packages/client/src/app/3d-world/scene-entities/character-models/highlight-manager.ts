@@ -8,21 +8,21 @@ import {
   Vector3,
 } from "@babylonjs/core";
 import { useGameStore } from "@/stores/game-store";
-import { ModularCharacter } from ".";
+import { CharacterModel } from ".";
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
-import { ModularCharacterPartCategory } from "./modular-character-parts";
+import { CharacterModelPartCategory } from "./modular-character-parts";
 import cloneDeep from "lodash.clonedeep";
 
 export class HighlightManager {
   private originalPartMaterialColors: Partial<
-    Record<ModularCharacterPartCategory, { [meshName: string]: Color3 }>
+    Record<CharacterModelPartCategory, { [meshName: string]: Color3 }>
   > = {};
   private originalEquipmentMaterialColors: {
     [equipmentId: string]: { [meshName: string]: Color3 };
   } = {};
   public targetingIndicator: null | Mesh = null;
   public isHighlighted: boolean = false;
-  constructor(private modularCharacter: ModularCharacter) {}
+  constructor(private modularCharacter: CharacterModel) {}
 
   setHighlighted() {
     for (const [partCategory, part] of iterateNumericEnumKeyedRecord(this.modularCharacter.parts)) {

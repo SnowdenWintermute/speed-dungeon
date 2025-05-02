@@ -33,9 +33,8 @@ import {
   spawnActionEntityModel,
 } from "../../scene-entities/action-entity-models";
 import {
-  SKELETON_MAIN_HAND_NAMES,
-  SKELETON_OFF_HAND_NAMES,
-  SKELETON_STRUCTURE_TYPE,
+  BONE_NAMES,
+  BoneName,
 } from "../../scene-entities/character-models/skeleton-structure-variables";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
@@ -258,22 +257,19 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       if (!actionUserOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
       // @TODO - refactor
-      const boneNameList = (() => {
+      const boneName = (() => {
         switch (actionEntityProperties.parentOption.type) {
           case AbstractParentType.UserMainHand:
-            return SKELETON_MAIN_HAND_NAMES;
+            return BONE_NAMES[BoneName.EquipmentR];
           case AbstractParentType.UserOffHand:
-            return SKELETON_OFF_HAND_NAMES;
+            return BONE_NAMES[BoneName.EquipmentL];
           case AbstractParentType.VfxEntityRoot:
           case AbstractParentType.CombatantHitboxCenter:
-            return "root";
+            return BONE_NAMES[BoneName.EquipmentL];
         }
       })();
 
-      const boneToParent = getChildMeshByName(
-        actionUserOption.rootMesh,
-        boneNameList[SKELETON_STRUCTURE_TYPE]
-      );
+      const boneToParent = getChildMeshByName(actionUserOption.rootMesh, boneName);
 
       if (!boneToParent) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_EXPECTED_BONE);
       model.movementManager.transformNode.setParent(boneToParent);

@@ -1,8 +1,8 @@
-import { ModularCharacter } from "@/app/3d-world/scene-entities/character-models";
+import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
 import { disposeAsyncLoadedScene } from "@/app/3d-world/utils";
 
-export function removeHoldableModelFromModularCharacter(
-  modularCharacter: ModularCharacter,
+export function removeHoldableModelFromCharacterModel(
+  modularCharacter: CharacterModel,
   entityId: string,
   holdableId: string
 ) {

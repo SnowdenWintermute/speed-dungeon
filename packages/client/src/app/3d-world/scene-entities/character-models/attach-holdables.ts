@@ -6,13 +6,9 @@ import {
   HoldableSlotType,
   OneHandedMeleeWeapon,
 } from "@speed-dungeon/common";
-import { ModularCharacter } from "./index";
+import { CharacterModel } from "./index";
 import { getChildMeshByName } from "../../utils";
-import {
-  SKELETON_MAIN_HAND_NAMES,
-  SKELETON_OFF_HAND_NAMES,
-  SKELETON_STRUCTURE_TYPE,
-} from "./skeleton-structure-variables";
+import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
 
 function setMeshPositionAndRotationToZero(mesh: AbstractMesh) {
   setMeshRotationToZero(mesh);
@@ -25,7 +21,7 @@ function setMeshRotationToZero(mesh: AbstractMesh) {
 }
 
 export function attachHoldableModelToSkeleton(
-  combatantModel: ModularCharacter,
+  combatantModel: CharacterModel,
   equipmentModel: ISceneLoaderAsyncResult,
   slot: HoldableSlotType,
   equipment: Equipment
@@ -40,14 +36,15 @@ export function attachHoldableModelToSkeleton(
   const { equipmentType } = equipment.equipmentBaseItemProperties;
 
   if (slot === HoldableSlotType.OffHand && equipmentType === EquipmentType.Shield) {
-    equipmentBoneName = SKELETON_OFF_HAND_NAMES[SKELETON_STRUCTURE_TYPE];
+    // this is separate if we wanted to make a "shield bone"
+    equipmentBoneName = BONE_NAMES[BoneName.EquipmentL];
   } else if (slot === HoldableSlotType.OffHand) {
-    equipmentBoneName = SKELETON_OFF_HAND_NAMES[SKELETON_STRUCTURE_TYPE];
+    equipmentBoneName = BONE_NAMES[BoneName.EquipmentL];
   } else if (slot === HoldableSlotType.MainHand) {
     const isBow =
       equipment.equipmentBaseItemProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon;
-    if (isBow) equipmentBoneName = SKELETON_OFF_HAND_NAMES[SKELETON_STRUCTURE_TYPE];
-    else equipmentBoneName = SKELETON_MAIN_HAND_NAMES[SKELETON_STRUCTURE_TYPE];
+    if (isBow) equipmentBoneName = BONE_NAMES[BoneName.EquipmentL];
+    else equipmentBoneName = equipmentBoneName = BONE_NAMES[BoneName.EquipmentR];
   } else {
     console.log("no equipment bone name condition met");
   }
@@ -84,7 +81,7 @@ export function attachHoldableModelToSkeleton(
 }
 
 export function attachHoldableModelToHolsteredPosition(
-  combatantModel: ModularCharacter,
+  combatantModel: CharacterModel,
   equipmentModel: ISceneLoaderAsyncResult,
   slot: HoldableSlotType,
   equipment: Equipment

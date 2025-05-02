@@ -2,7 +2,7 @@ import { gameWorld } from "@/app/3d-world/SceneManager";
 import { Color3, ISceneLoaderAsyncResult, StandardMaterial } from "@babylonjs/core";
 import { CombatantProperties, MagicalElement, MonsterType } from "@speed-dungeon/common";
 
-export function setModularCharacterPartDefaultMaterials(
+export function setCharacterModelPartDefaultMaterials(
   partResult: ISceneLoaderAsyncResult,
   combatantProperties: CombatantProperties
 ) {

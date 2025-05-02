@@ -3,7 +3,6 @@ import { SpawnEnvironmentalModelModelAction } from "../model-actions";
 import { importMesh } from "@/app/3d-world/utils";
 import { ModelManager } from "..";
 import { setAlert } from "@/app/components/alerts";
-import { EnvironmentModelTypes } from "../../environment-models/environment-model-paths";
 import { LightestToDarkest, MATERIAL_NAMES, PlasticColor } from "../../materials/material-colors";
 import {
   HP_COLOR,
@@ -11,6 +10,7 @@ import {
   MAIN_BG_COLOR,
   MAIN_TEXT_AND_BORDERS_COLOR,
 } from "@/client_consts";
+import { EnvironmentModelTypes } from "@/app/3d-world/scene-entities/environment-models/environment-model-paths";
 
 export class EnvironmentModel {
   constructor(public model: ISceneLoaderAsyncResult) {}
