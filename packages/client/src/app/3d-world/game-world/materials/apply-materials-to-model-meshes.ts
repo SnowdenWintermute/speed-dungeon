@@ -1,7 +1,7 @@
-import { ISceneLoaderAsyncResult, StandardMaterial } from "@babylonjs/core";
+import { AssetContainer, StandardMaterial } from "@babylonjs/core";
 
-export default function applyMaterialsToModelMeshes(
-  model: ISceneLoaderAsyncResult,
+export function applyMaterialsToModelMeshes(
+  model: AssetContainer,
   materialNamesToMaterials: { [materialName: string]: StandardMaterial },
   createUniqueInstance: boolean
 ) {

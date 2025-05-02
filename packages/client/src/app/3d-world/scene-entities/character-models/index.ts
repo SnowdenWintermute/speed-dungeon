@@ -2,7 +2,7 @@ import {
   AbstractMesh,
   BoundingInfo,
   Color4,
-  ISceneLoaderAsyncResult,
+  AssetContainer,
   Mesh,
   Quaternion,
   TransformNode,
@@ -54,7 +54,7 @@ import { CharacterModelPartCategory } from "./modular-character-parts";
 export class CharacterModel {
   rootMesh: AbstractMesh;
   rootTransformNode: TransformNode;
-  parts: Record<CharacterModelPartCategory, null | ISceneLoaderAsyncResult> = {
+  parts: Record<CharacterModelPartCategory, null | AssetContainer> = {
     [CharacterModelPartCategory.Head]: null,
     [CharacterModelPartCategory.Torso]: null,
     [CharacterModelPartCategory.Legs]: null,
@@ -63,9 +63,9 @@ export class CharacterModel {
   equipment: {
     wearables: Record<
       WearableSlotType,
-      null | { entityId: string; scene: ISceneLoaderAsyncResult }
+      null | { entityId: string; scene: AssetContainer }
     >;
-    holdables: { [entityId: string]: ISceneLoaderAsyncResult };
+    holdables: { [entityId: string]: AssetContainer };
   } = {
     wearables: {
       [WearableSlotType.Head]: null,
@@ -97,7 +97,7 @@ export class CharacterModel {
     public monsterType: null | MonsterType,
     public isPlayerControlled: boolean,
     public combatantClass: CombatantClass,
-    public skeleton: ISceneLoaderAsyncResult,
+    public skeleton: AssetContainer,
     public modelDomPositionElement: HTMLDivElement | null,
     public debugElement: HTMLDivElement | null,
     homePosition: Vector3,

@@ -1,6 +1,6 @@
 import { Consumable, Equipment, Item } from "@speed-dungeon/common";
 import { equipmentBaseItemToModelPath } from "./equipment-base-item-to-model-path";
-import { ISceneLoaderAsyncResult, Scene } from "@babylonjs/core";
+import { AssetContainer, Scene } from "@babylonjs/core";
 import { SavedMaterials } from "../game-world/materials/create-default-materials";
 import { importMesh } from "../utils";
 import { consumableItemToModelPath } from "./consumable-item-to-model-path";
@@ -15,7 +15,7 @@ export async function spawnItemModel(
   scene: Scene,
   materials: SavedMaterials,
   createUniqueMaterialInstances: boolean
-): Promise<Error | ISceneLoaderAsyncResult> {
+): Promise<Error | AssetContainer> {
   const modelPath = (() => {
     if (item instanceof Equipment) {
       return equipmentBaseItemToModelPath(item.equipmentBaseItemProperties.taggedBaseEquipment);

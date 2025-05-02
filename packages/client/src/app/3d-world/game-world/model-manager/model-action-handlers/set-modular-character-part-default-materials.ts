@@ -1,9 +1,9 @@
 import { gameWorld } from "@/app/3d-world/SceneManager";
-import { Color3, ISceneLoaderAsyncResult, StandardMaterial } from "@babylonjs/core";
+import { Color3, AssetContainer, StandardMaterial } from "@babylonjs/core";
 import { CombatantProperties, MagicalElement, MonsterType } from "@speed-dungeon/common";
 
 export function setCharacterModelPartDefaultMaterials(
-  partResult: ISceneLoaderAsyncResult,
+  partResult: AssetContainer,
   combatantProperties: CombatantProperties
 ) {
   if (combatantProperties.controllingPlayer) {

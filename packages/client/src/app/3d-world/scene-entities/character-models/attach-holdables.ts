@@ -1,4 +1,4 @@
-import { AbstractMesh, ISceneLoaderAsyncResult, Vector3 } from "@babylonjs/core";
+import { AbstractMesh, AssetContainer, Vector3 } from "@babylonjs/core";
 import {
   Equipment,
   EquipmentBaseItem,
@@ -22,7 +22,7 @@ function setMeshRotationToZero(mesh: AbstractMesh) {
 
 export function attachHoldableModelToSkeleton(
   combatantModel: CharacterModel,
-  equipmentModel: ISceneLoaderAsyncResult,
+  equipmentModel: AssetContainer,
   slot: HoldableSlotType,
   equipment: Equipment
 ) {
@@ -82,7 +82,7 @@ export function attachHoldableModelToSkeleton(
 
 export function attachHoldableModelToHolsteredPosition(
   combatantModel: CharacterModel,
-  equipmentModel: ISceneLoaderAsyncResult,
+  equipmentModel: AssetContainer,
   slot: HoldableSlotType,
   equipment: Equipment
 ) {

@@ -1,4 +1,4 @@
-import { ISceneLoaderAsyncResult, Vector3 } from "@babylonjs/core";
+import { AssetContainer, Vector3 } from "@babylonjs/core";
 import { AnimationManager, ManagedAnimation, ManagedAnimationOptions } from ".";
 import {
   SkeletalAnimationName,
@@ -30,7 +30,7 @@ export abstract class DynamicAnimation {
 
   start(shouldLoop: boolean, speedModifier?: number) {}
 
-  abstract animateScene(scene: ISceneLoaderAsyncResult): void;
+  abstract animateScene(scene: AssetContainer): void;
 }
 
 export class ManagedDynamicAnimation extends ManagedAnimation<DynamicAnimation> {
@@ -61,7 +61,7 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
   playing: null | ManagedDynamicAnimation = null;
   previous: null | ManagedDynamicAnimation = null;
   locked: boolean = false;
-  constructor(public scene: ISceneLoaderAsyncResult) {
+  constructor(public scene: AssetContainer) {
     // stop default animation
   }
   cloneAnimation(animationGroup: DynamicAnimation): DynamicAnimation {
@@ -151,14 +151,14 @@ export class ExplosionDeliveryAnimation extends DynamicAnimation {
   name = DYNAMIC_ANIMATION_NAME_STRINGS[DynamicAnimationName.ExplosionDelivery];
   duration = 200;
   originalScale: Vector3 = Vector3.One();
-  constructor(scene: ISceneLoaderAsyncResult) {
+  constructor(scene: AssetContainer) {
     super(false);
     const parentMesh = scene.meshes[0];
     if (parentMesh) {
       this.originalScale = parentMesh.scaling;
     }
   }
-  animateScene(scene: ISceneLoaderAsyncResult) {
+  animateScene(scene: AssetContainer) {
     const parentMesh = scene.meshes[0];
     if (!parentMesh) {
       return console.error("expected mesh not found in dynamic animation");
@@ -173,14 +173,14 @@ export class ExplosionDissipationAnimation extends DynamicAnimation {
   name = DYNAMIC_ANIMATION_NAME_STRINGS[DynamicAnimationName.ExplosionDelivery];
   duration = 200;
   originalScale: Vector3 = Vector3.One();
-  constructor(scene: ISceneLoaderAsyncResult) {
+  constructor(scene: AssetContainer) {
     super(true);
     const parentMesh = scene.meshes[0];
     if (parentMesh) {
       this.originalScale = parentMesh.scaling;
     }
   }
-  animateScene(scene: ISceneLoaderAsyncResult) {
+  animateScene(scene: AssetContainer) {
     const parentMesh = scene.meshes[0];
     if (!parentMesh) return console.error("expected mesh not found in dynamic animation");
 
@@ -195,7 +195,7 @@ export class ExplosionDissipationAnimation extends DynamicAnimation {
 
 export const DYNAMIC_ANIMATION_CREATORS: Record<
   DynamicAnimationName,
-  (scene: ISceneLoaderAsyncResult) => DynamicAnimation
+  (scene: AssetContainer) => DynamicAnimation
 > = {
   [DynamicAnimationName.ExplosionDelivery]: (scene) => new ExplosionDeliveryAnimation(scene),
   [DynamicAnimationName.ExplosionDissipation]: (scene) => new ExplosionDissipationAnimation(scene),

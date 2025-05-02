@@ -1,6 +1,6 @@
 import {
   Color3,
-  ISceneLoaderAsyncResult,
+  AssetContainer,
   MeshBuilder,
   StandardMaterial,
   TransformNode,
@@ -39,7 +39,7 @@ export class ActionEntityModel {
   // public animationManager: AnimationManager
   constructor(
     public id: EntityId,
-    public scene: ISceneLoaderAsyncResult,
+    public scene: AssetContainer,
     startPosition: Vector3,
     public name: ActionEntityName,
     public pointTowardEntity?: EntityId
@@ -76,7 +76,7 @@ export class ActionEntityModel {
 export async function spawnActionEntityModel(vfxName: ActionEntityName, position: Vector3) {
   const modelPath = ACTION_ENTITY_NAME_TO_MODEL_PATH[vfxName];
 
-  let model: ISceneLoaderAsyncResult;
+  let model: AssetContainer;
   if (!modelPath) {
     switch (vfxName) {
       case ActionEntityName.IceBurst:

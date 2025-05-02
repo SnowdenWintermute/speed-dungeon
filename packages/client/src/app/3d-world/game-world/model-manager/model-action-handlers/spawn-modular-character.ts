@@ -7,7 +7,7 @@ import {
 } from "@speed-dungeon/common";
 import { importMesh } from "../../../utils";
 import { GameWorld } from "../../";
-import { ISceneLoaderAsyncResult } from "@babylonjs/core";
+import { AssetContainer } from "@babylonjs/core";
 import { getCharacterModelPartCategoriesAndAssetPaths } from "./get-modular-character-parts";
 import { setCharacterModelPartDefaultMaterials } from "./set-modular-character-part-default-materials";
 import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
@@ -37,7 +37,7 @@ export async function spawnCharacterModel(
     blueprint.homeRotation
   );
 
-  const partPromises: Promise<ISceneLoaderAsyncResult | Error>[] = [];
+  const partPromises: Promise<AssetContainer | Error>[] = [];
 
   for (const part of parts) {
     const { assetPath } = part;

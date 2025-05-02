@@ -5,7 +5,7 @@ import {
 } from "@speed-dungeon/common";
 import { CharacterModel } from "./index.js";
 import { spawnItemModel } from "../../item-models/spawn-item-model";
-import { ISceneLoaderAsyncResult } from "@babylonjs/core";
+import { AssetContainer } from "@babylonjs/core";
 import {
   attachHoldableModelToHolsteredPosition,
   attachHoldableModelToSkeleton,
@@ -50,7 +50,7 @@ async function spawnItemModelIfNotAlready(
   equipment: Equipment
 ) {
   const entityId = equipment.entityProperties.id;
-  let model: ISceneLoaderAsyncResult | undefined = modularCharacter.equipment.holdables[entityId];
+  let model: AssetContainer | undefined = modularCharacter.equipment.holdables[entityId];
   if (model !== undefined) return model;
 
   const modelResult = await spawnItemModel(

@@ -4,7 +4,6 @@ import {
   Equipment,
   EquipmentType,
   ResourceChangeSource,
-  Item,
   MAGICAL_ELEMENT_STRINGS,
   MagicalElement,
   OneHandedMeleeWeapon,
@@ -12,7 +11,7 @@ import {
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
 } from "@speed-dungeon/common";
-import { ISceneLoaderAsyncResult, Scene, StandardMaterial } from "@babylonjs/core";
+import { AssetContainer, Scene, StandardMaterial } from "@babylonjs/core";
 import {
   AccentColor,
   CustomMaterial,
@@ -21,13 +20,13 @@ import {
   MATERIAL_NAMES,
   PlasticColor,
 } from "./material-colors";
-import applyMaterialsToModelMeshes from "./apply-materials-to-model-meshes";
+import { applyMaterialsToModelMeshes } from "./apply-materials-to-model-meshes";
 import { desaturate } from "./utils";
 import { DYNAMIC_MATERIAL_TAG, SavedMaterials } from "./create-default-materials";
 
 export function assignConsumableMaterials(
   item: Consumable,
-  itemModel: ISceneLoaderAsyncResult,
+  itemModel: AssetContainer,
   savedMaterials: SavedMaterials,
   _scene: Scene
 ) {
@@ -55,7 +54,7 @@ export function assignConsumableMaterials(
 
 export function assignEquipmentMaterials(
   item: Equipment,
-  itemModel: ISceneLoaderAsyncResult,
+  itemModel: AssetContainer,
   savedMaterials: SavedMaterials,
   scene: Scene,
   createUniqueInstances: boolean

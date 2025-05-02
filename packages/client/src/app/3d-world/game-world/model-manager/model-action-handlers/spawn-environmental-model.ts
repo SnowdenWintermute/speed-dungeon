@@ -1,4 +1,4 @@
-import { Color3, ISceneLoaderAsyncResult, Material, StandardMaterial } from "@babylonjs/core";
+import { Color3, AssetContainer, Material, StandardMaterial } from "@babylonjs/core";
 import { SpawnEnvironmentalModelModelAction } from "../model-actions";
 import { importMesh } from "@/app/3d-world/utils";
 import { ModelManager } from "..";
@@ -13,7 +13,7 @@ import {
 import { EnvironmentModelTypes } from "@/app/3d-world/scene-entities/environment-models/environment-model-paths";
 
 export class EnvironmentModel {
-  constructor(public model: ISceneLoaderAsyncResult) {}
+  constructor(public model: AssetContainer) {}
 }
 
 export async function spawnEnvironmentModel(
