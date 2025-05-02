@@ -32,6 +32,7 @@ import { CombatActionResourceChangeProperties } from "../../combat-actions/comba
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { filterTargetIdGroupByProhibitedCombatantStates } from "../../targeting/filtering.js";
 import { getShieldBlockChance, getShieldBlockDamageReduction } from "./shield-blocking.js";
+import { getParryChance } from "./get-parry-chance.js";
 
 export class CombatActionHitOutcomes {
   hitPointChanges?: HitPointChanges;
@@ -143,7 +144,7 @@ export function calculateActionHitOutcomes(
       CombatantProperties.canParry(target) &&
       !targetWantsToBeHit
     ) {
-      const percentChanceToParry = 5; // @TODO - derrive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
+      const percentChanceToParry = getParryChance(user, target);
       const parryRoll = randBetween(0, 100);
       const isParried = parryRoll < percentChanceToParry;
       if (isParried) {

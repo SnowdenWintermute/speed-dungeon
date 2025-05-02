@@ -3,11 +3,12 @@ import {
   SHIELD_SIZE_BLOCK_RATE,
   SHIELD_SIZE_DAMAGE_REDUCTION,
 } from "../../../items/equipment/index.js";
+import { Percentage } from "../../../primatives/index.js";
 
 export function getShieldBlockChance(
   aggressor: CombatantProperties,
   defender: CombatantProperties
-) {
+): Percentage {
   const shieldPropertiesOption = CombatantEquipment.getEquippedShieldProperties(defender);
   if (!shieldPropertiesOption) return 0;
 

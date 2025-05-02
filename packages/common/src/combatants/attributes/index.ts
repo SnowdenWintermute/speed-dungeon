@@ -3,19 +3,29 @@ import {
   RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO,
 } from "../../app-consts.js";
 
+// parry chance
+// shield block chance
+// shield block damage reduction
+// spell crit
+// spell crit multiplier
+
 export enum CombatAttribute {
-  Strength, // damage with melee attacks, melee crit multiplier, melee armor pen, shield block chance
-  Dexterity, // ranged damage, accuracy, physical crit chance, armor ranged armor pen, shield block chance
+  Strength, // damage with melee attacks, melee crit multiplier, melee armor pen
+  Dexterity, // ranged damage, accuracy, physical crit chance, armor ranged armor pen
   Intelligence, // mp, magic ability damage
-  Vitality, // hp, and debuff duration, shield block damage reduction
+  Vitality, // hp, and debuff duration
   Resilience, // %magic damage reduction, healing received, debuff duration
+
   Focus, // negates %magic reduction and increases spell crit chance and crit multiplier
+
   Agility, // movement speed, evasion, physical crit chance reduction
+
   Speed, // determines turn order
   ArmorClass, // compared with final damage of physical attack, reduces damage on a curve
   ArmorPenetration, // subtracted from target's armor class
   Accuracy, // after target's evasion subtracted, the chance for an evadable actions to hit its target
   Evasion, // reduces the chance to be hit by evadable actions
+
   Hp, // if 0 or below, a combatant can no longer take actions
   Mp, // a resource for ability use
 }
