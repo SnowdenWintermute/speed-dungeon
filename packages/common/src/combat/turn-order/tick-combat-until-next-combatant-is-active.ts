@@ -12,6 +12,7 @@ import {
 } from "./consts.js";
 import { Battle } from "../../battle/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
+import handleBattleVictory from "../../game/handle-battle-victory.js";
 
 export function tickCombatUntilNextCombatantIsActive(game: SpeedDungeonGame, battleId: string) {
   const battleOption = game.battles[battleId];
@@ -37,8 +38,8 @@ export function tickCombatUntilNextCombatantIsActive(game: SpeedDungeonGame, bat
   }
 
   if (!atLeastOneCombatantHasNonZeroSpeed) {
-    return new Error(ERROR_MESSAGES.NOT_IMPLEMENTED + ": battle with no moveable entity");
     // @TODO - handle end of battle
+    return new Error(ERROR_MESSAGES.NOT_IMPLEMENTED + ": battle with no moveable entity");
   }
 
   while (activeCombatantTurnTracker.movement < REQUIRED_MOVEMENT_TO_MOVE) {

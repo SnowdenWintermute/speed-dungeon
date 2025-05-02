@@ -33,6 +33,7 @@ import {
   spawnActionEntityModel,
 } from "../../scene-entities/action-entity-models";
 import {
+  ABSTRACT_PARENT_TYPE_TO_BONE_NAME,
   BONE_NAMES,
   BoneName,
 } from "../../scene-entities/character-models/skeleton-structure-variables";
@@ -256,18 +257,8 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
         ];
       if (!actionUserOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
-      // @TODO - refactor
-      const boneName = (() => {
-        switch (actionEntityProperties.parentOption.type) {
-          case AbstractParentType.UserMainHand:
-            return BONE_NAMES[BoneName.EquipmentR];
-          case AbstractParentType.UserOffHand:
-            return BONE_NAMES[BoneName.EquipmentL];
-          case AbstractParentType.VfxEntityRoot:
-          case AbstractParentType.CombatantHitboxCenter:
-            return BONE_NAMES[BoneName.EquipmentL];
-        }
-      })();
+      const boneName =
+        BONE_NAMES[ABSTRACT_PARENT_TYPE_TO_BONE_NAME[actionEntityProperties.parentOption.type]];
 
       const boneToParent = getChildMeshByName(actionUserOption.rootMesh, boneName);
 

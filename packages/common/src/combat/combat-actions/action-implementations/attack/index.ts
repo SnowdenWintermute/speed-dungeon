@@ -73,8 +73,7 @@ const config: CombatActionComponentConfig = {
     user: CombatantProperties,
     self: CombatActionComponent
   ): CombatActionRequiredRange {
-    // @TODO - determine based on children
-    throw new Error("Function not implemented.");
+    throw new Error("this action should never be asked for its required range");
   },
   stepsConfig: new ActionResolutionStepsConfig(
     {

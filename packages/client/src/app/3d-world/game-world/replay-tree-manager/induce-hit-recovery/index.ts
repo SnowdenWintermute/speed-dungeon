@@ -8,9 +8,6 @@ import {
   CombatActionName,
   COMBAT_ACTIONS,
   ActionResolutionStepType,
-  CosmeticEffectNames,
-  AbstractParentType,
-  Milliseconds,
   CombatActionOrigin,
 } from "@speed-dungeon/common";
 import { getCombatantContext, useGameStore } from "@/stores/game-store";
@@ -18,8 +15,8 @@ import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/c
 import { useUIStore } from "@/stores/ui-store";
 import { postResourceChangeToCombatLog } from "./post-resource-change-to-combat-log";
 import { GameWorld } from "../..";
-import { startOrStopCosmeticEffect } from "../start-or-stop-cosmetic-effect";
 import { startResourceChangeFloatingMessage } from "./start-resource-change-floating-message";
+import { handleStepCosmeticEffects } from "../handle-step-cosmetic-effects";
 
 export function induceHitRecovery(
   gameWorld: GameWorld,
@@ -39,24 +36,9 @@ export function induceHitRecovery(
   const action = COMBAT_ACTIONS[actionName];
   const wasSpell = action.origin === CombatActionOrigin.SpellCast;
 
-  let cosmeticEffectNamesToStartThisStep: {
-    name: CosmeticEffectNames;
-    parentType: AbstractParentType;
-    lifetime?: Milliseconds;
-  }[] = [];
-
-  let cosmeticEffectNamesToStopThisStep: CosmeticEffectNames[] = [];
-
-  const stepConfigOption = action.stepsConfig.steps[actionStep];
-  if (!stepConfigOption) throw new Error("unexpected missing step config");
-  if (stepConfigOption.cosmeticsEffectsToStart)
-    cosmeticEffectNamesToStartThisStep.push(...stepConfigOption.cosmeticsEffectsToStart);
-  if (stepConfigOption.cosmeticsEffectsToStop)
-    cosmeticEffectNamesToStopThisStep.push(...stepConfigOption.cosmeticsEffectsToStop);
-
-  startOrStopCosmeticEffect(
-    cosmeticEffectNamesToStartThisStep,
-    cosmeticEffectNamesToStopThisStep,
+  handleStepCosmeticEffects(
+    action,
+    actionStep,
     targetModel.cosmeticEffectManager,
     targetModel.entityId
   );

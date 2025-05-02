@@ -5,22 +5,17 @@ import {
   EntityMotionGameUpdateCommand,
   SpawnableEntityType,
   DynamicAnimationName,
-  CosmeticEffectNames,
-  AbstractParentType,
-  Milliseconds,
   COMBAT_ACTIONS,
-  COMBAT_ACTION_NAME_STRINGS,
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { plainToInstance } from "class-transformer";
-import { startOrStopCosmeticEffect } from "./start-or-stop-cosmetic-effect";
 import { ModelMovementManager } from "../../scene-entities/model-movement-manager";
 import { DynamicAnimationManager } from "../../scene-entities/model-animation-managers/dynamic-animation-manager";
 import { SkeletalAnimationManager } from "../../scene-entities/model-animation-managers/skeletal-animation-manager";
 import { CosmeticEffectManager } from "../../scene-entities/cosmetic-effect-manager";
 import { ManagedAnimationOptions } from "../../scene-entities/model-animation-managers";
+import { handleStepCosmeticEffects } from "./handle-step-cosmetic-effects";
 
 export function entityMotionGameUpdateHandler(update: {
   command: EntityMotionGameUpdateCommand;
@@ -69,36 +64,9 @@ export function entityMotionGameUpdateHandler(update: {
     }
   }
 
-  // @TODO - refactor this can be refactored to somehow combine with other places
-  // where we start and stop clientonlyvfx
-
-  let cosmeticEffectNamesToStartThisStep: {
-    name: CosmeticEffectNames;
-    parentType: AbstractParentType;
-    lifetime?: Milliseconds;
-  }[] = [];
-
-  let cosmeticEffectNamesToStopThisStep: CosmeticEffectNames[] = [];
-
   const action = COMBAT_ACTIONS[command.actionName];
 
-  const stepConfigOption = action.stepsConfig.steps[command.step];
-
-  console.log("action:", COMBAT_ACTION_NAME_STRINGS[command.actionName]);
-  console.log(ACTION_RESOLUTION_STEP_TYPE_STRINGS[command.step], stepConfigOption);
-
-  if (!stepConfigOption) throw new Error("unexpected missing step config");
-  if (stepConfigOption.cosmeticsEffectsToStart)
-    cosmeticEffectNamesToStartThisStep.push(...stepConfigOption.cosmeticsEffectsToStart);
-  if (stepConfigOption.cosmeticsEffectsToStop)
-    cosmeticEffectNamesToStopThisStep.push(...stepConfigOption.cosmeticsEffectsToStop);
-
-  startOrStopCosmeticEffect(
-    cosmeticEffectNamesToStartThisStep,
-    cosmeticEffectNamesToStopThisStep,
-    cosmeticEffectManager,
-    entityId
-  );
+  handleStepCosmeticEffects(action, command.step, cosmeticEffectManager, entityId);
 
   // console.log("destinationOption: ", translationOption?.destination);
 

@@ -56,7 +56,7 @@ export class ActionSequenceManagerRegistry {
     return Object.values(this.actionManagers);
   }
   getShortestTimeToCompletion(): number {
-    // @TODO @PERF - check if a minHeap has better performance
+    // @PERF - check if a minHeap has better performance
     let msToTick;
     let stepName;
     for (const manager of this.getManagers()) {

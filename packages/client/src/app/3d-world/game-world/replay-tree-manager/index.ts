@@ -36,13 +36,6 @@ export class ReplayTreeManager {
       }
     });
   }
-  /**
-  So we don't have to wait for a model to spawn midway through the animation chain, 
-  which would cause a moment where the animation freezes
-   **/
-  preSpawnAllVfx() {
-    // @TODO
-  }
 
   currentTreeCompleted() {
     return this.current === null || this.current.isComplete();

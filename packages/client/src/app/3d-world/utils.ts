@@ -2,11 +2,11 @@ import {
   AbstractMesh,
   Color4,
   ISceneLoaderAsyncResult,
+  LoadAssetContainerAsync,
   Mesh,
   MeshBuilder,
   Node,
   Scene,
-  SceneLoader,
   Vector3,
 } from "@babylonjs/core";
 import { BASE_FILE_PATH } from "./scene-entities/character-models/modular-character-parts";
@@ -14,6 +14,7 @@ import { BASE_FILE_PATH } from "./scene-entities/character-models/modular-charac
 export async function importMesh(path: string, scene: Scene) {
   if (path === "") throw new Error("Empty file path");
   // @TODO - check on this deprecated thing
+  // return LoadAssetContainerAsync(BASE_FILE_PATH || "" + path, scene);
   return SceneLoader.ImportMeshAsync("", BASE_FILE_PATH || "", path, scene);
 }
 

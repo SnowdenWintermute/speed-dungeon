@@ -20,8 +20,6 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     };
 
     super(stepType, context, gameUpdateCommand);
-    // @TODO - counterspells
-    // if countered, set the tracker "wasInterrupted" to true
 
     const { tracker, combatantContext } = context;
     const { game, combatant } = combatantContext;
@@ -48,8 +46,6 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
   protected getBranchingActions():
     | Error
     | { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[] {
-    // @TODO - collect all triggered actions and add to branchingActions list
-    // if not "countered", set any concurrent sub actions to the branchingActions list
     const branchingActions: {
       user: Combatant;
       actionExecutionIntent: CombatActionExecutionIntent;

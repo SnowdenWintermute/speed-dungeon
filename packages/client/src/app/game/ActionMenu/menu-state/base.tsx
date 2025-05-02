@@ -21,6 +21,7 @@ import {
   CombatActionName,
   COMBAT_ACTIONS,
   ACTION_NAMES_TO_HIDE_IN_MENU,
+  getUnmetCostResourceTypes,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
@@ -142,23 +143,18 @@ export class BaseMenuState implements ActionMenuState {
         });
 
       const combatAction = COMBAT_ACTIONS[actionName];
-      const { usabilityContext } = combatAction;
+      const { usabilityContext } = combatAction.targetingProperties;
 
-      // @TODO - determine all costs, not just mana
-      // const abilityCostIfOwned = CombatantProperties.getAbilityManaCostIfOwned(
-      //   combatantProperties,
-      //   ability.name
-      // );
-
-      // const notEnoughMana =
-      //   abilityCostIfOwned instanceof Error || combatantProperties.mana < abilityCostIfOwned;
+      const costs = combatAction.costProperties.getResourceCosts(combatantProperties);
+      let unmetCosts = [];
+      if (costs) unmetCosts = getUnmetCostResourceTypes(combatantProperties, costs);
 
       const userControlsThisCharacter = clientUserControlsCombatant(characterId);
 
       button.shouldBeDisabled =
         (usabilityContext === CombatActionUsabilityContext.InCombat && !this.inCombat) ||
         (usabilityContext === CombatActionUsabilityContext.OutOfCombat && this.inCombat) ||
-        // notEnoughMana ||
+        unmetCosts.length > 0 ||
         disabledBecauseNotThisCombatantTurnResult ||
         !userControlsThisCharacter;
 
