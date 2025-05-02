@@ -22,13 +22,8 @@ import { exploreNextRoom } from "./game-event-handlers/toggle-ready-to-explore-h
 import initiateGameEventListeners from "./game-event-handlers/index.js";
 import { ItemGenerationDirector } from "./item-generation/item-generation-director.js";
 import { generateRandomItem } from "./item-generation/generate-random-item.js";
-import { payAbilityCostsActionCommandHandler } from "./game-event-handlers/action-command-handlers/pay-ability-costs.js";
-import moveIntoCombatActionPositionActionCommandHandler from "./game-event-handlers/action-command-handlers/move-into-combat-action-position.js";
-import performCombatActionActionCommandHandler from "./game-event-handlers/action-command-handlers/perform-combat-action.js";
-import returnHomeActionCommandHandler from "./game-event-handlers/action-command-handlers/return-home.js";
-import battleResultActionCommandHandler from "./game-event-handlers/action-command-handlers/battle-results.js";
+import { battleResultActionCommandHandler } from "./game-event-handlers/action-command-handlers/battle-results.js";
 import getGamePartyAndCombatant from "./utils/get-game-party-and-combatant.js";
-import processSelectedCombatAction from "./game-event-handlers/character-uses-selected-combat-action-handler/process-selected-combat-action.js";
 import generateLoot from "./game-event-handlers/action-command-handlers/generate-loot.js";
 import generateExperiencePoints from "./game-event-handlers/action-command-handlers/generate-experience-points.js";
 import initiateSavedCharacterListeners from "./saved-character-event-handlers/index.js";
@@ -71,12 +66,7 @@ export class GameServer implements ActionCommandReceiver {
   //
   exploreNextRoom = exploreNextRoom;
   // ACTION COMMAND HANDLERS
-  processSelectedCombatAction = processSelectedCombatAction;
-  payAbilityCostsActionCommandHandler = payAbilityCostsActionCommandHandler;
-  moveIntoCombatActionPositionActionCommandHandler =
-    moveIntoCombatActionPositionActionCommandHandler;
-  performCombatActionActionCommandHandler = performCombatActionActionCommandHandler;
-  returnHomeActionCommandHandler = returnHomeActionCommandHandler;
+  combatActionReplayTreeHandler = async () => {};
   battleResultActionCommandHandler = battleResultActionCommandHandler;
   removePlayerFromGameCommandHandler: (username: string) => Promise<void> = async () => {}; // we only use it on the client
   async gameMessageCommandHandler(payload: GameMessagesPayload) {
@@ -88,6 +78,9 @@ export class GameServer implements ActionCommandReceiver {
       });
     }
   }
+  endActiveCombatantTurn: () => Promise<void | Error> = async () => {
+    // only used by client
+  };
   // UTILS
   getSocketCurrentGame = getSocketCurrentGame;
   getSocketIdOfPlayer = getSocketIdOfPlayer;

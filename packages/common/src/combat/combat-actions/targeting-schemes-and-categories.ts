@@ -9,16 +9,11 @@ export enum TargetingScheme {
   All,
 }
 
-export function formatTargetingScheme(targetingScheme: TargetingScheme): string {
-  switch (targetingScheme) {
-    case TargetingScheme.Single:
-      return "Single";
-    case TargetingScheme.Area:
-      return "Area";
-    case TargetingScheme.All:
-      return "All";
-  }
-}
+export const TARGETING_SCHEME_STRINGS: Record<TargetingScheme, string> = {
+  [TargetingScheme.Single]: "Single",
+  [TargetingScheme.Area]: "Area",
+  [TargetingScheme.All]: "All",
+};
 
 export enum TargetCategories {
   Opponent,

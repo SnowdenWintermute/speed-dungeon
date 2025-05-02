@@ -1,4 +1,10 @@
+import { Milliseconds } from "./primatives";
+
 export const INFO_UNICODE_SYMBOL = "ⓘ";
+
+export const ONE_SECOND: Milliseconds = 1000;
+export const SIMULATION_FPS: Milliseconds = 15;
+export const TICK_LENGTH: Milliseconds = ONE_SECOND / SIMULATION_FPS;
 
 export const BASE_SCREEN_SIZE = 1920;
 export const GOLDEN_RATIO = 657 / 1063;
@@ -23,9 +29,9 @@ export const DEX_TO_RANGED_ARMOR_PEN_RATIO = 1;
 export const STR_TO_MELEE_ARMOR_PEN_RATIO = 1;
 export const FOCUS_TO_CRIT_CHANCE_RATIO = 0.5;
 // export const VIT_TO_PERCENT_PHYSICAL_DAMAGE_REDUCTION_RATIO = 0.75;
-export const OFF_HAND_ACCURACY_MODIFIER = 75;
-export const OFF_HAND_DAMAGE_MODIFIER = 60;
-export const OFF_HAND_CRIT_CHANCE_MODIFIER = 60;
+export const OFF_HAND_ACCURACY_MODIFIER = 0.75;
+export const OFF_HAND_DAMAGE_MODIFIER = 0.6;
+export const OFF_HAND_CRIT_CHANCE_MODIFIER = 0.6;
 export const TWO_HANDED_WEAPON_BASE_BONUS_DAMAGE_MODIFIER = 2;
 export const TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER = 2;
 export const RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO = 2;
@@ -47,19 +53,26 @@ export const FOUND_ITEM_MIN_DURABILITY_MODIFIER = 0.25;
 export const BASE_CRIT_CHANCE = 5;
 export const MAX_CRIT_CHANCE = 95;
 export const BASE_CRIT_MULTIPLIER = 1.5;
-export const MULTI_TARGET_HP_CHANGE_BONUS = 0.15;
+export const MULTI_TARGET_RESOURCE_CHANGE_BONUS = 0.15;
 export const MIN_HIT_CHANCE = 5;
-export const COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER = 30;
+export const COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER = 20;
 export const ARMOR_CLASS_EQUATION_MODIFIER = 2.5;
 
+export const MELEE_START_ATTACK_RANGE = 0.5;
+
 // 3D MODELS
+export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 1;
+// export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 0.2;
+
 export const COMBATANT_POSITION_SPACING_SIDE = 1.4;
 export const COMBATANT_POSITION_SPACING_BETWEEN_ROWS = 5.0;
 export const COMBATANT_TIME_TO_MOVE_ONE_METER = 300;
+// export const COMBATANT_TIME_TO_MOVE_ONE_METER = 100;
+export const ARROW_TIME_TO_MOVE_ONE_METER = 200;
+// export const ARROW_TIME_TO_MOVE_ONE_METER = 1000;
 export const COMBATANT_TIME_TO_ROTATE_360 = 1000;
 export const MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME = 1000;
 export const DEFAULT_HITBOX_RADIUS_FALLBACK = 1.5;
-export const DEFAULT_COMBAT_ACTION_PERFORMANCE_TIME = 1000;
 
 // ACCOUNTS AND PROFILES
 export const DEFAULT_ACCOUNT_CHARACTER_CAPACITY = 3;
@@ -105,7 +118,7 @@ export enum DungeonFloor {
 }
 
 export const SKY_COLORS_BY_FLOOR: Record<DungeonFloor, string> = {
-  [DungeonFloor.Zero]: "#1a1a26",
+  [DungeonFloor.Zero]: "#1e293b",
   [DungeonFloor.One]: "#1a1a26",
   [DungeonFloor.Two]: "#1A3636",
   [DungeonFloor.Three]: "#697565",
@@ -119,3 +132,135 @@ export const SKY_COLORS_BY_FLOOR: Record<DungeonFloor, string> = {
 };
 
 export const ONE_THIRD_OF_ONE = 1 / 3;
+
+export enum SkeletalAnimationName {
+  StartMovingForward,
+  MoveForwardLoop,
+  MoveBack,
+  IdleUnarmed,
+  IdleMainHand,
+  IdleDualWield,
+  IdleTwoHand,
+  IdleBow,
+  DeathFront,
+  DeathBack,
+  HitRecovery,
+  CritRecovery,
+  Evade,
+  Parry,
+  Block,
+  MainHandSwingChambering,
+  MainHandSwingDelivery,
+  MainHandSwingRecovery,
+  OffHandSwingChambering,
+  OffHandSwingDelivery,
+  OffHandSwingRecovery,
+  TwoHandSwingChambering,
+  TwoHandSwingDelivery,
+  TwoHandSwingRecovery,
+  MainHandStabChambering,
+  MainHandStabDelivery,
+  MainHandStabRecovery,
+  OffHandStabChambering,
+  OffHandStabDelivery,
+  OffHandStabRecovery,
+  MainHandUnarmedChambering,
+  MainHandUnarmedDelivery,
+  MainHandUnarmedRecovery,
+  OffHandUnarmedChambering,
+  OffHandUnarmedDelivery,
+  OffHandUnarmedRecovery,
+  TwoHandStabChambering,
+  TwoHandStabDelivery,
+  TwoHandStabRecovery,
+  BowChambering,
+  BowDelivery,
+  BowRecovery,
+  CastSpellChambering,
+  CastSpellDelivery,
+  CastSpellRecovery,
+  UseConsumableChambering,
+  UseConsumableDelivery,
+  UseConsumableRecovery,
+}
+
+export enum DynamicAnimationName {
+  ExplosionDelivery,
+  ExplosionDissipation,
+  IceBurstDelivery,
+  IceBurstDissipation,
+}
+
+export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, string> = {
+  [SkeletalAnimationName.StartMovingForward]: "sprint-loop",
+  [SkeletalAnimationName.MoveForwardLoop]: "sprint-loop",
+  [SkeletalAnimationName.MoveBack]: "run-back",
+  [SkeletalAnimationName.IdleUnarmed]: "idle-unarmed",
+  [SkeletalAnimationName.IdleMainHand]: "idle-1h",
+  [SkeletalAnimationName.IdleDualWield]: "idle-dual-wield",
+  [SkeletalAnimationName.IdleTwoHand]: "idle-2h",
+  [SkeletalAnimationName.IdleBow]: "idle-bow",
+  [SkeletalAnimationName.DeathFront]: "death-2",
+  [SkeletalAnimationName.DeathBack]: "death-1",
+  [SkeletalAnimationName.HitRecovery]: "hit-recovery",
+  [SkeletalAnimationName.CritRecovery]: "crit-recovery",
+  [SkeletalAnimationName.Evade]: "evade-full",
+  [SkeletalAnimationName.Parry]: "1h-parry-full",
+  [SkeletalAnimationName.Block]: "shield-block-recovery",
+  [SkeletalAnimationName.MainHandSwingChambering]: "mh-swing-chambering",
+  [SkeletalAnimationName.MainHandSwingDelivery]: "mh-swing-delivery",
+  [SkeletalAnimationName.MainHandSwingRecovery]: "mh-swing-recovery",
+  [SkeletalAnimationName.OffHandSwingChambering]: "oh-swing-chambering",
+  [SkeletalAnimationName.OffHandSwingDelivery]: "oh-swing-delivery",
+  [SkeletalAnimationName.OffHandSwingRecovery]: "oh-swing-recovery",
+  [SkeletalAnimationName.TwoHandSwingChambering]: "2h-swing-chambering",
+  [SkeletalAnimationName.TwoHandSwingDelivery]: "2h-swing-delivery",
+  [SkeletalAnimationName.TwoHandSwingRecovery]: "2h-swing-recovery",
+  [SkeletalAnimationName.MainHandStabChambering]: "mh-stab-chambering",
+  [SkeletalAnimationName.MainHandStabDelivery]: "mh-stab-delivery",
+  [SkeletalAnimationName.MainHandStabRecovery]: "mh-stab-recovery",
+  [SkeletalAnimationName.MainHandUnarmedChambering]: "mh-unarmed-strike-chambering",
+  [SkeletalAnimationName.MainHandUnarmedDelivery]: "mh-unarmed-strike-delivery",
+  [SkeletalAnimationName.MainHandUnarmedRecovery]: "mh-unarmed-strike-recovery",
+  [SkeletalAnimationName.OffHandStabChambering]: "oh-stab-chambering",
+  [SkeletalAnimationName.OffHandStabDelivery]: "oh-stab-delivery",
+  [SkeletalAnimationName.OffHandStabRecovery]: "oh-stab-recovery",
+  [SkeletalAnimationName.OffHandUnarmedChambering]: "oh-unarmed-strike-chambering",
+  [SkeletalAnimationName.OffHandUnarmedDelivery]: "oh-unarmed-strike-delivery",
+  [SkeletalAnimationName.OffHandUnarmedRecovery]: "oh-unarmed-strike-recovery",
+  [SkeletalAnimationName.TwoHandStabChambering]: "2h-stab-chambering",
+  [SkeletalAnimationName.TwoHandStabDelivery]: "2h-stab-delivery",
+  [SkeletalAnimationName.TwoHandStabRecovery]: "2h-stab-recovery",
+  [SkeletalAnimationName.BowChambering]: "bow-shoot-chambering",
+  [SkeletalAnimationName.BowDelivery]: "bow-shoot-delivery",
+  [SkeletalAnimationName.BowRecovery]: "bow-shoot-recovery",
+  [SkeletalAnimationName.CastSpellChambering]: "spell-chambering",
+  [SkeletalAnimationName.CastSpellDelivery]: "spell-delivery",
+  [SkeletalAnimationName.CastSpellRecovery]: "spell-recovery",
+  [SkeletalAnimationName.UseConsumableChambering]: "use-consumable-chambering",
+  [SkeletalAnimationName.UseConsumableDelivery]: "use-consumable-delivery",
+  [SkeletalAnimationName.UseConsumableRecovery]: "use-consumable-recovery",
+};
+
+export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string> = {
+  [DynamicAnimationName.ExplosionDelivery]: "explosion-delivery",
+  [DynamicAnimationName.ExplosionDissipation]: "explosion-dissipation",
+  [DynamicAnimationName.IceBurstDelivery]: "ice-burst-delivery",
+  [DynamicAnimationName.IceBurstDissipation]: "ice-burst-dissipation",
+};
+
+export enum AnimationType {
+  Skeletal,
+  Dynamic,
+}
+
+export type SkeletalAnimationIdentifier = {
+  type: AnimationType.Skeletal;
+  name: SkeletalAnimationName;
+};
+export type DynamicAnimationIdentifier = {
+  type: AnimationType.Dynamic;
+  name: DynamicAnimationName;
+};
+
+export type TaggedAnimationName = SkeletalAnimationIdentifier | DynamicAnimationIdentifier;

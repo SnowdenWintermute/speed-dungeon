@@ -3,6 +3,7 @@ import {
   ActionCommandType,
   BattleConclusion,
   BattleResultActionCommandPayload,
+  ERROR_MESSAGES,
   GameMessageType,
   SpeedDungeonGame,
   createPartyWipeMessage,
@@ -11,16 +12,17 @@ import {
 import { GameServer } from "../../index.js";
 import { getGameServer } from "../../../singletons.js";
 
-export default async function battleResultActionCommandHandler(
+export async function battleResultActionCommandHandler(
   this: GameServer,
   gameName: string,
-  combatantId: string,
   payload: BattleResultActionCommandPayload
 ) {
   const gameServer = getGameServer();
-  const actionAssociatedDataResult = this.getGamePartyAndCombatant(gameName, combatantId);
-  if (actionAssociatedDataResult instanceof Error) return actionAssociatedDataResult;
-  const { game, party } = actionAssociatedDataResult;
+  const game = this.games.get(gameName);
+  if (!game) throw new Error(ERROR_MESSAGES.GAME_DOESNT_EXIST);
+  const party = game.adventuringParties[payload.partyName];
+  if (!party) throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+
   const gameModeContext = gameServer.gameModeContexts[game.mode];
   const { conclusion } = payload;
 

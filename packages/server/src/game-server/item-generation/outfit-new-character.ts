@@ -2,8 +2,6 @@ import {
   BASE_STARTING_ATTRIBUTES,
   STARTING_COMBATANT_TRAITS,
   CombatAttribute,
-  CombatantAbility,
-  AbilityName,
   CombatantClass,
   CombatantProperties,
   ConsumableType,
@@ -17,15 +15,31 @@ import {
   TwoHandedRangedWeapon,
   OneHandedMeleeWeapon,
   BodyArmor,
-  Inventory,
+  CombatActionName,
+  CombatantActionState,
+  TwoHandedMeleeWeapon,
+  Equipment,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import createStartingEquipment, { givePlaytestingItems } from "./create-starting-equipment.js";
 import { createConsumableByType } from "./create-consumable-by-type.js";
 import { generateOneOfEachItem, generateSpecificEquipmentType } from "./generate-test-items.js";
+import combatantCanUseItem from "@speed-dungeon/common/src/combatants/can-use-item.js";
 
-export default function outfitNewCharacter(character: Combatant) {
+export function outfitNewCharacter(character: Combatant) {
   const combatantProperties = character.combatantProperties;
+
+  const ownedActions = [
+    CombatActionName.Attack,
+    CombatActionName.ChainingSplitArrowParent,
+    CombatActionName.ExplodingArrowParent,
+    CombatActionName.UseGreenAutoinjector,
+    CombatActionName.UseBlueAutoinjector,
+    CombatActionName.IceBoltParent,
+  ];
+
+  for (const actionName of ownedActions)
+    combatantProperties.ownedActions[actionName] = new CombatantActionState(actionName);
 
   const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantProperties.combatantClass];
   if (baseStartingAttributesOption) {
@@ -42,11 +56,6 @@ export default function outfitNewCharacter(character: Combatant) {
   if (combatantProperties.combatantClass === CombatantClass.Warrior)
     outfitWarrior(combatantProperties);
 
-  combatantProperties.abilities[AbilityName.Fire] = CombatantAbility.createByName(AbilityName.Fire);
-  combatantProperties.abilities[AbilityName.Healing] = CombatantAbility.createByName(
-    AbilityName.Healing
-  );
-
   const hpInjectors = new Array(1)
     .fill(null)
     .map(() => createConsumableByType(ConsumableType.HpAutoinjector));
@@ -59,9 +68,12 @@ export default function outfitNewCharacter(character: Combatant) {
   const maybeError = createStartingEquipment(combatantProperties);
   if (maybeError instanceof Error) return maybeError;
 
-  // setExperimentalCombatantProperties(combatantProperties);
+  setExperimentalCombatantProperties(combatantProperties);
 
   CombatantProperties.setHpAndMpToMax(combatantProperties);
+
+  combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
+  combatantProperties.mana = Math.floor(combatantProperties.mana * 0.1);
 }
 
 function outfitRogue(combatantProperties: CombatantProperties) {
@@ -75,7 +87,6 @@ function outfitRogue(combatantProperties: CombatantProperties) {
 
 function outfitMage(combatantProperties: CombatantProperties) {
   // SPELLS
-  combatantProperties.abilities[AbilityName.Ice] = CombatantAbility.createByName(AbilityName.Ice);
   // TRAITS
   combatantProperties.traits.push({
     type: CombatantTraitType.ExtraConsumablesStorage,
@@ -94,17 +105,40 @@ function outfitWarrior(combatantProperties: CombatantProperties) {
 }
 
 function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
-  const mh = generateSpecificEquipmentType({
-    equipmentType: EquipmentType.TwoHandedRangedWeapon,
-    baseItemType: TwoHandedRangedWeapon.ShortBow,
-  });
-  if (!(mh instanceof Error)) {
-    if (combatantProperties.equipment.inherentHoldableHotswapSlots[1])
-      combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
-        HoldableSlotType.MainHand
-      ] = mh;
-    mh.durability = { inherentMax: 4, current: 1 };
-  }
+  // const mh = generateSpecificEquipmentType({
+  //   equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+  //   baseItemType: TwoHandedMeleeWeapon.BoStaff,
+  // });
+  // if (!(mh instanceof Error)) {
+  //   if (combatantProperties.equipment.inherentHoldableHotswapSlots[1])
+  //     combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
+  //       HoldableSlotType.MainHand
+  //     ] = mh;
+  //   mh.durability = { inherentMax: 4, current: 1 };
+  // }
+
+  const mh = generateSpecificEquipmentType(
+    {
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.ButterKnife,
+    },
+    true
+  );
+  if (!(mh instanceof Error) && combatantProperties.equipment.inherentHoldableHotswapSlots[1])
+    combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
+      HoldableSlotType.MainHand
+    ] = mh;
+  const oh = generateSpecificEquipmentType(
+    {
+      equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      baseItemType: OneHandedMeleeWeapon.ButterKnife,
+    },
+    true
+  );
+  if (!(oh instanceof Error) && combatantProperties.equipment.inherentHoldableHotswapSlots[1])
+    combatantProperties.equipment.inherentHoldableHotswapSlots[1].holdables[
+      HoldableSlotType.OffHand
+    ] = oh;
 
   // const oh = generateSpecificEquipmentType({
   //   equipmentType: EquipmentType.Shield,
@@ -118,40 +152,38 @@ function giveHotswapSlotEquipment(combatantProperties: CombatantProperties) {
 }
 
 function setExperimentalCombatantProperties(combatantProperties: CombatantProperties) {
-  for (let i = 0; i < 18; i += 1) {
-    const eq = generateSpecificEquipmentType({
-      equipmentType: EquipmentType.BodyArmor,
-      baseItemType: BodyArmor.Rags,
-    });
-    if (!(eq instanceof Error)) combatantProperties.inventory.equipment.push(eq);
-  }
+  // for (let i = 0; i < 18; i += 1) {
+  //   const eq = generateSpecificEquipmentType({
+  //     equipmentType: EquipmentType.BodyArmor,
+  //     baseItemType: BodyArmor.Rags,
+  //   });
+  //   if (!(eq instanceof Error)) combatantProperties.inventory.equipment.push(eq);
+  // }
 
   giveHotswapSlotEquipment(combatantProperties);
-  givePlaytestingItems(combatantProperties.equipment);
+  // givePlaytestingItems(combatantProperties.equipment);
 
-  const runeSword = generateSpecificEquipmentType({
-    equipmentType: EquipmentType.OneHandedMeleeWeapon,
-    baseItemType: OneHandedMeleeWeapon.RuneSword,
-  });
-  if (runeSword instanceof Error) return;
-  combatantProperties.inventory.equipment.push(runeSword);
-  // const items = generateOneOfEachItem();
-  // combatantProperties.inventory.equipment.push(...(items as Equipment[]));
+  // const runeSword = generateSpecificEquipmentType({
+  //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
+  //   baseItemType: OneHandedMeleeWeapon.RuneSword,
+  // });
+  // if (runeSword instanceof Error) return;
+  // combatantProperties.inventory.equipment.push(runeSword);
+  const items = generateOneOfEachItem();
+  combatantProperties.inventory.equipment.push(...(items as Equipment[]));
 
   // giveTestingCombatAttributes(combatantProperties);
   // combatantProperties.level = 5;
-  combatantProperties.abilities[AbilityName.Destruction] = CombatantAbility.createByName(
-    AbilityName.Destruction
-  );
-  combatantProperties.unspentAttributePoints = 100;
-  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 3;
-  combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 3;
-  // combatantProperties.inherentAttributes[CombatAttribute.Strength] = 100;
-  // combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 100;
-  // combatantProperties.inherentAttributes[CombatAttribute.Hp] = 1000;
+  // combatantProperties.unspentAttributePoints = 100;
+  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 5;
+  combatantProperties.inherentAttributes[CombatAttribute.Dexterity] = 45;
+  combatantProperties.inherentAttributes[CombatAttribute.Strength] = 40;
+  combatantProperties.inherentAttributes[CombatAttribute.Intelligence] = 40;
+  combatantProperties.inherentAttributes[CombatAttribute.Speed] = 9999;
+  combatantProperties.inherentAttributes[CombatAttribute.Hp] = 1000;
   // FOR TESTING ATTRIBUTE ASSIGNMENT
   // combatantProperties.unspentAttributePoints = 3;
-  combatantProperties.inventory.shards = 9999;
+  // combatantProperties.inventory.shards = 9999;
   // combatantProperties.inventory.equipment.push(HP_ARMOR_TEST_ITEM);
   // const equippedHoldableHotswapSlot =
   //   CombatantEquipment.getEquippedHoldableSlots(combatantProperties);

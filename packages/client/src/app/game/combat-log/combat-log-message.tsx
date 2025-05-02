@@ -18,6 +18,7 @@ export enum CombatLogMessageStyle {
   PartyEscape,
   BattleVictory,
   Healing,
+  Mana,
 }
 
 export const COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE: Record<

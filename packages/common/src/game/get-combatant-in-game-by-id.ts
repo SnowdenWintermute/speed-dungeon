@@ -12,5 +12,5 @@ export default function getCombatantInGameById(
     if (!(combatantResult instanceof Error)) return combatantResult;
   }
 
-  return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+  return new Error(`${ERROR_MESSAGES.COMBATANT.NOT_FOUND}: Entity Id: ${entityId}`);
 }

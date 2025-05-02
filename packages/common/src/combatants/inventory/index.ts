@@ -2,7 +2,7 @@ import { immerable } from "immer";
 import { INVENTORY_DEFAULT_CAPACITY } from "../../app-consts.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { Item } from "../../items/index.js";
-import { Consumable } from "../../items/consumables/index.js";
+import { Consumable, ConsumableType } from "../../items/consumables/index.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { plainToInstance } from "class-transformer";
 import { CombatantProperties } from "../index.js";
@@ -80,6 +80,14 @@ export class Inventory {
     if (itemOption === undefined) return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
     if (!(itemOption instanceof Consumable)) return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
     else return itemOption;
+  }
+
+  static getConsumableByType(inventory: Inventory, consumableType: ConsumableType) {
+    for (const item of Object.values(inventory.consumables)) {
+      if (item.consumableType === consumableType) {
+        return item;
+      }
+    }
   }
 
   static getConsumableById(inventory: Inventory, itemId: string) {

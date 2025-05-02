@@ -9,6 +9,7 @@ import getUserIdFromUsernameInPath from "./game-server/route-handlers/middleware
 import getUserWinsAndLossesHandler from "./game-server/route-handlers/get-user-wins-and-losses.js";
 import getUserProfileHandler from "./game-server/route-handlers/get-user-profile.js";
 import { env } from "./validate-env.js";
+import { getAssetHandler } from "./asset-handlers/get-asset-handler.js";
 
 export default function appRoute(...args: string[]) {
   const baseRoute = env.NODE_ENV === "production" ? "/api" : "";
@@ -18,6 +19,7 @@ export default function appRoute(...args: string[]) {
 export function createExpressApp() {
   const app = express();
   app.use(express.json({ limit: "10kb" }));
+
   app.use(cookieParser());
   app.use(
     cors({
@@ -27,6 +29,7 @@ export function createExpressApp() {
   );
 
   app.get(appRoute("/"), (_: Request, res: Response) => res.send("this is the api server"));
+  app.get(appRoute("/assets/*"), getAssetHandler);
   app.get(appRoute("/profiles/:username"), getUserIdFromUsernameInPath, getUserProfileHandler);
   app.get(appRoute("/ladders/level/:page"), getCharacterLevelLadderPageHandler);
   app.get(

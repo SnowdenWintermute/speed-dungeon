@@ -19,6 +19,7 @@ import CharacterModelDisplay from "@/app/character-model-display";
 import { useUIStore } from "@/stores/ui-store";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import LowDurabilityIndicators from "./LowDurabilityIndicators";
+import ConditionIndicators from "./condition-indicators/";
 
 interface Props {
   combatant: Combatant;
@@ -37,8 +38,7 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
     }))
   );
   const entityId = combatant.entityProperties.id;
-  const babylonDebugMessages =
-    useGameStore().babylonControlledCombatantDOMData[entityId]?.debugMessages;
+  const babylonDataOption = useGameStore().babylonControlledCombatantDOMData[entityId];
 
   const usernameOption = useGameStore().username;
   const result = getGameAndParty(gameOption, usernameOption);
@@ -80,26 +80,22 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
 
   const equippedItems = CombatantEquipment.getAllEquippedItems(combatantProperties, {});
 
+  const conditionIndicators = (styles: string) => (
+    <div className={`w-full h-6 py-0.5 ${styles}`}>
+      <ConditionIndicators conditions={combatant.combatantProperties.conditions} />
+      <LowDurabilityIndicators isPlayerControlled={isPartyMember} equippedItems={equippedItems} />
+    </div>
+  );
+
   return (
     <div className="">
       <CharacterModelDisplay character={combatant}>
         <CombatantFloatingMessagesDisplay entityId={entityId} />
         <div className="absolute flex flex-col justify-center items-center text-center top-1/2 left-1/2 -translate-x-1/2 w-[400px]">
-          {babylonDebugMessages?.map((message) => (
-            <div className="text-xl relative w-[400px] text-center" key={message.id}>
-              <div className="">{message.text}</div>
-            </div>
-          ))}
+          {babylonDataOption && babylonDataOption.debugHtml}
         </div>
       </CharacterModelDisplay>
-      {isPartyMember && (
-        <div className="w-full h-6 p-1 mb-1">
-          <LowDurabilityIndicators
-            isPlayerControlled={isPartyMember}
-            equippedItems={equippedItems}
-          />
-        </div>
-      )}
+      {isPartyMember && conditionIndicators("mb-1") /* otherwise put it below */}
       <div
         className={`w-[23rem] h-fit bg-slate-700 flex p-2.5 relative box-border outline ${conditionalBorder} ${lockedUiState}`}
         ref={combatantPlaqueRef}
@@ -166,14 +162,8 @@ export default function CombatantPlaque({ combatant, showExperience }: Props) {
 
       <div className="flex">
         <ActiveCombatantIcon battleOption={battleOption} combatantId={entityId} />
-        {!isPartyMember && (
-          <div className="flex-1 h-6 p-1 mt-1">
-            <LowDurabilityIndicators
-              isPlayerControlled={isPartyMember}
-              equippedItems={equippedItems}
-            />
-          </div>
-        )}
+
+        {!isPartyMember && conditionIndicators("mt-1") /* otherwise put it above */}
       </div>
     </div>
   );

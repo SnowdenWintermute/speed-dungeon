@@ -1,7 +1,5 @@
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
-import { nextToBabylonMessageQueue } from "@/singletons/next-to-babylon-message-queue";
 import { useLobbyStore } from "@/stores/lobby-store";
-import { NextToBabylonMessageTypes } from "@/singletons/next-to-babylon-message-queue";
 import { Vector3 } from "@babylonjs/core";
 import {
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
@@ -29,14 +27,14 @@ export default function SavedCharacterManager() {
   const showGameCreationForm = useLobbyStore().showGameCreationForm;
 
   useEffect(() => {
-    nextToBabylonMessageQueue.messages.push({
-      type: NextToBabylonMessageTypes.MoveCamera,
-      instant: true,
-      alpha: Math.PI / 2,
-      beta: (Math.PI / 5) * 2,
-      radius: 4.28,
-      target: new Vector3(-CHARACTER_SLOT_SPACING + CHARACTER_SLOT_SPACING * currentSlot, 1, 0),
-    });
+    const camera = gameWorld.current?.camera;
+    if (!camera) return;
+    camera.target.copyFrom(
+      new Vector3(-CHARACTER_SLOT_SPACING + CHARACTER_SLOT_SPACING * currentSlot, 1, 0)
+    );
+    camera.alpha = Math.PI / 2;
+    camera.beta = (Math.PI / 5) * 2;
+    camera.radius = 4.28;
   }, [currentSlot]);
 
   useEffect(() => {

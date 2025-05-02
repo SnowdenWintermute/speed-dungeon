@@ -67,7 +67,6 @@ export abstract class ItemNamer {
       }
     }
 
-    // @TODO name items with more than 1 suffix and 1 prefix
     const firstPrefixName = prefixNames[0] ? prefixNames[0] + " " : "";
     const firstSuffixName = suffixNames[0] ? " of " + suffixNames[0] : "";
 

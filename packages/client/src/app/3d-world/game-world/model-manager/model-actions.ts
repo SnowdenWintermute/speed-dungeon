@@ -1,4 +1,3 @@
-import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import {
   ActionCommandPayload,
@@ -6,12 +5,10 @@ import {
   HoldableHotswapSlot,
   TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
-import { EnvironmentModelTypes } from "../environment-models/environment-model-paths";
+import { EnvironmentModelTypes } from "../../scene-entities/environment-models/environment-model-paths";
 
 export enum ModelActionType {
   ClearAllModels,
-  SpawnCombatantModel,
-  DespawnCombatantModel,
   ChangeEquipment,
   SelectHotswapSlot,
   ProcessActionCommands,
@@ -21,8 +18,6 @@ export enum ModelActionType {
 }
 
 export const MODEL_ACTION_TYPE_STRINGS: Record<ModelActionType, string> = {
-  [ModelActionType.SpawnCombatantModel]: "Spawn Combatant Model",
-  [ModelActionType.DespawnCombatantModel]: "Despawn Combatant Model",
   [ModelActionType.ChangeEquipment]: "Change Equipment",
   [ModelActionType.SelectHotswapSlot]: "Select Hotswap Slot",
   [ModelActionType.ProcessActionCommands]: "Process Action Commands",
@@ -30,16 +25,6 @@ export const MODEL_ACTION_TYPE_STRINGS: Record<ModelActionType, string> = {
   [ModelActionType.SpawnEnvironmentModel]: "Spawn Environment Model",
   [ModelActionType.DespawnEnvironmentModel]: "Despawn Environment Model",
   [ModelActionType.ClearAllModels]: "Clear All Models",
-};
-
-export type SpawnCombatantModelAction = {
-  type: ModelActionType.SpawnCombatantModel;
-  blueprint: CombatantModelBlueprint;
-};
-
-export type DespawnCombatantModelAction = {
-  type: ModelActionType.DespawnCombatantModel;
-  entityId: string;
 };
 
 export type ChangeEquipmentModelAction = {
@@ -84,8 +69,6 @@ export type ClearAllModelsModelAction = {
 };
 
 export type ModelAction =
-  | SpawnCombatantModelAction
-  | DespawnCombatantModelAction
   | ChangeEquipmentModelAction
   | SelectHotswapSlotModelAction
   | ProcessActionCommandsModelAction

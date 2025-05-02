@@ -1,14 +1,6 @@
-import { Vector3 } from "@babylonjs/core";
-import { CombatAction } from "../combat/combat-actions/index.js";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
-import {
-  CombatantAbility,
-  AbilityName,
-  getAbilityManaCostIfOwned,
-  getAbilityManaCostForCombatant,
-} from "./abilities/index.js";
-import getAbilityIfOwned from "./abilities/get-ability-if-owned.js";
 import combatantCanUseItem from "./can-use-item.js";
 import changeCombatantMana from "./resources/change-mana.js";
 import changeCombatantHitPoints from "./resources/change-hit-points.js";
@@ -18,7 +10,6 @@ import { CombatantSpecies } from "./combatant-species.js";
 import { CombatantTrait, CombatantTraitType } from "./combatant-traits/index.js";
 import dropEquippedItem from "./inventory/drop-equipped-item.js";
 import dropItem from "./inventory/drop-item.js";
-import getAbilityNamesFilteredByUseableContext from "./abilities/get-ability-names-filtered-by-usable-context.js";
 import { getCombatActionPropertiesIfOwned } from "./get-combat-action-properties.js";
 import getCombatantTotalAttributes from "./attributes/get-combatant-total-attributes.js";
 import getCombatantTotalElementalAffinities from "./combatant-traits/get-combatant-total-elemental-affinities.js";
@@ -26,7 +17,7 @@ import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get
 import setResourcesToMax from "./resources/set-resources-to-max.js";
 import { immerable } from "immer";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app-consts.js";
-import { cloneVector3 } from "../utils/index.js";
+import { cloneVector3, iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./experience-points/award-levelups.js";
 import { incrementAttributePoint } from "./attributes/increment-attribute.js";
 import { MonsterType } from "../monsters/monster-types.js";
@@ -36,7 +27,7 @@ import {
   equipItem,
   getEquippedWeapon,
   getSlotItemIsEquippedTo,
-  getUsableWeaponsInSlots,
+  getWeaponsInSlots,
   unequipSlots,
 } from "./combatant-equipment/index.js";
 import { CombatAttribute } from "./attributes/index.js";
@@ -44,19 +35,25 @@ import { getOwnedEquipment } from "./inventory/get-owned-items.js";
 import { EntityId } from "../primatives/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { canPickUpItem } from "./inventory/can-pick-up-item.js";
-import { getAllUsableActionsCombatantCanPerform } from "./get-all-usable-actions-combatant-can-perform.js";
-import { combatantCanUseOwnedAbility } from "./abilities/can-use-owned-ability.js";
 import { EntityProperties } from "../primatives/index.js";
 import { Inventory } from "./inventory/index.js";
+import { CombatActionName } from "../combat/combat-actions/index.js";
+import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
+import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
+import { getAllCurrentlyUsableActionNames } from "./owned-actions/get-all-currently-usable-action-names.js";
+import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
+import { CombatantCondition } from "./combatant-conditions/index.js";
+import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
 export * from "./combatant-traits/index.js";
-export * from "./abilities/index.js";
+export * from "./owned-actions/index.js";
 export * from "./get-combat-action-properties.js";
 export * from "./inventory/index.js";
 export * from "./update-home-position.js";
 export * from "./combatant-equipment/index.js";
+export * from "./combatant-conditions/index.js";
 
 export class Combatant {
   [immerable] = true;
@@ -81,7 +78,7 @@ export class CombatantProperties {
     current: 0,
     requiredForNextLevel: XP_REQUIRED_TO_REACH_LEVEL_2,
   };
-  abilities: Partial<Record<AbilityName, CombatantAbility>> = {};
+  ownedActions: Partial<Record<CombatActionName, CombatantActionState>> = {};
   traits: CombatantTrait[] = [];
   equipment: CombatantEquipment = new CombatantEquipment();
   // holdable equipment hotswap slots
@@ -89,10 +86,14 @@ export class CombatantProperties {
   // - should be consistently accessible by their number (same items each time)
   // - should be limitable by the type of equipment they can hold (shield only, swords only etc)
   inventory: Inventory = new Inventory();
-  selectedCombatAction: null | CombatAction = null;
+  selectedCombatAction: null | CombatActionName = null;
   combatActionTarget: null | CombatActionTarget = null;
   hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   deepestFloorReached: number = 1;
+  position: Vector3;
+  conditions: CombatantCondition[] = [];
+  asUserOfTriggeredCondition?: CombatantCondition;
+  public homeRotation: Quaternion = Quaternion.Zero();
   constructor(
     public combatantClass: CombatantClass,
     public combatantSpecies: CombatantSpecies,
@@ -105,16 +106,8 @@ export class CombatantProperties {
     public controllingPlayer: null | string,
     public homeLocation: Vector3
   ) {
-    this.abilities[AbilityName.Attack] = CombatantAbility.createByName(AbilityName.Attack);
-    this.abilities[AbilityName.AttackMeleeMainhand] = CombatantAbility.createByName(
-      AbilityName.AttackMeleeMainhand
-    );
-    this.abilities[AbilityName.AttackMeleeOffhand] = CombatantAbility.createByName(
-      AbilityName.AttackMeleeOffhand
-    );
-    this.abilities[AbilityName.AttackRangedMainhand] = CombatantAbility.createByName(
-      AbilityName.AttackRangedMainhand
-    );
+    this.position = homeLocation;
+    this.ownedActions[CombatActionName.Attack] = new CombatantActionState(CombatActionName.Attack);
   }
 
   static getCombatActionPropertiesIfOwned = getCombatActionPropertiesIfOwned;
@@ -123,8 +116,8 @@ export class CombatantProperties {
   static getCombatantTotalKineticDamageTypeAffinities =
     getCombatantTotalKineticDamageTypeAffinities;
   static getEquippedWeapon = getEquippedWeapon;
-  static getUsableWeaponsInSlots = getUsableWeaponsInSlots;
-  static getAbilityNamesFilteredByUseableContext = getAbilityNamesFilteredByUseableContext;
+  static getWeaponsInSlots = getWeaponsInSlots;
+  static getActionNamesFilteredByUseableContext = getActionNamesFilteredByUseableContext;
   static getSlotItemIsEquippedTo = getSlotItemIsEquippedTo;
   static getOwnedEquipment = getOwnedEquipment;
   static getOwnedItemById(combatantProperties: CombatantProperties, itemId: EntityId) {
@@ -138,9 +131,7 @@ export class CombatantProperties {
     }
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
-  static getAbilityManaCostIfOwned = getAbilityManaCostIfOwned;
-  static getAbilityManaCost = getAbilityManaCostForCombatant;
-  static getAbilityIfOwned = getAbilityIfOwned;
+  static getOwnedActionState = getOwnedActionState;
   static changeHitPoints = changeCombatantHitPoints;
   static changeMana = changeCombatantMana;
   static clampHpAndMpToMax = clampResourcesToMax;
@@ -157,9 +148,37 @@ export class CombatantProperties {
     Inventory.instantiateItemClasses(combatantProperties.inventory);
     CombatantEquipment.instatiateItemClasses(combatantProperties);
   }
+  static getAllCurrentlyUsableActionNames = getAllCurrentlyUsableActionNames;
 
-  static getAllUsableActions = getAllUsableActionsCombatantCanPerform;
-  static canUseOwnedAbility = combatantCanUseOwnedAbility;
+  static canParry(combatantProperties: CombatantProperties): boolean {
+    const holdables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+    if (!holdables) return false;
+    for (const [slot, equipment] of iterateNumericEnumKeyedRecord(holdables.holdables)) {
+      if (slot === HoldableSlotType.OffHand) continue;
+      const { equipmentType } = equipment.equipmentBaseItemProperties;
+      if (
+        equipmentType === EquipmentType.OneHandedMeleeWeapon ||
+        equipmentType === EquipmentType.TwoHandedMeleeWeapon
+      )
+        return true;
+    }
+    return false;
+  }
+
+  static canCounterattack(combatantProperties: CombatantProperties): boolean {
+    return true;
+  }
+
+  static canBlock(combatantProperties: CombatantProperties): boolean {
+    const holdables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
+    if (!holdables) return false;
+    for (const [slot, equipment] of iterateNumericEnumKeyedRecord(holdables.holdables)) {
+      if (slot === HoldableSlotType.MainHand) continue;
+      const { equipmentType } = equipment.equipmentBaseItemProperties;
+      if (equipmentType === EquipmentType.Shield && !Equipment.isBroken(equipment)) return true;
+    }
+    return false;
+  }
 
   static hasTraitType(combatantProperties: CombatantProperties, traitType: CombatantTraitType) {
     let hasTrait = false;
@@ -170,36 +189,6 @@ export class CombatantProperties {
       }
     }
     return hasTrait;
-  }
-
-  static getPositionForActionUse(
-    user: CombatantProperties,
-    target: CombatantProperties,
-    isMelee: boolean
-  ) {
-    let destinationLocation = user.homeLocation;
-    if (!isMelee) {
-      // assign destination to move a little forward (default ranged attack/spell casting position)
-      const direction = CombatantProperties.getForward(user);
-      destinationLocation = cloneVector3(user.homeLocation).add(direction.scale(0.5));
-    } else {
-      // assign destination based on target location and their hitbox radii
-      // we're recreating this vec3 because when
-      // combatants are copied to the client they don't keep their Vector3 methods
-      const direction = cloneVector3(target.homeLocation).subtract(user.homeLocation).normalize();
-
-      destinationLocation = cloneVector3(target.homeLocation).subtract(
-        direction.scale(target.hitboxRadius + user.hitboxRadius)
-      );
-    }
-
-    const distance = Vector3.Distance(destinationLocation, user.homeLocation);
-
-    const speedMultiplier = 1;
-    const totalTimeToReachDestination =
-      COMBATANT_TIME_TO_MOVE_ONE_METER * speedMultiplier * distance;
-
-    return { destinationLocation, distance, totalTimeToReachDestination };
   }
 
   static getForward(combatantProperties: CombatantProperties) {
@@ -214,3 +203,20 @@ export type ExperiencePoints = {
 };
 
 export type CombatantAttributeRecord = Partial<Record<CombatAttribute, number>>;
+
+/* Since combat actions must have a user, and the user of an action triggered by
+ * a condition is not well defined, we'll create a placeholder */
+export function createTriggeredActionUserCombatant(name: string, condition: CombatantCondition) {
+  const combatant = new Combatant(
+    { id: condition.appliedBy || "0", name },
+    new CombatantProperties(
+      CombatantClass.Mage,
+      CombatantSpecies.Dragon,
+      null,
+      null,
+      Vector3.Zero()
+    )
+  );
+  combatant.combatantProperties.asUserOfTriggeredCondition = condition;
+  return combatant;
+}

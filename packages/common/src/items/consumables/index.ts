@@ -1,7 +1,7 @@
 import { EntityProperties } from "../../primatives/entity-properties.js";
-import getConsumableCombatActionProperties from "./get-consumable-combat-action-properties.js";
 import { Item } from "../index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
+import { CombatActionName } from "../../combat/index.js";
 
 export enum ConsumableType {
   HpAutoinjector,
@@ -19,11 +19,23 @@ export class Consumable extends Item {
   ) {
     super(entityProperties, itemLevel, requirements);
   }
-  static getActionProperties = getConsumableCombatActionProperties;
+
+  getActionName() {
+    return CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE[this.consumableType];
+  }
 }
 
 export const CONSUMABLE_TYPE_STRINGS: Record<ConsumableType, string> = {
   [ConsumableType.HpAutoinjector]: "Green Autoinjector",
   [ConsumableType.MpAutoinjector]: "Blue Autoinjector",
   [ConsumableType.StackOfShards]: "Stack of Shards",
+};
+
+export const CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE: Record<
+  ConsumableType,
+  null | CombatActionName
+> = {
+  [ConsumableType.HpAutoinjector]: CombatActionName.UseGreenAutoinjector,
+  [ConsumableType.MpAutoinjector]: CombatActionName.UseBlueAutoinjector,
+  [ConsumableType.StackOfShards]: null,
 };

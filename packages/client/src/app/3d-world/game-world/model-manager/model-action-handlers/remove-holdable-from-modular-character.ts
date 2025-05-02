@@ -1,13 +1,12 @@
+import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
 import { disposeAsyncLoadedScene } from "@/app/3d-world/utils";
-import { ModelManager } from "..";
 
-export function removeHoldableModelFromModularCharacter(
-  modelManager: ModelManager,
+export function removeHoldableModelFromCharacterModel(
+  modularCharacter: CharacterModel,
   entityId: string,
   holdableId: string
 ) {
-  const modularCharacter = modelManager.combatantModels[entityId];
-  const modelOption = modularCharacter?.equipment.holdables[holdableId];
+  const modelOption = modularCharacter.equipment.holdables[holdableId];
   if (!modelOption) return;
   disposeAsyncLoadedScene(modelOption);
   delete modularCharacter.equipment.holdables[entityId];

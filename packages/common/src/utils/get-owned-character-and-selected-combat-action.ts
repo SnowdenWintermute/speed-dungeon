@@ -1,5 +1,5 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { CombatActionProperties } from "../combat/index.js";
+import { CombatActionComponent } from "../combat/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonPlayer } from "../game/index.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
@@ -8,11 +8,11 @@ import { Combatant } from "../combatants/index.js";
 
 interface CharacterAndSelectedActionData {
   character: Combatant;
-  combatActionProperties: CombatActionProperties;
+  combatAction: CombatActionComponent;
   currentTarget: CombatActionTarget;
 }
 
-export default function getOwnedCharacterAndSelectedCombatAction(
+export function getOwnedCharacterAndSelectedCombatAction(
   party: AdventuringParty,
   player: SpeedDungeonPlayer,
   characterId: string
@@ -25,24 +25,22 @@ export default function getOwnedCharacterAndSelectedCombatAction(
   if (characterResult instanceof Error) return characterResult;
   const character = characterResult;
 
-  if (!character.combatantProperties.selectedCombatAction)
-    return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
   const selectedAction = character.combatantProperties.selectedCombatAction;
+  if (selectedAction === null) return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
 
-  if (!character.combatantProperties.combatActionTarget)
-    return new Error(ERROR_MESSAGES.COMBATANT.NO_TARGET_SELECTED);
   const currentTarget = character.combatantProperties.combatActionTarget;
+  if (!currentTarget) return new Error(ERROR_MESSAGES.COMBATANT.NO_TARGET_SELECTED);
 
-  const combatActionPropertiesResult = getCombatActionPropertiesIfOwned(
+  const combatActionResult = getCombatActionPropertiesIfOwned(
     character.combatantProperties,
     selectedAction
   );
-  if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
-  const combatActionProperties = combatActionPropertiesResult;
+  if (combatActionResult instanceof Error) return combatActionResult;
+  const combatAction = combatActionResult;
 
   return {
     character,
-    combatActionProperties,
+    combatAction,
     currentTarget,
   };
 }

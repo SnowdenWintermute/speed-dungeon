@@ -31,11 +31,6 @@ export function equipItem(
   const { percentOfMaxHitPoints, percentOfMaxMana } =
     getPreEquipmentChangeHpAndManaPercentage(combatantProperties);
 
-  // @TODO: Check if equiping the item would necessitate unequiping multiple items,
-  // (as with equiping a 2h weapon when wielding two 1h items) and
-  // if so, check if there is space in the inventory to accomodate unequiping those
-  // items. Reject if not.
-  //
   const { equipmentType } = equipment.equipmentBaseItemProperties.taggedBaseEquipment;
 
   const possibleSlots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];

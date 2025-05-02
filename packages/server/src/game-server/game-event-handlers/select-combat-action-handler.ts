@@ -1,48 +1,49 @@
 import {
+  COMBAT_ACTION_NAME_STRINGS,
   CharacterAssociatedData,
-  CombatAction,
-  CombatActionProperties,
+  CombatActionComponent,
+  CombatantContext,
   CombatantProperties,
   ServerToClientEvent,
-  SpeedDungeonGame,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons.js";
+import { CombatActionName } from "@speed-dungeon/common";
+import { TargetingCalculator } from "@speed-dungeon/common";
 
-export default function selectCombatActionHandler(
-  eventData: { characterId: string; combatActionOption: null | CombatAction },
+export function selectCombatActionHandler(
+  eventData: { characterId: string; combatActionNameOption: null | CombatActionName },
   characterAssociatedData: CharacterAssociatedData
 ) {
   const gameServer = getGameServer();
-  const { combatActionOption } = eventData;
+  const { combatActionNameOption } = eventData;
 
-  const { character, game, party } = characterAssociatedData;
-  let combatActionPropertiesOption: null | CombatActionProperties = null;
-  if (combatActionOption !== null) {
+  const { character, game, party, player } = characterAssociatedData;
+  let combatActionOption: null | CombatActionComponent = null;
+  if (combatActionNameOption !== null) {
     const combatActionPropertiesResult = CombatantProperties.getCombatActionPropertiesIfOwned(
       character.combatantProperties,
-      combatActionOption
+      combatActionNameOption
     );
     if (combatActionPropertiesResult instanceof Error) return combatActionPropertiesResult;
-    combatActionPropertiesOption = combatActionPropertiesResult;
+    combatActionOption = combatActionPropertiesResult;
   }
 
-  const newTargetsResult = SpeedDungeonGame.assignCharacterActionTargets(
-    game,
-    character.entityProperties.id,
-    characterAssociatedData.player.username,
-    combatActionPropertiesOption
+  const targetingCalculator = new TargetingCalculator(
+    new CombatantContext(game, party, character),
+    player
   );
+  const initialTargetsResult =
+    targetingCalculator.assignInitialCombatantActionTargets(combatActionOption);
+  if (initialTargetsResult instanceof Error) return initialTargetsResult;
 
-  if (newTargetsResult instanceof Error) return newTargetsResult;
-
-  character.combatantProperties.selectedCombatAction = combatActionOption;
+  character.combatantProperties.selectedCombatAction = combatActionNameOption;
 
   gameServer.io
     .in(getPartyChannelName(game.name, party.name))
     .emit(
       ServerToClientEvent.CharacterSelectedCombatAction,
       character.entityProperties.id,
-      combatActionOption
+      combatActionNameOption
     );
 }

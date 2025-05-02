@@ -2,10 +2,9 @@ import {
   CombatAttribute,
   EquipmentBaseItem,
   EquipmentType,
-  HpChangeSource,
-  HpChangeSourceCategory,
+  ResourceChangeSource,
+  ResourceChangeSourceCategory,
   KineticDamageType,
-  MeleeOrRanged,
   NumberRange,
   PrefixType,
   SuffixType,
@@ -17,7 +16,7 @@ import { WeaponGenerationTemplate } from "./equipment-generation-template-abstra
 export class TwoHandedRangedWeaponGenerationTemplate extends WeaponGenerationTemplate {
   constructor(
     public damage: NumberRange,
-    public possibleDamageClassifications: HpChangeSource[],
+    public possibleDamageClassifications: ResourceChangeSource[],
     public equipmentBaseItem: EquipmentBaseItem
   ) {
     if (equipmentBaseItem.equipmentType !== EquipmentType.TwoHandedRangedWeapon)
@@ -71,11 +70,10 @@ export const TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES: Record<
       equipmentType: EquipmentType.TwoHandedRangedWeapon,
       baseItemType: weapon,
     });
-    const mainDamageClassification: null | HpChangeSource = new HpChangeSource(
-      HpChangeSourceCategory.Physical,
-      MeleeOrRanged.Ranged,
-      KineticDamageType.Piercing
-    );
+    const mainDamageClassification: null | ResourceChangeSource = new ResourceChangeSource({
+      category: ResourceChangeSourceCategory.Physical,
+      kineticDamageTypeOption: KineticDamageType.Piercing,
+    });
 
     switch (weapon) {
       case TwoHandedRangedWeapon.ShortBow:
@@ -110,7 +108,7 @@ export const TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.damage = new NumberRange(10, 22);
         template.requirements[CombatAttribute.Dexterity] = 7;
         template.requirements[CombatAttribute.Intelligence] = 13;
-        mainDamageClassification.category = HpChangeSourceCategory.Magical;
+        mainDamageClassification.category = ResourceChangeSourceCategory.Magical;
         template.maxDurability = 7;
         break;
     }

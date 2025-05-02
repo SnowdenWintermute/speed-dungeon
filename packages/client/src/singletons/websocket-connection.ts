@@ -10,12 +10,10 @@ import {
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
 import { Socket, io } from "socket.io-client";
-import setUpBasicLobbyEventHandlers from "@/app/WebsocketManager/basic-lobby-event-handlers";
-import setUpGameLobbyEventHandlers from "@/app/WebsocketManager/lobby-event-handlers";
-import setUpGameEventHandlers from "@/app/WebsocketManager/game-event-handlers";
-import setUpSavedCharacterEventListeners from "@/app/WebsocketManager/saved-character-event-handlers";
-import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+import setUpBasicLobbyEventHandlers from "@/app/websocket-manager/basic-lobby-event-handlers";
+import { setUpGameLobbyEventHandlers } from "@/app/websocket-manager/lobby-event-handlers";
+import setUpGameEventHandlers from "@/app/websocket-manager/game-event-handlers";
+import setUpSavedCharacterEventListeners from "@/app/websocket-manager/saved-character-event-handlers";
 import getCurrentParty from "@/utils/getCurrentParty";
 
 const socketAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
@@ -63,16 +61,6 @@ websocketConnection.on(ServerToClientEvent.ErrorMessage, (message) => {
   useGameStore.getState().mutateState((state) => {
     const partyOption = getCurrentParty(state, state.username || "");
     if (partyOption) InputLock.unlockInput(partyOption.inputLock);
-  });
-});
-
-websocketConnection.on(ServerToClientEvent.ActionCommandPayloads, (payloads) => {
-  if (!gameWorld.current)
-    return console.error("Got action command payloads but no game world was found");
-
-  gameWorld.current.modelManager.modelActionQueue.enqueueMessage({
-    type: ModelActionType.ProcessActionCommands,
-    actionCommandPayloads: payloads,
   });
 });
 

@@ -11,7 +11,7 @@ export async function createCombatantPortrait(combatantId: string) {
   const combatantModelOption = gameWorld.current.modelManager.combatantModels[combatantId];
   if (!combatantModelOption) return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
 
-  let headBoneOption = getChildMeshByName(combatantModelOption.rootMesh, "Head");
+  let headBoneOption = getChildMeshByName(combatantModelOption.rootMesh, "DEF-head");
   if (!headBoneOption) headBoneOption = combatantModelOption.rootMesh;
 
   const headPosition = headBoneOption.getWorldMatrix().getTranslation();

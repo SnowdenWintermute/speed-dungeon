@@ -8,16 +8,14 @@ import {
 } from ".";
 import {
   ClientToServerEvent,
-  CombatAction,
+  CombatActionName,
   CombatantProperties,
-  InputLock,
   NextOrPrevious,
 } from "@speed-dungeon/common";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import clientUserControlsCombatant from "@/utils/client-user-controls-combatant";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
-import getCurrentParty from "@/utils/getCurrentParty";
 import { createCancelButton } from "./common-buttons/cancel";
 
 export const executeHotkey = HOTKEYS.MAIN_1;
@@ -27,7 +25,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
   page = 1;
   numPages: number = 1;
   type = MenuStateType.CombatActionSelected;
-  constructor(public combatAction: CombatAction) {}
+  constructor(public combatActionName: CombatActionName) {}
   getButtonProperties(): ActionButtonsByCategory {
     const toReturn = new ActionButtonsByCategory();
 
@@ -42,7 +40,7 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
     const cancelButton = createCancelButton([], () => {
       websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
         characterId,
-        combatActionOption: null,
+        combatActionNameOption: null,
       });
     });
     toReturn[ActionButtonCategory.Top].push(cancelButton);
@@ -89,15 +87,8 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
           state.detailedEntity = null;
           state.hoveredEntity = null;
 
-          const partyOption = getCurrentParty(state, state.username || "");
-          if (partyOption) InputLock.lockInput(partyOption.inputLock);
           // it should theoretically be unlocked after their action resolves
         });
-        // if (gameWorld.current && gameWorld.current.modelManager.combatantModels[characterId]) {
-        //   gameWorld.current.modelManager.combatantModels[
-        //     characterId
-        //   ]?.animationManager.startAnimationWithTransition(ANIMATION_NAMES.READY, 1500);
-        // }
       }
     );
     executeActionButton.dedicatedKeys = ["Enter", executeHotkey];
@@ -111,13 +102,13 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
 
     const combatActionProperties = CombatantProperties.getCombatActionPropertiesIfOwned(
       combatantProperties,
-      this.combatAction
+      this.combatActionName
     );
     if (combatActionProperties instanceof Error) {
       setAlert(combatActionProperties);
       return toReturn;
     }
-    if (combatActionProperties.targetingSchemes.length <= 1) return toReturn;
+    if (combatActionProperties.targetingProperties.targetingSchemes.length <= 1) return toReturn;
 
     const targetingSchemeHotkey = HOTKEYS.MAIN_2;
     const cycleTargetingSchemesButton = new ActionMenuButtonProperties(

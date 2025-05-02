@@ -1,30 +1,30 @@
 import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
-import { ModularCharacter } from "../../../combatant-models/modular-character";
 import {
   CombatantEquipment,
   CombatantSpecies,
+  SKELETON_FILE_PATHS,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { SKELETONS } from "../../../combatant-models/modular-character/modular-character-parts";
 import { importMesh } from "../../../utils";
 import { GameWorld } from "../../";
-import { ISceneLoaderAsyncResult } from "@babylonjs/core";
-import { getModularCharacterPartCategoriesAndAssetPaths } from "./get-modular-character-parts";
-import { setModularCharacterPartDefaultMaterials } from "./set-modular-character-part-default-materials";
+import { AssetContainer } from "@babylonjs/core";
+import { getCharacterModelPartCategoriesAndAssetPaths } from "./get-modular-character-parts";
+import { setCharacterModelPartDefaultMaterials } from "./set-modular-character-part-default-materials";
+import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
 
-export async function spawnModularCharacter(
+export async function spawnCharacterModel(
   world: GameWorld,
   blueprint: CombatantModelBlueprint
-): Promise<Error | ModularCharacter> {
+): Promise<Error | CharacterModel> {
   const { combatantProperties, entityProperties } = blueprint.combatant;
 
-  const skeletonPath = SKELETONS[combatantProperties.combatantSpecies];
+  const skeletonPath = SKELETON_FILE_PATHS[combatantProperties.combatantSpecies];
 
   const skeleton = await importMesh(skeletonPath, world.scene);
 
-  const parts = getModularCharacterPartCategoriesAndAssetPaths(combatantProperties);
+  const parts = getCharacterModelPartCategoriesAndAssetPaths(combatantProperties);
 
-  const modularCharacter = new ModularCharacter(
+  const modularCharacter = new CharacterModel(
     entityProperties.id,
     world,
     combatantProperties.monsterType,
@@ -32,11 +32,12 @@ export async function spawnModularCharacter(
     combatantProperties.combatantClass,
     skeleton,
     blueprint.modelDomPositionElement,
-    blueprint.startPosition,
-    blueprint.startRotation
+    null,
+    blueprint.homePosition,
+    blueprint.homeRotation
   );
 
-  const partPromises: Promise<ISceneLoaderAsyncResult | Error>[] = [];
+  const partPromises: Promise<AssetContainer | Error>[] = [];
 
   for (const part of parts) {
     const { assetPath } = part;
@@ -53,7 +54,7 @@ export async function spawnModularCharacter(
           return resolve(partResult);
         }
 
-        setModularCharacterPartDefaultMaterials(partResult, combatantProperties);
+        setCharacterModelPartDefaultMaterials(partResult, combatantProperties);
         resolve(partResult);
       })
     );
@@ -83,6 +84,10 @@ export async function spawnModularCharacter(
   }
 
   modularCharacter.updateBoundingBox();
+
+  modularCharacter.startIdleAnimation(0, {});
+
+  modularCharacter.setVisibility(1);
 
   return modularCharacter;
 }

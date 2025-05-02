@@ -1,15 +1,23 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import getCombatantInParty from "../../adventuring-party/get-combatant-in-party.js";
 import { TargetCategories } from "../combat-actions/targeting-schemes-and-categories.js";
-import { ProhibitedTargetCombatantStates } from "../combat-actions/prohibited-target-combatant-states.js";
+import {
+  PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS,
+  PROHIBITED_TARGET_COMBATANT_STATE_STRINGS,
+  ProhibitedTargetCombatantStates,
+} from "../combat-actions/prohibited-target-combatant-states.js";
+import { EntityId } from "../../primatives/index.js";
 
 export function filterPossibleTargetIdsByProhibitedCombatantStates(
   party: AdventuringParty,
   prohibitedStates: null | ProhibitedTargetCombatantStates[],
   allyIds: string[],
-  opponentIdsOption: null | string[]
-): Error | [string[], null | string[]] {
-  if (prohibitedStates === null) return [allyIds, opponentIdsOption];
+  opponentIdsOption: string[]
+): Error | [string[], string[]] {
+  if (prohibitedStates === null) {
+    console.log("no prohibitedStates");
+    return [allyIds, opponentIdsOption];
+  }
   const filteredAllyIdsResult = filterTargetIdGroupByProhibitedCombatantStates(
     party,
     allyIds,
@@ -17,9 +25,9 @@ export function filterPossibleTargetIdsByProhibitedCombatantStates(
   );
   if (filteredAllyIdsResult instanceof Error) return filteredAllyIdsResult;
 
-  let filteredOpponentIdsOption = null;
+  let filteredOpponentIdsOption: EntityId[] = [];
 
-  if (opponentIdsOption) {
+  if (opponentIdsOption.length) {
     const filteredOpponentIdsResult = filterTargetIdGroupByProhibitedCombatantStates(
       party,
       opponentIdsOption,
@@ -32,7 +40,7 @@ export function filterPossibleTargetIdsByProhibitedCombatantStates(
   return [filteredAllyIdsResult, filteredOpponentIdsOption];
 }
 
-function filterTargetIdGroupByProhibitedCombatantStates(
+export function filterTargetIdGroupByProhibitedCombatantStates(
   party: AdventuringParty,
   potentialIds: string[],
   prohibitedStates: ProhibitedTargetCombatantStates[]
@@ -46,14 +54,9 @@ function filterTargetIdGroupByProhibitedCombatantStates(
     let targetIsInProhibitedState = false;
 
     for (const combatantState of prohibitedStates) {
-      switch (combatantState) {
-        case ProhibitedTargetCombatantStates.Dead:
-          if (combatantProperties.hitPoints <= 0) targetIsInProhibitedState = true;
-          break;
-        case ProhibitedTargetCombatantStates.Alive:
-          if (combatantProperties.hitPoints > 0) targetIsInProhibitedState = true;
-          break;
-      }
+      targetIsInProhibitedState =
+        PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS[combatantState](combatantResult);
+      if (targetIsInProhibitedState) break;
     }
 
     if (targetIsInProhibitedState) continue;
@@ -67,15 +70,15 @@ export function filterPossibleTargetIdsByActionTargetCategories(
   targetCategories: TargetCategories,
   actionUserId: string,
   allyIds: string[],
-  opponentIdsOption: null | string[]
-): [null | string[], null | string[]] {
+  opponentIdsOption: string[]
+): [string[], string[]] {
   switch (targetCategories) {
     case TargetCategories.Opponent:
-      return [null, opponentIdsOption];
+      return [[], opponentIdsOption];
     case TargetCategories.User:
-      return [[actionUserId], null];
+      return [[actionUserId], []];
     case TargetCategories.Friendly:
-      return [allyIds, null];
+      return [allyIds, []];
     case TargetCategories.Any:
       return [allyIds, opponentIdsOption];
   }

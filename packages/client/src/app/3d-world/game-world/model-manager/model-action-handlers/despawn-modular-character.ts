@@ -1,13 +1,16 @@
 import { disposeAsyncLoadedScene } from "@/app/3d-world/utils";
 import { GameWorld } from "../..";
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
-import { ModularCharacter } from "@/app/3d-world/combatant-models/modular-character";
+import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
 
-export function despawnModularCharacter(
+export function despawnCharacterModel(
   world: GameWorld,
-  toRemove: ModularCharacter
+  toRemove: CharacterModel
 ): Error | void {
   if (!toRemove) return new Error("tried to remove a combatant model that doesn't exist");
+
+  toRemove.cosmeticEffectManager.cleanup();
+
   toRemove.rootTransformNode.dispose();
   if (toRemove.debugMeshes)
     for (const mesh of Object.values(toRemove.debugMeshes)) {
@@ -26,6 +29,4 @@ export function despawnModularCharacter(
   for (const model of Object.values(toRemove.equipment.holdables)) {
     disposeAsyncLoadedScene(model);
   }
-
-  toRemove.modelActionManager.removeActiveModelAction();
 }

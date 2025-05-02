@@ -1,13 +1,12 @@
 import { immerable } from "immer";
 import { GameState, useGameStore } from ".";
-import { CombatantModelActionType } from "@/app/3d-world/combatant-models/model-action-manager/model-actions";
 import { FloatingMessage } from "./floating-messages";
 
 export class BabylonControlledCombatantData {
   [immerable] = true;
   debugMessages: CombatantModelDebugMessage[] = [];
+  debugHtml: string = "";
   floatingMessages: FloatingMessage[] = [];
-  activeModelAction: null | CombatantModelActionType = null;
   constructor() {}
 }
 
@@ -19,7 +18,12 @@ export class CombatantModelDebugMessage {
   ) {}
 }
 
-export function setDebugMessage(combatantId: string, message: string, displayTime: number) {
+export function setDebugMessage(
+  combatantId: string,
+  message: string,
+  displayTime: number,
+  onComplete?: () => void
+) {
   let id: string;
   useGameStore.getState().mutateState((gameState) => {
     id = gameState.lastDebugMessageId.toString();
@@ -33,6 +37,7 @@ export function setDebugMessage(combatantId: string, message: string, displayTim
     gameState.lastDebugMessageId += 1;
   });
   setTimeout(() => {
+    if (onComplete) onComplete();
     useGameStore.getState().mutateState((gameState) => {
       removeDebugMessage(gameState, combatantId, id);
     });

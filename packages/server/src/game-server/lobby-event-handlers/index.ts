@@ -9,7 +9,7 @@ import joinPartyHandler from "./join-party-handler.js";
 import { applyMiddlewares } from "../event-middleware/index.js";
 import { playerInGame } from "../event-middleware/get-player-associated-data.js";
 import createPartyHandler from "./create-party-handler.js";
-import toggleReadyToStartGameHandler from "./toggle-ready-to-start-game-handler.js";
+import { toggleReadyToStartGameHandler } from "./toggle-ready-to-start-game-handler.js";
 import leavePartyHandler from "./leave-party-handler.js";
 import leaveGameHandler from "./leave-game-handler.js";
 import joinGameHandler from "./join-game-handler.js";

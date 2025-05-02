@@ -27,12 +27,16 @@ export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTextu
 
   this.scene.clearColor = new Color4(0, 0, 0, 0);
 
-  // this.scene.fogMode = 3;
-  // this.scene.fogStart = 5;
-  // this.scene.fogEnd = 10;
-  // this.scene.fogColor = new Color3(255, 255, 255);
+  // this.scene.fogMode = 1;
+  // this.scene.fogStart = 0;
+  // this.scene.fogEnd = 100;
+  // this.scene.fogColor = new Color3(0.9, 0.9, 0.85);
+  // this.scene.fogDensity = 0.02;
   // CAMERA
-  const camera = new ArcRotateCamera("camera", 1.57, 1.26, 4.29, new Vector3(0, 1, 0), this.scene);
+  const camera = new ArcRotateCamera("camera", 0, 0, 0, new Vector3(0, 1, 0), this.scene);
+  camera.alpha = Math.PI / 2;
+  camera.beta = (Math.PI / 5) * 2;
+  camera.radius = 4.28;
   camera.wheelDeltaPercentage = 0.01;
   camera.attachControl();
   camera.minZ = 0;

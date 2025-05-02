@@ -1,4 +1,4 @@
-import { HpChangeSource } from "../../../combat/hp-change-source-types.js";
+import { ResourceChangeSource } from "../../../combat/hp-change-source-types.js";
 import { NumberRange } from "../../../primatives/number-range.js";
 import {
   EquipmentType,
@@ -17,7 +17,7 @@ export interface WeaponProperties {
     | EquipmentType.TwoHandedMeleeWeapon
     | EquipmentType.TwoHandedRangedWeapon;
   damage: NumberRange;
-  damageClassification: HpChangeSource[];
+  damageClassification: ResourceChangeSource[];
 }
 
 export function equipmentIsTwoHandedWeapon(equipmentType: EquipmentType) {

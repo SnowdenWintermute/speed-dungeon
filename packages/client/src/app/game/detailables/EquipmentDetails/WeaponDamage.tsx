@@ -2,7 +2,7 @@ import {
   AffixType,
   Equipment,
   EquipmentType,
-  HpChangeSource,
+  ResourceChangeSource,
   PrefixType,
   SuffixType,
   WeaponProperties,
@@ -17,7 +17,7 @@ interface Props {
 
 export default function WeaponDamage({ equipment }: Props) {
   let damageOption: null | NumberRange = null;
-  let damagetypes: null | HpChangeSource[] = null;
+  let damagetypes: null | ResourceChangeSource[] = null;
 
   let weaponProperties: WeaponProperties;
 

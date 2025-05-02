@@ -1,50 +1,59 @@
+import { ActionPayableResource } from "./combat-actions/index.js";
 import { KineticDamageType } from "./kinetic-damage-types.js";
 import { MagicalElement } from "./magical-elements.js";
 
 // used to designate what properties of a weapon
 // should be applied to an ability
-export enum HpChangeSourceModifiers {
+export enum ResourceChangeSourceModifiers {
   KineticType,
   MagicalElement,
   SourceCategory,
   Lifesteal,
 }
 
-export class HpChangeSource {
-  constructor(
-    public category: HpChangeSourceCategory,
-    public meleeOrRanged: MeleeOrRanged,
-    public kineticDamageTypeOption?: KineticDamageType,
-    public elementOption?: MagicalElement,
-    public unavoidable?: boolean,
-    public isHealing?: boolean,
-    public lifestealPercentage?: number
-  ) {}
+export interface ResourceChangeSourceConfig {
+  category: ResourceChangeSourceCategory;
+  kineticDamageTypeOption?: null | KineticDamageType;
+  elementOption?: null | MagicalElement;
+  isHealing?: null | boolean;
+  lifestealPercentage?: null | number;
 }
 
-export enum HpChangeSourceCategory {
+// for sending over the wire
+export class ResourceChangeSource {
+  category: ResourceChangeSourceCategory;
+  kineticDamageTypeOption?: KineticDamageType;
+  elementOption?: MagicalElement;
+  isHealing?: boolean;
+  lifestealPercentage?: number;
+  constructor(config: ResourceChangeSourceConfig) {
+    this.category = config.category;
+    if (config.kineticDamageTypeOption !== null)
+      this.kineticDamageTypeOption = config.kineticDamageTypeOption;
+    if (config.elementOption !== null) this.elementOption = config.elementOption;
+    if (config.isHealing !== null) this.isHealing = config.isHealing;
+    if (config.lifestealPercentage !== null) this.lifestealPercentage = config.lifestealPercentage;
+  }
+}
+
+export enum ResourceChangeSourceCategory {
   Physical,
   Magical,
   Medical,
   Direct,
 }
 
-export enum MeleeOrRanged {
-  Melee,
-  Ranged,
-}
-
-export const HP_CHANGE_SOURCE_CATEGORY_STRINGS: Record<HpChangeSourceCategory, string> = {
-  [HpChangeSourceCategory.Physical]: "Physical",
-  [HpChangeSourceCategory.Magical]: "Magical",
-  [HpChangeSourceCategory.Medical]: "Medical",
-  [HpChangeSourceCategory.Direct]: "Direct",
+export const HP_CHANGE_SOURCE_CATEGORY_STRINGS: Record<ResourceChangeSourceCategory, string> = {
+  [ResourceChangeSourceCategory.Physical]: "Physical",
+  [ResourceChangeSourceCategory.Magical]: "Magical",
+  [ResourceChangeSourceCategory.Medical]: "Medical",
+  [ResourceChangeSourceCategory.Direct]: "Direct",
 };
 
-export class HpChange {
+export class ResourceChange {
   constructor(
     public value: number,
-    public source: HpChangeSource,
+    public source: ResourceChangeSource,
     public isCrit?: boolean
   ) {}
 }

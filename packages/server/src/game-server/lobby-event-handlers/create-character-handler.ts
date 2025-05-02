@@ -15,8 +15,9 @@ export default function createCharacterHandler(
   eventData: { name: string; combatantClass: CombatantClass },
   playerAssociatedData: ServerPlayerAssociatedData
 ) {
-  const { game, player, session } = playerAssociatedData;
+  const { game, partyOption, player, session } = playerAssociatedData;
   if (!player.partyName) return new Error(ERROR_MESSAGES.PLAYER.MISSING_PARTY_NAME);
+  if (partyOption === undefined) return new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
 
   const { name, combatantClass } = eventData;
 
@@ -24,7 +25,7 @@ export default function createCharacterHandler(
     return new Error(ERROR_MESSAGES.COMBATANT.MAX_NAME_LENGTH_EXCEEDED);
   const newCharacter = createCharacter(name, combatantClass);
   if (newCharacter instanceof Error) return newCharacter;
-  addCharacterToParty(game, player, newCharacter, isBrowser());
+  addCharacterToParty(game, partyOption, player, newCharacter, isBrowser());
 
   const newCharacterId = newCharacter.entityProperties.id;
 

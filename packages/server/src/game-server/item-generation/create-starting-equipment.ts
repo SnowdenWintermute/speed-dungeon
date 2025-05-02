@@ -1,18 +1,21 @@
 import {
+  AffixType,
   Amulet,
   BodyArmor,
   CombatantClass,
   CombatantProperties,
   ERROR_MESSAGES,
   Equipment,
+  EquipmentTraitType,
   EquipmentType,
   HeadGear,
   HoldableSlotType,
-  MaxAndCurrent,
   OneHandedMeleeWeapon,
+  PrefixType,
   Ring,
   Shield,
   TwoHandedMeleeWeapon,
+  TwoHandedRangedWeapon,
   WearableSlotType,
 } from "@speed-dungeon/common";
 import { generateSpecificEquipmentType } from "./generate-test-items.js";
@@ -27,16 +30,31 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
     case CombatantClass.Warrior:
       mainhand = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.Stick,
+          equipmentType: EquipmentType.TwoHandedRangedWeapon,
+          baseItemType: TwoHandedRangedWeapon.ShortBow,
         },
         true
       );
-      offhand = generateSpecificEquipmentType(
-        { equipmentType: EquipmentType.Shield, baseItemType: Shield.PotLid },
-        true
-      );
-      // startingEquipment[EquipmentSlot.MainHand]
+      // mainhand = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      //     // baseItemType: OneHandedMeleeWeapon.ShortSpear,
+      //     baseItemType: OneHandedMeleeWeapon.IceBlade,
+      //     // equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+      //   },
+      //   true
+      // );
+      // offhand = generateSpecificEquipmentType(
+      //   {
+      //     // equipmentType: EquipmentType.Shield,
+      //     // baseItemType: Shield.GothicShield,
+
+      //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      //     // baseItemType: OneHandedMeleeWeapon.ShortSpear,
+      //     baseItemType: OneHandedMeleeWeapon.BroadSword,
+      //   },
+      //   true
+      // );
       break;
     case CombatantClass.Mage:
       mainhand = generateSpecificEquipmentType(
@@ -48,24 +66,53 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       );
       break;
     case CombatantClass.Rogue:
+      // mainhand = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      //     baseItemType: OneHandedMeleeWeapon.ButterKnife,
+      //   },
+      //   true
+      // );
+      // offhand = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      //     baseItemType: OneHandedMeleeWeapon.ButterKnife,
+      //   },
+      //   true
+      // );
       mainhand = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.ButterKnife,
+          equipmentType: EquipmentType.TwoHandedRangedWeapon,
+          baseItemType: TwoHandedRangedWeapon.ShortBow,
         },
         true
       );
-      offhand = generateSpecificEquipmentType(
-        {
-          equipmentType: EquipmentType.OneHandedMeleeWeapon,
-          baseItemType: OneHandedMeleeWeapon.ButterKnife,
-        },
-        true
-      );
+      // offhand = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      //     baseItemType: OneHandedMeleeWeapon.ButterKnife,
+      //   },
+      //   true
+      // );
       break;
   }
 
   if (mainhand instanceof Error) return mainhand;
+  //@ts-ignore
+  mainhand.affixes[AffixType.Prefix][PrefixType.LifeSteal] = {
+    combatAttributes: {},
+    tier: 1,
+    equipmentTraits: {
+      [EquipmentTraitType.LifeSteal]: {
+        equipmentTraitType: EquipmentTraitType.LifeSteal,
+        value: 10,
+      },
+    },
+  };
+  mainhand.durability = { current: 10000, inherentMax: 10000 };
+
+  // if (mainhand.durability) mainhand.durability.current = 1;
+
   if (offhand instanceof Error) return offhand;
 
   repairEquipment(mainhand);

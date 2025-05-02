@@ -2,12 +2,12 @@ import {
   CombatAttribute,
   EquipmentBaseItem,
   EquipmentType,
-  HpChangeSource,
-  HpChangeSourceCategory,
+  ResourceChangeSource,
+  ResourceChangeSourceCategory,
   KineticDamageType,
   MagicalElement,
-  MeleeOrRanged,
   NumberRange,
+  ONE_HANDED_MELEE_WEAPON_NAMES,
   OneHandedMeleeWeapon,
   PrefixType,
   SuffixType,
@@ -18,7 +18,7 @@ import { WeaponGenerationTemplate } from "./equipment-generation-template-abstra
 export class OneHandedMeleeWeaponGenerationTemplate extends WeaponGenerationTemplate {
   constructor(
     public damage: NumberRange,
-    public possibleDamageClassifications: HpChangeSource[],
+    public possibleDamageClassifications: ResourceChangeSource[],
     public equipmentBaseItem: EquipmentBaseItem
   ) {
     if (equipmentBaseItem.equipmentType !== EquipmentType.OneHandedMeleeWeapon)
@@ -72,11 +72,11 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
       baseItemType: weapon,
     });
-    let mainDamageClassification: null | HpChangeSource = new HpChangeSource(
-      HpChangeSourceCategory.Physical,
-      MeleeOrRanged.Melee,
-      KineticDamageType.Blunt
-    );
+
+    let mainDamageClassification: null | ResourceChangeSource = new ResourceChangeSource({
+      category: ResourceChangeSourceCategory.Physical,
+      kineticDamageTypeOption: KineticDamageType.Blunt,
+    });
 
     switch (weapon) {
       case OneHandedMeleeWeapon.Stick:
@@ -140,17 +140,16 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.damage = new NumberRange(6, 15);
         template.numDamageClassifications = 2;
         mainDamageClassification = null;
+
         template.possibleDamageClassifications = [
-          new HpChangeSource(
-            HpChangeSourceCategory.Physical,
-            MeleeOrRanged.Melee,
-            KineticDamageType.Slashing
-          ),
-          new HpChangeSource(
-            HpChangeSourceCategory.Physical,
-            MeleeOrRanged.Melee,
-            KineticDamageType.Piercing
-          ),
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
+            kineticDamageTypeOption: KineticDamageType.Slashing,
+          }),
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
+            kineticDamageTypeOption: KineticDamageType.Piercing,
+          }),
         ];
         template.requirements[CombatAttribute.Strength] = 27;
         template.requirements[CombatAttribute.Dexterity] = 15;
@@ -162,16 +161,14 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         mainDamageClassification = null;
         template.numDamageClassifications = 2;
         template.possibleDamageClassifications = [
-          new HpChangeSource(
-            HpChangeSourceCategory.Physical,
-            MeleeOrRanged.Melee,
-            KineticDamageType.Slashing
-          ),
-          new HpChangeSource(
-            HpChangeSourceCategory.Physical,
-            MeleeOrRanged.Melee,
-            KineticDamageType.Piercing
-          ),
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
+            kineticDamageTypeOption: KineticDamageType.Slashing,
+          }),
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
+            kineticDamageTypeOption: KineticDamageType.Piercing,
+          }),
         ];
         template.maxDurability = 7;
         break;
@@ -195,20 +192,16 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.damage = new NumberRange(2, 12);
         template.numDamageClassifications = 2;
         mainDamageClassification = null;
-        template.possibleDamageClassifications = template.possibleDamageClassifications =
-          iterateNumericEnum(MagicalElement)
-            .filter(
-              (element) => element !== MagicalElement.Dark && element !== MagicalElement.Light
-            )
-            .map(
-              (element) =>
-                new HpChangeSource(
-                  HpChangeSourceCategory.Physical,
-                  MeleeOrRanged.Melee,
-                  KineticDamageType.Slashing,
-                  element
-                )
-            );
+        template.possibleDamageClassifications = iterateNumericEnum(MagicalElement)
+          .filter((element) => element !== MagicalElement.Dark && element !== MagicalElement.Light)
+          .map(
+            (element) =>
+              new ResourceChangeSource({
+                category: ResourceChangeSourceCategory.Physical,
+                kineticDamageTypeOption: KineticDamageType.Slashing,
+                elementOption: element,
+              })
+          );
         template.requirements[CombatAttribute.Strength] = 18;
         template.requirements[CombatAttribute.Dexterity] = 7;
         template.requirements[CombatAttribute.Intelligence] = 3;
@@ -218,7 +211,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(5, 8);
         template.damage = new NumberRange(6, 10);
         mainDamageClassification.kineticDamageTypeOption = KineticDamageType.Slashing;
-        mainDamageClassification.category = HpChangeSourceCategory.Magical;
+        mainDamageClassification.category = ResourceChangeSourceCategory.Magical;
         template.requirements[CombatAttribute.Intelligence] = 5;
         template.requirements[CombatAttribute.Strength] = 13;
         template.maxDurability = 5;
@@ -236,8 +229,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(2, 4);
         template.damage = new NumberRange(1, 8);
         mainDamageClassification.kineticDamageTypeOption = undefined;
-        mainDamageClassification.category = HpChangeSourceCategory.Magical;
-        mainDamageClassification.meleeOrRanged = MeleeOrRanged.Ranged;
+        mainDamageClassification.category = ResourceChangeSourceCategory.Magical;
         template.requirements[CombatAttribute.Intelligence] = 2;
         template.maxDurability = 7;
         break;
@@ -245,8 +237,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(3, 6);
         template.damage = new NumberRange(2, 10);
         mainDamageClassification.kineticDamageTypeOption = undefined;
-        mainDamageClassification.category = HpChangeSourceCategory.Magical;
-        mainDamageClassification.meleeOrRanged = MeleeOrRanged.Ranged;
+        mainDamageClassification.category = ResourceChangeSourceCategory.Magical;
         template.requirements[CombatAttribute.Intelligence] = 10;
         template.maxDurability = 9;
         break;
@@ -254,8 +245,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(5, 7);
         template.damage = new NumberRange(3, 13);
         mainDamageClassification.kineticDamageTypeOption = undefined;
-        mainDamageClassification.category = HpChangeSourceCategory.Magical;
-        mainDamageClassification.meleeOrRanged = MeleeOrRanged.Ranged;
+        mainDamageClassification.category = ResourceChangeSourceCategory.Magical;
         template.requirements[CombatAttribute.Intelligence] = 15;
         template.maxDurability = 12;
         break;
@@ -263,15 +253,15 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(8, 10);
         template.damage = new NumberRange(6, 16);
         mainDamageClassification.kineticDamageTypeOption = undefined;
-        mainDamageClassification.category = HpChangeSourceCategory.Magical;
-        mainDamageClassification.meleeOrRanged = MeleeOrRanged.Ranged;
+        mainDamageClassification.category = ResourceChangeSourceCategory.Magical;
         template.requirements[CombatAttribute.Intelligence] = 20;
         template.maxDurability = 18;
         break;
     }
 
-    if (mainDamageClassification !== null)
+    if (mainDamageClassification !== null) {
       template.possibleDamageClassifications = [mainDamageClassification];
+    }
 
     toReturn[weapon] = template;
   }

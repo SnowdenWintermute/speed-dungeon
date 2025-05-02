@@ -14,7 +14,7 @@ import { CombatantProperties } from "../index.js";
 export * from "./equip-item.js";
 export * from "./unequip-slots.js";
 export * from "./get-equipped-weapon.js";
-export * from "./get-usable-weapons-in-slots.js";
+export * from "./get-weapons-in-slots.js";
 export * from "./get-slot-item-is-equipped-to.js";
 export * from "./change-selected-hotswap-slot.js";
 export * from "./get-pre-equipment-change-hp-and-mana-percentage.js";
@@ -168,5 +168,15 @@ export class CombatantEquipment {
     }
 
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+  }
+
+  static getEquippedShieldProperties(combatantProperties: CombatantProperties) {
+    const offhandOption = CombatantEquipment.getEquipmentInSlot(combatantProperties, {
+      type: EquipmentSlotType.Holdable,
+      slot: HoldableSlotType.OffHand,
+    });
+    if (!offhandOption) return;
+    if (offhandOption.equipmentBaseItemProperties.equipmentType !== EquipmentType.Shield) return;
+    return offhandOption.equipmentBaseItemProperties;
   }
 }

@@ -13,10 +13,8 @@ import {
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
-import { CombatTurnResult } from "@speed-dungeon/common";
-import { NextToBabylonMessage } from "@/singletons/next-to-babylon-message-queue";
-import updateDebugText from "./model-manager/update-debug-text";
-import processMessagesFromNext from "./process-messages-from-next";
+import { IdGenerator } from "@speed-dungeon/common";
+import { updateDebugText } from "./model-manager/update-debug-text";
 import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
 import { clearFloorTexture } from "./clear-floor-texture";
@@ -24,6 +22,10 @@ import drawCharacterSlots from "./draw-character-slots";
 import { SavedMaterials, createDefaultMaterials } from "./materials/create-default-materials";
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
+import { ReplayTreeManager } from "./replay-tree-manager";
+import { testParticleSystem } from "./testing-particle-systems";
+import { testingSounds } from "./testing-sounds";
+import { ActionEntityManager } from "../scene-entities/action-entity-models";
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;
@@ -35,18 +37,20 @@ export class GameWorld {
   portraitCamera: ArcRotateCamera;
   sun: Mesh;
   // shadowGenerator: null | ShadowGenerator = null;
-  messages: NextToBabylonMessage[] = [];
   mouse: Vector3 = new Vector3(0, 1, 0);
   debug: { debugRef: React.RefObject<HTMLUListElement> | null } = { debugRef: null };
   useShadows: boolean = false;
   modelManager: ModelManager = new ModelManager(this);
-  turnResultsQueue: CombatTurnResult[] = [];
   groundTexture: DynamicTexture;
   defaultMaterials: SavedMaterials;
   // imageCreationDefaultMaterials: SavedMaterials;
   numImagesBeingCreated: number = 0;
   imageManager: ImageManager = new ImageManager();
   portraitRenderTarget: RenderTargetTexture;
+  replayTreeManager = new ReplayTreeManager();
+  idGenerator = new IdGenerator();
+  actionEntityManager = new ActionEntityManager();
+  tickCounter: number = 0;
 
   constructor(
     public canvas: HTMLCanvasElement,
@@ -87,21 +91,25 @@ export class GameWorld {
 
     // PIXELATION FILTER
     // pixelate(this.camera, this.scene);
-    //
-
-    // spawnTestEquipmentModels(this);
 
     this.engine.runRenderLoop(() => {
       this.updateGameWorld();
       this.scene.render();
     });
 
-    // this.startLimitedFramerateRenderLoop(10, 3000);
+    // testingSounds();
+
+    // const systemAndMeshOption = testParticleSystem(this.scene)[0];
+    // if (systemAndMeshOption) systemAndMeshOption.particleSystem.start();
+
+    // this.startLimitedFramerateRenderLoop(5, 3000);
   }
 
   updateGameWorld() {
+    this.tickCounter += 1;
     this.updateDebugText();
-    this.processMessagesFromNext();
+    if (this.replayTreeManager.currentTreeCompleted()) this.replayTreeManager.startNext();
+    this.replayTreeManager.process();
 
     if (
       !this.modelManager.modelActionQueue.isProcessing &&
@@ -109,11 +117,20 @@ export class GameWorld {
     )
       this.modelManager.modelActionQueue.processMessages();
 
+    for (const actionEntityModel of this.actionEntityManager.get()) {
+      actionEntityModel.movementManager.processActiveActions();
+      actionEntityModel.animationManager.playing?.animationGroup?.animateScene(
+        actionEntityModel.animationManager.scene
+      );
+      actionEntityModel.animationManager.handleCompletedAnimations();
+      actionEntityModel.animationManager.stepAnimationTransitionWeights();
+    }
+
     for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
       combatantModel.highlightManager.updateHighlight();
-      combatantModel.modelActionManager.processActiveModelAction();
-      combatantModel.animationManager.handleCompletedAnimations();
+      combatantModel.movementManager.processActiveActions();
       combatantModel.animationManager.stepAnimationTransitionWeights();
+      combatantModel.animationManager.handleCompletedAnimations();
       combatantModel.updateDomRefPosition();
     }
   }
@@ -123,7 +140,6 @@ export class GameWorld {
   clearFloorTexture = clearFloorTexture;
   drawCharacterSlots = drawCharacterSlots;
   updateDebugText = updateDebugText;
-  processMessagesFromNext = processMessagesFromNext;
 
   startLimitedFramerateRenderLoop(fps: number, timeout: number) {
     window.setTimeout(() => {

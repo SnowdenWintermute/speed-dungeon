@@ -1,0 +1,43 @@
+export enum CombatActionName {
+  Attack,
+  AttackMeleeMainhand,
+  AttackMeleeOffhand,
+  AttackRangedMainhand,
+  AttackRangedMainhandProjectile,
+  ChainingSplitArrowParent,
+  ChainingSplitArrowProjectile,
+  ExplodingArrowParent,
+  ExplodingArrowProjectile,
+  Explosion,
+  // Fire,
+  IceBoltParent,
+  IceBoltProjectile,
+  IceBurst,
+  // Healing,
+  // Destruction,
+  UseGreenAutoinjector,
+  UseBlueAutoinjector,
+}
+
+export const ACTION_NAMES_TO_HIDE_IN_MENU = [
+  CombatActionName.UseGreenAutoinjector,
+  CombatActionName.UseBlueAutoinjector,
+];
+
+export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
+  [CombatActionName.Attack]: "Attack",
+  [CombatActionName.AttackMeleeMainhand]: "Attack Melee Mainhand",
+  [CombatActionName.AttackMeleeOffhand]: "Attack Melee Offhand",
+  [CombatActionName.AttackRangedMainhand]: "Attack Ranged Mainhand",
+  [CombatActionName.AttackRangedMainhandProjectile]: "Attack Ranged Mainhand Projectile",
+  [CombatActionName.ChainingSplitArrowParent]: "Chaining Split Arrow",
+  [CombatActionName.ChainingSplitArrowProjectile]: "Chaining Split Arrow Projectile",
+  [CombatActionName.ExplodingArrowParent]: "Exploding Arrow",
+  [CombatActionName.ExplodingArrowProjectile]: "Exploding Arrow Projectile",
+  [CombatActionName.Explosion]: "Explosion",
+  [CombatActionName.IceBoltParent]: "Ice Bolt",
+  [CombatActionName.IceBoltProjectile]: "Ice Bolt Projectile",
+  [CombatActionName.IceBurst]: "Ice Burst",
+  [CombatActionName.UseGreenAutoinjector]: "Green Autoinjector",
+  [CombatActionName.UseBlueAutoinjector]: "Blue Autoinjector",
+};

@@ -1,5 +1,4 @@
-import { Combatant } from "../../../combatants/index.js";
-import { CombatAction } from "../../index.js";
+import { CombatActionName } from "../../combat-actions/combat-action-names.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorLeaf, BehaviorNode, Selector, Sequence } from "../behavior-tree.js";
 import { SetAvailableTargetsAndUsableActions } from "./set-available-targets-and-usable-actions.js";
@@ -16,7 +15,7 @@ export class SetSelectedActionAndTargets {
           // collect a list of valid healing targets
           new SetAvailableTargetsAndUsableActions(
             this.context,
-            (action: CombatAction) => {
+            (action: CombatActionName) => {
               throw new Error("Not implemented");
             },
             () => {
@@ -28,7 +27,7 @@ export class SetSelectedActionAndTargets {
           ),
           // choose the most effective healing action on the available targets
           new BehaviorLeaf((context: AIBehaviorContext) => {
-            const mostEffectiveAction: CombatAction | null = null;
+            const mostEffectiveAction: CombatActionName | null = null;
             if (mostEffectiveAction) {
               // set selected action  / targets in context
               return true;
@@ -40,7 +39,7 @@ export class SetSelectedActionAndTargets {
           // collect a list of valid enemy targets
           new SetAvailableTargetsAndUsableActions(
             this.context,
-            (action: CombatAction) => {
+            (action: CombatActionName) => {
               throw new Error("Not implemented");
             },
             () => {
@@ -52,7 +51,7 @@ export class SetSelectedActionAndTargets {
           ),
           new BehaviorLeaf((context: AIBehaviorContext) => {
             // choose most effective targed taking into account the AIHostileTargetSelectionScheme
-            const mostEffectiveAction: CombatAction | null = null;
+            const mostEffectiveAction: CombatActionName | null = null;
             if (mostEffectiveAction) {
               // set selected action  / targets in context
               return true;

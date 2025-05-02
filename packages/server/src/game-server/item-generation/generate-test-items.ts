@@ -50,12 +50,11 @@ export function generateOneOfEachItem() {
     const equipmentType = parseInt(equipmentTypeString) as EquipmentType;
     if (
       ![
-        EquipmentType.BodyArmor,
-        EquipmentType.Shield,
-        // EquipmentType.OneHandedMeleeWeapon,
-        // EquipmentType.TwoHandedMeleeWeapon,
-        // EquipmentType.TwoHandedRangedWeapon,
+        // EquipmentType.BodyArmor,
         // EquipmentType.Shield,
+        EquipmentType.OneHandedMeleeWeapon,
+        EquipmentType.TwoHandedMeleeWeapon,
+        EquipmentType.TwoHandedRangedWeapon,
       ].includes(equipmentType)
     )
       continue;

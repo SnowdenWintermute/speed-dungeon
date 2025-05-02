@@ -4,9 +4,10 @@ import { immer } from "zustand/middleware/immer";
 import { immerable, produce } from "immer";
 import {
   AdventuringParty,
-  CombatAction,
+  CombatActionName,
   CombatAttribute,
   Combatant,
+  CombatantAssociatedData,
   ERROR_MESSAGES,
   EntityId,
   Item,
@@ -31,6 +32,7 @@ import { PurchaseItemsMenuState } from "@/app/game/ActionMenu/menu-state/purchas
 import { CraftingItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/crafting-item-selection";
 import { RepairItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/repair-item-selection";
 import { ConvertToShardItemSelectionMenuState } from "@/app/game/ActionMenu/menu-state/convert-to-shard-item-selection";
+import getCurrentParty from "@/utils/getCurrentParty";
 
 export enum MenuContext {
   InventoryItems,
@@ -52,7 +54,7 @@ export class GameState {
   hoveredEntity: null | Combatant | Item = null;
   comparedItem: null | Item = null;
   comparedSlot: null | TaggedEquipmentSlot = null;
-  hoveredAction: null | CombatAction = null;
+  hoveredAction: null | CombatActionName = null;
   actionMenuCurrentPageNumber: number = 0;
   actionMenuParentPageNumbers: number[] = [];
   combatLogMessages: CombatLogMessage[] = [];
@@ -60,7 +62,7 @@ export class GameState {
   combatantModelLoadingStates: { [combantatId: EntityId]: boolean } = {};
   babylonControlledCombatantDOMData: { [combatantId: string]: BabylonControlledCombatantData } = {};
   combatantFloatingMessages: { [combatantId: string]: FloatingMessage[] } = {};
-  testText: string = "test";
+  testVar: boolean = false;
   itemThumbnails: { [itemId: string]: string } = {};
   combatantPortraits: { [combatantId: EntityId]: string } = {};
   consideredItemUnmetRequirements: null | CombatAttribute[] = null;
@@ -68,6 +70,13 @@ export class GameState {
   viewingLeaveGameModal: boolean = false;
   viewingDropShardsModal: boolean = false;
   combatantsWithPendingCraftActions: Partial<Record<EntityId, boolean>> = {};
+  rerenderForcer: number = 0;
+  targetingIndicators: {
+    targetedBy: EntityId;
+    targetId: EntityId;
+    actionName: CombatActionName;
+  }[] = [];
+
   getCurrentBattleId: () => null | string = () => {
     const party = this.getParty();
     if (party instanceof Error) return null;
@@ -100,6 +109,7 @@ export class GameState {
     public mutateState: MutateState<GameState>,
     public get: () => GameState,
     public getActiveCombatant: () => Error | null | Combatant,
+    public getCombatant: (entityId: EntityId) => Error | Combatant,
     public getParty: () => Error | AdventuringParty,
     public getCurrentMenu: () => ActionMenuState
   ) {
@@ -115,6 +125,16 @@ export const useGameStore = create<GameState>()(
           (fn: (state: GameState) => void) => set(produce(fn)),
           get,
           () => getActiveCombatant(get()),
+          (entityId: EntityId) => {
+            const state = get();
+            const gameOption = state.game;
+            if (!gameOption) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+            const game = gameOption;
+            if (!state.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+            const combatantResult = SpeedDungeonGame.getCombatantById(game, entityId);
+            if (combatantResult instanceof Error) return combatantResult;
+            return combatantResult;
+          },
           () => getParty(get().game, get().username),
           () => getCurrentMenu(get())
         ),
@@ -146,4 +166,22 @@ export function getCurrentMenu(state: GameState) {
   const topStackedMenu = state.stackedMenuStates[state.stackedMenuStates.length - 1];
   if (topStackedMenu) return topStackedMenu;
   else return state.baseMenuState;
+}
+
+export function getCombatantContext(
+  gameState: GameState,
+  combatantId: EntityId
+): Error | CombatantAssociatedData {
+  const gameOption = gameState.game;
+
+  if (!gameOption) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
+  const game = gameOption;
+  if (!gameState.username) return new Error(ERROR_MESSAGES.CLIENT.NO_USERNAME);
+  const partyOptionResult = getCurrentParty(gameState, gameState.username);
+  if (partyOptionResult instanceof Error) return partyOptionResult;
+  if (partyOptionResult === undefined) return new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+  const party = partyOptionResult;
+  const combatantResult = SpeedDungeonGame.getCombatantById(game, combatantId);
+  if (combatantResult instanceof Error) return combatantResult;
+  return { game, party, combatant: combatantResult };
 }

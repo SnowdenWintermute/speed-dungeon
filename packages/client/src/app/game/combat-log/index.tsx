@@ -1,14 +1,32 @@
 import Divider from "@/app/components/atoms/Divider";
 import { useGameStore } from "@/stores/game-store";
-import React from "react";
+import React, { useState } from "react";
 import { CombatLogMessage, CombatLogMessageStyle } from "./combat-log-message";
+import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 
 export default function CombatLog() {
+  const [expanded, setExpanded] = useState(false);
   const combatLogMessages = useGameStore().combatLogMessages;
 
+  const expandedStyle = expanded
+    ? "absolute bg-slate-700 p-2 top-0 right-0 h-screen w-screen"
+    : "h-full";
+
+  const expandButtonText = expanded ? "Restore (L)" : "Maximize (L)";
+
   return (
-    <div className="h-full flex flex-col pointer-events-auto">
-      <h3 className="flex-grow-0 flex-shrink">Message Log</h3>
+    <div className={`flex flex-col pointer-events-auto ${expandedStyle}`}>
+      <div className="flex justify-between">
+        <h3 className="flex-grow-0 flex-shrink">Message Log</h3>
+        <HotkeyButton
+          onClick={() => {
+            setExpanded(!expanded);
+          }}
+          hotkeys={["KeyL"]}
+        >
+          {expandButtonText}
+        </HotkeyButton>
+      </div>
       <Divider />
       <div className="list-none overflow-y-auto flex flex-col-reverse flex-1 pb-[4px]">
         <ul>
@@ -29,6 +47,9 @@ function CombatLogMessageElement({ message }: { message: CombatLogMessage }) {
       break;
     case CombatLogMessageStyle.Healing:
       color = "text-green-600";
+      break;
+    case CombatLogMessageStyle.Mana:
+      color = "text-blue-600";
       break;
     case CombatLogMessageStyle.PartyProgress:
       color = "text-yellow-400";

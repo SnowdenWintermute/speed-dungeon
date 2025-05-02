@@ -4,7 +4,7 @@ import {
   EquipmentBaseItem,
   EquipmentBaseItemType,
   EquipmentType,
-  HpChangeSource,
+  ResourceChangeSource,
   WeaponProperties,
   shuffleArray,
 } from "@speed-dungeon/common";
@@ -39,7 +39,7 @@ export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
         `missing template for equipment type ${EQUIPMENT_TYPE_STRINGS[baseEquipmentItem.equipmentType]}, specific item ${baseEquipmentItem.baseItemType}`
       );
     // roll damageClassifications from possible list
-    let damageClassifications: HpChangeSource[] = [];
+    let damageClassifications: ResourceChangeSource[] = [];
     let shuffledPossibleClassifications = shuffleArray(
       cloneDeep(template.possibleDamageClassifications)
     );
@@ -60,6 +60,7 @@ export class WeaponGenerationBuilder<T extends WeaponGenerationTemplate>
       damage: template.damage,
       damageClassification: damageClassifications,
     };
+
     return properties;
   }
 }

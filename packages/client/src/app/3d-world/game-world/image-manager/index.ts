@@ -114,7 +114,7 @@ export class ImageManager {
     const equipmentModelResult = await spawnItemModel(item, this.scene, this.materials, false);
     if (equipmentModelResult instanceof Error) {
       this.processNextMessage();
-      return console.error("no equipment model");
+      return console.error(equipmentModelResult.message);
     }
     const parentMesh = equipmentModelResult.meshes[0];
     if (!parentMesh) return console.error("no parent mesh");

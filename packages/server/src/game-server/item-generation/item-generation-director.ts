@@ -1,6 +1,5 @@
-import { Affixes, Consumable, Equipment, ItemType } from "@speed-dungeon/common";
+import { Affixes, Consumable, Equipment, IdGenerator, ItemType } from "@speed-dungeon/common";
 import { ItemGenerationBuilder, TaggedBaseItem } from "./item-generation-builder";
-import { IdGenerator } from "../../singletons";
 
 export class ItemGenerationDirector {
   constructor(public builder: ItemGenerationBuilder) {}
@@ -40,6 +39,7 @@ export class ItemGenerationDirector {
           baseItemResult.taggedBaseEquipment
         );
         if (equipmentBaseItemProperties instanceof Error) return equipmentBaseItemProperties;
+
         const durabilityResult = builder.buildDurability(baseItemResult.taggedBaseEquipment);
         if (durabilityResult instanceof Error) return durabilityResult;
 

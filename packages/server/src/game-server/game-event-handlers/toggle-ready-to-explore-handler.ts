@@ -17,12 +17,12 @@ import { DungeonRoomType } from "@speed-dungeon/common";
 import { tickCombatUntilNextCombatantIsActive } from "@speed-dungeon/common";
 import { DescendOrExplore } from "@speed-dungeon/common";
 import { idGenerator, getGameServer } from "../../singletons.js";
-import generateDungeonRoom from "../dungeon-room-generation/index.js";
+import { generateDungeonRoom } from "../dungeon-room-generation/index.js";
 import { writeAllPlayerCharacterInGameToDb } from "../saved-character-event-handlers/write-player-characters-in-game-to-db.js";
 import { ServerPlayerAssociatedData } from "../event-middleware/index.js";
 import { processBattleUntilPlayerTurnOrConclusion } from "./character-uses-selected-combat-action-handler/process-battle-until-player-turn-or-conclusion.js";
 
-export default async function toggleReadyToExploreHandler(
+export async function toggleReadyToExploreHandler(
   _eventData: undefined,
   data: ServerPlayerAssociatedData
 ): Promise<Error | void> {
@@ -97,7 +97,40 @@ export async function exploreNextRoom(
     return new Error(ERROR_MESSAGES.SERVER_GENERIC);
   }
   const roomTypeToGenerate: DungeonRoomType = roomTypeToGenerateOption;
+
+  putPartyInNextRoom(game, party, roomTypeToGenerate);
+
+  const partyChannelName = getPartyChannelName(game.name, party.name);
+  this.io.to(partyChannelName).emit(ServerToClientEvent.DungeonRoomUpdate, party.currentRoom);
+
+  if (party.battleId === null) return;
+
+  const battleOption = game.battles[party.battleId];
+  if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
+  const battle = battleOption;
+  this.io
+    .in(getPartyChannelName(game.name, party.name))
+    .emit(ServerToClientEvent.BattleFullUpdate, battle);
+
+  if (battle.turnTrackers[0] === undefined)
+    return new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
+
+  const battleProcessingPayloadsResult = await processBattleUntilPlayerTurnOrConclusion(
+    this,
+    game,
+    party,
+    battleOption
+  );
+  if (battleProcessingPayloadsResult instanceof Error) return battleProcessingPayloadsResult;
+}
+
+export function putPartyInNextRoom(
+  game: SpeedDungeonGame,
+  party: AdventuringParty,
+  roomTypeToGenerate: DungeonRoomType
+) {
   const newRoom = generateDungeonRoom(party.currentFloor, roomTypeToGenerate);
+  console.log("generated room");
   party.currentRoom = newRoom;
 
   for (const monster of Object.values(party.currentRoom.monsters))
@@ -105,9 +138,6 @@ export async function exploreNextRoom(
 
   party.roomsExplored.onCurrentFloor += 1;
   party.roomsExplored.total += 1;
-
-  const partyChannelName = getPartyChannelName(game.name, party.name);
-  this.io.to(partyChannelName).emit(ServerToClientEvent.DungeonRoomUpdate, party.currentRoom);
 
   if (Object.keys(newRoom.monsters).length > 0) {
     const battleGroupA = new BattleGroup(
@@ -127,30 +157,6 @@ export async function exploreNextRoom(
     if (battleIdResult instanceof Error) return battleIdResult;
     party.battleId = battleIdResult;
     tickCombatUntilNextCombatantIsActive(game, battleIdResult);
-
-    const battleOption = game.battles[party.battleId];
-    if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
-    const battle = battleOption;
-    this.io
-      .in(getPartyChannelName(game.name, party.name))
-      .emit(ServerToClientEvent.BattleFullUpdate, battle);
-
-    if (battle.turnTrackers[0] === undefined)
-      return new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
-
-    // if the ai was first to go, then send the result of their turn/potential battle conclusion
-    const battleProcessingPayloadsResult = await processBattleUntilPlayerTurnOrConclusion(
-      this,
-      game,
-      party,
-      battleOption
-    );
-    if (battleProcessingPayloadsResult instanceof Error) return battleProcessingPayloadsResult;
-    if (battleProcessingPayloadsResult.length) {
-      this.io
-        .in(getPartyChannelName(game.name, party.name))
-        .emit(ServerToClientEvent.ActionCommandPayloads, battleProcessingPayloadsResult);
-    }
   }
 }
 

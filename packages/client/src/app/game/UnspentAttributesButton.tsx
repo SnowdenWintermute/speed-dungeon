@@ -26,7 +26,7 @@ export default function UnspentAttributesButton({
   function handleUnspentAttributesButtonClick() {
     websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
       characterId: entityId,
-      combatActionOption: null,
+      combatActionNameOption: null,
     });
 
     const focusedCharacterResult = useGameStore.getState().getFocusedCharacter();

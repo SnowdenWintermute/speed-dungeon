@@ -5,7 +5,7 @@ import {
   CombatantSpecies,
 } from "@speed-dungeon/common";
 import { idGenerator } from "../../singletons.js";
-import outfitNewCharacter from "../item-generation/outfit-new-character.js";
+import { outfitNewCharacter } from "../item-generation/outfit-new-character.js";
 import { generateRandomCharacterName } from "../../utils/index.js";
 import { Vector3 } from "@babylonjs/core";
 

@@ -19,7 +19,6 @@ import { plainToInstance } from "class-transformer";
 export default async function battleResultActionCommandHandler(
   this: ClientActionCommandReceiver,
   _gameName: string,
-  _combatantId: string,
   payload: BattleResultActionCommandPayload
 ) {
   const { timestamp } = payload;

@@ -20,7 +20,7 @@ export async function getBattleConclusionCommandAndPayload(
   }
 ) {
   const gameServer = getGameServer();
-  if (!party.characterPositions[0]) return new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
+  if (!party.characterPositions[0]) throw new Error(ERROR_MESSAGES.PARTY.MISSING_CHARACTERS);
 
   let conclusion: BattleConclusion;
   let loot: { equipment: Equipment[]; consumables: Consumable[] } = {
@@ -41,16 +41,12 @@ export async function getBattleConclusionCommandAndPayload(
     type: ActionCommandType.BattleResult,
     conclusion,
     loot: loot,
+    partyName: party.name,
     experiencePointChanges,
     timestamp: Date.now(),
   };
 
-  const battleConclusionActionCommand = new ActionCommand(
-    game.name,
-    party.characterPositions[0],
-    payload,
-    gameServer
-  );
+  const battleConclusionActionCommand = new ActionCommand(game.name, payload, gameServer);
 
   return { payload, command: battleConclusionActionCommand };
 }

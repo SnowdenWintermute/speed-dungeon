@@ -1,7 +1,11 @@
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/index.js";
 import { Battle, BattleConclusion } from "../battle/index.js";
-import { CombatAction } from "../combat/index.js";
-import { ActionCommandPayload } from "../action-processing/index.js";
+import { CombatActionName } from "../combat/index.js";
+import {
+  ActionCommandPayload,
+  NestedNodeReplayEvent,
+  ReplayEventNode,
+} from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Item } from "../items/index.js";
 import { EntityId, NextOrPrevious } from "../primatives/index.js";
@@ -64,6 +68,7 @@ export enum ServerToClientEvent {
   CharacterPurchasedItem = "43",
   CharacterPerformedCraftingAction = "44",
   PlayerPostedItemLink = "45",
+  // ActionResultReplayTree = "46",
 }
 
 export interface ServerToClientEventTypes {
@@ -124,7 +129,7 @@ export interface ServerToClientEventTypes {
   // [ServerToClientEvent.RawActionResults]: (actionResults: ActionResult[]) => void;
   [ServerToClientEvent.CharacterSelectedCombatAction]: (
     characterId: string,
-    combatActionOption: null | CombatAction
+    combatActionNameOption: null | CombatActionName
   ) => void;
   [ServerToClientEvent.CharacterCycledTargets]: (
     characterId: string,
@@ -169,7 +174,7 @@ export interface ServerToClientEventTypes {
     item: Consumable;
     price: number;
   }) => void;
-  // @TODO - @PERF - can save bandwidth by just sending diffs
+  // @PERF - can save bandwidth by just sending diffs
   [ServerToClientEvent.CharacterPerformedCraftingAction]: (eventData: {
     characterId: EntityId;
     item: Item;
@@ -179,6 +184,10 @@ export interface ServerToClientEventTypes {
     username: string;
     itemId: EntityId;
   }) => void;
+  // [ServerToClientEvent.ActionResultReplayTree]: (eventData: {
+  //   actionUserId: EntityId;
+  //   replayTree: NestedNodeReplayEvent;
+  // }) => void;
 }
 
 export interface CharacterAndItem {

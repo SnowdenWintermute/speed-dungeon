@@ -1,6 +1,6 @@
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { NextOrPrevious } from "../../primatives/index.js";
-import { CombatActionProperties } from "../combat-actions/index.js";
+import { CombatActionComponent } from "../combat-actions/index.js";
 import {
   FriendOrFoe,
   TargetCategories,
@@ -8,7 +8,7 @@ import {
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 
 export default function getNextOrPreviousTarget(
-  combatActionProperties: CombatActionProperties,
+  combatAction: CombatActionComponent,
   currentTargets: CombatActionTarget,
   direction: NextOrPrevious,
   actionUserId: string,
@@ -17,8 +17,10 @@ export default function getNextOrPreviousTarget(
 ): Error | CombatActionTarget {
   let newTargetResult: Error | string = new Error("No target was calculated");
   switch (currentTargets.type) {
+    case CombatActionTargetType.SingleAndSides:
+    case CombatActionTargetType.Sides:
     case CombatActionTargetType.Single:
-      switch (combatActionProperties.validTargetCategories) {
+      switch (combatAction.targetingProperties.validTargetCategories) {
         case TargetCategories.Opponent:
           if (!opponentIdsOption) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
           newTargetResult = getNextOrPrevIdFromOrderedList(
@@ -28,12 +30,12 @@ export default function getNextOrPreviousTarget(
           );
           if (newTargetResult instanceof Error) return newTargetResult;
           return {
-            type: CombatActionTargetType.Single,
+            type: currentTargets.type,
             targetId: newTargetResult,
           };
         case TargetCategories.User:
           return {
-            type: CombatActionTargetType.Single,
+            type: currentTargets.type,
             targetId: actionUserId,
           };
         case TargetCategories.Friendly:
@@ -45,7 +47,7 @@ export default function getNextOrPreviousTarget(
           );
           if (newTargetResult instanceof Error) return newTargetResult;
           return {
-            type: CombatActionTargetType.Single,
+            type: currentTargets.type,
             targetId: newTargetResult,
           };
         case TargetCategories.Any:
@@ -59,12 +61,12 @@ export default function getNextOrPreviousTarget(
           );
           if (newTargetResult instanceof Error) return newTargetResult;
           return {
-            type: CombatActionTargetType.Single,
+            type: currentTargets.type,
             targetId: newTargetResult,
           };
       }
     case CombatActionTargetType.Group:
-      switch (combatActionProperties.validTargetCategories) {
+      switch (combatAction.targetingProperties.validTargetCategories) {
         case TargetCategories.Opponent:
           return {
             type: CombatActionTargetType.Group,

@@ -1,8 +1,8 @@
 import getMagicalElementTailwindColor from "@/utils/getMagicalElementTailwindColor";
 import {
   HP_CHANGE_SOURCE_CATEGORY_STRINGS,
-  HpChangeSource,
-  HpChangeSourceCategory,
+  ResourceChangeSource,
+  ResourceChangeSourceCategory,
   KINETIC_DAMAGE_TYPE_STRINGS,
   KineticDamageType,
   MAGICAL_ELEMENT_STRINGS,
@@ -19,7 +19,7 @@ const KINETIC_ICONS: Record<KineticDamageType, ReactNode> = {
 };
 
 interface Props {
-  hpChangeSource: HpChangeSource;
+  hpChangeSource: ResourceChangeSource;
 }
 
 export default function DamageTypeBadge({ hpChangeSource }: Props) {
@@ -64,15 +64,15 @@ export default function DamageTypeBadge({ hpChangeSource }: Props) {
   );
 }
 
-function getDamageCategoryBorderColor(hpChangeSourceCategoryType: HpChangeSourceCategory) {
+function getDamageCategoryBorderColor(hpChangeSourceCategoryType: ResourceChangeSourceCategory) {
   switch (hpChangeSourceCategoryType) {
-    case HpChangeSourceCategory.Physical:
+    case ResourceChangeSourceCategory.Physical:
       return "border-zinc-300";
-    case HpChangeSourceCategory.Magical:
+    case ResourceChangeSourceCategory.Magical:
       return "border-sky-300";
-    case HpChangeSourceCategory.Medical:
+    case ResourceChangeSourceCategory.Medical:
       return "border-green-600";
-    case HpChangeSourceCategory.Direct:
+    case ResourceChangeSourceCategory.Direct:
       return "border-black-300";
   }
 }

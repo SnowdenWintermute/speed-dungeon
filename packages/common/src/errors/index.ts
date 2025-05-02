@@ -64,6 +64,7 @@ export const ERROR_MESSAGES = {
     CHARACTER_NOT_OWNED:
       "The provided character is not in the list of that player's owned characters",
     MISSING_PARTY_NAME: "Player doesn't have a party name or party does not exist",
+    NOT_IN_PARTY: "Player must be in a party",
   },
   USER: {
     NO_CURRENT_GAME: "This user has no current game",
@@ -89,12 +90,10 @@ export const ERROR_MESSAGES = {
   MONSTERS: {
     NO_MONSTERS_FOUND: "No monsters were found in the current room",
   },
-  ABILITIES: {
+  COMBAT_ACTIONS: {
     NOT_OWNED: "That ability is not owned by that combatant",
     INVALID_TYPE: "Invalid ability type",
-    INSUFFICIENT_MANA: "Not enough mana",
-  },
-  COMBAT_ACTIONS: {
+    INSUFFICIENT_RESOURCES: "Insufficient resources",
     NO_VALID_TARGETS: "No valid targets were found for the selected action",
     ONLY_ONE_TARGETING_SCHEME_AVAILABLE:
       "There is only one targeting scheme available for that action",
@@ -108,6 +107,11 @@ export const ERROR_MESSAGES = {
     ALREADY_FULL_HP: "The target already has full hit points",
     ALREADY_FULL_MP: "The target already has full mana",
     NOT_USABLE_IN_COMBAT: "That action can not be performed in combat",
+    MISSING_EXPECTED_ACTION_IN_CHAIN:
+      "Action failed to activate because it depends on a missing expected previous action in the chain",
+    INVALID_ACTION_IN_CHAIN:
+      "Action failed to activate because the previous action in the chain was invalid",
+    MISSING_COST_BASES: "Expected action cost bases not found",
   },
   ITEM: {
     NOT_FOUND: "No item was found with the provided ID",
@@ -140,6 +144,8 @@ export const ERROR_MESSAGES = {
     MISSING_ANIMATION: "No animation found",
     INCORRECT_MODEL_ACTION: "The wrong type of model action was passed to this function",
     NO_EQUIPMENT_MODEL: "Equipment model not found",
+    NO_ACTION_ENTITY_MODEL: "Expected action entity model was missing",
+    MISSING_EXPECTED_BONE: "No bone was found by that name",
   },
   CHECKED_EXPECTATION_FAILED:
     "Code was reached that should have been impossible due to prior value checks",

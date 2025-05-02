@@ -1,22 +1,26 @@
 import {
   AbstractMesh,
+  AssetContainer,
   Color4,
-  ISceneLoaderAsyncResult,
+  LoadAssetContainerAsync,
   Mesh,
   MeshBuilder,
   Node,
   Scene,
-  SceneLoader,
   Vector3,
 } from "@babylonjs/core";
-import { BASE_FILE_PATH } from "./combatant-models/modular-character/modular-character-parts";
+import { BASE_FILE_PATH } from "./scene-entities/character-models/modular-character-parts";
 
 export async function importMesh(path: string, scene: Scene) {
   if (path === "") throw new Error("Empty file path");
-  return SceneLoader.ImportMeshAsync("", BASE_FILE_PATH || "", path, scene);
+
+  const assetContainer = await LoadAssetContainerAsync((BASE_FILE_PATH || "") + path, scene);
+  assetContainer.addToScene();
+
+  return assetContainer;
 }
 
-export function getTransformNodeByName(sceneResult: ISceneLoaderAsyncResult, name: string) {
+export function getTransformNodeByName(sceneResult: AssetContainer, name: string) {
   for (const transformNode of sceneResult.transformNodes) {
     if (transformNode.name === name) return transformNode;
   }
@@ -30,19 +34,8 @@ export function getChildMeshByName(mesh: Mesh | AbstractMesh, name: string) {
   return undefined;
 }
 
-export function disposeAsyncLoadedScene(sceneResult: ISceneLoaderAsyncResult | null) {
-  if (sceneResult === null) return console.error("no scene to dispose");
-  while (sceneResult.meshes.length) {
-    const mesh = sceneResult.meshes.pop()!;
-    mesh.dispose(false, true);
-  }
-  while (sceneResult.skeletons.length) sceneResult.skeletons.pop()!.dispose();
-  while (sceneResult.transformNodes.length) sceneResult.transformNodes.pop()!.dispose();
-  while (sceneResult.lights.length) sceneResult.lights.pop()!.dispose();
-  while (sceneResult.geometries.length) sceneResult.geometries.pop()!.dispose();
-  while (sceneResult.spriteManagers.length) sceneResult.spriteManagers.pop()!.dispose();
-  while (sceneResult.animationGroups.length) sceneResult.animationGroups.pop()!.dispose();
-  while (sceneResult.particleSystems.length) sceneResult.particleSystems.pop()!.dispose();
+export function disposeAsyncLoadedScene(sceneResult: AssetContainer | null) {
+  if (sceneResult?.dispose) sceneResult.dispose();
 }
 
 export function getChildrenByName(rootNode: Node) {

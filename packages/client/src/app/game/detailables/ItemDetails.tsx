@@ -1,7 +1,10 @@
 import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
 import {
+  COMBAT_ACTIONS,
+  COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
+  CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE,
   CONSUMABLE_TYPE_STRINGS,
-  CombatActionType,
+  CombatActionName,
   Consumable,
   ConsumableType,
   EntityProperties,
@@ -53,7 +56,7 @@ export default function ItemDetails({
   let thumbnailPath = "";
   let svgThumbnailOption = undefined;
 
-  const [preppedForDownloadPhoto, setPreppedForDownloadPhot] = useState<{
+  const [preppedForDownloadPhoto, setPreppedForDownloadPhoto] = useState<{
     entityProperties: EntityProperties;
     ilvl: number;
   } | null>(null);
@@ -77,7 +80,7 @@ export default function ItemDetails({
   }
 
   async function downloadItemImage(entityProperties: EntityProperties, ilvl: number) {
-    setPreppedForDownloadPhot({ entityProperties, ilvl });
+    setPreppedForDownloadPhoto({ entityProperties, ilvl });
   }
 
   // idk if this is really required, but the idea was it needed to paint the frame with the updated state
@@ -86,7 +89,7 @@ export default function ItemDetails({
     if (preppedForDownloadPhoto) {
       const { entityProperties, ilvl } = preppedForDownloadPhoto;
       handleDownload(entityProperties, ilvl).then(() => {
-        setPreppedForDownloadPhot(null);
+        setPreppedForDownloadPhoto(null);
       });
     }
   }, [preppedForDownloadPhoto]);
@@ -122,16 +125,16 @@ export default function ItemDetails({
         svgThumbnailOption = <ShardsIcon className="h-full fill-slate-400 m-2" />;
         itemDetailsDisplay = <div>Could be useful...</div>;
       } else {
-        itemDetailsDisplay = (
-          <ActionDetails
-            combatAction={{
-              type: CombatActionType.ConsumableUsed,
-              itemId: item.entityProperties.id,
-              consumableType: item.consumableType,
-            }}
-            hideTitle={true}
-          />
-        );
+        const actionNameOption = CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE[item.consumableType];
+        if (actionNameOption === null)
+          itemDetailsDisplay = (
+            <div>
+              Consumable action not implemented {CONSUMABLE_TYPE_STRINGS[item.consumableType]}
+            </div>
+          );
+        else {
+          itemDetailsDisplay = <ActionDetails actionName={actionNameOption} hideTitle={true} />;
+        }
       }
     } else {
       itemDetailsDisplay = <div>unknown item type</div>;
