@@ -110,10 +110,7 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
     },
   };
   mainhand.durability = { current: 10000, inherentMax: 10000 };
-  // if(mainhand.tra)
-  // mainhand.equipmentBaseItemProperties
 
-  // @TODO - remove this testing line and put back the repair all one
   // if (mainhand.durability) mainhand.durability.current = 1;
 
   if (offhand instanceof Error) return offhand;

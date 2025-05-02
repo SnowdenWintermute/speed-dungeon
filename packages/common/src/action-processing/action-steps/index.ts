@@ -18,7 +18,7 @@ export interface ActionExecuting {
 
 export enum ActionResolutionStepType {
   DetermineChildActions,
-  DetermineActionAnimations,
+  DetermineMeleeActionAnimations,
   InitialPositioning, // motion - start magical glyph CosmeticEffect
   ChamberingMotion, // motion - start frost particle accumulation CosmeticEffect
   PostChamberingSpawnEntity,
@@ -37,7 +37,7 @@ export enum ActionResolutionStepType {
 
 export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepType, string> = {
   [ActionResolutionStepType.DetermineChildActions]: "determineChildActions",
-  [ActionResolutionStepType.DetermineActionAnimations]: "determineActionAnimations",
+  [ActionResolutionStepType.DetermineMeleeActionAnimations]: "determineMeleeActionAnimations",
   [ActionResolutionStepType.InitialPositioning]: "initialPositioning",
   [ActionResolutionStepType.ChamberingMotion]: "chamberingMotion",
   [ActionResolutionStepType.EvalOnUseTriggers]: "evalOnUseTriggers", // counterspells, branch block/parry/counterattacks, bow durability loss

@@ -24,7 +24,7 @@ export function cycleTargetingSchemesHandler(
 
   targetingCalculator.cycleCharacterTargetingSchemes(character.entityProperties.id);
 
-  // @TODO - @perf - don't really need to send the username since we can ask the client
+  // @PERF - don't really need to send the username since we can ask the client
   // to just trust the server and find the username for this character on their own
   // for now we'll send it since we need the username for the cycleTargetingSchemesHandler on the client
   getGameServer()

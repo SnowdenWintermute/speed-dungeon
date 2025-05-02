@@ -14,7 +14,7 @@ import {
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { GameServer } from "../../index.js";
-import { checkForWipes } from "../combat-action-results-processing/check-for-wipes.js";
+import { checkForWipes } from "./check-for-wipes.js";
 import { processCombatAction } from "./process-combat-action.js";
 import { getBattleConclusionCommandAndPayload } from "../action-command-handlers/get-battle-conclusion-command-and-payload.js";
 

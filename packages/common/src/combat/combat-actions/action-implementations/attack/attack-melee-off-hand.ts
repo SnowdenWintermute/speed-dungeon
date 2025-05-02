@@ -1,4 +1,9 @@
-import { CombatActionComponentConfig, CombatActionLeaf, CombatActionName } from "../../index.js";
+import {
+  CombatActionComponentConfig,
+  CombatActionLeaf,
+  CombatActionName,
+  CombatActionOrigin,
+} from "../../index.js";
 import {
   OFF_HAND_ACCURACY_MODIFIER,
   OFF_HAND_CRIT_CHANCE_MODIFIER,
@@ -66,6 +71,7 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
 const config: CombatActionComponentConfig = {
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "Attack target using equipment in off hand",
+  origin: CombatActionOrigin.Attack,
   getRequiredRange: () => CombatActionRequiredRange.Melee,
   targetingProperties,
   hitOutcomeProperties,

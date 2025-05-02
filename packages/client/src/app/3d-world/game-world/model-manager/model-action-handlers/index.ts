@@ -1,4 +1,4 @@
-import { ActionCommand, ERROR_MESSAGES } from "@speed-dungeon/common";
+import { ActionCommand, ERROR_MESSAGES, EquipmentSlotType } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
 import { ModelManager } from "..";
 import {
@@ -10,12 +10,11 @@ import {
   SelectHotswapSlotModelAction,
   SpawnEnvironmentalModelModelAction,
 } from "../model-actions";
-import { removeHoldableModelFromCharacterModel } from "./remove-holdable-from-modular-character";
-import { equipHoldableModelToCharacterModel } from "./equip-holdable-to-modular-character";
 import { actionCommandQueue, actionCommandReceiver } from "@/singletons/action-command-manager";
 import { synchronizeCombatantModelsWithAppState } from "./synchronize-combatant-models-with-app-state";
 import { spawnEnvironmentModel } from "./spawn-environmental-model";
 import { disposeAsyncLoadedScene } from "@/app/3d-world/utils";
+import { removeHoldableModelFromCharacterModel } from "./remove-holdable-from-modular-character";
 
 export type ModelActionHandler = (...args: any[]) => Promise<Error | void> | (void | Error);
 
@@ -42,12 +41,8 @@ export function createModelActionHandlers(
       if (!modularCharacter) return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
       for (const id of action.unequippedIds)
         removeHoldableModelFromCharacterModel(modularCharacter, action.entityId, id);
-      if (action.toEquip) {
-        await equipHoldableModelToCharacterModel(
-          modularCharacter,
-          action.toEquip.slot,
-          action.toEquip.item
-        );
+      if (action.toEquip && action.toEquip.slot.type === EquipmentSlotType.Holdable) {
+        await modularCharacter.equipHoldableModel(action.toEquip.item, action.toEquip.slot);
       }
 
       if (modularCharacter.isIdling()) modularCharacter.startIdleAnimation(500);

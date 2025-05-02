@@ -13,10 +13,9 @@ import {
 // causing an unarmed recovery, or just starting a swing, then realizing at the hit outcome step
 // they they actually want to stab
 
-// @TODO - rename to DetermineMeleeAttackAnimationTypeStep
-export class DetermineActionAnimationsActionResolutionStep extends ActionResolutionStep {
+export class DetermineMeleeActionAnimationsActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
-    super(ActionResolutionStepType.DetermineActionAnimations, context, null);
+    super(ActionResolutionStepType.DetermineMeleeActionAnimations, context, null);
 
     const { actionExecutionIntent } = context.tracker;
 

@@ -19,7 +19,6 @@ import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { getActionCritChance } from "./get-action-crit-chance.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { ActionResolutionStepContext } from "../../../action-processing/index.js";
-import { getShieldBlockDamageReduction } from "./get-shield-block-damage-reduction.js";
 export * from "./get-action-hit-chance.js";
 export * from "./get-action-crit-chance.js";
 export * from "./hp-change-calculation-strategies/index.js";
@@ -32,6 +31,7 @@ import { HitPointChanges, ManaChanges } from "./resource-changes.js";
 import { CombatActionResourceChangeProperties } from "../../combat-actions/combat-action-resource-change-properties.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { filterTargetIdGroupByProhibitedCombatantStates } from "../../targeting/filtering.js";
+import { getShieldBlockChance, getShieldBlockDamageReduction } from "./shield-blocking.js";
 
 export class CombatActionHitOutcomes {
   hitPointChanges?: HitPointChanges;
@@ -174,7 +174,7 @@ export function calculateActionHitOutcomes(
         CombatantProperties.canBlock(target) &&
         !targetWantsToBeHit // this should be checking if actions with malicious intent are in fact healing the target
       ) {
-        const percentChanceToBlock = 5; // @TODO - do something like ffxi: BlockRate = SizeBaseBlockRate + ((ShieldSkill - AttackerCombatSkill) × 0.2325)
+        const percentChanceToBlock = getShieldBlockChance(user, target);
         const blockRoll = randBetween(0, 100);
         const isBlocked = blockRoll < percentChanceToBlock;
         if (isBlocked) {

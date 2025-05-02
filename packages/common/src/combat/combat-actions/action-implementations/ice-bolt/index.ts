@@ -3,6 +3,7 @@ import {
   CombatActionExecutionIntent,
   CombatActionLeaf,
   CombatActionName,
+  CombatActionOrigin,
 } from "../../index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
@@ -37,6 +38,7 @@ stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
 
 const config: CombatActionComponentConfig = {
   description: "Summon an icy projectile",
+  origin: CombatActionOrigin.SpellCast,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle],
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,

@@ -3,6 +3,7 @@ import {
   CombatActionExecutionIntent,
   CombatActionLeaf,
   CombatActionName,
+  CombatActionOrigin,
 } from "../../index.js";
 import { ATTACK } from "./index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
@@ -33,6 +34,7 @@ stepsConfig.steps = {
 
 const config: CombatActionComponentConfig = {
   description: "Attack target using ranged weapon",
+  origin: CombatActionOrigin.Attack,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
   targetingProperties,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,

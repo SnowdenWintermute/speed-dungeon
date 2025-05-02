@@ -15,7 +15,6 @@ const config: CombatActionComponentConfig = {
 config.hitOutcomeProperties.getAppliedConditions = (context) => {
   const { idGenerator, combatantContext } = context;
   const { combatant } = combatantContext;
-  // @TODO - determine based on equipment, ex: ice sword applies "cold" condition
 
   const primedForExplosionCondition = new PrimedForExplosionCombatantCondition(
     idGenerator.generate(),

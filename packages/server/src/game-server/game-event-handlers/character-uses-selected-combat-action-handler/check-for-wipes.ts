@@ -1,5 +1,4 @@
 import { Battle, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
-import checkForDefeatedCombatantGroups from "./check-for-defeated-combatant-groups.js";
 
 export function checkForWipes(
   game: SpeedDungeonGame,
@@ -39,4 +38,27 @@ export function checkForWipes(
   if (partyWipesResult instanceof Error) throw partyWipesResult;
 
   return partyWipesResult;
+}
+
+function checkForDefeatedCombatantGroups(
+  game: SpeedDungeonGame,
+  allyIds: string[],
+  opponentIds: string[]
+):
+  | Error
+  | {
+      alliesDefeated: boolean;
+      opponentsDefeated: boolean;
+    } {
+  const alliesDefeatedResult = SpeedDungeonGame.allCombatantsInGroupAreDead(game, allyIds);
+  if (alliesDefeatedResult instanceof Error) return alliesDefeatedResult;
+  let opponentsDefeatedResult: boolean = false;
+  const opponentsDefeatedResultResult = SpeedDungeonGame.allCombatantsInGroupAreDead(
+    game,
+    opponentIds
+  );
+  if (opponentsDefeatedResultResult instanceof Error) return opponentsDefeatedResultResult;
+  opponentsDefeatedResult = opponentsDefeatedResultResult;
+
+  return { alliesDefeated: alliesDefeatedResult, opponentsDefeated: opponentsDefeatedResult };
 }

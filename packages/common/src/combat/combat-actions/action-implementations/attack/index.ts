@@ -3,6 +3,7 @@ import {
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
+  CombatActionOrigin,
 } from "../../index.js";
 import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
@@ -36,6 +37,7 @@ const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesType
 
 const config: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
+  origin: CombatActionOrigin.Attack,
   targetingProperties,
   // placeholder since all this action does is get children
   hitOutcomeProperties: GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Melee],

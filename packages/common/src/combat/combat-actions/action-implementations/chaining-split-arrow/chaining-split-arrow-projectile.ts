@@ -2,6 +2,7 @@ import {
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
+  CombatActionOrigin,
 } from "../../index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
@@ -65,6 +66,7 @@ const MAX_BOUNCES = 2;
 const config: CombatActionComponentConfig = {
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "An arrow that bounces to up to two additional targets after the first",
+  origin: CombatActionOrigin.Attack,
   targetingProperties,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],

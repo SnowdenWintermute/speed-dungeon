@@ -169,4 +169,14 @@ export class CombatantEquipment {
 
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
+
+  static getEquippedShieldProperties(combatantProperties: CombatantProperties) {
+    const offhandOption = CombatantEquipment.getEquipmentInSlot(combatantProperties, {
+      type: EquipmentSlotType.Holdable,
+      slot: HoldableSlotType.OffHand,
+    });
+    if (!offhandOption) return;
+    if (offhandOption.equipmentBaseItemProperties.equipmentType !== EquipmentType.Shield) return;
+    return offhandOption.equipmentBaseItemProperties;
+  }
 }

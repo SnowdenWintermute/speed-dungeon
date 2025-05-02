@@ -2,6 +2,7 @@ import {
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
+  CombatActionOrigin,
 } from "../../index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
@@ -52,6 +53,7 @@ export const rangedAttackProjectileHitOutcomeProperties: CombatActionHitOutcomeP
 
 const config: CombatActionComponentConfig = {
   description: "An arrow",
+  origin: CombatActionOrigin.Attack,
   targetingProperties,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],

@@ -1,4 +1,9 @@
-import { CombatActionComponentConfig, CombatActionLeaf, CombatActionName } from "../../index.js";
+import {
+  CombatActionComponentConfig,
+  CombatActionLeaf,
+  CombatActionName,
+  CombatActionOrigin,
+} from "../../index.js";
 import { CombatantProperties, CombatantTraitType } from "../../../../combatants/index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import {
@@ -58,6 +63,7 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 
 const config: CombatActionComponentConfig = {
   description: "Restore hit points to a target",
+  origin: CombatActionOrigin.Medication,
   targetingProperties,
   hitOutcomeProperties,
   costProperties: {

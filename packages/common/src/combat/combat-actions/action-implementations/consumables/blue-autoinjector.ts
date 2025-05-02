@@ -1,4 +1,9 @@
-import { CombatActionComponentConfig, CombatActionLeaf, CombatActionName } from "../../index.js";
+import {
+  CombatActionComponentConfig,
+  CombatActionLeaf,
+  CombatActionName,
+  CombatActionOrigin,
+} from "../../index.js";
 import { CombatantProperties, CombatantTraitType } from "../../../../combatants/index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { ConsumableType } from "../../../../items/consumables/index.js";
@@ -56,6 +61,7 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 
 const config: CombatActionComponentConfig = {
   description: "Refreshes a target's mana reserves",
+  origin: CombatActionOrigin.Medication,
   targetingProperties,
   hitOutcomeProperties,
   costProperties: {

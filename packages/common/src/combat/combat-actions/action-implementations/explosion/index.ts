@@ -2,6 +2,7 @@ import {
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
+  CombatActionOrigin,
 } from "../../index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import {
@@ -29,6 +30,7 @@ const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesType
 const config: CombatActionComponentConfig = {
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "Deals kinetic fire damage in an area around the target",
+  origin: CombatActionOrigin.TriggeredCondition,
   targetingProperties,
   hitOutcomeProperties: explosionHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],

@@ -3,6 +3,7 @@ import {
   CombatActionComposite,
   CombatActionExecutionIntent,
   CombatActionName,
+  CombatActionOrigin,
 } from "../../index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
@@ -24,6 +25,7 @@ const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesType
 
 const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
+  origin: CombatActionOrigin.Attack,
   targetingProperties,
   hitOutcomeProperties: rangedAttackProjectileHitOutcomeProperties,
   costProperties: {

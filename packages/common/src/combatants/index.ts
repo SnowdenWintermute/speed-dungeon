@@ -43,7 +43,7 @@ import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
 import { getAllCurrentlyUsableActionNames } from "./owned-actions/get-all-currently-usable-action-names.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
 import { CombatantCondition } from "./combatant-conditions/index.js";
-import { EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
+import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -175,7 +175,7 @@ export class CombatantProperties {
     for (const [slot, equipment] of iterateNumericEnumKeyedRecord(holdables.holdables)) {
       if (slot === HoldableSlotType.MainHand) continue;
       const { equipmentType } = equipment.equipmentBaseItemProperties;
-      if (equipmentType === EquipmentType.Shield) return true;
+      if (equipmentType === EquipmentType.Shield && !Equipment.isBroken(equipment)) return true;
     }
     return false;
   }

@@ -69,7 +69,7 @@ export function generateMonster(level: number, forcedType?: MonsterType) {
   // equip weapons
   monster.combatantProperties.equipment = getMonsterEquipment(monsterType);
 
-  //@TODO - remove this testing durability
+  // @TESTING - remove this testing durability
   // for (const equipment of CombatantEquipment.getAllEquippedItems(monster.combatantProperties, {})) {
   //   setEquipmentDurability(equipment, 1);
   // }

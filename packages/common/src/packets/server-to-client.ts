@@ -174,7 +174,7 @@ export interface ServerToClientEventTypes {
     item: Consumable;
     price: number;
   }) => void;
-  // @TODO - @PERF - can save bandwidth by just sending diffs
+  // @PERF - can save bandwidth by just sending diffs
   [ServerToClientEvent.CharacterPerformedCraftingAction]: (eventData: {
     characterId: EntityId;
     item: Item;

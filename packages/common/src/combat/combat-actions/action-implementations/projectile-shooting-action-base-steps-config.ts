@@ -20,7 +20,7 @@ export function getProjectileShootingActionBaseStepsConfig(
 
   return new ActionResolutionStepsConfig(
     {
-      [ActionResolutionStepType.DetermineActionAnimations]: {},
+      [ActionResolutionStepType.DetermineMeleeActionAnimations]: {},
 
       [ActionResolutionStepType.InitialPositioning]: {
         getDestination: getStepForwardDestination,

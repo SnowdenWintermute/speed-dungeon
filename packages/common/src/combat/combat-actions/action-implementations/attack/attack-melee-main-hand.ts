@@ -1,4 +1,9 @@
-import { CombatActionComponentConfig, CombatActionLeaf, CombatActionName } from "../../index.js";
+import {
+  CombatActionComponentConfig,
+  CombatActionLeaf,
+  CombatActionName,
+  CombatActionOrigin,
+} from "../../index.js";
 import { ATTACK } from "./index.js";
 import { CombatantEquipment } from "../../../../combatants/index.js";
 import { iterateNumericEnum } from "../../../../utils/index.js";
@@ -22,6 +27,7 @@ import { CombatActionRequiredRange } from "../../combat-action-range.js";
 
 const config: CombatActionComponentConfig = {
   description: "Attack target using equipment in main hand",
+  origin: CombatActionOrigin.Attack,
   getRequiredRange: () => CombatActionRequiredRange.Melee,
   targetingProperties: GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent],
   costProperties: {

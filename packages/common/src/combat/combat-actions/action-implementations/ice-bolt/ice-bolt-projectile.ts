@@ -2,6 +2,7 @@ import {
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
+  CombatActionOrigin,
 } from "../../index.js";
 import { ICE_BOLT_PARENT } from "./index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
@@ -32,6 +33,7 @@ const targetingProperties =
 const config: CombatActionComponentConfig = {
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "An icy projectile",
+  origin: CombatActionOrigin.SpellCast,
   targetingProperties,
   hitOutcomeProperties: iceBoltProjectileHitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Spell],

@@ -26,8 +26,16 @@ import {
 } from "./combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "./combat-action-steps-config.js";
 
+export enum CombatActionOrigin {
+  SpellCast,
+  TriggeredCondition,
+  Medication,
+  Attack,
+}
+
 export interface CombatActionComponentConfig {
   description: string;
+  origin: CombatActionOrigin;
 
   targetingProperties: CombatActionTargetingPropertiesConfig;
   hitOutcomeProperties: CombatActionHitOutcomeProperties;
@@ -51,6 +59,7 @@ export interface CombatActionComponentConfig {
 
 export abstract class CombatActionComponent {
   public readonly description: string;
+  public readonly origin: CombatActionOrigin;
   public readonly targetingProperties: CombatActionTargetingProperties;
   public readonly hitOutcomeProperties: CombatActionHitOutcomeProperties;
   public readonly costProperties: CombatActionCostProperties;
@@ -99,6 +108,7 @@ export abstract class CombatActionComponent {
     config: CombatActionComponentConfig
   ) {
     this.description = config.description;
+    this.origin = config.origin;
     this.targetingProperties = {
       ...config.targetingProperties,
       getAutoTarget: (combatantContext, trackerOption) =>
@@ -128,7 +138,7 @@ export abstract class CombatActionComponent {
     combatant: Combatant, // to check their conditions, traits and other state like current hp
     battleOption: null | Battle // finding out allies/enemies
   ): boolean {
-    // @TODO
+    // for AI behavior
     // - check targetable groups (friend or foe)
     // - check prohibited combatant state
     // - check traits and conditions

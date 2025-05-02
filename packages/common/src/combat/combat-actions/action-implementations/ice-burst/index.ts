@@ -2,6 +2,7 @@ import {
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
+  CombatActionOrigin,
 } from "../../index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
@@ -96,6 +97,7 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 
 const config: CombatActionComponentConfig = {
   description: "Deals kinetic ice damage in an area around the target",
+  origin: CombatActionOrigin.TriggeredCondition,
   targetingProperties,
   hitOutcomeProperties,
   costProperties: BASE_ACTION_COST_PROPERTIES[ActionCostPropertiesBaseTypes.Base],

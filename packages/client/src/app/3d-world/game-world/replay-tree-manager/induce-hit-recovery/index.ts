@@ -11,6 +11,7 @@ import {
   CosmeticEffectNames,
   AbstractParentType,
   Milliseconds,
+  CombatActionOrigin,
 } from "@speed-dungeon/common";
 import { getCombatantContext, useGameStore } from "@/stores/game-store";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
@@ -36,7 +37,7 @@ export function induceHitRecovery(
   if (targetModel === undefined) return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
   const action = COMBAT_ACTIONS[actionName];
-  const wasSpell = false; // @TODO - get this from action properties
+  const wasSpell = action.origin === CombatActionOrigin.SpellCast;
 
   let cosmeticEffectNamesToStartThisStep: {
     name: CosmeticEffectNames;
