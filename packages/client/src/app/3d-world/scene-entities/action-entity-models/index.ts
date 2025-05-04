@@ -88,16 +88,8 @@ export async function spawnActionEntityModel(vfxName: ActionEntityName, position
 
           mesh.material = material;
           mesh.position.copyFrom(position);
-          model = {
-            meshes: [mesh],
-            particleSystems: [],
-            skeletons: [],
-            animationGroups: [],
-            transformNodes: [],
-            geometries: [],
-            lights: [],
-            spriteManagers: [],
-          };
+          model = new AssetContainer();
+          model.meshes = [mesh];
         }
         break;
       case ActionEntityName.Arrow:
