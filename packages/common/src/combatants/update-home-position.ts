@@ -31,28 +31,13 @@ export function updateCombatantHomePosition(
 
   const homeLocation = new Vector3(rowPositionOffset, 0, positionSpacing);
   combatantProperties.homeLocation = homeLocation;
+  combatantProperties.position = combatantProperties.homeLocation.clone();
 
-  // const forwardPosition = new Vector3(rowPositionOffset, 0, Math.abs(positionSpacing));
-
-  // const forwardDirection = homeLocation.subtract(forwardPosition).normalize();
-
-  // const directionToOrigin = Vector3.Zero().subtract(homeLocation).normalize();
-  // const homeRotation = Quaternion.FromUnitVectorsToRef(
-  //   forwardDirection,
-  //   directionToOrigin,
-  //   new Quaternion()
-  // );
-  // combatantProperties.homeRotation = homeRotation;
-
-  const forward = new Vector3(0, 0, 1); // Model's default forward direction
-  const directionToXAxis = new Vector3(0, 0, -positionSpacing).normalize(); // Facing toward X = 0
+  const forward = new Vector3(0, 0, 1);
+  const directionToXAxis = new Vector3(0, 0, -positionSpacing).normalize();
 
   const homeRotation = new Quaternion();
   Quaternion.FromUnitVectorsToRef(forward, directionToXAxis, homeRotation);
+
   combatantProperties.homeRotation = homeRotation;
-  console.log("home rotation: ", homeRotation);
-
-  //
-
-  combatantProperties.position = combatantProperties.homeLocation.clone();
 }

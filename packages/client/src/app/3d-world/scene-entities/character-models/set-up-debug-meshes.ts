@@ -60,6 +60,7 @@ function createForwardDirectionMarkerSphere(modularCharacter: CharacterModel) {
   sphere.position = modularCharacter.rootTransformNode.position.add(direction.scale(1.5));
 
   sphere.setParent(modularCharacter.rootTransformNode);
+
   return sphere;
 }
 

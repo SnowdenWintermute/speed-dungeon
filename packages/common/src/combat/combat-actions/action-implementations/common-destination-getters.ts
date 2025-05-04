@@ -22,7 +22,7 @@ export function getStepForwardDestination(context: ActionResolutionStepContext) 
   const { combatantContext } = context;
   const user = combatantContext.combatant.combatantProperties;
   const direction = CombatantProperties.getForward(user);
-  return { position: user.homeLocation.add(direction.scale(0.5)) };
+  return { position: user.homeLocation.add(direction.scale(1)) };
 }
 
 export function getRotateTowardPrimaryTargetDestination(context: ActionResolutionStepContext) {
