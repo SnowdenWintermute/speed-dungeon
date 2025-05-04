@@ -5,8 +5,8 @@ import {
   AssetContainer,
   Mesh,
   Quaternion,
-  TransformNode,
   Vector3,
+  AnimationGroup,
 } from "@babylonjs/core";
 import {
   disposeAsyncLoadedScene,
@@ -44,16 +44,13 @@ import { HighlightManager } from "./highlight-manager";
 import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
 import { useLobbyStore } from "@/stores/lobby-store";
-import { ModelMovementManager } from "../model-movement-manager";
 import { SkeletalAnimationManager } from "../model-animation-managers/skeletal-animation-manager";
-import { CosmeticEffectManager } from "../cosmetic-effect-manager";
 import { ManagedAnimationOptions } from "../model-animation-managers";
 import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
 import { CharacterModelPartCategory } from "./modular-character-parts";
+import { SceneEntity } from "..";
 
-export class CharacterModel {
-  rootMesh: AbstractMesh;
-  rootTransformNode: TransformNode;
+export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimationManager> {
   parts: Record<CharacterModelPartCategory, null | AssetContainer> = {
     [CharacterModelPartCategory.Head]: null,
     [CharacterModelPartCategory.Torso]: null,
@@ -61,10 +58,7 @@ export class CharacterModel {
     [CharacterModelPartCategory.Full]: null,
   };
   equipment: {
-    wearables: Record<
-      WearableSlotType,
-      null | { entityId: string; scene: AssetContainer }
-    >;
+    wearables: Record<WearableSlotType, null | { entityId: string; scene: AssetContainer }>;
     holdables: { [entityId: string]: AssetContainer };
   } = {
     wearables: {
@@ -76,20 +70,12 @@ export class CharacterModel {
     },
     holdables: {},
   };
-  hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   homeLocation: {
     position: Vector3;
     rotation: Quaternion;
   };
-  isInMeleeRangeOfTarget: boolean = false;
-  movementManager: ModelMovementManager;
-  animationManager: SkeletalAnimationManager;
-  cosmeticEffectManager = new CosmeticEffectManager();
   highlightManager: HighlightManager = new HighlightManager(this);
   debugMeshes: Mesh[] | null = null;
-  public visibility: number = 0;
-
-  testAnimationSwitcherAnimationName: SkeletalAnimationName = SkeletalAnimationName.IdleTwoHand;
 
   constructor(
     public entityId: string,
@@ -103,29 +89,7 @@ export class CharacterModel {
     homePosition: Vector3,
     homeRotation: Quaternion
   ) {
-    this.animationManager = new SkeletalAnimationManager(this);
-
-    // get rid of the placeholder mesh (usually a simple quad or tri) which
-    // must be included in order for babylon to recognize the loaded asset as a skeleton
-    while (skeleton.meshes.length > 1) {
-      skeleton.meshes.pop()!.dispose(false, true);
-    }
-
-    const rootMesh = this.skeleton.meshes[0];
-    if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
-
-    if (this.monsterType !== null) {
-      rootMesh.scaling = Vector3.One().scale(MONSTER_SCALING_SIZES[this.monsterType]);
-    }
-    this.rootTransformNode = new TransformNode(`${this.entityId}-root-transform-node`);
-    this.rootTransformNode.rotationQuaternion = plainToInstance(Quaternion, homeRotation);
-    this.rootTransformNode.position = plainToInstance(Vector3, homePosition);
-
-    this.movementManager = new ModelMovementManager(this.rootTransformNode);
-
-    this.rootMesh = rootMesh;
-    this.rootMesh.setParent(this.rootTransformNode);
-    this.rootMesh.position.copyFrom(Vector3.Zero());
+    super(entityId, skeleton, homePosition, homeRotation);
 
     const rotation = this.rootTransformNode.rotationQuaternion;
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
@@ -136,6 +100,23 @@ export class CharacterModel {
 
     // this.setUpDebugMeshes();
     // this.setShowBones();
+  }
+
+  initRootMesh(assetContainer: AssetContainer) {
+    // get rid of the placeholder mesh (usually a simple quad or tri) which
+    // must be included in order for babylon to recognize the loaded asset as a skeleton
+    while (assetContainer.meshes.length > 1) {
+      assetContainer.meshes.pop()!.dispose(false, true);
+    }
+
+    const rootMesh = assetContainer.meshes[0];
+    if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
+
+    return rootMesh;
+  }
+
+  initAnimationManager(assetContainer: AssetContainer): SkeletalAnimationManager {
+    return new SkeletalAnimationManager(this.entityId, assetContainer);
   }
 
   setVisibility(value: number) {

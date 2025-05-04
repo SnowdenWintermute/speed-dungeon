@@ -1,7 +1,8 @@
-import { AnimationGroup } from "@babylonjs/core";
+import { AnimationGroup, AssetContainer } from "@babylonjs/core";
 import { AnimationManager, ManagedAnimation, ManagedAnimationOptions } from ".";
 import {
   DEBUG_ANIMATION_SPEED_MULTIPLIER,
+  EntityId,
   MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
   SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
@@ -56,10 +57,13 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
   playing: null | ManagedSkeletalAnimation = null;
   previous: null | ManagedSkeletalAnimation = null;
   locked: boolean = false;
-  constructor(public characterModel: CharacterModel) {
+  constructor(
+    public sceneEntityId: EntityId,
+    public assetContainer: AssetContainer
+  ) {
     // stop default animation
-    this.characterModel.skeleton.animationGroups[0]?.setWeightForAllAnimatables(0);
-    this.characterModel.skeleton.animationGroups[0]?.stop();
+    this.assetContainer.animationGroups[0]?.setWeightForAllAnimatables(0);
+    this.assetContainer.animationGroups[0]?.stop();
   }
 
   cloneAnimation(animationGroup: AnimationGroup): AnimationGroup {
@@ -77,7 +81,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       console.log("cloned animatino was undefined", newAnimationName);
       // send message to client with timout duration to remove itself
       setDebugMessage(
-        this.characterModel.entityId,
+        this.sceneEntityId,
         `Missing animation: ${newAnimationName}`,
         MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
         options.onComplete
@@ -152,7 +156,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
 
   getAnimationGroupByName(animationName: SkeletalAnimationName) {
     const asString = SKELETAL_ANIMATION_NAME_STRINGS[animationName];
-    const { skeleton } = this.characterModel;
+    const skeleton = this.assetContainer;
     for (let index = 0; index < skeleton.animationGroups.length; index++) {
       if (!skeleton.animationGroups[index]) continue;
       if (skeleton.animationGroups[index]!.name === asString) {

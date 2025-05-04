@@ -59,11 +59,6 @@ export function attachHoldableModelToSkeleton(
   if (slot === HoldableSlotType.OffHand) {
     parentMesh.rotation.y = Math.PI;
 
-    // why do we have to do this? no idea
-    if (combatantModel.monsterType !== null) {
-      parentMesh.rotation.y += Math.PI;
-    }
-
     if (equipmentType === EquipmentType.Shield) {
       parentMesh.position.z = -0.08;
       parentMesh.position.x = -0.15;
@@ -72,11 +67,6 @@ export function attachHoldableModelToSkeleton(
 
   if (equipmentType === EquipmentType.TwoHandedRangedWeapon) {
     parentMesh.rotate(Vector3.Up(), Math.PI);
-  }
-
-  if (combatantModel.monsterType !== null) {
-    // why do we have to do this? no idea
-    parentMesh.rotation.x += Math.PI;
   }
 }
 

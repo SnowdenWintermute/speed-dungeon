@@ -88,7 +88,6 @@ export class CombatantProperties {
   inventory: Inventory = new Inventory();
   selectedCombatAction: null | CombatActionName = null;
   combatActionTarget: null | CombatActionTarget = null;
-  hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
   deepestFloorReached: number = 1;
   position: Vector3;
   conditions: CombatantCondition[] = [];
@@ -193,7 +192,7 @@ export class CombatantProperties {
 
   static getForward(combatantProperties: CombatantProperties) {
     const { x, y, z } = combatantProperties.homeLocation;
-    return cloneVector3(new Vector3(x, 0, 0)).subtract(combatantProperties.homeLocation);
+    return cloneVector3(new Vector3(0, 0, z)).subtract(combatantProperties.homeLocation);
   }
 }
 
