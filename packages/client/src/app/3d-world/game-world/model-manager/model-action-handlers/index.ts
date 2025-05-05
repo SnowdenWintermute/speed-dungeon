@@ -42,7 +42,7 @@ export function createModelActionHandlers(
       for (const id of action.unequippedIds)
         removeHoldableModelFromCharacterModel(modularCharacter, action.entityId, id);
       if (action.toEquip && action.toEquip.slot.type === EquipmentSlotType.Holdable) {
-        await modularCharacter.equipHoldableModel(action.toEquip.item, action.toEquip.slot);
+        await modularCharacter.equipHoldableModel(action.toEquip.item, action.toEquip.slot.slot);
       }
 
       if (modularCharacter.isIdling()) modularCharacter.startIdleAnimation(500);

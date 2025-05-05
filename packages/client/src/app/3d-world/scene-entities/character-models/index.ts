@@ -1,5 +1,4 @@
 import {
-  AbstractMesh,
   BoundingInfo,
   Color4,
   AssetContainer,
@@ -21,7 +20,6 @@ import {
   SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
   CombatantClass,
-  DEFAULT_HITBOX_RADIUS_FALLBACK,
   ERROR_MESSAGES,
   Equipment,
   HoldableSlotType,
@@ -31,7 +29,6 @@ import {
   EquipmentType,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
-import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
 import cloneDeep from "lodash.clonedeep";
 import { setUpDebugMeshes, despawnDebugMeshes } from "./set-up-debug-meshes";
 import {
@@ -83,13 +80,13 @@ export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimatio
     public monsterType: null | MonsterType,
     public isPlayerControlled: boolean,
     public combatantClass: CombatantClass,
-    public skeleton: AssetContainer,
+    skeletonAssetContainer: AssetContainer,
     public modelDomPositionElement: HTMLDivElement | null,
     public debugElement: HTMLDivElement | null,
     homePosition: Vector3,
     homeRotation: Quaternion
   ) {
-    super(entityId, skeleton, homePosition, homeRotation);
+    super(entityId, skeletonAssetContainer, homePosition, homeRotation);
 
     const rotation = this.rootTransformNode.rotationQuaternion;
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
@@ -117,6 +114,12 @@ export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimatio
 
   initAnimationManager(assetContainer: AssetContainer): SkeletalAnimationManager {
     return new SkeletalAnimationManager(this.entityId, assetContainer);
+  }
+
+  getSkeletonRoot() {
+    if (!this.assetContainer.meshes[0])
+      throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
+    return this.assetContainer.meshes[0];
   }
 
   setVisibility(value: number) {
@@ -227,7 +230,6 @@ export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimatio
     for (const [_category, part] of iterateNumericEnumKeyedRecord(this.parts)) {
       if (part === null) continue;
       for (const mesh of part.meshes) {
-        // if (mesh.name === "__root__") continue;
         // Update root mesh bounding box
         mesh.refreshBoundingInfo({ applySkeleton: true, applyMorph: true });
         if (minimum === null) minimum = mesh.getBoundingInfo().minimum;
@@ -248,13 +250,14 @@ export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimatio
 
   async attachPart(partCategory: CharacterModelPartCategory, partPath: string) {
     const part = await importMesh(partPath, this.world.scene);
-    const parent = getTransformNodeByName(this.skeleton, BONE_NAMES[BoneName.Armature]);
-    if (!this.skeleton.skeletons[0])
+    const parent = getTransformNodeByName(this.assetContainer, BONE_NAMES[BoneName.Armature]);
+
+    if (!this.assetContainer.skeletons[0])
       return new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
 
     for (const mesh of part.meshes) {
       // attach part
-      if (mesh.skeleton) mesh.skeleton = this.skeleton.skeletons[0];
+      if (mesh.skeleton) mesh.skeleton = this.assetContainer.skeletons[0];
       mesh.visibility = this.visibility;
 
       mesh.parent = parent!;
@@ -326,9 +329,8 @@ export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimatio
   setShowBones() {
     const cubeSize = 0.02;
     const red = new Color4(255, 0, 0, 1.0);
-    if (!this.skeleton.meshes[0]) return;
     const skeletonRootBone = getChildMeshByName(
-      this.skeleton.meshes[0],
+      this.getSkeletonRoot(),
       BONE_NAMES[BoneName.Armature]
     );
     if (skeletonRootBone !== undefined)

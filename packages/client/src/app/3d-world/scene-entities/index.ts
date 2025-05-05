@@ -8,12 +8,12 @@ import { plainToInstance } from "class-transformer";
 
 export abstract class SceneEntity<T, U extends AnimationManager<T>> {
   public animationManager: U;
-
-  public visibility: number = 0;
   public movementManager: ModelMovementManager;
   public cosmeticEffectManager = new CosmeticEffectManager();
   public rootMesh: AbstractMesh;
   public rootTransformNode: TransformNode;
+
+  public visibility: number = 0;
 
   constructor(
     public entityId: EntityId,

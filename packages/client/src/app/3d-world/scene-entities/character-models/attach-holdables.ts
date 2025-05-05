@@ -28,8 +28,7 @@ export function attachHoldableModelToSkeleton(
 ) {
   const parentMesh = equipmentModel.meshes[0];
   if (!parentMesh) return console.error("no equipment parent mesh");
-  const skeletonRoot = combatantModel.skeleton.meshes[0];
-  if (!skeletonRoot) return console.error("no skeleton root");
+  const skeletonRoot = combatantModel.getSkeletonRoot();
 
   let equipmentBoneName: string = "";
 
@@ -78,8 +77,7 @@ export function attachHoldableModelToHolsteredPosition(
 ) {
   const equipmentParentMesh = equipmentModel.meshes[0];
   if (!equipmentParentMesh) return console.error("no parent mesh");
-  const skeletonRoot = combatantModel.skeleton.meshes[0];
-  if (!skeletonRoot) return console.error("no skeleton mesh");
+  const skeletonRoot = combatantModel.getSkeletonRoot();
 
   const backHolsterBoneName = slot === HoldableSlotType.OffHand ? "BackHolster.L" : "BackHolster.R";
   const hipHolsterBoneName = slot === HoldableSlotType.OffHand ? "HipHolster.L" : "HipHolster.R";
