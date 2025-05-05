@@ -2,22 +2,25 @@ import { AbstractMesh, AssetContainer, Quaternion, Vector3 } from "@babylonjs/co
 import { SkeletalAnimationManager } from "../model-animation-managers/skeletal-animation-manager";
 import { SceneEntity } from "..";
 import { AnimationGroup } from "@babylonjs/core";
+import { ERROR_MESSAGES, Item } from "@speed-dungeon/common";
 
 export class ItemModel extends SceneEntity<AnimationGroup, SkeletalAnimationManager> {
   constructor(
-    public entityId: string,
-    public assetContainer: AssetContainer,
-    public modelDomPositionElement: HTMLDivElement | null,
+    public readonly item: Item,
+    assetContainer: AssetContainer,
+    public readonly isUsingUniqueMaterialInstances: boolean,
     homePosition: Vector3,
     homeRotation: Quaternion
   ) {
-    super(entityId, assetContainer, homePosition, homeRotation);
+    super(item.entityProperties.id, assetContainer, homePosition, homeRotation);
   }
 
   initRootMesh(assetContainer: AssetContainer): AbstractMesh {
-    throw new Error("Method not implemented.");
+    if (!assetContainer.meshes[0]) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_ITEM_FILE);
+    return assetContainer.meshes[0];
   }
+
   initAnimationManager(assetContainer: AssetContainer): SkeletalAnimationManager {
-    throw new Error("Method not implemented.");
+    return new SkeletalAnimationManager(this.entityId, assetContainer);
   }
 }

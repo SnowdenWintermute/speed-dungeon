@@ -140,6 +140,7 @@ export const ERROR_MESSAGES = {
     NOT_FOUND: "Expected game world not found",
     NO_COMBATANT_MODEL: "No combatant model exists with the provided entity ID",
     INCOMPLETE_SKELETON_FILE: "The loaded skeleton asset is missing something",
+    INCOMPLETE_ITEM_FILE: "The loaded item asset is missing something",
     MISSING_ROTATION_QUATERNION: "Expected rotation data was missing",
     MISSING_ANIMATION: "No animation found",
     INCORRECT_MODEL_ACTION: "The wrong type of model action was passed to this function",
