@@ -59,11 +59,19 @@ export type SpawnEntityGameUpdateCommand = {
   entity: SpawnableEntity;
 };
 
+// thinking about how to add weapon animations
+// SIMPLE
+// - which character to animate and what animation
+// - which weapon slot to animate and what animation
+// ABSTRACT
+// - list of entity ids with EntityAnimations, movement options, etc
+
 export type EntityMotionGameUpdateCommand = {
   type: GameUpdateCommandType.EntityMotion;
   completionOrderId: null | number;
   step: ActionResolutionStepType;
-  actionName: CombatActionName;
+
+  actionName: CombatActionName; // so client can look up the cosmetic effects associated with it
   entityType: SpawnableEntityType;
   entityId: EntityId;
   animationOption?: EntityAnimation;

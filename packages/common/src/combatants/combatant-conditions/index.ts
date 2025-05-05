@@ -161,7 +161,7 @@ export abstract class CombatantCondition {
     numberToRemove: number
   ): CombatantCondition | undefined {
     for (const condition of Object.values(combatantProperties.conditions)) {
-      if (condition.id !== conditionId) return;
+      if (condition.id !== conditionId) continue;
       if (condition.stacksOption)
         condition.stacksOption.current = Math.max(
           0,
