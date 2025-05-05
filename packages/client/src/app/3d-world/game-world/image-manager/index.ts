@@ -116,12 +116,12 @@ export class ImageManager {
       this.processNextMessage();
       return console.error(equipmentModelResult.message);
     }
-    const parentMesh = equipmentModelResult.meshes[0];
-    if (!parentMesh) return console.error("no parent mesh");
+
+    const parentMesh = equipmentModelResult.rootMesh;
 
     parentMesh.position = Vector3.Zero();
 
-    const box = calculateCompositeBoundingBox(equipmentModelResult.meshes);
+    const box = calculateCompositeBoundingBox(equipmentModelResult.assetContainer.meshes);
     const itemHeight = box.max.y - box.min.y;
 
     const center = box.min.add(box.max).scale(0.5);
@@ -149,7 +149,7 @@ export class ImageManager {
         useGameStore.getState().mutateState((state) => {
           state.itemThumbnails[item.entityProperties.id] = image;
         });
-        disposeAsyncLoadedScene(equipmentModelResult);
+        equipmentModelResult.cleanup({ softCleanup: false });
 
         this.processNextMessage();
       },

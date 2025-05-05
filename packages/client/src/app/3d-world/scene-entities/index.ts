@@ -23,7 +23,6 @@ export abstract class SceneEntity<T, U extends AnimationManager<T>> {
   ) {
     this.rootTransformNode = new TransformNode(`${this.entityId}-root-transform-node`);
     this.rootTransformNode.position = plainToInstance(Vector3, startPosition);
-    console.log("set rootTransformNode rotation: ", this.rootTransformNode.rotation);
     this.movementManager = new ModelMovementManager(this.rootTransformNode);
 
     const rootMesh = this.initRootMesh(assetContainer);
@@ -34,11 +33,11 @@ export abstract class SceneEntity<T, U extends AnimationManager<T>> {
     this.rootTransformNode.rotationQuaternion = plainToInstance(Quaternion, startRotation);
 
     this.animationManager = this.initAnimationManager(this.assetContainer);
-    // this.movementManager.instantlyMove(startPosition);
   }
 
   abstract initRootMesh(assetContainer: AssetContainer): AbstractMesh;
   abstract initAnimationManager(assetContainer: AssetContainer): U;
+  abstract customCleanup(): void;
 
   cleanup(options: { softCleanup: boolean }) {
     if (options.softCleanup) this.softCleanup();
@@ -51,7 +50,8 @@ export abstract class SceneEntity<T, U extends AnimationManager<T>> {
   }
 
   private dispose() {
-    disposeAsyncLoadedScene(this.assetContainer);
+    this.customCleanup();
+    this.assetContainer.dispose();
     this.rootTransformNode.dispose(false);
   }
 }

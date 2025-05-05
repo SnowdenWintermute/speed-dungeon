@@ -1,4 +1,4 @@
-import { AbstractMesh, AssetContainer, Vector3 } from "@babylonjs/core";
+import { AbstractMesh, TransformNode, Vector3 } from "@babylonjs/core";
 import {
   Equipment,
   EquipmentBaseItem,
@@ -9,25 +9,26 @@ import {
 import { CharacterModel } from "./index";
 import { getChildMeshByName } from "../../utils";
 import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
+import { ItemModel } from "../item-models";
 
-function setMeshPositionAndRotationToZero(mesh: AbstractMesh) {
-  setMeshRotationToZero(mesh);
-  mesh.setPositionWithLocalVector(Vector3.Zero());
+function setTransformNodePositionAndRotationToZero(transformNode: TransformNode) {
+  setTransformNodeRotationToZero(transformNode);
+  transformNode.setPositionWithLocalVector(Vector3.Zero());
 }
 
-function setMeshRotationToZero(mesh: AbstractMesh) {
-  mesh.rotationQuaternion = null;
-  mesh.rotation = Vector3.Zero();
+function setTransformNodeRotationToZero(transformNode: TransformNode) {
+  transformNode.rotationQuaternion = null;
+  transformNode.rotation = Vector3.Zero();
 }
 
 export function attachHoldableModelToSkeleton(
   combatantModel: CharacterModel,
-  equipmentModel: AssetContainer,
+  equipmentModel: ItemModel,
   slot: HoldableSlotType,
   equipment: Equipment
 ) {
-  const parentMesh = equipmentModel.meshes[0];
-  if (!parentMesh) return console.error("no equipment parent mesh");
+  const itemTransformNode = equipmentModel.rootTransformNode;
+
   const skeletonRoot = combatantModel.getSkeletonRoot();
 
   let equipmentBoneName: string = "";
@@ -52,31 +53,31 @@ export function attachHoldableModelToSkeleton(
 
   if (!equipmentBone) return console.log("no equipment bone found");
 
-  parentMesh.setParent(equipmentBone);
-  setMeshPositionAndRotationToZero(parentMesh);
+  itemTransformNode.setParent(equipmentBone);
+
+  setTransformNodePositionAndRotationToZero(itemTransformNode);
 
   if (slot === HoldableSlotType.OffHand) {
-    parentMesh.rotation.y = Math.PI;
+    itemTransformNode.rotation.y = Math.PI;
 
     if (equipmentType === EquipmentType.Shield) {
-      parentMesh.position.z = -0.08;
-      parentMesh.position.x = -0.15;
+      itemTransformNode.position.z = -0.08;
+      itemTransformNode.position.x = -0.15;
     }
   }
 
   if (equipmentType === EquipmentType.TwoHandedRangedWeapon) {
-    parentMesh.rotate(Vector3.Up(), Math.PI);
+    itemTransformNode.rotate(Vector3.Up(), Math.PI);
   }
 }
 
 export function attachHoldableModelToHolsteredPosition(
   combatantModel: CharacterModel,
-  equipmentModel: AssetContainer,
+  equipmentModel: ItemModel,
   slot: HoldableSlotType,
   equipment: Equipment
 ) {
-  const equipmentParentMesh = equipmentModel.meshes[0];
-  if (!equipmentParentMesh) return console.error("no parent mesh");
+  const equipmentTransformNode = equipmentModel.rootTransformNode;
   const skeletonRoot = combatantModel.getSkeletonRoot();
 
   const backHolsterBoneName = slot === HoldableSlotType.OffHand ? "BackHolster.L" : "BackHolster.R";
@@ -90,24 +91,24 @@ export function attachHoldableModelToHolsteredPosition(
   const holsterAtHip = shouldHolsterAtHip(taggedBaseEquipment);
 
   if (holsterAtHip) {
-    equipmentParentMesh.setParent(holsterHipBone);
-    setMeshPositionAndRotationToZero(equipmentParentMesh);
-    equipmentParentMesh.rotation.y = -Math.PI / 2;
+    equipmentTransformNode.setParent(holsterHipBone);
+    setTransformNodePositionAndRotationToZero(equipmentTransformNode);
+    equipmentTransformNode.rotation.y = -Math.PI / 2;
   } else {
-    equipmentParentMesh.setParent(holsterBackBone);
-    setMeshPositionAndRotationToZero(equipmentParentMesh);
+    equipmentTransformNode.setParent(holsterBackBone);
+    setTransformNodePositionAndRotationToZero(equipmentTransformNode);
     if (equipmentType === EquipmentType.Shield) {
       console.log("set parent to back");
-      equipmentParentMesh.rotation.y = Math.PI;
-      equipmentParentMesh.rotation.z = Math.PI;
-      equipmentParentMesh.position.y = 0.15;
+      equipmentTransformNode.rotation.y = Math.PI;
+      equipmentTransformNode.rotation.z = Math.PI;
+      equipmentTransformNode.position.y = 0.15;
     } else if (equipmentType === EquipmentType.TwoHandedRangedWeapon) {
-      equipmentParentMesh.position.y = 0.18;
-      equipmentParentMesh.position.x = 0.07;
-      equipmentParentMesh.rotation.y = Math.PI;
+      equipmentTransformNode.position.y = 0.18;
+      equipmentTransformNode.position.x = 0.07;
+      equipmentTransformNode.rotation.y = Math.PI;
     } else {
       // move most weapons up a little
-      equipmentParentMesh.position.y = -0.15;
+      equipmentTransformNode.position.y = -0.15;
     }
   }
 }

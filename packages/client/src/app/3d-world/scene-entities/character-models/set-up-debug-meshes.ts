@@ -76,21 +76,3 @@ function createDestinationMarkerSphere(modularCharacter: CharacterModel) {
 
   return sphere;
 }
-
-function createMeleeRangeDisc(modularCharacter: CharacterModel) {
-  // const green = new Color3(0.1, 0.5, 0.3);
-  // const circle = MeshBuilder.CreateDisc(`${modularCharacter.entityId}-hitbox-radius`, {
-  //   radius: modularCharacter.hitboxRadius,
-  //   tessellation: 64,
-  //   sideOrientation: Mesh.DOUBLESIDE,
-  // });
-  // const material = new StandardMaterial("discMaterial");
-  // material.diffuseColor = green; // Red color (RGB: 1, 0, 0)
-  // circle.material = material;
-  // circle.visibility = 0.5;
-  // circle.setPositionWithLocalVector(modularCharacter.homeLocation.position);
-  // circle.translate(Vector3.Up(), 0.1);
-  // circle.rotate(Vector3.Left(), Math.PI / 2);
-  // circle.setParent(modularCharacter.rootMesh);
-  // return circle;
-}

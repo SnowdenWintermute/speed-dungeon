@@ -46,6 +46,7 @@ import { ManagedAnimationOptions } from "../model-animation-managers";
 import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
 import { CharacterModelPartCategory } from "./modular-character-parts";
 import { SceneEntity } from "..";
+import { ItemModel } from "../item-models";
 
 export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimationManager> {
   parts: Record<CharacterModelPartCategory, null | AssetContainer> = {
@@ -55,8 +56,8 @@ export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimatio
     [CharacterModelPartCategory.Full]: null,
   };
   equipment: {
-    wearables: Record<WearableSlotType, null | { entityId: string; scene: AssetContainer }>;
-    holdables: { [entityId: string]: AssetContainer };
+    wearables: Record<WearableSlotType, null | ItemModel>;
+    holdables: { [entityId: string]: ItemModel };
   } = {
     wearables: {
       [WearableSlotType.Head]: null,
@@ -116,6 +117,19 @@ export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimatio
     return new SkeletalAnimationManager(this.entityId, assetContainer);
   }
 
+  customCleanup(): void {
+    if (this.debugMeshes) for (const mesh of Object.values(this.debugMeshes)) mesh.dispose();
+    for (const part of Object.values(this.parts)) part?.dispose();
+
+    for (const [_slotType, model] of iterateNumericEnumKeyedRecord(this.equipment.wearables)) {
+      if (!model) continue;
+      model.cleanup({ softCleanup: false });
+    }
+
+    for (const model of Object.values(this.equipment.holdables))
+      model.cleanup({ softCleanup: false });
+  }
+
   getSkeletonRoot() {
     if (!this.assetContainer.meshes[0])
       throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
@@ -131,10 +145,10 @@ export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimatio
       });
     }
     for (const holdable of Object.values(this.equipment.holdables)) {
-      holdable.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
+      holdable.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
     }
     for (const wearable of Object.values(this.equipment.wearables)) {
-      wearable?.scene.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
+      wearable?.scene.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
     }
   }
 
@@ -278,7 +292,7 @@ export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimatio
   async unequipHoldableModel(entityId: string) {
     const toDispose = this.equipment.holdables[entityId];
     if (!toDispose) return;
-    disposeAsyncLoadedScene(toDispose);
+    toDispose.cleanup({ softCleanup: false });
 
     if (this.isIdling()) {
       this.startIdleAnimation(500);
@@ -312,7 +326,9 @@ export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimatio
       return;
     }
 
-    equipmentModelResult.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
+    equipmentModelResult.assetContainer.meshes.forEach(
+      (mesh) => (mesh.visibility = this.visibility)
+    );
 
     this.equipment.holdables[equipment.entityProperties.id] = equipmentModelResult;
 

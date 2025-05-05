@@ -45,7 +45,7 @@ export class HighlightManager {
     )) {
       const originalColors: { [meshName: string]: Color3 } = {};
 
-      for (const mesh of equipmentModel.meshes) {
+      for (const mesh of equipmentModel.assetContainer.meshes) {
         const { material } = mesh;
         if (!(material instanceof StandardMaterial) && !(material instanceof PBRMaterial)) continue;
         const originalColor = cloneDeep(material.emissiveColor);
@@ -97,7 +97,7 @@ export class HighlightManager {
         console.error("original colors not found when removing highlight");
         continue;
       }
-      for (const mesh of equipmentModel.meshes) {
+      for (const mesh of equipmentModel.assetContainer.meshes) {
         const { material } = mesh;
         if (!(material instanceof StandardMaterial) && !(material instanceof PBRMaterial)) continue;
         const originalColorOption = originalColors[mesh.name];
@@ -174,7 +174,7 @@ export class HighlightManager {
     for (const [_entityId, equipmentModel] of Object.entries(
       this.modularCharacter.equipment.holdables
     )) {
-      for (const mesh of equipmentModel.meshes) {
+      for (const mesh of equipmentModel.assetContainer.meshes) {
         const { material } = mesh;
 
         if (material instanceof StandardMaterial || material instanceof PBRMaterial) {

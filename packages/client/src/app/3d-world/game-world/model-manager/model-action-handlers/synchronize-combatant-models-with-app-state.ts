@@ -12,7 +12,6 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { Combatant, cloneVector3 } from "@speed-dungeon/common";
-import { despawnCharacterModel } from "./despawn-modular-character";
 import { spawnCharacterModel } from "./spawn-modular-character";
 import { setAlert } from "@/app/components/alerts";
 import cloneDeep from "lodash.clonedeep";
@@ -30,8 +29,7 @@ export async function synchronizeCombatantModelsWithAppState() {
   // delete models which don't appear on the list
   for (const [entityId, model] of Object.entries(modelManager.combatantModels)) {
     if (!modelsAndPositions[entityId]) {
-      const maybeError = despawnCharacterModel(gameWorld.current, model);
-      if (maybeError instanceof Error) return maybeError;
+      model.cleanup({ softCleanup: false });
       delete modelManager.combatantModels[entityId];
       useGameStore.getState().mutateState((state) => {
         delete state.combatantModelLoadingStates[entityId];

@@ -5,12 +5,11 @@ import {
 } from "@speed-dungeon/common";
 import { CharacterModel } from "./index.js";
 import { spawnItemModel } from "../../item-models/spawn-item-model";
-import { AssetContainer } from "@babylonjs/core";
 import {
   attachHoldableModelToHolsteredPosition,
   attachHoldableModelToSkeleton,
 } from "./attach-holdables";
-import { disposeAsyncLoadedScene } from "../../utils";
+import { ItemModel } from "../item-models/index.js";
 
 export async function handleHotswapSlotChanged(
   this: CharacterModel,
@@ -33,7 +32,7 @@ export async function handleHotswapSlotChanged(
       } else {
         const modelOption = this.equipment.holdables[equipment.entityProperties.id];
         console.log("disposing undisplayed hotswap models", modelOption);
-        if (modelOption) disposeAsyncLoadedScene(modelOption);
+        if (modelOption) modelOption.cleanup({ softCleanup: false });
         delete this.equipment.holdables[equipment.entityProperties.id];
       }
     }
@@ -45,12 +44,9 @@ export async function handleHotswapSlotChanged(
   else console.log("wasn't idling on hotswap change");
 }
 
-async function spawnItemModelIfNotAlready(
-  modularCharacter: CharacterModel,
-  equipment: Equipment
-) {
+async function spawnItemModelIfNotAlready(modularCharacter: CharacterModel, equipment: Equipment) {
   const entityId = equipment.entityProperties.id;
-  let model: AssetContainer | undefined = modularCharacter.equipment.holdables[entityId];
+  let model: ItemModel | undefined = modularCharacter.equipment.holdables[entityId];
   if (model !== undefined) return model;
 
   const modelResult = await spawnItemModel(
@@ -59,6 +55,7 @@ async function spawnItemModelIfNotAlready(
     modularCharacter.world.defaultMaterials,
     true
   );
+
   if (modelResult instanceof Error) return modelResult;
   modularCharacter.equipment.holdables[entityId] = modelResult;
   return modelResult;
