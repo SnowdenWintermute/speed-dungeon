@@ -148,7 +148,7 @@ export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimatio
       holdable.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
     }
     for (const wearable of Object.values(this.equipment.wearables)) {
-      wearable?.scene.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
+      wearable?.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
     }
   }
 

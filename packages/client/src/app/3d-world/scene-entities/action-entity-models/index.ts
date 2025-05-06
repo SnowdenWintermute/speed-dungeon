@@ -5,14 +5,18 @@ import {
   StandardMaterial,
   TransformNode,
   Vector3,
+  Quaternion,
+  AbstractMesh,
 } from "@babylonjs/core";
 import { ActionEntityName, ERROR_MESSAGES, EntityId } from "@speed-dungeon/common";
-import { disposeAsyncLoadedScene, importMesh } from "../../utils";
-import { ModelMovementManager } from "../model-movement-manager";
+import { importMesh } from "../../utils";
 import { gameWorld } from "../../SceneManager";
 import { ACTION_ENTITY_NAME_TO_MODEL_PATH } from "./action-entity-model-paths";
-import { CosmeticEffectManager } from "../cosmetic-effect-manager";
-import { DynamicAnimationManager } from "../model-animation-managers/dynamic-animation-manager";
+import {
+  DynamicAnimationManager,
+  DynamicAnimation,
+} from "../model-animation-managers/dynamic-animation-manager";
+import { SceneEntity } from "..";
 
 export class ActionEntityManager {
   models: { [id: EntityId]: ActionEntityModel } = {};
@@ -22,7 +26,7 @@ export class ActionEntityManager {
   }
 
   unregister(id: EntityId) {
-    this.models[id]?.softCleanup();
+    this.models[id]?.cleanup({ softCleanup: true });
     delete this.models[id];
   }
 
@@ -31,45 +35,39 @@ export class ActionEntityManager {
   }
 }
 
-export class ActionEntityModel {
-  public movementManager: ModelMovementManager;
-  public animationManager: DynamicAnimationManager;
-  public cosmeticEffectManager = new CosmeticEffectManager();
-  private transformNode: TransformNode;
-  // public animationManager: AnimationManager
+export class ActionEntityModel extends SceneEntity<DynamicAnimation, DynamicAnimationManager> {
   constructor(
     public id: EntityId,
-    public scene: AssetContainer,
+    assetContainer: AssetContainer,
     startPosition: Vector3,
     public name: ActionEntityName,
     public pointTowardEntity?: EntityId
   ) {
-    const modelRootTransformNode = scene.transformNodes[0];
-    if (!modelRootTransformNode) throw new Error("Expected transform node was missing in scene");
-
-    this.transformNode = new TransformNode("");
-    this.transformNode.setAbsolutePosition(startPosition);
-    modelRootTransformNode.setParent(this.transformNode);
-    modelRootTransformNode.setPositionWithLocalVector(Vector3.Zero());
-
-    this.movementManager = new ModelMovementManager(this.transformNode);
-    this.animationManager = new DynamicAnimationManager(this.scene);
-    // this.animationManager = new AnimationManager()
-    this.movementManager.instantlyMove(startPosition);
+    super(id, assetContainer, startPosition, new Quaternion());
   }
 
-  softCleanup() {
-    disposeAsyncLoadedScene(this.scene);
-    this.cosmeticEffectManager.softCleanup();
+  initRootMesh(assetContainer: AssetContainer): AbstractMesh {
+    const rootMesh = assetContainer.meshes[0];
+    if (!rootMesh) throw new Error("no meshes found");
+    return rootMesh;
   }
-
-  cleanup() {
-    this.dispose();
+  initAnimationManager(assetContainer: AssetContainer): DynamicAnimationManager {
+    return new DynamicAnimationManager(assetContainer);
   }
+  customCleanup(): void {}
 
-  dispose() {
-    disposeAsyncLoadedScene(this.scene);
-    this.transformNode.dispose(false);
+  startPointingTowardsCombatant(entityId: EntityId) {
+    const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
+    if (!combatantModelOption) throw new Error("Tried to point at an entity with no model");
+
+    const targetBoundingBoxCenter = combatantModelOption.getBoundingInfo().boundingBox.centerWorld;
+    const forward = targetBoundingBoxCenter
+      .subtract(this.movementManager.transformNode.getAbsolutePosition())
+      .normalize();
+
+    const up = Vector3.Up();
+    const lookRotation: Quaternion = Quaternion.FromLookDirectionLH(forward, up);
+    this.movementManager.startRotatingTowards(lookRotation, 400, () => {});
   }
 }
 
@@ -104,16 +102,8 @@ export async function spawnActionEntityModel(vfxName: ActionEntityName, position
 
           mesh.material = material;
           mesh.position.copyFrom(position);
-          model = {
-            meshes: [mesh],
-            particleSystems: [],
-            skeletons: [],
-            animationGroups: [],
-            transformNodes: [],
-            geometries: [],
-            lights: [],
-            spriteManagers: [],
-          };
+          model = new AssetContainer();
+          model.meshes = [mesh];
         }
         break;
     }

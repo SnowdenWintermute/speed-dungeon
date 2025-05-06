@@ -25,6 +25,10 @@ export interface ActionResolutionStepConfig {
     meleeAttackAnimationType?: MeleeAttackAnimationType,
     successOption?: boolean
   ): EntityAnimation;
+  getEquipmentAnimations?(
+    user: CombatantProperties,
+    animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
+  ): EntityAnimation[];
   getDestination?(context: ActionResolutionStepContext): Error | EntityDestination;
   // don't include this step in the initial list, it may be added later such as in the case
   // of return home step for a melee main hand attack that killed its target, thus not needing

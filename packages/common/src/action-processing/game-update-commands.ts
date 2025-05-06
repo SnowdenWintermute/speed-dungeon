@@ -65,6 +65,8 @@ export type SpawnEntityGameUpdateCommand = {
 // - which weapon slot to animate and what animation
 // ABSTRACT
 // - list of entity ids with EntityAnimations, movement options, etc
+// HYBRID
+// - main update and a list of sub-animations
 
 export type EntityMotionGameUpdateCommand = {
   type: GameUpdateCommandType.EntityMotion;

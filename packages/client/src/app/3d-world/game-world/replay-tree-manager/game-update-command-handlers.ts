@@ -16,13 +16,12 @@ import {
   SpawnEntityGameUpdateCommand,
   SpawnableEntityType,
   SpeedDungeonGame,
-  AbstractParentType,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 import { getChildMeshByName } from "../../utils";
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { entityMotionGameUpdateHandler } from "./entity-motion";
+import { entityMotionGameUpdateHandler } from "./entity-motion-update-handler";
 import { hitOutcomesGameUpdateHandler } from "./hit-outcomes";
 import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
@@ -35,7 +34,6 @@ import {
 import {
   ABSTRACT_PARENT_TYPE_TO_BONE_NAME,
   BONE_NAMES,
-  BoneName,
 } from "../../scene-entities/character-models/skeleton-structure-variables";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<

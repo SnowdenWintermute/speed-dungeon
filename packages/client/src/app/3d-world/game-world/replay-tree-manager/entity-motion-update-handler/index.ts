@@ -7,40 +7,29 @@ import {
   DynamicAnimationName,
   COMBAT_ACTIONS,
 } from "@speed-dungeon/common";
-import { gameWorld } from "../../SceneManager";
+import { gameWorld } from "../../../SceneManager";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { plainToInstance } from "class-transformer";
-import { ModelMovementManager } from "../../scene-entities/model-movement-manager";
-import { DynamicAnimationManager } from "../../scene-entities/model-animation-managers/dynamic-animation-manager";
-import { SkeletalAnimationManager } from "../../scene-entities/model-animation-managers/skeletal-animation-manager";
-import { CosmeticEffectManager } from "../../scene-entities/cosmetic-effect-manager";
-import { ManagedAnimationOptions } from "../../scene-entities/model-animation-managers";
-import { handleStepCosmeticEffects } from "./handle-step-cosmetic-effects";
+import { SkeletalAnimationManager } from "../../../scene-entities/model-animation-managers/skeletal-animation-manager";
+import { ManagedAnimationOptions } from "../../../scene-entities/model-animation-managers";
+import { handleStepCosmeticEffects } from "../handle-step-cosmetic-effects";
+import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
 
 export function entityMotionGameUpdateHandler(update: {
   command: EntityMotionGameUpdateCommand;
   isComplete: boolean;
 }) {
   const { command } = update;
-  let movementManager: ModelMovementManager;
-  let animationManager: DynamicAnimationManager | SkeletalAnimationManager | undefined;
-  let cosmeticEffectManager: CosmeticEffectManager;
   const { entityId, translationOption, rotationOption, animationOption } = command;
 
   let destinationYOption: undefined | number;
 
-  if (command.entityType === SpawnableEntityType.Combatant) {
-    const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
-    if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-    movementManager = combatantModelOption.movementManager;
-    animationManager = combatantModelOption.animationManager;
-    cosmeticEffectManager = combatantModelOption.cosmeticEffectManager;
-  } else {
+  const sceneEntityToUpdate = getSceneEntityToUpdate(command);
+  const { movementManager, animationManager, cosmeticEffectManager } = sceneEntityToUpdate;
+
+  if (command.entityType === SpawnableEntityType.ActionEntity) {
     const actionEntityModelOption = gameWorld.current?.actionEntityManager.models[entityId];
     if (!actionEntityModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_ACTION_ENTITY_MODEL);
-    movementManager = actionEntityModelOption.movementManager;
-    animationManager = actionEntityModelOption.animationManager;
-    cosmeticEffectManager = actionEntityModelOption.cosmeticEffectManager;
 
     movementManager.transformNode.setParent(null);
 
