@@ -8,7 +8,7 @@ import {
   Quaternion,
   AbstractMesh,
 } from "@babylonjs/core";
-import { ActionEntityName, ERROR_MESSAGES, EntityId } from "@speed-dungeon/common";
+import { ActionEntityName, ERROR_MESSAGES, EntityId, Milliseconds } from "@speed-dungeon/common";
 import { importMesh } from "../../utils";
 import { gameWorld } from "../../SceneManager";
 import { ACTION_ENTITY_NAME_TO_MODEL_PATH } from "./action-entity-model-paths";
@@ -56,7 +56,7 @@ export class ActionEntityModel extends SceneEntity<DynamicAnimation, DynamicAnim
   }
   customCleanup(): void {}
 
-  startPointingTowardsCombatant(entityId: EntityId) {
+  startPointingTowardsCombatant(entityId: EntityId, duration: Milliseconds) {
     const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
     if (!combatantModelOption) throw new Error("Tried to point at an entity with no model");
 
@@ -67,7 +67,7 @@ export class ActionEntityModel extends SceneEntity<DynamicAnimation, DynamicAnim
 
     const up = Vector3.Up();
     const lookRotation: Quaternion = Quaternion.FromLookDirectionLH(forward, up);
-    this.movementManager.startRotatingTowards(lookRotation, 400, () => {});
+    this.movementManager.startRotatingTowards(lookRotation, duration, () => {});
   }
 }
 

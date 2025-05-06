@@ -50,10 +50,6 @@ export class ActionTracker {
       idGenerator: this.idGenerator,
     };
     const stepTypes = action.stepsConfig.getStepTypes();
-    console.log(
-      "got sorted steps: ",
-      stepTypes.map((step) => ACTION_RESOLUTION_STEP_TYPE_STRINGS[step])
-    );
     const stepOption = stepTypes[this.stepIndex];
     if (stepOption === undefined) return null;
     const stepCreator = ACTION_STEP_CREATORS[stepOption];

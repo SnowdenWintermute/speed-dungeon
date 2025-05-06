@@ -8,7 +8,7 @@ import {
 } from "../../action-processing/index.js";
 import { CombatantSpecies } from "../../combatants/combatant-species.js";
 import { CombatantProperties } from "../../combatants/index.js";
-import { Milliseconds } from "../../primatives/index.js";
+import { EntityId, Milliseconds } from "../../primatives/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { MeleeAttackAnimationType } from "./action-implementations/attack/determine-melee-attack-animation-type.js";
 
@@ -30,6 +30,11 @@ export interface ActionResolutionStepConfig {
     animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
   ): EntityAnimation[];
   getDestination?(context: ActionResolutionStepContext): Error | EntityDestination;
+  startPointingActionEntityTowardCombatant?(context: ActionResolutionStepContext): {
+    actionEntityId: EntityId;
+    targetId: EntityId;
+    duration: Milliseconds;
+  };
   // don't include this step in the initial list, it may be added later such as in the case
   // of return home step for a melee main hand attack that killed its target, thus not needing
   // to do the offhand attack

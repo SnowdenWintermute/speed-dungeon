@@ -240,8 +240,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       actionEntity.entityProperties.id,
       scene,
       position,
-      actionEntityProperties.name,
-      actionEntityProperties.pointTowardEntityOption
+      actionEntityProperties.name
     );
 
     update.isComplete = true;

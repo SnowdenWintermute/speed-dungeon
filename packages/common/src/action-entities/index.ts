@@ -36,7 +36,7 @@ export interface AbstractParent {
 export type ActionEntityProperties = {
   position: Vector3;
   name: ActionEntityName;
-  pointTowardEntityOption?: EntityId;
+  // pointTowardEntityOption?: EntityId;
   parentOption?: AbstractParent;
 };
 

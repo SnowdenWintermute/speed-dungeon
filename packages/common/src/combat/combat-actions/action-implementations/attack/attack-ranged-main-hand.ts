@@ -8,7 +8,6 @@ import {
 import { ATTACK } from "./index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { ActionEntityName, AbstractParentType } from "../../../../action-entities/index.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
@@ -62,17 +61,6 @@ const config: CombatActionComponentConfig = {
   getSpawnableEntity: (context) => {
     const { combatantContext } = context;
     const position = combatantContext.combatant.combatantProperties.position.clone();
-    const { actionExecutionIntent } = context.tracker;
-    const { party } = combatantContext;
-
-    const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
-
-    const primaryTargetResult = targetingCalculator.getPrimaryTargetCombatant(
-      party,
-      actionExecutionIntent
-    );
-    if (primaryTargetResult instanceof Error) throw primaryTargetResult;
-    const target = primaryTargetResult;
 
     return {
       type: SpawnableEntityType.ActionEntity,
@@ -85,7 +73,6 @@ const config: CombatActionComponentConfig = {
             type: AbstractParentType.UserMainHand,
             parentEntityId: context.combatantContext.combatant.entityProperties.id,
           },
-          pointTowardEntityOption: target.entityProperties.id,
         },
       },
     };

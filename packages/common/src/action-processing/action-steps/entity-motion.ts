@@ -45,6 +45,14 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
       }
       if (rotationOption) gameUpdateCommand.rotationOption = rotationOption;
     }
+
+    const pointTowardGetter =
+      action.stepsConfig.steps[this.type]?.startPointingActionEntityTowardCombatant;
+    if (pointTowardGetter) {
+      console.log("point toward getter: ", pointTowardGetter);
+      const entityIdAndDuration = pointTowardGetter(context);
+      gameUpdateCommand.startPointingTowardCombatantOption = entityIdAndDuration;
+    }
   }
 
   protected getDestinations(action: CombatActionComponent) {

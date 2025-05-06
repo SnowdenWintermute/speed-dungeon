@@ -27,30 +27,15 @@ export function entityMotionGameUpdateHandler(update: {
   const sceneEntityToUpdate = getSceneEntityToUpdate(command);
   const { movementManager, animationManager, cosmeticEffectManager } = sceneEntityToUpdate;
 
-  if (command.entityType === SpawnableEntityType.ActionEntity) {
-    const actionEntityModelOption = gameWorld.current?.actionEntityManager.models[entityId];
+  if (command.startPointingTowardCombatantOption) {
+    const { actionEntityId, targetId, duration } = command.startPointingTowardCombatantOption;
+    const actionEntityModelOption = gameWorld.current?.actionEntityManager.models[actionEntityId];
     if (!actionEntityModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_ACTION_ENTITY_MODEL);
 
-    movementManager.transformNode.setParent(null);
-
-    if (actionEntityModelOption.pointTowardEntity) {
-      const combatantModelOption =
-        gameWorld.current?.modelManager.combatantModels[actionEntityModelOption.pointTowardEntity];
-      if (!combatantModelOption) throw new Error("Tried to point at an entity with no model");
-
-      const targetBoundingBoxCenter =
-        combatantModelOption.getBoundingInfo().boundingBox.centerWorld;
-      const forward = targetBoundingBoxCenter
-        .subtract(actionEntityModelOption.movementManager.transformNode.getAbsolutePosition())
-        .normalize();
-
-      const up = Vector3.Up();
-
-      const lookRotation: Quaternion = Quaternion.FromLookDirectionLH(forward, up);
-      actionEntityModelOption.movementManager.startRotatingTowards(lookRotation, 400, () => {});
-
-      destinationYOption = targetBoundingBoxCenter.y;
-    }
+    actionEntityModelOption.movementManager.transformNode.setParent(null);
+    actionEntityModelOption.startPointingTowardsCombatant(targetId, duration);
+    console.log("strated topoint at ", entityId);
+    // destinationYOption = targetBoundingBoxCenter.y;
   }
 
   const action = COMBAT_ACTIONS[command.actionName];

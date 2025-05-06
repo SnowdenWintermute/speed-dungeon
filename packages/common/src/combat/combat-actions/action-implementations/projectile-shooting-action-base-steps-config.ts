@@ -1,5 +1,7 @@
 import { ActionResolutionStepType, AnimationTimingType } from "../../../action-processing/index.js";
 import { AnimationType, SkeletalAnimationName } from "../../../app-consts.js";
+import { SpawnableEntityType } from "../../../spawnables/index.js";
+import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { ActionResolutionStepsConfig } from "../combat-action-steps-config.js";
 import { ActionExecutionPhase } from "./action-execution-phase.js";
 import {
@@ -59,6 +61,29 @@ export function getProjectileShootingActionBaseStepsConfig(
             animationLengths,
             animationNames[ActionExecutionPhase.Recovery]
           ),
+
+        startPointingActionEntityTowardCombatant: (context) => {
+          const { party } = context.combatantContext;
+          const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+          const primaryTarget = targetingCalculator.getPrimaryTargetCombatant(
+            party,
+            context.tracker.actionExecutionIntent
+          );
+          if (primaryTarget instanceof Error) throw primaryTarget;
+
+          const actionEntity = context.tracker.spawnedEntityOption;
+          if (!actionEntity) throw new Error("expected action entity was missing");
+          const actionEntityId = (() => {
+            switch (actionEntity.type) {
+              case SpawnableEntityType.Combatant:
+                return actionEntity.combatant.entityProperties.id;
+              case SpawnableEntityType.ActionEntity:
+                return actionEntity.actionEntity.entityProperties.id;
+            }
+          })();
+
+          return { actionEntityId, targetId: primaryTarget.entityProperties.id, duration: 400 };
+        },
       },
 
       [ActionResolutionStepType.FinalPositioning]: {

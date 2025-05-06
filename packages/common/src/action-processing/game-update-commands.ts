@@ -79,10 +79,39 @@ export type EntityMotionGameUpdateCommand = {
   animationOption?: EntityAnimation;
   translationOption?: EntityTranslation;
   rotationOption?: EntityRotation;
-  idleOnComplete?: boolean;
   instantTransition?: boolean;
+
+  idleOnComplete?: boolean;
+
   despawnOnComplete?: boolean;
+  startPointingTowardCombatantOption?: {
+    actionEntityId: EntityId;
+    targetId: EntityId;
+    duration: Milliseconds;
+  };
 };
+
+// ENTITY MOTION
+// actionName
+// actionStep
+// entityId
+// animationOption
+// translationOption
+// rotationOption
+
+// COMBATANT MOTION TWEAKS
+// alternateCombatantId (if not the main entity for this motion)
+// idleOnMotionsCompleted
+// equipmentAnimations: EquipmentAnimation[]
+
+// ACTION ENTITY MOTION TWEAKS
+// alternateActionEtityId (if not the main entity for this motion such as when combatant motion needs to point an arrow somewhere)
+// despawnOnMotionsCompleted
+// set parent (attach to bow string)
+// clear parent (remove from bow string to allow free flight)
+// setDestinationY (hitbox center, head bone)
+// start pointing at hitbox center of entity
+// start pointing at bone in entity
 
 export type ResourcesPaidGameUpdateCommand = {
   type: GameUpdateCommandType.ResourcesPaid;
