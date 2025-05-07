@@ -59,22 +59,37 @@ export type SpawnEntityGameUpdateCommand = {
   entity: SpawnableEntity;
 };
 
-// thinking about how to add weapon animations
-// SIMPLE
-// - which character to animate and what animation
-// - which weapon slot to animate and what animation
-// ABSTRACT
-// - list of entity ids with EntityAnimations, movement options, etc
-// HYBRID
-// - main update and a list of sub-animations
+export interface EntityMotionUpdate {
+  entityId: EntityId;
+  animationOption?: EntityAnimation;
+  translationOption?: EntityTranslation;
+  rotationOption?: EntityRotation;
+  instantTransition?: boolean;
+}
+
+export interface ActionEntityMotionUpdate extends EntityMotionUpdate {
+  entityType: SpawnableEntityType.ActionEntity;
+  despawnOnComplete?: boolean;
+  startPointingTowardCombatantOption?: {
+    actionEntityId: EntityId;
+    targetId: EntityId;
+    duration: Milliseconds;
+  };
+}
+export interface CombatantMotionUpdate extends EntityMotionUpdate {
+  entityType: SpawnableEntityType.Combatant;
+  idleOnComplete?: boolean;
+}
 
 export type EntityMotionGameUpdateCommand = {
   type: GameUpdateCommandType.EntityMotion;
   completionOrderId: null | number;
-  step: ActionResolutionStepType;
 
+  step: ActionResolutionStepType;
   actionName: CombatActionName; // so client can look up the cosmetic effects associated with it
+
   entityType: SpawnableEntityType;
+
   entityId: EntityId;
   animationOption?: EntityAnimation;
   translationOption?: EntityTranslation;
@@ -105,11 +120,10 @@ export type EntityMotionGameUpdateCommand = {
 // equipmentAnimations: EquipmentAnimation[]
 
 // ACTION ENTITY MOTION TWEAKS
-// alternateActionEtityId (if not the main entity for this motion such as when combatant motion needs to point an arrow somewhere)
+// alternateActionEntityId (if not the main entity for this motion such as when combatant motion needs to point an arrow somewhere)
 // despawnOnMotionsCompleted
-// set parent (attach to bow string)
-// clear parent (remove from bow string to allow free flight)
-// setDestinationY (hitbox center, head bone)
+// set parent (attach to bow string) or null (remove from bow string to allow free flight)
+// setDestinationY (target hitbox center,target head bone)
 // start pointing at hitbox center of entity
 // start pointing at bone in entity
 
