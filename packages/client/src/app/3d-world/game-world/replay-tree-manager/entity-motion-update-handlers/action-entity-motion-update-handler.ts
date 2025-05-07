@@ -2,10 +2,9 @@ import {
   AnimationTimingType,
   SkeletalAnimationName,
   ERROR_MESSAGES,
-  EntityMotionGameUpdateCommand,
-  SpawnableEntityType,
   DynamicAnimationName,
   COMBAT_ACTIONS,
+  ActionEntityMotionGameUpdateCommand,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../../SceneManager";
 import { Quaternion, Vector3 } from "@babylonjs/core";
@@ -15,20 +14,22 @@ import { ManagedAnimationOptions } from "../../../scene-entities/model-animation
 import { handleStepCosmeticEffects } from "../handle-step-cosmetic-effects";
 import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
 
-export function entityMotionGameUpdateHandler(update: {
-  command: EntityMotionGameUpdateCommand;
+export function actionEntityMotionGameUpdateHandler(update: {
+  command: ActionEntityMotionGameUpdateCommand;
   isComplete: boolean;
 }) {
   const { command } = update;
-  const { entityId, translationOption, rotationOption, animationOption } = command;
+  const { mainEntityUpdate } = command;
+  const { entityId, translationOption, rotationOption, animationOption } = mainEntityUpdate;
 
   let destinationYOption: undefined | number;
 
-  const sceneEntityToUpdate = getSceneEntityToUpdate(command);
-  const { movementManager, animationManager, cosmeticEffectManager } = sceneEntityToUpdate;
+  const toUpdate = getSceneEntityToUpdate(mainEntityUpdate);
+  const { movementManager, animationManager, cosmeticEffectManager } = toUpdate;
 
-  if (command.startPointingTowardCombatantOption) {
-    const { actionEntityId, targetId, duration } = command.startPointingTowardCombatantOption;
+  if (mainEntityUpdate.startPointingTowardCombatantOption) {
+    const { actionEntityId, targetId, duration } =
+      mainEntityUpdate.startPointingTowardCombatantOption;
     const actionEntityModelOption = gameWorld.current?.actionEntityManager.models[actionEntityId];
     if (!actionEntityModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_ACTION_ENTITY_MODEL);
 
@@ -62,21 +63,8 @@ export function entityMotionGameUpdateHandler(update: {
       ) {
         update.isComplete = true;
 
-        if (command.despawnOnComplete) {
-          if (command.entityType === SpawnableEntityType.ActionEntity) {
-            gameWorld.current?.actionEntityManager.unregister(command.entityId);
-          }
-        }
-      }
-
-      if (
-        animationManager &&
-        command.idleOnComplete &&
-        animationManager instanceof SkeletalAnimationManager
-      ) {
-        const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
-        if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-        combatantModelOption.startIdleAnimation(500);
+        if (mainEntityUpdate.despawnOnComplete)
+          gameWorld.current?.actionEntityManager.unregister(mainEntityUpdate.entityId);
       }
     });
   } else {
@@ -104,29 +92,20 @@ export function entityMotionGameUpdateHandler(update: {
         if (animationOption.timing.type === AnimationTimingType.Looping) return;
         animationIsComplete = true;
 
-        if (translationIsComplete || !translationOption) {
-          update.isComplete = true;
-
-          if (command.idleOnComplete) {
-            const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
-            if (!combatantModelOption)
-              throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-            combatantModelOption.startIdleAnimation(500);
-          }
-        }
+        if (translationIsComplete || !translationOption) update.isComplete = true;
       },
     };
 
     if (animationManager instanceof SkeletalAnimationManager) {
       animationManager.startAnimationWithTransition(
         animationOption.name.name as SkeletalAnimationName,
-        command.instantTransition ? 200 : 500,
+        mainEntityUpdate.instantTransition ? 200 : 500,
         options
       );
     } else {
       animationManager.startAnimationWithTransition(
         animationOption.name.name as DynamicAnimationName,
-        command.instantTransition ? 0 : 500,
+        mainEntityUpdate.instantTransition ? 0 : 500,
         {
           ...options,
         }

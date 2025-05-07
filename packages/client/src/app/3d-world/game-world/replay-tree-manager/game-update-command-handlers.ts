@@ -1,12 +1,13 @@
 import {
+  ActionEntityMotionGameUpdateCommand,
   ActionPayableResource,
   ActivatedTriggersGameUpdateCommand,
   COMBATANT_CONDITION_CONSTRUCTORS,
   CombatantCondition,
+  CombatantMotionGameUpdateCommand,
   CombatantProperties,
   DurabilityChangesByEntityId,
   ERROR_MESSAGES,
-  EntityMotionGameUpdateCommand,
   Equipment,
   GameUpdateCommandType,
   HitOutcomesGameUpdateCommand,
@@ -21,7 +22,7 @@ import {
 import { gameWorld } from "../../SceneManager";
 import { getChildMeshByName } from "../../utils";
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { entityMotionGameUpdateHandler } from "./entity-motion-update-handler";
+import { entityMotionGameUpdateHandler } from "./entity-motion-update-handlers";
 import { hitOutcomesGameUpdateHandler } from "./hit-outcomes";
 import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
@@ -35,16 +36,24 @@ import {
   ABSTRACT_PARENT_TYPE_TO_BONE_NAME,
   BONE_NAMES,
 } from "../../scene-entities/character-models/skeleton-structure-variables";
+import { actionEntityMotionGameUpdateHandler } from "./entity-motion-update-handlers/action-entity-motion-update-handler";
+import { combatantMotionGameUpdateHandler } from "./entity-motion-update-handlers/combatant-motion-update-handler";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
   (arg: any) => Promise<Error | void>
 > = {
-  [GameUpdateCommandType.EntityMotion]: async function (update: {
-    command: EntityMotionGameUpdateCommand;
+  [GameUpdateCommandType.CombatantMotion]: async function (update: {
+    command: CombatantMotionGameUpdateCommand;
     isComplete: boolean;
   }) {
-    entityMotionGameUpdateHandler(update);
+    combatantMotionGameUpdateHandler(update);
+  },
+  [GameUpdateCommandType.ActionEntityMotion]: async function (update: {
+    command: ActionEntityMotionGameUpdateCommand;
+    isComplete: boolean;
+  }) {
+    actionEntityMotionGameUpdateHandler(update);
   },
   [GameUpdateCommandType.ResourcesPaid]: async function (update: {
     command: ResourcesPaidGameUpdateCommand;

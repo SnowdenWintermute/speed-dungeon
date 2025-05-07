@@ -1,5 +1,8 @@
 import { ActionResolutionStepContext, ActionResolutionStepType } from "./index.js";
-import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
+import {
+  CombatantMotionGameUpdateCommand,
+  GameUpdateCommandType,
+} from "../game-update-commands.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
@@ -8,18 +11,21 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
   constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {
     /**Here we create and set the internal reference to the associated game update command, as well as
      * apply updates to game state for instantly processed steps*/
-    const gameUpdateCommand: GameUpdateCommand = {
-      type: GameUpdateCommandType.EntityMotion,
+    const gameUpdateCommand: CombatantMotionGameUpdateCommand = {
+      type: GameUpdateCommandType.CombatantMotion,
       actionName: context.tracker.actionExecutionIntent.actionName,
       step,
       completionOrderId: null,
-      entityType: SpawnableEntityType.Combatant,
-      entityId: context.combatantContext.combatant.entityProperties.id,
-      idleOnComplete: step === ActionResolutionStepType.FinalPositioning,
-      instantTransition:
-        step !== ActionResolutionStepType.InitialPositioning &&
-        step !== ActionResolutionStepType.ChamberingMotion &&
-        step !== ActionResolutionStepType.FinalPositioning,
+
+      mainEntityUpdate: {
+        entityType: SpawnableEntityType.Combatant,
+        entityId: context.combatantContext.combatant.entityProperties.id,
+        idleOnComplete: step === ActionResolutionStepType.FinalPositioning,
+        instantTransition:
+          step !== ActionResolutionStepType.InitialPositioning &&
+          step !== ActionResolutionStepType.ChamberingMotion &&
+          step !== ActionResolutionStepType.FinalPositioning,
+      },
     };
 
     super(

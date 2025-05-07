@@ -1,9 +1,14 @@
 import { ActionResolutionStepContext, ActionResolutionStepType } from "./index.js";
-import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
+import {
+  ActionEntityMotionGameUpdateCommand,
+  GameUpdateCommand,
+  GameUpdateCommandType,
+} from "../game-update-commands.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { ActionEntity, ActionEntityName } from "../../action-entities/index.js";
+import { COMBAT_ACTIONS } from "../../combat/index.js";
 
 export class ActionEntityMotionActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(
@@ -16,14 +21,18 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
       actionEntity.actionEntityProperties.name === ActionEntityName.IceBolt ||
       stepType === ActionResolutionStepType.RecoveryMotion;
 
-    const gameUpdateCommand: GameUpdateCommand = {
-      type: GameUpdateCommandType.EntityMotion,
+    const { actionName } = context.tracker.actionExecutionIntent;
+
+    const gameUpdateCommand: ActionEntityMotionGameUpdateCommand = {
+      type: GameUpdateCommandType.ActionEntityMotion,
       step: stepType,
-      actionName: context.tracker.actionExecutionIntent.actionName,
+      actionName,
       completionOrderId: null,
-      entityType: SpawnableEntityType.ActionEntity,
-      entityId: actionEntity.entityProperties.id,
-      despawnOnComplete,
+      mainEntityUpdate: {
+        entityType: SpawnableEntityType.ActionEntity,
+        entityId: actionEntity.entityProperties.id,
+        despawnOnComplete,
+      },
     };
 
     super(
@@ -33,6 +42,16 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
       actionEntity.actionEntityProperties.position,
       ARROW_TIME_TO_MOVE_ONE_METER
     );
+
+    const action = COMBAT_ACTIONS[actionName];
+
+    const pointTowardGetter =
+      action.stepsConfig.steps[this.type]?.startPointingActionEntityTowardCombatant;
+    if (pointTowardGetter) {
+      console.log("point toward getter: ", pointTowardGetter);
+      const entityIdAndDuration = pointTowardGetter(context);
+      gameUpdateCommand.mainEntityUpdate.startPointingTowardCombatantOption = entityIdAndDuration;
+    }
   }
   protected getBranchingActions = () => [];
 }

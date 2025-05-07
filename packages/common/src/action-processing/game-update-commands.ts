@@ -16,7 +16,8 @@ import { ActionEntity } from "../action-entities/index.js";
 
 export enum GameUpdateCommandType {
   SpawnEntity,
-  EntityMotion,
+  CombatantMotion,
+  ActionEntityMotion,
   ResourcesPaid,
   ActivatedTriggers,
   HitOutcomes,
@@ -24,7 +25,8 @@ export enum GameUpdateCommandType {
 
 export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, string> = {
   [GameUpdateCommandType.SpawnEntity]: "Spawn Entity",
-  [GameUpdateCommandType.EntityMotion]: "Entity Motion",
+  [GameUpdateCommandType.CombatantMotion]: "Entity Motion",
+  [GameUpdateCommandType.ActionEntityMotion]: "Entity Motion",
   [GameUpdateCommandType.ResourcesPaid]: "Resources Paid",
   [GameUpdateCommandType.ActivatedTriggers]: "Activated Triggers",
   [GameUpdateCommandType.HitOutcomes]: "Hit Outcomes",
@@ -59,7 +61,7 @@ export type SpawnEntityGameUpdateCommand = {
   entity: SpawnableEntity;
 };
 
-export interface EntityMotionUpdate {
+export interface IEntityMotionUpdate {
   entityId: EntityId;
   animationOption?: EntityAnimation;
   translationOption?: EntityTranslation;
@@ -67,7 +69,7 @@ export interface EntityMotionUpdate {
   instantTransition?: boolean;
 }
 
-export interface ActionEntityMotionUpdate extends EntityMotionUpdate {
+export interface ActionEntityMotionUpdate extends IEntityMotionUpdate {
   entityType: SpawnableEntityType.ActionEntity;
   despawnOnComplete?: boolean;
   startPointingTowardCombatantOption?: {
@@ -76,35 +78,38 @@ export interface ActionEntityMotionUpdate extends EntityMotionUpdate {
     duration: Milliseconds;
   };
 }
-export interface CombatantMotionUpdate extends EntityMotionUpdate {
+export interface CombatantMotionUpdate extends IEntityMotionUpdate {
   entityType: SpawnableEntityType.Combatant;
   idleOnComplete?: boolean;
 }
 
-export type EntityMotionGameUpdateCommand = {
-  type: GameUpdateCommandType.EntityMotion;
+export type EntityMotionUpdate = CombatantMotionUpdate | ActionEntityMotionUpdate;
+
+export type CombatantMotionGameUpdateCommand = {
+  type: GameUpdateCommandType.CombatantMotion;
   completionOrderId: null | number;
 
   step: ActionResolutionStepType;
   actionName: CombatActionName; // so client can look up the cosmetic effects associated with it
 
-  entityType: SpawnableEntityType;
-
-  entityId: EntityId;
-  animationOption?: EntityAnimation;
-  translationOption?: EntityTranslation;
-  rotationOption?: EntityRotation;
-  instantTransition?: boolean;
-
-  idleOnComplete?: boolean;
-
-  despawnOnComplete?: boolean;
-  startPointingTowardCombatantOption?: {
-    actionEntityId: EntityId;
-    targetId: EntityId;
-    duration: Milliseconds;
-  };
+  mainEntityUpdate: CombatantMotionUpdate;
+  auxiliaryUpdates?: EntityMotionUpdate[];
 };
+
+export type ActionEntityMotionGameUpdateCommand = {
+  type: GameUpdateCommandType.ActionEntityMotion;
+  completionOrderId: null | number;
+
+  step: ActionResolutionStepType;
+  actionName: CombatActionName; // so client can look up the cosmetic effects associated with it
+
+  mainEntityUpdate: ActionEntityMotionUpdate;
+  auxiliaryUpdates?: EntityMotionUpdate[];
+};
+
+export type EntityMotionUpdateCommand =
+  | CombatantMotionGameUpdateCommand
+  | ActionEntityMotionGameUpdateCommand;
 
 // ENTITY MOTION
 // actionName
@@ -160,7 +165,8 @@ export type HitOutcomesGameUpdateCommand = {
 
 export type GameUpdateCommand =
   | SpawnEntityGameUpdateCommand
-  | EntityMotionGameUpdateCommand
+  | CombatantMotionGameUpdateCommand
+  | ActionEntityMotionGameUpdateCommand
   | ResourcesPaidGameUpdateCommand
   | ActivatedTriggersGameUpdateCommand
   | HitOutcomesGameUpdateCommand;
