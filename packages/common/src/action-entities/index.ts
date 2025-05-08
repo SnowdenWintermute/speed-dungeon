@@ -17,18 +17,18 @@ export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
   [ActionEntityName.IceBurst]: "IceBurst",
 };
 
-export enum AbstractParentType {
-  UserMainHand,
-  UserOffHand,
+export enum EntityReferencePoint {
+  MainHandBone,
+  OffHandBone,
   VfxEntityRoot,
   CombatantHitboxCenter,
-  // OffHand,
-  // MainHandWeapon,
-  // OffHandWeapon
+  HeadBone,
+  NockBone,
+  ArrowRest,
 }
 
 export interface AbstractParent {
-  type: AbstractParentType;
+  type: EntityReferencePoint;
   parentEntityId: EntityId;
   offset?: Vector3;
 }

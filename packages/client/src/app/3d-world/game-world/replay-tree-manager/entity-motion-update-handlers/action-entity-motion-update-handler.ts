@@ -1,16 +1,6 @@
-import {
-  ERROR_MESSAGES,
-  COMBAT_ACTIONS,
-  ActionEntityMotionGameUpdateCommand,
-} from "@speed-dungeon/common";
+import { ERROR_MESSAGES, ActionEntityMotionGameUpdateCommand } from "@speed-dungeon/common";
 import { gameWorld } from "../../../SceneManager";
-import { Quaternion } from "@babylonjs/core";
-import { plainToInstance } from "class-transformer";
-import { handleStepCosmeticEffects } from "../handle-step-cosmetic-effects";
-import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
-import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-completion-tracker";
-import { handleUpdateTranslation } from "./handle-update-translation";
-import { handleUpdateAnimation } from "./handle-update-animation";
+import { handleEntityMotionUpdate } from "./handle-entity-motion-update";
 
 export function actionEntityMotionGameUpdateHandler(update: {
   command: ActionEntityMotionGameUpdateCommand;
@@ -18,10 +8,6 @@ export function actionEntityMotionGameUpdateHandler(update: {
 }) {
   const { command } = update;
   const { mainEntityUpdate } = command;
-  const { entityId, translationOption, rotationOption, animationOption } = mainEntityUpdate;
-
-  const toUpdate = getSceneEntityToUpdate(mainEntityUpdate);
-  const { movementManager, animationManager, cosmeticEffectManager } = toUpdate;
 
   if (mainEntityUpdate.startPointingTowardCombatantOption) {
     const { actionEntityId, targetId, duration } =
@@ -31,46 +17,18 @@ export function actionEntityMotionGameUpdateHandler(update: {
 
     actionEntityModelOption.movementManager.transformNode.setParent(null);
     actionEntityModelOption.startPointingTowardsCombatant(targetId, duration);
-    console.log("strated topoint at ", entityId);
-    // destinationYOption = targetBoundingBoxCenter.y;
   }
 
-  const action = COMBAT_ACTIONS[command.actionName];
+  const onTranslationComplete = () => {
+    if (mainEntityUpdate.despawnOnComplete)
+      gameWorld.current?.actionEntityManager.unregister(mainEntityUpdate.entityId);
+  };
+  const onAnimationComplete = () => {};
 
-  handleStepCosmeticEffects(action, command.step, cosmeticEffectManager, entityId);
-
-  // console.log("destinationOption: ", translationOption?.destination);
-
-  const updateCompletionTracker = new EntityMotionUpdateCompletionTracker(
-    animationOption,
-    !!translationOption
-  );
-
-  handleUpdateTranslation(
-    movementManager,
-    translationOption,
-    updateCompletionTracker,
+  handleEntityMotionUpdate(
     update,
-    () => {
-      if (mainEntityUpdate.despawnOnComplete)
-        gameWorld.current?.actionEntityManager.unregister(mainEntityUpdate.entityId);
-    }
+    command.mainEntityUpdate,
+    onTranslationComplete,
+    onAnimationComplete
   );
-
-  if (rotationOption)
-    movementManager.startRotatingTowards(
-      plainToInstance(Quaternion, rotationOption.rotation),
-      rotationOption.duration,
-      () => {}
-    );
-
-  handleUpdateAnimation(
-    animationManager,
-    animationOption,
-    updateCompletionTracker,
-    update,
-    !!mainEntityUpdate.instantTransition
-  );
-
-  if (updateCompletionTracker.isComplete()) update.isComplete = true;
 }

@@ -12,7 +12,7 @@ import { Combatant, CombatantCondition } from "../combatants/index.js";
 import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { DurabilityChangesByEntityId } from "../durability/index.js";
 import { HitOutcome } from "../hit-outcome.js";
-import { ActionEntity } from "../action-entities/index.js";
+import { EntityReferencePoint, ActionEntity } from "../action-entities/index.js";
 
 export enum GameUpdateCommandType {
   SpawnEntity,
@@ -62,6 +62,8 @@ export type SpawnEntityGameUpdateCommand = {
 };
 
 export interface IEntityMotionUpdate {
+  // @PERF - could rely on the main update command entityId and only supply this if the motion update is for another entity
+  // such as when a combatant motion update has to tell a projectile to point somewhere or change its parent
   entityId: EntityId;
   animationOption?: EntityAnimation;
   translationOption?: EntityTranslation;
@@ -69,18 +71,25 @@ export interface IEntityMotionUpdate {
   instantTransition?: boolean;
 }
 
+export interface ActionEntityPointTowardEntity {
+  actionEntityId: EntityId;
+  targetId: EntityId;
+  positionOnTarget: EntityReferencePoint;
+  duration: Milliseconds;
+}
+
 export interface ActionEntityMotionUpdate extends IEntityMotionUpdate {
   entityType: SpawnableEntityType.ActionEntity;
   despawnOnComplete?: boolean;
-  startPointingTowardCombatantOption?: {
-    actionEntityId: EntityId;
-    targetId: EntityId;
-    duration: Milliseconds;
-  };
+  setParent?: EntityReferencePoint | null;
+  startPointingTowardEntityOption?: ActionEntityPointTowardEntity;
+  destinationY?: EntityReferencePoint;
 }
+
 export interface CombatantMotionUpdate extends IEntityMotionUpdate {
   entityType: SpawnableEntityType.Combatant;
   idleOnComplete?: boolean;
+  equipmentAnimations?: string[]; // @TODO - change to a real type
 }
 
 export type EntityMotionUpdate = CombatantMotionUpdate | ActionEntityMotionUpdate;
@@ -110,27 +119,6 @@ export type ActionEntityMotionGameUpdateCommand = {
 export type EntityMotionUpdateCommand =
   | CombatantMotionGameUpdateCommand
   | ActionEntityMotionGameUpdateCommand;
-
-// ENTITY MOTION
-// actionName
-// actionStep
-// entityId
-// animationOption
-// translationOption
-// rotationOption
-
-// COMBATANT MOTION TWEAKS
-// alternateCombatantId (if not the main entity for this motion)
-// idleOnMotionsCompleted
-// equipmentAnimations: EquipmentAnimation[]
-
-// ACTION ENTITY MOTION TWEAKS
-// alternateActionEntityId (if not the main entity for this motion such as when combatant motion needs to point an arrow somewhere)
-// despawnOnMotionsCompleted
-// set parent (attach to bow string) or null (remove from bow string to allow free flight)
-// setDestinationY (target hitbox center,target head bone)
-// start pointing at hitbox center of entity
-// start pointing at bone in entity
 
 export type ResourcesPaidGameUpdateCommand = {
   type: GameUpdateCommandType.ResourcesPaid;

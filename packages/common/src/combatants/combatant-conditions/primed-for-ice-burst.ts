@@ -12,7 +12,7 @@ import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
-import { AbstractParentType } from "../../action-entities/index.js";
+import { EntityReferencePoint } from "../../action-entities/index.js";
 
 export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.PrimedForIceBurst;
@@ -51,7 +51,7 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
   getCosmeticEffectWhileActive = () => [
     {
       name: CosmeticEffectNames.CombatantIsCold,
-      parentType: AbstractParentType.CombatantHitboxCenter,
+      parentType: EntityReferencePoint.CombatantHitboxCenter,
     },
   ];
 }

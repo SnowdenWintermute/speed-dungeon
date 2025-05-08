@@ -1,6 +1,7 @@
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
-import { AbstractParentType } from "../../action-entities/index.js";
+import { EntityReferencePoint } from "../../action-entities/index.js";
 import {
+  ActionEntityPointTowardEntity,
   ActionResolutionStepContext,
   ActionResolutionStepType,
   EntityAnimation,
@@ -15,7 +16,7 @@ import { MeleeAttackAnimationType } from "./action-implementations/attack/determ
 export interface ActionResolutionStepConfig {
   cosmeticsEffectsToStart?: {
     name: CosmeticEffectNames;
-    parentType: AbstractParentType;
+    parentType: EntityReferencePoint;
     lifetime?: Milliseconds;
   }[];
   cosmeticsEffectsToStop?: CosmeticEffectNames[];
@@ -30,11 +31,9 @@ export interface ActionResolutionStepConfig {
     animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
   ): EntityAnimation[];
   getDestination?(context: ActionResolutionStepContext): Error | EntityDestination;
-  startPointingActionEntityTowardCombatant?(context: ActionResolutionStepContext): {
-    actionEntityId: EntityId;
-    targetId: EntityId;
-    duration: Milliseconds;
-  };
+  startPointingActionEntityTowardCombatant?(
+    context: ActionResolutionStepContext
+  ): ActionEntityPointTowardEntity;
   // don't include this step in the initial list, it may be added later such as in the case
   // of return home step for a melee main hand attack that killed its target, thus not needing
   // to do the offhand attack

@@ -1,7 +1,6 @@
 import { ActionResolutionStepContext, ActionResolutionStepType } from "./index.js";
 import {
   ActionEntityMotionGameUpdateCommand,
-  GameUpdateCommand,
   GameUpdateCommandType,
 } from "../game-update-commands.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
@@ -47,10 +46,12 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
 
     const pointTowardGetter =
       action.stepsConfig.steps[this.type]?.startPointingActionEntityTowardCombatant;
+    console.log("point toward getter before check: ", pointTowardGetter);
+
     if (pointTowardGetter) {
       console.log("point toward getter: ", pointTowardGetter);
       const entityIdAndDuration = pointTowardGetter(context);
-      gameUpdateCommand.mainEntityUpdate.startPointingTowardCombatantOption = entityIdAndDuration;
+      gameUpdateCommand.mainEntityUpdate.startPointingTowardEntityOption = entityIdAndDuration;
     }
   }
   protected getBranchingActions = () => [];

@@ -3,7 +3,7 @@ import {
   ERROR_MESSAGES,
   EntityId,
   Milliseconds,
-  AbstractParentType,
+  EntityReferencePoint,
   COSMETIC_EFFECT_CONSTRUCTORS,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
@@ -18,7 +18,7 @@ import {
 export function startOrStopCosmeticEffect(
   cosmeticEffectToStart: {
     name: CosmeticEffectNames;
-    parentType: AbstractParentType;
+    parentType: EntityReferencePoint;
     lifetime?: Milliseconds;
   }[],
   cosmeticEffectToStop: CosmeticEffectNames[],
@@ -42,7 +42,7 @@ export function startOrStopCosmeticEffect(
       cosmeticEffectManager.cosmeticEffect[name] = effect;
 
       switch (parentType) {
-        case AbstractParentType.UserMainHand:
+        case EntityReferencePoint.MainHandBone:
           {
             const boneName = BONE_NAMES[BoneName.EquipmentR];
 
@@ -55,7 +55,7 @@ export function startOrStopCosmeticEffect(
             effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
           }
           break;
-        case AbstractParentType.UserOffHand:
+        case EntityReferencePoint.OffHandBone:
           {
             const boneName = BONE_NAMES[BoneName.EquipmentL];
 
@@ -69,7 +69,7 @@ export function startOrStopCosmeticEffect(
             effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
           }
           break;
-        case AbstractParentType.VfxEntityRoot:
+        case EntityReferencePoint.VfxEntityRoot:
           {
             const actionEntityModelOption = gameWorld.current?.actionEntityManager.models[entityId];
             if (!actionEntityModelOption)
@@ -78,7 +78,7 @@ export function startOrStopCosmeticEffect(
             effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
           }
           break;
-        case AbstractParentType.CombatantHitboxCenter:
+        case EntityReferencePoint.CombatantHitboxCenter:
           {
             const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
             if (!combatantModelOption)

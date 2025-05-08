@@ -63,8 +63,6 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
       }
     }
 
-    console.log("costs update: ", gameUpdateCommandOption);
-
     super(stepType, context, gameUpdateCommandOption);
   }
 

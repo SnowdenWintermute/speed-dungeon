@@ -1,5 +1,5 @@
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
-import { AbstractParentType } from "../../action-entities/index.js";
+import { EntityReferencePoint } from "../../action-entities/index.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { EntityId, MaxAndCurrent, Milliseconds } from "../../primatives/index.js";
@@ -79,7 +79,7 @@ export abstract class CombatantCondition {
 
   abstract getCosmeticEffectWhileActive: () => {
     name: CosmeticEffectNames;
-    parentType: AbstractParentType;
+    parentType: EntityReferencePoint;
     lifetime?: Milliseconds;
   }[];
   // examples:

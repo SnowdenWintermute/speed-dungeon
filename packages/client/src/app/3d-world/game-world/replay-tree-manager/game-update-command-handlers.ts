@@ -22,7 +22,6 @@ import {
 import { gameWorld } from "../../SceneManager";
 import { getChildMeshByName } from "../../utils";
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { entityMotionGameUpdateHandler } from "./entity-motion-update-handlers";
 import { hitOutcomesGameUpdateHandler } from "./hit-outcomes";
 import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
@@ -154,7 +153,6 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
         }
       }
 
-      console.log("command.removedConditionStacks", command.removedConditionStacks);
       if (command.removedConditionStacks) {
         for (const [entityId, conditionIdAndStacks] of Object.entries(
           command.removedConditionStacks

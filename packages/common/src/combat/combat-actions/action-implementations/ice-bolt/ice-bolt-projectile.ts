@@ -13,7 +13,7 @@ import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-confi
 import {
   ActionEntityName,
   CosmeticEffectNames,
-  AbstractParentType,
+  EntityReferencePoint,
 } from "../../../../action-entities/index.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
@@ -52,7 +52,7 @@ const config: CombatActionComponentConfig = {
         cosmeticsEffectsToStart: [
           {
             name: CosmeticEffectNames.FrostParticleStream,
-            parentType: AbstractParentType.VfxEntityRoot,
+            parentType: EntityReferencePoint.VfxEntityRoot,
           },
         ],
       },
@@ -60,7 +60,7 @@ const config: CombatActionComponentConfig = {
         cosmeticsEffectsToStart: [
           {
             name: CosmeticEffectNames.FrostParticleBurst,
-            parentType: AbstractParentType.CombatantHitboxCenter,
+            parentType: EntityReferencePoint.CombatantHitboxCenter,
             lifetime: 300,
           },
         ],
@@ -93,7 +93,7 @@ const config: CombatActionComponentConfig = {
           position,
           name: ActionEntityName.IceBolt,
           parentOption: {
-            type: AbstractParentType.UserOffHand,
+            type: EntityReferencePoint.OffHandBone,
             parentEntityId: context.combatantContext.combatant.entityProperties.id,
           },
           pointTowardEntityOption: target.entityProperties.id,

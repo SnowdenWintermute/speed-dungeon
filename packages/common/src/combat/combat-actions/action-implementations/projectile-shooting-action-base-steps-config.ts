@@ -1,4 +1,9 @@
-import { ActionResolutionStepType, AnimationTimingType } from "../../../action-processing/index.js";
+import { EntityReferencePoint } from "../../../action-entities/index.js";
+import {
+  ActionEntityPointTowardEntity,
+  ActionResolutionStepType,
+  AnimationTimingType,
+} from "../../../action-processing/index.js";
 import { AnimationType, SkeletalAnimationName } from "../../../app-consts.js";
 import { SpawnableEntityType } from "../../../spawnables/index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
@@ -82,7 +87,13 @@ export function getProjectileShootingActionBaseStepsConfig(
             }
           })();
 
-          return { actionEntityId, targetId: primaryTarget.entityProperties.id, duration: 400 };
+          const toReturn: ActionEntityPointTowardEntity = {
+            actionEntityId,
+            targetId: primaryTarget.entityProperties.id,
+            positionOnTarget: EntityReferencePoint.CombatantHitboxCenter,
+            duration: 400,
+          };
+          return toReturn;
         },
       },
 

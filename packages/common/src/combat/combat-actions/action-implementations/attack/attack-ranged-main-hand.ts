@@ -8,7 +8,7 @@ import {
 import { ATTACK } from "./index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
-import { ActionEntityName, AbstractParentType } from "../../../../action-entities/index.js";
+import { ActionEntityName, EntityReferencePoint } from "../../../../action-entities/index.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
@@ -70,7 +70,7 @@ const config: CombatActionComponentConfig = {
           position,
           name: ActionEntityName.Arrow,
           parentOption: {
-            type: AbstractParentType.UserMainHand,
+            type: EntityReferencePoint.MainHandBone,
             parentEntityId: context.combatantContext.combatant.entityProperties.id,
           },
         },

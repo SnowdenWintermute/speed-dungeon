@@ -19,7 +19,8 @@ export function handleUpdateAnimation(
     command: CombatantMotionGameUpdateCommand | ActionEntityMotionGameUpdateCommand;
     isComplete: boolean;
   },
-  instantTransition: boolean
+  instantTransition: boolean,
+  onComplete: () => void
 ) {
   if (!animationOption) return;
 
@@ -36,6 +37,7 @@ export function handleUpdateAnimation(
       if (animationOption.timing.type === AnimationTimingType.Looping) return;
       updateCompletionTracker.setAnimationComplete();
       if (updateCompletionTracker.isComplete()) gameUpdate.isComplete = true;
+      onComplete();
     },
   };
 

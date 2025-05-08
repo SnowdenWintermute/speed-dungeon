@@ -1,5 +1,5 @@
 import {
-  AbstractParentType,
+  EntityReferencePoint,
   ActionResolutionStepType,
   CombatActionComponent,
   CosmeticEffectNames,
@@ -17,7 +17,7 @@ export function handleStepCosmeticEffects(
 ) {
   let cosmeticEffectNamesToStartThisStep: {
     name: CosmeticEffectNames;
-    parentType: AbstractParentType;
+    parentType: EntityReferencePoint;
     lifetime?: Milliseconds;
   }[] = [];
 

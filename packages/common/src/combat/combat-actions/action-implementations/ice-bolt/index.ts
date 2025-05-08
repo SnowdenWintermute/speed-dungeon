@@ -7,7 +7,7 @@ import {
 } from "../../index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
-import { AbstractParentType } from "../../../../action-entities/index.js";
+import { EntityReferencePoint } from "../../../../action-entities/index.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
@@ -27,7 +27,7 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
   cosmeticsEffectsToStart: [
     {
       name: CosmeticEffectNames.FrostParticleAccumulation,
-      parentType: AbstractParentType.UserOffHand,
+      parentType: EntityReferencePoint.OffHandBone,
     },
   ],
 };
