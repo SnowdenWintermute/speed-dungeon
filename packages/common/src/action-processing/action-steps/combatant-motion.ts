@@ -9,11 +9,12 @@ import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 
 export class CombatantMotionActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {
+    const { actionName } = context.tracker.actionExecutionIntent;
     /**Here we create and set the internal reference to the associated game update command, as well as
      * apply updates to game state for instantly processed steps*/
     const gameUpdateCommand: CombatantMotionGameUpdateCommand = {
       type: GameUpdateCommandType.CombatantMotion,
-      actionName: context.tracker.actionExecutionIntent.actionName,
+      actionName,
       step,
       completionOrderId: null,
 

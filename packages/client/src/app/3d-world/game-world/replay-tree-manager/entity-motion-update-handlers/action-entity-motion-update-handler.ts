@@ -9,10 +9,10 @@ export function actionEntityMotionGameUpdateHandler(update: {
   const { command } = update;
   const { mainEntityUpdate } = command;
 
-  if (mainEntityUpdate.startPointingTowardCombatantOption) {
-    const { actionEntityId, targetId, duration } =
-      mainEntityUpdate.startPointingTowardCombatantOption;
-    const actionEntityModelOption = gameWorld.current?.actionEntityManager.models[actionEntityId];
+  if (mainEntityUpdate.startPointingTowardEntityOption) {
+    const { targetId, duration } = mainEntityUpdate.startPointingTowardEntityOption;
+    const actionEntityModelOption =
+      gameWorld.current?.actionEntityManager.models[mainEntityUpdate.entityId];
     if (!actionEntityModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_ACTION_ENTITY_MODEL);
 
     actionEntityModelOption.movementManager.transformNode.setParent(null);
@@ -28,6 +28,7 @@ export function actionEntityMotionGameUpdateHandler(update: {
   handleEntityMotionUpdate(
     update,
     command.mainEntityUpdate,
+    true,
     onTranslationComplete,
     onAnimationComplete
   );

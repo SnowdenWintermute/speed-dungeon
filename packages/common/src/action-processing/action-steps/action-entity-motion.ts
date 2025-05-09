@@ -7,7 +7,6 @@ import { SpawnableEntityType } from "../../spawnables/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { ActionEntity, ActionEntityName } from "../../action-entities/index.js";
-import { COMBAT_ACTIONS } from "../../combat/index.js";
 
 export class ActionEntityMotionActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(
@@ -41,18 +40,6 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
       actionEntity.actionEntityProperties.position,
       ARROW_TIME_TO_MOVE_ONE_METER
     );
-
-    const action = COMBAT_ACTIONS[actionName];
-
-    const pointTowardGetter =
-      action.stepsConfig.steps[this.type]?.startPointingActionEntityTowardCombatant;
-    console.log("point toward getter before check: ", pointTowardGetter);
-
-    if (pointTowardGetter) {
-      console.log("point toward getter: ", pointTowardGetter);
-      const entityIdAndDuration = pointTowardGetter(context);
-      gameUpdateCommand.mainEntityUpdate.startPointingTowardEntityOption = entityIdAndDuration;
-    }
   }
   protected getBranchingActions = () => [];
 }

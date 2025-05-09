@@ -72,7 +72,6 @@ export interface IEntityMotionUpdate {
 }
 
 export interface ActionEntityPointTowardEntity {
-  actionEntityId: EntityId;
   targetId: EntityId;
   positionOnTarget: EntityReferencePoint;
   duration: Milliseconds;

@@ -48,6 +48,15 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
       }
       if (rotationOption) gameUpdateCommand.mainEntityUpdate.rotationOption = rotationOption;
     }
+
+    // this is for when we need to tweak positions/parents of projectiles based on steps of
+    // their parent action, like pointing an arrow at a target or releasing from the string
+    const auxiliaryEntityMotionsGetter =
+      action.stepsConfig.steps[this.type]?.getAuxiliaryEntityMotions;
+    if (auxiliaryEntityMotionsGetter) {
+      const auxiliaryEntityMotions = auxiliaryEntityMotionsGetter(context);
+      gameUpdateCommand.auxiliaryUpdates = auxiliaryEntityMotions;
+    }
   }
 
   protected getDestinations(action: CombatActionComponent) {

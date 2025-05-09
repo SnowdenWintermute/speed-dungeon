@@ -18,6 +18,7 @@ export function handleEntityMotionUpdate(
     isComplete: boolean;
   },
   motionUpdate: EntityMotionUpdate,
+  isMainUpdate: boolean,
   onTranslationComplete: () => void,
   onAnimationComplete: () => void
 ) {
@@ -58,5 +59,5 @@ export function handleEntityMotionUpdate(
     onAnimationComplete
   );
 
-  if (updateCompletionTracker.isComplete()) update.isComplete = true;
+  if (isMainUpdate && updateCompletionTracker.isComplete()) update.isComplete = true;
 }

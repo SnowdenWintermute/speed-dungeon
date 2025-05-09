@@ -3,6 +3,7 @@ import {
   ActionEntityPointTowardEntity,
   ActionResolutionStepType,
   AnimationTimingType,
+  EntityMotionUpdate,
 } from "../../../action-processing/index.js";
 import { AnimationType, SkeletalAnimationName } from "../../../app-consts.js";
 import { SpawnableEntityType } from "../../../spawnables/index.js";
@@ -67,7 +68,7 @@ export function getProjectileShootingActionBaseStepsConfig(
             animationNames[ActionExecutionPhase.Recovery]
           ),
 
-        startPointingActionEntityTowardCombatant: (context) => {
+        getAuxiliaryEntityMotions: (context) => {
           const { party } = context.combatantContext;
           const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
           const primaryTarget = targetingCalculator.getPrimaryTargetCombatant(
@@ -87,12 +88,19 @@ export function getProjectileShootingActionBaseStepsConfig(
             }
           })();
 
-          const toReturn: ActionEntityPointTowardEntity = {
-            actionEntityId,
+          const pointTowardEntity: ActionEntityPointTowardEntity = {
             targetId: primaryTarget.entityProperties.id,
             positionOnTarget: EntityReferencePoint.CombatantHitboxCenter,
             duration: 400,
           };
+          const toReturn: EntityMotionUpdate[] = [];
+          toReturn.push({
+            entityId: actionEntityId,
+            entityType: SpawnableEntityType.ActionEntity,
+            startPointingTowardEntityOption: pointTowardEntity,
+            setParent: null,
+          });
+
           return toReturn;
         },
       },
