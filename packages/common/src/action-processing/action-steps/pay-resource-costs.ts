@@ -44,7 +44,6 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
       }
 
       if (costsOption) {
-        console.log("costs option: ", costsOption);
         gameUpdateCommandOption.costsPaid = costsOption;
         const { combatantProperties } = combatant;
 

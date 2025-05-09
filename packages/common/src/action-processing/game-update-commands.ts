@@ -12,7 +12,11 @@ import { Combatant, CombatantCondition } from "../combatants/index.js";
 import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { DurabilityChangesByEntityId } from "../durability/index.js";
 import { HitOutcome } from "../hit-outcome.js";
-import { EntityReferencePoint, ActionEntity } from "../action-entities/index.js";
+import {
+  EntityReferencePoint,
+  ActionEntity,
+  AbstractEntityPart,
+} from "../action-entities/index.js";
 
 export enum GameUpdateCommandType {
   SpawnEntity,
@@ -80,9 +84,9 @@ export interface ActionEntityPointTowardEntity {
 export interface ActionEntityMotionUpdate extends IEntityMotionUpdate {
   entityType: SpawnableEntityType.ActionEntity;
   despawnOnComplete?: boolean;
-  setParent?: EntityReferencePoint | null;
+  setParent?: AbstractEntityPart | null;
+  cosmeticDestinationY?: AbstractEntityPart;
   startPointingTowardEntityOption?: ActionEntityPointTowardEntity;
-  destinationY?: EntityReferencePoint;
 }
 
 export interface CombatantMotionUpdate extends IEntityMotionUpdate {

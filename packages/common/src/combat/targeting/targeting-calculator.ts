@@ -277,16 +277,21 @@ export class TargetingCalculator {
     return newPreferences;
   }
 
+  getPrimaryTargetCombatantId(actionExecutionIntent: CombatActionExecutionIntent) {
+    const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
+    const targetIdsResult = this.getCombatActionTargetIds(action, actionExecutionIntent.targets);
+    if (targetIdsResult instanceof Error) throw targetIdsResult;
+    const primaryTargetIdOption = targetIdsResult[0];
+    if (primaryTargetIdOption === undefined)
+      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
+    return primaryTargetIdOption;
+  }
+
   getPrimaryTargetCombatant(
     party: AdventuringParty,
     actionExecutionIntent: CombatActionExecutionIntent
   ) {
-    const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
-    const targetIdsResult = this.getCombatActionTargetIds(action, actionExecutionIntent.targets);
-    if (targetIdsResult instanceof Error) return targetIdsResult;
-    const primaryTargetIdOption = targetIdsResult[0];
-    if (primaryTargetIdOption === undefined)
-      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
+    const primaryTargetIdOption = this.getPrimaryTargetCombatantId(actionExecutionIntent);
     const primaryTargetResult = AdventuringParty.getCombatant(party, primaryTargetIdOption);
     if (primaryTargetResult instanceof Error) return primaryTargetResult;
     return primaryTargetResult;

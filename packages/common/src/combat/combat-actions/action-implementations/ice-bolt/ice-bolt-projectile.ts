@@ -6,11 +6,15 @@ import {
 } from "../../index.js";
 import { ICE_BOLT_PARENT } from "./index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import {
+  ActionEntityPointTowardEntity,
+  ActionResolutionStepType,
+} from "../../../../action-processing/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 import {
+  AbstractEntityPart,
   ActionEntityName,
   CosmeticEffectNames,
   EntityReferencePoint,
@@ -49,12 +53,41 @@ const config: CombatActionComponentConfig = {
       [ActionResolutionStepType.OnActivationSpawnEntity]: {},
       [ActionResolutionStepType.OnActivationActionEntityMotion]: {
         getDestination: getPrimaryTargetPositionAsDestination,
+        getNewParent: () => null,
+        getStartPointingTowardEntityOption: (context) => {
+          const { combatantContext, tracker } = context;
+          const { actionExecutionIntent } = tracker;
+          // @PERF - can probably combine all these individual targetingCalculator creations
+          // and pass the targetId to getStartPointingTowardEntityOption and getCosmeticDestinationY et al
+          const targetingCalculator = new TargetingCalculator(combatantContext, null);
+          const primaryTargetId =
+            targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent);
+          return {
+            targetId: primaryTargetId,
+            positionOnTarget: EntityReferencePoint.CombatantHitboxCenter,
+            duration: 400,
+          };
+        },
+        getCosmeticDestinationY: (context) => {
+          const { combatantContext, tracker } = context;
+          const { actionExecutionIntent } = tracker;
+
+          const targetingCalculator = new TargetingCalculator(combatantContext, null);
+          const primaryTargetId =
+            targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent);
+          const entityPart: AbstractEntityPart = {
+            referencePoint: EntityReferencePoint.CombatantHitboxCenter,
+            entityId: primaryTargetId,
+          };
+          return entityPart;
+        },
         cosmeticsEffectsToStart: [
           {
             name: CosmeticEffectNames.FrostParticleStream,
             parentType: EntityReferencePoint.VfxEntityRoot,
           },
         ],
+        shouldDespawnOnComplete: () => true,
       },
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {
         cosmeticsEffectsToStart: [
@@ -93,8 +126,8 @@ const config: CombatActionComponentConfig = {
           position,
           name: ActionEntityName.IceBolt,
           parentOption: {
-            type: EntityReferencePoint.OffHandBone,
-            parentEntityId: context.combatantContext.combatant.entityProperties.id,
+            referencePoint: EntityReferencePoint.OffHandBone,
+            entityId: context.combatantContext.combatant.entityProperties.id,
           },
           pointTowardEntityOption: target.entityProperties.id,
         },

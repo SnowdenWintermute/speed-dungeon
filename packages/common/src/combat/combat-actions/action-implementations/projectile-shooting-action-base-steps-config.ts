@@ -78,7 +78,9 @@ export function getProjectileShootingActionBaseStepsConfig(
           if (primaryTarget instanceof Error) throw primaryTarget;
 
           const actionEntity = context.tracker.spawnedEntityOption;
-          if (!actionEntity) throw new Error("expected action entity was missing");
+          if (!actionEntity) return [];
+          // if (!actionEntity) throw new Error("expected action entity was missing");
+
           const actionEntityId = (() => {
             switch (actionEntity.type) {
               case SpawnableEntityType.Combatant:

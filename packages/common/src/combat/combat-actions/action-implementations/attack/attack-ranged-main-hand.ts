@@ -7,7 +7,7 @@ import {
 } from "../../index.js";
 import { ATTACK } from "./index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { SpawnableEntityType } from "../../../../spawnables/index.js";
+import { SpawnableEntity, SpawnableEntityType } from "../../../../spawnables/index.js";
 import { ActionEntityName, EntityReferencePoint } from "../../../../action-entities/index.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
@@ -62,7 +62,7 @@ const config: CombatActionComponentConfig = {
     const { combatantContext } = context;
     const position = combatantContext.combatant.combatantProperties.position.clone();
 
-    return {
+    const spawnableEntity: SpawnableEntity = {
       type: SpawnableEntityType.ActionEntity,
       actionEntity: {
         entityProperties: { id: context.idGenerator.generate(), name: "" },
@@ -70,12 +70,14 @@ const config: CombatActionComponentConfig = {
           position,
           name: ActionEntityName.Arrow,
           parentOption: {
-            type: EntityReferencePoint.MainHandBone,
-            parentEntityId: context.combatantContext.combatant.entityProperties.id,
+            referencePoint: EntityReferencePoint.MainHandBone,
+            entityId: context.combatantContext.combatant.entityProperties.id,
           },
         },
       },
     };
+
+    return spawnableEntity;
   },
 };
 

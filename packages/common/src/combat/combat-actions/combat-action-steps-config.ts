@@ -1,6 +1,7 @@
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
-import { EntityReferencePoint } from "../../action-entities/index.js";
+import { AbstractEntityPart, EntityReferencePoint } from "../../action-entities/index.js";
 import {
+  ActionEntityPointTowardEntity,
   ActionResolutionStepContext,
   ActionResolutionStepType,
   EntityAnimation,
@@ -9,7 +10,8 @@ import {
 } from "../../action-processing/index.js";
 import { CombatantSpecies } from "../../combatants/combatant-species.js";
 import { CombatantProperties } from "../../combatants/index.js";
-import { Milliseconds } from "../../primatives/index.js";
+import { TaggedEquipmentSlot } from "../../items/equipment/slots.js";
+import { EntityId, Milliseconds } from "../../primatives/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { MeleeAttackAnimationType } from "./action-implementations/attack/determine-melee-attack-animation-type.js";
 
@@ -26,20 +28,23 @@ export interface ActionResolutionStepConfig {
     meleeAttackAnimationType?: MeleeAttackAnimationType,
     successOption?: boolean
   ): EntityAnimation;
-  getEquipmentAnimations?(
-    user: CombatantProperties,
-    animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
-  ): EntityAnimation[];
   getDestination?(context: ActionResolutionStepContext): Error | EntityDestination;
   //
-  // despawnOnComplete?: boolean;
-  // setParent?: EntityReferencePoint | null;
-  // startPointingTowardEntityOption?: ActionEntityPointTowardEntity;
-  // destinationY?: EntityReferencePoint;
+  /* X */ shouldDespawnOnComplete?: (context: ActionResolutionStepContext) => boolean;
+  /* X */ getNewParent?: (context: ActionResolutionStepContext) => AbstractEntityPart | null;
+  /* X */ getCosmeticDestinationY?: (context: ActionResolutionStepContext) => AbstractEntityPart;
+  /* X */ getStartPointingTowardEntityOption?: (
+    context: ActionResolutionStepContext
+  ) => ActionEntityPointTowardEntity;
+
+  /*  */ getEquipmentAnimations?(
+    user: CombatantProperties,
+    animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
+  ): { slot: TaggedEquipmentSlot; animation: EntityAnimation }[];
   //
-  // idleOnComplete?: boolean;
-  // equipmentAnimations?: string[]; // @TODO - change to a real type
+
   getAuxiliaryEntityMotions?(context: ActionResolutionStepContext): EntityMotionUpdate[];
+
   // don't include this step in the initial list, it may be added later such as in the case
   // of return home step for a melee main hand attack that killed its target, thus not needing
   // to do the offhand attack

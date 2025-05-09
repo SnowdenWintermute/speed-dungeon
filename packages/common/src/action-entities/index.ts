@@ -27,9 +27,9 @@ export enum EntityReferencePoint {
   ArrowRest,
 }
 
-export interface AbstractParent {
-  type: EntityReferencePoint;
-  parentEntityId: EntityId;
+export interface AbstractEntityPart {
+  referencePoint: EntityReferencePoint;
+  entityId: EntityId;
   offset?: Vector3;
 }
 
@@ -37,7 +37,7 @@ export type ActionEntityProperties = {
   position: Vector3;
   name: ActionEntityName;
   // pointTowardEntityOption?: EntityId;
-  parentOption?: AbstractParent;
+  parentOption?: AbstractEntityPart;
 };
 
 export class ActionEntity {

@@ -25,6 +25,8 @@ import {
 } from "../../combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 import { getPrimaryTargetPositionAsDestination } from "../common-destination-getters.js";
+import { AbstractEntityPart, EntityReferencePoint } from "../../../../action-entities/index.js";
+import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
@@ -61,6 +63,22 @@ const config: CombatActionComponentConfig = {
     {
       [ActionResolutionStepType.OnActivationActionEntityMotion]: {
         getDestination: getPrimaryTargetPositionAsDestination,
+        shouldDespawnOnComplete: () => true,
+
+        getNewParent: () => null,
+        getCosmeticDestinationY: (context) => {
+          const { combatantContext, tracker } = context;
+          const { actionExecutionIntent } = tracker;
+
+          const targetingCalculator = new TargetingCalculator(combatantContext, null);
+          const primaryTargetId =
+            targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent);
+          const entityPart: AbstractEntityPart = {
+            referencePoint: EntityReferencePoint.CombatantHitboxCenter,
+            entityId: primaryTargetId,
+          };
+          return entityPart;
+        },
       },
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},

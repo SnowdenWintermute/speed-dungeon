@@ -35,8 +35,7 @@ import {
   ABSTRACT_PARENT_TYPE_TO_BONE_NAME,
   BONE_NAMES,
 } from "../../scene-entities/character-models/skeleton-structure-variables";
-import { actionEntityMotionGameUpdateHandler } from "./entity-motion-update-handlers/action-entity-motion-update-handler";
-import { combatantMotionGameUpdateHandler } from "./entity-motion-update-handlers/combatant-motion-update-handler";
+import { entityMotionGameUpdateHandler } from "./entity-motion-update-handlers";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
@@ -46,13 +45,13 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     command: CombatantMotionGameUpdateCommand;
     isComplete: boolean;
   }) {
-    combatantMotionGameUpdateHandler(update);
+    entityMotionGameUpdateHandler(update);
   },
   [GameUpdateCommandType.ActionEntityMotion]: async function (update: {
     command: ActionEntityMotionGameUpdateCommand;
     isComplete: boolean;
   }) {
-    actionEntityMotionGameUpdateHandler(update);
+    entityMotionGameUpdateHandler(update);
   },
   [GameUpdateCommandType.ResourcesPaid]: async function (update: {
     command: ResourcesPaidGameUpdateCommand;
@@ -257,12 +256,14 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     if (actionEntityProperties.parentOption) {
       const actionUserOption =
         gameWorld.current.modelManager.combatantModels[
-          actionEntityProperties.parentOption.parentEntityId
+          actionEntityProperties.parentOption.entityId
         ];
       if (!actionUserOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
       const boneName =
-        BONE_NAMES[ABSTRACT_PARENT_TYPE_TO_BONE_NAME[actionEntityProperties.parentOption.type]];
+        BONE_NAMES[
+          ABSTRACT_PARENT_TYPE_TO_BONE_NAME[actionEntityProperties.parentOption.referencePoint]
+        ];
 
       const boneToParent = getChildMeshByName(actionUserOption.rootMesh, boneName);
 
