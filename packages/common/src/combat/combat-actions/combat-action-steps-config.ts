@@ -11,9 +11,14 @@ import {
 import { CombatantSpecies } from "../../combatants/combatant-species.js";
 import { CombatantProperties } from "../../combatants/index.js";
 import { TaggedEquipmentSlot } from "../../items/equipment/slots.js";
-import { EntityId, Milliseconds } from "../../primatives/index.js";
+import { Milliseconds } from "../../primatives/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { MeleeAttackAnimationType } from "./action-implementations/attack/determine-melee-attack-animation-type.js";
+
+export interface EquipmentAnimation {
+  slot: TaggedEquipmentSlot;
+  animation: EntityAnimation;
+}
 
 export interface ActionResolutionStepConfig {
   cosmeticsEffectsToStart?: {
@@ -40,7 +45,7 @@ export interface ActionResolutionStepConfig {
   /*  */ getEquipmentAnimations?(
     user: CombatantProperties,
     animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
-  ): { slot: TaggedEquipmentSlot; animation: EntityAnimation }[];
+  ): EquipmentAnimation[];
   //
 
   getAuxiliaryEntityMotions?(context: ActionResolutionStepContext): EntityMotionUpdate[];

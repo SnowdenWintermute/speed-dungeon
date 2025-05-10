@@ -17,6 +17,7 @@ import {
   ActionEntity,
   AbstractEntityPart,
 } from "../action-entities/index.js";
+import { EquipmentAnimation } from "../combat/combat-actions/combat-action-steps-config.js";
 
 export enum GameUpdateCommandType {
   SpawnEntity,
@@ -92,7 +93,7 @@ export interface ActionEntityMotionUpdate extends IEntityMotionUpdate {
 export interface CombatantMotionUpdate extends IEntityMotionUpdate {
   entityType: SpawnableEntityType.Combatant;
   idleOnComplete?: boolean;
-  equipmentAnimations?: string[]; // @TODO - change to a real type
+  equipmentAnimations?: EquipmentAnimation[];
 }
 
 export type EntityMotionUpdate = CombatantMotionUpdate | ActionEntityMotionUpdate;

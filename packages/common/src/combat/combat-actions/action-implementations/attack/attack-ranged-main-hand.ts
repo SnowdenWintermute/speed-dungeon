@@ -6,7 +6,11 @@ import {
   CombatActionOrigin,
 } from "../../index.js";
 import { ATTACK } from "./index.js";
-import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
+import {
+  EquipmentSlotType,
+  HoldableSlotType,
+  TaggedEquipmentSlot,
+} from "../../../../items/equipment/slots.js";
 import { SpawnableEntity, SpawnableEntityType } from "../../../../spawnables/index.js";
 import { ActionEntityName, EntityReferencePoint } from "../../../../action-entities/index.js";
 import {
@@ -22,13 +26,46 @@ import { DurabilityLossCondition } from "../../combat-action-durability-loss-con
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { getProjectileShootingActionBaseStepsConfig } from "../projectile-shooting-action-base-steps-config.js";
 import { ProjectileShootingActionType } from "../projectile-shooting-action-animation-names.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import {
+  ActionResolutionStepType,
+  AnimationTimingType,
+  EntityAnimation,
+} from "../../../../action-processing/index.js";
+import {
+  AnimationType,
+  SKELETAL_ANIMATION_NAME_STRINGS,
+  SkeletalAnimationName,
+} from "../../../../app-consts.js";
+import { EquipmentAnimation } from "../../combat-action-steps-config.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Bow);
 stepsConfig.steps = {
   ...stepsConfig.steps,
   [ActionResolutionStepType.PostChamberingSpawnEntity]: {},
+  [ActionResolutionStepType.DeliveryMotion]: {
+    ...stepsConfig.steps[ActionResolutionStepType.DeliveryMotion],
+    getEquipmentAnimations: (user, animationLengths) => {
+      const slot: TaggedEquipmentSlot = {
+        type: EquipmentSlotType.Holdable,
+        slot: HoldableSlotType.MainHand,
+      };
+
+      const speciesLengths = animationLengths[user.combatantSpecies];
+      const animationName = SkeletalAnimationName.EquipmentShortBowShoot;
+      const animationNameString = SKELETAL_ANIMATION_NAME_STRINGS[animationName];
+      const duration = speciesLengths[animationNameString] || 0;
+
+      const animation: EntityAnimation = {
+        name: { type: AnimationType.Skeletal, name: animationName },
+        timing: { type: AnimationTimingType.Timed, duration },
+      };
+
+      const equipmentAnimation: EquipmentAnimation = { slot, animation };
+
+      return [equipmentAnimation];
+    },
+  },
 };
 
 const config: CombatActionComponentConfig = {

@@ -176,6 +176,7 @@ export enum SkeletalAnimationName {
   BowChambering,
   BowDelivery,
   BowRecovery,
+  EquipmentShortBowShoot,
   CastSpellChambering,
   CastSpellDelivery,
   CastSpellRecovery,
@@ -240,6 +241,7 @@ export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, stri
   [SkeletalAnimationName.UseConsumableChambering]: "use-consumable-chambering",
   [SkeletalAnimationName.UseConsumableDelivery]: "use-consumable-delivery",
   [SkeletalAnimationName.UseConsumableRecovery]: "use-consumable-recovery",
+  [SkeletalAnimationName.EquipmentShortBowShoot]: "Action",
 };
 
 export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string> = {
