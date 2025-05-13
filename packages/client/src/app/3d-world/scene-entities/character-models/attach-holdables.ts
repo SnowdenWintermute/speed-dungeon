@@ -67,7 +67,8 @@ export function attachHoldableModelToSkeleton(
   }
 
   if (equipmentType === EquipmentType.TwoHandedRangedWeapon) {
-    itemTransformNode.rotate(Vector3.Up(), Math.PI);
+    // itemTransformNode.rotate(Vector3.Up(), Math.PI);
+    itemTransformNode.rotation.y = Math.PI;
   }
 }
 

@@ -15,12 +15,11 @@ import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
 import { handleStepCosmeticEffects } from "../handle-step-cosmetic-effects";
 import { handleUpdateTranslation } from "./handle-update-translation";
 import { plainToInstance } from "class-transformer";
-import { Quaternion } from "@babylonjs/core";
+import { AbstractMesh, Quaternion, Vector3 } from "@babylonjs/core";
 import { handleUpdateAnimation } from "./handle-update-animation";
 import { gameWorld } from "@/app/3d-world/SceneManager";
-import { ItemModel } from "@/app/3d-world/scene-entities/item-models";
-import getCombatantInGameById from "@speed-dungeon/common/src/game/get-combatant-in-game-by-id";
 import { useGameStore } from "@/stores/game-store";
+import { getChildMeshByName } from "@/app/3d-world/utils";
 
 export function handleEntityMotionUpdate(
   update: {
@@ -62,6 +61,52 @@ export function handleEntityMotionUpdate(
       }
     }
 
+    // GRADUALLY MOVE TOWARD NEW PARENT ON HOLDABLE
+    if (motionUpdate.setParentToCombatantHoldable) {
+      const { combatantId, holdableId, durationToReachPosition, positionOnTarget } =
+        motionUpdate.setParentToCombatantHoldable;
+      const combatantModelOption = gameWorld.current?.modelManager.combatantModels[combatantId];
+      if (combatantModelOption) {
+        const holdableModelOption = combatantModelOption.equipment.holdables[holdableId];
+        if (holdableModelOption) {
+          const bone = getChildMeshByName(holdableModelOption.rootMesh, "String") as AbstractMesh;
+          actionEntityModelOption.rootTransformNode.setParent(bone);
+          actionEntityModelOption.movementManager.startTranslating(
+            Vector3.Zero(),
+            durationToReachPosition,
+            () => {}
+          );
+        }
+      }
+    }
+
+    // if (motionUpdate.startPointingTowardCombatantHoldable) {
+    //   const { combatantId, holdableId, durationToReachPosition, positionOnTarget } =
+    //     motionUpdate.startPointingTowardCombatantHoldable;
+    //   const combatantModelOption = gameWorld.current?.modelManager.combatantModels[combatantId];
+    //   if (combatantModelOption) {
+    //     const holdableModelOption = combatantModelOption.equipment.holdables[holdableId];
+    //     if (holdableModelOption) {
+    //       const bone = getChildMeshByName(holdableModelOption.rootMesh, "Main") as AbstractMesh;
+
+    //       const targetPosition = bone.position;
+    //       console.log("pointing toward target position:", targetPosition);
+    //       const forward = targetPosition
+    //         .subtract(holdableModelOption.movementManager.transformNode.getAbsolutePosition())
+    //         .normalize();
+
+    //       const up = Vector3.Up();
+    //       const lookRotation: Quaternion = Quaternion.FromLookDirectionLH(forward, up);
+
+    //       actionEntityModelOption.movementManager.startRotatingTowards(
+    //         lookRotation,
+    //         durationToReachPosition,
+    //         () => {}
+    //       );
+    //     }
+    //   }
+    // }
+
     if (isMainUpdate) {
       onTranslationComplete = () => {
         if (motionUpdate.despawnOnComplete)
@@ -91,7 +136,6 @@ export function handleEntityMotionUpdate(
     };
 
     if (motionUpdate.equipmentAnimations) {
-      console.log("GOT equipmentAnimations:", motionUpdate.equipmentAnimations);
       const combatantModelOption =
         gameWorld.current?.modelManager.combatantModels[motionUpdate.entityId];
       if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);

@@ -22,3 +22,12 @@ export type SpawnedActionEntity = {
 };
 
 export type SpawnableEntity = SpawnedCombatant | SpawnedActionEntity;
+
+export function getSpawnableEntityId(entity: SpawnableEntity) {
+  switch (entity.type) {
+    case SpawnableEntityType.Combatant:
+      return entity.combatant.entityProperties.id;
+    case SpawnableEntityType.ActionEntity:
+      return entity.actionEntity.entityProperties.id;
+  }
+}

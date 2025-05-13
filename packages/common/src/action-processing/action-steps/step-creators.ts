@@ -31,13 +31,12 @@ export const ACTION_STEP_CREATORS: Record<
     new DetermineMeleeActionAnimationsActionResolutionStep(context),
   [ActionResolutionStepType.InitialPositioning]: (context) =>
     new CombatantMotionActionResolutionStep(context, ActionResolutionStepType.InitialPositioning),
+  [ActionResolutionStepType.PrepMotion]: (context) =>
+    new CombatantMotionActionResolutionStep(context, ActionResolutionStepType.PrepMotion),
+  [ActionResolutionStepType.PostPrepSpawnEntity]: (context) =>
+    new SpawnEntityActionResolutionStep(context, ActionResolutionStepType.PostPrepSpawnEntity),
   [ActionResolutionStepType.ChamberingMotion]: (context) =>
     new CombatantMotionActionResolutionStep(context, ActionResolutionStepType.ChamberingMotion),
-  [ActionResolutionStepType.PostChamberingSpawnEntity]: (context) =>
-    new SpawnEntityActionResolutionStep(
-      context,
-      ActionResolutionStepType.PostChamberingSpawnEntity
-    ),
   [ActionResolutionStepType.DeliveryMotion]: (context) =>
     new CombatantMotionActionResolutionStep(context, ActionResolutionStepType.DeliveryMotion),
   [ActionResolutionStepType.PayResourceCosts]: (context) =>

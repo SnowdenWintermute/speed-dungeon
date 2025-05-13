@@ -30,6 +30,7 @@ import {
 } from "../../combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 import { getPrimaryTargetPositionAsDestination } from "../common-destination-getters.js";
+import { Vector3 } from "@babylonjs/core";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
@@ -125,6 +126,7 @@ const config: CombatActionComponentConfig = {
         actionEntityProperties: {
           position,
           name: ActionEntityName.IceBolt,
+          initialRotation: new Vector3(Math.PI / 2, 0, 0),
           parentOption: {
             referencePoint: EntityReferencePoint.OffHandBone,
             entityId: context.combatantContext.combatant.entityProperties.id,

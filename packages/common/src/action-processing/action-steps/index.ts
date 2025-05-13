@@ -20,8 +20,9 @@ export enum ActionResolutionStepType {
   DetermineChildActions,
   DetermineMeleeActionAnimations,
   InitialPositioning, // motion - start magical glyph CosmeticEffect
+  PrepMotion,
+  PostPrepSpawnEntity,
   ChamberingMotion, // motion - start frost particle accumulation CosmeticEffect
-  PostChamberingSpawnEntity,
   DeliveryMotion, // motion - start frost particle burst CosmeticEffect
   PayResourceCosts,
   EvalOnUseTriggers,
@@ -39,9 +40,10 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.DetermineChildActions]: "determineChildActions",
   [ActionResolutionStepType.DetermineMeleeActionAnimations]: "determineMeleeActionAnimations",
   [ActionResolutionStepType.InitialPositioning]: "initialPositioning",
+  [ActionResolutionStepType.PrepMotion]: "chamberingMotion",
+  [ActionResolutionStepType.PostPrepSpawnEntity]: "postPrepSpawnEntity",
   [ActionResolutionStepType.ChamberingMotion]: "chamberingMotion",
   [ActionResolutionStepType.EvalOnUseTriggers]: "evalOnUseTriggers", // counterspells, branch block/parry/counterattacks, bow durability loss
-  [ActionResolutionStepType.PostChamberingSpawnEntity]: "postChamberingSpawnEntity",
   [ActionResolutionStepType.DeliveryMotion]: "deliveryMotion",
   [ActionResolutionStepType.PayResourceCosts]: "payResourceCosts",
   [ActionResolutionStepType.StartConcurrentSubActions]: "StartConcurrentSubActions",

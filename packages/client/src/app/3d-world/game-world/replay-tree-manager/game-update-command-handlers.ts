@@ -233,6 +233,7 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
 
     const { actionEntity } = command.entity;
     const { actionEntityProperties } = actionEntity;
+    const { initialRotation } = actionEntityProperties;
 
     const position = new Vector3(
       actionEntityProperties.position._x,
@@ -240,11 +241,11 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       actionEntityProperties.position._z
     );
 
-    const scene = await spawnActionEntityModel(actionEntityProperties.name, position);
+    const assetContainer = await spawnActionEntityModel(actionEntityProperties.name, position);
 
     const model = new ActionEntityModel(
       actionEntity.entityProperties.id,
-      scene,
+      assetContainer,
       position,
       actionEntityProperties.name
     );
@@ -271,6 +272,15 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       model.movementManager.transformNode.setParent(boneToParent);
       model.movementManager.transformNode.setPositionWithLocalVector(Vector3.Zero());
       model.movementManager.transformNode.rotationQuaternion = Quaternion.Identity();
+    }
+
+    if (initialRotation) {
+      const { _x, _y, _z } = initialRotation;
+      model.movementManager.transformNode.rotationQuaternion = Quaternion.FromEulerAngles(
+        _x,
+        _y,
+        _z
+      );
     }
   },
 };

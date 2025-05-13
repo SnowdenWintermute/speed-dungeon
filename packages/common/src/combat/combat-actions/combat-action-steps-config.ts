@@ -34,15 +34,15 @@ export interface ActionResolutionStepConfig {
     successOption?: boolean
   ): EntityAnimation;
   getDestination?(context: ActionResolutionStepContext): Error | EntityDestination;
-  //
-  /* X */ shouldDespawnOnComplete?: (context: ActionResolutionStepContext) => boolean;
-  /* X */ getNewParent?: (context: ActionResolutionStepContext) => AbstractEntityPart | null;
-  /* X */ getCosmeticDestinationY?: (context: ActionResolutionStepContext) => AbstractEntityPart;
-  /* X */ getStartPointingTowardEntityOption?: (
+  // @PERF - client could probably figure this out on their own or with more limited info
+  // from server
+  shouldDespawnOnComplete?: (context: ActionResolutionStepContext) => boolean;
+  getNewParent?: (context: ActionResolutionStepContext) => AbstractEntityPart | null;
+  getCosmeticDestinationY?: (context: ActionResolutionStepContext) => AbstractEntityPart;
+  getStartPointingTowardEntityOption?: (
     context: ActionResolutionStepContext
   ) => ActionEntityPointTowardEntity;
-
-  /*  */ getEquipmentAnimations?(
+  getEquipmentAnimations?(
     user: CombatantProperties,
     animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
   ): EquipmentAnimation[];

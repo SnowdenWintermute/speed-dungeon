@@ -18,6 +18,7 @@ import {
   AbstractEntityPart,
 } from "../action-entities/index.js";
 import { EquipmentAnimation } from "../combat/combat-actions/combat-action-steps-config.js";
+import { HoldableSlotType } from "../items/equipment/slots.js";
 
 export enum GameUpdateCommandType {
   SpawnEntity,
@@ -82,12 +83,21 @@ export interface ActionEntityPointTowardEntity {
   duration: Milliseconds;
 }
 
+export interface ActionEntitySetParentCombatantHoldable {
+  combatantId: EntityId;
+  holdableId: EntityId;
+  positionOnTarget: EntityReferencePoint;
+  durationToReachPosition: Milliseconds;
+}
+
 export interface ActionEntityMotionUpdate extends IEntityMotionUpdate {
   entityType: SpawnableEntityType.ActionEntity;
   despawnOnComplete?: boolean;
   setParent?: AbstractEntityPart | null;
   cosmeticDestinationY?: AbstractEntityPart;
   startPointingTowardEntityOption?: ActionEntityPointTowardEntity;
+  startPointingTowardCombatantHoldable?: ActionEntitySetParentCombatantHoldable;
+  setParentToCombatantHoldable?: ActionEntitySetParentCombatantHoldable;
 }
 
 export interface CombatantMotionUpdate extends IEntityMotionUpdate {

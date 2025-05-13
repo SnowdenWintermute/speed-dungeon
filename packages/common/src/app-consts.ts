@@ -173,6 +173,7 @@ export enum SkeletalAnimationName {
   TwoHandStabChambering,
   TwoHandStabDelivery,
   TwoHandStabRecovery,
+  BowPrep,
   BowChambering,
   BowDelivery,
   BowRecovery,
@@ -232,6 +233,7 @@ export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, stri
   [SkeletalAnimationName.TwoHandStabChambering]: "2h-stab-chambering",
   [SkeletalAnimationName.TwoHandStabDelivery]: "2h-stab-delivery",
   [SkeletalAnimationName.TwoHandStabRecovery]: "2h-stab-recovery",
+  [SkeletalAnimationName.BowPrep]: "bow-shoot-prep",
   [SkeletalAnimationName.BowChambering]: "bow-shoot-chambering",
   [SkeletalAnimationName.BowDelivery]: "bow-shoot-delivery",
   [SkeletalAnimationName.BowRecovery]: "bow-shoot-recovery",
@@ -241,7 +243,7 @@ export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, stri
   [SkeletalAnimationName.UseConsumableChambering]: "use-consumable-chambering",
   [SkeletalAnimationName.UseConsumableDelivery]: "use-consumable-delivery",
   [SkeletalAnimationName.UseConsumableRecovery]: "use-consumable-recovery",
-  [SkeletalAnimationName.EquipmentShortBowShoot]: "Action",
+  [SkeletalAnimationName.EquipmentShortBowShoot]: "short-bow-shoot-baked",
 };
 
 export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string> = {

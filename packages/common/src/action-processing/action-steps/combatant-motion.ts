@@ -19,6 +19,7 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
       idleOnComplete: step === ActionResolutionStepType.FinalPositioning,
       instantTransition:
         step !== ActionResolutionStepType.InitialPositioning &&
+        step !== ActionResolutionStepType.PrepMotion &&
         step !== ActionResolutionStepType.ChamberingMotion &&
         step !== ActionResolutionStepType.FinalPositioning,
     };

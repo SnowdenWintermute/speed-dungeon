@@ -1,6 +1,6 @@
 export * from "./cosmetic-effect.js";
 export * from "./cosmetic-effect-constructors.js";
-import { Vector3 } from "@babylonjs/core";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 import { EntityId, EntityProperties } from "../primatives/index.js";
 
 export enum ActionEntityName {
@@ -38,6 +38,7 @@ export type ActionEntityProperties = {
   name: ActionEntityName;
   // pointTowardEntityOption?: EntityId;
   parentOption?: AbstractEntityPart;
+  initialRotation?: Vector3;
 };
 
 export class ActionEntity {

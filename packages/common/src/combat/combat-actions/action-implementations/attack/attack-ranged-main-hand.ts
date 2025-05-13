@@ -11,7 +11,11 @@ import {
   HoldableSlotType,
   TaggedEquipmentSlot,
 } from "../../../../items/equipment/slots.js";
-import { SpawnableEntity, SpawnableEntityType } from "../../../../spawnables/index.js";
+import {
+  SpawnableEntity,
+  SpawnableEntityType,
+  getSpawnableEntityId,
+} from "../../../../spawnables/index.js";
 import { ActionEntityName, EntityReferencePoint } from "../../../../action-entities/index.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
@@ -27,9 +31,11 @@ import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { getProjectileShootingActionBaseStepsConfig } from "../projectile-shooting-action-base-steps-config.js";
 import { ProjectileShootingActionType } from "../projectile-shooting-action-animation-names.js";
 import {
+  ActionEntitySetParentCombatantHoldable,
   ActionResolutionStepType,
   AnimationTimingType,
   EntityAnimation,
+  EntityMotionUpdate,
 } from "../../../../action-processing/index.js";
 import {
   AnimationType,
@@ -37,14 +43,22 @@ import {
   SkeletalAnimationName,
 } from "../../../../app-consts.js";
 import { EquipmentAnimation } from "../../combat-action-steps-config.js";
+import { Vector3 } from "@babylonjs/core";
+import { CombatantEquipment } from "../../../../combatants/index.js";
+import { getRotateTowardPrimaryTargetDestination } from "../common-destination-getters.js";
+import { getSpeciesTimedAnimation } from "../get-species-timed-animation.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Bow);
+
 stepsConfig.steps = {
   ...stepsConfig.steps,
-  [ActionResolutionStepType.PostChamberingSpawnEntity]: {},
-  [ActionResolutionStepType.DeliveryMotion]: {
-    ...stepsConfig.steps[ActionResolutionStepType.DeliveryMotion],
+  [ActionResolutionStepType.PrepMotion]: {
+    getDestination: getRotateTowardPrimaryTargetDestination,
+    getAnimation: (user, animationLengths) =>
+      // a one-off ActionExecutionPhase since no other action has a prep motion yet
+      getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowPrep),
+
     getEquipmentAnimations: (user, animationLengths) => {
       const slot: TaggedEquipmentSlot = {
         type: EquipmentSlotType.Holdable,
@@ -64,6 +78,57 @@ stepsConfig.steps = {
       const equipmentAnimation: EquipmentAnimation = { slot, animation };
 
       return [equipmentAnimation];
+    },
+  },
+  [ActionResolutionStepType.PostPrepSpawnEntity]: {},
+  [ActionResolutionStepType.ChamberingMotion]: {
+    ...stepsConfig.steps[ActionResolutionStepType.ChamberingMotion],
+  },
+
+  [ActionResolutionStepType.DeliveryMotion]: {
+    ...stepsConfig.steps[ActionResolutionStepType.DeliveryMotion],
+    getAuxiliaryEntityMotions: (context) => {
+      const actionEntity = context.tracker.spawnedEntityOption;
+      if (!actionEntity) return [];
+
+      const { combatantProperties } = context.combatantContext.combatant;
+      const bowOption = CombatantEquipment.getEquipmentInSlot(combatantProperties, {
+        type: EquipmentSlotType.Holdable,
+        slot: HoldableSlotType.MainHand,
+      });
+      if (!bowOption) {
+        console.log("no bow equipped");
+        return [];
+      }
+
+      const holdableId = bowOption.entityProperties.id;
+
+      const actionEntityId = getSpawnableEntityId(actionEntity);
+
+      const setParent: ActionEntitySetParentCombatantHoldable = {
+        combatantId: context.combatantContext.combatant.entityProperties.id,
+        holdableId,
+        positionOnTarget: EntityReferencePoint.NockBone,
+        durationToReachPosition: 1400,
+      };
+
+      const pointToward: ActionEntitySetParentCombatantHoldable = {
+        combatantId: context.combatantContext.combatant.entityProperties.id,
+        holdableId,
+        positionOnTarget: EntityReferencePoint.ArrowRest,
+        durationToReachPosition: 600,
+      };
+
+      const toReturn: EntityMotionUpdate[] = [];
+
+      toReturn.push({
+        entityId: actionEntityId,
+        entityType: SpawnableEntityType.ActionEntity,
+        setParentToCombatantHoldable: setParent,
+        startPointingTowardCombatantHoldable: pointToward,
+      });
+
+      return toReturn;
     },
   },
 };
@@ -106,6 +171,7 @@ const config: CombatActionComponentConfig = {
         actionEntityProperties: {
           position,
           name: ActionEntityName.Arrow,
+          // initialRotation: new Vector3(Math.PI / 2, 0, 0),
           parentOption: {
             referencePoint: EntityReferencePoint.MainHandBone,
             entityId: context.combatantContext.combatant.entityProperties.id,
