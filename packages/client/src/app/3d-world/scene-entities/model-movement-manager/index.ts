@@ -85,22 +85,26 @@ export class ModelMovementManager {
   smoothLookAtThenLockOn() {
     if (!this.lookingAt) return;
     const { targetMesh, isLocked, alignmentSpeed } = this.lookingAt;
+    this.transformNode.setParent(null);
+    // const targetPos = targetMesh.getAbsolutePosition();
+    const targetPos = Vector3.Zero();
+    // const currentPos = this.transformNode.position;
 
-    const targetPos = targetMesh.position;
-    const currentPos = this.transformNode.position;
+    const forward = targetPos.subtract(this.transformNode.getAbsolutePosition()).normalize();
+
+    const up = Vector3.Up();
+    const targetRotation: Quaternion = Quaternion.FromLookDirectionLH(forward, up);
 
     // Compute current and target rotation quaternions
     const currentRotation =
       this.transformNode.rotationQuaternion ||
       Quaternion.FromEulerVector(this.transformNode.rotation);
 
-    // Compute full lookAt rotation
-    const lookAtMatrix = Matrix.LookAtLH(currentPos, targetPos, Vector3.Up());
-    const targetRotation = Quaternion.FromRotationMatrix(lookAtMatrix.getRotationMatrix());
-
     // if (isLocked) {
     // Fully locked on – follow the target rotation instantly
+    //
     this.transformNode.rotationQuaternion = targetRotation;
+    console.log("set look at rotation");
     // } else {
     // Slerp toward target rotation
     // const newRotation = Quaternion.Slerp(currentRotation, targetRotation, alignmentSpeed);
