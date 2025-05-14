@@ -98,19 +98,19 @@ export class ModelMovementManager {
     const lookAtMatrix = Matrix.LookAtLH(currentPos, targetPos, Vector3.Up());
     const targetRotation = Quaternion.FromRotationMatrix(lookAtMatrix.getRotationMatrix());
 
-    if (!isLocked) {
-      // Slerp toward target rotation
-      const newRotation = Quaternion.Slerp(currentRotation, targetRotation, alignmentSpeed);
-      this.transformNode.rotationQuaternion = newRotation;
+    // if (isLocked) {
+    // Fully locked on – follow the target rotation instantly
+    this.transformNode.rotationQuaternion = targetRotation;
+    // } else {
+    // Slerp toward target rotation
+    // const newRotation = Quaternion.Slerp(currentRotation, targetRotation, alignmentSpeed);
+    // this.transformNode.rotationQuaternion = newRotation;
 
-      // Check if we're sufficiently close to the target direction
-      const angleDiff = Quaternion.Dot(currentRotation.normalize(), targetRotation.normalize());
-      if (1 - angleDiff < ModelMovementManager.ROTATION_ALIGNMENT_LOCK_THRESHOLD) {
-        this.lookingAt.isLocked = true;
-      }
-    } else {
-      // Fully locked on – follow the target rotation instantly
-      this.transformNode.rotationQuaternion = targetRotation;
-    }
+    // Check if we're sufficiently close to the target direction
+    // const angleDiff = Quaternion.Dot(currentRotation.normalize(), targetRotation.normalize());
+    // if (1 - angleDiff < ModelMovementManager.ROTATION_ALIGNMENT_LOCK_THRESHOLD) {
+    //   this.lookingAt.isLocked = true;
+    // }
+    // }
   }
 }

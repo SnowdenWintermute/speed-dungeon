@@ -51,6 +51,7 @@ export function handleEntityMotionUpdate(
     if (motionUpdate.startPointingTowardEntityOption) {
       const { targetId, duration } = motionUpdate.startPointingTowardEntityOption;
 
+      actionEntityModelOption.movementManager.lookingAt = null;
       actionEntityModelOption.startPointingTowardsCombatant(targetId, duration);
     }
 
@@ -96,8 +97,6 @@ export function handleEntityMotionUpdate(
           };
         }
       }
-    } else {
-      actionEntityModelOption.movementManager.lookingAt = null;
     }
 
     if (isMainUpdate) {

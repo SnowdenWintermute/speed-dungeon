@@ -1,9 +1,19 @@
-import { AbstractMesh, AssetContainer, Quaternion, Vector3 } from "@babylonjs/core";
+import {
+  AbstractMesh,
+  AssetContainer,
+  Color4,
+  MeshBuilder,
+  Quaternion,
+  StandardMaterial,
+  Vector3,
+} from "@babylonjs/core";
 import { SkeletalAnimationManager } from "../model-animation-managers/skeletal-animation-manager";
 import { SceneEntity } from "..";
 import { AnimationGroup } from "@babylonjs/core";
 import { ERROR_MESSAGES, Item } from "@speed-dungeon/common";
-import { getChildMeshByName } from "../../utils";
+import { getChildMeshByName, paintCubesOnNodes } from "../../utils";
+import { BoneName } from "../character-models/skeleton-structure-variables";
+import { gameWorld } from "../../SceneManager";
 
 export class ItemModel extends SceneEntity<AnimationGroup, SkeletalAnimationManager> {
   constructor(
@@ -14,19 +24,14 @@ export class ItemModel extends SceneEntity<AnimationGroup, SkeletalAnimationMana
     super(item.entityProperties.id, assetContainer, Vector3.Zero(), new Quaternion());
 
     this.rootMesh.rotate(Vector3.Backward(), Math.PI);
+    this.setShowBones();
 
     // if (!assetContainer.meshes[0]) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_ITEM_FILE);
-    // const rootBone = getChildMeshByName(assetContainer.meshes[0], "Handle");
-    // if (rootBone) {
-    //   let asAbstractMesh = rootBone as AbstractMesh;
-    //   console.log("found bone named handle in item model");
-    //   asAbstractMesh.setParent(this.rootTransformNode);
-    //   asAbstractMesh.setPositionWithLocalVector(Vector3.Zero());
-    // }
   }
 
   initRootMesh(assetContainer: AssetContainer): AbstractMesh {
     if (!assetContainer.meshes[0]) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_ITEM_FILE);
+
     return assetContainer.meshes[0];
   }
 
@@ -36,5 +41,19 @@ export class ItemModel extends SceneEntity<AnimationGroup, SkeletalAnimationMana
 
   customCleanup(): void {
     //
+  }
+
+  setShowBones() {
+    const transparentMaterial = new StandardMaterial("");
+    transparentMaterial.alpha = 0.3;
+    for (const mesh of this.rootMesh.getChildMeshes()) {
+      mesh.material = transparentMaterial;
+    }
+    const cubeSize = 0.02;
+    const red = new Color4(255, 0, 0, 1.0);
+    const skeletonRootBone = getChildMeshByName(this.rootMesh, "BowArmature");
+    if (!gameWorld.current) return;
+    if (skeletonRootBone !== undefined)
+      paintCubesOnNodes(skeletonRootBone, cubeSize, red, gameWorld.current.scene);
   }
 }
