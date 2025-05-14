@@ -93,7 +93,8 @@ export function getProjectileShootingActionBaseStepsConfig(
           const pointTowardEntity: ActionEntityPointTowardEntity = {
             targetId: primaryTarget.entityProperties.id,
             positionOnTarget: EntityReferencePoint.CombatantHitboxCenter,
-            duration: 400,
+            // duration: 400,
+            duration: 2000,
           };
           const toReturn: EntityMotionUpdate[] = [];
           toReturn.push({

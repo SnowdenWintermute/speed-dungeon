@@ -1,4 +1,4 @@
-import { Quaternion, TransformNode, Vector3 } from "@babylonjs/core";
+import { AbstractMesh, Matrix, Quaternion, TransformNode, Vector3 } from "@babylonjs/core";
 import {
   ModelMovementTracker,
   ModelMovementType,
@@ -9,6 +9,10 @@ import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 
 export class ModelMovementManager {
   public activeTrackers: Partial<Record<ModelMovementType, ModelMovementTracker>> = {};
+
+  static ROTATION_ALIGNMENT_LOCK_THRESHOLD = 0.1;
+  public lookingAt: { targetMesh: AbstractMesh; isLocked: boolean; alignmentSpeed: number } | null =
+    null;
   constructor(public transformNode: TransformNode) {
     transformNode.rotationQuaternion = Quaternion.FromEulerVector(transformNode.rotation);
   }
@@ -70,7 +74,43 @@ export class ModelMovementManager {
       tracker.onComplete();
       delete this.activeTrackers[movementType];
     }
+
+    if (this.lookingAt) {
+      this.smoothLookAtThenLockOn();
+    }
   }
 
   removeActiveModelAction() {}
+
+  smoothLookAtThenLockOn() {
+    if (!this.lookingAt) return;
+    const { targetMesh, isLocked, alignmentSpeed } = this.lookingAt;
+
+    const targetPos = targetMesh.position;
+    const currentPos = this.transformNode.position;
+
+    // Compute current and target rotation quaternions
+    const currentRotation =
+      this.transformNode.rotationQuaternion ||
+      Quaternion.FromEulerVector(this.transformNode.rotation);
+
+    // Compute full lookAt rotation
+    const lookAtMatrix = Matrix.LookAtLH(currentPos, targetPos, Vector3.Up());
+    const targetRotation = Quaternion.FromRotationMatrix(lookAtMatrix.getRotationMatrix());
+
+    if (!isLocked) {
+      // Slerp toward target rotation
+      const newRotation = Quaternion.Slerp(currentRotation, targetRotation, alignmentSpeed);
+      this.transformNode.rotationQuaternion = newRotation;
+
+      // Check if we're sufficiently close to the target direction
+      const angleDiff = Quaternion.Dot(currentRotation.normalize(), targetRotation.normalize());
+      if (1 - angleDiff < ModelMovementManager.ROTATION_ALIGNMENT_LOCK_THRESHOLD) {
+        this.lookingAt.isLocked = true;
+      }
+    } else {
+      // Fully locked on – follow the target rotation instantly
+      this.transformNode.rotationQuaternion = targetRotation;
+    }
+  }
 }

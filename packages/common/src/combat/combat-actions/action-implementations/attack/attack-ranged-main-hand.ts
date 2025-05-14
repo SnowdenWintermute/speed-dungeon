@@ -31,9 +31,9 @@ import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { getProjectileShootingActionBaseStepsConfig } from "../projectile-shooting-action-base-steps-config.js";
 import { ProjectileShootingActionType } from "../projectile-shooting-action-animation-names.js";
 import {
-  ActionEntitySetParentCombatantHoldable,
   ActionResolutionStepType,
   AnimationTimingType,
+  CombatantHoldableWithReferencePoint,
   EntityAnimation,
   EntityMotionUpdate,
 } from "../../../../action-processing/index.js";
@@ -43,7 +43,6 @@ import {
   SkeletalAnimationName,
 } from "../../../../app-consts.js";
 import { EquipmentAnimation } from "../../combat-action-steps-config.js";
-import { Vector3 } from "@babylonjs/core";
 import { CombatantEquipment } from "../../../../combatants/index.js";
 import { getRotateTowardPrimaryTargetDestination } from "../common-destination-getters.js";
 import { getSpeciesTimedAnimation } from "../get-species-timed-animation.js";
@@ -105,14 +104,14 @@ stepsConfig.steps = {
 
       const actionEntityId = getSpawnableEntityId(actionEntity);
 
-      const setParent: ActionEntitySetParentCombatantHoldable = {
+      const setParent: CombatantHoldableWithReferencePoint = {
         combatantId: context.combatantContext.combatant.entityProperties.id,
         holdableId,
         positionOnTarget: EntityReferencePoint.NockBone,
         durationToReachPosition: 1400,
       };
 
-      const pointToward: ActionEntitySetParentCombatantHoldable = {
+      const pointToward: CombatantHoldableWithReferencePoint = {
         combatantId: context.combatantContext.combatant.entityProperties.id,
         holdableId,
         positionOnTarget: EntityReferencePoint.ArrowRest,

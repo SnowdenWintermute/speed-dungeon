@@ -8,7 +8,6 @@ import {
   SkeletalAnimationName,
 } from "@speed-dungeon/common";
 import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
-import { CharacterModel } from "../character-models";
 
 export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   protected timeStarted: number = Date.now();
@@ -30,9 +29,7 @@ export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
     if (this.options.animationDurationOverrideOption !== undefined)
       length = this.options.animationDurationOverrideOption;
 
-    length *= DEBUG_ANIMATION_SPEED_MULTIPLIER;
-
-    return length;
+    return length * DEBUG_ANIMATION_SPEED_MULTIPLIER;
   }
 
   setWeight(newWeight: number) {
@@ -98,7 +95,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     let speedModifier =
       animationStockDuration / (options.animationDurationOverrideOption || animationStockDuration);
 
-    speedModifier *= DEBUG_ANIMATION_SPEED_MULTIPLIER;
+    speedModifier *= 1 / DEBUG_ANIMATION_SPEED_MULTIPLIER;
 
     clonedAnimation.start(options.shouldLoop, speedModifier);
   }
@@ -107,8 +104,10 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     // if (!this.playing) console.log("no animation played this frame");
     if (!this.playing) return;
 
+    const length = this.playing.getLength();
+
     const elapsed = this.playing.elapsed();
-    if (elapsed >= this.playing.getLength()) {
+    if (elapsed >= length) {
       this.playing.setWeight(1);
       this.previous?.setWeight(0);
       // otherwise it is possible that a short animation would finish

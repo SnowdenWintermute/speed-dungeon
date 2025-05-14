@@ -80,32 +80,25 @@ export function handleEntityMotionUpdate(
       }
     }
 
-    // if (motionUpdate.startPointingTowardCombatantHoldable) {
-    //   const { combatantId, holdableId, durationToReachPosition, positionOnTarget } =
-    //     motionUpdate.startPointingTowardCombatantHoldable;
-    //   const combatantModelOption = gameWorld.current?.modelManager.combatantModels[combatantId];
-    //   if (combatantModelOption) {
-    //     const holdableModelOption = combatantModelOption.equipment.holdables[holdableId];
-    //     if (holdableModelOption) {
-    //       const bone = getChildMeshByName(holdableModelOption.rootMesh, "Main") as AbstractMesh;
+    if (motionUpdate.startPointingTowardCombatantHoldable) {
+      const { combatantId, holdableId, durationToReachPosition, positionOnTarget } =
+        motionUpdate.startPointingTowardCombatantHoldable;
+      const combatantModelOption = gameWorld.current?.modelManager.combatantModels[combatantId];
+      if (combatantModelOption) {
+        const holdableModelOption = combatantModelOption.equipment.holdables[holdableId];
+        if (holdableModelOption) {
+          const bone = getChildMeshByName(holdableModelOption.rootMesh, "Main") as AbstractMesh;
 
-    //       const targetPosition = bone.position;
-    //       console.log("pointing toward target position:", targetPosition);
-    //       const forward = targetPosition
-    //         .subtract(holdableModelOption.movementManager.transformNode.getAbsolutePosition())
-    //         .normalize();
-
-    //       const up = Vector3.Up();
-    //       const lookRotation: Quaternion = Quaternion.FromLookDirectionLH(forward, up);
-
-    //       actionEntityModelOption.movementManager.startRotatingTowards(
-    //         lookRotation,
-    //         durationToReachPosition,
-    //         () => {}
-    //       );
-    //     }
-    //   }
-    // }
+          actionEntityModelOption.movementManager.lookingAt = {
+            targetMesh: bone,
+            alignmentSpeed: 0.2,
+            isLocked: false,
+          };
+        }
+      }
+    } else {
+      actionEntityModelOption.movementManager.lookingAt = null;
+    }
 
     if (isMainUpdate) {
       onTranslationComplete = () => {

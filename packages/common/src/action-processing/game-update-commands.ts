@@ -83,7 +83,7 @@ export interface ActionEntityPointTowardEntity {
   duration: Milliseconds;
 }
 
-export interface ActionEntitySetParentCombatantHoldable {
+export interface CombatantHoldableWithReferencePoint {
   combatantId: EntityId;
   holdableId: EntityId;
   positionOnTarget: EntityReferencePoint;
@@ -96,8 +96,8 @@ export interface ActionEntityMotionUpdate extends IEntityMotionUpdate {
   setParent?: AbstractEntityPart | null;
   cosmeticDestinationY?: AbstractEntityPart;
   startPointingTowardEntityOption?: ActionEntityPointTowardEntity;
-  startPointingTowardCombatantHoldable?: ActionEntitySetParentCombatantHoldable;
-  setParentToCombatantHoldable?: ActionEntitySetParentCombatantHoldable;
+  startPointingTowardCombatantHoldable?: CombatantHoldableWithReferencePoint;
+  setParentToCombatantHoldable?: CombatantHoldableWithReferencePoint;
 }
 
 export interface CombatantMotionUpdate extends IEntityMotionUpdate {
