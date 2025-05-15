@@ -85,36 +85,36 @@ export class ModelMovementManager {
   smoothLookAtThenLockOn() {
     if (!this.lookingAt) return;
     const { targetMesh, isLocked, alignmentSpeed } = this.lookingAt;
-    this.transformNode.setParent(null);
-    // const targetPos = targetMesh.getAbsolutePosition();
-    const targetPos = Vector3.Zero();
-    // const currentPos = this.transformNode.position;
 
-    const forward = targetPos.subtract(this.transformNode.getAbsolutePosition()).normalize();
+    const lookAt = Matrix.LookAtLH(
+      // Vector3.Zero(),
+      this.transformNode.getAbsolutePosition(),
+      targetMesh.getAbsolutePosition(),
+      Vector3.Up()
+    );
+    this.transformNode.rotationQuaternion = Quaternion.FromRotationMatrix(lookAt);
+    this.transformNode.rotate(Vector3.Left(), Math.PI / 2);
 
-    const up = Vector3.Up();
-    const targetRotation: Quaternion = Quaternion.FromLookDirectionLH(forward, up);
+    // // const targetPosition = targetMesh.getAbsolutePosition();
+    // const targetPosition = Vector3.Zero();
 
-    // Compute current and target rotation quaternions
-    const currentRotation =
-      this.transformNode.rotationQuaternion ||
-      Quaternion.FromEulerVector(this.transformNode.rotation);
+    // const forward = targetPosition.subtract(this.transformNode.getAbsolutePosition()).normalize();
 
-    // if (isLocked) {
-    // Fully locked on – follow the target rotation instantly
-    //
-    this.transformNode.rotationQuaternion = targetRotation;
-    console.log("set look at rotation");
+    // const up = Vector3.Up();
+    // // const lookRotation: Quaternion = Quaternion.FromLookDirectionLH(forward, up);
+    // // this.transformNode.rotationQuaternion = lookRotation;
+
+    // const worldQuat = Quaternion.FromLookDirectionLH(forward, up);
+
+    // if (this.transformNode.parent) {
+    //   const parentMatrix = this.transformNode.parent.getWorldMatrix();
+    //   const parentRot = Quaternion.FromRotationMatrix(parentMatrix.getRotationMatrix());
+    //   const parentRotInv = parentRot.conjugate();
+
+    //   const localQuat = parentRotInv.multiply(worldQuat);
+    //   this.transformNode.rotationQuaternion = localQuat;
     // } else {
-    // Slerp toward target rotation
-    // const newRotation = Quaternion.Slerp(currentRotation, targetRotation, alignmentSpeed);
-    // this.transformNode.rotationQuaternion = newRotation;
-
-    // Check if we're sufficiently close to the target direction
-    // const angleDiff = Quaternion.Dot(currentRotation.normalize(), targetRotation.normalize());
-    // if (1 - angleDiff < ModelMovementManager.ROTATION_ALIGNMENT_LOCK_THRESHOLD) {
-    //   this.lookingAt.isLocked = true;
-    // }
+    //   this.transformNode.rotationQuaternion = worldQuat;
     // }
   }
 }

@@ -28,7 +28,9 @@ export abstract class SceneEntity<T, U extends AnimationManager<T>> {
     const rootMesh = this.initRootMesh(assetContainer);
     this.rootMesh = rootMesh;
     this.rootMesh.setParent(this.rootTransformNode);
-    this.rootMesh.position.copyFrom(Vector3.Zero());
+    // this.rootMesh.position.copyFrom(Vector3.Zero());
+
+    this.rootMesh.setPositionWithLocalVector(Vector3.Zero());
 
     this.rootTransformNode.rotationQuaternion = plainToInstance(Quaternion, startRotation);
 

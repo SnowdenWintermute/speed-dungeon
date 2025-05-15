@@ -2,7 +2,6 @@ import {
   AbstractMesh,
   AssetContainer,
   Color4,
-  MeshBuilder,
   Quaternion,
   StandardMaterial,
   Vector3,
@@ -12,7 +11,6 @@ import { SceneEntity } from "..";
 import { AnimationGroup } from "@babylonjs/core";
 import { ERROR_MESSAGES, Item } from "@speed-dungeon/common";
 import { getChildMeshByName, paintCubesOnNodes } from "../../utils";
-import { BoneName } from "../character-models/skeleton-structure-variables";
 import { gameWorld } from "../../SceneManager";
 
 export class ItemModel extends SceneEntity<AnimationGroup, SkeletalAnimationManager> {

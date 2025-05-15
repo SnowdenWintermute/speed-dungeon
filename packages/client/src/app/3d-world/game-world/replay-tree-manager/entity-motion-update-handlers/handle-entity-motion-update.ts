@@ -15,7 +15,7 @@ import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
 import { handleStepCosmeticEffects } from "../handle-step-cosmetic-effects";
 import { handleUpdateTranslation } from "./handle-update-translation";
 import { plainToInstance } from "class-transformer";
-import { AbstractMesh, Quaternion, Vector3 } from "@babylonjs/core";
+import { AbstractMesh, MeshBuilder, Quaternion, Vector3 } from "@babylonjs/core";
 import { handleUpdateAnimation } from "./handle-update-animation";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
@@ -90,7 +90,11 @@ export function handleEntityMotionUpdate(
         if (holdableModelOption) {
           const bone = getChildMeshByName(holdableModelOption.rootMesh, "Main") as AbstractMesh;
 
+          // const testMesh = MeshBuilder.CreateBox("", { size: 0.1 });
+
+          console.log("set point toward holdable bone");
           actionEntityModelOption.movementManager.lookingAt = {
+            // targetMesh: testMesh,
             targetMesh: bone,
             alignmentSpeed: 0.2,
             isLocked: false,

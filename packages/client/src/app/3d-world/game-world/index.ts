@@ -10,10 +10,11 @@ import {
   InputBlock,
   Camera,
   RenderTargetTexture,
+  MeshBuilder,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
-import { IdGenerator } from "@speed-dungeon/common";
+import { ActionEntityName, IdGenerator } from "@speed-dungeon/common";
 import { updateDebugText } from "./model-manager/update-debug-text";
 import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
@@ -25,7 +26,12 @@ import pixelationShader from "./pixelationNodeMaterial.json";
 import { ReplayTreeManager } from "./replay-tree-manager";
 import { testParticleSystem } from "./testing-particle-systems";
 import { testingSounds } from "./testing-sounds";
-import { ActionEntityManager } from "../scene-entities/action-entity-models";
+import {
+  ActionEntityManager,
+  ActionEntityModel,
+  spawnActionEntityModel,
+} from "../scene-entities/action-entity-models";
+import { gameWorld } from "../SceneManager";
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;
@@ -103,6 +109,26 @@ export class GameWorld {
     // if (systemAndMeshOption) systemAndMeshOption.particleSystem.start();
 
     // this.startLimitedFramerateRenderLoop(5, 3000);
+  }
+
+  async testModels() {
+    const position = new Vector3(0, 1, 0);
+    const assetContainer = await spawnActionEntityModel(ActionEntityName.Arrow, position);
+
+    const model = new ActionEntityModel(
+      this.idGenerator.generate(),
+      assetContainer,
+      position,
+      ActionEntityName.Arrow
+    );
+
+    console.log("arrow root mesh forward", model.rootTransformNode.forward);
+
+    const box = MeshBuilder.CreateBox("", { size: 0.1 });
+
+    model.movementManager.lookingAt = { targetMesh: box, isLocked: true, alignmentSpeed: 0.1 };
+
+    this.actionEntityManager.register(model);
   }
 
   updateGameWorld() {

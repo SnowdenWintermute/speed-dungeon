@@ -124,6 +124,7 @@ stepsConfig.steps = {
         entityId: actionEntityId,
         entityType: SpawnableEntityType.ActionEntity,
         setParentToCombatantHoldable: setParent,
+        // setParent: null,
         startPointingTowardCombatantHoldable: pointToward,
       });
 

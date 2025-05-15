@@ -7,6 +7,7 @@ import {
   Vector3,
   Quaternion,
   AbstractMesh,
+  Scene,
 } from "@babylonjs/core";
 import { ActionEntityName, ERROR_MESSAGES, EntityId, Milliseconds } from "@speed-dungeon/common";
 import { importMesh } from "../../utils";
@@ -40,10 +41,33 @@ export class ActionEntityModel extends SceneEntity<DynamicAnimation, DynamicAnim
     public id: EntityId,
     assetContainer: AssetContainer,
     startPosition: Vector3,
-    public name: ActionEntityName,
-    public pointTowardEntity?: EntityId
+    public name: ActionEntityName
   ) {
     super(id, assetContainer, startPosition, new Quaternion());
+
+    const sceneOption = gameWorld.current?.scene;
+    this.createDebugLines(startPosition, sceneOption);
+  }
+
+  createDebugLines(startPosition: Vector3, sceneOption: undefined | Scene) {
+    const start = startPosition;
+    const positiveZ = startPosition.add(new Vector3(0, 0, 1));
+
+    const positiveZline = MeshBuilder.CreateLines(
+      "line",
+      {
+        points: [start, positiveZ],
+      },
+      sceneOption
+    );
+
+    positiveZline.setPositionWithLocalVector(Vector3.Zero());
+
+    positiveZline.setParent(this.rootTransformNode);
+
+    const testMesh = MeshBuilder.CreateBox("", { size: 0.1 });
+    testMesh.setParent(this.rootTransformNode);
+    testMesh.setPositionWithLocalVector(Vector3.Zero());
   }
 
   initRootMesh(assetContainer: AssetContainer): AbstractMesh {
@@ -67,6 +91,7 @@ export class ActionEntityModel extends SceneEntity<DynamicAnimation, DynamicAnim
 
     const up = Vector3.Up();
     const lookRotation: Quaternion = Quaternion.FromLookDirectionLH(forward, up);
+
     this.movementManager.startRotatingTowards(lookRotation, duration, () => {});
   }
 }
