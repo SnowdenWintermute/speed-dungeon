@@ -47,7 +47,7 @@ export class ActionEntityModel extends SceneEntity<DynamicAnimation, DynamicAnim
     super(id, assetContainer, startPosition, new Quaternion());
 
     const sceneOption = gameWorld.current?.scene;
-    this.createDebugLines(startPosition, sceneOption);
+    // this.createDebugLines(startPosition, sceneOption);
   }
 
   createDebugLines(startPosition: Vector3, sceneOption: undefined | Scene) {

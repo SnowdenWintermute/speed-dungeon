@@ -90,8 +90,9 @@ export class ModelMovementManager {
 
     const newRotation = ModelMovementManager.getRotationToPointTowardToward(
       this.transformNode,
-      Vector3.Zero()
+      targetMesh.getAbsolutePosition()
     );
+
     this.transformNode.rotationQuaternion = newRotation;
   }
 

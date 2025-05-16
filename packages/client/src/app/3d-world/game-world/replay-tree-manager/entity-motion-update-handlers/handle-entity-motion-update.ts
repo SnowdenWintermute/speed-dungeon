@@ -15,7 +15,7 @@ import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
 import { handleStepCosmeticEffects } from "../handle-step-cosmetic-effects";
 import { handleUpdateTranslation } from "./handle-update-translation";
 import { plainToInstance } from "class-transformer";
-import { AbstractMesh, MeshBuilder, Quaternion, Vector3 } from "@babylonjs/core";
+import { AbstractMesh, MeshBuilder, Quaternion, TransformNode, Vector3 } from "@babylonjs/core";
 import { handleUpdateAnimation } from "./handle-update-animation";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
@@ -71,7 +71,12 @@ export function handleEntityMotionUpdate(
         const holdableModelOption = combatantModelOption.equipment.holdables[holdableId];
         if (holdableModelOption) {
           const bone = getChildMeshByName(holdableModelOption.rootMesh, "String") as AbstractMesh;
-          actionEntityModelOption.rootTransformNode.setParent(bone);
+
+          const intermediaryTransformNode = new TransformNode("");
+          intermediaryTransformNode.setParent(bone);
+          intermediaryTransformNode.setPositionWithLocalVector(Vector3.Zero());
+
+          actionEntityModelOption.rootTransformNode.setParent(intermediaryTransformNode);
           actionEntityModelOption.movementManager.startTranslating(
             Vector3.Zero(),
             durationToReachPosition,
@@ -88,18 +93,12 @@ export function handleEntityMotionUpdate(
       if (combatantModelOption) {
         const holdableModelOption = combatantModelOption.equipment.holdables[holdableId];
         if (holdableModelOption) {
-          const bone = getChildMeshByName(holdableModelOption.rootMesh, "IK_Top") as AbstractMesh;
-
-          const box = MeshBuilder.CreateBox("", { size: 0.1 });
-          box.setParent(bone);
-          box.setPositionWithLocalVector(Vector3.Zero());
-
-          // const testMesh = MeshBuilder.CreateBox("", { size: 0.1 });
+          const bone = getChildMeshByName(holdableModelOption.rootMesh, "Main") as AbstractMesh;
 
           console.log("set point toward holdable bone");
           actionEntityModelOption.movementManager.lookingAt = {
             // targetMesh: testMesh,
-            targetMesh: box,
+            targetMesh: bone,
             alignmentSpeed: 0.2,
             isLocked: false,
           };
