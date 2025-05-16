@@ -41,9 +41,6 @@ export class ModelMovementManager {
   }
 
   startRotatingTowards(destination: Quaternion, duration: number, onComplete: () => void) {
-    // const forward = this.transformNode.forward;
-    // const targetDirection = target.subtract(this.transformNode.position).normalize();
-    // const destination = Quaternion.FromUnitVectorsToRef(forward, targetDirection, new Quaternion());
     const previous =
       this.transformNode.rotationQuaternion?.clone() ||
       Quaternion.RotationYawPitchRoll(
@@ -51,6 +48,7 @@ export class ModelMovementManager {
         this.transformNode.rotation.x,
         this.transformNode.rotation.z
       );
+
     const tracker = new RotationTracker(
       this.transformNode,
       duration,
@@ -86,35 +84,38 @@ export class ModelMovementManager {
     if (!this.lookingAt) return;
     const { targetMesh, isLocked, alignmentSpeed } = this.lookingAt;
 
-    const lookAt = Matrix.LookAtLH(
-      // Vector3.Zero(),
-      this.transformNode.getAbsolutePosition(),
-      targetMesh.getAbsolutePosition(),
-      Vector3.Up()
+    this.transformNode.parent?.computeWorldMatrix(true);
+    this.transformNode.computeWorldMatrix(true);
+    targetMesh.computeWorldMatrix(true);
+
+    const newRotation = ModelMovementManager.getRotationToPointTowardToward(
+      this.transformNode,
+      Vector3.Zero()
     );
-    this.transformNode.rotationQuaternion = Quaternion.FromRotationMatrix(lookAt);
-    this.transformNode.rotate(Vector3.Left(), Math.PI / 2);
+    this.transformNode.rotationQuaternion = newRotation;
+  }
 
-    // // const targetPosition = targetMesh.getAbsolutePosition();
-    // const targetPosition = Vector3.Zero();
+  static getRotationToPointTowardToward(
+    transformNode: TransformNode,
+    targetPosition: Vector3,
+    invert: boolean = true
+  ) {
+    const worldPos = transformNode.getAbsolutePosition();
+    const lookAtMatrix = Matrix.LookAtLH(worldPos, targetPosition, Vector3.Up());
 
-    // const forward = targetPosition.subtract(this.transformNode.getAbsolutePosition()).normalize();
+    // Invert because LookAtLH returns a view matrix
+    const worldRotation = Quaternion.FromRotationMatrix(lookAtMatrix).invert();
 
-    // const up = Vector3.Up();
-    // // const lookRotation: Quaternion = Quaternion.FromLookDirectionLH(forward, up);
-    // // this.transformNode.rotationQuaternion = lookRotation;
+    if (transformNode.parent) {
+      // Convert world rotation to local space
+      const parentWorldMatrix = transformNode.parent.getWorldMatrix();
+      const parentRotation = Quaternion.FromRotationMatrix(parentWorldMatrix.getRotationMatrix());
 
-    // const worldQuat = Quaternion.FromLookDirectionLH(forward, up);
-
-    // if (this.transformNode.parent) {
-    //   const parentMatrix = this.transformNode.parent.getWorldMatrix();
-    //   const parentRot = Quaternion.FromRotationMatrix(parentMatrix.getRotationMatrix());
-    //   const parentRotInv = parentRot.conjugate();
-
-    //   const localQuat = parentRotInv.multiply(worldQuat);
-    //   this.transformNode.rotationQuaternion = localQuat;
-    // } else {
-    //   this.transformNode.rotationQuaternion = worldQuat;
-    // }
+      // localRotation = inverse(parent) * worldRotation
+      const localRotation = parentRotation.conjugate().multiply(worldRotation);
+      return localRotation;
+    } else {
+      return worldRotation;
+    }
   }
 }

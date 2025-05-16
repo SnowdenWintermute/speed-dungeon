@@ -57,6 +57,8 @@ export function attachHoldableModelToSkeleton(
 
   setTransformNodePositionAndRotationToZero(itemTransformNode);
 
+  itemTransformNode.rotation.z = Math.PI;
+
   if (slot === HoldableSlotType.OffHand) {
     itemTransformNode.rotation.y = Math.PI;
 
@@ -67,7 +69,6 @@ export function attachHoldableModelToSkeleton(
   }
 
   if (equipmentType === EquipmentType.TwoHandedRangedWeapon) {
-    // itemTransformNode.rotate(Vector3.Up(), Math.PI);
     itemTransformNode.rotation.y = Math.PI;
   }
 }

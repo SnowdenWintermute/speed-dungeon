@@ -15,7 +15,6 @@ export default function SceneManager() {
   useEffect(() => {
     if (canvasRef.current) {
       gameWorld.current = new GameWorld(canvasRef.current, debugRef);
-      // gameWorld.current.testModels();
     }
     resizeHandlerRef.current = function () {
       gameWorld.current?.engine?.resize();

@@ -18,6 +18,7 @@ import {
   DynamicAnimation,
 } from "../model-animation-managers/dynamic-animation-manager";
 import { SceneEntity } from "..";
+import { ModelMovementManager } from "../model-movement-manager";
 
 export class ActionEntityManager {
   models: { [id: EntityId]: ActionEntityModel } = {};
@@ -60,10 +61,19 @@ export class ActionEntityModel extends SceneEntity<DynamicAnimation, DynamicAnim
       },
       sceneOption
     );
+    const negativeZ = startPosition.add(new Vector3(0, 0, -1));
+    const negativeZline = MeshBuilder.CreateLines(
+      "line",
+      {
+        points: [start, negativeZ],
+      },
+      sceneOption
+    );
 
     positiveZline.setPositionWithLocalVector(Vector3.Zero());
-
     positiveZline.setParent(this.rootTransformNode);
+    negativeZline.setPositionWithLocalVector(Vector3.Zero());
+    negativeZline.setParent(this.rootTransformNode);
 
     const testMesh = MeshBuilder.CreateBox("", { size: 0.1 });
     testMesh.setParent(this.rootTransformNode);
@@ -85,14 +95,19 @@ export class ActionEntityModel extends SceneEntity<DynamicAnimation, DynamicAnim
     if (!combatantModelOption) throw new Error("Tried to point at an entity with no model");
 
     const targetBoundingBoxCenter = combatantModelOption.getBoundingInfo().boundingBox.centerWorld;
-    const forward = targetBoundingBoxCenter
-      .subtract(this.movementManager.transformNode.getAbsolutePosition())
-      .normalize();
+    // const forward = targetBoundingBoxCenter
+    //   .subtract(this.movementManager.transformNode.getAbsolutePosition())
+    //   .normalize();
 
-    const up = Vector3.Up();
-    const lookRotation: Quaternion = Quaternion.FromLookDirectionLH(forward, up);
+    // const up = Vector3.Up();
+    // const lookRotation: Quaternion = Quaternion.FromLookDirectionLH(forward, up);
 
-    this.movementManager.startRotatingTowards(lookRotation, duration, () => {});
+    const newRotation = ModelMovementManager.getRotationToPointTowardToward(
+      this.rootTransformNode,
+      targetBoundingBoxCenter
+    );
+
+    this.movementManager.startRotatingTowards(newRotation, duration, () => {});
   }
 }
 

@@ -21,7 +21,6 @@ export class ItemModel extends SceneEntity<AnimationGroup, SkeletalAnimationMana
   ) {
     super(item.entityProperties.id, assetContainer, Vector3.Zero(), new Quaternion());
 
-    this.rootMesh.rotate(Vector3.Backward(), Math.PI);
     this.setShowBones();
 
     // if (!assetContainer.meshes[0]) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_ITEM_FILE);

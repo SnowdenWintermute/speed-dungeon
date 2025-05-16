@@ -88,14 +88,18 @@ export function handleEntityMotionUpdate(
       if (combatantModelOption) {
         const holdableModelOption = combatantModelOption.equipment.holdables[holdableId];
         if (holdableModelOption) {
-          const bone = getChildMeshByName(holdableModelOption.rootMesh, "Main") as AbstractMesh;
+          const bone = getChildMeshByName(holdableModelOption.rootMesh, "IK_Top") as AbstractMesh;
+
+          const box = MeshBuilder.CreateBox("", { size: 0.1 });
+          box.setParent(bone);
+          box.setPositionWithLocalVector(Vector3.Zero());
 
           // const testMesh = MeshBuilder.CreateBox("", { size: 0.1 });
 
           console.log("set point toward holdable bone");
           actionEntityModelOption.movementManager.lookingAt = {
             // targetMesh: testMesh,
-            targetMesh: bone,
+            targetMesh: box,
             alignmentSpeed: 0.2,
             isLocked: false,
           };

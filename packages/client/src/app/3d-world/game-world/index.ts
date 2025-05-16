@@ -111,26 +111,6 @@ export class GameWorld {
     // this.startLimitedFramerateRenderLoop(5, 3000);
   }
 
-  async testModels() {
-    const position = new Vector3(0, 1, 0);
-    const assetContainer = await spawnActionEntityModel(ActionEntityName.Arrow, position);
-
-    const model = new ActionEntityModel(
-      this.idGenerator.generate(),
-      assetContainer,
-      position,
-      ActionEntityName.Arrow
-    );
-
-    console.log("arrow root mesh forward", model.rootTransformNode.forward);
-
-    const box = MeshBuilder.CreateBox("", { size: 0.1 });
-
-    model.movementManager.lookingAt = { targetMesh: box, isLocked: true, alignmentSpeed: 0.1 };
-
-    this.actionEntityManager.register(model);
-  }
-
   updateGameWorld() {
     this.tickCounter += 1;
     this.updateDebugText();
