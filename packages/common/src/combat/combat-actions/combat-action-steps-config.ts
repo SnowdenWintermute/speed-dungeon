@@ -1,7 +1,9 @@
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
-import { AbstractEntityPart, EntityReferencePoint } from "../../action-entities/index.js";
 import {
-  ActionEntityPointTowardEntity,
+  SceneEntityChildTransformNodeIdentifier,
+  SceneEntityChildTransformNodeIdentifierWithDuration,
+} from "../../action-entities/index.js";
+import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
   EntityAnimation,
@@ -23,7 +25,7 @@ export interface EquipmentAnimation {
 export interface ActionResolutionStepConfig {
   cosmeticsEffectsToStart?: {
     name: CosmeticEffectNames;
-    parentType: EntityReferencePoint;
+    parent: SceneEntityChildTransformNodeIdentifier;
     lifetime?: Milliseconds;
   }[];
   cosmeticsEffectsToStop?: CosmeticEffectNames[];
@@ -37,11 +39,15 @@ export interface ActionResolutionStepConfig {
   // @PERF - client could probably figure this out on their own or with more limited info
   // from server
   shouldDespawnOnComplete?: (context: ActionResolutionStepContext) => boolean;
-  getNewParent?: (context: ActionResolutionStepContext) => AbstractEntityPart | null;
-  getCosmeticDestinationY?: (context: ActionResolutionStepContext) => AbstractEntityPart;
+  getNewParent?: (
+    context: ActionResolutionStepContext
+  ) => SceneEntityChildTransformNodeIdentifierWithDuration | null;
+  getCosmeticDestinationY?: (
+    context: ActionResolutionStepContext
+  ) => SceneEntityChildTransformNodeIdentifier;
   getStartPointingTowardEntityOption?: (
     context: ActionResolutionStepContext
-  ) => ActionEntityPointTowardEntity;
+  ) => SceneEntityChildTransformNodeIdentifierWithDuration;
   getEquipmentAnimations?(
     user: CombatantProperties,
     animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>

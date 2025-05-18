@@ -1,6 +1,9 @@
-import { EntityReferencePoint } from "../../../action-entities/index.js";
 import {
-  ActionEntityPointTowardEntity,
+  CombatantBaseChildTransformNodeName,
+  SceneEntityChildTransformNodeIdentifierWithDuration,
+  SceneEntityChildTransformNodeType,
+} from "../../../action-entities/index.js";
+import {
   ActionResolutionStepType,
   AnimationTimingType,
   EntityMotionUpdate,
@@ -90,11 +93,13 @@ export function getProjectileShootingActionBaseStepsConfig(
             }
           })();
 
-          const pointTowardEntity: ActionEntityPointTowardEntity = {
-            targetId: primaryTarget.entityProperties.id,
-            positionOnTarget: EntityReferencePoint.CombatantHitboxCenter,
+          const pointTowardEntity: SceneEntityChildTransformNodeIdentifierWithDuration = {
+            identifier: {
+              type: SceneEntityChildTransformNodeType.CombatantBase,
+              entityId: primaryTarget.entityProperties.id,
+              transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+            },
             duration: 400,
-            // duration: 2000,
           };
           const toReturn: EntityMotionUpdate[] = [];
           toReturn.push({

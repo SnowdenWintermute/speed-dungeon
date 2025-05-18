@@ -1,7 +1,8 @@
 export * from "./cosmetic-effect.js";
 export * from "./cosmetic-effect-constructors.js";
-import { Quaternion, Vector3 } from "@babylonjs/core";
-import { EntityId, EntityProperties } from "../primatives/index.js";
+import { Vector3 } from "@babylonjs/core";
+import { EntityId, EntityProperties, Milliseconds } from "../primatives/index.js";
+import { HoldableSlotType } from "../items/equipment/slots.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -17,27 +18,61 @@ export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
   [ActionEntityName.IceBurst]: "IceBurst",
 };
 
-export enum EntityReferencePoint {
-  MainHandBone,
-  OffHandBone,
-  VfxEntityRoot,
-  CombatantHitboxCenter,
-  HeadBone,
-  NockBone,
-  ArrowRest,
+export enum SceneEntityChildTransformNodeType {
+  ActionEntityBase,
+  CombatantBase,
+  CombatantEquippedHoldable,
 }
 
-export interface AbstractEntityPart {
-  referencePoint: EntityReferencePoint;
+export type CombatantBaseChildTransformNodeIdentifier = {
+  type: SceneEntityChildTransformNodeType.CombatantBase;
   entityId: EntityId;
-  offset?: Vector3;
+  transformNodeName: CombatantBaseChildTransformNodeName;
+};
+
+export type ActionEntityBaseChildTransformNodeIdentifier = {
+  type: SceneEntityChildTransformNodeType.ActionEntityBase;
+  entityId: EntityId;
+  transformNodeName: ActionEntityBaseChildTransformNodeName;
+};
+
+export type CombatantHoldableChildTransformNodeIdentifier = {
+  type: SceneEntityChildTransformNodeType.CombatantEquippedHoldable;
+  entityId: EntityId;
+  holdableSlot: HoldableSlotType;
+  transformNodeName: CombatantHoldableChildTransformNodeName;
+};
+
+export type SceneEntityChildTransformNodeIdentifier =
+  | CombatantBaseChildTransformNodeIdentifier
+  | ActionEntityBaseChildTransformNodeIdentifier
+  | CombatantHoldableChildTransformNodeIdentifier;
+
+export interface SceneEntityChildTransformNodeIdentifierWithDuration {
+  identifier: SceneEntityChildTransformNodeIdentifier;
+  duration: Milliseconds;
+}
+
+export enum CombatantBaseChildTransformNodeName {
+  MainHandEquipment,
+  OffhandEquipment,
+  EntityRoot,
+  HitboxCenter,
+}
+
+export enum ActionEntityBaseChildTransformNodeName {
+  EntityRoot,
+}
+
+export enum CombatantHoldableChildTransformNodeName {
+  NockBone,
+  ArrowRest,
 }
 
 export type ActionEntityProperties = {
   position: Vector3;
   name: ActionEntityName;
-  // pointTowardEntityOption?: EntityId;
-  parentOption?: AbstractEntityPart;
+  parentOption?: SceneEntityChildTransformNodeIdentifier;
   initialRotation?: Vector3;
 };
 

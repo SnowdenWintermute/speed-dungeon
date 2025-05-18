@@ -27,7 +27,11 @@ import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/comb
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import cloneDeep from "lodash.clonedeep";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
-import { ActionEntityName, EntityReferencePoint } from "../../../../action-entities/index.js";
+import {
+  ActionEntityBaseChildTransformNodeName,
+  ActionEntityName,
+  SceneEntityChildTransformNodeType,
+} from "../../../../action-entities/index.js";
 import {
   CombatActionTargetingPropertiesConfig,
   GENERIC_TARGETING_PROPERTIES,
@@ -117,7 +121,11 @@ const config: CombatActionComponentConfig = {
         cosmeticsEffectsToStart: [
           {
             name: CosmeticEffectNames.FrostParticleBurst,
-            parentType: EntityReferencePoint.VfxEntityRoot,
+            parent: {
+              entityId: "",
+              type: SceneEntityChildTransformNodeType.ActionEntityBase,
+              transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+            },
             lifetime: 300,
           },
         ],

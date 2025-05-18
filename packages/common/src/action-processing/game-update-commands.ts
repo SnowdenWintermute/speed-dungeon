@@ -13,12 +13,11 @@ import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { DurabilityChangesByEntityId } from "../durability/index.js";
 import { HitOutcome } from "../hit-outcome.js";
 import {
-  EntityReferencePoint,
   ActionEntity,
-  AbstractEntityPart,
+  SceneEntityChildTransformNodeIdentifier,
+  SceneEntityChildTransformNodeIdentifierWithDuration,
 } from "../action-entities/index.js";
 import { EquipmentAnimation } from "../combat/combat-actions/combat-action-steps-config.js";
-import { HoldableSlotType } from "../items/equipment/slots.js";
 
 export enum GameUpdateCommandType {
   SpawnEntity,
@@ -77,27 +76,17 @@ export interface IEntityMotionUpdate {
   instantTransition?: boolean;
 }
 
-export interface ActionEntityPointTowardEntity {
-  targetId: EntityId;
-  positionOnTarget: EntityReferencePoint;
+export interface TargetCombatantChildTransformNodeWithDuration {
+  target: SceneEntityChildTransformNodeIdentifier;
   duration: Milliseconds;
-}
-
-export interface CombatantHoldableWithReferencePoint {
-  combatantId: EntityId;
-  holdableId: EntityId;
-  positionOnTarget: EntityReferencePoint;
-  durationToReachPosition: Milliseconds;
 }
 
 export interface ActionEntityMotionUpdate extends IEntityMotionUpdate {
   entityType: SpawnableEntityType.ActionEntity;
   despawnOnComplete?: boolean;
-  setParent?: AbstractEntityPart | null;
-  cosmeticDestinationY?: AbstractEntityPart;
-  startPointingTowardEntityOption?: ActionEntityPointTowardEntity;
-  startPointingTowardCombatantHoldable?: CombatantHoldableWithReferencePoint;
-  setParentToCombatantHoldable?: CombatantHoldableWithReferencePoint;
+  setParent?: SceneEntityChildTransformNodeIdentifierWithDuration | null;
+  cosmeticDestinationY?: SceneEntityChildTransformNodeIdentifier;
+  startPointingTowardEntityOption?: SceneEntityChildTransformNodeIdentifierWithDuration;
 }
 
 export interface CombatantMotionUpdate extends IEntityMotionUpdate {

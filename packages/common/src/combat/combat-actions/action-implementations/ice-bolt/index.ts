@@ -7,7 +7,6 @@ import {
 } from "../../index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
-import { EntityReferencePoint } from "../../../../action-entities/index.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
@@ -20,6 +19,10 @@ import {
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { getProjectileShootingActionBaseStepsConfig } from "../projectile-shooting-action-base-steps-config.js";
 import { ProjectileShootingActionType } from "../projectile-shooting-action-animation-names.js";
+import {
+  CombatantBaseChildTransformNodeName,
+  SceneEntityChildTransformNodeType,
+} from "../../../../action-entities/index.js";
 
 const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Spell);
 stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
@@ -27,7 +30,11 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
   cosmeticsEffectsToStart: [
     {
       name: CosmeticEffectNames.FrostParticleAccumulation,
-      parentType: EntityReferencePoint.OffHandBone,
+      parent: {
+        entityId: "",
+        type: SceneEntityChildTransformNodeType.CombatantBase,
+        transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
+      },
     },
   ],
 };

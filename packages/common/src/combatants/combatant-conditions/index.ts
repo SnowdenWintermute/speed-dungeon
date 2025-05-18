@@ -1,5 +1,5 @@
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
-import { EntityReferencePoint } from "../../action-entities/index.js";
+import { SceneEntityChildTransformNodeIdentifier } from "../../action-entities/index.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { EntityId, MaxAndCurrent, Milliseconds } from "../../primatives/index.js";
@@ -77,9 +77,9 @@ export abstract class CombatantCondition {
     triggeredActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
   };
 
-  abstract getCosmeticEffectWhileActive: () => {
+  abstract getCosmeticEffectWhileActive: (combatantId: EntityId) => {
     name: CosmeticEffectNames;
-    parentType: EntityReferencePoint;
+    parent: SceneEntityChildTransformNodeIdentifier;
     lifetime?: Milliseconds;
   }[];
   // examples:

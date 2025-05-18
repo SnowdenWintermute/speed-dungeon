@@ -16,7 +16,14 @@ import {
   SpawnableEntityType,
   getSpawnableEntityId,
 } from "../../../../spawnables/index.js";
-import { ActionEntityName, EntityReferencePoint } from "../../../../action-entities/index.js";
+import {
+  ActionEntityName,
+  CombatantBaseChildTransformNodeName,
+  CombatantHoldableChildTransformNodeName,
+  SceneEntityChildTransformNodeIdentifier,
+  SceneEntityChildTransformNodeIdentifierWithDuration,
+  SceneEntityChildTransformNodeType,
+} from "../../../../action-entities/index.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
@@ -33,7 +40,6 @@ import { ProjectileShootingActionType } from "../projectile-shooting-action-anim
 import {
   ActionResolutionStepType,
   AnimationTimingType,
-  CombatantHoldableWithReferencePoint,
   EntityAnimation,
   EntityMotionUpdate,
 } from "../../../../action-processing/index.js";
@@ -100,22 +106,29 @@ stepsConfig.steps = {
         return [];
       }
 
-      const holdableId = bowOption.entityProperties.id;
-
       const actionEntityId = getSpawnableEntityId(actionEntity);
 
-      const setParent: CombatantHoldableWithReferencePoint = {
-        combatantId: context.combatantContext.combatant.entityProperties.id,
-        holdableId,
-        positionOnTarget: EntityReferencePoint.NockBone,
-        durationToReachPosition: 1400,
+      const parent: SceneEntityChildTransformNodeIdentifier = {
+        entityId: context.combatantContext.combatant.entityProperties.id,
+        type: SceneEntityChildTransformNodeType.CombatantEquippedHoldable,
+        holdableSlot: HoldableSlotType.MainHand,
+        transformNodeName: CombatantHoldableChildTransformNodeName.NockBone,
       };
 
-      const pointToward: CombatantHoldableWithReferencePoint = {
-        combatantId: context.combatantContext.combatant.entityProperties.id,
-        holdableId,
-        positionOnTarget: EntityReferencePoint.ArrowRest,
-        durationToReachPosition: 600,
+      const setParent: SceneEntityChildTransformNodeIdentifierWithDuration = {
+        identifier: parent,
+        duration: 1400,
+      };
+
+      const pointToward: SceneEntityChildTransformNodeIdentifier = {
+        type: SceneEntityChildTransformNodeType.CombatantEquippedHoldable,
+        entityId: context.combatantContext.combatant.entityProperties.id,
+        holdableSlot: HoldableSlotType.MainHand,
+        transformNodeName: CombatantHoldableChildTransformNodeName.ArrowRest,
+      };
+      const pointTowardWithDuration: SceneEntityChildTransformNodeIdentifierWithDuration = {
+        identifier: pointToward,
+        duration: 600,
       };
 
       const toReturn: EntityMotionUpdate[] = [];
@@ -123,9 +136,8 @@ stepsConfig.steps = {
       toReturn.push({
         entityId: actionEntityId,
         entityType: SpawnableEntityType.ActionEntity,
-        setParentToCombatantHoldable: setParent,
-        // setParent: null,
-        startPointingTowardCombatantHoldable: pointToward,
+        setParent: setParent,
+        startPointingTowardEntityOption: pointTowardWithDuration,
       });
 
       return toReturn;
@@ -173,7 +185,8 @@ const config: CombatActionComponentConfig = {
           name: ActionEntityName.Arrow,
           // initialRotation: new Vector3(Math.PI / 2, 0, 0),
           parentOption: {
-            referencePoint: EntityReferencePoint.MainHandBone,
+            type: SceneEntityChildTransformNodeType.CombatantBase,
+            transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
             entityId: context.combatantContext.combatant.entityProperties.id,
           },
         },
