@@ -6,7 +6,7 @@ import {
   EntityReferencePoint,
   COSMETIC_EFFECT_CONSTRUCTORS,
 } from "@speed-dungeon/common";
-import { gameWorld } from "../../SceneManager";
+import { gameWorld, getGameWorld } from "../../SceneManager";
 import { getChildMeshByName } from "../../utils";
 import { Vector3 } from "@babylonjs/core";
 import { CosmeticEffectManager } from "../../scene-entities/cosmetic-effect-manager";
@@ -71,9 +71,7 @@ export function startOrStopCosmeticEffect(
           break;
         case EntityReferencePoint.VfxEntityRoot:
           {
-            const actionEntityModelOption = gameWorld.current?.actionEntityManager.models[entityId];
-            if (!actionEntityModelOption)
-              throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_ACTION_ENTITY_MODEL);
+            const actionEntityModelOption = getGameWorld().actionEntityManager.findOne(entityId);
             effect.transformNode.setParent(actionEntityModelOption.movementManager.transformNode);
             effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
           }

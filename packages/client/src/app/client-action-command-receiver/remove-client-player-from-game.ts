@@ -1,7 +1,7 @@
 import { useGameStore } from "@/stores/game-store";
 import { setAlert } from "../components/alerts";
 import { CombatantEquipment, ERROR_MESSAGES, SpeedDungeonGame } from "@speed-dungeon/common";
-import { gameWorld } from "../3d-world/SceneManager";
+import { getGameWorld } from "../3d-world/SceneManager";
 import { ImageManagerRequestType } from "../3d-world/game-world/image-manager";
 import { CombatLogMessage, CombatLogMessageStyle } from "../game/combat-log/combat-log-message";
 import { ModelActionType } from "../3d-world/game-world/model-manager/model-actions";
@@ -37,11 +37,11 @@ export async function removeClientPlayerFromGame(username: string) {
     );
   });
 
-  gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+  getGameWorld().modelManager.modelActionQueue.enqueueMessage({
     type: ModelActionType.SynchronizeCombatantModels,
   });
 
-  gameWorld.current?.imageManager.enqueueMessage({
+  getGameWorld().imageManager.enqueueMessage({
     type: ImageManagerRequestType.ItemDeletion,
     itemIds: itemsToRemoveThumbnails,
   });

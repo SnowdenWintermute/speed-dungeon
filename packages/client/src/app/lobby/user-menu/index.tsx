@@ -1,5 +1,5 @@
 "use client";
-import { gameWorld } from "@/app/3d-world/SceneManager";
+import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { useUIStore } from "@/stores/ui-store";
@@ -110,7 +110,7 @@ function UserMenu({ username }: { username: null | string }) {
       method: "DELETE",
       credentials: "include",
     });
-    gameWorld.current?.clearFloorTexture();
+    getGameWorld().clearFloorTexture();
     mutateHttpState((state) => {
       if (!state.requests[HTTP_REQUEST_NAMES.GET_SESSION])
         state.requests[HTTP_REQUEST_NAMES.GET_SESSION] = new HttpRequestTracker();

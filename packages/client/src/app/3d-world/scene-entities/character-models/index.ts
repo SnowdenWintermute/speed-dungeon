@@ -5,8 +5,8 @@ import {
   Mesh,
   Quaternion,
   Vector3,
-  AnimationGroup,
   StandardMaterial,
+  TransformNode,
 } from "@babylonjs/core";
 import {
   disposeAsyncLoadedScene,
@@ -28,6 +28,7 @@ import {
   iterateNumericEnumKeyedRecord,
   CombatantEquipment,
   EquipmentType,
+  CombatantBaseChildTransformNodeName,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
@@ -42,14 +43,14 @@ import { HighlightManager } from "./highlight-manager";
 import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
 import { useLobbyStore } from "@/stores/lobby-store";
-import { SkeletalAnimationManager } from "../model-animation-managers/skeletal-animation-manager";
 import { ManagedAnimationOptions } from "../model-animation-managers";
-import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
 import { CharacterModelPartCategory } from "./modular-character-parts";
 import { SceneEntity } from "..";
-import { ItemModel } from "../item-models";
+import { ConsumableModel, EquipmentModel } from "../item-models";
+import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
 
 export class CharacterModel extends SceneEntity {
+  childTransformNodes: Partial<Record<CombatantBaseChildTransformNodeName, TransformNode>> = {};
   parts: Record<CharacterModelPartCategory, null | AssetContainer> = {
     [CharacterModelPartCategory.Head]: null,
     [CharacterModelPartCategory.Torso]: null,
@@ -57,8 +58,8 @@ export class CharacterModel extends SceneEntity {
     [CharacterModelPartCategory.Full]: null,
   };
   equipment: {
-    wearables: Record<WearableSlotType, null | ItemModel>;
-    holdables: { [entityId: string]: ItemModel };
+    wearables: Record<WearableSlotType, null | EquipmentModel>;
+    holdables: { [entityId: string]: EquipmentModel };
   } = {
     wearables: {
       [WearableSlotType.Head]: null,
@@ -112,6 +113,33 @@ export class CharacterModel extends SceneEntity {
     if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
 
     return rootMesh;
+  }
+
+  initChildTransformNodes(): void {
+    const mainHandEquipmentNode = SceneEntity.createTransformNodeChildOfBone(
+      this.rootMesh,
+      `${this.entityId}-mh-equipment`,
+      "Equipment.R"
+    );
+    this.childTransformNodes[CombatantBaseChildTransformNodeName.MainHandEquipment] =
+      mainHandEquipmentNode;
+    const offHandEquipmentNode = SceneEntity.createTransformNodeChildOfBone(
+      this.rootMesh,
+      `${this.entityId}-oh-equipment`,
+      "Equipment.L"
+    );
+    this.childTransformNodes[CombatantBaseChildTransformNodeName.OffhandEquipment] =
+      offHandEquipmentNode;
+
+    this.childTransformNodes[CombatantBaseChildTransformNodeName.EntityRoot] =
+      this.rootTransformNode;
+
+    const hitboxCenterTransformNode = new TransformNode(`${this.entityId}-hitbox-center`);
+    const hitboxCenter = this.getBoundingInfo().boundingBox.center;
+    hitboxCenterTransformNode.position = hitboxCenter.clone();
+    hitboxCenterTransformNode.setParent(this.rootTransformNode);
+    this.childTransformNodes[CombatantBaseChildTransformNodeName.HitboxCenter] =
+      hitboxCenterTransformNode;
   }
 
   customCleanup(): void {
@@ -322,6 +350,8 @@ export class CharacterModel extends SceneEntity {
       console.log("equipment model error: ", equipmentModelResult.message);
       return;
     }
+    if (equipmentModelResult instanceof ConsumableModel)
+      return new Error("unexpected item model type");
 
     equipmentModelResult.assetContainer.meshes.forEach(
       (mesh) => (mesh.visibility = this.visibility)

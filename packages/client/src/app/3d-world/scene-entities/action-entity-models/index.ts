@@ -9,16 +9,16 @@ import {
   AbstractMesh,
   Scene,
 } from "@babylonjs/core";
-import { ActionEntityName, ERROR_MESSAGES, EntityId, Milliseconds } from "@speed-dungeon/common";
+import {
+  ActionEntityBaseChildTransformNodeName,
+  ActionEntityName,
+  ERROR_MESSAGES,
+  EntityId,
+} from "@speed-dungeon/common";
 import { importMesh } from "../../utils";
 import { gameWorld } from "../../SceneManager";
 import { ACTION_ENTITY_NAME_TO_MODEL_PATH } from "./action-entity-model-paths";
-import {
-  DynamicAnimationManager,
-  DynamicAnimation,
-} from "../model-animation-managers/dynamic-animation-manager";
 import { SceneEntity } from "..";
-import { ModelMovementManager } from "../model-movement-manager";
 
 export class ActionEntityManager {
   models: { [id: EntityId]: ActionEntityModel } = {};
@@ -32,12 +32,19 @@ export class ActionEntityManager {
     delete this.models[id];
   }
 
-  get() {
+  findOne(entityId: EntityId): ActionEntityModel {
+    const modelOption = this.models[entityId];
+    if (!modelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_ACTION_ENTITY_MODEL);
+    return modelOption;
+  }
+
+  getAll() {
     return Object.values(this.models);
   }
 }
 
 export class ActionEntityModel extends SceneEntity {
+  childTransformNodes: Partial<Record<ActionEntityBaseChildTransformNodeName, TransformNode>> = {};
   constructor(
     public id: EntityId,
     assetContainer: AssetContainer,
@@ -48,6 +55,11 @@ export class ActionEntityModel extends SceneEntity {
 
     const sceneOption = gameWorld.current?.scene;
     // this.createDebugLines(startPosition, sceneOption);
+  }
+
+  initChildTransformNodes(): void {
+    this.childTransformNodes[ActionEntityBaseChildTransformNodeName.EntityRoot] =
+      this.rootTransformNode;
   }
 
   createDebugLines(startPosition: Vector3, sceneOption: undefined | Scene) {
@@ -87,26 +99,6 @@ export class ActionEntityModel extends SceneEntity {
   }
 
   customCleanup(): void {}
-
-  startPointingTowardsCombatant(entityId: EntityId, duration: Milliseconds) {
-    const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
-    if (!combatantModelOption) throw new Error("Tried to point at an entity with no model");
-
-    const targetBoundingBoxCenter = combatantModelOption.getBoundingInfo().boundingBox.centerWorld;
-    // const forward = targetBoundingBoxCenter
-    //   .subtract(this.movementManager.transformNode.getAbsolutePosition())
-    //   .normalize();
-
-    // const up = Vector3.Up();
-    // const lookRotation: Quaternion = Quaternion.FromLookDirectionLH(forward, up);
-
-    const newRotation = ModelMovementManager.getRotationToPointTowardToward(
-      this.rootTransformNode,
-      targetBoundingBoxCenter
-    );
-
-    this.movementManager.startRotatingTowards(newRotation, duration, () => {});
-  }
 }
 
 export async function spawnActionEntityModel(vfxName: ActionEntityName, position: Vector3) {

@@ -2,8 +2,13 @@ import React, { useEffect, useRef } from "react";
 import { GameWorld } from "./game-world";
 import DebugText from "./DebugText";
 import { ZIndexLayers } from "../z-index-layers";
+import { ERROR_MESSAGES } from "@speed-dungeon/common";
 
 export const gameWorld: { current: null | GameWorld } = { current: null };
+export function getGameWorld() {
+  if (!gameWorld.current) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
+  return gameWorld.current;
+}
 
 export default function SceneManager() {
   const canvasRef = useRef<HTMLCanvasElement>(null);

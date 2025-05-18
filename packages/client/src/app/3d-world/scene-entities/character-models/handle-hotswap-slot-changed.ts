@@ -9,7 +9,7 @@ import {
   attachHoldableModelToHolsteredPosition,
   attachHoldableModelToSkeleton,
 } from "./attach-holdables";
-import { ItemModel } from "../item-models/index.js";
+import { ConsumableModel, ItemModel } from "../item-models/index.js";
 
 export async function handleHotswapSlotChanged(
   this: CharacterModel,
@@ -57,6 +57,7 @@ async function spawnItemModelIfNotAlready(modularCharacter: CharacterModel, equi
   );
 
   if (modelResult instanceof Error) return modelResult;
+  if (modelResult instanceof ConsumableModel) return new Error("unexpected item model type");
   modularCharacter.equipment.holdables[entityId] = modelResult;
   return modelResult;
 }

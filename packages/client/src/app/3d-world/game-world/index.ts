@@ -123,7 +123,7 @@ export class GameWorld {
     )
       this.modelManager.modelActionQueue.processMessages();
 
-    for (const actionEntityModel of this.actionEntityManager.get()) {
+    for (const actionEntityModel of this.actionEntityManager.getAll()) {
       actionEntityModel.movementManager.processActiveActions();
       actionEntityModel.dynamicAnimationManager.playing?.animationGroup?.animateScene(
         actionEntityModel.dynamicAnimationManager.assetContainer

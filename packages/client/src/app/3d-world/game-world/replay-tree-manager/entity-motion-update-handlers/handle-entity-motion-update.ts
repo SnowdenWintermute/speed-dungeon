@@ -8,6 +8,7 @@ import {
   ERROR_MESSAGES,
   EntityMotionUpdate,
   EquipmentSlotType,
+  SceneEntityChildTransformNodeType,
   SpawnableEntityType,
 } from "@speed-dungeon/common";
 import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-completion-tracker";
@@ -15,14 +16,15 @@ import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
 import { handleStepCosmeticEffects } from "../handle-step-cosmetic-effects";
 import { handleUpdateTranslation } from "./handle-update-translation";
 import { plainToInstance } from "class-transformer";
-import { AbstractMesh, MeshBuilder, Quaternion, TransformNode, Vector3 } from "@babylonjs/core";
+import { AbstractMesh, Quaternion, TransformNode, Vector3 } from "@babylonjs/core";
 import { handleUpdateAnimation } from "./handle-update-animation";
-import { gameWorld } from "@/app/3d-world/SceneManager";
+import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
 import { getChildMeshByName } from "@/app/3d-world/utils";
-import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
 import { DynamicAnimationManager } from "@/app/3d-world/scene-entities/model-animation-managers/dynamic-animation-manager";
 import { SkeletalAnimationManager } from "@/app/3d-world/scene-entities/model-animation-managers/skeletal-animation-manager";
+import { handleStartPointingTowardEntity } from "./handle-start-pointing-toward-entity";
+import { handleEntityMotionSetNewParentUpdate } from "./handle-entity-motion-set-new-parent-update";
 
 export function handleEntityMotionUpdate(
   update: {
@@ -52,16 +54,15 @@ export function handleEntityMotionUpdate(
   if (motionUpdate.entityType === SpawnableEntityType.ActionEntity) {
     cosmeticDestinationYOption = motionUpdate.cosmeticDestinationY;
 
-    const actionEntityModelOption =
-      gameWorld.current?.actionEntityManager.models[motionUpdate.entityId];
-    if (!actionEntityModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_ACTION_ENTITY_MODEL);
+    const actionEntityModelOption = getGameWorld().actionEntityManager.findOne(
+      motionUpdate.entityId
+    );
 
-    if (motionUpdate.startPointingTowardEntityOption) {
-      const { targetId, duration } = motionUpdate.startPointingTowardEntityOption;
+    if (motionUpdate.startPointingTowardEntityOption)
+      handleStartPointingTowardEntity(toUpdate, motionUpdate.startPointingTowardEntityOption);
 
-      actionEntityModelOption.movementManager.lookingAt = null;
-      actionEntityModelOption.startPointingTowardsCombatant(targetId, duration);
-    }
+    if (motionUpdate.setParent !== undefined)
+      handleEntityMotionSetNewParentUpdate(actionEntityModelOption, motionUpdate.setParent);
 
     if (motionUpdate.setParent !== undefined) {
       if (motionUpdate.setParent === null) {
@@ -138,9 +139,7 @@ export function handleEntityMotionUpdate(
 
     onAnimationComplete = () => {
       if (motionUpdate.idleOnComplete) {
-        const combatantModelOption =
-          gameWorld.current?.modelManager.combatantModels[motionUpdate.entityId];
-        if (!combatantModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+        const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
         combatantModelOption.startIdleAnimation(500);
       }
     };

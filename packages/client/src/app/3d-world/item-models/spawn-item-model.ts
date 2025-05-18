@@ -9,14 +9,14 @@ import {
   assignEquipmentMaterials,
 } from "../game-world/materials/assign-item-materials";
 import { BASE_FILE_PATH } from "../scene-entities/character-models/modular-character-parts";
-import { ItemModel } from "../scene-entities/item-models";
+import { ConsumableModel, EquipmentModel } from "../scene-entities/item-models";
 
 export async function spawnItemModel(
   item: Item,
   scene: Scene,
   materials: SavedMaterials,
   createUniqueMaterialInstances: boolean
-): Promise<Error | ItemModel> {
+): Promise<Error | EquipmentModel | ConsumableModel> {
   const modelPath = (() => {
     if (item instanceof Equipment) {
       return equipmentBaseItemToModelPath(item.equipmentBaseItemProperties.taggedBaseEquipment);
@@ -31,7 +31,7 @@ export async function spawnItemModel(
 
   const itemAssetContainer = await importMesh(modelPath, scene);
 
-  if (item instanceof Equipment)
+  if (item instanceof Equipment) {
     assignEquipmentMaterials(
       item,
       itemAssetContainer,
@@ -39,10 +39,12 @@ export async function spawnItemModel(
       scene,
       createUniqueMaterialInstances
     );
-  else if (item instanceof Consumable)
+
+    return new EquipmentModel(item, itemAssetContainer, createUniqueMaterialInstances);
+  } else if (item instanceof Consumable) {
     assignConsumableMaterials(item, itemAssetContainer, materials, scene);
+    return new ConsumableModel(item, itemAssetContainer, createUniqueMaterialInstances);
+  }
 
-  const itemModel = new ItemModel(item, itemAssetContainer, createUniqueMaterialInstances);
-
-  return itemModel;
+  return new Error("Unexpected item class type");
 }
