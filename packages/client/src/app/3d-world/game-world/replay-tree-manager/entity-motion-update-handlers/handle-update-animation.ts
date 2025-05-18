@@ -13,7 +13,7 @@ import { ManagedAnimationOptions } from "@/app/3d-world/scene-entities/model-ani
 
 export function handleUpdateAnimation(
   animationManager: SkeletalAnimationManager | DynamicAnimationManager,
-  animationOption: EntityAnimation | undefined,
+  animation: EntityAnimation,
   updateCompletionTracker: EntityMotionUpdateCompletionTracker,
   gameUpdate: {
     command: CombatantMotionGameUpdateCommand | ActionEntityMotionGameUpdateCommand;
@@ -22,19 +22,17 @@ export function handleUpdateAnimation(
   instantTransition: boolean,
   onComplete: () => void
 ) {
-  if (!animationOption) return;
-
-  const shouldLoop = animationOption.timing.type === AnimationTimingType.Looping;
+  const shouldLoop = animation.timing.type === AnimationTimingType.Looping;
   let animationDurationOverrideOption = undefined;
-  if (animationOption.timing.type === AnimationTimingType.Timed)
-    animationDurationOverrideOption = animationOption.timing.duration;
+  if (animation.timing.type === AnimationTimingType.Timed)
+    animationDurationOverrideOption = animation.timing.duration;
 
   const options: ManagedAnimationOptions = {
     shouldLoop,
     animationDurationOverrideOption,
     onComplete: () => {
       // otherwise looping animation will finish at an arbitrary time and could set an unintended action to complete
-      if (animationOption.timing.type === AnimationTimingType.Looping) return;
+      if (animation.timing.type === AnimationTimingType.Looping) return;
       updateCompletionTracker.setAnimationComplete();
       if (updateCompletionTracker.isComplete()) gameUpdate.isComplete = true;
       onComplete();
@@ -43,13 +41,13 @@ export function handleUpdateAnimation(
 
   if (animationManager instanceof SkeletalAnimationManager) {
     animationManager.startAnimationWithTransition(
-      animationOption.name.name as SkeletalAnimationName,
+      animation.name.name as SkeletalAnimationName,
       instantTransition ? 200 : 500,
       options
     );
   } else {
     animationManager.startAnimationWithTransition(
-      animationOption.name.name as DynamicAnimationName,
+      animation.name.name as DynamicAnimationName,
       instantTransition ? 0 : 500,
       {
         ...options,

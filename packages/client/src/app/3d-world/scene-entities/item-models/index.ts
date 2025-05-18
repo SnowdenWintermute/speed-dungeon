@@ -6,14 +6,12 @@ import {
   StandardMaterial,
   Vector3,
 } from "@babylonjs/core";
-import { SkeletalAnimationManager } from "../model-animation-managers/skeletal-animation-manager";
 import { SceneEntity } from "..";
-import { AnimationGroup } from "@babylonjs/core";
 import { ERROR_MESSAGES, Item } from "@speed-dungeon/common";
 import { getChildMeshByName, paintCubesOnNodes } from "../../utils";
 import { gameWorld } from "../../SceneManager";
 
-export class ItemModel extends SceneEntity<AnimationGroup, SkeletalAnimationManager> {
+export class ItemModel extends SceneEntity {
   constructor(
     public readonly item: Item,
     assetContainer: AssetContainer,
@@ -30,10 +28,6 @@ export class ItemModel extends SceneEntity<AnimationGroup, SkeletalAnimationMana
     if (!assetContainer.meshes[0]) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_ITEM_FILE);
 
     return assetContainer.meshes[0];
-  }
-
-  initAnimationManager(assetContainer: AssetContainer): SkeletalAnimationManager {
-    return new SkeletalAnimationManager(this.entityId, assetContainer);
   }
 
   customCleanup(): void {

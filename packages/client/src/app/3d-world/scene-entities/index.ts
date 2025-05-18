@@ -1,13 +1,15 @@
 import { AbstractMesh, AssetContainer, Quaternion, TransformNode, Vector3 } from "@babylonjs/core";
 import { CosmeticEffectManager } from "./cosmetic-effect-manager";
-import { AnimationManager } from "./model-animation-managers";
 import { ModelMovementManager } from "./model-movement-manager";
 import { EntityId } from "@speed-dungeon/common";
 import { disposeAsyncLoadedScene } from "../utils";
 import { plainToInstance } from "class-transformer";
+import { SkeletalAnimationManager } from "./model-animation-managers/skeletal-animation-manager";
+import { DynamicAnimationManager } from "./model-animation-managers/dynamic-animation-manager";
 
-export abstract class SceneEntity<T, U extends AnimationManager<T>> {
-  public animationManager: U;
+export abstract class SceneEntity {
+  public skeletalAnimationManager: SkeletalAnimationManager;
+  public dynamicAnimationManager: DynamicAnimationManager;
   public movementManager: ModelMovementManager;
   public cosmeticEffectManager = new CosmeticEffectManager();
   public rootMesh: AbstractMesh;
@@ -34,11 +36,11 @@ export abstract class SceneEntity<T, U extends AnimationManager<T>> {
 
     this.rootTransformNode.rotationQuaternion = plainToInstance(Quaternion, startRotation);
 
-    this.animationManager = this.initAnimationManager(this.assetContainer);
+    this.skeletalAnimationManager = new SkeletalAnimationManager(entityId, this.assetContainer);
+    this.dynamicAnimationManager = new DynamicAnimationManager(this.assetContainer);
   }
 
   abstract initRootMesh(assetContainer: AssetContainer): AbstractMesh;
-  abstract initAnimationManager(assetContainer: AssetContainer): U;
   abstract customCleanup(): void;
 
   cleanup(options: { softCleanup: boolean }) {

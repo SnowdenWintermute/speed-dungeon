@@ -61,7 +61,7 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
   playing: null | ManagedDynamicAnimation = null;
   previous: null | ManagedDynamicAnimation = null;
   locked: boolean = false;
-  constructor(public scene: AssetContainer) {
+  constructor(public assetContainer: AssetContainer) {
     // stop default animation
   }
   cloneAnimation(animationGroup: DynamicAnimation): DynamicAnimation {
@@ -116,7 +116,8 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
   cleanUpFinishedAnimation(managedAnimation: ManagedDynamicAnimation) {
     const { onComplete } = managedAnimation.options;
     if (onComplete) onComplete();
-    if (managedAnimation.animationGroup.despawnOnComplete) disposeAsyncLoadedScene(this.scene);
+    if (managedAnimation.animationGroup.despawnOnComplete)
+      disposeAsyncLoadedScene(this.assetContainer);
   }
 
   handleCompletedAnimations() {
@@ -132,7 +133,7 @@ export class DynamicAnimationManager implements AnimationManager<DynamicAnimatio
   }
 
   getAnimationGroupByName(animationName: DynamicAnimationName) {
-    return DYNAMIC_ANIMATION_CREATORS[animationName](this.scene);
+    return DYNAMIC_ANIMATION_CREATORS[animationName](this.assetContainer);
   }
 
   getFallbackAnimationName(animationName: SkeletalAnimationName) {

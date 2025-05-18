@@ -6,6 +6,7 @@ import {
   Quaternion,
   Vector3,
   AnimationGroup,
+  StandardMaterial,
 } from "@babylonjs/core";
 import {
   disposeAsyncLoadedScene,
@@ -48,7 +49,7 @@ import { CharacterModelPartCategory } from "./modular-character-parts";
 import { SceneEntity } from "..";
 import { ItemModel } from "../item-models";
 
-export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimationManager> {
+export class CharacterModel extends SceneEntity {
   parts: Record<CharacterModelPartCategory, null | AssetContainer> = {
     [CharacterModelPartCategory.Head]: null,
     [CharacterModelPartCategory.Torso]: null,
@@ -113,10 +114,6 @@ export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimatio
     return rootMesh;
   }
 
-  initAnimationManager(assetContainer: AssetContainer): SkeletalAnimationManager {
-    return new SkeletalAnimationManager(this.entityId, assetContainer);
-  }
-
   customCleanup(): void {
     if (this.debugMeshes) for (const mesh of Object.values(this.debugMeshes)) mesh.dispose();
     for (const part of Object.values(this.parts)) part?.dispose();
@@ -164,7 +161,7 @@ export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimatio
   startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {
     const idleName = this.getIdleAnimationName();
 
-    this.animationManager.startAnimationWithTransition(idleName, transitionMs, {
+    this.skeletalAnimationManager.startAnimationWithTransition(idleName, transitionMs, {
       ...options,
       shouldLoop: true,
     });
@@ -300,7 +297,7 @@ export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimatio
   }
 
   isIdling() {
-    const currentAnimationName = this.animationManager.playing?.getName();
+    const currentAnimationName = this.skeletalAnimationManager.playing?.getName();
 
     return (
       currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleUnarmed] ||
@@ -343,6 +340,15 @@ export class CharacterModel extends SceneEntity<AnimationGroup, SkeletalAnimatio
   }
 
   setShowBones() {
+    const transparentMaterial = new StandardMaterial("");
+    transparentMaterial.alpha = 0.3;
+    for (const [category, assetContainer] of iterateNumericEnumKeyedRecord(this.parts)) {
+      if (!assetContainer) continue;
+      for (const mesh of assetContainer.meshes) {
+        for (const child of mesh.getChildMeshes()) mesh.material = transparentMaterial;
+      }
+    }
+
     const cubeSize = 0.02;
     const red = new Color4(255, 0, 0, 1.0);
     const skeletonRootBone = getChildMeshByName(

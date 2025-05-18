@@ -125,18 +125,18 @@ export class GameWorld {
 
     for (const actionEntityModel of this.actionEntityManager.get()) {
       actionEntityModel.movementManager.processActiveActions();
-      actionEntityModel.animationManager.playing?.animationGroup?.animateScene(
-        actionEntityModel.animationManager.scene
+      actionEntityModel.dynamicAnimationManager.playing?.animationGroup?.animateScene(
+        actionEntityModel.dynamicAnimationManager.assetContainer
       );
-      actionEntityModel.animationManager.handleCompletedAnimations();
-      actionEntityModel.animationManager.stepAnimationTransitionWeights();
+      actionEntityModel.dynamicAnimationManager.handleCompletedAnimations();
+      actionEntityModel.dynamicAnimationManager.stepAnimationTransitionWeights();
     }
 
     for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
       combatantModel.highlightManager.updateHighlight();
       combatantModel.movementManager.processActiveActions();
-      combatantModel.animationManager.stepAnimationTransitionWeights();
-      combatantModel.animationManager.handleCompletedAnimations();
+      combatantModel.skeletalAnimationManager.stepAnimationTransitionWeights();
+      combatantModel.skeletalAnimationManager.handleCompletedAnimations();
       combatantModel.updateDomRefPosition();
     }
   }

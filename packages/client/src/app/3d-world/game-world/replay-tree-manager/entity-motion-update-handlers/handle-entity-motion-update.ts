@@ -20,6 +20,9 @@ import { handleUpdateAnimation } from "./handle-update-animation";
 import { gameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
 import { getChildMeshByName } from "@/app/3d-world/utils";
+import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
+import { DynamicAnimationManager } from "@/app/3d-world/scene-entities/model-animation-managers/dynamic-animation-manager";
+import { SkeletalAnimationManager } from "@/app/3d-world/scene-entities/model-animation-managers/skeletal-animation-manager";
 
 export function handleEntityMotionUpdate(
   update: {
@@ -34,7 +37,12 @@ export function handleEntityMotionUpdate(
   const action = COMBAT_ACTIONS[command.actionName];
 
   const toUpdate = getSceneEntityToUpdate(motionUpdate);
-  const { movementManager, animationManager, cosmeticEffectManager } = toUpdate;
+  const {
+    movementManager,
+    skeletalAnimationManager,
+    dynamicAnimationManager,
+    cosmeticEffectManager,
+  } = toUpdate;
 
   let onAnimationComplete = () => {};
   let onTranslationComplete = () => {};
@@ -93,7 +101,10 @@ export function handleEntityMotionUpdate(
       if (combatantModelOption) {
         const holdableModelOption = combatantModelOption.equipment.holdables[holdableId];
         if (holdableModelOption) {
-          const bone = getChildMeshByName(holdableModelOption.rootMesh, "Main") as AbstractMesh;
+          const bone = getChildMeshByName(
+            holdableModelOption.rootMesh,
+            "ArrowRest"
+          ) as AbstractMesh;
 
           console.log("set point toward holdable bone");
           actionEntityModelOption.movementManager.lookingAt = {
@@ -161,7 +172,7 @@ export function handleEntityMotionUpdate(
         if (!(animation.name.type === AnimationType.Skeletal)) console.log("not skeletal");
         if (equipment && animation.name.type === AnimationType.Skeletal) {
           console.log("tried to start equipment animation");
-          equipment.animationManager.startAnimationWithTransition(
+          equipment.skeletalAnimationManager.startAnimationWithTransition(
             animation.name.name,
             animation.timing.type === AnimationTimingType.Timed ? animation.timing.duration : 0,
             {}
@@ -193,14 +204,22 @@ export function handleEntityMotionUpdate(
       () => {}
     );
 
-  handleUpdateAnimation(
-    animationManager,
-    animationOption,
-    updateCompletionTracker,
-    update,
-    !!motionUpdate.instantTransition,
-    onAnimationComplete
-  );
+  if (animationOption) {
+    let animationManager: DynamicAnimationManager | SkeletalAnimationManager =
+      skeletalAnimationManager;
+
+    if (animationOption.name.type === AnimationType.Dynamic)
+      animationManager = dynamicAnimationManager;
+
+    handleUpdateAnimation(
+      animationManager,
+      animationOption,
+      updateCompletionTracker,
+      update,
+      !!motionUpdate.instantTransition,
+      onAnimationComplete
+    );
+  }
 
   if (isMainUpdate && updateCompletionTracker.isComplete()) update.isComplete = true;
 }

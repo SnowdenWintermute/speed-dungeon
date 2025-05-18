@@ -37,7 +37,7 @@ export class ActionEntityManager {
   }
 }
 
-export class ActionEntityModel extends SceneEntity<DynamicAnimation, DynamicAnimationManager> {
+export class ActionEntityModel extends SceneEntity {
   constructor(
     public id: EntityId,
     assetContainer: AssetContainer,
@@ -85,9 +85,7 @@ export class ActionEntityModel extends SceneEntity<DynamicAnimation, DynamicAnim
     if (!rootMesh) throw new Error("no meshes found");
     return rootMesh;
   }
-  initAnimationManager(assetContainer: AssetContainer): DynamicAnimationManager {
-    return new DynamicAnimationManager(assetContainer);
-  }
+
   customCleanup(): void {}
 
   startPointingTowardsCombatant(entityId: EntityId, duration: Milliseconds) {

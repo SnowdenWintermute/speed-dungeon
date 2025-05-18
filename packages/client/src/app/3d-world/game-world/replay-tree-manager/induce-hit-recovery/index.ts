@@ -95,17 +95,17 @@ export function induceHitRecovery(
         )
       );
 
-      targetModel.animationManager.startAnimationWithTransition(
+      targetModel.skeletalAnimationManager.startAnimationWithTransition(
         SkeletalAnimationName.DeathBack,
         0,
         {
           onComplete: () => {
-            targetModel.animationManager.locked = true;
+            targetModel.skeletalAnimationManager.locked = true;
           },
         }
       );
     } else if (resourceChange.value < 0) {
-      const hasCritRecoveryAnimation = targetModel.animationManager.getAnimationGroupByName(
+      const hasCritRecoveryAnimation = targetModel.skeletalAnimationManager.getAnimationGroupByName(
         SkeletalAnimationName.HitRecovery
       );
       let animationName = SkeletalAnimationName.HitRecovery;
@@ -113,7 +113,7 @@ export function induceHitRecovery(
         animationName = SkeletalAnimationName.CritRecovery;
       if (wasBlocked) animationName = SkeletalAnimationName.Block;
 
-      targetModel.animationManager.startAnimationWithTransition(animationName, 0, {
+      targetModel.skeletalAnimationManager.startAnimationWithTransition(animationName, 0, {
         onComplete: () => {
           if (!combatantWasAliveBeforeResourceChange && combatantProperties.hitPoints > 0) {
             // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
