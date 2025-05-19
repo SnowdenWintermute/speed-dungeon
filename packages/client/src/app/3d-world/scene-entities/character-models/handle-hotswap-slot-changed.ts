@@ -9,7 +9,7 @@ import {
   attachHoldableModelToHolsteredPosition,
   attachHoldableModelToSkeleton,
 } from "./attach-holdables";
-import { ConsumableModel, ItemModel } from "../item-models/index.js";
+import { ConsumableModel, EquipmentModel } from "../item-models";
 
 export async function handleHotswapSlotChanged(
   this: CharacterModel,
@@ -46,7 +46,7 @@ export async function handleHotswapSlotChanged(
 
 async function spawnItemModelIfNotAlready(modularCharacter: CharacterModel, equipment: Equipment) {
   const entityId = equipment.entityProperties.id;
-  let model: ItemModel | undefined = modularCharacter.equipment.holdables[entityId];
+  let model: EquipmentModel | undefined = modularCharacter.equipment.holdables[entityId];
   if (model !== undefined) return model;
 
   const modelResult = await spawnItemModel(
@@ -58,6 +58,7 @@ async function spawnItemModelIfNotAlready(modularCharacter: CharacterModel, equi
 
   if (modelResult instanceof Error) return modelResult;
   if (modelResult instanceof ConsumableModel) return new Error("unexpected item model type");
+
   modularCharacter.equipment.holdables[entityId] = modelResult;
   return modelResult;
 }

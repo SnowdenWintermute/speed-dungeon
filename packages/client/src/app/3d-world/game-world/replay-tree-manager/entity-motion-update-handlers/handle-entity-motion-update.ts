@@ -1,13 +1,9 @@
 import {
   ActionEntityMotionGameUpdateCommand,
-  AnimationTimingType,
   AnimationType,
   COMBAT_ACTIONS,
-  CombatantEquipment,
   CombatantMotionGameUpdateCommand,
-  ERROR_MESSAGES,
   EntityMotionUpdate,
-  EquipmentSlotType,
   SpawnableEntityType,
 } from "@speed-dungeon/common";
 import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-completion-tracker";
@@ -18,7 +14,6 @@ import { plainToInstance } from "class-transformer";
 import { Quaternion } from "@babylonjs/core";
 import { handleUpdateAnimation } from "./handle-update-animation";
 import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
-import { useGameStore } from "@/stores/game-store";
 import { DynamicAnimationManager } from "@/app/3d-world/scene-entities/model-animation-managers/dynamic-animation-manager";
 import { SkeletalAnimationManager } from "@/app/3d-world/scene-entities/model-animation-managers/skeletal-animation-manager";
 import { handleEntityMotionSetNewParentUpdate } from "./handle-entity-motion-set-new-parent-update";
