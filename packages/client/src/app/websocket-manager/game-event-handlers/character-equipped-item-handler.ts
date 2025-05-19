@@ -44,7 +44,7 @@ export default function characterEquippedItemHandler(packet: {
           gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
             type: ModelActionType.ChangeEquipment,
             entityId: character.entityProperties.id,
-            unequippedIds: unequippedResult.idsOfUnequippedItems,
+            unequippedSlot: slot,
             toEquip: { item, slot },
           });
       }

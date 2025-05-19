@@ -9,6 +9,7 @@ import {
   DurabilityChangesByEntityId,
   ERROR_MESSAGES,
   Equipment,
+  EquipmentSlotType,
   GameUpdateCommandType,
   HitOutcomesGameUpdateCommand,
   HitPointChanges,
@@ -19,8 +20,7 @@ import {
   SpeedDungeonGame,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { gameWorld } from "../../SceneManager";
-import { getChildMeshByName } from "../../utils";
+import { gameWorld, getGameWorld } from "../../SceneManager";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { hitOutcomesGameUpdateHandler } from "./hit-outcomes";
 import { useGameStore } from "@/stores/game-store";
@@ -31,11 +31,8 @@ import {
   ActionEntityModel,
   spawnActionEntityModel,
 } from "../../scene-entities/action-entity-models";
-import {
-  ABSTRACT_PARENT_TYPE_TO_BONE_NAME,
-  BONE_NAMES,
-} from "../../scene-entities/character-models/skeleton-structure-variables";
 import { entityMotionGameUpdateHandler } from "./entity-motion-update-handlers";
+import { SceneEntity } from "../../scene-entities";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
@@ -60,7 +57,6 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     // deduct the resources
     // enqueue the floating text messages
     const { command } = update;
-    console.log("command:", command);
     useGameStore.getState().mutateState((gameState) => {
       const game = gameState.game;
       if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
@@ -75,7 +71,6 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       }
 
       if (command.costsPaid) {
-        console.log("costs paid: ", command.costsPaid);
         for (const [resource, cost] of iterateNumericEnumKeyedRecord(command.costsPaid)) {
           switch (resource) {
             case ActionPayableResource.HitPoints:
@@ -108,13 +103,17 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
           game,
           command.durabilityChanges,
           (combatant, equipment) => {
+            const slot = CombatantProperties.getSlotItemIsEquippedTo(
+              combatant.combatantProperties,
+              equipment.entityProperties.id
+            );
             // remove the model if it broke
             // @TODO - if this causes bugs because it is jumping the queue, look into it
             // if we use the queue though, it doesn't remove their item model imediately
-            if (Equipment.isBroken(equipment)) {
+            if (Equipment.isBroken(equipment) && slot?.type === EquipmentSlotType.Holdable) {
               gameWorld.current?.modelManager.combatantModels[
                 combatant.entityProperties.id
-              ]?.unequipHoldableModel(equipment.entityProperties.id);
+              ]?.unequipHoldableModel(slot.slot);
             }
           }
         );
@@ -141,10 +140,9 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
                   throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
                 startOrStopCosmeticEffect(
-                  condition.getCosmeticEffectWhileActive(),
+                  condition.getCosmeticEffectWhileActive(combatantResult.entityProperties.id),
                   [],
-                  targetModelOption.cosmeticEffectManager,
-                  targetModelOption.entityId
+                  targetModelOption.cosmeticEffectManager
                 );
               }
             });
@@ -168,16 +166,13 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
               );
 
               if (conditionRemovedOption) {
-                const targetModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
-                if (!targetModelOption)
-                  throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+                const targetModelOption = getGameWorld().modelManager.findOne(entityId);
                 startOrStopCosmeticEffect(
                   [],
                   conditionRemovedOption
-                    .getCosmeticEffectWhileActive()
+                    .getCosmeticEffectWhileActive(targetModelOption.entityId)
                     .map((clienOnlyVfx) => clienOnlyVfx.name),
-                  targetModelOption.cosmeticEffectManager,
-                  targetModelOption.entityId
+                  targetModelOption.cosmeticEffectManager
                 );
               }
             });
@@ -255,21 +250,11 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
     gameWorld.current.actionEntityManager.register(model);
 
     if (actionEntityProperties.parentOption) {
-      const actionUserOption =
-        gameWorld.current.modelManager.combatantModels[
-          actionEntityProperties.parentOption.entityId
-        ];
-      if (!actionUserOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+      const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
+        actionEntityProperties.parentOption
+      );
 
-      const boneName =
-        BONE_NAMES[
-          ABSTRACT_PARENT_TYPE_TO_BONE_NAME[actionEntityProperties.parentOption.referencePoint]
-        ];
-
-      const boneToParent = getChildMeshByName(actionUserOption.rootMesh, boneName);
-
-      if (!boneToParent) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_EXPECTED_BONE);
-      model.movementManager.transformNode.setParent(boneToParent);
+      model.movementManager.transformNode.setParent(targetTransformNode);
       model.movementManager.transformNode.setPositionWithLocalVector(Vector3.Zero());
       model.movementManager.transformNode.rotationQuaternion = Quaternion.Identity();
     }

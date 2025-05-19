@@ -1,35 +1,29 @@
 import {
   CosmeticEffectNames,
   ERROR_MESSAGES,
-  EntityId,
   Milliseconds,
-  EntityReferencePoint,
   COSMETIC_EFFECT_CONSTRUCTORS,
+  SceneEntityChildTransformNodeIdentifier,
 } from "@speed-dungeon/common";
-import { gameWorld, getGameWorld } from "../../SceneManager";
-import { getChildMeshByName } from "../../utils";
+import { gameWorld } from "../../SceneManager";
 import { Vector3 } from "@babylonjs/core";
 import { CosmeticEffectManager } from "../../scene-entities/cosmetic-effect-manager";
-import {
-  BONE_NAMES,
-  BoneName,
-} from "../../scene-entities/character-models/skeleton-structure-variables";
+import { SceneEntity } from "../../scene-entities";
 
 export function startOrStopCosmeticEffect(
   cosmeticEffectToStart: {
     name: CosmeticEffectNames;
-    parentType: EntityReferencePoint;
+    parent: SceneEntityChildTransformNodeIdentifier;
     lifetime?: Milliseconds;
   }[],
   cosmeticEffectToStop: CosmeticEffectNames[],
-  cosmeticEffectManager: CosmeticEffectManager,
-  entityId: EntityId
+  cosmeticEffectManager: CosmeticEffectManager
 ) {
   if (cosmeticEffectToStart.length) {
     const sceneOption = gameWorld.current?.scene;
     if (!sceneOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
 
-    for (const { name, parentType, lifetime } of cosmeticEffectToStart) {
+    for (const { name, parent, lifetime } of cosmeticEffectToStart) {
       const effect = new COSMETIC_EFFECT_CONSTRUCTORS[name](sceneOption);
 
       if (lifetime !== undefined) {
@@ -41,54 +35,9 @@ export function startOrStopCosmeticEffect(
       cosmeticEffectManager.cosmeticEffect[name]?.softCleanup();
       cosmeticEffectManager.cosmeticEffect[name] = effect;
 
-      switch (parentType) {
-        case EntityReferencePoint.MainHandBone:
-          {
-            const boneName = BONE_NAMES[BoneName.EquipmentR];
-
-            const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
-            if (!combatantModelOption)
-              throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-            const boneToParent = getChildMeshByName(combatantModelOption.rootMesh, boneName);
-            if (!boneToParent) throw new Error("bone not found");
-            effect.transformNode.setParent(boneToParent);
-            effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
-          }
-          break;
-        case EntityReferencePoint.OffHandBone:
-          {
-            const boneName = BONE_NAMES[BoneName.EquipmentL];
-
-            const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
-            if (!combatantModelOption)
-              throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-
-            const boneToParent = getChildMeshByName(combatantModelOption.rootMesh, boneName);
-            if (!boneToParent) throw new Error("bone not found");
-            effect.transformNode.setParent(boneToParent);
-            effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
-          }
-          break;
-        case EntityReferencePoint.VfxEntityRoot:
-          {
-            const actionEntityModelOption = getGameWorld().actionEntityManager.findOne(entityId);
-            effect.transformNode.setParent(actionEntityModelOption.movementManager.transformNode);
-            effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
-          }
-          break;
-        case EntityReferencePoint.CombatantHitboxCenter:
-          {
-            const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
-            if (!combatantModelOption)
-              throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-
-            effect.transformNode.setPositionWithLocalVector(
-              combatantModelOption.getBoundingInfo().boundingSphere.centerWorld
-            );
-            effect.transformNode.setParent(combatantModelOption.movementManager.transformNode);
-          }
-          break;
-      }
+      const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(parent);
+      effect.transformNode.setParent(targetTransformNode);
+      effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
     }
   }
 

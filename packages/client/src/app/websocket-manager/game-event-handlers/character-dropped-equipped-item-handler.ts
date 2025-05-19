@@ -28,7 +28,7 @@ export default function characterDroppedEquippedItemHandler(characterAndSlot: Ch
     gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.ChangeEquipment,
       entityId: characterId,
-      unequippedIds: [itemDroppedIdResult],
+      unequippedSlot: slot,
     });
   });
 }

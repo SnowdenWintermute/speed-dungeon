@@ -30,7 +30,7 @@ export const MODEL_ACTION_TYPE_STRINGS: Record<ModelActionType, string> = {
 export type ChangeEquipmentModelAction = {
   type: ModelActionType.ChangeEquipment;
   entityId: string;
-  unequippedIds: string[];
+  unequippedSlot: TaggedEquipmentSlot | null;
   toEquip?: { item: Equipment; slot: TaggedEquipmentSlot };
 };
 

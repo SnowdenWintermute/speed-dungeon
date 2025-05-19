@@ -54,9 +54,13 @@ export class CombatantEquipment {
   }
 
   static getEquippedHoldableSlots(combatantProperties: CombatantProperties) {
-    return this.getHoldableHotswapSlots(combatantProperties)[
-      combatantProperties.equipment.equippedHoldableHotswapSlotIndex
-    ];
+    const slots =
+      this.getHoldableHotswapSlots(combatantProperties)[
+        combatantProperties.equipment.equippedHoldableHotswapSlotIndex
+      ];
+
+    if (slots === undefined) throw new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
+    return slots;
   }
 
   static getEquippedHoldable(

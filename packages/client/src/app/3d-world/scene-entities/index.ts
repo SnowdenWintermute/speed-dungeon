@@ -9,6 +9,7 @@ import {
 import { CosmeticEffectManager } from "./cosmetic-effect-manager";
 import { ModelMovementManager } from "./model-movement-manager";
 import {
+  ERROR_MESSAGES,
   EntityId,
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityChildTransformNodeType,
@@ -66,6 +67,7 @@ export abstract class SceneEntity {
     const newTransformNode = new TransformNode(name);
     newTransformNode.setParent(bone);
     newTransformNode.setPositionWithLocalVector(Vector3.Zero());
+    newTransformNode.rotationQuaternion = new Quaternion();
     return newTransformNode;
   }
 
@@ -86,7 +88,10 @@ export abstract class SceneEntity {
       case SceneEntityChildTransformNodeType.CombatantEquippedHoldable:
         const combatantEntityWithHoldable = getGameWorld().modelManager.findOne(entityId);
         const { holdableSlot } = identifier;
-        throw new Error("need to implement slots instead of equipment ids");
+        const holdableModelOption = combatantEntityWithHoldable.equipment.holdables[holdableSlot];
+        if (!holdableModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_EQUIPMENT_MODEL);
+        toReturn = holdableModelOption.childTransformNodes[transformNodeName];
+        break;
     }
 
     if (!toReturn) throw new Error("No transform node found");

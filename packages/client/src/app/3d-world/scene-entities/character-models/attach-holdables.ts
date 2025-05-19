@@ -1,5 +1,6 @@
-import { AbstractMesh, TransformNode, Vector3 } from "@babylonjs/core";
+import { TransformNode, Vector3 } from "@babylonjs/core";
 import {
+  CombatantBaseChildTransformNodeName,
   Equipment,
   EquipmentBaseItem,
   EquipmentType,
@@ -8,8 +9,7 @@ import {
 } from "@speed-dungeon/common";
 import { CharacterModel } from "./index";
 import { getChildMeshByName } from "../../utils";
-import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
-import { ItemModel } from "../item-models";
+import { EquipmentModel } from "../item-models";
 
 function setTransformNodePositionAndRotationToZero(transformNode: TransformNode) {
   setTransformNodeRotationToZero(transformNode);
@@ -23,37 +23,32 @@ function setTransformNodeRotationToZero(transformNode: TransformNode) {
 
 export function attachHoldableModelToSkeleton(
   combatantModel: CharacterModel,
-  equipmentModel: ItemModel,
+  equipmentModel: EquipmentModel,
   slot: HoldableSlotType,
   equipment: Equipment
 ) {
   const itemTransformNode = equipmentModel.rootTransformNode;
 
-  const skeletonRoot = combatantModel.getSkeletonRoot();
-
-  let equipmentBoneName: string = "";
+  let attachmentPointName: CombatantBaseChildTransformNodeName;
 
   const { equipmentType } = equipment.equipmentBaseItemProperties;
 
-  if (slot === HoldableSlotType.OffHand && equipmentType === EquipmentType.Shield) {
-    // this is separate if we wanted to make a "shield bone"
-    equipmentBoneName = BONE_NAMES[BoneName.EquipmentL];
-  } else if (slot === HoldableSlotType.OffHand) {
-    equipmentBoneName = BONE_NAMES[BoneName.EquipmentL];
-  } else if (slot === HoldableSlotType.MainHand) {
+  if (slot === HoldableSlotType.OffHand) {
+    attachmentPointName = CombatantBaseChildTransformNodeName.OffhandEquipment;
+  } else {
     const isBow =
       equipment.equipmentBaseItemProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon;
-    if (isBow) equipmentBoneName = BONE_NAMES[BoneName.EquipmentL];
-    else equipmentBoneName = equipmentBoneName = BONE_NAMES[BoneName.EquipmentR];
-  } else {
-    console.log("no equipment bone name condition met");
+    if (isBow) attachmentPointName = CombatantBaseChildTransformNodeName.OffhandEquipment;
+    else attachmentPointName = CombatantBaseChildTransformNodeName.MainHandEquipment;
   }
 
-  const equipmentBone = getChildMeshByName(skeletonRoot, equipmentBoneName) as AbstractMesh;
+  const attachmentPoint = combatantModel.childTransformNodes[attachmentPointName];
 
-  if (!equipmentBone) return console.log("no equipment bone found");
+  console.log("attachment point", attachmentPoint);
 
-  itemTransformNode.setParent(equipmentBone);
+  if (!attachmentPoint) return console.log("no equipment bone found");
+
+  itemTransformNode.setParent(attachmentPoint);
 
   setTransformNodePositionAndRotationToZero(itemTransformNode);
 
@@ -68,14 +63,12 @@ export function attachHoldableModelToSkeleton(
     }
   }
 
-  if (equipmentType === EquipmentType.TwoHandedRangedWeapon) {
-    itemTransformNode.rotation.y = Math.PI;
-  }
+  if (equipmentType === EquipmentType.TwoHandedRangedWeapon) itemTransformNode.rotation.y = Math.PI;
 }
 
 export function attachHoldableModelToHolsteredPosition(
   combatantModel: CharacterModel,
-  equipmentModel: ItemModel,
+  equipmentModel: EquipmentModel,
   slot: HoldableSlotType,
   equipment: Equipment
 ) {

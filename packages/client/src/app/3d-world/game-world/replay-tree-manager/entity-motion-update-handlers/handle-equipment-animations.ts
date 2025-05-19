@@ -26,7 +26,7 @@ export function handleEquipmentAnimations(
       else {
         switch (slot.type) {
           case EquipmentSlotType.Holdable:
-            return combatantModelOption.equipment.holdables[equipment.entityProperties.id];
+            return combatantModelOption.equipment.holdables[slot.slot];
           case EquipmentSlotType.Wearable:
             return combatantModelOption.equipment.wearables[slot.slot];
         }

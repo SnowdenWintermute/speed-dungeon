@@ -1,10 +1,9 @@
 import {
-  EntityReferencePoint,
   ActionResolutionStepType,
   CombatActionComponent,
   CosmeticEffectNames,
-  EntityId,
   Milliseconds,
+  SceneEntityChildTransformNodeIdentifier,
 } from "@speed-dungeon/common";
 import { startOrStopCosmeticEffect } from "./start-or-stop-cosmetic-effect";
 import { CosmeticEffectManager } from "../../scene-entities/cosmetic-effect-manager";
@@ -12,12 +11,11 @@ import { CosmeticEffectManager } from "../../scene-entities/cosmetic-effect-mana
 export function handleStepCosmeticEffects(
   action: CombatActionComponent,
   stepType: ActionResolutionStepType,
-  cosmeticEffectManager: CosmeticEffectManager,
-  entityId: EntityId
+  cosmeticEffectManager: CosmeticEffectManager
 ) {
   let cosmeticEffectNamesToStartThisStep: {
     name: CosmeticEffectNames;
-    parentType: EntityReferencePoint;
+    parent: SceneEntityChildTransformNodeIdentifier;
     lifetime?: Milliseconds;
   }[] = [];
 
@@ -33,7 +31,6 @@ export function handleStepCosmeticEffects(
   startOrStopCosmeticEffect(
     cosmeticEffectNamesToStartThisStep,
     cosmeticEffectNamesToStopThisStep,
-    cosmeticEffectManager,
-    entityId
+    cosmeticEffectManager
   );
 }

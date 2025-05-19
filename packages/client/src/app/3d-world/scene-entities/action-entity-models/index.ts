@@ -54,6 +54,7 @@ export class ActionEntityModel extends SceneEntity {
     super(id, assetContainer, startPosition, new Quaternion());
 
     const sceneOption = gameWorld.current?.scene;
+    this.initChildTransformNodes();
     // this.createDebugLines(startPosition, sceneOption);
   }
 

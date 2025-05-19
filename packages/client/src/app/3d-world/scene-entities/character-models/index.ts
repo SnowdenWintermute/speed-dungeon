@@ -7,6 +7,7 @@ import {
   Vector3,
   StandardMaterial,
   TransformNode,
+  MeshBuilder,
 } from "@babylonjs/core";
 import {
   disposeAsyncLoadedScene,
@@ -59,7 +60,7 @@ export class CharacterModel extends SceneEntity {
   };
   equipment: {
     wearables: Record<WearableSlotType, null | EquipmentModel>;
-    holdables: { [entityId: string]: EquipmentModel };
+    holdables: Partial<Record<HoldableSlotType, null | EquipmentModel>>;
   } = {
     wearables: {
       [WearableSlotType.Head]: null,
@@ -98,6 +99,15 @@ export class CharacterModel extends SceneEntity {
       rotation: cloneDeep(rotation),
     };
 
+    this.initChildTransformNodes();
+
+    for (const [nodeName, transformNode] of iterateNumericEnumKeyedRecord(
+      this.childTransformNodes
+    )) {
+      const markerMesh = MeshBuilder.CreateBox("", { size: 0.1 });
+      markerMesh.setParent(transformNode);
+      markerMesh.setPositionWithLocalVector(Vector3.Zero());
+    }
     // this.setUpDebugMeshes();
     // this.setShowBones();
   }
@@ -123,6 +133,7 @@ export class CharacterModel extends SceneEntity {
     );
     this.childTransformNodes[CombatantBaseChildTransformNodeName.MainHandEquipment] =
       mainHandEquipmentNode;
+
     const offHandEquipmentNode = SceneEntity.createTransformNodeChildOfBone(
       this.rootMesh,
       `${this.entityId}-oh-equipment`,
@@ -146,13 +157,11 @@ export class CharacterModel extends SceneEntity {
     if (this.debugMeshes) for (const mesh of Object.values(this.debugMeshes)) mesh.dispose();
     for (const part of Object.values(this.parts)) part?.dispose();
 
-    for (const [_slotType, model] of iterateNumericEnumKeyedRecord(this.equipment.wearables)) {
-      if (!model) continue;
-      model.cleanup({ softCleanup: false });
-    }
+    for (const [_slotType, model] of iterateNumericEnumKeyedRecord(this.equipment.wearables))
+      model?.cleanup({ softCleanup: false });
 
     for (const model of Object.values(this.equipment.holdables))
-      model.cleanup({ softCleanup: false });
+      model?.cleanup({ softCleanup: false });
   }
 
   getSkeletonRoot() {
@@ -164,13 +173,13 @@ export class CharacterModel extends SceneEntity {
   setVisibility(value: number) {
     this.visibility = value;
 
-    for (const [partCategory, scene] of iterateNumericEnumKeyedRecord(this.parts)) {
+    for (const [_partCategory, scene] of iterateNumericEnumKeyedRecord(this.parts)) {
       scene?.meshes.forEach((mesh) => {
         mesh.visibility = this.visibility;
       });
     }
     for (const holdable of Object.values(this.equipment.holdables)) {
-      holdable.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
+      holdable?.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
     }
     for (const wearable of Object.values(this.equipment.wearables)) {
       wearable?.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
@@ -314,8 +323,8 @@ export class CharacterModel extends SceneEntity {
     return part;
   }
 
-  async unequipHoldableModel(entityId: string) {
-    const toDispose = this.equipment.holdables[entityId];
+  async unequipHoldableModel(slot: HoldableSlotType) {
+    const toDispose = this.equipment.holdables[slot];
     if (!toDispose) return;
     toDispose.cleanup({ softCleanup: false });
 
@@ -357,7 +366,7 @@ export class CharacterModel extends SceneEntity {
       (mesh) => (mesh.visibility = this.visibility)
     );
 
-    this.equipment.holdables[equipment.entityProperties.id] = equipmentModelResult;
+    this.equipment.holdables[slot] = equipmentModelResult;
 
     if (holstered)
       attachHoldableModelToHolsteredPosition(this, equipmentModelResult, slot, equipment);

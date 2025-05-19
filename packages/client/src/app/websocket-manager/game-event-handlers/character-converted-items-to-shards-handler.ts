@@ -4,16 +4,16 @@ import {
   CharacterAssociatedData,
   CombatantEquipment,
   CombatantProperties,
-  EntityId,
+  TaggedEquipmentSlot,
   convertItemsToShards,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { setAlert } from "../../components/alerts";
-import { gameWorld } from "@/app/3d-world/SceneManager";
+import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 export function characterConvertedItemsToShardsHandler(characterAndItems: CharacterAndItems) {
-  const itemIdsToUnequip: EntityId[] = [];
+  const slotsUnequipped: TaggedEquipmentSlot[] = [];
 
   characterAssociatedDataProvider(
     characterAndItems.characterId,
@@ -26,12 +26,14 @@ export function characterConvertedItemsToShardsHandler(characterAndItems: Charac
 
       for (const item of equippedItems) {
         if (characterAndItems.itemIds.includes(item.entityProperties.id)) {
-          itemIdsToUnequip.push(item.entityProperties.id);
           const slot = CombatantProperties.getSlotItemIsEquippedTo(
             combatantProperties,
             item.entityProperties.id
           );
-          if (slot !== null) CombatantProperties.unequipSlots(combatantProperties, [slot]);
+          if (slot !== null) {
+            CombatantProperties.unequipSlots(combatantProperties, [slot]);
+            slotsUnequipped.push(slot);
+          }
         }
       }
       const maybeError = convertItemsToShards(characterAndItems.itemIds, character);
@@ -39,9 +41,11 @@ export function characterConvertedItemsToShardsHandler(characterAndItems: Charac
     }
   );
 
-  gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
-    type: ModelActionType.ChangeEquipment,
-    entityId: characterAndItems.characterId,
-    unequippedIds: itemIdsToUnequip,
-  });
+  for (const unequippedSlot of slotsUnequipped) {
+    getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.ChangeEquipment,
+      entityId: characterAndItems.characterId,
+      unequippedSlot,
+    });
+  }
 }

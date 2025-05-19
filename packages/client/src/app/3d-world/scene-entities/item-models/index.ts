@@ -2,6 +2,7 @@ import {
   AbstractMesh,
   AssetContainer,
   Color4,
+  MeshBuilder,
   Quaternion,
   StandardMaterial,
   TransformNode,
@@ -14,6 +15,7 @@ import {
   ERROR_MESSAGES,
   Equipment,
   EquipmentType,
+  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { getChildMeshByName, paintCubesOnNodes } from "../../utils";
 import { gameWorld } from "../../SceneManager";
@@ -27,8 +29,16 @@ export class EquipmentModel extends SceneEntity {
   ) {
     super(equipment.entityProperties.id, assetContainer, Vector3.Zero(), new Quaternion());
 
-    // this.setShowBones();
+    this.initChildTransformNodes();
+    this.setShowBones();
 
+    // for (const [nodeName, transformNode] of iterateNumericEnumKeyedRecord(
+    //   this.childTransformNodes
+    // )) {
+    //   const markerMesh = MeshBuilder.CreateBox("", { size: 0.1 });
+    //   markerMesh.setParent(transformNode);
+    //   markerMesh.setPositionWithLocalVector(Vector3.Zero());
+    // }
     // if (!assetContainer.meshes[0]) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_ITEM_FILE);
   }
 
@@ -62,6 +72,7 @@ export class EquipmentModel extends SceneEntity {
 
   customCleanup(): void {
     //
+    console.log("item cleaned up:", this.equipment.entityProperties.name);
   }
 
   setShowBones() {

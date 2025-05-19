@@ -1,6 +1,7 @@
 import {
   Equipment,
   HoldableHotswapSlot,
+  HoldableSlotType,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { CharacterModel } from "./index.js";
@@ -20,20 +21,21 @@ export async function handleHotswapSlotChanged(
   // make sure models that are supposed to exist do
   // despawn models that shouldn't exist
   const holsteredSlotIndex = getIndexForDisplayedHolsteredSlot(hotswapSlots, selectedIndex);
+
   for (const hotswapSlot of Object.values(hotswapSlots)) {
     for (const [slot, equipment] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
       if (i === selectedIndex || i === holsteredSlotIndex) {
-        const modelResult = await spawnItemModelIfNotAlready(this, equipment);
+        const modelResult = await spawnItemModelIfNotAlready(this, equipment, slot);
         if (modelResult instanceof Error) return modelResult;
 
         if (i === selectedIndex) attachHoldableModelToSkeleton(this, modelResult, slot, equipment);
         else if (i === holsteredSlotIndex)
           attachHoldableModelToHolsteredPosition(this, modelResult, slot, equipment);
       } else {
-        const modelOption = this.equipment.holdables[equipment.entityProperties.id];
+        const modelOption = this.equipment.holdables[slot];
         console.log("disposing undisplayed hotswap models", modelOption);
         if (modelOption) modelOption.cleanup({ softCleanup: false });
-        delete this.equipment.holdables[equipment.entityProperties.id];
+        delete this.equipment.holdables[slot];
       }
     }
 
@@ -44,10 +46,13 @@ export async function handleHotswapSlotChanged(
   else console.log("wasn't idling on hotswap change");
 }
 
-async function spawnItemModelIfNotAlready(modularCharacter: CharacterModel, equipment: Equipment) {
-  const entityId = equipment.entityProperties.id;
-  let model: EquipmentModel | undefined = modularCharacter.equipment.holdables[entityId];
-  if (model !== undefined) return model;
+async function spawnItemModelIfNotAlready(
+  modularCharacter: CharacterModel,
+  equipment: Equipment,
+  slot: HoldableSlotType
+) {
+  let model: EquipmentModel | undefined | null = modularCharacter.equipment.holdables[slot];
+  if (model !== null && model !== undefined) return model;
 
   const modelResult = await spawnItemModel(
     equipment,
@@ -59,7 +64,7 @@ async function spawnItemModelIfNotAlready(modularCharacter: CharacterModel, equi
   if (modelResult instanceof Error) return modelResult;
   if (modelResult instanceof ConsumableModel) return new Error("unexpected item model type");
 
-  modularCharacter.equipment.holdables[entityId] = modelResult;
+  modularCharacter.equipment.holdables[slot] = modelResult;
   return modelResult;
 }
 

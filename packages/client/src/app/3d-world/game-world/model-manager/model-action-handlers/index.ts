@@ -39,8 +39,16 @@ export function createModelActionHandlers(
       let errors: Error[] = [];
       const modularCharacter = modelManager.combatantModels[action.entityId];
       if (!modularCharacter) return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-      for (const id of action.unequippedIds)
-        removeHoldableModelFromCharacterModel(modularCharacter, action.entityId, id);
+      if (action.unequippedSlot) {
+        switch (action.unequippedSlot.type) {
+          case EquipmentSlotType.Holdable:
+            removeHoldableModelFromCharacterModel(modularCharacter, action.unequippedSlot.slot);
+            break;
+          case EquipmentSlotType.Wearable:
+            //@TODO - when wearable models are introduced, handle it
+            break;
+        }
+      }
       if (action.toEquip && action.toEquip.slot.type === EquipmentSlotType.Holdable) {
         await modularCharacter.equipHoldableModel(action.toEquip.item, action.toEquip.slot.slot);
       }
