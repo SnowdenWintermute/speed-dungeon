@@ -1,4 +1,5 @@
 import { SceneEntity } from "@/app/3d-world/scene-entities";
+import { Vector3 } from "@babylonjs/core";
 import { SceneEntityChildTransformNodeIdentifierWithDuration } from "@speed-dungeon/common";
 
 export function handleEntityMotionSetNewParentUpdate(
@@ -14,29 +15,7 @@ export function handleEntityMotionSetNewParentUpdate(
 
   const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(identifier);
 
-  sceneEntity.movementManager.lookingAt = null;
+  sceneEntity.rootTransformNode.setParent(targetTransformNode);
 
-  //
-  if (motionUpdate.setParentToCombatantHoldable) {
-    const { combatantId, holdableId, durationToReachPosition, positionOnTarget } =
-      motionUpdate.setParentToCombatantHoldable;
-    const combatantModelOption = gameWorld.current?.modelManager.combatantModels[combatantId];
-    if (combatantModelOption) {
-      const holdableModelOption = combatantModelOption.equipment.holdables[holdableId];
-      if (holdableModelOption) {
-        const bone = getChildMeshByName(holdableModelOption.rootMesh, "String") as AbstractMesh;
-
-        const intermediaryTransformNode = new TransformNode("");
-        intermediaryTransformNode.setParent(bone);
-        intermediaryTransformNode.setPositionWithLocalVector(Vector3.Zero());
-
-        actionEntityModelOption.rootTransformNode.setParent(intermediaryTransformNode);
-        actionEntityModelOption.movementManager.startTranslating(
-          Vector3.Zero(),
-          durationToReachPosition,
-          () => {}
-        );
-      }
-    }
-  }
+  sceneEntity.movementManager.startTranslating(Vector3.Zero(), duration, () => {});
 }

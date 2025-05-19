@@ -4,8 +4,13 @@ import { SceneEntityChildTransformNodeIdentifierWithDuration } from "@speed-dung
 
 export function handleStartPointingTowardEntity(
   sceneEntity: SceneEntity,
-  identifierWithDuration: SceneEntityChildTransformNodeIdentifierWithDuration
+  identifierWithDuration: SceneEntityChildTransformNodeIdentifierWithDuration | null
 ) {
+  if (identifierWithDuration === null) {
+    // @TODO, change how movement managers deal with their trackers so they can only be rotating and translating
+    // toward one thing respectively, that way we can cancel it here
+    return;
+  }
   const { identifier, duration } = identifierWithDuration;
 
   const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(identifier);

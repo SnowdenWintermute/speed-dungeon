@@ -32,9 +32,11 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
     if (stepConfig.getCosmeticDestinationY)
       update.cosmeticDestinationY = stepConfig.getCosmeticDestinationY(context);
 
-    if (stepConfig.getStartPointingTowardEntityOption)
-      update.startPointingTowardEntityOption =
-        stepConfig.getStartPointingTowardEntityOption(context);
+    if (stepConfig.getEntityToLockOnTo)
+      update.lockRotationToFace = stepConfig.getEntityToLockOnTo(context);
+
+    if (stepConfig.getStartPointingToward)
+      update.startPointingToward = stepConfig.getStartPointingToward(context);
 
     const { actionName } = context.tracker.actionExecutionIntent;
 

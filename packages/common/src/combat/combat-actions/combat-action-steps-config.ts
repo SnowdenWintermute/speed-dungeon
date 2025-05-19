@@ -45,7 +45,10 @@ export interface ActionResolutionStepConfig {
   getCosmeticDestinationY?: (
     context: ActionResolutionStepContext
   ) => SceneEntityChildTransformNodeIdentifier;
-  getStartPointingTowardEntityOption?: (
+  getEntityToLockOnTo?: (
+    context: ActionResolutionStepContext
+  ) => SceneEntityChildTransformNodeIdentifierWithDuration;
+  getStartPointingToward?: (
     context: ActionResolutionStepContext
   ) => SceneEntityChildTransformNodeIdentifierWithDuration;
   getEquipmentAnimations?(

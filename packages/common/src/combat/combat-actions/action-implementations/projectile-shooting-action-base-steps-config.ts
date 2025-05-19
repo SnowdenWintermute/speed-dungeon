@@ -93,7 +93,7 @@ export function getProjectileShootingActionBaseStepsConfig(
             }
           })();
 
-          const pointTowardEntity: SceneEntityChildTransformNodeIdentifierWithDuration = {
+          const startPointingToward: SceneEntityChildTransformNodeIdentifierWithDuration = {
             identifier: {
               type: SceneEntityChildTransformNodeType.CombatantBase,
               entityId: primaryTarget.entityProperties.id,
@@ -101,11 +101,12 @@ export function getProjectileShootingActionBaseStepsConfig(
             },
             duration: 400,
           };
+
           const toReturn: EntityMotionUpdate[] = [];
           toReturn.push({
             entityId: actionEntityId,
             entityType: SpawnableEntityType.ActionEntity,
-            startPointingTowardEntityOption: pointTowardEntity,
+            startPointingToward,
             setParent: null,
           });
 

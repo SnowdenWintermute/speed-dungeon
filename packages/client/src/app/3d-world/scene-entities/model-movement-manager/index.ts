@@ -11,7 +11,7 @@ export class ModelMovementManager {
   public activeTrackers: Partial<Record<ModelMovementType, ModelMovementTracker>> = {};
 
   static ROTATION_ALIGNMENT_LOCK_THRESHOLD = 0.1;
-  public lookingAt: { targetMesh: AbstractMesh; isLocked: boolean; alignmentSpeed: number } | null =
+  public lookingAt: { target: TransformNode; isLocked: boolean; alignmentSpeed: number } | null =
     null;
   constructor(public transformNode: TransformNode) {
     transformNode.rotationQuaternion = Quaternion.FromEulerVector(transformNode.rotation);
@@ -82,15 +82,15 @@ export class ModelMovementManager {
 
   smoothLookAtThenLockOn() {
     if (!this.lookingAt) return;
-    const { targetMesh, isLocked, alignmentSpeed } = this.lookingAt;
+    const { target, isLocked, alignmentSpeed } = this.lookingAt;
 
     this.transformNode.parent?.computeWorldMatrix(true);
     this.transformNode.computeWorldMatrix(true);
-    targetMesh.computeWorldMatrix(true);
+    target.computeWorldMatrix(true);
 
     const newRotation = ModelMovementManager.getRotationToPointTowardToward(
       this.transformNode,
-      targetMesh.getAbsolutePosition()
+      target.getAbsolutePosition()
     );
 
     this.transformNode.rotationQuaternion = newRotation;

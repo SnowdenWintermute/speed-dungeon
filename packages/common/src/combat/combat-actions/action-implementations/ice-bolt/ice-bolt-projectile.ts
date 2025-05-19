@@ -54,7 +54,7 @@ const config: CombatActionComponentConfig = {
       [ActionResolutionStepType.OnActivationActionEntityMotion]: {
         getDestination: getPrimaryTargetPositionAsDestination,
         getNewParent: () => null,
-        getStartPointingTowardEntityOption: (context) => {
+        getStartPointingToward: (context) => {
           const { combatantContext, tracker } = context;
           const { actionExecutionIntent } = tracker;
           // @PERF - can probably combine all these individual targetingCalculator creations

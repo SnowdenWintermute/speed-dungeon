@@ -120,14 +120,15 @@ stepsConfig.steps = {
         duration: 1400,
       };
 
-      const pointToward: SceneEntityChildTransformNodeIdentifier = {
+      const lockRotationOn: SceneEntityChildTransformNodeIdentifier = {
         type: SceneEntityChildTransformNodeType.CombatantEquippedHoldable,
         entityId: context.combatantContext.combatant.entityProperties.id,
         holdableSlot: HoldableSlotType.MainHand,
         transformNodeName: CombatantHoldableChildTransformNodeName.ArrowRest,
       };
-      const pointTowardWithDuration: SceneEntityChildTransformNodeIdentifierWithDuration = {
-        identifier: pointToward,
+
+      const lockRotationToFace: SceneEntityChildTransformNodeIdentifierWithDuration = {
+        identifier: lockRotationOn,
         duration: 600,
       };
 
@@ -136,8 +137,8 @@ stepsConfig.steps = {
       toReturn.push({
         entityId: actionEntityId,
         entityType: SpawnableEntityType.ActionEntity,
-        setParent: setParent,
-        startPointingTowardEntityOption: pointTowardWithDuration,
+        setParent,
+        lockRotationToFace,
       });
 
       return toReturn;
