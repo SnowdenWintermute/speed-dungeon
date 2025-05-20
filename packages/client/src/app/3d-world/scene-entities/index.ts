@@ -29,7 +29,7 @@ export abstract class SceneEntity {
   public rootMesh: AbstractMesh;
   public rootTransformNode: TransformNode;
 
-  public visibility: NormalizedPercentage = 0;
+  protected visibility: NormalizedPercentage = 0;
 
   constructor(
     public entityId: EntityId,
@@ -57,6 +57,11 @@ export abstract class SceneEntity {
   abstract initRootMesh(assetContainer: AssetContainer): AbstractMesh;
   abstract customCleanup(): void;
   abstract initChildTransformNodes(): void;
+
+  setVisibility(visibility: NormalizedPercentage) {
+    this.visibility = visibility;
+    this.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
+  }
 
   static createTransformNodeChildOfBone(
     rootMesh: Mesh | AbstractMesh,

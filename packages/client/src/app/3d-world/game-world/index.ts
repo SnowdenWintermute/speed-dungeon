@@ -10,11 +10,10 @@ import {
   InputBlock,
   Camera,
   RenderTargetTexture,
-  MeshBuilder,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
-import { ActionEntityName, IdGenerator } from "@speed-dungeon/common";
+import { IdGenerator } from "@speed-dungeon/common";
 import { updateDebugText } from "./model-manager/update-debug-text";
 import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
@@ -24,14 +23,7 @@ import { SavedMaterials, createDefaultMaterials } from "./materials/create-defau
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
 import { ReplayTreeManager } from "./replay-tree-manager";
-import { testParticleSystem } from "./testing-particle-systems";
-import { testingSounds } from "./testing-sounds";
-import {
-  ActionEntityManager,
-  ActionEntityModel,
-  spawnActionEntityModel,
-} from "../scene-entities/action-entity-models";
-import { gameWorld } from "../SceneManager";
+import { ActionEntityManager } from "../scene-entities/action-entity-models";
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;

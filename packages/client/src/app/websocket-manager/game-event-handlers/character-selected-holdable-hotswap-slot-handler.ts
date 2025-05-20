@@ -6,8 +6,7 @@ import {
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { GameState } from "@/stores/game-store";
-import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
-import cloneDeep from "lodash.clonedeep";
+import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { changeSelectedHotswapSlot } from "@speed-dungeon/common";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
@@ -57,14 +56,9 @@ export function characterSelectedHoldableHotswapSlotHandler(
         }
       }
 
-      // if newly equipped items don't have models, spawn them
       getGameWorld().modelManager.modelActionQueue.enqueueMessage({
-        type: ModelActionType.SelectHotswapSlot,
+        type: ModelActionType.SynchronizeCombatantEquipmentModels,
         entityId: character.entityProperties.id,
-        hotswapSlots: cloneDeep(
-          CombatantEquipment.getHoldableHotswapSlots(character.combatantProperties)
-        ),
-        selectedIndex: character.combatantProperties.equipment.equippedHoldableHotswapSlotIndex,
       });
     }
   );

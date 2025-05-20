@@ -5,6 +5,7 @@ export * from "./action-calculation-utils/action-costs.js";
 export * from "./combat-action-execution-intent.js";
 export * from "./combat-action-animations.js";
 export * from "./combat-action-intent.js";
+export * from "./combat-action-steps-config.js";
 import { Combatant, CombatantProperties } from "../../combatants/index.js";
 import { CombatActionUsabilityContext } from "./combat-action-usable-cotexts.js";
 import { CombatActionName } from "./combat-action-names.js";

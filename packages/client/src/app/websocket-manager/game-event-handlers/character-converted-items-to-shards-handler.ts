@@ -41,11 +41,8 @@ export function characterConvertedItemsToShardsHandler(characterAndItems: Charac
     }
   );
 
-  for (const unequippedSlot of slotsUnequipped) {
-    getGameWorld().modelManager.modelActionQueue.enqueueMessage({
-      type: ModelActionType.ChangeEquipment,
-      entityId: characterAndItems.characterId,
-      unequippedSlot,
-    });
-  }
+  getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+    type: ModelActionType.SynchronizeCombatantEquipmentModels,
+    entityId: characterAndItems.characterId,
+  });
 }

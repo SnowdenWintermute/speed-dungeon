@@ -1,7 +1,6 @@
 import { TransformNode, Vector3 } from "@babylonjs/core";
 import {
   CombatantBaseChildTransformNodeName,
-  Equipment,
   EquipmentBaseItem,
   EquipmentType,
   HoldableSlotType,
@@ -24,10 +23,10 @@ function setTransformNodeRotationToZero(transformNode: TransformNode) {
 export function attachHoldableModelToSkeleton(
   combatantModel: CharacterModel,
   equipmentModel: EquipmentModel,
-  slot: HoldableSlotType,
-  equipment: Equipment
+  slot: HoldableSlotType
 ) {
   const itemTransformNode = equipmentModel.rootTransformNode;
+  const { equipment } = equipmentModel;
 
   let attachmentPointName: CombatantBaseChildTransformNodeName;
 
@@ -69,8 +68,7 @@ export function attachHoldableModelToSkeleton(
 export function attachHoldableModelToHolsteredPosition(
   combatantModel: CharacterModel,
   equipmentModel: EquipmentModel,
-  slot: HoldableSlotType,
-  equipment: Equipment
+  slot: HoldableSlotType
 ) {
   const equipmentTransformNode = equipmentModel.rootTransformNode;
   const skeletonRoot = combatantModel.getSkeletonRoot();
@@ -80,7 +78,7 @@ export function attachHoldableModelToHolsteredPosition(
   const holsterBackBone = getChildMeshByName(skeletonRoot, backHolsterBoneName);
   const holsterHipBone = getChildMeshByName(skeletonRoot, hipHolsterBoneName);
   if (!holsterBackBone || !holsterHipBone) throw new Error("expected holster bones missing");
-  const { taggedBaseEquipment } = equipment.equipmentBaseItemProperties;
+  const { taggedBaseEquipment } = equipmentModel.equipment.equipmentBaseItemProperties;
   const { equipmentType, baseItemType } = taggedBaseEquipment;
 
   const holsterAtHip = shouldHolsterAtHip(taggedBaseEquipment);

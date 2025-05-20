@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { ActionCommandPayload, HoldableHotswapSlot } from "@speed-dungeon/common";
+import { ActionCommandPayload } from "@speed-dungeon/common";
 import { EnvironmentModelTypes } from "../../scene-entities/environment-models/environment-model-paths";
 
 export enum ModelActionType {
@@ -54,7 +54,6 @@ export type ClearAllModelsModelAction = {
 
 export type ModelAction =
   | ChangeEquipmentModelAction
-  | SelectHotswapSlotModelAction
   | ProcessActionCommandsModelAction
   | SynchronizeCombatantModelsModelAction
   | SpawnEnvironmentalModelModelAction

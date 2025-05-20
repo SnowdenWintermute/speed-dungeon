@@ -10,10 +10,10 @@ import {
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { ConsideringItemMenuState } from "@/app/game/ActionMenu/menu-state/considering-item";
 import cloneDeep from "lodash.clonedeep";
-import { gameWorld } from "@/app/3d-world/SceneManager";
+import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
-export default function characterEquippedItemHandler(packet: {
+export function characterEquippedItemHandler(packet: {
   itemId: string;
   equipToAlternateSlot: boolean;
   characterId: string;
@@ -41,11 +41,9 @@ export default function characterEquippedItemHandler(packet: {
       if (slot !== null) {
         const item = CombatantEquipment.getEquipmentInSlot(character.combatantProperties, slot);
         if (item !== undefined)
-          gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
-            type: ModelActionType.ChangeEquipment,
+          getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+            type: ModelActionType.SynchronizeCombatantEquipmentModels,
             entityId: character.entityProperties.id,
-            unequippedSlot: slot,
-            toEquip: { item, slot },
           });
       }
 

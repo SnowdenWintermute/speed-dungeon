@@ -40,9 +40,7 @@ export class HighlightManager {
       this.originalPartMaterialColors[partCategory] = originalColors;
     }
 
-    for (const [equipmentId, equipmentModel] of Object.entries(
-      this.modularCharacter.equipment.holdables
-    )) {
+    for (const equipmentModel of this.modularCharacter.equipmentModelManager.getAllModels()) {
       const originalColors: { [meshName: string]: Color3 } = {};
 
       for (const mesh of equipmentModel.assetContainer.meshes) {
@@ -52,7 +50,7 @@ export class HighlightManager {
         originalColors[mesh.name] = originalColor;
       }
 
-      this.originalEquipmentMaterialColors[equipmentId] = originalColors;
+      this.originalEquipmentMaterialColors[equipmentModel.entityId] = originalColors;
     }
 
     this.isHighlighted = true;
@@ -89,10 +87,8 @@ export class HighlightManager {
       delete this.originalPartMaterialColors[partCategory];
     }
 
-    for (const [equipmentId, equipmentModel] of Object.entries(
-      this.modularCharacter.equipment.holdables
-    )) {
-      const originalColors = this.originalEquipmentMaterialColors[equipmentId];
+    for (const equipmentModel of this.modularCharacter.equipmentModelManager.getAllModels()) {
+      const originalColors = this.originalEquipmentMaterialColors[equipmentModel.entityId];
       if (!originalColors) {
         console.error("original colors not found when removing highlight");
         continue;
@@ -104,7 +100,7 @@ export class HighlightManager {
         if (originalColorOption) material.emissiveColor = originalColorOption;
       }
 
-      delete this.originalEquipmentMaterialColors[equipmentId];
+      delete this.originalEquipmentMaterialColors[equipmentModel.entityId];
     }
 
     this.isHighlighted = false;
@@ -171,9 +167,7 @@ export class HighlightManager {
       }
     }
 
-    for (const [_entityId, equipmentModel] of Object.entries(
-      this.modularCharacter.equipment.holdables
-    )) {
+    for (const equipmentModel of this.modularCharacter.equipmentModelManager.getAllModels()) {
       for (const mesh of equipmentModel.assetContainer.meshes) {
         const { material } = mesh;
 

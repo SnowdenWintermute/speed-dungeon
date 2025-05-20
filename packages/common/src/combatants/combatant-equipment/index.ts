@@ -10,6 +10,7 @@ import { ERROR_MESSAGES } from "../../errors/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantTraitType } from "../combatant-traits/index.js";
 import { CombatantProperties } from "../index.js";
+import { EntityId } from "../../primatives/index.js";
 
 export * from "./equip-item.js";
 export * from "./unequip-slots.js";
@@ -182,5 +183,21 @@ export class CombatantEquipment {
     if (!offhandOption) return;
     if (offhandOption.equipmentBaseItemProperties.equipmentType !== EquipmentType.Shield) return;
     return offhandOption.equipmentBaseItemProperties;
+  }
+
+  static getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(
+    combatantProperties: CombatantProperties,
+    entityId: EntityId
+  ) {
+    const allHotswapSlots = CombatantEquipment.getHoldableHotswapSlots(combatantProperties);
+    let slotIndex = 0;
+    for (const hotswapSlot of allHotswapSlots) {
+      for (const [holdableSlot, holdable] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables))
+        if (holdable.entityProperties.id === entityId) return { holdableSlot, slotIndex };
+
+      slotIndex += 1;
+    }
+
+    return null;
   }
 }

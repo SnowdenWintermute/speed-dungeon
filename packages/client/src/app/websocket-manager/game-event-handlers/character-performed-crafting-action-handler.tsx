@@ -74,13 +74,11 @@ export function characterPerformedCraftingActionHandler(eventData: {
           itemResult.entityProperties.id
         );
         const isEquipped = slotEquippedToOption !== null;
+
         if (isEquipped && wasRepaired) {
-          // spawn the item model on the character
           getGameWorld().modelManager.modelActionQueue.enqueueMessage({
-            type: ModelActionType.ChangeEquipment,
+            type: ModelActionType.SynchronizeCombatantEquipmentModels,
             entityId: character.entityProperties.id,
-            unequippedSlot: null,
-            toEquip: { slot: slotEquippedToOption, item: itemResult },
           });
         }
 

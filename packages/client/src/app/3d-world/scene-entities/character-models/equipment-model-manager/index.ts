@@ -1,99 +1,192 @@
 import {
-  Equipment,
+  CombatantEquipment,
+  CombatantProperties,
+  HoldableHotswapSlot,
   HoldableSlotType,
   NormalizedPercentage,
   WearableSlotType,
+  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { EquipmentModel } from "../../item-models";
-import { handleHotswapSlotChanged } from "./handle-hotswap-slot-changed";
+import { ConsumableModel, EquipmentModel } from "../../item-models";
 import { CharacterModel } from "../";
+import { useGameStore } from "@/stores/game-store";
+import { spawnItemModel } from "@/app/3d-world/item-models/spawn-item-model";
+import { getGameWorld } from "@/app/3d-world/SceneManager";
+import {
+  attachHoldableModelToHolsteredPosition,
+  attachHoldableModelToSkeleton,
+} from "./attach-holdables";
+
+type HoldableHotswapSlotsModels = Partial<Record<HoldableSlotType, null | EquipmentModel>>[];
 
 export class EquipmentModelManager {
-  equipment: {
-    wearables: Record<WearableSlotType, null | EquipmentModel>;
-    holdables: Partial<Record<HoldableSlotType, null | EquipmentModel>>[];
-  } = {
-    wearables: {
-      [WearableSlotType.Head]: null,
-      [WearableSlotType.Body]: null,
-      [WearableSlotType.RingL]: null,
-      [WearableSlotType.RingR]: null,
-      [WearableSlotType.Amulet]: null,
-    },
-    holdables: [],
+  wearables: Record<WearableSlotType, null | EquipmentModel> = {
+    [WearableSlotType.Head]: null,
+    [WearableSlotType.Body]: null,
+    [WearableSlotType.RingL]: null,
+    [WearableSlotType.RingR]: null,
+    [WearableSlotType.Amulet]: null,
   };
-  constructor(public CharacterModel: CharacterModel) {}
+  holdableHotswapSlots: HoldableHotswapSlotsModels = [];
+  private visibilityForShownHotswapSlots = 0;
+
+  constructor(public characterModel: CharacterModel) {}
+
+  getAllModels() {
+    const toReturn = [];
+
+    for (const wearableModel of Object.values(this.wearables)) {
+      if (wearableModel !== null) toReturn.push(wearableModel);
+    }
+
+    for (const holdableHotswapSlot of this.holdableHotswapSlots)
+      for (const holdableModel of Object.values(holdableHotswapSlot)) {
+        if (holdableModel !== null) toReturn.push(holdableModel);
+      }
+
+    return toReturn;
+  }
 
   cleanup() {
-    //     for (const [_slotType, model] of iterateNumericEnumKeyedRecord(this.equipment.wearables))
-    //       model?.cleanup({ softCleanup: false });
-    //     for (const holdableHotswapSlot of this.equipment.holdables)
-    //       for (const holdable of Object.values(holdableHotswapSlot)) {
-    //         holdable?.cleanup({ softCleanup: false });
-    //       }
+    for (const equipmentModel of this.getAllModels())
+      equipmentModel.cleanup({ softCleanup: false });
   }
 
   /** Some hotswap slots may be hidden since we only show two slots but a character may have more that two */
   setVisibilityForShownHotswapSlots(visibility: NormalizedPercentage) {
-    //     for (const holdableHotswapSlot of this.equipment.holdables)
-    //       for (const holdable of Object.values(holdableHotswapSlot)) {
-    //         holdable?.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
-    //       }
-    //     for (const wearable of Object.values(this.equipment.wearables)) {
-    //       wearable?.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
-    //     }
+    this.visibilityForShownHotswapSlots = visibility;
   }
 
   async synchronizeCombatantEquipmentModels() {
     // get the combatant equipment state
+    const combatant = this.characterModel.getCombatant();
+    const { combatantProperties } = combatant;
+
+    const newState: HoldableHotswapSlotsModels = [];
+
+    this.syncExistingValidModelsWithNewState(newState, combatantProperties);
+    await this.spawnNewModelsForNewState(newState, combatantProperties);
+    this.applyNewState(newState, combatantProperties);
+  }
+
+  private syncExistingValidModelsWithNewState(
+    newState: HoldableHotswapSlotsModels,
+    combatantProperties: CombatantProperties
+  ) {
     // for each existing model
-    // - if not in any hotswap slot, dispose it
-    //
+    this.holdableHotswapSlots.forEach((hotswapSlot, i) => {
+      for (const [holdableSlotType, equipmentModelOption] of iterateNumericEnumKeyedRecord(
+        hotswapSlot
+      )) {
+        if (!equipmentModelOption) continue;
+        const equipmentModelId = equipmentModelOption.entityId;
+
+        const indexAndHoldableSlotIfEquipped =
+          CombatantEquipment.getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(
+            combatantProperties,
+            equipmentModelId
+          );
+
+        // if not in any hotswap slot, dispose it
+        if (indexAndHoldableSlotIfEquipped === null) {
+          equipmentModelOption.cleanup({ softCleanup: false });
+          continue;
+        }
+
+        const { slotIndex, holdableSlot } = indexAndHoldableSlotIfEquipped;
+
+        // put it in a temporary new state to later sync with current state
+        newState[slotIndex] = { [holdableSlot]: equipmentModelOption };
+      }
+    });
+  }
+
+  private async spawnNewModelsForNewState(
+    newState: HoldableHotswapSlotsModels,
+    combatantProperties: CombatantProperties
+  ) {
+    const holdableSlots = CombatantEquipment.getHoldableHotswapSlots(combatantProperties);
+
     // for each hotswap slot
-    // - if no existing model, spawn it
-    // - set visibility if should be shown
-    // - attach to proper position
+    let slotIndex = -1;
+    for (const hotswapSlot of holdableSlots) {
+      slotIndex += 1;
+
+      let existingSlotOption = newState[slotIndex];
+      if (!existingSlotOption) existingSlotOption = newState[slotIndex] = {};
+
+      for (const [holdableSlotType, holdable] of iterateNumericEnumKeyedRecord(
+        hotswapSlot.holdables
+      )) {
+        const existingModelOption = existingSlotOption[holdableSlotType];
+
+        if (existingModelOption) continue;
+
+        // - if no existing model, spawn it
+        const gameWorld = getGameWorld();
+        const equipmentModel = await spawnItemModel(
+          holdable,
+          gameWorld.scene,
+          gameWorld.defaultMaterials,
+          true
+        );
+        if (equipmentModel instanceof Error) throw equipmentModel;
+        if (equipmentModel instanceof ConsumableModel) throw new Error("unexpected item type");
+        existingSlotOption[holdableSlotType] = equipmentModel;
+      }
+    }
   }
 
-  async unequipHoldableModel(slot: HoldableSlotType) {
-    // const toDispose = this.equipment.holdables[slot];
-    // if (!toDispose) return;
-    // toDispose.cleanup({ softCleanup: false });
-    // if (this.isIdling()) {
-    //   this.startIdleAnimation(500);
-    // } else console.log("wasn't idling when unequipping");
+  private applyNewState(
+    newState: HoldableHotswapSlotsModels,
+    combatantProperties: CombatantProperties
+  ) {
+    this.holdableHotswapSlots = newState;
+    // attach to correct positions
+
+    const hotswapSlots = CombatantEquipment.getHoldableHotswapSlots(combatantProperties);
+    const equippedSlotIndex = combatantProperties.equipment.equippedHoldableHotswapSlotIndex;
+    const holsteredSlotIndex = this.getIndexForDisplayedHolsteredSlot(
+      hotswapSlots,
+      equippedSlotIndex
+    );
+
+    let slotIndex = -1;
+    for (const hotswapSlot of this.holdableHotswapSlots) {
+      slotIndex += 1;
+      for (const [holdableSlotType, equipmentModel] of iterateNumericEnumKeyedRecord(hotswapSlot)) {
+        if (!equipmentModel) continue;
+        // attach to appropriate positions
+        if (slotIndex === equippedSlotIndex || slotIndex === holsteredSlotIndex)
+          equipmentModel.setVisibility(this.visibilityForShownHotswapSlots);
+
+        if (slotIndex === equippedSlotIndex)
+          attachHoldableModelToSkeleton(this.characterModel, equipmentModel, holdableSlotType);
+        else if (slotIndex === holsteredSlotIndex)
+          attachHoldableModelToHolsteredPosition(
+            this.characterModel,
+            equipmentModel,
+            holdableSlotType
+          );
+        else equipmentModel.setVisibility(0);
+      }
+    }
   }
 
-  async equipHoldableModel(equipment: Equipment, slot: HoldableSlotType, holstered?: boolean) {
-    // const equipmentModelResult = await spawnItemModel(
-    //   equipment,
-    //   this.world.scene,
-    //   this.world.defaultMaterials,
-    //   true
-    // );
-    // if (equipmentModelResult instanceof Error) {
-    //   console.log("equipment model error: ", equipmentModelResult.message);
-    //   return;
-    // }
-    // if (equipmentModelResult instanceof ConsumableModel)
-    //   return new Error("unexpected item model type");
-    // console.log(
-    //   "setting",
-    //   equipmentModelResult.equipment.entityProperties.name,
-    //   "visibility to",
-    //   this.visibility
-    // );
-    // for (const mesh of equipmentModelResult.assetContainer.meshes) {
-    //   mesh.visibility = this.visibility;
-    // }
-    // if (holstered) {
-    //   this.equipment.holstered[slot] = equipmentModelResult;
-    //   attachHoldableModelToHolsteredPosition(this, equipmentModelResult, slot, equipment);
-    // } else {
-    //   this.equipment.holdables[slot] = equipmentModelResult;
-    //   attachHoldableModelToSkeleton(this, equipmentModelResult, slot, equipment);
-    // }
+  private getIndexForDisplayedHolsteredSlot(
+    hotswapSlots: HoldableHotswapSlot[],
+    selectedIndex: number
+  ): number {
+    if (selectedIndex > 1) {
+      if (hotswapSlots[1] && Object.entries(hotswapSlots[1].holdables).length) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } else if (selectedIndex === 1) {
+      return 0;
+    } else {
+      return 1;
+    }
   }
-
-  handleHotswapSlotChanged = handleHotswapSlotChanged;
 }

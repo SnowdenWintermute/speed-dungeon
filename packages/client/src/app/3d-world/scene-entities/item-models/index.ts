@@ -56,21 +56,21 @@ export class EquipmentModel extends SceneEntity {
         `${this.entityId}-nock`,
         "String"
       );
-      if (!nockNode) throw new Error("no nock bone found");
+      if (!nockNode) console.error("no nock bone found");
+
       this.childTransformNodes[CombatantHoldableChildTransformNodeName.NockBone] = nockNode;
       const arrowRestNode = SceneEntity.createTransformNodeChildOfBone(
         this.rootMesh,
         `${this.entityId}-arrow-rest`,
         "ArrowRest"
       );
-      if (!arrowRestNode) throw new Error("no arrowRest bone found");
+      if (!arrowRestNode) console.error("no arrowRest bone found");
       this.childTransformNodes[CombatantHoldableChildTransformNodeName.ArrowRest] = arrowRestNode;
     }
   }
 
   customCleanup(): void {
     //
-    console.log("item cleaned up:", this.equipment.entityProperties.name);
   }
 
   setShowBones() {

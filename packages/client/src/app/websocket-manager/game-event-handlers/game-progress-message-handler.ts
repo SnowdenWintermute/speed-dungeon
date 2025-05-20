@@ -7,7 +7,7 @@ import {
 import { useGameStore } from "@/stores/game-store";
 import { ActionCommandType, ERROR_MESSAGES, GameMessage } from "@speed-dungeon/common";
 
-export default function gameProgressMessageHandler(message: GameMessage) {
+export function gameProgressMessageHandler(message: GameMessage) {
   if (message.showAfterActionQueueResolution) {
     if (!gameWorld.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
     gameWorld.current.modelManager.modelActionQueue.enqueueMessage({
