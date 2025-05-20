@@ -25,21 +25,15 @@ import {
   ERROR_MESSAGES,
   Equipment,
   HoldableSlotType,
-  WearableSlotType,
   iterateNumericEnumKeyedRecord,
   CombatantEquipment,
   EquipmentType,
   CombatantBaseChildTransformNodeName,
+  NormalizedPercentage,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { setUpDebugMeshes, despawnDebugMeshes } from "./set-up-debug-meshes";
-import {
-  attachHoldableModelToHolsteredPosition,
-  attachHoldableModelToSkeleton,
-} from "./attach-holdables";
-import { handleHotswapSlotChanged } from "./handle-hotswap-slot-changed";
-import { spawnItemModel } from "../../item-models/spawn-item-model";
 import { HighlightManager } from "./highlight-manager";
 import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
@@ -47,8 +41,8 @@ import { useLobbyStore } from "@/stores/lobby-store";
 import { ManagedAnimationOptions } from "../model-animation-managers";
 import { CharacterModelPartCategory } from "./modular-character-parts";
 import { SceneEntity } from "..";
-import { ConsumableModel, EquipmentModel } from "../item-models";
 import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
+import { EquipmentModelManager } from "./equipment-model-manager";
 
 export class CharacterModel extends SceneEntity {
   childTransformNodes: Partial<Record<CombatantBaseChildTransformNodeName, TransformNode>> = {};
@@ -58,24 +52,14 @@ export class CharacterModel extends SceneEntity {
     [CharacterModelPartCategory.Legs]: null,
     [CharacterModelPartCategory.Full]: null,
   };
-  equipment: {
-    wearables: Record<WearableSlotType, null | EquipmentModel>;
-    holdables: Partial<Record<HoldableSlotType, null | EquipmentModel>>[];
-  } = {
-    wearables: {
-      [WearableSlotType.Head]: null,
-      [WearableSlotType.Body]: null,
-      [WearableSlotType.RingL]: null,
-      [WearableSlotType.RingR]: null,
-      [WearableSlotType.Amulet]: null,
-    },
-    holdables: [],
-  };
   homeLocation: {
     position: Vector3;
     rotation: Quaternion;
   };
+
+  equipmentModelManager = new EquipmentModelManager(this);
   highlightManager: HighlightManager = new HighlightManager(this);
+
   debugMeshes: Mesh[] | null = null;
 
   constructor(
@@ -156,12 +140,7 @@ export class CharacterModel extends SceneEntity {
   customCleanup(): void {
     if (this.debugMeshes) for (const mesh of Object.values(this.debugMeshes)) mesh.dispose();
     for (const part of Object.values(this.parts)) part?.dispose();
-
-    for (const [_slotType, model] of iterateNumericEnumKeyedRecord(this.equipment.wearables))
-      model?.cleanup({ softCleanup: false });
-
-    for (const model of Object.values(this.equipment.holdables))
-      model?.cleanup({ softCleanup: false });
+    this.equipmentModelManager.cleanup();
   }
 
   getSkeletonRoot() {
@@ -170,7 +149,7 @@ export class CharacterModel extends SceneEntity {
     return this.assetContainer.meshes[0];
   }
 
-  setVisibility(value: number) {
+  setVisibility(value: NormalizedPercentage) {
     this.visibility = value;
 
     for (const [_partCategory, scene] of iterateNumericEnumKeyedRecord(this.parts)) {
@@ -179,17 +158,7 @@ export class CharacterModel extends SceneEntity {
       });
     }
 
-    for (const holdable of Object.values(this.equipment.holdables)) {
-      holdable?.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
-    }
-
-    for (const holdable of Object.values(this.equipment.holstered)) {
-      holdable?.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
-    }
-
-    for (const wearable of Object.values(this.equipment.wearables)) {
-      wearable?.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
-    }
+    this.equipmentModelManager.setVisibilityForShownHotswapSlots(this.visibility);
   }
 
   setHomeRotation(rotation: Quaternion) {
@@ -231,6 +200,7 @@ export class CharacterModel extends SceneEntity {
       this.monsterType !== MonsterType.FireMage
     )
       return SkeletalAnimationName.IdleUnarmed;
+
     const combatant = this.getCombatant();
 
     const { combatantProperties } = combatant;
@@ -329,16 +299,6 @@ export class CharacterModel extends SceneEntity {
     return part;
   }
 
-  async unequipHoldableModel(slot: HoldableSlotType) {
-    const toDispose = this.equipment.holdables[slot];
-    if (!toDispose) return;
-    toDispose.cleanup({ softCleanup: false });
-
-    if (this.isIdling()) {
-      this.startIdleAnimation(500);
-    } else console.log("wasn't idling when unequipping");
-  }
-
   isIdling() {
     const currentAnimationName = this.skeletalAnimationManager.playing?.getName();
 
@@ -351,40 +311,6 @@ export class CharacterModel extends SceneEntity {
       currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleBow] ||
       currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleTwoHand]
     );
-  }
-
-  async equipHoldableModel(equipment: Equipment, slot: HoldableSlotType, holstered?: boolean) {
-    const equipmentModelResult = await spawnItemModel(
-      equipment,
-      this.world.scene,
-      this.world.defaultMaterials,
-      true
-    );
-
-    if (equipmentModelResult instanceof Error) {
-      console.log("equipment model error: ", equipmentModelResult.message);
-      return;
-    }
-    if (equipmentModelResult instanceof ConsumableModel)
-      return new Error("unexpected item model type");
-
-    console.log(
-      "setting",
-      equipmentModelResult.equipment.entityProperties.name,
-      "visibility to",
-      this.visibility
-    );
-    for (const mesh of equipmentModelResult.assetContainer.meshes) {
-      mesh.visibility = this.visibility;
-    }
-
-    if (holstered) {
-      this.equipment.holstered[slot] = equipmentModelResult;
-      attachHoldableModelToHolsteredPosition(this, equipmentModelResult, slot, equipment);
-    } else {
-      this.equipment.holdables[slot] = equipmentModelResult;
-      attachHoldableModelToSkeleton(this, equipmentModelResult, slot, equipment);
-    }
   }
 
   removePart(partCategory: CharacterModelPartCategory) {
@@ -411,6 +337,4 @@ export class CharacterModel extends SceneEntity {
     if (skeletonRootBone !== undefined)
       paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.world.scene);
   }
-
-  handleHotswapSlotChanged = handleHotswapSlotChanged;
 }

@@ -11,7 +11,7 @@ import {
   SpeedDungeonGame,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { Combatant, cloneVector3 } from "@speed-dungeon/common";
+import { Combatant } from "@speed-dungeon/common";
 import { spawnCharacterModel } from "./spawn-modular-character";
 import { setAlert } from "@/app/components/alerts";
 import cloneDeep from "lodash.clonedeep";
@@ -135,24 +135,6 @@ function getModelsAndPositions() {
   }
 
   return modelsAndPositions;
-}
-
-function getCombatantModelStartPosition(combatant: Combatant) {
-  const { combatantProperties } = combatant;
-
-  const isPlayer = combatantProperties.controllingPlayer !== null;
-
-  // player
-  let startRotation = 0;
-  // not
-  if (!isPlayer) {
-    startRotation = Math.PI;
-  }
-
-  return {
-    startRotation,
-    startPosition: cloneVector3(combatantProperties.homeLocation),
-  };
 }
 
 function getProgressionGameLobbyCombatantModelPositions(game: SpeedDungeonGame) {

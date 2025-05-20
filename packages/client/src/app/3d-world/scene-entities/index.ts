@@ -11,6 +11,7 @@ import { ModelMovementManager } from "./model-movement-manager";
 import {
   ERROR_MESSAGES,
   EntityId,
+  NormalizedPercentage,
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityChildTransformNodeType,
 } from "@speed-dungeon/common";
@@ -28,7 +29,7 @@ export abstract class SceneEntity {
   public rootMesh: AbstractMesh;
   public rootTransformNode: TransformNode;
 
-  public visibility: number = 0;
+  public visibility: NormalizedPercentage = 0;
 
   constructor(
     public entityId: EntityId,

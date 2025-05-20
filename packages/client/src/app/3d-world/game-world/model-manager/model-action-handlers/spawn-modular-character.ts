@@ -1,10 +1,5 @@
 import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
-import {
-  CombatantEquipment,
-  CombatantSpecies,
-  SKELETON_FILE_PATHS,
-  iterateNumericEnumKeyedRecord,
-} from "@speed-dungeon/common";
+import { CombatantSpecies, SKELETON_FILE_PATHS } from "@speed-dungeon/common";
 import { importMesh } from "../../../utils";
 import { GameWorld } from "../../";
 import { AssetContainer } from "@babylonjs/core";
@@ -65,24 +60,8 @@ export async function spawnCharacterModel(
     if (result instanceof Error) console.error(result);
   }
 
-  if (combatantProperties.combatantSpecies === CombatantSpecies.Humanoid) {
-    const equippedHoldables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
-
-    if (equippedHoldables) {
-      for (const [slot, item] of iterateNumericEnumKeyedRecord(equippedHoldables.holdables))
-        await modularCharacter.equipHoldableModel(item, slot);
-    }
-
-    const visibleHolsteredSlotIndex =
-      combatantProperties.equipment.equippedHoldableHotswapSlotIndex === 0 ? 1 : 0;
-
-    const visibleHolstered =
-      CombatantEquipment.getHoldableHotswapSlots(combatantProperties)[visibleHolsteredSlotIndex];
-
-    if (visibleHolstered)
-      for (const [slot, item] of iterateNumericEnumKeyedRecord(visibleHolstered.holdables))
-        await modularCharacter.equipHoldableModel(item, slot, true);
-  }
+  if (combatantProperties.combatantSpecies === CombatantSpecies.Humanoid)
+    modularCharacter.equipmentModelManager.synchronizeCombatantEquipmentModels();
 
   modularCharacter.updateBoundingBox();
 

@@ -7,9 +7,9 @@ import {
   HoldableSlotType,
   OneHandedMeleeWeapon,
 } from "@speed-dungeon/common";
-import { CharacterModel } from "./index";
-import { getChildMeshByName } from "../../utils";
-import { EquipmentModel } from "../item-models";
+import { CharacterModel } from "../index";
+import { getChildMeshByName } from "../../../utils";
+import { EquipmentModel } from "../../item-models";
 
 function setTransformNodePositionAndRotationToZero(transformNode: TransformNode) {
   setTransformNodeRotationToZero(transformNode);

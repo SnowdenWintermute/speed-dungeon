@@ -17,4 +17,5 @@ export type Milliseconds = number;
 export type Seconds = number;
 
 export type Percentage = number;
+/** A number that is expected to be between 0 and 1 */
 export type NormalizedPercentage = number;

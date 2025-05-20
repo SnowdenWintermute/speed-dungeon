@@ -33,6 +33,7 @@ import {
 } from "../../scene-entities/action-entity-models";
 import { entityMotionGameUpdateHandler } from "./entity-motion-update-handlers";
 import { SceneEntity } from "../../scene-entities";
+import { synchronizeCombatantModelsWithAppState } from "../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
@@ -109,11 +110,12 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
             );
             // remove the model if it broke
             // @TODO - if this causes bugs because it is jumping the queue, look into it
-            // if we use the queue though, it doesn't remove their item model imediately
+            // if we use the queue though, it will wait to break their model and not look like it broke instantly
+            // maybe we can set visibilty instead and despawn it later
             if (Equipment.isBroken(equipment) && slot?.type === EquipmentSlotType.Holdable) {
-              gameWorld.current?.modelManager.combatantModels[
-                combatant.entityProperties.id
-              ]?.unequipHoldableModel(slot.slot);
+              getGameWorld()
+                .modelManager.findOneOptional(combatant.entityProperties.id)
+                ?.equipmentModelManager.synchronizeCombatantEquipmentModels();
             }
           }
         );

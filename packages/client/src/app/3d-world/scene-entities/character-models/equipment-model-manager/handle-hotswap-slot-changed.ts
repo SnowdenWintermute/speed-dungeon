@@ -4,13 +4,13 @@ import {
   HoldableSlotType,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { CharacterModel } from "./index.js";
-import { spawnItemModel } from "../../item-models/spawn-item-model";
+import { CharacterModel } from "../index.js";
+import { spawnItemModel } from "../../../item-models/spawn-item-model";
 import {
   attachHoldableModelToHolsteredPosition,
   attachHoldableModelToSkeleton,
 } from "./attach-holdables";
-import { ConsumableModel, EquipmentModel } from "../item-models";
+import { ConsumableModel, EquipmentModel } from "../../item-models";
 
 export async function handleHotswapSlotChanged(
   this: CharacterModel,
@@ -23,9 +23,16 @@ export async function handleHotswapSlotChanged(
   const holsteredSlotIndex = getIndexForDisplayedHolsteredSlot(hotswapSlots, selectedIndex);
 
   for (const hotswapSlot of Object.values(hotswapSlots)) {
+    if (i !== selectedIndex && i !== holsteredSlotIndex) {
+      const modelOption = this.equipment.holdables[slot];
+      console.log("disposing undisplayed hotswap models", modelOption);
+      if (modelOption) modelOption.cleanup({ softCleanup: false });
+      delete this.equipment.holdables[slot];
+    }
+
     for (const [slot, equipment] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
       if (i === selectedIndex || i === holsteredSlotIndex) {
-        const modelResult = await spawnItemModelIfNotAlready(this, equipment, slot);
+        const modelResult = await spawnItemModelIfNotAlready(this, equipment);
         if (modelResult instanceof Error) return modelResult;
 
         if (i === selectedIndex) attachHoldableModelToSkeleton(this, modelResult, slot, equipment);
