@@ -68,9 +68,10 @@ export async function spawnCharacterModel(
   if (combatantProperties.combatantSpecies === CombatantSpecies.Humanoid) {
     const equippedHoldables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
 
-    if (equippedHoldables)
+    if (equippedHoldables) {
       for (const [slot, item] of iterateNumericEnumKeyedRecord(equippedHoldables.holdables))
         await modularCharacter.equipHoldableModel(item, slot);
+    }
 
     const visibleHolsteredSlotIndex =
       combatantProperties.equipment.equippedHoldableHotswapSlotIndex === 0 ? 1 : 0;

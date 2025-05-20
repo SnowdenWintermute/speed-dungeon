@@ -60,7 +60,7 @@ export class CharacterModel extends SceneEntity {
   };
   equipment: {
     wearables: Record<WearableSlotType, null | EquipmentModel>;
-    holdables: Partial<Record<HoldableSlotType, null | EquipmentModel>>;
+    holdables: Partial<Record<HoldableSlotType, null | EquipmentModel>>[];
   } = {
     wearables: {
       [WearableSlotType.Head]: null,
@@ -69,7 +69,7 @@ export class CharacterModel extends SceneEntity {
       [WearableSlotType.RingR]: null,
       [WearableSlotType.Amulet]: null,
     },
-    holdables: {},
+    holdables: [],
   };
   homeLocation: {
     position: Vector3;
@@ -178,9 +178,15 @@ export class CharacterModel extends SceneEntity {
         mesh.visibility = this.visibility;
       });
     }
+
     for (const holdable of Object.values(this.equipment.holdables)) {
       holdable?.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
     }
+
+    for (const holdable of Object.values(this.equipment.holstered)) {
+      holdable?.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
+    }
+
     for (const wearable of Object.values(this.equipment.wearables)) {
       wearable?.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
     }
@@ -362,15 +368,23 @@ export class CharacterModel extends SceneEntity {
     if (equipmentModelResult instanceof ConsumableModel)
       return new Error("unexpected item model type");
 
-    equipmentModelResult.assetContainer.meshes.forEach(
-      (mesh) => (mesh.visibility = this.visibility)
+    console.log(
+      "setting",
+      equipmentModelResult.equipment.entityProperties.name,
+      "visibility to",
+      this.visibility
     );
+    for (const mesh of equipmentModelResult.assetContainer.meshes) {
+      mesh.visibility = this.visibility;
+    }
 
-    this.equipment.holdables[slot] = equipmentModelResult;
-
-    if (holstered)
+    if (holstered) {
+      this.equipment.holstered[slot] = equipmentModelResult;
       attachHoldableModelToHolsteredPosition(this, equipmentModelResult, slot, equipment);
-    else attachHoldableModelToSkeleton(this, equipmentModelResult, slot, equipment);
+    } else {
+      this.equipment.holdables[slot] = equipmentModelResult;
+      attachHoldableModelToSkeleton(this, equipmentModelResult, slot, equipment);
+    }
   }
 
   removePart(partCategory: CharacterModelPartCategory) {

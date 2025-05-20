@@ -46,13 +46,21 @@ export async function handleHotswapSlotChanged(
   else console.log("wasn't idling on hotswap change");
 }
 
-async function spawnItemModelIfNotAlready(
-  modularCharacter: CharacterModel,
-  equipment: Equipment,
-  slot: HoldableSlotType
-) {
-  let model: EquipmentModel | undefined | null = modularCharacter.equipment.holdables[slot];
-  if (model !== null && model !== undefined) return model;
+async function spawnItemModelIfNotAlready(modularCharacter: CharacterModel, equipment: Equipment) {
+  let model: EquipmentModel | undefined | null = undefined;
+
+  for (const existingEquipmentOption of Object.values(modularCharacter.equipment.holstered).concat(
+    Object.values(modularCharacter.equipment.holdables).concat(
+      Object.values(modularCharacter.equipment.wearables)
+    )
+  )) {
+    if (existingEquipmentOption?.entityId === equipment.entityProperties.id) {
+      model = existingEquipmentOption;
+      break;
+    }
+  }
+
+  if (model?.entityId === equipment.entityProperties.id) return model;
 
   const modelResult = await spawnItemModel(
     equipment,
@@ -64,7 +72,6 @@ async function spawnItemModelIfNotAlready(
   if (modelResult instanceof Error) return modelResult;
   if (modelResult instanceof ConsumableModel) return new Error("unexpected item model type");
 
-  modularCharacter.equipment.holdables[slot] = modelResult;
   return modelResult;
 }
 

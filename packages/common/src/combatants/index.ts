@@ -16,8 +16,7 @@ import getCombatantTotalElementalAffinities from "./combatant-traits/get-combata
 import getCombatantTotalKineticDamageTypeAffinities from "./combatant-traits/get-combatant-total-kinetic-damage-type-affinities.js";
 import setResourcesToMax from "./resources/set-resources-to-max.js";
 import { immerable } from "immer";
-import { COMBATANT_TIME_TO_MOVE_ONE_METER, DEFAULT_HITBOX_RADIUS_FALLBACK } from "../app-consts.js";
-import { cloneVector3, iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import awardLevelups, { XP_REQUIRED_TO_REACH_LEVEL_2 } from "./experience-points/award-levelups.js";
 import { incrementAttributePoint } from "./attributes/increment-attribute.js";
 import { MonsterType } from "../monsters/monster-types.js";
@@ -81,10 +80,6 @@ export class CombatantProperties {
   ownedActions: Partial<Record<CombatActionName, CombatantActionState>> = {};
   traits: CombatantTrait[] = [];
   equipment: CombatantEquipment = new CombatantEquipment();
-  // holdable equipment hotswap slots
-  // - should hold the item separately of the inventory bags
-  // - should be consistently accessible by their number (same items each time)
-  // - should be limitable by the type of equipment they can hold (shield only, swords only etc)
   inventory: Inventory = new Inventory();
   selectedCombatAction: null | CombatActionName = null;
   combatActionTarget: null | CombatActionTarget = null;
