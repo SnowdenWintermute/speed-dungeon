@@ -93,7 +93,7 @@ export function handleEntityMotionUpdate(
     !!translationOption
   );
 
-  handleStepCosmeticEffects(action, command.step, cosmeticEffectManager, entityId);
+  handleStepCosmeticEffects(action, command.step, cosmeticEffectManager);
 
   handleUpdateTranslation(
     movementManager,

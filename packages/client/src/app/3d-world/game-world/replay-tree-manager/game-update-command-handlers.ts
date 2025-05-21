@@ -33,7 +33,6 @@ import {
 } from "../../scene-entities/action-entity-models";
 import { entityMotionGameUpdateHandler } from "./entity-motion-update-handlers";
 import { SceneEntity } from "../../scene-entities";
-import { synchronizeCombatantModelsWithAppState } from "../model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
@@ -65,11 +64,9 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       if (combatantResult instanceof Error) return combatantResult;
       const { combatantProperties } = combatantResult;
 
-      if (command.itemsConsumed !== undefined) {
-        for (const itemId of command.itemsConsumed) {
-          const removedItem = Inventory.removeItem(combatantProperties.inventory, itemId);
-        }
-      }
+      if (command.itemsConsumed !== undefined)
+        for (const itemId of command.itemsConsumed)
+          Inventory.removeItem(combatantProperties.inventory, itemId);
 
       if (command.costsPaid) {
         for (const [resource, cost] of iterateNumericEnumKeyedRecord(command.costsPaid)) {
@@ -246,6 +243,8 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
       position,
       actionEntityProperties.name
     );
+
+    console.log("spawned action entity model with id", actionEntity.entityProperties.id);
 
     update.isComplete = true;
 

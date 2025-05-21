@@ -1,6 +1,10 @@
 import { SceneEntity } from "@/app/3d-world/scene-entities";
 import { ModelMovementManager } from "@/app/3d-world/scene-entities/model-movement-manager";
-import { SceneEntityChildTransformNodeIdentifierWithDuration } from "@speed-dungeon/common";
+import { Vector3 } from "@babylonjs/core";
+import {
+  AXES_TO_STRING,
+  SceneEntityChildTransformNodeIdentifierWithDuration,
+} from "@speed-dungeon/common";
 
 export function handleStartPointingTowardEntity(
   sceneEntity: SceneEntity,
@@ -14,12 +18,11 @@ export function handleStartPointingTowardEntity(
   const { identifier, duration } = identifierWithDuration;
 
   const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(identifier);
-
-  sceneEntity.movementManager.lookingAt = null;
+  const targetPosition = targetTransformNode.getAbsolutePosition();
 
   const newRotation = ModelMovementManager.getRotationToPointTowardToward(
     sceneEntity.rootTransformNode,
-    targetTransformNode.getAbsolutePosition()
+    targetPosition
   );
 
   sceneEntity.movementManager.startRotatingTowards(newRotation, duration, () => {});

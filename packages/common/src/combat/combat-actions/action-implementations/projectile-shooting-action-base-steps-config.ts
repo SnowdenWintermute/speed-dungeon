@@ -9,6 +9,7 @@ import {
   EntityMotionUpdate,
 } from "../../../action-processing/index.js";
 import { AnimationType, SkeletalAnimationName } from "../../../app-consts.js";
+import { Axis } from "../../../primatives/index.js";
 import { SpawnableEntityType } from "../../../spawnables/index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { ActionResolutionStepsConfig } from "../combat-action-steps-config.js";

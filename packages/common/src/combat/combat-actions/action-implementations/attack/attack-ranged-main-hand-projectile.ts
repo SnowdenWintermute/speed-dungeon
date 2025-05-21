@@ -70,6 +70,7 @@ const config: CombatActionComponentConfig = {
         shouldDespawnOnComplete: () => true,
 
         getNewParent: () => null,
+        getEntityToLockOnTo: () => null,
         getCosmeticDestinationY: (context) => {
           const { combatantContext, tracker } = context;
           const { actionExecutionIntent } = tracker;

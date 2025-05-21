@@ -1,7 +1,7 @@
 export * from "./cosmetic-effect.js";
 export * from "./cosmetic-effect-constructors.js";
 import { Vector3 } from "@babylonjs/core";
-import { EntityId, EntityProperties, Milliseconds } from "../primatives/index.js";
+import { Axis, EntityId, EntityProperties, Milliseconds } from "../primatives/index.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
 
 export enum ActionEntityName {
@@ -28,12 +28,14 @@ export type CombatantBaseChildTransformNodeIdentifier = {
   type: SceneEntityChildTransformNodeType.CombatantBase;
   entityId: EntityId;
   transformNodeName: CombatantBaseChildTransformNodeName;
+  ignoreAxes?: Axis[];
 };
 
 export type ActionEntityBaseChildTransformNodeIdentifier = {
   type: SceneEntityChildTransformNodeType.ActionEntityBase;
   entityId: EntityId;
   transformNodeName: ActionEntityBaseChildTransformNodeName;
+  ignoreAxes?: Axis[];
 };
 
 export type CombatantHoldableChildTransformNodeIdentifier = {
@@ -41,6 +43,7 @@ export type CombatantHoldableChildTransformNodeIdentifier = {
   entityId: EntityId;
   holdableSlot: HoldableSlotType;
   transformNodeName: CombatantHoldableChildTransformNodeName;
+  ignoreAxes?: Axis[];
 };
 
 export type SceneEntityChildTransformNodeIdentifier =

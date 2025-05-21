@@ -47,7 +47,7 @@ export interface ActionResolutionStepConfig {
   ) => SceneEntityChildTransformNodeIdentifier;
   getEntityToLockOnTo?: (
     context: ActionResolutionStepContext
-  ) => SceneEntityChildTransformNodeIdentifierWithDuration;
+  ) => SceneEntityChildTransformNodeIdentifierWithDuration | null;
   getStartPointingToward?: (
     context: ActionResolutionStepContext
   ) => SceneEntityChildTransformNodeIdentifierWithDuration;
