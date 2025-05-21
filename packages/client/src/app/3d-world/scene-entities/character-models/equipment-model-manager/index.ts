@@ -1,9 +1,11 @@
 import {
   CombatantEquipment,
   CombatantProperties,
+  EquipmentSlotType,
   HoldableHotswapSlot,
   HoldableSlotType,
   NormalizedPercentage,
+  TaggedEquipmentSlot,
   WearableSlotType,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
@@ -54,6 +56,24 @@ export class EquipmentModelManager {
   /** Some hotswap slots may be hidden since we only show two slots but a character may have more that two */
   setVisibilityForShownHotswapSlots(visibility: NormalizedPercentage) {
     this.visibilityForShownHotswapSlots = visibility;
+  }
+
+  getEquipmentModelInSlot(slot: TaggedEquipmentSlot) {
+    switch (slot.type) {
+      case EquipmentSlotType.Holdable:
+        return this.getHoldableModelInSlot(slot.slot);
+      case EquipmentSlotType.Wearable:
+        return this.wearables[slot.slot];
+    }
+  }
+
+  getHoldableModelInSlot(slot: HoldableSlotType) {
+    const selectedHotswapSlotIndex =
+      this.characterModel.getCombatant().combatantProperties.equipment
+        .equippedHoldableHotswapSlotIndex;
+    const holdableModelsHotswapSlotOption = this.holdableHotswapSlots[selectedHotswapSlotIndex];
+    if (!holdableModelsHotswapSlotOption) return undefined;
+    return holdableModelsHotswapSlotOption[slot];
   }
 
   async synchronizeCombatantEquipmentModels() {

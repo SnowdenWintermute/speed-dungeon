@@ -96,7 +96,8 @@ export abstract class SceneEntity {
       case SceneEntityChildTransformNodeType.CombatantEquippedHoldable:
         const combatantEntityWithHoldable = getGameWorld().modelManager.findOne(entityId);
         const { holdableSlot } = identifier;
-        const holdableModelOption = combatantEntityWithHoldable.equipment.holdables[holdableSlot];
+        const holdableModelOption =
+          combatantEntityWithHoldable.equipmentModelManager.getHoldableModelInSlot(holdableSlot);
         if (!holdableModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_EQUIPMENT_MODEL);
         toReturn = holdableModelOption.childTransformNodes[transformNodeName];
         break;

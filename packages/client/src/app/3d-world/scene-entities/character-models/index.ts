@@ -260,15 +260,16 @@ export class CharacterModel extends SceneEntity {
   isIdling() {
     const currentAnimationName = this.skeletalAnimationManager.playing?.getName();
 
-    return (
-      currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleUnarmed] ||
-      currentAnimationName ===
-        SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleMainHand] ||
-      currentAnimationName ===
-        SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleDualWield] ||
-      currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleBow] ||
-      currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleTwoHand]
-    );
+    const idleAnimationStringNames = [
+      SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleUnarmed],
+      SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleMainHand],
+      SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleDualWield],
+      SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleBow],
+      SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleTwoHand],
+    ];
+
+    if (currentAnimationName === undefined) return false;
+    return idleAnimationStringNames.includes(currentAnimationName);
   }
 
   setShowBones() {

@@ -14,10 +14,7 @@ export async function spawnCharacterModel(
   const { combatantProperties, entityProperties } = blueprint.combatant;
 
   const skeletonPath = SKELETON_FILE_PATHS[combatantProperties.combatantSpecies];
-
   const skeleton = await importMesh(skeletonPath, world.scene);
-
-  const parts = getCharacterModelPartCategoriesAndAssetPaths(combatantProperties);
 
   const modularCharacter = new CharacterModel(
     entityProperties.id,
@@ -32,6 +29,7 @@ export async function spawnCharacterModel(
     blueprint.homeRotation
   );
 
+  const parts = getCharacterModelPartCategoriesAndAssetPaths(combatantProperties);
   const partPromises: Promise<AssetContainer | Error>[] = [];
 
   for (const part of parts) {
@@ -67,6 +65,8 @@ export async function spawnCharacterModel(
     modularCharacter.equipmentModelManager.synchronizeCombatantEquipmentModels();
 
   modularCharacter.updateBoundingBox();
+
+  modularCharacter.initChildTransformNodes();
 
   modularCharacter.startIdleAnimation(0, {});
 

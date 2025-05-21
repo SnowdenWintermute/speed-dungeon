@@ -90,8 +90,6 @@ export default function setUpGameEventHandlers(
     if (!gameWorld.current)
       return console.error("Got action command payloads but no game world was found");
 
-    console.log("got payloads: ", payloads);
-
     gameWorld.current.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.ProcessActionCommands,
       actionCommandPayloads: payloads,

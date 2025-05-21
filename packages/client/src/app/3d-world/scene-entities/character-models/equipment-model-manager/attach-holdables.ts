@@ -43,8 +43,6 @@ export function attachHoldableModelToSkeleton(
 
   const attachmentPoint = combatantModel.childTransformNodes[attachmentPointName];
 
-  console.log("attachment point", attachmentPoint);
-
   if (!attachmentPoint) return console.log("no equipment bone found");
 
   itemTransformNode.setParent(attachmentPoint);

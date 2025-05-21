@@ -1,12 +1,5 @@
 import { getGameWorld } from "@/app/3d-world/SceneManager";
-import { useGameStore } from "@/stores/game-store";
-import {
-  AnimationTimingType,
-  AnimationType,
-  CombatantEquipment,
-  EntityId,
-  EquipmentSlotType,
-} from "@speed-dungeon/common";
+import { AnimationTimingType, AnimationType, EntityId } from "@speed-dungeon/common";
 import { EquipmentAnimation } from "@speed-dungeon/common";
 
 export function handleEquipmentAnimations(
@@ -18,26 +11,12 @@ export function handleEquipmentAnimations(
   for (const equipmentAnimation of equipmentAnimations) {
     const { slot, animation } = equipmentAnimation;
 
-    const equipment = (() => {
-      const combatant = useGameStore.getState().getCombatant(entityId);
+    const equipmentModel = combatantModelOption.equipmentModelManager.getEquipmentModelInSlot(slot);
 
-      if (combatant instanceof Error) throw combatant;
-      const equipment = CombatantEquipment.getEquipmentInSlot(combatant.combatantProperties, slot);
-      if (!equipment) return undefined;
-      else {
-        switch (slot.type) {
-          case EquipmentSlotType.Holdable:
-            return combatantModelOption.equipmentModelManager.holdables[slot.slot];
-          case EquipmentSlotType.Wearable:
-            return combatantModelOption.equipmentModelManager.wearables[slot.slot];
-        }
-      }
-    })();
-
-    if (!equipment) return console.log("couldn't find equipment");
+    if (!equipmentModel) return console.log("couldn't find equipment");
     if (animation.name.type !== AnimationType.Skeletal) return console.log("not skeletal");
 
-    equipment.skeletalAnimationManager.startAnimationWithTransition(
+    equipmentModel.skeletalAnimationManager.startAnimationWithTransition(
       animation.name.name,
       animation.timing.type === AnimationTimingType.Timed ? animation.timing.duration : 0,
       {}

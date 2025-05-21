@@ -106,7 +106,7 @@ export function getProjectileShootingActionBaseStepsConfig(
           toReturn.push({
             entityId: actionEntityId,
             entityType: SpawnableEntityType.ActionEntity,
-            startPointingToward,
+            // startPointingToward,
             setParent: null,
           });
 
