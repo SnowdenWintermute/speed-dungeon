@@ -63,6 +63,8 @@ export abstract class SceneEntity {
     this.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
   }
 
+  getVisibility = () => this.visibility;
+
   static createTransformNodeChildOfBone(
     rootMesh: Mesh | AbstractMesh,
     name: string,

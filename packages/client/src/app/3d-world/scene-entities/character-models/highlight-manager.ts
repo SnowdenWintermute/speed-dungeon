@@ -10,8 +10,8 @@ import {
 import { useGameStore } from "@/stores/game-store";
 import { CharacterModel } from ".";
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
-import { CharacterModelPartCategory } from "./modular-character-parts";
 import cloneDeep from "lodash.clonedeep";
+import { CharacterModelPartCategory } from "./modular-character-parts-model-manager/modular-character-parts";
 
 export class HighlightManager {
   private originalPartMaterialColors: Partial<
@@ -25,7 +25,9 @@ export class HighlightManager {
   constructor(private modularCharacter: CharacterModel) {}
 
   setHighlighted() {
-    for (const [partCategory, part] of iterateNumericEnumKeyedRecord(this.modularCharacter.parts)) {
+    for (const [partCategory, part] of iterateNumericEnumKeyedRecord(
+      this.modularCharacter.modularCharacterPartsManager.parts
+    )) {
       if (!part) continue;
 
       const originalColors: { [meshName: string]: Color3 } = {};
@@ -69,7 +71,9 @@ export class HighlightManager {
   }
 
   removeHighlight() {
-    for (const [partCategory, part] of iterateNumericEnumKeyedRecord(this.modularCharacter.parts)) {
+    for (const [partCategory, part] of iterateNumericEnumKeyedRecord(
+      this.modularCharacter.modularCharacterPartsManager.parts
+    )) {
       if (!part) continue;
 
       const originalColors = this.originalPartMaterialColors[partCategory];
@@ -150,7 +154,7 @@ export class HighlightManager {
     // glow the character and their equipment
 
     for (const [_partCategory, part] of iterateNumericEnumKeyedRecord(
-      this.modularCharacter.parts
+      this.modularCharacter.modularCharacterPartsManager.parts
     )) {
       if (!part) continue;
 

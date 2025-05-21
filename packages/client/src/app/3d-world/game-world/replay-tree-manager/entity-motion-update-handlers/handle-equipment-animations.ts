@@ -7,7 +7,7 @@ import {
   EntityId,
   EquipmentSlotType,
 } from "@speed-dungeon/common";
-import { EquipmentAnimation } from "@speed-dungeon/common/src/combat/combat-actions/combat-action-steps-config";
+import { EquipmentAnimation } from "@speed-dungeon/common";
 
 export function handleEquipmentAnimations(
   entityId: EntityId,
@@ -17,6 +17,7 @@ export function handleEquipmentAnimations(
 
   for (const equipmentAnimation of equipmentAnimations) {
     const { slot, animation } = equipmentAnimation;
+
     const equipment = (() => {
       const combatant = useGameStore.getState().getCombatant(entityId);
 
@@ -26,9 +27,9 @@ export function handleEquipmentAnimations(
       else {
         switch (slot.type) {
           case EquipmentSlotType.Holdable:
-            return combatantModelOption.equipment.holdables[slot.slot];
+            return combatantModelOption.equipmentModelManager.holdables[slot.slot];
           case EquipmentSlotType.Wearable:
-            return combatantModelOption.equipment.wearables[slot.slot];
+            return combatantModelOption.equipmentModelManager.wearables[slot.slot];
         }
       }
     })();

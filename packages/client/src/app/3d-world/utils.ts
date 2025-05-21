@@ -9,8 +9,8 @@ import {
   Scene,
   Vector3,
 } from "@babylonjs/core";
-import { BASE_FILE_PATH } from "./scene-entities/character-models/modular-character-parts";
 import { createBillboard } from "@/utils";
+import { BASE_FILE_PATH } from "./scene-entities/character-models/modular-character-parts-model-manager/modular-character-parts";
 
 export async function importMesh(path: string, scene: Scene) {
   if (path === "") throw new Error("Empty file path");

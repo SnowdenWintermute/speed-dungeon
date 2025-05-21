@@ -9,14 +9,7 @@ import {
   TransformNode,
   MeshBuilder,
 } from "@babylonjs/core";
-import {
-  disposeAsyncLoadedScene,
-  getChildMeshByName,
-  getClientRectFromMesh,
-  getTransformNodeByName,
-  importMesh,
-  paintCubesOnNodes,
-} from "../../utils";
+import { getChildMeshByName, getClientRectFromMesh, paintCubesOnNodes } from "../../utils";
 import { GameWorld } from "../../game-world";
 import {
   SKELETAL_ANIMATION_NAME_STRINGS,
@@ -39,24 +32,19 @@ import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
 import { useLobbyStore } from "@/stores/lobby-store";
 import { ManagedAnimationOptions } from "../model-animation-managers";
-import { CharacterModelPartCategory } from "./modular-character-parts";
 import { SceneEntity } from "..";
 import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
 import { EquipmentModelManager } from "./equipment-model-manager";
+import { ModularCharacterPartsModelManager } from "./modular-character-parts-model-manager";
 
 export class CharacterModel extends SceneEntity {
   childTransformNodes: Partial<Record<CombatantBaseChildTransformNodeName, TransformNode>> = {};
-  parts: Record<CharacterModelPartCategory, null | AssetContainer> = {
-    [CharacterModelPartCategory.Head]: null,
-    [CharacterModelPartCategory.Torso]: null,
-    [CharacterModelPartCategory.Legs]: null,
-    [CharacterModelPartCategory.Full]: null,
-  };
   homeLocation: {
     position: Vector3;
     rotation: Quaternion;
   };
 
+  modularCharacterPartsManager = new ModularCharacterPartsModelManager(this);
   equipmentModelManager = new EquipmentModelManager(this);
   highlightManager: HighlightManager = new HighlightManager(this);
 
@@ -139,8 +127,8 @@ export class CharacterModel extends SceneEntity {
 
   customCleanup(): void {
     if (this.debugMeshes) for (const mesh of Object.values(this.debugMeshes)) mesh.dispose();
-    for (const part of Object.values(this.parts)) part?.dispose();
     this.equipmentModelManager.cleanup();
+    this.modularCharacterPartsManager.cleanup();
   }
 
   getSkeletonRoot() {
@@ -152,13 +140,8 @@ export class CharacterModel extends SceneEntity {
   setVisibility(value: NormalizedPercentage) {
     this.visibility = value;
 
-    for (const [_partCategory, scene] of iterateNumericEnumKeyedRecord(this.parts)) {
-      scene?.meshes.forEach((mesh) => {
-        mesh.visibility = this.visibility;
-      });
-    }
-
     this.equipmentModelManager.setVisibilityForShownHotswapSlots(this.visibility);
+    this.modularCharacterPartsManager.setVisibility(this.visibility);
   }
 
   setHomeRotation(rotation: Quaternion) {
@@ -251,7 +234,9 @@ export class CharacterModel extends SceneEntity {
     let minimum: null | Vector3 = null;
     let maximum: null | Vector3 = null;
 
-    for (const [_category, part] of iterateNumericEnumKeyedRecord(this.parts)) {
+    for (const [_category, part] of iterateNumericEnumKeyedRecord(
+      this.modularCharacterPartsManager.parts
+    )) {
       if (part === null) continue;
       for (const mesh of part.meshes) {
         // Update root mesh bounding box
@@ -272,33 +257,6 @@ export class CharacterModel extends SceneEntity {
     );
   }
 
-  async attachPart(partCategory: CharacterModelPartCategory, partPath: string) {
-    const part = await importMesh(partPath, this.world.scene);
-    const parent = getTransformNodeByName(this.assetContainer, BONE_NAMES[BoneName.Armature]);
-
-    if (!this.assetContainer.skeletons[0])
-      return new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
-
-    for (const mesh of part.meshes) {
-      // attach part
-      if (mesh.skeleton) mesh.skeleton = this.assetContainer.skeletons[0];
-      mesh.visibility = this.visibility;
-
-      mesh.parent = parent!;
-    }
-
-    part.skeletons[0]?.dispose();
-
-    this.removePart(partCategory);
-
-    // we need to save a reference to the part so we can dispose of it when switching to a different part
-    this.parts[partCategory] = part;
-
-    this.updateBoundingBox();
-
-    return part;
-  }
-
   isIdling() {
     const currentAnimationName = this.skeletalAnimationManager.playing?.getName();
 
@@ -313,15 +271,12 @@ export class CharacterModel extends SceneEntity {
     );
   }
 
-  removePart(partCategory: CharacterModelPartCategory) {
-    disposeAsyncLoadedScene(this.parts[partCategory]);
-    this.parts[partCategory] = null;
-  }
-
   setShowBones() {
     const transparentMaterial = new StandardMaterial("");
     transparentMaterial.alpha = 0.3;
-    for (const [category, assetContainer] of iterateNumericEnumKeyedRecord(this.parts)) {
+    for (const [category, assetContainer] of iterateNumericEnumKeyedRecord(
+      this.modularCharacterPartsManager.parts
+    )) {
       if (!assetContainer) continue;
       for (const mesh of assetContainer.meshes) {
         for (const child of mesh.getChildMeshes()) mesh.material = transparentMaterial;
