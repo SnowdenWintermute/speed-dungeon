@@ -9,7 +9,6 @@ import {
 } from "@speed-dungeon/common";
 import { ConsumableModel, EquipmentModel } from "../../item-models";
 import { CharacterModel } from "../";
-import { useGameStore } from "@/stores/game-store";
 import { spawnItemModel } from "@/app/3d-world/item-models/spawn-item-model";
 import { getGameWorld } from "@/app/3d-world/SceneManager";
 import {
@@ -73,7 +72,6 @@ export class EquipmentModelManager {
     newState: HoldableHotswapSlotsModels,
     combatantProperties: CombatantProperties
   ) {
-    // for each existing model
     this.holdableHotswapSlots.forEach((hotswapSlot, i) => {
       for (const [holdableSlotType, equipmentModelOption] of iterateNumericEnumKeyedRecord(
         hotswapSlot
@@ -96,7 +94,9 @@ export class EquipmentModelManager {
         const { slotIndex, holdableSlot } = indexAndHoldableSlotIfEquipped;
 
         // put it in a temporary new state to later sync with current state
-        newState[slotIndex] = { [holdableSlot]: equipmentModelOption };
+        const existingNewStateSlot = newState[slotIndex];
+        if (existingNewStateSlot) existingNewStateSlot[holdableSlot] = equipmentModelOption;
+        else newState[slotIndex] = { [holdableSlot]: equipmentModelOption };
       }
     });
   }
@@ -107,13 +107,14 @@ export class EquipmentModelManager {
   ) {
     const holdableSlots = CombatantEquipment.getHoldableHotswapSlots(combatantProperties);
 
-    // for each hotswap slot
     let slotIndex = -1;
     for (const hotswapSlot of holdableSlots) {
       slotIndex += 1;
 
       let existingSlotOption = newState[slotIndex];
-      if (!existingSlotOption) existingSlotOption = newState[slotIndex] = {};
+      if (existingSlotOption === undefined) {
+        existingSlotOption = newState[slotIndex] = {};
+      }
 
       for (const [holdableSlotType, holdable] of iterateNumericEnumKeyedRecord(
         hotswapSlot.holdables
@@ -122,7 +123,6 @@ export class EquipmentModelManager {
 
         if (existingModelOption) continue;
 
-        // - if no existing model, spawn it
         const gameWorld = getGameWorld();
         const equipmentModel = await spawnItemModel(
           holdable,

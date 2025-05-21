@@ -187,15 +187,16 @@ export class CombatantEquipment {
 
   static getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(
     combatantProperties: CombatantProperties,
-    entityId: EntityId
+    equipmentId: EntityId
   ) {
     const allHotswapSlots = CombatantEquipment.getHoldableHotswapSlots(combatantProperties);
-    let slotIndex = 0;
-    for (const hotswapSlot of allHotswapSlots) {
-      for (const [holdableSlot, holdable] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables))
-        if (holdable.entityProperties.id === entityId) return { holdableSlot, slotIndex };
 
+    let slotIndex = -1;
+    for (const hotswapSlot of allHotswapSlots) {
       slotIndex += 1;
+
+      for (const [holdableSlot, holdable] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables))
+        if (holdable.entityProperties.id === equipmentId) return { holdableSlot, slotIndex };
     }
 
     return null;

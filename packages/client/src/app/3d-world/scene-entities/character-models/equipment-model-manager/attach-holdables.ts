@@ -65,6 +65,7 @@ export function attachHoldableModelToSkeleton(
   if (equipmentType === EquipmentType.TwoHandedRangedWeapon) itemTransformNode.rotation.y = Math.PI;
 }
 
+// @TODO - conform to new SceneEntityChildTransformNode style instead of directly to bones
 export function attachHoldableModelToHolsteredPosition(
   combatantModel: CharacterModel,
   equipmentModel: EquipmentModel,
