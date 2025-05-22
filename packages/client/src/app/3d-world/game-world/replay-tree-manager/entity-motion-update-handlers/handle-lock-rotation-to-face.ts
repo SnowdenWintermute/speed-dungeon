@@ -24,8 +24,6 @@ export function handleLockRotationToFace(
     targetTransformNode.getAbsolutePosition()
   );
 
-  sceneEntity.movementManager.startRotatingTowards(targetRotation, duration, () => {});
-
   const currentRotation =
     sceneEntity.rootTransformNode.rotationQuaternion ||
     Quaternion.FromEulerAngles(

@@ -1,7 +1,6 @@
 import {
   ActionEntityMotionGameUpdateCommand,
   AnimationType,
-  COMBAT_ACTIONS,
   CombatantMotionGameUpdateCommand,
   EntityMotionUpdate,
   SpawnableEntityType,

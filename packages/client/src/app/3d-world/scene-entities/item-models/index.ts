@@ -28,7 +28,9 @@ export class EquipmentModel extends SceneEntity {
     super(equipment.entityProperties.id, assetContainer, Vector3.Zero(), new Quaternion());
 
     this.initChildTransformNodes();
-    this.setShowBones();
+    this.setVisibility(0);
+
+    // this.setShowBones();
 
     // for (const [nodeName, transformNode] of iterateNumericEnumKeyedRecord(
     //   this.childTransformNodes

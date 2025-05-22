@@ -1,10 +1,6 @@
 import { SceneEntity } from "@/app/3d-world/scene-entities";
 import { ModelMovementManager } from "@/app/3d-world/scene-entities/model-movement-manager";
-import { Vector3 } from "@babylonjs/core";
-import {
-  AXES_TO_STRING,
-  SceneEntityChildTransformNodeIdentifierWithDuration,
-} from "@speed-dungeon/common";
+import { SceneEntityChildTransformNodeIdentifierWithDuration } from "@speed-dungeon/common";
 
 export function handleStartPointingTowardEntity(
   sceneEntity: SceneEntity,

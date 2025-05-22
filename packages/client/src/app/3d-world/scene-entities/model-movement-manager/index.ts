@@ -6,6 +6,7 @@ import {
   TranslationTracker,
 } from "./model-movement-trackers";
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
+import { getGameWorld } from "../../SceneManager";
 
 export class ModelMovementManager {
   public activeTrackers: Partial<Record<ModelMovementType, ModelMovementTracker>> = {};
@@ -82,18 +83,45 @@ export class ModelMovementManager {
 
   smoothLookAtThenLockOn() {
     if (!this.lookingAt) return;
+    const lockThreshold = 0.001;
+    const deltaTime = getGameWorld().engine.getDeltaTime();
     const { target, isLocked, alignmentSpeed } = this.lookingAt;
 
     this.transformNode.parent?.computeWorldMatrix(true);
     this.transformNode.computeWorldMatrix(true);
     target.computeWorldMatrix(true);
 
-    const newRotation = ModelMovementManager.getRotationToPointTowardToward(
+    const currentQuat = this.transformNode.rotationQuaternion ?? Quaternion.Identity();
+    const targetPos = target.getAbsolutePosition();
+    const targetQuat = ModelMovementManager.getRotationToPointTowardToward(
       this.transformNode,
-      target.getAbsolutePosition()
+      targetPos
     );
 
-    this.transformNode.rotationQuaternion = newRotation;
+    if (isLocked) {
+      this.transformNode.rotationQuaternion = targetQuat;
+      return;
+    }
+
+    // Slerp toward the target rotation
+    const newQuat = Quaternion.Slerp(currentQuat, targetQuat, alignmentSpeed * deltaTime);
+
+    this.transformNode.rotationQuaternion = newQuat;
+
+    // Check if angle between current and target rotation is small enough to lock
+    const angle = Quaternion.Dot(newQuat.normalize(), targetQuat.normalize());
+
+    if (1 - angle < lockThreshold) {
+      this.transformNode.rotationQuaternion = targetQuat;
+      this.lookingAt.isLocked = true;
+    }
+
+    // const newRotation = ModelMovementManager.getRotationToPointTowardToward(
+    //   this.transformNode,
+    //   target.getAbsolutePosition()
+    // );
+
+    // this.transformNode.rotationQuaternion = newRotation;
   }
 
   static getRotationToPointTowardToward(
