@@ -11,6 +11,7 @@ import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
 import { ActionEntityModel } from "../../scene-entities/action-entity-models";
+import { startOrStopCosmeticEffects } from "./start-or-stop-cosmetic-effect";
 
 export class ReplayTreeManager {
   private queue: { root: NestedNodeReplayEvent; onComplete: () => void }[] = [];
@@ -149,12 +150,10 @@ export class ReplayBranchProcessor {
 
     GAME_UPDATE_COMMAND_HANDLERS[node.gameUpdate.type](this.currentGameUpdateOption);
 
+    // Any update may include cosmetic effect updates
     const cosmeticEffectsToStartOption =
       this.currentGameUpdateOption.command.cosmeticEffectsToStart;
-    if (cosmeticEffectsToStartOption?.length) {
-      for (const toStart of cosmeticEffectsToStartOption) {
-        //
-      }
-    }
+    const cosmeticEffectsToStopOption = this.currentGameUpdateOption.command.cosmeticEffectsToStop;
+    startOrStopCosmeticEffects(cosmeticEffectsToStartOption, cosmeticEffectsToStopOption);
   }
 }

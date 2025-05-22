@@ -16,14 +16,7 @@ import {
   SpawnableEntityType,
   getSpawnableEntityId,
 } from "../../../../spawnables/index.js";
-import {
-  ActionEntityName,
-  CombatantBaseChildTransformNodeName,
-  CombatantHoldableChildTransformNodeName,
-  SceneEntityChildTransformNodeIdentifier,
-  SceneEntityChildTransformNodeIdentifierWithDuration,
-  SceneEntityChildTransformNodeType,
-} from "../../../../action-entities/index.js";
+import { ActionEntityName } from "../../../../action-entities/index.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
@@ -35,7 +28,7 @@ import {
 } from "../../combat-action-cost-properties.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { getProjectileShootingActionBaseStepsConfig } from "../projectile-shooting-action-base-steps-config.js";
+import { getProjectileShootingActionBaseStepsConfig } from "../getProjectileShootingActionBaseStepsConfig.js";
 import { ProjectileShootingActionType } from "../projectile-shooting-action-animation-names.js";
 import {
   ActionResolutionStepType,
@@ -52,6 +45,13 @@ import { EquipmentAnimation } from "../../combat-action-steps-config.js";
 import { CombatantEquipment } from "../../../../combatants/index.js";
 import { getRotateTowardPrimaryTargetDestination } from "../common-destination-getters.js";
 import { getSpeciesTimedAnimation } from "../get-species-timed-animation.js";
+import {
+  CombatantBaseChildTransformNodeName,
+  CombatantHoldableChildTransformNodeName,
+  SceneEntityChildTransformNodeIdentifier,
+  SceneEntityChildTransformNodeIdentifierWithDuration,
+  SceneEntityType,
+} from "../../../../scene-entities/index.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Bow);
@@ -109,9 +109,11 @@ stepsConfig.steps = {
       const actionEntityId = getSpawnableEntityId(actionEntity);
 
       const parent: SceneEntityChildTransformNodeIdentifier = {
-        entityId: context.combatantContext.combatant.entityProperties.id,
-        type: SceneEntityChildTransformNodeType.CombatantEquippedHoldable,
-        holdableSlot: HoldableSlotType.MainHand,
+        sceneEntityIdentifier: {
+          type: SceneEntityType.CharacterEquipmentModel,
+          characterModelId: context.combatantContext.combatant.entityProperties.id,
+          slot: HoldableSlotType.MainHand,
+        },
         transformNodeName: CombatantHoldableChildTransformNodeName.NockBone,
       };
 
@@ -121,9 +123,11 @@ stepsConfig.steps = {
       };
 
       const lockRotationOn: SceneEntityChildTransformNodeIdentifier = {
-        type: SceneEntityChildTransformNodeType.CombatantEquippedHoldable,
-        entityId: context.combatantContext.combatant.entityProperties.id,
-        holdableSlot: HoldableSlotType.MainHand,
+        sceneEntityIdentifier: {
+          type: SceneEntityType.CharacterEquipmentModel,
+          characterModelId: context.combatantContext.combatant.entityProperties.id,
+          slot: HoldableSlotType.MainHand,
+        },
         transformNodeName: CombatantHoldableChildTransformNodeName.ArrowRest,
       };
 
@@ -186,9 +190,11 @@ const config: CombatActionComponentConfig = {
           name: ActionEntityName.Arrow,
           // initialRotation: new Vector3(Math.PI / 2, 0, 0),
           parentOption: {
-            type: SceneEntityChildTransformNodeType.CombatantBase,
+            sceneEntityIdentifier: {
+              type: SceneEntityType.CharacterModel,
+              entityId: context.combatantContext.combatant.entityProperties.id,
+            },
             transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
-            entityId: context.combatantContext.combatant.entityProperties.id,
           },
         },
       },

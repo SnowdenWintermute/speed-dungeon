@@ -27,10 +27,10 @@ import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js
 import { getPrimaryTargetPositionAsDestination } from "../common-destination-getters.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import {
+  CombatantBaseChildTransformNodeIdentifier,
   CombatantBaseChildTransformNodeName,
-  SceneEntityChildTransformNodeIdentifier,
-  SceneEntityChildTransformNodeType,
-} from "../../../../action-entities/index.js";
+  SceneEntityType,
+} from "../../../../scene-entities/index.js";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
@@ -78,9 +78,12 @@ const config: CombatActionComponentConfig = {
           const targetingCalculator = new TargetingCalculator(combatantContext, null);
           const primaryTargetId =
             targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent);
-          const entityPart: SceneEntityChildTransformNodeIdentifier = {
-            type: SceneEntityChildTransformNodeType.CombatantBase,
-            entityId: primaryTargetId,
+
+          const entityPart: CombatantBaseChildTransformNodeIdentifier = {
+            sceneEntityIdentifier: {
+              type: SceneEntityType.CharacterModel,
+              entityId: primaryTargetId,
+            },
             transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
           };
           return entityPart;

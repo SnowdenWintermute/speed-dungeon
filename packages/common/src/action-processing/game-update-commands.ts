@@ -12,11 +12,11 @@ import { Combatant, CombatantCondition } from "../combatants/index.js";
 import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { DurabilityChangesByEntityId } from "../durability/index.js";
 import { HitOutcome } from "../hit-outcome.js";
+import { ActionEntity } from "../action-entities/index.js";
 import {
-  ActionEntity,
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityChildTransformNodeIdentifierWithDuration,
-} from "../action-entities/index.js";
+} from "../scene-entities/index.js";
 import {
   CosmeticEffectOnEntity,
   CosmeticEffectOnTargetTransformNode,

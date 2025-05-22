@@ -13,10 +13,11 @@ import { CombatActionTargetType } from "../../combat/targeting/combat-action-tar
 import { IdGenerator } from "../../utility-classes/index.js";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import {
+  CharacterModelIdentifier,
+  CombatantBaseChildTransformNodeIdentifier,
   CombatantBaseChildTransformNodeName,
-  SceneEntityChildTransformNodeIdentifier,
-  SceneEntityChildTransformNodeType,
-} from "../../action-entities/index.js";
+  SceneEntityType,
+} from "../../scene-entities/index.js";
 
 export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.PrimedForIceBurst;
@@ -53,9 +54,12 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
   }
 
   getCosmeticEffectWhileActive = (combatantId: EntityId) => {
-    const parent: SceneEntityChildTransformNodeIdentifier = {
-      type: SceneEntityChildTransformNodeType.CombatantBase,
+    const sceneEntityIdentifier: CharacterModelIdentifier = {
+      type: SceneEntityType.CharacterModel,
       entityId: combatantId,
+    };
+    const parent: CombatantBaseChildTransformNodeIdentifier = {
+      sceneEntityIdentifier,
       transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
     };
 

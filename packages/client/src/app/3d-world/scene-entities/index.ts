@@ -13,7 +13,8 @@ import {
   EntityId,
   NormalizedPercentage,
   SceneEntityChildTransformNodeIdentifier,
-  SceneEntityChildTransformNodeType,
+  SceneEntityIdentifier,
+  SceneEntityType,
 } from "@speed-dungeon/common";
 import { disposeAsyncLoadedScene, getChildMeshByName } from "../utils";
 import { plainToInstance } from "class-transformer";
@@ -79,32 +80,43 @@ export abstract class SceneEntity {
     return newTransformNode;
   }
 
-  static getChildTransformNodeFromIdentifier(identifier: SceneEntityChildTransformNodeIdentifier) {
-    const { type, entityId, transformNodeName } = identifier;
-
+  static getFromIdentifier(identifier: SceneEntityIdentifier) {
+    const { type } = identifier;
     let toReturn;
 
     switch (type) {
-      case SceneEntityChildTransformNodeType.ActionEntityBase:
-        const actionEntity = getGameWorld().actionEntityManager.findOne(entityId);
-        toReturn = actionEntity.childTransformNodes[transformNodeName];
+      case SceneEntityType.ActionEntityModel:
+        const actionEntity = getGameWorld().actionEntityManager.findOne(identifier.entityId);
+        toReturn = actionEntity;
         break;
-      case SceneEntityChildTransformNodeType.CombatantBase:
-        const combatantEntity = getGameWorld().modelManager.findOne(entityId);
-        toReturn = combatantEntity.childTransformNodes[transformNodeName];
+      case SceneEntityType.CharacterModel:
+        const combatantEntity = getGameWorld().modelManager.findOne(identifier.entityId);
+        toReturn = combatantEntity;
         break;
-      case SceneEntityChildTransformNodeType.CombatantEquippedHoldable:
-        const combatantEntityWithHoldable = getGameWorld().modelManager.findOne(entityId);
-        const { holdableSlot } = identifier;
+      case SceneEntityType.CharacterEquipmentModel:
+        const combatantEntityWithHoldable = getGameWorld().modelManager.findOne(
+          identifier.characterModelId
+        );
+        const { slot } = identifier;
         const holdableModelOption =
-          combatantEntityWithHoldable.equipmentModelManager.getHoldableModelInSlot(holdableSlot);
+          combatantEntityWithHoldable.equipmentModelManager.getHoldableModelInSlot(slot);
         if (!holdableModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_EQUIPMENT_MODEL);
-        toReturn = holdableModelOption.childTransformNodes[transformNodeName];
+        toReturn = holdableModelOption;
         break;
     }
 
-    if (!toReturn) throw new Error("No transform node found");
+    if (!toReturn) throw new Error("No scene entity found");
     return toReturn;
+  }
+
+  static getChildTransformNodeFromIdentifier(identifier: SceneEntityChildTransformNodeIdentifier) {
+    const { sceneEntityIdentifier, transformNodeName } = identifier;
+
+    const sceneEntity = SceneEntity.getFromIdentifier(sceneEntityIdentifier);
+
+    // it can't seem to figure out that our nested tagged type guarantees the correct transformNodeName type
+    // @ts-ignore
+    return sceneEntity.childTransformNodes[transformNodeName];
   }
 
   cleanup(options: { softCleanup: boolean }) {

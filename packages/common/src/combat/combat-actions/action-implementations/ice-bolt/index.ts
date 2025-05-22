@@ -17,12 +17,12 @@ import {
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { getProjectileShootingActionBaseStepsConfig } from "../projectile-shooting-action-base-steps-config.js";
+import { getProjectileShootingActionBaseStepsConfig } from "../getProjectileShootingActionBaseStepsConfig.js";
 import { ProjectileShootingActionType } from "../projectile-shooting-action-animation-names.js";
 import {
   CombatantBaseChildTransformNodeName,
-  SceneEntityChildTransformNodeType,
-} from "../../../../action-entities/index.js";
+  SceneEntityType,
+} from "../../../../scene-entities/index.js";
 
 const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Spell);
 stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
@@ -32,8 +32,10 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
       {
         name: CosmeticEffectNames.FrostParticleAccumulation,
         parent: {
-          entityId: context.combatantContext.combatant.entityProperties.id,
-          type: SceneEntityChildTransformNodeType.CombatantBase,
+          sceneEntityIdentifier: {
+            type: SceneEntityType.CharacterModel,
+            entityId: context.combatantContext.combatant.entityProperties.id,
+          },
           transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
         },
       },
@@ -45,7 +47,10 @@ stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
   getCosmeticsEffectsToStop: (context) => [
     {
       name: CosmeticEffectNames.FrostParticleAccumulation,
-      entityId: context.combatantContext.combatant.entityProperties.id,
+      sceneEntityIdentifier: {
+        type: SceneEntityType.CharacterModel,
+        entityId: context.combatantContext.combatant.entityProperties.id,
+      },
     },
   ],
 };

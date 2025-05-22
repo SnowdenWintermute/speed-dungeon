@@ -10,14 +10,7 @@ import { ActionResolutionStepType } from "../../../../action-processing/index.js
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
-import {
-  ActionEntityBaseChildTransformNodeName,
-  ActionEntityName,
-  CombatantBaseChildTransformNodeName,
-  CosmeticEffectNames,
-  SceneEntityChildTransformNodeIdentifier,
-  SceneEntityChildTransformNodeType,
-} from "../../../../action-entities/index.js";
+import { ActionEntityName, CosmeticEffectNames } from "../../../../action-entities/index.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
@@ -30,6 +23,12 @@ import {
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 import { getPrimaryTargetPositionAsDestination } from "../common-destination-getters.js";
 import { Vector3 } from "@babylonjs/core";
+import {
+  ActionEntityBaseChildTransformNodeName,
+  CombatantBaseChildTransformNodeName,
+  SceneEntityChildTransformNodeIdentifier,
+  SceneEntityType,
+} from "../../../../scene-entities/index.js";
 
 const targetingProperties =
   GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileCopyParent];
@@ -64,8 +63,10 @@ const config: CombatActionComponentConfig = {
             targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent);
           return {
             identifier: {
-              type: SceneEntityChildTransformNodeType.CombatantBase,
-              entityId: primaryTargetId,
+              sceneEntityIdentifier: {
+                type: SceneEntityType.CharacterModel,
+                entityId: primaryTargetId,
+              },
               transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
             },
             duration: 400,
@@ -80,8 +81,10 @@ const config: CombatActionComponentConfig = {
             targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent);
 
           const entityPart: SceneEntityChildTransformNodeIdentifier = {
-            type: SceneEntityChildTransformNodeType.CombatantBase,
-            entityId: primaryTargetId,
+            sceneEntityIdentifier: {
+              type: SceneEntityType.CharacterModel,
+              entityId: primaryTargetId,
+            },
             transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
           };
           return entityPart;
@@ -92,8 +95,10 @@ const config: CombatActionComponentConfig = {
             {
               name: CosmeticEffectNames.FrostParticleStream,
               parent: {
-                type: SceneEntityChildTransformNodeType.ActionEntityBase,
-                entityId: iceBoltProjectile.actionEntity.entityProperties.id,
+                sceneEntityIdentifier: {
+                  type: SceneEntityType.ActionEntityModel,
+                  entityId: iceBoltProjectile.actionEntity.entityProperties.id,
+                },
                 transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
               },
             },
@@ -103,13 +108,19 @@ const config: CombatActionComponentConfig = {
       },
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {
         getCosmeticsEffectsToStart: (context) => {
-          const iceBoltProjectile = context.tracker.getExpectedSpawnedActionEntity();
+          const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+          const targetId = targetingCalculator.getPrimaryTargetCombatantId(
+            context.tracker.actionExecutionIntent
+          );
+
           return [
             {
               name: CosmeticEffectNames.FrostParticleBurst,
               parent: {
-                type: SceneEntityChildTransformNodeType.CombatantBase,
-                entityId: iceBoltProjectile.actionEntity.entityProperties.id,
+                sceneEntityIdentifier: {
+                  type: SceneEntityType.CharacterModel,
+                  entityId: targetId,
+                },
                 transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
               },
               lifetime: 300,
@@ -146,8 +157,10 @@ const config: CombatActionComponentConfig = {
           name: ActionEntityName.IceBolt,
           initialRotation: new Vector3(Math.PI / 2, 0, 0),
           parentOption: {
-            type: SceneEntityChildTransformNodeType.CombatantBase,
-            entityId: combatant.entityProperties.id,
+            sceneEntityIdentifier: {
+              type: SceneEntityType.CharacterModel,
+              entityId: combatant.entityProperties.id,
+            },
             transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
           },
           pointTowardEntityOption: target.entityProperties.id,

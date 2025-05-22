@@ -30,3 +30,4 @@ export * from "./action-processing/index.js";
 export * from "./durability/index.js";
 export * from "./hit-outcome.js";
 export * from "./assets/skeleton-file-paths.js";
+export * from "./scene-entities/index.js";

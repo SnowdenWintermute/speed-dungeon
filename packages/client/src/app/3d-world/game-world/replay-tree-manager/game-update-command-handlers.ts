@@ -25,7 +25,6 @@ import { Quaternion, Vector3 } from "@babylonjs/core";
 import { hitOutcomesGameUpdateHandler } from "./hit-outcomes";
 import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
-import { startOrStopCosmeticEffect } from "./start-or-stop-cosmetic-effect";
 import { induceHitRecovery } from "./induce-hit-recovery";
 import {
   ActionEntityModel,
@@ -33,6 +32,7 @@ import {
 } from "../../scene-entities/action-entity-models";
 import { entityMotionGameUpdateHandler } from "./entity-motion-update-handlers";
 import { SceneEntity } from "../../scene-entities";
+import { startOrStopCosmeticEffects } from "./start-or-stop-cosmetic-effect";
 
 export const GAME_UPDATE_COMMAND_HANDLERS: Record<
   GameUpdateCommandType,
@@ -138,10 +138,9 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
                 if (!targetModelOption)
                   throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
-                startOrStopCosmeticEffect(
+                startOrStopCosmeticEffects(
                   condition.getCosmeticEffectWhileActive(combatantResult.entityProperties.id),
-                  [],
-                  targetModelOption.cosmeticEffectManager
+                  []
                 );
               }
             });
@@ -166,12 +165,17 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
 
               if (conditionRemovedOption) {
                 const targetModelOption = getGameWorld().modelManager.findOne(entityId);
-                startOrStopCosmeticEffect(
+                startOrStopCosmeticEffects(
                   [],
                   conditionRemovedOption
                     .getCosmeticEffectWhileActive(targetModelOption.entityId)
-                    .map((clienOnlyVfx) => clienOnlyVfx.name),
-                  targetModelOption.cosmeticEffectManager
+                    .map((cosmeticEffectOnTransformNode) => {
+                      return {
+                        sceneEntityIdentifier:
+                          cosmeticEffectOnTransformNode.parent.sceneEntityIdentifier,
+                        name: cosmeticEffectOnTransformNode.name,
+                      };
+                    })
                 );
               }
             });

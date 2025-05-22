@@ -1,22 +1,16 @@
 import {
-  CosmeticEffectNames,
   ERROR_MESSAGES,
-  Milliseconds,
   COSMETIC_EFFECT_CONSTRUCTORS,
-  SceneEntityChildTransformNodeIdentifier,
+  CosmeticEffectOnTargetTransformNode,
+  CosmeticEffectOnEntity,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
 import { Vector3 } from "@babylonjs/core";
-import { CosmeticEffectManager } from "../../scene-entities/cosmetic-effect-manager";
 import { SceneEntity } from "../../scene-entities";
 
 export function startOrStopCosmeticEffects(
-  cosmeticEffectsToStart?: {
-    name: CosmeticEffectNames;
-    parent: SceneEntityChildTransformNodeIdentifier;
-    lifetime?: Milliseconds;
-  }[],
-  cosmeticEffectsToStop?: CosmeticEffectNames[]
+  cosmeticEffectsToStart?: CosmeticEffectOnTargetTransformNode[],
+  cosmeticEffectsToStop?: CosmeticEffectOnEntity[]
 ) {
   if (cosmeticEffectsToStart?.length) {
     const sceneOption = gameWorld.current?.scene;
@@ -31,12 +25,17 @@ export function startOrStopCosmeticEffects(
         }, lifetime);
       }
 
-      const cosmeticEffectManager;
+      const cosmeticEffectManager = SceneEntity.getFromIdentifier(
+        parent.sceneEntityIdentifier
+      ).cosmeticEffectManager;
 
       cosmeticEffectManager.cosmeticEffect[name]?.softCleanup();
       cosmeticEffectManager.cosmeticEffect[name] = effect;
 
-      console.log("trying to find model to parent cosmetic effect on with id", parent.entityId);
+      console.log(
+        "trying to find model to parent cosmetic effect on with id",
+        parent.sceneEntityIdentifier
+      );
 
       const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(parent);
 
@@ -45,10 +44,15 @@ export function startOrStopCosmeticEffects(
     }
   }
 
-  if (cosmeticEffectsToStop.length) {
-    for (const vfxName of cosmeticEffectToStop) {
-      cosmeticEffectManager.cosmeticEffect[vfxName]?.softCleanup();
-      delete cosmeticEffectManager.cosmeticEffect[vfxName];
+  if (cosmeticEffectsToStop?.length) {
+    for (const cosmeticEffectOnEntity of cosmeticEffectsToStop) {
+      const { sceneEntityIdentifier, name } = cosmeticEffectOnEntity;
+
+      const sceneEntity = SceneEntity.getFromIdentifier(sceneEntityIdentifier);
+      const { cosmeticEffectManager } = sceneEntity;
+
+      cosmeticEffectManager.cosmeticEffect[name]?.softCleanup();
+      delete cosmeticEffectManager.cosmeticEffect[name];
     }
   }
 }

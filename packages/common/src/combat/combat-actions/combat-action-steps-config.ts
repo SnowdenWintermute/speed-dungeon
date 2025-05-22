@@ -1,9 +1,5 @@
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import {
-  SceneEntityChildTransformNodeIdentifier,
-  SceneEntityChildTransformNodeIdentifierWithDuration,
-} from "../../action-entities/index.js";
-import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
   EntityAnimation,
@@ -13,7 +9,12 @@ import {
 import { CombatantSpecies } from "../../combatants/combatant-species.js";
 import { CombatantProperties } from "../../combatants/index.js";
 import { TaggedEquipmentSlot } from "../../items/equipment/slots.js";
-import { EntityId, Milliseconds } from "../../primatives/index.js";
+import { Milliseconds } from "../../primatives/index.js";
+import {
+  SceneEntityChildTransformNodeIdentifier,
+  SceneEntityChildTransformNodeIdentifierWithDuration,
+  SceneEntityIdentifier,
+} from "../../scene-entities/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { MeleeAttackAnimationType } from "./action-implementations/attack/determine-melee-attack-animation-type.js";
 
@@ -29,7 +30,7 @@ export interface CosmeticEffectOnTargetTransformNode {
 }
 export interface CosmeticEffectOnEntity {
   name: CosmeticEffectNames;
-  entityId: EntityId;
+  sceneEntityIdentifier: SceneEntityIdentifier;
 }
 
 export interface ActionResolutionStepConfig {

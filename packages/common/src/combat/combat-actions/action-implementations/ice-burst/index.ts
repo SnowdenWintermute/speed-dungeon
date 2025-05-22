@@ -27,11 +27,7 @@ import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/comb
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
 import cloneDeep from "lodash.clonedeep";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
-import {
-  ActionEntityBaseChildTransformNodeName,
-  ActionEntityName,
-  SceneEntityChildTransformNodeType,
-} from "../../../../action-entities/index.js";
+import { ActionEntityName } from "../../../../action-entities/index.js";
 import {
   CombatActionTargetingPropertiesConfig,
   GENERIC_TARGETING_PROPERTIES,
@@ -47,6 +43,10 @@ import {
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
+import {
+  ActionEntityBaseChildTransformNodeName,
+  SceneEntityType,
+} from "../../../../scene-entities/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -124,8 +124,10 @@ const config: CombatActionComponentConfig = {
             {
               name: CosmeticEffectNames.FrostParticleBurst,
               parent: {
-                entityId: iceBurstEntity.actionEntity.entityProperties.id,
-                type: SceneEntityChildTransformNodeType.ActionEntityBase,
+                sceneEntityIdentifier: {
+                  type: SceneEntityType.ActionEntityModel,
+                  entityId: iceBurstEntity.actionEntity.entityProperties.id,
+                },
                 transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
               },
               lifetime: 300,
