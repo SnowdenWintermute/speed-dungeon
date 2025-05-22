@@ -148,5 +148,13 @@ export class ReplayBranchProcessor {
     this.currentGameUpdateOption = { command: node.gameUpdate, isComplete: false };
 
     GAME_UPDATE_COMMAND_HANDLERS[node.gameUpdate.type](this.currentGameUpdateOption);
+
+    const cosmeticEffectsToStartOption =
+      this.currentGameUpdateOption.command.cosmeticEffectsToStart;
+    if (cosmeticEffectsToStartOption?.length) {
+      for (const toStart of cosmeticEffectsToStartOption) {
+        //
+      }
+    }
   }
 }

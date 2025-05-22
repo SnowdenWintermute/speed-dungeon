@@ -118,17 +118,20 @@ const config: CombatActionComponentConfig = {
             // timing: { type: AnimationTimingType.Timed, duration: 1000 },
           };
         },
-        cosmeticsEffectsToStart: [
-          {
-            name: CosmeticEffectNames.FrostParticleBurst,
-            parent: {
-              entityId: "",
-              type: SceneEntityChildTransformNodeType.ActionEntityBase,
-              transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+        getCosmeticsEffectsToStart: (context) => {
+          const iceBurstEntity = context.tracker.getExpectedSpawnedActionEntity();
+          return [
+            {
+              name: CosmeticEffectNames.FrostParticleBurst,
+              parent: {
+                entityId: iceBurstEntity.actionEntity.entityProperties.id,
+                type: SceneEntityChildTransformNodeType.ActionEntityBase,
+                transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+              },
+              lifetime: 300,
             },
-            lifetime: 300,
-          },
-        ],
+          ];
+        },
       },
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},

@@ -27,20 +27,27 @@ import {
 const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Spell);
 stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
   ...stepsConfig.steps[ActionResolutionStepType.InitialPositioning],
-  cosmeticsEffectsToStart: [
-    {
-      name: CosmeticEffectNames.FrostParticleAccumulation,
-      parent: {
-        entityId: "",
-        type: SceneEntityChildTransformNodeType.CombatantBase,
-        transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
+  getCosmeticsEffectsToStart: (context) => {
+    return [
+      {
+        name: CosmeticEffectNames.FrostParticleAccumulation,
+        parent: {
+          entityId: context.combatantContext.combatant.entityProperties.id,
+          type: SceneEntityChildTransformNodeType.CombatantBase,
+          transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
+        },
       },
-    },
-  ],
+    ];
+  },
 };
 stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
   ...stepsConfig.steps[ActionResolutionStepType.FinalPositioning],
-  cosmeticsEffectsToStop: [CosmeticEffectNames.FrostParticleAccumulation],
+  getCosmeticsEffectsToStop: (context) => [
+    {
+      name: CosmeticEffectNames.FrostParticleAccumulation,
+      entityId: context.combatantContext.combatant.entityProperties.id,
+    },
+  ],
 };
 
 const config: CombatActionComponentConfig = {

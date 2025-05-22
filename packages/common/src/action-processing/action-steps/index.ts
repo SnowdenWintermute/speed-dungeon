@@ -1,6 +1,6 @@
 import { Milliseconds } from "../../primatives/index.js";
 import { Combatant } from "../../combatants/index.js";
-import { CombatActionComponent } from "../../combat/index.js";
+import { COMBAT_ACTIONS, CombatActionComponent } from "../../combat/index.js";
 import { ReplayEventNode } from "../replay-events.js";
 import { GameUpdateCommand } from "../game-update-commands.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
@@ -74,7 +74,19 @@ export abstract class ActionResolutionStep {
     public readonly type: ActionResolutionStepType,
     protected context: ActionResolutionStepContext,
     protected gameUpdateCommandOption: null | GameUpdateCommand
-  ) {}
+  ) {
+    //
+    const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
+    const stepConfig = action.stepsConfig.steps[type];
+    if (!stepConfig) throw new Error("expected step config not found");
+    if (gameUpdateCommandOption && stepConfig.getCosmeticsEffectsToStop) {
+      gameUpdateCommandOption.cosmeticEffectsToStop = stepConfig.getCosmeticsEffectsToStop(context);
+    }
+    if (gameUpdateCommandOption && stepConfig.getCosmeticsEffectsToStart) {
+      gameUpdateCommandOption.cosmeticEffectsToStart =
+        stepConfig.getCosmeticsEffectsToStart(context);
+    }
+  }
 
   getContext() {
     return this.context;

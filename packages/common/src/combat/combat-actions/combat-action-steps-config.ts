@@ -13,7 +13,7 @@ import {
 import { CombatantSpecies } from "../../combatants/combatant-species.js";
 import { CombatantProperties } from "../../combatants/index.js";
 import { TaggedEquipmentSlot } from "../../items/equipment/slots.js";
-import { Milliseconds } from "../../primatives/index.js";
+import { EntityId, Milliseconds } from "../../primatives/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { MeleeAttackAnimationType } from "./action-implementations/attack/determine-melee-attack-animation-type.js";
 
@@ -22,13 +22,21 @@ export interface EquipmentAnimation {
   animation: EntityAnimation;
 }
 
+export interface CosmeticEffectOnTargetTransformNode {
+  name: CosmeticEffectNames;
+  parent: SceneEntityChildTransformNodeIdentifier;
+  lifetime?: Milliseconds;
+}
+export interface CosmeticEffectOnEntity {
+  name: CosmeticEffectNames;
+  entityId: EntityId;
+}
+
 export interface ActionResolutionStepConfig {
-  cosmeticsEffectsToStart?: {
-    name: CosmeticEffectNames;
-    parent: SceneEntityChildTransformNodeIdentifier;
-    lifetime?: Milliseconds;
-  }[];
-  cosmeticsEffectsToStop?: CosmeticEffectNames[];
+  getCosmeticsEffectsToStart?(
+    context: ActionResolutionStepContext
+  ): CosmeticEffectOnTargetTransformNode[];
+  getCosmeticsEffectsToStop?(context: ActionResolutionStepContext): CosmeticEffectOnEntity[];
   getAnimation?(
     user: CombatantProperties,
     animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>,

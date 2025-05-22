@@ -86,30 +86,36 @@ const config: CombatActionComponentConfig = {
           };
           return entityPart;
         },
-        cosmeticsEffectsToStart: [
-          {
-            name: CosmeticEffectNames.FrostParticleStream,
-            parent: {
-              type: SceneEntityChildTransformNodeType.ActionEntityBase,
-              entityId: "",
-              transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+        getCosmeticsEffectsToStart: (context) => {
+          const iceBoltProjectile = context.tracker.getExpectedSpawnedActionEntity();
+          return [
+            {
+              name: CosmeticEffectNames.FrostParticleStream,
+              parent: {
+                type: SceneEntityChildTransformNodeType.ActionEntityBase,
+                entityId: iceBoltProjectile.actionEntity.entityProperties.id,
+                transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+              },
             },
-          },
-        ],
+          ];
+        },
         shouldDespawnOnComplete: () => true,
       },
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {
-        cosmeticsEffectsToStart: [
-          {
-            name: CosmeticEffectNames.FrostParticleBurst,
-            parent: {
-              type: SceneEntityChildTransformNodeType.CombatantBase,
-              entityId: "",
-              transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+        getCosmeticsEffectsToStart: (context) => {
+          const iceBoltProjectile = context.tracker.getExpectedSpawnedActionEntity();
+          return [
+            {
+              name: CosmeticEffectNames.FrostParticleBurst,
+              parent: {
+                type: SceneEntityChildTransformNodeType.CombatantBase,
+                entityId: iceBoltProjectile.actionEntity.entityProperties.id,
+                transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+              },
+              lifetime: 300,
             },
-            lifetime: 300,
-          },
-        ],
+          ];
+        },
       },
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
     },

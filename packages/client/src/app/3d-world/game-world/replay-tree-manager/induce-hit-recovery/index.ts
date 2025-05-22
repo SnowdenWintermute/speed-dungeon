@@ -16,7 +16,6 @@ import { useUIStore } from "@/stores/ui-store";
 import { postResourceChangeToCombatLog } from "./post-resource-change-to-combat-log";
 import { GameWorld } from "../..";
 import { startResourceChangeFloatingMessage } from "./start-resource-change-floating-message";
-import { handleStepCosmeticEffects } from "../handle-step-cosmetic-effects";
 
 export function induceHitRecovery(
   gameWorld: GameWorld,
@@ -35,13 +34,6 @@ export function induceHitRecovery(
 
   const action = COMBAT_ACTIONS[actionName];
   const wasSpell = action.origin === CombatActionOrigin.SpellCast;
-
-  handleStepCosmeticEffects(
-    action,
-    actionStep,
-    targetModel.cosmeticEffectManager,
-    targetModel.entityId
-  );
 
   // HANDLE RESOURCE CHANGES
   // - show a hit recovery or death animation (if mana, only animate if there wasn't an hp change animation already)

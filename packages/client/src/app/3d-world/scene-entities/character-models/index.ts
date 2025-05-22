@@ -23,6 +23,7 @@ import {
   EquipmentType,
   CombatantBaseChildTransformNodeName,
   NormalizedPercentage,
+  COMBATANT_BASE_TRANSFORM_NODE_NAME_STRINGS,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
@@ -36,6 +37,8 @@ import { SceneEntity } from "..";
 import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
 import { EquipmentModelManager } from "./equipment-model-manager";
 import { ModularCharacterPartsModelManager } from "./modular-character-parts-model-manager";
+import { createBillboard } from "@/utils";
+import { getGameWorld } from "../../SceneManager";
 
 export class CharacterModel extends SceneEntity {
   childTransformNodes: Partial<Record<CombatantBaseChildTransformNodeName, TransformNode>> = {};
@@ -71,15 +74,15 @@ export class CharacterModel extends SceneEntity {
       rotation: cloneDeep(rotation),
     };
 
-    this.initChildTransformNodes();
+    // this.initChildTransformNodes();
 
-    for (const [nodeName, transformNode] of iterateNumericEnumKeyedRecord(
-      this.childTransformNodes
-    )) {
-      const markerMesh = MeshBuilder.CreateBox("", { size: 0.1 });
-      markerMesh.setParent(transformNode);
-      markerMesh.setPositionWithLocalVector(Vector3.Zero());
-    }
+    // for (const [nodeName, transformNode] of iterateNumericEnumKeyedRecord(
+    //   this.childTransformNodes
+    // )) {
+    //   const markerMesh = MeshBuilder.CreateBox("", { size: 0.1 });
+    //   markerMesh.setParent(transformNode);
+    //   markerMesh.setPositionWithLocalVector(Vector3.Zero());
+    // }
     // this.setUpDebugMeshes();
     // this.setShowBones();
   }
@@ -119,8 +122,10 @@ export class CharacterModel extends SceneEntity {
 
     const hitboxCenterTransformNode = new TransformNode(`${this.entityId}-hitbox-center`);
     const hitboxCenter = this.getBoundingInfo().boundingBox.center;
-    hitboxCenterTransformNode.position = hitboxCenter.clone();
+
     hitboxCenterTransformNode.setParent(this.rootTransformNode);
+    hitboxCenterTransformNode.position = hitboxCenter.clone();
+
     this.childTransformNodes[CombatantBaseChildTransformNodeName.HitboxCenter] =
       hitboxCenterTransformNode;
   }

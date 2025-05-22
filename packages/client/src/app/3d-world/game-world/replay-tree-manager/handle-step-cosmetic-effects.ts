@@ -8,7 +8,7 @@ import {
 import { startOrStopCosmeticEffect } from "./start-or-stop-cosmetic-effect";
 import { CosmeticEffectManager } from "../../scene-entities/cosmetic-effect-manager";
 
-export function handleStepCosmeticEffects(
+export function handleCosmeticEffectUpdates(
   action: CombatActionComponent,
   stepType: ActionResolutionStepType,
   cosmeticEffectManager: CosmeticEffectManager

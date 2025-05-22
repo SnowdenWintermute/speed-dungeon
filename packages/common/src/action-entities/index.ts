@@ -63,6 +63,16 @@ export enum CombatantBaseChildTransformNodeName {
   HitboxCenter,
 }
 
+export const COMBATANT_BASE_TRANSFORM_NODE_NAME_STRINGS: Record<
+  CombatantBaseChildTransformNodeName,
+  string
+> = {
+  [CombatantBaseChildTransformNodeName.MainHandEquipment]: "MainHandEquipment",
+  [CombatantBaseChildTransformNodeName.OffhandEquipment]: "OffhandEquipment",
+  [CombatantBaseChildTransformNodeName.EntityRoot]: "EntityRoot",
+  [CombatantBaseChildTransformNodeName.HitboxCenter]: "HitboxCenter",
+};
+
 export enum ActionEntityBaseChildTransformNodeName {
   EntityRoot,
 }

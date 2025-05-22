@@ -10,20 +10,19 @@ import { Vector3 } from "@babylonjs/core";
 import { CosmeticEffectManager } from "../../scene-entities/cosmetic-effect-manager";
 import { SceneEntity } from "../../scene-entities";
 
-export function startOrStopCosmeticEffect(
-  cosmeticEffectToStart: {
+export function startOrStopCosmeticEffects(
+  cosmeticEffectsToStart?: {
     name: CosmeticEffectNames;
     parent: SceneEntityChildTransformNodeIdentifier;
     lifetime?: Milliseconds;
   }[],
-  cosmeticEffectToStop: CosmeticEffectNames[],
-  cosmeticEffectManager: CosmeticEffectManager
+  cosmeticEffectsToStop?: CosmeticEffectNames[]
 ) {
-  if (cosmeticEffectToStart.length) {
+  if (cosmeticEffectsToStart?.length) {
     const sceneOption = gameWorld.current?.scene;
     if (!sceneOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
 
-    for (const { name, parent, lifetime } of cosmeticEffectToStart) {
+    for (const { name, parent, lifetime } of cosmeticEffectsToStart) {
       const effect = new COSMETIC_EFFECT_CONSTRUCTORS[name](sceneOption);
 
       if (lifetime !== undefined) {
@@ -31,6 +30,8 @@ export function startOrStopCosmeticEffect(
           effect.softCleanup();
         }, lifetime);
       }
+
+      const cosmeticEffectManager;
 
       cosmeticEffectManager.cosmeticEffect[name]?.softCleanup();
       cosmeticEffectManager.cosmeticEffect[name] = effect;
@@ -44,7 +45,7 @@ export function startOrStopCosmeticEffect(
     }
   }
 
-  if (cosmeticEffectToStop.length) {
+  if (cosmeticEffectsToStop.length) {
     for (const vfxName of cosmeticEffectToStop) {
       cosmeticEffectManager.cosmeticEffect[vfxName]?.softCleanup();
       delete cosmeticEffectManager.cosmeticEffect[vfxName];

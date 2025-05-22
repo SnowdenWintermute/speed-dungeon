@@ -4,7 +4,7 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
+import { GameUpdateCommandType, SpawnEntityGameUpdateCommand } from "../game-update-commands.js";
 import { COMBAT_ACTIONS, COMBAT_ACTION_NAME_STRINGS } from "../../combat/index.js";
 import cloneDeep from "lodash.clonedeep";
 
@@ -23,9 +23,10 @@ export class SpawnEntityActionResolutionStep extends ActionResolutionStep {
 
     context.tracker.spawnedEntityOption = entity;
 
-    const gameUpdateCommand: GameUpdateCommand = {
+    const gameUpdateCommand: SpawnEntityGameUpdateCommand = {
       type: GameUpdateCommandType.SpawnEntity,
       step,
+      actionName: context.tracker.actionExecutionIntent.actionName,
       completionOrderId: null,
       entity: cloneDeep(entity),
     };
