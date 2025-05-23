@@ -1,4 +1,5 @@
-import { Milliseconds } from "./primatives";
+import { TwoHandedRangedWeapon } from "./items/equipment/index.js";
+import { Milliseconds } from "./primatives/index.js";
 
 export const INFO_UNICODE_SYMBOL = "ⓘ";
 
@@ -61,7 +62,7 @@ export const ARMOR_CLASS_EQUATION_MODIFIER = 2.5;
 export const MELEE_START_ATTACK_RANGE = 0.5;
 
 // 3D MODELS
-export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 3; // default is 1, higher is slower;
+export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 1; // default is 1, higher is slower;
 
 export const COMBATANT_POSITION_SPACING_SIDE = 1.4;
 export const COMBATANT_POSITION_SPACING_BETWEEN_ROWS = 5.0;
@@ -177,6 +178,7 @@ export enum SkeletalAnimationName {
   BowDelivery,
   BowRecovery,
   EquipmentShortBowShoot,
+  EquipmentMilitaryBowShoot,
   CastSpellChambering,
   CastSpellDelivery,
   CastSpellRecovery,
@@ -243,6 +245,7 @@ export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, stri
   [SkeletalAnimationName.UseConsumableDelivery]: "use-consumable-delivery",
   [SkeletalAnimationName.UseConsumableRecovery]: "use-consumable-recovery",
   [SkeletalAnimationName.EquipmentShortBowShoot]: "short-bow-shoot-baked",
+  [SkeletalAnimationName.EquipmentMilitaryBowShoot]: "military-bow-shoot-baked",
 };
 
 export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string> = {

@@ -164,6 +164,7 @@ export abstract class CombatantCondition {
           0,
           condition.stacksOption.current - numberToRemove
         );
+
       if (condition.stacksOption === null || condition.stacksOption.current === 0) {
         removeFromArray(combatantProperties.conditions, condition);
         return condition;

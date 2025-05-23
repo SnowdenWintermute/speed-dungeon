@@ -52,9 +52,19 @@ import {
   SceneEntityChildTransformNodeIdentifierWithDuration,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
+import { Vector3 } from "@babylonjs/core";
+import { EquipmentType, TwoHandedRangedWeapon } from "../../../../items/equipment/index.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Bow);
+
+export const BOW_EQUIPMENT_ANIMATIONS: Record<TwoHandedRangedWeapon, SkeletalAnimationName> = {
+  [TwoHandedRangedWeapon.ShortBow]: SkeletalAnimationName.EquipmentShortBowShoot,
+  [TwoHandedRangedWeapon.RecurveBow]: SkeletalAnimationName.EquipmentShortBowShoot,
+  [TwoHandedRangedWeapon.CompositeBow]: SkeletalAnimationName.EquipmentShortBowShoot,
+  [TwoHandedRangedWeapon.MilitaryBow]: SkeletalAnimationName.EquipmentMilitaryBowShoot,
+  [TwoHandedRangedWeapon.EtherBow]: SkeletalAnimationName.EquipmentShortBowShoot,
+};
 
 stepsConfig.steps = {
   ...stepsConfig.steps,
@@ -70,8 +80,18 @@ stepsConfig.steps = {
         slot: HoldableSlotType.MainHand,
       };
 
+      const equippedBowOption = CombatantEquipment.getEquipmentInSlot(user, slot);
+      if (
+        equippedBowOption?.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType !==
+        EquipmentType.TwoHandedRangedWeapon
+      )
+        return [];
+
       const speciesLengths = animationLengths[user.combatantSpecies];
-      const animationName = SkeletalAnimationName.EquipmentShortBowShoot;
+      const animationName =
+        BOW_EQUIPMENT_ANIMATIONS[
+          equippedBowOption.equipmentBaseItemProperties.taggedBaseEquipment.baseItemType
+        ];
       const animationNameString = SKELETAL_ANIMATION_NAME_STRINGS[animationName];
       const duration = speciesLengths[animationNameString] || 0;
 
@@ -188,7 +208,7 @@ const config: CombatActionComponentConfig = {
         actionEntityProperties: {
           position,
           name: ActionEntityName.Arrow,
-          // initialRotation: new Vector3(Math.PI / 2, 0, 0),
+          initialRotation: new Vector3(Math.PI / 2, 0, 0),
           parentOption: {
             sceneEntityIdentifier: {
               type: SceneEntityType.CharacterModel,
