@@ -1,6 +1,7 @@
 import {
   CombatantEquipment,
   CombatantProperties,
+  Equipment,
   EquipmentSlotType,
   HoldableHotswapSlot,
   HoldableSlotType,
@@ -111,6 +112,11 @@ export class EquipmentModelManager {
           continue;
         }
 
+        const equipmentIsBroken = Equipment.isBroken(equipmentModelOption.equipment);
+
+        if (equipmentIsBroken) equipmentModelOption.setVisibility(0);
+        else equipmentModelOption.setVisibility(this.visibilityForShownHotswapSlots);
+
         const { slotIndex, holdableSlot } = indexAndHoldableSlotIfEquipped;
 
         // put it in a temporary new state to later sync with current state
@@ -152,6 +158,9 @@ export class EquipmentModelManager {
         );
         if (equipmentModel instanceof Error) throw equipmentModel;
         if (equipmentModel instanceof ConsumableModel) throw new Error("unexpected item type");
+
+        if (Equipment.isBroken(equipmentModel.equipment)) equipmentModel.setVisibility(0);
+
         existingSlotOption[holdableSlotType] = equipmentModel;
       }
     }
@@ -177,8 +186,11 @@ export class EquipmentModelManager {
       for (const [holdableSlotType, equipmentModel] of iterateNumericEnumKeyedRecord(hotswapSlot)) {
         if (!equipmentModel) continue;
         // attach to appropriate positions
-        if (slotIndex === equippedSlotIndex || slotIndex === holsteredSlotIndex)
-          equipmentModel.setVisibility(this.visibilityForShownHotswapSlots);
+        if (slotIndex === equippedSlotIndex || slotIndex === holsteredSlotIndex) {
+          let newVisibility = this.visibilityForShownHotswapSlots;
+          if (Equipment.isBroken(equipmentModel.equipment)) newVisibility = 0;
+          equipmentModel.setVisibility(newVisibility);
+        }
 
         if (slotIndex === equippedSlotIndex)
           attachHoldableModelToSkeleton(this.characterModel, equipmentModel, holdableSlotType);

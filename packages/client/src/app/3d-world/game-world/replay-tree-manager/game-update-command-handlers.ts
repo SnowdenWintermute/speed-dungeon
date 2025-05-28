@@ -109,10 +109,17 @@ export const GAME_UPDATE_COMMAND_HANDLERS: Record<
             // @TODO - if this causes bugs because it is jumping the queue, look into it
             // if we use the queue though, it will wait to break their model and not look like it broke instantly
             // maybe we can set visibilty instead and despawn it later
-            if (Equipment.isBroken(equipment) && slot?.type === EquipmentSlotType.Holdable) {
-              getGameWorld()
-                .modelManager.findOneOptional(combatant.entityProperties.id)
-                ?.equipmentModelManager.synchronizeCombatantEquipmentModels();
+            const justBrokeHoldable =
+              Equipment.isBroken(equipment) && slot?.type === EquipmentSlotType.Holdable;
+            if (justBrokeHoldable) {
+              const characterModelOption = getGameWorld().modelManager.findOneOptional(
+                combatant.entityProperties.id
+              );
+              console.log(
+                "just broke holdable equipped to character model",
+                characterModelOption?.entityId
+              );
+              characterModelOption?.equipmentModelManager.synchronizeCombatantEquipmentModels();
             }
           }
         );

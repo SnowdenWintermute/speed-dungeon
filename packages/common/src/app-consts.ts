@@ -1,4 +1,3 @@
-import { TwoHandedRangedWeapon } from "./items/equipment/index.js";
 import { Milliseconds } from "./primatives/index.js";
 
 export const INFO_UNICODE_SYMBOL = "ⓘ";
@@ -68,7 +67,7 @@ export const COMBATANT_POSITION_SPACING_SIDE = 1.4;
 export const COMBATANT_POSITION_SPACING_BETWEEN_ROWS = 5.0;
 export const COMBATANT_TIME_TO_MOVE_ONE_METER = 300;
 // export const COMBATANT_TIME_TO_MOVE_ONE_METER = 100;
-export const ARROW_TIME_TO_MOVE_ONE_METER = 170;
+export const ARROW_TIME_TO_MOVE_ONE_METER = 40;
 // export const ARROW_TIME_TO_MOVE_ONE_METER = 1000;
 export const COMBATANT_TIME_TO_ROTATE_360 = 1000;
 export const MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME = 1000;
@@ -179,6 +178,9 @@ export enum SkeletalAnimationName {
   BowRecovery,
   EquipmentShortBowShoot,
   EquipmentMilitaryBowShoot,
+  EquipmentEtherBowShoot,
+  EquipmentRecurveBowShoot,
+  EquipmentCompositeBowShoot,
   CastSpellChambering,
   CastSpellDelivery,
   CastSpellRecovery,
@@ -246,6 +248,9 @@ export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, stri
   [SkeletalAnimationName.UseConsumableRecovery]: "use-consumable-recovery",
   [SkeletalAnimationName.EquipmentShortBowShoot]: "short-bow-shoot-baked",
   [SkeletalAnimationName.EquipmentMilitaryBowShoot]: "military-bow-shoot-baked",
+  [SkeletalAnimationName.EquipmentEtherBowShoot]: "ether-bow-shoot-baked",
+  [SkeletalAnimationName.EquipmentRecurveBowShoot]: "recurve-bow-shoot-baked",
+  [SkeletalAnimationName.EquipmentCompositeBowShoot]: "composite-bow-shoot-baked",
 };
 
 export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string> = {

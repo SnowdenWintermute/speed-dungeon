@@ -20,11 +20,10 @@ export function updateDebugText(this: GameWorld) {
           const currUpdateOption = branch.getCurrentGameUpdate();
           if (
             currUpdateOption &&
-            currUpdateOption.command.type === GameUpdateCommandType.EntityMotion
+            currUpdateOption.command.type === GameUpdateCommandType.CombatantMotion
           )
             return (
               GAME_UPDATE_COMMAND_TYPE_STRINGS[currUpdateOption.command.type] +
-              JSON.stringify(currUpdateOption.command.translationOption?.destination) +
               ACTION_RESOLUTION_STEP_TYPE_STRINGS[currUpdateOption.command.step]
             );
           if (currUpdateOption)
@@ -67,6 +66,7 @@ export function updateDebugText(this: GameWorld) {
           y ${this.camera.target.y.toFixed(2)}, 
           z ${this.camera.target.z.toFixed(2)}</div>`;
     const numMaterials = `<div>num materials: ${this.scene.materials.length}</div>`;
+    const numTransformNodes = `<div>num transform nodes: ${this.scene.transformNodes.length}</div>`;
     const numParticleSystems = `<div>num particleSystems: ${this.scene.particleSystems.length}</div>`;
 
     const actionCommandQueueMessages = [];
@@ -96,6 +96,7 @@ export function updateDebugText(this: GameWorld) {
       // `combatants processing actions: ${actionCommandQueue.entitiesPerformingActions}`,
       `<ul>${rootTransformPositions}</ul>`,
       numMaterials,
+      numTransformNodes,
       numParticleSystems,
       cameraAlpha,
       cameraBeta,

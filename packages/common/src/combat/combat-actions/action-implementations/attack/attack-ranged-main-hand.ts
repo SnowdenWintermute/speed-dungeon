@@ -60,10 +60,10 @@ const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootin
 
 export const BOW_EQUIPMENT_ANIMATIONS: Record<TwoHandedRangedWeapon, SkeletalAnimationName> = {
   [TwoHandedRangedWeapon.ShortBow]: SkeletalAnimationName.EquipmentShortBowShoot,
-  [TwoHandedRangedWeapon.RecurveBow]: SkeletalAnimationName.EquipmentShortBowShoot,
-  [TwoHandedRangedWeapon.CompositeBow]: SkeletalAnimationName.EquipmentShortBowShoot,
+  [TwoHandedRangedWeapon.RecurveBow]: SkeletalAnimationName.EquipmentRecurveBowShoot,
+  [TwoHandedRangedWeapon.CompositeBow]: SkeletalAnimationName.EquipmentCompositeBowShoot,
   [TwoHandedRangedWeapon.MilitaryBow]: SkeletalAnimationName.EquipmentMilitaryBowShoot,
-  [TwoHandedRangedWeapon.EtherBow]: SkeletalAnimationName.EquipmentShortBowShoot,
+  [TwoHandedRangedWeapon.EtherBow]: SkeletalAnimationName.EquipmentEtherBowShoot,
 };
 
 stepsConfig.steps = {
@@ -142,7 +142,7 @@ stepsConfig.steps = {
         duration: 1400,
       };
 
-      const lockRotationOn: SceneEntityChildTransformNodeIdentifier = {
+      const arrowRestIdentifier: SceneEntityChildTransformNodeIdentifier = {
         sceneEntityIdentifier: {
           type: SceneEntityType.CharacterEquipmentModel,
           characterModelId: context.combatantContext.combatant.entityProperties.id,
@@ -152,8 +152,8 @@ stepsConfig.steps = {
       };
 
       const lockRotationToFace: SceneEntityChildTransformNodeIdentifierWithDuration = {
-        identifier: lockRotationOn,
-        duration: 600,
+        identifier: arrowRestIdentifier,
+        duration: 400,
       };
 
       const toReturn: EntityMotionUpdate[] = [];
