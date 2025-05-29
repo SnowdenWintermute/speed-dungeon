@@ -1,4 +1,4 @@
-import { ActionCommand, ERROR_MESSAGES, EquipmentSlotType } from "@speed-dungeon/common";
+import { ActionCommand } from "@speed-dungeon/common";
 import { useGameStore } from "@/stores/game-store";
 import { ModelManager } from "..";
 import {
@@ -7,14 +7,12 @@ import {
   DespawnEnvironmentModelModelAction,
   ModelActionType,
   ProcessActionCommandsModelAction,
-  SelectHotswapSlotModelAction,
   SpawnEnvironmentalModelModelAction,
 } from "../model-actions";
 import { actionCommandQueue, actionCommandReceiver } from "@/singletons/action-command-manager";
 import { synchronizeCombatantModelsWithAppState } from "./synchronize-combatant-models-with-app-state";
 import { spawnEnvironmentModel } from "./spawn-environmental-model";
 import { disposeAsyncLoadedScene } from "@/app/3d-world/utils";
-import { removeHoldableModelFromCharacterModel } from "./remove-holdable-from-modular-character";
 
 export type ModelActionHandler = (...args: any[]) => Promise<Error | void> | (void | Error);
 
@@ -33,36 +31,15 @@ export function createModelActionHandlers(
       }
     },
     [ModelActionType.SynchronizeCombatantModels]: synchronizeCombatantModelsWithAppState,
-    [ModelActionType.ChangeEquipment]: async function (
+    [ModelActionType.SynchronizeCombatantEquipmentModels]: async function (
       action: ChangeEquipmentModelAction
     ): Promise<void | Error> {
-      let errors: Error[] = [];
-      const modularCharacter = modelManager.combatantModels[action.entityId];
-      if (!modularCharacter) return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-      for (const id of action.unequippedIds)
-        removeHoldableModelFromCharacterModel(modularCharacter, action.entityId, id);
-      if (action.toEquip && action.toEquip.slot.type === EquipmentSlotType.Holdable) {
-        await modularCharacter.equipHoldableModel(action.toEquip.item, action.toEquip.slot);
-      }
+      const modularCharacter = modelManager.findOne(action.entityId);
+
+      await modularCharacter.equipmentModelManager.synchronizeCombatantEquipmentModels();
 
       if (modularCharacter.isIdling()) modularCharacter.startIdleAnimation(500);
       else console.log("wasn't idling");
-
-      if (errors.length)
-        return new Error(
-          "Errors equipping holdables: " + errors.map((error) => error.message).join(", ")
-        );
-    },
-    [ModelActionType.SelectHotswapSlot]: async function (
-      action: SelectHotswapSlotModelAction
-    ): Promise<void | Error> {
-      const modularCharacter = modelManager.combatantModels[action.entityId];
-      if (!modularCharacter) return new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-      const maybeError = await modularCharacter.handleHotswapSlotChanged(
-        action.hotswapSlots,
-        action.selectedIndex
-      );
-      if (maybeError instanceof Error) return maybeError;
     },
     [ModelActionType.ProcessActionCommands]: async function (
       action: ProcessActionCommandsModelAction

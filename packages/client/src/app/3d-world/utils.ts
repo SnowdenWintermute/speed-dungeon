@@ -9,7 +9,8 @@ import {
   Scene,
   Vector3,
 } from "@babylonjs/core";
-import { BASE_FILE_PATH } from "./scene-entities/character-models/modular-character-parts";
+import { createBillboard } from "@/utils";
+import { BASE_FILE_PATH } from "./scene-entities/character-models/modular-character-parts-model-manager/modular-character-parts";
 
 export async function importMesh(path: string, scene: Scene) {
   if (path === "") throw new Error("Empty file path");
@@ -59,6 +60,10 @@ export function paintCubesOnNodes(rootNode: Node, cubeSize: number, color: Color
       // @ts-ignore
       scene
     );
+
+    const billboard = createBillboard(node.name, scene);
+    billboard.setParent(boneMarkerCube);
+    billboard.setPositionWithLocalVector(new Vector3(0, 0, 0.1));
 
     boneMarkerCube.setParent(node);
     boneMarkerCube.setPositionWithLocalVector(new Vector3(0.0, 0.0, 0.0));

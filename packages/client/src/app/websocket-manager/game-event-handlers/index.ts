@@ -11,17 +11,17 @@ import newDungeonRoomTypesOnCurrentFloorHandler from "./new-dungeon-room-types-o
 import newDungeonRoomHandler from "./new-dungeon-room-handler";
 import battleFullUpdateHandler from "./battle-full-update-handler";
 import characterDroppedItemHandler from "./character-dropped-item-handler";
-import characterDroppedEquippedItemHandler from "./character-dropped-equipped-item-handler";
-import characterUnequippedSlotHandler from "./character-unequipped-slot-handler";
-import characterEquippedItemHandler from "./character-equipped-item-handler";
+import { characterDroppedEquippedItemHandler } from "./character-dropped-equipped-item-handler";
+import { characterUnequippedSlotHandler } from "./character-unequipped-slot-handler";
+import { characterEquippedItemHandler } from "./character-equipped-item-handler";
 import { characterSelectedCombatActionHandler } from "./character-selected-combat-action-handler";
 import { characterCycledTargetsHandler } from "./character-cycled-targets-handler";
 import { characterCycledTargetingSchemesHandler } from "./character-cycled-targeting-schemes-handler";
 import getCurrentParty from "@/utils/getCurrentParty";
 import characterIncrementedAttributePointHandler from "./character-incremented-attribute-point-handler";
-import gameProgressMessageHandler from "./game-progress-message-handler";
+import { gameProgressMessageHandler } from "./game-progress-message-handler";
 import { characterPickedUpItemsHandler } from "./character-picked-up-items-handler";
-import characterSelectedHoldableHotswapSlotHandler from "./character-selected-holdable-hotswap-slot-handler";
+import { characterSelectedHoldableHotswapSlotHandler } from "./character-selected-holdable-hotswap-slot-handler";
 import { characterConvertedItemsToShardsHandler } from "./character-converted-items-to-shards-handler";
 import { characterDroppedShardsHandler } from "./character-dropped-shards-handler";
 import characterPurchasedItemHandler from "./character-purchased-item-handler";
@@ -89,8 +89,6 @@ export default function setUpGameEventHandlers(
   socket.on(ServerToClientEvent.ActionCommandPayloads, (payloads) => {
     if (!gameWorld.current)
       return console.error("Got action command payloads but no game world was found");
-
-    console.log("got payloads: ", payloads);
 
     gameWorld.current.modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.ProcessActionCommands,

@@ -10,6 +10,7 @@ import { ERROR_MESSAGES } from "../../errors/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantTraitType } from "../combatant-traits/index.js";
 import { CombatantProperties } from "../index.js";
+import { EntityId } from "../../primatives/index.js";
 
 export * from "./equip-item.js";
 export * from "./unequip-slots.js";
@@ -54,9 +55,13 @@ export class CombatantEquipment {
   }
 
   static getEquippedHoldableSlots(combatantProperties: CombatantProperties) {
-    return this.getHoldableHotswapSlots(combatantProperties)[
-      combatantProperties.equipment.equippedHoldableHotswapSlotIndex
-    ];
+    const slots =
+      this.getHoldableHotswapSlots(combatantProperties)[
+        combatantProperties.equipment.equippedHoldableHotswapSlotIndex
+      ];
+
+    if (slots === undefined) throw new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
+    return slots;
   }
 
   static getEquippedHoldable(
@@ -178,5 +183,22 @@ export class CombatantEquipment {
     if (!offhandOption) return;
     if (offhandOption.equipmentBaseItemProperties.equipmentType !== EquipmentType.Shield) return;
     return offhandOption.equipmentBaseItemProperties;
+  }
+
+  static getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(
+    combatantProperties: CombatantProperties,
+    equipmentId: EntityId
+  ) {
+    const allHotswapSlots = CombatantEquipment.getHoldableHotswapSlots(combatantProperties);
+
+    let slotIndex = -1;
+    for (const hotswapSlot of allHotswapSlots) {
+      slotIndex += 1;
+
+      for (const [holdableSlot, holdable] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables))
+        if (holdable.entityProperties.id === equipmentId) return { holdableSlot, slotIndex };
+    }
+
+    return null;
   }
 }

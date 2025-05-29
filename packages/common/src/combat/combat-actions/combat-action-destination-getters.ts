@@ -29,7 +29,6 @@ export function getMeleeAttackDestination(context: ActionResolutionStepContext) 
       .normalize();
 
     const destination = target.combatantProperties.homeLocation.subtract(
-      // direction.scale(target.hitboxRadius + user.hitboxRadius)
       direction.scale(meleeRange)
     );
 

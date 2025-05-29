@@ -1,24 +1,43 @@
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
-import { AbstractParentType } from "../../action-entities/index.js";
 import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
   EntityAnimation,
   EntityDestination,
+  EntityMotionUpdate,
 } from "../../action-processing/index.js";
 import { CombatantSpecies } from "../../combatants/combatant-species.js";
 import { CombatantProperties } from "../../combatants/index.js";
+import { TaggedEquipmentSlot } from "../../items/equipment/slots.js";
 import { Milliseconds } from "../../primatives/index.js";
+import {
+  SceneEntityChildTransformNodeIdentifier,
+  SceneEntityChildTransformNodeIdentifierWithDuration,
+  SceneEntityIdentifier,
+} from "../../scene-entities/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { MeleeAttackAnimationType } from "./action-implementations/attack/determine-melee-attack-animation-type.js";
 
+export interface EquipmentAnimation {
+  slot: TaggedEquipmentSlot;
+  animation: EntityAnimation;
+}
+
+export interface CosmeticEffectOnTargetTransformNode {
+  name: CosmeticEffectNames;
+  parent: SceneEntityChildTransformNodeIdentifier;
+  lifetime?: Milliseconds;
+}
+export interface CosmeticEffectOnEntity {
+  name: CosmeticEffectNames;
+  sceneEntityIdentifier: SceneEntityIdentifier;
+}
+
 export interface ActionResolutionStepConfig {
-  cosmeticsEffectsToStart?: {
-    name: CosmeticEffectNames;
-    parentType: AbstractParentType;
-    lifetime?: Milliseconds;
-  }[];
-  cosmeticsEffectsToStop?: CosmeticEffectNames[];
+  getCosmeticsEffectsToStart?(
+    context: ActionResolutionStepContext
+  ): CosmeticEffectOnTargetTransformNode[];
+  getCosmeticsEffectsToStop?(context: ActionResolutionStepContext): CosmeticEffectOnEntity[];
   getAnimation?(
     user: CombatantProperties,
     animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>,
@@ -26,6 +45,29 @@ export interface ActionResolutionStepConfig {
     successOption?: boolean
   ): EntityAnimation;
   getDestination?(context: ActionResolutionStepContext): Error | EntityDestination;
+  // @PERF - client could probably figure this out on their own or with more limited info
+  // from server
+  shouldDespawnOnComplete?: (context: ActionResolutionStepContext) => boolean;
+  getNewParent?: (
+    context: ActionResolutionStepContext
+  ) => SceneEntityChildTransformNodeIdentifierWithDuration | null;
+  getCosmeticDestinationY?: (
+    context: ActionResolutionStepContext
+  ) => SceneEntityChildTransformNodeIdentifier;
+  getEntityToLockOnTo?: (
+    context: ActionResolutionStepContext
+  ) => SceneEntityChildTransformNodeIdentifierWithDuration | null;
+  getStartPointingToward?: (
+    context: ActionResolutionStepContext
+  ) => SceneEntityChildTransformNodeIdentifierWithDuration;
+  getEquipmentAnimations?(
+    user: CombatantProperties,
+    animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>
+  ): EquipmentAnimation[];
+  //
+
+  getAuxiliaryEntityMotions?(context: ActionResolutionStepContext): EntityMotionUpdate[];
+
   // don't include this step in the initial list, it may be added later such as in the case
   // of return home step for a melee main hand attack that killed its target, thus not needing
   // to do the offhand attack

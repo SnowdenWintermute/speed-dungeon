@@ -73,7 +73,7 @@ export function outfitNewCharacter(character: Combatant) {
   CombatantProperties.setHpAndMpToMax(combatantProperties);
 
   combatantProperties.hitPoints = Math.floor(combatantProperties.hitPoints * 0.5);
-  combatantProperties.mana = Math.floor(combatantProperties.mana * 0.1);
+  combatantProperties.mana = Math.floor(combatantProperties.mana * 0.4);
 }
 
 function outfitRogue(combatantProperties: CombatantProperties) {

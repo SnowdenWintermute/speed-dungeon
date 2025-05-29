@@ -1,4 +1,3 @@
-import { imageProcessingPixelShaderWGSL } from "@babylonjs/core";
 import { CombatActionComponent, CombatActionName } from "../index.js";
 import { ATTACK_MELEE_MAIN_HAND } from "./attack/attack-melee-main-hand.js";
 import { ATTACK_MELEE_OFF_HAND } from "./attack/attack-melee-off-hand.js";

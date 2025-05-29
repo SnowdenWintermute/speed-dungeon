@@ -1,9 +1,14 @@
 import { ActionResolutionStepContext, ActionResolutionStepType } from "./index.js";
-import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
+import {
+  ActionEntityMotionGameUpdateCommand,
+  ActionEntityMotionUpdate,
+  GameUpdateCommandType,
+} from "../game-update-commands.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../app-consts.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
-import { ActionEntity, ActionEntityName } from "../../action-entities/index.js";
+import { ActionEntity } from "../../action-entities/index.js";
+import { COMBAT_ACTIONS } from "../../combat/index.js";
 
 export class ActionEntityMotionActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(
@@ -11,19 +16,36 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
     stepType: ActionResolutionStepType,
     actionEntity: ActionEntity
   ) {
-    const despawnOnComplete =
-      actionEntity.actionEntityProperties.name === ActionEntityName.Arrow ||
-      actionEntity.actionEntityProperties.name === ActionEntityName.IceBolt ||
-      stepType === ActionResolutionStepType.RecoveryMotion;
-
-    const gameUpdateCommand: GameUpdateCommand = {
-      type: GameUpdateCommandType.EntityMotion,
-      step: stepType,
-      actionName: context.tracker.actionExecutionIntent.actionName,
-      completionOrderId: null,
+    const update: ActionEntityMotionUpdate = {
       entityType: SpawnableEntityType.ActionEntity,
       entityId: actionEntity.entityProperties.id,
-      despawnOnComplete,
+    };
+
+    const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
+    const stepConfig = action.stepsConfig.steps[stepType];
+    if (!stepConfig) throw new Error("expected step config not found");
+    if (stepConfig.shouldDespawnOnComplete)
+      update.despawnOnComplete = stepConfig.shouldDespawnOnComplete(context);
+
+    if (stepConfig.getNewParent) update.setParent = stepConfig.getNewParent(context);
+
+    if (stepConfig.getCosmeticDestinationY)
+      update.cosmeticDestinationY = stepConfig.getCosmeticDestinationY(context);
+
+    if (stepConfig.getEntityToLockOnTo)
+      update.lockRotationToFace = stepConfig.getEntityToLockOnTo(context);
+
+    if (stepConfig.getStartPointingToward)
+      update.startPointingToward = stepConfig.getStartPointingToward(context);
+
+    const { actionName } = context.tracker.actionExecutionIntent;
+
+    const gameUpdateCommand: ActionEntityMotionGameUpdateCommand = {
+      type: GameUpdateCommandType.ActionEntityMotion,
+      step: stepType,
+      actionName,
+      completionOrderId: null,
+      mainEntityUpdate: update,
     };
 
     super(

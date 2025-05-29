@@ -1,35 +1,22 @@
 import {
-  CosmeticEffectNames,
   ERROR_MESSAGES,
-  EntityId,
-  Milliseconds,
-  AbstractParentType,
   COSMETIC_EFFECT_CONSTRUCTORS,
+  CosmeticEffectOnTargetTransformNode,
+  CosmeticEffectOnEntity,
 } from "@speed-dungeon/common";
 import { gameWorld } from "../../SceneManager";
-import { getChildMeshByName } from "../../utils";
 import { Vector3 } from "@babylonjs/core";
-import { CosmeticEffectManager } from "../../scene-entities/cosmetic-effect-manager";
-import {
-  BONE_NAMES,
-  BoneName,
-} from "../../scene-entities/character-models/skeleton-structure-variables";
+import { SceneEntity } from "../../scene-entities";
 
-export function startOrStopCosmeticEffect(
-  cosmeticEffectToStart: {
-    name: CosmeticEffectNames;
-    parentType: AbstractParentType;
-    lifetime?: Milliseconds;
-  }[],
-  cosmeticEffectToStop: CosmeticEffectNames[],
-  cosmeticEffectManager: CosmeticEffectManager,
-  entityId: EntityId
+export function startOrStopCosmeticEffects(
+  cosmeticEffectsToStart?: CosmeticEffectOnTargetTransformNode[],
+  cosmeticEffectsToStop?: CosmeticEffectOnEntity[]
 ) {
-  if (cosmeticEffectToStart.length) {
+  if (cosmeticEffectsToStart?.length) {
     const sceneOption = gameWorld.current?.scene;
     if (!sceneOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
 
-    for (const { name, parentType, lifetime } of cosmeticEffectToStart) {
+    for (const { name, parent, lifetime } of cosmeticEffectsToStart) {
       const effect = new COSMETIC_EFFECT_CONSTRUCTORS[name](sceneOption);
 
       if (lifetime !== undefined) {
@@ -38,66 +25,34 @@ export function startOrStopCosmeticEffect(
         }, lifetime);
       }
 
+      const cosmeticEffectManager = SceneEntity.getFromIdentifier(
+        parent.sceneEntityIdentifier
+      ).cosmeticEffectManager;
+
       cosmeticEffectManager.cosmeticEffect[name]?.softCleanup();
       cosmeticEffectManager.cosmeticEffect[name] = effect;
 
-      switch (parentType) {
-        case AbstractParentType.UserMainHand:
-          {
-            const boneName = BONE_NAMES[BoneName.EquipmentR];
+      console.log(
+        "trying to find model to parent cosmetic effect on with id",
+        parent.sceneEntityIdentifier
+      );
 
-            const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
-            if (!combatantModelOption)
-              throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-            const boneToParent = getChildMeshByName(combatantModelOption.rootMesh, boneName);
-            if (!boneToParent) throw new Error("bone not found");
-            effect.transformNode.setParent(boneToParent);
-            effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
-          }
-          break;
-        case AbstractParentType.UserOffHand:
-          {
-            const boneName = BONE_NAMES[BoneName.EquipmentL];
+      const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(parent);
 
-            const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
-            if (!combatantModelOption)
-              throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-
-            const boneToParent = getChildMeshByName(combatantModelOption.rootMesh, boneName);
-            if (!boneToParent) throw new Error("bone not found");
-            effect.transformNode.setParent(boneToParent);
-            effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
-          }
-          break;
-        case AbstractParentType.VfxEntityRoot:
-          {
-            const actionEntityModelOption = gameWorld.current?.actionEntityManager.models[entityId];
-            if (!actionEntityModelOption)
-              throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_ACTION_ENTITY_MODEL);
-            effect.transformNode.setParent(actionEntityModelOption.movementManager.transformNode);
-            effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
-          }
-          break;
-        case AbstractParentType.CombatantHitboxCenter:
-          {
-            const combatantModelOption = gameWorld.current?.modelManager.combatantModels[entityId];
-            if (!combatantModelOption)
-              throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
-
-            effect.transformNode.setPositionWithLocalVector(
-              combatantModelOption.getBoundingInfo().boundingSphere.centerWorld
-            );
-            effect.transformNode.setParent(combatantModelOption.movementManager.transformNode);
-          }
-          break;
-      }
+      effect.transformNode.setParent(targetTransformNode);
+      effect.transformNode.setPositionWithLocalVector(Vector3.Zero());
     }
   }
 
-  if (cosmeticEffectToStop.length) {
-    for (const vfxName of cosmeticEffectToStop) {
-      cosmeticEffectManager.cosmeticEffect[vfxName]?.softCleanup();
-      delete cosmeticEffectManager.cosmeticEffect[vfxName];
+  if (cosmeticEffectsToStop?.length) {
+    for (const cosmeticEffectOnEntity of cosmeticEffectsToStop) {
+      const { sceneEntityIdentifier, name } = cosmeticEffectOnEntity;
+
+      const sceneEntity = SceneEntity.getFromIdentifier(sceneEntityIdentifier);
+      const { cosmeticEffectManager } = sceneEntity;
+
+      cosmeticEffectManager.cosmeticEffect[name]?.softCleanup();
+      delete cosmeticEffectManager.cosmeticEffect[name];
     }
   }
 }

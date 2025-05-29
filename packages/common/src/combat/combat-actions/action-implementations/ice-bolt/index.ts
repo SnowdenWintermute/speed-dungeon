@@ -7,7 +7,6 @@ import {
 } from "../../index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
-import { AbstractParentType } from "../../../../action-entities/index.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
   TargetingPropertiesTypes,
@@ -18,22 +17,42 @@ import {
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
-import { getProjectileShootingActionBaseStepsConfig } from "../projectile-shooting-action-base-steps-config.js";
+import { getProjectileShootingActionBaseStepsConfig } from "../getProjectileShootingActionBaseStepsConfig.js";
 import { ProjectileShootingActionType } from "../projectile-shooting-action-animation-names.js";
+import {
+  CombatantBaseChildTransformNodeName,
+  SceneEntityType,
+} from "../../../../scene-entities/index.js";
 
 const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Spell);
 stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
   ...stepsConfig.steps[ActionResolutionStepType.InitialPositioning],
-  cosmeticsEffectsToStart: [
-    {
-      name: CosmeticEffectNames.FrostParticleAccumulation,
-      parentType: AbstractParentType.UserOffHand,
-    },
-  ],
+  getCosmeticsEffectsToStart: (context) => {
+    return [
+      {
+        name: CosmeticEffectNames.FrostParticleAccumulation,
+        parent: {
+          sceneEntityIdentifier: {
+            type: SceneEntityType.CharacterModel,
+            entityId: context.combatantContext.combatant.entityProperties.id,
+          },
+          transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
+        },
+      },
+    ];
+  },
 };
 stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
   ...stepsConfig.steps[ActionResolutionStepType.FinalPositioning],
-  cosmeticsEffectsToStop: [CosmeticEffectNames.FrostParticleAccumulation],
+  getCosmeticsEffectsToStop: (context) => [
+    {
+      name: CosmeticEffectNames.FrostParticleAccumulation,
+      sceneEntityIdentifier: {
+        type: SceneEntityType.CharacterModel,
+        entityId: context.combatantContext.combatant.entityProperties.id,
+      },
+    },
+  ],
 };
 
 const config: CombatActionComponentConfig = {

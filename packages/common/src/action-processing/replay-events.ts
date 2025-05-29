@@ -50,8 +50,11 @@ export class Replayer {
         if (node.type === ReplayEventType.GameUpdate) {
           const { gameUpdate } = node;
           let destinationOption: null | Vector3 = null;
-          if (gameUpdate.type === GameUpdateCommandType.EntityMotion) {
-            destinationOption = gameUpdate.translationOption?.destination || null;
+          if (
+            gameUpdate.type === GameUpdateCommandType.CombatantMotion ||
+            gameUpdate.type === GameUpdateCommandType.ActionEntityMotion
+          ) {
+            destinationOption = gameUpdate.mainEntityUpdate.translationOption?.destination || null;
           }
           console.log(
             new Array(depth).fill("-").join(""),

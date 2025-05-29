@@ -1,16 +1,10 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import {
-  ActionCommandPayload,
-  Equipment,
-  HoldableHotswapSlot,
-  TaggedEquipmentSlot,
-} from "@speed-dungeon/common";
+import { ActionCommandPayload } from "@speed-dungeon/common";
 import { EnvironmentModelTypes } from "../../scene-entities/environment-models/environment-model-paths";
 
 export enum ModelActionType {
   ClearAllModels,
-  ChangeEquipment,
-  SelectHotswapSlot,
+  SynchronizeCombatantEquipmentModels,
   ProcessActionCommands,
   SynchronizeCombatantModels,
   SpawnEnvironmentModel,
@@ -18,8 +12,7 @@ export enum ModelActionType {
 }
 
 export const MODEL_ACTION_TYPE_STRINGS: Record<ModelActionType, string> = {
-  [ModelActionType.ChangeEquipment]: "Change Equipment",
-  [ModelActionType.SelectHotswapSlot]: "Select Hotswap Slot",
+  [ModelActionType.SynchronizeCombatantEquipmentModels]: "Synchronize Combatant Equipment Models",
   [ModelActionType.ProcessActionCommands]: "Process Action Commands",
   [ModelActionType.SynchronizeCombatantModels]: "Synchronize Combatant Models",
   [ModelActionType.SpawnEnvironmentModel]: "Spawn Environment Model",
@@ -28,17 +21,8 @@ export const MODEL_ACTION_TYPE_STRINGS: Record<ModelActionType, string> = {
 };
 
 export type ChangeEquipmentModelAction = {
-  type: ModelActionType.ChangeEquipment;
+  type: ModelActionType.SynchronizeCombatantEquipmentModels;
   entityId: string;
-  unequippedIds: string[];
-  toEquip?: { item: Equipment; slot: TaggedEquipmentSlot };
-};
-
-export type SelectHotswapSlotModelAction = {
-  type: ModelActionType.SelectHotswapSlot;
-  entityId: string;
-  hotswapSlots: HoldableHotswapSlot[];
-  selectedIndex: number;
 };
 
 export type ProcessActionCommandsModelAction = {
@@ -70,7 +54,6 @@ export type ClearAllModelsModelAction = {
 
 export type ModelAction =
   | ChangeEquipmentModelAction
-  | SelectHotswapSlotModelAction
   | ProcessActionCommandsModelAction
   | SynchronizeCombatantModelsModelAction
   | SpawnEnvironmentalModelModelAction

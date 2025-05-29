@@ -57,6 +57,7 @@ const config: CombatActionComponentConfig = {
             timing: { type: AnimationTimingType.Timed, duration: 200 },
           };
         },
+        shouldDespawnOnComplete: () => true,
       },
     },
     { userShouldMoveHomeOnComplete: false }

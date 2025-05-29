@@ -24,7 +24,7 @@ import {
 import { ReactNode } from "react";
 import { ItemLink } from "@/app/game/combat-log/item-link";
 import cloneDeep from "lodash.clonedeep";
-import { gameWorld } from "@/app/3d-world/SceneManager";
+import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
 import { ImageManagerRequestType } from "@/app/3d-world/game-world/image-manager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
@@ -74,13 +74,11 @@ export function characterPerformedCraftingActionHandler(eventData: {
           itemResult.entityProperties.id
         );
         const isEquipped = slotEquippedToOption !== null;
+
         if (isEquipped && wasRepaired) {
-          // spawn the item model on the character
-          gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
-            type: ModelActionType.ChangeEquipment,
+          getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+            type: ModelActionType.SynchronizeCombatantEquipmentModels,
             entityId: character.entityProperties.id,
-            unequippedIds: [],
-            toEquip: { slot: slotEquippedToOption, item: itemResult },
           });
         }
 

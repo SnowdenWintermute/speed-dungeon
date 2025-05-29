@@ -10,8 +10,8 @@ import {
 import { useGameStore } from "@/stores/game-store";
 import { CharacterModel } from ".";
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
-import { CharacterModelPartCategory } from "./modular-character-parts";
 import cloneDeep from "lodash.clonedeep";
+import { CharacterModelPartCategory } from "./modular-character-parts-model-manager/modular-character-parts";
 
 export class HighlightManager {
   private originalPartMaterialColors: Partial<
@@ -25,7 +25,9 @@ export class HighlightManager {
   constructor(private modularCharacter: CharacterModel) {}
 
   setHighlighted() {
-    for (const [partCategory, part] of iterateNumericEnumKeyedRecord(this.modularCharacter.parts)) {
+    for (const [partCategory, part] of iterateNumericEnumKeyedRecord(
+      this.modularCharacter.modularCharacterPartsManager.parts
+    )) {
       if (!part) continue;
 
       const originalColors: { [meshName: string]: Color3 } = {};
@@ -40,19 +42,17 @@ export class HighlightManager {
       this.originalPartMaterialColors[partCategory] = originalColors;
     }
 
-    for (const [equipmentId, equipmentModel] of Object.entries(
-      this.modularCharacter.equipment.holdables
-    )) {
+    for (const equipmentModel of this.modularCharacter.equipmentModelManager.getAllModels()) {
       const originalColors: { [meshName: string]: Color3 } = {};
 
-      for (const mesh of equipmentModel.meshes) {
+      for (const mesh of equipmentModel.assetContainer.meshes) {
         const { material } = mesh;
         if (!(material instanceof StandardMaterial) && !(material instanceof PBRMaterial)) continue;
         const originalColor = cloneDeep(material.emissiveColor);
         originalColors[mesh.name] = originalColor;
       }
 
-      this.originalEquipmentMaterialColors[equipmentId] = originalColors;
+      this.originalEquipmentMaterialColors[equipmentModel.entityId] = originalColors;
     }
 
     this.isHighlighted = true;
@@ -71,7 +71,9 @@ export class HighlightManager {
   }
 
   removeHighlight() {
-    for (const [partCategory, part] of iterateNumericEnumKeyedRecord(this.modularCharacter.parts)) {
+    for (const [partCategory, part] of iterateNumericEnumKeyedRecord(
+      this.modularCharacter.modularCharacterPartsManager.parts
+    )) {
       if (!part) continue;
 
       const originalColors = this.originalPartMaterialColors[partCategory];
@@ -89,22 +91,20 @@ export class HighlightManager {
       delete this.originalPartMaterialColors[partCategory];
     }
 
-    for (const [equipmentId, equipmentModel] of Object.entries(
-      this.modularCharacter.equipment.holdables
-    )) {
-      const originalColors = this.originalEquipmentMaterialColors[equipmentId];
+    for (const equipmentModel of this.modularCharacter.equipmentModelManager.getAllModels()) {
+      const originalColors = this.originalEquipmentMaterialColors[equipmentModel.entityId];
       if (!originalColors) {
         console.error("original colors not found when removing highlight");
         continue;
       }
-      for (const mesh of equipmentModel.meshes) {
+      for (const mesh of equipmentModel.assetContainer.meshes) {
         const { material } = mesh;
         if (!(material instanceof StandardMaterial) && !(material instanceof PBRMaterial)) continue;
         const originalColorOption = originalColors[mesh.name];
         if (originalColorOption) material.emissiveColor = originalColorOption;
       }
 
-      delete this.originalEquipmentMaterialColors[equipmentId];
+      delete this.originalEquipmentMaterialColors[equipmentModel.entityId];
     }
 
     this.isHighlighted = false;
@@ -154,7 +154,7 @@ export class HighlightManager {
     // glow the character and their equipment
 
     for (const [_partCategory, part] of iterateNumericEnumKeyedRecord(
-      this.modularCharacter.parts
+      this.modularCharacter.modularCharacterPartsManager.parts
     )) {
       if (!part) continue;
 
@@ -171,10 +171,8 @@ export class HighlightManager {
       }
     }
 
-    for (const [_entityId, equipmentModel] of Object.entries(
-      this.modularCharacter.equipment.holdables
-    )) {
-      for (const mesh of equipmentModel.meshes) {
+    for (const equipmentModel of this.modularCharacter.equipmentModelManager.getAllModels()) {
+      for (const mesh of equipmentModel.assetContainer.meshes) {
         const { material } = mesh;
 
         if (material instanceof StandardMaterial || material instanceof PBRMaterial) {

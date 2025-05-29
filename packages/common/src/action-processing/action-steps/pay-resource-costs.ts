@@ -4,7 +4,7 @@ import {
   ActionResolutionStepType,
 } from "./index.js";
 import { ActionPayableResource, COMBAT_ACTIONS } from "../../combat/index.js";
-import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
+import { GameUpdateCommandType, ResourcesPaidGameUpdateCommand } from "../game-update-commands.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantProperties, Inventory } from "../../combatants/index.js";
 
@@ -18,12 +18,13 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
       ? action.costProperties.getConsumableCost()
       : undefined;
 
-    let gameUpdateCommandOption: null | GameUpdateCommand = null;
+    let gameUpdateCommandOption: null | ResourcesPaidGameUpdateCommand = null;
+
     if (costsOption !== null || consumableTypeToConsumeOption !== undefined) {
       gameUpdateCommandOption = {
         type: GameUpdateCommandType.ResourcesPaid,
-        actionName: context.tracker.actionExecutionIntent.actionName,
         step: stepType,
+        actionName: action.name,
         completionOrderId: null,
         combatantId: combatant.entityProperties.id,
       };
@@ -44,7 +45,6 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
       }
 
       if (costsOption) {
-        console.log("costs option: ", costsOption);
         gameUpdateCommandOption.costsPaid = costsOption;
         const { combatantProperties } = combatant;
 
@@ -62,8 +62,6 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
         }
       }
     }
-
-    console.log("costs update: ", gameUpdateCommandOption);
 
     super(stepType, context, gameUpdateCommandOption);
   }

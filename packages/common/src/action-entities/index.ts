@@ -1,7 +1,11 @@
 export * from "./cosmetic-effect.js";
 export * from "./cosmetic-effect-constructors.js";
 import { Vector3 } from "@babylonjs/core";
-import { EntityId, EntityProperties } from "../primatives/index.js";
+import { EntityProperties } from "../primatives/index.js";
+import {
+  SceneEntityChildTransformNodeIdentifier,
+  SceneEntityChildTransformNodeIdentifierWithDuration,
+} from "../scene-entities/index.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -17,27 +21,14 @@ export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
   [ActionEntityName.IceBurst]: "IceBurst",
 };
 
-export enum AbstractParentType {
-  UserMainHand,
-  UserOffHand,
-  VfxEntityRoot,
-  CombatantHitboxCenter,
-  // OffHand,
-  // MainHandWeapon,
-  // OffHandWeapon
-}
-
-export interface AbstractParent {
-  type: AbstractParentType;
-  parentEntityId: EntityId;
-  offset?: Vector3;
-}
-
 export type ActionEntityProperties = {
   position: Vector3;
   name: ActionEntityName;
-  pointTowardEntityOption?: EntityId;
-  parentOption?: AbstractParent;
+  initialCosmeticYPosition?: SceneEntityChildTransformNodeIdentifier;
+  parentOption?: SceneEntityChildTransformNodeIdentifier;
+  initialRotation?: Vector3;
+  initialPointToward?: SceneEntityChildTransformNodeIdentifier;
+  initialLockRotationToFace?: SceneEntityChildTransformNodeIdentifierWithDuration;
 };
 
 export class ActionEntity {

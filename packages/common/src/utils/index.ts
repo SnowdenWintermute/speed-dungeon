@@ -1,7 +1,7 @@
 export * from "./get-next-or-previous-number.js";
 export * from "./get-progression-game-max-starting-floor.js";
 
-import { Vector3 } from "@babylonjs/core";
+import { Quaternion, Vector3 } from "@babylonjs/core";
 import { CONSUMABLE_TYPE_STRINGS, Consumable, ConsumableType } from "../items/consumables/index.js";
 
 export function removeFromArray<T>(array: T[], item: T): undefined | T {
@@ -110,4 +110,13 @@ export function easeIn(t: number) {
 
 export function easeOut(t: number) {
   return t * (2 - t);
+}
+
+export function getQuaternionAngleDifference(q1: Quaternion, q2: Quaternion): number {
+  const normalized1 = q1.clone().normalize();
+  const normalized2 = q2.clone().normalize();
+
+  const dot = normalized1.dot(normalized2);
+  const clampedDot = Math.min(Math.max(dot, -1), 1); // Clamp for numerical safety
+  return 2 * Math.acos(clampedDot); // Result is in radians
 }

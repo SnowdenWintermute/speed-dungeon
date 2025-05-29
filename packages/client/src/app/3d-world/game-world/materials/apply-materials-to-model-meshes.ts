@@ -1,11 +1,11 @@
 import { AssetContainer, StandardMaterial } from "@babylonjs/core";
 
 export function applyMaterialsToModelMeshes(
-  model: AssetContainer,
+  assetContainer: AssetContainer,
   materialNamesToMaterials: { [materialName: string]: StandardMaterial },
   createUniqueInstance: boolean
 ) {
-  for (const mesh of model.meshes) {
+  for (const mesh of assetContainer.meshes) {
     for (const [materialName, material] of Object.entries(materialNamesToMaterials))
       if (mesh.material?.name === materialName) {
         const oldMaterial = mesh.material;
@@ -24,6 +24,7 @@ export function applyMaterialsToModelMeshes(
           uniqueInstance.specularColor.b = material.specularColor.b;
           uniqueInstance.specularPower = material.specularPower;
           mesh.material = uniqueInstance;
+          assetContainer.materials.push(uniqueInstance); // so it can be properly disposed later
         } else mesh.material = material;
         oldMaterial.dispose();
       }

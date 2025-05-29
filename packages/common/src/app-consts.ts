@@ -1,4 +1,4 @@
-import { Milliseconds } from "./primatives";
+import { Milliseconds } from "./primatives/index.js";
 
 export const INFO_UNICODE_SYMBOL = "ⓘ";
 
@@ -61,15 +61,14 @@ export const ARMOR_CLASS_EQUATION_MODIFIER = 2.5;
 export const MELEE_START_ATTACK_RANGE = 0.5;
 
 // 3D MODELS
-export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 1;
-// export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 0.2;
+export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 1; // default is 1, higher is slower;
 
 export const COMBATANT_POSITION_SPACING_SIDE = 1.4;
 export const COMBATANT_POSITION_SPACING_BETWEEN_ROWS = 5.0;
 export const COMBATANT_TIME_TO_MOVE_ONE_METER = 300;
 // export const COMBATANT_TIME_TO_MOVE_ONE_METER = 100;
-export const ARROW_TIME_TO_MOVE_ONE_METER = 200;
-// export const ARROW_TIME_TO_MOVE_ONE_METER = 1000;
+// export const ARROW_TIME_TO_MOVE_ONE_METER = 40;
+export const ARROW_TIME_TO_MOVE_ONE_METER = 65;
 export const COMBATANT_TIME_TO_ROTATE_360 = 1000;
 export const MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME = 1000;
 export const DEFAULT_HITBOX_RADIUS_FALLBACK = 1.5;
@@ -173,9 +172,15 @@ export enum SkeletalAnimationName {
   TwoHandStabChambering,
   TwoHandStabDelivery,
   TwoHandStabRecovery,
+  BowPrep,
   BowChambering,
   BowDelivery,
   BowRecovery,
+  EquipmentShortBowShoot,
+  EquipmentMilitaryBowShoot,
+  EquipmentEtherBowShoot,
+  EquipmentRecurveBowShoot,
+  EquipmentCompositeBowShoot,
   CastSpellChambering,
   CastSpellDelivery,
   CastSpellRecovery,
@@ -231,6 +236,7 @@ export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, stri
   [SkeletalAnimationName.TwoHandStabChambering]: "2h-stab-chambering",
   [SkeletalAnimationName.TwoHandStabDelivery]: "2h-stab-delivery",
   [SkeletalAnimationName.TwoHandStabRecovery]: "2h-stab-recovery",
+  [SkeletalAnimationName.BowPrep]: "bow-shoot-prep",
   [SkeletalAnimationName.BowChambering]: "bow-shoot-chambering",
   [SkeletalAnimationName.BowDelivery]: "bow-shoot-delivery",
   [SkeletalAnimationName.BowRecovery]: "bow-shoot-recovery",
@@ -240,6 +246,11 @@ export const SKELETAL_ANIMATION_NAME_STRINGS: Record<SkeletalAnimationName, stri
   [SkeletalAnimationName.UseConsumableChambering]: "use-consumable-chambering",
   [SkeletalAnimationName.UseConsumableDelivery]: "use-consumable-delivery",
   [SkeletalAnimationName.UseConsumableRecovery]: "use-consumable-recovery",
+  [SkeletalAnimationName.EquipmentShortBowShoot]: "short-bow-shoot-baked",
+  [SkeletalAnimationName.EquipmentMilitaryBowShoot]: "military-bow-shoot-baked",
+  [SkeletalAnimationName.EquipmentEtherBowShoot]: "ether-bow-shoot-baked",
+  [SkeletalAnimationName.EquipmentRecurveBowShoot]: "recurve-bow-shoot-baked",
+  [SkeletalAnimationName.EquipmentCompositeBowShoot]: "composite-bow-shoot-baked",
 };
 
 export const DYNAMIC_ANIMATION_NAME_STRINGS: Record<DynamicAnimationName, string> = {

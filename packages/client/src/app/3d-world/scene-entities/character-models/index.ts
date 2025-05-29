@@ -1,95 +1,57 @@
 import {
-  AbstractMesh,
   BoundingInfo,
   Color4,
   AssetContainer,
   Mesh,
   Quaternion,
-  TransformNode,
   Vector3,
+  StandardMaterial,
+  TransformNode,
+  MeshBuilder,
 } from "@babylonjs/core";
-import {
-  disposeAsyncLoadedScene,
-  getChildMeshByName,
-  getClientRectFromMesh,
-  getTransformNodeByName,
-  importMesh,
-  paintCubesOnNodes,
-} from "../../utils";
+import { getChildMeshByName, getClientRectFromMesh, paintCubesOnNodes } from "../../utils";
 import { GameWorld } from "../../game-world";
 import {
   SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
   CombatantClass,
-  DEFAULT_HITBOX_RADIUS_FALLBACK,
   ERROR_MESSAGES,
   Equipment,
   HoldableSlotType,
-  WearableSlotType,
   iterateNumericEnumKeyedRecord,
   CombatantEquipment,
   EquipmentType,
+  CombatantBaseChildTransformNodeName,
+  NormalizedPercentage,
+  COMBATANT_BASE_TRANSFORM_NODE_NAME_STRINGS,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
-import { MONSTER_SCALING_SIZES } from "./monster-scaling-sizes";
 import cloneDeep from "lodash.clonedeep";
 import { setUpDebugMeshes, despawnDebugMeshes } from "./set-up-debug-meshes";
-import {
-  attachHoldableModelToHolsteredPosition,
-  attachHoldableModelToSkeleton,
-} from "./attach-holdables";
-import { handleHotswapSlotChanged } from "./handle-hotswap-slot-changed";
-import { spawnItemModel } from "../../item-models/spawn-item-model";
 import { HighlightManager } from "./highlight-manager";
 import { useGameStore } from "@/stores/game-store";
 import { plainToInstance } from "class-transformer";
 import { useLobbyStore } from "@/stores/lobby-store";
-import { ModelMovementManager } from "../model-movement-manager";
-import { SkeletalAnimationManager } from "../model-animation-managers/skeletal-animation-manager";
-import { CosmeticEffectManager } from "../cosmetic-effect-manager";
 import { ManagedAnimationOptions } from "../model-animation-managers";
+import { SceneEntity } from "..";
 import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
-import { CharacterModelPartCategory } from "./modular-character-parts";
+import { EquipmentModelManager } from "./equipment-model-manager";
+import { ModularCharacterPartsModelManager } from "./modular-character-parts-model-manager";
+import { createBillboard } from "@/utils";
+import { getGameWorld } from "../../SceneManager";
 
-export class CharacterModel {
-  rootMesh: AbstractMesh;
-  rootTransformNode: TransformNode;
-  parts: Record<CharacterModelPartCategory, null | AssetContainer> = {
-    [CharacterModelPartCategory.Head]: null,
-    [CharacterModelPartCategory.Torso]: null,
-    [CharacterModelPartCategory.Legs]: null,
-    [CharacterModelPartCategory.Full]: null,
-  };
-  equipment: {
-    wearables: Record<
-      WearableSlotType,
-      null | { entityId: string; scene: AssetContainer }
-    >;
-    holdables: { [entityId: string]: AssetContainer };
-  } = {
-    wearables: {
-      [WearableSlotType.Head]: null,
-      [WearableSlotType.Body]: null,
-      [WearableSlotType.RingL]: null,
-      [WearableSlotType.RingR]: null,
-      [WearableSlotType.Amulet]: null,
-    },
-    holdables: {},
-  };
-  hitboxRadius: number = DEFAULT_HITBOX_RADIUS_FALLBACK;
+export class CharacterModel extends SceneEntity {
+  childTransformNodes: Partial<Record<CombatantBaseChildTransformNodeName, TransformNode>> = {};
   homeLocation: {
     position: Vector3;
     rotation: Quaternion;
   };
-  isInMeleeRangeOfTarget: boolean = false;
-  movementManager: ModelMovementManager;
-  animationManager: SkeletalAnimationManager;
-  cosmeticEffectManager = new CosmeticEffectManager();
-  highlightManager: HighlightManager = new HighlightManager(this);
-  debugMeshes: Mesh[] | null = null;
-  public visibility: number = 0;
 
-  testAnimationSwitcherAnimationName: SkeletalAnimationName = SkeletalAnimationName.IdleTwoHand;
+  modularCharacterPartsManager = new ModularCharacterPartsModelManager(this);
+  equipmentModelManager = new EquipmentModelManager(this);
+  highlightManager: HighlightManager = new HighlightManager(this);
+
+  debugMeshes: Mesh[] | null = null;
 
   constructor(
     public entityId: string,
@@ -97,35 +59,13 @@ export class CharacterModel {
     public monsterType: null | MonsterType,
     public isPlayerControlled: boolean,
     public combatantClass: CombatantClass,
-    public skeleton: AssetContainer,
+    skeletonAssetContainer: AssetContainer,
     public modelDomPositionElement: HTMLDivElement | null,
     public debugElement: HTMLDivElement | null,
     homePosition: Vector3,
     homeRotation: Quaternion
   ) {
-    this.animationManager = new SkeletalAnimationManager(this);
-
-    // get rid of the placeholder mesh (usually a simple quad or tri) which
-    // must be included in order for babylon to recognize the loaded asset as a skeleton
-    while (skeleton.meshes.length > 1) {
-      skeleton.meshes.pop()!.dispose(false, true);
-    }
-
-    const rootMesh = this.skeleton.meshes[0];
-    if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
-
-    if (this.monsterType !== null) {
-      rootMesh.scaling = Vector3.One().scale(MONSTER_SCALING_SIZES[this.monsterType]);
-    }
-    this.rootTransformNode = new TransformNode(`${this.entityId}-root-transform-node`);
-    this.rootTransformNode.rotationQuaternion = plainToInstance(Quaternion, homeRotation);
-    this.rootTransformNode.position = plainToInstance(Vector3, homePosition);
-
-    this.movementManager = new ModelMovementManager(this.rootTransformNode);
-
-    this.rootMesh = rootMesh;
-    this.rootMesh.setParent(this.rootTransformNode);
-    this.rootMesh.position.copyFrom(Vector3.Zero());
+    super(entityId, skeletonAssetContainer, homePosition, homeRotation);
 
     const rotation = this.rootTransformNode.rotationQuaternion;
     if (!rotation) throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
@@ -134,24 +74,79 @@ export class CharacterModel {
       rotation: cloneDeep(rotation),
     };
 
+    // this.initChildTransformNodes();
+
+    // for (const [nodeName, transformNode] of iterateNumericEnumKeyedRecord(
+    //   this.childTransformNodes
+    // )) {
+    //   const markerMesh = MeshBuilder.CreateBox("", { size: 0.1 });
+    //   markerMesh.setParent(transformNode);
+    //   markerMesh.setPositionWithLocalVector(Vector3.Zero());
+    // }
     // this.setUpDebugMeshes();
     // this.setShowBones();
   }
 
-  setVisibility(value: number) {
+  initRootMesh(assetContainer: AssetContainer) {
+    // get rid of the placeholder mesh (usually a simple quad or tri) which
+    // must be included in order for babylon to recognize the loaded asset as a skeleton
+    while (assetContainer.meshes.length > 1) {
+      assetContainer.meshes.pop()!.dispose(false, true);
+    }
+
+    const rootMesh = assetContainer.meshes[0];
+    if (rootMesh === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
+
+    return rootMesh;
+  }
+
+  initChildTransformNodes(): void {
+    const mainHandEquipmentNode = SceneEntity.createTransformNodeChildOfBone(
+      this.rootMesh,
+      `${this.entityId}-mh-equipment`,
+      "Equipment.R"
+    );
+    this.childTransformNodes[CombatantBaseChildTransformNodeName.MainHandEquipment] =
+      mainHandEquipmentNode;
+
+    const offHandEquipmentNode = SceneEntity.createTransformNodeChildOfBone(
+      this.rootMesh,
+      `${this.entityId}-oh-equipment`,
+      "Equipment.L"
+    );
+    this.childTransformNodes[CombatantBaseChildTransformNodeName.OffhandEquipment] =
+      offHandEquipmentNode;
+
+    this.childTransformNodes[CombatantBaseChildTransformNodeName.EntityRoot] =
+      this.rootTransformNode;
+
+    const hitboxCenterTransformNode = new TransformNode(`${this.entityId}-hitbox-center`);
+    const hitboxCenter = this.getBoundingInfo().boundingBox.center;
+
+    hitboxCenterTransformNode.setParent(this.rootTransformNode);
+    hitboxCenterTransformNode.position = hitboxCenter.clone();
+
+    this.childTransformNodes[CombatantBaseChildTransformNodeName.HitboxCenter] =
+      hitboxCenterTransformNode;
+  }
+
+  customCleanup(): void {
+    if (this.debugMeshes) for (const mesh of Object.values(this.debugMeshes)) mesh.dispose();
+    this.equipmentModelManager.cleanup();
+    this.modularCharacterPartsManager.cleanup();
+  }
+
+  getSkeletonRoot() {
+    if (!this.assetContainer.meshes[0])
+      throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
+    return this.assetContainer.meshes[0];
+  }
+
+  setVisibility(value: NormalizedPercentage) {
     this.visibility = value;
 
-    for (const [partCategory, scene] of iterateNumericEnumKeyedRecord(this.parts)) {
-      scene?.meshes.forEach((mesh) => {
-        mesh.visibility = this.visibility;
-      });
-    }
-    for (const holdable of Object.values(this.equipment.holdables)) {
-      holdable.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
-    }
-    for (const wearable of Object.values(this.equipment.wearables)) {
-      wearable?.scene.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
-    }
+    this.equipmentModelManager.setVisibilityForShownHotswapSlots(this.visibility);
+    this.modularCharacterPartsManager.setVisibility(this.visibility);
   }
 
   setHomeRotation(rotation: Quaternion) {
@@ -166,7 +161,7 @@ export class CharacterModel {
   startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {
     const idleName = this.getIdleAnimationName();
 
-    this.animationManager.startAnimationWithTransition(idleName, transitionMs, {
+    this.skeletalAnimationManager.startAnimationWithTransition(idleName, transitionMs, {
       ...options,
       shouldLoop: true,
     });
@@ -193,6 +188,7 @@ export class CharacterModel {
       this.monsterType !== MonsterType.FireMage
     )
       return SkeletalAnimationName.IdleUnarmed;
+
     const combatant = this.getCombatant();
 
     const { combatantProperties } = combatant;
@@ -243,10 +239,11 @@ export class CharacterModel {
     let minimum: null | Vector3 = null;
     let maximum: null | Vector3 = null;
 
-    for (const [_category, part] of iterateNumericEnumKeyedRecord(this.parts)) {
+    for (const [_category, part] of iterateNumericEnumKeyedRecord(
+      this.modularCharacterPartsManager.parts
+    )) {
       if (part === null) continue;
       for (const mesh of part.meshes) {
-        // if (mesh.name === "__root__") continue;
         // Update root mesh bounding box
         mesh.refreshBoundingInfo({ applySkeleton: true, applyMorph: true });
         if (minimum === null) minimum = mesh.getBoundingInfo().minimum;
@@ -265,94 +262,40 @@ export class CharacterModel {
     );
   }
 
-  async attachPart(partCategory: CharacterModelPartCategory, partPath: string) {
-    const part = await importMesh(partPath, this.world.scene);
-    const parent = getTransformNodeByName(this.skeleton, BONE_NAMES[BoneName.Armature]);
-    if (!this.skeleton.skeletons[0])
-      return new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
-
-    for (const mesh of part.meshes) {
-      // attach part
-      if (mesh.skeleton) mesh.skeleton = this.skeleton.skeletons[0];
-      mesh.visibility = this.visibility;
-
-      mesh.parent = parent!;
-    }
-
-    part.skeletons[0]?.dispose();
-
-    this.removePart(partCategory);
-
-    // we need to save a reference to the part so we can dispose of it when switching to a different part
-    this.parts[partCategory] = part;
-
-    this.updateBoundingBox();
-
-    return part;
-  }
-
-  async unequipHoldableModel(entityId: string) {
-    const toDispose = this.equipment.holdables[entityId];
-    if (!toDispose) return;
-    disposeAsyncLoadedScene(toDispose);
-
-    if (this.isIdling()) {
-      this.startIdleAnimation(500);
-    } else console.log("wasn't idling when unequipping");
-  }
-
   isIdling() {
-    const currentAnimationName = this.animationManager.playing?.getName();
+    const currentAnimationName = this.skeletalAnimationManager.playing?.getName();
 
-    return (
-      currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleUnarmed] ||
-      currentAnimationName ===
-        SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleMainHand] ||
-      currentAnimationName ===
-        SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleDualWield] ||
-      currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleBow] ||
-      currentAnimationName === SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleTwoHand]
-    );
-  }
+    const idleAnimationStringNames = [
+      SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleUnarmed],
+      SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleMainHand],
+      SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleDualWield],
+      SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleBow],
+      SKELETAL_ANIMATION_NAME_STRINGS[SkeletalAnimationName.IdleTwoHand],
+    ];
 
-  async equipHoldableModel(equipment: Equipment, slot: HoldableSlotType, holstered?: boolean) {
-    const equipmentModelResult = await spawnItemModel(
-      equipment,
-      this.world.scene,
-      this.world.defaultMaterials,
-      true
-    );
-
-    if (equipmentModelResult instanceof Error) {
-      console.log("equipment model error: ", equipmentModelResult.message);
-      return;
-    }
-
-    equipmentModelResult.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
-
-    this.equipment.holdables[equipment.entityProperties.id] = equipmentModelResult;
-
-    if (holstered)
-      attachHoldableModelToHolsteredPosition(this, equipmentModelResult, slot, equipment);
-    else attachHoldableModelToSkeleton(this, equipmentModelResult, slot, equipment);
-  }
-
-  removePart(partCategory: CharacterModelPartCategory) {
-    disposeAsyncLoadedScene(this.parts[partCategory]);
-    this.parts[partCategory] = null;
+    if (currentAnimationName === undefined) return false;
+    return idleAnimationStringNames.includes(currentAnimationName);
   }
 
   setShowBones() {
+    const transparentMaterial = new StandardMaterial("");
+    transparentMaterial.alpha = 0.3;
+    for (const [category, assetContainer] of iterateNumericEnumKeyedRecord(
+      this.modularCharacterPartsManager.parts
+    )) {
+      if (!assetContainer) continue;
+      for (const mesh of assetContainer.meshes) {
+        for (const child of mesh.getChildMeshes()) mesh.material = transparentMaterial;
+      }
+    }
+
     const cubeSize = 0.02;
     const red = new Color4(255, 0, 0, 1.0);
-    if (!this.skeleton.meshes[0]) return;
     const skeletonRootBone = getChildMeshByName(
-      this.skeleton.meshes[0],
+      this.getSkeletonRoot(),
       BONE_NAMES[BoneName.Armature]
     );
     if (skeletonRootBone !== undefined)
       paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.world.scene);
   }
-
-  handleHotswapSlotChanged = handleHotswapSlotChanged;
 }

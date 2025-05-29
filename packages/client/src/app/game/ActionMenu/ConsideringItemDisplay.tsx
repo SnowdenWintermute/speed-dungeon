@@ -35,7 +35,9 @@ export default function ConsideringItemDisplay() {
         <div className="">{currentMenu.item.entityProperties.name}</div>
         <Divider extraStyles="w-full" />
         {currentMenu.item instanceof Consumable ? (
-          <div>Select "use" to choose a target for this consumable</div>
+          <div>
+            Select <span className="font-bold">use</span> to choose a target for this consumable
+          </div>
         ) : (
           <div>Equipping this item will swap it with any currently equipped item</div>
         )}

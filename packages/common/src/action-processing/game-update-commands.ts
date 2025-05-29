@@ -13,10 +13,20 @@ import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { DurabilityChangesByEntityId } from "../durability/index.js";
 import { HitOutcome } from "../hit-outcome.js";
 import { ActionEntity } from "../action-entities/index.js";
+import {
+  SceneEntityChildTransformNodeIdentifier,
+  SceneEntityChildTransformNodeIdentifierWithDuration,
+} from "../scene-entities/index.js";
+import {
+  CosmeticEffectOnEntity,
+  CosmeticEffectOnTargetTransformNode,
+  EquipmentAnimation,
+} from "../combat/combat-actions/combat-action-steps-config.js";
 
 export enum GameUpdateCommandType {
   SpawnEntity,
-  EntityMotion,
+  CombatantMotion,
+  ActionEntityMotion,
   ResourcesPaid,
   ActivatedTriggers,
   HitOutcomes,
@@ -24,7 +34,8 @@ export enum GameUpdateCommandType {
 
 export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, string> = {
   [GameUpdateCommandType.SpawnEntity]: "Spawn Entity",
-  [GameUpdateCommandType.EntityMotion]: "Entity Motion",
+  [GameUpdateCommandType.CombatantMotion]: "Entity Motion",
+  [GameUpdateCommandType.ActionEntityMotion]: "Entity Motion",
   [GameUpdateCommandType.ResourcesPaid]: "Resources Paid",
   [GameUpdateCommandType.ActivatedTriggers]: "Activated Triggers",
   [GameUpdateCommandType.HitOutcomes]: "Hit Outcomes",
@@ -52,62 +63,94 @@ export type TimedAnimation = { type: AnimationTimingType.Timed; duration: Millis
 export type AnimationTiming = LoopingAnimation | TimedAnimation;
 export type EntityAnimation = { name: TaggedAnimationName; timing: AnimationTiming };
 
-export type SpawnEntityGameUpdateCommand = {
+export interface SpawnEntityGameUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.SpawnEntity;
-  step: ActionResolutionStepType;
-  completionOrderId: null | number;
   entity: SpawnableEntity;
-};
+}
 
-export type EntityMotionGameUpdateCommand = {
-  type: GameUpdateCommandType.EntityMotion;
-  completionOrderId: null | number;
-  step: ActionResolutionStepType;
-  actionName: CombatActionName;
-  entityType: SpawnableEntityType;
+export interface IEntityMotionUpdate {
+  // @PERF - could rely on the main update command entityId and only supply this if the motion update is for another entity
+  // such as when a combatant motion update has to tell a projectile to point somewhere or change its parent
   entityId: EntityId;
   animationOption?: EntityAnimation;
   translationOption?: EntityTranslation;
   rotationOption?: EntityRotation;
-  idleOnComplete?: boolean;
   instantTransition?: boolean;
-  despawnOnComplete?: boolean;
-};
+}
 
-export type ResourcesPaidGameUpdateCommand = {
-  type: GameUpdateCommandType.ResourcesPaid;
-  step: ActionResolutionStepType;
+export interface TargetCombatantChildTransformNodeWithDuration {
+  target: SceneEntityChildTransformNodeIdentifier;
+  duration: Milliseconds;
+}
+
+export interface ActionEntityMotionUpdate extends IEntityMotionUpdate {
+  entityType: SpawnableEntityType.ActionEntity;
+  cosmeticDestinationY?: SceneEntityChildTransformNodeIdentifier;
+  despawn?: boolean;
+  despawnOnComplete?: boolean;
+  setParent?: SceneEntityChildTransformNodeIdentifierWithDuration | null;
+  lockRotationToFace?: SceneEntityChildTransformNodeIdentifierWithDuration | null;
+  startPointingToward?: SceneEntityChildTransformNodeIdentifierWithDuration | null;
+}
+
+export interface CombatantMotionUpdate extends IEntityMotionUpdate {
+  entityType: SpawnableEntityType.Combatant;
+  idleOnComplete?: boolean;
+  equipmentAnimations?: EquipmentAnimation[];
+}
+
+export type EntityMotionUpdate = CombatantMotionUpdate | ActionEntityMotionUpdate;
+
+export interface IGameUpdateCommand {
   actionName: CombatActionName;
+  step: ActionResolutionStepType;
   completionOrderId: null | number;
+  cosmeticEffectsToStart?: CosmeticEffectOnTargetTransformNode[];
+  cosmeticEffectsToStop?: CosmeticEffectOnEntity[];
+}
+
+export interface CombatantMotionGameUpdateCommand extends IGameUpdateCommand {
+  type: GameUpdateCommandType.CombatantMotion;
+  mainEntityUpdate: CombatantMotionUpdate;
+  auxiliaryUpdates?: EntityMotionUpdate[];
+}
+
+export interface ActionEntityMotionGameUpdateCommand extends IGameUpdateCommand {
+  type: GameUpdateCommandType.ActionEntityMotion;
+  mainEntityUpdate: ActionEntityMotionUpdate;
+  auxiliaryUpdates?: EntityMotionUpdate[];
+}
+
+export type EntityMotionUpdateCommand =
+  | CombatantMotionGameUpdateCommand
+  | ActionEntityMotionGameUpdateCommand;
+
+export interface ResourcesPaidGameUpdateCommand extends IGameUpdateCommand {
+  type: GameUpdateCommandType.ResourcesPaid;
   combatantId: EntityId;
   costsPaid?: ActionResourceCosts;
   itemsConsumed?: [EntityId];
-};
+}
 
-export type ActivatedTriggersGameUpdateCommand = {
+export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.ActivatedTriggers;
-  step: ActionResolutionStepType;
-  actionName: CombatActionName;
-  completionOrderId: null | number;
   durabilityChanges?: DurabilityChangesByEntityId;
   hitPointChanges?: HitPointChanges;
   appliedConditions?: Partial<Record<HitOutcome, Record<EntityId, CombatantCondition[]>>>;
   removedConditionStacks?: Record<EntityId, { conditionId: EntityId; numStacks: number }[]>;
-};
+}
 
-export type HitOutcomesGameUpdateCommand = {
+export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.HitOutcomes;
-  step: ActionResolutionStepType;
-  actionName: CombatActionName;
-  completionOrderId: null | number;
   actionUserName: string;
   actionUserId: string;
   outcomes: CombatActionHitOutcomes;
-};
+}
 
 export type GameUpdateCommand =
   | SpawnEntityGameUpdateCommand
-  | EntityMotionGameUpdateCommand
+  | CombatantMotionGameUpdateCommand
+  | ActionEntityMotionGameUpdateCommand
   | ResourcesPaidGameUpdateCommand
   | ActivatedTriggersGameUpdateCommand
   | HitOutcomesGameUpdateCommand;

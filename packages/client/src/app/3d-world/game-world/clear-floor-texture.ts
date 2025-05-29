@@ -39,28 +39,28 @@ export function drawCompass(gameWorld: GameWorld) {
   context.moveTo(west.x, west.y);
   context.lineTo(centerX, centerY);
   context.stroke();
-  context.fillText("W", west.x, west.y);
+  context.fillText("W (-X)", west.x, west.y);
 
   context.beginPath();
   context.moveTo(north.x, north.y);
   context.lineTo(centerX, centerY);
   context.strokeStyle = FFIX_COLORS.windgreen;
   context.stroke();
-  context.fillText("N", north.x, north.y);
+  context.fillText("N (-Y)", north.x, north.y);
 
   context.beginPath();
   context.moveTo(south.x, south.y);
   context.lineTo(centerX, centerY);
   context.strokeStyle = FFIX_COLORS.waterblue;
   context.stroke();
-  context.fillText("S", south.x, south.y);
+  context.fillText("S (+Y)", south.x, south.y);
 
   context.beginPath();
   context.moveTo(east.x, east.y);
   context.lineTo(centerX, centerY);
   context.strokeStyle = FFIX_COLORS.earthyellow;
   context.stroke();
-  context.fillText("E", east.x, east.y);
+  context.fillText("E (+X)", east.x, east.y);
 
   context.moveTo(centerX, centerY);
   context.beginPath();

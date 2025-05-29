@@ -18,8 +18,8 @@ export class ModelActionQueue {
     this.isProcessing = true;
 
     let currentAction = this.messages.shift();
+
     while (currentAction) {
-      // console.log(MODEL_ACTION_TYPE_STRINGS[currentAction.type]);
       const handler = this.modelManager.modelActionHandlers[currentAction.type];
       const maybeError = await handler(currentAction);
 

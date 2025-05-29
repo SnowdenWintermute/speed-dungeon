@@ -5,14 +5,10 @@ import {
   CombatActionHitOutcomes,
 } from "../combat/index.js";
 import { Milliseconds } from "../primatives/index.js";
-import { SpawnableEntity } from "../spawnables/index.js";
+import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
-import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
-  ActionResolutionStep,
-  ActionResolutionStepContext,
-} from "./action-steps/index.js";
+import { ActionResolutionStep, ActionResolutionStepContext } from "./action-steps/index.js";
 import { ACTION_STEP_CREATORS } from "./action-steps/step-creators.js";
 
 export class ActionTracker {
@@ -50,10 +46,6 @@ export class ActionTracker {
       idGenerator: this.idGenerator,
     };
     const stepTypes = action.stepsConfig.getStepTypes();
-    console.log(
-      "got sorted steps: ",
-      stepTypes.map((step) => ACTION_RESOLUTION_STEP_TYPE_STRINGS[step])
-    );
     const stepOption = stepTypes[this.stepIndex];
     if (stepOption === undefined) return null;
     const stepCreator = ACTION_STEP_CREATORS[stepOption];
@@ -71,5 +63,11 @@ export class ActionTracker {
   }
   getCompletedSteps() {
     return this.completedSteps;
+  }
+
+  getExpectedSpawnedActionEntity() {
+    if (this.spawnedEntityOption?.type === SpawnableEntityType.ActionEntity)
+      return this.spawnedEntityOption;
+    else throw new Error("expected spawned action entity not found");
   }
 }

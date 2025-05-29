@@ -12,7 +12,7 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import CreateCharacterForm from "./CreateCharacterForm";
 import DeleteCharacterForm from "./DeleteCharacterForm";
 import CharacterModelDisplay from "@/app/character-model-display";
-import { gameWorld } from "@/app/3d-world/SceneManager";
+import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 export const CHARACTER_SLOT_SPACING = 1;
@@ -27,7 +27,7 @@ export default function SavedCharacterManager() {
   const showGameCreationForm = useLobbyStore().showGameCreationForm;
 
   useEffect(() => {
-    const camera = gameWorld.current?.camera;
+    const camera = getGameWorld().camera;
     if (!camera) return;
     camera.target.copyFrom(
       new Vector3(-CHARACTER_SLOT_SPACING + CHARACTER_SLOT_SPACING * currentSlot, 1, 0)
@@ -38,7 +38,7 @@ export default function SavedCharacterManager() {
   }, [currentSlot]);
 
   useEffect(() => {
-    gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
+    getGameWorld().modelManager.modelActionQueue.enqueueMessage({
       type: ModelActionType.SynchronizeCombatantModels,
     });
   }, [savedCharacters]);

@@ -1,13 +1,13 @@
-import { AnimationGroup } from "@babylonjs/core";
+import { AnimationGroup, AssetContainer } from "@babylonjs/core";
 import { AnimationManager, ManagedAnimation, ManagedAnimationOptions } from ".";
 import {
   DEBUG_ANIMATION_SPEED_MULTIPLIER,
+  EntityId,
   MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
   SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
 } from "@speed-dungeon/common";
 import { setDebugMessage } from "@/stores/game-store/babylon-controlled-combatant-data";
-import { CharacterModel } from "../character-models";
 
 export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   protected timeStarted: number = Date.now();
@@ -29,9 +29,7 @@ export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
     if (this.options.animationDurationOverrideOption !== undefined)
       length = this.options.animationDurationOverrideOption;
 
-    length *= DEBUG_ANIMATION_SPEED_MULTIPLIER;
-
-    return length;
+    return length * DEBUG_ANIMATION_SPEED_MULTIPLIER;
   }
 
   setWeight(newWeight: number) {
@@ -56,10 +54,13 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
   playing: null | ManagedSkeletalAnimation = null;
   previous: null | ManagedSkeletalAnimation = null;
   locked: boolean = false;
-  constructor(public characterModel: CharacterModel) {
+  constructor(
+    public sceneEntityId: EntityId,
+    public assetContainer: AssetContainer
+  ) {
     // stop default animation
-    this.characterModel.skeleton.animationGroups[0]?.setWeightForAllAnimatables(0);
-    this.characterModel.skeleton.animationGroups[0]?.stop();
+    this.assetContainer.animationGroups[0]?.setWeightForAllAnimatables(0);
+    this.assetContainer.animationGroups[0]?.stop();
   }
 
   cloneAnimation(animationGroup: AnimationGroup): AnimationGroup {
@@ -77,7 +78,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
       console.log("cloned animatino was undefined", newAnimationName);
       // send message to client with timout duration to remove itself
       setDebugMessage(
-        this.characterModel.entityId,
+        this.sceneEntityId,
         `Missing animation: ${newAnimationName}`,
         MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME,
         options.onComplete
@@ -94,7 +95,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     let speedModifier =
       animationStockDuration / (options.animationDurationOverrideOption || animationStockDuration);
 
-    speedModifier *= DEBUG_ANIMATION_SPEED_MULTIPLIER;
+    speedModifier *= 1 / DEBUG_ANIMATION_SPEED_MULTIPLIER;
 
     clonedAnimation.start(options.shouldLoop, speedModifier);
   }
@@ -103,8 +104,10 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
     // if (!this.playing) console.log("no animation played this frame");
     if (!this.playing) return;
 
+    const length = this.playing.getLength();
+
     const elapsed = this.playing.elapsed();
-    if (elapsed >= this.playing.getLength()) {
+    if (elapsed >= length) {
       this.playing.setWeight(1);
       this.previous?.setWeight(0);
       // otherwise it is possible that a short animation would finish
@@ -152,7 +155,7 @@ export class SkeletalAnimationManager implements AnimationManager<AnimationGroup
 
   getAnimationGroupByName(animationName: SkeletalAnimationName) {
     const asString = SKELETAL_ANIMATION_NAME_STRINGS[animationName];
-    const { skeleton } = this.characterModel;
+    const skeleton = this.assetContainer;
     for (let index = 0; index < skeleton.animationGroups.length; index++) {
       if (!skeleton.animationGroups[index]) continue;
       if (skeleton.animationGroups[index]!.name === asString) {

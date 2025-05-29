@@ -9,7 +9,7 @@ import { useGameStore } from "@/stores/game-store";
 import { createImageCreatorScene } from "./create-image-creator-scene";
 import { SavedMaterials, createDefaultMaterials } from "../materials/create-default-materials";
 import { Equipment, Item } from "@speed-dungeon/common";
-import { calculateCompositeBoundingBox, disposeAsyncLoadedScene } from "../../utils";
+import { calculateCompositeBoundingBox } from "../../utils";
 import { spawnItemModel } from "../../item-models/spawn-item-model";
 
 export enum ImageManagerRequestType {
@@ -112,16 +112,19 @@ export class ImageManager {
 
   async createItemImage(item: Item) {
     const equipmentModelResult = await spawnItemModel(item, this.scene, this.materials, false);
+
     if (equipmentModelResult instanceof Error) {
       this.processNextMessage();
       return console.error(equipmentModelResult.message);
     }
-    const parentMesh = equipmentModelResult.meshes[0];
-    if (!parentMesh) return console.error("no parent mesh");
+
+    equipmentModelResult.setVisibility(1);
+
+    const parentMesh = equipmentModelResult.rootMesh;
 
     parentMesh.position = Vector3.Zero();
 
-    const box = calculateCompositeBoundingBox(equipmentModelResult.meshes);
+    const box = calculateCompositeBoundingBox(equipmentModelResult.assetContainer.meshes);
     const itemHeight = box.max.y - box.min.y;
 
     const center = box.min.add(box.max).scale(0.5);
@@ -149,7 +152,7 @@ export class ImageManager {
         useGameStore.getState().mutateState((state) => {
           state.itemThumbnails[item.entityProperties.id] = image;
         });
-        disposeAsyncLoadedScene(equipmentModelResult);
+        equipmentModelResult.cleanup({ softCleanup: false });
 
         this.processNextMessage();
       },

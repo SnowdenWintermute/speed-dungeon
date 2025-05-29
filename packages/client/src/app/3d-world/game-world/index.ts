@@ -23,8 +23,6 @@ import { SavedMaterials, createDefaultMaterials } from "./materials/create-defau
 import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
 import { ReplayTreeManager } from "./replay-tree-manager";
-import { testParticleSystem } from "./testing-particle-systems";
-import { testingSounds } from "./testing-sounds";
 import { ActionEntityManager } from "../scene-entities/action-entity-models";
 
 export const LAYER_MASK_1 = 0x10000000;
@@ -117,20 +115,20 @@ export class GameWorld {
     )
       this.modelManager.modelActionQueue.processMessages();
 
-    for (const actionEntityModel of this.actionEntityManager.get()) {
+    for (const actionEntityModel of this.actionEntityManager.getAll()) {
       actionEntityModel.movementManager.processActiveActions();
-      actionEntityModel.animationManager.playing?.animationGroup?.animateScene(
-        actionEntityModel.animationManager.scene
+      actionEntityModel.dynamicAnimationManager.playing?.animationGroup?.animateScene(
+        actionEntityModel.dynamicAnimationManager.assetContainer
       );
-      actionEntityModel.animationManager.handleCompletedAnimations();
-      actionEntityModel.animationManager.stepAnimationTransitionWeights();
+      actionEntityModel.dynamicAnimationManager.handleCompletedAnimations();
+      actionEntityModel.dynamicAnimationManager.stepAnimationTransitionWeights();
     }
 
     for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
       combatantModel.highlightManager.updateHighlight();
       combatantModel.movementManager.processActiveActions();
-      combatantModel.animationManager.stepAnimationTransitionWeights();
-      combatantModel.animationManager.handleCompletedAnimations();
+      combatantModel.skeletalAnimationManager.stepAnimationTransitionWeights();
+      combatantModel.skeletalAnimationManager.handleCompletedAnimations();
       combatantModel.updateDomRefPosition();
     }
   }

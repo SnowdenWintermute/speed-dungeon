@@ -5,14 +5,20 @@ import {
   StandardMaterial,
   TransformNode,
   Vector3,
+  Quaternion,
+  AbstractMesh,
+  Scene,
 } from "@babylonjs/core";
-import { ActionEntityName, ERROR_MESSAGES, EntityId } from "@speed-dungeon/common";
-import { disposeAsyncLoadedScene, importMesh } from "../../utils";
-import { ModelMovementManager } from "../model-movement-manager";
+import {
+  ActionEntityBaseChildTransformNodeName,
+  ActionEntityName,
+  ERROR_MESSAGES,
+  EntityId,
+} from "@speed-dungeon/common";
+import { importMesh } from "../../utils";
 import { gameWorld } from "../../SceneManager";
 import { ACTION_ENTITY_NAME_TO_MODEL_PATH } from "./action-entity-model-paths";
-import { CosmeticEffectManager } from "../cosmetic-effect-manager";
-import { DynamicAnimationManager } from "../model-animation-managers/dynamic-animation-manager";
+import { SceneEntity } from "..";
 
 export class ActionEntityManager {
   models: { [id: EntityId]: ActionEntityModel } = {};
@@ -22,55 +28,78 @@ export class ActionEntityManager {
   }
 
   unregister(id: EntityId) {
-    this.models[id]?.softCleanup();
+    this.models[id]?.cleanup({ softCleanup: true });
     delete this.models[id];
   }
 
-  get() {
+  findOne(entityId: EntityId): ActionEntityModel {
+    const modelOption = this.models[entityId];
+    if (!modelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_ACTION_ENTITY_MODEL);
+    return modelOption;
+  }
+
+  getAll() {
     return Object.values(this.models);
   }
 }
 
-export class ActionEntityModel {
-  public movementManager: ModelMovementManager;
-  public animationManager: DynamicAnimationManager;
-  public cosmeticEffectManager = new CosmeticEffectManager();
-  private transformNode: TransformNode;
-  // public animationManager: AnimationManager
+export class ActionEntityModel extends SceneEntity {
+  childTransformNodes: Partial<Record<ActionEntityBaseChildTransformNodeName, TransformNode>> = {};
   constructor(
     public id: EntityId,
-    public scene: AssetContainer,
+    assetContainer: AssetContainer,
     startPosition: Vector3,
-    public name: ActionEntityName,
-    public pointTowardEntity?: EntityId
+    public name: ActionEntityName
   ) {
-    const modelRootTransformNode = scene.transformNodes[0];
-    if (!modelRootTransformNode) throw new Error("Expected transform node was missing in scene");
+    super(id, assetContainer, startPosition, new Quaternion());
 
-    this.transformNode = new TransformNode("");
-    this.transformNode.setAbsolutePosition(startPosition);
-    modelRootTransformNode.setParent(this.transformNode);
-    modelRootTransformNode.setPositionWithLocalVector(Vector3.Zero());
-
-    this.movementManager = new ModelMovementManager(this.transformNode);
-    this.animationManager = new DynamicAnimationManager(this.scene);
-    // this.animationManager = new AnimationManager()
-    this.movementManager.instantlyMove(startPosition);
+    const sceneOption = gameWorld.current?.scene;
+    this.initChildTransformNodes();
+    // this.createDebugLines(startPosition, sceneOption);
   }
 
-  softCleanup() {
-    disposeAsyncLoadedScene(this.scene);
-    this.cosmeticEffectManager.softCleanup();
+  initChildTransformNodes(): void {
+    this.childTransformNodes[ActionEntityBaseChildTransformNodeName.EntityRoot] =
+      this.rootTransformNode;
   }
 
-  cleanup() {
-    this.dispose();
+  createDebugLines(startPosition: Vector3, sceneOption: undefined | Scene) {
+    const start = startPosition;
+    const positiveZ = startPosition.add(new Vector3(0, 0, 1));
+
+    const positiveZline = MeshBuilder.CreateLines(
+      "line",
+      {
+        points: [start, positiveZ],
+      },
+      sceneOption
+    );
+    const negativeZ = startPosition.add(new Vector3(0, 0, -1));
+    const negativeZline = MeshBuilder.CreateLines(
+      "line",
+      {
+        points: [start, negativeZ],
+      },
+      sceneOption
+    );
+
+    positiveZline.setPositionWithLocalVector(Vector3.Zero());
+    positiveZline.setParent(this.rootTransformNode);
+    negativeZline.setPositionWithLocalVector(Vector3.Zero());
+    negativeZline.setParent(this.rootTransformNode);
+
+    const testMesh = MeshBuilder.CreateBox("", { size: 0.1 });
+    testMesh.setParent(this.rootTransformNode);
+    testMesh.setPositionWithLocalVector(Vector3.Zero());
   }
 
-  dispose() {
-    disposeAsyncLoadedScene(this.scene);
-    this.transformNode.dispose(false);
+  initRootMesh(assetContainer: AssetContainer): AbstractMesh {
+    const rootMesh = assetContainer.meshes[0];
+    if (!rootMesh) throw new Error("no meshes found");
+    return rootMesh;
   }
+
+  customCleanup(): void {}
 }
 
 export async function spawnActionEntityModel(vfxName: ActionEntityName, position: Vector3) {
@@ -88,16 +117,8 @@ export async function spawnActionEntityModel(vfxName: ActionEntityName, position
 
           mesh.material = material;
           mesh.position.copyFrom(position);
-          model = {
-            meshes: [mesh],
-            particleSystems: [],
-            skeletons: [],
-            animationGroups: [],
-            transformNodes: [],
-            geometries: [],
-            lights: [],
-            spriteManagers: [],
-          };
+          model = new AssetContainer();
+          model.meshes = [mesh];
         }
         break;
       case ActionEntityName.Arrow:
@@ -112,16 +133,8 @@ export async function spawnActionEntityModel(vfxName: ActionEntityName, position
 
           mesh.material = material;
           mesh.position.copyFrom(position);
-          model = {
-            meshes: [mesh],
-            particleSystems: [],
-            skeletons: [],
-            animationGroups: [],
-            transformNodes: [],
-            geometries: [],
-            lights: [],
-            spriteManagers: [],
-          };
+          model = new AssetContainer();
+          model.meshes = [mesh];
         }
         break;
     }

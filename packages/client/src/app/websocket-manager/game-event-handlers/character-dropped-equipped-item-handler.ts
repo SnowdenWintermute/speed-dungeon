@@ -6,10 +6,10 @@ import {
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { websocketConnection } from "@/singletons/websocket-connection";
-import { gameWorld } from "@/app/3d-world/SceneManager";
+import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
-export default function characterDroppedEquippedItemHandler(characterAndSlot: CharacterAndSlot) {
+export function characterDroppedEquippedItemHandler(characterAndSlot: CharacterAndSlot) {
   const { characterId, slot } = characterAndSlot;
 
   characterAssociatedDataProvider(characterId, ({ party, character }: CharacterAssociatedData) => {
@@ -25,10 +25,9 @@ export default function characterDroppedEquippedItemHandler(characterAndSlot: Ch
       itemDroppedIdResult
     );
 
-    gameWorld.current?.modelManager.modelActionQueue.enqueueMessage({
-      type: ModelActionType.ChangeEquipment,
+    getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.SynchronizeCombatantEquipmentModels,
       entityId: characterId,
-      unequippedIds: [itemDroppedIdResult],
     });
   });
 }

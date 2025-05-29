@@ -5,9 +5,10 @@ import {
   ActionResolutionStepType,
 } from "./index.js";
 import {
+  ActionEntityMotionGameUpdateCommand,
   AnimationTimingType,
+  CombatantMotionGameUpdateCommand,
   EntityAnimation,
-  EntityMotionGameUpdateCommand,
   EntityTranslation,
 } from "../game-update-commands.js";
 import { COMBAT_ACTIONS, CombatActionComponent } from "../../combat/index.js";
@@ -19,7 +20,9 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   constructor(
     stepType: ActionResolutionStepType,
     context: ActionResolutionStepContext,
-    private gameUpdateCommand: EntityMotionGameUpdateCommand,
+    private gameUpdateCommand:
+      | CombatantMotionGameUpdateCommand
+      | ActionEntityMotionGameUpdateCommand,
     private entityPosition: Vector3,
     private entitySpeed: number
   ) {
@@ -33,7 +36,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
 
     if (animationOption) {
       this.animationOption = animationOption;
-      this.gameUpdateCommand.animationOption = animationOption;
+      this.gameUpdateCommand.mainEntityUpdate.animationOption = animationOption;
     }
 
     const destinationsOption = this.getDestinations(action);
@@ -41,9 +44,18 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
       const { translationOption, rotationOption } = destinationsOption;
       if (translationOption) {
         this.translationOption = translationOption;
-        gameUpdateCommand.translationOption = translationOption;
+        gameUpdateCommand.mainEntityUpdate.translationOption = translationOption;
       }
-      if (rotationOption) gameUpdateCommand.rotationOption = rotationOption;
+      if (rotationOption) gameUpdateCommand.mainEntityUpdate.rotationOption = rotationOption;
+    }
+
+    // this is for when we need to tweak positions/parents of projectiles based on steps of
+    // their parent action, like pointing an arrow at a target or releasing from the string
+    const auxiliaryEntityMotionsGetter =
+      action.stepsConfig.steps[this.type]?.getAuxiliaryEntityMotions;
+    if (auxiliaryEntityMotionsGetter) {
+      const auxiliaryEntityMotions = auxiliaryEntityMotionsGetter(context);
+      gameUpdateCommand.auxiliaryUpdates = auxiliaryEntityMotions;
     }
   }
 

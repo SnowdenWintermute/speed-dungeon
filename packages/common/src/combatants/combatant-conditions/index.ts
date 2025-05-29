@@ -1,8 +1,7 @@
-import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
-import { AbstractParentType } from "../../action-entities/index.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
-import { EntityId, MaxAndCurrent, Milliseconds } from "../../primatives/index.js";
+import { CosmeticEffectOnTargetTransformNode } from "../../combat/combat-actions/combat-action-steps-config.js";
+import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { removeFromArray } from "../../utils/index.js";
 import { Combatant, CombatantProperties } from "../index.js";
@@ -77,11 +76,9 @@ export abstract class CombatantCondition {
     triggeredActions: { user: Combatant; actionExecutionIntent: CombatActionExecutionIntent }[];
   };
 
-  abstract getCosmeticEffectWhileActive: () => {
-    name: CosmeticEffectNames;
-    parentType: AbstractParentType;
-    lifetime?: Milliseconds;
-  }[];
+  abstract getCosmeticEffectWhileActive: (
+    combatantId: EntityId
+  ) => CosmeticEffectOnTargetTransformNode[];
   // examples:
   // - perform a composite combat action
   // - remove self - examples:
@@ -161,12 +158,13 @@ export abstract class CombatantCondition {
     numberToRemove: number
   ): CombatantCondition | undefined {
     for (const condition of Object.values(combatantProperties.conditions)) {
-      if (condition.id !== conditionId) return;
+      if (condition.id !== conditionId) continue;
       if (condition.stacksOption)
         condition.stacksOption.current = Math.max(
           0,
           condition.stacksOption.current - numberToRemove
         );
+
       if (condition.stacksOption === null || condition.stacksOption.current === 0) {
         removeFromArray(combatantProperties.conditions, condition);
         return condition;

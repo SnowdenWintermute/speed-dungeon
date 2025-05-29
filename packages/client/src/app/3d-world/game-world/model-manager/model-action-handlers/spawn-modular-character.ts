@@ -1,16 +1,11 @@
 import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
-import {
-  CombatantEquipment,
-  CombatantSpecies,
-  SKELETON_FILE_PATHS,
-  iterateNumericEnumKeyedRecord,
-} from "@speed-dungeon/common";
+import { CombatantSpecies, SKELETON_FILE_PATHS } from "@speed-dungeon/common";
 import { importMesh } from "../../../utils";
 import { GameWorld } from "../../";
 import { AssetContainer } from "@babylonjs/core";
-import { getCharacterModelPartCategoriesAndAssetPaths } from "./get-modular-character-parts";
 import { setCharacterModelPartDefaultMaterials } from "./set-modular-character-part-default-materials";
 import { CharacterModel } from "@/app/3d-world/scene-entities/character-models";
+import { getCharacterModelPartCategoriesAndAssetPaths } from "@/app/3d-world/scene-entities/character-models/modular-character-parts-model-manager/get-modular-character-parts";
 
 export async function spawnCharacterModel(
   world: GameWorld,
@@ -19,10 +14,7 @@ export async function spawnCharacterModel(
   const { combatantProperties, entityProperties } = blueprint.combatant;
 
   const skeletonPath = SKELETON_FILE_PATHS[combatantProperties.combatantSpecies];
-
   const skeleton = await importMesh(skeletonPath, world.scene);
-
-  const parts = getCharacterModelPartCategoriesAndAssetPaths(combatantProperties);
 
   const modularCharacter = new CharacterModel(
     entityProperties.id,
@@ -37,6 +29,7 @@ export async function spawnCharacterModel(
     blueprint.homeRotation
   );
 
+  const parts = getCharacterModelPartCategoriesAndAssetPaths(combatantProperties);
   const partPromises: Promise<AssetContainer | Error>[] = [];
 
   for (const part of parts) {
@@ -48,7 +41,10 @@ export async function spawnCharacterModel(
 
     partPromises.push(
       new Promise(async (resolve, _reject) => {
-        const partResult = await modularCharacter.attachPart(part.category, assetPath);
+        const partResult = await modularCharacter.modularCharacterPartsManager.attachPart(
+          part.category,
+          assetPath
+        );
         if (partResult instanceof Error) {
           console.error(partResult);
           return resolve(partResult);
@@ -65,25 +61,12 @@ export async function spawnCharacterModel(
     if (result instanceof Error) console.error(result);
   }
 
-  if (combatantProperties.combatantSpecies === CombatantSpecies.Humanoid) {
-    const equippedHoldables = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
-
-    if (equippedHoldables)
-      for (const [slot, item] of iterateNumericEnumKeyedRecord(equippedHoldables.holdables))
-        await modularCharacter.equipHoldableModel(item, slot);
-
-    const visibleHolsteredSlotIndex =
-      combatantProperties.equipment.equippedHoldableHotswapSlotIndex === 0 ? 1 : 0;
-
-    const visibleHolstered =
-      CombatantEquipment.getHoldableHotswapSlots(combatantProperties)[visibleHolsteredSlotIndex];
-
-    if (visibleHolstered)
-      for (const [slot, item] of iterateNumericEnumKeyedRecord(visibleHolstered.holdables))
-        await modularCharacter.equipHoldableModel(item, slot, true);
-  }
+  if (combatantProperties.combatantSpecies === CombatantSpecies.Humanoid)
+    modularCharacter.equipmentModelManager.synchronizeCombatantEquipmentModels();
 
   modularCharacter.updateBoundingBox();
+
+  modularCharacter.initChildTransformNodes();
 
   modularCharacter.startIdleAnimation(0, {});
 
