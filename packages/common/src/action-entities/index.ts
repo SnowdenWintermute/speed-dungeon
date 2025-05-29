@@ -23,6 +23,7 @@ export type ActionEntityProperties = {
   name: ActionEntityName;
   parentOption?: SceneEntityChildTransformNodeIdentifier;
   initialRotation?: Vector3;
+  initialPointToward?: SceneEntityChildTransformNodeIdentifier;
 };
 
 export class ActionEntity {

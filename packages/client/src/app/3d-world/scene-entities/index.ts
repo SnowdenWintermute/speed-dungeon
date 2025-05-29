@@ -62,7 +62,6 @@ export abstract class SceneEntity {
   setVisibility(visibility: NormalizedPercentage) {
     this.visibility = visibility;
     this.assetContainer.meshes.forEach((mesh) => (mesh.visibility = this.visibility));
-    console.log("set visibility", visibility);
   }
 
   getVisibility = () => this.visibility;

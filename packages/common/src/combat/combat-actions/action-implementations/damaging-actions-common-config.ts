@@ -21,12 +21,6 @@ export const DAMAGING_ACTIONS_COMMON_CONFIG = {
       return false;
     }
 
-    console.log(
-      "checking if should execute",
-      COMBAT_ACTION_NAME_STRINGS[self.name],
-      targetIdsResult.length
-    );
-
     if (targetIdsResult.length === 0) return false;
 
     return !SpeedDungeonGame.allCombatantsInGroupAreDead(game, targetIdsResult);

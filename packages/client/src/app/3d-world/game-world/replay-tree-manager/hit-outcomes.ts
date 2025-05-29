@@ -19,10 +19,11 @@ import { plainToInstance } from "class-transformer";
 import { HitPointChanges } from "@speed-dungeon/common";
 import { induceHitRecovery } from "./induce-hit-recovery";
 
-export function hitOutcomesGameUpdateHandler(update: {
+export async function hitOutcomesGameUpdateHandler(update: {
   command: HitOutcomesGameUpdateCommand;
   isComplete: boolean;
 }) {
+  update.isComplete = true;
   const { command } = update;
   const { outcomes, actionUserName, actionUserId } = command;
   const { outcomeFlags } = outcomes;

@@ -1,4 +1,5 @@
 import {
+  ActionResolutionStepsConfig,
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionExecutionIntent,
@@ -20,8 +21,12 @@ import {
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 import { getProjectileShootingActionBaseStepsConfig } from "../getProjectileShootingActionBaseStepsConfig.js";
 import { ProjectileShootingActionType } from "../projectile-shooting-action-animation-names.js";
+import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import { ATTACK_RANGED_MAIN_HAND } from "../attack/attack-ranged-main-hand.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea];
+
+const stepsConfig = getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Bow);
 
 const config: CombatActionComponentConfig = {
   description: "Fire arrows which each bounce to up to two additional targets",
@@ -34,7 +39,14 @@ const config: CombatActionComponentConfig = {
       [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnUse },
     },
   },
-  stepsConfig: getProjectileShootingActionBaseStepsConfig(ProjectileShootingActionType.Bow),
+  stepsConfig: new ActionResolutionStepsConfig(
+    {
+      ...stepsConfig.steps,
+      [ActionResolutionStepType.PrepMotion]:
+        ATTACK_RANGED_MAIN_HAND.stepsConfig.steps[ActionResolutionStepType.PrepMotion],
+    },
+    { userShouldMoveHomeOnComplete: true }
+  ),
 
   shouldExecute: () => true,
   getChildren: (_user) => [],

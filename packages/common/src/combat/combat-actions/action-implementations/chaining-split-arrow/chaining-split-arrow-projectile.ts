@@ -20,7 +20,7 @@ import { TargetingCalculator } from "../../../targeting/targeting-calculator.js"
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
 import { COMBAT_ACTIONS } from "../index.js";
-import { ActionEntityName } from "../../../../action-entities/index.js";
+import { ActionEntityName, ActionEntityProperties } from "../../../../action-entities/index.js";
 import {
   CombatActionTargetingPropertiesConfig,
   GENERIC_TARGETING_PROPERTIES,
@@ -33,6 +33,11 @@ import {
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
+import {
+  CombatantBaseChildTransformNodeName,
+  SceneEntityChildTransformNodeIdentifier,
+  SceneEntityType,
+} from "../../../../scene-entities/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -75,6 +80,24 @@ const config: CombatActionComponentConfig = {
     {
       [ActionResolutionStepType.OnActivationSpawnEntity]: {},
       [ActionResolutionStepType.OnActivationActionEntityMotion]: {
+        getCosmeticDestinationY: (context) => {
+          const { tracker } = context;
+          const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
+
+          const primaryTargetId = targetingCalculator.getPrimaryTargetCombatantId(
+            tracker.actionExecutionIntent
+          );
+
+          const toReturn: SceneEntityChildTransformNodeIdentifier = {
+            sceneEntityIdentifier: {
+              type: SceneEntityType.CharacterModel,
+              entityId: primaryTargetId,
+            },
+            transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+          };
+
+          return toReturn;
+        },
         getDestination: (context) => {
           const { combatantContext, tracker } = context;
           const { actionExecutionIntent } = tracker;
@@ -95,6 +118,8 @@ const config: CombatActionComponentConfig = {
 
           return { position: target.combatantProperties.homeLocation.clone() };
         },
+        getNewParent: () => null,
+        shouldDespawnOnComplete: () => true,
       },
       [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
@@ -134,22 +159,53 @@ const config: CombatActionComponentConfig = {
     const { combatantContext, tracker } = context;
     const previousTrackerOption = tracker.getPreviousTrackerInSequenceOption();
     let position = combatantContext.combatant.combatantProperties.position.clone();
+
+    let parentOption: undefined | SceneEntityChildTransformNodeIdentifier;
+
+    const targetingCalculator = new TargetingCalculator(combatantContext, null);
+    const primaryTargetId = targetingCalculator.getPrimaryTargetCombatantId(
+      tracker.actionExecutionIntent
+    );
+
+    const initialPointToward: SceneEntityChildTransformNodeIdentifier = {
+      sceneEntityIdentifier: {
+        type: SceneEntityType.CharacterModel,
+        entityId: primaryTargetId,
+      },
+      transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+    };
+
     if (
       previousTrackerOption &&
       previousTrackerOption.spawnedEntityOption &&
       previousTrackerOption.spawnedEntityOption.type === SpawnableEntityType.ActionEntity
     ) {
+      // was spawned by previous arrow action in chain
       position =
         previousTrackerOption.spawnedEntityOption.actionEntity.actionEntityProperties.position.clone();
+    } else {
+      // was spawned by initial parent action
+      parentOption = {
+        sceneEntityIdentifier: {
+          type: SceneEntityType.CharacterModel,
+          entityId: combatantContext.combatant.entityProperties.id,
+        },
+        transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
+      };
     }
+
+    const actionEntityProperties: ActionEntityProperties = {
+      position,
+      name: ActionEntityName.Arrow,
+      initialPointToward,
+    };
+    if (parentOption) actionEntityProperties.parentOption = parentOption;
+
     return {
       type: SpawnableEntityType.ActionEntity,
       actionEntity: {
         entityProperties: { id: context.idGenerator.generate(), name: "" },
-        actionEntityProperties: {
-          position,
-          name: ActionEntityName.Arrow,
-        },
+        actionEntityProperties,
       },
     };
   },

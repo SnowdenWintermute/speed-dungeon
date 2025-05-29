@@ -9,7 +9,7 @@ import { useGameStore } from "@/stores/game-store";
 import { createImageCreatorScene } from "./create-image-creator-scene";
 import { SavedMaterials, createDefaultMaterials } from "../materials/create-default-materials";
 import { Equipment, Item } from "@speed-dungeon/common";
-import { calculateCompositeBoundingBox, disposeAsyncLoadedScene } from "../../utils";
+import { calculateCompositeBoundingBox } from "../../utils";
 import { spawnItemModel } from "../../item-models/spawn-item-model";
 
 export enum ImageManagerRequestType {
@@ -112,10 +112,13 @@ export class ImageManager {
 
   async createItemImage(item: Item) {
     const equipmentModelResult = await spawnItemModel(item, this.scene, this.materials, false);
+
     if (equipmentModelResult instanceof Error) {
       this.processNextMessage();
       return console.error(equipmentModelResult.message);
     }
+
+    equipmentModelResult.setVisibility(1);
 
     const parentMesh = equipmentModelResult.rootMesh;
 

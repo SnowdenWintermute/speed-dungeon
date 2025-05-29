@@ -1,7 +1,7 @@
 import { EntityMotionUpdateCommand } from "@speed-dungeon/common";
 import { handleEntityMotionUpdate } from "./handle-entity-motion-update";
 
-export function entityMotionGameUpdateHandler(update: {
+export async function entityMotionGameUpdateHandler(update: {
   command: EntityMotionUpdateCommand;
   isComplete: boolean;
 }) {

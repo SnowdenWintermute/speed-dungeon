@@ -1,6 +1,5 @@
 import {
   CombatActionReplayTreePayload,
-  EntityId,
   GameUpdateCommand,
   InputLock,
   NestedNodeReplayEvent,
@@ -10,13 +9,11 @@ import { GAME_UPDATE_COMMAND_HANDLERS } from "./game-update-command-handlers";
 import { useGameStore } from "@/stores/game-store";
 import getCurrentParty from "@/utils/getCurrentParty";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state";
-import { ActionEntityModel } from "../../scene-entities/action-entity-models";
 import { startOrStopCosmeticEffects } from "./start-or-stop-cosmetic-effect";
 
 export class ReplayTreeManager {
   private queue: { root: NestedNodeReplayEvent; onComplete: () => void }[] = [];
   private current: null | ReplayTreeProcessor = null;
-  private preSpawnedVfx: { [id: EntityId]: ActionEntityModel } = {};
   constructor() {}
 
   getCurrent() {
@@ -93,7 +90,7 @@ export class ReplayTreeProcessor {
       let branchComplete = branch.isDoneProcessing();
       let currentStepComplete = branch.currentStepIsComplete();
       while (currentStepComplete && !branchComplete) {
-        const completedUpdateOption = branch.getCurrentGameUpdate();
+        const _completedUpdateOption = branch.getCurrentGameUpdate();
 
         branch.startProcessingNext();
         if (branch.getCurrentGameUpdate() === null) break;
@@ -139,12 +136,6 @@ export class ReplayBranchProcessor {
       this.branchProcessors.push(newBranch);
       return;
     }
-    // console.log(
-    //   "started processing",
-    //   ACTION_RESOLUTION_STEP_TYPE_STRINGS[node.gameUpdate.step],
-
-    //   gameWorld.current?.tickCounter
-    // );
 
     this.currentGameUpdateOption = { command: node.gameUpdate, isComplete: false };
 
