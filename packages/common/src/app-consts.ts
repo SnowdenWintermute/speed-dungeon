@@ -1,5 +1,8 @@
 import { Milliseconds } from "./primatives/index.js";
 
+// remember to update it in package.json as well!
+export const APP_VERSION_NUMBER = "0.11.0";
+
 export const INFO_UNICODE_SYMBOL = "ⓘ";
 
 export const ONE_SECOND: Milliseconds = 1000;

@@ -12,7 +12,7 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import CreateCharacterForm from "./CreateCharacterForm";
 import DeleteCharacterForm from "./DeleteCharacterForm";
 import CharacterModelDisplay from "@/app/character-model-display";
-import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
+import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 export const CHARACTER_SLOT_SPACING = 1;
