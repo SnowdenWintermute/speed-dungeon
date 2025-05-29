@@ -14,11 +14,10 @@ import { getCombatantContext, useGameStore } from "@/stores/game-store";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import { useUIStore } from "@/stores/ui-store";
 import { postResourceChangeToCombatLog } from "./post-resource-change-to-combat-log";
-import { GameWorld } from "../..";
 import { startResourceChangeFloatingMessage } from "./start-resource-change-floating-message";
+import { getGameWorld } from "@/app/3d-world/SceneManager";
 
 export function induceHitRecovery(
-  gameWorld: GameWorld,
   actionUserName: string,
   actionUserId: string,
   actionName: CombatActionName,
@@ -29,7 +28,7 @@ export function induceHitRecovery(
   wasBlocked: boolean,
   shouldAnimate: boolean
 ) {
-  const targetModel = gameWorld.modelManager.combatantModels[targetId];
+  const targetModel = getGameWorld().modelManager.findOneOptional(targetId);
   if (targetModel === undefined) return console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
 
   const action = COMBAT_ACTIONS[actionName];

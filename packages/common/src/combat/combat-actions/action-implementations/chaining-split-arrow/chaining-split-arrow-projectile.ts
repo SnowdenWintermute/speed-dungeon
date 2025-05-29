@@ -35,9 +35,12 @@ import {
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 import {
   CombatantBaseChildTransformNodeName,
+  CombatantHoldableChildTransformNodeName,
   SceneEntityChildTransformNodeIdentifier,
+  SceneEntityChildTransformNodeIdentifierWithDuration,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
+import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -167,7 +170,7 @@ const config: CombatActionComponentConfig = {
       tracker.actionExecutionIntent
     );
 
-    const initialPointToward: SceneEntityChildTransformNodeIdentifier = {
+    const targetModelHitboxIdentifier: SceneEntityChildTransformNodeIdentifier = {
       sceneEntityIdentifier: {
         type: SceneEntityType.CharacterModel,
         entityId: primaryTargetId,
@@ -175,22 +178,51 @@ const config: CombatActionComponentConfig = {
       transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
     };
 
+    const initialPointToward: SceneEntityChildTransformNodeIdentifier = targetModelHitboxIdentifier;
+
+    const initialLockRotationToFace: SceneEntityChildTransformNodeIdentifierWithDuration = {
+      identifier: targetModelHitboxIdentifier,
+      duration: 1,
+    };
+
+    let initialCosmeticYPosition: undefined | SceneEntityChildTransformNodeIdentifier;
+
     if (
       previousTrackerOption &&
+      previousTrackerOption.actionExecutionIntent.actionName ===
+        CombatActionName.ChainingSplitArrowProjectile &&
       previousTrackerOption.spawnedEntityOption &&
       previousTrackerOption.spawnedEntityOption.type === SpawnableEntityType.ActionEntity
     ) {
       // was spawned by previous arrow action in chain
+      //
+      const targetingCalculator = new TargetingCalculator(
+        previousTrackerOption.parentActionManager.combatantContext,
+        null
+      );
+      const previousActionTargetId = targetingCalculator.getPrimaryTargetCombatantId(
+        previousTrackerOption.actionExecutionIntent
+      );
+
       position =
         previousTrackerOption.spawnedEntityOption.actionEntity.actionEntityProperties.position.clone();
+
+      initialCosmeticYPosition = {
+        sceneEntityIdentifier: {
+          type: SceneEntityType.CharacterModel,
+          entityId: previousActionTargetId,
+        },
+        transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+      };
     } else {
       // was spawned by initial parent action
       parentOption = {
         sceneEntityIdentifier: {
-          type: SceneEntityType.CharacterModel,
-          entityId: combatantContext.combatant.entityProperties.id,
+          type: SceneEntityType.CharacterEquipmentModel,
+          characterModelId: combatantContext.combatant.entityProperties.id,
+          slot: HoldableSlotType.MainHand,
         },
-        transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
+        transformNodeName: CombatantHoldableChildTransformNodeName.NockBone,
       };
     }
 
@@ -198,8 +230,13 @@ const config: CombatActionComponentConfig = {
       position,
       name: ActionEntityName.Arrow,
       initialPointToward,
+      initialLockRotationToFace,
     };
+
     if (parentOption) actionEntityProperties.parentOption = parentOption;
+
+    if (initialCosmeticYPosition)
+      actionEntityProperties.initialCosmeticYPosition = initialCosmeticYPosition;
 
     return {
       type: SpawnableEntityType.ActionEntity,

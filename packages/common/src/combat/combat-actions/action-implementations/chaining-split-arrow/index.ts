@@ -21,8 +21,12 @@ import {
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 import { getProjectileShootingActionBaseStepsConfig } from "../getProjectileShootingActionBaseStepsConfig.js";
 import { ProjectileShootingActionType } from "../projectile-shooting-action-animation-names.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import {
+  ActionResolutionStepType,
+  EntityMotionUpdate,
+} from "../../../../action-processing/index.js";
 import { ATTACK_RANGED_MAIN_HAND } from "../attack/attack-ranged-main-hand.js";
+import { SpawnableEntityType, getSpawnableEntityId } from "../../../../spawnables/index.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileArea];
 
@@ -44,10 +48,34 @@ const config: CombatActionComponentConfig = {
       ...stepsConfig.steps,
       [ActionResolutionStepType.PrepMotion]:
         ATTACK_RANGED_MAIN_HAND.stepsConfig.steps[ActionResolutionStepType.PrepMotion],
+
+      [ActionResolutionStepType.PostPrepSpawnEntity]: {},
+      [ActionResolutionStepType.DeliveryMotion]:
+        ATTACK_RANGED_MAIN_HAND.stepsConfig.steps[ActionResolutionStepType.DeliveryMotion],
+      [ActionResolutionStepType.RecoveryMotion]: {
+        ...stepsConfig.steps[ActionResolutionStepType.RecoveryMotion],
+        getAuxiliaryEntityMotions: (context) => {
+          const dummyArrowOption = context.tracker.spawnedEntityOption;
+          if (!dummyArrowOption) return [];
+
+          const actionEntityId = getSpawnableEntityId(dummyArrowOption);
+          //
+          const toReturn: EntityMotionUpdate[] = [];
+
+          toReturn.push({
+            entityId: actionEntityId,
+            entityType: SpawnableEntityType.ActionEntity,
+            despawn: true,
+          });
+
+          return toReturn;
+        },
+      },
     },
     { userShouldMoveHomeOnComplete: true }
   ),
 
+  getSpawnableEntity: ATTACK_RANGED_MAIN_HAND.getSpawnableEntity,
   shouldExecute: () => true,
   getChildren: (_user) => [],
   getParent: () => null,

@@ -109,7 +109,9 @@ export abstract class SceneEntity {
     return toReturn;
   }
 
-  static getChildTransformNodeFromIdentifier(identifier: SceneEntityChildTransformNodeIdentifier) {
+  static getChildTransformNodeFromIdentifier(
+    identifier: SceneEntityChildTransformNodeIdentifier
+  ): TransformNode {
     const { sceneEntityIdentifier, transformNodeName } = identifier;
 
     const sceneEntity = SceneEntity.getFromIdentifier(sceneEntityIdentifier);

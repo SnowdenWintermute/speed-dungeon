@@ -6,6 +6,8 @@ import {
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { getGameWorld } from "../../SceneManager";
 import { SceneEntity } from "../../scene-entities";
+import { handleStartPointingTowardEntity } from "./entity-motion-update-handlers/handle-start-pointing-toward";
+import { handleLockRotationToFace } from "./entity-motion-update-handlers/handle-lock-rotation-to-face";
 
 export async function spawnEntityGameUpdateHandler(update: {
   command: SpawnEntityGameUpdateCommand;
@@ -48,6 +50,25 @@ export async function spawnEntityGameUpdateHandler(update: {
     model.movementManager.transformNode.setParent(targetTransformNode);
     model.movementManager.transformNode.setPositionWithLocalVector(Vector3.Zero());
     model.movementManager.transformNode.rotationQuaternion = Quaternion.Identity();
+  }
+
+  if (actionEntityProperties.initialCosmeticYPosition) {
+    const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
+      actionEntityProperties.initialCosmeticYPosition
+    );
+
+    model.rootTransformNode.position.y = targetTransformNode.position.y;
+  }
+
+  if (actionEntityProperties.initialPointToward) {
+    handleStartPointingTowardEntity(model, {
+      identifier: actionEntityProperties.initialPointToward,
+      duration: 0,
+    });
+  }
+
+  if (actionEntityProperties.initialLockRotationToFace) {
+    handleLockRotationToFace(model, actionEntityProperties.initialLockRotationToFace);
   }
 
   if (initialRotation) {

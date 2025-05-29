@@ -21,5 +21,6 @@ export function handleStartPointingTowardEntity(
     targetPosition
   );
 
-  sceneEntity.movementManager.startRotatingTowards(newRotation, duration, () => {});
+  if (duration === 0) sceneEntity.movementManager.transformNode.rotationQuaternion = newRotation;
+  else sceneEntity.movementManager.startRotatingTowards(newRotation, duration, () => {});
 }

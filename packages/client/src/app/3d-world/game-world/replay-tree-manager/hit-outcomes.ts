@@ -1,11 +1,10 @@
 import {
   SkeletalAnimationName,
-  ERROR_MESSAGES,
   HitOutcome,
   HitOutcomesGameUpdateCommand,
   ActionPayableResource,
 } from "@speed-dungeon/common";
-import { gameWorld } from "../../SceneManager";
+import { getGameWorld } from "../../SceneManager";
 import { useGameStore } from "@/stores/game-store";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
 import {
@@ -30,15 +29,12 @@ export async function hitOutcomesGameUpdateHandler(update: {
   const hitPointChanges = plainToInstance(HitPointChanges, outcomes.hitPointChanges);
   const manaChanges = plainToInstance(HitPointChanges, outcomes.manaChanges);
 
-  if (!gameWorld.current) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
-
   const entitiesAlreadyAnimatingHitRecovery: string[] = [];
 
   if (hitPointChanges) {
     for (const [entityId, hpChange] of hitPointChanges.getRecords()) {
       const wasBlocked = !!outcomeFlags[HitOutcome.ShieldBlock]?.includes(entityId);
       induceHitRecovery(
-        gameWorld.current,
         actionUserName,
         actionUserId,
         command.actionName,
@@ -58,7 +54,6 @@ export async function hitOutcomesGameUpdateHandler(update: {
     for (const [entityId, change] of manaChanges.getRecords()) {
       const wasBlocked = !!outcomeFlags[HitOutcome.ShieldBlock]?.includes(entityId);
       induceHitRecovery(
-        gameWorld.current,
         actionUserName,
         actionUserId,
         command.actionName,
@@ -105,8 +100,7 @@ export async function hitOutcomesGameUpdateHandler(update: {
 
     startFloatingMessage(entityId, elements, 2000);
 
-    const targetModel = gameWorld.current?.modelManager.combatantModels[entityId];
-    if (targetModel === undefined) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+    const targetModel = getGameWorld().modelManager.findOne(entityId);
 
     targetModel.skeletalAnimationManager.startAnimationWithTransition(
       SkeletalAnimationName.Evade,
@@ -139,9 +133,7 @@ export async function hitOutcomesGameUpdateHandler(update: {
 
     startFloatingMessage(entityId, elements, 2000);
 
-    const targetModel = gameWorld.current?.modelManager.combatantModels[entityId];
-    if (targetModel === undefined)
-      throw console.error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL);
+    const targetModel = getGameWorld().modelManager.findOne(entityId);
 
     targetModel.skeletalAnimationManager.startAnimationWithTransition(
       SkeletalAnimationName.Parry,

@@ -44,6 +44,11 @@ export function handleEntityMotionUpdate(
       motionUpdate.entityId
     );
 
+    if (motionUpdate.despawn) {
+      actionEntityModelOption.cleanup({ softCleanup: true });
+      return;
+    }
+
     if (motionUpdate.setParent !== undefined)
       handleEntityMotionSetNewParentUpdate(actionEntityModelOption, motionUpdate.setParent);
 

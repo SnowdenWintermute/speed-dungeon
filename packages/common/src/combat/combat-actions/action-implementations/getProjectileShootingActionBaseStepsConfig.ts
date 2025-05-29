@@ -9,7 +9,7 @@ import {
   SceneEntityChildTransformNodeIdentifierWithDuration,
   SceneEntityType,
 } from "../../../scene-entities/index.js";
-import { SpawnableEntityType } from "../../../spawnables/index.js";
+import { SpawnableEntityType, getSpawnableEntityId } from "../../../spawnables/index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { ActionResolutionStepsConfig } from "../combat-action-steps-config.js";
 import { ActionExecutionPhase } from "./action-execution-phase.js";
@@ -83,14 +83,7 @@ export function getProjectileShootingActionBaseStepsConfig(
           const actionEntity = context.tracker.spawnedEntityOption;
           if (!actionEntity) return [];
           // if (!actionEntity) throw new Error("expected action entity was missing");
-          const actionEntityId = (() => {
-            switch (actionEntity.type) {
-              case SpawnableEntityType.Combatant:
-                return actionEntity.combatant.entityProperties.id;
-              case SpawnableEntityType.ActionEntity:
-                return actionEntity.actionEntity.entityProperties.id;
-            }
-          })();
+          const actionEntityId = getSpawnableEntityId(actionEntity);
 
           const startPointingToward: SceneEntityChildTransformNodeIdentifierWithDuration = {
             identifier: {
