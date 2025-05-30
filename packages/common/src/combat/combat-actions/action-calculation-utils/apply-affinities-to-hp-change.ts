@@ -1,4 +1,5 @@
 import { CombatantProperties } from "../../../combatants/index.js";
+import { Percentage } from "../../../primatives/index.js";
 import { ResourceChange } from "../../hp-change-source-types.js";
 
 export function applyElementalAffinities(hpChange: ResourceChange, target: CombatantProperties) {
@@ -13,7 +14,7 @@ export function applyKineticAffinities(hpChange: ResourceChange, target: Combata
   const kineticDamageType = hpChange.source.kineticDamageTypeOption;
   if (kineticDamageType === undefined) return;
   const targetAffinities = CombatantProperties.getCombatantTotalKineticDamageTypeAffinities(target);
-  const affinityValue = targetAffinities[kineticDamageType] || 0;
+  const affinityValue: Percentage = targetAffinities[kineticDamageType] || 0;
   hpChange.value = applyAffinityToResourceChange(affinityValue, hpChange.value);
 }
 

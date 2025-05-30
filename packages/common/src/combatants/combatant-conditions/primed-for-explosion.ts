@@ -21,13 +21,17 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
     public appliedBy: EntityId,
     public level: number
   ) {}
+
   onTick() {}
+
   triggeredWhenHitBy(actionName: CombatActionName) {
     return actionName !== CombatActionName.ExplodingArrowProjectile;
   }
+
   triggeredWhenActionUsed() {
     return false;
   }
+
   onTriggered(combatant: Combatant, idGenerator: IdGenerator) {
     const explosionActionIntent = new CombatActionExecutionIntent(CombatActionName.Explosion, {
       type: CombatActionTargetType.SingleAndSides,

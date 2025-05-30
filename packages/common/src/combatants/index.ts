@@ -31,7 +31,7 @@ import {
 } from "./combatant-equipment/index.js";
 import { CombatAttribute } from "./attributes/index.js";
 import { getOwnedEquipment } from "./inventory/get-owned-items.js";
-import { EntityId } from "../primatives/index.js";
+import { EntityId, Percentage } from "../primatives/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { canPickUpItem } from "./inventory/can-pick-up-item.js";
 import { EntityProperties } from "../primatives/index.js";
@@ -65,8 +65,8 @@ export class Combatant {
 export class CombatantProperties {
   [immerable] = true;
   inherentAttributes: CombatantAttributeRecord = {};
-  inherentElementalAffinities: Partial<Record<MagicalElement, number>> = {};
-  inherentKineticDamageTypeAffinities: Partial<Record<KineticDamageType, number>> = {};
+  inherentElementalAffinities: Partial<Record<MagicalElement, Percentage>> = {};
+  inherentKineticDamageTypeAffinities: Partial<Record<KineticDamageType, Percentage>> = {};
   level: number = 1;
   unspentAttributePoints: number = 0;
   unspentAbilityPoints: number = 0;

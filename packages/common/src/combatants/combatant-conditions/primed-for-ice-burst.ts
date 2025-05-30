@@ -29,13 +29,16 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
     public level: number
   ) {}
   onTick() {}
+
   triggeredWhenHitBy(actionName: CombatActionName) {
     const actionsThatDontTrigger = [CombatActionName.IceBoltProjectile, CombatActionName.IceBurst];
     return !actionsThatDontTrigger.includes(actionName);
   }
+
   triggeredWhenActionUsed() {
     return false;
   }
+
   onTriggered(combatant: Combatant, idGenerator: IdGenerator) {
     const actionExecutionIntent = new CombatActionExecutionIntent(CombatActionName.IceBurst, {
       type: CombatActionTargetType.Sides,
