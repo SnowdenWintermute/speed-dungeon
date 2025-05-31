@@ -30,9 +30,10 @@ import { NumberRange } from "../primatives/number-range.js";
 import { GameMode } from "../types.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
+import { HitOutcome } from "../hit-outcome.js";
 
-describe("placeholder", () => {
-  it("does nothing", () => {
+describe("kinetic damage type selection", () => {
+  it("correctly chooses a kinetic damage type when attacking", () => {
     const testWarrior = TEST_WARRIOR_COMBATANT;
     testWarrior.combatantProperties.inherentAttributes[CombatAttribute.Accuracy] = 9999;
 
@@ -47,7 +48,7 @@ describe("placeholder", () => {
           baseItemType: TwoHandedMeleeWeapon.GreatAxe,
         },
         equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-        damage: new NumberRange(1, 4),
+        damage: new NumberRange(100, 100),
         damageClassification: [
           new ResourceChangeSource({
             category: ResourceChangeSourceCategory.Physical,
@@ -71,8 +72,10 @@ describe("placeholder", () => {
     const testTargetId = "test target id";
     testTarget.entityProperties.id = testTargetId;
 
+    testTarget.combatantProperties.inherentKineticDamageTypeAffinities[KineticDamageType.Slashing] =
+      250;
     testTarget.combatantProperties.inherentKineticDamageTypeAffinities[KineticDamageType.Piercing] =
-      1;
+      199;
 
     const gameName = "test game";
     const game = new SpeedDungeonGame(gameName, gameName, GameMode.Race);
@@ -139,6 +142,10 @@ describe("placeholder", () => {
     };
 
     const hitOutcomes = calculateActionHitOutcomes(context);
-    console.log(JSON.stringify(hitOutcomes));
+    expect(!(hitOutcomes instanceof Error));
+    if (hitOutcomes instanceof Error) return;
+    expect(hitOutcomes.outcomeFlags[HitOutcome.Hit]?.includes(testTargetId));
+
+    console.log(JSON.stringify(hitOutcomes, null, 2));
   });
 });
