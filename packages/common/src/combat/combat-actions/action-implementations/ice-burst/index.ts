@@ -3,6 +3,7 @@ import {
   CombatActionComposite,
   CombatActionName,
   CombatActionOrigin,
+  FriendOrFoe,
 } from "../../index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
@@ -73,7 +74,7 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
       lifestealPercentage: null,
     };
 
-    const stacks = user.asUserOfTriggeredCondition?.stacksOption?.current || 1;
+    const stacks = user.asShimmedUserOfTriggeredCondition?.condition.stacksOption?.current || 1;
 
     const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
 
@@ -91,7 +92,7 @@ const hitOutcomeProperties: CombatActionHitOutcomeProperties = {
 
     const condition = new PrimedForIceBurstCombatantCondition(
       idGenerator.generate(),
-      combatant.entityProperties.id,
+      { entityProperties: cloneDeep(combatant.entityProperties), friendOrFoe: FriendOrFoe.Hostile },
       combatant.combatantProperties.level
     );
 

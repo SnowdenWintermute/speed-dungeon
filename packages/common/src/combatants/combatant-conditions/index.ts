@@ -1,7 +1,8 @@
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { CosmeticEffectOnTargetTransformNode } from "../../combat/combat-actions/combat-action-steps-config.js";
-import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
+import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
+import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { removeFromArray } from "../../utils/index.js";
 import { Combatant, CombatantProperties } from "../index.js";
@@ -28,7 +29,7 @@ export const COMBATANT_CONDITION_DESCRIPTIONS: Record<CombatantConditionName, st
 
 type CombatantConditionConstructor = new (
   id: EntityId,
-  appliedBy: EntityId,
+  appliedBy: ConditionAppliedBy,
   name: CombatantConditionName,
   stacksOption: null | MaxAndCurrent
 ) => CombatantCondition;
@@ -41,12 +42,23 @@ export const COMBATANT_CONDITION_CONSTRUCTORS: Record<
   [CombatantConditionName.PrimedForIceBurst]: PrimedForIceBurstCombatantCondition,
 };
 
+export interface ConditionAppliedBy {
+  entityProperties: EntityProperties;
+  // we store this because at the time a condition is triggered,
+  // the entity which originally applied the condition may no longer exist
+  // yet we still must figure out the target ids of the condition's triggered
+  // action based on its intent and friend or foe status of targets
+  // where normally we would just calculate that based off a condition user's
+  // presence in a certain battle group relative to the target's battle group
+  friendOrFoe: FriendOrFoe;
+}
+
 export abstract class CombatantCondition {
   ticks?: MaxAndCurrent;
   level: number = 0;
   constructor(
     public id: EntityId,
-    public appliedBy: EntityId,
+    public appliedBy: ConditionAppliedBy,
     public name: CombatantConditionName,
     public stacksOption: null | MaxAndCurrent
   ) {}

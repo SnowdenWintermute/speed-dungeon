@@ -71,7 +71,7 @@ export function calculateActionHitOutcomes(
 
   const incomingResourceChangesResult = getIncomingResourceChangesPerTarget(context);
 
-  console.log("incomming per target: ", incomingResourceChangesResult);
+  console.log("incoming per target: ", incomingResourceChangesResult);
 
   if (incomingResourceChangesResult instanceof Error) return incomingResourceChangesResult;
   const { incomingHpChangePerTargetOption, incomingManaChangePerTargetOption } =

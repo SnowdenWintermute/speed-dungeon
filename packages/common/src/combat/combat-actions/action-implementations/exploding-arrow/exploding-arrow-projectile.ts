@@ -2,6 +2,7 @@ import {
   CombatActionComponentConfig,
   CombatActionComposite,
   CombatActionName,
+  FriendOrFoe,
 } from "../../index.js";
 import { ATTACK_RANGED_MAIN_HAND_PROJECTILE } from "../attack/attack-ranged-main-hand-projectile.js";
 import { PrimedForExplosionCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-explosion.js";
@@ -18,7 +19,10 @@ config.hitOutcomeProperties.getAppliedConditions = (context) => {
 
   const primedForExplosionCondition = new PrimedForExplosionCombatantCondition(
     idGenerator.generate(),
-    combatant.entityProperties.id,
+    {
+      entityProperties: cloneDeep(combatant.entityProperties),
+      friendOrFoe: FriendOrFoe.Hostile,
+    },
     combatant.combatantProperties.level
   );
   return [primedForExplosionCondition];

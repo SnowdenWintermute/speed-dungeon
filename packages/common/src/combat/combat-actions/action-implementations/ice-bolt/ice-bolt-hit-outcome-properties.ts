@@ -14,6 +14,8 @@ import { addCombatantLevelScaledAttributeToRange } from "../../../action-results
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { PrimedForIceBurstCombatantCondition } from "../../../../combatants/combatant-conditions/primed-for-ice-burst.js";
+import cloneDeep from "lodash.clonedeep";
+import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
 
 export const iceBoltProjectileHitOutcomeProperties: CombatActionHitOutcomeProperties = {
   ...GENERIC_HIT_OUTCOME_PROPERTIES[ActionHitOutcomePropertiesBaseTypes.Ranged],
@@ -55,7 +57,10 @@ export const iceBoltProjectileHitOutcomeProperties: CombatActionHitOutcomeProper
 
     const condition = new PrimedForIceBurstCombatantCondition(
       idGenerator.generate(),
-      combatant.entityProperties.id,
+      {
+        entityProperties: cloneDeep(combatant.entityProperties),
+        friendOrFoe: FriendOrFoe.Hostile,
+      },
       combatant.combatantProperties.level
     );
 

@@ -25,3 +25,5 @@ export function getAllyIdsAndOpponentIdsOption(
 
   return { allyIds, opponentIds };
 }
+
+// export function getAllyIdsAndOpponentIdsOptionByFriendOrFoe

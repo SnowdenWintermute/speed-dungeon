@@ -24,7 +24,7 @@ export const explosionHitOutcomeProperties: CombatActionHitOutcomeProperties = {
       lifestealPercentage: null,
     };
 
-    const stacks = user.asUserOfTriggeredCondition?.stacksOption?.current || 1;
+    const stacks = user.asShimmedUserOfTriggeredCondition?.condition.stacksOption?.current || 1;
 
     const baseValues = new NumberRange(user.level * stacks, user.level * stacks * 10);
 

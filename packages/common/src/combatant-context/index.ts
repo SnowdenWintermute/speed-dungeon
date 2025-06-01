@@ -1,5 +1,6 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
+import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
 import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
@@ -22,21 +23,18 @@ export class CombatantContext {
     const battleOption = this.getBattleOption();
     if (battleOption === null) return { allyIds: this.party.characterPositions, opponentIds: [] };
 
-    const { asUserOfTriggeredCondition } = this.combatant.combatantProperties;
+    const shimmedConditionUser =
+      this.combatant.combatantProperties.asShimmedUserOfTriggeredCondition;
 
     // @TODO - store ally and opponent ids of condition and traits when they are acting as action users
-    if (asUserOfTriggeredCondition) {
-      if (asUserOfTriggeredCondition.appliedBy) {
-        return Battle.getAllyIdsAndOpponentIdsOption(
-          battleOption,
-          asUserOfTriggeredCondition.appliedBy
-        );
-      } else {
-        return {
-          allyIds: this.party.characterPositions,
-          opponentIds: this.party.currentRoom.monsterPositions,
-        };
-      }
+    if (shimmedConditionUser) {
+      const targets = this.combatant.combatantProperties.combatActionTarget;
+      // const
+      return Battle.getAllyIdsAndOpponentIdsOptionOfShimmedConditionUser(
+        battleOption,
+        shimmedConditionUser.entityConditionWasAppliedTo,
+        shimmedConditionUser.condition.appliedBy
+      );
     }
 
     const allyAndOponnentIds = Battle.getAllyIdsAndOpponentIdsOption(
