@@ -2,14 +2,18 @@ import {
   COMBATANT_CONDITION_NAME_STRINGS,
   CombatantCondition,
   CombatantConditionName,
+  ConditionAppliedBy,
 } from "./index.js";
-import { Combatant, createTriggeredActionUserCombatant } from "../index.js";
+import { Combatant, createShimmedUserOfTriggeredCondition } from "../index.js";
 import {
   CombatActionExecutionIntent,
   CombatActionName,
 } from "../../combat/combat-actions/index.js";
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
-import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
+import {
+  CombatActionTarget,
+  CombatActionTargetType,
+} from "../../combat/targeting/combat-action-targets.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import {
@@ -25,27 +29,38 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,
-    public appliedBy: EntityId,
+    public appliedBy: ConditionAppliedBy,
     public level: number
   ) {}
   onTick() {}
+
   triggeredWhenHitBy(actionName: CombatActionName) {
     const actionsThatDontTrigger = [CombatActionName.IceBoltProjectile, CombatActionName.IceBurst];
     return !actionsThatDontTrigger.includes(actionName);
   }
+
   triggeredWhenActionUsed() {
     return false;
   }
+
   onTriggered(combatant: Combatant, idGenerator: IdGenerator) {
-    const actionExecutionIntent = new CombatActionExecutionIntent(CombatActionName.IceBurst, {
+    const target: CombatActionTarget = {
       type: CombatActionTargetType.Sides,
       targetId: combatant.entityProperties.id,
-    });
+    };
 
-    const user = createTriggeredActionUserCombatant(
-      COMBATANT_CONDITION_NAME_STRINGS[this.name],
-      this
+    const actionExecutionIntent = new CombatActionExecutionIntent(
+      CombatActionName.IceBurst,
+      target
     );
+
+    const user = createShimmedUserOfTriggeredCondition(
+      COMBATANT_CONDITION_NAME_STRINGS[this.name],
+      this,
+      combatant.entityProperties.id
+    );
+
+    user.combatantProperties.combatActionTarget = target;
 
     return {
       numStacksRemoved: this.stacksOption.current,

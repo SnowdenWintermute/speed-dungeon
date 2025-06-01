@@ -85,15 +85,17 @@ export function attachHoldableModelToHolsteredPosition(
   if (holsterAtHip) {
     equipmentTransformNode.setParent(holsterHipBone);
     setTransformNodePositionAndRotationToZero(equipmentTransformNode);
-    equipmentTransformNode.rotation.y = -Math.PI / 2;
+    equipmentTransformNode.rotation.y = -Math.PI / 2 - Math.PI;
+    equipmentTransformNode.rotation.x = Math.PI;
   } else {
     equipmentTransformNode.setParent(holsterBackBone);
     setTransformNodePositionAndRotationToZero(equipmentTransformNode);
     if (equipmentType === EquipmentType.Shield) {
       console.log("set parent to back");
-      equipmentTransformNode.rotation.y = Math.PI;
+      // equipmentTransformNode.rotation.y = Math.PI;
       equipmentTransformNode.rotation.z = Math.PI;
       equipmentTransformNode.position.y = 0.15;
+      equipmentTransformNode.position.z = -0.05;
     } else if (equipmentType === EquipmentType.TwoHandedRangedWeapon) {
       equipmentTransformNode.position.y = 0.18;
       equipmentTransformNode.position.x = 0.07;
@@ -102,6 +104,7 @@ export function attachHoldableModelToHolsteredPosition(
       // move most weapons up a little
       equipmentTransformNode.position.y = -0.15;
     }
+    equipmentTransformNode.rotation.x = Math.PI;
   }
 }
 

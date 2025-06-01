@@ -67,7 +67,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         }
 
         if (flag === HitOutcome.Hit) {
-          for (const condition of combatantResult.combatantProperties.conditions) {
+          for (const condition of targetCombatant.combatantProperties.conditions) {
             if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
 
             const { numStacksRemoved, triggeredActions } = condition.onTriggered(

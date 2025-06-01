@@ -46,6 +46,7 @@ export function selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
     applyElementalAffinities(hpChangeToTest, targetCombatantProperties);
 
     convertResourceChangeValueToFinalSign(hpChangeToTest, targetCombatantProperties);
+
     hpChangeCalculationContext.applyResilience(
       hpChangeToTest,
       userCombatantProperties,
@@ -58,9 +59,16 @@ export function selectMostEffectiveFromAvailableResourceChangeSourceModifiers(
       targetCombatantProperties
     );
 
-    hpChangeToTest.value = Math.floor(hpChangeToModify.value);
+    hpChangeToTest.value = Math.trunc(hpChangeToTest.value);
 
-    if (mostEffective !== null && hpChangeToTest.value < mostEffective.value) continue;
+    if (mostEffective !== null) {
+      if (
+        hpChangeProperties.resourceChangeSource.isHealing &&
+        hpChangeToTest.value < mostEffective.value
+      )
+        continue;
+      else if (hpChangeToTest.value > mostEffective.value) continue;
+    }
 
     mostEffective = {
       source: cloneDeep(hpChangeSource),

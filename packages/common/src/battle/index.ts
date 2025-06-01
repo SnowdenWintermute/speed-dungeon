@@ -1,8 +1,12 @@
+import { FriendOrFoe } from "../combat/index.js";
 import { CombatantTurnTracker } from "../combat/turn-order/index.js";
-import { Combatant } from "../combatants/index.js";
+import { Combatant, ConditionAppliedBy } from "../combatants/index.js";
 import { EntityId } from "../primatives/index.js";
 import { getAllyAndEnemyBattleGroups } from "./get-ally-and-enemy-battle-groups.js";
-import { getAllyIdsAndOpponentIdsOption } from "./get-ally-ids-and-opponent-ids-option.js";
+import {
+  CombatantIdsByDisposition,
+  getAllyIdsAndOpponentIdsOption,
+} from "./get-ally-ids-and-opponent-ids-option.js";
 
 export class Battle {
   constructor(
@@ -43,6 +47,35 @@ export class Battle {
         battle.groupB.combatantIds.includes(b.entityProperties.id))
     );
   }
+
+  static getAllyIdsAndOpponentIdsOptionOfShimmedConditionUser(
+    battle: Battle,
+    conditionAppliedTo: EntityId,
+    conditionAppliedBy: ConditionAppliedBy
+  ): CombatantIdsByDisposition {
+    const idsByDispositionOfConditionHolder = Battle.getAllyIdsAndOpponentIdsOption(
+      battle,
+      conditionAppliedTo
+    );
+    switch (conditionAppliedBy.friendOrFoe) {
+      case FriendOrFoe.Friendly:
+        // if applied by a friendly combatant, "ally ids" would be the allies of conditionAppliedTo
+        return idsByDispositionOfConditionHolder;
+      case FriendOrFoe.Hostile:
+        // if applied by a hostile combatant, "ally ids" would be the opponents of conditionAppliedTo
+        return Battle.invertAllyAndOpponentIds(idsByDispositionOfConditionHolder);
+    }
+  }
+
+  static invertAllyAndOpponentIds(
+    idsByDisposition: CombatantIdsByDisposition
+  ): CombatantIdsByDisposition {
+    return {
+      allyIds: idsByDisposition.opponentIds,
+      opponentIds: idsByDisposition.allyIds,
+    };
+  }
+
   static sortTurnTrackers(battle: Battle) {
     battle.turnTrackers.sort((a, b) => {
       if (a.movement > b.movement) return -1;

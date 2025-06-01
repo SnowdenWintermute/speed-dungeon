@@ -23,6 +23,7 @@ export function applyMaterialsToModelMeshes(
           uniqueInstance.specularColor.g = material.specularColor.g;
           uniqueInstance.specularColor.b = material.specularColor.b;
           uniqueInstance.specularPower = material.specularPower;
+          uniqueInstance.alpha = material.alpha;
           mesh.material = uniqueInstance;
           assetContainer.materials.push(uniqueInstance); // so it can be properly disposed later
         } else mesh.material = material;

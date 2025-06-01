@@ -2,8 +2,9 @@ import {
   COMBATANT_CONDITION_NAME_STRINGS,
   CombatantCondition,
   CombatantConditionName,
+  ConditionAppliedBy,
 } from "./index.js";
-import { Combatant, createTriggeredActionUserCombatant } from "../index.js";
+import { Combatant, createShimmedUserOfTriggeredCondition } from "../index.js";
 import {
   CombatActionExecutionIntent,
   CombatActionName,
@@ -18,25 +19,30 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
   ticks?: MaxAndCurrent | undefined;
   constructor(
     public id: EntityId,
-    public appliedBy: EntityId,
+    public appliedBy: ConditionAppliedBy,
     public level: number
   ) {}
+
   onTick() {}
+
   triggeredWhenHitBy(actionName: CombatActionName) {
     return actionName !== CombatActionName.ExplodingArrowProjectile;
   }
+
   triggeredWhenActionUsed() {
     return false;
   }
+
   onTriggered(combatant: Combatant, idGenerator: IdGenerator) {
     const explosionActionIntent = new CombatActionExecutionIntent(CombatActionName.Explosion, {
       type: CombatActionTargetType.SingleAndSides,
       targetId: combatant.entityProperties.id,
     });
 
-    const user = createTriggeredActionUserCombatant(
+    const user = createShimmedUserOfTriggeredCondition(
       COMBATANT_CONDITION_NAME_STRINGS[this.name],
-      this
+      this,
+      combatant.entityProperties.id
     );
 
     return {

@@ -30,8 +30,8 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
     case CombatantClass.Warrior:
       mainhand = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.TwoHandedRangedWeapon,
-          baseItemType: TwoHandedRangedWeapon.ShortBow,
+          equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+          baseItemType: TwoHandedMeleeWeapon.SplittingMaul,
         },
         true
       );
@@ -46,15 +46,16 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       // );
       // offhand = generateSpecificEquipmentType(
       //   {
-      //     // equipmentType: EquipmentType.Shield,
-      //     // baseItemType: Shield.GothicShield,
+      //     equipmentType: EquipmentType.Shield,
+      //     baseItemType: Shield.Buckler,
 
-      //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
+      //     // equipmentType: EquipmentType.OneHandedMeleeWeapon,
       //     // baseItemType: OneHandedMeleeWeapon.ShortSpear,
-      //     baseItemType: OneHandedMeleeWeapon.BroadSword,
+      //     // baseItemType: OneHandedMeleeWeapon.BroadSword,
       //   },
       //   true
       // );
+
       break;
     case CombatantClass.Mage:
       mainhand = generateSpecificEquipmentType(
@@ -114,9 +115,10 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
   // if (mainhand.durability) mainhand.durability.current = 1;
 
   if (offhand instanceof Error) return offhand;
+  if (offhand && offhand.durability) offhand.durability.current = 1;
 
   repairEquipment(mainhand);
-  if (offhand) repairEquipment(offhand);
+  // if (offhand) repairEquipment(offhand);
 
   const mainHoldableHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);
   if (!mainHoldableHotswapSlot) return new Error(ERROR_MESSAGES.EQUIPMENT.NO_SELECTED_HOTSWAP_SLOT);

@@ -1,0 +1,22 @@
+{
+  "testTimeout": 5000,
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "modulePathIgnorePatterns": ["<rootDir>/dist/"],
+  "extensionsToTreatAsEsm": [".ts"],
+  "moduleNameMapper": {
+    "^(\\.{1,2}/.*)\\.js$": "$1"
+  },
+  "transform": {
+    // '^.+\\.[tj]sx?$' to process ts,js,tsx,jsx with `ts-jest`
+    // '^.+\\.m?[tj]sx?$' to process ts,js,tsx,jsx,mts,mjs,mtsx,mjsx with `ts-jest`
+    // ^.+\\.tsx?$
+    "^.+\\.m?[tj]sx?$": [
+      "ts-jest",
+      {
+        "isolatedModules": true,
+        "useESM": true
+      }
+    ]
+  }
+}

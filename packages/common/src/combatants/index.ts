@@ -31,7 +31,7 @@ import {
 } from "./combatant-equipment/index.js";
 import { CombatAttribute } from "./attributes/index.js";
 import { getOwnedEquipment } from "./inventory/get-owned-items.js";
-import { EntityId } from "../primatives/index.js";
+import { EntityId, Percentage } from "../primatives/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { canPickUpItem } from "./inventory/can-pick-up-item.js";
 import { EntityProperties } from "../primatives/index.js";
@@ -65,8 +65,8 @@ export class Combatant {
 export class CombatantProperties {
   [immerable] = true;
   inherentAttributes: CombatantAttributeRecord = {};
-  inherentElementalAffinities: Partial<Record<MagicalElement, number>> = {};
-  inherentKineticDamageTypeAffinities: Partial<Record<KineticDamageType, number>> = {};
+  inherentElementalAffinities: Partial<Record<MagicalElement, Percentage>> = {};
+  inherentKineticDamageTypeAffinities: Partial<Record<KineticDamageType, Percentage>> = {};
   level: number = 1;
   unspentAttributePoints: number = 0;
   unspentAbilityPoints: number = 0;
@@ -86,7 +86,11 @@ export class CombatantProperties {
   deepestFloorReached: number = 1;
   position: Vector3;
   conditions: CombatantCondition[] = [];
-  asUserOfTriggeredCondition?: CombatantCondition;
+  asShimmedUserOfTriggeredCondition?: {
+    condition: CombatantCondition;
+    entityConditionWasAppliedTo: EntityId;
+  };
+
   public homeRotation: Quaternion = Quaternion.Zero();
   constructor(
     public combatantClass: CombatantClass,
@@ -201,9 +205,13 @@ export type CombatantAttributeRecord = Partial<Record<CombatAttribute, number>>;
 
 /* Since combat actions must have a user, and the user of an action triggered by
  * a condition is not well defined, we'll create a placeholder */
-export function createTriggeredActionUserCombatant(name: string, condition: CombatantCondition) {
+export function createShimmedUserOfTriggeredCondition(
+  name: string,
+  condition: CombatantCondition,
+  entityConditionWasAppliedTo: EntityId
+) {
   const combatant = new Combatant(
-    { id: condition.appliedBy || "0", name },
+    { id: condition.appliedBy.entityProperties.id || "0", name },
     new CombatantProperties(
       CombatantClass.Mage,
       CombatantSpecies.Dragon,
@@ -212,6 +220,9 @@ export function createTriggeredActionUserCombatant(name: string, condition: Comb
       Vector3.Zero()
     )
   );
-  combatant.combatantProperties.asUserOfTriggeredCondition = condition;
+  combatant.combatantProperties.asShimmedUserOfTriggeredCondition = {
+    condition,
+    entityConditionWasAppliedTo,
+  };
   return combatant;
 }
