@@ -6,9 +6,7 @@ import {
 } from "../../index.js";
 import { ATTACK } from "./index.js";
 import { CombatantEquipment } from "../../../../combatants/index.js";
-import { iterateNumericEnum } from "../../../../utils/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
@@ -39,19 +37,8 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
       const user = context.combatantContext.combatant.combatantProperties;
 
       if (CombatantEquipment.isWearingUsableShield(user)) return true;
-
-      const mainHandEquipmentOption = CombatantEquipment.getEquippedHoldable(
-        context.combatantContext.combatant.combatantProperties,
-        HoldableSlotType.MainHand
-      );
-
-      const hasUsableTwoHanderInMainHand = !!(
-        mainHandEquipmentOption &&
-        !Equipment.isBroken(mainHandEquipmentOption) &&
-        !Equipment.isTwoHanded(mainHandEquipmentOption.equipmentBaseItemProperties.equipmentType)
-      );
-
-      return hasUsableTwoHanderInMainHand;
+      if (CombatantEquipment.isWearingUsableTwoHandedMeleeWeapon(user)) return true;
+      return false;
     },
   },
   hitOutcomeProperties: {

@@ -191,15 +191,40 @@ export class CombatantEquipment {
       slot: HoldableSlotType.OffHand,
     });
 
-    console.log("equipment in off hand: ", offHandEquipmentOption);
-
     if (!offHandEquipmentOption) return false;
     const { equipmentType } = offHandEquipmentOption.equipmentBaseItemProperties;
     const isShield = equipmentType === EquipmentType.Shield;
-    console.log("is shield: ", isShield);
     if (!isShield) return false;
     const isUsable = Equipment.isUsable(combatantProperties, offHandEquipmentOption);
-    console.log("is usable: ", isUsable);
+
+    return isUsable;
+  }
+
+  static isWearingUsableTwoHandedRangedWeapon(combatantProperties: CombatantProperties): boolean {
+    const mainHandEquipmentOption = CombatantEquipment.getEquipmentInSlot(combatantProperties, {
+      type: EquipmentSlotType.Holdable,
+      slot: HoldableSlotType.MainHand,
+    });
+    if (!mainHandEquipmentOption) return false;
+    const { equipmentType } = mainHandEquipmentOption.equipmentBaseItemProperties;
+    const isTwoHandedRanged = equipmentType === EquipmentType.TwoHandedRangedWeapon;
+    if (!isTwoHandedRanged) return false;
+    const isUsable = Equipment.isUsable(combatantProperties, mainHandEquipmentOption);
+
+    return isUsable;
+  }
+
+  static isWearingUsableTwoHandedMeleeWeapon(combatantProperties: CombatantProperties): boolean {
+    const mainHandEquipmentOption = CombatantEquipment.getEquipmentInSlot(combatantProperties, {
+      type: EquipmentSlotType.Holdable,
+      slot: HoldableSlotType.MainHand,
+    });
+    if (!mainHandEquipmentOption) return false;
+    const { equipmentType } = mainHandEquipmentOption.equipmentBaseItemProperties;
+
+    const isTwoHandedMelee = equipmentType === EquipmentType.TwoHandedMeleeWeapon;
+    if (!isTwoHandedMelee) return false;
+    const isUsable = Equipment.isUsable(combatantProperties, mainHandEquipmentOption);
 
     return isUsable;
   }

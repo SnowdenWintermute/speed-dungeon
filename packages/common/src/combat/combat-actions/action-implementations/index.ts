@@ -16,7 +16,6 @@ import { ICE_BOLT_PROJECTILE } from "./ice-bolt/ice-bolt-projectile.js";
 import { ICE_BURST } from "./ice-burst/index.js";
 import { COUNTER_ATTACK } from "./counter-attack/index.js";
 import { COUNTER_ATTACK_MELEE_MAIN_HAND } from "./counter-attack/counter-attack-melee-main-hand.js";
-import { COUNTER_ATTACK_MELEE_OFF_HAND } from "./counter-attack/counter-attack-melee-off-hand.js";
 import { COUNTER_ATTACK_RANGED_MAIN_HAND } from "./counter-attack/counter-attack-ranged-main-hand.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
@@ -27,7 +26,6 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.AttackRangedMainhandProjectile]: ATTACK_RANGED_MAIN_HAND_PROJECTILE,
   [CombatActionName.Counterattack]: COUNTER_ATTACK,
   [CombatActionName.CounterattackMeleeMainhand]: COUNTER_ATTACK_MELEE_MAIN_HAND,
-  [CombatActionName.CounterattackMeleeOffhand]: COUNTER_ATTACK_MELEE_OFF_HAND,
   [CombatActionName.CounterattackRangedMainhand]: COUNTER_ATTACK_RANGED_MAIN_HAND,
   [CombatActionName.UseGreenAutoinjector]: USE_GREEN_AUTOINJECTOR,
   [CombatActionName.UseBlueAutoinjector]: USE_BLUE_AUTOINJECTOR,

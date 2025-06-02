@@ -3,6 +3,7 @@ import {
   HitOutcome,
   HitOutcomesGameUpdateCommand,
   ActionPayableResource,
+  COMBAT_ACTIONS,
 } from "@speed-dungeon/common";
 import { getGameWorld } from "../../SceneManager";
 import { useGameStore } from "@/stores/game-store";
@@ -31,6 +32,8 @@ export async function hitOutcomesGameUpdateHandler(update: {
 
   const entitiesAlreadyAnimatingHitRecovery: string[] = [];
 
+  const action = COMBAT_ACTIONS[command.actionName];
+
   if (hitPointChanges) {
     for (const [entityId, hpChange] of hitPointChanges.getRecords()) {
       const wasBlocked = !!outcomeFlags[HitOutcome.ShieldBlock]?.includes(entityId);
@@ -43,7 +46,7 @@ export async function hitOutcomesGameUpdateHandler(update: {
         ActionPayableResource.HitPoints,
         entityId,
         wasBlocked,
-        true
+        action.hitOutcomeProperties.getShouldAnimateTargetHitRecovery()
       );
 
       entitiesAlreadyAnimatingHitRecovery.push(entityId);
@@ -62,7 +65,8 @@ export async function hitOutcomesGameUpdateHandler(update: {
         ActionPayableResource.Mana,
         entityId,
         wasBlocked,
-        !entitiesAlreadyAnimatingHitRecovery.includes(entityId)
+        action.hitOutcomeProperties.getShouldAnimateTargetHitRecovery() &&
+          !entitiesAlreadyAnimatingHitRecovery.includes(entityId)
       );
     }
   }

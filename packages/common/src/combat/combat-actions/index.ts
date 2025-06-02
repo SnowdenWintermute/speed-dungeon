@@ -13,7 +13,7 @@ import { Battle } from "../../battle/index.js";
 import { ActionAccuracyType } from "./combat-action-accuracy.js";
 import { CombatActionRequiredRange } from "./combat-action-range.js";
 import { CombatantContext } from "../../combatant-context/index.js";
-import { ActionResolutionStepContext } from "../../action-processing/index.js";
+import { ActionResolutionStepContext, ActionTracker } from "../../action-processing/index.js";
 import { CombatActionExecutionIntent } from "./combat-action-execution-intent.js";
 import { SpawnableEntity } from "../../spawnables/index.js";
 import {
@@ -44,7 +44,11 @@ export interface CombatActionComponentConfig {
   costProperties: CombatActionCostPropertiesConfig;
   stepsConfig: ActionResolutionStepsConfig;
 
-  shouldExecute: (context: CombatantContext, self: CombatActionComponent) => boolean;
+  shouldExecute: (
+    combatantContext: CombatantContext,
+    previousTrackerOption: undefined | ActionTracker,
+    self: CombatActionComponent
+  ) => boolean;
 
   getRequiredRange: (
     user: CombatantProperties,
@@ -90,7 +94,10 @@ export abstract class CombatActionComponent {
     return this.isUsableInGivenContext(context);
   };
 
-  shouldExecute: (context: CombatantContext) => boolean;
+  shouldExecute: (
+    combatantContext: CombatantContext,
+    previousTrackerOption: undefined | ActionTracker
+  ) => boolean;
   getRequiredRange: (user: CombatantProperties) => CombatActionRequiredRange;
   getSpawnableEntity?: (context: ActionResolutionStepContext) => SpawnableEntity;
 
@@ -123,8 +130,8 @@ export abstract class CombatActionComponent {
         config.costProperties.getResourceCosts(user, this),
     };
 
-    this.shouldExecute = (characterAssociatedData) =>
-      config.shouldExecute(characterAssociatedData, this);
+    this.shouldExecute = (combatantContext, previousTrackerOption) =>
+      config.shouldExecute(combatantContext, previousTrackerOption, this);
     this.getRequiredRange = (user) => config.getRequiredRange(user, this);
     this.getSpawnableEntity = config.getSpawnableEntity;
     this.stepsConfig = config.stepsConfig;

@@ -23,6 +23,9 @@ const config: CombatActionComponentConfig = {
   hitOutcomeProperties: {
     ...clonedConfig.hitOutcomeProperties,
     getCanTriggerCounterattack: () => false,
+    getShouldAnimateTargetHitRecovery: () => false,
+    getIsBlockable: () => false,
+    getIsParryable: () => false,
   },
 
   shouldExecute: () => true,

@@ -62,8 +62,6 @@ export function induceHitRecovery(
       showDebug
     );
 
-    if (!shouldAnimate) return;
-
     if (combatantProperties.hitPoints <= 0) {
       const maybeError = SpeedDungeonGame.handleCombatantDeath(game, party.battleId, targetId);
       if (maybeError instanceof Error) return console.error(maybeError);
@@ -75,15 +73,16 @@ export function induceHitRecovery(
         )
       );
 
-      targetModel.skeletalAnimationManager.startAnimationWithTransition(
-        SkeletalAnimationName.DeathBack,
-        0,
-        {
-          onComplete: () => {
-            targetModel.skeletalAnimationManager.locked = true;
-          },
-        }
-      );
+      if (shouldAnimate)
+        targetModel.skeletalAnimationManager.startAnimationWithTransition(
+          SkeletalAnimationName.DeathBack,
+          0,
+          {
+            onComplete: () => {
+              targetModel.skeletalAnimationManager.locked = true;
+            },
+          }
+        );
     } else if (resourceChange.value < 0) {
       const hasCritRecoveryAnimation = targetModel.skeletalAnimationManager.getAnimationGroupByName(
         SkeletalAnimationName.HitRecovery
@@ -93,15 +92,16 @@ export function induceHitRecovery(
         animationName = SkeletalAnimationName.CritRecovery;
       if (wasBlocked) animationName = SkeletalAnimationName.Block;
 
-      targetModel.skeletalAnimationManager.startAnimationWithTransition(animationName, 0, {
-        onComplete: () => {
-          if (!combatantWasAliveBeforeResourceChange && combatantProperties.hitPoints > 0) {
-            // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
-          } else {
-            targetModel.startIdleAnimation(500);
-          }
-        },
-      });
+      if (shouldAnimate)
+        targetModel.skeletalAnimationManager.startAnimationWithTransition(animationName, 0, {
+          onComplete: () => {
+            if (!combatantWasAliveBeforeResourceChange && combatantProperties.hitPoints > 0) {
+              // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
+            } else {
+              targetModel.startIdleAnimation(500);
+            }
+          },
+        });
     }
   });
 }

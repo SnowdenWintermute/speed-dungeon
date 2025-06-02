@@ -46,23 +46,15 @@ const config: CombatActionComponentConfig = {
   getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
     const toReturn: CombatActionComponent[] = [];
     const user = context.combatantContext.combatant.combatantProperties;
-    const mainHandEquipmentOption = CombatantEquipment.getEquipmentInSlot(user, {
-      type: EquipmentSlotType.Holdable,
-      slot: HoldableSlotType.MainHand,
-    });
-    if (
-      mainHandEquipmentOption &&
-      !Equipment.isBroken(mainHandEquipmentOption) &&
-      Equipment.isRangedWeapon(mainHandEquipmentOption)
-    ) {
+
+    if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(user))
       toReturn.push(ATTACK_RANGED_MAIN_HAND);
-    } else {
+    else {
       toReturn.push(ATTACK_MELEE_MAIN_HAND);
       if (!ATTACK_MELEE_MAIN_HAND.costProperties.requiresCombatTurn(context))
         toReturn.push(ATTACK_MELEE_OFF_HAND);
-      // const specialExtra = ATTACK_MELEE_MAIN_HAND;
-      // if (specialExtra) toReturn.push(specialExtra);
     }
+
     return toReturn;
   },
   getParent: () => {

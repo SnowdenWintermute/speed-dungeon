@@ -10,7 +10,6 @@ import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import {
   Equipment,
   EquipmentSlotType,
-  EquipmentType,
   HoldableSlotType,
 } from "../../../../items/equipment/index.js";
 import {
@@ -31,7 +30,6 @@ import {
 } from "../../combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 import { COUNTER_ATTACK_MELEE_MAIN_HAND } from "./counter-attack-melee-main-hand.js";
-import { COUNTER_ATTACK_MELEE_OFF_HAND } from "./counter-attack-melee-off-hand.js";
 import { COUNTER_ATTACK_RANGED_MAIN_HAND } from "./counter-attack-ranged-main-hand.js";
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
@@ -53,26 +51,11 @@ const config: CombatActionComponentConfig = {
   getChildren: function (context: ActionResolutionStepContext): CombatActionComponent[] {
     const toReturn: CombatActionComponent[] = [];
     const user = context.combatantContext.combatant.combatantProperties;
-    const mainHandEquipmentOption = CombatantEquipment.getEquipmentInSlot(user, {
-      type: EquipmentSlotType.Holdable,
-      slot: HoldableSlotType.MainHand,
-    });
-    if (
-      mainHandEquipmentOption &&
-      !Equipment.isBroken(mainHandEquipmentOption) &&
-      Equipment.isRangedWeapon(mainHandEquipmentOption)
-    ) {
+
+    if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(user))
       toReturn.push(COUNTER_ATTACK_RANGED_MAIN_HAND);
-    } else {
-      toReturn.push(COUNTER_ATTACK_MELEE_MAIN_HAND);
-      if (
-        mainHandEquipmentOption &&
-        !Equipment.isBroken(mainHandEquipmentOption) &&
-        !Equipment.isTwoHanded(mainHandEquipmentOption.equipmentBaseItemProperties.equipmentType) &&
-        !CombatantEquipment.isWearingUsableShield(user)
-      )
-        toReturn.push(COUNTER_ATTACK_MELEE_OFF_HAND);
-    }
+    else toReturn.push(COUNTER_ATTACK_MELEE_MAIN_HAND);
+
     return toReturn;
   },
   getParent: () => null,

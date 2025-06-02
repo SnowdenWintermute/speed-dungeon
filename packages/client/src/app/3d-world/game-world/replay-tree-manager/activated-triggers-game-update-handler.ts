@@ -3,6 +3,7 @@ import {
   ActionPayableResource,
   ActivatedTriggersGameUpdateCommand,
   COMBATANT_CONDITION_CONSTRUCTORS,
+  COMBAT_ACTIONS,
   CombatantCondition,
   CombatantProperties,
   DurabilityChangesByEntityId,
@@ -121,6 +122,7 @@ export async function activatedTriggersGameUpdateHandler(update: {
 
   if (command.hitPointChanges) {
     const hitPointChanges = plainToInstance(HitPointChanges, command.hitPointChanges);
+    const action = COMBAT_ACTIONS[command.actionName];
 
     if (hitPointChanges) {
       for (const [entityId, hpChange] of hitPointChanges.getRecords()) {
@@ -135,7 +137,7 @@ export async function activatedTriggersGameUpdateHandler(update: {
           ActionPayableResource.HitPoints,
           entityId,
           false,
-          true
+          action.hitOutcomeProperties.getShouldAnimateTargetHitRecovery()
         );
       }
     }
