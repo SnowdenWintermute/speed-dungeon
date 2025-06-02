@@ -158,7 +158,8 @@ export function calculateActionHitOutcomes(
 
     // COUNTERATTACKS
     if (hitOutcomeProperties.getCanTriggerCounterattack(user) && !targetWantsToBeHit) {
-      const percentChanceToCounterAttack = 0; // @TODO - derrive this from various combatant properties
+      // const percentChanceToCounterAttack = 0; // @TODO - derrive this from various combatant properties
+      const percentChanceToCounterAttack = 100; // @TODO - derrive this from various combatant properties
       const counterAttackRoll = randBetween(0, 100);
       const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
       if (isCounterAttacked) {

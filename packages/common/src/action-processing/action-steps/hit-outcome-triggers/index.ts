@@ -7,6 +7,8 @@ import { GameUpdateCommand, GameUpdateCommandType } from "../../game-update-comm
 import {
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
+  CombatActionName,
+  CombatActionTargetType,
   HitPointChanges,
   ResourceChange,
   ResourceChangeSource,
@@ -113,6 +115,16 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
                 HitOutcome.Hit
               );
             }
+        }
+
+        if (flag === HitOutcome.Counterattack) {
+          this.branchingActions.push({
+            user: targetCombatant,
+            actionExecutionIntent: new CombatActionExecutionIntent(CombatActionName.Counterattack, {
+              type: CombatActionTargetType.Single,
+              targetId: combatant.entityProperties.id,
+            }),
+          });
         }
       }
     }

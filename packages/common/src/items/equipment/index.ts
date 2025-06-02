@@ -13,7 +13,7 @@ import {
 } from "./equipment-properties/index.js";
 import { EquipmentType } from "./equipment-types/index.js";
 import { EquipmentTraitType } from "./equipment-traits/index.js";
-import { CombatantAttributeRecord } from "../../combatants/index.js";
+import { CombatantAttributeRecord, CombatantProperties } from "../../combatants/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 
 export * from "./equipment-properties/index.js";
@@ -140,5 +140,10 @@ export class Equipment extends Item {
   static isBroken(equipment: Equipment) {
     if (Equipment.isIndestructable(equipment) || equipment.durability === null) return false;
     return equipment.durability.current <= 0;
+  }
+
+  static isUsable(combatantProperties: CombatantProperties, equipment: Equipment): boolean {
+    if (Equipment.isBroken(equipment)) return false;
+    return CombatantProperties.canUseItem(combatantProperties, equipment);
   }
 }

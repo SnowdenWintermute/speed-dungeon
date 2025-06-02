@@ -25,7 +25,7 @@ import {
 import { getMeleeAttackBaseStepsConfig } from "./base-melee-attack-steps-config.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 
-const config: CombatActionComponentConfig = {
+export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using equipment in main hand",
   origin: CombatActionOrigin.Attack,
   getRequiredRange: () => CombatActionRequiredRange.Melee,
@@ -36,18 +36,22 @@ const config: CombatActionComponentConfig = {
       [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnHit },
     },
     requiresCombatTurn: (context) => {
-      for (const holdableSlotType of iterateNumericEnum(HoldableSlotType)) {
-        const equipmentOption = CombatantEquipment.getEquippedHoldable(
-          context.combatantContext.combatant.combatantProperties,
-          holdableSlotType
-        );
-        if (!equipmentOption) continue;
-        const { equipmentType } = equipmentOption.equipmentBaseItemProperties.taggedBaseEquipment;
-        if (Equipment.isBroken(equipmentOption)) continue;
-        if (Equipment.isTwoHanded(equipmentType)) return true;
-        if (equipmentType === EquipmentType.Shield) return true;
-      }
-      return false;
+      const user = context.combatantContext.combatant.combatantProperties;
+
+      if (CombatantEquipment.isWearingUsableShield(user)) return true;
+
+      const mainHandEquipmentOption = CombatantEquipment.getEquippedHoldable(
+        context.combatantContext.combatant.combatantProperties,
+        HoldableSlotType.MainHand
+      );
+
+      const hasUsableTwoHanderInMainHand = !!(
+        mainHandEquipmentOption &&
+        !Equipment.isBroken(mainHandEquipmentOption) &&
+        !Equipment.isTwoHanded(mainHandEquipmentOption.equipmentBaseItemProperties.equipmentType)
+      );
+
+      return hasUsableTwoHanderInMainHand;
     },
   },
   hitOutcomeProperties: {
@@ -63,5 +67,5 @@ const config: CombatActionComponentConfig = {
 
 export const ATTACK_MELEE_MAIN_HAND = new CombatActionLeaf(
   CombatActionName.AttackMeleeMainhand,
-  config
+  ATTACK_MELEE_MAIN_HAND_CONFIG
 );

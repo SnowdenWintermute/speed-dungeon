@@ -36,6 +36,7 @@ export enum CombatActionOrigin {
 
 export interface CombatActionComponentConfig {
   description: string;
+  /** Used by the combat log to determine how to format messages */
   origin: CombatActionOrigin;
 
   targetingProperties: CombatActionTargetingPropertiesConfig;

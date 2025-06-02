@@ -108,7 +108,7 @@ export default function getMonsterEquipment(monsterType: MonsterType): Combatant
         OneHandedMeleeWeapon.YewWand,
         OneHandedMeleeWeapon.MapleWand,
       ];
-      const shieldOptions = [Shield.KiteShield, Shield.Heater];
+      const shieldOptions = [Shield.Buckler, Shield.CabinetDoor, Shield.PotLid];
       let wandType = chooseRandomFromArray(wandOptions);
       if (wandType instanceof Error) wandType = OneHandedMeleeWeapon.IceBlade;
       let shieldType = chooseRandomFromArray(shieldOptions);

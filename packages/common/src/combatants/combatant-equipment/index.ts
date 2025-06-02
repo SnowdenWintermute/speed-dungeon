@@ -185,6 +185,25 @@ export class CombatantEquipment {
     return offhandOption.equipmentBaseItemProperties;
   }
 
+  static isWearingUsableShield(combatantProperties: CombatantProperties): boolean {
+    const offHandEquipmentOption = CombatantEquipment.getEquipmentInSlot(combatantProperties, {
+      type: EquipmentSlotType.Holdable,
+      slot: HoldableSlotType.OffHand,
+    });
+
+    console.log("equipment in off hand: ", offHandEquipmentOption);
+
+    if (!offHandEquipmentOption) return false;
+    const { equipmentType } = offHandEquipmentOption.equipmentBaseItemProperties;
+    const isShield = equipmentType === EquipmentType.Shield;
+    console.log("is shield: ", isShield);
+    if (!isShield) return false;
+    const isUsable = Equipment.isUsable(combatantProperties, offHandEquipmentOption);
+    console.log("is usable: ", isUsable);
+
+    return isUsable;
+  }
+
   static getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(
     combatantProperties: CombatantProperties,
     equipmentId: EntityId

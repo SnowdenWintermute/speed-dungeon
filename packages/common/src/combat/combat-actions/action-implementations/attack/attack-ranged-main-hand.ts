@@ -170,7 +170,7 @@ stepsConfig.steps = {
   },
 };
 
-const config: CombatActionComponentConfig = {
+export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using ranged weapon",
   origin: CombatActionOrigin.Attack,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
@@ -226,5 +226,5 @@ const config: CombatActionComponentConfig = {
 
 export const ATTACK_RANGED_MAIN_HAND = new CombatActionLeaf(
   CombatActionName.AttackRangedMainhand,
-  config
+  ATTACK_RANGED_MAIN_HAND_CONFIG
 );

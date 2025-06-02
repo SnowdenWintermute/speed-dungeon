@@ -34,17 +34,6 @@ export function induceHitRecovery(
   const action = COMBAT_ACTIONS[actionName];
   const wasSpell = action.origin === CombatActionOrigin.SpellCast;
 
-  // HANDLE RESOURCE CHANGES
-  // - show a hit recovery or death animation (if mana, only animate if there wasn't an hp change animation already)
-  // - start a floating message
-  // - determine and post combat log text
-  // - change their resource
-  // HP ONLY:
-  // - determine if died or resurrected
-  // - handle any death by removing the affected combatant's turn tracker
-  // - handle any ressurection by adding the affected combatant's turn tracker
-  // MANA ONLY:
-  // - show mana shield breaking if reduced to zero
   startResourceChangeFloatingMessage(targetId, resourceChange, resourceType, wasBlocked, 2000);
 
   const showDebug = useUIStore.getState().showDebug;
