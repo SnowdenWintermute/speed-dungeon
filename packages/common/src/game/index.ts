@@ -61,6 +61,7 @@ export class SpeedDungeonGame {
     battleIdOption: null | string,
     combatantId: string
   ) {
+    console.log("handling combatant death", combatantId);
     if (battleIdOption === null) return;
     // - handle any death by removing the affected combatant's turn tracker
     const battleOption = game.battles[battleIdOption];

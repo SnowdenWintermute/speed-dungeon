@@ -153,7 +153,10 @@ export function processCombatAction(
         if (action.costProperties.requiresCombatTurn(trackerOption.currentStep.getContext()))
           endedTurn = true;
 
-        if (action.stepsConfig.options.userShouldMoveHomeOnComplete) {
+        if (
+          action.stepsConfig.options.userShouldMoveHomeOnComplete
+          // combatantContext.combatant.combatantProperties.hitPoints > 0
+        ) {
           const returnHomeStep = new CombatantMotionActionResolutionStep(
             trackerOption.currentStep.getContext(),
             ActionResolutionStepType.FinalPositioning
@@ -183,11 +186,19 @@ export function processCombatAction(
   }
 
   InputLock.unlockInput(combatantContext.party.inputLock);
-  const { game, party } = combatantContext;
+  const { game, party, combatant } = combatantContext;
   const battleOption = party.battleId ? game.battles[party.battleId] || null : null;
   if (battleOption && endedTurn) {
-    const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, battleOption);
-    if (maybeError instanceof Error) return maybeError;
+    console.log(
+      "combatant.combatantProperties.hitPoints >= 0:",
+      combatant.combatantProperties.hitPoints > 0,
+      combatant.entityProperties.name
+    );
+    // if they died on their own turn, their turn tracker should already be removed
+    if (combatant.combatantProperties.hitPoints > 0) {
+      const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, battleOption);
+      if (maybeError instanceof Error) return maybeError;
+    }
   }
 
   return { rootReplayNode, endedTurn };

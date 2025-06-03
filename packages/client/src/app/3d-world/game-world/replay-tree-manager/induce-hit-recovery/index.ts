@@ -9,6 +9,9 @@ import {
   COMBAT_ACTIONS,
   ActionResolutionStepType,
   CombatActionOrigin,
+  InputLock,
+  Battle,
+  AdventuringParty,
 } from "@speed-dungeon/common";
 import { getCombatantContext, useGameStore } from "@/stores/game-store";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
@@ -63,8 +66,29 @@ export function induceHitRecovery(
     );
 
     if (combatantProperties.hitPoints <= 0) {
+      const combatantDiedOnTheirOwnTurn = (() => {
+        const battleOption = AdventuringParty.getBattleOption(party, game);
+        if (battleOption === null) return false;
+        return Battle.combatantIsFirstInTurnOrder(battleOption, targetId);
+      })();
+
+      console.log("combatant died on their own turn: ", combatantDiedOnTheirOwnTurn);
+
       const maybeError = SpeedDungeonGame.handleCombatantDeath(game, party.battleId, targetId);
       if (maybeError instanceof Error) return console.error(maybeError);
+
+      if (combatantDiedOnTheirOwnTurn) {
+        // if it was the combatant's turn who died, unlock input
+        InputLock.unlockInput(party.inputLock);
+        // end any motion trackers they might have had
+        const combatantModel = getGameWorld().modelManager.findOne(targetId);
+
+        for (const [movementType, tracker] of combatantModel.movementManager.getTrackers()) {
+          tracker.onComplete();
+        }
+
+        combatantModel.movementManager.activeTrackers = {};
+      }
 
       gameState.combatLogMessages.push(
         new CombatLogMessage(
@@ -73,16 +97,21 @@ export function induceHitRecovery(
         )
       );
 
-      if (shouldAnimate)
-        targetModel.skeletalAnimationManager.startAnimationWithTransition(
-          SkeletalAnimationName.DeathBack,
-          0,
-          {
-            onComplete: () => {
-              targetModel.skeletalAnimationManager.locked = true;
-            },
-          }
-        );
+      if (targetModel.skeletalAnimationManager.playing) {
+        if (targetModel.skeletalAnimationManager.playing.options.onComplete)
+          targetModel.skeletalAnimationManager.playing.options.onComplete();
+      }
+
+      // if (shouldAnimate) // we kind of need to animate this
+      targetModel.skeletalAnimationManager.startAnimationWithTransition(
+        SkeletalAnimationName.DeathBack,
+        0,
+        {
+          onComplete: () => {
+            targetModel.skeletalAnimationManager.locked = true;
+          },
+        }
+      );
     } else if (resourceChange.value < 0) {
       const hasCritRecoveryAnimation = targetModel.skeletalAnimationManager.getAnimationGroupByName(
         SkeletalAnimationName.HitRecovery

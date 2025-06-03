@@ -148,6 +148,7 @@ export function calculateActionHitOutcomes(
       !targetWantsToBeHit
     ) {
       const percentChanceToParry = getParryChance(user, target);
+      // const percentChanceToParry = 5;
       const parryRoll = randBetween(0, 100);
       const isParried = parryRoll < percentChanceToParry;
       if (isParried) {

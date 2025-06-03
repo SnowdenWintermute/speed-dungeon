@@ -1,6 +1,7 @@
 import {
   ActionCommandPayload,
   ActionCommandType,
+  Battle,
   COMBAT_ACTIONS,
   CharacterAssociatedData,
   CombatActionExecutionIntent,
@@ -62,7 +63,9 @@ export async function useSelectedCombatActionHandler(
   };
 
   const payloads: ActionCommandPayload[] = [payload];
-  if (replayTreeResult.endedTurn) {
+  // if they died on their own turn we should not end the active combatant's turn because
+  // we would have already removed their turn tracker on death
+  if (replayTreeResult.endedTurn && combatantContext.combatant.combatantProperties.hitPoints > 0) {
     console.log("sending ended turn payload for human user");
     payloads.push({ type: ActionCommandType.EndActiveCombatantTurn });
   }
@@ -72,4 +75,5 @@ export async function useSelectedCombatActionHandler(
     .emit(ServerToClientEvent.ActionCommandPayloads, payloads);
 
   processBattleUntilPlayerTurnOrConclusion(gameServer, game, party, battleOption);
+  console.log("turn trackers: ", battleOption?.turnTrackers);
 }

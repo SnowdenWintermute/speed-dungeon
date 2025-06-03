@@ -45,6 +45,10 @@ export class ManagedSkeletalAnimation extends ManagedAnimation<AnimationGroup> {
   }
 
   cleanup() {
+    // if (this.options.onComplete && !this.onCompleteRan) {
+    //   this.options.onComplete();
+    //   this.onCompleteRan = true;
+    // }
     this.animationGroup.stop();
     this.animationGroup.dispose(); // else causes memory leaks
   }

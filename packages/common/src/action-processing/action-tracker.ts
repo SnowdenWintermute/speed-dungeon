@@ -48,6 +48,7 @@ export class ActionTracker {
     const stepTypes = action.stepsConfig.getStepTypes();
     const stepOption = stepTypes[this.stepIndex];
     if (stepOption === undefined) return null;
+
     const stepCreator = ACTION_STEP_CREATORS[stepOption];
     const newStep = stepCreator(context);
     this.currentStep = newStep;

@@ -126,6 +126,7 @@ export class GameWorld {
 
     for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
       combatantModel.highlightManager.updateHighlight();
+
       combatantModel.movementManager.processActiveActions();
       combatantModel.skeletalAnimationManager.stepAnimationTransitionWeights();
       combatantModel.skeletalAnimationManager.handleCompletedAnimations();
