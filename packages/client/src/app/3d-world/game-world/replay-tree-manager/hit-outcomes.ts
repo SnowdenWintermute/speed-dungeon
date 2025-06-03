@@ -160,4 +160,29 @@ export async function hitOutcomesGameUpdateHandler(update: {
       gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
     });
   });
+
+  outcomeFlags[HitOutcome.Counterattack]?.forEach((entityId) => {
+    const elements: FloatingMessageElement[] = [
+      {
+        type: FloatingMessageElementType.Text,
+        text: `Countered`,
+        classNames: {
+          mainText: FLOATING_TEXT_COLORS[FloatingMessageTextColor.Parried],
+          shadowText: "text-black",
+        },
+      },
+    ];
+
+    startFloatingMessage(entityId, elements, 2000);
+
+    useGameStore.getState().mutateState((gameState) => {
+      const targetCombatantResult = gameState.getCombatant(entityId);
+      if (targetCombatantResult instanceof Error) throw targetCombatantResult;
+
+      const style = CombatLogMessageStyle.Basic;
+      let messageText = `${targetCombatantResult.entityProperties.name} countered an attack from ${actionUserName}`;
+
+      gameState.combatLogMessages.push(new CombatLogMessage(messageText, style));
+    });
+  });
 }

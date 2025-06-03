@@ -67,10 +67,11 @@ const config: CombatActionComponentConfig = {
 
   shouldExecute: () => true,
   getConcurrentSubActions(context) {
-    const { combatActionTarget } = context.combatant.combatantProperties;
-    if (!combatActionTarget) throw new Error("expected combatant target not found");
     return [
-      new CombatActionExecutionIntent(CombatActionName.IceBoltProjectile, combatActionTarget),
+      new CombatActionExecutionIntent(
+        CombatActionName.IceBoltProjectile,
+        context.tracker.actionExecutionIntent.targets
+      ),
     ];
   },
   getChildren: () => [],

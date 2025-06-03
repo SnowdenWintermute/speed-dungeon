@@ -10,12 +10,10 @@ const config: CombatActionComponentConfig = {
   ...ATTACK_RANGED_MAIN_HAND,
   description: "Fire an arrow that applies a detonatable condition",
   getConcurrentSubActions(context) {
-    const { combatActionTarget } = context.combatant.combatantProperties;
-    if (!combatActionTarget) throw new Error("expected combatant target not found");
     return [
       new CombatActionExecutionIntent(
         CombatActionName.ExplodingArrowProjectile,
-        combatActionTarget
+        context.tracker.actionExecutionIntent.targets
       ),
     ];
   },

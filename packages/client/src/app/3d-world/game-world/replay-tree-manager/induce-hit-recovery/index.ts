@@ -81,6 +81,8 @@ export function induceHitRecovery(
         // if it was the combatant's turn who died, unlock input
         InputLock.unlockInput(party.inputLock);
         // end any motion trackers they might have had
+        // this is hacky because we would rather have not given them any but
+        // it was the easiest way to implement dying on combatant's own turn
         const combatantModel = getGameWorld().modelManager.findOne(targetId);
 
         for (const [movementType, tracker] of combatantModel.movementManager.getTrackers()) {

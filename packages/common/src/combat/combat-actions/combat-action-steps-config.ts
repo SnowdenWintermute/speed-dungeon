@@ -72,6 +72,7 @@ export interface ActionResolutionStepConfig {
   // of return home step for a melee main hand attack that killed its target, thus not needing
   // to do the offhand attack
   isConditionalStep?: boolean;
+  shouldIdleOnComplete?: boolean;
 }
 
 export class ActionResolutionStepsConfig {

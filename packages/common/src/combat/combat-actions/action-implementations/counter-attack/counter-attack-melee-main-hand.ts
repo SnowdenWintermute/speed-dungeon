@@ -10,6 +10,10 @@ const stepsConfig = getMeleeAttackBaseStepsConfig(HoldableSlotType.MainHand);
 delete stepsConfig.steps[ActionResolutionStepType.InitialPositioning];
 delete stepsConfig.steps[ActionResolutionStepType.ChamberingMotion];
 
+const finalStep = stepsConfig.steps[ActionResolutionStepType.FinalPositioning];
+if (!finalStep) throw new Error("expected to have return home step configured");
+delete finalStep.getAnimation; // because we don't want them running back
+
 const clonedConfig = cloneDeep(ATTACK_MELEE_MAIN_HAND_CONFIG);
 
 const config: CombatActionComponentConfig = {

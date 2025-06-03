@@ -59,7 +59,7 @@ export interface CombatActionComponentConfig {
 
   // ACTION HEIRARCHY PROPERTIES
   getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
-  getConcurrentSubActions?: (combatantContext: CombatantContext) => CombatActionExecutionIntent[];
+  getConcurrentSubActions?: (context: ActionResolutionStepContext) => CombatActionExecutionIntent[];
   getParent: () => CombatActionComponent | null;
 }
 
@@ -106,7 +106,7 @@ export abstract class CombatActionComponent {
   // (energetic swings could do multiple attacks based on user's current percent of max hp)
   // could also create random children such as a chaining random elemental damage
   getChildren: (context: ActionResolutionStepContext) => CombatActionComponent[];
-  getConcurrentSubActions: (combatantContext: CombatantContext) => CombatActionExecutionIntent[] =
+  getConcurrentSubActions: (context: ActionResolutionStepContext) => CombatActionExecutionIntent[] =
     () => [];
   getParent: () => CombatActionComponent | null;
   addChild: (childAction: CombatActionComponent) => Error | void = () =>

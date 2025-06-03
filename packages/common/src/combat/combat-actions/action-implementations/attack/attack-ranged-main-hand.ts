@@ -186,12 +186,11 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
 
   shouldExecute: () => true,
   getConcurrentSubActions(context) {
-    const { combatActionTarget } = context.combatant.combatantProperties;
-    if (!combatActionTarget) throw new Error("expected combatant target not found");
+    console.log("targets for ranged main hand projectile");
     return [
       new CombatActionExecutionIntent(
         CombatActionName.AttackRangedMainhandProjectile,
-        combatActionTarget
+        context.tracker.actionExecutionIntent.targets
       ),
     ];
   },

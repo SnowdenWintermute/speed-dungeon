@@ -1,17 +1,14 @@
 import { CombatActionComponentConfig, CombatActionLeaf, CombatActionName } from "../../index.js";
 import { COUNTER_ATTACK } from "./index.js";
-import { HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { getMeleeAttackBaseStepsConfig } from "../attack/base-melee-attack-steps-config.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { ATTACK_RANGED_MAIN_HAND_CONFIG } from "../attack/attack-ranged-main-hand.js";
 import cloneDeep from "lodash.clonedeep";
 
-const stepsConfig = getMeleeAttackBaseStepsConfig(HoldableSlotType.MainHand);
+const clonedConfig = cloneDeep(ATTACK_RANGED_MAIN_HAND_CONFIG);
+const stepsConfig = clonedConfig.stepsConfig;
 delete stepsConfig.steps[ActionResolutionStepType.InitialPositioning];
 delete stepsConfig.steps[ActionResolutionStepType.PrepMotion];
 delete stepsConfig.steps[ActionResolutionStepType.ChamberingMotion];
-
-const clonedConfig = cloneDeep(ATTACK_RANGED_MAIN_HAND_CONFIG);
 
 const config: CombatActionComponentConfig = {
   ...clonedConfig,

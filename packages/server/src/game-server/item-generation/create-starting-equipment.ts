@@ -30,11 +30,18 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
     case CombatantClass.Warrior:
       mainhand = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-          baseItemType: TwoHandedMeleeWeapon.SplittingMaul,
+          equipmentType: EquipmentType.TwoHandedRangedWeapon,
+          baseItemType: TwoHandedRangedWeapon.CompositeBow,
         },
         true
       );
+      // mainhand = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+      //     baseItemType: TwoHandedMeleeWeapon.SplittingMaul,
+      //   },
+      //   true
+      // );
       // mainhand = generateSpecificEquipmentType(
       //   {
       //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
