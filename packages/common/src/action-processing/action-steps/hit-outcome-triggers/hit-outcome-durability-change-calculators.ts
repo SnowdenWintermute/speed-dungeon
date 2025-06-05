@@ -38,13 +38,14 @@ export function addHitOutcomeDurabilityChanges(
     isCrit
   );
 
-  if (HIT_OUTCOMES_THAT_CONTACT_TARGET.includes(hitOutcomeType))
+  if (HIT_OUTCOMES_THAT_CONTACT_TARGET.includes(hitOutcomeType)) {
     // ex: the action user's weapon should lose durability
     durabilityChanges.updateConditionalChangesOnUser(
       actionUser.entityProperties.id,
       action,
       DurabilityLossCondition.OnHit
     );
+  }
 }
 
 const hitOutcomeDurabilityChangeOnTargetCalculators: Record<

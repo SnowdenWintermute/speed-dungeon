@@ -1,5 +1,11 @@
-import { DurabilityLossCondition } from "../combat/combat-actions/combat-action-durability-loss-condition.js";
-import { CombatActionComponent } from "../combat/combat-actions/index.js";
+import {
+  DURABILITY_LOSS_CONDITION_STRINGS,
+  DurabilityLossCondition,
+} from "../combat/combat-actions/combat-action-durability-loss-condition.js";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionComponent,
+} from "../combat/combat-actions/index.js";
 import {
   Combatant,
   CombatantEquipment,
@@ -75,12 +81,6 @@ export class DurabilityChangesByEntityId {
           taggedSlot
         );
 
-        // console.log(
-        //   "checking dura: ",
-        //   equipmentOption?.entityProperties.name,
-        //   equipmentOption?.durability
-        // );
-
         applyEquipmentEffectWhileMaintainingResourcePercentages(
           combatantResult.combatantProperties,
           () => {
@@ -123,6 +123,14 @@ export class DurabilityChangesByEntityId {
           taggedSlot: { type: EquipmentSlotType.Holdable, slot: holdableSlot },
           value: BASE_DURABILITY_LOSS,
         });
+
+        console.log(
+          "lost durability due to hit outcome of",
+          COMBAT_ACTION_NAME_STRINGS[action.name],
+          "condition",
+          DURABILITY_LOSS_CONDITION_STRINGS[durabilityLossCondition],
+          this.records
+        );
       }
     }
   }

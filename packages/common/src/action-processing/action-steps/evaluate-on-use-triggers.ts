@@ -3,7 +3,11 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { COMBAT_ACTIONS, CombatActionExecutionIntent } from "../../combat/index.js";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  COMBAT_ACTIONS,
+  CombatActionExecutionIntent,
+} from "../../combat/index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { Combatant } from "../../combatants/index.js";
 import { DurabilityLossCondition } from "../../combat/combat-actions/combat-action-durability-loss-condition.js";
@@ -31,6 +35,12 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
       combatant.entityProperties.id,
       action,
       DurabilityLossCondition.OnUse
+    );
+
+    console.log(
+      "durabilityChanges for action",
+      COMBAT_ACTION_NAME_STRINGS[action.name],
+      durabilityChanges
     );
 
     if (!durabilityChanges.isEmpty()) {

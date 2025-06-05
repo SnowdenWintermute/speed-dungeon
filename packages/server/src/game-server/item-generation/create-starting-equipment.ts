@@ -119,7 +119,7 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
   };
 
   mainhand.durability = { current: 1, inherentMax: 10000 };
-  // repairEquipment(mainhand);
+  repairEquipment(mainhand);
 
   if (offhand instanceof Error) return offhand;
   if (offhand && offhand.durability) offhand.durability.current = 1;

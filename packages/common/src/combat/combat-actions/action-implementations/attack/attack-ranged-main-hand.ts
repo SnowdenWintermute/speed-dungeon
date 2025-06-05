@@ -140,7 +140,7 @@ stepsConfig.steps = {
 
       const setParent: SceneEntityChildTransformNodeIdentifierWithDuration = {
         identifier: parent,
-        duration: 1400,
+        duration: 400,
       };
 
       const arrowRestIdentifier: SceneEntityChildTransformNodeIdentifier = {

@@ -8,12 +8,22 @@ import { COUNTER_ATTACK } from "./index.js";
 import {
   ActionResolutionStepType,
   AnimationTimingType,
+  EntityMotionUpdate,
 } from "../../../../action-processing/index.js";
 import { ATTACK_RANGED_MAIN_HAND_CONFIG } from "../attack/attack-ranged-main-hand.js";
 import cloneDeep from "lodash.clonedeep";
 import { AutoTargetingScheme } from "../../../targeting/index.js";
 import { AnimationType, SkeletalAnimationName } from "../../../../app-consts.js";
 import { getRotateTowardPrimaryTargetDestination } from "../common-destination-getters.js";
+import { CombatantEquipment } from "../../../../combatants/index.js";
+import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
+import { getSpawnableEntityId, SpawnableEntityType } from "../../../../spawnables/index.js";
+import {
+  CombatantHoldableChildTransformNodeName,
+  SceneEntityChildTransformNodeIdentifier,
+  SceneEntityChildTransformNodeIdentifierWithDuration,
+  SceneEntityType,
+} from "../../../../scene-entities/index.js";
 
 const clonedConfig = cloneDeep(ATTACK_RANGED_MAIN_HAND_CONFIG);
 const stepsConfig = clonedConfig.stepsConfig;
@@ -31,7 +41,7 @@ if (!finalStep) throw new Error("expected to have return home step configured");
 finalStep.getAnimation = () => {
   return {
     name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.IdleBow },
-    timing: { type: AnimationTimingType.Looping },
+    timing: { type: AnimationTimingType.Timed, duration: 300 },
     smoothTransition: true,
   };
 }; // because we don't want them running back
