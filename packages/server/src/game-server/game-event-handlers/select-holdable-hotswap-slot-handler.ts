@@ -1,5 +1,7 @@
 import SocketIO from "socket.io";
 import {
+  AdventuringParty,
+  Battle,
   CharacterAssociatedData,
   ClientToServerEventTypes,
   CombatantEquipment,
@@ -17,6 +19,18 @@ export default function selectHoldableHotswapSlotHandler(
   _socket?: SocketIO.Socket<ClientToServerEventTypes, ServerToClientEventTypes>
 ) {
   const { game, party, character } = characterAssociatedData;
+
+  if (party.battleId) {
+    const battleOption = AdventuringParty.getBattleOption(party, game);
+    if (battleOption) {
+      const isCombatantTurn = Battle.combatantIsFirstInTurnOrder(
+        battleOption,
+        character.entityProperties.id
+      );
+      if (!isCombatantTurn) return new Error(ERROR_MESSAGES.COMBATANT.NOT_ACTIVE);
+    }
+  }
+
   const gameServer = getGameServer();
   const { slotIndex } = eventData;
 

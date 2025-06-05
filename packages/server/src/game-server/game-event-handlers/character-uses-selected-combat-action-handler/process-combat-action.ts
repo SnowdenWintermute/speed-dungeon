@@ -1,6 +1,7 @@
 import {
   ActionResolutionStepType,
   ActionSequenceManagerRegistry,
+  Battle,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatantContext,
@@ -9,7 +10,6 @@ import {
   NestedNodeReplayEvent,
   ReplayEventType,
   SequentialIdGenerator,
-  SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { ANIMATION_LENGTHS, idGenerator } from "../../../singletons.js";
 
@@ -47,6 +47,7 @@ export function processCombatAction(
   InputLock.lockInput(combatantContext.party.inputLock);
 
   let endedTurn = false;
+
   while (registry.isNotEmpty()) {
     for (const sequenceManager of registry.getManagers()) {
       let trackerOption = sequenceManager.getCurrentTracker();
@@ -188,17 +189,14 @@ export function processCombatAction(
   InputLock.unlockInput(combatantContext.party.inputLock);
   const { game, party, combatant } = combatantContext;
   const battleOption = party.battleId ? game.battles[party.battleId] || null : null;
+
   if (battleOption && endedTurn) {
-    console.log(
-      "combatant.combatantProperties.hitPoints >= 0:",
-      combatant.combatantProperties.hitPoints > 0,
-      combatant.entityProperties.name
+    const maybeError = Battle.endCombatantTurnIfInBattle(
+      game,
+      battleOption,
+      combatant.entityProperties.id
     );
-    // if they died on their own turn, their turn tracker should already be removed
-    if (combatant.combatantProperties.hitPoints > 0) {
-      const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, battleOption);
-      if (maybeError instanceof Error) return maybeError;
-    }
+    if (maybeError instanceof Error) return maybeError;
   }
 
   return { rootReplayNode, endedTurn };

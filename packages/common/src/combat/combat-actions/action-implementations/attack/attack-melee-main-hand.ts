@@ -38,6 +38,8 @@ export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
 
       if (CombatantEquipment.isWearingUsableShield(user)) return true;
       if (CombatantEquipment.isWearingUsableTwoHandedMeleeWeapon(user)) return true;
+      if (context.tracker.wasCountered()) return true;
+
       return false;
     },
   },

@@ -28,11 +28,6 @@ export function handleEntityMotionUpdate(
   motionUpdate: EntityMotionUpdate,
   isMainUpdate: boolean
 ) {
-  console.log(
-    update.command.mainEntityUpdate.entityId,
-    "handling entity motion update:",
-    ACTION_RESOLUTION_STEP_TYPE_STRINGS[update.command.step]
-  );
   const { translationOption, rotationOption, animationOption } = motionUpdate;
 
   const toUpdate = getSceneEntityToUpdate(motionUpdate);
@@ -133,7 +128,6 @@ export function handleEntityMotionUpdate(
       animationOption,
       updateCompletionTracker,
       update,
-      !!motionUpdate.instantTransition,
       onAnimationComplete
     );
   }

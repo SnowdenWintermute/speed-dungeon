@@ -32,11 +32,7 @@ export const DAMAGING_ACTIONS_COMMON_CONFIG = {
 
     // if previous was countered, don't continue the queued action sequence
     if (previousTrackerOption) {
-      const wasCountered = iterateNumericEnumKeyedRecord(
-        previousTrackerOption.hitOutcomes.outcomeFlags
-      )
-        .map(([key, value]) => key)
-        .includes(HitOutcome.Counterattack);
+      const wasCountered = previousTrackerOption.wasCountered();
 
       if (wasCountered) return false;
     }

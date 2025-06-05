@@ -30,7 +30,6 @@ export class HitPointChanges extends ResourceChanges<ResourceChange> {
     const { game, party } = combatantContext;
 
     for (const [targetId, hpChange] of Object.entries(this.changes)) {
-      console.log("applying hit point change", hpChange.value, "to entity id", targetId);
       const targetResult = AdventuringParty.getCombatant(party, targetId);
       if (targetResult instanceof Error) throw targetResult;
       const { combatantProperties: targetCombatantProperties } = targetResult;

@@ -72,7 +72,15 @@ stepsConfig.steps = {
     getDestination: getRotateTowardPrimaryTargetDestination,
     getAnimation: (user, animationLengths) =>
       // a one-off ActionExecutionPhase since no other action has a prep motion yet
-      getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowPrep),
+      getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowPrep, true),
+  },
+  [ActionResolutionStepType.PostPrepSpawnEntity]: {},
+  [ActionResolutionStepType.ChamberingMotion]: {
+    ...stepsConfig.steps[ActionResolutionStepType.ChamberingMotion],
+  },
+
+  [ActionResolutionStepType.DeliveryMotion]: {
+    ...stepsConfig.steps[ActionResolutionStepType.DeliveryMotion],
 
     getEquipmentAnimations: (user, animationLengths) => {
       const slot: TaggedEquipmentSlot = {
@@ -98,20 +106,13 @@ stepsConfig.steps = {
       const animation: EntityAnimation = {
         name: { type: AnimationType.Skeletal, name: animationName },
         timing: { type: AnimationTimingType.Timed, duration },
+        smoothTransition: false,
       };
 
       const equipmentAnimation: EquipmentAnimation = { slot, animation };
 
       return [equipmentAnimation];
     },
-  },
-  [ActionResolutionStepType.PostPrepSpawnEntity]: {},
-  [ActionResolutionStepType.ChamberingMotion]: {
-    ...stepsConfig.steps[ActionResolutionStepType.ChamberingMotion],
-  },
-
-  [ActionResolutionStepType.DeliveryMotion]: {
-    ...stepsConfig.steps[ActionResolutionStepType.DeliveryMotion],
     getAuxiliaryEntityMotions: (context) => {
       const actionEntity = context.tracker.spawnedEntityOption;
       if (!actionEntity) return [];
@@ -186,7 +187,6 @@ export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
 
   shouldExecute: () => true,
   getConcurrentSubActions(context) {
-    console.log("targets for ranged main hand projectile");
     return [
       new CombatActionExecutionIntent(
         CombatActionName.AttackRangedMainhandProjectile,

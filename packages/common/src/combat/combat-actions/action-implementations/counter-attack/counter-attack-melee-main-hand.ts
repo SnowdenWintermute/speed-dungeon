@@ -5,10 +5,16 @@ import { getMeleeAttackBaseStepsConfig } from "../attack/base-melee-attack-steps
 import { ATTACK_MELEE_MAIN_HAND_CONFIG } from "../attack/attack-melee-main-hand.js";
 import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import cloneDeep from "lodash.clonedeep";
+import { getRotateTowardPrimaryTargetDestination } from "../common-destination-getters.js";
 
 const stepsConfig = getMeleeAttackBaseStepsConfig(HoldableSlotType.MainHand);
 delete stepsConfig.steps[ActionResolutionStepType.InitialPositioning];
 delete stepsConfig.steps[ActionResolutionStepType.ChamberingMotion];
+
+// would normally rotate in an earlier skipped step
+const deliveryStep = stepsConfig.steps[ActionResolutionStepType.DeliveryMotion];
+if (!deliveryStep) throw new Error("expected delivery step not present");
+deliveryStep.getDestination = getRotateTowardPrimaryTargetDestination;
 
 const finalStep = stepsConfig.steps[ActionResolutionStepType.FinalPositioning];
 if (!finalStep) throw new Error("expected to have return home step configured");

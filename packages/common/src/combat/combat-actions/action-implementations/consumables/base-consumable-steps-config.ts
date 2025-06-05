@@ -19,6 +19,7 @@ export const MEDICATION_ACTION_BASE_STEPS_CONFIG = new ActionResolutionStepsConf
         return {
           name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
           timing: { type: AnimationTimingType.Looping },
+          smoothTransition: true,
         };
       },
     },
@@ -28,7 +29,8 @@ export const MEDICATION_ACTION_BASE_STEPS_CONFIG = new ActionResolutionStepsConf
         getTimedSkeletalEntityAnimation(
           user,
           animationLengths,
-          SkeletalAnimationName.UseConsumableChambering
+          SkeletalAnimationName.UseConsumableChambering,
+          true
         ),
     },
     [ActionResolutionStepType.DeliveryMotion]: {
@@ -36,7 +38,8 @@ export const MEDICATION_ACTION_BASE_STEPS_CONFIG = new ActionResolutionStepsConf
         getTimedSkeletalEntityAnimation(
           user,
           animationLengths,
-          SkeletalAnimationName.UseConsumableDelivery
+          SkeletalAnimationName.UseConsumableDelivery,
+          false
         ),
     },
     [ActionResolutionStepType.PayResourceCosts]: {},
@@ -48,7 +51,8 @@ export const MEDICATION_ACTION_BASE_STEPS_CONFIG = new ActionResolutionStepsConf
         getTimedSkeletalEntityAnimation(
           user,
           animationLengths,
-          SkeletalAnimationName.UseConsumableRecovery
+          SkeletalAnimationName.UseConsumableRecovery,
+          false
         ),
     },
     [ActionResolutionStepType.FinalPositioning]: {
@@ -57,6 +61,7 @@ export const MEDICATION_ACTION_BASE_STEPS_CONFIG = new ActionResolutionStepsConf
         return {
           name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveBack },
           timing: { type: AnimationTimingType.Looping },
+          smoothTransition: true,
         };
       },
       getDestination: getHomeDestination,

@@ -17,6 +17,7 @@ import { ICE_BURST } from "./ice-burst/index.js";
 import { COUNTER_ATTACK } from "./counter-attack/index.js";
 import { COUNTER_ATTACK_MELEE_MAIN_HAND } from "./counter-attack/counter-attack-melee-main-hand.js";
 import { COUNTER_ATTACK_RANGED_MAIN_HAND } from "./counter-attack/counter-attack-ranged-main-hand.js";
+import { COUNTER_ATTACK_RANGED_MAIN_HAND_PROJECTILE } from "./counter-attack/counter-attack-ranged-main-hand-projectile.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -24,6 +25,8 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.AttackMeleeOffhand]: ATTACK_MELEE_OFF_HAND,
   [CombatActionName.AttackRangedMainhand]: ATTACK_RANGED_MAIN_HAND,
   [CombatActionName.AttackRangedMainhandProjectile]: ATTACK_RANGED_MAIN_HAND_PROJECTILE,
+  [CombatActionName.CounterAttackRangedMainhandProjectile]:
+    COUNTER_ATTACK_RANGED_MAIN_HAND_PROJECTILE,
   [CombatActionName.Counterattack]: COUNTER_ATTACK,
   [CombatActionName.CounterattackMeleeMainhand]: COUNTER_ATTACK_MELEE_MAIN_HAND,
   [CombatActionName.CounterattackRangedMainhand]: COUNTER_ATTACK_RANGED_MAIN_HAND,

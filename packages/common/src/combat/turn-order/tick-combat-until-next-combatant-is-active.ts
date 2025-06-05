@@ -12,21 +12,21 @@ import {
 } from "./consts.js";
 import { Battle } from "../../battle/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
-import handleBattleVictory from "../../game/handle-battle-victory.js";
 
 export function tickCombatUntilNextCombatantIsActive(game: SpeedDungeonGame, battleId: string) {
   const battleOption = game.battles[battleId];
-  if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
+  if (!battleOption) throw new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
   const battle = battleOption;
 
   let activeCombatantTurnTracker = battle.turnTrackers[0];
-  if (!activeCombatantTurnTracker) return new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
+  if (!activeCombatantTurnTracker) throw new Error(ERROR_MESSAGES.BATTLE.TURN_TRACKERS_EMPTY);
 
   // make sure someone has at least 1 speed or accumulating movement will be an infinite loop
   let atLeastOneCombatantHasNonZeroSpeed = false;
   for (const tracker of battle.turnTrackers) {
     const combatantResult = SpeedDungeonGame.getCombatantById(game, tracker.entityId);
-    if (combatantResult instanceof Error) return combatantResult;
+    if (combatantResult instanceof Error) throw combatantResult;
+
     if (
       CombatantProperties.getTotalAttributes(combatantResult.combatantProperties)[
         CombatAttribute.Speed

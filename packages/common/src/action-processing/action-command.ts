@@ -18,8 +18,8 @@ export class ActionCommand {
         return this.receiver.gameMessageCommandHandler(this.payload);
       case ActionCommandType.RemovePlayerFromGame:
         return this.receiver.removePlayerFromGameCommandHandler(this.payload.username);
-      case ActionCommandType.EndActiveCombatantTurn:
-        return this.receiver.endActiveCombatantTurn();
+      case ActionCommandType.EndCombatantTurnIfFirstInTurnOrder:
+        return this.receiver.endCombatantTurn(this.payload.entityId);
     }
   }
 }

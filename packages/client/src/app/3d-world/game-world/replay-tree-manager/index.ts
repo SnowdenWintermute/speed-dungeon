@@ -1,4 +1,6 @@
 import {
+  AdventuringParty,
+  Battle,
   CombatActionReplayTreePayload,
   GameUpdateCommand,
   InputLock,
@@ -51,11 +53,6 @@ export class ReplayTreeManager {
     if (this.currentTreeCompleted()) {
       if (this.current !== null) {
         this.current.onComplete();
-
-        useGameStore.getState().mutateState((state) => {
-          const partyOption = getCurrentParty(state, state.username || "");
-          if (partyOption) InputLock.unlockInput(partyOption.inputLock);
-        });
       }
       this.current = null;
       this.startNext();

@@ -116,6 +116,7 @@ const config: CombatActionComponentConfig = {
           return {
             name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDelivery },
             timing: { type: AnimationTimingType.Timed, duration: 200 },
+            smoothTransition: false,
             // timing: { type: AnimationTimingType.Timed, duration: 1000 },
           };
         },
@@ -144,6 +145,8 @@ const config: CombatActionComponentConfig = {
             name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDissipation },
             timing: { type: AnimationTimingType.Timed, duration: 200 },
             // timing: { type: AnimationTimingType.Timed, duration: 1000 },
+            //
+            smoothTransition: false,
           };
         },
         shouldDespawnOnComplete: () => true,

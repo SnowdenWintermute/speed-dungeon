@@ -65,21 +65,34 @@ export function induceHitRecovery(
       showDebug
     );
 
+    const battleOption = AdventuringParty.getBattleOption(party, game);
+
     if (combatantProperties.hitPoints <= 0) {
       const combatantDiedOnTheirOwnTurn = (() => {
-        const battleOption = AdventuringParty.getBattleOption(party, game);
         if (battleOption === null) return false;
         return Battle.combatantIsFirstInTurnOrder(battleOption, targetId);
       })();
 
-      console.log("combatant died on their own turn: ", combatantDiedOnTheirOwnTurn);
+      console.log(
+        "combatant died on their own turn: ",
+        combatantDiedOnTheirOwnTurn,
+        combatant.entityProperties.id
+      );
 
       const maybeError = SpeedDungeonGame.handleCombatantDeath(game, party.battleId, targetId);
       if (maybeError instanceof Error) return console.error(maybeError);
 
       if (combatantDiedOnTheirOwnTurn) {
-        // if it was the combatant's turn who died, unlock input
-        InputLock.unlockInput(party.inputLock);
+        // if it was the combatant's turn who died and the next active combatant is player controlled, unlock input
+
+        if (!battleOption) InputLock.unlockInput(party.inputLock);
+        else {
+          const firstInTurnOrder = Battle.getFirstCombatantInTurnOrder(game, battleOption);
+          if (firstInTurnOrder instanceof Error) throw firstInTurnOrder;
+          if (party.characterPositions.includes(firstInTurnOrder.entityProperties.id))
+            InputLock.unlockInput(party.inputLock);
+        }
+
         // end any motion trackers they might have had
         // this is hacky because we would rather have not given them any but
         // it was the easiest way to implement dying on combatant's own turn

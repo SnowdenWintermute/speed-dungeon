@@ -8,11 +8,6 @@ import {
 import { CombatantEquipment, CombatantProperties } from "../../../../combatants/index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { ATTACK_MELEE_MAIN_HAND } from "./attack-melee-main-hand.js";
-import {
-  Equipment,
-  EquipmentSlotType,
-  HoldableSlotType,
-} from "../../../../items/equipment/index.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
 import { ATTACK_MELEE_OFF_HAND } from "./attack-melee-off-hand.js";
 import {
@@ -35,7 +30,7 @@ import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js
 
 const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
 
-const config: CombatActionComponentConfig = {
+export const ATTACK_CONFIG: CombatActionComponentConfig = {
   description: "Attack with equipped weapons or fists",
   origin: CombatActionOrigin.Attack,
   targetingProperties,
@@ -75,4 +70,4 @@ const config: CombatActionComponentConfig = {
   ),
 };
 
-export const ATTACK = new CombatActionComposite(CombatActionName.Attack, config);
+export const ATTACK = new CombatActionComposite(CombatActionName.Attack, ATTACK_CONFIG);

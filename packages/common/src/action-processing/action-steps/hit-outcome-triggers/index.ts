@@ -92,9 +92,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
               )
             );
 
-            console.log("triggeredActions: ", triggeredActions);
-            console.log("numStacksRemoved: ", numStacksRemoved);
-
             // add it to the update so the client can remove the triggered conditions if required
             if (numStacksRemoved)
               addRemovedConditionStacksToUpdate(
@@ -119,6 +116,14 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         }
 
         if (flag === HitOutcome.Counterattack) {
+          // We set their target because of how auto targeting works by checking their selected target
+          // but it would be nicer if we could force a certain targetId from the actionExecutionIntent
+          // since maybe there would be a bunch of counterattacks queued up. For now though, there isn't.
+          targetCombatant.combatantProperties.combatActionTarget = {
+            type: CombatActionTargetType.Single,
+            targetId: combatant.entityProperties.id,
+          };
+
           this.branchingActions.push({
             user: targetCombatant,
             actionExecutionIntent: new CombatActionExecutionIntent(CombatActionName.Counterattack, {
@@ -177,6 +182,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     }
 
     triggeredHitPointChanges.applyToGame(this.context.combatantContext);
+
     if (triggeredHitPointChanges.getRecords().length > 0)
       gameUpdateCommand.hitPointChanges = triggeredHitPointChanges;
   }

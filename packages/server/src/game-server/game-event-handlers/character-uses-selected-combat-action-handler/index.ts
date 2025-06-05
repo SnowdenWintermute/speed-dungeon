@@ -66,8 +66,10 @@ export async function useSelectedCombatActionHandler(
   // if they died on their own turn we should not end the active combatant's turn because
   // we would have already removed their turn tracker on death
   if (replayTreeResult.endedTurn && combatantContext.combatant.combatantProperties.hitPoints > 0) {
-    console.log("sending ended turn payload for human user");
-    payloads.push({ type: ActionCommandType.EndActiveCombatantTurn });
+    payloads.push({
+      type: ActionCommandType.EndCombatantTurnIfFirstInTurnOrder,
+      entityId: combatantContext.combatant.entityProperties.id,
+    });
   }
 
   gameServer.io

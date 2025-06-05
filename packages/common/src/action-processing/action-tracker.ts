@@ -4,9 +4,11 @@ import {
   CombatActionExecutionIntent,
   CombatActionHitOutcomes,
 } from "../combat/index.js";
+import { HitOutcome } from "../hit-outcome.js";
 import { Milliseconds } from "../primatives/index.js";
 import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
+import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
 import { ActionResolutionStep, ActionResolutionStepContext } from "./action-steps/index.js";
 import { ACTION_STEP_CREATORS } from "./action-steps/step-creators.js";
@@ -15,7 +17,6 @@ export class ActionTracker {
   currentStep: ActionResolutionStep;
   stepIndex: number = -1;
   completedSteps: ActionResolutionStep[] = [];
-  wasInterrupted: boolean = false;
   spawnedEntityOption: null | SpawnableEntity = null;
   // initiatedByTriggeredCondition: null | CombatantCondition = null;
   hitOutcomes = new CombatActionHitOutcomes();
@@ -70,5 +71,11 @@ export class ActionTracker {
     if (this.spawnedEntityOption?.type === SpawnableEntityType.ActionEntity)
       return this.spawnedEntityOption;
     else throw new Error("expected spawned action entity not found");
+  }
+
+  wasCountered() {
+    return iterateNumericEnumKeyedRecord(this.hitOutcomes.outcomeFlags)
+      .map(([key, value]) => key)
+      .includes(HitOutcome.Counterattack);
   }
 }

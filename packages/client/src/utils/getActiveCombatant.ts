@@ -21,7 +21,6 @@ export default function getActiveCombatant(gameState: GameState): Error | null |
     game,
     activeCombatantTurnTrackerOption.entityId
   );
-  if (combatantResult instanceof Error) return combatantResult;
-  const { combatantProperties, entityProperties } = combatantResult;
-  return { combatantProperties, entityProperties };
+
+  return combatantResult;
 }

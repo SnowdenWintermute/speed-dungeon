@@ -205,6 +205,11 @@ export class CombatantEquipment {
       type: EquipmentSlotType.Holdable,
       slot: HoldableSlotType.MainHand,
     });
+    console.log(
+      "mh equipment option",
+      mainHandEquipmentOption?.entityProperties.name,
+      mainHandEquipmentOption?.durability
+    );
     if (!mainHandEquipmentOption) return false;
     const { equipmentType } = mainHandEquipmentOption.equipmentBaseItemProperties;
     const isTwoHandedRanged = equipmentType === EquipmentType.TwoHandedRangedWeapon;

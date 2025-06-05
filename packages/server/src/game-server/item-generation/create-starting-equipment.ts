@@ -31,7 +31,7 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       mainhand = generateSpecificEquipmentType(
         {
           equipmentType: EquipmentType.TwoHandedRangedWeapon,
-          baseItemType: TwoHandedRangedWeapon.CompositeBow,
+          baseItemType: TwoHandedRangedWeapon.ShortBow,
         },
         true
       );
@@ -117,14 +117,13 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       },
     },
   };
-  mainhand.durability = { current: 10000, inherentMax: 10000 };
 
-  // if (mainhand.durability) mainhand.durability.current = 1;
+  mainhand.durability = { current: 1, inherentMax: 10000 };
+  // repairEquipment(mainhand);
 
   if (offhand instanceof Error) return offhand;
   if (offhand && offhand.durability) offhand.durability.current = 1;
 
-  repairEquipment(mainhand);
   // if (offhand) repairEquipment(offhand);
 
   const mainHoldableHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);

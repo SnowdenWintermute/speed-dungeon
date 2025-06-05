@@ -12,7 +12,8 @@ import { CombatantProperties, CombatantSpecies } from "../../../combatants/index
 export function getSpeciesTimedAnimation(
   user: CombatantProperties,
   animationLengths: Record<CombatantSpecies, Record<string, number>>,
-  animationName: SkeletalAnimationName
+  animationName: SkeletalAnimationName,
+  smoothTransition: boolean
 ): EntityAnimation {
   const speciesLengths = animationLengths[user.combatantSpecies];
   const animationNameString = SKELETAL_ANIMATION_NAME_STRINGS[animationName];
@@ -24,5 +25,6 @@ export function getSpeciesTimedAnimation(
       type: AnimationTimingType.Timed,
       duration,
     },
+    smoothTransition,
   };
 }
