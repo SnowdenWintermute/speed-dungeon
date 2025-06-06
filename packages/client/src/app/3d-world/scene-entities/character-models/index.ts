@@ -155,7 +155,7 @@ export class CharacterModel extends SceneEntity {
   }
 
   startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {
-    console.log("started idle with transition: ", transitionMs);
+    if (this.isIdling()) return console.log("tried to start idle animation but already was idling");
     const idleName = this.getIdleAnimationName();
 
     this.skeletalAnimationManager.startAnimationWithTransition(idleName, transitionMs, {

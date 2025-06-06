@@ -123,14 +123,6 @@ export class DurabilityChangesByEntityId {
           taggedSlot: { type: EquipmentSlotType.Holdable, slot: holdableSlot },
           value: BASE_DURABILITY_LOSS,
         });
-
-        console.log(
-          "lost durability due to hit outcome of",
-          COMBAT_ACTION_NAME_STRINGS[action.name],
-          "condition",
-          DURABILITY_LOSS_CONDITION_STRINGS[durabilityLossCondition],
-          this.records
-        );
       }
     }
   }

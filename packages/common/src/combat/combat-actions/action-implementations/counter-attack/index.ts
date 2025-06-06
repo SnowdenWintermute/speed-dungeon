@@ -21,10 +21,8 @@ const config: CombatActionComponentConfig = {
     const user = context.combatantContext.combatant.combatantProperties;
 
     if (CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(user)) {
-      console.log("pushed ranged counterattack");
       toReturn.push(COUNTER_ATTACK_RANGED_MAIN_HAND);
     } else {
-      console.log("pushed melee counterattack");
       toReturn.push(COUNTER_ATTACK_MELEE_MAIN_HAND);
     }
     return toReturn;

@@ -37,12 +37,6 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
       DurabilityLossCondition.OnUse
     );
 
-    console.log(
-      "durabilityChanges for action",
-      COMBAT_ACTION_NAME_STRINGS[action.name],
-      durabilityChanges
-    );
-
     if (!durabilityChanges.isEmpty()) {
       gameUpdateCommand.durabilityChanges = durabilityChanges;
       DurabilityChangesByEntityId.ApplyToGame(game, durabilityChanges);
