@@ -13,7 +13,6 @@ import getCharacterInGame from "./get-character-in-game.js";
 import getCombatantInGameById from "./get-combatant-in-game-by-id.js";
 import getPartyOfCombatant from "./get-party-of-combatant.js";
 import { tickCombatUntilNextCombatantIsActive } from "../combat/turn-order/tick-combat-until-next-combatant-is-active.js";
-import endActiveCombatantTurn from "../combat/turn-order/end-active-combatant-turn.js";
 import allCombatantsInGroupAreDead from "../combat/all-combatants-in-group-are-dead.js";
 import { getPlayerPartyOption } from "./get-player-party.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
@@ -49,7 +48,6 @@ export class SpeedDungeonGame {
   static getPartyOfCombatant = getPartyOfCombatant;
   static getPlayerPartyOption = getPlayerPartyOption;
   static tickCombatUntilNextCombatantIsActive = tickCombatUntilNextCombatantIsActive;
-  static endActiveCombatantTurn = endActiveCombatantTurn;
   static allCombatantsInGroupAreDead = allCombatantsInGroupAreDead;
   static handleBattleVictory = handleBattleVictory;
   static getBattleOption(game: SpeedDungeonGame, battleIdOption: null | string) {
@@ -61,11 +59,13 @@ export class SpeedDungeonGame {
     battleIdOption: null | string,
     combatantId: string
   ) {
+    console.log("handling combatant death", combatantId);
     if (battleIdOption === null) return;
     // - handle any death by removing the affected combatant's turn tracker
     const battleOption = game.battles[battleIdOption];
     if (!battleOption) return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     const battle = battleOption;
     Battle.removeCombatantTurnTrackers(battle, combatantId);
+    Battle.sortTurnTrackers(battle);
   }
 }

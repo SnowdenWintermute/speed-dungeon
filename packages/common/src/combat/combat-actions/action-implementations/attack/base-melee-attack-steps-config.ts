@@ -20,6 +20,7 @@ export function getMeleeAttackBaseStepsConfig(holdableSlotType: HoldableSlotType
           return {
             name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
             timing: { type: AnimationTimingType.Looping },
+            smoothTransition: true,
           };
         },
       },
@@ -32,7 +33,8 @@ export function getMeleeAttackBaseStepsConfig(holdableSlotType: HoldableSlotType
             animationLengths,
             meleeAttackAnimationType,
             ActionExecutionPhase.Chambering,
-            holdableSlotType
+            holdableSlotType,
+            false
           );
         },
       },
@@ -45,7 +47,8 @@ export function getMeleeAttackBaseStepsConfig(holdableSlotType: HoldableSlotType
             animationLengths,
             meleeAttackAnimationType,
             ActionExecutionPhase.Delivery,
-            holdableSlotType
+            holdableSlotType,
+            false
           );
         },
       },
@@ -62,7 +65,8 @@ export function getMeleeAttackBaseStepsConfig(holdableSlotType: HoldableSlotType
             animationLengths,
             meleeAttackAnimationType,
             ActionExecutionPhase.Recovery,
-            holdableSlotType
+            holdableSlotType,
+            false
           );
         },
       },
@@ -72,6 +76,7 @@ export function getMeleeAttackBaseStepsConfig(holdableSlotType: HoldableSlotType
           return {
             name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveBack },
             timing: { type: AnimationTimingType.Looping },
+            smoothTransition: true,
           };
         },
         getDestination: getHomeDestination,

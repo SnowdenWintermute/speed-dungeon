@@ -78,7 +78,7 @@ export class GameServer implements ActionCommandReceiver {
       });
     }
   }
-  endActiveCombatantTurn: () => Promise<void | Error> = async () => {
+  endCombatantTurn: () => Promise<void | Error> = async () => {
     // only used by client
   };
   // UTILS

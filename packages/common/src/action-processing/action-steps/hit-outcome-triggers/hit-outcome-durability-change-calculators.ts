@@ -38,13 +38,14 @@ export function addHitOutcomeDurabilityChanges(
     isCrit
   );
 
-  if (HIT_OUTCOMES_THAT_CONTACT_TARGET.includes(hitOutcomeType))
+  if (HIT_OUTCOMES_THAT_CONTACT_TARGET.includes(hitOutcomeType)) {
     // ex: the action user's weapon should lose durability
     durabilityChanges.updateConditionalChangesOnUser(
-      actionUser.entityProperties.id,
+      actionUser,
       action,
       DurabilityLossCondition.OnHit
     );
+  }
 }
 
 const hitOutcomeDurabilityChangeOnTargetCalculators: Record<
@@ -111,25 +112,25 @@ const hitOutcomeDurabilityChangeOnTargetCalculators: Record<
       const shouldHitHeadArmor = whichArmorToHitRoll < ONE_THIRD_OF_ONE;
 
       if (shouldHitHeadArmor || isCrit) {
-        durabilityChanges.updateOrCreateDurabilityChangeRecord(targetId, {
+        durabilityChanges.updateOrCreateDurabilityChangeRecord(targetCombatant, {
           taggedSlot: headSlot,
           value: BASE_DURABILITY_LOSS,
         });
       }
 
       if (!shouldHitHeadArmor || isCrit) {
-        durabilityChanges.updateOrCreateDurabilityChangeRecord(targetId, {
+        durabilityChanges.updateOrCreateDurabilityChangeRecord(targetCombatant, {
           taggedSlot: bodySlot,
           value: BASE_DURABILITY_LOSS,
         });
       }
     } else if (equippedBodyOption && !Equipment.isBroken(equippedBodyOption)) {
-      durabilityChanges.updateOrCreateDurabilityChangeRecord(targetId, {
+      durabilityChanges.updateOrCreateDurabilityChangeRecord(targetCombatant, {
         taggedSlot: bodySlot,
         value: BASE_DURABILITY_LOSS,
       });
     } else if (equippedHelmOption && !Equipment.isBroken(equippedHelmOption)) {
-      durabilityChanges.updateOrCreateDurabilityChangeRecord(targetId, {
+      durabilityChanges.updateOrCreateDurabilityChangeRecord(targetCombatant, {
         taggedSlot: headSlot,
         value: BASE_DURABILITY_LOSS,
       });

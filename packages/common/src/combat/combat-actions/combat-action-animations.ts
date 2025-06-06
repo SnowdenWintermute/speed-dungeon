@@ -11,6 +11,7 @@ import {
 export function getFallbackAnimationWithLength(
   animationName: SkeletalAnimationName,
   speciesAnimations: Record<string, number>,
+  smoothTransition: boolean,
   lastTry?: boolean
 ): EntityAnimation {
   const animationNameString = SKELETAL_ANIMATION_NAME_STRINGS[animationName];
@@ -22,6 +23,7 @@ export function getFallbackAnimationWithLength(
       type: AnimationTimingType.Timed,
       duration: 0,
     },
+    smoothTransition,
   };
 
   if (animationLengthOption !== undefined || lastTry) {
@@ -42,6 +44,7 @@ export function getFallbackAnimationWithLength(
     toReturn = getFallbackAnimationWithLength(
       SkeletalAnimationName.MainHandUnarmedChambering,
       speciesAnimations,
+      smoothTransition,
       true
     );
   const deliveryNames = [
@@ -57,6 +60,7 @@ export function getFallbackAnimationWithLength(
     toReturn = getFallbackAnimationWithLength(
       SkeletalAnimationName.MainHandUnarmedDelivery,
       speciesAnimations,
+      smoothTransition,
       true
     );
   const recoveryNames = [
@@ -71,6 +75,7 @@ export function getFallbackAnimationWithLength(
     toReturn = getFallbackAnimationWithLength(
       SkeletalAnimationName.MainHandUnarmedRecovery,
       speciesAnimations,
+      smoothTransition,
       true
     );
 

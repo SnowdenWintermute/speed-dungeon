@@ -72,7 +72,15 @@ stepsConfig.steps = {
     getDestination: getRotateTowardPrimaryTargetDestination,
     getAnimation: (user, animationLengths) =>
       // a one-off ActionExecutionPhase since no other action has a prep motion yet
-      getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowPrep),
+      getSpeciesTimedAnimation(user, animationLengths, SkeletalAnimationName.BowPrep, true),
+  },
+  [ActionResolutionStepType.PostPrepSpawnEntity]: {},
+  [ActionResolutionStepType.ChamberingMotion]: {
+    ...stepsConfig.steps[ActionResolutionStepType.ChamberingMotion],
+  },
+
+  [ActionResolutionStepType.DeliveryMotion]: {
+    ...stepsConfig.steps[ActionResolutionStepType.DeliveryMotion],
 
     getEquipmentAnimations: (user, animationLengths) => {
       const slot: TaggedEquipmentSlot = {
@@ -98,20 +106,13 @@ stepsConfig.steps = {
       const animation: EntityAnimation = {
         name: { type: AnimationType.Skeletal, name: animationName },
         timing: { type: AnimationTimingType.Timed, duration },
+        smoothTransition: false,
       };
 
       const equipmentAnimation: EquipmentAnimation = { slot, animation };
 
       return [equipmentAnimation];
     },
-  },
-  [ActionResolutionStepType.PostPrepSpawnEntity]: {},
-  [ActionResolutionStepType.ChamberingMotion]: {
-    ...stepsConfig.steps[ActionResolutionStepType.ChamberingMotion],
-  },
-
-  [ActionResolutionStepType.DeliveryMotion]: {
-    ...stepsConfig.steps[ActionResolutionStepType.DeliveryMotion],
     getAuxiliaryEntityMotions: (context) => {
       const actionEntity = context.tracker.spawnedEntityOption;
       if (!actionEntity) return [];
@@ -139,7 +140,7 @@ stepsConfig.steps = {
 
       const setParent: SceneEntityChildTransformNodeIdentifierWithDuration = {
         identifier: parent,
-        duration: 1400,
+        duration: 400,
       };
 
       const arrowRestIdentifier: SceneEntityChildTransformNodeIdentifier = {
@@ -170,7 +171,7 @@ stepsConfig.steps = {
   },
 };
 
-const config: CombatActionComponentConfig = {
+export const ATTACK_RANGED_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using ranged weapon",
   origin: CombatActionOrigin.Attack,
   getRequiredRange: () => CombatActionRequiredRange.Ranged,
@@ -186,12 +187,10 @@ const config: CombatActionComponentConfig = {
 
   shouldExecute: () => true,
   getConcurrentSubActions(context) {
-    const { combatActionTarget } = context.combatant.combatantProperties;
-    if (!combatActionTarget) throw new Error("expected combatant target not found");
     return [
       new CombatActionExecutionIntent(
         CombatActionName.AttackRangedMainhandProjectile,
-        combatActionTarget
+        context.tracker.actionExecutionIntent.targets
       ),
     ];
   },
@@ -226,5 +225,5 @@ const config: CombatActionComponentConfig = {
 
 export const ATTACK_RANGED_MAIN_HAND = new CombatActionLeaf(
   CombatActionName.AttackRangedMainhand,
-  config
+  ATTACK_RANGED_MAIN_HAND_CONFIG
 );

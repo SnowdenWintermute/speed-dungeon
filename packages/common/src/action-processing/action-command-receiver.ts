@@ -1,3 +1,4 @@
+import { EntityId } from "../primatives/index.js";
 import {
   ActionCommandPayload,
   BattleResultActionCommandPayload,
@@ -16,5 +17,5 @@ export interface ActionCommandReceiver {
     partyChannelToExcludeOption?: string
   ) => Promise<Error | void>;
   removePlayerFromGameCommandHandler: (username: string) => Promise<Error | void>;
-  endActiveCombatantTurn: () => Promise<Error | void>;
+  endCombatantTurn: (entityId: EntityId) => Promise<Error | void>;
 }

@@ -31,14 +31,13 @@ export function getProjectileShootingActionBaseStepsConfig(
 
   return new ActionResolutionStepsConfig(
     {
-      [ActionResolutionStepType.DetermineMeleeActionAnimations]: {},
-
       [ActionResolutionStepType.InitialPositioning]: {
         getDestination: getStepForwardDestination,
         getAnimation: () => {
           return {
             name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveForwardLoop },
             timing: { type: AnimationTimingType.Looping },
+            smoothTransition: true,
           };
         },
       },
@@ -48,7 +47,8 @@ export function getProjectileShootingActionBaseStepsConfig(
           getSpeciesTimedAnimation(
             user,
             animationLengths,
-            animationNames[ActionExecutionPhase.Chambering]
+            animationNames[ActionExecutionPhase.Chambering],
+            projectileActionType !== ProjectileShootingActionType.Bow
           ),
       },
       [ActionResolutionStepType.DeliveryMotion]: {
@@ -56,7 +56,8 @@ export function getProjectileShootingActionBaseStepsConfig(
           getSpeciesTimedAnimation(
             user,
             animationLengths,
-            animationNames[ActionExecutionPhase.Delivery]
+            animationNames[ActionExecutionPhase.Delivery],
+            false
           ),
       },
       [ActionResolutionStepType.PayResourceCosts]: {},
@@ -68,7 +69,8 @@ export function getProjectileShootingActionBaseStepsConfig(
           getSpeciesTimedAnimation(
             user,
             animationLengths,
-            animationNames[ActionExecutionPhase.Recovery]
+            animationNames[ActionExecutionPhase.Recovery],
+            false
           ),
 
         getAuxiliaryEntityMotions: (context) => {
@@ -114,6 +116,7 @@ export function getProjectileShootingActionBaseStepsConfig(
           return {
             name: { type: AnimationType.Skeletal, name: SkeletalAnimationName.MoveBack },
             timing: { type: AnimationTimingType.Looping },
+            smoothTransition: true,
           };
         },
       },

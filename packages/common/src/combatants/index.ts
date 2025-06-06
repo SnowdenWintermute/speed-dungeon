@@ -42,7 +42,12 @@ import { getOwnedActionState } from "./owned-actions/get-owned-action-state.js";
 import { getAllCurrentlyUsableActionNames } from "./owned-actions/get-all-currently-usable-action-names.js";
 import { getActionNamesFilteredByUseableContext } from "./owned-actions/get-owned-action-names-filtered-by-usable-context.js";
 import { CombatantCondition } from "./combatant-conditions/index.js";
-import { Equipment, EquipmentType, HoldableSlotType } from "../items/equipment/index.js";
+import {
+  Equipment,
+  EquipmentSlotType,
+  EquipmentType,
+  HoldableSlotType,
+} from "../items/equipment/index.js";
 
 export * from "./combatant-class/index.js";
 export * from "./combatant-species.js";
@@ -129,6 +134,7 @@ export class CombatantProperties {
     }
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
+
   static getOwnedActionState = getOwnedActionState;
   static changeHitPoints = changeCombatantHitPoints;
   static changeMana = changeCombatantMana;

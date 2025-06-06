@@ -1,11 +1,18 @@
+import { ActionTracker } from "../../../action-processing/index.js";
 import { CombatantContext } from "../../../combatant-context/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
+import { HitOutcome } from "../../../hit-outcome.js";
+import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
-import { COMBAT_ACTION_NAME_STRINGS, CombatActionComponent } from "../index.js";
+import { CombatActionComponent } from "../index.js";
 
 export const DAMAGING_ACTIONS_COMMON_CONFIG = {
-  shouldExecute: (context: CombatantContext, self: CombatActionComponent) => {
-    const { game, party, combatant } = context;
+  shouldExecute: (
+    combatantContext: CombatantContext,
+    previousTrackerOption: undefined | ActionTracker,
+    self: CombatActionComponent
+  ) => {
+    const { game, party, combatant } = combatantContext;
 
     const targetsOption = combatant.combatantProperties.combatActionTarget;
     if (!targetsOption) return false;
@@ -22,6 +29,13 @@ export const DAMAGING_ACTIONS_COMMON_CONFIG = {
     }
 
     if (targetIdsResult.length === 0) return false;
+
+    // if previous was countered, don't continue the queued action sequence
+    if (previousTrackerOption) {
+      const wasCountered = previousTrackerOption.wasCountered();
+
+      if (wasCountered) return false;
+    }
 
     return !SpeedDungeonGame.allCombatantsInGroupAreDead(game, targetIdsResult);
   },

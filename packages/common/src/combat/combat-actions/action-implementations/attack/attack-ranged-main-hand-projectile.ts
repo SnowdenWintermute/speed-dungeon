@@ -57,7 +57,7 @@ export const rangedAttackProjectileHitOutcomeProperties: CombatActionHitOutcomeP
   },
 };
 
-const config: CombatActionComponentConfig = {
+export const ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG: CombatActionComponentConfig = {
   description: "An arrow",
   origin: CombatActionOrigin.Attack,
   targetingProperties,
@@ -106,5 +106,5 @@ const config: CombatActionComponentConfig = {
 
 export const ATTACK_RANGED_MAIN_HAND_PROJECTILE = new CombatActionComposite(
   CombatActionName.AttackRangedMainhandProjectile,
-  config
+  ATTACK_RANGED_MAIN_HAND_PROJECTILE_CONFIG
 );

@@ -71,8 +71,6 @@ export function calculateActionHitOutcomes(
 
   const incomingResourceChangesResult = getIncomingResourceChangesPerTarget(context);
 
-  console.log("incoming per target: ", incomingResourceChangesResult);
-
   if (incomingResourceChangesResult instanceof Error) return incomingResourceChangesResult;
   const { incomingHpChangePerTargetOption, incomingManaChangePerTargetOption } =
     incomingResourceChangesResult;
@@ -148,6 +146,7 @@ export function calculateActionHitOutcomes(
       !targetWantsToBeHit
     ) {
       const percentChanceToParry = getParryChance(user, target);
+      // const percentChanceToParry = 5;
       const parryRoll = randBetween(0, 100);
       const isParried = parryRoll < percentChanceToParry;
       if (isParried) {
@@ -158,7 +157,8 @@ export function calculateActionHitOutcomes(
 
     // COUNTERATTACKS
     if (hitOutcomeProperties.getCanTriggerCounterattack(user) && !targetWantsToBeHit) {
-      const percentChanceToCounterAttack = 0; // @TODO - derrive this from various combatant properties
+      // const percentChanceToCounterAttack = 0; // @TODO - derrive this from various combatant properties
+      const percentChanceToCounterAttack = 100; // @TODO - derrive this from various combatant properties
       const counterAttackRoll = randBetween(0, 100);
       const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
       if (isCounterAttacked) {

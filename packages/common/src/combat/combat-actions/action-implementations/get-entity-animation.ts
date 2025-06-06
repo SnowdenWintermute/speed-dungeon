@@ -12,18 +12,20 @@ export function getMeleeAttackAnimationFromType(
   animationLengths: Record<CombatantSpecies, Record<string, number>>,
   meleeAttackAnimationType: MeleeAttackAnimationType,
   executionPhase: ActionExecutionPhase,
-  slotType: HoldableSlotType
+  slotType: HoldableSlotType,
+  smoothTransition: boolean
 ): EntityAnimation {
   const animationName =
     MELEE_ATTACK_ANIMATION_NAMES[meleeAttackAnimationType][slotType][executionPhase];
-  return getTimedSkeletalEntityAnimation(user, animationLengths, animationName);
+  return getTimedSkeletalEntityAnimation(user, animationLengths, animationName, smoothTransition);
 }
 
 export function getTimedSkeletalEntityAnimation(
   user: CombatantProperties,
   animationLengths: Record<CombatantSpecies, Record<string, number>>,
-  animationName: SkeletalAnimationName
+  animationName: SkeletalAnimationName,
+  smoothTransition: boolean
 ) {
   const speciesLengths = animationLengths[user.combatantSpecies];
-  return getFallbackAnimationWithLength(animationName, speciesLengths);
+  return getFallbackAnimationWithLength(animationName, speciesLengths, smoothTransition);
 }

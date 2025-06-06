@@ -44,6 +44,7 @@ const config: CombatActionComponentConfig = {
             name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDelivery },
             // timing: { type: AnimationTimingType.Timed, duration: 1200 },
             timing: { type: AnimationTimingType.Timed, duration: 200 },
+            smoothTransition: false,
           };
         },
       },
@@ -55,6 +56,7 @@ const config: CombatActionComponentConfig = {
             name: { type: AnimationType.Dynamic, name: DynamicAnimationName.ExplosionDissipation },
             // timing: { type: AnimationTimingType.Timed, duration: 700 },
             timing: { type: AnimationTimingType.Timed, duration: 200 },
+            smoothTransition: false,
           };
         },
         shouldDespawnOnComplete: () => true,

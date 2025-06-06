@@ -18,7 +18,7 @@ import { NestedNodeReplayEvent } from "./replay-events.js";
 
 export enum ActionCommandType {
   CombatActionReplayTree,
-  EndActiveCombatantTurn,
+  EndCombatantTurnIfFirstInTurnOrder,
   BattleResult,
   GameMessages,
   RemovePlayerFromGame,
@@ -55,7 +55,8 @@ export type RemovePlayerFromGamePayload = {
 };
 
 export type EndActiveCombatantTurnPayload = {
-  type: ActionCommandType.EndActiveCombatantTurn;
+  type: ActionCommandType.EndCombatantTurnIfFirstInTurnOrder;
+  entityId: EntityId;
 };
 
 export type ActionCommandPayload =
@@ -70,5 +71,5 @@ export const ACTION_COMMAND_TYPE_STRINGS: Record<ActionCommandType, string> = {
   [ActionCommandType.BattleResult]: "Battle result",
   [ActionCommandType.GameMessages]: "Game messages",
   [ActionCommandType.RemovePlayerFromGame]: "Remove player from game",
-  [ActionCommandType.EndActiveCombatantTurn]: "EndActiveCombatantTurn",
+  [ActionCommandType.EndCombatantTurnIfFirstInTurnOrder]: "EndCombatantTurnIfFirstInTurnOrder",
 };

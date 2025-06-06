@@ -37,6 +37,7 @@ export interface CombatActionHitOutcomeProperties {
   getIsBlockable: (user: CombatantProperties) => boolean;
   getCanTriggerCounterattack: (user: CombatantProperties) => boolean;
   getAppliedConditions: (context: ActionResolutionStepContext) => null | CombatantCondition[];
+  getShouldAnimateTargetHitRecovery: () => boolean;
 }
 
 export enum ActionHitOutcomePropertiesBaseTypes {
@@ -61,6 +62,7 @@ export const genericActionHitOutcomeProperties: CombatActionHitOutcomeProperties
   getIsParryable: (user) => true,
   getIsBlockable: (user) => true,
   getCanTriggerCounterattack: (user) => true,
+  getShouldAnimateTargetHitRecovery: () => true,
 };
 
 const genericRangedHitOutcomeProperties: CombatActionHitOutcomeProperties = {

@@ -1,6 +1,7 @@
 import {
   ActionResolutionStepType,
   ActionSequenceManagerRegistry,
+  Battle,
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatantContext,
@@ -9,7 +10,6 @@ import {
   NestedNodeReplayEvent,
   ReplayEventType,
   SequentialIdGenerator,
-  SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { ANIMATION_LENGTHS, idGenerator } from "../../../singletons.js";
 
@@ -47,6 +47,7 @@ export function processCombatAction(
   InputLock.lockInput(combatantContext.party.inputLock);
 
   let endedTurn = false;
+
   while (registry.isNotEmpty()) {
     for (const sequenceManager of registry.getManagers()) {
       let trackerOption = sequenceManager.getCurrentTracker();
@@ -121,8 +122,9 @@ export function processCombatAction(
         const nextActionOption = nextActionIntentInQueueOption
           ? COMBAT_ACTIONS[nextActionIntentInQueueOption.actionName]
           : null;
+
         // ex: main hand attack killed target, off hand attack should not execute
-        if (nextActionOption && nextActionOption.shouldExecute(combatantContext)) {
+        if (nextActionOption && nextActionOption.shouldExecute(combatantContext, trackerOption)) {
           const stepTrackerResult = sequenceManager.startProcessingNext(time);
           if (stepTrackerResult instanceof Error) return stepTrackerResult;
 
@@ -152,7 +154,10 @@ export function processCombatAction(
         if (action.costProperties.requiresCombatTurn(trackerOption.currentStep.getContext()))
           endedTurn = true;
 
-        if (action.stepsConfig.options.userShouldMoveHomeOnComplete) {
+        if (
+          action.stepsConfig.options.userShouldMoveHomeOnComplete
+          // combatantContext.combatant.combatantProperties.hitPoints > 0
+        ) {
           const returnHomeStep = new CombatantMotionActionResolutionStep(
             trackerOption.currentStep.getContext(),
             ActionResolutionStepType.FinalPositioning
@@ -182,10 +187,15 @@ export function processCombatAction(
   }
 
   InputLock.unlockInput(combatantContext.party.inputLock);
-  const { game, party } = combatantContext;
+  const { game, party, combatant } = combatantContext;
   const battleOption = party.battleId ? game.battles[party.battleId] || null : null;
+
   if (battleOption && endedTurn) {
-    const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, battleOption);
+    const maybeError = Battle.endCombatantTurnIfInBattle(
+      game,
+      battleOption,
+      combatant.entityProperties.id
+    );
     if (maybeError instanceof Error) return maybeError;
   }
 

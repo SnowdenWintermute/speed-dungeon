@@ -6,9 +6,7 @@ import {
 } from "../../index.js";
 import { ATTACK } from "./index.js";
 import { CombatantEquipment } from "../../../../combatants/index.js";
-import { iterateNumericEnum } from "../../../../utils/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
-import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 import {
   GENERIC_TARGETING_PROPERTIES,
@@ -25,7 +23,7 @@ import {
 import { getMeleeAttackBaseStepsConfig } from "./base-melee-attack-steps-config.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 
-const config: CombatActionComponentConfig = {
+export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {
   description: "Attack target using equipment in main hand",
   origin: CombatActionOrigin.Attack,
   getRequiredRange: () => CombatActionRequiredRange.Melee,
@@ -36,17 +34,12 @@ const config: CombatActionComponentConfig = {
       [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnHit },
     },
     requiresCombatTurn: (context) => {
-      for (const holdableSlotType of iterateNumericEnum(HoldableSlotType)) {
-        const equipmentOption = CombatantEquipment.getEquippedHoldable(
-          context.combatantContext.combatant.combatantProperties,
-          holdableSlotType
-        );
-        if (!equipmentOption) continue;
-        const { equipmentType } = equipmentOption.equipmentBaseItemProperties.taggedBaseEquipment;
-        if (Equipment.isBroken(equipmentOption)) continue;
-        if (Equipment.isTwoHanded(equipmentType)) return true;
-        if (equipmentType === EquipmentType.Shield) return true;
-      }
+      const user = context.combatantContext.combatant.combatantProperties;
+
+      if (CombatantEquipment.isWearingUsableShield(user)) return true;
+      if (CombatantEquipment.isWearingUsableTwoHandedMeleeWeapon(user)) return true;
+      if (context.tracker.wasCountered()) return true;
+
       return false;
     },
   },
@@ -63,5 +56,5 @@ const config: CombatActionComponentConfig = {
 
 export const ATTACK_MELEE_MAIN_HAND = new CombatActionLeaf(
   CombatActionName.AttackMeleeMainhand,
-  config
+  ATTACK_MELEE_MAIN_HAND_CONFIG
 );

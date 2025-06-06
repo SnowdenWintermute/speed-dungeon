@@ -60,7 +60,7 @@ export async function processBattleUntilPlayerTurnOrConclusion(
       newActiveCombatantTrackerOption.entityId
     );
     if (activeCombatantResult instanceof Error) return activeCombatantResult;
-    let { combatantProperties } = activeCombatantResult;
+    let { combatantProperties, entityProperties } = activeCombatantResult;
     const activeCombatantIsAiControlled = combatantProperties.controllingPlayer === null;
     if (!activeCombatantIsAiControlled) {
       console.log("active combatant not AI controlled");
@@ -69,7 +69,7 @@ export async function processBattleUntilPlayerTurnOrConclusion(
 
     const battleGroupsResult = Battle.getAllyAndEnemyBattleGroups(
       battleOption,
-      activeCombatantResult.entityProperties.id
+      entityProperties.id
     );
     if (battleGroupsResult instanceof Error) throw battleGroupsResult;
 
@@ -79,7 +79,7 @@ export async function processBattleUntilPlayerTurnOrConclusion(
     if (actionIntent === null) {
       // they skipped their turn due to no valid action
       console.log("ai skipped turn");
-      const maybeError = SpeedDungeonGame.endActiveCombatantTurn(game, battleOption);
+      const maybeError = Battle.endCombatantTurnIfInBattle(game, battleOption, entityProperties.id);
       skippedTurn = true;
       if (maybeError instanceof Error) return maybeError;
       newActiveCombatantTrackerOption = battleOption?.turnTrackers[0];
@@ -96,15 +96,20 @@ export async function processBattleUntilPlayerTurnOrConclusion(
 
     newActiveCombatantTrackerOption = battleOption?.turnTrackers[0];
 
+    const actionUserId = activeCombatantResult.entityProperties.id;
     const payload: CombatActionReplayTreePayload = {
       type: ActionCommandType.CombatActionReplayTree,
-      actionUserId: activeCombatantResult.entityProperties.id,
+      actionUserId,
       root: rootReplayNode,
     };
+
     const payloads: ActionCommandPayload[] = [payload];
+
     if (endedTurn || skippedTurn) {
-      console.log("sending ended turn payload");
-      payloads.push({ type: ActionCommandType.EndActiveCombatantTurn });
+      payloads.push({
+        type: ActionCommandType.EndCombatantTurnIfFirstInTurnOrder,
+        entityId: actionUserId,
+      });
     }
 
     gameServer.io

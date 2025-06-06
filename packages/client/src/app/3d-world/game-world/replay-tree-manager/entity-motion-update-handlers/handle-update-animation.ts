@@ -19,7 +19,6 @@ export function handleUpdateAnimation(
     command: CombatantMotionGameUpdateCommand | ActionEntityMotionGameUpdateCommand;
     isComplete: boolean;
   },
-  instantTransition: boolean,
   onComplete: () => void
 ) {
   const shouldLoop = animation.timing.type === AnimationTimingType.Looping;
@@ -42,13 +41,13 @@ export function handleUpdateAnimation(
   if (animationManager instanceof SkeletalAnimationManager) {
     animationManager.startAnimationWithTransition(
       animation.name.name as SkeletalAnimationName,
-      instantTransition ? 200 : 500,
+      animation.smoothTransition ? 500 : 200,
       options
     );
   } else {
     animationManager.startAnimationWithTransition(
       animation.name.name as DynamicAnimationName,
-      instantTransition ? 0 : 500,
+      animation.smoothTransition ? 500 : 0,
       {
         ...options,
       }

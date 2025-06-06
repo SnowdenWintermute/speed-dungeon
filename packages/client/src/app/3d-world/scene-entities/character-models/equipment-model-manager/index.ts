@@ -186,11 +186,6 @@ export class EquipmentModelManager {
       for (const [holdableSlotType, equipmentModel] of iterateNumericEnumKeyedRecord(hotswapSlot)) {
         if (!equipmentModel) continue;
         // attach to appropriate positions
-        if (slotIndex === equippedSlotIndex || slotIndex === holsteredSlotIndex) {
-          let newVisibility = this.visibilityForShownHotswapSlots;
-          if (Equipment.isBroken(equipmentModel.equipment)) newVisibility = 0;
-          equipmentModel.setVisibility(newVisibility);
-        }
 
         if (slotIndex === equippedSlotIndex)
           attachHoldableModelToSkeleton(this.characterModel, equipmentModel, holdableSlotType);
@@ -200,7 +195,14 @@ export class EquipmentModelManager {
             equipmentModel,
             holdableSlotType
           );
-        else equipmentModel.setVisibility(0);
+
+        if (slotIndex === equippedSlotIndex || slotIndex === holsteredSlotIndex) {
+          let newVisibility = this.visibilityForShownHotswapSlots;
+          if (Equipment.isBroken(equipmentModel.equipment)) newVisibility = 0;
+          equipmentModel.setVisibility(newVisibility);
+        } else {
+          equipmentModel.setVisibility(0);
+        }
       }
     }
   }

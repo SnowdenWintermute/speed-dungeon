@@ -185,6 +185,50 @@ export class CombatantEquipment {
     return offhandOption.equipmentBaseItemProperties;
   }
 
+  static isWearingUsableShield(combatantProperties: CombatantProperties): boolean {
+    const offHandEquipmentOption = CombatantEquipment.getEquipmentInSlot(combatantProperties, {
+      type: EquipmentSlotType.Holdable,
+      slot: HoldableSlotType.OffHand,
+    });
+
+    if (!offHandEquipmentOption) return false;
+    const { equipmentType } = offHandEquipmentOption.equipmentBaseItemProperties;
+    const isShield = equipmentType === EquipmentType.Shield;
+    if (!isShield) return false;
+    const isUsable = Equipment.isUsable(combatantProperties, offHandEquipmentOption);
+
+    return isUsable;
+  }
+
+  static isWearingUsableTwoHandedRangedWeapon(combatantProperties: CombatantProperties): boolean {
+    const mainHandEquipmentOption = CombatantEquipment.getEquipmentInSlot(combatantProperties, {
+      type: EquipmentSlotType.Holdable,
+      slot: HoldableSlotType.MainHand,
+    });
+    if (!mainHandEquipmentOption) return false;
+    const { equipmentType } = mainHandEquipmentOption.equipmentBaseItemProperties;
+    const isTwoHandedRanged = equipmentType === EquipmentType.TwoHandedRangedWeapon;
+    if (!isTwoHandedRanged) return false;
+    const isUsable = Equipment.isUsable(combatantProperties, mainHandEquipmentOption);
+
+    return isUsable;
+  }
+
+  static isWearingUsableTwoHandedMeleeWeapon(combatantProperties: CombatantProperties): boolean {
+    const mainHandEquipmentOption = CombatantEquipment.getEquipmentInSlot(combatantProperties, {
+      type: EquipmentSlotType.Holdable,
+      slot: HoldableSlotType.MainHand,
+    });
+    if (!mainHandEquipmentOption) return false;
+    const { equipmentType } = mainHandEquipmentOption.equipmentBaseItemProperties;
+
+    const isTwoHandedMelee = equipmentType === EquipmentType.TwoHandedMeleeWeapon;
+    if (!isTwoHandedMelee) return false;
+    const isUsable = Equipment.isUsable(combatantProperties, mainHandEquipmentOption);
+
+    return isUsable;
+  }
+
   static getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(
     combatantProperties: CombatantProperties,
     equipmentId: EntityId

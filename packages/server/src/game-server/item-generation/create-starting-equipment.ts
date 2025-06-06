@@ -30,11 +30,18 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
     case CombatantClass.Warrior:
       mainhand = generateSpecificEquipmentType(
         {
-          equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-          baseItemType: TwoHandedMeleeWeapon.SplittingMaul,
+          equipmentType: EquipmentType.TwoHandedRangedWeapon,
+          baseItemType: TwoHandedRangedWeapon.ShortBow,
         },
         true
       );
+      // mainhand = generateSpecificEquipmentType(
+      //   {
+      //     equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+      //     baseItemType: TwoHandedMeleeWeapon.SplittingMaul,
+      //   },
+      //   true
+      // );
       // mainhand = generateSpecificEquipmentType(
       //   {
       //     equipmentType: EquipmentType.OneHandedMeleeWeapon,
@@ -110,14 +117,13 @@ export default function createStartingEquipment(combatantProperties: CombatantPr
       },
     },
   };
-  mainhand.durability = { current: 10000, inherentMax: 10000 };
 
-  // if (mainhand.durability) mainhand.durability.current = 1;
+  mainhand.durability = { current: 1, inherentMax: 10000 };
+  // repairEquipment(mainhand);
 
   if (offhand instanceof Error) return offhand;
   if (offhand && offhand.durability) offhand.durability.current = 1;
 
-  repairEquipment(mainhand);
   // if (offhand) repairEquipment(offhand);
 
   const mainHoldableHotswapSlot = CombatantEquipment.getEquippedHoldableSlots(combatantProperties);

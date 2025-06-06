@@ -80,8 +80,8 @@ const config: CombatActionComponentConfig = {
   getChildren: (_user) => [],
   getParent: () => null,
   getRequiredRange: (_user, _self) => CombatActionRequiredRange.Ranged,
-  getConcurrentSubActions(combatantContext) {
-    return combatantContext
+  getConcurrentSubActions(context) {
+    return context.combatantContext
       .getOpponents()
       .filter((opponent) => opponent.combatantProperties.hitPoints > 0)
       .map(

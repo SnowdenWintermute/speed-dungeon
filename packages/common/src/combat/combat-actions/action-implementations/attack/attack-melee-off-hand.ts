@@ -68,7 +68,7 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
   getDestination: getMeleeAttackDestination,
 };
 
-const config: CombatActionComponentConfig = {
+export const ATTACK_MELEE_OFF_HAND_CONFIG: CombatActionComponentConfig = {
   ...DAMAGING_ACTIONS_COMMON_CONFIG,
   description: "Attack target using equipment in off hand",
   origin: CombatActionOrigin.Attack,
@@ -89,5 +89,5 @@ const config: CombatActionComponentConfig = {
 
 export const ATTACK_MELEE_OFF_HAND = new CombatActionLeaf(
   CombatActionName.AttackMeleeOffhand,
-  config
+  ATTACK_MELEE_OFF_HAND_CONFIG
 );

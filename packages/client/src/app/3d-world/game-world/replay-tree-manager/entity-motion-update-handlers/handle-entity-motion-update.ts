@@ -1,4 +1,5 @@
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionEntityMotionGameUpdateCommand,
   AnimationType,
   CombatantMotionGameUpdateCommand,
@@ -68,6 +69,16 @@ export function handleEntityMotionUpdate(
   }
 
   if (motionUpdate.entityType === SpawnableEntityType.Combatant) {
+    const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
+
+    // they are already dead, so don't animate them
+    // this happens if a combatant dies from getting counterattacked and the server
+    // tells them to "return home"
+    if (combatantModelOption.getCombatant().combatantProperties.hitPoints <= 0) {
+      update.isComplete = true;
+      return;
+    }
+
     onTranslationComplete = () => {
       if (!motionUpdate.idleOnComplete) return;
       const combatantModelOption = getGameWorld().modelManager.findOne(motionUpdate.entityId);
@@ -117,7 +128,6 @@ export function handleEntityMotionUpdate(
       animationOption,
       updateCompletionTracker,
       update,
-      !!motionUpdate.instantTransition,
       onAnimationComplete
     );
   }

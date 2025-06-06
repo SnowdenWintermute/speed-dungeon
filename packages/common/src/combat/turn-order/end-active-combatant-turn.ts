@@ -4,7 +4,7 @@ import { SpeedDungeonGame } from "../../game/index.js";
 import { REQUIRED_MOVEMENT_TO_MOVE } from "./consts.js";
 import { Battle } from "../../battle/index.js";
 
-export default function endActiveCombatantTurn(
+export function endActiveCombatantTurn(
   game: SpeedDungeonGame,
   battle: Battle
 ): Error | CombatantTurnTracker {

@@ -17,11 +17,6 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
       entityType: SpawnableEntityType.Combatant,
       entityId: context.combatantContext.combatant.entityProperties.id,
       idleOnComplete: step === ActionResolutionStepType.FinalPositioning,
-      instantTransition:
-        step !== ActionResolutionStepType.InitialPositioning &&
-        step !== ActionResolutionStepType.PrepMotion &&
-        step !== ActionResolutionStepType.ChamberingMotion &&
-        step !== ActionResolutionStepType.FinalPositioning,
     };
 
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];

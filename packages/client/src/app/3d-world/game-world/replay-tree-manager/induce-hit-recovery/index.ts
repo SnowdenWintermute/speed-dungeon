@@ -9,6 +9,10 @@ import {
   COMBAT_ACTIONS,
   ActionResolutionStepType,
   CombatActionOrigin,
+  InputLock,
+  Battle,
+  AdventuringParty,
+  FLOATING_MESSAGE_DURATION,
 } from "@speed-dungeon/common";
 import { getCombatantContext, useGameStore } from "@/stores/game-store";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
@@ -34,18 +38,13 @@ export function induceHitRecovery(
   const action = COMBAT_ACTIONS[actionName];
   const wasSpell = action.origin === CombatActionOrigin.SpellCast;
 
-  // HANDLE RESOURCE CHANGES
-  // - show a hit recovery or death animation (if mana, only animate if there wasn't an hp change animation already)
-  // - start a floating message
-  // - determine and post combat log text
-  // - change their resource
-  // HP ONLY:
-  // - determine if died or resurrected
-  // - handle any death by removing the affected combatant's turn tracker
-  // - handle any ressurection by adding the affected combatant's turn tracker
-  // MANA ONLY:
-  // - show mana shield breaking if reduced to zero
-  startResourceChangeFloatingMessage(targetId, resourceChange, resourceType, wasBlocked, 2000);
+  startResourceChangeFloatingMessage(
+    targetId,
+    resourceChange,
+    resourceType,
+    wasBlocked,
+    FLOATING_MESSAGE_DURATION
+  );
 
   const showDebug = useUIStore.getState().showDebug;
 
@@ -73,11 +72,45 @@ export function induceHitRecovery(
       showDebug
     );
 
-    if (!shouldAnimate) return;
+    const battleOption = AdventuringParty.getBattleOption(party, game);
 
     if (combatantProperties.hitPoints <= 0) {
+      const combatantDiedOnTheirOwnTurn = (() => {
+        if (battleOption === null) return false;
+        return Battle.combatantIsFirstInTurnOrder(battleOption, targetId);
+      })();
+
+      console.log(
+        "combatant died on their own turn: ",
+        combatantDiedOnTheirOwnTurn,
+        combatant.entityProperties.id
+      );
+
       const maybeError = SpeedDungeonGame.handleCombatantDeath(game, party.battleId, targetId);
       if (maybeError instanceof Error) return console.error(maybeError);
+
+      if (combatantDiedOnTheirOwnTurn) {
+        // if it was the combatant's turn who died and the next active combatant is player controlled, unlock input
+
+        if (!battleOption) InputLock.unlockInput(party.inputLock);
+        else {
+          const firstInTurnOrder = Battle.getFirstCombatantInTurnOrder(game, battleOption);
+          if (firstInTurnOrder instanceof Error) throw firstInTurnOrder;
+          if (party.characterPositions.includes(firstInTurnOrder.entityProperties.id))
+            InputLock.unlockInput(party.inputLock);
+        }
+
+        // end any motion trackers they might have had
+        // this is hacky because we would rather have not given them any but
+        // it was the easiest way to implement dying on combatant's own turn
+        const combatantModel = getGameWorld().modelManager.findOne(targetId);
+
+        for (const [movementType, tracker] of combatantModel.movementManager.getTrackers()) {
+          tracker.onComplete();
+        }
+
+        combatantModel.movementManager.activeTrackers = {};
+      }
 
       gameState.combatLogMessages.push(
         new CombatLogMessage(
@@ -86,6 +119,12 @@ export function induceHitRecovery(
         )
       );
 
+      if (targetModel.skeletalAnimationManager.playing) {
+        if (targetModel.skeletalAnimationManager.playing.options.onComplete)
+          targetModel.skeletalAnimationManager.playing.options.onComplete();
+      }
+
+      // if (shouldAnimate) // we kind of need to animate this
       targetModel.skeletalAnimationManager.startAnimationWithTransition(
         SkeletalAnimationName.DeathBack,
         0,
@@ -104,15 +143,16 @@ export function induceHitRecovery(
         animationName = SkeletalAnimationName.CritRecovery;
       if (wasBlocked) animationName = SkeletalAnimationName.Block;
 
-      targetModel.skeletalAnimationManager.startAnimationWithTransition(animationName, 0, {
-        onComplete: () => {
-          if (!combatantWasAliveBeforeResourceChange && combatantProperties.hitPoints > 0) {
-            // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
-          } else {
-            targetModel.startIdleAnimation(500);
-          }
-        },
-      });
+      if (shouldAnimate)
+        targetModel.skeletalAnimationManager.startAnimationWithTransition(animationName, 0, {
+          onComplete: () => {
+            if (!combatantWasAliveBeforeResourceChange && combatantProperties.hitPoints > 0) {
+              // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
+            } else {
+              targetModel.startIdleAnimation(500);
+            }
+          },
+        });
     }
   });
 }

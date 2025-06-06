@@ -61,7 +61,11 @@ export enum AnimationTimingType {
 export type LoopingAnimation = { type: AnimationTimingType.Looping };
 export type TimedAnimation = { type: AnimationTimingType.Timed; duration: Milliseconds };
 export type AnimationTiming = LoopingAnimation | TimedAnimation;
-export type EntityAnimation = { name: TaggedAnimationName; timing: AnimationTiming };
+export type EntityAnimation = {
+  name: TaggedAnimationName;
+  timing: AnimationTiming;
+  smoothTransition: boolean;
+};
 
 export interface SpawnEntityGameUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.SpawnEntity;
@@ -75,7 +79,6 @@ export interface IEntityMotionUpdate {
   animationOption?: EntityAnimation;
   translationOption?: EntityTranslation;
   rotationOption?: EntityRotation;
-  instantTransition?: boolean;
 }
 
 export interface TargetCombatantChildTransformNodeWithDuration {

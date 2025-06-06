@@ -7,7 +7,6 @@ import {
   Vector3,
   StandardMaterial,
   TransformNode,
-  MeshBuilder,
 } from "@babylonjs/core";
 import { getChildMeshByName, getClientRectFromMesh, paintCubesOnNodes } from "../../utils";
 import { GameWorld } from "../../game-world";
@@ -23,7 +22,6 @@ import {
   EquipmentType,
   CombatantBaseChildTransformNodeName,
   NormalizedPercentage,
-  COMBATANT_BASE_TRANSFORM_NODE_NAME_STRINGS,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
@@ -37,8 +35,6 @@ import { SceneEntity } from "..";
 import { BONE_NAMES, BoneName } from "./skeleton-structure-variables";
 import { EquipmentModelManager } from "./equipment-model-manager";
 import { ModularCharacterPartsModelManager } from "./modular-character-parts-model-manager";
-import { createBillboard } from "@/utils";
-import { getGameWorld } from "../../SceneManager";
 
 export class CharacterModel extends SceneEntity {
   childTransformNodes: Partial<Record<CombatantBaseChildTransformNodeName, TransformNode>> = {};
@@ -160,6 +156,12 @@ export class CharacterModel extends SceneEntity {
 
   startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {
     const idleName = this.getIdleAnimationName();
+    if (
+      this.skeletalAnimationManager.playing?.getName() === SKELETAL_ANIMATION_NAME_STRINGS[idleName]
+    )
+      return console.log(
+        "tried to start or change idle animation but already was idling with same idle animation"
+      );
 
     this.skeletalAnimationManager.startAnimationWithTransition(idleName, transitionMs, {
       ...options,

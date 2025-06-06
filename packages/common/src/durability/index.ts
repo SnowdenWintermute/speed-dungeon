@@ -1,8 +1,15 @@
-import { DurabilityLossCondition } from "../combat/combat-actions/combat-action-durability-loss-condition.js";
-import { CombatActionComponent } from "../combat/combat-actions/index.js";
+import {
+  DURABILITY_LOSS_CONDITION_STRINGS,
+  DurabilityLossCondition,
+} from "../combat/combat-actions/combat-action-durability-loss-condition.js";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionComponent,
+} from "../combat/combat-actions/index.js";
 import {
   Combatant,
   CombatantEquipment,
+  CombatantProperties,
   applyEquipmentEffectWhileMaintainingResourcePercentages,
 } from "../combatants/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
@@ -48,9 +55,17 @@ export class DurabilityChangesByEntityId {
   constructor() {}
 
   updateOrCreateDurabilityChangeRecord(
-    entityId: EntityId,
+    combatant: Combatant,
     durabilityChange: EquipmentDurabilityChange
   ) {
+    const entityId = combatant.entityProperties.id;
+
+    const equipment = CombatantEquipment.getEquipmentInSlot(
+      combatant.combatantProperties,
+      durabilityChange.taggedSlot
+    );
+    if (durabilityChange.value < 0 && equipment?.durability?.current === 0) return;
+
     let existingChanges = this.records[entityId];
     if (!existingChanges) existingChanges = this.records[entityId] = new DurabilityChanges();
     existingChanges.addOrUpdateEquipmentDurabilityChange(durabilityChange);
@@ -75,12 +90,6 @@ export class DurabilityChangesByEntityId {
           taggedSlot
         );
 
-        // console.log(
-        //   "checking dura: ",
-        //   equipmentOption?.entityProperties.name,
-        //   equipmentOption?.durability
-        // );
-
         applyEquipmentEffectWhileMaintainingResourcePercentages(
           combatantResult.combatantProperties,
           () => {
@@ -93,7 +102,7 @@ export class DurabilityChangesByEntityId {
   }
 
   updateConditionalChangesOnUser(
-    userId: EntityId,
+    user: Combatant,
     action: CombatActionComponent,
     condition: DurabilityLossCondition
   ) {
@@ -107,8 +116,18 @@ export class DurabilityChangesByEntityId {
       )) {
         if (!(durabilityLossCondition === condition)) continue;
 
-        this.updateOrCreateDurabilityChangeRecord(userId, {
-          taggedSlot: { type: EquipmentSlotType.Wearable, slot: wearableSlot },
+        const taggedSlot: TaggedEquipmentSlot = {
+          type: EquipmentSlotType.Wearable,
+          slot: wearableSlot,
+        };
+        const equipment = CombatantEquipment.getEquipmentInSlot(
+          user.combatantProperties,
+          taggedSlot
+        );
+        if (equipment?.durability?.current === 0) continue;
+
+        this.updateOrCreateDurabilityChangeRecord(user, {
+          taggedSlot,
           value: BASE_DURABILITY_LOSS,
         });
       }
@@ -119,7 +138,18 @@ export class DurabilityChangesByEntityId {
         incursDurabilityLoss[EquipmentSlotType.Holdable]
       )) {
         if (!(durabilityLossCondition === condition)) continue;
-        this.updateOrCreateDurabilityChangeRecord(userId, {
+
+        const taggedSlot: TaggedEquipmentSlot = {
+          type: EquipmentSlotType.Holdable,
+          slot: holdableSlot,
+        };
+        const equipment = CombatantEquipment.getEquipmentInSlot(
+          user.combatantProperties,
+          taggedSlot
+        );
+        if (equipment?.durability?.current === 0) continue;
+
+        this.updateOrCreateDurabilityChangeRecord(user, {
           taggedSlot: { type: EquipmentSlotType.Holdable, slot: holdableSlot },
           value: BASE_DURABILITY_LOSS,
         });
@@ -138,7 +168,7 @@ export class DurabilityChangesByEntityId {
     );
 
     if (equipmentOption) {
-      this.updateOrCreateDurabilityChangeRecord(combatant.entityProperties.id, {
+      this.updateOrCreateDurabilityChangeRecord(combatant, {
         taggedSlot,
         value: BASE_DURABILITY_LOSS + extraDurabilityLoss,
       });
