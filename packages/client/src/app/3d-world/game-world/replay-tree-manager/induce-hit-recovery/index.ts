@@ -12,6 +12,7 @@ import {
   InputLock,
   Battle,
   AdventuringParty,
+  FLOATING_MESSAGE_DURATION,
 } from "@speed-dungeon/common";
 import { getCombatantContext, useGameStore } from "@/stores/game-store";
 import { CombatLogMessage, CombatLogMessageStyle } from "@/app/game/combat-log/combat-log-message";
@@ -37,7 +38,13 @@ export function induceHitRecovery(
   const action = COMBAT_ACTIONS[actionName];
   const wasSpell = action.origin === CombatActionOrigin.SpellCast;
 
-  startResourceChangeFloatingMessage(targetId, resourceChange, resourceType, wasBlocked, 2000);
+  startResourceChangeFloatingMessage(
+    targetId,
+    resourceChange,
+    resourceType,
+    wasBlocked,
+    FLOATING_MESSAGE_DURATION
+  );
 
   const showDebug = useUIStore.getState().showDebug;
 

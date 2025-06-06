@@ -1,6 +1,4 @@
 import {
-  AdventuringParty,
-  Battle,
   CombatActionReplayTreePayload,
   GameUpdateCommand,
   InputLock,

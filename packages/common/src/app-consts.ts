@@ -27,6 +27,9 @@ export const BASE_XP_PER_MONSTER = 30.0;
 // export const BASE_XP_PER_MONSTER = 100.0;
 export const BASE_XP_LEVEL_DIFF_MULTIPLIER = 0.25;
 
+// UI
+export const FLOATING_MESSAGE_DURATION: Milliseconds = 2000;
+
 // EQUIPMENT
 export const DEX_TO_RANGED_ARMOR_PEN_RATIO = 1;
 export const STR_TO_MELEE_ARMOR_PEN_RATIO = 1;

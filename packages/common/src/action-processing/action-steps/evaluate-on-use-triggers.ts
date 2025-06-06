@@ -32,7 +32,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
 
     const durabilityChanges = new DurabilityChangesByEntityId();
     durabilityChanges.updateConditionalChangesOnUser(
-      combatant.entityProperties.id,
+      combatant,
       action,
       DurabilityLossCondition.OnUse
     );

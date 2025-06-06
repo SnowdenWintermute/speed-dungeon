@@ -8,10 +8,11 @@ import {
   CombatantProperties,
   DurabilityChangesByEntityId,
   ERROR_MESSAGES,
+  EntityId,
   Equipment,
   EquipmentSlotType,
+  FLOATING_MESSAGE_DURATION,
   HitPointChanges,
-  SpawnEntityGameUpdateCommand,
   SpeedDungeonGame,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
@@ -19,12 +20,25 @@ import { getGameWorld } from "../../SceneManager";
 import { plainToInstance } from "class-transformer";
 import { startOrStopCosmeticEffects } from "./start-or-stop-cosmetic-effect";
 import { induceHitRecovery } from "./induce-hit-recovery";
+import {
+  FLOATING_TEXT_COLORS,
+  FloatingMessageElement,
+  FloatingMessageElementType,
+  FloatingMessageTextColor,
+  startFloatingMessage,
+} from "@/stores/game-store/floating-messages";
+import { postBrokenHoldableMessages } from "./post-broken-holdable-messages";
 
 export async function activatedTriggersGameUpdateHandler(update: {
   command: ActivatedTriggersGameUpdateCommand;
   isComplete: boolean;
 }) {
   const { command } = update;
+
+  // keep track outside of the mutateState so we can post messages after mutating state
+  // because posting messages also needs to mutate state and looks cleaner if it separately handles that
+  const brokenHoldablesAndTheirOwnerIds: { ownerId: EntityId; equipment: Equipment }[] = [];
+
   useGameStore.getState().mutateState((gameState) => {
     const game = gameState.game;
     if (!game) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_GAME);
@@ -49,6 +63,11 @@ export async function activatedTriggersGameUpdateHandler(update: {
             const characterModelOption = getGameWorld().modelManager.findOneOptional(
               combatant.entityProperties.id
             );
+
+            brokenHoldablesAndTheirOwnerIds.push({
+              ownerId: combatant.entityProperties.id,
+              equipment,
+            });
 
             characterModelOption?.equipmentModelManager.synchronizeCombatantEquipmentModels();
           }
@@ -119,6 +138,9 @@ export async function activatedTriggersGameUpdateHandler(update: {
       }
     }
   });
+
+  for (const { ownerId, equipment } of brokenHoldablesAndTheirOwnerIds)
+    postBrokenHoldableMessages(ownerId, equipment);
 
   if (command.hitPointChanges) {
     const hitPointChanges = plainToInstance(HitPointChanges, command.hitPointChanges);
