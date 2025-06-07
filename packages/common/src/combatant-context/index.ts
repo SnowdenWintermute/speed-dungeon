@@ -26,10 +26,8 @@ export class CombatantContext {
     const shimmedConditionUser =
       this.combatant.combatantProperties.asShimmedUserOfTriggeredCondition;
 
-    // @TODO - store ally and opponent ids of condition and traits when they are acting as action users
     if (shimmedConditionUser) {
       const targets = this.combatant.combatantProperties.combatActionTarget;
-      // const
       return Battle.getAllyIdsAndOpponentIdsOptionOfShimmedConditionUser(
         battleOption,
         shimmedConditionUser.entityConditionWasAppliedTo,
