@@ -99,4 +99,22 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
   ): Error | CombatActionTarget | null {
     throw new Error("Function not implemented.");
   },
+  [AutoTargetingScheme.WithinRadiusOfEntity]: function (
+    combatantContext: CombatantContext,
+    combatAction: CombatActionComponent
+  ): Error | null | CombatActionTarget {
+    const { scheme } = combatAction.targetingProperties.autoTargetSelectionMethod;
+
+    if (scheme !== AutoTargetingScheme.WithinRadiusOfEntity)
+      throw new Error("mismatched auto targeting scheme");
+
+    const { radius, validTargetCategories, targetId } =
+      combatAction.targetingProperties.autoTargetSelectionMethod;
+
+    // get all combatants within radius of combatant location
+    // filter by valid categories
+    // return their ids
+
+    throw new Error("Function not implemented.");
+  },
 };

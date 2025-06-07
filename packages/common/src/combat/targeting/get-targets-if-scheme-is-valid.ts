@@ -15,6 +15,8 @@ export function getActionTargetsIfSchemeIsValid(
   switch (actionTarget.type) {
     case CombatActionTargetType.Single:
       return [actionTarget.targetId as EntityId];
+    case CombatActionTargetType.DistinctIds:
+      return actionTarget.targetIds;
     case CombatActionTargetType.Sides: {
       const targetIds: EntityId[] = [];
       allyIds.forEach((id, i) => {
