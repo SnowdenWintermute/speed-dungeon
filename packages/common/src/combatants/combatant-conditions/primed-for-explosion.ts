@@ -14,7 +14,6 @@ import { CombatActionTargetType } from "../../combat/targeting/combat-action-tar
 import { IdGenerator } from "../../utility-classes/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatantContext } from "../../combatant-context/index.js";
-import cloneDeep from "lodash.clonedeep";
 
 export class PrimedForExplosionCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.PrimedForExplosion;
@@ -29,7 +28,15 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
   onTick() {}
 
   triggeredWhenHitBy(actionName: CombatActionName) {
-    return actionName !== CombatActionName.ExplodingArrowProjectile;
+    const actionsThatDontTrigger = [
+      CombatActionName.IceBoltProjectile,
+      CombatActionName.IceBurst,
+      CombatActionName.UseBlueAutoinjector,
+      CombatActionName.UseGreenAutoinjector,
+      CombatActionName.ExplodingArrowProjectile,
+    ];
+
+    return !actionsThatDontTrigger.includes(actionName);
   }
 
   triggeredWhenActionUsed() {

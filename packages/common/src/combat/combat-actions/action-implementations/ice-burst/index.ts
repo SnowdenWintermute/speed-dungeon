@@ -1,6 +1,7 @@
 import {
   CombatActionComponentConfig,
   CombatActionComposite,
+  CombatActionExecutionIntent,
   CombatActionName,
   CombatActionOrigin,
   FriendOrFoe,
@@ -53,6 +54,7 @@ import {
   ActionEntityBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
+import { ERROR_MESSAGES } from "../../../../errors/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -171,16 +173,20 @@ const config: CombatActionComponentConfig = {
   },
 
   getSpawnableEntity: (context) => {
-    // this action targets the sides, but we want to spawn the vfx on the center target
-    // so we'll clone and modify the action intent
-    const actionExecutionIntent = cloneDeep(context.tracker.actionExecutionIntent);
-    actionExecutionIntent.targets.type = CombatActionTargetType.Single;
+    // we just want to get the position of the primary target, even though they aren't
+    // going to be part of the final targets as calculated by the hit outcomes.
+    // to this end, we use the target as set on the triggered action user combatant shim
+    // by the action whenTriggered function
+    const selectedTarget =
+      context.combatantContext.combatant.combatantProperties.combatActionTarget;
+    if (selectedTarget === null)
+      throw new Error("expected action user to have a selected single target");
 
     const { party } = context.combatantContext;
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
     const primaryTargetIdResult = targetingCalculator.getPrimaryTargetCombatant(
       party,
-      actionExecutionIntent
+      new CombatActionExecutionIntent(CombatActionName.IceBurst, selectedTarget)
     );
     if (primaryTargetIdResult instanceof Error) throw primaryTargetIdResult;
 

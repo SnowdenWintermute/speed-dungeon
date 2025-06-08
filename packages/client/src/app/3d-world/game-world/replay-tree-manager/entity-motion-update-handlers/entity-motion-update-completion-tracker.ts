@@ -7,6 +7,7 @@ export class EntityMotionUpdateCompletionTracker {
     if (!animationOption) this.animationIsComplete = true;
     else if (animationOption.timing.type === AnimationTimingType.Looping)
       this.animationIsComplete = true;
+
     if (!hasTranslation) this.translationIsComplete = true;
   }
   isComplete() {

@@ -1,9 +1,10 @@
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionEntityMotionGameUpdateCommand,
   AnimationType,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatantMotionGameUpdateCommand,
   EntityMotionUpdate,
+  InputLock,
   SpawnableEntityType,
 } from "@speed-dungeon/common";
 import { EntityMotionUpdateCompletionTracker } from "./entity-motion-update-completion-tracker";
@@ -19,6 +20,7 @@ import { handleEntityMotionSetNewParentUpdate } from "./handle-entity-motion-set
 import { handleLockRotationToFace } from "./handle-lock-rotation-to-face";
 import { handleStartPointingTowardEntity } from "./handle-start-pointing-toward";
 import { handleEquipmentAnimations } from "./handle-equipment-animations";
+import { useGameStore } from "@/stores/game-store";
 
 export function handleEntityMotionUpdate(
   update: {
@@ -132,5 +134,30 @@ export function handleEntityMotionUpdate(
     );
   }
 
-  if (isMainUpdate && updateCompletionTracker.isComplete()) update.isComplete = true;
+  console.log(
+    "isMainUpdate: ",
+    isMainUpdate,
+    "updateCompletionTracker.isComplete():",
+    updateCompletionTracker.isComplete(),
+    COMBAT_ACTION_NAME_STRINGS[update.command.actionName]
+  );
+
+  const replayTreeIsEmpty = getGameWorld().replayTreeManager.isEmpty();
+  console.log("replayTreeIsEmpty: ", replayTreeIsEmpty);
+
+  if (isMainUpdate && updateCompletionTracker.isComplete()) {
+    update.isComplete = true;
+
+    const replayTreeIsEmpty = getGameWorld().replayTreeManager.isEmpty();
+    console.log("replayTreeIsEmpty: ", replayTreeIsEmpty);
+
+    if (getGameWorld().replayTreeManager.isEmpty()) {
+      useGameStore.getState().mutateState((state) => {
+        const partyResult = state.getParty();
+        if (!(partyResult instanceof Error)) {
+          InputLock.unlockInput(partyResult.inputLock);
+        }
+      });
+    }
+  }
 }

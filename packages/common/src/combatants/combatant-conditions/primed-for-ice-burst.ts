@@ -37,7 +37,12 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
   onTick() {}
 
   triggeredWhenHitBy(actionName: CombatActionName) {
-    const actionsThatDontTrigger = [CombatActionName.IceBoltProjectile, CombatActionName.IceBurst];
+    const actionsThatDontTrigger = [
+      CombatActionName.IceBoltProjectile,
+      CombatActionName.IceBurst,
+      CombatActionName.UseBlueAutoinjector,
+      CombatActionName.UseGreenAutoinjector,
+    ];
     return !actionsThatDontTrigger.includes(actionName);
   }
 

@@ -20,6 +20,11 @@ export class ReplayTreeManager {
     return this.current;
   }
 
+  isEmpty() {
+    const hasCurrentActiveTree = this.current && !this.current.isComplete();
+    return !hasCurrentActiveTree && this.queue.length === 0;
+  }
+
   clear() {
     this.current = null;
     this.queue = [];
