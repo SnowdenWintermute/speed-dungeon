@@ -80,12 +80,6 @@ export function induceHitRecovery(
         return Battle.combatantIsFirstInTurnOrder(battleOption, targetId);
       })();
 
-      console.log(
-        "combatant died on their own turn: ",
-        combatantDiedOnTheirOwnTurn,
-        combatant.entityProperties.id
-      );
-
       const maybeError = SpeedDungeonGame.handleCombatantDeath(game, party.battleId, targetId);
       if (maybeError instanceof Error) return console.error(maybeError);
 
@@ -143,7 +137,12 @@ export function induceHitRecovery(
         animationName = SkeletalAnimationName.CritRecovery;
       if (wasBlocked) animationName = SkeletalAnimationName.Block;
 
-      if (shouldAnimate)
+      // checking for isIdling is a simple way to avoid interrupting their return home when
+      // they are hit midway through an action, which would cause their turn to never end
+      // on the client
+      const isIdling = targetModel.isIdling();
+
+      if (shouldAnimate && isIdling)
         targetModel.skeletalAnimationManager.startAnimationWithTransition(animationName, 0, {
           onComplete: () => {
             if (!combatantWasAliveBeforeResourceChange && combatantProperties.hitPoints > 0) {

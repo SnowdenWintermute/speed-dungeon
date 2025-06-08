@@ -1,4 +1,6 @@
-import { gameWorld } from "@/app/3d-world/SceneManager";
+import { synchronizeCombatantModelsWithAppState } from "@/app/3d-world/game-world/model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+import { gameWorld, getGameWorld } from "@/app/3d-world/SceneManager";
 import { useLobbyStore } from "@/stores/lobby-store";
 import {
   ClientToServerEventTypes,
@@ -21,6 +23,10 @@ export default function setUpSavedCharacterEventListeners(
     gameWorld.current?.drawCharacterSlots();
     mutateLobbyState((state) => {
       state.savedCharacters = characters;
+    });
+
+    getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.SynchronizeCombatantModels,
     });
   });
 

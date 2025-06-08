@@ -4,6 +4,7 @@ import {
   CombatActionName,
   CombatActionOrigin,
   FriendOrFoe,
+  TargetCategories,
 } from "../../index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
@@ -19,7 +20,11 @@ import {
 } from "../../../hp-change-source-types.js";
 import { MagicalElement } from "../../../magical-elements.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
-import { AnimationType, DynamicAnimationName } from "../../../../app-consts.js";
+import {
+  AnimationType,
+  BASE_EXPLOSION_RADIUS,
+  DynamicAnimationName,
+} from "../../../../app-consts.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
@@ -58,7 +63,10 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
     ProhibitedTargetCombatantStates.Dead,
   ],
   autoTargetSelectionMethod: {
-    scheme: AutoTargetingScheme.Sides,
+    scheme: AutoTargetingScheme.WithinRadiusOfEntity,
+    radius: BASE_EXPLOSION_RADIUS,
+    validTargetCategories: TargetCategories.Any,
+    excludePrimaryTarget: true,
   },
 };
 
@@ -181,7 +189,7 @@ const config: CombatActionComponentConfig = {
     return {
       type: SpawnableEntityType.ActionEntity,
       actionEntity: {
-        entityProperties: { id: context.idGenerator.generate(), name: "explosion" },
+        entityProperties: { id: context.idGenerator.generate(), name: "ice burst" },
         actionEntityProperties: {
           position,
           name: ActionEntityName.IceBurst,

@@ -23,6 +23,7 @@ import {
   SceneEntityType,
 } from "../../scene-entities/index.js";
 import { CombatantContext } from "../../combatant-context/index.js";
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 
 export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.PrimedForIceBurst;
@@ -49,23 +50,34 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
     targetCombatant: Combatant,
     idGenerator: IdGenerator
   ) {
-    const target: CombatActionTarget = {
-      type: CombatActionTargetType.Sides,
-      targetId: targetCombatant.entityProperties.id,
-    };
-
-    const actionExecutionIntent = new CombatActionExecutionIntent(
-      CombatActionName.IceBurst,
-      target
-    );
-
     const user = createShimmedUserOfTriggeredCondition(
       COMBATANT_CONDITION_NAME_STRINGS[this.name],
       this,
       targetCombatant.entityProperties.id
     );
 
-    user.combatantProperties.combatActionTarget = target;
+    user.combatantProperties.combatActionTarget = {
+      type: CombatActionTargetType.Single,
+      targetId: targetCombatant.entityProperties.id,
+    };
+
+    const combatantContextFromConditionUserPerspective = new CombatantContext(
+      combatantContext.game,
+      combatantContext.party,
+      user
+    );
+
+    const actionTarget = COMBAT_ACTIONS[
+      CombatActionName.IceBurst
+    ].targetingProperties.getAutoTarget(combatantContextFromConditionUserPerspective, null);
+
+    if (actionTarget instanceof Error) throw actionTarget;
+    if (actionTarget === null) throw new Error("failed to get auto target");
+
+    const actionExecutionIntent = new CombatActionExecutionIntent(
+      CombatActionName.IceBurst,
+      actionTarget
+    );
 
     return {
       numStacksRemoved: this.stacksOption.current,

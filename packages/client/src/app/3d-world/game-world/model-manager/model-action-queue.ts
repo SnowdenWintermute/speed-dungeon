@@ -13,6 +13,10 @@ export class ModelActionQueue {
     // messages will be processed in game loop
   }
 
+  clear() {
+    this.messages = [];
+  }
+
   async processMessages() {
     if (this.isProcessing) return console.log("already processing");
     this.isProcessing = true;

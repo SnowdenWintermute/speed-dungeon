@@ -15,8 +15,9 @@ import { setUpGameLobbyEventHandlers } from "@/app/websocket-manager/lobby-event
 import setUpGameEventHandlers from "@/app/websocket-manager/game-event-handlers";
 import setUpSavedCharacterEventListeners from "@/app/websocket-manager/saved-character-event-handlers";
 import getCurrentParty from "@/utils/getCurrentParty";
-import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { synchronizeCombatantModelsWithAppState } from "@/app/3d-world/game-world/model-manager/model-action-handlers/synchronize-combatant-models-with-app-state";
+import { getGameWorld } from "@/app/3d-world/SceneManager";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 const socketAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
 
@@ -46,7 +47,9 @@ websocketConnection.on("connect", () => {
   websocketConnection.emit(ClientToServerEvent.RequestsGameList);
   websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
 
-  synchronizeCombatantModelsWithAppState();
+  getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+    type: ModelActionType.SynchronizeCombatantModels,
+  });
 });
 
 websocketConnection.on("disconnect", () => {

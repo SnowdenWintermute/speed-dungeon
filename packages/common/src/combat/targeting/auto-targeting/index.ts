@@ -106,6 +106,7 @@ export type AutoTargetSelectionMethodWithinRadiusOfEntity = {
   scheme: AutoTargetingScheme.WithinRadiusOfEntity;
   radius: Meters;
   validTargetCategories: TargetCategories;
+  excludePrimaryTarget?: boolean;
 };
 
 export type AutoTargetingSelectionMethod =

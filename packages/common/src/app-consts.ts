@@ -67,7 +67,7 @@ export const ARMOR_CLASS_EQUATION_MODIFIER = 2.5;
 export const MELEE_START_ATTACK_RANGE = 0.5;
 
 // 3D MODELS
-export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 0.1; // default is 1, higher is slower;
+export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 1; // default is 1, higher is slower;
 
 export const COMBATANT_POSITION_SPACING_SIDE: Meters = 1.4;
 export const BASE_EXPLOSION_RADIUS: Meters = 1.6;

@@ -115,7 +115,7 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
     if (scheme !== AutoTargetingScheme.WithinRadiusOfEntity)
       throw new Error("mismatched auto targeting scheme");
 
-    const { radius, validTargetCategories } =
+    const { radius, validTargetCategories, excludePrimaryTarget } =
       combatAction.targetingProperties.autoTargetSelectionMethod;
 
     // get all combatants in area
@@ -140,6 +140,9 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
       if (combatActionTarget?.type === CombatActionTargetType.Single)
         return combatActionTarget.targetId;
     })();
+
+    console.log("target id: ", targetId);
+
     if (targetId === undefined) throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
 
     console.log("target entity for within radius: ", targetId);
@@ -151,6 +154,8 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
     const validTargetsWithinRadius: EntityId[] = [];
 
     for (const potentialTargetId of idsFilteredByTargetCategoryFlattened) {
+      if (excludePrimaryTarget && potentialTargetId === targetId) continue;
+
       const potentialTargetCombatant = AdventuringParty.getCombatant(party, potentialTargetId);
       if (potentialTargetCombatant instanceof Error) throw potentialTargetCombatant;
       const { position } = potentialTargetCombatant.combatantProperties;

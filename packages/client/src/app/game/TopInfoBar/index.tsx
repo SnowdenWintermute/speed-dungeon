@@ -8,6 +8,8 @@ import getGameAndParty from "@/utils/getGameAndParty";
 import { websocketConnection } from "@/singletons/websocket-connection";
 import HotkeyButton from "@/app/components/atoms/HotkeyButton";
 import { ZIndexLayers } from "@/app/z-index-layers";
+import { getGameWorld } from "@/app/3d-world/SceneManager";
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
 
 export default function TopInfoBar() {
   const mutateGameState = useGameStore().mutateState;
@@ -21,8 +23,17 @@ export default function TopInfoBar() {
   const battleOptionResult = getCurrentBattleOption(game, party.name);
   function leaveGame() {
     websocketConnection.emit(ClientToServerEvent.LeaveGame);
+
+    getGameWorld().replayTreeManager.clear();
+    getGameWorld().modelManager.modelActionQueue.clear();
+
     mutateGameState((state) => {
       state.viewingLeaveGameModal = false;
+      state.game = null;
+    });
+
+    getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.SynchronizeCombatantModels,
     });
   }
 

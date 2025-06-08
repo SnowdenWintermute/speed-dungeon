@@ -20,6 +20,11 @@ export class ReplayTreeManager {
     return this.current;
   }
 
+  clear() {
+    this.current = null;
+    this.queue = [];
+  }
+
   async enqueueTree(payload: CombatActionReplayTreePayload, onComplete: () => void) {
     this.queue.push({ root: payload.root, onComplete });
 
