@@ -10,6 +10,7 @@ import {
   InputBlock,
   Camera,
   RenderTargetTexture,
+  GroundMesh,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
@@ -34,6 +35,7 @@ export class GameWorld {
   camera: ArcRotateCamera | null = null;
   portraitCamera: ArcRotateCamera;
   sun: Mesh;
+  ground: GroundMesh;
   // shadowGenerator: null | ShadowGenerator = null;
   mouse: Vector3 = new Vector3(0, 1, 0);
   debug: { debugRef: React.RefObject<HTMLUListElement> | null } = { debugRef: null };
@@ -62,7 +64,7 @@ export class GameWorld {
     this.scene = new Scene(this.engine);
 
     this.debug.debugRef = debugRef;
-    [this.camera, this.sun, this.groundTexture] = this.initScene();
+    [this.camera, this.sun, this.groundTexture, this.ground] = this.initScene();
     this.camera.layerMask = LAYER_MASK_ALL;
     this.defaultMaterials = createDefaultMaterials(this.scene);
     this.scene.activeCamera = this.camera;

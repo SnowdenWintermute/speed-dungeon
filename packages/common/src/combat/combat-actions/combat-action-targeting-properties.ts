@@ -55,7 +55,7 @@ const hostileSingle: CombatActionTargetingPropertiesConfig = {
     actionTrackerOption: null | ActionTracker,
     self: CombatActionComponent
   ) => {
-    const scheme = self.targetingProperties.autoTargetSelectionMethod.scheme;
+    const { scheme } = self.targetingProperties.autoTargetSelectionMethod;
     return AUTO_TARGETING_FUNCTIONS[scheme](combatantContext, self);
   },
 };

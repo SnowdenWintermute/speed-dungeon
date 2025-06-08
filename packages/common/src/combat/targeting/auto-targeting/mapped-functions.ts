@@ -10,6 +10,7 @@ import { Battle } from "../../../battle/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { EntityId } from "../../../primatives/index.js";
 import { Vector3 } from "@babylonjs/core";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
 
 type AutoTargetingFunction = (
   combatantContext: CombatantContext,
@@ -114,7 +115,7 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
     if (scheme !== AutoTargetingScheme.WithinRadiusOfEntity)
       throw new Error("mismatched auto targeting scheme");
 
-    const { radius, validTargetCategories, targetId } =
+    const { radius, validTargetCategories } =
       combatAction.targetingProperties.autoTargetSelectionMethod;
 
     // get all combatants in area
@@ -134,16 +135,36 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
       ...idsFilteredByTargetCategory[1],
     ];
 
+    const { combatActionTarget } = combatant.combatantProperties;
+    const targetId = (() => {
+      if (combatActionTarget?.type === CombatActionTargetType.Single)
+        return combatActionTarget.targetId;
+    })();
+    if (targetId === undefined) throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
+
+    console.log("target entity for within radius: ", targetId);
+
     // get all combatants within radius of combatant location
     const mainTargetCombatant = AdventuringParty.getCombatant(party, targetId);
     if (mainTargetCombatant instanceof Error) throw mainTargetCombatant;
     const mainTargetPosition = mainTargetCombatant.combatantProperties.position;
     const validTargetsWithinRadius: EntityId[] = [];
+
     for (const potentialTargetId of idsFilteredByTargetCategoryFlattened) {
-      const potentialTargetCombatant = AdventuringParty.getCombatant(party, targetId);
+      const potentialTargetCombatant = AdventuringParty.getCombatant(party, potentialTargetId);
       if (potentialTargetCombatant instanceof Error) throw potentialTargetCombatant;
       const { position } = potentialTargetCombatant.combatantProperties;
       const distanceFromMainTarget = Vector3.Distance(mainTargetPosition, position);
+
+      console.log(
+        "distance",
+        mainTargetCombatant.entityProperties.id,
+        "from",
+        potentialTargetCombatant.entityProperties.id,
+        ":",
+        distanceFromMainTarget
+      );
+
       if (distanceFromMainTarget <= radius) validTargetsWithinRadius.push(potentialTargetId);
     }
 

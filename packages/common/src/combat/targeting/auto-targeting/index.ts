@@ -104,7 +104,6 @@ export type AutoTargetSelectionMethodCombatantWithHighestLevelCondition = {
 
 export type AutoTargetSelectionMethodWithinRadiusOfEntity = {
   scheme: AutoTargetingScheme.WithinRadiusOfEntity;
-  targetId: EntityId;
   radius: Meters;
   validTargetCategories: TargetCategories;
 };

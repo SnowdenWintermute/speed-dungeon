@@ -70,3 +70,42 @@ export function drawCompass(gameWorld: GameWorld) {
 
   gameWorld.groundTexture.update();
 }
+
+export function drawDebugGrid(gameWorld: GameWorld) {
+  const context = gameWorld.groundTexture.getContext();
+  context.lineWidth = 3;
+
+  const textureSize = gameWorld.groundTexture.getSize();
+
+  const boundingBox = gameWorld.ground.getBoundingInfo().boundingBox;
+  const groundWidth = boundingBox.maximum.x - boundingBox.minimum.x;
+  const groundHeight = boundingBox.maximum.z - boundingBox.minimum.z;
+  const pixelsPerUnit = textureSize.width / groundWidth;
+
+  const columnWidth = pixelsPerUnit;
+  const columnCount = textureSize.width / columnWidth;
+
+  const rowHeight = pixelsPerUnit;
+  const rowCount = textureSize.height / rowHeight;
+
+  console.log(textureSize, columnCount);
+  context.strokeStyle = `rgba(100,100,100,.5)`;
+
+  for (let column = 0; column < columnCount; column += 1) {
+    const columnPosition = column * columnWidth;
+    context.beginPath();
+    context.moveTo(columnPosition, 0);
+    context.lineTo(columnPosition, textureSize.height);
+    context.stroke();
+  }
+
+  for (let row = 0; row < rowCount; row += 1) {
+    const rowPosition = row * rowHeight;
+    context.beginPath();
+    context.moveTo(0, rowPosition);
+    context.lineTo(textureSize.width, rowPosition);
+    context.stroke();
+  }
+
+  gameWorld.groundTexture.update();
+}

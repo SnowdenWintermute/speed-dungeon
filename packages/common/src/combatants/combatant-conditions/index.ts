@@ -2,6 +2,7 @@ import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { CosmeticEffectOnTargetTransformNode } from "../../combat/combat-actions/combat-action-steps-config.js";
 import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
+import { CombatantContext } from "../../combatant-context/index.js";
 import { EntityId, EntityProperties, MaxAndCurrent } from "../../primatives/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { removeFromArray } from "../../utils/index.js";
@@ -81,7 +82,8 @@ export abstract class CombatantCondition {
   //
 
   abstract onTriggered(
-    combatant: Combatant,
+    combatantContext: CombatantContext,
+    targetCombatant: Combatant,
     idGenerator: IdGenerator
   ): {
     numStacksRemoved: number;

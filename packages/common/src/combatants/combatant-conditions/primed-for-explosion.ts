@@ -12,6 +12,9 @@ import {
 import { EntityId, MaxAndCurrent } from "../../primatives/index.js";
 import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
 import { IdGenerator } from "../../utility-classes/index.js";
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { CombatantContext } from "../../combatant-context/index.js";
+import cloneDeep from "lodash.clonedeep";
 
 export class PrimedForExplosionCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.PrimedForExplosion;
@@ -33,16 +36,38 @@ export class PrimedForExplosionCombatantCondition implements CombatantCondition 
     return false;
   }
 
-  onTriggered(combatant: Combatant, idGenerator: IdGenerator) {
-    const explosionActionIntent = new CombatActionExecutionIntent(CombatActionName.Explosion, {
-      type: CombatActionTargetType.SingleAndSides,
-      targetId: combatant.entityProperties.id,
-    });
-
+  onTriggered(
+    combatantContext: CombatantContext,
+    targetCombatant: Combatant,
+    idGenerator: IdGenerator
+  ) {
     const user = createShimmedUserOfTriggeredCondition(
       COMBATANT_CONDITION_NAME_STRINGS[this.name],
       this,
-      combatant.entityProperties.id
+      targetCombatant.entityProperties.id
+    );
+
+    user.combatantProperties.combatActionTarget = {
+      type: CombatActionTargetType.Single,
+      targetId: targetCombatant.entityProperties.id,
+    };
+
+    const combatantContextFromConditionUserPerspective = new CombatantContext(
+      combatantContext.game,
+      combatantContext.party,
+      user
+    );
+
+    const actionTarget = COMBAT_ACTIONS[
+      CombatActionName.Explosion
+    ].targetingProperties.getAutoTarget(combatantContextFromConditionUserPerspective, null);
+
+    if (actionTarget instanceof Error) throw actionTarget;
+    if (actionTarget === null) throw new Error("failed to get auto target");
+
+    const explosionActionIntent = new CombatActionExecutionIntent(
+      CombatActionName.Explosion,
+      actionTarget
     );
 
     return {

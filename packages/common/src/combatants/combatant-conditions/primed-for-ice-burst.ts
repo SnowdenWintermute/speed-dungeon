@@ -22,6 +22,7 @@ import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../scene-entities/index.js";
+import { CombatantContext } from "../../combatant-context/index.js";
 
 export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
   name = CombatantConditionName.PrimedForIceBurst;
@@ -43,10 +44,14 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
     return false;
   }
 
-  onTriggered(combatant: Combatant, idGenerator: IdGenerator) {
+  onTriggered(
+    combatantContext: CombatantContext,
+    targetCombatant: Combatant,
+    idGenerator: IdGenerator
+  ) {
     const target: CombatActionTarget = {
       type: CombatActionTargetType.Sides,
-      targetId: combatant.entityProperties.id,
+      targetId: targetCombatant.entityProperties.id,
     };
 
     const actionExecutionIntent = new CombatActionExecutionIntent(
@@ -57,7 +62,7 @@ export class PrimedForIceBurstCombatantCondition implements CombatantCondition {
     const user = createShimmedUserOfTriggeredCondition(
       COMBATANT_CONDITION_NAME_STRINGS[this.name],
       this,
-      combatant.entityProperties.id
+      targetCombatant.entityProperties.id
     );
 
     user.combatantProperties.combatActionTarget = target;
