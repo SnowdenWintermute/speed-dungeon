@@ -134,30 +134,7 @@ export function handleEntityMotionUpdate(
     );
   }
 
-  console.log(
-    "isMainUpdate: ",
-    isMainUpdate,
-    "updateCompletionTracker.isComplete():",
-    updateCompletionTracker.isComplete(),
-    COMBAT_ACTION_NAME_STRINGS[update.command.actionName]
-  );
-
-  const replayTreeIsEmpty = getGameWorld().replayTreeManager.isEmpty();
-  console.log("replayTreeIsEmpty: ", replayTreeIsEmpty);
-
   if (isMainUpdate && updateCompletionTracker.isComplete()) {
     update.isComplete = true;
-
-    const replayTreeIsEmpty = getGameWorld().replayTreeManager.isEmpty();
-    console.log("replayTreeIsEmpty: ", replayTreeIsEmpty);
-
-    if (getGameWorld().replayTreeManager.isEmpty()) {
-      useGameStore.getState().mutateState((state) => {
-        const partyResult = state.getParty();
-        if (!(partyResult instanceof Error)) {
-          InputLock.unlockInput(partyResult.inputLock);
-        }
-      });
-    }
   }
 }
