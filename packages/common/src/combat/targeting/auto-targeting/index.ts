@@ -1,6 +1,10 @@
 export * from "./copy-from-parent.js";
 import { CombatantConditionName } from "../../../combatants/combatant-conditions/index.js";
-import { FriendOrFoe } from "../../combat-actions/targeting-schemes-and-categories.js";
+import { EntityId, Meters } from "../../../primatives/index.js";
+import {
+  FriendOrFoe,
+  TargetCategories,
+} from "../../combat-actions/targeting-schemes-and-categories.js";
 
 export enum AutoTargetingScheme {
   UserSelected,
@@ -17,6 +21,7 @@ export enum AutoTargetingScheme {
   AllCombatantsWithCondition, //
   ClosestCombatantWithCondition, // lightning rod causes arcs from nearby targets to hit them
   CombatantWithHighestLevelCondition, // shrapnel explosion hitting combatant with highest level "magnet" condition
+  WithinRadiusOfEntity, //
 }
 
 export enum SideTargetingType {
@@ -97,6 +102,13 @@ export type AutoTargetSelectionMethodCombatantWithHighestLevelCondition = {
   conditionName: CombatantConditionName;
 };
 
+export type AutoTargetSelectionMethodWithinRadiusOfEntity = {
+  scheme: AutoTargetingScheme.WithinRadiusOfEntity;
+  radius: Meters;
+  validTargetCategories: TargetCategories;
+  excludePrimaryTarget?: boolean;
+};
+
 export type AutoTargetingSelectionMethod =
   | AutoTargetSelectionMethodUserSelected
   | AutoTargetSelectionMethodSpecificSide
@@ -110,4 +122,5 @@ export type AutoTargetingSelectionMethod =
   | AutoTargetSelectionMethodRandomCombatant
   | AutoTargetSelectionMethodAllWithCondition
   | AutoTargetSelectionMethodClosestWithCondition
-  | AutoTargetSelectionMethodCombatantWithHighestLevelCondition;
+  | AutoTargetSelectionMethodCombatantWithHighestLevelCondition
+  | AutoTargetSelectionMethodWithinRadiusOfEntity;

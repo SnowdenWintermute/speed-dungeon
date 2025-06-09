@@ -4,7 +4,6 @@ import getSpawnableMonsterTypesByFloor from "./get-spawnable-monster-types-by-fl
 import {
   CombatAttribute,
   Combatant,
-  CombatantEquipment,
   CombatantProperties,
   Equipment,
   MONSTER_SPECIES,

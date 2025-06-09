@@ -12,6 +12,7 @@ import {
   Color3,
   Camera,
   Scene,
+  GroundMesh,
 } from "@babylonjs/core";
 import { GameWorld } from ".";
 import { GROUND_COLOR } from "./clear-floor-texture";
@@ -22,7 +23,7 @@ export const RESOLUTION_PER_BABYLON_UNIT = 100;
 export const GROUND_TEXTURE_WIDTH = GROUND_WIDTH * RESOLUTION_PER_BABYLON_UNIT;
 export const GROUND_TEXTURE_HEIGHT = GROUND_HEIGHT * RESOLUTION_PER_BABYLON_UNIT;
 
-export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTexture] {
+export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTexture, GroundMesh] {
   // this.scene.clearColor = new Color4(0.1, 0.1, 0.15, 1);
 
   this.scene.clearColor = new Color4(0, 0, 0, 0);
@@ -86,7 +87,7 @@ export function initScene(this: GameWorld): [ArcRotateCamera, Mesh, DynamicTextu
   // ground.receiveShadows = true;
 
   // return [camera, shadowGenerator, ball, this.groundTexture];
-  return [camera, ball, this.groundTexture];
+  return [camera, ball, this.groundTexture, ground];
 }
 
 function setOrthoCameraTopBottom(camera: Camera, ratio: number) {

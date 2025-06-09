@@ -4,7 +4,8 @@ import { useGameStore } from "@/stores/game-store";
 import { ZIndexLayers } from "../z-index-layers";
 import { gameWorld } from "./SceneManager";
 import { InputLock } from "@speed-dungeon/common";
-import { drawCompass } from "./game-world/clear-floor-texture";
+import { drawCompass, drawDebugGrid } from "./game-world/clear-floor-texture";
+import { GameWorld } from "./game-world";
 
 export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTMLUListElement> }) {
   const thumbnails = useGameStore((state) => state.itemThumbnails);
@@ -31,6 +32,7 @@ export default function DebugText({ debugRef }: { debugRef: React.RefObject<HTML
         const { showDebug } = useUIStore.getState();
         if (showDebug) {
           drawCompass(gameWorld.current);
+          drawDebugGrid(gameWorld.current);
         } else {
           gameWorld.current.clearFloorTexture();
         }

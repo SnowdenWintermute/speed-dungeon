@@ -1,4 +1,4 @@
-import { Milliseconds } from "./primatives/index.js";
+import { Meters, Milliseconds } from "./primatives/index.js";
 
 // remember to update it in package.json as well!
 export const APP_VERSION_NUMBER = "0.11.0";
@@ -69,8 +69,9 @@ export const MELEE_START_ATTACK_RANGE = 0.5;
 // 3D MODELS
 export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 1; // default is 1, higher is slower;
 
-export const COMBATANT_POSITION_SPACING_SIDE = 1.4;
-export const COMBATANT_POSITION_SPACING_BETWEEN_ROWS = 5.0;
+export const COMBATANT_POSITION_SPACING_SIDE: Meters = 1.4;
+export const BASE_EXPLOSION_RADIUS: Meters = 1.6;
+export const COMBATANT_POSITION_SPACING_BETWEEN_ROWS: Meters = 5.0;
 export const COMBATANT_TIME_TO_MOVE_ONE_METER = 300;
 // export const COMBATANT_TIME_TO_MOVE_ONE_METER = 100;
 // export const ARROW_TIME_TO_MOVE_ONE_METER = 40;

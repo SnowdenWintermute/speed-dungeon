@@ -3,13 +3,18 @@ import {
   CombatActionComposite,
   CombatActionName,
   CombatActionOrigin,
+  TargetCategories,
 } from "../../index.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import {
   ActionResolutionStepType,
   AnimationTimingType,
 } from "../../../../action-processing/index.js";
-import { AnimationType, DynamicAnimationName } from "../../../../app-consts.js";
+import {
+  AnimationType,
+  BASE_EXPLOSION_RADIUS,
+  DynamicAnimationName,
+} from "../../../../app-consts.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { DAMAGING_ACTIONS_COMMON_CONFIG } from "../damaging-actions-common-config.js";
@@ -24,8 +29,17 @@ import {
   BASE_ACTION_COST_PROPERTIES,
 } from "../../combat-action-cost-properties.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
+import cloneDeep from "lodash.clonedeep";
+import { AutoTargetingScheme } from "../../../targeting/index.js";
 
-const targetingProperties = GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle];
+const targetingProperties = cloneDeep(
+  GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]
+);
+targetingProperties.autoTargetSelectionMethod = {
+  scheme: AutoTargetingScheme.WithinRadiusOfEntity,
+  radius: BASE_EXPLOSION_RADIUS,
+  validTargetCategories: TargetCategories.Any,
+};
 
 const config: CombatActionComponentConfig = {
   ...DAMAGING_ACTIONS_COMMON_CONFIG,

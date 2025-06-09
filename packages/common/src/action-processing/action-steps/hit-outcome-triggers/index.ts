@@ -73,6 +73,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             if (!condition.triggeredWhenHitBy(actionExecutionIntent.actionName)) continue;
 
             const { numStacksRemoved, triggeredActions } = condition.onTriggered(
+              combatantContext,
               targetCombatant,
               context.idGenerator
             );

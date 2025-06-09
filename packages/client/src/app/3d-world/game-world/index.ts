@@ -10,10 +10,11 @@ import {
   InputBlock,
   Camera,
   RenderTargetTexture,
+  GroundMesh,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { initScene } from "./init-scene";
-import { IdGenerator } from "@speed-dungeon/common";
+import { IdGenerator, InputLock } from "@speed-dungeon/common";
 import { updateDebugText } from "./model-manager/update-debug-text";
 import { ModelManager } from "./model-manager";
 import handleGameWorldError from "./handle-error";
@@ -24,6 +25,7 @@ import { ImageManager } from "./image-manager";
 import pixelationShader from "./pixelationNodeMaterial.json";
 import { ReplayTreeManager } from "./replay-tree-manager";
 import { ActionEntityManager } from "../scene-entities/action-entity-models";
+import { useGameStore } from "@/stores/game-store";
 
 export const LAYER_MASK_1 = 0x10000000;
 export const LAYER_MASK_ALL = 0xffffffff;
@@ -34,6 +36,7 @@ export class GameWorld {
   camera: ArcRotateCamera | null = null;
   portraitCamera: ArcRotateCamera;
   sun: Mesh;
+  ground: GroundMesh;
   // shadowGenerator: null | ShadowGenerator = null;
   mouse: Vector3 = new Vector3(0, 1, 0);
   debug: { debugRef: React.RefObject<HTMLUListElement> | null } = { debugRef: null };
@@ -62,7 +65,7 @@ export class GameWorld {
     this.scene = new Scene(this.engine);
 
     this.debug.debugRef = debugRef;
-    [this.camera, this.sun, this.groundTexture] = this.initScene();
+    [this.camera, this.sun, this.groundTexture, this.ground] = this.initScene();
     this.camera.layerMask = LAYER_MASK_ALL;
     this.defaultMaterials = createDefaultMaterials(this.scene);
     this.scene.activeCamera = this.camera;
@@ -106,7 +109,9 @@ export class GameWorld {
   updateGameWorld() {
     this.tickCounter += 1;
     this.updateDebugText();
-    if (this.replayTreeManager.currentTreeCompleted()) this.replayTreeManager.startNext();
+    if (this.replayTreeManager.currentTreeCompleted()) {
+      this.replayTreeManager.startNext();
+    }
     this.replayTreeManager.process();
 
     if (

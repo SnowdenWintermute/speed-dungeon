@@ -1,9 +1,11 @@
 import {
   CombatActionComponentConfig,
   CombatActionComposite,
+  CombatActionExecutionIntent,
   CombatActionName,
   CombatActionOrigin,
   FriendOrFoe,
+  TargetCategories,
 } from "../../index.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
@@ -19,7 +21,11 @@ import {
 } from "../../../hp-change-source-types.js";
 import { MagicalElement } from "../../../magical-elements.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
-import { AnimationType, DynamicAnimationName } from "../../../../app-consts.js";
+import {
+  AnimationType,
+  BASE_EXPLOSION_RADIUS,
+  DynamicAnimationName,
+} from "../../../../app-consts.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
@@ -48,6 +54,7 @@ import {
   ActionEntityBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
+import { ERROR_MESSAGES } from "../../../../errors/index.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...cloneDeep(GENERIC_TARGETING_PROPERTIES[TargetingPropertiesTypes.HostileSingle]),
@@ -58,7 +65,10 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
     ProhibitedTargetCombatantStates.Dead,
   ],
   autoTargetSelectionMethod: {
-    scheme: AutoTargetingScheme.Sides,
+    scheme: AutoTargetingScheme.WithinRadiusOfEntity,
+    radius: BASE_EXPLOSION_RADIUS,
+    validTargetCategories: TargetCategories.Any,
+    excludePrimaryTarget: true,
   },
 };
 
@@ -163,16 +173,20 @@ const config: CombatActionComponentConfig = {
   },
 
   getSpawnableEntity: (context) => {
-    // this action targets the sides, but we want to spawn the vfx on the center target
-    // so we'll clone and modify the action intent
-    const actionExecutionIntent = cloneDeep(context.tracker.actionExecutionIntent);
-    actionExecutionIntent.targets.type = CombatActionTargetType.Single;
+    // we just want to get the position of the primary target, even though they aren't
+    // going to be part of the final targets as calculated by the hit outcomes.
+    // to this end, we use the target as set on the triggered action user combatant shim
+    // by the action whenTriggered function
+    const selectedTarget =
+      context.combatantContext.combatant.combatantProperties.combatActionTarget;
+    if (selectedTarget === null)
+      throw new Error("expected action user to have a selected single target");
 
     const { party } = context.combatantContext;
     const targetingCalculator = new TargetingCalculator(context.combatantContext, null);
     const primaryTargetIdResult = targetingCalculator.getPrimaryTargetCombatant(
       party,
-      actionExecutionIntent
+      new CombatActionExecutionIntent(CombatActionName.IceBurst, selectedTarget)
     );
     if (primaryTargetIdResult instanceof Error) throw primaryTargetIdResult;
 
@@ -181,7 +195,7 @@ const config: CombatActionComponentConfig = {
     return {
       type: SpawnableEntityType.ActionEntity,
       actionEntity: {
-        entityProperties: { id: context.idGenerator.generate(), name: "explosion" },
+        entityProperties: { id: context.idGenerator.generate(), name: "ice burst" },
         actionEntityProperties: {
           position,
           name: ActionEntityName.IceBurst,

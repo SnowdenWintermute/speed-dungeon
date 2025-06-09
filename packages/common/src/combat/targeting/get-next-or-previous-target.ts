@@ -17,6 +17,8 @@ export default function getNextOrPreviousTarget(
 ): Error | CombatActionTarget {
   let newTargetResult: Error | string = new Error("No target was calculated");
   switch (currentTargets.type) {
+    case CombatActionTargetType.DistinctIds:
+      throw new Error("user should not be selecting this targeting type");
     case CombatActionTargetType.SingleAndSides:
     case CombatActionTargetType.Sides:
     case CombatActionTargetType.Single:

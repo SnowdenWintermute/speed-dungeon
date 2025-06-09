@@ -15,6 +15,7 @@ export interface Point {
 
 export type Milliseconds = number;
 export type Seconds = number;
+export type Meters = number;
 /** A number relative to 100 */
 export type Percentage = number;
 /** A number that is expected to be between 0 and 1 */

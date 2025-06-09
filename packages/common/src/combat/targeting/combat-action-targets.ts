@@ -3,6 +3,7 @@ import { FriendOrFoe } from "../combat-actions/targeting-schemes-and-categories.
 
 export enum CombatActionTargetType {
   Single,
+  DistinctIds,
   Sides,
   SingleAndSides,
   Group,
@@ -12,6 +13,11 @@ export enum CombatActionTargetType {
 interface CombatActionTargetSingle {
   type: CombatActionTargetType.Single;
   targetId: EntityId;
+}
+
+interface CombatActionTargetDistinctIds {
+  type: CombatActionTargetType.DistinctIds;
+  targetIds: EntityId[];
 }
 
 interface CombatActionTargetGroup {
@@ -35,6 +41,7 @@ interface CombatActionTargetSides {
 
 export type CombatActionTarget =
   | CombatActionTargetSingle
+  | CombatActionTargetDistinctIds
   | CombatActionTargetGroup
   | CombatActionTargetAll
   | CombatActionTargetSingleAndSides

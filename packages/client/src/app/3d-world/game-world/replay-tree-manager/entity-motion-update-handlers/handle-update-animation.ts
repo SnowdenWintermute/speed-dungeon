@@ -33,6 +33,7 @@ export function handleUpdateAnimation(
       // otherwise looping animation will finish at an arbitrary time and could set an unintended action to complete
       if (animation.timing.type === AnimationTimingType.Looping) return;
       updateCompletionTracker.setAnimationComplete();
+
       if (updateCompletionTracker.isComplete()) gameUpdate.isComplete = true;
       onComplete();
     },

@@ -1,3 +1,5 @@
+import { ModelActionType } from "@/app/3d-world/game-world/model-manager/model-actions";
+import { getGameWorld } from "@/app/3d-world/SceneManager";
 import { useGameStore } from "@/stores/game-store";
 import { useLobbyStore } from "@/stores/lobby-store";
 import {
@@ -20,6 +22,12 @@ export default function setUpBasicLobbyEventHandlers(
     mutateLobbyStore((state) => {
       state.websocketConnected = true;
     });
+
+    getGameWorld().modelManager.modelActionQueue.clear();
+    getGameWorld().modelManager.modelActionQueue.enqueueMessage({
+      type: ModelActionType.ClearAllModels,
+    });
+    getGameWorld().replayTreeManager.clear();
   });
 
   socket.on("disconnect", () => {
