@@ -11,9 +11,10 @@ import { CombatActionComponent, CombatActionUsabilityContext } from "./index.js"
 import { AUTO_TARGETING_FUNCTIONS } from "../targeting/auto-targeting/mapped-functions.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { CombatActionIntent } from "./combat-action-intent.js";
+import { Combatant } from "../../combatants/index.js";
 
 export interface CombatActionTargetingPropertiesConfig {
-  targetingSchemes: TargetingScheme[];
+  getTargetingSchemes: (user: Combatant) => TargetingScheme[];
   validTargetCategories: TargetCategories;
   autoTargetSelectionMethod: AutoTargetingSelectionMethod;
   prohibitedTargetCombatantStates: ProhibitedTargetCombatantStates[];
@@ -42,7 +43,7 @@ export enum TargetingPropertiesTypes {
 }
 
 const hostileSingle: CombatActionTargetingPropertiesConfig = {
-  targetingSchemes: [TargetingScheme.Single],
+  getTargetingSchemes: () => [TargetingScheme.Single],
   validTargetCategories: TargetCategories.Opponent,
   autoTargetSelectionMethod: { scheme: AutoTargetingScheme.UserSelected },
   prohibitedTargetCombatantStates: [ProhibitedTargetCombatantStates.Dead],
@@ -67,7 +68,7 @@ export const GENERIC_TARGETING_PROPERTIES: Record<
   [TargetingPropertiesTypes.HostileSingle]: hostileSingle,
   [TargetingPropertiesTypes.HostileArea]: {
     ...hostileSingle,
-    targetingSchemes: [TargetingScheme.Area],
+    getTargetingSchemes: () => [TargetingScheme.Area],
   },
   [TargetingPropertiesTypes.HostileCopyParent]: {
     ...hostileSingle,

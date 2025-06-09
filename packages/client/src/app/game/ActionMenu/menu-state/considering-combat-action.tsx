@@ -108,7 +108,11 @@ export class ConsideringCombatActionMenuState implements ActionMenuState {
       setAlert(combatActionProperties);
       return toReturn;
     }
-    if (combatActionProperties.targetingProperties.targetingSchemes.length <= 1) return toReturn;
+    if (
+      combatActionProperties.targetingProperties.getTargetingSchemes(focusedCharacterResult)
+        .length <= 1
+    )
+      return toReturn;
 
     const targetingSchemeHotkey = HOTKEYS.MAIN_2;
     const cycleTargetingSchemesButton = new ActionMenuButtonProperties(

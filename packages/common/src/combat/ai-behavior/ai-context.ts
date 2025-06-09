@@ -61,15 +61,15 @@ export class AIBehaviorContext {
     public battleOption: Battle | null // allow for ally AI controlled combatants doing things outside of combat
   ) {}
 
-  setConsideredActionTargetPairs(actionName: CombatActionName): Error | void {
+  setConsideredActionTargetPairs(user: Combatant, actionName: CombatActionName): Error | void {
     const action = COMBAT_ACTIONS[actionName];
-    for (const targetingScheme of action.targetingProperties.targetingSchemes) {
+    for (const targetingScheme of action.targetingProperties.getTargetingSchemes(user)) {
       switch (targetingScheme) {
         case TargetingScheme.Single:
           this.setConsideredSingleTargets(action);
           break;
         case TargetingScheme.Area:
-          this.setConsideredGroupTargets(action);
+          this.setConsideredGroupTargets(user, action);
           break;
         case TargetingScheme.All:
           const allTarget: CombatActionTarget = { type: CombatActionTargetType.All };
@@ -101,8 +101,9 @@ export class AIBehaviorContext {
     }
   }
 
-  setConsideredGroupTargets(action: CombatActionComponent) {
-    if (!action.targetingProperties.targetingSchemes.includes(TargetingScheme.Area)) return;
+  setConsideredGroupTargets(user: Combatant, action: CombatActionComponent) {
+    if (!action.targetingProperties.getTargetingSchemes(user).includes(TargetingScheme.Area))
+      return;
     const friendlyGroup = new CombatActionExecutionIntent(action.name, {
       type: CombatActionTargetType.Group,
       friendOrFoe: FriendOrFoe.Friendly,

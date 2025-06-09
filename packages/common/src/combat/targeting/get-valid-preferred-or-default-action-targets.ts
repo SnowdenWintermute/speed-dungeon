@@ -7,8 +7,10 @@ import {
   TargetingScheme,
 } from "../combat-actions/targeting-schemes-and-categories.js";
 import { CombatActionComponent } from "../combat-actions/index.js";
+import { Combatant } from "../../combatants/index.js";
 
 export function getValidPreferredOrDefaultActionTargets(
+  combatant: Combatant,
   playerOption: null | SpeedDungeonPlayer,
   combatAction: CombatActionComponent,
   allyIdsOption: null | string[],
@@ -25,8 +27,10 @@ export function getValidPreferredOrDefaultActionTargets(
     friendlySingle: preferredFriendlyOption,
   } = playerOption.targetPreferences;
 
+  const targetingSchemes = combatAction.targetingProperties.getTargetingSchemes(combatant);
+
   // IF SELECTED ACTION CONTAINS PREFERRED TARGETING SCHEME
-  if (combatAction.targetingProperties.targetingSchemes.includes(targetingSchemePreference)) {
+  if (targetingSchemes.includes(targetingSchemePreference)) {
     switch (targetingSchemePreference) {
       case TargetingScheme.Single:
         // IF PREFERENCE EXISTS SELECT IT IF VALID
@@ -81,12 +85,8 @@ export function getValidPreferredOrDefaultActionTargets(
 
   if (newTargets) return newTargets;
   // IF NO VALID TARGET IN PREFERRED SCHEME OR PREFERRED SCHEME NOT VALID GET ANY VALID TARGET
-  for (const targetingSchemeKey of combatAction.targetingProperties.targetingSchemes) {
-    console.log(
-      combatAction.name,
-      combatAction.targetingProperties.targetingSchemes,
-      targetingSchemeKey
-    );
+  for (const targetingSchemeKey of targetingSchemes) {
+    console.log(combatAction.name, targetingSchemes, targetingSchemeKey);
     const targetingScheme = targetingSchemeKey as TargetingScheme;
 
     switch (targetingScheme) {

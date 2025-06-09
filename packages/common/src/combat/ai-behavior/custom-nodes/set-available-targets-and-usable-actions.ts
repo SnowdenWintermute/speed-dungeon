@@ -94,7 +94,10 @@ export class SetAvailableTargetsAndUsableActions implements BehaviorNode {
             console.trace(actionPropertiesResult);
             return false;
           }
-          const maybeError = this.context.setConsideredActionTargetPairs(actionName);
+          const maybeError = this.context.setConsideredActionTargetPairs(
+            this.context.combatant,
+            actionName
+          );
           if (maybeError instanceof Error) {
             console.trace(maybeError);
             return false;
