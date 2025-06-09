@@ -13,7 +13,7 @@ stepsConfig.steps[ActionResolutionStepType.InitialPositioning] = {
   getCosmeticsEffectsToStart: (context) => {
     return [
       {
-        name: CosmeticEffectNames.FrostParticleAccumulation,
+        name: CosmeticEffectNames.FlameParticleAccumulation,
         parent: {
           sceneEntityIdentifier: {
             type: SceneEntityType.CharacterModel,
@@ -29,7 +29,7 @@ stepsConfig.steps[ActionResolutionStepType.FinalPositioning] = {
   ...stepsConfig.steps[ActionResolutionStepType.FinalPositioning],
   getCosmeticsEffectsToStop: (context) => [
     {
-      name: CosmeticEffectNames.FrostParticleAccumulation,
+      name: CosmeticEffectNames.FlameParticleAccumulation,
       sceneEntityIdentifier: {
         type: SceneEntityType.CharacterModel,
         entityId: context.combatantContext.combatant.entityProperties.id,

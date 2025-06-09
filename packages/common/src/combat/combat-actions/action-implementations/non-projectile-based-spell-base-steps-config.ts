@@ -42,7 +42,8 @@ export function getNonProjectileBasedSpellBaseStepsConfig() {
       },
       [ActionResolutionStepType.PayResourceCosts]: {},
       [ActionResolutionStepType.EvalOnUseTriggers]: {},
-      [ActionResolutionStepType.StartConcurrentSubActions]: {},
+      [ActionResolutionStepType.RollIncomingHitOutcomes]: {},
+      [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
 
       [ActionResolutionStepType.RecoveryMotion]: {
         getAnimation: (user, animationLengths) =>

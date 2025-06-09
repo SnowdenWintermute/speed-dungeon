@@ -6,7 +6,6 @@ import {
   EntityId,
   ERROR_MESSAGES,
   InputLock,
-  SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import battleResultActionCommandHandler from "./process-battle-result";
 import gameMessageActionCommandHandler from "./game-message";

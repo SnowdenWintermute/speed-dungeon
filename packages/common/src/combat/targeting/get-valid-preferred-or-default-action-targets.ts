@@ -33,6 +33,7 @@ export function getValidPreferredOrDefaultActionTargets(
   if (targetingSchemes.includes(targetingSchemePreference)) {
     switch (targetingSchemePreference) {
       case TargetingScheme.Single:
+        console.log("SINGLE");
         // IF PREFERENCE EXISTS SELECT IT IF VALID
         if (preferredCategoryOption !== null) {
           switch (preferredCategoryOption) {
@@ -52,9 +53,7 @@ export function getValidPreferredOrDefaultActionTargets(
         }
         // IF NO VALID PREFERRED SINGLE, GET ANY VALID SINGLE
         for (const category of iterateNumericEnum(FriendOrFoe)) {
-          if (newTargets) {
-            return newTargets;
-          }
+          if (newTargets) return newTargets;
 
           const idsOption = category === FriendOrFoe.Friendly ? allyIdsOption : opponentIdsOption;
           if (idsOption) {
@@ -107,7 +106,7 @@ export function getValidPreferredOrDefaultActionTargets(
     }
   }
 
-  if (!newTargets) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
+  if (newTargets === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_VALID_TARGETS);
   return newTargets;
 }
 
