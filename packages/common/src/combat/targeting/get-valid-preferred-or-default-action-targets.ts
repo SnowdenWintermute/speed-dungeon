@@ -83,17 +83,19 @@ export function getValidPreferredOrDefaultActionTargets(
   }
 
   if (newTargets) return newTargets;
+
   // IF NO VALID TARGET IN PREFERRED SCHEME OR PREFERRED SCHEME NOT VALID GET ANY VALID TARGET
   for (const targetingSchemeKey of targetingSchemes) {
-    console.log(combatAction.name, targetingSchemes, targetingSchemeKey);
-    const targetingScheme = targetingSchemeKey as TargetingScheme;
+    const targetingScheme = targetingSchemeKey;
 
     switch (targetingScheme) {
       case TargetingScheme.Single:
         for (const category of iterateNumericEnum(FriendOrFoe)) {
           const idsOption = category === FriendOrFoe.Friendly ? allyIdsOption : opponentIdsOption;
+
           if (idsOption)
             newTargets = getPreferredOrDefaultSingleTargetOption(idsOption[0] || null, idsOption);
+          if (newTargets) return newTargets;
         }
         break;
       case TargetingScheme.Area:
@@ -120,10 +122,9 @@ function getPreferredOrDefaultSingleTargetOption(
     if (idsToCheckOption) {
       if (idsToCheckOption.includes(preferredSingleTargetOption))
         toReturn = { type: CombatActionTargetType.Single, targetId: preferredSingleTargetOption };
-      else if (idsToCheckOption[0]) {
-        toReturn = { type: CombatActionTargetType.Single, targetId: idsToCheckOption[0] };
-      }
     }
+  } else if (idsToCheckOption && idsToCheckOption[0]) {
+    toReturn = { type: CombatActionTargetType.Single, targetId: idsToCheckOption[0] };
   }
 
   return toReturn;
